@@ -5,11 +5,11 @@
   "scripts": {},
   "private": true,
   "devDependencies": {
+    "@analogjs/platform": "^0.2.43",
     "@angular-devkit/core": "~17.1.0",
     "@nx/angular": "18.0.7",
     "@nx/js": "18.0.7",
     "@nx/workspace": "18.0.7",
     "nx": "18.0.7"
-  },
-  "dependencies": {}
+  }
 }
