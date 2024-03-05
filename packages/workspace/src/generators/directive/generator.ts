@@ -12,6 +12,18 @@ export async function directiveGenerator(tree: Tree, options: DirectiveGenerator
     },
   );
 
+  const indexPath = joinPathFragments(
+    'packages',
+    'ng-primitives',
+    options.primitive,
+    'src',
+    'index.ts',
+  );
+
+  const indexContent = tree.read(indexPath).toString('utf-8');
+  const newContent = `${indexContent}\nexport * from './${options.name}/${options.name}.directive';`;
+  tree.write(indexPath, newContent);
+
   await formatFiles(tree);
 }
 
