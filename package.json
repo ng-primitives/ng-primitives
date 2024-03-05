@@ -10,6 +10,8 @@
     "@nx/angular": "18.0.7",
     "@nx/js": "18.0.7",
     "@nx/workspace": "18.0.7",
-    "nx": "18.0.7"
+    "@trivago/prettier-plugin-sort-imports": "^4.3.0",
+    "nx": "18.0.7",
+    "prettier-plugin-organize-attributes": "^1.0.0"
   }
 }
