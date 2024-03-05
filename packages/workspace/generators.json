@@ -1,0 +1,24 @@
+{
+  "generators": {
+    "primitive": {
+      "factory": "./src/generators/primitive/generator",
+      "schema": "./src/generators/primitive/schema.json",
+      "description": "Generate a new primitive"
+    },
+    "directive": {
+      "factory": "./src/generators/directive/generator",
+      "schema": "./src/generators/directive/schema.json",
+      "description": "Create a new directive"
+    },
+    "config": {
+      "factory": "./src/generators/config/generator",
+      "schema": "./src/generators/config/schema.json",
+      "description": "Create a configuration provider."
+    },
+    "token": {
+      "factory": "./src/generators/token/generator",
+      "schema": "./src/generators/token/schema.json",
+      "description": "Generate a token for a directive to allow it to be injected into children"
+    }
+  }
+}

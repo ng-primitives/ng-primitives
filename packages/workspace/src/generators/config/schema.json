@@ -1,0 +1,18 @@
+{
+  "$schema": "http://json-schema.org/schema",
+  "$id": "Config",
+  "title": "",
+  "type": "object",
+  "properties": {
+    "entrypoint": {
+      "type": "string",
+      "description": "The entrypoint to add the config to.",
+      "$default": {
+        "$source": "argv",
+        "index": 1
+      },
+      "x-prompt": "What entrypoint should the config be added to?"
+    }
+  },
+  "required": ["entrypoint"]
+}

@@ -1,0 +1,27 @@
+{
+  "$schema": "http://json-schema.org/schema",
+  "$id": "Token",
+  "title": "",
+  "type": "object",
+  "properties": {
+    "directive": {
+      "type": "string",
+      "description": "The name of the directive to create a token for, e.g. avatar.",
+      "$default": {
+        "$source": "argv",
+        "index": 0
+      },
+      "x-prompt": "What directive would you like to create a token for?"
+    },
+    "entrypoint": {
+      "type": "string",
+      "description": "The entrypoint to add the token to.",
+      "$default": {
+        "$source": "argv",
+        "index": 1
+      },
+      "x-prompt": "What entrypoint should the token be added to?"
+    }
+  },
+  "required": ["directive", "entrypoint"]
+}

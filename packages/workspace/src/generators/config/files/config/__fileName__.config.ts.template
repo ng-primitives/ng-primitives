@@ -1,0 +1,22 @@
+import { InjectionToken, Provider, inject } from '@angular/core';
+
+export interface Ngp<%= className %>Config {
+}
+
+export const default<%= className %>Config: Ngp<%= className %>Config = {
+};
+
+export const Ngp<%= className %>ConfigToken = new InjectionToken<Ngp<%= className %>Config>('Ngp<%= className %>ConfigToken');
+
+export function provide<%= className %>Config(config: Partial<Ngp<%= className %>Config>): Provider[] {
+  return [
+    {
+      provide: Ngp<%= className %>ConfigToken,
+      useValue: { ...default<%= className %>Config, ...config },
+    },
+  ];
+}
+
+export function inject<%= className %>Config(): Ngp<%= className %>Config {
+  return inject(Ngp<%= className %>ConfigToken, { optional: true }) ?? default<%= className %>Config;
+}

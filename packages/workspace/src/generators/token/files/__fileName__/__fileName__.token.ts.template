@@ -1,0 +1,8 @@
+import { InjectionToken, inject } from '@angular/core';
+import type { Ngp<%= className %>Directive } from './<%= fileName %>.directive';
+
+export const Ngp<%= className %>Token = new InjectionToken<Ngp<%= className %>Directive>('Ngp<%= className %>Token');
+
+export function inject<%= className %>(): Ngp<%= className %>Directive {
+  return inject(Ngp<%= className %>Token);
+}
