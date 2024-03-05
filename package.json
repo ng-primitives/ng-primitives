@@ -1,0 +1,13 @@
+{
+  "name": "@ng-primitives/source",
+  "version": "0.0.0",
+  "license": "MIT",
+  "scripts": {},
+  "private": true,
+  "dependencies": {},
+  "devDependencies": {
+    "@nx/js": "18.0.7",
+    "@nx/workspace": "18.0.7",
+    "nx": "18.0.7"
+  }
+}
