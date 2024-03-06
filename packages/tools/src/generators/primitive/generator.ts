@@ -1,5 +1,6 @@
 import { librarySecondaryEntryPointGenerator } from '@nx/angular/generators';
 import { formatFiles, Tree } from '@nx/devkit';
+import { getPrimitiveIndex } from '../../utils';
 import { PrimitiveGeneratorSchema } from './schema';
 
 export async function primitiveGenerator(tree: Tree, options: PrimitiveGeneratorSchema) {
@@ -10,8 +11,7 @@ export async function primitiveGenerator(tree: Tree, options: PrimitiveGenerator
     skipModule: true,
   });
 
-  const indexPath = `libs/ng-primitives/${options.name}/src/index.ts`;
-  tree.write(indexPath, '');
+  tree.write(getPrimitiveIndex(tree, options.name), '');
 
   await formatFiles(tree);
 }
