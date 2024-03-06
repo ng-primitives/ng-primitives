@@ -16,6 +16,9 @@
     "baseUrl": ".",
     "paths": {
       "@ng-primitives/ng-primitives": ["packages/ng-primitives/src/index.ts"],
+      "@ng-primitives/ng-primitives/a11y": ["packages/ng-primitives/a11y/src/index.ts"],
+      "@ng-primitives/ng-primitives/checkbox": ["packages/ng-primitives/checkbox/src/index.ts"],
+      "@ng-primitives/ng-primitives/utils": ["packages/ng-primitives/utils/src/index.ts"],
       "@ng-primitives/tools": ["packages/tools/src/index.ts"]
     }
   },
