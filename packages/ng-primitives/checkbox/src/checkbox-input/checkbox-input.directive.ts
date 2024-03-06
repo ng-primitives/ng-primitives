@@ -10,6 +10,7 @@ import { injectCheckbox } from '../checkbox/checkbox.token';
   host: {
     type: 'checkbox',
     tabindex: '-1',
+    '[attr.aria-hidden]': 'true',
     '[checked]': 'checkbox.checked',
     '[disabled]': 'checkbox.disabled',
     '[required]': 'checkbox.required',
