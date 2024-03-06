@@ -29,6 +29,12 @@ dependencies:
   '@angular/router':
     specifier: ~17.2.0
     version: 17.2.3(@angular/common@17.2.3)(@angular/core@17.2.3)(@angular/platform-browser@17.2.3)(rxjs@7.8.1)
+  '@ng-icons/core':
+    specifier: ^27.2.0
+    version: 27.2.0
+  '@ng-icons/radix-icons':
+    specifier: ^27.2.0
+    version: 27.2.0
   '@nx/devkit':
     specifier: 18.0.7
     version: 18.0.7(nx@18.0.7)
@@ -4243,6 +4249,18 @@ packages:
       pump: 3.0.0
       tar-fs: 2.1.1
     dev: true
+
+  /@ng-icons/core@27.2.0:
+    resolution: {integrity: sha512-GDA769ItJPU4IGnwSa4wiSHKEM74UwzwpZmL897XpxLaFUHDaU6a0LL3h+kHTBdrDIiTgVFEsTaQ0alCO2L1IA==}
+    dependencies:
+      tslib: 2.6.2
+    dev: false
+
+  /@ng-icons/radix-icons@27.2.0:
+    resolution: {integrity: sha512-+7UIqXU4rRPMXg3pZLOyTa7UIecUmPPnx1lOHkAew4KdtopVISMm5PLz5qiH8khXdTW4bxtJH5oblGP8YKFG9g==}
+    dependencies:
+      tslib: 2.6.2
+    dev: false
 
   /@ngtools/webpack@17.2.3(@angular/compiler-cli@17.2.3)(typescript@5.3.3)(webpack@5.90.1):
     resolution: {integrity: sha512-+d5Q7/ctDHePYZXcg0GFwL/AbyEkPMHoCiT7pmLI0B0n87D/mYKK/qmVN1VANBrFLTuIe8RtcL0aJ9pw8HAxWA==}

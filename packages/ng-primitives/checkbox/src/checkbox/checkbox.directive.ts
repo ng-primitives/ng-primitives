@@ -5,27 +5,41 @@ import {
   Input,
   Output,
   booleanAttribute,
+  numberAttribute,
 } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
+import { uniqueId } from '@ng-primitives/ng-primitives/utils';
 import { NgpCheckboxToken } from './checkbox.token';
 
 @Directive({
-  selector: 'button[ngpCheckbox]',
+  selector: '[ngpCheckbox]',
   standalone: true,
   providers: [
     { provide: NgpCheckboxToken, useExisting: NgpCheckboxDirective },
     { provide: NG_VALUE_ACCESSOR, useExisting: NgpCheckboxDirective, multi: true },
   ],
   host: {
-    type: 'button',
     role: 'checkbox',
-    '[disabled]': 'disabled',
+    '[id]': 'id',
+    '[tabindex]': 'disabled ? -1 : tabindex',
     '[attr.aria-checked]': 'indeterminate ? "mixed" : checked',
     '[attr.data-disabled]': 'disabled ? "" : null',
     '[attr.data-state]': 'state',
   },
 })
 export class NgpCheckboxDirective implements ControlValueAccessor {
+  /**
+   * The id of the checkbox.
+   * @internal
+   */
+  @Input() id: string = uniqueId('ngp-checkbox');
+
+  /**
+   * The tabindex of the checkbox.
+   * @internal
+   */
+  @Input({ transform: numberAttribute }) tabindex: number = 0;
+
   /**
    * Defines whether the checkbox is checked.
    */
@@ -36,6 +50,11 @@ export class NgpCheckboxDirective implements ControlValueAccessor {
    */
   @Input({ alias: 'ngpCheckboxIndeterminate', transform: booleanAttribute })
   indeterminate: boolean = false;
+
+  /**
+   * Whether the checkbox is required.
+   */
+  @Input({ alias: 'ngpCheckboxRequired', transform: booleanAttribute }) required: boolean = false;
 
   /**
    * Defines whether the checkbox is disabled.
@@ -76,16 +95,15 @@ export class NgpCheckboxDirective implements ControlValueAccessor {
    */
   private onTouched?: () => void;
 
-  @HostListener('keydown', ['$event'])
-  onKeydown(event: KeyboardEvent): void {
+  @HostListener('keydown.enter', ['$event'])
+  protected onEnter(event: KeyboardEvent): void {
     // According to WAI ARIA, Checkboxes don't activate on enter keypress
-    if (event.key === 'Enter') {
-      event.preventDefault();
-    }
+    event.preventDefault();
   }
 
   @HostListener('click')
-  onClick(): void {
+  @HostListener('keydown.space')
+  toggle(): void {
     this.checked = this.indeterminate ? true : !this.checked;
     this.checkedChange.emit(this.checked);
     this.onChange?.(this.checked);
@@ -98,7 +116,7 @@ export class NgpCheckboxDirective implements ControlValueAccessor {
   }
 
   @HostListener('blur')
-  onBlur(): void {
+  protected onBlur(): void {
     this.onTouched?.();
   }
 

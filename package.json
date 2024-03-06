@@ -65,6 +65,8 @@
     "@angular/platform-browser": "~17.2.0",
     "@angular/platform-browser-dynamic": "~17.2.0",
     "@angular/router": "~17.2.0",
+    "@ng-icons/core": "^27.2.0",
+    "@ng-icons/radix-icons": "^27.2.0",
     "@nx/devkit": "18.0.7",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
