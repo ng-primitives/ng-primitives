@@ -35,5 +35,5 @@
       "x-prompt": "Would you like to add a token to the primitive?"
     }
   },
-  "required": ["name", "primitive", "addToken"]
+  "required": ["name", "primitive"]
 }

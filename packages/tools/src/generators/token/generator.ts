@@ -1,6 +1,6 @@
 import { formatFiles, generateFiles, names, Tree } from '@nx/devkit';
 import * as path from 'path';
-import { addExportToIndex, getPrimitivePath } from '../../utils';
+import { addExportToIndex, getPrimitiveSourceRoot } from '../../utils';
 import { TokenGeneratorSchema } from './schema';
 
 export async function tokenGenerator(tree: Tree, options: TokenGeneratorSchema) {
@@ -8,7 +8,7 @@ export async function tokenGenerator(tree: Tree, options: TokenGeneratorSchema) 
   // so we need to remove the Ngp and the Directive
   options.directive = options.directive.replace('Directive', '').replace('Ngp', '').toLowerCase();
 
-  const sourceRoot = getPrimitivePath(tree, options.primitive);
+  const sourceRoot = getPrimitiveSourceRoot(tree, options.primitive);
   generateFiles(tree, path.join(__dirname, 'files'), sourceRoot, {
     ...options,
     ...names(options.directive),
