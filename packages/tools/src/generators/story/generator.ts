@@ -8,7 +8,7 @@ export async function storyGenerator(tree: Tree, options: StoryGeneratorSchema) 
   generateFiles(tree, path.join(__dirname, 'files'), projectRoot, {
     ...options,
     ...names(options.primitive),
-    package: `@ng-primitives/ng-primitives/${options.primitive}`,
+    package: `../${names(options.directive).fileName}/${names(options.directive).fileName}.directive`,
     directive: `Ngp${names(options.directive).className}Directive`,
     selector: `ngp${names(options.directive).className}`,
   });
