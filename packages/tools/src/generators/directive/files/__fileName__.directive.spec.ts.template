@@ -1,0 +1,10 @@
+import { render } from '@testing-library/angular';
+import { Ngp<%= className %>Directive } from './<%= fileName %>.directive';
+
+describe('Ngp<%= className %>Directive', () => {
+  it('should initialise correctly', async () => {
+    const container = await render(`<div ngp<%= className %>></div>`, {
+      imports: [Ngp<%= className %>Directive],
+    });
+  });
+});

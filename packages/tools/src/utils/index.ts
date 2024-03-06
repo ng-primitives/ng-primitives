@@ -16,6 +16,6 @@ export function getPrimitiveIndex(tree: Tree, primitive: string): string {
 export function addExportToIndex(tree: Tree, primitive: string, exportStatement: string) {
   const indexPath = getPrimitiveIndex(tree, primitive);
   const indexContent = tree.read(indexPath).toString('utf-8');
-  const newContent = `${indexContent}\n${exportStatement}`;
+  const newContent = `${indexContent.trim()}\n${exportStatement}`;
   tree.write(indexPath, newContent);
 }
