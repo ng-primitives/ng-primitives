@@ -5,6 +5,10 @@ export function getPrimitivePath(tree: Tree, primitive: string): string {
   return `${libsDir}/${primitive}`;
 }
 
+export function getPrimitiveSourceRoot(tree: Tree, primitive: string): string {
+  return `${getPrimitivePath(tree, primitive)}/src`;
+}
+
 export function getPrimitiveIndex(tree: Tree, primitive: string): string {
   return `${getPrimitivePath(tree, primitive)}/src/index.ts`;
 }
