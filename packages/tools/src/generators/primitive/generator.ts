@@ -10,6 +10,9 @@ export async function primitiveGenerator(tree: Tree, options: PrimitiveGenerator
     skipModule: true,
   });
 
+  const indexPath = `libs/ng-primitives/${options.name}/src/index.ts`;
+  tree.write(indexPath, '');
+
   await formatFiles(tree);
 }
 

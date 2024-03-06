@@ -21,7 +21,13 @@
         "index": 1
       },
       "x-prompt": "What primitive should the directive be added to?"
+    },
+    "addToken": {
+      "type": "boolean",
+      "description": "Add a token for the directive. This allows injection of the component avoiding circular dependencies.",
+      "default": false,
+      "x-prompt": "Would you like to add a token to the primitive?"
     }
   },
-  "required": ["name", "primitive"]
+  "required": ["name", "primitive", "addToken"]
 }

@@ -8,6 +8,11 @@ export const default<%= className %>Config: Ngp<%= className %>Config = {
 
 export const Ngp<%= className %>ConfigToken = new InjectionToken<Ngp<%= className %>Config>('Ngp<%= className %>ConfigToken');
 
+/**
+ * Provide the default <%= className %> configuration
+ * @param config The <%= className %> configuration
+ * @returns The provider
+ */
 export function provide<%= className %>Config(config: Partial<Ngp<%= className %>Config>): Provider[] {
   return [
     {
@@ -17,6 +22,10 @@ export function provide<%= className %>Config(config: Partial<Ngp<%= className %
   ];
 }
 
+/**
+ * Inject the <%= className %> configuration
+ * @returns The global <%= className %> configuration
+ */
 export function inject<%= className %>Config(): Ngp<%= className %>Config {
   return inject(Ngp<%= className %>ConfigToken, { optional: true }) ?? default<%= className %>Config;
 }

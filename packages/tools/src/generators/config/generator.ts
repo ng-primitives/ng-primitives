@@ -1,19 +1,19 @@
 import { formatFiles, generateFiles, names, Tree } from '@nx/devkit';
 import * as path from 'path';
-import { addExportToIndex, getSourceRoot } from '../../utils';
+import { addExportToIndex, getPrimitivePath } from '../../utils';
 import { ConfigGeneratorSchema } from './schema';
 
 export async function configGenerator(tree: Tree, options: ConfigGeneratorSchema) {
-  const sourceRoot = getSourceRoot(tree, options.entrypoint);
+  const sourceRoot = getPrimitivePath(tree, options.primitive);
   generateFiles(tree, path.join(__dirname, 'files'), sourceRoot, {
     ...options,
-    ...names(options.entrypoint),
+    ...names(options.primitive),
   });
 
   addExportToIndex(
     tree,
-    options.entrypoint,
-    `export * from './config/${names(options.entrypoint).fileName}.config';`,
+    options.primitive,
+    `export * from './config/${names(options.primitive).fileName}.config';`,
   );
 
   await formatFiles(tree);

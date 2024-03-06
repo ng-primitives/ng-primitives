@@ -1,0 +1,10 @@
+import { Directive } from '@angular/core';
+<% if (addToken) { %>import { Ngp<%= className %>Token } from './<%= fileName %>.token';<% } %>
+
+@Directive({
+  standalone: true,
+  selector: '[ngp<%= className %>]',
+  exportAs: 'ngp<%= className %>',
+  <% if (addToken) { %>providers: [{ provide: Ngp<%= className %>Token, useExisting: Ngp<%= className %>Directive }]<% } %>
+})
+export class Ngp<%= className %>Directive {}

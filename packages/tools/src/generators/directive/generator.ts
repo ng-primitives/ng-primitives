@@ -1,4 +1,6 @@
 import { formatFiles, generateFiles, joinPathFragments, names, Tree } from '@nx/devkit';
+import { addExportToIndex } from '../../utils';
+import tokenGenerator from '../token/generator';
 import { DirectiveGeneratorSchema } from './schema';
 
 export async function directiveGenerator(tree: Tree, options: DirectiveGeneratorSchema) {
@@ -12,17 +14,18 @@ export async function directiveGenerator(tree: Tree, options: DirectiveGenerator
     },
   );
 
-  const indexPath = joinPathFragments(
-    'packages',
-    'ng-primitives',
+  addExportToIndex(
+    tree,
     options.primitive,
-    'src',
-    'index.ts',
+    `export * from './${options.name}/${options.name}.directive';`,
   );
 
-  const indexContent = tree.read(indexPath).toString('utf-8');
-  const newContent = `${indexContent}\nexport * from './${options.name}/${options.name}.directive';`;
-  tree.write(indexPath, newContent);
+  if (options.addToken) {
+    await tokenGenerator(tree, {
+      directive: options.name,
+      primitive: options.primitive,
+    });
+  }
 
   await formatFiles(tree);
 }

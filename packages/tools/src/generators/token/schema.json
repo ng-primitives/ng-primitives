@@ -13,15 +13,15 @@
       },
       "x-prompt": "What directive would you like to create a token for?"
     },
-    "entrypoint": {
+    "primitive": {
       "type": "string",
-      "description": "The entrypoint to add the token to.",
+      "description": "The primitive to add the token to.",
       "$default": {
         "$source": "argv",
         "index": 1
       },
-      "x-prompt": "What entrypoint should the token be added to?"
+      "x-prompt": "What primitive should the token be added to?"
     }
   },
-  "required": ["directive", "entrypoint"]
+  "required": ["directive", "primitive"]
 }

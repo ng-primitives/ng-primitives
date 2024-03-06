@@ -17,7 +17,7 @@
     "paths": {
       "@ng-primitives/ng-primitives": ["packages/ng-primitives/src/index.ts"],
       "@ng-primitives/ng-primitives/checkbox": ["packages/ng-primitives/checkbox/src/index.ts"],
-      "@ng-primitives/workspace": ["packages/workspace/src/index.ts"]
+      "@ng-primitives/tools": ["packages/tools/src/index.ts"]
     }
   },
   "exclude": ["node_modules", "tmp"]

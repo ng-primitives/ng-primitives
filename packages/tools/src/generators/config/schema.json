@@ -4,15 +4,15 @@
   "title": "",
   "type": "object",
   "properties": {
-    "entrypoint": {
+    "primitive": {
       "type": "string",
-      "description": "The entrypoint to add the config to.",
+      "description": "The primitive to add the config to.",
       "$default": {
         "$source": "argv",
         "index": 1
       },
-      "x-prompt": "What entrypoint should the config be added to?"
+      "x-prompt": "What primitive should the config be added to?"
     }
   },
-  "required": ["entrypoint"]
+  "required": ["primitive"]
 }
