@@ -22,6 +22,12 @@
       },
       "x-prompt": "What primitive should the directive be added to?"
     },
+    "addStories": {
+      "type": "boolean",
+      "description": "Add stories for the directive.",
+      "default": false,
+      "x-prompt": "Would you like to add stories for the directive?"
+    },
     "addToken": {
       "type": "boolean",
       "description": "Add a token for the directive. This allows injection of the component avoiding circular dependencies.",

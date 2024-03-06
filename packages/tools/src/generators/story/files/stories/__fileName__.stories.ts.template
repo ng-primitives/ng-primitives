@@ -1,0 +1,27 @@
+import type { Meta, StoryObj } from '@storybook/angular';
+import { argsToTemplate, moduleMetadata } from '@storybook/angular';
+import { <%= directive %> } from '<%= package %>';
+
+const meta: Meta<<%= directive %>> = {
+	title: '<%= className %>',
+	component: <%= directive %>,
+	argTypes: {},
+	decorators: [
+		moduleMetadata({
+			imports: [<%= directive %>],
+		}),
+	],
+	render: ({ ...args }) => ({
+		props: args,
+		template: `
+     <div <%= selector %> ${argsToTemplate(args)}></div>
+    `,
+	}),
+};
+
+export default meta;
+type Story = StoryObj<<%= directive %>>;
+
+export const Default: Story = {
+	args: {},
+};

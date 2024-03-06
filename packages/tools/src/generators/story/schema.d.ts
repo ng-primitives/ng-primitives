@@ -1,3 +1,4 @@
 export interface StoryGeneratorSchema {
-  name: string;
+  primitive: string;
+  directive: string;
 }

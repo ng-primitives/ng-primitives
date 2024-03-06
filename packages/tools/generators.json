@@ -25,11 +25,6 @@
       "schema": "./src/generators/story/schema.json",
       "description": "Create a new story for the primitive"
     },
-    "story-example": {
-      "factory": "./src/generators/story-example/generator",
-      "schema": "./src/generators/story-example/schema.json",
-      "description": "Create a new story for the primitive"
-    },
     "schematic": {
       "factory": "./src/generators/schematic/generator",
       "schema": "./src/generators/schematic/schema.json",
