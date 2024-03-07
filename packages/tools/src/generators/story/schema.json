@@ -4,15 +4,24 @@
   "title": "",
   "type": "object",
   "properties": {
-    "name": {
+    "primitive": {
       "type": "string",
       "description": "",
       "$default": {
         "$source": "argv",
         "index": 0
       },
-      "x-prompt": "What name would you like to use?"
+      "x-prompt": "What primitive would you like to add this story to?"
+    },
+    "directive": {
+      "type": "string",
+      "description": "",
+      "$default": {
+        "$source": "argv",
+        "index": 1
+      },
+      "x-prompt": "What directive would you like to create a story for?"
     }
   },
-  "required": ["name"]
+  "required": ["primitive", "directive"]
 }

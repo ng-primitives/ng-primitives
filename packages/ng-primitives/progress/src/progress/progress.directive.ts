@@ -30,6 +30,9 @@ export class NgpProgressDirective {
 
   /**
    * Define a function that returns the progress value label.
+   * @param value The current value
+   * @param max The maximum value
+   * @returns The value label
    */
   @Input('ngpProgressValueLabel') valueLabel: (value: number, max: number) => string = (
     value,

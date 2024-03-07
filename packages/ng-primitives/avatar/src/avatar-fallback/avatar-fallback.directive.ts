@@ -30,6 +30,7 @@ export class NgpAvatarFallbackDirective implements OnInit, OnDestroy {
 
   /**
    * Determine if this element should be hidden.
+   * @returns True if the element should be visible
    */
   protected get visible(): boolean {
     // we need to check if the element can render and if the avatar is not in a loaded state
