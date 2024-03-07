@@ -29,7 +29,9 @@ const meta: Meta<NgpCheckboxDirective> = {
      <div ngpCheckbox [(ngpCheckboxChecked)]="checked">
       <input ngpCheckboxInput />
       <span ngpCheckboxIndicator>
-        <ng-icon name="radixCheck"/>
+        @if (checked) {
+          <ng-icon name="radixCheck"/>
+        }
       </span>
       <label ngpCheckboxLabel>Accept terms and conditions</label>
      </div>
