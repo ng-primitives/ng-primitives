@@ -18,6 +18,7 @@ import { ResizeEvent } from '../utils/resize';
         align-items: center;
         justify-content: center;
         width: 100%;
+        min-width: 300px;
         height: 100px;
         border: 1px dashed rgba(0, 0, 0, 0.15);
         border-radius: 4px;

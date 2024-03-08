@@ -65,6 +65,7 @@
     "@angular/platform-browser": "~17.2.0",
     "@angular/platform-browser-dynamic": "~17.2.0",
     "@angular/router": "~17.2.0",
+    "@fontsource-variable/inter": "^5.0.17",
     "@ng-icons/core": "^27.2.0",
     "@ng-icons/radix-icons": "^27.2.0",
     "@nx/devkit": "18.0.7",

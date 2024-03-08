@@ -1,0 +1,21 @@
+@import '@fontsource-variable/inter/index.css';
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body.sb-show-main.sb-main-padded {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100vh;
+  background-image: linear-gradient(330deg, #8e4ec6 0, #3e63dd 100%);
+  padding-block: 100px;
+  font-family: 'Inter Variable', sans-serif;
+  font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
