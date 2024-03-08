@@ -22,7 +22,7 @@ export class NgpResizeDirective implements OnInit {
   private readonly element = inject<ElementRef<HTMLElement>>(ElementRef);
 
   /**
-   * Access NgZone.
+   * Access zone.js
    */
   private readonly ngZone = inject(NgZone);
 
@@ -37,11 +37,9 @@ export class NgpResizeDirective implements OnInit {
   @Output('ngpResize') readonly didResize = new EventEmitter<ResizeEvent>();
 
   ngOnInit(): void {
-    // oberve the element for resize events (outside of Zone.js)
-    this.ngZone.runOutsideAngular(() =>
-      fromResizeEvent(this.element.nativeElement)
-        .pipe(takeUntilDestroyed(this.destroyRef))
-        .subscribe(event => this.didResize.emit(event)),
-    );
+    // oberve the element for resize events
+    fromResizeEvent(this.element.nativeElement)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(event => this.ngZone.run(() => this.didResize.emit(event)));
   }
 }

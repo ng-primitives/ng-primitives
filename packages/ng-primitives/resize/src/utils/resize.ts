@@ -2,6 +2,8 @@ import { Observable } from 'rxjs';
 
 /**
  * A simple helper function to create a resize observer as an RxJS Observable.
+ * @param element The element to observe for resize events.
+ * @returns The resize event as an Observable.
  */
 export function fromResizeEvent(element: HTMLElement): Observable<ResizeEvent> {
   return new Observable(observer => {
