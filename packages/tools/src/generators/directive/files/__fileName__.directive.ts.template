@@ -1,6 +1,6 @@
 import { Directive } from '@angular/core';
 <% if (addToken) { %>import { Ngp<%= className %>Token } from './<%= fileName %>.token';<% } %>
-<% if (addConfig) { %>import { inject<%= className %>Config } from '../config/<%= fileName %>.config';<% } %>
+<% if (addConfig) { %>import { <%= configName %> } from '../config/<%= configFile %>';<% } %>
 
 @Directive({
   standalone: true,
@@ -9,5 +9,5 @@ import { Directive } from '@angular/core';
   <% if (addToken) { %>providers: [{ provide: Ngp<%= className %>Token, useExisting: Ngp<%= className %>Directive }]<% } %>
 })
 export class Ngp<%= className %>Directive {
-  <% if (addConfig) { private readonly config = inject<%= className %>Config; } %>
+  <% if (addConfig) { private readonly config = configName(); } %>
 }

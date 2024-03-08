@@ -13,6 +13,8 @@ export async function directiveGenerator(tree: Tree, options: DirectiveGenerator
     {
       ...options,
       ...names(options.name),
+      configName: `inject${names(options.primitive).className}Config`,
+      configFile: names(options.primitive).fileName + '.config',
     },
   );
 
