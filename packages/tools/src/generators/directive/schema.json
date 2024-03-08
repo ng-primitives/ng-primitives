@@ -33,6 +33,12 @@
       "description": "Add a token for the directive. This allows injection of the component avoiding circular dependencies.",
       "default": false,
       "x-prompt": "Would you like to add a token to the primitive?"
+    },
+    "addConfig": {
+      "type": "boolean",
+      "description": "Add a config for the directive.",
+      "default": false,
+      "x-prompt": "Would you like to add a config for the directive?"
     }
   },
   "required": ["name", "primitive"]

@@ -1,5 +1,6 @@
 import { formatFiles, generateFiles, joinPathFragments, names, Tree } from '@nx/devkit';
 import { addExportToIndex } from '../../utils';
+import configGenerator from '../config/generator';
 import storyGenerator from '../story/generator';
 import tokenGenerator from '../token/generator';
 import { DirectiveGeneratorSchema } from './schema';
@@ -31,6 +32,12 @@ export async function directiveGenerator(tree: Tree, options: DirectiveGenerator
   if (options.addToken) {
     await tokenGenerator(tree, {
       directive: options.name,
+      primitive: options.primitive,
+    });
+  }
+
+  if (options.addConfig) {
+    await configGenerator(tree, {
       primitive: options.primitive,
     });
   }
