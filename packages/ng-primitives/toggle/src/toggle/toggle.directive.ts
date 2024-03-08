@@ -9,6 +9,7 @@ import {
 
 @Directive({
   selector: 'button[ngpToggle]',
+  exportAs: 'ngpToggle',
   standalone: true,
   host: {
     type: 'button',
