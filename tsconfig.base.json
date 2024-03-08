@@ -22,6 +22,7 @@
       "@ng-primitives/ng-primitives/progress": ["packages/ng-primitives/progress/src/index.ts"],
       "@ng-primitives/ng-primitives/resize": ["packages/ng-primitives/resize/src/index.ts"],
       "@ng-primitives/ng-primitives/separator": ["packages/ng-primitives/separator/src/index.ts"],
+      "@ng-primitives/ng-primitives/tabs": ["packages/ng-primitives/tabs/src/index.ts"],
       "@ng-primitives/ng-primitives/toggle": ["packages/ng-primitives/toggle/src/index.ts"],
       "@ng-primitives/ng-primitives/utils": ["packages/ng-primitives/utils/src/index.ts"],
       "@ng-primitives/tools": ["packages/tools/src/index.ts"]
