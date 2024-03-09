@@ -7,6 +7,10 @@ import {
   input,
   model,
 } from '@angular/core';
+import {
+  NgpRovingFocusGroupDirective,
+  injectRovingFocusGroup,
+} from '@ng-primitives/ng-primitives/roving-focus';
 import { uniqueId } from '@ng-primitives/ng-primitives/utils';
 import { injectTabsConfig } from '../config/tabs.config';
 import { NgpTabPanelToken } from '../tab-panel/tab-panel.token';
@@ -17,6 +21,12 @@ import { NgpTabsetToken } from './tabset.token';
   selector: '[ngpTabset]',
   exportAs: 'ngpTabset',
   providers: [{ provide: NgpTabsetToken, useExisting: NgpTabsetDirective }],
+  hostDirectives: [
+    {
+      directive: NgpRovingFocusGroupDirective,
+      inputs: ['ngpRovingFocusGroupOrientation:ngpTabsetOrientation'],
+    },
+  ],
   host: {
     '[attr.id]': 'id()',
     '[attr.data-orientation]': 'orientation()',
@@ -27,6 +37,11 @@ export class NgpTabsetDirective {
    * Access the global tabset configuration
    */
   private readonly config = injectTabsConfig();
+
+  /**
+   * Access the roving focus group directive
+   */
+  private readonly rovingFocusGroup = injectRovingFocusGroup();
 
   /**
    * Define the id for the tabset
@@ -75,6 +90,11 @@ export class NgpTabsetDirective {
     // otherwise return the first tab
     return panels[0]?.value();
   });
+
+  constructor() {
+    // default the orientation to horizontal
+    this.rovingFocusGroup.orientation = this.orientation();
+  }
 
   /**
    * Select a tab by its value

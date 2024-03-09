@@ -1,6 +1,7 @@
+import { FocusOrigin } from '@angular/cdk/a11y';
 import { Directionality } from '@angular/cdk/bidi';
 import { BooleanInput } from '@angular/cdk/coercion';
-import { Directive, booleanAttribute, inject, input, signal } from '@angular/core';
+import { Directive, Input, booleanAttribute, computed, inject, input, signal } from '@angular/core';
 import { NgpRovingFocusItemDirective } from '../roving-focus-item/roving-focus-item.directive';
 import { NgpRovingFocusGroupToken } from './roving-focus-group.token';
 
@@ -18,16 +19,24 @@ export class NgpRovingFocusGroupDirective {
 
   /**
    * Determine the orientation of the roving focus group.
+   * @default 'vertical'
+   * @summary This does not use a signal as we need this to be programmatically settable when used as a host directive.
    */
-  readonly orientation = input<'horizontal' | 'vertical'>('vertical', {
-    alias: 'ngpRovingFocusGroupOrientation',
-  });
+  @Input({ alias: 'ngpRovingFocusGroupOrientation' }) orientation: 'horizontal' | 'vertical' =
+    'vertical';
 
   /**
    * Determine if focus should wrap when the end or beginning is reached.
    */
   readonly wrap = input<boolean>(true, {
     alias: 'ngpRovingFocusGroupWrap',
+  });
+
+  /**
+   * Determine if the home and end keys should navigate to the first and last items.
+   */
+  readonly homeEnd = input<boolean>(true, {
+    alias: 'ngpRovingFocusGroupHomeEnd',
   });
 
   /**
@@ -44,9 +53,15 @@ export class NgpRovingFocusGroupDirective {
   private readonly items = signal<NgpRovingFocusItemDirective[]>([]);
 
   /**
-   * Store the active item in the roving focus group.
+   * Get the items in the roving focus group sorted by order.
    */
-  private readonly activeItem = signal<NgpRovingFocusItemDirective | null>(null);
+  readonly sortedItems = computed(() => this.items().sort((a, b) => a.order() - b.order()));
+
+  /**
+   * Store the active item in the roving focus group.
+   * @internal
+   */
+  readonly activeItem = signal<NgpRovingFocusItemDirective | null>(null);
 
   /**
    * Register an item with the roving focus group.
@@ -55,6 +70,11 @@ export class NgpRovingFocusGroupDirective {
    */
   register(item: NgpRovingFocusItemDirective): void {
     this.items.update(items => [...items, item]);
+
+    // if there is no active item, activate the first item
+    if (!this.activeItem()) {
+      this.activateFirstItem('program');
+    }
   }
 
   /**
@@ -64,6 +84,120 @@ export class NgpRovingFocusGroupDirective {
    */
   unregister(item: NgpRovingFocusItemDirective): void {
     this.items.update(items => items.filter(i => i !== item));
+
+    // check if the unregistered item is the active item
+    if (this.activeItem() === item) {
+      this.activateFirstItem('program');
+    }
+  }
+
+  /**
+   * Activate an item in the roving focus group.
+   * @param item The item to activate
+   * @param origin The origin of the focus change
+   */
+  setActiveItem(item: NgpRovingFocusItemDirective | null, origin: FocusOrigin = 'program'): void {
+    this.activeItem.set(item);
+    item?.focus(origin);
+  }
+
+  /**
+   * Activate the first item in the roving focus group.
+   * @param origin The origin of the focus change
+   */
+  private activateFirstItem(origin: FocusOrigin): void {
+    // find the first item that is not disabled
+    const item = this.sortedItems().find(i => !i.disabled()) ?? null;
+
+    // set the first item as the active item
+    this.setActiveItem(item, origin);
+  }
+
+  /**
+   * Activate the last item in the roving focus group.
+   * @param origin The origin of the focus change
+   */
+  private activateLastItem(origin: FocusOrigin): void {
+    // find the last item that is not disabled
+    const item = [...this.sortedItems()].reverse().find(i => !i.disabled()) ?? null;
+
+    // set the last item as the active item
+    this.setActiveItem(item, origin);
+  }
+
+  /**
+   * Activate the next item in the roving focus group.
+   * @param origin The origin of the focus change
+   */
+  private activateNextItem(origin: FocusOrigin): void {
+    const activeItem = this.activeItem();
+
+    // if there is no active item, activate the first item
+    if (!activeItem) {
+      this.activateFirstItem(origin);
+      return;
+    }
+
+    // find the index of the active item
+    const index = this.sortedItems().indexOf(activeItem);
+
+    // find the next item that is not disabled
+    const item =
+      this.sortedItems()
+        .slice(index + 1)
+        .find(i => !i.disabled()) ?? null;
+
+    // if we are at the end of the list, wrap to the beginning
+    if (!item && this.wrap()) {
+      this.activateFirstItem(origin);
+      return;
+    }
+
+    // if there is no next item, do nothing
+    if (!item) {
+      return;
+    }
+
+    // set the next item as the active item
+    this.setActiveItem(item, origin);
+  }
+
+  /**
+   * Activate the previous item in the roving focus group.
+   * @param origin The origin of the focus change
+   */
+  private activatePreviousItem(origin: FocusOrigin): void {
+    const activeItem = this.activeItem();
+
+    // if there is no active item, activate the last item
+    if (!activeItem) {
+      this.activateLastItem(origin);
+      return;
+    }
+
+    // find the index of the active item
+    const index = this.sortedItems().indexOf(activeItem);
+
+    // find the previous item that is not disabled
+    const item =
+      this.sortedItems()
+        .slice(0, index)
+        .reverse()
+        .find(i => !i.disabled()) ?? null;
+
+    // if we are at the beginning of the list, wrap to the end
+    if (!item && this.wrap()) {
+      this.activateLastItem(origin);
+      return;
+    }
+
+    // if there is no previous item, do nothing
+    if (!item) {
+      return;
+    }
+
+    // set the previous item as the active item
+    this.setActiveItem(item, origin);
   }
 
   /**
@@ -74,6 +208,55 @@ export class NgpRovingFocusGroupDirective {
   onKeydown(event: KeyboardEvent): void {
     if (this.disabled()) {
       return;
+    }
+
+    switch (event.key) {
+      case 'ArrowUp':
+        if (this.orientation === 'vertical') {
+          event.preventDefault();
+          this.activatePreviousItem('keyboard');
+        }
+        break;
+      case 'ArrowDown':
+        if (this.orientation === 'vertical') {
+          event.preventDefault();
+          this.activateNextItem('keyboard');
+        }
+        break;
+      case 'ArrowLeft':
+        if (this.orientation === 'horizontal') {
+          event.preventDefault();
+
+          if (this.directionality.value === 'ltr') {
+            this.activatePreviousItem('keyboard');
+          } else {
+            this.activateNextItem('keyboard');
+          }
+        }
+        break;
+      case 'ArrowRight':
+        if (this.orientation === 'horizontal') {
+          event.preventDefault();
+
+          if (this.directionality.value === 'ltr') {
+            this.activateNextItem('keyboard');
+          } else {
+            this.activatePreviousItem('keyboard');
+          }
+        }
+        break;
+      case 'Home':
+        if (this.homeEnd()) {
+          event.preventDefault();
+          this.activateFirstItem('keyboard');
+        }
+        break;
+      case 'End':
+        if (this.homeEnd()) {
+          event.preventDefault();
+          this.activateLastItem('keyboard');
+        }
+        break;
     }
   }
 }

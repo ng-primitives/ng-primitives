@@ -4,7 +4,7 @@ import { NgpRovingFocusGroupDirective } from '../roving-focus-group/roving-focus
 import { NgpRovingFocusItemDirective } from '../roving-focus-item/roving-focus-item.directive';
 
 const meta: Meta<NgpRovingFocusGroupDirective> = {
-  title: 'RovingFocus',
+  title: 'Roving Focus',
   component: NgpRovingFocusGroupDirective,
   argTypes: {},
   decorators: [
@@ -21,6 +21,15 @@ const meta: Meta<NgpRovingFocusGroupDirective> = {
       <button ngpRovingFocusItem>Button 3</button>
      </div>
     `,
+    styles: [
+      `
+      [ngpRovingFocusGroup] {
+        display: flex;
+        flex-direction: column;
+        row-gap: 8px;
+      }
+    `,
+    ],
   }),
 };
 

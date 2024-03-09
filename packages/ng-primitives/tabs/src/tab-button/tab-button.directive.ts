@@ -1,5 +1,6 @@
 import { BooleanInput } from '@angular/cdk/coercion';
 import { Directive, HostListener, booleanAttribute, computed, input } from '@angular/core';
+import { NgpRovingFocusItemDirective } from '@ng-primitives/ng-primitives/roving-focus';
 import { injectTabset } from '../tabset/tabset.token';
 
 @Directive({
@@ -14,6 +15,7 @@ import { injectTabset } from '../tabset/tabset.token';
     '[attr.data-disabled]': 'disabled()',
     '[attr.data-orientation]': 'tabset.orientation()',
   },
+  hostDirectives: [NgpRovingFocusItemDirective],
 })
 export class NgpTabButtonDirective {
   /**
