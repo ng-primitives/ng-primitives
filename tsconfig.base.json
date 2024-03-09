@@ -25,6 +25,7 @@
         "packages/ng-primitives/roving-focus/src/index.ts"
       ],
       "@ng-primitives/ng-primitives/separator": ["packages/ng-primitives/separator/src/index.ts"],
+      "@ng-primitives/ng-primitives/switch": ["packages/ng-primitives/switch/src/index.ts"],
       "@ng-primitives/ng-primitives/tabs": ["packages/ng-primitives/tabs/src/index.ts"],
       "@ng-primitives/ng-primitives/toggle": ["packages/ng-primitives/toggle/src/index.ts"],
       "@ng-primitives/ng-primitives/utils": ["packages/ng-primitives/utils/src/index.ts"],
