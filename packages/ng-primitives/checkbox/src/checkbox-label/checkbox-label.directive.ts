@@ -6,7 +6,7 @@ import { injectCheckbox } from '../checkbox/checkbox.token';
   selector: '[ngpCheckboxLabel]',
   exportAs: 'ngpCheckboxLabel',
   host: {
-    '[attr.for]': 'checkbox.id',
+    '[attr.for]': 'checkbox.indicatorId()',
   },
 })
 export class NgpCheckboxLabelDirective {

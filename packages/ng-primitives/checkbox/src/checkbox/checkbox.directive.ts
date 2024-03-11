@@ -1,14 +1,16 @@
+import { BooleanInput } from '@angular/cdk/coercion';
 import {
   Directive,
-  EventEmitter,
   HostListener,
-  Input,
-  Output,
   booleanAttribute,
-  numberAttribute,
+  computed,
+  contentChild,
+  input,
+  model,
+  signal,
 } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
-import { uniqueId } from '@ng-primitives/ng-primitives/utils';
+import { NgpCheckboxIndicatorToken } from '../checkbox-indicator/checkbox-indicator.token';
 import { NgpCheckboxToken } from './checkbox.token';
 
 @Directive({
@@ -18,70 +20,72 @@ import { NgpCheckboxToken } from './checkbox.token';
     { provide: NgpCheckboxToken, useExisting: NgpCheckboxDirective },
     { provide: NG_VALUE_ACCESSOR, useExisting: NgpCheckboxDirective, multi: true },
   ],
-  host: {
-    role: 'checkbox',
-    '[id]': 'id',
-    '[tabindex]': 'disabled ? -1 : tabindex',
-    '[attr.aria-checked]': 'indeterminate ? "mixed" : checked',
-    '[attr.data-disabled]': 'disabled ? "" : null',
-    '[attr.data-state]': 'state',
-  },
 })
 export class NgpCheckboxDirective implements ControlValueAccessor {
   /**
-   * The id of the checkbox.
-   * @internal
-   */
-  @Input() id: string = uniqueId('ngp-checkbox');
-
-  /**
-   * The tabindex of the checkbox.
-   * @internal
-   */
-  @Input({ transform: numberAttribute }) tabindex: number = 0;
-
-  /**
    * Defines whether the checkbox is checked.
    */
-  @Input({ alias: 'ngpCheckboxChecked', transform: booleanAttribute }) checked: boolean = false;
+  readonly checked = model<boolean>(false, {
+    alias: 'ngpCheckboxChecked',
+  });
 
   /**
    * Defines whether the checkbox is indeterminate.
    */
-  @Input({ alias: 'ngpCheckboxIndeterminate', transform: booleanAttribute })
-  indeterminate: boolean = false;
+  readonly indeterminate = model<boolean>(false, {
+    alias: 'ngpCheckboxIndeterminate',
+  });
 
   /**
    * Whether the checkbox is required.
    */
-  @Input({ alias: 'ngpCheckboxRequired', transform: booleanAttribute }) required: boolean = false;
+  readonly required = input<boolean, BooleanInput>(false, {
+    alias: 'ngpCheckboxRequired',
+    transform: booleanAttribute,
+  });
 
   /**
    * Defines whether the checkbox is disabled.
    */
-  @Input({ alias: 'ngpCheckboxDisabled', transform: booleanAttribute }) disabled: boolean = false;
+  readonly inputDisabled = input<boolean, BooleanInput>(false, {
+    alias: 'ngpCheckboxDisabled',
+    transform: booleanAttribute,
+  });
 
   /**
-   * Event emitted when the checkbox checked state changes.
+   * Whether the checkbox is disabled by the form.
    */
-  @Output('ngpCheckboxCheckedChange') readonly checkedChange = new EventEmitter<boolean>();
+  private readonly formDisabled = signal<boolean>(false);
 
   /**
-   * Event emitted when the indeterminate state changes.
+   * Whether the checkbox is disabled.
    */
-  @Output('ngpCheckboxIndeterminateChange') readonly indeterminateChange =
-    new EventEmitter<boolean>();
+  readonly disabled = computed<boolean>(() => this.inputDisabled() || this.inputDisabled());
 
   /**
    * Determine the state
    * @returns 'checked' | 'unchecked' | 'indeterminate'
    */
-  protected get state(): 'checked' | 'unchecked' | 'indeterminate' {
-    if (this.indeterminate) {
+  readonly state = computed<'checked' | 'unchecked' | 'indeterminate'>(() => {
+    const checked = this.checked();
+
+    if (this.indeterminate()) {
       return 'indeterminate';
     }
-    return this.checked ? 'checked' : 'unchecked';
-  }
+
+    return checked ? 'checked' : 'unchecked';
+  });
+
+  /**
+   * Access the indicator instance
+   * @internal
+   */
+  protected readonly indicator = contentChild(NgpCheckboxIndicatorToken, { descendants: true });
+
+  /**
+   * Access the indicator id
+   */
+  readonly indicatorId = computed<string | null>(() => this.indicator()?.id() ?? null);
 
   /**
    * Store the callback function that should be called when the checkbox checked state changes.
@@ -101,17 +105,18 @@ export class NgpCheckboxDirective implements ControlValueAccessor {
     event.preventDefault();
   }
 
-  @HostListener('click')
-  @HostListener('keydown.space')
-  toggle(): void {
-    this.checked = this.indeterminate ? true : !this.checked;
-    this.checkedChange.emit(this.checked);
-    this.onChange?.(this.checked);
+  @HostListener('click', ['$event'])
+  @HostListener('keydown.space', ['$event'])
+  toggle(event?: Event): void {
+    // prevent this firing twice in cases where the label is clicked and the checkbox is clicked by the one event
+    event?.preventDefault();
+
+    this.checked.set(this.indeterminate() ? true : !this.checked());
+    this.onChange?.(this.checked());
 
     // if the checkbox was indeterminate, it isn't anymore
-    if (this.indeterminate) {
-      this.indeterminate = false;
-      this.indeterminateChange.emit(this.indeterminate);
+    if (this.indeterminate()) {
+      this.indeterminate.set(false);
     }
   }
 
@@ -126,7 +131,7 @@ export class NgpCheckboxDirective implements ControlValueAccessor {
    * @internal
    */
   writeValue(checked: boolean): void {
-    this.checked = checked;
+    this.checked.set(checked);
   }
 
   /**
@@ -153,6 +158,6 @@ export class NgpCheckboxDirective implements ControlValueAccessor {
    * @internal
    */
   setDisabledState(isDisabled: boolean): void {
-    this.disabled = isDisabled;
+    this.formDisabled.set(isDisabled);
   }
 }

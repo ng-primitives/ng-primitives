@@ -28,22 +28,23 @@ const meta: Meta<NgpCheckboxDirective> = {
     template: `
      <div ngpCheckbox [(ngpCheckboxChecked)]="checked">
       <input ngpCheckboxInput />
-      <span ngpCheckboxIndicator>
+      <button ngpCheckboxIndicator>
         @if (checked) {
           <ng-icon name="radixCheck"/>
         }
-      </span>
+      </button>
       <label ngpCheckboxLabel>Accept terms and conditions</label>
      </div>
     `,
     styles: [
       `
       [ngpCheckbox] {
-        display: inline-flex;
+        display: flex;
         align-items: center;
       }
 
       [ngpCheckboxIndicator] {
+        all: unset;
         background-color: white;
         width: 25px;
         height: 25px;
@@ -51,11 +52,23 @@ const meta: Meta<NgpCheckboxDirective> = {
         display: flex;
         align-items: center;
         justify-content: center;
-        border: 1px solid #d1d5db;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+        color: #6550b9;
+      }
+
+      [ngpCheckboxIndicator]:hover {
+        background-color: #f4f0fe;
+      }
+
+      [ngpCheckboxIndicator]:focus {
+        box-shadow: 0 0 0 2px black;
       }
 
       [ngpCheckboxLabel] {
+        color: white;
         padding-left: 15px;
+        font-size: 15px;
+        line-height: 1;
       }
     `,
     ],
@@ -65,8 +78,4 @@ const meta: Meta<NgpCheckboxDirective> = {
 export default meta;
 type Story = StoryObj<NgpCheckboxDirective>;
 
-export const Default: Story = {
-  args: {
-    checked: true,
-  },
-};
+export const Default: Story = {};
