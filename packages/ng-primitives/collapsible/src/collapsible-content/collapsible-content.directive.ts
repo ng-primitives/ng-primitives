@@ -12,6 +12,7 @@ import { NgpCollapsibleContentToken } from './collapsible-content.token';
     '[attr.data-state]': 'collapsible.open() ? "open" : "closed"',
     '[attr.data-disabled]': 'collapsible.disabled() ? "" : null',
     '[hidden]': '!collapsible.open()',
+    '[id]': 'id()',
   },
 })
 export class NgpCollapsibleContentDirective {
