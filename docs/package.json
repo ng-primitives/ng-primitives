@@ -1,0 +1,11 @@
+{
+  "name": "docs",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "serve": "mintlify dev"
+  },
+  "dependencies": {
+    "mintlify": "4.0.144"
+  }
+}

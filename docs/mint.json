@@ -1,0 +1,55 @@
+{
+  "$schema": "https://mintlify.com/schema.json",
+  "name": "Ng Primitives",
+  "logo": {
+    "dark": "/logo/dark.svg",
+    "light": "/logo/light.svg"
+  },
+  "favicon": "/favicon.png",
+  "backgroundImage": "/images/background.png",
+  "colors": {
+    "primary": "#f60661",
+    "light": "#ffafbd",
+    "dark": "#06A6D1",
+    "background": {
+      "dark": "#010009"
+    },
+    "anchors": {
+      "from": "#FF7F57",
+      "to": "#9563FF"
+    }
+  },
+  "modeToggle": {
+    "default": "dark",
+    "isHidden": true
+  },
+  "topbarLinks": [
+  ],
+  "tabs": [
+
+  ],
+  "anchors": [
+
+  ],
+  "navigation": [
+    {
+      "group": "Get Started",
+      "pages": ["introduction", "quickstart"]
+    },
+    {
+      "group": "Primitives",
+      "pages": [
+        "primitives/avatar",
+        "primitives/checkbox",
+        "primitives/progress",
+        "primitives/radio",
+        "primitives/resize",
+        "primitives/switch"
+      ]
+    }
+  ],
+  "footerSocials": {
+    "twitter": "https://twitter.com/ashh640",
+    "github": "https://github.com/ng-primitives/ng-primitives"
+  }
+}

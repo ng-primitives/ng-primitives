@@ -1,0 +1,7 @@
+{
+  "$schema": "../node_modules/@compodoc/compodoc/src/config/schema.json",
+  "tsconfig": "docs/tsconfig.docs.json",
+  "exportFormat": "json",
+  "output": "docs",
+  "disableLifeCycleHooks": true
+}

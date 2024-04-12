@@ -1,0 +1,4 @@
+{
+  "include": ["../packages/ng-primitives/**/*.ts"],
+  "exclude": ["../packages/ng-primitives/test.ts", "../packages/ng-primitives/**/*.spec.ts"]
+}
