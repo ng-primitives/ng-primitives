@@ -16,59 +16,20 @@ const meta: Meta<NgpAvatarDirective> = {
   render: ({ ...args }) => ({
     props: args,
     template: `
-     <div ngpAvatar>
-        <img ngpAvatarImage src="https://images.unsplash.com/photo-1492633423870-43d1cd2775eb?&w=128&h=128&dpr=2&q=80" alt="Avatar" />
-     </div>
+    <div class="flex gap-5">
+      <div ngpAvatar class="inline-flex items-center justify-center overflow-hidden select-none w-12 h-12 rounded-full bg-white/5">
+          <img ngpAvatarImage class="w-full h-full object-cover rounded-full" src="https://images.unsplash.com/photo-1492633423870-43d1cd2775eb?&w=128&h=128&dpr=2&q=80" alt="Avatar" />
+      </div>
 
-     <div ngpAvatar>
-        <img ngpAvatarImage src="https://images.unsplash.com/photo-1511485977113-f34c92461ad9?ixlib=rb-1.2.1&w=128&h=128&dpr=2&q=80" alt="Avatar" />
-     </div>
+      <div ngpAvatar class="inline-flex items-center justify-center overflow-hidden select-none w-12 h-12 rounded-full bg-white/5">
+          <img ngpAvatarImage class="w-full h-full object-cover rounded-full" src="https://images.unsplash.com/photo-1511485977113-f34c92461ad9?ixlib=rb-1.2.1&w=128&h=128&dpr=2&q=80" alt="Avatar" />
+      </div>
 
-     <div ngpAvatar>
-        <span ngpAvatarFallback>PD</span>
+      <div ngpAvatar class="inline-flex items-center justify-center overflow-hidden select-none w-12 h-12 rounded-full bg-white/5">
+          <span ngpAvatarFallback class="w-full h-full bg-white flex items-center justify-center text-blue-500 text-base font-medium">PD</span>
+      </div>
      </div>
     `,
-    styles: [
-      `
-      :host {
-        display: flex;
-        gap: 20px;
-      }
-
-      [ngpAvatar] {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        vertical-align: middle;
-        overflow: hidden;
-        user-select: none;
-        width: 45px;
-        height: 45px;
-        border-radius: 100%;
-        background-color: rgba(0, 0, 0, 0.05);
-      }
-
-      [ngpAvatarImage] {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-        border-radius: inherit;
-      }
-
-      [ngpAvatarFallback] {
-        width: 100%;
-        height: 100%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        background-color: white;
-        color: rgb(101, 80, 185);
-        font-size: 15px;
-        line-height: 1;
-        font-weight: 500;
-      }
-    `,
-    ],
   }),
 };
 

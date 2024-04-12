@@ -23,14 +23,9 @@
     "default": "dark",
     "isHidden": true
   },
-  "topbarLinks": [
-  ],
-  "tabs": [
-
-  ],
-  "anchors": [
-
-  ],
+  "topbarLinks": [],
+  "tabs": [],
+  "anchors": [],
   "navigation": [
     {
       "group": "Get Started",

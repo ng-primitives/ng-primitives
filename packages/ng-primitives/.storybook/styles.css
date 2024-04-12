@@ -14,5 +14,5 @@ body.sb-show-main.sb-main-padded {
   font-family: 'Inter Variable', sans-serif;
   font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
   @apply flex h-screen w-full items-center justify-center p-10 font-sans antialiased;
-  @apply bg-gradient-to-r from-blue-400 to-blue-500;
+  @apply rounded-xl border border-gray-800/50 bg-[#08060B] text-white;
 }
