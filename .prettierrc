@@ -7,5 +7,9 @@
   "importOrder": ["^[./]"],
   "importOrderSeparation": false,
   "importOrderParserPlugins": ["typescript", "jsx", "classProperties", "decorators-legacy"],
-  "plugins": ["@trivago/prettier-plugin-sort-imports", "prettier-plugin-organize-attributes"]
+  "plugins": [
+    "@trivago/prettier-plugin-sort-imports",
+    "prettier-plugin-organize-attributes",
+    "prettier-plugin-tailwindcss"
+  ]
 }

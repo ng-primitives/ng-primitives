@@ -49,7 +49,7 @@ const meta: Meta<NgpAccordionDirective<string>> = {
 };
 
 export default meta;
-type Story = StoryObj<NgpAccordionDirective>;
+type Story = StoryObj<NgpAccordionDirective<string>>;
 
 export const Default: Story = {
   args: {},

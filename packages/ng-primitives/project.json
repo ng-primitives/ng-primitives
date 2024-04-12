@@ -10,7 +10,8 @@
       "executor": "@nx/angular:package",
       "outputs": ["{workspaceRoot}/dist/{projectRoot}"],
       "options": {
-        "project": "packages/ng-primitives/ng-package.json"
+        "project": "packages/ng-primitives/ng-package.json",
+        "tailwindConfig": "packages/ng-primitives/tailwind.config.js"
       },
       "configurations": {
         "production": {
@@ -24,12 +25,12 @@
     },
     "storybook": {
       "options": {
-        "styles": ["packages/ng-primitives/.storybook/styles.scss"]
+        "styles": ["packages/ng-primitives/.storybook/styles.css"]
       }
     },
     "build-storybook": {
       "options": {
-        "styles": ["packages/ng-primitives/.storybook/styles.scss"]
+        "styles": ["packages/ng-primitives/.storybook/styles.css"]
       }
     }
   }
