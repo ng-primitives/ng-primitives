@@ -55,7 +55,15 @@ export class NgpRovingFocusGroupDirective {
   /**
    * Get the items in the roving focus group sorted by order.
    */
-  readonly sortedItems = computed(() => this.items().sort((a, b) => a.order() - b.order()));
+  readonly sortedItems = computed(() =>
+    this.items().sort((a, b) => {
+      // sort the items by their position in the document
+      return a.elementRef.nativeElement.compareDocumentPosition(b.elementRef.nativeElement) &
+        Node.DOCUMENT_POSITION_FOLLOWING
+        ? -1
+        : 1;
+    }),
+  );
 
   /**
    * Store the active item in the roving focus group.

@@ -1,5 +1,5 @@
 import { FocusMonitor, FocusOrigin } from '@angular/cdk/a11y';
-import { BooleanInput, NumberInput } from '@angular/cdk/coercion';
+import { BooleanInput } from '@angular/cdk/coercion';
 import {
   Directive,
   ElementRef,
@@ -10,7 +10,6 @@ import {
   computed,
   inject,
   input,
-  numberAttribute,
 } from '@angular/core';
 import { injectRovingFocusGroup } from '../roving-focus-group/roving-focus-group.token';
 import { NgpRovingFocusItemToken } from './roving-focus-item.token';
@@ -38,15 +37,7 @@ export class NgpRovingFocusItemDirective implements OnInit, OnDestroy {
   /**
    * Access the element the roving focus item is attached to.
    */
-  private readonly elementRef = inject<ElementRef<HTMLElement>>(ElementRef);
-
-  /**
-   * Define the order of the roving focus item in the group.
-   */
-  readonly order = input<number, NumberInput>(0, {
-    alias: 'ngpRovingFocusItemOrder',
-    transform: numberAttribute,
-  });
+  readonly elementRef = inject<ElementRef<HTMLElement>>(ElementRef);
 
   /**
    * Define if the item is disabled.

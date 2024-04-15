@@ -15,21 +15,33 @@ const meta: Meta<NgpRovingFocusGroupDirective> = {
   render: ({ ...args }) => ({
     props: args,
     template: `
-     <div ngpRovingFocusGroup>
-      <button ngpRovingFocusItem>Button 1</button>
-      <button ngpRovingFocusItem>Button 2</button>
-      <button ngpRovingFocusItem>Button 3</button>
+     <div ngpRovingFocusGroup class="flex flex-col bg-white rounded-lg divide-neutral-200 divide-y">
+      <button ngpRovingFocusItem class="flex flex-col text-start p-4 outline-none focus:ring-2 ring-blue-400 rounded-t-lg focus:z-10">
+        <h2 class="text-neutral-900 text-sm font-medium mb-2">Section heading One</h2>
+        <p class="text-neutral-600 text-sm">
+          Lorem ipsum dolor sit amet consectetur adipisicing elit. Atque, nulla aut. Tenetur,
+          deserunt praesentium aut voluptates obcaecati ea quas incidunt, enim dolore perferendis
+          asperiores perspiciatis laudantium id dicta! Distinctio, consequuntur.
+        </p>
+      </button>
+      <button ngpRovingFocusItem class="flex flex-col text-start p-4 outline-none focus:ring-2 ring-blue-400 focus:z-10">
+        <h2 class="text-neutral-900 text-sm font-medium mb-2">Section heading Two</h2>
+        <p class="text-neutral-600 text-sm">
+          Lorem ipsum dolor sit amet consectetur adipisicing elit. Atque, nulla aut. Tenetur,
+          deserunt praesentium aut voluptates obcaecati ea quas incidunt, enim dolore perferendis
+          asperiores perspiciatis laudantium id dicta! Distinctio, consequuntur.
+        </p>
+      </button>
+      <button ngpRovingFocusItem class="flex flex-col text-start p-4 outline-none focus:ring-2 ring-blue-400 rounded-b-lg focus:z-10">
+        <h2 class="text-neutral-900 text-sm font-medium mb-2">Section heading Three</h2>
+        <p class="text-neutral-600 text-sm">
+          Lorem ipsum dolor sit amet consectetur adipisicing elit. Atque, nulla aut. Tenetur,
+          deserunt praesentium aut voluptates obcaecati ea quas incidunt, enim dolore perferendis
+          asperiores perspiciatis laudantium id dicta! Distinctio, consequuntur.
+        </p>
+      </button>
      </div>
     `,
-    styles: [
-      `
-      [ngpRovingFocusGroup] {
-        display: flex;
-        flex-direction: column;
-        row-gap: 8px;
-      }
-    `,
-    ],
   }),
 };
 
