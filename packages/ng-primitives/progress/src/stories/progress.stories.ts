@@ -15,28 +15,10 @@ const meta: Meta<NgpProgressDirective> = {
   render: ({ ...args }) => ({
     props: args,
     template: `
-     <div ngpProgress [(ngpProgressValue)]="value">
-        <div ngpProgressIndicator [style.width.%]="value"></div>
+     <div ngpProgress [(ngpProgressValue)]="value" class="relative overflow-hidden bg-white/5 rounded-lg w-80 h-6 border border-white/10">
+        <div ngpProgressIndicator class="bg-blue-400 h-full transition-all" [style.width.%]="value"></div>
      </div>
     `,
-    styles: [
-      `
-      [ngpProgress] {
-        position: relative;
-        overflow: hidden;
-        background: rgba(0, 0, 0, 0.5);
-        border-radius: 99999px;
-        width: 300px;
-        height: 25px;
-      }
-
-      [ngpProgressIndicator] {
-        background-color: cornflowerblue;
-        height: 100%;
-        transition: width 660ms cubic-bezier(0.65, 0, 0.35, 1);
-      }
-      `,
-    ],
   }),
 };
 

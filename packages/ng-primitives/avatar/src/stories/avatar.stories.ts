@@ -26,7 +26,7 @@ const meta: Meta<NgpAvatarDirective> = {
       </div>
 
       <div ngpAvatar class="inline-flex items-center justify-center overflow-hidden select-none w-12 h-12 rounded-full bg-white/5">
-          <span ngpAvatarFallback class="w-full h-full bg-white flex items-center justify-center text-blue-500 text-base font-medium">PD</span>
+          <span ngpAvatarFallback class="w-full h-full bg-white flex items-center justify-center text-gray-800 text-base font-medium">PD</span>
       </div>
      </div>
     `,

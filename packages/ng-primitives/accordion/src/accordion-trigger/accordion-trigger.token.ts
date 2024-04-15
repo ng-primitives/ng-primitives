@@ -7,6 +7,7 @@ export const NgpAccordionTriggerToken = new InjectionToken<NgpAccordionTriggerDi
 
 /**
  * Inject the AccordionTrigger directive instance
+ * @returns The AccordionTrigger directive instance
  */
 export function injectAccordionTrigger(): NgpAccordionTriggerDirective {
   return inject(NgpAccordionTriggerToken);

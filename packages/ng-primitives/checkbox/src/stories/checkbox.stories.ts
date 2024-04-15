@@ -26,52 +26,17 @@ const meta: Meta<NgpCheckboxDirective> = {
   render: ({ ...args }) => ({
     props: args,
     template: `
-     <div ngpCheckbox [(ngpCheckboxChecked)]="checked">
+     <div ngpCheckbox [(ngpCheckboxChecked)]="checked" class="flex items-center gap-x-4 group select-none">
       <input ngpCheckboxInput />
-      <button ngpCheckboxIndicator>
+
+      <button ngpCheckboxIndicator class="bg-white size-6 rounded flex items-center justify-center group-hover:bg-blue-50 outline-none ring-offset-2 focus-visible:ring ring-blue-400 transition-shadow">
         @if (checked) {
-          <ng-icon name="radixCheck"/>
+          <ng-icon name="radixCheck" class="text-neutral-700 text-xl" />
         }
       </button>
-      <label ngpCheckboxLabel>Accept terms and conditions</label>
+      <label ngpCheckboxLabel class="text-white">Accept terms and conditions</label>
      </div>
     `,
-    styles: [
-      `
-      [ngpCheckbox] {
-        display: flex;
-        align-items: center;
-      }
-
-      [ngpCheckboxIndicator] {
-        all: unset;
-        background-color: white;
-        width: 25px;
-        height: 25px;
-        border-radius: 4px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
-        color: #6550b9;
-      }
-
-      [ngpCheckboxIndicator]:hover {
-        background-color: #f4f0fe;
-      }
-
-      [ngpCheckboxIndicator]:focus {
-        box-shadow: 0 0 0 2px black;
-      }
-
-      [ngpCheckboxLabel] {
-        color: white;
-        padding-left: 15px;
-        font-size: 15px;
-        line-height: 1;
-      }
-    `,
-    ],
   }),
 };
 

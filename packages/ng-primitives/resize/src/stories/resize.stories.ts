@@ -9,24 +9,13 @@ import { ResizeEvent } from '../utils/resize';
   selector: 'ngp-resize-example',
   imports: [NgpResizeDirective],
   template: `
-    <div (ngpResize)="dimensions = $event">{{ dimensions.width }}x{{ dimensions.height }}</div>
+    <div
+      class="flex h-24 min-h-12 w-full min-w-60 resize items-center justify-center overflow-hidden rounded border border-dashed border-blue-300"
+      (ngpResize)="dimensions = $event"
+    >
+      {{ dimensions.width }}x{{ dimensions.height }}
+    </div>
   `,
-  styles: [
-    `
-      div {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        width: 100%;
-        min-width: 300px;
-        height: 100px;
-        border: 1px dashed rgba(0, 0, 0, 0.15);
-        border-radius: 4px;
-        resize: both;
-        overflow: hidden;
-      }
-    `,
-  ],
 })
 export class ResizeExampleComponent {
   dimensions: ResizeEvent = { width: 0, height: 0 };

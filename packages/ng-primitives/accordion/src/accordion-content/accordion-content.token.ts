@@ -7,6 +7,7 @@ export const NgpAccordionContentToken = new InjectionToken<NgpAccordionContentDi
 
 /**
  * Inject the AccordionContent directive instance
+ * @returns The AccordionContent directive instance
  */
 export function injectAccordionContent(): NgpAccordionContentDirective {
   return inject(NgpAccordionContentToken);
