@@ -24,6 +24,7 @@
         "packages/ng-primitives/collapsible/src/index.ts"
       ],
       "@ng-primitives/ng-primitives/progress": ["packages/ng-primitives/progress/src/index.ts"],
+      "@ng-primitives/ng-primitives/radio": ["packages/ng-primitives/radio/src/index.ts"],
       "@ng-primitives/ng-primitives/resize": ["packages/ng-primitives/resize/src/index.ts"],
       "@ng-primitives/ng-primitives/roving-focus": [
         "packages/ng-primitives/roving-focus/src/index.ts"
