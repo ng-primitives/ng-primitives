@@ -24,6 +24,11 @@
       "factory": "./src/generators/schematic/generator",
       "schema": "./src/generators/schematic/schema.json",
       "description": "Create a new schematic for the primitive"
+    },
+    "example": {
+      "factory": "./src/generators/example/generator",
+      "schema": "./src/generators/example/schema.json",
+      "description": "Generate an example page"
     }
   }
 }

@@ -1,0 +1,27 @@
+{
+  "$schema": "https://json-schema.org/schema",
+  "$id": "Example",
+  "title": "",
+  "type": "object",
+  "properties": {
+    "directive": {
+      "type": "string",
+      "description": "",
+      "$default": {
+        "$source": "argv",
+        "index": 0
+      },
+      "x-prompt": "What directive are you creating an example for?"
+    },
+    "primitive": {
+      "type": "string",
+      "description": "",
+      "$default": {
+        "$source": "argv",
+        "index": 1
+      },
+      "x-prompt": "What primitive does this example belong to?"
+    }
+  },
+  "required": ["directive"]
+}

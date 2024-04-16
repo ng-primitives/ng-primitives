@@ -22,11 +22,11 @@
       },
       "x-prompt": "What primitive should the directive be added to?"
     },
-    "addStories": {
+    "addExample": {
       "type": "boolean",
-      "description": "Add stories for the directive.",
+      "description": "Add an example for the directive.",
       "default": false,
-      "x-prompt": "Would you like to add stories for the directive?"
+      "x-prompt": "Would you like to add an example for the directive?"
     },
     "addToken": {
       "type": "boolean",
