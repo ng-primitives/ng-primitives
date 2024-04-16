@@ -19,10 +19,10 @@ export async function exampleGenerator(tree: Tree, options: ExampleGeneratorSche
   addRoute(
     tree,
     appRoutesPath,
-    `/${options.primitive}/${options.directive}`,
-    true,
-    `${nameVariants.className}Example`,
-    `./examples/${options.primitive}/${options.directive}.example`,
+    `{
+    path: '${options.primitive}/${options.directive}',
+    loadChildren: () => import('./examples/${options.primitive}/${options.primitive}.example')
+  }`,
   );
 
   await formatFiles(tree);

@@ -23,5 +23,5 @@
       "x-prompt": "What primitive does this example belong to?"
     }
   },
-  "required": ["directive"]
+  "required": ["directive", "primitive"]
 }

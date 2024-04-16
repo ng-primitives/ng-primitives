@@ -115,6 +115,9 @@ devDependencies:
   '@nx/workspace':
     specifier: 18.2.4
     version: 18.2.4(@swc-node/register@1.8.0)(@swc/core@1.3.107)
+  '@phenomnomnominal/tsquery':
+    specifier: ^6.1.3
+    version: 6.1.3(typescript@5.4.5)
   '@playwright/test':
     specifier: ^1.36.0
     version: 1.43.1
@@ -4215,6 +4218,16 @@ packages:
       typescript: 5.4.5
     dev: true
 
+  /@phenomnomnominal/tsquery@6.1.3(typescript@5.4.5):
+    resolution: {integrity: sha512-CEqpJ872StsxRmwv9ePCZ4BCisrJSlREUC5XxIRYxhvODt4aQoJFFmjTgaP6meyKiiXxxN/VWPZ58j4yHXRkmw==}
+    peerDependencies:
+      typescript: ^3 || ^4 || ^5
+    dependencies:
+      '@types/esquery': 1.5.3
+      esquery: 1.5.0
+      typescript: 5.4.5
+    dev: true
+
   /@pkgjs/parseargs@0.11.0:
     resolution: {integrity: sha512-+1VkjdD0QBLPodGrJUeqarH8VAIvQODIbwh9XpP5Syisf7YoQgsJKPNFoqqLQlu+VQ/tVSshMR6loPMn8U+dPg==}
     engines: {node: '>=14'}
@@ -4873,6 +4886,12 @@ packages:
     dependencies:
       '@types/estree': 1.0.5
       '@types/json-schema': 7.0.15
+    dev: true
+
+  /@types/esquery@1.5.3:
+    resolution: {integrity: sha512-c55hQOcoPkWDfuEN9EdP1YyNH4D909U40gUEpY0nB5PWHExWHEPxcx3sx0fJ1Gzf4j1OpWktmIgciIlpgHtfDg==}
+    dependencies:
+      '@types/estree': 1.0.5
     dev: true
 
   /@types/estree-jsx@1.0.5:

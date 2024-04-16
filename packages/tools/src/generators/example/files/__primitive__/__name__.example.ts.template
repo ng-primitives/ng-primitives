@@ -4,4 +4,4 @@ import { Component } from '@angular/core';
   selector: 'app-<%= fileName %>',
   template: ``,
 })
-export class <%= className %>Example {}
+export default class <%= className %>Example {}
