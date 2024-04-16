@@ -1,4 +1,4 @@
-import { Directive } from '@angular/core';
+import { Directive, signal } from '@angular/core';
 import { NgpAvatarToken } from './avatar.token';
 
 @Directive({
@@ -11,7 +11,7 @@ export class NgpAvatarDirective {
    * Store the current state of the avatar.
    * @internal
    */
-  state: NgpAvatarState = NgpAvatarState.Idle;
+  readonly state = signal(NgpAvatarState.Idle);
 
   /**
    * Set the avatar state.
@@ -19,7 +19,7 @@ export class NgpAvatarDirective {
    * @internal
    */
   setState(state: NgpAvatarState): void {
-    this.state = state;
+    this.state.set(state);
   }
 }
 

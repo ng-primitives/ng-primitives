@@ -1,4 +1,5 @@
-import { Directive, Input, booleanAttribute } from '@angular/core';
+import { BooleanInput } from '@angular/cdk/coercion';
+import { Directive, booleanAttribute, input } from '@angular/core';
 
 @Directive({
   selector: '[ngpSeparator]',
@@ -14,12 +15,14 @@ export class NgpSeparatorDirective {
    * The orientation of the separator.
    * @default 'horizontal'
    */
-  @Input('ngpSeparatorOrientation') orientation: 'horizontal' | 'vertical' = 'horizontal';
+  readonly orientation = input<'horizontal' | 'vertical'>('horizontal');
 
   /**
    * Whether the separator is for decoration purposes. If true, the separator will not be included in the accessibility tree.
    * @default false
    */
-  @Input({ alias: 'ngpSeparatorDecorative', transform: booleanAttribute }) decorative: boolean =
-    false;
+  readonly decorative = input<boolean, BooleanInput>(false, {
+    alias: 'ngpSeparatorDecorative',
+    transform: booleanAttribute,
+  });
 }

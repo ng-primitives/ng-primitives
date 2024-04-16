@@ -1,4 +1,13 @@
-import { Directive, Input, OnDestroy, OnInit, numberAttribute } from '@angular/core';
+import { NumberInput } from '@angular/cdk/coercion';
+import {
+  Directive,
+  OnDestroy,
+  OnInit,
+  computed,
+  input,
+  numberAttribute,
+  signal,
+} from '@angular/core';
 import { NgpAvatarState } from '../avatar/avatar.directive';
 import { injectAvatar } from '../avatar/avatar.token';
 import { injectAvatarConfig } from '../config/avatar.config';
@@ -7,7 +16,7 @@ import { injectAvatarConfig } from '../config/avatar.config';
   selector: '[ngpAvatarFallback]',
   standalone: true,
   host: {
-    '[style.display]': 'visible ? null : "none"',
+    '[style.display]': 'visible() ? null : "none"',
   },
 })
 export class NgpAvatarFallbackDirective implements OnInit, OnDestroy {
@@ -25,22 +34,25 @@ export class NgpAvatarFallbackDirective implements OnInit, OnDestroy {
    * Define a delay before the fallback is shown. This is useful to only show the fallback for those with slower connections.
    * @default 0
    */
-  @Input({ alias: 'ngpAvatarFallbackDelay', transform: numberAttribute }) delay: number =
-    this.config.delay;
+  readonly delay = input<number, NumberInput>(this.config.delay, {
+    alias: 'ngpAvatarFallbackDelay',
+    transform: numberAttribute,
+  });
 
   /**
    * Determine if this element should be hidden.
    * @returns True if the element should be visible
    */
-  protected get visible(): boolean {
-    // we need to check if the element can render and if the avatar is not in a loaded state
-    return this.delayElapsed && this.avatar.state !== NgpAvatarState.Loaded;
-  }
+  protected readonly visible = computed(
+    () =>
+      // we need to check if the element can render and if the avatar is not in a loaded state
+      this.delayElapsed() && this.avatar.state() !== NgpAvatarState.Loaded,
+  );
 
   /**
    * Determine the delay has elapsed, and we can show the fallback.
    */
-  private delayElapsed: boolean = false;
+  private delayElapsed = signal(false);
 
   /**
    * Store the timeout id.
@@ -48,7 +60,7 @@ export class NgpAvatarFallbackDirective implements OnInit, OnDestroy {
   private timeoutId: number | null = null;
 
   ngOnInit(): void {
-    this.timeoutId = window.setTimeout(() => (this.delayElapsed = true), this.delay);
+    this.timeoutId = window.setTimeout(() => this.delayElapsed.set(true), this.delay());
   }
 
   ngOnDestroy(): void {

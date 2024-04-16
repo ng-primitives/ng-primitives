@@ -1,13 +1,4 @@
-import {
-  DestroyRef,
-  Directive,
-  ElementRef,
-  EventEmitter,
-  NgZone,
-  OnInit,
-  Output,
-  inject,
-} from '@angular/core';
+import { DestroyRef, Directive, ElementRef, NgZone, OnInit, inject, output } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ResizeEvent, fromResizeEvent } from '../utils/resize';
 
@@ -34,7 +25,7 @@ export class NgpResizeDirective implements OnInit {
   /**
    * Emit when the element is resized.
    */
-  @Output('ngpResize') readonly didResize = new EventEmitter<ResizeEvent>();
+  readonly didResize = output<ResizeEvent>();
 
   ngOnInit(): void {
     // oberve the element for resize events

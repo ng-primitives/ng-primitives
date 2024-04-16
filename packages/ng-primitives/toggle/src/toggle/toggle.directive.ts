@@ -1,11 +1,5 @@
-import {
-  Directive,
-  EventEmitter,
-  HostListener,
-  Input,
-  Output,
-  booleanAttribute,
-} from '@angular/core';
+import { BooleanInput } from '@angular/cdk/coercion';
+import { Directive, HostListener, booleanAttribute, input, model } from '@angular/core';
 
 @Directive({
   selector: 'button[ngpToggle]',
@@ -13,9 +7,9 @@ import {
   standalone: true,
   host: {
     type: 'button',
-    '[attr.aria-pressed]': 'pressed',
-    '[attr.data-state]': 'pressed ? "on" : "off"',
-    '[attr.data-disabled]': 'disabled',
+    '[attr.aria-pressed]': 'pressed()',
+    '[attr.data-state]': 'pressed() ? "on" : "off"',
+    '[attr.data-disabled]': 'disabled()',
   },
 })
 export class NgpToggleDirective {
@@ -23,29 +17,26 @@ export class NgpToggleDirective {
    * Whether the toggle is pressed.
    * @default false
    */
-  @Input({ alias: 'ngpTogglePressed', transform: booleanAttribute }) pressed: boolean = false;
+  readonly pressed = model<boolean>(false, { alias: 'ngpTogglePressed' });
 
   /**
    * Whether the toggle is disabled.
    * @default false
    */
-  @Input({ alias: 'ngpToggleDisabled', transform: booleanAttribute }) disabled: boolean = false;
-
-  /**
-   * Event emitted when the toggle is pressed.
-   */
-  @Output('ngpTogglePressedChange') readonly pressedChange = new EventEmitter<boolean>();
+  readonly disabled = input<boolean, BooleanInput>(false, {
+    alias: 'ngpToggleDisabled',
+    transform: booleanAttribute,
+  });
 
   /**
    * Toggle the pressed state.
    */
   @HostListener('click')
   toggle(): void {
-    if (this.disabled) {
+    if (this.disabled()) {
       return;
     }
 
-    this.pressed = !this.pressed;
-    this.pressedChange.emit(this.pressed);
+    this.pressed.set(!this.pressed());
   }
 }
