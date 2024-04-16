@@ -1,7 +1,7 @@
-import { addRoute } from '@nx/angular/src/utils/nx-devkit/route-utils';
 import { formatFiles, generateFiles, names, Tree } from '@nx/devkit';
 import * as path from 'path';
 import { ExampleGeneratorSchema } from './schema';
+import { addRoute } from './utils';
 
 export async function exampleGenerator(tree: Tree, options: ExampleGeneratorSchema) {
   const projectRoot = `apps/examples/src/app/examples`;
