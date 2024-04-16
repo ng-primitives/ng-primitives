@@ -20,11 +20,6 @@
       "schema": "./src/generators/token/schema.json",
       "description": "Generate a token for a directive to allow it to be injected into children"
     },
-    "story": {
-      "factory": "./src/generators/story/generator",
-      "schema": "./src/generators/story/schema.json",
-      "description": "Create a new story for the primitive"
-    },
     "schematic": {
       "factory": "./src/generators/schematic/generator",
       "schema": "./src/generators/schematic/schema.json",

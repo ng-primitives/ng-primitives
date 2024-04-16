@@ -28,6 +28,9 @@ export function provideNgpAvatarConfig(config: Partial<NgpAvatarConfig>): Provid
   ];
 }
 
+/**
+ *
+ */
 export function injectAvatarConfig(): NgpAvatarConfig {
   return inject(NgpAvatarConfigToken, { optional: true }) ?? defaultAvatarConfig;
 }

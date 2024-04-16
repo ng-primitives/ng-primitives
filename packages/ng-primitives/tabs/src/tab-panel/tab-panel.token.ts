@@ -5,6 +5,7 @@ export const NgpTabPanelToken = new InjectionToken<NgpTabPanelDirective>('NgpTab
 
 /**
  * Inject the TabPanel directive instance
+ * @returns The TabPanel directive instance
  */
 export function injectTabPanel(): NgpTabPanelDirective {
   return inject(NgpTabPanelToken);

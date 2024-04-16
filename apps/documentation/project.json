@@ -1,0 +1,15 @@
+{
+  "name": "documentation",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "projectType": "application",
+  "tags": [],
+  "targets": {
+    "serve": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "mintlify dev",
+        "cwd": "apps/documentation"
+      }
+    }
+  }
+}

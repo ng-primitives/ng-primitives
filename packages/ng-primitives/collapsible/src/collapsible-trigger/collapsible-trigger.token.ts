@@ -7,6 +7,7 @@ export const NgpCollapsibleTriggerToken = new InjectionToken<NgpCollapsibleTrigg
 
 /**
  * Inject the CollapsibleTrigger directive instance
+ * @returns The CollapsibleTrigger directive instance
  */
 export function injectCollapsibleTrigger(): NgpCollapsibleTriggerDirective {
   return inject(NgpCollapsibleTriggerToken);

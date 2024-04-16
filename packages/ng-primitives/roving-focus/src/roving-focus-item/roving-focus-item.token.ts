@@ -7,6 +7,7 @@ export const NgpRovingFocusItemToken = new InjectionToken<NgpRovingFocusItemDire
 
 /**
  * Inject the RovingFocusItem directive instance
+ * @returns The RovingFocusItem directive instance
  */
 export function injectRovingFocusItem(): NgpRovingFocusItemDirective {
   return inject(NgpRovingFocusItemToken);

@@ -5,6 +5,7 @@ export const NgpTabsetToken = new InjectionToken<NgpTabsetDirective>('NgpTabsetT
 
 /**
  * Inject the Tabset directive instance
+ * @returns The Tabset directive instance
  */
 export function injectTabset(): NgpTabsetDirective {
   return inject(NgpTabsetToken);

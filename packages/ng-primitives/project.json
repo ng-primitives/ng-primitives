@@ -22,16 +22,6 @@
         }
       },
       "defaultConfiguration": "production"
-    },
-    "storybook": {
-      "options": {
-        "styles": ["packages/ng-primitives/.storybook/styles.css"]
-      }
-    },
-    "build-storybook": {
-      "options": {
-        "styles": ["packages/ng-primitives/.storybook/styles.css"]
-      }
     }
   }
 }
