@@ -7,7 +7,7 @@ import { RouterOutlet } from '@angular/router';
   selector: 'app-root',
   template: `<router-outlet />`,
   host: {
-    class: 'flex items-center justify-center h-screen',
+    class: 'flex items-center justify-center h-full',
   },
 })
 export class AppComponent {}
