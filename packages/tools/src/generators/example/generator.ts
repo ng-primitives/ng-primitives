@@ -21,7 +21,7 @@ export async function exampleGenerator(tree: Tree, options: ExampleGeneratorSche
     appRoutesPath,
     `{
     path: '${options.primitive}/${options.directive}',
-    loadChildren: () => import('./examples/${options.primitive}/${options.primitive}.example')
+    loadComponent: () => import('./examples/${options.primitive}/${options.primitive}.example')
   }`,
   );
 
