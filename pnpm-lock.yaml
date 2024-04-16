@@ -38,9 +38,9 @@ dependencies:
   '@ng-icons/core':
     specifier: ^27.2.0
     version: 27.2.0
-  '@ng-icons/radix-icons':
-    specifier: ^27.2.0
-    version: 27.2.0
+  '@ng-icons/heroicons':
+    specifier: ^27.3.1
+    version: 27.3.1
   '@nx/devkit':
     specifier: 18.2.4
     version: 18.2.4(nx@18.2.4)
@@ -3273,8 +3273,8 @@ packages:
       tslib: 2.6.2
     dev: false
 
-  /@ng-icons/radix-icons@27.2.0:
-    resolution: {integrity: sha512-+7UIqXU4rRPMXg3pZLOyTa7UIecUmPPnx1lOHkAew4KdtopVISMm5PLz5qiH8khXdTW4bxtJH5oblGP8YKFG9g==}
+  /@ng-icons/heroicons@27.3.1:
+    resolution: {integrity: sha512-Q/TcPeSwOwkNqMLKBryKTX8ZcioPfN4AS68Vwj9qNlskS5RYOCqKv/eVrBFgsM7MMBQ3D17vKaIaVGs/CbG7GA==}
     dependencies:
       tslib: 2.6.2
     dev: false

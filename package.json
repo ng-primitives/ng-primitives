@@ -69,7 +69,7 @@
     "@angular/router": "17.3.0",
     "@fontsource-variable/inter": "^5.0.17",
     "@ng-icons/core": "^27.2.0",
-    "@ng-icons/radix-icons": "^27.2.0",
+    "@ng-icons/heroicons": "^27.3.1",
     "@nx/devkit": "18.2.4",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",

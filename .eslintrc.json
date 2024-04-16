@@ -12,6 +12,7 @@
       "files": ["*.ts", "*.tsx", "*.js", "*.jsx"],
       "rules": {
         "@typescript-eslint/no-inferrable-types": "off",
+        "@angular-eslint/no-host-metadata-property": "off",
         "@nx/enforce-module-boundaries": [
           "error",
           {
