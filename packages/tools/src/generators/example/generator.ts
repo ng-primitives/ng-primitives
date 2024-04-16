@@ -1,11 +1,30 @@
-import { formatFiles, generateFiles, Tree } from '@nx/devkit';
+import { addRoute } from '@nx/angular/src/utils/nx-devkit/route-utils';
+import { formatFiles, generateFiles, names, Tree } from '@nx/devkit';
 import * as path from 'path';
 import { ExampleGeneratorSchema } from './schema';
 
 export async function exampleGenerator(tree: Tree, options: ExampleGeneratorSchema) {
   const projectRoot = `apps/examples/src/app/examples`;
 
-  generateFiles(tree, path.join(__dirname, 'files'), projectRoot, options);
+  const nameVariants = names(options.directive);
+
+  generateFiles(tree, path.join(__dirname, 'files'), projectRoot, {
+    ...options,
+    ...nameVariants,
+  });
+
+  // modifiy the app.routes.ts file to add a new route
+  const appRoutesPath = `apps/examples/src/app/app.routes.ts`;
+
+  addRoute(
+    tree,
+    appRoutesPath,
+    `/${options.primitive}/${options.directive}`,
+    true,
+    `${nameVariants.className}Example`,
+    `./examples/${options.primitive}/${options.directive}.example`,
+  );
+
   await formatFiles(tree);
 }
 

@@ -1,1 +1,7 @@
-const variable = "<%= name %>";
+import { Component } from '@angular/core';
+
+@Component({
+  selector: 'app-<%= fileName %>',
+  template: ``,
+})
+export class <%= className %>Example {}
