@@ -21,7 +21,7 @@ export async function directiveGenerator(tree: Tree, options: DirectiveGenerator
   addExportToIndex(
     tree,
     options.primitive,
-    `export * from './${options.name}/${options.name}.directive';`,
+    `export { Ngp${names(options.name).className}Directive } from './${options.name}/${options.name}.directive';`,
   );
 
   if (options.addExample) {

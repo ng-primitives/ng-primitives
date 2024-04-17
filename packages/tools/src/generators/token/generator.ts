@@ -17,7 +17,7 @@ export async function tokenGenerator(tree: Tree, options: TokenGeneratorSchema) 
   addExportToIndex(
     tree,
     options.primitive,
-    `export * from './${options.directive}/${options.directive}.token';`,
+    `export { Ngp${names(options.directive).className}Token } from './${options.directive}/${options.directive}.token';`,
   );
 
   await formatFiles(tree);
