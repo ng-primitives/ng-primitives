@@ -12,8 +12,7 @@ import { NgpAccordionTriggerToken } from './accordion-trigger.token';
   host: {
     '[id]': 'id()',
     '[attr.data-orientation]': 'accordion.orientation()',
-
-    // aria-disabled={(itemContext.open && !collapsibleContext.collapsible) || undefined}
+    '[attr.data-disabled]': 'item.disabled() || accordion.disabled() ? "" : null',
   },
 })
 export class NgpAccordionTriggerDirective {

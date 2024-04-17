@@ -7,6 +7,9 @@ import { NgpAccordionToken } from './accordion.token';
   selector: '[ngpAccordion]',
   exportAs: 'ngpAccordion',
   providers: [{ provide: NgpAccordionToken, useExisting: NgpAccordionDirective }],
+  host: {
+    '[attr.data-orientation]': 'orientation()',
+  },
 })
 export class NgpAccordionDirective<T> {
   /**
@@ -27,7 +30,7 @@ export class NgpAccordionDirective<T> {
   /**
    * The value of the accordion.
    */
-  readonly value = model<T | null>(null, {
+  readonly value = model<T | T[] | null>(null, {
     alias: 'ngpAccordionValue',
   });
 
@@ -45,4 +48,19 @@ export class NgpAccordionDirective<T> {
   readonly orientation = input<'horizontal' | 'vertical'>('vertical', {
     alias: 'ngpAccordionOrientation',
   });
+
+  /**
+   * @param value The value to check.
+   * @returns Whether the value is open.
+   * @internal
+   */
+  isOpen(value: T) {
+    const selection = this.value();
+
+    if (Array.isArray(selection)) {
+      return selection.includes(value);
+    }
+
+    return selection === value;
+  }
 }
