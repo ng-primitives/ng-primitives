@@ -1,1 +1,1 @@
-export * from './separator/separator.directive';
+export { NgpSeparatorDirective } from './separator/separator.directive';

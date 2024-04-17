@@ -1,3 +1,3 @@
-export * from './switch/switch.directive';
-export * from './switch/switch.token';
-export * from './switch-thumb/switch-thumb.directive';
+export { NgpSwitchThumbDirective } from './switch-thumb/switch-thumb.directive';
+export { NgpSwitchDirective } from './switch/switch.directive';
+export { NgpSwitchToken } from './switch/switch.token';

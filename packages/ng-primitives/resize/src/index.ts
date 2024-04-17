@@ -1,2 +1,2 @@
-export * from './resize/resize.directive';
-export * from './utils/resize';
+export { NgpResizeDirective } from './resize/resize.directive';
+export { ResizeEvent, fromResizeEvent } from './utils/resize';

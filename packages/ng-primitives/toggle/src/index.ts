@@ -1,1 +1,1 @@
-export * from './toggle/toggle.directive';
+export { NgpToggleDirective } from './toggle/toggle.directive';

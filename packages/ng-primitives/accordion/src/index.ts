@@ -1,10 +1,8 @@
-export * from './accordion/accordion.directive';
-export * from './accordion/accordion.token';
-export * from './accordion-item/accordion-item.directive';
-export * from './accordion-item/accordion-item.token';
-export * from './accordion-header/accordion-header.directive';
-export * from './accordion-header/accordion-header.token';
-export * from './accordion-trigger/accordion-trigger.directive';
-export * from './accordion-trigger/accordion-trigger.token';
-export * from './accordion-content/accordion-content.directive';
-export * from './accordion-content/accordion-content.token';
+export { NgpAccordionContentDirective } from './accordion-content/accordion-content.directive';
+export { NgpAccordionContentToken } from './accordion-content/accordion-content.token';
+export { NgpAccordionItemDirective } from './accordion-item/accordion-item.directive';
+export { NgpAccordionItemToken } from './accordion-item/accordion-item.token';
+export { NgpAccordionTriggerDirective } from './accordion-trigger/accordion-trigger.directive';
+export { NgpAccordionTriggerToken } from './accordion-trigger/accordion-trigger.token';
+export { NgpAccordionDirective } from './accordion/accordion.directive';
+export { NgpAccordionToken } from './accordion/accordion.token';
