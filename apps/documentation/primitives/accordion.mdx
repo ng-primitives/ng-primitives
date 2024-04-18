@@ -88,15 +88,28 @@ You can configure the default options for all accordions in your application by 
 import { provideNgpAccordionConfig } from '@ng-primitives/ng-primitives/accordion';
 
 bootstrapApplication(AppComponent, {
-  providers: [provideNgpAccordionConfig({})],
+  providers: [
+    provideNgpAccordionConfig({
+      type: 'multiple',
+      collapsible: true,
+      orientation: 'horizontal',
+    }),
+  ],
 });
 ```
 
 ### NgpAccordionConfig
 
-<ResponseField name="delay" type="number">
-  Define a delay before the fallback is shown. This is useful to only show the fallback for those
-  with slower connections.
+<ResponseField name="type" type="single | multiple">
+  Define whether only one or multiple accordion items can be open at a time.
+</ResponseField>
+
+<ResponseField name="collapsible" type="boolean">
+  Define an accordion can be collapsed. This is only applicable when `type` is set to `single`.
+</ResponseField>
+
+<ResponseField name="orientation" type="horizontal | vertical">
+  Define the orientation of the accordion.
 </ResponseField>
 
 ## Schematics

@@ -1,5 +1,6 @@
 import { BooleanInput } from '@angular/cdk/coercion';
 import { Directive, booleanAttribute, input, model } from '@angular/core';
+import { injectAccordionConfig } from '../config/accordion.config';
 import { NgpAccordionToken } from './accordion.token';
 
 @Directive({
@@ -13,16 +14,21 @@ import { NgpAccordionToken } from './accordion.token';
 })
 export class NgpAccordionDirective<T> {
   /**
+   * Access the global accordion configuration.
+   */
+  private readonly config = injectAccordionConfig();
+
+  /**
    * The type of the accordion.
    */
-  readonly type = input<NgpAccordionType>('single', {
+  readonly type = input<NgpAccordionType>(this.config.type, {
     alias: 'ngpAccordionType',
   });
 
   /**
    * Whether the accordion is collapsible.
    */
-  readonly collapsible = input<boolean, BooleanInput>(false, {
+  readonly collapsible = input<boolean, BooleanInput>(this.config.collapsible, {
     alias: 'ngpAccordionCollapsible',
     transform: booleanAttribute,
   });
@@ -45,7 +51,7 @@ export class NgpAccordionDirective<T> {
   /**
    * The accordion orientation.
    */
-  readonly orientation = input<'horizontal' | 'vertical'>('vertical', {
+  readonly orientation = input<'horizontal' | 'vertical'>(this.config.orientation, {
     alias: 'ngpAccordionOrientation',
   });
 

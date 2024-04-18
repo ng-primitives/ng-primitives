@@ -43,10 +43,10 @@ There are no inputs or outputs for this directive.
 You can configure the default options for all avatars in your application by using the `provideNgpAvatarConfig` function in a providers array.
 
 ```ts
-import { provideNgpAvatarConfig } from '@ng-primitives/ng-primitives';
+import { provideAvatarConfig } from '@ng-primitives/ng-primitives';
 
 bootstrapApplication(AppComponent, {
-  providers: [provideNgpAvatarConfig({ delay: 1000 })],
+  providers: [provideAvatarConfig({ delay: 1000 })],
 });
 ```
 

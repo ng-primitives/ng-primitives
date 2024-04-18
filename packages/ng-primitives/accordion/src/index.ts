@@ -6,3 +6,4 @@ export { NgpAccordionTriggerDirective } from './accordion-trigger/accordion-trig
 export { NgpAccordionTriggerToken } from './accordion-trigger/accordion-trigger.token';
 export { NgpAccordionDirective } from './accordion/accordion.directive';
 export { NgpAccordionToken } from './accordion/accordion.token';
+export { NgpAccordionConfig, provideAccordionConfig } from './config/accordion.config';
