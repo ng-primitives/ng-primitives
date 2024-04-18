@@ -15,7 +15,7 @@ export class NgpAccordionDirective<T> {
   /**
    * The type of the accordion.
    */
-  readonly type = input<'single' | 'multiple'>('single', {
+  readonly type = input<NgpAccordionType>('single', {
     alias: 'ngpAccordionType',
   });
 
@@ -54,13 +54,37 @@ export class NgpAccordionDirective<T> {
    * @returns Whether the value is open.
    * @internal
    */
-  isOpen(value: T) {
-    const selection = this.value();
-
-    if (Array.isArray(selection)) {
-      return selection.includes(value);
+  isOpen(value: T): boolean {
+    if (this.type() === 'multiple') {
+      return (this.value() as T[] | null)?.includes(value) ?? false;
     }
 
-    return selection === value;
+    return this.value() === value;
+  }
+
+  toggle(value: T): void {
+    const isOpen = this.isOpen(value);
+
+    // if we are in single mode and the value is already open and the accordion is not collapsible, do nothing
+    if (this.type() === 'single' && isOpen && !this.collapsible()) {
+      return;
+    }
+
+    // if we are in single mode then toggle the value
+    if (this.type() === 'single') {
+      this.value.set(isOpen ? null : value);
+      return;
+    }
+
+    // if we are in multiple mode then toggle the value
+    const values = (this.value() as T[]) ?? [];
+
+    if (isOpen) {
+      this.value.set(values.filter(v => v !== value));
+    } else {
+      this.value.set([...values, value]);
+    }
   }
 }
+
+export type NgpAccordionType = 'single' | 'multiple';

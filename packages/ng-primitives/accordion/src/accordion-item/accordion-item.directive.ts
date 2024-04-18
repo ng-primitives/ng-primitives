@@ -1,5 +1,7 @@
 import { BooleanInput } from '@angular/cdk/coercion';
-import { Directive, booleanAttribute, computed, input } from '@angular/core';
+import { Directive, booleanAttribute, computed, contentChild, input } from '@angular/core';
+import { NgpAccordionContentToken } from '../accordion-content/accordion-content.token';
+import { NgpAccordionTriggerToken } from '../accordion-trigger/accordion-trigger.token';
 import { injectAccordion } from '../accordion/accordion.token';
 import { NgpAccordionItemToken } from './accordion-item.token';
 
@@ -36,7 +38,27 @@ export class NgpAccordionItemDirective<T> {
   });
 
   /**
+   * Access the accordion trigger
+   */
+  private readonly trigger = contentChild(NgpAccordionTriggerToken);
+
+  /**
+   * Access the accordion content
+   */
+  private readonly content = contentChild(NgpAccordionContentToken);
+
+  /**
    * Whether the accordion item is expanded.
    */
-  protected readonly open = computed<boolean>(() => this.accordion.isOpen(this.value()));
+  readonly open = computed<boolean>(() => this.accordion.isOpen(this.value()));
+
+  /**
+   * The trigger id.
+   */
+  readonly triggerId = computed(() => this.trigger()?.id());
+
+  /**
+   * The content id.
+   */
+  readonly contentId = computed(() => this.content()?.id());
 }

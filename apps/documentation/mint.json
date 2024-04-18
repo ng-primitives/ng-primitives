@@ -34,6 +34,7 @@
     {
       "group": "Primitives",
       "pages": [
+        "primitives/accordion",
         "primitives/avatar",
         "primitives/checkbox",
         "primitives/progress",

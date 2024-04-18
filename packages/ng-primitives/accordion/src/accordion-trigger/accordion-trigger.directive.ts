@@ -1,4 +1,4 @@
-import { Directive, input } from '@angular/core';
+import { Directive, HostListener, input } from '@angular/core';
 import { uniqueId } from '../../../utils/src';
 import { injectAccordionItem } from '../accordion-item/accordion-item.token';
 import { injectAccordion } from '../accordion/accordion.token';
@@ -12,7 +12,10 @@ import { NgpAccordionTriggerToken } from './accordion-trigger.token';
   host: {
     '[id]': 'id()',
     '[attr.data-orientation]': 'accordion.orientation()',
+    '[attr.data-state]': 'item.open() ? "open" : "closed"',
     '[attr.data-disabled]': 'item.disabled() || accordion.disabled() ? "" : null',
+    '[attr.aria-controls]': 'item.contentId()',
+    '[attr.aria-expanded]': 'item.open()',
   },
 })
 export class NgpAccordionTriggerDirective {
@@ -30,4 +33,12 @@ export class NgpAccordionTriggerDirective {
    * The id of the trigger.
    */
   readonly id = input<string>(uniqueId('ngp-accordion-trigger'));
+
+  /**
+   * Toggle the accordion item.
+   */
+  @HostListener('click')
+  toggle(): void {
+    this.accordion.toggle(this.item.value());
+  }
 }
