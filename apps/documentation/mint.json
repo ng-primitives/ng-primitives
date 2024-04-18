@@ -40,7 +40,8 @@
         "primitives/progress",
         "primitives/radio",
         "primitives/resize",
-        "primitives/switch"
+        "primitives/switch",
+        "primitives/toggle"
       ]
     }
   ],
