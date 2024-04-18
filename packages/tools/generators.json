@@ -29,6 +29,11 @@
       "factory": "./src/generators/example/generator",
       "schema": "./src/generators/example/schema.json",
       "description": "Generate an example page"
+    },
+    "documentation": {
+      "factory": "./src/generators/documentation/generator",
+      "schema": "./src/generators/documentation/schema.json",
+      "description": "Add a new documentation section"
     }
   }
 }

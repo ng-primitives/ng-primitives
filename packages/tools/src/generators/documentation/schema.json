@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/schema",
-  "$id": "Primitive",
+  "$id": "Documentation",
   "title": "",
   "type": "object",
   "properties": {
@@ -12,12 +12,6 @@
         "index": 0
       },
       "x-prompt": "What name would you like to use?"
-    },
-    "addDocumentation": {
-      "type": "boolean",
-      "description": "Add documentation to the project?",
-      "default": true,
-      "x-prompt": "Would you like to add documentation to the project?"
     }
   },
   "required": ["name"]

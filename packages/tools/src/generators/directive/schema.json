@@ -39,6 +39,12 @@
       "description": "Add a config for the directive.",
       "default": false,
       "x-prompt": "Would you like to add a config for the directive?"
+    },
+    "addDocumentation": {
+      "type": "boolean",
+      "description": "Add documentation for the directive.",
+      "default": false,
+      "x-prompt": "Would you like to add documentation for the directive?"
     }
   },
   "required": ["name", "primitive"]

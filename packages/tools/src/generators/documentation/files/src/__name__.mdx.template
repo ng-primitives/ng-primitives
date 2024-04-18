@@ -1,0 +1,75 @@
+---
+title: '<%= className %>'
+description: ''
+---
+
+<iframe
+  style={{ width: '100%', height: '378px', borderRadius: 12 }}
+  src="http://localhost:4200/<%= fileName %>/<%= fileName %>"
+/>
+
+## Usage
+
+Assemble the <%= fileName %> directives in your template.
+
+```html
+<div ngp<%= className %>>
+</div>
+```
+
+## API Reference
+
+The following directives are available to import from the `@ng-primitives/ng-primitives` package:
+
+### Ngp<%= className %>Directive
+
+There are no inputs or outputs for this directive.
+
+## Global Configuration
+
+You can configure the default options for all <%= fileName %>s in your application by using the `provideNgp<%= className %>Config` function in a providers array.
+
+```ts
+import { provideNgp<%= className %>Config } from '@ng-primitives/ng-primitives/<%= fileName %>';
+
+bootstrapApplication(AppComponent, {
+  providers: [
+    provideNgp<%= className %>Config({
+    }),
+  ],
+});
+```
+
+### Ngp<%= className %>Config
+
+
+
+## Schematics
+
+You can use our schematic to generate a new <%= fileName %> component.
+
+<CodeGroup>
+
+```bash Angular CLI
+ng generate @ng-primitives/ng-primitives:<%= fileName %>
+```
+
+```bash Nx
+nx generate @ng-primitives/ng-primitives:<%= fileName %>
+```
+
+</CodeGroup>
+
+### Options
+
+<ResponseField name="name" type="string">
+  The name of the component.
+</ResponseField>
+
+<ResponseField name="project" type="string">
+  The name of the project to add the component to.
+</ResponseField>
+
+<ResponseField name="path" type="string">
+  The path to create the component.
+</ResponseField>
