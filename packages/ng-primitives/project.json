@@ -22,6 +22,9 @@
         }
       },
       "defaultConfiguration": "production"
+    },
+    "test": {
+      "executor": "nx:noop"
     }
   }
 }
