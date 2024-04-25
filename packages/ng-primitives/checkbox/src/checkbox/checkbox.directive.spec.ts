@@ -74,9 +74,9 @@ describe('NgpCheckboxDirective', () => {
     });
   });
 
-  describe('input', () => {});
+  // describe('input', () => {});
 
-  describe('label', () => {});
+  // describe('label', () => {});
 
-  describe('indicator', () => {});
+  // describe('indicator', () => {});
 });
