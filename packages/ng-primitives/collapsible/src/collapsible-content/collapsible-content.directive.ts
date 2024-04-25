@@ -1,5 +1,5 @@
 import { Directive, input } from '@angular/core';
-import { uniqueId } from '../../../utils/src';
+import { uniqueId } from '@ng-primitives/ng-primitives/utils';
 import { injectCollapsible } from '../collapsible/collapsible.token';
 import { NgpCollapsibleContentToken } from './collapsible-content.token';
 
