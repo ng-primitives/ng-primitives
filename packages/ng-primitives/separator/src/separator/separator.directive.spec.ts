@@ -1,10 +1,11 @@
-import { NgpSeparatorDirective } from './separator.directive';
-import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { Component, DebugElement } from '@angular/core';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
+import { NgpSeparatorDirective } from './separator.directive';
 
 @Component({
-  template: '<div ngpSeparator [ngpSeparatorOrientation]="orientation" [ngpSeparatorDecorative]="decorative"></div>',
+  template:
+    '<div ngpSeparator [ngpSeparatorOrientation]="orientation" [ngpSeparatorDecorative]="decorative"></div>',
 })
 class TestComponent {
   orientation: 'horizontal' | 'vertical' = 'horizontal';
