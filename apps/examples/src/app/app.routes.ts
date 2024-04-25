@@ -2,19 +2,28 @@ import { Route } from '@angular/router';
 
 export const appRoutes: Route[] = [
   {
-    path: 'accordion/accordion',
+    path: 'examples/accordion',
     loadComponent: () => import('./examples/accordion/accordion.example'),
   },
   {
-    path: 'switch/switch',
+    path: 'examples/switch',
     loadComponent: () => import('./examples/switch/switch.example'),
   },
   {
-    path: 'progress/progress',
+    path: 'examples/progress',
     loadComponent: () => import('./examples/progress/progress.example'),
   },
   {
-    path: 'checkbox/checkbox',
+    path: 'examples/checkbox',
     loadComponent: () => import('./examples/checkbox/checkbox.example'),
+  },
+  {
+    path: 'home',
+    loadComponent: () => import('./pages/home/home.page'),
+  },
+  {
+    path: '',
+    pathMatch: 'full',
+    redirectTo: '/home',
   },
 ];
