@@ -29,6 +29,7 @@
     "deploy": {
       "executor": "ngx-deploy-npm:deploy",
       "options": {
+        "distFolderPath": "dist/packages/ng-primitives",
         "access": "public"
       }
     }
