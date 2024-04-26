@@ -1,5 +1,6 @@
 {
   "name": "@ng-primitives/ng-primitives",
+  "license": "CC BY-ND 4.0",
   "version": "0.0.1",
   "peerDependencies": {
     "@angular/core": "^17.1.0",

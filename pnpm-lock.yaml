@@ -166,6 +166,9 @@ devDependencies:
   eslint-plugin-jsdoc:
     specifier: ^48.2.0
     version: 48.2.0(eslint@8.57.0)
+  eslint-plugin-license-header:
+    specifier: ^0.6.1
+    version: 0.6.1
   eslint-plugin-playwright:
     specifier: ^0.15.3
     version: 0.15.3(eslint@8.57.0)
@@ -7568,6 +7571,12 @@ packages:
       - supports-color
     dev: true
 
+  /eslint-plugin-license-header@0.6.1:
+    resolution: {integrity: sha512-9aIz8q3OaMr1/uQmCGCWySjTs5nEXUJexNegz/8lluNcZbEl82Ag1Vyr1Hu3oIveRW1NbXDPs6nu4zu9mbrmWA==}
+    dependencies:
+      requireindex: 1.2.0
+    dev: true
+
   /eslint-plugin-playwright@0.15.3(eslint@8.57.0):
     resolution: {integrity: sha512-LQMW5y0DLK5Fnpya7JR1oAYL2/7Y9wDiYw6VZqlKqcRGSgjbVKNqxraphk7ra1U3Bb5EK444xMgUlQPbMg2M1g==}
     peerDependencies:
@@ -13094,6 +13103,11 @@ packages:
   /require-from-string@2.0.2:
     resolution: {integrity: sha512-Xf0nWe6RseziFMu+Ap9biiUbmplq6S9/p+7w7YXP/JBHhrUDDUhwa+vANyubuqfZWTveU//DYVGsDG7RKL/vEw==}
     engines: {node: '>=0.10.0'}
+    dev: true
+
+  /requireindex@1.2.0:
+    resolution: {integrity: sha512-L9jEkOi3ASd9PYit2cwRfyppc9NoABujTP8/5gFcbERmo5jUoAKovIC3fsF17pkTnGsrByysqX+Kxd2OTNI1ww==}
+    engines: {node: '>=0.10.5'}
     dev: true
 
   /requires-port@1.0.0:

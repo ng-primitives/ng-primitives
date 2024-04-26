@@ -1,7 +1,7 @@
 {
   "extends": ["../../.eslintrc.json"],
   "ignorePatterns": ["!**/*"],
-  "plugins": ["jsdoc"],
+  "plugins": ["jsdoc", "license-header"],
   "overrides": [
     {
       "files": ["*.ts"],
@@ -31,7 +31,8 @@
         "@typescript-eslint/no-inferrable-types": "off",
         "@angular-eslint/no-output-rename": "off",
         "@angular-eslint/no-input-rename": "off",
-        "@nx/enforce-module-boundaries": "off"
+        "@nx/enforce-module-boundaries": "off",
+        "license-header/header": [ "error", "../tools/src/license/license-header.js"]
       }
     },
     {
