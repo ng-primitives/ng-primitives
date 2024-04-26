@@ -27,14 +27,16 @@ import {
     <input ngpCheckboxInput />
 
     <button
-      class="flex size-6 items-center justify-center rounded bg-white outline-none ring-blue-400 ring-offset-2 transition-shadow focus-visible:ring group-hover:bg-blue-50"
+      class="border-primary-300 ring-primary-300/50 group-hover:bg-primary-50/10 data-[state=checked]:bg-primary-500 group-hover:data-[state=checked]:bg-primary-500 flex size-6 cursor-pointer items-center justify-center rounded border outline-none focus-visible:ring"
       ngpCheckboxIndicator
     >
       @if (checked()) {
-        <ng-icon class="text-lg text-blue-500" name="heroCheck" />
+        <ng-icon class="text-lg text-neutral-800" name="heroCheck" />
       }
     </button>
-    <label class="text-white" ngpCheckboxLabel>Accept terms and conditions</label>
+    <label class="text-primary-500 cursor-pointer" ngpCheckboxLabel
+      >Accept terms and conditions</label
+    >
   </div>`,
 })
 export default class CheckboxExample {

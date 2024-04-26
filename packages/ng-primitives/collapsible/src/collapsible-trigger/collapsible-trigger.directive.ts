@@ -5,7 +5,6 @@
  * This source code is licensed under the CC BY-ND 4.0 license found in the
  * LICENSE file in the root directory of this source tree.
  */
-
 import { Directive, HostListener } from '@angular/core';
 import { injectCollapsible } from '../collapsible/collapsible.token';
 import { NgpCollapsibleTriggerToken } from './collapsible-trigger.token';

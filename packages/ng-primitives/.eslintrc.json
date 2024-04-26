@@ -32,7 +32,7 @@
         "@angular-eslint/no-output-rename": "off",
         "@angular-eslint/no-input-rename": "off",
         "@nx/enforce-module-boundaries": "off",
-        "license-header/header": [ "error", "../tools/src/license/license-header.js"]
+        "license-header/header": ["error", "../tools/src/license/license-header.js"]
       }
     },
     {
