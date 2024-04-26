@@ -5,6 +5,7 @@
  * This source code is licensed under the CC BY-ND 4.0 license found in the
  * LICENSE file in the root directory of this source tree.
  */
+
 import { Directive, input } from '@angular/core';
 import { injectDimensions, uniqueId } from '@ng-primitives/ng-primitives/utils';
 import { injectAccordionItem } from '../accordion-item/accordion-item.token';
