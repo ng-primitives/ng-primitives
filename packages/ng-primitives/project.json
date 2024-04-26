@@ -25,6 +25,12 @@
     },
     "test": {
       "executor": "nx:noop"
+    },
+    "deploy": {
+      "executor": "ngx-deploy-npm:deploy",
+      "options": {
+        "access": "public"
+      }
     }
   }
 }
