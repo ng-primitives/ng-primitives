@@ -33,6 +33,7 @@
       "@ng-primitives/ng-primitives/switch": ["packages/ng-primitives/switch/src/index.ts"],
       "@ng-primitives/ng-primitives/tabs": ["packages/ng-primitives/tabs/src/index.ts"],
       "@ng-primitives/ng-primitives/toggle": ["packages/ng-primitives/toggle/src/index.ts"],
+      "@ng-primitives/ng-primitives/tooltip": ["packages/ng-primitives/tooltip/src/index.ts"],
       "@ng-primitives/ng-primitives/utils": ["packages/ng-primitives/utils/src/index.ts"],
       "@ng-primitives/tools": ["packages/tools/src/index.ts"]
     }

@@ -11,6 +11,7 @@ import { RouterLink } from '@angular/router';
       <li><a routerLink="/examples/checkbox">Checkbox</a></li>
       <li><a routerLink="/examples/progress">Progess</a></li>
       <li><a routerLink="/examples/switch">Switch</a></li>
+      <li><a routerLink="/examples/tooltip">Tooltip</a></li>
     </ul>
   `,
 })

@@ -70,6 +70,7 @@
     "@angular/platform-browser": "17.3.0",
     "@angular/platform-browser-dynamic": "17.3.0",
     "@angular/router": "17.3.0",
+    "@floating-ui/dom": "^1.6.4",
     "@fontsource-variable/inter": "^5.0.17",
     "@ng-icons/core": "^27.2.0",
     "@ng-icons/heroicons": "^27.3.1",
@@ -84,5 +85,10 @@
     "prepare": "husky",
     "format": "nx format:write",
     "lint": "nx affected -t lint"
+  },
+  "pnpm": {
+    "patchedDependencies": {
+      "eslint-plugin-license-header@0.6.1": "patches/eslint-plugin-license-header@0.6.1.patch"
+    }
   }
 }

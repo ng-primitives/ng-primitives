@@ -41,7 +41,8 @@
         "primitives/radio",
         "primitives/resize",
         "primitives/switch",
-        "primitives/toggle"
+        "primitives/toggle",
+        "primitives/tooltip"
       ]
     }
   ],

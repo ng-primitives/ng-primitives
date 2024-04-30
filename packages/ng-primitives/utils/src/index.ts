@@ -6,5 +6,6 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+export { injectDisposables } from './disposables';
 export { injectDimensions } from './ui/dimensions';
 export { uniqueId } from './unique-id';

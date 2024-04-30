@@ -2,6 +2,10 @@ import { Route } from '@angular/router';
 
 export const appRoutes: Route[] = [
   {
+    path: 'tooltip/tooltip',
+    loadComponent: () => import('./examples/tooltip/tooltip.example'),
+  },
+  {
     path: 'examples/accordion',
     loadComponent: () => import('./examples/accordion/accordion.example'),
   },
@@ -16,6 +20,10 @@ export const appRoutes: Route[] = [
   {
     path: 'examples/checkbox',
     loadComponent: () => import('./examples/checkbox/checkbox.example'),
+  },
+  {
+    path: 'examples/tooltip',
+    loadComponent: () => import('./examples/tooltip/tooltip.example'),
   },
   {
     path: 'home',
