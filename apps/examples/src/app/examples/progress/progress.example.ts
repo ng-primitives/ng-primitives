@@ -10,12 +10,12 @@ import {
   imports: [NgpProgressDirective, NgpProgressIndicatorDirective],
   template: `
     <div
-      class="border-primary-300 relative h-3 w-80 overflow-hidden rounded-lg border"
+      class="relative h-3 w-80 overflow-hidden rounded-lg bg-white"
       [ngpProgressValue]="value()"
       ngpProgress
     >
       <div
-        class="bg-primary-500 h-full transition-all"
+        class="h-full rounded-full bg-blue-500 transition-all"
         [style.width.%]="value()"
         ngpProgressIndicator
       ></div>

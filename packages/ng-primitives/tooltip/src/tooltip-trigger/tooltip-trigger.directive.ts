@@ -12,6 +12,7 @@ import {
   ElementRef,
   EmbeddedViewRef,
   Injector,
+  OnDestroy,
   TemplateRef,
   ViewContainerRef,
   booleanAttribute,
@@ -49,7 +50,7 @@ import { NgpTooltipTriggerToken, provideTooltipTrigger } from './tooltip-trigger
     '(blur)': 'open.set(false)',
   },
 })
-export class NgpTooltipTriggerDirective {
+export class NgpTooltipTriggerDirective implements OnDestroy {
   /**
    * Access the trigger element
    */
@@ -192,6 +193,10 @@ export class NgpTooltipTriggerDirective {
   constructor() {
     // any time the open state changes then show or hide the tooltip
     effect(() => (this.open() ? this.show() : this.hide()), { allowSignalWrites: true });
+  }
+
+  ngOnDestroy(): void {
+    this.destroyTooltip();
   }
 
   private show(): void {

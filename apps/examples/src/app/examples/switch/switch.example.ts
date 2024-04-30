@@ -6,9 +6,9 @@ import { NgpSwitchDirective, NgpSwitchThumbDirective } from '@ng-primitives/ng-p
   selector: 'app-switch',
   imports: [NgpSwitchDirective, NgpSwitchThumbDirective],
   template: `<div class="flex items-center gap-x-4">
-    <label class="text-primary-300" for="mobile-data"> Mobile Data </label>
+    <label class="text-white" for="mobile-data"> Mobile Data </label>
     <button
-      class="focus-visible:ring-primary-500 data-[state=checked]:bg-primary-500 bg-primary-300/10 relative h-6 w-10 rounded-full outline-none transition-colors focus-visible:ring-2"
+      class="relative h-6 w-10 rounded-full bg-blue-300/10 outline-none transition-colors focus-visible:ring-2 focus-visible:ring-blue-500 data-[state=checked]:bg-blue-500"
       id="mobile-data"
       ngpSwitch
     >
