@@ -5,6 +5,7 @@
   "printWidth": 100,
   "trailingComma": "all",
   "importOrder": ["^[./]"],
+  "htmlWhitespaceSensitivity": "ignore",
   "importOrderSeparation": false,
   "importOrderParserPlugins": ["typescript", "jsx", "classProperties", "decorators-legacy"],
   "plugins": [

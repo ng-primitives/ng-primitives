@@ -8,8 +8,9 @@ import {
   standalone: true,
   selector: 'app-tooltip',
   imports: [NgpTooltipTriggerDirective, NgpTooltipDirective],
-  template: `<button
-      class="h-10 rounded-lg bg-white px-4 text-sm font-medium text-neutral-950 shadow-md outline-none transition-all hover:bg-neutral-200 focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 focus-visible:ring-offset-neutral-950"
+  template: `
+    <button
+      class="h-10 rounded-lg border border-zinc-200 bg-white px-4 text-sm font-medium text-zinc-950 outline-none transition-all hover:bg-zinc-100 focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-100"
       [ngpTooltipTrigger]="tooltip"
       type="button"
     >
@@ -18,11 +19,13 @@ import {
 
     <ng-template #tooltip>
       <div
-        class="fixed max-w-64 rounded-lg bg-white px-2 py-1 text-sm text-neutral-950 shadow-md"
+        class="fixed max-w-64 rounded-lg bg-zinc-950 px-3 py-2 text-xs font-medium text-white"
         ngpTooltip
       >
-        Tooltip content
+        Hover over items to reveal additional context or details. Tooltips provide quick insights
+        without cluttering your screen.
       </div>
-    </ng-template> `,
+    </ng-template>
+  `,
 })
 export default class TooltipExample {}

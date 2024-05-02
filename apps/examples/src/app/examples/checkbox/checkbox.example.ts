@@ -1,6 +1,6 @@
 import { Component, signal } from '@angular/core';
 import { NgIcon, provideIcons } from '@ng-icons/core';
-import { heroCheck } from '@ng-icons/heroicons/outline';
+import { heroCheckMini } from '@ng-icons/heroicons/mini';
 import {
   NgpCheckboxDirective,
   NgpCheckboxIndicatorDirective,
@@ -18,24 +18,28 @@ import {
     NgpCheckboxLabelDirective,
     NgpCheckboxInputDirective,
   ],
-  viewProviders: [provideIcons({ heroCheck })],
-  template: `<div
-    class="group flex select-none items-center gap-x-4"
-    [(ngpCheckboxChecked)]="checked"
-    ngpCheckbox
-  >
-    <input ngpCheckboxInput />
-
-    <button
-      class="flex size-6 cursor-pointer items-center justify-center rounded border border-white outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 focus-visible:ring-offset-neutral-950 group-hover:bg-blue-50/10 data-[state=checked]:border-blue-500 data-[state=checked]:bg-blue-500 group-hover:data-[state=checked]:bg-blue-500"
-      ngpCheckboxIndicator
+  viewProviders: [provideIcons({ heroCheckMini })],
+  template: `
+    <div
+      class="group flex select-none items-center gap-x-3"
+      [(ngpCheckboxChecked)]="checked"
+      ngpCheckbox
     >
-      @if (checked()) {
-        <ng-icon class="text-lg text-white" name="heroCheck" />
-      }
-    </button>
-    <label class="cursor-pointer text-white" ngpCheckboxLabel>Accept terms and conditions</label>
-  </div>`,
+      <input ngpCheckboxInput />
+
+      <button
+        class="flex size-5 cursor-pointer items-center justify-center rounded border border-zinc-200 bg-white shadow-sm outline-none ring-offset-2 focus-visible:ring-2 focus-visible:ring-blue-500 group-hover:bg-zinc-50 data-[state=checked]:border-zinc-950 data-[state=checked]:bg-zinc-950 data-[state=checked]:group-hover:bg-zinc-950"
+        ngpCheckboxIndicator
+      >
+        @if (checked()) {
+          <ng-icon class="text-xs text-white" name="heroCheckMini" />
+        }
+      </button>
+      <label class="cursor-pointer text-sm font-medium text-zinc-950" ngpCheckboxLabel>
+        Accept terms and conditions
+      </label>
+    </div>
+  `,
 })
 export default class CheckboxExample {
   /**

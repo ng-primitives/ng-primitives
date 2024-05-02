@@ -40,9 +40,6 @@ dependencies:
   '@floating-ui/dom':
     specifier: ^1.6.4
     version: 1.6.4
-  '@fontsource-variable/inter':
-    specifier: ^5.0.17
-    version: 5.0.17
   '@ng-icons/core':
     specifier: ^27.2.0
     version: 27.2.0
@@ -52,6 +49,9 @@ dependencies:
   '@nx/devkit':
     specifier: 18.3.3
     version: 18.3.3(nx@18.3.3)
+  inter-ui:
+    specifier: ^4.0.2
+    version: 4.0.2
   react:
     specifier: ^18.2.0
     version: 18.2.0
@@ -2547,10 +2547,6 @@ packages:
 
   /@floating-ui/utils@0.2.2:
     resolution: {integrity: sha512-J4yDIIthosAsRZ5CPYP/jQvUAQtlZTTD/4suA08/FEnlxqW3sKS9iAhgsa9VYLZ6vDHn/ixJgIqRQPotoBjxIw==}
-    dev: false
-
-  /@fontsource-variable/inter@5.0.17:
-    resolution: {integrity: sha512-sa80nNnqF8kzhBvqusWiL9vlPMVpdmOwMmDBup46Jggsr1VBqo+YuzwB36Ls+X6uHJtb8Yv3ALBHL/zGmT862A==}
     dev: false
 
   /@humanwhocodes/config-array@0.11.14:
@@ -9098,6 +9094,11 @@ packages:
       strip-ansi: 6.0.1
       wrap-ansi: 6.2.0
     dev: true
+
+  /inter-ui@4.0.2:
+    resolution: {integrity: sha512-YmfzwEtzuVzEenQwSB/tmmqi/A0a2GnFk4mG4ZFULXiO5DNk0fJWiO3o9i1sdVKuMVGx9iiNQnCq8ghWZJVVHw==}
+    engines: {node: '>=16.0.0'}
+    dev: false
 
   /internal-slot@1.0.7:
     resolution: {integrity: sha512-NGnrKwXzSms2qUUih/ILZ5JBqNTSa1+ZmP6flaIp6KmSElgE9qdndzS3cqjrDovwFdmwsGsLdeFgB6suw+1e9g==}
