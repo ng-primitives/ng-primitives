@@ -16,5 +16,13 @@ import { RouterLink } from '@angular/router';
   `,
 })
 export default class HomePage {
-  readonly pages: string[] = ['accordion', 'avatar', 'checkbox', 'progress', 'switch', 'tooltip'];
+  readonly pages: string[] = [
+    'accordion',
+    'avatar',
+    'checkbox',
+    'progress',
+    'switch',
+    'toggle',
+    'tooltip',
+  ];
 }
