@@ -36,11 +36,22 @@ export async function exampleGenerator(tree: Tree, options: ExampleGeneratorSche
     `PropertyDeclaration:has(Identifier[name="pages"]) ArrayLiteralExpression`,
     node => {
       if (ts.isArrayLiteralExpression(node)) {
+        // get the existing elements as strings
+        const elements: string[] = [options.directive];
+
+        for (const element of node.elements) {
+          if (ts.isStringLiteral(element)) {
+            elements.push(element.text);
+          }
+        }
+
+        // sort the elements alphabetically
+        elements.sort();
+
         return print(
-          ts.factory.createArrayLiteralExpression([
-            ...node.elements,
-            ts.factory.createStringLiteral(options.directive),
-          ]),
+          ts.factory.createArrayLiteralExpression(
+            elements.map(element => ts.factory.createStringLiteral(element)),
+          ),
         );
       }
 
