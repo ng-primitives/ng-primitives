@@ -6,15 +6,8 @@
  * LICENSE file in the root directory of this source tree.
  */
 import { NumberInput } from '@angular/cdk/coercion';
-import {
-  Directive,
-  OnDestroy,
-  OnInit,
-  computed,
-  input,
-  numberAttribute,
-  signal,
-} from '@angular/core';
+import { Directive, OnInit, computed, input, numberAttribute, signal } from '@angular/core';
+import { injectDisposables } from '@ng-primitives/ng-primitives/utils';
 import { NgpAvatarState } from '../avatar/avatar.directive';
 import { injectAvatar } from '../avatar/avatar.token';
 import { injectAvatarConfig } from '../config/avatar.config';
@@ -26,7 +19,7 @@ import { injectAvatarConfig } from '../config/avatar.config';
     '[style.display]': 'visible() ? null : "none"',
   },
 })
-export class NgpAvatarFallbackDirective implements OnInit, OnDestroy {
+export class NgpAvatarFallbackDirective implements OnInit {
   /**
    * Access the avatar
    */
@@ -36,6 +29,11 @@ export class NgpAvatarFallbackDirective implements OnInit, OnDestroy {
    * Access the global configuration.
    */
   private readonly config = injectAvatarConfig();
+
+  /**
+   * Access the disposable utilities.
+   */
+  private readonly disposables = injectDisposables();
 
   /**
    * Define a delay before the fallback is shown. This is useful to only show the fallback for those with slower connections.
@@ -67,12 +65,6 @@ export class NgpAvatarFallbackDirective implements OnInit, OnDestroy {
   private timeoutId: number | null = null;
 
   ngOnInit(): void {
-    this.timeoutId = window.setTimeout(() => this.delayElapsed.set(true), this.delay());
-  }
-
-  ngOnDestroy(): void {
-    if (this.timeoutId) {
-      window.clearTimeout(this.timeoutId);
-    }
+    this.disposables.setTimeout(() => this.delayElapsed.set(true), this.delay());
   }
 }
