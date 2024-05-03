@@ -7,12 +7,14 @@ import { RouterLink } from '@angular/router';
   imports: [RouterLink],
   template: `
     <ul>
-      <li><a routerLink="/examples/accordion">Accordion</a></li>
-      <li><a routerLink="/examples/checkbox">Checkbox</a></li>
-      <li><a routerLink="/examples/progress">Progess</a></li>
-      <li><a routerLink="/examples/switch">Switch</a></li>
-      <li><a routerLink="/examples/tooltip">Tooltip</a></li>
+      @for (page of pages; track page) {
+        <li>
+          <a class="capitalize" routerLink="/examples/{{ page }}">{{ page }}</a>
+        </li>
+      }
     </ul>
   `,
 })
-export default class HomePage {}
+export default class HomePage {
+  readonly pages: string[] = ['accordion', 'avatar', 'checkbox', 'progress', 'switch', 'tooltip'];
+}

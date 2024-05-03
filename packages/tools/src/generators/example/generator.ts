@@ -1,5 +1,7 @@
 import { formatFiles, generateFiles, names, Tree } from '@nx/devkit';
+import { print, replace } from '@phenomnomnominal/tsquery';
 import * as path from 'path';
+import * as ts from 'typescript';
 import { ExampleGeneratorSchema } from './schema';
 import { addRoute } from './utils';
 
@@ -20,10 +22,33 @@ export async function exampleGenerator(tree: Tree, options: ExampleGeneratorSche
     tree,
     appRoutesPath,
     `{
-    path: '${options.primitive}/${options.directive}',
+    path: 'examples/${options.directive}',
     loadComponent: () => import('./examples/${options.primitive}/${options.primitive}.example')
   }`,
   );
+
+  // add a link to the home page
+  const homePagePath = `apps/examples/src/app/pages/home/home.page.ts`;
+
+  const homePage = tree.read(homePagePath).toString('utf-8');
+  const output = replace(
+    homePage,
+    `PropertyDeclaration:has(Identifier[name="pages"]) ArrayLiteralExpression`,
+    node => {
+      if (ts.isArrayLiteralExpression(node)) {
+        return print(
+          ts.factory.createArrayLiteralExpression([
+            ...node.elements,
+            ts.factory.createStringLiteral(options.directive),
+          ]),
+        );
+      }
+
+      return node.getText();
+    },
+  );
+
+  tree.write(homePagePath, output);
 
   await formatFiles(tree);
 }
