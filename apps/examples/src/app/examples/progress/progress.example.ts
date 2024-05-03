@@ -11,12 +11,12 @@ import { injectDisposables } from '@ng-primitives/ng-primitives/utils';
   imports: [NgpProgressDirective, NgpProgressIndicatorDirective],
   template: `
     <div
-      class="relative h-3 w-80 overflow-hidden rounded-lg border border-zinc-200 bg-white"
+      class="relative h-3 w-80 overflow-hidden rounded-lg border border-neutral-200 bg-white"
       [ngpProgressValue]="value()"
       ngpProgress
     >
       <div
-        class="h-full rounded-full bg-zinc-950 transition-all"
+        class="h-full rounded-full bg-neutral-950 transition-all"
         [style.width.%]="value()"
         ngpProgressIndicator
       ></div>

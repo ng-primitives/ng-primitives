@@ -49,19 +49,6 @@ export class NgpRadioItemDirective {
   readonly checked = computed(() => this.radioGroup.value() === this.value());
 
   /**
-   * Handle keydown events.
-   * @param event The keydown event.
-   * @internal
-   */
-  @HostListener('keydown', ['$event'])
-  protected onKeydown(event: KeyboardEvent): void {
-    // According to WAI ARIA, radio groups don't activate items on enter keypress
-    if (event.key === 'Enter') {
-      event.preventDefault();
-    }
-  }
-
-  /**
    * When the item receives focus, select it.
    * @internal
    */

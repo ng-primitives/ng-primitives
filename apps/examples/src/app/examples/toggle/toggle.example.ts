@@ -7,7 +7,7 @@ import { NgpToggleDirective } from '@ng-primitives/ng-primitives/toggle';
   imports: [NgpToggleDirective],
   template: `
     <button
-      class="h-10 rounded-lg bg-white px-4 font-medium text-zinc-950 shadow outline-none ring-1 ring-black/5 transition-all hover:bg-zinc-50 focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-100 active:bg-zinc-100 data-[state=on]:bg-zinc-950 data-[state=on]:text-white"
+      class="h-10 rounded-lg bg-white px-4 font-medium text-neutral-950 shadow outline-none ring-1 ring-black/5 transition-all hover:bg-neutral-50 focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 focus-visible:ring-offset-neutral-100 active:bg-neutral-100 data-[state=on]:bg-neutral-950 data-[state=on]:text-white"
       [(ngpTogglePressed)]="pressed"
       ngpToggle
     >
