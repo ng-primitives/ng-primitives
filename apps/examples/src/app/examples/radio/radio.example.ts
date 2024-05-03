@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, signal } from '@angular/core';
 import {
   NgpRadioGroupDirective,
   NgpRadioIndicatorDirective,
@@ -10,7 +10,7 @@ import {
   selector: 'app-radio',
   imports: [NgpRadioGroupDirective, NgpRadioItemDirective, NgpRadioIndicatorDirective],
   template: `
-    <div class="flex flex-col gap-y-4" ngpRadioGroup>
+    <div class="flex flex-col gap-y-4" [(ngpRadioGroupValue)]="plan" ngpRadioGroup>
       <div
         class="group grid cursor-pointer grid-cols-[auto,1fr] grid-rows-[repeat(2,auto)] gap-x-2.5 gap-y-0.5 rounded-lg bg-white px-4 py-3 shadow outline-none ring-1 ring-black/5 hover:bg-neutral-50 focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 focus-visible:ring-offset-neutral-100 active:bg-neutral-100 data-[state=checked]:bg-neutral-950"
         ngpRadioItem
@@ -85,4 +85,11 @@ import {
     </div>
   `,
 })
-export default class RadioExample {}
+export default class RadioExample {
+  /**
+   * Store the selected plan.
+   */
+  readonly plan = signal<Plan>('indie');
+}
+
+type Plan = 'indie' | 'growth' | 'unicorn';
