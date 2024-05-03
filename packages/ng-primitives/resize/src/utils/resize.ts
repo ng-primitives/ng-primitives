@@ -12,7 +12,7 @@ import { Observable } from 'rxjs';
  * @param element The element to observe for resize events.
  * @returns The resize event as an Observable.
  */
-export function fromResizeEvent(element: HTMLElement): Observable<ResizeEvent> {
+export function fromResizeEvent(element: HTMLElement): Observable<Dimensions> {
   return new Observable(observer => {
     const resizeObserver = new ResizeObserver(entries => {
       // if there are no entries, ignore the event
@@ -44,7 +44,7 @@ export function fromResizeEvent(element: HTMLElement): Observable<ResizeEvent> {
   });
 }
 
-export interface ResizeEvent {
+export interface Dimensions {
   width: number;
   height: number;
 }

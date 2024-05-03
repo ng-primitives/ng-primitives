@@ -22,6 +22,7 @@ export default class HomePage {
     'checkbox',
     'progress',
     'radio',
+    'resize',
     'switch',
     'toggle',
     'tooltip',

@@ -7,7 +7,7 @@
  */
 import { DestroyRef, Directive, ElementRef, NgZone, OnInit, inject, output } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { ResizeEvent, fromResizeEvent } from '../utils/resize';
+import { Dimensions, fromResizeEvent } from '../utils/resize';
 
 @Directive({
   selector: '[ngpResize]',
@@ -32,7 +32,9 @@ export class NgpResizeDirective implements OnInit {
   /**
    * Emit when the element is resized.
    */
-  readonly didResize = output<ResizeEvent>();
+  readonly didResize = output<Dimensions>({
+    alias: 'ngpResize',
+  });
 
   ngOnInit(): void {
     // oberve the element for resize events

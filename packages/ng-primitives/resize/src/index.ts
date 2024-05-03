@@ -7,4 +7,4 @@
  */
 
 export { NgpResizeDirective } from './resize/resize.directive';
-export { ResizeEvent, fromResizeEvent } from './utils/resize';
+export { Dimensions, fromResizeEvent } from './utils/resize';
