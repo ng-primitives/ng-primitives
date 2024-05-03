@@ -10,7 +10,7 @@ import {
   imports: [NgpTooltipTriggerDirective, NgpTooltipDirective],
   template: `
     <button
-      class="h-10 rounded-lg border border-zinc-200 bg-white px-4 text-sm font-medium text-zinc-950 outline-none transition-all hover:bg-zinc-100 focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-100"
+      class="h-10 rounded-lg bg-white px-4 font-medium text-zinc-950 shadow outline-none ring-1 ring-black/5 transition-all hover:bg-zinc-50 focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-100 active:bg-zinc-100"
       [ngpTooltipTrigger]="tooltip"
       type="button"
     >
