@@ -12,12 +12,11 @@ import { injectRadioGroup } from '../radio-group/radio-group.token';
 import { NgpRadioItemToken } from './radio-item.token';
 
 @Directive({
-  selector: 'button[ngpRadioItem]',
+  selector: '[ngpRadioItem]',
   standalone: true,
   hostDirectives: [NgpRovingFocusItemDirective],
   providers: [{ provide: NgpRadioItemToken, useExisting: NgpRadioItemDirective }],
   host: {
-    type: 'button',
     role: 'radio',
     '[attr.aria-checked]': 'checked() ? "true" : "false"',
     '[attr.data-disabled]': 'disabled() ? "" : null',
