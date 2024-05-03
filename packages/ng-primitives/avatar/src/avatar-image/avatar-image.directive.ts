@@ -5,13 +5,16 @@
  * This source code is licensed under the CC BY-ND 4.0 license found in the
  * LICENSE file in the root directory of this source tree.
  */
-import { Directive, ElementRef, HostListener, OnInit, inject } from '@angular/core';
+import { Directive, ElementRef, HostListener, OnInit, computed, inject } from '@angular/core';
 import { NgpAvatarState } from '../avatar/avatar.directive';
 import { injectAvatar } from '../avatar/avatar.token';
 
 @Directive({
   selector: 'img[ngpAvatarImage]',
   standalone: true,
+  host: {
+    '[style.display]': 'visible() ? null : "none"',
+  },
 })
 export class NgpAvatarImageDirective implements OnInit {
   /**
@@ -23,6 +26,11 @@ export class NgpAvatarImageDirective implements OnInit {
    * Access the image element ref.
    */
   private readonly elementRef = inject<ElementRef<HTMLImageElement>>(ElementRef);
+
+  /**
+   * Determine if this element should be hidden.
+   */
+  protected readonly visible = computed(() => this.avatar.state() !== NgpAvatarState.Error);
 
   ngOnInit(): void {
     // mark the avatar as loading
