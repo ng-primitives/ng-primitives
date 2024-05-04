@@ -1,5 +1,6 @@
 import { formatFiles, generateFiles, names, Tree, updateJson } from '@nx/devkit';
 import * as path from 'path';
+import { exampleGenerator } from '../example/generator';
 import { DocumentationGeneratorSchema } from './schema';
 
 export async function documentationGenerator(tree: Tree, options: DocumentationGeneratorSchema) {
@@ -15,6 +16,13 @@ export async function documentationGenerator(tree: Tree, options: DocumentationG
     json.navigation[1].pages.sort();
     return json;
   });
+
+  if (options.example) {
+    await exampleGenerator(tree, {
+      directive: options.name,
+      primitive: options.name,
+    });
+  }
 
   await formatFiles(tree);
 }

@@ -12,7 +12,17 @@
         "index": 0
       },
       "x-prompt": "What name would you like to use?"
+    },
+    "description": {
+      "type": "string",
+      "description": "What is the description of the primitive?",
+      "x-prompt": "What description would you like to use?"
+    },
+    "example": {
+      "type": "boolean",
+      "description": "Would you like to create an example?",
+      "default": false
     }
   },
-  "required": ["name"]
+  "required": ["name", "description"]
 }

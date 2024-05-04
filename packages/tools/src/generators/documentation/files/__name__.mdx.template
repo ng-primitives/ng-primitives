@@ -1,6 +1,6 @@
 ---
 title: '<%= className %>'
-description: ''
+description: '<%= description %>'
 ---
 
 <iframe
