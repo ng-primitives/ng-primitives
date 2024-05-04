@@ -1,0 +1,69 @@
+---
+title: 'Select'
+description: ''
+---
+
+<iframe
+  style={{ width: '100%', height: '378px', borderRadius: 12 }}
+  src="https://ng-primitives.github.io/ng-primitives/#/examples/select"
+/>
+
+## Usage
+
+Assemble the select directives in your template.
+
+```html
+<div ngpSelect></div>
+```
+
+## API Reference
+
+The following directives are available to import from the `@ng-primitives/ng-primitives/select` package:
+
+### NgpSelectDirective
+
+There are no inputs or outputs for this directive.
+
+## Global Configuration
+
+You can configure the default options for all selects in your application by using the `provideNgpSelectConfig` function in a providers array.
+
+```ts
+import { provideNgpSelectConfig } from '@ng-primitives/ng-primitives/select';
+
+bootstrapApplication(AppComponent, {
+  providers: [provideNgpSelectConfig({})],
+});
+```
+
+### NgpSelectConfig
+
+## Schematics
+
+You can use our schematic to generate a new select component.
+
+<CodeGroup>
+
+```bash Angular CLI
+ng generate @ng-primitives/ng-primitives:select
+```
+
+```bash Nx
+nx generate @ng-primitives/ng-primitives:select
+```
+
+</CodeGroup>
+
+### Options
+
+<ResponseField name="name" type="string">
+  The name of the component.
+</ResponseField>
+
+<ResponseField name="project" type="string">
+  The name of the project to add the component to.
+</ResponseField>
+
+<ResponseField name="path" type="string">
+  The path to create the component.
+</ResponseField>

@@ -24,6 +24,7 @@ export default class HomePage {
     'radio',
     'resize',
     'roving-focus',
+    'select',
     'switch',
     'tabs',
     'toggle',

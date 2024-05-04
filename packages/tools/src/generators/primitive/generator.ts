@@ -17,6 +17,8 @@ export async function primitiveGenerator(tree: Tree, options: PrimitiveGenerator
   if (options.addDocumentation) {
     await documentationGenerator(tree, {
       name: options.name,
+      description: '',
+      example: true,
     });
   }
 

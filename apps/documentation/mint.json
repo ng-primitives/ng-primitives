@@ -41,6 +41,7 @@
         "primitives/radio",
         "primitives/resize",
         "primitives/roving-focus",
+        "primitives/select",
         "primitives/switch",
         "primitives/tabs",
         "primitives/toggle",
