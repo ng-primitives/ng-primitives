@@ -35,15 +35,17 @@ export class NgpRovingFocusGroupDirective {
   /**
    * Determine if focus should wrap when the end or beginning is reached.
    */
-  readonly wrap = input<boolean>(true, {
+  readonly wrap = input<boolean, BooleanInput>(true, {
     alias: 'ngpRovingFocusGroupWrap',
+    transform: booleanAttribute,
   });
 
   /**
    * Determine if the home and end keys should navigate to the first and last items.
    */
-  readonly homeEnd = input<boolean>(true, {
+  readonly homeEnd = input<boolean, BooleanInput>(true, {
     alias: 'ngpRovingFocusGroupHomeEnd',
+    transform: booleanAttribute,
   });
 
   /**

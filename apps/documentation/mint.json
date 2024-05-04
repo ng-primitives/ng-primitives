@@ -40,6 +40,7 @@
         "primitives/progress",
         "primitives/radio",
         "primitives/resize",
+        "primitives/roving-focus",
         "primitives/switch",
         "primitives/toggle",
         "primitives/tooltip"

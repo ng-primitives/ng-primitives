@@ -5,7 +5,7 @@ description: ''
 
 <iframe
   style={{ width: '100%', height: '378px', borderRadius: 12 }}
-  src="http://localhost:4200/<%= fileName %>/<%= fileName %>"
+  src="https://ng-primitives.github.io/ng-primitives/#/examples/<%= fileName %>"
 />
 
 ## Usage
@@ -19,7 +19,7 @@ Assemble the <%= fileName %> directives in your template.
 
 ## API Reference
 
-The following directives are available to import from the `@ng-primitives/ng-primitives` package:
+The following directives are available to import from the `@ng-primitives/ng-primitives/<%= fileName %>` package:
 
 ### Ngp<%= className %>Directive
 

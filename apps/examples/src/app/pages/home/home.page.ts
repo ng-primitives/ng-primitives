@@ -23,6 +23,7 @@ export default class HomePage {
     'progress',
     'radio',
     'resize',
+    'roving-focus',
     'switch',
     'toggle',
     'tooltip',
