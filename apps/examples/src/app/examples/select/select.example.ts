@@ -32,18 +32,18 @@ import {
       </button>
 
       <ul
-        class="absolute mt-1 flex max-h-60 w-full flex-col gap-y-0.5 overflow-auto rounded-lg bg-white p-1 shadow-md ring-1 ring-black/5 focus:outline-none"
+        class="absolute mt-1 flex max-h-60 w-full flex-col gap-y-0.5 overflow-auto rounded-lg bg-white p-1 shadow-md outline-none ring-1 ring-black/5"
         *ngpSelectOptions
-        aria-labelledby="headlessui-listbox-button-:Rd6:"
+        aria-labelledby="select-button"
         aria-orientation="vertical"
         role="listbox"
         tabindex="0"
-        aria-activedescendant="headlessui-listbox-option-:ru:"
+        aria-activedescendant="option-1"
       >
         @for (employee of employees; track employee.id) {
           <li
             class="flex cursor-pointer select-none flex-col gap-y-0.5 rounded py-1.5 pl-4 pr-4 text-gray-900 hover:bg-neutral-50 hover:ring-1 hover:ring-black/5"
-            id="headlessui-listbox-option-:rt:"
+            id="option-{{ employee.id }}"
             [ngpSelectOptionValue]="employee"
             ngpSelectOption
             role="option"
