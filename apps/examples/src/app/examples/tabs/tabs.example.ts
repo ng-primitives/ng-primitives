@@ -18,21 +18,21 @@ import {
     >
       <div class="flex gap-x-4 py-2" ngpTabList>
         <button
-          class="w-24 rounded-lg px-3 py-1.5 shadow outline-none ring-1 ring-black/5 transition-all hover:bg-neutral-50 focus-visible:ring-2 focus-visible:ring-blue-500 data-[state=active]:bg-neutral-950 data-[state=active]:text-white"
+          class="w-24 rounded-lg px-3 py-2 shadow outline-none ring-1 ring-black/5 transition-all hover:bg-neutral-50 focus-visible:ring-2 focus-visible:ring-blue-500 data-[state=active]:bg-neutral-950 data-[state=active]:text-white"
           ngpTabButton
           ngpTabButtonValue="overview"
         >
           Overview
         </button>
         <button
-          class="w-24 rounded-lg px-3 py-1.5 shadow outline-none ring-1 ring-black/5 transition-all hover:bg-neutral-50 focus-visible:ring-2 focus-visible:ring-blue-500 data-[state=active]:bg-neutral-950 data-[state=active]:text-white"
+          class="w-24 rounded-lg px-3 py-2 shadow outline-none ring-1 ring-black/5 transition-all hover:bg-neutral-50 focus-visible:ring-2 focus-visible:ring-blue-500 data-[state=active]:bg-neutral-950 data-[state=active]:text-white"
           ngpTabButton
           ngpTabButtonValue="features"
         >
           Features
         </button>
         <button
-          class="w-24 rounded-lg px-3 py-1.5 shadow outline-none ring-1 ring-black/5 transition-all hover:bg-neutral-50 focus-visible:ring-2 focus-visible:ring-blue-500 data-[state=active]:bg-neutral-950 data-[state=active]:text-white"
+          class="w-24 rounded-lg px-3 py-2 shadow outline-none ring-1 ring-black/5 transition-all hover:bg-neutral-50 focus-visible:ring-2 focus-visible:ring-blue-500 data-[state=active]:bg-neutral-950 data-[state=active]:text-white"
           ngpTabButton
           ngpTabButtonValue="pricing"
         >
