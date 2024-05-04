@@ -20,16 +20,12 @@
       "@ng-primitives/ng-primitives/accordion": ["packages/ng-primitives/accordion/src/index.ts"],
       "@ng-primitives/ng-primitives/avatar": ["packages/ng-primitives/avatar/src/index.ts"],
       "@ng-primitives/ng-primitives/checkbox": ["packages/ng-primitives/checkbox/src/index.ts"],
-      "@ng-primitives/ng-primitives/collapsible": [
-        "packages/ng-primitives/collapsible/src/index.ts"
-      ],
       "@ng-primitives/ng-primitives/progress": ["packages/ng-primitives/progress/src/index.ts"],
       "@ng-primitives/ng-primitives/radio": ["packages/ng-primitives/radio/src/index.ts"],
       "@ng-primitives/ng-primitives/resize": ["packages/ng-primitives/resize/src/index.ts"],
       "@ng-primitives/ng-primitives/roving-focus": [
         "packages/ng-primitives/roving-focus/src/index.ts"
       ],
-      "@ng-primitives/ng-primitives/separator": ["packages/ng-primitives/separator/src/index.ts"],
       "@ng-primitives/ng-primitives/switch": ["packages/ng-primitives/switch/src/index.ts"],
       "@ng-primitives/ng-primitives/tabs": ["packages/ng-primitives/tabs/src/index.ts"],
       "@ng-primitives/ng-primitives/toggle": ["packages/ng-primitives/toggle/src/index.ts"],
