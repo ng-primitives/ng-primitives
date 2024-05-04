@@ -2,6 +2,10 @@ import { Route } from '@angular/router';
 
 export const appRoutes: Route[] = [
   {
+    path: 'examples/tabs',
+    loadComponent: () => import('./examples/tabs/tabs.example'),
+  },
+  {
     path: 'examples/roving-focus',
     loadComponent: () => import('./examples/roving-focus/roving-focus.example'),
   },

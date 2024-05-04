@@ -42,6 +42,7 @@
         "primitives/resize",
         "primitives/roving-focus",
         "primitives/switch",
+        "primitives/tabs",
         "primitives/toggle",
         "primitives/tooltip"
       ]
