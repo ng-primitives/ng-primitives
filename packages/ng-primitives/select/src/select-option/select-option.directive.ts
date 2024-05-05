@@ -6,7 +6,9 @@
  * LICENSE file in the root directory of this source tree.
  */
 import { BooleanInput } from '@angular/cdk/coercion';
-import { Directive, booleanAttribute, input } from '@angular/core';
+import { Directive, booleanAttribute, computed, input } from '@angular/core';
+import { uniqueId } from '../../../utils/src';
+import { injectSelect } from '../select/select.token';
 import { NgpSelectOptionToken } from './select-option.token';
 
 @Directive({
@@ -14,8 +16,26 @@ import { NgpSelectOptionToken } from './select-option.token';
   selector: '[ngpSelectOption]',
   exportAs: 'ngpSelectOption',
   providers: [{ provide: NgpSelectOptionToken, useExisting: NgpSelectOptionDirective }],
+  host: {
+    role: 'option',
+    '[attr.id]': 'id()',
+    '[attr.aria-selected]': 'selected()',
+    '[attr.aria-disabled]': 'disabled()',
+    '[attr.data-state]': 'selected() ? "selected" : "unselected"',
+    '[attr.data-disabled]': 'disabled()',
+  },
 })
 export class NgpSelectOptionDirective<T> {
+  /**
+   * Access the parent select component.
+   */
+  protected readonly select = injectSelect<T>();
+
+  /**
+   * Optionally define an id for the option. By default, the id is generated.
+   */
+  readonly id = input<string>(uniqueId('select-option'));
+
   /**
    * The value of the option.
    */
@@ -30,4 +50,9 @@ export class NgpSelectOptionDirective<T> {
     alias: 'ngpSelectOptionDisabled',
     transform: booleanAttribute,
   });
+
+  /**
+   * Determine if the option is selected.
+   */
+  protected readonly selected = computed(() => this.select.value() === this.value());
 }

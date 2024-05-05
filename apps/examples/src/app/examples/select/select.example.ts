@@ -22,7 +22,7 @@ import {
   template: `
     <div class="relative -mt-24 w-72" [(ngpSelectValue)]="selectedEmployee" ngpSelect>
       <button
-        class="relative h-10 w-full rounded-lg bg-white px-4 text-start shadow ring-1 ring-black/5"
+        class="relative h-10 w-full rounded-lg bg-white px-4 text-start shadow outline-none ring-1 ring-black/5 focus-visible:ring-2 focus-visible:ring-blue-500"
         ngpSelectButton
       >
         <span class="block truncate">{{ selectedEmployee().name }}</span>
@@ -32,12 +32,8 @@ import {
       </button>
 
       <ul
-        class="absolute mt-1 flex max-h-60 w-full flex-col gap-y-0.5 overflow-auto rounded-lg bg-white p-1 shadow-md outline-none ring-1 ring-black/5"
-        *ngpSelectOptions
-        aria-labelledby="select-button"
-        aria-orientation="vertical"
-        role="listbox"
-        tabindex="0"
+        class="absolute mt-1 flex max-h-60 w-full flex-col gap-y-0.5 overflow-auto rounded-lg bg-white p-1 shadow-md outline-none ring-1 ring-black/5 data-[state=closed]:hidden"
+        ngpSelectOptions
         aria-activedescendant="option-1"
       >
         @for (employee of employees; track employee.id) {

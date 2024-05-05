@@ -5,7 +5,8 @@
  * This source code is licensed under the CC BY-ND 4.0 license found in the
  * LICENSE file in the root directory of this source tree.
  */
-import { Directive, TemplateRef, ViewContainerRef, effect, inject } from '@angular/core';
+import { ChangeDetectorRef, Directive, ElementRef, effect, inject, input } from '@angular/core';
+import { uniqueId } from '../../../utils/src';
 import { injectSelect } from '../select/select.token';
 import { NgpSelectOptionsToken } from './select-options.token';
 
@@ -14,6 +15,15 @@ import { NgpSelectOptionsToken } from './select-options.token';
   selector: '[ngpSelectOptions]',
   exportAs: 'ngpSelectOptions',
   providers: [{ provide: NgpSelectOptionsToken, useExisting: NgpSelectOptionsDirective }],
+  host: {
+    role: 'listbox',
+    '[attr.id]': 'id()',
+    '[attr.aria-labelledby]': 'select.button().id()',
+    '[attr.tabindex]': '0',
+    '[attr.data-state]': 'select.open() ? "open" : "closed"',
+    '(keydown)': 'keydown($event)',
+    '(document:click)': 'closeOnOutsideClick($event)',
+  },
 })
 export class NgpSelectOptionsDirective {
   /**
@@ -22,23 +32,73 @@ export class NgpSelectOptionsDirective {
   protected readonly select = injectSelect<unknown>();
 
   /**
-   * Access the template ref
+   * Access the element reference.
    */
-  private readonly templateRef = inject(TemplateRef);
+  protected readonly element = inject(ElementRef<HTMLElement>);
 
   /**
-   * Access the viewContainerRef
+   * Access the change detector.
    */
-  private readonly viewContainerRef = inject(ViewContainerRef);
+  protected readonly changeDetector = inject(ChangeDetectorRef);
 
+  /**
+   * Optionally define an id for the options list. By default, the id is generated.
+   */
+  readonly id = input(uniqueId('select-options'));
+
+  /**
+   * Focus the options list when it becomes visible.
+   */
   constructor() {
-    // show or hide the options based on the select open state
-    effect(() => {
-      if (this.select.open()) {
-        this.viewContainerRef.createEmbeddedView(this.templateRef);
-      } else {
-        this.viewContainerRef.clear();
-      }
-    });
+    // update the mounted state when the select dropdown is opened or closed
+    effect(() => (this.select.open() ? this.open() : this.close()), { allowSignalWrites: true });
+  }
+
+  /**
+   * Handle the opening of the options list.
+   */
+  private open(): void {
+    // force change detection to ensure the options list is visible before focusing
+    this.changeDetector.detectChanges();
+    this.element.nativeElement.focus();
+  }
+
+  /**
+   * Handle the closing of the options list.
+   */
+  private close(): void {
+    this.select.open.set(false);
+  }
+
+  /**
+   * If the user clicks outside of the options list, close the dropdown.
+   */
+  protected closeOnOutsideClick(event: MouseEvent): void {
+    // if the user performs a click that is not within the options list or the slect button, close the dropdown
+    if (
+      !this.element.nativeElement.contains(event.target) &&
+      !this.select.button().element.nativeElement.contains(event.target)
+    ) {
+      this.close();
+    }
+  }
+
+  /**
+   * Handle keyboard events.
+   *
+   * - If the user presses the tab key keep focus on the dropdown.
+   * - If the user presses the escape key, close the dropdown.
+   */
+  protected keydown(event: KeyboardEvent) {
+    // prevent the default tab behavior - this is essentially a focus trap
+    if (event.key === 'Tab') {
+      event.preventDefault();
+      event.stopPropagation();
+    }
+
+    // if the escape key is pressed, close the dropdown
+    if (event.key === 'Escape') {
+      this.close();
+    }
   }
 }

@@ -6,7 +6,9 @@
  * LICENSE file in the root directory of this source tree.
  */
 import { BooleanInput } from '@angular/cdk/coercion';
-import { Directive, booleanAttribute, input, model } from '@angular/core';
+import { Directive, booleanAttribute, contentChild, input, model } from '@angular/core';
+import { NgpSelectButtonToken } from '../select-button/select-button.token';
+import { NgpSelectOptionsToken } from '../select-options/select-options.token';
 import { NgpSelectToken } from './select.token';
 
 @Directive({
@@ -24,14 +26,6 @@ export class NgpSelectDirective<T> {
   });
 
   /**
-   * Whether multiple values can be selected.
-   */
-  readonly multiple = input<boolean, BooleanInput>(false, {
-    alias: 'ngpSelectMultiple',
-    transform: booleanAttribute,
-  });
-
-  /**
    * Whether the select dropdown is open.
    */
   readonly open = model<boolean>(false, {
@@ -44,5 +38,21 @@ export class NgpSelectDirective<T> {
   readonly disabled = input<boolean, BooleanInput>(false, {
     alias: 'ngpSelectDisabled',
     transform: booleanAttribute,
+  });
+
+  /**
+   * Access the select button instance.
+   * @internal
+   */
+  readonly button = contentChild.required(NgpSelectButtonToken, {
+    descendants: true,
+  });
+
+  /**
+   * Access the select options instance.
+   * @internal
+   */
+  readonly options = contentChild.required(NgpSelectOptionsToken, {
+    descendants: true,
   });
 }
