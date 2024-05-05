@@ -7,7 +7,7 @@
  */
 import { BooleanInput } from '@angular/cdk/coercion';
 import { Directive, booleanAttribute, computed, input } from '@angular/core';
-import { uniqueId } from '../../../utils/src';
+import { uniqueId } from '@ng-primitives/ng-primitives/utils';
 import { injectSelect } from '../select/select.token';
 import { NgpSelectOptionToken } from './select-option.token';
 

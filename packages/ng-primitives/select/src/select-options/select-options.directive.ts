@@ -6,7 +6,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 import { ChangeDetectorRef, Directive, ElementRef, effect, inject, input } from '@angular/core';
-import { uniqueId } from '../../../utils/src';
+import { uniqueId } from '@ng-primitives/ng-primitives/utils';
 import { injectSelect } from '../select/select.token';
 import { NgpSelectOptionsToken } from './select-options.token';
 
@@ -72,6 +72,7 @@ export class NgpSelectOptionsDirective {
 
   /**
    * If the user clicks outside of the options list, close the dropdown.
+   * @param event
    */
   protected closeOnOutsideClick(event: MouseEvent): void {
     // if the user performs a click that is not within the options list or the slect button, close the dropdown
@@ -88,6 +89,7 @@ export class NgpSelectOptionsDirective {
    *
    * - If the user presses the tab key keep focus on the dropdown.
    * - If the user presses the escape key, close the dropdown.
+   * @param event
    */
   protected keydown(event: KeyboardEvent) {
     // prevent the default tab behavior - this is essentially a focus trap

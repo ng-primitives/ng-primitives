@@ -6,7 +6,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 import { Directive, ElementRef, inject, input } from '@angular/core';
-import { uniqueId } from '../../../utils/src';
+import { uniqueId } from '@ng-primitives/ng-primitives/utils';
 import { injectSelect } from '../select/select.token';
 import { NgpSelectButtonToken } from './select-button.token';
 
@@ -53,6 +53,7 @@ export class NgpSelectButtonDirective {
   /**
    * Handle keyboard events. If the list is closed, open it when the user presses the arrow keys.
    * If the list is open then we navigate using active descendant.
+   * @param event
    */
   protected keydown(event: KeyboardEvent) {
     if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {

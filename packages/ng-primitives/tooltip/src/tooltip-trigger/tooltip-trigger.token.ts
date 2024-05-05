@@ -21,6 +21,7 @@ export function injectTooltipTrigger(): NgpTooltipTriggerDirective {
 
 /**
  * Provides the TooltipTrigger directive instance
+ * @param trigger
  */
 export function provideTooltipTrigger(trigger: NgpTooltipTriggerDirective) {
   return { provide: NgpTooltipTriggerToken, useValue: trigger };
