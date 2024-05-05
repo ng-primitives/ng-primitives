@@ -36,14 +36,14 @@ import {
       ngpRovingFocusGroupHomeEnd="true"
     >
       <button
-        class="inline-flex size-8 items-center justify-center rounded outline-none transition-all hover:bg-neutral-50 hover:ring-1 hover:ring-black/5 focus-visible:ring-2 focus-visible:ring-blue-500"
+        class="inline-flex size-8 items-center justify-center rounded outline-none transition-all hover:bg-neutral-50 hover:ring-1 hover:ring-black/5 focus-visible:ring-2 focus-visible:ring-blue-500 active:bg-neutral-100"
         type="button"
         ngpRovingFocusItem
       >
         <ng-icon class="text-lg text-neutral-700" name="heroDocument" />
       </button>
       <button
-        class="inline-flex size-8 items-center justify-center rounded outline-none transition-all hover:bg-neutral-50 hover:ring-1 hover:ring-black/5 focus-visible:ring-2 focus-visible:ring-blue-500"
+        class="inline-flex size-8 items-center justify-center rounded outline-none transition-all hover:bg-neutral-50 hover:ring-1 hover:ring-black/5 focus-visible:ring-2 focus-visible:ring-blue-500 active:bg-neutral-100"
         type="button"
         ngpRovingFocusItem
       >
@@ -53,7 +53,7 @@ import {
       <div class="mx-1 h-6 w-px bg-neutral-200"></div>
 
       <button
-        class="inline-flex size-8 items-center justify-center rounded outline-none transition-all hover:bg-neutral-50 hover:ring-1 hover:ring-black/5 focus-visible:ring-2 focus-visible:ring-blue-500"
+        class="inline-flex size-8 items-center justify-center rounded outline-none transition-all hover:bg-neutral-50 hover:ring-1 hover:ring-black/5 focus-visible:ring-2 focus-visible:ring-blue-500 active:bg-neutral-100"
         type="button"
         ngpRovingFocusItem
       >
@@ -61,7 +61,7 @@ import {
       </button>
 
       <button
-        class="inline-flex size-8 items-center justify-center rounded outline-none transition-all hover:bg-neutral-50 hover:ring-1 hover:ring-black/5 focus-visible:ring-2 focus-visible:ring-blue-500"
+        class="inline-flex size-8 items-center justify-center rounded outline-none transition-all hover:bg-neutral-50 hover:ring-1 hover:ring-black/5 focus-visible:ring-2 focus-visible:ring-blue-500 active:bg-neutral-100"
         type="button"
         ngpRovingFocusItem
       >
@@ -69,7 +69,7 @@ import {
       </button>
 
       <button
-        class="inline-flex size-8 items-center justify-center rounded outline-none transition-all hover:bg-neutral-50 hover:ring-1 hover:ring-black/5 focus-visible:ring-2 focus-visible:ring-blue-500"
+        class="inline-flex size-8 items-center justify-center rounded outline-none transition-all hover:bg-neutral-50 hover:ring-1 hover:ring-black/5 focus-visible:ring-2 focus-visible:ring-blue-500 active:bg-neutral-100"
         type="button"
         ngpRovingFocusItem
       >
@@ -79,7 +79,7 @@ import {
       <div class="mx-1 h-6 w-px bg-neutral-200"></div>
 
       <button
-        class="inline-flex size-8 items-center justify-center rounded outline-none transition-all hover:bg-neutral-50 hover:ring-1 hover:ring-black/5 focus-visible:ring-2 focus-visible:ring-blue-500"
+        class="inline-flex size-8 items-center justify-center rounded outline-none transition-all hover:bg-neutral-50 hover:ring-1 hover:ring-black/5 focus-visible:ring-2 focus-visible:ring-blue-500 active:bg-neutral-100"
         type="button"
         ngpRovingFocusItem
       >
