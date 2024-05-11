@@ -64,15 +64,15 @@ export class NgpRovingFocusGroupDirective {
   /**
    * Get the items in the roving focus group sorted by order.
    */
-  readonly sortedItems = computed(() =>
-    this.items().sort((a, b) => {
+  private get sortedItems() {
+    return this.items().sort((a, b) => {
       // sort the items by their position in the document
       return a.elementRef.nativeElement.compareDocumentPosition(b.elementRef.nativeElement) &
         Node.DOCUMENT_POSITION_FOLLOWING
         ? -1
         : 1;
-    }),
-  );
+    });
+  }
 
   /**
    * Store the active item in the roving focus group.
@@ -124,7 +124,7 @@ export class NgpRovingFocusGroupDirective {
    */
   private activateFirstItem(origin: FocusOrigin): void {
     // find the first item that is not disabled
-    const item = this.sortedItems().find(i => !i.disabled()) ?? null;
+    const item = this.sortedItems.find(i => !i.disabled()) ?? null;
 
     // set the first item as the active item
     this.setActiveItem(item, origin);
@@ -136,7 +136,7 @@ export class NgpRovingFocusGroupDirective {
    */
   private activateLastItem(origin: FocusOrigin): void {
     // find the last item that is not disabled
-    const item = [...this.sortedItems()].reverse().find(i => !i.disabled()) ?? null;
+    const item = [...this.sortedItems].reverse().find(i => !i.disabled()) ?? null;
 
     // set the last item as the active item
     this.setActiveItem(item, origin);
@@ -156,13 +156,10 @@ export class NgpRovingFocusGroupDirective {
     }
 
     // find the index of the active item
-    const index = this.sortedItems().indexOf(activeItem);
+    const index = this.sortedItems.indexOf(activeItem);
 
     // find the next item that is not disabled
-    const item =
-      this.sortedItems()
-        .slice(index + 1)
-        .find(i => !i.disabled()) ?? null;
+    const item = this.sortedItems.slice(index + 1).find(i => !i.disabled()) ?? null;
 
     // if we are at the end of the list, wrap to the beginning
     if (!item && this.wrap()) {
@@ -193,11 +190,11 @@ export class NgpRovingFocusGroupDirective {
     }
 
     // find the index of the active item
-    const index = this.sortedItems().indexOf(activeItem);
+    const index = this.sortedItems.indexOf(activeItem);
 
     // find the previous item that is not disabled
     const item =
-      this.sortedItems()
+      this.sortedItems
         .slice(0, index)
         .reverse()
         .find(i => !i.disabled()) ?? null;
