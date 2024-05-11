@@ -5,8 +5,18 @@
  * This source code is licensed under the CC BY-ND 4.0 license found in the
  * LICENSE file in the root directory of this source tree.
  */
-import { ChangeDetectorRef, Directive, ElementRef, effect, inject, input } from '@angular/core';
+import { ActiveDescendantKeyManager } from '@angular/cdk/a11y';
+import {
+  ChangeDetectorRef,
+  Directive,
+  ElementRef,
+  contentChildren,
+  effect,
+  inject,
+  input,
+} from '@angular/core';
 import { uniqueId } from '@ng-primitives/ng-primitives/utils';
+import { NgpSelectOptionToken } from '../select-option/select-option.token';
 import { injectSelect } from '../select/select.token';
 import { NgpSelectOptionsToken } from './select-options.token';
 
@@ -42,9 +52,19 @@ export class NgpSelectOptionsDirective {
   protected readonly changeDetector = inject(ChangeDetectorRef);
 
   /**
+   * Access all the options in the list.
+   */
+  private readonly options = contentChildren(NgpSelectOptionToken, { descendants: true });
+
+  /**
    * Optionally define an id for the options list. By default, the id is generated.
    */
   readonly id = input(uniqueId('select-options'));
+
+  /**
+   * Handle the active descendant.
+   */
+  private readonly activeDescendantKeyManager = new ActiveDescendantKeyManager(this.options);
 
   /**
    * Focus the options list when it becomes visible.
