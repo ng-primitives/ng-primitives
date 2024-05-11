@@ -7,15 +7,21 @@
  */
 import { ActiveDescendantKeyManager } from '@angular/cdk/a11y';
 import {
+  AfterViewInit,
   ChangeDetectorRef,
   Directive,
   ElementRef,
+  Injector,
+  Signal,
   contentChildren,
   effect,
   inject,
   input,
+  signal,
 } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { uniqueId } from '@ng-primitives/ng-primitives/utils';
+import { NgpSelectOptionDirective } from '../select-option/select-option.directive';
 import { NgpSelectOptionToken } from '../select-option/select-option.token';
 import { injectSelect } from '../select/select.token';
 import { NgpSelectOptionsToken } from './select-options.token';
@@ -30,21 +36,27 @@ import { NgpSelectOptionsToken } from './select-options.token';
     '[attr.id]': 'id()',
     '[attr.aria-labelledby]': 'select.button().id()',
     '[attr.tabindex]': '0',
+    '[attr.aria-activedescendant]': 'activeDescendant()',
     '[attr.data-state]': 'select.open() ? "open" : "closed"',
     '(keydown)': 'keydown($event)',
     '(document:click)': 'closeOnOutsideClick($event)',
   },
 })
-export class NgpSelectOptionsDirective {
+export class NgpSelectOptionsDirective<T> implements AfterViewInit {
   /**
    * Access the parent select component.
    */
-  protected readonly select = injectSelect<unknown>();
+  protected readonly select = injectSelect<T>();
+
+  /**
+   * Access the injector.
+   */
+  private readonly injector = inject(Injector);
 
   /**
    * Access the element reference.
    */
-  protected readonly element = inject(ElementRef<HTMLElement>);
+  protected readonly element = inject<ElementRef<HTMLElement>>(ElementRef);
 
   /**
    * Access the change detector.
@@ -54,7 +66,9 @@ export class NgpSelectOptionsDirective {
   /**
    * Access all the options in the list.
    */
-  private readonly options = contentChildren(NgpSelectOptionToken, { descendants: true });
+  private readonly options = contentChildren<NgpSelectOptionDirective<T>>(NgpSelectOptionToken, {
+    descendants: true,
+  });
 
   /**
    * Optionally define an id for the options list. By default, the id is generated.
@@ -64,7 +78,15 @@ export class NgpSelectOptionsDirective {
   /**
    * Handle the active descendant.
    */
-  private readonly activeDescendantKeyManager = new ActiveDescendantKeyManager(this.options);
+  private readonly activeDescendantKeyManager = new ActiveDescendantKeyManager(
+    this.options as Signal<NgpSelectOptionDirective<T>[]>,
+    this.injector,
+  );
+
+  /**
+   * Get the active descendant id
+   */
+  private readonly activeDescendant = signal<string | null>(null);
 
   /**
    * Focus the options list when it becomes visible.
@@ -72,6 +94,24 @@ export class NgpSelectOptionsDirective {
   constructor() {
     // update the mounted state when the select dropdown is opened or closed
     effect(() => (this.select.open() ? this.open() : this.close()), { allowSignalWrites: true });
+
+    // whenever the active descendant changes update the active descendant id
+    this.activeDescendantKeyManager.change
+      .pipe(takeUntilDestroyed())
+      .subscribe(() =>
+        this.activeDescendant.set(this.activeDescendantKeyManager.activeItem?.id() ?? null),
+      );
+  }
+
+  ngAfterViewInit(): void {
+    // by default the selected option should be active when the options list is opened.
+    // if there is no selected option, the first option should be active.
+    if (this.select.value() === null) {
+      this.activeDescendantKeyManager.setFirstItemActive();
+    } else {
+      const selectedOption = this.options().find(option => option.value() === this.select.value());
+      this.activeDescendantKeyManager.setActiveItem(selectedOption ?? this.options()[0]);
+    }
   }
 
   /**
@@ -97,8 +137,8 @@ export class NgpSelectOptionsDirective {
   protected closeOnOutsideClick(event: MouseEvent): void {
     // if the user performs a click that is not within the options list or the slect button, close the dropdown
     if (
-      !this.element.nativeElement.contains(event.target) &&
-      !this.select.button().element.nativeElement.contains(event.target)
+      !this.element.nativeElement.contains(event.target as Node) &&
+      !this.select.button().element.nativeElement.contains(event.target as Node)
     ) {
       this.close();
     }
@@ -112,6 +152,9 @@ export class NgpSelectOptionsDirective {
    * @param event
    */
   protected keydown(event: KeyboardEvent) {
+    // forward the keyboard event to the active descendant key manager
+    this.activeDescendantKeyManager.onKeydown(event);
+
     // prevent the default tab behavior - this is essentially a focus trap
     if (event.key === 'Tab') {
       event.preventDefault();
@@ -121,6 +164,18 @@ export class NgpSelectOptionsDirective {
     // if the escape key is pressed, close the dropdown
     if (event.key === 'Escape') {
       this.close();
+    }
+
+    // if the space or enter key is pressed, select the active option
+    if (event.key === ' ' || event.key === 'Enter') {
+      const activeItem = this.activeDescendantKeyManager.activeItem;
+
+      if (activeItem && !activeItem.isDisabled()) {
+        this.select.value.set(activeItem.value());
+        this.close();
+        // restore focus to the select button
+        this.select.button().focus();
+      }
     }
   }
 }

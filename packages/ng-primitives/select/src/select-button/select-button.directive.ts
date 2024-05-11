@@ -6,7 +6,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 import { Directive, ElementRef, inject, input } from '@angular/core';
-import { uniqueId } from '@ng-primitives/ng-primitives/utils';
+import { injectDisposables, uniqueId } from '@ng-primitives/ng-primitives/utils';
 import { injectSelect } from '../select/select.token';
 import { NgpSelectButtonToken } from './select-button.token';
 
@@ -33,10 +33,15 @@ export class NgpSelectButtonDirective {
   protected readonly select = injectSelect<unknown>();
 
   /**
+   * Access the disposable helpers.
+   */
+  private readonly disposables = injectDisposables();
+
+  /**
    * Access the element reference.
    * @internal
    */
-  readonly element = inject(ElementRef<HTMLElement>);
+  readonly element = inject<ElementRef<HTMLElement>>(ElementRef);
 
   /**
    * Optionally define an id for the button. By default, the id is generated.
@@ -58,11 +63,29 @@ export class NgpSelectButtonDirective {
   protected keydown(event: KeyboardEvent) {
     if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
       this.select.open.set(true);
+      // stop the event from triggering scrolling on the dropdown
+      event.preventDefault();
     }
 
     // if the escape key is pressed, close the dropdown
     if (event.key === 'Escape') {
       this.select.open.set(false);
     }
+  }
+
+  /**
+   * Focus the button element.
+   * @internal
+   */
+  focus() {
+    // we run after the next tick to ensure any in-progress events do not get
+    // redirected to the button element
+    this.disposables.requestAnimationFrame(() => {
+      // to ensure the focus indicator is shown when using focus-visible we
+      // must trick the browser into thinking the element is editable
+      this.element.nativeElement.contentEditable = 'true';
+      this.element.nativeElement.focus();
+      this.element.nativeElement.contentEditable = 'false';
+    });
   }
 }

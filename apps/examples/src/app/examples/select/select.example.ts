@@ -34,17 +34,12 @@ import {
       <ul
         class="absolute mt-1 flex max-h-60 w-full flex-col gap-y-0.5 overflow-auto rounded-lg bg-white p-1 shadow-md outline-none ring-1 ring-black/5 data-[state=closed]:hidden"
         ngpSelectOptions
-        aria-activedescendant="option-1"
       >
         @for (employee of employees; track employee.id) {
           <li
-            class="flex cursor-pointer select-none flex-col gap-y-0.5 rounded py-1.5 pl-4 pr-4 text-gray-900 hover:bg-neutral-50 hover:ring-1 hover:ring-black/5"
-            id="option-{{ employee.id }}"
+            class="flex cursor-pointer select-none scroll-my-1 flex-col gap-y-0.5 rounded py-1.5 pl-4 pr-4 text-gray-900 hover:bg-neutral-50 hover:ring-1 hover:ring-black/5 data-[active]:bg-blue-50 data-[active]:ring-1 data-[active]:ring-blue-500/20"
             [ngpSelectOptionValue]="employee"
             ngpSelectOption
-            role="option"
-            tabindex="-1"
-            aria-selected="false"
           >
             <span class="block truncate">{{ employee.name }}</span>
             <span class="block truncate text-xs text-neutral-500">{{ employee.role }}</span>

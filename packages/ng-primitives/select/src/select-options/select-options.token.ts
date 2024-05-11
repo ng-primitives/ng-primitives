@@ -8,13 +8,13 @@
 import { InjectionToken, inject } from '@angular/core';
 import type { NgpSelectOptionsDirective } from './select-options.directive';
 
-export const NgpSelectOptionsToken = new InjectionToken<NgpSelectOptionsDirective>(
+export const NgpSelectOptionsToken = new InjectionToken<NgpSelectOptionsDirective<unknown>>(
   'NgpSelectOptionsToken',
 );
 
 /**
  * Inject the SelectOptions directive instance
  */
-export function injectSelectOptions(): NgpSelectOptionsDirective {
-  return inject(NgpSelectOptionsToken);
+export function injectSelectOptions<T>(): NgpSelectOptionsDirective<T> {
+  return inject(NgpSelectOptionsToken) as NgpSelectOptionsDirective<T>;
 }
