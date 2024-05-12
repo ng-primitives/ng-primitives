@@ -5,7 +5,7 @@
  * This source code is licensed under the CC BY-ND 4.0 license found in the
  * LICENSE file in the root directory of this source tree.
  */
-import { ActiveDescendantKeyManager } from '@angular/cdk/a11y';
+import { ActiveDescendantKeyManager, FocusOrigin } from '@angular/cdk/a11y';
 import {
   AfterViewInit,
   ChangeDetectorRef,
@@ -126,8 +126,14 @@ export class NgpSelectOptionsDirective<T> implements AfterViewInit {
   /**
    * Handle the closing of the options list.
    */
-  private close(): void {
+  private close(origin?: FocusOrigin): void {
+    // if the options list is already closed, do nothing
+    if (!this.select.open()) {
+      return;
+    }
+
     this.select.open.set(false);
+    this.select.button().focus(origin);
   }
 
   /**
@@ -137,6 +143,7 @@ export class NgpSelectOptionsDirective<T> implements AfterViewInit {
   protected closeOnOutsideClick(event: MouseEvent): void {
     // if the user performs a click that is not within the options list or the slect button, close the dropdown
     if (
+      this.select.open() &&
       !this.element.nativeElement.contains(event.target as Node) &&
       !this.select.button().element.nativeElement.contains(event.target as Node)
     ) {
@@ -159,11 +166,13 @@ export class NgpSelectOptionsDirective<T> implements AfterViewInit {
     if (event.key === 'Tab') {
       event.preventDefault();
       event.stopPropagation();
+      return;
     }
 
     // if the escape key is pressed, close the dropdown
     if (event.key === 'Escape') {
-      this.close();
+      this.close('keyboard');
+      return;
     }
 
     // if the space or enter key is pressed, select the active option
@@ -172,9 +181,7 @@ export class NgpSelectOptionsDirective<T> implements AfterViewInit {
 
       if (activeItem && !activeItem.isDisabled()) {
         this.select.value.set(activeItem.value());
-        this.close();
-        // restore focus to the select button
-        this.select.button().focus();
+        this.close('keyboard');
       }
     }
   }

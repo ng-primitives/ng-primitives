@@ -5,8 +5,9 @@
  * This source code is licensed under the CC BY-ND 4.0 license found in the
  * LICENSE file in the root directory of this source tree.
  */
+import { FocusOrigin } from '@angular/cdk/a11y';
 import { Directive, ElementRef, inject, input } from '@angular/core';
-import { injectDisposables, uniqueId } from '@ng-primitives/ng-primitives/utils';
+import { FocusManager, injectDisposables, uniqueId } from '@ng-primitives/ng-primitives/utils';
 import { injectSelect } from '../select/select.token';
 import { NgpSelectButtonToken } from './select-button.token';
 
@@ -44,6 +45,11 @@ export class NgpSelectButtonDirective {
   readonly element = inject<ElementRef<HTMLElement>>(ElementRef);
 
   /**
+   * Access the focus manager
+   */
+  private readonly focusManager = inject(FocusManager);
+
+  /**
    * Optionally define an id for the button. By default, the id is generated.
    */
   readonly id = input(uniqueId('select-button'));
@@ -77,15 +83,9 @@ export class NgpSelectButtonDirective {
    * Focus the button element.
    * @internal
    */
-  focus() {
+  focus(origin?: FocusOrigin) {
     // we run after the next tick to ensure any in-progress events do not get
     // redirected to the button element
-    this.disposables.requestAnimationFrame(() => {
-      // to ensure the focus indicator is shown when using focus-visible we
-      // must trick the browser into thinking the element is editable
-      this.element.nativeElement.contentEditable = 'true';
-      this.element.nativeElement.focus();
-      this.element.nativeElement.contentEditable = 'false';
-    });
+    this.disposables.requestAnimationFrame(() => this.focusManager.focus(this.element, origin));
   }
 }

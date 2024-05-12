@@ -7,5 +7,6 @@
  */
 
 export { injectDisposables } from './disposables';
+export { FocusManager } from './focus-manager';
 export { injectDimensions } from './ui/dimensions';
 export { uniqueId } from './unique-id';
