@@ -48,7 +48,6 @@
     "jsonc-eslint-parser": "^2.1.0",
     "mintlify": "^4.0.144",
     "ng-packagr": "17.3.0",
-    "ngx-deploy-npm": "^8.0.1",
     "nx": "19.0.2",
     "postcss": "^8.4.5",
     "postcss-url": "~10.1.3",
