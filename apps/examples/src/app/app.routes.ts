@@ -2,6 +2,10 @@ import { Route } from '@angular/router';
 
 export const appRoutes: Route[] = [
   {
+    path: 'examples/slider',
+    loadComponent: () => import('./examples/slider/slider.example'),
+  },
+  {
     path: 'examples/select',
     loadComponent: () => import('./examples/select/select.example'),
   },

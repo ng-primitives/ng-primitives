@@ -25,6 +25,7 @@ export default class HomePage {
     'resize',
     'roving-focus',
     'select',
+    'slider',
     'switch',
     'tabs',
     'toggle',
