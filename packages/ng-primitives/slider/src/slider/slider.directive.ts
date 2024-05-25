@@ -10,10 +10,12 @@ import {
   Directive,
   booleanAttribute,
   computed,
+  contentChild,
   input,
   model,
   numberAttribute,
 } from '@angular/core';
+import { NgpSliderTrackToken } from '../slider-track/slider-track.token';
 import { NgpSliderToken } from './slider.token';
 
 @Directive({
@@ -68,6 +70,11 @@ export class NgpSliderDirective {
     alias: 'ngpSliderDisabled',
     transform: booleanAttribute,
   });
+
+  /**
+   * Access the slider track.
+   */
+  readonly track = contentChild(NgpSliderTrackToken);
 
   /**
    * The value as a percentage based on the min and max values.

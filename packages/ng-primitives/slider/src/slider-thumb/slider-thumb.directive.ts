@@ -36,6 +36,52 @@ export class NgpSliderThumbDirective {
   protected readonly slider = injectSlider();
 
   /**
+   * Store the dragging state.
+   */
+  protected dragging = false;
+
+  @HostListener('pointerdown', ['$event'])
+  protected handlePointerDown(): void {
+    if (this.slider.disabled()) {
+      return;
+    }
+
+    this.dragging = true;
+  }
+
+  @HostListener('document:pointerup')
+  protected handlePointerUp(): void {
+    if (this.slider.disabled()) {
+      return;
+    }
+
+    this.dragging = false;
+  }
+
+  @HostListener('document:pointermove', ['$event'])
+  protected handlePointerMove(event: PointerEvent): void {
+    if (this.slider.disabled() || !this.dragging) {
+      return;
+    }
+
+    const rect = this.slider.track()?.element.nativeElement.getBoundingClientRect();
+
+    if (!rect) {
+      return;
+    }
+
+    const percentage =
+      this.slider.orientation() === 'horizontal'
+        ? (event.clientX - rect.left) / rect.width
+        : 1 - (event.clientY - rect.top) / rect.height;
+
+    this.slider.value.set(
+      this.slider.min() +
+        (this.slider.max() - this.slider.min()) * Math.max(0, Math.min(1, percentage)),
+    );
+  }
+
+  /**
    * Handle keyboard events.
    */
   @HostListener('keydown', ['$event'])

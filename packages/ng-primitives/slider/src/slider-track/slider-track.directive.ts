@@ -5,7 +5,7 @@
  * This source code is licensed under the CC BY-ND 4.0 license found in the
  * LICENSE file in the root directory of this source tree.
  */
-import { Directive } from '@angular/core';
+import { Directive, ElementRef, inject } from '@angular/core';
 import { NgpSliderTrackToken } from './slider-track.token';
 
 @Directive({
@@ -14,4 +14,9 @@ import { NgpSliderTrackToken } from './slider-track.token';
   exportAs: 'ngpSliderTrack',
   providers: [{ provide: NgpSliderTrackToken, useExisting: NgpSliderTrackDirective }],
 })
-export class NgpSliderTrackDirective {}
+export class NgpSliderTrackDirective {
+  /**
+   * The element that represents the slider track.
+   */
+  readonly element = inject<ElementRef<HTMLElement>>(ElementRef);
+}
