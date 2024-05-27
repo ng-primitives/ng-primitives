@@ -41,7 +41,9 @@ export class NgpSliderThumbDirective {
   protected dragging = false;
 
   @HostListener('pointerdown', ['$event'])
-  protected handlePointerDown(): void {
+  protected handlePointerDown(event: PointerEvent): void {
+    event.preventDefault();
+
     if (this.slider.disabled()) {
       return;
     }
