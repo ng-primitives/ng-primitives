@@ -1,12 +1,37 @@
-import { Component } from '@angular/core';
-import { RouterOutlet } from '@angular/router';
+import { Component, Injector, inject } from '@angular/core';
+import { createCustomElement } from '@angular/elements';
+import { RouterLink, RouterOutlet } from '@angular/router';
+import { NgIcon, provideIcons } from '@ng-icons/core';
+import { saxMoonOutline } from '@ng-icons/iconsax/outline';
+import { ExampleComponent } from './components/example/example.component';
+import { NavbarComponent } from './components/navbar/navbar.component';
+import { SideNavigationComponent } from './components/side-navigation/side-navigation.component';
 
 @Component({
-  selector: 'documentation-root',
+  selector: 'docs-root',
   standalone: true,
-  imports: [RouterOutlet],
+  imports: [RouterOutlet, RouterLink, NgIcon, NavbarComponent, SideNavigationComponent],
+  viewProviders: [provideIcons({ saxMoonOutline })],
   template: `
-    <router-outlet></router-outlet>
+    <docs-navbar />
+
+    <div class="container mx-auto px-4 pt-24">
+      <div class="flex">
+        <docs-side-navigation class="mr-12" />
+
+        <router-outlet />
+      </div>
+    </div>
   `,
 })
-export class AppComponent {}
+export class AppComponent {
+  private readonly injector = inject(Injector);
+
+  constructor() {
+    // Register the custom element with the browser.
+    customElements.define(
+      'docs-example',
+      createCustomElement(ExampleComponent, { injector: this.injector }),
+    );
+  }
+}

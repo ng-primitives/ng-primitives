@@ -1,0 +1,22 @@
+<div
+  class="sticky top-24 flex h-[calc(100vh-140px)] w-40 flex-col gap-y-4 overflow-auto overscroll-contain"
+>
+  @for (section of sections; track section.title) {
+    <div>
+      <h2 class="text-md mb-2 font-semibold text-zinc-800">{{ section.title }}</h2>
+      <ul class="-ml-4">
+        @for (link of section.links; track link) {
+          <li>
+            <a
+              class="flex h-8 items-center rounded-lg px-4 text-zinc-600 outline-none transition-colors hover:text-zinc-950 focus-visible:ring-2 focus-visible:ring-blue-500"
+              [routerLink]="link.link"
+              routerLinkActive="text-zinc-950"
+            >
+              {{ link.title }}
+            </a>
+          </li>
+        }
+      </ul>
+    </div>
+  }
+</div>

@@ -10,7 +10,7 @@
           "error",
           {
             "type": "attribute",
-            "prefix": "Documentation",
+            "prefix": "docs",
             "style": "camelCase"
           }
         ],
@@ -18,10 +18,11 @@
           "error",
           {
             "type": "element",
-            "prefix": "documentation",
+            "prefix": "docs",
             "style": "kebab-case"
           }
-        ]
+        ],
+        "@angular-eslint/component-class-suffix": "off"
       }
     },
     {

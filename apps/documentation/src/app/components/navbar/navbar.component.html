@@ -1,0 +1,39 @@
+<header class="fixed top-0 z-10 h-16 w-full">
+  <nav
+    class="container mx-auto flex h-full w-full items-center gap-x-4 border-b border-zinc-200 bg-white/95 px-4 backdrop-blur-sm"
+  >
+    <img class="h-8 w-auto" src="/assets/logo.svg" alt="Angular Primitives" />
+    <div class="ml-auto inline-flex gap-x-2">
+      <div
+        class="mr-8 inline-flex h-9 w-80 flex-none items-center gap-x-3 overflow-hidden rounded-lg bg-white px-3 shadow shadow-black/5 ring-1 ring-black/10 focus-within:ring-2 focus-within:ring-blue-500"
+        (click)="search.focus()"
+      >
+        <ng-icon class="text-lg text-zinc-400" name="lucideSearch" />
+        <input
+          class="h-full w-full outline-none"
+          #search
+          type="text"
+          placeholder="Search for something..."
+        />
+      </div>
+
+      <a
+        class="flex-none whitespace-nowrap rounded-lg p-2 font-medium outline-none transition-colors hover:bg-zinc-50 hover:text-zinc-800 focus-visible:text-zinc-800 focus-visible:ring-2 focus-visible:ring-blue-500 active:bg-zinc-100"
+        routerLink="/getting-started"
+      >
+        Getting Started
+      </a>
+      <a
+        class="flex-none whitespace-nowrap rounded-lg p-2 font-medium outline-none transition-colors hover:bg-zinc-50 hover:text-zinc-800 focus-visible:text-zinc-800 focus-visible:ring-2 focus-visible:ring-blue-500 active:bg-zinc-100"
+        routerLink="/primitives"
+      >
+        Primitives
+      </a>
+      <button
+        class="inline-flex items-center justify-center rounded-lg p-2 outline-none transition-colors hover:bg-zinc-50 hover:text-zinc-800 focus-visible:text-zinc-800 focus-visible:ring-2 focus-visible:ring-blue-500 active:bg-zinc-100"
+      >
+        <ng-icon class="text-lg" name="lucideMoon" />
+      </button>
+    </div>
+  </nav>
+</header>
