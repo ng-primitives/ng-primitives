@@ -2,14 +2,54 @@
   "name": "documentation",
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "projectType": "application",
-  "tags": [],
   "targets": {
-    "serve": {
-      "executor": "nx:run-commands",
+    "build": {
+      "executor": "@analogjs/platform:vite",
+      "defaultConfiguration": "production",
+      "configurations": {
+        "development": {
+          "mode": "development"
+        },
+        "production": {
+          "sourcemap": false,
+          "mode": "production"
+        }
+      },
+      "outputs": [
+        "{options.outputPath}",
+        "{workspaceRoot}/dist/apps/documentation/.nitro",
+        "{workspaceRoot}/dist/apps/documentation/ssr",
+        "{workspaceRoot}/dist/apps/documentation/analog"
+      ],
       "options": {
-        "command": "mintlify dev",
-        "cwd": "apps/documentation"
+        "main": "apps/documentation/src/main.ts",
+        "configFile": "apps/documentation/vite.config.ts",
+        "outputPath": "dist/apps/documentation/client",
+        "tsConfig": "apps/documentation/tsconfig.app.json"
       }
+    },
+    "serve": {
+      "executor": "@analogjs/platform:vite-dev-server",
+      "defaultConfiguration": "development",
+      "options": {
+        "buildTarget": "documentation:build",
+        "port": 4200
+      },
+      "configurations": {
+        "development": {
+          "buildTarget": "documentation:build:development",
+          "hmr": true
+        },
+        "production": {
+          "buildTarget": "documentation:build:production"
+        }
+      }
+    },
+    "test": {
+      "executor": "@analogjs/platform:vitest",
+      "outputs": ["{projectRoot}/coverage"]
     }
-  }
+  },
+  "tags": [],
+  "sourceRoot": "apps/documentation/src"
 }
