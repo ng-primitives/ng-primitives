@@ -42,13 +42,15 @@
 
   <div class="relative mt-10 w-full flex-1">
     @if (mode() === 'preview') {
-      <div class="absolute inset-0 rounded-xl border border-zinc-200 bg-zinc-50">
+      <div
+        class="absolute inset-0 flex h-fit min-h-full items-center justify-center rounded-xl border border-zinc-200 bg-zinc-50 p-8"
+      >
         <ng-container [ngComponentOutlet]="component" />
       </div>
     }
 
     <pre
-      class="absolute inset-0 whitespace-pre-wrap rounded-xl bg-zinc-950 p-4"
+      class="absolute inset-0 h-fit whitespace-pre-wrap rounded-xl bg-zinc-950 p-4"
       #codeElement
       [hidden]="mode() !== 'source'"
     ><code class="language-typescript not-prose" [innerHTML]="code"></code></pre>

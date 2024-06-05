@@ -1,0 +1,79 @@
+---
+title: 'Checkbox'
+---
+
+# Checkbox
+
+Perform state toggling.
+
+<docs-example name="checkbox"></docs-example>
+
+## Usage
+
+Assemble the checkbox directives in your template.
+
+```html
+<button ngpCheckbox [(ngpCheckboxChecked)]="checked">
+  <ng-icon ngpCheckboxIndicator name="checkmark" />
+</button>
+```
+
+## API Reference
+
+The following directives are available to import from the `@ng-primitives/ng-primitives/checkbox` package:
+
+### NgpCheckboxDirective
+
+<ResponseField name="ngpCheckboxChecked" type="boolean" default="false">
+  Define the checked state.
+</ResponseField>
+
+<ResponseField name="ngpCheckboxIndeterminate" type="boolean" default="false">
+  Define the interminate state.
+</ResponseField>
+
+<ResponseField name="ngpCheckboxDisabled" type="boolean" default="false">
+  Define the disabled state.
+</ResponseField>
+
+<ResponseField name="ngpCheckboxCheckedChange" type="boolean">
+  Event emitted when the state changes.
+</ResponseField>
+
+<ResponseField name="ngpCheckboxIndeterminateChange" type="boolean">
+  Event emitted when the indeterminate state changes.
+</ResponseField>
+
+### NgpCheckboxIndicatorDirective
+
+There are no inputs or outputs for this directive.
+
+## Schematics
+
+You can use our schematic to generate a new checkbox component.
+
+<CodeGroup>
+
+```bash Angular CLI
+ng generate @ng-primitives/ng-primitives:checkbox
+```
+
+```bash Nx
+nx generate @ng-primitives/ng-primitives:checkbox
+```
+
+</CodeGroup>
+
+### Options
+
+<ResponseField name="name" type="string">
+  The name of the component.
+</ResponseField>
+
+<ResponseField name="project" type="string">
+  The name of the project to add the component to.
+</ResponseField>
+
+<ResponseField name="path" type="string">
+  The path to create the component.
+</ResponseField>

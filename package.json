@@ -89,7 +89,7 @@
     "@angular/router": "18.0.2",
     "@floating-ui/dom": "^1.6.4",
     "@ng-icons/core": "^27.4.0",
-    "@ng-icons/heroicons": "^27.3.1",
+    "@ng-icons/heroicons": "^27.4.0",
     "@ng-icons/iconsax": "^28.0.0",
     "@ng-icons/lucide": "^28.0.0",
     "@nx/devkit": "19.2.0",
