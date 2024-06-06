@@ -8,4 +8,3 @@
 
 export { NgpResize } from './resize/resize.directive';
 export { Dimensions, fromResizeEvent } from './utils/resize';
-
