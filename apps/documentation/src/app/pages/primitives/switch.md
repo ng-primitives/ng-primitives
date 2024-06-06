@@ -40,22 +40,6 @@ The following directives are available to import from the `@ng-primitives/ng-pri
 
 There are no inputs or outputs for this directive.
 
-## Schematics
-
-You can use our schematic to generate a new switch component.
-
-<CodeGroup>
-
-```bash Angular CLI
-ng generate @ng-primitives/ng-primitives:switch
-```
-
-```bash Nx
-nx generate @ng-primitives/ng-primitives:switch
-```
-
-</CodeGroup>
-
 ### Options
 
 <ResponseField name="name" type="string">

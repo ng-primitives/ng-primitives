@@ -52,6 +52,9 @@ dependencies:
   '@floating-ui/dom':
     specifier: ^1.6.4
     version: 1.6.5
+  '@ng-icons/bootstrap-icons':
+    specifier: ^28.0.0
+    version: 28.0.0
   '@ng-icons/core':
     specifier: ^27.4.0
     version: 27.4.0
@@ -3601,6 +3604,12 @@ packages:
     requiresBuild: true
     dev: false
     optional: true
+
+  /@ng-icons/bootstrap-icons@28.0.0:
+    resolution: {integrity: sha512-H6YqxOBHAg7sfO4TQJnhKWAxDgitetH+8ewBpjhq5yfVKLe2426X69XMyHWPN5OyP+3EYCbJ7A2pm/laup/SZg==}
+    dependencies:
+      tslib: 2.6.2
+    dev: false
 
   /@ng-icons/core@27.4.0:
     resolution: {integrity: sha512-M4Hz4JI2owd8brMTrwrQYJhVjHgGN768bSnhwucAka3mk7HQKeR/zp5ONq5AxPGnAk4UU2xwYhN1DGnETtAnIg==}

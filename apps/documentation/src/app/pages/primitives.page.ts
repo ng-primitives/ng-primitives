@@ -7,7 +7,7 @@ import { QuickLinksComponent } from '../components/quick-links/quick-links.compo
   selector: 'docs-primitives',
   template: `
     <div class="flex gap-x-12">
-      <div class="prose prose-sm prose-zinc flex-1">
+      <div class="prose prose-sm prose-zinc max-w-3xl flex-1">
         <router-outlet />
       </div>
       <docs-quick-links />

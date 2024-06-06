@@ -38,22 +38,6 @@ bootstrapApplication(AppComponent, {
 
 ### NgpTabsConfig
 
-## Schematics
-
-You can use our schematic to generate a new tabs component.
-
-<CodeGroup>
-
-```bash Angular CLI
-ng generate @ng-primitives/ng-primitives:tabs
-```
-
-```bash Nx
-nx generate @ng-primitives/ng-primitives:tabs
-```
-
-</CodeGroup>
-
 ### Options
 
 <ResponseField name="name" type="string">

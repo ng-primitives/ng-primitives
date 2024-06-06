@@ -38,22 +38,6 @@ bootstrapApplication(AppComponent, {
 
 ### NgpSelectConfig
 
-## Schematics
-
-You can use our schematic to generate a new select component.
-
-<CodeGroup>
-
-```bash Angular CLI
-ng generate @ng-primitives/ng-primitives:select
-```
-
-```bash Nx
-nx generate @ng-primitives/ng-primitives:select
-```
-
-</CodeGroup>
-
 ### Options
 
 <ResponseField name="name" type="string">

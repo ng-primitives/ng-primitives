@@ -48,22 +48,6 @@ The following directives are available to import from the `@ng-primitives/ng-pri
 
 There are no inputs or outputs for this directive.
 
-## Schematics
-
-You can use our schematic to generate a new checkbox component.
-
-<CodeGroup>
-
-```bash Angular CLI
-ng generate @ng-primitives/ng-primitives:checkbox
-```
-
-```bash Nx
-nx generate @ng-primitives/ng-primitives:checkbox
-```
-
-</CodeGroup>
-
 ### Options
 
 <ResponseField name="name" type="string">

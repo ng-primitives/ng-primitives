@@ -57,22 +57,6 @@ bootstrapApplication(AppComponent, {
   with slower connections.
 </ResponseField>
 
-## Schematics
-
-You can use our schematic to generate a new avatar component.
-
-<CodeGroup>
-
-```bash Angular CLI
-ng generate @ng-primitives/ng-primitives:avatar
-```
-
-```bash Nx
-nx generate @ng-primitives/ng-primitives:avatar
-```
-
-</CodeGroup>
-
 ### Options
 
 <ResponseField name="name" type="string">
