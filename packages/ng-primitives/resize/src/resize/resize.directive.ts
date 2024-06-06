@@ -13,7 +13,7 @@ import { Dimensions, fromResizeEvent } from '../utils/resize';
   selector: '[ngpResize]',
   standalone: true,
 })
-export class NgpResizeDirective implements OnInit {
+export class NgpResize implements OnInit {
   /**
    * Access the element.
    */

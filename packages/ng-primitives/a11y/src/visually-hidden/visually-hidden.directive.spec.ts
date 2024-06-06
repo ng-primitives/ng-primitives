@@ -6,12 +6,12 @@
  * LICENSE file in the root directory of this source tree.
  */
 import { render } from '@testing-library/angular';
-import { NgpVisuallyHiddenDirective } from './visually-hidden.directive';
+import { NgpVisuallyHidden } from './visually-hidden.directive';
 
-describe('NgpVisuallyHiddenDirective', () => {
+describe('NgpVisuallyHidden', () => {
   it('should apply the styles to hide the element', async () => {
     const container = await render(`<div ngpVisuallyHidden>Hidden</div>`, {
-      imports: [NgpVisuallyHiddenDirective],
+      imports: [NgpVisuallyHidden],
     });
 
     // verify the styles are applied
@@ -32,7 +32,7 @@ describe('NgpVisuallyHiddenDirective', () => {
 
   it('should merge the styles with the host element', async () => {
     const container = await render(`<div ngpVisuallyHidden style="color: red;">Hidden</div>`, {
-      imports: [NgpVisuallyHiddenDirective],
+      imports: [NgpVisuallyHidden],
     });
 
     // verify the styles are applied

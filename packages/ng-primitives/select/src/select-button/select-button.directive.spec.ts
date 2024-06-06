@@ -6,12 +6,12 @@
  * LICENSE file in the root directory of this source tree.
  */
 import { render } from '@testing-library/angular';
-import { NgpSelectButtonDirective } from './select-button.directive';
+import { NgpSelectButton } from './select-button.directive';
 
-describe('NgpSelectButtonDirective', () => {
+describe('NgpSelectButton', () => {
   it('should initialise correctly', async () => {
     const container = await render(`<div ngpSelectButton></div>`, {
-      imports: [NgpSelectButtonDirective],
+      imports: [NgpSelectButton],
     });
   });
 });

@@ -25,12 +25,12 @@ import { NgpRovingFocusItemToken } from './roving-focus-item.token';
   standalone: true,
   selector: '[ngpRovingFocusItem]',
   exportAs: 'ngpRovingFocusItem',
-  providers: [{ provide: NgpRovingFocusItemToken, useExisting: NgpRovingFocusItemDirective }],
+  providers: [{ provide: NgpRovingFocusItemToken, useExisting: NgpRovingFocusItem }],
   host: {
     '[attr.tabindex]': 'tabindex()',
   },
 })
-export class NgpRovingFocusItemDirective implements OnInit, OnDestroy {
+export class NgpRovingFocusItem implements OnInit, OnDestroy {
   /**
    * Access the group the roving focus item belongs to.
    */

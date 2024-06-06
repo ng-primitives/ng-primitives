@@ -23,15 +23,15 @@ Assemble the avatar directives in your template.
 
 The following directives are available to import from the `@ng-primitives/ng-primitives/avatar` package:
 
-### NgpAvatarDirective
+### NgpAvatar
 
 There are no inputs or outputs for this directive.
 
-### NgpAvatarImageDirective
+### NgpAvatarImage
 
 There are no inputs or outputs for this directive.
 
-### NgpAvatarFallbackDirective
+### NgpAvatarFallback
 
 <response-field name="ngpAvatarFallbackDelay" type="number" default="0">
   Define a delay before the fallback is shown. This is useful to only show the fallback for those

@@ -20,7 +20,7 @@ Assemble the select directives in your template.
 
 The following directives are available to import from the `@ng-primitives/ng-primitives/select` package:
 
-### NgpSelectDirective
+### NgpSelect
 
 There are no inputs or outputs for this directive.
 

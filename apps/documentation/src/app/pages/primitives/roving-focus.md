@@ -21,6 +21,6 @@ Assemble the roving focus directives in your template.
 
 The following directives are available to import from the `@ng-primitives/ng-primitives/roving-focus` package:
 
-### NgpRovingFocusDirective
+### NgpRovingFocus
 
 There are no inputs or outputs for this directive.

@@ -6,5 +6,6 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-export { NgpResizeDirective } from './resize/resize.directive';
+export { NgpResize } from './resize/resize.directive';
 export { Dimensions, fromResizeEvent } from './utils/resize';
+

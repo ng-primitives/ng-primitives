@@ -1,20 +1,15 @@
 import { Component } from '@angular/core';
 import {
-  NgpSliderDirective,
-  NgpSliderRangeDirective,
-  NgpSliderThumbDirective,
-  NgpSliderTrackDirective,
+  NgpSlider,
+  NgpSliderRange,
+  NgpSliderThumb,
+  NgpSliderTrack,
 } from '@ng-primitives/ng-primitives/slider';
 
 @Component({
   standalone: true,
   selector: 'app-slider',
-  imports: [
-    NgpSliderDirective,
-    NgpSliderRangeDirective,
-    NgpSliderThumbDirective,
-    NgpSliderTrackDirective,
-  ],
+  imports: [NgpSlider, NgpSliderRange, NgpSliderThumb, NgpSliderTrack],
   template: `
     <div
       class="relative flex h-5 w-[200px] touch-none select-none items-center"

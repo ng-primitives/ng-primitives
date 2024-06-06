@@ -22,7 +22,7 @@ Assemble the checkbox directives in your template.
 
 The following directives are available to import from the `@ng-primitives/ng-primitives/checkbox` package:
 
-### NgpCheckboxDirective
+### NgpCheckbox
 
 <response-field name="ngpCheckboxChecked" type="boolean" default="false">
   Define the checked state.
@@ -44,6 +44,6 @@ The following directives are available to import from the `@ng-primitives/ng-pri
   Event emitted when the indeterminate state changes.
 </response-field>
 
-### NgpCheckboxIndicatorDirective
+### NgpCheckboxIndicator
 
 There are no inputs or outputs for this directive.

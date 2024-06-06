@@ -8,11 +8,11 @@
 import { Component, DebugElement } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
-import { NgpToggleDirective } from './toggle.directive';
+import { NgpToggle } from './toggle.directive';
 
 @Component({
   standalone: true,
-  imports: [NgpToggleDirective],
+  imports: [NgpToggle],
   template:
     '<button ngpToggle [ngpTogglePressed]="pressed" [ngpToggleDisabled]="disabled" (ngpTogglePressedChange)="onToggle($event)">Toggle</button>',
 })
@@ -25,7 +25,7 @@ class TestComponent {
   }
 }
 
-describe('NgpToggleDirective', () => {
+describe('NgpToggle', () => {
   let component: TestComponent;
   let fixture: ComponentFixture<TestComponent>;
   let button: DebugElement;
@@ -44,7 +44,7 @@ describe('NgpToggleDirective', () => {
   });
 
   it('should create an instance', () => {
-    const directive = new NgpToggleDirective();
+    const directive = new NgpToggle();
     expect(directive).toBeTruthy();
   });
 

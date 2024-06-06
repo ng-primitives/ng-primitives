@@ -6,12 +6,12 @@
  * LICENSE file in the root directory of this source tree.
  */
 import { render } from '@testing-library/angular';
-import { NgpSliderRangeDirective } from './slider-range.directive';
+import { NgpSliderRange } from './slider-range.directive';
 
-describe('NgpSliderRangeDirective', () => {
+describe('NgpSliderRange', () => {
   it('should initialise correctly', async () => {
     const container = await render(`<div ngpSliderRange></div>`, {
-      imports: [NgpSliderRangeDirective],
+      imports: [NgpSliderRange],
     });
   });
 });

@@ -2,22 +2,16 @@ import { Component, signal } from '@angular/core';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { heroCheckMini } from '@ng-icons/heroicons/mini';
 import {
-  NgpCheckboxDirective,
-  NgpCheckboxIndicatorDirective,
-  NgpCheckboxInputDirective,
-  NgpCheckboxLabelDirective,
+  NgpCheckbox,
+  NgpCheckboxIndicator,
+  NgpCheckboxInput,
+  NgpCheckboxLabel,
 } from '@ng-primitives/ng-primitives/checkbox';
 
 @Component({
   standalone: true,
   selector: 'app-checkbox',
-  imports: [
-    NgIcon,
-    NgpCheckboxDirective,
-    NgpCheckboxIndicatorDirective,
-    NgpCheckboxLabelDirective,
-    NgpCheckboxInputDirective,
-  ],
+  imports: [NgIcon, NgpCheckbox, NgpCheckboxIndicator, NgpCheckboxLabel, NgpCheckboxInput],
   viewProviders: [provideIcons({ heroCheckMini })],
   template: `
     <div

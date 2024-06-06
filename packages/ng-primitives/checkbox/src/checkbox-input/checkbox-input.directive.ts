@@ -6,14 +6,14 @@
  * LICENSE file in the root directory of this source tree.
  */
 import { Directive } from '@angular/core';
-import { NgpVisuallyHiddenDirective } from '@ng-primitives/ng-primitives/a11y';
+import { NgpVisuallyHidden } from '@ng-primitives/ng-primitives/a11y';
 import { injectCheckbox } from '../checkbox/checkbox.token';
 
 @Directive({
   standalone: true,
   selector: 'input[ngpCheckboxInput]',
   exportAs: 'ngpCheckboxInput',
-  hostDirectives: [NgpVisuallyHiddenDirective],
+  hostDirectives: [NgpVisuallyHidden],
   host: {
     type: 'checkbox',
     tabindex: '-1',
@@ -23,7 +23,7 @@ import { injectCheckbox } from '../checkbox/checkbox.token';
     '[required]': 'checkbox.required()',
   },
 })
-export class NgpCheckboxInputDirective {
+export class NgpCheckboxInput {
   /**
    * Access the checkbox instance
    */

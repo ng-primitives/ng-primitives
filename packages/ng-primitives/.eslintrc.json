@@ -27,6 +27,8 @@
             "style": "kebab-case"
           }
         ],
+        "@angular-eslint/directive-class-suffix": "off",
+        "@angular-eslint/component-class-suffix": "off",
         "@angular-eslint/no-host-metadata-property": "off",
         "@typescript-eslint/no-inferrable-types": "off",
         "@angular-eslint/no-output-rename": "off",

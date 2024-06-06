@@ -6,14 +6,14 @@
  * LICENSE file in the root directory of this source tree.
  */
 import { InjectionToken, inject } from '@angular/core';
-import type { NgpSwitchDirective } from './switch.directive';
+import type { NgpSwitch } from './switch.directive';
 
-export const NgpSwitchToken = new InjectionToken<NgpSwitchDirective>('NgpSwitchToken');
+export const NgpSwitchToken = new InjectionToken<NgpSwitch>('NgpSwitchToken');
 
 /**
  * Inject the Switch directive instance
  * @returns The switch directive instance
  */
-export function injectSwitch(): NgpSwitchDirective {
+export function injectSwitch(): NgpSwitch {
   return inject(NgpSwitchToken);
 }

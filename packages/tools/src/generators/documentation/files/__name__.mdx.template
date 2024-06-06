@@ -21,7 +21,7 @@ Assemble the <%= fileName %> directives in your template.
 
 The following directives are available to import from the `@ng-primitives/ng-primitives/<%= fileName %>` package:
 
-### Ngp<%= className %>Directive
+### Ngp<%= className %>
 
 There are no inputs or outputs for this directive.
 
@@ -41,35 +41,3 @@ bootstrapApplication(AppComponent, {
 ```
 
 ### Ngp<%= className %>Config
-
-
-
-## Schematics
-
-You can use our schematic to generate a new <%= fileName %> component.
-
-<CodeGroup>
-
-```bash Angular CLI
-ng generate @ng-primitives/ng-primitives:<%= fileName %>
-```
-
-```bash Nx
-nx generate @ng-primitives/ng-primitives:<%= fileName %>
-```
-
-</CodeGroup>
-
-### Options
-
-<ResponseField name="name" type="string">
-  The name of the component.
-</ResponseField>
-
-<ResponseField name="project" type="string">
-  The name of the project to add the component to.
-</ResponseField>
-
-<ResponseField name="path" type="string">
-  The path to create the component.
-</ResponseField>

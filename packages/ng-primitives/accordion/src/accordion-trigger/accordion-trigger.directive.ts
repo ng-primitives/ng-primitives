@@ -15,7 +15,7 @@ import { NgpAccordionTriggerToken } from './accordion-trigger.token';
   standalone: true,
   selector: '[ngpAccordionTrigger]',
   exportAs: 'ngpAccordionTrigger',
-  providers: [{ provide: NgpAccordionTriggerToken, useExisting: NgpAccordionTriggerDirective }],
+  providers: [{ provide: NgpAccordionTriggerToken, useExisting: NgpAccordionTrigger }],
   host: {
     '[id]': 'id()',
     '[attr.data-orientation]': 'accordion.orientation()',
@@ -25,7 +25,7 @@ import { NgpAccordionTriggerToken } from './accordion-trigger.token';
     '[attr.aria-expanded]': 'item.open()',
   },
 })
-export class NgpAccordionTriggerDirective {
+export class NgpAccordionTrigger {
   /**
    * Access the parent accordion.
    */

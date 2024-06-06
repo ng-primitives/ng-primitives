@@ -13,14 +13,14 @@ import { NgpTooltipToken } from './tooltip.token';
   standalone: true,
   selector: '[ngpTooltip]',
   exportAs: 'ngpTooltip',
-  providers: [{ provide: NgpTooltipToken, useExisting: NgpTooltipDirective }],
+  providers: [{ provide: NgpTooltipToken, useExisting: NgpTooltip }],
   host: {
     role: 'tooltip',
     '[style.left.px]': 'x()',
     '[style.top.px]': 'y()',
   },
 })
-export class NgpTooltipDirective implements OnInit {
+export class NgpTooltip implements OnInit {
   /**
    * Access the tooltip element.
    */

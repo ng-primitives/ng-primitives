@@ -30,7 +30,7 @@ Assemble the accordion directives in your template.
 
 The following directives are available to import from the `@ng-primitives/ng-primitives/accordion` package:
 
-### NgpAccordionDirective
+### NgpAccordion
 
 <response-field name="ngpAccordionType" type="single | multiple" default="single">
   Define whether only one or multiple accordion items can be open at a time.
@@ -59,7 +59,7 @@ The following directives are available to import from the `@ng-primitives/ng-pri
   `ngpAccordionType` is set to `single` and an array when set to `multiple`.
 </response-field>
 
-### NgpAccordionItemDirective
+### NgpAccordionItem
 
 <response-field name="ngpAccordionItemValue" type="T" required>
   Define the value of the accordion item.
@@ -69,11 +69,11 @@ The following directives are available to import from the `@ng-primitives/ng-pri
   Define whether the accordion item is disabled.
 </response-field>
 
-### NgpAccordionTriggerDirective
+### NgpAccordionTrigger
 
 There are no inputs or outputs for this directive.
 
-### NgpAccordionContentDirective
+### NgpAccordionContent
 
 There are no inputs or outputs for this directive.
 

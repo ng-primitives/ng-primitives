@@ -6,14 +6,14 @@
  * LICENSE file in the root directory of this source tree.
  */
 import { InjectionToken, inject } from '@angular/core';
-import type { NgpAvatarDirective } from './avatar.directive';
+import type { NgpAvatar } from './avatar.directive';
 
-export const NgpAvatarToken = new InjectionToken<NgpAvatarDirective>('NgpAvatarToken');
+export const NgpAvatarToken = new InjectionToken<NgpAvatar>('NgpAvatarToken');
 
 /**
  * Provide the avatar
  * @returns The provider
  */
-export function injectAvatar(): NgpAvatarDirective {
+export function injectAvatar(): NgpAvatar {
   return inject(NgpAvatarToken);
 }

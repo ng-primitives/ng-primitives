@@ -6,9 +6,9 @@
  * LICENSE file in the root directory of this source tree.
  */
 import { InjectionToken, inject } from '@angular/core';
-import type { NgpCheckboxIndicatorDirective } from './checkbox-indicator.directive';
+import type { NgpCheckboxIndicator } from './checkbox-indicator.directive';
 
-export const NgpCheckboxIndicatorToken = new InjectionToken<NgpCheckboxIndicatorDirective>(
+export const NgpCheckboxIndicatorToken = new InjectionToken<NgpCheckboxIndicator>(
   'NgpCheckboxIndicatorToken',
 );
 
@@ -16,6 +16,6 @@ export const NgpCheckboxIndicatorToken = new InjectionToken<NgpCheckboxIndicator
  * Inject the CheckboxIndicator directive instance
  * @returns The CheckboxIndicator directive instance
  */
-export function injectCheckboxIndicator(): NgpCheckboxIndicatorDirective {
+export function injectCheckboxIndicator(): NgpCheckboxIndicator {
   return inject(NgpCheckboxIndicatorToken);
 }

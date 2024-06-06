@@ -6,15 +6,13 @@
  * LICENSE file in the root directory of this source tree.
  */
 import { InjectionToken, inject } from '@angular/core';
-import type { NgpSliderThumbDirective } from './slider-thumb.directive';
+import type { NgpSliderThumb } from './slider-thumb.directive';
 
-export const NgpSliderThumbToken = new InjectionToken<NgpSliderThumbDirective>(
-  'NgpSliderThumbToken',
-);
+export const NgpSliderThumbToken = new InjectionToken<NgpSliderThumb>('NgpSliderThumbToken');
 
 /**
  * Inject the SliderThumb directive instance
  */
-export function injectSliderThumb(): NgpSliderThumbDirective {
+export function injectSliderThumb(): NgpSliderThumb {
   return inject(NgpSliderThumbToken);
 }

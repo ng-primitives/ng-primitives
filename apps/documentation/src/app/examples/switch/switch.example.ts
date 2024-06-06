@@ -1,10 +1,10 @@
 import { Component } from '@angular/core';
-import { NgpSwitchDirective, NgpSwitchThumbDirective } from '@ng-primitives/ng-primitives/switch';
+import { NgpSwitch, NgpSwitchThumb } from '@ng-primitives/ng-primitives/switch';
 
 @Component({
   standalone: true,
   selector: 'app-switch',
-  imports: [NgpSwitchDirective, NgpSwitchThumbDirective],
+  imports: [NgpSwitch, NgpSwitchThumb],
   template: `
     <div class="flex items-center gap-x-4">
       <label class="font-medium text-neutral-950" for="mobile-data">Mobile Data</label>

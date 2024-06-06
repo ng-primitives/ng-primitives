@@ -5,11 +5,11 @@
  * This source code is licensed under the CC BY-ND 4.0 license found in the
  * LICENSE file in the root directory of this source tree.
  */
-import { NgpRadioIndicatorDirective } from './radio-indicator.directive';
+import { NgpRadioIndicator } from './radio-indicator.directive';
 
-describe('NgpRadioIndicatorDirective', () => {
+describe('NgpRadioIndicator', () => {
   it('should create an instance', () => {
-    const directive = new NgpRadioIndicatorDirective();
+    const directive = new NgpRadioIndicator();
     expect(directive).toBeTruthy();
   });
 });

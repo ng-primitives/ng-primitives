@@ -20,7 +20,7 @@ Assemble the resize directives in your template.
 
 The following directives are available to import from the `@ng-primitives/ng-primitives/resize` package:
 
-### NgpResizeDirective
+### NgpResize
 
 <response-field name="ngpResize" type="boolean">
   Event emitted when the element is resize.

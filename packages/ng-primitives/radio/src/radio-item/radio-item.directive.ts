@@ -7,15 +7,15 @@
  */
 import { BooleanInput } from '@angular/cdk/coercion';
 import { Directive, HostListener, booleanAttribute, computed, input } from '@angular/core';
-import { NgpRovingFocusItemDirective } from '@ng-primitives/ng-primitives/roving-focus';
+import { NgpRovingFocusItem } from '@ng-primitives/ng-primitives/roving-focus';
 import { injectRadioGroup } from '../radio-group/radio-group.token';
 import { NgpRadioItemToken } from './radio-item.token';
 
 @Directive({
   selector: '[ngpRadioItem]',
   standalone: true,
-  hostDirectives: [NgpRovingFocusItemDirective],
-  providers: [{ provide: NgpRadioItemToken, useExisting: NgpRadioItemDirective }],
+  hostDirectives: [NgpRovingFocusItem],
+  providers: [{ provide: NgpRadioItemToken, useExisting: NgpRadioItem }],
   host: {
     role: 'radio',
     '[attr.aria-checked]': 'checked() ? "true" : "false"',
@@ -23,7 +23,7 @@ import { NgpRadioItemToken } from './radio-item.token';
     '[attr.data-state]': 'checked() ? "checked" : "unchecked"',
   },
 })
-export class NgpRadioItemDirective {
+export class NgpRadioItem {
   /**
    * Access the radio group.
    */

@@ -6,15 +6,13 @@
  * LICENSE file in the root directory of this source tree.
  */
 import { InjectionToken, inject } from '@angular/core';
-import type { NgpSliderTrackDirective } from './slider-track.directive';
+import type { NgpSliderTrack } from './slider-track.directive';
 
-export const NgpSliderTrackToken = new InjectionToken<NgpSliderTrackDirective>(
-  'NgpSliderTrackToken',
-);
+export const NgpSliderTrackToken = new InjectionToken<NgpSliderTrack>('NgpSliderTrackToken');
 
 /**
  * Inject the SliderTrack directive instance
  */
-export function injectSliderTrack(): NgpSliderTrackDirective {
+export function injectSliderTrack(): NgpSliderTrack {
   return inject(NgpSliderTrackToken);
 }

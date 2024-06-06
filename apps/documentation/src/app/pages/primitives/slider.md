@@ -20,7 +20,7 @@ Assemble the slider directives in your template.
 
 The following directives are available to import from the `@ng-primitives/ng-primitives/slider` package:
 
-### NgpSliderDirective
+### NgpSlider
 
 There are no inputs or outputs for this directive.
 

@@ -7,7 +7,7 @@
  */
 
 export { NgpTooltipConfig, provideTooltipConfig } from './config/tooltip.config';
-export { NgpTooltipTriggerDirective } from './tooltip-trigger/tooltip-trigger.directive';
+export { NgpTooltipTrigger } from './tooltip-trigger/tooltip-trigger.directive';
 export { NgpTooltipTriggerToken } from './tooltip-trigger/tooltip-trigger.token';
-export { NgpTooltipDirective } from './tooltip/tooltip.directive';
+export { NgpTooltip } from './tooltip/tooltip.directive';
 export { NgpTooltipToken } from './tooltip/tooltip.token';

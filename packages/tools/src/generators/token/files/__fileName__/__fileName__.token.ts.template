@@ -6,13 +6,13 @@
  * LICENSE file in the root directory of this source tree.
  */
 import { InjectionToken, inject } from '@angular/core';
-import type { Ngp<%= className %>Directive } from './<%= fileName %>.directive';
+import type { Ngp<%= className %> } from './<%= fileName %>.directive';
 
-export const Ngp<%= className %>Token = new InjectionToken<Ngp<%= className %>Directive>('Ngp<%= className %>Token');
+export const Ngp<%= className %>Token = new InjectionToken<Ngp<%= className %>>('Ngp<%= className %>Token');
 
 /**
  * Inject the <%= className %> directive instance
  */
-export function inject<%= className %>(): Ngp<%= className %>Directive {
+export function inject<%= className %>(): Ngp<%= className %> {
   return inject(Ngp<%= className %>Token);
 }

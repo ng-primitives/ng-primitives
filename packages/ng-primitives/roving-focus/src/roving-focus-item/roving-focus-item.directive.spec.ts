@@ -6,12 +6,12 @@
  * LICENSE file in the root directory of this source tree.
  */
 import { render } from '@testing-library/angular';
-import { NgpRovingFocusItemDirective } from './roving-focus-item.directive';
+import { NgpRovingFocusItem } from './roving-focus-item.directive';
 
-describe('NgpRovingFocusItemDirective', () => {
+describe('NgpRovingFocusItem', () => {
   it('should initialise correctly', async () => {
     const container = await render(`<div ngpRovingFocusItem></div>`, {
-      imports: [NgpRovingFocusItemDirective],
+      imports: [NgpRovingFocusItem],
     });
   });
 });

@@ -13,7 +13,7 @@ import { NgpSliderThumbToken } from './slider-thumb.token';
   standalone: true,
   selector: '[ngpSliderThumb]',
   exportAs: 'ngpSliderThumb',
-  providers: [{ provide: NgpSliderThumbToken, useExisting: NgpSliderThumbDirective }],
+  providers: [{ provide: NgpSliderThumbToken, useExisting: NgpSliderThumb }],
   host: {
     role: 'slider',
     '[attr.aria-valuemin]': 'slider.min()',
@@ -29,7 +29,7 @@ import { NgpSliderThumbToken } from './slider-thumb.token';
       'slider.orientation() === "vertical" ? slider.percentage() : undefined',
   },
 })
-export class NgpSliderThumbDirective {
+export class NgpSliderThumb {
   /**
    * Access the slider.
    */

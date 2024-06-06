@@ -6,15 +6,13 @@
  * LICENSE file in the root directory of this source tree.
  */
 import { InjectionToken, inject } from '@angular/core';
-import type { NgpSliderRangeDirective } from './slider-range.directive';
+import type { NgpSliderRange } from './slider-range.directive';
 
-export const NgpSliderRangeToken = new InjectionToken<NgpSliderRangeDirective>(
-  'NgpSliderRangeToken',
-);
+export const NgpSliderRangeToken = new InjectionToken<NgpSliderRange>('NgpSliderRangeToken');
 
 /**
  * Inject the SliderRange directive instance
  */
-export function injectSliderRange(): NgpSliderRangeDirective {
+export function injectSliderRange(): NgpSliderRange {
   return inject(NgpSliderRangeToken);
 }

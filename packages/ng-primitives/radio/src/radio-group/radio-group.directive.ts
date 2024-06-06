@@ -8,24 +8,24 @@
 import { BooleanInput } from '@angular/cdk/coercion';
 import { Directive, HostListener, booleanAttribute, input, model, signal } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
-import { NgpRovingFocusGroupDirective } from '@ng-primitives/ng-primitives/roving-focus';
+import { NgpRovingFocusGroup } from '@ng-primitives/ng-primitives/roving-focus';
 import { NgpRadioGroupToken } from './radio-group.token';
 
 @Directive({
   selector: '[ngpRadioGroup]',
   standalone: true,
   providers: [
-    { provide: NgpRadioGroupToken, useExisting: NgpRadioGroupDirective },
-    { provide: NG_VALUE_ACCESSOR, useExisting: NgpRadioGroupDirective, multi: true },
+    { provide: NgpRadioGroupToken, useExisting: NgpRadioGroup },
+    { provide: NG_VALUE_ACCESSOR, useExisting: NgpRadioGroup, multi: true },
   ],
-  hostDirectives: [NgpRovingFocusGroupDirective],
+  hostDirectives: [NgpRovingFocusGroup],
   host: {
     role: 'radiogroup',
     '[attr.aria-orientation]': 'orientation()',
     '[attr.data-disabled]': 'disabled() || formDisabled() ? "" : null',
   },
 })
-export class NgpRadioGroupDirective implements ControlValueAccessor {
+export class NgpRadioGroup implements ControlValueAccessor {
   /**
    * The value of the radio group.
    */

@@ -20,7 +20,7 @@ Assemble the tooltip directives in your template.
 
 The following directives are available to import from the `@ng-primitives/ng-primitives/tooltip` package:
 
-### NgpTooltipDirective
+### NgpTooltip
 
 There are no inputs or outputs for this directive.
 

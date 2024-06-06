@@ -6,12 +6,12 @@
  * LICENSE file in the root directory of this source tree.
  */
 import { render } from '@testing-library/angular';
-import { NgpSliderTrackDirective } from './slider-track.directive';
+import { NgpSliderTrack } from './slider-track.directive';
 
-describe('NgpSliderTrackDirective', () => {
+describe('NgpSliderTrack', () => {
   it('should initialise correctly', async () => {
     const container = await render(`<div ngpSliderTrack></div>`, {
-      imports: [NgpSliderTrackDirective],
+      imports: [NgpSliderTrack],
     });
   });
 });

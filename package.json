@@ -7,6 +7,7 @@
     "prepare": "husky",
     "format": "nx format:write",
     "lint": "nx affected -t lint",
+    "test": "nx affected -t test",
     "build": "nx affected -t build"
   },
   "devDependencies": {

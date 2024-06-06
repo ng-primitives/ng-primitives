@@ -1,10 +1,10 @@
 import { Component, signal } from '@angular/core';
-import { Dimensions, NgpResizeDirective } from '@ng-primitives/ng-primitives/resize';
+import { Dimensions, NgpResize } from '@ng-primitives/ng-primitives/resize';
 
 @Component({
   standalone: true,
   selector: 'app-resize',
-  imports: [NgpResizeDirective],
+  imports: [NgpResize],
   template: `
     <div
       class="flex h-28 min-w-28 resize items-center justify-center overflow-hidden rounded border border-dashed border-neutral-950 p-4"

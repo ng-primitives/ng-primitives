@@ -6,12 +6,12 @@
  * LICENSE file in the root directory of this source tree.
  */
 import { render } from '@testing-library/angular';
-import { NgpCheckboxLabelDirective } from './checkbox-label.directive';
+import { NgpCheckboxLabel } from './checkbox-label.directive';
 
-describe('NgpCheckboxLabelDirective', () => {
+describe('NgpCheckboxLabel', () => {
   it('should initialise correctly', async () => {
     const container = await render(`<div ngpCheckboxLabel></div>`, {
-      imports: [NgpCheckboxLabelDirective],
+      imports: [NgpCheckboxLabel],
     });
   });
 });

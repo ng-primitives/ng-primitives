@@ -14,12 +14,12 @@ import { NgpAccordionToken } from './accordion.token';
   standalone: true,
   selector: '[ngpAccordion]',
   exportAs: 'ngpAccordion',
-  providers: [{ provide: NgpAccordionToken, useExisting: NgpAccordionDirective }],
+  providers: [{ provide: NgpAccordionToken, useExisting: NgpAccordion }],
   host: {
     '[attr.data-orientation]': 'orientation()',
   },
 })
-export class NgpAccordionDirective<T> {
+export class NgpAccordion<T> {
   /**
    * Access the global accordion configuration.
    */

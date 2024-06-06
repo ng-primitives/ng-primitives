@@ -16,7 +16,7 @@ import { injectCheckbox } from '../checkbox/checkbox.token';
     '[attr.for]': 'checkbox.indicatorId()',
   },
 })
-export class NgpCheckboxLabelDirective {
+export class NgpCheckboxLabel {
   /**
    * Access the checkbox that the label belongs to.
    */

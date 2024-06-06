@@ -6,12 +6,12 @@
  * LICENSE file in the root directory of this source tree.
  */
 import { render } from '@testing-library/angular';
-import { NgpRovingFocusGroupDirective } from './roving-focus-group.directive';
+import { NgpRovingFocusGroup } from './roving-focus-group.directive';
 
-describe('NgpRovingFocusGroupDirective', () => {
+describe('NgpRovingFocusGroup', () => {
   it('should initialise correctly', async () => {
     const container = await render(`<div ngpRovingFocusGroup></div>`, {
-      imports: [NgpRovingFocusGroupDirective],
+      imports: [NgpRovingFocusGroup],
     });
   });
 });

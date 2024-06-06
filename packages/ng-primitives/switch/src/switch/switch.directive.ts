@@ -25,8 +25,8 @@ import { NgpSwitchToken } from './switch.token';
   selector: '[ngpSwitch]',
   exportAs: 'ngpSwitch',
   providers: [
-    { provide: NgpSwitchToken, useExisting: NgpSwitchDirective },
-    { provide: NG_VALUE_ACCESSOR, useExisting: NgpSwitchDirective, multi: true },
+    { provide: NgpSwitchToken, useExisting: NgpSwitch },
+    { provide: NG_VALUE_ACCESSOR, useExisting: NgpSwitch, multi: true },
   ],
   host: {
     role: 'switch',
@@ -38,7 +38,7 @@ import { NgpSwitchToken } from './switch.token';
     '(focus)': 'onTouched?.()',
   },
 })
-export class NgpSwitchDirective implements ControlValueAccessor {
+export class NgpSwitch implements ControlValueAccessor {
   /**
    * Access the element ref.
    */

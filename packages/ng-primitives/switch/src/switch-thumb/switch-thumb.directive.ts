@@ -16,7 +16,7 @@ import { injectSwitch } from '../switch/switch.token';
     '[attr.data-disabled]': 'switch.disabledState() ? "true" : null',
   },
 })
-export class NgpSwitchThumbDirective {
+export class NgpSwitchThumb {
   /**
    * Access the switch directive.
    */

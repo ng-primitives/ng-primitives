@@ -22,7 +22,7 @@ Assemble the switch directives in your template.
 
 The following directives are available to import from the `@ng-primitives/ng-primitives/switch` package:
 
-### NgpSwitchDirective
+### NgpSwitch
 
 <response-field name="ngpSwitchChecked" type="boolean" default="false">
   Define the checked state.
@@ -36,6 +36,6 @@ The following directives are available to import from the `@ng-primitives/ng-pri
   Event emitted when the state changes.
 </response-field>
 
-### NgpSwitchThumbDirective
+### NgpSwitchThumb
 
 There are no inputs or outputs for this directive.

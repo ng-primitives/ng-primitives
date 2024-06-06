@@ -11,9 +11,9 @@ import { NgpAvatarToken } from './avatar.token';
 @Directive({
   selector: '[ngpAvatar]',
   standalone: true,
-  providers: [{ provide: NgpAvatarToken, useExisting: NgpAvatarDirective }],
+  providers: [{ provide: NgpAvatarToken, useExisting: NgpAvatar }],
 })
-export class NgpAvatarDirective {
+export class NgpAvatar {
   /**
    * Store the current state of the avatar.
    * @internal

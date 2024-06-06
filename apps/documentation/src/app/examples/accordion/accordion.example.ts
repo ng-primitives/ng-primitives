@@ -2,22 +2,16 @@ import { Component } from '@angular/core';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { heroChevronDownMini } from '@ng-icons/heroicons/mini';
 import {
-  NgpAccordionContentDirective,
-  NgpAccordionDirective,
-  NgpAccordionItemDirective,
-  NgpAccordionTriggerDirective,
+  NgpAccordion,
+  NgpAccordionContent,
+  NgpAccordionItem,
+  NgpAccordionTrigger,
 } from '@ng-primitives/ng-primitives/accordion';
 
 @Component({
   standalone: true,
   selector: 'app-accordion',
-  imports: [
-    NgIcon,
-    NgpAccordionDirective,
-    NgpAccordionItemDirective,
-    NgpAccordionContentDirective,
-    NgpAccordionTriggerDirective,
-  ],
+  imports: [NgIcon, NgpAccordion, NgpAccordionItem, NgpAccordionContent, NgpAccordionTrigger],
   viewProviders: [provideIcons({ heroChevronDownMini })],
   host: {
     class: 'flex justify-center w-full',

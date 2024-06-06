@@ -6,12 +6,12 @@
  * LICENSE file in the root directory of this source tree.
  */
 import { render } from '@testing-library/angular';
-import { NgpTabListDirective } from './tab-list.directive';
+import { NgpTabList } from './tab-list.directive';
 
-describe('NgpTabListDirective', () => {
+describe('NgpTabList', () => {
   it('should initialise correctly', async () => {
     const container = await render(`<div ngpTabList></div>`, {
-      imports: [NgpTabListDirective],
+      imports: [NgpTabList],
     });
   });
 });

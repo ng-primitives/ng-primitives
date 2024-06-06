@@ -24,11 +24,11 @@ import { NgpCheckboxToken } from './checkbox.token';
   selector: '[ngpCheckbox]',
   standalone: true,
   providers: [
-    { provide: NgpCheckboxToken, useExisting: NgpCheckboxDirective },
-    { provide: NG_VALUE_ACCESSOR, useExisting: NgpCheckboxDirective, multi: true },
+    { provide: NgpCheckboxToken, useExisting: NgpCheckbox },
+    { provide: NG_VALUE_ACCESSOR, useExisting: NgpCheckbox, multi: true },
   ],
 })
-export class NgpCheckboxDirective implements ControlValueAccessor {
+export class NgpCheckbox implements ControlValueAccessor {
   /**
    * Defines whether the checkbox is checked.
    */

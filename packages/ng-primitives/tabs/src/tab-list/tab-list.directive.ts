@@ -18,7 +18,7 @@ import { injectTabset } from '../tabset/tabset.token';
     '[attr.data-orientation]': 'tabset.orientation()',
   },
 })
-export class NgpTabListDirective {
+export class NgpTabList {
   /**
    * Access the tabset
    */

@@ -6,12 +6,12 @@
  * LICENSE file in the root directory of this source tree.
  */
 import { render } from '@testing-library/angular';
-import { NgpSelectOptionsDirective } from './select-options.directive';
+import { NgpSelectOptions } from './select-options.directive';
 
-describe('NgpSelectOptionsDirective', () => {
+describe('NgpSelectOptions', () => {
   it('should initialise correctly', async () => {
     const container = await render(`<div ngpSelectOptions></div>`, {
-      imports: [NgpSelectOptionsDirective],
+      imports: [NgpSelectOptions],
     });
   });
 });

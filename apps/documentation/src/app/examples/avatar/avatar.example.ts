@@ -1,14 +1,10 @@
 import { Component } from '@angular/core';
-import {
-  NgpAvatarDirective,
-  NgpAvatarFallbackDirective,
-  NgpAvatarImageDirective,
-} from '@ng-primitives/ng-primitives/avatar';
+import { NgpAvatar, NgpAvatarFallback, NgpAvatarImage } from '@ng-primitives/ng-primitives/avatar';
 
 @Component({
   standalone: true,
   selector: 'app-avatar',
-  imports: [NgpAvatarDirective, NgpAvatarImageDirective, NgpAvatarFallbackDirective],
+  imports: [NgpAvatar, NgpAvatarImage, NgpAvatarFallback],
   template: `
     <span
       class="inline-flex size-14 items-center justify-center overflow-hidden rounded-full bg-neutral-100 shadow ring-1 ring-black/5"

@@ -8,15 +8,12 @@ import {
   heroDocument,
   heroFolder,
 } from '@ng-icons/heroicons/outline';
-import {
-  NgpRovingFocusGroupDirective,
-  NgpRovingFocusItemDirective,
-} from '@ng-primitives/ng-primitives/roving-focus';
+import { NgpRovingFocusGroup, NgpRovingFocusItem } from '@ng-primitives/ng-primitives/roving-focus';
 
 @Component({
   standalone: true,
   selector: 'app-roving-focus',
-  imports: [NgpRovingFocusGroupDirective, NgpRovingFocusItemDirective, NgIcon],
+  imports: [NgpRovingFocusGroup, NgpRovingFocusItem, NgIcon],
   viewProviders: [
     provideIcons({
       heroDocument,

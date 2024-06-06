@@ -20,7 +20,7 @@ Assemble the tabs directives in your template.
 
 The following directives are available to import from the `@ng-primitives/ng-primitives/tabs` package:
 
-### NgpTabsDirective
+### NgpTabs
 
 There are no inputs or outputs for this directive.
 

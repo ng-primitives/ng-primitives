@@ -6,13 +6,13 @@
  * LICENSE file in the root directory of this source tree.
  */
 import { InjectionToken, inject } from '@angular/core';
-import type { NgpSelectDirective } from './select.directive';
+import type { NgpSelect } from './select.directive';
 
-export const NgpSelectToken = new InjectionToken<NgpSelectDirective<unknown>>('NgpSelectToken');
+export const NgpSelectToken = new InjectionToken<NgpSelect<unknown>>('NgpSelectToken');
 
 /**
  * Inject the Select directive instance
  */
-export function injectSelect<T>(): NgpSelectDirective<T> {
-  return inject<NgpSelectDirective<T>>(NgpSelectToken);
+export function injectSelect<T>(): NgpSelect<T> {
+  return inject<NgpSelect<T>>(NgpSelectToken);
 }

@@ -1,14 +1,10 @@
 import { Component, signal } from '@angular/core';
-import {
-  NgpRadioGroupDirective,
-  NgpRadioIndicatorDirective,
-  NgpRadioItemDirective,
-} from '@ng-primitives/ng-primitives/radio';
+import { NgpRadioGroup, NgpRadioIndicator, NgpRadioItem } from '@ng-primitives/ng-primitives/radio';
 
 @Component({
   standalone: true,
   selector: 'app-radio',
-  imports: [NgpRadioGroupDirective, NgpRadioItemDirective, NgpRadioIndicatorDirective],
+  imports: [NgpRadioGroup, NgpRadioItem, NgpRadioIndicator],
   template: `
     <div class="flex flex-col gap-y-4" [(ngpRadioGroupValue)]="plan" ngpRadioGroup>
       <div

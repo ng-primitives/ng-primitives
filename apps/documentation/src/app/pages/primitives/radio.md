@@ -35,7 +35,7 @@ Assemble the radio directives in your template.
 
 The following directives are available to import from the `@ng-primitives/ng-primitives/radio` package:
 
-### NgpRadioGroupDirective
+### NgpRadioGroup
 
 <response-field name="ngpRadioGroupValue" type="string | undefined">
   Define the selected value.
@@ -51,7 +51,7 @@ The following directives are available to import from the `@ng-primitives/ng-pri
   Event emitted when the selection changes.
 </response-field>
 
-### NgpRadioItemDirective
+### NgpRadioItem
 
 <response-field name="ngpRadioItemValue" type="string" required="true">
   Define the value of this item.
@@ -61,6 +61,6 @@ The following directives are available to import from the `@ng-primitives/ng-pri
   Define the disabled state.
 </response-field>
 
-### NgpRadioIndicatorDirective
+### NgpRadioIndicator
 
 There are no inputs or outputs for this directive.

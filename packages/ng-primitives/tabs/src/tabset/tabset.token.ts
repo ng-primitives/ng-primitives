@@ -6,14 +6,14 @@
  * LICENSE file in the root directory of this source tree.
  */
 import { InjectionToken, inject } from '@angular/core';
-import type { NgpTabsetDirective } from './tabset.directive';
+import type { NgpTabset } from './tabset.directive';
 
-export const NgpTabsetToken = new InjectionToken<NgpTabsetDirective>('NgpTabsetToken');
+export const NgpTabsetToken = new InjectionToken<NgpTabset>('NgpTabsetToken');
 
 /**
  * Inject the Tabset directive instance
  * @returns The Tabset directive instance
  */
-export function injectTabset(): NgpTabsetDirective {
+export function injectTabset(): NgpTabset {
   return inject(NgpTabsetToken);
 }

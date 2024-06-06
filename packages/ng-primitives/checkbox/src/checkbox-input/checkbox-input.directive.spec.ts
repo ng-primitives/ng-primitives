@@ -6,10 +6,10 @@
  * LICENSE file in the root directory of this source tree.
  */
 import { RenderResult, render } from '@testing-library/angular';
-import { NgpCheckboxDirective } from '../checkbox/checkbox.directive';
-import { NgpCheckboxInputDirective } from './checkbox-input.directive';
+import { NgpCheckbox } from '../checkbox/checkbox.directive';
+import { NgpCheckboxInput } from './checkbox-input.directive';
 
-describe('NgpCheckboxInputDirective', () => {
+describe('NgpCheckboxInput', () => {
   let container: RenderResult<unknown, unknown>;
 
   beforeEach(async () => {
@@ -18,7 +18,7 @@ describe('NgpCheckboxInputDirective', () => {
       <input ngpCheckboxInput data-testid="checkbox-input" />
     </div>`,
       {
-        imports: [NgpCheckboxDirective, NgpCheckboxInputDirective],
+        imports: [NgpCheckbox, NgpCheckboxInput],
       },
     );
   });

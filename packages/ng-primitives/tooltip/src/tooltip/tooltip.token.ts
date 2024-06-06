@@ -6,13 +6,13 @@
  * LICENSE file in the root directory of this source tree.
  */
 import { InjectionToken, inject } from '@angular/core';
-import type { NgpTooltipDirective } from './tooltip.directive';
+import type { NgpTooltip } from './tooltip.directive';
 
-export const NgpTooltipToken = new InjectionToken<NgpTooltipDirective>('NgpTooltipToken');
+export const NgpTooltipToken = new InjectionToken<NgpTooltip>('NgpTooltipToken');
 
 /**
  * Inject the Tooltip directive instance
  */
-export function injectTooltip(): NgpTooltipDirective {
+export function injectTooltip(): NgpTooltip {
   return inject(NgpTooltipToken);
 }

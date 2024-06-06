@@ -17,7 +17,7 @@ import { injectRadioItem } from '../radio-item/radio-item.token';
     '[attr.data-disabled]': 'radioItem.disabled() ? "" : null',
   },
 })
-export class NgpRadioIndicatorDirective {
+export class NgpRadioIndicator {
   /**
    * Access the radio group.
    */

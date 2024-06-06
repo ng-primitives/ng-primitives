@@ -19,7 +19,7 @@ import { Directive, HostListener, booleanAttribute, input, model } from '@angula
     '[attr.data-disabled]': 'disabled()',
   },
 })
-export class NgpToggleDirective {
+export class NgpToggle {
   /**
    * Whether the toggle is pressed.
    * @default false

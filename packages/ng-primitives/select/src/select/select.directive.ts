@@ -15,9 +15,9 @@ import { NgpSelectToken } from './select.token';
   standalone: true,
   selector: '[ngpSelect]',
   exportAs: 'ngpSelect',
-  providers: [{ provide: NgpSelectToken, useExisting: NgpSelectDirective }],
+  providers: [{ provide: NgpSelectToken, useExisting: NgpSelect }],
 })
-export class NgpSelectDirective<T> {
+export class NgpSelect<T> {
   /**
    * The selected value.
    */

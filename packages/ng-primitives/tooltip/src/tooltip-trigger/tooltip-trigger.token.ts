@@ -6,16 +6,16 @@
  * LICENSE file in the root directory of this source tree.
  */
 import { InjectionToken, inject } from '@angular/core';
-import type { NgpTooltipTriggerDirective } from './tooltip-trigger.directive';
+import type { NgpTooltipTrigger } from './tooltip-trigger.directive';
 
-export const NgpTooltipTriggerToken = new InjectionToken<NgpTooltipTriggerDirective>(
+export const NgpTooltipTriggerToken = new InjectionToken<NgpTooltipTrigger>(
   'NgpTooltipTriggerToken',
 );
 
 /**
  * Inject the TooltipTrigger directive instance
  */
-export function injectTooltipTrigger(): NgpTooltipTriggerDirective {
+export function injectTooltipTrigger(): NgpTooltipTrigger {
   return inject(NgpTooltipTriggerToken);
 }
 
@@ -23,6 +23,6 @@ export function injectTooltipTrigger(): NgpTooltipTriggerDirective {
  * Provides the TooltipTrigger directive instance
  * @param trigger
  */
-export function provideTooltipTrigger(trigger: NgpTooltipTriggerDirective) {
+export function provideTooltipTrigger(trigger: NgpTooltipTrigger) {
   return { provide: NgpTooltipTriggerToken, useValue: trigger };
 }

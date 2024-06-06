@@ -1,14 +1,11 @@
 import { Component, signal } from '@angular/core';
-import {
-  NgpProgressDirective,
-  NgpProgressIndicatorDirective,
-} from '@ng-primitives/ng-primitives/progress';
+import { NgpProgress, NgpProgressIndicator } from '@ng-primitives/ng-primitives/progress';
 import { injectDisposables } from '@ng-primitives/ng-primitives/utils';
 
 @Component({
   standalone: true,
   selector: 'app-progress',
-  imports: [NgpProgressDirective, NgpProgressIndicatorDirective],
+  imports: [NgpProgress, NgpProgressIndicator],
   template: `
     <div
       class="relative h-3 w-80 overflow-hidden rounded-lg border border-neutral-200 bg-white"

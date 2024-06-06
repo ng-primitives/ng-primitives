@@ -6,9 +6,9 @@
  * LICENSE file in the root directory of this source tree.
  */
 import { InjectionToken, inject } from '@angular/core';
-import type { NgpRovingFocusItemDirective } from './roving-focus-item.directive';
+import type { NgpRovingFocusItem } from './roving-focus-item.directive';
 
-export const NgpRovingFocusItemToken = new InjectionToken<NgpRovingFocusItemDirective>(
+export const NgpRovingFocusItemToken = new InjectionToken<NgpRovingFocusItem>(
   'NgpRovingFocusItemToken',
 );
 
@@ -16,6 +16,6 @@ export const NgpRovingFocusItemToken = new InjectionToken<NgpRovingFocusItemDire
  * Inject the RovingFocusItem directive instance
  * @returns The RovingFocusItem directive instance
  */
-export function injectRovingFocusItem(): NgpRovingFocusItemDirective {
+export function injectRovingFocusItem(): NgpRovingFocusItem {
   return inject(NgpRovingFocusItemToken);
 }

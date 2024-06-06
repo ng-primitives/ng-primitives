@@ -1,13 +1,10 @@
 import { Component } from '@angular/core';
-import {
-  NgpTooltipDirective,
-  NgpTooltipTriggerDirective,
-} from '@ng-primitives/ng-primitives/tooltip';
+import { NgpTooltip, NgpTooltipTrigger } from '@ng-primitives/ng-primitives/tooltip';
 
 @Component({
   standalone: true,
   selector: 'app-tooltip',
-  imports: [NgpTooltipTriggerDirective, NgpTooltipDirective],
+  imports: [NgpTooltipTrigger, NgpTooltip],
   template: `
     <button
       class="h-10 rounded-lg bg-white px-4 font-medium text-neutral-950 shadow outline-none ring-1 ring-black/5 transition-all hover:bg-neutral-50 focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 focus-visible:ring-offset-neutral-100 active:bg-neutral-100"

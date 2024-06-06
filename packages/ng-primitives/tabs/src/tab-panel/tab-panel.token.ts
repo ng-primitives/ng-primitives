@@ -6,14 +6,14 @@
  * LICENSE file in the root directory of this source tree.
  */
 import { InjectionToken, inject } from '@angular/core';
-import type { NgpTabPanelDirective } from './tab-panel.directive';
+import type { NgpTabPanel } from './tab-panel.directive';
 
-export const NgpTabPanelToken = new InjectionToken<NgpTabPanelDirective>('NgpTabPanelToken');
+export const NgpTabPanelToken = new InjectionToken<NgpTabPanel>('NgpTabPanelToken');
 
 /**
  * Inject the TabPanel directive instance
  * @returns The TabPanel directive instance
  */
-export function injectTabPanel(): NgpTabPanelDirective {
+export function injectTabPanel(): NgpTabPanel {
   return inject(NgpTabPanelToken);
 }

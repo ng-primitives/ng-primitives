@@ -6,14 +6,14 @@
  * LICENSE file in the root directory of this source tree.
  */
 import { InjectionToken, inject } from '@angular/core';
-import type { NgpRadioGroupDirective } from './radio-group.directive';
+import type { NgpRadioGroup } from './radio-group.directive';
 
-export const NgpRadioGroupToken = new InjectionToken<NgpRadioGroupDirective>('NgpRadioGroupToken');
+export const NgpRadioGroupToken = new InjectionToken<NgpRadioGroup>('NgpRadioGroupToken');
 
 /**
  * Injects the radio group directive.
  * @returns The radio group directive.
  */
-export function injectRadioGroup(): NgpRadioGroupDirective {
+export function injectRadioGroup(): NgpRadioGroup {
   return inject(NgpRadioGroupToken);
 }

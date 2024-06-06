@@ -13,7 +13,7 @@ import { NgpTabPanelToken } from './tab-panel.token';
   standalone: true,
   selector: '[ngpTabPanel]',
   exportAs: 'ngpTabPanel',
-  providers: [{ provide: NgpTabPanelToken, useExisting: NgpTabPanelDirective }],
+  providers: [{ provide: NgpTabPanelToken, useExisting: NgpTabPanel }],
   host: {
     role: 'tabpanel',
     tabIndex: '0',
@@ -23,7 +23,7 @@ import { NgpTabPanelToken } from './tab-panel.token';
     '[hidden]': '!active()',
   },
 })
-export class NgpTabPanelDirective {
+export class NgpTabPanel {
   /**
    * Access the tabset
    */

@@ -22,7 +22,7 @@ Assemble the avatar directives in your template.
 
 The following directives are available to import from the `@ng-primitives/ng-primitives/progress` package:
 
-### NgpProgressDirective
+### NgpProgress
 
 <response-field name="ngpProgressValue" type="number">
   Define the progress value.
@@ -36,6 +36,6 @@ The following directives are available to import from the `@ng-primitives/ng-pri
   Define a function that returns the progress value label.
 </response-field>
 
-### NgpProgressIndicatorDirective
+### NgpProgressIndicator
 
 There are no inputs or outputs for this directive.

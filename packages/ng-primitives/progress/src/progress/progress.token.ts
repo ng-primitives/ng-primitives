@@ -6,13 +6,13 @@
  * LICENSE file in the root directory of this source tree.
  */
 import { InjectionToken, inject } from '@angular/core';
-import type { NgpProgressDirective } from './progress.directive';
+import type { NgpProgress } from './progress.directive';
 
-export const NgpProgressToken = new InjectionToken<NgpProgressDirective>('NgpProgressDirective');
+export const NgpProgressToken = new InjectionToken<NgpProgress>('NgpProgressDirective');
 
 /**
  *
  */
-export function injectProgress(): NgpProgressDirective {
+export function injectProgress(): NgpProgress {
   return inject(NgpProgressToken);
 }

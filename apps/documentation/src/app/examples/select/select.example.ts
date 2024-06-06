@@ -2,22 +2,16 @@ import { Component, signal } from '@angular/core';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { heroChevronDownMini } from '@ng-icons/heroicons/mini';
 import {
-  NgpSelectButtonDirective,
-  NgpSelectDirective,
-  NgpSelectOptionDirective,
-  NgpSelectOptionsDirective,
+  NgpSelect,
+  NgpSelectButton,
+  NgpSelectOption,
+  NgpSelectOptions,
 } from '@ng-primitives/ng-primitives/select';
 
 @Component({
   standalone: true,
   selector: 'app-select',
-  imports: [
-    NgIcon,
-    NgpSelectButtonDirective,
-    NgpSelectDirective,
-    NgpSelectOptionDirective,
-    NgpSelectOptionsDirective,
-  ],
+  imports: [NgIcon, NgpSelectButton, NgpSelect, NgpSelectOption, NgpSelectOptions],
   viewProviders: [provideIcons({ heroChevronDownMini })],
   template: `
     <div class="relative -mt-24 w-72" [(ngpSelectValue)]="selectedEmployee" ngpSelect>

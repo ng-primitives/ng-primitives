@@ -44,10 +44,6 @@
           "buildTarget": "documentation:build:production"
         }
       }
-    },
-    "test": {
-      "executor": "@analogjs/platform:vitest",
-      "outputs": ["{projectRoot}/coverage"]
     }
   },
   "tags": [],
