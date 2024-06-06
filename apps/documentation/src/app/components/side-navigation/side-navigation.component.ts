@@ -1,11 +1,11 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
-import { RouterLink } from '@angular/router';
+import { RouterLink, RouterLinkActive } from '@angular/router';
 import { getRouterLinks } from '../../utils/router';
 
 @Component({
   selector: 'docs-side-navigation',
   standalone: true,
-  imports: [RouterLink],
+  imports: [RouterLink, RouterLinkActive],
   templateUrl: './side-navigation.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

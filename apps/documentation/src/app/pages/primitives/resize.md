@@ -22,6 +22,6 @@ The following directives are available to import from the `@ng-primitives/ng-pri
 
 ### NgpResizeDirective
 
-<ResponseField name="ngpResize" type="boolean">
+<response-field name="ngpResize" type="boolean">
   Event emitted when the element is resize.
-</ResponseField>
+</response-field>

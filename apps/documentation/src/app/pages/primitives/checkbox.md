@@ -24,40 +24,26 @@ The following directives are available to import from the `@ng-primitives/ng-pri
 
 ### NgpCheckboxDirective
 
-<ResponseField name="ngpCheckboxChecked" type="boolean" default="false">
+<response-field name="ngpCheckboxChecked" type="boolean" default="false">
   Define the checked state.
-</ResponseField>
+</response-field>
 
-<ResponseField name="ngpCheckboxIndeterminate" type="boolean" default="false">
+<response-field name="ngpCheckboxIndeterminate" type="boolean" default="false">
   Define the interminate state.
-</ResponseField>
+</response-field>
 
-<ResponseField name="ngpCheckboxDisabled" type="boolean" default="false">
+<response-field name="ngpCheckboxDisabled" type="boolean" default="false">
   Define the disabled state.
-</ResponseField>
+</response-field>
 
-<ResponseField name="ngpCheckboxCheckedChange" type="boolean">
+<response-field name="ngpCheckboxCheckedChange" type="boolean">
   Event emitted when the state changes.
-</ResponseField>
+</response-field>
 
-<ResponseField name="ngpCheckboxIndeterminateChange" type="boolean">
+<response-field name="ngpCheckboxIndeterminateChange" type="boolean">
   Event emitted when the indeterminate state changes.
-</ResponseField>
+</response-field>
 
 ### NgpCheckboxIndicatorDirective
 
 There are no inputs or outputs for this directive.
-
-### Options
-
-<ResponseField name="name" type="string">
-  The name of the component.
-</ResponseField>
-
-<ResponseField name="project" type="string">
-  The name of the project to add the component to.
-</ResponseField>
-
-<ResponseField name="path" type="string">
-  The path to create the component.
-</ResponseField>

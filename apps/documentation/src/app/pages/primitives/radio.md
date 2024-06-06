@@ -37,50 +37,30 @@ The following directives are available to import from the `@ng-primitives/ng-pri
 
 ### NgpRadioGroupDirective
 
-<ResponseField name="ngpRadioGroupValue" type="string | undefined">
+<response-field name="ngpRadioGroupValue" type="string | undefined">
   Define the selected value.
-</ResponseField>
+</response-field>
 
-<ResponseField name="ngpRadioGroupDisabled" type="boolean" default="false">
+<response-field name="ngpRadioGroupDisabled" type="boolean" default="false">
   Define the disabled state.
-</ResponseField>
+</response-field>
 
-<ResponseField
-name="ngpRadioGroupOrientation"
-type="'vertical' | 'horizontal'"
-default="horizontal"
+<response-field name="ngpRadioGroupOrientation" type="'vertical' | 'horizontal'" default="horizontal"> Define the orientation.</response-field>
 
-> Define the orientation.
-> </ResponseField>
-
-<ResponseField name="ngpRadioGroupValueChange" type="boolean">
+<response-field name="ngpRadioGroupValueChange" type="boolean">
   Event emitted when the selection changes.
-</ResponseField>
+</response-field>
 
 ### NgpRadioItemDirective
 
-<ResponseField name="ngpRadioItemValue" type="string" required="true">
+<response-field name="ngpRadioItemValue" type="string" required="true">
   Define the value of this item.
-</ResponseField>
+</response-field>
 
-<ResponseField name="ngpRadioItemDisabled" type="boolean" default="false">
+<response-field name="ngpRadioItemDisabled" type="boolean" default="false">
   Define the disabled state.
-</ResponseField>
+</response-field>
 
 ### NgpRadioIndicatorDirective
 
 There are no inputs or outputs for this directive.
-
-### Options
-
-<ResponseField name="name" type="string">
-  The name of the component.
-</ResponseField>
-
-<ResponseField name="project" type="string">
-  The name of the project to add the component to.
-</ResponseField>
-
-<ResponseField name="path" type="string">
-  The path to create the component.
-</ResponseField>

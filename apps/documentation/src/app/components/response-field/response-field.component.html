@@ -1,0 +1,28 @@
+<div class="my-2.5 border-b border-zinc-100 pb-5 pt-2.5">
+  <div class="flex font-mono text-sm">
+    <div class="mr-5 flex flex-1 content-start py-0.5">
+      <div class="flex flex-wrap items-center gap-2">
+        <div class="text-primary font-bold">
+          <span class="text-zinc-500"></span>
+          {{ name }}
+        </div>
+        <div class="flex items-center space-x-2 text-xs font-medium">
+          <div class="rounded-md bg-zinc-100/50 px-2 py-0.5 text-zinc-600">{{ type }}</div>
+          @if (default) {
+            <span class="rounded-md bg-zinc-100/50 px-2 py-0.5 text-zinc-600">
+              default: "{{ default }}"
+            </span>
+          }
+          @if (required) {
+            <span class="rounded-md bg-red-100/50 px-2 py-0.5 text-red-600">required</span>
+          }
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="prose-sm prose-zinc dark:prose-invert mt-4">
+    <p>
+      <ng-content />
+    </p>
+  </div>
+</div>

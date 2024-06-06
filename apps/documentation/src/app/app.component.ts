@@ -5,6 +5,7 @@ import { NgIcon, provideIcons } from '@ng-icons/core';
 import { saxMoonOutline } from '@ng-icons/iconsax/outline';
 import { ExampleComponent } from './components/example/example.component';
 import { NavbarComponent } from './components/navbar/navbar.component';
+import { ResponseFieldComponent } from './components/response-field/response-field.component';
 import { SideNavigationComponent } from './components/side-navigation/side-navigation.component';
 
 @Component({
@@ -32,6 +33,11 @@ export class AppComponent {
     customElements.define(
       'docs-example',
       createCustomElement(ExampleComponent, { injector: this.injector }),
+    );
+
+    customElements.define(
+      'response-field',
+      createCustomElement(ResponseFieldComponent, { injector: this.injector }),
     );
   }
 }

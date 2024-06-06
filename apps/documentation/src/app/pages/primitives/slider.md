@@ -37,17 +37,3 @@ bootstrapApplication(AppComponent, {
 ```
 
 ### NgpSliderConfig
-
-### Options
-
-<ResponseField name="name" type="string">
-  The name of the component.
-</ResponseField>
-
-<ResponseField name="project" type="string">
-  The name of the project to add the component to.
-</ResponseField>
-
-<ResponseField name="path" type="string">
-  The path to create the component.
-</ResponseField>

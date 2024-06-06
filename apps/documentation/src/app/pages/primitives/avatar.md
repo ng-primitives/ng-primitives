@@ -33,10 +33,10 @@ There are no inputs or outputs for this directive.
 
 ### NgpAvatarFallbackDirective
 
-<ResponseField name="ngpAvatarFallbackDelay" type="number" default="0">
+<response-field name="ngpAvatarFallbackDelay" type="number" default="0">
   Define a delay before the fallback is shown. This is useful to only show the fallback for those
   with slower connections.
-</ResponseField>
+</response-field>
 
 ## Global Configuration
 
@@ -52,21 +52,7 @@ bootstrapApplication(AppComponent, {
 
 ### NgpAvatarConfig
 
-<ResponseField name="delay" type="number">
+<response-field name="delay" type="number">
   Define a delay before the fallback is shown. This is useful to only show the fallback for those
   with slower connections.
-</ResponseField>
-
-### Options
-
-<ResponseField name="name" type="string">
-  The name of the component.
-</ResponseField>
-
-<ResponseField name="project" type="string">
-  The name of the project to add the component to.
-</ResponseField>
-
-<ResponseField name="path" type="string">
-  The path to create the component.
-</ResponseField>
+</response-field>

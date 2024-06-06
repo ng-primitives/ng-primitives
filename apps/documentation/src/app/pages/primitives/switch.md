@@ -24,32 +24,18 @@ The following directives are available to import from the `@ng-primitives/ng-pri
 
 ### NgpSwitchDirective
 
-<ResponseField name="ngpSwitchChecked" type="boolean" default="false">
+<response-field name="ngpSwitchChecked" type="boolean" default="false">
   Define the checked state.
-</ResponseField>
+</response-field>
 
-<ResponseField name="ngpSwitchDisabled" type="boolean" default="false">
+<response-field name="ngpSwitchDisabled" type="boolean" default="false">
   Define the disabled state.
-</ResponseField>
+</response-field>
 
-<ResponseField name="ngpSwitchCheckedChange" type="boolean">
+<response-field name="ngpSwitchCheckedChange" type="boolean">
   Event emitted when the state changes.
-</ResponseField>
+</response-field>
 
 ### NgpSwitchThumbDirective
 
 There are no inputs or outputs for this directive.
-
-### Options
-
-<ResponseField name="name" type="string">
-  The name of the component.
-</ResponseField>
-
-<ResponseField name="project" type="string">
-  The name of the project to add the component to.
-</ResponseField>
-
-<ResponseField name="path" type="string">
-  The path to create the component.
-</ResponseField>
