@@ -3,11 +3,11 @@
   "license": "CC BY-ND 4.0",
   "version": "0.0.1",
   "peerDependencies": {
-    "@angular/core": "^17.1.0",
-    "@angular/cdk": "^17.2.2",
-    "@angular/forms": "17.3.0",
-    "rxjs": "~7.8.0",
-    "@floating-ui/dom": "^1.6.4"
+    "@angular/core": ">=18.0.0",
+    "@angular/cdk": ">=18.0.0",
+    "@angular/forms": ">=18.0.0",
+    "rxjs": ">=6.6.0",
+    "@floating-ui/dom": ">=1.6.0"
   },
   "dependencies": {},
   "sideEffects": false

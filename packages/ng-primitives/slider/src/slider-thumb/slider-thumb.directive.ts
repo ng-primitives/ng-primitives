@@ -85,6 +85,7 @@ export class NgpSliderThumbDirective {
 
   /**
    * Handle keyboard events.
+   * @param event
    */
   @HostListener('keydown', ['$event'])
   protected handleKeydown(event: KeyboardEvent): void {

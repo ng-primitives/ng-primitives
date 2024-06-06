@@ -81,6 +81,7 @@ export class NgpSelectButtonDirective {
 
   /**
    * Focus the button element.
+   * @param origin
    * @internal
    */
   focus(origin?: FocusOrigin) {

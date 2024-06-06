@@ -29,7 +29,7 @@ export class QuickLinksComponent {
 
   scrollTo(id: string): void {
     window.scrollTo({
-      top: document.getElementById(id)!.offsetTop,
+      top: document.getElementById(id)?.offsetTop,
       behavior: 'smooth',
     });
   }

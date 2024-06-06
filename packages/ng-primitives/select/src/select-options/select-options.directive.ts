@@ -125,6 +125,7 @@ export class NgpSelectOptionsDirective<T> implements AfterViewInit {
 
   /**
    * Handle the closing of the options list.
+   * @param origin
    */
   private close(origin?: FocusOrigin): void {
     // if the options list is already closed, do nothing
