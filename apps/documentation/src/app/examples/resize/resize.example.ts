@@ -7,7 +7,7 @@ import { Dimensions, NgpResize } from '@ng-primitives/ng-primitives/resize';
   imports: [NgpResize],
   template: `
     <div
-      class="flex h-28 min-w-28 resize items-center justify-center overflow-hidden rounded border border-dashed border-neutral-950 p-4"
+      class="flex h-28 max-h-[200px] min-w-28 resize items-center justify-center overflow-hidden rounded border border-dashed border-neutral-950 p-4"
       (ngpResize)="dimensions.set($event)"
     >
       {{ dimensions().width }} x {{ dimensions().height }}

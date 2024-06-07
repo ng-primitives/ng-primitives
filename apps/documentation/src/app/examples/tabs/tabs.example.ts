@@ -12,27 +12,27 @@ import {
   imports: [NgpTabset, NgpTabList, NgpTabButton, NgpTabPanel],
   template: `
     <div
-      class="w-full max-w-[512px] rounded-xl bg-white px-4 py-2 shadow ring-1 ring-black/5"
+      class="w-full max-w-[512px] rounded-xl bg-white px-4 py-1 shadow ring-1 ring-black/5"
       [(ngpTabsetValue)]="selectedTab"
       ngpTabset
     >
-      <div class="flex gap-x-4 py-2" ngpTabList>
+      <div class="flex gap-x-6 border-b" ngpTabList>
         <button
-          class="w-24 rounded-lg px-3 py-2 shadow outline-none ring-1 ring-black/5 transition-all hover:bg-neutral-50 focus-visible:ring-2 focus-visible:ring-blue-500 data-[state=active]:bg-neutral-950 data-[state=active]:text-white"
+          class="-mb-px border-b-2 border-transparent py-2 outline-none transition-all focus-visible:ring-2 focus-visible:ring-blue-500 data-[state=active]:border-zinc-950 data-[state=active]:text-zinc-950"
           ngpTabButton
           ngpTabButtonValue="overview"
         >
           Overview
         </button>
         <button
-          class="w-24 rounded-lg px-3 py-2 shadow outline-none ring-1 ring-black/5 transition-all hover:bg-neutral-50 focus-visible:ring-2 focus-visible:ring-blue-500 data-[state=active]:bg-neutral-950 data-[state=active]:text-white"
+          class="-mb-px border-b-2 border-transparent py-2 outline-none transition-all focus-visible:ring-2 focus-visible:ring-blue-500 data-[state=active]:border-zinc-950 data-[state=active]:text-zinc-950"
           ngpTabButton
           ngpTabButtonValue="features"
         >
           Features
         </button>
         <button
-          class="w-24 rounded-lg px-3 py-2 shadow outline-none ring-1 ring-black/5 transition-all hover:bg-neutral-50 focus-visible:ring-2 focus-visible:ring-blue-500 data-[state=active]:bg-neutral-950 data-[state=active]:text-white"
+          class="-mb-px border-b-2 border-transparent py-2 outline-none transition-all focus-visible:ring-2 focus-visible:ring-blue-500 data-[state=active]:border-zinc-950 data-[state=active]:text-zinc-950"
           ngpTabButton
           ngpTabButtonValue="pricing"
         >
