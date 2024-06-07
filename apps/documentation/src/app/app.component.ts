@@ -16,7 +16,7 @@ import { SideNavigationComponent } from './components/side-navigation/side-navig
   template: `
     <docs-navbar />
 
-    <div class="container mx-auto px-4 pt-24">
+    <div class="container mx-auto px-8 pt-24">
       <div class="flex">
         <docs-side-navigation class="mr-12" />
 

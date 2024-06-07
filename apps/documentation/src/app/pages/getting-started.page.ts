@@ -7,7 +7,7 @@ import { QuickLinksComponent } from '../components/quick-links/quick-links.compo
   selector: 'docs-getting-started',
   template: `
     <div class="flex gap-x-12">
-      <div class="prose prose-sm prose-zinc max-w-3xl flex-1">
+      <div class="prose prose-sm prose-zinc max-w-3xl flex-1 overflow-hidden">
         <router-outlet />
       </div>
       <docs-quick-links />
@@ -15,7 +15,7 @@ import { QuickLinksComponent } from '../components/quick-links/quick-links.compo
   `,
   imports: [RouterOutlet, QuickLinksComponent],
   host: {
-    class: 'flex-1',
+    class: 'flex-1 overflow-hidden',
   },
 })
 export default class GettingStartedPage {}

@@ -16,7 +16,7 @@ import { NgpTooltip, NgpTooltipTrigger } from '@ng-primitives/ng-primitives/tool
 
     <ng-template #tooltip>
       <div
-        class="fixed max-w-64 rounded-lg bg-neutral-950 px-3 py-2 text-xs font-medium text-white"
+        class="absolute max-w-64 rounded-lg bg-neutral-950 px-3 py-2 text-xs font-medium text-white"
         ngpTooltip
       >
         Hover over items to reveal additional context or details. Tooltips provide quick insights

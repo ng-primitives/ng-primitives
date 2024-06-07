@@ -46,9 +46,9 @@ export class NgpTooltip implements OnInit {
     if (isDevMode()) {
       const { position } = getComputedStyle(this.tooltip.nativeElement);
 
-      if (position !== 'fixed' && position !== 'absolute') {
+      if (position !== 'absolute') {
         console.warn(
-          `The tooltip element must have a fixed or absolute position. The current position is ${position}.`,
+          `The tooltip element must have an absolute position. The current position is ${position}.`,
         );
       }
     }

@@ -6,7 +6,7 @@ title: 'Accordion'
 
 Display a series of panels that can be expanded or collapsed.
 
-<docs-example></docs-example>
+<docs-example name="accordion"></docs-example>
 
 ## Usage
 

@@ -16,8 +16,8 @@ import {
       [(ngpSliderValue)]="value"
       ngpSlider
     >
-      <div class="relative h-[3px] grow rounded-full bg-black/20" ngpSliderTrack>
-        <div class="absolute h-full rounded-full bg-blue-500" ngpSliderRange></div>
+      <div class="relative h-[5px] grow rounded-full bg-black/20" ngpSliderTrack>
+        <div class="absolute h-full rounded-full bg-zinc-950" ngpSliderRange></div>
       </div>
       <div
         class="absolute block size-5 -translate-x-1/2 rounded-[10px] bg-white shadow outline-none ring-1 ring-black/5 focus-visible:ring-2 focus-visible:ring-blue-500"

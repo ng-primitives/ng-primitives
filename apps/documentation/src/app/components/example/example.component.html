@@ -1,5 +1,5 @@
 <div class="not-prose relative flex min-h-80 flex-col items-center justify-center">
-  <div class="absolute inset-x-0 top-0 flex justify-between gap-x-2">
+  <div class="absolute inset-x-0 top-0 flex justify-between gap-x-2 px-px">
     <div class="mr-2 rounded-lg bg-zinc-100 p-0.5 ring-1 ring-black/5">
       <button
         class="w-16 rounded-md px-2 py-1.5 text-xs font-medium outline-none focus-visible:z-10 focus-visible:ring-2 focus-visible:ring-blue-500"
@@ -50,7 +50,7 @@
     }
 
     <pre
-      class="absolute inset-0 h-fit whitespace-pre-wrap rounded-xl bg-zinc-950 p-4"
+      class="h-fit whitespace-pre-wrap rounded-xl bg-zinc-950 p-4"
       #codeElement
       [hidden]="mode() !== 'source'"
     ><code class="language-typescript not-prose" [innerHTML]="code"></code></pre>

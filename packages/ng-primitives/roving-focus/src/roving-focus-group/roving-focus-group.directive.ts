@@ -88,9 +88,9 @@ export class NgpRovingFocusGroup {
   register(item: NgpRovingFocusItem): void {
     this.items.update(items => [...items, item]);
 
-    // if there is no active item, activate the first item
+    // if there is no active item, make the first item the tabbable item
     if (!this.activeItem()) {
-      this.activateFirstItem('program');
+      this.activeItem.set(item);
     }
   }
 
@@ -104,7 +104,8 @@ export class NgpRovingFocusGroup {
 
     // check if the unregistered item is the active item
     if (this.activeItem() === item) {
-      this.activateFirstItem('program');
+      // if the active item is unregistered, activate the first item
+      this.activeItem.set(this.items()[0] ?? null);
     }
   }
 
