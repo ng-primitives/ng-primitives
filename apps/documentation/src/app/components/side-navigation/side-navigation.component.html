@@ -1,22 +1,36 @@
-<div
-  class="sticky top-24 flex h-[calc(100vh-140px)] w-40 flex-col gap-y-4 overflow-auto overscroll-contain"
->
-  @for (section of sections; track section.title) {
-    <div>
-      <h2 class="text-md mb-2 font-semibold text-zinc-800">{{ section.title }}</h2>
-      <ul class="-ml-4">
-        @for (link of section.links; track link) {
-          <li>
-            <a
-              class="flex h-8 items-center rounded-lg px-4 text-zinc-600 outline-none transition-colors focus-visible:ring-2 focus-visible:ring-blue-500"
-              [routerLink]="link.link"
-              routerLinkActive="bg-gradient-to-b from-[oklch(0.5318_0.28_296.97)] to-[oklch(0.6902_0.277_332.77)] text-transparent bg-clip-text"
-            >
-              {{ link.title }}
-            </a>
-          </li>
-        }
-      </ul>
+<ng-template #content>
+  <div
+    class="sticky top-24 flex h-[calc(100vh-140px)] w-40 flex-col gap-y-4 overflow-auto overscroll-contain"
+  >
+    @for (section of sections; track section.title) {
+      <div>
+        <h2 class="text-md mb-2 font-semibold text-zinc-800">{{ section.title }}</h2>
+        <ul class="-ml-4">
+          @for (link of section.links; track link) {
+            <li class="text-zinc-600">
+              <a
+                class="flex h-8 items-center rounded-lg px-4 outline-none transition-colors focus-visible:ring-2 focus-visible:ring-blue-500"
+                [routerLink]="link.link"
+                routerLinkActive="bg-gradient-to-b from-[#e90364] to-[#fa2c05] text-transparent bg-clip-text"
+              >
+                {{ link.title }}
+              </a>
+            </li>
+          }
+        </ul>
+      </div>
+    }
+  </div>
+</ng-template>
+
+@if (menuOpen()) {
+  <div class="fixed inset-0 z-10 bg-black/50">
+    <div class="h-full w-72 max-w-full bg-white px-10 shadow-xl">
+      <ng-container [ngTemplateOutlet]="content" />
     </div>
-  }
-</div>
+  </div>
+} @else {
+  <div class="hidden md:block">
+    <ng-container [ngTemplateOutlet]="content" />
+  </div>
+}

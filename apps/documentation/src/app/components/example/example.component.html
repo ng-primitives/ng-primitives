@@ -1,5 +1,5 @@
 <div class="not-prose relative flex min-h-80 flex-col items-center justify-center">
-  <div class="absolute inset-x-0 top-0 flex justify-between gap-x-2 px-px">
+  <div class="absolute inset-x-0 top-0 flex justify-between gap-x-2">
     <div class="mr-2 rounded-lg bg-zinc-100 p-0.5 ring-1 ring-black/5">
       <button
         class="w-16 rounded-md px-2 py-1.5 text-xs font-medium outline-none focus-visible:z-10 focus-visible:ring-2 focus-visible:ring-blue-500"
@@ -49,10 +49,52 @@
       </div>
     }
 
-    <pre
-      class="h-fit whitespace-pre-wrap rounded-xl bg-zinc-950 p-4"
-      #codeElement
-      [hidden]="mode() !== 'source'"
-    ><code class="language-typescript not-prose" [innerHTML]="code"></code></pre>
+    <div class="rounded-xl bg-zinc-950" [hidden]="mode() !== 'source'">
+      <div class="flex border-b border-white/20">
+        <button
+          class="group relative -mb-px flex items-center whitespace-nowrap px-2 py-2 font-medium text-white outline-none"
+          role="tab"
+          type="button"
+          aria-selected="true"
+          tabindex="0"
+        >
+          <div
+            class="inline-flex h-5 items-center rounded-md px-2 text-xs group-hover:bg-zinc-700/60 group-hover:text-white"
+          >
+            HTML
+          </div>
+          <div class="pointer-events-none absolute inset-0 border-b border-white"></div>
+        </button>
+
+        <button
+          class="group relative -mb-px flex items-center whitespace-nowrap px-2 py-2 font-medium text-white/50 outline-none"
+          role="tab"
+          type="button"
+        >
+          <div
+            class="inline-flex h-5 items-center rounded-md px-2 text-xs group-hover:bg-zinc-700/60 group-hover:text-white"
+          >
+            CSS
+          </div>
+        </button>
+
+        <button
+          class="group relative -mb-px flex items-center whitespace-nowrap px-2 py-2 font-medium text-white/50 outline-none"
+          role="tab"
+          type="button"
+        >
+          <div
+            class="inline-flex h-5 items-center rounded-md px-2 text-xs group-hover:bg-zinc-700/60 group-hover:text-white"
+          >
+            TypeScript
+          </div>
+        </button>
+      </div>
+
+      <pre
+        class="h-fit whitespace-pre-wrap p-4"
+        #codeElement
+      ><code class="language-typescript not-prose" [innerHTML]="code"></code></pre>
+    </div>
   </div>
 </div>

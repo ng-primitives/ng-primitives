@@ -1,15 +1,18 @@
-import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { NgTemplateOutlet } from '@angular/common';
+import { ChangeDetectionStrategy, Component, input } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 import { getRouterLinks } from '../../utils/router';
 
 @Component({
   selector: 'docs-side-navigation',
   standalone: true,
-  imports: [RouterLink, RouterLinkActive],
+  imports: [RouterLink, RouterLinkActive, NgTemplateOutlet],
   templateUrl: './side-navigation.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SideNavigationComponent {
+  readonly menuOpen = input(false);
+
   readonly sections = Object.entries(getRouterLinks())
     .map(([path, data]) => {
       // the path as we get it starts with '../pages/', so we remove it, and it also ends with '.md', so we remove it

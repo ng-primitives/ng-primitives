@@ -67,3 +67,7 @@ pre[class*='language-'] {
 .prose h2:has(+ h3) {
   margin-bottom: 24px;
 }
+
+.prose :where(code):not(:where([class~='not-prose'], [class~='not-prose'] *)) {
+  @apply rounded bg-zinc-50 px-1.5 py-1 font-sans text-[13px] font-medium text-zinc-900 ring-1 ring-black/5 before:hidden after:hidden;
+}

@@ -28,11 +28,11 @@ import { highlight, languages } from 'prismjs';
 export class ExampleComponent {
   private readonly clipboard = inject(Clipboard);
   private readonly changeDetector = inject(ChangeDetectorRef);
-  private readonly examples = import.meta.glob!('../../examples/**/*.example.ts', {
+  private readonly examples = import.meta.glob!('../../**/*.example.ts', {
     import: 'default',
   });
 
-  private readonly source = import.meta.glob!('../../examples/**/*.example.ts', {
+  private readonly source = import.meta.glob!('../../**/*.example.ts', {
     import: 'default',
     query: '?source',
   });
@@ -59,6 +59,7 @@ export class ExampleComponent {
 
   private async loadExample(path: string): Promise<void> {
     this.component = (await this.examples[path]()) as Type<unknown>;
+
     this.raw = ((await this.source[path]()) as string)
       // find the class name after `export class ` and replace it with `AppComponent`
       .replace(/export default class (\w+)/, 'export class AppComponent')
