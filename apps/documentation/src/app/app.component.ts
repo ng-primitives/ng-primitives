@@ -1,8 +1,9 @@
 import { Component, Injector, inject, signal } from '@angular/core';
 import { createCustomElement } from '@angular/elements';
-import { RouterLink, RouterOutlet } from '@angular/router';
+import { NavigationEnd, Router, RouterLink, RouterOutlet } from '@angular/router';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { saxMoonOutline } from '@ng-icons/iconsax/outline';
+import { filter } from 'rxjs';
 import { ExampleComponent } from './components/example/example.component';
 import { NavbarComponent } from './components/navbar/navbar.component';
 import { ResponseFieldComponent } from './components/response-field/response-field.component';
@@ -27,6 +28,7 @@ import { SideNavigationComponent } from './components/side-navigation/side-navig
 })
 export class AppComponent {
   private readonly injector = inject(Injector);
+  private readonly router = inject(Router);
 
   readonly menuOpen = signal(false);
 
@@ -41,5 +43,9 @@ export class AppComponent {
       'response-field',
       createCustomElement(ResponseFieldComponent, { injector: this.injector }),
     );
+
+    this.router.events
+      .pipe(filter(event => event instanceof NavigationEnd))
+      .subscribe(() => this.menuOpen.set(false));
   }
 }
