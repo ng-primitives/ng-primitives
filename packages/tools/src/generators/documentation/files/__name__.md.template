@@ -1,12 +1,12 @@
 ---
 title: '<%= className %>'
-description: '<%= description %>'
 ---
 
-<iframe
-  style={{ width: '100%', height: '378px', borderRadius: 12 }}
-  src="https://ng-primitives.github.io/ng-primitives/#/examples/<%= fileName %>"
-/>
+# <%= className %>
+
+<%= description %>
+
+<docs-example name="<%= fileName %>"></docs-example>
 
 ## Usage
 

@@ -1,8 +1,10 @@
 import { Component } from '@angular/core';
+import { Ngp<%= className %> } from '@ng-primitives/ng-primitives/<%= fileName %>';
 
 @Component({
   standalone: true,
   selector: 'app-<%= fileName %>',
+  imports: [Ngp<%= className %>],
   template: ``,
 })
 export default class <%= className %>Example {}

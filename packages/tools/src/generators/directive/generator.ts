@@ -22,7 +22,7 @@ export async function directiveGenerator(tree: Tree, options: DirectiveGenerator
   addExportToIndex(
     tree,
     options.primitive,
-    `export { Ngp${names(options.name).className}Directive } from './${options.name}/${options.name}.directive';`,
+    `export { Ngp${names(options.name).className} } from './${options.name}/${options.name}.directive';`,
   );
 
   if (options.addExample) {
@@ -48,6 +48,7 @@ export async function directiveGenerator(tree: Tree, options: DirectiveGenerator
   if (options.addDocumentation) {
     await documentationGenerator(tree, {
       name: options.primitive,
+      description: '',
     });
   }
 
