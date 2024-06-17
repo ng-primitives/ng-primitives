@@ -1,0 +1,73 @@
+@import 'inter-ui/inter-variable.css';
+@import 'cal-sans/index.css';
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@font-face {
+  font-family: 'Geist Mono';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url('../../../node_modules/geist/dist/fonts/geist-mono/GeistMono-Medium.woff2')
+    format('woff2');
+}
+
+html,
+body {
+  display: block;
+  height: 100%;
+  font-feature-settings: 'liga', 'calt', 'tnum', 'ss01', 'cv11';
+}
+
+pre[class*='language-'],
+code[class*='language-'] {
+  font-family: 'Geist Mono';
+  font-size: 12px;
+  font-weight: 500;
+  background-color: #111011;
+  color: #fff;
+  border-radius: 0.75rem;
+}
+
+pre[class*='language-'] {
+  padding-block: 1rem;
+  padding-inline: 1.25rem;
+}
+
+.token {
+  @apply bg-zinc-950;
+}
+
+.token.function,
+.token.tag,
+.token.class-name {
+  color: #ffc799;
+}
+
+.token.attr-name,
+.token.keyword {
+  color: #a0a0a0;
+}
+
+.token.attr-value,
+.token.string {
+  color: #99ffe4;
+}
+
+.token.punctuation {
+  color: #a0a0a0;
+}
+
+.prose :where(thead th):not(:where([class~='not-prose'], [class~='not-prose'] *)) {
+  text-align: left;
+}
+
+.prose h2:has(+ h3) {
+  margin-bottom: 24px;
+}
+
+.prose :where(code):not(:where([class~='not-prose'], [class~='not-prose'] *)) {
+  @apply rounded bg-zinc-50 px-1.5 py-1 font-sans text-[13px] font-medium text-zinc-900 ring-1 ring-black/5 before:hidden after:hidden;
+}

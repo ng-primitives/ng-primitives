@@ -1,0 +1,43 @@
+---
+title: '<%= className %>'
+---
+
+# <%= className %>
+
+<%= description %>
+
+<docs-example name="<%= fileName %>"></docs-example>
+
+## Usage
+
+Assemble the <%= fileName %> directives in your template.
+
+```html
+<div ngp<%= className %>>
+</div>
+```
+
+## API Reference
+
+The following directives are available to import from the `@ng-primitives/ng-primitives/<%= fileName %>` package:
+
+### Ngp<%= className %>
+
+There are no inputs or outputs for this directive.
+
+## Global Configuration
+
+You can configure the default options for all <%= fileName %>s in your application by using the `provideNgp<%= className %>Config` function in a providers array.
+
+```ts
+import { provideNgp<%= className %>Config } from '@ng-primitives/ng-primitives/<%= fileName %>';
+
+bootstrapApplication(AppComponent, {
+  providers: [
+    provideNgp<%= className %>Config({
+    }),
+  ],
+});
+```
+
+### Ngp<%= className %>Config

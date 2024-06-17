@@ -41,7 +41,7 @@ import { NgpTooltipTriggerToken, provideTooltipTrigger } from './tooltip-trigger
   standalone: true,
   selector: '[ngpTooltipTrigger]',
   exportAs: 'ngpTooltipTrigger',
-  providers: [{ provide: NgpTooltipTriggerToken, useExisting: NgpTooltipTriggerDirective }],
+  providers: [{ provide: NgpTooltipTriggerToken, useExisting: NgpTooltipTrigger }],
   host: {
     '[attr.data-state]': 'state()',
     '(mouseenter)': 'open.set(true)',
@@ -50,7 +50,7 @@ import { NgpTooltipTriggerToken, provideTooltipTrigger } from './tooltip-trigger
     '(blur)': 'open.set(false)',
   },
 })
-export class NgpTooltipTriggerDirective implements OnDestroy {
+export class NgpTooltipTrigger implements OnDestroy {
   /**
    * Access the trigger element
    */

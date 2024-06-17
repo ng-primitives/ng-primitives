@@ -17,7 +17,7 @@ import { injectProgress } from '../progress/progress.token';
     '[attr.data-max]': 'progress.max()',
   },
 })
-export class NgpProgressIndicatorDirective {
+export class NgpProgressIndicator {
   /**
    * Access the progress directive.
    */

@@ -6,13 +6,13 @@
  * LICENSE file in the root directory of this source tree.
  */
 import { InjectionToken, inject } from '@angular/core';
-import type { NgpSliderDirective } from './slider.directive';
+import type { NgpSlider } from './slider.directive';
 
-export const NgpSliderToken = new InjectionToken<NgpSliderDirective>('NgpSliderToken');
+export const NgpSliderToken = new InjectionToken<NgpSlider>('NgpSliderToken');
 
 /**
  * Inject the Slider directive instance
  */
-export function injectSlider(): NgpSliderDirective {
+export function injectSlider(): NgpSlider {
   return inject(NgpSliderToken);
 }

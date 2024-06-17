@@ -5,11 +5,11 @@
  * This source code is licensed under the CC BY-ND 4.0 license found in the
  * LICENSE file in the root directory of this source tree.
  */
-import { NgpProgressDirective } from './progress.directive';
+import { NgpProgress } from './progress.directive';
 
-describe('NgpProgressDirective', () => {
+describe('NgpProgress', () => {
   it('should create an instance', () => {
-    const directive = new NgpProgressDirective();
+    const directive = new NgpProgress();
     expect(directive).toBeTruthy();
   });
 });

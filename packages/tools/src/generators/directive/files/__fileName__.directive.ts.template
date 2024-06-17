@@ -13,8 +13,8 @@ import { Directive } from '@angular/core';
   standalone: true,
   selector: '[ngp<%= className %>]',
   exportAs: 'ngp<%= className %>',
-  <% if (addToken) { %>providers: [{ provide: Ngp<%= className %>Token, useExisting: Ngp<%= className %>Directive }]<% } %>
+  <% if (addToken) { %>providers: [{ provide: Ngp<%= className %>Token, useExisting: Ngp<%= className %> }]<% } %>
 })
-export class Ngp<%= className %>Directive {
+export class Ngp<%= className %> {
   <% if (addConfig) { %>private readonly config = <%= configName%>();<% } %>
 }

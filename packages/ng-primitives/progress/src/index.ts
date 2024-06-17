@@ -6,5 +6,5 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-export { NgpProgressIndicatorDirective } from './progress-indicator/progress-indicator.directive';
-export { NgpProgressDirective, NgpProgressValueLabelFn } from './progress/progress.directive';
+export { NgpProgressIndicator } from './progress-indicator/progress-indicator.directive';
+export { NgpProgress, NgpProgressValueLabelFn } from './progress/progress.directive';

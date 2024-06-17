@@ -12,7 +12,7 @@ import { NgpProgressToken } from './progress.token';
 @Directive({
   selector: '[ngpProgress]',
   standalone: true,
-  providers: [{ provide: NgpProgressToken, useExisting: NgpProgressDirective }],
+  providers: [{ provide: NgpProgressToken, useExisting: NgpProgress }],
   host: {
     role: 'progressbar',
     '[attr.aria-valuemax]': 'max()',
@@ -24,7 +24,7 @@ import { NgpProgressToken } from './progress.token';
     '[attr.data-max]': 'max()',
   },
 })
-export class NgpProgressDirective {
+export class NgpProgress {
   /**
    * Define the progress value.
    */

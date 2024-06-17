@@ -6,4 +6,4 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-export { NgpToggleDirective } from './toggle/toggle.directive';
+export { NgpToggle } from './toggle/toggle.directive';

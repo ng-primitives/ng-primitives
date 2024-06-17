@@ -6,9 +6,9 @@
  * LICENSE file in the root directory of this source tree.
  */
 import { InjectionToken, inject } from '@angular/core';
-import type { NgpAccordionContentDirective } from './accordion-content.directive';
+import type { NgpAccordionContent } from './accordion-content.directive';
 
-export const NgpAccordionContentToken = new InjectionToken<NgpAccordionContentDirective>(
+export const NgpAccordionContentToken = new InjectionToken<NgpAccordionContent>(
   'NgpAccordionContentToken',
 );
 
@@ -16,6 +16,6 @@ export const NgpAccordionContentToken = new InjectionToken<NgpAccordionContentDi
  * Inject the AccordionContent directive instance
  * @returns The AccordionContent directive instance
  */
-export function injectAccordionContent(): NgpAccordionContentDirective {
+export function injectAccordionContent(): NgpAccordionContent {
   return inject(NgpAccordionContentToken);
 }

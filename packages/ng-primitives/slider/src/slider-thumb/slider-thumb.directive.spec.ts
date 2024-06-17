@@ -6,12 +6,12 @@
  * LICENSE file in the root directory of this source tree.
  */
 import { render } from '@testing-library/angular';
-import { NgpSliderThumbDirective } from './slider-thumb.directive';
+import { NgpSliderThumb } from './slider-thumb.directive';
 
-describe('NgpSliderThumbDirective', () => {
+describe('NgpSliderThumb', () => {
   it('should initialise correctly', async () => {
     const container = await render(`<div ngpSliderThumb></div>`, {
-      imports: [NgpSliderThumbDirective],
+      imports: [NgpSliderThumb],
     });
   });
 });

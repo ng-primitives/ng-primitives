@@ -6,12 +6,12 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-export { NgpAccordionContentDirective } from './accordion-content/accordion-content.directive';
+export { NgpAccordionContent } from './accordion-content/accordion-content.directive';
 export { NgpAccordionContentToken } from './accordion-content/accordion-content.token';
-export { NgpAccordionItemDirective } from './accordion-item/accordion-item.directive';
+export { NgpAccordionItem } from './accordion-item/accordion-item.directive';
 export { NgpAccordionItemToken } from './accordion-item/accordion-item.token';
-export { NgpAccordionTriggerDirective } from './accordion-trigger/accordion-trigger.directive';
+export { NgpAccordionTrigger } from './accordion-trigger/accordion-trigger.directive';
 export { NgpAccordionTriggerToken } from './accordion-trigger/accordion-trigger.token';
-export { NgpAccordionDirective } from './accordion/accordion.directive';
+export { NgpAccordion } from './accordion/accordion.directive';
 export { NgpAccordionToken } from './accordion/accordion.token';
 export { NgpAccordionConfig, provideAccordionConfig } from './config/accordion.config';

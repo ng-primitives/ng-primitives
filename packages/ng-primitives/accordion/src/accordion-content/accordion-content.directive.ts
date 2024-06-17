@@ -15,7 +15,7 @@ import { NgpAccordionContentToken } from './accordion-content.token';
   standalone: true,
   selector: '[ngpAccordionContent]',
   exportAs: 'ngpAccordionContent',
-  providers: [{ provide: NgpAccordionContentToken, useExisting: NgpAccordionContentDirective }],
+  providers: [{ provide: NgpAccordionContentToken, useExisting: NgpAccordionContent }],
   host: {
     role: 'region',
     '[id]': 'id()',
@@ -27,7 +27,7 @@ import { NgpAccordionContentToken } from './accordion-content.token';
     '[hidden]': '!accordionItem.open() && dimensions().mounted ? true : null',
   },
 })
-export class NgpAccordionContentDirective {
+export class NgpAccordionContent {
   /**
    * Access the accordion
    */

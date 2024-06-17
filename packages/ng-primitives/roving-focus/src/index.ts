@@ -6,10 +6,10 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-export { NgpRovingFocusGroupDirective } from './roving-focus-group/roving-focus-group.directive';
+export { NgpRovingFocusGroup } from './roving-focus-group/roving-focus-group.directive';
 export {
   NgpRovingFocusGroupToken,
   injectRovingFocusGroup,
 } from './roving-focus-group/roving-focus-group.token';
-export { NgpRovingFocusItemDirective } from './roving-focus-item/roving-focus-item.directive';
+export { NgpRovingFocusItem } from './roving-focus-item/roving-focus-item.directive';
 export { NgpRovingFocusItemToken } from './roving-focus-item/roving-focus-item.token';

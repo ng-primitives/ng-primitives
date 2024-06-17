@@ -21,7 +21,7 @@ import {
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { uniqueId } from '@ng-primitives/ng-primitives/utils';
-import { NgpSelectOptionDirective } from '../select-option/select-option.directive';
+import { NgpSelectOption } from '../select-option/select-option.directive';
 import { NgpSelectOptionToken } from '../select-option/select-option.token';
 import { injectSelect } from '../select/select.token';
 import { NgpSelectOptionsToken } from './select-options.token';
@@ -30,7 +30,7 @@ import { NgpSelectOptionsToken } from './select-options.token';
   standalone: true,
   selector: '[ngpSelectOptions]',
   exportAs: 'ngpSelectOptions',
-  providers: [{ provide: NgpSelectOptionsToken, useExisting: NgpSelectOptionsDirective }],
+  providers: [{ provide: NgpSelectOptionsToken, useExisting: NgpSelectOptions }],
   host: {
     role: 'listbox',
     '[attr.id]': 'id()',
@@ -42,7 +42,7 @@ import { NgpSelectOptionsToken } from './select-options.token';
     '(document:click)': 'closeOnOutsideClick($event)',
   },
 })
-export class NgpSelectOptionsDirective<T> implements AfterViewInit {
+export class NgpSelectOptions<T> implements AfterViewInit {
   /**
    * Access the parent select component.
    */
@@ -66,7 +66,7 @@ export class NgpSelectOptionsDirective<T> implements AfterViewInit {
   /**
    * Access all the options in the list.
    */
-  private readonly options = contentChildren<NgpSelectOptionDirective<T>>(NgpSelectOptionToken, {
+  private readonly options = contentChildren<NgpSelectOption<T>>(NgpSelectOptionToken, {
     descendants: true,
   });
 
@@ -79,7 +79,7 @@ export class NgpSelectOptionsDirective<T> implements AfterViewInit {
    * Handle the active descendant.
    */
   private readonly activeDescendantKeyManager = new ActiveDescendantKeyManager(
-    this.options as Signal<NgpSelectOptionDirective<T>[]>,
+    this.options as Signal<NgpSelectOption<T>[]>,
     this.injector,
   );
 
@@ -125,6 +125,7 @@ export class NgpSelectOptionsDirective<T> implements AfterViewInit {
 
   /**
    * Handle the closing of the options list.
+   * @param origin
    */
   private close(origin?: FocusOrigin): void {
     // if the options list is already closed, do nothing

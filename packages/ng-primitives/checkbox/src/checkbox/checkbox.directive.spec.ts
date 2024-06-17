@@ -6,19 +6,14 @@
  * LICENSE file in the root directory of this source tree.
  */
 import { RenderResult, render } from '@testing-library/angular';
-import { NgpCheckboxIndicatorDirective } from '../checkbox-indicator/checkbox-indicator.directive';
-import { NgpCheckboxInputDirective } from '../checkbox-input/checkbox-input.directive';
-import { NgpCheckboxLabelDirective } from '../checkbox-label/checkbox-label.directive';
-import { NgpCheckboxDirective } from './checkbox.directive';
+import { NgpCheckboxIndicator } from '../checkbox-indicator/checkbox-indicator.directive';
+import { NgpCheckboxInput } from '../checkbox-input/checkbox-input.directive';
+import { NgpCheckboxLabel } from '../checkbox-label/checkbox-label.directive';
+import { NgpCheckbox } from './checkbox.directive';
 
-const imports = [
-  NgpCheckboxDirective,
-  NgpCheckboxInputDirective,
-  NgpCheckboxLabelDirective,
-  NgpCheckboxIndicatorDirective,
-];
+const imports = [NgpCheckbox, NgpCheckboxInput, NgpCheckboxLabel, NgpCheckboxIndicator];
 
-describe('NgpCheckboxDirective', () => {
+describe('NgpCheckbox', () => {
   let container: RenderResult<unknown, unknown>;
   let checkbox: HTMLElement;
   let input: HTMLInputElement;

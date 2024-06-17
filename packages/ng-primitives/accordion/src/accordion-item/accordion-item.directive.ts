@@ -16,14 +16,14 @@ import { NgpAccordionItemToken } from './accordion-item.token';
   standalone: true,
   selector: '[ngpAccordionItem]',
   exportAs: 'ngpAccordionItem',
-  providers: [{ provide: NgpAccordionItemToken, useExisting: NgpAccordionItemDirective }],
+  providers: [{ provide: NgpAccordionItemToken, useExisting: NgpAccordionItem }],
   host: {
     '[attr.data-orientation]': 'accordion.orientation()',
     '[attr.data-state]': 'open() ? "open" : "closed"',
     '[attr.data-disabled]': 'disabled() || accordion.disabled() ? "" : null',
   },
 })
-export class NgpAccordionItemDirective<T> {
+export class NgpAccordionItem<T> {
   /**
    * Access the accordion.
    */

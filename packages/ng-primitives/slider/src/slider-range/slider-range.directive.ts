@@ -13,14 +13,14 @@ import { NgpSliderRangeToken } from './slider-range.token';
   standalone: true,
   selector: '[ngpSliderRange]',
   exportAs: 'ngpSliderRange',
-  providers: [{ provide: NgpSliderRangeToken, useExisting: NgpSliderRangeDirective }],
+  providers: [{ provide: NgpSliderRangeToken, useExisting: NgpSliderRange }],
   host: {
     class: 'absolute h-full rounded-full bg-white',
     '[style.width.%]': 'slider.orientation() === "horizontal" ? slider.percentage() : undefined',
     '[style.height.%]': 'slider.orientation() === "vertical" ? slider.percentage() : undefined',
   },
 })
-export class NgpSliderRangeDirective {
+export class NgpSliderRange {
   /**
    * Access the slider.
    */

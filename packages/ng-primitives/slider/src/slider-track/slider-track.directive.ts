@@ -13,9 +13,9 @@ import { NgpSliderTrackToken } from './slider-track.token';
   standalone: true,
   selector: '[ngpSliderTrack]',
   exportAs: 'ngpSliderTrack',
-  providers: [{ provide: NgpSliderTrackToken, useExisting: NgpSliderTrackDirective }],
+  providers: [{ provide: NgpSliderTrackToken, useExisting: NgpSliderTrack }],
 })
-export class NgpSliderTrackDirective {
+export class NgpSliderTrack {
   /**
    * Access the slider.
    */

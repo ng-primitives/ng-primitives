@@ -15,7 +15,7 @@ import {
   model,
 } from '@angular/core';
 import {
-  NgpRovingFocusGroupDirective,
+  NgpRovingFocusGroup,
   injectRovingFocusGroup,
 } from '@ng-primitives/ng-primitives/roving-focus';
 import { uniqueId } from '@ng-primitives/ng-primitives/utils';
@@ -27,10 +27,10 @@ import { NgpTabsetToken } from './tabset.token';
   standalone: true,
   selector: '[ngpTabset]',
   exportAs: 'ngpTabset',
-  providers: [{ provide: NgpTabsetToken, useExisting: NgpTabsetDirective }],
+  providers: [{ provide: NgpTabsetToken, useExisting: NgpTabset }],
   hostDirectives: [
     {
-      directive: NgpRovingFocusGroupDirective,
+      directive: NgpRovingFocusGroup,
       inputs: ['ngpRovingFocusGroupOrientation:ngpTabsetOrientation'],
     },
   ],
@@ -39,7 +39,7 @@ import { NgpTabsetToken } from './tabset.token';
     '[attr.data-orientation]': 'orientation()',
   },
 })
-export class NgpTabsetDirective {
+export class NgpTabset {
   /**
    * Access the global tabset configuration
    */

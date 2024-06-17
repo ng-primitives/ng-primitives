@@ -6,12 +6,12 @@
  * LICENSE file in the root directory of this source tree.
  */
 import { render } from '@testing-library/angular';
-import { NgpSwitchThumbDirective } from './switch-thumb.directive';
+import { NgpSwitchThumb } from './switch-thumb.directive';
 
-describe('NgpSwitchThumbDirective', () => {
+describe('NgpSwitchThumb', () => {
   it('should initialise correctly', async () => {
     const container = await render(`<div ngpSwitchThumb></div>`, {
-      imports: [NgpSwitchThumbDirective],
+      imports: [NgpSwitchThumb],
     });
   });
 });

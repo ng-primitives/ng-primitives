@@ -6,12 +6,12 @@
  * LICENSE file in the root directory of this source tree.
  */
 import { render } from '@testing-library/angular';
-import { NgpSwitchDirective } from './switch.directive';
+import { NgpSwitch } from './switch.directive';
 
-describe('NgpSwitchDirective', () => {
+describe('NgpSwitch', () => {
   it('should initialise correctly', async () => {
     const container = await render(`<div ngpSwitch></div>`, {
-      imports: [NgpSwitchDirective],
+      imports: [NgpSwitch],
     });
   });
 });

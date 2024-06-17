@@ -8,17 +8,17 @@
 import { FocusOrigin } from '@angular/cdk/a11y';
 import { Directionality } from '@angular/cdk/bidi';
 import { BooleanInput } from '@angular/cdk/coercion';
-import { Directive, Input, booleanAttribute, computed, inject, input, signal } from '@angular/core';
-import { NgpRovingFocusItemDirective } from '../roving-focus-item/roving-focus-item.directive';
+import { Directive, Input, booleanAttribute, inject, input, signal } from '@angular/core';
+import { NgpRovingFocusItem } from '../roving-focus-item/roving-focus-item.directive';
 import { NgpRovingFocusGroupToken } from './roving-focus-group.token';
 
 @Directive({
   standalone: true,
   selector: '[ngpRovingFocusGroup]',
   exportAs: 'ngpRovingFocusGroup',
-  providers: [{ provide: NgpRovingFocusGroupToken, useExisting: NgpRovingFocusGroupDirective }],
+  providers: [{ provide: NgpRovingFocusGroupToken, useExisting: NgpRovingFocusGroup }],
 })
-export class NgpRovingFocusGroupDirective {
+export class NgpRovingFocusGroup {
   /**
    * Access the directionality service.
    */
@@ -59,7 +59,7 @@ export class NgpRovingFocusGroupDirective {
   /**
    * Store the items in the roving focus group.
    */
-  private readonly items = signal<NgpRovingFocusItemDirective[]>([]);
+  private readonly items = signal<NgpRovingFocusItem[]>([]);
 
   /**
    * Get the items in the roving focus group sorted by order.
@@ -78,19 +78,19 @@ export class NgpRovingFocusGroupDirective {
    * Store the active item in the roving focus group.
    * @internal
    */
-  readonly activeItem = signal<NgpRovingFocusItemDirective | null>(null);
+  readonly activeItem = signal<NgpRovingFocusItem | null>(null);
 
   /**
    * Register an item with the roving focus group.
    * @param item The item to register
    * @internal
    */
-  register(item: NgpRovingFocusItemDirective): void {
+  register(item: NgpRovingFocusItem): void {
     this.items.update(items => [...items, item]);
 
-    // if there is no active item, activate the first item
+    // if there is no active item, make the first item the tabbable item
     if (!this.activeItem()) {
-      this.activateFirstItem('program');
+      this.activeItem.set(item);
     }
   }
 
@@ -99,12 +99,13 @@ export class NgpRovingFocusGroupDirective {
    * @param item The item to unregister
    * @internal
    */
-  unregister(item: NgpRovingFocusItemDirective): void {
+  unregister(item: NgpRovingFocusItem): void {
     this.items.update(items => items.filter(i => i !== item));
 
     // check if the unregistered item is the active item
     if (this.activeItem() === item) {
-      this.activateFirstItem('program');
+      // if the active item is unregistered, activate the first item
+      this.activeItem.set(this.items()[0] ?? null);
     }
   }
 
@@ -113,7 +114,7 @@ export class NgpRovingFocusGroupDirective {
    * @param item The item to activate
    * @param origin The origin of the focus change
    */
-  setActiveItem(item: NgpRovingFocusItemDirective | null, origin: FocusOrigin = 'program'): void {
+  setActiveItem(item: NgpRovingFocusItem | null, origin: FocusOrigin = 'program'): void {
     this.activeItem.set(item);
     item?.focus(origin);
   }

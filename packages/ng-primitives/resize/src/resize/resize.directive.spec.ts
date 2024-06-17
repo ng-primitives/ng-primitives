@@ -5,11 +5,11 @@
  * This source code is licensed under the CC BY-ND 4.0 license found in the
  * LICENSE file in the root directory of this source tree.
  */
-import { NgpResizeDirective } from './resize.directive';
+import { NgpResize } from './resize.directive';
 
-describe('NgpResizeDirective', () => {
+describe('NgpResize', () => {
   it('should create an instance', () => {
-    const directive = new NgpResizeDirective();
+    const directive = new NgpResize();
     expect(directive).toBeTruthy();
   });
 });

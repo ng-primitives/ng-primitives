@@ -16,7 +16,7 @@ import { injectAvatar } from '../avatar/avatar.token';
     '[style.display]': 'visible() ? null : "none"',
   },
 })
-export class NgpAvatarImageDirective implements OnInit {
+export class NgpAvatarImage implements OnInit {
   /**
    * Access the avatar
    */

@@ -22,9 +22,9 @@ import { NgpSliderToken } from './slider.token';
   standalone: true,
   selector: '[ngpSlider]',
   exportAs: 'ngpSlider',
-  providers: [{ provide: NgpSliderToken, useExisting: NgpSliderDirective }],
+  providers: [{ provide: NgpSliderToken, useExisting: NgpSlider }],
 })
-export class NgpSliderDirective {
+export class NgpSlider {
   /**
    * The value of the slider.
    */

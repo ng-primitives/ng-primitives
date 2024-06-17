@@ -6,12 +6,12 @@
  * LICENSE file in the root directory of this source tree.
  */
 import { render } from '@testing-library/angular';
-import { NgpTooltipTriggerDirective } from './tooltip-trigger.directive';
+import { NgpTooltipTrigger } from './tooltip-trigger.directive';
 
-describe('NgpTooltipTriggerDirective', () => {
+describe('NgpTooltipTrigger', () => {
   it('should initialise correctly', async () => {
     const container = await render(`<div ngpTooltipTrigger></div>`, {
-      imports: [NgpTooltipTriggerDirective],
+      imports: [NgpTooltipTrigger],
     });
   });
 });

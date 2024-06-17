@@ -14,7 +14,7 @@ import { NgpCheckboxIndicatorToken } from './checkbox-indicator.token';
   standalone: true,
   selector: '[ngpCheckboxIndicator]',
   exportAs: 'ngpCheckboxIndicator',
-  providers: [{ provide: NgpCheckboxIndicatorToken, useExisting: NgpCheckboxIndicatorDirective }],
+  providers: [{ provide: NgpCheckboxIndicatorToken, useExisting: NgpCheckboxIndicator }],
   host: {
     role: 'checkbox',
     '[id]': 'id()',
@@ -25,7 +25,7 @@ import { NgpCheckboxIndicatorToken } from './checkbox-indicator.token';
     '[attr.data-disabled]': 'checkbox.disabled() ? "" : null',
   },
 })
-export class NgpCheckboxIndicatorDirective {
+export class NgpCheckboxIndicator {
   /**
    * Access the checkbox that the indicator belongs to.
    */

@@ -15,7 +15,7 @@ import { NgpSelectButtonToken } from './select-button.token';
   standalone: true,
   selector: 'button[ngpSelectButton]',
   exportAs: 'ngpSelectButton',
-  providers: [{ provide: NgpSelectButtonToken, useExisting: NgpSelectButtonDirective }],
+  providers: [{ provide: NgpSelectButtonToken, useExisting: NgpSelectButton }],
   host: {
     type: 'button',
     'aria-haspopup': 'listbox',
@@ -27,7 +27,7 @@ import { NgpSelectButtonToken } from './select-button.token';
     '(keydown)': 'keydown($event)',
   },
 })
-export class NgpSelectButtonDirective {
+export class NgpSelectButton {
   /**
    * Access the parent select component.
    */
@@ -81,6 +81,7 @@ export class NgpSelectButtonDirective {
 
   /**
    * Focus the button element.
+   * @param origin
    * @internal
    */
   focus(origin?: FocusOrigin) {

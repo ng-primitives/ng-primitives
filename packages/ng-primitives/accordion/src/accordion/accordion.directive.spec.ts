@@ -6,12 +6,12 @@
  * LICENSE file in the root directory of this source tree.
  */
 import { render } from '@testing-library/angular';
-import { NgpAccordionDirective } from './accordion.directive';
+import { NgpAccordion } from './accordion.directive';
 
-describe('NgpAccordionDirective', () => {
+describe('NgpAccordion', () => {
   it('should initialise correctly', async () => {
     const container = await render(`<div ngpAccordion></div>`, {
-      imports: [NgpAccordionDirective],
+      imports: [NgpAccordion],
     });
   });
 });

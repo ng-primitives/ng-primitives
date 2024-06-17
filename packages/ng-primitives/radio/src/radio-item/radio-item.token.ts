@@ -6,14 +6,14 @@
  * LICENSE file in the root directory of this source tree.
  */
 import { InjectionToken, inject } from '@angular/core';
-import type { NgpRadioItemDirective } from './radio-item.directive';
+import type { NgpRadioItem } from './radio-item.directive';
 
-export const NgpRadioItemToken = new InjectionToken<NgpRadioItemDirective>('NgpRadioItemToken');
+export const NgpRadioItemToken = new InjectionToken<NgpRadioItem>('NgpRadioItemToken');
 
 /**
  * Inject the RadioItem directive instance
  * @returns The RadioItem directive instance
  */
-export function injectRadioItem(): NgpRadioItemDirective {
+export function injectRadioItem(): NgpRadioItem {
   return inject(NgpRadioItemToken);
 }

@@ -24,7 +24,7 @@ import { NgpSelectOptionToken } from './select-option.token';
   standalone: true,
   selector: '[ngpSelectOption]',
   exportAs: 'ngpSelectOption',
-  providers: [{ provide: NgpSelectOptionToken, useExisting: NgpSelectOptionDirective }],
+  providers: [{ provide: NgpSelectOptionToken, useExisting: NgpSelectOption }],
   host: {
     role: 'option',
     '[attr.id]': 'id()',
@@ -36,7 +36,7 @@ import { NgpSelectOptionToken } from './select-option.token';
     '(click)': 'selectOption()',
   },
 })
-export class NgpSelectOptionDirective<T> implements Highlightable {
+export class NgpSelectOption<T> implements Highlightable {
   /**
    * Access the parent select component.
    */

@@ -19,7 +19,7 @@ import { injectAvatarConfig } from '../config/avatar.config';
     '[style.display]': 'visible() ? null : "none"',
   },
 })
-export class NgpAvatarFallbackDirective implements OnInit {
+export class NgpAvatarFallback implements OnInit {
   /**
    * Access the avatar
    */

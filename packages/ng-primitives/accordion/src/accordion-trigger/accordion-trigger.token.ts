@@ -6,9 +6,9 @@
  * LICENSE file in the root directory of this source tree.
  */
 import { InjectionToken, inject } from '@angular/core';
-import type { NgpAccordionTriggerDirective } from './accordion-trigger.directive';
+import type { NgpAccordionTrigger } from './accordion-trigger.directive';
 
-export const NgpAccordionTriggerToken = new InjectionToken<NgpAccordionTriggerDirective>(
+export const NgpAccordionTriggerToken = new InjectionToken<NgpAccordionTrigger>(
   'NgpAccordionTriggerToken',
 );
 
@@ -16,6 +16,6 @@ export const NgpAccordionTriggerToken = new InjectionToken<NgpAccordionTriggerDi
  * Inject the AccordionTrigger directive instance
  * @returns The AccordionTrigger directive instance
  */
-export function injectAccordionTrigger(): NgpAccordionTriggerDirective {
+export function injectAccordionTrigger(): NgpAccordionTrigger {
   return inject(NgpAccordionTriggerToken);
 }

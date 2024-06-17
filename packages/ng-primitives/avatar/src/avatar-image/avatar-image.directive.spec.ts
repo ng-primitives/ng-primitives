@@ -5,11 +5,11 @@
  * This source code is licensed under the CC BY-ND 4.0 license found in the
  * LICENSE file in the root directory of this source tree.
  */
-import { NgpAvatarImageDirective } from './avatar-image.directive';
+import { NgpAvatarImage } from './avatar-image.directive';
 
-describe('NgpAvatarImageDirective', () => {
+describe('NgpAvatarImage', () => {
   it('should create an instance', () => {
-    const directive = new NgpAvatarImageDirective();
+    const directive = new NgpAvatarImage();
     expect(directive).toBeTruthy();
   });
 });

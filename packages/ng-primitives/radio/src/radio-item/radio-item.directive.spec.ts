@@ -5,11 +5,10 @@
  * This source code is licensed under the CC BY-ND 4.0 license found in the
  * LICENSE file in the root directory of this source tree.
  */
-import { NgpRadioItemDirective } from './radio-item.directive';
 
-describe('NgpRadioItemDirective', () => {
+describe('NgpRadioItem', () => {
   it('should create an instance', () => {
-    const directive = new NgpRadioItemDirective();
+    const directive = new NgpRadioItem();
     expect(directive).toBeTruthy();
   });
 });

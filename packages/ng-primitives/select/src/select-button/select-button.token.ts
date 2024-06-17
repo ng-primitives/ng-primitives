@@ -6,15 +6,13 @@
  * LICENSE file in the root directory of this source tree.
  */
 import { InjectionToken, inject } from '@angular/core';
-import type { NgpSelectButtonDirective } from './select-button.directive';
+import type { NgpSelectButton } from './select-button.directive';
 
-export const NgpSelectButtonToken = new InjectionToken<NgpSelectButtonDirective>(
-  'NgpSelectButtonToken',
-);
+export const NgpSelectButtonToken = new InjectionToken<NgpSelectButton>('NgpSelectButtonToken');
 
 /**
  * Inject the SelectButton directive instance
  */
-export function injectSelectButton(): NgpSelectButtonDirective {
+export function injectSelectButton(): NgpSelectButton {
   return inject(NgpSelectButtonToken);
 }
