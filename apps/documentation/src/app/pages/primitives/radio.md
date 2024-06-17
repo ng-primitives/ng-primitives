@@ -37,6 +37,8 @@ The following directives are available to import from the `@ng-primitives/ng-pri
 
 ### NgpRadioGroup
 
+Apply the `ngpRadioGroup` directive to an element that represents the group of radio items.
+
 <response-field name="ngpRadioGroupValue" type="string | undefined">
   Define the selected value.
 </response-field>
@@ -53,6 +55,8 @@ The following directives are available to import from the `@ng-primitives/ng-pri
 
 ### NgpRadioItem
 
+Apply the `ngpRadioItem` directive to an element that represents a radio item. This would typically be a `button` element.
+
 <response-field name="ngpRadioItemValue" type="string" required="true">
   Define the value of this item.
 </response-field>
@@ -63,4 +67,4 @@ The following directives are available to import from the `@ng-primitives/ng-pri
 
 ### NgpRadioIndicator
 
-There are no inputs or outputs for this directive.
+Apply the `ngpRadioIndicator` directive to an element that represents the radio indicator (i.e. the dot).

@@ -24,7 +24,9 @@ export class QuickLinksComponent {
         filter(event => event instanceof NavigationEnd),
         takeUntilDestroyed(),
       )
-      .subscribe(() => this.links.set(getHeadingList().filter(heading => heading.level > 1)));
+      .subscribe(() =>
+        this.links.set(getHeadingList().filter(heading => heading.level > 1 && heading.level < 4)),
+      );
   }
 
   scrollTo(id: string): void {

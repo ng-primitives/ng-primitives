@@ -23,12 +23,16 @@ import { SideNavigationComponent } from './components/side-navigation/side-navig
 
         <router-outlet />
       </div>
+      <p class="px-8 py-8 text-center text-xs text-zinc-500">
+        Copyright © {{ year }} Angular Primitives
+      </p>
     </div>
   `,
 })
 export class AppComponent {
   private readonly injector = inject(Injector);
   private readonly router = inject(Router);
+  readonly year = new Date().getFullYear();
 
   readonly menuOpen = signal(false);
 

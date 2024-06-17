@@ -32,6 +32,8 @@ The following directives are available to import from the `@ng-primitives/ng-pri
 
 ### NgpAccordion
 
+Apply the `ngpAccordion` directive to an element that represents the group of accordion items.
+
 <response-field name="ngpAccordionType" type="single | multiple" default="single">
   Define whether only one or multiple accordion items can be open at a time.
 </response-field>
@@ -59,7 +61,17 @@ The following directives are available to import from the `@ng-primitives/ng-pri
   `ngpAccordionType` is set to `single` and an array when set to `multiple`.
 </response-field>
 
+#### Data Attributes
+
+The following data attributes are available to use with the `ngpAccordion` directive:
+
+| Attribute          | Description                              | Value                      |
+| ------------------ | ---------------------------------------- | -------------------------- |
+| `data-orientation` | Define the orientation of the accordion. | `horizontal` \| `vertical` |
+
 ### NgpAccordionItem
+
+Apply the `ngpAccordionItem` directive to an element that represents an accordion item.
 
 <response-field name="ngpAccordionItemValue" type="T" required>
   Define the value of the accordion item.
@@ -69,13 +81,42 @@ The following directives are available to import from the `@ng-primitives/ng-pri
   Define whether the accordion item is disabled.
 </response-field>
 
+#### Data Attributes
+
+The following data attributes are available to use with the `ngpAccordionItem` directive:
+
+| Attribute          | Description                                    | Value                      |
+| ------------------ | ---------------------------------------------- | -------------------------- |
+| `data-orientation` | Define the orientation of the accordion.       | `horizontal` \| `vertical` |
+| `data-state`       | Define the state of the accordion item.        | `open` \| `closed`         |
+| `data-disabled`    | Define whether the accordion item is disabled. |                            |
+
 ### NgpAccordionTrigger
 
-There are no inputs or outputs for this directive.
+Apply the `ngpAccordionTrigger` directive to an element that represents the trigger for an accordion item, such as a button.
+
+#### Data Attributes
+
+The following data attributes are available to use with the `ngpAccordionTrigger` directive:
+
+| Attribute          | Description                                    | Value                      |
+| ------------------ | ---------------------------------------------- | -------------------------- |
+| `data-orientation` | Define the orientation of the accordion.       | `horizontal` \| `vertical` |
+| `data-state`       | Define the state of the accordion item.        | `open` \| `closed`         |
+| `data-disabled`    | Define whether the accordion item is disabled. |                            |
 
 ### NgpAccordionContent
 
-There are no inputs or outputs for this directive.
+Apply the `ngpAccordionContent` directive to an element that represents the content of an accordion item.
+
+#### Data Attributes
+
+The following data attributes are available to use with the `ngpAccordionContent` directive:
+
+| Attribute          | Description                              | Value                      |
+| ------------------ | ---------------------------------------- | -------------------------- |
+| `data-orientation` | Define the orientation of the accordion. | `horizontal` \| `vertical` |
+| `data-state`       | Define the state of the accordion item.  | `open` \| `closed`         |
 
 ## Global Configuration
 

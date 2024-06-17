@@ -24,6 +24,8 @@ The following directives are available to import from the `@ng-primitives/ng-pri
 
 ### NgpCheckbox
 
+Apply the `ngpCheckbox` directive to an element to that represents the checkbox, such as a `button`.
+
 <response-field name="ngpCheckboxChecked" type="boolean" default="false">
   Define the checked state.
 </response-field>
@@ -46,4 +48,20 @@ The following directives are available to import from the `@ng-primitives/ng-pri
 
 ### NgpCheckboxIndicator
 
-There are no inputs or outputs for this directive.
+Apply the `ngpCheckboxIndicator` directive to an element that represents the checkbox indicator (i.e. the checkmark).
+
+#### Data Attributes
+
+The following data attributes are available to use with the `ngpCheckboxIndicator` directive:
+
+| Attribute    | Description                       | Value                                       |
+| ------------ | --------------------------------- | ------------------------------------------- |
+| `data-state` | Define the state of the checkbox. | `checked` \| `unchecked` \| `indeterminate` |
+
+### NgpCheckboxInput
+
+Apply the `ngpCheckboxInput` directive to an input element to bind the checkbox state.
+
+### NgpCheckboxLabel
+
+Apply the `ngpCheckboxLabel` directive to an element that is a label for the checkbox.

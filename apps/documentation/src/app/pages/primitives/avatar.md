@@ -25,13 +25,15 @@ The following directives are available to import from the `@ng-primitives/ng-pri
 
 ### NgpAvatar
 
-There are no inputs or outputs for this directive.
+Apply the `ngpAvatar` directive to an element that represents the avatar. This directive is a container for the image and/or fallback.
 
 ### NgpAvatarImage
 
-There are no inputs or outputs for this directive.
+Apply the `ngpAvatarImage` directive to an element that represents the avatar image. This would typically be an `img` element or a `div` with a background image.
 
 ### NgpAvatarFallback
+
+Apply the `ngpAvatarFallback` directive to an element that represents the user in the absence of an image. This is typically the user's initials.
 
 <response-field name="ngpAvatarFallbackDelay" type="number" default="0">
   Define a delay before the fallback is shown. This is useful to only show the fallback for those

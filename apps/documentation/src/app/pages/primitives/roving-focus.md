@@ -1,6 +1,5 @@
 ---
 title: 'Roving Focus'
-description: 'Handle focus for a group of elements.'
 ---
 
 # Roving Focus
@@ -14,13 +13,41 @@ Handle focus for a group of elements.
 Assemble the roving focus directives in your template.
 
 ```html
-<div ngpRovingFocus></div>
+<div ngpRovingFocusGroup>
+  <button ngpRovingFocusItem>Item 1</button>
+  <button ngpRovingFocusItem>Item 2</button>
+  <button ngpRovingFocusItem>Item 3</button>
+</div>
 ```
 
 ## API Reference
 
 The following directives are available to import from the `@ng-primitives/ng-primitives/roving-focus` package:
 
-### NgpRovingFocus
+### NgpRovingFocusGroup
 
-There are no inputs or outputs for this directive.
+Apply the `ngpRovingFocusGroup` directive to an element to manage focus for a group of child elements.
+
+<response-field name="ngpRovingFocusGroupOrientation" type="'horizontal' | 'vertical'" default="horizontal">
+  Define the orientation of the roving focus group.
+</response-field>
+
+<response-field name="ngpRovingFocusGroupWrap" type="boolean">
+  Define whether the focus should wrap around the group.
+</response-field>
+
+<response-field name="ngpRovingFocusGroupHomeEnd" type="boolean">
+  Define whether the focus should move to the first or last element when pressing the Home or End key.
+</response-field>
+
+<response-field name="ngpRovingFocusGroupDisabled" type="boolean">
+  Define whether the roving focus group is disabled.
+</response-field>
+
+### NgpRovingFocusItem
+
+Apply the `ngpRovingFocusItem` directive to an element within a roving focus group to automatically manage focus.
+
+<response-field name="ngpRovingFocusItemDisabled" type="boolean">
+  Define whether the roving focus item is disabled.
+</response-field>
