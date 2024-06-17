@@ -13,7 +13,7 @@ Toggle a button on and off.
 Assemble the toggle directives in your template.
 
 ```html
-<div ngpToggle></div>
+<button ngpToggle>Toggle</button>
 ```
 
 ## API Reference
@@ -22,18 +22,21 @@ The following directives are available to import from the `@ng-primitives/ng-pri
 
 ### NgpToggle
 
-There are no inputs or outputs for this directive.
+Apply the `ngpToggle` directive to an element to manage the toggle state. This must be applied to a `button` element.
 
-## Global Configuration
+<response-field name="ngpTogglePressed" type="boolean" default="false">
+  Define the pressed state.
+</response-field>
 
-You can configure the default options for all toggles in your application by using the `provideNgpToggleConfig` function in a providers array.
+<response-field name="ngpToggleDisabled" type="boolean" default="false">
+  Define the disabled state.
+</response-field>
 
-```ts
-import { provideNgpToggleConfig } from '@ng-primitives/ng-primitives/toggle';
+#### Data Attributes
 
-bootstrapApplication(AppComponent, {
-  providers: [provideNgpToggleConfig({})],
-});
-```
+The following data attributes are available to apply to the `ngpToggle` directive:
 
-### NgpToggleConfig
+| Attribute       | Description                     | Value             |
+| --------------- | ------------------------------- | ----------------- |
+| `data-state`    | Define the state of the toggle. | `on` \| `off`     |
+| `data-disabled` | Define the disabled state.      | `true` \| `false` |
