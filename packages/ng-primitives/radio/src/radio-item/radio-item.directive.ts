@@ -19,7 +19,7 @@ import { NgpRadioItemToken } from './radio-item.token';
   host: {
     role: 'radio',
     '[attr.aria-checked]': 'checked() ? "true" : "false"',
-    '[attr.data-disabled]': 'disabled() ? "" : null',
+    '[attr.data-disabled]': 'disabled()',
     '[attr.data-state]': 'checked() ? "checked" : "unchecked"',
   },
 })

@@ -20,7 +20,7 @@ import { NgpAccordionItemToken } from './accordion-item.token';
   host: {
     '[attr.data-orientation]': 'accordion.orientation()',
     '[attr.data-state]': 'open() ? "open" : "closed"',
-    '[attr.data-disabled]': 'disabled() || accordion.disabled() ? "" : null',
+    '[attr.data-disabled]': 'disabled() || accordion.disabled()',
   },
 })
 export class NgpAccordionItem<T> {

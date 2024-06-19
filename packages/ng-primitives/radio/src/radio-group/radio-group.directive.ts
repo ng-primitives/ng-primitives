@@ -22,7 +22,7 @@ import { NgpRadioGroupToken } from './radio-group.token';
   host: {
     role: 'radiogroup',
     '[attr.aria-orientation]': 'orientation()',
-    '[attr.data-disabled]': 'disabled() || formDisabled() ? "" : null',
+    '[attr.data-disabled]': 'disabled() || formDisabled()',
   },
 })
 export class NgpRadioGroup implements ControlValueAccessor {

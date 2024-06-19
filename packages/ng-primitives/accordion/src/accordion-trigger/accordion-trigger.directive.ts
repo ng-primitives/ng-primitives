@@ -20,7 +20,7 @@ import { NgpAccordionTriggerToken } from './accordion-trigger.token';
     '[id]': 'id()',
     '[attr.data-orientation]': 'accordion.orientation()',
     '[attr.data-state]': 'item.open() ? "open" : "closed"',
-    '[attr.data-disabled]': 'item.disabled() || accordion.disabled() ? "" : null',
+    '[attr.data-disabled]': 'item.disabled() || accordion.disabled()',
     '[attr.aria-controls]': 'item.contentId()',
     '[attr.aria-expanded]': 'item.open()',
   },

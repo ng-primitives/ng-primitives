@@ -14,7 +14,7 @@ import { injectRadioItem } from '../radio-item/radio-item.token';
   standalone: true,
   host: {
     '[attr.data-state]': 'checked() ? "checked" : "unchecked"',
-    '[attr.data-disabled]': 'radioItem.disabled() ? "" : null',
+    '[attr.data-disabled]': 'radioItem.disabled()',
   },
 })
 export class NgpRadioIndicator {

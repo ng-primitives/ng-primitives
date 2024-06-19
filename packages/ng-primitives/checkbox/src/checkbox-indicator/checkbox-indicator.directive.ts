@@ -22,7 +22,7 @@ import { NgpCheckboxIndicatorToken } from './checkbox-indicator.token';
     '[style.pointer-events]': '"none"',
     '[attr.aria-checked]': 'checkbox.indeterminate() ? "mixed" : checkbox.checked()',
     '[attr.data-state]': 'checkbox.state()',
-    '[attr.data-disabled]': 'checkbox.disabled() ? "" : null',
+    '[attr.data-disabled]': 'checkbox.disabled()',
   },
 })
 export class NgpCheckboxIndicator {

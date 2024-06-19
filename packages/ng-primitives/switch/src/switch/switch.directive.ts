@@ -33,7 +33,7 @@ import { NgpSwitchToken } from './switch.token';
     '[attr.type]': 'isButton ? "button" : null',
     '[attr.aria-checked]': 'checked()',
     '[attr.data-state]': 'checked() ? "checked" : "unchecked"',
-    '[attr.data-disabled]': 'disabledState() ? "true" : null',
+    '[attr.data-disabled]': 'disabledState()',
     '[attr.disabled]': 'isButton && disabledState() ? disabledState() : null',
     '(focus)': 'onTouched?.()',
   },
