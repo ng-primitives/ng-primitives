@@ -25,6 +25,11 @@
     },
     "test": {
       "executor": "nx:noop"
+    },
+    "nx-release-publish": {
+      "options": {
+        "packageRoot": "{workspaceRoot}/dist/{projectRoot}"
+      }
     }
   }
 }
