@@ -26,6 +26,9 @@ The following directives are available to import from the `@ng-primitives/ng-pri
 
 Apply the `ngpProgress` directive to an element that represents the progress bar.
 
+- Selector: `[ngpProgress]`
+- Exported As: `ngpProgress`
+
 <response-field name="ngpProgressValue" type="number">
   Define the progress value.
 </response-field>
@@ -42,3 +45,6 @@ Apply the `ngpProgress` directive to an element that represents the progress bar
 
 Apply the `ngpProgressIndicator` directive to an element that represents the current progress.
 The width of this element can be set to the percentage of the progress value.
+
+- Selector: `[ngpProgressIndicator]`
+- Exported As: `ngpProgressIndicator`

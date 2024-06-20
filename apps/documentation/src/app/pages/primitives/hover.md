@@ -27,8 +27,8 @@ The following directives are available to import from the `@ng-primitives/ng-pri
 
 ### NgpHover
 
-- **Selector**: `[ngpHover]`
-- **Exported As**: `ngpHover`
+- Selector: `[ngpHover]`
+- Exported As: `ngpHover`
 
 Apply the `ngpHover` directive to an element that you want to listen for hover events. This is particulaly useful for supporting hover events on touch devices, where hover events are not handled consistently. On iOS relying on the `:hover` pseudo-class can result in the hover state being stuck until the user taps elsewhere on the screen.
 

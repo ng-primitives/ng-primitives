@@ -33,6 +33,9 @@ The following directives are available to import from the `@ng-primitives/ng-pri
 
 Apply the `ngpTabset` directive to an element to manage the tabs.
 
+- Selector: `[ngpTabset]`
+- Exported As: `ngpTabset`
+
 <response-field name="ngpTabsetValue" type="string">
   Define the selected tab.
 </response-field>
@@ -47,7 +50,7 @@ Apply the `ngpTabset` directive to an element to manage the tabs.
 
 #### Data Attributes
 
-The following data attributes are available to apply to the `ngpTabset` directive:
+The following data attributes are applied to the `ngpTabset` directive:
 
 | Attribute          | Description                         | Value                      |
 | ------------------ | ----------------------------------- | -------------------------- |
@@ -57,9 +60,12 @@ The following data attributes are available to apply to the `ngpTabset` directiv
 
 Apply the `ngpTabList` directive to an element that represents the list of tab buttons.
 
+- Selector: `[ngpTabList]`
+- Exported As: `ngpTabList`
+
 #### Data Attributes
 
-The following data attributes are available to apply to the `ngpTabList` directive:
+The following data attributes are applied to the `ngpTabList` directive:
 
 | Attribute          | Description                         | Value                      |
 | ------------------ | ----------------------------------- | -------------------------- |
@@ -68,6 +74,9 @@ The following data attributes are available to apply to the `ngpTabList` directi
 ### NgpTabButton
 
 Apply the `ngpTabButton` directive to an element within a tab list to represent a tab button. This directive should be applied to a button element.
+
+- Selector: `[ngpTabButton]`
+- Exported As: `ngpTabButton`
 
 <response-field name="ngpTabButtonValue" type="string" required="true">
   Define the value of the tab.
@@ -79,7 +88,7 @@ Apply the `ngpTabButton` directive to an element within a tab list to represent 
 
 #### Data Attributes
 
-The following data attributes are available to apply to the `ngpTabButton` directive:
+The following data attributes are applied to the `ngpTabButton` directive:
 
 | Attribute          | Description                         | Value                      |
 | ------------------ | ----------------------------------- | -------------------------- |
@@ -91,13 +100,16 @@ The following data attributes are available to apply to the `ngpTabButton` direc
 
 Apply the `ngpTabPanel` directive to an element that represents the content of a tab.
 
+- Selector: `[ngpTabPanel]`
+- Exported As: `ngpTabPanel`
+
 <response-field name="ngpTabPanelValue" type="string" required="true">
   Define the value of the tab.
 </response-field>
 
 #### Data Attributes
 
-The following data attributes are available to apply to the `ngpTabPanel` directive:
+The following data attributes are applied to the `ngpTabPanel` directive:
 
 | Attribute          | Description                         | Value                      |
 | ------------------ | ----------------------------------- | -------------------------- |

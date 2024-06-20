@@ -29,6 +29,9 @@ The following directives are available to import from the `@ng-primitives/ng-pri
 
 Apply the `ngpSlider` directive to an element that represents the slider and contains the track, range, and thumb.
 
+- Selector: `[ngpSlider]`
+- Exported As: `ngpSlider`
+
 <response-field name="ngpSliderValue" type="number">
   Define the selected value.
 </response-field>
@@ -53,13 +56,22 @@ Apply the `ngpSlider` directive to an element that represents the slider and con
 
 Apply the `ngpSliderTrack` directive to an element that represents the track of the slider.
 
+- Selector: `[ngpSliderTrack]`
+- Exported As: `ngpSliderTrack`
+
 ### NgpSliderRange
 
 Apply the `ngpSliderRange` directive to an element that represents the range of the slider.
 
+- Selector: `[ngpSliderRange]`
+- Exported As: `ngpSliderRange`
+
 ### NgpSliderThumb
 
 Apply the `ngpSliderThumb` directive to an element that represents the thumb of the slider.
+
+- Selector: `[ngpSliderThumb]`
+- Exported As: `ngpSliderThumb`
 
 #### Data Attributes
 

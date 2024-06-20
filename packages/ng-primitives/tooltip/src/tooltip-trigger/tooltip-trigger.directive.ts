@@ -44,6 +44,7 @@ import { NgpTooltipTriggerToken, provideTooltipTrigger } from './tooltip-trigger
   providers: [{ provide: NgpTooltipTriggerToken, useExisting: NgpTooltipTrigger }],
   host: {
     '[attr.data-state]': 'state()',
+    '[attr.data-disabled]': 'disabled()',
     '(mouseenter)': 'open.set(true)',
     '(mouseleave)': 'open.set(false)',
     '(focus)': 'open.set(true)',

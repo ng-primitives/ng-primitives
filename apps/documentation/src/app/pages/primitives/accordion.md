@@ -34,6 +34,9 @@ The following directives are available to import from the `@ng-primitives/ng-pri
 
 Apply the `ngpAccordion` directive to an element that represents the group of accordion items.
 
+- Selector: `[ngpAccordion]`
+- Exported As: `ngpAccordion`
+
 <response-field name="ngpAccordionType" type="single | multiple" default="single">
   Define whether only one or multiple accordion items can be open at a time.
 </response-field>
@@ -63,7 +66,7 @@ Apply the `ngpAccordion` directive to an element that represents the group of ac
 
 #### Data Attributes
 
-The following data attributes are available to use with the `ngpAccordion` directive:
+The following data attributes are applied to the `ngpAccordion` directive:
 
 | Attribute          | Description                              | Value                      |
 | ------------------ | ---------------------------------------- | -------------------------- |
@@ -72,6 +75,9 @@ The following data attributes are available to use with the `ngpAccordion` direc
 ### NgpAccordionItem
 
 Apply the `ngpAccordionItem` directive to an element that represents an accordion item.
+
+- Selector: `[ngpAccordionItem]`
+- Exported As: `ngpAccordionItem`
 
 <response-field name="ngpAccordionItemValue" type="T" required>
   Define the value of the accordion item.
@@ -83,7 +89,7 @@ Apply the `ngpAccordionItem` directive to an element that represents an accordio
 
 #### Data Attributes
 
-The following data attributes are available to use with the `ngpAccordionItem` directive:
+The following data attributes are applied to the `ngpAccordionItem` directive:
 
 | Attribute          | Description                                    | Value                      |
 | ------------------ | ---------------------------------------------- | -------------------------- |
@@ -95,9 +101,12 @@ The following data attributes are available to use with the `ngpAccordionItem` d
 
 Apply the `ngpAccordionTrigger` directive to an element that represents the trigger for an accordion item, such as a button.
 
+- Selector: `[ngpAccordionTrigger]`
+- Exported As: `ngpAccordionTrigger`
+
 #### Data Attributes
 
-The following data attributes are available to use with the `ngpAccordionTrigger` directive:
+The following data attributes are applied to the `ngpAccordionTrigger` directive:
 
 | Attribute          | Description                                    | Value                      |
 | ------------------ | ---------------------------------------------- | -------------------------- |
@@ -109,9 +118,12 @@ The following data attributes are available to use with the `ngpAccordionTrigger
 
 Apply the `ngpAccordionContent` directive to an element that represents the content of an accordion item.
 
+- Selector: `[ngpAccordionContent]`
+- Exported As: `ngpAccordionContent`
+
 #### Data Attributes
 
-The following data attributes are available to use with the `ngpAccordionContent` directive:
+The following data attributes are applied to the `ngpAccordionContent` directive:
 
 | Attribute          | Description                              | Value                      |
 | ------------------ | ---------------------------------------- | -------------------------- |

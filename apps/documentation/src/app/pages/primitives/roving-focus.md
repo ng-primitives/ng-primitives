@@ -28,6 +28,9 @@ The following directives are available to import from the `@ng-primitives/ng-pri
 
 Apply the `ngpRovingFocusGroup` directive to an element to manage focus for a group of child elements.
 
+- Selector: `[ngpRovingFocusGroup]`
+- Exported As: `ngpRovingFocusGroup`
+
 <response-field name="ngpRovingFocusGroupOrientation" type="'horizontal' | 'vertical'" default="horizontal">
   Define the orientation of the roving focus group.
 </response-field>
@@ -47,6 +50,9 @@ Apply the `ngpRovingFocusGroup` directive to an element to manage focus for a gr
 ### NgpRovingFocusItem
 
 Apply the `ngpRovingFocusItem` directive to an element within a roving focus group to automatically manage focus.
+
+- Selector: `[ngpRovingFocusItem]`
+- Exported As: `ngpRovingFocusItem`
 
 <response-field name="ngpRovingFocusItemDisabled" type="boolean">
   Define whether the roving focus item is disabled.

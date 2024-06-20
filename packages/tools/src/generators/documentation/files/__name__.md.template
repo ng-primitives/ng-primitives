@@ -23,7 +23,8 @@ The following directives are available to import from the `@ng-primitives/ng-pri
 
 ### Ngp<%= className %>
 
-There are no inputs or outputs for this directive.
+- Selector: `[ngp<%= className %>]`
+- Exported As: `ngp<%= className %>`
 
 ## Global Configuration
 

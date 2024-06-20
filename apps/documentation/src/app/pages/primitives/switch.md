@@ -26,6 +26,9 @@ The following directives are available to import from the `@ng-primitives/ng-pri
 
 Apply the `ngpSwitch` directive to an element to manage the checked state.
 
+- Selector: `[ngpSwitch]`
+- Exported As: `ngpSwitch`
+
 <response-field name="ngpSwitchChecked" type="boolean" default="false">
   Define the checked state.
 </response-field>
@@ -40,7 +43,7 @@ Apply the `ngpSwitch` directive to an element to manage the checked state.
 
 #### Data Attributes
 
-The following data attributes are available to apply to the `ngpSwitch` directive:
+The following data attributes are applied to the `ngpSwitch` directive:
 
 | Attribute       | Description                     | Value                    |
 | --------------- | ------------------------------- | ------------------------ |
@@ -50,6 +53,9 @@ The following data attributes are available to apply to the `ngpSwitch` directiv
 ### NgpSwitchThumb
 
 Apply the `ngpSwitchThumb` directive to an element within a switch to represent the thumb.
+
+- Selector: `[ngpSwitchThumb]`
+- Exported As: `ngpSwitchThumb`
 
 #### Data Attributes
 
