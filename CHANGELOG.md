@@ -1,3 +1,7 @@
+## 0.0.4 (2024-06-20)
+
+This was a version bump only, there were no code changes.
+
 ## 0.0.3 (2024-06-20)
 
 Adding `ngpHover` directive to normalize hover events across different browsers and devices.
