@@ -34,9 +34,8 @@ jobs:
 
       - run: pnpm exec nx-cloud record -- nx format:check
       - run: pnpm exec nx affected -t lint test build
-      - run: pnpm exec nx build examples
 
       - name: Deploy 🚀
         uses: JamesIves/github-pages-deploy-action@v4
         with:
-          folder: dist/apps/examples/browser # The folder the action should deploy.
+          folder: dist/apps/documentation/client # The folder the action should deploy.
