@@ -6,7 +6,9 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-export { injectDisposables } from './disposables';
-export { FocusManager } from './focus-manager';
+export { injectDisposables } from './helpers/disposables';
+export { FocusManager } from './helpers/focus-manager';
+export { uniqueId } from './helpers/unique-id';
+export { NgpHover } from './hover/hover.directive';
+export { NgpHoverToken } from './hover/hover.token';
 export { injectDimensions } from './ui/dimensions';
-export { uniqueId } from './unique-id';
