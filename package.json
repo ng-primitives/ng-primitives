@@ -6,9 +6,9 @@
   "scripts": {
     "prepare": "husky",
     "format": "nx format:write",
-    "lint": "nx affected -t lint",
-    "test": "nx affected -t test",
-    "build": "nx affected -t build"
+    "lint": "nx run-many -t lint",
+    "test": "nx run-many -t test",
+    "build": "nx run-many -t build"
   },
   "devDependencies": {
     "@analogjs/platform": "^1.3.0",
