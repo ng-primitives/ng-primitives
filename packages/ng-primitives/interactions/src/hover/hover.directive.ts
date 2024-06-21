@@ -139,6 +139,8 @@ export class NgpHover implements OnChanges {
 
   /**
    * Trigger the hover start events.
+   * @param event
+   * @param pointerType
    */
   private onHoverStart(event: Event, pointerType: string): void {
     if (
@@ -157,6 +159,7 @@ export class NgpHover implements OnChanges {
 
   /**
    * Trigger the hover end events.
+   * @param pointerType
    */
   private onHoverEnd(pointerType: string): void {
     if (pointerType === 'touch' || !this.hovered()) {

@@ -1,5 +1,5 @@
 import { Component, signal } from '@angular/core';
-import { NgpHover } from 'ng-primitives/utils';
+import { NgpHover } from 'ng-primitives/interactions';
 
 @Component({
   standalone: true,

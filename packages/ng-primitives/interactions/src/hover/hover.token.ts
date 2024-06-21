@@ -12,7 +12,7 @@ export const NgpHoverToken = new InjectionToken<NgpHover>('NgpHoverToken');
 
 /**
  * Inject the Hover directive instance
- * @return Hover directive instance
+ * @returns Hover directive instance
  */
 export function injectHover(): NgpHover {
   return inject(NgpHoverToken);
