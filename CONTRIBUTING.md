@@ -10,10 +10,10 @@ We welcome contributions from the community! Whether you're a seasoned developer
 
 ## Requesting a new feature
 
-While we draw inspiration from the primitives from Radix UI and Headless UI, we are not looking to replicate their components.
-Want to develop a feature in whatever way is best for Angular.
+While we draw inspiration from the libraries like Radix UI, Headless UI and React Aria we are not looking to port their features as-is.
+We want to develop a feature in whatever way is best for Angular.
 
-If you wish to develop a feature, please get in touch with us first to discuss the feature and how it fits into the library.
+If you wish to develop a feature, please raise an issue or discussion first to discuss the feature and how it fits into the library.
 We don't want you to spend time developing a feature that we may not be able to accept.
 
 ## Submitting a pull request
