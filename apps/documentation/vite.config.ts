@@ -51,7 +51,7 @@ export default defineConfig(({ mode }) => {
             ),
           ],
           sitemap: {
-            host: 'https://ng-primitives.github.io/ng-primitives/',
+            host: 'https://ng-primitives.netlify.app/',
           },
         },
       }),
