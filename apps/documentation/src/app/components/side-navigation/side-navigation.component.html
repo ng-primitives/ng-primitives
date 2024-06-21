@@ -1,6 +1,6 @@
 <ng-template #content>
   <div
-    class="sticky top-24 flex h-[calc(100vh-140px)] w-40 flex-col gap-y-4 overflow-auto overscroll-contain"
+    class="sticky top-24 flex h-[calc(100dvh-140px)] w-full flex-col gap-y-4 overflow-auto overscroll-contain"
   >
     @for (section of sections; track section.title) {
       <div>
@@ -24,13 +24,13 @@
 </ng-template>
 
 @if (menuOpen()) {
-  <div class="fixed inset-0 z-10 bg-black/50">
-    <div class="h-full w-72 max-w-full bg-white px-10 shadow-xl">
+  <div class="fixed inset-0 z-10 bg-black/50" (click)="menuOpen.set(false)">
+    <div class="h-full w-72 max-w-full bg-white px-10 shadow-xl" (click)="$event.stopPropagation()">
       <ng-container [ngTemplateOutlet]="content" />
     </div>
   </div>
 } @else {
-  <div class="hidden md:block">
+  <div class="hidden w-40 md:block">
     <ng-container [ngTemplateOutlet]="content" />
   </div>
 }

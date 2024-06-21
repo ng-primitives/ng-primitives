@@ -1,4 +1,4 @@
-import { Component, Injector, inject, signal } from '@angular/core';
+import { Component, Injector, effect, inject, signal } from '@angular/core';
 import { createCustomElement } from '@angular/elements';
 import { NavigationEnd, Router, RouterLink, RouterOutlet } from '@angular/router';
 import { NgIcon, provideIcons } from '@ng-icons/core';
@@ -19,7 +19,7 @@ import { SideNavigationComponent } from './components/side-navigation/side-navig
 
     <div class="container mx-auto px-8 pt-24">
       <div class="flex">
-        <docs-side-navigation class="md:mr-12" [menuOpen]="menuOpen()" />
+        <docs-side-navigation class="md:mr-12" [(menuOpen)]="menuOpen" />
 
         <router-outlet />
       </div>
@@ -51,5 +51,14 @@ export class AppComponent {
     this.router.events
       .pipe(filter(event => event instanceof NavigationEnd))
       .subscribe(() => this.menuOpen.set(false));
+
+    effect(() => {
+      // if the menu is open prevent scrolling on the body
+      if (this.menuOpen()) {
+        document.body.style.overflow = 'hidden';
+      } else {
+        document.body.style.overflow = '';
+      }
+    });
   }
 }

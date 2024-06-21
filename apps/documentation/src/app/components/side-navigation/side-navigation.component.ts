@@ -1,5 +1,5 @@
 import { NgTemplateOutlet } from '@angular/common';
-import { ChangeDetectionStrategy, Component, input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, model } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 import { getRouterLinks } from '../../utils/router';
 
@@ -11,7 +11,7 @@ import { getRouterLinks } from '../../utils/router';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SideNavigationComponent {
-  readonly menuOpen = input(false);
+  readonly menuOpen = model(false);
 
   readonly sections = Object.entries(getRouterLinks())
     .map(([path, data]) => {
