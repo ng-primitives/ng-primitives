@@ -10,7 +10,11 @@ import { NgpAvatar, NgpAvatarFallback, NgpAvatarImage } from 'ng-primitives/avat
       class="inline-flex size-14 items-center justify-center overflow-hidden rounded-full bg-neutral-100 shadow ring-1 ring-black/5"
       ngpAvatar
     >
-      <img ngpAvatarImage src="./assets/images/avatar-1.jpeg" alt="Profile Image" />
+      <img
+        ngpAvatarImage
+        src="https://ng-primitives.github.io/ng-primitives/assets/avatar.png"
+        alt="Profile Image"
+      />
       <span class="text-lg text-neutral-800" ngpAvatarFallback>NG</span>
     </span>
   `,
