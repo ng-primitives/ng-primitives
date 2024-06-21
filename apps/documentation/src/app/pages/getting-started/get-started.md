@@ -10,7 +10,29 @@ order: 2
 Angular Primitives is distributed as a single package with entrypoints for each primitive.
 This makes it easy to install and update, while keeping the bundle size as small as possible.
 
-To install Angular Primitives, run the following command:
+### Angular CLI
+
+To install Angular Primitives using the Angular CLI, run the following command:
+
+```bash npm
+ng add ng-primitives
+```
+
+This command will install Angular Primitives and add the necessary dependencies to your project.
+
+### Nx
+
+To install Angular Primitives using Nx, run the following command:
+
+```bash npm
+nx add ng-primitives
+```
+
+This command will install Angular Primitives and add the necessary dependencies to your project.
+
+## Manual Installation
+
+To manually install Angular Primitives, run the following command:
 
 ```bash npm
 npm i ng-primitives

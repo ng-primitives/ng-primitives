@@ -48,6 +48,13 @@
       "rules": {
         "@nx/dependency-checks": "off"
       }
+    },
+    {
+      "files": ["./package.json", "./generators.json"],
+      "parser": "jsonc-eslint-parser",
+      "rules": {
+        "@nx/nx-plugin-checks": "error"
+      }
     }
   ]
 }

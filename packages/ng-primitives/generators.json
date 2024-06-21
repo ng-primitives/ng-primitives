@@ -1,0 +1,16 @@
+{
+  "generators": {
+    "init": {
+      "factory": "./schematics/init/generator",
+      "schema": "./schematics/init/schema.json",
+      "description": "Add Angular Primitives to a project."
+    }
+  },
+  "schematics": {
+    "init": {
+      "description": "Add Angular Primitives to a project.",
+      "factory": "./schematics/init/compat",
+      "schema": "./schematics/init/schema.json"
+    }
+  }
+}

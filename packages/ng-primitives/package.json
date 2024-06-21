@@ -10,6 +10,10 @@
     "@floating-ui/dom": ">=1.6.0",
     "@angular/common": ">=18.0.0"
   },
-  "dependencies": {},
-  "sideEffects": false
+  "dependencies": {
+    "@nx/devkit": "19.3.1"
+  },
+  "sideEffects": false,
+  "generators": "./generators.json",
+  "schematics": "./generators.json"
 }
