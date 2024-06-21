@@ -28,7 +28,6 @@ export default defineConfig(({ mode }) => {
     root: __dirname,
     publicDir: 'src/public',
     cacheDir: `../../node_modules/.vite`,
-    base: './',
 
     build: {
       outDir: '../../dist/apps/documentation/client',
