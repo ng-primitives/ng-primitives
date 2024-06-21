@@ -8,6 +8,14 @@ Perform actions on element resize.
 
 <docs-example name="resize"></docs-example>
 
+## Import
+
+Import the Resize primitive from `ng-primitives/resize`.
+
+```ts
+import { NgpResize } from 'ng-primitives/resize';
+```
+
 ## Usage
 
 Assemble the resize directives in your template.

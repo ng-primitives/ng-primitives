@@ -8,6 +8,14 @@ Select a value within a range.
 
 <docs-example name="slider"></docs-example>
 
+## Import
+
+Import the Slider primitives from `ng-primitives/slider`.
+
+```ts
+import { NgpSlider } from 'ng-primitives/slider';
+```
+
 ## Usage
 
 Assemble the slider directives in your template.

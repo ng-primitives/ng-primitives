@@ -8,6 +8,14 @@ Perform state toggling.
 
 <docs-example name="switch"></docs-example>
 
+## Import
+
+Import the Switch primitives from `ng-primitives/switch`.
+
+```ts
+import { NgpSwitch } from 'ng-primitives/switch';
+```
+
 ## Usage
 
 Assemble the switch directives in your template.

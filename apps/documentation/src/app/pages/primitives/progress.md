@@ -8,6 +8,14 @@ Display an indicator representing the progress of a task.
 
 <docs-example name="progress"></docs-example>
 
+## Import
+
+Import the Progress primitives from `ng-primitives/progress`.
+
+```ts
+import { NgpProgress } from 'ng-primitives/progress';
+```
+
 ## Usage
 
 Assemble the avatar directives in your template.

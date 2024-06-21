@@ -8,6 +8,15 @@ title: '<%= className %>'
 
 <docs-example name="<%= fileName %>"></docs-example>
 
+## Import
+
+Import the <%= className %> primitives from `ng-primitives/<%= fileName %>`.
+
+```ts
+import { Ngp<%= className %> } from 'ng-primitives/<%= fileName %>';
+```
+
+
 ## Usage
 
 Assemble the <%= fileName %> directives in your template.

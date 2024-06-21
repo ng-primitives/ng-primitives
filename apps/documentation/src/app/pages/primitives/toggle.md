@@ -8,6 +8,14 @@ Toggle a button on and off.
 
 <docs-example name="toggle"></docs-example>
 
+## Import
+
+Import the Toggle primitives from `ng-primitives/toggle`.
+
+```ts
+import { NgpToggle } from 'ng-primitives/toggle';
+```
+
 ## Usage
 
 Assemble the toggle directives in your template.

@@ -8,6 +8,14 @@ Handle focus for a group of elements.
 
 <docs-example name="roving-focus"></docs-example>
 
+## Import
+
+Import the Roving Focus primitives from `ng-primitives/roving-focus`.
+
+```ts
+import { NgpRovingFocusGroup } from 'ng-primitives/roving-focus';
+```
+
 ## Usage
 
 Assemble the roving focus directives in your template.

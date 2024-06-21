@@ -8,6 +8,14 @@ Display an image that represents a user with a text fallback.
 
 <docs-example name="avatar"></docs-example>
 
+## Import
+
+Import the Avatar primitives from `ng-primitives/avatar`.
+
+```ts
+import { NgpAvatar } from 'ng-primitives/avatar';
+```
+
 ## Usage
 
 Assemble the avatar directives in your template.

@@ -8,6 +8,14 @@ Selection within a group.
 
 <docs-example name="radio"></docs-example>
 
+## Import
+
+Import the Radio primitives from `ng-primitives/radio`.
+
+```ts
+import { NgpRadio } from 'ng-primitives/radio';
+```
+
 ## Usage
 
 Assemble the radio directives in your template.

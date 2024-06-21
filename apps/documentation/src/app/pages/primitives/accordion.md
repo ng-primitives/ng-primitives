@@ -8,6 +8,14 @@ Display a series of panels that can be expanded or collapsed.
 
 <docs-example name="accordion"></docs-example>
 
+## Import
+
+Import the Accordion primitives from `ng-primitives/accordion`.
+
+```ts
+import { NgpAccordion } from 'ng-primitives/accordion';
+```
+
 ## Usage
 
 Assemble the accordion directives in your template.

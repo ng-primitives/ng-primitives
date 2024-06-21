@@ -8,6 +8,14 @@ Display additional information on hover.
 
 <docs-example name="tooltip"></docs-example>
 
+## Import
+
+Import the Tooltip primitives from `ng-primitives/tooltip`.
+
+```ts
+import { NgpTooltip } from 'ng-primitives/tooltip';
+```
+
 ## Usage
 
 Assemble the tooltip directives in your template.

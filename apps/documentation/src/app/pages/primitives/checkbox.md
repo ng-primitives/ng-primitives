@@ -8,6 +8,14 @@ Perform state toggling.
 
 <docs-example name="checkbox"></docs-example>
 
+## Import
+
+Import the Checkbox primitives from `ng-primitives/checkbox`.
+
+```ts
+import { NgpCheckbox } from 'ng-primitives/checkbox';
+```
+
 ## Usage
 
 Assemble the checkbox directives in your template.

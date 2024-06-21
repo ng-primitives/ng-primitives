@@ -8,6 +8,14 @@ Dynamically show and hide content based on an active tab.
 
 <docs-example name="tabs"></docs-example>
 
+## Import
+
+Import the Tabs primitives from `ng-primitives/tabs`.
+
+```ts
+import { NgpTabset } from 'ng-primitives/tabs';
+```
+
 ## Usage
 
 Assemble the tabs directives in your template.
