@@ -1,0 +1,14 @@
+diff --git a/dist/src/parse.js b/dist/src/parse.js
+index cc8bb47f4aba0de6084b30144182e021970d0b06..87b7b46ce8eeabe7a5af18aa1281f5757ba00706 100644
+--- a/dist/src/parse.js
++++ b/dist/src/parse.js
+@@ -37,7 +37,8 @@ const IDENTIFIER_QUERY = 'identifier';
+  */
+ function parse(selector) {
+     const cleanSelector = stripComments(stripNewLines(selector));
+-    return validate(esquery.parse(cleanSelector));
++    const fn = esquery.default?.parse ?? esquery.parse;
++    return validate(fn(cleanSelector));
+ }
+ exports.parse = parse;
+ /**
