@@ -1,6 +1,6 @@
 import { Component, signal } from '@angular/core';
-import { NgpProgress, NgpProgressIndicator } from '@ng-primitives/ng-primitives/progress';
-import { injectDisposables } from '@ng-primitives/ng-primitives/utils';
+import { NgpProgress, NgpProgressIndicator } from 'ng-primitives/progress';
+import { injectDisposables } from 'ng-primitives/utils';
 
 @Component({
   standalone: true,

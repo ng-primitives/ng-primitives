@@ -20,7 +20,7 @@ Assemble the checkbox directives in your template.
 
 ## API Reference
 
-The following directives are available to import from the `@ng-primitives/ng-primitives/checkbox` package:
+The following directives are available to import from the `ng-primitives/checkbox` package:
 
 ### NgpCheckbox
 

@@ -18,7 +18,7 @@ Assemble the toggle directives in your template.
 
 ## API Reference
 
-The following directives are available to import from the `@ng-primitives/ng-primitives/toggle` package:
+The following directives are available to import from the `ng-primitives/toggle` package:
 
 ### NgpToggle
 

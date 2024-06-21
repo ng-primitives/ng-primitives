@@ -14,11 +14,8 @@ import {
   input,
   model,
 } from '@angular/core';
-import {
-  NgpRovingFocusGroup,
-  injectRovingFocusGroup,
-} from '@ng-primitives/ng-primitives/roving-focus';
-import { uniqueId } from '@ng-primitives/ng-primitives/utils';
+import { NgpRovingFocusGroup, injectRovingFocusGroup } from 'ng-primitives/roving-focus';
+import { uniqueId } from 'ng-primitives/utils';
 import { injectTabsConfig } from '../config/tabs.config';
 import { NgpTabPanelToken } from '../tab-panel/tab-panel.token';
 import { NgpTabsetToken } from './tabset.token';

@@ -20,7 +20,7 @@ import {
   signal,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { uniqueId } from '@ng-primitives/ng-primitives/utils';
+import { uniqueId } from 'ng-primitives/utils';
 import { NgpSelectOption } from '../select-option/select-option.directive';
 import { NgpSelectOptionToken } from '../select-option/select-option.token';
 import { injectSelect } from '../select/select.token';

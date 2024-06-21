@@ -33,7 +33,7 @@ Assemble the radio directives in your template.
 
 ## API Reference
 
-The following directives are available to import from the `@ng-primitives/ng-primitives/radio` package:
+The following directives are available to import from the `ng-primitives/radio` package:
 
 ### NgpRadioGroup
 

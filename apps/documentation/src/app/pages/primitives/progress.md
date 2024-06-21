@@ -20,7 +20,7 @@ Assemble the avatar directives in your template.
 
 ## API Reference
 
-The following directives are available to import from the `@ng-primitives/ng-primitives/progress` package:
+The following directives are available to import from the `ng-primitives/progress` package:
 
 ### NgpProgress
 

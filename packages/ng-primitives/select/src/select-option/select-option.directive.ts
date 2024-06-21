@@ -16,7 +16,7 @@ import {
   input,
   signal,
 } from '@angular/core';
-import { uniqueId } from '@ng-primitives/ng-primitives/utils';
+import { uniqueId } from 'ng-primitives/utils';
 import { injectSelect } from '../select/select.token';
 import { NgpSelectOptionToken } from './select-option.token';
 

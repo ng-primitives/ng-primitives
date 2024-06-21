@@ -6,7 +6,7 @@ import {
   NgpAccordionContent,
   NgpAccordionItem,
   NgpAccordionTrigger,
-} from '@ng-primitives/ng-primitives/accordion';
+} from 'ng-primitives/accordion';
 
 @Component({
   standalone: true,

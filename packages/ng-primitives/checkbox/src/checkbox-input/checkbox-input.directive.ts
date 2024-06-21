@@ -6,7 +6,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 import { Directive } from '@angular/core';
-import { NgpVisuallyHidden } from '@ng-primitives/ng-primitives/a11y';
+import { NgpVisuallyHidden } from 'ng-primitives/a11y';
 import { injectCheckbox } from '../checkbox/checkbox.token';
 
 @Directive({

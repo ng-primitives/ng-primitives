@@ -27,7 +27,7 @@ Assemble the tabs directives in your template.
 
 ## API Reference
 
-The following directives are available to import from the `@ng-primitives/ng-primitives/tabs` package:
+The following directives are available to import from the `ng-primitives/tabs` package:
 
 ### NgpTabset
 
@@ -121,7 +121,7 @@ The following data attributes are applied to the `ngpTabPanel` directive:
 You can configure the default options for all tabss in your application by using the `provideNgpTabsConfig` function in a providers array.
 
 ```ts
-import { provideNgpTabsConfig } from '@ng-primitives/ng-primitives/tabs';
+import { provideNgpTabsConfig } from 'ng-primitives/tabs';
 
 bootstrapApplication(AppComponent, {
   providers: [

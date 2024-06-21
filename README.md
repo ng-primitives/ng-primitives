@@ -9,7 +9,7 @@ The library is very much in the early stages of development, expect breaking cha
 ## Installation
 
 ```bash
-npm install @ng-primitives/ng-primitives
+npm install ng-primitives
 ```
 
 ## Contributing

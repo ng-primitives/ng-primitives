@@ -1,10 +1,5 @@
 import { Component } from '@angular/core';
-import {
-  NgpSlider,
-  NgpSliderRange,
-  NgpSliderThumb,
-  NgpSliderTrack,
-} from '@ng-primitives/ng-primitives/slider';
+import { NgpSlider, NgpSliderRange, NgpSliderThumb, NgpSliderTrack } from 'ng-primitives/slider';
 
 @Component({
   standalone: true,

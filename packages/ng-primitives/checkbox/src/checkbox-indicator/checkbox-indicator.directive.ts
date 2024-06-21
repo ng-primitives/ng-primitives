@@ -6,7 +6,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 import { Directive, input, numberAttribute } from '@angular/core';
-import { uniqueId } from '@ng-primitives/ng-primitives/utils';
+import { uniqueId } from 'ng-primitives/utils';
 import { injectCheckbox } from '../checkbox/checkbox.token';
 import { NgpCheckboxIndicatorToken } from './checkbox-indicator.token';
 

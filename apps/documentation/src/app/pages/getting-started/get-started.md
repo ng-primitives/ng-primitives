@@ -13,7 +13,7 @@ This makes it easy to install and update, while keeping the bundle size as small
 To install Angular Primitives, run the following command:
 
 ```bash npm
-npm i @ng-primitives/ng-primitives
+npm i ng-primitives
 ```
 
 ## Peer Dependencies

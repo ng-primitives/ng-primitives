@@ -8,7 +8,7 @@
 import { BooleanInput } from '@angular/cdk/coercion';
 import { Directive, HostListener, booleanAttribute, input, model, signal } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
-import { NgpRovingFocusGroup } from '@ng-primitives/ng-primitives/roving-focus';
+import { NgpRovingFocusGroup } from 'ng-primitives/roving-focus';
 import { NgpRadioGroupToken } from './radio-group.token';
 
 @Directive({

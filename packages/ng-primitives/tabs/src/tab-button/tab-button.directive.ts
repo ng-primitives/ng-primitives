@@ -7,7 +7,7 @@
  */
 import { BooleanInput } from '@angular/cdk/coercion';
 import { Directive, HostListener, booleanAttribute, computed, input } from '@angular/core';
-import { NgpRovingFocusItem } from '@ng-primitives/ng-primitives/roving-focus';
+import { NgpRovingFocusItem } from 'ng-primitives/roving-focus';
 import { injectTabset } from '../tabset/tabset.token';
 
 @Directive({

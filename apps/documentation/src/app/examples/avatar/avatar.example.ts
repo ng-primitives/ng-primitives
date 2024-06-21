@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { NgpAvatar, NgpAvatarFallback, NgpAvatarImage } from '@ng-primitives/ng-primitives/avatar';
+import { NgpAvatar, NgpAvatarFallback, NgpAvatarImage } from 'ng-primitives/avatar';
 
 @Component({
   standalone: true,

@@ -18,7 +18,7 @@ Assemble the resize directives in your template.
 
 ## API Reference
 
-The following directives are available to import from the `@ng-primitives/ng-primitives/resize` package:
+The following directives are available to import from the `ng-primitives/resize` package:
 
 ### NgpResize
 

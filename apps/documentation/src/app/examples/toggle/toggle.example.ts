@@ -1,5 +1,5 @@
 import { Component, signal } from '@angular/core';
-import { NgpToggle } from '@ng-primitives/ng-primitives/toggle';
+import { NgpToggle } from 'ng-primitives/toggle';
 
 @Component({
   standalone: true,

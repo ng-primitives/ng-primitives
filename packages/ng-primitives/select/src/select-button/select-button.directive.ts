@@ -7,7 +7,7 @@
  */
 import { FocusOrigin } from '@angular/cdk/a11y';
 import { Directive, ElementRef, inject, input } from '@angular/core';
-import { FocusManager, injectDisposables, uniqueId } from '@ng-primitives/ng-primitives/utils';
+import { FocusManager, injectDisposables, uniqueId } from 'ng-primitives/utils';
 import { injectSelect } from '../select/select.token';
 import { NgpSelectButtonToken } from './select-button.token';
 

@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { NgpTooltip, NgpTooltipTrigger } from '@ng-primitives/ng-primitives/tooltip';
+import { NgpTooltip, NgpTooltipTrigger } from 'ng-primitives/tooltip';
 
 @Component({
   standalone: true,

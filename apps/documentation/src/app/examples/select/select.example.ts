@@ -6,7 +6,7 @@ import {
   NgpSelectButton,
   NgpSelectOption,
   NgpSelectOptions,
-} from '@ng-primitives/ng-primitives/select';
+} from 'ng-primitives/select';
 
 @Component({
   standalone: true,

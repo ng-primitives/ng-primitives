@@ -28,7 +28,7 @@ Assemble the accordion directives in your template.
 
 ## API Reference
 
-The following directives are available to import from the `@ng-primitives/ng-primitives/accordion` package:
+The following directives are available to import from the `ng-primitives/accordion` package:
 
 ### NgpAccordion
 
@@ -135,7 +135,7 @@ The following data attributes are applied to the `ngpAccordionContent` directive
 You can configure the default options for all accordions in your application by using the `provideNgpAccordionConfig` function in a providers array.
 
 ```ts
-import { provideNgpAccordionConfig } from '@ng-primitives/ng-primitives/accordion';
+import { provideNgpAccordionConfig } from 'ng-primitives/accordion';
 
 bootstrapApplication(AppComponent, {
   providers: [

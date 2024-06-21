@@ -23,7 +23,7 @@ Assemble the hover directives in your template.
 
 ## API Reference
 
-The following directives are available to import from the `@ng-primitives/ng-primitives/utils` package:
+The following directives are available to import from the `ng-primitives/utils` package:
 
 ### NgpHover
 

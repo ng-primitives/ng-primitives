@@ -7,7 +7,7 @@
  */
 import { NumberInput } from '@angular/cdk/coercion';
 import { Directive, OnInit, computed, input, numberAttribute, signal } from '@angular/core';
-import { injectDisposables } from '@ng-primitives/ng-primitives/utils';
+import { injectDisposables } from 'ng-primitives/utils';
 import { NgpAvatarState } from '../avatar/avatar.directive';
 import { injectAvatar } from '../avatar/avatar.token';
 import { injectAvatarConfig } from '../config/avatar.config';

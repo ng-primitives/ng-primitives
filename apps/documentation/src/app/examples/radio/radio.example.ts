@@ -1,5 +1,5 @@
 import { Component, signal } from '@angular/core';
-import { NgpRadioGroup, NgpRadioIndicator, NgpRadioItem } from '@ng-primitives/ng-primitives/radio';
+import { NgpRadioGroup, NgpRadioIndicator, NgpRadioItem } from 'ng-primitives/radio';
 
 @Component({
   standalone: true,

@@ -1,5 +1,5 @@
 {
-  "name": "@ng-primitives/ng-primitives",
+  "name": "ng-primitives",
   "license": "CC BY-ND 4.0",
   "version": "0.0.5",
   "peerDependencies": {

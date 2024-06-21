@@ -22,7 +22,7 @@ Assemble the tooltip directives in your template.
 
 ## API Reference
 
-The following directives are available to import from the `@ng-primitives/ng-primitives/tooltip` package:
+The following directives are available to import from the `ng-primitives/tooltip` package:
 
 ### NgpTooltip
 
@@ -90,7 +90,7 @@ Apply the `ngpTooltipTrigger` directive to an element that triggers the tooltip 
 You can configure the default options for all tooltips in your application by using the `provideNgpTooltipConfig` function in a providers array.
 
 ```ts
-import { provideNgpTooltipConfig } from '@ng-primitives/ng-primitives/tooltip';
+import { provideNgpTooltipConfig } from 'ng-primitives/tooltip';
 
 bootstrapApplication(AppComponent, {
   providers: [

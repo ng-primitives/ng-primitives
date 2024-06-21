@@ -6,7 +6,7 @@ import {
   NgpCheckboxIndicator,
   NgpCheckboxInput,
   NgpCheckboxLabel,
-} from '@ng-primitives/ng-primitives/checkbox';
+} from 'ng-primitives/checkbox';
 
 @Component({
   standalone: true,

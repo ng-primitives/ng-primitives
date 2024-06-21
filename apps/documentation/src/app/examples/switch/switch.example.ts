@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { NgpSwitch, NgpSwitchThumb } from '@ng-primitives/ng-primitives/switch';
+import { NgpSwitch, NgpSwitchThumb } from 'ng-primitives/switch';
 
 @Component({
   standalone: true,

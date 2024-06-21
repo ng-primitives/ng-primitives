@@ -1,3 +1,3 @@
-# @ng-primitives/ng-primitives/avatar
+# ng-primitives/avatar
 
-Secondary entry point of `@ng-primitives/ng-primitives`. It can be used by importing from `@ng-primitives/ng-primitives/avatar`.
+Secondary entry point of `ng-primitives`. It can be used by importing from `ng-primitives/avatar`.

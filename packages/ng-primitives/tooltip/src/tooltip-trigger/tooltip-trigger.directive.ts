@@ -33,7 +33,7 @@ import {
   offset,
   shift,
 } from '@floating-ui/dom';
-import { injectDisposables } from '@ng-primitives/ng-primitives/utils';
+import { injectDisposables } from 'ng-primitives/utils';
 import { injectTooltipConfig } from '../config/tooltip.config';
 import { NgpTooltipTriggerToken, provideTooltipTrigger } from './tooltip-trigger.token';
 

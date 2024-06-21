@@ -1,5 +1,5 @@
 import { Component, signal } from '@angular/core';
-import { Dimensions, NgpResize } from '@ng-primitives/ng-primitives/resize';
+import { Dimensions, NgpResize } from 'ng-primitives/resize';
 
 @Component({
   standalone: true,
