@@ -8,7 +8,8 @@
     "format": "nx format:write",
     "lint": "nx run-many -t lint",
     "test": "nx run-many -t test",
-    "build": "nx run-many -t build"
+    "build": "nx run-many -t build",
+    "publish": "nx release"
   },
   "devDependencies": {
     "@analogjs/platform": "^1.5.0",

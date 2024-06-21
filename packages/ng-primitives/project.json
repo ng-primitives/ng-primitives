@@ -27,6 +27,7 @@
       "executor": "nx:noop"
     },
     "nx-release-publish": {
+      "dependsOn": ["build"],
       "options": {
         "packageRoot": "{workspaceRoot}/dist/{projectRoot}"
       }
