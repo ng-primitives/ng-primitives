@@ -38,4 +38,4 @@ jobs:
       - name: Deploy 🚀
         uses: JamesIves/github-pages-deploy-action@v4
         with:
-          folder: dist/apps/documentation/client # The folder the action should deploy.
+          folder: dist/apps/documentation/analog/public # The folder the action should deploy.

@@ -11,8 +11,6 @@ module.exports = {
     extend: {
       fontFamily: {
         sans: ['InterVariable', 'sans-serif'],
-        headings: ['Plus Jakarta Sans', 'sans-serif'],
-        cal: ['Cal Sans', 'sans-serif'],
       },
       typography: theme => ({
         zinc: {

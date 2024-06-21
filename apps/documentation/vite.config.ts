@@ -2,6 +2,7 @@
 import analog from '@analogjs/platform';
 import { nxViteTsPaths } from '@nx/vite/plugins/nx-tsconfig-paths.plugin';
 import { readFileSync } from 'fs';
+import { globSync } from 'glob';
 import { Plugin, defineConfig, splitVendorChunkPlugin } from 'vite';
 
 function sourceQueryPlugin(): Plugin {
@@ -40,7 +41,21 @@ export default defineConfig(({ mode }) => {
       },
     },
     plugins: [
-      analog({ ssr: false }),
+      analog({
+        ssr: false,
+        prerender: {
+          routes: async () => [
+            '/',
+            ...globSync('apps/documentation/src/app/pages/**/*.md').map(
+              file =>
+                '/' + file.replace('apps/documentation/src/app/pages/', '').replace('.md', ''),
+            ),
+          ],
+          sitemap: {
+            host: 'https://ng-primitives.github.io/ng-primitives/',
+          },
+        },
+      }),
       nxViteTsPaths(),
       splitVendorChunkPlugin(),
       sourceQueryPlugin(),

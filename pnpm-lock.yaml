@@ -245,6 +245,9 @@ importers:
       eslint-plugin-playwright:
         specifier: ^0.15.3
         version: 0.15.3(eslint@8.57.0)
+      glob:
+        specifier: ^10.4.2
+        version: 10.4.2
       husky:
         specifier: ^9.0.11
         version: 9.0.11
