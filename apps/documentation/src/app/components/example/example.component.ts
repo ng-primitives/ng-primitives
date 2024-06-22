@@ -14,9 +14,10 @@ import {
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { lucideClipboard, lucideCodesandbox } from '@ng-icons/lucide';
 import sdk from '@stackblitz/sdk';
-import { highlight, languages } from 'prismjs';
-import 'prismjs/components/prism-typescript';
+import * as prismjs from 'prismjs';
 import type { PropertyAssignment } from 'typescript';
+
+const { highlight, languages } = prismjs;
 
 @Component({
   selector: 'docs-example',

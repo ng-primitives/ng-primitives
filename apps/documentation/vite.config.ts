@@ -41,7 +41,7 @@ export default defineConfig(({ mode }) => {
     },
     plugins: [
       analog({
-        ssr: false,
+        ssr: true,
         prerender: {
           routes: async () => [
             '/',
@@ -68,6 +68,12 @@ export default defineConfig(({ mode }) => {
     },
     define: {
       'import.meta.vitest': mode !== 'production',
+    },
+    optimizeDeps: {
+      include: ['@ng-icons/core'],
+    },
+    ssr: {
+      noExternal: ['@ng-icons/core'],
     },
   };
 });

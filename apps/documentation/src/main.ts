@@ -1,4 +1,6 @@
 import { bootstrapApplication } from '@angular/platform-browser';
+import 'prismjs';
+import 'prismjs/components/prism-typescript';
 import { AppComponent } from './app/app.component';
 import { appConfig } from './app/app.config';
 
