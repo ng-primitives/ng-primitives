@@ -1,11 +1,12 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 import { Clipboard } from '@angular/cdk/clipboard';
-import { NgClass, NgComponentOutlet } from '@angular/common';
+import { NgClass, NgComponentOutlet, isPlatformServer } from '@angular/common';
 import {
   ChangeDetectionStrategy,
   ChangeDetectorRef,
   Component,
   Input,
+  PLATFORM_ID,
   Type,
   computed,
   inject,
@@ -15,7 +16,13 @@ import { NgIcon, provideIcons } from '@ng-icons/core';
 import { lucideClipboard, lucideCodesandbox } from '@ng-icons/lucide';
 import sdk from '@stackblitz/sdk';
 import * as prismjs from 'prismjs';
-import type { PropertyAssignment } from 'typescript';
+import type {
+  ArrayLiteralExpression,
+  NoSubstitutionTemplateLiteral,
+  Node,
+  PropertyAssignment,
+  StringLiteral,
+} from 'typescript';
 
 const { highlight, languages } = prismjs;
 
@@ -29,6 +36,7 @@ const { highlight, languages } = prismjs;
 })
 export class ExampleComponent {
   private readonly clipboard = inject(Clipboard);
+  private readonly platform = inject(PLATFORM_ID);
   private readonly changeDetector = inject(ChangeDetectorRef);
   private readonly examples = import.meta.glob!('../../**/*.example.ts', {
     import: 'default',
@@ -80,15 +88,34 @@ export class ExampleComponent {
     this.component = (await this.examples[path]()) as Type<unknown>;
     this.changeDetector.detectChanges();
 
+    if (isPlatformServer(this.platform)) {
+      return;
+    }
+
     this.raw = ((await this.source[path]()) as string)
       // find the class name after `export class ` and replace it with `AppComponent`
       .replace(/export default class (\w+)/, 'export class AppComponent')
       // find the selector and replace it with `app-root`
       .replace(/selector:\s*'[^']*'/, "selector: 'app-root'");
 
-    const tsquery = await import('@phenomnomnominal/tsquery');
-    const ts = await import('typescript');
-    const prettier = await import('prettier/standalone');
+    // we import these from esm.sh to keep our bandwidth usage down
+    const [
+      tsquery,
+      prettier,
+      pluginEstree,
+      pluginTypescript,
+      pluginHtml,
+      pluginAngular,
+      pluginPostcss,
+    ] = await Promise.all([
+      import('https://esm.sh/@phenomnomnominal/tsquery@6.1.3'),
+      import('https://esm.sh/prettier@3.3.2/standalone'),
+      import('https://esm.sh/prettier@3.3.2/plugins/estree'),
+      import('https://esm.sh/prettier@3.3.2/plugins/typescript'),
+      import('https://esm.sh/prettier@3.3.2/plugins/html'),
+      import('https://esm.sh/prettier@3.3.2/plugins/angular'),
+      import('https://esm.sh/prettier@3.3.2/plugins/postcss'),
+    ]);
 
     const ast = tsquery.ast(this.raw);
     const templateProperty = tsquery.query<PropertyAssignment>(
@@ -104,27 +131,24 @@ export class ExampleComponent {
     let styles: string | undefined;
 
     // the template property must exist and must be a string literal or a template literal
-    if (templateProperty && ts.isStringLiteral(templateProperty.initializer)) {
+    if (templateProperty && isStringLiteral(templateProperty.initializer)) {
       template = templateProperty.initializer.text;
-    } else if (
-      templateProperty &&
-      ts.isNoSubstitutionTemplateLiteral(templateProperty.initializer)
-    ) {
+    } else if (templateProperty && isNoSubstitutionTemplateLiteral(templateProperty.initializer)) {
       template = templateProperty.initializer.text;
     } else {
       throw new Error('Template property must be a string literal or a template literal');
     }
 
     // the styles property may or may not exist and must be a string literal or a template literal
-    if (stylesProperty && ts.isStringLiteral(stylesProperty.initializer)) {
+    if (stylesProperty && isStringLiteral(stylesProperty.initializer)) {
       styles = stylesProperty.initializer.text;
     }
     // it may also be a template literal
-    else if (stylesProperty && ts.isNoSubstitutionTemplateLiteral(stylesProperty.initializer)) {
+    else if (stylesProperty && isNoSubstitutionTemplateLiteral(stylesProperty.initializer)) {
       styles = stylesProperty.initializer.text;
     }
     // it may also be an array of string literals or template literals
-    else if (stylesProperty && ts.isArrayLiteralExpression(stylesProperty.initializer)) {
+    else if (stylesProperty && isArrayLiteralExpression(stylesProperty.initializer)) {
       styles = stylesProperty.initializer.elements.map(element => element.getText()).join('\n');
     }
 
@@ -150,19 +174,16 @@ export class ExampleComponent {
 
     typescript = await prettier.format(typescript, {
       parser: 'typescript',
-      plugins: [
-        await import('prettier/plugins/estree'),
-        await import('prettier/plugins/typescript'),
-      ],
+      plugins: [pluginEstree, pluginTypescript],
     });
     template = await prettier.format(template, {
       parser: 'angular',
-      plugins: [await import('prettier/plugins/html'), await import('prettier/plugins/angular')],
+      plugins: [pluginHtml, pluginAngular],
     });
     styles = styles
       ? await prettier.format(styles, {
           parser: 'css',
-          plugins: [await import('prettier/plugins/postcss')],
+          plugins: [pluginPostcss],
         })
       : undefined;
 
@@ -198,3 +219,15 @@ export class ExampleComponent {
 
 type Language = 'html' | 'typescript' | 'styles';
 type Tab = { label: string; value: Language };
+
+function isStringLiteral(node: Node): node is StringLiteral {
+  return node.kind === 11;
+}
+
+function isNoSubstitutionTemplateLiteral(node: Node): node is NoSubstitutionTemplateLiteral {
+  return node.kind === 15;
+}
+
+function isArrayLiteralExpression(node: Node): node is ArrayLiteralExpression {
+  return node.kind === 209;
+}
