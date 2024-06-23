@@ -39,7 +39,8 @@ pre[class*='language-'] {
 
 .token.function,
 .token.tag,
-.token.class-name {
+.token.class-name,
+.token.selector {
   color: #ffc799;
 }
 
@@ -49,7 +50,8 @@ pre[class*='language-'] {
 }
 
 .token.attr-value,
-.token.string {
+.token.string,
+.token.property {
   color: #99ffe4;
 }
 

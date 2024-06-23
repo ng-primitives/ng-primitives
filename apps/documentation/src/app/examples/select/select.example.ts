@@ -13,12 +13,37 @@ import {
   selector: 'app-select',
   imports: [NgIcon, NgpSelectButton, NgpSelect, NgpSelectOption, NgpSelectOptions],
   viewProviders: [provideIcons({ heroChevronDownMini })],
+  styles: `
+    [ngpSelect] {
+      position: relative;
+      width: 18rem;
+      margin-top: -6rem;
+    }
+
+    [ngpSelectButton] {
+      position: relative;
+      height: 2.5rem;
+      width: 100%;
+      padding: 0 1rem;
+      border-radius: 0.5rem;
+      background-color: rgb(255 255 255);
+      text-align: start;
+      box-shadow:
+        0 1px 3px 0 rgb(0 0 0 / 0.1),
+        0 1px 2px -1px rgb(0 0 0 / 0.1),
+        0 0 0 1px rgb(0 0 0 / 0.05);
+      outline: none;
+    }
+
+    [ngpSelectButton]:focus-visible {
+      box-shadow:
+        0 0 0 1px rgb(0 0 0 / 0.05),
+        0 0 0 2px rgb(59 130 246);
+    }
+  `,
   template: `
-    <div class="relative -mt-24 w-72" [(ngpSelectValue)]="selectedEmployee" ngpSelect>
-      <button
-        class="relative h-10 w-full rounded-lg bg-white px-4 text-start shadow outline-none ring-1 ring-black/5 focus-visible:ring-2 focus-visible:ring-blue-500"
-        ngpSelectButton
-      >
+    <div [(ngpSelectValue)]="selectedEmployee" ngpSelect>
+      <button ngpSelectButton>
         <span class="block truncate">{{ selectedEmployee().name }}</span>
         <span class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
           <ng-icon class="text-xl text-neutral-500" name="heroChevronDownMini" aria-hidden="true" />

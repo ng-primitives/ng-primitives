@@ -5,37 +5,62 @@ import { NgpTabButton, NgpTabList, NgpTabPanel, NgpTabset } from 'ng-primitives/
   standalone: true,
   selector: 'app-tabs',
   imports: [NgpTabset, NgpTabList, NgpTabButton, NgpTabPanel],
+  styles: `
+    :host {
+      display: contents;
+    }
+
+    [ngpTabset] {
+      width: 100%;
+      max-width: 512px;
+      border-radius: 0.75rem;
+      background-color: rgb(255 255 255);
+      padding: 0.25rem 1rem;
+      box-shadow:
+        0 1px 3px 0 rgb(0 0 0 / 0.1),
+        0 1px 2px -1px rgb(0 0 0 / 0.1),
+        0 0 0 1px rgb(0 0 0 / 0.05);
+    }
+
+    [ngpTabList] {
+      display: flex;
+      gap: 1.5rem;
+      border-bottom: 1px solid rgb(229 231 235);
+    }
+
+    [ngpTabButton] {
+      margin-bottom: -1px;
+      border-bottom: 2px solid transparent;
+      padding: 0.5rem 0;
+      outline: none;
+      transition: all 150ms cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    [ngpTabButton]:focus-visible {
+      box-shadow:
+        0 0 0 1px rgb(0 0 0 / 0.05),
+        0 0 0 2px rgb(59 130 246);
+    }
+
+    [ngpTabButton][data-state='active'] {
+      border-color: rgb(9 9 11);
+      color: rgb(9 9 11);
+    }
+
+    [ngpTabPanel] {
+      padding: 0.5rem 0;
+      outline: none;
+    }
+  `,
   template: `
-    <div
-      class="w-full max-w-[512px] rounded-xl bg-white px-4 py-1 shadow ring-1 ring-black/5"
-      [(ngpTabsetValue)]="selectedTab"
-      ngpTabset
-    >
-      <div class="flex gap-x-6 border-b" ngpTabList>
-        <button
-          class="-mb-px border-b-2 border-transparent py-2 outline-none transition-all focus-visible:ring-2 focus-visible:ring-blue-500 data-[state=active]:border-zinc-950 data-[state=active]:text-zinc-950"
-          ngpTabButton
-          ngpTabButtonValue="overview"
-        >
-          Overview
-        </button>
-        <button
-          class="-mb-px border-b-2 border-transparent py-2 outline-none transition-all focus-visible:ring-2 focus-visible:ring-blue-500 data-[state=active]:border-zinc-950 data-[state=active]:text-zinc-950"
-          ngpTabButton
-          ngpTabButtonValue="features"
-        >
-          Features
-        </button>
-        <button
-          class="-mb-px border-b-2 border-transparent py-2 outline-none transition-all focus-visible:ring-2 focus-visible:ring-blue-500 data-[state=active]:border-zinc-950 data-[state=active]:text-zinc-950"
-          ngpTabButton
-          ngpTabButtonValue="pricing"
-        >
-          Pricing
-        </button>
+    <div [(ngpTabsetValue)]="selectedTab" ngpTabset>
+      <div ngpTabList>
+        <button ngpTabButton ngpTabButtonValue="overview">Overview</button>
+        <button ngpTabButton ngpTabButtonValue="features">Features</button>
+        <button ngpTabButton ngpTabButtonValue="pricing">Pricing</button>
       </div>
 
-      <div class="py-2" ngpTabPanel ngpTabPanelValue="overview">
+      <div ngpTabPanel ngpTabPanelValue="overview">
         <p>
           Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aliquam ultricies lacinia arcu,
           in dignissim magna mollis in. Proin ac faucibus sem. Aliquam sit amet augue non risus
@@ -44,7 +69,7 @@ import { NgpTabButton, NgpTabList, NgpTabPanel, NgpTabset } from 'ng-primitives/
         </p>
       </div>
 
-      <div class="py-2" ngpTabPanel ngpTabPanelValue="features">
+      <div ngpTabPanel ngpTabPanelValue="features">
         <p>
           Cras eget sem ac velit pellentesque lobortis at in ex. Vestibulum nisl diam, eleifend eget
           malesuada a, cursus id ante. Morbi fringilla, metus nec consectetur maximus, leo purus
@@ -53,7 +78,7 @@ import { NgpTabButton, NgpTabList, NgpTabPanel, NgpTabset } from 'ng-primitives/
         </p>
       </div>
 
-      <div class="py-2" ngpTabPanel ngpTabPanelValue="pricing">
+      <div ngpTabPanel ngpTabPanelValue="pricing">
         <p>
           Praesent vehicula erat ac massa egestas viverra. Pellentesque urna magna, consectetur
           convallis ante vel, posuere aliquet arcu. Duis eu nulla id sapien lobortis bibendum eget
@@ -62,11 +87,6 @@ import { NgpTabButton, NgpTabList, NgpTabPanel, NgpTabset } from 'ng-primitives/
         </p>
       </div>
     </div>
-  `,
-  styles: `
-    :host {
-      display: contents;
-    }
   `,
 })
 export default class TabsExample {

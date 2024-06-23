@@ -5,19 +5,59 @@ import { NgpSlider, NgpSliderRange, NgpSliderThumb, NgpSliderTrack } from 'ng-pr
   standalone: true,
   selector: 'app-slider',
   imports: [NgpSlider, NgpSliderRange, NgpSliderThumb, NgpSliderTrack],
+  styles: `
+    [ngpSlider] {
+      display: flex;
+      position: relative;
+      width: 200px;
+      height: 20px;
+      touch-action: none;
+      user-select: none;
+      align-items: center;
+    }
+
+    [ngpSliderTrack] {
+      position: relative;
+      height: 5px;
+      width: 100%;
+      border-radius: 999px;
+      background-color: rgb(0 0 0 / 20%);
+    }
+
+    [ngpSliderRange] {
+      position: absolute;
+      height: 100%;
+      border-radius: 999px;
+      background-color: rgb(9 9 11);
+    }
+
+    [ngpSliderThumb] {
+      position: absolute;
+      display: block;
+      height: 20px;
+      width: 20px;
+      border-radius: 10px;
+      background-color: rgb(255 255 255);
+      box-shadow:
+        0 1px 3px 0 rgb(0 0 0 / 0.1),
+        0 1px 2px -1px rgb(0 0 0 / 0.1),
+        0 0 0 1px rgb(0 0 0 / 0.05);
+      outline: none;
+      transform: translateX(-50%);
+    }
+
+    [ngpSliderThumb]:focus-visible {
+      box-shadow:
+        0 0 0 1px rgb(0 0 0 / 0.05),
+        0 0 0 2px rgb(59 130 246);
+    }
+  `,
   template: `
-    <div
-      class="relative flex h-5 w-[200px] touch-none select-none items-center"
-      [(ngpSliderValue)]="value"
-      ngpSlider
-    >
-      <div class="relative h-[5px] grow rounded-full bg-black/20" ngpSliderTrack>
-        <div class="absolute h-full rounded-full bg-zinc-950" ngpSliderRange></div>
+    <div [(ngpSliderValue)]="value" ngpSlider>
+      <div ngpSliderTrack>
+        <div ngpSliderRange></div>
       </div>
-      <div
-        class="absolute block size-5 -translate-x-1/2 rounded-[10px] bg-white shadow outline-none ring-1 ring-black/5 focus-visible:ring-2 focus-visible:ring-blue-500"
-        ngpSliderThumb
-      ></div>
+      <div ngpSliderThumb></div>
     </div>
   `,
 })

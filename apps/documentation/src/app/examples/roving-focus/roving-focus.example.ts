@@ -24,63 +24,90 @@ import { NgpRovingFocusGroup, NgpRovingFocusItem } from 'ng-primitives/roving-fo
       heroCog6Tooth,
     }),
   ],
+  styles: `
+    [ngpRovingFocusGroup] {
+      display: flex;
+      column-gap: 0.25rem;
+      align-items: center;
+      border-radius: 0.375rem;
+      background-color: rgb(255 255 255);
+      box-shadow:
+        0 1px 3px 0 rgb(0 0 0 / 0.1),
+        0 1px 2px -1px rgb(0 0 0 / 0.1),
+        0 0 0 1px rgb(0 0 0 / 0.05);
+      padding: 0.25rem;
+    }
+
+    [ngpRovingFocusItem] {
+      display: flex;
+      width: 2rem;
+      height: 2rem;
+      align-items: center;
+      justify-content: center;
+      border-radius: 0.25rem;
+      outline: none;
+      transition: all 150ms cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    [ngpRovingFocusItem]:hover {
+      background-color: rgb(250 250 250);
+      box-shadow: 0 0 0 1px rgb(0 0 0 / 0.05);
+    }
+
+    [ngpRovingFocusItem]:focus-visible {
+      box-shadow:
+        0 0 0 1px rgb(0 0 0 / 0.05),
+        0 0 0 2px rgb(59 130 246);
+    }
+
+    [ngpRovingFocusItem]:active {
+      background-color: rgb(245 245 245);
+    }
+
+    ng-icon {
+      font-size: 1.125rem;
+      color: rgb(64 64 64);
+    }
+
+    .divider {
+      width: 1px;
+      height: 1.5rem;
+      background-color: rgb(229 229 229);
+      margin: 0 0.25rem;
+    }
+  `,
   template: `
     <div
-      class="flex items-center gap-x-1 rounded-md bg-white p-1 shadow ring-1 ring-black/5"
       ngpRovingFocusGroup
       ngpRovingFocusGroupOrientation="horizontal"
       ngpRovingFocusGroupWrap="true"
       ngpRovingFocusGroupHomeEnd="true"
     >
-      <button
-        class="inline-flex size-8 items-center justify-center rounded outline-none transition-all hover:bg-neutral-50 hover:ring-1 hover:ring-black/5 focus-visible:ring-2 focus-visible:ring-blue-500 active:bg-neutral-100"
-        type="button"
-        ngpRovingFocusItem
-      >
-        <ng-icon class="text-lg text-neutral-700" name="heroDocument" />
+      <button type="button" ngpRovingFocusItem>
+        <ng-icon name="heroDocument" />
       </button>
-      <button
-        class="inline-flex size-8 items-center justify-center rounded outline-none transition-all hover:bg-neutral-50 hover:ring-1 hover:ring-black/5 focus-visible:ring-2 focus-visible:ring-blue-500 active:bg-neutral-100"
-        type="button"
-        ngpRovingFocusItem
-      >
-        <ng-icon class="text-lg text-neutral-700" name="heroFolder" />
+      <button type="button" ngpRovingFocusItem>
+        <ng-icon name="heroFolder" />
       </button>
 
-      <div class="mx-1 h-6 w-px bg-neutral-200"></div>
+      <div class="divider"></div>
 
-      <button
-        class="inline-flex size-8 items-center justify-center rounded outline-none transition-all hover:bg-neutral-50 hover:ring-1 hover:ring-black/5 focus-visible:ring-2 focus-visible:ring-blue-500 active:bg-neutral-100"
-        type="button"
-        ngpRovingFocusItem
-      >
-        <ng-icon class="text-lg text-neutral-700" name="heroBars3BottomLeft" />
+      <button type="button" ngpRovingFocusItem>
+        <ng-icon name="heroBars3BottomLeft" />
       </button>
 
-      <button
-        class="inline-flex size-8 items-center justify-center rounded outline-none transition-all hover:bg-neutral-50 hover:ring-1 hover:ring-black/5 focus-visible:ring-2 focus-visible:ring-blue-500 active:bg-neutral-100"
-        type="button"
-        ngpRovingFocusItem
-      >
-        <ng-icon class="text-lg text-neutral-700" name="heroBars3" />
+      <button type="button" ngpRovingFocusItem>
+        <ng-icon name="heroBars3" />
       </button>
 
-      <button
-        class="inline-flex size-8 items-center justify-center rounded outline-none transition-all hover:bg-neutral-50 hover:ring-1 hover:ring-black/5 focus-visible:ring-2 focus-visible:ring-blue-500 active:bg-neutral-100"
-        type="button"
-        ngpRovingFocusItem
-      >
-        <ng-icon class="text-lg text-neutral-700" name="heroBars3BottomRight" />
+      <button type="button" ngpRovingFocusItem>
+        <ng-icon name="heroBars3BottomRight" />
       </button>
 
-      <div class="mx-1 h-6 w-px bg-neutral-200"></div>
+      <div class="divider"></div>
 
-      <button
-        class="inline-flex size-8 items-center justify-center rounded outline-none transition-all hover:bg-neutral-50 hover:ring-1 hover:ring-black/5 focus-visible:ring-2 focus-visible:ring-blue-500 active:bg-neutral-100"
-        type="button"
-        ngpRovingFocusItem
-      >
-        <ng-icon class="text-lg text-neutral-700" name="heroCog6Tooth" />
+      <button type="button" ngpRovingFocusItem>
+        <ng-icon name="heroCog6Tooth" />
       </button>
     </div>
   `,

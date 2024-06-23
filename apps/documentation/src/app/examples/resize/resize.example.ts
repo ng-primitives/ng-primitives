@@ -5,11 +5,23 @@ import { Dimensions, NgpResize } from 'ng-primitives/resize';
   standalone: true,
   selector: 'app-resize',
   imports: [NgpResize],
+  styles: `
+    div {
+      display: flex;
+      height: 7rem;
+      max-height: 200px;
+      min-width: 7rem;
+      resize: both;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      border-radius: 0.25rem;
+      border: 1px dashed rgb(10 10 10);
+      padding: 1rem;
+    }
+  `,
   template: `
-    <div
-      class="flex h-28 max-h-[200px] min-w-28 resize items-center justify-center overflow-hidden rounded border border-dashed border-neutral-950 p-4"
-      (ngpResize)="dimensions.set($event)"
-    >
+    <div (ngpResize)="dimensions.set($event)">
       {{ dimensions().width }} x {{ dimensions().height }}
     </div>
   `,

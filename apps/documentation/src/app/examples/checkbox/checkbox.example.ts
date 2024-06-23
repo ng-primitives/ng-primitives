@@ -13,25 +13,66 @@ import {
   selector: 'app-checkbox',
   imports: [NgIcon, NgpCheckbox, NgpCheckboxIndicator, NgpCheckboxLabel, NgpCheckboxInput],
   viewProviders: [provideIcons({ heroCheckMini })],
+  styles: `
+    [ngpCheckbox] {
+      display: flex;
+      user-select: none;
+      align-items: center;
+      column-gap: 0.75rem;
+    }
+
+    [ngpCheckbox]:hover [ngpCheckboxIndicator]:not([data-state='checked']) {
+      background-color: rgb(250 250 250);
+    }
+
+    [ngpCheckboxIndicator] {
+      display: flex;
+      width: 1.25rem;
+      height: 1.25rem;
+      cursor: pointer;
+      align-items: center;
+      justify-content: center;
+      border-radius: 0.25rem;
+      border: 1px solid rgb(229 229 229);
+      background-color: rgb(255 255 255);
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+      outline: none;
+    }
+
+    [ngpCheckboxIndicator][data-state='checked'] {
+      border-color: rgb(10 10 10);
+      background-color: rgb(10 10 10);
+    }
+
+    [ngpCheckboxIndicator]:focus-visible {
+      box-shadow:
+        0 1px 2px rgba(0, 0, 0, 0.05),
+        0 0 0 2px rgb(255, 255, 255),
+        0 0 0 4px rgb(59 130 246);
+    }
+
+    [ngpCheckboxLabel] {
+      cursor: pointer;
+      font-size: 0.875rem;
+      font-weight: 500;
+      color: rgb(10 10 10);
+    }
+
+    ng-icon {
+      color: rgb(255 255 255);
+      font-size: 0.75rem;
+    }
+  `,
   template: `
-    <div
-      class="group flex select-none items-center gap-x-3"
-      [(ngpCheckboxChecked)]="checked"
-      ngpCheckbox
-    >
+    <div [(ngpCheckboxChecked)]="checked" ngpCheckbox>
       <input ngpCheckboxInput />
 
-      <button
-        class="flex size-5 cursor-pointer items-center justify-center rounded border border-neutral-200 bg-white shadow-sm outline-none ring-offset-2 focus-visible:ring-2 focus-visible:ring-blue-500 group-hover:bg-neutral-50 data-[state=checked]:border-neutral-950 data-[state=checked]:bg-neutral-950 data-[state=checked]:group-hover:bg-neutral-950"
-        ngpCheckboxIndicator
-      >
+      <button ngpCheckboxIndicator>
         @if (checked()) {
-          <ng-icon class="text-xs text-white" name="heroCheckMini" />
+          <ng-icon name="heroCheckMini" />
         }
       </button>
-      <label class="cursor-pointer text-sm font-medium text-neutral-950" ngpCheckboxLabel>
-        Accept terms and conditions
-      </label>
+      <label ngpCheckboxLabel>Accept terms and conditions</label>
     </div>
   `,
 })

@@ -6,17 +6,27 @@ import { injectDisposables } from 'ng-primitives/utils';
   standalone: true,
   selector: 'app-progress',
   imports: [NgpProgress, NgpProgressIndicator],
+  styles: `
+    [ngpProgress] {
+      position: relative;
+      height: 12px;
+      width: 320px;
+      overflow: hidden;
+      border-radius: 0.5rem;
+      border: 1px solid rgb(229 229 229);
+      background-color: rgb(255 255 255);
+    }
+
+    [ngpProgressIndicator] {
+      height: 100%;
+      border-radius: 0.5rem;
+      background-color: rgb(10 10 10);
+      transition: width 150ms cubic-bezier(0.4, 0, 0.2, 1);
+    }
+  `,
   template: `
-    <div
-      class="relative h-3 w-80 overflow-hidden rounded-lg border border-neutral-200 bg-white"
-      [ngpProgressValue]="value()"
-      ngpProgress
-    >
-      <div
-        class="h-full rounded-full bg-neutral-950 transition-all"
-        [style.width.%]="value()"
-        ngpProgressIndicator
-      ></div>
+    <div [ngpProgressValue]="value()" ngpProgress>
+      <div [style.width.%]="value()" ngpProgressIndicator></div>
     </div>
   `,
 })

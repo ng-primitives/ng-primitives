@@ -55,7 +55,7 @@ export class ExampleComponent {
     const tabs: Tab[] = [
       { label: 'HTML', value: 'html' },
       { label: 'TypeScript', value: 'typescript' },
-      { label: 'Styles', value: 'styles' },
+      { label: 'CSS', value: 'css' },
     ];
 
     return tabs.filter(tab => this[tab.value]() !== null);
@@ -69,7 +69,7 @@ export class ExampleComponent {
 
   private raw: string | null = null;
   private html = signal<string | null>(null);
-  private styles = signal<string | null>(null);
+  private css = signal<string | null>(null);
   private typescript = signal<string | null>(null);
 
   @Input({ required: true }) set name(name: string) {
@@ -188,7 +188,7 @@ export class ExampleComponent {
       : undefined;
 
     this.html.set(highlight(template.trim(), languages['html'], 'html'));
-    this.styles.set(styles ? highlight(styles.trim(), languages['css'], 'css') : null);
+    this.css.set(styles ? highlight(styles.trim(), languages['css'], 'css') : null);
     this.typescript.set(highlight(typescript, languages['typescript'], 'typescript'));
 
     this.changeDetector.detectChanges();
@@ -217,7 +217,7 @@ export class ExampleComponent {
   }
 }
 
-type Language = 'html' | 'typescript' | 'styles';
+type Language = 'html' | 'typescript' | 'css';
 type Tab = { label: string; value: Language };
 
 function isStringLiteral(node: Node): node is StringLiteral {
