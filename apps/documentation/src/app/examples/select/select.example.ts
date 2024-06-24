@@ -40,28 +40,107 @@ import {
         0 0 0 1px rgb(0 0 0 / 0.05),
         0 0 0 2px rgb(59 130 246);
     }
+
+    .select-value {
+      display: block;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .select-chevron {
+      pointer-events: none;
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      right: 0;
+      display: flex;
+      align-items: center;
+      padding-right: 0.5rem;
+    }
+
+    .select-chevron ng-icon {
+      font-size: 1.25rem;
+      color: rgb(115 115 115);
+    }
+
+    [ngpSelectOptions] {
+      display: flex;
+      overflow: auto;
+      position: absolute;
+      max-height: 15rem;
+      padding: 0.25rem;
+      margin-top: 0.25rem;
+      flex-direction: column;
+      row-gap: 0.125rem;
+      border-radius: 0.5rem;
+      overflow: auto;
+      outline: none;
+      width: 100%;
+      background-color: #fff;
+      box-shadow:
+        0 4px 6px -1px rgb(0 0 0 / 0.1),
+        0 2px 4px -2px rgb(0 0 0 / 0.1),
+        0 0 0 1px rgb(0 0 0 / 0.05);
+    }
+
+    [ngpSelectOptions][data-state='closed'] {
+      display: none;
+    }
+
+    [ngpSelectOption] {
+      display: flex;
+      padding: 0.375rem 1rem;
+      flex-direction: column;
+      row-gap: 0.125rem;
+      border-radius: 0.25rem;
+      color: rgb(17 24 39);
+      cursor: pointer;
+      scroll-margin-top: 0.25rem;
+      scroll-margin-bottom: 0.25rem;
+      user-select: none;
+    }
+
+    [ngpSelectOption]:hover {
+      background-color: rgb(250 250 250);
+      box-shadow: 0 0 0 1px rgb(0 0 0 / 0.05);
+    }
+
+    [ngpSelectOption][data-active] {
+      box-shadow: 0 0 0 1px rgb(59 130 246 / 0.2);
+      background-color: rgb(239 246 255);
+    }
+
+    .select-option-title {
+      display: block;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .select-option-subtitle {
+      display: block;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      font-size: 0.75rem;
+      color: rgb(115 115 115);
+    }
   `,
   template: `
     <div [(ngpSelectValue)]="selectedEmployee" ngpSelect>
       <button ngpSelectButton>
-        <span class="block truncate">{{ selectedEmployee().name }}</span>
-        <span class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
-          <ng-icon class="text-xl text-neutral-500" name="heroChevronDownMini" aria-hidden="true" />
+        <span class="select-value">{{ selectedEmployee().name }}</span>
+        <span class="select-chevron">
+          <ng-icon name="heroChevronDownMini" aria-hidden="true" />
         </span>
       </button>
 
-      <ul
-        class="absolute mt-1 flex max-h-60 w-full flex-col gap-y-0.5 overflow-auto rounded-lg bg-white p-1 shadow-md outline-none ring-1 ring-black/5 data-[state=closed]:hidden"
-        ngpSelectOptions
-      >
+      <ul ngpSelectOptions>
         @for (employee of employees; track employee.id) {
-          <li
-            class="flex cursor-pointer select-none scroll-my-1 flex-col gap-y-0.5 rounded py-1.5 pl-4 pr-4 text-gray-900 hover:bg-neutral-50 hover:ring-1 hover:ring-black/5 data-[active]:bg-blue-50 data-[active]:ring-1 data-[active]:ring-blue-500/20"
-            [ngpSelectOptionValue]="employee"
-            ngpSelectOption
-          >
-            <span class="block truncate">{{ employee.name }}</span>
-            <span class="block truncate text-xs text-neutral-500">{{ employee.role }}</span>
+          <li [ngpSelectOptionValue]="employee" ngpSelectOption>
+            <span class="select-option-title">{{ employee.name }}</span>
+            <span class="select-option-subtitle">{{ employee.role }}</span>
           </li>
         }
       </ul>
