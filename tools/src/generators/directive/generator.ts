@@ -47,7 +47,8 @@ export async function directiveGenerator(tree: Tree, options: DirectiveGenerator
 
   if (options.addDocumentation) {
     await documentationGenerator(tree, {
-      name: options.primitive,
+      name: options.name,
+      primitive: options.primitive,
       description: '',
     });
   }

@@ -18,11 +18,15 @@
       "description": "What is the description of the primitive?",
       "x-prompt": "What description would you like to use?"
     },
+    "primitive": {
+      "type": "string",
+      "description": "What primitive does this feature belong to?"
+    },
     "example": {
       "type": "boolean",
       "description": "Would you like to create an example?",
       "default": false
     }
   },
-  "required": ["name", "description"]
+  "required": ["name", "description", "primitive"]
 }

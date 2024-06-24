@@ -14,7 +14,7 @@ export async function documentationGenerator(tree: Tree, options: DocumentationG
   if (options.example) {
     await exampleGenerator(tree, {
       directive: options.name,
-      primitive: options.name,
+      primitive: options.primitive,
     });
   }
 

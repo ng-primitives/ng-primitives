@@ -10,10 +10,10 @@ title: '<%= className %>'
 
 ## Import
 
-Import the <%= className %> primitives from `ng-primitives/<%= fileName %>`.
+Import the <%= className %> primitives from `ng-primitives/<%= primitive %>`.
 
 ```ts
-import { Ngp<%= className %> } from 'ng-primitives/<%= fileName %>';
+import { Ngp<%= className %> } from 'ng-primitives/<%= primitive %>';
 ```
 
 
@@ -28,7 +28,7 @@ Assemble the <%= fileName %> directives in your template.
 
 ## API Reference
 
-The following directives are available to import from the `ng-primitives/<%= fileName %>` package:
+The following directives are available to import from the `ng-primitives/<%= primitive %>` package:
 
 ### Ngp<%= className %>
 
@@ -40,7 +40,7 @@ The following directives are available to import from the `ng-primitives/<%= fil
 You can configure the default options for all <%= fileName %>s in your application by using the `provideNgp<%= className %>Config` function in a providers array.
 
 ```ts
-import { provideNgp<%= className %>Config } from 'ng-primitives/<%= fileName %>';
+import { provideNgp<%= className %>Config } from 'ng-primitives/<%= primitive %>';
 
 bootstrapApplication(AppComponent, {
   providers: [
