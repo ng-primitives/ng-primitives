@@ -53,6 +53,7 @@ export class NgpFocus {
 
   /**
    * Listen for focus events.
+   * @param event
    */
   @HostListener('focus', ['$event'])
   protected onFocus(event: FocusEvent) {
@@ -72,6 +73,7 @@ export class NgpFocus {
 
   /**
    * Listen for blur events.
+   * @param event
    */
   @HostListener('blur', ['$event'])
   protected onBlur(event: FocusEvent) {
