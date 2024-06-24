@@ -65,3 +65,5 @@ Once Angular Primitives is installed, you can start using the primitives in your
 It is best to create a reuable component that encapsulates the primitives, so that you can easily reuse it throughout your application.
 
 Our primitives can be used both within a template or as a host directive on a component giving you the flexibility to choose the best approach for your use case.
+
+Our primitives add `data-` attributes to the elements they are applied to based on their current state. This allows you to easily style the primitives using CSS without having to rely on JavaScript.
