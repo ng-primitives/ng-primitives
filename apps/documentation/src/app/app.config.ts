@@ -13,6 +13,8 @@ import { provideClientHydration } from '@angular/platform-browser';
 import { withInMemoryScrolling } from '@angular/router';
 import { ExampleComponent } from './components/example/example.component';
 import { ResponseFieldComponent } from './components/response-field/response-field.component';
+import { TabGroupComponent } from './components/tab-group/tab-group.component';
+import { TabComponent } from './components/tab/tab.component';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -45,6 +47,9 @@ export function initializeCustomElements(
         'response-field',
         createCustomElement(ResponseFieldComponent, { injector }),
       );
+
+      customElements.define('tab-group', createCustomElement(TabGroupComponent, { injector }));
+      customElements.define('tab-item', createCustomElement(TabComponent, { injector }));
     }
   };
 }

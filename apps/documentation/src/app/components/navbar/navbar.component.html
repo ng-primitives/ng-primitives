@@ -11,18 +11,7 @@
     <img class="hidden h-8 w-auto md:block" src="assets/logo.svg" alt="Angular Primitives" />
     <img class="block h-8 w-auto md:hidden" src="assets/logo-small.svg" alt="Angular Primitives" />
 
-    <div
-      class="absolute left-[calc(50%-160px)] hidden h-9 w-80 flex-none items-center gap-x-3 overflow-hidden rounded-lg bg-white px-3 shadow shadow-black/5 ring-1 ring-black/10 focus-within:ring-2 focus-within:ring-blue-500 lg:inline-flex"
-      (click)="search.focus()"
-    >
-      <ng-icon class="text-lg text-zinc-400" name="lucideSearch" />
-      <input
-        class="h-full w-full bg-transparent outline-none"
-        #search
-        type="text"
-        placeholder="Search for something..."
-      />
-    </div>
+    <div id="docsearch"></div>
 
     <div class="ml-auto inline-flex gap-x-2">
       <a
@@ -36,11 +25,3 @@
     </div>
   </nav>
 </header>
-
-<!-- <div class="absolute inset-0 -z-10 mx-0 max-w-none overflow-hidden">
-  <div class="absolute left-28 right-28 top-0 h-[25rem]">
-    <div
-      class="absolute inset-0 bg-gradient-to-r from-[#B43636] to-[#FFC075] opacity-20 [mask-image:radial-gradient(farthest-side_at_top,white,transparent)]"
-    ></div>
-  </div>
-</div> -->

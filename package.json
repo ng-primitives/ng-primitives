@@ -91,6 +91,7 @@
     "@angular/platform-browser-dynamic": "18.0.2",
     "@angular/platform-server": "18.0.2",
     "@angular/router": "18.0.2",
+    "@docsearch/js": "^3.6.0",
     "@floating-ui/dom": "^1.6.4",
     "@ng-icons/bootstrap-icons": "^28.0.0",
     "@ng-icons/core": "^27.4.0",

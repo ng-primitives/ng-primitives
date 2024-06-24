@@ -10,9 +10,9 @@ order: 2
 Angular Primitives is distributed as a single package with entrypoints for each primitive.
 This makes it easy to install and update, while keeping the bundle size as small as possible.
 
-### Angular CLI
-
-To install Angular Primitives using the Angular CLI, run the following command:
+<tab-group>
+  <tab-item label="Angular CLI">
+    To install Angular Primitives using the Angular CLI, run the following command:
 
 ```bash npm
 ng add ng-primitives
@@ -20,9 +20,10 @@ ng add ng-primitives
 
 This command will install Angular Primitives and add the necessary dependencies to your project.
 
-### Nx
+  </tab-item>
 
-To install Angular Primitives using Nx, run the following command:
+  <tab-item label="Nx">
+    To install Angular Primitives using Nx, run the following command:
 
 ```bash npm
 nx add ng-primitives
@@ -30,8 +31,10 @@ nx add ng-primitives
 
 This command will install Angular Primitives and add the necessary dependencies to your project.
 
-## Manual Installation
+  </tab-item>
 
+  <tab-item label="Manual Installation">
+    
 To manually install Angular Primitives, run the following command:
 
 ```bash npm
@@ -52,3 +55,13 @@ To install these dependencies, run the following command:
 ```bash
 npm i @angular/cdk@^18.0.0 @floating-ui/dom@^1.6.0
 ```
+
+  </tab-item>
+</tab-group>
+
+## Usage
+
+Once Angular Primitives is installed, you can start using the primitives in your Angular application.
+It is best to create a reuable component that encapsulates the primitives, so that you can easily reuse it throughout your application.
+
+Our primitives can be used both within a template or as a host directive on a component giving you the flexibility to choose the best approach for your use case.

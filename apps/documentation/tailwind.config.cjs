@@ -12,6 +12,10 @@ module.exports = {
       fontFamily: {
         sans: ['InterVariable', 'sans-serif'],
       },
+      colors: {
+        primary: '#e90364',
+        accent: '#fa2c05',
+      },
       typography: theme => ({
         zinc: {
           css: {
