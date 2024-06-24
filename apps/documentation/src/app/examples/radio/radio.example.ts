@@ -5,78 +5,122 @@ import { NgpRadioGroup, NgpRadioIndicator, NgpRadioItem } from 'ng-primitives/ra
   standalone: true,
   selector: 'app-radio',
   imports: [NgpRadioGroup, NgpRadioItem, NgpRadioIndicator],
+  styles: `
+    [ngpRadioGroup] {
+      display: flex;
+      flex-direction: column;
+      row-gap: 1rem;
+    }
+
+    [ngpRadioItem] {
+      display: grid;
+      cursor: pointer;
+      grid-template-columns: auto 1fr;
+      grid-template-rows: repeat(2, auto);
+      column-gap: 0.625rem;
+      row-gap: 0.125rem;
+      border-radius: 0.5rem;
+      background-color: white;
+      padding: 0.75rem 1rem;
+      box-shadow:
+        0 1px 3px 0 rgb(0 0 0 / 0.1),
+        0 1px 2px -1px rgb(0 0 0 / 0.1),
+        0 0 0 1px rgb(0 0 0 / 0.05);
+      outline: none;
+    }
+
+    [ngpRadioItem]:hover {
+      background-color: rgb(250 250 250);
+    }
+
+    [ngpRadioItem]:focus-visible {
+      box-shadow:
+        0 0 0 2px #f5f5f5,
+        0 0 0 4px rgb(59 130 246 / 50%);
+    }
+
+    [ngpRadioItem]:active {
+      background-color: rgb(245 245 245);
+    }
+
+    [ngpRadioItem][data-state='checked'] {
+      background-color: rgb(10 10 10);
+    }
+
+    [ngpRadioIndicator] {
+      display: inline-flex;
+      grid-column-start: 1;
+      grid-row-start: 1;
+      justify-content: center;
+      align-items: center;
+      align-self: center;
+      border-radius: 9999px;
+      width: 1rem;
+      height: 1rem;
+      box-shadow: 0 0 0 1px rgb(0 0 0 / 0.1);
+    }
+
+    [ngpRadioItem][data-state='checked'] [ngpRadioIndicator] {
+      box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.5);
+    }
+
+    .indicator-dot {
+      width: 0.5rem;
+      height: 0.5rem;
+      border-radius: 9999px;
+      background-color: white;
+    }
+
+    .title {
+      grid-column-start: 2;
+      grid-row-start: 1;
+      font-weight: 500;
+      color: rgb(10 10 10);
+    }
+
+    [ngpRadioItem][data-state='checked'] .title {
+      color: white;
+    }
+
+    .description {
+      grid-column-start: 2;
+      grid-row-start: 2;
+      font-size: 0.75rem;
+      color: rgb(82 82 82);
+      line-height: 1rem;
+    }
+
+    [ngpRadioItem][data-state='checked'] .description {
+      color: rgb(212 212 212);
+    }
+  `,
   template: `
-    <div class="flex flex-col gap-y-4" [(ngpRadioGroupValue)]="plan" ngpRadioGroup>
-      <div
-        class="group grid cursor-pointer grid-cols-[auto,1fr] grid-rows-[repeat(2,auto)] gap-x-2.5 gap-y-0.5 rounded-lg bg-white px-4 py-3 shadow outline-none ring-1 ring-black/5 hover:bg-neutral-50 focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 focus-visible:ring-offset-neutral-100 active:bg-neutral-100 data-[state=checked]:bg-neutral-950"
-        ngpRadioItem
-        ngpRadioItemValue="indie"
-      >
-        <div
-          class="col-start-1 row-start-1 inline-flex size-4 items-center justify-center self-center rounded-full ring-1 ring-black/10 group-data-[state=checked]:ring-white/50"
-          ngpRadioIndicator
-        >
-          <span class="size-2 rounded-full bg-white"></span>
+    <div [(ngpRadioGroupValue)]="plan" ngpRadioGroup>
+      <div ngpRadioItem ngpRadioItemValue="indie">
+        <div ngpRadioIndicator>
+          <span class="indicator-dot"></span>
         </div>
 
-        <p
-          class="col-start-2 row-start-1 font-medium text-neutral-950 group-data-[state=checked]:text-white"
-        >
-          Indie Plan
-        </p>
-        <p
-          class="col-start-2 row-start-2 text-xs text-neutral-600 group-data-[state=checked]:text-neutral-300"
-        >
-          For those who want to are just starting out
-        </p>
+        <p class="title">Indie Plan</p>
+        <p class="description">For those who want to are just starting out</p>
       </div>
 
-      <div
-        class="group grid cursor-pointer grid-cols-[auto,1fr] grid-rows-[repeat(2,auto)] gap-x-2.5 gap-y-0.5 rounded-lg bg-white px-4 py-3 shadow outline-none ring-1 ring-black/5 hover:bg-neutral-50 focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 focus-visible:ring-offset-neutral-100 active:bg-neutral-100 data-[state=checked]:bg-neutral-950"
-        ngpRadioItem
-        ngpRadioItemValue="growth"
-      >
-        <div
-          class="col-start-1 row-start-1 inline-flex size-4 items-center justify-center self-center rounded-full ring-1 ring-black/10 group-data-[state=checked]:ring-white/50"
-          ngpRadioIndicator
-        >
-          <span class="size-2 rounded-full bg-white"></span>
+      <div ngpRadioItem ngpRadioItemValue="growth">
+        <div ngpRadioIndicator>
+          <span class="indicator-dot"></span>
         </div>
 
-        <p
-          class="col-start-2 row-start-1 font-medium text-neutral-950 group-data-[state=checked]:text-white"
-        >
-          Growth Plan
-        </p>
-        <p
-          class="col-start-2 row-start-2 text-xs text-neutral-600 group-data-[state=checked]:text-neutral-300"
-        >
-          For those who want to grow their business
-        </p>
+        <p class="title">Growth Plan</p>
+        <p class="description">For those who want to grow their business</p>
       </div>
 
-      <div
-        class="group grid cursor-pointer grid-cols-[auto,1fr] grid-rows-[repeat(2,auto)] gap-x-2.5 gap-y-0.5 rounded-lg bg-white px-4 py-3 shadow outline-none ring-1 ring-black/5 hover:bg-neutral-50 focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 focus-visible:ring-offset-neutral-100 active:bg-neutral-100 data-[state=checked]:bg-neutral-950"
-        ngpRadioItem
-        ngpRadioItemValue="unicorn"
-      >
-        <div
-          class="col-start-1 row-start-1 inline-flex size-4 items-center justify-center self-center rounded-full ring-1 ring-black/10 group-data-[state=checked]:ring-white/50"
-          ngpRadioIndicator
-        >
-          <span class="size-2 rounded-full bg-white"></span>
+      <div ngpRadioItem ngpRadioItemValue="unicorn">
+        <div ngpRadioIndicator>
+          <span class="indicator-dot"></span>
         </div>
 
-        <p
-          class="col-start-2 row-start-1 font-medium text-neutral-950 group-data-[state=checked]:text-white"
-        >
-          Unicorn Plan
-        </p>
-        <p
-          class="col-start-2 row-start-2 text-xs text-neutral-600 group-data-[state=checked]:text-neutral-300"
-        >
-          For those who are going to the moon
-        </p>
+        <p class="title">Unicorn Plan</p>
+        <p class="description">For those who are going to the moon</p>
       </div>
     </div>
   `,
