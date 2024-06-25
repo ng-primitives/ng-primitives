@@ -5,6 +5,7 @@
   "private": true,
   "scripts": {
     "prepare": "husky",
+    "start": "nx serve documentation",
     "format": "nx format:write",
     "lint": "nx run-many -t lint",
     "test": "nx run-many -t test",

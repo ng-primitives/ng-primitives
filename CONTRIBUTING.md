@@ -24,3 +24,58 @@ Before submitting a pull request, please make sure the following steps are compl
 2. Make your changes and ensure the tests pass.
 3. Update the documentation if necessary.
 4. Submit a pull request with a detailed description of the changes.
+
+## Commit message guidelines
+
+We follow the [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/) specification for commit messages. This allows us to automatically generate a changelog and version the library.
+
+Here are a few examples of valid commit messages:
+
+- `feat(accordion): add new accordion component`
+- `fix(select): resolve issue with select panel z-index`
+- `docs(accordion): adding documentation for accordion data attributes`
+
+## Setting up the development environment
+
+To set up the development environment, follow these steps:
+
+1. Clone the repository: `git clone https://github.com/ng-primitives/ng-primitives.git`
+2. Install the dependencies: `pnpm install`
+3. Start the documentation server: `pnpm start`
+
+## Adding a new feature
+
+Angular Primitives is built with Nx which comes with support for generators. We have created several generators to help you quickly scaffold new features.
+
+The following generators are available:
+
+- `nx g @ng-primitives/tools:primitive <name>`: Generates a new secondary entry point for the library.
+- `nx g @ng-primitives/tools:directive <name> --primitive <primitive>`: Generates a new directive in the library.
+- `nx g @ng-primitives/tools:documentation <name> --description <description> --primitive <primitive>`: Generates a new documentation page for a primitive.
+- `nx g @ng-primitives/tools:example <name> --primitive <primitive>`: Generates a new example for a primitive.
+
+It is recommended to use the [Nx Console](https://nx.dev/getting-started/editor-setup) to run these generators as it provides a user-friendly interface right in your IDE.
+
+## Running the linting
+
+To run the linting, use the following command:
+
+```bash
+pnpm lint
+```
+
+## Running the tests
+
+To run the tests, use the following command:
+
+```bash
+pnpm test
+```
+
+## Building the library
+
+To build the library and documentation, use the following command:
+
+```bash
+pnpm build
+```
