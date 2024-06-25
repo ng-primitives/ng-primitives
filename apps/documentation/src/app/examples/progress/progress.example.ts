@@ -7,10 +7,15 @@ import { injectDisposables } from 'ng-primitives/utils';
   selector: 'app-progress',
   imports: [NgpProgress, NgpProgressIndicator],
   styles: `
+    :host {
+      display: contents;
+    }
+
     [ngpProgress] {
       position: relative;
       height: 12px;
-      width: 320px;
+      width: 100%;
+      max-width: 320px;
       overflow: hidden;
       border-radius: 0.5rem;
       border: 1px solid rgb(229 229 229);

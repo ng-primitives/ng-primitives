@@ -4,6 +4,8 @@ title: 'Focus'
 
 # Focus
 
+Normalizes the focus event across different browsers and devices.
+
 <docs-example name="focus"></docs-example>
 
 ## Import
@@ -19,12 +21,7 @@ import { NgpFocus } from 'ng-primitives/interactions';
 Assemble the focus directives in your template.
 
 ```html
-<div
-  ngpFocus
-  (ngpFocusFocused)="onFocused()"
-  (ngpFocusBlurred)="onBlurred()"
-  (ngpFocusChange)="onFocusChange($event)"
-></div>
+<div ngpFocus (ngpFocusChange)="onFocusChange($event)"></div>
 ```
 
 ## API Reference
@@ -38,14 +35,6 @@ The following directives are available to import from the `ng-primitives/interac
 
 <response-field name="ngpFocusDisabled" type="boolean">
   Whether listening for focus events is disabled.
-</response-field>
-
-<response-field name="ngpFocusFocused" type="void">
-  Event emitted when the element receives focus.
-</response-field>
-
-<response-field name="ngpFocusBlurred" type="void">
-  Event emitted when the element loses focus.
 </response-field>
 
 <response-field name="ngpFocusChange" type="boolean">

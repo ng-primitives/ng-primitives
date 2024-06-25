@@ -2,7 +2,9 @@
 title: 'Focus Visible'
 ---
 
-# FocusVisible
+# Focus Visible
+
+Determine whether focus should be visible based on user interaction.
 
 <docs-example name="focus-visible"></docs-example>
 
@@ -38,3 +40,11 @@ The following directives are available to import from the `ng-primitives/interac
 <response-field name="ngpFocusVisibleChange" type="boolean">
   Event emitted when the focus visible state changes.
 </response-field>
+
+#### Data Attributes
+
+The following data attributes are applied to the `ngpFocusVisible` directive:
+
+| Attribute            | Description                                         | Value             |
+| -------------------- | --------------------------------------------------- | ----------------- |
+| `data-focus-visible` | Whether the element should be visible when focused. | `true` \| `false` |

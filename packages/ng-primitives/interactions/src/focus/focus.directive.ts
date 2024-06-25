@@ -37,16 +37,6 @@ export class NgpFocus {
   });
 
   /**
-   * Emit when the element receives focus.
-   */
-  readonly focused = output<void>({ alias: 'ngpFocusFocused' });
-
-  /**
-   * Emit when the element loses focus.
-   */
-  readonly blurred = output<void>({ alias: 'ngpFocusBlurred' });
-
-  /**
    * Emit when the focus state changes.
    */
   readonly stateChange = output<boolean>({ alias: 'ngpFocusChange' });
@@ -65,7 +55,6 @@ export class NgpFocus {
 
     // ensure this element is still focused
     if (ownerDocument.activeElement === event.target && event.currentTarget === event.target) {
-      this.focused.emit();
       this.stateChange.emit(true);
       this.isFocused.set(true);
     }
@@ -82,7 +71,6 @@ export class NgpFocus {
     }
 
     if (event.currentTarget === event.target) {
-      this.blurred.emit();
       this.stateChange.emit(false);
       this.isFocused.set(false);
     }

@@ -11,11 +11,12 @@ import { RouterLink } from '@angular/router';
 import { bootstrapGithub } from '@ng-icons/bootstrap-icons';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { lucideMenu, lucideSearch } from '@ng-icons/lucide';
+import { NgpHover } from 'ng-primitives/interactions';
 
 @Component({
   selector: 'docs-navbar',
   standalone: true,
-  imports: [NgIcon, RouterLink],
+  imports: [NgIcon, RouterLink, NgpHover],
   viewProviders: [provideIcons({ lucideSearch, bootstrapGithub, lucideMenu })],
   templateUrl: './navbar.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
