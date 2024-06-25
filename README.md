@@ -4,7 +4,7 @@
 ![NPM Downloads](https://img.shields.io/npm/dt/ng-primitives)
 ![NPM Version](https://img.shields.io/npm/v/ng-primitives)
 ![GitHub Sponsors](https://img.shields.io/github/sponsors/ashley-hunter)
-[![All Contributors](https://img.shields.io/github/all-contributors/ng-primitives/ng-primitives?color=ee8449&style=flat-square)](#contributors)
+![GitHub contributors from allcontributors.org](https://img.shields.io/github/all-contributors/ng-primitives/ng-primitives)
 
 Angular Primitives is a low-level UI component library with a focus on accessibility, customization, and developer experience. Whether you're building a design system from scratch or looking to enhance your existing one, our primitives are here to support you every step of the way.
 
