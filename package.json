@@ -50,6 +50,7 @@
     "@typescript-eslint/eslint-plugin": "7.7.0",
     "@typescript-eslint/parser": "7.7.0",
     "@typescript-eslint/utils": "^8.0.0-alpha.28",
+    "all-contributors-cli": "^6.26.1",
     "autoprefixer": "^10.4.0",
     "eslint": "8.57.0",
     "eslint-config-prettier": "^9.0.0",
