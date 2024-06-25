@@ -3,5 +3,6 @@
   "dest": "../../dist/packages/ng-primitives",
   "lib": {
     "entryFile": "src/index.ts"
-  }
+  },
+  "allowedNonPeerDependencies": ["@nx/devkit"]
 }
