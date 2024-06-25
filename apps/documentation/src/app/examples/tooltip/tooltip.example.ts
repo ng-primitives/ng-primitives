@@ -58,6 +58,7 @@ import { NgpTooltip, NgpTooltipTrigger } from 'ng-primitives/tooltip';
       border-radius: 0.5rem;
       background-color: rgb(10 10 10);
       padding: 0.5rem 0.75rem;
+      border: none;
       font-size: 0.75rem;
       font-weight: 500;
       color: white;

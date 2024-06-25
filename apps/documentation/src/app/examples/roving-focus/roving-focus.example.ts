@@ -45,6 +45,8 @@ import { NgpRovingFocusGroup, NgpRovingFocusItem } from 'ng-primitives/roving-fo
       align-items: center;
       justify-content: center;
       border-radius: 0.25rem;
+      border: none;
+      background: transparent;
       outline: none;
       transition: all 150ms cubic-bezier(0.4, 0, 0.2, 1);
     }

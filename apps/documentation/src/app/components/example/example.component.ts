@@ -202,8 +202,191 @@ export class ExampleComponent {
     sdk.openProject({
       title: 'Angular Example',
       template: 'angular-cli',
+      dependencies: {
+        '@angular/animations': '^18.0.0',
+        '@angular/common': '^18.0.0',
+        '@angular/compiler': '^18.0.0',
+        '@angular/core': '^18.0.0',
+        '@angular/forms': '^18.0.0',
+        '@angular/platform-browser': '^18.0.0',
+        '@angular/router': '^18.0.0',
+        '@angular/cdk': '^18.0.0',
+        'ng-primitives': 'latest',
+        '@ng-icons/core': 'latest',
+        '@ng-icons/heroicons': 'latest',
+        '@floating-ui/dom': '^1.6.0',
+        rxjs: '^7.8.1',
+        tslib: '^2.5.0',
+        'zone.js': '~0.14.0',
+      },
       files: {
-        'src/app/app.component.ts': this.raw,
+        'src/index.html': `<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>My app</title>
+    <meta charset="UTF-8" />
+    <link rel="preconnect" href="https://rsms.me/">
+    <link rel="stylesheet" href="https://rsms.me/inter/inter.css">
+  </head>
+  <body>
+    <app-root>Loading...</app-root>
+  </body>
+</html>
+`,
+        'src/global_styles.css': `/* Add application styles & imports to this file! */
+:root {
+  font-family: InterVariable, sans-serif;
+  font-feature-settings: 'liga' 1, 'calt' 1; /* fix for Chrome */
+  background-color: rgb(250, 250, 250);
+  font-size: 14px;
+}
+
+* {
+  box-sizing: border-box;
+  font-family: inherit;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}`,
+        'src/main.ts': `import { bootstrapApplication } from '@angular/platform-browser';
+import 'zone.js';
+${this.raw}
+
+bootstrapApplication(AppComponent);`,
+        '.gitignore': `.angular
+dist
+node_modules`,
+        'angular.json': `{
+  "$schema": "./node_modules/@angular/cli/lib/config/schema.json",
+  "cli": {
+    "analytics": "1e1de97b-a744-405a-8b5a-0397bb3d01ce"
+  },
+  "newProjectRoot": "projects",
+  "projects": {
+    "demo": {
+      "architect": {
+        "build": {
+          "builder": "@angular-devkit/build-angular:application",
+          "configurations": {
+            "development": {
+              "extractLicenses": false,
+              "namedChunks": true,
+              "optimization": false,
+              "sourceMap": true
+            },
+            "production": {
+              "aot": true,
+              "extractLicenses": true,
+              "namedChunks": false,
+              "optimization": true,
+              "outputHashing": "all",
+              "sourceMap": false
+            }
+          },
+          "options": {
+            "assets": [],
+            "index": "src/index.html",
+            "browser": "src/main.ts",
+            "outputPath": "dist/demo",
+            "scripts": [],
+            "styles": ["src/global_styles.css"],
+            "tsConfig": "tsconfig.app.json"
+          }
+        },
+        "serve": {
+          "builder": "@angular-devkit/build-angular:dev-server",
+          "configurations": {
+            "development": {
+              "buildTarget": "demo:build:development"
+            },
+            "production": {
+              "buildTarget": "demo:build:production"
+            }
+          },
+          "defaultConfiguration": "development"
+        }
+      },
+      "prefix": "app",
+      "projectType": "application",
+      "root": "",
+      "schematics": {},
+      "sourceRoot": "src"
+    }
+  },
+  "version": 1
+}`,
+        'package.json': `{
+  "name": "angular-starter",
+  "private": true,
+  "scripts": {
+    "ng": "ng",
+    "start": "ng serve",
+    "build": "ng build"
+  },
+  "dependencies": {
+    "@angular/animations": "^18.0.0",
+    "@angular/common": "^18.0.0",
+    "@angular/compiler": "^18.0.0",
+    "@angular/core": "^18.0.0",
+    "@angular/forms": "^18.0.0",
+    "@angular/platform-browser": "^18.0.0",
+    "@angular/router": "^18.0.0",
+    "@angular/cdk": "^18.0.0",
+    "ng-primitives": "latest",
+    "@ng-icons/core": "latest",
+    "@ng-icons/heroicons": "latest",
+    "@floating-ui/dom": "^1.6.0",
+    "rxjs": "^7.8.1",
+    "tslib": "^2.5.0",
+    "zone.js": "~0.14.0"
+  },
+  "devDependencies": {
+    "@angular-devkit/build-angular": "^18.0.0",
+    "@angular/cli": "^18.0.1",
+    "@angular/compiler-cli": "^18.0.0",
+    "typescript": "~5.4.0"
+  }
+}`,
+        'tsconfig.app.json': `/* To learn more about this file see: https://angular.io/config/tsconfig. */
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "outDir": "./out-tsc/app",
+    "types": []
+  },
+  "files": ["src/main.ts"],
+  "include": ["src/**/*.d.ts"]
+}
+`,
+        'tsconfig.json': `/* To learn more about this file see: https://angular.io/config/tsconfig. */
+{
+  "compileOnSave": false,
+  "compilerOptions": {
+    "outDir": "./dist/out-tsc",
+    "forceConsistentCasingInFileNames": true,
+    "strict": true,
+    "noImplicitOverride": true,
+    "noPropertyAccessFromIndexSignature": true,
+    "noImplicitReturns": true,
+    "noFallthroughCasesInSwitch": true,
+    "esModuleInterop": true,
+    "sourceMap": true,
+    "declaration": false,
+    "downlevelIteration": true,
+    "experimentalDecorators": true,
+    "moduleResolution": "node",
+    "importHelpers": true,
+    "target": "ES2015",
+    "module": "ES2022",
+    "useDefineForClassFields": false,
+    "lib": ["ES2022", "dom"]
+  },
+  "angularCompilerOptions": {
+    "enableI18nLegacyMessageIdFormat": false,
+    "strictInjectionParameters": true,
+    "strictInputAccessModifiers": true,
+    "strictTemplates": true
+  }
+}`,
       },
     });
   }

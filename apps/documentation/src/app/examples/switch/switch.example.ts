@@ -24,6 +24,7 @@ import { NgpSwitch, NgpSwitchThumb } from 'ng-primitives/switch';
       border-radius: 999px;
       background-color: rgb(229 229 229);
       border: 1px solid rgb(212 212 212);
+      padding: 0;
       outline: none;
       transition-property: color, background-color, border-color, text-decoration-color, fill,
         stroke;

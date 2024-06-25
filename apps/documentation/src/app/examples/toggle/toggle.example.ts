@@ -14,6 +14,7 @@ import { NgpToggle } from 'ng-primitives/toggle';
       padding-right: 1rem;
       border-radius: 0.5rem;
       color: rgb(10 10 10);
+      border: none;
       outline: none;
       height: 2.5rem;
       font-weight: 500;

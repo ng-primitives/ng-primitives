@@ -36,6 +36,7 @@ import {
       border: 1px solid rgb(229 229 229);
       background-color: rgb(255 255 255);
       box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+      padding: 0;
       outline: none;
     }
 

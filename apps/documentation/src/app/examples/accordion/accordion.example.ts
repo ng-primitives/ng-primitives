@@ -24,13 +24,12 @@ import {
       width: 100%;
       max-width: 24rem;
       border-radius: 0.75rem;
-      border-width: 1px;
-      border-color: #e5e7eb;
+      border: 1px solid #e5e7eb;
       background-color: #fff;
       box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
     }
 
-    [ngpAccordionItem] {
+    [ngpAccordionItem]:has(+ [ngpAccordionItem]) {
       border-bottom: 1px solid #e5e5e5;
     }
 
@@ -48,6 +47,8 @@ import {
       border-radius: 0.75rem;
       outline: none;
       color: #0a0a0a;
+      background-color: #fff;
+      border: none;
     }
 
     [ngpAccordionTrigger]:focus-visible {

@@ -27,6 +27,11 @@ import { NgpAvatar, NgpAvatarFallback, NgpAvatarImage } from 'ng-primitives/avat
       box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.1);
     }
 
+    [ngpAvatarImage] {
+      width: 100%;
+      height: 100%;
+    }
+
     [ngpAvatarFallback] {
       text-align: center;
       font-weight: 500;

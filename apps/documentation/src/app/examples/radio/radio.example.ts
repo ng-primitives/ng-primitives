@@ -76,6 +76,7 @@ import { NgpRadioGroup, NgpRadioIndicator, NgpRadioItem } from 'ng-primitives/ra
       grid-row-start: 1;
       font-weight: 500;
       color: rgb(10 10 10);
+      margin: 0;
     }
 
     [ngpRadioItem][data-state='checked'] .title {
@@ -88,6 +89,7 @@ import { NgpRadioGroup, NgpRadioIndicator, NgpRadioItem } from 'ng-primitives/ra
       font-size: 0.75rem;
       color: rgb(82 82 82);
       line-height: 1rem;
+      margin: 0;
     }
 
     [ngpRadioItem][data-state='checked'] .description {
