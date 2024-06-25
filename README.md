@@ -1,5 +1,11 @@
 # Angular Primitives
 
+<div style="margin-top: 1rem;">
+  <img alt="NPM Downloads" src="https://img.shields.io/npm/dt/ng-primitives">
+  <img alt="NPM Version" src="https://img.shields.io/npm/v/ng-primitives">
+  <img alt="GitHub Sponsors" src="https://img.shields.io/github/sponsors/ashley-hunter">
+</div>
+
 Angular Primitives is a low-level UI component library with a focus on accessibility, customization, and developer experience. Whether you're building a design system from scratch or looking to enhance your existing one, our primitives are here to support you every step of the way.
 
 You can find our [documentation site here](https://ng-primitives.netlify.app/).
