@@ -13,7 +13,7 @@ Handle focus for a group of elements.
 Import the Roving Focus primitives from `ng-primitives/roving-focus`.
 
 ```ts
-import { NgpRovingFocusGroup } from 'ng-primitives/roving-focus';
+import { NgpRovingFocusGroup, NgpRovingFocusItem } from 'ng-primitives/roving-focus';
 ```
 
 ## Usage

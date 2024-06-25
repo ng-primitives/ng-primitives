@@ -13,7 +13,7 @@ Perform state toggling.
 Import the Checkbox primitives from `ng-primitives/checkbox`.
 
 ```ts
-import { NgpCheckbox } from 'ng-primitives/checkbox';
+import { NgpCheckbox, NgpCheckboxIndicator } from 'ng-primitives/checkbox';
 ```
 
 ## Usage

@@ -1,0 +1,23 @@
+name: Feature Request
+description: Request a new feature for Angular Primitives
+
+body:
+  - type: dropdown
+    id: feature-type
+    attributes:
+      label: Feature Type
+      description: The type of feature you are requesting
+      options:
+        - New Primitive
+        - Enhancement
+        - Other
+    validations:
+      required: true
+
+  - type: textarea
+    id: feature-description
+    attributes:
+      label: Feature Description
+      description: Describe the feature you would like to see added
+    validations:
+      required: true

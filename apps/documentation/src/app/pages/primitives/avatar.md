@@ -13,7 +13,7 @@ Display an image that represents a user with a text fallback.
 Import the Avatar primitives from `ng-primitives/avatar`.
 
 ```ts
-import { NgpAvatar } from 'ng-primitives/avatar';
+import { NgpAvatar, NgpAvatarImage, NgpAvatarFallback } from 'ng-primitives/avatar';
 ```
 
 ## Usage

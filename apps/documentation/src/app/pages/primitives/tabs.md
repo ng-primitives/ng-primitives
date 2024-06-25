@@ -13,7 +13,7 @@ Dynamically show and hide content based on an active tab.
 Import the Tabs primitives from `ng-primitives/tabs`.
 
 ```ts
-import { NgpTabset } from 'ng-primitives/tabs';
+import { NgpTabset, NgpTabList, NgpTabButton, NgpTabPanel } from 'ng-primitives/tabs';
 ```
 
 ## Usage

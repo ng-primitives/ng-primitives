@@ -1,0 +1,43 @@
+name: Bug Report
+description: Report a bug in Angular Primitives
+
+body:
+  - type: input
+    id: affected-primitive
+    attributes:
+      label: Affected Primitive
+      description: The name of the primitive that is affected by the bug
+      placeholder: e.g. Button, Input, etc.
+    validations:
+      required: true
+
+  - type: input
+    id: version
+    attributes:
+      label: Version
+      description: The version of Angular Primitives that you are using
+      placeholder: e.g. 0.6.0
+    validations:
+      required: true
+
+  - type: textarea
+    id: bug-description
+    attributes:
+      label: Bug Description
+      description: Describe the bug in detail
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps-to-reproduce
+    attributes:
+      label: Steps to Reproduce
+      description: Provide detailed steps to reproduce the bug
+    validations:
+      required: false
+
+  - type: input
+    id: reproduction
+    attributes:
+      label: Reproduction
+      description: Please provide a link to a minimal reproduction of the bug

@@ -13,7 +13,7 @@ Select a value within a range.
 Import the Slider primitives from `ng-primitives/slider`.
 
 ```ts
-import { NgpSlider } from 'ng-primitives/slider';
+import { NgpSlider, NgpSliderTrack, NgpSliderRange, NgpSliderThumb } from 'ng-primitives/slider';
 ```
 
 ## Usage

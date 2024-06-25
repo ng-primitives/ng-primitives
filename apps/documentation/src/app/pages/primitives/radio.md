@@ -13,7 +13,7 @@ Selection within a group.
 Import the Radio primitives from `ng-primitives/radio`.
 
 ```ts
-import { NgpRadio } from 'ng-primitives/radio';
+import { NgpRadioGroup, NgpRadioItem, NgpRadioIndicator } from 'ng-primitives/radio';
 ```
 
 ## Usage

@@ -13,7 +13,12 @@ Display a series of panels that can be expanded or collapsed.
 Import the Accordion primitives from `ng-primitives/accordion`.
 
 ```ts
-import { NgpAccordion } from 'ng-primitives/accordion';
+import {
+  NgpAccordion,
+  NgpAccordionItem,
+  NgpAccordionTrigger,
+  NgpAccordionContent,
+} from 'ng-primitives/accordion';
 ```
 
 ## Usage

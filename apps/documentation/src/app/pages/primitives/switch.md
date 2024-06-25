@@ -13,7 +13,7 @@ Perform state toggling.
 Import the Switch primitives from `ng-primitives/switch`.
 
 ```ts
-import { NgpSwitch } from 'ng-primitives/switch';
+import { NgpSwitch, NgpSwitchThumb } from 'ng-primitives/switch';
 ```
 
 ## Usage

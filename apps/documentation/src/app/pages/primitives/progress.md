@@ -13,7 +13,7 @@ Display an indicator representing the progress of a task.
 Import the Progress primitives from `ng-primitives/progress`.
 
 ```ts
-import { NgpProgress } from 'ng-primitives/progress';
+import { NgpProgress, NgpProgressIndicator } from 'ng-primitives/progress';
 ```
 
 ## Usage
