@@ -30,7 +30,7 @@ We welcome contributions from the community. Please refer to our [contributing g
 <table>
   <tbody>
     <tr>
-      <td align="center" valign="top" width="14.28%"><a href="https://github.com/ashley-hunter"><img src="https://avatars.githubusercontent.com/u/20795331?v=4?s=100" width="100px;" alt="Ashley Hunter"/><br /><sub><b>Ashley Hunter</b></sub></a><br /><a href="https://github.com/ng-primitives/ng-primitives/commits?author=ashley-hunter" title="Code">💻</a> <a href="https://github.com/ng-primitives/ng-primitives/commits?author=ashley-hunter" title="Documentation">📖</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/ashley-hunter"><img src="https://avatars.githubusercontent.com/u/20795331?v=4?s=100" width="100px;" alt="Ashley Hunter"/><br /><sub><b>Ashley Hunter</b></sub></a><br /><a href="https://github.com/ng-primitives/ng-primitives/commits?author=ashley-hunter" title="Code">💻</a> <a href="https://github.com/ng-primitives/ng-primitives/commits?author=ashley-hunter" title="Documentation">📖</a> <a href="#ideas-ashley-hunter" title="Ideas, Planning, & Feedback">🤔</a></td>
     </tr>
   </tbody>
   <tfoot>
