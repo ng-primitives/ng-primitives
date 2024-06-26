@@ -59,11 +59,6 @@ export class NgpAvatarFallback implements OnInit {
    */
   private delayElapsed = signal(false);
 
-  /**
-   * Store the timeout id.
-   */
-  private timeoutId: number | null = null;
-
   ngOnInit(): void {
     this.disposables.setTimeout(() => this.delayElapsed.set(true), this.delay());
   }

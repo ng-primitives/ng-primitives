@@ -115,6 +115,10 @@ export class NgpCheckbox implements ControlValueAccessor {
   @HostListener('click', ['$event'])
   @HostListener('keydown.space', ['$event'])
   toggle(event?: Event): void {
+    if (this.disabled() || this.formDisabled()) {
+      return;
+    }
+
     // prevent this firing twice in cases where the label is clicked and the checkbox is clicked by the one event
     event?.preventDefault();
 
