@@ -85,16 +85,13 @@ export class NgpFocusVisible {
       this.focusChange.emit(true);
       return;
     }
-
-    this.isFocused.set(false);
-    this.focusChange.emit(false);
   }
 
   /**
    * Listen for blur events.
    */
   @HostListener('blur')
-  onBlur(): void {
+  protected onBlur(): void {
     if (this.disabled() || !this.isFocused()) {
       return;
     }
@@ -130,7 +127,10 @@ export class NgpFocusVisible {
     }
 
     // if this is an element with contenteditable
-    if (this.elementRef.nativeElement.isContentEditable) {
+    if (
+      this.elementRef.nativeElement.isContentEditable ||
+      this.elementRef.nativeElement.hasAttribute('contenteditable')
+    ) {
       return true;
     }
 
