@@ -8,6 +8,8 @@
 import { BooleanInput } from '@angular/cdk/coercion';
 import {
   Directive,
+  OnChanges,
+  SimpleChanges,
   booleanAttribute,
   computed,
   contentChildren,
@@ -25,18 +27,13 @@ import { NgpTabsetToken } from './tabset.token';
   selector: '[ngpTabset]',
   exportAs: 'ngpTabset',
   providers: [{ provide: NgpTabsetToken, useExisting: NgpTabset }],
-  hostDirectives: [
-    {
-      directive: NgpRovingFocusGroup,
-      inputs: ['ngpRovingFocusGroupOrientation:ngpTabsetOrientation'],
-    },
-  ],
+  hostDirectives: [NgpRovingFocusGroup],
   host: {
     '[attr.id]': 'id()',
     '[attr.data-orientation]': 'orientation()',
   },
 })
-export class NgpTabset {
+export class NgpTabset implements OnChanges {
   /**
    * Access the global tabset configuration
    */
@@ -97,7 +94,13 @@ export class NgpTabset {
 
   constructor() {
     // default the orientation to horizontal
-    this.rovingFocusGroup.orientation = this.orientation();
+    this.rovingFocusGroup.orientation.set(this.orientation());
+  }
+
+  ngOnChanges(changes: SimpleChanges): void {
+    if ('orientation' in changes) {
+      this.rovingFocusGroup.orientation.set(this.orientation());
+    }
   }
 
   /**

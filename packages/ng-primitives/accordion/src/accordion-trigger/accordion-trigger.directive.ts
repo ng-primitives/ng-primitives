@@ -46,6 +46,10 @@ export class NgpAccordionTrigger {
    */
   @HostListener('click')
   toggle(): void {
+    if (this.item.disabled() || this.accordion.disabled()) {
+      return;
+    }
+
     this.accordion.toggle(this.item.value());
   }
 }
