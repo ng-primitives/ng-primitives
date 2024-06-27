@@ -4,7 +4,7 @@ import { ExampleGeneratorSchema } from './schema';
 
 export async function exampleGenerator(tree: Tree, options: ExampleGeneratorSchema) {
   const nameVariants = names(options.directive);
-  const projectRoot = `apps/documentation/src/app/examples/${nameVariants.fileName}`;
+  const projectRoot = `apps/documentation/src/app/examples`;
 
   generateFiles(tree, path.join(__dirname, 'files'), projectRoot, {
     ...options,

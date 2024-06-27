@@ -35,6 +35,7 @@ The following directives are available to import from the `ng-primitives/<%= pri
 - Selector: `[ngp<%= className %>]`
 - Exported As: `ngp<%= className %>`
 
+<% if(globalConfig) { %>
 ## Global Configuration
 
 You can configure the default options for all <%= fileName %>s in your application by using the `provideNgp<%= className %>Config` function in a providers array.
@@ -51,3 +52,4 @@ bootstrapApplication(AppComponent, {
 ```
 
 ### Ngp<%= className %>Config
+<% } %>

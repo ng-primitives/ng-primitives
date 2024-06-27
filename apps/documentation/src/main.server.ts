@@ -2,6 +2,7 @@ import { enableProdMode } from '@angular/core';
 import { bootstrapApplication } from '@angular/platform-browser';
 import { renderApplication } from '@angular/platform-server';
 import '@angular/platform-server/init';
+import 'zone.js/node';
 import { AppComponent } from './app/app.component';
 import { config } from './app/app.config.server';
 

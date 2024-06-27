@@ -26,6 +26,11 @@
       "type": "boolean",
       "description": "Would you like to create an example?",
       "default": false
+    },
+    "globalConfig": {
+      "type": "boolean",
+      "description": "Does this directive support a global configuration?",
+      "default": false
     }
   },
   "required": ["name", "description", "primitive"]

@@ -8,6 +8,7 @@ export async function documentationGenerator(tree: Tree, options: DocumentationG
 
   generateFiles(tree, path.join(__dirname, 'files'), projectRoot, {
     ...options,
+    globalConfig: options.globalConfig ?? false,
     ...names(options.name),
   });
 

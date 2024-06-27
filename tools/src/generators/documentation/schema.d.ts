@@ -3,4 +3,5 @@ export interface DocumentationGeneratorSchema {
   description: string;
   primitive: string;
   example?: boolean;
+  globalConfig?: boolean;
 }
