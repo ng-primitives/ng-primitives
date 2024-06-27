@@ -12,6 +12,9 @@ import { NgpAvatarToken } from './avatar.token';
   selector: '[ngpAvatar]',
   standalone: true,
   providers: [{ provide: NgpAvatarToken, useExisting: NgpAvatar }],
+  host: {
+    '[attr.data-state]': 'state()',
+  },
 })
 export class NgpAvatar {
   /**
@@ -31,8 +34,8 @@ export class NgpAvatar {
 }
 
 export enum NgpAvatarState {
-  Idle,
-  Loading,
-  Loaded,
-  Error,
+  Idle = 'idle',
+  Loading = 'loading',
+  Loaded = 'loaded',
+  Error = 'error',
 }

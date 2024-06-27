@@ -7,3 +7,7 @@
  */
 
 export * from './visually-hidden/visually-hidden.directive';
+export {
+  NgpVisuallyHiddenToken,
+  injectVisuallyHidden,
+} from './visually-hidden/visually-hidden.token';

@@ -38,6 +38,12 @@ Apply the `ngpAvatar` directive to an element that represents the avatar. This d
 - Selector: `[ngpAvatar]`
 - Exported As: `ngpAvatar`
 
+#### Data Attributes
+
+| Attribute    | Description                            | Value                                      |
+| ------------ | -------------------------------------- | ------------------------------------------ |
+| `data-state` | The loading state of the avatar image. | `idle` \| `loading` \| `loaded` \| `error` |
+
 ### NgpAvatarImage
 
 Apply the `ngpAvatarImage` directive to an element that represents the avatar image. This would typically be an `img` element or a `div` with a background image.
