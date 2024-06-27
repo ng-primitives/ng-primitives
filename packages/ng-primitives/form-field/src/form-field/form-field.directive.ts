@@ -114,6 +114,7 @@ export class NgpFormField implements OnDestroy {
 
   /**
    * Setup a listener for the form control status.
+   * @param control
    */
   private setupSubscriptions(control: NgControl | null | undefined): void {
     // Unsubscribe from the previous subscriptions.
@@ -145,6 +146,7 @@ export class NgpFormField implements OnDestroy {
 
   /**
    * Register the id of the associated form control.
+   * @param id
    * @internal
    */
   setFormControl(id: string): void {
@@ -153,6 +155,7 @@ export class NgpFormField implements OnDestroy {
 
   /**
    * Register a label with the form field.
+   * @param label
    * @internal
    */
   addLabel(label: string): void {
@@ -161,6 +164,7 @@ export class NgpFormField implements OnDestroy {
 
   /**
    * Register a description with the form field.
+   * @param description
    * @internal
    */
   addDescription(description: string): void {
@@ -177,6 +181,7 @@ export class NgpFormField implements OnDestroy {
 
   /**
    * Remove a label from the form field.
+   * @param label
    * @internal
    */
   removeLabel(label: string): void {
@@ -185,6 +190,7 @@ export class NgpFormField implements OnDestroy {
 
   /**
    * Remove a description from the form field.
+   * @param description
    * @internal
    */
   removeDescription(description: string): void {

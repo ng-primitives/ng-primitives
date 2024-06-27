@@ -12,6 +12,7 @@ export const NgpFormFieldToken = new InjectionToken<NgpFormField>('NgpFormFieldT
 
 /**
  * Inject the FormField directive instance
+ * @param primitive
  */
 export function injectFormField(primitive: string): NgpFormField {
   const formField = inject(NgpFormFieldToken, { optional: true });

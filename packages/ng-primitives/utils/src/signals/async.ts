@@ -1,3 +1,11 @@
+/**
+ * Copyright © 2024 Angular Primitives.
+ * https://github.com/ng-primitives/ng-primitives
+ *
+ * This source code is licensed under the CC BY-ND 4.0 license found in the
+ * LICENSE file in the root directory of this source tree.
+ */
+
 import { Injector, Signal, effect, signal } from '@angular/core';
 import { Observable } from 'rxjs';
 
@@ -5,7 +13,9 @@ import { Observable } from 'rxjs';
  * Create a signal from an observable that is updated asynchronously.
  * @param fn The function that returns an observable.
  * @param options Options for the effect.
+ * @param options.injector
  * @returns A signal that emits the value of the observable.
+ * @internal
  */
 export function computedAsync<T>(
   fn: () => Observable<T> | null | undefined,
@@ -26,13 +36,18 @@ export function computedAsync<T>(
 
 /**
  * Listen for changes to a signal and call a function when the signal changes.
+ * @param source
+ * @param fn
+ * @param options
+ * @param options.injector
+ * @internal
  */
 export function onChange<T>(
   source: Signal<T | null | undefined>,
   fn: (value: T | null | undefined, previousValue: T | null | undefined) => void,
   options?: { injector: Injector },
 ): void {
-  let previousValue = signal(source());
+  const previousValue = signal(source());
 
   effect(
     () => {

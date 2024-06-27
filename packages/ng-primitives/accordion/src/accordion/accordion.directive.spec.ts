@@ -224,6 +224,9 @@ describe('NgpAccordion', () => {
     expect(triggers[1].getAttribute('aria-expanded')).toBe('false');
   });
 
+  /**
+   *
+   */
   function renderTemplate(componentProperties?: { [alias: string]: unknown }) {
     return render(
       `
