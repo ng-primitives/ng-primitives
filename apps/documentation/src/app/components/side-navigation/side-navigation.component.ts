@@ -51,15 +51,10 @@ export class SideNavigationComponent {
     }, [])
     // sort so that getting started is always first
     .sort((a, b) => {
-      if (a.title === 'Getting Started') {
-        return -1;
-      }
+      const order = ['Getting Started', 'Primitives', 'Interactions'];
 
-      if (b.title === 'Getting Started') {
-        return 1;
-      }
-
-      return 0;
+      // sort based on the order of the section titles
+      return order.indexOf(a.title) - order.indexOf(b.title);
     });
 }
 

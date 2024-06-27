@@ -8,6 +8,11 @@ import { QuickLinksComponent } from '../components/quick-links/quick-links.compo
   template: `
     <div class="flex gap-x-12">
       <div class="prose prose-sm prose-zinc max-w-3xl flex-1 overflow-hidden px-px">
+        <p
+          class="from-primary to-accent mb-2 inline-block bg-gradient-to-r bg-clip-text text-sm font-medium text-transparent"
+        >
+          Primitives
+        </p>
         <router-outlet />
       </div>
       <docs-quick-links />

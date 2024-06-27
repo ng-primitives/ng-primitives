@@ -42,6 +42,7 @@ import {
       width: 100%;
       border-radius: 8px;
       padding: 0 16px;
+      border: none;
       box-shadow:
         0 1px 2px rgba(0, 0, 0, 0.05),
         0 0 0 1px rgba(0, 0, 0, 0.1);
@@ -52,7 +53,7 @@ import {
       box-shadow: 0 0 0 2px rgb(59, 130, 246);
     }
 
-    [ngpFormControl]:placeholder {
+    [ngpFormControl]::placeholder {
       color: rgb(161 161 170);
     }
 

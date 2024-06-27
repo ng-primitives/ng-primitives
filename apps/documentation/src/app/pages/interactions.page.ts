@@ -4,15 +4,16 @@ import { QuickLinksComponent } from '../components/quick-links/quick-links.compo
 
 @Component({
   standalone: true,
-  selector: 'docs-getting-started',
+  selector: 'docs-interactions',
   template: `
     <div class="flex gap-x-12">
       <div class="prose prose-sm prose-zinc max-w-3xl flex-1 overflow-hidden px-px">
         <p
           class="from-primary to-accent mb-2 inline-block bg-gradient-to-r bg-clip-text text-sm font-medium text-transparent"
         >
-          Getting Started
+          Interactions
         </p>
+
         <router-outlet />
       </div>
       <docs-quick-links />
@@ -23,4 +24,4 @@ import { QuickLinksComponent } from '../components/quick-links/quick-links.compo
     class: 'flex-1 overflow-hidden',
   },
 })
-export default class GettingStartedPage {}
+export default class InteractionsPage {}
