@@ -22,6 +22,11 @@
       "type": "string",
       "description": "What primitive does this feature belong to?"
     },
+    "section": {
+      "type": "string",
+      "description": "What section does this feature belong to?",
+      "enum": ["Getting Started", "Primitives", "Interactions"]
+    },
     "example": {
       "type": "boolean",
       "description": "Would you like to create an example?",
@@ -33,5 +38,5 @@
       "default": false
     }
   },
-  "required": ["name", "description", "primitive"]
+  "required": ["name", "description", "primitive", "section"]
 }
