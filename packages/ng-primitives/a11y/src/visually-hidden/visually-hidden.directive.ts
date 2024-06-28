@@ -48,6 +48,7 @@ export class NgpVisuallyHidden {
 
   /**
    * Set the element visibility.
+   * @param visible
    */
   setVisibility(visible: boolean): void {
     this.hidden.set(!visible);

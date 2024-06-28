@@ -10,6 +10,10 @@ export async function documentationGenerator(tree: Tree, options: DocumentationG
     ...options,
     globalConfig: options.globalConfig ?? false,
     ...names(options.name),
+    title: options.name
+      .split('-')
+      .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(' '),
   });
 
   if (options.example) {

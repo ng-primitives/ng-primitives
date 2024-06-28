@@ -1,4 +1,4 @@
 export interface PrimitiveGeneratorSchema {
   name: string;
-  addDocumentation?: boolean;
+  documentation: 'Getting Started' | 'Primitives' | 'Interactions' | 'None';
 }

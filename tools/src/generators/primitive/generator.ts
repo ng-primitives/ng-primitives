@@ -14,11 +14,13 @@ export async function primitiveGenerator(tree: Tree, options: PrimitiveGenerator
 
   tree.write(getPrimitiveIndex(tree, options.name), '');
 
-  if (options.addDocumentation) {
+  if (options.documentation && options.documentation !== 'None') {
     await documentationGenerator(tree, {
       name: options.name,
-      description: '',
+      description: 'Enter description here',
       example: true,
+      primitive: options.name,
+      section: options.documentation,
     });
   }
 

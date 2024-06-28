@@ -13,12 +13,11 @@
       },
       "x-prompt": "What name would you like to use?"
     },
-    "addDocumentation": {
-      "type": "boolean",
-      "description": "Add documentation to the project?",
-      "default": true,
-      "x-prompt": "Would you like to add documentation to the project?"
+    "documentation": {
+      "type": "string",
+      "description": "What documentation be added for this primitive?",
+      "enum": ["None", "Getting Started", "Primitives", "Interactions"]
     }
   },
-  "required": ["name"]
+  "required": ["name", "documentation"]
 }

@@ -54,7 +54,6 @@
     "autoprefixer": "^10.4.0",
     "eslint": "8.57.0",
     "eslint-config-prettier": "^9.0.0",
-    "eslint-plugin-jsdoc": "^48.2.0",
     "eslint-plugin-license-header": "^0.6.1",
     "eslint-plugin-playwright": "^0.15.3",
     "glob": "^10.4.2",

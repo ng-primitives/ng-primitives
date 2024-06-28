@@ -1,8 +1,8 @@
 ---
-title: '<%= className %>'
+title: '<%= title %>'
 ---
 
-# <%= className %>
+# <%= title %>
 
 <%= description %>
 
