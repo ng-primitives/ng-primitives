@@ -1,7 +1,6 @@
 import { librarySecondaryEntryPointGenerator } from '@nx/angular/generators';
 import { formatFiles, Tree } from '@nx/devkit';
 import { getPrimitiveIndex } from '../../utils';
-import { documentationGenerator } from '../documentation/generator';
 import { PrimitiveGeneratorSchema } from './schema';
 
 export async function primitiveGenerator(tree: Tree, options: PrimitiveGeneratorSchema) {
@@ -13,16 +12,6 @@ export async function primitiveGenerator(tree: Tree, options: PrimitiveGenerator
   });
 
   tree.write(getPrimitiveIndex(tree, options.name), '');
-
-  if (options.documentation && options.documentation !== 'None') {
-    await documentationGenerator(tree, {
-      name: options.name,
-      description: 'Enter description here',
-      example: true,
-      primitive: options.name,
-      section: options.documentation,
-    });
-  }
 
   await formatFiles(tree);
 }

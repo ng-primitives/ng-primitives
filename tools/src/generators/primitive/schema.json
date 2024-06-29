@@ -12,12 +12,7 @@
         "index": 0
       },
       "x-prompt": "What name would you like to use?"
-    },
-    "documentation": {
-      "type": "string",
-      "description": "What documentation be added for this primitive?",
-      "enum": ["None", "Getting Started", "Primitives", "Interactions", "Utilities"]
     }
   },
-  "required": ["name", "documentation"]
+  "required": ["name"]
 }
