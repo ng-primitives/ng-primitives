@@ -25,7 +25,7 @@
     "section": {
       "type": "string",
       "description": "What section does this feature belong to?",
-      "enum": ["Getting Started", "Primitives", "Interactions"]
+      "enum": ["Getting Started", "Primitives", "Interactions", "Utilities"]
     },
     "example": {
       "type": "boolean",

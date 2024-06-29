@@ -16,7 +16,7 @@
     "documentation": {
       "type": "string",
       "description": "What documentation be added for this primitive?",
-      "enum": ["None", "Getting Started", "Primitives", "Interactions"]
+      "enum": ["None", "Getting Started", "Primitives", "Interactions", "Utilities"]
     }
   },
   "required": ["name", "documentation"]

@@ -45,11 +45,12 @@ export async function directiveGenerator(tree: Tree, options: DirectiveGenerator
     });
   }
 
-  if (options.addDocumentation) {
+  if (options.documentation && options.documentation !== 'None') {
     await documentationGenerator(tree, {
       name: options.name,
       primitive: options.primitive,
-      description: '',
+      description: 'Enter a description here',
+      section: options.documentation,
     });
   }
 

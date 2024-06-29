@@ -51,7 +51,7 @@ export class SideNavigationComponent {
     }, [])
     // sort so that getting started is always first
     .sort((a, b) => {
-      const order = ['Getting Started', 'Primitives', 'Interactions'];
+      const order = ['Getting Started', 'Primitives', 'Interactions', 'Utilities'];
 
       // sort based on the order of the section titles
       return order.indexOf(a.title) - order.indexOf(b.title);

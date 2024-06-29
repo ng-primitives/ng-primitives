@@ -55,6 +55,10 @@ pre[class*='language-'] {
   color: #99ffe4;
 }
 
+.token.comment {
+  color: #8b8b8b94;
+}
+
 .token.punctuation {
   color: #a0a0a0;
 }

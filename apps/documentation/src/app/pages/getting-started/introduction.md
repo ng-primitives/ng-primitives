@@ -39,6 +39,7 @@ Angular Primitives versions are compatible with the following Angular versions:
 Angular Primitives would not have been possible without inspiration from many of the great libraries that came before it.
 We would like to thank the following projects for their contributions to the open-source community:
 
+- [Angular CDK](https://material.angular.io/cdk)
 - [Radix UI](https://radix-ui.com/)
 - [Headless UI](https://headlessui.com/)
 - [React Aria](https://react-spectrum.adobe.com/react-aria/)

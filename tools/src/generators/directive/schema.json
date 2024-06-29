@@ -40,11 +40,10 @@
       "default": false,
       "x-prompt": "Would you like to add a config for the directive?"
     },
-    "addDocumentation": {
-      "type": "boolean",
-      "description": "Add documentation for the directive.",
-      "default": false,
-      "x-prompt": "Would you like to add documentation for the directive?"
+    "documentation": {
+      "type": "string",
+      "description": "What documentation section does this feature belong to?",
+      "enum": ["None", "Getting Started", "Primitives", "Interactions", "Utilities"]
     }
   },
   "required": ["name", "primitive"]

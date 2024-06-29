@@ -12,3 +12,5 @@ export { NgpFocus } from './focus/focus.directive';
 export { NgpFocusToken } from './focus/focus.token';
 export { NgpFocusVisible } from './focus-visible/focus-visible.directive';
 export { NgpFocusVisibleToken } from './focus-visible/focus-visible.token';
+export { NgpPress } from './press/press.directive';
+export { NgpPressToken } from './press/press.token';

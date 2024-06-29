@@ -29,6 +29,8 @@ import { NgpTabButton, NgpTabList, NgpTabPanel, NgpTabset } from 'ng-primitives/
     }
 
     [ngpTabButton] {
+      border: none;
+      background-color: transparent;
       margin-bottom: -1px;
       border-bottom: 2px solid transparent;
       padding: 0.5rem 0;
