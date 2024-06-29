@@ -11,7 +11,7 @@ import { QuickLinksComponent } from '../components/quick-links/quick-links.compo
         <p
           class="from-primary to-accent mb-2 inline-block bg-gradient-to-r bg-clip-text text-sm font-medium text-transparent"
         >
-          Primitives
+          Utilities
         </p>
         <router-outlet />
       </div>
