@@ -32,6 +32,7 @@ import { NgpMoveEvent } from 'packages/ng-primitives/interactions/src/move/move.
       display: flex;
       justify-content: center;
       align-items: center;
+      outline: none;
     }
 
     div:focus-visible {
@@ -42,10 +43,9 @@ import { NgpMoveEvent } from 'packages/ng-primitives/interactions/src/move/move.
 
     div[data-move='true'] {
       box-shadow:
-        0 1px 3px 0 rgb(0 0 0 / 0.1),
-        0 1px 2px -1px rgb(0 0 0 / 0.1),
-        0 0 0 1px rgb(0 0 0 / 0.05),
-        0 0 0 2px rgb(59 130 246);
+        0 1px 3px 2px rgb(0 0 0 / 0.1),
+        0 1px 2px 2px rgb(0 0 0 / 0.1),
+        0 0 0 1px rgb(0 0 0 / 0.05);
     }
   `,
 })

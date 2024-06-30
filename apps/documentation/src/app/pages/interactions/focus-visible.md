@@ -21,7 +21,7 @@ import { NgpFocusVisible } from 'ng-primitives/interactions';
 Assemble the focus-visible directives in your template.
 
 ```html
-<div ngpFocusVisible></div>
+<div (ngpFocusVisible)="onFocusVisible($event)"></div>
 ```
 
 ## API Reference
@@ -37,7 +37,7 @@ The following directives are available to import from the `ng-primitives/interac
   Whether listening for focus-visible events is disabled.
 </response-field>
 
-<response-field name="ngpFocusVisibleChange" type="boolean">
+<response-field name="ngpFocusVisible" type="EventEmitter<boolean>">
   Event emitted when the focus visible state changes.
 </response-field>
 

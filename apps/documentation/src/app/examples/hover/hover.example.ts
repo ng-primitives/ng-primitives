@@ -30,7 +30,7 @@ import { NgpHover } from 'ng-primitives/interactions';
     }
   `,
   template: `
-    <div (ngpHoverChange)="isHovering.set($event)" ngpHover>
+    <div (ngpHover)="isHovering.set($event)">
       {{ isHovering() ? 'Hovering' : 'Not Hovering' }}
     </div>
   `,

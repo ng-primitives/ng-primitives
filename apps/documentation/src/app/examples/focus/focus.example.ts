@@ -6,7 +6,7 @@ import { NgpFocus } from 'ng-primitives/interactions';
   selector: 'app-focus',
   imports: [NgpFocus],
   template: `
-    <input (ngpFocusChange)="isFocused.set($event)" ngpFocus placeholder="Try focusing me!" />
+    <input (ngpFocus)="isFocused.set($event)" placeholder="Try focusing me!" />
     <p>Input is {{ isFocused() ? 'focused' : 'blurred' }}.</p>
   `,
   styles: `

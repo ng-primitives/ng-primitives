@@ -52,7 +52,7 @@ export class NgpFocusVisible {
    * Emit when the element is visually focused.
    */
   readonly focusChange = output<boolean>({
-    alias: 'ngpFocusVisibleChange',
+    alias: 'ngpFocusVisible',
   });
 
   /**

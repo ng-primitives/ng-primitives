@@ -125,7 +125,7 @@ export class NgpHover implements OnChanges {
   /**
    * Emit an event when the hover state changes.
    */
-  readonly hoverChange = output<boolean>({ alias: 'ngpHoverChange' });
+  readonly hoverChange = output<boolean>({ alias: 'ngpHover' });
 
   ngOnChanges(changes: SimpleChanges): void {
     if ('disabled' in changes) {

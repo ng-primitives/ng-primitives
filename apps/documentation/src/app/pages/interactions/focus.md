@@ -37,7 +37,7 @@ The following directives are available to import from the `ng-primitives/interac
   Whether listening for focus events is disabled.
 </response-field>
 
-<response-field name="ngpFocusChange" type="boolean">
+<response-field name="ngpFocus" type="EventEmitter<boolean>">
   Event emitted when the focus state changes.
 </response-field>
 

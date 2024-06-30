@@ -22,10 +22,9 @@ Assemble the hover directives in your template.
 
 ```html
 <div
-  ngpHover
+  (ngpHover)="onHoverChange($event)"
   (ngpHoverStart)="onHoverStart()"
   (ngpHoverEnd)="onHoverEnd()"
-  (ngpHoverChange)="onHoverChange($event)"
 ></div>
 ```
 
@@ -44,16 +43,16 @@ Apply the `ngpHover` directive to an element that you want to listen for hover e
   Whether hover events are disabled.
 </response-field>
 
+<response-field name="ngpHover" type="EventEmitter<boolean>">
+  Event emitted when the hover state changes.
+</response-field>
+
 <response-field name="ngpHoverStart" type="EventEmitter<void>">
   Event emitted when the hover starts.
 </response-field>
 
 <response-field name="ngpHoverEnd" type="EventEmitter<void>">
   Event emitted when the hover ends.
-</response-field>
-
-<response-field name="ngpHoverChange" type="EventEmitter<boolean>">
-  Event emitted when the hover state changes.
 </response-field>
 
 #### Data Attributes

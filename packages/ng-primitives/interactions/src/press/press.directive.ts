@@ -70,7 +70,7 @@ export class NgpPress {
    * Emit when the press changes.
    */
   readonly pressChange = output<boolean>({
-    alias: 'ngpPressChange',
+    alias: 'ngpPress',
   });
 
   /**
