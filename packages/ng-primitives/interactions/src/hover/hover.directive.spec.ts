@@ -82,7 +82,7 @@ describe('NgpHover', () => {
   it('should trigger the hover change event when hovering state changes', async () => {
     const hoverChange = jest.fn();
     const container = await render(
-      `<div data-testid="trigger" ngpHover (ngpHoverChange)="hoverChange($event)"></div>`,
+      `<div data-testid="trigger" (ngpHover)="hoverChange($event)"></div>`,
       {
         imports: [NgpHover],
         componentProperties: {
