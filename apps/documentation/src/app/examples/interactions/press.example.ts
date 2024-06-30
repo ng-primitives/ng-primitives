@@ -31,7 +31,7 @@ import { NgpPress } from 'ng-primitives/interactions';
     }
   `,
   template: `
-    <div (ngpPressChange)="isPressed.set($event)" ngpPress>
+    <div (ngpPress)="isPressed.set($event)">
       {{ isPressed() ? 'Pressed' : 'Not Pressed' }}
     </div>
   `,
