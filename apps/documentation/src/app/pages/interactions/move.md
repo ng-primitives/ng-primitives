@@ -21,7 +21,7 @@ import { NgpMove } from 'ng-primitives/interactions';
 Assemble the move directives in your template.
 
 ```html
-<div ngpMove></div>
+<div (ngpMove)="onMove($event)"></div>
 ```
 
 ## API Reference
