@@ -4,6 +4,7 @@ import { heroChevronDownMini } from '@ng-icons/heroicons/mini';
 import {
   NgpSelect,
   NgpSelectButton,
+  NgpSelectDropdown,
   NgpSelectOption,
   NgpSelectOptions,
 } from 'ng-primitives/select';
@@ -11,7 +12,14 @@ import {
 @Component({
   standalone: true,
   selector: 'app-select',
-  imports: [NgIcon, NgpSelectButton, NgpSelect, NgpSelectOption, NgpSelectOptions],
+  imports: [
+    NgIcon,
+    NgpSelectButton,
+    NgpSelect,
+    NgpSelectOption,
+    NgpSelectOptions,
+    NgpSelectDropdown,
+  ],
   viewProviders: [provideIcons({ heroChevronDownMini })],
   styles: `
     [ngpSelect] {
@@ -136,7 +144,7 @@ import {
         </span>
       </button>
 
-      <ul ngpSelectOptions>
+      <ul *ngpSelectDropdown ngpSelectOptions>
         @for (employee of employees; track employee.id) {
           <li [ngpSelectOptionValue]="employee" ngpSelectOption>
             <span class="select-option-title">{{ employee.name }}</span>

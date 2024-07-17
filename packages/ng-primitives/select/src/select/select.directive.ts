@@ -6,7 +6,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 import { BooleanInput } from '@angular/cdk/coercion';
-import { Directive, booleanAttribute, contentChild, input, model } from '@angular/core';
+import { Directive, booleanAttribute, contentChild, input, model, signal } from '@angular/core';
 import { NgpSelectButtonToken } from '../select-button/select-button.token';
 import { NgpSelectOptionsToken } from '../select-options/select-options.token';
 import { NgpSelectToken } from './select.token';
@@ -52,7 +52,23 @@ export class NgpSelect<T> {
    * Access the select options instance.
    * @internal
    */
-  readonly options = contentChild.required(NgpSelectOptionsToken, {
+  readonly options = contentChild(NgpSelectOptionsToken, {
     descendants: true,
   });
+
+  /**
+   * Store the dropdown dimensions.
+   * @internal
+   */
+  readonly dropdownBounds = signal<DropdownBounds>({
+    x: null,
+    y: null,
+    width: null,
+  });
+}
+
+interface DropdownBounds {
+  x: number | null;
+  y: number | null;
+  width: number | null;
 }

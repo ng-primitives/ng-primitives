@@ -14,3 +14,5 @@ export { NgpSelectOptions } from './select-options/select-options.directive';
 export { NgpSelectOptionsToken } from './select-options/select-options.token';
 export { NgpSelect } from './select/select.directive';
 export { NgpSelectToken } from './select/select.token';
+export { NgpSelectDropdown } from './select-dropdown/select-dropdown.directive';
+export { NgpSelectDropdownToken } from './select-dropdown/select-dropdown.token';

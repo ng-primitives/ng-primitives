@@ -3,6 +3,6 @@ export interface DirectiveGeneratorSchema {
   primitive: string;
   addToken: boolean;
   addConfig: boolean;
-  documentation?: 'Getting Started' | 'Primitives' | 'Interactions' | 'Utilities' | 'None';
+  documentation?: 'Getting Started' | 'Primitives' | 'Interactions' | 'Utilities';
   addExample: boolean;
 }

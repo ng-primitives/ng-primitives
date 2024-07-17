@@ -43,7 +43,7 @@
     "documentation": {
       "type": "string",
       "description": "What documentation section does this feature belong to?",
-      "enum": ["None", "Getting Started", "Primitives", "Interactions", "Utilities"]
+      "enum": ["Getting Started", "Primitives", "Interactions", "Utilities"]
     }
   },
   "required": ["name", "primitive"]

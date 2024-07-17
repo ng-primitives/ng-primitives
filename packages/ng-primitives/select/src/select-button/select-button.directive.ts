@@ -7,6 +7,8 @@
  */
 import { FocusOrigin } from '@angular/cdk/a11y';
 import { Directive, ElementRef, inject, input } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { fromResizeEvent } from 'ng-primitives/resize';
 import { FocusManager, injectDisposables, uniqueId } from 'ng-primitives/utils';
 import { injectSelect } from '../select/select.token';
 import { NgpSelectButtonToken } from './select-button.token';
@@ -54,10 +56,18 @@ export class NgpSelectButton {
    */
   readonly id = input(uniqueId('select-button'));
 
+  constructor() {
+    fromResizeEvent(this.element.nativeElement)
+      .pipe(takeUntilDestroyed())
+      .subscribe(({ width }) =>
+        this.select.dropdownBounds.update(bounds => ({ ...bounds, width })),
+      );
+  }
+
   /**
    * Toggle the select open state.
    */
-  protected toggle() {
+  protected toggle(): void {
     this.select.open.update(open => !open);
   }
 
@@ -66,7 +76,7 @@ export class NgpSelectButton {
    * If the list is open then we navigate using active descendant.
    * @param event
    */
-  protected keydown(event: KeyboardEvent) {
+  protected keydown(event: KeyboardEvent): void {
     if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
       this.select.open.set(true);
       // stop the event from triggering scrolling on the dropdown

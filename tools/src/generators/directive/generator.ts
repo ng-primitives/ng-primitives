@@ -45,7 +45,7 @@ export async function directiveGenerator(tree: Tree, options: DirectiveGenerator
     });
   }
 
-  if (options.documentation && options.documentation !== 'None') {
+  if (options.documentation !== undefined) {
     await documentationGenerator(tree, {
       name: options.name,
       primitive: options.primitive,
