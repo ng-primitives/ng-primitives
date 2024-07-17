@@ -22,17 +22,17 @@ Assemble the radio directives in your template.
 
 ```html
 <div ngpRadioGroup [(ngpRadioGroupValue)]="value">
-  <button ngpRadioItem ngpRadioItem="Option 1">
+  <button ngpRadioItem ngpRadioItemValue="Option 1">
     <ng-icon ngpRadioIndicator name="dot" />
     Option 1
   </button>
 
-  <button ngpRadioItem ngpRadioItem="Option 2">
+  <button ngpRadioItem ngpRadioItemValue="Option 2">
     <ng-icon ngpRadioIndicator name="dot" />
     Option 2
   </button>
 
-  <button ngpRadioItem ngpRadioItem="Option 3">
+  <button ngpRadioItem ngpRadioItemValue="Option 3">
     <ng-icon ngpRadioIndicator name="dot" />
     Option 3
   </button>

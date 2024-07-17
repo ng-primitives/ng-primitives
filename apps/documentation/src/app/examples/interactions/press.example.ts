@@ -6,7 +6,7 @@ import { NgpPress } from 'ng-primitives/interactions';
   selector: 'app-press',
   imports: [NgpPress],
   styles: `
-    [ngpPress] {
+    div {
       display: flex;
       width: 10rem;
       height: 6rem;
@@ -23,7 +23,7 @@ import { NgpPress } from 'ng-primitives/interactions';
       user-select: none;
     }
 
-    [ngpPress][data-press='true'] {
+    div[data-press='true'] {
       background-color: rgb(219 234 254);
       box-shadow:
         0 1px 2px rgba(0, 0, 0, 0.05),

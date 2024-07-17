@@ -21,7 +21,7 @@ import { NgpFocus } from 'ng-primitives/interactions';
 Assemble the focus directives in your template.
 
 ```html
-<div ngpFocus (ngpFocusChange)="onFocusChange($event)"></div>
+<div (ngpFocus)="onFocusChange($event)"></div>
 ```
 
 ## API Reference
@@ -45,6 +45,6 @@ The following directives are available to import from the `ng-primitives/interac
 
 The following data attributes are applied to the `ngpFocus` directive:
 
-| Attribute      | Description                     | Value             |
-| -------------- | ------------------------------- | ----------------- |
-| `data-focused` | Whether the element is focused. | `true` \| `false` |
+| Attribute    | Description                     | Value             |
+| ------------ | ------------------------------- | ----------------- |
+| `data-focus` | Whether the element is focused. | `true` \| `false` |

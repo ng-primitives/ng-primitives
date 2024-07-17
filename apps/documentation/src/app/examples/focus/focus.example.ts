@@ -15,7 +15,7 @@ import { NgpFocus } from 'ng-primitives/interactions';
       flex-direction: column;
     }
 
-    [ngpFocus] {
+    input {
       height: 36px;
       padding: 0 12px;
       border-radius: 0.5rem;
@@ -25,7 +25,7 @@ import { NgpFocus } from 'ng-primitives/interactions';
       outline: none;
     }
 
-    [ngpFocus][data-focused='true'] {
+    input[data-focus='true'] {
       box-shadow:
         0 1px 2px 0 rgba(0, 0, 0, 0.05),
         0 0 0 2px rgb(59 130 246);

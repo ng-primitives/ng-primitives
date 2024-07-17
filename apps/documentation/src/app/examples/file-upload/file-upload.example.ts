@@ -45,12 +45,14 @@ import { NgpFileUpload } from 'ng-primitives/file-upload';
       font-weight: 500;
       color: rgb(17 24 39);
       line-height: 1.25rem;
+      text-align: center;
     }
 
     .subheading {
       font-size: 0.75rem;
       color: rgb(107 114 128);
       line-height: 1rem;
+      text-align: center;
     }
   `,
 })

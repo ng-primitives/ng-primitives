@@ -23,13 +23,13 @@ Assemble the tabs directives in your template.
 ```html
 <div ngpTabset>
   <div ngpTabList>
-    <button ngpTabButton value="tab1">Tab 1</button>
-    <button ngpTabButton value="tab2">Tab 2</button>
-    <button ngpTabButton value="tab3">Tab 3</button>
+    <button ngpTabButton ngpTabButtonValue="tab1">Tab 1</button>
+    <button ngpTabButton ngpTabButtonValue="tab2">Tab 2</button>
+    <button ngpTabButton ngpTabButtonValue="tab3">Tab 3</button>
   </div>
-  <div ngpTabPanel value="tab1">Tab 1 content</div>
-  <div ngpTabPanel value="tab2">Tab 2 content</div>
-  <div ngpTabPanel value="tab3">Tab 3 content</div>
+  <div ngpTabPanel ngpTabPanelValue="tab1">Tab 1 content</div>
+  <div ngpTabPanel ngpTabPanelValue="tab2">Tab 2 content</div>
+  <div ngpTabPanel ngpTabPanelValue="tab3">Tab 3 content</div>
 </div>
 ```
 

@@ -6,7 +6,7 @@ import { NgpHover } from 'ng-primitives/interactions';
   selector: 'app-hover',
   imports: [NgpHover],
   styles: `
-    [ngpHover] {
+    div {
       display: flex;
       width: 10rem;
       height: 6rem;
@@ -22,7 +22,7 @@ import { NgpHover } from 'ng-primitives/interactions';
       cursor: pointer;
     }
 
-    [ngpHover][data-hover='true'] {
+    div[data-hover='true'] {
       background-color: rgb(219 234 254);
       box-shadow:
         0 1px 2px rgba(0, 0, 0, 0.05),

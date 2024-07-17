@@ -19,7 +19,7 @@ import { NgpFocusToken } from './focus.token';
   exportAs: 'ngpFocus',
   providers: [{ provide: NgpFocusToken, useExisting: NgpFocus }],
   host: {
-    '[attr.data-focused]': 'isFocused()',
+    '[attr.data-focus]': 'isFocused()',
   },
 })
 export class NgpFocus {

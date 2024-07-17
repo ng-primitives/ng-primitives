@@ -9,18 +9,18 @@ import { fireEvent, render } from '@testing-library/angular';
 import { NgpFocus } from './focus.directive';
 
 describe('NgpFocus', () => {
-  it('should apply the data-focused attribute', async () => {
+  it('should apply the data-focus attribute', async () => {
     const container = await render(`<div data-testid="trigger" ngpFocus></div>`, {
       imports: [NgpFocus],
     });
     const trigger = container.getByTestId('trigger');
-    expect(trigger.getAttribute('data-focused')).toBe('false');
+    expect(trigger.getAttribute('data-focus')).toBe('false');
 
     // we must spoof the activeElement to test focus
     Object.defineProperty(document, 'activeElement', { value: trigger, writable: true });
 
     fireEvent.focus(trigger);
-    expect(trigger.getAttribute('data-focused')).toBe('true');
+    expect(trigger.getAttribute('data-focus')).toBe('true');
   });
 
   it('should emit the ngpFocusChange output', async () => {
