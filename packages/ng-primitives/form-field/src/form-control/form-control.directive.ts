@@ -18,20 +18,20 @@ import { NgpFormControlToken } from './form-control.token';
   host: {
     '[attr.aria-labelledby]': 'ariaLabelledBy()',
     '[attr.aria-describedby]': 'ariaDescribedBy()',
-    '[attr.data-invalid]': 'formField.invalid()',
-    '[attr.data-valid]': 'formField.valid()',
-    '[attr.data-touched]': 'formField.touched()',
-    '[attr.data-pristine]': 'formField.pristine()',
-    '[attr.data-dirty]': 'formField.dirty()',
-    '[attr.data-pending]': 'formField.pending()',
-    '[attr.data-disabled]': 'formField.disabled()',
+    '[attr.data-invalid]': 'formField?.invalid()',
+    '[attr.data-valid]': 'formField?.valid()',
+    '[attr.data-touched]': 'formField?.touched()',
+    '[attr.data-pristine]': 'formField?.pristine()',
+    '[attr.data-dirty]': 'formField?.dirty()',
+    '[attr.data-pending]': 'formField?.pending()',
+    '[attr.data-disabled]': 'formField?.disabled()',
   },
 })
 export class NgpFormControl {
   /**
    * Access the form field that the form control is associated with.
    */
-  protected readonly formField = injectFormField('NgpFormControl');
+  protected readonly formField = injectFormField();
 
   /**
    * The id of the form control. If not provided, a unique id will be generated.
@@ -41,18 +41,18 @@ export class NgpFormControl {
   /**
    * Determine the aria-labelledby attribute value.
    */
-  protected readonly ariaLabelledBy = computed(() => this.formField.labels().join(' '));
+  protected readonly ariaLabelledBy = computed(() => this.formField?.labels().join(' '));
 
   /**
    * Determine the aria-describedby attribute value.
    */
-  protected readonly ariaDescribedBy = computed(() => this.formField.descriptions().join(' '));
+  protected readonly ariaDescribedBy = computed(() => this.formField?.descriptions().join(' '));
 
   constructor() {
     effect(
       onCleanup => {
-        this.formField.setFormControl(this.id());
-        onCleanup(() => this.formField.removeFormControl());
+        this.formField?.setFormControl(this.id());
+        onCleanup(() => this.formField?.removeFormControl());
       },
       { allowSignalWrites: true },
     );

@@ -5,16 +5,8 @@
  * This source code is licensed under the CC BY-ND 4.0 license found in the
  * LICENSE file in the root directory of this source tree.
  */
-import {
-  Directive,
-  OnChanges,
-  OnDestroy,
-  OnInit,
-  SimpleChanges,
-  computed,
-  input,
-} from '@angular/core';
-import { uniqueId } from 'ng-primitives/utils';
+import { Directive, OnChanges, OnDestroy, SimpleChanges, computed, input } from '@angular/core';
+import { onBooleanChange, uniqueId } from 'ng-primitives/utils';
 import { injectFormField } from '../form-field/form-field.token';
 import { NgpErrorToken } from './error.token';
 
@@ -25,21 +17,21 @@ import { NgpErrorToken } from './error.token';
   providers: [{ provide: NgpErrorToken, useExisting: NgpError }],
   host: {
     '[attr.id]': 'id()',
-    '[attr.data-invalid]': 'formField.invalid()',
-    '[attr.data-valid]': 'formField.valid()',
-    '[attr.data-touched]': 'formField.touched()',
-    '[attr.data-pristine]': 'formField.pristine()',
-    '[attr.data-dirty]': 'formField.dirty()',
-    '[attr.data-pending]': 'formField.pending()',
-    '[attr.data-disabled]': 'formField.disabled()',
+    '[attr.data-invalid]': 'formField?.invalid()',
+    '[attr.data-valid]': 'formField?.valid()',
+    '[attr.data-touched]': 'formField?.touched()',
+    '[attr.data-pristine]': 'formField?.pristine()',
+    '[attr.data-dirty]': 'formField?.dirty()',
+    '[attr.data-pending]': 'formField?.pending()',
+    '[attr.data-disabled]': 'formField?.disabled()',
     '[attr.data-validator]': 'state()',
   },
 })
-export class NgpError implements OnInit, OnChanges, OnDestroy {
+export class NgpError implements OnChanges, OnDestroy {
   /**
    * Access the form field that the description is associated with.
    */
-  protected readonly formField = injectFormField('NgpError');
+  protected readonly formField = injectFormField();
 
   /**
    * The id of the error message. If not provided, a unique id will be generated.
@@ -54,32 +46,36 @@ export class NgpError implements OnInit, OnChanges, OnDestroy {
   });
 
   /**
-   * Determine whether the validator associated with this error is failing.
+   * Determine if there is an error message.
    */
-  protected readonly state = computed(() => {
-    const errors = this.formField.errors();
+  protected readonly hasError = computed(() => {
+    const errors = this.formField?.errors() ?? [];
     const validator = this.validator();
 
-    // if there is no validator, then we mark as invalid when the control is invalid.
-    if (!validator) {
-      return null;
-    }
-
-    return validator && errors.includes(validator) ? 'fail' : 'pass';
+    return validator ? errors?.includes(validator) : errors?.length > 0;
   });
 
-  ngOnInit(): void {
-    this.formField.addDescription(this.id());
+  /**
+   * Determine whether the validator associated with this error is failing.
+   */
+  protected readonly state = computed(() => (this.hasError() ? 'fail' : 'pass'));
+
+  constructor() {
+    // add or remove the error message when the error state changes
+    onBooleanChange(
+      this.hasError,
+      () => this.formField?.addDescription(this.id()),
+      () => this.formField?.removeDescription(this.id()),
+    );
   }
 
   ngOnChanges(changes: SimpleChanges): void {
     if ('id' in changes) {
-      this.formField.removeDescription(changes['id'].previousValue);
-      this.formField.addDescription(changes['id'].currentValue);
+      this.formField?.removeDescription(changes['id'].previousValue);
     }
   }
 
   ngOnDestroy(): void {
-    this.formField.removeDescription(this.id());
+    this.formField?.removeDescription(this.id());
   }
 }

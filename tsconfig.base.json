@@ -25,6 +25,7 @@
       "ng-primitives/file-upload": ["packages/ng-primitives/file-upload/src/index.ts"],
       "ng-primitives/form-field": ["packages/ng-primitives/form-field/src/index.ts"],
       "ng-primitives/interactions": ["packages/ng-primitives/interactions/src/index.ts"],
+      "ng-primitives/internal": ["packages/ng-primitives/internal/src/index.ts"],
       "ng-primitives/progress": ["packages/ng-primitives/progress/src/index.ts"],
       "ng-primitives/radio": ["packages/ng-primitives/radio/src/index.ts"],
       "ng-primitives/resize": ["packages/ng-primitives/resize/src/index.ts"],

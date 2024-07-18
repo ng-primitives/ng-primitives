@@ -6,30 +6,26 @@
  * LICENSE file in the root directory of this source tree.
  */
 import { BooleanInput } from '@angular/cdk/coercion';
-import { Directive, ElementRef, booleanAttribute, inject, input, output } from '@angular/core';
+import { Directive, ElementRef, booleanAttribute, inject, input } from '@angular/core';
 import { NgpFocusVisible, NgpHover, NgpPress } from 'ng-primitives/interactions';
+import { NgpCanDisable, NgpDisabledToken } from 'ng-primitives/internal';
 import { NgpButtonToken } from './button.token';
 
 @Directive({
   standalone: true,
   selector: '[ngpButton]',
   exportAs: 'ngpButton',
-  providers: [{ provide: NgpButtonToken, useExisting: NgpButton }],
-  hostDirectives: [
-    { directive: NgpHover, inputs: ['ngpHoverDisabled:ngpButtonDisabled'] },
-    {
-      directive: NgpPress,
-      inputs: ['ngpPressDisabled:ngpButtonDisabled'],
-      outputs: ['ngpPressEnd:ngpButtonPress'],
-    },
-    { directive: NgpFocusVisible, inputs: ['ngpFocusVisibleDisabled:ngpButtonDisabled'] },
+  providers: [
+    { provide: NgpButtonToken, useExisting: NgpButton },
+    { provide: NgpDisabledToken, useExisting: NgpButton },
   ],
+  hostDirectives: [NgpHover, NgpFocusVisible, NgpPress],
   host: {
     '[attr.data-disabled]': 'disabled()',
     '[attr.disabled]': 'isButton && disabled() ? true : null',
   },
 })
-export class NgpButton {
+export class NgpButton implements NgpCanDisable {
   /**
    * Get the native element of the button.
    */
@@ -44,14 +40,7 @@ export class NgpButton {
   });
 
   /**
-   * Emit whenever the button is pressed.
-   */
-  readonly pressEnd = output<void>({
-    alias: 'ngpButtonPress',
-  });
-
-  /**
    * Detect if this is an HTML button element.
    */
-  private readonly isButton = this.elementRef.nativeElement.tagName.toLowerCase() === 'button';
+  protected readonly isButton = this.elementRef.nativeElement.tagName.toLowerCase() === 'button';
 }

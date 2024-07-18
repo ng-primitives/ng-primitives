@@ -18,13 +18,13 @@ import { NgpLabelToken } from './label.token';
   host: {
     '[attr.id]': 'id()',
     '[attr.for]': 'htmlFor()',
-    '[attr.data-invalid]': 'formField.invalid()',
-    '[attr.data-valid]': 'formField.valid()',
-    '[attr.data-touched]': 'formField.touched()',
-    '[attr.data-pristine]': 'formField.pristine()',
-    '[attr.data-dirty]': 'formField.dirty()',
-    '[attr.data-pending]': 'formField.pending()',
-    '[attr.data-disabled]': 'formField.disabled()',
+    '[attr.data-invalid]': 'formField?.invalid()',
+    '[attr.data-valid]': 'formField?.valid()',
+    '[attr.data-touched]': 'formField?.touched()',
+    '[attr.data-pristine]': 'formField?.pristine()',
+    '[attr.data-dirty]': 'formField?.dirty()',
+    '[attr.data-pending]': 'formField?.pending()',
+    '[attr.data-disabled]': 'formField?.disabled()',
   },
 })
 export class NgpLabel {
@@ -36,7 +36,7 @@ export class NgpLabel {
   /**
    * Access the form field that the label is associated with.
    */
-  protected readonly formField = injectFormField('NgpLabel');
+  protected readonly formField = injectFormField();
 
   /**
    * The id of the label. If not provided, a unique id will be generated.
@@ -51,13 +51,15 @@ export class NgpLabel {
   /**
    * Derive the for attribute value if the label is an HTML label element.
    */
-  protected readonly htmlFor = computed(() => (this.isLabel ? this.formField.formControl() : null));
+  protected readonly htmlFor = computed(() =>
+    this.isLabel ? this.formField?.formControl() : null,
+  );
 
   constructor() {
     effect(
       onCleanup => {
-        this.formField.addLabel(this.id());
-        onCleanup(() => this.formField.removeLabel(this.id()));
+        this.formField?.addLabel(this.id());
+        onCleanup(() => this.formField?.removeLabel(this.id()));
       },
       { allowSignalWrites: true },
     );

@@ -6,69 +6,32 @@
  * LICENSE file in the root directory of this source tree.
  */
 import { BooleanInput } from '@angular/cdk/coercion';
-import { Directive, booleanAttribute, contentChild, input, model, signal } from '@angular/core';
-import { NgpSelectButtonToken } from '../select-button/select-button.token';
-import { NgpSelectOptionsToken } from '../select-options/select-options.token';
+import { booleanAttribute, Directive, input } from '@angular/core';
+import { NgpFormControl } from 'ng-primitives/form-field';
+import { NgpFocusVisible, NgpHover, NgpPress } from 'ng-primitives/interactions';
+import { NgpCanDisable, NgpDisabledToken } from 'ng-primitives/internal';
 import { NgpSelectToken } from './select.token';
 
 @Directive({
   standalone: true,
-  selector: '[ngpSelect]',
+  selector: 'select[ngpSelect]',
   exportAs: 'ngpSelect',
-  providers: [{ provide: NgpSelectToken, useExisting: NgpSelect }],
+  providers: [
+    { provide: NgpSelectToken, useExisting: NgpSelect },
+    { provide: NgpDisabledToken, useExisting: NgpSelect },
+  ],
+  hostDirectives: [NgpFormControl, NgpFocusVisible, NgpHover, NgpPress],
+  host: {
+    '[attr.disabled]': 'disabled() || null',
+    '[attr.data-disabled]': 'disabled()',
+  },
 })
-export class NgpSelect<T> {
+export class NgpSelect implements NgpCanDisable {
   /**
-   * The selected value.
-   */
-  readonly value = model.required<T>({
-    alias: 'ngpSelectValue',
-  });
-
-  /**
-   * Whether the select dropdown is open.
-   */
-  readonly open = model<boolean>(false, {
-    alias: 'ngpSelectOpen',
-  });
-
-  /**
-   * Disable the select component.
+   * Whether the select is disabled.
    */
   readonly disabled = input<boolean, BooleanInput>(false, {
     alias: 'ngpSelectDisabled',
     transform: booleanAttribute,
   });
-
-  /**
-   * Access the select button instance.
-   * @internal
-   */
-  readonly button = contentChild.required(NgpSelectButtonToken, {
-    descendants: true,
-  });
-
-  /**
-   * Access the select options instance.
-   * @internal
-   */
-  readonly options = contentChild(NgpSelectOptionsToken, {
-    descendants: true,
-  });
-
-  /**
-   * Store the dropdown dimensions.
-   * @internal
-   */
-  readonly dropdownBounds = signal<DropdownBounds>({
-    x: null,
-    y: null,
-    width: null,
-  });
-}
-
-interface DropdownBounds {
-  x: number | null;
-  y: number | null;
-  width: number | null;
 }

@@ -7,6 +7,7 @@
  */
 import { BooleanInput } from '@angular/cdk/coercion';
 import { Directive, HostListener, input, output, signal } from '@angular/core';
+import { injectDisabled } from 'ng-primitives/internal';
 import { injectDisposables } from 'ng-primitives/utils';
 import { NgpMoveToken } from './move.token';
 
@@ -29,6 +30,11 @@ export class NgpMove {
    * Access the disposable helper.
    */
   private readonly disposables = injectDisposables();
+
+  /**
+   * Access the disabled state from any parent.
+   */
+  private readonly disabledContext = injectDisabled();
 
   /**
    * Whether movement is disabled.
@@ -141,7 +147,12 @@ export class NgpMove {
   @HostListener('pointerdown', ['$event'])
   protected onPointerDown(event: PointerEvent): void {
     // ignore right-click or additional pointers
-    if (event.button !== 0 || this.pointerId !== null || this.disabled()) {
+    if (
+      event.button !== 0 ||
+      this.pointerId !== null ||
+      this.disabled() ||
+      this.disabledContext()
+    ) {
       return;
     }
 
@@ -218,7 +229,7 @@ export class NgpMove {
   }
 
   private triggerKeyboardMove(event: KeyboardEvent, deltaX: number, deltaY: number): void {
-    if (this.disabled()) {
+    if (this.disabled() || this.disabledContext()) {
       return;
     }
 

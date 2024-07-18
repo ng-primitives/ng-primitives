@@ -39,8 +39,32 @@ A directive that can be used to create a button.
   A boolean value that determines if the button is disabled.
 </response-field>
 
-<response-field name="ngpButtonPress" type="EventEmitter<void>">
-  An event that is emitted when the button is pressed.
+<response-field name="ngpPress" type="EventEmitter<boolean>">
+  Event emitted when the press state changes.
+</response-field>
+
+<response-field name="ngpPressStart" type="EventEmitter<void>">
+  Event emitted when the press starts.
+</response-field>
+
+<response-field name="ngpPressEnd" type="EventEmitter<void>">
+  Event emitted when the press ends.
+</response-field>
+
+<response-field name="ngpFocusVisible" type="EventEmitter<boolean>">
+  Event emitted when the focus visible state changes.
+</response-field>
+
+<response-field name="ngpHover" type="EventEmitter<boolean>">
+  Event emitted when the hover state changes.
+</response-field>
+
+<response-field name="ngpHoverStart" type="EventEmitter<void>">
+  Event emitted when the hover starts.
+</response-field>
+
+<response-field name="ngpHoverEnd" type="EventEmitter<void>">
+  Event emitted when the hover ends.
 </response-field>
 
 #### Data Attributes

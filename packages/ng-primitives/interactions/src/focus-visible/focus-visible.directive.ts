@@ -18,6 +18,7 @@ import {
   signal,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { injectDisabled } from 'ng-primitives/internal';
 import { NgpFocusVisibleToken } from './focus-visible.token';
 
 @Directive({
@@ -39,6 +40,11 @@ export class NgpFocusVisible {
    * Access the focus monitor.
    */
   private readonly focusMonitor = inject(FocusMonitor);
+
+  /**
+   * Access the disabled state from any parent.
+   */
+  private readonly disabledContext = injectDisabled();
 
   /**
    * Whether focus events are listened to.
@@ -68,7 +74,7 @@ export class NgpFocusVisible {
   }
 
   private onFocus(origin: FocusOrigin): void {
-    if (this.disabled() || this.isFocused()) {
+    if (this.disabled() || this.disabledContext() || this.isFocused()) {
       return;
     }
 
@@ -92,7 +98,7 @@ export class NgpFocusVisible {
    */
   @HostListener('blur')
   protected onBlur(): void {
-    if (this.disabled() || !this.isFocused()) {
+    if (this.disabled() || this.disabledContext() || !this.isFocused()) {
       return;
     }
 

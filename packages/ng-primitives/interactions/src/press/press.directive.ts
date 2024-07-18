@@ -16,6 +16,7 @@ import {
   output,
   signal,
 } from '@angular/core';
+import { injectDisabled } from 'ng-primitives/internal';
 import { injectDisposables } from 'ng-primitives/utils';
 import { NgpPressToken } from './press.token';
 
@@ -43,6 +44,11 @@ export class NgpPress {
    * Access the disposables.
    */
   private readonly disposables = injectDisposables();
+
+  /**
+   * Access the disabled state from any parent.
+   */
+  private readonly disabledContext = injectDisabled();
 
   /**
    * Whether listening for press events is disabled.
@@ -101,7 +107,7 @@ export class NgpPress {
 
   @HostListener('pointerdown')
   protected onPointerDown(): void {
-    if (this.disabled()) {
+    if (this.disabled() || this.disabledContext()) {
       return;
     }
 

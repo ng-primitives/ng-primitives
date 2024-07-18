@@ -7,6 +7,7 @@
  */
 import { BooleanInput } from '@angular/cdk/coercion';
 import { Directive, HostListener, booleanAttribute, input, output, signal } from '@angular/core';
+import { injectDisabled } from 'ng-primitives/internal';
 import { NgpFocusToken } from './focus.token';
 
 /**
@@ -29,6 +30,11 @@ export class NgpFocus {
   protected isFocused = signal<boolean>(false);
 
   /**
+   * Access the disabled state from any parent.
+   */
+  private readonly disabledContext = injectDisabled();
+
+  /**
    * Whether listening for focus events is disabled.
    */
   readonly disabled = input<boolean, BooleanInput>(false, {
@@ -47,7 +53,7 @@ export class NgpFocus {
    */
   @HostListener('focus', ['$event'])
   protected onFocus(event: FocusEvent) {
-    if (this.disabled()) {
+    if (this.disabled() || this.disabledContext()) {
       return;
     }
 
@@ -66,7 +72,7 @@ export class NgpFocus {
    */
   @HostListener('blur', ['$event'])
   protected onBlur(event: FocusEvent) {
-    if (this.disabled()) {
+    if (this.disabled() || this.disabledContext()) {
       return;
     }
 
