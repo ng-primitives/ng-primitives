@@ -6,7 +6,7 @@ import { NgpToggle } from 'ng-primitives/toggle';
   selector: 'app-toggle',
   imports: [NgpToggle],
   template: `
-    <button [(ngpTogglePressed)]="pressed" ngpToggle>Toggle</button>
+    <button [(ngpToggleSelected)]="selected" ngpToggle>Toggle</button>
   `,
   styles: `
     [ngpToggle] {
@@ -43,7 +43,7 @@ import { NgpToggle } from 'ng-primitives/toggle';
       background-color: rgb(245 245 245);
     }
 
-    [ngpToggle][data-state='on'] {
+    [ngpToggle][data-selected='true'] {
       background-color: rgb(10 10 10);
       color: white;
     }
@@ -51,7 +51,7 @@ import { NgpToggle } from 'ng-primitives/toggle';
 })
 export default class ToggleExample {
   /**
-   * Whether the toggle is pressed.
+   * Whether the toggle is selected.
    */
-  readonly pressed = signal(false);
+  readonly selected = signal(false);
 }

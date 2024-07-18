@@ -14,17 +14,17 @@ import { Directive, HostListener, booleanAttribute, input, model } from '@angula
   standalone: true,
   host: {
     type: 'button',
-    '[attr.aria-pressed]': 'pressed()',
-    '[attr.data-state]': 'pressed() ? "on" : "off"',
+    '[attr.aria-pressed]': 'selected()',
+    '[attr.data-selected]': 'selected()',
     '[attr.data-disabled]': 'disabled()',
   },
 })
 export class NgpToggle {
   /**
-   * Whether the toggle is pressed.
+   * Whether the toggle is selected.
    * @default false
    */
-  readonly pressed = model<boolean>(false, { alias: 'ngpTogglePressed' });
+  readonly selected = model<boolean>(false, { alias: 'ngpToggleSelected' });
 
   /**
    * Whether the toggle is disabled.
@@ -36,7 +36,7 @@ export class NgpToggle {
   });
 
   /**
-   * Toggle the pressed state.
+   * Toggle the selected state.
    */
   @HostListener('click')
   toggle(): void {
@@ -44,6 +44,6 @@ export class NgpToggle {
       return;
     }
 
-    this.pressed.set(!this.pressed());
+    this.selected.update(selected => !selected);
   }
 }

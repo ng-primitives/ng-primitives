@@ -21,7 +21,7 @@ import { NgpToggle } from 'ng-primitives/toggle';
 Assemble the toggle directives in your template.
 
 ```html
-<button ngpToggle [(ngpTogglePressed)]="pressed">Toggle</button>
+<button ngpToggle [(ngpToggleSelected)]="selected">Toggle</button>
 ```
 
 ## API Reference
@@ -35,23 +35,23 @@ Apply the `ngpToggle` directive to an element to manage the toggle state. This m
 - Selector: `[ngpToggle]`
 - Exported As: `ngpToggle`
 
-<response-field name="ngpTogglePressed" type="boolean" default="false">
-  Define the pressed state.
+<response-field name="ngpToggleSelected" type="boolean" default="false">
+  Define the selected state.
 </response-field>
 
 <response-field name="ngpToggleDisabled" type="boolean" default="false">
   Define the disabled state.
 </response-field>
 
-<response-field name="ngpTogglePressedChange" type="boolean">
-  Event emitted when the state changes.
+<response-field name="ngpToggleSelectedChange" type="boolean">
+  Event emitted when the selected state changes.
 </response-field>
 
 #### Data Attributes
 
 The following data attributes are applied to the `ngpToggle` directive:
 
-| Attribute       | Description                     | Value             |
-| --------------- | ------------------------------- | ----------------- |
-| `data-state`    | Define the state of the toggle. | `on` \| `off`     |
-| `data-disabled` | Define the disabled state.      | `true` \| `false` |
+| Attribute       | Description         | Value             |
+| --------------- | ------------------- | ----------------- |
+| `data-selected` | The selected state. | `true` \| `false` |
+| `data-disabled` | The disabled state. | `true` \| `false` |
