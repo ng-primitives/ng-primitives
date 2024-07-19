@@ -15,6 +15,7 @@ import {
   model,
   numberAttribute,
 } from '@angular/core';
+import { NgpFormControl } from 'ng-primitives/form-field';
 import { NgpSliderTrackToken } from '../slider-track/slider-track.token';
 import { NgpSliderToken } from './slider.token';
 
@@ -23,6 +24,7 @@ import { NgpSliderToken } from './slider.token';
   selector: '[ngpSlider]',
   exportAs: 'ngpSlider',
   providers: [{ provide: NgpSliderToken, useExisting: NgpSlider }],
+  hostDirectives: [NgpFormControl],
 })
 export class NgpSlider {
   /**

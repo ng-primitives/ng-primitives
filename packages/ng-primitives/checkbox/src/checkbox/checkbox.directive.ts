@@ -15,6 +15,7 @@ import {
   input,
   model,
 } from '@angular/core';
+import { NgpFormControl } from 'ng-primitives/form-field';
 import { NgpCheckboxIndicatorToken } from '../checkbox-indicator/checkbox-indicator.token';
 import { NgpCheckboxToken } from './checkbox.token';
 
@@ -22,6 +23,7 @@ import { NgpCheckboxToken } from './checkbox.token';
   selector: '[ngpCheckbox]',
   standalone: true,
   providers: [{ provide: NgpCheckboxToken, useExisting: NgpCheckbox }],
+  hostDirectives: [NgpFormControl],
 })
 export class NgpCheckbox {
   /**

@@ -30,7 +30,6 @@
         "@angular-eslint/no-output-rename": "off",
         "@angular-eslint/no-input-rename": "off",
         "@nx/enforce-module-boundaries": "off",
-        "@nx/workspace-prefer-entrypoint-imports": "error",
         "license-header/header": ["error", "../../tools/license/license-header.js"],
         "@typescript-eslint/ban-ts-comment": "off"
       }

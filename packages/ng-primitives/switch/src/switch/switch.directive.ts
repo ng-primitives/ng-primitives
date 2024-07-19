@@ -15,6 +15,7 @@ import {
   input,
   model,
 } from '@angular/core';
+import { NgpFormControl } from 'ng-primitives/form-field';
 import { NgpSwitchToken } from './switch.token';
 
 @Directive({
@@ -22,6 +23,7 @@ import { NgpSwitchToken } from './switch.token';
   selector: '[ngpSwitch]',
   exportAs: 'ngpSwitch',
   providers: [{ provide: NgpSwitchToken, useExisting: NgpSwitch }],
+  hostDirectives: [NgpFormControl],
   host: {
     role: 'switch',
     '[attr.type]': 'isButton ? "button" : null',
