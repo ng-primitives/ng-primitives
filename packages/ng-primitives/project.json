@@ -23,6 +23,9 @@
       },
       "defaultConfiguration": "production"
     },
+    "test": {
+      "executor": "nx:noop"
+    },
     "nx-release-publish": {
       "dependsOn": ["build"],
       "options": {
