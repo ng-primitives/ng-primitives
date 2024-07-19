@@ -1,5 +1,5 @@
 ---
-title: 'Switch'
+name: 'Switch'
 ---
 
 # Switch

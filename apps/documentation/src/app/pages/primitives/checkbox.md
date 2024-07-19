@@ -1,5 +1,5 @@
 ---
-title: 'Checkbox'
+name: 'Checkbox'
 ---
 
 # Checkbox

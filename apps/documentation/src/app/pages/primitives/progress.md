@@ -1,5 +1,5 @@
 ---
-title: 'Progress'
+name: 'Progress'
 ---
 
 # Progress

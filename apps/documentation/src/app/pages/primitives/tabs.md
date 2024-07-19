@@ -1,5 +1,5 @@
 ---
-title: 'Tabs'
+name: 'Tabs'
 ---
 
 # Tabs

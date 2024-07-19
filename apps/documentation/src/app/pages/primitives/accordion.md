@@ -1,5 +1,5 @@
 ---
-title: 'Accordion'
+name: 'Accordion'
 ---
 
 # Accordion

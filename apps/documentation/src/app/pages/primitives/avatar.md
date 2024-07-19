@@ -1,5 +1,5 @@
 ---
-title: 'Avatar'
+name: 'Avatar'
 ---
 
 # Avatar

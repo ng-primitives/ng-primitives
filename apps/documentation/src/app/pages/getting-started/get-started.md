@@ -1,5 +1,5 @@
 ---
-title: Get Started
+name: Get Started
 order: 2
 ---
 

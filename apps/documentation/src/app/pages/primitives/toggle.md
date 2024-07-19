@@ -1,5 +1,5 @@
 ---
-title: 'Toggle'
+name: 'Toggle'
 ---
 
 # Toggle

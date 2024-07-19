@@ -1,5 +1,5 @@
 ---
-title: 'Focus Visible'
+name: 'Focus Visible'
 ---
 
 # Focus Visible

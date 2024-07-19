@@ -1,5 +1,5 @@
 ---
-title: 'Press'
+name: 'Press'
 ---
 
 # Press

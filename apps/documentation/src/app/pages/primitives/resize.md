@@ -1,5 +1,5 @@
 ---
-title: 'Resize'
+name: 'Resize'
 ---
 
 # Resize

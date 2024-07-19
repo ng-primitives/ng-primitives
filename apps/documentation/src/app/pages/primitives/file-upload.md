@@ -1,5 +1,5 @@
 ---
-title: 'File Upload'
+name: 'File Upload'
 ---
 
 # File Upload

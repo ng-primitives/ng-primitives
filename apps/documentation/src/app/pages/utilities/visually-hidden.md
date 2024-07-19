@@ -1,5 +1,5 @@
 ---
-title: 'Visually Hidden'
+name: 'Visually Hidden'
 ---
 
 # Visually Hidden

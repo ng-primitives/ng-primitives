@@ -30,21 +30,21 @@ export class SideNavigationComponent {
       return {
         section: sectionTitle,
         link: normalizedPath,
-        title: data['title'],
+        name: data['name'],
         order: data['order'] ?? Infinity,
       };
     })
     // next group the links by section
-    .reduce<Section[]>((acc, { section, link, title, order }) => {
+    .reduce<Section[]>((acc, { section, link, name, order }) => {
       const existingSection = acc.find(s => s.title === section);
 
       if (existingSection) {
-        existingSection.links.push({ link, title, order });
+        existingSection.links.push({ link, name, order });
 
         // sort the links based on the order property if defined
         existingSection.links.sort((a, b) => a.order - b.order);
       } else {
-        acc.push({ title: section, links: [{ link, title, order }] });
+        acc.push({ title: section, links: [{ link, name, order }] });
       }
 
       return acc;
@@ -65,6 +65,6 @@ interface Section {
 
 interface Link {
   link: string;
-  title: string;
+  name: string;
   order: number;
 }

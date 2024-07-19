@@ -1,5 +1,5 @@
 ---
-title: 'Slider'
+name: 'Slider'
 ---
 
 # Slider

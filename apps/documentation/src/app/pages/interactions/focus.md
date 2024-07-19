@@ -1,5 +1,5 @@
 ---
-title: 'Focus'
+name: 'Focus'
 ---
 
 # Focus

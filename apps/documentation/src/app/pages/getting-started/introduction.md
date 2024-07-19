@@ -1,5 +1,5 @@
 ---
-title: Introduction
+name: Introduction
 order: 1
 ---
 

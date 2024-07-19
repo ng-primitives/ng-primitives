@@ -1,5 +1,5 @@
 ---
-title: 'Tooltip'
+name: 'Tooltip'
 ---
 
 # Tooltip

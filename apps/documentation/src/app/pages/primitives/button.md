@@ -1,5 +1,5 @@
 ---
-title: 'Button'
+name: 'Button'
 ---
 
 # Button
