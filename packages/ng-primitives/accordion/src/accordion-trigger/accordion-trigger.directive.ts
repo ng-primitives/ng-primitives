@@ -6,8 +6,8 @@
  * LICENSE file in the root directory of this source tree.
  */
 import { Directive, HostListener, input } from '@angular/core';
-import { uniqueId } from 'ng-primitives/utils';
 import { NgpFocusVisible, NgpHover, NgpPress } from 'ng-primitives/interactions';
+import { uniqueId } from 'ng-primitives/utils';
 import { injectAccordionItem } from '../accordion-item/accordion-item.token';
 import { injectAccordion } from '../accordion/accordion.token';
 import { NgpAccordionTriggerToken } from './accordion-trigger.token';
