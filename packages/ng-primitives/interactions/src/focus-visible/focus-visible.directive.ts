@@ -42,17 +42,17 @@ export class NgpFocusVisible {
   private readonly focusMonitor = inject(FocusMonitor);
 
   /**
-   * Access the disabled state from any parent.
-   */
-  private readonly disabledContext = injectDisabled();
-
-  /**
    * Whether focus events are listened to.
    */
   readonly disabled = input<boolean, BooleanInput>(false, {
     alias: 'ngpFocusVisibleDisabled',
     transform: booleanAttribute,
   });
+
+  /**
+   * Access the disabled state from any parent.
+   */
+  private readonly isDisabled = injectDisabled(this.disabled);
 
   /**
    * Emit when the element is visually focused.
@@ -74,7 +74,7 @@ export class NgpFocusVisible {
   }
 
   private onFocus(origin: FocusOrigin): void {
-    if (this.disabled() || this.disabledContext() || this.isFocused()) {
+    if (this.isDisabled() || this.isFocused()) {
       return;
     }
 
@@ -98,7 +98,7 @@ export class NgpFocusVisible {
    */
   @HostListener('blur')
   protected onBlur(): void {
-    if (this.disabled() || this.disabledContext() || !this.isFocused()) {
+    if (this.isDisabled() || !this.isFocused()) {
       return;
     }
 

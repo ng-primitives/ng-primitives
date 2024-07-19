@@ -8,7 +8,8 @@
 import { FocusOrigin } from '@angular/cdk/a11y';
 import { Directionality } from '@angular/cdk/bidi';
 import { BooleanInput } from '@angular/cdk/coercion';
-import { Directive, booleanAttribute, inject, input, model, signal } from '@angular/core';
+import { booleanAttribute, Directive, inject, input, model, signal } from '@angular/core';
+import { injectOrientation, NgpCanOrientate, NgpOrientation } from 'ng-primitives/internal';
 import { NgpRovingFocusItem } from '../roving-focus-item/roving-focus-item.directive';
 import { NgpRovingFocusGroupToken } from './roving-focus-group.token';
 
@@ -18,7 +19,7 @@ import { NgpRovingFocusGroupToken } from './roving-focus-group.token';
   exportAs: 'ngpRovingFocusGroup',
   providers: [{ provide: NgpRovingFocusGroupToken, useExisting: NgpRovingFocusGroup }],
 })
-export class NgpRovingFocusGroup {
+export class NgpRovingFocusGroup implements NgpCanOrientate {
   /**
    * Access the directionality service.
    */
@@ -28,9 +29,14 @@ export class NgpRovingFocusGroup {
    * Determine the orientation of the roving focus group.
    * @default 'vertical'
    */
-  readonly orientation = model<'horizontal' | 'vertical'>('vertical', {
+  readonly orientation = model<NgpOrientation>('vertical', {
     alias: 'ngpRovingFocusGroupOrientation',
   });
+
+  /**
+   * Determine the orientation of the roving focus group.
+   */
+  readonly groupOrientation = injectOrientation(this.orientation);
 
   /**
    * Determine if focus should wrap when the end or beginning is reached.
@@ -227,19 +233,19 @@ export class NgpRovingFocusGroup {
 
     switch (event.key) {
       case 'ArrowUp':
-        if (this.orientation() === 'vertical') {
+        if (this.groupOrientation() === 'vertical') {
           event.preventDefault();
           this.activatePreviousItem('keyboard');
         }
         break;
       case 'ArrowDown':
-        if (this.orientation() === 'vertical') {
+        if (this.groupOrientation() === 'vertical') {
           event.preventDefault();
           this.activateNextItem('keyboard');
         }
         break;
       case 'ArrowLeft':
-        if (this.orientation() === 'horizontal') {
+        if (this.groupOrientation() === 'horizontal') {
           event.preventDefault();
 
           if (this.directionality.value === 'ltr') {
@@ -250,7 +256,7 @@ export class NgpRovingFocusGroup {
         }
         break;
       case 'ArrowRight':
-        if (this.orientation() === 'horizontal') {
+        if (this.groupOrientation() === 'horizontal') {
           event.preventDefault();
 
           if (this.directionality.value === 'ltr') {

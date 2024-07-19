@@ -18,10 +18,12 @@ export interface NgpCanDisable {
 
 /**
  * Determine if we are in a disabled context.
+ * @param disabled The disabled signal for the local context.
  * @returns The disabled signal.
  */
-export function injectDisabled(): Signal<boolean> {
-  const disabled = signal<boolean>(false);
+export function injectDisabled(
+  disabled: Signal<boolean> = signal<boolean>(false),
+): Signal<boolean> {
   const provider = inject(NgpDisabledToken, { optional: true });
 
   return provider ? provider.disabled : disabled;

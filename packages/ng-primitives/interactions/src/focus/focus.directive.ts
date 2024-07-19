@@ -30,17 +30,17 @@ export class NgpFocus {
   protected isFocused = signal<boolean>(false);
 
   /**
-   * Access the disabled state from any parent.
-   */
-  private readonly disabledContext = injectDisabled();
-
-  /**
    * Whether listening for focus events is disabled.
    */
   readonly disabled = input<boolean, BooleanInput>(false, {
     alias: 'ngpFocusDisabled',
     transform: booleanAttribute,
   });
+
+  /**
+   * Access the disabled state from any parent.
+   */
+  private readonly isDisabled = injectDisabled(this.disabled);
 
   /**
    * Emit when the focus state changes.
@@ -53,7 +53,7 @@ export class NgpFocus {
    */
   @HostListener('focus', ['$event'])
   protected onFocus(event: FocusEvent) {
-    if (this.disabled() || this.disabledContext()) {
+    if (this.isDisabled()) {
       return;
     }
 
@@ -72,7 +72,7 @@ export class NgpFocus {
    */
   @HostListener('blur', ['$event'])
   protected onBlur(event: FocusEvent) {
-    if (this.disabled() || this.disabledContext()) {
+    if (this.isDisabled()) {
       return;
     }
 

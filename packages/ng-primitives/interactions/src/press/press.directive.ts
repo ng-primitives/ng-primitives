@@ -46,17 +46,17 @@ export class NgpPress {
   private readonly disposables = injectDisposables();
 
   /**
-   * Access the disabled state from any parent.
-   */
-  private readonly disabledContext = injectDisabled();
-
-  /**
    * Whether listening for press events is disabled.
    */
   readonly disabled = input<boolean, BooleanInput>(false, {
     alias: 'ngpPressDisabled',
     transform: booleanAttribute,
   });
+
+  /**
+   * Access the disabled state from any parent.
+   */
+  private readonly isDisabled = injectDisabled(this.disabled);
 
   /**
    * Emit when the press begins.
@@ -107,7 +107,7 @@ export class NgpPress {
 
   @HostListener('pointerdown')
   protected onPointerDown(): void {
-    if (this.disabled() || this.disabledContext()) {
+    if (this.isDisabled()) {
       return;
     }
 

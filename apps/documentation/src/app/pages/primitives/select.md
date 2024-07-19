@@ -42,22 +42,6 @@ Apply the `ngpSelect` directive to a select element that you want to enhance.
   Define the disabled state.
 </response-field>
 
-<response-field name="ngpFocusVisible" type="EventEmitter<boolean>">
-  Event emitted when the focus visible state changes.
-</response-field>
-
-<response-field name="ngpHover" type="EventEmitter<boolean>">
-  Event emitted when the hover state changes.
-</response-field>
-
-<response-field name="ngpHoverStart" type="EventEmitter<void>">
-  Event emitted when the hover starts.
-</response-field>
-
-<response-field name="ngpHoverEnd" type="EventEmitter<void>">
-  Event emitted when the hover ends.
-</response-field>
-
 #### Data Attributes
 
 | Attribute            | Description                       | Value             |

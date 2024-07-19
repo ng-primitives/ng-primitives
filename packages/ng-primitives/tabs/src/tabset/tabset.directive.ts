@@ -8,15 +8,14 @@
 import { BooleanInput } from '@angular/cdk/coercion';
 import {
   Directive,
-  OnChanges,
-  SimpleChanges,
   booleanAttribute,
   computed,
   contentChildren,
   input,
   model,
 } from '@angular/core';
-import { NgpRovingFocusGroup, injectRovingFocusGroup } from 'ng-primitives/roving-focus';
+import { NgpCanOrientate, NgpOrientation, NgpOrientationToken } from 'ng-primitives/internal';
+import { NgpRovingFocusGroup } from 'ng-primitives/roving-focus';
 import { uniqueId } from 'ng-primitives/utils';
 import { injectTabsConfig } from '../config/tabs.config';
 import { NgpTabPanelToken } from '../tab-panel/tab-panel.token';
@@ -26,23 +25,21 @@ import { NgpTabsetToken } from './tabset.token';
   standalone: true,
   selector: '[ngpTabset]',
   exportAs: 'ngpTabset',
-  providers: [{ provide: NgpTabsetToken, useExisting: NgpTabset }],
+  providers: [
+    { provide: NgpTabsetToken, useExisting: NgpTabset },
+    { provide: NgpOrientationToken, useExisting: NgpTabset },
+  ],
   hostDirectives: [NgpRovingFocusGroup],
   host: {
     '[attr.id]': 'id()',
     '[attr.data-orientation]': 'orientation()',
   },
 })
-export class NgpTabset implements OnChanges {
+export class NgpTabset implements NgpCanOrientate {
   /**
    * Access the global tabset configuration
    */
   private readonly config = injectTabsConfig();
-
-  /**
-   * Access the roving focus group directive
-   */
-  private readonly rovingFocusGroup = injectRovingFocusGroup();
 
   /**
    * Define the id for the tabset
@@ -60,7 +57,7 @@ export class NgpTabset implements OnChanges {
    * The orientation of the tabset
    * @default 'horizontal'
    */
-  readonly orientation = input<'horizontal' | 'vertical'>(this.config.orientation, {
+  readonly orientation = input<NgpOrientation>(this.config.orientation, {
     alias: 'ngpTabsetOrientation',
   });
 
@@ -91,17 +88,6 @@ export class NgpTabset implements OnChanges {
     // otherwise return the first tab
     return panels[0]?.value();
   });
-
-  constructor() {
-    // default the orientation to horizontal
-    this.rovingFocusGroup.orientation.set(this.orientation());
-  }
-
-  ngOnChanges(changes: SimpleChanges): void {
-    if ('orientation' in changes) {
-      this.rovingFocusGroup.orientation.set(this.orientation());
-    }
-  }
 
   /**
    * Select a tab by its value

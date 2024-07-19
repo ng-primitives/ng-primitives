@@ -96,17 +96,17 @@ export class NgpHover implements OnChanges {
   private readonly globalPointerEvents = inject(GlobalPointerEvents);
 
   /**
-   * Access the disabled state from any parent.
-   */
-  private readonly disabledContext = injectDisabled();
-
-  /**
    * Whether hoving should be disabled.
    */
   readonly disabled = input<boolean, BooleanInput>(false, {
     alias: 'ngpHoverDisabled',
     transform: booleanAttribute,
   });
+
+  /**
+   * Access the disabled state from any parent.
+   */
+  private readonly isDisabled = injectDisabled(this.disabled);
 
   /**
    * Store the current hover state.
@@ -150,8 +150,7 @@ export class NgpHover implements OnChanges {
    */
   private onHoverStart(event: Event, pointerType: string): void {
     if (
-      this.disabled() ||
-      this.disabledContext() ||
+      this.isDisabled() ||
       pointerType === 'touch' ||
       this.hovered() ||
       !(event.currentTarget as Element)?.contains(event.target as Element)
@@ -189,11 +188,7 @@ export class NgpHover implements OnChanges {
 
   @HostListener('pointerleave', ['$event'])
   protected onPointerLeave(event: PointerEvent): void {
-    if (
-      !this.disabled() &&
-      !this.disabledContext() &&
-      (event.currentTarget as Element)?.contains(event.target as Element)
-    ) {
+    if (!this.isDisabled() && (event.currentTarget as Element)?.contains(event.target as Element)) {
       this.onHoverEnd(event.pointerType);
     }
   }
@@ -214,11 +209,7 @@ export class NgpHover implements OnChanges {
 
   @HostListener('mouseleave', ['$event'])
   protected onMouseLeave(event: MouseEvent): void {
-    if (
-      !this.disabled() &&
-      !this.disabledContext() &&
-      (event.currentTarget as Element)?.contains(event.target as Element)
-    ) {
+    if (!this.isDisabled() && (event.currentTarget as Element)?.contains(event.target as Element)) {
       this.onHoverEnd('mouse');
     }
   }
