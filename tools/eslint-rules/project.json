@@ -1,0 +1,7 @@
+{
+  "name": "eslint-rules",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "tools/eslint-rules",
+  "// targets": "to see all targets run: nx show project eslint-rules --web",
+  "targets": {}
+}
