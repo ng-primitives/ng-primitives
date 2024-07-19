@@ -6,6 +6,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 import { Directive, signal } from '@angular/core';
+import { NgpFocusVisible, NgpHover, NgpPress } from 'ng-primitives/interactions';
 import { NgpAvatarToken } from './avatar.token';
 
 @Directive({
@@ -15,6 +16,7 @@ import { NgpAvatarToken } from './avatar.token';
   host: {
     '[attr.data-state]': 'state()',
   },
+  hostDirectives: [NgpHover, NgpFocusVisible, NgpPress],
 })
 export class NgpAvatar {
   /**

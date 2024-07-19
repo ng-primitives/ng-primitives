@@ -16,6 +16,7 @@ import {
   output,
   signal,
 } from '@angular/core';
+import { NgpFocusVisible, NgpHover, NgpPress } from 'ng-primitives/interactions';
 import { NgpFileUploadToken } from './file-upload.token';
 
 @Directive({
@@ -27,6 +28,7 @@ import { NgpFileUploadToken } from './file-upload.token';
     '[attr.data-disabled]': 'disabled()',
     '[attr.data-dragover]': 'isDragOver()',
   },
+  hostDirectives: [NgpHover, NgpFocusVisible, NgpPress],
 })
 export class NgpFileUpload {
   /**

@@ -46,7 +46,7 @@ import { NgpSlider, NgpSliderRange, NgpSliderThumb, NgpSliderTrack } from 'ng-pr
       transform: translateX(-50%);
     }
 
-    [ngpSliderThumb]:focus-visible {
+    [ngpSliderThumb][data-focus-visible='true'] {
       box-shadow:
         0 0 0 1px rgb(0 0 0 / 0.05),
         0 0 0 2px rgb(59 130 246);

@@ -16,6 +16,7 @@ import {
   model,
 } from '@angular/core';
 import { NgpFormControl } from 'ng-primitives/form-field';
+import { NgpFocusVisible, NgpHover, NgpPress } from 'ng-primitives/interactions';
 import { NgpSwitchToken } from './switch.token';
 
 @Directive({
@@ -23,7 +24,7 @@ import { NgpSwitchToken } from './switch.token';
   selector: '[ngpSwitch]',
   exportAs: 'ngpSwitch',
   providers: [{ provide: NgpSwitchToken, useExisting: NgpSwitch }],
-  hostDirectives: [NgpFormControl],
+  hostDirectives: [NgpFormControl, NgpHover, NgpPress, NgpFocusVisible],
   host: {
     role: 'switch',
     '[attr.type]': 'isButton ? "button" : null',

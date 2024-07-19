@@ -6,6 +6,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 import { Directive } from '@angular/core';
+import { NgpFocusVisible, NgpHover, NgpPress } from 'ng-primitives/interactions';
 import { injectSwitch } from '../switch/switch.token';
 
 @Directive({
@@ -15,6 +16,7 @@ import { injectSwitch } from '../switch/switch.token';
     '[attr.data-checked]': 'switch.checked()',
     '[attr.data-disabled]': 'switch.disabled() ? "true" : null',
   },
+  hostDirectives: [NgpHover, NgpFocusVisible, NgpPress],
 })
 export class NgpSwitchThumb {
   /**

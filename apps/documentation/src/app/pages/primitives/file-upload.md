@@ -65,7 +65,10 @@ A directive that allows you to turn any element into a file upload trigger.
 
 #### Data Attributes
 
-| Attribute       | Description                                            | Value             |
-| --------------- | ------------------------------------------------------ | ----------------- |
-| `data-dragover` | Indicates if a file is being dragged over the element. | `true` \| `false` |
-| `data-disabled` | Indicates if the file upload is disabled.              | `true` \| `false` |
+| Attribute            | Description                                  | Value             |
+| -------------------- | -------------------------------------------- | ----------------- |
+| `data-hover`         | If the file upload is being hovered over.    | `true` \| `false` |
+| `data-focus-visible` | If the file upload is focused.               | `true` \| `false` |
+| `data-press`         | If the file upload is being pressed.         | `true` \| `false` |
+| `data-dragover`      | If a file is being dragged over the element. | `true` \| `false` |
+| `data-disabled`      | If the file upload is disabled.              | `true` \| `false` |

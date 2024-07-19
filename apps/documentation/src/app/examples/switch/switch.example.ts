@@ -32,7 +32,7 @@ import { NgpSwitch, NgpSwitchThumb } from 'ng-primitives/switch';
       transition-duration: 150ms;
     }
 
-    [ngpSwitch]:focus-visible {
+    [ngpSwitch][data-focus-visible='true'] {
       box-shadow:
         0 0 0 1px rgb(0 0 0 / 0.05),
         0 0 0 2px rgb(59 130 246);

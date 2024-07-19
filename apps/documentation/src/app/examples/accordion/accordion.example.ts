@@ -51,7 +51,7 @@ import {
       border: none;
     }
 
-    [ngpAccordionTrigger]:focus-visible {
+    [ngpAccordionTrigger][data-focus-visible='true'] {
       box-shadow: 0 0 0 2px #3b82f6;
     }
 

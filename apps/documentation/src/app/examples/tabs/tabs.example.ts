@@ -38,7 +38,7 @@ import { NgpTabButton, NgpTabList, NgpTabPanel, NgpTabset } from 'ng-primitives/
       transition: all 150ms cubic-bezier(0.4, 0, 0.2, 1);
     }
 
-    [ngpTabButton]:focus-visible {
+    [ngpTabButton][data-focus-visible='true'] {
       box-shadow:
         0 0 0 1px rgb(0 0 0 / 0.05),
         0 0 0 2px rgb(59 130 246);

@@ -6,6 +6,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 import { Directive, HostListener } from '@angular/core';
+import { NgpFocusVisible, NgpHover, NgpPress } from 'ng-primitives/interactions';
 import { injectSlider } from '../slider/slider.token';
 import { NgpSliderThumbToken } from './slider-thumb.token';
 
@@ -28,6 +29,7 @@ import { NgpSliderThumbToken } from './slider-thumb.token';
     '[style.inset-block-start.%]':
       'slider.orientation() === "vertical" ? slider.percentage() : undefined',
   },
+  hostDirectives: [NgpHover, NgpFocusVisible, NgpPress],
 })
 export class NgpSliderThumb {
   /**

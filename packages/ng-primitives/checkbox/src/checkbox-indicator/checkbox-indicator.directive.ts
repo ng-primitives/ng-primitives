@@ -6,6 +6,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 import { Directive, input, numberAttribute } from '@angular/core';
+import { NgpFocusVisible, NgpHover, NgpPress } from 'ng-primitives/interactions';
 import { uniqueId } from 'ng-primitives/utils';
 import { injectCheckbox } from '../checkbox/checkbox.token';
 import { NgpCheckboxIndicatorToken } from './checkbox-indicator.token';
@@ -15,6 +16,7 @@ import { NgpCheckboxIndicatorToken } from './checkbox-indicator.token';
   selector: '[ngpCheckboxIndicator]',
   exportAs: 'ngpCheckboxIndicator',
   providers: [{ provide: NgpCheckboxIndicatorToken, useExisting: NgpCheckboxIndicator }],
+  hostDirectives: [NgpHover, NgpPress, NgpFocusVisible],
   host: {
     role: 'checkbox',
     '[id]': 'id()',

@@ -1,15 +1,16 @@
 import { Component, signal } from '@angular/core';
+import { NgpButton } from 'ng-primitives/button';
 import { NgpToggle } from 'ng-primitives/toggle';
 
 @Component({
   standalone: true,
   selector: 'app-toggle',
-  imports: [NgpToggle],
+  imports: [NgpToggle, NgpButton],
   template: `
-    <button [(ngpToggleSelected)]="selected" ngpToggle>Toggle</button>
+    <button [(ngpToggleSelected)]="selected" ngpButton ngpToggle>Toggle</button>
   `,
   styles: `
-    [ngpToggle] {
+    [ngpButton] {
       padding-left: 1rem;
       padding-right: 1rem;
       border-radius: 0.5rem;
@@ -26,11 +27,11 @@ import { NgpToggle } from 'ng-primitives/toggle';
         0 0 0 1px rgb(0 0 0 / 0.05);
     }
 
-    [ngpToggle]:hover {
+    [ngpButton][data-hover='true'] {
       background-color: rgb(250 250 250);
     }
 
-    [ngpToggle]:focus-visible {
+    [ngpButton][data-focus-visible='true'] {
       box-shadow:
         0 1px 3px 0 rgb(0 0 0 / 0.1),
         0 1px 2px -1px rgb(0 0 0 / 0.1),
@@ -39,11 +40,11 @@ import { NgpToggle } from 'ng-primitives/toggle';
         0 0 0 4px rgb(59 130 246);
     }
 
-    [ngpToggle]:active {
+    [ngpButton][data-press='true'] {
       background-color: rgb(245 245 245);
     }
 
-    [ngpToggle][data-selected='true'] {
+    [ngpButton][data-selected='true'] {
       background-color: rgb(10 10 10);
       color: white;
     }

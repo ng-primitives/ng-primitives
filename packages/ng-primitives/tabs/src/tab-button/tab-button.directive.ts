@@ -7,6 +7,7 @@
  */
 import { BooleanInput } from '@angular/cdk/coercion';
 import { Directive, HostListener, booleanAttribute, computed, input } from '@angular/core';
+import { NgpFocusVisible, NgpHover, NgpPress } from 'ng-primitives/interactions';
 import { NgpRovingFocusItem } from 'ng-primitives/roving-focus';
 import { injectTabset } from '../tabset/tabset.token';
 
@@ -22,7 +23,7 @@ import { injectTabset } from '../tabset/tabset.token';
     '[attr.data-disabled]': 'disabled()',
     '[attr.data-orientation]': 'tabset.orientation()',
   },
-  hostDirectives: [NgpRovingFocusItem],
+  hostDirectives: [NgpRovingFocusItem, NgpHover, NgpFocusVisible, NgpPress],
 })
 export class NgpTabButton {
   /**

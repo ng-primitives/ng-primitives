@@ -29,17 +29,17 @@ import { NgpRadioGroup, NgpRadioIndicator, NgpRadioItem } from 'ng-primitives/ra
       outline: none;
     }
 
-    [ngpRadioItem]:hover {
+    [ngpRadioItem][data-hover='true'] {
       background-color: rgb(250 250 250);
     }
 
-    [ngpRadioItem]:focus-visible {
+    [ngpRadioItem][data-focus-visible='true'] {
       box-shadow:
         0 0 0 2px #f5f5f5,
         0 0 0 4px rgb(59 130 246 / 50%);
     }
 
-    [ngpRadioItem]:active {
+    [ngpRadioItem][data-press='true'] {
       background-color: rgb(245 245 245);
     }
 

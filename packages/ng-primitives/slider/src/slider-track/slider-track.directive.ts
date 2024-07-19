@@ -14,12 +14,16 @@ import { NgpSliderTrackToken } from './slider-track.token';
   selector: '[ngpSliderTrack]',
   exportAs: 'ngpSliderTrack',
   providers: [{ provide: NgpSliderTrackToken, useExisting: NgpSliderTrack }],
+  host: {
+    '[attr.data-orientation]': 'slider.orientation()',
+    '[attr.data-disabled]': 'slider.disabled()',
+  },
 })
 export class NgpSliderTrack {
   /**
    * Access the slider.
    */
-  private readonly slider = injectSlider();
+  protected readonly slider = injectSlider();
 
   /**
    * The element that represents the slider track.

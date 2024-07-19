@@ -6,20 +6,33 @@
  * LICENSE file in the root directory of this source tree.
  */
 import { BooleanInput } from '@angular/cdk/coercion';
-import { Directive, HostListener, booleanAttribute, input, model } from '@angular/core';
+import {
+  Directive,
+  ElementRef,
+  HostListener,
+  booleanAttribute,
+  inject,
+  input,
+  model,
+} from '@angular/core';
 
 @Directive({
-  selector: 'button[ngpToggle]',
+  selector: '[ngpToggle]',
   exportAs: 'ngpToggle',
   standalone: true,
   host: {
-    type: 'button',
+    '[attr.type]': 'isButton ? "button" : null',
     '[attr.aria-pressed]': 'selected()',
     '[attr.data-selected]': 'selected()',
     '[attr.data-disabled]': 'disabled()',
   },
 })
 export class NgpToggle {
+  /**
+   * Access the element.
+   */
+  private readonly element = inject<ElementRef<HTMLElement>>(ElementRef);
+
   /**
    * Whether the toggle is selected.
    * @default false
@@ -36,6 +49,11 @@ export class NgpToggle {
   });
 
   /**
+   * Determine if the element is a button.
+   */
+  protected isButton = this.element.nativeElement.tagName === 'BUTTON';
+
+  /**
    * Toggle the selected state.
    */
   @HostListener('click')
@@ -45,5 +63,16 @@ export class NgpToggle {
     }
 
     this.selected.update(selected => !selected);
+  }
+
+  /**
+   * If the element is not a button or a link the space key should toggle the selected state.
+   */
+  @HostListener('keydown.space', ['$event'])
+  protected onKeyDown(event: KeyboardEvent): void {
+    if (!this.isButton && this.element.nativeElement.tagName !== 'A') {
+      event.preventDefault();
+      this.toggle();
+    }
   }
 }

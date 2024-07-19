@@ -7,6 +7,7 @@
  */
 import { BooleanInput } from '@angular/cdk/coercion';
 import { Directive, HostListener, booleanAttribute, computed, input } from '@angular/core';
+import { NgpFocusVisible, NgpHover, NgpPress } from 'ng-primitives/interactions';
 import { NgpRovingFocusItem } from 'ng-primitives/roving-focus';
 import { injectRadioGroup } from '../radio-group/radio-group.token';
 import { NgpRadioItemToken } from './radio-item.token';
@@ -14,7 +15,7 @@ import { NgpRadioItemToken } from './radio-item.token';
 @Directive({
   selector: '[ngpRadioItem]',
   standalone: true,
-  hostDirectives: [NgpRovingFocusItem],
+  hostDirectives: [NgpRovingFocusItem, NgpHover, NgpFocusVisible, NgpPress],
   providers: [{ provide: NgpRadioItemToken, useExisting: NgpRadioItem }],
   host: {
     role: 'radio',

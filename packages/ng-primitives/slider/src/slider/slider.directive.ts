@@ -25,6 +25,10 @@ import { NgpSliderToken } from './slider.token';
   exportAs: 'ngpSlider',
   providers: [{ provide: NgpSliderToken, useExisting: NgpSlider }],
   hostDirectives: [NgpFormControl],
+  host: {
+    '[attr.data-orientation]': 'orientation()',
+    '[attr.data-disabled]': 'disabled()',
+  },
 })
 export class NgpSlider {
   /**

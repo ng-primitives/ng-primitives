@@ -79,6 +79,38 @@ Apply the `ngpRadioItem` directive to an element that represents a radio item. T
   Define the disabled state.
 </response-field>
 
+#### Data Attributes
+
+The following data attributes are applied to the `ngpRadioGroup` directive:
+
+| Attribute          | Description                           | Value                      |
+| ------------------ | ------------------------------------- | -------------------------- |
+| `data-orientation` | The orientation of the radio group.   | `vertical` \| `horizontal` |
+| `data-disabled`    | The disabled state of the radio item. | `true` \| `false`          |
+
+#### Data Attributes
+
+The following data attributes are applied to the `ngpRadioItem` directive:
+
+| Attribute            | Description                           | Value             |
+| -------------------- | ------------------------------------- | ----------------- |
+| `data-checked`       | The checked state of the radio item.  | `true` \| `false` |
+| `data-disabled`      | The disabled state of the radio item. | `true` \| `false` |
+| `data-hover`         | The hover state of the radio item.    | `true` \| `false` |
+| `data-focus-visible` | The focus state of the radio item.    | `true` \| `false` |
+| `data-press`         | The press state of the radio item.    | `true` \| `false` |
+
 ### NgpRadioIndicator
 
 Apply the `ngpRadioIndicator` directive to an element that represents the radio indicator (i.e. the dot).
+
+#### Data Attributes
+
+The following data attributes are applied to the `ngpRadioItem` directive:
+
+| Attribute       | Description                             | Value             |
+| --------------- | --------------------------------------- | ----------------- |
+| `data-checked`  | The checked state of the radio item.    | `true` \| `false` |
+| `data-disabled` | The disabled state of the radio item.   | `true` \| `false` |
+| `data-hover`    | The hover state of the radio indicator. | `true` \| `false` |
+| `data-press`    | The press state of the radio indicator. | `true` \| `false` |

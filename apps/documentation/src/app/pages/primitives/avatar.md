@@ -40,9 +40,12 @@ Apply the `ngpAvatar` directive to an element that represents the avatar. This d
 
 #### Data Attributes
 
-| Attribute    | Description                            | Value                                      |
-| ------------ | -------------------------------------- | ------------------------------------------ |
-| `data-state` | The loading state of the avatar image. | `idle` \| `loading` \| `loaded` \| `error` |
+| Attribute            | Description                            | Value                                      |
+| -------------------- | -------------------------------------- | ------------------------------------------ |
+| `data-state`         | The loading state of the avatar image. | `idle` \| `loading` \| `loaded` \| `error` |
+| `data-hover`         | The hover state of the avatar.         | `true` \| `false`                          |
+| `data-focus-visible` | The focus state of the avatar.         | `true` \| `false`                          |
+| `data-press`         | The press state of the avatar.         | `true` \| `false`                          |
 
 ### NgpAvatarImage
 

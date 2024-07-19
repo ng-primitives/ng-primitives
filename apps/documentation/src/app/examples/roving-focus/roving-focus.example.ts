@@ -8,12 +8,13 @@ import {
   heroDocument,
   heroFolder,
 } from '@ng-icons/heroicons/outline';
+import { NgpButton } from 'ng-primitives/button';
 import { NgpRovingFocusGroup, NgpRovingFocusItem } from 'ng-primitives/roving-focus';
 
 @Component({
   standalone: true,
   selector: 'app-roving-focus',
-  imports: [NgpRovingFocusGroup, NgpRovingFocusItem, NgIcon],
+  imports: [NgpRovingFocusGroup, NgpRovingFocusItem, NgIcon, NgpButton],
   viewProviders: [
     provideIcons({
       heroDocument,
@@ -38,7 +39,7 @@ import { NgpRovingFocusGroup, NgpRovingFocusItem } from 'ng-primitives/roving-fo
       padding: 0.25rem;
     }
 
-    [ngpRovingFocusItem] {
+    [ngpButton] {
       display: flex;
       width: 2rem;
       height: 2rem;
@@ -51,18 +52,18 @@ import { NgpRovingFocusGroup, NgpRovingFocusItem } from 'ng-primitives/roving-fo
       transition: all 150ms cubic-bezier(0.4, 0, 0.2, 1);
     }
 
-    [ngpRovingFocusItem]:hover {
+    [ngpButton][data-hover='true'] {
       background-color: rgb(250 250 250);
       box-shadow: 0 0 0 1px rgb(0 0 0 / 0.05);
     }
 
-    [ngpRovingFocusItem]:focus-visible {
+    [ngpButton][data-focus-visible='true'] {
       box-shadow:
         0 0 0 1px rgb(0 0 0 / 0.05),
         0 0 0 2px rgb(59 130 246);
     }
 
-    [ngpRovingFocusItem]:active {
+    [ngpButton][data-press='true'] {
       background-color: rgb(245 245 245);
     }
 
@@ -85,30 +86,30 @@ import { NgpRovingFocusGroup, NgpRovingFocusItem } from 'ng-primitives/roving-fo
       ngpRovingFocusGroupWrap="true"
       ngpRovingFocusGroupHomeEnd="true"
     >
-      <button type="button" ngpRovingFocusItem>
+      <button type="button" ngpButton ngpRovingFocusItem>
         <ng-icon name="heroDocument" />
       </button>
-      <button type="button" ngpRovingFocusItem>
+      <button type="button" ngpButton ngpRovingFocusItem>
         <ng-icon name="heroFolder" />
       </button>
 
       <div class="divider"></div>
 
-      <button type="button" ngpRovingFocusItem>
+      <button type="button" ngpButton ngpRovingFocusItem>
         <ng-icon name="heroBars3BottomLeft" />
       </button>
 
-      <button type="button" ngpRovingFocusItem>
+      <button type="button" ngpButton ngpRovingFocusItem>
         <ng-icon name="heroBars3" />
       </button>
 
-      <button type="button" ngpRovingFocusItem>
+      <button type="button" ngpButton ngpRovingFocusItem>
         <ng-icon name="heroBars3BottomRight" />
       </button>
 
       <div class="divider"></div>
 
-      <button type="button" ngpRovingFocusItem>
+      <button type="button" ngpButton ngpRovingFocusItem>
         <ng-icon name="heroCog6Tooth" />
       </button>
     </div>

@@ -16,6 +16,7 @@ import {
   model,
 } from '@angular/core';
 import { NgpFormControl } from 'ng-primitives/form-field';
+import { NgpFocusVisible, NgpHover, NgpPress } from 'ng-primitives/interactions';
 import { NgpCheckboxIndicatorToken } from '../checkbox-indicator/checkbox-indicator.token';
 import { NgpCheckboxToken } from './checkbox.token';
 
@@ -23,7 +24,7 @@ import { NgpCheckboxToken } from './checkbox.token';
   selector: '[ngpCheckbox]',
   standalone: true,
   providers: [{ provide: NgpCheckboxToken, useExisting: NgpCheckbox }],
-  hostDirectives: [NgpFormControl],
+  hostDirectives: [NgpFormControl, NgpHover, NgpFocusVisible, NgpPress],
 })
 export class NgpCheckbox {
   /**

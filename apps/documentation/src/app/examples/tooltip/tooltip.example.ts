@@ -1,12 +1,13 @@
 import { Component } from '@angular/core';
+import { NgpButton } from 'ng-primitives/button';
 import { NgpTooltip, NgpTooltipTrigger } from 'ng-primitives/tooltip';
 
 @Component({
   standalone: true,
   selector: 'app-tooltip',
-  imports: [NgpTooltipTrigger, NgpTooltip],
+  imports: [NgpTooltipTrigger, NgpTooltip, NgpButton],
   template: `
-    <button [ngpTooltipTrigger]="tooltip" type="button">Tooltip</button>
+    <button [ngpTooltipTrigger]="tooltip" ngpButton type="button">Tooltip</button>
 
     <ng-template #tooltip>
       <div
@@ -35,11 +36,11 @@ import { NgpTooltip, NgpTooltipTrigger } from 'ng-primitives/tooltip';
         0 0 0 1px rgb(0 0 0 / 0.05);
     }
 
-    button:hover {
+    button[data-hover='true'] {
       background-color: rgb(250 250 250);
     }
 
-    button:focus-visible {
+    button[data-focus-visible='true'] {
       box-shadow:
         0 1px 3px 0 rgb(0 0 0 / 0.1),
         0 1px 2px -1px rgb(0 0 0 / 0.1),
@@ -48,7 +49,7 @@ import { NgpTooltip, NgpTooltipTrigger } from 'ng-primitives/tooltip';
         0 0 0 4px rgb(59 130 246);
     }
 
-    button:active {
+    button[data-press='true'] {
       background-color: rgb(245 245 245);
     }
 

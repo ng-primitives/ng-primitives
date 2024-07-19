@@ -7,6 +7,7 @@
  */
 import { Directive, HostListener, input } from '@angular/core';
 import { uniqueId } from 'ng-primitives/utils';
+import { NgpFocusVisible, NgpHover, NgpPress } from 'ng-primitives/interactions';
 import { injectAccordionItem } from '../accordion-item/accordion-item.token';
 import { injectAccordion } from '../accordion/accordion.token';
 import { NgpAccordionTriggerToken } from './accordion-trigger.token';
@@ -16,6 +17,7 @@ import { NgpAccordionTriggerToken } from './accordion-trigger.token';
   selector: '[ngpAccordionTrigger]',
   exportAs: 'ngpAccordionTrigger',
   providers: [{ provide: NgpAccordionTriggerToken, useExisting: NgpAccordionTrigger }],
+  hostDirectives: [NgpHover, NgpPress, NgpFocusVisible],
   host: {
     '[id]': 'id()',
     '[attr.data-orientation]': 'accordion.orientation()',

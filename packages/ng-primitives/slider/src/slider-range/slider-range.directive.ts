@@ -15,6 +15,8 @@ import { NgpSliderRangeToken } from './slider-range.token';
   exportAs: 'ngpSliderRange',
   providers: [{ provide: NgpSliderRangeToken, useExisting: NgpSliderRange }],
   host: {
+    '[attr.data-orientation]': 'slider.orientation()',
+    '[attr.data-disabled]': 'slider.disabled()',
     '[style.width.%]': 'slider.orientation() === "horizontal" ? slider.percentage() : undefined',
     '[style.height.%]': 'slider.orientation() === "vertical" ? slider.percentage() : undefined',
   },

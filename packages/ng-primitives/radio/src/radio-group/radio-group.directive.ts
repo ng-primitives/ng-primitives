@@ -19,6 +19,7 @@ import { NgpRadioGroupToken } from './radio-group.token';
   host: {
     role: 'radiogroup',
     '[attr.aria-orientation]': 'orientation()',
+    '[attr.data-orientation]': 'orientation()',
     '[attr.data-disabled]': 'disabled()',
   },
 })

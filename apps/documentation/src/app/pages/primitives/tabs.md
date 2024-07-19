@@ -98,11 +98,14 @@ Apply the `ngpTabButton` directive to an element within a tab list to represent 
 
 The following data attributes are applied to the `ngpTabButton` directive:
 
-| Attribute          | Description                  | Value                      |
-| ------------------ | ---------------------------- | -------------------------- |
-| `data-active`      | The state of the tab.        | `true` \| `false`          |
-| `data-disabled`    | The disabled state.          | `true` \| `false`          |
-| `data-orientation` | The orientation of the tabs. | `horizontal` \| `vertical` |
+| Attribute            | Description                  | Value                      |
+| -------------------- | ---------------------------- | -------------------------- |
+| `data-active`        | The state of the tab.        | `true` \| `false`          |
+| `data-disabled`      | The disabled state.          | `true` \| `false`          |
+| `data-orientation`   | The orientation of the tabs. | `horizontal` \| `vertical` |
+| `data-hover`         | The hover state.             | `true` \| `false`          |
+| `data-focus-visible` | The focus state.             | `true` \| `false`          |
+| `data-press`         | The press state.             | `true` \| `false`          |
 
 ### NgpTabPanel
 

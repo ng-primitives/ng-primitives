@@ -25,10 +25,6 @@ import { NgpFocusVisible } from 'ng-primitives/interactions';
         0 0 0 1px rgb(0 0 0 / 0.05);
     }
 
-    button:hover {
-      background-color: rgb(250 250 250);
-    }
-
     button[data-focus-visible='true'] {
       box-shadow:
         0 1px 3px 0 rgb(0 0 0 / 0.1),
@@ -36,10 +32,6 @@ import { NgpFocusVisible } from 'ng-primitives/interactions';
         0 0 0 1px rgb(0 0 0 / 0.05),
         0 0 0 2px #f5f5f5,
         0 0 0 4px rgb(59 130 246);
-    }
-
-    button:active {
-      background-color: rgb(245 245 245);
     }
   `,
 })

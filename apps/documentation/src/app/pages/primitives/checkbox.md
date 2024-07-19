@@ -57,6 +57,12 @@ Apply the `ngpCheckbox` directive to an element to that represents the checkbox,
   Event emitted when the indeterminate state changes.
 </response-field>
 
+| Attribute            | Description                      | Value             |
+| -------------------- | -------------------------------- | ----------------- |
+| `data-hover`         | The hover state of the checkbox. | `true` \| `false` |
+| `data-focus-visible` | The focus state of the checkbox. | `true` \| `false` |
+| `data-press`         | The press state of the checkbox. | `true` \| `false` |
+
 ### NgpCheckboxIndicator
 
 Apply the `ngpCheckboxIndicator` directive to an element that represents the checkbox indicator (i.e. the checkmark).
@@ -68,9 +74,12 @@ Apply the `ngpCheckboxIndicator` directive to an element that represents the che
 
 The following data attributes are applied to the `ngpCheckboxIndicator` directive:
 
-| Attribute    | Description                       | Value                                       |
-| ------------ | --------------------------------- | ------------------------------------------- |
-| `data-state` | Define the state of the checkbox. | `checked` \| `unchecked` \| `indeterminate` |
+| Attribute            | Description                                | Value                                       |
+| -------------------- | ------------------------------------------ | ------------------------------------------- |
+| `data-state`         | The state of the checkbox.                 | `checked` \| `unchecked` \| `indeterminate` |
+| `data-hover`         | The hover state of the checkbox indicator. | `true` \| `false`                           |
+| `data-focus-visible` | The focus state of the checkbox indicator. | `true` \| `false`                           |
+| `data-press`         | The press state of the checkbox indicator. | `true` \| `false`                           |
 
 ### NgpCheckboxInput
 

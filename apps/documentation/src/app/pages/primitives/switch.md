@@ -53,10 +53,13 @@ Apply the `ngpSwitch` directive to an element to manage the checked state.
 
 The following data attributes are applied to the `ngpSwitch` directive:
 
-| Attribute       | Description              | Value             |
-| --------------- | ------------------------ | ----------------- |
-| `data-checked`  | The state of the switch. | `true` \| `false` |
-| `data-disabled` | The disabled state.      | `true` \| `false` |
+| Attribute            | Description              | Value             |
+| -------------------- | ------------------------ | ----------------- |
+| `data-checked`       | The state of the switch. | `true` \| `false` |
+| `data-disabled`      | The disabled state.      | `true` \| `false` |
+| `data-hover`         | The hover state.         | `true` \| `false` |
+| `data-focus-visible` | The focus state.         | `true` \| `false` |
+| `data-press`         | The pressed state.       | `true` \| `false` |
 
 ### NgpSwitchThumb
 
@@ -69,7 +72,10 @@ Apply the `ngpSwitchThumb` directive to an element within a switch to represent 
 
 The following data attributes are available to style the thumb:
 
-| Attribute       | Description              | Value             |
-| --------------- | ------------------------ | ----------------- |
-| `data-checked`  | The state of the switch. | `true` \| `false` |
-| `data-disabled` | The disabled state.      | `true` \| `false` |
+| Attribute            | Description              | Value             |
+| -------------------- | ------------------------ | ----------------- |
+| `data-checked`       | The state of the switch. | `true` \| `false` |
+| `data-disabled`      | The disabled state.      | `true` \| `false` |
+| `data-hover`         | The hover state.         | `true` \| `false` |
+| `data-focus-visible` | The focus state.         | `true` \| `false` |
+| `data-press`         | The pressed state.       | `true` \| `false` |
