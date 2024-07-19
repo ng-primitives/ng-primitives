@@ -17,6 +17,7 @@ import { NgpAvatar, NgpAvatarFallback, NgpAvatarImage } from 'ng-primitives/avat
       border-width: 2px;
       border-color: #fff;
       background-color: rgb(186 230 253);
+      vertical-align: middle;
     }
 
     [ngpAvatar]:before {
