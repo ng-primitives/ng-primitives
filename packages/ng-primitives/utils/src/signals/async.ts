@@ -6,32 +6,6 @@
  * LICENSE file in the root directory of this source tree.
  */
 import { Injector, Signal, effect, signal } from '@angular/core';
-import { Observable } from 'rxjs';
-
-/**
- * Create a signal from an observable that is updated asynchronously.
- * @param fn The function that returns an observable.
- * @param options Options for the effect.
- * @param options.injector
- * @returns A signal that emits the value of the observable.
- * @internal
- */
-export function computedAsync<T>(
-  fn: () => Observable<T> | null | undefined,
-  options?: { injector: Injector },
-): Signal<T | null> {
-  const value = signal<T | null>(null);
-
-  effect(
-    onCleanup => {
-      const subscription = fn()?.subscribe(value.set);
-      onCleanup(() => subscription?.unsubscribe());
-    },
-    { allowSignalWrites: true, injector: options?.injector },
-  );
-
-  return value;
-}
 
 /**
  * Listen for changes to a signal and call a function when the signal changes.
@@ -58,4 +32,20 @@ export function onChange<T>(
     },
     { allowSignalWrites: true, injector: options?.injector },
   );
+}
+
+/**
+ * Listen for changes to a boolean signal and call one of two functions when the signal changes.
+ * @param source
+ * @param onTrue
+ * @param onFalse
+ * @param options
+ */
+export function onBooleanChange(
+  source: Signal<boolean>,
+  onTrue: () => void,
+  onFalse: () => void,
+  options?: { injector: Injector },
+): void {
+  onChange(source, value => (value ? onTrue() : onFalse()), options);
 }

@@ -14,21 +14,16 @@ import {
   contentChild,
   input,
   model,
-  signal,
 } from '@angular/core';
-import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { NgpCheckboxIndicatorToken } from '../checkbox-indicator/checkbox-indicator.token';
 import { NgpCheckboxToken } from './checkbox.token';
 
 @Directive({
   selector: '[ngpCheckbox]',
   standalone: true,
-  providers: [
-    { provide: NgpCheckboxToken, useExisting: NgpCheckbox },
-    { provide: NG_VALUE_ACCESSOR, useExisting: NgpCheckbox, multi: true },
-  ],
+  providers: [{ provide: NgpCheckboxToken, useExisting: NgpCheckbox }],
 })
-export class NgpCheckbox implements ControlValueAccessor {
+export class NgpCheckbox {
   /**
    * Defines whether the checkbox is checked.
    */
@@ -54,20 +49,10 @@ export class NgpCheckbox implements ControlValueAccessor {
   /**
    * Defines whether the checkbox is disabled.
    */
-  readonly inputDisabled = input<boolean, BooleanInput>(false, {
+  readonly disabled = input<boolean, BooleanInput>(false, {
     alias: 'ngpCheckboxDisabled',
     transform: booleanAttribute,
   });
-
-  /**
-   * Whether the checkbox is disabled by the form.
-   */
-  private readonly formDisabled = signal<boolean>(false);
-
-  /**
-   * Whether the checkbox is disabled.
-   */
-  readonly disabled = computed<boolean>(() => this.inputDisabled() || this.inputDisabled());
 
   /**
    * Determine the state
@@ -84,27 +69,15 @@ export class NgpCheckbox implements ControlValueAccessor {
   });
 
   /**
-   * Access the indicator instance
-   * @internal
-   */
-  protected readonly indicator = contentChild(NgpCheckboxIndicatorToken, { descendants: true });
-
-  /**
    * Access the indicator id
    */
   readonly indicatorId = computed<string | null>(() => this.indicator()?.id() ?? null);
 
   /**
-   * Store the callback function that should be called when the checkbox checked state changes.
+   * Access the indicator instance
    * @internal
    */
-  private onChange?: (checked: boolean) => void;
-
-  /**
-   * Store the callback function that should be called when the checkbox is blurred.
-   * @internal
-   */
-  private onTouched?: () => void;
+  protected readonly indicator = contentChild(NgpCheckboxIndicatorToken, { descendants: true });
 
   @HostListener('keydown.enter', ['$event'])
   protected onEnter(event: KeyboardEvent): void {
@@ -115,7 +88,7 @@ export class NgpCheckbox implements ControlValueAccessor {
   @HostListener('click', ['$event'])
   @HostListener('keydown.space', ['$event'])
   toggle(event?: Event): void {
-    if (this.disabled() || this.formDisabled()) {
+    if (this.disabled()) {
       return;
     }
 
@@ -123,52 +96,10 @@ export class NgpCheckbox implements ControlValueAccessor {
     event?.preventDefault();
 
     this.checked.set(this.indeterminate() ? true : !this.checked());
-    this.onChange?.(this.checked());
 
     // if the checkbox was indeterminate, it isn't anymore
     if (this.indeterminate()) {
       this.indeterminate.set(false);
     }
-  }
-
-  @HostListener('blur')
-  protected onBlur(): void {
-    this.onTouched?.();
-  }
-
-  /**
-   * Sets the checked state of the checkbox.
-   * @param checked The checked state of the checkbox.
-   * @internal
-   */
-  writeValue(checked: boolean): void {
-    this.checked.set(checked);
-  }
-
-  /**
-   * Registers a callback function that should be called when the checkbox checked state changes.
-   * @param fn The callback function.
-   * @internal
-   */
-  registerOnChange(fn: (checked: boolean) => void): void {
-    this.onChange = fn;
-  }
-
-  /**
-   * Registers a callback function that should be called when the checkbox is blurred.
-   * @param fn The callback function.
-   * @internal
-   */
-  registerOnTouched(fn: () => void): void {
-    this.onTouched = fn;
-  }
-
-  /**
-   * Sets the disabled state of the checkbox.
-   * @param isDisabled The disabled state of the checkbox.
-   * @internal
-   */
-  setDisabledState(isDisabled: boolean): void {
-    this.formDisabled.set(isDisabled);
   }
 }

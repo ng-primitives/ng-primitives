@@ -9,5 +9,5 @@
 export { injectDisposables } from './helpers/disposables';
 export { FocusManager } from './helpers/focus-manager';
 export { uniqueId } from './helpers/unique-id';
-export { computedAsync, onChange } from './signals/async';
+export { onBooleanChange, onChange } from './signals/async';
 export { injectDimensions } from './ui/dimensions';

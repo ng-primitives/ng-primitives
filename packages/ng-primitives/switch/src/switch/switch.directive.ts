@@ -11,34 +11,27 @@ import {
   ElementRef,
   HostListener,
   booleanAttribute,
-  computed,
   inject,
   input,
   model,
-  signal,
 } from '@angular/core';
-import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { NgpSwitchToken } from './switch.token';
 
 @Directive({
   standalone: true,
   selector: '[ngpSwitch]',
   exportAs: 'ngpSwitch',
-  providers: [
-    { provide: NgpSwitchToken, useExisting: NgpSwitch },
-    { provide: NG_VALUE_ACCESSOR, useExisting: NgpSwitch, multi: true },
-  ],
+  providers: [{ provide: NgpSwitchToken, useExisting: NgpSwitch }],
   host: {
     role: 'switch',
     '[attr.type]': 'isButton ? "button" : null',
     '[attr.aria-checked]': 'checked()',
     '[attr.data-state]': 'checked() ? "checked" : "unchecked"',
-    '[attr.data-disabled]': 'disabledState()',
-    '[attr.disabled]': 'isButton && disabledState() ? disabledState() : null',
-    '(focus)': 'onTouched?.()',
+    '[attr.data-disabled]': 'disabled()',
+    '[attr.disabled]': 'isButton && disabled() ? disabled() : null',
   },
 })
-export class NgpSwitch implements ControlValueAccessor {
+export class NgpSwitch {
   /**
    * Access the element ref.
    */
@@ -67,74 +60,15 @@ export class NgpSwitch implements ControlValueAccessor {
   });
 
   /**
-   * Store the form disabled state.
-   * @internal
-   */
-  readonly formDisabled = signal<boolean>(false);
-
-  /**
-   * Derive the disabled state based on the input and form disabled state.
-   * @internal
-   */
-  readonly disabledState = computed(() => this.disabled() || this.formDisabled());
-
-  /**
-   * Store the onChange callback.
-   */
-  private onChange?: (checked: boolean) => void;
-
-  /**
-   * Store the onTouched callback.
-   */
-  protected onTouched?: () => void;
-
-  /**
-   * Register the onChange callback.
-   * @param fn The onChange callback.
-   * @internal
-   */
-  registerOnChange(fn: (checked: boolean) => void): void {
-    this.onChange = fn;
-  }
-
-  /**
-   * Register the onTouched callback.
-   * @param fn The onTouched callback.
-   * @internal
-   */
-  registerOnTouched(fn: () => void): void {
-    this.onTouched = fn;
-  }
-
-  /**
-   * Write the value to the checked state.
-   * @param checked The checked state.
-   * @internal
-   */
-  writeValue(checked: boolean): void {
-    this.checked.set(checked);
-  }
-
-  /**
-   * Set the disabled state.
-   * @param isDisabled The disabled state.
-   * @internal
-   */
-  setDisabledState(isDisabled: boolean): void {
-    this.formDisabled.set(isDisabled);
-  }
-
-  /**
    * Toggle the checked state.
    */
   @HostListener('click')
   toggle(): void {
-    if (this.disabledState()) {
+    if (this.disabled()) {
       return;
     }
 
-    this.checked.set(!this.checked());
-    this.onChange?.(this.checked());
+    this.checked.update(checked => !checked);
   }
 
   /**
