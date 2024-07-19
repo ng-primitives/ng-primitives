@@ -43,7 +43,7 @@ import { NgpRadioGroup, NgpRadioIndicator, NgpRadioItem } from 'ng-primitives/ra
       background-color: rgb(245 245 245);
     }
 
-    [ngpRadioItem][data-state='checked'] {
+    [ngpRadioItem][data-checked='true'] {
       background-color: rgb(10 10 10);
     }
 
@@ -60,7 +60,7 @@ import { NgpRadioGroup, NgpRadioIndicator, NgpRadioItem } from 'ng-primitives/ra
       box-shadow: 0 0 0 1px rgb(0 0 0 / 0.1);
     }
 
-    [ngpRadioItem][data-state='checked'] [ngpRadioIndicator] {
+    [ngpRadioItem][data-checked='true'] [ngpRadioIndicator] {
       box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.5);
     }
 
@@ -79,7 +79,7 @@ import { NgpRadioGroup, NgpRadioIndicator, NgpRadioItem } from 'ng-primitives/ra
       margin: 0;
     }
 
-    [ngpRadioItem][data-state='checked'] .title {
+    [ngpRadioItem][data-checked='true'] .title {
       color: white;
     }
 
@@ -92,7 +92,7 @@ import { NgpRadioGroup, NgpRadioIndicator, NgpRadioItem } from 'ng-primitives/ra
       margin: 0;
     }
 
-    [ngpRadioItem][data-state='checked'] .description {
+    [ngpRadioItem][data-checked='true'] .description {
       color: rgb(212 212 212);
     }
   `,

@@ -18,7 +18,7 @@ describe('NgpFocusVisible', () => {
 
   it('should not set data-focus-visible to true when mouse focused', async () => {
     const container = await render(
-      `<div data-testid="trigger" ngpFocusVisible (ngpFocusVisibleChange)="focusChange($event)"></div>`,
+      `<div data-testid="trigger" (ngpFocusVisible)="focusChange($event)"></div>`,
       {
         imports: [NgpFocusVisible],
         componentProperties: {
@@ -45,7 +45,7 @@ describe('NgpFocusVisible', () => {
 
   it('should set data-focus-visible to true when keyboard focused', async () => {
     const container = await render(
-      `<div data-testid="trigger" ngpFocusVisible (ngpFocusVisibleChange)="focusChange($event)"></div>`,
+      `<div data-testid="trigger" (ngpFocusVisible)="focusChange($event)"></div>`,
       {
         imports: [NgpFocusVisible],
         componentProperties: {
@@ -72,7 +72,7 @@ describe('NgpFocusVisible', () => {
 
   it('should alway show focus on an input element when using the mouse', async () => {
     const container = await render(
-      `<input data-testid="trigger" ngpFocusVisible (ngpFocusVisibleChange)="focusChange($event)" />`,
+      `<input data-testid="trigger" (ngpFocusVisible)="focusChange($event)" />`,
       {
         imports: [NgpFocusVisible],
         componentProperties: {
@@ -126,7 +126,7 @@ describe('NgpFocusVisible', () => {
 
   it('should not set data-focus-visible to true when already focused', async () => {
     const container = await render(
-      `<div data-testid="trigger" ngpFocusVisible (ngpFocusVisibleChange)="focusChange($event)"></div>`,
+      `<div data-testid="trigger" (ngpFocusVisible)="focusChange($event)"></div>`,
       {
         imports: [NgpFocusVisible],
         componentProperties: {
@@ -160,7 +160,7 @@ describe('NgpFocusVisible', () => {
 
   it('should always show focus on an textarea element when using the mouse', async () => {
     const container = await render(
-      `<textarea data-testid="trigger" ngpFocusVisible (ngpFocusVisibleChange)="focusChange($event)"></textarea>`,
+      `<textarea data-testid="trigger" (ngpFocusVisible)="focusChange($event)"></textarea>`,
       {
         imports: [NgpFocusVisible],
         componentProperties: {
@@ -187,7 +187,7 @@ describe('NgpFocusVisible', () => {
 
   it('should always show focus on an element with content editable when using the mouse', async () => {
     const container = await render(
-      `<div data-testid="trigger" contenteditable="true" ngpFocusVisible (ngpFocusVisibleChange)="focusChange($event)"></div>`,
+      `<div data-testid="trigger" contenteditable="true" (ngpFocusVisible)="focusChange($event)"></div>`,
       {
         imports: [NgpFocusVisible],
         componentProperties: {
@@ -214,7 +214,7 @@ describe('NgpFocusVisible', () => {
 
   it('should not always show focus on an input element when the type is submit', async () => {
     const container = await render(
-      `<input data-testid="trigger" type="submit" ngpFocusVisible (ngpFocusVisibleChange)="focusChange($event)" />`,
+      `<input data-testid="trigger" type="submit" (ngpFocusVisible)="focusChange($event)" />`,
       {
         imports: [NgpFocusVisible],
         componentProperties: {
@@ -241,7 +241,7 @@ describe('NgpFocusVisible', () => {
 
   it('should update data-focus-visible to false when blurred', async () => {
     const container = await render(
-      `<div data-testid="trigger" ngpFocusVisible (ngpFocusVisibleChange)="focusChange($event)"></div>`,
+      `<div data-testid="trigger" (ngpFocusVisible)="focusChange($event)"></div>`,
       {
         imports: [NgpFocusVisible],
         componentProperties: {

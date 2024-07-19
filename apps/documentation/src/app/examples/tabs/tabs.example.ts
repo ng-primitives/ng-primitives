@@ -44,7 +44,7 @@ import { NgpTabButton, NgpTabList, NgpTabPanel, NgpTabset } from 'ng-primitives/
         0 0 0 2px rgb(59 130 246);
     }
 
-    [ngpTabButton][data-state='active'] {
+    [ngpTabButton][data-active='true'] {
       border-color: rgb(9 9 11);
       color: rgb(9 9 11);
     }

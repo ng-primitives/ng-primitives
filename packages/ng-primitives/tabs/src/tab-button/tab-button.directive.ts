@@ -18,7 +18,7 @@ import { injectTabset } from '../tabset/tabset.token';
     role: 'tab',
     '[attr.id]': 'id() ?? defaultId()',
     '[attr.aria-controls]': 'ariaControls()',
-    '[attr.data-state]': 'active() ? "active" : "inactive"',
+    '[attr.data-active]': 'active()',
     '[attr.data-disabled]': 'disabled()',
     '[attr.data-orientation]': 'tabset.orientation()',
   },

@@ -26,7 +26,7 @@ import { NgpSwitchToken } from './switch.token';
     role: 'switch',
     '[attr.type]': 'isButton ? "button" : null',
     '[attr.aria-checked]': 'checked()',
-    '[attr.data-state]': 'checked() ? "checked" : "unchecked"',
+    '[attr.data-checked]': 'checked()',
     '[attr.data-disabled]': 'disabled()',
     '[attr.disabled]': 'isButton && disabled() ? disabled() : null',
   },

@@ -12,8 +12,8 @@ import { injectSwitch } from '../switch/switch.token';
   selector: '[ngpSwitchThumb]',
   standalone: true,
   host: {
-    '[attr.data-state]': 'switch.checked() ? "checked" : "unchecked"',
-    '[attr.data-disabled]': 'switch.disabledState() ? "true" : null',
+    '[attr.data-checked]': 'switch.checked()',
+    '[attr.data-disabled]': 'switch.disabled() ? "true" : null',
   },
 })
 export class NgpSwitchThumb {

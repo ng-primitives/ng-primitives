@@ -51,7 +51,7 @@ describe('NgpAccordion', () => {
     const triggers = fixture.getAllByTestId('accordion-trigger');
 
     for (const trigger of triggers) {
-      expect(trigger.getAttribute('data-state')).toBe('closed');
+      expect(trigger.getAttribute('data-open')).toBe('false');
     }
   });
 
@@ -59,8 +59,8 @@ describe('NgpAccordion', () => {
     const fixture = await renderTemplate({ value: 'item-1' });
     const triggers = fixture.getAllByTestId('accordion-trigger');
 
-    expect(triggers[0].getAttribute('data-state')).toBe('open');
-    expect(triggers[1].getAttribute('data-state')).toBe('closed');
+    expect(triggers[0].getAttribute('data-open')).toBe('true');
+    expect(triggers[1].getAttribute('data-open')).toBe('false');
   });
 
   it('should toggle the item when a trigger is clicked', async () => {
@@ -69,8 +69,8 @@ describe('NgpAccordion', () => {
     const triggers = fixture.getAllByTestId('accordion-trigger');
 
     fireEvent.click(triggers[1]);
-    expect(triggers[0].getAttribute('data-state')).toBe('closed');
-    expect(triggers[1].getAttribute('data-state')).toBe('open');
+    expect(triggers[0].getAttribute('data-open')).toBe('false');
+    expect(triggers[1].getAttribute('data-open')).toBe('true');
 
     expect(valueChange).toHaveBeenCalledWith('item-2');
   });
@@ -81,8 +81,8 @@ describe('NgpAccordion', () => {
     const triggers = fixture.getAllByTestId('accordion-trigger');
 
     fireEvent.click(triggers[0]);
-    expect(triggers[0].getAttribute('data-state')).toBe('closed');
-    expect(triggers[1].getAttribute('data-state')).toBe('closed');
+    expect(triggers[0].getAttribute('data-open')).toBe('false');
+    expect(triggers[1].getAttribute('data-open')).toBe('false');
 
     expect(valueChange).not.toHaveBeenCalled();
   });
@@ -93,8 +93,8 @@ describe('NgpAccordion', () => {
     const triggers = fixture.getAllByTestId('accordion-trigger');
 
     fireEvent.click(triggers[0]);
-    expect(triggers[0].getAttribute('data-state')).toBe('closed');
-    expect(triggers[1].getAttribute('data-state')).toBe('closed');
+    expect(triggers[0].getAttribute('data-open')).toBe('false');
+    expect(triggers[1].getAttribute('data-open')).toBe('false');
 
     expect(valueChange).not.toHaveBeenCalled();
   });
@@ -104,7 +104,7 @@ describe('NgpAccordion', () => {
     const triggers = fixture.getAllByTestId('accordion-trigger');
 
     fireEvent.click(triggers[0]);
-    expect(triggers[0].getAttribute('data-state')).toBe('closed');
+    expect(triggers[0].getAttribute('data-open')).toBe('false');
   });
 
   it('should not collapse the panel when the trigger is clicked again and the accordion is not collapsible', async () => {
@@ -112,15 +112,15 @@ describe('NgpAccordion', () => {
     const triggers = fixture.getAllByTestId('accordion-trigger');
 
     fireEvent.click(triggers[0]);
-    expect(triggers[0].getAttribute('data-state')).toBe('open');
+    expect(triggers[0].getAttribute('data-open')).toBe('true');
   });
 
   it('should expand multiple items when the type is multiple', async () => {
     const fixture = await renderTemplate({ type: 'multiple', value: ['item-1', 'item-2'] });
     const triggers = fixture.getAllByTestId('accordion-trigger');
 
-    expect(triggers[0].getAttribute('data-state')).toBe('open');
-    expect(triggers[1].getAttribute('data-state')).toBe('open');
+    expect(triggers[0].getAttribute('data-open')).toBe('true');
+    expect(triggers[1].getAttribute('data-open')).toBe('true');
   });
 
   it('should collapse multiple items when the type is multiple', async () => {
@@ -130,8 +130,8 @@ describe('NgpAccordion', () => {
     fireEvent.click(triggers[0]);
     fireEvent.click(triggers[1]);
 
-    expect(triggers[0].getAttribute('data-state')).toBe('closed');
-    expect(triggers[1].getAttribute('data-state')).toBe('closed');
+    expect(triggers[0].getAttribute('data-open')).toBe('false');
+    expect(triggers[1].getAttribute('data-open')).toBe('false');
   });
 
   it('should set a unique id for each trigger', async () => {
@@ -142,28 +142,28 @@ describe('NgpAccordion', () => {
     expect(new Set(ids).size).toBe(triggers.length);
   });
 
-  it('should set the data-state attributes on the trigger elements', async () => {
+  it('should set the data-open attributes on the trigger elements', async () => {
     const fixture = await renderTemplate({ value: 'item-1' });
     const triggers = fixture.getAllByTestId('accordion-trigger');
 
-    expect(triggers[0].getAttribute('data-state')).toBe('open');
-    expect(triggers[1].getAttribute('data-state')).toBe('closed');
+    expect(triggers[0].getAttribute('data-open')).toBe('true');
+    expect(triggers[1].getAttribute('data-open')).toBe('false');
   });
 
-  it('should set the data-state attributes on the item elements', async () => {
+  it('should set the data-open attributes on the item elements', async () => {
     const fixture = await renderTemplate({ value: 'item-1' });
     const items = fixture.getAllByTestId('accordion-item');
 
-    expect(items[0].getAttribute('data-state')).toBe('open');
-    expect(items[1].getAttribute('data-state')).toBe('closed');
+    expect(items[0].getAttribute('data-open')).toBe('true');
+    expect(items[1].getAttribute('data-open')).toBe('false');
   });
 
-  it('should set the data-state attributes on the content elements', async () => {
+  it('should set the data-open attributes on the content elements', async () => {
     const fixture = await renderTemplate({ value: 'item-1' });
     const content = fixture.getAllByTestId('accordion-content');
 
-    expect(content[0].getAttribute('data-state')).toBe('open');
-    expect(content[1].getAttribute('data-state')).toBe('closed');
+    expect(content[0].getAttribute('data-open')).toBe('true');
+    expect(content[1].getAttribute('data-open')).toBe('false');
   });
 
   it('should set the data-disabled attribute on the trigger elements', async () => {

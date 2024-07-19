@@ -104,11 +104,11 @@ Apply the `ngpAccordionItem` directive to an element that represents an accordio
 
 The following data attributes are applied to the `ngpAccordionItem` directive:
 
-| Attribute          | Description                                    | Value                      |
-| ------------------ | ---------------------------------------------- | -------------------------- |
-| `data-orientation` | Define the orientation of the accordion.       | `horizontal` \| `vertical` |
-| `data-state`       | Define the state of the accordion item.        | `open` \| `closed`         |
-| `data-disabled`    | Define whether the accordion item is disabled. |                            |
+| Attribute          | Description                             | Value                      |
+| ------------------ | --------------------------------------- | -------------------------- |
+| `data-orientation` | The orientation of the accordion.       | `horizontal` \| `vertical` |
+| `data-open`        | The state of the accordion item.        | `true` \| `false`          |
+| `data-disabled`    | whether the accordion item is disabled. | `true` \| `false`          |
 
 ### NgpAccordionTrigger
 
@@ -121,11 +121,11 @@ Apply the `ngpAccordionTrigger` directive to an element that represents the trig
 
 The following data attributes are applied to the `ngpAccordionTrigger` directive:
 
-| Attribute          | Description                                    | Value                      |
-| ------------------ | ---------------------------------------------- | -------------------------- |
-| `data-orientation` | Define the orientation of the accordion.       | `horizontal` \| `vertical` |
-| `data-state`       | Define the state of the accordion item.        | `open` \| `closed`         |
-| `data-disabled`    | Define whether the accordion item is disabled. |                            |
+| Attribute          | Description                             | Value                      |
+| ------------------ | --------------------------------------- | -------------------------- |
+| `data-orientation` | The orientation of the accordion.       | `horizontal` \| `vertical` |
+| `data-open`        | The state of the accordion item.        | `true` \| `false`          |
+| `data-disabled`    | Whether the accordion item is disabled. | `true` \| `false`          |
 
 ### NgpAccordionContent
 
@@ -141,7 +141,7 @@ The following data attributes are applied to the `ngpAccordionContent` directive
 | Attribute          | Description                              | Value                      |
 | ------------------ | ---------------------------------------- | -------------------------- |
 | `data-orientation` | Define the orientation of the accordion. | `horizontal` \| `vertical` |
-| `data-state`       | Define the state of the accordion item.  | `open` \| `closed`         |
+| `data-open`        | Define the state of the accordion item.  | `true` \| `false`          |
 
 ## Global Configuration
 

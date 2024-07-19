@@ -14,14 +14,14 @@ import { NgpToggle } from './toggle.directive';
   standalone: true,
   imports: [NgpToggle],
   template:
-    '<button ngpToggle [ngpTogglePressed]="pressed" [ngpToggleDisabled]="disabled" (ngpTogglePressedChange)="onToggle($event)">Toggle</button>',
+    '<button ngpToggle [ngpToggleSelected]="selected" [ngpToggleDisabled]="disabled" (ngpToggleSelectedChange)="onToggle($event)">Toggle</button>',
 })
 class TestComponent {
-  pressed: boolean = false;
+  selected: boolean = false;
   disabled: boolean = false;
 
-  onToggle(pressed: boolean) {
-    this.pressed = pressed;
+  onToggle(selected: boolean) {
+    this.selected = selected;
   }
 }
 
@@ -43,28 +43,23 @@ describe('NgpToggle', () => {
     fixture.detectChanges();
   });
 
-  it('should create an instance', () => {
-    const directive = new NgpToggle();
-    expect(directive).toBeTruthy();
-  });
-
   it('should initialize with default values', () => {
-    expect(component.pressed).toBe(false);
+    expect(component.selected).toBe(false);
     expect(component.disabled).toBe(false);
   });
 
   it('should apply the correct aria-pressed attribute', () => {
     expect(button.nativeElement.getAttribute('aria-pressed')).toBe('false');
-    component.pressed = true;
+    component.selected = true;
     fixture.detectChanges();
     expect(button.nativeElement.getAttribute('aria-pressed')).toBe('true');
   });
 
-  it('should apply the correct data-state attribute', () => {
-    expect(button.nativeElement.getAttribute('data-state')).toBe('off');
-    component.pressed = true;
+  it('should apply the correct data-selected attribute', () => {
+    expect(button.nativeElement.getAttribute('data-selected')).toBe('false');
+    component.selected = true;
     fixture.detectChanges();
-    expect(button.nativeElement.getAttribute('data-state')).toBe('on');
+    expect(button.nativeElement.getAttribute('data-selected')).toBe('true');
   });
 
   it('should apply the correct data-disabled attribute', () => {
@@ -75,19 +70,19 @@ describe('NgpToggle', () => {
   });
 
   it('should toggle the pressed state on click', () => {
-    expect(component.pressed).toBe(false);
+    expect(component.selected).toBe(false);
     button.nativeElement.click();
-    expect(component.pressed).toBe(true);
+    expect(component.selected).toBe(true);
     button.nativeElement.click();
-    expect(component.pressed).toBe(false);
+    expect(component.selected).toBe(false);
   });
 
   it('should not toggle the pressed state when disabled', () => {
     component.disabled = true;
     fixture.detectChanges();
-    expect(component.pressed).toBe(false);
+    expect(component.selected).toBe(false);
     button.nativeElement.click();
-    expect(component.pressed).toBe(false);
+    expect(component.selected).toBe(false);
   });
 
   it('should emit the pressed state change event on toggle', () => {

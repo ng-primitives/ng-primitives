@@ -23,11 +23,11 @@ describe('NgpFocus', () => {
     expect(trigger.getAttribute('data-focus')).toBe('true');
   });
 
-  it('should emit the ngpFocusChange output', async () => {
+  it('should emit the ngpFocus output', async () => {
     const stateChange = jest.fn();
 
     const container = await render(
-      `<div data-testid="trigger" ngpFocus (ngpFocusChange)="stateChange($event)"></div>`,
+      `<div data-testid="trigger" (ngpFocus)="stateChange($event)"></div>`,
       {
         imports: [NgpFocus],
         componentProperties: {
@@ -47,11 +47,11 @@ describe('NgpFocus', () => {
     expect(stateChange).toHaveBeenCalledWith(false);
   });
 
-  it('should not emit the ngpFocusChange output when disabled', async () => {
+  it('should not emit the ngpFocus output when disabled', async () => {
     const stateChange = jest.fn();
 
     const container = await render(
-      `<div data-testid="trigger" ngpFocus [ngpFocusDisabled]="true" (ngpFocusChange)="stateChange($event)"></div>`,
+      `<div data-testid="trigger" [ngpFocusDisabled]="true" (ngpFocus)="stateChange($event)"></div>`,
       {
         imports: [NgpFocus],
         componentProperties: {

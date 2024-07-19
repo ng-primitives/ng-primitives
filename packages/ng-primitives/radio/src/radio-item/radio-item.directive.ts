@@ -20,7 +20,7 @@ import { NgpRadioItemToken } from './radio-item.token';
     role: 'radio',
     '[attr.aria-checked]': 'checked() ? "true" : "false"',
     '[attr.data-disabled]': 'disabled()',
-    '[attr.data-state]': 'checked() ? "checked" : "unchecked"',
+    '[attr.data-checked]': 'checked()',
   },
 })
 export class NgpRadioItem {

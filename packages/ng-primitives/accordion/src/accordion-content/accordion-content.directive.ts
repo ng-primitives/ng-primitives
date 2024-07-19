@@ -20,7 +20,7 @@ import { NgpAccordionContentToken } from './accordion-content.token';
     role: 'region',
     '[id]': 'id()',
     '[attr.data-orientation]': 'accordion.orientation()',
-    '[attr.data-state]': 'accordionItem.open() ? "open" : "closed"',
+    '[attr.data-open]': 'accordionItem.open()',
     '[attr.aria-labelledby]': 'accordionItem.triggerId()',
     '[style.--ngp-accordion-content-width.px]': 'dimensions().width',
     '[style.--ngp-accordion-content-height.px]': 'dimensions().height',

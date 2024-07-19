@@ -98,11 +98,11 @@ Apply the `ngpTabButton` directive to an element within a tab list to represent 
 
 The following data attributes are applied to the `ngpTabButton` directive:
 
-| Attribute          | Description                         | Value                      |
-| ------------------ | ----------------------------------- | -------------------------- |
-| `data-state`       | Define the state of the tab.        | `active` \| `inactive`     |
-| `data-disabled`    | Define the disabled state.          | `true` \| `false`          |
-| `data-orientation` | Define the orientation of the tabs. | `horizontal` \| `vertical` |
+| Attribute          | Description                  | Value                      |
+| ------------------ | ---------------------------- | -------------------------- |
+| `data-active`      | The state of the tab.        | `true` \| `false`          |
+| `data-disabled`    | The disabled state.          | `true` \| `false`          |
+| `data-orientation` | The orientation of the tabs. | `horizontal` \| `vertical` |
 
 ### NgpTabPanel
 
@@ -121,7 +121,7 @@ The following data attributes are applied to the `ngpTabPanel` directive:
 
 | Attribute          | Description                         | Value                      |
 | ------------------ | ----------------------------------- | -------------------------- |
-| `data-state`       | Define the state of the tab.        | `active` \| `inactive`     |
+| `data-active`      | Define the state of the tab.        | `true` \| `false`          |
 | `data-orientation` | Define the orientation of the tabs. | `horizontal` \| `vertical` |
 
 ## Global Configuration

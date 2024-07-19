@@ -38,7 +38,7 @@ import { NgpSwitch, NgpSwitchThumb } from 'ng-primitives/switch';
         0 0 0 2px rgb(59 130 246);
     }
 
-    [ngpSwitch][data-state='checked'] {
+    [ngpSwitch][data-checked='true'] {
       background-color: rgb(10 10 10);
       border-color: rgb(10 10 10);
     }
@@ -58,7 +58,7 @@ import { NgpSwitch, NgpSwitchThumb } from 'ng-primitives/switch';
       transform: translateX(1px);
     }
 
-    [ngpSwitchThumb][data-state='checked'] {
+    [ngpSwitchThumb][data-checked='true'] {
       transform: translateX(17px);
     }
   `,
