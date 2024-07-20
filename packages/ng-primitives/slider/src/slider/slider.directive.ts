@@ -16,7 +16,7 @@ import {
   numberAttribute,
 } from '@angular/core';
 import { NgpFormControl } from 'ng-primitives/form-field';
-import { NgpCanDisable, NgpDisabledToken } from '../../../internal/src';
+import { NgpCanDisable, NgpDisabledToken } from 'ng-primitives/internal';
 import { NgpSliderTrackToken } from '../slider-track/slider-track.token';
 import { NgpSliderToken } from './slider.token';
 

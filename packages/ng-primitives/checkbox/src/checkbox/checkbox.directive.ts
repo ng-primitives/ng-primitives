@@ -17,7 +17,7 @@ import {
 } from '@angular/core';
 import { NgpFormControl } from 'ng-primitives/form-field';
 import { NgpFocusVisible, NgpHover, NgpPress } from 'ng-primitives/interactions';
-import { NgpCanDisable, NgpDisabledToken } from '../../../internal/src';
+import { NgpCanDisable, NgpDisabledToken } from 'ng-primitives/internal';
 import { NgpCheckboxIndicatorToken } from '../checkbox-indicator/checkbox-indicator.token';
 import { NgpCheckboxToken } from './checkbox.token';
 

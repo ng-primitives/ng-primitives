@@ -6,8 +6,8 @@
  * LICENSE file in the root directory of this source tree.
  */
 import { Directive, computed, effect, input } from '@angular/core';
-import { uniqueId } from 'ng-primitives/utils';
 import { injectDisabled } from 'ng-primitives/internal';
+import { uniqueId } from 'ng-primitives/utils';
 import { injectFormField } from '../form-field/form-field.token';
 import { NgpFormControlToken } from './form-control.token';
 
