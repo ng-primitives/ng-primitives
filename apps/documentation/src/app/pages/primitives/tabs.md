@@ -60,9 +60,9 @@ Apply the `ngpTabset` directive to an element to manage the tabs.
 
 The following data attributes are applied to the `ngpTabset` directive:
 
-| Attribute          | Description                         | Value                      |
-| ------------------ | ----------------------------------- | -------------------------- |
-| `data-orientation` | Define the orientation of the tabs. | `horizontal` \| `vertical` |
+| Attribute          | Description                  | Value                      |
+| ------------------ | ---------------------------- | -------------------------- |
+| `data-orientation` | The orientation of the tabs. | `horizontal` \| `vertical` |
 
 ### NgpTabList
 
@@ -75,9 +75,9 @@ Apply the `ngpTabList` directive to an element that represents the list of tab b
 
 The following data attributes are applied to the `ngpTabList` directive:
 
-| Attribute          | Description                         | Value                      |
-| ------------------ | ----------------------------------- | -------------------------- |
-| `data-orientation` | Define the orientation of the tabs. | `horizontal` \| `vertical` |
+| Attribute          | Description                  | Value                      |
+| ------------------ | ---------------------------- | -------------------------- |
+| `data-orientation` | The orientation of the tabs. | `horizontal` \| `vertical` |
 
 ### NgpTabButton
 
@@ -122,10 +122,10 @@ Apply the `ngpTabPanel` directive to an element that represents the content of a
 
 The following data attributes are applied to the `ngpTabPanel` directive:
 
-| Attribute          | Description                         | Value                      |
-| ------------------ | ----------------------------------- | -------------------------- |
-| `data-active`      | Define the state of the tab.        | `true` \| `false`          |
-| `data-orientation` | Define the orientation of the tabs. | `horizontal` \| `vertical` |
+| Attribute          | Description                  | Value                      |
+| ------------------ | ---------------------------- | -------------------------- |
+| `data-active`      | The state of the tab.        | `true` \| `false`          |
+| `data-orientation` | The orientation of the tabs. | `horizontal` \| `vertical` |
 
 ## Global Configuration
 

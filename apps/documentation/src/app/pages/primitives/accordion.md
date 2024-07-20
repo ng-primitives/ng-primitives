@@ -81,9 +81,9 @@ Apply the `ngpAccordion` directive to an element that represents the group of ac
 
 The following data attributes are applied to the `ngpAccordion` directive:
 
-| Attribute          | Description                              | Value                      |
-| ------------------ | ---------------------------------------- | -------------------------- |
-| `data-orientation` | Define the orientation of the accordion. | `horizontal` \| `vertical` |
+| Attribute          | Description                       | Value                      |
+| ------------------ | --------------------------------- | -------------------------- |
+| `data-orientation` | The orientation of the accordion. | `horizontal` \| `vertical` |
 
 ### NgpAccordionItem
 
@@ -141,10 +141,10 @@ Apply the `ngpAccordionContent` directive to an element that represents the cont
 
 The following data attributes are applied to the `ngpAccordionContent` directive:
 
-| Attribute          | Description                              | Value                      |
-| ------------------ | ---------------------------------------- | -------------------------- |
-| `data-orientation` | Define the orientation of the accordion. | `horizontal` \| `vertical` |
-| `data-open`        | Define the state of the accordion item.  | `true` \| `false`          |
+| Attribute          | Description                       | Value                      |
+| ------------------ | --------------------------------- | -------------------------- |
+| `data-orientation` | The orientation of the accordion. | `horizontal` \| `vertical` |
+| `data-open`        | The state of the accordion item.  | `true` \| `false`          |
 
 ## Global Configuration
 

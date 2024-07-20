@@ -8,7 +8,7 @@
 
 Angular Primitives is a low-level UI component library with a focus on accessibility, customization, and developer experience. Whether you're building a design system from scratch or looking to enhance your existing one, our primitives are here to support you every step of the way.
 
-You can find our [documentation site here](https://ng-primitives.netlify.app/).
+You can find our [documentation site here](https://angularprimitives.com).
 
 The library is very much in the early stages of development, expect breaking changes while we refine our API.
 
