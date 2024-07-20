@@ -8,3 +8,4 @@
 
 export * from './disabled/disabled';
 export * from './orientation/orientation';
+export * from './style-injector/style-injector';
