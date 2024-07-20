@@ -25,6 +25,10 @@ import { NgpCheckboxToken } from './checkbox.token';
   standalone: true,
   providers: [{ provide: NgpCheckboxToken, useExisting: NgpCheckbox }],
   hostDirectives: [NgpFormControl, NgpHover, NgpFocusVisible, NgpPress],
+  host: {
+    '[attr.data-state]': 'state()',
+    '[attr.data-disabled]': 'disabled()',
+  },
 })
 export class NgpCheckbox {
   /**

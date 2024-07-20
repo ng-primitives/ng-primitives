@@ -57,11 +57,13 @@ Apply the `ngpCheckbox` directive to an element to that represents the checkbox,
   Event emitted when the indeterminate state changes.
 </response-field>
 
-| Attribute            | Description                      | Value             |
-| -------------------- | -------------------------------- | ----------------- |
-| `data-hover`         | The hover state of the checkbox. | `true` \| `false` |
-| `data-focus-visible` | The focus state of the checkbox. | `true` \| `false` |
-| `data-press`         | The press state of the checkbox. | `true` \| `false` |
+| Attribute            | Description                         | Value                                       |
+| -------------------- | ----------------------------------- | ------------------------------------------- |
+| `data-state`         | The state of the checkbox.          | `checked` \| `unchecked` \| `indeterminate` |
+| `data-disabled`      | The disabled state of the checkbox. | `true` \| `false`                           |
+| `data-hover`         | The hover state of the checkbox.    | `true` \| `false`                           |
+| `data-focus-visible` | The focus state of the checkbox.    | `true` \| `false`                           |
+| `data-press`         | The press state of the checkbox.    | `true` \| `false`                           |
 
 ### NgpCheckboxIndicator
 
@@ -77,6 +79,7 @@ The following data attributes are applied to the `ngpCheckboxIndicator` directiv
 | Attribute            | Description                                | Value                                       |
 | -------------------- | ------------------------------------------ | ------------------------------------------- |
 | `data-state`         | The state of the checkbox.                 | `checked` \| `unchecked` \| `indeterminate` |
+| `data-disabled`      | The disabled state of the checkbox.        | `true` \| `false`                           |
 | `data-hover`         | The hover state of the checkbox indicator. | `true` \| `false`                           |
 | `data-focus-visible` | The focus state of the checkbox indicator. | `true` \| `false`                           |
 | `data-press`         | The press state of the checkbox indicator. | `true` \| `false`                           |

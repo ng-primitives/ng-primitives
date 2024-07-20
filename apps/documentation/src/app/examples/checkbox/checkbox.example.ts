@@ -21,7 +21,7 @@ import {
       column-gap: 0.75rem;
     }
 
-    [ngpCheckbox][data-hover='true'] [ngpCheckboxIndicator]:not([data-checked='false']) {
+    [ngpCheckbox][data-hover='true'] [ngpCheckboxIndicator]:not([data-state='checked']) {
       background-color: rgb(250 250 250);
     }
 
@@ -40,7 +40,7 @@ import {
       outline: none;
     }
 
-    [ngpCheckboxIndicator][data-checked='true'] {
+    [ngpCheckboxIndicator][data-state='checked'] {
       border-color: rgb(10 10 10);
       background-color: rgb(10 10 10);
     }
