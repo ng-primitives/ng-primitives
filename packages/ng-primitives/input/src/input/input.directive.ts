@@ -7,10 +7,10 @@
  */
 import { BooleanInput } from '@angular/cdk/coercion';
 import { booleanAttribute, Directive, input } from '@angular/core';
+import { NgpAutofill } from 'ng-primitives/autofill';
 import { NgpFormControl } from 'ng-primitives/form-field';
 import { NgpFocus, NgpHover, NgpPress } from 'ng-primitives/interactions';
 import { NgpCanDisable, NgpDisabledToken } from 'ng-primitives/internal';
-import { NgpAutofill } from 'ng-primitives/autofill';
 import { NgpInputToken } from './input.token';
 
 @Directive({

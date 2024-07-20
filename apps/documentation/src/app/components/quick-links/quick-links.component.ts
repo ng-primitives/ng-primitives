@@ -1,7 +1,14 @@
-import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import {
+  afterNextRender,
+  ChangeDetectionStrategy,
+  Component,
+  inject,
+  Injector,
+  signal,
+} from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { NavigationEnd, Router } from '@angular/router';
-import { HeadingData, getHeadingList } from 'marked-gfm-heading-id';
+import { HeadingData } from 'marked-gfm-heading-id';
 import { filter } from 'rxjs/operators';
 
 @Component({
@@ -16,6 +23,7 @@ import { filter } from 'rxjs/operators';
 })
 export class QuickLinksComponent {
   private readonly router = inject(Router);
+  private readonly injector = inject(Injector);
   protected links = signal<HeadingData[]>([]);
 
   constructor() {
@@ -24,9 +32,9 @@ export class QuickLinksComponent {
         filter(event => event instanceof NavigationEnd),
         takeUntilDestroyed(),
       )
-      .subscribe(() =>
-        this.links.set(getHeadingList().filter(heading => heading.level > 1 && heading.level < 4)),
-      );
+      .subscribe(() => {
+        afterNextRender(() => this.links.set(getHeadingList()), { injector: this.injector });
+      });
   }
 
   scrollTo(id: string): void {
@@ -35,4 +43,17 @@ export class QuickLinksComponent {
       behavior: 'smooth',
     });
   }
+}
+
+function getHeadingList(): HeadingData[] {
+  const content = document.querySelector('[data-page-content]');
+  const headings = content?.querySelectorAll('h2, h3');
+
+  return Array.from(headings ?? []).map(heading => {
+    return {
+      level: parseInt(heading.tagName.slice(1)),
+      id: heading.id,
+      text: heading.textContent,
+    } as HeadingData;
+  });
 }
