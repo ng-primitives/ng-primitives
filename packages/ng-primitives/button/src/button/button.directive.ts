@@ -35,7 +35,6 @@ export class NgpButton implements NgpCanDisable {
    * Whether the button is disabled.
    */
   readonly disabled = input<boolean, BooleanInput>(false, {
-    alias: 'ngpButtonDisabled',
     transform: booleanAttribute,
   });
 

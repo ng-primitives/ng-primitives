@@ -36,10 +36,6 @@ A directive that can be used to create a button.
 - Exported As: `ngpButton`
 - Host Directives: [NgpHover](/interactions/hover), [NgpFocusVisible](/interactions/focus-visible), [NgpPress](/interactions/press)
 
-<response-field name="ngpButtonDisabled" type="boolean">
-  A boolean value that determines if the button is disabled.
-</response-field>
-
 #### Data Attributes
 
 | Attribute            | Description                       | Value             |
