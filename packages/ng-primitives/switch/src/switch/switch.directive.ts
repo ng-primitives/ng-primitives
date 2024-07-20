@@ -17,24 +17,27 @@ import {
 } from '@angular/core';
 import { NgpFormControl } from 'ng-primitives/form-field';
 import { NgpFocusVisible, NgpHover, NgpPress } from 'ng-primitives/interactions';
+import { NgpCanDisable, NgpDisabledToken } from '../../../internal/src';
 import { NgpSwitchToken } from './switch.token';
 
 @Directive({
   standalone: true,
   selector: '[ngpSwitch]',
   exportAs: 'ngpSwitch',
-  providers: [{ provide: NgpSwitchToken, useExisting: NgpSwitch }],
+  providers: [
+    { provide: NgpSwitchToken, useExisting: NgpSwitch },
+    { provide: NgpDisabledToken, useExisting: NgpSwitch },
+  ],
   hostDirectives: [NgpFormControl, NgpHover, NgpPress, NgpFocusVisible],
   host: {
     role: 'switch',
     '[attr.type]': 'isButton ? "button" : null',
     '[attr.aria-checked]': 'checked()',
     '[attr.data-checked]': 'checked()',
-    '[attr.data-disabled]': 'disabled()',
     '[attr.disabled]': 'isButton && disabled() ? disabled() : null',
   },
 })
-export class NgpSwitch {
+export class NgpSwitch implements NgpCanDisable {
   /**
    * Access the element ref.
    */

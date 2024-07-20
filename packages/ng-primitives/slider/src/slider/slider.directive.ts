@@ -16,6 +16,7 @@ import {
   numberAttribute,
 } from '@angular/core';
 import { NgpFormControl } from 'ng-primitives/form-field';
+import { NgpCanDisable, NgpDisabledToken } from '../../../internal/src';
 import { NgpSliderTrackToken } from '../slider-track/slider-track.token';
 import { NgpSliderToken } from './slider.token';
 
@@ -23,14 +24,16 @@ import { NgpSliderToken } from './slider.token';
   standalone: true,
   selector: '[ngpSlider]',
   exportAs: 'ngpSlider',
-  providers: [{ provide: NgpSliderToken, useExisting: NgpSlider }],
+  providers: [
+    { provide: NgpSliderToken, useExisting: NgpSlider },
+    { provide: NgpDisabledToken, useExisting: NgpSlider },
+  ],
   hostDirectives: [NgpFormControl],
   host: {
     '[attr.data-orientation]': 'orientation()',
-    '[attr.data-disabled]': 'disabled()',
   },
 })
-export class NgpSlider {
+export class NgpSlider implements NgpCanDisable {
   /**
    * The value of the slider.
    */

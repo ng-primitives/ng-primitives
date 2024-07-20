@@ -8,29 +8,25 @@
 import { BooleanInput } from '@angular/cdk/coercion';
 import { booleanAttribute, Directive, input } from '@angular/core';
 import { NgpFormControl } from 'ng-primitives/form-field';
-import { NgpFocusVisible, NgpHover, NgpPress } from 'ng-primitives/interactions';
+import { NgpFocus, NgpHover, NgpPress } from 'ng-primitives/interactions';
 import { NgpCanDisable, NgpDisabledToken } from 'ng-primitives/internal';
-import { NgpSelectToken } from './select.token';
+import { NgpInputToken } from './input.token';
 
 @Directive({
   standalone: true,
-  selector: 'select[ngpSelect]',
-  exportAs: 'ngpSelect',
+  selector: '[ngpInput]',
+  exportAs: 'ngpInput',
   providers: [
-    { provide: NgpSelectToken, useExisting: NgpSelect },
-    { provide: NgpDisabledToken, useExisting: NgpSelect },
+    { provide: NgpInputToken, useExisting: NgpInput },
+    { provide: NgpDisabledToken, useExisting: NgpInput },
   ],
-  hostDirectives: [NgpFormControl, NgpFocusVisible, NgpHover, NgpPress],
-  host: {
-    '[attr.disabled]': 'disabled() || null',
-  },
+  hostDirectives: [NgpFormControl, NgpHover, NgpFocus, NgpPress],
 })
-export class NgpSelect implements NgpCanDisable {
+export class NgpInput implements NgpCanDisable {
   /**
-   * Whether the select is disabled.
+   * Whether the element is disabled.
    */
   readonly disabled = input<boolean, BooleanInput>(false, {
-    alias: 'ngpSelectDisabled',
     transform: booleanAttribute,
   });
 }

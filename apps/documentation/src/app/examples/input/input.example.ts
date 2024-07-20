@@ -1,0 +1,37 @@
+import { Component } from '@angular/core';
+import { NgpInput } from 'ng-primitives/input';
+
+@Component({
+  standalone: true,
+  selector: 'app-input',
+  imports: [NgpInput],
+  template: `
+    <input ngpInput type="text" placeholder="Enter your full name" />
+  `,
+  styles: `
+    :host {
+      display: contents;
+    }
+
+    [ngpInput] {
+      height: 36px;
+      width: 90%;
+      border-radius: 8px;
+      padding: 0 16px;
+      border: none;
+      box-shadow:
+        0 1px 2px rgba(0, 0, 0, 0.05),
+        0 0 0 1px rgba(0, 0, 0, 0.1);
+      outline: none;
+    }
+
+    [ngpInput]:focus {
+      box-shadow: 0 0 0 2px rgb(59, 130, 246);
+    }
+
+    [ngpInput]::placeholder {
+      color: rgb(161 161 170);
+    }
+  `,
+})
+export default class InputExample {}

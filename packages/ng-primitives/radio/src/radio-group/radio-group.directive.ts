@@ -9,21 +9,24 @@ import { BooleanInput } from '@angular/cdk/coercion';
 import { Directive, booleanAttribute, input, model } from '@angular/core';
 import { NgpFormControl } from 'ng-primitives/form-field';
 import { NgpRovingFocusGroup } from 'ng-primitives/roving-focus';
+import { NgpCanDisable, NgpDisabledToken } from '../../../internal/src';
 import { NgpRadioGroupToken } from './radio-group.token';
 
 @Directive({
   selector: '[ngpRadioGroup]',
   standalone: true,
-  providers: [{ provide: NgpRadioGroupToken, useExisting: NgpRadioGroup }],
+  providers: [
+    { provide: NgpRadioGroupToken, useExisting: NgpRadioGroup },
+    { provide: NgpDisabledToken, useExisting: NgpRadioGroup },
+  ],
   hostDirectives: [NgpRovingFocusGroup, NgpFormControl],
   host: {
     role: 'radiogroup',
     '[attr.aria-orientation]': 'orientation()',
     '[attr.data-orientation]': 'orientation()',
-    '[attr.data-disabled]': 'disabled()',
   },
 })
-export class NgpRadioGroup {
+export class NgpRadioGroup implements NgpCanDisable {
   /**
    * The value of the radio group.
    */

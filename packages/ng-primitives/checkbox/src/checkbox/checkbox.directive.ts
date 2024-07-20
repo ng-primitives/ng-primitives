@@ -17,20 +17,23 @@ import {
 } from '@angular/core';
 import { NgpFormControl } from 'ng-primitives/form-field';
 import { NgpFocusVisible, NgpHover, NgpPress } from 'ng-primitives/interactions';
+import { NgpCanDisable, NgpDisabledToken } from '../../../internal/src';
 import { NgpCheckboxIndicatorToken } from '../checkbox-indicator/checkbox-indicator.token';
 import { NgpCheckboxToken } from './checkbox.token';
 
 @Directive({
   selector: '[ngpCheckbox]',
   standalone: true,
-  providers: [{ provide: NgpCheckboxToken, useExisting: NgpCheckbox }],
+  providers: [
+    { provide: NgpCheckboxToken, useExisting: NgpCheckbox },
+    { provide: NgpDisabledToken, useExisting: NgpCheckbox },
+  ],
   hostDirectives: [NgpFormControl, NgpHover, NgpFocusVisible, NgpPress],
   host: {
     '[attr.data-state]': 'state()',
-    '[attr.data-disabled]': 'disabled()',
   },
 })
-export class NgpCheckbox {
+export class NgpCheckbox implements NgpCanDisable {
   /**
    * Defines whether the checkbox is checked.
    */
