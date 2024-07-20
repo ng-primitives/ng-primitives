@@ -10,6 +10,7 @@ import { booleanAttribute, Directive, input } from '@angular/core';
 import { NgpFormControl } from 'ng-primitives/form-field';
 import { NgpFocus, NgpHover, NgpPress } from 'ng-primitives/interactions';
 import { NgpCanDisable, NgpDisabledToken } from 'ng-primitives/internal';
+import { NgpAutofill } from 'ng-primitives/autofill';
 import { NgpInputToken } from './input.token';
 
 @Directive({
@@ -20,7 +21,7 @@ import { NgpInputToken } from './input.token';
     { provide: NgpInputToken, useExisting: NgpInput },
     { provide: NgpDisabledToken, useExisting: NgpInput },
   ],
-  hostDirectives: [NgpFormControl, NgpHover, NgpFocus, NgpPress],
+  hostDirectives: [NgpFormControl, NgpHover, NgpFocus, NgpPress, NgpAutofill],
 })
 export class NgpInput implements NgpCanDisable {
   /**

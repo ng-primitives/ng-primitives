@@ -4,7 +4,7 @@ name: 'Input'
 
 # Input
 
-The input primitive can be used to enhance the accessibility of an input element and provide consistent interaction handling for hover, focus and press states.
+The input primitive can be used to enhance the accessibility of an input element and provide consistent interaction handling for hover, focus, press and autofill states.
 
 <docs-example name="input"></docs-example>
 
@@ -42,3 +42,4 @@ The following data attributes are applied to the `ngpInput` directive:
 | `data-hover`    | The hover state of the input.    | `true` \| `false` |
 | `data-focus`    | The focus state of the input.    | `true` \| `false` |
 | `data-disabled` | The disabled state of the input. | `true` \| `false` |
+| `data-autofill` | The autofill state of the input. | `true` \| `false` |
