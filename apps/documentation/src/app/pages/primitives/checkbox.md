@@ -36,6 +36,7 @@ Apply the `ngpCheckbox` directive to an element to that represents the checkbox,
 
 - Selector: `[ngpCheckbox]`
 - Exported As: `ngpCheckbox`
+- Host Directives: [NgpFormControl](/primitives/form-field), [NgpHover](/interactions/hover), [NgpFocusVisible](/interactions/focus-visible), [NgpPress](/interactions/press)
 
 <response-field name="ngpCheckboxChecked" type="boolean" default="false">
   Define the checked state.
@@ -71,6 +72,7 @@ Apply the `ngpCheckboxIndicator` directive to an element that represents the che
 
 - Selector: `[ngpCheckboxIndicator]`
 - Exported As: `ngpCheckboxIndicator`
+- Host Directives: [NgpHover](/interactions/hover), [NgpFocusVisible](/interactions/focus-visible), [NgpPress](/interactions/press)
 
 #### Data Attributes
 
@@ -90,6 +92,7 @@ Apply the `ngpCheckboxInput` directive to an input element to bind the checkbox 
 
 - Selector: `[ngpCheckboxInput]`
 - Exported As: `ngpCheckboxInput`
+- Host Directives: [NgpVisuallyHidden](/utilities/visually-hidden)
 
 ### NgpCheckboxLabel
 

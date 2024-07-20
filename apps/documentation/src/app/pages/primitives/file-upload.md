@@ -34,6 +34,7 @@ A directive that allows you to turn any element into a file upload trigger.
 
 - Selector: `[ngpFileUpload]`
 - Exported As: `ngpFileUpload`
+- Host Directives: [NgpHover](/interactions/hover), [NgpFocusVisible](/interactions/focus-visible), [NgpPress](/interactions/press)
 
 <response-field name="ngpFileUploadMultiple" type="boolean" default="false">
   Define if multiple files can be selected.

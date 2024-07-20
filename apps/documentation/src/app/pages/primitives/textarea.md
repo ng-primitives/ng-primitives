@@ -32,6 +32,7 @@ The following directives are available to import from the `ng-primitives/textare
 
 - Selector: `[ngpTextarea]`
 - Exported As: `ngpTextarea`
+- Host Directives: [NgpFormControl](/primitives/form-field), [NgpHover](/interactions/hover), [NgpFocus](/interactions/focus), [NgpPress](/interactions/press)
 
 #### Data Attributes
 

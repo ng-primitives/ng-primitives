@@ -43,6 +43,7 @@ Apply the `ngpTabset` directive to an element to manage the tabs.
 
 - Selector: `[ngpTabset]`
 - Exported As: `ngpTabset`
+- Host Directives: [NgpRovingFocusGroup](/primitives/roving-focus)
 
 <response-field name="ngpTabsetValue" type="string">
   Define the selected tab.
@@ -85,6 +86,7 @@ Apply the `ngpTabButton` directive to an element within a tab list to represent 
 
 - Selector: `[ngpTabButton]`
 - Exported As: `ngpTabButton`
+- Host Directives: [NgpRovingFocusItem](/primitives/roving-focus), [NgpHover](/interactions/hover), [NgpFocusVisible](/interactions/focus-visible), [NgpPress](/interactions/press)
 
 <response-field name="ngpTabButtonValue" type="string" required="true">
   Define the value of the tab.

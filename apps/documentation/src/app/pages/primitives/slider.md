@@ -39,6 +39,7 @@ Apply the `ngpSlider` directive to an element that represents the slider and con
 
 - Selector: `[ngpSlider]`
 - Exported As: `ngpSlider`
+- Host Directives: [NgpFormControl](/primitives/form-field)
 
 <response-field name="ngpSliderValue" type="number">
   Define the selected value.
@@ -107,6 +108,7 @@ Apply the `ngpSliderThumb` directive to an element that represents the thumb of 
 
 - Selector: `[ngpSliderThumb]`
 - Exported As: `ngpSliderThumb`
+- Host Directives: [NgpHover](/interactions/hover), [NgpFocusVisible](/interactions/focus-visible), [NgpPress](/interactions/press)
 
 #### Data Attributes
 

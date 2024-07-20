@@ -36,6 +36,7 @@ Apply the `ngpSwitch` directive to an element to manage the checked state.
 
 - Selector: `[ngpSwitch]`
 - Exported As: `ngpSwitch`
+- Host Directives: [NgpFormControl](/primitives/form-field), [NgpHover](/interactions/hover), [NgpFocusVisible](/interactions/focus-visible), [NgpPress](/interactions/press)
 
 <response-field name="ngpSwitchChecked" type="boolean" default="false">
   Define the checked state.
@@ -67,6 +68,7 @@ Apply the `ngpSwitchThumb` directive to an element within a switch to represent 
 
 - Selector: `[ngpSwitchThumb]`
 - Exported As: `ngpSwitchThumb`
+- Host Directives: [NgpHover](/interactions/hover), [NgpFocusVisible](/interactions/focus-visible), [NgpPress](/interactions/press)
 
 #### Data Attributes
 

@@ -49,6 +49,7 @@ Apply the `ngpRadioGroup` directive to an element that represents the group of r
 
 - Selector: `[ngpRadioGroup]`
 - Exported As: `ngpRadioGroup`
+- Host Directives: [NgpRovingFocusGroup](/primitives/roving-focus), [NgpFormControl](/primitives/form-field)
 
 <response-field name="ngpRadioGroupValue" type="string | undefined">
   Define the selected value.
@@ -70,6 +71,7 @@ Apply the `ngpRadioItem` directive to an element that represents a radio item. T
 
 - Selector: `[ngpRadioItem]`
 - Exported As: `ngpRadioItem`
+- Host Directives: [NgpRovingFocusItem](/primitives/roving-focus), [NgpHover](/interactions/hover), [NgpFocusVisible](/interactions/focus-visible), [NgpPress](/interactions/press)
 
 <response-field name="ngpRadioItemValue" type="string" required="true">
   Define the value of this item.
@@ -103,6 +105,10 @@ The following data attributes are applied to the `ngpRadioItem` directive:
 ### NgpRadioIndicator
 
 Apply the `ngpRadioIndicator` directive to an element that represents the radio indicator (i.e. the dot).
+
+- Selector: `[ngpRadioIndicator]`
+- Exported As: `ngpRadioIndicator`
+- Host Directives: [NgpHover](/interactions/hover), [NgpPress](/interactions/press)
 
 #### Data Attributes
 

@@ -37,6 +37,7 @@ Apply the `ngpAvatar` directive to an element that represents the avatar. This d
 
 - Selector: `[ngpAvatar]`
 - Exported As: `ngpAvatar`
+- Host Directives: [NgpHover](/interactions/hover), [NgpFocusVisible](/interactions/focus-visible), [NgpPress](/interactions/press)
 
 #### Data Attributes
 
@@ -53,6 +54,7 @@ Apply the `ngpAvatarImage` directive to an element that represents the avatar im
 
 - Selector: `[ngpAvatarImage]`
 - Exported As: `ngpAvatarImage`
+- Host Directives: [NgpVisuallyHidden](/utilities/visually-hidden)
 
 ### NgpAvatarFallback
 

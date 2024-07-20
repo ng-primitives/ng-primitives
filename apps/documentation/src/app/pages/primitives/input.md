@@ -32,6 +32,7 @@ The following directives are available to import from the `ng-primitives/input` 
 
 - Selector: `[ngpInput]`
 - Exported As: `ngpInput`
+- Host Directives: [NgpFormControl](/primitives/form-field), [NgpHover](/interactions/hover), [NgpFocus](/interactions/focus), [NgpPress](/interactions/press), [NgpAutofill](/utilities/autofill)
 
 #### Data Attributes
 
