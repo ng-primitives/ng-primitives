@@ -81,9 +81,10 @@ Apply the `ngpAccordion` directive to an element that represents the group of ac
 
 The following data attributes are applied to the `ngpAccordion` directive:
 
-| Attribute          | Description                       | Value                      |
-| ------------------ | --------------------------------- | -------------------------- |
-| `data-orientation` | The orientation of the accordion. | `horizontal` \| `vertical` |
+| Attribute          | Description                        | Value                      |
+| ------------------ | ---------------------------------- | -------------------------- |
+| `data-orientation` | The orientation of the accordion.  | `horizontal` \| `vertical` |
+| `data-disabled`    | Whether the accordion is disabled. | `true` \| `false`          |
 
 ### NgpAccordionItem
 

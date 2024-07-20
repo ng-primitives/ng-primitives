@@ -17,6 +17,7 @@ import { NgpAccordionToken } from './accordion.token';
   providers: [{ provide: NgpAccordionToken, useExisting: NgpAccordion }],
   host: {
     '[attr.data-orientation]': 'orientation()',
+    '[attr.data-disabled]': 'disabled()',
   },
 })
 export class NgpAccordion<T> {

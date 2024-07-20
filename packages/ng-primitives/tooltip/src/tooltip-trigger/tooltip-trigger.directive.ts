@@ -17,7 +17,6 @@ import {
   ViewContainerRef,
   booleanAttribute,
   computed,
-  effect,
   inject,
   input,
   model,
@@ -33,7 +32,7 @@ import {
   offset,
   shift,
 } from '@floating-ui/dom';
-import { injectDisposables } from 'ng-primitives/utils';
+import { injectDisposables, onBooleanChange } from 'ng-primitives/utils';
 import { injectTooltipConfig } from '../config/tooltip.config';
 import { NgpTooltipTriggerToken, provideTooltipTrigger } from './tooltip-trigger.token';
 
@@ -193,7 +192,7 @@ export class NgpTooltipTrigger implements OnDestroy {
 
   constructor() {
     // any time the open state changes then show or hide the tooltip
-    effect(() => (this.open() ? this.show() : this.hide()), { allowSignalWrites: true });
+    onBooleanChange(this.open, this.show.bind(this), this.hide.bind(this));
   }
 
   ngOnDestroy(): void {
