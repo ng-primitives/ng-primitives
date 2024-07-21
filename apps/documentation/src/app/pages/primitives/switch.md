@@ -26,6 +26,16 @@ Assemble the switch directives in your template.
 </button>
 ```
 
+## Examples
+
+Here are some additional examples of how to use the Switch primitives.
+
+### Switch Form Field
+
+The switch automatically integrates with the form field primitives.
+
+<docs-example name="switch-form-field"></docs-example>
+
 ## API Reference
 
 The following directives are available to import from the `ng-primitives/switch` package:
