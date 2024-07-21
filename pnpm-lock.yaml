@@ -62,20 +62,20 @@ importers:
         specifier: ^1.6.4
         version: 1.6.5
       '@ng-icons/bootstrap-icons':
-        specifier: ^28.0.0
-        version: 28.0.0
+        specifier: 29.0.0
+        version: 29.0.0
       '@ng-icons/core':
-        specifier: ^27.4.0
-        version: 27.5.2
+        specifier: 29.0.0
+        version: 29.0.0(@angular/core@18.1.1(rxjs@7.8.1)(zone.js@0.14.7))(rxjs@7.8.1)
       '@ng-icons/heroicons':
-        specifier: ^27.4.0
-        version: 27.5.2
+        specifier: 29.0.0
+        version: 29.0.0
       '@ng-icons/iconsax':
-        specifier: ^28.0.0
-        version: 28.0.0
+        specifier: 29.0.0
+        version: 29.0.0
       '@ng-icons/lucide':
-        specifier: ^28.0.0
-        version: 28.0.0
+        specifier: 29.0.0
+        version: 29.0.0
       '@nx/devkit':
         specifier: 19.5.0
         version: 19.5.0(nx@19.5.0(@swc-node/register@1.9.1(@swc/core@1.5.7(@swc/helpers@0.5.11))(@swc/types@0.1.7)(typescript@5.5.3))(@swc/core@1.5.7(@swc/helpers@0.5.11)))
@@ -2212,20 +2212,23 @@ packages:
     cpu: [x64]
     os: [win32]
 
-  '@ng-icons/bootstrap-icons@28.0.0':
-    resolution: {integrity: sha512-H6YqxOBHAg7sfO4TQJnhKWAxDgitetH+8ewBpjhq5yfVKLe2426X69XMyHWPN5OyP+3EYCbJ7A2pm/laup/SZg==}
+  '@ng-icons/bootstrap-icons@29.0.0':
+    resolution: {integrity: sha512-3l+8642dsUqfrq5f0+ozlmB0zmWT39RxR1427dwsFwATav0aGHUGL6KcXyI3rVmYofOpjJomjaqFriBSU8XPYQ==}
 
-  '@ng-icons/core@27.5.2':
-    resolution: {integrity: sha512-LDfhrfxJ5yM8NkpSlz9ix+RRuecFHZYjfCgXH0dVDuk5gx+40Dxi/v9vL8oRpUP4oL9spR7Ndry2ENVZY/h4Tw==}
+  '@ng-icons/core@29.0.0':
+    resolution: {integrity: sha512-HAPB4KbMMCkc7SEk/kKzyNzSIRO241bVtXWUMQPr/JuY5Gd7Jh2fFjdue0VIUBP3qjjCEMOhwdZV6zsefrVVaA==}
+    peerDependencies:
+      '@angular/core': '>=18.0.0'
+      rxjs: ^6.5.3 || ^7.4.0
 
-  '@ng-icons/heroicons@27.5.2':
-    resolution: {integrity: sha512-+OaXaZb+E6yQrfiqME92OMstUH+1tv9GvPr7IY6Bnxdm+db633gs/8Vz3O+lMq6/luqSY87nwglwLWhoR4Nm4A==}
+  '@ng-icons/heroicons@29.0.0':
+    resolution: {integrity: sha512-URrPoBZfn60SCXkY/ZuJZzxAV4mAEsIVxIMrp6wQMa/clju2AuKx1FTMFvCjz2mdQR1+k8Pj67BHdcWyPuAZZg==}
 
-  '@ng-icons/iconsax@28.0.0':
-    resolution: {integrity: sha512-SCVpg4h3Oz7thypHJmBb/k5mUvovuhOFukdIAqGLIG7h7CfwemEAwdIb5aV7lmsVae/5RpshYCDjYmTYvB/bmw==}
+  '@ng-icons/iconsax@29.0.0':
+    resolution: {integrity: sha512-JXf1vkwDwdndnbFCfBHub/+mQ1NK5+WDGhT9Nd7b6pKTW5CNPChcyc76A+fZBtP0S924CIaxVP0lDkHrTgWRMw==}
 
-  '@ng-icons/lucide@28.0.0':
-    resolution: {integrity: sha512-pb6wR72kwQEkThOkA+r8TdHI12PiQRU8dBM3GB8uZRs53V/s4PhTDo3bqiHsJrQruE7DboODFlBeVwdCEYIjCA==}
+  '@ng-icons/lucide@29.0.0':
+    resolution: {integrity: sha512-sTkxb5rdRHtRyomKuQcT9s3OcJnA6WEF1e569PAXwxppswQcVoUceohkTaHkN43z2YqTNE7pcfMB35EmvpTI0g==}
 
   '@ngtools/webpack@18.1.1':
     resolution: {integrity: sha512-mjlfnWcHtBZJUJaVyffJZZL8U1o1XUQwrFIKeiFUeatLDsjtv8EbLW9Ed1v3eAJyVuaTNKpsdZma1XdxzeLONw==}
@@ -11368,23 +11371,25 @@ snapshots:
   '@next/swc-win32-x64-msvc@14.2.4':
     optional: true
 
-  '@ng-icons/bootstrap-icons@28.0.0':
+  '@ng-icons/bootstrap-icons@29.0.0':
     dependencies:
       tslib: 2.6.3
 
-  '@ng-icons/core@27.5.2':
+  '@ng-icons/core@29.0.0(@angular/core@18.1.1(rxjs@7.8.1)(zone.js@0.14.7))(rxjs@7.8.1)':
+    dependencies:
+      '@angular/core': 18.1.1(rxjs@7.8.1)(zone.js@0.14.7)
+      rxjs: 7.8.1
+      tslib: 2.6.3
+
+  '@ng-icons/heroicons@29.0.0':
     dependencies:
       tslib: 2.6.3
 
-  '@ng-icons/heroicons@27.5.2':
+  '@ng-icons/iconsax@29.0.0':
     dependencies:
       tslib: 2.6.3
 
-  '@ng-icons/iconsax@28.0.0':
-    dependencies:
-      tslib: 2.6.3
-
-  '@ng-icons/lucide@28.0.0':
+  '@ng-icons/lucide@29.0.0':
     dependencies:
       tslib: 2.6.3
 
@@ -11710,7 +11715,7 @@ snapshots:
       ignore: 5.3.1
       magic-string: 0.30.10
       minimatch: 9.0.3
-      piscina: 4.6.0
+      piscina: 4.6.1
       rxjs: 7.8.1
       semver: 7.6.2
       tslib: 2.6.3
@@ -16364,7 +16369,7 @@ snapshots:
       escape-html: 1.0.3
       fresh: 0.5.2
       http-assert: 1.5.0
-      http-errors: 1.6.3
+      http-errors: 1.8.1
       is-generator-function: 1.0.10
       koa-compose: 4.1.0
       koa-convert: 1.2.0

@@ -17,6 +17,7 @@ import { NgpFormControlToken } from './form-control.token';
   exportAs: 'ngpFormControl',
   providers: [{ provide: NgpFormControlToken, useExisting: NgpFormControl }],
   host: {
+    '[id]': 'id()',
     '[attr.aria-labelledby]': 'ariaLabelledBy()',
     '[attr.aria-describedby]': 'ariaDescribedBy()',
     '[attr.data-invalid]': 'formField?.invalid()',

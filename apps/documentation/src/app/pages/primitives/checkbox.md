@@ -26,6 +26,16 @@ Assemble the checkbox directives in your template.
 </span>
 ```
 
+## Examples
+
+Here are some additional examples of how to use the Checkbox primitives.
+
+### Checkbox Form Field
+
+The checkbox automatically integrates with the form field primitives.
+
+<docs-example name="checkbox-form-field"></docs-example>
+
 ## API Reference
 
 The following directives are available to import from the `ng-primitives/checkbox` package:
@@ -69,7 +79,7 @@ Apply the `ngpCheckbox` directive to an element to that represents the checkbox,
 
 ## Accessibility
 
-Adheres to the [tri-state Checkbox WAI-ARIA design pattern](https://www.w3.org/WAI/ARIA/apg/patterns/checkbox).
+Adheres to the [Tri-State Checkbox WAI-ARIA design pattern](https://www.w3.org/WAI/ARIA/apg/patterns/checkbox).
 
 ### Keyboard Interactions
 

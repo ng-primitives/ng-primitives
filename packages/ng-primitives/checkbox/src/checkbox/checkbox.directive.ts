@@ -6,20 +6,11 @@
  * LICENSE file in the root directory of this source tree.
  */
 import { BooleanInput } from '@angular/cdk/coercion';
-import {
-  Directive,
-  HostListener,
-  booleanAttribute,
-  computed,
-  contentChild,
-  input,
-  model,
-} from '@angular/core';
+import { Directive, HostListener, booleanAttribute, input, model } from '@angular/core';
 import { NgpFormControl } from 'ng-primitives/form-field';
 import { NgpFocusVisible, NgpHover, NgpPress } from 'ng-primitives/interactions';
 import { NgpCanDisable, NgpDisabledToken } from 'ng-primitives/internal';
 import { uniqueId } from 'ng-primitives/utils';
-import { NgpCheckboxIndicatorToken } from '../checkbox-indicator/checkbox-indicator.token';
 import { NgpCheckboxToken } from './checkbox.token';
 
 @Directive({
@@ -32,11 +23,9 @@ import { NgpCheckboxToken } from './checkbox.token';
   hostDirectives: [NgpFormControl, NgpHover, NgpFocusVisible, NgpPress],
   host: {
     role: 'checkbox',
-    '[id]': 'id()',
     '[attr.aria-checked]': 'indeterminate() ? "mixed" : checked()',
     '[attr.data-checked]': 'checked()',
     '[attr.data-indeterminate]': 'indeterminate()',
-    '[attr.data-disabled]': 'disabled()',
     '[tabindex]': 'disabled() ? -1 : 0',
   },
 })
@@ -45,7 +34,7 @@ export class NgpCheckbox implements NgpCanDisable {
    * The id of the checkbox.
    * @internal
    */
-  readonly id = input(uniqueId('ngp-checkbox-indicator'));
+  readonly id = input(uniqueId('ngp-checkbox'));
 
   /**
    * Defines whether the checkbox is checked.
@@ -76,18 +65,6 @@ export class NgpCheckbox implements NgpCanDisable {
     alias: 'ngpCheckboxDisabled',
     transform: booleanAttribute,
   });
-
-  /**
-   * Access the indicator id
-   * @internal
-   */
-  readonly indicatorId = computed<string | null>(() => this.indicator()?.id() ?? null);
-
-  /**
-   * Access the indicator instance
-   * @internal
-   */
-  protected readonly indicator = contentChild(NgpCheckboxIndicatorToken, { descendants: true });
 
   @HostListener('keydown.enter', ['$event'])
   protected onEnter(event: KeyboardEvent): void {
