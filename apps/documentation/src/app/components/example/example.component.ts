@@ -199,9 +199,14 @@ export class ExampleComponent {
       return;
     }
 
-    sdk.openProject({
-      title: 'Angular Example',
-      template: 'angular-cli',
+    const packageJson = {
+      name: 'angular-starter',
+      private: true,
+      scripts: {
+        ng: 'ng',
+        start: 'ng serve',
+        build: 'ng build',
+      },
       dependencies: {
         '@angular/animations': '^18.0.0',
         '@angular/common': '^18.0.0',
@@ -217,8 +222,18 @@ export class ExampleComponent {
         '@floating-ui/dom': '^1.6.0',
         rxjs: '^7.8.1',
         tslib: '^2.5.0',
+        '@angular-devkit/build-angular': '^18.0.0',
+        '@angular/cli': '^18.0.1',
+        '@angular/compiler-cli': '^18.0.0',
+        typescript: '~5.4.0',
         'zone.js': '~0.14.0',
       },
+    };
+
+    sdk.openProject({
+      title: 'Angular Example',
+      template: 'angular-cli',
+      dependencies: packageJson.dependencies,
       files: {
         'src/index.html': `<!DOCTYPE html>
 <html lang="en">
@@ -314,38 +329,7 @@ node_modules`,
   },
   "version": 1
 }`,
-        'package.json': `{
-  "name": "angular-starter",
-  "private": true,
-  "scripts": {
-    "ng": "ng",
-    "start": "ng serve",
-    "build": "ng build"
-  },
-  "dependencies": {
-    "@angular/animations": "^18.0.0",
-    "@angular/common": "^18.0.0",
-    "@angular/compiler": "^18.0.0",
-    "@angular/core": "^18.0.0",
-    "@angular/forms": "^18.0.0",
-    "@angular/platform-browser": "^18.0.0",
-    "@angular/router": "^18.0.0",
-    "@angular/cdk": "^18.0.0",
-    "ng-primitives": "latest",
-    "@ng-icons/core": "latest",
-    "@ng-icons/heroicons": "latest",
-    "@floating-ui/dom": "^1.6.0",
-    "rxjs": "^7.8.1",
-    "tslib": "^2.5.0",
-    "zone.js": "~0.14.0"
-  },
-  "devDependencies": {
-    "@angular-devkit/build-angular": "^18.0.0",
-    "@angular/cli": "^18.0.1",
-    "@angular/compiler-cli": "^18.0.0",
-    "typescript": "~5.4.0"
-  }
-}`,
+        'package.json': JSON.stringify(packageJson, null, 2),
         'tsconfig.app.json': `/* To learn more about this file see: https://angular.io/config/tsconfig. */
 {
   "extends": "./tsconfig.json",
