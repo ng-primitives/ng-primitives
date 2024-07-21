@@ -29,6 +29,16 @@ Assemble the slider directives in your template.
 </div>
 ```
 
+## Examples
+
+Here are some additional examples of how to use the Slider primitives.
+
+### Slider Form Field
+
+The slider automatically integrates with the form field primitives.
+
+<docs-example name="slider-form-field"></docs-example>
+
 ## API Reference
 
 The following directives are available to import from the `ng-primitives/slider` package:

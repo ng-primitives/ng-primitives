@@ -27,6 +27,16 @@ Assemble the select directives in your template.
 </select>
 ```
 
+## Examples
+
+Here are some additional examples of how to use the Select primitives.
+
+### Select Form Field
+
+The select automatically integrates with the form field primitives.
+
+<docs-example name="select-form-field"></docs-example>
+
 ## API Reference
 
 The following directives are available to import from the `ng-primitives/select` package:
