@@ -43,3 +43,11 @@ We would like to thank the following projects for their contributions to the ope
 - [Radix UI](https://radix-ui.com/)
 - [Headless UI](https://headlessui.com/)
 - [React Aria](https://react-spectrum.adobe.com/react-aria/)
+
+## Support
+
+If you have any questions, feedback, or need help, feel free to reach out to us on [GitHub](https://github.com/ng-primitives/ng-primitives). We're always happy to help and improve our library based on your feedback.
+
+If you're interested in contributing to Angular Primitives, please check out our [Contributing Guide](https://github.com/ng-primitives/ng-primitives/blob/main/CONTRIBUTING.md).
+
+If would like to support Angular Primitives to help us maintain and improve the library, please consider [sponsoring us](https://github.com/sponsors/ashley-hunter). Your support is greatly appreciated!

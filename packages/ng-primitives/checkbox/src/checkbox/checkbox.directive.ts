@@ -18,6 +18,7 @@ import {
 import { NgpFormControl } from 'ng-primitives/form-field';
 import { NgpFocusVisible, NgpHover, NgpPress } from 'ng-primitives/interactions';
 import { NgpCanDisable, NgpDisabledToken } from 'ng-primitives/internal';
+import { uniqueId } from '../../../utils/src';
 import { NgpCheckboxIndicatorToken } from '../checkbox-indicator/checkbox-indicator.token';
 import { NgpCheckboxToken } from './checkbox.token';
 
@@ -30,10 +31,22 @@ import { NgpCheckboxToken } from './checkbox.token';
   ],
   hostDirectives: [NgpFormControl, NgpHover, NgpFocusVisible, NgpPress],
   host: {
-    '[attr.data-state]': 'state()',
+    role: 'checkbox',
+    '[id]': 'id()',
+    '[attr.aria-checked]': 'indeterminate() ? "mixed" : checked()',
+    '[attr.data-checked]': 'checked()',
+    '[attr.data-indeterminate]': 'indeterminate()',
+    '[attr.data-disabled]': 'disabled()',
+    '[tabindex]': 'disabled() ? -1 : 0',
   },
 })
 export class NgpCheckbox implements NgpCanDisable {
+  /**
+   * The id of the checkbox.
+   * @internal
+   */
+  readonly id = input(uniqueId('ngp-checkbox-indicator'));
+
   /**
    * Defines whether the checkbox is checked.
    */
@@ -65,21 +78,8 @@ export class NgpCheckbox implements NgpCanDisable {
   });
 
   /**
-   * Determine the state
-   * @returns 'checked' | 'unchecked' | 'indeterminate'
-   */
-  readonly state = computed<'checked' | 'unchecked' | 'indeterminate'>(() => {
-    const checked = this.checked();
-
-    if (this.indeterminate()) {
-      return 'indeterminate';
-    }
-
-    return checked ? 'checked' : 'unchecked';
-  });
-
-  /**
    * Access the indicator id
+   * @internal
    */
   readonly indicatorId = computed<string | null>(() => this.indicator()?.id() ?? null);
 

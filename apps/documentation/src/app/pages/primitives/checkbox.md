@@ -21,9 +21,9 @@ import { NgpCheckbox, NgpCheckboxIndicator } from 'ng-primitives/checkbox';
 Assemble the checkbox directives in your template.
 
 ```html
-<button ngpCheckbox [(ngpCheckboxChecked)]="checked">
-  <ng-icon ngpCheckboxIndicator name="checkmark" />
-</button>
+<span ngpCheckbox [(ngpCheckboxChecked)]="checked">
+  <ng-icon name="checkmark" aria-hidden="true" />
+</span>
 ```
 
 ## API Reference
@@ -58,45 +58,11 @@ Apply the `ngpCheckbox` directive to an element to that represents the checkbox,
   Event emitted when the indeterminate state changes.
 </response-field>
 
-| Attribute            | Description                         | Value                                       |
-| -------------------- | ----------------------------------- | ------------------------------------------- |
-| `data-state`         | The state of the checkbox.          | `checked` \| `unchecked` \| `indeterminate` |
-| `data-disabled`      | The disabled state of the checkbox. | `true` \| `false`                           |
-| `data-hover`         | The hover state of the checkbox.    | `true` \| `false`                           |
-| `data-focus-visible` | The focus state of the checkbox.    | `true` \| `false`                           |
-| `data-press`         | The press state of the checkbox.    | `true` \| `false`                           |
-
-### NgpCheckboxIndicator
-
-Apply the `ngpCheckboxIndicator` directive to an element that represents the checkbox indicator (i.e. the checkmark).
-
-- Selector: `[ngpCheckboxIndicator]`
-- Exported As: `ngpCheckboxIndicator`
-- Host Directives: [NgpHover](/interactions/hover), [NgpFocusVisible](/interactions/focus-visible), [NgpPress](/interactions/press)
-
-#### Data Attributes
-
-The following data attributes are applied to the `ngpCheckboxIndicator` directive:
-
-| Attribute            | Description                                | Value                                       |
-| -------------------- | ------------------------------------------ | ------------------------------------------- |
-| `data-state`         | The state of the checkbox.                 | `checked` \| `unchecked` \| `indeterminate` |
-| `data-disabled`      | The disabled state of the checkbox.        | `true` \| `false`                           |
-| `data-hover`         | The hover state of the checkbox indicator. | `true` \| `false`                           |
-| `data-focus-visible` | The focus state of the checkbox indicator. | `true` \| `false`                           |
-| `data-press`         | The press state of the checkbox indicator. | `true` \| `false`                           |
-
-### NgpCheckboxInput
-
-Apply the `ngpCheckboxInput` directive to an input element to bind the checkbox state.
-
-- Selector: `[ngpCheckboxInput]`
-- Exported As: `ngpCheckboxInput`
-- Host Directives: [NgpVisuallyHidden](/utilities/visually-hidden)
-
-### NgpCheckboxLabel
-
-Apply the `ngpCheckboxLabel` directive to an element that is a label for the checkbox.
-
-- Selector: `[ngpCheckboxLabel]`
-- Exported As: `ngpCheckboxLabel`
+| Attribute            | Description                              | Value             |
+| -------------------- | ---------------------------------------- | ----------------- |
+| `data-checked`       | The checked state of the checkbox.       | `true` \| `false` |
+| `data-indeterminate` | The indeterminate state of the checkbox. | `true` \| `false` |
+| `data-disabled`      | The disabled state of the checkbox.      | `true` \| `false` |
+| `data-hover`         | The hover state of the checkbox.         | `true` \| `false` |
+| `data-focus-visible` | The focus state of the checkbox.         | `true` \| `false` |
+| `data-press`         | The press state of the checkbox.         | `true` \| `false` |

@@ -1,6 +1,7 @@
 import {
   afterNextRender,
   ChangeDetectionStrategy,
+  ChangeDetectorRef,
   Component,
   inject,
   Injector,
@@ -24,6 +25,7 @@ import { filter } from 'rxjs/operators';
 export class QuickLinksComponent {
   private readonly router = inject(Router);
   private readonly injector = inject(Injector);
+  private readonly changeDetector = inject(ChangeDetectorRef);
   protected links = signal<HeadingData[]>([]);
 
   constructor() {
@@ -33,7 +35,13 @@ export class QuickLinksComponent {
         takeUntilDestroyed(),
       )
       .subscribe(() => {
-        afterNextRender(() => this.links.set(getHeadingList()), { injector: this.injector });
+        afterNextRender(
+          () => {
+            this.links.set(getHeadingList());
+            this.changeDetector.detectChanges();
+          },
+          { injector: this.injector },
+        );
       });
   }
 

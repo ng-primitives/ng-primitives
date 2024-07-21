@@ -49,7 +49,7 @@ import { NgpRovingFocusGroup, NgpRovingFocusItem } from 'ng-primitives/roving-fo
       border: none;
       background: transparent;
       outline: none;
-      transition: all 150ms cubic-bezier(0.4, 0, 0.2, 1);
+      transition: background-color 150ms cubic-bezier(0.4, 0, 0.2, 1);
     }
 
     [ngpButton][data-hover='true'] {

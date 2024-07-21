@@ -6,17 +6,6 @@ import { NgpSwitch, NgpSwitchThumb } from 'ng-primitives/switch';
   selector: 'app-switch',
   imports: [NgpSwitch, NgpSwitchThumb],
   styles: `
-    .container {
-      display: flex;
-      align-items: center;
-      gap: 1rem;
-    }
-
-    label {
-      font-weight: 500;
-      color: rgb(10 10 10);
-    }
-
     [ngpSwitch] {
       position: relative;
       width: 2.5rem;
@@ -63,12 +52,9 @@ import { NgpSwitch, NgpSwitchThumb } from 'ng-primitives/switch';
     }
   `,
   template: `
-    <div class="container">
-      <label for="mobile-data">Mobile Data</label>
-      <button id="mobile-data" ngpSwitch>
-        <span ngpSwitchThumb></span>
-      </button>
-    </div>
+    <button ngpSwitch>
+      <span ngpSwitchThumb></span>
+    </button>
   `,
 })
 export default class SwitchExample {}
