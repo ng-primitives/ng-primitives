@@ -81,3 +81,12 @@ The following data attributes are available to style the thumb:
 | `data-hover`         | The hover state.         | `true` \| `false` |
 | `data-focus-visible` | The focus state.         | `true` \| `false` |
 | `data-press`         | The pressed state.       | `true` \| `false` |
+
+## Accessibility
+
+Adheres to the [WAI-ARIA switch design pattern](https://www.w3.org/WAI/ARIA/apg/patterns/switch/).
+
+### Keyboard Interactions
+
+- <kbd>Space</kbd> - Toggle the switch state.
+- <kbd>Enter</kbd> - Toggle the switch state.

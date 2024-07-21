@@ -55,3 +55,10 @@ The following data attributes are applied to the `ngpToggle` directive:
 | --------------- | ------------------- | ----------------- |
 | `data-selected` | The selected state. | `true` \| `false` |
 | `data-disabled` | The disabled state. | `true` \| `false` |
+
+## Accessibility
+
+### Keyboard Interaction
+
+- <kbd>Space</kbd>: Toggles the selected state.
+- <kbd>Enter</kbd>: Toggles the selected state.

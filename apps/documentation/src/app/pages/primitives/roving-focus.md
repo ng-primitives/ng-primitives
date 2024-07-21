@@ -65,3 +65,17 @@ Apply the `ngpRovingFocusItem` directive to an element within a roving focus gro
 <response-field name="ngpRovingFocusItemDisabled" type="boolean">
   Define whether the roving focus item is disabled.
 </response-field>
+
+## Accessibility
+
+Adheres to the [WAI-ARIA Keyboard Interface Practices](https://www.w3.org/WAI/ARIA/apg/practices/keyboard-interface/).
+
+### Keyboard Interactions
+
+- <kbd>Tab</kbd> - Move focus to the first item.
+- <kbd>ArrowLeft</kbd> - Move focus to the previous item (horizontal orientation).
+- <kbd>ArrowUp</kbd> - Move focus to the previous item (vertical orientation).
+- <kbd>ArrowRight</kbd> - Move focus to the next item (horizontal orientation).
+- <kbd>ArrowDown</kbd> - Move focus to the next item (vertical orientation).
+- <kbd>Home</kbd> - Move focus to the first item.
+- <kbd>End</kbd> - Move focus to the last item.

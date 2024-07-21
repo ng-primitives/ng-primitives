@@ -162,3 +162,16 @@ The following options are available to configure the default tab options:
 <response-field name="wrap" type="boolean" default="false">
   Define whether the tabs should wrap around the tab list.
 </response-field>
+
+## Accessibility
+
+Adheres to the [Tabs WAI-ARIA design pattern](https://www.w3.org/WAI/ARIA/apg/patterns/tabs).
+
+### Keyboard Interactions
+
+- <kbd>ArrowLeft</kbd>: Move focus to the previous tab (horizontal orientation).
+- <kbd>ArrowRight</kbd>: Move focus to the next tab (horizontal orientation).
+- <kbd>ArrowUp</kbd>: Move focus to the previous tab (vertical orientation).
+- <kbd>ArrowDown</kbd>: Move focus to the next tab (vertical orientation).
+- <kbd>Home</kbd>: Move focus to the first tab.
+- <kbd>End</kbd>: Move focus to the last tab.

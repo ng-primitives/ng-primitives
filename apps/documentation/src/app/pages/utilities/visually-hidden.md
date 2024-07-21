@@ -32,3 +32,7 @@ Hide an element visually while keeping it present in the DOM.
 
 - Selector: `[ngpVisuallyHidden]`
 - Exported As: `ngpVisuallyHidden`
+
+## Accessibility
+
+This directive can be useful for hiding content that is still important for screen readers and other assistive technologies.

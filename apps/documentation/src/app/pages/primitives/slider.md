@@ -121,3 +121,16 @@ The following data attributes are available to style the thumb:
 | `data-hover`         | The hover state of the slider thumb.   | `true` \| `false`          |
 | `data-focus-visible` | The focus state of the slider thumb.   | `true` \| `false`          |
 | `data-press`         | The pressed state of the slider thumb. | `true` \| `false`          |
+
+## Accessibility
+
+Adheres to the [Slider WAI-ARIA design pattern](https://www.w3.org/WAI/ARIA/apg/patterns/slider-multithumb).
+
+### Keyboard Interactions
+
+- <kbd>Left Arrow</kbd> or <kbd>Down Arrow</kbd>: Decrease the value by the step.
+- <kbd>Right Arrow</kbd> or <kbd>Up Arrow</kbd>: Increase the value by the step.
+- <kbd>Left Arrow</kbd> or <kbd>Down Arrow</kbd> + <kbd>Shift</kbd>: Decrease the value by the step by a larger amount.
+- <kbd>Right Arrow</kbd> or <kbd>Up Arrow</kbd> + <kbd>Shift</kbd>: Increase the value by the step by a larger amount.
+- <kbd>Home</kbd>: Set the value to the minimum.
+- <kbd>End</kbd>: Set the value to the maximum.

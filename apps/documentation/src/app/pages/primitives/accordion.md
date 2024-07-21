@@ -179,3 +179,12 @@ bootstrapApplication(AppComponent, {
 <response-field name="orientation" type="horizontal | vertical">
   Define the orientation of the accordion.
 </response-field>
+
+## Accessibility
+
+Adheres to the [Accordion WAI-ARIA design pattern](https://www.w3.org/WAI/ARIA/apg/patterns/accordion).
+
+### Keyboard Interactions
+
+- <kbd>Space</kbd> - Toggle the expanded state of the accordion item when the trigger is focused.
+- <kbd>Enter</kbd> - Toggle the expanded state of the accordion item when the trigger is focused.

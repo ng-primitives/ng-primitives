@@ -120,3 +120,16 @@ The following data attributes are applied to the `ngpRadioItem` directive:
 | `data-disabled` | The disabled state of the radio item.   | `true` \| `false` |
 | `data-hover`    | The hover state of the radio indicator. | `true` \| `false` |
 | `data-press`    | The press state of the radio indicator. | `true` \| `false` |
+
+## Accessibility
+
+Adheres to the [Radio Group WAI-ARIA design pattern](https://www.w3.org/WAI/ARIA/apg/patterns/radio).
+
+### Keyboard Interaction
+
+- <kbd>Tab</kbd> - Moves focus to the first radio button.
+- <kbd>Arrow Down</kbd> - Moves focus to the next radio button (vertical orientation).
+- <kbd>Arrow Up</kbd> - Moves focus to the previous radio button (vertical orientation).
+- <kbd>Arrow Right</kbd> - Moves focus to the next radio button (horizontal orientation).
+- <kbd>Arrow Left</kbd> - Moves focus to the previous radio button (horizontal orientation).
+- <kbd>Space</kbd> - Selects the focused radio button if not already selected.

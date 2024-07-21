@@ -66,3 +66,11 @@ Apply the `ngpCheckbox` directive to an element to that represents the checkbox,
 | `data-hover`         | The hover state of the checkbox.         | `true` \| `false` |
 | `data-focus-visible` | The focus state of the checkbox.         | `true` \| `false` |
 | `data-press`         | The press state of the checkbox.         | `true` \| `false` |
+
+## Accessibility
+
+Adheres to the [tri-state Checkbox WAI-ARIA design pattern](https://www.w3.org/WAI/ARIA/apg/patterns/checkbox).
+
+### Keyboard Interactions
+
+- <kbd>Space</kbd> - Toggle the checked state.

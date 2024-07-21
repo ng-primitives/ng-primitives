@@ -136,3 +136,7 @@ The `NgpFormControl` directive is used to mark a form control element within a f
 | `data-dirty`    | The `dirty` state of the form control.    | `true` \| `false` |
 | `data-pending`  | The `pending` state of the form control.  | `true` \| `false` |
 | `data-disabled` | The `disabled` state of the form control. | `true` \| `false` |
+
+## Accessibility
+
+The label and description elements should be associated with the form control using the `aria-labelledby` and `aria-describedby` attributes, respectively. This will ensure that screen readers can provide the necessary context to users.
