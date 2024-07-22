@@ -5,11 +5,14 @@
  * This source code is licensed under the CC BY-ND 4.0 license found in the
  * LICENSE file in the root directory of this source tree.
  */
+import { InteractivityChecker } from '@angular/cdk/a11y';
 import {
+  booleanAttribute,
   Directive,
   ElementRef,
   HostListener,
   inject,
+  input,
   NgZone,
   OnDestroy,
   OnInit,
@@ -90,6 +93,7 @@ const focusTrapStack = new FocusTrapStack();
   providers: [{ provide: NgpFocusTrapToken, useExisting: NgpFocusTrap }],
   host: {
     '[attr.tabindex]': '-1',
+    '[attr.data-focus-trap]': '!disabled()',
   },
 })
 export class NgpFocusTrap implements OnInit, OnDestroy {
@@ -97,6 +101,11 @@ export class NgpFocusTrap implements OnInit, OnDestroy {
    * Create a new focus trap.
    */
   private readonly focusTrap = new FocusTrap();
+
+  /**
+   * Access the interactivity checker.
+   */
+  private readonly interactivityChecker = inject(InteractivityChecker);
 
   /**
    * Get the focus trap container element.
@@ -118,6 +127,14 @@ export class NgpFocusTrap implements OnInit, OnDestroy {
    */
   private lastFocusedElement: HTMLElement | null = null;
 
+  /**
+   * Whether the focus trap is disabled.
+   */
+  readonly disabled = input(false, {
+    alias: 'ngpFocusTrapDisabled',
+    transform: booleanAttribute,
+  });
+
   ngOnInit(): void {
     focusTrapStack.add(this.focusTrap);
 
@@ -137,9 +154,9 @@ export class NgpFocusTrap implements OnInit, OnDestroy {
     const hasFocusedCandidate = this.elementRef.nativeElement.contains(previouslyFocusedElement);
 
     if (!hasFocusedCandidate) {
-      this.focusFirst(this.removeLinks(this.getTabbableCandidates(this.elementRef.nativeElement)), {
-        select: true,
-      });
+      this.focusFirst();
+
+      // if the focus didn't change, focus the container
       if (document.activeElement === previouslyFocusedElement) {
         this.focus(this.elementRef.nativeElement);
       }
@@ -152,7 +169,7 @@ export class NgpFocusTrap implements OnInit, OnDestroy {
   }
 
   private handleFocusIn(event: FocusEvent): void {
-    if (!this.focusTrap.active) {
+    if (!this.focusTrap.active || this.disabled()) {
       return;
     }
 
@@ -161,7 +178,7 @@ export class NgpFocusTrap implements OnInit, OnDestroy {
     if (this.elementRef.nativeElement.contains(target)) {
       this.lastFocusedElement = target;
     } else {
-      this.focus(this.lastFocusedElement, { select: true });
+      this.focus(this.lastFocusedElement);
     }
   }
 
@@ -169,14 +186,14 @@ export class NgpFocusTrap implements OnInit, OnDestroy {
    * Handles the `focusout` event.
    */
   private handleFocusOut(event: FocusEvent) {
-    if (!this.focusTrap.active || event.relatedTarget === null) {
+    if (!this.focusTrap.active || this.disabled() || event.relatedTarget === null) {
       return;
     }
 
     const relatedTarget = event.relatedTarget as HTMLElement;
 
     if (!this.elementRef.nativeElement.contains(relatedTarget)) {
-      this.focus(this.lastFocusedElement, { select: true });
+      this.focus(this.lastFocusedElement);
     }
   }
 
@@ -203,7 +220,7 @@ export class NgpFocusTrap implements OnInit, OnDestroy {
    */
   @HostListener('keydown', ['$event'])
   protected handleKeyDown(event: KeyboardEvent): void {
-    if (!this.focusTrap.active) {
+    if (!this.focusTrap.active || this.disabled()) {
       return;
     }
 
@@ -217,14 +234,16 @@ export class NgpFocusTrap implements OnInit, OnDestroy {
 
       // we can only wrap focus if we have tabbable edges
       if (!hasTabbableElementsInside) {
-        if (focusedElement === container) event.preventDefault();
+        if (focusedElement === container) {
+          event.preventDefault();
+        }
       } else {
         if (!event.shiftKey && focusedElement === last) {
           event.preventDefault();
-          this.focus(first, { select: true });
+          this.focus(first);
         } else if (event.shiftKey && focusedElement === first) {
           event.preventDefault();
-          this.focus(last, { select: true });
+          this.focus(last);
         }
       }
     }
@@ -235,94 +254,48 @@ export class NgpFocusTrap implements OnInit, OnDestroy {
    */
   private getTabbableEdges(container: HTMLElement) {
     const candidates = this.getTabbableCandidates(container);
-    const first = this.findVisible(candidates, container);
-    const last = this.findVisible(candidates.reverse(), container);
+    const first = this.findVisible(candidates);
+    const last = this.findVisible(candidates.reverse());
     return [first, last] as const;
   }
 
   /**
-   * Returns a list of potential tabbable candidates.
-   *
-   * NOTE: This is only a close approximation. For example it doesn't take into account cases like when
-   * elements are not visible. This cannot be worked out easily by just reading a property, but rather
-   * necessitate runtime knowledge (computed styles, etc). We deal with these cases separately.
-   *
-   * See: https://developer.mozilla.org/en-US/docs/Web/API/TreeWalker
-   * Credit: https://github.com/discord/focus-layers/blob/master/src/util/wrapFocus.tsx#L1
+   * Returns a list of potential focusable elements inside a container.
    */
   private getTabbableCandidates(container: HTMLElement) {
     const nodes: HTMLElement[] = [];
     const walker = document.createTreeWalker(container, NodeFilter.SHOW_ELEMENT, {
-      acceptNode: (node: any) => {
-        const isHiddenInput = node.tagName === 'INPUT' && node.type === 'hidden';
-        if (node.disabled || node.hidden || isHiddenInput) {
-          return NodeFilter.FILTER_SKIP;
-        }
-        // `.tabIndex` is not the same as the `tabindex` attribute. It works on the
-        // runtime's understanding of tabbability, so this automatically accounts
-        // for any kind of element that could be tabbed to.
-        return node.tabIndex >= 0 ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_SKIP;
-      },
+      acceptNode: (node: HTMLElement) =>
+        this.interactivityChecker.isFocusable(node)
+          ? NodeFilter.FILTER_ACCEPT
+          : NodeFilter.FILTER_SKIP,
     });
-    while (walker.nextNode()) nodes.push(walker.currentNode as HTMLElement);
-    // we do not take into account the order of nodes with positive `tabIndex` as it
-    // hinders accessibility to have tab order different from visual order.
+    while (walker.nextNode()) {
+      nodes.push(walker.currentNode as HTMLElement);
+    }
     return nodes;
   }
 
   /**
-   * Returns the first visible element in a list.
-   * NOTE: Only checks visibility up to the `container`.
+   * Returns the first visible element in a list..
    */
-  private findVisible(elements: HTMLElement[], container: HTMLElement) {
-    for (const element of elements) {
-      // we stop checking if it's hidden at the `container` level (excluding)
-      if (!this.isHidden(element, { upTo: container })) return element;
-    }
-
-    return null;
+  private findVisible(elements: HTMLElement[]) {
+    return elements.find(element => this.interactivityChecker.isVisible(element)) ?? null;
   }
 
-  private isHidden(node: HTMLElement, { upTo }: { upTo?: HTMLElement }) {
-    if (getComputedStyle(node).visibility === 'hidden') return true;
-    while (node) {
-      // we stop at `upTo` (excluding it)
-      if (upTo !== undefined && node === upTo) return false;
-      if (getComputedStyle(node).display === 'none') return true;
-      node = node.parentElement as HTMLElement;
-    }
-    return false;
+  private focus(element?: HTMLElement | null) {
+    element?.focus({ preventScroll: true });
   }
 
-  private focus(element?: HTMLElement | null, { select = false } = {}) {
-    // only focus if that element is focusable
-    if (element && element.focus) {
-      const previouslyFocusedElement = document.activeElement;
-      // NOTE: we prevent scrolling on focus, to minimize jarring transitions for users
-      element.focus({ preventScroll: true });
-      // only select if its not the same element, it supports selection and we need to select
-      if (element !== previouslyFocusedElement && this.isSelectableInput(element) && select)
-        element.select();
-    }
-  }
-
-  private isSelectableInput(element: HTMLElement): element is HTMLElement & { select: () => void } {
-    return element instanceof HTMLInputElement && 'select' in element;
-  }
-
-  /**
-   * Attempts focusing the first element in a list of candidates.
-   * Stops when focus has actually moved.
-   */
-  private focusFirst(candidates: HTMLElement[], { select = false } = {}) {
+  private focusFirst(): void {
     const previouslyFocusedElement = document.activeElement;
-    for (const candidate of candidates) {
-      this.focus(candidate, { select });
-      if (document.activeElement !== previouslyFocusedElement) return;
-    }
-  }
 
-  private removeLinks(items: HTMLElement[]): HTMLElement[] {
-    return items.filter(item => item.tagName !== 'A');
+    for (const candidate of this.getTabbableCandidates(this.elementRef.nativeElement)) {
+      this.focus(candidate);
+
+      if (document.activeElement !== previouslyFocusedElement) {
+        return;
+      }
+    }
   }
 }

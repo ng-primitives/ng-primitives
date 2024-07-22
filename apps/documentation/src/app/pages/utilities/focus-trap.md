@@ -4,7 +4,7 @@ name: 'Focus Trap'
 
 # Focus Trap
 
-Enter a description here
+The Focus Trap utility is a directive that traps focus within a specified element. This is useful for modals, dropdowns, and other components that require focus to be contained within a specific area.
 
 <docs-example name="focus-trap"></docs-example>
 
@@ -30,5 +30,21 @@ The following directives are available to import from the `ng-primitives/focus-t
 
 ### NgpFocusTrap
 
+The `NgpFocusTrap` directive traps focus within the host element.
+
 - Selector: `[ngpFocusTrap]`
 - Exported As: `ngpFocusTrap`
+
+<response-field name="ngpFocusTrapDisabled" type="boolean">
+  Disables the focus trap.
+</response-field>
+
+#### Data Attributes
+
+| Attribute         | Description              | Value             |
+| ----------------- | ------------------------ | ----------------- |
+| `data-focus-trap` | Disables the focus trap. | `true` \| `false` |
+
+## Accessibility
+
+Adheres to the [WAI-ARIA design pattern](https://www.w3.org/TR/UNDERSTANDING-WCAG20/keyboard-operation-trapping.html).
