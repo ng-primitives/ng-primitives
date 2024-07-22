@@ -10,96 +10,38 @@
     "importHelpers": true,
     "target": "es2015",
     "module": "esnext",
-    "lib": [
-      "es2020",
-      "dom"
-    ],
+    "lib": ["es2020", "dom"],
     "skipLibCheck": true,
     "skipDefaultLibCheck": true,
     "baseUrl": ".",
     "paths": {
-      "@ng-primitives/tools": [
-        "packages/tools/src/index.ts"
-      ],
-      "ng-primitives": [
-        "packages/ng-primitives/src/index.ts"
-      ],
-      "ng-primitives/a11y": [
-        "packages/ng-primitives/a11y/src/index.ts"
-      ],
-      "ng-primitives/accordion": [
-        "packages/ng-primitives/accordion/src/index.ts"
-      ],
-      "ng-primitives/autofill": [
-        "packages/ng-primitives/autofill/src/index.ts"
-      ],
-      "ng-primitives/avatar": [
-        "packages/ng-primitives/avatar/src/index.ts"
-      ],
-      "ng-primitives/button": [
-        "packages/ng-primitives/button/src/index.ts"
-      ],
-      "ng-primitives/checkbox": [
-        "packages/ng-primitives/checkbox/src/index.ts"
-      ],
-      "ng-primitives/file-upload": [
-        "packages/ng-primitives/file-upload/src/index.ts"
-      ],
-      "ng-primitives/focus-trap": [
-        "packages/ng-primitives/focus-trap/src/index.ts"
-      ],
-      "ng-primitives/form-field": [
-        "packages/ng-primitives/form-field/src/index.ts"
-      ],
-      "ng-primitives/input": [
-        "packages/ng-primitives/input/src/index.ts"
-      ],
-      "ng-primitives/interactions": [
-        "packages/ng-primitives/interactions/src/index.ts"
-      ],
-      "ng-primitives/internal": [
-        "packages/ng-primitives/internal/src/index.ts"
-      ],
-      "ng-primitives/progress": [
-        "packages/ng-primitives/progress/src/index.ts"
-      ],
-      "ng-primitives/radio": [
-        "packages/ng-primitives/radio/src/index.ts"
-      ],
-      "ng-primitives/resize": [
-        "packages/ng-primitives/resize/src/index.ts"
-      ],
-      "ng-primitives/roving-focus": [
-        "packages/ng-primitives/roving-focus/src/index.ts"
-      ],
-      "ng-primitives/select": [
-        "packages/ng-primitives/select/src/index.ts"
-      ],
-      "ng-primitives/slider": [
-        "packages/ng-primitives/slider/src/index.ts"
-      ],
-      "ng-primitives/switch": [
-        "packages/ng-primitives/switch/src/index.ts"
-      ],
-      "ng-primitives/tabs": [
-        "packages/ng-primitives/tabs/src/index.ts"
-      ],
-      "ng-primitives/textarea": [
-        "packages/ng-primitives/textarea/src/index.ts"
-      ],
-      "ng-primitives/toggle": [
-        "packages/ng-primitives/toggle/src/index.ts"
-      ],
-      "ng-primitives/tooltip": [
-        "packages/ng-primitives/tooltip/src/index.ts"
-      ],
-      "ng-primitives/utils": [
-        "packages/ng-primitives/utils/src/index.ts"
-      ]
+      "@ng-primitives/tools": ["packages/tools/src/index.ts"],
+      "ng-primitives": ["packages/ng-primitives/src/index.ts"],
+      "ng-primitives/a11y": ["packages/ng-primitives/a11y/src/index.ts"],
+      "ng-primitives/accordion": ["packages/ng-primitives/accordion/src/index.ts"],
+      "ng-primitives/autofill": ["packages/ng-primitives/autofill/src/index.ts"],
+      "ng-primitives/avatar": ["packages/ng-primitives/avatar/src/index.ts"],
+      "ng-primitives/button": ["packages/ng-primitives/button/src/index.ts"],
+      "ng-primitives/checkbox": ["packages/ng-primitives/checkbox/src/index.ts"],
+      "ng-primitives/file-upload": ["packages/ng-primitives/file-upload/src/index.ts"],
+      "ng-primitives/focus-trap": ["packages/ng-primitives/focus-trap/src/index.ts"],
+      "ng-primitives/form-field": ["packages/ng-primitives/form-field/src/index.ts"],
+      "ng-primitives/input": ["packages/ng-primitives/input/src/index.ts"],
+      "ng-primitives/interactions": ["packages/ng-primitives/interactions/src/index.ts"],
+      "ng-primitives/internal": ["packages/ng-primitives/internal/src/index.ts"],
+      "ng-primitives/progress": ["packages/ng-primitives/progress/src/index.ts"],
+      "ng-primitives/radio": ["packages/ng-primitives/radio/src/index.ts"],
+      "ng-primitives/resize": ["packages/ng-primitives/resize/src/index.ts"],
+      "ng-primitives/roving-focus": ["packages/ng-primitives/roving-focus/src/index.ts"],
+      "ng-primitives/select": ["packages/ng-primitives/select/src/index.ts"],
+      "ng-primitives/slider": ["packages/ng-primitives/slider/src/index.ts"],
+      "ng-primitives/switch": ["packages/ng-primitives/switch/src/index.ts"],
+      "ng-primitives/tabs": ["packages/ng-primitives/tabs/src/index.ts"],
+      "ng-primitives/textarea": ["packages/ng-primitives/textarea/src/index.ts"],
+      "ng-primitives/toggle": ["packages/ng-primitives/toggle/src/index.ts"],
+      "ng-primitives/tooltip": ["packages/ng-primitives/tooltip/src/index.ts"],
+      "ng-primitives/utils": ["packages/ng-primitives/utils/src/index.ts"]
     }
   },
-  "exclude": [
-    "node_modules",
-    "tmp"
-  ]
+  "exclude": ["node_modules", "tmp"]
 }
