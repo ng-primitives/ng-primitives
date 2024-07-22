@@ -4,7 +4,7 @@ name: 'Button'
 
 # Button
 
-A button is a clickable element that can be used to trigger an action.
+A button is a clickable element that can be used to trigger an action. This primitive enhances the native button element with improved accessibility and interaction handling for hover, press and focus.
 
 <docs-example name="button"></docs-example>
 

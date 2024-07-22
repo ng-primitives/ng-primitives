@@ -50,4 +50,4 @@ If you have any questions, feedback, or need help, feel free to reach out to us 
 
 If you're interested in contributing to Angular Primitives, please check out our [Contributing Guide](https://github.com/ng-primitives/ng-primitives/blob/main/CONTRIBUTING.md).
 
-If would like to support Angular Primitives to help us maintain and improve the library, please consider [sponsoring us](https://github.com/sponsors/ashley-hunter). Your support is greatly appreciated!
+If you would like to support Angular Primitives to help us maintain and improve the library, please consider [sponsoring us](https://github.com/sponsors/ashley-hunter). Your support is greatly appreciated!

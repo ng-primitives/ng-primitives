@@ -27,6 +27,7 @@ import { NgpDescription, NgpFormField, NgpLabel } from 'ng-primitives/form-field
       background-color: rgb(255 255 255);
       box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
       padding: 0;
+      flex: none;
       outline: none;
     }
 
@@ -63,7 +64,7 @@ import { NgpDescription, NgpFormField, NgpLabel } from 'ng-primitives/form-field
 
     [ngpDescription] {
       font-size: 12px;
-      line-height: 12px;
+      line-height: 16px;
       color: #71717a;
     }
   `,

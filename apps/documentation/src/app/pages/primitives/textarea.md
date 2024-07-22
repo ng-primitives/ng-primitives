@@ -24,6 +24,16 @@ Assemble the textarea directives in your template.
 <textarea ngpTextarea></textarea>
 ```
 
+## Examples
+
+Here are some additional examples of how to use the Textarea primitive.
+
+### Textarea Form Field
+
+The textarea automatically integrates with the form field primitives.
+
+<docs-example name="textarea-form-field"></docs-example>
+
 ## API Reference
 
 The following directives are available to import from the `ng-primitives/textarea` package:

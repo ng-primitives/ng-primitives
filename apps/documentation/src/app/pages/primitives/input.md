@@ -24,6 +24,16 @@ Assemble the input directives in your template.
 <input ngpInput type="text" />
 ```
 
+## Examples
+
+Here are some additional examples of how to use the Input primitive.
+
+### Input Form Field
+
+The input automatically integrates with the form field primitives.
+
+<docs-example name="input-form-field"></docs-example>
+
 ## API Reference
 
 The following directives are available to import from the `ng-primitives/input` package:
