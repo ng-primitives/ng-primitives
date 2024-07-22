@@ -10,7 +10,9 @@ Angular Primitives is a low-level UI component library with a focus on accessibi
 
 You can find our [documentation site here](https://angularprimitives.com).
 
-The library is very much in the early stages of development, expect breaking changes while we refine our API.
+This library is in active development, and we're working hard towards our 1.0 release. We'd love your help in testing, providing feedback, and contributing to the project in any way, no matter how small.
+
+Until we reach 1.0 some APIs may change, and we may introduce breaking changes in minor versions, however, we'll do our best to keep these to a minimum.
 
 ## Installation
 
@@ -51,4 +53,4 @@ We welcome contributions from the community. Please refer to our [contributing g
 
 ## License
 
-While the project is in the early stages of development, the project is licensed under the CC BY-ND 4.0 license. This means you can use the library in your projects (both commercial and non-commercial). If you remix, transform, or build upon the material, you may not distribute the modified material.
+Angular Primitives is licensed under the [Apache License 2.0](LICENSE).
