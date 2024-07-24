@@ -56,9 +56,22 @@ import {
     }
 
     [ngpAccordionContent] {
-      padding: 0 12px 16px;
       font-size: 0.875rem;
       color: #737373;
+      overflow: hidden;
+      transition: height 0.3s ease;
+    }
+
+    [ngpAccordionContent][data-open='true'] {
+      height: var(--ngp-accordion-content-height);
+    }
+
+    [ngpAccordionContent][data-open='false'] {
+      height: 0;
+    }
+
+    .accordion-content {
+      padding: 0 12px 16px;
     }
 
     ng-icon {
@@ -79,7 +92,9 @@ import {
           <ng-icon [attr.data-open]="panel1.open()" name="heroChevronDownMini" />
         </button>
         <div ngpAccordionContent>
-          If you would like to learn more please reach out to us on GitHub.
+          <div class="accordion-content">
+            If you would like to learn more please reach out to us on GitHub.
+          </div>
         </div>
       </div>
 
@@ -89,7 +104,11 @@ import {
 
           <ng-icon [attr.data-open]="panel2.open()" name="heroChevronDownMini" />
         </button>
-        <div ngpAccordionContent>Yes, this is open source and you can use it in your project.</div>
+        <div ngpAccordionContent>
+          <div class="accordion-content">
+            Yes, this is open source and you can use it in your project.
+          </div>
+        </div>
       </div>
     </div>
   `,

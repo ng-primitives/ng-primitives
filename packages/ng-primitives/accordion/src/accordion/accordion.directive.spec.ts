@@ -199,14 +199,6 @@ describe('NgpAccordion', () => {
     expect(content[1].getAttribute('aria-labelledby')).toBe(triggers[1].getAttribute('id'));
   });
 
-  it('should set the hidden attribute on the content elements', async () => {
-    const fixture = await renderTemplate({ value: 'item-1' });
-    const content = fixture.getAllByTestId('accordion-content');
-
-    expect(content[0].hasAttribute('hidden')).toBe(false);
-    expect(content[1].hasAttribute('hidden')).toBe(true);
-  });
-
   it('should set the aria-controls attribute on the trigger elements', async () => {
     const fixture = await renderTemplate();
     const triggers = fixture.getAllByTestId('accordion-trigger');
