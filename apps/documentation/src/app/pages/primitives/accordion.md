@@ -39,6 +39,29 @@ Assemble the accordion directives in your template.
 </div>
 ```
 
+## Animations
+
+Accordions will often have animations to transition the content when it is expanding or collapsing.
+
+The `ngpAccordionContent` directive applies the `--ngp-accordion-content-width` and `--ngp-accordion-content-height` CSS custom properties which define the width and height of the content when it is expanded. This can be used to animate the content when it is expanding or collapsing.
+
+```css
+[ngpAccordionContent] {
+  overflow: hidden;
+  transition: height 0.3s ease;
+}
+
+[ngpAccordionContent][data-open='true'] {
+  height: var(--ngp-accordion-content-height);
+}
+
+[ngpAccordionContent][data-open='false'] {
+  height: 0;
+}
+```
+
+It is important that the width or height is not set to `0` until the `data-open` attribute is present. The content size is computed on initial mount and only then will the `data-open` attribute be set.
+
 ## API Reference
 
 The following directives are available to import from the `ng-primitives/accordion` package:
