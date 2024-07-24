@@ -20,7 +20,6 @@ import { NgpTabPanelToken } from './tab-panel.token';
     '[attr.aria-labelledby]': 'labelledBy()',
     '[attr.data-active]': 'active()',
     '[attr.data-orientation]': 'tabset.orientation()',
-    '[hidden]': '!active()',
   },
 })
 export class NgpTabPanel {
