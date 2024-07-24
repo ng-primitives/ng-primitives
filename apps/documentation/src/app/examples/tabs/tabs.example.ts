@@ -53,6 +53,10 @@ import { NgpTabButton, NgpTabList, NgpTabPanel, NgpTabset } from 'ng-primitives/
       padding: 0.5rem 0;
       outline: none;
     }
+
+    [ngpTabPanel][data-active='false'] {
+      display: none;
+    }
   `,
   template: `
     <div [(ngpTabsetValue)]="selectedTab" ngpTabset>
