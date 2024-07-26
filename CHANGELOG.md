@@ -1,3 +1,19 @@
+## 0.3.0 (2024-07-26)
+
+
+### 🚀 Features
+
+- **search-clear:** add search field clear primitive ([5274e86](https://github.com/ng-primitives/ng-primitives/commit/5274e86))
+
+### 🩹 Fixes
+
+- **search:** hide clear button ([e918403](https://github.com/ng-primitives/ng-primitives/commit/e918403))
+- **search-field-clear:** remove style from primitive ([0945dc6](https://github.com/ng-primitives/ng-primitives/commit/0945dc6))
+
+### ❤️  Thank You
+
+- Matteo Nista
+
 ## 0.2.1 (2024-07-25)
 
 ### 🩹 Fixes
