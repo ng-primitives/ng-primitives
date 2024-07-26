@@ -13,13 +13,7 @@ A search field is a form control that allows users to enter a search query.
 Import the SearchField primitives from `ng-primitives/search`.
 
 ```ts
-import { NgpSearchField } from 'ng-primitives/search';
-```
-
-Import the SearchFieldClear primitives from `ng-primitives/search` if you want to enable the clear input button.
-
-```ts
-import { NgpSearchFieldClear } from 'ng-primitives/search';
+import { NgpSearchField, NgpSearchFieldClear } from 'ng-primitives/search';
 ```
 
 ## Usage
@@ -30,7 +24,7 @@ Assemble the search-field directives in your template.
 <div ngpSearchField>
   <label ngpLabel>Label</label>
   <input ngpInput type="search" />
-  <button ngpSearchFieldClear ngpButton aria-label="Clear search">Clear</button>
+  <button ngpButton ngpSearchFieldClear aria-label="Clear search">Clear</button>
 </div>
 ```
 
@@ -59,7 +53,12 @@ The `NgpSearchField` directive is a container for the search field components.
 | `data-pending`  | The `pending` state of the form control.  | `true` \| `false` |
 | `data-disabled` | The `disabled` state of the form control. | `true` \| `false` |
 
-**SearchFieldClear**
+### NgpSearchFieldClear
+
+The `NgpSearchFieldClear` directive is can be added to a button to clear the search field on click.
+
+- Selector: `[ngpSearchFieldClear]`
+- Exported As: `ngpSearchFieldClear`
 
 | Attribute    | Description                            | Value             |
 | ------------ | -------------------------------------- | ----------------- |

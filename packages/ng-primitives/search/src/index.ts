@@ -6,7 +6,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+export { NgpSearchFieldClear } from './search-field-clear/search-field-clear.directive';
+export { NgpSearchFieldClearToken } from './search-field-clear/search-field-clear.token';
 export { NgpSearchField } from './search-field/search-field.directive';
 export { NgpSearchFieldToken } from './search-field/search-field.token';
-
-export { NgpSearchFieldClear } from './search-field-clear/search-field-clear.directive';
