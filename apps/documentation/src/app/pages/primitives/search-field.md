@@ -16,6 +16,12 @@ Import the SearchField primitives from `ng-primitives/search`.
 import { NgpSearchField } from 'ng-primitives/search';
 ```
 
+Import the SearchFieldClear primitives from `ng-primitives/search-field-clear` if you want to enable the clear input button.
+
+```ts
+import { NgpSearchFieldClear } from 'ng-primitives/search-field-clear';
+```
+
 ## Usage
 
 Assemble the search-field directives in your template.
@@ -24,7 +30,7 @@ Assemble the search-field directives in your template.
 <div ngpSearchField>
   <label ngpLabel>Label</label>
   <input ngpInput type="search" />
-  <button ngpButton aria-label="Clear search">Clear</button>
+  <button ngpSearchFieldClear ngpButton aria-label="Clear search">Clear</button>
 </div>
 ```
 

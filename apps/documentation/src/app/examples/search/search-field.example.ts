@@ -1,4 +1,4 @@
-import { Component, ViewChild, signal } from '@angular/core';
+import { Component, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { heroMagnifyingGlass } from '@ng-icons/heroicons/outline';
@@ -6,19 +6,28 @@ import { NgpButton } from 'ng-primitives/button';
 import { NgpLabel } from 'ng-primitives/form-field';
 import { NgpInput } from 'ng-primitives/input';
 import { NgpSearchField } from 'ng-primitives/search';
+import { NgpSearchFieldClear } from 'ng-primitives/search-field-clear';
 
 @Component({
   standalone: true,
   selector: 'app-search-field',
-  imports: [NgpSearchField, NgpLabel, NgpInput, NgIcon, NgpButton, FormsModule],
+  imports: [
+    NgpSearchField,
+    NgpLabel,
+    NgpInput,
+    NgIcon,
+    NgpButton,
+    NgpSearchFieldClear,
+    FormsModule,
+  ],
   providers: [provideIcons({ heroMagnifyingGlass })],
   template: `
-    <div #searchField="ngpSearchField" ngpSearchField>
+    <div ngpSearchField>
       <label ngpLabel>Find a customer</label>
       <div class="search-container">
         <ng-icon name="heroMagnifyingGlass" />
         <input [(ngModel)]="query" ngpInput type="search" placeholder="Search for a customer" />
-        <button (click)="clear()" ngpButton aria-label="Clear search">Clear</button>
+        <button ngpSearchFieldClear ngpButton aria-label="Clear search">Clear</button>
       </div>
     </div>
   `,
@@ -82,42 +91,11 @@ import { NgpSearchField } from 'ng-primitives/search';
       transform: translateY(-50%);
       color: rgb(161 161 170);
     }
-
-    [ngpButton] {
-      position: absolute;
-      top: 0;
-      right: 0;
-      height: 36px;
-      padding: 0 16px;
-      border: none;
-      border-radius: 0 8px 8px 0;
-      background-color: transparent;
-      color: rgb(59, 130, 246);
-      font-size: 0.875rem;
-      line-height: 1.25rem;
-      cursor: pointer;
-      outline: none;
-      display: none;
-    }
-
-    [ngpSearchField][data-empty='false'] [ngpButton] {
-      display: block;
-    }
   `,
 })
 export default class SearchFieldExample {
-  @ViewChild('searchField') private searchFieldDirective!: NgpSearchField;
-
   /**
    * Store the search query.
    */
   readonly query = signal<string>('');
-
-  clear(): void {
-    this.query.set('');
-
-    if (this.searchFieldDirective) {
-      this.searchFieldDirective.clear();
-    }
-  }
 }
