@@ -5,12 +5,20 @@ import { heroMagnifyingGlass } from '@ng-icons/heroicons/outline';
 import { NgpButton } from 'ng-primitives/button';
 import { NgpLabel } from 'ng-primitives/form-field';
 import { NgpInput } from 'ng-primitives/input';
-import { NgpSearchField } from 'ng-primitives/search';
+import { NgpSearchField, NgpSearchFieldClear } from 'ng-primitives/search';
 
 @Component({
   standalone: true,
   selector: 'app-search-field',
-  imports: [NgpSearchField, NgpLabel, NgpInput, NgIcon, NgpButton, FormsModule],
+  imports: [
+    NgpSearchField,
+    NgpLabel,
+    NgpInput,
+    NgIcon,
+    NgpButton,
+    NgpSearchFieldClear,
+    FormsModule,
+  ],
   providers: [provideIcons({ heroMagnifyingGlass })],
   template: `
     <div ngpSearchField>
@@ -18,7 +26,7 @@ import { NgpSearchField } from 'ng-primitives/search';
       <div class="search-container">
         <ng-icon name="heroMagnifyingGlass" />
         <input [(ngModel)]="query" ngpInput type="search" placeholder="Search for a customer" />
-        <button (click)="clear()" ngpButton aria-label="Clear search">Clear</button>
+        <button ngpSearchFieldClear ngpButton aria-label="Clear search">Clear</button>
       </div>
     </div>
   `,
@@ -74,15 +82,6 @@ import { NgpSearchField } from 'ng-primitives/search';
       position: relative;
     }
 
-    ng-icon {
-      position: absolute;
-      font-size: 1.25rem;
-      top: 18px;
-      left: 12px;
-      transform: translateY(-50%);
-      color: rgb(161 161 170);
-    }
-
     [ngpButton] {
       position: absolute;
       top: 0;
@@ -100,8 +99,17 @@ import { NgpSearchField } from 'ng-primitives/search';
       display: none;
     }
 
-    [ngpSearchField][data-empty='false'] [ngpButton] {
+    [ngpButton][data-empty='false'] {
       display: block;
+    }
+
+    ng-icon {
+      position: absolute;
+      font-size: 1.25rem;
+      top: 18px;
+      left: 12px;
+      transform: translateY(-50%);
+      color: rgb(161 161 170);
     }
   `,
 })
@@ -110,8 +118,4 @@ export default class SearchFieldExample {
    * Store the search query.
    */
   readonly query = signal<string>('');
-
-  clear(): void {
-    this.query.set('');
-  }
 }

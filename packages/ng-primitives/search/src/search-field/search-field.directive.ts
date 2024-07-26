@@ -29,10 +29,10 @@ export class NgpSearchField {
   /**
    * Whether the input field is empty.
    */
-  protected readonly empty = computed(() => this.input().value() === '');
+  readonly empty = computed(() => this.input().value() === '');
 
   @HostListener('keydown.escape')
-  protected clear(): void {
+  clear(): void {
     this.input().element.nativeElement.value = '';
   }
 }

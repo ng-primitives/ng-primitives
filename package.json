@@ -1,7 +1,7 @@
 {
   "name": "@ng-primitives/source",
   "version": "0.0.0",
-  "license": "CC BY-ND 4.0",
+  "license": "Apache-2.0",
   "private": true,
   "scripts": {
     "prepare": "husky",
