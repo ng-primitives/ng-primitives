@@ -1,4 +1,4 @@
-import { Component, signal } from '@angular/core';
+import { Component, ViewChild, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { heroMagnifyingGlass } from '@ng-icons/heroicons/outline';
@@ -13,7 +13,7 @@ import { NgpSearchField } from 'ng-primitives/search';
   imports: [NgpSearchField, NgpLabel, NgpInput, NgIcon, NgpButton, FormsModule],
   providers: [provideIcons({ heroMagnifyingGlass })],
   template: `
-    <div ngpSearchField>
+    <div #searchField="ngpSearchField" ngpSearchField>
       <label ngpLabel>Find a customer</label>
       <div class="search-container">
         <ng-icon name="heroMagnifyingGlass" />
@@ -106,6 +106,8 @@ import { NgpSearchField } from 'ng-primitives/search';
   `,
 })
 export default class SearchFieldExample {
+  @ViewChild('searchField') private searchFieldDirective!: NgpSearchField;
+
   /**
    * Store the search query.
    */
@@ -113,5 +115,9 @@ export default class SearchFieldExample {
 
   clear(): void {
     this.query.set('');
+
+    if (this.searchFieldDirective) {
+      this.searchFieldDirective.clear();
+    }
   }
 }

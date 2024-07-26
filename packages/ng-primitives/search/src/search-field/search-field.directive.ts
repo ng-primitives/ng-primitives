@@ -32,7 +32,7 @@ export class NgpSearchField {
   protected readonly empty = computed(() => this.input().value() === '');
 
   @HostListener('keydown.escape')
-  protected clear(): void {
-    this.input().element.nativeElement.value = '';
+  clear(): void {
+    this.input().value.set('');
   }
 }
