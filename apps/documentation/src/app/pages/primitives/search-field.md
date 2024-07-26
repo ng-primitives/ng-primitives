@@ -16,10 +16,10 @@ Import the SearchField primitives from `ng-primitives/search`.
 import { NgpSearchField } from 'ng-primitives/search';
 ```
 
-Import the SearchFieldClear primitives from `ng-primitives/search-field-clear` if you want to enable the clear input button.
+Import the SearchFieldClear primitives from `ng-primitives/search` if you want to enable the clear input button.
 
 ```ts
-import { NgpSearchFieldClear } from 'ng-primitives/search-field-clear';
+import { NgpSearchFieldClear } from 'ng-primitives/search';
 ```
 
 ## Usage
@@ -58,6 +58,12 @@ The `NgpSearchField` directive is a container for the search field components.
 | `data-dirty`    | The `dirty` state of the form control.    | `true` \| `false` |
 | `data-pending`  | The `pending` state of the form control.  | `true` \| `false` |
 | `data-disabled` | The `disabled` state of the form control. | `true` \| `false` |
+
+**SearchFieldClear**
+
+| Attribute    | Description                            | Value             |
+| ------------ | -------------------------------------- | ----------------- |
+| `data-empty` | Whether the associated input is empty. | `true` \| `false` |
 
 ## Accessibility
 

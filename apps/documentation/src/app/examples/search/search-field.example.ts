@@ -5,8 +5,7 @@ import { heroMagnifyingGlass } from '@ng-icons/heroicons/outline';
 import { NgpButton } from 'ng-primitives/button';
 import { NgpLabel } from 'ng-primitives/form-field';
 import { NgpInput } from 'ng-primitives/input';
-import { NgpSearchField } from 'ng-primitives/search';
-import { NgpSearchFieldClear } from 'ng-primitives/search-field-clear';
+import { NgpSearchField, NgpSearchFieldClear } from 'ng-primitives/search';
 
 @Component({
   standalone: true,
@@ -81,6 +80,27 @@ import { NgpSearchFieldClear } from 'ng-primitives/search-field-clear';
 
     .search-container {
       position: relative;
+    }
+
+    [ngpButton] {
+      position: absolute;
+      top: 0;
+      right: 0;
+      height: 36px;
+      padding: 0 16px;
+      border: none;
+      border-radius: 0 8px 8px 0;
+      background-color: transparent;
+      color: rgb(59, 130, 246);
+      font-size: 0.875rem;
+      line-height: 1.25rem;
+      cursor: pointer;
+      outline: none;
+      display: none;
+    }
+
+    [ngpButton][data-empty='false'] {
+      display: block;
     }
 
     ng-icon {
