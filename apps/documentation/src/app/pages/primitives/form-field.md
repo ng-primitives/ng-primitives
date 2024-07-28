@@ -27,6 +27,7 @@ Assemble the form-field directives in your template.
 ```html
 <div ngpFormField>
   <label ngpLabel>Label</label>
+  <!-- Typically ngpFormControl would not be used directly, but a primitive like ngpInput would be used instead -->
   <input ngpFormControl />
   <p ngpDescription>Description</p>
   <p ngpError ngpErrorValidator="required">Error</p>
@@ -119,6 +120,8 @@ The `NgpError` directive is used to mark an error message element within a form 
 | `data-disabled`  | The `disabled` state of the form control.                          | `true` \| `false` |
 
 ### NgpFormControl
+
+Typically this primitive would be not be used directly, but instead a more specific form control primitive would be used (e.g. `ngpInput`). All of our form control primitives use `ngpFormControl` internally so they will have the same accessibility features as described below.
 
 The `NgpFormControl` directive is used to mark a form control element within a form field. This element will have an `aria-labelledby` attribute set to the ID of the label element within the form field and an `aria-describedby` attribute set to the ID of the description elements within the form field.
 
