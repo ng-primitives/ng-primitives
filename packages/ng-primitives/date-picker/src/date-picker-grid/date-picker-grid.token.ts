@@ -8,13 +8,13 @@
 import { InjectionToken, inject } from '@angular/core';
 import type { NgpDatePickerGrid } from './date-picker-grid.directive';
 
-export const NgpDatePickerGridToken = new InjectionToken<NgpDatePickerGrid>(
+export const NgpDatePickerGridToken = new InjectionToken<NgpDatePickerGrid<unknown>>(
   'NgpDatePickerGridToken',
 );
 
 /**
  * Inject the DatePickerGrid directive instance
  */
-export function injectDatePickerGrid(): NgpDatePickerGrid {
-  return inject(NgpDatePickerGridToken);
+export function injectDatePickerGrid<T>(): NgpDatePickerGrid<T> {
+  return inject(NgpDatePickerGridToken) as NgpDatePickerGrid<T>;
 }

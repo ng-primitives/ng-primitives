@@ -42,6 +42,21 @@ export interface NgpDateTimeAdapter<T> {
   compare(a: T, b: T): number;
 
   /**
+   * Determine if two date time objects are equal.
+   */
+  isEqual(a: T, b: T): boolean;
+
+  /**
+   * Determine if a date time object is before another.
+   */
+  isBefore(a: T, b: T): boolean;
+
+  /**
+   * Determine if a date time object is after another.
+   */
+  isAfter(a: T, b: T): boolean;
+
+  /**
    * Determine if two date objects are on the same day.
    */
   isSameDay(a: T, b: T): boolean;

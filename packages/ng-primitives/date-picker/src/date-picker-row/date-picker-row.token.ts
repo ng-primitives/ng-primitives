@@ -8,20 +8,22 @@
 import { InjectionToken, inject } from '@angular/core';
 import type { NgpDatePickerRow } from './date-picker-row.directive';
 
-export const NgpDatePickerRowToken = new InjectionToken<NgpDatePickerRow>('NgpDatePickerRowToken');
+export const NgpDatePickerRowToken = new InjectionToken<NgpDatePickerRow<unknown>>(
+  'NgpDatePickerRowToken',
+);
 
 /**
  * Inject the DatePickerRow directive instance
  */
-export function injectDatePickerRow(): NgpDatePickerRow {
-  return inject(NgpDatePickerRowToken);
+export function injectDatePickerRow<T>(): NgpDatePickerRow<T> {
+  return inject(NgpDatePickerRowToken) as NgpDatePickerRow<T>;
 }
 
-export const NgpDatePickerWeekToken = new InjectionToken<Date[]>('NgpDatePickerWeekToken');
+export const NgpDatePickerWeekToken = new InjectionToken<unknown[]>('NgpDatePickerWeekToken');
 
 /**
  * Inject current week days
  */
-export function injectDatePickerWeek(): Date[] {
-  return inject(NgpDatePickerWeekToken);
+export function injectDatePickerWeek<T>(): T[] {
+  return inject(NgpDatePickerWeekToken) as T[];
 }

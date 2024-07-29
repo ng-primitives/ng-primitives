@@ -39,7 +39,7 @@ import {
           <ng-icon name="heroChevronRightMini" />
         </button>
       </div>
-      <table ngpDatePickerGrid aria-labelledby="id-grid-label">
+      <table ngpDatePickerGrid>
         <thead>
           <tr>
             <th scope="col" abbr="Sunday">S</th>
@@ -143,6 +143,7 @@ import {
 
     [ngpDatePickerDateButton][data-focus-visible='true'] {
       outline: 2px solid rgb(59 130 246);
+      outline-offset: 2px;
     }
 
     [ngpDatePickerDateButton][data-press='true'] {

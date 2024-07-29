@@ -23,7 +23,7 @@ import { NgpDatePickerCellDateToken, NgpDatePickerCellToken } from './date-picke
   exportAs: 'ngpDatePickerCell',
   providers: [{ provide: NgpDatePickerCellToken, useExisting: NgpDatePickerCell }],
 })
-export class NgpDatePickerCell implements OnDestroy {
+export class NgpDatePickerCell<T> implements OnDestroy {
   /**
    * Access the template ref for the cell.
    */
@@ -37,7 +37,7 @@ export class NgpDatePickerCell implements OnDestroy {
   /**
    * Access the dates in the week.
    */
-  private readonly dates = injectDatePickerWeek();
+  private readonly dates = injectDatePickerWeek<T>();
 
   /**
    * Store the view refs for the dates.
@@ -46,8 +46,8 @@ export class NgpDatePickerCell implements OnDestroy {
 
   // Make sure the template checker knows the type of the context with which the
   // template of this directive will be rendered
-  static ngTemplateContextGuard(
-    _: NgpDatePickerCell,
+  static ngTemplateContextGuard<T>(
+    _: NgpDatePickerCell<T>,
     context: unknown,
   ): context is NgpDatePickerCellContext {
     return true;

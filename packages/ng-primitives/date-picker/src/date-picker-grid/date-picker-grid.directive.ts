@@ -5,7 +5,8 @@
  * This source code is licensed under the Apache 2.0 license found in the
  * LICENSE file in the root directory of this source tree.
  */
-import { Directive } from '@angular/core';
+import { computed, Directive } from '@angular/core';
+import { injectDatePicker } from '../date-picker/date-picker.token';
 import { NgpDatePickerGridToken } from './date-picker-grid.token';
 
 @Directive({
@@ -15,6 +16,17 @@ import { NgpDatePickerGridToken } from './date-picker-grid.token';
   providers: [{ provide: NgpDatePickerGridToken, useExisting: NgpDatePickerGrid }],
   host: {
     role: 'grid',
+    '[attr.aria-labelledby]': 'labelId()',
   },
 })
-export class NgpDatePickerGrid {}
+export class NgpDatePickerGrid<T> {
+  /**
+   * Access the date picker.
+   */
+  private readonly datePicker = injectDatePicker<T>();
+
+  /**
+   * Determine the id for the label.
+   */
+  protected readonly labelId = computed(() => this.datePicker.label()?.id());
+}

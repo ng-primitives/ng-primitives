@@ -86,6 +86,27 @@ export class NgpNativeDateTimeAdapter implements NgpDateTimeAdapter<Date> {
   }
 
   /**
+   * Determine if two date time objects are equal.
+   */
+  isEqual(a: Date, b: Date): boolean {
+    return a.getTime() === b.getTime();
+  }
+
+  /**
+   * Determine if a date time object is before another.
+   */
+  isBefore(a: Date, b: Date): boolean {
+    return a.getTime() < b.getTime();
+  }
+
+  /**
+   * Determine if a date time object is after another.
+   */
+  isAfter(a: Date, b: Date): boolean {
+    return a.getTime() > b.getTime();
+  }
+
+  /**
    * Determine if two date objects are on the same day.
    */
   isSameDay(a: Date, b: Date): boolean {

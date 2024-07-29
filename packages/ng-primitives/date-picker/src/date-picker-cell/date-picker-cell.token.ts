@@ -8,15 +8,15 @@
 import { InjectionToken, inject } from '@angular/core';
 import type { NgpDatePickerCell } from './date-picker-cell.directive';
 
-export const NgpDatePickerCellToken = new InjectionToken<NgpDatePickerCell>(
+export const NgpDatePickerCellToken = new InjectionToken<NgpDatePickerCell<unknown>>(
   'NgpDatePickerCellToken',
 );
 
 /**
  * Inject the DatePickerCell directive instance
  */
-export function injectDatePickerCell(): NgpDatePickerCell {
-  return inject(NgpDatePickerCellToken);
+export function injectDatePickerCell<T>(): NgpDatePickerCell<T> {
+  return inject(NgpDatePickerCellToken) as NgpDatePickerCell<T>;
 }
 
 export const NgpDatePickerCellDateToken = new InjectionToken<unknown>('NgpDatePickerCellDateToken');
