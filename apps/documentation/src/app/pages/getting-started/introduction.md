@@ -34,6 +34,10 @@ Angular Primitives versions are compatible with the following Angular versions:
 | ------------------ | ------- |
 | 0.x                | 18.0.x  |
 
+## Community
+
+If you would like to stay up-to-date with the latest news and updates, or have any questions, feedback, or suggestions, we invite you to join our community on [Discord](https://discord.gg/NTdjc5r3gC).
+
 ## Acknowledgements
 
 Angular Primitives would not have been possible without inspiration from many of the great libraries that came before it.

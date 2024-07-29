@@ -2,9 +2,9 @@
   <div class="absolute inset-x-0 top-0 h-0.5 bg-gradient-to-r from-[#E90364] to-[#FA2C05]"></div>
   <nav class="container relative mx-auto flex h-full w-full items-center gap-x-4 px-8">
     <button
-      class="inline-flex size-8 items-center justify-center rounded-lg transition-colors active:bg-zinc-100 data-[hover=true]:bg-zinc-50 md:hidden"
+      class="inline-flex size-8 items-center justify-center rounded-lg transition-colors data-[hover=true]:bg-zinc-50 data-[press=true]:bg-zinc-100 md:hidden"
       (click)="toggle()"
-      ngpHover
+      ngpButton
     >
       <ng-icon class="text-lg text-zinc-800" name="lucideMenu" />
     </button>
@@ -16,12 +16,23 @@
 
     <div class="ml-auto inline-flex gap-x-2">
       <a
-        class="inline-flex items-center justify-center gap-x-2 rounded-lg bg-white px-3 py-2 outline-none transition-colors hover:bg-zinc-50 hover:text-zinc-800 focus-visible:text-zinc-800 focus-visible:ring-2 focus-visible:ring-blue-500 active:bg-zinc-100"
+        class="inline-flex items-center justify-center gap-x-2 rounded-lg bg-white px-3 py-2 outline-none transition-colors data-[hover=true]:bg-zinc-50 data-[press=true]:bg-zinc-100 data-[focus-visible=true]:text-zinc-800 data-[hover=true]:text-zinc-800 data-[focus-visible=true]:ring-2 data-[focus-visible=true]:ring-blue-500"
+        target="_blank"
+        href="https://discord.gg/NTdjc5r3gC"
+        ngpButton
+      >
+        <ng-icon class="text-lg text-zinc-500" name="bootstrapDiscord" />
+        <span class="hidden font-medium md:inline">Discord</span>
+      </a>
+
+      <a
+        class="inline-flex items-center justify-center gap-x-2 rounded-lg bg-white px-3 py-2 outline-none transition-colors data-[hover=true]:bg-zinc-50 data-[press=true]:bg-zinc-100 data-[focus-visible=true]:text-zinc-800 data-[hover=true]:text-zinc-800 data-[focus-visible=true]:ring-2 data-[focus-visible=true]:ring-blue-500"
         target="_blank"
         href="https://github.com/ng-primitives/ng-primitives/"
+        ngpButton
       >
-        <ng-icon class="text-lg" name="bootstrapGithub" />
-        <span class="hidden font-medium sm:inline">GitHub</span>
+        <ng-icon class="text-lg text-zinc-500" name="bootstrapGithub" />
+        <span class="hidden font-medium md:inline">GitHub</span>
       </a>
     </div>
   </nav>
