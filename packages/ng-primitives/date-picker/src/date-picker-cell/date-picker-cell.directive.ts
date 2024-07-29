@@ -42,14 +42,14 @@ export class NgpDatePickerCell<T> implements OnDestroy {
   /**
    * Store the view refs for the dates.
    */
-  private readonly viewRefs: EmbeddedViewRef<NgpDatePickerCellContext>[] = [];
+  private readonly viewRefs: EmbeddedViewRef<NgpDatePickerCellContext<T>>[] = [];
 
   // Make sure the template checker knows the type of the context with which the
   // template of this directive will be rendered
   static ngTemplateContextGuard<T>(
     _: NgpDatePickerCell<T>,
     context: unknown,
-  ): context is NgpDatePickerCellContext {
+  ): context is NgpDatePickerCellContext<T> {
     return true;
   }
 
@@ -88,6 +88,6 @@ export class NgpDatePickerCell<T> implements OnDestroy {
   }
 }
 
-interface NgpDatePickerCellContext {
-  $implicit: Date;
+interface NgpDatePickerCellContext<T> {
+  $implicit: T;
 }

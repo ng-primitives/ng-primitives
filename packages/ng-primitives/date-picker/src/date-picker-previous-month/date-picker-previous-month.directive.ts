@@ -64,6 +64,6 @@ export class NgpDatePickerPreviousMonth<T> {
       milliseconds: 0,
     });
 
-    this.datePicker.focusedDate.set(date);
+    this.datePicker.setFocusedDate(date);
   }
 }
