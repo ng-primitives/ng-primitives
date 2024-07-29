@@ -10,7 +10,7 @@ Angular Primitives is a low-level UI component library with a focus on accessibi
 
 You can find our [documentation site here](https://angularprimitives.com).
 
-If you would like to join our comminity, please join our [Discord server](https://discord.gg/NTdjc5r3gC).
+If you would like to join our community, please join our [Discord server](https://discord.gg/NTdjc5r3gC).
 
 This library is in active development, and we're working hard towards our 1.0 release. We'd love your help in testing, providing feedback, and contributing to the project in any way, no matter how small.
 

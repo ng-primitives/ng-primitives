@@ -54,6 +54,11 @@ export default defineConfig(({ mode }) => {
             host: 'https://ng-primitives.netlify.app/',
           },
         },
+        content: {
+          prismOptions: {
+            additionalLangs: ['scss'],
+          },
+        },
       }),
       nxViteTsPaths(),
       splitVendorChunkPlugin(),
