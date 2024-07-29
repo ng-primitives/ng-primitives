@@ -6,6 +6,8 @@
  * LICENSE file in the root directory of this source tree.
  */
 import { computed, Directive, ElementRef, HostListener, inject } from '@angular/core';
+import { NgpButton } from 'ng-primitives/button';
+import { injectDateTimeAdapter } from 'ng-primitives/date-time';
 import { injectDatePickerCellDate } from '../date-picker-cell/date-picker-cell.token';
 import { injectDatePicker } from '../date-picker/date-picker.token';
 import { NgpDatePickerDateButtonToken } from './date-picker-date-button.token';
@@ -22,46 +24,61 @@ import { NgpDatePickerDateButtonToken } from './date-picker-date-button.token';
     '[attr.data-disabled]': 'disabled()',
     '[attr.aria-disabled]': 'disabled()',
     '[attr.data-outside-month]': 'outside()',
+    '[attr.data-today]': 'today()',
   },
+  hostDirectives: [NgpButton],
 })
-export class NgpDatePickerDateButton {
+export class NgpDatePickerDateButton<T> {
   /**
    * Access the date picker.
    */
-  private readonly datePicker = injectDatePicker();
+  private readonly datePicker = injectDatePicker<T>();
+
+  /**
+   * Access the date time adapter.
+   */
+  private readonly dateTimeAdapter = injectDateTimeAdapter();
 
   /**
    * The date this cell represents.
    */
-  private readonly date = injectDatePickerCellDate();
+  private readonly date = injectDatePickerCellDate<T>();
 
   /**
    * Determine if this is the focused date.
    */
-  protected readonly focused = computed(() => isSameDay(this.date, this.datePicker.focusedDate()));
+  protected readonly focused = computed(() =>
+    this.dateTimeAdapter.isSameDay(this.date, this.datePicker.focusedDate()),
+  );
 
   /**
    * Determine if this is the selected date.
    */
-  protected readonly selected = computed(() => isSameDay(this.date, this.datePicker.date()));
+  protected readonly selected = computed(
+    () =>
+      this.datePicker.date() && this.dateTimeAdapter.isSameDay(this.date, this.datePicker.date()),
+  );
 
   /**
    * Determine if this date is outside the current month.
    */
   protected readonly outside = computed(
-    () => this.date.getMonth() !== this.datePicker.focusedDate().getMonth(),
+    () => !this.dateTimeAdapter.isSameMonth(this.date, this.datePicker.focusedDate()),
+  );
+
+  /**
+   * Determine if this date is today.
+   */
+  protected readonly today = computed(() =>
+    this.dateTimeAdapter.isSameDay(this.date, this.dateTimeAdapter.now()),
   );
 
   /**
    * Determine if this date is disabled.
    */
-  protected readonly disabled = computed(() => {
-    if (this.datePicker.disabled()) {
-      return true;
-    }
-
-    return this.datePicker.dateDisabled()(this.date) || this.outside();
-  });
+  protected readonly disabled = computed(
+    () => this.datePicker.disabled() || this.datePicker.dateDisabled()(this.date),
+  );
 
   /**
    * Get the native element.
@@ -83,17 +100,6 @@ export class NgpDatePickerDateButton {
     }
 
     this.datePicker.date.set(this.date);
+    this.datePicker.focusedDate.set(this.date);
   }
-}
-
-function isSameDay(a?: Date, b?: Date) {
-  if (!a || !b) {
-    return false;
-  }
-
-  return (
-    a.getFullYear() === b.getFullYear() &&
-    a.getMonth() === b.getMonth() &&
-    a.getDate() === b.getDate()
-  );
 }

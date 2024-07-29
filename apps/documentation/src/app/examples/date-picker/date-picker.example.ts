@@ -1,4 +1,6 @@
-import { Component } from '@angular/core';
+import { Component, computed, signal } from '@angular/core';
+import { NgIcon, provideIcons } from '@ng-icons/core';
+import { heroChevronLeftMini, heroChevronRightMini } from '@ng-icons/heroicons/mini';
 import {
   NgpDatePicker,
   NgpDatePickerCell,
@@ -14,6 +16,7 @@ import {
   standalone: true,
   selector: 'app-date-picker',
   imports: [
+    NgIcon,
     NgpDatePicker,
     NgpDatePickerLabel,
     NgpDatePickerNextMonth,
@@ -24,85 +27,160 @@ import {
     NgpDatePickerCell,
     NgpDatePickerDateButton,
   ],
+  viewProviders: [provideIcons({ heroChevronRightMini, heroChevronLeftMini })],
   template: `
-    <div ngpDatePicker>
-      <div>
-        <button ngpDatePickerPreviousMonth type="button" aria-label="previous month">&lt;</button>
-        <h2 ngpDatePickerLabel>February 2020</h2>
-        <button ngpDatePickerNextMonth type="button" aria-label="next month">&gt;</button>
+    <div [(ngpDatePickerDate)]="date" [(ngpDatePickerFocusedDate)]="focused" ngpDatePicker>
+      <div class="date-picker-header">
+        <button ngpDatePickerPreviousMonth type="button" aria-label="previous month">
+          <ng-icon name="heroChevronLeftMini" />
+        </button>
+        <h2 ngpDatePickerLabel>{{ label() }}</h2>
+        <button ngpDatePickerNextMonth type="button" aria-label="next month">
+          <ng-icon name="heroChevronRightMini" />
+        </button>
       </div>
       <table ngpDatePickerGrid aria-labelledby="id-grid-label">
         <thead>
           <tr>
-            <th scope="col" abbr="Sunday">Su</th>
-            <th scope="col" abbr="Monday">Mo</th>
-            <th scope="col" abbr="Tuesday">Tu</th>
-            <th scope="col" abbr="Wednesday">We</th>
-            <th scope="col" abbr="Thursday">Th</th>
-            <th scope="col" abbr="Friday">Fr</th>
-            <th scope="col" abbr="Saturday">Sa</th>
+            <th scope="col" abbr="Sunday">S</th>
+            <th scope="col" abbr="Monday">M</th>
+            <th scope="col" abbr="Tuesday">T</th>
+            <th scope="col" abbr="Wednesday">W</th>
+            <th scope="col" abbr="Thursday">T</th>
+            <th scope="col" abbr="Friday">F</th>
+            <th scope="col" abbr="Saturday">S</th>
           </tr>
         </thead>
         <tbody>
-          <!-- <tr>
-            <td class="disabled" tabindex="-1"></td>
-            <td class="disabled" tabindex="-1"></td>
-            <td class="disabled" tabindex="-1"></td>
-            <td class="disabled" tabindex="-1"></td>
-            <td class="disabled" tabindex="-1"></td>
-            <td class="disabled" tabindex="-1"></td>
-            <td tabindex="-1" data-date="2020-02-01">1</td>
-          </tr> -->
           <tr *ngpDatePickerRow>
             <td *ngpDatePickerCell="let date" role="gridcell">
               <button ngpDatePickerDateButton>{{ date.getDate() }}</button>
             </td>
-            <!-- <td tabindex="-1" data-date="2020-02-03">3</td>
-            <td tabindex="-1" data-date="2020-02-04">4</td>
-            <td tabindex="-1" data-date="2020-02-05">5</td>
-            <td tabindex="-1" data-date="2020-02-06">6</td>
-            <td tabindex="-1" data-date="2020-02-07">7</td>
-            <td tabindex="-1" data-date="2020-02-08">8</td> -->
           </tr>
-          <!-- <tr>
-            <td tabindex="-1" data-date="2020-02-09">9</td>
-            <td tabindex="-1" data-date="2020-02-10">10</td>
-            <td tabindex="-1" data-date="2020-02-11">11</td>
-            <td tabindex="-1" data-date="2020-02-12">12</td>
-            <td tabindex="-1" data-date="2020-02-13">13</td>
-            <td tabindex="0" data-date="2020-02-14" role="gridcell" aria-selected="true">14</td>
-            <td tabindex="-1" data-date="2020-02-15">15</td>
-          </tr>
-          <tr>
-            <td tabindex="-1" data-date="2020-02-16">16</td>
-            <td tabindex="-1" data-date="2020-02-17">17</td>
-            <td tabindex="-1" data-date="2020-02-18">18</td>
-            <td tabindex="-1" data-date="2020-02-19">19</td>
-            <td tabindex="-1" data-date="2020-02-20">20</td>
-            <td tabindex="-1" data-date="2020-02-21">21</td>
-            <td tabindex="-1" data-date="2020-02-22">22</td>
-          </tr>
-          <tr>
-            <td tabindex="-1" data-date="2020-02-23">23</td>
-            <td tabindex="-1" data-date="2020-02-24">24</td>
-            <td tabindex="-1" data-date="2020-02-25">25</td>
-            <td tabindex="-1" data-date="2020-02-26">26</td>
-            <td tabindex="-1" data-date="2020-02-27">27</td>
-            <td tabindex="-1" data-date="2020-02-28">28</td>
-            <td tabindex="-1" data-date="2020-02-29">29</td>
-          </tr>
-          <tr>
-            <td tabindex="-1" data-date="2020-02-30">30</td>
-            <td tabindex="-1" data-date="2020-02-31">31</td>
-            <td class="disabled" tabindex="-1"></td>
-            <td class="disabled" tabindex="-1"></td>
-            <td class="disabled" tabindex="-1"></td>
-            <td class="disabled" tabindex="-1"></td>
-            <td class="disabled" tabindex="-1"></td>
-          </tr> -->
         </tbody>
       </table>
     </div>
   `,
+  styles: `
+    [ngpDatePicker] {
+      background-color: white;
+      border-radius: 12px;
+      padding: 16px;
+      box-shadow:
+        0 0 0 1px rgba(0, 0, 0, 0.05),
+        0 1px 2px rgba(0, 0, 0, 0.1);
+    }
+
+    .date-picker-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 36px;
+      margin-bottom: 16px;
+    }
+
+    th {
+      font-size: 14px;
+      font-weight: 500;
+      width: 40px;
+      height: 40px;
+      text-align: center;
+      color: rgba(0, 0, 0, 0.5);
+    }
+
+    [ngpDatePickerLabel] {
+      font-size: 14px;
+      font-weight: 500;
+      color: #000;
+    }
+
+    [ngpDatePickerPreviousMonth],
+    [ngpDatePickerNextMonth] {
+      all: unset;
+      width: 32px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 8px;
+      font-size: 20px;
+      box-shadow:
+        0 1px 3px 0 rgb(0 0 0 / 0.1),
+        0 1px 2px -1px rgb(0 0 0 / 0.1),
+        0 0 0 1px rgb(0 0 0 / 0.05);
+      cursor: pointer;
+    }
+
+    [ngpDatePickerPreviousMonth][data-hover='true'],
+    [ngpDatePickerNextMonth][data-hover='true'] {
+      background-color: rgba(0, 0, 0, 0.05);
+    }
+
+    [ngpDatePickerPreviousMonth][data-focus-visible='true'],
+    [ngpDatePickerNextMonth][data-focus-visible='true'] {
+      outline: 2px solid rgb(59 130 246);
+    }
+
+    [ngpDatePickerPreviousMonth][data-press='true'],
+    [ngpDatePickerNextMonth][data-press='true'] {
+      background-color: rgba(0, 0, 0, 0.1);
+    }
+
+    [ngpDatePickerDateButton] {
+      all: unset;
+      width: 40px;
+      height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+
+    [ngpDatePickerDateButton][data-hover='true'] {
+      background-color: rgba(0, 0, 0, 0.05);
+    }
+
+    [ngpDatePickerDateButton][data-focus-visible='true'] {
+      outline: 2px solid rgb(59 130 246);
+    }
+
+    [ngpDatePickerDateButton][data-press='true'] {
+      background-color: rgba(0, 0, 0, 0.1);
+    }
+
+    [ngpDatePickerDateButton][data-outside-month='true'] {
+      color: rgba(0, 0, 0, 0.25);
+    }
+
+    [ngpDatePickerDateButton][data-selected='true'] {
+      background-color: rgb(59 130 246);
+      color: white;
+    }
+
+    [ngpDatePickerDateButton][data-selected='true'][data-outside-month='true'] {
+      background-color: rgb(0, 0, 0, 0.1);
+      color: rgba(0, 0, 0, 0.2);
+    }
+  `,
 })
-export default class DatePickerExample {}
+export default class DatePickerExample {
+  /**
+   * The selected date.
+   */
+  readonly date = signal<Date>(new Date());
+
+  /**
+   * Store the current focused date.
+   */
+  readonly focused = signal<Date>(new Date());
+
+  /**
+   * Get the current focused date in string format.
+   * @returns The focused date in "February 2024" format.
+   */
+  readonly label = computed(
+    () =>
+      `${this.focused().toLocaleString('default', { month: 'long' })} ${this.focused().getFullYear()}`,
+  );
+}

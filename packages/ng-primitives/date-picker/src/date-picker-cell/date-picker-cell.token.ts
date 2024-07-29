@@ -19,11 +19,11 @@ export function injectDatePickerCell(): NgpDatePickerCell {
   return inject(NgpDatePickerCellToken);
 }
 
-export const NgpDatePickerCellDateToken = new InjectionToken<Date>('NgpDatePickerCellDateToken');
+export const NgpDatePickerCellDateToken = new InjectionToken<unknown>('NgpDatePickerCellDateToken');
 
 /**
  * Inject current cell date
  */
-export function injectDatePickerCellDate(): Date {
-  return inject(NgpDatePickerCellDateToken);
+export function injectDatePickerCellDate<T>(): T {
+  return inject(NgpDatePickerCellDateToken) as T;
 }

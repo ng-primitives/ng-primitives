@@ -8,11 +8,11 @@
 import { InjectionToken, inject } from '@angular/core';
 import type { NgpDatePicker } from './date-picker.directive';
 
-export const NgpDatePickerToken = new InjectionToken<NgpDatePicker>('NgpDatePickerToken');
+export const NgpDatePickerToken = new InjectionToken<NgpDatePicker<unknown>>('NgpDatePickerToken');
 
 /**
  * Inject the DatePicker directive instance
  */
-export function injectDatePicker(): NgpDatePicker {
-  return inject(NgpDatePickerToken);
+export function injectDatePicker<T>(): NgpDatePicker<T> {
+  return inject(NgpDatePickerToken) as NgpDatePicker<T>;
 }

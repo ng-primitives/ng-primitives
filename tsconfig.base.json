@@ -24,6 +24,7 @@
       "ng-primitives/button": ["packages/ng-primitives/button/src/index.ts"],
       "ng-primitives/checkbox": ["packages/ng-primitives/checkbox/src/index.ts"],
       "ng-primitives/date-picker": ["packages/ng-primitives/date-picker/src/index.ts"],
+      "ng-primitives/date-time": ["packages/ng-primitives/date-time/src/index.ts"],
       "ng-primitives/file-upload": ["packages/ng-primitives/file-upload/src/index.ts"],
       "ng-primitives/focus-trap": ["packages/ng-primitives/focus-trap/src/index.ts"],
       "ng-primitives/form-field": ["packages/ng-primitives/form-field/src/index.ts"],

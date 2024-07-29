@@ -7,6 +7,7 @@
  */
 import { BooleanInput } from '@angular/cdk/coercion';
 import { booleanAttribute, contentChild, Directive, input, model } from '@angular/core';
+import { injectDateTimeAdapter } from 'ng-primitives/date-time';
 import { NgpDatePickerLabelToken } from '../date-picker-label/date-picker-label.token';
 import { NgpDatePickerToken } from './date-picker.token';
 
@@ -16,18 +17,23 @@ import { NgpDatePickerToken } from './date-picker.token';
   exportAs: 'ngpDatePicker',
   providers: [{ provide: NgpDatePickerToken, useExisting: NgpDatePicker }],
 })
-export class NgpDatePicker {
+export class NgpDatePicker<T> {
+  /**
+   * Access the date time adapter.
+   */
+  private readonly dateTimeAdapter = injectDateTimeAdapter<T>();
+
   /**
    * The minimum date that can be selected.
    */
-  readonly min = input<Date | undefined>(undefined, {
+  readonly min = input<T | undefined>(undefined, {
     alias: 'ngpDatePickerMin',
   });
 
   /**
    * The maximum date that can be selected.
    */
-  readonly max = input<Date | undefined>(undefined, {
+  readonly max = input<T | undefined>(undefined, {
     alias: 'ngpDatePickerMax',
   });
 
@@ -42,21 +48,21 @@ export class NgpDatePicker {
   /**
    * A function that is called to determine if a specific date should be disabled.
    */
-  readonly dateDisabled = input<(date: Date) => boolean>(() => false, {
+  readonly dateDisabled = input<(date: T) => boolean>(() => false, {
     alias: 'ngpDatePickerDateDisabled',
   });
 
   /**
    * The selected value.
    */
-  readonly date = model<Date | undefined>(undefined, {
+  readonly date = model<T | undefined>(undefined, {
     alias: 'ngpDatePickerDate',
   });
 
   /**
    * The focused value.
    */
-  readonly focusedDate = input<Date>(new Date(), {
+  readonly focusedDate = model<T>(this.dateTimeAdapter.now(), {
     alias: 'ngpDatePickerFocusedDate',
   });
 

@@ -15,6 +15,7 @@ import {
   TemplateRef,
   ViewContainerRef,
 } from '@angular/core';
+import { injectDateTimeAdapter } from 'ng-primitives/date-time';
 import { onChange } from 'ng-primitives/utils';
 import { injectDatePicker } from '../date-picker/date-picker.token';
 import { NgpDatePickerRowToken, NgpDatePickerWeekToken } from './date-picker-row.token';
@@ -25,11 +26,16 @@ import { NgpDatePickerRowToken, NgpDatePickerWeekToken } from './date-picker-row
   exportAs: 'ngpDatePickerRow',
   providers: [{ provide: NgpDatePickerRowToken, useExisting: NgpDatePickerRow }],
 })
-export class NgpDatePickerRow implements OnDestroy {
+export class NgpDatePickerRow<T> implements OnDestroy {
+  /**
+   * Access the date time adapter.
+   */
+  private readonly dateTimeAdapter = injectDateTimeAdapter<T>();
+
   /**
    * Access the date picker.
    */
-  private readonly datePicker = injectDatePicker();
+  private readonly datePicker = injectDatePicker<T>();
 
   /**
    * Access the template ref for the cell.
@@ -47,20 +53,24 @@ export class NgpDatePickerRow implements OnDestroy {
    */
   protected readonly days = computed(() => {
     const month = this.datePicker.focusedDate();
-    const days = [];
+    const days: T[] = [];
 
     // Get the first and last day of the month.
-    const firstDay = new Date(month.getFullYear(), month.getMonth(), 1);
-    const lastDay = new Date(month.getFullYear(), month.getMonth() + 1, 0);
+    let firstDay = this.dateTimeAdapter.getFirstDayOfMonth(month);
+    let lastDay = this.dateTimeAdapter.getLastDayOfMonth(month);
 
     // find the first and last day of visible in the grid.
-    firstDay.setDate(-firstDay.getDay() + 1);
-    lastDay.setDate(lastDay.getDate() + (6 - lastDay.getDay()));
+    firstDay = this.dateTimeAdapter.subtract(firstDay, {
+      days: this.dateTimeAdapter.getDay(firstDay),
+    });
+    lastDay = this.dateTimeAdapter.add(lastDay, {
+      days: 6 - this.dateTimeAdapter.getDay(lastDay),
+    });
 
     // collect all the days to display.
     while (firstDay <= lastDay) {
-      days.push(new Date(firstDay));
-      firstDay.setDate(firstDay.getDate() + 1);
+      days.push(firstDay);
+      firstDay = this.dateTimeAdapter.add(firstDay, { days: 1 });
     }
 
     return days;
@@ -85,7 +95,13 @@ export class NgpDatePickerRow implements OnDestroy {
 
   constructor() {
     this.renderRows();
-    onChange(this.datePicker.focusedDate, () => this.renderRows());
+
+    // re-render the rows when the month changes.
+    onChange(this.datePicker.focusedDate, (date, previousDate) => {
+      if (!date || !previousDate || !this.dateTimeAdapter.isSameMonth(date, previousDate)) {
+        this.renderRows();
+      }
+    });
   }
 
   ngOnDestroy(): void {
