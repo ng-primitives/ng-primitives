@@ -6,17 +6,17 @@
  * LICENSE file in the root directory of this source tree.
  */
 import { InjectionToken, inject } from '@angular/core';
-import type { NgpDatePickerRow } from './date-picker-row.directive';
+import type { NgpDatePickerRowRender } from './date-picker-row-render.directive';
 
-export const NgpDatePickerRowToken = new InjectionToken<NgpDatePickerRow<unknown>>(
-  'NgpDatePickerRowToken',
+export const NgpDatePickerRowRenderToken = new InjectionToken<NgpDatePickerRowRender<unknown>>(
+  'NgpDatePickerRowRenderToken',
 );
 
 /**
- * Inject the DatePickerRow directive instance
+ * Inject the DatePickerRowRender directive instance
  */
-export function injectDatePickerRow<T>(): NgpDatePickerRow<T> {
-  return inject(NgpDatePickerRowToken) as NgpDatePickerRow<T>;
+export function injectDatePickerRowRender<T>(): NgpDatePickerRowRender<T> {
+  return inject(NgpDatePickerRowRenderToken) as NgpDatePickerRowRender<T>;
 }
 
 export const NgpDatePickerWeekToken = new InjectionToken<unknown[]>('NgpDatePickerWeekToken');

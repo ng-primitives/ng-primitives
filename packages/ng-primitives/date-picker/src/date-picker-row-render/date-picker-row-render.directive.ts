@@ -18,15 +18,18 @@ import {
 import { injectDateTimeAdapter } from 'ng-primitives/date-time';
 import { onChange } from 'ng-primitives/utils';
 import { injectDatePicker } from '../date-picker/date-picker.token';
-import { NgpDatePickerRowToken, NgpDatePickerWeekToken } from './date-picker-row.token';
+import {
+  NgpDatePickerRowRenderToken,
+  NgpDatePickerWeekToken,
+} from './date-picker-row-render.token';
 
 @Directive({
   standalone: true,
-  selector: '[ngpDatePickerRow]',
-  exportAs: 'ngpDatePickerRow',
-  providers: [{ provide: NgpDatePickerRowToken, useExisting: NgpDatePickerRow }],
+  selector: '[ngpDatePickerRowRender]',
+  exportAs: 'ngpDatePickerRowRender',
+  providers: [{ provide: NgpDatePickerRowRenderToken, useExisting: NgpDatePickerRowRender }],
 })
-export class NgpDatePickerRow<T> implements OnDestroy {
+export class NgpDatePickerRowRender<T> implements OnDestroy {
   /**
    * Access the date time adapter.
    */

@@ -6,12 +6,12 @@
  * LICENSE file in the root directory of this source tree.
  */
 import { render } from '@testing-library/angular';
-import { NgpDatePickerRow } from './date-picker-row.directive';
+import { NgpDatePickerCellRender } from './date-picker-cell-render.directive';
 
-describe('NgpDatePickerRow', () => {
+describe('NgpDatePickerCellRender', () => {
   it('should initialise correctly', async () => {
-    const container = await render(`<div ngpDatePickerRow></div>`, {
-      imports: [NgpDatePickerRow],
+    const container = await render(`<div ngpDatePickerCellRender></div>`, {
+      imports: [NgpDatePickerCellRender],
     });
   });
 });

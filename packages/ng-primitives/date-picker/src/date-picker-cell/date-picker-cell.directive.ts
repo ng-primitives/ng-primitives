@@ -5,89 +5,38 @@
  * This source code is licensed under the Apache 2.0 license found in the
  * LICENSE file in the root directory of this source tree.
  */
-import {
-  Directive,
-  EmbeddedViewRef,
-  inject,
-  Injector,
-  OnDestroy,
-  TemplateRef,
-  ViewContainerRef,
-} from '@angular/core';
-import { injectDatePickerWeek } from '../date-picker-row/date-picker-row.token';
-import { NgpDatePickerCellDateToken, NgpDatePickerCellToken } from './date-picker-cell.token';
+import { computed, contentChild, Directive } from '@angular/core';
+import { NgpDatePickerDateButtonToken } from '../date-picker-date-button/date-picker-date-button.token';
+import { injectDatePicker } from '../date-picker/date-picker.token';
+import { NgpDatePickerCellToken } from './date-picker-cell.token';
 
 @Directive({
   standalone: true,
   selector: '[ngpDatePickerCell]',
   exportAs: 'ngpDatePickerCell',
   providers: [{ provide: NgpDatePickerCellToken, useExisting: NgpDatePickerCell }],
+  host: {
+    role: 'gridcell',
+    '[attr.aria-selected]': 'datePickerButton()?.selected()',
+    '[attr.aria-disabled]': 'datePickerButton()?.disabled()',
+    '[attr.aria-labelledby]': 'labelId()',
+  },
 })
-export class NgpDatePickerCell<T> implements OnDestroy {
+export class NgpDatePickerCell {
   /**
-   * Access the template ref for the cell.
+   * Access the date picker.
    */
-  private readonly templateRef = inject(TemplateRef);
-
-  /**
-   * Access the view container ref.
-   */
-  private readonly viewContainerRef = inject(ViewContainerRef);
+  private readonly datePicker = injectDatePicker();
 
   /**
-   * Access the dates in the week.
+   * Access the child date picker date button.
    */
-  private readonly dates = injectDatePickerWeek<T>();
+  protected readonly datePickerButton = contentChild(NgpDatePickerDateButtonToken, {
+    descendants: true,
+  });
 
   /**
-   * Store the view refs for the dates.
+   * Access the label id.
    */
-  private readonly viewRefs: EmbeddedViewRef<NgpDatePickerCellContext<T>>[] = [];
-
-  // Make sure the template checker knows the type of the context with which the
-  // template of this directive will be rendered
-  static ngTemplateContextGuard<T>(
-    _: NgpDatePickerCell<T>,
-    context: unknown,
-  ): context is NgpDatePickerCellContext<T> {
-    return true;
-  }
-
-  constructor() {
-    this.renderDates();
-  }
-
-  /**
-   * Render the dates in the week.
-   */
-  private renderDates(): void {
-    this.viewRefs.forEach(viewRef => viewRef.destroy());
-
-    for (const date of this.dates) {
-      const viewRef = this.viewContainerRef.createEmbeddedView(
-        this.templateRef,
-        {
-          $implicit: date,
-        },
-        {
-          injector: Injector.create({
-            parent: this.viewContainerRef.injector,
-            providers: [{ provide: NgpDatePickerCellDateToken, useValue: date }],
-          }),
-        },
-      );
-      this.viewRefs.push(viewRef);
-    }
-  }
-
-  /**
-   * Destroy the view refs.
-   */
-  ngOnDestroy(): void {
-    this.viewRefs.forEach(viewRef => viewRef.destroy());
-  }
-}
-
-interface NgpDatePickerCellContext<T> {
-  $implicit: T;
+  protected readonly labelId = computed(() => this.datePicker.label()?.id());
 }

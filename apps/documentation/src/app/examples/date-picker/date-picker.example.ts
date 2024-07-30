@@ -4,12 +4,13 @@ import { heroChevronLeftMini, heroChevronRightMini } from '@ng-icons/heroicons/m
 import {
   NgpDatePicker,
   NgpDatePickerCell,
+  NgpDatePickerCellRender,
   NgpDatePickerDateButton,
   NgpDatePickerGrid,
   NgpDatePickerLabel,
   NgpDatePickerNextMonth,
   NgpDatePickerPreviousMonth,
-  NgpDatePickerRow,
+  NgpDatePickerRowRender,
 } from 'ng-primitives/date-picker';
 
 @Component({
@@ -22,9 +23,9 @@ import {
     NgpDatePickerNextMonth,
     NgpDatePickerPreviousMonth,
     NgpDatePickerGrid,
-    NgpDatePickerRow,
     NgpDatePickerCell,
-    NgpDatePickerCell,
+    NgpDatePickerRowRender,
+    NgpDatePickerCellRender,
     NgpDatePickerDateButton,
   ],
   viewProviders: [provideIcons({ heroChevronRightMini, heroChevronLeftMini })],
@@ -52,8 +53,8 @@ import {
           </tr>
         </thead>
         <tbody>
-          <tr *ngpDatePickerRow>
-            <td *ngpDatePickerCell="let date" role="gridcell">
+          <tr *ngpDatePickerRowRender>
+            <td *ngpDatePickerCellRender="let date" ngpDatePickerCell>
               <button ngpDatePickerDateButton>{{ date.getDate() }}</button>
             </td>
           </tr>

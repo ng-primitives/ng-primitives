@@ -9,7 +9,7 @@ import { FocusMonitor } from '@angular/cdk/a11y';
 import { computed, Directive, ElementRef, HostListener, inject } from '@angular/core';
 import { NgpButton } from 'ng-primitives/button';
 import { injectDateTimeAdapter } from 'ng-primitives/date-time';
-import { injectDatePickerCellDate } from '../date-picker-cell/date-picker-cell.token';
+import { injectDatePickerCellDate } from '../date-picker-cell-render/date-picker-cell-render.token';
 import { injectDatePicker } from '../date-picker/date-picker.token';
 import { NgpDatePickerDateButtonToken } from './date-picker-date-button.token';
 
@@ -59,8 +59,9 @@ export class NgpDatePickerDateButton<T> {
 
   /**
    * Determine if this is the selected date.
+   * @internal
    */
-  protected readonly selected = computed(() => {
+  readonly selected = computed(() => {
     const selected = this.datePicker.date();
     return selected && this.dateTimeAdapter.isSameDay(this.date, selected);
   });
@@ -81,8 +82,9 @@ export class NgpDatePickerDateButton<T> {
 
   /**
    * Determine if this date is disabled.
+   * @internal
    */
-  protected readonly disabled = computed(
+  readonly disabled = computed(
     () => this.datePicker.disabled() || this.datePicker.dateDisabled()(this.date),
   );
 
