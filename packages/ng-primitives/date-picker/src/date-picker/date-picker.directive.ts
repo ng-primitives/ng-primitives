@@ -28,6 +28,9 @@ import { NgpDatePickerToken } from './date-picker.token';
   selector: '[ngpDatePicker]',
   exportAs: 'ngpDatePicker',
   providers: [{ provide: NgpDatePickerToken, useExisting: NgpDatePicker }],
+  host: {
+    '[attr.data-disabled]': 'disabled()',
+  },
 })
 export class NgpDatePicker<T> {
   /**

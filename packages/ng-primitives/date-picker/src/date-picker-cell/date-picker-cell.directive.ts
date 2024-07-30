@@ -17,8 +17,10 @@ import { NgpDatePickerCellToken } from './date-picker-cell.token';
   providers: [{ provide: NgpDatePickerCellToken, useExisting: NgpDatePickerCell }],
   host: {
     role: 'gridcell',
+    '[attr.data-selected]': 'datePickerButton()?.selected()',
     '[attr.aria-selected]': 'datePickerButton()?.selected()',
     '[attr.aria-disabled]': 'datePickerButton()?.disabled()',
+    '[attr.data-disabled]': 'datePickerButton()?.disabled()',
     '[attr.aria-labelledby]': 'labelId()',
   },
 })

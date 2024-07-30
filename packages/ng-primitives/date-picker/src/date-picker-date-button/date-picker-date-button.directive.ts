@@ -9,6 +9,7 @@ import { FocusMonitor } from '@angular/cdk/a11y';
 import { computed, Directive, ElementRef, HostListener, inject } from '@angular/core';
 import { NgpButton } from 'ng-primitives/button';
 import { injectDateTimeAdapter } from 'ng-primitives/date-time';
+import { NgpCanDisable, NgpDisabledToken } from 'ng-primitives/internal';
 import { injectDatePickerCellDate } from '../date-picker-cell-render/date-picker-cell-render.token';
 import { injectDatePicker } from '../date-picker/date-picker.token';
 import { NgpDatePickerDateButtonToken } from './date-picker-date-button.token';
@@ -17,7 +18,10 @@ import { NgpDatePickerDateButtonToken } from './date-picker-date-button.token';
   standalone: true,
   selector: '[ngpDatePickerDateButton]',
   exportAs: 'ngpDatePickerDateButton',
-  providers: [{ provide: NgpDatePickerDateButtonToken, useExisting: NgpDatePickerDateButton }],
+  providers: [
+    { provide: NgpDatePickerDateButtonToken, useExisting: NgpDatePickerDateButton },
+    { provide: NgpDisabledToken, useExisting: NgpDatePickerDateButton },
+  ],
   host: {
     '[attr.role]': '!isButton ? "button" : null',
     '[attr.tabindex]': 'focused() ? 0 : -1',
@@ -29,7 +33,12 @@ import { NgpDatePickerDateButtonToken } from './date-picker-date-button.token';
   },
   hostDirectives: [NgpButton],
 })
-export class NgpDatePickerDateButton<T> {
+export class NgpDatePickerDateButton<T> implements NgpCanDisable {
+  /**
+   * Access the element ref.
+   */
+  private readonly elementRef = inject<ElementRef<HTMLElement>>(ElementRef);
+
   /**
    * Access the focus monitor.
    */
@@ -84,14 +93,24 @@ export class NgpDatePickerDateButton<T> {
    * Determine if this date is disabled.
    * @internal
    */
-  readonly disabled = computed(
-    () => this.datePicker.disabled() || this.datePicker.dateDisabled()(this.date),
-  );
+  readonly disabled = computed(() => {
+    const min = this.datePicker.min();
+    const max = this.datePicker.max();
 
-  /**
-   * Get the native element.
-   */
-  private readonly elementRef = inject<ElementRef<HTMLElement>>(ElementRef);
+    if (this.datePicker.disabled() || this.datePicker.dateDisabled()(this.date)) {
+      return true;
+    }
+
+    if (min && this.dateTimeAdapter.compare(this.dateTimeAdapter.startOfDay(this.date), min) < 0) {
+      return true;
+    }
+
+    if (max && this.dateTimeAdapter.compare(this.dateTimeAdapter.startOfDay(this.date), max) > 0) {
+      return true;
+    }
+
+    return false;
+  });
 
   /**
    * Determine if the element is a button.
@@ -138,11 +157,19 @@ export class NgpDatePickerDateButton<T> {
   protected focusPrevious(event: KeyboardEvent): void {
     event.preventDefault();
     event.stopPropagation();
-    // TODO: bidi support
-    this.focusDate(
-      this.dateTimeAdapter.subtract(this.datePicker.focusedDate(), { days: 1 }),
-      'backward',
-    );
+
+    // in rtl, the arrow keys are reversed.
+    if (this.getDirection() === 'rtl') {
+      this.focusDate(
+        this.dateTimeAdapter.add(this.datePicker.focusedDate(), { days: 1 }),
+        'forward',
+      );
+    } else {
+      this.focusDate(
+        this.dateTimeAdapter.subtract(this.datePicker.focusedDate(), { days: 1 }),
+        'backward',
+      );
+    }
   }
 
   /**
@@ -152,9 +179,19 @@ export class NgpDatePickerDateButton<T> {
   protected focusNext(event: KeyboardEvent): void {
     event.preventDefault();
     event.stopPropagation();
-    // TODO: bidi support
 
-    this.focusDate(this.dateTimeAdapter.add(this.datePicker.focusedDate(), { days: 1 }), 'forward');
+    // in rtl, the arrow keys are reversed.
+    if (this.getDirection() === 'rtl') {
+      this.focusDate(
+        this.dateTimeAdapter.subtract(this.datePicker.focusedDate(), { days: 1 }),
+        'backward',
+      );
+    } else {
+      this.focusDate(
+        this.dateTimeAdapter.add(this.datePicker.focusedDate(), { days: 1 }),
+        'forward',
+      );
+    }
   }
 
   /**
@@ -189,10 +226,7 @@ export class NgpDatePickerDateButton<T> {
   protected focusFirst(event: KeyboardEvent): void {
     event.preventDefault();
     event.stopPropagation();
-    this.focusDate(
-      this.dateTimeAdapter.getFirstDayOfMonth(this.datePicker.focusedDate()),
-      'forward',
-    );
+    this.focusDate(this.dateTimeAdapter.startOfMonth(this.datePicker.focusedDate()), 'forward');
   }
 
   /**
@@ -202,10 +236,7 @@ export class NgpDatePickerDateButton<T> {
   protected focusLast(event: KeyboardEvent): void {
     event.preventDefault();
     event.stopPropagation();
-    this.focusDate(
-      this.dateTimeAdapter.getLastDayOfMonth(this.datePicker.focusedDate()),
-      'backward',
-    );
+    this.focusDate(this.dateTimeAdapter.endOfMonth(this.datePicker.focusedDate()), 'backward');
   }
 
   /**
@@ -218,12 +249,10 @@ export class NgpDatePickerDateButton<T> {
 
     const date = this.dateTimeAdapter.getDate(this.datePicker.focusedDate());
 
-    let previousMonthTarget = this.dateTimeAdapter.getFirstDayOfMonth(
-      this.datePicker.focusedDate(),
-    );
+    let previousMonthTarget = this.dateTimeAdapter.startOfMonth(this.datePicker.focusedDate());
     previousMonthTarget = this.dateTimeAdapter.subtract(previousMonthTarget, { months: 1 });
 
-    const lastDay = this.dateTimeAdapter.getLastDayOfMonth(previousMonthTarget);
+    const lastDay = this.dateTimeAdapter.endOfMonth(previousMonthTarget);
 
     // if we are on a date that does not exist in the previous month, we should focus the last day of the month.
     if (date > this.dateTimeAdapter.getDate(lastDay)) {
@@ -244,10 +273,10 @@ export class NgpDatePickerDateButton<T> {
 
     const date = this.dateTimeAdapter.getDate(this.datePicker.focusedDate());
 
-    let nextMonthTarget = this.dateTimeAdapter.getFirstDayOfMonth(this.datePicker.focusedDate());
+    let nextMonthTarget = this.dateTimeAdapter.startOfMonth(this.datePicker.focusedDate());
     nextMonthTarget = this.dateTimeAdapter.add(nextMonthTarget, { months: 1 });
 
-    const lastDay = this.dateTimeAdapter.getLastDayOfMonth(nextMonthTarget);
+    const lastDay = this.dateTimeAdapter.endOfMonth(nextMonthTarget);
 
     // if we are on a date that does not exist in the next month, we should focus the last day of the month.
     if (date > this.dateTimeAdapter.getDate(lastDay)) {
@@ -260,5 +289,12 @@ export class NgpDatePickerDateButton<T> {
 
   private focusDate(date: T, direction: 'forward' | 'backward'): void {
     this.datePicker.setFocusedDate(date, 'keyboard', direction);
+  }
+
+  /**
+   * Get the direction of the element.
+   */
+  private getDirection(): 'ltr' | 'rtl' {
+    return getComputedStyle(this.elementRef.nativeElement).direction === 'rtl' ? 'rtl' : 'ltr';
   }
 }

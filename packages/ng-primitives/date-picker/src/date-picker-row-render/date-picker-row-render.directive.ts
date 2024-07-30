@@ -59,8 +59,8 @@ export class NgpDatePickerRowRender<T> implements OnDestroy {
     const days: T[] = [];
 
     // Get the first and last day of the month.
-    let firstDay = this.dateTimeAdapter.getFirstDayOfMonth(month);
-    let lastDay = this.dateTimeAdapter.getLastDayOfMonth(month);
+    let firstDay = this.dateTimeAdapter.startOfMonth(month);
+    let lastDay = this.dateTimeAdapter.endOfMonth(month);
 
     // find the first and last day of visible in the grid.
     firstDay = this.dateTimeAdapter.subtract(firstDay, {

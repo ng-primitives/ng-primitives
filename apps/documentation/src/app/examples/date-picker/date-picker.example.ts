@@ -32,11 +32,11 @@ import {
   template: `
     <div [(ngpDatePickerDate)]="date" [(ngpDatePickerFocusedDate)]="focused" ngpDatePicker>
       <div class="date-picker-header">
-        <button ngpDatePickerPreviousMonth type="button" aria-label="previous month">
+        <button ngpDatePickerPreviousMonth aria-label="previous month">
           <ng-icon name="heroChevronLeftMini" />
         </button>
         <h2 ngpDatePickerLabel>{{ label() }}</h2>
-        <button ngpDatePickerNextMonth type="button" aria-label="next month">
+        <button ngpDatePickerNextMonth aria-label="next month">
           <ng-icon name="heroChevronRightMini" />
         </button>
       </div>
@@ -127,6 +127,12 @@ import {
       background-color: rgba(0, 0, 0, 0.1);
     }
 
+    [ngpDatePickerPreviousMonth][data-disabled='true'],
+    [ngpDatePickerNextMonth][data-disabled='true'] {
+      cursor: not-allowed;
+      color: rgba(0, 0, 0, 0.25);
+    }
+
     [ngpDatePickerDateButton] {
       all: unset;
       width: 40px;
@@ -136,6 +142,10 @@ import {
       justify-content: center;
       border-radius: 8px;
       cursor: pointer;
+    }
+
+    [ngpDatePickerDateButton][data-today='true'] {
+      color: rgb(59, 130, 246);
     }
 
     [ngpDatePickerDateButton][data-hover='true'] {
@@ -163,6 +173,11 @@ import {
     [ngpDatePickerDateButton][data-selected='true'][data-outside-month='true'] {
       background-color: rgb(0, 0, 0, 0.1);
       color: rgba(0, 0, 0, 0.2);
+    }
+
+    [ngpDatePickerDateButton][data-disabled='true'] {
+      cursor: not-allowed;
+      color: rgba(0, 0, 0, 0.25);
     }
   `,
 })

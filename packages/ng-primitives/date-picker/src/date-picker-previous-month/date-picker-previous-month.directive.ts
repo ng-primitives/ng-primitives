@@ -5,9 +5,10 @@
  * This source code is licensed under the Apache 2.0 license found in the
  * LICENSE file in the root directory of this source tree.
  */
-import { computed, Directive, HostListener } from '@angular/core';
+import { computed, Directive, ElementRef, HostListener, inject } from '@angular/core';
 import { NgpButton } from 'ng-primitives/button';
 import { injectDateTimeAdapter } from 'ng-primitives/date-time';
+import { NgpCanDisable, NgpDisabledToken } from 'ng-primitives/internal';
 import { injectDatePicker } from '../date-picker/date-picker.token';
 import { NgpDatePickerPreviousMonthToken } from './date-picker-previous-month.token';
 
@@ -17,10 +18,22 @@ import { NgpDatePickerPreviousMonthToken } from './date-picker-previous-month.to
   exportAs: 'ngpDatePickerPreviousMonth',
   providers: [
     { provide: NgpDatePickerPreviousMonthToken, useExisting: NgpDatePickerPreviousMonth },
+    { provide: NgpDisabledToken, useExisting: NgpDatePickerPreviousMonth },
   ],
   hostDirectives: [NgpButton],
+  host: {
+    '[attr.data-disabled]': 'disabled()',
+    '[attr.aria-disabled]': 'disabled()',
+    '[attr.disabled]': 'isButton && disabled() ? true : null',
+    '[attr.type]': 'isButton ? "button" : null',
+  },
 })
-export class NgpDatePickerPreviousMonth<T> {
+export class NgpDatePickerPreviousMonth<T> implements NgpCanDisable {
+  /**
+   * Access the element ref.
+   */
+  private readonly elementRef = inject<ElementRef<HTMLElement>>(ElementRef);
+
   /**
    * Access the date time adapter.
    */
@@ -32,14 +45,36 @@ export class NgpDatePickerPreviousMonth<T> {
   private readonly datePicker = injectDatePicker<T>();
 
   /**
-   * Determine if the next month is disabled.
+   * Determine if this is a button element
    */
-  protected readonly disabled = computed(() => {
+  protected readonly isButton = this.elementRef.nativeElement.tagName.toLowerCase() === 'button';
+
+  /**
+   * Determine if the next month is disabled.
+   * @internal
+   */
+  readonly disabled = computed(() => {
     if (this.datePicker.disabled()) {
       return true;
     }
 
-    // TODO: Implement the logic to determine if the next month is disabled.
+    const minDate = this.datePicker.min();
+
+    // if the next month is out of bounds, disable it.
+    const firstDay = this.dateTimeAdapter.set(
+      this.dateTimeAdapter.startOfMonth(this.datePicker.focusedDate()),
+      {
+        hours: 0,
+        minutes: 0,
+        seconds: 0,
+        milliseconds: 0,
+      },
+    );
+
+    // if there is a min date and it is equal to or after the first day of the month, disable it.
+    if (minDate && this.dateTimeAdapter.compare(minDate, firstDay) >= 0) {
+      return true;
+    }
 
     return false;
   });
@@ -64,6 +99,6 @@ export class NgpDatePickerPreviousMonth<T> {
       milliseconds: 0,
     });
 
-    this.datePicker.setFocusedDate(date);
+    this.datePicker.setFocusedDate(date, 'mouse', 'backward');
   }
 }

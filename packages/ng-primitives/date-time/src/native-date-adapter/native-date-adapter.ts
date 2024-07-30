@@ -186,14 +186,28 @@ export class NgpNativeDateTimeAdapter implements NgpDateTimeAdapter<Date> {
   /**
    * Get the first day of the month.
    */
-  getFirstDayOfMonth(date: Date): Date {
+  startOfMonth(date: Date): Date {
     return new Date(date.getFullYear(), date.getMonth(), 1);
   }
 
   /**
    * Get the last day of the month.
    */
-  getLastDayOfMonth(date: Date): Date {
+  endOfMonth(date: Date): Date {
     return new Date(date.getFullYear(), date.getMonth() + 1, 0);
+  }
+
+  /**
+   * Get the start of the day.
+   */
+  startOfDay(date: Date): Date {
+    return new Date(date.getFullYear(), date.getMonth(), date.getDate());
+  }
+
+  /**
+   * Get the end of the day.
+   */
+  endOfDay(date: Date): Date {
+    return new Date(date.getFullYear(), date.getMonth(), date.getDate(), 23, 59, 59, 999);
   }
 }

@@ -114,12 +114,22 @@ export interface NgpDateTimeAdapter<T> {
   /**
    * Get the first day of the month.
    */
-  getFirstDayOfMonth(date: T): T;
+  startOfMonth(date: T): T;
 
   /**
    * Get the last day of the month.
    */
-  getLastDayOfMonth(date: T): T;
+  endOfMonth(date: T): T;
+
+  /**
+   * Get the start of the day.
+   */
+  startOfDay(date: T): T;
+
+  /**
+   * Get the end of the day.
+   */
+  endOfDay(date: T): T;
 }
 
 export interface NgpDuration {

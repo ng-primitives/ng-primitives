@@ -7,6 +7,7 @@
  */
 import { Directive, input } from '@angular/core';
 import { uniqueId } from 'ng-primitives/utils';
+import { injectDatePicker } from '../date-picker/date-picker.token';
 import { NgpDatePickerLabelToken } from './date-picker-label.token';
 
 @Directive({
@@ -17,9 +18,15 @@ import { NgpDatePickerLabelToken } from './date-picker-label.token';
   host: {
     '[id]': 'id()',
     '[attr.aria-live]': 'ariaLive()',
+    '[attr.data-disabled]': 'datePicker.disabled()',
   },
 })
 export class NgpDatePickerLabel {
+  /**
+   * Access the date picker.
+   */
+  protected readonly datePicker = injectDatePicker<unknown>();
+
   /**
    * Define a unique id for the label.
    */
