@@ -19,7 +19,7 @@ import {
   signal,
 } from '@angular/core';
 import { injectDisabled } from 'ng-primitives/internal';
-import { onChange } from '../../../utils/src';
+import { onChange } from 'ng-primitives/utils';
 import { NgpHoverToken } from './hover.token';
 
 /**
