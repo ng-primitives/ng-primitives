@@ -116,7 +116,7 @@ export class NgpDatePickerDateButton<T> {
     }
 
     this.datePicker.date.set(this.date);
-    this.datePicker.setFocusedDate(this.date);
+    this.datePicker.setFocusedDate(this.date, 'mouse', 'forward');
   }
 
   /**
@@ -137,7 +137,10 @@ export class NgpDatePickerDateButton<T> {
     event.preventDefault();
     event.stopPropagation();
     // TODO: bidi support
-    this.focusDate(this.dateTimeAdapter.subtract(this.datePicker.focusedDate(), { days: 1 }));
+    this.focusDate(
+      this.dateTimeAdapter.subtract(this.datePicker.focusedDate(), { days: 1 }),
+      'backward',
+    );
   }
 
   /**
@@ -149,7 +152,7 @@ export class NgpDatePickerDateButton<T> {
     event.stopPropagation();
     // TODO: bidi support
 
-    this.focusDate(this.dateTimeAdapter.add(this.datePicker.focusedDate(), { days: 1 }));
+    this.focusDate(this.dateTimeAdapter.add(this.datePicker.focusedDate(), { days: 1 }), 'forward');
   }
 
   /**
@@ -160,7 +163,10 @@ export class NgpDatePickerDateButton<T> {
     event.preventDefault();
     event.stopPropagation();
 
-    this.focusDate(this.dateTimeAdapter.subtract(this.datePicker.focusedDate(), { days: 7 }));
+    this.focusDate(
+      this.dateTimeAdapter.subtract(this.datePicker.focusedDate(), { days: 7 }),
+      'backward',
+    );
   }
 
   /**
@@ -171,11 +177,86 @@ export class NgpDatePickerDateButton<T> {
     event.preventDefault();
     event.stopPropagation();
 
-    this.focusDate(this.dateTimeAdapter.add(this.datePicker.focusedDate(), { days: 7 }));
+    this.focusDate(this.dateTimeAdapter.add(this.datePicker.focusedDate(), { days: 7 }), 'forward');
   }
 
-  private focusDate(date: T): void {
-    // TODO: check if the date is disabled or before the min date or after the max date
-    this.datePicker.setFocusedDate(date, 'keyboard');
+  /**
+   * Focus the first date of the month.
+   */
+  @HostListener('keydown.home', ['$event'])
+  protected focusFirst(event: KeyboardEvent): void {
+    event.preventDefault();
+    event.stopPropagation();
+    this.focusDate(
+      this.dateTimeAdapter.getFirstDayOfMonth(this.datePicker.focusedDate()),
+      'forward',
+    );
+  }
+
+  /**
+   * Focus the last date of the month.
+   */
+  @HostListener('keydown.end', ['$event'])
+  protected focusLast(event: KeyboardEvent): void {
+    event.preventDefault();
+    event.stopPropagation();
+    this.focusDate(
+      this.dateTimeAdapter.getLastDayOfMonth(this.datePicker.focusedDate()),
+      'backward',
+    );
+  }
+
+  /**
+   * Focus the same date in the previous month.
+   */
+  @HostListener('keydown.pageUp', ['$event'])
+  protected focusPreviousMonth(event: KeyboardEvent): void {
+    event.preventDefault();
+    event.stopPropagation();
+
+    const date = this.dateTimeAdapter.getDate(this.datePicker.focusedDate());
+
+    let previousMonthTarget = this.dateTimeAdapter.getFirstDayOfMonth(
+      this.datePicker.focusedDate(),
+    );
+    previousMonthTarget = this.dateTimeAdapter.subtract(previousMonthTarget, { months: 1 });
+
+    const lastDay = this.dateTimeAdapter.getLastDayOfMonth(previousMonthTarget);
+
+    // if we are on a date that does not exist in the previous month, we should focus the last day of the month.
+    if (date > this.dateTimeAdapter.getDate(lastDay)) {
+      this.focusDate(lastDay, 'forward');
+      return;
+    } else {
+      this.focusDate(this.dateTimeAdapter.set(previousMonthTarget, { days: date }), 'forward');
+    }
+  }
+
+  /**
+   * Focus the same date in the next month.
+   */
+  @HostListener('keydown.pageDown', ['$event'])
+  protected focusNextMonth(event: KeyboardEvent): void {
+    event.preventDefault();
+    event.stopPropagation();
+
+    const date = this.dateTimeAdapter.getDate(this.datePicker.focusedDate());
+
+    let nextMonthTarget = this.dateTimeAdapter.getFirstDayOfMonth(this.datePicker.focusedDate());
+    nextMonthTarget = this.dateTimeAdapter.add(nextMonthTarget, { months: 1 });
+
+    const lastDay = this.dateTimeAdapter.getLastDayOfMonth(nextMonthTarget);
+
+    // if we are on a date that does not exist in the next month, we should focus the last day of the month.
+    if (date > this.dateTimeAdapter.getDate(lastDay)) {
+      this.focusDate(lastDay, 'backward');
+      return;
+    } else {
+      this.focusDate(this.dateTimeAdapter.set(nextMonthTarget, { days: date }), 'backward');
+    }
+  }
+
+  private focusDate(date: T, direction: 'forward' | 'backward'): void {
+    this.datePicker.setFocusedDate(date, 'keyboard', direction);
   }
 }

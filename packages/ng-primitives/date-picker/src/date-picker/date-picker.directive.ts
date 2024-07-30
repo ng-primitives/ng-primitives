@@ -99,7 +99,37 @@ export class NgpDatePicker<T> {
    * @param date The date to focus.
    * @internal
    */
-  setFocusedDate(date: T, origin: FocusOrigin = 'mouse'): void {
+  setFocusedDate(date: T, origin: FocusOrigin = 'mouse', direction: 'forward' | 'backward'): void {
+    if (this.disabled()) {
+      return;
+    }
+
+    const min = this.min();
+    const max = this.max();
+
+    if (min && this.dateTimeAdapter.isBefore(date, min)) {
+      date = min;
+    }
+
+    if (max && this.dateTimeAdapter.isAfter(date, max)) {
+      date = max;
+    }
+
+    // if the date is disabled, find the next available date in the specified direction.
+    if (this.dateDisabled()(date)) {
+      let nextDate = this.dateTimeAdapter.add(date, { days: direction === 'forward' ? 1 : -1 });
+
+      while (
+        this.dateDisabled()(nextDate) ||
+        (min && this.dateTimeAdapter.isBefore(nextDate, min)) ||
+        (max && this.dateTimeAdapter.isAfter(nextDate, max))
+      ) {
+        nextDate = this.dateTimeAdapter.add(nextDate, { days: direction === 'forward' ? 1 : -1 });
+      }
+
+      date = nextDate;
+    }
+
     this.focusedDate.set(date);
 
     if (origin === 'keyboard') {
