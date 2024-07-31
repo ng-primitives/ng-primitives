@@ -11,9 +11,7 @@ import {
   Directive,
   HostListener,
   Injectable,
-  OnChanges,
   PLATFORM_ID,
-  SimpleChanges,
   booleanAttribute,
   inject,
   input,
@@ -21,6 +19,7 @@ import {
   signal,
 } from '@angular/core';
 import { injectDisabled } from 'ng-primitives/internal';
+import { onChange } from 'ng-primitives/utils';
 import { NgpHoverToken } from './hover.token';
 
 /**
@@ -89,7 +88,7 @@ class GlobalPointerEvents {
     '[attr.data-hover]': 'hovered()',
   },
 })
-export class NgpHover implements OnChanges {
+export class NgpHover {
   /**
    * Access the global pointer events handler.
    */
@@ -133,13 +132,14 @@ export class NgpHover implements OnChanges {
    */
   readonly hoverChange = output<boolean>({ alias: 'ngpHover' });
 
-  ngOnChanges(changes: SimpleChanges): void {
-    if ('disabled' in changes) {
-      // if the component is suddenly disabled and is currently hovered
-      // switch to the unhovered state.
-      if (changes['disabled'].currentValue === true) {
-        this.onHoverEnd('mouse');
-      }
+  constructor() {
+    onChange(this.disabled, this.reset.bind(this));
+    onChange(this.isDisabled, this.reset.bind(this));
+  }
+
+  private reset(shouldReset?: boolean | null): void {
+    if (shouldReset) {
+      this.onHoverEnd('mouse');
     }
   }
 

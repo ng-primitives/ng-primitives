@@ -6,12 +6,12 @@
  * LICENSE file in the root directory of this source tree.
  */
 import { render } from '@testing-library/angular';
-import { Ngp<%= className %> } from './<%= fileName %>.directive';
+import { NgpDatePickerNextMonth } from './date-picker-next-month.directive';
 
-describe('Ngp<%= className %>', () => {
+describe('NgpDatePickerNextMonth', () => {
   it('should initialise correctly', async () => {
-    const container = await render(`<div ngp<%= className %>></div>`, {
-      imports: [Ngp<%= className %>],
+    const container = await render(`<div ngpDatePickerNextMonth></div>`, {
+      imports: [NgpDatePickerNextMonth],
     });
   });
 });

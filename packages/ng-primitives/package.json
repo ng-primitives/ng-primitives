@@ -13,6 +13,11 @@
   "dependencies": {
     "@nx/devkit": "19.3.1"
   },
+  "ng-update": {
+    "packageGroup": [
+      "@ng-primitives/luxon-date-adapter"
+    ]
+  },
   "sideEffects": false,
   "generators": "./generators.json",
   "schematics": "./generators.json"

@@ -1,0 +1,32 @@
+{
+  "name": "luxon-date-adapter",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "packages/luxon-date-adapter/src",
+  "prefix": "ngp",
+  "projectType": "library",
+  "tags": [],
+  "targets": {
+    "build": {
+      "executor": "@nx/angular:package",
+      "outputs": ["{workspaceRoot}/dist/{projectRoot}"],
+      "options": {
+        "project": "packages/luxon-date-adapter/ng-package.json"
+      },
+      "configurations": {
+        "production": {
+          "tsConfig": "packages/luxon-date-adapter/tsconfig.lib.prod.json"
+        },
+        "development": {
+          "tsConfig": "packages/luxon-date-adapter/tsconfig.lib.json"
+        }
+      },
+      "defaultConfiguration": "production"
+    },
+    "test": {
+      "executor": "nx:noop"
+    },
+    "lint": {
+      "executor": "@nx/eslint:lint"
+    }
+  }
+}
