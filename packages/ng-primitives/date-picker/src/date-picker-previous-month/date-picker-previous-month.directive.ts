@@ -7,7 +7,7 @@
  */
 import { computed, Directive, ElementRef, HostListener, inject } from '@angular/core';
 import { NgpButton } from 'ng-primitives/button';
-import { injectDateTimeAdapter } from 'ng-primitives/date-time';
+import { injectDateAdapter } from 'ng-primitives/date-time';
 import { NgpCanDisable, NgpDisabledToken } from 'ng-primitives/internal';
 import { injectDatePicker } from '../date-picker/date-picker.token';
 import { NgpDatePickerPreviousMonthToken } from './date-picker-previous-month.token';
@@ -35,9 +35,9 @@ export class NgpDatePickerPreviousMonth<T> implements NgpCanDisable {
   private readonly elementRef = inject<ElementRef<HTMLElement>>(ElementRef);
 
   /**
-   * Access the date time adapter.
+   * Access the date adapter.
    */
-  private readonly dateTimeAdapter = injectDateTimeAdapter<T>();
+  private readonly dateAdapter = injectDateAdapter<T>();
 
   /**
    * Access the date picker.
@@ -61,18 +61,18 @@ export class NgpDatePickerPreviousMonth<T> implements NgpCanDisable {
     const minDate = this.datePicker.min();
 
     // if the next month is out of bounds, disable it.
-    const firstDay = this.dateTimeAdapter.set(
-      this.dateTimeAdapter.startOfMonth(this.datePicker.focusedDate()),
+    const firstDay = this.dateAdapter.set(
+      this.dateAdapter.startOfMonth(this.datePicker.focusedDate()),
       {
-        hours: 0,
-        minutes: 0,
-        seconds: 0,
-        milliseconds: 0,
+        hour: 0,
+        minute: 0,
+        second: 0,
+        millisecond: 0,
       },
     );
 
     // if there is a min date and it is equal to or after the first day of the month, disable it.
-    if (minDate && this.dateTimeAdapter.compare(minDate, firstDay) >= 0) {
+    if (minDate && this.dateAdapter.compare(minDate, firstDay) >= 0) {
       return true;
     }
 
@@ -90,13 +90,13 @@ export class NgpDatePickerPreviousMonth<T> implements NgpCanDisable {
 
     // move focus to the first day of the previous month.
     let date = this.datePicker.focusedDate();
-    date = this.dateTimeAdapter.subtract(date, { months: 1 });
-    date = this.dateTimeAdapter.set(date, {
-      days: 1,
-      hours: 0,
-      minutes: 0,
-      seconds: 0,
-      milliseconds: 0,
+    date = this.dateAdapter.subtract(date, { months: 1 });
+    date = this.dateAdapter.set(date, {
+      day: 1,
+      hour: 0,
+      minute: 0,
+      second: 0,
+      millisecond: 0,
     });
 
     this.datePicker.setFocusedDate(date, 'mouse', 'backward');

@@ -5,23 +5,23 @@
  * This source code is licensed under the Apache 2.0 license found in the
  * LICENSE file in the root directory of this source tree.
  */
-import { NgpDateTimeAdapter, NgpDuration } from '../date-time-adapter/date-time-adapter';
+import { NgpDateAdapter, NgpDateUnits, NgpDuration } from '../date-adapter/date-time-adapter';
 
-export class NgpNativeDateTimeAdapter implements NgpDateTimeAdapter<Date> {
+export class NgpNativeDateAdapter implements NgpDateAdapter<Date> {
   /**
    * Create a new date time object.
    */
-  create({ days, hours, minutes, months, seconds, years, milliseconds }: NgpDuration): Date {
+  create({ day, hour, minute, month, second, year, millisecond }: NgpDateUnits): Date {
     const now = new Date();
 
     return new Date(
-      years ?? now.getFullYear(),
-      months ?? now.getMonth(),
-      days ?? now.getDate(),
-      hours ?? now.getHours(),
-      minutes ?? now.getMinutes(),
-      seconds ?? now.getSeconds(),
-      milliseconds ?? now.getMilliseconds(),
+      year ?? now.getFullYear(),
+      month ?? now.getMonth(),
+      day ?? now.getDate(),
+      hour ?? now.getHours(),
+      minute ?? now.getMinutes(),
+      second ?? now.getSeconds(),
+      millisecond ?? now.getMilliseconds(),
     );
   }
 
@@ -35,15 +35,15 @@ export class NgpNativeDateTimeAdapter implements NgpDateTimeAdapter<Date> {
   /**
    * Set the year of the date time object based on a duration.
    */
-  set(date: Date, duration: NgpDuration): Date {
+  set(date: Date, values: NgpDateUnits): Date {
     return new Date(
-      duration.years ?? date.getFullYear(),
-      duration.months ?? date.getMonth(),
-      duration.days ?? date.getDate(),
-      duration.hours ?? date.getHours(),
-      duration.minutes ?? date.getMinutes(),
-      duration.seconds ?? date.getSeconds(),
-      duration.milliseconds ?? date.getMilliseconds(),
+      values.year ?? date.getFullYear(),
+      values.month ?? date.getMonth(),
+      values.day ?? date.getDate(),
+      values.hour ?? date.getHours(),
+      values.minute ?? date.getMinutes(),
+      values.second ?? date.getSeconds(),
+      values.millisecond ?? date.getMilliseconds(),
     );
   }
 

@@ -15,7 +15,7 @@ import {
   TemplateRef,
   ViewContainerRef,
 } from '@angular/core';
-import { injectDateTimeAdapter } from 'ng-primitives/date-time';
+import { injectDateAdapter } from 'ng-primitives/date-time';
 import { onChange } from 'ng-primitives/utils';
 import { injectDatePicker } from '../date-picker/date-picker.token';
 import {
@@ -31,9 +31,9 @@ import {
 })
 export class NgpDatePickerRowRender<T> implements OnDestroy {
   /**
-   * Access the date time adapter.
+   * Access the date adapter.
    */
-  private readonly dateTimeAdapter = injectDateTimeAdapter<T>();
+  private readonly dateAdapter = injectDateAdapter<T>();
 
   /**
    * Access the date picker.
@@ -59,21 +59,21 @@ export class NgpDatePickerRowRender<T> implements OnDestroy {
     const days: T[] = [];
 
     // Get the first and last day of the month.
-    let firstDay = this.dateTimeAdapter.startOfMonth(month);
-    let lastDay = this.dateTimeAdapter.endOfMonth(month);
+    let firstDay = this.dateAdapter.startOfMonth(month);
+    let lastDay = this.dateAdapter.endOfMonth(month);
 
     // find the first and last day of visible in the grid.
-    firstDay = this.dateTimeAdapter.subtract(firstDay, {
-      days: this.dateTimeAdapter.getDay(firstDay),
+    firstDay = this.dateAdapter.subtract(firstDay, {
+      days: this.dateAdapter.getDay(firstDay),
     });
-    lastDay = this.dateTimeAdapter.add(lastDay, {
-      days: 6 - this.dateTimeAdapter.getDay(lastDay),
+    lastDay = this.dateAdapter.add(lastDay, {
+      days: 6 - this.dateAdapter.getDay(lastDay),
     });
 
     // collect all the days to display.
     while (firstDay <= lastDay) {
       days.push(firstDay);
-      firstDay = this.dateTimeAdapter.add(firstDay, { days: 1 });
+      firstDay = this.dateAdapter.add(firstDay, { days: 1 });
     }
 
     return days;
@@ -101,7 +101,7 @@ export class NgpDatePickerRowRender<T> implements OnDestroy {
 
     // re-render the rows when the month changes.
     onChange(this.datePicker.focusedDate, (date, previousDate) => {
-      if (!date || !previousDate || !this.dateTimeAdapter.isSameMonth(date, previousDate)) {
+      if (!date || !previousDate || !this.dateAdapter.isSameMonth(date, previousDate)) {
         this.renderRows();
       }
     });

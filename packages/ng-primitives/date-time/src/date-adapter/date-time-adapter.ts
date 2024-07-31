@@ -10,11 +10,11 @@
  * An abstraction that can be used to create and modify date time objects
  * immutably regardless of the underlying implementation.
  */
-export interface NgpDateTimeAdapter<T> {
+export interface NgpDateAdapter<T> {
   /**
    * Create a new date time object.
    */
-  create(options: NgpDuration): T;
+  create(values: NgpDateUnits): T;
 
   /**
    * Create a new date with the current date and time.
@@ -24,7 +24,7 @@ export interface NgpDateTimeAdapter<T> {
   /**
    * Set the year of the date time object based on a duration.
    */
-  set(date: T, duration: NgpDuration): T;
+  set(date: T, values: NgpDateUnits): T;
 
   /**
    * Add a duration to the date time object.
@@ -130,6 +130,43 @@ export interface NgpDateTimeAdapter<T> {
    * Get the end of the day.
    */
   endOfDay(date: T): T;
+}
+
+export interface NgpDateUnits {
+  /**
+   * The year.
+   */
+  year?: number;
+
+  /**
+   * The month.
+   */
+  month?: number;
+
+  /**
+   * The day.
+   */
+  day?: number;
+
+  /**
+   * The hour.
+   */
+  hour?: number;
+
+  /**
+   * The minute.
+   */
+  minute?: number;
+
+  /**
+   * The second.
+   */
+  second?: number;
+
+  /**
+   * The millisecond.
+   */
+  millisecond?: number;
 }
 
 export interface NgpDuration {

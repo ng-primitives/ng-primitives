@@ -67,7 +67,7 @@ The outermost container for the date picker.
 - Exported As: `ngpDatePicker`
 
 <response-field name="ngpDatePickerDate" type="T">
-  Define the selected date. The type `T` is a generic type that represents the date value which can be a `Date` or a custom Date object handled by a `NgpDateTimeAdapter`.
+  Define the selected date. The type `T` is a generic type that represents the date value which can be a `Date` or a custom Date object handled by a `NgpDateAdapter`.
 </response-field>
 
 <response-field name="ngpDatePickerMin" type="T">

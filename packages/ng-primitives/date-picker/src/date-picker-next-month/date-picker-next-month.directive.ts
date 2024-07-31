@@ -7,7 +7,7 @@
  */
 import { computed, Directive, ElementRef, HostListener, inject } from '@angular/core';
 import { NgpButton } from 'ng-primitives/button';
-import { injectDateTimeAdapter } from 'ng-primitives/date-time';
+import { injectDateAdapter } from 'ng-primitives/date-time';
 import { NgpCanDisable, NgpDisabledToken } from 'ng-primitives/internal';
 import { injectDatePicker } from '../date-picker/date-picker.token';
 import { NgpDatePickerNextMonthToken } from './date-picker-next-month.token';
@@ -35,9 +35,9 @@ export class NgpDatePickerNextMonth<T> implements NgpCanDisable {
   private readonly elementRef = inject<ElementRef<HTMLElement>>(ElementRef);
 
   /**
-   * Access the date time adapter.
+   * Access the date adapter.
    */
-  private readonly dateTimeAdapter = injectDateTimeAdapter<T>();
+  private readonly dateAdapter = injectDateAdapter<T>();
 
   /**
    * Access the date picker.
@@ -59,18 +59,18 @@ export class NgpDatePickerNextMonth<T> implements NgpCanDisable {
     }
 
     const maxDate = this.datePicker.max();
-    const lastDay = this.dateTimeAdapter.set(
-      this.dateTimeAdapter.endOfMonth(this.datePicker.focusedDate()),
+    const lastDay = this.dateAdapter.set(
+      this.dateAdapter.endOfMonth(this.datePicker.focusedDate()),
       {
-        hours: 23,
-        minutes: 59,
-        seconds: 59,
-        milliseconds: 999,
+        hour: 23,
+        minute: 59,
+        second: 59,
+        millisecond: 999,
       },
     );
 
     // if there is a max date and it is equal to or before the last day of the month, disable it.
-    if (maxDate && this.dateTimeAdapter.compare(maxDate, lastDay) <= 0) {
+    if (maxDate && this.dateAdapter.compare(maxDate, lastDay) <= 0) {
       return true;
     }
 
@@ -88,13 +88,13 @@ export class NgpDatePickerNextMonth<T> implements NgpCanDisable {
 
     // move focus to the first day of the next month.
     let date = this.datePicker.focusedDate();
-    date = this.dateTimeAdapter.add(date, { months: 1 });
-    date = this.dateTimeAdapter.set(date, {
-      days: 1,
-      hours: 0,
-      minutes: 0,
-      seconds: 0,
-      milliseconds: 0,
+    date = this.dateAdapter.add(date, { months: 1 });
+    date = this.dateAdapter.set(date, {
+      day: 1,
+      hour: 0,
+      minute: 0,
+      second: 0,
+      millisecond: 0,
     });
 
     this.datePicker.setFocusedDate(date, 'mouse', 'forward');

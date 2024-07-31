@@ -15,6 +15,7 @@
     "skipDefaultLibCheck": true,
     "baseUrl": ".",
     "paths": {
+      "@ng-primitives/luxon-date-adapter": ["packages/luxon-date-adapter/src/index.ts"],
       "@ng-primitives/tools": ["packages/tools/src/index.ts"],
       "ng-primitives": ["packages/ng-primitives/src/index.ts"],
       "ng-primitives/a11y": ["packages/ng-primitives/a11y/src/index.ts"],

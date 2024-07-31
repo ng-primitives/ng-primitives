@@ -18,7 +18,7 @@ import {
   input,
   model,
 } from '@angular/core';
-import { injectDateTimeAdapter } from 'ng-primitives/date-time';
+import { injectDateAdapter } from 'ng-primitives/date-time';
 import { NgpDatePickerDateButtonToken } from '../date-picker-date-button/date-picker-date-button.token';
 import { NgpDatePickerLabelToken } from '../date-picker-label/date-picker-label.token';
 import { NgpDatePickerToken } from './date-picker.token';
@@ -34,9 +34,9 @@ import { NgpDatePickerToken } from './date-picker.token';
 })
 export class NgpDatePicker<T> {
   /**
-   * Access the date time adapter.
+   * Access the date adapter.
    */
-  private readonly dateTimeAdapter = injectDateTimeAdapter<T>();
+  private readonly dateAdapter = injectDateAdapter<T>();
 
   /**
    * Access the injector.
@@ -82,7 +82,7 @@ export class NgpDatePicker<T> {
   /**
    * The focused value.
    */
-  readonly focusedDate = model<T>(this.dateTimeAdapter.now(), {
+  readonly focusedDate = model<T>(this.dateAdapter.now(), {
     alias: 'ngpDatePickerFocusedDate',
   });
 
@@ -110,24 +110,24 @@ export class NgpDatePicker<T> {
     const min = this.min();
     const max = this.max();
 
-    if (min && this.dateTimeAdapter.isBefore(date, min)) {
+    if (min && this.dateAdapter.isBefore(date, min)) {
       date = min;
     }
 
-    if (max && this.dateTimeAdapter.isAfter(date, max)) {
+    if (max && this.dateAdapter.isAfter(date, max)) {
       date = max;
     }
 
     // if the date is disabled, find the next available date in the specified direction.
     if (this.dateDisabled()(date)) {
-      let nextDate = this.dateTimeAdapter.add(date, { days: direction === 'forward' ? 1 : -1 });
+      let nextDate = this.dateAdapter.add(date, { days: direction === 'forward' ? 1 : -1 });
 
       while (
         this.dateDisabled()(nextDate) ||
-        (min && this.dateTimeAdapter.isBefore(nextDate, min)) ||
-        (max && this.dateTimeAdapter.isAfter(nextDate, max))
+        (min && this.dateAdapter.isBefore(nextDate, min)) ||
+        (max && this.dateAdapter.isAfter(nextDate, max))
       ) {
-        nextDate = this.dateTimeAdapter.add(nextDate, { days: direction === 'forward' ? 1 : -1 });
+        nextDate = this.dateAdapter.add(nextDate, { days: direction === 'forward' ? 1 : -1 });
       }
 
       date = nextDate;

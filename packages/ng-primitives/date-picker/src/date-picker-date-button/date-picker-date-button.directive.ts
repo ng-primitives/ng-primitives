@@ -8,7 +8,7 @@
 import { FocusMonitor } from '@angular/cdk/a11y';
 import { computed, Directive, ElementRef, HostListener, inject } from '@angular/core';
 import { NgpButton } from 'ng-primitives/button';
-import { injectDateTimeAdapter } from 'ng-primitives/date-time';
+import { injectDateAdapter } from 'ng-primitives/date-time';
 import { NgpCanDisable, NgpDisabledToken } from 'ng-primitives/internal';
 import { injectDatePickerCellDate } from '../date-picker-cell-render/date-picker-cell-render.token';
 import { injectDatePicker } from '../date-picker/date-picker.token';
@@ -50,9 +50,9 @@ export class NgpDatePickerDateButton<T> implements NgpCanDisable {
   private readonly datePicker = injectDatePicker<T>();
 
   /**
-   * Access the date time adapter.
+   * Access the date adapter.
    */
-  private readonly dateTimeAdapter = injectDateTimeAdapter<T>();
+  private readonly dateAdapter = injectDateAdapter<T>();
 
   /**
    * The date this cell represents.
@@ -63,7 +63,7 @@ export class NgpDatePickerDateButton<T> implements NgpCanDisable {
    * Determine if this is the focused date.
    */
   protected readonly focused = computed(() =>
-    this.dateTimeAdapter.isSameDay(this.date, this.datePicker.focusedDate()),
+    this.dateAdapter.isSameDay(this.date, this.datePicker.focusedDate()),
   );
 
   /**
@@ -72,21 +72,21 @@ export class NgpDatePickerDateButton<T> implements NgpCanDisable {
    */
   readonly selected = computed(() => {
     const selected = this.datePicker.date();
-    return selected && this.dateTimeAdapter.isSameDay(this.date, selected);
+    return selected && this.dateAdapter.isSameDay(this.date, selected);
   });
 
   /**
    * Determine if this date is outside the current month.
    */
   protected readonly outside = computed(
-    () => !this.dateTimeAdapter.isSameMonth(this.date, this.datePicker.focusedDate()),
+    () => !this.dateAdapter.isSameMonth(this.date, this.datePicker.focusedDate()),
   );
 
   /**
    * Determine if this date is today.
    */
   protected readonly today = computed(() =>
-    this.dateTimeAdapter.isSameDay(this.date, this.dateTimeAdapter.now()),
+    this.dateAdapter.isSameDay(this.date, this.dateAdapter.now()),
   );
 
   /**
@@ -101,11 +101,11 @@ export class NgpDatePickerDateButton<T> implements NgpCanDisable {
       return true;
     }
 
-    if (min && this.dateTimeAdapter.compare(this.dateTimeAdapter.startOfDay(this.date), min) < 0) {
+    if (min && this.dateAdapter.compare(this.dateAdapter.startOfDay(this.date), min) < 0) {
       return true;
     }
 
-    if (max && this.dateTimeAdapter.compare(this.dateTimeAdapter.startOfDay(this.date), max) > 0) {
+    if (max && this.dateAdapter.compare(this.dateAdapter.startOfDay(this.date), max) > 0) {
       return true;
     }
 
@@ -145,7 +145,7 @@ export class NgpDatePickerDateButton<T> implements NgpCanDisable {
    * @internal
    */
   focus(): void {
-    if (this.dateTimeAdapter.isSameDay(this.date, this.datePicker.focusedDate())) {
+    if (this.dateAdapter.isSameDay(this.date, this.datePicker.focusedDate())) {
       this.focusMonitor.focusVia(this.elementRef, 'keyboard');
     }
   }
@@ -160,13 +160,10 @@ export class NgpDatePickerDateButton<T> implements NgpCanDisable {
 
     // in rtl, the arrow keys are reversed.
     if (this.getDirection() === 'rtl') {
-      this.focusDate(
-        this.dateTimeAdapter.add(this.datePicker.focusedDate(), { days: 1 }),
-        'forward',
-      );
+      this.focusDate(this.dateAdapter.add(this.datePicker.focusedDate(), { days: 1 }), 'forward');
     } else {
       this.focusDate(
-        this.dateTimeAdapter.subtract(this.datePicker.focusedDate(), { days: 1 }),
+        this.dateAdapter.subtract(this.datePicker.focusedDate(), { days: 1 }),
         'backward',
       );
     }
@@ -183,14 +180,11 @@ export class NgpDatePickerDateButton<T> implements NgpCanDisable {
     // in rtl, the arrow keys are reversed.
     if (this.getDirection() === 'rtl') {
       this.focusDate(
-        this.dateTimeAdapter.subtract(this.datePicker.focusedDate(), { days: 1 }),
+        this.dateAdapter.subtract(this.datePicker.focusedDate(), { days: 1 }),
         'backward',
       );
     } else {
-      this.focusDate(
-        this.dateTimeAdapter.add(this.datePicker.focusedDate(), { days: 1 }),
-        'forward',
-      );
+      this.focusDate(this.dateAdapter.add(this.datePicker.focusedDate(), { days: 1 }), 'forward');
     }
   }
 
@@ -203,7 +197,7 @@ export class NgpDatePickerDateButton<T> implements NgpCanDisable {
     event.stopPropagation();
 
     this.focusDate(
-      this.dateTimeAdapter.subtract(this.datePicker.focusedDate(), { days: 7 }),
+      this.dateAdapter.subtract(this.datePicker.focusedDate(), { days: 7 }),
       'backward',
     );
   }
@@ -216,7 +210,7 @@ export class NgpDatePickerDateButton<T> implements NgpCanDisable {
     event.preventDefault();
     event.stopPropagation();
 
-    this.focusDate(this.dateTimeAdapter.add(this.datePicker.focusedDate(), { days: 7 }), 'forward');
+    this.focusDate(this.dateAdapter.add(this.datePicker.focusedDate(), { days: 7 }), 'forward');
   }
 
   /**
@@ -226,7 +220,7 @@ export class NgpDatePickerDateButton<T> implements NgpCanDisable {
   protected focusFirst(event: KeyboardEvent): void {
     event.preventDefault();
     event.stopPropagation();
-    this.focusDate(this.dateTimeAdapter.startOfMonth(this.datePicker.focusedDate()), 'forward');
+    this.focusDate(this.dateAdapter.startOfMonth(this.datePicker.focusedDate()), 'forward');
   }
 
   /**
@@ -236,7 +230,7 @@ export class NgpDatePickerDateButton<T> implements NgpCanDisable {
   protected focusLast(event: KeyboardEvent): void {
     event.preventDefault();
     event.stopPropagation();
-    this.focusDate(this.dateTimeAdapter.endOfMonth(this.datePicker.focusedDate()), 'backward');
+    this.focusDate(this.dateAdapter.endOfMonth(this.datePicker.focusedDate()), 'backward');
   }
 
   /**
@@ -247,19 +241,19 @@ export class NgpDatePickerDateButton<T> implements NgpCanDisable {
     event.preventDefault();
     event.stopPropagation();
 
-    const date = this.dateTimeAdapter.getDate(this.datePicker.focusedDate());
+    const date = this.dateAdapter.getDate(this.datePicker.focusedDate());
 
-    let previousMonthTarget = this.dateTimeAdapter.startOfMonth(this.datePicker.focusedDate());
-    previousMonthTarget = this.dateTimeAdapter.subtract(previousMonthTarget, { months: 1 });
+    let previousMonthTarget = this.dateAdapter.startOfMonth(this.datePicker.focusedDate());
+    previousMonthTarget = this.dateAdapter.subtract(previousMonthTarget, { months: 1 });
 
-    const lastDay = this.dateTimeAdapter.endOfMonth(previousMonthTarget);
+    const lastDay = this.dateAdapter.endOfMonth(previousMonthTarget);
 
     // if we are on a date that does not exist in the previous month, we should focus the last day of the month.
-    if (date > this.dateTimeAdapter.getDate(lastDay)) {
+    if (date > this.dateAdapter.getDate(lastDay)) {
       this.focusDate(lastDay, 'forward');
       return;
     } else {
-      this.focusDate(this.dateTimeAdapter.set(previousMonthTarget, { days: date }), 'forward');
+      this.focusDate(this.dateAdapter.set(previousMonthTarget, { day: date }), 'forward');
     }
   }
 
@@ -271,19 +265,19 @@ export class NgpDatePickerDateButton<T> implements NgpCanDisable {
     event.preventDefault();
     event.stopPropagation();
 
-    const date = this.dateTimeAdapter.getDate(this.datePicker.focusedDate());
+    const date = this.dateAdapter.getDate(this.datePicker.focusedDate());
 
-    let nextMonthTarget = this.dateTimeAdapter.startOfMonth(this.datePicker.focusedDate());
-    nextMonthTarget = this.dateTimeAdapter.add(nextMonthTarget, { months: 1 });
+    let nextMonthTarget = this.dateAdapter.startOfMonth(this.datePicker.focusedDate());
+    nextMonthTarget = this.dateAdapter.add(nextMonthTarget, { months: 1 });
 
-    const lastDay = this.dateTimeAdapter.endOfMonth(nextMonthTarget);
+    const lastDay = this.dateAdapter.endOfMonth(nextMonthTarget);
 
     // if we are on a date that does not exist in the next month, we should focus the last day of the month.
-    if (date > this.dateTimeAdapter.getDate(lastDay)) {
+    if (date > this.dateAdapter.getDate(lastDay)) {
       this.focusDate(lastDay, 'backward');
       return;
     } else {
-      this.focusDate(this.dateTimeAdapter.set(nextMonthTarget, { days: date }), 'backward');
+      this.focusDate(this.dateAdapter.set(nextMonthTarget, { day: date }), 'backward');
     }
   }
 
