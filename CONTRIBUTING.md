@@ -79,3 +79,22 @@ To build the library and documentation, use the following command:
 ```bash
 pnpm build
 ```
+
+## Running the documentation
+
+To run the documentation locally, use the following command:
+
+```bash
+pnpm start
+```
+
+## Troubleshoting
+
+The documentation site is built using Analog, which may exhibit instability based on reports on Windows systems. For a smoother experience, we recommend running the site using Ubuntu inside WSL2 (Windows Subsystem for Linux). This should provide a more stable environment for running the documentation site.
+
+For more details, please refer to the following issues and pull requests:
+
+- https://github.com/analogjs/analog/issues/688
+- https://github.com/analogjs/analog/pull/915
+
+Thank you for your understanding and contributions!
