@@ -4,10 +4,12 @@
   >
     @for (section of sections; track section.title) {
       <div>
-        <h2 class="text-md mb-2 font-semibold text-zinc-800">{{ section.title }}</h2>
+        <h2 class="text-md mb-2 font-semibold text-zinc-800 dark:text-zinc-100">
+          {{ section.title }}
+        </h2>
         <ul class="-ml-4">
           @for (link of section.links; track link) {
-            <li class="text-zinc-600">
+            <li class="text-zinc-600 hover:text-zinc-950 dark:text-zinc-300 dark:hover:text-white">
               <a
                 class="flex h-8 items-center rounded-lg px-4 outline-none transition-colors focus-visible:ring-2 focus-visible:ring-blue-500"
                 [routerLink]="link.link"
@@ -25,7 +27,10 @@
 
 @if (menuOpen()) {
   <div class="fixed inset-0 z-10 bg-black/50" (click)="menuOpen.set(false)">
-    <div class="h-full w-72 max-w-full bg-white px-10 shadow-xl" (click)="$event.stopPropagation()">
+    <div
+      class="h-full w-72 max-w-full bg-white px-10 shadow-xl dark:bg-zinc-900"
+      (click)="$event.stopPropagation()"
+    >
       <ng-container [ngTemplateOutlet]="content" />
     </div>
   </div>
