@@ -6,5 +6,5 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+export { NgpDateAdapter, NgpDateUnits, NgpDuration } from './date-adapter/date-adapter';
 export { injectDateAdapter, provideDateAdapter } from './date-adapter/date-adapter.token';
-export { NgpDateAdapter, NgpDateUnits, NgpDuration } from './date-adapter/date-time-adapter';

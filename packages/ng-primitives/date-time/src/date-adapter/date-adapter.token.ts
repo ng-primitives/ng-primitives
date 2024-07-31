@@ -7,7 +7,7 @@
  */
 import { ClassProvider, InjectionToken, Type, inject } from '@angular/core';
 import { NgpNativeDateAdapter } from '../native-date-adapter/native-date-adapter';
-import type { NgpDateAdapter } from './date-time-adapter';
+import type { NgpDateAdapter } from './date-adapter';
 
 export const NgpDateAdapterToken = new InjectionToken<NgpDateAdapter<unknown>>(
   'NgpDateAdapterToken',

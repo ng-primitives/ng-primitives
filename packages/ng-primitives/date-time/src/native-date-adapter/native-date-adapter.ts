@@ -5,7 +5,7 @@
  * This source code is licensed under the Apache 2.0 license found in the
  * LICENSE file in the root directory of this source tree.
  */
-import { NgpDateAdapter, NgpDateUnits, NgpDuration } from '../date-adapter/date-time-adapter';
+import { NgpDateAdapter, NgpDateUnits, NgpDuration } from '../date-adapter/date-adapter';
 
 export class NgpNativeDateAdapter implements NgpDateAdapter<Date> {
   /**
