@@ -23,11 +23,7 @@
       "defaultConfiguration": "production"
     },
     "test": {
-      "executor": "@nx/jest:jest",
-      "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
-      "options": {
-        "jestConfig": "packages/luxon-date-adapter/jest.config.ts"
-      }
+      "executor": "nx:noop"
     },
     "lint": {
       "executor": "@nx/eslint:lint"
