@@ -1,3 +1,13 @@
+## 0.4.0 (2024-07-31)
+
+### 🚀 Features
+
+- date picker ([#12](https://github.com/ng-primitives/ng-primitives/pull/12))
+
+### ❤️ Thank You
+
+- Ashley Hunter
+
 ## 0.3.0 (2024-07-26)
 
 ### 🚀 Features
