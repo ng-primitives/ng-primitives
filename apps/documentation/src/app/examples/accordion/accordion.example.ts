@@ -24,13 +24,13 @@ import {
       width: 100%;
       max-width: 24rem;
       border-radius: 0.75rem;
-      border: 1px solid #e5e7eb;
-      background-color: #fff;
+      border: 1px solid light-dark(#e5e7eb, #3f3f46);
+      background-color: light-dark(#fff, #18181b);
       box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
     }
 
     [ngpAccordionItem]:has(+ [ngpAccordionItem]) {
-      border-bottom: 1px solid #e5e5e5;
+      border-bottom: 1px solid light-dark(#e5e5e5, #3f3f46);
     }
 
     [ngpAccordionTrigger] {
@@ -46,8 +46,8 @@ import {
       height: 2.75rem;
       border-radius: 0.75rem;
       outline: none;
-      color: #0a0a0a;
-      background-color: #fff;
+      color: light-dark(#0a0a0a, #fff);
+      background-color: light-dark(#fff, #18181b);
       border: none;
     }
 
@@ -57,7 +57,7 @@ import {
 
     [ngpAccordionContent] {
       font-size: 0.875rem;
-      color: #737373;
+      color: light-dark(737373, #e4e4e7);
       overflow: hidden;
       transition: height 0.3s ease;
     }

@@ -11,6 +11,14 @@
     format('woff2');
 }
 
+:host {
+  color-scheme: light dark;
+}
+
+.dark {
+  color-scheme: dark;
+}
+
 html,
 body {
   display: block;
