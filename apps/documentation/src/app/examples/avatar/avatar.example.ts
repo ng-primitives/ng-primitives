@@ -15,8 +15,8 @@ import { NgpAvatar, NgpAvatarFallback, NgpAvatarImage } from 'ng-primitives/avat
       justify-content: center;
       border-radius: 9999px;
       border-width: 2px;
-      border-color: #fff;
-      background-color: rgb(186 230 253);
+      border-color: light-dark(#fff, #3f3f46);
+      background-color: light-dark(rgb(186 230 253), #18181b);
       vertical-align: middle;
     }
 
@@ -36,7 +36,7 @@ import { NgpAvatar, NgpAvatarFallback, NgpAvatarImage } from 'ng-primitives/avat
     [ngpAvatarFallback] {
       text-align: center;
       font-weight: 500;
-      color: rgb(8 47 73);
+      color: light-dark(rgb(8 47 73), #fff);
     }
   `,
   template: `
