@@ -39,7 +39,7 @@ import { NgpLabel } from 'ng-primitives/form-field';
     }
 
     [ngpLabel] {
-      color: rgb(9 9 11);
+      color: light-dark(rgb(9 9 11), #e4e4e7);
       font-size: 0.875rem;
       line-height: 1.25rem;
       font-weight: 500;
@@ -53,8 +53,8 @@ import { NgpLabel } from 'ng-primitives/form-field';
       padding: 0 16px;
       border: none;
       box-shadow:
-        0 1px 2px rgba(0, 0, 0, 0.05),
-        0 0 0 1px rgba(0, 0, 0, 0.1);
+        0 1px 2px light-dark(rgba(0, 0, 0, 0.05), #3f3f46),
+        0 0 0 1px light-dark(rgba(0, 0, 0, 0.1), #3f3f46);
       outline: none;
     }
 
