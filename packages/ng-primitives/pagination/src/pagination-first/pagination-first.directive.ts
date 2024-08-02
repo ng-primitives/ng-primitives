@@ -8,7 +8,7 @@
 import { BooleanInput } from '@angular/cdk/coercion';
 import { booleanAttribute, computed, Directive, HostListener, input } from '@angular/core';
 import { NgpButton } from 'ng-primitives/button';
-import { NgpCanDisable } from 'ng-primitives/internal';
+import { NgpCanDisable, NgpDisabledToken } from 'ng-primitives/internal';
 import { injectPagination } from '../pagination/pagination.token';
 import { NgpPaginationFirstToken } from './pagination-first.token';
 
@@ -16,9 +16,13 @@ import { NgpPaginationFirstToken } from './pagination-first.token';
   standalone: true,
   selector: '[ngpPaginationFirst]',
   exportAs: 'ngpPaginationFirst',
-  providers: [{ provide: NgpPaginationFirstToken, useExisting: NgpPaginationFirst }],
+  providers: [
+    { provide: NgpPaginationFirstToken, useExisting: NgpPaginationFirst },
+    { provide: NgpDisabledToken, useExisting: NgpPaginationFirst },
+  ],
   hostDirectives: [NgpButton],
   host: {
+    '[tabindex]': 'disabled() ? -1 : 0',
     '[attr.data-disabled]': 'disabled()',
     '[attr.data-first-page]': 'pagination.firstPage()',
   },

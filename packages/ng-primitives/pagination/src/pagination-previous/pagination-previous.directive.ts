@@ -6,8 +6,9 @@
  * LICENSE file in the root directory of this source tree.
  */
 import { BooleanInput } from '@angular/cdk/coercion';
-import { booleanAttribute, Directive, HostListener, input } from '@angular/core';
+import { booleanAttribute, computed, Directive, HostListener, input } from '@angular/core';
 import { NgpButton } from 'ng-primitives/button';
+import { NgpCanDisable, NgpDisabledToken } from 'ng-primitives/internal';
 import { injectPagination } from '../pagination/pagination.token';
 import { NgpPaginationPreviousToken } from './pagination-previous.token';
 
@@ -15,14 +16,18 @@ import { NgpPaginationPreviousToken } from './pagination-previous.token';
   standalone: true,
   selector: '[ngpPaginationPrevious]',
   exportAs: 'ngpPaginationPrevious',
-  providers: [{ provide: NgpPaginationPreviousToken, useExisting: NgpPaginationPrevious }],
+  providers: [
+    { provide: NgpPaginationPreviousToken, useExisting: NgpPaginationPrevious },
+    { provide: NgpDisabledToken, useExisting: NgpPaginationPrevious },
+  ],
   hostDirectives: [NgpButton],
   host: {
-    '[attr.data-disabled]': 'disabled() || pagination.disabled() || pagination.firstPage()',
+    '[tabindex]': 'disabled() ? -1 : 0',
+    '[attr.data-disabled]': 'disabled()',
     '[attr.data-first-page]': 'pagination.firstPage()',
   },
 })
-export class NgpPaginationPrevious {
+export class NgpPaginationPrevious implements NgpCanDisable {
   /**
    * Access the pagination directive.
    */
@@ -31,17 +36,24 @@ export class NgpPaginationPrevious {
   /**
    * Whether the button is disabled.
    */
-  readonly disabled = input<boolean, BooleanInput>(false, {
+  readonly buttonDisabled = input<boolean, BooleanInput>(false, {
     alias: 'ngpPaginationPreviousDisabled',
     transform: booleanAttribute,
   });
+
+  /**
+   * Whether the button is disabled.
+   */
+  readonly disabled = computed(
+    () => this.buttonDisabled() || this.pagination.disabled() || this.pagination.firstPage(),
+  );
 
   /**
    * Go to the previous page.
    */
   @HostListener('click')
   goToPreviousPage() {
-    if (this.disabled() || this.pagination.firstPage()) {
+    if (this.disabled()) {
       return;
     }
 

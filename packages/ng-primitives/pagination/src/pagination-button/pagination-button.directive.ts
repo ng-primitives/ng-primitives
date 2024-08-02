@@ -15,6 +15,7 @@ import {
   numberAttribute,
 } from '@angular/core';
 import { NgpButton } from 'ng-primitives/button';
+import { NgpCanDisable, NgpDisabledToken } from 'ng-primitives/internal';
 import { injectPagination } from '../pagination/pagination.token';
 import { NgpPaginationButtonToken } from './pagination-button.token';
 
@@ -22,16 +23,20 @@ import { NgpPaginationButtonToken } from './pagination-button.token';
   standalone: true,
   selector: '[ngpPaginationButton]',
   exportAs: 'ngpPaginationButton',
-  providers: [{ provide: NgpPaginationButtonToken, useExisting: NgpPaginationButton }],
+  providers: [
+    { provide: NgpPaginationButtonToken, useExisting: NgpPaginationButton },
+    { provide: NgpDisabledToken, useExisting: NgpPaginationButton },
+  ],
   hostDirectives: [NgpButton],
   host: {
+    '[tabindex]': 'disabled() ? -1 : 0',
     '[attr.data-disabled]': 'disabled() || pagination.disabled()',
     '[attr.data-page]': 'page()',
     '[attr.data-selected]': 'selected()',
     '[attr.aria-current]': 'selected()',
   },
 })
-export class NgpPaginationButton {
+export class NgpPaginationButton implements NgpCanDisable {
   /**
    * Access the pagination directive.
    */
@@ -48,10 +53,15 @@ export class NgpPaginationButton {
   /**
    * Whether the button is disabled.
    */
-  readonly disabled = input<boolean, BooleanInput>(false, {
+  readonly buttonDisabled = input<boolean, BooleanInput>(false, {
     alias: 'ngpPaginationButtonDisabled',
     transform: booleanAttribute,
   });
+
+  /**
+   * Whether the button is disabled.
+   */
+  readonly disabled = computed(() => this.buttonDisabled() || this.pagination.disabled());
 
   /**
    * Whether this page is the currently selected page.

@@ -13,7 +13,14 @@ The Pagination primitives provide a set of directives to create a pagination con
 Import the Pagination primitives from `ng-primitives/pagination`.
 
 ```ts
-import { NgpPagination } from 'ng-primitives/pagination';
+import {
+  NgpPagination,
+  NgpPaginationButton,
+  NgpPaginationFirst,
+  NgpPaginationNext,
+  NgpPaginationPrevious,
+  NgpPaginationLast,
+} from 'ng-primitives/pagination';
 ```
 
 ## Usage

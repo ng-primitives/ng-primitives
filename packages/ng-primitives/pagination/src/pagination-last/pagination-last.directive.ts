@@ -8,6 +8,7 @@
 import { BooleanInput } from '@angular/cdk/coercion';
 import { booleanAttribute, computed, Directive, HostListener, input } from '@angular/core';
 import { NgpButton } from 'ng-primitives/button';
+import { NgpCanDisable, NgpDisabledToken } from 'ng-primitives/internal';
 import { injectPagination } from '../pagination/pagination.token';
 import { NgpPaginationLastToken } from './pagination-last.token';
 
@@ -15,14 +16,18 @@ import { NgpPaginationLastToken } from './pagination-last.token';
   standalone: true,
   selector: '[ngpPaginationLast]',
   exportAs: 'ngpPaginationLast',
-  providers: [{ provide: NgpPaginationLastToken, useExisting: NgpPaginationLast }],
+  providers: [
+    { provide: NgpPaginationLastToken, useExisting: NgpPaginationLast },
+    { provide: NgpDisabledToken, useExisting: NgpPaginationLast },
+  ],
   hostDirectives: [NgpButton],
   host: {
+    '[tabindex]': 'disabled() ? -1 : 0',
     '[attr.data-disabled]': 'disabled()',
     '[attr.data-last-page]': 'pagination.lastPage()',
   },
 })
-export class NgpPaginationLast {
+export class NgpPaginationLast implements NgpCanDisable {
   /**
    * Access the pagination directive.
    */
