@@ -64,6 +64,7 @@ import {
   `,
   styles: `
     [ngpDatePicker] {
+      display: inline-block;
       background-color: white;
       border-radius: 12px;
       padding: 16px;
