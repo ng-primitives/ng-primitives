@@ -63,14 +63,46 @@ import {
     </div>
   `,
   styles: `
+    :host {
+      --datepicker-background-color: rgb(255 255 255);
+      --datepicker-day-color: rgba(0, 0, 0, 0.5);
+      --datepicker-label-color: #000;
+      --datepicker-navigation-button-hover-background-color: rgba(0, 0, 0, 0.05);
+      --datepicker-date-button-today-color: rgb(59 130 246);
+      --datepicker-date-button-hover-background-color: rgba(0, 0, 0, 0.05);
+      --datepicker-date-button-pressed-background-color: rgba(0, 0, 0, 0.1);
+      --datepicker-date-button-outside-month-color: rgba(0, 0, 0, 0.25);
+      --datepicker-date-button-outside-selected-month-color: rgba(0, 0, 0, 0.2);
+      --datepicker-date-button-outside-selected-month-background-color: rgba(0, 0, 0, 0.1);
+
+      --datepicker-background-color-dark: rgb(43 43 43);
+      --datepicker-day-color-dark: rgba(255, 255, 255, 0.5);
+      --datepicker-label-color-dark: #fff;
+      --datepicker-navigation-button-hover-background-color-dark: rgba(255, 255, 255, 0.05);
+      --datepicker-date-button-today-color-dark: rgb(59 130 246);
+      --datepicker-date-button-hover-background-color-dark: rgba(255, 255, 255, 0.05);
+      --datepicker-date-button-pressed-background-color-dark: rgba(255, 255, 255, 0.1);
+      --datepicker-date-button-outside-month-color-dark: rgba(255, 255, 255, 0.25);
+      --datepicker-date-button-outside-selected-month-color-dark: rgba(255, 255, 255, 0.2);
+      --datepicker-date-button-outside-selected-month-background-color-dark: rgba(
+        255,
+        255,
+        255,
+        0.1
+      );
+    }
+
     [ngpDatePicker] {
       display: inline-block;
-      background-color: white;
+      background-color: light-dark(
+        var(--datepicker-background-color),
+        var(--datepicker-background-color-dark)
+      );
       border-radius: 12px;
       padding: 16px;
       box-shadow:
-        0 0 0 1px rgba(0, 0, 0, 0.05),
-        0 1px 2px rgba(0, 0, 0, 0.1);
+        0 0 0 1px light-dark(rgba(0, 0, 0, 0.05), rgba(255, 255, 255, 0.05)),
+        0 1px 2px light-dark(rgba(0, 0, 0, 0.05), rgba(255, 255, 255, 0.05));
     }
 
     .date-picker-header {
@@ -87,13 +119,13 @@ import {
       width: 40px;
       height: 40px;
       text-align: center;
-      color: rgba(0, 0, 0, 0.5);
+      color: light-dark(var(--datepicker-day-color), var(--datepicker-day-color-dark));
     }
 
     [ngpDatePickerLabel] {
       font-size: 14px;
       font-weight: 500;
-      color: #000;
+      color: light-dark(var(--datepicker-label-color), var(--datepicker-label-color-dark));
     }
 
     [ngpDatePickerPreviousMonth],
@@ -107,15 +139,18 @@ import {
       border-radius: 8px;
       font-size: 20px;
       box-shadow:
-        0 1px 3px 0 rgb(0 0 0 / 0.1),
-        0 1px 2px -1px rgb(0 0 0 / 0.1),
-        0 0 0 1px rgb(0 0 0 / 0.05);
+        0 1px 3px 0 light-dark(rgba(0, 0, 0, 0.1), rgba(255, 255, 255, 0.007)),
+        0 1px 2px -1px light-dark(rgba(0, 0, 0, 0.1), rgba(255, 255, 255, 0.1)),
+        0 0 0 1px light-dark(rgba(0, 0, 0, 0.05), rgba(255, 255, 255, 0.05));
       cursor: pointer;
     }
 
     [ngpDatePickerPreviousMonth][data-hover='true'],
     [ngpDatePickerNextMonth][data-hover='true'] {
-      background-color: rgba(0, 0, 0, 0.05);
+      background-color: light-dark(
+        var(--datepicker-navigation-button-hover-background-color),
+        var(--datepicker-navigation-button-hover-background-color-dark)
+      );
     }
 
     [ngpDatePickerPreviousMonth][data-focus-visible='true'],
@@ -146,11 +181,17 @@ import {
     }
 
     [ngpDatePickerDateButton][data-today='true'] {
-      color: rgb(59, 130, 246);
+      color: light-dark(
+        var(--datepicker-date-button-today-color),
+        var(--datepicker-date-button-today-color-dark)
+      );
     }
 
     [ngpDatePickerDateButton][data-hover='true'] {
-      background-color: rgba(0, 0, 0, 0.05);
+      background-color: light-dark(
+        var(--datepicker-date-button-hover-background-color),
+        var(--datepicker-date-button-hover-background-color-dark)
+      );
     }
 
     [ngpDatePickerDateButton][data-focus-visible='true'] {
@@ -159,11 +200,17 @@ import {
     }
 
     [ngpDatePickerDateButton][data-press='true'] {
-      background-color: rgba(0, 0, 0, 0.1);
+      background-color: light-dark(
+        var(--datepicker-date-button-pressed-background-color),
+        var(--datepicker-date-button-pressed-background-color-dark)
+      );
     }
 
     [ngpDatePickerDateButton][data-outside-month='true'] {
-      color: rgba(0, 0, 0, 0.25);
+      color: light-dark(
+        var(--datepicker-date-button-outside-month-color),
+        var(--datepicker-date-button-outside-month-color-dark)
+      );
     }
 
     [ngpDatePickerDateButton][data-selected='true'] {
@@ -172,8 +219,14 @@ import {
     }
 
     [ngpDatePickerDateButton][data-selected='true'][data-outside-month='true'] {
-      background-color: rgb(0, 0, 0, 0.1);
-      color: rgba(0, 0, 0, 0.2);
+      background-color: light-dark(
+        var(--datepicker-date-button-outside-selected-month-background-color),
+        var(--datepicker-date-button-outside-selected-month-background-color-dark)
+      );
+      color: light-dark(
+        var(--datepicker-date-button-outside-selected-month-color),
+        var(--datepicker-date-button-outside-selected-month-color-dark)
+      );
     }
 
     [ngpDatePickerDateButton][data-disabled='true'] {
