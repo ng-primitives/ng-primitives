@@ -28,6 +28,16 @@ import { NgpLabel } from 'ng-primitives/form-field';
   `,
   styles: `
     :host {
+      --input-label-color: rgb(9 9 11);
+      --input-focus-shadow: 0 0 0 2px rgb(59, 130, 246);
+      --input-placeholder-color: rgb(161 161 170);
+
+      --input-label-color-dark: #e4e4e7;
+      --input-focus-shadow-dark: 0 0 0 2px rgb(59, 130, 246);
+      --input-placeholder-color-dark: rgb(161 161 170);
+    }
+
+    :host {
       display: contents;
     }
 
@@ -39,7 +49,7 @@ import { NgpLabel } from 'ng-primitives/form-field';
     }
 
     [ngpLabel] {
-      color: light-dark(rgb(9 9 11), #e4e4e7);
+      color: light-dark(var(--input-label-color), var(--input-label-color-dark));
       font-size: 0.875rem;
       line-height: 1.25rem;
       font-weight: 500;
@@ -63,7 +73,7 @@ import { NgpLabel } from 'ng-primitives/form-field';
     }
 
     input::placeholder {
-      color: rgb(161 161 170);
+      color: light-dark(var(--input-placeholder-color), var(--input-placeholder-color-dark));
     }
 
     span {
