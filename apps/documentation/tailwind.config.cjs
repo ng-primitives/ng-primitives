@@ -14,8 +14,8 @@ module.exports = {
         sans: ['InterVariable', 'sans-serif'],
       },
       colors: {
-        primary: '#e90364',
-        accent: '#fa2c05',
+        primary: 'var(--primary-color)',
+        accent: 'var(--accent-color)',
       },
       typography: theme => ({
         zinc: {
@@ -40,8 +40,25 @@ module.exports = {
             },
           },
         },
+        invert: {
+          css: {
+            code: {
+              backgroundColor: theme('colors.zinc.950'),
+              color: theme('colors.white'),
+            },
+          },
+        },
       }),
     },
   },
-  plugins: [require('@tailwindcss/typography')],
+  plugins: [
+    require('@tailwindcss/typography'),
+    function ({ addUtilities }) {
+      addUtilities({
+        '.prose code[class^="language-"]': {
+          '@apply !bg-inherit': {},
+        },
+      });
+    },
+  ],
 };

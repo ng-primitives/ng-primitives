@@ -11,12 +11,18 @@
     format('woff2');
 }
 
-:host {
-  color-scheme: light dark;
+:root {
+  color-scheme: light;
+
+  --primary-color: #e90364;
+  --accent-color: #fa2c05;
 }
 
 .dark {
   color-scheme: dark;
+
+  --primary-color: #fc2781;
+  --accent-color: #fb5637;
 }
 
 html,
