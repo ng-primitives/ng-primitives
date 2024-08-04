@@ -10,14 +10,6 @@ import { NgpInput } from 'ng-primitives/input';
   `,
   styles: `
     :host {
-      --input-label-color: rgb(9 9 11);
-      --input-placeholder-color: rgb(161 161 170);
-
-      --input-label-color-dark: #e4e4e7;
-      --input-placeholder-color-dark: rgb(161 161 170);
-    }
-
-    :host {
       display: contents;
     }
 
