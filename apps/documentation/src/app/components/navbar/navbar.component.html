@@ -4,7 +4,7 @@
   <div class="absolute inset-x-0 top-0 h-0.5 bg-gradient-to-r from-[#E90364] to-[#FA2C05]"></div>
   <nav class="container relative mx-auto flex h-full w-full items-center gap-x-4 px-8">
     <button
-      class="inline-flex size-8 items-center justify-center rounded-lg transition-colors data-[hover=true]:bg-zinc-50 data-[press=true]:bg-zinc-100 md:hidden"
+      class="inline-flex size-8 items-center justify-center rounded-lg transition-colors data-[hover=true]:bg-zinc-50 data-[press=true]:bg-zinc-100 md:hidden dark:data-[hover=true]:bg-zinc-700 dark:data-[press=true]:bg-zinc-800"
       (click)="toggle()"
       ngpButton
     >
@@ -12,8 +12,13 @@
     </button>
 
     <img
-      class="hidden h-8 w-auto md:block dark:invert"
+      class="hidden h-8 w-auto md:block dark:hidden"
       src="assets/logo.svg"
+      alt="Angular Primitives"
+    />
+    <img
+      class="hidden h-8 w-auto dark:md:block"
+      src="assets/logo-dark.svg"
       alt="Angular Primitives"
     />
     <img class="block h-8 w-auto md:hidden" src="assets/logo-small.svg" alt="Angular Primitives" />
