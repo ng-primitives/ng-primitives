@@ -16,7 +16,7 @@ import { Dimensions, NgpResize } from 'ng-primitives/resize';
       justify-content: center;
       overflow: hidden;
       border-radius: 0.25rem;
-      border: 1px dashed rgb(10 10 10);
+      border: 1px dashed light-dark(rgb(10 10 10), rgb(200, 200, 200));
       padding: 1rem;
     }
   `,
