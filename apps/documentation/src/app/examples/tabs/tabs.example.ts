@@ -7,6 +7,18 @@ import { NgpTabButton, NgpTabList, NgpTabPanel, NgpTabset } from 'ng-primitives/
   imports: [NgpTabset, NgpTabList, NgpTabButton, NgpTabPanel],
   styles: `
     :host {
+      --tabset-background-color: rgb(255 255 255);
+      --tablist-border-color: rgb(229 231 235);
+      --tab-button-active-border-color: rgb(9 9 11);
+      --tab-button-active-color: rgb(9 9 11);
+
+      --tabset-background-color-dark: rgb(43 43 47);
+      --tablist-border-color-dark: rgb(96 96 102);
+      --tab-button-active-border-color-dark: rgb(255 255 255);
+      --tab-button-active-color-dark: rgb(255 255 255);
+    }
+
+    :host {
       display: contents;
     }
 
@@ -14,7 +26,10 @@ import { NgpTabButton, NgpTabList, NgpTabPanel, NgpTabset } from 'ng-primitives/
       width: 100%;
       max-width: 512px;
       border-radius: 0.75rem;
-      background-color: rgb(255 255 255);
+      background-color: light-dark(
+        var(--tabset-background-color),
+        var(--tabset-background-color-dark)
+      );
       padding: 0.25rem 1rem;
       box-shadow:
         0 1px 3px 0 rgb(0 0 0 / 0.1),
@@ -25,7 +40,8 @@ import { NgpTabButton, NgpTabList, NgpTabPanel, NgpTabset } from 'ng-primitives/
     [ngpTabList] {
       display: flex;
       gap: 1.5rem;
-      border-bottom: 1px solid rgb(229 231 235);
+      border-bottom: 1px solid
+        light-dark(var(--tablist-border-color), var(--tablist-border-color-dark));
     }
 
     [ngpTabButton] {
@@ -45,8 +61,11 @@ import { NgpTabButton, NgpTabList, NgpTabPanel, NgpTabset } from 'ng-primitives/
     }
 
     [ngpTabButton][data-active='true'] {
-      border-color: rgb(9 9 11);
-      color: rgb(9 9 11);
+      border-color: light-dark(
+        var(--tab-button-active-border-color),
+        var(--tab-button-active-border-color-dark)
+      );
+      color: light-dark(var(--tab-button-active-color), var(--tab-button-active-color-dark));
     }
 
     [ngpTabPanel] {
