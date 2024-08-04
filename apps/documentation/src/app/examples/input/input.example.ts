@@ -10,6 +10,14 @@ import { NgpInput } from 'ng-primitives/input';
   `,
   styles: `
     :host {
+      --input-label-color: rgb(9 9 11);
+      --input-placeholder-color: rgb(161 161 170);
+
+      --input-label-color-dark: #e4e4e7;
+      --input-placeholder-color-dark: rgb(161 161 170);
+    }
+
+    :host {
       display: contents;
     }
 
@@ -20,8 +28,8 @@ import { NgpInput } from 'ng-primitives/input';
       padding: 0 16px;
       border: none;
       box-shadow:
-        0 1px 2px rgba(0, 0, 0, 0.05),
-        0 0 0 1px rgba(0, 0, 0, 0.1);
+        0 1px 2px light-dark(rgba(0, 0, 0, 0.05), rgba(255, 255, 255, 0.007)),
+        0 0 0 1px light-dark(rgba(0, 0, 0, 0.1), rgba(255, 255, 255, 0.1));
       outline: none;
     }
 
