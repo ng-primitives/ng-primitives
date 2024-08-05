@@ -14,28 +14,6 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@docsearch/css@3" />
     <link rel="preconnect" href="https://HTXZ7INLYZ-dsn.algolia.net" crossorigin />
     <link rel="stylesheet" href="/src/styles.css" />
-
-    <script>
-      if (localStorage['ng-primitives-theme'] === 'dark') {
-        if (document && document.documentElement) {
-          document.documentElement.classList.add('dark');
-        }
-      } else if (localStorage['ng-primitives-theme'] === 'light') {
-        if (document && document.documentElement) {
-          document.documentElement.classList.remove('dark');
-          localStorage.setItem('ng-primitives-theme', 'light');
-        }
-      } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
-        localStorage.setItem('ng-primitives-theme', 'system');
-        if (document && document.documentElement) {
-          document.documentElement.classList.add('dark');
-        }
-      } else {
-        if (document && document.documentElement) {
-          document.documentElement.classList.remove('dark');
-        }
-      }
-    </script>
   </head>
   <body class="font-sans text-sm text-zinc-600 antialiased dark:bg-zinc-900 dark:text-zinc-100">
     <docs-root></docs-root>
