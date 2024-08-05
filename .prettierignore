@@ -9,3 +9,5 @@
 pnpm-lock.yaml
 
 /.nx/workspace-data
+CHANGELOG.md
+.all-contributorsrc
