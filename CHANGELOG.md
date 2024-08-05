@@ -1,3 +1,16 @@
+## 0.5.0 (2024-08-05)
+
+
+### 🚀 Features
+
+- pagination ([#23](https://github.com/ng-primitives/ng-primitives/pull/23))
+- **docs:** implement dark mode ([#17](https://github.com/ng-primitives/ng-primitives/pull/17))
+
+### ❤️  Thank You
+
+- Ashley Hunter
+- Benjamin Forrás @benjaminforras
+
 ## 0.4.0 (2024-07-31)
 
 ### 🚀 Features
