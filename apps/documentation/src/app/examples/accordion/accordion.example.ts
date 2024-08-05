@@ -15,6 +15,28 @@ import {
   viewProviders: [provideIcons({ heroChevronDownMini })],
   styles: `
     :host {
+      --accordion-border-color: #e5e7eb;
+      --accordion-background-color: #fff;
+      --accordion-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+      --accordion-separator-color: #e5e7eb;
+      --accordion-trigger-color: #0a0a0a;
+      --accordion-trigger-background-color: #fff;
+      --accordion-trigger-focus-shadow: 0 0 0 2px #3b82f6;
+      --accordion-content-color: #737373;
+      --accordion-icon-color: #737373;
+
+      --accordion-border-color-dark: #3f3f46;
+      --accordion-background-color-dark: #18181b;
+      --accordion-shadow-dark: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+      --accordion-separator-color-dark: #3f3f46;
+      --accordion-trigger-color-dark: #fff;
+      --accordion-trigger-background-color-dark: #18181b;
+      --accordion-trigger-focus-shadow-dark: 0 0 0 2px #3b82f6;
+      --accordion-content-color-dark: #e4e4e7;
+      --accordion-icon-color-dark: #e4e4e7;
+    }
+
+    :host {
       display: flex;
       justify-content: center;
       width: 100%;
@@ -24,13 +46,18 @@ import {
       width: 100%;
       max-width: 24rem;
       border-radius: 0.75rem;
-      border: 1px solid #e5e7eb;
-      background-color: #fff;
-      box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+      border: 1px solid
+        light-dark(var(--accordion-border-color), var(--accordion-border-color-dark));
+      background-color: light-dark(
+        var(--accordion-background-color),
+        var(--accordion-background-color-dark)
+      );
+      box-shadow: light-dark(var(--accordion-shadow), var(--accordion-shadow-dark));
     }
 
     [ngpAccordionItem]:has(+ [ngpAccordionItem]) {
-      border-bottom: 1px solid #e5e5e5;
+      border-bottom: 1px solid
+        light-dark(var(--accordion-separator-color), var(--accordion-separator-color-dark));
     }
 
     [ngpAccordionTrigger] {
@@ -46,18 +73,24 @@ import {
       height: 2.75rem;
       border-radius: 0.75rem;
       outline: none;
-      color: #0a0a0a;
-      background-color: #fff;
+      color: light-dark(var(--accordion-trigger-color), var(--accordion-trigger-color-dark));
+      background-color: light-dark(
+        var(--accordion-trigger-background-color),
+        var(--accordion-trigger-background-color-dark)
+      );
       border: none;
     }
 
     [ngpAccordionTrigger][data-focus-visible='true'] {
-      box-shadow: 0 0 0 2px #3b82f6;
+      box-shadow: light-dark(
+        var(--accordion-trigger-focus-shadow),
+        var(--accordion-trigger-focus-shadow-dark)
+      );
     }
 
     [ngpAccordionContent] {
       font-size: 0.875rem;
-      color: #737373;
+      color: light-dark(var(--accordion-content-color), var(--accordion-content-color-dark));
       overflow: hidden;
       transition: height 0.3s ease;
     }
@@ -76,7 +109,7 @@ import {
 
     ng-icon {
       font-size: 1.25rem;
-      color: #737373;
+      color: light-dark(var(--accordion-icon-color), var(--accordion-icon-color-dark));
     }
 
     ng-icon[data-open='true'] {

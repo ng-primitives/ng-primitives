@@ -26,16 +26,33 @@ import { NgpRovingFocusGroup, NgpRovingFocusItem } from 'ng-primitives/roving-fo
     }),
   ],
   styles: `
+    :host {
+      --roving-focus-group-background-color: rgb(255 255 255);
+      --roving-focus-group-hover-background-color: rgb(250 250 250);
+      --roving-focus-group-pressed-background-color: rgb(245 245 245);
+      --roving-focus-group-icon-color: rgb(64 64 64);
+      --roving-focus-group-divider-color: rgb(229 229 229);
+
+      --roving-focus-group-background-color-dark: rgb(43 43 47);
+      --roving-focus-group-hover-background-color-dark: rgb(63 63 70);
+      --roving-focus-group-pressed-background-color-dark: rgb(39 39 42);
+      --roving-focus-group-icon-color-dark: rgb(225 225 225);
+      --roving-focus-group-divider-color-dark: rgb(96 96 102);
+    }
+
     [ngpRovingFocusGroup] {
       display: flex;
       column-gap: 0.25rem;
       align-items: center;
       border-radius: 0.375rem;
-      background-color: rgb(255 255 255);
+      background-color: light-dark(
+        var(--roving-focus-group-background-color),
+        var(--roving-focus-group-background-color-dark)
+      );
       box-shadow:
-        0 1px 3px 0 rgb(0 0 0 / 0.1),
-        0 1px 2px -1px rgb(0 0 0 / 0.1),
-        0 0 0 1px rgb(0 0 0 / 0.05);
+        0 1px 3px 0 light-dark(rgba(0, 0, 0, 0.1), rgba(255, 255, 255, 0.1)),
+        0 1px 2px -1px light-dark(rgba(0, 0, 0, 0.1), rgba(255, 255, 255, 0.1)),
+        0 0 0 1px light-dark(rgba(0, 0, 0, 0.05), rgba(255, 255, 255, 0.05));
       padding: 0.25rem;
     }
 
@@ -53,29 +70,41 @@ import { NgpRovingFocusGroup, NgpRovingFocusItem } from 'ng-primitives/roving-fo
     }
 
     [ngpButton][data-hover='true'] {
-      background-color: rgb(250 250 250);
-      box-shadow: 0 0 0 1px rgb(0 0 0 / 0.05);
+      background-color: light-dark(
+        var(--roving-focus-group-hover-background-color),
+        var(--roving-focus-group-hover-background-color-dark)
+      );
+      box-shadow: 0 0 0 1px light-dark(rgba(0, 0, 0, 0.05), rgba(255, 255, 255, 0.05));
     }
 
     [ngpButton][data-focus-visible='true'] {
       box-shadow:
-        0 0 0 1px rgb(0 0 0 / 0.05),
+        0 0 0 1px light-dark(rgba(0, 0, 0, 0.05), rgba(255, 255, 255, 0.05)),
         0 0 0 2px rgb(59 130 246);
     }
 
     [ngpButton][data-press='true'] {
-      background-color: rgb(245 245 245);
+      background-color: light-dark(
+        var(--roving-focus-group-pressed-background-color),
+        var(--roving-focus-group-pressed-background-color-dark)
+      );
     }
 
     ng-icon {
       font-size: 1.125rem;
-      color: rgb(64 64 64);
+      color: light-dark(
+        var(--roving-focus-group-icon-color),
+        var(--roving-focus-group-icon-color-dark)
+      );
     }
 
     .divider {
       width: 1px;
       height: 1.5rem;
-      background-color: rgb(229 229 229);
+      background-color: light-dark(
+        var(--roving-focus-group-divider-color),
+        var(--roving-focus-group-divider-color-dark)
+      );
       margin: 0 0.25rem;
     }
   `,

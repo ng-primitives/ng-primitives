@@ -20,8 +20,8 @@ import { NgpTextarea } from 'ng-primitives/textarea';
       padding: 8px 12px;
       border: none;
       box-shadow:
-        0 1px 2px rgba(0, 0, 0, 0.05),
-        0 0 0 1px rgba(0, 0, 0, 0.1);
+        0 1px 2px light-dark(rgba(0, 0, 0, 0.05), rgba(255, 255, 255, 0.05)),
+        0 0 0 1px light-dark(rgba(0, 0, 0, 0.1), rgba(255, 255, 255, 0.1));
       outline: none;
     }
 

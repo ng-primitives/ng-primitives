@@ -16,6 +16,24 @@ import { NgpFileUpload } from 'ng-primitives/file-upload';
     </div>
   `,
   styles: `
+    :host {
+      --file-upload-background-color: rgb(255 255 255);
+      --file-upload-border-color: rgb(229 231 235);
+      --file-upload-border-color-hover: rgb(59 130 246);
+      --file-upload-border-color-focus: rgb(59 130 246);
+      --file-upload-border-color-drag-over: rgb(59 130 246);
+      --file-upload-background-color-drag-over: rgb(239, 246, 255);
+      --file-upload-icon-color: rgb(156 163 175);
+
+      --file-upload-background-color-dark: rgb(43 43 43);
+      --file-upload-border-color-dark: rgb(128 128 128);
+      --file-upload-border-color-hover-dark: rgb(59 130 246);
+      --file-upload-border-color-focus-dark: rgb(59 130 246);
+      --file-upload-border-color-drag-over-dark: rgb(59 130 246);
+      --file-upload-background-color-drag-over-dark: rgba(128, 128, 128, 0.35);
+      --file-upload-icon-color-dark: rgb(225 225 225);
+    }
+
     [ngpFileUpload] {
       display: flex;
       cursor: pointer;
@@ -24,18 +42,28 @@ import { NgpFileUpload } from 'ng-primitives/file-upload';
       justify-content: center;
       row-gap: 0.25rem;
       border-radius: 0.5rem;
-      border: 1px dashed rgb(229, 231, 235);
-      background-color: rgb(255, 255, 255);
+      border: 1px dashed
+        light-dark(var(--file-upload-border-color), var(--file-upload-border-color-dark));
+      background-color: light-dark(
+        var(--file-upload-background-color),
+        var(--file-upload-background-color-dark)
+      );
       padding: 2rem 3rem;
     }
 
     [ngpFileUpload][data-dragover='true'] {
-      border-color: rgb(59, 130, 246);
-      background-color: rgb(239, 246, 255);
+      border-color: light-dark(
+        var(--file-upload-border-color-drag-over),
+        var(--file-upload-border-color-drag-over-dark)
+      );
+      background-color: light-dark(
+        var(--file-upload-background-color-drag-over),
+        var(--file-upload-background-color-drag-over-dark)
+      );
     }
 
     ng-icon {
-      color: rgb(156, 163, 175);
+      color: light-dark(var(--file-upload-icon-color), var(--file-upload-icon-color-dark));
       font-size: 20px;
       margin-bottom: 0.25rem;
     }
@@ -43,7 +71,7 @@ import { NgpFileUpload } from 'ng-primitives/file-upload';
     .heading {
       font-size: 0.875rem;
       font-weight: 500;
-      color: rgb(17 24 39);
+      color: light-dark(var(--file-upload-heading-color), var(--file-upload-heading-color-dark));
       line-height: 1.25rem;
       text-align: center;
       margin: 0;
@@ -51,7 +79,10 @@ import { NgpFileUpload } from 'ng-primitives/file-upload';
 
     .subheading {
       font-size: 0.75rem;
-      color: rgb(107 114 128);
+      color: light-dark(
+        var(--file-upload-subheading-color),
+        var(--file-upload-subheading-color-dark)
+      );
       line-height: 1rem;
       text-align: center;
       margin: 0;

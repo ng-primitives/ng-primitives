@@ -1,11 +1,12 @@
 <div class="not-prose relative flex flex-col items-center justify-center">
   <div class="absolute inset-x-0 top-0 flex justify-between gap-x-2">
-    <div class="mr-2 rounded-lg bg-zinc-100 p-0.5 ring-1 ring-black/5">
+    <div class="mr-2 rounded-lg bg-zinc-100 p-0.5 ring-1 ring-black/5 dark:bg-zinc-800">
       <button
         class="w-16 rounded-md px-2 py-1.5 text-xs font-medium outline-none focus-visible:z-10 focus-visible:ring-2 focus-visible:ring-blue-500"
         [ngClass]="{
-          'bg-white text-zinc-950 shadow-sm ring-1 ring-black/5': mode() === 'preview',
-          'text-zinc-500 hover:text-zinc-700': mode() !== 'preview',
+          'bg-white text-zinc-950 shadow-sm ring-1 ring-black/5 dark:bg-zinc-900 dark:text-white dark:ring-white/5':
+            mode() === 'preview',
+          'text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-200': mode() !== 'preview',
         }"
         (click)="mode.set('preview')"
       >
@@ -14,8 +15,9 @@
       <button
         class="w-16 rounded-md px-2 py-1.5 text-xs font-medium outline-none focus-visible:z-10 focus-visible:ring-2 focus-visible:ring-blue-500"
         [ngClass]="{
-          'bg-white text-zinc-950 shadow-sm ring-1 ring-black/5': mode() === 'source',
-          'text-zinc-500 hover:text-zinc-700': mode() !== 'source',
+          'bg-white text-zinc-950 shadow-sm ring-1 ring-black/5 dark:bg-zinc-900 dark:text-white dark:ring-white/5':
+            mode() === 'source',
+          'text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-200': mode() !== 'source',
         }"
         (click)="mode.set('source')"
       >
@@ -25,14 +27,14 @@
 
     <div class="flex gap-x-2">
       <button
-        class="inline-flex size-8 items-center justify-center rounded-lg bg-white p-2 shadow-sm ring-1 ring-black/5 transition-colors hover:bg-zinc-50 active:bg-zinc-100"
+        class="inline-flex size-8 items-center justify-center rounded-lg bg-white p-2 shadow-sm ring-1 ring-black/5 transition-colors hover:bg-zinc-50 active:bg-zinc-100 dark:bg-zinc-900 dark:ring-white/5 dark:hover:bg-zinc-950 dark:active:bg-zinc-800"
         (click)="copyCode()"
       >
         <ng-icon name="lucideClipboard" />
       </button>
 
       <button
-        class="inline-flex size-8 items-center justify-center rounded-lg bg-white p-2 shadow-sm ring-1 ring-black/5 transition-colors hover:bg-zinc-50 active:bg-zinc-100"
+        class="inline-flex size-8 items-center justify-center rounded-lg bg-white p-2 shadow-sm ring-1 ring-black/5 transition-colors hover:bg-zinc-50 active:bg-zinc-100 dark:bg-zinc-900 dark:ring-white/5 dark:hover:bg-zinc-950 dark:active:bg-zinc-800"
         (click)="openStackBlitz()"
       >
         <ng-icon name="lucideCodesandbox" />
@@ -43,7 +45,7 @@
   <div class="relative mt-10 w-full flex-1">
     @if (mode() === 'preview') {
       <div
-        class="flex h-fit min-h-[280px] items-center justify-center rounded-xl border border-zinc-200 bg-zinc-50 p-8"
+        class="flex h-fit min-h-[280px] items-center justify-center rounded-xl border border-zinc-200 bg-zinc-50 p-8 dark:border-zinc-800 dark:bg-zinc-950"
       >
         <ng-container [ngComponentOutlet]="component" />
       </div>
