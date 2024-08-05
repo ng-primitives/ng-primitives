@@ -5,14 +5,7 @@
  * This source code is licensed under the Apache 2.0 license found in the
  * LICENSE file in the root directory of this source tree.
  */
-import {
-  AfterRenderPhase,
-  ElementRef,
-  Renderer2,
-  afterNextRender,
-  inject,
-  signal,
-} from '@angular/core';
+import { ElementRef, Renderer2, afterNextRender, inject, signal } from '@angular/core';
 
 /**
  * Injects the dimensions of the element
@@ -20,7 +13,7 @@ import {
  */
 export function injectDimensions() {
   const renderer = inject(Renderer2);
-  const element = inject<ElementRef<HTMLElement>>(ElementRef);
+  const element = inject<ElementRef<HTMLElement>>(ElementRef).nativeElement;
   const size = signal<{ width: number; height: number; mounted: boolean }>({
     width: 0,
     height: 0,
@@ -28,34 +21,24 @@ export function injectDimensions() {
   });
   let transitionDuration: string | undefined, animationName: string | undefined;
 
-  afterNextRender(
-    () => {
-      transitionDuration = element.nativeElement.style.transitionDuration;
-      animationName = element.nativeElement.style.animationName;
+  afterNextRender({
+    earlyRead: () => {
+      transitionDuration = element.style.transitionDuration;
+      animationName = element.style.animationName;
     },
-    { phase: AfterRenderPhase.EarlyRead },
-  );
-
-  afterNextRender(
-    () => {
+    write: () => {
       // block any animations/transitions so the element renders at its full dimensions
-      renderer.setStyle(element.nativeElement, 'transitionDuration', '0s');
-      renderer.setStyle(element.nativeElement, 'animationName', 'none');
+      renderer.setStyle(element, 'transitionDuration', '0s');
+      renderer.setStyle(element, 'animationName', 'none');
     },
-    { phase: AfterRenderPhase.Write },
-  );
-
-  afterNextRender(
-    () => {
-      const { width, height } = element.nativeElement.getBoundingClientRect();
+    read: () => {
+      const { width, height } = element.getBoundingClientRect();
       size.set({ width, height, mounted: true });
-
       // restore the original transition duration and animation name
-      renderer.setStyle(element.nativeElement, 'transitionDuration', transitionDuration);
-      renderer.setStyle(element.nativeElement, 'animationName', animationName);
+      renderer.setStyle(element, 'transitionDuration', transitionDuration);
+      renderer.setStyle(element, 'animationName', animationName);
     },
-    { phase: AfterRenderPhase.Read },
-  );
+  });
 
   return size;
 }
