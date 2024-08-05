@@ -1,4 +1,4 @@
-import { DOCUMENT, isPlatformBrowser, isPlatformServer } from '@angular/common';
+import { DOCUMENT, isPlatformBrowser } from '@angular/common';
 import { inject, Injectable, PLATFORM_ID, RendererFactory2, signal } from '@angular/core';
 import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
 
@@ -10,12 +10,12 @@ export type ThemeOption = (typeof ThemeOptions)[number];
   providedIn: 'root',
 })
 export class ThemeTogglerService {
-  private readonly platformId = inject(PLATFORM_ID);
-  private readonly renderer = inject(RendererFactory2).createRenderer(null, null);
-  private readonly document = inject(DOCUMENT);
+  private platformId = inject(PLATFORM_ID);
+  private renderer = inject(RendererFactory2).createRenderer(null, null);
+  private document = inject(DOCUMENT);
 
-  private readonly theme = signal<'light' | 'dark' | 'system'>('system');
-  readonly theme$ = toObservable(this.theme);
+  private theme = signal<'light' | 'dark' | 'system'>('system');
+  theme$ = toObservable(this.theme);
 
   constructor() {
     if (isPlatformBrowser(this.platformId)) {
@@ -23,26 +23,12 @@ export class ThemeTogglerService {
     }
 
     this.theme$.pipe(takeUntilDestroyed()).subscribe(theme => {
-      // if we are on the server do nothing
-      if (isPlatformServer(this.platformId)) {
-        return;
-      }
-
-      // remove the classes from the documentElement
-      this.document.documentElement.classList.remove('dark');
-
-      // if the theme is system, we need to check the system theme
-      if (theme === 'system') {
-        if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
-          theme = 'dark';
-        } else {
-          theme = 'light';
-        }
-      }
-
-      // set the class on the document
       if (theme === 'dark') {
-        this.renderer.addClass(this.document.documentElement, theme);
+        this.renderer.addClass(this.document.documentElement, 'dark');
+      } else {
+        if (this.document.documentElement.className.includes('dark')) {
+          this.renderer.removeClass(this.document.documentElement, 'dark');
+        }
       }
     });
   }

@@ -91,7 +91,7 @@ pre[class*='language-'] {
 
 .DocSearch-Button {
   --docsearch-searchbox-shadow: 0 0 0 1px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.2);
-  @apply absolute left-[calc(50%-88px)] top-[15px] inline-flex h-9 w-44 flex-none items-center gap-x-3 overflow-hidden rounded-lg bg-white px-3 shadow shadow-black/5 ring-1 ring-black/10 focus-within:ring-2 focus-within:ring-blue-500 md:left-[calc(50%-104px)] md:left-[calc(50%-160px)] md:w-52 lg:w-80 dark:bg-zinc-800;
+  @apply absolute left-[calc(50%-88px)] top-[15px] inline-flex h-9 w-44 flex-none items-center gap-x-3 overflow-hidden rounded-lg bg-white px-3 shadow shadow-black/5 ring-1 ring-black/10 focus-within:ring-2 focus-within:ring-blue-500 md:left-[calc(50%-104px)] md:w-52 lg:left-[calc(50%-160px)] lg:w-80 dark:bg-zinc-800;
 }
 
 .DocSearch-Button-Placeholder {
