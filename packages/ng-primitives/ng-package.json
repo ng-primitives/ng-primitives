@@ -4,5 +4,6 @@
   "lib": {
     "entryFile": "src/index.ts"
   },
+  "assets": ["generators.json"],
   "allowedNonPeerDependencies": ["@nx/devkit"]
 }
