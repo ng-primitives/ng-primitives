@@ -36,12 +36,12 @@
           {
             "input": "./packages/ng-primitives/schematics",
             "glob": "**/!(*.ts)",
-            "output": "./src"
+            "output": "./schematics"
           },
           {
             "input": "./packages/ng-primitives/schematics",
             "glob": "**/*.d.ts",
-            "output": "./src"
+            "output": "./schematics"
           },
           {
             "input": "./packages/ng-primitives",
