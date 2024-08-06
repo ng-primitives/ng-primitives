@@ -23,6 +23,44 @@
       },
       "defaultConfiguration": "production"
     },
+    "build:schematics": {
+      "executor": "@nx/js:tsc",
+      "outputs": ["{options.outputPath}"],
+      "dependsOn": ["build"],
+      "options": {
+        "clean": false,
+        "outputPath": "dist/packages/ng-primitives",
+        "main": "packages/ng-primitives/src/index.ts",
+        "tsConfig": "packages/ng-primitives/tsconfig.schematics.json",
+        "assets": [
+          {
+            "input": "./packages/ng-primitives/schematics",
+            "glob": "**/!(*.ts)",
+            "output": "./src"
+          },
+          {
+            "input": "./packages/ng-primitives/schematics",
+            "glob": "**/*.d.ts",
+            "output": "./src"
+          },
+          {
+            "input": "./packages/ng-primitives",
+            "glob": "generators.json",
+            "output": "."
+          },
+          {
+            "input": "./packages/ng-primitives",
+            "glob": "executors.json",
+            "output": "."
+          },
+          {
+            "input": "./packages/ng-primitives",
+            "glob": "migrations.json",
+            "output": "."
+          }
+        ]
+      }
+    },
     "test": {
       "executor": "nx:noop"
     },
