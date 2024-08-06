@@ -1,3 +1,14 @@
+## 0.5.2 (2024-08-06)
+
+
+### 🩹 Fixes
+
+- ng-add ([#30](https://github.com/ng-primitives/ng-primitives/pull/30))
+
+### ❤️  Thank You
+
+- Ashley Hunter
+
 ## 0.5.1 (2024-08-06)
 
 
