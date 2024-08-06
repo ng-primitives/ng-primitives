@@ -1,3 +1,14 @@
+## 0.5.1 (2024-08-06)
+
+
+### 🩹 Fixes
+
+- adding missing generators file ([#29](https://github.com/ng-primitives/ng-primitives/pull/29))
+
+### ❤️  Thank You
+
+- Ashley Hunter
+
 ## 0.5.0 (2024-08-05)
 
 ### 🚀 Features
