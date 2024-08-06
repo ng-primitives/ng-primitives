@@ -9,9 +9,9 @@
     "build": {
       "executor": "@nx/angular:package",
       "outputs": ["{workspaceRoot}/dist/{projectRoot}"],
+      "dependsOn": ["build:schematics"],
       "options": {
-        "project": "packages/ng-primitives/ng-package.json",
-        "tailwindConfig": "packages/ng-primitives/tailwind.config.js"
+        "project": "packages/ng-primitives/ng-package.json"
       },
       "configurations": {
         "production": {
@@ -26,12 +26,12 @@
     "build:schematics": {
       "executor": "@nx/js:tsc",
       "outputs": ["{options.outputPath}"],
-      "dependsOn": ["build"],
       "options": {
-        "clean": false,
+        "clean": true,
         "outputPath": "dist/packages/ng-primitives",
         "main": "packages/ng-primitives/src/index.ts",
         "tsConfig": "packages/ng-primitives/tsconfig.schematics.json",
+        "generateExportsField": false,
         "assets": [
           {
             "input": "./packages/ng-primitives/schematics",
