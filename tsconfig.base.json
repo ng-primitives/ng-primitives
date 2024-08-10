@@ -32,6 +32,7 @@
       "ng-primitives/input": ["packages/ng-primitives/input/src/index.ts"],
       "ng-primitives/interactions": ["packages/ng-primitives/interactions/src/index.ts"],
       "ng-primitives/internal": ["packages/ng-primitives/internal/src/index.ts"],
+      "ng-primitives/menu": ["packages/ng-primitives/menu/src/index.ts"],
       "ng-primitives/pagination": ["packages/ng-primitives/pagination/src/index.ts"],
       "ng-primitives/progress": ["packages/ng-primitives/progress/src/index.ts"],
       "ng-primitives/radio": ["packages/ng-primitives/radio/src/index.ts"],
