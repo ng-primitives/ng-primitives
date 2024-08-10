@@ -96,10 +96,15 @@ import { NgpMenu, NgpMenuItem, NgpMenuTrigger } from 'ng-primitives/menu';
       border-radius: 6px;
       min-width: 120px;
       text-align: start;
+      outline: none;
     }
 
-    [ngpMenuItem]:hover {
+    [ngpMenuItem][data-hover='true'] {
       background: light-dark(#f5f5f5, #3f3f46);
+    }
+
+    [ngpMenuItem][data-focus-visible='true'] {
+      box-shadow: 0 0 0 2px light-dark(#005fcc, #99c8ff);
     }
   `,
 })

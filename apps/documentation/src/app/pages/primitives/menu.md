@@ -75,6 +75,7 @@ The `NgpMenuItem` directive represents a menu item.
 
 - Selector: `[ngpMenuItem]`
 - Exported As: `ngpMenuItem`
+- Host Directives: [NgpHover](/interactions/hover), [NgpFocusVisible](/interactions/focus-visible), [NgpPress](/interactions/press)
 
 <response-field name="ngpMenuItemDisabled" type="boolean" default="false">
   Define if the menu item is disabled.
