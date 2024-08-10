@@ -1,3 +1,19 @@
+## 0.6.0 (2024-08-10)
+
+
+### 🚀 Features
+
+- **menu:** menu primitive ([#33](https://github.com/ng-primitives/ng-primitives/pull/33))
+
+### 🩹 Fixes
+
+- **docs:** Navbar Right-hand Side Buttons Not Clickable on Mobile ([#32](https://github.com/ng-primitives/ng-primitives/pull/32))
+
+### ❤️  Thank You
+
+- Ashley Hunter
+- Benjamin Forrás @benjaminforras
+
 ## 0.5.2 (2024-08-06)
 
 
