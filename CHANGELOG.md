@@ -1,3 +1,14 @@
+## 0.6.1 (2024-08-10)
+
+
+### 🚀 Features
+
+- **menu:** menu item interactions ([ef466cb](https://github.com/ng-primitives/ng-primitives/commit/ef466cb))
+
+### ❤️  Thank You
+
+- Ashley Hunter @ashley-hunter
+
 ## 0.6.0 (2024-08-10)
 
 
