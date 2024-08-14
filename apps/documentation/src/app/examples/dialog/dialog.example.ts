@@ -22,7 +22,7 @@ import {
   template: `
     <button [ngpDialogTrigger]="dialog">Launch Dialog</button>
 
-    <ng-template #dialog>
+    <ng-template #dialog let-close="close">
       <div ngpDialogOverlay>
         <div ngpDialog>
           <h1 ngpDialogTitle>Publish this article?</h1>
@@ -30,8 +30,8 @@ import {
             Are you sure you want to publish this article? This action is irreversible.
           </p>
           <div class="dialog-footer">
-            <button ngpButton>Cancel</button>
-            <button ngpButton>Confirm</button>
+            <button (click)="close()" ngpButton>Cancel</button>
+            <button (click)="close()" ngpButton>Confirm</button>
           </div>
         </div>
       </div>

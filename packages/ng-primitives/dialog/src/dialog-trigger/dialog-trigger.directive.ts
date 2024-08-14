@@ -68,7 +68,9 @@ export class NgpDialogTrigger {
       new TemplatePortal(
         this.template(),
         this.viewContainerRef,
-        null,
+        {
+          close: () => this.overlayRef?.dispose(),
+        },
         Injector.create({
           providers: [{ provide: NgpDialogTriggerToken, useExisting: NgpDialogTrigger }],
           parent: this.injector,

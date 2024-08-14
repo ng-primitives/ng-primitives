@@ -16,11 +16,21 @@ export interface NgpDialogConfig {
    * Whether the dialog is modal.
    */
   modal: boolean;
+  /**
+   * Whether the dialog should close on overlay click.
+   */
+  closeOnOverlayClick?: boolean;
+  /**
+   * Whether the dialog should close on escape key press.
+   */
+  closeOnEscape?: boolean;
 }
 
 export const defaultDialogConfig: NgpDialogConfig = {
   role: 'dialog',
   modal: true,
+  closeOnOverlayClick: true,
+  closeOnEscape: true,
 };
 
 export const NgpDialogConfigToken = new InjectionToken<NgpDialogConfig>('NgpDialogConfigToken');

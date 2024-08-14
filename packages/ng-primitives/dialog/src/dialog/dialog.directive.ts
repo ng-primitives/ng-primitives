@@ -11,6 +11,7 @@ import {
   computed,
   contentChildren,
   Directive,
+  HostListener,
   input,
   OnDestroy,
 } from '@angular/core';
@@ -89,13 +90,32 @@ export class NgpDialog implements OnDestroy {
       ?.keydownEvents()
       .pipe(takeUntilDestroyed())
       .subscribe(event => {
-        if (event.key === 'Escape' && NgpDialog.stack[NgpDialog.stack.length - 1] === this) {
-          this.trigger.overlayRef?.dispose();
+        if (
+          event.key === 'Escape' &&
+          this.config.closeOnEscape &&
+          NgpDialog.stack[NgpDialog.stack.length - 1] === this
+        ) {
+          this.close();
         }
       });
   }
 
   ngOnDestroy(): void {
-    NgpDialog.stack.pop();
+    this.close();
+  }
+
+  /** Close the dialog. */
+  close(): void {
+    this.trigger.overlayRef?.dispose();
+
+    if (NgpDialog.stack[NgpDialog.stack.length - 1] === this) {
+      NgpDialog.stack.pop();
+    }
+  }
+
+  /** Stop click events from propagating to the overlay */
+  @HostListener('click', ['$event'])
+  protected onClick(event: Event): void {
+    event.stopPropagation();
   }
 }
