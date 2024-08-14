@@ -6,11 +6,21 @@
  * LICENSE file in the root directory of this source tree.
  */
 import { BooleanInput } from '@angular/cdk/coercion';
-import { booleanAttribute, computed, contentChildren, Directive, input } from '@angular/core';
+import {
+  booleanAttribute,
+  computed,
+  contentChildren,
+  Directive,
+  input,
+  OnDestroy,
+} from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { NgpFocusTrap } from 'ng-primitives/focus-trap';
 import { uniqueId } from 'ng-primitives/utils';
 import { injectDialogConfig } from '../config/dialog.config';
 import { NgpDialogDescriptionToken } from '../dialog-description/dialog-description.token';
 import { NgpDialogTitleToken } from '../dialog-title/dialog-title.token';
+import { injectDialogTrigger } from '../dialog-trigger/dialog-trigger.token';
 import { NgpDialogToken } from './dialog.token';
 
 @Directive({
@@ -18,6 +28,7 @@ import { NgpDialogToken } from './dialog.token';
   selector: '[ngpDialog]',
   exportAs: 'ngpDialog',
   providers: [{ provide: NgpDialogToken, useExisting: NgpDialog }],
+  hostDirectives: [NgpFocusTrap],
   host: {
     tabindex: '-1',
     '[id]': 'id()',
@@ -27,8 +38,14 @@ import { NgpDialogToken } from './dialog.token';
     '[attr.aria-describedby]': 'describedBy()',
   },
 })
-export class NgpDialog {
+export class NgpDialog implements OnDestroy {
   private readonly config = injectDialogConfig();
+
+  /** Access the dialog trigger. */
+  private readonly trigger = injectDialogTrigger();
+
+  /** Store the stack of dialogs. */
+  private static stack: NgpDialog[] = [];
 
   /** The id of the dialog */
   readonly id = input<string>(uniqueId('ngp-dialog'));
@@ -63,4 +80,22 @@ export class NgpDialog {
       .map(description => description.id())
       .join(' '),
   );
+
+  constructor() {
+    NgpDialog.stack.push(this);
+
+    // Close the dialog when the escape key is pressed and this is the top-most dialog.
+    this.trigger.overlayRef
+      ?.keydownEvents()
+      .pipe(takeUntilDestroyed())
+      .subscribe(event => {
+        if (event.key === 'Escape' && NgpDialog.stack[NgpDialog.stack.length - 1] === this) {
+          this.trigger.overlayRef?.dispose();
+        }
+      });
+  }
+
+  ngOnDestroy(): void {
+    NgpDialog.stack.pop();
+  }
 }

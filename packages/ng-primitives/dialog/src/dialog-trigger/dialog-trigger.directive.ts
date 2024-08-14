@@ -8,17 +8,15 @@
 import { Overlay, OverlayRef } from '@angular/cdk/overlay';
 import { TemplatePortal } from '@angular/cdk/portal';
 import {
-  DestroyRef,
   Directive,
   HostListener,
   inject,
+  Injector,
   input,
   TemplateRef,
   ViewContainerRef,
 } from '@angular/core';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { NgpButton } from 'ng-primitives/button';
-import { filter } from 'rxjs/operators';
 import { NgpDialogTriggerToken } from './dialog-trigger.token';
 
 @Directive({
@@ -30,6 +28,11 @@ import { NgpDialogTriggerToken } from './dialog-trigger.token';
 })
 export class NgpDialogTrigger {
   /**
+   * Access the injector.
+   */
+  private readonly injector = inject(Injector);
+
+  /**
    * Access the CDK overlay service.
    */
   private readonly overlay = inject(Overlay);
@@ -40,11 +43,6 @@ export class NgpDialogTrigger {
   private readonly viewContainerRef = inject(ViewContainerRef);
 
   /**
-   * Access the destroy ref.
-   */
-  private readonly destroyRef = inject(DestroyRef);
-
-  /**
    * The template to launch.
    */
   readonly template = input.required<TemplateRef<unknown>>({
@@ -53,8 +51,9 @@ export class NgpDialogTrigger {
 
   /**
    * Store the overlay ref instance.
+   * @internal
    */
-  private overlayRef: OverlayRef | null = null;
+  overlayRef: OverlayRef | null = null;
 
   @HostListener('click')
   protected launch(): void {
@@ -65,14 +64,16 @@ export class NgpDialogTrigger {
       hasBackdrop: false,
     });
 
-    this.overlayRef.attach(new TemplatePortal(this.template(), this.viewContainerRef));
-
-    this.overlayRef
-      .keydownEvents()
-      .pipe(
-        filter(e => e.key === 'Escape'),
-        takeUntilDestroyed(this.destroyRef),
-      )
-      .subscribe(() => this.overlayRef?.dispose());
+    this.overlayRef.attach(
+      new TemplatePortal(
+        this.template(),
+        this.viewContainerRef,
+        null,
+        Injector.create({
+          providers: [{ provide: NgpDialogTriggerToken, useExisting: NgpDialogTrigger }],
+          parent: this.injector,
+        }),
+      ),
+    );
   }
 }
