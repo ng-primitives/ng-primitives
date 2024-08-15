@@ -1,3 +1,14 @@
+## 0.7.0 (2024-08-15)
+
+
+### 🩹 Fixes
+
+- **docs:** Apply darkmode on Algolia searchBar ([#35](https://github.com/ng-primitives/ng-primitives/pull/35))
+
+### ❤️  Thank You
+
+- Yousef Farouk Abodawoud @Abodawoud
+
 ## 0.6.1 (2024-08-10)
 
 
