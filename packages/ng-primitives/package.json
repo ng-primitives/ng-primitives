@@ -1,7 +1,7 @@
 {
   "name": "ng-primitives",
   "license": "Apache-2.0",
-  "version": "0.7.0",
+  "version": "0.7.1",
   "peerDependencies": {
     "@angular/core": ">=18.0.0",
     "@angular/cdk": ">=18.0.0",
