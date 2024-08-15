@@ -6,22 +6,11 @@
  * LICENSE file in the root directory of this source tree.
  */
 import { BooleanInput } from '@angular/cdk/coercion';
-import {
-  booleanAttribute,
-  computed,
-  contentChildren,
-  Directive,
-  HostListener,
-  input,
-  OnDestroy,
-} from '@angular/core';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { booleanAttribute, Directive, HostListener, input, OnDestroy, signal } from '@angular/core';
 import { NgpFocusTrap } from 'ng-primitives/focus-trap';
 import { uniqueId } from 'ng-primitives/utils';
 import { injectDialogConfig } from '../config/dialog.config';
-import { NgpDialogDescriptionToken } from '../dialog-description/dialog-description.token';
-import { NgpDialogTitleToken } from '../dialog-title/dialog-title.token';
-import { injectDialogTrigger } from '../dialog-trigger/dialog-trigger.token';
+import { injectDialogRef } from './dialog-ref';
 import { NgpDialogToken } from './dialog.token';
 
 @Directive({
@@ -35,18 +24,15 @@ import { NgpDialogToken } from './dialog.token';
     '[id]': 'id()',
     '[attr.role]': 'role()',
     '[attr.aria-modal]': 'modal()',
-    '[attr.aria-labelledby]': 'labelledBy()',
-    '[attr.aria-describedby]': 'describedBy()',
+    '[attr.aria-labelledby]': 'labelledBy().join(" ")',
+    '[attr.aria-describedby]': 'describedBy().join(" ")',
   },
 })
 export class NgpDialog implements OnDestroy {
   private readonly config = injectDialogConfig();
 
-  /** Access the dialog trigger. */
-  private readonly trigger = injectDialogTrigger();
-
-  /** Store the stack of dialogs. */
-  private static stack: NgpDialog[] = [];
+  /** Access the dialog ref */
+  private readonly dialogRef = injectDialogRef();
 
   /** The id of the dialog */
   readonly id = input<string>(uniqueId('ngp-dialog'));
@@ -57,48 +43,16 @@ export class NgpDialog implements OnDestroy {
   });
 
   /** Whether the dialog is a modal. */
-  readonly modal = input<boolean, BooleanInput>(this.config.modal, {
+  readonly modal = input<boolean, BooleanInput>(this.config.modal ?? false, {
     alias: 'ngpDialogModal',
     transform: booleanAttribute,
   });
 
-  /** The dialog title(s). */
-  readonly titles = contentChildren(NgpDialogTitleToken, { descendants: true });
-
-  /** The dialog description(s). */
-  readonly descriptions = contentChildren(NgpDialogDescriptionToken, { descendants: true });
-
   /** The labelledby ids */
-  protected readonly labelledBy = computed(() =>
-    this.titles()
-      .map(title => title.id())
-      .join(' '),
-  );
+  protected readonly labelledBy = signal<string[]>([]);
 
   /** The describedby ids */
-  protected readonly describedBy = computed(() =>
-    this.descriptions()
-      .map(description => description.id())
-      .join(' '),
-  );
-
-  constructor() {
-    NgpDialog.stack.push(this);
-
-    // Close the dialog when the escape key is pressed and this is the top-most dialog.
-    this.trigger.overlayRef
-      ?.keydownEvents()
-      .pipe(takeUntilDestroyed())
-      .subscribe(event => {
-        if (
-          event.key === 'Escape' &&
-          this.config.closeOnEscape &&
-          NgpDialog.stack[NgpDialog.stack.length - 1] === this
-        ) {
-          this.close();
-        }
-      });
-  }
+  protected readonly describedBy = signal<string[]>([]);
 
   ngOnDestroy(): void {
     this.close();
@@ -106,16 +60,32 @@ export class NgpDialog implements OnDestroy {
 
   /** Close the dialog. */
   close(): void {
-    this.trigger.overlayRef?.dispose();
-
-    if (NgpDialog.stack[NgpDialog.stack.length - 1] === this) {
-      NgpDialog.stack.pop();
-    }
+    this.dialogRef.close();
   }
 
   /** Stop click events from propagating to the overlay */
   @HostListener('click', ['$event'])
   protected onClick(event: Event): void {
     event.stopPropagation();
+  }
+
+  /** @internal register a labelledby id */
+  setLabelledBy(id: string): void {
+    this.labelledBy.update(ids => [...ids, id]);
+  }
+
+  /** @internal register a describedby id */
+  setDescribedBy(id: string): void {
+    this.describedBy.update(ids => [...ids, id]);
+  }
+
+  /** @internal remove a labelledby id */
+  removeLabelledBy(id: string): void {
+    this.labelledBy.update(ids => ids.filter(i => i !== id));
+  }
+
+  /** @internal remove a describedby id */
+  removeDescribedBy(id: string): void {
+    this.describedBy.update(ids => ids.filter(i => i !== id));
   }
 }

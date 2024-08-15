@@ -14,14 +14,14 @@ import { NgpButton } from 'ng-primitives/button';
       --button-background-color: rgb(255 255 255);
       --button-hover-color: rgb(10 10 10);
       --button-hover-background-color: rgb(250 250 250);
-      --button-focus-shadow: 0 0 0 2px rgb(59 130 246);
+      --button-focus-shadow: rgb(59 130 246);
       --button-pressed-background-color: rgb(245 245 245);
 
       --button-color-dark: rgb(255 255 255);
       --button-background-color-dark: rgb(43 43 43);
       --button-hover-color-dark: rgb(255 255 255);
       --button-hover-background-color-dark: rgb(63, 63, 70);
-      --button-focus-shadow-dark: 0 0 0 2px rgb(59 130 246);
+      --button-focus-shadow-dark: rgb(59 130 246);
       --button-pressed-background-color-dark: rgb(39, 39, 42);
     }
 
@@ -53,11 +53,7 @@ import { NgpButton } from 'ng-primitives/button';
     }
 
     [ngpButton][data-focus-visible='true'] {
-      box-shadow:
-        0 1px 3px 0 rgb(0 0 0 / 0.1),
-        0 1px 2px -1px rgb(0 0 0 / 0.1),
-        0 0 0 1px rgb(0 0 0 / 0.05),
-        0 0 0 2px light-dark(#005fcc, #99c8ff);
+      box-shadow: 0 0 0 2px light-dark(var(--button-focus-shadow), var(--button-focus-shadow-dark));
     }
 
     [ngpButton][data-press='true'] {

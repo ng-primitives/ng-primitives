@@ -5,32 +5,42 @@
  * This source code is licensed under the Apache 2.0 license found in the
  * LICENSE file in the root directory of this source tree.
  */
-import { InjectionToken, Provider, inject } from '@angular/core';
+import { ScrollStrategy } from '@angular/cdk/overlay';
+import { InjectionToken, Injector, Provider, ViewContainerRef, inject } from '@angular/core';
+
+/** Valid ARIA roles for a dialog. */
+export type NgpDialogRole = 'dialog' | 'alertdialog';
 
 export interface NgpDialogConfig {
+  /** The view container to attach the dialog to. */
+  viewContainerRef?: ViewContainerRef;
+
+  /** The injector to use for the dialog. Defaults to the view container's injector.*/
+  injector?: Injector;
+
+  /** ID for the dialog. If omitted, a unique one will be generated. */
+  id?: string;
+
+  /** The role of the dialog. */
+  role?: NgpDialogRole;
+
+  /** Whether this is a modal dialog. Used to set the `aria-modal` attribute. */
+  modal?: boolean;
+
+  /** Scroll strategy to be used for the dialog. This determines how the dialog responds to scrolling underneath the panel element. */
+  scrollStrategy?: ScrollStrategy;
+
   /**
-   * The role of the dialog.
+   * Whether the dialog should close when the user navigates backwards or forwards through browser
+   * history.
    */
-  role: 'dialog' | 'alertdialog';
-  /**
-   * Whether the dialog is modal.
-   */
-  modal: boolean;
-  /**
-   * Whether the dialog should close on overlay click.
-   */
-  closeOnOverlayClick?: boolean;
-  /**
-   * Whether the dialog should close on escape key press.
-   */
-  closeOnEscape?: boolean;
+  closeOnNavigation?: boolean;
 }
 
 export const defaultDialogConfig: NgpDialogConfig = {
   role: 'dialog',
   modal: true,
-  closeOnOverlayClick: true,
-  closeOnEscape: true,
+  closeOnNavigation: true,
 };
 
 export const NgpDialogConfigToken = new InjectionToken<NgpDialogConfig>('NgpDialogConfigToken');

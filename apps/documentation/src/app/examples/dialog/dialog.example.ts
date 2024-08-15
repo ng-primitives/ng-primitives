@@ -38,6 +38,31 @@ import {
     </ng-template>
   `,
   styles: `
+    :host,
+    [ngpDialogOverlay] {
+      --button-color: rgb(10 10 10);
+      --button-background-color: rgb(255 255 255);
+      --button-hover-color: rgb(10 10 10);
+      --button-hover-background-color: rgb(250 250 250);
+      --button-focus-shadow: rgb(59 130 246);
+      --button-pressed-background-color: rgb(245 245 245);
+
+      --button-color-dark: rgb(255 255 255);
+      --button-background-color-dark: rgb(43 43 43);
+      --button-hover-color-dark: rgb(255 255 255);
+      --button-hover-background-color-dark: rgb(63, 63, 70);
+      --button-focus-shadow-dark: rgb(59 130 246);
+      --button-pressed-background-color-dark: rgb(39, 39, 42);
+
+      --dialog-bg: #fff;
+      --dialog-title-color: rgba(0, 0, 0, 0.87);
+      --dialog-description-color: rgba(0, 0, 0, 0.6);
+
+      --dialog-bg-dark: #121212;
+      --dialog-title-color-dark: #fff;
+      --dialog-description-color-dark: rgba(255, 255, 255, 0.6);
+    }
+
     button {
       padding-left: 1rem;
       padding-right: 1rem;
@@ -66,11 +91,7 @@ import {
     }
 
     button[data-focus-visible='true'] {
-      box-shadow:
-        0 1px 3px 0 rgb(0 0 0 / 0.1),
-        0 1px 2px -1px rgb(0 0 0 / 0.1),
-        0 0 0 1px rgb(0 0 0 / 0.05),
-        0 0 0 2px light-dark(#005fcc, #99c8ff);
+      box-shadow: 0 0 0 2px light-dark(var(--button-focus-shadow), var(--button-focus-shadow-dark));
     }
 
     button[data-press='true'] {
@@ -91,7 +112,7 @@ import {
     }
 
     [ngpDialog] {
-      background-color: white;
+      background-color: light-dark(var(--dialog-bg), var(--dialog-bg-dark));
       padding: 24px;
       border-radius: 8px;
       box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.1);
@@ -101,14 +122,14 @@ import {
       font-size: 18px;
       line-height: 28px;
       font-weight: 600;
-      color: rgba(0, 0, 0, 0.87);
+      color: light-dark(var(--dialog-title-color), var(--dialog-title-color-dark));
       margin: 0 0 4px;
     }
 
     [ngpDialogDescription] {
       font-size: 14px;
       line-height: 20px;
-      color: rgba(0, 0, 0, 0.6);
+      color: light-dark(var(--dialog-description-color), var(--dialog-description-color-dark));
       margin: 0;
     }
 
@@ -116,6 +137,7 @@ import {
       display: flex;
       justify-content: flex-end;
       margin-top: 32px;
+      column-gap: 4px;
     }
 
     .dialog-footer [ngpButton]:not([data-focus-visible='true']) {
