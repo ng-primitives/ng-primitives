@@ -1,12 +1,21 @@
 import { Component } from '@angular/core';
 import { NgpButton } from 'ng-primitives/button';
+import { NgpMenu, NgpMenuItem, NgpMenuTrigger } from 'ng-primitives/menu';
 
 @Component({
   standalone: true,
-  selector: 'app-button',
-  imports: [NgpButton],
+  selector: 'app-menu',
+  imports: [NgpButton, NgpMenu, NgpMenuTrigger, NgpMenuItem],
   template: `
-    <button ngpButton>Button</button>
+    <button [ngpMenuTrigger]="menu" ngpButton>Open Menu</button>
+
+    <ng-template #menu>
+      <div ngpMenu>
+        <button ngpMenuItem>Item 1</button>
+        <button ngpMenuItem>Item 2</button>
+        <button ngpMenuItem>Item 3</button>
+      </div>
+    </ng-template>
   `,
   styles: `
     :host {
@@ -14,14 +23,12 @@ import { NgpButton } from 'ng-primitives/button';
       --button-background-color: rgb(255 255 255);
       --button-hover-color: rgb(10 10 10);
       --button-hover-background-color: rgb(250 250 250);
-      --button-focus-shadow: 0 0 0 2px rgb(59 130 246);
       --button-pressed-background-color: rgb(245 245 245);
 
       --button-color-dark: rgb(255 255 255);
       --button-background-color-dark: rgb(43 43 43);
       --button-hover-color-dark: rgb(255 255 255);
       --button-hover-background-color-dark: rgb(63, 63, 70);
-      --button-focus-shadow-dark: 0 0 0 2px rgb(59 130 246);
       --button-pressed-background-color-dark: rgb(39, 39, 42);
     }
 
@@ -66,6 +73,39 @@ import { NgpButton } from 'ng-primitives/button';
         var(--button-pressed-background-color-dark)
       );
     }
+
+    [ngpMenu] {
+      display: flex;
+      flex-direction: column;
+      width: max-content;
+      background: light-dark(#fff, #27272a);
+      box-shadow:
+        0 0 10px rgba(0, 0, 0, 0.1),
+        0 0 0 1px rgba(0, 0, 0, 0.05);
+      border-radius: 8px;
+      padding: 2px;
+      margin: 2px 0;
+    }
+
+    [ngpMenuItem] {
+      padding: 8px 16px;
+      border: none;
+      background: none;
+      cursor: pointer;
+      transition: background 0.2s;
+      border-radius: 6px;
+      min-width: 120px;
+      text-align: start;
+      outline: none;
+    }
+
+    [ngpMenuItem][data-hover='true'] {
+      background: light-dark(#f5f5f5, #3f3f46);
+    }
+
+    [ngpMenuItem][data-focus-visible='true'] {
+      box-shadow: 0 0 0 2px light-dark(#005fcc, #99c8ff);
+    }
   `,
 })
-export default class ButtonExample {}
+export default class MenuExample {}

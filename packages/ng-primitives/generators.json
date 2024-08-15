@@ -7,10 +7,11 @@
     }
   },
   "schematics": {
-    "init": {
+    "ng-add": {
       "description": "Add Angular Primitives to a project.",
       "factory": "./schematics/init/compat",
-      "schema": "./schematics/init/schema.json"
+      "schema": "./schematics/init/schema.json",
+      "hidden": true
     }
   }
 }
