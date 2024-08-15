@@ -6,9 +6,11 @@
  * LICENSE file in the root directory of this source tree.
  */
 import { BooleanInput } from '@angular/cdk/coercion';
-import { booleanAttribute, contentChild, Directive, input } from '@angular/core';
+import { booleanAttribute, Directive, HostListener, input, OnDestroy, signal } from '@angular/core';
+import { NgpFocusTrap } from 'ng-primitives/focus-trap';
 import { uniqueId } from 'ng-primitives/utils';
-import { NgpDialogTitleToken } from '../dialog-title/dialog-title.token';
+import { injectDialogConfig } from '../config/dialog.config';
+import { injectDialogRef } from './dialog-ref';
 import { NgpDialogToken } from './dialog.token';
 
 @Directive({
@@ -16,42 +18,74 @@ import { NgpDialogToken } from './dialog.token';
   selector: '[ngpDialog]',
   exportAs: 'ngpDialog',
   providers: [{ provide: NgpDialogToken, useExisting: NgpDialog }],
+  hostDirectives: [NgpFocusTrap],
   host: {
-    role: 'dialog',
+    tabindex: '-1',
     '[id]': 'id()',
-    '[attr.tabindex]': '-1',
-    '[attr.data-open]': 'open()',
-    '[attr.aria-labelledby]': 'title() ?? null',
+    '[attr.role]': 'role()',
+    '[attr.aria-modal]': 'modal()',
+    '[attr.aria-labelledby]': 'labelledBy().join(" ")',
+    '[attr.aria-describedby]': 'describedBy().join(" ")',
   },
 })
-export class NgpDialog {
-  /**
-   * Define the id of the dialog.
-   */
-  readonly id = input(uniqueId('ngp-dialog'));
+export class NgpDialog implements OnDestroy {
+  private readonly config = injectDialogConfig();
 
-  /**
-   * The open state of the dialog.
-   */
-  readonly open = input<boolean, BooleanInput>(false, {
-    alias: 'ngpDialogOpen',
-    transform: booleanAttribute,
-  });
+  /** Access the dialog ref */
+  private readonly dialogRef = injectDialogRef();
 
-  /**
-   * The type of the dialog.
-   */
-  readonly type = input<NgpDialogRole>('dialog', {
+  /** The id of the dialog */
+  readonly id = input<string>(uniqueId('ngp-dialog'));
+
+  /** The dialog role. */
+  readonly role = input(this.config.role, {
     alias: 'ngpDialogRole',
   });
 
-  /**
-   * Access the title of the dialog.
-   */
-  protected readonly title = contentChild(NgpDialogTitleToken, { descendants: true });
-}
+  /** Whether the dialog is a modal. */
+  readonly modal = input<boolean, BooleanInput>(this.config.modal ?? false, {
+    alias: 'ngpDialogModal',
+    transform: booleanAttribute,
+  });
 
-/**
- * The type of the dialog.
- */
-export type NgpDialogRole = 'dialog' | 'alertdialog';
+  /** The labelledby ids */
+  protected readonly labelledBy = signal<string[]>([]);
+
+  /** The describedby ids */
+  protected readonly describedBy = signal<string[]>([]);
+
+  ngOnDestroy(): void {
+    this.close();
+  }
+
+  /** Close the dialog. */
+  close(): void {
+    this.dialogRef.close();
+  }
+
+  /** Stop click events from propagating to the overlay */
+  @HostListener('click', ['$event'])
+  protected onClick(event: Event): void {
+    event.stopPropagation();
+  }
+
+  /** @internal register a labelledby id */
+  setLabelledBy(id: string): void {
+    this.labelledBy.update(ids => [...ids, id]);
+  }
+
+  /** @internal register a describedby id */
+  setDescribedBy(id: string): void {
+    this.describedBy.update(ids => [...ids, id]);
+  }
+
+  /** @internal remove a labelledby id */
+  removeLabelledBy(id: string): void {
+    this.labelledBy.update(ids => ids.filter(i => i !== id));
+  }
+
+  /** @internal remove a describedby id */
+  removeDescribedBy(id: string): void {
+    this.describedBy.update(ids => ids.filter(i => i !== id));
+  }
+}

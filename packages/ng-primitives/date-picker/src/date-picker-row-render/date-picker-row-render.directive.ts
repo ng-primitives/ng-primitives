@@ -97,8 +97,6 @@ export class NgpDatePickerRowRender<T> implements OnDestroy {
   private readonly viewRefs: EmbeddedViewRef<void>[] = [];
 
   constructor() {
-    this.renderRows();
-
     // re-render the rows when the month changes.
     onChange(this.datePicker.focusedDate, (date, previousDate) => {
       if (!date || !previousDate || !this.dateAdapter.isSameMonth(date, previousDate)) {

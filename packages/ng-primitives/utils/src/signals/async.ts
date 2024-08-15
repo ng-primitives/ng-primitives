@@ -32,6 +32,9 @@ export function onChange<T>(
     },
     { allowSignalWrites: true, injector: options?.injector },
   );
+
+  // call the fn with the initial value
+  fn(source(), null);
 }
 
 /**
