@@ -24,7 +24,7 @@ export interface NgpCanDisable {
 export function injectDisabled(
   disabled: Signal<boolean> = signal<boolean>(false),
 ): Signal<boolean> {
-  const provider = inject(NgpDisabledToken, { optional: true });
+  const provider = inject(NgpDisabledToken, { optional: true, self: true });
 
   return provider ? provider.disabled : disabled;
 }
