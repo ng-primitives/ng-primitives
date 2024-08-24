@@ -1,3 +1,14 @@
+## 0.7.2 (2024-08-24)
+
+
+### 🩹 Fixes
+
+- **dialog:** resolving merge issue ([#38](https://github.com/ng-primitives/ng-primitives/pull/38))
+
+### ❤️  Thank You
+
+- Ashley Hunter
+
 ## 0.7.0 (2024-08-15)
 
 
