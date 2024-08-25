@@ -1,0 +1,14 @@
+:host {
+}
+
+[ngpButton] {
+}
+
+[ngpButton][data-hover="true"] {
+}
+
+[ngpButton][data-focus-visible="true"] {
+}
+
+[ngpButton][data-press="true"] {
+}

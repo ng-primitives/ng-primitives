@@ -34,6 +34,11 @@
       "factory": "./src/generators/documentation/generator",
       "schema": "./src/generators/documentation/schema.json",
       "description": "Add a new documentation section"
+    },
+    "button": {
+      "factory": "./src/generators/component/button/generator",
+      "schema": "./src/generators/component/button/schema.json",
+      "description": "component generator"
     }
   }
 }

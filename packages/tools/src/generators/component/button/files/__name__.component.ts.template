@@ -1,0 +1,34 @@
+import { Component } from "@angular/core";
+import { NgpButton } from "ng-primitives/button";
+
+@Component({
+  standalone: true,
+  selector: "<%= prefix %>-<%= kebabCase(name) %>",
+  imports: [NgpButton],
+  <%_ if (inlineTemplate) { -%>
+  template: ` <button ngpButton>Button</button> `,
+  <%_ } else { -%>
+  templateUrl: `./<%= name %>.component.html`,
+  <%_ } -%>
+  <%_ if (inlineStyle) { -%>
+  styles: `
+    :host {
+    }
+
+    [ngpButton] {
+    }
+
+    [ngpButton][data-hover='true'] {
+    }
+
+    [ngpButton][data-focus-visible='true'] {
+    }
+
+    [ngpButton][data-press='true'] {
+    }
+  `,
+  <%_ } else { -%>
+ styleUrl: <%= name %>.component.<%= style %>,
+  <%_ } -%>
+})
+export class <%= pascalCase(name) %>Component {}
