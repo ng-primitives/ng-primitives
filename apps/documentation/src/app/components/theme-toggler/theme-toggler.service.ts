@@ -23,6 +23,13 @@ export class ThemeTogglerService {
     }
 
     this.theme$.pipe(takeUntilDestroyed()).subscribe(theme => {
+      // if the theme is system, resolve it to the system theme
+      if (theme === 'system') {
+        theme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+        this.setTheme(theme);
+        return;
+      }
+
       if (theme === 'dark') {
         this.renderer.addClass(this.document.documentElement, 'dark');
       } else {
@@ -33,8 +40,8 @@ export class ThemeTogglerService {
     });
   }
 
-  setDarkMode(newMode: ThemeOption): void {
-    localStorage.setItem(LOCALSTORAGE_THEME_KEY, newMode);
-    this.theme.set(newMode);
+  setTheme(theme: ThemeOption): void {
+    localStorage.setItem(LOCALSTORAGE_THEME_KEY, theme);
+    this.theme.set(theme);
   }
 }
