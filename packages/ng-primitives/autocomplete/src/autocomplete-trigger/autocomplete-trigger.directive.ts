@@ -46,12 +46,11 @@ import { NgpAutocompleteTriggerToken } from './autocomplete-trigger.token';
     '[attr.autocomplete]': 'autocompleteAttribute()',
     '[attr.role]': 'disabled() ? null : "combobox"',
     '[attr.aria-autocomplete]': 'disabled() ? null : "list"',
-    // '[attr.aria-activedescendant]': '(panelOpen() && activeOption) ? activeOption.id : null',
+    '[attr.aria-activedescendant]': '(panelOpen() && activeOption) ? activeOption.id() : null',
     '[attr.aria-expanded]': 'disabled() ? null : panelOpen()',
-    // '[attr.aria-controls]': '(disabled() || !panelOpen()) ? null : autocomplete?.id',
+    '[attr.aria-controls]': '(disabled() || !panelOpen()) ? null : autocomplete?.id()',
     '[attr.aria-haspopup]': 'disabled() ? null : "listbox"',
     '(focusin)': 'openPanel()',
-    '(blur)': 'closePanel()',
     '(input)': 'handleInput($event)',
     '(keydown)': 'handleKeydown($event)',
     '(click)': 'openPanel()',
@@ -189,8 +188,13 @@ export class NgpAutocompleteTrigger implements OnDestroy {
       this.overlayRef.attach(this.portal);
     }
 
-    this.overlayRef.outsidePointerEvents().subscribe(event => {
-      // debugger;
+    // TODO unsubscribe
+    this.autocomplete?.keyManager.tabOut.pipe(filter(() => this.panelOpen())).subscribe(() => {
+      this.closePanel();
+    });
+
+    this.overlayRef.outsidePointerEvents().subscribe(() => {
+      this.closePanel();
     });
 
     this.overlayRef._keydownEvents
@@ -218,8 +222,8 @@ export class NgpAutocompleteTrigger implements OnDestroy {
     const hasModifier = hasModifierKey(event);
 
     if (this.activeOption && keyCode === ENTER && this.panelOpen() && !hasModifier) {
-      // this.activeOption._selectViaInteraction();
-      // this._resetActiveItem();
+      this.activeOption.setActive(true);
+      this.resetActiveItem();
       event.preventDefault();
     } else if (this.autocomplete) {
       const prevActiveItem = this.autocomplete.keyManager.activeItem;
@@ -243,6 +247,24 @@ export class NgpAutocompleteTrigger implements OnDestroy {
         //   this._assignOptionValue(this.activeOption.value);
         // }
       }
+    }
+  }
+
+  private resetActiveItem(): void {
+    if (this.autocomplete?.autoActiveFirstOption()) {
+      // find the first enabled option
+      let firstEnabledOptionIndex = -1;
+
+      for (let index = 0; index < this.autocomplete.options().length; index++) {
+        const option = this.autocomplete.options()[index]!;
+        if (!option.optionDisabled()) {
+          firstEnabledOptionIndex = index;
+          break;
+        }
+      }
+      this.autocomplete?.keyManager.setActiveItem(firstEnabledOptionIndex);
+    } else {
+      this.autocomplete?.keyManager.setActiveItem(-1);
     }
   }
 

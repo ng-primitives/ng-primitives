@@ -81,6 +81,10 @@ import { NgpInput } from 'ng-primitives/input';
     [ngpAutocompleteOption][data-focus-visible='true'] {
       box-shadow: 0 0 0 2px light-dark(#005fcc, #99c8ff);
     }
+
+    [ngpAutocompleteOption][data-active='true'] {
+      background: light-dark(#f5f5f5, #3f3f46);
+    }
   `,
 })
 export default class AutocompleteExample {}

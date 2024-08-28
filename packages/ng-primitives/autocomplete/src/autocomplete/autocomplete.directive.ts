@@ -6,9 +6,22 @@
  * LICENSE file in the root directory of this source tree.
  */
 import { ActiveDescendantKeyManager } from '@angular/cdk/a11y';
-import { Directive, Injector, OnInit, computed, inject, signal } from '@angular/core';
+import { BooleanInput } from '@angular/cdk/coercion';
+import {
+  Directive,
+  Injector,
+  OnInit,
+  booleanAttribute,
+  computed,
+  effect,
+  inject,
+  input,
+  signal,
+} from '@angular/core';
+import { uniqueId } from 'ng-primitives/utils';
 import type { NgpAutocompleteOption } from '../autocomplete-option/autocomplete-option.directive';
 import { injectAutocompleteTrigger } from '../autocomplete-trigger/autocomplete-trigger.token';
+import { injectAutocompleteConfig } from '../config/autocomplete.config';
 import { NgpAutocompleteToken } from './autocomplete.token';
 
 @Directive({
@@ -16,6 +29,9 @@ import { NgpAutocompleteToken } from './autocomplete.token';
   selector: '[ngpAutocomplete]',
   exportAs: 'ngpAutocomplete',
   providers: [{ provide: NgpAutocompleteToken, useExisting: NgpAutocomplete }],
+  host: {
+    '[id]': 'id()',
+  },
 })
 export class NgpAutocomplete implements OnInit {
   /** Access the autcomplete trigger. */
@@ -24,8 +40,14 @@ export class NgpAutocomplete implements OnInit {
   /** Access the injector */
   private readonly injector = inject(Injector);
 
-  /** Store the list of options */
-  private readonly options = signal<NgpAutocompleteOption[]>([]);
+  /** Access the global autocomplete config */
+  private readonly config = injectAutocompleteConfig();
+
+  /**
+   * Store the list of options
+   * @internal
+   */
+  readonly options = signal<NgpAutocompleteOption[]>([]);
 
   /**
    * Get the options sorted by their position in the document
@@ -38,6 +60,15 @@ export class NgpAutocomplete implements OnInit {
         ? -1
         : 1,
     );
+  });
+
+  /** The id of the autocomplete */
+  readonly id = input<string>(uniqueId('ngp-autocomplete'));
+
+  /** Whether the first item should automatically activate */
+  readonly autoActiveFirstOption = input<boolean, BooleanInput>(this.config.autoActiveFirstOption, {
+    alias: 'ngpAutocompleteAutoActiveFirstOption',
+    transform: booleanAttribute,
   });
 
   /**

@@ -12,3 +12,4 @@ export { NgpAutocompleteTrigger } from './autocomplete-trigger/autocomplete-trig
 export { NgpAutocompleteTriggerToken } from './autocomplete-trigger/autocomplete-trigger.token';
 export { NgpAutocompleteOption } from './autocomplete-option/autocomplete-option.directive';
 export { NgpAutocompleteOptionToken } from './autocomplete-option/autocomplete-option.token';
+export { NgpAutocompleteConfig, provideAutocompleteConfig } from './config/autocomplete.config';
