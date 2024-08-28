@@ -37,7 +37,7 @@ import { NgpAutocompleteOptionToken } from './autocomplete-option.token';
     '[attr.data-disabled]': 'optionDisabled()',
   },
 })
-export class NgpAutocompleteOption implements Highlightable, OnInit, OnDestroy {
+export class NgpAutocompleteOption<T> implements Highlightable, OnInit, OnDestroy {
   /** Access the autocomplete */
   private readonly autocomplete = injectAutocomplete();
 
@@ -46,6 +46,11 @@ export class NgpAutocompleteOption implements Highlightable, OnInit, OnDestroy {
 
   /** The id of the option */
   readonly id = input<string>(uniqueId('ngp-autocomplete-option'));
+
+  /** The value of the option */
+  readonly value = input.required<T>({
+    alias: 'ngpAutocompleteOptionValue',
+  });
 
   /** Whether the option is disabled */
   readonly optionDisabled = input<boolean, BooleanInput>(false, {

@@ -20,10 +20,10 @@ import { NgpInput } from 'ng-primitives/input';
 
     <ng-template #autocomplete>
       <div ngpAutocomplete>
-        <div ngpAutocompleteOption>Customer 1</div>
-        <div ngpAutocompleteOption>Customer 2</div>
-        <div ngpAutocompleteOption>Customer 3</div>
-        <div ngpAutocompleteOption>Customer 4</div>
+        <div ngpAutocompleteOption ngpAutocompleteOptionValue="Customer 1">Customer 1</div>
+        <div ngpAutocompleteOption ngpAutocompleteOptionValue="Customer 2">Customer 2</div>
+        <div ngpAutocompleteOption ngpAutocompleteOptionValue="Customer 3">Customer 3</div>
+        <div ngpAutocompleteOption ngpAutocompleteOptionValue="Customer 4">Customer 4</div>
       </div>
     </ng-template>
   `,

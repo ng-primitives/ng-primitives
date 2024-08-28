@@ -56,7 +56,7 @@ import { NgpAutocompleteTriggerToken } from './autocomplete-trigger.token';
     '(click)': 'openPanel()',
   },
 })
-export class NgpAutocompleteTrigger implements OnDestroy {
+export class NgpAutocompleteTrigger<T> implements OnDestroy {
   /** Access the view container ref */
   private readonly viewContainerRef = inject(ViewContainerRef);
 
@@ -93,7 +93,7 @@ export class NgpAutocompleteTrigger implements OnDestroy {
   });
 
   /** @internal The autocomplete instance */
-  private autocomplete?: NgpAutocomplete;
+  private autocomplete?: NgpAutocomplete<T>;
 
   /** Determine the overlay position */
   private readonly computedPosition = computed(() => {
@@ -331,7 +331,7 @@ export class NgpAutocompleteTrigger implements OnDestroy {
    * Register the autocomplete instance
    * @internal
    */
-  registerAutocomplete(autocomplete: NgpAutocomplete): void {
+  registerAutocomplete(autocomplete: NgpAutocomplete<T>): void {
     this.autocomplete = autocomplete;
   }
 }

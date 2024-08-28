@@ -13,7 +13,6 @@ import {
   OnInit,
   booleanAttribute,
   computed,
-  effect,
   inject,
   input,
   signal,
@@ -33,7 +32,7 @@ import { NgpAutocompleteToken } from './autocomplete.token';
     '[id]': 'id()',
   },
 })
-export class NgpAutocomplete implements OnInit {
+export class NgpAutocomplete<T> implements OnInit {
   /** Access the autcomplete trigger. */
   private readonly trigger = injectAutocompleteTrigger();
 
@@ -47,7 +46,7 @@ export class NgpAutocomplete implements OnInit {
    * Store the list of options
    * @internal
    */
-  readonly options = signal<NgpAutocompleteOption[]>([]);
+  readonly options = signal<NgpAutocompleteOption<T>[]>([]);
 
   /**
    * Get the options sorted by their position in the document
@@ -71,11 +70,16 @@ export class NgpAutocomplete implements OnInit {
     transform: booleanAttribute,
   });
 
+  /** A function to map the option value to its display value. */
+  readonly displayWith = input<(value: T) => string>(value => `${value}`, {
+    alias: 'ngpAutocompleteDisplayWith',
+  });
+
   /**
    * Handle the active descendant
    * @internal
    */
-  readonly keyManager = new ActiveDescendantKeyManager<NgpAutocompleteOption>(
+  readonly keyManager = new ActiveDescendantKeyManager<NgpAutocompleteOption<T>>(
     this.sortedOptions,
     this.injector,
   );
@@ -95,7 +99,7 @@ export class NgpAutocomplete implements OnInit {
    * Register an autcomplete option
    * @internal
    */
-  registerOption(option: NgpAutocompleteOption): void {
+  registerOption(option: NgpAutocompleteOption<T>): void {
     this.options.update(options => [...options, option]);
   }
 
@@ -103,7 +107,7 @@ export class NgpAutocomplete implements OnInit {
    * Unregister an autcomplete option
    * @internal
    */
-  unregisterOption(option: NgpAutocompleteOption): void {
+  unregisterOption(option: NgpAutocompleteOption<T>): void {
     this.options.update(options => options.filter(o => o !== option));
   }
 }
