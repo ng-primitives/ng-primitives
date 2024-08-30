@@ -1,3 +1,14 @@
+## 0.7.5 (2024-08-30)
+
+
+### 🩹 Fixes
+
+- **interactions:** ensuring interactions consider disabled state ([#43](https://github.com/ng-primitives/ng-primitives/pull/43))
+
+### ❤️  Thank You
+
+- Ashley Hunter
+
 ## 0.7.4 (2024-08-30)
 
 
