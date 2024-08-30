@@ -59,4 +59,16 @@ export class NgpPaginationNext implements NgpCanDisable {
 
     this.pagination.page.set(this.pagination.page() + 1);
   }
+
+  /**
+   * A click event may not be fired if this is on an anchor tag and the href is empty.
+   * This is a workaround to ensure the click event is fired.
+   */
+  @HostListener('keydown.enter', ['$event'])
+  @HostListener('keydown.space', ['$event'])
+  protected onEnter(event: KeyboardEvent): void {
+    event.preventDefault();
+    event.stopPropagation();
+    this.goToNextPage();
+  }
 }
