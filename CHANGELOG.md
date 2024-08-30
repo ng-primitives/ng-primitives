@@ -1,3 +1,14 @@
+## 0.7.3 (2024-08-30)
+
+
+### 🩹 Fixes
+
+- **pagination:** trigger page events with keyboard ([#42](https://github.com/ng-primitives/ng-primitives/pull/42))
+
+### ❤️  Thank You
+
+- Ashley Hunter
+
 ## 0.7.2 (2024-08-24)
 
 
