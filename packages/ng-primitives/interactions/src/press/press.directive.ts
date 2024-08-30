@@ -31,7 +31,7 @@ import { NgpPressToken } from './press.token';
   exportAs: 'ngpPress',
   providers: [{ provide: NgpPressToken, useExisting: NgpPress }],
   host: {
-    '[attr.data-press]': 'pressed()',
+    '[attr.data-press]': 'pressed() && !isDisabled()',
   },
 })
 export class NgpPress {
