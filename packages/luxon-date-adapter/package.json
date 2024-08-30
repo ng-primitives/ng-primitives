@@ -1,6 +1,6 @@
 {
   "name": "@ng-primitives/luxon-date-adapter",
-  "version": "0.7.3",
+  "version": "0.7.4",
   "peerDependencies": {
     "luxon": ">=3.0.0",
     "ng-primitives": ">=0.3.0"
