@@ -7,6 +7,7 @@
  */
 import { FocusMonitor } from '@angular/cdk/a11y';
 import {
+  ApplicationRef,
   Directive,
   ElementRef,
   HostListener,
@@ -29,8 +30,8 @@ export class NgpDialogTrigger {
   /** Access the dialog manager. */
   private readonly dialogManager = inject(NgpDialogManager);
 
-  /** Access the view container ref. */
-  private readonly viewContainerRef = inject(ViewContainerRef);
+  /** Access the application ref. */
+  private readonly applicationRef = inject(ApplicationRef);
 
   /** Access the focus monitor. */
   private readonly focusMonitor = inject(FocusMonitor);
@@ -51,8 +52,14 @@ export class NgpDialogTrigger {
 
   @HostListener('click')
   protected launch(): void {
+    // this is not ideal, but there is a case where a dialog trigger is within an overlay (e.g. menu),
+    // which may be removed before the dialog is closed. This is not desired, so we need to access a view container ref
+    // that is not within the overlay. To solve this we use the view container ref of the root component.
+    // Could this have any unintended side effects? For example, the dialog would not be closed during route changes?
+    const viewContainerRef = this.applicationRef.components[0].injector.get(ViewContainerRef);
+
     this.dialogRef = this.dialogManager.open(this.template(), {
-      viewContainerRef: this.viewContainerRef,
+      viewContainerRef,
     });
 
     this.dialogRef.closed.subscribe(focusOrigin => {
