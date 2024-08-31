@@ -1,3 +1,14 @@
+## 0.7.7 (2024-08-31)
+
+
+### 🩹 Fixes
+
+- **dialog:** separate dialog from trigger view ref ([#47](https://github.com/ng-primitives/ng-primitives/pull/47))
+
+### ❤️  Thank You
+
+- Ashley Hunter
+
 ## 0.7.6 (2024-08-31)
 
 
