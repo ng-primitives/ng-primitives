@@ -1,3 +1,14 @@
+## 0.7.6 (2024-08-31)
+
+
+### 🩹 Fixes
+
+- **tooltip:** tooltip ssr fix ([#46](https://github.com/ng-primitives/ng-primitives/pull/46))
+
+### ❤️  Thank You
+
+- Ashley Hunter
+
 ## 0.7.5 (2024-08-30)
 
 
