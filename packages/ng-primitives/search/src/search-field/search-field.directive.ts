@@ -33,6 +33,6 @@ export class NgpSearchField {
 
   @HostListener('keydown.escape')
   clear(): void {
-    this.input().element.nativeElement.value = '';
+    this.input().setInputValue('');
   }
 }

@@ -36,7 +36,7 @@ export class NgpInput implements NgpCanDisable {
    * Access the underlying input element.
    * @internal
    */
-  readonly element = inject<ElementRef<HTMLInputElement>>(ElementRef);
+  private readonly elementRef = inject<ElementRef<HTMLInputElement>>(ElementRef);
 
   /**
    * Whether the element is disabled.
@@ -49,10 +49,21 @@ export class NgpInput implements NgpCanDisable {
    * Sync the input value.
    * @internal
    */
-  readonly value = signal<string>(this.element.nativeElement.value);
+  readonly value = signal<string>(this.elementRef.nativeElement.value);
+
+  /**
+   * Set the element input value and dispatch input event.
+   * @param value The value to set.
+   * @description The HTML input event triggers when a user interacts with an input field and changes its value. However, if the value is changed programmatically, the input event doesn't fire automatically, so we manually dispatch the InputEvent.
+   * @internal
+   */
+  setInputValue(value: string) {
+    this.elementRef.nativeElement.value = value;
+    this.elementRef.nativeElement.dispatchEvent(new InputEvent('input'));
+  }
 
   @HostListener('input')
   protected valueDidChange(): void {
-    this.value.set(this.element.nativeElement.value);
+    this.value.set(this.elementRef.nativeElement.value);
   }
 }
