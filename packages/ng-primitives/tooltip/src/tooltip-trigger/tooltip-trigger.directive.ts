@@ -7,6 +7,7 @@
  */
 import { BooleanInput, NumberInput } from '@angular/cdk/coercion';
 import { DomPortalOutlet, TemplatePortal } from '@angular/cdk/portal';
+import { DOCUMENT } from '@angular/common';
 import {
   Directive,
   ElementRef,
@@ -60,6 +61,11 @@ export class NgpTooltipTrigger implements OnDestroy {
    * Access the view container ref.
    */
   private readonly viewContainerRef = inject(ViewContainerRef);
+
+  /**
+   * Access the document.
+   */
+  private readonly document = inject(DOCUMENT);
 
   /**
    * Access the injector.
@@ -148,7 +154,7 @@ export class NgpTooltipTrigger implements OnDestroy {
    * Define the container in which the tooltip should be attached.
    * @default document.body
    */
-  readonly container = input<HTMLElement>(this.config.container, {
+  readonly container = input<HTMLElement | null>(this.config.container, {
     alias: 'ngpTooltipTriggerContainer',
   });
 
@@ -228,7 +234,7 @@ export class NgpTooltipTrigger implements OnDestroy {
     );
 
     const domOutlet = new DomPortalOutlet(
-      this.container(),
+      this.container() ?? this.document.body,
       undefined,
       undefined,
       Injector.create({
