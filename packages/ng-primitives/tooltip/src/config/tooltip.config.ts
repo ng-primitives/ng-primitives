@@ -43,7 +43,7 @@ export interface NgpTooltipConfig {
    * Define the container in to which the tooltip should be attached.
    * @default document.body
    */
-  container: HTMLElement;
+  container: HTMLElement | null;
 }
 
 export const defaultTooltipConfig: NgpTooltipConfig = {
@@ -52,7 +52,7 @@ export const defaultTooltipConfig: NgpTooltipConfig = {
   showDelay: 0,
   hideDelay: 0,
   flip: true,
-  container: document.body,
+  container: null,
 };
 
 export const NgpTooltipConfigToken = new InjectionToken<NgpTooltipConfig>('NgpTooltipConfigToken');

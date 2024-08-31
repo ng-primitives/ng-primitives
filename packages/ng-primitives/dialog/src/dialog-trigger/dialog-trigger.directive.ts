@@ -15,7 +15,6 @@ import {
   TemplateRef,
   ViewContainerRef,
 } from '@angular/core';
-import { NgpButton } from 'ng-primitives/button';
 import { NgpDialogRef } from '../dialog/dialog-ref';
 import { NgpDialogContext, NgpDialogManager } from '../dialog/dialog.service';
 import { NgpDialogTriggerToken } from './dialog-trigger.token';
@@ -25,7 +24,6 @@ import { NgpDialogTriggerToken } from './dialog-trigger.token';
   selector: '[ngpDialogTrigger]',
   exportAs: 'ngpDialogTrigger',
   providers: [{ provide: NgpDialogTriggerToken, useExisting: NgpDialogTrigger }],
-  hostDirectives: [NgpButton],
 })
 export class NgpDialogTrigger {
   /** Access the dialog manager. */
