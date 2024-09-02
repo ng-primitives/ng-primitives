@@ -51,6 +51,15 @@
         "code",
         "doc"
       ]
+    },
+    {
+      "login": "otodockal",
+      "name": "Oto Dočkal",
+      "avatar_url": "https://avatars.githubusercontent.com/u/2613273?v=4",
+      "profile": "https://twitter.com/otodockal",
+      "contributions": [
+        "code"
+      ]
     }
   ],
   "contributorsPerLine": 7,
