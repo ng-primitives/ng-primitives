@@ -1,3 +1,14 @@
+## 0.7.8 (2024-09-02)
+
+
+### 🩹 Fixes
+
+- **search:** clear signal value ([#45](https://github.com/ng-primitives/ng-primitives/pull/45))
+
+### ❤️  Thank You
+
+- Oto Dočkal @otodockal
+
 ## 0.7.7 (2024-08-31)
 
 
