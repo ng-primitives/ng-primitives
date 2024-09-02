@@ -3,8 +3,8 @@ import { NgpButton } from "ng-primitives/button";
 
 @Component({
   standalone: true,
-  selector: "<%= prefix %>-<%= kebabCase(name) %>",
-  imports: [NgpButton],
+  selector:  "button[<%= prefix %>-<%= names.fileName %>]",
+  hostDirectives: [NgpButton],
   <%_ if (inlineTemplate) { -%>
   template: ` <button ngpButton>Button</button> `,
   <%_ } else { -%>
@@ -31,4 +31,4 @@ import { NgpButton } from "ng-primitives/button";
  styleUrl: <%= name %>.component.<%= style %>,
   <%_ } -%>
 })
-export class <%= pascalCase(name) %>Component {}
+export class <%= names.className %>Component {}

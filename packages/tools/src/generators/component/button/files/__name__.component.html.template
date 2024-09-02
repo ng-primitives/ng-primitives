@@ -1,1 +1,1 @@
-<button ngpButton>Button</button>
+<ng-content />

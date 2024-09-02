@@ -1,14 +1,11 @@
-import { formatFiles, generateFiles, Tree } from '@nx/devkit';
-import { camelCase, kebabCase, upperFirst } from 'lodash';
+import { formatFiles, generateFiles, names, Tree } from '@nx/devkit';
 import * as path from 'path';
 import { ButtonGeneratorSchema } from './schema';
 
 export async function componentGenerator(tree: Tree, options: ButtonGeneratorSchema) {
   generateFiles(tree, path.join(__dirname, 'files'), options.directory, {
     ...options,
-    name: options.name,
-    kebabCase,
-    pascalCase: (s: string) => upperFirst(camelCase(s)),
+    names: names(options.name),
   });
   await formatFiles(tree);
 

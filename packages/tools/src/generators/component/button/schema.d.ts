@@ -1,8 +1,8 @@
 export interface ButtonGeneratorSchema {
   name: string;
-  prefix: 'css' | 'scss';
+  prefix: string;
   directory: string;
-  style: string;
+  style: 'css' | 'scss';
   inlineStyle: boolean;
   inlineTemplate: boolean;
 }
