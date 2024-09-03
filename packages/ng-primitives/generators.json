@@ -9,6 +9,11 @@
       "factory": "./schematics/button/generator",
       "schema": "./schematics/button/schema.json",
       "description": "Add a button component to the project."
+    },
+    "input": {
+      "factory": "./schematics/input/generator",
+      "schema": "./schematics/input/schema.json",
+      "description": "Add an input component to the project."
     }
   },
   "schematics": {
@@ -22,6 +27,12 @@
       "description": "Add a button component to the project.",
       "factory": "./schematics/button/compat",
       "schema": "./schematics/button/schema.json",
+      "hidden": true
+    },
+    "input": {
+      "description": "Add an input component to the project.",
+      "factory": "./schematics/input/compat",
+      "schema": "./schematics/input/schema.json",
       "hidden": true
     }
   }

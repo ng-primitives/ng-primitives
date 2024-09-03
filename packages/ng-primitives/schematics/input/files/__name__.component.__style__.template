@@ -1,0 +1,11 @@
+:host {
+}
+
+[ngpInput] {
+}
+
+[ngpInput][data-focus='true'] {
+}
+
+[ngpInput]::placeholder {
+}
