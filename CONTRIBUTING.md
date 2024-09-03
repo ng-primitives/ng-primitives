@@ -53,6 +53,7 @@ The following generators are available:
 - `nx g @ng-primitives/tools:directive <name> --primitive <primitive>`: Generates a new directive in the library.
 - `nx g @ng-primitives/tools:documentation <name> --description <description> --primitive <primitive>`: Generates a new documentation page for a primitive.
 - `nx g @ng-primitives/tools:example <name> --primitive <primitive>`: Generates a new example for a primitive.
+- `nx g @ng-primitives/tools:schematic label`: Generates a new component schematic for the library.
 
 It is recommended to use the [Nx Console](https://nx.dev/getting-started/editor-setup) to run these generators as it provides a user-friendly interface right in your IDE.
 
