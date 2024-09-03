@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/schema",
-  "$id": "Button",
+  "$id": "Input",
   "title": "",
   "type": "object",
   "properties": {
