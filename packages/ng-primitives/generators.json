@@ -21,8 +21,7 @@
     "button": {
       "description": "Add a button component to the project.",
       "factory": "./schematics/button/compat",
-      "schema": "./schematics/button/schema.json",
-      "hidden": true
+      "schema": "./schematics/button/schema.json"
     }
   }
 }
