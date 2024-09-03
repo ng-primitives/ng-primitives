@@ -1,3 +1,17 @@
+## 0.8.0 (2024-09-03)
+
+
+### 🚀 Features
+
+- button generator ([#49](https://github.com/ng-primitives/ng-primitives/pull/49))
+- schematic generator ([#52](https://github.com/ng-primitives/ng-primitives/pull/52))
+- add inputs generator ([#51](https://github.com/ng-primitives/ng-primitives/pull/51))
+
+### ❤️  Thank You
+
+- Ashley Hunter
+- kedevked @kedevked
+
 ## 0.7.8 (2024-09-02)
 
 
