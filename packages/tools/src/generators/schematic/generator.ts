@@ -4,7 +4,6 @@ import { getPrimitiveSourceRoot } from '../../utils';
 import { SchematicGeneratorSchema } from './schema';
 
 export async function schematicGenerator(tree: Tree, options: SchematicGeneratorSchema) {
-  throw new Error('Schematic generator not implemented.');
   const projectRoot = getPrimitiveSourceRoot(tree, options.name);
   generateFiles(tree, path.join(__dirname, 'files'), projectRoot, options);
   await formatFiles(tree);
