@@ -16,12 +16,6 @@ import {
   styles: `
     :host {
     }
-
-    :host[data-focus='true'] {
-    }
-
-    :host::placeholder {
-    }
   `,
   <%_ } else { -%>
  styleUrl: `<%= fileName %>.component.<%= style %>`,
