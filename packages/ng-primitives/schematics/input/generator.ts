@@ -7,9 +7,9 @@
  */
 import { formatFiles, generateFiles, names, Tree } from '@nx/devkit';
 import * as path from 'path';
-import { ButtonGeneratorSchema } from './schema';
+import { InputGeneratorSchema } from './schema';
 
-export async function buttonGenerator(tree: Tree, options: ButtonGeneratorSchema) {
+export async function inputGenerator(tree: Tree, options: InputGeneratorSchema) {
   generateFiles(tree, path.join(__dirname, 'files'), options.directory, {
     ...options,
     ...names(options.name),
@@ -26,4 +26,4 @@ export async function buttonGenerator(tree: Tree, options: ButtonGeneratorSchema
   await formatFiles(tree);
 }
 
-export default buttonGenerator;
+export default inputGenerator;

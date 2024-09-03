@@ -24,6 +24,23 @@ Assemble the input directives in your template.
 <input ngpInput type="text" />
 ```
 
+## Schematics
+
+Generate an input component with the `NgpInput` primitive preconfigured.
+
+```bash npm
+ ng g ng-primitives:input
+```
+
+### Options
+
+- `name`: The name of the component.
+- `prefix`: The prefix to apply to the generated component selector.
+- `directory`: The directory at which to create the component file.
+- `style`: The file extension or preprocessor to use for style files.
+- `inlineStyle`: Include styles inline in the component.ts file. Only CSS styles can be included inline.
+- `inlineTemplate`: Include template inline in the component.ts file
+
 ## Examples
 
 Here are some additional examples of how to use the Input primitive.

@@ -1,10 +1,10 @@
 import { Component } from '@angular/core';
-import { NgpButton } from 'ng-primitives/button';
+import { NgpFormField } from 'ng-primitives/form-field';
 
 @Component({
   standalone: true,
-  selector: 'button[<%= prefix %>-<%= fileName %>]',
-  hostDirectives: [NgpButton],
+  selector: '<%= prefix %>-<%= fileName %>',
+  hostDirectives: [NgpFormField],
   <%_ if (inlineTemplate) { -%>
   template: '<ng-content />',
   <%_ } else { -%>
@@ -13,15 +13,6 @@ import { NgpButton } from 'ng-primitives/button';
   <%_ if (inlineStyle) { -%>
   styles: `
     :host {
-    }
-
-    :host[data-hover='true'] {
-    }
-
-    :host[data-focus-visible='true'] {
-    }
-
-    :host[data-press='true'] {
     }
   `,
   <%_ } else { -%>

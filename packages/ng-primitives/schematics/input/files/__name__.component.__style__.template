@@ -1,0 +1,8 @@
+:host {
+}
+
+:host[data-focus='true'] {
+}
+
+:host::placeholder {
+}

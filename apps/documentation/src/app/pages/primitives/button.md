@@ -24,6 +24,23 @@ Assemble the button directives in your template.
 <button ngpButton>Button</button>
 ```
 
+## Schematics
+
+Generate a button component with the `NgpButton` primitive preconfigured.
+
+```bash npm
+ ng g ng-primitives:button
+```
+
+### Options
+
+- `name`: The name of the component.
+- `prefix`: The prefix to apply to the generated component selector.
+- `directory`: The directory at which to create the component file.
+- `style`: The file extension or preprocessor to use for style files.
+- `inlineStyle`: Include styles inline in the component.ts file. Only CSS styles can be included inline.
+- `inlineTemplate`: Include template inline in the component.ts file
+
 ## API Reference
 
 The following directives are available to import from the `ng-primitives/button` package:
