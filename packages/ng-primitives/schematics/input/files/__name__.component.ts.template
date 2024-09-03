@@ -1,14 +1,14 @@
-import { Component } from "@angular/core";
+import { Component } from '@angular/core';
 import { NgpInput } from 'ng-primitives/input';
 
 @Component({
   standalone: true,
-  selector: "input[<%= prefix %>-<%= fileName %>]",
+  selector: 'input[<%= prefix %>-<%= fileName %>]',
   hostDirectives: [NgpInput],
   <%_ if (inlineTemplate) { -%>
   template: '',
   <%_ } else { -%>
-  templateUrl: `./<%= fileName %>.component.html`,
+  templateUrl: './<%= fileName %>.component.html',
   <%_ } -%>
   <%_ if (inlineStyle) { -%>
   styles: `
@@ -22,7 +22,7 @@ import { NgpInput } from 'ng-primitives/input';
     }
   `,
   <%_ } else { -%>
-  styleUrl: `./<%= fileName %>.component.<%= style %>`,
+  styleUrl: './<%= fileName %>.component.<%= style %>',
   <%_ } -%>
 })
 export class <%= className %>Component {}

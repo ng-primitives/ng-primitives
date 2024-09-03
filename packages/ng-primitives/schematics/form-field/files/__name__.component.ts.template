@@ -1,16 +1,14 @@
-import { Component } from "@angular/core";
-import {
-  NgpFormField
-} from 'ng-primitives/form-field'
+import { Component } from '@angular/core';
+import { NgpFormField } from 'ng-primitives/form-field';
 
 @Component({
   standalone: true,
-  selector: "<%= prefix %>-<%= fileName %>",
+  selector: '<%= prefix %>-<%= fileName %>',
   hostDirectives: [NgpFormField],
   <%_ if (inlineTemplate) { -%>
-  template: `<ng-content />`,
+  template: '<ng-content />',
   <%_ } else { -%>
-  templateUrl: `./<%= fileName %>.component.html`,
+  templateUrl: './<%= fileName %>.component.html',
   <%_ } -%>
   <%_ if (inlineStyle) { -%>
   styles: `
@@ -18,7 +16,7 @@ import {
     }
   `,
   <%_ } else { -%>
-  styleUrl: `./<%= fileName %>.component.<%= style %>`,
+  styleUrl: './<%= fileName %>.component.<%= style %>',
   <%_ } -%>
 })
 export class <%= className %>Component {}

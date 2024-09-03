@@ -1,14 +1,14 @@
-import { Component } from "@angular/core";
-import { NgpButton } from "ng-primitives/button";
+import { Component } from '@angular/core';
+import { NgpButton } from 'ng-primitives/button';
 
 @Component({
   standalone: true,
-  selector: "button[<%= prefix %>-<%= fileName %>]",
+  selector: 'button[<%= prefix %>-<%= fileName %>]',
   hostDirectives: [NgpButton],
   <%_ if (inlineTemplate) { -%>
-  template: `<ng-content />`,
+  template: '<ng-content />',
   <%_ } else { -%>
-  templateUrl: `./<%= fileName %>.component.html`,
+  templateUrl: './<%= fileName %>.component.html',
   <%_ } -%>
   <%_ if (inlineStyle) { -%>
   styles: `
@@ -25,7 +25,7 @@ import { NgpButton } from "ng-primitives/button";
     }
   `,
   <%_ } else { -%>
-  styleUrl: `./<%= fileName %>.component.<%= style %>`,
+  styleUrl: './<%= fileName %>.component.<%= style %>',
   <%_ } -%>
 })
 export class <%= className %>Component {}
