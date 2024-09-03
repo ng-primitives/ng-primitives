@@ -1,6 +1,5 @@
 import { formatFiles, generateFiles, joinPathFragments, names, Tree, updateJson } from '@nx/devkit';
 import { generatorGenerator } from '@nx/plugin/generators';
-import * as path from 'path';
 import { SchematicGeneratorSchema } from './schema';
 
 export async function schematicGenerator(tree: Tree, options: SchematicGeneratorSchema) {
@@ -16,10 +15,15 @@ export async function schematicGenerator(tree: Tree, options: SchematicGenerator
     skipFormat: true,
   });
 
-  generateFiles(tree, path.join(__dirname, 'files'), projectRoot, {
-    ...options,
-    ...names(options.name),
-  });
+  generateFiles(
+    tree,
+    joinPathFragments(__dirname, 'files'),
+    joinPathFragments(projectRoot, 'schematics', fileName),
+    {
+      ...options,
+      ...names(options.name),
+    },
+  );
 
   updateJson(tree, joinPathFragments(projectRoot, 'generators.json'), json => {
     json.generators[fileName] = {
