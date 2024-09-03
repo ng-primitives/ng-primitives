@@ -16,12 +16,12 @@
     },
     "directory": {
       "type": "string",
-      "description": "The directory at which to create the component file",
+      "description": "The directory at which to create the component file.",
       "default": ""
     },
     "style": {
       "type": "string",
-      "description": "The file extension or preprocessor to use for style files, or `none` to skip generating the style file.",
+      "description": "The file extension or preprocessor to use for style files.",
       "default": "css",
       "enum": ["scss", "css"]
     },
