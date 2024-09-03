@@ -6,7 +6,7 @@ import { NgpInput } from 'ng-primitives/input';
   selector: "input[<%= prefix %>-<%= fileName %>]",
   hostDirectives: [NgpInput],
   <%_ if (inlineTemplate) { -%>
-  template: `<ng-content /> `,
+  template: '',
   <%_ } else { -%>
   templateUrl: `./<%= fileName %>.component.html`,
   <%_ } -%>
