@@ -18,7 +18,7 @@ import {
     }
   `,
   <%_ } else { -%>
- styleUrl: `<%= fileName %>.component.<%= style %>`,
+  styleUrl: `<%= fileName %>.component.<%= style %>`,
   <%_ } -%>
 })
 export class <%= className %>Component {}
