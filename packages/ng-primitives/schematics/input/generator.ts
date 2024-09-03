@@ -7,9 +7,9 @@
  */
 import { formatFiles, generateFiles, names, Tree } from '@nx/devkit';
 import * as path from 'path';
-import { ButtonGeneratorSchema } from './schema';
+import { InputGeneratorSchema } from './schema';
 
-export async function inputGenerator(tree: Tree, options: ButtonGeneratorSchema) {
+export async function inputGenerator(tree: Tree, options: InputGeneratorSchema) {
   generateFiles(tree, path.join(__dirname, 'files'), options.directory, {
     ...options,
     names: names(options.name),

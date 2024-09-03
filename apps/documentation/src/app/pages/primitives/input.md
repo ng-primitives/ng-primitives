@@ -51,23 +51,6 @@ The input automatically integrates with the form field primitives.
 
 <docs-example name="input-form-field"></docs-example>
 
-## Schematics
-
-Generate an input form field component with the NgpInput primitive preconfigured.
-
-```bash npm
- ng g ng-primitives:input-form-field
-```
-
-### Options
-
-- `name`: The name of the component.
-- `prefix`: The prefix to apply to the generated component selector.
-- `directory`: The directory at which to create the component file.
-- `style`: The file extension or preprocessor to use for style files.
-- `inlineStyle`: Include styles inline in the component.ts file. Only CSS styles can be included inline.
-- `inlineTemplate`: Include template inline in the component.ts file
-
 ## API Reference
 
 The following directives are available to import from the `ng-primitives/input` package:

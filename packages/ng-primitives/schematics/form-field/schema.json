@@ -1,13 +1,13 @@
 {
   "$schema": "https://json-schema.org/schema",
-  "$id": "InputFormField",
+  "$id": "FormField",
   "title": "",
   "type": "object",
   "properties": {
     "name": {
       "type": "string",
       "description": "The name of the component",
-      "default": "input-form-field"
+      "default": "form-field"
     },
     "prefix": {
       "type": "string",

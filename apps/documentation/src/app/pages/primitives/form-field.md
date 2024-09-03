@@ -34,6 +34,23 @@ Assemble the form-field directives in your template.
 </div>
 ```
 
+## Schematics
+
+Generate a form field component with the NgpFormField primitive preconfigured.
+
+```bash npm
+ ng g ng-primitives:form-field
+```
+
+### Options
+
+- `name`: The name of the component.
+- `prefix`: The prefix to apply to the generated component selector.
+- `directory`: The directory at which to create the component file.
+- `style`: The file extension or preprocessor to use for style files.
+- `inlineStyle`: Include styles inline in the component.ts file. Only CSS styles can be included inline.
+- `inlineTemplate`: Include template inline in the component.ts file
+
 ## API Reference
 
 The following directives are available to import from the `ng-primitives/form-field` package:
