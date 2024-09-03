@@ -4,6 +4,11 @@
       "factory": "./schematics/init/generator",
       "schema": "./schematics/init/schema.json",
       "description": "Add Angular Primitives to a project."
+    },
+    "button": {
+      "factory": "./schematics/button/generator",
+      "schema": "./schematics/button/schema.json",
+      "description": "Add a button component to the project."
     }
   },
   "schematics": {
@@ -11,6 +16,12 @@
       "description": "Add Angular Primitives to a project.",
       "factory": "./schematics/init/compat",
       "schema": "./schematics/init/schema.json",
+      "hidden": true
+    },
+    "button": {
+      "description": "Add a button component to the project.",
+      "factory": "./schematics/button/compat",
+      "schema": "./schematics/button/schema.json",
       "hidden": true
     }
   }
