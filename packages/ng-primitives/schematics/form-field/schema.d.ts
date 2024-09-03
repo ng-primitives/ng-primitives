@@ -5,7 +5,11 @@
  * This source code is licensed under the Apache 2.0 license found in the
  * LICENSE file in the root directory of this source tree.
  */
-import { convertNxGenerator } from '@nx/devkit';
-import { inputFormFieldGenerator } from './generator';
-
-export default convertNxGenerator(inputFormFieldGenerator);
+export interface FormFieldGeneratorSchema {
+  name: string;
+  prefix: string;
+  directory: string;
+  style: 'css' | 'scss';
+  inlineStyle: boolean;
+  inlineTemplate: boolean;
+}

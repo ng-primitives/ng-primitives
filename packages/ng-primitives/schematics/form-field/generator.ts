@@ -7,9 +7,9 @@
  */
 import { formatFiles, generateFiles, names, Tree } from '@nx/devkit';
 import * as path from 'path';
-import { ButtonGeneratorSchema } from './schema';
+import { FormFieldGeneratorSchema } from './schema';
 
-export async function inputFormFieldGenerator(tree: Tree, options: ButtonGeneratorSchema) {
+export async function FormFieldGenerator(tree: Tree, options: FormFieldGeneratorSchema) {
   generateFiles(tree, path.join(__dirname, 'files'), options.directory, {
     ...options,
     names: names(options.name),
@@ -24,4 +24,4 @@ export async function inputFormFieldGenerator(tree: Tree, options: ButtonGenerat
   }
 }
 
-export default inputFormFieldGenerator;
+export default FormFieldGenerator;

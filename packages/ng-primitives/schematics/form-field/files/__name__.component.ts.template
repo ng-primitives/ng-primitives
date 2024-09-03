@@ -1,17 +1,14 @@
 import { Component } from "@angular/core";
-import { NgpInput } from 'ng-primitives/input';
+import {
+  NgpFormField
+} from 'ng-primitives/form-field'
 
 @Component({
   standalone: true,
-  selector:  "<%= prefix %>-<%= names.fileName %>",
+  selector:  "[<%= prefix %>-<%= names.fileName %>]",
+  hostDirectives: [NgpFormField],
   <%_ if (inlineTemplate) { -%>
-  template: `
-  <div ngpFormField>
-    <label ngpLabel>label</label>
-    <p ngpDescription>description</p>
-    <input ngpInput placeholder="placeholder" />
-  </div>
-`,
+  template: `<ng-content/>`,
   <%_ } else { -%>
   templateUrl: `./<%= name %>.component.html`,
   <%_ } -%>
@@ -20,13 +17,10 @@ import { NgpInput } from 'ng-primitives/input';
     :host {
     }
 
-    [ngpInput] {
+    :host[data-focus='true'] {
     }
 
-    [ngpInput][data-focus='true'] {
-    }
-
-    [ngpInput]::placeholder {
+    :host::placeholder {
     }
   `,
   <%_ } else { -%>
