@@ -14,6 +14,8 @@ export async function <%= propertyName %>Generator(tree: Tree, options: <%= clas
     ...options,
     ...names(options.name),
     selector: `${options.prefix}-${names(options.name).fileName}`,
+    styles: `:host { }`,
+    template: `<ng-content />`
   });
 
   if (options.inlineStyle) {
