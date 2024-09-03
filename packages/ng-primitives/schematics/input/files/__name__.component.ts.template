@@ -22,7 +22,7 @@ import { NgpInput } from 'ng-primitives/input';
     }
   `,
   <%_ } else { -%>
-  styleUrl: `<%= fileName %>.component.<%= style %>`,
+  styleUrl: `./<%= fileName %>.component.<%= style %>`,
   <%_ } -%>
 })
 export class <%= className %>Component {}

@@ -25,7 +25,7 @@ import { NgpButton } from "ng-primitives/button";
     }
   `,
   <%_ } else { -%>
- styleUrl: `<%= fileName %>.component.<%= style %>`,
+  styleUrl: `./<%= fileName %>.component.<%= style %>`,
   <%_ } -%>
 })
 export class <%= className %>Component {}
