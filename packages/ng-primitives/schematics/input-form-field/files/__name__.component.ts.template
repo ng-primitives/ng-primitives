@@ -1,0 +1,36 @@
+import { Component } from "@angular/core";
+import { NgpInput } from 'ng-primitives/input';
+
+@Component({
+  standalone: true,
+  selector:  "<%= prefix %>-<%= names.fileName %>",
+  <%_ if (inlineTemplate) { -%>
+  template: `
+  <div ngpFormField>
+    <label ngpLabel>label</label>
+    <p ngpDescription>description</p>
+    <input ngpInput placeholder="placeholder" />
+  </div>
+`,
+  <%_ } else { -%>
+  templateUrl: `./<%= name %>.component.html`,
+  <%_ } -%>
+  <%_ if (inlineStyle) { -%>
+  styles: `
+    :host {
+    }
+
+    [ngpInput] {
+    }
+
+    [ngpInput][data-focus='true'] {
+    }
+
+    [ngpInput]::placeholder {
+    }
+  `,
+  <%_ } else { -%>
+ styleUrl: <%= name %>.component.<%= style %>,
+  <%_ } -%>
+})
+export class <%= names.className %>Component {}

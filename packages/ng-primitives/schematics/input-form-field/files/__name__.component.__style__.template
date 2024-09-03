@@ -1,0 +1,20 @@
+:host {
+}
+
+[ngpFormField] {
+}
+
+[ngpInput] {
+}
+
+[ngpInput]:focus {
+}
+
+[ngpInput]::placeholder {
+}
+
+[ngpLabel] {
+}
+
+[ngpDescription] {
+}

@@ -1,0 +1,5 @@
+<div ngpFormField>
+  <label ngpLabel>label</label>
+  <p ngpDescription>description</p>
+  <input ngpInput placeholder="placeholder" />
+</div>
