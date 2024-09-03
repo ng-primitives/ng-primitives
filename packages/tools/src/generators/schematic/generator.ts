@@ -1,11 +1,10 @@
 import { formatFiles, generateFiles, joinPathFragments, names, Tree, updateJson } from '@nx/devkit';
 import { generatorGenerator } from '@nx/plugin/generators';
 import * as path from 'path';
-import { getPrimitiveSourceRoot } from '../../utils';
 import { SchematicGeneratorSchema } from './schema';
 
 export async function schematicGenerator(tree: Tree, options: SchematicGeneratorSchema) {
-  const projectRoot = getPrimitiveSourceRoot(tree, options.name);
+  const projectRoot = 'packages/ng-primitives';
   const { fileName } = names(options.name);
 
   await generatorGenerator(tree, {
@@ -22,7 +21,7 @@ export async function schematicGenerator(tree: Tree, options: SchematicGenerator
     ...names(options.name),
   });
 
-  updateJson(tree, path.join(projectRoot, 'generators.json'), json => {
+  updateJson(tree, joinPathFragments(projectRoot, 'generators.json'), json => {
     json.generators[fileName] = {
       factory: `./schematics/${fileName}/generator`,
       schema: `./schematics/${fileName}/schema.json`,
