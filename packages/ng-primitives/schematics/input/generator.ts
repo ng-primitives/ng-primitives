@@ -12,16 +12,18 @@ import { InputGeneratorSchema } from './schema';
 export async function inputGenerator(tree: Tree, options: InputGeneratorSchema) {
   generateFiles(tree, path.join(__dirname, 'files'), options.directory, {
     ...options,
-    names: names(options.name),
+    ...names(options.name),
   });
-  await formatFiles(tree);
 
   if (options.inlineStyle) {
     tree.delete(path.join(options.directory, `${options.name}.component.${options.style}`));
   }
+
   if (options.inlineTemplate) {
     tree.delete(path.join(options.directory, `${options.name}.component.html`));
   }
+
+  await formatFiles(tree);
 }
 
 export default inputGenerator;

@@ -26,7 +26,7 @@ Assemble the input directives in your template.
 
 ## Schematics
 
-Generate an input component with the NgpInput primitive preconfigured.
+Generate an input component with the `NgpInput` primitive preconfigured.
 
 ```bash npm
  ng g ng-primitives:input

@@ -6,6 +6,6 @@
  * LICENSE file in the root directory of this source tree.
  */
 import { convertNxGenerator } from '@nx/devkit';
-import { FormFieldGenerator } from './generator';
+import { formFieldGenerator } from './generator';
 
-export default convertNxGenerator(FormFieldGenerator);
+export default convertNxGenerator(formFieldGenerator);

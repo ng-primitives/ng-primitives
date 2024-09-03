@@ -36,7 +36,7 @@ Assemble the form-field directives in your template.
 
 ## Schematics
 
-Generate a form field component with the NgpFormField primitive preconfigured.
+Generate a form field component with the `NgpFormField` primitive preconfigured.
 
 ```bash npm
  ng g ng-primitives:form-field

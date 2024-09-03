@@ -3,18 +3,15 @@ import { NgpButton } from "ng-primitives/button";
 
 @Component({
   standalone: true,
-  selector:  "button[<%= prefix %>-<%= names.fileName %>]",
+  selector: "button[<%= prefix %>-<%= fileName %>]",
   hostDirectives: [NgpButton],
   <%_ if (inlineTemplate) { -%>
   template: `<ng-content />`,
   <%_ } else { -%>
-  templateUrl: `./<%= name %>.component.html`,
+  templateUrl: `./<%= fileName %>.component.html`,
   <%_ } -%>
   <%_ if (inlineStyle) { -%>
   styles: `
-    :host {
-    }
-
     :host {
     }
 
@@ -28,7 +25,7 @@ import { NgpButton } from "ng-primitives/button";
     }
   `,
   <%_ } else { -%>
- styleUrl: <%= name %>.component.<%= style %>,
+ styleUrl: `<%= fileName %>.component.<%= style %>`,
   <%_ } -%>
 })
-export class <%= names.className %>Component {}
+export class <%= className %>Component {}

@@ -9,19 +9,21 @@ import { formatFiles, generateFiles, names, Tree } from '@nx/devkit';
 import * as path from 'path';
 import { FormFieldGeneratorSchema } from './schema';
 
-export async function FormFieldGenerator(tree: Tree, options: FormFieldGeneratorSchema) {
+export async function formFieldGenerator(tree: Tree, options: FormFieldGeneratorSchema) {
   generateFiles(tree, path.join(__dirname, 'files'), options.directory, {
     ...options,
-    names: names(options.name),
+    ...names(options.name),
   });
-  await formatFiles(tree);
 
   if (options.inlineStyle) {
     tree.delete(path.join(options.directory, `${options.name}.component.${options.style}`));
   }
+
   if (options.inlineTemplate) {
     tree.delete(path.join(options.directory, `${options.name}.component.html`));
   }
+
+  await formatFiles(tree);
 }
 
-export default FormFieldGenerator;
+export default formFieldGenerator;

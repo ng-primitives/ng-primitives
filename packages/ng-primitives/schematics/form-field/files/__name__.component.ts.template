@@ -5,12 +5,12 @@ import {
 
 @Component({
   standalone: true,
-  selector:  "[<%= prefix %>-<%= names.fileName %>]",
+  selector: "<%= prefix %>-<%= fileName %>",
   hostDirectives: [NgpFormField],
   <%_ if (inlineTemplate) { -%>
-  template: `<ng-content/>`,
+  template: `<ng-content />`,
   <%_ } else { -%>
-  templateUrl: `./<%= name %>.component.html`,
+  templateUrl: `./<%= fileName %>.component.html`,
   <%_ } -%>
   <%_ if (inlineStyle) { -%>
   styles: `
@@ -24,7 +24,7 @@ import {
     }
   `,
   <%_ } else { -%>
- styleUrl: <%= name %>.component.<%= style %>,
+ styleUrl: `<%= fileName %>.component.<%= style %>`,
   <%_ } -%>
 })
-export class <%= names.className %>Component {}
+export class <%= className %>Component {}

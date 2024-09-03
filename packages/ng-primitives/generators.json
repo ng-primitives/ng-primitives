@@ -18,7 +18,7 @@
     "form-field": {
       "factory": "./schematics/form-field/generator",
       "schema": "./schematics/form-field/schema.json",
-      "description": "Add an form-field component to the project."
+      "description": "Add a form field component to the project."
     }
   },
   "schematics": {
@@ -31,20 +31,17 @@
     "button": {
       "description": "Add a button component to the project.",
       "factory": "./schematics/button/compat",
-      "schema": "./schematics/button/schema.json",
-      "hidden": true
+      "schema": "./schematics/button/schema.json"
     },
     "input": {
       "description": "Add an input component to the project.",
       "factory": "./schematics/input/compat",
-      "schema": "./schematics/input/schema.json",
-      "hidden": true
+      "schema": "./schematics/input/schema.json"
     },
     "form-field": {
-      "description": "Add an form-field component to the project.",
+      "description": "Add a form field component to the project.",
       "factory": "./schematics/form-field/compat",
-      "schema": "./schematics/form-field/schema.json",
-      "hidden": true
+      "schema": "./schematics/form-field/schema.json"
     }
   }
 }
