@@ -26,6 +26,14 @@ Assemble the checkbox directives in your template.
 </span>
 ```
 
+## Schematics
+
+Generate a checkbox component with the `NgpCheckbox` primitive preconfigured.
+
+```bash npm
+ ng g ng-primitives:checkbox
+```
+
 ## Examples
 
 Here are some additional examples of how to use the Checkbox primitives.
