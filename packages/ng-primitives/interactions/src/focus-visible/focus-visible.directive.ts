@@ -10,8 +10,8 @@ import { BooleanInput } from '@angular/cdk/coercion';
 import {
   Directive,
   ElementRef,
-  HostListener,
   booleanAttribute,
+  effect,
   inject,
   input,
   output,
@@ -67,10 +67,17 @@ export class NgpFocusVisible {
   protected readonly isFocused = signal<boolean>(false);
 
   constructor() {
+    // handle focus state
     this.focusMonitor
       .monitor(this.elementRef.nativeElement)
       .pipe(takeUntilDestroyed())
-      .subscribe(origin => this.onFocus(origin));
+      .subscribe(origin =>
+        // null indicates the element was blurred
+        origin === null ? this.onBlur() : this.onFocus(origin),
+      );
+
+    // handle disabled state
+    this.onDisabled();
   }
 
   private onFocus(origin: FocusOrigin): void {
@@ -80,30 +87,45 @@ export class NgpFocusVisible {
 
     // for some elements the focus visible state should always appear on focus
     if (this.alwaysShowFocus()) {
-      this.isFocused.set(true);
-      this.focusChange.emit(true);
+      this.focus(true);
       return;
     }
 
     // if the focus origin is keyboard, then the focus is visible
     if (origin === 'keyboard') {
-      this.isFocused.set(true);
-      this.focusChange.emit(true);
+      this.focus(true);
       return;
     }
   }
 
-  /**
-   * Listen for blur events.
-   */
-  @HostListener('blur')
-  protected onBlur(): void {
+  private onBlur(): void {
     if (this.isDisabled() || !this.isFocused()) {
       return;
     }
 
-    this.isFocused.set(false);
-    this.focusChange.emit(false);
+    this.focus(false);
+  }
+
+  /**
+   * Prevent the data-focus-visible attribute from becoming stale.
+   */
+  private onDisabled(): void {
+    effect(
+      () => {
+        if (this.isDisabled()) {
+          this.focus(false);
+        }
+      },
+      { allowSignalWrites: true },
+    );
+  }
+
+  /**
+   * Trigger the focus signal along with the focusChange event.
+   */
+  private focus(value: boolean) {
+    this.isFocused.set(value);
+    this.focusChange.emit(value);
   }
 
   private alwaysShowFocus(): boolean {

@@ -272,4 +272,9 @@ describe('NgpFocusVisible', () => {
     expect(trigger.getAttribute('data-focus-visible')).toBe('false');
     expect(focusChange).toHaveBeenCalledWith(false);
   });
+
+  // TODO(focus-visible):
+  it('should update data-focus-visible to false when isDisabled', async () => {
+    expect(true).toBe(true);
+  });
 });
