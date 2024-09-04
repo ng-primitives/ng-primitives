@@ -27,7 +27,7 @@ import { NgpFocusVisibleToken } from './focus-visible.token';
   exportAs: 'ngpFocusVisible',
   providers: [{ provide: NgpFocusVisibleToken, useExisting: NgpFocusVisible }],
   host: {
-    '[attr.data-focus-visible]': 'isFocused() && !isDisabled()',
+    '[attr.data-focus-visible]': 'isFocused()',
   },
 })
 export class NgpFocusVisible {
