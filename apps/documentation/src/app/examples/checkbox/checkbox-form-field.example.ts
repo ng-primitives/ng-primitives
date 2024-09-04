@@ -31,7 +31,7 @@ import { NgpDescription, NgpFormField, NgpLabel } from 'ng-primitives/form-field
         0 0 0 2px rgb(59 130 246), 0 0 0 4px rgb(59 130 246);
       --checkbox-icon-color-dark: rgb(43 43 43);
 
-      --form-field-label-color: rgb(255 255 255);
+      --form-field-label-color: rgb(9 9 11);
       --form-field-description-color: rgb(113 113 122);
 
       --form-field-label-color-dark: rgb(225, 225, 225);

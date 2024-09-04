@@ -52,3 +52,29 @@ export function onBooleanChange(
 ): void {
   onChange(source, value => (value ? onTrue() : onFalse()), options);
 }
+
+/**
+ * A utility to sync the value of a signal with the Angular Forms onChange callback.
+ * @param source The signal to sync with the onChange callback.
+ * @param fn The onChange callback.
+ * @param options The options for the effect.
+ */
+export function onFormControlChange<T>(
+  source: Signal<T | null | undefined>,
+  fn?: (value: T) => void,
+  options?: { injector: Injector },
+): void {
+  const previousValue = signal(source());
+
+  effect(
+    () => {
+      const value = source();
+
+      if (value !== previousValue() && value !== undefined && value !== null) {
+        fn?.(value);
+        previousValue.set(value);
+      }
+    },
+    { allowSignalWrites: true, injector: options?.injector },
+  );
+}
