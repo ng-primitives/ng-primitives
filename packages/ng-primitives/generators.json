@@ -19,6 +19,11 @@
       "factory": "./schematics/form-field/generator",
       "schema": "./schematics/form-field/schema.json",
       "description": "Add a form field component to the project."
+    },
+    "checkbox": {
+      "factory": "./schematics/checkbox/generator",
+      "schema": "./schematics/checkbox/schema.json",
+      "description": "Add a checkbox component to the project."
     }
   },
   "schematics": {
@@ -42,6 +47,11 @@
       "description": "Add a form field component to the project.",
       "factory": "./schematics/form-field/compat",
       "schema": "./schematics/form-field/schema.json"
+    },
+    "checkbox": {
+      "factory": "./schematics/checkbox/compat",
+      "schema": "./schematics/checkbox/schema.json",
+      "description": "Add a checkbox component to the project."
     }
   }
 }

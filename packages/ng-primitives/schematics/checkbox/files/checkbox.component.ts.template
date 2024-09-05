@@ -1,0 +1,69 @@
+import { forwardRef, model, Component } from '@angular/core';
+import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
+import { NgpCheckbox } from 'ng-primitives/checkbox';
+import { onChange } from 'ng-primitives/utils';
+
+
+@Component({
+  standalone: true,
+  selector: '<%= selector %>',
+  hostDirectives: [
+    {
+      directive: NgpCheckbox,
+      inputs: ['ngpCheckboxChecked:checked'],
+      outputs: ['ngpCheckboxCheckedChange:checkedChange'],
+    },
+  ],
+  providers: [
+    { provide: NG_VALUE_ACCESSOR, useExisting: forwardRef(() => <%= className %>Component), multi: true },
+  ],
+  <%_ if (inlineTemplate) { -%>
+  template: `<%- template %>`,
+  <%_ } else { -%>
+  templateUrl: './<%= name %>.component.html',
+  <%_ } -%>
+  <%_ if (inlineStyle) { -%>
+  styles: `<%- styles %>`,
+  <%_ } else { -%>
+  styleUrl: './<%= name %>.component.<%= style %>',
+  <%_ } -%>
+  host: {
+    '(focusout)': 'onTouched?.()',
+  },
+})
+export class <%= className %>Component implements ControlValueAccessor {
+  /**
+   * The checked state of the checkbox.
+   */
+  readonly checked = model<boolean>(false);
+
+  /**
+   * The onChange callback.
+   */
+  private onChange?: (value: boolean) => void;
+
+  /**
+   * The onTouched callback.
+   */
+  protected onTouched?: () => void;
+
+  constructor() {
+    onChange(this.checked, (value) => {
+      if (value !== undefined) {
+        this.onChange?.(value!);
+      }
+    });
+  }
+
+  writeValue(checked: boolean): void {
+    this.checked.set(checked);
+  }
+
+  registerOnChange(fn: (value: boolean) => void): void {
+    this.onChange = fn;
+  }
+
+  registerOnTouched(fn: () => void): void {
+    this.onTouched = fn;
+  }
+}
