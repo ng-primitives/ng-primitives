@@ -22,7 +22,10 @@ const styles = `
 :host[data-focus-visible='true'] {
 }
 `;
-const template = `<ng-content />`;
+const template = `
+@if (checked()) {
+    <!-- Add checkmark here -->
+}`;
 
 export async function checkboxGenerator(tree: Tree, options: CheckboxGeneratorSchema) {
   const { fileName } = names(options.name);
