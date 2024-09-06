@@ -1,3 +1,19 @@
+## 0.9.0 (2024-09-06)
+
+
+### 🚀 Features
+
+- add checkbox generator ([#53](https://github.com/ng-primitives/ng-primitives/pull/53))
+
+### 🩹 Fixes
+
+- **focus-visible:** data-focus-visible attribute ([#55](https://github.com/ng-primitives/ng-primitives/pull/55))
+
+### ❤️  Thank You
+
+- kedevked @kedevked
+- Oto Dočkal @otodockal
+
 ## 0.8.0 (2024-09-03)
 
 
