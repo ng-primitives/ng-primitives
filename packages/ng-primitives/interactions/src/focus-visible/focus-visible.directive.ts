@@ -10,7 +10,6 @@ import { BooleanInput } from '@angular/cdk/coercion';
 import {
   Directive,
   ElementRef,
-  HostListener,
   booleanAttribute,
   inject,
   input,
@@ -19,6 +18,7 @@ import {
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { injectDisabled } from 'ng-primitives/internal';
+import { onBooleanChange } from 'ng-primitives/utils';
 import { NgpFocusVisibleToken } from './focus-visible.token';
 
 @Directive({
@@ -27,7 +27,7 @@ import { NgpFocusVisibleToken } from './focus-visible.token';
   exportAs: 'ngpFocusVisible',
   providers: [{ provide: NgpFocusVisibleToken, useExisting: NgpFocusVisible }],
   host: {
-    '[attr.data-focus-visible]': 'isFocused() && !isDisabled()',
+    '[attr.data-focus-visible]': 'isFocused()',
   },
 })
 export class NgpFocusVisible {
@@ -67,10 +67,17 @@ export class NgpFocusVisible {
   protected readonly isFocused = signal<boolean>(false);
 
   constructor() {
+    // handle focus state
     this.focusMonitor
       .monitor(this.elementRef.nativeElement)
       .pipe(takeUntilDestroyed())
-      .subscribe(origin => this.onFocus(origin));
+      .subscribe(origin =>
+        // null indicates the element was blurred
+        origin === null ? this.onBlur() : this.onFocus(origin),
+      );
+
+    // if the component becomes disabled and it is focused, hide the focus
+    onBooleanChange(this.isDisabled, () => this.focus(false));
   }
 
   private onFocus(origin: FocusOrigin): void {
@@ -80,30 +87,35 @@ export class NgpFocusVisible {
 
     // for some elements the focus visible state should always appear on focus
     if (this.alwaysShowFocus()) {
-      this.isFocused.set(true);
-      this.focusChange.emit(true);
+      this.focus(true);
       return;
     }
 
     // if the focus origin is keyboard, then the focus is visible
     if (origin === 'keyboard') {
-      this.isFocused.set(true);
-      this.focusChange.emit(true);
+      this.focus(true);
       return;
     }
   }
 
-  /**
-   * Listen for blur events.
-   */
-  @HostListener('blur')
-  protected onBlur(): void {
+  private onBlur(): void {
     if (this.isDisabled() || !this.isFocused()) {
       return;
     }
 
-    this.isFocused.set(false);
-    this.focusChange.emit(false);
+    this.focus(false);
+  }
+
+  /**
+   * Trigger the focus signal along with the focusChange event.
+   */
+  private focus(value: boolean) {
+    if (this.isFocused() === value) {
+      return;
+    }
+
+    this.isFocused.set(value);
+    this.focusChange.emit(value);
   }
 
   private alwaysShowFocus(): boolean {

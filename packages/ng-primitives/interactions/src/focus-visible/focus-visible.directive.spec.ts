@@ -272,4 +272,41 @@ describe('NgpFocusVisible', () => {
     expect(trigger.getAttribute('data-focus-visible')).toBe('false');
     expect(focusChange).toHaveBeenCalledWith(false);
   });
+
+  it('should update data-focus-visible to false when disable becomes true', async () => {
+    const container = await render(
+      `<div data-testid="trigger" ngpFocusVisible [ngpFocusVisibleDisabled]="disabled" (ngpFocusVisibleChange)="focusChange($event)"></div>`,
+      {
+        imports: [NgpFocusVisible],
+        componentProperties: {
+          focusChange,
+          disabled: false,
+        },
+      },
+    );
+
+    // access the NgpFocusVisible directive instance
+    const directive = container.debugElement
+      .query(By.directive(NgpFocusVisible))
+      .injector.get(NgpFocusVisible);
+
+    const trigger = container.getByTestId('trigger');
+    expect(trigger.getAttribute('data-focus-visible')).toBe('false');
+
+    // @ts-expect-error
+    directive.onFocus('keyboard');
+    container.detectChanges();
+
+    expect(trigger.getAttribute('data-focus-visible')).toBe('true');
+
+    container.rerender({
+      componentProperties: {
+        focusChange,
+        disabled: true,
+      },
+    });
+    container.detectChanges();
+
+    expect(trigger.getAttribute('data-focus-visible')).toBe('false');
+  });
 });

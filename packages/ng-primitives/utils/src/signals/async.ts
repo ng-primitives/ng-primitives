@@ -46,11 +46,11 @@ export function onChange<T>(
  */
 export function onBooleanChange(
   source: Signal<boolean>,
-  onTrue: () => void,
-  onFalse: () => void,
+  onTrue?: () => void,
+  onFalse?: () => void,
   options?: { injector: Injector },
 ): void {
-  onChange(source, value => (value ? onTrue() : onFalse()), options);
+  onChange(source, value => (value ? onTrue?.() : onFalse?.()), options);
 }
 
 /**
