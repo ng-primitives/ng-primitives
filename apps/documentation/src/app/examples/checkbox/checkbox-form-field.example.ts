@@ -13,25 +13,21 @@ import { NgpDescription, NgpFormField, NgpLabel } from 'ng-primitives/form-field
     :host {
       --checkbox-background-color: rgb(255 255 255);
       --checkbox-border-color: rgb(229 229 229);
-      --checkbox-box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
       --checkbox-background-hover: rgb(250 250 250);
       --checkbox-border-checked: rgb(10 10 10);
       --checkbox-background-checked: rgb(10 10 10);
-      --checkbox-box-shadow-focus: 0 1px 2px rgba(0, 0, 0, 0.05), 0 0 0 2px rgb(255, 255, 255),
-        0 0 0 4px rgb(59 130 246);
+      --checkbox-outline-focus: rgb(59 130 246);
       --checkbox-icon-color: rgb(255 255 255);
 
       --checkbox-background-color-dark: rgb(43 43 43);
       --checkbox-border-color-dark: rgb(128 128 128);
-      --checkbox-box-shadow-dark: 0 1px 2px rgba(255, 255, 255, 0.9);
       --checkbox-background-hover-dark: rgb(43 43 43);
       --checkbox-border-checked-dark: rgb(255 255 255);
       --checkbox-background-checked-dark: rgb(255 255 255);
-      --checkbox-box-shadow-focus-dark: 0 1px 2px rgba(255, 255, 255, 0.9),
-        0 0 0 2px rgb(59 130 246), 0 0 0 4px rgb(59 130 246);
+      --checkbox-outline-focus-dark: rgb(59 130 246);
       --checkbox-icon-color-dark: rgb(43 43 43);
 
-      --form-field-label-color: rgb(255 255 255);
+      --form-field-label-color: rgb(9 9 11);
       --form-field-description-color: rgb(113 113 122);
 
       --form-field-label-color-dark: rgb(225, 225, 225);
@@ -56,7 +52,6 @@ import { NgpDescription, NgpFormField, NgpLabel } from 'ng-primitives/form-field
         var(--checkbox-background-color),
         var(--checkbox-background-color-dark)
       );
-      box-shadow: 0 1px 2px light-dark(var(--checkbox-box-shadow), var(--checkbox-box-shadow-dark));
       padding: 0;
       flex: none;
       outline: none;
@@ -78,10 +73,9 @@ import { NgpDescription, NgpFormField, NgpLabel } from 'ng-primitives/form-field
     }
 
     [ngpCheckbox][data-focus-visible='true'] {
-      box-shadow: light-dark(
-        var(--checkbox-box-shadow-focus),
-        var(--checkbox-box-shadow-focus-dark)
-      );
+      outline: 2px solid
+        light-dark(var(--checkbox-outline-focus), var(--checkbox-outline-focus-dark));
+      outline-offset: 2px;
     }
 
     ng-icon {

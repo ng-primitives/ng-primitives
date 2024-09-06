@@ -11,7 +11,6 @@ import {
   Directive,
   ElementRef,
   booleanAttribute,
-  effect,
   inject,
   input,
   output,
@@ -19,6 +18,7 @@ import {
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { injectDisabled } from 'ng-primitives/internal';
+import { onBooleanChange } from 'ng-primitives/utils';
 import { NgpFocusVisibleToken } from './focus-visible.token';
 
 @Directive({
@@ -76,8 +76,8 @@ export class NgpFocusVisible {
         origin === null ? this.onBlur() : this.onFocus(origin),
       );
 
-    // handle disabled state
-    this.onDisabled();
+    // if the component becomes disabled and it is focused, hide the focus
+    onBooleanChange(this.isDisabled, () => this.focus(false));
   }
 
   private onFocus(origin: FocusOrigin): void {
@@ -107,23 +107,13 @@ export class NgpFocusVisible {
   }
 
   /**
-   * Prevent the data-focus-visible attribute from becoming stale.
-   */
-  private onDisabled(): void {
-    effect(
-      () => {
-        if (this.isDisabled()) {
-          this.focus(false);
-        }
-      },
-      { allowSignalWrites: true },
-    );
-  }
-
-  /**
    * Trigger the focus signal along with the focusChange event.
    */
   private focus(value: boolean) {
+    if (this.isFocused() === value) {
+      return;
+    }
+
     this.isFocused.set(value);
     this.focusChange.emit(value);
   }
