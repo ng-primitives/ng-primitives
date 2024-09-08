@@ -70,6 +70,33 @@ describe('NgpFocusVisible', () => {
     expect(focusChange).toHaveBeenCalledWith(true);
   });
 
+  it('should set data-focus-visible to true when focused programmatically', async () => {
+    const container = await render(
+      `<div data-testid="trigger" (ngpFocusVisible)="focusChange($event)"></div>`,
+      {
+        imports: [NgpFocusVisible],
+        componentProperties: {
+          focusChange,
+        },
+      },
+    );
+
+    // access the NgpFocusVisible directive instance
+    const directive = container.debugElement
+      .query(By.directive(NgpFocusVisible))
+      .injector.get(NgpFocusVisible);
+
+    const trigger = container.getByTestId('trigger');
+    expect(trigger.getAttribute('data-focus-visible')).toBe('false');
+
+    // @ts-expect-error
+    directive.onFocus('program');
+    container.detectChanges();
+
+    expect(trigger.getAttribute('data-focus-visible')).toBe('true');
+    expect(focusChange).toHaveBeenCalledWith(true);
+  });
+
   it('should alway show focus on an input element when using the mouse', async () => {
     const container = await render(
       `<input data-testid="trigger" (ngpFocusVisible)="focusChange($event)" />`,

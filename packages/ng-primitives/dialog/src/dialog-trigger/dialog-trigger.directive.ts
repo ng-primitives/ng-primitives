@@ -16,6 +16,7 @@ import {
   TemplateRef,
   ViewContainerRef,
 } from '@angular/core';
+import { NgpFocusVisible } from 'ng-primitives/interactions';
 import { NgpDialogRef } from '../dialog/dialog-ref';
 import { NgpDialogContext, NgpDialogManager } from '../dialog/dialog.service';
 import { NgpDialogTriggerToken } from './dialog-trigger.token';
@@ -24,6 +25,7 @@ import { NgpDialogTriggerToken } from './dialog-trigger.token';
   standalone: true,
   selector: '[ngpDialogTrigger]',
   exportAs: 'ngpDialogTrigger',
+  hostDirectives: [NgpFocusVisible],
   providers: [{ provide: NgpDialogTriggerToken, useExisting: NgpDialogTrigger }],
 })
 export class NgpDialogTrigger {

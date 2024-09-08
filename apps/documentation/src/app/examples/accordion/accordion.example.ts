@@ -15,25 +15,26 @@ import {
   viewProviders: [provideIcons({ heroChevronDownMini })],
   styles: `
     :host {
-      --accordion-border-color: #e5e7eb;
-      --accordion-background-color: #fff;
-      --accordion-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-      --accordion-separator-color: #e5e7eb;
-      --accordion-trigger-color: #0a0a0a;
-      --accordion-trigger-background-color: #fff;
-      --accordion-trigger-focus-shadow: 0 0 0 2px #3b82f6;
-      --accordion-content-color: #737373;
-      --accordion-icon-color: #737373;
+      --accordion-border-color: rgb(229 231 235);
+      --accordion-background-color: rgb(255 255 255);
+      --accordion-shadow: 0 1px 2px 0 rgba(0 0 0 0.05);
+      --accordion-separator-color: rgb(229 231 235);
+      --accordion-trigger-color: rgb(10 10 10);
+      --accordion-trigger-background-color: rgb(255 255 255);
+      --accordion-trigger-outline-focus: rgb(59 130 246);
 
-      --accordion-border-color-dark: #3f3f46;
-      --accordion-background-color-dark: #18181b;
-      --accordion-shadow-dark: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-      --accordion-separator-color-dark: #3f3f46;
-      --accordion-trigger-color-dark: #fff;
-      --accordion-trigger-background-color-dark: #18181b;
-      --accordion-trigger-focus-shadow-dark: 0 0 0 2px #3b82f6;
-      --accordion-content-color-dark: #e4e4e7;
-      --accordion-icon-color-dark: #e4e4e7;
+      --accordion-content-color: rgb(115 115 115);
+      --accordion-icon-color: rgb(115 115 115);
+
+      --accordion-border-color-dark: rgb(63 63 70);
+      --accordion-background-color-dark: rgb(24 24 27);
+      --accordion-shadow-dark: 0 1px 2px 0 rgba(0 0 0 0.05);
+      --accordion-separator-color-dark: rgb(63 63 70);
+      --accordion-trigger-color-dark: rgb(255 255 255);
+      --accordion-trigger-background-color-dark: rgb(24 24 27);
+      --accordion-trigger-outline-focus-dark: rgb(59 130 246);
+      --accordion-content-color-dark: rgb(228 228 231);
+      --accordion-icon-color-dark: rgb(228 228 231);
     }
 
     :host {
@@ -82,10 +83,11 @@ import {
     }
 
     [ngpAccordionTrigger][data-focus-visible='true'] {
-      box-shadow: light-dark(
-        var(--accordion-trigger-focus-shadow),
-        var(--accordion-trigger-focus-shadow-dark)
-      );
+      outline: 2px solid
+        light-dark(
+          var(--accordion-trigger-outline-focus),
+          var(--accordion-trigger-outline-focus-dark)
+        );
     }
 
     [ngpAccordionContent] {
