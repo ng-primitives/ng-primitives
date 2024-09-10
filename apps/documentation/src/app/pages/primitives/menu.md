@@ -28,7 +28,7 @@ As a result you will need to import the Angular CDK overlay styles in your appli
 Assemble the menu directives in your template.
 
 ```html
-<button [ngpMenuTrigger]="menu"></button>
+<button [ngpMenuTrigger]="menu" ngpButton></button>
 
 <ng-template #menu>
   <div ngpMenu>

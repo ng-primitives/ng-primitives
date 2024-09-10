@@ -21,7 +21,7 @@ import { NgpTooltip } from 'ng-primitives/tooltip';
 Assemble the tooltip directives in your template.
 
 ```html
-<button [ngpTooltipTrigger]="tooltip">Hover me</button>
+<button [ngpTooltipTrigger]="tooltip" ngpButton>Hover me</button>
 
 <ng-template #tooltip>
   <div ngpTooltip>Tooltip content</div>
