@@ -27,7 +27,7 @@ import {
 Assemble the dialog directives in your template.
 
 ```html
-<button [ngpDialogTrigger]="dialog">Launch Dialog</button>
+<button [ngpDialogTrigger]="dialog" ngpButton>Launch Dialog</button>
 
 <ng-template #dialog let-close="close">
   <div ngpDialogOverlay>
