@@ -28,12 +28,12 @@ Assemble the accordion directives in your template.
 ```html
 <div ngpAccordion ngpAccordionType="single" ngpAccordionCollapsible>
   <div ngpAccordionItem ngpAccordionItemValue="item-1">
-    <button ngpAccordionTrigger>Would you like to learn more?</button>
+    <button ngpAccordionTrigger ngpButton>Would you like to learn more?</button>
     <div ngpAccordionContent>If you would like to learn more please reach out to us on GitHub.</div>
   </div>
 
   <div ngpAccordionItem ngpAccordionItemValue="item-2">
-    <button ngpAccordionTrigger>Can I use this in my project?</button>
+    <button ngpAccordionTrigger ngpButton>Can I use this in my project?</button>
     <div ngpAccordionContent>Yes, this is open source and you can use it in your project.</div>
   </div>
 </div>

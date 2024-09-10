@@ -7,11 +7,19 @@ import {
   NgpAccordionItem,
   NgpAccordionTrigger,
 } from 'ng-primitives/accordion';
+import { NgpButton } from 'ng-primitives/button';
 
 @Component({
   standalone: true,
   selector: 'app-accordion',
-  imports: [NgIcon, NgpAccordion, NgpAccordionItem, NgpAccordionContent, NgpAccordionTrigger],
+  imports: [
+    NgpButton,
+    NgIcon,
+    NgpAccordion,
+    NgpAccordionItem,
+    NgpAccordionContent,
+    NgpAccordionTrigger,
+  ],
   viewProviders: [provideIcons({ heroChevronDownMini })],
   styles: `
     :host {
@@ -121,7 +129,7 @@ import {
   template: `
     <div ngpAccordion ngpAccordionType="single" ngpAccordionCollapsible>
       <div #panel1="ngpAccordionItem" ngpAccordionItem ngpAccordionItemValue="item-1">
-        <button ngpAccordionTrigger>
+        <button ngpAccordionTrigger ngpButton>
           Would you like to learn more?
 
           <ng-icon [attr.data-open]="panel1.open()" name="heroChevronDownMini" />
@@ -134,7 +142,7 @@ import {
       </div>
 
       <div #panel2="ngpAccordionItem" ngpAccordionItem ngpAccordionItemValue="item-2">
-        <button ngpAccordionTrigger>
+        <button ngpAccordionTrigger ngpButton>
           Can I use this in my project?
 
           <ng-icon [attr.data-open]="panel2.open()" name="heroChevronDownMini" />
