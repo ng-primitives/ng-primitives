@@ -35,6 +35,7 @@
       "ng-primitives/internal": ["packages/ng-primitives/internal/src/index.ts"],
       "ng-primitives/menu": ["packages/ng-primitives/menu/src/index.ts"],
       "ng-primitives/pagination": ["packages/ng-primitives/pagination/src/index.ts"],
+      "ng-primitives/popover": ["packages/ng-primitives/popover/src/index.ts"],
       "ng-primitives/progress": ["packages/ng-primitives/progress/src/index.ts"],
       "ng-primitives/radio": ["packages/ng-primitives/radio/src/index.ts"],
       "ng-primitives/resize": ["packages/ng-primitives/resize/src/index.ts"],
