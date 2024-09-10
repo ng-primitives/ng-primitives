@@ -39,6 +39,14 @@ Assemble the radio directives in your template.
 </div>
 ```
 
+## Schematics
+
+Generate a radio component with the `NgpRadioGroup` primitive preconfigured.
+
+```bash npm
+ ng g ng-primitives:radio
+```
+
 ## API Reference
 
 The following directives are available to import from the `ng-primitives/radio` package:

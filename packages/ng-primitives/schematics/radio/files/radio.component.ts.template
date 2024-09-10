@@ -1,0 +1,72 @@
+import { Component, forwardRef, model } from '@angular/core';
+import { NG_VALUE_ACCESSOR } from '@angular/forms';
+import { NgpRadioGroup, NgpRadioGroupToken } from 'ng-primitives/radio';
+import { onChange } from 'ng-primitives/utils';
+
+@Component({
+  standalone: true,
+  selector: '<%= selector %>',
+  hostDirectives: [
+    {
+      directive: NgpRadioGroup,
+      inputs: ['ngpRadioGroupValue:value'],
+      outputs: ['ngpRadioGroupValueChange:valueChange'],
+    },
+  ],
+  providers: [
+    {
+      provide: NG_VALUE_ACCESSOR,
+      useExisting: forwardRef(() => <%= className %>Component),
+      multi: true,
+    },
+    {
+      provide: NgpRadioGroupToken,
+      useExisting: NgpRadioGroup,
+    },
+  ],
+  <%_ if (inlineTemplate) { -%>
+  template: `<%- template %>`,
+  <%_ } else { -%>
+  templateUrl: './<%= name %>.component.html',
+  <%_ } -%>
+  <%_ if (inlineStyle) { -%>
+  styles: `<%- styles %>`,
+  <%_ } else { -%>
+  styleUrl: './<%= name %>.component.<%= style %>',
+  <%_ } -%>
+})
+export class <%= className %>Component {
+  /**
+   * The checked state of the checkbox.
+   */
+  readonly value = model<string | null>(null);
+
+  /**
+   * The onChange callback.
+   */
+  private onChange?: (value: string) => void;
+
+  /**
+   * The onTouched callback.
+   */
+  protected onTouched?: () => void;
+  constructor() {
+    onChange(this.value, (value) => {
+      if (value !== undefined) {
+        this.onChange?.(value!);
+      }
+    });
+  }
+
+  writeValue(value: string): void {
+    this.value.set(value);
+  }
+
+  registerOnChange(fn: (value: string) => void): void {
+    this.onChange = fn;
+  }
+
+  registerOnTouched(fn: () => void): void {
+    this.onTouched = fn;
+  }
+}
