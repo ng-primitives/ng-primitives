@@ -28,12 +28,12 @@ Assemble the accordion directives in your template.
 ```html
 <div ngpAccordion ngpAccordionType="single" ngpAccordionCollapsible>
   <div ngpAccordionItem ngpAccordionItemValue="item-1">
-    <button ngpAccordionTrigger>Would you like to learn more?</button>
+    <button ngpAccordionTrigger ngpButton>Would you like to learn more?</button>
     <div ngpAccordionContent>If you would like to learn more please reach out to us on GitHub.</div>
   </div>
 
   <div ngpAccordionItem ngpAccordionItemValue="item-2">
-    <button ngpAccordionTrigger>Can I use this in my project?</button>
+    <button ngpAccordionTrigger ngpButton>Can I use this in my project?</button>
     <div ngpAccordionContent>Yes, this is open source and you can use it in your project.</div>
   </div>
 </div>
@@ -146,14 +146,11 @@ Apply the `ngpAccordionTrigger` directive to an element that represents the trig
 
 The following data attributes are applied to the `ngpAccordionTrigger` directive:
 
-| Attribute            | Description                               | Value                      |
-| -------------------- | ----------------------------------------- | -------------------------- |
-| `data-hover`         | Whether the accordion trigger is hovered. | `true` \| `false`          |
-| `data-focus-visible` | Whether the accordion trigger is focused. | `true` \| `false`          |
-| `data-press`         | Whether the accordion trigger is pressed. | `true` \| `false`          |
-| `data-orientation`   | The orientation of the accordion.         | `horizontal` \| `vertical` |
-| `data-open`          | The state of the accordion item.          | `true` \| `false`          |
-| `data-disabled`      | Whether the accordion item is disabled.   | `true` \| `false`          |
+| Attribute          | Description                             | Value                      |
+| ------------------ | --------------------------------------- | -------------------------- |
+| `data-orientation` | The orientation of the accordion.       | `horizontal` \| `vertical` |
+| `data-open`        | The state of the accordion item.        | `true` \| `false`          |
+| `data-disabled`    | Whether the accordion item is disabled. | `true` \| `false`          |
 
 ### NgpAccordionContent
 

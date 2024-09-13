@@ -91,8 +91,8 @@ export class NgpFocusVisible {
       return;
     }
 
-    // if the focus origin is keyboard, then the focus is visible
-    if (origin === 'keyboard') {
+    // if the focus origin is keyboard or program(focused programmatically), then the focus is visible
+    if (origin === 'keyboard' || origin === 'program') {
       this.focus(true);
       return;
     }
