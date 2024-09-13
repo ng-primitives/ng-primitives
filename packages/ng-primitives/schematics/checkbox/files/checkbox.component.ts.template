@@ -20,12 +20,12 @@ import { onChange } from 'ng-primitives/utils';
   <%_ if (inlineTemplate) { -%>
   template: `<%- template %>`,
   <%_ } else { -%>
-  templateUrl: './<%= name %>.component.html',
+  templateUrl: './<%= fileName %>.component.html',
   <%_ } -%>
   <%_ if (inlineStyle) { -%>
   styles: `<%- styles %>`,
   <%_ } else { -%>
-  styleUrl: './<%= name %>.component.<%= style %>',
+  styleUrl: './<%= fileName %>.component.<%= style %>',
   <%_ } -%>
   host: {
     '(focusout)': 'onTouched?.()',
