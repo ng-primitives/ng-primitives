@@ -24,6 +24,14 @@ Assemble the file-upload directives in your template.
 <button ngpFileUpload (ngpFileUploadSelected)="onFilesSelected($event)"></button>
 ```
 
+## Schematics
+
+Generate a file-upload component with the `NgpFileUpload` primitive preconfigured.
+
+```bash npm
+ ng g ng-primitives:file-upload
+```
+
 ## API Reference
 
 The following directives are available to import from the `ng-primitives/file-upload` package:
