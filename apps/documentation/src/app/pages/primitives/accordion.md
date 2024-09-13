@@ -146,14 +146,11 @@ Apply the `ngpAccordionTrigger` directive to an element that represents the trig
 
 The following data attributes are applied to the `ngpAccordionTrigger` directive:
 
-| Attribute            | Description                               | Value                      |
-| -------------------- | ----------------------------------------- | -------------------------- |
-| `data-hover`         | Whether the accordion trigger is hovered. | `true` \| `false`          |
-| `data-focus-visible` | Whether the accordion trigger is focused. | `true` \| `false`          |
-| `data-press`         | Whether the accordion trigger is pressed. | `true` \| `false`          |
-| `data-orientation`   | The orientation of the accordion.         | `horizontal` \| `vertical` |
-| `data-open`          | The state of the accordion item.          | `true` \| `false`          |
-| `data-disabled`      | Whether the accordion item is disabled.   | `true` \| `false`          |
+| Attribute          | Description                             | Value                      |
+| ------------------ | --------------------------------------- | -------------------------- |
+| `data-orientation` | The orientation of the accordion.       | `horizontal` \| `vertical` |
+| `data-open`        | The state of the accordion item.        | `true` \| `false`          |
+| `data-disabled`    | Whether the accordion item is disabled. | `true` \| `false`          |
 
 ### NgpAccordionContent
 
