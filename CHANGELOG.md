@@ -1,3 +1,23 @@
+## 0.10.0 (2024-09-13)
+
+
+### 🚀 Features
+
+- add file-upload generator ([#60](https://github.com/ng-primitives/ng-primitives/pull/60))
+- toast primitive ([#63](https://github.com/ng-primitives/ng-primitives/pull/63))
+- **popover:** add new popover primitive ([#58](https://github.com/ng-primitives/ng-primitives/pull/58), [#62](https://github.com/ng-primitives/ng-primitives/pull/62))
+
+### 🩹 Fixes
+
+- use kebab case for file name ([#61](https://github.com/ng-primitives/ng-primitives/pull/61))
+- focus management ([#57](https://github.com/ng-primitives/ng-primitives/pull/57))
+
+### ❤️  Thank You
+
+- Ashley Hunter
+- kedevked @kedevked
+- Oto Dočkal @otodockal
+
 ## 0.9.0 (2024-09-06)
 
 
