@@ -46,6 +46,7 @@
       "ng-primitives/switch": ["packages/ng-primitives/switch/src/index.ts"],
       "ng-primitives/tabs": ["packages/ng-primitives/tabs/src/index.ts"],
       "ng-primitives/textarea": ["packages/ng-primitives/textarea/src/index.ts"],
+      "ng-primitives/toast": ["packages/ng-primitives/toast/src/index.ts"],
       "ng-primitives/toggle": ["packages/ng-primitives/toggle/src/index.ts"],
       "ng-primitives/tooltip": ["packages/ng-primitives/tooltip/src/index.ts"],
       "ng-primitives/utils": ["packages/ng-primitives/utils/src/index.ts"]
