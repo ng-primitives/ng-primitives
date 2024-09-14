@@ -4,7 +4,7 @@ import { NgpButton } from 'ng-primitives/button';
 @Component({
   standalone: true,
   selector: 'button[<%= prefix %>-<%= fileName %>]',
-  hostDirectives: [NgpButton],
+  hostDirectives: [{ directive: NgpButton, inputs: ['disabled'] }],
   <%_ if (inlineTemplate) { -%>
   template: '<ng-content />',
   <%_ } else { -%>
