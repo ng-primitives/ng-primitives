@@ -1,7 +1,7 @@
 import { Component, forwardRef, model } from '@angular/core';
-import { NG_VALUE_ACCESSOR } from '@angular/forms';
-import { NgpRadioGroup, NgpRadioGroupToken } from 'ng-primitives/radio';
-import { onChange } from 'ng-primitives/utils';
+import { NG_VALUE_ACCESSOR,ControlValueAccessor } from '@angular/forms';
+import {  NgpRadioGroup, NgpRadioGroupToken } from 'ng-primitives/radio';
+import { onFormControlChange } from 'ng-primitives/utils';
 
 @Component({
   standalone: true,
@@ -35,7 +35,7 @@ import { onChange } from 'ng-primitives/utils';
   styleUrl: './<%= fileName %>.component.<%= style %>',
   <%_ } -%>
 })
-export class <%= className %>Component {
+export class <%= className %>Component implements ControlValueAccessor {
   /**
    * The checked state of the checkbox.
    */
@@ -51,11 +51,7 @@ export class <%= className %>Component {
    */
   protected onTouched?: () => void;
   constructor() {
-    onChange(this.value, (value) => {
-      if (value !== undefined) {
-        this.onChange?.(value!);
-      }
-    });
+    onFormControlChange(this.value, this.onChange);
   }
 
   writeValue(value: string): void {
