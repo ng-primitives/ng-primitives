@@ -23,14 +23,7 @@ const radioItemStyles = `
 [ngpRadioIndicator] {}
 
 :host[data-checked="true"] [ngpRadioIndicator] {}
-
-.indicator-dot {}
-
-:host[data-checked="true"] .indicator-dot {}
-
-p {}
-
-:host[data-checked="true"] p {}`;
+`;
 const group = 'group';
 const item = 'item';
 const radioItemPath = 'radio-item';
