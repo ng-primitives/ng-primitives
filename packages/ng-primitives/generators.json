@@ -29,6 +29,11 @@
       "factory": "./schematics/file-upload/generator",
       "schema": "./schematics/file-upload/schema.json",
       "description": "Add a file-upload component to the project."
+    },
+    "radio": {
+      "factory": "./schematics/radio/generator",
+      "schema": "./schematics/radio/schema.json",
+      "description": "Add a radio component to the project."
     }
   },
   "schematics": {
@@ -62,6 +67,11 @@
       "factory": "./schematics/file-upload/compat",
       "schema": "./schematics/file-upload/schema.json",
       "description": "Add a file-upload component to the project."
+    },
+    "radio": {
+      "factory": "./schematics/radio/compat",
+      "schema": "./schematics/radio/schema.json",
+      "description": "Add a radio component to the project."
     }
   }
 }
