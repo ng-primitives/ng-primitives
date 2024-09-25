@@ -34,6 +34,11 @@
       "factory": "./schematics/radio/generator",
       "schema": "./schematics/radio/schema.json",
       "description": "Add a radio component to the project."
+    },
+    "accordion": {
+      "factory": "./schematics/accordion/generator",
+      "schema": "./schematics/accordion/schema.json",
+      "description": "Add a accordion component to the project."
     }
   },
   "schematics": {
@@ -72,6 +77,11 @@
       "factory": "./schematics/radio/compat",
       "schema": "./schematics/radio/schema.json",
       "description": "Add a radio component to the project."
+    },
+    "accordion": {
+      "factory": "./schematics/accordion/compat",
+      "schema": "./schematics/accordion/schema.json",
+      "description": "Add a accordion component to the project."
     }
   }
 }
