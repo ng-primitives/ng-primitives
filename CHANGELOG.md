@@ -1,3 +1,21 @@
+## 0.11.0 (2024-09-26)
+
+
+### 🚀 Features
+
+- add radio generator ([#59](https://github.com/ng-primitives/ng-primitives/pull/59))
+- **button:** disabled attribute for generator ([#65](https://github.com/ng-primitives/ng-primitives/pull/65))
+
+### 🩹 Fixes
+
+- **autofill:** resolving ssr issue ([#72](https://github.com/ng-primitives/ng-primitives/pull/72))
+
+### ❤️  Thank You
+
+- Ashley Hunter
+- Guillaume G. @IceDevelop74
+- kedevked @kedevked
+
 ## 0.10.0 (2024-09-13)
 
 
