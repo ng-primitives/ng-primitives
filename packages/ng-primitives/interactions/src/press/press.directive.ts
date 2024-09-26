@@ -6,18 +6,8 @@
  * LICENSE file in the root directory of this source tree.
  */
 import { BooleanInput } from '@angular/cdk/coercion';
-import {
-  Directive,
-  ElementRef,
-  HostListener,
-  booleanAttribute,
-  inject,
-  input,
-  output,
-  signal,
-} from '@angular/core';
-import { injectDisabled } from 'ng-primitives/internal';
-import { injectDisposables } from 'ng-primitives/utils';
+import { Directive, booleanAttribute, input, output } from '@angular/core';
+import { injectDisabled, setupPress } from 'ng-primitives/internal';
 import { NgpPressToken } from './press.token';
 
 /**
@@ -30,21 +20,8 @@ import { NgpPressToken } from './press.token';
   selector: '[ngpPress]',
   exportAs: 'ngpPress',
   providers: [{ provide: NgpPressToken, useExisting: NgpPress }],
-  host: {
-    '[attr.data-press]': 'pressed() && !isDisabled()',
-  },
 })
 export class NgpPress {
-  /**
-   * Access the HTML Element.
-   */
-  private readonly element = inject<ElementRef<HTMLElement>>(ElementRef);
-
-  /**
-   * Access the disposables.
-   */
-  private readonly disposables = injectDisposables();
-
   /**
    * Whether listening for press events is disabled.
    */
@@ -79,84 +56,18 @@ export class NgpPress {
     alias: 'ngpPress',
   });
 
-  /**
-   * The press state.
-   */
-  protected readonly pressed = signal(false);
-
-  /**
-   * Reset the press state.
-   */
-  private reset(): void {
-    // if we are not pressing, then do nothing
-    if (!this.pressed()) {
-      return;
-    }
-
-    // clear any existing disposables
-    this.disposableListeners.forEach(dispose => dispose());
-    this.pressed.set(false);
-    this.pressEnd.emit();
-    this.pressChange.emit(false);
-  }
-
-  /**
-   * Store the list of disposables.
-   */
-  private disposableListeners: (() => void)[] = [];
-
-  @HostListener('pointerdown')
-  protected onPointerDown(): void {
-    if (this.isDisabled()) {
-      return;
-    }
-
-    // clear any existing disposables
-    this.disposableListeners.forEach(dispose => dispose());
-
-    // update the press state
-    this.pressed.set(true);
-    this.pressStart.emit();
-    this.pressChange.emit(true);
-
-    // setup global event listeners to catch events on elements outside the directive
-    const ownerDocument = this.element.nativeElement.ownerDocument ?? document;
-
-    // if the pointer up event happens on any elements, then we are no longer pressing on this element
-    const pointerUp = this.disposables.addEventListener(
-      ownerDocument,
-      'pointerup',
-      this.reset.bind(this),
-      false,
-    );
-
-    // Instead of relying on the `pointerleave` event, which is not consistently called on iOS Safari,
-    // we use the `pointermove` event to determine if we are still "pressing".
-    // By checking if the target is still within the element, we can determine if the press is ongoing.
-    const pointerMove = this.disposables.addEventListener(
-      ownerDocument,
-      'pointermove',
-      this.onPointerMove.bind(this) as EventListener,
-      false,
-    );
-
-    // if the pointer is cancelled, then we are no longer pressing on this element
-    const pointerCancel = this.disposables.addEventListener(
-      ownerDocument,
-      'pointercancel',
-      this.reset.bind(this),
-      false,
-    );
-
-    this.disposableListeners = [pointerUp, pointerMove, pointerCancel];
-  }
-
-  private onPointerMove(event: PointerEvent): void {
-    if (
-      this.element.nativeElement !== event.target &&
-      !this.element.nativeElement.contains(event.target as Node)
-    ) {
-      this.reset();
-    }
+  constructor() {
+    // setup the press listener
+    setupPress({
+      pressStart: () => {
+        this.pressStart.emit();
+        this.pressChange.emit(true);
+      },
+      pressEnd: () => {
+        this.pressEnd.emit();
+        this.pressChange.emit(false);
+      },
+      disabled: this.isDisabled,
+    });
   }
 }
