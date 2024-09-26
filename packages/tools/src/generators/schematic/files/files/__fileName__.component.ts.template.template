@@ -5,12 +5,12 @@ import { Component } from '@angular/core';
   selector: '<%%= selector %%>',
   hostDirectives: [],
   <%%_ if (inlineTemplate) { -%%>
-  template: `<%%= template %%>`,
+  template: `<%%- template %%>`,
   <%%_ } else { -%%>
   templateUrl: './<%%= fileName %%>.component.html',
   <%%_ } -%%>
   <%%_ if (inlineStyle) { -%%>
-  styles: `<%%= styles %%>`,
+  styles: `<%%- styles %%>`,
   <%%_ } else { -%%>
   styleUrl: './<%%= fileName %%>.component.<%%= style %%>',
   <%%_ } -%%>
