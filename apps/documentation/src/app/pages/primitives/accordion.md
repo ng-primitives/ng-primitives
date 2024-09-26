@@ -56,7 +56,6 @@ Generate an accordion component with the `NgpAccordion` and `NgpAccordionItem` p
 - `inlineStyle`: Include styles inline in the component.ts file. Only CSS styles can be included inline.
 - `inlineTemplate`: Include template inline in the component.ts file
 
-
 ## Animations
 
 Accordions will often have animations to transition the content when it is expanding or collapsing.
