@@ -6,72 +6,9 @@
  * LICENSE file in the root directory of this source tree.
  */
 import type { BooleanInput } from '@angular/cdk/coercion';
-import { DOCUMENT, isPlatformBrowser } from '@angular/common';
-import {
-  Directive,
-  HostListener,
-  Injectable,
-  PLATFORM_ID,
-  booleanAttribute,
-  inject,
-  input,
-  output,
-  signal,
-} from '@angular/core';
-import { injectDisabled } from 'ng-primitives/internal';
-import { onChange } from 'ng-primitives/utils';
+import { Directive, booleanAttribute, input, output } from '@angular/core';
+import { injectDisabled, setupHover } from 'ng-primitives/internal';
 import { NgpHoverToken } from './hover.token';
-
-/**
- * We use a service here as this value is a singleton
- * and allows us to register the dom events once.
- */
-@Injectable({
-  providedIn: 'root',
-})
-class GlobalPointerEvents {
-  /**
-   * Whether global mouse events should be ignored.
-   */
-  ignoreEmulatedMouseEvents: boolean = false;
-
-  /**
-   * Access the document.
-   */
-  private readonly document = inject(DOCUMENT);
-
-  /**
-   * Determine the platform id.
-   */
-  private readonly platformId = inject(PLATFORM_ID);
-
-  constructor() {
-    // we only want to setup events on the client
-    if (isPlatformBrowser(this.platformId)) {
-      this.setupGlobalTouchEvents();
-    }
-  }
-
-  private setupGlobalTouchEvents(): void {
-    this.document.addEventListener('pointerup', this.handleGlobalPointerEvent.bind(this));
-    this.document.addEventListener('touchend', this.setGlobalIgnoreEmulatedMouseEvents.bind(this));
-  }
-
-  private setGlobalIgnoreEmulatedMouseEvents(): void {
-    this.ignoreEmulatedMouseEvents = true;
-    // Clear globalIgnoreEmulatedMouseEvents after a short timeout. iOS fires onPointerEnter
-    // with pointerType="mouse" immediately after onPointerUp and before onFocus. On other
-    // devices that don't have this quirk, we don't want to ignore a mouse hover sometime in
-    // the distant future because a user previously touched the element.
-    setTimeout(() => (this.ignoreEmulatedMouseEvents = false), 50);
-  }
-
-  private handleGlobalPointerEvent(event: PointerEvent): void {
-    if (event.pointerType === 'touch') {
-      this.setGlobalIgnoreEmulatedMouseEvents();
-    }
-  }
-}
 
 /**
  * A directive for normalizing hover events across the different browsers and devices.
@@ -84,16 +21,8 @@ class GlobalPointerEvents {
   selector: '[ngpHover]',
   exportAs: 'ngpHover',
   providers: [{ provide: NgpHoverToken, useExisting: NgpHover }],
-  host: {
-    '[attr.data-hover]': 'hovered()',
-  },
 })
 export class NgpHover {
-  /**
-   * Access the global pointer events handler.
-   */
-  private readonly globalPointerEvents = inject(GlobalPointerEvents);
-
   /**
    * Whether hoving should be disabled.
    */
@@ -106,16 +35,6 @@ export class NgpHover {
    * Access the disabled state from any parent.
    */
   private readonly isDisabled = injectDisabled(this.disabled);
-
-  /**
-   * Store the current hover state.
-   */
-  protected hovered = signal<boolean>(false);
-
-  /**
-   * Whether this element should ignore emulated mouse events.
-   */
-  private ignoreEmulatedMouseEvents: boolean = false;
 
   /**
    * Emit an event when hovering starts.
@@ -132,85 +51,21 @@ export class NgpHover {
    */
   readonly hoverChange = output<boolean>({ alias: 'ngpHover' });
 
+  /**
+   * Setup the hover state.
+   */
   constructor() {
-    onChange(this.disabled, this.reset.bind(this));
-    onChange(this.isDisabled, this.reset.bind(this));
-  }
-
-  private reset(shouldReset?: boolean | null): void {
-    if (shouldReset) {
-      this.onHoverEnd('mouse');
-    }
-  }
-
-  /**
-   * Trigger the hover start events.
-   * @param event
-   * @param pointerType
-   */
-  private onHoverStart(event: Event, pointerType: string): void {
-    if (
-      this.isDisabled() ||
-      pointerType === 'touch' ||
-      this.hovered() ||
-      !(event.currentTarget as Element)?.contains(event.target as Element)
-    ) {
-      return;
-    }
-
-    this.hovered.set(true);
-    this.hoverStart.emit();
-    this.hoverChange.emit(true);
-  }
-
-  /**
-   * Trigger the hover end events.
-   * @param pointerType
-   */
-  private onHoverEnd(pointerType: string): void {
-    if (pointerType === 'touch' || !this.hovered()) {
-      return;
-    }
-
-    this.hovered.set(false);
-    this.hoverEnd.emit();
-    this.hoverChange.emit(false);
-  }
-
-  @HostListener('pointerenter', ['$event'])
-  protected onPointerEnter(event: PointerEvent): void {
-    if (this.globalPointerEvents.ignoreEmulatedMouseEvents && event.pointerType === 'mouse') {
-      return;
-    }
-
-    this.onHoverStart(event, event.pointerType);
-  }
-
-  @HostListener('pointerleave', ['$event'])
-  protected onPointerLeave(event: PointerEvent): void {
-    if (!this.isDisabled() && (event.currentTarget as Element)?.contains(event.target as Element)) {
-      this.onHoverEnd(event.pointerType);
-    }
-  }
-
-  @HostListener('touchstart')
-  protected onTouchStart(): void {
-    this.ignoreEmulatedMouseEvents = true;
-  }
-
-  @HostListener('mouseenter', ['$event'])
-  protected onMouseEnter(event: MouseEvent): void {
-    if (!this.ignoreEmulatedMouseEvents && !this.globalPointerEvents.ignoreEmulatedMouseEvents) {
-      this.onHoverStart(event, 'mouse');
-    }
-
-    this.ignoreEmulatedMouseEvents = false;
-  }
-
-  @HostListener('mouseleave', ['$event'])
-  protected onMouseLeave(event: MouseEvent): void {
-    if (!this.isDisabled() && (event.currentTarget as Element)?.contains(event.target as Element)) {
-      this.onHoverEnd('mouse');
-    }
+    // setup the hover listener
+    setupHover({
+      hoverStart: () => {
+        this.hoverStart.emit();
+        this.hoverChange.emit(true);
+      },
+      hoverEnd: () => {
+        this.hoverEnd.emit();
+        this.hoverChange.emit(false);
+      },
+      disabled: this.isDisabled,
+    });
   }
 }

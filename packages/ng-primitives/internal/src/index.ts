@@ -7,5 +7,6 @@
  */
 
 export * from './disabled/disabled';
+export * from './interactions/index';
 export * from './orientation/orientation';
 export * from './style-injector/style-injector';
