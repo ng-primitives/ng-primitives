@@ -6,7 +6,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 import { DOCUMENT, isPlatformBrowser } from '@angular/common';
-import { inject, Injectable, PLATFORM_ID, Renderer2 } from '@angular/core';
+import { inject, Injectable, PLATFORM_ID } from '@angular/core';
 
 /**
  * A utility service for injecting styles into the document.
@@ -22,11 +22,6 @@ export class StyleInjector {
    * Access the document.
    */
   private readonly document = inject(DOCUMENT);
-
-  /**
-   * Access the renderer.
-   */
-  private readonly renderer = inject(Renderer2);
 
   /**
    * Detect the platform.
@@ -54,11 +49,11 @@ export class StyleInjector {
       return;
     }
 
-    const styleElement = this.renderer.createElement('style');
-    this.renderer.setAttribute(styleElement, 'data-ngp-style', id);
-    this.renderer.setProperty(styleElement, 'textContent', style);
+    const styleElement = this.document.createElement('style');
+    styleElement.setAttribute('data-ngp-style', id);
+    styleElement.textContent = style;
 
-    this.renderer.appendChild(this.document.head, styleElement);
+    this.document.head.appendChild(styleElement);
     this.styleElements.set(id, styleElement);
   }
 
@@ -70,7 +65,7 @@ export class StyleInjector {
     const styleElement = this.styleElements.get(id);
 
     if (styleElement) {
-      this.renderer.removeChild(this.document.head, styleElement);
+      this.document.head.removeChild(styleElement);
       this.styleElements.delete(id);
     }
   }
