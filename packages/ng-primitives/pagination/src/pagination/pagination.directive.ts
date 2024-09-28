@@ -41,7 +41,7 @@ export class NgpPagination {
   /**
    * The total number of pages.
    */
-  readonly pageCount = input.required<number, NumberInput>({
+  readonly pageCount = input<number, NumberInput>(0, {
     alias: 'ngpPaginationPageCount',
     transform: numberAttribute,
   });
