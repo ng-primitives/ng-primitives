@@ -1,3 +1,14 @@
+## 0.11.1 (2024-09-28)
+
+
+### 🩹 Fixes
+
+- **pagination:** making page count optional ([#74](https://github.com/ng-primitives/ng-primitives/pull/74))
+
+### ❤️  Thank You
+
+- Ashley Hunter
+
 ## 0.11.0 (2024-09-26)
 
 
