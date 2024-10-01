@@ -96,9 +96,9 @@ The outermost container for the date picker.
 
 The following data attributes are available on the `ngpDatePicker` directive:
 
-| Attribute       | Description                            | Value             |
-| --------------- | -------------------------------------- | ----------------- |
-| `data-disabled` | The disabled state of the date picker. | `true` \| `false` |
+| Attribute       | Description                               |
+| --------------- | ----------------------------------------- |
+| `data-disabled` | Applied when the date picker is disabled. |
 
 ### NgpDatePickerLabel
 
@@ -111,9 +111,9 @@ The label that displays the current month and year typically in the header of th
 
 The following data attributes are available on the `ngpDatePickerLabel` directive:
 
-| Attribute       | Description                            | Value             |
-| --------------- | -------------------------------------- | ----------------- |
-| `data-disabled` | The disabled state of the date picker. | `true` \| `false` |
+| Attribute       | Description                               |
+| --------------- | ----------------------------------------- |
+| `data-disabled` | Applied when the date picker is disabled. |
 
 ### NgpDatePickerPreviousMonth
 
@@ -127,12 +127,12 @@ A button that navigates to the previous month.
 
 The following data attributes are available on the `ngpDatePickerPreviousMonth` directive:
 
-| Attribute            | Description                       | Value             |
-| -------------------- | --------------------------------- | ----------------- |
-| `data-hover`         | The hover state of the button.    | `true` \| `false` |
-| `data-focus-visible` | The focus state of the button.    | `true` \| `false` |
-| `data-press`         | The pressed state of the button.  | `true` \| `false` |
-| `data-disabled`      | The disabled state of the button. | `true` \| `false` |
+| Attribute            | Description                          |
+| -------------------- | ------------------------------------ |
+| `data-hover`         | Applied when the button is hovered.  |
+| `data-focus-visible` | Applied when the button is focused.  |
+| `data-press`         | Applied when the button is pressed.  |
+| `data-disabled`      | Applied when the button is disabled. |
 
 ### NgpDatePickerNextMonth
 
@@ -146,12 +146,12 @@ A button that navigates to the next month.
 
 The following data attributes are available on the `ngpDatePickerNextMonth` directive:
 
-| Attribute            | Description                       | Value             |
-| -------------------- | --------------------------------- | ----------------- |
-| `data-hover`         | The hover state of the button.    | `true` \| `false` |
-| `data-focus-visible` | The focus state of the button.    | `true` \| `false` |
-| `data-press`         | The pressed state of the button.  | `true` \| `false` |
-| `data-disabled`      | The disabled state of the button. | `true` \| `false` |
+| Attribute            | Description                          |
+| -------------------- | ------------------------------------ |
+| `data-hover`         | Applied when the button is hovered.  |
+| `data-focus-visible` | Applied when the button is focused.  |
+| `data-press`         | Applied when the button is pressed.  |
+| `data-disabled`      | Applied when the button is disabled. |
 
 ### NgpDatePickerGrid
 
@@ -164,9 +164,9 @@ The grid that contains the days of the month.
 
 The following data attributes are available on the `ngpDatePickerGrid` directive:
 
-| Attribute       | Description                            | Value             |
-| --------------- | -------------------------------------- | ----------------- |
-| `data-disabled` | The disabled state of the date picker. | `true` \| `false` |
+| Attribute       | Description                               |
+| --------------- | ----------------------------------------- |
+| `data-disabled` | Applied when the date picker is disabled. |
 
 ### NgpDatePickerRowRender
 
@@ -199,10 +199,10 @@ A cell in the date picker grid.
 
 The following data attributes are available on the `ngpDatePickerCell` directive:
 
-| Attribute       | Description                            | Value             |
-| --------------- | -------------------------------------- | ----------------- |
-| `data-disabled` | The disabled state of the date picker. | `true` \| `false` |
-| `data-selected` | The selected state of the date.        | `true` \| `false` |
+| Attribute       | Description                        |
+| --------------- | ---------------------------------- |
+| `data-disabled` | Applied when the cell is disabled. |
+| `data-selected` | Applied when the cell is selected. |
 
 ### NgpDatePickerDateButton
 
@@ -216,15 +216,15 @@ A button that represents a date in the date picker grid.
 
 The following data attributes are available on the `ngpDatePickerDateButton` directive:
 
-| Attribute            | Description                                                 | Value             |
-| -------------------- | ----------------------------------------------------------- | ----------------- |
-| `data-selected`      | The selected state of the button.                           | `true` \| `false` |
-| `data-outside-month` | The state of the button if it is outside the current month. | `true` \| `false` |
-| `data-today`         | The state of the button if it is today.                     | `true` \| `false` |
-| `data-hover`         | The hover state of the button.                              | `true` \| `false` |
-| `data-focus-visible` | The focus state of the button.                              | `true` \| `false` |
-| `data-press`         | The pressed state of the button.                            | `true` \| `false` |
-| `data-disabled`      | The disabled state of the button.                           | `true` \| `false` |
+| Attribute            | Description                                           |
+| -------------------- | ----------------------------------------------------- |
+| `data-selected`      | Applied when the button is selected.                  |
+| `data-outside-month` | Applied when the button is outside the current month. |
+| `data-today`         | Applied when the button represents the current date.  |
+| `data-hover`         | Applied when the button is hovered.                   |
+| `data-focus-visible` | Applied when the button is focused.                   |
+| `data-press`         | Applied when the button is pressed.                   |
+| `data-disabled`      | Applied when the button is disabled.                  |
 
 ## Accessibility
 

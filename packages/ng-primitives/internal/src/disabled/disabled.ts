@@ -5,7 +5,7 @@
  * This source code is licensed under the Apache 2.0 license found in the
  * LICENSE file in the root directory of this source tree.
  */
-import { inject, InjectionToken, signal, Signal } from '@angular/core';
+import { computed, inject, InjectionToken, signal, Signal } from '@angular/core';
 
 export const NgpDisabledToken = new InjectionToken<NgpCanDisable>('NgpDisabledToken');
 
@@ -26,5 +26,5 @@ export function injectDisabled(
 ): Signal<boolean> {
   const provider = inject(NgpDisabledToken, { optional: true, self: true });
 
-  return provider ? provider.disabled : disabled;
+  return computed(() => provider?.disabled() || disabled());
 }

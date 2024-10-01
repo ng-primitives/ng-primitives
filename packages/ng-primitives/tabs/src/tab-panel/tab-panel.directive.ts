@@ -18,7 +18,7 @@ import { NgpTabPanelToken } from './tab-panel.token';
     role: 'tabpanel',
     tabIndex: '0',
     '[attr.aria-labelledby]': 'labelledBy()',
-    '[attr.data-active]': 'active()',
+    '[attr.data-active]': 'active() ? "" : null',
     '[attr.data-orientation]': 'tabset.orientation()',
   },
 })

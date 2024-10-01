@@ -83,18 +83,18 @@ import {
         0 0 0 1px rgb(0 0 0 / 0.05);
     }
 
-    button[data-hover='true'] {
+    button[data-hover] {
       background-color: light-dark(
         var(--button-hover-background-color),
         var(--button-hover-background-color-dark)
       );
     }
 
-    button[data-focus-visible='true'] {
+    button[data-focus-visible] {
       box-shadow: 0 0 0 2px light-dark(var(--button-focus-shadow), var(--button-focus-shadow-dark));
     }
 
-    button[data-press='true'] {
+    button[data-press] {
       background-color: light-dark(
         var(--button-pressed-background-color),
         var(--button-pressed-background-color-dark)
@@ -140,7 +140,7 @@ import {
       column-gap: 4px;
     }
 
-    .dialog-footer [ngpButton]:not([data-focus-visible='true']) {
+    .dialog-footer [ngpButton]:not([data-focus-visible]) {
       box-shadow: none;
     }
 

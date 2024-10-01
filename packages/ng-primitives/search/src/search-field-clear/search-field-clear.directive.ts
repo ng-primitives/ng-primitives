@@ -16,7 +16,7 @@ import { NgpSearchFieldClearToken } from './search-field-clear.token';
   providers: [{ provide: NgpSearchFieldClearToken, useExisting: NgpSearchFieldClear }],
   host: {
     '[tabindex]': '-1',
-    '[attr.data-empty]': 'searchField.empty()',
+    '[attr.data-empty]': 'searchField.empty() ? "" : null',
   },
 })
 export class NgpSearchFieldClear {

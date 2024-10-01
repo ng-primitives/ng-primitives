@@ -65,7 +65,7 @@ import { NgpSearchField, NgpSearchFieldClear } from 'ng-primitives/search';
       display: none;
     }
 
-    [ngpInput][data-focus='true'] {
+    [ngpInput][data-focus] {
       box-shadow: 0 0 0 2px rgb(59, 130, 246);
     }
 
@@ -102,7 +102,7 @@ import { NgpSearchField, NgpSearchFieldClear } from 'ng-primitives/search';
       display: none;
     }
 
-    [ngpButton][data-empty='false'] {
+    [ngpButton]:not([data-empty]) {
       display: block;
     }
 

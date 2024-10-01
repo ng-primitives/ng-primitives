@@ -36,7 +36,7 @@ import { NgpHover } from 'ng-primitives/interactions';
       cursor: pointer;
     }
 
-    div[data-hover='true'] {
+    div[data-hover] {
       background-color: light-dark(
         var(--hover-button-background-color-hover),
         var(--hover-button-background-color-hover-dark)

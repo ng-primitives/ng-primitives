@@ -25,7 +25,7 @@ import { NgpFocus } from 'ng-primitives/interactions';
       outline: none;
     }
 
-    input[data-focus='true'] {
+    input[data-focus] {
       box-shadow:
         0 1px 2px 0 light-dark(rgba(0, 0, 0, 0.05), rgba(255, 255, 255, 0.007)),
         0 0 0 2px rgb(59 130 246);

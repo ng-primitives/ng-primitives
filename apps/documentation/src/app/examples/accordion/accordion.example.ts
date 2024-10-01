@@ -90,7 +90,7 @@ import { NgpButton } from 'ng-primitives/button';
       border: none;
     }
 
-    [ngpAccordionTrigger][data-focus-visible='true'] {
+    [ngpAccordionTrigger][data-focus-visible] {
       outline: 2px solid
         light-dark(
           var(--accordion-trigger-outline-focus),
@@ -99,18 +99,15 @@ import { NgpButton } from 'ng-primitives/button';
     }
 
     [ngpAccordionContent] {
+      display: none;
       font-size: 0.875rem;
       color: light-dark(var(--accordion-content-color), var(--accordion-content-color-dark));
       overflow: hidden;
       transition: height 0.3s ease;
     }
 
-    [ngpAccordionContent][data-open='true'] {
-      height: var(--ngp-accordion-content-height);
-    }
-
-    [ngpAccordionContent][data-open='false'] {
-      height: 0;
+    [ngpAccordionContent][data-open] {
+      display: block;
     }
 
     .accordion-content {
@@ -122,7 +119,7 @@ import { NgpButton } from 'ng-primitives/button';
       color: light-dark(var(--accordion-icon-color), var(--accordion-icon-color-dark));
     }
 
-    ng-icon[data-open='true'] {
+    [ngpAccordionTrigger][data-open] ng-icon {
       transform: rotate(180deg);
     }
   `,

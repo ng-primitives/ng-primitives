@@ -40,7 +40,7 @@ import { NgpFocusVisible } from 'ng-primitives/interactions';
         0 0 0 1px rgb(0 0 0 / 0.05);
     }
 
-    button[data-focus-visible='true'] {
+    button[data-focus-visible] {
       box-shadow:
         0 1px 3px 0 rgb(0 0 0 / 0.1),
         0 1px 2px -1px rgb(0 0 0 / 0.1),

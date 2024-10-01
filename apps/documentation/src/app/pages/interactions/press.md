@@ -58,6 +58,6 @@ The `ngpPress` directive listens for press events on an element. This is particu
 
 #### Data Attributes
 
-| Attribute    | Description                           | Value             |
-| ------------ | ------------------------------------- | ----------------- |
-| `data-press` | Whether the element is being pressed. | `true` \| `false` |
+| Attribute    | Description                                |
+| ------------ | ------------------------------------------ |
+| `data-press` | Applied when the element is being pressed. |

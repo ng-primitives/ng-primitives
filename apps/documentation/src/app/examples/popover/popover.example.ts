@@ -68,14 +68,14 @@ import { NgpPopover, NgpPopoverTrigger } from 'ng-primitives/popover';
         0 0 0 1px rgb(0 0 0 / 0.05);
     }
 
-    button[data-hover='true'] {
+    button[data-hover] {
       background-color: light-dark(
         var(--button-hover-background-color),
         var(--button-hover-background-color-dark)
       );
     }
 
-    button[data-focus-visible='true'] {
+    button[data-focus-visible] {
       box-shadow:
         0 1px 3px 0 rgb(0 0 0 / 0.1),
         0 1px 2px -1px rgb(0 0 0 / 0.1),
@@ -84,7 +84,7 @@ import { NgpPopover, NgpPopoverTrigger } from 'ng-primitives/popover';
         0 0 0 4px rgb(59 130 246);
     }
 
-    button[data-press='true'] {
+    button[data-press] {
       background-color: light-dark(
         var(--button-pressed-background-color),
         var(--button-pressed-background-color-dark)

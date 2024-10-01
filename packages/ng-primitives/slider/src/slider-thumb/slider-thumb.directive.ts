@@ -23,7 +23,7 @@ import { NgpSliderThumbToken } from './slider-thumb.token';
     '[attr.aria-orientation]': 'slider.orientation()',
     '[tabindex]': 'slider.disabled() ? -1 : 0',
     '[attr.data-orientation]': 'slider.orientation()',
-    '[attr.data-disabled]': 'slider.disabled()',
+    '[attr.data-disabled]': 'slider.disabled() ? "" : null',
     '[style.inset-inline-start.%]':
       'slider.orientation() === "horizontal" ? slider.percentage() : undefined',
     '[style.inset-block-start.%]':
