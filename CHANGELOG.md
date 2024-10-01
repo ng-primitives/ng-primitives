@@ -1,3 +1,18 @@
+## 0.12.0 (2024-10-01)
+
+
+### 🚀 Features
+
+- add accordion generator ([#70](https://github.com/ng-primitives/ng-primitives/pull/70))
+
+### 🩹 Fixes
+
+- change template generated name ([#73](https://github.com/ng-primitives/ng-primitives/pull/73))
+
+### ❤️  Thank You
+
+- kedevked @kedevked
+
 ## 0.11.1 (2024-09-28)
 
 
