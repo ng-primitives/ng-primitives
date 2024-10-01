@@ -1,5 +1,8 @@
 ## 0.12.0 (2024-10-01)
 
+### Breaking Changes
+
+- **data-attributes:** boolean data-attributes are only added when the value is true. This allows for simplified styles by allowing selectors based on presence rather than based on value. ([#75](https://github.com/ng-primitives/ng-primitives/pull/75)
 
 ### 🚀 Features
 
