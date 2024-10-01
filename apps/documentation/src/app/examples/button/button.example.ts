@@ -45,18 +45,18 @@ import { NgpButton } from 'ng-primitives/button';
         0 0 0 1px rgb(0 0 0 / 0.05);
     }
 
-    [ngpButton][data-hover='true'] {
+    [ngpButton][data-hover] {
       background-color: light-dark(
         var(--button-hover-background-color),
         var(--button-hover-background-color-dark)
       );
     }
 
-    [ngpButton][data-focus-visible='true'] {
+    [ngpButton][data-focus-visible] {
       box-shadow: 0 0 0 2px light-dark(var(--button-focus-shadow), var(--button-focus-shadow-dark));
     }
 
-    [ngpButton][data-press='true'] {
+    [ngpButton][data-press] {
       background-color: light-dark(
         var(--button-pressed-background-color),
         var(--button-pressed-background-color-dark)

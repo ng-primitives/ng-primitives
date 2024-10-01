@@ -25,9 +25,9 @@ import { NgpPaginationToken } from './pagination.token';
     role: 'navigation',
     '[attr.data-page]': 'page()',
     '[attr.data-page-count]': 'pageCount()',
-    '[attr.data-first-page]': 'firstPage()',
-    '[attr.data-last-page]': 'lastPage()',
-    '[attr.data-disabled]': 'disabled()',
+    '[attr.data-first-page]': 'firstPage() ? "" : null',
+    '[attr.data-last-page]': 'lastPage() ? "" : null',
+    '[attr.data-disabled]': 'disabled() ? "" : null',
   },
 })
 export class NgpPagination {

@@ -51,7 +51,11 @@ export function setupFocusVisible({
   onBooleanChange(disabled, () => focus(false));
 
   // anytime the focus state changes we want to update the attribute
-  effect(() => elementRef.nativeElement.setAttribute('data-focus-visible', isFocused().toString()));
+  effect(() =>
+    isFocused()
+      ? elementRef.nativeElement.setAttribute('data-focus-visible', '')
+      : elementRef.nativeElement.removeAttribute('data-focus-visible'),
+  );
 
   function onFocus(origin: FocusOrigin): void {
     if (disabled() || isFocused()) {

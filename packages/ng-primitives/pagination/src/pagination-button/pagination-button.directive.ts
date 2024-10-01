@@ -30,9 +30,9 @@ import { NgpPaginationButtonToken } from './pagination-button.token';
   hostDirectives: [NgpButton],
   host: {
     '[tabindex]': 'disabled() ? -1 : 0',
-    '[attr.data-disabled]': 'disabled() || pagination.disabled()',
+    '[attr.data-disabled]': 'disabled() || pagination.disabled() ? "" : null',
     '[attr.data-page]': 'page()',
-    '[attr.data-selected]': 'selected()',
+    '[attr.data-selected]': 'selected() ? "" : null',
     '[attr.aria-current]': 'selected()',
   },
 })

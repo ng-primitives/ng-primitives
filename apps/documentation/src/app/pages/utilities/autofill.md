@@ -42,6 +42,6 @@ The following directives are available to import from the `ng-primitives/autofil
 
 The following data attributes are applied to the `ngpAutofill` directive:
 
-| Attribute       | Description                      | Value             |
-| --------------- | -------------------------------- | ----------------- |
-| `data-autofill` | The autofill state of the input. | `true` \| `false` |
+| Attribute       | Description                             |
+| --------------- | --------------------------------------- |
+| `data-autofill` | Applied when the element is autofilled. |

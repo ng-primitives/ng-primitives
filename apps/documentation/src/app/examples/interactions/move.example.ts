@@ -41,7 +41,7 @@ import { NgpMoveEvent } from 'packages/ng-primitives/interactions/src/move/move.
         0 0 0 4px rgb(59 130 246);
     }
 
-    div[data-move='true'] {
+    div[data-move] {
       box-shadow:
         0 1px 3px 2px light-dark(rgba(0, 0, 0, 0.1), rgba(168, 168, 168, 0.007)),
         0 1px 2px 2px light-dark(rgba(0, 0, 0, 0.1), rgba(168, 168, 168, 0.1)),

@@ -93,7 +93,7 @@ import {
       margin: 0;
     }
 
-    [ngpError][data-validator='fail'][data-dirty='true'] {
+    [ngpError][data-validator='fail'][data-dirty] {
       display: block;
     }
   `,

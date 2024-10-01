@@ -13,8 +13,8 @@ import { injectSwitch } from '../switch/switch.token';
   selector: '[ngpSwitchThumb]',
   standalone: true,
   host: {
-    '[attr.data-checked]': 'switch.checked()',
-    '[attr.data-disabled]': 'switch.disabled() ? "true" : null',
+    '[attr.data-checked]': 'switch.checked() ? "" : null',
+    '[attr.data-disabled]': 'switch.disabled() ? "" : null',
   },
   hostDirectives: [NgpHover, NgpFocusVisible, NgpPress],
 })

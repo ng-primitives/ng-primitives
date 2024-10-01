@@ -46,14 +46,14 @@ import { NgpToggle } from 'ng-primitives/toggle';
         0 0 0 1px rgb(0 0 0 / 0.05);
     }
 
-    [ngpButton][data-hover='true'] {
+    [ngpButton][data-hover] {
       background-color: light-dark(
         var(--toggle-hover-background-color),
         var(--toggle-hover-background-color-dark)
       );
     }
 
-    [ngpButton][data-focus-visible='true'] {
+    [ngpButton][data-focus-visible] {
       box-shadow:
         0 1px 3px 0 rgb(0 0 0 / 0.1),
         0 1px 2px -1px rgb(0 0 0 / 0.1),
@@ -62,14 +62,14 @@ import { NgpToggle } from 'ng-primitives/toggle';
         0 0 0 4px rgb(59 130 246);
     }
 
-    [ngpButton][data-press='true'] {
+    [ngpButton][data-press] {
       background-color: light-dark(
         var(--toggle-pressed-background-color),
         var(--toggle-pressed-background-color-dark)
       );
     }
 
-    [ngpButton][data-selected='true'] {
+    [ngpButton][data-selected] {
       background-color: light-dark(
         var(--toggle-selected-background-color),
         var(--toggle-selected-background-color-dark)

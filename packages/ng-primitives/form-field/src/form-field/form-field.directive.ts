@@ -17,13 +17,13 @@ import { NgpFormFieldToken } from './form-field.token';
   exportAs: 'ngpFormField',
   providers: [{ provide: NgpFormFieldToken, useExisting: NgpFormField }],
   host: {
-    '[attr.data-invalid]': 'invalid()',
-    '[attr.data-valid]': 'valid()',
-    '[attr.data-touched]': 'touched()',
-    '[attr.data-pristine]': 'pristine()',
-    '[attr.data-dirty]': 'dirty()',
-    '[attr.data-pending]': 'pending()',
-    '[attr.data-disabled]': 'disabled()',
+    '[attr.data-invalid]': 'invalid() ? "" : null',
+    '[attr.data-valid]': 'valid() ? "" : null',
+    '[attr.data-touched]': 'touched() ? "" : null',
+    '[attr.data-pristine]': 'pristine() ? "" : null',
+    '[attr.data-dirty]': 'dirty() ? "" : null',
+    '[attr.data-pending]': 'pending() ? "" : null',
+    '[attr.data-disabled]': 'disabled() ? "" : null',
   },
 })
 export class NgpFormField implements OnDestroy {

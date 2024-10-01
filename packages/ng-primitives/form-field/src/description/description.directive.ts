@@ -17,13 +17,13 @@ import { NgpDescriptionToken } from './description.token';
   providers: [{ provide: NgpDescriptionToken, useExisting: NgpDescription }],
   host: {
     '[attr.id]': 'id()',
-    '[attr.data-invalid]': 'formField?.invalid()',
-    '[attr.data-valid]': 'formField?.valid()',
-    '[attr.data-touched]': 'formField?.touched()',
-    '[attr.data-pristine]': 'formField?.pristine()',
-    '[attr.data-dirty]': 'formField?.dirty()',
-    '[attr.data-pending]': 'formField?.pending()',
-    '[attr.data-disabled]': 'formField?.disabled()',
+    '[attr.data-invalid]': 'formField?.invalid() ? "" : null',
+    '[attr.data-valid]': 'formField?.valid() ? "" : null',
+    '[attr.data-touched]': 'formField?.touched() ? "" : null',
+    '[attr.data-pristine]': 'formField?.pristine() ? "" : null',
+    '[attr.data-dirty]': 'formField?.dirty() ? "" : null',
+    '[attr.data-pending]': 'formField?.pending() ? "" : null',
+    '[attr.data-disabled]': 'formField?.disabled() ? "" : null',
   },
 })
 export class NgpDescription {

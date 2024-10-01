@@ -12,11 +12,11 @@ import { RadioGeneratorSchema } from './schema';
 const radioItemStyles = `
 :host {}
 
-:host[data-hover="true"] {}
+:host[data-hover] {}
 
-:host[data-focus-visible="true"] {}
+:host[data-focus-visible] {}
 
-:host[data-press="true"] {}
+:host[data-press] {}
 
 :host[data-checked="true"] {}
 

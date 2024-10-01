@@ -145,26 +145,26 @@ import {
       cursor: pointer;
     }
 
-    [ngpDatePickerPreviousMonth][data-hover='true'],
-    [ngpDatePickerNextMonth][data-hover='true'] {
+    [ngpDatePickerPreviousMonth][data-hover],
+    [ngpDatePickerNextMonth][data-hover] {
       background-color: light-dark(
         var(--datepicker-navigation-button-hover-background-color),
         var(--datepicker-navigation-button-hover-background-color-dark)
       );
     }
 
-    [ngpDatePickerPreviousMonth][data-focus-visible='true'],
-    [ngpDatePickerNextMonth][data-focus-visible='true'] {
+    [ngpDatePickerPreviousMonth][data-focus-visible],
+    [ngpDatePickerNextMonth][data-focus-visible] {
       outline: 2px solid rgb(59 130 246);
     }
 
-    [ngpDatePickerPreviousMonth][data-press='true'],
-    [ngpDatePickerNextMonth][data-press='true'] {
+    [ngpDatePickerPreviousMonth][data-press],
+    [ngpDatePickerNextMonth][data-press] {
       background-color: rgba(0, 0, 0, 0.1);
     }
 
-    [ngpDatePickerPreviousMonth][data-disabled='true'],
-    [ngpDatePickerNextMonth][data-disabled='true'] {
+    [ngpDatePickerPreviousMonth][data-disabled],
+    [ngpDatePickerNextMonth][data-disabled] {
       cursor: not-allowed;
       color: rgba(0, 0, 0, 0.25);
     }
@@ -180,45 +180,45 @@ import {
       cursor: pointer;
     }
 
-    [ngpDatePickerDateButton][data-today='true'] {
+    [ngpDatePickerDateButton][data-today] {
       color: light-dark(
         var(--datepicker-date-button-today-color),
         var(--datepicker-date-button-today-color-dark)
       );
     }
 
-    [ngpDatePickerDateButton][data-hover='true'] {
+    [ngpDatePickerDateButton][data-hover] {
       background-color: light-dark(
         var(--datepicker-date-button-hover-background-color),
         var(--datepicker-date-button-hover-background-color-dark)
       );
     }
 
-    [ngpDatePickerDateButton][data-focus-visible='true'] {
+    [ngpDatePickerDateButton][data-focus-visible] {
       outline: 2px solid rgb(59 130 246);
       outline-offset: 2px;
     }
 
-    [ngpDatePickerDateButton][data-press='true'] {
+    [ngpDatePickerDateButton][data-press] {
       background-color: light-dark(
         var(--datepicker-date-button-pressed-background-color),
         var(--datepicker-date-button-pressed-background-color-dark)
       );
     }
 
-    [ngpDatePickerDateButton][data-outside-month='true'] {
+    [ngpDatePickerDateButton][data-outside-month] {
       color: light-dark(
         var(--datepicker-date-button-outside-month-color),
         var(--datepicker-date-button-outside-month-color-dark)
       );
     }
 
-    [ngpDatePickerDateButton][data-selected='true'] {
+    [ngpDatePickerDateButton][data-selected] {
       background-color: rgb(59 130 246);
       color: white;
     }
 
-    [ngpDatePickerDateButton][data-selected='true'][data-outside-month='true'] {
+    [ngpDatePickerDateButton][data-selected][data-outside-month] {
       background-color: light-dark(
         var(--datepicker-date-button-outside-selected-month-background-color),
         var(--datepicker-date-button-outside-selected-month-background-color-dark)
@@ -229,7 +229,7 @@ import {
       );
     }
 
-    [ngpDatePickerDateButton][data-disabled='true'] {
+    [ngpDatePickerDateButton][data-disabled] {
       cursor: not-allowed;
       color: rgba(0, 0, 0, 0.25);
     }

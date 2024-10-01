@@ -15,7 +15,7 @@ import { NgpInput } from 'ng-primitives/input';
     :host {
     }
 
-    :host[data-focus='true'] {
+    :host[data-focus] {
     }
 
     :host::placeholder {

@@ -22,7 +22,7 @@ import { NgpMoveToken } from './move.token';
   exportAs: 'ngpMove',
   providers: [{ provide: NgpMoveToken, useExisting: NgpMove }],
   host: {
-    '[attr.data-move]': 'isMoving()',
+    '[attr.data-move]': 'isMoving() ? "" : null',
   },
 })
 export class NgpMove {

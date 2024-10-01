@@ -57,14 +57,14 @@ import { NgpDescription, NgpFormField, NgpLabel } from 'ng-primitives/form-field
       outline: none;
     }
 
-    [ngpCheckbox][data-hover='true'] {
+    [ngpCheckbox][data-hover] {
       background-color: light-dark(
         var(--checkbox-background-hover),
         var(--checkbox-background-hover-dark)
       );
     }
 
-    [ngpCheckbox][data-checked='true'] {
+    [ngpCheckbox][data-checked] {
       border-color: light-dark(var(--checkbox-border-checked), var(--checkbox-border-checked-dark));
       background-color: light-dark(
         var(--checkbox-background-checked),
@@ -72,7 +72,7 @@ import { NgpDescription, NgpFormField, NgpLabel } from 'ng-primitives/form-field
       );
     }
 
-    [ngpCheckbox][data-focus-visible='true'] {
+    [ngpCheckbox][data-focus-visible] {
       outline: 2px solid
         light-dark(var(--checkbox-outline-focus), var(--checkbox-outline-focus-dark));
       outline-offset: 2px;

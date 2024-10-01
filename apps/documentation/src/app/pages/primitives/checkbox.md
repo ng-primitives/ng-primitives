@@ -76,14 +76,14 @@ Apply the `ngpCheckbox` directive to an element to that represents the checkbox,
   Event emitted when the indeterminate state changes.
 </response-field>
 
-| Attribute            | Description                              | Value             |
-| -------------------- | ---------------------------------------- | ----------------- |
-| `data-checked`       | The checked state of the checkbox.       | `true` \| `false` |
-| `data-indeterminate` | The indeterminate state of the checkbox. | `true` \| `false` |
-| `data-disabled`      | The disabled state of the checkbox.      | `true` \| `false` |
-| `data-hover`         | The hover state of the checkbox.         | `true` \| `false` |
-| `data-focus-visible` | The focus state of the checkbox.         | `true` \| `false` |
-| `data-press`         | The press state of the checkbox.         | `true` \| `false` |
+| Attribute            | Description                                 |
+| -------------------- | ------------------------------------------- |
+| `data-checked`       | Applied when the checkbox is checked.       |
+| `data-indeterminate` | Applied when the checkbox is indeterminate. |
+| `data-disabled`      | Applied when the checkbox is disabled.      |
+| `data-hover`         | Applied when the checkbox is hovered.       |
+| `data-focus-visible` | Applied when the checkbox is focused.       |
+| `data-press`         | Applied when the checkbox is pressed.       |
 
 ## Accessibility
 

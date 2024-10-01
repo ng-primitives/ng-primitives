@@ -43,7 +43,11 @@ export function setupFocus({
   disposables.addEventListener(elementRef.nativeElement, 'blur', onBlur);
 
   // anytime the focus state changes we want to update the attribute
-  effect(() => elementRef.nativeElement.setAttribute('data-focus', isFocused().toString()));
+  effect(() =>
+    isFocused()
+      ? elementRef.nativeElement.setAttribute('data-focus', '')
+      : elementRef.nativeElement.removeAttribute('data-focus'),
+  );
 
   /**
    * Listen for focus events.

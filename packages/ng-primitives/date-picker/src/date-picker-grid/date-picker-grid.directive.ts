@@ -17,7 +17,7 @@ import { NgpDatePickerGridToken } from './date-picker-grid.token';
   host: {
     role: 'grid',
     '[attr.aria-labelledby]': 'labelId()',
-    '[attr.data-disabled]': 'datePicker.disabled()',
+    '[attr.data-disabled]': 'datePicker.disabled() ? "" : null',
   },
 })
 export class NgpDatePickerGrid<T> {

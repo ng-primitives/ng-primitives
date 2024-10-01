@@ -25,7 +25,7 @@ import { NgpTextarea } from 'ng-primitives/textarea';
       outline: none;
     }
 
-    [ngpTextarea][data-focus='true'] {
+    [ngpTextarea][data-focus] {
       box-shadow: 0 0 0 2px rgb(59, 130, 246);
     }
 

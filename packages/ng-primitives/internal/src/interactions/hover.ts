@@ -120,7 +120,11 @@ export function setupHover({
   }
 
   // anytime the hover state changes we want to update the attribute
-  effect(() => elementRef.nativeElement.setAttribute('data-hover', hovered().toString()));
+  effect(() =>
+    hovered()
+      ? elementRef.nativeElement.setAttribute('data-hover', '')
+      : elementRef.nativeElement.removeAttribute('data-hover'),
+  );
 
   /**
    * Reset the hover state.
