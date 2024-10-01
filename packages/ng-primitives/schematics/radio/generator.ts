@@ -12,17 +12,17 @@ import { RadioGeneratorSchema } from './schema';
 const radioItemStyles = `
 :host {}
 
-:host[data-hover="true"] {}
+:host[data-hover] {}
 
-:host[data-focus-visible="true"] {}
+:host[data-focus-visible] {}
 
-:host[data-press="true"] {}
+:host[data-press] {}
 
-:host[data-checked="true"] {}
+:host[data-checked] {}
 
 [ngpRadioIndicator] {}
 
-:host[data-checked="true"] [ngpRadioIndicator] {}
+:host[data-checked] [ngpRadioIndicator] {}
 `;
 const group = 'group';
 const item = 'item';

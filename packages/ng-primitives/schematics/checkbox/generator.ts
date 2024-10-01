@@ -13,13 +13,13 @@ const styles = `
 :host {
 }
 
-:host[data-hover='true'] {
+:host[data-hover] {
 }
 
-:host[data-checked='true'] {
+:host[data-checked] {
 }
 
-:host[data-focus-visible='true'] {
+:host[data-focus-visible] {
 }
 `;
 const template = `

@@ -55,9 +55,9 @@ A directive that can be used to create a button.
 
 #### Data Attributes
 
-| Attribute            | Description                       | Value             |
-| -------------------- | --------------------------------- | ----------------- |
-| `data-hover`         | The hover state of the button.    | `true` \| `false` |
-| `data-focus-visible` | The focus state of the button.    | `true` \| `false` |
-| `data-press`         | The pressed state of the button.  | `true` \| `false` |
-| `data-disabled`      | The disabled state of the button. | `true` \| `false` |
+| Attribute            | Description                        |
+| -------------------- | ---------------------------------- |
+| `data-hover`         | Added to the button when hovered.  |
+| `data-focus-visible` | Added to the button when focused.  |
+| `data-press`         | Added to the button when pressed.  |
+| `data-disabled`      | Added to the button when disabled. |

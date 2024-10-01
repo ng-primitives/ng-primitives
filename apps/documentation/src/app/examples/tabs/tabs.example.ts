@@ -54,13 +54,13 @@ import { NgpTabButton, NgpTabList, NgpTabPanel, NgpTabset } from 'ng-primitives/
       transition: all 150ms cubic-bezier(0.4, 0, 0.2, 1);
     }
 
-    [ngpTabButton][data-focus-visible='true'] {
+    [ngpTabButton][data-focus-visible] {
       box-shadow:
         0 0 0 1px rgb(0 0 0 / 0.05),
         0 0 0 2px rgb(59 130 246);
     }
 
-    [ngpTabButton][data-active='true'] {
+    [ngpTabButton][data-active] {
       border-color: light-dark(
         var(--tab-button-active-border-color),
         var(--tab-button-active-border-color-dark)
@@ -73,7 +73,7 @@ import { NgpTabButton, NgpTabList, NgpTabPanel, NgpTabset } from 'ng-primitives/
       outline: none;
     }
 
-    [ngpTabPanel][data-active='false'] {
+    [ngpTabPanel]:not([data-active]) {
       display: none;
     }
   `,

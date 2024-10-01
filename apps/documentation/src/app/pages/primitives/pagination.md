@@ -137,14 +137,14 @@ The `NgpPaginationButton` directive is used to create a pagination button.
 
 The following data attributes are applied to the `ngpPaginationButton` directive:
 
-| Attribute            | Description                                   | Value             |
-| -------------------- | --------------------------------------------- | ----------------- |
-| `data-selected`      | Whether the button is selected.               | `true` \| `false` |
-| `data-page`          | The page number that the button navigates to. | `number`          |
-| `data-hover`         | The hover state of the button.                | `true` \| `false` |
-| `data-focus-visible` | The focus state of the button.                | `true` \| `false` |
-| `data-press`         | The pressed state of the button.              | `true` \| `false` |
-| `data-disabled`      | The disabled state of the button.             | `true` \| `false` |
+| Attribute            | Description                                   | Value    |
+| -------------------- | --------------------------------------------- | -------- |
+| `data-page`          | The page number that the button navigates to. | `number` |
+| `data-selected`      | Applied when the button is selected.          | `-`      |
+| `data-hover`         | Applied when the button is hovered.           | `-`      |
+| `data-focus-visible` | Applied when the button is focused.           | `-`      |
+| `data-press`         | Applied when the button is pressed.           | `-`      |
+| `data-disabled`      | Disables the pagination button.               | `-`      |
 
 ### NgpPaginationFirst
 
@@ -162,13 +162,13 @@ The `NgpPaginationFirst` directive is used to create a pagination button that na
 
 The following data attributes are applied to the `ngpPaginationFirst` directive:
 
-| Attribute            | Description                                 | Value             |
-| -------------------- | ------------------------------------------- | ----------------- |
-| `data-first-page`    | Whether the current page is the first page. | `true` \| `false` |
-| `data-hover`         | The hover state of the button.              | `true` \| `false` |
-| `data-focus-visible` | The focus state of the button.              | `true` \| `false` |
-| `data-press`         | The pressed state of the button.            | `true` \| `false` |
-| `data-disabled`      | The disabled state of the button.           | `true` \| `false` |
+| Attribute            | Description                                      |
+| -------------------- | ------------------------------------------------ |
+| `data-first-page`    | Applied when the current page is the first page. |
+| `data-hover`         | Applied when the button is hovered.              |
+| `data-focus-visible` | Applied when the button is focused.              |
+| `data-press`         | Applied when the button is pressed.              |
+| `data-disabled`      | Applied when the button is disabled.             |
 
 ### NgpPaginationPrevious
 
@@ -186,13 +186,13 @@ The `NgpPaginationPrevious` directive is used to create a pagination button that
 
 The following data attributes are applied to the `ngpPaginationPrevious` directive:
 
-| Attribute            | Description                                 | Value             |
-| -------------------- | ------------------------------------------- | ----------------- |
-| `data-first-page`    | Whether the current page is the first page. | `true` \| `false` |
-| `data-hover`         | The hover state of the button.              | `true` \| `false` |
-| `data-focus-visible` | The focus state of the button.              | `true` \| `false` |
-| `data-press`         | The pressed state of the button.            | `true` \| `false` |
-| `data-disabled`      | The disabled state of the button.           | `true` \| `false` |
+| Attribute            | Description                                      |
+| -------------------- | ------------------------------------------------ |
+| `data-first-page`    | Applied when the current page is the first page. |
+| `data-hover`         | Applied when the button is hovered.              |
+| `data-focus-visible` | Applied when the button is focused.              |
+| `data-press`         | Applied when the button is pressed.              |
+| `data-disabled`      | Applied when the button is disabled.             |
 
 ### NgpPaginationNext
 
@@ -210,13 +210,13 @@ The `NgpPaginationNext` directive is used to create a pagination button that nav
 
 The following data attributes are applied to the `ngpPaginationNext` directive:
 
-| Attribute            | Description                                | Value             |
-| -------------------- | ------------------------------------------ | ----------------- |
-| `data-last-page`     | Whether the current page is the last page. | `true` \| `false` |
-| `data-hover`         | The hover state of the button.             | `true` \| `false` |
-| `data-focus-visible` | The focus state of the button.             | `true` \| `false` |
-| `data-press`         | The pressed state of the button.           | `true` \| `false` |
-| `data-disabled`      | The disabled state of the button.          | `true` \| `false` |
+| Attribute            | Description                                     |
+| -------------------- | ----------------------------------------------- |
+| `data-last-page`     | Applied when the current page is the last page. |
+| `data-hover`         | Applied when the button is hovered.             |
+| `data-focus-visible` | Applied when the button is focused.             |
+| `data-press`         | Applied when the button is pressed.             |
+| `data-disabled`      | Applied when the button is disabled.            |
 
 ### NgpPaginationLast
 
@@ -234,10 +234,10 @@ The `NgpPaginationLast` directive is used to create a pagination button that nav
 
 The following data attributes are applied to the `ngpPaginationLast` directive:
 
-| Attribute            | Description                                | Value             |
-| -------------------- | ------------------------------------------ | ----------------- |
-| `data-last-page`     | Whether the current page is the last page. | `true` \| `false` |
-| `data-hover`         | The hover state of the button.             | `true` \| `false` |
-| `data-focus-visible` | The focus state of the button.             | `true` \| `false` |
-| `data-press`         | The pressed state of the button.           | `true` \| `false` |
-| `data-disabled`      | The disabled state of the button.          | `true` \| `false` |
+| Attribute            | Description                                     |
+| -------------------- | ----------------------------------------------- |
+| `data-last-page`     | Applied when the current page is the last page. |
+| `data-hover`         | Applied when the button is hovered.             |
+| `data-focus-visible` | Applied when the button is focused.             |
+| `data-press`         | Applied when the button is pressed.             |
+| `data-disabled`      | Applied when the button is disabled.            |

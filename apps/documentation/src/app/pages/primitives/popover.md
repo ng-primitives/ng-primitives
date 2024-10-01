@@ -92,10 +92,10 @@ Apply the `ngpPopoverTrigger` directive to an element that triggers the popover 
 
 #### Data Attributes
 
-| Attribute       | Description               | Value                                        |
-| --------------- | ------------------------- | -------------------------------------------- |
-| `data-state`    | The state of the popover. | `closed` \| `closing` \| `open` \| `opening` |
-| `data-disabled` | The disabled state.       | `true` \| `false`                            |
+| Attribute       | Description                           | Value                                        |
+| --------------- | ------------------------------------- | -------------------------------------------- |
+| `data-state`    | The state of the popover.             | `closed` \| `closing` \| `open` \| `opening` |
+| `data-disabled` | Applied when the popover is disabled. | `-`                                          |
 
 ## Global Configuration
 

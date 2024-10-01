@@ -33,8 +33,8 @@ import { NgpSwitchToken } from './switch.token';
     role: 'switch',
     '[attr.type]': 'isButton ? "button" : null',
     '[attr.aria-checked]': 'checked()',
-    '[attr.data-checked]': 'checked()',
-    '[attr.disabled]': 'isButton && disabled() ? disabled() : null',
+    '[attr.data-checked]': 'checked() ? "" : null',
+    '[attr.disabled]': 'isButton && disabled() ? "" : null',
   },
 })
 export class NgpSwitch implements NgpCanDisable {

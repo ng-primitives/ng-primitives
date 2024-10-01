@@ -19,8 +19,8 @@ import { NgpAccordionItemToken } from './accordion-item.token';
   providers: [{ provide: NgpAccordionItemToken, useExisting: NgpAccordionItem }],
   host: {
     '[attr.data-orientation]': 'accordion.orientation()',
-    '[attr.data-open]': 'open()',
-    '[attr.data-disabled]': 'disabled() || accordion.disabled()',
+    '[attr.data-open]': 'open() ? "" : null',
+    '[attr.data-disabled]': 'disabled() || accordion.disabled() ? "" : null',
   },
 })
 export class NgpAccordionItem<T> {

@@ -53,18 +53,18 @@ import { NgpToast } from 'ng-primitives/toast';
         0 0 0 1px rgb(0 0 0 / 0.05);
     }
 
-    .toast-trigger[data-hover='true'] {
+    .toast-trigger[data-hover] {
       background-color: light-dark(
         var(--button-hover-background-color),
         var(--button-hover-background-color-dark)
       );
     }
 
-    .toast-trigger[data-focus-visible='true'] {
+    .toast-trigger[data-focus-visible] {
       box-shadow: 0 0 0 2px light-dark(var(--button-focus-shadow), var(--button-focus-shadow-dark));
     }
 
-    .toast-trigger[data-press='true'] {
+    .toast-trigger[data-press] {
       background-color: light-dark(
         var(--button-pressed-background-color),
         var(--button-pressed-background-color-dark)

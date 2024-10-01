@@ -52,14 +52,14 @@ import { NgpMenu, NgpMenuItem, NgpMenuTrigger } from 'ng-primitives/menu';
         0 0 0 1px rgb(0 0 0 / 0.05);
     }
 
-    [ngpButton][data-hover='true'] {
+    [ngpButton][data-hover] {
       background-color: light-dark(
         var(--button-hover-background-color),
         var(--button-hover-background-color-dark)
       );
     }
 
-    [ngpButton][data-focus-visible='true'] {
+    [ngpButton][data-focus-visible] {
       box-shadow:
         0 1px 3px 0 rgb(0 0 0 / 0.1),
         0 1px 2px -1px rgb(0 0 0 / 0.1),
@@ -67,7 +67,7 @@ import { NgpMenu, NgpMenuItem, NgpMenuTrigger } from 'ng-primitives/menu';
         0 0 0 2px light-dark(#005fcc, #99c8ff);
     }
 
-    [ngpButton][data-press='true'] {
+    [ngpButton][data-press] {
       background-color: light-dark(
         var(--button-pressed-background-color),
         var(--button-pressed-background-color-dark)
@@ -99,11 +99,11 @@ import { NgpMenu, NgpMenuItem, NgpMenuTrigger } from 'ng-primitives/menu';
       outline: none;
     }
 
-    [ngpMenuItem][data-hover='true'] {
+    [ngpMenuItem][data-hover] {
       background: light-dark(#f5f5f5, #3f3f46);
     }
 
-    [ngpMenuItem][data-focus-visible='true'] {
+    [ngpMenuItem][data-focus-visible] {
       box-shadow: 0 0 0 2px light-dark(#005fcc, #99c8ff);
     }
   `,

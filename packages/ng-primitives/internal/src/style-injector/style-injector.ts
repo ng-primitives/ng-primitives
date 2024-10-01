@@ -5,7 +5,7 @@
  * This source code is licensed under the Apache 2.0 license found in the
  * LICENSE file in the root directory of this source tree.
  */
-import { isPlatformBrowser } from '@angular/common';
+import { DOCUMENT, isPlatformBrowser } from '@angular/common';
 import { inject, Injectable, PLATFORM_ID } from '@angular/core';
 
 /**
@@ -18,6 +18,11 @@ import { inject, Injectable, PLATFORM_ID } from '@angular/core';
   providedIn: 'root',
 })
 export class StyleInjector {
+  /**
+   * Access the document.
+   */
+  private readonly document = inject(DOCUMENT);
+
   /**
    * Detect the platform.
    */
@@ -44,11 +49,11 @@ export class StyleInjector {
       return;
     }
 
-    const styleElement = document.createElement('style');
+    const styleElement = this.document.createElement('style');
     styleElement.setAttribute('data-ngp-style', id);
     styleElement.textContent = style;
 
-    document.head.appendChild(styleElement);
+    this.document.head.appendChild(styleElement);
     this.styleElements.set(id, styleElement);
   }
 
@@ -60,7 +65,7 @@ export class StyleInjector {
     const styleElement = this.styleElements.get(id);
 
     if (styleElement) {
-      document.head.removeChild(styleElement);
+      this.document.head.removeChild(styleElement);
       this.styleElements.delete(id);
     }
   }
@@ -69,7 +74,7 @@ export class StyleInjector {
    * Collect any styles that were rendered by the server.
    */
   private collectServerStyles(): void {
-    const styleElements = document.querySelectorAll<HTMLStyleElement>('style[data-ngp-style]');
+    const styleElements = this.document.querySelectorAll<HTMLStyleElement>('style[data-ngp-style]');
 
     styleElements.forEach(styleElement => {
       const id = styleElement.getAttribute('data-ngp-style');

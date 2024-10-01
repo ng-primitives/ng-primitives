@@ -38,13 +38,13 @@ import { NgpSwitch, NgpSwitchThumb } from 'ng-primitives/switch';
       transition-duration: 150ms;
     }
 
-    [ngpSwitch][data-focus-visible='true'] {
+    [ngpSwitch][data-focus-visible] {
       box-shadow:
         0 0 0 1px rgb(0 0 0 / 0.05),
         0 0 0 2px rgb(59 130 246);
     }
 
-    [ngpSwitch][data-checked='true'] {
+    [ngpSwitch][data-checked] {
       background-color: light-dark(
         var(--switch-checked-background-color),
         var(--switch-checked-background-color-dark)
@@ -73,7 +73,7 @@ import { NgpSwitch, NgpSwitchThumb } from 'ng-primitives/switch';
       transform: translateX(1px);
     }
 
-    [ngpSwitchThumb][data-checked='true'] {
+    [ngpSwitchThumb][data-checked] {
       transform: translateX(17px);
     }
   `,

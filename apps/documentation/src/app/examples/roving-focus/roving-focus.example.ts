@@ -69,7 +69,7 @@ import { NgpRovingFocusGroup, NgpRovingFocusItem } from 'ng-primitives/roving-fo
       transition: background-color 150ms cubic-bezier(0.4, 0, 0.2, 1);
     }
 
-    [ngpButton][data-hover='true'] {
+    [ngpButton][data-hover] {
       background-color: light-dark(
         var(--roving-focus-group-hover-background-color),
         var(--roving-focus-group-hover-background-color-dark)
@@ -77,13 +77,13 @@ import { NgpRovingFocusGroup, NgpRovingFocusItem } from 'ng-primitives/roving-fo
       box-shadow: 0 0 0 1px light-dark(rgba(0, 0, 0, 0.05), rgba(255, 255, 255, 0.05));
     }
 
-    [ngpButton][data-focus-visible='true'] {
+    [ngpButton][data-focus-visible] {
       box-shadow:
         0 0 0 1px light-dark(rgba(0, 0, 0, 0.05), rgba(255, 255, 255, 0.05)),
         0 0 0 2px rgb(59 130 246);
     }
 
-    [ngpButton][data-press='true'] {
+    [ngpButton][data-press] {
       background-color: light-dark(
         var(--roving-focus-group-pressed-background-color),
         var(--roving-focus-group-pressed-background-color-dark)

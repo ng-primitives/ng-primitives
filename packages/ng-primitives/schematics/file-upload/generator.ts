@@ -12,7 +12,7 @@ import { FileUploadGeneratorSchema } from './schema';
 const styles = `
 :host {}
 
-:host[data-dragover='true'] {
+:host[data-dragover] {
 }`;
 const template = `<ng-content />`;
 

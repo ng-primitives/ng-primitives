@@ -22,12 +22,12 @@ This works with any styling system, whether you're using plain CSS, SCSS, or a u
 If you are using CSS or SCSS, you can style the primitives like this:
 
 ```scss
-button[data-selected='true'] {
+button[data-selected] {
   background-color: blue;
   color: white;
 }
 
-button[data-disabled='true'] {
+button[data-disabled] {
   opacity: 0.5;
   cursor: not-allowed;
 }
@@ -37,7 +37,7 @@ If you are using Tailwind CSS, you can style the primitives like this:
 
 ```html
 <button
-  class="data-[disabled='true']:cursor-not-allowed data-[selected='true']:bg-blue-500 data-[selected='true']:text-white data-[disabled='true']:opacity-50"
+  class="data-[disabled]:cursor-not-allowed data-[selected]:bg-blue-500 data-[selected]:text-white data-[disabled]:opacity-50"
   ngpToggle
 >
   Toggle

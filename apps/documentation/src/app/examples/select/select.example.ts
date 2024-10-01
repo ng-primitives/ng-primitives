@@ -52,14 +52,14 @@ import { NgpSelect } from 'ng-primitives/select';
       background-repeat: no-repeat;
     }
 
-    select[data-hover='true'] {
+    select[data-hover] {
       background-color: light-dark(
         var(--select-hover-background-color),
         var(--select-hover-background-color-dark)
       );
     }
 
-    select[data-focus-visible='true'] {
+    select[data-focus-visible] {
       box-shadow:
         0 0 0 2px rgb(59, 130, 246),
         0 1px 3px 0 rgb(0 0 0 / 0.1),
@@ -67,7 +67,7 @@ import { NgpSelect } from 'ng-primitives/select';
         0 0 0 1px rgb(0 0 0 / 0.05);
     }
 
-    select[data-press='true'] {
+    select[data-press] {
       background-color: light-dark(
         var(--select-pressed-background-color),
         var(--select-pressed-background-color-dark)

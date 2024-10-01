@@ -17,7 +17,7 @@ import { NgpSearchFieldToken } from './search-field.token';
   providers: [{ provide: NgpSearchFieldToken, useExisting: NgpSearchField }],
   hostDirectives: [NgpFormField],
   host: {
-    '[attr.data-empty]': 'empty()',
+    '[attr.data-empty]': 'empty() ? "" : null',
   },
 })
 export class NgpSearchField {

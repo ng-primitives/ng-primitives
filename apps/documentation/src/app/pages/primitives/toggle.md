@@ -51,10 +51,10 @@ Apply the `ngpToggle` directive to an element to manage the toggle state. This m
 
 The following data attributes are applied to the `ngpToggle` directive:
 
-| Attribute       | Description         | Value             |
-| --------------- | ------------------- | ----------------- |
-| `data-selected` | The selected state. | `true` \| `false` |
-| `data-disabled` | The disabled state. | `true` \| `false` |
+| Attribute       | Description                          |
+| --------------- | ------------------------------------ |
+| `data-selected` | Applied when the toggle is selected. |
+| `data-disabled` | Applied when the toggle is disabled. |
 
 ## Accessibility
 

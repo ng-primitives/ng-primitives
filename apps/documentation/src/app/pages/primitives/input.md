@@ -65,9 +65,9 @@ The following directives are available to import from the `ng-primitives/input` 
 
 The following data attributes are applied to the `ngpInput` directive:
 
-| Attribute       | Description                      | Value             |
-| --------------- | -------------------------------- | ----------------- |
-| `data-hover`    | The hover state of the input.    | `true` \| `false` |
-| `data-focus`    | The focus state of the input.    | `true` \| `false` |
-| `data-disabled` | The disabled state of the input. | `true` \| `false` |
-| `data-autofill` | The autofill state of the input. | `true` \| `false` |
+| Attribute       | Description                           |
+| --------------- | ------------------------------------- |
+| `data-hover`    | Applied to the input when hovered.    |
+| `data-focus`    | Applied to the input when focused.    |
+| `data-disabled` | Applied to the input when disabled.   |
+| `data-autofill` | Applied to the input when autofilled. |

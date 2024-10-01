@@ -17,7 +17,7 @@ import { NgpMenuTriggerToken } from './menu-trigger.token';
   providers: [{ provide: NgpMenuTriggerToken, useExisting: NgpMenuTrigger }],
   hostDirectives: [{ directive: CdkMenuTrigger, inputs: ['cdkMenuTriggerFor: ngpMenuTrigger'] }],
   host: {
-    '[attr.data-open]': 'open()',
+    '[attr.data-open]': 'open() ? "" : null',
   },
 })
 export class NgpMenuTrigger {
