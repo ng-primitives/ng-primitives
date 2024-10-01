@@ -18,11 +18,11 @@ const radioItemStyles = `
 
 :host[data-press] {}
 
-:host[data-checked="true"] {}
+:host[data-checked] {}
 
 [ngpRadioIndicator] {}
 
-:host[data-checked="true"] [ngpRadioIndicator] {}
+:host[data-checked] [ngpRadioIndicator] {}
 `;
 const group = 'group';
 const item = 'item';
