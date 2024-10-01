@@ -15,11 +15,11 @@ const accordionPath = 'accordion';
 const accordionItemStyles = `
     :host {}
 
-    [ngpAccordionContent][data-open='true'] {}
+    [ngpAccordionContent] {}
 
-    [ngpAccordionContent][data-open='false'] {}
+    [ngpAccordionContent][data-open] {}
 
-    [ngpAccordionTrigger][data-focus-visible='true'] {}
+    [ngpAccordionTrigger][data-focus-visible] {}
 `;
 
 export async function accordionGenerator(tree: Tree, options: AccordionGeneratorSchema) {
