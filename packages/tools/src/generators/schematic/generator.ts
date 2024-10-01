@@ -23,6 +23,7 @@ export async function schematicGenerator(tree: Tree, options: SchematicGenerator
       ...options,
       ...names(options.name),
       year: new Date().getFullYear(),
+      templateName: '__fileName__',
     },
   );
 

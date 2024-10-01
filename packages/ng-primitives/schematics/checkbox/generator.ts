@@ -16,7 +16,7 @@ const styles = `
 :host[data-hover] {
 }
 
-:host[data-checked='true'] {
+:host[data-checked] {
 }
 
 :host[data-focus-visible] {
