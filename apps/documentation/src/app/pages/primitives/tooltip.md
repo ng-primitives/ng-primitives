@@ -88,10 +88,10 @@ Apply the `ngpTooltipTrigger` directive to an element that triggers the tooltip 
 
 #### Data Attributes
 
-| Attribute       | Description               | Value                                        |
-| --------------- | ------------------------- | -------------------------------------------- |
-| `data-state`    | The state of the tooltip. | `closed` \| `closing` \| `open` \| `opening` |
-| `data-disabled` | The disabled state.       | `true` \| `false`                            |
+| Attribute       | Description                           | Value                                        |
+| --------------- | ------------------------------------- | -------------------------------------------- |
+| `data-state`    | The state of the tooltip.             | `closed` \| `closing` \| `open` \| `opening` |
+| `data-disabled` | Applied when the tooltip is disabled. | `-`                                          |
 
 ## Global Configuration
 

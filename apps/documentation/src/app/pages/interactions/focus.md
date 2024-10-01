@@ -45,6 +45,6 @@ The following directives are available to import from the `ng-primitives/interac
 
 The following data attributes are applied to the `ngpFocus` directive:
 
-| Attribute    | Description                     | Value             |
-| ------------ | ------------------------------- | ----------------- |
-| `data-focus` | Whether the element is focused. | `true` \| `false` |
+| Attribute    | Description                          |
+| ------------ | ------------------------------------ |
+| `data-focus` | Applied when the element is focused. |

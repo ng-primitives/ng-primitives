@@ -25,11 +25,11 @@ import { NgpDatePickerDateButtonToken } from './date-picker-date-button.token';
   host: {
     '[attr.role]': '!isButton ? "button" : null',
     '[attr.tabindex]': 'focused() ? 0 : -1',
-    '[attr.data-selected]': 'selected()',
-    '[attr.data-disabled]': 'disabled()',
+    '[attr.data-selected]': 'selected() ? "" : null',
+    '[attr.data-disabled]': 'disabled() ? "" : null',
     '[attr.aria-disabled]': 'disabled()',
-    '[attr.data-outside-month]': 'outside()',
-    '[attr.data-today]': 'today()',
+    '[attr.data-outside-month]': 'outside() ? "" : null',
+    '[attr.data-today]': 'today() ? "" : null',
   },
   hostDirectives: [NgpButton],
 })

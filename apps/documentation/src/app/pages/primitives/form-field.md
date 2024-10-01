@@ -64,15 +64,15 @@ The `NgpFormField` directive is a container for form field elements. Any labels,
 
 #### Data Attributes
 
-| Attribute       | Description                               | Value             |
-| --------------- | ----------------------------------------- | ----------------- |
-| `data-invalid`  | The `invalid` state of the form control.  | `true` \| `false` |
-| `data-valid`    | The `valid` state of the form control.    | `true` \| `false` |
-| `data-touched`  | The `touched` state of the form control.  | `true` \| `false` |
-| `data-pristine` | The `pristine` state of the form control. | `true` \| `false` |
-| `data-dirty`    | The `dirty` state of the form control.    | `true` \| `false` |
-| `data-pending`  | The `pending` state of the form control.  | `true` \| `false` |
-| `data-disabled` | The `disabled` state of the form control. | `true` \| `false` |
+| Attribute       | Description                                |
+| --------------- | ------------------------------------------ |
+| `data-invalid`  | Applied when the form control is invalid.  |
+| `data-valid`    | Applied when the form control is valid.    |
+| `data-touched`  | Applied when the form control is touched.  |
+| `data-pristine` | Applied when the form control is pristine. |
+| `data-dirty`    | Applied when the form control is dirty.    |
+| `data-pending`  | Applied when the form control is pending.  |
+| `data-disabled` | Applied when the form control is disabled. |
 
 ### NgpLabel
 
@@ -83,15 +83,15 @@ The `NgpLabel` directive is used to mark a label element within a form field. Pr
 
 #### Data Attributes
 
-| Attribute       | Description                               | Value             |
-| --------------- | ----------------------------------------- | ----------------- |
-| `data-invalid`  | The `invalid` state of the form control.  | `true` \| `false` |
-| `data-valid`    | The `valid` state of the form control.    | `true` \| `false` |
-| `data-touched`  | The `touched` state of the form control.  | `true` \| `false` |
-| `data-pristine` | The `pristine` state of the form control. | `true` \| `false` |
-| `data-dirty`    | The `dirty` state of the form control.    | `true` \| `false` |
-| `data-pending`  | The `pending` state of the form control.  | `true` \| `false` |
-| `data-disabled` | The `disabled` state of the form control. | `true` \| `false` |
+| Attribute       | Description                                | Value |
+| --------------- | ------------------------------------------ | ----- |
+| `data-invalid`  | Applied when the form control is invalid.  |
+| `data-valid`    | Applied when the form control is valid.    |
+| `data-touched`  | Applied when the form control is touched.  |
+| `data-pristine` | Applied when the form control is pristine. |
+| `data-dirty`    | Applied when the form control is dirty.    |
+| `data-pending`  | Applied when the form control is pending.  |
+| `data-disabled` | Applied when the form control is disabled. |
 
 ### NgpDescription
 
@@ -102,15 +102,15 @@ The `NgpDescription` directive is used to mark a description element within a fo
 
 #### Data Attributes
 
-| Attribute       | Description                               | Value             |
-| --------------- | ----------------------------------------- | ----------------- |
-| `data-invalid`  | The `invalid` state of the form control.  | `true` \| `false` |
-| `data-valid`    | The `valid` state of the form control.    | `true` \| `false` |
-| `data-touched`  | The `touched` state of the form control.  | `true` \| `false` |
-| `data-pristine` | The `pristine` state of the form control. | `true` \| `false` |
-| `data-dirty`    | The `dirty` state of the form control.    | `true` \| `false` |
-| `data-pending`  | The `pending` state of the form control.  | `true` \| `false` |
-| `data-disabled` | The `disabled` state of the form control. | `true` \| `false` |
+| Attribute       | Description                                | Value |
+| --------------- | ------------------------------------------ | ----- |
+| `data-invalid`  | Applied when the form control is invalid.  |
+| `data-valid`    | Applied when the form control is valid.    |
+| `data-touched`  | Applied when the form control is touched.  |
+| `data-pristine` | Applied when the form control is pristine. |
+| `data-dirty`    | Applied when the form control is dirty.    |
+| `data-pending`  | Applied when the form control is pending.  |
+| `data-disabled` | Applied when the form control is disabled. |
 
 ### NgpError
 
@@ -125,16 +125,16 @@ The `NgpError` directive is used to mark an error message element within a form 
 
 #### Data Attributes
 
-| Attribute        | Description                                                        | Value             |
-| ---------------- | ------------------------------------------------------------------ | ----------------- |
-| `data-validator` | Whether the validator specified in `ngpErrorValidator` is failing. | `fail` \| `pass`  |
-| `data-invalid`   | The `invalid` state of the form control.                           | `true` \| `false` |
-| `data-valid`     | The `valid` state of the form control.                             | `true` \| `false` |
-| `data-touched`   | The `touched` state of the form control.                           | `true` \| `false` |
-| `data-pristine`  | The `pristine` state of the form control.                          | `true` \| `false` |
-| `data-dirty`     | The `dirty` state of the form control.                             | `true` \| `false` |
-| `data-pending`   | The `pending` state of the form control.                           | `true` \| `false` |
-| `data-disabled`  | The `disabled` state of the form control.                          | `true` \| `false` |
+| Attribute        | Description                                                        | Value            |
+| ---------------- | ------------------------------------------------------------------ | ---------------- |
+| `data-validator` | Whether the validator specified in `ngpErrorValidator` is failing. | `fail` \| `pass` |
+| `data-invalid`   | Applied when the form control is invalid.                          | `-`              |
+| `data-valid`     | Applied when the form control is valid.                            | `-`              |
+| `data-touched`   | Applied when the form control is touched.                          | `-`              |
+| `data-pristine`  | Applied when the form control is pristine.                         | `-`              |
+| `data-dirty`     | Applied when the form control is dirty.                            | `-`              |
+| `data-pending`   | Applied when the form control is pending.                          | `-`              |
+| `data-disabled`  | Applied when the form control is disabled.                         | `-`              |
 
 ### NgpFormControl
 
@@ -147,15 +147,15 @@ The `NgpFormControl` directive is used to mark a form control element within a f
 
 #### Data Attributes
 
-| Attribute       | Description                               | Value             |
-| --------------- | ----------------------------------------- | ----------------- |
-| `data-invalid`  | The `invalid` state of the form control.  | `true` \| `false` |
-| `data-valid`    | The `valid` state of the form control.    | `true` \| `false` |
-| `data-touched`  | The `touched` state of the form control.  | `true` \| `false` |
-| `data-pristine` | The `pristine` state of the form control. | `true` \| `false` |
-| `data-dirty`    | The `dirty` state of the form control.    | `true` \| `false` |
-| `data-pending`  | The `pending` state of the form control.  | `true` \| `false` |
-| `data-disabled` | The `disabled` state of the form control. | `true` \| `false` |
+| Attribute       | Description                                | Value |
+| --------------- | ------------------------------------------ | ----- |
+| `data-invalid`  | Applied when the form control is invalid.  |
+| `data-valid`    | Applied when the form control is valid.    |
+| `data-touched`  | Applied when the form control is touched.  |
+| `data-pristine` | Applied when the form control is pristine. |
+| `data-dirty`    | Applied when the form control is dirty.    |
+| `data-pending`  | Applied when the form control is pending.  |
+| `data-disabled` | Applied when the form control is disabled. |
 
 ## Accessibility
 

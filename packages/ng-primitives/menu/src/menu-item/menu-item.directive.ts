@@ -23,7 +23,7 @@ import { NgpMenuItemToken } from './menu-item.token';
     NgpPress,
   ],
   host: {
-    '[attr.data-disabled]': 'disabled()',
+    '[attr.data-disabled]': 'disabled() ? "" : null',
   },
 })
 export class NgpMenuItem {

@@ -15,7 +15,7 @@ import { NgpAutofillToken } from './autofill.token';
   exportAs: 'ngpAutofill',
   providers: [{ provide: NgpAutofillToken, useExisting: NgpAutofill }],
   host: {
-    '[attr.data-autofill]': 'autofilled()',
+    '[attr.data-autofill]': 'autofilled() ? "" : null',
   },
 })
 export class NgpAutofill {

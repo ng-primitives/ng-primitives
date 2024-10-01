@@ -15,13 +15,13 @@ import { NgpButton } from 'ng-primitives/button';
     :host {
     }
 
-    :host[data-hover='true'] {
+    :host[data-hover] {
     }
 
-    :host[data-focus-visible='true'] {
+    :host[data-focus-visible] {
     }
 
-    :host[data-press='true'] {
+    :host[data-press] {
     }
   `,
   <%_ } else { -%>

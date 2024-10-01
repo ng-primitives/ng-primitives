@@ -53,14 +53,11 @@ import { NgpFocusTrap } from 'ng-primitives/focus-trap';
       left: 1rem;
       font-size: 0.75rem;
       color: #666;
-    }
-
-    [ngpFocusTrap][data-focus-trap='true']::before {
-      content: 'Focus Trap Enabled';
-    }
-
-    [ngpFocusTrap][data-focus-trap='false']::before {
       content: 'Focus Trap Disabled';
+    }
+
+    [ngpFocusTrap][data-focus-trap]::before {
+      content: 'Focus Trap Enabled';
     }
 
     [ngpButton] {
@@ -83,14 +80,14 @@ import { NgpFocusTrap } from 'ng-primitives/focus-trap';
         0 0 0 1px rgb(0 0 0 / 0.05);
     }
 
-    [ngpButton][data-hover='true'] {
+    [ngpButton][data-hover] {
       background-color: light-dark(
         var(--focus-trap-button-background-color-hover),
         var(--focus-trap-button-background-color-hover-dark)
       );
     }
 
-    [ngpButton][data-focus-visible='true'] {
+    [ngpButton][data-focus-visible] {
       box-shadow:
         0 1px 3px 0 rgb(0 0 0 / 0.1),
         0 1px 2px -1px rgb(0 0 0 / 0.1),
@@ -103,7 +100,7 @@ import { NgpFocusTrap } from 'ng-primitives/focus-trap';
         0 0 0 4px rgb(59 130 246);
     }
 
-    [ngpButton][data-press='true'] {
+    [ngpButton][data-press] {
       background-color: light-dark(
         var(--focus-trap-button-pressed-background-color),
         var(--focus-trap-button-pressed-background-color-dark)

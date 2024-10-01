@@ -25,8 +25,8 @@ import { NgpFileUploadToken } from './file-upload.token';
   exportAs: 'ngpFileUpload',
   providers: [{ provide: NgpFileUploadToken, useExisting: NgpFileUpload }],
   host: {
-    '[attr.data-disabled]': 'disabled()',
-    '[attr.data-dragover]': 'isDragOver()',
+    '[attr.data-disabled]': 'disabled() ? "" : null',
+    '[attr.data-dragover]': 'isDragOver() ? "" : null',
   },
   hostDirectives: [NgpHover, NgpFocusVisible, NgpPress],
 })

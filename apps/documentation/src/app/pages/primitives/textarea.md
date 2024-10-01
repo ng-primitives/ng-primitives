@@ -48,8 +48,8 @@ The following directives are available to import from the `ng-primitives/textare
 
 The following data attributes are applied to the `ngpTextarea` directive:
 
-| Attribute       | Description                      | Value             |
-| --------------- | -------------------------------- | ----------------- |
-| `data-hover`    | The hover state of the input.    | `true` \| `false` |
-| `data-focus`    | The focus state of the input.    | `true` \| `false` |
-| `data-disabled` | The disabled state of the input. | `true` \| `false` |
+| Attribute       | Description                           |
+| --------------- | ------------------------------------- |
+| `data-hover`    | Applied when the element is hovered.  |
+| `data-focus`    | Applied when the element is focused.  |
+| `data-disabled` | Applied when the element is disabled. |

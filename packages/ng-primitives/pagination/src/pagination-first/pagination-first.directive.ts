@@ -23,8 +23,8 @@ import { NgpPaginationFirstToken } from './pagination-first.token';
   hostDirectives: [NgpButton],
   host: {
     '[tabindex]': 'disabled() ? -1 : 0',
-    '[attr.data-disabled]': 'disabled()',
-    '[attr.data-first-page]': 'pagination.firstPage()',
+    '[attr.data-disabled]': 'disabled() ? "" : null',
+    '[attr.data-first-page]': 'pagination.firstPage() ? "" : null',
   },
 })
 export class NgpPaginationFirst implements NgpCanDisable {

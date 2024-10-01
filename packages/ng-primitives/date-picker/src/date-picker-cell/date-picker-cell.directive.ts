@@ -17,10 +17,10 @@ import { NgpDatePickerCellToken } from './date-picker-cell.token';
   providers: [{ provide: NgpDatePickerCellToken, useExisting: NgpDatePickerCell }],
   host: {
     role: 'gridcell',
-    '[attr.data-selected]': 'datePickerButton()?.selected()',
+    '[attr.data-selected]': 'datePickerButton()?.selected() ? "" : null',
     '[attr.aria-selected]': 'datePickerButton()?.selected()',
     '[attr.aria-disabled]': 'datePickerButton()?.disabled()',
-    '[attr.data-disabled]': 'datePickerButton()?.disabled()',
+    '[attr.data-disabled]': 'datePickerButton()?.disabled() ? "" : null',
     '[attr.aria-labelledby]': 'labelId()',
   },
 })

@@ -57,6 +57,6 @@ Apply the `ngpHover` directive to an element that you want to listen for hover e
 
 #### Data Attributes
 
-| Attribute    | Description                           | Value             |
-| ------------ | ------------------------------------- | ----------------- |
-| `data-hover` | Whether the element is being hovered. | `true` \| `false` |
+| Attribute    | Description                                |
+| ------------ | ------------------------------------------ |
+| `data-hover` | Added to the element when hovering occurs. |

@@ -24,8 +24,8 @@ import { NgpCheckboxToken } from './checkbox.token';
   host: {
     role: 'checkbox',
     '[attr.aria-checked]': 'indeterminate() ? "mixed" : checked()',
-    '[attr.data-checked]': 'checked()',
-    '[attr.data-indeterminate]': 'indeterminate()',
+    '[attr.data-checked]': 'checked() ? "" : null',
+    '[attr.data-indeterminate]': 'indeterminate() ? "" : null',
     '[tabindex]': 'disabled() ? -1 : 0',
   },
 })

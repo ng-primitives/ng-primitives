@@ -6,7 +6,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 import { Directive, input } from '@angular/core';
-import { injectDimensions, uniqueId } from 'ng-primitives/utils';
+import { uniqueId } from 'ng-primitives/utils';
 import { injectAccordionItem } from '../accordion-item/accordion-item.token';
 import { injectAccordion } from '../accordion/accordion.token';
 import { NgpAccordionContentToken } from './accordion-content.token';
@@ -20,10 +20,8 @@ import { NgpAccordionContentToken } from './accordion-content.token';
     role: 'region',
     '[id]': 'id()',
     '[attr.data-orientation]': 'accordion.orientation()',
-    '[attr.data-open]': 'dimensions().mounted ? accordionItem.open() : null',
+    '[attr.data-open]': 'accordionItem.open() ? "" : null',
     '[attr.aria-labelledby]': 'accordionItem.triggerId()',
-    '[style.--ngp-accordion-content-width.px]': 'dimensions().width',
-    '[style.--ngp-accordion-content-height.px]': 'dimensions().height',
   },
 })
 export class NgpAccordionContent {
@@ -41,9 +39,4 @@ export class NgpAccordionContent {
    * The id of the content region
    */
   readonly id = input<string>(uniqueId('ngp-accordion-content'));
-
-  /**
-   * The size of the content region
-   */
-  protected readonly dimensions = injectDimensions();
 }

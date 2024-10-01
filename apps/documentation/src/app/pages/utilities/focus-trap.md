@@ -41,9 +41,9 @@ The `NgpFocusTrap` directive traps focus within the host element.
 
 #### Data Attributes
 
-| Attribute         | Description              | Value             |
-| ----------------- | ------------------------ | ----------------- |
-| `data-focus-trap` | Disables the focus trap. | `true` \| `false` |
+| Attribute         | Description                    |
+| ----------------- | ------------------------------ |
+| `data-focus-trap` | Applied when focus is trapped. |
 
 ## Accessibility
 

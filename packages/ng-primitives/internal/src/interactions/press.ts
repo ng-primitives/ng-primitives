@@ -43,7 +43,9 @@ export function setupPress({
 
   // anytime the press state changes we want to update the attribute
   effect(() =>
-    elementRef.nativeElement.setAttribute('data-press', (pressed() && !disabled()).toString()),
+    pressed() && !disabled()
+      ? elementRef.nativeElement.setAttribute('data-press', '')
+      : elementRef.nativeElement.removeAttribute('data-press'),
   );
 
   /**

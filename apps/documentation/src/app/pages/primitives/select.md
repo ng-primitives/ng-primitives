@@ -55,8 +55,8 @@ Apply the `ngpSelect` directive to a select element that you want to enhance.
 
 #### Data Attributes
 
-| Attribute            | Description                       | Value             |
-| -------------------- | --------------------------------- | ----------------- |
-| `data-hover`         | The hover state of the select.    | `true` \| `false` |
-| `data-focus-visible` | The focus state of the select.    | `true` \| `false` |
-| `data-disabled`      | The disabled state of the select. | `true` \| `false` |
+| Attribute            | Description                           |
+| -------------------- | ------------------------------------- |
+| `data-hover`         | Applied when the element is hovered.  |
+| `data-focus-visible` | Applied when the element is focused.  |
+| `data-disabled`      | Applied when the element is disabled. |

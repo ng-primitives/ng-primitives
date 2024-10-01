@@ -19,7 +19,7 @@ import { NgpButtonToken } from './button.token';
     { provide: NgpDisabledToken, useExisting: NgpButton },
   ],
   host: {
-    '[attr.data-disabled]': 'disabled()',
+    '[attr.data-disabled]': 'disabled() ? "" : null',
     '[attr.disabled]': 'isButton && disabled() ? true : null',
   },
 })

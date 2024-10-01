@@ -51,7 +51,7 @@ import { NgpFileUpload } from 'ng-primitives/file-upload';
       padding: 2rem 3rem;
     }
 
-    [ngpFileUpload][data-dragover='true'] {
+    [ngpFileUpload][data-dragover] {
       border-color: light-dark(
         var(--file-upload-border-color-drag-over),
         var(--file-upload-border-color-drag-over-dark)

@@ -55,6 +55,6 @@ The `NgpMove` directive is used to enable the pointer and keyboard move interact
 
 The following data attributes are available to use with the `NgpMove` directive:
 
-| Attribute   | Description                    | Value             |
-| ----------- | ------------------------------ | ----------------- |
-| `data-move` | Whether the element is moving. | `true` \| `false` |
+| Attribute   | Description                              |
+| ----------- | ---------------------------------------- |
+| `data-move` | Applied when the element is being moved. |
