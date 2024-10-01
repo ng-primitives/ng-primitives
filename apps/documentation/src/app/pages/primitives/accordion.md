@@ -44,7 +44,7 @@ Assemble the accordion directives in your template.
 Generate an accordion component with the `NgpAccordion` and `NgpAccordionItem` primitives preconfigured.
 
 ```bash npm
- ng g ng-primitives:accordion
+ng g ng-primitives:accordion
 ```
 
 ### Options
