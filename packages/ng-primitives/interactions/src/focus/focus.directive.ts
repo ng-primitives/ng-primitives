@@ -6,8 +6,8 @@
  * LICENSE file in the root directory of this source tree.
  */
 import { BooleanInput } from '@angular/cdk/coercion';
-import { Directive, HostListener, booleanAttribute, input, output, signal } from '@angular/core';
-import { injectDisabled } from 'ng-primitives/internal';
+import { Directive, booleanAttribute, input, output } from '@angular/core';
+import { injectDisabled, setupFocus } from 'ng-primitives/internal';
 import { NgpFocusToken } from './focus.token';
 
 /**
@@ -19,16 +19,8 @@ import { NgpFocusToken } from './focus.token';
   selector: '[ngpFocus]',
   exportAs: 'ngpFocus',
   providers: [{ provide: NgpFocusToken, useExisting: NgpFocus }],
-  host: {
-    '[attr.data-focus]': 'isFocused()',
-  },
 })
 export class NgpFocus {
-  /**
-   * Whether the element is currently focused.
-   */
-  protected isFocused = signal<boolean>(false);
-
   /**
    * Whether listening for focus events is disabled.
    */
@@ -47,38 +39,12 @@ export class NgpFocus {
    */
   readonly focus = output<boolean>({ alias: 'ngpFocus' });
 
-  /**
-   * Listen for focus events.
-   * @param event
-   */
-  @HostListener('focus', ['$event'])
-  protected onFocus(event: FocusEvent) {
-    if (this.isDisabled()) {
-      return;
-    }
-
-    const ownerDocument = (event.target as HTMLElement)?.ownerDocument ?? document;
-
-    // ensure this element is still focused
-    if (ownerDocument.activeElement === event.target && event.currentTarget === event.target) {
-      this.focus.emit(true);
-      this.isFocused.set(true);
-    }
-  }
-
-  /**
-   * Listen for blur events.
-   * @param event
-   */
-  @HostListener('blur', ['$event'])
-  protected onBlur(event: FocusEvent) {
-    if (this.isDisabled()) {
-      return;
-    }
-
-    if (event.currentTarget === event.target) {
-      this.focus.emit(false);
-      this.isFocused.set(false);
-    }
+  constructor() {
+    // setup the focus listener
+    setupFocus({
+      disabled: this.isDisabled,
+      focus: () => this.focus.emit(true),
+      blur: () => this.focus.emit(false),
+    });
   }
 }

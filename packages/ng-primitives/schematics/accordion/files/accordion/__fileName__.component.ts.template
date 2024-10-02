@@ -1,29 +1,24 @@
 import { Component } from '@angular/core';
-import { NgpButton } from 'ng-primitives/button';
+import {
+  NgpAccordion,
+} from 'ng-primitives/accordion';
 
 @Component({
   standalone: true,
-  selector: 'button[<%= prefix %>-<%= fileName %>]',
-  hostDirectives: [NgpButton],
+  selector: '<%= selector %>',
+  hostDirectives: [
+    {
+      directive: NgpAccordion,
+      inputs: ['ngpAccordionType:type', 'ngpAccordionCollapsible:collapsible'],
+    },
+  ],
   <%_ if (inlineTemplate) { -%>
-  template: '<ng-content />',
+  template: `<%- template %>`,
   <%_ } else { -%>
   templateUrl: './<%= fileName %>.component.html',
   <%_ } -%>
   <%_ if (inlineStyle) { -%>
-  styles: `
-    :host {
-    }
-
-    :host[data-hover='true'] {
-    }
-
-    :host[data-focus-visible='true'] {
-    }
-
-    :host[data-press='true'] {
-    }
-  `,
+  styles: `<%- styles %>`,
   <%_ } else { -%>
   styleUrl: './<%= fileName %>.component.<%= style %>',
   <%_ } -%>

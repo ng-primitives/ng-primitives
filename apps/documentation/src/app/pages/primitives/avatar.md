@@ -41,12 +41,12 @@ Apply the `ngpAvatar` directive to an element that represents the avatar. This d
 
 #### Data Attributes
 
-| Attribute            | Description                            | Value                                      |
-| -------------------- | -------------------------------------- | ------------------------------------------ |
-| `data-state`         | The loading state of the avatar image. | `idle` \| `loading` \| `loaded` \| `error` |
-| `data-hover`         | The hover state of the avatar.         | `true` \| `false`                          |
-| `data-focus-visible` | The focus state of the avatar.         | `true` \| `false`                          |
-| `data-press`         | The press state of the avatar.         | `true` \| `false`                          |
+| Attribute            | Description                                 | Value                                      |
+| -------------------- | ------------------------------------------- | ------------------------------------------ |
+| `data-state`         | The loading state of the avatar image.      | `idle` \| `loading` \| `loaded` \| `error` |
+| `data-hover`         | The added to the avatar when hovered.       | `-`                                        |
+| `data-focus-visible` | The added to the avatar when focus visible. | `-`                                        |
+| `data-press`         | The added to the avatar when pressed.       | `-`                                        |
 
 ### NgpAvatarImage
 
@@ -73,7 +73,7 @@ Apply the `ngpAvatarFallback` directive to an element that represents the user i
 You can configure the default options for all avatars in your application by using the `provideNgpAvatarConfig` function in a providers array.
 
 ```ts
-import { provideAvatarConfig } from 'ng-primitives';
+import { provideAvatarConfig } from 'ng-primitives/avatar';
 
 bootstrapApplication(AppComponent, {
   providers: [provideAvatarConfig({ delay: 1000 })],

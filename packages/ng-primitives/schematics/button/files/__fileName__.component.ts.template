@@ -1,0 +1,31 @@
+import { Component } from '@angular/core';
+import { NgpButton } from 'ng-primitives/button';
+
+@Component({
+  standalone: true,
+  selector: 'button[<%= prefix %>-<%= fileName %>]',
+  hostDirectives: [{ directive: NgpButton, inputs: ['disabled'] }],
+  <%_ if (inlineTemplate) { -%>
+  template: '<ng-content />',
+  <%_ } else { -%>
+  templateUrl: './<%= fileName %>.component.html',
+  <%_ } -%>
+  <%_ if (inlineStyle) { -%>
+  styles: `
+    :host {
+    }
+
+    :host[data-hover] {
+    }
+
+    :host[data-focus-visible] {
+    }
+
+    :host[data-press] {
+    }
+  `,
+  <%_ } else { -%>
+  styleUrl: './<%= fileName %>.component.<%= style %>',
+  <%_ } -%>
+})
+export class <%= className %>Component {}

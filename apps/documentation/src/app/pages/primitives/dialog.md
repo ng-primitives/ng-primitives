@@ -27,7 +27,7 @@ import {
 Assemble the dialog directives in your template.
 
 ```html
-<button [ngpDialogTrigger]="dialog">Launch Dialog</button>
+<button [ngpDialogTrigger]="dialog" ngpButton>Launch Dialog</button>
 
 <ng-template #dialog let-close="close">
   <div ngpDialogOverlay>
@@ -89,12 +89,12 @@ Add to a button or link to open the dialog.
   The dialog template to open when the trigger is activated.
 </response-field>
 
-| Attribute            | Description                       | Value             |
-| -------------------- | --------------------------------- | ----------------- |
-| `data-hover`         | The hover state of the button.    | `true` \| `false` |
-| `data-focus-visible` | The focus state of the button.    | `true` \| `false` |
-| `data-press`         | The pressed state of the button.  | `true` \| `false` |
-| `data-disabled`      | The disabled state of the button. | `true` \| `false` |
+| Attribute            | Description                           |
+| -------------------- | ------------------------------------- |
+| `data-hover`         | Applied when the trigger is hovered.  |
+| `data-focus-visible` | Applied when the trigger is focused.  |
+| `data-press`         | Applied when the trigger is pressed.  |
+| `data-disabled`      | Applied when the trigger is disabled. |
 
 ### NgpDialogOverlay
 

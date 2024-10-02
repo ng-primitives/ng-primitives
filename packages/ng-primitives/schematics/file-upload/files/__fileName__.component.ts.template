@@ -1,0 +1,28 @@
+import { Component } from '@angular/core';
+import { NgpFileUpload } from 'ng-primitives/file-upload';
+
+@Component({
+  standalone: true,
+  selector: '<%= selector %>',
+  hostDirectives: [
+    {
+      directive: NgpFileUpload,
+      inputs: ['ngpFileUploadMultiple:multiple'],
+      outputs: [
+        'ngpFileUploadDragOver:dragOver',
+        'ngpFileUploadSelected:selected',
+      ],
+    },
+  ],
+  <%_ if (inlineTemplate) { -%>
+  template: `<%- template %>`,
+  <%_ } else { -%>
+  templateUrl: './<%= fileName %>.component.html',
+  <%_ } -%>
+  <%_ if (inlineStyle) { -%>
+  styles: `<%- styles %>`,
+  <%_ } else { -%>
+  styleUrl: './<%= fileName %>.component.<%= style %>',
+  <%_ } -%>
+})
+export class <%= className %>Component {}

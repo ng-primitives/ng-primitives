@@ -42,16 +42,16 @@ The `NgpSearchField` directive is a container for the search field components.
 
 #### Data Attributes
 
-| Attribute       | Description                               | Value             |
-| --------------- | ----------------------------------------- | ----------------- |
-| `data-empty`    | Whether the associated input is empty.    | `true` \| `false` |
-| `data-invalid`  | The `invalid` state of the form control.  | `true` \| `false` |
-| `data-valid`    | The `valid` state of the form control.    | `true` \| `false` |
-| `data-touched`  | The `touched` state of the form control.  | `true` \| `false` |
-| `data-pristine` | The `pristine` state of the form control. | `true` \| `false` |
-| `data-dirty`    | The `dirty` state of the form control.    | `true` \| `false` |
-| `data-pending`  | The `pending` state of the form control.  | `true` \| `false` |
-| `data-disabled` | The `disabled` state of the form control. | `true` \| `false` |
+| Attribute       | Description                         |
+| --------------- | ----------------------------------- |
+| `data-empty`    | Applied when the input is empty.    |
+| `data-invalid`  | Applied when the input is invalid.  |
+| `data-valid`    | Applied when the input is valid.    |
+| `data-touched`  | Applied when the input is touched.  |
+| `data-pristine` | Applied when the input is pristine. |
+| `data-dirty`    | Applied when the input is dirty.    |
+| `data-pending`  | Applied when the input is pending.  |
+| `data-disabled` | Applied when the input is disabled. |
 
 ### NgpSearchFieldClear
 
@@ -60,9 +60,9 @@ The `NgpSearchFieldClear` directive is can be added to a button to clear the sea
 - Selector: `[ngpSearchFieldClear]`
 - Exported As: `ngpSearchFieldClear`
 
-| Attribute    | Description                            | Value             |
-| ------------ | -------------------------------------- | ----------------- |
-| `data-empty` | Whether the associated input is empty. | `true` \| `false` |
+| Attribute    | Description                             |
+| ------------ | --------------------------------------- |
+| `data-empty` | Applied when the search field is empty. |
 
 ## Accessibility
 

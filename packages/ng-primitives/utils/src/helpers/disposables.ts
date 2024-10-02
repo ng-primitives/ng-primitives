@@ -40,14 +40,15 @@ export function injectDisposables() {
      * @param options
      * @returns A function to clear the interval
      */
-    addEventListener: (
+    addEventListener: <K extends keyof HTMLElementEventMap>(
       target: EventTarget,
-      type: string,
-      listener: EventListenerOrEventListenerObject,
+      type: K,
+      listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any,
       options?: boolean | AddEventListenerOptions,
     ) => {
-      target.addEventListener(type, listener, options);
-      const cleanup = () => target.removeEventListener(type, listener, options);
+      target.addEventListener(type, listener as EventListenerOrEventListenerObject, options);
+      const cleanup = () =>
+        target.removeEventListener(type, listener as EventListenerOrEventListenerObject, options);
       destroyRef.onDestroy(cleanup);
       return cleanup;
     },

@@ -64,13 +64,13 @@ Apply the `ngpSwitch` directive to an element to manage the checked state.
 
 The following data attributes are applied to the `ngpSwitch` directive:
 
-| Attribute            | Description              | Value             |
-| -------------------- | ------------------------ | ----------------- |
-| `data-checked`       | The state of the switch. | `true` \| `false` |
-| `data-disabled`      | The disabled state.      | `true` \| `false` |
-| `data-hover`         | The hover state.         | `true` \| `false` |
-| `data-focus-visible` | The focus state.         | `true` \| `false` |
-| `data-press`         | The pressed state.       | `true` \| `false` |
+| Attribute            | Description                          |
+| -------------------- | ------------------------------------ |
+| `data-checked`       | Applied when the switch is checked.  |
+| `data-disabled`      | Applied when the switch is disabled. |
+| `data-hover`         | Applied when the switch is hovered.  |
+| `data-focus-visible` | Applied when the switch is focused.  |
+| `data-press`         | Applied when the switch is pressed.  |
 
 ### NgpSwitchThumb
 
@@ -84,13 +84,13 @@ Apply the `ngpSwitchThumb` directive to an element within a switch to represent 
 
 The following data attributes are available to style the thumb:
 
-| Attribute            | Description              | Value             |
-| -------------------- | ------------------------ | ----------------- |
-| `data-checked`       | The state of the switch. | `true` \| `false` |
-| `data-disabled`      | The disabled state.      | `true` \| `false` |
-| `data-hover`         | The hover state.         | `true` \| `false` |
-| `data-focus-visible` | The focus state.         | `true` \| `false` |
-| `data-press`         | The pressed state.       | `true` \| `false` |
+| Attribute            | Description                               |
+| -------------------- | ----------------------------------------- |
+| `data-checked`       | Applied when the switch is checked.       |
+| `data-disabled`      | Applied when the switch is disabled.      |
+| `data-hover`         | Applied when the switch thumb is hovered. |
+| `data-focus-visible` | Applied when the switch thumb is focused. |
+| `data-press`         | Applied when the switch thumb is pressed. |
 
 ## Accessibility
 

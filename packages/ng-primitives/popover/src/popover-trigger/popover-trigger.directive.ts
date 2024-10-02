@@ -44,7 +44,7 @@ import { NgpPopoverTriggerToken, providePopoverTrigger } from './popover-trigger
   providers: [{ provide: NgpPopoverTriggerToken, useExisting: NgpPopoverTrigger }],
   host: {
     '[attr.data-state]': 'state()',
-    '[attr.data-disabled]': 'disabled()',
+    '[attr.data-disabled]': 'disabled() ? "" : null',
     '(click)': 'toggleOpenState()',
   },
 })

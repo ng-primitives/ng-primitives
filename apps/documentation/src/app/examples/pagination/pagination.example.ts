@@ -138,14 +138,14 @@ import {
       cursor: pointer;
       transition: all 0.2s;
 
-      &[data-hover='true']:not([data-disabled='true']):not([data-selected='true']) {
+      &[data-hover]:not([data-disabled]):not([data-selected]) {
         background-color: light-dark(
           var(--pagination-button-background-color-hover),
           var(--pagination-button-background-color-hover-dark)
         );
       }
 
-      &[data-focus-visible='true']:not([data-disabled='true']) {
+      &[data-focus-visible]:not([data-disabled]) {
         box-shadow:
           0 1px 3px 0 rgb(0 0 0 / 0.1),
           0 1px 2px -1px rgb(0 0 0 / 0.1),
@@ -154,14 +154,14 @@ import {
           0 0 0 4px rgb(59 130 246);
       }
 
-      &[data-press='true']:not([data-disabled='true']):not([data-selected='true']) {
+      &[data-press]:not([data-disabled]):not([data-selected]) {
         background-color: light-dark(
           var(--pagination-button-pressed-background-color),
           var(--pagination-button-pressed-background-color-dark)
         );
       }
 
-      &[data-disabled='true'] {
+      &[data-disabled] {
         color: rgb(210 210 210);
         background-color: light-dark(
           var(--pagination-button-disabled-background-color),
@@ -170,7 +170,7 @@ import {
         cursor: not-allowed;
       }
 
-      &[data-selected='true'] {
+      &[data-selected] {
         background-color: light-dark(
           var(--pagination-button-selected-background-color),
           var(--pagination-button-selected-background-color-dark)

@@ -44,27 +44,27 @@ import { NgpRadioGroup, NgpRadioIndicator, NgpRadioItem } from 'ng-primitives/ra
       outline: none;
     }
 
-    [ngpRadioItem][data-hover='true'] {
+    [ngpRadioItem][data-hover] {
       background-color: light-dark(
         var(--radio-item-hover-background-color),
         var(--radio-item-hover-background-color-dark)
       );
     }
 
-    [ngpRadioItem][data-focus-visible='true'] {
+    [ngpRadioItem][data-focus-visible] {
       box-shadow:
         0 0 0 2px light-dark(#f5f5f5, #3f3f46),
         0 0 0 4px rgb(59 130 246 / 50%);
     }
 
-    [ngpRadioItem][data-press='true'] {
+    [ngpRadioItem][data-press] {
       background-color: light-dark(
         var(--radio-item-pressed-background-color),
         var(--radio-item-pressed-background-color-dark)
       );
     }
 
-    [ngpRadioItem][data-checked='true'] {
+    [ngpRadioItem][data-checked] {
       background-color: light-dark(
         var(--radio-item-checked-background-color),
         var(--radio-item-checked-background-color-dark)
@@ -84,7 +84,7 @@ import { NgpRadioGroup, NgpRadioIndicator, NgpRadioItem } from 'ng-primitives/ra
       box-shadow: 0 0 0 1px light-dark(rgba(0, 0, 0, 0.1), rgba(255, 255, 255, 0.1));
     }
 
-    [ngpRadioItem][data-checked='true'] [ngpRadioIndicator] {
+    [ngpRadioItem][data-checked] [ngpRadioIndicator] {
       box-shadow: 0 0 0 1px rgba(255, 255, 255, 1);
     }
 
@@ -95,7 +95,7 @@ import { NgpRadioGroup, NgpRadioIndicator, NgpRadioItem } from 'ng-primitives/ra
       background-color: light-dark(white, transparent);
     }
 
-    [ngpRadioItem][data-checked='true'] .indicator-dot {
+    [ngpRadioItem][data-checked] .indicator-dot {
       background-color: white;
     }
 
@@ -107,7 +107,7 @@ import { NgpRadioGroup, NgpRadioIndicator, NgpRadioItem } from 'ng-primitives/ra
       margin: 0;
     }
 
-    [ngpRadioItem][data-checked='true'] .title {
+    [ngpRadioItem][data-checked] .title {
       color: white;
     }
 
@@ -120,7 +120,7 @@ import { NgpRadioGroup, NgpRadioIndicator, NgpRadioItem } from 'ng-primitives/ra
       margin: 0;
     }
 
-    [ngpRadioItem][data-checked='true'] .description {
+    [ngpRadioItem][data-checked] .description {
       color: light-dark(rgb(212 212 212), rgb(169, 169, 169));
     }
   `,

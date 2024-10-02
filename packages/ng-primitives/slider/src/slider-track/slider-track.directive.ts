@@ -16,7 +16,7 @@ import { NgpSliderTrackToken } from './slider-track.token';
   providers: [{ provide: NgpSliderTrackToken, useExisting: NgpSliderTrack }],
   host: {
     '[attr.data-orientation]': 'slider.orientation()',
-    '[attr.data-disabled]': 'slider.disabled()',
+    '[attr.data-disabled]': 'slider.disabled() ? "" : null',
   },
 })
 export class NgpSliderTrack {

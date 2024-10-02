@@ -100,14 +100,14 @@ Apply the `ngpTabButton` directive to an element within a tab list to represent 
 
 The following data attributes are applied to the `ngpTabButton` directive:
 
-| Attribute            | Description                  | Value                      |
-| -------------------- | ---------------------------- | -------------------------- |
-| `data-active`        | The state of the tab.        | `true` \| `false`          |
-| `data-disabled`      | The disabled state.          | `true` \| `false`          |
-| `data-orientation`   | The orientation of the tabs. | `horizontal` \| `vertical` |
-| `data-hover`         | The hover state.             | `true` \| `false`          |
-| `data-focus-visible` | The focus state.             | `true` \| `false`          |
-| `data-press`         | The press state.             | `true` \| `false`          |
+| Attribute            | Description                       | Value                      |
+| -------------------- | --------------------------------- | -------------------------- |
+| `data-orientation`   | The orientation of the tabs.      | `horizontal` \| `vertical` |
+| `data-active`        | Applied when the tab is active.   | `-`                        |
+| `data-disabled`      | Applied when the tab is disabled. | `-`                        |
+| `data-hover`         | Applied when the tab is hovered.  | `-`                        |
+| `data-focus-visible` | Applied when the tab is focused.  | `-`                        |
+| `data-press`         | Applied when the tab is pressed.  | `-`                        |
 
 ### NgpTabPanel
 
@@ -124,10 +124,10 @@ Apply the `ngpTabPanel` directive to an element that represents the content of a
 
 The following data attributes are applied to the `ngpTabPanel` directive:
 
-| Attribute          | Description                  | Value                      |
-| ------------------ | ---------------------------- | -------------------------- |
-| `data-active`      | The state of the tab.        | `true` \| `false`          |
-| `data-orientation` | The orientation of the tabs. | `horizontal` \| `vertical` |
+| Attribute          | Description                     | Value                      |
+| ------------------ | ------------------------------- | -------------------------- |
+| `data-active`      | Applied when the tab is active. | `-`                        |
+| `data-orientation` | The orientation of the tabs.    | `horizontal` \| `vertical` |
 
 ## Global Configuration
 

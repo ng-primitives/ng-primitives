@@ -23,8 +23,8 @@ import { NgpPaginationNextToken } from './pagination-next.token';
   hostDirectives: [NgpButton],
   host: {
     '[tabindex]': 'disabled() ? -1 : 0',
-    '[attr.data-disabled]': 'disabled()',
-    '[attr.data-last-page]': 'pagination.lastPage()',
+    '[attr.data-disabled]': 'disabled() ? "" : null',
+    '[attr.data-last-page]': 'pagination.lastPage() ? "" : null',
   },
 })
 export class NgpPaginationNext implements NgpCanDisable {

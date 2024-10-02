@@ -28,7 +28,7 @@ As a result you will need to import the Angular CDK overlay styles in your appli
 Assemble the menu directives in your template.
 
 ```html
-<button [ngpMenuTrigger]="menu"></button>
+<button [ngpMenuTrigger]="menu" ngpButton></button>
 
 <ng-template #menu>
   <div ngpMenu>
@@ -58,9 +58,9 @@ The `NgpMenuTrigger` directive allows you to turn an element into a menu trigger
 
 The following data attributes are available on the `NgpMenuTrigger` directive:
 
-| Attribute   | Description          | Value             |
-| ----------- | -------------------- | ----------------- |
-| `data-open` | If the menu is open. | `true` \| `false` |
+| Attribute   | Description                    |
+| ----------- | ------------------------------ |
+| `data-open` | Applied when the menu is open. |
 
 ### NgpMenu
 
@@ -85,6 +85,6 @@ The `NgpMenuItem` directive represents a menu item.
 
 The following data attributes are available on the `NgpMenuItem` directive:
 
-| Attribute       | Description                   | Value             |
-| --------------- | ----------------------------- | ----------------- |
-| `data-disabled` | If the menu item is disabled. | `true` \| `false` |
+| Attribute       | Description                        |
+| --------------- | ---------------------------------- |
+| `data-disabled` | Applied when the item is disabled. |

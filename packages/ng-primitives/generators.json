@@ -24,6 +24,21 @@
       "factory": "./schematics/checkbox/generator",
       "schema": "./schematics/checkbox/schema.json",
       "description": "Add a checkbox component to the project."
+    },
+    "file-upload": {
+      "factory": "./schematics/file-upload/generator",
+      "schema": "./schematics/file-upload/schema.json",
+      "description": "Add a file-upload component to the project."
+    },
+    "radio": {
+      "factory": "./schematics/radio/generator",
+      "schema": "./schematics/radio/schema.json",
+      "description": "Add a radio component to the project."
+    },
+    "accordion": {
+      "factory": "./schematics/accordion/generator",
+      "schema": "./schematics/accordion/schema.json",
+      "description": "Add a accordion component to the project."
     }
   },
   "schematics": {
@@ -52,6 +67,21 @@
       "factory": "./schematics/checkbox/compat",
       "schema": "./schematics/checkbox/schema.json",
       "description": "Add a checkbox component to the project."
+    },
+    "file-upload": {
+      "factory": "./schematics/file-upload/compat",
+      "schema": "./schematics/file-upload/schema.json",
+      "description": "Add a file-upload component to the project."
+    },
+    "radio": {
+      "factory": "./schematics/radio/compat",
+      "schema": "./schematics/radio/schema.json",
+      "description": "Add a radio component to the project."
+    },
+    "accordion": {
+      "factory": "./schematics/accordion/compat",
+      "schema": "./schematics/accordion/schema.json",
+      "description": "Add a accordion component to the project."
     }
   }
 }

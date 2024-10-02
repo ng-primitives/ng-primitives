@@ -22,7 +22,7 @@ import { NgpDatePickerNextMonthToken } from './date-picker-next-month.token';
   ],
   hostDirectives: [NgpButton],
   host: {
-    '[attr.data-disabled]': 'disabled()',
+    '[attr.data-disabled]': 'disabled() ? "" : null',
     '[attr.aria-disabled]': 'disabled()',
     '[attr.disabled]': 'isButton && disabled() ? true : null',
     '[attr.type]': 'isButton ? "button" : null',

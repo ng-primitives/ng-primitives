@@ -75,10 +75,10 @@ Apply the `ngpSlider` directive to an element that represents the slider and con
 
 The following data attributes are available to style the slider:
 
-| Attribute          | Description                       | Value                      |
-| ------------------ | --------------------------------- | -------------------------- |
-| `data-disabled`    | The disabled state of the slider. | `true` \| `false`          |
-| `data-orientation` | The orientation of the slider.    | `horizontal` \| `vertical` |
+| Attribute          | Description                          | Value                      |
+| ------------------ | ------------------------------------ | -------------------------- |
+| `data-disabled`    | Applied when the slider is disabled. | `-`                        |
+| `data-orientation` | The orientation of the slider.       | `horizontal` \| `vertical` |
 
 ### NgpSliderTrack
 
@@ -91,10 +91,10 @@ Apply the `ngpSliderTrack` directive to an element that represents the track of 
 
 The following data attributes are available to style the slider track:
 
-| Attribute          | Description                       | Value                      |
-| ------------------ | --------------------------------- | -------------------------- |
-| `data-disabled`    | The disabled state of the slider. | `true` \| `false`          |
-| `data-orientation` | The orientation of the slider.    | `horizontal` \| `vertical` |
+| Attribute          | Description                          | Value                      |
+| ------------------ | ------------------------------------ | -------------------------- |
+| `data-disabled`    | Applied when the slider is disabled. | `-`                        |
+| `data-orientation` | The orientation of the slider.       | `horizontal` \| `vertical` |
 
 ### NgpSliderRange
 
@@ -107,10 +107,10 @@ Apply the `ngpSliderRange` directive to an element that represents the range of 
 
 The following data attributes are available to style the slider range:
 
-| Attribute          | Description                       | Value                      |
-| ------------------ | --------------------------------- | -------------------------- |
-| `data-disabled`    | The disabled state of the slider. | `true` \| `false`          |
-| `data-orientation` | The orientation of the slider.    | `horizontal` \| `vertical` |
+| Attribute          | Description                          | Value                      |
+| ------------------ | ------------------------------------ | -------------------------- |
+| `data-disabled`    | Applied when the slider is disabled. | `-`                        |
+| `data-orientation` | The orientation of the slider.       | `horizontal` \| `vertical` |
 
 ### NgpSliderThumb
 
@@ -124,13 +124,13 @@ Apply the `ngpSliderThumb` directive to an element that represents the thumb of 
 
 The following data attributes are available to style the thumb:
 
-| Attribute            | Description                            | Value                      |
-| -------------------- | -------------------------------------- | -------------------------- |
-| `data-orientation`   | The orientation of the slider.         | `horizontal` \| `vertical` |
-| `data-disabled`      | The disabled state of the slider.      | `true` \| `false`          |
-| `data-hover`         | The hover state of the slider thumb.   | `true` \| `false`          |
-| `data-focus-visible` | The focus state of the slider thumb.   | `true` \| `false`          |
-| `data-press`         | The pressed state of the slider thumb. | `true` \| `false`          |
+| Attribute            | Description                               | Value                      |
+| -------------------- | ----------------------------------------- | -------------------------- |
+| `data-orientation`   | The orientation of the slider.            | `horizontal` \| `vertical` |
+| `data-disabled`      | Applied when the slider is disabled.      | `-`                        |
+| `data-hover`         | Applied when the slider thumb is hovered. | `-`                        |
+| `data-focus-visible` | Applied when the slider thumb is focused. | `-`                        |
+| `data-press`         | Applied when the slider thumb is pressed. | `-`                        |
 
 ## Accessibility
 

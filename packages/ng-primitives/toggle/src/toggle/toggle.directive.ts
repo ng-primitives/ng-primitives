@@ -23,8 +23,8 @@ import {
   host: {
     '[attr.type]': 'isButton ? "button" : null',
     '[attr.aria-pressed]': 'selected()',
-    '[attr.data-selected]': 'selected()',
-    '[attr.data-disabled]': 'disabled()',
+    '[attr.data-selected]': 'selected() ? "" : null',
+    '[attr.data-disabled]': 'disabled() ? "" : null',
   },
 })
 export class NgpToggle {

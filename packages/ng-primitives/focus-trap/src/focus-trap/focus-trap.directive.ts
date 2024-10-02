@@ -93,7 +93,7 @@ const focusTrapStack = new FocusTrapStack();
   providers: [{ provide: NgpFocusTrapToken, useExisting: NgpFocusTrap }],
   host: {
     '[attr.tabindex]': '-1',
-    '[attr.data-focus-trap]': '!disabled()',
+    '[attr.data-focus-trap]': '!disabled() ? "" : null',
   },
 })
 export class NgpFocusTrap implements OnInit, OnDestroy {
