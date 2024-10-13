@@ -39,6 +39,11 @@
       "factory": "./schematics/accordion/generator",
       "schema": "./schematics/accordion/schema.json",
       "description": "Add a accordion component to the project."
+    },
+    "avatar": {
+      "factory": "./schematics/avatar/generator",
+      "schema": "./schematics/avatar/schema.json",
+      "description": "Add a avatar component to the project."
     }
   },
   "schematics": {
@@ -82,6 +87,11 @@
       "factory": "./schematics/accordion/compat",
       "schema": "./schematics/accordion/schema.json",
       "description": "Add a accordion component to the project."
+    },
+    "avatar": {
+      "factory": "./schematics/avatar/compat",
+      "schema": "./schematics/avatar/schema.json",
+      "description": "Add a avatar component to the project."
     }
   }
 }
