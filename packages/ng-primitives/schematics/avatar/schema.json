@@ -1,13 +1,13 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema",
-  "$id": "FormField",
+  "$id": "Avatar",
   "title": "",
   "type": "object",
   "properties": {
     "name": {
       "type": "string",
       "description": "The name of the component",
-      "default": "form-field"
+      "default": "avatar"
     },
     "prefix": {
       "type": "string",
@@ -16,12 +16,12 @@
     },
     "directory": {
       "type": "string",
-      "description": "The directory at which to create the component file.",
+      "description": "The directory at which to create the component file",
       "default": ""
     },
     "style": {
       "type": "string",
-      "description": "The file extension or preprocessor to use for style files.",
+      "description": "The file extension or preprocessor to use for style files, or `none` to skip generating the style file.",
       "default": "css",
       "enum": ["scss", "css"]
     },

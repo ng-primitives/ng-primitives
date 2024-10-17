@@ -27,6 +27,14 @@ Assemble the avatar directives in your template.
 </span>
 ```
 
+## Schematics
+
+Generate an avatar component with the `NgpAvatar` primitive preconfigured.
+
+```bash npm
+ ng g ng-primitives:avatar
+```
+
 ## API Reference
 
 The following directives are available to import from the `ng-primitives/avatar` package:

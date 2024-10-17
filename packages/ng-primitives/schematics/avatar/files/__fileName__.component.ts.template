@@ -1,0 +1,20 @@
+import { Component } from '@angular/core';
+import { NgpAvatar } from 'ng-primitives/avatar';
+
+
+@Component({
+  standalone: true,
+  selector: '<%= selector %>',
+  hostDirectives: [NgpAvatar],
+  <%_ if (inlineTemplate) { -%>
+  template: `<%- template %>`,
+  <%_ } else { -%>
+  templateUrl: './<%= fileName %>.component.html',
+  <%_ } -%>
+  <%_ if (inlineStyle) { -%>
+  styles: `<%- styles %>`,
+  <%_ } else { -%>
+  styleUrl: './<%= fileName %>.component.<%= style %>',
+  <%_ } -%>
+})
+export class <%= className %>Component {}
