@@ -1,3 +1,19 @@
+## 0.13.0 (2024-10-17)
+
+
+### 🚀 Features
+
+- add the avatar generator ([#77](https://github.com/ng-primitives/ng-primitives/pull/77))
+
+### 🩹 Fixes
+
+- schematics error ([#80](https://github.com/ng-primitives/ng-primitives/pull/80))
+
+### ❤️  Thank You
+
+- Ashley Hunter
+- kedevked @kedevked
+
 ## 0.12.0 (2024-10-01)
 
 ### Breaking Changes
