@@ -20,21 +20,28 @@ export class ThemeTogglerService {
   constructor() {
     if (isPlatformBrowser(this.platformId)) {
       this.theme.set((localStorage.getItem(LOCALSTORAGE_THEME_KEY) as ThemeOption) ?? 'system');
-    }
 
-    this.theme$.pipe(takeUntilDestroyed()).subscribe(theme => {
-      if (theme === 'dark') {
-        this.renderer.addClass(this.document.documentElement, 'dark');
-      } else {
-        if (this.document.documentElement.className.includes('dark')) {
-          this.renderer.removeClass(this.document.documentElement, 'dark');
+      this.theme$.pipe(takeUntilDestroyed()).subscribe(theme => {
+        // if the theme is system, resolve it to the system theme
+        if (theme === 'system') {
+          theme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+          this.setTheme(theme);
+          return;
         }
-      }
-    });
+
+        if (theme === 'dark') {
+          this.renderer.addClass(this.document.documentElement, 'dark');
+        } else {
+          if (this.document.documentElement.className.includes('dark')) {
+            this.renderer.removeClass(this.document.documentElement, 'dark');
+          }
+        }
+      });
+    }
   }
 
-  setDarkMode(newMode: ThemeOption): void {
-    localStorage.setItem(LOCALSTORAGE_THEME_KEY, newMode);
-    this.theme.set(newMode);
+  setTheme(theme: ThemeOption): void {
+    localStorage.setItem(LOCALSTORAGE_THEME_KEY, theme);
+    this.theme.set(theme);
   }
 }

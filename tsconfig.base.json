@@ -20,6 +20,7 @@
       "ng-primitives": ["packages/ng-primitives/src/index.ts"],
       "ng-primitives/a11y": ["packages/ng-primitives/a11y/src/index.ts"],
       "ng-primitives/accordion": ["packages/ng-primitives/accordion/src/index.ts"],
+      "ng-primitives/autocomplete": ["packages/ng-primitives/autocomplete/src/index.ts"],
       "ng-primitives/autofill": ["packages/ng-primitives/autofill/src/index.ts"],
       "ng-primitives/avatar": ["packages/ng-primitives/avatar/src/index.ts"],
       "ng-primitives/button": ["packages/ng-primitives/button/src/index.ts"],

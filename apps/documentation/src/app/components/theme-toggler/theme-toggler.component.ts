@@ -22,6 +22,6 @@ export class ThemeTogglerComponent {
   theme$ = this.themeService.theme$;
 
   setTheme(theme: ThemeOption) {
-    this.themeService.setDarkMode(theme);
+    this.themeService.setTheme(theme);
   }
 }
