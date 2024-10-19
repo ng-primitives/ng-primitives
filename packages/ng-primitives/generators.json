@@ -44,6 +44,11 @@
       "factory": "./schematics/avatar/generator",
       "schema": "./schematics/avatar/schema.json",
       "description": "Add a avatar component to the project."
+    },
+    "tabs": {
+      "factory": "./schematics/tabs/generator",
+      "schema": "./schematics/tabs/schema.json",
+      "description": "Add a tabs component to the project."
     }
   },
   "schematics": {
@@ -92,6 +97,11 @@
       "factory": "./schematics/avatar/compat",
       "schema": "./schematics/avatar/schema.json",
       "description": "Add a avatar component to the project."
+    },
+    "tabs": {
+      "factory": "./schematics/tabs/compat",
+      "schema": "./schematics/tabs/schema.json",
+      "description": "Add a tabs component to the project."
     }
   }
 }

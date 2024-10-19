@@ -1,0 +1,26 @@
+import { Component } from '@angular/core';
+import { NgpTabPanel } from 'ng-primitives/tabs';
+
+@Component({
+  standalone: true,
+  selector: '<%= selector %>',
+  hostDirectives: [
+    {
+      directive: NgpTabPanel,
+      inputs: [
+        'ngpTabPanelValue:value',
+      ],
+    },
+  ],
+  <%_ if (inlineTemplate) { -%>
+  template: `<%- template %>`,
+  <%_ } else { -%>
+  templateUrl: './<%= fileName %>.component.html',
+  <%_ } -%>
+  <%_ if (inlineStyle) { -%>
+  styles: `<%- styles %>`,
+  <%_ } else { -%>
+  styleUrl: './<%= fileName %>.component.<%= style %>',
+  <%_ } -%>
+})
+export class <%= className %>Component {}
