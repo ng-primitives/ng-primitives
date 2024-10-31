@@ -1,4 +1,4 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { NgpButton } from 'ng-primitives/button';
 import {
   injectDialogRef,
@@ -15,7 +15,7 @@ import {
   selector: 'app-dialog',
   imports: [NgpButton],
   template: `
-    <button (click)="openDialogService()" ngpButton>Launch Dialog Service</button>
+    <button (click)="openDialog()" ngpButton>Launch Dialog</button>
   `,
   styles: `
     :host,
@@ -74,15 +74,12 @@ import {
     }
   `,
 })
-export default class DialogExample {
+export default class DialogDataExample {
   private dialogManager = inject(NgpDialogManager);
 
-  openDialogService() {
-    const dialogRef = this.dialogManager.open(DialogServiceExample, {
-      data: 'test',
-    });
-    dialogRef.closed.subscribe(result => {
-      console.log(result);
+  openDialog() {
+    this.dialogManager.open(Dialog, {
+      data: 'This came from the dialog opener!',
     });
   }
 }
@@ -100,10 +97,11 @@ export default class DialogExample {
   template: `
     <div ngpDialogOverlay>
       <div ngpDialog>
-        <h1 ngpDialogTitle>Publish this article?</h1>
-        <p ngpDialogDescription>
-          Are you sure you want to publish this article? This action is irreversible.
-        </p>
+        <h1 ngpDialogTitle>Dialog data example</h1>
+        <p ngpDialogDescription>The following value was passed to the dialog:</p>
+
+        <p class="dialog-data">{{ dialogRef.data }}</p>
+
         <div class="dialog-footer">
           <button (click)="close()" ngpButton>Cancel</button>
           <button (click)="close()" ngpButton>Confirm</button>
@@ -135,6 +133,9 @@ export default class DialogExample {
       --dialog-bg-dark: #121212;
       --dialog-title-color-dark: #fff;
       --dialog-description-color-dark: rgba(255, 255, 255, 0.6);
+
+      --dialog-data-color: rgba(0, 0, 0, 0.87);
+      --dialog-data-color-dark: #fff;
     }
 
     button {
@@ -207,6 +208,14 @@ export default class DialogExample {
       margin: 0;
     }
 
+    .dialog-data {
+      font-size: 14px;
+      font-weight: 600;
+      line-height: 20px;
+      color: light-dark(var(--dialog-data-color), var(--dialog-data-color-dark));
+      margin: 8px 0 0;
+    }
+
     .dialog-footer {
       display: flex;
       justify-content: flex-end;
@@ -223,12 +232,8 @@ export default class DialogExample {
     }
   `,
 })
-export class DialogServiceExample implements OnInit {
-  private dialogRef = injectDialogRef<string>();
-
-  ngOnInit() {
-    console.log(this.dialogRef.data);
-  }
+export class Dialog {
+  protected readonly dialogRef = injectDialogRef<string>();
 
   close() {
     this.dialogRef.close();

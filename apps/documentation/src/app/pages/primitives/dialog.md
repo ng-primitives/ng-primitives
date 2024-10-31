@@ -8,8 +8,6 @@ A dialog is a floating window that can be used to display information or prompt 
 
 <docs-example name="dialog"></docs-example>
 
-<docs-example name="dialog-service"></docs-example>
-
 ## Import
 
 Import the Dialog primitives from `ng-primitives/dialog`.
@@ -104,6 +102,14 @@ The dialog overlay.
 
 - Selector: `[ngpDialogOverlay]`
 - Exported As: `ngpDialogOverlay`
+
+## Examples
+
+### Dialog with external data
+
+Data can be passed to the dialog using the `NgpDialogManager`.
+
+<docs-example name="dialog-data"></docs-example>
 
 ## Accessibility
 

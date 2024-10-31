@@ -15,7 +15,7 @@ import { NgpDialogConfig } from '../config/dialog.config';
 /**
  * Reference to a dialog opened via the Dialog service.
  */
-export class NgpDialogRef<T = any> {
+export class NgpDialogRef<T = unknown> {
   /** Whether the user is allowed to close the dialog. */
   disableClose: boolean | undefined;
 
@@ -75,6 +75,6 @@ export class NgpDialogRef<T = any> {
   }
 }
 
-export function injectDialogRef<T>(): NgpDialogRef<T> {
-  return inject(NgpDialogRef<T>);
+export function injectDialogRef<T = unknown>(): NgpDialogRef<T> {
+  return inject<NgpDialogRef<T>>(NgpDialogRef);
 }
