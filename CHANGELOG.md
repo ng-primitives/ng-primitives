@@ -1,3 +1,14 @@
+## 0.14.0 (2024-10-31)
+
+
+### 🚀 Features
+
+- **dialog:** allow opening dialogs using service and allow passing data ([#81](https://github.com/ng-primitives/ng-primitives/pull/81))
+
+### ❤️  Thank You
+
+- Benjamin Forrás @benjaminforras
+
 ## 0.13.0 (2024-10-17)
 
 
