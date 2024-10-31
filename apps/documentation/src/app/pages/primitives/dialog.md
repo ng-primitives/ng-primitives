@@ -8,6 +8,8 @@ A dialog is a floating window that can be used to display information or prompt 
 
 <docs-example name="dialog"></docs-example>
 
+<docs-example name="dialog-service"></docs-example>
+
 ## Import
 
 Import the Dialog primitives from `ng-primitives/dialog`.
