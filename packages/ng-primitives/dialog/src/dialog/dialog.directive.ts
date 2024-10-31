@@ -28,11 +28,11 @@ import { NgpDialogToken } from './dialog.token';
     '[attr.aria-describedby]': 'describedBy().join(" ")',
   },
 })
-export class NgpDialog implements OnDestroy {
+export class NgpDialog<T = unknown> implements OnDestroy {
   private readonly config = injectDialogConfig();
 
   /** Access the dialog ref */
-  private readonly dialogRef = injectDialogRef();
+  private readonly dialogRef = injectDialogRef<T>();
 
   /** The id of the dialog */
   readonly id = input<string>(uniqueId('ngp-dialog'));
