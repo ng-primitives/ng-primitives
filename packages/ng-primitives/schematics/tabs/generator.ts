@@ -47,7 +47,7 @@ export async function tabsGenerator(tree: Tree, options: TabsGeneratorSchema) {
     template: `<ng-content />`,
   });
 
-  generateFiles(tree, path.join(__dirname, `files/${panel}`), options.directory, {
+  generateFiles(tree, path.join(__dirname, `files/${list}`), options.directory, {
     ...options,
     ...names(`${options.name}-${list}`),
     selector: `${options.prefix}-${fileName}-${list}`,
@@ -55,10 +55,9 @@ export async function tabsGenerator(tree: Tree, options: TabsGeneratorSchema) {
     template: `<ng-content />`,
   });
 
-  generateFiles(tree, path.join(__dirname, `files/${panel}`), options.directory, {
+  generateFiles(tree, path.join(__dirname, `files/${button}`), options.directory, {
     ...options,
     ...names(`${options.name}-${button}`),
-    // selector: `${options.prefix}-${fileName}-${button}`,
     selector: `button[${options.prefix}-${fileName}-${button}]`,
     styles: buttonStyles,
     template: `<ng-content />`,
