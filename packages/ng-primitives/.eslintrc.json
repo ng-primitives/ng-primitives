@@ -30,6 +30,7 @@
         "@angular-eslint/no-output-rename": "off",
         "@angular-eslint/no-input-rename": "off",
         "@nx/enforce-module-boundaries": "off",
+        "@typescript-eslint/no-non-null-assertion": "off",
         "license-header/header": ["error", "../../tools/license/license-header.js"],
         "@typescript-eslint/ban-ts-comment": "off"
       }
