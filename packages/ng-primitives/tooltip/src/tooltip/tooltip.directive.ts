@@ -5,9 +5,10 @@
  * This source code is licensed under the Apache 2.0 license found in the
  * LICENSE file in the root directory of this source tree.
  */
-import { Directive, ElementRef, OnInit, computed, inject, isDevMode } from '@angular/core';
+import { Directive, ElementRef, OnInit, PLATFORM_ID, computed, inject, isDevMode } from '@angular/core';
 import { injectTooltipTrigger } from '../tooltip-trigger/tooltip-trigger.token';
 import { NgpTooltipToken } from './tooltip.token';
+import { isPlatformBrowser } from '@angular/common';
 
 @Directive({
   standalone: true,
@@ -27,6 +28,11 @@ export class NgpTooltip implements OnInit {
   private readonly tooltip = inject(ElementRef<HTMLElement>);
 
   /**
+   * Access the platform.
+   */
+   private readonly platform = inject(PLATFORM_ID);
+
+  /**
    * Access the trigger instance.
    */
   private readonly trigger = injectTooltipTrigger();
@@ -43,7 +49,7 @@ export class NgpTooltip implements OnInit {
 
   ngOnInit(): void {
     // if the element does not have a fixed position then throw a warning in dev mode
-    if (isDevMode()) {
+    if (isDevMode() && isPlatformBrowser(this.platform)) {
       const { position } = getComputedStyle(this.tooltip.nativeElement);
 
       if (position !== 'absolute') {
