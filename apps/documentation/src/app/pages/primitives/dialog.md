@@ -103,6 +103,14 @@ The dialog overlay.
 - Selector: `[ngpDialogOverlay]`
 - Exported As: `ngpDialogOverlay`
 
+## Examples
+
+### Dialog with external data
+
+Data can be passed to the dialog using the `NgpDialogManager`.
+
+<docs-example name="dialog-data"></docs-example>
+
 ## Accessibility
 
 Adheres to the [WAI-ARIA design pattern](https://www.w3.org/WAI/ARIA/apg/patterns/dialog-modal/examples/dialog/).

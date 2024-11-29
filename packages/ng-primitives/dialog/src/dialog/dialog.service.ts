@@ -6,7 +6,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 import { Overlay, OverlayConfig, OverlayContainer, ScrollStrategy } from '@angular/cdk/overlay';
-import { TemplatePortal } from '@angular/cdk/portal';
+import { ComponentPortal, ComponentType, TemplatePortal } from '@angular/cdk/portal';
 import {
   Injectable,
   Injector,
@@ -73,7 +73,10 @@ export class NgpDialogManager implements OnDestroy {
   /**
    * Opens a modal dialog containing the given template.
    */
-  open(templateRef: TemplateRef<NgpDialogContext>, config?: NgpDialogConfig): NgpDialogRef {
+  open(
+    templateRefOrComponentType: TemplateRef<NgpDialogContext> | ComponentType<any>,
+    config?: NgpDialogConfig,
+  ): NgpDialogRef {
     const defaults = this.defaultOptions;
     config = { ...defaults, ...config };
     config.id = config.id ?? uniqueId('ngp-dialog');
@@ -91,7 +94,15 @@ export class NgpDialogManager implements OnDestroy {
       close: dialogRef.close.bind(dialogRef),
     };
 
-    overlayRef.attach(new TemplatePortal(templateRef, config.viewContainerRef!, context, injector));
+    if (templateRefOrComponentType instanceof TemplateRef) {
+      overlayRef.attach(
+        new TemplatePortal(templateRefOrComponentType, config.viewContainerRef!, context, injector),
+      );
+    } else {
+      overlayRef.attach(
+        new ComponentPortal(templateRefOrComponentType, config.viewContainerRef!, injector),
+      );
+    }
 
     // If this is the first dialog that we're opening, hide all the non-overlay content.
     if (!this.openDialogs.length) {

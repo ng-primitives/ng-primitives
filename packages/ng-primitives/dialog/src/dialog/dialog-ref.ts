@@ -15,7 +15,7 @@ import { NgpDialogConfig } from '../config/dialog.config';
 /**
  * Reference to a dialog opened via the Dialog service.
  */
-export class NgpDialogRef {
+export class NgpDialogRef<T = unknown> {
   /** Whether the user is allowed to close the dialog. */
   disableClose: boolean | undefined;
 
@@ -28,6 +28,9 @@ export class NgpDialogRef {
   /** Emits on pointer events that happen outside of the dialog. */
   readonly outsidePointerEvents: Observable<MouseEvent>;
 
+  /** Data passed from the dialog opener. */
+  readonly data?: T;
+
   /** Unique ID for the dialog. */
   readonly id: string;
 
@@ -36,8 +39,9 @@ export class NgpDialogRef {
 
   constructor(
     readonly overlayRef: OverlayRef,
-    readonly config: NgpDialogConfig,
+    readonly config: NgpDialogConfig<T>,
   ) {
+    this.data = config.data;
     this.keydownEvents = overlayRef.keydownEvents();
     this.outsidePointerEvents = overlayRef.outsidePointerEvents();
     this.id = config.id!; // By the time the dialog is created we are guaranteed to have an ID.
@@ -71,6 +75,6 @@ export class NgpDialogRef {
   }
 }
 
-export function injectDialogRef(): NgpDialogRef {
-  return inject(NgpDialogRef);
+export function injectDialogRef<T = unknown>(): NgpDialogRef<T> {
+  return inject<NgpDialogRef<T>>(NgpDialogRef);
 }

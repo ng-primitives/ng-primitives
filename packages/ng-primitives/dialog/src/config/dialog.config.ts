@@ -11,7 +11,7 @@ import { InjectionToken, Injector, Provider, ViewContainerRef, inject } from '@a
 /** Valid ARIA roles for a dialog. */
 export type NgpDialogRole = 'dialog' | 'alertdialog';
 
-export interface NgpDialogConfig {
+export interface NgpDialogConfig<T = any> {
   /** The view container to attach the dialog to. */
   viewContainerRef?: ViewContainerRef;
 
@@ -35,6 +35,8 @@ export interface NgpDialogConfig {
    * history.
    */
   closeOnNavigation?: boolean;
+
+  data?: T;
 }
 
 export const defaultDialogConfig: NgpDialogConfig = {

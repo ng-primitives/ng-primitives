@@ -73,5 +73,13 @@
         "cacheableOperations": []
       }
     }
-  }
+  },
+  "release": {
+    "projects": ["ng-primitives", "luxon-date-adapter"],
+    "projectsRelationship": "independent",
+    "changelog": {
+      "workspaceChangelog": true
+    }
+  },
+  "useLegacyCache": true
 }
