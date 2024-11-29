@@ -5,10 +5,18 @@
  * This source code is licensed under the Apache 2.0 license found in the
  * LICENSE file in the root directory of this source tree.
  */
-import { Directive, ElementRef, OnInit, PLATFORM_ID, computed, inject, isDevMode } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
+import {
+  Directive,
+  ElementRef,
+  OnInit,
+  PLATFORM_ID,
+  computed,
+  inject,
+  isDevMode,
+} from '@angular/core';
 import { injectTooltipTrigger } from '../tooltip-trigger/tooltip-trigger.token';
 import { NgpTooltipToken } from './tooltip.token';
-import { isPlatformBrowser } from '@angular/common';
 
 @Directive({
   standalone: true,
@@ -30,7 +38,7 @@ export class NgpTooltip implements OnInit {
   /**
    * Access the platform.
    */
-   private readonly platform = inject(PLATFORM_ID);
+  private readonly platform = inject(PLATFORM_ID);
 
   /**
    * Access the trigger instance.
