@@ -75,6 +75,6 @@
     }
   },
   "release": {
-      "projects": ["ng-primitives", "luxon-date-adapter"]
+    "projects": ["ng-primitives", "luxon-date-adapter"]
   }
 }
