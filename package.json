@@ -10,7 +10,7 @@
     "lint": "nx run-many -t lint",
     "test": "nx run-many -t test",
     "build": "nx run-many -t build",
-    "publish": "nx release"
+    "publish": "nx release --projects=ng-primitives,luxon-date-adapter"
   },
   "devDependencies": {
     "@analogjs/platform": "1.9.4",
