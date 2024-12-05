@@ -76,7 +76,10 @@ import { NgpPopover, NgpPopoverTrigger } from 'ng-primitives/popover';
     }
 
     button[data-focus-visible] {
+      box-shadow:
+        0 1px 3px 0 rgb(0 0 0 / 0.1),
         0 1px 2px -1px rgb(0 0 0 / 0.1),
+        0 0 0 1px rgb(0 0 0 / 0.05),
         0 0 0 2px light-dark(#f5f5f5, #3f3f46),
         0 0 0 4px rgb(59 130 246);
     }
