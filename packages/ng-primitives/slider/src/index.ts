@@ -7,10 +7,10 @@
  */
 
 export { NgpSliderRange } from './slider-range/slider-range.directive';
-export { NgpSliderRangeToken } from './slider-range/slider-range.token';
+export { NgpSliderRangeToken, injectSliderRange } from './slider-range/slider-range.token';
 export { NgpSliderThumb } from './slider-thumb/slider-thumb.directive';
-export { NgpSliderThumbToken } from './slider-thumb/slider-thumb.token';
+export { NgpSliderThumbToken, injectSliderThumb } from './slider-thumb/slider-thumb.token';
 export { NgpSliderTrack } from './slider-track/slider-track.directive';
-export { NgpSliderTrackToken } from './slider-track/slider-track.token';
+export { NgpSliderTrackToken, injectSliderTrack } from './slider-track/slider-track.token';
 export { NgpSlider } from './slider/slider.directive';
-export { NgpSliderToken } from './slider/slider.token';
+export { NgpSliderToken, injectSlider } from './slider/slider.token';

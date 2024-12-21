@@ -7,14 +7,29 @@
  */
 
 export { NgpPagination } from './pagination/pagination.directive';
-export { NgpPaginationToken } from './pagination/pagination.token';
+export { NgpPaginationToken, injectPagination } from './pagination/pagination.token';
 export { NgpPaginationButton } from './pagination-button/pagination-button.directive';
-export { NgpPaginationButtonToken } from './pagination-button/pagination-button.token';
+export {
+  NgpPaginationButtonToken,
+  injectPaginationButton,
+} from './pagination-button/pagination-button.token';
 export { NgpPaginationPrevious } from './pagination-previous/pagination-previous.directive';
-export { NgpPaginationPreviousToken } from './pagination-previous/pagination-previous.token';
+export {
+  NgpPaginationPreviousToken,
+  injectPaginationPrevious,
+} from './pagination-previous/pagination-previous.token';
 export { NgpPaginationNext } from './pagination-next/pagination-next.directive';
-export { NgpPaginationNextToken } from './pagination-next/pagination-next.token';
+export {
+  NgpPaginationNextToken,
+  injectPaginationNext,
+} from './pagination-next/pagination-next.token';
 export { NgpPaginationFirst } from './pagination-first/pagination-first.directive';
-export { NgpPaginationFirstToken } from './pagination-first/pagination-first.token';
+export {
+  NgpPaginationFirstToken,
+  injectPaginationFirst,
+} from './pagination-first/pagination-first.token';
 export { NgpPaginationLast } from './pagination-last/pagination-last.directive';
-export { NgpPaginationLastToken } from './pagination-last/pagination-last.token';
+export {
+  NgpPaginationLastToken,
+  injectPaginationLast,
+} from './pagination-last/pagination-last.token';

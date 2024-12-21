@@ -7,4 +7,4 @@
  */
 
 export { NgpCheckbox } from './checkbox/checkbox.directive';
-export { NgpCheckboxToken } from './checkbox/checkbox.token';
+export { NgpCheckboxToken, injectCheckbox } from './checkbox/checkbox.token';

@@ -8,4 +8,4 @@
 
 export { NgpSwitchThumb } from './switch-thumb/switch-thumb.directive';
 export { NgpSwitch } from './switch/switch.directive';
-export { NgpSwitchToken } from './switch/switch.token';
+export { NgpSwitchToken, injectSwitch } from './switch/switch.token';

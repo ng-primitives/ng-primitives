@@ -81,5 +81,6 @@
       "workspaceChangelog": true
     }
   },
+  "defaultBase": "origin/next",
   "useLegacyCache": true
 }
