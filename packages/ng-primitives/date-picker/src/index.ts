@@ -7,20 +7,46 @@
  */
 
 export { NgpDatePickerCellRender } from './date-picker-cell-render/date-picker-cell-render.directive';
-export { NgpDatePickerCellRenderToken } from './date-picker-cell-render/date-picker-cell-render.token';
+export {
+  NgpDatePickerCellRenderToken,
+  injectDatePickerCellDate,
+  injectDatePickerCellRender,
+} from './date-picker-cell-render/date-picker-cell-render.token';
 export { NgpDatePickerDateButton } from './date-picker-date-button/date-picker-date-button.directive';
-export { NgpDatePickerDateButtonToken } from './date-picker-date-button/date-picker-date-button.token';
+export {
+  NgpDatePickerDateButtonToken,
+  injectDatePickerDateButton,
+} from './date-picker-date-button/date-picker-date-button.token';
 export { NgpDatePickerGrid } from './date-picker-grid/date-picker-grid.directive';
-export { NgpDatePickerGridToken } from './date-picker-grid/date-picker-grid.token';
+export {
+  NgpDatePickerGridToken,
+  injectDatePickerGrid,
+} from './date-picker-grid/date-picker-grid.token';
 export { NgpDatePickerLabel } from './date-picker-label/date-picker-label.directive';
-export { NgpDatePickerLabelToken } from './date-picker-label/date-picker-label.token';
+export {
+  NgpDatePickerLabelToken,
+  injectDatePickerLabel,
+} from './date-picker-label/date-picker-label.token';
 export { NgpDatePickerNextMonth } from './date-picker-next-month/date-picker-next-month.directive';
-export { NgpDatePickerNextMonthToken } from './date-picker-next-month/date-picker-next-month.token';
+export {
+  NgpDatePickerNextMonthToken,
+  injectDatePickerNextMonth,
+} from './date-picker-next-month/date-picker-next-month.token';
 export { NgpDatePickerPreviousMonth } from './date-picker-previous-month/date-picker-previous-month.directive';
-export { NgpDatePickerPreviousMonthToken } from './date-picker-previous-month/date-picker-previous-month.token';
+export {
+  NgpDatePickerPreviousMonthToken,
+  injectDatePickerPreviousMonth,
+} from './date-picker-previous-month/date-picker-previous-month.token';
 export { NgpDatePickerRowRender } from './date-picker-row-render/date-picker-row-render.directive';
-export { NgpDatePickerRowRenderToken } from './date-picker-row-render/date-picker-row-render.token';
+export {
+  NgpDatePickerRowRenderToken,
+  injectDatePickerRowRender,
+  injectDatePickerWeek,
+} from './date-picker-row-render/date-picker-row-render.token';
 export { NgpDatePicker } from './date-picker/date-picker.directive';
-export { NgpDatePickerToken } from './date-picker/date-picker.token';
+export { NgpDatePickerToken, injectDatePicker } from './date-picker/date-picker.token';
 export { NgpDatePickerCell } from './date-picker-cell/date-picker-cell.directive';
-export { NgpDatePickerCellToken } from './date-picker-cell/date-picker-cell.token';
+export {
+  NgpDatePickerCellToken,
+  injectDatePickerCell,
+} from './date-picker-cell/date-picker-cell.token';

@@ -7,11 +7,17 @@
  */
 
 export { NgpAccordionContent } from './accordion-content/accordion-content.directive';
-export { NgpAccordionContentToken } from './accordion-content/accordion-content.token';
+export {
+  NgpAccordionContentToken,
+  injectAccordionContent,
+} from './accordion-content/accordion-content.token';
 export { NgpAccordionItem } from './accordion-item/accordion-item.directive';
-export { NgpAccordionItemToken } from './accordion-item/accordion-item.token';
+export { NgpAccordionItemToken, injectAccordionItem } from './accordion-item/accordion-item.token';
 export { NgpAccordionTrigger } from './accordion-trigger/accordion-trigger.directive';
-export { NgpAccordionTriggerToken } from './accordion-trigger/accordion-trigger.token';
+export {
+  NgpAccordionTriggerToken,
+  injectAccordionTrigger,
+} from './accordion-trigger/accordion-trigger.token';
 export { NgpAccordion } from './accordion/accordion.directive';
-export { NgpAccordionToken } from './accordion/accordion.token';
+export { NgpAccordionToken, injectAccordion } from './accordion/accordion.token';
 export { NgpAccordionConfig, provideAccordionConfig } from './config/accordion.config';

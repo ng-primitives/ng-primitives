@@ -10,6 +10,6 @@ export { NgpTabsConfig, provideTabsConfig } from './config/tabs.config';
 export { NgpTabButton } from './tab-button/tab-button.directive';
 export { NgpTabList } from './tab-list/tab-list.directive';
 export { NgpTabPanel } from './tab-panel/tab-panel.directive';
-export { NgpTabPanelToken } from './tab-panel/tab-panel.token';
+export { NgpTabPanelToken, injectTabPanel } from './tab-panel/tab-panel.token';
 export { NgpTabset } from './tabset/tabset.directive';
-export { NgpTabsetToken } from './tabset/tabset.token';
+export { NgpTabsetToken, injectTabset } from './tabset/tabset.token';

@@ -9,10 +9,10 @@
 export { NgpHover } from './hover/hover.directive';
 export { NgpHoverToken, injectHover } from './hover/hover.token';
 export { NgpFocus } from './focus/focus.directive';
-export { NgpFocusToken } from './focus/focus.token';
+export { NgpFocusToken, injectFocus } from './focus/focus.token';
 export { NgpFocusVisible } from './focus-visible/focus-visible.directive';
-export { NgpFocusVisibleToken } from './focus-visible/focus-visible.token';
+export { NgpFocusVisibleToken, injectFocusVisible } from './focus-visible/focus-visible.token';
 export { NgpPress } from './press/press.directive';
-export { NgpPressToken } from './press/press.token';
+export { NgpPressToken, injectPress } from './press/press.token';
 export { NgpMove } from './move/move.directive';
-export { NgpMoveToken } from './move/move.token';
+export { NgpMoveToken, injectMove } from './move/move.token';

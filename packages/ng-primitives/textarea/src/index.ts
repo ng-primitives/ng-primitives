@@ -7,4 +7,4 @@
  */
 
 export { NgpTextarea } from './textarea/textarea.directive';
-export { NgpTextareaToken } from './textarea/textarea.token';
+export { NgpTextareaToken, injectTextarea } from './textarea/textarea.token';

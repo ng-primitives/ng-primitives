@@ -7,6 +7,9 @@
  */
 
 export { NgpSearchFieldClear } from './search-field-clear/search-field-clear.directive';
-export { NgpSearchFieldClearToken } from './search-field-clear/search-field-clear.token';
+export {
+  NgpSearchFieldClearToken,
+  injectSearchFieldClear,
+} from './search-field-clear/search-field-clear.token';
 export { NgpSearchField } from './search-field/search-field.directive';
-export { NgpSearchFieldToken } from './search-field/search-field.token';
+export { NgpSearchFieldToken, injectSearchField } from './search-field/search-field.token';

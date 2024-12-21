@@ -9,4 +9,4 @@
 export { NgpToastConfig, provideToastConfig } from './config/toast.config';
 export { NgpToastGravity, NgpToastPosition, NgpToastRef } from './toast/toast-ref';
 export { NgpToast } from './toast/toast.directive';
-export { NgpToastToken } from './toast/toast.token';
+export { NgpToastToken, injectToast } from './toast/toast.token';

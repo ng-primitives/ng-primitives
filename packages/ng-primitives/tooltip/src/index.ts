@@ -8,6 +8,9 @@
 
 export { NgpTooltipConfig, provideTooltipConfig } from './config/tooltip.config';
 export { NgpTooltipTrigger } from './tooltip-trigger/tooltip-trigger.directive';
-export { NgpTooltipTriggerToken } from './tooltip-trigger/tooltip-trigger.token';
+export {
+  NgpTooltipTriggerToken,
+  injectTooltipTrigger,
+} from './tooltip-trigger/tooltip-trigger.token';
 export { NgpTooltip } from './tooltip/tooltip.directive';
-export { NgpTooltipToken } from './tooltip/tooltip.token';
+export { NgpTooltipToken, injectTooltip } from './tooltip/tooltip.token';
