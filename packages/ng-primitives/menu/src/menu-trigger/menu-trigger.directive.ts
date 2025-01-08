@@ -6,7 +6,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 import { CdkMenuTrigger } from '@angular/cdk/menu';
-import { Directive, inject, signal } from '@angular/core';
+import { Directive, effect, inject, input, signal, TemplateRef } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { NgpMenuTriggerToken } from './menu-trigger.token';
 
@@ -15,7 +15,7 @@ import { NgpMenuTriggerToken } from './menu-trigger.token';
   selector: '[ngpMenuTrigger]',
   exportAs: 'ngpMenuTrigger',
   providers: [{ provide: NgpMenuTriggerToken, useExisting: NgpMenuTrigger }],
-  hostDirectives: [{ directive: CdkMenuTrigger, inputs: ['cdkMenuTriggerFor: ngpMenuTrigger'] }],
+  hostDirectives: [{ directive: CdkMenuTrigger }],
   host: {
     '[attr.data-open]': 'open() ? "" : null',
   },
@@ -27,12 +27,22 @@ export class NgpMenuTrigger {
   private readonly cdkMenuTrigger = inject(CdkMenuTrigger);
 
   /**
+   * Template reference variable to the menu this trigger opens
+   */
+  public readonly menu = input.required<TemplateRef<unknown>>({
+    alias: 'ngpMenuTrigger',
+  });
+
+  /**
    * Store the open state of the menu.
    */
-  protected open = signal<boolean>(false);
+  protected readonly open = signal<boolean>(false);
 
   constructor() {
     this.cdkMenuTrigger.opened.pipe(takeUntilDestroyed()).subscribe(() => this.open.set(true));
     this.cdkMenuTrigger.closed.pipe(takeUntilDestroyed()).subscribe(() => this.open.set(false));
+
+    // forward the template ref to the host directive anytime it changes
+    effect(() => (this.cdkMenuTrigger.menuTemplateRef = this.menu()));
   }
 }
