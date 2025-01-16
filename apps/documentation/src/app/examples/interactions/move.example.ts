@@ -3,7 +3,6 @@ import { NgpMove } from 'ng-primitives/interactions';
 import { NgpMoveEvent } from 'packages/ng-primitives/interactions/src/move/move.directive';
 
 @Component({
-  standalone: true,
   selector: 'app-move',
   imports: [NgpMove],
   template: `

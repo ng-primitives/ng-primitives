@@ -3,7 +3,7 @@
   "version": "0.18.0",
   "peerDependencies": {
     "luxon": ">=3.0.0",
-    "ng-primitives": ">=0.3.0"
+    "ng-primitives": ">=0.18.0"
   },
   "sideEffects": false
 }

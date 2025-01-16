@@ -7,7 +7,6 @@ import { type ThemeOption, ThemeTogglerService } from './theme-toggler.service';
 
 @Component({
   selector: 'docs-theme-toggler',
-  standalone: true,
   viewProviders: [provideIcons({ lucideMoon, lucideSun })],
   templateUrl: './theme-toggler.component.html',
   imports: [AsyncPipe, NgIcon, NgpButton],

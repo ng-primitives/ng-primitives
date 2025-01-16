@@ -2,7 +2,6 @@ import { Component } from '@angular/core';
 import { NgpSwitch, NgpSwitchThumb } from 'ng-primitives/switch';
 
 @Component({
-  standalone: true,
   selector: 'app-switch',
   imports: [NgpSwitch, NgpSwitchThumb],
   styles: `

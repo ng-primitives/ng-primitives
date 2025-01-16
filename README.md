@@ -22,6 +22,15 @@ Until we reach 1.0 some APIs may change, and we may introduce breaking changes i
 npm install ng-primitives
 ```
 
+## Compatibility
+
+The following table shows the compatibility between Angular Primitives and Angular versions:
+
+| Angular Primitives | Angular |
+| ------------------ | ------- |
+| 0.1.0 - 0.18.0     | 18.0.x  |
+| 0.19.0+            | 19.0.x  |
+
 ## Contributing
 
 We welcome contributions from the community. Please refer to our [contributing guidelines](CONTRIBUTING.md) for more information.

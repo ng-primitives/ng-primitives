@@ -2,7 +2,6 @@ import { Component, signal } from '@angular/core';
 import { NgpFocus } from 'ng-primitives/interactions';
 
 @Component({
-  standalone: true,
   selector: 'app-focus',
   imports: [NgpFocus],
   template: `

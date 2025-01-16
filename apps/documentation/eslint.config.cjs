@@ -35,4 +35,10 @@ module.exports = [
       '@angular-eslint/template/click-events-have-key-events': 'off',
     },
   },
+  {
+    files: ['**/*.ts'],
+    rules: {
+      '@angular-eslint/prefer-standalone': 'off',
+    },
+  },
 ];

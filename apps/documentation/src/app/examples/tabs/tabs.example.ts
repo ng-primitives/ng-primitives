@@ -2,7 +2,6 @@ import { Component, signal } from '@angular/core';
 import { NgpTabButton, NgpTabList, NgpTabPanel, NgpTabset } from 'ng-primitives/tabs';
 
 @Component({
-  standalone: true,
   selector: 'app-tabs',
   imports: [NgpTabset, NgpTabList, NgpTabButton, NgpTabPanel],
   styles: `

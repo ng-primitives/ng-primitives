@@ -2,7 +2,6 @@ import { Component, signal } from '@angular/core';
 import { NgpRadioGroup, NgpRadioIndicator, NgpRadioItem } from 'ng-primitives/radio';
 
 @Component({
-  standalone: true,
   selector: 'app-radio',
   imports: [NgpRadioGroup, NgpRadioItem, NgpRadioIndicator],
   styles: `

@@ -2,7 +2,6 @@ import { Component, signal } from '@angular/core';
 import { NgpHover } from 'ng-primitives/interactions';
 
 @Component({
-  standalone: true,
   selector: 'app-hover',
   imports: [NgpHover],
   styles: `

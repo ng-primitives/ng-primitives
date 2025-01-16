@@ -3,7 +3,6 @@ import { NgpDescription, NgpFormField, NgpLabel } from 'ng-primitives/form-field
 import { NgpInput } from 'ng-primitives/input';
 
 @Component({
-  standalone: true,
   selector: 'app-input-form-field',
   imports: [NgpInput, NgpLabel, NgpDescription, NgpFormField],
   template: `

@@ -11,7 +11,6 @@ import {
 } from 'ng-primitives/dialog';
 
 @Component({
-  standalone: true,
   selector: 'app-dialog',
   imports: [NgpButton],
   template: `
@@ -85,7 +84,6 @@ export default class DialogDataExample {
 }
 
 @Component({
-  standalone: true,
   imports: [
     NgpButton,
     NgpDialog,

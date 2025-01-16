@@ -16,7 +16,6 @@ import {
 } from 'ng-primitives/pagination';
 
 @Component({
-  standalone: true,
   selector: 'app-pagination',
   imports: [
     NgIcon,

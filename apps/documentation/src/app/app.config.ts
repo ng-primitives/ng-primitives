@@ -3,11 +3,12 @@ import { withPrismHighlighter } from '@analogjs/content/prism-highlighter';
 import { provideFileRouter } from '@analogjs/router';
 import { isPlatformBrowser } from '@angular/common';
 import {
-  APP_INITIALIZER,
   ApplicationConfig,
   Injector,
   PLATFORM_ID,
   provideZoneChangeDetection,
+  inject,
+  provideAppInitializer,
 } from '@angular/core';
 import { provideClientHydration } from '@angular/platform-browser';
 import { withInMemoryScrolling } from '@angular/router';
@@ -24,12 +25,10 @@ export const appConfig: ApplicationConfig = {
     provideClientHydration(),
     provideContent(withMarkdownRenderer(), withPrismHighlighter()),
     provideZoneChangeDetection({ eventCoalescing: true }),
-    {
-      provide: APP_INITIALIZER,
-      useFactory: initializeCustomElements,
-      multi: true,
-      deps: [Injector, PLATFORM_ID],
-    },
+    provideAppInitializer(() => {
+      const initializerFn = initializeCustomElements(inject(Injector), inject(PLATFORM_ID));
+      return initializerFn();
+    }),
   ],
 };
 

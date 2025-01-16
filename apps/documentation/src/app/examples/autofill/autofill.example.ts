@@ -3,7 +3,6 @@ import { NgpAutofill } from 'ng-primitives/autofill';
 import { NgpLabel } from 'ng-primitives/form-field';
 
 @Component({
-  standalone: true,
   selector: 'app-autofill',
   imports: [NgpAutofill, NgpLabel],
   template: `

@@ -4,7 +4,6 @@ import { NgpButton } from 'ng-primitives/button';
 import { NgpPopover, NgpPopoverTrigger } from 'ng-primitives/popover';
 
 @Component({
-  standalone: true,
   selector: 'app-popover',
   imports: [NgpPopoverTrigger, NgpPopover, NgpButton, NgpAvatar, NgpAvatarImage],
   template: `

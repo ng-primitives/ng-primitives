@@ -26,7 +26,6 @@ module.exports = [
       ],
       '@angular-eslint/directive-class-suffix': 'off',
       '@angular-eslint/component-class-suffix': 'off',
-      '@angular-eslint/no-host-metadata-property': 'off',
       '@typescript-eslint/no-inferrable-types': 'off',
       '@angular-eslint/no-output-rename': 'off',
       '@angular-eslint/no-input-rename': 'off',
@@ -55,6 +54,12 @@ module.exports = [
     },
     languageOptions: {
       parser: require('jsonc-eslint-parser'),
+    },
+  },
+  {
+    files: ['**/*.ts'],
+    rules: {
+      '@angular-eslint/prefer-standalone': 'off',
     },
   },
 ];

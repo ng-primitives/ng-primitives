@@ -3,7 +3,6 @@ import { NgpDescription, NgpFormField, NgpLabel } from 'ng-primitives/form-field
 import { NgpTextarea } from 'ng-primitives/textarea';
 
 @Component({
-  standalone: true,
   selector: 'app-textarea-form-field',
   imports: [NgpTextarea, NgpLabel, NgpDescription, NgpFormField],
   template: `

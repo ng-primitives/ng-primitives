@@ -4,7 +4,6 @@ import { heroCheckMini } from '@ng-icons/heroicons/mini';
 import { NgpCheckbox } from 'ng-primitives/checkbox';
 
 @Component({
-  standalone: true,
   selector: 'app-checkbox',
   imports: [NgIcon, NgpCheckbox],
   viewProviders: [provideIcons({ heroCheckMini })],

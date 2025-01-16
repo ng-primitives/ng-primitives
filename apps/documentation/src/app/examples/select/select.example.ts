@@ -2,7 +2,6 @@ import { Component } from '@angular/core';
 import { NgpSelect } from 'ng-primitives/select';
 
 @Component({
-  standalone: true,
   selector: 'app-select',
   imports: [NgpSelect],
   template: `
