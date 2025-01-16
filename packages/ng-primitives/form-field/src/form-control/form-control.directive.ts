@@ -11,7 +11,6 @@ import { uniqueId } from 'ng-primitives/utils';
 import { injectFormField } from '../form-field/form-field.token';
 import { NgpFormControlToken } from './form-control.token';
 
-
 @Directive({
   standalone: true,
   selector: '[ngpFormControl]',

@@ -7,7 +7,6 @@
  */
 import { effect, Injector, Signal, signal } from '@angular/core';
 
-
 /**
  * Listen for changes to a signal and call a function when the signal changes.
  * @param source
