@@ -2,7 +2,6 @@ import { Component } from '@angular/core';
 import { NgpToast } from 'ng-primitives/toast';
 
 @Component({
-  standalone: true,
   selector: 'app-toast',
   imports: [NgpToast],
   template: `

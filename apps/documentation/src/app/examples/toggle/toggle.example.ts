@@ -3,7 +3,6 @@ import { NgpButton } from 'ng-primitives/button';
 import { NgpToggle } from 'ng-primitives/toggle';
 
 @Component({
-  standalone: true,
   selector: 'app-toggle',
   imports: [NgpToggle, NgpButton],
   template: `

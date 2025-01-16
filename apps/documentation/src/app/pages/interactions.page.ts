@@ -3,7 +3,6 @@ import { RouterOutlet } from '@angular/router';
 import { QuickLinksComponent } from '../components/quick-links/quick-links.component';
 
 @Component({
-  standalone: true,
   selector: 'docs-interactions',
   template: `
     <div class="flex gap-x-12">

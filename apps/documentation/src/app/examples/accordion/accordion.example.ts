@@ -10,7 +10,6 @@ import {
 import { NgpButton } from 'ng-primitives/button';
 
 @Component({
-  standalone: true,
   selector: 'app-accordion',
   imports: [
     NgpButton,

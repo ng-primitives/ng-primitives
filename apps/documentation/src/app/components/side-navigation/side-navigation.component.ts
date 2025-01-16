@@ -5,7 +5,6 @@ import { getRouterLinks } from '../../utils/router';
 
 @Component({
   selector: 'docs-side-navigation',
-  standalone: true,
   imports: [RouterLink, RouterLinkActive, NgTemplateOutlet],
   templateUrl: './side-navigation.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,

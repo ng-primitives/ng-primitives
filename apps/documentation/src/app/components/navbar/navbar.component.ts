@@ -17,7 +17,6 @@ import { ThemeTogglerComponent } from '../theme-toggler/theme-toggler.component'
 
 @Component({
   selector: 'docs-navbar',
-  standalone: true,
   imports: [NgIcon, RouterLink, NgpHover, NgpButton, ThemeTogglerComponent],
   viewProviders: [provideIcons({ lucideSearch, bootstrapGithub, bootstrapDiscord, lucideMenu })],
   templateUrl: './navbar.component.html',

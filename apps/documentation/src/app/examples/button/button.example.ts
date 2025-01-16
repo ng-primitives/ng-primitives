@@ -2,7 +2,6 @@ import { Component } from '@angular/core';
 import { NgpButton } from 'ng-primitives/button';
 
 @Component({
-  standalone: true,
   selector: 'app-button',
   imports: [NgpButton],
   template: `

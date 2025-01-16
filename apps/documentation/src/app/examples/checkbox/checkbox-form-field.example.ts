@@ -5,7 +5,6 @@ import { NgpCheckbox } from 'ng-primitives/checkbox';
 import { NgpDescription, NgpFormField, NgpLabel } from 'ng-primitives/form-field';
 
 @Component({
-  standalone: true,
   selector: 'app-checkbox-form-control',
   imports: [NgIcon, NgpCheckbox, NgpFormField, NgpLabel, NgpDescription],
   viewProviders: [provideIcons({ heroCheckMini })],

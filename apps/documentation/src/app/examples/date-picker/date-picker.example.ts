@@ -14,7 +14,6 @@ import {
 } from 'ng-primitives/date-picker';
 
 @Component({
-  standalone: true,
   selector: 'app-date-picker',
   imports: [
     NgIcon,

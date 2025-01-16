@@ -3,7 +3,6 @@ import { NgpDescription, NgpFormField, NgpLabel } from 'ng-primitives/form-field
 import { NgpSlider, NgpSliderRange, NgpSliderThumb, NgpSliderTrack } from 'ng-primitives/slider';
 
 @Component({
-  standalone: true,
   selector: 'app-slider-form-field',
   imports: [
     NgpFormField,

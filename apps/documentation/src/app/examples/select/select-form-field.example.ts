@@ -3,7 +3,6 @@ import { NgpDescription, NgpFormField, NgpLabel } from 'ng-primitives/form-field
 import { NgpSelect } from 'ng-primitives/select';
 
 @Component({
-  standalone: true,
   selector: 'app-select-form-field',
   imports: [NgpSelect, NgpFormField, NgpLabel, NgpDescription],
   template: `

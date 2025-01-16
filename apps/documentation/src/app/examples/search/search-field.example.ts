@@ -8,7 +8,6 @@ import { NgpInput } from 'ng-primitives/input';
 import { NgpSearchField, NgpSearchFieldClear } from 'ng-primitives/search';
 
 @Component({
-  standalone: true,
   selector: 'app-search-field',
   imports: [
     NgpSearchField,

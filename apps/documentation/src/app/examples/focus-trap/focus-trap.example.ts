@@ -3,7 +3,6 @@ import { NgpButton } from 'ng-primitives/button';
 import { NgpFocusTrap } from 'ng-primitives/focus-trap';
 
 @Component({
-  standalone: true,
   selector: 'app-focus-trap',
   imports: [NgpFocusTrap, NgpButton],
   template: `

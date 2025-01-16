@@ -3,7 +3,6 @@ import { NgpButton } from 'ng-primitives/button';
 import { NgpTooltip, NgpTooltipTrigger } from 'ng-primitives/tooltip';
 
 @Component({
-  standalone: true,
   selector: 'app-tooltip',
   imports: [NgpTooltipTrigger, NgpTooltip, NgpButton],
   template: `

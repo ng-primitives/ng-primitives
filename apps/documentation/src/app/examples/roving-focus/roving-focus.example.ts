@@ -12,7 +12,6 @@ import { NgpButton } from 'ng-primitives/button';
 import { NgpRovingFocusGroup, NgpRovingFocusItem } from 'ng-primitives/roving-focus';
 
 @Component({
-  standalone: true,
   selector: 'app-roving-focus',
   imports: [NgpRovingFocusGroup, NgpRovingFocusItem, NgIcon, NgpButton],
   viewProviders: [

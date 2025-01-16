@@ -2,7 +2,6 @@ import { Component } from '@angular/core';
 import { NgpFocusVisible } from 'ng-primitives/interactions';
 
 @Component({
-  standalone: true,
   selector: 'app-focus-visible',
   imports: [NgpFocusVisible],
   template: `

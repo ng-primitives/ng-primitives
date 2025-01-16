@@ -28,7 +28,6 @@ const { highlight, languages } = prismjs;
 
 @Component({
   selector: 'docs-example',
-  standalone: true,
   imports: [NgComponentOutlet, NgClass, NgIcon],
   templateUrl: './example.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,

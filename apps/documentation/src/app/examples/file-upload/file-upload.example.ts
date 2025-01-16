@@ -4,7 +4,6 @@ import { heroCloudArrowUp } from '@ng-icons/heroicons/outline';
 import { NgpFileUpload } from 'ng-primitives/file-upload';
 
 @Component({
-  standalone: true,
   selector: 'app-file-upload',
   imports: [NgpFileUpload, NgIcon],
   viewProviders: [provideIcons({ heroCloudArrowUp })],

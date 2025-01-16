@@ -3,7 +3,6 @@ import { NgpButton } from 'ng-primitives/button';
 import { NgpMenu, NgpMenuItem, NgpMenuTrigger } from 'ng-primitives/menu';
 
 @Component({
-  standalone: true,
   selector: 'app-menu',
   imports: [NgpButton, NgpMenu, NgpMenuTrigger, NgpMenuItem],
   template: `
