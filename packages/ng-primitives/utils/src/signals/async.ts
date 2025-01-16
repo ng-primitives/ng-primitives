@@ -5,7 +5,8 @@
  * This source code is licensed under the Apache 2.0 license found in the
  * LICENSE file in the root directory of this source tree.
  */
-import { Injector, Signal, effect, signal } from '@angular/core';
+import { effect, Injector, Signal, signal } from '@angular/core';
+
 
 /**
  * Listen for changes to a signal and call a function when the signal changes.
@@ -30,7 +31,7 @@ export function onChange<T>(
         previousValue.set(value);
       }
     },
-    { allowSignalWrites: true, injector: options?.injector },
+    { injector: options?.injector },
   );
 
   // call the fn with the initial value
@@ -75,6 +76,6 @@ export function onFormControlChange<T>(
         previousValue.set(value);
       }
     },
-    { allowSignalWrites: true, injector: options?.injector },
+    { injector: options?.injector },
   );
 }

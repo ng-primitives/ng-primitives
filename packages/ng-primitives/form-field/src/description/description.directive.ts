@@ -10,6 +10,7 @@ import { uniqueId } from 'ng-primitives/utils';
 import { injectFormField } from '../form-field/form-field.token';
 import { NgpDescriptionToken } from './description.token';
 
+
 @Directive({
   standalone: true,
   selector: '[ngpDescription]',
@@ -28,22 +29,18 @@ import { NgpDescriptionToken } from './description.token';
 })
 export class NgpDescription {
   /**
+   * The id of the description. If not provided, a unique id will be generated.
+   */
+  readonly id = input<string>(uniqueId('ngp-description'));
+  /**
    * Access the form field that the description is associated with.
    */
   protected readonly formField = injectFormField();
 
-  /**
-   * The id of the description. If not provided, a unique id will be generated.
-   */
-  readonly id = input<string>(uniqueId('ngp-description'));
-
   constructor() {
-    effect(
-      onCleanup => {
-        this.formField?.addDescription(this.id());
-        onCleanup(() => this.formField?.removeDescription(this.id()));
-      },
-      { allowSignalWrites: true },
-    );
+    effect(onCleanup => {
+      this.formField?.addDescription(this.id());
+      onCleanup(() => this.formField?.removeDescription(this.id()));
+    });
   }
 }

@@ -6,17 +6,18 @@
  * LICENSE file in the root directory of this source tree.
  */
 import {
+  computed,
   Directive,
+  effect,
   ElementRef,
   HostListener,
-  computed,
-  effect,
   inject,
   input,
 } from '@angular/core';
 import { uniqueId } from 'ng-primitives/utils';
 import { injectFormField } from '../form-field/form-field.token';
 import { NgpLabelToken } from './label.token';
+
 
 @Directive({
   standalone: true,
@@ -37,38 +38,31 @@ import { NgpLabelToken } from './label.token';
 })
 export class NgpLabel {
   /**
-   * Access the element that the label is associated with.
+   * The id of the label. If not provided, a unique id will be generated.
    */
-  private readonly elementRef = inject<ElementRef<HTMLElement>>(ElementRef);
-
+  readonly id = input<string>(uniqueId('ngp-label'));
   /**
    * Access the form field that the label is associated with.
    */
   protected readonly formField = injectFormField();
-
   /**
-   * The id of the label. If not provided, a unique id will be generated.
+   * Derive the for attribute value if the label is an HTML label element.
    */
-  readonly id = input<string>(uniqueId('ngp-label'));
-
+  protected readonly htmlFor = computed(() => this.formField?.formControl());
+  /**
+   * Access the element that the label is associated with.
+   */
+  private readonly elementRef = inject<ElementRef<HTMLElement>>(ElementRef);
   /**
    * Determine if the label is an HTML label element.
    */
   protected readonly isLabel = this.elementRef.nativeElement instanceof HTMLLabelElement;
 
-  /**
-   * Derive the for attribute value if the label is an HTML label element.
-   */
-  protected readonly htmlFor = computed(() => this.formField?.formControl());
-
   constructor() {
-    effect(
-      onCleanup => {
-        this.formField?.addLabel(this.id());
-        onCleanup(() => this.formField?.removeLabel(this.id()));
-      },
-      { allowSignalWrites: true },
-    );
+    effect(onCleanup => {
+      this.formField?.addLabel(this.id());
+      onCleanup(() => this.formField?.removeLabel(this.id()));
+    });
   }
 
   @HostListener('click', ['$event'])
