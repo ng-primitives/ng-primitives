@@ -7,4 +7,4 @@
  */
 
 export { NgpFocusTrap } from './focus-trap/focus-trap.directive';
-export { NgpFocusTrapToken } from './focus-trap/focus-trap.token';
+export { NgpFocusTrapToken, injectFocusTrap } from './focus-trap/focus-trap.token';

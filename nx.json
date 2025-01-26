@@ -78,8 +78,10 @@
     "projects": ["ng-primitives", "luxon-date-adapter"],
     "projectsRelationship": "independent",
     "changelog": {
-      "workspaceChangelog": true
+      "workspaceChangelog": true,
+      "automaticFromRef": true
     }
   },
+  "defaultBase": "origin/next",
   "useLegacyCache": true
 }

@@ -3,7 +3,6 @@ import { NgpProgress, NgpProgressIndicator } from 'ng-primitives/progress';
 import { injectDisposables } from 'ng-primitives/utils';
 
 @Component({
-  standalone: true,
   selector: 'app-progress',
   imports: [NgpProgress, NgpProgressIndicator],
   styles: `

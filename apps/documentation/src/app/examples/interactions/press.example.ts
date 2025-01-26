@@ -2,7 +2,6 @@ import { Component, signal } from '@angular/core';
 import { NgpPress } from 'ng-primitives/interactions';
 
 @Component({
-  standalone: true,
   selector: 'app-press',
   imports: [NgpPress],
   styles: `

@@ -7,8 +7,8 @@
  */
 
 export { NgpMenu } from './menu/menu.directive';
-export { NgpMenuToken } from './menu/menu.token';
+export { NgpMenuToken, injectMenu } from './menu/menu.token';
 export { NgpMenuTrigger } from './menu-trigger/menu-trigger.directive';
-export { NgpMenuTriggerToken } from './menu-trigger/menu-trigger.token';
+export { NgpMenuTriggerToken, injectMenuTrigger } from './menu-trigger/menu-trigger.token';
 export { NgpMenuItem } from './menu-item/menu-item.directive';
-export { NgpMenuItemToken } from './menu-item/menu-item.token';
+export { NgpMenuItemToken, injectMenuItem } from './menu-item/menu-item.token';

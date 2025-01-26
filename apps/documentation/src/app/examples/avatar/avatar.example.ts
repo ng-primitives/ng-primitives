@@ -2,7 +2,6 @@ import { Component } from '@angular/core';
 import { NgpAvatar, NgpAvatarFallback, NgpAvatarImage } from 'ng-primitives/avatar';
 
 @Component({
-  standalone: true,
   selector: 'app-avatar',
   imports: [NgpAvatar, NgpAvatarImage, NgpAvatarFallback],
   styles: `

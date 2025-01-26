@@ -7,4 +7,4 @@
  */
 
 export { NgpInput } from './input/input.directive';
-export { NgpInputToken } from './input/input.token';
+export { NgpInputToken, injectInput } from './input/input.token';

@@ -9,7 +9,6 @@ import {
 } from 'ng-primitives/dialog';
 
 @Component({
-  standalone: true,
   selector: 'app-dialog',
   imports: [
     NgpButton,

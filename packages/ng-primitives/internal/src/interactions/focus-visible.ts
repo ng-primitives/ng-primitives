@@ -69,7 +69,7 @@ export function setupFocusVisible({
     }
 
     // if the focus origin is keyboard or program(focused programmatically), then the focus is visible
-    if (origin === 'keyboard' || origin === 'program') {
+    if (origin === 'keyboard') {
       focus(true);
       return;
     }

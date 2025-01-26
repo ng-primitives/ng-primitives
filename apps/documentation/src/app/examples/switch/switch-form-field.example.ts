@@ -3,7 +3,6 @@ import { NgpFormField, NgpLabel } from 'ng-primitives/form-field';
 import { NgpSwitch, NgpSwitchThumb } from 'ng-primitives/switch';
 
 @Component({
-  standalone: true,
   selector: 'app-switch-form-field',
   imports: [NgpSwitch, NgpSwitchThumb, NgpFormField, NgpLabel],
   styles: `

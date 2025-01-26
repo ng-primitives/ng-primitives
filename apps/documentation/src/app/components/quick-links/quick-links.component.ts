@@ -14,7 +14,6 @@ import { filter } from 'rxjs/operators';
 
 @Component({
   selector: 'docs-quick-links',
-  standalone: true,
   imports: [],
   templateUrl: './quick-links.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,

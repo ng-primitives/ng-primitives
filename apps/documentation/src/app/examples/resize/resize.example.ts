@@ -2,7 +2,6 @@ import { Component, signal } from '@angular/core';
 import { Dimensions, NgpResize } from 'ng-primitives/resize';
 
 @Component({
-  standalone: true,
   selector: 'app-resize',
   imports: [NgpResize],
   styles: `

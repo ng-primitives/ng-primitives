@@ -1,4 +1,3 @@
-/* eslint-disable */
 export default {
   displayName: 'luxon-date-adapter',
   preset: '../../jest.preset.js',

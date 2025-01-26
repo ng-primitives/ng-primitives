@@ -9,7 +9,6 @@ import { SideNavigationComponent } from './components/side-navigation/side-navig
 
 @Component({
   selector: 'docs-root',
-  standalone: true,
   imports: [RouterOutlet, RouterLink, NgIcon, NavbarComponent, SideNavigationComponent],
   viewProviders: [provideIcons({ saxMoonOutline })],
   template: `

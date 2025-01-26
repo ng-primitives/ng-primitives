@@ -32,7 +32,8 @@ Angular Primitives versions are compatible with the following Angular versions:
 
 | Angular Primitives | Angular |
 | ------------------ | ------- |
-| 0.x                | 18.0.x  |
+| 0.1.0 - 0.18.0     | 18.0.x  |
+| 0.19.0+            | 19.0.x  |
 
 ## Community
 

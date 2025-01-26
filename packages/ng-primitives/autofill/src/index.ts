@@ -7,4 +7,4 @@
  */
 
 export { NgpAutofill } from './autofill/autofill.directive';
-export { NgpAutofillToken } from './autofill/autofill.token';
+export { NgpAutofillToken, injectAutofill } from './autofill/autofill.token';

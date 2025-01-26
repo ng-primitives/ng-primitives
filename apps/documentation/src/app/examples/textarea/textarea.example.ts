@@ -2,7 +2,6 @@ import { Component } from '@angular/core';
 import { NgpTextarea } from 'ng-primitives/textarea';
 
 @Component({
-  standalone: true,
   selector: 'app-textarea',
   imports: [NgpTextarea],
   template: `

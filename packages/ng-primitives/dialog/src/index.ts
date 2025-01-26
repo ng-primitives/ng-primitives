@@ -8,14 +8,17 @@
 
 export { NgpDialogConfig, provideDialogConfig } from './config/dialog.config';
 export { NgpDialogDescription } from './dialog-description/dialog-description.directive';
-export { NgpDialogDescriptionToken } from './dialog-description/dialog-description.token';
+export {
+  NgpDialogDescriptionToken,
+  injectDialogDescription,
+} from './dialog-description/dialog-description.token';
 export { NgpDialogOverlay } from './dialog-overlay/dialog-overlay.directive';
-export { NgpDialogOverlayToken } from './dialog-overlay/dialog-overlay.token';
+export { NgpDialogOverlayToken, injectDialogOverlay } from './dialog-overlay/dialog-overlay.token';
 export { NgpDialogTitle } from './dialog-title/dialog-title.directive';
-export { NgpDialogTitleToken } from './dialog-title/dialog-title.token';
+export { NgpDialogTitleToken, injectDialogTitle } from './dialog-title/dialog-title.token';
 export { NgpDialogTrigger } from './dialog-trigger/dialog-trigger.directive';
-export { NgpDialogTriggerToken } from './dialog-trigger/dialog-trigger.token';
+export { NgpDialogTriggerToken, injectDialogTrigger } from './dialog-trigger/dialog-trigger.token';
 export { injectDialogRef } from './dialog/dialog-ref';
 export { NgpDialog } from './dialog/dialog.directive';
 export { NgpDialogManager } from './dialog/dialog.service';
-export { NgpDialogToken } from './dialog/dialog.token';
+export { NgpDialogToken, injectDialog } from './dialog/dialog.token';

@@ -9,7 +9,6 @@ import {
 } from 'ng-primitives/form-field';
 
 @Component({
-  standalone: true,
   selector: 'app-form-field',
   imports: [NgpFormField, NgpLabel, NgpError, NgpDescription, NgpFormControl, ReactiveFormsModule],
   template: `
