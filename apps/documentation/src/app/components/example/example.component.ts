@@ -107,7 +107,7 @@ export class ExampleComponent {
       pluginAngular,
       pluginPostcss,
     ] = await Promise.all([
-      import('https://esm.sh/@phenomnomnominal/tsquery@6.1.3'),
+      import('@phenomnomnominal/tsquery'),
       import('https://esm.sh/prettier@3.3.2/standalone'),
       import('https://esm.sh/prettier@3.3.2/plugins/estree'),
       import('https://esm.sh/prettier@3.3.2/plugins/typescript'),
