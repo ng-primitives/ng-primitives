@@ -23,6 +23,7 @@ import type {
   PropertyAssignment,
   StringLiteral,
 } from 'typescript';
+import * as tsquery from '@phenomnomnominal/tsquery';
 
 const { highlight, languages } = prismjs;
 
@@ -99,7 +100,6 @@ export class ExampleComponent {
 
     // we import these from esm.sh to keep our bandwidth usage down
     const [
-      tsquery,
       prettier,
       pluginEstree,
       pluginTypescript,
@@ -107,7 +107,6 @@ export class ExampleComponent {
       pluginAngular,
       pluginPostcss,
     ] = await Promise.all([
-      import('@phenomnomnominal/tsquery'),
       import('https://esm.sh/prettier@3.3.2/standalone'),
       import('https://esm.sh/prettier@3.3.2/plugins/estree'),
       import('https://esm.sh/prettier@3.3.2/plugins/typescript'),
