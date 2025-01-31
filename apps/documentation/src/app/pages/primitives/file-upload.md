@@ -72,6 +72,10 @@ A directive that allows you to turn any element into a file upload trigger.
   Event emitted when files are selected.
 </response-field>
 
+<response-field name="ngpFileUploadCanceled" type="EventEmitter<void>">
+  Event emitted when the user cancels the file upload or selects the same file(s) again.
+</response-field>
+
 <response-field name="ngpFileUploadDragOver" type="EventEmitter<boolean>">
   Event emitted when a file is dragged over or out of the element.
 </response-field>
