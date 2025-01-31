@@ -51,6 +51,9 @@ We welcome contributions from the community. Please refer to our [contributing g
       <td align="center" valign="top" width="14.28%"><a href="https://fr.linkedin.com/in/edoh-kodjo/en"><img src="https://avatars.githubusercontent.com/u/22994414?v=4?s=100" width="100px;" alt="kedevked"/><br /><sub><b>kedevked</b></sub></a><br /><a href="https://github.com/ng-primitives/ng-primitives/commits?author=kedevked" title="Code">💻</a> <a href="https://github.com/ng-primitives/ng-primitives/commits?author=kedevked" title="Documentation">📖</a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/IceDevelop74"><img src="https://avatars.githubusercontent.com/u/114682402?v=4?s=100" width="100px;" alt="Guillaume G."/><br /><sub><b>Guillaume G.</b></sub></a><br /><a href="https://github.com/ng-primitives/ng-primitives/commits?author=IceDevelop74" title="Code">💻</a></td>
     </tr>
+    <tr>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/ayush-seth"><img src="https://avatars.githubusercontent.com/u/24858182?v=4?s=100" width="100px;" alt="Ayush Seth"/><br /><sub><b>Ayush Seth</b></sub></a><br /><a href="https://github.com/ng-primitives/ng-primitives/commits?author=ayush-seth" title="Code">💻</a></td>
+    </tr>
   </tbody>
 </table>
 
