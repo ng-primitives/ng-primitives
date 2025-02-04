@@ -44,12 +44,6 @@
       "options": {
         "targetName": "lint"
       }
-    },
-    {
-      "plugin": "@nx/playwright/plugin",
-      "options": {
-        "targetName": "e2e"
-      }
     }
   ],
   "generators": {
@@ -61,7 +55,6 @@
       "style": "css"
     },
     "@nx/angular:application": {
-      "e2eTestRunner": "playwright",
       "linter": "eslint",
       "style": "scss",
       "unitTestRunner": "none"
@@ -75,7 +68,7 @@
     }
   },
   "release": {
-    "projects": ["ng-primitives", "luxon-date-adapter"],
+    "projects": ["ng-primitives"],
     "projectsRelationship": "independent",
     "changelog": {
       "workspaceChangelog": true,

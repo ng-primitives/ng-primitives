@@ -3,7 +3,7 @@ import analog from '@analogjs/platform';
 import { nxViteTsPaths } from '@nx/vite/plugins/nx-tsconfig-paths.plugin';
 import { readFileSync } from 'fs';
 import { globSync } from 'glob';
-import { Plugin, defineConfig, splitVendorChunkPlugin } from 'vite';
+import { Plugin, defineConfig } from 'vite';
 
 function sourceQueryPlugin(): Plugin {
   return {
@@ -41,7 +41,7 @@ export default defineConfig(({ mode }) => {
     },
     plugins: [
       analog({
-        ssr: true,
+        ssr: false,
         prerender: {
           routes: async () => [
             '/',
@@ -61,7 +61,6 @@ export default defineConfig(({ mode }) => {
         },
       }),
       nxViteTsPaths(),
-      splitVendorChunkPlugin(),
       sourceQueryPlugin(),
     ],
     test: {
