@@ -10,7 +10,9 @@
     "lint": "nx run-many -t lint",
     "test": "nx run-many -t test",
     "build": "NODE_OPTIONS='--max-old-space-size=8192' nx run-many -t build",
-    "publish": "nx release --projects=ng-primitives"
+    "release:version": "nx release version",
+    "release:changelog": "nx release changelog",
+    "release:publish": "nx release publish"
   },
   "devDependencies": {
     "@analogjs/platform": "1.13.0",
