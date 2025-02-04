@@ -173,9 +173,6 @@ importers:
       '@nx/js':
         specifier: 20.3.1
         version: 20.3.1(@babel/traverse@7.25.9)(@swc-node/register@1.9.1(@swc/core@1.5.7(@swc/helpers@0.5.11))(@swc/types@0.1.7)(typescript@5.6.3))(@swc/core@1.5.7(@swc/helpers@0.5.11))(@types/node@18.16.9)(nx@20.3.1(@swc-node/register@1.9.1(@swc/core@1.5.7(@swc/helpers@0.5.11))(@swc/types@0.1.7)(typescript@5.6.3))(@swc/core@1.5.7(@swc/helpers@0.5.11)))(typescript@5.6.3)
-      '@nx/playwright':
-        specifier: 20.3.1
-        version: 20.3.1(@babel/traverse@7.25.9)(@playwright/test@1.44.1)(@rspack/core@1.1.8(@swc/helpers@0.5.11))(@swc-node/register@1.9.1(@swc/core@1.5.7(@swc/helpers@0.5.11))(@swc/types@0.1.7)(typescript@5.6.3))(@swc/core@1.5.7(@swc/helpers@0.5.11))(@types/node@18.16.9)(@zkochan/js-yaml@0.0.7)(eslint@9.16.0(jiti@2.4.2))(nx@20.3.1(@swc-node/register@1.9.1(@swc/core@1.5.7(@swc/helpers@0.5.11))(@swc/types@0.1.7)(typescript@5.6.3))(@swc/core@1.5.7(@swc/helpers@0.5.11)))(typescript@5.6.3)(vite@5.2.11(@types/node@18.16.9)(less@4.1.3)(sass@1.77.6)(stylus@0.64.0)(terser@5.36.0))(vitest@1.6.0(@types/node@18.16.9)(jsdom@22.1.0)(less@4.1.3)(sass@1.77.6)(stylus@0.64.0)(terser@5.36.0))
       '@nx/plugin':
         specifier: 20.3.1
         version: 20.3.1(@babel/traverse@7.25.9)(@swc-node/register@1.9.1(@swc/core@1.5.7(@swc/helpers@0.5.11))(@swc/types@0.1.7)(typescript@5.6.3))(@swc/core@1.5.7(@swc/helpers@0.5.11))(@types/node@18.16.9)(@zkochan/js-yaml@0.0.7)(eslint@9.16.0(jiti@2.4.2))(nx@20.3.1(@swc-node/register@1.9.1(@swc/core@1.5.7(@swc/helpers@0.5.11))(@swc/types@0.1.7)(typescript@5.6.3))(@swc/core@1.5.7(@swc/helpers@0.5.11)))(ts-node@10.9.1(@swc/core@1.5.7(@swc/helpers@0.5.11))(@types/node@18.16.9)(typescript@5.6.3))(typescript@5.6.3)
@@ -191,9 +188,6 @@ importers:
       '@phenomnomnominal/tsquery':
         specifier: ^6.1.3
         version: 6.1.3(patch_hash=pavm4afkhqrs263j3gfbheakju)(typescript@5.6.3)
-      '@playwright/test':
-        specifier: ^1.36.0
-        version: 1.44.1
       '@schematics/angular':
         specifier: 19.0.7
         version: 19.0.7
@@ -251,9 +245,6 @@ importers:
       eslint-plugin-license-header:
         specifier: ^0.6.1
         version: 0.6.1(patch_hash=b6wwujkbamdsp7kngnlpbkpqp4)
-      eslint-plugin-playwright:
-        specifier: ^0.15.3
-        version: 0.15.3(eslint@9.16.0(jiti@2.4.2))
       glob:
         specifier: ^10.4.2
         version: 10.4.2
@@ -3323,14 +3314,6 @@ packages:
     cpu: [x64]
     os: [win32]
 
-  '@nx/playwright@20.3.1':
-    resolution: {integrity: sha512-oKLUwXXxip2m6lwXRRBwaM8Z0bnZNawBbOFDFbEYZcFJUtrD9U215bxkvkdUeNmdafrTp08WcSmnHvfRjjO06w==}
-    peerDependencies:
-      '@playwright/test': ^1.36.0
-    peerDependenciesMeta:
-      '@playwright/test':
-        optional: true
-
   '@nx/plugin@20.3.1':
     resolution: {integrity: sha512-ax2PNUgR1k64fM3O+AeRmBTKw38JrjoXGja6UKOq0OVAhFJBzGok7f7U5KQweIPZfhoZallI1tMinXB6NR2BZw==}
 
@@ -5852,15 +5835,6 @@ packages:
 
   eslint-plugin-license-header@0.6.1:
     resolution: {integrity: sha512-9aIz8q3OaMr1/uQmCGCWySjTs5nEXUJexNegz/8lluNcZbEl82Ag1Vyr1Hu3oIveRW1NbXDPs6nu4zu9mbrmWA==}
-
-  eslint-plugin-playwright@0.15.3:
-    resolution: {integrity: sha512-LQMW5y0DLK5Fnpya7JR1oAYL2/7Y9wDiYw6VZqlKqcRGSgjbVKNqxraphk7ra1U3Bb5EK444xMgUlQPbMg2M1g==}
-    peerDependencies:
-      eslint: '>=7'
-      eslint-plugin-jest: '>=25'
-    peerDependenciesMeta:
-      eslint-plugin-jest:
-        optional: true
 
   eslint-scope@5.1.1:
     resolution: {integrity: sha512-2NxwbF/hZ0KpepYN0cNbo+FN6XoK7GaHlQhgx/hIZl6Va0bF45RQOOwhLIy8lQDbuCiadSLCBnH2CFYquit5bw==}
@@ -14144,50 +14118,6 @@ snapshots:
   '@nx/nx-win32-x64-msvc@20.3.1':
     optional: true
 
-  '@nx/playwright@20.3.1(@babel/traverse@7.25.9)(@playwright/test@1.44.1)(@rspack/core@1.1.8(@swc/helpers@0.5.11))(@swc-node/register@1.9.1(@swc/core@1.5.7(@swc/helpers@0.5.11))(@swc/types@0.1.7)(typescript@5.6.3))(@swc/core@1.5.7(@swc/helpers@0.5.11))(@types/node@18.16.9)(@zkochan/js-yaml@0.0.7)(eslint@9.16.0(jiti@2.4.2))(nx@20.3.1(@swc-node/register@1.9.1(@swc/core@1.5.7(@swc/helpers@0.5.11))(@swc/types@0.1.7)(typescript@5.6.3))(@swc/core@1.5.7(@swc/helpers@0.5.11)))(typescript@5.6.3)(vite@5.2.11(@types/node@18.16.9)(less@4.1.3)(sass@1.77.6)(stylus@0.64.0)(terser@5.36.0))(vitest@1.6.0(@types/node@18.16.9)(jsdom@22.1.0)(less@4.1.3)(sass@1.77.6)(stylus@0.64.0)(terser@5.36.0))':
-    dependencies:
-      '@nx/devkit': 20.3.1(nx@20.3.1(@swc-node/register@1.9.1(@swc/core@1.5.7(@swc/helpers@0.5.11))(@swc/types@0.1.7)(typescript@5.6.3))(@swc/core@1.5.7(@swc/helpers@0.5.11)))
-      '@nx/eslint': 20.3.1(@babel/traverse@7.25.9)(@swc-node/register@1.9.1(@swc/core@1.5.7(@swc/helpers@0.5.11))(@swc/types@0.1.7)(typescript@5.6.3))(@swc/core@1.5.7(@swc/helpers@0.5.11))(@types/node@18.16.9)(@zkochan/js-yaml@0.0.7)(eslint@9.16.0(jiti@2.4.2))(nx@20.3.1(@swc-node/register@1.9.1(@swc/core@1.5.7(@swc/helpers@0.5.11))(@swc/types@0.1.7)(typescript@5.6.3))(@swc/core@1.5.7(@swc/helpers@0.5.11)))
-      '@nx/js': 20.3.1(@babel/traverse@7.25.9)(@swc-node/register@1.9.1(@swc/core@1.5.7(@swc/helpers@0.5.11))(@swc/types@0.1.7)(typescript@5.6.3))(@swc/core@1.5.7(@swc/helpers@0.5.11))(@types/node@18.16.9)(nx@20.3.1(@swc-node/register@1.9.1(@swc/core@1.5.7(@swc/helpers@0.5.11))(@swc/types@0.1.7)(typescript@5.6.3))(@swc/core@1.5.7(@swc/helpers@0.5.11)))(typescript@5.6.3)
-      '@nx/vite': 20.3.1(@babel/traverse@7.25.9)(@swc-node/register@1.9.1(@swc/core@1.5.7(@swc/helpers@0.5.11))(@swc/types@0.1.7)(typescript@5.6.3))(@swc/core@1.5.7(@swc/helpers@0.5.11))(@types/node@18.16.9)(nx@20.3.1(@swc-node/register@1.9.1(@swc/core@1.5.7(@swc/helpers@0.5.11))(@swc/types@0.1.7)(typescript@5.6.3))(@swc/core@1.5.7(@swc/helpers@0.5.11)))(typescript@5.6.3)(vite@5.2.11(@types/node@18.16.9)(less@4.1.3)(sass@1.77.6)(stylus@0.64.0)(terser@5.36.0))(vitest@1.6.0(@types/node@18.16.9)(jsdom@22.1.0)(less@4.1.3)(sass@1.77.6)(stylus@0.64.0)(terser@5.36.0))
-      '@nx/webpack': 20.3.1(@babel/traverse@7.25.9)(@rspack/core@1.1.8(@swc/helpers@0.5.11))(@swc-node/register@1.9.1(@swc/core@1.5.7(@swc/helpers@0.5.11))(@swc/types@0.1.7)(typescript@5.6.3))(@swc/core@1.5.7(@swc/helpers@0.5.11))(@types/node@18.16.9)(nx@20.3.1(@swc-node/register@1.9.1(@swc/core@1.5.7(@swc/helpers@0.5.11))(@swc/types@0.1.7)(typescript@5.6.3))(@swc/core@1.5.7(@swc/helpers@0.5.11)))(typescript@5.6.3)
-      '@phenomnomnominal/tsquery': 5.0.1(typescript@5.6.3)
-      minimatch: 9.0.3
-      tslib: 2.6.3
-    optionalDependencies:
-      '@playwright/test': 1.44.1
-    transitivePeerDependencies:
-      - '@babel/traverse'
-      - '@parcel/css'
-      - '@rspack/core'
-      - '@swc-node/register'
-      - '@swc/core'
-      - '@swc/css'
-      - '@swc/wasm'
-      - '@types/node'
-      - '@zkochan/js-yaml'
-      - bufferutil
-      - clean-css
-      - csso
-      - debug
-      - esbuild
-      - eslint
-      - fibers
-      - html-webpack-plugin
-      - lightningcss
-      - node-sass
-      - nx
-      - sass-embedded
-      - supports-color
-      - typescript
-      - uglify-js
-      - utf-8-validate
-      - verdaccio
-      - vite
-      - vitest
-      - vue-template-compiler
-      - webpack-cli
-
   '@nx/plugin@20.3.1(@babel/traverse@7.25.9)(@swc-node/register@1.9.1(@swc/core@1.5.7(@swc/helpers@0.5.11))(@swc/types@0.1.7)(typescript@5.6.3))(@swc/core@1.5.7(@swc/helpers@0.5.11))(@types/node@18.16.9)(@zkochan/js-yaml@0.0.7)(eslint@9.16.0(jiti@2.4.2))(nx@20.3.1(@swc-node/register@1.9.1(@swc/core@1.5.7(@swc/helpers@0.5.11))(@swc/types@0.1.7)(typescript@5.6.3))(@swc/core@1.5.7(@swc/helpers@0.5.11)))(ts-node@10.9.1(@swc/core@1.5.7(@swc/helpers@0.5.11))(@types/node@18.16.9)(typescript@5.6.3))(typescript@5.6.3)':
     dependencies:
       '@nx/devkit': 20.3.1(nx@20.3.1(@swc-node/register@1.9.1(@swc/core@1.5.7(@swc/helpers@0.5.11))(@swc/types@0.1.7)(typescript@5.6.3))(@swc/core@1.5.7(@swc/helpers@0.5.11)))
@@ -14505,6 +14435,7 @@ snapshots:
   '@playwright/test@1.44.1':
     dependencies:
       playwright: 1.44.1
+    optional: true
 
   '@redocly/ajv@8.11.2':
     dependencies:
@@ -17023,10 +16954,6 @@ snapshots:
   eslint-plugin-license-header@0.6.1(patch_hash=b6wwujkbamdsp7kngnlpbkpqp4):
     dependencies:
       requireindex: 1.2.0
-
-  eslint-plugin-playwright@0.15.3(eslint@9.16.0(jiti@2.4.2)):
-    dependencies:
-      eslint: 9.16.0(jiti@2.4.2)
 
   eslint-scope@5.1.1:
     dependencies:
@@ -19922,13 +19849,15 @@ snapshots:
       mlly: 1.7.4
       pathe: 2.0.1
 
-  playwright-core@1.44.1: {}
+  playwright-core@1.44.1:
+    optional: true
 
   playwright@1.44.1:
     dependencies:
       playwright-core: 1.44.1
     optionalDependencies:
       fsevents: 2.3.2
+    optional: true
 
   pluralize@8.0.0: {}
 
