@@ -14,6 +14,7 @@ import {
 } from '@angular/core';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { lucideClipboard, lucideCodesandbox } from '@ng-icons/lucide';
+import * as tsquery from '@phenomnomnominal/tsquery';
 import sdk from '@stackblitz/sdk';
 import * as prismjs from 'prismjs';
 import type {
@@ -23,7 +24,6 @@ import type {
   PropertyAssignment,
   StringLiteral,
 } from 'typescript';
-import * as tsquery from '@phenomnomnominal/tsquery';
 
 const { highlight, languages } = prismjs;
 
@@ -99,21 +99,15 @@ export class ExampleComponent {
       .replace(/selector:\s*'[^']*'/, "selector: 'app-root'");
 
     // we import these from esm.sh to keep our bandwidth usage down
-    const [
-      prettier,
-      pluginEstree,
-      pluginTypescript,
-      pluginHtml,
-      pluginAngular,
-      pluginPostcss,
-    ] = await Promise.all([
-      import('https://esm.sh/prettier@3.3.2/standalone'),
-      import('https://esm.sh/prettier@3.3.2/plugins/estree'),
-      import('https://esm.sh/prettier@3.3.2/plugins/typescript'),
-      import('https://esm.sh/prettier@3.3.2/plugins/html'),
-      import('https://esm.sh/prettier@3.3.2/plugins/angular'),
-      import('https://esm.sh/prettier@3.3.2/plugins/postcss'),
-    ]);
+    const [prettier, pluginEstree, pluginTypescript, pluginHtml, pluginAngular, pluginPostcss] =
+      await Promise.all([
+        import('https://esm.sh/prettier@3.3.2/standalone'),
+        import('https://esm.sh/prettier@3.3.2/plugins/estree'),
+        import('https://esm.sh/prettier@3.3.2/plugins/typescript'),
+        import('https://esm.sh/prettier@3.3.2/plugins/html'),
+        import('https://esm.sh/prettier@3.3.2/plugins/angular'),
+        import('https://esm.sh/prettier@3.3.2/plugins/postcss'),
+      ]);
 
     const ast = tsquery.ast(this.raw);
     const templateProperty = tsquery.query<PropertyAssignment>(
