@@ -4,8 +4,8 @@ import { NgpRadioIndicator, NgpRadioItem } from 'ng-primitives/radio';
 @Component({
   standalone: true,
   selector: '<%= selector %>',
+  imports: [NgpRadioIndicator],
   hostDirectives: [
-    NgpRadioIndicator,
     {
       directive: NgpRadioItem,
       inputs: ['ngpRadioItemValue:value'],
