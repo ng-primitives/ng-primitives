@@ -89,7 +89,7 @@ import { NgpFileUpload } from 'ng-primitives/file-upload';
   `,
 })
 export default class FileUploadExample {
-  onFilesSelected(files: FileList | null) {
+  onFilesSelected(files: FileList | null): void {
     if (files) {
       alert(`Selected ${files.length} files.`);
     }

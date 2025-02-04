@@ -21,7 +21,11 @@ import { NgpFileUpload } from 'ng-primitives/file-upload';
 Assemble the file-upload directives in your template.
 
 ```html
-<button ngpFileUpload (ngpFileUploadSelected)="onFilesSelected($event)"></button>
+<button
+  ngpFileUpload
+  (ngpFileUploadSelected)="onFilesSelected($event)"
+  (ngpFileUploadCanceled)="onCancel()"
+></button>
 ```
 
 ## Schematics
@@ -66,6 +70,10 @@ A directive that allows you to turn any element into a file upload trigger.
 
 <response-field name="ngpFileUploadSelected" type="EventEmitter<FileList | null>">
   Event emitted when files are selected.
+</response-field>
+
+<response-field name="ngpFileUploadCanceled" type="EventEmitter<void>">
+  Event emitted when the user cancels the file upload or selects the same file(s) again.
 </response-field>
 
 <response-field name="ngpFileUploadDragOver" type="EventEmitter<boolean>">

@@ -84,6 +84,13 @@ export class NgpFileUpload {
   });
 
   /**
+   * Emits when the user selects files.
+   */
+  readonly canceled = output<void>({
+    alias: 'ngpFileUploadCanceled',
+  });
+
+  /**
    * Emits when the user drags a file over the file upload.
    */
   readonly dragOver = output<boolean>({
@@ -103,6 +110,7 @@ export class NgpFileUpload {
   constructor() {
     this.input.type = 'file';
     this.input.addEventListener('change', () => this.selected.emit(this.input.files));
+    this.input.addEventListener('cancel', () => this.canceled.emit());
   }
 
   @HostListener('click')
