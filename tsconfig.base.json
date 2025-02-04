@@ -15,7 +15,6 @@
     "skipDefaultLibCheck": true,
     "baseUrl": ".",
     "paths": {
-      "@ng-primitives/luxon-date-adapter": ["packages/luxon-date-adapter/src/index.ts"],
       "@ng-primitives/tools": ["packages/tools/src/index.ts"],
       "ng-primitives": ["packages/ng-primitives/src/index.ts"],
       "ng-primitives/a11y": ["packages/ng-primitives/a11y/src/index.ts"],
@@ -26,6 +25,7 @@
       "ng-primitives/checkbox": ["packages/ng-primitives/checkbox/src/index.ts"],
       "ng-primitives/date-picker": ["packages/ng-primitives/date-picker/src/index.ts"],
       "ng-primitives/date-time": ["packages/ng-primitives/date-time/src/index.ts"],
+      "ng-primitives/date-time-luxon": ["packages/ng-primitives/date-time-luxon/src/index.ts"],
       "ng-primitives/dialog": ["packages/ng-primitives/dialog/src/index.ts"],
       "ng-primitives/file-upload": ["packages/ng-primitives/file-upload/src/index.ts"],
       "ng-primitives/focus-trap": ["packages/ng-primitives/focus-trap/src/index.ts"],

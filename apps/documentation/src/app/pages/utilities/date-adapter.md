@@ -11,8 +11,8 @@ The Date Adapter is an abstraction layer that allows components to use date obje
 Import the DateAdapter from `ng-primitives/date-time`.
 
 ```ts
-import { NgpLuxonDateAdapter } from '@ng-primitives/luxon-date-adapter';
-import { NgpDateAdapter, NgpNativeDateAdapter } from 'ng-primitives/date-time';
+import { NgpLuxonDateAdapter } from 'ng-primitives/date-time-lucon';
+import { NgpDateAdapter, NgpNativeDateAdapter } from 'ng-primitives/date-time-luxon';
 ```
 
 ## Usage

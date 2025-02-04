@@ -68,7 +68,7 @@
     }
   },
   "release": {
-    "projects": ["ng-primitives", "luxon-date-adapter"],
+    "projects": ["ng-primitives"],
     "projectsRelationship": "independent",
     "changelog": {
       "workspaceChangelog": true,
