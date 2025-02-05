@@ -34,5 +34,8 @@ jobs:
       - uses: nrwl/nx-set-shas@v4
 
       - run: pnpm exec nx-cloud record -- nx format:check
-      - run: pnpm exec nx run-many -t lint test build --all --parallel
+      - run: pnpm exec nx run-many -t lint test --all --parallel
+      - run: pnpm exec nx run-many -t build --all
+        env:
+          NODE_OPTIONS: '--max-old-space-size=8192' # Increase memory to 8GB
       - run: pnpx pkg-pr-new publish ./dist/packages/ng-primitives
