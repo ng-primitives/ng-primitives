@@ -8,13 +8,13 @@
 import { InjectionToken, inject } from '@angular/core';
 import type { NgpAutocompleteOption } from './autocomplete-option.directive';
 
-export const NgpAutocompleteOptionToken = new InjectionToken<NgpAutocompleteOption>(
+export const NgpAutocompleteOptionToken = new InjectionToken<NgpAutocompleteOption<unknown>>(
   'NgpAutocompleteOptionToken',
 );
 
 /**
  * Inject the AutocompleteOption directive instance
  */
-export function injectAutocompleteOption(): NgpAutocompleteOption {
-  return inject(NgpAutocompleteOptionToken);
+export function injectAutocompleteOption<T>(): NgpAutocompleteOption<T> {
+  return inject(NgpAutocompleteOptionToken) as NgpAutocompleteOption<T>;
 }

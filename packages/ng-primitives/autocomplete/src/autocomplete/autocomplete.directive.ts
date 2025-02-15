@@ -34,7 +34,7 @@ import { NgpAutocompleteToken } from './autocomplete.token';
 })
 export class NgpAutocomplete<T> implements OnInit {
   /** Access the autcomplete trigger. */
-  private readonly trigger = injectAutocompleteTrigger();
+  private readonly trigger = injectAutocompleteTrigger<T>();
 
   /** Access the injector */
   private readonly injector = inject(Injector);
@@ -51,7 +51,7 @@ export class NgpAutocomplete<T> implements OnInit {
   /**
    * Get the options sorted by their position in the document
    */
-  private sortedOptions = computed(() => {
+  private readonly sortedOptions = computed(() => {
     // sort the items by their position in the document
     return this.options().sort((a, b) =>
       a.elementRef.nativeElement.compareDocumentPosition(b.elementRef.nativeElement) &

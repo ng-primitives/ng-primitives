@@ -17,7 +17,7 @@ import {
   input,
   signal,
 } from '@angular/core';
-import { NgpHover, NgpPress } from 'ng-primitives/interactions';
+import { setupHover, setupPress } from 'ng-primitives/internal';
 import { uniqueId } from 'ng-primitives/utils';
 import { injectAutocomplete } from '../autocomplete/autocomplete.token';
 import { NgpAutocompleteOptionToken } from './autocomplete-option.token';
@@ -26,20 +26,16 @@ import { NgpAutocompleteOptionToken } from './autocomplete-option.token';
   standalone: true,
   selector: '[ngpAutocompleteOption]',
   exportAs: 'ngpAutocompleteOption',
-  hostDirectives: [
-    { directive: NgpHover, inputs: ['ngpHoverDisabled:ngpAutocompleteOptionDisabled'] },
-    { directive: NgpPress, inputs: ['ngpPressDisabled:ngpAutocompleteOptionDisabled'] },
-  ],
   providers: [{ provide: NgpAutocompleteOptionToken, useExisting: NgpAutocompleteOption }],
   host: {
     '[id]': 'id()',
-    '[attr.data-active]': 'active()',
+    '[attr.data-active]': 'active() ? "" : null',
     '[attr.data-disabled]': 'optionDisabled()',
   },
 })
 export class NgpAutocompleteOption<T> implements Highlightable, OnInit, OnDestroy {
   /** Access the autocomplete */
-  private readonly autocomplete = injectAutocomplete();
+  private readonly autocomplete = injectAutocomplete<T>();
 
   /** Access the element ref */
   readonly elementRef = inject<ElementRef<HTMLElement>>(ElementRef);
@@ -60,6 +56,11 @@ export class NgpAutocompleteOption<T> implements Highlightable, OnInit, OnDestro
 
   /** Whether the option is active */
   readonly active = signal(false);
+
+  constructor() {
+    setupHover({ disabled: this.optionDisabled });
+    setupPress({ disabled: this.optionDisabled });
+  }
 
   ngOnInit(): void {
     this.autocomplete.registerOption(this);

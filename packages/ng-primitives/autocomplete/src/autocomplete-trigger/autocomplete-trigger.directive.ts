@@ -9,11 +9,11 @@ import { Directionality } from '@angular/cdk/bidi';
 import { BooleanInput } from '@angular/cdk/coercion';
 import { DOWN_ARROW, ENTER, TAB, UP_ARROW, hasModifierKey } from '@angular/cdk/keycodes';
 import {
-  Overlay,
   ConnectedPosition,
-  OverlayRef,
   FlexibleConnectedPositionStrategy,
+  Overlay,
   OverlayConfig,
+  OverlayRef,
 } from '@angular/cdk/overlay';
 import { TemplatePortal } from '@angular/cdk/portal';
 import { DOCUMENT } from '@angular/common';
@@ -33,7 +33,7 @@ import {
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { fromResizeEvent } from 'ng-primitives/resize';
 import { onChange } from 'ng-primitives/utils';
-import { filter } from 'rxjs';
+import { Subscription, filter } from 'rxjs';
 import type { NgpAutocomplete } from '../autocomplete/autocomplete.directive';
 import { NgpAutocompleteTriggerToken } from './autocomplete-trigger.token';
 
@@ -74,7 +74,9 @@ export class NgpAutocompleteTrigger<T> implements OnDestroy {
     inject<ElementRef<HTMLInputElement | HTMLTextAreaElement>>(ElementRef);
 
   /** The user defined autocomplete attribute */
-  readonly autocompleteAttribute = input<string>('off');
+  readonly autocompleteAttribute = input<string>('off', {
+    alias: 'autocomplete',
+  });
 
   /** The autocomplete associated with the input */
   readonly template = input.required<TemplateRef<void>>({
@@ -145,6 +147,9 @@ export class NgpAutocompleteTrigger<T> implements OnDestroy {
   /** The position strategy */
   private positionStrategy?: FlexibleConnectedPositionStrategy;
 
+  /** Store the subscriptions */
+  private subscription?: Subscription;
+
   constructor() {
     fromResizeEvent(this.elementRef.nativeElement)
       .pipe(takeUntilDestroyed())
@@ -188,18 +193,24 @@ export class NgpAutocompleteTrigger<T> implements OnDestroy {
       this.overlayRef.attach(this.portal);
     }
 
-    // TODO unsubscribe
-    this.autocomplete?.keyManager.tabOut.pipe(filter(() => this.panelOpen())).subscribe(() => {
-      this.closePanel();
-    });
+    this.subscription?.unsubscribe();
+    this.subscription = new Subscription();
 
-    this.overlayRef.outsidePointerEvents().subscribe(() => {
-      this.closePanel();
-    });
+    const tabOut = this.autocomplete?.keyManager.tabOut
+      .pipe(filter(() => this.panelOpen()))
+      .subscribe(() => this.closePanel());
 
-    this.overlayRef._keydownEvents
+    const outsidePointer = this.overlayRef
+      .outsidePointerEvents()
+      .subscribe(() => this.closePanel());
+
+    const keydownEvents = this.overlayRef._keydownEvents
       .pipe(filter(event => event.key === 'Escape'))
       .subscribe(() => this.closePanel());
+
+    this.subscription.add(tabOut);
+    this.subscription.add(outsidePointer);
+    this.subscription.add(keydownEvents);
 
     this.panelOpen.set(true);
   }
@@ -209,6 +220,7 @@ export class NgpAutocompleteTrigger<T> implements OnDestroy {
     this.closePanel();
     this.overlayRef?.dispose();
     this.overlayRef = undefined;
+    this.subscription?.unsubscribe();
   }
 
   /** Determines whether the panel can be opened. */

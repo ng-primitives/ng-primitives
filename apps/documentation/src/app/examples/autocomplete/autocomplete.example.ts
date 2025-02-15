@@ -1,8 +1,8 @@
 import { Component } from '@angular/core';
 import {
   NgpAutocomplete,
-  NgpAutocompleteTrigger,
   NgpAutocompleteOption,
+  NgpAutocompleteTrigger,
 } from 'ng-primitives/autocomplete';
 import { NgpInput } from 'ng-primitives/input';
 
@@ -40,7 +40,7 @@ import { NgpInput } from 'ng-primitives/input';
       outline: none;
     }
 
-    [ngpInput][data-focus='true'] {
+    [ngpInput][data-focus] {
       box-shadow: 0 0 0 2px rgb(59, 130, 246);
     }
 
@@ -74,15 +74,15 @@ import { NgpInput } from 'ng-primitives/input';
       outline: none;
     }
 
-    [ngpAutocompleteOption][data-hover='true'] {
+    [ngpAutocompleteOption][data-hover] {
       background: light-dark(#f5f5f5, #3f3f46);
     }
 
-    [ngpAutocompleteOption][data-focus-visible='true'] {
+    [ngpAutocompleteOption][data-focus-visible] {
       box-shadow: 0 0 0 2px light-dark(#005fcc, #99c8ff);
     }
 
-    [ngpAutocompleteOption][data-active='true'] {
+    [ngpAutocompleteOption][data-active] {
       background: light-dark(#f5f5f5, #3f3f46);
     }
   `,
