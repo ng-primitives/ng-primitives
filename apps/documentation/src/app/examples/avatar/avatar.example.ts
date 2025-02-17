@@ -5,16 +5,6 @@ import { NgpAvatar, NgpAvatarFallback, NgpAvatarImage } from 'ng-primitives/avat
   selector: 'app-avatar',
   imports: [NgpAvatar, NgpAvatarImage, NgpAvatarFallback],
   styles: `
-    :host {
-      --avatar-background-color: rgb(186 230 253);
-      --avatar-border-color: #fff;
-      --avatar-color: #000;
-
-      --avatar-background-color-dark: #18181b;
-      --avatar-border-color-dark: #3f3f46;
-      --avatar-color-dark: #fff;
-    }
-
     [ngpAvatar] {
       position: relative;
       display: inline-flex;
@@ -24,11 +14,8 @@ import { NgpAvatar, NgpAvatarFallback, NgpAvatarImage } from 'ng-primitives/avat
       justify-content: center;
       border-radius: 9999px;
       border-width: 2px;
-      border-color: light-dark(var(--avatar-border-color), var(--avatar-border-color-dark));
-      background-color: light-dark(
-        var(--avatar-background-color),
-        var(--avatar-background-color-dark)
-      );
+      border-color: var(--avatar-border);
+      background-color: var(--avatar-background);
       vertical-align: middle;
     }
 
@@ -48,7 +35,7 @@ import { NgpAvatar, NgpAvatarFallback, NgpAvatarImage } from 'ng-primitives/avat
     [ngpAvatarFallback] {
       text-align: center;
       font-weight: 500;
-      color: light-dark(var(--avatar-color), var(--avatar-color-dark));
+      color: var(--text-emphasis);
     }
   `,
   template: `

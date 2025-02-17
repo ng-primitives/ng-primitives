@@ -17,22 +17,20 @@ import { NgpFocus } from 'ng-primitives/interactions';
     input {
       height: 36px;
       padding: 0 12px;
+      border: 1px solid var(--border);
       border-radius: 0.5rem;
-      box-shadow:
-        0 1px 2px 0 light-dark(rgba(0, 0, 0, 0.05), rgba(255, 255, 255, 0.007)),
-        0 0 0 1px light-dark(rgba(0, 0, 0, 0.1), rgba(255, 255, 255, 0.1));
+      box-shadow: var(--shadow);
       outline: none;
     }
 
     input[data-focus] {
-      box-shadow:
-        0 1px 2px 0 light-dark(rgba(0, 0, 0, 0.05), rgba(255, 255, 255, 0.007)),
-        0 0 0 2px rgb(59 130 246);
+      outline: 2px solid var(--focus-ring);
+      outline-offset: 2px;
     }
 
     p {
       font-size: 0.75rem;
-      color: light-dark(#666, #7e7e7e);
+      color: var(--text-secondary);
       margin-top: 0.25rem;
     }
   `,

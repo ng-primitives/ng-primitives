@@ -62,46 +62,12 @@ import {
     </div>
   `,
   styles: `
-    :host {
-      --datepicker-background-color: rgb(255 255 255);
-      --datepicker-day-color: rgba(0, 0, 0, 0.5);
-      --datepicker-label-color: #000;
-      --datepicker-navigation-button-hover-background-color: rgba(0, 0, 0, 0.05);
-      --datepicker-date-button-today-color: rgb(59 130 246);
-      --datepicker-date-button-hover-background-color: rgba(0, 0, 0, 0.05);
-      --datepicker-date-button-pressed-background-color: rgba(0, 0, 0, 0.1);
-      --datepicker-date-button-outside-month-color: rgba(0, 0, 0, 0.25);
-      --datepicker-date-button-outside-selected-month-color: rgba(0, 0, 0, 0.2);
-      --datepicker-date-button-outside-selected-month-background-color: rgba(0, 0, 0, 0.1);
-
-      --datepicker-background-color-dark: rgb(43 43 43);
-      --datepicker-day-color-dark: rgba(255, 255, 255, 0.5);
-      --datepicker-label-color-dark: #fff;
-      --datepicker-navigation-button-hover-background-color-dark: rgba(255, 255, 255, 0.05);
-      --datepicker-date-button-today-color-dark: rgb(59 130 246);
-      --datepicker-date-button-hover-background-color-dark: rgba(255, 255, 255, 0.05);
-      --datepicker-date-button-pressed-background-color-dark: rgba(255, 255, 255, 0.1);
-      --datepicker-date-button-outside-month-color-dark: rgba(255, 255, 255, 0.25);
-      --datepicker-date-button-outside-selected-month-color-dark: rgba(255, 255, 255, 0.2);
-      --datepicker-date-button-outside-selected-month-background-color-dark: rgba(
-        255,
-        255,
-        255,
-        0.1
-      );
-    }
-
     [ngpDatePicker] {
       display: inline-block;
-      background-color: light-dark(
-        var(--datepicker-background-color),
-        var(--datepicker-background-color-dark)
-      );
+      background-color: var(--background);
       border-radius: 12px;
       padding: 16px;
-      box-shadow:
-        0 0 0 1px light-dark(rgba(0, 0, 0, 0.05), rgba(255, 255, 255, 0.05)),
-        0 1px 2px light-dark(rgba(0, 0, 0, 0.05), rgba(255, 255, 255, 0.05));
+      box-shadow: var(--shadow);
     }
 
     .date-picker-header {
@@ -118,13 +84,13 @@ import {
       width: 40px;
       height: 40px;
       text-align: center;
-      color: light-dark(var(--datepicker-day-color), var(--datepicker-day-color-dark));
+      color: var(--text-secondary);
     }
 
     [ngpDatePickerLabel] {
       font-size: 14px;
       font-weight: 500;
-      color: light-dark(var(--datepicker-label-color), var(--datepicker-label-color-dark));
+      color: var(--text-primary);
     }
 
     [ngpDatePickerPreviousMonth],
@@ -137,35 +103,29 @@ import {
       justify-content: center;
       border-radius: 8px;
       font-size: 20px;
-      box-shadow:
-        0 1px 3px 0 light-dark(rgba(0, 0, 0, 0.1), rgba(255, 255, 255, 0.007)),
-        0 1px 2px -1px light-dark(rgba(0, 0, 0, 0.1), rgba(255, 255, 255, 0.1)),
-        0 0 0 1px light-dark(rgba(0, 0, 0, 0.05), rgba(255, 255, 255, 0.05));
+      border: 1px solid var(--border);
       cursor: pointer;
     }
 
     [ngpDatePickerPreviousMonth][data-hover],
     [ngpDatePickerNextMonth][data-hover] {
-      background-color: light-dark(
-        var(--datepicker-navigation-button-hover-background-color),
-        var(--datepicker-navigation-button-hover-background-color-dark)
-      );
+      background-color: var(--background-hover);
     }
 
     [ngpDatePickerPreviousMonth][data-focus-visible],
     [ngpDatePickerNextMonth][data-focus-visible] {
-      outline: 2px solid rgb(59 130 246);
+      outline: 2px solid var(--focus-ring);
     }
 
     [ngpDatePickerPreviousMonth][data-press],
     [ngpDatePickerNextMonth][data-press] {
-      background-color: rgba(0, 0, 0, 0.1);
+      background-color: var(--background-active);
     }
 
     [ngpDatePickerPreviousMonth][data-disabled],
     [ngpDatePickerNextMonth][data-disabled] {
       cursor: not-allowed;
-      color: rgba(0, 0, 0, 0.25);
+      color: var(--text-disabled);
     }
 
     [ngpDatePickerDateButton] {
@@ -180,57 +140,39 @@ import {
     }
 
     [ngpDatePickerDateButton][data-today] {
-      color: light-dark(
-        var(--datepicker-date-button-today-color),
-        var(--datepicker-date-button-today-color-dark)
-      );
+      color: var(--text-blue);
     }
 
     [ngpDatePickerDateButton][data-hover] {
-      background-color: light-dark(
-        var(--datepicker-date-button-hover-background-color),
-        var(--datepicker-date-button-hover-background-color-dark)
-      );
+      background-color: var(--background-hover);
     }
 
     [ngpDatePickerDateButton][data-focus-visible] {
-      outline: 2px solid rgb(59 130 246);
+      outline: 2px solid var(--focus-ring);
       outline-offset: 2px;
     }
 
     [ngpDatePickerDateButton][data-press] {
-      background-color: light-dark(
-        var(--datepicker-date-button-pressed-background-color),
-        var(--datepicker-date-button-pressed-background-color-dark)
-      );
+      background-color: var(--background-active);
     }
 
     [ngpDatePickerDateButton][data-outside-month] {
-      color: light-dark(
-        var(--datepicker-date-button-outside-month-color),
-        var(--datepicker-date-button-outside-month-color-dark)
-      );
+      color: var(--text-disabled);
     }
 
     [ngpDatePickerDateButton][data-selected] {
-      background-color: rgb(59 130 246);
-      color: white;
+      background-color: var(--background-inverse);
+      color: var(--text-inverse);
     }
 
     [ngpDatePickerDateButton][data-selected][data-outside-month] {
-      background-color: light-dark(
-        var(--datepicker-date-button-outside-selected-month-background-color),
-        var(--datepicker-date-button-outside-selected-month-background-color-dark)
-      );
-      color: light-dark(
-        var(--datepicker-date-button-outside-selected-month-color),
-        var(--datepicker-date-button-outside-selected-month-color-dark)
-      );
+      background-color: var(--background-disabled);
+      color: var(--text-disabled);
     }
 
     [ngpDatePickerDateButton][data-disabled] {
       cursor: not-allowed;
-      color: rgba(0, 0, 0, 0.25);
+      color: var(--text-disabled);
     }
   `,
 })
