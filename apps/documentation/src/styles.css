@@ -1,4 +1,5 @@
 @import '@angular/cdk/overlay-prebuilt.css';
+@import '../../../packages/ng-primitives/example-theme/index.css';
 
 @tailwind base;
 @tailwind components;

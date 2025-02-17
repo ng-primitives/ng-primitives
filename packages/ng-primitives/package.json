@@ -24,5 +24,8 @@
   },
   "sideEffects": false,
   "generators": "./generators.json",
-  "schematics": "./generators.json"
+  "schematics": "./generators.json",
+  "exports": {
+    "./example-theme/index.css": "./example-theme/index.css"
+  }
 }

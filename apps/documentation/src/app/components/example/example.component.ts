@@ -241,6 +241,8 @@ export class ExampleComponent {
 </html>
 `,
         'src/global_styles.css': `/* Add application styles & imports to this file! */
+@import 'ng-primtiives/example-theme/index.css';
+
 :root {
   font-family: InterVariable, sans-serif;
   font-feature-settings: 'liga' 1, 'calt' 1; /* fix for Chrome */
