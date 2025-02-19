@@ -12,16 +12,6 @@ import { NgpSelect } from 'ng-primitives/select';
   `,
   styles: `
     :host {
-      --select-background-color: rgb(255 255 255);
-      --select-hover-background-color: rgb(250 250 250);
-      --select-pressed-background-color: rgb(245 245 245);
-
-      --select-background-color-dark: rgb(43 43 47);
-      --select-hover-background-color-dark: rgb(63 63 70);
-      --select-pressed-background-color-dark: rgb(39 39 42);
-    }
-
-    :host {
       display: contents;
     }
 
@@ -34,15 +24,9 @@ import { NgpSelect } from 'ng-primitives/select';
       height: 2.5rem;
       padding: 0 1rem;
       border-radius: 0.5rem;
-      background-color: light-dark(
-        var(--select-background-color),
-        var(--select-background-color-dark)
-      );
+      background-color: var(--background);
       text-align: start;
-      box-shadow:
-        0 1px 3px 0 light-dark(rgba(0, 0, 0, 0.1), rgba(255, 255, 255, 0.1)),
-        0 1px 2px -1px light-dark(rgba(0, 0, 0, 0.1), rgba(255, 255, 255, 0.1)),
-        0 0 0 1px light-dark(rgba(0, 0, 0, 0.05), rgba(255, 255, 255, 0.05));
+      box-shadow: var(--button-shadow);
       outline: none;
       background-position-x: calc(100% - 10px);
       background-position-y: 50%;
@@ -52,25 +36,16 @@ import { NgpSelect } from 'ng-primitives/select';
     }
 
     select[data-hover] {
-      background-color: light-dark(
-        var(--select-hover-background-color),
-        var(--select-hover-background-color-dark)
-      );
+      background-color: var(--background-hover);
     }
 
     select[data-focus-visible] {
-      box-shadow:
-        0 0 0 2px rgb(59, 130, 246),
-        0 1px 3px 0 rgb(0 0 0 / 0.1),
-        0 1px 2px -1px rgb(0 0 0 / 0.1),
-        0 0 0 1px rgb(0 0 0 / 0.05);
+      outline: 2px solid var(--focus-ring);
+      outline-offset: 0;
     }
 
     select[data-press] {
-      background-color: light-dark(
-        var(--select-pressed-background-color),
-        var(--select-pressed-background-color-dark)
-      );
+      background-color: var(--background-active);
     }
   `,
 })

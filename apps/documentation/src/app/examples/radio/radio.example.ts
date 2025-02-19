@@ -5,18 +5,6 @@ import { NgpRadioGroup, NgpRadioIndicator, NgpRadioItem } from 'ng-primitives/ra
   selector: 'app-radio',
   imports: [NgpRadioGroup, NgpRadioItem, NgpRadioIndicator],
   styles: `
-    :host {
-      --radio-item-background-color: rgb(255 255 255);
-      --radio-item-hover-background-color: rgb(250 250 250);
-      --radio-item-pressed-background-color: rgb(245 245 245);
-      --radio-item-checked-background-color: rgb(10 10 10);
-
-      --radio-item-background-color-dark: rgb(39 39 42);
-      --radio-item-hover-background-color-dark: rgb(49, 49, 54);
-      --radio-item-pressed-background-color-dark: rgb(68, 68, 68);
-      --radio-item-checked-background-color-dark: rgb(68, 68, 68);
-    }
-
     [ngpRadioGroup] {
       display: flex;
       flex-direction: column;
@@ -31,43 +19,27 @@ import { NgpRadioGroup, NgpRadioIndicator, NgpRadioItem } from 'ng-primitives/ra
       column-gap: 0.625rem;
       row-gap: 0.125rem;
       border-radius: 0.5rem;
-      background-color: light-dark(
-        var(--radio-item-background-color),
-        var(--radio-item-background-color-dark)
-      );
+      background-color: var(--background);
       padding: 0.75rem 1rem;
-      box-shadow:
-        0 1px 3px 0 light-dark(rgba(0, 0, 0, 0.1), rgba(255, 255, 255, 0.1)),
-        0 1px 2px -1px light-dark(rgba(0, 0, 0, 0.1), rgba(255, 255, 255, 0.1)),
-        0 0 0 1px light-dark(rgba(0, 0, 0, 0.05), rgba(255, 255, 255, 0.05));
+      box-shadow: var(--button-shadow);
       outline: none;
     }
 
     [ngpRadioItem][data-hover] {
-      background-color: light-dark(
-        var(--radio-item-hover-background-color),
-        var(--radio-item-hover-background-color-dark)
-      );
+      background-color: var(--background-hover);
     }
 
     [ngpRadioItem][data-focus-visible] {
-      box-shadow:
-        0 0 0 2px light-dark(#f5f5f5, #3f3f46),
-        0 0 0 4px rgb(59 130 246 / 50%);
+      outline: 2px solid var(--focus-ring);
+      outline-offset: 2px;
     }
 
     [ngpRadioItem][data-press] {
-      background-color: light-dark(
-        var(--radio-item-pressed-background-color),
-        var(--radio-item-pressed-background-color-dark)
-      );
+      background-color: var(--background-active);
     }
 
     [ngpRadioItem][data-checked] {
-      background-color: light-dark(
-        var(--radio-item-checked-background-color),
-        var(--radio-item-checked-background-color-dark)
-      );
+      background-color: var(--background-inverse);
     }
 
     [ngpRadioIndicator] {
@@ -80,47 +52,43 @@ import { NgpRadioGroup, NgpRadioIndicator, NgpRadioItem } from 'ng-primitives/ra
       border-radius: 9999px;
       width: 1rem;
       height: 1rem;
-      box-shadow: 0 0 0 1px light-dark(rgba(0, 0, 0, 0.1), rgba(255, 255, 255, 0.1));
-    }
-
-    [ngpRadioItem][data-checked] [ngpRadioIndicator] {
-      box-shadow: 0 0 0 1px rgba(255, 255, 255, 1);
+      border: 1px solid var(--border);
     }
 
     .indicator-dot {
       width: 0.5rem;
       height: 0.5rem;
       border-radius: 9999px;
-      background-color: light-dark(white, transparent);
+      background-color: transparent;
     }
 
     [ngpRadioItem][data-checked] .indicator-dot {
-      background-color: white;
+      background-color: var(--background);
     }
 
     .title {
       grid-column-start: 2;
       grid-row-start: 1;
       font-weight: 500;
-      color: light-dark(rgb(10 10 10), rgb(169, 169, 169));
+      color: var(--text-primary);
       margin: 0;
     }
 
     [ngpRadioItem][data-checked] .title {
-      color: white;
+      color: var(--text-inverse);
     }
 
     .description {
       grid-column-start: 2;
       grid-row-start: 2;
       font-size: 0.75rem;
-      color: light-dark(rgb(82 82 82), rgb(138, 138, 138));
+      color: var(--text-secondary);
       line-height: 1rem;
       margin: 0;
     }
 
     [ngpRadioItem][data-checked] .description {
-      color: light-dark(rgb(212 212 212), rgb(169, 169, 169));
+      color: var(--text-inverse);
     }
   `,
   template: `

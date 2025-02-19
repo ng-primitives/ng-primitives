@@ -31,9 +31,6 @@ import { NgpSearchField, NgpSearchFieldClear } from 'ng-primitives/search';
   `,
   styles: `
     :host {
-    }
-
-    :host {
       display: contents;
     }
 
@@ -50,9 +47,7 @@ import { NgpSearchField, NgpSearchFieldClear } from 'ng-primitives/search';
       border-radius: 8px;
       padding: 0 16px 0 40px;
       border: none;
-      box-shadow:
-        0 1px 2px light-dark(rgba(0, 0, 0, 0.05), rgba(255, 255, 255, 0.05)),
-        0 0 0 1px light-dark(rgba(0, 0, 0, 0.1), rgba(255, 255, 255, 0.1));
+      box-shadow: var(--input-shadow);
       outline: none;
     }
 
@@ -65,15 +60,16 @@ import { NgpSearchField, NgpSearchFieldClear } from 'ng-primitives/search';
     }
 
     [ngpInput][data-focus] {
-      box-shadow: 0 0 0 2px rgb(59, 130, 246);
+      outline: 2px solid var(--focus-ring);
+      outline-offset: 0px;
     }
 
     [ngpInput]::placeholder {
-      color: rgb(161 161 170);
+      color: var(--text-placeholder);
     }
 
     [ngpLabel] {
-      color: light-dark(rgb(9 9 11), rgb(255 255 255));
+      color: var(--text-primary);
       font-size: 0.875rem;
       line-height: 1.25rem;
       font-weight: 500;
@@ -93,7 +89,7 @@ import { NgpSearchField, NgpSearchFieldClear } from 'ng-primitives/search';
       border: none;
       border-radius: 0 8px 8px 0;
       background-color: transparent;
-      color: rgb(59, 130, 246);
+      color: var(--text-blue);
       font-size: 0.875rem;
       line-height: 1.25rem;
       cursor: pointer;
@@ -111,7 +107,7 @@ import { NgpSearchField, NgpSearchFieldClear } from 'ng-primitives/search';
       top: 18px;
       left: 12px;
       transform: translateY(-50%);
-      color: rgb(161 161 170);
+      color: var(--text-tertiary);
     }
   `,
 })

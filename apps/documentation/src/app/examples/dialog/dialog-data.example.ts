@@ -17,59 +17,74 @@ import {
     <button (click)="openDialog()" ngpButton>Launch Dialog</button>
   `,
   styles: `
-    :host,
-    [ngpDialogOverlay] {
-      --button-color: rgb(10 10 10);
-      --button-background-color: rgb(255 255 255);
-      --button-hover-color: rgb(10 10 10);
-      --button-hover-background-color: rgb(250 250 250);
-      --button-focus-shadow: rgb(59 130 246);
-      --button-pressed-background-color: rgb(245 245 245);
-
-      --button-color-dark: rgb(255 255 255);
-      --button-background-color-dark: rgb(43 43 43);
-      --button-hover-color-dark: rgb(255 255 255);
-      --button-hover-background-color-dark: rgb(63, 63, 70);
-      --button-focus-shadow-dark: rgb(59 130 246);
-      --button-pressed-background-color-dark: rgb(39, 39, 42);
-    }
-
     button {
       padding-left: 1rem;
       padding-right: 1rem;
       border-radius: 0.5rem;
-      color: light-dark(var(--button-color), var(--button-color-dark));
-      border: none;
+      color: var(--text-primary);
+      border: 1px solid var(--border);
       outline: none;
       height: 2.5rem;
       font-weight: 500;
-      background-color: light-dark(
-        var(--button-background-color),
-        var(--button-background-color-dark)
-      );
-      transition: all 300ms cubic-bezier(0.4, 0, 0.2, 1);
-      box-shadow:
-        0 1px 3px 0 rgb(0 0 0 / 0.1),
-        0 1px 2px -1px rgb(0 0 0 / 0.1),
-        0 0 0 1px rgb(0 0 0 / 0.05);
+      background-color: var(--background);
+      transition: background-color 300ms cubic-bezier(0.4, 0, 0.2, 1);
+      box-shadow: var(--shadow);
     }
 
     button[data-hover] {
-      background-color: light-dark(
-        var(--button-hover-background-color),
-        var(--button-hover-background-color-dark)
-      );
+      background-color: var(--background-hover);
     }
 
     button[data-focus-visible] {
-      box-shadow: 0 0 0 2px light-dark(var(--button-focus-shadow), var(--button-focus-shadow-dark));
+      outline: 2px solid var(--focus-ring);
+      outline-offset: 2px;
     }
 
     button[data-press] {
-      background-color: light-dark(
-        var(--button-pressed-background-color),
-        var(--button-pressed-background-color-dark)
-      );
+      background-color: var(--background-active);
+    }
+
+    [ngpDialogOverlay] {
+      background-color: rgba(0, 0, 0, 0.5);
+      backdrop-filter: blur(4px);
+      position: fixed;
+      inset: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    [ngpDialog] {
+      background-color: var(--background);
+      padding: 24px;
+      border-radius: 8px;
+      box-shadow: var(--shadow);
+    }
+
+    [ngpDialogTitle] {
+      font-size: 18px;
+      line-height: 28px;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin: 0 0 4px;
+    }
+
+    [ngpDialogDescription] {
+      font-size: 14px;
+      line-height: 20px;
+      color: var(--text-secondary);
+      margin: 0;
+    }
+
+    .dialog-footer {
+      display: flex;
+      justify-content: flex-end;
+      margin-top: 32px;
+      column-gap: 4px;
+    }
+
+    .dialog-footer [ngpButton]:last-of-type {
+      color: var(--text-blue);
     }
   `,
 })

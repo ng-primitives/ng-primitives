@@ -26,16 +26,6 @@ import {
   `,
   styles: `
     :host {
-      --form-field-label-color: rgb(9 9 11);
-      --form-field-description-color: rgb(113 113 122);
-      --form-field-error-color: rgb(239 68 68);
-
-      --form-field-label-color-dark: #e4e4e7;
-      --form-field-description-color-dark: #96969e;
-      --form-field-error-color-dark: #ff4d4d;
-    }
-
-    :host {
       display: contents;
     }
 
@@ -52,22 +42,21 @@ import {
       border-radius: 8px;
       padding: 0 16px;
       border: none;
-      box-shadow:
-        0 1px 2px light-dark(rgba(0, 0, 0, 0.05), rgba(255, 255, 255, 0.007)),
-        0 0 0 1px light-dark(rgba(0, 0, 0, 0.1), rgba(255, 255, 255, 0.1));
+      box-shadow: var(--input-shadow);
       outline: none;
     }
 
     [ngpFormControl]:focus {
-      box-shadow: 0 0 0 2px rgb(59, 130, 246);
+      outline: 2px solid var(--focus-ring);
+      outline-offset: 2px;
     }
 
     [ngpFormControl]::placeholder {
-      color: rgb(161 161 170);
+      color: var(--text-placeholder);
     }
 
     [ngpLabel] {
-      color: light-dark(var(--form-field-label-color), var(--form-field-label-color-dark));
+      color: var(--text-primary);
       font-size: 0.875rem;
       line-height: 1.25rem;
       font-weight: 500;
@@ -75,10 +64,7 @@ import {
     }
 
     [ngpDescription] {
-      color: light-dark(
-        var(--form-field-description-color),
-        var(--form-field-description-color-dark)
-      );
+      color: var(--text-secondary);
       font-size: 0.75rem;
       line-height: 1rem;
       margin: 0 0 4px;
@@ -86,7 +72,7 @@ import {
 
     [ngpError] {
       display: none;
-      color: light-dark(var(--form-field-error-color), var(--form-field-error-color-dark));
+      color: var(--text-red);
       font-size: 0.75rem;
       line-height: 1rem;
       margin: 0;

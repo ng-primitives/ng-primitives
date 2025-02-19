@@ -14,22 +14,21 @@ import { NgpInput } from 'ng-primitives/input';
 
     [ngpInput] {
       height: 36px;
-      width: 90%;
+      width: 100%;
       border-radius: 8px;
       padding: 0 16px;
       border: none;
-      box-shadow:
-        0 1px 2px light-dark(rgba(0, 0, 0, 0.05), rgba(255, 255, 255, 0.007)),
-        0 0 0 1px light-dark(rgba(0, 0, 0, 0.1), rgba(255, 255, 255, 0.1));
+      box-shadow: var(--input-shadow);
       outline: none;
     }
 
-    [ngpInput][data-focus] {
-      box-shadow: 0 0 0 2px rgb(59, 130, 246);
+    [ngpInput]:focus {
+      outline: 2px solid var(--focus-ring);
+      outline-offset: 2px;
     }
 
     [ngpInput]::placeholder {
-      color: rgb(161 161 170);
+      color: var(--text-placeholder);
     }
   `,
 })

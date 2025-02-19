@@ -25,7 +25,7 @@ import { NgpSlider, NgpSliderRange, NgpSliderThumb, NgpSliderTrack } from 'ng-pr
     }
 
     [ngpLabel] {
-      color: light-dark(rgb(9 9 11), #e4e4e7);
+      color: var(--text-primary);
       font-size: 0.875rem;
       line-height: 1.25rem;
       font-weight: 500;
@@ -33,7 +33,7 @@ import { NgpSlider, NgpSliderRange, NgpSliderThumb, NgpSliderTrack } from 'ng-pr
     }
 
     [ngpDescription] {
-      color: light-dark(rgb(113 113 122), #96969e);
+      color: var(--text-secondary);
       font-size: 0.75rem;
       line-height: 1rem;
       margin: 0 0 4px;
@@ -54,14 +54,14 @@ import { NgpSlider, NgpSliderRange, NgpSliderThumb, NgpSliderTrack } from 'ng-pr
       height: 5px;
       width: 100%;
       border-radius: 999px;
-      background-color: light-dark(rgb(0 0 0 / 20%), rgb(255 255 255 / 20%));
+      background-color: var(--background-secondary);
     }
 
     [ngpSliderRange] {
       position: absolute;
       height: 100%;
       border-radius: 999px;
-      background-color: light-dark(rgb(9 9 11), rgb(255 255 255));
+      background-color: var(--background-inverse);
     }
 
     [ngpSliderThumb] {
@@ -70,19 +70,15 @@ import { NgpSlider, NgpSliderRange, NgpSliderThumb, NgpSliderTrack } from 'ng-pr
       height: 20px;
       width: 20px;
       border-radius: 10px;
-      background-color: rgb(255 255 255);
-      box-shadow:
-        0 1px 3px 0 rgb(0 0 0 / 0.1),
-        0 1px 2px -1px rgb(0 0 0 / 0.1),
-        0 0 0 1px rgb(0 0 0 / 0.05);
+      background-color: white;
+      box-shadow: var(--button-shadow);
       outline: none;
       transform: translateX(-50%);
     }
 
     [ngpSliderThumb][data-focus-visible] {
-      box-shadow:
-        0 0 0 1px light-dark(rgba(0, 0, 0, 0.05), rgba(255, 255, 255, 0.05)),
-        0 0 0 2px rgb(59 130 246);
+      outline: 2px solid var(--focus-ring);
+      outline-offset: 0;
     }
   `,
   template: `
