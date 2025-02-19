@@ -18,18 +18,17 @@ import { NgpTextarea } from 'ng-primitives/textarea';
       border-radius: 8px;
       padding: 8px 12px;
       border: none;
-      box-shadow:
-        0 1px 2px light-dark(rgba(0, 0, 0, 0.05), rgba(255, 255, 255, 0.05)),
-        0 0 0 1px light-dark(rgba(0, 0, 0, 0.1), rgba(255, 255, 255, 0.1));
+      box-shadow: var(--input-shadow);
       outline: none;
     }
 
     [ngpTextarea][data-focus] {
-      box-shadow: 0 0 0 2px rgb(59, 130, 246);
+      outline: 2px solid var(--focus-ring);
+      outline-offset: 0px;
     }
 
     [ngpTextarea]::placeholder {
-      color: rgb(161 161 170);
+      color: var(--text-placeholder);
     }
   `,
 })

@@ -9,23 +9,20 @@ import { NgpPress } from 'ng-primitives/interactions';
       display: flex;
       width: 10rem;
       height: 6rem;
-      background-color: light-dark(rgb(255 255 255), #18181b);
+      background-color: var(--background);
       align-items: center;
       justify-content: center;
       border-radius: 0.5rem;
-      box-shadow:
-        0 1px 2px light-dark(rgba(0, 0, 0, 0.05), rgba(255, 255, 255, 0.007)),
-        0 0 0 1px light-dark(rgba(0, 0, 0, 0.05), rgba(255, 255, 255, 0.007));
+      box-shadow: none;
       transition: all 0.2s;
       cursor: pointer;
       user-select: none;
+      border: 1px solid var(--border);
     }
 
     div[data-press] {
-      background-color: light-dark(rgb(219 234 254), rgb(63, 139, 238));
-      box-shadow:
-        0 1px 2px light-dark(rgba(0, 0, 0, 0.05), rgba(255, 255, 255, 0.007)),
-        0 0 0 1px rgb(96 165 250);
+      background-color: var(--background-active);
+      box-shadow: var(--button-shadow);
     }
   `,
   template: `

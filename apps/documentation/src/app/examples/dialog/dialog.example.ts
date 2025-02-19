@@ -42,13 +42,13 @@ import {
       padding-right: 1rem;
       border-radius: 0.5rem;
       color: var(--text-primary);
-      border: 1px solid var(--border);
+      border: none;
       outline: none;
       height: 2.5rem;
       font-weight: 500;
       background-color: var(--background);
       transition: background-color 300ms cubic-bezier(0.4, 0, 0.2, 1);
-      box-shadow: var(--shadow);
+      box-shadow: var(--button-shadow);
     }
 
     button[data-hover] {
@@ -100,7 +100,7 @@ import {
       display: flex;
       justify-content: flex-end;
       margin-top: 32px;
-      column-gap: 4px;
+      column-gap: 8px;
     }
 
     .dialog-footer [ngpButton]:last-of-type {

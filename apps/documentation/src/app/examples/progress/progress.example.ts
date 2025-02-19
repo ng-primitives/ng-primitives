@@ -7,11 +7,6 @@ import { injectDisposables } from 'ng-primitives/utils';
   imports: [NgpProgress, NgpProgressIndicator],
   styles: `
     :host {
-      --progress-indicator-color: rgb(10 10 10);
-      --progress-indicator-color-dark: #e4e4e7;
-    }
-
-    :host {
       display: contents;
     }
 
@@ -22,17 +17,14 @@ import { injectDisposables } from 'ng-primitives/utils';
       max-width: 320px;
       overflow: hidden;
       border-radius: 0.5rem;
-      border: 1px solid light-dark(rgb(229 229 229), rgb(96 96 102));
-      background-color: light-dark(rgb(255 255 255), rgb(43 43 47));
+      border: 1px solid var(--border);
+      background-color: var(--background);
     }
 
     [ngpProgressIndicator] {
       height: 100%;
       border-radius: 0.5rem;
-      background-color: light-dark(
-        var(--progress-indicator-color),
-        var(--progress-indicator-color-dark)
-      );
+      background-color: var(--background-inverse);
       transition: width 150ms cubic-bezier(0.4, 0, 0.2, 1);
     }
   `,

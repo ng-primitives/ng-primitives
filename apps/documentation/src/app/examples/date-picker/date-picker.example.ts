@@ -68,6 +68,7 @@ import {
       border-radius: 12px;
       padding: 16px;
       box-shadow: var(--shadow);
+      border: 1px solid var(--border);
     }
 
     .date-picker-header {

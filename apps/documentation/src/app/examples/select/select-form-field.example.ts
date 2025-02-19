@@ -17,20 +17,6 @@ import { NgpSelect } from 'ng-primitives/select';
   `,
   styles: `
     :host {
-      --select-label-color: rgb(9 9 11);
-      --select-description-color: rgb(113 113 122);
-      --select-background-color: rgb(255 255 255);
-      --select-hover-background-color: rgb(250 250 250);
-      --select-pressed-background-color: rgb(245 245 245);
-
-      --select-label-color-dark: #e4e4e7;
-      --select-description-color-dark: #96969e;
-      --select-background-color-dark: rgb(43 43 47);
-      --select-hover-background-color-dark: rgb(63 63 70);
-      --select-pressed-background-color-dark: rgb(39 39 42);
-    }
-
-    :host {
       display: contents;
     }
 
@@ -42,7 +28,7 @@ import { NgpSelect } from 'ng-primitives/select';
     }
 
     [ngpLabel] {
-      color: light-dark(var(--select-label-color), var(--select-label-color-dark));
+      color: var(--text-primary);
       font-size: 0.875rem;
       line-height: 1.25rem;
       font-weight: 500;
@@ -50,7 +36,7 @@ import { NgpSelect } from 'ng-primitives/select';
     }
 
     [ngpDescription] {
-      color: light-dark(var(--select-description-color), var(--select-description-color-dark));
+      color: var(--text-secondary);
       font-size: 0.75rem;
       line-height: 1rem;
       margin: 0 0 4px;
@@ -60,19 +46,14 @@ import { NgpSelect } from 'ng-primitives/select';
       all: unset;
       appearance: none;
       display: flex;
+      width: 90%;
       align-items: center;
       height: 2.5rem;
       padding: 0 1rem;
       border-radius: 0.5rem;
-      background-color: light-dark(
-        var(--select-background-color),
-        var(--select-background-color-dark)
-      );
+      background-color: var(--background);
       text-align: start;
-      box-shadow:
-        0 1px 3px 0 light-dark(rgba(0, 0, 0, 0.1), rgba(255, 255, 255, 0.1)),
-        0 1px 2px -1px light-dark(rgba(0, 0, 0, 0.1), rgba(255, 255, 255, 0.1)),
-        0 0 0 1px light-dark(rgba(0, 0, 0, 0.05), rgba(255, 255, 255, 0.05));
+      box-shadow: var(--button-shadow);
       outline: none;
       background-position-x: calc(100% - 10px);
       background-position-y: 50%;
@@ -82,25 +63,16 @@ import { NgpSelect } from 'ng-primitives/select';
     }
 
     select[data-hover] {
-      background-color: light-dark(
-        var(--select-hover-background-color),
-        var(--select-hover-background-color-dark)
-      );
+      background-color: var(--background-hover);
     }
 
     select[data-focus-visible] {
-      box-shadow:
-        0 0 0 2px rgb(59, 130, 246),
-        0 1px 3px 0 rgb(0 0 0 / 0.1),
-        0 1px 2px -1px rgb(0 0 0 / 0.1),
-        0 0 0 1px rgb(0 0 0 / 0.05);
+      outline: 2px solid var(--focus-ring);
+      outline-offset: 0;
     }
 
     select[data-press] {
-      background-color: light-dark(
-        var(--select-pressed-background-color),
-        var(--select-pressed-background-color-dark)
-      );
+      background-color: var(--background-active);
     }
   `,
 })

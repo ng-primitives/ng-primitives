@@ -18,6 +18,7 @@
   --gray-950: oklch(0.141 0.005 285.823);
 
   --background: var(--white);
+  --background-secondary: var(--gray-300);
   --background-hover: var(--gray-50);
   --background-active: var(--gray-100);
   --background-inverse: var(--black);
@@ -33,6 +34,7 @@
   --text-secondary: var(--gray-600);
   --text-tertiary: var(--gray-500);
   --text-disabled: var(--gray-400);
+  --text-placeholder: var(--gray-400);
   --text-inverse: var(--white);
   --text-blue: #3b82f6;
   --text-red: #ef4444;
@@ -43,10 +45,16 @@
 
   --avatar-background: #bae6fd;
   --avatar-border: #fff;
+
+  --button-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1),
+    0 0 0 1px rgb(0 0 0 / 0.05);
+
+  --input-shadow: 0 1px 2px rgba(0, 0, 0, 0.05), 0 0 0 1px rgba(0, 0, 0, 0.1);
 }
 
 .dark {
   --background: var(--gray-950);
+  --background-secondary: var(--gray-700);
   --background-hover: var(--gray-900);
   --background-active: var(--gray-800);
   --background-inverse: var(--white);
@@ -68,4 +76,9 @@
 
   --avatar-background: #18181b;
   --avatar-border: #3f3f46;
+
+  --input-shadow: 0 1px 2px rgba(255, 255, 255, 0.007), 0 0 0 1px rgba(255, 255, 255, 0.1);
+
+  --button-shadow: 0 1px 3px 0 rgb(255, 255, 255, 0.1), 0 1px 2px -1px rgb(255, 255, 255, 0.1),
+    0 0 0 1px rgb(255, 255, 255, 0.05);
 }

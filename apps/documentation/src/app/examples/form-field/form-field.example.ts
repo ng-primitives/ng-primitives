@@ -41,8 +41,8 @@ import {
       width: 100%;
       border-radius: 8px;
       padding: 0 16px;
-      border: 1px solid var(--border);
-      box-shadow: var(--shadow);
+      border: none;
+      box-shadow: var(--input-shadow);
       outline: none;
     }
 

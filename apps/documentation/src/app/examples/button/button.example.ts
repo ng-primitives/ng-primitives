@@ -18,10 +18,7 @@ import { NgpButton } from 'ng-primitives/button';
       font-weight: 500;
       background-color: var(--background);
       transition: background-color 300ms cubic-bezier(0.4, 0, 0.2, 1);
-      box-shadow:
-        0 1px 3px 0 rgb(0 0 0 / 0.1),
-        0 1px 2px -1px rgb(0 0 0 / 0.1),
-        0 0 0 1px rgb(0 0 0 / 0.05);
+      box-shadow: var(--button-shadow);
     }
 
     [ngpButton][data-hover] {
