@@ -1,3 +1,7 @@
+## 0.21.0 (2025-02-20)
+
+This was a version bump only, there were no code changes.
+
 ## 0.20.0 (2025-02-04)
 
 ### 🚀 Features
