@@ -71,13 +71,13 @@ export class NgpRovingFocusGroup implements NgpCanOrientate {
    * Get the items in the roving focus group sorted by order.
    */
   private get sortedItems() {
-    return this.items().sort((a, b) => {
-      // sort the items by their position in the document
-      return a.elementRef.nativeElement.compareDocumentPosition(b.elementRef.nativeElement) &
-        Node.DOCUMENT_POSITION_FOLLOWING
+    // sort the items by their position in the document
+    return this.items().sort((a, b) =>
+      a.elementRef.nativeElement.compareDocumentPosition(b.elementRef.nativeElement) &
+      Node.DOCUMENT_POSITION_FOLLOWING
         ? -1
-        : 1;
-    });
+        : 1,
+    );
   }
 
   /**
