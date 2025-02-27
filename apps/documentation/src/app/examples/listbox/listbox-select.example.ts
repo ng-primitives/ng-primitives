@@ -27,7 +27,7 @@ import { NgpPopover, NgpPopoverTrigger } from 'ng-primitives/popover';
       <p ngpDescription>Select a character from the list below.</p>
 
       <button [ngpPopoverTrigger]="dropdown" ngpButton>
-        Choose a Character
+        {{ selection()[0].name }}
         <ng-icon name="heroChevronDownSolid" />
       </button>
 
