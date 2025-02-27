@@ -1,3 +1,13 @@
+## 0.22.0 (2025-02-27)
+
+### 🚀 Features
+
+- listbox primitive ([#105](https://github.com/ng-primitives/ng-primitives/pull/105))
+
+### ❤️ Thank You
+
+- Ashley Hunter
+
 ## 0.21.0 (2025-02-20)
 
 This was a version bump only, there were no code changes.
