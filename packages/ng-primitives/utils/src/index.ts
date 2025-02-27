@@ -7,7 +7,6 @@
  */
 
 export { injectDisposables } from './helpers/disposables';
-export { FocusManager } from './helpers/focus-manager';
 export { uniqueId } from './helpers/unique-id';
 export { onBooleanChange, onChange, onFormControlChange } from './signals/async';
 export { injectDimensions } from './ui/dimensions';

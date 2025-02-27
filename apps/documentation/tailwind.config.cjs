@@ -24,9 +24,10 @@ module.exports = {
             '--tw-prose-body': theme('colors.zinc.600'),
             maxWidth: 'none',
             h1: {
-              fontSize: theme('fontSize.2xl'),
-              fontWeight: theme('fontWeight.semibold'),
+              fontSize: '1.5rem',
+              fontWeight: '600',
               marginBottom: theme('margin.2'),
+              lineHeight: 1.11111,
             },
             h2: {
               fontSize: theme('fontSize.lg'),

@@ -9,4 +9,7 @@
 export * from './disabled/disabled';
 export * from './interactions/index';
 export * from './orientation/orientation';
+export * from './signals/explicit-effect';
 export * from './style-injector/style-injector';
+export * from './utilities/element-ref';
+export * from './utilities/scrolling';

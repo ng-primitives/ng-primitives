@@ -5,6 +5,7 @@
  * This source code is licensed under the Apache 2.0 license found in the
  * LICENSE file in the root directory of this source tree.
  */
+import { FocusMonitor, FocusOrigin } from '@angular/cdk/a11y';
 import { BooleanInput, NumberInput } from '@angular/cdk/coercion';
 import { DomPortalOutlet, TemplatePortal } from '@angular/cdk/portal';
 import { DOCUMENT } from '@angular/common';
@@ -24,6 +25,7 @@ import {
   numberAttribute,
   signal,
 } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import {
   Middleware,
   Placement,
@@ -33,6 +35,7 @@ import {
   offset,
   shift,
 } from '@floating-ui/dom';
+import { fromResizeEvent } from 'ng-primitives/resize';
 import { injectDisposables, onBooleanChange } from 'ng-primitives/utils';
 import { injectPopoverConfig } from '../config/popover.config';
 import { NgpPopoverTriggerToken, providePopoverTrigger } from './popover-trigger.token';
@@ -46,6 +49,7 @@ import { NgpPopoverTriggerToken, providePopoverTrigger } from './popover-trigger
     '[attr.data-state]': 'state()',
     '[attr.data-disabled]': 'disabled() ? "" : null',
     '(click)': 'toggleOpenState()',
+    '(keydown.escape)': 'handleEscapeKey()',
   },
 })
 export class NgpPopoverTrigger implements OnDestroy {
@@ -78,6 +82,11 @@ export class NgpPopoverTrigger implements OnDestroy {
    * Access the disposable utilities
    */
   private readonly disposables = injectDisposables();
+
+  /**
+   * Access the focus monitor.
+   */
+  private readonly focusMonitor = inject(FocusMonitor);
 
   /**
    * Access the popover template ref.
@@ -165,6 +174,15 @@ export class NgpPopoverTrigger implements OnDestroy {
   });
 
   /**
+   * Define whether the popover should close when the escape key is pressed.
+   * @default true
+   */
+  readonly closeOnEscape = input<boolean, BooleanInput>(this.config.closeOnEscape, {
+    alias: 'ngpPopoverTriggerCloseOnEscape',
+    transform: booleanAttribute,
+  });
+
+  /**
    * Store the popover view ref.
    */
   private viewRef: EmbeddedViewRef<void> | null = null;
@@ -192,6 +210,12 @@ export class NgpPopoverTrigger implements OnDestroy {
   });
 
   /**
+   * @internal
+   * Store the trigger width.
+   */
+  readonly width = signal<number | null>(null);
+
+  /**
    * Store the state of the popover.
    * @internal
    */
@@ -211,6 +235,11 @@ export class NgpPopoverTrigger implements OnDestroy {
   constructor() {
     // any time the open state changes then show or hide the popover
     onBooleanChange(this.open, this.show.bind(this), this.hide.bind(this));
+
+    // update the width of the trigger when it resizes
+    fromResizeEvent(this.trigger.nativeElement)
+      .pipe(takeUntilDestroyed())
+      .subscribe(() => this.width.set(this.trigger.nativeElement.offsetWidth));
   }
 
   ngOnDestroy(): void {
@@ -237,7 +266,11 @@ export class NgpPopoverTrigger implements OnDestroy {
     }
   }
 
-  private hide(): void {
+  /**
+   * @internal
+   * Hide the popover.
+   */
+  hide(origin: FocusOrigin = 'program'): void {
     // if the trigger is disabled or the popover is already closed then do not hide the popover
     if (this.disabled() || this.state() === 'closed' || this.state() === 'closing') {
       return;
@@ -250,6 +283,10 @@ export class NgpPopoverTrigger implements OnDestroy {
     if (this.documentClickListener) {
       this.document.removeEventListener('click', this.documentClickListener, true);
     }
+
+    // ensure the trigger is focused after closing the popover
+    // we need this delay but I can't quite figure out why?
+    setTimeout(() => this.focusTrigger(origin), 1);
   }
 
   private onDocumentClick(event: MouseEvent): void {
@@ -302,10 +339,25 @@ export class NgpPopoverTrigger implements OnDestroy {
   }
 
   private destroyPopover(): void {
+    this.open.set(false);
     this.viewRef?.destroy();
     this.viewRef = null;
     this.dispose?.();
     this.state.set('closed');
+  }
+
+  /**
+   * @internal
+   * Handle escape key press to close the popover.
+   */
+  handleEscapeKey(): void {
+    if (this.closeOnEscape()) {
+      this.hide('keyboard');
+    }
+  }
+
+  private focusTrigger(origin: FocusOrigin): void {
+    this.focusMonitor.focusVia(this.trigger.nativeElement, origin);
   }
 }
 

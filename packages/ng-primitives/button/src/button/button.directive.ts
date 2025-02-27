@@ -7,7 +7,7 @@
  */
 import { BooleanInput } from '@angular/cdk/coercion';
 import { booleanAttribute, Directive, ElementRef, inject, input } from '@angular/core';
-import { NgpCanDisable, NgpDisabledToken, setupButton } from 'ng-primitives/internal';
+import { NgpCanDisable, NgpDisabledToken, setupInteractions } from 'ng-primitives/internal';
 import { NgpButtonToken } from './button.token';
 
 @Directive({
@@ -43,6 +43,6 @@ export class NgpButton implements NgpCanDisable {
 
   constructor() {
     // setup the hover, press, and focus-visible listeners
-    setupButton({ disabled: this.disabled });
+    setupInteractions({ disabled: this.disabled });
   }
 }
