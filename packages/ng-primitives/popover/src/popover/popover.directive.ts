@@ -5,8 +5,18 @@
  * This source code is licensed under the Apache 2.0 license found in the
  * LICENSE file in the root directory of this source tree.
  */
-import { Directive, ElementRef, OnInit, computed, inject, isDevMode } from '@angular/core';
+import { InteractivityChecker } from '@angular/cdk/a11y';
+import {
+  Directive,
+  Injector,
+  OnInit,
+  afterNextRender,
+  computed,
+  inject,
+  isDevMode,
+} from '@angular/core';
 import { NgpFocusTrap } from 'ng-primitives/focus-trap';
+import { injectElementRef } from 'ng-primitives/internal';
 import { injectPopoverTrigger } from '../popover-trigger/popover-trigger.token';
 import { NgpPopoverToken } from './popover.token';
 
@@ -20,13 +30,25 @@ import { NgpPopoverToken } from './popover.token';
     role: 'menu',
     '[style.left.px]': 'x()',
     '[style.top.px]': 'y()',
+    '[style.--trigger-width.px]': 'trigger.width()',
+    '(keydown.escape)': 'trigger.handleEscapeKey()',
   },
 })
 export class NgpPopover implements OnInit {
   /**
    * Access the popover element.
    */
-  private readonly popover = inject(ElementRef<HTMLElement>);
+  private readonly popover = injectElementRef();
+
+  /**
+   * Access the interactivity checker.
+   */
+  private readonly interactivity = inject(InteractivityChecker);
+
+  /**
+   * Access the injector.
+   */
+  private readonly injector = inject(Injector);
 
   /**
    * Access the trigger instance.
@@ -54,5 +76,18 @@ export class NgpPopover implements OnInit {
         );
       }
     }
+
+    // once the popover has rendered focus the element
+    afterNextRender(
+      {
+        write: () => {
+          // if the popover element is interactive then focus
+          if (this.interactivity.isFocusable(this.popover.nativeElement)) {
+            this.popover.nativeElement.focus();
+          }
+        },
+      },
+      { injector: this.injector },
+    );
   }
 }

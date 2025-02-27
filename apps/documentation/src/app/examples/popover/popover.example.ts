@@ -39,7 +39,7 @@ import { NgpPopover, NgpPopoverTrigger } from 'ng-primitives/popover';
       height: 2.5rem;
       font-weight: 500;
       background-color: var(--background);
-      transition: all 300ms cubic-bezier(0.4, 0, 0.2, 1);
+      transition: background-color 300ms cubic-bezier(0.4, 0, 0.2, 1);
       box-shadow: var(--button-shadow);
     }
 
@@ -80,6 +80,7 @@ import { NgpPopover, NgpPopoverTrigger } from 'ng-primitives/popover';
       font-weight: 500;
       box-shadow: var(--shadow);
       border: 1px solid var(--border);
+      outline: none;
     }
 
     .container {

@@ -10,14 +10,14 @@ import { setupFocusVisible } from './focus-visible';
 import { setupHover } from './hover';
 import { setupPress } from './press';
 
-export interface NgpButtonOptions {
+export interface NgpInteractionOptions {
   disabled?: Signal<boolean>;
 }
 
 /**
- * Setup the button interactions without relying on HostDirectives.
+ * Setup the interactions without relying on HostDirectives.
  */
-export function setupButton({ disabled = signal(false) }: NgpButtonOptions): void {
+export function setupInteractions({ disabled = signal(false) }: NgpInteractionOptions): void {
   setupHover({ disabled });
   setupPress({ disabled });
   setupFocusVisible({ disabled });

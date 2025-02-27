@@ -50,6 +50,12 @@ export interface NgpPopoverConfig {
    * @default true
    */
   closeOnOutsideClick: boolean;
+
+  /**
+   * Define whether the popover should close when the escape key is pressed.
+   * @default true
+   */
+  closeOnEscape: boolean;
 }
 
 export const defaultPopoverConfig: NgpPopoverConfig = {
@@ -60,6 +66,7 @@ export const defaultPopoverConfig: NgpPopoverConfig = {
   flip: true,
   container: null,
   closeOnOutsideClick: true,
+  closeOnEscape: true,
 };
 
 export const NgpPopoverConfigToken = new InjectionToken<NgpPopoverConfig>('NgpPopoverConfigToken');
