@@ -3,7 +3,7 @@ import { NgIcon, provideIcons } from '@ng-icons/core';
 import { heroCheckSolid, heroChevronDownSolid } from '@ng-icons/heroicons/solid';
 import { NgpButton } from 'ng-primitives/button';
 import { NgpDescription, NgpFormField, NgpLabel } from 'ng-primitives/form-field';
-import { NgpListbox, NgpListboxOption } from 'ng-primitives/listbox';
+import { NgpListbox, NgpListboxOption, NgpListboxTrigger } from 'ng-primitives/listbox';
 import { NgpPopover, NgpPopoverTrigger } from 'ng-primitives/popover';
 
 @Component({
@@ -18,6 +18,7 @@ import { NgpPopover, NgpPopoverTrigger } from 'ng-primitives/popover';
     NgpFormField,
     NgpPopover,
     NgpPopoverTrigger,
+    NgpListboxTrigger,
     NgIcon,
   ],
   viewProviders: [provideIcons({ heroCheckSolid, heroChevronDownSolid })],
@@ -26,7 +27,7 @@ import { NgpPopover, NgpPopoverTrigger } from 'ng-primitives/popover';
       <label ngpLabel>Character</label>
       <p ngpDescription>Select a character from the list below.</p>
 
-      <button [ngpPopoverTrigger]="dropdown" ngpButton>
+      <button [ngpPopoverTrigger]="dropdown" ngpButton ngpListboxTrigger>
         {{ selection()[0].name }}
         <ng-icon name="heroChevronDownSolid" />
       </button>

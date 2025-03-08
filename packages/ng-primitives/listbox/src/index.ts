@@ -7,3 +7,8 @@ export {
   NgpListboxSectionToken,
   injectListboxSection,
 } from './listbox-section/listbox-section.token';
+export { NgpListboxTrigger } from './listbox-trigger/listbox-trigger.directive';
+export {
+  NgpListboxTriggerToken,
+  injectListboxTrigger,
+} from './listbox-trigger/listbox-trigger.token';
