@@ -56,6 +56,12 @@ export interface NgpPopoverConfig {
    * @default true
    */
   closeOnEscape: boolean;
+
+  /**
+   * Defines how the popover behaves when the window is scrolled.
+   * @default scroll
+   */
+  scrollBehavior: 'reposition' | 'block';
 }
 
 export const defaultPopoverConfig: NgpPopoverConfig = {
@@ -67,6 +73,7 @@ export const defaultPopoverConfig: NgpPopoverConfig = {
   container: null,
   closeOnOutsideClick: true,
   closeOnEscape: true,
+  scrollBehavior: 'reposition',
 };
 
 export const NgpPopoverConfigToken = new InjectionToken<NgpPopoverConfig>('NgpPopoverConfigToken');

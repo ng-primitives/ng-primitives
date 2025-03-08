@@ -6,15 +6,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 import { InteractivityChecker } from '@angular/cdk/a11y';
-import {
-  Directive,
-  Injector,
-  OnInit,
-  afterNextRender,
-  computed,
-  inject,
-  isDevMode,
-} from '@angular/core';
+import { Directive, Injector, OnInit, afterNextRender, computed, inject } from '@angular/core';
 import { NgpFocusTrap } from 'ng-primitives/focus-trap';
 import { injectElementRef } from 'ng-primitives/internal';
 import { injectPopoverTrigger } from '../popover-trigger/popover-trigger.token';
@@ -66,17 +58,6 @@ export class NgpPopover implements OnInit {
   protected readonly y = computed(() => this.trigger.position().y);
 
   ngOnInit(): void {
-    // if the element does not have a fixed position then throw a warning in dev mode
-    if (isDevMode()) {
-      const { position } = getComputedStyle(this.popover.nativeElement);
-
-      if (position !== 'absolute') {
-        console.warn(
-          `The popover element must have an absolute position. The current position is ${position}.`,
-        );
-      }
-    }
-
     // once the popover has rendered focus the element
     afterNextRender(
       {

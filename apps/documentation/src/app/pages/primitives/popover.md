@@ -90,6 +90,10 @@ Apply the `ngpPopoverTrigger` directive to an element that triggers the popover 
   Define whether the popover should close when clicking outside of it.
 </response-field>
 
+<response-field name="ngpPopoverTriggerScrollBehavior" type="reposition | block" default="reposition">
+Defines how the popover behaves when the window is scrolled. If set to `reposition`, the popover will adjust its position automatically during scrolling. Make sure the popover uses `position: absolute` in this mode. If set to `block`, scrolling will be disabled while the popover is open. In this case, the popover should use `position: fixed`.
+</response-field>
+
 #### Data Attributes
 
 | Attribute       | Description                           | Value                                        |
@@ -114,6 +118,7 @@ bootstrapApplication(AppComponent, {
       flip: true,
       container: document.body,
       closeOnOutsideClick: true,
+      scrollBehavior: 'reposition',
     }),
   ],
 });
@@ -147,4 +152,8 @@ bootstrapApplication(AppComponent, {
 
 <response-field name="closeOnOutsideClick" type="boolean">
   Define whether the popover should close when clicking outside of it.
+</response-field>
+
+<response-field name="scrollBehavior" type="reposition | block">
+Defines how the popover behaves when the window is scrolled. If set to `reposition`, the popover will adjust its position automatically during scrolling. Make sure the popover uses `position: absolute` in this mode. If set to `block`, scrolling will be disabled while the popover is open. In this case, the popover should use `position: fixed`.
 </response-field>
