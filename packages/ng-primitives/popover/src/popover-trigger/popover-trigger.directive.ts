@@ -273,7 +273,11 @@ export class NgpPopoverTrigger implements OnDestroy {
     this.open.update(open => !open);
   }
 
-  private show(): void {
+  /**
+   * @internal
+   * Show the popover.
+   */
+  show(): void {
     // if the trigger is disabled or the popover is already open then do not show the popover
     if (this.disabled() || this.state() === 'open' || this.state() === 'opening') {
       return;
