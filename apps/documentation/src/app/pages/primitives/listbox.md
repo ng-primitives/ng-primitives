@@ -4,7 +4,7 @@ name: 'Listbox'
 
 # Listbox
 
-A listbox presents a set of choices and lets users select one or multiple options.
+A listbox presents a set of choices and lets users select one or multiple options. It can be paired with the `NgpPopover` directive to create a dropdown listbox.
 
 <docs-example name="listbox"></docs-example>
 
@@ -91,6 +91,13 @@ The following directives are available to import from the `ng-primitives/listbox
 - Selector: `[ngpListboxSection]`
 - Exported As: `ngpListboxSection`
 
+### NgpListboxTrigger
+
+- Selector: `[ngpListboxTrigger]`
+- Exported As: `ngpListboxTrigger`
+
+Augments the popover trigger with listbox-specific behavior, such as opening the listbox when the arrow keys are pressed.
+
 #### Data Attributes
 
 The following data attributes are applied to the `ngpListbox` directive:
@@ -110,3 +117,17 @@ The following data attributes are applied to the `ngpListboxOption` directive:
 | `data-active`        | Applied to the listbox option when it is the active descendant. |
 | `data-disabled`      | Applied to the listbox option when it is disabled.              |
 | `data-selected`      | Applied to the listbox option when it is selected.              |
+
+## Accessibility
+
+Adheres to the [WAI-ARIA Listbox Design Pattern](https://www.w3.org/TR/wai-aria-practices-1.1/#Listbox).
+
+### Keyboard Interactions
+
+- <kbd>Arrow Down</kbd> - Move focus to the next option.
+- <kbd>Arrow Up</kbd> - Move focus to the previous option.
+- <kbd>Home</kbd> - Move focus to the first option.
+- <kbd>End</kbd> - Move focus to the last option.
+- <kbd>Space</kbd> - Select the focused option.
+- <kbd>Enter</kbd> - Select the focused option.
+- <kbd>Escape</kbd> - Close the listbox.

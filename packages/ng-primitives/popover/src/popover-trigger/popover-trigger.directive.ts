@@ -7,6 +7,7 @@
  */
 import { FocusMonitor, FocusOrigin } from '@angular/cdk/a11y';
 import { BooleanInput, NumberInput } from '@angular/cdk/coercion';
+import { BlockScrollStrategy, NoopScrollStrategy, ViewportRuler } from '@angular/cdk/overlay';
 import { DomPortalOutlet, TemplatePortal } from '@angular/cdk/portal';
 import { DOCUMENT } from '@angular/common';
 import {
@@ -67,6 +68,11 @@ export class NgpPopoverTrigger implements OnDestroy {
    * Access the document.
    */
   private readonly document = inject(DOCUMENT);
+
+  /**
+   * Access the viewport ruler.
+   */
+  private readonly viewportRuler = inject(ViewportRuler);
 
   /**
    * Access the injector.
@@ -183,6 +189,14 @@ export class NgpPopoverTrigger implements OnDestroy {
   });
 
   /**
+   * Defines how the popover behaves when the window is scrolled.
+   * @default 'reposition'
+   */
+  readonly scrollBehavior = input<'reposition' | 'block'>(this.config.scrollBehavior, {
+    alias: 'ngpPopoverTriggerScrollBehavior',
+  });
+
+  /**
    * Store the popover view ref.
    */
   private viewRef: EmbeddedViewRef<void> | null = null;
@@ -232,6 +246,15 @@ export class NgpPopoverTrigger implements OnDestroy {
    */
   private documentClickListener?: (event: MouseEvent) => void;
 
+  /**
+   * Get the scroll strategy based on the configuration.
+   */
+  private readonly scrollStrategy = computed(() =>
+    this.scrollBehavior() === 'block'
+      ? new BlockScrollStrategy(this.viewportRuler, this.document)
+      : new NoopScrollStrategy(),
+  );
+
   constructor() {
     // any time the open state changes then show or hide the popover
     onBooleanChange(this.open, this.show.bind(this), this.hide.bind(this));
@@ -250,7 +273,11 @@ export class NgpPopoverTrigger implements OnDestroy {
     this.open.update(open => !open);
   }
 
-  private show(): void {
+  /**
+   * @internal
+   * Show the popover.
+   */
+  show(): void {
     // if the trigger is disabled or the popover is already open then do not show the popover
     if (this.disabled() || this.state() === 'open' || this.state() === 'opening') {
       return;
@@ -336,6 +363,9 @@ export class NgpPopoverTrigger implements OnDestroy {
     });
 
     this.state.set('open');
+
+    // activate the scroll strategy
+    this.scrollStrategy().enable();
   }
 
   private destroyPopover(): void {
@@ -344,6 +374,9 @@ export class NgpPopoverTrigger implements OnDestroy {
     this.viewRef = null;
     this.dispose?.();
     this.state.set('closed');
+
+    // deactivate the scroll strategy
+    this.scrollStrategy().disable();
   }
 
   /**

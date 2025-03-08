@@ -16,22 +16,17 @@
     <link rel="stylesheet" href="/src/styles.css" />
 
     <script>
-      if (localStorage['ng-primitives-theme'] === 'dark') {
-        if (document && document.documentElement) {
+      if (typeof window !== 'undefined' && typeof document !== 'undefined') {
+        const theme = localStorage.getItem('ng-primitives-theme');
+
+        if (theme === 'dark') {
           document.documentElement.classList.add('dark');
-        }
-      } else if (localStorage['ng-primitives-theme'] === 'light') {
-        if (document && document.documentElement) {
+        } else if (theme === 'light') {
           document.documentElement.classList.remove('dark');
-          localStorage.setItem('ng-primitives-theme', 'light');
-        }
-      } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
-        localStorage.setItem('ng-primitives-theme', 'system');
-        if (document && document.documentElement) {
+        } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+          localStorage.setItem('ng-primitives-theme', 'system');
           document.documentElement.classList.add('dark');
-        }
-      } else {
-        if (document && document.documentElement) {
+        } else {
           document.documentElement.classList.remove('dark');
         }
       }

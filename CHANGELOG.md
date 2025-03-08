@@ -1,3 +1,14 @@
+## 0.23.0 (2025-03-08)
+
+### 🚀 Features
+
+- **listbox:** listbox trigger interactions ([#111](https://github.com/ng-primitives/ng-primitives/pull/111))
+- **popover:** scroll blocking ([#110](https://github.com/ng-primitives/ng-primitives/pull/110))
+
+### ❤️ Thank You
+
+- Ashley Hunter
+
 ## 0.22.0 (2025-02-27)
 
 ### 🚀 Features
