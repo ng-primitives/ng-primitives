@@ -1,31 +1,22 @@
 import { Component } from '@angular/core';
-import { NgpAvatar, NgpAvatarImage } from 'ng-primitives/avatar';
 import { NgpButton } from 'ng-primitives/button';
 import { NgpPopover, NgpPopoverTrigger } from 'ng-primitives/popover';
 
 @Component({
   selector: 'app-popover',
-  imports: [NgpPopoverTrigger, NgpPopover, NgpButton, NgpAvatar, NgpAvatarImage],
+  imports: [NgpPopoverTrigger, NgpPopover, NgpButton],
   template: `
     <button [ngpPopoverTrigger]="popover" ngpButton type="button">Popover</button>
 
     <ng-template #popover>
       <div ngpPopover>
-        <span ngpAvatar>
-          <img
-            ngpAvatarImage
-            src="https://angularprimitives.com/assets/avatar.png"
-            alt="Profile Image"
-          />
-        </span>
+        <h3>Need Help?</h3>
+        <p>
+          Get quick tips and guidance on how to use this feature effectively. Check out our
+          documentation for more details!
+        </p>
 
-        <div class="container">
-          <p>
-            Welcome,
-            <strong>John 👋🏻</strong>
-          </p>
-          <p>john.doe&commat;example.com</p>
-        </div>
+        <a target="_blank" href="https://www.youtube.com/watch?v=xvFZjo5PgG0">Learn More</a>
       </div>
     </ng-template>
   `,
@@ -55,37 +46,37 @@ import { NgpPopover, NgpPopoverTrigger } from 'ng-primitives/popover';
       background-color: var(--background-active);
     }
 
-    [ngpAvatar] {
-      position: relative;
-      display: inline-flex;
-      width: 2.8rem;
-      height: 2.8rem;
-      align-items: center;
-      justify-content: center;
-      border-radius: 9999px;
-      border-width: 2px;
-      border-color: var(--avatar-border);
-      background-color: var(--avatar-background);
-      vertical-align: middle;
-      flex: none;
-    }
-
     [ngpPopover] {
       position: absolute;
       display: flex;
-      column-gap: 8px;
+      flex-direction: column;
+      row-gap: 4px;
+      max-width: 280px;
       border-radius: 0.75rem;
       background: var(--background);
-      padding: 0.5rem 0.75rem;
-      font-weight: 500;
+      padding: 0.75rem 1rem;
       box-shadow: var(--shadow);
       border: 1px solid var(--border);
       outline: none;
     }
 
-    .container {
-      display: flex;
-      flex-direction: column;
+    [ngpPopover] h3 {
+      font-size: 13px;
+      font-weight: 500;
+      margin: 0;
+      color: var(--text-primary);
+    }
+
+    [ngpPopover] p {
+      font-size: 13px;
+      margin: 0;
+      color: var(--text-secondary);
+    }
+
+    [ngpPopover] a {
+      font-size: 13px;
+      color: var(--text-blue);
+      text-decoration: none;
     }
   `,
 })

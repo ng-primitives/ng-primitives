@@ -39,6 +39,9 @@ module.exports = {
               fontWeight: theme('fontWeight.semibold'),
               marginBottom: theme('margin.2'),
             },
+            p: {
+              lineHeight: '28px',
+            },
           },
         },
         invert: {
