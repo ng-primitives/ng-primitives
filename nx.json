@@ -74,6 +74,5 @@
       "automaticFromRef": true
     }
   },
-  "defaultBase": "origin/next",
-  "useLegacyCache": true
+  "defaultBase": "origin/next"
 }

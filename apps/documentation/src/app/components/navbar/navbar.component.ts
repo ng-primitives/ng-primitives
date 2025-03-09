@@ -7,17 +7,15 @@ import {
   inject,
   model,
 } from '@angular/core';
-import { RouterLink } from '@angular/router';
 import { bootstrapDiscord, bootstrapGithub } from '@ng-icons/bootstrap-icons';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { lucideMenu, lucideSearch } from '@ng-icons/lucide';
 import { NgpButton } from 'ng-primitives/button';
-import { NgpHover } from 'ng-primitives/interactions';
-import { ThemeTogglerComponent } from '../theme-toggler/theme-toggler.component';
+import { ThemeToggle } from '../theme-toggle/theme-toggle.component';
 
 @Component({
   selector: 'docs-navbar',
-  imports: [NgIcon, RouterLink, NgpHover, NgpButton, ThemeTogglerComponent],
+  imports: [NgIcon, NgpButton, ThemeToggle],
   viewProviders: [provideIcons({ lucideSearch, bootstrapGithub, bootstrapDiscord, lucideMenu })],
   templateUrl: './navbar.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
