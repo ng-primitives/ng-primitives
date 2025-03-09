@@ -113,11 +113,13 @@ export function ngpInject<T>(token: ProviderToken<T>, options?: InjectOptions): 
 }
 
 export function provideNgpInjector(): FactoryProvider {
-  const parentNgpInjector = inject(NgpInjector, { optional: true, skipSelf: true });
-
   return {
     provide: NgpInjector,
-    useFactory: () => NgpInjector.create({ providers: [], parent: parentNgpInjector }),
+    useFactory: () =>
+      NgpInjector.create({
+        providers: [],
+        parent: inject(NgpInjector, { optional: true, skipSelf: true }),
+      }),
   };
 }
 
