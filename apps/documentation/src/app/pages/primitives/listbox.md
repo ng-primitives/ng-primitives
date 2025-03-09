@@ -61,7 +61,7 @@ The following directives are available to import from the `ng-primitives/listbox
   The selection mode of the listbox. Can be either `single` or `multiple`.
 </response-field>
 
-<response-field name="ngpListboxValue" type="string[]" default="[]">
+<response-field name="ngpListboxValue" type="T[]" default="[]">
   The selected value(s) of the listbox.
 </response-field>
 
