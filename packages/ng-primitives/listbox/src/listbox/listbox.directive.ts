@@ -27,13 +27,13 @@ import { NgpPopoverTriggerToken } from 'ng-primitives/popover';
 import { uniqueId } from 'ng-primitives/utils';
 import type { NgpListboxOption } from '../listbox-option/listbox-option.directive';
 import { NgpListboxOptionToken } from '../listbox-option/listbox-option.token';
-import { NgpListboxToken } from './listbox.token';
+import { provideListbox } from './listbox.token';
 
 @Directive({
   standalone: true,
   selector: '[ngpListbox]',
   exportAs: 'ngpListbox',
-  providers: [{ provide: NgpListboxToken, useExisting: NgpListbox }],
+  providers: [provideListbox(NgpListbox)],
   host: {
     '[id]': 'id()',
     role: 'listbox',

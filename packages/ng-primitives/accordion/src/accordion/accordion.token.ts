@@ -5,7 +5,8 @@
  * This source code is licensed under the Apache 2.0 license found in the
  * LICENSE file in the root directory of this source tree.
  */
-import { InjectionToken, inject } from '@angular/core';
+import { InjectionToken, Type } from '@angular/core';
+import { ngpInject, provideNgpToken } from 'ng-primitives/internal';
 import type { NgpAccordion } from './accordion.directive';
 
 export const NgpAccordionToken = new InjectionToken<NgpAccordion<unknown>>('NgpAccordionToken');
@@ -15,5 +16,9 @@ export const NgpAccordionToken = new InjectionToken<NgpAccordion<unknown>>('NgpA
  * @returns The Accordion directive instance
  */
 export function injectAccordion<T>(): NgpAccordion<T> {
-  return inject(NgpAccordionToken) as NgpAccordion<T>;
+  return ngpInject(NgpAccordionToken) as NgpAccordion<T>;
+}
+
+export function provideAccordion<T>(accordion: Type<NgpAccordion<T>>) {
+  return provideNgpToken(NgpAccordionToken, accordion);
 }

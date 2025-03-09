@@ -10,3 +10,8 @@ export { injectDisposables } from './helpers/disposables';
 export { uniqueId } from './helpers/unique-id';
 export { onBooleanChange, onChange, onFormControlChange } from './signals/async';
 export { injectDimensions } from './ui/dimensions';
+
+/**
+ * Publically expose the `provideNgpInjector` function.
+ */
+export { provideNgpInjector } from 'ng-primitives/internal';

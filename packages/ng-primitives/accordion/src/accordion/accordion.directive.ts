@@ -8,13 +8,13 @@
 import { BooleanInput } from '@angular/cdk/coercion';
 import { Directive, booleanAttribute, input, model } from '@angular/core';
 import { injectAccordionConfig } from '../config/accordion.config';
-import { NgpAccordionToken } from './accordion.token';
+import { NgpAccordionToken, provideAccordion } from './accordion.token';
 
 @Directive({
   standalone: true,
   selector: '[ngpAccordion]',
   exportAs: 'ngpAccordion',
-  providers: [{ provide: NgpAccordionToken, useExisting: NgpAccordion }],
+  providers: [provideAccordion(NgpAccordion)],
   host: {
     '[attr.data-orientation]': 'orientation()',
     '[attr.data-disabled]': 'disabled() ? "" : null',
