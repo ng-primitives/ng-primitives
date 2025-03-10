@@ -18,7 +18,7 @@ export { NgpDialogTitle } from './dialog-title/dialog-title.directive';
 export { NgpDialogTitleToken, injectDialogTitle } from './dialog-title/dialog-title.token';
 export { NgpDialogTrigger } from './dialog-trigger/dialog-trigger.directive';
 export { NgpDialogTriggerToken, injectDialogTrigger } from './dialog-trigger/dialog-trigger.token';
-export { injectDialogRef } from './dialog/dialog-ref';
+export { injectDialogRef, NgpDialogRef } from './dialog/dialog-ref';
 export { NgpDialog } from './dialog/dialog.directive';
 export { NgpDialogManager } from './dialog/dialog.service';
 export { NgpDialogToken, injectDialog } from './dialog/dialog.token';
