@@ -14,7 +14,7 @@ import {
 } from './data';
 
 /** Upgrade data that will be used for the Angular Primitives ng-update schematic. */
-export const ngpUpgradeData: UpgradeData = {
+export const ngpUpgradeData = {
   attributeSelectors,
   classNames,
   constructorChecks,
@@ -26,4 +26,4 @@ export const ngpUpgradeData: UpgradeData = {
   outputNames,
   propertyNames,
   symbolRemoval,
-};
+} as UpgradeData;
