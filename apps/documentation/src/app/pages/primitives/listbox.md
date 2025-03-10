@@ -73,6 +73,14 @@ The following directives are available to import from the `ng-primitives/listbox
   A function to compare two values of the listbox. The function should return `true` if the values are equal. This is useful when the listbox options are objects.
 </response-field>
 
+#### Data Attributes
+
+The following data attributes are applied to the `ngpListbox` directive:
+
+| Attribute            | Description                                           |
+| -------------------- | ----------------------------------------------------- |
+| `data-focus-visible` | Applied to the listbox when focused via the keyboard. |
+
 ### NgpListboxOption
 
 - Selector: `[ngpListboxOption]`
@@ -86,25 +94,7 @@ The following directives are available to import from the `ng-primitives/listbox
   Whether the option is disabled.
 </response-field>
 
-### NgpListboxSection
-
-- Selector: `[ngpListboxSection]`
-- Exported As: `ngpListboxSection`
-
-### NgpListboxTrigger
-
-- Selector: `[ngpListboxTrigger]`
-- Exported As: `ngpListboxTrigger`
-
-Augments the popover trigger with listbox-specific behavior, such as opening the listbox when the arrow keys are pressed.
-
 #### Data Attributes
-
-The following data attributes are applied to the `ngpListbox` directive:
-
-| Attribute            | Description                                           |
-| -------------------- | ----------------------------------------------------- |
-| `data-focus-visible` | Applied to the listbox when focused via the keyboard. |
 
 The following data attributes are applied to the `ngpListboxOption` directive:
 
@@ -117,6 +107,18 @@ The following data attributes are applied to the `ngpListboxOption` directive:
 | `data-active`        | Applied to the listbox option when it is the active descendant. |
 | `data-disabled`      | Applied to the listbox option when it is disabled.              |
 | `data-selected`      | Applied to the listbox option when it is selected.              |
+
+### NgpListboxSection
+
+- Selector: `[ngpListboxSection]`
+- Exported As: `ngpListboxSection`
+
+### NgpListboxTrigger
+
+- Selector: `[ngpListboxTrigger]`
+- Exported As: `ngpListboxTrigger`
+
+Augments the popover trigger with listbox-specific behavior, such as opening the listbox when the arrow keys are pressed.
 
 ## Accessibility
 
