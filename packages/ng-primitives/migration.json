@@ -1,0 +1,10 @@
+{
+  "$schema": "./node_modules/@angular-devkit/schematics/collection-schema.json",
+  "schematics": {
+    "migration-v0_24": {
+      "version": "0.24.0",
+      "description": "Updates Angular Primitives to v0.24.0",
+      "factory": "./schematics/ng-update/index#updateToV0_24_0"
+    }
+  }
+}

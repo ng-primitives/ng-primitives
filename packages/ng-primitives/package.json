@@ -22,6 +22,9 @@
   "ng-add": {
     "save": "dependencies"
   },
+  "ng-update": {
+    "migrations": "./migration.json"
+  },
   "sideEffects": false,
   "generators": "./generators.json",
   "schematics": "./generators.json",

@@ -6,12 +6,12 @@
  * LICENSE file in the root directory of this source tree.
  */
 import { render } from '@testing-library/angular';
-import { NgpSearchFieldClear } from './search-field-clear.directive';
+import { NgpSearchClear } from './search-clear.directive';
 
-describe('NgpSearchFieldClear', () => {
+describe('NgpSearchClear', () => {
   it('should initialise correctly', async () => {
-    const container = await render(`<div ngpSearchFieldClear></div>`, {
-      imports: [NgpSearchFieldClear],
+    const container = await render(`<div ngpSearchClear></div>`, {
+      imports: [NgpSearchClear],
     });
   });
 });

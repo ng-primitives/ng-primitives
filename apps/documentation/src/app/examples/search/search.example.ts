@@ -3,29 +3,30 @@ import { FormsModule } from '@angular/forms';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { heroMagnifyingGlass } from '@ng-icons/heroicons/outline';
 import { NgpButton } from 'ng-primitives/button';
-import { NgpLabel } from 'ng-primitives/form-field';
+import { NgpFormField, NgpLabel } from 'ng-primitives/form-field';
 import { NgpInput } from 'ng-primitives/input';
-import { NgpSearchField, NgpSearchFieldClear } from 'ng-primitives/search';
+import { NgpSearch, NgpSearchClear } from 'ng-primitives/search';
 
 @Component({
-  selector: 'app-search-field',
+  selector: 'app-search',
   imports: [
-    NgpSearchField,
+    NgpSearch,
     NgpLabel,
     NgpInput,
     NgIcon,
     NgpButton,
-    NgpSearchFieldClear,
+    NgpSearchClear,
     FormsModule,
+    NgpFormField,
   ],
   providers: [provideIcons({ heroMagnifyingGlass })],
   template: `
-    <div ngpSearchField>
+    <div ngpFormField>
       <label ngpLabel>Find a customer</label>
-      <div class="search-container">
+      <div ngpSearch>
         <ng-icon name="heroMagnifyingGlass" />
         <input [(ngModel)]="query" ngpInput type="search" placeholder="Search for a customer" />
-        <button ngpSearchFieldClear ngpButton aria-label="Clear search">Clear</button>
+        <button ngpSearchClear ngpButton aria-label="Clear search">Clear</button>
       </div>
     </div>
   `,
@@ -34,7 +35,7 @@ import { NgpSearchField, NgpSearchFieldClear } from 'ng-primitives/search';
       display: contents;
     }
 
-    [ngpSearchField] {
+    [ngpFormField] {
       display: flex;
       flex-direction: column;
       gap: 6px;
@@ -47,6 +48,7 @@ import { NgpSearchField, NgpSearchFieldClear } from 'ng-primitives/search';
       border-radius: 8px;
       padding: 0 16px 0 40px;
       border: none;
+      background: var(--background);
       box-shadow: var(--input-shadow);
       outline: none;
     }
@@ -76,7 +78,7 @@ import { NgpSearchField, NgpSearchFieldClear } from 'ng-primitives/search';
       margin: 0;
     }
 
-    .search-container {
+    [ngpSearch] {
       position: relative;
     }
 
@@ -111,7 +113,7 @@ import { NgpSearchField, NgpSearchFieldClear } from 'ng-primitives/search';
     }
   `,
 })
-export default class SearchFieldExample {
+export default class SearchExample {
   /**
    * Store the search query.
    */
