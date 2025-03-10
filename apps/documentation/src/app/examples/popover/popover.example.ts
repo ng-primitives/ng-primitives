@@ -58,6 +58,8 @@ import { NgpPopover, NgpPopoverTrigger } from 'ng-primitives/popover';
       box-shadow: var(--shadow);
       border: 1px solid var(--border);
       outline: none;
+      animation: popover-show 0.1s ease-out;
+      transform-origin: var(--popover-transform-origin);
     }
 
     [ngpPopover] h3 {
@@ -77,6 +79,17 @@ import { NgpPopover, NgpPopoverTrigger } from 'ng-primitives/popover';
       font-size: 13px;
       color: var(--text-blue);
       text-decoration: none;
+    }
+
+    @keyframes popover-show {
+      0% {
+        opacity: 0;
+        transform: scale(0.9);
+      }
+      100% {
+        opacity: 1;
+        transform: scale(1);
+      }
     }
   `,
 })
