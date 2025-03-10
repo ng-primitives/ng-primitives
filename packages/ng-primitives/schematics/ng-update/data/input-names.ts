@@ -1,0 +1,4 @@
+import { InputNameUpgradeData } from '@angular/cdk/schematics';
+import { NgpVersionChanges } from './changeset';
+
+export const inputNames: NgpVersionChanges<InputNameUpgradeData> = {};

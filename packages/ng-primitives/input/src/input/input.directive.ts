@@ -6,19 +6,11 @@
  * LICENSE file in the root directory of this source tree.
  */
 import { BooleanInput } from '@angular/cdk/coercion';
-import {
-  booleanAttribute,
-  Directive,
-  ElementRef,
-  HostListener,
-  inject,
-  input,
-  signal,
-} from '@angular/core';
+import { booleanAttribute, Directive, HostListener, input, signal } from '@angular/core';
 import { NgpAutofill } from 'ng-primitives/autofill';
 import { NgpFormControl } from 'ng-primitives/form-field';
 import { NgpFocus, NgpHover, NgpPress } from 'ng-primitives/interactions';
-import { NgpCanDisable, NgpDisabledToken } from 'ng-primitives/internal';
+import { injectElementRef, NgpCanDisable, NgpDisabledToken } from 'ng-primitives/internal';
 import { NgpInputToken } from './input.token';
 
 @Directive({
@@ -36,7 +28,7 @@ export class NgpInput implements NgpCanDisable {
    * Access the underlying input element.
    * @internal
    */
-  private readonly elementRef = inject<ElementRef<HTMLInputElement>>(ElementRef);
+  private readonly elementRef = injectElementRef<HTMLInputElement>();
 
   /**
    * Whether the element is disabled.
@@ -57,7 +49,7 @@ export class NgpInput implements NgpCanDisable {
    * @description The HTML input event triggers when a user interacts with an input field and changes its value. However, if the value is changed programmatically, the input event doesn't fire automatically, so we manually dispatch the InputEvent.
    * @internal
    */
-  setInputValue(value: string) {
+  setValue(value: string) {
     this.elementRef.nativeElement.value = value;
     this.elementRef.nativeElement.dispatchEvent(new InputEvent('input'));
   }

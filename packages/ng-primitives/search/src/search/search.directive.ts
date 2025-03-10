@@ -6,21 +6,19 @@
  * LICENSE file in the root directory of this source tree.
  */
 import { computed, contentChild, Directive, HostListener } from '@angular/core';
-import { NgpFormField } from 'ng-primitives/form-field';
 import { NgpInputToken } from 'ng-primitives/input';
-import { NgpSearchFieldToken } from './search-field.token';
+import { NgpSearchToken } from './search.token';
 
 @Directive({
   standalone: true,
-  selector: '[ngpSearchField]',
-  exportAs: 'ngpSearchField',
-  providers: [{ provide: NgpSearchFieldToken, useExisting: NgpSearchField }],
-  hostDirectives: [NgpFormField],
+  selector: '[ngpSearch]',
+  exportAs: 'ngpSearch',
+  providers: [{ provide: NgpSearchToken, useExisting: NgpSearch }],
   host: {
     '[attr.data-empty]': 'empty() ? "" : null',
   },
 })
-export class NgpSearchField {
+export class NgpSearch {
   /**
    * Access the child input field.
    */
@@ -28,11 +26,12 @@ export class NgpSearchField {
 
   /**
    * Whether the input field is empty.
+   * @internal
    */
   readonly empty = computed(() => this.input().value() === '');
 
   @HostListener('keydown.escape')
   clear(): void {
-    this.input().setInputValue('');
+    this.input().setValue('');
   }
 }

@@ -6,13 +6,13 @@
  * LICENSE file in the root directory of this source tree.
  */
 import { InjectionToken, inject } from '@angular/core';
-import type { NgpSearchField } from './search-field.directive';
+import type { NgpSearch } from './search.directive';
 
-export const NgpSearchFieldToken = new InjectionToken<NgpSearchField>('NgpSearchFieldToken');
+export const NgpSearchToken = new InjectionToken<NgpSearch>('NgpSearchToken');
 
 /**
- * Inject the SearchField directive instance
+ * Inject the Search directive instance
  */
-export function injectSearchField(): NgpSearchField {
-  return inject(NgpSearchFieldToken);
+export function injectSearch(): NgpSearch {
+  return inject(NgpSearchToken);
 }
