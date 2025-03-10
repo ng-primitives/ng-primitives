@@ -1,4 +1,4 @@
-import { NgpVersionChanges } from './changeset';
+import { NgpTargetVersion, NgpVersionChanges } from './changeset';
 
 export interface CssSelectorData {
   /** The CSS selector to replace. */
@@ -19,4 +19,20 @@ export interface CssSelectorData {
   };
 }
 
-export const cssSelectors: NgpVersionChanges<CssSelectorData> = {};
+export const cssSelectors: NgpVersionChanges<CssSelectorData> = {
+  [NgpTargetVersion.V0_24_0]: [
+    {
+      pr: '',
+      changes: [
+        {
+          replace: '[ngpSearchField]',
+          replaceWith: '[ngpSearch]',
+        },
+        {
+          replace: '[ngpSearchFieldClear]',
+          replaceWith: '[ngpSearchClear]',
+        },
+      ],
+    },
+  ],
+};
