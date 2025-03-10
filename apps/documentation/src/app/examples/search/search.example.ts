@@ -48,6 +48,7 @@ import { NgpSearch, NgpSearchClear } from 'ng-primitives/search';
       border-radius: 8px;
       padding: 0 16px 0 40px;
       border: none;
+      background: var(--background);
       box-shadow: var(--input-shadow);
       outline: none;
     }
