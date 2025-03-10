@@ -1,4 +1,3 @@
-/* eslint-disable */
 export default {
   displayName: 'ng-primitives',
   preset: '../../jest.preset.js',
