@@ -20,6 +20,8 @@
   --primary-color: #e90364;
   --accent-color: #fa2c05;
   --dark-shadow: 0 0 0 1px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.2);
+
+  --docsearch-primary-color: var(--primary-color);
 }
 
 .dark {
@@ -121,7 +123,7 @@ pre[class*='language-'] {
 }
 
 .DocSearch-Button .DocSearch-Search-Icon {
-  @apply h-4 w-4 text-zinc-400 dark:text-zinc-500;
+  @apply h-4 w-4 text-zinc-500 md:text-zinc-400 dark:text-zinc-400 md:dark:text-zinc-500;
 }
 
 .DocSearch-Button-Keys {

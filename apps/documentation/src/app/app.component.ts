@@ -4,12 +4,12 @@ import { NavigationEnd, Router, RouterLink, RouterOutlet } from '@angular/router
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { saxMoonOutline } from '@ng-icons/iconsax/outline';
 import { filter } from 'rxjs';
-import { NavbarComponent } from './components/navbar/navbar.component';
+import { Navbar } from './components/navbar/navbar';
 import { SideNavigationComponent } from './components/side-navigation/side-navigation.component';
 
 @Component({
   selector: 'docs-root',
-  imports: [RouterOutlet, RouterLink, NgIcon, NavbarComponent, SideNavigationComponent],
+  imports: [RouterOutlet, RouterLink, NgIcon, Navbar, SideNavigationComponent],
   viewProviders: [provideIcons({ saxMoonOutline })],
   template: `
     <docs-navbar [(menuOpen)]="menuOpen" />

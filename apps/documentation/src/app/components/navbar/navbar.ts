@@ -17,10 +17,10 @@ import { ThemeToggle } from '../theme-toggle/theme-toggle.component';
   selector: 'docs-navbar',
   imports: [NgIcon, NgpButton, ThemeToggle],
   viewProviders: [provideIcons({ lucideSearch, bootstrapGithub, bootstrapDiscord, lucideMenu })],
-  templateUrl: './navbar.component.html',
+  templateUrl: './navbar.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class NavbarComponent implements OnInit {
+export class Navbar implements OnInit {
   /**
    * Determine the platform.
    */
