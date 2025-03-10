@@ -1,3 +1,17 @@
+## 0.24.0 (2025-03-10)
+
+### 🚀 Features
+
+- **popover:** adding entry animation support ([#118](https://github.com/ng-primitives/ng-primitives/pull/118))
+
+### 🩹 Fixes
+
+- **dialog:** adding missing NgpDialogRef export ([#116](https://github.com/ng-primitives/ng-primitives/pull/116))
+
+### ❤️ Thank You
+
+- Ashley Hunter
+
 ## 0.23.0 (2025-03-08)
 
 ### 🚀 Features
