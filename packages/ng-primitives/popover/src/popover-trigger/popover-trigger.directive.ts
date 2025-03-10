@@ -11,29 +11,29 @@ import { BlockScrollStrategy, NoopScrollStrategy, ViewportRuler } from '@angular
 import { DomPortalOutlet, TemplatePortal } from '@angular/cdk/portal';
 import { DOCUMENT } from '@angular/common';
 import {
+  booleanAttribute,
+  computed,
   Directive,
   ElementRef,
   EmbeddedViewRef,
-  Injector,
-  OnDestroy,
-  TemplateRef,
-  ViewContainerRef,
-  booleanAttribute,
-  computed,
   inject,
+  Injector,
   input,
   model,
   numberAttribute,
+  OnDestroy,
   signal,
+  TemplateRef,
+  ViewContainerRef,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import {
-  Middleware,
-  Placement,
   autoUpdate,
   computePosition,
   flip,
+  Middleware,
   offset,
+  Placement,
   shift,
 } from '@floating-ui/dom';
 import { fromResizeEvent } from 'ng-primitives/resize';

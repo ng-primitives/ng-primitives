@@ -100,7 +100,8 @@ import { NgpPopover, NgpPopoverTrigger } from 'ng-primitives/popover';
       border-radius: 0.75rem;
       outline: none;
       position: absolute;
-      width: var(--trigger-width);
+      animation: popover-show 0.1s ease-out;
+      width: var(--ngp-popover-trigger-width);
     }
 
     .listbox-option {
@@ -133,6 +134,17 @@ import { NgpPopover, NgpPopoverTrigger } from 'ng-primitives/popover';
 
     .listbox-option[data-selected] ng-icon {
       visibility: visible;
+    }
+
+    @keyframes popover-show {
+      0% {
+        opacity: 0;
+        transform: translateY(-4px);
+      }
+      100% {
+        opacity: 1;
+        transform: translateY(0);
+      }
     }
   `,
 })
