@@ -15,8 +15,9 @@ import {
   model,
   numberAttribute,
 } from '@angular/core';
+import { NgpOrientation } from 'ng-primitives/common';
 import { NgpFormControl } from 'ng-primitives/form-field';
-import { NgpCanDisable, NgpDisabledToken } from 'ng-primitives/internal';
+import { NgpCanDisable, NgpCanOrientate, NgpDisabledToken } from 'ng-primitives/internal';
 import { NgpSliderTrackToken } from '../slider-track/slider-track.token';
 import { NgpSliderToken } from './slider.token';
 
@@ -33,7 +34,7 @@ import { NgpSliderToken } from './slider.token';
     '[attr.data-orientation]': 'orientation()',
   },
 })
-export class NgpSlider implements NgpCanDisable {
+export class NgpSlider implements NgpCanDisable, NgpCanOrientate {
   /**
    * The value of the slider.
    */
@@ -68,7 +69,7 @@ export class NgpSlider implements NgpCanDisable {
   /**
    * The orientation of the slider.
    */
-  readonly orientation = input<'horizontal' | 'vertical'>('horizontal', {
+  readonly orientation = input<NgpOrientation>('horizontal', {
     alias: 'ngpSliderOrientation',
   });
 

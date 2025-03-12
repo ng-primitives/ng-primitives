@@ -5,7 +5,8 @@
  * This source code is licensed under the Apache 2.0 license found in the
  * LICENSE file in the root directory of this source tree.
  */
-import { inject, InjectionToken, signal, Signal } from '@angular/core';
+import { ExistingProvider, inject, InjectionToken, signal, Signal, Type } from '@angular/core';
+import { NgpOrientation } from 'ng-primitives/common';
 
 export const NgpOrientationToken = new InjectionToken<NgpCanOrientate>('NgpOrientationToken');
 
@@ -29,4 +30,11 @@ export function injectOrientation(
   return provider ? provider.orientation : orientation;
 }
 
-export type NgpOrientation = 'horizontal' | 'vertical';
+/**
+ * Provide the orientation context.
+ * @param orientation The orientation signal for the local context.
+ * @returns The orientation context.
+ */
+export function provideOrientation(type: Type<NgpCanOrientate>): ExistingProvider {
+  return { provide: NgpOrientationToken, useExisting: type };
+}

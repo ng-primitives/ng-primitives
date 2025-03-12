@@ -7,8 +7,14 @@
  */
 import { BooleanInput } from '@angular/cdk/coercion';
 import { Directive, booleanAttribute, input, model } from '@angular/core';
+import { NgpOrientation } from 'ng-primitives/common';
 import { NgpFormControl } from 'ng-primitives/form-field';
-import { NgpCanDisable, NgpDisabledToken } from 'ng-primitives/internal';
+import {
+  NgpCanDisable,
+  NgpCanOrientate,
+  NgpDisabledToken,
+  provideOrientation,
+} from 'ng-primitives/internal';
 import { NgpRovingFocusGroup } from 'ng-primitives/roving-focus';
 import { NgpRadioGroupToken } from './radio-group.token';
 
@@ -18,6 +24,7 @@ import { NgpRadioGroupToken } from './radio-group.token';
   providers: [
     { provide: NgpRadioGroupToken, useExisting: NgpRadioGroup },
     { provide: NgpDisabledToken, useExisting: NgpRadioGroup },
+    provideOrientation(NgpRadioGroup),
   ],
   hostDirectives: [NgpRovingFocusGroup, NgpFormControl],
   host: {
@@ -26,7 +33,7 @@ import { NgpRadioGroupToken } from './radio-group.token';
     '[attr.data-orientation]': 'orientation()',
   },
 })
-export class NgpRadioGroup implements NgpCanDisable {
+export class NgpRadioGroup implements NgpCanDisable, NgpCanOrientate {
   /**
    * The value of the radio group.
    */
@@ -44,7 +51,7 @@ export class NgpRadioGroup implements NgpCanDisable {
    * The orientation of the radio group.
    * @default 'horizontal'
    */
-  readonly orientation = input<'horizontal' | 'vertical'>('horizontal', {
+  readonly orientation = input<NgpOrientation>('horizontal', {
     alias: 'ngpRadioGroupOrientation',
   });
 

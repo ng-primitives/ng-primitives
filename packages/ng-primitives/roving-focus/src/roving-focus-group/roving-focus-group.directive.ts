@@ -9,7 +9,8 @@ import { FocusOrigin } from '@angular/cdk/a11y';
 import { Directionality } from '@angular/cdk/bidi';
 import { BooleanInput } from '@angular/cdk/coercion';
 import { booleanAttribute, Directive, inject, input, model, signal } from '@angular/core';
-import { injectOrientation, NgpCanOrientate, NgpOrientation } from 'ng-primitives/internal';
+import { NgpOrientation } from 'ng-primitives/common';
+import { injectOrientation, NgpCanOrientate } from 'ng-primitives/internal';
 import { NgpRovingFocusItem } from '../roving-focus-item/roving-focus-item.directive';
 import { NgpRovingFocusGroupToken } from './roving-focus-group.token';
 
