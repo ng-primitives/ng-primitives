@@ -71,7 +71,7 @@ The following data attributes are applied to the first child of the `ngpToast` n
 
 ## Global Configuration
 
-You can configure the default options for all toasts in your application by using the `provideNgpToastConfig` function in a providers array.
+You can configure the default options for all toasts in your application by using the `provideToastConfig` function in a providers array.
 
 ```ts
 import { provideToastConfig } from 'ng-primitives/toast';

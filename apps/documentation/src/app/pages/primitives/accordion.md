@@ -164,14 +164,14 @@ The following data attributes are applied to the `ngpAccordionContent` directive
 
 ## Global Configuration
 
-You can configure the default options for all accordions in your application by using the `provideNgpAccordionConfig` function in a providers array.
+You can configure the default options for all accordions in your application by using the `provideAccordionConfig` function in a providers array.
 
 ```ts
-import { provideNgpAccordionConfig } from 'ng-primitives/accordion';
+import { provideAccordionConfig } from 'ng-primitives/accordion';
 
 bootstrapApplication(AppComponent, {
   providers: [
-    provideNgpAccordionConfig({
+    provideAccordionConfig({
       type: 'multiple',
       collapsible: true,
       orientation: 'horizontal',

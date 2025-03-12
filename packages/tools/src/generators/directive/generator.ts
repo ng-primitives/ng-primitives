@@ -51,6 +51,7 @@ export async function directiveGenerator(tree: Tree, options: DirectiveGenerator
       primitive: options.primitive,
       description: 'Enter a description here',
       section: options.documentation,
+      globalConfig: options.addConfig,
     });
   }
 
