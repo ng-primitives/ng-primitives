@@ -78,7 +78,7 @@ Apply the `ngpAvatarFallback` directive to an element that represents the user i
 
 ## Global Configuration
 
-You can configure the default options for all avatars in your application by using the `provideNgpAvatarConfig` function in a providers array.
+You can configure the default options for all avatars in your application by using the `provideAvatarConfig` function in a providers array.
 
 ```ts
 import { provideAvatarConfig } from 'ng-primitives/avatar';

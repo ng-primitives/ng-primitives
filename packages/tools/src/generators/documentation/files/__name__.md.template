@@ -38,14 +38,14 @@ The following directives are available to import from the `ng-primitives/<%= pri
 <% if(globalConfig) { %>
 ## Global Configuration
 
-You can configure the default options for all <%= fileName %>s in your application by using the `provideNgp<%= className %>Config` function in a providers array.
+You can configure the default options for all <%= fileName %>s in your application by using the `provide<%= className %>Config` function in a providers array.
 
 ```ts
-import { provideNgp<%= className %>Config } from 'ng-primitives/<%= primitive %>';
+import { provide<%= className %>Config } from 'ng-primitives/<%= primitive %>';
 
 bootstrapApplication(AppComponent, {
   providers: [
-    provideNgp<%= className %>Config({
+    provide<%= className %>Config({
     }),
   ],
 });

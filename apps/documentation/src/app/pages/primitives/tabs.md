@@ -139,14 +139,14 @@ The following data attributes are applied to the `ngpTabPanel` directive:
 
 ## Global Configuration
 
-You can configure the default options for all tabss in your application by using the `provideNgpTabsConfig` function in a providers array.
+You can configure the default options for all tabs in your application by using the `provideTabsConfig` function in a providers array.
 
 ```ts
-import { provideNgpTabsConfig } from 'ng-primitives/tabs';
+import { provideTabsConfig } from 'ng-primitives/tabs';
 
 bootstrapApplication(AppComponent, {
   providers: [
-    provideNgpTabsConfig({
+    provideTabsConfig({
       orientation: 'horizontal',
       activateOnFocus: false,
       wrap: false,

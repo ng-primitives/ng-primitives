@@ -95,14 +95,14 @@ Apply the `ngpTooltipTrigger` directive to an element that triggers the tooltip 
 
 ## Global Configuration
 
-You can configure the default options for all tooltips in your application by using the `provideNgpTooltipConfig` function in a providers array.
+You can configure the default options for all tooltips in your application by using the `provideTooltipConfig` function in a providers array.
 
 ```ts
-import { provideNgpTooltipConfig } from 'ng-primitives/tooltip';
+import { provideTooltipConfig } from 'ng-primitives/tooltip';
 
 bootstrapApplication(AppComponent, {
   providers: [
-    provideNgpTooltipConfig({
+    provideTooltipConfig({
       offset: 4,
       placement: 'top',
       showDelay: 0,

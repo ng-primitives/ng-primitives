@@ -103,14 +103,14 @@ Defines how the popover behaves when the window is scrolled. If set to `repositi
 
 ## Global Configuration
 
-You can configure the default options for all popovers in your application by using the `provideNgpPopoverConfig` function in a providers array.
+You can configure the default options for all popovers in your application by using the `providePopoverConfig` function in a providers array.
 
 ```ts
-import { provideNgpPopoverConfig } from 'ng-primitives/popover';
+import { providePopoverConfig } from 'ng-primitives/popover';
 
 bootstrapApplication(AppComponent, {
   providers: [
-    provideNgpPopoverConfig({
+    providePopoverConfig({
       offset: 4,
       placement: 'top',
       showDelay: 0,
