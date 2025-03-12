@@ -52,6 +52,7 @@
       "ng-primitives/toast": ["packages/ng-primitives/toast/src/index.ts"],
       "ng-primitives/toggle": ["packages/ng-primitives/toggle/src/index.ts"],
       "ng-primitives/toggle-group": ["packages/ng-primitives/toggle-group/src/index.ts"],
+      "ng-primitives/toolbar": ["packages/ng-primitives/toolbar/src/index.ts"],
       "ng-primitives/tooltip": ["packages/ng-primitives/tooltip/src/index.ts"],
       "ng-primitives/utils": ["packages/ng-primitives/utils/src/index.ts"]
     }

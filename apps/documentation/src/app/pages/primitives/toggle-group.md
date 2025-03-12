@@ -121,3 +121,13 @@ bootstrapApplication(AppComponent, {
 <response-field name="type" type="'single' | 'multiple'" default="single">
   The default type of the toggle group.
 </response-field>
+
+### Keyboard Interaction
+
+- <kbd>Tab</kbd> - Moves focus to the first toggle group item in the toolbar.
+- <kbd>Arrow Down</kbd> - Moves focus to the next toggle group item (vertical orientation).
+- <kbd>Arrow Up</kbd> - Moves focus to the previous toggle group item (vertical orientation).
+- <kbd>Arrow Right</kbd> - Moves focus to the next toggle group item (horizontal orientation).
+- <kbd>Arrow Left</kbd> - Moves focus to the previous toggle group item (horizontal orientation).
+- <kbd>Home</kbd> - Moves focus to the first toggle group item.
+- <kbd>End</kbd> - Moves focus to the last toggle group item.
