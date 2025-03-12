@@ -6,6 +6,8 @@
  * LICENSE file in the root directory of this source tree.
  */
 import { Directive, input } from '@angular/core';
+import { NgpOrientation } from 'ng-primitives/common';
+import { NgpCanOrientate } from 'ng-primitives/internal';
 import { injectSeparatorConfig } from '../config/separator.config';
 import { NgpSeparatorToken } from './separator.token';
 
@@ -20,13 +22,13 @@ import { NgpSeparatorToken } from './separator.token';
     '[attr.data-orientation]': 'orientation()',
   },
 })
-export class NgpSeparator {
+export class NgpSeparator implements NgpCanOrientate {
   private readonly config = injectSeparatorConfig();
 
   /**
    * The orientation of the separator.
    */
-  readonly orientation = input<'horizontal' | 'vertical'>(this.config.orientation, {
+  readonly orientation = input<NgpOrientation>(this.config.orientation, {
     alias: 'ngpSeparatorOrientation',
   });
 }

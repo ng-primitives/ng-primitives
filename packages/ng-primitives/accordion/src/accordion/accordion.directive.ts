@@ -7,6 +7,8 @@
  */
 import { BooleanInput } from '@angular/cdk/coercion';
 import { Directive, booleanAttribute, input, model } from '@angular/core';
+import { NgpOrientation } from 'ng-primitives/common';
+import { NgpCanOrientate } from 'ng-primitives/internal';
 import { injectAccordionConfig } from '../config/accordion.config';
 import { NgpAccordionToken } from './accordion.token';
 
@@ -20,7 +22,7 @@ import { NgpAccordionToken } from './accordion.token';
     '[attr.data-disabled]': 'disabled() ? "" : null',
   },
 })
-export class NgpAccordion<T> {
+export class NgpAccordion<T> implements NgpCanOrientate {
   /**
    * Access the global accordion configuration.
    */
@@ -59,7 +61,7 @@ export class NgpAccordion<T> {
   /**
    * The accordion orientation.
    */
-  readonly orientation = input<'horizontal' | 'vertical'>(this.config.orientation, {
+  readonly orientation = input<NgpOrientation>(this.config.orientation, {
     alias: 'ngpAccordionOrientation',
   });
 

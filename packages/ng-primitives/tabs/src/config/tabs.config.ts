@@ -6,13 +6,14 @@
  * LICENSE file in the root directory of this source tree.
  */
 import { InjectionToken, Provider, inject } from '@angular/core';
+import { NgpOrientation } from 'ng-primitives/common';
 
 export interface NgpTabsConfig {
   /**
    * The orientation of the tabset
    * @default 'horizontal'
    */
-  orientation: 'horizontal' | 'vertical';
+  orientation: NgpOrientation;
 
   /**
    * Whether tabs should activate on focus

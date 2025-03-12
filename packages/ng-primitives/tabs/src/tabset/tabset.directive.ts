@@ -14,7 +14,8 @@ import {
   input,
   model,
 } from '@angular/core';
-import { NgpCanOrientate, NgpOrientation, NgpOrientationToken } from 'ng-primitives/internal';
+import { NgpOrientation } from 'ng-primitives/common';
+import { NgpCanOrientate, NgpOrientationToken } from 'ng-primitives/internal';
 import { NgpRovingFocusGroup } from 'ng-primitives/roving-focus';
 import { uniqueId } from 'ng-primitives/utils';
 import { injectTabsConfig } from '../config/tabs.config';

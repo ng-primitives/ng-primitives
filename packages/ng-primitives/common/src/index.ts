@@ -1,2 +1,3 @@
 export { NgpHeader } from './header/header.directive';
-export { NgpHeaderToken, injectHeader } from './header/header.token';
+export { injectHeader, NgpHeaderToken } from './header/header.token';
+export { NgpOrientation } from './types/orientation';

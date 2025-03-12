@@ -6,13 +6,14 @@
  * LICENSE file in the root directory of this source tree.
  */
 import { InjectionToken, Provider, inject } from '@angular/core';
+import { NgpOrientation } from 'ng-primitives/common';
 
 export interface NgpSeparatorConfig {
   /**
    * The default separator orientation
    * @default 'horizontal'
    */
-  orientation: 'horizontal' | 'vertical';
+  orientation: NgpOrientation;
 }
 
 export const defaultSeparatorConfig: NgpSeparatorConfig = {
