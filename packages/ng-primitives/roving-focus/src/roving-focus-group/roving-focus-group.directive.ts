@@ -12,13 +12,13 @@ import { booleanAttribute, Directive, inject, input, model, signal } from '@angu
 import { NgpOrientation } from 'ng-primitives/common';
 import { injectOrientation, NgpCanOrientate } from 'ng-primitives/internal';
 import { NgpRovingFocusItem } from '../roving-focus-item/roving-focus-item.directive';
-import { NgpRovingFocusGroupToken } from './roving-focus-group.token';
+import { provideRovingFocusGroup } from './roving-focus-group.token';
 
 @Directive({
   standalone: true,
   selector: '[ngpRovingFocusGroup]',
   exportAs: 'ngpRovingFocusGroup',
-  providers: [{ provide: NgpRovingFocusGroupToken, useExisting: NgpRovingFocusGroup }],
+  providers: [provideRovingFocusGroup(NgpRovingFocusGroup)],
 })
 export class NgpRovingFocusGroup implements NgpCanOrientate {
   /**

@@ -5,7 +5,7 @@
  * This source code is licensed under the Apache 2.0 license found in the
  * LICENSE file in the root directory of this source tree.
  */
-import { InjectionToken, inject } from '@angular/core';
+import { InjectionToken, inject, Type, ExistingProvider } from '@angular/core';
 import type { Ngp<%= className %> } from './<%= fileName %>.directive';
 
 export const Ngp<%= className %>Token = new InjectionToken<Ngp<%= className %>>('Ngp<%= className %>Token');
@@ -15,4 +15,12 @@ export const Ngp<%= className %>Token = new InjectionToken<Ngp<%= className %>>(
  */
 export function inject<%= className %>(): Ngp<%= className %> {
   return inject(Ngp<%= className %>Token);
+}
+
+
+/**
+ * Provide the <%= className %> directive instance
+ */
+export function provide<%= className %>(type: Type<Ngp<%= className %>): ExistingProvider {
+  return { provide: Ngp<%= className %>Token, useExisting: type };
 }
