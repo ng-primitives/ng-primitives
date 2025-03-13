@@ -16,7 +16,7 @@ import { NgpListbox, NgpListboxOption, NgpListboxSection } from 'ng-primitives/l
 
         <div ngpListboxSection>
           @for (option of section.options; track option.id) {
-            <div class="listbox-option" [ngpListboxOption]="option">
+            <div class="listbox-option" [ngpListboxOptionValue]="option" ngpListboxOption>
               <ng-icon name="heroCheckSolid" size="16px" />
               {{ option.name }}
             </div>

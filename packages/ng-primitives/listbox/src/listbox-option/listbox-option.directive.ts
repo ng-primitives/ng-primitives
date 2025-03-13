@@ -48,7 +48,7 @@ export class NgpListboxOption<T> {
    * The value of the option.
    */
   readonly value = input.required<T>({
-    alias: 'ngpListboxOption',
+    alias: 'ngpListboxOptionValue',
   });
 
   /**

@@ -22,9 +22,9 @@ Assemble the listbox directives in your template.
 
 ```html
 <div ngpListbox>
-  <div ngpListboxOption value="1">Option 1</div>
-  <div ngpListboxOption value="2">Option 2</div>
-  <div ngpListboxOption value="3">Option 3</div>
+  <div ngpListboxOption ngpListboxOptionValue="1">Option 1</div>
+  <div ngpListboxOption ngpListboxOptionValue="2">Option 2</div>
+  <div ngpListboxOption ngpListboxOptionValue="3">Option 3</div>
 </div>
 ```
 
@@ -86,7 +86,7 @@ The following data attributes are applied to the `ngpListbox` directive:
 - Selector: `[ngpListboxOption]`
 - Exported As: `ngpListboxOption`
 
-<response-field name="ngpListboxOption" type="T">
+<response-field name="ngpListboxOptionValue" type="T">
   The value of the option.
 </response-field>
 
