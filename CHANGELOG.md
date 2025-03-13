@@ -1,3 +1,15 @@
+## 0.25.0 (2025-03-13)
+
+### 🚀 Features
+
+- **separator:** adding separator primitive ([#119](https://github.com/ng-primitives/ng-primitives/pull/119))
+- **toggle-group:** adding toggle group primitive ([#120](https://github.com/ng-primitives/ng-primitives/pull/120))
+- **toolbar:** adding toolbar primitive ([#121](https://github.com/ng-primitives/ng-primitives/pull/121))
+
+### ❤️ Thank You
+
+- Ashley Hunter
+
 ## 0.24.0 (2025-03-10)
 
 ### 🚀 Features
