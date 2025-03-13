@@ -74,6 +74,10 @@ export interface NgpFormControlState<T> {
    */
   setOnChangeFn(fn: (value: T) => void): void;
   /**
+   * Set the onTouched callback for Angular Forms.
+   */
+  setOnTouchFn(fn: () => void): void;
+  /**
    * Set the disabled state of the control.
    */
   setDisabled(disabled: boolean): void;
@@ -100,6 +104,11 @@ export class NgpFormControlManager<T> {
    */
   private onChangeFn?: (value: T) => void;
 
+  /**
+   * Store the onTouched callback for Angular Forms.
+   */
+  private onTouchedFn?: () => void;
+
   readonly formState = computed<NgpFormControlState<T>>(() => ({
     value: this.value,
     disabled: this.disabled,
@@ -121,6 +130,7 @@ export class NgpFormControlManager<T> {
       this.onChangeFn?.(value);
     },
     setOnChangeFn: (fn: (value: T) => void) => (this.onChangeFn = fn),
+    setOnTouchFn: (fn: () => void) => (this.onTouchedFn = fn),
     setDisabled: (disabled: boolean) => this.disabled.set(disabled),
   }));
 
