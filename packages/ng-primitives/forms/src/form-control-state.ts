@@ -4,10 +4,11 @@ import {
   inject,
   InjectionToken,
   linkedSignal,
+  OutputEmitterRef,
   signal,
   Signal,
+  WritableSignal,
 } from '@angular/core';
-import { Subject } from 'rxjs';
 
 export const NgpFormControlManagerToken = new InjectionToken<NgpFormControlManager<unknown>>(
   'NgpFormControlManager',
@@ -37,15 +38,44 @@ export function injectFormControlState<T>(): NgpFormControlState<T> {
 }
 
 interface NgpFormControlOptions<T> {
+  /**
+   * The signal that represents the user defined value of the control. This is usually the value input.
+   */
   value: Signal<T>;
+  /**
+   * If the value signal is not using `model`, you may want to provide reference to the output that emits on value change.
+   */
+  valueChange?: OutputEmitterRef<T>;
+  /**
+   * The signal that represents the user defined disabled state of the control. This is usually the disabled input.
+   */
   disabled: Signal<boolean>;
 }
 
 export interface NgpFormControlState<T> {
+  /**
+   * The readonly signal that represents the user defined value of the control.
+   */
   value: Signal<T>;
+  /**
+   * The readonly signal that represents the user defined disabled state of the control.
+   */
   disabled: Signal<boolean>;
-  valueChange: Subject<T>;
+  /**
+   * Update the value of the control when the value changes via Angular Forms.
+   */
+  writeValue(value: T): void;
+  /**
+   * Update the value of the control when the value changes via user interaction.
+   */
   setValue(value: T): void;
+  /**
+   * Set the onChange callback for Angular Forms.
+   */
+  setOnChangeFn(fn: (value: T) => void): void;
+  /**
+   * Set the disabled state of the control.
+   */
   setDisabled(disabled: boolean): void;
 }
 
@@ -66,26 +96,43 @@ export class NgpFormControlManager<T> {
   private readonly disabled = linkedSignal(() => this.state().disabled());
 
   /**
-   * An observable that emits when the value of the control changes due to user input.
+   * Store the onChange callback for Angular Forms.
    */
-  private readonly valueChange = new Subject<T>();
+  private onChangeFn?: (value: T) => void;
 
   readonly formState = computed<NgpFormControlState<T>>(() => ({
     value: this.value,
     disabled: this.disabled,
-    valueChange: this.valueChange,
+    writeValue: (value: T) => this.value.set(value),
     setValue: (value: T) => {
+      // update the internal value
       this.value.set(value);
-      this.valueChange.next(value);
+
+      const valueSignal = this.state().value;
+
+      if (isWritableSignal(valueSignal)) {
+        valueSignal.set(value);
+      }
+
+      // if the valueChange output is provided, emit the value
+      this.state().valueChange?.emit(value);
+
+      // update the form control
+      this.onChangeFn?.(value);
     },
+    setOnChangeFn: (fn: (value: T) => void) => (this.onChangeFn = fn),
     setDisabled: (disabled: boolean) => this.disabled.set(disabled),
   }));
 
   /**
    * @internal
    */
-  setupState({ value, disabled }: NgpFormControlOptions<T>): NgpFormControlState<T> {
-    this.state.set({ value, disabled });
+  setupState({ value, valueChange, disabled }: NgpFormControlOptions<T>): NgpFormControlState<T> {
+    this.state.set({ value, valueChange, disabled });
     return this.formState();
   }
+}
+
+function isWritableSignal<T>(signal: Signal<T>): signal is WritableSignal<T> {
+  return 'set' in signal;
 }
