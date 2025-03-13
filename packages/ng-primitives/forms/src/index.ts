@@ -1,6 +1,6 @@
 export {
-  injectFormControlState,
-  NgpFormControlState,
-  provideFormControlState,
-  setupFormControlState,
-} from './form-control-state';
+  injectControlState,
+  NgpControlState,
+  provideControlState,
+  setupControlState,
+} from './control-state';

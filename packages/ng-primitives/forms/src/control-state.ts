@@ -10,34 +10,34 @@ import {
   WritableSignal,
 } from '@angular/core';
 
-export const NgpFormControlManagerToken = new InjectionToken<NgpFormControlManager<unknown>>(
-  'NgpFormControlManager',
+export const NgpControlManagerToken = new InjectionToken<NgpControlManager<unknown>>(
+  'NgpControlManager',
 );
 
-export function provideFormControlState(): ClassProvider {
-  return { provide: NgpFormControlManagerToken, useClass: NgpFormControlManager };
+export function provideControlState(): ClassProvider {
+  return { provide: NgpControlManagerToken, useClass: NgpControlManager };
 }
 
-function injectFormControlManager<T>(): NgpFormControlManager<T> {
-  return inject(NgpFormControlManagerToken) as NgpFormControlManager<T>;
+function injectControlManager<T>(): NgpControlManager<T> {
+  return inject(NgpControlManagerToken) as NgpControlManager<T>;
 }
 
 /**
- * Bind the control state to the form state.
+ * Bind the control state to the managed control state.
  * @param state
  */
-export function setupFormControlState<T>(state: NgpFormControlOptions<T>): NgpFormControlState<T> {
-  return injectFormControlManager<T>().setupState(state);
+export function setupControlState<T>(state: NgpControlBindings<T>): NgpControlState<T> {
+  return injectControlManager<T>().setupState(state);
 }
 
 /**
- * Access the form control state.
+ * Access the control state.
  */
-export function injectFormControlState<T>(): NgpFormControlState<T> {
-  return injectFormControlManager<T>().formState();
+export function injectControlState<T>(): NgpControlState<T> {
+  return injectControlManager<T>().controlState();
 }
 
-interface NgpFormControlOptions<T> {
+interface NgpControlBindings<T> {
   /**
    * The signal that represents the user defined value of the control. This is usually the value input.
    */
@@ -52,7 +52,7 @@ interface NgpFormControlOptions<T> {
   disabled: Signal<boolean>;
 }
 
-export interface NgpFormControlState<T> {
+export interface NgpControlState<T> {
   /**
    * The readonly signal that represents the user defined value of the control.
    */
@@ -74,17 +74,13 @@ export interface NgpFormControlState<T> {
    */
   setOnChangeFn(fn: (value: T) => void): void;
   /**
-   * Set the onTouched callback for Angular Forms.
-   */
-  setOnTouchFn(fn: () => void): void;
-  /**
    * Set the disabled state of the control.
    */
   setDisabled(disabled: boolean): void;
 }
 
-export class NgpFormControlManager<T> {
-  private readonly state = signal<NgpFormControlOptions<T>>({
+export class NgpControlManager<T> {
+  private readonly state = signal<NgpControlBindings<T>>({
     value: signal(undefined as T),
     disabled: signal(false),
   });
@@ -104,12 +100,7 @@ export class NgpFormControlManager<T> {
    */
   private onChangeFn?: (value: T) => void;
 
-  /**
-   * Store the onTouched callback for Angular Forms.
-   */
-  private onTouchedFn?: () => void;
-
-  readonly formState = computed<NgpFormControlState<T>>(() => ({
+  readonly controlState = computed<NgpControlState<T>>(() => ({
     value: this.value,
     disabled: this.disabled,
     writeValue: (value: T) => this.value.set(value),
@@ -130,16 +121,15 @@ export class NgpFormControlManager<T> {
       this.onChangeFn?.(value);
     },
     setOnChangeFn: (fn: (value: T) => void) => (this.onChangeFn = fn),
-    setOnTouchFn: (fn: () => void) => (this.onTouchedFn = fn),
     setDisabled: (disabled: boolean) => this.disabled.set(disabled),
   }));
 
   /**
    * @internal
    */
-  setupState({ value, valueChange, disabled }: NgpFormControlOptions<T>): NgpFormControlState<T> {
+  setupState({ value, valueChange, disabled }: NgpControlBindings<T>): NgpControlState<T> {
     this.state.set({ value, valueChange, disabled });
-    return this.formState();
+    return this.controlState();
   }
 }
 

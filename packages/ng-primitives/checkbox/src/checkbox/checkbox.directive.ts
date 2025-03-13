@@ -8,7 +8,7 @@
 import { BooleanInput } from '@angular/cdk/coercion';
 import { Directive, HostListener, booleanAttribute, input, model } from '@angular/core';
 import { NgpFormControl } from 'ng-primitives/form-field';
-import { provideFormControlState, setupFormControlState } from 'ng-primitives/forms';
+import { provideControlState, setupControlState } from 'ng-primitives/forms';
 import { NgpFocusVisible, NgpHover, NgpPress } from 'ng-primitives/interactions';
 import { NgpCanDisable, NgpDisabledToken } from 'ng-primitives/internal';
 import { uniqueId } from 'ng-primitives/utils';
@@ -19,7 +19,7 @@ import { provideCheckbox } from './checkbox.token';
   standalone: true,
   providers: [
     provideCheckbox(NgpCheckbox),
-    provideFormControlState(),
+    provideControlState(),
     { provide: NgpDisabledToken, useExisting: NgpCheckbox },
   ],
   hostDirectives: [NgpFormControl, NgpHover, NgpFocusVisible, NgpPress],
@@ -73,7 +73,7 @@ export class NgpCheckbox implements NgpCanDisable {
    * The form control state. This is used to allow communication between the checkbox and the control value access and any
    * components that use this as a host directive.
    */
-  protected readonly formState = setupFormControlState({
+  protected readonly formState = setupControlState({
     value: this.checked,
     disabled: this.disabled,
   });
