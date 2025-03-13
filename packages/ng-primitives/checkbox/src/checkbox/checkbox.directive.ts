@@ -8,25 +8,28 @@
 import { BooleanInput } from '@angular/cdk/coercion';
 import { Directive, HostListener, booleanAttribute, input, model } from '@angular/core';
 import { NgpFormControl } from 'ng-primitives/form-field';
+import { controlState, provideControlState } from 'ng-primitives/forms';
 import { NgpFocusVisible, NgpHover, NgpPress } from 'ng-primitives/interactions';
 import { NgpCanDisable, NgpDisabledToken } from 'ng-primitives/internal';
 import { uniqueId } from 'ng-primitives/utils';
-import { NgpCheckboxToken } from './checkbox.token';
+import { provideCheckbox } from './checkbox.token';
 
 @Directive({
   selector: '[ngpCheckbox]',
   standalone: true,
   providers: [
-    { provide: NgpCheckboxToken, useExisting: NgpCheckbox },
+    provideCheckbox(NgpCheckbox),
+    provideControlState(),
     { provide: NgpDisabledToken, useExisting: NgpCheckbox },
   ],
   hostDirectives: [NgpFormControl, NgpHover, NgpFocusVisible, NgpPress],
   host: {
     role: 'checkbox',
-    '[attr.aria-checked]': 'indeterminate() ? "mixed" : checked()',
-    '[attr.data-checked]': 'checked() ? "" : null',
+    '[attr.aria-checked]': 'indeterminate() ? "mixed" : state.value()',
+    '[attr.data-checked]': 'state.value() ? "" : null',
     '[attr.data-indeterminate]': 'indeterminate() ? "" : null',
-    '[tabindex]': 'disabled() ? -1 : 0',
+    '[attr.aria-disabled]': 'state.disabled()',
+    '[tabindex]': 'state.disabled() ? -1 : 0',
   },
 })
 export class NgpCheckbox implements NgpCanDisable {
@@ -66,6 +69,15 @@ export class NgpCheckbox implements NgpCanDisable {
     transform: booleanAttribute,
   });
 
+  /**
+   * The form control state. This is used to allow communication between the checkbox and the control value access and any
+   * components that use this as a host directive.
+   */
+  protected readonly state = controlState({
+    value: this.checked,
+    disabled: this.disabled,
+  });
+
   @HostListener('keydown.enter', ['$event'])
   protected onEnter(event: KeyboardEvent): void {
     // According to WAI ARIA, Checkboxes don't activate on enter keypress
@@ -75,14 +87,14 @@ export class NgpCheckbox implements NgpCanDisable {
   @HostListener('click', ['$event'])
   @HostListener('keydown.space', ['$event'])
   toggle(event?: Event): void {
-    if (this.disabled()) {
+    if (this.state.disabled()) {
       return;
     }
 
     // prevent this firing twice in cases where the label is clicked and the checkbox is clicked by the one event
     event?.preventDefault();
 
-    this.checked.set(this.indeterminate() ? true : !this.checked());
+    this.state.setValue(this.indeterminate() ? true : !this.state.value());
 
     // if the checkbox was indeterminate, it isn't anymore
     if (this.indeterminate()) {
