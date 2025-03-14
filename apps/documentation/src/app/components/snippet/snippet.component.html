@@ -1,0 +1,32 @@
+<div class="not-prose relative flex flex-col items-center justify-center">
+  <div class="relative w-full flex-1">
+    <div class="rounded-xl bg-zinc-950">
+      <div class="flex border-b border-white/20">
+        @for (file of files() | keyvalue; track file.key) {
+          <button
+            class="group relative -mb-px flex items-center whitespace-nowrap px-2 py-2 font-medium text-white outline-none"
+            [attr.aria-selected]="selectedFile() === file.key"
+            (click)="selectedFile.set(file.key)"
+            role="tab"
+            type="button"
+            tabindex="0"
+          >
+            <div
+              class="inline-flex h-5 items-center rounded-md px-2 text-xs group-hover:bg-zinc-700/60 group-hover:text-white"
+            >
+              {{ file.key }}
+            </div>
+
+            @if (selectedFile() === file.key) {
+              <div class="pointer-events-none absolute inset-0 border-b border-white"></div>
+            }
+          </button>
+        }
+      </div>
+
+      <pre
+        class="h-fit whitespace-pre-wrap p-4"
+      ><code class="language-typescript not-prose" [innerHTML]="code()"></code></pre>
+    </div>
+  </div>
+</div>

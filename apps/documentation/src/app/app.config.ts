@@ -4,16 +4,17 @@ import { provideFileRouter } from '@analogjs/router';
 import { isPlatformBrowser } from '@angular/common';
 import {
   ApplicationConfig,
+  inject,
   Injector,
   PLATFORM_ID,
-  provideZoneChangeDetection,
-  inject,
   provideAppInitializer,
+  provideZoneChangeDetection,
 } from '@angular/core';
 import { provideClientHydration } from '@angular/platform-browser';
 import { withInMemoryScrolling } from '@angular/router';
 import { ExampleComponent } from './components/example/example.component';
 import { ResponseFieldComponent } from './components/response-field/response-field.component';
+import { Snippet } from './components/snippet/snippet.component';
 import { TabGroupComponent } from './components/tab-group/tab-group.component';
 import { TabComponent } from './components/tab/tab.component';
 
@@ -41,6 +42,7 @@ export function initializeCustomElements(
       const { createCustomElement } = await import('@angular/elements');
       // Register the custom element with the browser.
       customElements.define('docs-example', createCustomElement(ExampleComponent, { injector }));
+      customElements.define('docs-snippet', createCustomElement(Snippet, { injector }));
 
       customElements.define(
         'response-field',

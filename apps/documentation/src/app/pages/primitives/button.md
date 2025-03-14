@@ -24,6 +24,12 @@ Assemble the button directives in your template.
 <button ngpButton>Button</button>
 ```
 
+## Reusable Component
+
+Create a button component that uses the `NgpButton` directive.
+
+<docs-snippet name="button"></docs-snippet>
+
 ## Schematics
 
 Generate a button component with the `NgpButton` primitive preconfigured.

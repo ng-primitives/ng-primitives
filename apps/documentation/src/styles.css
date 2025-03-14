@@ -113,6 +113,10 @@ pre[class*='language-'] {
   @apply rounded bg-zinc-50 px-1.5 py-1 font-sans text-[13px] font-medium text-zinc-900 ring-1 ring-black/5 before:hidden after:hidden;
 }
 
+.prose-zinc :where(p):not(:where([class~='not-prose'], [class~='not-prose'] *)) {
+  line-height: 24px;
+}
+
 .DocSearch-Button {
   --docsearch-searchbox-shadow: 0 0 0 1px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.2);
   @apply inline-flex flex-none items-center gap-x-3 overflow-hidden rounded-lg bg-white px-3 py-2 shadow-black/5 ring-1 ring-transparent focus-within:ring-2 focus-within:ring-blue-500 md:left-[calc(50%-104px)] md:w-52 md:shadow md:ring-black/10 lg:left-[calc(50%-160px)] lg:w-80 dark:bg-zinc-800;

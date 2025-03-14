@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { NgIcon, provideIcons } from '@ng-icons/core';
-import { lucideAlignCenter, lucideAlignLeft, lucideAlignRight } from '@ng-icons/lucide';
+import { heroBars3, heroBars3BottomLeft, heroBars3BottomRight } from '@ng-icons/heroicons/outline';
 import { NgpButton } from 'ng-primitives/button';
 import { NgpToggleGroup, NgpToggleGroupItem } from 'ng-primitives/toggle-group';
 
@@ -8,11 +8,17 @@ import { NgpToggleGroup, NgpToggleGroupItem } from 'ng-primitives/toggle-group';
   standalone: true,
   selector: 'app-toggle-group',
   imports: [NgpToggleGroup, NgpToggleGroupItem, NgpButton, NgIcon],
-  viewProviders: [provideIcons({ lucideAlignLeft, lucideAlignCenter, lucideAlignRight })],
+  viewProviders: [
+    provideIcons({
+      heroBars3BottomLeft,
+      heroBars3,
+      heroBars3BottomRight,
+    }),
+  ],
   template: `
     <div ngpToggleGroup aria-label="Text alignment">
       <button ngpButton ngpToggleGroupItem ngpToggleGroupItemValue="left" aria-label="Left align">
-        <ng-icon name="lucideAlignLeft" />
+        <ng-icon name="heroBars3BottomLeft" />
       </button>
 
       <button
@@ -21,11 +27,11 @@ import { NgpToggleGroup, NgpToggleGroupItem } from 'ng-primitives/toggle-group';
         ngpToggleGroupItemValue="center"
         aria-label="Center align"
       >
-        <ng-icon name="lucideAlignCenter" />
+        <ng-icon name="heroBars3" />
       </button>
 
       <button ngpButton ngpToggleGroupItem ngpToggleGroupItemValue="right" aria-label="Right align">
-        <ng-icon name="lucideAlignRight" />
+        <ng-icon name="heroBars3BottomRight" />
       </button>
     </div>
   `,

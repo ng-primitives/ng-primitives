@@ -10,10 +10,11 @@ import {
 } from '@ng-icons/heroicons/outline';
 import { NgpButton } from 'ng-primitives/button';
 import { NgpRovingFocusGroup, NgpRovingFocusItem } from 'ng-primitives/roving-focus';
+import { NgpSeparator } from 'ng-primitives/separator';
 
 @Component({
   selector: 'app-roving-focus',
-  imports: [NgpRovingFocusGroup, NgpRovingFocusItem, NgIcon, NgpButton],
+  imports: [NgpRovingFocusGroup, NgpRovingFocusItem, NgIcon, NgpButton, NgpSeparator],
   viewProviders: [
     provideIcons({
       heroDocument,
@@ -88,7 +89,7 @@ import { NgpRovingFocusGroup, NgpRovingFocusItem } from 'ng-primitives/roving-fo
         <ng-icon name="heroFolder" />
       </button>
 
-      <div class="divider"></div>
+      <div class="divider" ngpSeparator></div>
 
       <button type="button" ngpButton ngpRovingFocusItem>
         <ng-icon name="heroBars3BottomLeft" />
@@ -102,7 +103,7 @@ import { NgpRovingFocusGroup, NgpRovingFocusItem } from 'ng-primitives/roving-fo
         <ng-icon name="heroBars3BottomRight" />
       </button>
 
-      <div class="divider"></div>
+      <div class="divider" ngpSeparator></div>
 
       <button type="button" ngpButton ngpRovingFocusItem>
         <ng-icon name="heroCog6Tooth" />

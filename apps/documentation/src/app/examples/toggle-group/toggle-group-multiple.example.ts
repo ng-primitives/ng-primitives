@@ -1,6 +1,11 @@
 import { Component } from '@angular/core';
 import { NgIcon, provideIcons } from '@ng-icons/core';
-import { lucideBold, lucideItalic, lucideStrikethrough, lucideUnderline } from '@ng-icons/lucide';
+import {
+  heroBold,
+  heroItalic,
+  heroStrikethrough,
+  heroUnderline,
+} from '@ng-icons/heroicons/outline';
 import { NgpButton } from 'ng-primitives/button';
 import { NgpToggleGroup, NgpToggleGroupItem } from 'ng-primitives/toggle-group';
 
@@ -8,15 +13,15 @@ import { NgpToggleGroup, NgpToggleGroupItem } from 'ng-primitives/toggle-group';
   standalone: true,
   selector: 'app-toggle-group',
   imports: [NgpToggleGroup, NgpToggleGroupItem, NgpButton, NgIcon],
-  viewProviders: [provideIcons({ lucideBold, lucideItalic, lucideUnderline, lucideStrikethrough })],
+  viewProviders: [provideIcons({ heroBold, heroItalic, heroStrikethrough, heroUnderline })],
   template: `
     <div ngpToggleGroup ngpToggleGroupType="multiple" aria-label="Text formatting">
       <button ngpButton ngpToggleGroupItem ngpToggleGroupItemValue="bold" aria-label="Bold">
-        <ng-icon name="lucideBold" />
+        <ng-icon name="heroBold" />
       </button>
 
       <button ngpButton ngpToggleGroupItem ngpToggleGroupItemValue="italic" aria-label="Italic">
-        <ng-icon name="lucideItalic" />
+        <ng-icon name="heroItalic" />
       </button>
 
       <button
@@ -25,7 +30,7 @@ import { NgpToggleGroup, NgpToggleGroupItem } from 'ng-primitives/toggle-group';
         ngpToggleGroupItemValue="underline"
         aria-label="Underline"
       >
-        <ng-icon name="lucideUnderline" />
+        <ng-icon name="heroUnderline" />
       </button>
 
       <button
@@ -34,7 +39,7 @@ import { NgpToggleGroup, NgpToggleGroupItem } from 'ng-primitives/toggle-group';
         ngpToggleGroupItemValue="strikethrough"
         aria-label="Strikethrough"
       >
-        <ng-icon name="lucideStrikethrough" />
+        <ng-icon name="heroStrikethrough" />
       </button>
     </div>
   `,
