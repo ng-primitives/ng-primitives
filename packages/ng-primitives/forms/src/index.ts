@@ -1,6 +1,6 @@
 export {
+  controlState,
   injectControlState,
   NgpControlState,
   provideControlState,
-  setupControlState,
 } from './control-state';

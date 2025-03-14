@@ -10,23 +10,23 @@ import {
   WritableSignal,
 } from '@angular/core';
 
-export const NgpControlManagerToken = new InjectionToken<NgpControlManager<unknown>>(
-  'NgpControlManager',
+export const NgpControlStateManagerToken = new InjectionToken<NgpControlStateManager<unknown>>(
+  'NgpControlStateManager',
 );
 
 export function provideControlState(): ClassProvider {
-  return { provide: NgpControlManagerToken, useClass: NgpControlManager };
+  return { provide: NgpControlStateManagerToken, useClass: NgpControlStateManager };
 }
 
-function injectControlManager<T>(): NgpControlManager<T> {
-  return inject(NgpControlManagerToken) as NgpControlManager<T>;
+function injectControlManager<T>(): NgpControlStateManager<T> {
+  return inject(NgpControlStateManagerToken) as NgpControlStateManager<T>;
 }
 
 /**
  * Bind the control state to the managed control state.
  * @param state
  */
-export function setupControlState<T>(state: NgpControlBindings<T>): NgpControlState<T> {
+export function controlState<T>(state: NgpControlBindings<T>): NgpControlState<T> {
   return injectControlManager<T>().setupState(state);
 }
 
@@ -79,7 +79,7 @@ export interface NgpControlState<T> {
   setDisabled(disabled: boolean): void;
 }
 
-export class NgpControlManager<T> {
+export class NgpControlStateManager<T> {
   private readonly state = signal<NgpControlBindings<T>>({
     value: signal(undefined as T),
     disabled: signal(false),
