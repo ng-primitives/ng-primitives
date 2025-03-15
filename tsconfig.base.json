@@ -31,6 +31,7 @@
       "ng-primitives/file-upload": ["packages/ng-primitives/file-upload/src/index.ts"],
       "ng-primitives/focus-trap": ["packages/ng-primitives/focus-trap/src/index.ts"],
       "ng-primitives/form-field": ["packages/ng-primitives/form-field/src/index.ts"],
+      "ng-primitives/forms": ["packages/ng-primitives/forms/src/index.ts"],
       "ng-primitives/input": ["packages/ng-primitives/input/src/index.ts"],
       "ng-primitives/interactions": ["packages/ng-primitives/interactions/src/index.ts"],
       "ng-primitives/internal": ["packages/ng-primitives/internal/src/index.ts"],
