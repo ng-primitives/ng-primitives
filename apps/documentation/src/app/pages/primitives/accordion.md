@@ -39,6 +39,12 @@ Assemble the accordion directives in your template.
 </div>
 ```
 
+## Reusable Component
+
+Create reusable components that uses the `NgpAccordion` and `NgpAccordionItem` directives.
+
+<docs-snippet name="accordion"></docs-snippet>
+
 ## Schematics
 
 Generate an accordion component with the `NgpAccordion` and `NgpAccordionItem` primitives preconfigured.

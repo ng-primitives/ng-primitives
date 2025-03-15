@@ -1,7 +1,7 @@
 import { isPlatformBrowser } from '@angular/common';
 import { Component, PLATFORM_ID, effect, inject, signal } from '@angular/core';
-import { NavigationEnd, Router, RouterLink, RouterOutlet } from '@angular/router';
-import { NgIcon, provideIcons } from '@ng-icons/core';
+import { NavigationEnd, Router, RouterOutlet } from '@angular/router';
+import { provideIcons } from '@ng-icons/core';
 import { saxMoonOutline } from '@ng-icons/iconsax/outline';
 import { filter } from 'rxjs';
 import { Navbar } from './components/navbar/navbar';
@@ -9,7 +9,7 @@ import { SideNavigationComponent } from './components/side-navigation/side-navig
 
 @Component({
   selector: 'docs-root',
-  imports: [RouterOutlet, RouterLink, NgIcon, Navbar, SideNavigationComponent],
+  imports: [RouterOutlet, Navbar, SideNavigationComponent],
   viewProviders: [provideIcons({ saxMoonOutline })],
   template: `
     <docs-navbar [(menuOpen)]="menuOpen" />

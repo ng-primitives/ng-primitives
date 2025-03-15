@@ -23,9 +23,13 @@
       },
       "defaultConfiguration": "production"
     },
+    "build:templates": {
+      "command": "nx g @ng-primitives/tools:templates"
+    },
     "build:schematics": {
       "executor": "@nx/js:tsc",
       "outputs": ["{options.outputPath}"],
+      "dependsOn": ["build:templates"],
       "options": {
         "clean": true,
         "outputPath": "dist/packages/ng-primitives",
@@ -45,7 +49,7 @@
           },
           {
             "input": "./packages/ng-primitives",
-            "glob": "generators.json",
+            "glob": "collection.json",
             "output": "."
           },
           {

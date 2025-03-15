@@ -1,9 +1,9 @@
 import { Component } from '@angular/core';
-import { Button } from './button';
+import { Button } from './button.ng';
 
 @Component({
-  selector: 'app-root',
+  selector: 'app-button-example',
   imports: [Button],
   template: '<button app-button>Click me</button>',
 })
-export class App {}
+export default class App {}
