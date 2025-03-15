@@ -24,6 +24,12 @@ Assemble the input directives in your template.
 <input ngpInput type="text" />
 ```
 
+## Reusable Component
+
+Create an input component that uses the `NgpInput` directive.
+
+<docs-snippet name="input"></docs-snippet>
+
 ## Schematics
 
 Generate an input component with the `NgpInput` primitive preconfigured.

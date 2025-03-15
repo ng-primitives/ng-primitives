@@ -5,6 +5,6 @@
   "lib": {
     "entryFile": "src/index.ts"
   },
-  "assets": ["example-theme/index.css", "migration.json", "generators.json"],
+  "assets": ["example-theme/index.css", "migration.json", "collection.json"],
   "allowedNonPeerDependencies": ["@nx/devkit", "nx"]
 }

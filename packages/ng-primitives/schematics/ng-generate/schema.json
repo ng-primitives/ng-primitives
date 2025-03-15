@@ -1,0 +1,46 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema",
+  "$id": "SchematicsAngularComponent",
+  "title": "Angular Primitives Component Options Schema",
+  "type": "object",
+  "description": "Create a reusable Angular Primitives component.",
+  "additionalProperties": false,
+  "properties": {
+    "primitive": {
+      "type": "string",
+      "description": "The name of the primitive to generate.",
+      "enum": ["accordion", "button", "input"]
+    },
+    "path": {
+      "type": "string",
+      "format": "path",
+      "description": "The path where the component files should be created, relative to the current workspace.",
+      "visible": false
+    },
+    "prefix": {
+      "type": "string",
+      "description": "A prefix to be added to the component's selector. For example, if the prefix is `app` and the component name is `button`, the selector will be `app-button`.",
+      "alias": "p",
+      "oneOf": [
+        {
+          "maxLength": 0
+        },
+        {
+          "minLength": 1,
+          "format": "html-selector"
+        }
+      ]
+    },
+    "componentSuffix": {
+      "type": "string",
+      "description": "Append the specified suffix to the component name. If the component name is `Button` and the suffix is `Component`, the generated component will be named `ButtonComponent`.",
+      "default": "Component"
+    },
+    "fileSuffix": {
+      "type": "string",
+      "default": "component",
+      "description": "Generate component template files with the specified suffix."
+    }
+  },
+  "required": ["primitive", "path"]
+}

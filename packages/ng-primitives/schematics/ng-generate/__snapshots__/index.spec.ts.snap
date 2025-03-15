@@ -1,0 +1,82 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Component Schematic should create a button primitive 1`] = `
+"import { Component } from '@angular/core';
+import { NgpButton } from 'ng-primitives/button';
+
+@Component({
+  selector: 'button[app-button]',
+  hostDirectives: [{ directive: NgpButton, inputs: ['disabled'] }],
+  template: '<ng-content />',
+  styles: \`
+    :host {
+    }
+
+    :host[data-hover] {
+    }
+
+    :host[data-focus-visible] {
+    }
+
+    :host[data-press] {
+    }
+  \`,
+})
+export class ButtonComponent {}
+"
+`;
+
+exports[`Component Schematic should create an accordion primitive 1`] = `
+"import { Component } from '@angular/core';
+import { NgpAccordion } from 'ng-primitives/accordion';
+
+@Component({
+  selector: 'app-accordion',
+  hostDirectives: [
+    {
+      directive: NgpAccordion,
+      inputs: [
+        'ngpAccordionValue:value',
+        'ngpAccordionType:type',
+        'ngpAccordionCollapsible:collapsible',
+        'ngpAccordionDisabled:disabled',
+        'ngpAccordionOrientation:orientation',
+      ],
+    },
+  ],
+  template: \`
+    <ng-content />
+  \`,
+  styles: \`
+    :host {
+      display: flex;
+      flex-direction: column;
+    }
+  \`,
+})
+export class AccordionComponent {}
+"
+`;
+
+exports[`Component Schematic should create an input primitive 1`] = `
+"import { Component } from '@angular/core';
+import { NgpInput } from 'ng-primitives/input';
+
+@Component({
+  selector: 'input[app-input]',
+  hostDirectives: [{ directive: NgpInput, inputs: ['disabled'] }],
+  template: '',
+  styles: \`
+    :host {
+    }
+
+    :host[data-focus] {
+    }
+
+    :host::placeholder {
+    }
+  \`,
+})
+export class InputComponent {}
+"
+`;

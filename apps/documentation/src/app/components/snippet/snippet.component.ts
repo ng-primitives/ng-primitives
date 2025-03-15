@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
-import { KeyValuePipe } from '@angular/common';
+import { Clipboard } from '@angular/cdk/clipboard';
 import {
   ChangeDetectionStrategy,
   ChangeDetectorRef,
@@ -10,26 +10,27 @@ import {
   signal,
 } from '@angular/core';
 import { NgIcon, provideIcons } from '@ng-icons/core';
-import { lucideClipboard, lucideCodesandbox } from '@ng-icons/lucide';
+import { heroSquare2Stack } from '@ng-icons/heroicons/outline';
 import * as prismjs from 'prismjs';
 
 const { highlight, languages } = prismjs;
 
 @Component({
   selector: 'docs-snippet',
-  imports: [NgIcon, KeyValuePipe],
+  imports: [NgIcon],
+  providers: [provideIcons({ heroSquare2Stack })],
   templateUrl: './snippet.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  providers: [provideIcons({ lucideCodesandbox, lucideClipboard })],
 })
 export class Snippet {
+  private readonly clipboard = inject(Clipboard);
   private readonly changeDetector = inject(ChangeDetectorRef);
-  private readonly snippets = import.meta.glob!('../../reusable-components/**/*.ts', {
+  private readonly snippets = import.meta.glob!('../../../../../components/src/app/**/*.ts', {
     import: 'default',
     query: '?source',
   });
 
-  readonly files = signal<Record<string, string>>({});
+  readonly files = signal<Tab[]>([]);
 
   readonly selectedFile = signal<string | null>(null);
 
@@ -37,11 +38,11 @@ export class Snippet {
     const files = this.files();
     const selectedFile = this.selectedFile();
 
-    if (!selectedFile || !files[selectedFile]) {
+    if (!selectedFile || !files.find(file => file.label === selectedFile)) {
       return '';
     }
 
-    const code = this.files()[selectedFile];
+    const code = this.files().find(file => file.label === selectedFile)!.value;
     return highlight(code, languages['typescript'], 'typescript');
   });
 
@@ -59,17 +60,53 @@ export class Snippet {
 
   private async loadFiles(files: string[]): Promise<void> {
     for (const file of files) {
-      const source = (await this.snippets[file]()) as string;
+      let source = (await this.snippets[file]()) as string;
       const filename = file.split('/').pop()!;
 
+      // if the file is app.ng.ts then we should replace the select with `app-root`
+      if (filename === 'app.ng.ts') {
+        // replace selector: 'app-*' with selector: 'app-root'
+        source = source.replace(/selector: 'app-[^']*'/, "selector: 'app-root'");
+      }
+
       this.files.update(state => {
-        state[filename] = source;
+        state.push({ label: filename, value: source });
         return state;
       });
     }
 
-    this.selectedFile.update(() => Object.keys(this.files())[0]);
+    // sort the files so app.ng.ts is always first, followed by the items in alphabetical order
+    this.files.update(state => {
+      state.sort((a, b) => {
+        if (a.label === 'app.ng.ts') {
+          return -1;
+        }
+
+        if (b.label === 'app.ng.ts') {
+          return 1;
+        }
+
+        return a.label.localeCompare(b.label);
+      });
+
+      return state;
+    });
+
+    this.selectedFile.update(() => this.files()[0].label);
 
     this.changeDetector.detectChanges();
   }
+
+  protected copyToClipboard(): void {
+    if (!this.selectedFile()) {
+      return;
+    }
+    const code = this.files().find(file => file.label === this.selectedFile())!.value;
+    this.clipboard.copy(code);
+  }
+}
+
+interface Tab {
+  label: string;
+  value: string;
 }
