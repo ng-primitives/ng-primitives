@@ -63,8 +63,8 @@ export class Snippet {
       let source = (await this.snippets[file]()) as string;
       const filename = file.split('/').pop()!;
 
-      // if the file is app.ng.ts then we should replace the select with `app-root`
-      if (filename === 'app.ng.ts') {
+      // if the file is app.ts then we should replace the select with `app-root`
+      if (filename === 'app.ts') {
         // replace selector: 'app-*' with selector: 'app-root'
         source = source.replace(/selector: 'app-[^']*'/, "selector: 'app-root'");
       }
@@ -75,14 +75,14 @@ export class Snippet {
       });
     }
 
-    // sort the files so app.ng.ts is always first, followed by the items in alphabetical order
+    // sort the files so app.ts is always first, followed by the items in alphabetical order
     this.files.update(state => {
       state.sort((a, b) => {
-        if (a.label === 'app.ng.ts') {
+        if (a.label === 'app.ts') {
           return -1;
         }
 
-        if (b.label === 'app.ng.ts') {
+        if (b.label === 'app.ts') {
           return 1;
         }
 

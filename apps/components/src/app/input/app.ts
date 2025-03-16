@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { Input } from './input.ng';
+import { Input } from './input';
 
 @Component({
   selector: 'app-input-example',

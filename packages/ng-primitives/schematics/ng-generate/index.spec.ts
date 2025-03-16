@@ -51,6 +51,17 @@ describe('Component Schematic', () => {
     expect(tree.files).toContain('/projects/bar/src/app/button/button.ng.ts');
   });
 
+  it('should allow a primitive to be created with no file suffix', async () => {
+    const options: AngularPrimitivesComponentSchema = {
+      primitive: 'button',
+      path: 'projects/bar/src/app/button',
+      fileSuffix: '',
+    };
+
+    const tree = await schematicRunner.runSchematic('primitive', options, appTree);
+    expect(tree.files).toContain('/projects/bar/src/app/button/button.ts');
+  });
+
   it('should create a primitive with the correct prefix', async () => {
     const options: AngularPrimitivesComponentSchema = {
       primitive: 'button',

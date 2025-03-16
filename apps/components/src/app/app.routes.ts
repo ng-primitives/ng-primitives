@@ -3,14 +3,14 @@ import { Route } from '@angular/router';
 export const appRoutes: Route[] = [
   {
     path: 'accordion',
-    loadComponent: () => import('./accordion/app.ng'),
+    loadComponent: () => import('./accordion/app'),
   },
   {
     path: 'button',
-    loadComponent: () => import('./button/app.ng'),
+    loadComponent: () => import('./button/app'),
   },
   {
     path: 'input',
-    loadComponent: () => import('./input/app.ng'),
+    loadComponent: () => import('./input/app'),
   },
 ];

@@ -20,7 +20,7 @@ export async function templatesGenerator(tree: Tree) {
 
     for (const file of files) {
       // skip any app.ts files as they are for example purposes only
-      if (file.endsWith('app.ng.ts')) {
+      if (file.endsWith('app.ts')) {
         continue;
       }
 
@@ -32,7 +32,7 @@ export async function templatesGenerator(tree: Tree) {
 
       // write the new file to packages/ng-primitives/schematics/ng-generate/templates
       tree.write(
-        `packages/ng-primitives/schematics/ng-generate/templates/${primitive}/${file.replace('.ng.', '.__fileSuffix@dasherize__.')}.template`,
+        `packages/ng-primitives/schematics/ng-generate/templates/${primitive}/${file.replace('.ts', '.__fileSuffix@dasherize__.ts')}.template`,
         content,
       );
     }
@@ -48,7 +48,7 @@ export default templatesGenerator;
  * This does the following:
  * - Replace the prefix in the component selector with the <%= prefix %> placeholder
  * - Append any component class names with the <%= componentSuffix %> placeholder
- * - Replace .ng. with .<%= componentSuffix %>. in the import paths
+ * - Replace .ts with .<%= componentSuffix %>.ts. in the import paths
  */
 function processTemplate(content: string): string {
   // find the component selector
@@ -79,8 +79,15 @@ function processTemplate(content: string): string {
   const imports = query(content, 'ImportDeclaration > StringLiteral');
 
   for (const importPath of imports) {
+    // if the import path is not relative, skip it
+    if (!importPath.getText().startsWith('.')) {
+      continue;
+    }
+
     const importValue = importPath.getText();
-    const newImportValue = importValue.replace('.ng.', '.<%= componentSuffix >.');
+    // append the <%= fileSuffix %> placeholder to the end
+    const newImportValue = importValue + '.<%= fileSuffix %>';
+
     const start = importPath.getStart();
     const end = importPath.getEnd();
 

@@ -22,7 +22,13 @@ export default function generatePrimitive(options: AngularPrimitivesComponentSch
       }),
       forEach((fileEntry: FileEntry) => {
         if (fileEntry.path.endsWith('.template')) {
-          const newPath = fileEntry.path.replace('.template', '');
+          let newPath = fileEntry.path.replace('.template', '');
+
+          // if the file has two consecutive periods, replace them with a single period - this can happen if the fileSuffix is empty
+          if (newPath.includes('..')) {
+            newPath = newPath.replace('..', '.');
+          }
+
           return {
             path: newPath,
             content: fileEntry.content,
