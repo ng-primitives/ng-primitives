@@ -32,7 +32,7 @@ export async function reusableComponentGenerator(
   addRoute(
     tree,
     'apps/components/src/app/app.routes.ts',
-    formattedNames.fileName,
+    `{ path: '${formattedNames.fileName}', loadComponent: () => import('./${formattedNames.fileName}/app') }`,
     true,
     'appRoutes',
     `'./${formattedNames.fileName}/app'`,
