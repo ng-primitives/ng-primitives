@@ -39,6 +39,11 @@
       "factory": "./src/generators/templates/templates",
       "schema": "./src/generators/templates/schema.json",
       "description": "Popoulate the generators with reusable component templates"
+    },
+    "reusable-component": {
+      "factory": "./src/generators/reusable-component/reusable-component",
+      "schema": "./src/generators/reusable-component/schema.json",
+      "description": "Create a reusable component for a primitive."
     }
   }
 }

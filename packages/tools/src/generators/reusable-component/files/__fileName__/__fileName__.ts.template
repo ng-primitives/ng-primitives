@@ -1,0 +1,10 @@
+import { Component } from '@angular/core';
+import { Ngp<%= className %> } from 'ng-primitives/<%= fileName %>';
+
+@Component({
+  selector: 'app-<%= fileName %>',
+  hostDirectives: [Ngp<%= className %>],
+  template: ``,
+  styles: ``,
+})
+export class <%= className %> {}

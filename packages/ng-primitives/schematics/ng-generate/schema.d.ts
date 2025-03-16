@@ -24,10 +24,9 @@ export interface AngularPrimitivesComponentSchema {
   componentSuffix?: string;
 
   /**
-   * Generate component template files with an '.ng.html' file extension instead of '.html'.
-   * The '.ng.html' file extension is recommended by the Angular style guide.
-   *
-   * @default "ng"
+   * Generate component file with specified suffix.
+   * If the component name is `Button` and the suffix is `component`,
+   * the generated component file will be named `button.component.ts`.
    */
   fileSuffix?: string;
 }

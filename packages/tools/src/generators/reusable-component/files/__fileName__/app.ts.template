@@ -1,0 +1,11 @@
+import { Component } from '@angular/core';
+import { <%= className %> } from './<%= fileName %>';
+
+@Component({
+  selector: 'app-<%= fileName %>-example',
+  imports: [<%= className %>],
+  template: `
+    <app-<%= fileName %> />
+  `,
+})
+export default class App {}
