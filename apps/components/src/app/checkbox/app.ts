@@ -1,11 +1,13 @@
-import { Component } from '@angular/core';
+import { Component, model } from '@angular/core';
 import { Checkbox } from './checkbox';
 
 @Component({
   selector: 'app-checkbox-example',
   imports: [Checkbox],
   template: `
-    <app-checkbox />
+    <app-checkbox [(checked)]="checked" />
   `,
 })
-export default class App {}
+export default class App {
+  checked = model<boolean>(false);
+}

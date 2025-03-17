@@ -1,7 +1,10 @@
 import { BooleanInput } from '@angular/cdk/coercion';
 import { booleanAttribute, Component, input, model } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
+import { NgIcon, provideIcons } from '@ng-icons/core';
+import { heroCheckMini, heroMinusMini } from '@ng-icons/heroicons/mini';
 import { NgpCheckbox } from 'ng-primitives/checkbox';
+import { controlState } from 'ng-primitives/forms';
 
 @Component({
   selector: 'app-checkbox',
@@ -13,12 +16,41 @@ import { NgpCheckbox } from 'ng-primitives/checkbox';
         'ngpCheckboxIndeterminate:indeterminate',
         'ngpCheckboxDisabled:disabled',
       ],
-      outputs: ['ngpCheckboxCheckedChange:checkedChange'],
+      outputs: [
+        'ngpCheckboxCheckedChange:checkedChange',
+        'ngpCheckboxIndeterminateChange:indeterminateChange',
+      ],
     },
   ],
-  providers: [{ provide: NG_VALUE_ACCESSOR, useExisting: Checkbox, multi: true }],
-  template: ``,
-  styles: ``,
+  providers: [
+    { provide: NG_VALUE_ACCESSOR, useExisting: Checkbox, multi: true },
+    provideIcons({ heroCheckMini, heroMinusMini }),
+  ],
+  imports: [NgIcon],
+  template: `
+    @if (indeterminate()) {
+      <ng-icon name="heroMinusMini" />
+    } @else if (state.value()) {
+      <ng-icon name="heroCheckMini" />
+    }
+  `,
+  styles: `
+    :host {
+    }
+
+    :host[data-hover] {
+    }
+
+    :host[data-checked],
+    :host[data-indeterminate] {
+    }
+
+    :host[data-focus-visible] {
+    }
+  `,
+  host: {
+    '(focusout)': 'state.markAsTouched()',
+  },
 })
 export class Checkbox implements ControlValueAccessor {
   /** Defines whether the checkbox is checked. */
@@ -32,19 +64,29 @@ export class Checkbox implements ControlValueAccessor {
     transform: booleanAttribute,
   });
 
+  /**
+   * This connects the state of the checkbox to the form control and host directives and keeps them in sync.
+   * Use `state.value()` to get the current value of the checkbox and `state.disabled()` to get the current disabled state
+   * rather than accessing the inputs directly.
+   */
+  protected readonly state = controlState({
+    value: this.checked,
+    disabled: this.disabled,
+  });
+
   writeValue(checked: boolean): void {
-    throw new Error('Method not implemented.');
+    this.state.writeValue(checked);
   }
 
   registerOnChange(fn: (checked: boolean) => void): void {
-    throw new Error('Method not implemented.');
+    this.state.setOnChangeFn(fn);
   }
 
   registerOnTouched(fn: () => void): void {
-    throw new Error('Method not implemented.');
+    this.state.setOnTouchedFn(fn);
   }
 
   setDisabledState?(isDisabled: boolean): void {
-    throw new Error('Method not implemented.');
+    this.state.setDisabled(isDisabled);
   }
 }
