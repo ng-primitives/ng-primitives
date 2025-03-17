@@ -7,7 +7,9 @@ import { RouterLink, RouterOutlet } from '@angular/router';
   template: `
     <nav>
       <a routerLink="/accordion">Accordion</a>
+      <a routerLink="/avatar">Avatar</a>
       <a routerLink="/button">Button</a>
+      <a routerLink="/checkbox">Checkbox</a>
       <a routerLink="/input">Input</a>
     </nav>
     <router-outlet />

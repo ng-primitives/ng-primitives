@@ -26,6 +26,12 @@ Assemble the checkbox directives in your template.
 </span>
 ```
 
+## Reusable Component
+
+Create a reusable component that uses the `NgpCheckbox` directive.
+
+<docs-snippet name="checkbox"></docs-snippet>
+
 ## Schematics
 
 Generate a checkbox component with the `NgpCheckbox` primitive preconfigured.
