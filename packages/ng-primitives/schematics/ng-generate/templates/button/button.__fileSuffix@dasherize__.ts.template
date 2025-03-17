@@ -17,6 +17,9 @@ import { NgpButton } from 'ng-primitives/button';
 
     :host[data-press] {
     }
+
+    :host[data-disabled] {
+    }
   `,
 })
 export class Button<%= componentSuffix %> {}
