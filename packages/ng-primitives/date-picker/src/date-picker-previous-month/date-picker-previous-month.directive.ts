@@ -54,7 +54,7 @@ export class NgpDatePickerPreviousMonth<T> implements NgpCanDisable {
    * @internal
    */
   readonly disabled = computed(() => {
-    if (this.datePicker.disabled()) {
+    if (this.datePicker.state.disabled()) {
       return true;
     }
 

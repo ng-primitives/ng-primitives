@@ -34,6 +34,12 @@ Assemble the form-field directives in your template.
 </div>
 ```
 
+## Reusable Component
+
+Create a reusable component that uses the `NgpFormField` directive.
+
+<docs-snippet name="form-field"></docs-snippet>
+
 ## Schematics
 
 Generate a form field component with the `NgpFormField` primitive preconfigured.

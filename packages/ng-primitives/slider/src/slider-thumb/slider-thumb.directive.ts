@@ -8,22 +8,22 @@
 import { Directive, HostListener } from '@angular/core';
 import { NgpFocusVisible, NgpHover, NgpPress } from 'ng-primitives/interactions';
 import { injectSlider } from '../slider/slider.token';
-import { NgpSliderThumbToken } from './slider-thumb.token';
+import { provideSliderThumb } from './slider-thumb.token';
 
 @Directive({
   standalone: true,
   selector: '[ngpSliderThumb]',
   exportAs: 'ngpSliderThumb',
-  providers: [{ provide: NgpSliderThumbToken, useExisting: NgpSliderThumb }],
+  providers: [provideSliderThumb(NgpSliderThumb)],
   host: {
     role: 'slider',
     '[attr.aria-valuemin]': 'slider.min()',
     '[attr.aria-valuemax]': 'slider.max()',
-    '[attr.aria-valuenow]': 'slider.value()',
+    '[attr.aria-valuenow]': 'slider.state.value()',
     '[attr.aria-orientation]': 'slider.orientation()',
-    '[tabindex]': 'slider.disabled() ? -1 : 0',
+    '[tabindex]': 'slider.state.disabled() ? -1 : 0',
     '[attr.data-orientation]': 'slider.orientation()',
-    '[attr.data-disabled]': 'slider.disabled() ? "" : null',
+    '[attr.data-disabled]': 'slider.state.disabled() ? "" : null',
     '[style.inset-inline-start.%]':
       'slider.orientation() === "horizontal" ? slider.percentage() : undefined',
     '[style.inset-block-start.%]':
@@ -46,7 +46,7 @@ export class NgpSliderThumb {
   protected handlePointerDown(event: PointerEvent): void {
     event.preventDefault();
 
-    if (this.slider.disabled()) {
+    if (this.slider.state.disabled()) {
       return;
     }
 
@@ -55,7 +55,7 @@ export class NgpSliderThumb {
 
   @HostListener('document:pointerup')
   protected handlePointerUp(): void {
-    if (this.slider.disabled()) {
+    if (this.slider.state.disabled()) {
       return;
     }
 
@@ -64,7 +64,7 @@ export class NgpSliderThumb {
 
   @HostListener('document:pointermove', ['$event'])
   protected handlePointerMove(event: PointerEvent): void {
-    if (this.slider.disabled() || !this.dragging) {
+    if (this.slider.state.disabled() || !this.dragging) {
       return;
     }
 
@@ -79,7 +79,7 @@ export class NgpSliderThumb {
         ? (event.clientX - rect.left) / rect.width
         : 1 - (event.clientY - rect.top) / rect.height;
 
-    this.slider.value.set(
+    this.slider.state.setValue(
       this.slider.min() +
         (this.slider.max() - this.slider.min()) * Math.max(0, Math.min(1, percentage)),
     );
@@ -92,25 +92,30 @@ export class NgpSliderThumb {
   @HostListener('keydown', ['$event'])
   protected handleKeydown(event: KeyboardEvent): void {
     const multiplier = event.shiftKey ? 10 : 1;
+    const value = this.slider.state.value();
 
     switch (event.key) {
       case 'ArrowLeft':
       case 'ArrowDown':
-        this.slider.value.update(value =>
+        this.slider.state.setValue(
           Math.max(value - this.slider.step() * multiplier, this.slider.min()),
         );
+        event.preventDefault();
         break;
       case 'ArrowRight':
       case 'ArrowUp':
-        this.slider.value.update(value =>
+        this.slider.state.setValue(
           Math.min(value + this.slider.step() * multiplier, this.slider.max()),
         );
+        event.preventDefault();
         break;
       case 'Home':
-        this.slider.value.set(this.slider.min());
+        this.slider.state.setValue(this.slider.min());
+        event.preventDefault();
         break;
       case 'End':
-        this.slider.value.set(this.slider.max());
+        this.slider.state.setValue(this.slider.max());
+        event.preventDefault();
         break;
     }
   }

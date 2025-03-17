@@ -55,6 +55,12 @@ Assemble the date-picker directives in your template.
 </div>
 ```
 
+## Reusable Component
+
+Create a reusable component that uses the date picker directives.
+
+<docs-snippet name="date-picker"></docs-snippet>
+
 ## API Reference
 
 By default, the date picker uses the native JavaScript `Date` object, however the date picker is designed to work with any date library. To use a date library, such as Luxon, you need to specify the appropriate date adapter. The date adapter is an abstraction layer that allows components to use date objects from any date library, ensuring compatibility and easy integration. To learn more about the date adapter, see the [Date Adapter](/utilities/date-adapter) documentation.

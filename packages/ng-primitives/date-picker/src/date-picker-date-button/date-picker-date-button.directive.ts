@@ -71,7 +71,7 @@ export class NgpDatePickerDateButton<T> implements NgpCanDisable {
    * @internal
    */
   readonly selected = computed(() => {
-    const selected = this.datePicker.date();
+    const selected = this.datePicker.state.value();
     return selected && this.dateAdapter.isSameDay(this.date, selected);
   });
 
@@ -97,7 +97,7 @@ export class NgpDatePickerDateButton<T> implements NgpCanDisable {
     const min = this.datePicker.min();
     const max = this.datePicker.max();
 
-    if (this.datePicker.disabled() || this.datePicker.dateDisabled()(this.date)) {
+    if (this.datePicker.state.disabled() || this.datePicker.dateDisabled()(this.date)) {
       return true;
     }
 
@@ -136,7 +136,7 @@ export class NgpDatePickerDateButton<T> implements NgpCanDisable {
       event.stopPropagation();
     }
 
-    this.datePicker.date.set(this.date);
+    this.datePicker.state.setValue(this.date);
     this.datePicker.setFocusedDate(this.date, 'mouse', 'forward');
   }
 
