@@ -5,4 +5,5 @@ export interface DocumentationGeneratorSchema {
   section: 'Getting Started' | 'Primitives' | 'Interactions' | 'Utilities';
   example?: boolean;
   globalConfig?: boolean;
+  reusableComponent?: boolean;
 }

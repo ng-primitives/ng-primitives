@@ -14,6 +14,9 @@ import { NgpInput } from 'ng-primitives/input';
 
     :host::placeholder {
     }
+
+    :host[data-disabled] {
+    }
   `,
 })
 export class Input {}

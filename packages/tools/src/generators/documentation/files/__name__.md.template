@@ -26,6 +26,14 @@ Assemble the <%= fileName %> directives in your template.
 </div>
 ```
 
+<% if(reusableComponent) { %>
+## Reusable Component
+
+Create a reusable component that uses the `Ngp<%= className %>` directive.
+
+<docs-snippet name="<%= fileName %>"></docs-snippet>
+<% } %>
+
 ## API Reference
 
 The following directives are available to import from the `ng-primitives/<%= primitive %>` package:

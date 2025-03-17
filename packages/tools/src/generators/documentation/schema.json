@@ -36,6 +36,11 @@
       "type": "boolean",
       "description": "Does this directive support a global configuration?",
       "default": false
+    },
+    "reusableComponent": {
+      "type": "boolean",
+      "description": "Should we add documentation for a reusable component?",
+      "default": false
     }
   },
   "required": ["name", "description", "primitive", "section"]

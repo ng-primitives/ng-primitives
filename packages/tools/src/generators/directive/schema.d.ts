@@ -5,4 +5,5 @@ export interface DirectiveGeneratorSchema {
   addConfig: boolean;
   documentation?: 'Getting Started' | 'Primitives' | 'Interactions' | 'Utilities';
   addExample: boolean;
+  reusableComponent?: boolean;
 }

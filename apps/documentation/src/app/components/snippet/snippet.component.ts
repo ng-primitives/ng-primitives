@@ -78,15 +78,19 @@ export class Snippet {
     // sort the files so app.ts is always first, followed by the items in alphabetical order
     this.files.update(state => {
       state.sort((a, b) => {
-        if (a.label === 'app.ts') {
-          return -1;
-        }
+        if (a.label === 'app.ts') return -1;
+        if (b.label === 'app.ts') return 1;
 
-        if (b.label === 'app.ts') {
-          return 1;
-        }
+        // Split by hyphen to prioritize base names first
+        const aParts = a.label.split(/[-.]/);
+        const bParts = b.label.split(/[-.]/);
 
-        return a.label.localeCompare(b.label);
+        // Compare the base parts first
+        const baseComparison = aParts[0].localeCompare(bParts[0]);
+        if (baseComparison !== 0) return baseComparison;
+
+        // If base parts are the same, prioritize shorter names first
+        return a.label.length - b.label.length;
       });
 
       return state;

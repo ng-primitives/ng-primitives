@@ -44,6 +44,12 @@
       "type": "string",
       "description": "What documentation section does this feature belong to?",
       "enum": ["Getting Started", "Primitives", "Interactions", "Utilities"]
+    },
+    "reusableComponent": {
+      "type": "boolean",
+      "description": "Should a reusable component be created for the directive?",
+      "default": false,
+      "x-prompt": "Would you like to create a reusable component for the directive?"
     }
   },
   "required": ["name", "primitive"]

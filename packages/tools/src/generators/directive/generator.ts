@@ -3,6 +3,7 @@ import { addExportToIndex } from '../../utils';
 import configGenerator from '../config/generator';
 import documentationGenerator from '../documentation/generator';
 import examplesGenerator from '../example/generator';
+import reusableComponentGenerator from '../reusable-component/reusable-component';
 import tokenGenerator from '../token/generator';
 import { DirectiveGeneratorSchema } from './schema';
 
@@ -52,6 +53,13 @@ export async function directiveGenerator(tree: Tree, options: DirectiveGenerator
       description: 'Enter a description here',
       section: options.documentation,
       globalConfig: options.addConfig,
+      reusableComponent: options.reusableComponent,
+    });
+  }
+
+  if (options.reusableComponent) {
+    await reusableComponentGenerator(tree, {
+      name: options.name,
     });
   }
 
