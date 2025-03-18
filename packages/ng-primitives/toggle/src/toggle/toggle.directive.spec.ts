@@ -11,7 +11,6 @@ import { By } from '@angular/platform-browser';
 import { NgpToggle } from './toggle.directive';
 
 @Component({
-  standalone: true,
   imports: [NgpToggle],
   template:
     '<button ngpToggle [ngpToggleSelected]="selected" [ngpToggleDisabled]="disabled" (ngpToggleSelectedChange)="onToggle($event)">Toggle</button>',
