@@ -5,7 +5,7 @@
  * This source code is licensed under the Apache 2.0 license found in the
  * LICENSE file in the root directory of this source tree.
  */
-import { InjectionToken, inject } from '@angular/core';
+import { ExistingProvider, InjectionToken, Type, inject } from '@angular/core';
 import type { NgpSlider } from './slider.directive';
 
 export const NgpSliderToken = new InjectionToken<NgpSlider>('NgpSliderToken');
@@ -15,4 +15,8 @@ export const NgpSliderToken = new InjectionToken<NgpSlider>('NgpSliderToken');
  */
 export function injectSlider(): NgpSlider {
   return inject(NgpSliderToken);
+}
+
+export function provideSlider(slider: Type<NgpSlider>): ExistingProvider {
+  return { provide: NgpSliderToken, useExisting: slider };
 }

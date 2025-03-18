@@ -5,7 +5,6 @@ import { onChange } from 'ng-primitives/utils';
 
 
 @Component({
-  standalone: true,
   selector: '<%= selector %>',
   hostDirectives: [
     {

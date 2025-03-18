@@ -10,7 +10,6 @@ import { injectSearch } from '../search/search.token';
 import { NgpSearchClearToken } from './search-clear.token';
 
 @Directive({
-  standalone: true,
   selector: '[ngpSearchClear]',
   exportAs: 'ngpSearchClear',
   providers: [{ provide: NgpSearchClearToken, useExisting: NgpSearchClear }],

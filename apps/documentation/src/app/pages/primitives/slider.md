@@ -29,6 +29,12 @@ Assemble the slider directives in your template.
 </div>
 ```
 
+## Reusable Component
+
+Create a reusable component that uses the slider directives.
+
+<docs-snippet name="slider"></docs-snippet>
+
 ## Examples
 
 Here are some additional examples of how to use the Slider primitives.

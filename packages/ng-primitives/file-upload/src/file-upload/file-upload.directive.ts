@@ -20,7 +20,6 @@ import { NgpFocusVisible, NgpHover, NgpPress } from 'ng-primitives/interactions'
 import { NgpFileUploadToken } from './file-upload.token';
 
 @Directive({
-  standalone: true,
   selector: '[ngpFileUpload]',
   exportAs: 'ngpFileUpload',
   providers: [{ provide: NgpFileUploadToken, useExisting: NgpFileUpload }],

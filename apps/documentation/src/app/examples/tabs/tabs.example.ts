@@ -13,15 +13,15 @@ import { NgpTabButton, NgpTabList, NgpTabPanel, NgpTabset } from 'ng-primitives/
       width: 100%;
       max-width: 512px;
       border-radius: 0.75rem;
-      background-color: var(--background);
+      background-color: var(--ngp-background);
       padding: 0.25rem 1rem;
-      box-shadow: var(--button-shadow);
+      box-shadow: var(--ngp-button-shadow);
     }
 
     [ngpTabList] {
       display: flex;
       gap: 1.5rem;
-      border-bottom: 1px solid var(--border);
+      border-bottom: 1px solid var(--ngp-border);
     }
 
     [ngpTabButton] {
@@ -35,13 +35,13 @@ import { NgpTabButton, NgpTabList, NgpTabPanel, NgpTabset } from 'ng-primitives/
     }
 
     [ngpTabButton][data-focus-visible] {
-      outline: 2px solid var(--focus-ring);
+      outline: 2px solid var(--ngp-focus-ring);
       outline-offset: 2px;
     }
 
     [ngpTabButton][data-active] {
-      border-color: var(--background-inverse);
-      color: var(--text-primary);
+      border-color: var(--ngp-background-inverse);
+      color: var(--ngp-text-primary);
     }
 
     [ngpTabPanel] {

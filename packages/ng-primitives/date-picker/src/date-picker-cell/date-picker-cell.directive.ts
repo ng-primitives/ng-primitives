@@ -11,7 +11,6 @@ import { injectDatePicker } from '../date-picker/date-picker.token';
 import { NgpDatePickerCellToken } from './date-picker-cell.token';
 
 @Directive({
-  standalone: true,
   selector: '[ngpDatePickerCell]',
   exportAs: 'ngpDatePickerCell',
   providers: [{ provide: NgpDatePickerCellToken, useExisting: NgpDatePickerCell }],

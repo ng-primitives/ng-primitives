@@ -25,7 +25,7 @@ import { NgpSlider, NgpSliderRange, NgpSliderThumb, NgpSliderTrack } from 'ng-pr
     }
 
     [ngpLabel] {
-      color: var(--text-primary);
+      color: var(--ngp-text-primary);
       font-size: 0.875rem;
       line-height: 1.25rem;
       font-weight: 500;
@@ -33,7 +33,7 @@ import { NgpSlider, NgpSliderRange, NgpSliderThumb, NgpSliderTrack } from 'ng-pr
     }
 
     [ngpDescription] {
-      color: var(--text-secondary);
+      color: var(--ngp-text-secondary);
       font-size: 0.75rem;
       line-height: 1rem;
       margin: 0 0 4px;
@@ -54,14 +54,14 @@ import { NgpSlider, NgpSliderRange, NgpSliderThumb, NgpSliderTrack } from 'ng-pr
       height: 5px;
       width: 100%;
       border-radius: 999px;
-      background-color: var(--background-secondary);
+      background-color: var(--ngp-background-secondary);
     }
 
     [ngpSliderRange] {
       position: absolute;
       height: 100%;
       border-radius: 999px;
-      background-color: var(--background-inverse);
+      background-color: var(--ngp-background-inverse);
     }
 
     [ngpSliderThumb] {
@@ -71,13 +71,13 @@ import { NgpSlider, NgpSliderRange, NgpSliderThumb, NgpSliderTrack } from 'ng-pr
       width: 20px;
       border-radius: 10px;
       background-color: white;
-      box-shadow: var(--button-shadow);
+      box-shadow: var(--ngp-button-shadow);
       outline: none;
       transform: translateX(-50%);
     }
 
     [ngpSliderThumb][data-focus-visible] {
-      outline: 2px solid var(--focus-ring);
+      outline: 2px solid var(--ngp-focus-ring);
       outline-offset: 0;
     }
   `,

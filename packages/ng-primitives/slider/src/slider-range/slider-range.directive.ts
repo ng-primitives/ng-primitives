@@ -7,16 +7,15 @@
  */
 import { Directive } from '@angular/core';
 import { injectSlider } from '../slider/slider.token';
-import { NgpSliderRangeToken } from './slider-range.token';
+import { provideSliderRange } from './slider-range.token';
 
 @Directive({
-  standalone: true,
   selector: '[ngpSliderRange]',
   exportAs: 'ngpSliderRange',
-  providers: [{ provide: NgpSliderRangeToken, useExisting: NgpSliderRange }],
+  providers: [provideSliderRange(NgpSliderRange)],
   host: {
     '[attr.data-orientation]': 'slider.orientation()',
-    '[attr.data-disabled]': 'slider.disabled() ? "" : null',
+    '[attr.data-disabled]': 'slider.state.disabled() ? "" : null',
     '[style.width.%]': 'slider.orientation() === "horizontal" ? slider.percentage() : undefined',
     '[style.height.%]': 'slider.orientation() === "vertical" ? slider.percentage() : undefined',
   },

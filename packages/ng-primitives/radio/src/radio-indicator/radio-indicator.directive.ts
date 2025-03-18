@@ -12,7 +12,6 @@ import { injectRadioItem } from '../radio-item/radio-item.token';
 
 @Directive({
   selector: '[ngpRadioIndicator]',
-  standalone: true,
   host: {
     '[attr.data-checked]': 'checked() ? "" : null',
     '[attr.data-disabled]': 'radioItem.disabled() ? "" : null',
@@ -33,5 +32,5 @@ export class NgpRadioIndicator {
   /**
    * Determine if the radio indicator is checked.
    */
-  readonly checked = computed(() => this.radioGroup.value() === this.radioItem.value());
+  readonly checked = computed(() => this.radioGroup.state.value() === this.radioItem.value());
 }

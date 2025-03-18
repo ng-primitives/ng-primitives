@@ -5,18 +5,18 @@
  * This source code is licensed under the Apache 2.0 license found in the
  * LICENSE file in the root directory of this source tree.
  */
-import { Directive, ElementRef, HostListener, inject } from '@angular/core';
+import { Directive, HostListener } from '@angular/core';
+import { injectElementRef } from 'ng-primitives/internal';
 import { injectSlider } from '../slider/slider.token';
-import { NgpSliderTrackToken } from './slider-track.token';
+import { provideSliderTrack } from './slider-track.token';
 
 @Directive({
-  standalone: true,
   selector: '[ngpSliderTrack]',
   exportAs: 'ngpSliderTrack',
-  providers: [{ provide: NgpSliderTrackToken, useExisting: NgpSliderTrack }],
+  providers: [provideSliderTrack(NgpSliderTrack)],
   host: {
     '[attr.data-orientation]': 'slider.orientation()',
-    '[attr.data-disabled]': 'slider.disabled() ? "" : null',
+    '[attr.data-disabled]': 'slider.state.disabled() ? "" : null',
   },
 })
 export class NgpSliderTrack {
@@ -28,7 +28,11 @@ export class NgpSliderTrack {
   /**
    * The element that represents the slider track.
    */
-  readonly element = inject<ElementRef<HTMLElement>>(ElementRef);
+  readonly element = injectElementRef<HTMLElement>();
+
+  constructor() {
+    this.slider.track.set(this);
+  }
 
   /**
    * When the slider track is clicked, update the value.
@@ -48,6 +52,8 @@ export class NgpSliderTrack {
       (this.slider.orientation() === 'horizontal' ? rect.width : rect.height);
 
     // update the value based on the position
-    this.slider.value.set(this.slider.min() + (this.slider.max() - this.slider.min()) * percentage);
+    this.slider.state.setValue(
+      this.slider.min() + (this.slider.max() - this.slider.min()) * percentage,
+    );
   }
 }

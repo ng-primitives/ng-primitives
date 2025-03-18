@@ -4,7 +4,6 @@ import {  NgpRadioGroup, NgpRadioGroupToken } from 'ng-primitives/radio';
 import { onFormControlChange } from 'ng-primitives/utils';
 
 @Component({
-  standalone: true,
   selector: '<%= selector %>',
   hostDirectives: [
     {

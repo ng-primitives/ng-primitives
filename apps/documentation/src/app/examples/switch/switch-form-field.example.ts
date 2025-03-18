@@ -14,7 +14,7 @@ import { NgpSwitch, NgpSwitchThumb } from 'ng-primitives/switch';
 
     [ngpLabel] {
       font-weight: 500;
-      color: var(--text-primary);
+      color: var(--ngp-text-primary);
     }
 
     [ngpSwitch] {
@@ -22,8 +22,8 @@ import { NgpSwitch, NgpSwitchThumb } from 'ng-primitives/switch';
       width: 2.5rem;
       height: 1.5rem;
       border-radius: 999px;
-      background-color: var(--background-secondary);
-      border: 1px solid var(--border);
+      background-color: var(--ngp-background-secondary);
+      border: 1px solid var(--ngp-border);
       padding: 0;
       outline: none;
       transition-property: color, background-color, border-color, text-decoration-color, fill,
@@ -33,12 +33,12 @@ import { NgpSwitch, NgpSwitchThumb } from 'ng-primitives/switch';
     }
 
     [ngpSwitch][data-focus-visible] {
-      outline: 2px solid var(--focus-ring);
+      outline: 2px solid var(--ngp-focus-ring);
     }
 
     [ngpSwitch][data-checked] {
-      background-color: var(--background-blue);
-      border-color: var(--border-blue);
+      background-color: var(--ngp-background-blue);
+      border-color: var(--ngp-border-blue);
     }
 
     [ngpSwitchThumb] {
@@ -47,7 +47,7 @@ import { NgpSwitch, NgpSwitchThumb } from 'ng-primitives/switch';
       width: 1.25rem;
       border-radius: 999px;
       background-color: white;
-      box-shadow: var(--button-shadow);
+      box-shadow: var(--ngp-button-shadow);
       outline: none;
       transition: transform 150ms cubic-bezier(0.4, 0, 0.2, 1);
       transform: translateX(1px);

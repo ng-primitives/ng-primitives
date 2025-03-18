@@ -42,7 +42,6 @@ import { injectPopoverConfig } from '../config/popover.config';
 import { NgpPopoverTriggerToken, providePopoverTrigger } from './popover-trigger.token';
 
 @Directive({
-  standalone: true,
   selector: '[ngpPopoverTrigger]',
   exportAs: 'ngpPopoverTrigger',
   providers: [{ provide: NgpPopoverTriggerToken, useExisting: NgpPopoverTrigger }],

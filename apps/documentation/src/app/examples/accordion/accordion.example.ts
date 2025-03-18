@@ -31,13 +31,13 @@ import { NgpButton } from 'ng-primitives/button';
       width: 100%;
       max-width: 24rem;
       border-radius: 0.75rem;
-      border: 1px solid var(--border);
-      background-color: var(--background);
-      box-shadow: var(--shadow);
+      border: 1px solid var(--ngp-border);
+      background-color: var(--ngp-background);
+      box-shadow: var(--ngp-shadow);
     }
 
     [ngpAccordionItem]:has(+ [ngpAccordionItem]) {
-      border-bottom: 1px solid var(--border);
+      border-bottom: 1px solid var(--ngp-border);
     }
 
     [ngpAccordionTrigger] {
@@ -53,19 +53,19 @@ import { NgpButton } from 'ng-primitives/button';
       height: 2.75rem;
       border-radius: 0.75rem;
       outline: none;
-      color: var(--text-primary);
-      background-color: var(--background);
+      color: var(--ngp-text-primary);
+      background-color: var(--ngp-background);
       border: none;
     }
 
     [ngpAccordionTrigger][data-focus-visible] {
-      outline: 2px solid var(--focus-ring);
+      outline: 2px solid var(--ngp-focus-ring);
     }
 
     [ngpAccordionContent] {
       display: none;
       font-size: 0.875rem;
-      color: var(--text-secondary);
+      color: var(--ngp-text-secondary);
       overflow: hidden;
       transition: height 0.3s ease;
     }
@@ -80,7 +80,7 @@ import { NgpButton } from 'ng-primitives/button';
 
     ng-icon {
       font-size: 1.25rem;
-      color: var(--text-secondary);
+      color: var(--ngp-text-secondary);
     }
 
     [ngpAccordionTrigger][data-open] ng-icon {

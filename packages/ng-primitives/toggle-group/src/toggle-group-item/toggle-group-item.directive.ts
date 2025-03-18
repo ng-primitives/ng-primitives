@@ -14,7 +14,6 @@ import { injectToggleGroup } from '../toggle-group/toggle-group.token';
 import { NgpToggleGroupItemToken } from './toggle-group-item.token';
 
 @Directive({
-  standalone: true,
   selector: '[ngpToggleGroupItem]',
   exportAs: 'ngpToggleGroupItem',
   providers: [{ provide: NgpToggleGroupItemToken, useExisting: NgpToggleGroupItem }],

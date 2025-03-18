@@ -21,7 +21,6 @@ import {
 } from './date-picker-cell-render.token';
 
 @Directive({
-  standalone: true,
   selector: '[ngpDatePickerCellRender]',
   exportAs: 'ngpDatePickerCellRender',
   providers: [{ provide: NgpDatePickerCellRenderToken, useExisting: NgpDatePickerCellRender }],

@@ -21,35 +21,35 @@ import { NgpMenu, NgpMenuItem, NgpMenuTrigger } from 'ng-primitives/menu';
       padding-left: 1rem;
       padding-right: 1rem;
       border-radius: 0.5rem;
-      color: var(--text-primary);
+      color: var(--ngp-text-primary);
       border: none;
       outline: none;
       height: 2.5rem;
       font-weight: 500;
-      background-color: var(--background);
+      background-color: var(--ngp-background);
       transition: background-color 300ms cubic-bezier(0.4, 0, 0.2, 1);
-      box-shadow: var(--button-shadow);
+      box-shadow: var(--ngp-button-shadow);
     }
 
     [ngpButton][data-hover] {
-      background-color: var(--background-hover);
+      background-color: var(--ngp-background-hover);
     }
 
     [ngpButton][data-focus-visible] {
-      outline: 2px solid var(--focus-ring);
+      outline: 2px solid var(--ngp-focus-ring);
     }
 
     [ngpButton][data-press] {
-      background-color: var(--background-active);
+      background-color: var(--ngp-background-active);
     }
 
     [ngpMenu] {
       display: flex;
       flex-direction: column;
       width: max-content;
-      background: var(--background);
-      border: 1px solid var(--border);
-      box-shadow: var(--shadow);
+      background: var(--ngp-background);
+      border: 1px solid var(--ngp-border);
+      box-shadow: var(--ngp-shadow);
       border-radius: 8px;
       padding: 2px;
       margin: 2px 0;
@@ -68,11 +68,11 @@ import { NgpMenu, NgpMenuItem, NgpMenuTrigger } from 'ng-primitives/menu';
     }
 
     [ngpMenuItem][data-hover] {
-      background-color: var(--background-active);
+      background-color: var(--ngp-background-active);
     }
 
     [ngpMenuItem][data-focus-visible] {
-      outline: 2px solid var(--focus-ring);
+      outline: 2px solid var(--ngp-focus-ring);
     }
   `,
 })

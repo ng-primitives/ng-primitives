@@ -2,83 +2,83 @@
  * This is a sample theme for the ng-primitives examples. It uses colors from the TailwindCSS palette.
  */
 :root {
-  --white: oklch(1 0.001 0.001);
-  --black: oklch(0 0.001 0.001);
+  --ngp-white: oklch(1 0.001 0.001);
+  --ngp-black: oklch(0 0.001 0.001);
 
-  --gray-50: oklch(0.985 0 0);
-  --gray-100: oklch(0.967 0.001 286.375);
-  --gray-200: oklch(0.92 0.004 286.32);
-  --gray-300: oklch(0.871 0.006 286.286);
-  --gray-400: oklch(0.705 0.015 286.067);
-  --gray-500: oklch(0.552 0.016 285.938);
-  --gray-600: oklch(0.442 0.017 285.786);
-  --gray-700: oklch(0.37 0.013 285.805);
-  --gray-800: oklch(0.274 0.006 286.033);
-  --gray-900: oklch(0.21 0.006 285.885);
-  --gray-950: oklch(0.141 0.005 285.823);
+  --ngp-gray-50: oklch(0.985 0 0);
+  --ngp-gray-100: oklch(0.967 0.001 286.375);
+  --ngp-gray-200: oklch(0.92 0.004 286.32);
+  --ngp-gray-300: oklch(0.871 0.006 286.286);
+  --ngp-gray-400: oklch(0.705 0.015 286.067);
+  --ngp-gray-500: oklch(0.552 0.016 285.938);
+  --ngp-gray-600: oklch(0.442 0.017 285.786);
+  --ngp-gray-700: oklch(0.37 0.013 285.805);
+  --ngp-gray-800: oklch(0.274 0.006 286.033);
+  --ngp-gray-900: oklch(0.21 0.006 285.885);
+  --ngp-gray-950: oklch(0.141 0.005 285.823);
 
-  --background: var(--white);
-  --background-secondary: var(--gray-300);
-  --background-hover: var(--gray-50);
-  --background-active: var(--gray-100);
-  --background-inverse: var(--black);
-  --background-disabled: var(--gray-100);
-  --background-blue: #dbeafe;
+  --ngp-background: var(--ngp-white);
+  --ngp-background-secondary: var(--ngp-gray-300);
+  --ngp-background-hover: var(--ngp-gray-50);
+  --ngp-background-active: var(--ngp-gray-100);
+  --ngp-background-inverse: var(--ngp-black);
+  --ngp-background-disabled: var(--ngp-gray-100);
+  --ngp-background-blue: #dbeafe;
 
-  --border: var(--gray-200);
-  --border-secondary: var(--gray-300);
-  --border-blue: #3b82f6;
+  --ngp-border: var(--ngp-gray-200);
+  --ngp-border-secondary: var(--ngp-gray-300);
+  --ngp-border-blue: #3b82f6;
 
-  --text-emphasis: var(--black);
-  --text-primary: var(--gray-900);
-  --text-secondary: var(--gray-600);
-  --text-tertiary: var(--gray-500);
-  --text-disabled: var(--gray-400);
-  --text-placeholder: var(--gray-400);
-  --text-inverse: var(--white);
-  --text-blue: #3b82f6;
-  --text-red: #ef4444;
+  --ngp-text-emphasis: var(--ngp-black);
+  --ngp-text-primary: var(--ngp-gray-900);
+  --ngp-text-secondary: var(--ngp-gray-600);
+  --ngp-text-tertiary: var(--ngp-gray-500);
+  --ngp-text-disabled: var(--ngp-gray-400);
+  --ngp-text-placeholder: var(--ngp-gray-400);
+  --ngp-text-inverse: var(--ngp-white);
+  --ngp-text-blue: #3b82f6;
+  --ngp-text-red: #ef4444;
 
-  --shadow: 0 1px 2px 0 rgba(0 0 0 0.05);
+  --ngp-shadow: 0 1px 2px 0 rgba(0 0 0 0.05);
 
-  --focus-ring: rgb(59 130 246);
+  --ngp-focus-ring: rgb(59 130 246);
 
-  --avatar-background: #bae6fd;
-  --avatar-border: #fff;
+  --ngp-avatar-background: #bae6fd;
+  --ngp-avatar-border: #fff;
 
-  --button-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1),
+  --ngp-button-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1),
     0 0 0 1px rgb(0 0 0 / 0.05);
 
-  --input-shadow: 0 1px 2px rgba(0, 0, 0, 0.05), 0 0 0 1px rgba(0, 0, 0, 0.1);
+  --ngp-input-shadow: 0 1px 2px rgba(0, 0, 0, 0.05), 0 0 0 1px rgba(0, 0, 0, 0.1);
 }
 
 .dark {
-  --background: var(--gray-950);
-  --background-secondary: var(--gray-700);
-  --background-hover: var(--gray-900);
-  --background-active: var(--gray-800);
-  --background-inverse: var(--white);
-  --background-disabled: var(--gray-900);
-  --background-blue: rgba(95, 160, 246, 0.274);
+  --ngp-background: var(--ngp-gray-950);
+  --ngp-background-secondary: var(--ngp-gray-700);
+  --ngp-background-hover: var(--ngp-gray-900);
+  --ngp-background-active: var(--ngp-gray-800);
+  --ngp-background-inverse: var(--ngp-white);
+  --ngp-background-disabled: var(--ngp-gray-900);
+  --ngp-background-blue: rgba(95, 160, 246, 0.274);
 
-  --border: var(--gray-800);
-  --border-secondary: var(--gray-700);
-  --border-blue: #1980ff;
+  --ngp-border: var(--ngp-gray-800);
+  --ngp-border-secondary: var(--ngp-gray-700);
+  --ngp-border-blue: #1980ff;
 
-  --text-emphasis: var(--white);
-  --text-primary: var(--gray-100);
-  --text-secondary: var(--gray-300);
-  --text-tertiary: var(--gray-400);
-  --text-disabled: var(--gray-500);
-  --text-inverse: var(--black);
-  --text-blue: #1980ff;
-  --text-red: #ff4d4d;
+  --ngp-text-emphasis: var(--ngp-white);
+  --ngp-text-primary: var(--ngp-gray-100);
+  --ngp-text-secondary: var(--ngp-gray-300);
+  --ngp-text-tertiary: var(--ngp-gray-400);
+  --ngp-text-disabled: var(--ngp-gray-500);
+  --ngp-text-inverse: var(--ngp-black);
+  --ngp-text-blue: #1980ff;
+  --ngp-text-red: #ff4d4d;
 
-  --avatar-background: #18181b;
-  --avatar-border: #3f3f46;
+  --ngp-avatar-background: #18181b;
+  --ngp-avatar-border: #3f3f46;
 
-  --input-shadow: 0 1px 2px rgba(255, 255, 255, 0.007), 0 0 0 1px rgba(255, 255, 255, 0.1);
+  --ngp-input-shadow: 0 1px 2px rgba(255, 255, 255, 0.007), 0 0 0 1px rgba(255, 255, 255, 0.1);
 
-  --button-shadow: 0 1px 3px 0 rgb(255, 255, 255, 0.1), 0 1px 2px -1px rgb(255, 255, 255, 0.1),
+  --ngp-button-shadow: 0 1px 3px 0 rgb(255, 255, 255, 0.1), 0 1px 2px -1px rgb(255, 255, 255, 0.1),
     0 0 0 1px rgb(255, 255, 255, 0.05);
 }

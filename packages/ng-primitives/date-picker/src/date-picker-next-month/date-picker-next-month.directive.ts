@@ -13,7 +13,6 @@ import { injectDatePicker } from '../date-picker/date-picker.token';
 import { NgpDatePickerNextMonthToken } from './date-picker-next-month.token';
 
 @Directive({
-  standalone: true,
   selector: '[ngpDatePickerNextMonth]',
   exportAs: 'ngpDatePickerNextMonth',
   providers: [
@@ -54,7 +53,7 @@ export class NgpDatePickerNextMonth<T> implements NgpCanDisable {
    * @internal
    */
   readonly disabled = computed(() => {
-    if (this.datePicker.disabled()) {
+    if (this.datePicker.state.disabled()) {
       return true;
     }
 

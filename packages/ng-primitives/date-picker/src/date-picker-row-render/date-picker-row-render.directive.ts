@@ -24,7 +24,6 @@ import {
 } from './date-picker-row-render.token';
 
 @Directive({
-  standalone: true,
   selector: '[ngpDatePickerRowRender]',
   exportAs: 'ngpDatePickerRowRender',
   providers: [{ provide: NgpDatePickerRowRenderToken, useExisting: NgpDatePickerRowRender }],

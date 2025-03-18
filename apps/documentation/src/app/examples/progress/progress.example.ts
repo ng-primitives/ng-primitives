@@ -17,14 +17,14 @@ import { injectDisposables } from 'ng-primitives/utils';
       max-width: 320px;
       overflow: hidden;
       border-radius: 0.5rem;
-      border: 1px solid var(--border);
-      background-color: var(--background);
+      border: 1px solid var(--ngp-border);
+      background-color: var(--ngp-background);
     }
 
     [ngpProgressIndicator] {
       height: 100%;
       border-radius: 0.5rem;
-      background-color: var(--background-inverse);
+      background-color: var(--ngp-background-inverse);
       transition: width 150ms cubic-bezier(0.4, 0, 0.2, 1);
     }
   `,

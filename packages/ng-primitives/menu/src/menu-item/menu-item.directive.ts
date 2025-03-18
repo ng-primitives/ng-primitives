@@ -12,7 +12,6 @@ import { NgpFocusVisible, NgpHover, NgpPress } from 'ng-primitives/interactions'
 import { NgpMenuItemToken } from './menu-item.token';
 
 @Directive({
-  standalone: true,
   selector: '[ngpMenuItem]',
   exportAs: 'ngpMenuItem',
   providers: [{ provide: NgpMenuItemToken, useExisting: NgpMenuItem }],

@@ -10,7 +10,6 @@ import { Directive } from '@angular/core';
 <% if (addConfig) { %>import { <%= configName %> } from '../config/<%= configFile %>';<% } %>
 
 @Directive({
-  standalone: true,
   selector: '[ngp<%= className %>]',
   exportAs: 'ngp<%= className %>',
   <% if (addToken) { %>providers: [provide<%= className %>(Ngp<%= className %>)]<% } %>

@@ -42,8 +42,8 @@ import { NgpToolbar } from 'ng-primitives/toolbar';
       column-gap: 0.25rem;
       align-items: center;
       border-radius: 0.375rem;
-      background-color: var(--background);
-      box-shadow: var(--button-shadow);
+      background-color: var(--ngp-background);
+      box-shadow: var(--ngp-button-shadow);
       padding: 0.25rem;
     }
 
@@ -59,25 +59,25 @@ import { NgpToolbar } from 'ng-primitives/toolbar';
       outline: none;
       transition: background-color 150ms cubic-bezier(0.4, 0, 0.2, 1);
       box-sizing: border-box;
-      color: var(--text-primary);
+      color: var(--ngp-text-primary);
     }
 
     [ngpButton][data-hover] {
-      background-color: var(--background-hover);
-      border-color: var(--border);
+      background-color: var(--ngp-background-hover);
+      border-color: var(--ngp-border);
     }
 
     [ngpButton][data-focus-visible] {
-      outline: 2px solid var(--focus-ring);
+      outline: 2px solid var(--ngp-focus-ring);
     }
 
     [ngpButton][data-press] {
-      background-color: var(--background-active);
+      background-color: var(--ngp-background-active);
     }
 
     [ngpButton][data-selected] {
-      background-color: var(--background-inverse);
-      color: var(--text-inverse);
+      background-color: var(--ngp-background-inverse);
+      color: var(--ngp-text-inverse);
     }
 
     [ngpToggleGroup] {
@@ -92,7 +92,7 @@ import { NgpToolbar } from 'ng-primitives/toolbar';
     .divider {
       width: 1px;
       height: 1.5rem;
-      background-color: var(--border);
+      background-color: var(--ngp-border);
       margin: 0 0.25rem;
     }
   `,

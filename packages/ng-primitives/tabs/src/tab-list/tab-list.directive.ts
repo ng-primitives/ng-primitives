@@ -9,7 +9,6 @@ import { Directive } from '@angular/core';
 import { injectTabset } from '../tabset/tabset.token';
 
 @Directive({
-  standalone: true,
   selector: '[ngpTabList]',
   exportAs: 'ngpTabList',
   host: {

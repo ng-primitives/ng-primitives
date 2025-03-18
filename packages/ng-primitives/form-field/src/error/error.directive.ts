@@ -11,7 +11,6 @@ import { injectFormField } from '../form-field/form-field.token';
 import { NgpErrorToken } from './error.token';
 
 @Directive({
-  standalone: true,
   selector: '[ngpError]',
   exportAs: 'ngpError',
   providers: [{ provide: NgpErrorToken, useExisting: NgpError }],

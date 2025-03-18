@@ -14,7 +14,6 @@ import { NgpRadioItemToken } from './radio-item.token';
 
 @Directive({
   selector: '[ngpRadioItem]',
-  standalone: true,
   hostDirectives: [NgpRovingFocusItem, NgpHover, NgpFocusVisible, NgpPress],
   providers: [{ provide: NgpRadioItemToken, useExisting: NgpRadioItem }],
   host: {
@@ -47,7 +46,7 @@ export class NgpRadioItem {
   /**
    * Whether the radio item is checked.
    */
-  readonly checked = computed(() => this.radioGroup.value() === this.value());
+  readonly checked = computed(() => this.radioGroup.state.value() === this.value());
 
   /**
    * When the item receives focus, select it.

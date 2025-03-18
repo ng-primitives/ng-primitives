@@ -12,7 +12,6 @@ import { injectFormField } from '../form-field/form-field.token';
 import { NgpFormControlToken } from './form-control.token';
 
 @Directive({
-  standalone: true,
   selector: '[ngpFormControl]',
   exportAs: 'ngpFormControl',
   providers: [{ provide: NgpFormControlToken, useExisting: NgpFormControl }],

@@ -2,7 +2,6 @@ import { Component, input } from '@angular/core';
 import { NgpRadioIndicator, NgpRadioItem } from 'ng-primitives/radio';
 
 @Component({
-  standalone: true,
   selector: '<%= selector %>',
   imports: [NgpRadioIndicator],
   hostDirectives: [

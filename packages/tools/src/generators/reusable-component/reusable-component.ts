@@ -22,11 +22,19 @@ export async function reusableComponentGenerator(
     throw new Error(`Could not read file ${appComponentPath}`);
   }
 
+  // convert the name into space separated words
+  const words = formattedNames.fileName
+    .split('-')
+    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(' ');
+
   // insert the link (<a routerLink="/input">Input</a>) before the closing nav tag
   content = content.replace(
     /<\/nav>/,
-    `  <a routerLink="/${formattedNames.fileName}">${formattedNames.fileName}</a>\n</nav>`,
+    `  <a routerLink="/${formattedNames.fileName}">${words}</a>\n</nav>`,
   );
+
+  tree.write(appComponentPath, content);
 
   // add route to the app.routes.ts
   addRoute(

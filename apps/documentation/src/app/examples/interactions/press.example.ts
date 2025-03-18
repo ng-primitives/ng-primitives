@@ -9,7 +9,7 @@ import { NgpPress } from 'ng-primitives/interactions';
       display: flex;
       width: 10rem;
       height: 6rem;
-      background-color: var(--background);
+      background-color: var(--ngp-background);
       align-items: center;
       justify-content: center;
       border-radius: 0.5rem;
@@ -17,12 +17,12 @@ import { NgpPress } from 'ng-primitives/interactions';
       transition: all 0.2s;
       cursor: pointer;
       user-select: none;
-      border: 1px solid var(--border);
+      border: 1px solid var(--ngp-border);
     }
 
     div[data-press] {
-      background-color: var(--background-active);
-      box-shadow: var(--button-shadow);
+      background-color: var(--ngp-background-active);
+      box-shadow: var(--ngp-button-shadow);
     }
   `,
   template: `

@@ -10,7 +10,6 @@ import { injectPopoverTrigger } from 'ng-primitives/popover';
 import { NgpListboxTriggerToken } from './listbox-trigger.token';
 
 @Directive({
-  standalone: true,
   selector: '[ngpListboxTrigger]',
   exportAs: 'ngpListboxTrigger',
   providers: [{ provide: NgpListboxTriggerToken, useExisting: NgpListboxTrigger }],

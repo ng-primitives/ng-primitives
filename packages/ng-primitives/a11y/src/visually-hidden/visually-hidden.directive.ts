@@ -9,7 +9,6 @@ import { Directive, computed, signal } from '@angular/core';
 import { NgpVisuallyHiddenToken } from './visually-hidden.token';
 
 @Directive({
-  standalone: true,
   selector: '[ngpVisuallyHidden]',
   exportAs: 'ngpVisuallyHidden',
   providers: [{ provide: NgpVisuallyHiddenToken, useExisting: NgpVisuallyHidden }],

@@ -19,27 +19,27 @@ import { NgpRadioGroup, NgpRadioIndicator, NgpRadioItem } from 'ng-primitives/ra
       column-gap: 0.625rem;
       row-gap: 0.125rem;
       border-radius: 0.5rem;
-      background-color: var(--background);
+      background-color: var(--ngp-background);
       padding: 0.75rem 1rem;
-      box-shadow: var(--button-shadow);
+      box-shadow: var(--ngp-button-shadow);
       outline: none;
     }
 
     [ngpRadioItem][data-hover] {
-      background-color: var(--background-hover);
+      background-color: var(--ngp-background-hover);
     }
 
     [ngpRadioItem][data-focus-visible] {
-      outline: 2px solid var(--focus-ring);
+      outline: 2px solid var(--ngp-focus-ring);
       outline-offset: 2px;
     }
 
     [ngpRadioItem][data-press] {
-      background-color: var(--background-active);
+      background-color: var(--ngp-background-active);
     }
 
     [ngpRadioItem][data-checked] {
-      background-color: var(--background-inverse);
+      background-color: var(--ngp-background-inverse);
     }
 
     [ngpRadioIndicator] {
@@ -52,7 +52,7 @@ import { NgpRadioGroup, NgpRadioIndicator, NgpRadioItem } from 'ng-primitives/ra
       border-radius: 9999px;
       width: 1rem;
       height: 1rem;
-      border: 1px solid var(--border);
+      border: 1px solid var(--ngp-border);
     }
 
     .indicator-dot {
@@ -63,32 +63,32 @@ import { NgpRadioGroup, NgpRadioIndicator, NgpRadioItem } from 'ng-primitives/ra
     }
 
     [ngpRadioItem][data-checked] .indicator-dot {
-      background-color: var(--background);
+      background-color: var(--ngp-background);
     }
 
     .title {
       grid-column-start: 2;
       grid-row-start: 1;
       font-weight: 500;
-      color: var(--text-primary);
+      color: var(--ngp-text-primary);
       margin: 0;
     }
 
     [ngpRadioItem][data-checked] .title {
-      color: var(--text-inverse);
+      color: var(--ngp-text-inverse);
     }
 
     .description {
       grid-column-start: 2;
       grid-row-start: 2;
       font-size: 0.75rem;
-      color: var(--text-secondary);
+      color: var(--ngp-text-secondary);
       line-height: 1rem;
       margin: 0;
     }
 
     [ngpRadioItem][data-checked] .description {
-      color: var(--text-inverse);
+      color: var(--ngp-text-inverse);
     }
   `,
   template: `

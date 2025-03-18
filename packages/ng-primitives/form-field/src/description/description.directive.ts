@@ -11,7 +11,6 @@ import { injectFormField } from '../form-field/form-field.token';
 import { NgpDescriptionToken } from './description.token';
 
 @Directive({
-  standalone: true,
   selector: '[ngpDescription]',
   exportAs: 'ngpDescription',
   providers: [{ provide: NgpDescriptionToken, useExisting: NgpDescription }],

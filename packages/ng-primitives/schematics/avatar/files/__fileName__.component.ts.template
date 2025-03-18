@@ -1,9 +1,7 @@
 import { Component } from '@angular/core';
 import { NgpAvatar } from 'ng-primitives/avatar';
 
-
 @Component({
-  standalone: true,
   selector: '<%= selector %>',
   hostDirectives: [NgpAvatar],
   <%_ if (inlineTemplate) { -%>

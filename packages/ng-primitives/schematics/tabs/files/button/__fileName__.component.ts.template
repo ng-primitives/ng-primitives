@@ -2,9 +2,8 @@ import { Component } from '@angular/core';
 import { NgpTabButton } from 'ng-primitives/tabs';
 
 @Component({
-  standalone: true,
   selector: '<%= selector %>',
- hostDirectives: [
+  hostDirectives: [
     {
       directive: NgpTabButton,
       inputs: [

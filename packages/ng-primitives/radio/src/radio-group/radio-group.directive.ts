@@ -9,6 +9,7 @@ import { BooleanInput } from '@angular/cdk/coercion';
 import { Directive, booleanAttribute, input, model } from '@angular/core';
 import { NgpOrientation } from 'ng-primitives/common';
 import { NgpFormControl } from 'ng-primitives/form-field';
+import { controlState, provideControlState } from 'ng-primitives/forms';
 import {
   NgpCanDisable,
   NgpCanOrientate,
@@ -20,17 +21,18 @@ import { NgpRadioGroupToken } from './radio-group.token';
 
 @Directive({
   selector: '[ngpRadioGroup]',
-  standalone: true,
   providers: [
     { provide: NgpRadioGroupToken, useExisting: NgpRadioGroup },
     { provide: NgpDisabledToken, useExisting: NgpRadioGroup },
     provideOrientation(NgpRadioGroup),
+    provideControlState(),
   ],
   hostDirectives: [NgpRovingFocusGroup, NgpFormControl],
   host: {
     role: 'radiogroup',
     '[attr.aria-orientation]': 'orientation()',
     '[attr.data-orientation]': 'orientation()',
+    '[attr.data-disabled]': 'state.disabled() ? "" : null',
   },
 })
 export class NgpRadioGroup implements NgpCanDisable, NgpCanOrientate {
@@ -56,10 +58,20 @@ export class NgpRadioGroup implements NgpCanDisable, NgpCanOrientate {
   });
 
   /**
+   * The form control state. This is used to allow communication between the radio group and the control value access and any
+   * components that use this as a host directive.
+   * @internal
+   */
+  readonly state = controlState({
+    value: this.value,
+    disabled: this.disabled,
+  });
+
+  /**
    * Select a radio item.
    * @param value The value of the radio item to select.
    */
   select(value: string): void {
-    this.value.set(value);
+    this.state.setValue(value);
   }
 }

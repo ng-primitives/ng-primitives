@@ -8,18 +8,19 @@
 import { BooleanInput } from '@angular/cdk/coercion';
 import { booleanAttribute, Directive, input, model } from '@angular/core';
 import { NgpOrientation } from 'ng-primitives/common';
+import { controlState, provideControlState } from 'ng-primitives/forms';
 import { NgpCanOrientate, provideOrientation } from 'ng-primitives/internal';
 import { NgpRovingFocusGroup } from 'ng-primitives/roving-focus';
 import { injectToggleGroupConfig } from '../config/toggle-group.config';
 import { NgpToggleGroupToken } from './toggle-group.token';
 
 @Directive({
-  standalone: true,
   selector: '[ngpToggleGroup]',
   exportAs: 'ngpToggleGroup',
   providers: [
     { provide: NgpToggleGroupToken, useExisting: NgpToggleGroup },
     provideOrientation(NgpToggleGroup),
+    provideControlState(),
   ],
   hostDirectives: [NgpRovingFocusGroup],
   host: {
@@ -27,7 +28,7 @@ import { NgpToggleGroupToken } from './toggle-group.token';
     '[attr.aria-orientation]': 'orientation()',
     '[attr.data-orientation]': 'orientation()',
     '[attr.data-type]': 'type()',
-    '[attr.data-disabled]': 'disabled() ? "" : null',
+    '[attr.data-disabled]': 'state.disabled() ? "" : null',
   },
 })
 export class NgpToggleGroup implements NgpCanOrientate {
@@ -59,17 +60,26 @@ export class NgpToggleGroup implements NgpCanOrientate {
   });
 
   /**
+   * The form control state. This is used to allow communication between the toggle group and the control value access and any
+   * components that use this as a host directive.
+   */
+  protected readonly state = controlState({
+    value: this.value,
+    disabled: this.disabled,
+  });
+
+  /**
    * Select a value in the toggle group.
    */
   private select(value: string): void {
-    if (this.disabled()) {
+    if (this.state.disabled()) {
       return;
     }
 
     if (this.type() === 'single') {
-      this.value.set([value]);
+      this.state.setValue([value]);
     } else {
-      this.value.update(values => [...values, value]);
+      this.state.setValue([...this.state.value(), value]);
     }
   }
 
@@ -77,11 +87,11 @@ export class NgpToggleGroup implements NgpCanOrientate {
    * De-select a value in the toggle group.
    */
   private deselect(value: string): void {
-    if (this.disabled()) {
+    if (this.state.disabled()) {
       return;
     }
 
-    this.value.update(values => values.filter(v => v !== value));
+    this.state.setValue(this.state.value().filter(v => v !== value));
   }
 
   /**
@@ -89,7 +99,7 @@ export class NgpToggleGroup implements NgpCanOrientate {
    * @internal
    */
   isSelected(value: string): boolean {
-    return this.value().includes(value);
+    return this.state.value().includes(value);
   }
 
   /**

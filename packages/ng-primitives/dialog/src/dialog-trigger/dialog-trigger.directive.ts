@@ -21,7 +21,6 @@ import { NgpDialogContext, NgpDialogManager } from '../dialog/dialog.service';
 import { NgpDialogTriggerToken } from './dialog-trigger.token';
 
 @Directive({
-  standalone: true,
   selector: '[ngpDialogTrigger]',
   exportAs: 'ngpDialogTrigger',
   providers: [{ provide: NgpDialogTriggerToken, useExisting: NgpDialogTrigger }],

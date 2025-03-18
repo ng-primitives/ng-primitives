@@ -12,7 +12,6 @@ import { Subscription } from 'rxjs';
 import { NgpFormFieldToken } from './form-field.token';
 
 @Directive({
-  standalone: true,
   selector: '[ngpFormField]',
   exportAs: 'ngpFormField',
   providers: [{ provide: NgpFormFieldToken, useExisting: NgpFormField }],

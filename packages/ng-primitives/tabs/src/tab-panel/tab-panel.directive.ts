@@ -10,7 +10,6 @@ import { injectTabset } from '../tabset/tabset.token';
 import { NgpTabPanelToken } from './tab-panel.token';
 
 @Directive({
-  standalone: true,
   selector: '[ngpTabPanel]',
   exportAs: 'ngpTabPanel',
   providers: [{ provide: NgpTabPanelToken, useExisting: NgpTabPanel }],

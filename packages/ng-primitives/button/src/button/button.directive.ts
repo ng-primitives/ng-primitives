@@ -11,7 +11,6 @@ import { NgpCanDisable, NgpDisabledToken, setupInteractions } from 'ng-primitive
 import { NgpButtonToken } from './button.token';
 
 @Directive({
-  standalone: true,
   selector: '[ngpButton]',
   exportAs: 'ngpButton',
   providers: [

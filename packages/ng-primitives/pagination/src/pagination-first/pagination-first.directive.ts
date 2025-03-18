@@ -13,7 +13,6 @@ import { injectPagination } from '../pagination/pagination.token';
 import { NgpPaginationFirstToken } from './pagination-first.token';
 
 @Directive({
-  standalone: true,
   selector: '[ngpPaginationFirst]',
   exportAs: 'ngpPaginationFirst',
   providers: [
@@ -42,7 +41,7 @@ export class NgpPaginationFirst implements NgpCanDisable {
   });
 
   readonly disabled = computed(
-    () => this.buttonDisabled() || this.pagination.disabled() || this.pagination.firstPage(),
+    () => this.buttonDisabled() || this.pagination.state.disabled() || this.pagination.firstPage(),
   );
 
   /**
@@ -54,7 +53,7 @@ export class NgpPaginationFirst implements NgpCanDisable {
       return;
     }
 
-    this.pagination.page.set(1);
+    this.pagination.goToPage(1);
   }
 
   /**

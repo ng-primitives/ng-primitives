@@ -14,7 +14,6 @@ import { injectDialogRef } from './dialog-ref';
 import { NgpDialogToken } from './dialog.token';
 
 @Directive({
-  standalone: true,
   selector: '[ngpDialog]',
   exportAs: 'ngpDialog',
   providers: [{ provide: NgpDialogToken, useExisting: NgpDialog }],

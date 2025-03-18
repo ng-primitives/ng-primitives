@@ -20,35 +20,35 @@ import { NgpToast } from 'ng-primitives/toast';
       padding-left: 1rem;
       padding-right: 1rem;
       border-radius: 0.5rem;
-      color: var(--text-primary);
+      color: var(--ngp-text-primary);
       border: none;
       outline: none;
       height: 2.5rem;
       font-weight: 500;
-      background-color: var(--background);
+      background-color: var(--ngp-background);
       transition: background-color 300ms cubic-bezier(0.4, 0, 0.2, 1);
-      box-shadow: var(--button-shadow);
+      box-shadow: var(--ngp-button-shadow);
     }
 
     .toast-trigger[data-hover] {
-      background-color: var(--background-hover);
+      background-color: var(--ngp-background-hover);
     }
 
     .toast-trigger[data-focus-visible] {
-      outline: 2px solid var(--focus-ring);
+      outline: 2px solid var(--ngp-focus-ring);
       outline-offset: 2px;
     }
 
     .toast-trigger[data-press] {
-      background-color: var(--background-active);
+      background-color: var(--ngp-background-active);
     }
 
     .toast {
       position: fixed;
       display: inline-grid;
-      background: var(--background);
-      box-shadow: var(--shadow);
-      border: 1px solid var(--border);
+      background: var(--ngp-background);
+      box-shadow: var(--ngp-shadow);
+      border: 1px solid var(--ngp-border);
       padding: 12px 16px;
       opacity: 0;
       transition: all 0.4s cubic-bezier(0.215, 0.61, 0.355, 1);
@@ -61,7 +61,7 @@ import { NgpToast } from 'ng-primitives/toast';
     }
 
     .toast-title {
-      color: var(--text-primary);
+      color: var(--ngp-text-primary);
       font-size: 0.75rem;
       font-weight: 600;
       margin: 0;
@@ -73,15 +73,15 @@ import { NgpToast } from 'ng-primitives/toast';
     .toast-description {
       font-size: 0.75rem;
       margin: 0;
-      color: var(--text-secondary);
+      color: var(--ngp-text-secondary);
       grid-column: 1 / 2;
       grid-row: 2;
       line-height: 16px;
     }
 
     .toast-dismiss {
-      background: var(--background-inverse);
-      color: var(--text-inverse);
+      background: var(--ngp-background-inverse);
+      color: var(--ngp-text-inverse);
       border: none;
       border-radius: 8px;
       padding: 4px 8px;

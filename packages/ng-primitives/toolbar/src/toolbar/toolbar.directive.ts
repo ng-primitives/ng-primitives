@@ -12,7 +12,6 @@ import { NgpRovingFocusGroup } from 'ng-primitives/roving-focus';
 import { provideToolbar } from './toolbar.token';
 
 @Directive({
-  standalone: true,
   selector: '[ngpToolbar]',
   exportAs: 'ngpToolbar',
   providers: [provideToolbar(NgpToolbar), provideOrientation(NgpToolbar)],

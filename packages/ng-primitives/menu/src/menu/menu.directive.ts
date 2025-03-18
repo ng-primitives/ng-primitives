@@ -10,7 +10,6 @@ import { Directive } from '@angular/core';
 import { NgpMenuToken } from './menu.token';
 
 @Directive({
-  standalone: true,
   selector: '[ngpMenu]',
   exportAs: 'ngpMenu',
   providers: [{ provide: NgpMenuToken, useExisting: NgpMenu }],

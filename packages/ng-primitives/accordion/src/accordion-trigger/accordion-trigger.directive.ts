@@ -12,7 +12,6 @@ import { injectAccordion } from '../accordion/accordion.token';
 import { NgpAccordionTriggerToken } from './accordion-trigger.token';
 
 @Directive({
-  standalone: true,
   selector: '[ngpAccordionTrigger]',
   exportAs: 'ngpAccordionTrigger',
   providers: [{ provide: NgpAccordionTriggerToken, useExisting: NgpAccordionTrigger }],

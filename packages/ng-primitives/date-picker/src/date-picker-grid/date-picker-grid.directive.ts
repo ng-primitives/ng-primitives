@@ -10,14 +10,13 @@ import { injectDatePicker } from '../date-picker/date-picker.token';
 import { NgpDatePickerGridToken } from './date-picker-grid.token';
 
 @Directive({
-  standalone: true,
   selector: '[ngpDatePickerGrid]',
   exportAs: 'ngpDatePickerGrid',
   providers: [{ provide: NgpDatePickerGridToken, useExisting: NgpDatePickerGrid }],
   host: {
     role: 'grid',
     '[attr.aria-labelledby]': 'labelId()',
-    '[attr.data-disabled]': 'datePicker.disabled() ? "" : null',
+    '[attr.data-disabled]': 'datePicker.state.disabled() ? "" : null',
   },
 })
 export class NgpDatePickerGrid<T> {

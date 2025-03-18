@@ -15,7 +15,6 @@ import { NgpFocusToken } from './focus.token';
  * https://github.com/adobe/react-spectrum/blob/main/packages/%40react-aria/interactions/src/useFocus.ts#L20
  */
 @Directive({
-  standalone: true,
   selector: '[ngpFocus]',
   exportAs: 'ngpFocus',
   providers: [{ provide: NgpFocusToken, useExisting: NgpFocus }],

@@ -10,23 +10,24 @@ import {
   Directive,
   booleanAttribute,
   computed,
-  contentChild,
   input,
   model,
   numberAttribute,
+  signal,
 } from '@angular/core';
 import { NgpOrientation } from 'ng-primitives/common';
 import { NgpFormControl } from 'ng-primitives/form-field';
+import { controlState, provideControlState } from 'ng-primitives/forms';
 import { NgpCanDisable, NgpCanOrientate, NgpDisabledToken } from 'ng-primitives/internal';
-import { NgpSliderTrackToken } from '../slider-track/slider-track.token';
-import { NgpSliderToken } from './slider.token';
+import type { NgpSliderTrack } from '../slider-track/slider-track.directive';
+import { provideSlider } from './slider.token';
 
 @Directive({
-  standalone: true,
   selector: '[ngpSlider]',
   exportAs: 'ngpSlider',
   providers: [
-    { provide: NgpSliderToken, useExisting: NgpSlider },
+    provideSlider(NgpSlider),
+    provideControlState(),
     { provide: NgpDisabledToken, useExisting: NgpSlider },
   ],
   hostDirectives: [NgpFormControl],
@@ -83,13 +84,24 @@ export class NgpSlider implements NgpCanDisable, NgpCanOrientate {
 
   /**
    * Access the slider track.
+   * @internal
    */
-  readonly track = contentChild(NgpSliderTrackToken);
+  readonly track = signal<NgpSliderTrack | undefined>(undefined);
 
   /**
    * The value as a percentage based on the min and max values.
    */
   protected readonly percentage = computed(
-    () => ((this.value() - this.min()) / (this.max() - this.min())) * 100,
+    () => ((this.state.value() - this.min()) / (this.max() - this.min())) * 100,
   );
+
+  /**
+   * The form control state. This is used to allow communication between the slider and the control value access and any
+   * components that use this as a host directive.
+   * @internal
+   */
+  readonly state = controlState({
+    value: this.value,
+    disabled: this.disabled,
+  });
 }

@@ -24,9 +24,9 @@ import { NgpSelect } from 'ng-primitives/select';
       height: 2.5rem;
       padding: 0 1rem;
       border-radius: 0.5rem;
-      background-color: var(--background);
+      background-color: var(--ngp-background);
       text-align: start;
-      box-shadow: var(--button-shadow);
+      box-shadow: var(--ngp-button-shadow);
       outline: none;
       background-position-x: calc(100% - 10px);
       background-position-y: 50%;
@@ -36,16 +36,16 @@ import { NgpSelect } from 'ng-primitives/select';
     }
 
     select[data-hover] {
-      background-color: var(--background-hover);
+      background-color: var(--ngp-background-hover);
     }
 
     select[data-focus-visible] {
-      outline: 2px solid var(--focus-ring);
+      outline: 2px solid var(--ngp-focus-ring);
       outline-offset: 0;
     }
 
     select[data-press] {
-      background-color: var(--background-active);
+      background-color: var(--ngp-background-active);
     }
   `,
 })

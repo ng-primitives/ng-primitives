@@ -16,7 +16,6 @@ import { NgpPressToken } from './press.token';
  */
 
 @Directive({
-  standalone: true,
   selector: '[ngpPress]',
   exportAs: 'ngpPress',
   providers: [{ provide: NgpPressToken, useExisting: NgpPress }],

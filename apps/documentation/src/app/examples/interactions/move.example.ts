@@ -14,10 +14,10 @@ import { NgpMoveEvent } from 'packages/ng-primitives/interactions/src/move/move.
     div {
       padding: 1rem;
       border-radius: 0.5rem;
-      color: var(--text-primary);
-      border: 1px solid var(--border);
+      color: var(--ngp-text-primary);
+      border: 1px solid var(--ngp-border);
       font-weight: 500;
-      background-color: var(--background);
+      background-color: var(--ngp-background);
       box-shadow: none;
       cursor: move;
       user-select: none;
@@ -32,11 +32,11 @@ import { NgpMoveEvent } from 'packages/ng-primitives/interactions/src/move/move.
     }
 
     div:focus-visible {
-      outline: 2px solid var(--focus-ring);
+      outline: 2px solid var(--ngp-focus-ring);
     }
 
     div[data-move] {
-      box-shadow: var(--button-shadow);
+      box-shadow: var(--ngp-button-shadow);
     }
   `,
 })

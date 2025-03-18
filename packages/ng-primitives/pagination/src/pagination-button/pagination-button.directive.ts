@@ -20,7 +20,6 @@ import { injectPagination } from '../pagination/pagination.token';
 import { NgpPaginationButtonToken } from './pagination-button.token';
 
 @Directive({
-  standalone: true,
   selector: '[ngpPaginationButton]',
   exportAs: 'ngpPaginationButton',
   providers: [
@@ -30,7 +29,7 @@ import { NgpPaginationButtonToken } from './pagination-button.token';
   hostDirectives: [NgpButton],
   host: {
     '[tabindex]': 'disabled() ? -1 : 0',
-    '[attr.data-disabled]': 'disabled() || pagination.disabled() ? "" : null',
+    '[attr.data-disabled]': 'disabled() ? "" : null',
     '[attr.data-page]': 'page()',
     '[attr.data-selected]': 'selected() ? "" : null',
     '[attr.aria-current]': 'selected()',
@@ -61,12 +60,12 @@ export class NgpPaginationButton implements NgpCanDisable {
   /**
    * Whether the button is disabled.
    */
-  readonly disabled = computed(() => this.buttonDisabled() || this.pagination.disabled());
+  readonly disabled = computed(() => this.buttonDisabled() || this.pagination.state.disabled());
 
   /**
    * Whether this page is the currently selected page.
    */
-  protected readonly selected = computed(() => this.page() === this.pagination.page());
+  protected readonly selected = computed(() => this.page() === this.pagination.state.value());
 
   /**
    * Go to the page this button represents.
@@ -77,7 +76,7 @@ export class NgpPaginationButton implements NgpCanDisable {
       return;
     }
 
-    this.pagination.page.set(this.page());
+    this.pagination.goToPage(this.page());
   }
 
   /**

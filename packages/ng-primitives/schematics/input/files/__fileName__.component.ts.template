@@ -2,7 +2,6 @@ import { Component } from '@angular/core';
 import { NgpInput } from 'ng-primitives/input';
 
 @Component({
-  standalone: true,
   selector: 'input[<%= prefix %>-<%= fileName %>]',
   hostDirectives: [NgpInput],
   <%_ if (inlineTemplate) { -%>

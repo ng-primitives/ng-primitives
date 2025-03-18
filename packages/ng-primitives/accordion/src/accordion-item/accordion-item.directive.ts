@@ -13,7 +13,6 @@ import { injectAccordion } from '../accordion/accordion.token';
 import { NgpAccordionItemToken } from './accordion-item.token';
 
 @Directive({
-  standalone: true,
   selector: '[ngpAccordionItem]',
   exportAs: 'ngpAccordionItem',
   providers: [{ provide: NgpAccordionItemToken, useExisting: NgpAccordionItem }],

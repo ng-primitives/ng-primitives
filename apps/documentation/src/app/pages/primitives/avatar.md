@@ -27,6 +27,12 @@ Assemble the avatar directives in your template.
 </span>
 ```
 
+## Reusable Component
+
+Create a reusable component that uses the `NgpAvatar` directive.
+
+<docs-snippet name="avatar"></docs-snippet>
+
 ## Schematics
 
 Generate an avatar component with the `NgpAvatar` primitive preconfigured.

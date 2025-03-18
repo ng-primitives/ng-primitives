@@ -13,7 +13,6 @@ import { NgpCanDisable, NgpDisabledToken } from 'ng-primitives/internal';
 import { NgpSelectToken } from './select.token';
 
 @Directive({
-  standalone: true,
   selector: 'select[ngpSelect]',
   exportAs: 'ngpSelect',
   providers: [

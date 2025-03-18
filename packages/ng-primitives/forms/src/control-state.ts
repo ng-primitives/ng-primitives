@@ -49,7 +49,7 @@ interface NgpControlBindings<T> {
   /**
    * The signal that represents the user defined disabled state of the control. This is usually the disabled input.
    */
-  disabled: Signal<boolean>;
+  disabled?: Signal<boolean>;
 }
 
 export interface NgpControlState<T> {
@@ -74,9 +74,17 @@ export interface NgpControlState<T> {
    */
   setOnChangeFn(fn: (value: T) => void): void;
   /**
+   * Set the onTouched callback for Angular Forms.
+   */
+  setOnTouchedFn(fn: () => void): void;
+  /**
    * Set the disabled state of the control.
    */
   setDisabled(disabled: boolean): void;
+  /**
+   * Mark the control as touched.
+   */
+  markAsTouched(): void;
 }
 
 export class NgpControlStateManager<T> {
@@ -93,12 +101,17 @@ export class NgpControlStateManager<T> {
   /**
    * Store the current disabled state of the control. This is usually a reference to the disabled input.
    */
-  private readonly disabled = linkedSignal(() => this.state().disabled());
+  private readonly disabled = linkedSignal(() => this.state().disabled?.() ?? false);
 
   /**
    * Store the onChange callback for Angular Forms.
    */
   private onChangeFn?: (value: T) => void;
+
+  /**
+   * Store the onTouched callback for Angular Forms.
+   */
+  private onTouchedFn?: () => void;
 
   readonly controlState = computed<NgpControlState<T>>(() => ({
     value: this.value,
@@ -121,14 +134,21 @@ export class NgpControlStateManager<T> {
       this.onChangeFn?.(value);
     },
     setOnChangeFn: (fn: (value: T) => void) => (this.onChangeFn = fn),
+    setOnTouchedFn: (fn: () => void) => (this.onTouchedFn = fn),
     setDisabled: (disabled: boolean) => this.disabled.set(disabled),
+    markAsTouched: () => this.onTouchedFn?.(),
   }));
 
   /**
    * @internal
    */
   setupState({ value, valueChange, disabled }: NgpControlBindings<T>): NgpControlState<T> {
-    this.state.set({ value, valueChange, disabled });
+    this.state.update(state => ({
+      value: value ?? state.value,
+      valueChange: valueChange ?? state.valueChange,
+      disabled: disabled ?? state.disabled,
+    }));
+
     return this.controlState();
   }
 }

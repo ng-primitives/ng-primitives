@@ -23,18 +23,18 @@ import { NgpFileUpload } from 'ng-primitives/file-upload';
       justify-content: center;
       row-gap: 0.25rem;
       border-radius: 0.5rem;
-      border: 1px dashed var(--border-secondary);
-      background-color: var(--background);
+      border: 1px dashed var(--ngp-border-secondary);
+      background-color: var(--ngp-background);
       padding: 2rem 3rem;
     }
 
     [ngpFileUpload][data-dragover] {
-      border-color: var(--border);
-      background-color: var(--background-hover);
+      border-color: var(--ngp-border);
+      background-color: var(--ngp-background-hover);
     }
 
     ng-icon {
-      color: var(--text-primary);
+      color: var(--ngp-text-primary);
       font-size: 20px;
       margin-bottom: 0.25rem;
     }
@@ -42,7 +42,7 @@ import { NgpFileUpload } from 'ng-primitives/file-upload';
     .heading {
       font-size: 0.875rem;
       font-weight: 500;
-      color: var(--text-primary);
+      color: var(--ngp-text-primary);
       line-height: 1.25rem;
       text-align: center;
       margin: 0;
@@ -50,7 +50,7 @@ import { NgpFileUpload } from 'ng-primitives/file-upload';
 
     .subheading {
       font-size: 0.75rem;
-      color: var(--text-secondary);
+      color: var(--ngp-text-secondary);
       line-height: 1rem;
       text-align: center;
       margin: 0;

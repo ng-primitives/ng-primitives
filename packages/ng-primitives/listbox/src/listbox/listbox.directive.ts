@@ -30,7 +30,6 @@ import { NgpListboxOptionToken } from '../listbox-option/listbox-option.token';
 import { NgpListboxToken } from './listbox.token';
 
 @Directive({
-  standalone: true,
   selector: '[ngpListbox]',
   exportAs: 'ngpListbox',
   providers: [{ provide: NgpListboxToken, useExisting: NgpListbox }],

@@ -25,25 +25,25 @@ import { NgpPopover, NgpPopoverTrigger } from 'ng-primitives/popover';
       padding-left: 1rem;
       padding-right: 1rem;
       border-radius: 0.5rem;
-      color: var(--text-primary);
+      color: var(--ngp-text-primary);
       outline: none;
       height: 2.5rem;
       font-weight: 500;
-      background-color: var(--background);
+      background-color: var(--ngp-background);
       transition: background-color 300ms cubic-bezier(0.4, 0, 0.2, 1);
-      box-shadow: var(--button-shadow);
+      box-shadow: var(--ngp-button-shadow);
     }
 
     button[data-hover] {
-      background-color: var(--background-hover);
+      background-color: var(--ngp-background-hover);
     }
 
     button[data-focus-visible] {
-      outline: 2px solid var(--focus-ring);
+      outline: 2px solid var(--ngp-focus-ring);
     }
 
     button[data-press] {
-      background-color: var(--background-active);
+      background-color: var(--ngp-background-active);
     }
 
     [ngpPopover] {
@@ -53,10 +53,10 @@ import { NgpPopover, NgpPopoverTrigger } from 'ng-primitives/popover';
       row-gap: 4px;
       max-width: 280px;
       border-radius: 0.75rem;
-      background: var(--background);
+      background: var(--ngp-background);
       padding: 0.75rem 1rem;
-      box-shadow: var(--shadow);
-      border: 1px solid var(--border);
+      box-shadow: var(--ngp-shadow);
+      border: 1px solid var(--ngp-border);
       outline: none;
       animation: popover-show 0.1s ease-out;
       transform-origin: var(--popover-transform-origin);
@@ -66,18 +66,18 @@ import { NgpPopover, NgpPopoverTrigger } from 'ng-primitives/popover';
       font-size: 13px;
       font-weight: 500;
       margin: 0;
-      color: var(--text-primary);
+      color: var(--ngp-text-primary);
     }
 
     [ngpPopover] p {
       font-size: 13px;
       margin: 0;
-      color: var(--text-secondary);
+      color: var(--ngp-text-secondary);
     }
 
     [ngpPopover] a {
       font-size: 13px;
-      color: var(--text-blue);
+      color: var(--ngp-text-blue);
       text-decoration: none;
     }
 

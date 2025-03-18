@@ -9,7 +9,6 @@ import { Directive } from '@angular/core';
 import { NgpDialogPanelToken } from './dialog-panel.token';
 
 @Directive({
-  standalone: true,
   selector: '[ngpDialogPanel]',
   exportAs: 'ngpDialogPanel',
   providers: [{ provide: NgpDialogPanelToken, useExisting: NgpDialogPanel }],

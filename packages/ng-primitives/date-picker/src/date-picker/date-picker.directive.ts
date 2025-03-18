@@ -19,17 +19,17 @@ import {
   model,
 } from '@angular/core';
 import { injectDateAdapter } from 'ng-primitives/date-time';
+import { controlState, provideControlState } from 'ng-primitives/forms';
 import { NgpDatePickerDateButtonToken } from '../date-picker-date-button/date-picker-date-button.token';
 import { NgpDatePickerLabelToken } from '../date-picker-label/date-picker-label.token';
-import { NgpDatePickerToken } from './date-picker.token';
+import { provideDatePicker } from './date-picker.token';
 
 @Directive({
-  standalone: true,
   selector: '[ngpDatePicker]',
   exportAs: 'ngpDatePicker',
-  providers: [{ provide: NgpDatePickerToken, useExisting: NgpDatePicker }],
+  providers: [provideDatePicker(NgpDatePicker), provideControlState()],
   host: {
-    '[attr.data-disabled]': 'disabled() ? "" : null',
+    '[attr.data-disabled]': 'state.disabled() ? "" : null',
   },
 })
 export class NgpDatePicker<T> {
@@ -96,6 +96,15 @@ export class NgpDatePicker<T> {
    * Access all the date picker buttons
    */
   private readonly buttons = contentChildren(NgpDatePickerDateButtonToken, { descendants: true });
+
+  /**
+   * The form control state. This is used to allow communication between the date picker and the control value access and any
+   * components that use this as a host directive.
+   */
+  readonly state = controlState({
+    value: this.date,
+    disabled: this.disabled,
+  });
 
   /**
    * Set the focused date.

@@ -10,7 +10,7 @@ import { TabGroup } from '../tab-group/tab-group.component';
 
 @Component({
   selector: 'docs-tab',
-  standalone: true,
+
   templateUrl: './tab.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {

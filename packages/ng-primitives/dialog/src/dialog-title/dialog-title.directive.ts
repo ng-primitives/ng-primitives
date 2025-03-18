@@ -11,7 +11,6 @@ import { injectDialog } from '../dialog/dialog.token';
 import { NgpDialogTitleToken } from './dialog-title.token';
 
 @Directive({
-  standalone: true,
   selector: '[ngpDialogTitle]',
   exportAs: 'ngpDialogTitle',
   providers: [{ provide: NgpDialogTitleToken, useExisting: NgpDialogTitle }],
