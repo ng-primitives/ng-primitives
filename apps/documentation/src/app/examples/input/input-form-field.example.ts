@@ -30,21 +30,21 @@ import { NgpInput } from 'ng-primitives/input';
       border-radius: 8px;
       padding: 0 16px;
       border: none;
-      box-shadow: var(--input-shadow);
+      box-shadow: var(--ngp-input-shadow);
       outline: none;
     }
 
     [ngpInput]:focus {
-      outline: 2px solid var(--focus-ring);
+      outline: 2px solid var(--ngp-focus-ring);
       outline-offset: 2px;
     }
 
     [ngpInput]::placeholder {
-      color: var(--text-placeholder);
+      color: var(--ngp-text-placeholder);
     }
 
     [ngpLabel] {
-      color: var(--text-primary);
+      color: var(--ngp-text-primary);
       font-size: 0.875rem;
       line-height: 1.25rem;
       font-weight: 500;
@@ -52,7 +52,7 @@ import { NgpInput } from 'ng-primitives/input';
     }
 
     [ngpDescription] {
-      color: var(--text-secondary);
+      color: var(--ngp-text-secondary);
       font-size: 0.75rem;
       line-height: 1rem;
       margin: 0 0 4px;

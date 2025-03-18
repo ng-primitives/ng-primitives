@@ -42,21 +42,21 @@ import {
       border-radius: 8px;
       padding: 0 16px;
       border: none;
-      box-shadow: var(--input-shadow);
+      box-shadow: var(--ngp-input-shadow);
       outline: none;
     }
 
     [ngpFormControl]:focus {
-      outline: 2px solid var(--focus-ring);
+      outline: 2px solid var(--ngp-focus-ring);
       outline-offset: 2px;
     }
 
     [ngpFormControl]::placeholder {
-      color: var(--text-placeholder);
+      color: var(--ngp-text-placeholder);
     }
 
     [ngpLabel] {
-      color: var(--text-primary);
+      color: var(--ngp-text-primary);
       font-size: 0.875rem;
       line-height: 1.25rem;
       font-weight: 500;
@@ -64,7 +64,7 @@ import {
     }
 
     [ngpDescription] {
-      color: var(--text-secondary);
+      color: var(--ngp-text-secondary);
       font-size: 0.75rem;
       line-height: 1rem;
       margin: 0 0 4px;
@@ -72,7 +72,7 @@ import {
 
     [ngpError] {
       display: none;
-      color: var(--text-red);
+      color: var(--ngp-text-red);
       font-size: 0.75rem;
       line-height: 1rem;
       margin: 0;

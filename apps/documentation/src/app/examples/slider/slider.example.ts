@@ -20,14 +20,14 @@ import { NgpSlider, NgpSliderRange, NgpSliderThumb, NgpSliderTrack } from 'ng-pr
       height: 5px;
       width: 100%;
       border-radius: 999px;
-      background-color: var(--background-secondary);
+      background-color: var(--ngp-background-secondary);
     }
 
     [ngpSliderRange] {
       position: absolute;
       height: 100%;
       border-radius: 999px;
-      background-color: var(--background-inverse);
+      background-color: var(--ngp-background-inverse);
     }
 
     [ngpSliderThumb] {
@@ -37,13 +37,13 @@ import { NgpSlider, NgpSliderRange, NgpSliderThumb, NgpSliderTrack } from 'ng-pr
       width: 20px;
       border-radius: 10px;
       background-color: white;
-      box-shadow: var(--button-shadow);
+      box-shadow: var(--ngp-button-shadow);
       outline: none;
       transform: translateX(-50%);
     }
 
     [ngpSliderThumb][data-focus-visible] {
-      outline: 2px solid var(--focus-ring);
+      outline: 2px solid var(--ngp-focus-ring);
       outline-offset: 0;
     }
   `,

@@ -21,27 +21,27 @@ import {
       padding-left: 1rem;
       padding-right: 1rem;
       border-radius: 0.5rem;
-      color: var(--text-primary);
-      border: 1px solid var(--border);
+      color: var(--ngp-text-primary);
+      border: 1px solid var(--ngp-border);
       outline: none;
       height: 2.5rem;
       font-weight: 500;
-      background-color: var(--background);
+      background-color: var(--ngp-background);
       transition: background-color 300ms cubic-bezier(0.4, 0, 0.2, 1);
-      box-shadow: var(--shadow);
+      box-shadow: var(--ngp-shadow);
     }
 
     button[data-hover] {
-      background-color: var(--background-hover);
+      background-color: var(--ngp-background-hover);
     }
 
     button[data-focus-visible] {
-      outline: 2px solid var(--focus-ring);
+      outline: 2px solid var(--ngp-focus-ring);
       outline-offset: 2px;
     }
 
     button[data-press] {
-      background-color: var(--background-active);
+      background-color: var(--ngp-background-active);
     }
 
     [ngpDialogOverlay] {
@@ -55,24 +55,24 @@ import {
     }
 
     [ngpDialog] {
-      background-color: var(--background);
+      background-color: var(--ngp-background);
       padding: 24px;
       border-radius: 8px;
-      box-shadow: var(--shadow);
+      box-shadow: var(--ngp-shadow);
     }
 
     [ngpDialogTitle] {
       font-size: 18px;
       line-height: 28px;
       font-weight: 600;
-      color: var(--text-primary);
+      color: var(--ngp-text-primary);
       margin: 0 0 4px;
     }
 
     [ngpDialogDescription] {
       font-size: 14px;
       line-height: 20px;
-      color: var(--text-secondary);
+      color: var(--ngp-text-secondary);
       margin: 0;
     }
 
@@ -84,7 +84,7 @@ import {
     }
 
     .dialog-footer [ngpButton]:last-of-type {
-      color: var(--text-blue);
+      color: var(--ngp-text-blue);
     }
   `,
 })
@@ -125,19 +125,19 @@ export default class DialogDataExample {
   styles: `
     :host,
     [ngpDialogOverlay] {
-      --button-color: rgb(10 10 10);
-      --button-background-color: rgb(255 255 255);
-      --button-hover-color: rgb(10 10 10);
-      --button-hover-background-color: rgb(250 250 250);
-      --button-focus-shadow: rgb(59 130 246);
-      --button-pressed-background-color: rgb(245 245 245);
+      --ngp-button-color: rgb(10 10 10);
+      --ngp-button-background-color: rgb(255 255 255);
+      --ngp-button-hover-color: rgb(10 10 10);
+      --ngp-button-hover-background-color: rgb(250 250 250);
+      --ngp-button-focus-shadow: rgb(59 130 246);
+      --ngp-button-pressed-background-color: rgb(245 245 245);
 
-      --button-color-dark: rgb(255 255 255);
-      --button-background-color-dark: rgb(43 43 43);
-      --button-hover-color-dark: rgb(255 255 255);
-      --button-hover-background-color-dark: rgb(63, 63, 70);
-      --button-focus-shadow-dark: rgb(59 130 246);
-      --button-pressed-background-color-dark: rgb(39, 39, 42);
+      --ngp-button-color-dark: rgb(255 255 255);
+      --ngp-button-background-color-dark: rgb(43 43 43);
+      --ngp-button-hover-color-dark: rgb(255 255 255);
+      --ngp-button-hover-background-color-dark: rgb(63, 63, 70);
+      --ngp-button-focus-shadow-dark: rgb(59 130 246);
+      --ngp-button-pressed-background-color-dark: rgb(39, 39, 42);
 
       --dialog-bg: #fff;
       --dialog-title-color: rgba(0, 0, 0, 0.87);
@@ -155,14 +155,14 @@ export default class DialogDataExample {
       padding-left: 1rem;
       padding-right: 1rem;
       border-radius: 0.5rem;
-      color: light-dark(var(--button-color), var(--button-color-dark));
+      color: light-dark(var(--ngp-button-color), var(--ngp-button-color-dark));
       border: none;
       outline: none;
       height: 2.5rem;
       font-weight: 500;
       background-color: light-dark(
-        var(--button-background-color),
-        var(--button-background-color-dark)
+        var(--ngp-button-background-color),
+        var(--ngp-button-background-color-dark)
       );
       transition: all 300ms cubic-bezier(0.4, 0, 0.2, 1);
       box-shadow:
@@ -173,19 +173,20 @@ export default class DialogDataExample {
 
     button[data-hover] {
       background-color: light-dark(
-        var(--button-hover-background-color),
-        var(--button-hover-background-color-dark)
+        var(--ngp-button-hover-background-color),
+        var(--ngp-button-hover-background-color-dark)
       );
     }
 
     button[data-focus-visible] {
-      box-shadow: 0 0 0 2px light-dark(var(--button-focus-shadow), var(--button-focus-shadow-dark));
+      box-shadow: 0 0 0 2px
+        light-dark(var(--ngp-button-focus-shadow), var(--ngp-button-focus-shadow-dark));
     }
 
     button[data-press] {
       background-color: light-dark(
-        var(--button-pressed-background-color),
-        var(--button-pressed-background-color-dark)
+        var(--ngp-button-pressed-background-color),
+        var(--ngp-button-pressed-background-color-dark)
       );
     }
 

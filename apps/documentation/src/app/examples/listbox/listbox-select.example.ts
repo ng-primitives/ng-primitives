@@ -59,7 +59,7 @@ import { NgpPopover, NgpPopoverTrigger } from 'ng-primitives/popover';
     }
 
     [ngpLabel] {
-      color: var(--text-primary);
+      color: var(--ngp-text-primary);
       font-size: 0.875rem;
       line-height: 1.25rem;
       font-weight: 500;
@@ -67,7 +67,7 @@ import { NgpPopover, NgpPopoverTrigger } from 'ng-primitives/popover';
     }
 
     [ngpDescription] {
-      color: var(--text-secondary);
+      color: var(--ngp-text-secondary);
       font-size: 0.75rem;
       line-height: 1rem;
       margin: 0 0 4px;
@@ -82,20 +82,20 @@ import { NgpPopover, NgpPopoverTrigger } from 'ng-primitives/popover';
       border-radius: 8px;
       padding: 0 16px;
       border: none;
-      background-color: var(--background);
+      background-color: var(--ngp-background);
       text-align: left;
-      box-shadow: var(--input-shadow);
+      box-shadow: var(--ngp-input-shadow);
       outline: none;
     }
 
     [ngpButton][data-focus-visible] {
-      outline: 2px solid var(--focus-ring);
+      outline: 2px solid var(--ngp-focus-ring);
       outline-offset: 2px;
     }
 
     .listbox {
-      background-color: var(--background);
-      border: 1px solid var(--border);
+      background-color: var(--ngp-background);
+      border: 1px solid var(--ngp-border);
       padding: 0.25rem;
       border-radius: 0.75rem;
       outline: none;
@@ -117,15 +117,15 @@ import { NgpPopover, NgpPopoverTrigger } from 'ng-primitives/popover';
     }
 
     .listbox-option[data-hover] {
-      background-color: var(--background-hover);
+      background-color: var(--ngp-background-hover);
     }
 
     .listbox-option[data-press] {
-      background-color: var(--background-active);
+      background-color: var(--ngp-background-active);
     }
 
     .listbox-option[data-active] {
-      background-color: var(--background-active);
+      background-color: var(--ngp-background-active);
     }
 
     .listbox-option ng-icon {

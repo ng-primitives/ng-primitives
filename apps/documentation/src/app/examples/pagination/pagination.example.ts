@@ -107,37 +107,37 @@ import {
       width: 2rem;
       height: 2rem;
       border-radius: 0.5rem;
-      color: var(--text-primary);
+      color: var(--ngp-text-primary);
       outline: none;
       font-size: 14px;
       font-weight: 500;
-      background-color: var(--background);
-      box-shadow: var(--button-shadow);
+      background-color: var(--ngp-background);
+      box-shadow: var(--ngp-button-shadow);
       cursor: pointer;
       transition: all 0.2s;
 
       &[data-hover]:not([data-disabled]):not([data-selected]) {
-        background-color: var(--background-hover);
+        background-color: var(--ngp-background-hover);
       }
 
       &[data-focus-visible]:not([data-disabled]) {
-        outline: 2px solid var(--focus-ring);
+        outline: 2px solid var(--ngp-focus-ring);
       }
 
       &[data-press]:not([data-disabled]):not([data-selected]) {
-        background-color: var(--background-active);
+        background-color: var(--ngp-background-active);
       }
 
       &[data-disabled] {
         color: rgb(210 210 210);
-        background-color: var(--background-disabled);
+        background-color: var(--ngp-background-disabled);
         cursor: not-allowed;
         box-shadow: none;
       }
 
       &[data-selected] {
-        background-color: var(--background-inverse);
-        color: var(--text-inverse);
+        background-color: var(--ngp-background-inverse);
+        color: var(--ngp-text-inverse);
       }
     }
   `,

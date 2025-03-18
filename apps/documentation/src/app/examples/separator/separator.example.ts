@@ -16,20 +16,20 @@ import { NgpSeparator } from 'ng-primitives/separator';
       flex-direction: column;
       gap: 1rem;
       max-width: 300px;
-      background-color: var(--background);
+      background-color: var(--ngp-background);
       padding: 1rem;
       border-radius: 8px;
-      box-shadow: var(--shadow);
-      border: 1px solid var(--border);
+      box-shadow: var(--ngp-shadow);
+      border: 1px solid var(--ngp-border);
     }
 
     p {
-      color: var(--text-primary);
+      color: var(--ngp-text-primary);
       margin: 0;
     }
 
     [ngpSeparator] {
-      background-color: var(--border);
+      background-color: var(--ngp-border);
       height: 1px;
     }
   `,

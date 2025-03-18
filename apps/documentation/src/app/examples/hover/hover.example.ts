@@ -9,19 +9,19 @@ import { NgpHover } from 'ng-primitives/interactions';
       display: flex;
       width: 10rem;
       height: 6rem;
-      background-color: var(--background);
-      border: 1px solid var(--border);
+      background-color: var(--ngp-background);
+      border: 1px solid var(--ngp-border);
       align-items: center;
       justify-content: center;
       border-radius: 0.5rem;
-      box-shadow: var(--shadow);
+      box-shadow: var(--ngp-shadow);
       transition: all 0.2s;
       cursor: pointer;
     }
 
     div[data-hover] {
-      background-color: var(--background-blue);
-      border-color: var(--border-blue);
+      background-color: var(--ngp-background-blue);
+      border-color: var(--ngp-border-blue);
     }
   `,
   template: `

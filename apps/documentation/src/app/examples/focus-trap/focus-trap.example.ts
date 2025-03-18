@@ -19,8 +19,8 @@ import { NgpFocusTrap } from 'ng-primitives/focus-trap';
       gap: 1rem;
       padding: 1rem;
       border-radius: 0.5rem;
-      background-color: var(--background-active);
-      border: 1px dashed var(--border);
+      background-color: var(--ngp-background-active);
+      border: 1px dashed var(--ngp-border);
       position: relative;
     }
 
@@ -29,7 +29,7 @@ import { NgpFocusTrap } from 'ng-primitives/focus-trap';
       top: -1.5rem;
       left: 1rem;
       font-size: 0.75rem;
-      color: var(--text-secondary);
+      color: var(--ngp-text-secondary);
       content: 'Focus Trap Disabled';
     }
 
@@ -41,27 +41,27 @@ import { NgpFocusTrap } from 'ng-primitives/focus-trap';
       padding-left: 1rem;
       padding-right: 1rem;
       border-radius: 0.5rem;
-      color: var(--text-primary);
-      border: 1px solid var(--border);
+      color: var(--ngp-text-primary);
+      border: 1px solid var(--ngp-border);
       outline: none;
       height: 2.5rem;
       font-weight: 500;
-      background-color: var(--background);
+      background-color: var(--ngp-background);
       transition: background-color 300ms cubic-bezier(0.4, 0, 0.2, 1);
-      box-shadow: var(--shadow);
+      box-shadow: var(--ngp-shadow);
     }
 
     [ngpButton][data-hover] {
-      background-color: var(--background-hover);
+      background-color: var(--ngp-background-hover);
     }
 
     [ngpButton][data-focus-visible] {
-      outline: 2px solid var(--focus-ring);
+      outline: 2px solid var(--ngp-focus-ring);
       outline-offset: 2px;
     }
 
     [ngpButton][data-press] {
-      background-color: var(--background-active);
+      background-color: var(--ngp-background-active);
     }
   `,
 })

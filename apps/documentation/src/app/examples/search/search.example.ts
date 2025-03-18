@@ -48,8 +48,8 @@ import { NgpSearch, NgpSearchClear } from 'ng-primitives/search';
       border-radius: 8px;
       padding: 0 16px 0 40px;
       border: none;
-      background: var(--background);
-      box-shadow: var(--input-shadow);
+      background: var(--ngp-background);
+      box-shadow: var(--ngp-input-shadow);
       outline: none;
     }
 
@@ -62,16 +62,16 @@ import { NgpSearch, NgpSearchClear } from 'ng-primitives/search';
     }
 
     [ngpInput][data-focus] {
-      outline: 2px solid var(--focus-ring);
+      outline: 2px solid var(--ngp-focus-ring);
       outline-offset: 0px;
     }
 
     [ngpInput]::placeholder {
-      color: var(--text-placeholder);
+      color: var(--ngp-text-placeholder);
     }
 
     [ngpLabel] {
-      color: var(--text-primary);
+      color: var(--ngp-text-primary);
       font-size: 0.875rem;
       line-height: 1.25rem;
       font-weight: 500;
@@ -91,7 +91,7 @@ import { NgpSearch, NgpSearchClear } from 'ng-primitives/search';
       border: none;
       border-radius: 0 8px 8px 0;
       background-color: transparent;
-      color: var(--text-blue);
+      color: var(--ngp-text-blue);
       font-size: 0.875rem;
       line-height: 1.25rem;
       cursor: pointer;
@@ -109,7 +109,7 @@ import { NgpSearch, NgpSearchClear } from 'ng-primitives/search';
       top: 18px;
       left: 12px;
       transform: translateY(-50%);
-      color: var(--text-tertiary);
+      color: var(--ngp-text-tertiary);
     }
   `,
 })

@@ -38,7 +38,7 @@ import { NgpLabel } from 'ng-primitives/form-field';
     }
 
     [ngpLabel] {
-      color: var(--text-primary);
+      color: var(--ngp-text-primary);
       font-size: 0.875rem;
       line-height: 1.25rem;
       font-weight: 500;
@@ -50,8 +50,8 @@ import { NgpLabel } from 'ng-primitives/form-field';
       width: 90%;
       border-radius: 8px;
       padding: 0 16px;
-      border: 1px solid var(--border);
-      box-shadow: var(--shadow);
+      border: 1px solid var(--ngp-border);
+      box-shadow: var(--ngp-shadow);
       outline: none;
     }
 
@@ -60,11 +60,11 @@ import { NgpLabel } from 'ng-primitives/form-field';
     }
 
     input::placeholder {
-      color: var(--text-tertiary);
+      color: var(--ngp-text-tertiary);
     }
 
     span {
-      color: var(--text-tertiary);
+      color: var(--ngp-text-tertiary);
     }
   `,
 })
