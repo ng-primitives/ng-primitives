@@ -2,7 +2,6 @@ import { Component } from '@angular/core';
 import { NgpSeparator } from 'ng-primitives/separator';
 
 @Component({
-  standalone: true,
   selector: 'app-separator',
   imports: [NgpSeparator],
   template: `

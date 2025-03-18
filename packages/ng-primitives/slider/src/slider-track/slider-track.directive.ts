@@ -11,7 +11,6 @@ import { injectSlider } from '../slider/slider.token';
 import { provideSliderTrack } from './slider-track.token';
 
 @Directive({
-  standalone: true,
   selector: '[ngpSliderTrack]',
   exportAs: 'ngpSliderTrack',
   providers: [provideSliderTrack(NgpSliderTrack)],

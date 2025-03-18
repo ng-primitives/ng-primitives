@@ -10,7 +10,6 @@ import { injectDialogRef } from '../dialog/dialog-ref';
 import { NgpDialogOverlayToken } from './dialog-overlay.token';
 
 @Directive({
-  standalone: true,
   selector: '[ngpDialogOverlay]',
   exportAs: 'ngpDialogOverlay',
   providers: [{ provide: NgpDialogOverlayToken, useExisting: NgpDialogOverlay }],

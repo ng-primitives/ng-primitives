@@ -10,7 +10,6 @@ import { injectStyleInjector } from 'ng-primitives/internal';
 import { NgpAutofillToken } from './autofill.token';
 
 @Directive({
-  standalone: true,
   selector: '[ngpAutofill]',
   exportAs: 'ngpAutofill',
   providers: [{ provide: NgpAutofillToken, useExisting: NgpAutofill }],

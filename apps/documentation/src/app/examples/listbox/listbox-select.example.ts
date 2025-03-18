@@ -7,7 +7,6 @@ import { NgpListbox, NgpListboxOption, NgpListboxTrigger } from 'ng-primitives/l
 import { NgpPopover, NgpPopoverTrigger } from 'ng-primitives/popover';
 
 @Component({
-  standalone: true,
   selector: 'app-listbox-select',
   imports: [
     NgpListbox,

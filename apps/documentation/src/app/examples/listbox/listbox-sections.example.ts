@@ -5,7 +5,6 @@ import { NgpHeader } from 'ng-primitives/common';
 import { NgpListbox, NgpListboxOption, NgpListboxSection } from 'ng-primitives/listbox';
 
 @Component({
-  standalone: true,
   selector: 'app-listbox-sections',
   imports: [NgpListbox, NgpListboxOption, NgpListboxSection, NgpHeader, NgIcon],
   viewProviders: [provideIcons({ heroCheckSolid })],

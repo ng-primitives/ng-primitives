@@ -20,7 +20,6 @@ import { injectPagination } from '../pagination/pagination.token';
 import { NgpPaginationButtonToken } from './pagination-button.token';
 
 @Directive({
-  standalone: true,
   selector: '[ngpPaginationButton]',
   exportAs: 'ngpPaginationButton',
   providers: [

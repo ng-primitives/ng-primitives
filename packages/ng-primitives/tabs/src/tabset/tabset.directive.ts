@@ -23,7 +23,6 @@ import { NgpTabPanelToken } from '../tab-panel/tab-panel.token';
 import { NgpTabsetToken } from './tabset.token';
 
 @Directive({
-  standalone: true,
   selector: '[ngpTabset]',
   exportAs: 'ngpTabset',
   providers: [

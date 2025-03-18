@@ -14,7 +14,6 @@ import { injectElementRef, NgpCanDisable, NgpDisabledToken } from 'ng-primitives
 import { NgpInputToken } from './input.token';
 
 @Directive({
-  standalone: true,
   selector: 'input[ngpInput]',
   exportAs: 'ngpInput',
   providers: [

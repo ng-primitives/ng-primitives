@@ -21,7 +21,6 @@ import { NgpRadioGroupToken } from './radio-group.token';
 
 @Directive({
   selector: '[ngpRadioGroup]',
-  standalone: true,
   providers: [
     { provide: NgpRadioGroupToken, useExisting: NgpRadioGroup },
     { provide: NgpDisabledToken, useExisting: NgpRadioGroup },

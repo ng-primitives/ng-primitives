@@ -19,7 +19,6 @@ import { injectFormField } from '../form-field/form-field.token';
 import { NgpLabelToken } from './label.token';
 
 @Directive({
-  standalone: true,
   selector: '[ngpLabel]',
   exportAs: 'ngpLabel',
   providers: [{ provide: NgpLabelToken, useExisting: NgpLabel }],

@@ -11,7 +11,6 @@ import { injectDisabled, setupFocusVisible } from 'ng-primitives/internal';
 import { NgpFocusVisibleToken } from './focus-visible.token';
 
 @Directive({
-  standalone: true,
   selector: '[ngpFocusVisible]',
   exportAs: 'ngpFocusVisible',
   providers: [{ provide: NgpFocusVisibleToken, useExisting: NgpFocusVisible }],

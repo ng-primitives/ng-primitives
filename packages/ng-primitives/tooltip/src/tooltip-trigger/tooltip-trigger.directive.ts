@@ -38,7 +38,6 @@ import { injectTooltipConfig } from '../config/tooltip.config';
 import { NgpTooltipTriggerToken, provideTooltipTrigger } from './tooltip-trigger.token';
 
 @Directive({
-  standalone: true,
   selector: '[ngpTooltipTrigger]',
   exportAs: 'ngpTooltipTrigger',
   providers: [{ provide: NgpTooltipTriggerToken, useExisting: NgpTooltipTrigger }],

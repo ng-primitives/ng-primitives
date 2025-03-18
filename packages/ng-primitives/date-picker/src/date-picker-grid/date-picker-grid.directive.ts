@@ -10,7 +10,6 @@ import { injectDatePicker } from '../date-picker/date-picker.token';
 import { NgpDatePickerGridToken } from './date-picker-grid.token';
 
 @Directive({
-  standalone: true,
   selector: '[ngpDatePickerGrid]',
   exportAs: 'ngpDatePickerGrid',
   providers: [{ provide: NgpDatePickerGridToken, useExisting: NgpDatePickerGrid }],

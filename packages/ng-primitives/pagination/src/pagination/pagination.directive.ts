@@ -18,7 +18,6 @@ import { controlState, provideControlState } from 'ng-primitives/forms';
 import { providePagination } from './pagination.token';
 
 @Directive({
-  standalone: true,
   selector: '[ngpPagination]',
   exportAs: 'ngpPagination',
   providers: [providePagination(NgpPagination), provideControlState()],

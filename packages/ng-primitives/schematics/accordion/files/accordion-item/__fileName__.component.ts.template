@@ -6,7 +6,6 @@ import {
 } from 'ng-primitives/accordion';
 
 @Component({
-  standalone: true,
   selector: '<%= selector %>',
   hostDirectives: [
     {

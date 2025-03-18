@@ -12,7 +12,6 @@ import { NgpRovingFocusItem } from 'ng-primitives/roving-focus';
 import { injectTabset } from '../tabset/tabset.token';
 
 @Directive({
-  standalone: true,
   selector: '[ngpTabButton]',
   exportAs: 'ngpTabButton',
   host: {

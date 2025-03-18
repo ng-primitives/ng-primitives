@@ -2,7 +2,6 @@ import { Component } from '@angular/core';
 import { NgpFileUpload } from 'ng-primitives/file-upload';
 
 @Component({
-  standalone: true,
   selector: '<%= selector %>',
   hostDirectives: [
     {

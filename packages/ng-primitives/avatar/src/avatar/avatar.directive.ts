@@ -11,7 +11,6 @@ import { NgpAvatarToken } from './avatar.token';
 
 @Directive({
   selector: '[ngpAvatar]',
-  standalone: true,
   providers: [{ provide: NgpAvatarToken, useExisting: NgpAvatar }],
   host: {
     '[attr.data-state]': 'state()',

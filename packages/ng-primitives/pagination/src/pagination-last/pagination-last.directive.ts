@@ -13,7 +13,6 @@ import { injectPagination } from '../pagination/pagination.token';
 import { NgpPaginationLastToken } from './pagination-last.token';
 
 @Directive({
-  standalone: true,
   selector: '[ngpPaginationLast]',
   exportAs: 'ngpPaginationLast',
   providers: [

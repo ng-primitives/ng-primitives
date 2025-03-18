@@ -13,7 +13,6 @@ import { injectPagination } from '../pagination/pagination.token';
 import { NgpPaginationFirstToken } from './pagination-first.token';
 
 @Directive({
-  standalone: true,
   selector: '[ngpPaginationFirst]',
   exportAs: 'ngpPaginationFirst',
   providers: [

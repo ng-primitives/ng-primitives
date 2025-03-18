@@ -5,7 +5,6 @@ import { NgpButton } from 'ng-primitives/button';
 import { NgpToggleGroup, NgpToggleGroupItem } from 'ng-primitives/toggle-group';
 
 @Component({
-  standalone: true,
   selector: 'app-toggle-group',
   imports: [NgpToggleGroup, NgpToggleGroupItem, NgpButton, NgIcon],
   viewProviders: [

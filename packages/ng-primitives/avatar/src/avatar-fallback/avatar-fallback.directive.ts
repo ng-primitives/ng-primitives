@@ -14,7 +14,6 @@ import { injectAvatarConfig } from '../config/avatar.config';
 
 @Directive({
   selector: '[ngpAvatarFallback]',
-  standalone: true,
   host: {
     '[style.display]': 'visible() ? null : "none"',
   },

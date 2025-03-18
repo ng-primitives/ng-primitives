@@ -2,7 +2,7 @@ import { ChangeDetectionStrategy, Component, Input, booleanAttribute } from '@an
 
 @Component({
   selector: 'docs-response-field',
-  standalone: true,
+
   templateUrl: './response-field.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

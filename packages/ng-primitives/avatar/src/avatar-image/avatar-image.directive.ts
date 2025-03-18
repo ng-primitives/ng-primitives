@@ -12,7 +12,6 @@ import { injectAvatar } from '../avatar/avatar.token';
 
 @Directive({
   selector: 'img[ngpAvatarImage]',
-  standalone: true,
   hostDirectives: [NgpVisuallyHidden],
 })
 export class NgpAvatarImage implements OnInit {

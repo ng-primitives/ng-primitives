@@ -10,7 +10,6 @@ import { NgpInputToken } from 'ng-primitives/input';
 import { NgpSearchToken } from './search.token';
 
 @Directive({
-  standalone: true,
   selector: '[ngpSearch]',
   exportAs: 'ngpSearch',
   providers: [{ provide: NgpSearchToken, useExisting: NgpSearch }],

@@ -2,7 +2,6 @@ import { Component } from '@angular/core';
 import { NgpTabPanel } from 'ng-primitives/tabs';
 
 @Component({
-  standalone: true,
   selector: '<%= selector %>',
   hostDirectives: [
     {

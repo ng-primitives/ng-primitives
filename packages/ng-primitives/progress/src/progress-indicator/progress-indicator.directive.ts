@@ -10,7 +10,6 @@ import { injectProgress } from '../progress/progress.token';
 
 @Directive({
   selector: '[ngpProgressIndicator]',
-  standalone: true,
   host: {
     '[attr.data-state]': 'progress.dataState()',
     '[attr.data-value]': 'progress.state.value()',

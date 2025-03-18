@@ -12,7 +12,6 @@ import { injectSeparatorConfig } from '../config/separator.config';
 import { NgpSeparatorToken } from './separator.token';
 
 @Directive({
-  standalone: true,
   selector: '[ngpSeparator]',
   exportAs: 'ngpSeparator',
   providers: [{ provide: NgpSeparatorToken, useExisting: NgpSeparator }],

@@ -13,7 +13,6 @@ import { NgpCanDisable, NgpDisabledToken } from 'ng-primitives/internal';
 import { NgpTextareaToken } from './textarea.token';
 
 @Directive({
-  standalone: true,
   selector: '[ngpTextarea]',
   exportAs: 'ngpTextarea',
   providers: [

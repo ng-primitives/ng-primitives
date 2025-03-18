@@ -16,7 +16,6 @@ import { provideCheckbox } from './checkbox.token';
 
 @Directive({
   selector: '[ngpCheckbox]',
-  standalone: true,
   providers: [
     provideCheckbox(NgpCheckbox),
     provideControlState(),

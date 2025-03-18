@@ -27,7 +27,6 @@ export interface NgpToastContext {
 }
 
 @Directive({
-  standalone: true,
   selector: '[ngpToast]',
   exportAs: 'ngpToast',
   providers: [{ provide: NgpToastToken, useExisting: NgpToast }],

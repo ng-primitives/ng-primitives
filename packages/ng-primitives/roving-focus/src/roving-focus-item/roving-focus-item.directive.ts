@@ -22,7 +22,6 @@ import { injectRovingFocusGroup } from '../roving-focus-group/roving-focus-group
 import { NgpRovingFocusItemToken } from './roving-focus-item.token';
 
 @Directive({
-  standalone: true,
   selector: '[ngpRovingFocusItem]',
   exportAs: 'ngpRovingFocusItem',
   providers: [{ provide: NgpRovingFocusItemToken, useExisting: NgpRovingFocusItem }],

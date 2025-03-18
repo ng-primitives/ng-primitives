@@ -11,7 +11,6 @@ import { Dimensions, fromResizeEvent } from '../utils/resize';
 
 @Directive({
   selector: '[ngpResize]',
-  standalone: true,
 })
 export class NgpResize implements OnInit {
   /**

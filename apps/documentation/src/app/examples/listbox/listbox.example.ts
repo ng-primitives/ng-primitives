@@ -4,7 +4,6 @@ import { heroCheckSolid } from '@ng-icons/heroicons/solid';
 import { NgpListbox, NgpListboxOption } from 'ng-primitives/listbox';
 
 @Component({
-  standalone: true,
   selector: 'app-listbox',
   imports: [NgpListbox, NgpListboxOption, NgIcon],
   viewProviders: [provideIcons({ heroCheckSolid })],

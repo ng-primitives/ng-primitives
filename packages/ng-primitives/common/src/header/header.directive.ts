@@ -10,7 +10,6 @@ import { uniqueId } from 'ng-primitives/utils';
 import { NgpHeaderToken } from './header.token';
 
 @Directive({
-  standalone: true,
   selector: '[ngpHeader]',
   exportAs: 'ngpHeader',
   providers: [{ provide: NgpHeaderToken, useExisting: NgpHeader }],

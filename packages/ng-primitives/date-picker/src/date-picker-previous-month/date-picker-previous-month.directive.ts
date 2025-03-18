@@ -13,7 +13,6 @@ import { injectDatePicker } from '../date-picker/date-picker.token';
 import { NgpDatePickerPreviousMonthToken } from './date-picker-previous-month.token';
 
 @Directive({
-  standalone: true,
   selector: '[ngpDatePickerPreviousMonth]',
   exportAs: 'ngpDatePickerPreviousMonth',
   providers: [

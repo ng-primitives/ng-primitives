@@ -12,7 +12,6 @@ import { injectRadioItem } from '../radio-item/radio-item.token';
 
 @Directive({
   selector: '[ngpRadioIndicator]',
-  standalone: true,
   host: {
     '[attr.data-checked]': 'checked() ? "" : null',
     '[attr.data-disabled]': 'radioItem.disabled() ? "" : null',

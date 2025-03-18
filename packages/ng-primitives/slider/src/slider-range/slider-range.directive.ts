@@ -10,7 +10,6 @@ import { injectSlider } from '../slider/slider.token';
 import { provideSliderRange } from './slider-range.token';
 
 @Directive({
-  standalone: true,
   selector: '[ngpSliderRange]',
   exportAs: 'ngpSliderRange',
   providers: [provideSliderRange(NgpSliderRange)],

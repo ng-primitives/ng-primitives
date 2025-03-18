@@ -11,7 +11,6 @@ import { injectSlider } from '../slider/slider.token';
 import { provideSliderThumb } from './slider-thumb.token';
 
 @Directive({
-  standalone: true,
   selector: '[ngpSliderThumb]',
   exportAs: 'ngpSliderThumb',
   providers: [provideSliderThumb(NgpSliderThumb)],

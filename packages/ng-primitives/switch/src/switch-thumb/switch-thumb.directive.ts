@@ -11,7 +11,6 @@ import { injectSwitch } from '../switch/switch.token';
 
 @Directive({
   selector: '[ngpSwitchThumb]',
-  standalone: true,
   host: {
     '[attr.data-checked]': 'switch.state.value() ? "" : null',
     '[attr.data-disabled]': 'switch.state.disabled() ? "" : null',

@@ -23,7 +23,6 @@ import type { NgpSliderTrack } from '../slider-track/slider-track.directive';
 import { provideSlider } from './slider.token';
 
 @Directive({
-  standalone: true,
   selector: '[ngpSlider]',
   exportAs: 'ngpSlider',
   providers: [

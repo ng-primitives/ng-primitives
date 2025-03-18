@@ -87,7 +87,6 @@ class FocusTrapStack {
 const focusTrapStack = new FocusTrapStack();
 
 @Directive({
-  standalone: true,
   selector: '[ngpFocusTrap]',
   exportAs: 'ngpFocusTrap',
   providers: [{ provide: NgpFocusTrapToken, useExisting: NgpFocusTrap }],

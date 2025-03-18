@@ -10,7 +10,6 @@ import { NgpHeaderToken } from 'ng-primitives/common';
 import { NgpListboxSectionToken } from './listbox-section.token';
 
 @Directive({
-  standalone: true,
   selector: '[ngpListboxSection]',
   exportAs: 'ngpListboxSection',
   providers: [{ provide: NgpListboxSectionToken, useExisting: NgpListboxSection }],

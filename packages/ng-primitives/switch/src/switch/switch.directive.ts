@@ -22,7 +22,6 @@ import { NgpCanDisable, NgpDisabledToken } from 'ng-primitives/internal';
 import { NgpSwitchToken } from './switch.token';
 
 @Directive({
-  standalone: true,
   selector: '[ngpSwitch]',
   exportAs: 'ngpSwitch',
   providers: [

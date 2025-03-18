@@ -17,7 +17,6 @@ import { NgpMoveToken } from './move.token';
  */
 
 @Directive({
-  standalone: true,
   selector: '[ngpMove]',
   exportAs: 'ngpMove',
   providers: [{ provide: NgpMoveToken, useExisting: NgpMove }],

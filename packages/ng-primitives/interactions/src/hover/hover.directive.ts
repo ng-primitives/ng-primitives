@@ -17,7 +17,6 @@ import { NgpHoverToken } from './hover.token';
  * react-aria: https://github.com/adobe/react-spectrum/blob/main/packages/%40react-aria/interactions/src/useHover.ts
  */
 @Directive({
-  standalone: true,
   selector: '[ngpHover]',
   exportAs: 'ngpHover',
   providers: [{ provide: NgpHoverToken, useExisting: NgpHover }],

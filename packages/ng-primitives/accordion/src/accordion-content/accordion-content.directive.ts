@@ -12,7 +12,6 @@ import { injectAccordion } from '../accordion/accordion.token';
 import { NgpAccordionContentToken } from './accordion-content.token';
 
 @Directive({
-  standalone: true,
   selector: '[ngpAccordionContent]',
   exportAs: 'ngpAccordionContent',
   providers: [{ provide: NgpAccordionContentToken, useExisting: NgpAccordionContent }],

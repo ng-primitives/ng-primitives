@@ -11,7 +11,6 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { NgpMenuTriggerToken } from './menu-trigger.token';
 
 @Directive({
-  standalone: true,
   selector: '[ngpMenuTrigger]',
   exportAs: 'ngpMenuTrigger',
   providers: [{ provide: NgpMenuTriggerToken, useExisting: NgpMenuTrigger }],

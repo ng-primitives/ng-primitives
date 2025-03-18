@@ -15,7 +15,6 @@ import { injectDatePicker } from '../date-picker/date-picker.token';
 import { NgpDatePickerDateButtonToken } from './date-picker-date-button.token';
 
 @Directive({
-  standalone: true,
   selector: '[ngpDatePickerDateButton]',
   exportAs: 'ngpDatePickerDateButton',
   providers: [

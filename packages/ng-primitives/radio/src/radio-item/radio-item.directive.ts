@@ -14,7 +14,6 @@ import { NgpRadioItemToken } from './radio-item.token';
 
 @Directive({
   selector: '[ngpRadioItem]',
-  standalone: true,
   hostDirectives: [NgpRovingFocusItem, NgpHover, NgpFocusVisible, NgpPress],
   providers: [{ provide: NgpRadioItemToken, useExisting: NgpRadioItem }],
   host: {

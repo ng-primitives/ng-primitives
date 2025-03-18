@@ -2,9 +2,8 @@ import { Component } from '@angular/core';
 import { NgpTabList } from 'ng-primitives/tabs';
 
 @Component({
-  standalone: true,
   selector: '<%= selector %>',
- hostDirectives: [
+  hostDirectives: [
     NgpTabList
   ],
   <%_ if (inlineTemplate) { -%>

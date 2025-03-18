@@ -13,7 +13,6 @@ import { injectPagination } from '../pagination/pagination.token';
 import { NgpPaginationPreviousToken } from './pagination-previous.token';
 
 @Directive({
-  standalone: true,
   selector: '[ngpPaginationPrevious]',
   exportAs: 'ngpPaginationPrevious',
   providers: [

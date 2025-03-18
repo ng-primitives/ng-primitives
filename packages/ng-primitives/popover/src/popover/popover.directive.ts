@@ -14,7 +14,6 @@ import { getTransformOrigin } from '../utils/transform-origin';
 import { NgpPopoverToken } from './popover.token';
 
 @Directive({
-  standalone: true,
   selector: '[ngpPopover]',
   exportAs: 'ngpPopover',
   hostDirectives: [NgpFocusTrap],

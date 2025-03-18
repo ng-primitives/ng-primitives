@@ -12,7 +12,6 @@ import { NgpProgressToken } from './progress.token';
 
 @Directive({
   selector: '[ngpProgress]',
-  standalone: true,
   providers: [{ provide: NgpProgressToken, useExisting: NgpProgress }, provideControlState()],
   host: {
     role: 'progressbar',
