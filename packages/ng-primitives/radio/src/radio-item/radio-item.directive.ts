@@ -47,7 +47,7 @@ export class NgpRadioItem {
   /**
    * Whether the radio item is checked.
    */
-  readonly checked = computed(() => this.radioGroup.value() === this.value());
+  readonly checked = computed(() => this.radioGroup.state.value() === this.value());
 
   /**
    * When the item receives focus, select it.

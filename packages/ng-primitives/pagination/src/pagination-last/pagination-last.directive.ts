@@ -42,7 +42,7 @@ export class NgpPaginationLast implements NgpCanDisable {
   });
 
   readonly disabled = computed(
-    () => this.buttonDisabled() || this.pagination.disabled() || this.pagination.lastPage(),
+    () => this.buttonDisabled() || this.pagination.state.disabled() || this.pagination.lastPage(),
   );
 
   /**
@@ -54,7 +54,7 @@ export class NgpPaginationLast implements NgpCanDisable {
       return;
     }
 
-    this.pagination.page.set(this.pagination.pageCount());
+    this.pagination.goToPage(this.pagination.pageCount());
   }
 
   /**

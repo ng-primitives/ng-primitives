@@ -45,7 +45,7 @@ export class NgpPaginationPrevious implements NgpCanDisable {
    * Whether the button is disabled.
    */
   readonly disabled = computed(
-    () => this.buttonDisabled() || this.pagination.disabled() || this.pagination.firstPage(),
+    () => this.buttonDisabled() || this.pagination.state.disabled() || this.pagination.firstPage(),
   );
 
   /**
@@ -57,7 +57,7 @@ export class NgpPaginationPrevious implements NgpCanDisable {
       return;
     }
 
-    this.pagination.page.set(this.pagination.page() - 1);
+    this.pagination.goToPage(this.pagination.page() - 1);
   }
 
   /**

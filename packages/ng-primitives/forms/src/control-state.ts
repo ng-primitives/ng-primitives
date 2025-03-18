@@ -143,7 +143,12 @@ export class NgpControlStateManager<T> {
    * @internal
    */
   setupState({ value, valueChange, disabled }: NgpControlBindings<T>): NgpControlState<T> {
-    this.state.set({ value, valueChange, disabled });
+    this.state.update(state => ({
+      value: value ?? state.value,
+      valueChange: valueChange ?? state.valueChange,
+      disabled: disabled ?? state.disabled,
+    }));
+
     return this.controlState();
   }
 }

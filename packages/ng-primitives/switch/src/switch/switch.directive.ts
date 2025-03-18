@@ -16,6 +16,7 @@ import {
   model,
 } from '@angular/core';
 import { NgpFormControl } from 'ng-primitives/form-field';
+import { controlState, provideControlState } from 'ng-primitives/forms';
 import { NgpFocusVisible, NgpHover, NgpPress } from 'ng-primitives/interactions';
 import { NgpCanDisable, NgpDisabledToken } from 'ng-primitives/internal';
 import { NgpSwitchToken } from './switch.token';
@@ -27,14 +28,16 @@ import { NgpSwitchToken } from './switch.token';
   providers: [
     { provide: NgpSwitchToken, useExisting: NgpSwitch },
     { provide: NgpDisabledToken, useExisting: NgpSwitch },
+    provideControlState(),
   ],
   hostDirectives: [NgpFormControl, NgpHover, NgpPress, NgpFocusVisible],
   host: {
     role: 'switch',
     '[attr.type]': 'isButton ? "button" : null',
-    '[attr.aria-checked]': 'checked()',
-    '[attr.data-checked]': 'checked() ? "" : null',
-    '[attr.disabled]': 'isButton && disabled() ? "" : null',
+    '[attr.aria-checked]': 'state.value()',
+    '[attr.data-checked]': 'state.value() ? "" : null',
+    '[attr.disabled]': 'isButton && state.disabled() ? "" : null',
+    '[attr.data-disabled]': 'state.disabled() ? "" : null',
   },
 })
 export class NgpSwitch implements NgpCanDisable {
@@ -66,6 +69,16 @@ export class NgpSwitch implements NgpCanDisable {
   });
 
   /**
+   * The form control state. This is used to allow communication between the switch and the control value access and any
+   * components that use this as a host directive.
+   * @internal
+   */
+  readonly state = controlState({
+    value: this.checked,
+    disabled: this.disabled,
+  });
+
+  /**
    * Toggle the checked state.
    */
   @HostListener('click')
@@ -74,7 +87,7 @@ export class NgpSwitch implements NgpCanDisable {
       return;
     }
 
-    this.checked.update(checked => !checked);
+    this.state.setValue(!this.state.value());
   }
 
   /**

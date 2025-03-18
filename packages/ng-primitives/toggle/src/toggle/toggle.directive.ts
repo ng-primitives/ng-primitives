@@ -15,16 +15,18 @@ import {
   input,
   model,
 } from '@angular/core';
+import { controlState, provideControlState } from 'ng-primitives/forms';
+import { provideToggle } from './toggle.token';
 
 @Directive({
   selector: '[ngpToggle]',
   exportAs: 'ngpToggle',
-  standalone: true,
+  providers: [provideToggle(NgpToggle), provideControlState()],
   host: {
     '[attr.type]': 'isButton ? "button" : null',
-    '[attr.aria-pressed]': 'selected()',
-    '[attr.data-selected]': 'selected() ? "" : null',
-    '[attr.data-disabled]': 'disabled() ? "" : null',
+    '[attr.aria-pressed]': 'state.value()',
+    '[attr.data-selected]': 'state.value() ? "" : null',
+    '[attr.data-disabled]': 'state.disabled() ? "" : null',
   },
 })
 export class NgpToggle {
@@ -54,6 +56,16 @@ export class NgpToggle {
   protected isButton = this.element.nativeElement.tagName === 'BUTTON';
 
   /**
+   * The form control state. This is used to allow communication between the toggle and the control value access and any
+   * components that use this as a host directive.
+   * @internal
+   */
+  readonly state = controlState({
+    value: this.selected,
+    disabled: this.disabled,
+  });
+
+  /**
    * Toggle the selected state.
    */
   @HostListener('click')
@@ -62,7 +74,7 @@ export class NgpToggle {
       return;
     }
 
-    this.selected.update(selected => !selected);
+    this.state.setValue(!this.state.value());
   }
 
   /**

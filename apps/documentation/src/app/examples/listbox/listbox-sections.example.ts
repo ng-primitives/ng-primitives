@@ -27,8 +27,8 @@ import { NgpListbox, NgpListboxOption, NgpListboxSection } from 'ng-primitives/l
   `,
   styles: `
     .listbox {
-      background-color: var(--background);
-      border: 1px solid var(--border);
+      background-color: var(--ngp-background);
+      border: 1px solid var(--ngp-border);
       padding: 0.25rem;
       border-radius: 0.75rem;
       list-style: none;
@@ -55,15 +55,15 @@ import { NgpListbox, NgpListboxOption, NgpListboxSection } from 'ng-primitives/l
     }
 
     .listbox-option[data-hover] {
-      background-color: var(--background-hover);
+      background-color: var(--ngp-background-hover);
     }
 
     .listbox-option[data-press] {
-      background-color: var(--background-active);
+      background-color: var(--ngp-background-active);
     }
 
     .listbox-option[data-active] {
-      background-color: var(--background-active);
+      background-color: var(--ngp-background-active);
     }
 
     .listbox-option ng-icon {

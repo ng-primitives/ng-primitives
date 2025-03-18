@@ -12,8 +12,8 @@ import { injectProgress } from '../progress/progress.token';
   selector: '[ngpProgressIndicator]',
   standalone: true,
   host: {
-    '[attr.data-state]': 'progress.state()',
-    '[attr.data-value]': 'progress.value()',
+    '[attr.data-state]': 'progress.dataState()',
+    '[attr.data-value]': 'progress.state.value()',
     '[attr.data-max]': 'progress.max()',
   },
 })

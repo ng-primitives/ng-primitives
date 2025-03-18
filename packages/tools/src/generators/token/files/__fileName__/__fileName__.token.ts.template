@@ -21,6 +21,6 @@ export function inject<%= className %>(): Ngp<%= className %> {
 /**
  * Provide the <%= className %> directive instance
  */
-export function provide<%= className %>(type: Type<Ngp<%= className %>): ExistingProvider {
+export function provide<%= className %>(type: Type<Ngp<%= className %>>): ExistingProvider {
   return { provide: Ngp<%= className %>Token, useExisting: type };
 }
