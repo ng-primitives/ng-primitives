@@ -1,0 +1,11 @@
+import { createState } from 'ng-primitives/state';
+
+/**
+ * The state for the <%= fileName %> primitive.
+ */
+export interface Ngp<%= className %>State {}
+
+/**
+ * The initial state for the <%= fileName %> primitive.
+ */
+export const { Ngp<%= className %>StateToken, provide<%= className %>State, <%= propertyName %>State} = createState<Ngp<%= className %>State>('<%= className %>');
