@@ -54,6 +54,11 @@
       "type": "string",
       "default": "component",
       "description": "Generate component template files with the specified suffix."
+    },
+    "exampleStyles": {
+      "type": "boolean",
+      "description": "Whether example styles should be generated.",
+      "default": true
     }
   },
   "required": ["primitive", "path"]

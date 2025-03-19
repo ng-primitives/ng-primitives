@@ -37,4 +37,9 @@ export interface AngularPrimitivesComponentSchema {
    * the generated component file will be named `button.component.ts`.
    */
   fileSuffix?: string;
+
+  /**
+   * Whether example styles should be included.
+   */
+  exampleStyles?: boolean;
 }
