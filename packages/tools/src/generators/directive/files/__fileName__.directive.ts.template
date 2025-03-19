@@ -14,12 +14,11 @@ import { Directive } from '@angular/core';
   selector: '[ngp<%= className %>]',
   exportAs: 'ngp<%= className %>',
   <% if (addToken || addState) { %>providers: [
-    <% if (addToken) { %>provide<%= className %>,<% } %>
-    <% if (addState) { %>provide<%= className%>State<% } %>
+    <% if (addToken) { %>provide<%= className %>(Ngp<%= className %>),<% } %>
+    <% if (addState) { %>provide<%= className%>State()<% } %>
   ]<% } %>
 })
 export class Ngp<%= className %> {
   <% if (addConfig) { %>private readonly config = <%= configName%>();<% } %>
-
   <% if (addState) { private readonly state = <%= propertyName%>State({}); } %>
 }
