@@ -20,5 +20,5 @@ import { Directive } from '@angular/core';
 })
 export class Ngp<%= className %> {
   <% if (addConfig) { %>private readonly config = <%= configName%>();<% } %>
-  <% if (addState) { private readonly state = <%= propertyName%>State({}); } %>
+  <% if (addState) { %>private readonly state = <%= propertyName%>State({});<% } %>
 }
