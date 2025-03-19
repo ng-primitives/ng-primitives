@@ -1,8 +1,9 @@
 import { Component } from '@angular/core';
-import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
+import { ControlValueAccessor } from '@angular/forms';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { heroCheckMini, heroMinusMini } from '@ng-icons/heroicons/mini';
 import { injectCheckboxState, NgpCheckbox } from 'ng-primitives/checkbox';
+import { ChangeFn, provideValueAccessor, TouchedFn } from 'ng-primitives/utils';
 
 @Component({
   selector: 'app-checkbox',
@@ -20,10 +21,7 @@ import { injectCheckboxState, NgpCheckbox } from 'ng-primitives/checkbox';
       ],
     },
   ],
-  providers: [
-    { provide: NG_VALUE_ACCESSOR, useExisting: Checkbox, multi: true },
-    provideIcons({ heroCheckMini, heroMinusMini }),
-  ],
+  providers: [provideValueAccessor(Checkbox), provideIcons({ heroCheckMini, heroMinusMini })],
   imports: [NgIcon],
   template: `
     @if (state.indeterminate()) {
@@ -78,12 +76,12 @@ export class Checkbox implements ControlValueAccessor {
   /**
    * The onChange function for the checkbox.
    */
-  protected onChangeFn?: (checked: boolean) => void;
+  protected onChangeFn?: ChangeFn<boolean>;
 
   /**
    * The onTouched function for the checkbox.
    */
-  protected onTouchedFn?: () => void;
+  protected onTouchedFn?: TouchedFn;
 
   constructor() {
     // Whenever the user interacts with the checkbox, call the onChange function with the new value.
@@ -94,11 +92,11 @@ export class Checkbox implements ControlValueAccessor {
     this.state.checked.set(checked);
   }
 
-  registerOnChange(fn: (checked: boolean) => void): void {
+  registerOnChange(fn: ChangeFn<boolean>): void {
     this.onChangeFn = fn;
   }
 
-  registerOnTouched(fn: () => void): void {
+  registerOnTouched(fn: TouchedFn): void {
     this.onTouchedFn = fn;
   }
 
