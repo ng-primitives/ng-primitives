@@ -70,7 +70,7 @@ function createWritableState<T>(token: ProviderToken<WritableState<T>>) {
  * @param name The name of the primitive
  */
 type StateFactory<T extends string, U> = {
-  [K in `${Uncapitalize<T>}State`]: U;
+  [K in `${Uncapitalize<T>}State`]: (state: State<U>) => WritableState<U>;
 } & {
   [K in `Ngp${Capitalize<T>}StateToken`]: InjectionToken<WritableState<U>>;
 } & {
