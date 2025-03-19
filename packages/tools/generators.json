@@ -18,7 +18,12 @@
     "token": {
       "factory": "./src/generators/token/generator",
       "schema": "./src/generators/token/schema.json",
-      "description": "Generate a token for a directive to allow it to be injected into children"
+      "description": "Generate a token for a directive to allow it to be injected into children."
+    },
+    "state": {
+      "factory": "./src/generators/state/generator",
+      "schema": "./src/generators/state/schema.json",
+      "description": "Generate state for a directive."
     },
     "schematic": {
       "factory": "./src/generators/schematic/generator",
