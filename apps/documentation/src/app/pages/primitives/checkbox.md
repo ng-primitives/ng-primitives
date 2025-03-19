@@ -34,10 +34,10 @@ Create a reusable component that uses the `NgpCheckbox` directive.
 
 ## Schematics
 
-Generate a checkbox component with the `NgpCheckbox` primitive preconfigured.
+Generate a reusable checkbox component using the Angular CLI.
 
 ```bash npm
- ng g ng-primitives:checkbox
+ng g ng-primitives:primitive checkbox
 ```
 
 ## Examples

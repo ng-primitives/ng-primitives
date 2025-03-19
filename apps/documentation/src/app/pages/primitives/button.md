@@ -32,10 +32,10 @@ Create a button component that uses the `NgpButton` directive.
 
 ## Schematics
 
-Generate a button component with the `NgpButton` primitive preconfigured.
+Generate a reusable button component using the Angular CLI.
 
 ```bash npm
- ng g ng-primitives:button
+ng g ng-primitives:primitive button
 ```
 
 ### Options

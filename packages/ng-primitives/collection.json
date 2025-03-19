@@ -2,8 +2,8 @@
   "schematics": {
     "ng-add": {
       "description": "Add Angular Primitives to a project.",
-      "factory": "./schematics/init/compat",
-      "schema": "./schematics/init/schema.json",
+      "factory": "./schematics/ng-add/index",
+      "schema": "./schematics/ng-add/schema.json",
       "hidden": true
     },
     "primitive": {
