@@ -20,7 +20,7 @@
         "slider"
       ],
       "x-prompt": "What primitive would you like to generate?",
-      "default": {
+      "$default": {
         "$source": "argv",
         "index": 0
       }
