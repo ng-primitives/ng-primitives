@@ -2,12 +2,12 @@ export interface AngularPrimitivesComponentSchema {
   /** The name of the primitive to generate. */
   primitive:
     | 'accordion'
-    | 'button'
-    | 'input'
     | 'avatar'
+    | 'button'
     | 'checkbox'
     | 'date-picker'
     | 'form-field'
+    | 'input'
     | 'slider';
 
   /**

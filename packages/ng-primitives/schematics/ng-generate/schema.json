@@ -11,15 +11,19 @@
       "description": "The name of the primitive to generate.",
       "enum": [
         "accordion",
-        "button",
-        "input",
         "avatar",
+        "button",
         "checkbox",
         "date-picker",
         "form-field",
+        "input",
         "slider"
       ],
-      "x-prompt": "What primitive would you like to generate?"
+      "x-prompt": "What primitive would you like to generate?",
+      "default": {
+        "$source": "argv",
+        "index": 0
+      }
     },
     "path": {
       "type": "string",

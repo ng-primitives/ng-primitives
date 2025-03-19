@@ -1,6 +1,8 @@
 import { addRoute } from '@nx/angular/src/utils';
-import { formatFiles, generateFiles, names, Tree } from '@nx/devkit';
+import { formatFiles, generateFiles, names, Tree, updateJson } from '@nx/devkit';
+import { query } from '@phenomnomnominal/tsquery';
 import * as path from 'path';
+import * as ts from 'typescript';
 import { ReusableComponentGeneratorSchema } from './schema';
 
 export async function reusableComponentGenerator(
@@ -45,6 +47,60 @@ export async function reusableComponentGenerator(
     'appRoutes',
     `'./${formattedNames.fileName}/app'`,
   );
+
+  // add the primitive to the schema enum
+  const schemaPath = 'packages/ng-primitives/schematics/ng-generate/schema.d.ts';
+
+  content = tree.read(schemaPath, 'utf-8');
+
+  if (!content) {
+    throw new Error(`Could not read file ${schemaPath}`);
+  }
+
+  const property = query<ts.PropertySignature>(
+    content,
+    'PropertySignature:has([name="primitive"])',
+  );
+
+  if (!property) {
+    throw new Error(`Could not find the property in ${schemaPath}`);
+  }
+
+  const existingPrimitives = property[0].type[0];
+
+  if (!ts.isUnionTypeNode(existingPrimitives)) {
+    throw new Error(`Expected the primitive property to be a union type`);
+  }
+
+  // construct the updated property
+  const updatedProperty = ts.factory.createPropertySignature(
+    property[0].modifiers,
+    property[0].name,
+    property[0].questionToken,
+    ts.factory.createUnionTypeNode([
+      ...existingPrimitives.types,
+      ts.factory.createLiteralTypeNode(ts.factory.createStringLiteral(formattedNames.fileName)),
+    ]),
+  );
+
+  const printer = ts.createPrinter();
+  const node = printer.printNode(
+    ts.EmitHint.Unspecified,
+    updatedProperty,
+    ts.createSourceFile('', '', ts.ScriptTarget.Latest),
+  );
+
+  // replace the existing property with the updated one based on the indexes of the original property
+  content = content.slice(0, property[0].getStart()) + node + content.slice(property[0].getEnd());
+  tree.write(schemaPath, content);
+
+  // also update the schema.json file
+  const schemaJsonPath = 'packages/ng-primitives/schematics/ng-generate/schema.json';
+
+  updateJson(tree, schemaJsonPath, json => {
+    json.properties.primitive.enum.push(formattedNames.fileName);
+    return json;
+  });
 
   await formatFiles(tree);
 }
