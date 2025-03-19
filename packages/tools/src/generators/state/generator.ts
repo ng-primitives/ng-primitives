@@ -17,7 +17,7 @@ export async function stateGenerator(tree: Tree, options: StateGeneratorSchema) 
   addExportToIndex(
     tree,
     options.primitive,
-    `export { provide${names(options.directive).className}State, ${names(options.directive).propertyName}State } from './${options.directive}/${options.directive}.token';`,
+    `export { provide${names(options.directive).className}State, ${names(options.directive).propertyName}State } from './${options.directive}/${options.directive}.state';`,
   );
 
   await formatFiles(tree);
