@@ -1,112 +1,15 @@
 {
-  "generators": {
-    "init": {
-      "factory": "./schematics/init/generator",
-      "schema": "./schematics/init/schema.json",
-      "description": "Add Angular Primitives to a project."
-    },
-    "button": {
-      "factory": "./schematics/button/generator",
-      "schema": "./schematics/button/schema.json",
-      "description": "Add a button component to the project."
-    },
-    "input": {
-      "factory": "./schematics/input/generator",
-      "schema": "./schematics/input/schema.json",
-      "description": "Add an input component to the project."
-    },
-    "form-field": {
-      "factory": "./schematics/form-field/generator",
-      "schema": "./schematics/form-field/schema.json",
-      "description": "Add a form field component to the project."
-    },
-    "checkbox": {
-      "factory": "./schematics/checkbox/generator",
-      "schema": "./schematics/checkbox/schema.json",
-      "description": "Add a checkbox component to the project."
-    },
-    "file-upload": {
-      "factory": "./schematics/file-upload/generator",
-      "schema": "./schematics/file-upload/schema.json",
-      "description": "Add a file-upload component to the project."
-    },
-    "radio": {
-      "factory": "./schematics/radio/generator",
-      "schema": "./schematics/radio/schema.json",
-      "description": "Add a radio component to the project."
-    },
-    "accordion": {
-      "factory": "./schematics/accordion/generator",
-      "schema": "./schematics/accordion/schema.json",
-      "description": "Add a accordion component to the project."
-    },
-    "avatar": {
-      "factory": "./schematics/avatar/generator",
-      "schema": "./schematics/avatar/schema.json",
-      "description": "Add a avatar component to the project."
-    },
-    "tabs": {
-      "factory": "./schematics/tabs/generator",
-      "schema": "./schematics/tabs/schema.json",
-      "description": "Add a tabs component to the project."
-    }
-  },
   "schematics": {
     "ng-add": {
       "description": "Add Angular Primitives to a project.",
-      "factory": "./schematics/init/compat",
-      "schema": "./schematics/init/schema.json",
+      "factory": "./schematics/ng-add/index",
+      "schema": "./schematics/ng-add/schema.json",
       "hidden": true
     },
     "primitive": {
       "description": "Add Angular Primitives to a project.",
       "factory": "./schematics/ng-generate/index",
       "schema": "./schematics/ng-generate/schema.json"
-    },
-    "button": {
-      "description": "Add a button component to the project.",
-      "factory": "./schematics/button/compat",
-      "schema": "./schematics/button/schema.json"
-    },
-    "input": {
-      "description": "Add an input component to the project.",
-      "factory": "./schematics/input/compat",
-      "schema": "./schematics/input/schema.json"
-    },
-    "form-field": {
-      "description": "Add a form field component to the project.",
-      "factory": "./schematics/form-field/compat",
-      "schema": "./schematics/form-field/schema.json"
-    },
-    "checkbox": {
-      "factory": "./schematics/checkbox/compat",
-      "schema": "./schematics/checkbox/schema.json",
-      "description": "Add a checkbox component to the project."
-    },
-    "file-upload": {
-      "factory": "./schematics/file-upload/compat",
-      "schema": "./schematics/file-upload/schema.json",
-      "description": "Add a file-upload component to the project."
-    },
-    "radio": {
-      "factory": "./schematics/radio/compat",
-      "schema": "./schematics/radio/schema.json",
-      "description": "Add a radio component to the project."
-    },
-    "accordion": {
-      "factory": "./schematics/accordion/compat",
-      "schema": "./schematics/accordion/schema.json",
-      "description": "Add a accordion component to the project."
-    },
-    "avatar": {
-      "factory": "./schematics/avatar/compat",
-      "schema": "./schematics/avatar/schema.json",
-      "description": "Add a avatar component to the project."
-    },
-    "tabs": {
-      "factory": "./schematics/tabs/compat",
-      "schema": "./schematics/tabs/schema.json",
-      "description": "Add a tabs component to the project."
     }
   }
 }

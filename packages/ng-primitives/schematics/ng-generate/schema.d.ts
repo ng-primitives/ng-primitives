@@ -1,6 +1,14 @@
 export interface AngularPrimitivesComponentSchema {
   /** The name of the primitive to generate. */
-  primitive: 'accordion' | 'button' | 'input';
+  primitive:
+    | 'accordion'
+    | 'avatar'
+    | 'button'
+    | 'checkbox'
+    | 'date-picker'
+    | 'form-field'
+    | 'input'
+    | 'slider';
 
   /**
    * The path where the component files should be created, relative to the current workspace.

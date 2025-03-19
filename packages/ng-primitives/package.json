@@ -53,7 +53,6 @@
     "migrations": "./migration.json"
   },
   "sideEffects": false,
-  "generators": "./collection.json",
   "schematics": "./collection.json",
   "exports": {
     "./example-theme/index.css": "./example-theme/index.css"

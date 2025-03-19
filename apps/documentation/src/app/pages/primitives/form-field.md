@@ -42,10 +42,10 @@ Create a reusable component that uses the `NgpFormField` directive.
 
 ## Schematics
 
-Generate a form field component with the `NgpFormField` primitive preconfigured.
+Generate a reusable form-field component using the Angular CLI.
 
 ```bash npm
- ng g ng-primitives:form-field
+ng g ng-primitives:primitive form-field
 ```
 
 ### Options

@@ -23,7 +23,7 @@ import { controlState } from 'ng-primitives/forms';
     },
   ],
   providers: [
-    { provide: NG_VALUE_ACCESSOR, useExisting: Checkbox, multi: true },
+    { provide: NG_VALUE_ACCESSOR, useExisting: Checkbox<%= componentSuffix %>, multi: true },
     provideIcons({ heroCheckMini, heroMinusMini }),
   ],
   imports: [NgIcon],

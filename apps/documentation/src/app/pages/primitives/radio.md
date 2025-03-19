@@ -39,23 +39,6 @@ Assemble the radio directives in your template.
 </div>
 ```
 
-## Schematics
-
-Generate a radio component with the `NgpRadioGroup` primitive preconfigured.
-
-```bash npm
- ng g ng-primitives:radio
-```
-
-### Options
-
-- `name`: The name of the component.
-- `prefix`: The prefix to apply to the generated component selector.
-- `directory`: The directory at which to create the component file.
-- `style`: The file extension or preprocessor to use for style files.
-- `inlineStyle`: Include styles inline in the component.ts file. Only CSS styles can be included inline.
-- `inlineTemplate`: Include template inline in the component.ts file
-
 ## API Reference
 
 The following directives are available to import from the `ng-primitives/radio` package:

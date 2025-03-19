@@ -35,10 +35,10 @@ Create a reusable component that uses the `NgpAvatar` directive.
 
 ## Schematics
 
-Generate an avatar component with the `NgpAvatar` primitive preconfigured.
+Generate a reusable avatar component using the Angular CLI.
 
 ```bash npm
- ng g ng-primitives:avatar
+ng g ng-primitives:primitive avatar
 ```
 
 ## API Reference

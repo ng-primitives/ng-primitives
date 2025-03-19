@@ -152,12 +152,20 @@ function processTemplate(content: string): string {
   );
 
   for (const className of componentClassNames) {
-    // determine the new class name
-    const newClassName = `${className.getText()}<%= componentSuffix %>`;
-    const start = className.getStart();
-    const end = className.getEnd();
+    // find all the matching identifiers in the file
+    const identifiers = query<ts.Identifier>(content, `Identifier[name="${className.getText()}"]`);
 
-    content = content.substring(0, start) + newClassName + content.substring(end);
+    // Sort identifiers in reverse order (by start position)
+    identifiers.sort((a, b) => b.getStart() - a.getStart());
+
+    for (const identifier of identifiers) {
+      // determine the new class name
+      const newClassName = `${className.getText()}<%= componentSuffix %>`;
+      const start = identifier.getStart();
+      const end = identifier.getEnd();
+
+      content = content.substring(0, start) + newClassName + content.substring(end);
+    }
   }
 
   return content;

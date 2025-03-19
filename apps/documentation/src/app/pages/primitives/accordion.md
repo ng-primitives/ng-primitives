@@ -47,10 +47,10 @@ Create reusable components that uses the `NgpAccordion` and `NgpAccordionItem` d
 
 ## Schematics
 
-Generate an accordion component with the `NgpAccordion` and `NgpAccordionItem` primitives preconfigured.
+Generate a reusable accordion component using the Angular CLI.
 
 ```bash npm
-ng g ng-primitives:accordion
+ng g ng-primitives:primitive accordion
 ```
 
 ### Options

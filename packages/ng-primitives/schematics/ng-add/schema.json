@@ -1,7 +1,7 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema",
-  "$id": "ng-primitives-init",
-  "title": "Angular Primitives ng-add schematic",
+  "$id": "angular-primitives-ng-add",
+  "title": "Angular Primitives ng-add",
   "type": "object",
   "properties": {},
   "required": []
