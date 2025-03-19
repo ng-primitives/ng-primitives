@@ -21,13 +21,16 @@ import { NgpCheckbox } from 'ng-primitives/checkbox';
       padding: 0;
       outline: none;
       flex: none;
+      color: var(--ngp-text-inverse);
+      font-size: 0.75rem;
     }
 
     [ngpCheckbox][data-hover] {
       background-color: var(--ngp-background-hover);
     }
 
-    [ngpCheckbox][data-checked] {
+    [ngpCheckbox][data-checked],
+    [ngpCheckbox][data-indeterminate] {
       border-color: var(--ngp-background-inverse);
       background-color: var(--ngp-background-inverse);
     }
@@ -35,11 +38,6 @@ import { NgpCheckbox } from 'ng-primitives/checkbox';
     [ngpCheckbox][data-focus-visible] {
       outline: 2px solid var(--ngp-focus-ring);
       outline-offset: 2px;
-    }
-
-    ng-icon {
-      color: var(--ngp-text-inverse);
-      font-size: 0.75rem;
     }
   `,
   template: `

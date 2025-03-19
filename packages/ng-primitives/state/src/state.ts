@@ -75,6 +75,8 @@ type StateFactory<T extends string, U> = {
   [K in `Ngp${Capitalize<T>}StateToken`]: InjectionToken<WritableState<U>>;
 } & {
   [K in `provide${Capitalize<T>}State`]: () => FactoryProvider;
+} & {
+  [K in `inject${Capitalize<T>}State`]: () => WritableState<U>;
 };
 
 /**
@@ -104,5 +106,6 @@ export function createState<U, T extends string = string>(name: T): StateFactory
     [`Ngp${capitalize(name)}StateToken`]: token,
     [`provide${capitalize(name)}State`]: createStateProvider(token),
     [`${uncapitalize(name)}State`]: createWritableState(token),
+    [`inject${capitalize(name)}State`]: () => inject(token),
   } as StateFactory<T, U>;
 }
