@@ -33,14 +33,6 @@ Assemble the tabs directives in your template.
 </div>
 ```
 
-## Schematics
-
-Generate a tabs component with the `NgpTabset` primitive preconfigured.
-
-```bash npm
- ng g ng-primitives:tabs
-```
-
 ## API Reference
 
 The following directives are available to import from the `ng-primitives/tabs` package:

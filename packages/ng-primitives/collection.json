@@ -1,21 +1,4 @@
 {
-  "generators": {
-    "file-upload": {
-      "factory": "./schematics/file-upload/generator",
-      "schema": "./schematics/file-upload/schema.json",
-      "description": "Add a file-upload component to the project."
-    },
-    "radio": {
-      "factory": "./schematics/radio/generator",
-      "schema": "./schematics/radio/schema.json",
-      "description": "Add a radio component to the project."
-    },
-    "tabs": {
-      "factory": "./schematics/tabs/generator",
-      "schema": "./schematics/tabs/schema.json",
-      "description": "Add a tabs component to the project."
-    }
-  },
   "schematics": {
     "ng-add": {
       "description": "Add Angular Primitives to a project.",
@@ -27,21 +10,6 @@
       "description": "Add Angular Primitives to a project.",
       "factory": "./schematics/ng-generate/index",
       "schema": "./schematics/ng-generate/schema.json"
-    },
-    "file-upload": {
-      "factory": "./schematics/file-upload/compat",
-      "schema": "./schematics/file-upload/schema.json",
-      "description": "Add a file-upload component to the project."
-    },
-    "radio": {
-      "factory": "./schematics/radio/compat",
-      "schema": "./schematics/radio/schema.json",
-      "description": "Add a radio component to the project."
-    },
-    "tabs": {
-      "factory": "./schematics/tabs/compat",
-      "schema": "./schematics/tabs/schema.json",
-      "description": "Add a tabs component to the project."
     }
   }
 }
