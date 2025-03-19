@@ -66,11 +66,18 @@ export async function reusableComponentGenerator(
     throw new Error(`Could not find the property in ${schemaPath}`);
   }
 
-  const existingPrimitives = property[0].type[0];
+  const existingPrimitives = property[0].type;
 
   if (!ts.isUnionTypeNode(existingPrimitives)) {
     throw new Error(`Expected the primitive property to be a union type`);
   }
+
+  const existingPrimitiveNames = existingPrimitives.types.map(type => {
+    if (ts.isLiteralTypeNode(type) && ts.isStringLiteral(type.literal)) {
+      return type.literal.text;
+    }
+    throw new Error(`Expected the primitive type to be a string literal`);
+  });
 
   // construct the updated property
   const updatedProperty = ts.factory.createPropertySignature(
@@ -78,7 +85,9 @@ export async function reusableComponentGenerator(
     property[0].name,
     property[0].questionToken,
     ts.factory.createUnionTypeNode([
-      ...existingPrimitives.types,
+      ...existingPrimitiveNames.map(name =>
+        ts.factory.createLiteralTypeNode(ts.factory.createStringLiteral(name)),
+      ),
       ts.factory.createLiteralTypeNode(ts.factory.createStringLiteral(formattedNames.fileName)),
     ]),
   );
@@ -99,6 +108,8 @@ export async function reusableComponentGenerator(
 
   updateJson(tree, schemaJsonPath, json => {
     json.properties.primitive.enum.push(formattedNames.fileName);
+    // sort the enum values
+    json.properties.primitive.enum.sort();
     return json;
   });
 
