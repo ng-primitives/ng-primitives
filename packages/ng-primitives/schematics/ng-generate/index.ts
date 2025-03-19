@@ -65,7 +65,7 @@ function processStyles(content: Buffer, options: AngularPrimitivesComponentSchem
   const stylesValue = stylesText.slice(1, stylesText.length - 1);
 
   // we want to preserve all the selectors, we just want to remove all the rules inside the selectors
-  const stylesWithoutRules = stylesValue.replace(/[^{}]+{[^{}]*}/g, '');
+  const stylesWithoutRules = stylesValue.replace(/(?<=\{)[^}]+(?=\})/g, '');
 
   // replace the styles value with the new value
   const contentStrWithoutRules = contentStr.replace(stylesValue, stylesWithoutRules);
