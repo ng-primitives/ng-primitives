@@ -9,6 +9,7 @@ import { BooleanInput } from '@angular/cdk/coercion';
 import { booleanAttribute, computed, Directive, HostListener, input } from '@angular/core';
 import { NgpButton } from 'ng-primitives/button';
 import { NgpCanDisable, NgpDisabledToken } from 'ng-primitives/internal';
+import { injectPaginationState } from '../pagination/pagination.state';
 import { injectPagination } from '../pagination/pagination.token';
 import { NgpPaginationPreviousToken } from './pagination-previous.token';
 
@@ -33,6 +34,11 @@ export class NgpPaginationPrevious implements NgpCanDisable {
   protected readonly pagination = injectPagination();
 
   /**
+   * Access the pagination state.
+   */
+  protected readonly state = injectPaginationState();
+
+  /**
    * Whether the button is disabled.
    */
   readonly buttonDisabled = input<boolean, BooleanInput>(false, {
@@ -44,7 +50,7 @@ export class NgpPaginationPrevious implements NgpCanDisable {
    * Whether the button is disabled.
    */
   readonly disabled = computed(
-    () => this.buttonDisabled() || this.pagination.state.disabled() || this.pagination.firstPage(),
+    () => this.buttonDisabled() || this.state.disabled() || this.pagination.firstPage(),
   );
 
   /**
@@ -56,7 +62,7 @@ export class NgpPaginationPrevious implements NgpCanDisable {
       return;
     }
 
-    this.pagination.goToPage(this.pagination.page() - 1);
+    this.pagination.goToPage(this.state.page() - 1);
   }
 
   /**

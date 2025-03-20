@@ -40,7 +40,7 @@ The `ngpPress` directive listens for press events on an element. This is particu
 - Selector: `[ngpPress]`
 - Exported As: `ngpPress`
 
-<response-field name="ngpPress" type="EventEmitter<boolean>">
+<response-field name="ngpPress" type="OutputEmitterRef<boolean>">
   Event emitted when the press state changes.
 </response-field>
 
@@ -48,11 +48,11 @@ The `ngpPress` directive listens for press events on an element. This is particu
   Whether press events are disabled.
 </response-field>
 
-<response-field name="ngpPressStart" type="EventEmitter<void>">
+<response-field name="ngpPressStart" type="OutputEmitterRef<void>">
   Event emitted when the press starts.
 </response-field>
 
-<response-field name="ngpPressEnd" type="EventEmitter<void>">
+<response-field name="ngpPressEnd" type="OutputEmitterRef<void>">
   Event emitted when the press ends.
 </response-field>
 

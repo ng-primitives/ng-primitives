@@ -14,6 +14,7 @@ import { RouterLink, RouterOutlet } from '@angular/router';
       <a routerLink="/date-picker">Date Picker</a>
       <a routerLink="/form-field">Form Field</a>
       <a routerLink="/slider">Slider</a>
+      <a routerLink="/pagination">Pagination</a>
     </nav>
     <router-outlet />
   `,

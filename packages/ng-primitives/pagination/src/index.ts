@@ -33,3 +33,4 @@ export {
   NgpPaginationLastToken,
   injectPaginationLast,
 } from './pagination-last/pagination-last.token';
+export { providePaginationState, injectPaginationState } from './pagination/pagination.state';

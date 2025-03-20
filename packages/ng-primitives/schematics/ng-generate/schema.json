@@ -17,6 +17,7 @@
         "date-picker",
         "form-field",
         "input",
+        "pagination",
         "slider"
       ],
       "x-prompt": "What primitive would you like to generate?",

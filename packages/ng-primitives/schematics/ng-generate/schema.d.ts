@@ -8,7 +8,8 @@ export interface AngularPrimitivesComponentSchema {
     | 'date-picker'
     | 'form-field'
     | 'input'
-    | 'slider';
+    | 'slider'
+    | 'pagination';
 
   /**
    * The path where the component files should be created, relative to the current workspace.
