@@ -37,10 +37,6 @@
     "@floating-ui/dom": ">=1.6.0",
     "@angular/common": ">=19.0.0"
   },
-  "dependencies": {
-    "@nx/devkit": "^19.3.1",
-    "nx": "^19.3.1"
-  },
   "peerDependenciesMeta": {
     "luxon": {
       "optional": true
