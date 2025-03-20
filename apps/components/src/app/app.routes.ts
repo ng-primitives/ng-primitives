@@ -1,6 +1,7 @@
 import { Route } from '@angular/router';
 
 export const appRoutes: Route[] = [
+  { path: 'radio', loadComponent: () => import('./radio/app') },
   { path: 'progress', loadComponent: () => import('./progress/app') },
   { path: 'pagination', loadComponent: () => import('./pagination/app') },
   { path: 'slider', loadComponent: () => import('./slider/app') },

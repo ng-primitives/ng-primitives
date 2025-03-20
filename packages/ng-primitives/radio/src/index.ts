@@ -7,7 +7,9 @@
  */
 
 export { NgpRadioGroup } from './radio-group/radio-group.directive';
-export { NgpRadioGroupToken, injectRadioGroup } from './radio-group/radio-group.token';
+export { injectRadioGroupState, provideRadioGroupState } from './radio-group/radio-group.state';
+export { injectRadioGroup, NgpRadioGroupToken } from './radio-group/radio-group.token';
 export { NgpRadioIndicator } from './radio-indicator/radio-indicator.directive';
 export { NgpRadioItem } from './radio-item/radio-item.directive';
-export { NgpRadioItemToken, injectRadioItem } from './radio-item/radio-item.token';
+export { injectRadioItemState, provideRadioItemState } from './radio-item/radio-item.state';
+export { injectRadioItem, NgpRadioItemToken } from './radio-item/radio-item.token';

@@ -16,6 +16,7 @@ import { RouterLink, RouterOutlet } from '@angular/router';
       <a routerLink="/slider">Slider</a>
       <a routerLink="/pagination">Pagination</a>
       <a routerLink="/progress">Progress</a>
+      <a routerLink="/radio">Radio</a>
     </nav>
     <router-outlet />
   `,

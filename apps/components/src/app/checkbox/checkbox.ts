@@ -71,7 +71,7 @@ export class Checkbox implements ControlValueAccessor {
   /**
    * The checked state of the checkbox.
    */
-  readonly state = injectCheckboxState();
+  protected readonly state = injectCheckboxState();
 
   /**
    * The onChange function for the checkbox.

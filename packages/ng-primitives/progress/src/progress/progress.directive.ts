@@ -73,7 +73,7 @@ export class NgpProgress {
    * The state of the progress bar.
    * @internal
    */
-  readonly state = progressState({
+  protected readonly state = progressState({
     value: this.value,
     max: this.max,
     valueLabel: this.valueLabel,
