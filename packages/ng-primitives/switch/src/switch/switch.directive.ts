@@ -6,44 +6,38 @@
  * LICENSE file in the root directory of this source tree.
  */
 import { BooleanInput } from '@angular/cdk/coercion';
-import {
-  Directive,
-  ElementRef,
-  HostListener,
-  booleanAttribute,
-  inject,
-  input,
-  model,
-} from '@angular/core';
+import { booleanAttribute, Directive, HostListener, input, output } from '@angular/core';
 import { NgpFormControl } from 'ng-primitives/form-field';
-import { controlState, provideControlState } from 'ng-primitives/forms';
 import { NgpFocusVisible, NgpHover, NgpPress } from 'ng-primitives/interactions';
-import { NgpCanDisable, NgpDisabledToken } from 'ng-primitives/internal';
-import { NgpSwitchToken } from './switch.token';
+import { injectElementRef, NgpCanDisable, NgpDisabledToken } from 'ng-primitives/internal';
+import { provideSwitchState, switchState } from './switch.state';
+import { provideSwitch } from './switch.token';
 
 @Directive({
   selector: '[ngpSwitch]',
   exportAs: 'ngpSwitch',
   providers: [
-    { provide: NgpSwitchToken, useExisting: NgpSwitch },
+    provideSwitch(NgpSwitch),
+    provideSwitchState(),
     { provide: NgpDisabledToken, useExisting: NgpSwitch },
-    provideControlState(),
   ],
   hostDirectives: [NgpFormControl, NgpHover, NgpPress, NgpFocusVisible],
   host: {
     role: 'switch',
     '[attr.type]': 'isButton ? "button" : null',
-    '[attr.aria-checked]': 'state.value()',
-    '[attr.data-checked]': 'state.value() ? "" : null',
+    '[attr.aria-checked]': 'state.checked()',
+    '[attr.data-checked]': 'state.checked() ? "" : null',
     '[attr.disabled]': 'isButton && state.disabled() ? "" : null',
     '[attr.data-disabled]': 'state.disabled() ? "" : null',
+    '[attr.aria-disabled]': 'state.disabled()',
+    '[attr.tabindex]': 'state.disabled() ? -1 : 0',
   },
 })
 export class NgpSwitch implements NgpCanDisable {
   /**
    * Access the element ref.
    */
-  private readonly elementRef = inject<ElementRef<HTMLElement>>(ElementRef);
+  private readonly elementRef = injectElementRef();
 
   /**
    * Determine if the switch is a button
@@ -54,8 +48,16 @@ export class NgpSwitch implements NgpCanDisable {
    * Determine if the switch is checked.
    * @default false
    */
-  readonly checked = model<boolean>(false, {
+  readonly checked = input<boolean, BooleanInput>(false, {
     alias: 'ngpSwitchChecked',
+    transform: booleanAttribute,
+  });
+
+  /**
+   * Emits when the checked state changes.
+   */
+  readonly checkedChange = output<boolean>({
+    alias: 'ngpSwitchCheckedChange',
   });
 
   /**
@@ -68,12 +70,12 @@ export class NgpSwitch implements NgpCanDisable {
   });
 
   /**
-   * The form control state. This is used to allow communication between the switch and the control value access and any
-   * components that use this as a host directive.
+   * The switch state.
    * @internal
    */
-  readonly state = controlState({
-    value: this.checked,
+  readonly state = switchState({
+    checked: this.checked,
+    checkedChange: this.checkedChange,
     disabled: this.disabled,
   });
 
@@ -82,11 +84,12 @@ export class NgpSwitch implements NgpCanDisable {
    */
   @HostListener('click')
   toggle(): void {
-    if (this.disabled()) {
+    if (this.state.disabled()) {
       return;
     }
 
-    this.state.setValue(!this.state.value());
+    this.state.checked.set(!this.state.checked());
+    this.state.checkedChange.emit(this.state.checked());
   }
 
   /**

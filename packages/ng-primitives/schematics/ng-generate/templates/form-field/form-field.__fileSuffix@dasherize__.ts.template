@@ -9,6 +9,10 @@ import { NgpFormField } from 'ng-primitives/form-field';
   `,
   styles: `
     :host {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      width: 90%;
     }
   `,
 })
