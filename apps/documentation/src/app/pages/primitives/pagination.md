@@ -84,6 +84,14 @@ Create a reusable component that uses the pagination directives.
 
 <docs-snippet name="pagination"></docs-snippet>
 
+## Schematics
+
+Generate a reusable pagination component using the Angular CLI.
+
+```bash npm
+ng g ng-primitives:primitive pagination
+```
+
 ## API Reference
 
 The following directives are available to import from the `ng-primitives/pagination` package:

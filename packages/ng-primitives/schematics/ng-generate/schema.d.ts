@@ -9,7 +9,8 @@ export interface AngularPrimitivesComponentSchema {
     | 'form-field'
     | 'input'
     | 'slider'
-    | 'pagination';
+    | 'pagination'
+    | 'progress';
 
   /**
    * The path where the component files should be created, relative to the current workspace.

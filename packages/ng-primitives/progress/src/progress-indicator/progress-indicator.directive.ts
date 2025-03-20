@@ -6,14 +6,15 @@
  * LICENSE file in the root directory of this source tree.
  */
 import { Directive } from '@angular/core';
+import { injectProgressState } from '../progress/progress.state';
 import { injectProgress } from '../progress/progress.token';
 
 @Directive({
   selector: '[ngpProgressIndicator]',
   host: {
     '[attr.data-state]': 'progress.dataState()',
-    '[attr.data-value]': 'progress.state.value()',
-    '[attr.data-max]': 'progress.max()',
+    '[attr.data-value]': 'state.value()',
+    '[attr.data-max]': 'state.max()',
   },
 })
 export class NgpProgressIndicator {
@@ -21,4 +22,9 @@ export class NgpProgressIndicator {
    * Access the progress directive.
    */
   protected readonly progress = injectProgress();
+
+  /**
+   * Access the progress state.
+   */
+  protected readonly state = injectProgressState();
 }

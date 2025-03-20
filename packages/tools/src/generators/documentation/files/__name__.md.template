@@ -32,6 +32,14 @@ Assemble the <%= fileName %> directives in your template.
 Create a reusable component that uses the `Ngp<%= className %>` directive.
 
 <docs-snippet name="<%= fileName %>"></docs-snippet>
+
+## Schematics
+
+Generate a reusable <%= fileName %> component using the Angular CLI.
+
+```bash npm
+ng g ng-primitives:primitive <%= fileName %>
+```
 <% } %>
 
 ## API Reference

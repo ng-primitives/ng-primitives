@@ -7,21 +7,21 @@
  */
 import { NumberInput } from '@angular/cdk/coercion';
 import { Directive, computed, input, numberAttribute } from '@angular/core';
-import { controlState, provideControlState } from 'ng-primitives/forms';
-import { NgpProgressToken } from './progress.token';
+import { progressState, provideProgressState } from './progress.state';
+import { provideProgress } from './progress.token';
 
 @Directive({
   selector: '[ngpProgress]',
-  providers: [{ provide: NgpProgressToken, useExisting: NgpProgress }, provideControlState()],
+  providers: [provideProgress(NgpProgress), provideProgressState()],
   host: {
     role: 'progressbar',
-    '[attr.aria-valuemax]': 'max()',
+    '[attr.aria-valuemax]': 'state.max()',
     '[attr.aria-valuemin]': '0',
     '[attr.aria-valuenow]': 'state.value()',
     '[attr.aria-valuetext]': 'label()',
     '[attr.data-state]': 'dataState()',
     '[attr.data-value]': 'state.value()',
-    '[attr.data-max]': 'max()',
+    '[attr.data-max]': 'state.max()',
   },
 })
 export class NgpProgress {
@@ -50,6 +50,9 @@ export class NgpProgress {
    */
   readonly valueLabel = input<NgpProgressValueLabelFn>(
     (value, max) => `${Math.round((value / max) * 100)}%`,
+    {
+      alias: 'ngpProgressValueLabel',
+    },
   );
 
   /**
@@ -67,12 +70,13 @@ export class NgpProgress {
   protected readonly label = computed(() => this.valueLabel()(this.value(), this.max()));
 
   /**
-   * The form control state. This is used to allow communication between the progress and the control value access and any
-   * components that use this as a host directive.
+   * The state of the progress bar.
    * @internal
    */
-  readonly state = controlState({
+  readonly state = progressState({
     value: this.value,
+    max: this.max,
+    valueLabel: this.valueLabel,
   });
 }
 

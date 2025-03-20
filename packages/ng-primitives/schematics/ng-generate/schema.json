@@ -18,6 +18,7 @@
         "form-field",
         "input",
         "pagination",
+        "progress",
         "slider"
       ],
       "x-prompt": "What primitive would you like to generate?",
