@@ -7,6 +7,7 @@ export async function tokenGenerator(tree: Tree, options: TokenGeneratorSchema) 
   // normalize the directive name - for example someone might pass in NgpAvatarDirective, but we want to use avatar
   // so we need to remove the Ngp and the Directive
   options.directive = options.directive.replace('Directive', '').replace('Ngp', '').toLowerCase();
+  options.stateless ??= false;
 
   const sourceRoot = getPrimitiveSourceRoot(tree, options.primitive);
   generateFiles(tree, path.join(__dirname, 'files'), sourceRoot, {

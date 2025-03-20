@@ -35,6 +35,14 @@ Create a reusable component that uses the slider directives.
 
 <docs-snippet name="slider"></docs-snippet>
 
+## Schematics
+
+Generate a reusable slider component using the Angular CLI.
+
+```bash npm
+ng g ng-primitives:primitive slider
+```
+
 ## Examples
 
 Here are some additional examples of how to use the Slider primitives.

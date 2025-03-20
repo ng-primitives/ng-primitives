@@ -39,6 +39,20 @@ Assemble the radio directives in your template.
 </div>
 ```
 
+## Reusable Component
+
+Create a reusable component that uses the radio directives.
+
+<docs-snippet name="radio"></docs-snippet>
+
+## Schematics
+
+Generate a reusable radio component using the Angular CLI.
+
+```bash npm
+ng g ng-primitives:primitive radio
+```
+
 ## API Reference
 
 The following directives are available to import from the `ng-primitives/radio` package:

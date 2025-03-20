@@ -78,6 +78,20 @@ Assemble the pagination directives in your template.
 </nav>
 ```
 
+## Reusable Component
+
+Create a reusable component that uses the pagination directives.
+
+<docs-snippet name="pagination"></docs-snippet>
+
+## Schematics
+
+Generate a reusable pagination component using the Angular CLI.
+
+```bash npm
+ng g ng-primitives:primitive pagination
+```
+
 ## API Reference
 
 The following directives are available to import from the `ng-primitives/pagination` package:
@@ -97,7 +111,7 @@ The `NgpPagination` directive is used to create a pagination control.
   The total number of pages.
 </response-field>
 
-<response-field name="ngpPaginationPageChange" type="EventEmitter<number>">
+<response-field name="ngpPaginationPageChange" type="OutputEmitterRef<number>">
   Emits the new page number when the page changes.
 </response-field>
 

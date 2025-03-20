@@ -26,6 +26,20 @@ Assemble the switch directives in your template.
 </button>
 ```
 
+## Reusable Component
+
+Create a reusable component that uses the switch directives.
+
+<docs-snippet name="switch"></docs-snippet>
+
+## Schematics
+
+Generate a reusable switch component using the Angular CLI.
+
+```bash npm
+ng g ng-primitives:primitive switch
+```
+
 ## Examples
 
 Here are some additional examples of how to use the Switch primitives.

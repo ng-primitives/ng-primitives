@@ -9,6 +9,7 @@ import { computed, Directive, ElementRef, HostListener, inject } from '@angular/
 import { NgpButton } from 'ng-primitives/button';
 import { injectDateAdapter } from 'ng-primitives/date-time';
 import { NgpCanDisable, NgpDisabledToken } from 'ng-primitives/internal';
+import { injectDatePickerState } from '../date-picker/date-picker.state';
 import { injectDatePicker } from '../date-picker/date-picker.token';
 import { NgpDatePickerNextMonthToken } from './date-picker-next-month.token';
 
@@ -44,6 +45,11 @@ export class NgpDatePickerNextMonth<T> implements NgpCanDisable {
   private readonly datePicker = injectDatePicker<T>();
 
   /**
+   * Access the date picker state.
+   */
+  private readonly state = injectDatePickerState<T>();
+
+  /**
    * Determine if this is a button element
    */
   protected readonly isButton = this.elementRef.nativeElement.tagName.toLowerCase() === 'button';
@@ -53,20 +59,17 @@ export class NgpDatePickerNextMonth<T> implements NgpCanDisable {
    * @internal
    */
   readonly disabled = computed(() => {
-    if (this.datePicker.state.disabled()) {
+    if (this.state.disabled()) {
       return true;
     }
 
-    const maxDate = this.datePicker.max();
-    const lastDay = this.dateAdapter.set(
-      this.dateAdapter.endOfMonth(this.datePicker.focusedDate()),
-      {
-        hour: 23,
-        minute: 59,
-        second: 59,
-        millisecond: 999,
-      },
-    );
+    const maxDate = this.state.max();
+    const lastDay = this.dateAdapter.set(this.dateAdapter.endOfMonth(this.state.focusedDate()), {
+      hour: 23,
+      minute: 59,
+      second: 59,
+      millisecond: 999,
+    });
 
     // if there is a max date and it is equal to or before the last day of the month, disable it.
     if (maxDate && this.dateAdapter.compare(maxDate, lastDay) <= 0) {
@@ -86,7 +89,7 @@ export class NgpDatePickerNextMonth<T> implements NgpCanDisable {
     }
 
     // move focus to the first day of the next month.
-    let date = this.datePicker.focusedDate();
+    let date = this.state.focusedDate();
     date = this.dateAdapter.add(date, { months: 1 });
     date = this.dateAdapter.set(date, {
       day: 1,

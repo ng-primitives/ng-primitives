@@ -1,10 +1,9 @@
-import { BooleanInput } from '@angular/cdk/coercion';
-import { booleanAttribute, Component, computed, input } from '@angular/core';
-import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
+import { Component, computed } from '@angular/core';
+import { ControlValueAccessor } from '@angular/forms';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { heroChevronLeftMini, heroChevronRightMini } from '@ng-icons/heroicons/mini';
 import {
-  injectDatePicker,
+  injectDatePickerState,
   NgpDatePicker,
   NgpDatePickerCell,
   NgpDatePickerCellRender,
@@ -15,7 +14,7 @@ import {
   NgpDatePickerPreviousMonth,
   NgpDatePickerRowRender,
 } from 'ng-primitives/date-picker';
-import { controlState } from 'ng-primitives/forms';
+import { ChangeFn, provideValueAccessor, TouchedFn } from 'ng-primitives/utils';
 
 @Component({
   selector: 'app-date-picker',
@@ -44,10 +43,10 @@ import { controlState } from 'ng-primitives/forms';
   ],
   providers: [
     provideIcons({ heroChevronRightMini, heroChevronLeftMini }),
-    { provide: NG_VALUE_ACCESSOR, useExisting: DatePicker, multi: true },
+    provideValueAccessor(DatePicker),
   ],
   template: `
-    <div>
+    <div class="date-picker-header">
       <button ngpDatePickerPreviousMonth aria-label="previous month">
         <ng-icon name="heroChevronLeftMini" />
       </button>
@@ -77,28 +76,128 @@ import { controlState } from 'ng-primitives/forms';
       </tbody>
     </table>
   `,
-  styles: ``,
+  styles: `
+    :host {
+      display: inline-block;
+      background-color: var(--ngp-background);
+      border-radius: 12px;
+      padding: 16px;
+      box-shadow: var(--ngp-shadow);
+      border: 1px solid var(--ngp-border);
+    }
+
+    .date-picker-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 36px;
+      margin-bottom: 16px;
+    }
+
+    th {
+      font-size: 14px;
+      font-weight: 500;
+      width: 40px;
+      height: 40px;
+      text-align: center;
+      color: var(--ngp-text-secondary);
+    }
+
+    [ngpDatePickerLabel] {
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--ngp-text-primary);
+    }
+
+    [ngpDatePickerPreviousMonth],
+    [ngpDatePickerNextMonth] {
+      all: unset;
+      width: 32px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 8px;
+      font-size: 20px;
+      border: 1px solid var(--ngp-border);
+      cursor: pointer;
+    }
+
+    [ngpDatePickerPreviousMonth][data-hover],
+    [ngpDatePickerNextMonth][data-hover] {
+      background-color: var(--ngp-background-hover);
+    }
+
+    [ngpDatePickerPreviousMonth][data-focus-visible],
+    [ngpDatePickerNextMonth][data-focus-visible] {
+      outline: 2px solid var(--ngp-focus-ring);
+    }
+
+    [ngpDatePickerPreviousMonth][data-press],
+    [ngpDatePickerNextMonth][data-press] {
+      background-color: var(--ngp-background-active);
+    }
+
+    [ngpDatePickerPreviousMonth][data-disabled],
+    [ngpDatePickerNextMonth][data-disabled] {
+      cursor: not-allowed;
+      color: var(--ngp-text-disabled);
+    }
+
+    [ngpDatePickerDateButton] {
+      all: unset;
+      width: 40px;
+      height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+
+    [ngpDatePickerDateButton][data-today] {
+      color: var(--ngp-text-blue);
+    }
+
+    [ngpDatePickerDateButton][data-hover] {
+      background-color: var(--ngp-background-hover);
+    }
+
+    [ngpDatePickerDateButton][data-focus-visible] {
+      outline: 2px solid var(--ngp-focus-ring);
+      outline-offset: 2px;
+    }
+
+    [ngpDatePickerDateButton][data-press] {
+      background-color: var(--ngp-background-active);
+    }
+
+    [ngpDatePickerDateButton][data-outside-month] {
+      color: var(--ngp-text-disabled);
+    }
+
+    [ngpDatePickerDateButton][data-selected] {
+      background-color: var(--ngp-background-inverse);
+      color: var(--ngp-text-inverse);
+    }
+
+    [ngpDatePickerDateButton][data-selected][data-outside-month] {
+      background-color: var(--ngp-background-disabled);
+      color: var(--ngp-text-disabled);
+    }
+
+    [ngpDatePickerDateButton][data-disabled] {
+      cursor: not-allowed;
+      color: var(--ngp-text-disabled);
+    }
+  `,
   host: {
-    '(focusout)': 'state.markAsTouched()',
+    '(focusout)': 'onTouched?.()',
   },
 })
 export class DatePicker implements ControlValueAccessor {
   /** Access the date picker host directive */
-  private readonly datePicker = injectDatePicker<Date>();
-
-  /** The selected date. */
-  readonly date = input<Date>(new Date());
-
-  /** The minimum date that can be selected. */
-  readonly min = input<Date>();
-
-  /** The maximum date that can be selected. */
-  readonly max = input<Date>();
-
-  /** Determine if the date picker is disabled. */
-  readonly disabled = input<boolean, BooleanInput>(false, {
-    transform: booleanAttribute,
-  });
+  private readonly state = injectDatePickerState<Date>();
 
   /**
    * Get the current focused date in string format.
@@ -106,33 +205,37 @@ export class DatePicker implements ControlValueAccessor {
    */
   readonly label = computed(
     () =>
-      `${this.datePicker.focusedDate().toLocaleString('default', { month: 'long' })} ${this.datePicker.focusedDate().getFullYear()}`,
+      `${this.state.focusedDate().toLocaleString('default', { month: 'long' })} ${this.state.focusedDate().getFullYear()}`,
   );
 
   /**
-   * This connects the state of the date picker to the form control and host directives and keeps them in sync.
-   * Use `state.value()` to get the current value of the date picker and `state.disabled()` to get the current disabled state
-   * rather than accessing the inputs directly.
-   * @internal
+   * The onChange callback function for the date picker.
    */
-  readonly state = controlState({
-    value: this.date,
-    disabled: this.disabled,
-  });
+  private onChange?: ChangeFn<Date | undefined>;
+
+  /**
+   * The onTouched callback function for the date picker.
+   */
+  protected onTouched?: TouchedFn;
+
+  constructor() {
+    // Whenever the user interacts with the date picker, call the onChange function with the new value.
+    this.state.dateChange.subscribe(date => this.onChange?.(date));
+  }
 
   writeValue(date: Date): void {
-    this.state.writeValue(date);
+    this.state.date.set(date);
   }
 
-  registerOnChange(fn: (date: Date) => void): void {
-    this.state.setOnChangeFn(fn);
+  registerOnChange(fn: ChangeFn<Date | undefined>): void {
+    this.onChange = fn;
   }
 
-  registerOnTouched(fn: () => void): void {
-    this.state.setOnTouchedFn(fn);
+  registerOnTouched(fn: TouchedFn): void {
+    this.onTouched = fn;
   }
 
   setDisabledState(isDisabled: boolean): void {
-    this.state.setDisabled(isDisabled);
+    this.state.disabled.set(isDisabled);
   }
 }

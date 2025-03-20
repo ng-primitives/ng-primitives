@@ -6,6 +6,8 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+export { provideValueAccessor } from './forms/providers';
+export { ChangeFn, TouchedFn } from './forms/types';
 export { injectDisposables } from './helpers/disposables';
 export { uniqueId } from './helpers/unique-id';
 export { onBooleanChange, onChange, onFormControlChange } from './signals/async';

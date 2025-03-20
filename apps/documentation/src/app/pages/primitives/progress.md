@@ -26,6 +26,20 @@ Assemble the avatar directives in your template.
 </div>
 ```
 
+## Reusable Component
+
+Create a reusable component that uses the progress directives.
+
+<docs-snippet name="progress"></docs-snippet>
+
+## Schematics
+
+Generate a reusable progress component using the Angular CLI.
+
+```bash npm
+ng g ng-primitives:primitive progress
+```
+
 ## API Reference
 
 The following directives are available to import from the `ng-primitives/progress` package:

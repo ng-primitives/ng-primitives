@@ -9,6 +9,7 @@ import { computed, Directive, ElementRef, HostListener, inject } from '@angular/
 import { NgpButton } from 'ng-primitives/button';
 import { injectDateAdapter } from 'ng-primitives/date-time';
 import { NgpCanDisable, NgpDisabledToken } from 'ng-primitives/internal';
+import { injectDatePickerState } from '../date-picker/date-picker.state';
 import { injectDatePicker } from '../date-picker/date-picker.token';
 import { NgpDatePickerPreviousMonthToken } from './date-picker-previous-month.token';
 
@@ -44,6 +45,11 @@ export class NgpDatePickerPreviousMonth<T> implements NgpCanDisable {
   private readonly datePicker = injectDatePicker<T>();
 
   /**
+   * Access the date picker state.
+   */
+  private readonly state = injectDatePickerState<T>();
+
+  /**
    * Determine if this is a button element
    */
   protected readonly isButton = this.elementRef.nativeElement.tagName.toLowerCase() === 'button';
@@ -53,22 +59,19 @@ export class NgpDatePickerPreviousMonth<T> implements NgpCanDisable {
    * @internal
    */
   readonly disabled = computed(() => {
-    if (this.datePicker.state.disabled()) {
+    if (this.state.disabled()) {
       return true;
     }
 
-    const minDate = this.datePicker.min();
+    const minDate = this.state.min();
 
     // if the next month is out of bounds, disable it.
-    const firstDay = this.dateAdapter.set(
-      this.dateAdapter.startOfMonth(this.datePicker.focusedDate()),
-      {
-        hour: 0,
-        minute: 0,
-        second: 0,
-        millisecond: 0,
-      },
-    );
+    const firstDay = this.dateAdapter.set(this.dateAdapter.startOfMonth(this.state.focusedDate()), {
+      hour: 0,
+      minute: 0,
+      second: 0,
+      millisecond: 0,
+    });
 
     // if there is a min date and it is equal to or after the first day of the month, disable it.
     if (minDate && this.dateAdapter.compare(minDate, firstDay) >= 0) {
@@ -88,7 +91,7 @@ export class NgpDatePickerPreviousMonth<T> implements NgpCanDisable {
     }
 
     // move focus to the first day of the previous month.
-    let date = this.datePicker.focusedDate();
+    let date = this.state.focusedDate();
     date = this.dateAdapter.subtract(date, { months: 1 });
     date = this.dateAdapter.set(date, {
       day: 1,

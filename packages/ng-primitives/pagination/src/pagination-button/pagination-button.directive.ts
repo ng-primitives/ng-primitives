@@ -16,6 +16,7 @@ import {
 } from '@angular/core';
 import { NgpButton } from 'ng-primitives/button';
 import { NgpCanDisable, NgpDisabledToken } from 'ng-primitives/internal';
+import { injectPaginationState } from '../pagination/pagination.state';
 import { injectPagination } from '../pagination/pagination.token';
 import { NgpPaginationButtonToken } from './pagination-button.token';
 
@@ -37,9 +38,14 @@ import { NgpPaginationButtonToken } from './pagination-button.token';
 })
 export class NgpPaginationButton implements NgpCanDisable {
   /**
-   * Access the pagination directive.
+   * Access the pagination.
    */
   protected readonly pagination = injectPagination();
+
+  /**
+   * Access the pagination state.
+   */
+  protected readonly state = injectPaginationState();
 
   /**
    * Define the page this button represents.
@@ -60,12 +66,12 @@ export class NgpPaginationButton implements NgpCanDisable {
   /**
    * Whether the button is disabled.
    */
-  readonly disabled = computed(() => this.buttonDisabled() || this.pagination.state.disabled());
+  readonly disabled = computed(() => this.buttonDisabled() || this.state.disabled());
 
   /**
    * Whether this page is the currently selected page.
    */
-  protected readonly selected = computed(() => this.page() === this.pagination.state.value());
+  protected readonly selected = computed(() => this.page() === this.state.page());
 
   /**
    * Go to the page this button represents.

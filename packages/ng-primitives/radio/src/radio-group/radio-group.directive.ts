@@ -6,10 +6,9 @@
  * LICENSE file in the root directory of this source tree.
  */
 import { BooleanInput } from '@angular/cdk/coercion';
-import { Directive, booleanAttribute, input, model } from '@angular/core';
+import { Directive, booleanAttribute, input, output } from '@angular/core';
 import { NgpOrientation } from 'ng-primitives/common';
 import { NgpFormControl } from 'ng-primitives/form-field';
-import { controlState, provideControlState } from 'ng-primitives/forms';
 import {
   NgpCanDisable,
   NgpCanOrientate,
@@ -17,21 +16,22 @@ import {
   provideOrientation,
 } from 'ng-primitives/internal';
 import { NgpRovingFocusGroup } from 'ng-primitives/roving-focus';
-import { NgpRadioGroupToken } from './radio-group.token';
+import { provideRadioGroupState, radioGroupState } from './radio-group.state';
+import { provideRadioGroup } from './radio-group.token';
 
 @Directive({
   selector: '[ngpRadioGroup]',
   providers: [
-    { provide: NgpRadioGroupToken, useExisting: NgpRadioGroup },
-    { provide: NgpDisabledToken, useExisting: NgpRadioGroup },
+    provideRadioGroup(NgpRadioGroup),
+    provideRadioGroupState(),
     provideOrientation(NgpRadioGroup),
-    provideControlState(),
+    { provide: NgpDisabledToken, useExisting: NgpRadioGroup },
   ],
   hostDirectives: [NgpRovingFocusGroup, NgpFormControl],
   host: {
     role: 'radiogroup',
-    '[attr.aria-orientation]': 'orientation()',
-    '[attr.data-orientation]': 'orientation()',
+    '[attr.aria-orientation]': 'state.orientation()',
+    '[attr.data-orientation]': 'state.orientation()',
     '[attr.data-disabled]': 'state.disabled() ? "" : null',
   },
 })
@@ -39,7 +39,14 @@ export class NgpRadioGroup implements NgpCanDisable, NgpCanOrientate {
   /**
    * The value of the radio group.
    */
-  readonly value = model<string | null>(null, { alias: 'ngpRadioGroupValue' });
+  readonly value = input<string | null>(null, { alias: 'ngpRadioGroupValue' });
+
+  /**
+   * Event emitted when the radio group value changes.
+   */
+  readonly valueChange = output<string | null>({
+    alias: 'ngpRadioGroupValueChange',
+  });
 
   /**
    * Whether the radio group is disabled.
@@ -58,13 +65,14 @@ export class NgpRadioGroup implements NgpCanDisable, NgpCanOrientate {
   });
 
   /**
-   * The form control state. This is used to allow communication between the radio group and the control value access and any
-   * components that use this as a host directive.
+   * The state of the radio group.
    * @internal
    */
-  readonly state = controlState({
+  protected readonly state = radioGroupState({
     value: this.value,
+    valueChange: this.valueChange,
     disabled: this.disabled,
+    orientation: this.orientation,
   });
 
   /**
@@ -72,6 +80,7 @@ export class NgpRadioGroup implements NgpCanDisable, NgpCanOrientate {
    * @param value The value of the radio item to select.
    */
   select(value: string): void {
-    this.state.setValue(value);
+    this.state.value.set(value);
+    this.state.valueChange.emit(value);
   }
 }

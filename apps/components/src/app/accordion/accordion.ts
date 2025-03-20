@@ -20,8 +20,13 @@ import { NgpAccordion } from 'ng-primitives/accordion';
   `,
   styles: `
     :host {
-      display: flex;
-      flex-direction: column;
+      display: block;
+      width: 100%;
+      max-width: 24rem;
+      border-radius: 0.75rem;
+      border: 1px solid var(--ngp-border);
+      background-color: var(--ngp-background);
+      box-shadow: var(--ngp-shadow);
     }
   `,
 })

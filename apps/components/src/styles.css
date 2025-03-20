@@ -1,2 +1,9 @@
 /* You can add global styles to this file, and also import other style files */
 @import '../../../packages/ng-primitives/example-theme/index.css';
+@import '@fontsource-variable/inter/index.css';
+
+html {
+  font-family: 'Inter Variable', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}

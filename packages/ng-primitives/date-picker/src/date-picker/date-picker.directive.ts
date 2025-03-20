@@ -11,23 +11,23 @@ import {
   afterNextRender,
   booleanAttribute,
   contentChild,
-  contentChildren,
   Directive,
   inject,
   Injector,
   input,
-  model,
+  output,
+  signal,
 } from '@angular/core';
 import { injectDateAdapter } from 'ng-primitives/date-time';
-import { controlState, provideControlState } from 'ng-primitives/forms';
-import { NgpDatePickerDateButtonToken } from '../date-picker-date-button/date-picker-date-button.token';
+import type { NgpDatePickerDateButton } from '../date-picker-date-button/date-picker-date-button.directive';
 import { NgpDatePickerLabelToken } from '../date-picker-label/date-picker-label.token';
+import { datePickerState, provideDatePickerState } from './date-picker.state';
 import { provideDatePicker } from './date-picker.token';
 
 @Directive({
   selector: '[ngpDatePicker]',
   exportAs: 'ngpDatePicker',
-  providers: [provideDatePicker(NgpDatePicker), provideControlState()],
+  providers: [provideDatePicker(NgpDatePicker), provideDatePickerState()],
   host: {
     '[attr.data-disabled]': 'state.disabled() ? "" : null',
   },
@@ -75,15 +75,29 @@ export class NgpDatePicker<T> {
   /**
    * The selected value.
    */
-  readonly date = model<T | undefined>(undefined, {
+  readonly date = input<T | undefined>(undefined, {
     alias: 'ngpDatePickerDate',
+  });
+
+  /**
+   * Emit when the date changes.
+   */
+  readonly dateChange = output<T | undefined>({
+    alias: 'ngpDatePickerDateChange',
   });
 
   /**
    * The focused value.
    */
-  readonly focusedDate = model<T>(this.dateAdapter.now(), {
+  readonly focusedDate = input<T>(this.dateAdapter.now(), {
     alias: 'ngpDatePickerFocusedDate',
+  });
+
+  /**
+   * Emit when the focused date changes.
+   */
+  readonly focusedDateChange = output<T>({
+    alias: 'ngpDatePickerFocusedDateChange',
   });
 
   /**
@@ -95,15 +109,20 @@ export class NgpDatePicker<T> {
   /**
    * Access all the date picker buttons
    */
-  private readonly buttons = contentChildren(NgpDatePickerDateButtonToken, { descendants: true });
+  private readonly buttons = signal<NgpDatePickerDateButton<T>[]>([]);
 
   /**
-   * The form control state. This is used to allow communication between the date picker and the control value access and any
-   * components that use this as a host directive.
+   * The date picker state.
    */
-  readonly state = controlState({
-    value: this.date,
+  protected readonly state = datePickerState<T>({
+    date: this.date,
+    dateChange: this.dateChange,
+    focusedDate: this.focusedDate,
+    focusedDateChange: this.focusedDateChange,
+    min: this.min,
+    max: this.max,
     disabled: this.disabled,
+    dateDisabled: this.dateDisabled,
   });
 
   /**
@@ -112,12 +131,12 @@ export class NgpDatePicker<T> {
    * @internal
    */
   setFocusedDate(date: T, origin: FocusOrigin = 'mouse', direction: 'forward' | 'backward'): void {
-    if (this.disabled()) {
+    if (this.state.disabled()) {
       return;
     }
 
-    const min = this.min();
-    const max = this.max();
+    const min = this.state.min();
+    const max = this.state.max();
 
     if (min && this.dateAdapter.isBefore(date, min)) {
       date = min;
@@ -128,11 +147,11 @@ export class NgpDatePicker<T> {
     }
 
     // if the date is disabled, find the next available date in the specified direction.
-    if (this.dateDisabled()(date)) {
+    if (this.state.dateDisabled()(date)) {
       let nextDate = this.dateAdapter.add(date, { days: direction === 'forward' ? 1 : -1 });
 
       while (
-        this.dateDisabled()(nextDate) ||
+        this.state.dateDisabled()(nextDate) ||
         (min && this.dateAdapter.isBefore(nextDate, min)) ||
         (max && this.dateAdapter.isAfter(nextDate, max))
       ) {
@@ -142,19 +161,36 @@ export class NgpDatePicker<T> {
       date = nextDate;
     }
 
-    this.focusedDate.set(date);
+    this.state.focusedDate.set(date);
+    this.state.focusedDateChange.emit(date);
 
     if (origin === 'keyboard') {
       afterNextRender(
         {
-          write: () => {
-            this.buttons().forEach(button => button.focus());
-          },
+          write: () => this.buttons().forEach(button => button.focus()),
         },
         {
           injector: this.injector,
         },
       );
     }
+  }
+
+  /**
+   * Register a date button.
+   * @param button The date button to register.
+   * @internal
+   */
+  registerButton(button: NgpDatePickerDateButton<T>): void {
+    this.buttons.update(buttons => [...buttons, button]);
+  }
+
+  /**
+   * Unregister a date button.
+   * @param button The date button to unregister.
+   * @internal
+   */
+  unregisterButton(button: NgpDatePickerDateButton<T>): void {
+    this.buttons.update(buttons => buttons.filter(b => b !== button));
   }
 }

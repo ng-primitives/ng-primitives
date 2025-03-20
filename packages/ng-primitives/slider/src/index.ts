@@ -14,3 +14,4 @@ export { NgpSliderTrack } from './slider-track/slider-track.directive';
 export { NgpSliderTrackToken, injectSliderTrack } from './slider-track/slider-track.token';
 export { NgpSlider } from './slider/slider.directive';
 export { NgpSliderToken, injectSlider } from './slider/slider.token';
+export { provideSliderState, injectSliderState } from './slider/slider.state';

@@ -17,7 +17,13 @@
         "date-picker",
         "form-field",
         "input",
-        "slider"
+        "pagination",
+        "progress",
+        "radio",
+        "slider",
+        "switch",
+        "toggle",
+        "toggle-group"
       ],
       "x-prompt": "What primitive would you like to generate?",
       "$default": {
@@ -54,6 +60,11 @@
       "type": "string",
       "default": "component",
       "description": "Generate component template files with the specified suffix."
+    },
+    "exampleStyles": {
+      "type": "boolean",
+      "description": "Whether example styles should be generated.",
+      "default": true
     }
   },
   "required": ["primitive", "path"]

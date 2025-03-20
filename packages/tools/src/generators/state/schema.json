@@ -1,0 +1,27 @@
+{
+  "$schema": "http://json-schema.org/schema",
+  "$id": "State",
+  "title": "",
+  "type": "object",
+  "properties": {
+    "directive": {
+      "type": "string",
+      "description": "The name of the directive to create state for, e.g. avatar.",
+      "$default": {
+        "$source": "argv",
+        "index": 0
+      },
+      "x-prompt": "What directive would you like to create state for?"
+    },
+    "primitive": {
+      "type": "string",
+      "description": "The primitive to add the state to.",
+      "$default": {
+        "$source": "argv",
+        "index": 1
+      },
+      "x-prompt": "What primitive should the state be added to?"
+    }
+  },
+  "required": ["directive", "primitive"]
+}

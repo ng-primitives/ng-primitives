@@ -8,7 +8,13 @@ export interface AngularPrimitivesComponentSchema {
     | 'date-picker'
     | 'form-field'
     | 'input'
-    | 'slider';
+    | 'slider'
+    | 'pagination'
+    | 'progress'
+    | 'radio'
+    | 'switch'
+    | 'toggle'
+    | 'toggle-group';
 
   /**
    * The path where the component files should be created, relative to the current workspace.
@@ -37,4 +43,9 @@ export interface AngularPrimitivesComponentSchema {
    * the generated component file will be named `button.component.ts`.
    */
   fileSuffix?: string;
+
+  /**
+   * Whether example styles should be included.
+   */
+  exampleStyles?: boolean;
 }

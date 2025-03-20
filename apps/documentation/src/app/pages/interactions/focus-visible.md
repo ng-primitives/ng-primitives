@@ -37,7 +37,7 @@ The following directives are available to import from the `ng-primitives/interac
   Whether listening for focus-visible events is disabled.
 </response-field>
 
-<response-field name="ngpFocusVisible" type="EventEmitter<boolean>">
+<response-field name="ngpFocusVisible" type="OutputEmitterRef<boolean>">
   Event emitted when the focus visible state changes.
 </response-field>
 

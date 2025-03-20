@@ -9,6 +9,8 @@ import {
   template,
   url,
 } from '@angular-devkit/schematics';
+import { query } from '@phenomnomnominal/tsquery';
+import * as ts from 'typescript';
 import { AngularPrimitivesComponentSchema } from './schema';
 
 export default function generatePrimitive(options: AngularPrimitivesComponentSchema): Rule {
@@ -31,7 +33,7 @@ export default function generatePrimitive(options: AngularPrimitivesComponentSch
 
           return {
             path: newPath,
-            content: fileEntry.content,
+            content: processStyles(fileEntry.content, options),
           } as FileEntry;
         }
         return fileEntry;
@@ -41,4 +43,33 @@ export default function generatePrimitive(options: AngularPrimitivesComponentSch
 
     return mergeWith(templateSource);
   };
+}
+function processStyles(content: Buffer, options: AngularPrimitivesComponentSchema): Buffer {
+  if (options.exampleStyles) {
+    return content;
+  }
+
+  const contentStr = content.toString();
+
+  const styles = query<ts.NoSubstitutionTemplateLiteral>(
+    contentStr,
+    'ClassDeclaration > Decorator > CallExpression:has(Identifier[name="Component"]) ObjectLiteralExpression PropertyAssignment:has(Identifier[name="styles"]) NoSubstitutionTemplateLiteral',
+  );
+
+  if (styles.length === 0) {
+    return content;
+  }
+
+  const stylesNode = styles[0];
+  const stylesText = stylesNode.getText();
+  const stylesValue = stylesText.slice(1, stylesText.length - 1);
+
+  // we want to preserve all the selectors, we just want to remove all the rules inside the selectors
+  const stylesWithoutRules = stylesValue.replace(/(?<=\{)[^}]+(?=\})/g, '');
+
+  // replace the styles value with the new value
+  const contentStrWithoutRules = contentStr.replace(stylesValue, stylesWithoutRules);
+
+  // convert back to a buffer
+  return Buffer.from(contentStrWithoutRules);
 }

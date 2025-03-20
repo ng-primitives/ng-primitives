@@ -24,6 +24,20 @@ Assemble the toggle directives in your template.
 <button ngpToggle [(ngpToggleSelected)]="selected">Toggle</button>
 ```
 
+## Reusable Component
+
+Create a reusable component that uses the toggle directives.
+
+<docs-snippet name="toggle"></docs-snippet>
+
+## Schematics
+
+Generate a reusable toggle component using the Angular CLI.
+
+```bash npm
+ng g ng-primitives:primitive toggle
+```
+
 ## API Reference
 
 The following directives are available to import from the `ng-primitives/toggle` package:

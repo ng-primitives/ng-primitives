@@ -28,6 +28,12 @@
       "default": false,
       "x-prompt": "Would you like to add an example for the directive?"
     },
+    "addState": {
+      "type": "boolean",
+      "description": "Add a state for the directive.",
+      "default": true,
+      "x-prompt": "Would you like to add a state for the directive?"
+    },
     "addToken": {
       "type": "boolean",
       "description": "Add a token for the directive. This allows injection of the component avoiding circular dependencies.",

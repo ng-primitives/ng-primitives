@@ -6,27 +6,27 @@
  * LICENSE file in the root directory of this source tree.
  */
 import { BooleanInput } from '@angular/cdk/coercion';
-import { Directive, HostListener, booleanAttribute, input, model } from '@angular/core';
+import { Directive, HostListener, booleanAttribute, input, output } from '@angular/core';
 import { NgpFormControl } from 'ng-primitives/form-field';
-import { controlState, provideControlState } from 'ng-primitives/forms';
 import { NgpFocusVisible, NgpHover, NgpPress } from 'ng-primitives/interactions';
 import { NgpCanDisable, NgpDisabledToken } from 'ng-primitives/internal';
 import { uniqueId } from 'ng-primitives/utils';
+import { checkboxState, provideCheckboxState } from './checkbox.state';
 import { provideCheckbox } from './checkbox.token';
 
 @Directive({
   selector: '[ngpCheckbox]',
   providers: [
     provideCheckbox(NgpCheckbox),
-    provideControlState(),
+    provideCheckboxState(),
     { provide: NgpDisabledToken, useExisting: NgpCheckbox },
   ],
   hostDirectives: [NgpFormControl, NgpHover, NgpFocusVisible, NgpPress],
   host: {
     role: 'checkbox',
-    '[attr.aria-checked]': 'indeterminate() ? "mixed" : state.value()',
-    '[attr.data-checked]': 'state.value() ? "" : null',
-    '[attr.data-indeterminate]': 'indeterminate() ? "" : null',
+    '[attr.aria-checked]': 'state.indeterminate() ? "mixed" : state.checked()',
+    '[attr.data-checked]': 'state.checked() ? "" : null',
+    '[attr.data-indeterminate]': 'state.indeterminate() ? "" : null',
     '[attr.aria-disabled]': 'state.disabled()',
     '[tabindex]': 'state.disabled() ? -1 : 0',
   },
@@ -41,15 +41,31 @@ export class NgpCheckbox implements NgpCanDisable {
   /**
    * Defines whether the checkbox is checked.
    */
-  readonly checked = model<boolean>(false, {
+  readonly checked = input<boolean, BooleanInput>(false, {
     alias: 'ngpCheckboxChecked',
+    transform: booleanAttribute,
+  });
+
+  /**
+   * The event that is emitted when the checkbox value changes.
+   */
+  readonly checkedChange = output<boolean>({
+    alias: 'ngpCheckboxCheckedChange',
   });
 
   /**
    * Defines whether the checkbox is indeterminate.
    */
-  readonly indeterminate = model<boolean>(false, {
+  readonly indeterminate = input<boolean, BooleanInput>(false, {
     alias: 'ngpCheckboxIndeterminate',
+    transform: booleanAttribute,
+  });
+
+  /**
+   * The event that is emitted when the indeterminate value changes.
+   */
+  readonly indeterminateChange = output<boolean>({
+    alias: 'ngpCheckboxIndeterminateChange',
   });
 
   /**
@@ -72,8 +88,13 @@ export class NgpCheckbox implements NgpCanDisable {
    * The form control state. This is used to allow communication between the checkbox and the control value access and any
    * components that use this as a host directive.
    */
-  protected readonly state = controlState({
-    value: this.checked,
+  protected readonly state = checkboxState({
+    id: this.id,
+    checked: this.checked,
+    checkedChange: this.checkedChange,
+    indeterminate: this.indeterminate,
+    indeterminateChange: this.indeterminateChange,
+    required: this.required,
     disabled: this.disabled,
   });
 
@@ -93,11 +114,13 @@ export class NgpCheckbox implements NgpCanDisable {
     // prevent this firing twice in cases where the label is clicked and the checkbox is clicked by the one event
     event?.preventDefault();
 
-    this.state.setValue(this.indeterminate() ? true : !this.state.value());
+    this.state.checked.set(this.indeterminate() ? true : !this.state.checked());
+    this.state.checkedChange.emit(this.state.checked());
 
     // if the checkbox was indeterminate, it isn't anymore
-    if (this.indeterminate()) {
-      this.indeterminate.set(false);
+    if (this.state.indeterminate()) {
+      this.state.indeterminate.set(false);
+      this.indeterminateChange.emit(false);
     }
   }
 }

@@ -4,6 +4,7 @@ import configGenerator from '../config/generator';
 import documentationGenerator from '../documentation/generator';
 import examplesGenerator from '../example/generator';
 import reusableComponentGenerator from '../reusable-component/reusable-component';
+import stateGenerator from '../state/generator';
 import tokenGenerator from '../token/generator';
 import { DirectiveGeneratorSchema } from './schema';
 
@@ -26,6 +27,13 @@ export async function directiveGenerator(tree: Tree, options: DirectiveGenerator
     `export { Ngp${names(options.name).className} } from './${options.name}/${options.name}.directive';`,
   );
 
+  if (options.addState) {
+    await stateGenerator(tree, {
+      directive: options.name,
+      primitive: options.primitive,
+    });
+  }
+
   if (options.addExample) {
     await examplesGenerator(tree, {
       directive: options.name,
@@ -37,6 +45,7 @@ export async function directiveGenerator(tree: Tree, options: DirectiveGenerator
     await tokenGenerator(tree, {
       directive: options.name,
       primitive: options.primitive,
+      stateless: options.addState,
     });
   }
 

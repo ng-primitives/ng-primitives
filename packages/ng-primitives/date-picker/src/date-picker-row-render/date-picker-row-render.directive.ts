@@ -17,7 +17,7 @@ import {
 } from '@angular/core';
 import { injectDateAdapter } from 'ng-primitives/date-time';
 import { onChange } from 'ng-primitives/utils';
-import { injectDatePicker } from '../date-picker/date-picker.token';
+import { injectDatePickerState } from '../date-picker/date-picker.state';
 import {
   NgpDatePickerRowRenderToken,
   NgpDatePickerWeekToken,
@@ -37,7 +37,7 @@ export class NgpDatePickerRowRender<T> implements OnDestroy {
   /**
    * Access the date picker.
    */
-  private readonly datePicker = injectDatePicker<T>();
+  private readonly state = injectDatePickerState<T>();
 
   /**
    * Access the template ref for the cell.
@@ -54,7 +54,7 @@ export class NgpDatePickerRowRender<T> implements OnDestroy {
    * and the days of the previous and next month to fill the grid.
    */
   protected readonly days = computed(() => {
-    const month = this.datePicker.focusedDate();
+    const month = this.state.focusedDate();
     const days: T[] = [];
 
     // Get the first and last day of the month.
@@ -97,7 +97,7 @@ export class NgpDatePickerRowRender<T> implements OnDestroy {
 
   constructor() {
     // re-render the rows when the month changes.
-    onChange(this.datePicker.focusedDate, (date, previousDate) => {
+    onChange(this.state.focusedDate, (date, previousDate) => {
       if (!date || !previousDate || !this.dateAdapter.isSameMonth(date, previousDate)) {
         this.renderRows();
       }

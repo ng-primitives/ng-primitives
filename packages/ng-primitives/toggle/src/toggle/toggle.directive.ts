@@ -13,19 +13,19 @@ import {
   booleanAttribute,
   inject,
   input,
-  model,
+  output,
 } from '@angular/core';
-import { controlState, provideControlState } from 'ng-primitives/forms';
+import { provideToggleState, toggleState } from './toggle.state';
 import { provideToggle } from './toggle.token';
 
 @Directive({
   selector: '[ngpToggle]',
   exportAs: 'ngpToggle',
-  providers: [provideToggle(NgpToggle), provideControlState()],
+  providers: [provideToggle(NgpToggle), provideToggleState()],
   host: {
     '[attr.type]': 'isButton ? "button" : null',
-    '[attr.aria-pressed]': 'state.value()',
-    '[attr.data-selected]': 'state.value() ? "" : null',
+    '[attr.aria-pressed]': 'state.selected()',
+    '[attr.data-selected]': 'state.selected() ? "" : null',
     '[attr.data-disabled]': 'state.disabled() ? "" : null',
   },
 })
@@ -39,7 +39,17 @@ export class NgpToggle {
    * Whether the toggle is selected.
    * @default false
    */
-  readonly selected = model<boolean>(false, { alias: 'ngpToggleSelected' });
+  readonly selected = input<boolean, BooleanInput>(false, {
+    alias: 'ngpToggleSelected',
+    transform: booleanAttribute,
+  });
+
+  /**
+   * Emits when the selected state changes.
+   */
+  readonly selectedChange = output<boolean>({
+    alias: 'ngpToggleSelectedChange',
+  });
 
   /**
    * Whether the toggle is disabled.
@@ -56,12 +66,12 @@ export class NgpToggle {
   protected isButton = this.element.nativeElement.tagName === 'BUTTON';
 
   /**
-   * The form control state. This is used to allow communication between the toggle and the control value access and any
-   * components that use this as a host directive.
+   * The state for the toggle primitive.
    * @internal
    */
-  readonly state = controlState({
-    value: this.selected,
+  protected readonly state = toggleState({
+    selected: this.selected,
+    selectedChange: this.selectedChange,
     disabled: this.disabled,
   });
 
@@ -70,11 +80,12 @@ export class NgpToggle {
    */
   @HostListener('click')
   toggle(): void {
-    if (this.disabled()) {
+    if (this.state.disabled()) {
       return;
     }
 
-    this.state.setValue(!this.state.value());
+    this.state.selected.set(!this.state.selected());
+    this.selectedChange.emit(this.state.selected());
   }
 
   /**
