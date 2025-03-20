@@ -6,28 +6,28 @@
  * LICENSE file in the root directory of this source tree.
  */
 import { BooleanInput } from '@angular/cdk/coercion';
-import { booleanAttribute, Directive, input, model } from '@angular/core';
+import { booleanAttribute, Directive, input, output } from '@angular/core';
 import { NgpOrientation } from 'ng-primitives/common';
-import { controlState, provideControlState } from 'ng-primitives/forms';
 import { NgpCanOrientate, provideOrientation } from 'ng-primitives/internal';
 import { NgpRovingFocusGroup } from 'ng-primitives/roving-focus';
 import { injectToggleGroupConfig } from '../config/toggle-group.config';
-import { NgpToggleGroupToken } from './toggle-group.token';
+import { provideToggleGroupState, toggleGroupState } from './toggle-group.state';
+import { provideToggleGroup } from './toggle-group.token';
 
 @Directive({
   selector: '[ngpToggleGroup]',
   exportAs: 'ngpToggleGroup',
   providers: [
-    { provide: NgpToggleGroupToken, useExisting: NgpToggleGroup },
+    provideToggleGroup(NgpToggleGroup),
     provideOrientation(NgpToggleGroup),
-    provideControlState(),
+    provideToggleGroupState(),
   ],
   hostDirectives: [NgpRovingFocusGroup],
   host: {
     role: 'group',
-    '[attr.aria-orientation]': 'orientation()',
-    '[attr.data-orientation]': 'orientation()',
-    '[attr.data-type]': 'type()',
+    '[attr.aria-orientation]': 'state.orientation()',
+    '[attr.data-orientation]': 'state.orientation()',
+    '[attr.data-type]': 'state.type()',
     '[attr.data-disabled]': 'state.disabled() ? "" : null',
   },
 })
@@ -49,7 +49,12 @@ export class NgpToggleGroup implements NgpCanOrientate {
   /**
    * The selected value(s) of the toggle group.
    */
-  readonly value = model<string[]>([], { alias: 'ngpToggleGroupValue' });
+  readonly value = input<string[]>([], { alias: 'ngpToggleGroupValue' });
+
+  /**
+   * Emits when the value of the toggle group changes.
+   */
+  readonly valueChange = output<string[]>({ alias: 'ngpToggleGroupValueChange' });
 
   /**
    * Whether the toggle group is disabled.
@@ -60,11 +65,13 @@ export class NgpToggleGroup implements NgpCanOrientate {
   });
 
   /**
-   * The form control state. This is used to allow communication between the toggle group and the control value access and any
-   * components that use this as a host directive.
+   * The state of the toggle group.
    */
-  protected readonly state = controlState({
+  protected readonly state = toggleGroupState({
     value: this.value,
+    valueChange: this.valueChange,
+    orientation: this.orientation,
+    type: this.type,
     disabled: this.disabled,
   });
 
@@ -77,10 +84,12 @@ export class NgpToggleGroup implements NgpCanOrientate {
     }
 
     if (this.type() === 'single') {
-      this.state.setValue([value]);
+      this.state.value.set([value]);
     } else {
-      this.state.setValue([...this.state.value(), value]);
+      this.state.value.set([...this.state.value(), value]);
     }
+
+    this.state.valueChange.emit(this.state.value());
   }
 
   /**
@@ -91,7 +100,8 @@ export class NgpToggleGroup implements NgpCanOrientate {
       return;
     }
 
-    this.state.setValue(this.state.value().filter(v => v !== value));
+    this.state.value.set(this.state.value().filter(v => v !== value));
+    this.state.valueChange.emit(this.state.value());
   }
 
   /**
@@ -99,7 +109,7 @@ export class NgpToggleGroup implements NgpCanOrientate {
    * @internal
    */
   isSelected(value: string): boolean {
-    return this.state.value().includes(value);
+    return this.state.value()?.includes(value) ?? false;
   }
 
   /**

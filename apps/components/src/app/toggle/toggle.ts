@@ -51,6 +51,9 @@ import { ChangeFn, provideValueAccessor, TouchedFn } from 'ng-primitives/utils';
     }
   `,
   providers: [provideValueAccessor(Toggle)],
+  host: {
+    '(focusout)': 'onTouched?.()',
+  },
 })
 export class Toggle implements ControlValueAccessor {
   /** Access the toggle state. */

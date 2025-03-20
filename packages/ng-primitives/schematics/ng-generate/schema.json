@@ -22,7 +22,8 @@
         "radio",
         "slider",
         "switch",
-        "toggle"
+        "toggle",
+        "toggle-group"
       ],
       "x-prompt": "What primitive would you like to generate?",
       "$default": {

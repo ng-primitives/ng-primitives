@@ -11,19 +11,20 @@ import { BooleanInput } from '@angular/cdk/coercion';
 import { booleanAttribute, computed, Directive, input, OnInit } from '@angular/core';
 import { NgpRovingFocusItem } from 'ng-primitives/roving-focus';
 import { injectToggleGroup } from '../toggle-group/toggle-group.token';
-import { NgpToggleGroupItemToken } from './toggle-group-item.token';
+import { provideToggleGroupItemState, toggleGroupItemState } from './toggle-group-item.state';
+import { provideToggleGroupItem } from './toggle-group-item.token';
 
 @Directive({
   selector: '[ngpToggleGroupItem]',
   exportAs: 'ngpToggleGroupItem',
-  providers: [{ provide: NgpToggleGroupItemToken, useExisting: NgpToggleGroupItem }],
+  providers: [provideToggleGroupItem(NgpToggleGroupItem), provideToggleGroupItemState()],
   hostDirectives: [NgpRovingFocusItem],
   host: {
     role: 'radio',
     '[attr.aria-checked]': 'selected()',
     '[attr.data-selected]': 'selected() ? "" : null',
-    '[attr.aria-disabled]': 'disabled()',
-    '[attr.data-disabled]': 'disabled() ? "" : null',
+    '[attr.aria-disabled]': 'state.disabled()',
+    '[attr.data-disabled]': 'state.disabled() ? "" : null',
     '(click)': 'toggle()',
   },
 })
@@ -51,7 +52,15 @@ export class NgpToggleGroupItem implements OnInit {
   /**
    * Whether the item is selected.
    */
-  protected readonly selected = computed(() => this.toggleGroup.isSelected(this.value()!));
+  protected readonly selected = computed(() => this.toggleGroup.isSelected(this.state.value()!));
+
+  /**
+   * The state of the item.
+   */
+  protected readonly state = toggleGroupItemState({
+    value: this.value,
+    disabled: this.disabled,
+  });
 
   ngOnInit(): void {
     // we can't use a required input for value as it is used in a computed property before the input is set
@@ -64,10 +73,10 @@ export class NgpToggleGroupItem implements OnInit {
    * Toggle the item.
    */
   protected toggle(): void {
-    if (this.disabled()) {
+    if (this.state.disabled()) {
       return;
     }
 
-    this.toggleGroup.toggle(this.value()!);
+    this.toggleGroup.toggle(this.state.value()!);
   }
 }

@@ -28,6 +28,20 @@ Assemble the toggle-group directives in your template.
 </div>
 ```
 
+## Reusable Component
+
+Create a reusable component that uses the toggle group directives.
+
+<docs-snippet name="toggle-group"></docs-snippet>
+
+## Schematics
+
+Generate a reusable toggle group component using the Angular CLI.
+
+```bash npm
+ng g ng-primitives:primitive toggle-group
+```
+
 ## Examples
 
 Here are some additional examples of how to use the Toggle Group primitives.
