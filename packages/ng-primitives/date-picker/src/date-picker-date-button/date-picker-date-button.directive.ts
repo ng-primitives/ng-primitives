@@ -6,7 +6,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 import { FocusMonitor } from '@angular/cdk/a11y';
-import { computed, Directive, ElementRef, HostListener, inject } from '@angular/core';
+import { computed, Directive, ElementRef, HostListener, inject, OnDestroy } from '@angular/core';
 import { NgpButton } from 'ng-primitives/button';
 import { injectDateAdapter } from 'ng-primitives/date-time';
 import { NgpCanDisable, NgpDisabledToken } from 'ng-primitives/internal';
@@ -33,7 +33,7 @@ import { NgpDatePickerDateButtonToken } from './date-picker-date-button.token';
   },
   hostDirectives: [NgpButton],
 })
-export class NgpDatePickerDateButton<T> implements NgpCanDisable {
+export class NgpDatePickerDateButton<T> implements NgpCanDisable, OnDestroy {
   /**
    * Access the element ref.
    */
@@ -121,6 +121,14 @@ export class NgpDatePickerDateButton<T> implements NgpCanDisable {
    * Determine if the element is a button.
    */
   protected readonly isButton = this.elementRef.nativeElement.tagName === 'BUTTON';
+
+  constructor() {
+    this.datePicker.registerButton(this);
+  }
+
+  ngOnDestroy(): void {
+    this.datePicker.unregisterButton(this);
+  }
 
   /**
    * When the button is clicked, select the date.

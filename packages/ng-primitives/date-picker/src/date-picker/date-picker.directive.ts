@@ -11,15 +11,15 @@ import {
   afterNextRender,
   booleanAttribute,
   contentChild,
-  contentChildren,
   Directive,
   inject,
   Injector,
   input,
   output,
+  signal,
 } from '@angular/core';
 import { injectDateAdapter } from 'ng-primitives/date-time';
-import { NgpDatePickerDateButtonToken } from '../date-picker-date-button/date-picker-date-button.token';
+import type { NgpDatePickerDateButton } from '../date-picker-date-button/date-picker-date-button.directive';
 import { NgpDatePickerLabelToken } from '../date-picker-label/date-picker-label.token';
 import { datePickerState, provideDatePickerState } from './date-picker.state';
 import { provideDatePicker } from './date-picker.token';
@@ -109,11 +109,10 @@ export class NgpDatePicker<T> {
   /**
    * Access all the date picker buttons
    */
-  private readonly buttons = contentChildren(NgpDatePickerDateButtonToken, { descendants: true });
+  private readonly buttons = signal<NgpDatePickerDateButton<T>[]>([]);
 
   /**
-   * The form control state. This is used to allow communication between the date picker and the control value access and any
-   * components that use this as a host directive.
+   * The date picker state.
    */
   readonly state = datePickerState<T>({
     date: this.date,
@@ -168,14 +167,30 @@ export class NgpDatePicker<T> {
     if (origin === 'keyboard') {
       afterNextRender(
         {
-          write: () => {
-            this.buttons().forEach(button => button.focus());
-          },
+          write: () => this.buttons().forEach(button => button.focus()),
         },
         {
           injector: this.injector,
         },
       );
     }
+  }
+
+  /**
+   * Register a date button.
+   * @param button The date button to register.
+   * @internal
+   */
+  registerButton(button: NgpDatePickerDateButton<T>): void {
+    this.buttons.update(buttons => [...buttons, button]);
+  }
+
+  /**
+   * Unregister a date button.
+   * @param button The date button to unregister.
+   * @internal
+   */
+  unregisterButton(button: NgpDatePickerDateButton<T>): void {
+    this.buttons.update(buttons => buttons.filter(b => b !== button));
   }
 }
