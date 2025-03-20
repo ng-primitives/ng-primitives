@@ -6,6 +6,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 import { computed, Directive } from '@angular/core';
+import { injectDatePickerState } from '../date-picker/date-picker.state';
 import { injectDatePicker } from '../date-picker/date-picker.token';
 import { NgpDatePickerGridToken } from './date-picker-grid.token';
 
@@ -16,7 +17,7 @@ import { NgpDatePickerGridToken } from './date-picker-grid.token';
   host: {
     role: 'grid',
     '[attr.aria-labelledby]': 'labelId()',
-    '[attr.data-disabled]': 'datePicker.state.disabled() ? "" : null',
+    '[attr.data-disabled]': 'state.disabled() ? "" : null',
   },
 })
 export class NgpDatePickerGrid<T> {
@@ -24,6 +25,11 @@ export class NgpDatePickerGrid<T> {
    * Access the date picker.
    */
   private readonly datePicker = injectDatePicker<T>();
+
+  /**
+   * Access the date picker state.
+   */
+  protected readonly state = injectDatePickerState<T>();
 
   /**
    * Determine the id for the label.

@@ -50,3 +50,4 @@ export {
   NgpDatePickerCellToken,
   injectDatePickerCell,
 } from './date-picker-cell/date-picker-cell.token';
+export { provideDatePickerState, injectDatePickerState } from './date-picker/date-picker.state';

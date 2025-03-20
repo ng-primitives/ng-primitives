@@ -11,15 +11,15 @@ import {
   booleanAttribute,
   computed,
   input,
-  model,
   numberAttribute,
+  output,
   signal,
 } from '@angular/core';
 import { NgpOrientation } from 'ng-primitives/common';
 import { NgpFormControl } from 'ng-primitives/form-field';
-import { controlState, provideControlState } from 'ng-primitives/forms';
 import { NgpCanDisable, NgpCanOrientate, NgpDisabledToken } from 'ng-primitives/internal';
 import type { NgpSliderTrack } from '../slider-track/slider-track.directive';
+import { provideSliderState, sliderState } from './slider.state';
 import { provideSlider } from './slider.token';
 
 @Directive({
@@ -27,20 +27,28 @@ import { provideSlider } from './slider.token';
   exportAs: 'ngpSlider',
   providers: [
     provideSlider(NgpSlider),
-    provideControlState(),
+    provideSliderState(),
     { provide: NgpDisabledToken, useExisting: NgpSlider },
   ],
   hostDirectives: [NgpFormControl],
   host: {
-    '[attr.data-orientation]': 'orientation()',
+    '[attr.data-orientation]': 'state.orientation()',
   },
 })
 export class NgpSlider implements NgpCanDisable, NgpCanOrientate {
   /**
    * The value of the slider.
    */
-  readonly value = model<number>(0, {
+  readonly value = input<number, NumberInput>(0, {
     alias: 'ngpSliderValue',
+    transform: numberAttribute,
+  });
+
+  /**
+   * Emits when the value changes.
+   */
+  readonly valueChange = output<number>({
+    alias: 'ngpSliderValueChange',
   });
 
   /**
@@ -92,16 +100,20 @@ export class NgpSlider implements NgpCanDisable, NgpCanOrientate {
    * The value as a percentage based on the min and max values.
    */
   protected readonly percentage = computed(
-    () => ((this.state.value() - this.min()) / (this.max() - this.min())) * 100,
+    () => ((this.state.value() - this.state.min()) / (this.state.max() - this.state.min())) * 100,
   );
 
   /**
-   * The form control state. This is used to allow communication between the slider and the control value access and any
-   * components that use this as a host directive.
+   * The state of the slider. We use this for the slider state rather than relying on the inputs.
    * @internal
    */
-  readonly state = controlState({
+  readonly state = sliderState({
     value: this.value,
+    valueChange: this.valueChange,
+    min: this.min,
+    max: this.max,
+    step: this.step,
+    orientation: this.orientation,
     disabled: this.disabled,
   });
 }

@@ -32,6 +32,7 @@ module.exports = [
       '@nx/enforce-module-boundaries': 'off',
       '@typescript-eslint/ban-ts-comment': 'off',
       '@angular-eslint/no-output-native': 'off',
+      '@typescript-eslint/no-non-null-assertion': 'off',
     },
   },
   {

@@ -1,7 +1,10 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import {
   FactoryProvider,
   inject,
   InjectionToken,
+  InputSignal,
+  InputSignalWithTransform,
   isSignal,
   linkedSignal,
   OutputEmitterRef,
@@ -21,9 +24,41 @@ type State<T> = {
  * This converts the state object to a writable state object.
  * This means that inputs become signals which are writable.
  */
-type WritableState<T> = {
+export type WritableState<T> = {
   [K in keyof T]: T[K] extends Signal<infer U> ? WritableSignal<U> : T[K];
 };
+
+/**
+ * A utility type for removing all InputSignals and OutputEmitterRefs properties from a class.
+ */
+export type Stateless<T> = {
+  [K in keyof T as T[K] extends
+    | InputSignal<any>
+    | InputSignalWithTransform<any, any>
+    | OutputEmitterRef<any>
+    ? never
+    : K]: T[K];
+};
+
+/**
+ * A utility type for a writable state factory.
+ */
+export type StateFactory<T> = (state: State<T>) => WritableState<T>;
+
+/**
+ * A utility type for a state token.
+ */
+export type StateToken<T> = InjectionToken<WritableState<T>>;
+
+/**
+ * A utility type for a state provider.
+ */
+export type StateProvider = () => FactoryProvider;
+
+/**
+ * A utility type for a state injector.
+ */
+export type StateInjector<T> = () => WritableState<T>;
 
 /**
  * Create a new injection token for the state.
@@ -50,7 +85,7 @@ function createStateProvider<T>(token: ProviderToken<T>): () => FactoryProvider 
  * Convert the original state object into a writable state object.
  * @param token The token for the state
  */
-function createWritableState<T>(token: ProviderToken<WritableState<T>>) {
+function createWritableState<T>(token: ProviderToken<WritableState<T>>): StateFactory<T> {
   return (state: State<T>): WritableState<T> => {
     const internalState = inject(token);
 
@@ -69,14 +104,14 @@ function createWritableState<T>(token: ProviderToken<WritableState<T>>) {
  * This takes a string and creates the custom return type for the primitive.
  * @param name The name of the primitive
  */
-type StateFactory<T extends string, U> = {
-  [K in `${Uncapitalize<T>}State`]: (state: State<U>) => WritableState<U>;
+type StateCreator<T extends string, U> = {
+  [K in `${Uncapitalize<T>}State`]: StateFactory<U>;
 } & {
-  [K in `Ngp${Capitalize<T>}StateToken`]: InjectionToken<WritableState<U>>;
+  [K in `Ngp${Capitalize<T>}StateToken`]: StateToken<U>;
 } & {
-  [K in `provide${Capitalize<T>}State`]: () => FactoryProvider;
+  [K in `provide${Capitalize<T>}State`]: StateProvider;
 } & {
-  [K in `inject${Capitalize<T>}State`]: () => WritableState<U>;
+  [K in `inject${Capitalize<T>}State`]: StateInjector<U>;
 };
 
 /**
@@ -100,12 +135,12 @@ function uncapitalize(value: string): string {
  * @param name The name of the state
  * @internal
  */
-export function createState<U, T extends string = string>(name: T): StateFactory<T, U> {
+export function createState<U, T extends string = string>(name: T): StateCreator<T, U> {
   const token = createStateToken<T>(`Ngp${capitalize(name)}StateToken`);
   return {
     [`Ngp${capitalize(name)}StateToken`]: token,
     [`provide${capitalize(name)}State`]: createStateProvider(token),
     [`${uncapitalize(name)}State`]: createWritableState(token),
     [`inject${capitalize(name)}State`]: () => inject(token),
-  } as StateFactory<T, U>;
+  } as StateCreator<T, U>;
 }

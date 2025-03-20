@@ -21,6 +21,11 @@
         "index": 1
       },
       "x-prompt": "What primitive should the token be added to?"
+    },
+    "stateless": {
+      "type": "boolean",
+      "description": "If the component has a state provider this should be set to true.",
+      "$default": false
     }
   },
   "required": ["directive", "primitive"]

@@ -11,6 +11,7 @@ import { NgpButton } from 'ng-primitives/button';
 import { injectDateAdapter } from 'ng-primitives/date-time';
 import { NgpCanDisable, NgpDisabledToken } from 'ng-primitives/internal';
 import { injectDatePickerCellDate } from '../date-picker-cell-render/date-picker-cell-render.token';
+import { injectDatePickerState } from '../date-picker/date-picker.state';
 import { injectDatePicker } from '../date-picker/date-picker.token';
 import { NgpDatePickerDateButtonToken } from './date-picker-date-button.token';
 
@@ -49,6 +50,11 @@ export class NgpDatePickerDateButton<T> implements NgpCanDisable {
   private readonly datePicker = injectDatePicker<T>();
 
   /**
+   * Access the date picker state.
+   */
+  private readonly state = injectDatePickerState<T>();
+
+  /**
    * Access the date adapter.
    */
   private readonly dateAdapter = injectDateAdapter<T>();
@@ -62,7 +68,7 @@ export class NgpDatePickerDateButton<T> implements NgpCanDisable {
    * Determine if this is the focused date.
    */
   protected readonly focused = computed(() =>
-    this.dateAdapter.isSameDay(this.date, this.datePicker.focusedDate()),
+    this.dateAdapter.isSameDay(this.date, this.state.focusedDate()),
   );
 
   /**
@@ -70,7 +76,7 @@ export class NgpDatePickerDateButton<T> implements NgpCanDisable {
    * @internal
    */
   readonly selected = computed(() => {
-    const selected = this.datePicker.state.value();
+    const selected = this.state.date();
     return selected && this.dateAdapter.isSameDay(this.date, selected);
   });
 
@@ -78,7 +84,7 @@ export class NgpDatePickerDateButton<T> implements NgpCanDisable {
    * Determine if this date is outside the current month.
    */
   protected readonly outside = computed(
-    () => !this.dateAdapter.isSameMonth(this.date, this.datePicker.focusedDate()),
+    () => !this.dateAdapter.isSameMonth(this.date, this.state.focusedDate()),
   );
 
   /**
@@ -93,10 +99,10 @@ export class NgpDatePickerDateButton<T> implements NgpCanDisable {
    * @internal
    */
   readonly disabled = computed(() => {
-    const min = this.datePicker.min();
-    const max = this.datePicker.max();
+    const min = this.state.min();
+    const max = this.state.max();
 
-    if (this.datePicker.state.disabled() || this.datePicker.dateDisabled()(this.date)) {
+    if (this.state.disabled() || this.state.dateDisabled()(this.date)) {
       return true;
     }
 
@@ -135,7 +141,8 @@ export class NgpDatePickerDateButton<T> implements NgpCanDisable {
       event.stopPropagation();
     }
 
-    this.datePicker.state.setValue(this.date);
+    this.state.date.set(this.date);
+    this.state.dateChange.emit(this.date);
     this.datePicker.setFocusedDate(this.date, 'mouse', 'forward');
   }
 
@@ -144,7 +151,7 @@ export class NgpDatePickerDateButton<T> implements NgpCanDisable {
    * @internal
    */
   focus(): void {
-    if (this.dateAdapter.isSameDay(this.date, this.datePicker.focusedDate())) {
+    if (this.dateAdapter.isSameDay(this.date, this.state.focusedDate())) {
       this.focusMonitor.focusVia(this.elementRef, 'keyboard');
     }
   }
@@ -159,12 +166,9 @@ export class NgpDatePickerDateButton<T> implements NgpCanDisable {
 
     // in rtl, the arrow keys are reversed.
     if (this.getDirection() === 'rtl') {
-      this.focusDate(this.dateAdapter.add(this.datePicker.focusedDate(), { days: 1 }), 'forward');
+      this.focusDate(this.dateAdapter.add(this.state.focusedDate(), { days: 1 }), 'forward');
     } else {
-      this.focusDate(
-        this.dateAdapter.subtract(this.datePicker.focusedDate(), { days: 1 }),
-        'backward',
-      );
+      this.focusDate(this.dateAdapter.subtract(this.state.focusedDate(), { days: 1 }), 'backward');
     }
   }
 
@@ -178,12 +182,9 @@ export class NgpDatePickerDateButton<T> implements NgpCanDisable {
 
     // in rtl, the arrow keys are reversed.
     if (this.getDirection() === 'rtl') {
-      this.focusDate(
-        this.dateAdapter.subtract(this.datePicker.focusedDate(), { days: 1 }),
-        'backward',
-      );
+      this.focusDate(this.dateAdapter.subtract(this.state.focusedDate(), { days: 1 }), 'backward');
     } else {
-      this.focusDate(this.dateAdapter.add(this.datePicker.focusedDate(), { days: 1 }), 'forward');
+      this.focusDate(this.dateAdapter.add(this.state.focusedDate(), { days: 1 }), 'forward');
     }
   }
 
@@ -195,10 +196,7 @@ export class NgpDatePickerDateButton<T> implements NgpCanDisable {
     event.preventDefault();
     event.stopPropagation();
 
-    this.focusDate(
-      this.dateAdapter.subtract(this.datePicker.focusedDate(), { days: 7 }),
-      'backward',
-    );
+    this.focusDate(this.dateAdapter.subtract(this.state.focusedDate(), { days: 7 }), 'backward');
   }
 
   /**
@@ -209,7 +207,7 @@ export class NgpDatePickerDateButton<T> implements NgpCanDisable {
     event.preventDefault();
     event.stopPropagation();
 
-    this.focusDate(this.dateAdapter.add(this.datePicker.focusedDate(), { days: 7 }), 'forward');
+    this.focusDate(this.dateAdapter.add(this.state.focusedDate(), { days: 7 }), 'forward');
   }
 
   /**
@@ -219,7 +217,7 @@ export class NgpDatePickerDateButton<T> implements NgpCanDisable {
   protected focusFirst(event: KeyboardEvent): void {
     event.preventDefault();
     event.stopPropagation();
-    this.focusDate(this.dateAdapter.startOfMonth(this.datePicker.focusedDate()), 'forward');
+    this.focusDate(this.dateAdapter.startOfMonth(this.state.focusedDate()), 'forward');
   }
 
   /**
@@ -229,7 +227,7 @@ export class NgpDatePickerDateButton<T> implements NgpCanDisable {
   protected focusLast(event: KeyboardEvent): void {
     event.preventDefault();
     event.stopPropagation();
-    this.focusDate(this.dateAdapter.endOfMonth(this.datePicker.focusedDate()), 'backward');
+    this.focusDate(this.dateAdapter.endOfMonth(this.state.focusedDate()), 'backward');
   }
 
   /**
@@ -240,9 +238,9 @@ export class NgpDatePickerDateButton<T> implements NgpCanDisable {
     event.preventDefault();
     event.stopPropagation();
 
-    const date = this.dateAdapter.getDate(this.datePicker.focusedDate());
+    const date = this.dateAdapter.getDate(this.state.focusedDate());
 
-    let previousMonthTarget = this.dateAdapter.startOfMonth(this.datePicker.focusedDate());
+    let previousMonthTarget = this.dateAdapter.startOfMonth(this.state.focusedDate());
     previousMonthTarget = this.dateAdapter.subtract(previousMonthTarget, { months: 1 });
 
     const lastDay = this.dateAdapter.endOfMonth(previousMonthTarget);
@@ -264,9 +262,9 @@ export class NgpDatePickerDateButton<T> implements NgpCanDisable {
     event.preventDefault();
     event.stopPropagation();
 
-    const date = this.dateAdapter.getDate(this.datePicker.focusedDate());
+    const date = this.dateAdapter.getDate(this.state.focusedDate());
 
-    let nextMonthTarget = this.dateAdapter.startOfMonth(this.datePicker.focusedDate());
+    let nextMonthTarget = this.dateAdapter.startOfMonth(this.state.focusedDate());
     nextMonthTarget = this.dateAdapter.add(nextMonthTarget, { months: 1 });
 
     const lastDay = this.dateAdapter.endOfMonth(nextMonthTarget);

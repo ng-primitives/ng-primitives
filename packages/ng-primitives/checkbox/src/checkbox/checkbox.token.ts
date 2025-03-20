@@ -6,15 +6,16 @@
  * LICENSE file in the root directory of this source tree.
  */
 import { ExistingProvider, InjectionToken, Type, inject } from '@angular/core';
+import { Stateless } from 'ng-primitives/state';
 import type { NgpCheckbox } from './checkbox.directive';
 
-export const NgpCheckboxToken = new InjectionToken<NgpCheckbox>('NgpCheckboxToken');
+export const NgpCheckboxToken = new InjectionToken<Stateless<NgpCheckbox>>('NgpCheckboxToken');
 
 /**
  * Inject the Checkbox directive instance
  * @returns The Checkbox directive instance
  */
-export function injectCheckbox(): NgpCheckbox {
+export function injectCheckbox(): Stateless<NgpCheckbox> {
   return inject(NgpCheckboxToken);
 }
 
