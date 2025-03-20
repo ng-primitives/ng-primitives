@@ -8,3 +8,4 @@
 
 export { NgpToggle } from './toggle/toggle.directive';
 export { NgpToggleToken, injectToggle } from './toggle/toggle.token';
+export { provideToggleState, injectToggleState } from './toggle/toggle.state';

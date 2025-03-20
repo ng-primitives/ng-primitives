@@ -12,7 +12,8 @@ export interface AngularPrimitivesComponentSchema {
     | 'pagination'
     | 'progress'
     | 'radio'
-    | 'switch';
+    | 'switch'
+    | 'toggle';
 
   /**
    * The path where the component files should be created, relative to the current workspace.

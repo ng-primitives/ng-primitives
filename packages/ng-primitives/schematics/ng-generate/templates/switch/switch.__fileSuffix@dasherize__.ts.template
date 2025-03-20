@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { ControlValueAccessor } from '@angular/forms';
 import { injectSwitchState, NgpSwitch, NgpSwitchThumb } from 'ng-primitives/switch';
-import { ChangeFn, provideValueAccessor } from 'ng-primitives/utils';
+import { ChangeFn, provideValueAccessor, TouchedFn } from 'ng-primitives/utils';
 
 @Component({
   selector: '<%= prefix %>-switch',
@@ -74,7 +74,7 @@ export class Switch<%= componentSuffix %> implements ControlValueAccessor {
   private onChange?: ChangeFn<boolean>;
 
   /** The on touched callback */
-  protected onTouched?: () => void;
+  protected onTouched?: TouchedFn;
 
   constructor() {
     // Any time the switch changes, update the form value.
@@ -92,7 +92,7 @@ export class Switch<%= componentSuffix %> implements ControlValueAccessor {
   }
 
   /** Register a callback function to be called when the switch is touched. */
-  registerOnTouched(fn: () => void): void {
+  registerOnTouched(fn: TouchedFn): void {
     this.onTouched = fn;
   }
 

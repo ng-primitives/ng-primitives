@@ -18,6 +18,7 @@ import { RouterLink, RouterOutlet } from '@angular/router';
       <a routerLink="/progress">Progress</a>
       <a routerLink="/radio">Radio</a>
       <a routerLink="/switch">Switch</a>
+      <a routerLink="/toggle">Toggle</a>
     </nav>
     <router-outlet />
   `,

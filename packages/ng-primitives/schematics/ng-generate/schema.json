@@ -21,7 +21,8 @@
         "progress",
         "radio",
         "slider",
-        "switch"
+        "switch",
+        "toggle"
       ],
       "x-prompt": "What primitive would you like to generate?",
       "$default": {
