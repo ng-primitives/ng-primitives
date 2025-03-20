@@ -13,7 +13,6 @@ import {
   NgpDatePickerNextMonth,
   NgpDatePickerPreviousMonth,
   NgpDatePickerRowRender,
-  provideDatePickerState,
 } from 'ng-primitives/date-picker';
 import { ChangeFn, provideValueAccessor, TouchedFn } from 'ng-primitives/utils';
 
@@ -44,7 +43,6 @@ import { ChangeFn, provideValueAccessor, TouchedFn } from 'ng-primitives/utils';
   ],
   providers: [
     provideIcons({ heroChevronRightMini, heroChevronLeftMini }),
-    provideDatePickerState(),
     provideValueAccessor(DatePicker),
   ],
   template: `
