@@ -45,7 +45,6 @@ export async function directiveGenerator(tree: Tree, options: DirectiveGenerator
     await tokenGenerator(tree, {
       directive: options.name,
       primitive: options.primitive,
-      stateless: options.addState,
     });
   }
 

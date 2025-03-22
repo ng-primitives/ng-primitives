@@ -7,27 +7,13 @@
  */
 import { InjectionToken, inject, Type, ExistingProvider } from '@angular/core';
 import type { Ngp<%= className %> } from './<%= fileName %>.directive';
-<% if (stateless) { -%>
-import type { Stateless } from 'ng-primitives/state';
-<% } -%>
 
-export const Ngp<%= className %>Token = new InjectionToken<
-  <% if (stateless) { -%>
-    Stateless<Ngp<%= className %>>
-  <% } else { -%>
-    Ngp<%= className %>
-  <% } -%>
->('Ngp<%= className %>Token');
+export const Ngp<%= className %>Token = new InjectionToken<Ngp<%= className %>>('Ngp<%= className %>Token');
 
 /**
  * Inject the <%= className %> directive instance
  */
-export function inject<%= className %>():
-  <% if (stateless) { -%>
-    Stateless<Ngp<%= className %>>
-  <% } else { -%>
-    Ngp<%= className %>
-  <% } -%> {
+export function inject<%= className %>(): Ngp<%= className %> {
   return inject(Ngp<%= className %>Token);
 }
 

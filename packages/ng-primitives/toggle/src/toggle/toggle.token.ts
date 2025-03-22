@@ -6,15 +6,14 @@
  * LICENSE file in the root directory of this source tree.
  */
 import { ExistingProvider, inject, InjectionToken, Type } from '@angular/core';
-import type { Stateless } from 'ng-primitives/state';
 import type { NgpToggle } from './toggle.directive';
 
-export const NgpToggleToken = new InjectionToken<Stateless<NgpToggle>>('NgpToggleToken');
+export const NgpToggleToken = new InjectionToken<NgpToggle>('NgpToggleToken');
 
 /**
  * Inject the Toggle directive instance
  */
-export function injectToggle(): Stateless<NgpToggle> {
+export function injectToggle(): NgpToggle {
   return inject(NgpToggleToken);
 }
 

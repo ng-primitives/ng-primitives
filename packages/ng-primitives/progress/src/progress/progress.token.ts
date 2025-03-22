@@ -5,16 +5,15 @@
  * This source code is licensed under the Apache 2.0 license found in the
  * LICENSE file in the root directory of this source tree.
  */
-import { InjectionToken, inject, Type, ExistingProvider } from '@angular/core';
-import type { Stateless } from 'ng-primitives/state';
+import { ExistingProvider, inject, InjectionToken, Type } from '@angular/core';
 import type { NgpProgress } from './progress.directive';
 
-export const NgpProgressToken = new InjectionToken<Stateless<NgpProgress>>('NgpProgressToken');
+export const NgpProgressToken = new InjectionToken<NgpProgress>('NgpProgressToken');
 
 /**
  * Inject the Progress directive instance
  */
-export function injectProgress(): Stateless<NgpProgress> {
+export function injectProgress(): NgpProgress {
   return inject(NgpProgressToken);
 }
 

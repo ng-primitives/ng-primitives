@@ -6,17 +6,14 @@
  * LICENSE file in the root directory of this source tree.
  */
 import { ExistingProvider, inject, InjectionToken, Type } from '@angular/core';
-import type { Stateless } from 'ng-primitives/state';
 import type { NgpRadioGroup } from './radio-group.directive';
 
-export const NgpRadioGroupToken = new InjectionToken<Stateless<NgpRadioGroup>>(
-  'NgpRadioGroupToken',
-);
+export const NgpRadioGroupToken = new InjectionToken<NgpRadioGroup>('NgpRadioGroupToken');
 
 /**
  * Inject the RadioGroup directive instance
  */
-export function injectRadioGroup(): Stateless<NgpRadioGroup> {
+export function injectRadioGroup(): NgpRadioGroup {
   return inject(NgpRadioGroupToken);
 }
 

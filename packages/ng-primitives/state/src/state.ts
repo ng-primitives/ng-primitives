@@ -1,13 +1,9 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import {
   FactoryProvider,
   inject,
   InjectionToken,
-  InputSignal,
-  InputSignalWithTransform,
   isSignal,
   linkedSignal,
-  OutputEmitterRef,
   ProviderToken,
   Signal,
   WritableSignal,
@@ -19,18 +15,6 @@ import {
  */
 export type State<T> = {
   [K in keyof T]: T[K] extends Signal<infer U> ? WritableSignal<U> : T[K];
-};
-
-/**
- * A utility type for removing all InputSignals and OutputEmitterRefs properties from a class.
- */
-export type Stateless<T> = {
-  [K in keyof T as T[K] extends
-    | InputSignal<any>
-    | InputSignalWithTransform<any, any>
-    | OutputEmitterRef<any>
-    ? never
-    : K]: T[K];
 };
 
 /**
