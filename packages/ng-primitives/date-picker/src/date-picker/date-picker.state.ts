@@ -1,5 +1,5 @@
 import { OutputEmitterRef, Signal } from '@angular/core';
-import { createState, WritableState } from 'ng-primitives/state';
+import { createState, State } from 'ng-primitives/state';
 
 /**
  * The state for the date-picker primitive.
@@ -56,7 +56,7 @@ export { provideDatePickerState };
 /**
  * Inject the date-picker state.
  */
-export const injectDatePickerState = state['injectDatePickerState'] as <T>() => WritableState<
+export const injectDatePickerState = state['injectDatePickerState'] as <T>() => State<
   NgpDatePickerState<T>
 >;
 
@@ -65,4 +65,4 @@ export const injectDatePickerState = state['injectDatePickerState'] as <T>() => 
  */
 export const datePickerState = state['datePickerState'] as <T>(
   state: NgpDatePickerState<T>,
-) => WritableState<NgpDatePickerState<T>>;
+) => State<NgpDatePickerState<T>>;

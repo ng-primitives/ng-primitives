@@ -14,7 +14,8 @@ export interface AngularPrimitivesComponentSchema {
     | 'radio'
     | 'switch'
     | 'toggle'
-    | 'toggle-group';
+    | 'toggle-group'
+    | 'tabs';
 
   /**
    * The path where the component files should be created, relative to the current workspace.

@@ -14,17 +14,10 @@ import {
 } from '@angular/core';
 
 /**
- * This ensures that properties of the state object are either signals or output emitters.
- */
-type State<T> = {
-  [K in keyof T]: T[K] extends Signal<unknown> | OutputEmitterRef<unknown> ? T[K] : never;
-};
-
-/**
  * This converts the state object to a writable state object.
  * This means that inputs become signals which are writable.
  */
-export type WritableState<T> = {
+export type State<T> = {
   [K in keyof T]: T[K] extends Signal<infer U> ? WritableSignal<U> : T[K];
 };
 
@@ -43,12 +36,12 @@ export type Stateless<T> = {
 /**
  * A utility type for a writable state factory.
  */
-export type StateFactory<T> = (state: State<T>) => WritableState<T>;
+export type StateFactory<T> = (state: T) => State<T>;
 
 /**
  * A utility type for a state token.
  */
-export type StateToken<T> = InjectionToken<WritableState<T>>;
+export type StateToken<T> = InjectionToken<State<T>>;
 
 /**
  * A utility type for a state provider.
@@ -58,14 +51,14 @@ export type StateProvider = () => FactoryProvider;
 /**
  * A utility type for a state injector.
  */
-export type StateInjector<T> = () => WritableState<T>;
+export type StateInjector<T> = () => State<T>;
 
 /**
  * Create a new injection token for the state.
  * @param description The description of the token
  */
 function createStateToken<T>(description: string): InjectionToken<T> {
-  return new InjectionToken<WritableState<T>>(description);
+  return new InjectionToken<State<T>>(description);
 }
 
 /**
@@ -85,8 +78,8 @@ function createStateProvider<T>(token: ProviderToken<T>): () => FactoryProvider 
  * Convert the original state object into a writable state object.
  * @param token The token for the state
  */
-function createWritableState<T>(token: ProviderToken<WritableState<T>>): StateFactory<T> {
-  return (state: State<T>): WritableState<T> => {
+function createWritableState<T>(token: ProviderToken<State<T>>): StateFactory<T> {
+  return (state: T): State<T> => {
     const internalState = inject(token);
 
     for (const key in state) {
