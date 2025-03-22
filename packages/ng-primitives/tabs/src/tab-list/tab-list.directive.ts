@@ -6,20 +6,20 @@
  * LICENSE file in the root directory of this source tree.
  */
 import { Directive } from '@angular/core';
-import { injectTabset } from '../tabset/tabset.token';
+import { injectTabsetState } from '../tabset/tabset.state';
 
 @Directive({
   selector: '[ngpTabList]',
   exportAs: 'ngpTabList',
   host: {
     role: 'tablist',
-    '[attr.aria-orientation]': 'tabset.orientation()',
-    '[attr.data-orientation]': 'tabset.orientation()',
+    '[attr.aria-orientation]': 'state.orientation()',
+    '[attr.data-orientation]': 'state.orientation()',
   },
 })
 export class NgpTabList {
   /**
-   * Access the tabset
+   * Access the tabset state
    */
-  protected readonly tabset = injectTabset();
+  protected readonly state = injectTabsetState();
 }

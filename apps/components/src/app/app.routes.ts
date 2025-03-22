@@ -1,6 +1,7 @@
 import { Route } from '@angular/router';
 
 export const appRoutes: Route[] = [
+  { path: 'tabs', loadComponent: () => import('./tabs/app') },
   { path: 'toggle-group', loadComponent: () => import('./toggle-group/app') },
   { path: 'toggle', loadComponent: () => import('./toggle/app') },
   { path: 'switch', loadComponent: () => import('./switch/app') },

@@ -6,18 +6,15 @@
  * LICENSE file in the root directory of this source tree.
  */
 import { ExistingProvider, InjectionToken, Type, inject } from '@angular/core';
-import { Stateless } from 'ng-primitives/state';
 import type { NgpDatePicker } from './date-picker.directive';
 
-export const NgpDatePickerToken = new InjectionToken<Stateless<NgpDatePicker<unknown>>>(
-  'NgpDatePickerToken',
-);
+export const NgpDatePickerToken = new InjectionToken<NgpDatePicker<unknown>>('NgpDatePickerToken');
 
 /**
  * Inject the DatePicker directive instance
  */
-export function injectDatePicker<T>(): Stateless<NgpDatePicker<T>> {
-  return inject(NgpDatePickerToken) as Stateless<NgpDatePicker<T>>;
+export function injectDatePicker<T>(): NgpDatePicker<T> {
+  return inject(NgpDatePickerToken) as NgpDatePicker<T>;
 }
 
 /**

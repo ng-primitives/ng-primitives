@@ -22,6 +22,7 @@
         "radio",
         "slider",
         "switch",
+        "tabs",
         "toggle",
         "toggle-group"
       ],

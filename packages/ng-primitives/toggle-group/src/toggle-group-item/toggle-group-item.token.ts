@@ -5,18 +5,17 @@
  * This source code is licensed under the Apache 2.0 license found in the
  * LICENSE file in the root directory of this source tree.
  */
-import { InjectionToken, inject, Type, ExistingProvider } from '@angular/core';
-import type { Stateless } from 'ng-primitives/state';
+import { ExistingProvider, inject, InjectionToken, Type } from '@angular/core';
 import type { NgpToggleGroupItem } from './toggle-group-item.directive';
 
-export const NgpToggleGroupItemToken = new InjectionToken<Stateless<NgpToggleGroupItem>>(
+export const NgpToggleGroupItemToken = new InjectionToken<NgpToggleGroupItem>(
   'NgpToggleGroupItemToken',
 );
 
 /**
  * Inject the ToggleGroupItem directive instance
  */
-export function injectToggleGroupItem(): Stateless<NgpToggleGroupItem> {
+export function injectToggleGroupItem(): NgpToggleGroupItem {
   return inject(NgpToggleGroupItemToken);
 }
 

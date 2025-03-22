@@ -33,6 +33,20 @@ Assemble the tabs directives in your template.
 </div>
 ```
 
+## Reusable Component
+
+Create reusable components that uses the tab directives.
+
+<docs-snippet name="tabs"></docs-snippet>
+
+## Schematics
+
+Generate a reusable tab components using the Angular CLI.
+
+```bash npm
+ng g ng-primitives:primitive tabs
+```
+
 ## API Reference
 
 The following directives are available to import from the `ng-primitives/tabs` package:

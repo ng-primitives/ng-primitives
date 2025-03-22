@@ -6,33 +6,24 @@
  * LICENSE file in the root directory of this source tree.
  */
 import { BooleanInput } from '@angular/cdk/coercion';
-import {
-  Directive,
-  booleanAttribute,
-  computed,
-  contentChildren,
-  input,
-  model,
-} from '@angular/core';
+import { Directive, booleanAttribute, computed, input, output, signal } from '@angular/core';
 import { NgpOrientation } from 'ng-primitives/common';
-import { NgpCanOrientate, NgpOrientationToken } from 'ng-primitives/internal';
+import { NgpCanOrientate, provideOrientation } from 'ng-primitives/internal';
 import { NgpRovingFocusGroup } from 'ng-primitives/roving-focus';
 import { uniqueId } from 'ng-primitives/utils';
 import { injectTabsConfig } from '../config/tabs.config';
-import { NgpTabPanelToken } from '../tab-panel/tab-panel.token';
-import { NgpTabsetToken } from './tabset.token';
+import type { NgpTabPanel } from '../tab-panel/tab-panel.directive';
+import { provideTabsetState, tabsetState } from './tabset.state';
+import { provideTabset } from './tabset.token';
 
 @Directive({
   selector: '[ngpTabset]',
   exportAs: 'ngpTabset',
-  providers: [
-    { provide: NgpTabsetToken, useExisting: NgpTabset },
-    { provide: NgpOrientationToken, useExisting: NgpTabset },
-  ],
+  providers: [provideTabset(NgpTabset), provideTabsetState(), provideOrientation(NgpTabset)],
   hostDirectives: [NgpRovingFocusGroup],
   host: {
-    '[attr.id]': 'id()',
-    '[attr.data-orientation]': 'orientation()',
+    '[attr.id]': 'state.id()',
+    '[attr.data-orientation]': 'state.orientation()',
   },
 })
 export class NgpTabset implements NgpCanOrientate {
@@ -49,8 +40,15 @@ export class NgpTabset implements NgpCanOrientate {
   /**
    * Define the active tab
    */
-  readonly value = model<string | null>(null, {
+  readonly value = input<string>(undefined, {
     alias: 'ngpTabsetValue',
+  });
+
+  /**
+   * Emit the value of the selected tab when it changes
+   */
+  readonly valueChange = output<string | undefined>({
+    alias: 'ngpTabsetValueChange',
   });
 
   /**
@@ -71,13 +69,14 @@ export class NgpTabset implements NgpCanOrientate {
 
   /**
    * Access the tabs within the tabset
+   * @internal
    */
-  readonly panels = contentChildren(NgpTabPanelToken, { descendants: true });
+  readonly panels = signal<NgpTabPanel[]>([]);
 
   /**
    * Get the id of the selected tab
    */
-  readonly selectedTab = computed(() => {
+  private readonly selectedTab = computed(() => {
     const panels = this.panels();
 
     // if there is a value set and a tab with that value exists, return the value
@@ -90,10 +89,40 @@ export class NgpTabset implements NgpCanOrientate {
   });
 
   /**
+   * The state of the tabset
+   */
+  protected readonly state = tabsetState({
+    id: this.id,
+    value: this.value,
+    valueChange: this.valueChange,
+    orientation: this.orientation,
+    selectedTab: this.selectedTab,
+    activateOnFocus: this.activateOnFocus,
+    select: this.select.bind(this),
+    registerTab: this.registerTab.bind(this),
+    unregisterTab: this.unregisterTab.bind(this),
+  });
+
+  /**
    * Select a tab by its value
    * @param value The value of the tab to select
    */
   select(value: string): void {
-    this.value.set(value);
+    this.state.value.set(value);
+    this.state.valueChange.emit(value);
+  }
+
+  /**
+   * Register a tab with the tabset
+   */
+  private registerTab(tab: NgpTabPanel): void {
+    this.panels.update(panels => [...panels, tab]);
+  }
+
+  /**
+   * Unregister a tab with the tabset
+   */
+  private unregisterTab(tab: NgpTabPanel): void {
+    this.panels.update(panels => panels.filter(panel => panel !== tab));
   }
 }

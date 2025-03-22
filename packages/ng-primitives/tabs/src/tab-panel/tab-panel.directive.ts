@@ -5,8 +5,8 @@
  * This source code is licensed under the Apache 2.0 license found in the
  * LICENSE file in the root directory of this source tree.
  */
-import { Directive, computed, input } from '@angular/core';
-import { injectTabset } from '../tabset/tabset.token';
+import { Directive, OnDestroy, OnInit, computed, input } from '@angular/core';
+import { injectTabsetState } from '../tabset/tabset.state';
 import { NgpTabPanelToken } from './tab-panel.token';
 
 @Directive({
@@ -18,19 +18,19 @@ import { NgpTabPanelToken } from './tab-panel.token';
     tabIndex: '0',
     '[attr.aria-labelledby]': 'labelledBy()',
     '[attr.data-active]': 'active() ? "" : null',
-    '[attr.data-orientation]': 'tabset.orientation()',
+    '[attr.data-orientation]': 'state.orientation()',
   },
 })
-export class NgpTabPanel {
+export class NgpTabPanel implements OnInit, OnDestroy {
   /**
    * Access the tabset
    */
-  protected readonly tabset = injectTabset();
+  protected readonly state = injectTabsetState();
 
   /**
    * The value of the tab
    */
-  readonly value = input.required<string>({ alias: 'ngpTabPanelValue' });
+  readonly value = input<string>(undefined, { alias: 'ngpTabPanelValue' });
 
   /**
    * Determine the id of the tab panel
@@ -42,16 +42,28 @@ export class NgpTabPanel {
    * Determine a unique id for the tab panel if not provided
    * @internal
    */
-  readonly defaultId = computed(() => `${this.tabset.id()}-panel-${this.value()}`);
+  protected readonly defaultId = computed(() => `${this.state.id()}-panel-${this.value()}`);
 
   /**
    * Determine the aria-labelledby of the tab panel
    * @internal
    */
-  readonly labelledBy = computed(() => `${this.tabset.id()}-button-${this.value()}`);
+  protected readonly labelledBy = computed(() => `${this.state.id()}-button-${this.value()}`);
 
   /**
    * Whether the tab is active
    */
-  readonly active = computed(() => this.tabset.selectedTab() === this.value());
+  protected readonly active = computed(() => this.state.selectedTab() === this.value());
+
+  ngOnInit(): void {
+    this.state.registerTab(this);
+
+    if (this.value() === undefined) {
+      throw new Error('ngpTabPanel: value is required');
+    }
+  }
+
+  ngOnDestroy(): void {
+    this.state.unregisterTab(this);
+  }
 }
