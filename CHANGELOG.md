@@ -1,3 +1,22 @@
+## 0.26.0 (2025-03-22)
+
+### 🚀 Features
+
+- form control state ([#123](https://github.com/ng-primitives/ng-primitives/pull/123))
+- additional reusable components ([#126](https://github.com/ng-primitives/ng-primitives/pull/126))
+- schematics updates ([#127](https://github.com/ng-primitives/ng-primitives/pull/127))
+- add primitive state ([#128](https://github.com/ng-primitives/ng-primitives/pull/128))
+- tab reusable component ([#129](https://github.com/ng-primitives/ng-primitives/pull/129))
+- **nx-cloud:** setup nx cloud workspace ([#130](https://github.com/ng-primitives/ng-primitives/pull/130))
+
+### 🩹 Fixes
+
+- stackblitz stylesheet url ([6751095](https://github.com/ng-primitives/ng-primitives/commit/6751095))
+
+### ❤️ Thank You
+
+- Ashley Hunter
+
 ## 0.25.0 (2025-03-13)
 
 ### 🚀 Features
