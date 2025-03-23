@@ -1,3 +1,13 @@
+## 0.26.1 (2025-03-23)
+
+### 🩹 Fixes
+
+- **listbox:** dont close popover on multiple selection ([#132](https://github.com/ng-primitives/ng-primitives/pull/132))
+
+### ❤️ Thank You
+
+- Ashley Hunter
+
 ## 0.26.0 (2025-03-22)
 
 ### 🚀 Features
