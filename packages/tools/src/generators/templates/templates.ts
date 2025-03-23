@@ -168,5 +168,28 @@ function processTemplate(content: string): string {
     }
   }
 
+  // find any styles in the component and add a leading comment explaining that the example styles
+  // rely on css variables that can be imported from ng-primitives/example-theme/index.css in their
+  // global styles
+  const styles = query<ts.PropertyAssignment>(
+    content,
+    'ClassDeclaration Decorator > CallExpression:has(Identifier[name="Component"]) ObjectLiteralExpression > PropertyAssignment:has(Identifier[name="styles"])',
+  );
+
+  // the styles may be a no substitution template string or a string literal
+  for (const style of styles) {
+    const styleValue = style.initializer.getText();
+
+    // determine the new style value
+    const newStyleValue = `/* These styles rely on CSS variables that can be imported from ng-primitives/example-theme/index.css in your global styles */\n${styleValue}`;
+
+    // We must ensure that we insert the comment inside the quotes or backticks
+    // so we need to determine the start and end positions of the style value
+    const start = style.initializer.getStart() + 1;
+    const end = style.initializer.getEnd() - 1;
+
+    content = content.substring(0, start) + newStyleValue + content.substring(end);
+  }
+
   return content;
 }
