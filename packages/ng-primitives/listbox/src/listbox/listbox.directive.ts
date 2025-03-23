@@ -197,8 +197,10 @@ export class NgpListbox<T> implements AfterContentInit {
       this.keyManager.setActiveItem(option);
     }
 
-    // If the listbox is within a popover, close the popover on selection.
-    this.popoverTrigger?.hide(origin);
+    // If the listbox is within a popover, close the popover on selection if it is not in a multiple selection mode.
+    if (this.mode() !== 'multiple') {
+      this.popoverTrigger?.hide(origin);
+    }
   }
 
   /**
