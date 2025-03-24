@@ -8,6 +8,8 @@ import { NgpFormField } from 'ng-primitives/form-field';
     <ng-content />
   `,
   styles: `
+/* These styles rely on CSS variables that can be imported from ng-primitives/example-theme/index.css in your global styles */
+
     :host {
       display: flex;
       flex-direction: column;

@@ -67,6 +67,19 @@ export class Snippet {
       if (filename === 'app.ts') {
         // replace selector: 'app-*' with selector: 'app-root'
         source = source.replace(/selector: 'app-[^']*'/, "selector: 'app-root'");
+      } else {
+        // if the source file containers a styles property, we want to add a leading comment indicating how to import the styles
+        if (source.includes('styles:')) {
+          // find the substring that contains the styles accounting for both single and double quotes and backticks
+          const styles = source.match(/styles:\s*(`|'|")([\s\S]*?)\1/)?.[2];
+
+          if (styles) {
+            const comment = `\n/* These styles rely on CSS variables that can be imported from ng-primitives/example-theme/index.css in your global styles */`;
+
+            // add the comment before the styles but inside the backticks/double quotes/single quotes
+            source = source.replace(styles, `${comment}\n${styles}`);
+          }
+        }
       }
 
       this.files.update(state => {
