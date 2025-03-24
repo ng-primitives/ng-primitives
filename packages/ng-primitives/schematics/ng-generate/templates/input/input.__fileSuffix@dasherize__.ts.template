@@ -6,6 +6,8 @@ import { NgpInput } from 'ng-primitives/input';
   hostDirectives: [{ directive: NgpInput, inputs: ['disabled'] }],
   template: '',
   styles: `
+/* These styles rely on CSS variables that can be imported from ng-primitives/example-theme/index.css in your global styles */
+
     :host {
       height: 36px;
       width: 100%;

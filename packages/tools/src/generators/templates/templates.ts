@@ -178,13 +178,16 @@ function processTemplate(content: string): string {
 
   // the styles may be a no substitution template string or a string literal
   for (const style of styles) {
-    const styleValue = style.initializer.getText();
+    let styleValue = style.initializer.getText();
+
+    // remove any surrounding quotes or backticks
+    styleValue = styleValue.replace(/^['"`]|['"`]$/g, '');
 
     // determine the new style value
-    const newStyleValue = `/* These styles rely on CSS variables that can be imported from ng-primitives/example-theme/index.css in your global styles */\n${styleValue}`;
+    const newStyleValue = `\n/* These styles rely on CSS variables that can be imported from ng-primitives/example-theme/index.css in your global styles */\n${styleValue}`;
 
-    // We must ensure that we insert the comment inside the quotes or backticks
-    // so we need to determine the start and end positions of the style value
+    // replace the string exactly based on the position, not text matching
+    // but we must add 1 to the start to account for the opening quote
     const start = style.initializer.getStart() + 1;
     const end = style.initializer.getEnd() - 1;
 

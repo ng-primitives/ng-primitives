@@ -21,6 +21,8 @@ import { ChangeFn, provideValueAccessor, TouchedFn } from 'ng-primitives/utils';
     <ng-content />
   `,
   styles: `
+/* These styles rely on CSS variables that can be imported from ng-primitives/example-theme/index.css in your global styles */
+
     :host {
       display: inline-flex;
       column-gap: 0.25rem;

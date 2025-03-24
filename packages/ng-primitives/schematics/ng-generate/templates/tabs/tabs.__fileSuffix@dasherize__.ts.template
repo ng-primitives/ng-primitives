@@ -22,6 +22,8 @@ import { Tab } from './tab';
     </div>
   `,
   styles: `
+/* These styles rely on CSS variables that can be imported from ng-primitives/example-theme/index.css in your global styles */
+
     [ngpTabset] {
       width: 100%;
       max-width: 512px;

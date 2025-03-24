@@ -88,6 +88,8 @@ import { ChangeFn, provideValueAccessor, TouchedFn } from 'ng-primitives/utils';
     </ul>
   `,
   styles: `
+/* These styles rely on CSS variables that can be imported from ng-primitives/example-theme/index.css in your global styles */
+
     ul {
       display: flex;
       align-items: center;
