@@ -122,7 +122,7 @@
     "tslib": "^2.6.3",
     "zone.js": "0.15.0"
   },
-  "packageManager": "pnpm@10.6.5",
+  "packageManager": "pnpm@9.15.0",
   "pnpm": {
     "patchedDependencies": {
       "eslint-plugin-license-header@0.6.1": "patches/eslint-plugin-license-header@0.6.1.patch",
