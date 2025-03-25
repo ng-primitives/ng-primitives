@@ -1,11 +1,27 @@
-import { createState } from 'ng-primitives/state';
+import {
+  createState,
+  createStateInjector,
+  createStateProvider,
+  createStateToken,
+} from 'ng-primitives/state';
+import type { Ngp<%= className %> } from './<%= fileName %>';
 
 /**
- * The state for the <%= fileName %> primitive.
+ * The state token  for the <%= className %> primitive.
  */
-export interface Ngp<%= className %>State {}
+export const Ngp<%= className %>StateToken = createStateToken<Ngp<%= className %>>('<%= className %>');
 
 /**
- * The initial state for the <%= fileName %> primitive.
+ * Provides the <%= className %> state.
  */
-export const { Ngp<%= className %>StateToken, provide<%= className %>State, inject<%= className %>State, <%= propertyName %>State} = createState<Ngp<%= className %>State>('<%= className %>');
+export const provide<%= className %>State = createStateProvider(Ngp<%= className %>StateToken);
+
+/**
+ * Injects the <%= className %> state.
+ */
+export const inject<%= className %>State = createStateInjector(Ngp<%= className %>StateToken);
+
+/**
+ * The <%= className %> state registration function.
+ */
+export const <%= propertyName %>State = createState(Ngp<%= className %>StateToken);

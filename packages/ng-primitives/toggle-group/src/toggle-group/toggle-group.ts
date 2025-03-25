@@ -67,13 +67,7 @@ export class NgpToggleGroup implements NgpCanOrientate {
   /**
    * The state of the toggle group.
    */
-  protected readonly state = toggleGroupState({
-    value: this.value,
-    valueChange: this.valueChange,
-    orientation: this.orientation,
-    type: this.type,
-    disabled: this.disabled,
-  });
+  protected readonly state = toggleGroupState<NgpToggleGroup>(this);
 
   /**
    * Select a value in the toggle group.

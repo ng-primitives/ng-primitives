@@ -28,6 +28,7 @@
   --ngp-border: var(--ngp-gray-200);
   --ngp-border-secondary: var(--ngp-gray-300);
   --ngp-border-blue: #3b82f6;
+  --ngp-border-inverse: var(--ngp-black);
 
   --ngp-text-emphasis: var(--ngp-black);
   --ngp-text-primary: var(--ngp-gray-900);
@@ -64,6 +65,7 @@
   --ngp-border: var(--ngp-gray-800);
   --ngp-border-secondary: var(--ngp-gray-700);
   --ngp-border-blue: #1980ff;
+  --ngp-border-inverse: var(--ngp-white);
 
   --ngp-text-emphasis: var(--ngp-white);
   --ngp-text-primary: var(--ngp-gray-100);

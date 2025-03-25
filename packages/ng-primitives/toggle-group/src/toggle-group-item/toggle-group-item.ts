@@ -44,7 +44,7 @@ export class NgpToggleGroupItem implements OnInit {
   /**
    * Whether the item is disabled.
    */
-  protected readonly disabled = input<boolean, BooleanInput>(false, {
+  readonly disabled = input<boolean, BooleanInput>(false, {
     alias: 'ngpToggleGroupItemDisabled',
     transform: booleanAttribute,
   });
@@ -57,10 +57,7 @@ export class NgpToggleGroupItem implements OnInit {
   /**
    * The state of the item.
    */
-  protected readonly state = toggleGroupItemState({
-    value: this.value,
-    disabled: this.disabled,
-  });
+  protected readonly state = toggleGroupItemState<NgpToggleGroupItem>(this);
 
   ngOnInit(): void {
     // we can't use a required input for value as it is used in a computed property before the input is set

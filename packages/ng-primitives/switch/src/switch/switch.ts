@@ -73,11 +73,7 @@ export class NgpSwitch implements NgpCanDisable {
    * The switch state.
    * @internal
    */
-  readonly state = switchState({
-    checked: this.checked,
-    checkedChange: this.checkedChange,
-    disabled: this.disabled,
-  });
+  readonly state = switchState<NgpSwitch>(this);
 
   /**
    * Toggle the checked state.

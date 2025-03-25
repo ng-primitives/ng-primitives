@@ -1,37 +1,27 @@
-import { OutputEmitterRef, Signal } from '@angular/core';
-import { createState } from 'ng-primitives/state';
+import {
+  createState,
+  createStateInjector,
+  createStateProvider,
+  createStateToken,
+} from 'ng-primitives/state';
+import type { NgpPagination } from './pagination';
 
 /**
- * The state for the pagination primitive.
+ * The state token  for the Pagination primitive.
  */
-export interface NgpPaginationState {
-  /**
-   * The current page.
-   */
-  page: Signal<number>;
-
-  /**
-   * The event that is fired when the page changes.
-   */
-  pageChange: OutputEmitterRef<number>;
-
-  /**
-   * The total number of pages.
-   */
-  pageCount: Signal<number>;
-
-  /**
-   * Whether the pagination is disabled.
-   */
-  disabled: Signal<boolean>;
-}
+export const NgpPaginationStateToken = createStateToken<NgpPagination>('Pagination');
 
 /**
- * The initial state for the pagination primitive.
+ * Provides the Pagination state.
  */
-export const {
-  NgpPaginationStateToken,
-  providePaginationState,
-  injectPaginationState,
-  paginationState,
-} = createState<NgpPaginationState>('Pagination');
+export const providePaginationState = createStateProvider(NgpPaginationStateToken);
+
+/**
+ * Injects the Pagination state.
+ */
+export const injectPaginationState = createStateInjector(NgpPaginationStateToken);
+
+/**
+ * The Pagination state registration function.
+ */
+export const paginationState = createState(NgpPaginationStateToken);

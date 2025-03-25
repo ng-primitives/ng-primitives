@@ -69,11 +69,7 @@ export class NgpToggle {
    * The state for the toggle primitive.
    * @internal
    */
-  protected readonly state = toggleState({
-    selected: this.selected,
-    selectedChange: this.selectedChange,
-    disabled: this.disabled,
-  });
+  protected readonly state = toggleState<NgpToggle>(this);
 
   /**
    * Toggle the selected state.

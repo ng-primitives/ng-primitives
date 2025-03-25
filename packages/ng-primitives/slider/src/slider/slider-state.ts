@@ -1,49 +1,27 @@
-import { OutputEmitterRef, Signal } from '@angular/core';
-import { NgpOrientation } from 'ng-primitives/common';
-import { createState } from 'ng-primitives/state';
+import {
+  createState,
+  createStateInjector,
+  createStateProvider,
+  createStateToken,
+} from 'ng-primitives/state';
+import type { NgpSlider } from './slider';
 
 /**
- * The state for the slider primitive.
+ * The state token  for the Slider primitive.
  */
-export interface NgpSliderState {
-  /**
-   * The value of the slider.
-   */
-  readonly value: Signal<number>;
-
-  /**
-   * Emits when the value changes.
-   */
-  readonly valueChange: OutputEmitterRef<number>;
-
-  /**
-   * The minimum value of the slider.
-   */
-  readonly min: Signal<number>;
-
-  /**
-   * The maximum value of the slider.
-   */
-  readonly max: Signal<number>;
-
-  /**
-   * The step value of the slider.
-   */
-  readonly step: Signal<number>;
-
-  /**
-   * The orientation of the slider.
-   */
-  readonly orientation: Signal<NgpOrientation>;
-
-  /**
-   * The disabled state of the slider.
-   */
-  readonly disabled: Signal<boolean>;
-}
+export const NgpSliderStateToken = createStateToken<NgpSlider>('Slider');
 
 /**
- * The initial state for the slider primitive.
+ * Provides the Slider state.
  */
-export const { NgpSliderStateToken, provideSliderState, injectSliderState, sliderState } =
-  createState<NgpSliderState>('Slider');
+export const provideSliderState = createStateProvider(NgpSliderStateToken);
+
+/**
+ * Injects the Slider state.
+ */
+export const injectSliderState = createStateInjector(NgpSliderStateToken);
+
+/**
+ * The Slider state registration function.
+ */
+export const sliderState = createState(NgpSliderStateToken);

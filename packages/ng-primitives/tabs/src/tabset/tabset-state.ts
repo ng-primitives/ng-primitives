@@ -1,60 +1,27 @@
-import { OutputEmitterRef, Signal } from '@angular/core';
-import { NgpOrientation } from 'ng-primitives/common';
-import { createState } from 'ng-primitives/state';
-import type { NgpTabPanel } from '../tab-panel/tab-panel';
+import {
+  createState,
+  createStateInjector,
+  createStateProvider,
+  createStateToken,
+} from 'ng-primitives/state';
+import type { NgpTabset } from './tabset';
 
 /**
- * The state for the tabset primitive.
+ * The state token  for the Tabset primitive.
  */
-export interface NgpTabsetState {
-  /**
-   * The id of the tabset
-   */
-  id: Signal<string>;
-
-  /**
-   * The active tab
-   */
-  value: Signal<string | undefined>;
-
-  /**
-   * Emit the value of the selected tab when it changes
-   */
-  valueChange: OutputEmitterRef<string | undefined>;
-
-  /**
-   * The orientation of the tabset
-   */
-  orientation: Signal<NgpOrientation>;
-
-  /**
-   * Whether tabs should activate on focus
-   */
-  activateOnFocus: Signal<boolean>;
-
-  /**
-   * The id of the active tab
-   */
-  selectedTab: Signal<string | undefined>;
-
-  /**
-   * A function to register a tab panel
-   */
-  registerTab: (panel: NgpTabPanel) => void;
-
-  /**
-   * A function to unregister a tab panel
-   */
-  unregisterTab: (panel: NgpTabPanel) => void;
-
-  /**
-   * A function to select a tab
-   */
-  select: (value: string) => void;
-}
+export const NgpTabsetStateToken = createStateToken<NgpTabset>('Tabset');
 
 /**
- * The initial state for the tabset primitive.
+ * Provides the Tabset state.
  */
-export const { NgpTabsetStateToken, provideTabsetState, injectTabsetState, tabsetState } =
-  createState<NgpTabsetState>('Tabset');
+export const provideTabsetState = createStateProvider(NgpTabsetStateToken);
+
+/**
+ * Injects the Tabset state.
+ */
+export const injectTabsetState = createStateInjector(NgpTabsetStateToken);
+
+/**
+ * The Tabset state registration function.
+ */
+export const tabsetState = createState(NgpTabsetStateToken);

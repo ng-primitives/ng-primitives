@@ -1,26 +1,27 @@
-import { OutputEmitterRef, Signal } from '@angular/core';
-import { createState } from 'ng-primitives/state';
+import {
+  createState,
+  createStateInjector,
+  createStateProvider,
+  createStateToken,
+} from 'ng-primitives/state';
+import type { NgpToggle } from './toggle';
 
 /**
- * The state for the toggle primitive.
+ * The state token  for the Toggle primitive.
  */
-export interface NgpToggleState {
-  /**
-   * Whether the toggle is selected.
-   */
-  selected: Signal<boolean>;
-  /**
-   * Emits when the selected state changes.
-   */
-  selectedChange: OutputEmitterRef<boolean>;
-  /**
-   * Whether the toggle is disabled.
-   */
-  disabled: Signal<boolean>;
-}
+export const NgpToggleStateToken = createStateToken<NgpToggle>('Toggle');
 
 /**
- * The initial state for the toggle primitive.
+ * Provides the Toggle state.
  */
-export const { NgpToggleStateToken, provideToggleState, injectToggleState, toggleState } =
-  createState<NgpToggleState>('Toggle');
+export const provideToggleState = createStateProvider(NgpToggleStateToken);
+
+/**
+ * Injects the Toggle state.
+ */
+export const injectToggleState = createStateInjector(NgpToggleStateToken);
+
+/**
+ * The Toggle state registration function.
+ */
+export const toggleState = createState(NgpToggleStateToken);

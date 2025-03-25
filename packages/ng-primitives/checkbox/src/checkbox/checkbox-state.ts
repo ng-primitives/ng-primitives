@@ -1,45 +1,27 @@
-import { OutputEmitterRef, Signal } from '@angular/core';
-import { createState } from 'ng-primitives/state';
+import {
+  createState,
+  createStateInjector,
+  createStateProvider,
+  createStateToken,
+} from 'ng-primitives/state';
+import type { NgpCheckbox } from './checkbox';
 
 /**
- * The state for the checkbox primitive.
+ * The state token  for the Checkbox primitive.
  */
-export interface NgpCheckboxState {
-  /**
-   * The id of the checkbox.
-   */
-  id: Signal<string>;
-  /**
-   * The checked state of the checkbox.
-   */
-  checked: Signal<boolean>;
-  /**
-   * The checked change event of the checkbox.
-   */
-  checkedChange: OutputEmitterRef<boolean>;
-  /**
-   * The indeterminate state of the checkbox.
-   * @default false
-   */
-  indeterminate: Signal<boolean>;
-  /**
-   * The indeterminate change event of the checkbox.
-   */
-  indeterminateChange: OutputEmitterRef<boolean>;
-  /**
-   * The required state of the checkbox.
-   * @default false
-   */
-  required: Signal<boolean>;
-  /**
-   * The disabled state of the checkbox.
-   * @default false
-   */
-  disabled: Signal<boolean>;
-}
+export const NgpCheckboxStateToken = createStateToken<NgpCheckbox>('Checkbox');
 
 /**
- * The initial state for the checkbox primitive.
+ * Provides the Checkbox state.
  */
-export const { NgpCheckboxStateToken, provideCheckboxState, injectCheckboxState, checkboxState } =
-  createState<NgpCheckboxState>('Checkbox');
+export const provideCheckboxState = createStateProvider(NgpCheckboxStateToken);
+
+/**
+ * Injects the Checkbox state.
+ */
+export const injectCheckboxState = createStateInjector(NgpCheckboxStateToken);
+
+/**
+ * The Checkbox state registration function.
+ */
+export const checkboxState = createState(NgpCheckboxStateToken);
