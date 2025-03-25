@@ -4,17 +4,20 @@
   >
     @for (section of sections; track section.title) {
       <div>
-        <h2 class="text-md mb-2 font-semibold text-zinc-800 dark:text-zinc-100">
+        <h2 class="text-md mb-4 font-semibold text-zinc-800 dark:text-zinc-100">
           {{ section.title }}
         </h2>
-        <ul class="-ml-4">
+        <ul class="">
           @for (link of section.links; track link) {
             <li class="text-zinc-600 hover:text-zinc-950 dark:text-zinc-300 dark:hover:text-white">
               <a
-                class="flex h-8 items-center rounded-lg px-4 outline-none transition-colors focus-visible:ring-2 focus-visible:ring-blue-500"
+                class="relative flex h-8 items-center border-l px-4 outline-none transition-colors focus-visible:ring-2 focus-visible:ring-blue-500"
                 [routerLink]="link.link"
-                routerLinkActive="bg-gradient-to-b from-primary to-accent text-transparent bg-clip-text"
+                routerLinkActive="text-black font-medium before:w-0.5 before:bg-zinc-950 before:rounded-lg before:h-6 before:absolute before:left-0 before:-translate-x-1/2"
               >
+                @if (link.icon) {
+                  <ng-icon class="mr-2 text-base text-zinc-600" [name]="link.icon" />
+                }
                 {{ link.name }}
               </a>
             </li>
@@ -35,7 +38,7 @@
     </div>
   </div>
 } @else {
-  <div class="hidden w-40 md:block">
+  <div class="hidden w-40 md:block xl:w-44">
     <ng-container [ngTemplateOutlet]="content" />
   </div>
 }

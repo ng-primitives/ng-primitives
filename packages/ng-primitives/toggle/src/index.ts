@@ -6,6 +6,6 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-export { NgpToggle } from './toggle/toggle.directive';
-export { NgpToggleToken, injectToggle } from './toggle/toggle.token';
-export { provideToggleState, injectToggleState } from './toggle/toggle.state';
+export { NgpToggle } from './toggle/toggle';
+export { NgpToggleToken, injectToggle } from './toggle/toggle-token';
+export { provideToggleState, injectToggleState } from './toggle/toggle-state';

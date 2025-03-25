@@ -106,6 +106,7 @@
     "@ng-icons/heroicons": "29.0.0",
     "@ng-icons/iconsax": "29.0.0",
     "@ng-icons/lucide": "29.0.0",
+    "@ng-icons/phosphor-icons": "^31.2.0",
     "@nx/devkit": "20.3.1",
     "@stackblitz/sdk": "^1.10.0",
     "cal-sans": "^1.0.1",
@@ -121,7 +122,7 @@
     "tslib": "^2.6.3",
     "zone.js": "0.15.0"
   },
-  "packageManager": "pnpm@9.15.0",
+  "packageManager": "pnpm@10.6.5",
   "pnpm": {
     "patchedDependencies": {
       "eslint-plugin-license-header@0.6.1": "patches/eslint-plugin-license-header@0.6.1.patch",

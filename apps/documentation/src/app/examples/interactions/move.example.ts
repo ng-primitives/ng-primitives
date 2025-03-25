@@ -1,6 +1,5 @@
 import { Component, signal } from '@angular/core';
-import { NgpMove } from 'ng-primitives/interactions';
-import { NgpMoveEvent } from 'packages/ng-primitives/interactions/src/move/move.directive';
+import { NgpMove, NgpMoveEvent } from 'ng-primitives/interactions';
 
 @Component({
   selector: 'app-move',

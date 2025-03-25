@@ -6,5 +6,5 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-export { NgpFocusTrap } from './focus-trap/focus-trap.directive';
-export { NgpFocusTrapToken, injectFocusTrap } from './focus-trap/focus-trap.token';
+export { NgpFocusTrap } from './focus-trap/focus-trap';
+export { NgpFocusTrapToken, injectFocusTrap } from './focus-trap/focus-trap-token';

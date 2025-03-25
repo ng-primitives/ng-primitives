@@ -1,11 +1,20 @@
 import { NgTemplateOutlet } from '@angular/common';
 import { ChangeDetectionStrategy, Component, model } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
+import { NgIcon, provideIcons } from '@ng-icons/core';
+import {
+  phosphorBookOpenDuotone,
+  phosphorPaletteDuotone,
+  phosphorRocketLaunchDuotone,
+} from '@ng-icons/phosphor-icons/duotone';
 import { getRouterLinks } from '../../utils/router';
 
 @Component({
   selector: 'docs-side-navigation',
-  imports: [RouterLink, RouterLinkActive, NgTemplateOutlet],
+  imports: [RouterLink, RouterLinkActive, NgTemplateOutlet, NgIcon],
+  providers: [
+    provideIcons({ phosphorBookOpenDuotone, phosphorRocketLaunchDuotone, phosphorPaletteDuotone }),
+  ],
   templateUrl: './side-navigation.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -31,19 +40,20 @@ export class SideNavigationComponent {
         link: normalizedPath,
         name: data['name'],
         order: data['order'] ?? Infinity,
+        icon: data['icon'],
       };
     })
     // next group the links by section
-    .reduce<Section[]>((acc, { section, link, name, order }) => {
+    .reduce<Section[]>((acc, { section, link, name, order, icon }) => {
       const existingSection = acc.find(s => s.title === section);
 
       if (existingSection) {
-        existingSection.links.push({ link, name, order });
+        existingSection.links.push({ link, name, order, icon });
 
         // sort the links based on the order property if defined
         existingSection.links.sort((a, b) => a.order - b.order);
       } else {
-        acc.push({ title: section, links: [{ link, name, order }] });
+        acc.push({ title: section, links: [{ link, name, order, icon }] });
       }
 
       return acc;
@@ -66,4 +76,5 @@ interface Link {
   link: string;
   name: string;
   order: number;
+  icon?: string;
 }

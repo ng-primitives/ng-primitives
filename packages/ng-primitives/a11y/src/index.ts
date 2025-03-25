@@ -6,8 +6,8 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-export * from './visually-hidden/visually-hidden.directive';
+export * from './visually-hidden/visually-hidden';
 export {
   NgpVisuallyHiddenToken,
   injectVisuallyHidden,
-} from './visually-hidden/visually-hidden.token';
+} from './visually-hidden/visually-hidden-token';

@@ -6,12 +6,12 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-export { NgpSliderRange } from './slider-range/slider-range.directive';
-export { NgpSliderRangeToken, injectSliderRange } from './slider-range/slider-range.token';
-export { NgpSliderThumb } from './slider-thumb/slider-thumb.directive';
-export { NgpSliderThumbToken, injectSliderThumb } from './slider-thumb/slider-thumb.token';
-export { NgpSliderTrack } from './slider-track/slider-track.directive';
-export { NgpSliderTrackToken, injectSliderTrack } from './slider-track/slider-track.token';
-export { NgpSlider } from './slider/slider.directive';
-export { NgpSliderToken, injectSlider } from './slider/slider.token';
-export { provideSliderState, injectSliderState } from './slider/slider.state';
+export { NgpSliderRange } from './slider-range/slider-range';
+export { NgpSliderRangeToken, injectSliderRange } from './slider-range/slider-range-token';
+export { NgpSliderThumb } from './slider-thumb/slider-thumb';
+export { NgpSliderThumbToken, injectSliderThumb } from './slider-thumb/slider-thumb-token';
+export { NgpSliderTrack } from './slider-track/slider-track';
+export { NgpSliderTrackToken, injectSliderTrack } from './slider-track/slider-track-token';
+export { NgpSlider } from './slider/slider';
+export { NgpSliderToken, injectSlider } from './slider/slider-token';
+export { provideSliderState, injectSliderState } from './slider/slider-state';

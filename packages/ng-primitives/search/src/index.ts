@@ -6,7 +6,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-export { NgpSearchClear } from './search-clear/search-clear.directive';
-export { NgpSearchClearToken, injectSearchClear } from './search-clear/search-clear.token';
-export { NgpSearch } from './search/search.directive';
-export { NgpSearchToken, injectSearch } from './search/search.token';
+export { NgpSearchClear } from './search-clear/search-clear';
+export { NgpSearchClearToken, injectSearchClear } from './search-clear/search-clear-token';
+export { NgpSearch } from './search/search';
+export { NgpSearchToken, injectSearch } from './search/search-token';

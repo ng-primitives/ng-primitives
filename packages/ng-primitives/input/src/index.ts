@@ -6,5 +6,5 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-export { NgpInput } from './input/input.directive';
-export { NgpInputToken, injectInput } from './input/input.token';
+export { NgpInput } from './input/input';
+export { NgpInputToken, injectInput } from './input/input-token';

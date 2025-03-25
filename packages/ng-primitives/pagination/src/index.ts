@@ -6,31 +6,31 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-export { NgpPagination } from './pagination/pagination.directive';
-export { NgpPaginationToken, injectPagination } from './pagination/pagination.token';
-export { NgpPaginationButton } from './pagination-button/pagination-button.directive';
+export { NgpPagination } from './pagination/pagination';
+export { NgpPaginationToken, injectPagination } from './pagination/pagination-token';
+export { NgpPaginationButton } from './pagination-button/pagination-button';
 export {
   NgpPaginationButtonToken,
   injectPaginationButton,
-} from './pagination-button/pagination-button.token';
-export { NgpPaginationPrevious } from './pagination-previous/pagination-previous.directive';
+} from './pagination-button/pagination-button-token';
+export { NgpPaginationPrevious } from './pagination-previous/pagination-previous';
 export {
   NgpPaginationPreviousToken,
   injectPaginationPrevious,
-} from './pagination-previous/pagination-previous.token';
-export { NgpPaginationNext } from './pagination-next/pagination-next.directive';
+} from './pagination-previous/pagination-previous-token';
+export { NgpPaginationNext } from './pagination-next/pagination-next';
 export {
   NgpPaginationNextToken,
   injectPaginationNext,
-} from './pagination-next/pagination-next.token';
-export { NgpPaginationFirst } from './pagination-first/pagination-first.directive';
+} from './pagination-next/pagination-next-token';
+export { NgpPaginationFirst } from './pagination-first/pagination-first';
 export {
   NgpPaginationFirstToken,
   injectPaginationFirst,
-} from './pagination-first/pagination-first.token';
-export { NgpPaginationLast } from './pagination-last/pagination-last.directive';
+} from './pagination-first/pagination-first-token';
+export { NgpPaginationLast } from './pagination-last/pagination-last';
 export {
   NgpPaginationLastToken,
   injectPaginationLast,
-} from './pagination-last/pagination-last.token';
-export { providePaginationState, injectPaginationState } from './pagination/pagination.state';
+} from './pagination-last/pagination-last-token';
+export { providePaginationState, injectPaginationState } from './pagination/pagination-state';

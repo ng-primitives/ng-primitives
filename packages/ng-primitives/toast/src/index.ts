@@ -6,7 +6,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-export { NgpToastConfig, provideToastConfig } from './config/toast.config';
+export { NgpToastConfig, provideToastConfig } from './config/toast-config';
 export { NgpToastGravity, NgpToastPosition, NgpToastRef } from './toast/toast-ref';
-export { NgpToast } from './toast/toast.directive';
-export { NgpToastToken, injectToast } from './toast/toast.token';
+export { NgpToast } from './toast/toast';
+export { NgpToastToken, injectToast } from './toast/toast-token';

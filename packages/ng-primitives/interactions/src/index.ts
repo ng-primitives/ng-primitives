@@ -6,13 +6,13 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-export { NgpHover } from './hover/hover.directive';
-export { NgpHoverToken, injectHover } from './hover/hover.token';
-export { NgpFocus } from './focus/focus.directive';
-export { NgpFocusToken, injectFocus } from './focus/focus.token';
-export { NgpFocusVisible } from './focus-visible/focus-visible.directive';
-export { NgpFocusVisibleToken, injectFocusVisible } from './focus-visible/focus-visible.token';
-export { NgpPress } from './press/press.directive';
-export { NgpPressToken, injectPress } from './press/press.token';
-export { NgpMove } from './move/move.directive';
-export { NgpMoveToken, injectMove } from './move/move.token';
+export { NgpFocusVisible } from './focus-visible/focus-visible';
+export { injectFocusVisible, NgpFocusVisibleToken } from './focus-visible/focus-visible-token';
+export { NgpFocus } from './focus/focus';
+export { injectFocus, NgpFocusToken } from './focus/focus-token';
+export { NgpHover } from './hover/hover';
+export { injectHover, NgpHoverToken } from './hover/hover-token';
+export { NgpMove, NgpMoveEvent } from './move/move';
+export { injectMove, NgpMoveToken } from './move/move-token';
+export { NgpPress } from './press/press';
+export { injectPress, NgpPressToken } from './press/press-token';

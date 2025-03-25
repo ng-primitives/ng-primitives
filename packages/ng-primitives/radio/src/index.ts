@@ -6,10 +6,10 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-export { NgpRadioGroup } from './radio-group/radio-group.directive';
-export { injectRadioGroupState, provideRadioGroupState } from './radio-group/radio-group.state';
-export { injectRadioGroup, NgpRadioGroupToken } from './radio-group/radio-group.token';
-export { NgpRadioIndicator } from './radio-indicator/radio-indicator.directive';
-export { NgpRadioItem } from './radio-item/radio-item.directive';
-export { injectRadioItemState, provideRadioItemState } from './radio-item/radio-item.state';
-export { injectRadioItem, NgpRadioItemToken } from './radio-item/radio-item.token';
+export { NgpRadioGroup } from './radio-group/radio-group';
+export { injectRadioGroupState, provideRadioGroupState } from './radio-group/radio-group-state';
+export { injectRadioGroup, NgpRadioGroupToken } from './radio-group/radio-group-token';
+export { NgpRadioIndicator } from './radio-indicator/radio-indicator';
+export { NgpRadioItem } from './radio-item/radio-item';
+export { injectRadioItemState, provideRadioItemState } from './radio-item/radio-item-state';
+export { injectRadioItem, NgpRadioItemToken } from './radio-item/radio-item-token';

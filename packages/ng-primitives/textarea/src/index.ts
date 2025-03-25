@@ -6,5 +6,5 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-export { NgpTextarea } from './textarea/textarea.directive';
-export { NgpTextareaToken, injectTextarea } from './textarea/textarea.token';
+export { NgpTextarea } from './textarea/textarea';
+export { NgpTextareaToken, injectTextarea } from './textarea/textarea-token';
