@@ -6,11 +6,11 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-export { NgpPopoverConfig, providePopoverConfig } from './config/popover.config';
-export { NgpPopoverTrigger } from './popover-trigger/popover-trigger.directive';
+export { NgpPopoverConfig, providePopoverConfig } from './config/popover-config';
+export { NgpPopoverTrigger } from './popover-trigger/popover-trigger';
 export {
   NgpPopoverTriggerToken,
   injectPopoverTrigger,
-} from './popover-trigger/popover-trigger.token';
-export { NgpPopover } from './popover/popover.directive';
-export { NgpPopoverToken, injectPopover } from './popover/popover.token';
+} from './popover-trigger/popover-trigger-token';
+export { NgpPopover } from './popover/popover';
+export { NgpPopoverToken, injectPopover } from './popover/popover-token';

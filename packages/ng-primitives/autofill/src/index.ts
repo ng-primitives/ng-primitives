@@ -6,5 +6,5 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-export { NgpAutofill } from './autofill/autofill.directive';
-export { NgpAutofillToken, injectAutofill } from './autofill/autofill.token';
+export { NgpAutofill } from './autofill/autofill';
+export { NgpAutofillToken, injectAutofill } from './autofill/autofill-token';

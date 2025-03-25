@@ -6,8 +6,8 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-export { NgpAvatarFallback } from './avatar-fallback/avatar-fallback.directive';
-export { NgpAvatarImage } from './avatar-image/avatar-image.directive';
-export { NgpAvatar, NgpAvatarState } from './avatar/avatar.directive';
-export { NgpAvatarToken, injectAvatar } from './avatar/avatar.token';
-export { NgpAvatarConfig, provideAvatarConfig } from './config/avatar.config';
+export { NgpAvatarFallback } from './avatar-fallback/avatar-fallback';
+export { NgpAvatarImage } from './avatar-image/avatar-image';
+export { NgpAvatar, NgpAvatarState } from './avatar/avatar';
+export { NgpAvatarToken, injectAvatar } from './avatar/avatar-token';
+export { NgpAvatarConfig, provideAvatarConfig } from './config/avatar-config';

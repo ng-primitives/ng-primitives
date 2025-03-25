@@ -6,19 +6,19 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-export { NgpDialogConfig, provideDialogConfig } from './config/dialog.config';
-export { NgpDialogDescription } from './dialog-description/dialog-description.directive';
+export { NgpDialogConfig, provideDialogConfig } from './config/dialog-config';
+export { NgpDialogDescription } from './dialog-description/dialog-description';
 export {
   NgpDialogDescriptionToken,
   injectDialogDescription,
-} from './dialog-description/dialog-description.token';
-export { NgpDialogOverlay } from './dialog-overlay/dialog-overlay.directive';
-export { NgpDialogOverlayToken, injectDialogOverlay } from './dialog-overlay/dialog-overlay.token';
-export { NgpDialogTitle } from './dialog-title/dialog-title.directive';
-export { NgpDialogTitleToken, injectDialogTitle } from './dialog-title/dialog-title.token';
-export { NgpDialogTrigger } from './dialog-trigger/dialog-trigger.directive';
-export { NgpDialogTriggerToken, injectDialogTrigger } from './dialog-trigger/dialog-trigger.token';
+} from './dialog-description/dialog-description-token';
+export { NgpDialogOverlay } from './dialog-overlay/dialog-overlay';
+export { NgpDialogOverlayToken, injectDialogOverlay } from './dialog-overlay/dialog-overlay-token';
+export { NgpDialogTitle } from './dialog-title/dialog-title';
+export { NgpDialogTitleToken, injectDialogTitle } from './dialog-title/dialog-title-token';
+export { NgpDialogTrigger } from './dialog-trigger/dialog-trigger';
+export { NgpDialogTriggerToken, injectDialogTrigger } from './dialog-trigger/dialog-trigger-token';
 export { injectDialogRef, NgpDialogRef } from './dialog/dialog-ref';
-export { NgpDialog } from './dialog/dialog.directive';
+export { NgpDialog } from './dialog/dialog';
 export { NgpDialogManager } from './dialog/dialog.service';
-export { NgpDialogToken, injectDialog } from './dialog/dialog.token';
+export { NgpDialogToken, injectDialog } from './dialog/dialog-token';

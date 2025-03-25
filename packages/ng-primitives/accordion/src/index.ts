@@ -6,18 +6,18 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-export { NgpAccordionContent } from './accordion-content/accordion-content.directive';
+export { NgpAccordionContent } from './accordion-content/accordion-content';
 export {
   NgpAccordionContentToken,
   injectAccordionContent,
-} from './accordion-content/accordion-content.token';
-export { NgpAccordionItem } from './accordion-item/accordion-item.directive';
-export { NgpAccordionItemToken, injectAccordionItem } from './accordion-item/accordion-item.token';
-export { NgpAccordionTrigger } from './accordion-trigger/accordion-trigger.directive';
+} from './accordion-content/accordion-content-token';
+export { NgpAccordionItem } from './accordion-item/accordion-item';
+export { NgpAccordionItemToken, injectAccordionItem } from './accordion-item/accordion-item-token';
+export { NgpAccordionTrigger } from './accordion-trigger/accordion-trigger';
 export {
   NgpAccordionTriggerToken,
   injectAccordionTrigger,
-} from './accordion-trigger/accordion-trigger.token';
-export { NgpAccordion } from './accordion/accordion.directive';
-export { NgpAccordionToken, injectAccordion } from './accordion/accordion.token';
-export { NgpAccordionConfig, provideAccordionConfig } from './config/accordion.config';
+} from './accordion-trigger/accordion-trigger-token';
+export { NgpAccordion } from './accordion/accordion';
+export { NgpAccordionToken, injectAccordion } from './accordion/accordion-token';
+export { NgpAccordionConfig, provideAccordionConfig } from './config/accordion-config';

@@ -6,5 +6,5 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-export { NgpSelect } from './select/select.directive';
-export { NgpSelectToken, injectSelect } from './select/select.token';
+export { NgpSelect } from './select/select';
+export { NgpSelectToken, injectSelect } from './select/select-token';

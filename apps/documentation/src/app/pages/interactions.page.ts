@@ -1,13 +1,13 @@
 import { Component } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
-import { QuickLinksComponent } from '../components/quick-links/quick-links.component';
+import { QuickLinks } from '../components/quick-links/quick-links';
 
 @Component({
   selector: 'docs-interactions',
   template: `
     <div class="flex gap-x-12">
       <div
-        class="prose prose-sm prose-zinc dark:prose-invert max-w-3xl flex-1 overflow-hidden px-px"
+        class="prose prose-sm prose-zinc dark:prose-invert flex-1 overflow-hidden px-px"
         data-page-content
       >
         <p
@@ -16,12 +16,14 @@ import { QuickLinksComponent } from '../components/quick-links/quick-links.compo
           Interactions
         </p>
 
-        <router-outlet />
+        <div class="max-w-3xl">
+          <router-outlet />
+        </div>
       </div>
       <docs-quick-links />
     </div>
   `,
-  imports: [RouterOutlet, QuickLinksComponent],
+  imports: [RouterOutlet, QuickLinks],
   host: {
     class: 'flex-1 overflow-hidden',
   },

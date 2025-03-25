@@ -19,7 +19,7 @@ import {
 import { uniqueId } from 'ng-primitives/utils';
 import { Observable, Subject, defer } from 'rxjs';
 import { startWith } from 'rxjs/operators';
-import { NgpDialogConfig, injectDialogConfig } from '../config/dialog.config';
+import { NgpDialogConfig, injectDialogConfig } from '../config/dialog-config';
 import { NgpDialogRef } from './dialog-ref';
 
 /**

@@ -6,6 +6,6 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-export { NgpCheckbox } from './checkbox/checkbox.directive';
-export { injectCheckboxState, provideCheckboxState } from './checkbox/checkbox.state';
-export { injectCheckbox, NgpCheckboxToken } from './checkbox/checkbox.token';
+export { NgpCheckbox } from './checkbox/checkbox';
+export { injectCheckboxState, provideCheckboxState } from './checkbox/checkbox-state';
+export { injectCheckbox, NgpCheckboxToken } from './checkbox/checkbox-token';

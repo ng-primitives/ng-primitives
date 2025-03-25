@@ -10,7 +10,7 @@ import { hasModifierKey } from '@angular/cdk/keycodes';
 import { OverlayRef } from '@angular/cdk/overlay';
 import { inject } from '@angular/core';
 import { Observable, Subject, Subscription } from 'rxjs';
-import { NgpDialogConfig } from '../config/dialog.config';
+import { NgpDialogConfig } from '../config/dialog-config';
 
 /**
  * Reference to a dialog opened via the Dialog service.

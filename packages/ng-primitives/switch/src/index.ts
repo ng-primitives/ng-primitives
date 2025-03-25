@@ -6,7 +6,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-export { NgpSwitchThumb } from './switch-thumb/switch-thumb.directive';
-export { NgpSwitch } from './switch/switch.directive';
-export { injectSwitchState, provideSwitchState } from './switch/switch.state';
-export { injectSwitch, NgpSwitchToken } from './switch/switch.token';
+export { NgpSwitchThumb } from './switch-thumb/switch-thumb';
+export { NgpSwitch } from './switch/switch';
+export { injectSwitchState, provideSwitchState } from './switch/switch-state';
+export { injectSwitch, NgpSwitchToken } from './switch/switch-token';

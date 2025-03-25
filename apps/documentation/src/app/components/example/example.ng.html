@@ -1,0 +1,83 @@
+<div class="not-prose relative flex flex-col items-center justify-center">
+  <div class="absolute inset-x-0 top-0 flex justify-between gap-x-2">
+    <div class="mr-2 rounded-lg bg-zinc-100 p-0.5 ring-1 ring-black/5 dark:bg-zinc-800">
+      <button
+        class="w-16 rounded-md px-2 py-1.5 text-xs font-medium outline-none focus-visible:z-10 focus-visible:ring-2 focus-visible:ring-blue-500"
+        [ngClass]="{
+          'bg-white text-zinc-950 shadow-sm ring-1 ring-black/5 dark:bg-zinc-900 dark:text-white dark:ring-white/5':
+            mode() === 'preview',
+          'text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-200': mode() !== 'preview',
+        }"
+        (click)="mode.set('preview')"
+      >
+        Preview
+      </button>
+      <button
+        class="w-16 rounded-md px-2 py-1.5 text-xs font-medium outline-none focus-visible:z-10 focus-visible:ring-2 focus-visible:ring-blue-500"
+        [ngClass]="{
+          'bg-white text-zinc-950 shadow-sm ring-1 ring-black/5 dark:bg-zinc-900 dark:text-white dark:ring-white/5':
+            mode() === 'source',
+          'text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-200': mode() !== 'source',
+        }"
+        (click)="mode.set('source')"
+      >
+        Source
+      </button>
+    </div>
+
+    <div class="flex gap-x-2">
+      <button
+        class="inline-flex size-8 items-center justify-center rounded-lg bg-white p-2 shadow-sm ring-1 ring-black/5 transition-colors hover:bg-zinc-50 active:bg-zinc-100 dark:bg-zinc-900 dark:ring-white/5 dark:hover:bg-zinc-950 dark:active:bg-zinc-800"
+        (click)="copyCode()"
+      >
+        <ng-icon name="lucideClipboard" />
+      </button>
+
+      <button
+        class="inline-flex size-8 items-center justify-center rounded-lg bg-white p-2 shadow-sm ring-1 ring-black/5 transition-colors hover:bg-zinc-50 active:bg-zinc-100 dark:bg-zinc-900 dark:ring-white/5 dark:hover:bg-zinc-950 dark:active:bg-zinc-800"
+        (click)="openStackBlitz()"
+      >
+        <ng-icon name="lucideCodesandbox" />
+      </button>
+    </div>
+  </div>
+
+  <div class="relative mt-10 w-full flex-1">
+    @if (mode() === 'preview') {
+    <div
+      class="flex h-fit min-h-[280px] items-center justify-center rounded-xl border border-zinc-200 bg-zinc-50 p-8 dark:border-zinc-800 dark:bg-zinc-950"
+    >
+      <ng-container [ngComponentOutlet]="component" />
+    </div>
+    }
+
+    <div class="rounded-xl bg-zinc-950" [hidden]="mode() !== 'source'">
+      <div class="flex border-b border-white/20">
+        @for (tab of tabs(); track tab.value) {
+        <button
+          class="group relative -mb-px flex items-center whitespace-nowrap px-2 py-2 font-medium text-white outline-none"
+          [attr.aria-selected]="language() === tab.value"
+          (click)="language.set(tab.value)"
+          role="tab"
+          type="button"
+          tabindex="0"
+        >
+          <div
+            class="inline-flex h-5 items-center rounded-md px-2 text-xs group-hover:bg-zinc-700/60 group-hover:text-white"
+          >
+            {{ tab.label }}
+          </div>
+
+          @if (language() === tab.value) {
+          <div class="pointer-events-none absolute inset-0 border-b border-white"></div>
+          }
+        </button>
+        }
+      </div>
+
+      <pre
+        class="h-fit whitespace-pre-wrap p-4"
+      ><code class="language-typescript not-prose" [innerHTML]="code"></code></pre>
+    </div>
+  </div>
+</div>

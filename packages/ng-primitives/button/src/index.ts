@@ -6,5 +6,5 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-export { NgpButton } from './button/button.directive';
-export { injectButton, NgpButtonToken } from './button/button.token';
+export { NgpButton } from './button/button';
+export { injectButton, NgpButtonToken } from './button/button-token';

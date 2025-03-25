@@ -1,6 +1,7 @@
 ---
 name: Get Started
 order: 2
+icon: phosphorRocketLaunchDuotone
 ---
 
 # Get Started

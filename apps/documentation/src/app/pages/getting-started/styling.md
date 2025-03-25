@@ -1,6 +1,7 @@
 ---
 name: Styling
 order: 3
+icon: phosphorPaletteDuotone
 ---
 
 # Styling

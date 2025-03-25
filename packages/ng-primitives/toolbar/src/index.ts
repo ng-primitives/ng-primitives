@@ -1,2 +1,2 @@
-export { NgpToolbar } from './toolbar/toolbar.directive';
-export { NgpToolbarToken, injectToolbar } from './toolbar/toolbar.token';
+export { NgpToolbar } from './toolbar/toolbar';
+export { NgpToolbarToken, injectToolbar } from './toolbar/toolbar-token';

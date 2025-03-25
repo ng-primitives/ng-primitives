@@ -12,11 +12,11 @@ import {
 } from '@angular/core';
 import { provideClientHydration } from '@angular/platform-browser';
 import { withInMemoryScrolling } from '@angular/router';
-import { ExampleComponent } from './components/example/example.component';
-import { ResponseFieldComponent } from './components/response-field/response-field.component';
-import { Snippet } from './components/snippet/snippet.component';
-import { TabGroupComponent } from './components/tab-group/tab-group.component';
-import { TabComponent } from './components/tab/tab.component';
+import { Example } from './components/example/example';
+import { ResponseFieldComponent } from './components/response-field/response-field';
+import { Snippet } from './components/snippet/snippet';
+import { TabGroup } from './components/tab-group/tab-group';
+import { Tab } from './components/tab/tab';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -41,7 +41,7 @@ export function initializeCustomElements(
     if (isPlatformBrowser(platform)) {
       const { createCustomElement } = await import('@angular/elements');
       // Register the custom element with the browser.
-      customElements.define('docs-example', createCustomElement(ExampleComponent, { injector }));
+      customElements.define('docs-example', createCustomElement(Example, { injector }));
       customElements.define('docs-snippet', createCustomElement(Snippet, { injector }));
 
       customElements.define(
@@ -49,8 +49,8 @@ export function initializeCustomElements(
         createCustomElement(ResponseFieldComponent, { injector }),
       );
 
-      customElements.define('tab-group', createCustomElement(TabGroupComponent, { injector }));
-      customElements.define('tab-item', createCustomElement(TabComponent, { injector }));
+      customElements.define('tab-group', createCustomElement(TabGroup, { injector }));
+      customElements.define('tab-item', createCustomElement(Tab, { injector }));
     }
   };
 }

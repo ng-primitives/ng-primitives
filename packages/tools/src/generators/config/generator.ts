@@ -13,7 +13,7 @@ export async function configGenerator(tree: Tree, options: ConfigGeneratorSchema
   addExportToIndex(
     tree,
     options.primitive,
-    `export { Ngp${names(options.primitive).className}Config, provide${names(options.primitive).className}Config } from './config/${names(options.primitive).fileName}.config';`,
+    `export { Ngp${names(options.primitive).className}Config, provide${names(options.primitive).className}Config } from './config/${names(options.primitive).fileName}-config';`,
   );
 
   await formatFiles(tree);

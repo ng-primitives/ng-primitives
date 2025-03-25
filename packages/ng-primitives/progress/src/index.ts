@@ -6,7 +6,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-export { NgpProgressIndicator } from './progress-indicator/progress-indicator.directive';
-export { NgpProgress, NgpProgressValueLabelFn } from './progress/progress.directive';
-export { provideProgressState, injectProgressState } from './progress/progress.state';
-export { NgpProgressToken, injectProgress } from './progress/progress.token';
+export { NgpProgressIndicator } from './progress-indicator/progress-indicator';
+export { NgpProgress, NgpProgressValueLabelFn } from './progress/progress';
+export { provideProgressState, injectProgressState } from './progress/progress-state';
+export { NgpProgressToken, injectProgress } from './progress/progress-token';

@@ -1,6 +1,7 @@
 ---
 name: Introduction
 order: 1
+icon: phosphorBookOpenDuotone
 ---
 
 # Introduction

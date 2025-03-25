@@ -11,13 +11,13 @@ import { bootstrapDiscord, bootstrapGithub } from '@ng-icons/bootstrap-icons';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { lucideMenu, lucideSearch } from '@ng-icons/lucide';
 import { NgpButton } from 'ng-primitives/button';
-import { ThemeToggle } from '../theme-toggle/theme-toggle.component';
+import { ThemeToggle } from '../theme-toggle/theme-toggle';
 
 @Component({
   selector: 'docs-navbar',
   imports: [NgIcon, NgpButton, ThemeToggle],
   viewProviders: [provideIcons({ lucideSearch, bootstrapGithub, bootstrapDiscord, lucideMenu })],
-  templateUrl: './navbar.html',
+  templateUrl: './navbar.ng.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class Navbar implements OnInit {

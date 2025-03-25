@@ -17,14 +17,14 @@ export async function directiveGenerator(tree: Tree, options: DirectiveGenerator
       ...options,
       ...names(options.name),
       configName: `inject${names(options.primitive).className}Config`,
-      configFile: names(options.primitive).fileName + '.config',
+      configFile: names(options.primitive).fileName + '-config',
     },
   );
 
   addExportToIndex(
     tree,
     options.primitive,
-    `export { Ngp${names(options.name).className} } from './${options.name}/${options.name}.directive';`,
+    `export { Ngp${names(options.name).className} } from './${options.name}/${options.name}';`,
   );
 
   if (options.addState) {

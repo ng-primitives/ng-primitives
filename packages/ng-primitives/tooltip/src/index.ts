@@ -6,11 +6,11 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-export { NgpTooltipConfig, provideTooltipConfig } from './config/tooltip.config';
-export { NgpTooltipTrigger } from './tooltip-trigger/tooltip-trigger.directive';
+export { NgpTooltipConfig, provideTooltipConfig } from './config/tooltip-config';
+export { NgpTooltipTrigger } from './tooltip-trigger/tooltip-trigger';
 export {
   NgpTooltipTriggerToken,
   injectTooltipTrigger,
-} from './tooltip-trigger/tooltip-trigger.token';
-export { NgpTooltip } from './tooltip/tooltip.directive';
-export { NgpTooltipToken, injectTooltip } from './tooltip/tooltip.token';
+} from './tooltip-trigger/tooltip-trigger-token';
+export { NgpTooltip } from './tooltip/tooltip';
+export { NgpTooltipToken, injectTooltip } from './tooltip/tooltip-token';
