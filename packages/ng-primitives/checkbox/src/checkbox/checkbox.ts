@@ -85,18 +85,9 @@ export class NgpCheckbox implements NgpCanDisable {
   });
 
   /**
-   * The form control state. This is used to allow communication between the checkbox and the control value access and any
-   * components that use this as a host directive.
+   * The state of the checkbox.
    */
-  protected readonly state = checkboxState({
-    id: this.id,
-    checked: this.checked,
-    checkedChange: this.checkedChange,
-    indeterminate: this.indeterminate,
-    indeterminateChange: this.indeterminateChange,
-    required: this.required,
-    disabled: this.disabled,
-  });
+  protected readonly state = checkboxState<NgpCheckbox>(this);
 
   @HostListener('keydown.enter', ['$event'])
   protected onEnter(event: KeyboardEvent): void {

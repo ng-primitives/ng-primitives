@@ -68,12 +68,7 @@ export class NgpRadioGroup implements NgpCanDisable, NgpCanOrientate {
    * The state of the radio group.
    * @internal
    */
-  protected readonly state = radioGroupState({
-    value: this.value,
-    valueChange: this.valueChange,
-    disabled: this.disabled,
-    orientation: this.orientation,
-  });
+  protected readonly state = radioGroupState<NgpRadioGroup>(this);
 
   /**
    * Select a radio item.

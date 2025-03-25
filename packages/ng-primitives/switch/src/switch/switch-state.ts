@@ -1,26 +1,27 @@
-import { OutputEmitterRef, Signal } from '@angular/core';
-import { createState } from 'ng-primitives/state';
+import {
+  createState,
+  createStateInjector,
+  createStateProvider,
+  createStateToken,
+} from 'ng-primitives/state';
+import type { NgpSwitch } from './switch';
 
 /**
- * The state for the switch primitive.
+ * The state token  for the Switch primitive.
  */
-export interface NgpSwitchState {
-  /**
-   * Determine if the switch is checked.
-   */
-  checked: Signal<boolean>;
-  /**
-   * Emits when the checked state changes.
-   */
-  checkedChange: OutputEmitterRef<boolean>;
-  /**
-   * Determine if the switch is disabled.
-   */
-  disabled: Signal<boolean>;
-}
+export const NgpSwitchStateToken = createStateToken<NgpSwitch>('Switch');
 
 /**
- * The initial state for the switch primitive.
+ * Provides the Switch state.
  */
-export const { NgpSwitchStateToken, provideSwitchState, injectSwitchState, switchState } =
-  createState<NgpSwitchState>('Switch');
+export const provideSwitchState = createStateProvider(NgpSwitchStateToken);
+
+/**
+ * Injects the Switch state.
+ */
+export const injectSwitchState = createStateInjector(NgpSwitchStateToken);
+
+/**
+ * The Switch state registration function.
+ */
+export const switchState = createState(NgpSwitchStateToken);

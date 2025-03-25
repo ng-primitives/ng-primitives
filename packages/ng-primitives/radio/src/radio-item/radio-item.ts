@@ -57,10 +57,7 @@ export class NgpRadioItem {
   /**
    * The state of the radio item.
    */
-  protected readonly state = radioItemState({
-    value: this.value,
-    disabled: this.disabled,
-  });
+  protected readonly state = radioItemState<NgpRadioItem>(this);
 
   /**
    * When the item receives focus, select it.

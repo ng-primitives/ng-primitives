@@ -107,13 +107,5 @@ export class NgpSlider implements NgpCanDisable, NgpCanOrientate {
    * The state of the slider. We use this for the slider state rather than relying on the inputs.
    * @internal
    */
-  protected readonly state = sliderState({
-    value: this.value,
-    valueChange: this.valueChange,
-    min: this.min,
-    max: this.max,
-    step: this.step,
-    orientation: this.orientation,
-    disabled: this.disabled,
-  });
+  protected readonly state = sliderState<NgpSlider>(this);
 }

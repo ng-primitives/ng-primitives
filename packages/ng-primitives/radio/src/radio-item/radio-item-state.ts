@@ -1,26 +1,27 @@
-import { Signal } from '@angular/core';
-import { createState } from 'ng-primitives/state';
+import {
+  createState,
+  createStateInjector,
+  createStateProvider,
+  createStateToken,
+} from 'ng-primitives/state';
+import type { NgpRadioItem } from './radio-item';
 
 /**
- * The state for the radio-item primitive.
+ * The state token  for the RadioItem primitive.
  */
-export interface NgpRadioItemState {
-  /**
-   * The value of the radio item.
-   */
-  value: Signal<string>;
-  /**
-   * Whether the radio item is disabled.
-   */
-  disabled: Signal<boolean>;
-}
+export const NgpRadioItemStateToken = createStateToken<NgpRadioItem>('RadioItem');
 
 /**
- * The initial state for the radio-item primitive.
+ * Provides the RadioItem state.
  */
-export const {
-  NgpRadioItemStateToken,
-  provideRadioItemState,
-  injectRadioItemState,
-  radioItemState,
-} = createState<NgpRadioItemState>('RadioItem');
+export const provideRadioItemState = createStateProvider(NgpRadioItemStateToken);
+
+/**
+ * Injects the RadioItem state.
+ */
+export const injectRadioItemState = createStateInjector(NgpRadioItemStateToken);
+
+/**
+ * The RadioItem state registration function.
+ */
+export const radioItemState = createState(NgpRadioItemStateToken);

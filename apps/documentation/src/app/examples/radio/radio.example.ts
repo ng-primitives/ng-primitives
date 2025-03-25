@@ -92,7 +92,7 @@ import { NgpRadioGroup, NgpRadioIndicator, NgpRadioItem } from 'ng-primitives/ra
     }
   `,
   template: `
-    <div [(ngpRadioGroupValue)]="plan" ngpRadioGroup>
+    <div [(ngpRadioGroupValue)]="plan" ngpRadioGroup ngpRadioGroupOrientation="vertical">
       <div ngpRadioItem ngpRadioItemValue="indie">
         <div ngpRadioIndicator>
           <span class="indicator-dot"></span>

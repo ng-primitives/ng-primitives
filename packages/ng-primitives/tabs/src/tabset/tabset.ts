@@ -91,17 +91,7 @@ export class NgpTabset implements NgpCanOrientate {
   /**
    * The state of the tabset
    */
-  protected readonly state = tabsetState({
-    id: this.id,
-    value: this.value,
-    valueChange: this.valueChange,
-    orientation: this.orientation,
-    selectedTab: this.selectedTab,
-    activateOnFocus: this.activateOnFocus,
-    select: this.select.bind(this),
-    registerTab: this.registerTab.bind(this),
-    unregisterTab: this.unregisterTab.bind(this),
-  });
+  protected readonly state = tabsetState<NgpTabset>(this);
 
   /**
    * Select a tab by its value

@@ -1,39 +1,27 @@
-import { OutputEmitterRef, Signal } from '@angular/core';
-import { NgpOrientation } from 'ng-primitives/common';
-import { createState } from 'ng-primitives/state';
+import {
+  createState,
+  createStateInjector,
+  createStateProvider,
+  createStateToken,
+} from 'ng-primitives/state';
+import type { NgpToggleGroup } from './toggle-group';
 
 /**
- * The state for the toggle-group primitive.
+ * The state token  for the ToggleGroup primitive.
  */
-export interface NgpToggleGroupState {
-  /**
-   * The orientation of the toggle group.
-   */
-  orientation: Signal<NgpOrientation>;
-  /**
-   * The type of the toggle group, whether only one item can be selected or multiple.
-   */
-  type: Signal<'single' | 'multiple'>;
-  /**
-   * The selected value(s) of the toggle group.
-   */
-  value: Signal<string[]>;
-  /**
-   * Emits when the value of the toggle group changes.
-   */
-  valueChange: OutputEmitterRef<string[]>;
-  /**
-   * Whether the toggle group is disabled.
-   */
-  disabled: Signal<boolean>;
-}
+export const NgpToggleGroupStateToken = createStateToken<NgpToggleGroup>('ToggleGroup');
 
 /**
- * The initial state for the toggle-group primitive.
+ * Provides the ToggleGroup state.
  */
-export const {
-  NgpToggleGroupStateToken,
-  provideToggleGroupState,
-  injectToggleGroupState,
-  toggleGroupState,
-} = createState<NgpToggleGroupState>('ToggleGroup');
+export const provideToggleGroupState = createStateProvider(NgpToggleGroupStateToken);
+
+/**
+ * Injects the ToggleGroup state.
+ */
+export const injectToggleGroupState = createStateInjector(NgpToggleGroupStateToken);
+
+/**
+ * The ToggleGroup state registration function.
+ */
+export const toggleGroupState = createState(NgpToggleGroupStateToken);

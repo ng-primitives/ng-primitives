@@ -114,16 +114,7 @@ export class NgpDatePicker<T> {
   /**
    * The date picker state.
    */
-  protected readonly state = datePickerState<T>({
-    date: this.date,
-    dateChange: this.dateChange,
-    focusedDate: this.focusedDate,
-    focusedDateChange: this.focusedDateChange,
-    min: this.min,
-    max: this.max,
-    disabled: this.disabled,
-    dateDisabled: this.dateDisabled,
-  });
+  protected readonly state = datePickerState<NgpDatePicker<T>>(this);
 
   /**
    * Set the focused date.

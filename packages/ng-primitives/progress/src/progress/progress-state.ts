@@ -1,29 +1,27 @@
-import { Signal } from '@angular/core';
-import { createState } from 'ng-primitives/state';
-import type { NgpProgressValueLabelFn } from './progress';
+import {
+  createState,
+  createStateInjector,
+  createStateProvider,
+  createStateToken,
+} from 'ng-primitives/state';
+import type { NgpProgress } from './progress';
 
 /**
- * The state for the progress primitive.
+ * The state token  for the Progress primitive.
  */
-export interface NgpProgressState {
-  /**
-   * The progress value.
-   */
-  value: Signal<number>;
-
-  /**
-   * The progress max value.
-   */
-  max: Signal<number>;
-
-  /**
-   * The progress value label.
-   */
-  valueLabel: Signal<NgpProgressValueLabelFn>;
-}
+export const NgpProgressStateToken = createStateToken<NgpProgress>('Progress');
 
 /**
- * The initial state for the progress primitive.
+ * Provides the Progress state.
  */
-export const { NgpProgressStateToken, provideProgressState, injectProgressState, progressState } =
-  createState<NgpProgressState>('Progress');
+export const provideProgressState = createStateProvider(NgpProgressStateToken);
+
+/**
+ * Injects the Progress state.
+ */
+export const injectProgressState = createStateInjector(NgpProgressStateToken);
+
+/**
+ * The Progress state registration function.
+ */
+export const progressState = createState(NgpProgressStateToken);

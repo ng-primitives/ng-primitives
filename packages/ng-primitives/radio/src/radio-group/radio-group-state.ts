@@ -1,35 +1,27 @@
-import { OutputEmitterRef, Signal } from '@angular/core';
-import { NgpOrientation } from 'ng-primitives/common';
-import { createState } from 'ng-primitives/state';
+import {
+  createState,
+  createStateInjector,
+  createStateProvider,
+  createStateToken,
+} from 'ng-primitives/state';
+import type { NgpRadioGroup } from './radio-group';
 
 /**
- * The state for the radio-group primitive.
+ * The state token  for the RadioGroup primitive.
  */
-export interface NgpRadioGroupState {
-  /**
-   * The value of the radio group.
-   */
-  value: Signal<string | null>;
-  /**
-   * Event emitted when the radio group value changes.
-   */
-  valueChange: OutputEmitterRef<string | null>;
-  /**
-   * Whether the radio group is disabled.
-   */
-  disabled: Signal<boolean>;
-  /**
-   * The orientation of the radio group.
-   */
-  orientation: Signal<NgpOrientation>;
-}
+export const NgpRadioGroupStateToken = createStateToken<NgpRadioGroup>('RadioGroup');
 
 /**
- * The initial state for the radio-group primitive.
+ * Provides the RadioGroup state.
  */
-export const {
-  NgpRadioGroupStateToken,
-  provideRadioGroupState,
-  injectRadioGroupState,
-  radioGroupState,
-} = createState<NgpRadioGroupState>('RadioGroup');
+export const provideRadioGroupState = createStateProvider(NgpRadioGroupStateToken);
+
+/**
+ * Injects the RadioGroup state.
+ */
+export const injectRadioGroupState = createStateInjector(NgpRadioGroupStateToken);
+
+/**
+ * The RadioGroup state registration function.
+ */
+export const radioGroupState = createState(NgpRadioGroupStateToken);

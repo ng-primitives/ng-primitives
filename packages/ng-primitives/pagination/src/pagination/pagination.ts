@@ -66,12 +66,7 @@ export class NgpPagination {
    * The control state for the pagination.
    * @internal
    */
-  private readonly state = paginationState({
-    page: this.page,
-    pageChange: this.pageChange,
-    pageCount: this.pageCount,
-    disabled: this.disabled,
-  });
+  private readonly state = paginationState<NgpPagination>(this);
 
   /**
    * Determine if we are on the first page.

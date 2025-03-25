@@ -1,27 +1,27 @@
-import { Signal } from '@angular/core';
-import { createState } from 'ng-primitives/state';
+import {
+  createState,
+  createStateInjector,
+  createStateProvider,
+  createStateToken,
+} from 'ng-primitives/state';
+import type { NgpToggleGroupItem } from './toggle-group-item';
 
 /**
- * The state for the toggle-group-item primitive.
+ * The state token  for the ToggleGroupItem primitive.
  */
-export interface NgpToggleGroupItemState {
-  /**
-   * The value of the item.
-   */
-  value: Signal<string | undefined>;
-
-  /**
-   * Whether the item is disabled.
-   */
-  disabled: Signal<boolean>;
-}
+export const NgpToggleGroupItemStateToken = createStateToken<NgpToggleGroupItem>('ToggleGroupItem');
 
 /**
- * The initial state for the toggle-group-item primitive.
+ * Provides the ToggleGroupItem state.
  */
-export const {
-  NgpToggleGroupItemStateToken,
-  provideToggleGroupItemState,
-  injectToggleGroupItemState,
-  toggleGroupItemState,
-} = createState<NgpToggleGroupItemState>('ToggleGroupItem');
+export const provideToggleGroupItemState = createStateProvider(NgpToggleGroupItemStateToken);
+
+/**
+ * Injects the ToggleGroupItem state.
+ */
+export const injectToggleGroupItemState = createStateInjector(NgpToggleGroupItemStateToken);
+
+/**
+ * The ToggleGroupItem state registration function.
+ */
+export const toggleGroupItemState = createState(NgpToggleGroupItemStateToken);
