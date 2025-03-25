@@ -19,7 +19,7 @@ const { highlight, languages } = prismjs;
   selector: 'docs-snippet',
   imports: [NgIcon],
   providers: [provideIcons({ heroSquare2Stack })],
-  templateUrl: './snippet.component.html',
+  templateUrl: './snippet.ng.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class Snippet {

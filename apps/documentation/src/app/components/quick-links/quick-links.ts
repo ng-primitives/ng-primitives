@@ -14,14 +14,13 @@ import { filter } from 'rxjs/operators';
 
 @Component({
   selector: 'docs-quick-links',
-  imports: [],
-  templateUrl: './quick-links.component.html',
+  templateUrl: './quick-links.ng.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
     class: 'hidden lg:block',
   },
 })
-export class QuickLinksComponent {
+export class QuickLinks {
   private readonly router = inject(Router);
   private readonly injector = inject(Injector);
   private readonly changeDetector = inject(ChangeDetectorRef);

@@ -5,11 +5,11 @@ import { provideIcons } from '@ng-icons/core';
 import { saxMoonOutline } from '@ng-icons/iconsax/outline';
 import { filter } from 'rxjs';
 import { Navbar } from './components/navbar/navbar';
-import { SideNavigationComponent } from './components/side-navigation/side-navigation.component';
+import { SideNavigation } from './components/side-navigation/side-navigation';
 
 @Component({
   selector: 'docs-root',
-  imports: [RouterOutlet, Navbar, SideNavigationComponent],
+  imports: [RouterOutlet, Navbar, SideNavigation],
   viewProviders: [provideIcons({ saxMoonOutline })],
   template: `
     <docs-navbar [(menuOpen)]="menuOpen" />
@@ -26,7 +26,7 @@ import { SideNavigationComponent } from './components/side-navigation/side-navig
     </div>
   `,
 })
-export class AppComponent {
+export class App {
   private readonly router = inject(Router);
   private readonly platform = inject(PLATFORM_ID);
   readonly year = new Date().getFullYear();

@@ -14,18 +14,17 @@
             {{ type }}
           </div>
           @if (default) {
-            <span
-              class="rounded-md bg-zinc-50 px-2 py-0.5 text-zinc-900 ring-1 ring-black/5 dark:bg-zinc-950 dark:text-white dark:ring-white/5"
-            >
-              default: "{{ default }}"
-            </span>
-          }
-          @if (required) {
-            <span
-              class="rounded-md bg-red-100/50 px-2 py-0.5 text-red-600 dark:bg-red-800/50 dark:text-red-300"
-            >
-              required
-            </span>
+          <span
+            class="rounded-md bg-zinc-50 px-2 py-0.5 text-zinc-900 ring-1 ring-black/5 dark:bg-zinc-950 dark:text-white dark:ring-white/5"
+          >
+            default: "{{ default }}"
+          </span>
+          } @if (required) {
+          <span
+            class="rounded-md bg-red-100/50 px-2 py-0.5 text-red-600 dark:bg-red-800/50 dark:text-red-300"
+          >
+            required
+          </span>
           }
         </div>
       </div>

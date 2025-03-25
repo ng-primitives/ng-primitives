@@ -2,8 +2,7 @@ import { ChangeDetectionStrategy, Component, Input, booleanAttribute } from '@an
 
 @Component({
   selector: 'docs-response-field',
-
-  templateUrl: './response-field.component.html',
+  templateUrl: './response-field.ng.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ResponseFieldComponent {

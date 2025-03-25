@@ -30,11 +30,11 @@ const { highlight, languages } = prismjs;
 @Component({
   selector: 'docs-example',
   imports: [NgComponentOutlet, NgClass, NgIcon],
-  templateUrl: './example.component.html',
+  templateUrl: './example.ng.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
   providers: [provideIcons({ lucideCodesandbox, lucideClipboard })],
 })
-export class ExampleComponent {
+export class Example {
   private readonly clipboard = inject(Clipboard);
   private readonly platform = inject(PLATFORM_ID);
   private readonly changeDetector = inject(ChangeDetectorRef);

@@ -6,18 +6,18 @@ import {
   computed,
   inject,
 } from '@angular/core';
-import { TabGroup } from '../tab-group/tab-group.component';
+import { TabGroupData } from '../tab-group/tab-group';
 
 @Component({
   selector: 'docs-tab',
 
-  templateUrl: './tab.component.html',
+  templateUrl: './tab.ng.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
     '[hidden]': '!isActive()',
   },
 })
-export class TabComponent {
+export class Tab {
   /**
    * Access the element ref.
    */
@@ -26,7 +26,7 @@ export class TabComponent {
   /**
    * Access the tab group.
    */
-  private readonly tabGroup = this.elementRef.nativeElement.closest<HTMLElement & TabGroup>(
+  private readonly tabGroup = this.elementRef.nativeElement.closest<HTMLElement & TabGroupData>(
     'tab-group',
   );
 

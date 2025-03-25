@@ -15,10 +15,10 @@ import { getRouterLinks } from '../../utils/router';
   providers: [
     provideIcons({ phosphorBookOpenDuotone, phosphorRocketLaunchDuotone, phosphorPaletteDuotone }),
   ],
-  templateUrl: './side-navigation.component.html',
+  templateUrl: './side-navigation.ng.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class SideNavigationComponent {
+export class SideNavigation {
   readonly menuOpen = model(false);
 
   readonly sections = Object.entries(getRouterLinks())

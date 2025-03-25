@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
-import { QuickLinksComponent } from '../components/quick-links/quick-links.component';
+import { QuickLinks } from '../components/quick-links/quick-links';
 
 @Component({
   selector: 'docs-getting-started',
@@ -22,7 +22,7 @@ import { QuickLinksComponent } from '../components/quick-links/quick-links.compo
       <docs-quick-links />
     </div>
   `,
-  imports: [RouterOutlet, QuickLinksComponent],
+  imports: [RouterOutlet, QuickLinks],
   host: {
     class: 'flex-1 overflow-hidden',
   },

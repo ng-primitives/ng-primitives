@@ -7,18 +7,18 @@ import {
   inject,
   signal,
 } from '@angular/core';
-import type { TabComponent } from '../tab/tab.component';
+import type { Tab } from '../tab/tab';
 
 @Component({
   selector: 'docs-tab-group',
-  templateUrl: './tab-group.component.html',
+  templateUrl: './tab-group.ng.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [NgClass],
 })
-export class TabGroupComponent {
-  private readonly elementRef = inject<ElementRef<HTMLElement & TabGroup>>(ElementRef);
-  protected readonly activeTab = signal<TabComponent | null>(null);
-  protected readonly tabs = signal<TabComponent[]>([]);
+export class TabGroup {
+  private readonly elementRef = inject<ElementRef<HTMLElement & TabGroupData>>(ElementRef);
+  protected readonly activeTab = signal<Tab | null>(null);
+  protected readonly tabs = signal<Tab[]>([]);
 
   constructor() {
     // expose the add method to the custom element
@@ -26,7 +26,7 @@ export class TabGroupComponent {
     this.elementRef.nativeElement.add = this.add.bind(this);
   }
 
-  add(tab: TabComponent): void {
+  add(tab: Tab): void {
     this.tabs.update(prev => [...prev, tab]);
 
     // if no tab is active, set the first tab as active
@@ -36,7 +36,7 @@ export class TabGroupComponent {
   }
 }
 
-export interface TabGroup {
-  activeTab: Signal<TabComponent | null>;
-  add(tab: TabComponent): void;
+export interface TabGroupData {
+  activeTab: Signal<Tab | null>;
+  add(tab: Tab): void;
 }
