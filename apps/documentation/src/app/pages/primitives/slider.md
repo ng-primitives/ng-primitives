@@ -43,6 +43,14 @@ Generate a reusable slider component using the Angular CLI.
 ng g ng-primitives:primitive slider
 ```
 
+### Options
+
+- `path`: The path at which to create the component file.
+- `prefix`: The prefix to apply to the generated component selector.
+- `componentSuffix`: The suffix to apply to the generated component class name.
+- `fileSuffix`: The suffix to apply to the generated component file name. Defaults to `component`.
+- `exampleStyles`: Whether to include example styles in the generated component file. Defaults to `true`.
+
 ## Examples
 
 Here are some additional examples of how to use the Slider primitives.

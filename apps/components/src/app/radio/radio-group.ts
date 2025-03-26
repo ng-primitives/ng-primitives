@@ -42,12 +42,12 @@ export class RadioGroup implements ControlValueAccessor {
   protected onTouched?: TouchedFn;
 
   constructor() {
-    this.state.valueChange.subscribe(value => this.onChange?.(value));
+    this.state().valueChange.subscribe(value => this.onChange?.(value));
   }
 
   /** Write a new value to the radio group */
   writeValue(value: string): void {
-    this.state.value.set(value);
+    this.state().value.set(value);
   }
 
   /** Register the on change callback */

@@ -55,12 +55,11 @@ ng g ng-primitives:primitive accordion
 
 ### Options
 
-- `name`: The name of the component.
+- `path`: The path at which to create the component file.
 - `prefix`: The prefix to apply to the generated component selector.
-- `directory`: The directory at which to create the component file.
-- `style`: The file extension or preprocessor to use for style files.
-- `inlineStyle`: Include styles inline in the component.ts file. Only CSS styles can be included inline.
-- `inlineTemplate`: Include template inline in the component.ts file
+- `componentSuffix`: The suffix to apply to the generated component class name.
+- `fileSuffix`: The suffix to apply to the generated component file name. Defaults to `component`.
+- `exampleStyles`: Whether to include example styles in the generated component file. Defaults to `true`.
 
 ## API Reference
 

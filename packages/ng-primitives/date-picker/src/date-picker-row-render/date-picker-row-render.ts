@@ -54,7 +54,7 @@ export class NgpDatePickerRowRender<T> implements OnDestroy {
    * and the days of the previous and next month to fill the grid.
    */
   protected readonly days = computed(() => {
-    const month = this.state.focusedDate();
+    const month = this.state().focusedDate();
     const days: T[] = [];
 
     // Get the first and last day of the month.
@@ -97,7 +97,7 @@ export class NgpDatePickerRowRender<T> implements OnDestroy {
 
   constructor() {
     // re-render the rows when the month changes.
-    onChange(this.state.focusedDate, (date, previousDate) => {
+    onChange(this.state().focusedDate, (date, previousDate) => {
       if (!date || !previousDate || !this.dateAdapter.isSameMonth(date, previousDate)) {
         this.renderRows();
       }

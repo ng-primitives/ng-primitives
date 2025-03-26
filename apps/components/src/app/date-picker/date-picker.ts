@@ -205,7 +205,7 @@ export class DatePicker implements ControlValueAccessor {
    */
   readonly label = computed(
     () =>
-      `${this.state.focusedDate().toLocaleString('default', { month: 'long' })} ${this.state.focusedDate().getFullYear()}`,
+      `${this.state().focusedDate().toLocaleString('default', { month: 'long' })} ${this.state().focusedDate().getFullYear()}`,
   );
 
   /**
@@ -220,11 +220,11 @@ export class DatePicker implements ControlValueAccessor {
 
   constructor() {
     // Whenever the user interacts with the date picker, call the onChange function with the new value.
-    this.state.dateChange.subscribe(date => this.onChange?.(date));
+    this.state().dateChange.subscribe(date => this.onChange?.(date));
   }
 
   writeValue(date: Date): void {
-    this.state.date.set(date);
+    this.state().date.set(date);
   }
 
   registerOnChange(fn: ChangeFn<Date | undefined>): void {
@@ -236,6 +236,6 @@ export class DatePicker implements ControlValueAccessor {
   }
 
   setDisabledState(isDisabled: boolean): void {
-    this.state.disabled.set(isDisabled);
+    this.state().disabled.set(isDisabled);
   }
 }

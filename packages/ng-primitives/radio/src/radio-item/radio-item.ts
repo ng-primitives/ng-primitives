@@ -52,7 +52,7 @@ export class NgpRadioItem {
   /**
    * Whether the radio item is checked.
    */
-  readonly checked = computed(() => this.radioGroupState.value() === this.value());
+  readonly checked = computed(() => this.radioGroupState().value() === this.value());
 
   /**
    * The state of the radio item.

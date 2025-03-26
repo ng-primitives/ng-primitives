@@ -66,12 +66,12 @@ export class NgpPaginationButton implements NgpCanDisable {
   /**
    * Whether the button is disabled.
    */
-  readonly disabled = computed(() => this.buttonDisabled() || this.state.disabled());
+  readonly disabled = computed(() => this.buttonDisabled() || this.state().disabled());
 
   /**
    * Whether this page is the currently selected page.
    */
-  protected readonly selected = computed(() => this.page() === this.state.page());
+  protected readonly selected = computed(() => this.page() === this.state().page());
 
   /**
    * Go to the page this button represents.

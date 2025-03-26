@@ -16,8 +16,8 @@ import { provideSliderTrack } from './slider-track-token';
   exportAs: 'ngpSliderTrack',
   providers: [provideSliderTrack(NgpSliderTrack)],
   host: {
-    '[attr.data-orientation]': 'state.orientation()',
-    '[attr.data-disabled]': 'state.disabled() ? "" : null',
+    '[attr.data-orientation]': 'state().orientation()',
+    '[attr.data-disabled]': 'state().disabled() ? "" : null',
   },
 })
 export class NgpSliderTrack {
@@ -46,19 +46,21 @@ export class NgpSliderTrack {
    */
   @HostListener('pointerdown', ['$event'])
   protected handlePointerDown(event: PointerEvent): void {
-    if (this.state.disabled()) {
+    if (this.state().disabled()) {
       return;
     }
 
     // get the position the click occurred within the slider track
-    const position = this.state.orientation() === 'horizontal' ? event.clientX : event.clientY;
+    const position = this.state().orientation() === 'horizontal' ? event.clientX : event.clientY;
     const rect = this.element.nativeElement.getBoundingClientRect();
     const percentage =
-      (position - (this.state.orientation() === 'horizontal' ? rect.left : rect.top)) /
-      (this.state.orientation() === 'horizontal' ? rect.width : rect.height);
+      (position - (this.state().orientation() === 'horizontal' ? rect.left : rect.top)) /
+      (this.state().orientation() === 'horizontal' ? rect.width : rect.height);
 
     // update the value based on the position
-    this.state.value.set(this.state.min() + (this.state.max() - this.state.min()) * percentage);
-    this.state.valueChange.emit(this.state.value());
+    this.state().value.set(
+      this.state().min() + (this.state().max() - this.state().min()) * percentage,
+    );
+    this.state().valueChange.emit(this.state().value());
   }
 }

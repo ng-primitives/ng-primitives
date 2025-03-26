@@ -24,9 +24,9 @@ import { ChangeFn, provideValueAccessor, TouchedFn } from 'ng-primitives/utils';
   providers: [provideValueAccessor(Checkbox), provideIcons({ heroCheckMini, heroMinusMini })],
   imports: [NgIcon],
   template: `
-    @if (state.indeterminate()) {
+    @if (state().indeterminate()) {
       <ng-icon name="heroMinusMini" />
-    } @else if (state.checked()) {
+    } @else if (state().checked()) {
       <ng-icon name="heroCheckMini" />
     }
   `,
@@ -85,11 +85,11 @@ export class Checkbox implements ControlValueAccessor {
 
   constructor() {
     // Whenever the user interacts with the checkbox, call the onChange function with the new value.
-    this.state.checkedChange.subscribe(checked => this.onChangeFn?.(checked));
+    this.state().checkedChange.subscribe(checked => this.onChangeFn?.(checked));
   }
 
   writeValue(checked: boolean): void {
-    this.state.checked.set(checked);
+    this.state().checked.set(checked);
   }
 
   registerOnChange(fn: ChangeFn<boolean>): void {
@@ -101,6 +101,6 @@ export class Checkbox implements ControlValueAccessor {
   }
 
   setDisabledState(isDisabled: boolean): void {
-    this.state.disabled.set(isDisabled);
+    this.state().disabled.set(isDisabled);
   }
 }

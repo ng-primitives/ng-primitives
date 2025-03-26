@@ -8,7 +8,7 @@
 import { InjectionToken, inject } from '@angular/core';
 import type { NgpAccordionTrigger } from './accordion-trigger';
 
-export const NgpAccordionTriggerToken = new InjectionToken<NgpAccordionTrigger>(
+export const NgpAccordionTriggerToken = new InjectionToken<NgpAccordionTrigger<unknown>>(
   'NgpAccordionTriggerToken',
 );
 
@@ -16,6 +16,6 @@ export const NgpAccordionTriggerToken = new InjectionToken<NgpAccordionTrigger>(
  * Inject the AccordionTrigger directive instance
  * @returns The AccordionTrigger directive instance
  */
-export function injectAccordionTrigger(): NgpAccordionTrigger {
-  return inject(NgpAccordionTriggerToken);
+export function injectAccordionTrigger<T>(): NgpAccordionTrigger<T> {
+  return inject(NgpAccordionTriggerToken) as NgpAccordionTrigger<T>;
 }

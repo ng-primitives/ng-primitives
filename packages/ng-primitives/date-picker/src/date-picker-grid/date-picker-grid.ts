@@ -7,7 +7,6 @@
  */
 import { computed, Directive } from '@angular/core';
 import { injectDatePickerState } from '../date-picker/date-picker-state';
-import { injectDatePicker } from '../date-picker/date-picker-token';
 import { NgpDatePickerGridToken } from './date-picker-grid-token';
 
 @Directive({
@@ -17,15 +16,10 @@ import { NgpDatePickerGridToken } from './date-picker-grid-token';
   host: {
     role: 'grid',
     '[attr.aria-labelledby]': 'labelId()',
-    '[attr.data-disabled]': 'state.disabled() ? "" : null',
+    '[attr.data-disabled]': 'state().disabled() ? "" : null',
   },
 })
 export class NgpDatePickerGrid<T> {
-  /**
-   * Access the date picker.
-   */
-  private readonly datePicker = injectDatePicker<T>();
-
   /**
    * Access the date picker state.
    */
@@ -34,5 +28,5 @@ export class NgpDatePickerGrid<T> {
   /**
    * Determine the id for the label.
    */
-  protected readonly labelId = computed(() => this.datePicker.label()?.id());
+  protected readonly labelId = computed(() => this.state().label()?.id());
 }

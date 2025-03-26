@@ -7,22 +7,16 @@
  */
 import { Directive } from '@angular/core';
 import { injectProgressState } from '../progress/progress-state';
-import { injectProgress } from '../progress/progress-token';
 
 @Directive({
   selector: '[ngpProgressIndicator]',
   host: {
-    '[attr.data-state]': 'progress.dataState()',
-    '[attr.data-value]': 'state.value()',
-    '[attr.data-max]': 'state.max()',
+    '[attr.data-state]': 'state().dataState()',
+    '[attr.data-value]': 'state().value()',
+    '[attr.data-max]': 'state().max()',
   },
 })
 export class NgpProgressIndicator {
-  /**
-   * Access the progress directive.
-   */
-  protected readonly progress = injectProgress();
-
   /**
    * Access the progress state.
    */

@@ -1,0 +1,54 @@
+import { Component } from '@angular/core';
+import { NgIcon, provideIcons } from '@ng-icons/core';
+import { heroCheckSolid } from '@ng-icons/heroicons/solid';
+import { NgpListboxOption } from 'ng-primitives/listbox';
+
+@Component({
+  selector: 'app-listbox-option',
+  hostDirectives: [
+    {
+      directive: NgpListboxOption,
+      inputs: ['id', 'ngpListboxOptionValue:value', 'ngpListboxOptionDisabled:disabled'],
+    },
+  ],
+  imports: [NgIcon],
+  providers: [provideIcons({ heroCheckSolid })],
+  template: `
+    <ng-icon name="heroCheckSolid" size="16px" />
+    <ng-content />
+  `,
+  styles: `
+    :host {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.375rem 0.75rem;
+      cursor: pointer;
+      border-radius: 0.5rem;
+      width: 100%;
+      height: 36px;
+      box-sizing: border-box;
+    }
+
+    :host[data-hover] {
+      background-color: var(--ngp-background-hover);
+    }
+
+    :host[data-press] {
+      background-color: var(--ngp-background-active);
+    }
+
+    :host[data-active] {
+      background-color: var(--ngp-background-active);
+    }
+
+    :host ng-icon {
+      visibility: hidden;
+    }
+
+    :host[data-selected] ng-icon {
+      visibility: visible;
+    }
+  `,
+})
+export class ListboxOption {}

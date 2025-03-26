@@ -59,12 +59,12 @@ export class NgpDatePickerNextMonth<T> implements NgpCanDisable {
    * @internal
    */
   readonly disabled = computed(() => {
-    if (this.state.disabled()) {
+    if (this.state().disabled()) {
       return true;
     }
 
-    const maxDate = this.state.max();
-    const lastDay = this.dateAdapter.set(this.dateAdapter.endOfMonth(this.state.focusedDate()), {
+    const maxDate = this.state().max();
+    const lastDay = this.dateAdapter.set(this.dateAdapter.endOfMonth(this.state().focusedDate()), {
       hour: 23,
       minute: 59,
       second: 59,
@@ -89,7 +89,7 @@ export class NgpDatePickerNextMonth<T> implements NgpCanDisable {
     }
 
     // move focus to the first day of the next month.
-    let date = this.state.focusedDate();
+    let date = this.state().focusedDate();
     date = this.dateAdapter.add(date, { months: 1 });
     date = this.dateAdapter.set(date, {
       day: 1,

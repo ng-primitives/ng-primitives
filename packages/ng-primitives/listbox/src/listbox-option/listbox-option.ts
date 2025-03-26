@@ -7,14 +7,24 @@
  */
 import { FocusOrigin } from '@angular/cdk/a11y';
 import { BooleanInput } from '@angular/cdk/coercion';
-import { booleanAttribute, computed, Directive, input, signal } from '@angular/core';
+import {
+  booleanAttribute,
+  computed,
+  Directive,
+  effect,
+  input,
+  OnDestroy,
+  signal,
+} from '@angular/core';
 import {
   injectElementRef,
+  onDomRemoval,
   scrollIntoViewIfNeeded,
   setupInteractions,
 } from 'ng-primitives/internal';
 import { uniqueId } from 'ng-primitives/utils';
-import { injectListbox } from '../listbox/listbox-token';
+import type { NgpListbox } from '../listbox/listbox';
+import { injectListboxState } from '../listbox/listbox-state';
 import { NgpListboxOptionToken } from './listbox-option-token';
 
 @Directive({
@@ -25,7 +35,7 @@ import { NgpListboxOptionToken } from './listbox-option-token';
     role: 'option',
     '[attr.id]': 'id()',
     '[attr.aria-disabled]': 'optionDisabled()',
-    '[attr.data-active]': 'listbox.isFocused() && active() ? "" : undefined',
+    '[attr.data-active]': 'listbox()?.isFocused() && active() ? "" : undefined',
     '[attr.data-selected]': 'selected() ? "" : undefined',
     '[attr.data-disabled]': 'optionDisabled() ? "" : undefined',
     '(click)': 'select("mouse")',
@@ -34,8 +44,8 @@ import { NgpListboxOptionToken } from './listbox-option-token';
     '(keydown.space)': 'select("keyboard")',
   },
 })
-export class NgpListboxOption<T> {
-  protected readonly listbox = injectListbox<T>();
+export class NgpListboxOption<T> implements OnDestroy {
+  protected readonly listbox = injectListboxState<NgpListbox<T>>();
   private readonly elementRef = injectElementRef();
 
   /**
@@ -67,7 +77,7 @@ export class NgpListboxOption<T> {
    * @internal
    * Whether the option is selected.
    */
-  readonly selected = computed(() => this.listbox.isSelected(this.value()));
+  readonly selected = computed(() => this.listbox()?.isSelected(this.value()));
 
   /**
    * @internal
@@ -79,6 +89,21 @@ export class NgpListboxOption<T> {
 
   constructor() {
     setupInteractions({ disabled: this.optionDisabled });
+
+    // the listbox may not be available when the option is initialized
+    // so we need to add the option when the listbox is available
+    effect(() => this.listbox()?.addOption(this));
+
+    // any time the element is removed from the dom, we need to remove the option from the listbox
+    // and we also want to reset the active state
+    onDomRemoval(this.elementRef.nativeElement, () => {
+      this.listbox()?.removeOption(this);
+      this.setInactiveStyles();
+    });
+  }
+
+  ngOnDestroy(): void {
+    this.listbox()?.removeOption(this);
   }
 
   /**
@@ -111,7 +136,7 @@ export class NgpListboxOption<T> {
    * Selects the option.
    */
   select(origin: FocusOrigin): void {
-    this.listbox.selectOption(this.value(), origin);
+    this.listbox()?.selectOption(this.value(), origin);
   }
 
   /**
@@ -119,6 +144,6 @@ export class NgpListboxOption<T> {
    * Activate the current options.
    */
   activate(): void {
-    this.listbox.activateOption(this.value());
+    this.listbox()?.activateOption(this.value());
   }
 }

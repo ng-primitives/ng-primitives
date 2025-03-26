@@ -8,7 +8,7 @@
 import { InjectionToken, inject } from '@angular/core';
 import type { NgpAccordionContent } from './accordion-content';
 
-export const NgpAccordionContentToken = new InjectionToken<NgpAccordionContent>(
+export const NgpAccordionContentToken = new InjectionToken<NgpAccordionContent<unknown>>(
   'NgpAccordionContentToken',
 );
 
@@ -16,6 +16,6 @@ export const NgpAccordionContentToken = new InjectionToken<NgpAccordionContent>(
  * Inject the AccordionContent directive instance
  * @returns The AccordionContent directive instance
  */
-export function injectAccordionContent(): NgpAccordionContent {
-  return inject(NgpAccordionContentToken);
+export function injectAccordionContent<T>(): NgpAccordionContent<T> {
+  return inject(NgpAccordionContentToken) as NgpAccordionContent<T>;
 }

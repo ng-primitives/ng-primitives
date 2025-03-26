@@ -12,5 +12,13 @@
     "@trivago/prettier-plugin-sort-imports",
     "prettier-plugin-organize-attributes",
     "prettier-plugin-tailwindcss"
+  ],
+  "overrides": [
+    {
+      "files": "*.ng.html",
+      "options": {
+        "parser": "angular"
+      }
+    }
   ]
 }

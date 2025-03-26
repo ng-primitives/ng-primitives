@@ -11,34 +11,34 @@ import {
   AfterContentInit,
   booleanAttribute,
   computed,
-  contentChildren,
   DestroyRef,
   Directive,
   HostListener,
   inject,
   Injector,
   input,
-  model,
+  output,
   signal,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { NgpSelectionMode } from 'ng-primitives/common';
 import { explicitEffect, setupFocusVisible } from 'ng-primitives/internal';
 import { NgpPopoverTriggerToken } from 'ng-primitives/popover';
 import { uniqueId } from 'ng-primitives/utils';
 import type { NgpListboxOption } from '../listbox-option/listbox-option';
-import { NgpListboxOptionToken } from '../listbox-option/listbox-option-token';
+import { listboxState, provideListboxState } from './listbox-state';
 import { NgpListboxToken } from './listbox-token';
 
 @Directive({
   selector: '[ngpListbox]',
   exportAs: 'ngpListbox',
-  providers: [{ provide: NgpListboxToken, useExisting: NgpListbox }],
+  providers: [{ provide: NgpListboxToken, useExisting: NgpListbox }, provideListboxState()],
   host: {
-    '[id]': 'id()',
+    '[id]': 'state.id()',
     role: 'listbox',
     '[attr.tabindex]': 'tabindex()',
-    '[attr.aria-disabled]': 'disabled()',
-    '[attr.aria-multiselectable]': 'mode() === "multiple"',
+    '[attr.aria-disabled]': 'state.disabled()',
+    '[attr.aria-multiselectable]': 'state.mode() === "multiple"',
     '[attr.aria-activedescendant]': 'activeDescendant()',
     '(focusin)': 'isFocused.set(true)',
     '(focusout)': 'isFocused.set(false)',
@@ -75,8 +75,15 @@ export class NgpListbox<T> implements AfterContentInit {
   /**
    * The listbox selection.
    */
-  readonly value = model<T[]>([], {
+  readonly value = input<T[]>([], {
     alias: 'ngpListboxValue',
+  });
+
+  /**
+   * Emits when the listbox selection changes.
+   */
+  readonly valueChange = output<T[]>({
+    alias: 'ngpListboxValueChange',
   });
 
   /**
@@ -103,9 +110,7 @@ export class NgpListbox<T> implements AfterContentInit {
   /**
    * Access the options in the listbox.
    */
-  protected readonly options = contentChildren<NgpListboxOption<T>>(NgpListboxOptionToken, {
-    descendants: true,
-  });
+  protected readonly options = signal<NgpListboxOption<T>[]>([]);
 
   /**
    * The active descendant of the listbox.
@@ -123,8 +128,13 @@ export class NgpListbox<T> implements AfterContentInit {
    */
   readonly isFocused = signal(false);
 
+  /**
+   * The listbox state
+   */
+  private readonly state = listboxState<NgpListbox<T>>(this);
+
   constructor() {
-    setupFocusVisible({ disabled: this.disabled });
+    setupFocusVisible({ disabled: this.state.disabled });
   }
 
   ngAfterContentInit(): void {
@@ -179,14 +189,17 @@ export class NgpListbox<T> implements AfterContentInit {
    * Selects an option in the listbox.
    */
   selectOption(value: T, origin: FocusOrigin): void {
-    if (this.mode() === 'single') {
-      this.value.set([value]);
+    if (this.state.mode() === 'single') {
+      this.state.value.set([value]);
+      this.state.valueChange.emit(this.state.value());
     } else {
       // if the value is already selected, remove it, otherwise add it
-      if (this.isSelected(value)) {
-        this.value.set(this.value().filter(v => !this.compareWith()(v, value)));
+      if (this.state.isSelected(value)) {
+        this.state.value.set(this.value().filter(v => !this.compareWith()(v, value)));
+        this.state.valueChange.emit(this.state.value());
       } else {
-        this.value.set([...this.value(), value]);
+        this.state.value.set([...this.value(), value]);
+        this.state.valueChange.emit(this.state.value());
       }
     }
 
@@ -198,7 +211,7 @@ export class NgpListbox<T> implements AfterContentInit {
     }
 
     // If the listbox is within a popover, close the popover on selection if it is not in a multiple selection mode.
-    if (this.mode() !== 'multiple') {
+    if (this.state.mode() !== 'multiple') {
       this.popoverTrigger?.hide(origin);
     }
   }
@@ -208,7 +221,7 @@ export class NgpListbox<T> implements AfterContentInit {
    * Determine if an option is selected using the compareWith function.
    */
   isSelected(value: T): boolean {
-    return this.value().some(v => this.compareWith()(v, value));
+    return this.state.value().some(v => this.state.compareWith()(v, value));
   }
 
   /**
@@ -216,12 +229,29 @@ export class NgpListbox<T> implements AfterContentInit {
    * Activate an option in the listbox.
    */
   activateOption(value: T) {
-    const option = this.options().find(o => this.compareWith()(o.value(), value));
+    const option = this.options().find(o => this.state.compareWith()(o.value(), value));
 
     if (option) {
       this.keyManager.setActiveItem(option);
     }
   }
-}
 
-export type NgpSelectionMode = 'single' | 'multiple';
+  /**
+   * Registers an option with the listbox.
+   * @internal
+   */
+  addOption(option: NgpListboxOption<T>): void {
+    // if the option already exists, do not add it again
+    if (!this.options().includes(option)) {
+      this.options.update(options => [...options, option]);
+    }
+  }
+
+  /**
+   * Deregisters an option with the listbox.
+   * @internal
+   */
+  removeOption(option: NgpListboxOption<T>): void {
+    this.options.update(options => options.filter(o => o !== option));
+  }
+}

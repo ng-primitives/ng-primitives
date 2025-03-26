@@ -7,8 +7,9 @@
  */
 import { Directive, input } from '@angular/core';
 import { uniqueId } from 'ng-primitives/utils';
-import { injectAccordionItem } from '../accordion-item/accordion-item-token';
-import { injectAccordion } from '../accordion/accordion-token';
+import { injectAccordionItemState } from '../accordion-item/accordion-item-state';
+import type { NgpAccordion } from '../accordion/accordion';
+import { injectAccordionState } from '../accordion/accordion-state';
 import { NgpAccordionContentToken } from './accordion-content-token';
 
 @Directive({
@@ -18,21 +19,21 @@ import { NgpAccordionContentToken } from './accordion-content-token';
   host: {
     role: 'region',
     '[id]': 'id()',
-    '[attr.data-orientation]': 'accordion.orientation()',
-    '[attr.data-open]': 'accordionItem.open() ? "" : null',
-    '[attr.aria-labelledby]': 'accordionItem.triggerId()',
+    '[attr.data-orientation]': 'accordion().orientation()',
+    '[attr.data-open]': 'accordionItem().open() ? "" : null',
+    '[attr.aria-labelledby]': 'accordionItem().triggerId()',
   },
 })
-export class NgpAccordionContent {
+export class NgpAccordionContent<T> {
   /**
    * Access the accordion
    */
-  protected readonly accordion = injectAccordion();
+  protected readonly accordion = injectAccordionState<NgpAccordion<T>>();
 
   /**
    * Access the accordion item
    */
-  protected readonly accordionItem = injectAccordionItem();
+  protected readonly accordionItem = injectAccordionItemState();
 
   /**
    * The id of the content region

@@ -59,19 +59,22 @@ export class NgpDatePickerPreviousMonth<T> implements NgpCanDisable {
    * @internal
    */
   readonly disabled = computed(() => {
-    if (this.state.disabled()) {
+    if (this.state().disabled()) {
       return true;
     }
 
-    const minDate = this.state.min();
+    const minDate = this.state().min();
 
     // if the next month is out of bounds, disable it.
-    const firstDay = this.dateAdapter.set(this.dateAdapter.startOfMonth(this.state.focusedDate()), {
-      hour: 0,
-      minute: 0,
-      second: 0,
-      millisecond: 0,
-    });
+    const firstDay = this.dateAdapter.set(
+      this.dateAdapter.startOfMonth(this.state().focusedDate()),
+      {
+        hour: 0,
+        minute: 0,
+        second: 0,
+        millisecond: 0,
+      },
+    );
 
     // if there is a min date and it is equal to or after the first day of the month, disable it.
     if (minDate && this.dateAdapter.compare(minDate, firstDay) >= 0) {
@@ -91,7 +94,7 @@ export class NgpDatePickerPreviousMonth<T> implements NgpCanDisable {
     }
 
     // move focus to the first day of the previous month.
-    let date = this.state.focusedDate();
+    let date = this.state().focusedDate();
     date = this.dateAdapter.subtract(date, { months: 1 });
     date = this.dateAdapter.set(date, {
       day: 1,

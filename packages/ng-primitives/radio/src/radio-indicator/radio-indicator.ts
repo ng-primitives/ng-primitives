@@ -14,7 +14,7 @@ import { injectRadioItemState } from '../radio-item/radio-item-state';
   selector: '[ngpRadioIndicator]',
   host: {
     '[attr.data-checked]': 'checked() ? "" : null',
-    '[attr.data-disabled]': 'radioItemState.disabled() ? "" : null',
+    '[attr.data-disabled]': 'radioItemState().disabled() ? "" : null',
   },
   hostDirectives: [NgpHover, NgpPress],
 })
@@ -33,6 +33,6 @@ export class NgpRadioIndicator {
    * Determine if the radio indicator is checked.
    */
   protected readonly checked = computed(
-    () => this.radioGroupState.value() === this.radioItemState.value(),
+    () => this.radioGroupState().value() === this.radioItemState().value(),
   );
 }
