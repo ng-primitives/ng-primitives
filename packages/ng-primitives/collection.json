@@ -6,6 +6,12 @@
       "schema": "./schematics/ng-add/schema.json",
       "hidden": true
     },
+    "init": {
+      "description": "Add Angular Primitives to a project (Nx CLI.",
+      "factory": "./schematics/ng-add/index",
+      "schema": "./schematics/ng-add/schema.json",
+      "hidden": true
+    },
     "primitive": {
       "description": "Add Angular Primitives to a project.",
       "factory": "./schematics/ng-generate/index",
