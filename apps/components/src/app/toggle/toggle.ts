@@ -67,12 +67,12 @@ export class Toggle implements ControlValueAccessor {
 
   constructor() {
     // Any time the toggle changes, update the form value.
-    this.toggle.selectedChange.subscribe(value => this.onChange?.(value));
+    this.toggle().selectedChange.subscribe(value => this.onChange?.(value));
   }
 
   /** Write a new value to the toggle. */
   writeValue(value: boolean): void {
-    this.toggle.selected.set(value);
+    this.toggle().selected.set(value);
   }
 
   /** Register a callback function to be called when the value changes. */
@@ -87,6 +87,6 @@ export class Toggle implements ControlValueAccessor {
 
   /** Set the disabled state of the toggle. */
   setDisabledState(isDisabled: boolean): void {
-    this.toggle.disabled.set(isDisabled);
+    this.toggle().disabled.set(isDisabled);
   }
 }

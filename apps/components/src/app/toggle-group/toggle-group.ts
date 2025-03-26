@@ -48,12 +48,12 @@ export class ToggleGroup implements ControlValueAccessor {
 
   constructor() {
     // Any time the toggle group changes, update the form value.
-    this.toggleGroup.valueChange.subscribe(value => this.onChange?.(value));
+    this.toggleGroup().valueChange.subscribe(value => this.onChange?.(value));
   }
 
   /** Write a new value to the toggle group. */
   writeValue(value: string[]): void {
-    this.toggleGroup.value.set(value);
+    this.toggleGroup().value.set(value);
   }
 
   /** Register a callback function to be called when the value changes. */
@@ -68,6 +68,6 @@ export class ToggleGroup implements ControlValueAccessor {
 
   /** Set the disabled state of the toggle group. */
   setDisabledState(isDisabled: boolean): void {
-    this.toggleGroup.disabled.set(isDisabled);
+    this.toggleGroup().disabled.set(isDisabled);
   }
 }

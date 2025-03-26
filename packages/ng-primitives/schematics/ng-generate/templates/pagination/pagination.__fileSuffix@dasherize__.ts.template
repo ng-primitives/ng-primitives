@@ -153,7 +153,7 @@ export class Pagination<%= componentSuffix %> implements ControlValueAccessor {
 
   /** Get the pages as an array we can iterate over */
   protected readonly pages = computed(() =>
-    Array.from({ length: this.state.pageCount() }).map((_, i) => i + 1),
+    Array.from({ length: this.state().pageCount() }).map((_, i) => i + 1),
   );
 
   /** The onChange callback */
@@ -163,12 +163,12 @@ export class Pagination<%= componentSuffix %> implements ControlValueAccessor {
   protected onTouched?: TouchedFn;
 
   constructor() {
-    this.state.pageChange.subscribe(value => this.onChange?.(value));
+    this.state().pageChange.subscribe(value => this.onChange?.(value));
   }
 
   /** Write a new value to the control */
   writeValue(value: number): void {
-    this.state.page.set(value);
+    this.state().page.set(value);
   }
 
   /** Register a callback to be called when the value changes */

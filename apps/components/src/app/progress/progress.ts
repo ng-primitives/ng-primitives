@@ -11,7 +11,7 @@ import { injectProgressState, NgpProgress, NgpProgressIndicator } from 'ng-primi
   ],
   imports: [NgpProgressIndicator],
   template: `
-    <div [style.width.%]="state.value()" ngpProgressIndicator></div>
+    <div [style.width.%]="state().value()" ngpProgressIndicator></div>
   `,
   styles: `
     :host {
