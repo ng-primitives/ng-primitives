@@ -8,6 +8,7 @@
 import { DOCUMENT, isPlatformBrowser } from '@angular/common';
 import { effect, ElementRef, inject, Injectable, PLATFORM_ID, Signal, signal } from '@angular/core';
 import { injectDisposables, onBooleanChange } from 'ng-primitives/utils';
+import { onDomRemoval } from '../utilities/dom-removal';
 
 /**
  * We use a service here as this value is a singleton
@@ -118,6 +119,9 @@ export function setupHover({
   if (disabled) {
     onBooleanChange(disabled, reset);
   }
+
+  // if the element is removed from the dom, we want to reset the hover state
+  onDomRemoval(elementRef.nativeElement, reset);
 
   // anytime the hover state changes we want to update the attribute
   effect(() =>

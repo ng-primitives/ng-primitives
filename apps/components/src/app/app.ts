@@ -21,6 +21,7 @@ import { RouterLink, RouterOutlet } from '@angular/router';
       <a routerLink="/toggle">Toggle</a>
       <a routerLink="/toggle-group">Toggle Group</a>
       <a routerLink="/tabs">Tabs</a>
+      <a routerLink="/listbox">Listbox</a>
     </nav>
     <router-outlet />
   `,

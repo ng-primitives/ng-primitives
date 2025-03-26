@@ -17,6 +17,7 @@
         "date-picker",
         "form-field",
         "input",
+        "listbox",
         "pagination",
         "progress",
         "radio",

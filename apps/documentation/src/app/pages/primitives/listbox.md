@@ -6,7 +6,7 @@ name: 'Listbox'
 
 A listbox presents a set of choices and lets users select one or multiple options. It can be paired with the `NgpPopover` directive to create a dropdown listbox.
 
-<docs-example name="listbox"></docs-example>
+<docs-example name="listbox-select"></docs-example>
 
 ## Import
 
@@ -28,7 +28,35 @@ Assemble the listbox directives in your template.
 </div>
 ```
 
+## Reusable Component
+
+Create a reusable component that uses the listbox directives.
+
+<docs-snippet name="listbox"></docs-snippet>
+
+## Schematics
+
+Generate a reusable listbox component using the Angular CLI.
+
+```bash npm
+ng g ng-primitives:primitive listbox
+```
+
+### Options
+
+- `path`: The path at which to create the component file.
+- `prefix`: The prefix to apply to the generated component selector.
+- `componentSuffix`: The suffix to apply to the generated component class name.
+- `fileSuffix`: The suffix to apply to the generated component file name. Defaults to `component`.
+- `exampleStyles`: Whether to include example styles in the generated component file. Defaults to `true`.
+
 ## Examples
+
+### Single-Select Listbox
+
+The listbox can be configured to allow a single selection.
+
+<docs-example name="listbox"></docs-example>
 
 ### Multi-Select Listbox
 
@@ -41,12 +69,6 @@ The listbox can be configured to allow multiple selections.
 The listbox can be configured to have sections and headers.
 
 <docs-example name="listbox-sections"></docs-example>
-
-### Select Listbox
-
-The listbox can be configured to act as a select dropdown.
-
-<docs-example name="listbox-select"></docs-example>
 
 ## API Reference
 

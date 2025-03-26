@@ -76,9 +76,9 @@ export function createStateInjector<T>(
     const value = inject(token) as Signal<State<U> | undefined>;
 
     if (options.deferred) {
-      return computed(() => (Object.keys(value).length === 0 ? undefined : value())) as Signal<
-        State<U> | undefined
-      >;
+      return computed(() =>
+        Object.keys(value() ?? {}).length === 0 ? undefined : value(),
+      ) as Signal<State<U> | undefined>;
     }
 
     return value as Signal<State<U>>;
@@ -109,7 +109,7 @@ export function createState(token: ProviderToken<WritableSignal<State<unknown>>>
         (obj as Record<string, unknown>)[key] = prototype[key as keyof U].bind(state);
       }
 
-      return obj;
+      return { ...obj };
     });
 
     return internalState() as unknown as State<U>;
