@@ -7,7 +7,7 @@
       "hidden": true
     },
     "init": {
-      "description": "Add Angular Primitives to a project (Nx CLI.",
+      "description": "Add Angular Primitives to a project (Nx CLI).",
       "factory": "./schematics/ng-add/index",
       "schema": "./schematics/ng-add/schema.json",
       "hidden": true
