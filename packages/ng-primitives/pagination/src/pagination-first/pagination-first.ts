@@ -47,7 +47,7 @@ export class NgpPaginationFirst implements NgpCanDisable {
   });
 
   readonly disabled = computed(
-    () => this.buttonDisabled() || this.state.disabled() || this.pagination.firstPage(),
+    () => this.buttonDisabled() || this.state().disabled() || this.pagination.firstPage(),
   );
 
   /**

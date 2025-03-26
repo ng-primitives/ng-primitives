@@ -17,7 +17,7 @@ import { NgpDatePickerLabelToken } from './date-picker-label-token';
   host: {
     '[id]': 'id()',
     '[attr.aria-live]': 'ariaLive()',
-    '[attr.data-disabled]': 'state.disabled() ? "" : null',
+    '[attr.data-disabled]': 'state().disabled() ? "" : null',
   },
 })
 export class NgpDatePickerLabel<T> {

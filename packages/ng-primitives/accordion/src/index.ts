@@ -21,3 +21,8 @@ export {
 export { NgpAccordion } from './accordion/accordion';
 export { NgpAccordionToken, injectAccordion } from './accordion/accordion-token';
 export { NgpAccordionConfig, provideAccordionConfig } from './config/accordion-config';
+export { provideAccordionState, injectAccordionState } from './accordion/accordion-state';
+export {
+  provideAccordionItemState,
+  injectAccordionItemState,
+} from './accordion-item/accordion-item-state';

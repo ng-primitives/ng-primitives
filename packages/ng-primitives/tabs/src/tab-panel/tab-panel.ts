@@ -18,7 +18,7 @@ import { NgpTabPanelToken } from './tab-panel-token';
     tabIndex: '0',
     '[attr.aria-labelledby]': 'labelledBy()',
     '[attr.data-active]': 'active() ? "" : null',
-    '[attr.data-orientation]': 'state.orientation()',
+    '[attr.data-orientation]': 'state().orientation()',
   },
 })
 export class NgpTabPanel implements OnInit, OnDestroy {
@@ -42,21 +42,21 @@ export class NgpTabPanel implements OnInit, OnDestroy {
    * Determine a unique id for the tab panel if not provided
    * @internal
    */
-  protected readonly defaultId = computed(() => `${this.state.id()}-panel-${this.value()}`);
+  protected readonly defaultId = computed(() => `${this.state().id()}-panel-${this.value()}`);
 
   /**
    * Determine the aria-labelledby of the tab panel
    * @internal
    */
-  protected readonly labelledBy = computed(() => `${this.state.id()}-button-${this.value()}`);
+  protected readonly labelledBy = computed(() => `${this.state().id()}-button-${this.value()}`);
 
   /**
    * Whether the tab is active
    */
-  protected readonly active = computed(() => this.state.selectedTab() === this.value());
+  protected readonly active = computed(() => this.state().selectedTab() === this.value());
 
   ngOnInit(): void {
-    this.state.registerTab(this);
+    this.state().registerTab(this);
 
     if (this.value() === undefined) {
       throw new Error('ngpTabPanel: value is required');
@@ -64,6 +64,6 @@ export class NgpTabPanel implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
-    this.state.unregisterTab(this);
+    this.state().unregisterTab(this);
   }
 }

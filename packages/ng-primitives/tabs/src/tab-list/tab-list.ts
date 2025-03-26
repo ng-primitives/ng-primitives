@@ -13,8 +13,8 @@ import { injectTabsetState } from '../tabset/tabset-state';
   exportAs: 'ngpTabList',
   host: {
     role: 'tablist',
-    '[attr.aria-orientation]': 'state.orientation()',
-    '[attr.data-orientation]': 'state.orientation()',
+    '[attr.aria-orientation]': 'state().orientation()',
+    '[attr.data-orientation]': 'state().orientation()',
   },
 })
 export class NgpTabList {

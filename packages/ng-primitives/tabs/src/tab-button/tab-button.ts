@@ -20,7 +20,7 @@ import { injectTabsetState } from '../tabset/tabset-state';
     '[attr.aria-controls]': 'ariaControls()',
     '[attr.data-active]': 'active() ? "" : null',
     '[attr.data-disabled]': 'disabled() ? "" : null',
-    '[attr.data-orientation]': 'state.orientation()',
+    '[attr.data-orientation]': 'state().orientation()',
   },
   hostDirectives: [NgpRovingFocusItem, NgpHover, NgpFocusVisible, NgpPress],
 })
@@ -54,18 +54,18 @@ export class NgpTabButton implements OnInit {
    * Determine a unique id for the tab button if not provided
    * @internal
    */
-  readonly defaultId = computed(() => `${this.state.id()}-button-${this.value()}`);
+  readonly defaultId = computed(() => `${this.state().id()}-button-${this.value()}`);
 
   /**
    * Determine the aria-controls of the tab button
    * @internal
    */
-  readonly ariaControls = computed(() => `${this.state.id()}-panel-${this.value()}`);
+  readonly ariaControls = computed(() => `${this.state().id()}-panel-${this.value()}`);
 
   /**
    * Whether the tab is active
    */
-  readonly active = computed(() => this.state.selectedTab() === this.value());
+  readonly active = computed(() => this.state().selectedTab() === this.value());
 
   ngOnInit(): void {
     if (this.value() === undefined) {
@@ -78,7 +78,7 @@ export class NgpTabButton implements OnInit {
    */
   @HostListener('click')
   select(): void {
-    this.state.select(this.value()!);
+    this.state().select(this.value()!);
   }
 
   /**
@@ -86,7 +86,7 @@ export class NgpTabButton implements OnInit {
    */
   @HostListener('focus')
   protected activateOnFocus(): void {
-    if (this.state.activateOnFocus()) {
+    if (this.state().activateOnFocus()) {
       this.select();
     }
   }

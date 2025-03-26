@@ -1,4 +1,5 @@
 import {
+  computed,
   FactoryProvider,
   inject,
   InjectionToken,
@@ -7,6 +8,8 @@ import {
   isSignal,
   linkedSignal,
   ProviderToken,
+  signal,
+  Signal,
   WritableSignal,
 } from '@angular/core';
 
@@ -23,12 +26,14 @@ export type State<T> = {
       : T[K];
 };
 
+export type InjectedState<T> = Signal<State<T>>;
+
 /**
  * Create a new injection token for the state.
  * @param description The description of the token
  */
 export function createStateToken<T>(description: string): InjectionToken<T> {
-  return new InjectionToken<State<T>>(`Ngp${description}StateToken`);
+  return new InjectionToken<Signal<State<T>>>(`Ngp${description}StateToken`);
 }
 
 /**
@@ -40,41 +45,73 @@ export function createStateToken<T>(description: string): InjectionToken<T> {
 export function createStateProvider<T>(token: ProviderToken<T>): () => FactoryProvider {
   return () => ({
     provide: token,
-    useFactory: () => inject(token, { optional: true, skipSelf: true }) ?? {},
+    useFactory: () => inject(token, { optional: true, skipSelf: true }) ?? signal({}),
   });
 }
+
+type CreateStateInjectorOptions = {
+  /**
+   * Whether the state may not be immediately available. This can happen when the child is instantiated before the parent.
+   */
+  deferred?: boolean;
+};
 
 /**
  * Create a new state injector for the state.
  * @param token The token for the state
  */
-export function createStateInjector<T>(token: ProviderToken<State<T>>): <U = T>() => State<U> {
-  return <U = T>() => inject(token) as unknown as State<U>;
+export function createStateInjector<T>(
+  token: ProviderToken<State<T>>,
+  options: { deferred: true },
+): <U = T>() => Signal<State<U> | undefined>;
+export function createStateInjector<T>(
+  token: ProviderToken<State<T>>,
+  options?: CreateStateInjectorOptions,
+): <U = T>() => Signal<State<U>>;
+export function createStateInjector<T>(
+  token: ProviderToken<State<T>>,
+  options: CreateStateInjectorOptions = {},
+): <U = T>() => Signal<State<U> | undefined> {
+  return <U = T>() => {
+    const value = inject(token) as Signal<State<U> | undefined>;
+
+    if (options.deferred) {
+      return computed(() => (Object.keys(value).length === 0 ? undefined : value())) as Signal<
+        State<U> | undefined
+      >;
+    }
+
+    return value as Signal<State<U>>;
+  };
 }
 
 /**
  * Convert the original state object into a writable state object.
  * @param token The token for the state
  */
-export function createState(token: ProviderToken<State<unknown>>) {
+export function createState(token: ProviderToken<WritableSignal<State<unknown>>>) {
   return <U>(state: U): State<U> => {
     const internalState = inject(token);
 
-    // Iterating over properties
-    for (const key in state) {
-      const value = state[key as keyof U];
+    internalState.update(obj => {
+      // Iterating over properties
+      for (const key in state) {
+        const value = state[key as keyof U];
 
-      // @ts-ignore
-      internalState[key] = isSignal(value) ? linkedSignal(() => value()) : value;
-    }
+        // @ts-ignore
+        obj[key] = isSignal(value) ? linkedSignal(() => value()) : value;
+      }
 
-    // Iterating over prototype methods
-    const prototype = Object.getPrototypeOf(state);
+      // Iterating over prototype methods
+      const prototype = Object.getPrototypeOf(state);
 
-    for (const key of Object.getOwnPropertyNames(prototype)) {
-      (internalState as Record<string, unknown>)[key] = prototype[key as keyof U].bind(state);
-    }
+      for (const key of Object.getOwnPropertyNames(prototype)) {
+        (obj as Record<string, unknown>)[key] = prototype[key as keyof U].bind(state);
+      }
 
-    return internalState as unknown as State<U>;
+      return obj;
+    });
+
+    return internalState() as unknown as State<U>;
   };
 }
