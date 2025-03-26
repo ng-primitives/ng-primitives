@@ -10,12 +10,10 @@ import { uniqueId } from 'ng-primitives/utils';
 import { injectAccordionItemState } from '../accordion-item/accordion-item-state';
 import type { NgpAccordion } from '../accordion/accordion';
 import { injectAccordionState } from '../accordion/accordion-state';
-import { NgpAccordionContentToken } from './accordion-content-token';
 
 @Directive({
   selector: '[ngpAccordionContent]',
   exportAs: 'ngpAccordionContent',
-  providers: [{ provide: NgpAccordionContentToken, useExisting: NgpAccordionContent }],
   host: {
     role: 'region',
     '[id]': 'id()',
@@ -39,4 +37,8 @@ export class NgpAccordionContent<T> {
    * The id of the content region
    */
   readonly id = input<string>(uniqueId('ngp-accordion-content'));
+
+  constructor() {
+    this.accordionItem().content.set(this);
+  }
 }

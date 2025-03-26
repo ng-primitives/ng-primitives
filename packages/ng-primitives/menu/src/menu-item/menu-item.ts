@@ -9,12 +9,10 @@ import { BooleanInput } from '@angular/cdk/coercion';
 import { CdkMenuItem } from '@angular/cdk/menu';
 import { booleanAttribute, Directive, input } from '@angular/core';
 import { NgpFocusVisible, NgpHover, NgpPress } from 'ng-primitives/interactions';
-import { NgpMenuItemToken } from './menu-item-token';
 
 @Directive({
   selector: '[ngpMenuItem]',
   exportAs: 'ngpMenuItem',
-  providers: [{ provide: NgpMenuItemToken, useExisting: NgpMenuItem }],
   hostDirectives: [
     { directive: CdkMenuItem, inputs: ['cdkMenuItemDisabled:ngpMenuItemDisabled'] },
     NgpFocusVisible,

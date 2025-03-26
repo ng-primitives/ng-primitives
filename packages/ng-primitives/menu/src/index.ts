@@ -6,9 +6,6 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-export { NgpMenu } from './menu/menu';
-export { NgpMenuToken, injectMenu } from './menu/menu-token';
-export { NgpMenuTrigger } from './menu-trigger/menu-trigger';
-export { NgpMenuTriggerToken, injectMenuTrigger } from './menu-trigger/menu-trigger-token';
 export { NgpMenuItem } from './menu-item/menu-item';
-export { NgpMenuItemToken, injectMenuItem } from './menu-item/menu-item-token';
+export { NgpMenuTrigger } from './menu-trigger/menu-trigger';
+export { NgpMenu } from './menu/menu';

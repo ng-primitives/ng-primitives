@@ -8,12 +8,10 @@
 import { CdkMenuTrigger } from '@angular/cdk/menu';
 import { Directive, effect, inject, input, signal, TemplateRef } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { NgpMenuTriggerToken } from './menu-trigger-token';
 
 @Directive({
   selector: '[ngpMenuTrigger]',
   exportAs: 'ngpMenuTrigger',
-  providers: [{ provide: NgpMenuTriggerToken, useExisting: NgpMenuTrigger }],
   hostDirectives: [{ directive: CdkMenuTrigger }],
   host: {
     '[attr.data-open]': 'open() ? "" : null',

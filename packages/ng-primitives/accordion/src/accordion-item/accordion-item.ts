@@ -6,21 +6,17 @@
  * LICENSE file in the root directory of this source tree.
  */
 import { BooleanInput } from '@angular/cdk/coercion';
-import { Directive, OnInit, booleanAttribute, computed, contentChild, input } from '@angular/core';
-import { NgpAccordionContentToken } from '../accordion-content/accordion-content-token';
-import { NgpAccordionTriggerToken } from '../accordion-trigger/accordion-trigger-token';
-import type { NgpAccordion } from '../accordion/accordion';
+import { Directive, OnInit, booleanAttribute, computed, input, signal } from '@angular/core';
+import { NgpAccordionContent } from '../accordion-content/accordion-content';
+import { NgpAccordionTrigger } from '../accordion-trigger/accordion-trigger';
+import { NgpAccordion } from '../accordion/accordion';
 import { injectAccordionState } from '../accordion/accordion-state';
 import { accordionItemState, provideAccordionItemState } from './accordion-item-state';
-import { NgpAccordionItemToken } from './accordion-item-token';
 
 @Directive({
   selector: '[ngpAccordionItem]',
   exportAs: 'ngpAccordionItem',
-  providers: [
-    { provide: NgpAccordionItemToken, useExisting: NgpAccordionItem },
-    provideAccordionItemState(),
-  ],
+  providers: [provideAccordionItemState()],
   host: {
     '[attr.data-orientation]': 'accordion().orientation()',
     '[attr.data-open]': 'state.open() ? "" : null',
@@ -50,13 +46,15 @@ export class NgpAccordionItem<T> implements OnInit {
 
   /**
    * Access the accordion trigger
+   * @internal
    */
-  private readonly trigger = contentChild(NgpAccordionTriggerToken);
+  readonly trigger = signal<NgpAccordionTrigger<T> | undefined>(undefined);
 
   /**
    * Access the accordion content
+   * @internal
    */
-  private readonly content = contentChild(NgpAccordionContentToken);
+  readonly content = signal<NgpAccordionContent<T> | undefined>(undefined);
 
   /**
    * Whether the accordion item is expanded.
