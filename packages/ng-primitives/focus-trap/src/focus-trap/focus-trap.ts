@@ -6,6 +6,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 import { InteractivityChecker } from '@angular/cdk/a11y';
+import { BooleanInput } from '@angular/cdk/coercion';
 import {
   booleanAttribute,
   Directive,
@@ -129,7 +130,7 @@ export class NgpFocusTrap implements OnInit, OnDestroy {
   /**
    * Whether the focus trap is disabled.
    */
-  readonly disabled = input(false, {
+  readonly disabled = input<boolean, BooleanInput>(false, {
     alias: 'ngpFocusTrapDisabled',
     transform: booleanAttribute,
   });

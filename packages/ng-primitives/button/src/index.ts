@@ -7,3 +7,4 @@
  */
 
 export { NgpButton } from './button/button';
+export { provideButtonState, injectButtonState } from './button/button-state';

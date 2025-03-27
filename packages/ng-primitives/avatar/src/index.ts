@@ -8,6 +8,6 @@
 
 export { NgpAvatarFallback } from './avatar-fallback/avatar-fallback';
 export { NgpAvatarImage } from './avatar-image/avatar-image';
-export { NgpAvatar, NgpAvatarState } from './avatar/avatar';
-export { NgpAvatarToken, injectAvatar } from './avatar/avatar-token';
+export { NgpAvatar, NgpAvatarStatus } from './avatar/avatar';
 export { NgpAvatarConfig, provideAvatarConfig } from './config/avatar-config';
+export { provideAvatarState, injectAvatarState } from './avatar/avatar-state';
