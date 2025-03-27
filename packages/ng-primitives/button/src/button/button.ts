@@ -8,15 +8,11 @@
 import { BooleanInput } from '@angular/cdk/coercion';
 import { booleanAttribute, Directive, ElementRef, inject, input } from '@angular/core';
 import { NgpCanDisable, NgpDisabledToken, setupInteractions } from 'ng-primitives/internal';
-import { NgpButtonToken } from './button-token';
 
 @Directive({
   selector: '[ngpButton]',
   exportAs: 'ngpButton',
-  providers: [
-    { provide: NgpButtonToken, useExisting: NgpButton },
-    { provide: NgpDisabledToken, useExisting: NgpButton },
-  ],
+  providers: [{ provide: NgpDisabledToken, useExisting: NgpButton }],
   host: {
     '[attr.data-disabled]': 'disabled() ? "" : null',
     '[attr.disabled]': 'isButton && disabled() ? true : null',

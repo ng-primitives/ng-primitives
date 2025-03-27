@@ -7,12 +7,10 @@
  */
 import { Directive, HostListener, output, signal } from '@angular/core';
 import { injectStyleInjector } from 'ng-primitives/internal';
-import { NgpAutofillToken } from './autofill-token';
 
 @Directive({
   selector: '[ngpAutofill]',
   exportAs: 'ngpAutofill',
-  providers: [{ provide: NgpAutofillToken, useExisting: NgpAutofill }],
   host: {
     '[attr.data-autofill]': 'autofilled() ? "" : null',
   },

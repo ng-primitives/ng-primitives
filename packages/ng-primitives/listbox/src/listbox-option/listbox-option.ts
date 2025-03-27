@@ -84,11 +84,18 @@ export class NgpListboxOption<T> implements OnDestroy {
    * Whether the option is disabled - this is used by the `Highlightable` interface.
    */
   get disabled(): boolean {
-    return this.optionDisabled();
+    return this._disabled();
   }
 
+  /**
+   * Whether the option is disabled.
+   */
+  protected readonly _disabled = computed(
+    () => this.optionDisabled() || (this.listbox()?.disabled() ?? false),
+  );
+
   constructor() {
-    setupInteractions({ disabled: this.optionDisabled });
+    setupInteractions({ disabled: this._disabled });
 
     // the listbox may not be available when the option is initialized
     // so we need to add the option when the listbox is available
@@ -144,6 +151,10 @@ export class NgpListboxOption<T> implements OnDestroy {
    * Activate the current options.
    */
   activate(): void {
+    if (this._disabled()) {
+      return;
+    }
+
     this.listbox()?.activateOption(this.value());
   }
 }

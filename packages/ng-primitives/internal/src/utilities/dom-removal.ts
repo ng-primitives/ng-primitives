@@ -1,3 +1,5 @@
+import { isPlatformServer } from '@angular/common';
+import { inject, PLATFORM_ID } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { fromResizeEvent } from 'ng-primitives/resize';
 
@@ -7,6 +9,13 @@ import { fromResizeEvent } from 'ng-primitives/resize';
  * @param callback The callback to call when the element is removed.
  */
 export function onDomRemoval(element: HTMLElement, callback: () => void): void {
+  const platform = inject(PLATFORM_ID);
+
+  // Dont run this on the server
+  if (isPlatformServer(platform)) {
+    return;
+  }
+
   // This is a bit of a hack, but it works. If the element dimensions become zero,
   // it's likely that the element has been removed from the DOM.
   fromResizeEvent(element)
