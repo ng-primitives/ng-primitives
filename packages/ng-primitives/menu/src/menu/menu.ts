@@ -7,12 +7,10 @@
  */
 import { CdkMenu } from '@angular/cdk/menu';
 import { Directive } from '@angular/core';
-import { NgpMenuToken } from './menu-token';
 
 @Directive({
   selector: '[ngpMenu]',
   exportAs: 'ngpMenu',
-  providers: [{ provide: NgpMenuToken, useExisting: NgpMenu }],
   hostDirectives: [CdkMenu],
 })
 export class NgpMenu {}

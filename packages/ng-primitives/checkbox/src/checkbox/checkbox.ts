@@ -12,15 +12,10 @@ import { NgpFocusVisible, NgpHover, NgpPress } from 'ng-primitives/interactions'
 import { NgpCanDisable, NgpDisabledToken } from 'ng-primitives/internal';
 import { uniqueId } from 'ng-primitives/utils';
 import { checkboxState, provideCheckboxState } from './checkbox-state';
-import { provideCheckbox } from './checkbox-token';
 
 @Directive({
   selector: '[ngpCheckbox]',
-  providers: [
-    provideCheckbox(NgpCheckbox),
-    provideCheckboxState(),
-    { provide: NgpDisabledToken, useExisting: NgpCheckbox },
-  ],
+  providers: [provideCheckboxState(), { provide: NgpDisabledToken, useExisting: NgpCheckbox }],
   hostDirectives: [NgpFormControl, NgpHover, NgpFocusVisible, NgpPress],
   host: {
     role: 'checkbox',

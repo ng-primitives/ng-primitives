@@ -6,4 +6,4 @@
  * LICENSE file in the root directory of this source tree.
  */
 export { NgpFileUpload } from './file-upload/file-upload';
-export { NgpFileUploadToken, injectFileUpload } from './file-upload/file-upload-token';
+export { provideFileUploadState, injectFileUploadState } from './file-upload/file-upload-state';

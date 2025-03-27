@@ -7,4 +7,3 @@
  */
 
 export { NgpAutofill } from './autofill/autofill';
-export { NgpAutofillToken, injectAutofill } from './autofill/autofill-token';

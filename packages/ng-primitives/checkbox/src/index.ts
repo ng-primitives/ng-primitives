@@ -8,4 +8,3 @@
 
 export { NgpCheckbox } from './checkbox/checkbox';
 export { injectCheckboxState, provideCheckboxState } from './checkbox/checkbox-state';
-export { injectCheckbox, NgpCheckboxToken } from './checkbox/checkbox-token';

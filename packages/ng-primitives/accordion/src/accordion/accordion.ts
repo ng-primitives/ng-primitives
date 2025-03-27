@@ -11,12 +11,11 @@ import { NgpOrientation } from 'ng-primitives/common';
 import { NgpCanOrientate } from 'ng-primitives/internal';
 import { injectAccordionConfig } from '../config/accordion-config';
 import { accordionState, provideAccordionState } from './accordion-state';
-import { NgpAccordionToken } from './accordion-token';
 
 @Directive({
   selector: '[ngpAccordion]',
   exportAs: 'ngpAccordion',
-  providers: [{ provide: NgpAccordionToken, useExisting: NgpAccordion }, provideAccordionState()],
+  providers: [provideAccordionState()],
   host: {
     '[attr.data-orientation]': 'state.orientation()',
     '[attr.data-disabled]': 'state.disabled() ? "" : null',

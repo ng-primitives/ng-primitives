@@ -6,10 +6,10 @@
  * LICENSE file in the root directory of this source tree.
  */
 import { NumberInput } from '@angular/cdk/coercion';
-import { Directive, OnInit, computed, input, numberAttribute, signal } from '@angular/core';
+import { computed, Directive, input, numberAttribute, OnInit, signal } from '@angular/core';
 import { injectDisposables } from 'ng-primitives/utils';
-import { NgpAvatarState } from '../avatar/avatar';
-import { injectAvatar } from '../avatar/avatar-token';
+import { NgpAvatarStatus } from '../avatar/avatar';
+import { injectAvatarState } from '../avatar/avatar-state';
 import { injectAvatarConfig } from '../config/avatar-config';
 
 @Directive({
@@ -22,7 +22,7 @@ export class NgpAvatarFallback implements OnInit {
   /**
    * Access the avatar
    */
-  private readonly avatar = injectAvatar();
+  private readonly avatar = injectAvatarState();
 
   /**
    * Access the global configuration.
@@ -50,7 +50,7 @@ export class NgpAvatarFallback implements OnInit {
   protected readonly visible = computed(
     () =>
       // we need to check if the element can render and if the avatar is not in a loaded state
-      this.delayElapsed() && this.avatar.state() !== NgpAvatarState.Loaded,
+      this.delayElapsed() && this.avatar().status() !== NgpAvatarStatus.Loaded,
   );
 
   /**
