@@ -1,3 +1,17 @@
+## 0.27.0 (2025-03-27)
+
+### 🚀 Features
+
+- deferred state ([#136](https://github.com/ng-primitives/ng-primitives/pull/136))
+
+### 🩹 Fixes
+
+- re-adding support for nx add ([#137](https://github.com/ng-primitives/ng-primitives/pull/137))
+
+### ❤️ Thank You
+
+- Ashley Hunter
+
 ## 0.26.1 (2025-03-23)
 
 ### 🩹 Fixes
