@@ -5,8 +5,8 @@
  * This source code is licensed under the Apache 2.0 license found in the
  * LICENSE file in the root directory of this source tree.
  */
-import { InteractivityChecker } from '@angular/cdk/a11y';
-import { afterNextRender, computed, Directive, inject, Injector, OnInit } from '@angular/core';
+import { FocusMonitor, FocusOrigin, InteractivityChecker } from '@angular/cdk/a11y';
+import { computed, Directive, inject } from '@angular/core';
 import { NgpFocusTrap } from 'ng-primitives/focus-trap';
 import { injectElementRef } from 'ng-primitives/internal';
 import { injectPopoverTrigger } from '../popover-trigger/popover-trigger-token';
@@ -27,7 +27,7 @@ import { NgpPopoverToken } from './popover-token';
     '(keydown.escape)': 'trigger.handleEscapeKey()',
   },
 })
-export class NgpPopover implements OnInit {
+export class NgpPopover {
   /**
    * Access the popover element.
    */
@@ -39,9 +39,9 @@ export class NgpPopover implements OnInit {
   private readonly interactivity = inject(InteractivityChecker);
 
   /**
-   * Access the injector.
+   * Access the focus monitor.
    */
-  private readonly injector = inject(Injector);
+  private readonly focusMonitor = inject(FocusMonitor);
 
   /**
    * Access the trigger instance.
@@ -63,18 +63,35 @@ export class NgpPopover implements OnInit {
    */
   protected readonly transformOrigin = computed(() => getTransformOrigin(this.trigger.placement()));
 
-  ngOnInit(): void {
-    // once the popover has rendered focus the element
-    afterNextRender(
+  constructor() {
+    this.trigger.setPopover(this);
+  }
+
+  /**
+   * Focus the first tabbable element inside the popover.
+   * If no tabbable element is found, focus the popover itself.
+   * @internal
+   */
+  setInitialFocus(origin: FocusOrigin): void {
+    // use a tree walker to find the first tabbable child
+    const treeWalker = document.createTreeWalker(
+      this.popover.nativeElement,
+      NodeFilter.SHOW_ELEMENT,
       {
-        write: () => {
-          // if the popover element is interactive then focus
-          if (this.interactivity.isFocusable(this.popover.nativeElement)) {
-            this.popover.nativeElement.focus();
-          }
-        },
+        acceptNode: node =>
+          node instanceof HTMLElement && this.interactivity.isTabbable(node)
+            ? NodeFilter.FILTER_ACCEPT
+            : NodeFilter.FILTER_SKIP,
       },
-      { injector: this.injector },
     );
+
+    const tabbableNode = treeWalker.nextNode() as HTMLElement | null;
+
+    if (tabbableNode) {
+      this.focusMonitor.focusVia(tabbableNode, origin);
+    } else {
+      // if no tabbable child is found, focus the popover element itself
+      this.popover.nativeElement.focus();
+    }
   }
 }

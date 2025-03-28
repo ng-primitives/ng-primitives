@@ -18,13 +18,6 @@ import { NgpMenu, NgpMenuItem, NgpMenuTrigger } from 'ng-primitives/menu';
 
 ## Usage
 
-The Menu primitives are a thin wrapper around the [Angular CDK Menu](https://material.angular.io/cdk/menu/overview) directives.
-As a result you will need to import the Angular CDK overlay styles in your application.
-
-```css
-@import '@angular/cdk/overlay-prebuilt.css';
-```
-
 Assemble the menu directives in your template.
 
 ```html
@@ -38,6 +31,16 @@ Assemble the menu directives in your template.
   </div>
 </ng-template>
 ```
+
+## Examples
+
+Here are some additional examples of how to use the Menu primitives.
+
+### Submenu
+
+The menu can contain submenus, which are nested menus that can be opened by hovering on a menu item.
+
+<docs-example name="submenu"></docs-example>
 
 ## API Reference
 
