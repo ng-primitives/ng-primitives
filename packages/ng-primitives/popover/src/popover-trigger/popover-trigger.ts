@@ -303,16 +303,16 @@ export class NgpPopoverTrigger implements OnDestroy {
     }
 
     this.state.set('closing');
-    this.disposables.setTimeout(() => this.destroyPopover(), this.hideDelay());
+    this.disposables.setTimeout(() => {
+      this.destroyPopover();
+      // ensure the trigger is focused after closing the popover
+      setTimeout(() => this.focusTrigger(origin), 0);
+    }, this.hideDelay());
 
     // Remove the document click listener when the popover is hidden
     if (this.documentClickListener) {
       this.document.removeEventListener('click', this.documentClickListener, true);
     }
-
-    // ensure the trigger is focused after closing the popover
-    // we need this delay but I can't quite figure out why?
-    setTimeout(() => this.focusTrigger(origin), 1);
   }
 
   private onDocumentClick(event: MouseEvent): void {
