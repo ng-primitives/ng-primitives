@@ -13,7 +13,7 @@ A menu is a list of options or commands presented to the user in a dropdown list
 Import the Menu primitives from `ng-primitives/menu`.
 
 ```ts
-import { NgpMenu, NgpMenuItem, NgpMenuTrigger } from 'ng-primitives/menu';
+import { NgpMenu, NgpMenuItem, NgpMenuTrigger, NgpSubmenuTrigger } from 'ng-primitives/menu';
 ```
 
 ## Usage

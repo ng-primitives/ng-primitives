@@ -27,6 +27,9 @@ import { injectPopoverTriggerState, NgpPopoverTrigger } from 'ng-primitives/popo
       ],
     },
   ],
+  host: {
+    'aria-haspopup': 'true',
+  },
 })
 export class NgpMenuTrigger {
   /** Access the popover trigger state */

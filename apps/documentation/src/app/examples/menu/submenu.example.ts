@@ -60,21 +60,21 @@ import { NgpMenu, NgpMenuItem, NgpMenuTrigger, NgpSubmenuTrigger } from 'ng-prim
       border: 1px solid var(--ngp-border);
       box-shadow: var(--ngp-shadow);
       border-radius: 8px;
-      padding: 2px;
-      margin: 2px 0;
-      outline: none;
+      padding: 4px;
     }
 
     [ngpMenuItem] {
-      padding: 8px 16px;
+      padding: 6px 14px;
       border: none;
       background: none;
       cursor: pointer;
       transition: background-color 0.2s;
-      border-radius: 6px;
+      border-radius: 4px;
       min-width: 120px;
       text-align: start;
       outline: none;
+      font-size: 14px;
+      font-weight: 400;
     }
 
     [ngpMenuItem][data-hover] {

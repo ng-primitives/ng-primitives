@@ -37,7 +37,6 @@ import {
   shift,
 } from '@floating-ui/dom';
 import { fromResizeEvent } from 'ng-primitives/resize';
-import { NgpRovingFocusGroupToken } from 'ng-primitives/roving-focus';
 import { injectDisposables, onBooleanChange } from 'ng-primitives/utils';
 import { injectPopoverConfig } from '../config/popover-config';
 import type { NgpPopover } from '../popover/popover';
@@ -46,13 +45,14 @@ import {
   popoverTriggerState,
   providePopoverTriggerState,
 } from './popover-trigger-state';
-import { providePopoverTrigger } from './popover-trigger-token';
+import { NgpPopoverTriggerToken, providePopoverTrigger } from './popover-trigger-token';
 
 @Directive({
   selector: '[ngpPopoverTrigger]',
   exportAs: 'ngpPopoverTrigger',
   providers: [providePopoverTrigger(NgpPopoverTrigger), providePopoverTriggerState()],
   host: {
+    '[attr.aria-expanded]': 'state.open() ? "true" : "false"',
     '[attr.data-open]': 'state.open() ? "" : null',
     '[attr.data-placement]': 'state.placement()',
     '[attr.data-disabled]': 'state.disabled() ? "" : null',
@@ -65,6 +65,14 @@ export class NgpPopoverTrigger implements OnDestroy {
    * Access the trigger element
    */
   private readonly trigger = inject(ElementRef<HTMLElement>);
+
+  /**
+   * Inject the parent popover trigger if available.
+   */
+  private readonly parentTrigger = inject(NgpPopoverTriggerToken, {
+    optional: true,
+    skipSelf: true,
+  });
 
   /**
    * Access the view container ref.
@@ -267,7 +275,16 @@ export class NgpPopoverTrigger implements OnDestroy {
       : new NoopScrollStrategy(),
   );
 
+  /**
+   * @internal
+   * Register any child popover to the stack.
+   */
+  private readonly stack: NgpPopoverTrigger[] = [];
+
   constructor() {
+    // if the trigger has a parent trigger then register it to the stack
+    this.parentTrigger?.stack.push(this);
+
     // any time the open state changes then show or hide the popover
     onBooleanChange(this.open, this.show.bind(this, 'program'), this.hide.bind(this, 'program'));
 
@@ -278,6 +295,9 @@ export class NgpPopoverTrigger implements OnDestroy {
   }
 
   ngOnDestroy(): void {
+    // remove the trigger from the parent trigger's stack
+    this.parentTrigger?.stack.splice(this.parentTrigger.stack.indexOf(this), 1);
+
     this.destroyPopover();
   }
 
@@ -314,7 +334,7 @@ export class NgpPopoverTrigger implements OnDestroy {
     // Add document click listener to detect outside clicks
     if (this.state.closeOnOutsideClick()) {
       this.documentClickListener = this.onDocumentClick.bind(this);
-      this.document.addEventListener('click', this.documentClickListener, true);
+      this.document.addEventListener('mouseup', this.documentClickListener, true);
     }
   }
 
@@ -328,6 +348,11 @@ export class NgpPopoverTrigger implements OnDestroy {
       return;
     }
 
+    // close all child popovers
+    for (const child of this.stack) {
+      child.hide(origin);
+    }
+
     this.state.open.set(false);
 
     this.disposables.setTimeout(() => {
@@ -335,11 +360,6 @@ export class NgpPopoverTrigger implements OnDestroy {
       // ensure the trigger is focused after closing the popover
       this.disposables.setTimeout(() => this.focusTrigger(origin), 0);
     }, this.hideDelay());
-
-    // Remove the document click listener when the popover is hidden
-    if (this.documentClickListener) {
-      this.document.removeEventListener('click', this.documentClickListener, true);
-    }
   }
 
   private onDocumentClick(event: MouseEvent): void {
@@ -348,7 +368,9 @@ export class NgpPopoverTrigger implements OnDestroy {
     // Check if the click is outside the trigger or the popover
     const isOutside =
       !this.trigger.nativeElement.contains(target) &&
-      !(this.viewRef?.rootNodes[0] as HTMLElement).contains(target);
+      !(this.viewRef?.rootNodes[0] as HTMLElement)?.contains(target);
+
+    // Determine if this is a click inside another popover
 
     if (isOutside) {
       // Close the popover
@@ -371,9 +393,8 @@ export class NgpPopoverTrigger implements OnDestroy {
       Injector.create({
         parent: this.injector,
         providers: [
-          { provide: NgpPopoverTrigger, useValue: this },
+          { provide: NgpPopoverTriggerToken, useValue: this },
           { provide: NgpPopoverTriggerStateToken, useValue: signal(this.state) },
-          { provide: NgpRovingFocusGroupToken, useValue: null },
         ],
       }),
     );
@@ -402,12 +423,23 @@ export class NgpPopoverTrigger implements OnDestroy {
 
   private destroyPopover(): void {
     this.open.set(false);
-    this.viewRef?.destroy();
+
+    // if the view is already destroyed then do not destroy it again
+    if (this.viewRef && !this.viewRef.destroyed) {
+      // destroy the view ref
+      this.viewRef.destroy();
+    }
+
     this.viewRef = null;
     this.dispose?.();
 
     // deactivate the scroll strategy
     this.scrollStrategy().disable();
+
+    // Remove the document click listener when the popover is hidden
+    if (this.documentClickListener) {
+      this.document.removeEventListener('mouseup', this.documentClickListener, true);
+    }
   }
 
   /**

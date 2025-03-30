@@ -8,11 +8,13 @@
 
 export { NgpRovingFocusGroup } from './roving-focus-group/roving-focus-group';
 export {
-  NgpRovingFocusGroupToken,
   injectRovingFocusGroup,
+  NgpRovingFocusGroupOptions,
+  NgpRovingFocusGroupToken,
+  provideRovingFocusGroup,
 } from './roving-focus-group/roving-focus-group-token';
 export { NgpRovingFocusItem } from './roving-focus-item/roving-focus-item';
 export {
-  NgpRovingFocusItemToken,
   injectRovingFocusItem,
+  NgpRovingFocusItemToken,
 } from './roving-focus-item/roving-focus-item-token';
