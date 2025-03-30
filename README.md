@@ -54,6 +54,7 @@ We welcome contributions from the community. Please refer to our [contributing g
     </tr>
     <tr>
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/ayush-seth"><img src="https://avatars.githubusercontent.com/u/24858182?v=4?s=100" width="100px;" alt="Ayush Seth"/><br /><sub><b>Ayush Seth</b></sub></a><br /><a href="https://github.com/ng-primitives/ng-primitives/commits?author=ayush-seth" title="Code">💻</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/dennis-ackolad"><img src="https://avatars.githubusercontent.com/u/55143772?v=4?s=100" width="100px;" alt="dennis-ackolad"/><br /><sub><b>dennis-ackolad</b></sub></a><br /><a href="https://github.com/ng-primitives/ng-primitives/commits?author=dennis-ackolad" title="Code">💻</a></td>
     </tr>
   </tbody>
 </table>
