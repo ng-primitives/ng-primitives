@@ -1,14 +1,28 @@
 import { Component } from '@angular/core';
+import { NgIcon, provideIcons } from '@ng-icons/core';
+import { heroChevronRightMini } from '@ng-icons/heroicons/mini';
 import { NgpButton } from 'ng-primitives/button';
-import { NgpMenu, NgpMenuItem, NgpMenuTrigger } from 'ng-primitives/menu';
+import { NgpMenu, NgpMenuItem, NgpMenuTrigger, NgpSubmenuTrigger } from 'ng-primitives/menu';
 
 @Component({
-  selector: 'app-menu',
-  imports: [NgpButton, NgpMenu, NgpMenuTrigger, NgpMenuItem],
+  selector: 'app-menu-submenu',
+  imports: [NgpButton, NgpMenu, NgpMenuTrigger, NgpMenuItem, NgpSubmenuTrigger, NgIcon],
+  providers: [provideIcons({ heroChevronRightMini })],
   template: `
     <button [ngpMenuTrigger]="menu" ngpButton>Open Menu</button>
 
     <ng-template #menu>
+      <div ngpMenu>
+        <button ngpMenuItem>Item 1</button>
+        <button ngpMenuItem>Item 2</button>
+        <button [ngpSubmenuTrigger]="submenu" ngpMenuItem>
+          Item 3
+          <ng-icon name="heroChevronRightMini" />
+        </button>
+      </div>
+    </ng-template>
+
+    <ng-template #submenu>
       <div ngpMenu>
         <button ngpMenuItem>Item 1</button>
         <button ngpMenuItem>Item 2</button>
@@ -56,7 +70,10 @@ import { NgpMenu, NgpMenuItem, NgpMenuTrigger } from 'ng-primitives/menu';
     }
 
     [ngpMenuItem] {
-      padding: 6px 14px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 6px 8px 6px 14px;
       border: none;
       background: none;
       cursor: pointer;
