@@ -57,7 +57,7 @@ import { NgpPopoverTriggerToken, providePopoverTrigger } from './popover-trigger
     '[attr.data-placement]': 'state.placement()',
     '[attr.data-disabled]': 'state.disabled() ? "" : null',
     '(click)': 'toggleOpenState($event)',
-    '(keydown.escape)': 'handleEscapeKey()',
+    '(document:keydown.escape)': 'handleEscapeKey()',
   },
 })
 export class NgpPopoverTrigger implements OnDestroy {

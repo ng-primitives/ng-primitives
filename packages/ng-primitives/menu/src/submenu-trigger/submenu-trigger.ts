@@ -56,7 +56,7 @@ export class NgpSubmenuTrigger {
    */
   @HostListener('keydown.ArrowRight', ['$event'])
   @HostListener('keydown.ArrowLeft', ['$event'])
-  protected handleArrowKey(event: KeyboardEvent): void {
+  protected showSubmenuOnArrow(event: KeyboardEvent): void {
     const direction = getComputedStyle(this.trigger.nativeElement).direction;
 
     const isRtl = direction === 'rtl';
@@ -74,7 +74,7 @@ export class NgpSubmenuTrigger {
    * If the user hovers over the trigger, we want to open the submenu
    */
   @HostListener('mouseenter')
-  protected handleMouseEnter(): void {
+  protected showSubmenuOnHover(): void {
     this.openMenu('mouse');
   }
 }
