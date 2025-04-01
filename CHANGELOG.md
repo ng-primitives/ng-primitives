@@ -1,3 +1,13 @@
+## 0.28.0 (2025-04-01)
+
+### 🩹 Fixes
+
+- **popover:** fix sometimes popover trigger is not focused on close ([#140](https://github.com/ng-primitives/ng-primitives/pull/140))
+
+### ❤️ Thank You
+
+- dennis-ackolad @dennis-ackolad
+
 ## 0.27.0 (2025-03-27)
 
 ### 🚀 Features
