@@ -6,9 +6,11 @@
  * LICENSE file in the root directory of this source tree.
  */
 import { FocusOrigin } from '@angular/cdk/a11y';
-import { Directive, HostListener } from '@angular/core';
+import { Directive, HostListener, inject } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { injectElementRef } from 'ng-primitives/internal';
 import { injectPopoverTriggerState, NgpPopoverTrigger } from 'ng-primitives/popover';
+import { NgpMenuToken } from '../menu/menu-token';
 
 @Directive({
   selector: '[ngpSubmenuTrigger]',
@@ -27,11 +29,18 @@ export class NgpSubmenuTrigger {
   /** Access the popover trigger state */
   private readonly state = injectPopoverTriggerState();
 
+  /** Access the parent menu */
+  private readonly parentMenu = inject(NgpMenuToken, { optional: true });
+
   constructor() {
     // by default the popover opens below and to the center of the trigger,
     // but as this is a submenu we want to default to opening to the right
     // and to the start
     this.state().placement.set('right-start');
+
+    this.parentMenu?.closeSubmenus
+      .pipe(takeUntilDestroyed())
+      .subscribe(() => this.closeMenu('mouse'));
   }
 
   /**

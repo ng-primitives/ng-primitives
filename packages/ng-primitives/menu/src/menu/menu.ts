@@ -14,6 +14,7 @@ import {
   providePopoverTrigger,
 } from 'ng-primitives/popover';
 import { NgpRovingFocusGroup, provideRovingFocusGroup } from 'ng-primitives/roving-focus';
+import { Subject } from 'rxjs';
 import { NgpMenuToken, provideMenu } from './menu-token';
 
 @Directive({
@@ -34,6 +35,9 @@ export class NgpMenu {
 
   /** Access any parent menus */
   private readonly parentMenu = inject(NgpMenuToken, { optional: true, skipSelf: true });
+
+  /** @internal Whether we should close submenus */
+  readonly closeSubmenus = new Subject<void>();
 
   /** Close the menu and any parent menus */
   closeAllMenus(origin: FocusOrigin): void {

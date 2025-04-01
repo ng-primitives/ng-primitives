@@ -6,7 +6,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 import { FocusOrigin } from '@angular/cdk/a11y';
-import { Directive, inject, Injector } from '@angular/core';
+import { Directive, HostListener, inject, Injector } from '@angular/core';
 import { NgpButton } from 'ng-primitives/button';
 import { injectElementRef } from 'ng-primitives/internal';
 import { NgpRovingFocusItem } from 'ng-primitives/roving-focus';
@@ -74,5 +74,13 @@ export class NgpMenuItem {
         trigger.closeMenu('keyboard');
       }
     }
+  }
+
+  /**
+   * If the user hovers over the trigger, we want to open the submenu
+   */
+  @HostListener('mouseenter')
+  protected showSubmenuOnHover(): void {
+    this.parentMenu?.closeSubmenus.next();
   }
 }
