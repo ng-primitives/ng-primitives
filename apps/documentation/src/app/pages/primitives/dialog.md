@@ -64,6 +64,10 @@ The dialog container.
   Whether the dialog is modal. A modal dialog prevents the user from interacting with the rest of the page until the dialog is closed.
 </response-field>
 
+| Attribute      | Description                         |
+| -------------- | ----------------------------------- |
+| `data-closing` | Applied when the dialog is closing. |
+
 ### NgpDialogTitle
 
 The dialog title.
@@ -103,6 +107,10 @@ The dialog overlay.
 - Selector: `[ngpDialogOverlay]`
 - Exported As: `ngpDialogOverlay`
 
+| Attribute      | Description                         |
+| -------------- | ----------------------------------- |
+| `data-closing` | Applied when the dialog is closing. |
+
 ## Examples
 
 ### Dialog with external data
@@ -110,6 +118,12 @@ The dialog overlay.
 Data can be passed to the dialog using the `NgpDialogManager`.
 
 <docs-example name="dialog-data"></docs-example>
+
+### Drawer
+
+A drawer is a type of dialog that slides in from the side of the screen.
+
+<docs-example name="dialog-drawer"></docs-example>
 
 ## Accessibility
 
