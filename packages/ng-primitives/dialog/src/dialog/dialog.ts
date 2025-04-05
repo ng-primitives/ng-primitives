@@ -8,6 +8,7 @@
 import { BooleanInput } from '@angular/cdk/coercion';
 import { booleanAttribute, Directive, HostListener, input, OnDestroy, signal } from '@angular/core';
 import { NgpFocusTrap } from 'ng-primitives/focus-trap';
+import { NgpExitAnimation } from 'ng-primitives/internal';
 import { uniqueId } from 'ng-primitives/utils';
 import { injectDialogConfig } from '../config/dialog-config';
 import { injectDialogRef } from './dialog-ref';
@@ -17,7 +18,7 @@ import { NgpDialogToken } from './dialog-token';
   selector: '[ngpDialog]',
   exportAs: 'ngpDialog',
   providers: [{ provide: NgpDialogToken, useExisting: NgpDialog }],
-  hostDirectives: [NgpFocusTrap],
+  hostDirectives: [NgpFocusTrap, NgpExitAnimation],
   host: {
     tabindex: '-1',
     '[id]': 'id()',
