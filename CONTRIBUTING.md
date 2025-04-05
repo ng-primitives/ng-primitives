@@ -53,7 +53,7 @@ The following generators are available:
 - `nx g @ng-primitives/tools:directive <name> --primitive <primitive>`: Generates a new directive in the library.
 - `nx g @ng-primitives/tools:documentation <name> --description <description> --primitive <primitive>`: Generates a new documentation page for a primitive.
 - `nx g @ng-primitives/tools:example <name> --primitive <primitive>`: Generates a new example for a primitive.
-- `nx g @ng-primitives/tools:schematic label`: Generates a new component schematic for the library.
+- `nx g @ng-primitives/tools:reusable-component button`: Generates a new reusable component.
 
 It is recommended to use the [Nx Console](https://nx.dev/getting-started/editor-setup) to run these generators as it provides a user-friendly interface right in your IDE.
 
@@ -87,6 +87,30 @@ To run the documentation locally, use the following command:
 
 ```bash
 pnpm start
+```
+
+## Creating reusable components
+
+We provide example reusable components for consumers to easily build their own components using out primitives.
+
+We can generate the boilerplate by running:
+
+```bash
+nx g @ng-primitives/tools:reusable-component button
+```
+
+That will create all the files you need, they will be under `apps/components/src/app/button`.
+
+A preview site is availble to build and test these components which can be run using the following command:
+
+```bash
+nx serve components
+```
+
+This can be added as an example in the documentation site like so:
+
+```html
+<docs-snippet name="button"></docs-snippet>
 ```
 
 ## Troubleshoting
