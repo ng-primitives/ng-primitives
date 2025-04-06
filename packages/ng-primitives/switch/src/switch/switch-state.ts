@@ -3,7 +3,7 @@ import {
   createStateInjector,
   createStateProvider,
   createStateToken,
-} from 'ng-primitives/state';
+} from 'ng-primitives-state/state';
 import type { NgpSwitch } from './switch';
 
 /**
