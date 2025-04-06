@@ -1,0 +1,36 @@
+{
+  "name": "ng-primitives-state",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "packages/ng-primitives-state/src",
+  "prefix": "ngp-state",
+  "projectType": "library",
+  "tags": [],
+  "targets": {
+    "build": {
+      "executor": "@nx/angular:package",
+      "outputs": ["{workspaceRoot}/dist/{projectRoot}"],
+      "dependsOn": ["build:schematics"],
+      "options": {
+        "project": "packages/ng-primitives-state/ng-package.json"
+      },
+      "configurations": {
+        "production": {
+          "tsConfig": "packages/ng-primitives-state/tsconfig.lib.prod.json"
+        },
+        "development": {
+          "tsConfig": "packages/ng-primitives-state/tsconfig.lib.json"
+        }
+      },
+      "defaultConfiguration": "production"
+    },
+    "test": {
+      "executor": "nx:noop"
+    },
+    "nx-release-publish": {
+      "dependsOn": ["build"],
+      "options": {
+        "packageRoot": "{workspaceRoot}/dist/{projectRoot}"
+      }
+    }
+  }
+}

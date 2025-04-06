@@ -1,0 +1,38 @@
+{
+  "name": "ng-primitives-state",
+  "description": "Angular Primitives State is a low-level state library with a focus on developer experience. ",
+  "license": "Apache-2.0",
+  "version": "0.28.0",
+  "keywords": [
+    "angular",
+    "primitives",
+    "state",
+    "cdk"
+  ],
+  "homepage": "https://angularprimitives.com",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ng-primitives/ng-primitives.git"
+  },
+  "bugs": {
+    "url": "https://github.com/ng-primitives/ng-primitives/issues"
+  },
+  "author": {
+    "name": "Ashley Hunter",
+    "url": "https://github.com/ashley-hunter"
+  },
+  "funding": {
+    "type": "github",
+    "url": "https://github.com/sponsors/ng-primitives"
+  },
+  "peerDependencies": {
+    "@angular/core": ">=19.0.0"
+  },
+  "ng-add": {
+    "save": "dependencies"
+  },
+  "ng-update": {
+    "migrations": "./migration.json"
+  },
+  "sideEffects": false
+}
