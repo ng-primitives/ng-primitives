@@ -5,41 +5,53 @@
  * This source code is licensed under the Apache 2.0 license found in the
  * LICENSE file in the root directory of this source tree.
  */
-import { CdkMenuTrigger } from '@angular/cdk/menu';
-import { Directive, effect, inject, input, signal, TemplateRef } from '@angular/core';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { Directive, inject } from '@angular/core';
+import { injectPopoverTriggerState, NgpPopoverTrigger } from 'ng-primitives/popover';
+import { NgpMenuToken } from '../menu/menu-token';
 
 @Directive({
   selector: '[ngpMenuTrigger]',
   exportAs: 'ngpMenuTrigger',
-  hostDirectives: [{ directive: CdkMenuTrigger }],
+  hostDirectives: [
+    {
+      directive: NgpPopoverTrigger,
+      inputs: [
+        'ngpPopoverTrigger:ngpMenuTrigger',
+        'ngpPopoverTriggerDisabled:ngpMenuTriggerDisabled',
+        'ngpPopoverTriggerPlacement:ngpMenuTriggerPlacement',
+        'ngpPopoverTriggerOffset:ngpMenuTriggerOffset',
+        'ngpPopoverTriggerShowDelay:ngpMenuTriggerShowDelay',
+        'ngpPopoverTriggerHideDelay:ngpMenuTriggerHideDelay',
+        'ngpPopoverTriggerFlip:ngpMenuTriggerFlip',
+        'ngpPopoverTriggerContainer:ngpMenuTriggerContainer',
+        'ngpPopoverTriggerScrollBehavior:ngpMenuTriggerScrollBehavior',
+      ],
+    },
+  ],
   host: {
-    '[attr.data-open]': 'open() ? "" : null',
+    'aria-haspopup': 'true',
+    '(document:keydown.escape)': 'closeOnEscape()',
   },
 })
 export class NgpMenuTrigger {
-  /**
-   * Access to the underlying `CdkMenuTrigger`.
-   */
-  private readonly cdkMenuTrigger = inject(CdkMenuTrigger);
+  /** Access the popover trigger state */
+  private readonly state = injectPopoverTriggerState();
 
-  /**
-   * Template reference variable to the menu this trigger opens
-   */
-  public readonly menu = input.required<TemplateRef<unknown>>({
-    alias: 'ngpMenuTrigger',
-  });
-
-  /**
-   * Store the open state of the menu.
-   */
-  protected readonly open = signal<boolean>(false);
+  /** Access any parent menus */
+  private readonly parentMenu = inject(NgpMenuToken, { optional: true });
 
   constructor() {
-    this.cdkMenuTrigger.opened.pipe(takeUntilDestroyed()).subscribe(() => this.open.set(true));
-    this.cdkMenuTrigger.closed.pipe(takeUntilDestroyed()).subscribe(() => this.open.set(false));
+    // by default the popover opens below and to the center of the trigger,
+    // but as this is a menu we want to default to opening below and to the start
+    this.state().placement.set('bottom-start');
+    // for menus we want to default to blocking the scroll behavior
+    this.state().scrollBehavior.set('block');
+  }
 
-    // forward the template ref to the host directive anytime it changes
-    effect(() => (this.cdkMenuTrigger.menuTemplateRef = this.menu()));
+  /**
+   * Close the menu and any parent menus
+   */
+  closeOnEscape(): void {
+    this.parentMenu?.closeAllMenus('keyboard');
   }
 }

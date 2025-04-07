@@ -8,7 +8,8 @@
 import { FocusOrigin } from '@angular/cdk/a11y';
 import { hasModifierKey } from '@angular/cdk/keycodes';
 import { OverlayRef } from '@angular/cdk/overlay';
-import { inject } from '@angular/core';
+import { inject, Injector } from '@angular/core';
+import { NgpExitAnimationManager } from 'ng-primitives/internal';
 import { Observable, Subject, Subscription } from 'rxjs';
 import { NgpDialogConfig } from '../config/dialog-config';
 
@@ -37,6 +38,12 @@ export class NgpDialogRef<T = unknown> {
   /** Subscription to external detachments of the dialog. */
   private detachSubscription: Subscription;
 
+  /** @internal Store the injector */
+  injector: Injector | undefined;
+
+  /** Whether the dialog is closing. */
+  private closing = false;
+
   constructor(
     readonly overlayRef: OverlayRef,
     readonly config: NgpDialogConfig<T>,
@@ -61,7 +68,21 @@ export class NgpDialogRef<T = unknown> {
    * @param result Optional result to return to the dialog opener.
    * @param options Additional options to customize the closing behavior.
    */
-  close(focusOrigin?: FocusOrigin): void {
+  async close(focusOrigin?: FocusOrigin): Promise<void> {
+    // If the dialog is already closed, do nothing.
+    if (this.closing) {
+      return;
+    }
+
+    this.closing = true;
+
+    const exitAnimationManager = this.injector?.get(NgpExitAnimationManager, undefined, {
+      optional: true,
+    });
+    if (exitAnimationManager) {
+      await exitAnimationManager.exit();
+    }
+
     this.overlayRef.dispose();
     this.detachSubscription.unsubscribe();
     this.closed.next(focusOrigin ?? null);

@@ -6,6 +6,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 import { Directive, HostListener } from '@angular/core';
+import { NgpExitAnimation } from 'ng-primitives/internal';
 import { injectDialogRef } from '../dialog/dialog-ref';
 import { NgpDialogOverlayToken } from './dialog-overlay-token';
 
@@ -13,6 +14,7 @@ import { NgpDialogOverlayToken } from './dialog-overlay-token';
   selector: '[ngpDialogOverlay]',
   exportAs: 'ngpDialogOverlay',
   providers: [{ provide: NgpDialogOverlayToken, useExisting: NgpDialogOverlay }],
+  hostDirectives: [NgpExitAnimation],
 })
 export class NgpDialogOverlay {
   /** Access the dialog ref. */

@@ -96,10 +96,10 @@ Defines how the popover behaves when the window is scrolled. If set to `repositi
 
 #### Data Attributes
 
-| Attribute       | Description                           | Value                                        |
-| --------------- | ------------------------------------- | -------------------------------------------- |
-| `data-state`    | The state of the popover.             | `closed` \| `closing` \| `open` \| `opening` |
-| `data-disabled` | Applied when the popover is disabled. | `-`                                          |
+| Attribute       | Description                           |
+| --------------- | ------------------------------------- |
+| `data-open`     | Applied when the popover is open.     |
+| `data-disabled` | Applied when the popover is disabled. |
 
 ## Global Configuration
 

@@ -16,6 +16,7 @@ import {
   inject,
   isDevMode,
 } from '@angular/core';
+import { NgpExitAnimationManager } from 'ng-primitives/internal';
 import { uniqueId } from 'ng-primitives/utils';
 import { Observable, Subject, defer } from 'rxjs';
 import { startWith } from 'rxjs/operators';
@@ -89,6 +90,10 @@ export class NgpDialogManager implements OnDestroy {
     const overlayRef = this.overlay.create(overlayConfig);
     const dialogRef = new NgpDialogRef(overlayRef, config);
     const injector = this.createInjector(config, dialogRef, undefined);
+
+    // store the injector in the dialog ref - this is so we can access the exit animation manager
+    dialogRef.injector = injector;
+
     const context: NgpDialogContext = {
       $implicit: dialogRef,
       close: dialogRef.close.bind(dialogRef),
@@ -174,7 +179,10 @@ export class NgpDialogManager implements OnDestroy {
     fallbackInjector: Injector | undefined,
   ): Injector {
     const userInjector = config.injector || config.viewContainerRef?.injector;
-    const providers: StaticProvider[] = [{ provide: NgpDialogRef, useValue: dialogRef }];
+    const providers: StaticProvider[] = [
+      { provide: NgpDialogRef, useValue: dialogRef },
+      { provide: NgpExitAnimationManager, useClass: NgpExitAnimationManager },
+    ];
 
     return Injector.create({ parent: userInjector || fallbackInjector, providers });
   }

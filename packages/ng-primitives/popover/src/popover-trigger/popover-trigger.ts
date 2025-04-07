@@ -39,17 +39,25 @@ import {
 import { fromResizeEvent } from 'ng-primitives/resize';
 import { injectDisposables, onBooleanChange } from 'ng-primitives/utils';
 import { injectPopoverConfig } from '../config/popover-config';
+import type { NgpPopover } from '../popover/popover';
+import {
+  NgpPopoverTriggerStateToken,
+  popoverTriggerState,
+  providePopoverTriggerState,
+} from './popover-trigger-state';
 import { NgpPopoverTriggerToken, providePopoverTrigger } from './popover-trigger-token';
 
 @Directive({
   selector: '[ngpPopoverTrigger]',
   exportAs: 'ngpPopoverTrigger',
-  providers: [{ provide: NgpPopoverTriggerToken, useExisting: NgpPopoverTrigger }],
+  providers: [providePopoverTrigger(NgpPopoverTrigger), providePopoverTriggerState()],
   host: {
-    '[attr.data-state]': 'state()',
-    '[attr.data-disabled]': 'disabled() ? "" : null',
-    '(click)': 'toggleOpenState()',
-    '(keydown.escape)': 'handleEscapeKey()',
+    '[attr.aria-expanded]': 'state.open() ? "true" : "false"',
+    '[attr.data-open]': 'state.open() ? "" : null',
+    '[attr.data-placement]': 'state.placement()',
+    '[attr.data-disabled]': 'state.disabled() ? "" : null',
+    '(click)': 'toggleOpenState($event)',
+    '(document:keydown.escape)': 'handleEscapeKey()',
   },
 })
 export class NgpPopoverTrigger implements OnDestroy {
@@ -57,6 +65,14 @@ export class NgpPopoverTrigger implements OnDestroy {
    * Access the trigger element
    */
   private readonly trigger = inject(ElementRef<HTMLElement>);
+
+  /**
+   * Inject the parent popover trigger if available.
+   */
+  private readonly parentTrigger = inject(NgpPopoverTriggerToken, {
+    optional: true,
+    skipSelf: true,
+  });
 
   /**
    * Access the view container ref.
@@ -196,6 +212,11 @@ export class NgpPopoverTrigger implements OnDestroy {
   });
 
   /**
+   * The popover trigger state.
+   */
+  protected readonly state = popoverTriggerState<NgpPopoverTrigger>(this);
+
+  /**
    * Store the popover view ref.
    */
   private viewRef: EmbeddedViewRef<void> | null = null;
@@ -229,12 +250,6 @@ export class NgpPopoverTrigger implements OnDestroy {
   readonly width = signal<number | null>(null);
 
   /**
-   * Store the state of the popover.
-   * @internal
-   */
-  readonly state = signal<PopoverState>('closed');
-
-  /**
    * The dispose function to stop computing the position of the popover.
    */
   private dispose?: () => void;
@@ -246,17 +261,32 @@ export class NgpPopoverTrigger implements OnDestroy {
   private documentClickListener?: (event: MouseEvent) => void;
 
   /**
+   * Store the popover instance.
+   * @internal
+   */
+  private popoverInstance: NgpPopover | null = null;
+
+  /**
    * Get the scroll strategy based on the configuration.
    */
   private readonly scrollStrategy = computed(() =>
-    this.scrollBehavior() === 'block'
+    this.state.scrollBehavior() === 'block'
       ? new BlockScrollStrategy(this.viewportRuler, this.document)
       : new NoopScrollStrategy(),
   );
 
+  /**
+   * @internal
+   * Register any child popover to the stack.
+   */
+  private readonly stack: NgpPopoverTrigger[] = [];
+
   constructor() {
+    // if the trigger has a parent trigger then register it to the stack
+    this.parentTrigger?.stack.push(this);
+
     // any time the open state changes then show or hide the popover
-    onBooleanChange(this.open, this.show.bind(this), this.hide.bind(this));
+    onBooleanChange(this.open, this.show.bind(this, 'program'), this.hide.bind(this, 'program'));
 
     // update the width of the trigger when it resizes
     fromResizeEvent(this.trigger.nativeElement)
@@ -265,30 +295,46 @@ export class NgpPopoverTrigger implements OnDestroy {
   }
 
   ngOnDestroy(): void {
+    // remove the trigger from the parent trigger's stack
+    this.parentTrigger?.stack.splice(this.parentTrigger.stack.indexOf(this), 1);
+
     this.destroyPopover();
   }
 
-  toggleOpenState(): void {
-    this.open.update(open => !open);
+  protected toggleOpenState(event: MouseEvent): void {
+    // if the trigger is disabled then do not toggle the popover
+    if (this.state.disabled()) {
+      return;
+    }
+
+    // determine the origin of the event, 0 is keyboard, 1 is mouse
+    const origin: FocusOrigin = event.detail === 0 ? 'keyboard' : 'mouse';
+
+    // if the popover is open then hide it
+    if (this.state.open()) {
+      this.hide(origin);
+    } else {
+      this.show(origin);
+    }
   }
 
   /**
    * @internal
    * Show the popover.
    */
-  show(): void {
+  show(origin: FocusOrigin): void {
     // if the trigger is disabled or the popover is already open then do not show the popover
-    if (this.disabled() || this.state() === 'open' || this.state() === 'opening') {
+    if (this.state.disabled() || this.state.open()) {
       return;
     }
 
-    this.state.set('opening');
-    this.disposables.setTimeout(() => this.createPopover(), this.showDelay());
+    this.state.open.set(true);
+    this.disposables.setTimeout(() => this.createPopover(origin), this.showDelay());
 
     // Add document click listener to detect outside clicks
-    if (this.closeOnOutsideClick()) {
+    if (this.state.closeOnOutsideClick()) {
       this.documentClickListener = this.onDocumentClick.bind(this);
-      this.document.addEventListener('click', this.documentClickListener, true);
+      this.document.addEventListener('mouseup', this.documentClickListener, true);
     }
   }
 
@@ -298,21 +344,22 @@ export class NgpPopoverTrigger implements OnDestroy {
    */
   hide(origin: FocusOrigin = 'program'): void {
     // if the trigger is disabled or the popover is already closed then do not hide the popover
-    if (this.disabled() || this.state() === 'closed' || this.state() === 'closing') {
+    if (this.state.disabled() || !this.state.open()) {
       return;
     }
 
-    this.state.set('closing');
-    this.disposables.setTimeout(() => this.destroyPopover(), this.hideDelay());
-
-    // Remove the document click listener when the popover is hidden
-    if (this.documentClickListener) {
-      this.document.removeEventListener('click', this.documentClickListener, true);
+    // close all child popovers
+    for (const child of this.stack) {
+      child.hide(origin);
     }
 
-    // ensure the trigger is focused after closing the popover
-    // we need this delay but I can't quite figure out why?
-    setTimeout(() => this.focusTrigger(origin), 1);
+    this.state.open.set(false);
+
+    this.disposables.setTimeout(() => {
+      this.destroyPopover();
+      // ensure the trigger is focused after closing the popover
+      this.disposables.setTimeout(() => this.focusTrigger(origin), 0);
+    }, this.hideDelay());
   }
 
   private onDocumentClick(event: MouseEvent): void {
@@ -321,17 +368,19 @@ export class NgpPopoverTrigger implements OnDestroy {
     // Check if the click is outside the trigger or the popover
     const isOutside =
       !this.trigger.nativeElement.contains(target) &&
-      !(this.viewRef?.rootNodes[0] as HTMLElement).contains(target);
+      !(this.viewRef?.rootNodes[0] as HTMLElement)?.contains(target);
+
+    // Determine if this is a click inside another popover
 
     if (isOutside) {
       // Close the popover
-      this.open.set(false);
+      this.hide('mouse');
     }
   }
 
-  private createPopover(): void {
+  private createPopover(origin: FocusOrigin): void {
     const portal = new TemplatePortal(
-      this.popover(),
+      this.state.popover(),
       this.viewContainerRef,
       undefined,
       this.injector,
@@ -343,7 +392,10 @@ export class NgpPopoverTrigger implements OnDestroy {
       undefined,
       Injector.create({
         parent: this.injector,
-        providers: [providePopoverTrigger(this)],
+        providers: [
+          { provide: NgpPopoverTriggerToken, useValue: this },
+          { provide: NgpPopoverTriggerStateToken, useValue: signal(this.state) },
+        ],
       }),
     );
 
@@ -354,42 +406,62 @@ export class NgpPopoverTrigger implements OnDestroy {
 
     this.dispose = autoUpdate(this.trigger.nativeElement, outletElement, async () => {
       const position = await computePosition(this.trigger.nativeElement, outletElement, {
-        placement: this.placement(),
+        placement: this.state.placement(),
         middleware: this.middleware(),
       });
 
       this.position.set({ x: position.x, y: position.y });
+      this.viewRef?.detectChanges();
     });
-
-    this.state.set('open');
 
     // activate the scroll strategy
     this.scrollStrategy().enable();
+
+    // set the initial focus to the first tabbable element in the popover
+    this.popoverInstance?.setInitialFocus(origin);
   }
 
   private destroyPopover(): void {
     this.open.set(false);
-    this.viewRef?.destroy();
+
+    // if the view is already destroyed then do not destroy it again
+    if (this.viewRef && !this.viewRef.destroyed) {
+      // destroy the view ref
+      this.viewRef.destroy();
+    }
+
     this.viewRef = null;
     this.dispose?.();
-    this.state.set('closed');
 
     // deactivate the scroll strategy
     this.scrollStrategy().disable();
+
+    // Remove the document click listener when the popover is hidden
+    if (this.documentClickListener) {
+      this.document.removeEventListener('mouseup', this.documentClickListener, true);
+    }
   }
 
   /**
    * @internal
    * Handle escape key press to close the popover.
    */
-  handleEscapeKey(): void {
-    if (this.closeOnEscape()) {
+  protected handleEscapeKey(): void {
+    if (this.state.closeOnEscape()) {
       this.hide('keyboard');
     }
   }
 
   private focusTrigger(origin: FocusOrigin): void {
     this.focusMonitor.focusVia(this.trigger.nativeElement, origin);
+  }
+
+  /**
+   * Set the popover instance.
+   * @internal
+   */
+  setPopover(instance: NgpPopover): void {
+    this.popoverInstance = instance;
   }
 }
 
