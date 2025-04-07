@@ -16,7 +16,8 @@ export interface AngularPrimitivesComponentSchema {
     | 'toggle'
     | 'toggle-group'
     | 'tabs'
-    | 'listbox';
+    | 'listbox'
+    | 'separator';
 
   /**
    * The path where the component files should be created, relative to the current workspace.
