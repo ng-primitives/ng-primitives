@@ -23,6 +23,7 @@ import { RouterLink, RouterOutlet } from '@angular/router';
       <a routerLink="/tabs">Tabs</a>
       <a routerLink="/listbox">Listbox</a>
       <a routerLink="/separator">Separator</a>
+      <a routerLink="/textarea">Textarea</a>
     </nav>
     <router-outlet />
   `,

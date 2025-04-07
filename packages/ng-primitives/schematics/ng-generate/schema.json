@@ -25,6 +25,7 @@
         "slider",
         "switch",
         "tabs",
+        "textarea",
         "toggle",
         "toggle-group"
       ],
