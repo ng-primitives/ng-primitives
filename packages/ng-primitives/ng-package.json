@@ -5,6 +5,5 @@
   "lib": {
     "entryFile": "src/index.ts"
   },
-  "assets": ["example-theme/index.css", "migration.json", "collection.json"],
-  "allowedNonPeerDependencies": ["@ng-primitives/state"]
+  "assets": ["example-theme/index.css", "migration.json", "collection.json"]
 }
