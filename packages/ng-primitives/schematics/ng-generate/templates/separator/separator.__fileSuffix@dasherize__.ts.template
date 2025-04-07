@@ -1,0 +1,17 @@
+import { Component } from '@angular/core';
+import { NgpSeparator } from 'ng-primitives/separator';
+
+@Component({
+  selector: '[<%= prefix %>-separator]',
+  hostDirectives: [{ directive: NgpSeparator, inputs: ['ngpSeparatorOrientation'] }],
+  template: ``,
+  styles: `
+/* These styles rely on CSS variables that can be imported from ng-primitives/example-theme/index.css in your global styles */
+
+    :host {
+      background-color: var(--ngp-border);
+      height: 1px;
+    }
+  `,
+})
+export class Separator<%= componentSuffix %> {}

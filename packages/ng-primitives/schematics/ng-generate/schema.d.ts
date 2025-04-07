@@ -17,6 +17,7 @@ export interface AngularPrimitivesComponentSchema {
     | 'toggle-group'
     | 'tabs'
     | 'listbox'
+    | 'separator'
     | 'textarea';
 
   /**
