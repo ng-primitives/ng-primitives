@@ -1,3 +1,16 @@
+## 0.29.0 (2025-04-07)
+
+### 🚀 Features
+
+- adding support for dialog animations ([#143](https://github.com/ng-primitives/ng-primitives/pull/143))
+- text area reusable component ([#164](https://github.com/ng-primitives/ng-primitives/pull/164))
+- add separator reusable component ([#165](https://github.com/ng-primitives/ng-primitives/pull/165))
+
+### ❤️ Thank You
+
+- Adrian Kopytko @adriankopytko
+- Ashley Hunter
+
 ## 0.28.0 (2025-04-01)
 
 ### 🩹 Fixes
