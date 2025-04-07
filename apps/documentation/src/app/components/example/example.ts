@@ -8,22 +8,16 @@ import {
   Input,
   PLATFORM_ID,
   Type,
-  computed,
+  VERSION,
   inject,
   signal,
 } from '@angular/core';
 import { NgIcon, provideIcons } from '@ng-icons/core';
-import { lucideClipboard, lucideCodesandbox } from '@ng-icons/lucide';
-import * as tsquery from '@phenomnomnominal/tsquery';
+import { lucideClipboard } from '@ng-icons/lucide';
+import { phosphorLightning } from '@ng-icons/phosphor-icons/regular';
 import sdk from '@stackblitz/sdk';
 import * as prismjs from 'prismjs';
-import type {
-  ArrayLiteralExpression,
-  NoSubstitutionTemplateLiteral,
-  Node,
-  PropertyAssignment,
-  StringLiteral,
-} from 'typescript';
+import { versionMajorMinor } from 'typescript';
 
 const { highlight, languages } = prismjs;
 
@@ -32,7 +26,7 @@ const { highlight, languages } = prismjs;
   imports: [NgComponentOutlet, NgClass, NgIcon],
   templateUrl: './example.ng.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  providers: [provideIcons({ lucideCodesandbox, lucideClipboard })],
+  providers: [provideIcons({ phosphorLightning, lucideClipboard })],
 })
 export class Example {
   private readonly clipboard = inject(Clipboard);
@@ -49,28 +43,11 @@ export class Example {
 
   component: Type<unknown> | null = null;
 
-  readonly language = signal<Language>('html');
-
-  readonly tabs = computed<Tab[]>(() => {
-    const tabs: Tab[] = [
-      { label: 'HTML', value: 'html' },
-      { label: 'TypeScript', value: 'typescript' },
-      { label: 'CSS', value: 'css' },
-    ];
-
-    return tabs.filter(tab => this[tab.value]() !== null);
-  });
-
-  get code(): string | null {
-    return this[this.language()]();
-  }
-
   readonly mode = signal<'preview' | 'source'>('preview');
 
   private raw: string | null = null;
-  private html = signal<string | null>(null);
-  private css = signal<string | null>(null);
-  private typescript = signal<string | null>(null);
+
+  readonly code = signal<string>('');
 
   @Input({ required: true }) set name(name: string) {
     // the path provided will be something like 'button', so we should find the path
@@ -98,6 +75,13 @@ export class Example {
       // find the selector and replace it with `app-root`
       .replace(/selector:\s*'[^']*'/, "selector: 'app-root'");
 
+    // add the comment to the top of the file about importing the css file
+    if (this.raw.includes('styles:')) {
+      this.raw =
+        `/** This example uses ng-primitives styles, which are imported from ng-primitives/example-theme/index.css in the global styles file **/\n` +
+        this.raw;
+    }
+
     // we import these from esm.sh to keep our bandwidth usage down
     const [prettier, pluginEstree, pluginTypescript, pluginHtml, pluginAngular, pluginPostcss] =
       await Promise.all([
@@ -109,79 +93,12 @@ export class Example {
         import('https://esm.sh/prettier@3.3.2/plugins/postcss'),
       ]);
 
-    const ast = tsquery.ast(this.raw);
-    const templateProperty = tsquery.query<PropertyAssignment>(
-      ast,
-      'ClassDeclaration:has(ExportKeyword) Decorator ObjectLiteralExpression > PropertyAssignment:has(Identifier[name="template"])',
-    )[0];
-    const stylesProperty = tsquery.query<PropertyAssignment>(
-      ast,
-      'ClassDeclaration:has(ExportKeyword) Decorator ObjectLiteralExpression > PropertyAssignment:has(Identifier[name="styles"])',
-    )[0];
-
-    let template: string;
-    let styles: string | undefined;
-
-    // the template property must exist and must be a string literal or a template literal
-    if (templateProperty && isStringLiteral(templateProperty.initializer)) {
-      template = templateProperty.initializer.text;
-    } else if (templateProperty && isNoSubstitutionTemplateLiteral(templateProperty.initializer)) {
-      template = templateProperty.initializer.text;
-    } else {
-      throw new Error('Template property must be a string literal or a template literal');
-    }
-
-    // the styles property may or may not exist and must be a string literal or a template literal
-    if (stylesProperty && isStringLiteral(stylesProperty.initializer)) {
-      styles = stylesProperty.initializer.text;
-    }
-    // it may also be a template literal
-    else if (stylesProperty && isNoSubstitutionTemplateLiteral(stylesProperty.initializer)) {
-      styles = stylesProperty.initializer.text;
-    }
-    // it may also be an array of string literals or template literals
-    else if (stylesProperty && isArrayLiteralExpression(stylesProperty.initializer)) {
-      styles = stylesProperty.initializer.elements.map(element => element.getText()).join('\n');
-    }
-
-    // replace the template property with a templateUrl property
-    let typescript = tsquery.replace(
-      this.raw,
-      'ClassDeclaration:has(ExportKeyword) Decorator ObjectLiteralExpression > PropertyAssignment:has(Identifier[name="template"])',
-      () => {
-        return 'templateUrl: "./app.component.html"';
-      },
-    );
-
-    // replace the styles property with a styleUrl property if it exists
-    if (stylesProperty) {
-      typescript = tsquery.replace(
-        typescript,
-        'ClassDeclaration:has(ExportKeyword) Decorator ObjectLiteralExpression > PropertyAssignment:has(Identifier[name="styles"])',
-        () => {
-          return 'styleUrl: "./app.component.css"';
-        },
-      );
-    }
-
-    typescript = await prettier.format(typescript, {
+    const code = await prettier.format(this.raw, {
       parser: 'typescript',
-      plugins: [pluginEstree, pluginTypescript],
+      plugins: [pluginEstree, pluginTypescript, pluginAngular, pluginHtml, pluginPostcss],
     });
-    template = await prettier.format(template, {
-      parser: 'angular',
-      plugins: [pluginHtml, pluginAngular],
-    });
-    styles = styles
-      ? await prettier.format(styles, {
-          parser: 'css',
-          plugins: [pluginPostcss],
-        })
-      : undefined;
 
-    this.html.set(highlight(template.trim(), languages['html'], 'html'));
-    this.css.set(styles ? highlight(styles.trim(), languages['css'], 'css') : null);
-    this.typescript.set(highlight(typescript, languages['typescript'], 'typescript'));
+    this.code.set(highlight(code.trim(), languages['typescript'], 'typescript'));
 
     this.changeDetector.detectChanges();
   }
@@ -200,24 +117,24 @@ export class Example {
         build: 'ng build',
       },
       dependencies: {
-        '@angular/animations': '^18.0.0',
-        '@angular/common': '^18.0.0',
-        '@angular/compiler': '^18.0.0',
-        '@angular/core': '^18.0.0',
-        '@angular/forms': '^18.0.0',
-        '@angular/platform-browser': '^18.0.0',
-        '@angular/router': '^18.0.0',
-        '@angular/cdk': '^18.0.0',
+        '@angular/animations': `^${VERSION.full}.0.0`,
+        '@angular/common': `^${VERSION.full}.0.0`,
+        '@angular/compiler': `^${VERSION.full}.0.0`,
+        '@angular/core': `^${VERSION.full}.0.0`,
+        '@angular/forms': `^${VERSION.full}.0.0`,
+        '@angular/platform-browser': `^${VERSION.full}.0.0`,
+        '@angular/router': `^${VERSION.full}.0.0`,
+        '@angular/cdk': `^${VERSION.full}.0.0`,
         'ng-primitives': 'latest',
         '@ng-icons/core': 'latest',
         '@ng-icons/heroicons': 'latest',
         '@floating-ui/dom': '^1.6.0',
         rxjs: '^7.8.1',
         tslib: '^2.5.0',
-        '@angular-devkit/build-angular': '^18.0.0',
-        '@angular/cli': '^18.0.1',
-        '@angular/compiler-cli': '^18.0.0',
-        typescript: '~5.4.0',
+        '@angular-devkit/build-angular': `^${VERSION.full}.0.0`,
+        '@angular/cli': `^${VERSION.full}.0.0`,
+        '@angular/compiler-cli': `^${VERSION.full}.0.0`,
+        typescript: `~${versionMajorMinor}.0`,
         'zone.js': '~0.14.0',
       },
     };
@@ -376,19 +293,4 @@ node_modules`,
 
     this.clipboard.copy(this.raw);
   }
-}
-
-type Language = 'html' | 'typescript' | 'css';
-type Tab = { label: string; value: Language };
-
-function isStringLiteral(node: Node): node is StringLiteral {
-  return node.kind === 11;
-}
-
-function isNoSubstitutionTemplateLiteral(node: Node): node is NoSubstitutionTemplateLiteral {
-  return node.kind === 15;
-}
-
-function isArrayLiteralExpression(node: Node): node is ArrayLiteralExpression {
-  return node.kind === 209;
 }

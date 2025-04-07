@@ -5,7 +5,7 @@
  * This source code is licensed under the Apache 2.0 license found in the
  * LICENSE file in the root directory of this source tree.
  */
-import { InjectionToken, inject } from '@angular/core';
+import { ExistingProvider, InjectionToken, Type, inject } from '@angular/core';
 import type { NgpPopoverTrigger } from './popover-trigger';
 
 export const NgpPopoverTriggerToken = new InjectionToken<NgpPopoverTrigger>(
@@ -23,6 +23,6 @@ export function injectPopoverTrigger(): NgpPopoverTrigger {
  * Provides the PopoverTrigger directive instance
  * @param trigger
  */
-export function providePopoverTrigger(trigger: NgpPopoverTrigger) {
-  return { provide: NgpPopoverTriggerToken, useValue: trigger };
+export function providePopoverTrigger(trigger: Type<NgpPopoverTrigger>): ExistingProvider {
+  return { provide: NgpPopoverTriggerToken, useExisting: trigger };
 }
