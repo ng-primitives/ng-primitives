@@ -24,6 +24,28 @@ Assemble the textarea directives in your template.
 <textarea ngpTextarea></textarea>
 ```
 
+## Reusable Component
+
+Create an textarea component that uses the `NgpTextarea` directive.
+
+<docs-snippet name="textarea"></docs-snippet>
+
+## Schematics
+
+Generate a reusable textarea component using the Angular CLI.
+
+```bash npm
+ng g ng-primitives:primitive textarea
+```
+
+### Options
+
+- `path`: The path at which to create the component file.
+- `prefix`: The prefix to apply to the generated component selector.
+- `componentSuffix`: The suffix to apply to the generated component class name.
+- `fileSuffix`: The suffix to apply to the generated component file name. Defaults to `component`.
+- `exampleStyles`: Whether to include example styles in the generated component file. Defaults to `true`.
+
 ## Examples
 
 Here are some additional examples of how to use the Textarea primitive.
