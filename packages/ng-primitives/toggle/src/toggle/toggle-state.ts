@@ -3,7 +3,7 @@ import {
   createStateInjector,
   createStateProvider,
   createStateToken,
-} from 'ng-primitives-state/state';
+} from 'ng-primitives/state';
 import type { NgpToggle } from './toggle';
 
 /**

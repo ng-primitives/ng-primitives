@@ -1,8 +1,8 @@
 export default {
-  displayName: 'ng-primitives-state',
+  displayName: '@ng-primitives/state',
   preset: '../../jest.preset.js',
   setupFilesAfterEnv: ['<rootDir>/src/test-setup.ts'],
-  coverageDirectory: '../../coverage/packages/ng-primitives-state',
+  coverageDirectory: '../../coverage/packages/@ng-primitives/state',
   transform: {
     '^.+\\.(ts|mjs|js|html)$': [
       'jest-preset-angular',

@@ -1,5 +1,5 @@
 {
-  "name": "ng-primitives-state",
+  "name": "@ng-primitives/state",
   "description": "Angular Primitives State is a low-level state library with a focus on developer experience. ",
   "license": "Apache-2.0",
   "version": "0.28.0",

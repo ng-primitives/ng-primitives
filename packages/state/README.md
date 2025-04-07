@@ -5,7 +5,7 @@ Angular Primitives State is a low-level state library with a focus on developer 
 ## Installation
 
 ```bash
-npm install ng-primitives-state
+npm install @ng-primitives/state
 ```
 
 ## Contributing

@@ -1,7 +1,7 @@
 {
-  "name": "ng-primitives-state",
+  "name": "@ng-primitives/state",
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
-  "sourceRoot": "packages/ng-primitives-state/src",
+  "sourceRoot": "packages/state/src",
   "prefix": "ngp-state",
   "projectType": "library",
   "tags": [],
@@ -11,14 +11,14 @@
       "outputs": ["{workspaceRoot}/dist/{projectRoot}"],
       "dependsOn": ["build:schematics"],
       "options": {
-        "project": "packages/ng-primitives-state/ng-package.json"
+        "project": "packages/state/ng-package.json"
       },
       "configurations": {
         "production": {
-          "tsConfig": "packages/ng-primitives-state/tsconfig.lib.prod.json"
+          "tsConfig": "packages/state/tsconfig.lib.prod.json"
         },
         "development": {
-          "tsConfig": "packages/ng-primitives-state/tsconfig.lib.json"
+          "tsConfig": "packages/state/tsconfig.lib.json"
         }
       },
       "defaultConfiguration": "production"

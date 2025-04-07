@@ -4,7 +4,7 @@ import {
   createStateProvider,
   createStateToken,
   InjectedState,
-} from 'ng-primitives-state/state';
+} from 'ng-primitives/state';
 import type { NgpDatePicker } from './date-picker';
 
 export const NgpDatePickerStateToken = createStateToken<NgpDatePicker<unknown>>('DatePicker');

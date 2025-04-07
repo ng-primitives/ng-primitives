@@ -4,7 +4,6 @@
   "sourceRoot": "packages/ng-primitives/src",
   "prefix": "ngp",
   "projectType": "library",
-  "implicitDependencies": ["ng-primitives-state"],
   "tags": [],
   "targets": {
     "build": {
