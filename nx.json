@@ -50,8 +50,9 @@
   },
   "tasksRunnerOptions": { "default": { "options": { "cacheableOperations": [] } } },
   "release": {
-    "projects": ["ng-primitives"],
-    "changelog": { "workspaceChangelog": true, "automaticFromRef": true }
+    "projects": ["ng-primitives", "state"],
+    "changelog": { "workspaceChangelog": true, "automaticFromRef": true },
+    "projectsRelationship": "fixed"
   },
   "defaultBase": "origin/next",
   "nxCloudId": "67def28b82912dfd7fe03d22"

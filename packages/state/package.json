@@ -1,6 +1,6 @@
 {
   "name": "@ng-primitives/state",
-  "description": "Angular Primitives State is a low-level state library with a focus on developer experience. ",
+  "description": "Angular Primitives State is a low-level state library with a focus on developer experience.",
   "license": "Apache-2.0",
   "version": "0.28.0",
   "keywords": [
@@ -27,12 +27,6 @@
   },
   "peerDependencies": {
     "@angular/core": ">=19.0.0"
-  },
-  "ng-add": {
-    "save": "dependencies"
-  },
-  "ng-update": {
-    "migrations": "./migration.json"
   },
   "sideEffects": false
 }

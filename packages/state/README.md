@@ -8,6 +8,8 @@ Angular Primitives State is a low-level state library with a focus on developer 
 npm install @ng-primitives/state
 ```
 
+This package is auto-generated from `ng-primitives/state` and the source should be modified there.
+
 ## Contributing
 
 We welcome contributions from the community. Please refer to our [contributing guidelines](CONTRIBUTING.md) for more information.

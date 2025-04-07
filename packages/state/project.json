@@ -1,15 +1,18 @@
 {
-  "name": "@ng-primitives/state",
+  "name": "state",
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "sourceRoot": "packages/state/src",
   "prefix": "ngp-state",
   "projectType": "library",
   "tags": [],
   "targets": {
+    "copy": {
+      "command": "cpx ./packages/ng-primitives/state/src/index.ts ./packages/state/src"
+    },
     "build": {
       "executor": "@nx/angular:package",
       "outputs": ["{workspaceRoot}/dist/{projectRoot}"],
-      "dependsOn": ["build:schematics"],
+      "dependsOn": ["copy"],
       "options": {
         "project": "packages/state/ng-package.json"
       },
@@ -22,9 +25,6 @@
         }
       },
       "defaultConfiguration": "production"
-    },
-    "test": {
-      "executor": "nx:noop"
     },
     "nx-release-publish": {
       "dependsOn": ["build"],
