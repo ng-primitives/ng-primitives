@@ -28,5 +28,8 @@
   "peerDependencies": {
     "@angular/core": ">=19.0.0"
   },
+  "dependencies": {
+    "ng-primitives": "0.29.0"
+  },
   "sideEffects": false
 }

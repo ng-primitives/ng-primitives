@@ -66,7 +66,13 @@
       }
     },
     "test": {
-      "executor": "nx:noop"
+      "executor": "@nx/jest:jest",
+      "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
+      "options": {
+        "jestConfig": "packages/ng-primitives/jest.config.ts",
+        "passWithNoTests": true,
+        "setupFile": "packages/ng-primitives/src/test-setup.ts"
+      }
     },
     "nx-release-publish": {
       "dependsOn": ["build"],

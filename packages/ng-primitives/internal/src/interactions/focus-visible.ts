@@ -6,7 +6,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 import { FocusMonitor, FocusOrigin } from '@angular/cdk/a11y';
-import { effect, ElementRef, inject, Signal, signal } from '@angular/core';
+import { ElementRef, inject, Renderer2, Signal, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { onBooleanChange } from 'ng-primitives/utils';
 
@@ -29,6 +29,11 @@ export function setupFocusVisible({
   const elementRef = inject<ElementRef<HTMLElement>>(ElementRef);
 
   /**
+   * Access the renderer.
+   */
+  const renderer = inject(Renderer2);
+
+  /**
    * Access the focus monitor.
    */
   const focusMonitor = inject(FocusMonitor);
@@ -49,13 +54,6 @@ export function setupFocusVisible({
 
   // if the component becomes disabled and it is focused, hide the focus
   onBooleanChange(disabled, () => focus(false));
-
-  // anytime the focus state changes we want to update the attribute
-  effect(() => {
-    return isFocused()
-      ? elementRef.nativeElement.setAttribute('data-focus-visible', '')
-      : elementRef.nativeElement.removeAttribute('data-focus-visible');
-  });
 
   function onFocus(origin: FocusOrigin): void {
     if (disabled() || isFocused()) {
@@ -93,6 +91,12 @@ export function setupFocusVisible({
 
     isFocused.set(value);
     focusChange?.(value);
+
+    if (value) {
+      renderer.setAttribute(elementRef.nativeElement, 'data-focus-visible', '');
+    } else {
+      renderer.removeAttribute(elementRef.nativeElement, 'data-focus-visible');
+    }
   }
 
   function alwaysShowFocus(): boolean {
