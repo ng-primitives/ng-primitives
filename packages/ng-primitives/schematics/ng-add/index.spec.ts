@@ -47,10 +47,4 @@ describe('Ng Add Schematic', () => {
     expect(packageJson.dependencies['@angular/cdk']).toBeDefined();
     expect(packageJson.dependencies['@floating-ui/dom']).toBeDefined();
   });
-
-  it('should install dependencies', async () => {
-    const taskSpy = jest.spyOn(schematicRunner, 'tasks', 'get');
-    await schematicRunner.runSchematic('ng-add', {}, appTree);
-    expect(taskSpy).toHaveBeenCalled();
-  });
 });

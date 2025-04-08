@@ -9,16 +9,32 @@ import { NgpButton } from 'ng-primitives/button';
   hostDirectives: [{ directive: NgpButton, inputs: ['disabled'] }],
   template: '<ng-content />',
   styles: \`
+/* These styles rely on CSS variables that can be imported from ng-primitives/example-theme/index.css in your global styles */
+
     :host {
+      padding-left: 1rem;
+      padding-right: 1rem;
+      border-radius: 0.5rem;
+      color: var(--ngp-text-primary);
+      border: none;
+      height: 2.5rem;
+      font-weight: 500;
+      background-color: var(--ngp-background);
+      transition: background-color 300ms cubic-bezier(0.4, 0, 0.2, 1);
+      box-shadow: var(--ngp-button-shadow);
+      box-sizing: border-box;
     }
 
     :host[data-hover] {
+      background-color: var(--ngp-background-hover);
     }
 
     :host[data-focus-visible] {
+      outline: 2px solid var(--ngp-focus-ring);
     }
 
     :host[data-press] {
+      background-color: var(--ngp-background-active);
     }
   \`,
 })
@@ -48,9 +64,16 @@ import { NgpAccordion } from 'ng-primitives/accordion';
     <ng-content />
   \`,
   styles: \`
+/* These styles rely on CSS variables that can be imported from ng-primitives/example-theme/index.css in your global styles */
+
     :host {
-      display: flex;
-      flex-direction: column;
+      display: block;
+      width: 100%;
+      max-width: 24rem;
+      border-radius: 0.75rem;
+      border: 1px solid var(--ngp-border);
+      background-color: var(--ngp-background);
+      box-shadow: var(--ngp-shadow);
     }
   \`,
 })
@@ -67,13 +90,26 @@ import { NgpInput } from 'ng-primitives/input';
   hostDirectives: [{ directive: NgpInput, inputs: ['disabled'] }],
   template: '',
   styles: \`
+/* These styles rely on CSS variables that can be imported from ng-primitives/example-theme/index.css in your global styles */
+
     :host {
+      height: 36px;
+      width: 100%;
+      border-radius: 8px;
+      padding: 0 16px;
+      border: none;
+      box-shadow: var(--ngp-input-shadow);
+      outline: none;
+      box-sizing: border-box;
     }
 
-    :host[data-focus] {
+    :host:focus {
+      outline: 2px solid var(--ngp-focus-ring);
+      outline-offset: 2px;
     }
 
     :host::placeholder {
+      color: var(--ngp-text-placeholder);
     }
   \`,
 })

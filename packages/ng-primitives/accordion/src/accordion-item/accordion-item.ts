@@ -64,12 +64,12 @@ export class NgpAccordionItem<T> implements OnInit {
   /**
    * The trigger id.
    */
-  readonly triggerId = computed(() => this.trigger()?.id());
+  readonly triggerId = computed(() => this.state.trigger()?.id());
 
   /**
    * The content id.
    */
-  readonly contentId = computed(() => this.content()?.id());
+  readonly contentId = computed(() => this.state.content()?.id());
 
   /**
    * The accordion item state.

@@ -14,13 +14,13 @@ describe('NgpFocus', () => {
       imports: [NgpFocus],
     });
     const trigger = container.getByTestId('trigger');
-    expect(trigger.getAttribute('data-focus')).toBe('false');
+    expect(trigger).not.toHaveAttribute('data-focus');
 
     // we must spoof the activeElement to test focus
     Object.defineProperty(document, 'activeElement', { value: trigger, writable: true });
 
     fireEvent.focus(trigger);
-    expect(trigger.getAttribute('data-focus')).toBe('true');
+    expect(trigger).toHaveAttribute('data-focus');
   });
 
   it('should emit the ngpFocus output', async () => {

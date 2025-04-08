@@ -5,8 +5,9 @@
  * This source code is licensed under the Apache 2.0 license found in the
  * LICENSE file in the root directory of this source tree.
  */
-import { By } from '@angular/platform-browser';
-import { render } from '@testing-library/angular';
+import { FocusMonitor } from '@angular/cdk/a11y';
+import { TestBed } from '@angular/core/testing';
+import { fireEvent, render } from '@testing-library/angular';
 import { NgpFocusVisible } from './focus-visible';
 
 describe('NgpFocusVisible', () => {
@@ -27,19 +28,15 @@ describe('NgpFocusVisible', () => {
       },
     );
 
-    // access the NgpFocusVisible directive instance
-    const directive = container.debugElement
-      .query(By.directive(NgpFocusVisible))
-      .injector.get(NgpFocusVisible);
+    const focusMonitor = TestBed.inject(FocusMonitor);
 
     const trigger = container.getByTestId('trigger');
-    expect(trigger.getAttribute('data-focus-visible')).toBe('false');
+    expect(trigger).not.toHaveAttribute('data-focus-visible');
 
-    // @ts-expect-error
-    directive.onFocus('mouse');
+    focusMonitor.focusVia(trigger, 'mouse');
     container.detectChanges();
 
-    expect(trigger.getAttribute('data-focus-visible')).toBe('false');
+    expect(trigger).not.toHaveAttribute('data-focus-visible');
     expect(focusChange).not.toHaveBeenCalled();
   });
 
@@ -54,19 +51,15 @@ describe('NgpFocusVisible', () => {
       },
     );
 
-    // access the NgpFocusVisible directive instance
-    const directive = container.debugElement
-      .query(By.directive(NgpFocusVisible))
-      .injector.get(NgpFocusVisible);
+    const focusMonitor = TestBed.inject(FocusMonitor);
 
     const trigger = container.getByTestId('trigger');
-    expect(trigger.getAttribute('data-focus-visible')).toBe('false');
+    expect(trigger).not.toHaveAttribute('data-focus-visible');
 
-    // @ts-expect-error
-    directive.onFocus('keyboard');
+    focusMonitor.focusVia(trigger, 'keyboard');
     container.detectChanges();
 
-    expect(trigger.getAttribute('data-focus-visible')).toBe('true');
+    expect(trigger).toHaveAttribute('data-focus-visible');
     expect(focusChange).toHaveBeenCalledWith(true);
   });
 
@@ -81,19 +74,15 @@ describe('NgpFocusVisible', () => {
       },
     );
 
-    // access the NgpFocusVisible directive instance
-    const directive = container.debugElement
-      .query(By.directive(NgpFocusVisible))
-      .injector.get(NgpFocusVisible);
+    const focusMonitor = TestBed.inject(FocusMonitor);
 
     const trigger = container.getByTestId('trigger');
-    expect(trigger.getAttribute('data-focus-visible')).toBe('false');
+    expect(trigger).not.toHaveAttribute('data-focus-visible');
 
-    // @ts-expect-error
-    directive.onFocus('program');
+    focusMonitor.focusVia(trigger, 'program');
     container.detectChanges();
 
-    expect(trigger.getAttribute('data-focus-visible')).toBe('true');
+    expect(trigger).toHaveAttribute('data-focus-visible');
     expect(focusChange).toHaveBeenCalledWith(true);
   });
 
@@ -108,19 +97,15 @@ describe('NgpFocusVisible', () => {
       },
     );
 
-    // access the NgpFocusVisible directive instance
-    const directive = container.debugElement
-      .query(By.directive(NgpFocusVisible))
-      .injector.get(NgpFocusVisible);
+    const focusMonitor = TestBed.inject(FocusMonitor);
 
     const trigger = container.getByTestId('trigger');
-    expect(trigger.getAttribute('data-focus-visible')).toBe('false');
+    expect(trigger).not.toHaveAttribute('data-focus-visible');
 
-    // @ts-expect-error
-    directive.onFocus('mouse');
+    focusMonitor.focusVia(trigger, 'mouse');
     container.detectChanges();
 
-    expect(trigger.getAttribute('data-focus-visible')).toBe('true');
+    expect(trigger).toHaveAttribute('data-focus-visible');
     expect(focusChange).toHaveBeenCalledWith(true);
   });
 
@@ -135,19 +120,15 @@ describe('NgpFocusVisible', () => {
       },
     );
 
-    // access the NgpFocusVisible directive instance
-    const directive = container.debugElement
-      .query(By.directive(NgpFocusVisible))
-      .injector.get(NgpFocusVisible);
+    const focusMonitor = TestBed.inject(FocusMonitor);
 
     const trigger = container.getByTestId('trigger');
-    expect(trigger.getAttribute('data-focus-visible')).toBe('false');
+    expect(trigger).not.toHaveAttribute('data-focus-visible');
 
-    // @ts-expect-error
-    directive.onFocus('keyboard');
+    focusMonitor.focusVia(trigger, 'keyboard');
     container.detectChanges();
 
-    expect(trigger.getAttribute('data-focus-visible')).toBe('false');
+    expect(trigger).not.toHaveAttribute('data-focus-visible');
     expect(focusChange).not.toHaveBeenCalled();
   });
 
@@ -162,26 +143,21 @@ describe('NgpFocusVisible', () => {
       },
     );
 
-    // access the NgpFocusVisible directive instance
-    const directive = container.debugElement
-      .query(By.directive(NgpFocusVisible))
-      .injector.get(NgpFocusVisible);
+    const focusMonitor = TestBed.inject(FocusMonitor);
 
     const trigger = container.getByTestId('trigger');
-    expect(trigger.getAttribute('data-focus-visible')).toBe('false');
+    expect(trigger).not.toHaveAttribute('data-focus-visible');
 
-    // @ts-expect-error
-    directive.onFocus('keyboard');
+    focusMonitor.focusVia(trigger, 'keyboard');
     container.detectChanges();
 
-    expect(trigger.getAttribute('data-focus-visible')).toBe('true');
+    expect(trigger).toHaveAttribute('data-focus-visible');
     expect(focusChange).toHaveBeenCalledWith(true);
 
-    // @ts-expect-error
-    directive.onFocus('keyboard');
+    focusMonitor.focusVia(trigger, 'keyboard');
     container.detectChanges();
 
-    expect(trigger.getAttribute('data-focus-visible')).toBe('true');
+    expect(trigger).toHaveAttribute('data-focus-visible');
     expect(focusChange).toHaveBeenCalledTimes(1);
   });
 
@@ -196,19 +172,15 @@ describe('NgpFocusVisible', () => {
       },
     );
 
-    // access the NgpFocusVisible directive instance
-    const directive = container.debugElement
-      .query(By.directive(NgpFocusVisible))
-      .injector.get(NgpFocusVisible);
+    const focusMonitor = TestBed.inject(FocusMonitor);
 
     const trigger = container.getByTestId('trigger');
-    expect(trigger.getAttribute('data-focus-visible')).toBe('false');
+    expect(trigger).not.toHaveAttribute('data-focus-visible');
 
-    // @ts-expect-error
-    directive.onFocus('mouse');
+    focusMonitor.focusVia(trigger, 'mouse');
     container.detectChanges();
 
-    expect(trigger.getAttribute('data-focus-visible')).toBe('true');
+    expect(trigger).toHaveAttribute('data-focus-visible');
     expect(focusChange).toHaveBeenCalledWith(true);
   });
 
@@ -223,19 +195,15 @@ describe('NgpFocusVisible', () => {
       },
     );
 
-    // access the NgpFocusVisible directive instance
-    const directive = container.debugElement
-      .query(By.directive(NgpFocusVisible))
-      .injector.get(NgpFocusVisible);
+    const focusMonitor = TestBed.inject(FocusMonitor);
 
     const trigger = container.getByTestId('trigger');
-    expect(trigger.getAttribute('data-focus-visible')).toBe('false');
+    expect(trigger).not.toHaveAttribute('data-focus-visible');
 
-    // @ts-expect-error
-    directive.onFocus('mouse');
+    focusMonitor.focusVia(trigger, 'mouse');
     container.detectChanges();
 
-    expect(trigger.getAttribute('data-focus-visible')).toBe('true');
+    expect(trigger).toHaveAttribute('data-focus-visible');
     expect(focusChange).toHaveBeenCalledWith(true);
   });
 
@@ -250,19 +218,15 @@ describe('NgpFocusVisible', () => {
       },
     );
 
-    // access the NgpFocusVisible directive instance
-    const directive = container.debugElement
-      .query(By.directive(NgpFocusVisible))
-      .injector.get(NgpFocusVisible);
+    const focusMonitor = TestBed.inject(FocusMonitor);
 
     const trigger = container.getByTestId('trigger');
-    expect(trigger.getAttribute('data-focus-visible')).toBe('false');
+    expect(trigger).not.toHaveAttribute('data-focus-visible');
 
-    // @ts-expect-error
-    directive.onFocus('mouse');
+    focusMonitor.focusVia(trigger, 'mouse');
     container.detectChanges();
 
-    expect(trigger.getAttribute('data-focus-visible')).toBe('false');
+    expect(trigger).not.toHaveAttribute('data-focus-visible');
     expect(focusChange).not.toHaveBeenCalled();
   });
 
@@ -277,26 +241,20 @@ describe('NgpFocusVisible', () => {
       },
     );
 
-    // access the NgpFocusVisible directive instance
-    const directive = container.debugElement
-      .query(By.directive(NgpFocusVisible))
-      .injector.get(NgpFocusVisible);
+    const focusMonitor = TestBed.inject(FocusMonitor);
 
     const trigger = container.getByTestId('trigger');
     expect(trigger.getAttribute('data-focus-visible')).toBe('false');
 
-    // @ts-expect-error
-    directive.onFocus('keyboard');
-    container.detectChanges();
+    focusMonitor.focusVia(trigger, 'keyboard');
 
-    expect(trigger.getAttribute('data-focus-visible')).toBe('true');
+    expect(trigger).toHaveAttribute('data-focus-visible');
     expect(focusChange).toHaveBeenCalledWith(true);
 
-    // @ts-expect-error
-    directive.onBlur();
+    fireEvent.blur(trigger);
     container.detectChanges();
 
-    expect(trigger.getAttribute('data-focus-visible')).toBe('false');
+    expect(trigger).not.toHaveAttribute('data-focus-visible');
     expect(focusChange).toHaveBeenCalledWith(false);
   });
 
@@ -312,19 +270,14 @@ describe('NgpFocusVisible', () => {
       },
     );
 
-    // access the NgpFocusVisible directive instance
-    const directive = container.debugElement
-      .query(By.directive(NgpFocusVisible))
-      .injector.get(NgpFocusVisible);
+    const focusMonitor = TestBed.inject(FocusMonitor);
 
     const trigger = container.getByTestId('trigger');
-    expect(trigger.getAttribute('data-focus-visible')).toBe('false');
+    expect(trigger).not.toHaveAttribute('data-focus-visible');
 
-    // @ts-expect-error
-    directive.onFocus('keyboard');
-    container.detectChanges();
+    focusMonitor.focusVia(trigger, 'keyboard');
 
-    expect(trigger.getAttribute('data-focus-visible')).toBe('true');
+    expect(trigger).toHaveAttribute('data-focus-visible');
 
     container.rerender({
       componentProperties: {
@@ -332,8 +285,7 @@ describe('NgpFocusVisible', () => {
         disabled: true,
       },
     });
-    container.detectChanges();
 
-    expect(trigger.getAttribute('data-focus-visible')).toBe('false');
+    expect(trigger).not.toHaveAttribute('data-focus-visible');
   });
 });
