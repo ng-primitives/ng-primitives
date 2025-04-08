@@ -5,7 +5,7 @@
  * This source code is licensed under the Apache 2.0 license found in the
  * LICENSE file in the root directory of this source tree.
  */
-import { ElementRef, Signal, effect, inject, signal } from '@angular/core';
+import { ElementRef, Renderer2, Signal, inject, signal } from '@angular/core';
 import { injectDisposables } from 'ng-primitives/utils';
 
 export interface NgpFocusOptions {
@@ -34,6 +34,11 @@ export function setupFocus({
   const disposables = injectDisposables();
 
   /**
+   * Access the renderer.
+   */
+  const renderer = inject(Renderer2);
+
+  /**
    * Whether the element is currently focused.
    */
   const isFocused = signal<boolean>(false);
@@ -41,13 +46,6 @@ export function setupFocus({
   // setup event listeners
   disposables.addEventListener(elementRef.nativeElement, 'focus', onFocus);
   disposables.addEventListener(elementRef.nativeElement, 'blur', onBlur);
-
-  // anytime the focus state changes we want to update the attribute
-  effect(() =>
-    isFocused()
-      ? elementRef.nativeElement.setAttribute('data-focus', '')
-      : elementRef.nativeElement.removeAttribute('data-focus'),
-  );
 
   /**
    * Listen for focus events.
@@ -64,6 +62,8 @@ export function setupFocus({
     if (ownerDocument.activeElement === event.target && event.currentTarget === event.target) {
       focus?.();
       isFocused.set(true);
+      // set the data-focus attribute
+      renderer.setAttribute(elementRef.nativeElement, 'data-focus', '');
     }
   }
 
@@ -79,6 +79,8 @@ export function setupFocus({
     if (event.currentTarget === event.target) {
       blur?.();
       isFocused.set(false);
+      // remove the data-focus attribute
+      renderer.removeAttribute(elementRef.nativeElement, 'data-focus');
     }
   }
 
