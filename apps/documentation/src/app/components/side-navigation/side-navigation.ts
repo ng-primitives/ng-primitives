@@ -4,6 +4,7 @@ import { RouterLink, RouterLinkActive } from '@angular/router';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import {
   phosphorBookOpenDuotone,
+  phosphorLightbulbDuotone,
   phosphorPaletteDuotone,
   phosphorRocketLaunchDuotone,
 } from '@ng-icons/phosphor-icons/duotone';
@@ -13,7 +14,12 @@ import { getRouterLinks } from '../../utils/router';
   selector: 'docs-side-navigation',
   imports: [RouterLink, RouterLinkActive, NgTemplateOutlet, NgIcon],
   providers: [
-    provideIcons({ phosphorBookOpenDuotone, phosphorRocketLaunchDuotone, phosphorPaletteDuotone }),
+    provideIcons({
+      phosphorBookOpenDuotone,
+      phosphorRocketLaunchDuotone,
+      phosphorPaletteDuotone,
+      phosphorLightbulbDuotone,
+    }),
   ],
   templateUrl: './side-navigation.ng.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
