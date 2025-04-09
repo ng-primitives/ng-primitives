@@ -113,6 +113,24 @@ This can be added as an example in the documentation site like so:
 <docs-snippet name="button"></docs-snippet>
 ```
 
+## Coding standards
+
+### Naming conventions
+
+We name our primitives using the following conventions:
+
+- Selectors should should have the `ngp` prefix.
+- Class names should have the `Ngp` prefix and be in PascalCase. We do not add suffixes to the class names like `NgpButtonDirective`, instead we use `NgpButton`.
+- File names should be in kebab-case, but for directives we omit `.directive` from the file name. For example, `button.directive.ts` should be named `button.ts`.
+
+### Inputs and outputs
+
+We use the following conventions for inputs and outputs:
+
+- All inputs should be signal inputs.
+- All outputs should use the `output` function.
+- We do not use `model`, instead we prefer a dedicated input and output for each property. The reason for this is outputs should only emit on user interaction, not necessarily on every change. This gives us more control over the events we emit.
+
 ## Troubleshoting
 
 The documentation site is built using Analog, which may exhibit instability based on reports on Windows systems. For a smoother experience, we recommend running the site using Ubuntu inside WSL2 (Windows Subsystem for Linux). This should provide a more stable environment for running the documentation site.
