@@ -225,9 +225,9 @@ export class NgpPopoverTrigger implements OnDestroy {
    * Derive the popover middleware from the provided configuration.
    */
   private readonly middleware = computed(() => {
-    const middleware: Middleware[] = [offset(this.offset()), shift()];
+    const middleware: Middleware[] = [offset(this.state.offset()), shift()];
 
-    if (this.flip()) {
+    if (this.state.flip()) {
       middleware.push(flip());
     }
 
@@ -329,7 +329,7 @@ export class NgpPopoverTrigger implements OnDestroy {
     }
 
     this.state.open.set(true);
-    this.disposables.setTimeout(() => this.createPopover(origin), this.showDelay());
+    this.disposables.setTimeout(() => this.createPopover(origin), this.state.showDelay());
 
     // Add document click listener to detect outside clicks
     if (this.state.closeOnOutsideClick()) {
@@ -359,7 +359,7 @@ export class NgpPopoverTrigger implements OnDestroy {
       this.destroyPopover();
       // ensure the trigger is focused after closing the popover
       this.disposables.setTimeout(() => this.focusTrigger(origin), 0);
-    }, this.hideDelay());
+    }, this.state.hideDelay());
   }
 
   private onDocumentClick(event: MouseEvent): void {
@@ -387,7 +387,7 @@ export class NgpPopoverTrigger implements OnDestroy {
     );
 
     const domOutlet = new DomPortalOutlet(
-      this.container() ?? this.document.body,
+      this.state.container() ?? this.document.body,
       undefined,
       undefined,
       Injector.create({

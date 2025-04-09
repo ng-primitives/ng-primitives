@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/no-non-null-assertion */
-
 /**
  * Copyright © 2024 Angular Primitives.
  * https://github.com/ng-primitives/ng-primitives
@@ -61,7 +59,7 @@ export class NgpToggleGroupItem implements OnInit {
 
   ngOnInit(): void {
     // we can't use a required input for value as it is used in a computed property before the input is set
-    if (this.value() === undefined) {
+    if (this.state.value() === undefined) {
       throw new Error('The value input is required for the toggle group item.');
     }
   }
