@@ -73,7 +73,6 @@ import { NgpButton } from 'ng-primitives/button';
   hostDirectives: [{ directive: NgpButton, inputs: ['disabled'] }],
 })
 export class MyButtonComponent {
-  readonly disabled = input<boolean>();
 }
 ```
 
