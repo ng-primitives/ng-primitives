@@ -14,11 +14,17 @@
  * https://github.com/typescript-eslint/typescript-eslint/tree/master/packages/eslint-plugin/src/rules
  */
 import { ASTUtils } from '@angular-eslint/utils';
-import { ESLintUtils } from '@typescript-eslint/utils';
+import { ESLintUtils, TSESTree } from '@typescript-eslint/utils';
 import * as ESAstUtils from '@typescript-eslint/utils/ast-utils';
 
 // NOTE: The rule will be available in ESLint configs as "@nx/workspace-prefer-state"
 export const RULE_NAME = 'prefer-state';
+
+interface ClassContext {
+  hasStateProvider: boolean;
+  inputs: string[];
+  node: TSESTree.ClassDeclaration;
+}
 
 export const rule = ESLintUtils.RuleCreator(() => __filename)({
   name: RULE_NAME,
@@ -35,44 +41,57 @@ export const rule = ESLintUtils.RuleCreator(() => __filename)({
   },
   defaultOptions: [],
   create(context) {
-    let hasStateProvider = false;
-    const inputs: string[] = [];
-    return {
-      ClassDeclaration(node) {
-        const directiveDecorator = ASTUtils.getDecorator(node, 'Directive');
+    // Track class contexts to handle multiple classes in a file
+    const classContexts: ClassContext[] = [];
+    let currentClassContext: ClassContext | null = null;
 
+    return {
+      // Track when we enter class declarations
+      ClassDeclaration(node) {
+        currentClassContext = {
+          hasStateProvider: false,
+          inputs: [],
+          node,
+        };
+        classContexts.push(currentClassContext);
+
+        const directiveDecorator = ASTUtils.getDecorator(node, 'Directive');
         if (!directiveDecorator) {
           return;
         }
 
         const providers = ASTUtils.getDecoratorPropertyValue(directiveDecorator, 'providers');
-
         if (!providers || !ASTUtils.isArrayExpression(providers)) {
           return;
         }
 
-        // check if the providers array contains a state provider - state providers are a function like `provideXyzState`
-        hasStateProvider = providers.elements.some(provider => {
+        // Check if the providers array contains a state provider
+        currentClassContext.hasStateProvider = providers.elements.some(provider => {
           if (!ASTUtils.isCallExpression(provider)) {
             return false;
           }
 
-          // check if the provider is a function call
+          // Check if the provider is a function call
           if (!ESAstUtils.isIdentifier(provider.callee)) {
             return false;
           }
 
           const providerName = provider.callee.name;
-          // check if the provider name starts with `provide` and ends with `State`
+          // Check if the provider name starts with `provide` and ends with `State`
           return providerName.startsWith('provide') && providerName.endsWith('State');
         });
       },
+
+      ClassDeclaration_exit() {
+        currentClassContext = null;
+      },
+
       PropertyDefinition(node) {
-        if (!hasStateProvider) {
+        if (!currentClassContext || !currentClassContext.hasStateProvider) {
           return;
         }
 
-        // if the property is an input field store the input name
+        // Keep the original signal input detection
         if (
           ASTUtils.isPropertyDefinition(node) &&
           node.value &&
@@ -80,36 +99,58 @@ export const rule = ESLintUtils.RuleCreator(() => __filename)({
           node.value.callee &&
           ESAstUtils.isIdentifier(node.value.callee)
         ) {
-          // we need to check if it matches readonly name = input();
+          // Check if it matches readonly name = input();
           const isInput = node.value.callee.name === 'input';
 
           if (isInput && ESAstUtils.isIdentifier(node.key)) {
             const inputName = node.key.name;
-            inputs.push(inputName);
+            currentClassContext.inputs.push(inputName);
           }
         }
       },
+
       MemberExpression(node) {
-        if (!hasStateProvider) {
+        // Skip if not a this.property expression
+        if (node.object.type !== 'ThisExpression' || node.property.type !== 'Identifier') {
           return;
         }
 
-        // if the member expression is a call expression it is calling one of the inputs, we want to report an error
-        // as we want it to use state instead
-        if (node.object.type === 'ThisExpression' && node.property.type === 'Identifier') {
-          const propertyName = node.property.name;
+        const propertyName = node.property.name;
 
-          if (inputs.includes(propertyName)) {
-            context.report({
-              node,
-              messageId: 'preferState',
-              fix: fixer => {
-                // we want to replace the input with the state
-                const stateName = `this.state.${propertyName}`;
-                return fixer.replaceText(node, stateName);
-              },
-            });
+        // Find which class context this member expression belongs to
+        // by traversing up the AST to find the containing class
+        let containingClass: TSESTree.ClassDeclaration | null = null;
+        let current: TSESTree.Node | undefined = node;
+
+        while (current) {
+          if (current.type === 'ClassDeclaration') {
+            containingClass = current;
+            break;
           }
+          current = current.parent;
+        }
+
+        // If we couldn't find a containing class, skip
+        if (!containingClass) {
+          return;
+        }
+
+        // Find the matching class context
+        const classContext = classContexts.find(ctx => ctx.node === containingClass);
+        if (!classContext || !classContext.hasStateProvider) {
+          return;
+        }
+
+        // Check if this property is an input that should use state instead
+        if (classContext.inputs.includes(propertyName)) {
+          context.report({
+            node,
+            messageId: 'preferState',
+            fix: fixer => {
+              // Replace the input with the state
+              return fixer.replaceText(node, `this.state.${propertyName}`);
+            },
+          });
         }
       },
     };
