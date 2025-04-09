@@ -61,13 +61,19 @@ export class NgpProgress {
    * @internal
    */
   protected readonly dataState = computed(() =>
-    this.value() == null ? 'indeterminate' : this.value() === this.max() ? 'complete' : 'loading',
+    this.state.value() == null
+      ? 'indeterminate'
+      : this.state.value() === this.state.max()
+        ? 'complete'
+        : 'loading',
   );
 
   /**
    * Get the progress value label.
    */
-  protected readonly label = computed(() => this.valueLabel()(this.value(), this.max()));
+  protected readonly label = computed(() =>
+    this.state.valueLabel()(this.state.value(), this.state.max()),
+  );
 
   /**
    * The state of the progress bar.

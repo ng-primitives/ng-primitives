@@ -100,7 +100,7 @@ export class NgpCheckbox implements NgpCanDisable {
     // prevent this firing twice in cases where the label is clicked and the checkbox is clicked by the one event
     event?.preventDefault();
 
-    this.state.checked.set(this.indeterminate() ? true : !this.state.checked());
+    this.state.checked.set(this.state.indeterminate() ? true : !this.state.checked());
     this.state.checkedChange.emit(this.state.checked());
 
     // if the checkbox was indeterminate, it isn't anymore

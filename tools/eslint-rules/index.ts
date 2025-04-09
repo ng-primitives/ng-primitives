@@ -1,7 +1,9 @@
+import { RULE_NAME as avoidModelName, rule as avoidModel } from './rules/avoid-model';
 import {
   RULE_NAME as preferEntrypointImportsName,
   rule as preferEntrypointImports,
 } from './rules/prefer-entrypoint-imports';
+import { RULE_NAME as preferStateName, rule as preferState } from './rules/prefer-state';
 
 /**
  * Import your custom workspace rules at the top of this file.
@@ -28,5 +30,9 @@ module.exports = {
    *  [myCustomRuleName]: myCustomRule
    * }
    */
-  rules: { [preferEntrypointImportsName]: preferEntrypointImports },
+  rules: {
+    [preferEntrypointImportsName]: preferEntrypointImports,
+    [preferStateName]: preferState,
+    [avoidModelName]: avoidModel,
+  },
 };

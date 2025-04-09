@@ -105,7 +105,7 @@ export class NgpListbox<T> implements AfterContentInit {
   /**
    * The tabindex of the listbox.
    */
-  protected readonly tabindex = computed(() => (this.disabled() ? -1 : 0));
+  protected readonly tabindex = computed(() => (this.state.disabled() ? -1 : 0));
 
   /**
    * Access the options in the listbox.
@@ -195,16 +195,16 @@ export class NgpListbox<T> implements AfterContentInit {
     } else {
       // if the value is already selected, remove it, otherwise add it
       if (this.state.isSelected(value)) {
-        this.state.value.set(this.value().filter(v => !this.compareWith()(v, value)));
+        this.state.value.set(this.state.value().filter(v => !this.state.compareWith()(v, value)));
         this.state.valueChange.emit(this.state.value());
       } else {
-        this.state.value.set([...this.value(), value]);
+        this.state.value.set([...this.state.value(), value]);
         this.state.valueChange.emit(this.state.value());
       }
     }
 
     // Set the active descendant to the selected option.
-    const option = this.options().find(o => this.compareWith()(o.value(), value));
+    const option = this.options().find(o => this.state.compareWith()(o.value(), value));
 
     if (option) {
       this.keyManager.setActiveItem(option);

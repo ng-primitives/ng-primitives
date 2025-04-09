@@ -77,7 +77,7 @@ export class NgpToggleGroup implements NgpCanOrientate {
       return;
     }
 
-    if (this.type() === 'single') {
+    if (this.state.type() === 'single') {
       this.state.value.set([value]);
     } else {
       this.state.value.set([...this.state.value(), value]);

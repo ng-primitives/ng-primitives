@@ -59,7 +59,7 @@ export class NgpAccordionItem<T> implements OnInit {
   /**
    * Whether the accordion item is expanded.
    */
-  readonly open = computed<boolean>(() => this.accordion().isOpen(this.value()!));
+  readonly open = computed<boolean>(() => this.accordion().isOpen(this.state.value()!));
 
   /**
    * The trigger id.
@@ -77,7 +77,7 @@ export class NgpAccordionItem<T> implements OnInit {
   private readonly state = accordionItemState<NgpAccordionItem<T>>(this);
 
   ngOnInit(): void {
-    if (!this.value()) {
+    if (!this.state.value()) {
       throw new Error('The accordion item value is required');
     }
   }

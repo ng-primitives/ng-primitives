@@ -74,14 +74,15 @@ export class NgpTabset implements NgpCanOrientate {
   readonly panels = signal<NgpTabPanel[]>([]);
 
   /**
+   * @internal
    * Get the id of the selected tab
    */
-  private readonly selectedTab = computed(() => {
+  readonly selectedTab = computed(() => {
     const panels = this.panels();
 
     // if there is a value set and a tab with that value exists, return the value
-    if (panels.some(panel => panel.value() === this.value())) {
-      return this.value();
+    if (panels.some(panel => panel.value() === this.state.value())) {
+      return this.state.value();
     }
 
     // otherwise return the first tab

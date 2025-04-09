@@ -20,10 +20,11 @@ import {
   computed,
   inject,
   input,
-  model,
   numberAttribute,
+  output,
   signal,
 } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import {
   Middleware,
   Placement,
@@ -33,21 +34,26 @@ import {
   offset,
   shift,
 } from '@floating-ui/dom';
+import { fromResizeEvent } from 'ng-primitives/resize';
 import { injectDisposables, onBooleanChange } from 'ng-primitives/utils';
 import { injectTooltipConfig } from '../config/tooltip-config';
+import { provideTooltipTriggerState, tooltipTriggerState } from './tooltip-trigger-state';
 import { NgpTooltipTriggerToken, provideTooltipTrigger } from './tooltip-trigger-token';
 
 @Directive({
   selector: '[ngpTooltipTrigger]',
   exportAs: 'ngpTooltipTrigger',
-  providers: [{ provide: NgpTooltipTriggerToken, useExisting: NgpTooltipTrigger }],
+  providers: [
+    provideTooltipTriggerState(),
+    { provide: NgpTooltipTriggerToken, useExisting: NgpTooltipTrigger },
+  ],
   host: {
-    '[attr.data-state]': 'state()',
+    '[attr.data-open]': 'state.open() ? "" : null',
     '[attr.data-disabled]': 'disabled() ? "" : null',
-    '(mouseenter)': 'open.set(true)',
-    '(mouseleave)': 'open.set(false)',
-    '(focus)': 'open.set(true)',
-    '(blur)': 'open.set(false)',
+    '(mouseenter)': 'show()',
+    '(mouseleave)': 'hide()',
+    '(focus)': 'show()',
+    '(blur)': 'hide()',
   },
 })
 export class NgpTooltipTrigger implements OnDestroy {
@@ -92,8 +98,16 @@ export class NgpTooltipTrigger implements OnDestroy {
    * The open state of the tooltip.
    * @default false
    */
-  readonly open = model<boolean>(false, {
+  readonly open = input<boolean, BooleanInput>(false, {
     alias: 'ngpTooltipTriggerOpen',
+    transform: booleanAttribute,
+  });
+
+  /**
+   * Emit an event when the tooltip is opened or closed.
+   */
+  readonly openChange = output<boolean>({
+    alias: 'ngpTooltipTriggerOpenChange',
   });
 
   /**
@@ -166,9 +180,9 @@ export class NgpTooltipTrigger implements OnDestroy {
    * Derive the tooltip middleware from the provided configuration.
    */
   private readonly middleware = computed(() => {
-    const middleware: Middleware[] = [offset(this.offset()), shift()];
+    const middleware: Middleware[] = [offset(this.state.offset()), shift()];
 
-    if (this.flip()) {
+    if (this.state.flip()) {
       middleware.push(flip());
     }
 
@@ -188,16 +202,27 @@ export class NgpTooltipTrigger implements OnDestroy {
    * Store the state of the tooltip.
    * @internal
    */
-  readonly state = signal<TooltipState>('closed');
+  readonly state = tooltipTriggerState<NgpTooltipTrigger>(this);
 
   /**
    * The dispose function to stop computing the position of the tooltip.
    */
   private dispose?: () => void;
 
+  /**
+   * @internal
+   * Store the trigger width.
+   */
+  readonly width = signal<number | null>(null);
+
   constructor() {
     // any time the open state changes then show or hide the tooltip
-    onBooleanChange(this.open, this.show.bind(this), this.hide.bind(this));
+    onBooleanChange(this.state.open, this.show.bind(this), this.hide.bind(this));
+
+    // update the width of the trigger when it resizes
+    fromResizeEvent(this.trigger.nativeElement)
+      .pipe(takeUntilDestroyed())
+      .subscribe(() => this.width.set(this.trigger.nativeElement.offsetWidth));
   }
 
   ngOnDestroy(): void {
@@ -206,22 +231,24 @@ export class NgpTooltipTrigger implements OnDestroy {
 
   private show(): void {
     // if the trigger is disabled or the tooltip is already open then do not show the tooltip
-    if (this.disabled() || this.state() === 'open' || this.state() === 'opening') {
+    if (this.state.disabled() || this.state.open()) {
       return;
     }
 
-    this.state.set('opening');
-    this.disposables.setTimeout(() => this.createTooltip(), this.showDelay());
+    this.state.open.set(true);
+    this.openChange.emit(true);
+    this.disposables.setTimeout(() => this.createTooltip(), this.state.showDelay());
   }
 
   private hide(): void {
     // if the trigger is disabled or the tooltip is already closed then do not hide the tooltip
-    if (this.disabled() || this.state() === 'closed' || this.state() === 'closing') {
+    if (this.state.disabled() || !this.state.open()) {
       return;
     }
 
-    this.state.set('closing');
-    this.disposables.setTimeout(() => this.destroyTooltip(), this.hideDelay());
+    this.state.open.set(false);
+    this.openChange.emit(false);
+    this.disposables.setTimeout(() => this.destroyTooltip(), this.state.hideDelay());
   }
 
   private createTooltip(): void {
@@ -233,7 +260,7 @@ export class NgpTooltipTrigger implements OnDestroy {
     );
 
     const domOutlet = new DomPortalOutlet(
-      this.container() ?? this.document.body,
+      this.state.container() ?? this.document.body,
       undefined,
       undefined,
       Injector.create({
@@ -249,22 +276,19 @@ export class NgpTooltipTrigger implements OnDestroy {
 
     this.dispose = autoUpdate(this.trigger.nativeElement, outletElement, async () => {
       const position = await computePosition(this.trigger.nativeElement, outletElement, {
-        placement: this.placement(),
+        placement: this.state.placement(),
         middleware: this.middleware(),
       });
 
       this.position.set({ x: position.x, y: position.y });
     });
-
-    this.state.set('open');
   }
 
   private destroyTooltip(): void {
+    this.state.open.set(false);
+    this.openChange.emit(false);
     this.viewRef?.destroy();
     this.viewRef = null;
     this.dispose?.();
-    this.state.set('closed');
   }
 }
-
-export type TooltipState = 'closed' | 'opening' | 'open' | 'closing';
