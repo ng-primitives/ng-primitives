@@ -14,3 +14,7 @@ export {
 } from './tooltip-trigger/tooltip-trigger-token';
 export { NgpTooltip } from './tooltip/tooltip';
 export { NgpTooltipToken, injectTooltip } from './tooltip/tooltip-token';
+export {
+  provideTooltipTriggerState,
+  injectTooltipTriggerState,
+} from './tooltip-trigger/tooltip-trigger-state';

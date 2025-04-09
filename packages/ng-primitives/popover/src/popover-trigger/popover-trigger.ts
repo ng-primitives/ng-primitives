@@ -19,9 +19,9 @@ import {
   inject,
   Injector,
   input,
-  model,
   numberAttribute,
   OnDestroy,
+  output,
   signal,
   TemplateRef,
   ViewContainerRef,
@@ -120,8 +120,16 @@ export class NgpPopoverTrigger implements OnDestroy {
    * The open state of the popover.
    * @default false
    */
-  readonly open = model<boolean>(false, {
+  readonly open = input<boolean, BooleanInput>(false, {
     alias: 'ngpPopoverTriggerOpen',
+    transform: booleanAttribute,
+  });
+
+  /**
+   * Emit when the open state changes.
+   */
+  readonly openChange = output<boolean>({
+    alias: 'ngpPopoverTriggerOpenChange',
   });
 
   /**
@@ -286,7 +294,11 @@ export class NgpPopoverTrigger implements OnDestroy {
     this.parentTrigger?.stack.push(this);
 
     // any time the open state changes then show or hide the popover
-    onBooleanChange(this.open, this.show.bind(this, 'program'), this.hide.bind(this, 'program'));
+    onBooleanChange(
+      this.state.open,
+      this.show.bind(this, 'program'),
+      this.hide.bind(this, 'program'),
+    );
 
     // update the width of the trigger when it resizes
     fromResizeEvent(this.trigger.nativeElement)
@@ -329,6 +341,7 @@ export class NgpPopoverTrigger implements OnDestroy {
     }
 
     this.state.open.set(true);
+    this.openChange.emit(true);
     this.disposables.setTimeout(() => this.createPopover(origin), this.state.showDelay());
 
     // Add document click listener to detect outside clicks
@@ -354,6 +367,7 @@ export class NgpPopoverTrigger implements OnDestroy {
     }
 
     this.state.open.set(false);
+    this.openChange.emit(false);
 
     this.disposables.setTimeout(() => {
       this.destroyPopover();
@@ -422,7 +436,8 @@ export class NgpPopoverTrigger implements OnDestroy {
   }
 
   private destroyPopover(): void {
-    this.open.set(false);
+    this.state.open.set(false);
+    this.openChange.emit(false);
 
     // if the view is already destroyed then do not destroy it again
     if (this.viewRef && !this.viewRef.destroyed) {
@@ -464,5 +479,3 @@ export class NgpPopoverTrigger implements OnDestroy {
     this.popoverInstance = instance;
   }
 }
-
-export type PopoverState = 'closed' | 'opening' | 'open' | 'closing';

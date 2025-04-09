@@ -34,6 +34,7 @@ module.exports = [
       '@angular-eslint/no-output-native': 'off',
       '@typescript-eslint/no-non-null-assertion': 'off',
       '@nx/workspace-prefer-state': 'error',
+      '@nx/workspace-avoid-model': 'error',
     },
   },
   {

@@ -8,7 +8,7 @@
 import { FocusOrigin } from '@angular/cdk/a11y';
 import { Directionality } from '@angular/cdk/bidi';
 import { BooleanInput } from '@angular/cdk/coercion';
-import { booleanAttribute, Directive, inject, input, model, signal } from '@angular/core';
+import { booleanAttribute, Directive, inject, input, output, signal } from '@angular/core';
 import { NgpOrientation } from 'ng-primitives/common';
 import { injectOrientation, NgpCanOrientate } from 'ng-primitives/internal';
 import { NgpRovingFocusItem } from '../roving-focus-item/roving-focus-item';
@@ -29,8 +29,15 @@ export class NgpRovingFocusGroup implements NgpCanOrientate {
    * Determine the orientation of the roving focus group.
    * @default 'vertical'
    */
-  readonly orientation = model<NgpOrientation>('vertical', {
+  readonly orientation = input<NgpOrientation>('vertical', {
     alias: 'ngpRovingFocusGroupOrientation',
+  });
+
+  /**
+   * Emit when the orientation of the roving focus group changes.
+   */
+  readonly orientationChange = output<NgpOrientation>({
+    alias: 'ngpRovingFocusGroupOrientationChange',
   });
 
   /**

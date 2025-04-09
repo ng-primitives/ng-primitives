@@ -1,3 +1,4 @@
+import { RULE_NAME as avoidModelName, rule as avoidModel } from './rules/avoid-model';
 import {
   RULE_NAME as preferEntrypointImportsName,
   rule as preferEntrypointImports,
@@ -29,5 +30,9 @@ module.exports = {
    *  [myCustomRuleName]: myCustomRule
    * }
    */
-  rules: { [preferEntrypointImportsName]: preferEntrypointImports, [preferStateName]: preferState },
+  rules: {
+    [preferEntrypointImportsName]: preferEntrypointImports,
+    [preferStateName]: preferState,
+    [avoidModelName]: avoidModel,
+  },
 };
