@@ -1,8 +1,10 @@
+import { Signal } from '@angular/core';
 import {
   createState,
   createStateInjector,
   createStateProvider,
   createStateToken,
+  State,
 } from 'ng-primitives/state';
 import type { NgpTooltipTrigger } from './tooltip-trigger';
 
@@ -19,7 +21,9 @@ export const provideTooltipTriggerState = createStateProvider(NgpTooltipTriggerS
 /**
  * Injects the TooltipTrigger state.
  */
-export const injectTooltipTriggerState = createStateInjector(NgpTooltipTriggerStateToken);
+export const injectTooltipTriggerState = createStateInjector(
+  NgpTooltipTriggerStateToken,
+) as () => Signal<State<NgpTooltipTrigger>>;
 
 /**
  * The TooltipTrigger state registration function.
