@@ -111,8 +111,17 @@ export function createState(token: ProviderToken<WritableSignal<State<unknown>>>
       for (const key in state) {
         const value = state[key as keyof U];
 
-        // @ts-ignore
-        obj[key] = isSignal(value) ? linkedSignal(() => value()) : value;
+        // If this is a signal but doesn't have a set method, we need to wrap it in a linked signal
+        // This is because the signal is not writable
+        // and we need to create a new signal that is writable
+        // and linked to the original signal
+        if (isSignal(value) && 'set' in value === false) {
+          // @ts-ignore
+          obj[key] = linkedSignal(() => value());
+        } else {
+          // @ts-ignore
+          obj[key] = value;
+        }
       }
 
       // Iterating over prototype methods
