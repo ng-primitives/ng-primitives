@@ -74,6 +74,6 @@ export class NgpMenuItem {
    */
   @HostListener('mouseenter')
   protected showSubmenuOnHover(): void {
-    this.parentMenu?.closeSubmenus.next();
+    this.parentMenu?.closeSubmenus.next(this.elementRef.nativeElement);
   }
 }

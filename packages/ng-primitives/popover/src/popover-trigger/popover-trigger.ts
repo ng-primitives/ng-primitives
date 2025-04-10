@@ -282,6 +282,18 @@ export class NgpPopoverTrigger implements OnDestroy {
    */
   private readonly stack: NgpPopoverTrigger[] = [];
 
+  /**
+   * @internal
+   * The timeout to open the popover.
+   */
+  private openTimeout?: () => void;
+
+  /**
+   * @internal
+   * The timeout to close the popover.
+   */
+  private closeTimeout?: () => void;
+
   constructor() {
     // if the trigger has a parent trigger then register it to the stack
     this.parentTrigger?.stack.push(this);
@@ -328,14 +340,19 @@ export class NgpPopoverTrigger implements OnDestroy {
    * Show the popover.
    */
   show(origin: FocusOrigin): void {
+    // if closing is in progress then clear the timeout to stop the popover from closing
+    this.closeTimeout?.();
+
     // if the trigger is disabled or the popover is already open then do not show the popover
     if (this.state.disabled() || this.state.open()) {
       return;
     }
 
-    this.state.open.set(true);
-    this.openChange.emit(true);
-    this.disposables.setTimeout(() => this.createPopover(origin), this.state.showDelay());
+    this.openTimeout = this.disposables.setTimeout(() => {
+      this.state.open.set(true);
+      this.openChange.emit(true);
+      this.createPopover(origin);
+    }, this.state.showDelay());
 
     // Add document click listener to detect outside clicks
     if (this.state.closeOnOutsideClick()) {
@@ -349,7 +366,10 @@ export class NgpPopoverTrigger implements OnDestroy {
    * Hide the popover.
    */
   hide(origin: FocusOrigin = 'program'): void {
-    // if the trigger is disabled or the popover is already closed then do not hide the popover
+    // if opening is in progress then clear the timeout to stop the popover from opening
+    this.openTimeout?.();
+
+    // if the trigger is disabled or the popover is not open then do not hide the popover
     if (this.state.disabled() || !this.state.open()) {
       return;
     }
@@ -359,10 +379,10 @@ export class NgpPopoverTrigger implements OnDestroy {
       child.hide(origin);
     }
 
-    this.state.open.set(false);
-    this.openChange.emit(false);
+    this.closeTimeout = this.disposables.setTimeout(() => {
+      this.state.open.set(false);
+      this.openChange.emit(false);
 
-    this.disposables.setTimeout(() => {
       this.destroyPopover();
       // ensure the trigger is focused after closing the popover
       this.disposables.setTimeout(() => this.focusTrigger(origin), 0);
@@ -386,6 +406,9 @@ export class NgpPopoverTrigger implements OnDestroy {
   }
 
   private createPopover(origin: FocusOrigin): void {
+    // clear the open timeout
+    this.openTimeout = undefined;
+
     const portal = new TemplatePortal(
       this.state.popover(),
       this.viewContainerRef,
@@ -429,6 +452,9 @@ export class NgpPopoverTrigger implements OnDestroy {
   }
 
   private destroyPopover(): void {
+    // clear the close timeout
+    this.closeTimeout = undefined;
+
     this.state.open.set(false);
     this.openChange.emit(false);
 

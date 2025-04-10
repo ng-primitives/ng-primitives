@@ -20,7 +20,7 @@ export class NgpSubmenuTrigger {
   private readonly trigger = injectElementRef();
 
   /** Access the popover trigger state */
-  private readonly state = injectPopoverTriggerState();
+  private readonly popoverTrigger = injectPopoverTriggerState();
 
   /** Access the parent menu */
   private readonly parentMenu = inject(NgpMenuToken, { optional: true });
@@ -29,25 +29,35 @@ export class NgpSubmenuTrigger {
     // by default the popover opens below and to the center of the trigger,
     // but as this is a submenu we want to default to opening to the right
     // and to the start
-    this.state().placement.set('right-start');
+    this.popoverTrigger().placement.set('right-start');
 
-    this.parentMenu?.closeSubmenus
-      .pipe(takeUntilDestroyed())
-      .subscribe(() => this.closeMenu('mouse'));
+    this.parentMenu?.closeSubmenus.pipe(takeUntilDestroyed()).subscribe(element => {
+      // if the element is not the trigger, we want to close the menu
+      if (element === this.trigger.nativeElement) {
+        return;
+      }
+
+      this.closeMenu('mouse');
+    });
   }
 
   /**
    * @internal
    */
   openMenu(origin: FocusOrigin): void {
-    this.state().show(origin);
+    // if the menu is already open, we don't want to do anything
+    if (this.popoverTrigger().open()) {
+      return;
+    }
+
+    this.popoverTrigger().show(origin);
   }
 
   /**
    * @internal
    */
   closeMenu(origin: FocusOrigin): void {
-    this.state().hide(origin);
+    this.popoverTrigger().hide(origin);
   }
 
   /**

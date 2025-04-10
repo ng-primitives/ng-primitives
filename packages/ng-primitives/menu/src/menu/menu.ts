@@ -30,7 +30,7 @@ export class NgpMenu {
   private readonly parentMenu = inject(NgpMenuToken, { optional: true, skipSelf: true });
 
   /** @internal Whether we should close submenus */
-  readonly closeSubmenus = new Subject<void>();
+  readonly closeSubmenus = new Subject<HTMLElement>();
 
   /** Close the menu and any parent menus */
   closeAllMenus(origin: FocusOrigin): void {
