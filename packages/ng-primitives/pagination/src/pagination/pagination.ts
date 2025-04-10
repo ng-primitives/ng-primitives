@@ -84,6 +84,6 @@ export class NgpPagination {
     }
 
     this.state.page.set(page);
-    this.state.pageChange.emit(page);
+    this.pageChange.emit(page);
   }
 }

@@ -94,7 +94,7 @@ export class NgpCheckbox implements NgpCanDisable {
     event?.preventDefault();
 
     this.state.checked.set(this.state.indeterminate() ? true : !this.state.checked());
-    this.state.checkedChange.emit(this.state.checked());
+    this.checkedChange.emit(this.state.checked());
 
     // if the checkbox was indeterminate, it isn't anymore
     if (this.state.indeterminate()) {

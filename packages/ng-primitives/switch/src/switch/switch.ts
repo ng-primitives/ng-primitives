@@ -78,7 +78,7 @@ export class NgpSwitch implements NgpCanDisable {
     }
 
     this.state.checked.set(!this.state.checked());
-    this.state.checkedChange.emit(this.state.checked());
+    this.checkedChange.emit(this.state.checked());
   }
 
   /**

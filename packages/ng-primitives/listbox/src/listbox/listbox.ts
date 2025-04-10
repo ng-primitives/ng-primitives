@@ -184,15 +184,15 @@ export class NgpListbox<T> implements AfterContentInit {
   selectOption(value: T, origin: FocusOrigin): void {
     if (this.state.mode() === 'single') {
       this.state.value.set([value]);
-      this.state.valueChange.emit(this.state.value());
+      this.valueChange.emit(this.state.value());
     } else {
       // if the value is already selected, remove it, otherwise add it
-      if (this.state.isSelected(value)) {
+      if (this.isSelected(value)) {
         this.state.value.set(this.state.value().filter(v => !this.state.compareWith()(v, value)));
-        this.state.valueChange.emit(this.state.value());
+        this.valueChange.emit(this.state.value());
       } else {
         this.state.value.set([...this.state.value(), value]);
-        this.state.valueChange.emit(this.state.value());
+        this.valueChange.emit(this.state.value());
       }
     }
 

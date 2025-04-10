@@ -106,8 +106,8 @@ export class NgpFileUpload {
 
   constructor() {
     this.input.type = 'file';
-    this.input.addEventListener('change', () => this.state.selected.emit(this.input.files));
-    this.input.addEventListener('cancel', () => this.state.canceled.emit());
+    this.input.addEventListener('change', () => this.selected.emit(this.input.files));
+    this.input.addEventListener('cancel', () => this.canceled.emit());
   }
 
   @HostListener('click')
@@ -136,7 +136,7 @@ export class NgpFileUpload {
     event.preventDefault();
     event.stopPropagation();
     this.isDragOver.set(true);
-    this.state.dragOver.emit(true);
+    this.dragOver.emit(true);
   }
 
   @HostListener('dragover', ['$event'])
@@ -175,10 +175,10 @@ export class NgpFileUpload {
 
     event.preventDefault();
     this.isDragOver.set(false);
-    this.state.dragOver.emit(false);
+    this.dragOver.emit(false);
 
     if (event.dataTransfer?.files) {
-      this.state.selected.emit(event.dataTransfer.files);
+      this.selected.emit(event.dataTransfer.files);
     }
   }
 }

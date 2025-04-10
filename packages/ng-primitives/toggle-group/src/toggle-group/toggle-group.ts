@@ -76,7 +76,7 @@ export class NgpToggleGroup implements NgpCanOrientate {
       this.state.value.set([...this.state.value(), value]);
     }
 
-    this.state.valueChange.emit(this.state.value());
+    this.valueChange.emit(this.state.value());
   }
 
   /**
@@ -88,7 +88,7 @@ export class NgpToggleGroup implements NgpCanOrientate {
     }
 
     this.state.value.set(this.state.value().filter(v => v !== value));
-    this.state.valueChange.emit(this.state.value());
+    this.valueChange.emit(this.state.value());
   }
 
   /**

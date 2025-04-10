@@ -69,6 +69,6 @@ export class NgpRadioGroup implements NgpCanDisable, NgpCanOrientate {
    */
   select(value: string): void {
     this.state.value.set(value);
-    this.state.valueChange.emit(value);
+    this.valueChange.emit(value);
   }
 }
