@@ -1,10 +1,3 @@
-/**
- * Copyright © 2024 Angular Primitives.
- * https://github.com/ng-primitives/ng-primitives
- *
- * This source code is licensed under the Apache 2.0 license found in the
- * LICENSE file in the root directory of this source tree.
- */
 import { BooleanInput } from '@angular/cdk/coercion';
 import { Directive, OnInit, booleanAttribute, computed, input, signal } from '@angular/core';
 import { NgpAccordionContent } from '../accordion-content/accordion-content';

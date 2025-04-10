@@ -9,7 +9,7 @@
     "format": "nx format:write",
     "lint": "nx run-many -t lint",
     "test": "nx run-many -t test",
-    "build": "NODE_OPTIONS='--max-old-space-size=8192' nx run-many -t build",
+    "build": "NODE_OPTIONS='--max-old-space-size=8192' nx run-many -t build,typings",
     "release:version": "nx release version",
     "release:changelog": "nx release changelog",
     "release:publish": "nx release publish"

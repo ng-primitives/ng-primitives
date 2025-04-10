@@ -9,7 +9,7 @@
     "build": {
       "executor": "@nx/angular:package",
       "outputs": ["{workspaceRoot}/dist/{projectRoot}"],
-      "dependsOn": ["build:schematics", "^build"],
+      "dependsOn": ["build:schematics"],
       "options": {
         "project": "packages/ng-primitives/ng-package.json"
       },
@@ -65,6 +65,10 @@
         ]
       }
     },
+    "typings": {
+      "executor": "@ng-primitives/tools:typings",
+      "dependsOn": ["build"]
+    },
     "test": {
       "executor": "@nx/jest:jest",
       "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
@@ -75,7 +79,7 @@
       }
     },
     "nx-release-publish": {
-      "dependsOn": ["build"],
+      "dependsOn": ["build", "typings"],
       "options": {
         "packageRoot": "{workspaceRoot}/dist/{projectRoot}"
       }

@@ -1,0 +1,9 @@
+{
+  "executors": {
+    "typings": {
+      "implementation": "./src/executors/typings/typings",
+      "schema": "./src/executors/typings/schema.json",
+      "description": "Correct the TypeScript typings to use correct imports"
+    }
+  }
+}
