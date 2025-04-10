@@ -1,3 +1,18 @@
+## 0.30.0 (2025-04-10)
+
+### 🚀 Features
+
+- enforce state usage ([#172](https://github.com/ng-primitives/ng-primitives/pull/172))
+
+### 🩹 Fixes
+
+- typescript typings paths ([#174](https://github.com/ng-primitives/ng-primitives/pull/174))
+- **menu:** avoid submenus being duplicated ([#175](https://github.com/ng-primitives/ng-primitives/pull/175))
+
+### ❤️ Thank You
+
+- Ashley Hunter
+
 ## 0.29.0 (2025-04-07)
 
 ### 🚀 Features
