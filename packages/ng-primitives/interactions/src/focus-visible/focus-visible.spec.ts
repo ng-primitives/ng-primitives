@@ -12,7 +12,7 @@ describe('NgpFocusVisible', () => {
 
   it('should not set data-focus-visible to true when mouse focused', async () => {
     const container = await render(
-      `<div data-testid="trigger" (ngpFocusVisible)="focusChange($event)"></div>`,
+      `<button data-testid="trigger" (ngpFocusVisible)="focusChange($event)"></button>`,
       {
         imports: [NgpFocusVisible],
         componentProperties: {
@@ -35,7 +35,7 @@ describe('NgpFocusVisible', () => {
 
   it('should set data-focus-visible to true when keyboard focused', async () => {
     const container = await render(
-      `<div data-testid="trigger" (ngpFocusVisible)="focusChange($event)"></div>`,
+      `<button data-testid="trigger" (ngpFocusVisible)="focusChange($event)"></button>`,
       {
         imports: [NgpFocusVisible],
         componentProperties: {
@@ -56,9 +56,9 @@ describe('NgpFocusVisible', () => {
     expect(focusChange).toHaveBeenCalledWith(true);
   });
 
-  it('should set data-focus-visible to true when focused programmatically', async () => {
+  it('should not set data-focus-visible to true when focused programmatically', async () => {
     const container = await render(
-      `<div data-testid="trigger" (ngpFocusVisible)="focusChange($event)"></div>`,
+      `<button data-testid="trigger" (ngpFocusVisible)="focusChange($event)"></button>`,
       {
         imports: [NgpFocusVisible],
         componentProperties: {
@@ -75,11 +75,11 @@ describe('NgpFocusVisible', () => {
     focusMonitor.focusVia(trigger, 'program');
     container.detectChanges();
 
-    expect(trigger).toHaveAttribute('data-focus-visible');
-    expect(focusChange).toHaveBeenCalledWith(true);
+    expect(trigger).not.toHaveAttribute('data-focus-visible');
+    expect(focusChange).not.toHaveBeenCalled();
   });
 
-  it('should alway show focus on an input element when using the mouse', async () => {
+  it('should always show focus on an input element when using the mouse', async () => {
     const container = await render(
       `<input data-testid="trigger" (ngpFocusVisible)="focusChange($event)" />`,
       {
@@ -104,7 +104,7 @@ describe('NgpFocusVisible', () => {
 
   it('should not set data-focus-visible to true when disabled', async () => {
     const container = await render(
-      `<div data-testid="trigger" ngpFocusVisible [ngpFocusVisibleDisabled]="true" (ngpFocusVisibleChange)="focusChange($event)"></div>`,
+      `<button data-testid="trigger" ngpFocusVisible [ngpFocusVisibleDisabled]="true" (ngpFocusVisibleChange)="focusChange($event)"></button>`,
       {
         imports: [NgpFocusVisible],
         componentProperties: {
@@ -127,7 +127,7 @@ describe('NgpFocusVisible', () => {
 
   it('should not set data-focus-visible to true when already focused', async () => {
     const container = await render(
-      `<div data-testid="trigger" (ngpFocusVisible)="focusChange($event)"></div>`,
+      `<button data-testid="trigger" (ngpFocusVisible)="focusChange($event)"></button>`,
       {
         imports: [NgpFocusVisible],
         componentProperties: {
@@ -179,7 +179,7 @@ describe('NgpFocusVisible', () => {
 
   it('should always show focus on an element with content editable when using the mouse', async () => {
     const container = await render(
-      `<div data-testid="trigger" contenteditable="true" (ngpFocusVisible)="focusChange($event)"></div>`,
+      `<button data-testid="trigger" contenteditable="true" (ngpFocusVisible)="focusChange($event)"></button>`,
       {
         imports: [NgpFocusVisible],
         componentProperties: {
@@ -225,7 +225,7 @@ describe('NgpFocusVisible', () => {
 
   it('should update data-focus-visible to false when blurred', async () => {
     const container = await render(
-      `<div data-testid="trigger" (ngpFocusVisible)="focusChange($event)"></div>`,
+      `<button data-testid="trigger" (ngpFocusVisible)="focusChange($event)"></button>`,
       {
         imports: [NgpFocusVisible],
         componentProperties: {
@@ -237,7 +237,7 @@ describe('NgpFocusVisible', () => {
     const focusMonitor = TestBed.inject(FocusMonitor);
 
     const trigger = container.getByTestId('trigger');
-    expect(trigger.getAttribute('data-focus-visible')).toBe('false');
+    expect(trigger).not.toHaveAttribute('data-focus-visible');
 
     focusMonitor.focusVia(trigger, 'keyboard');
 
@@ -253,7 +253,7 @@ describe('NgpFocusVisible', () => {
 
   it('should update data-focus-visible to false when disable becomes true', async () => {
     const container = await render(
-      `<div data-testid="trigger" ngpFocusVisible [ngpFocusVisibleDisabled]="disabled" (ngpFocusVisibleChange)="focusChange($event)"></div>`,
+      `<button data-testid="trigger" ngpFocusVisible [ngpFocusVisibleDisabled]="disabled" (ngpFocusVisibleChange)="focusChange($event)"></button>`,
       {
         imports: [NgpFocusVisible],
         componentProperties: {
