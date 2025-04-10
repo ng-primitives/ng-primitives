@@ -3,7 +3,7 @@ import { NgpSeparator } from 'ng-primitives/separator';
 
 @Component({
   selector: '[app-separator]',
-  hostDirectives: [{ directive: NgpSeparator, inputs: ['ngpSeparatorOrientation'] }],
+  hostDirectives: [{ directive: NgpSeparator, inputs: ['ngpSeparatorOrientation:orientation'] }],
   template: ``,
   styles: `
     :host {

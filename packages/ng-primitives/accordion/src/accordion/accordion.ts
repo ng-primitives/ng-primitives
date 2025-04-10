@@ -93,7 +93,7 @@ export class NgpAccordion<T> implements NgpCanOrientate {
     // if we are in single mode then toggle the value
     if (this.state.type() === 'single') {
       this.state.value.set(isOpen ? null : value);
-      this.state.valueChange.emit(this.state.value());
+      this.valueChange.emit(this.state.value());
       return;
     }
 
@@ -105,7 +105,7 @@ export class NgpAccordion<T> implements NgpCanOrientate {
     } else {
       this.state.value.set([...values, value]);
     }
-    this.state.valueChange.emit(this.state.value());
+    this.valueChange.emit(this.state.value());
   }
 }
 

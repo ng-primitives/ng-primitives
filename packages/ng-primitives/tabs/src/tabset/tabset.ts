@@ -93,20 +93,22 @@ export class NgpTabset implements NgpCanOrientate {
    */
   select(value: string): void {
     this.state.value.set(value);
-    this.state.valueChange.emit(value);
+    this.valueChange.emit(value);
   }
 
   /**
+   * @internal
    * Register a tab with the tabset
    */
-  private registerTab(tab: NgpTabPanel): void {
+  registerTab(tab: NgpTabPanel): void {
     this.panels.update(panels => [...panels, tab]);
   }
 
   /**
+   * @internal
    * Unregister a tab with the tabset
    */
-  private unregisterTab(tab: NgpTabPanel): void {
+  unregisterTab(tab: NgpTabPanel): void {
     this.panels.update(panels => panels.filter(panel => panel !== tab));
   }
 }

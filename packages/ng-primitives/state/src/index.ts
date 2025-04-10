@@ -26,6 +26,19 @@ export type State<T> = {
       : T[K];
 };
 
+/**
+ * This is similar to the state object, but we don't expose properties that are not
+ * inputs.
+ */
+export type CreatedState<T> = {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  [K in keyof T]: T[K] extends InputSignalWithTransform<infer U, any>
+    ? WritableSignal<U>
+    : T[K] extends InputSignal<infer R>
+      ? WritableSignal<R>
+      : never;
+};
+
 export type InjectedState<T> = Signal<State<T>>;
 
 /**
@@ -90,7 +103,7 @@ export function createStateInjector<T>(
  * @param token The token for the state
  */
 export function createState(token: ProviderToken<WritableSignal<State<unknown>>>) {
-  return <U>(state: U): State<U> => {
+  return <U>(state: U): CreatedState<U> => {
     const internalState = inject(token);
 
     internalState.update(obj => {
@@ -112,6 +125,6 @@ export function createState(token: ProviderToken<WritableSignal<State<unknown>>>
       return { ...obj };
     });
 
-    return internalState() as unknown as State<U>;
+    return internalState() as unknown as CreatedState<U>;
   };
 }

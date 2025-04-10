@@ -146,7 +146,7 @@ export class NgpDatePicker<T> {
     }
 
     this.state.focusedDate.set(date);
-    this.state.focusedDateChange.emit(date);
+    this.focusedDateChange.emit(date);
 
     if (origin === 'keyboard') {
       afterNextRender(
