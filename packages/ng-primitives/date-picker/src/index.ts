@@ -1,17 +1,14 @@
-/**
- * Copyright © 2024 Angular Primitives.
- * https://github.com/ng-primitives/ng-primitives
- *
- * This source code is licensed under the Apache 2.0 license found in the
- * LICENSE file in the root directory of this source tree.
- */
-
 export { NgpDatePickerCellRender } from './date-picker-cell-render/date-picker-cell-render';
 export {
   NgpDatePickerCellRenderToken,
   injectDatePickerCellDate,
   injectDatePickerCellRender,
 } from './date-picker-cell-render/date-picker-cell-render-token';
+export { NgpDatePickerCell } from './date-picker-cell/date-picker-cell';
+export {
+  NgpDatePickerCellToken,
+  injectDatePickerCell,
+} from './date-picker-cell/date-picker-cell-token';
 export { NgpDatePickerDateButton } from './date-picker-date-button/date-picker-date-button';
 export {
   NgpDatePickerDateButtonToken,
@@ -44,10 +41,5 @@ export {
   injectDatePickerWeek,
 } from './date-picker-row-render/date-picker-row-render-token';
 export { NgpDatePicker } from './date-picker/date-picker';
+export { injectDatePickerState, provideDatePickerState } from './date-picker/date-picker-state';
 export { NgpDatePickerToken, injectDatePicker } from './date-picker/date-picker-token';
-export { NgpDatePickerCell } from './date-picker-cell/date-picker-cell';
-export {
-  NgpDatePickerCellToken,
-  injectDatePickerCell,
-} from './date-picker-cell/date-picker-cell-token';
-export { provideDatePickerState, injectDatePickerState } from './date-picker/date-picker-state';
