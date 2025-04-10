@@ -21,7 +21,7 @@ export class NgpSearchClear {
    * Clear the input field.
    */
   @HostListener('click')
-  protected click(): void {
+  protected clear(): void {
     this.search.clear();
   }
 }
