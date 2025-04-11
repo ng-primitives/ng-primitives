@@ -344,11 +344,12 @@ export class NgpPopoverTrigger implements OnDestroy {
     this.closeTimeout?.();
 
     // if the trigger is disabled or the popover is already open then do not show the popover
-    if (this.state.disabled() || this.state.open()) {
+    if (this.state.disabled() || this.state.open() || this.openTimeout) {
       return;
     }
 
     this.openTimeout = this.disposables.setTimeout(() => {
+      this.openTimeout = undefined;
       this.state.open.set(true);
       this.openChange.emit(true);
       this.createPopover(origin);
@@ -370,7 +371,7 @@ export class NgpPopoverTrigger implements OnDestroy {
     this.openTimeout?.();
 
     // if the trigger is disabled or the popover is not open then do not hide the popover
-    if (this.state.disabled() || !this.state.open()) {
+    if (this.state.disabled() || !this.state.open() || this.closeTimeout) {
       return;
     }
 
@@ -380,6 +381,7 @@ export class NgpPopoverTrigger implements OnDestroy {
     }
 
     this.closeTimeout = this.disposables.setTimeout(() => {
+      this.closeTimeout = undefined;
       this.state.open.set(false);
       this.openChange.emit(false);
 
