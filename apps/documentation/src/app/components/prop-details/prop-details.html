@@ -5,21 +5,21 @@
         <div
           class="from-primary to-accent inline-block bg-gradient-to-r bg-clip-text text-sm font-medium text-transparent"
         >
-          {{ name }}
+          {{ name() }}
         </div>
         <div class="flex items-center space-x-2 text-xs font-medium">
           <div
             class="rounded-md bg-zinc-50 px-2 py-0.5 text-zinc-900 ring-1 ring-black/5 dark:bg-zinc-950 dark:text-white dark:ring-white/5"
           >
-            {{ type }}
+            {{ type() }}
           </div>
-          @if (default) {
+          @if (default()) {
           <span
             class="rounded-md bg-zinc-50 px-2 py-0.5 text-zinc-900 ring-1 ring-black/5 dark:bg-zinc-950 dark:text-white dark:ring-white/5"
           >
-            default: "{{ default }}"
+            default: "{{ default() }}"
           </span>
-          } @if (required) {
+          } @if (required()) {
           <span
             class="rounded-md bg-red-100/50 px-2 py-0.5 text-red-600 dark:bg-red-800/50 dark:text-red-300"
           >

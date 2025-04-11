@@ -46,45 +46,45 @@ Apply the `ngpTooltipTrigger` directive to an element that triggers the tooltip 
 - Selector: `[ngpTooltipTrigger]`
 - Exported As: `ngpTooltipTrigger`
 
-<response-field name="ngpTooltipTrigger" type="TemplateRef">
+<prop-details name="ngpTooltipTrigger" type="TemplateRef">
   Define the content of the tooltip. This should be reference to an `ng-template`.
-</response-field>
+</prop-details>
 
-<response-field name="ngpTooltipTriggerOpen" type="boolean" default="false">
+<prop-details name="ngpTooltipTriggerOpen" type="boolean" default="false">
   Define the open state.
-</response-field>
+</prop-details>
 
-<response-field name="ngpTooltipTriggerOpenChange"  type="boolean">
+<prop-details name="ngpTooltipTriggerOpenChange"  type="boolean">
   Event emitted when the state changes.
-</response-field>
+</prop-details>
 
-<response-field name="ngpTooltipTriggerOffset" type="number" default="0">
+<prop-details name="ngpTooltipTriggerOffset" type="number" default="0">
   Define the offset from the trigger element.
-</response-field>
+</prop-details>
 
-<response-field name="ngpTooltipTriggerDisabled" type="boolean" default="false">
+<prop-details name="ngpTooltipTriggerDisabled" type="boolean" default="false">
   Define the disabled state.
-</response-field>
+</prop-details>
 
-<response-field name="ngpTooltipTriggerPlacement" type="'top' | 'right' | 'bottom' | 'left'" default="top">
+<prop-details name="ngpTooltipTriggerPlacement" type="'top' | 'right' | 'bottom' | 'left'" default="top">
   Define the placement of the tooltip.
-</response-field>
+</prop-details>
 
-<response-field name="ngpTooltipTriggerShowDelay" type="number" default="0">
+<prop-details name="ngpTooltipTriggerShowDelay" type="number" default="0">
   Define the delay before the tooltip shows.
-</response-field>
+</prop-details>
 
-<response-field name="ngpTooltipTriggerHideDelay" type="number" default="0">
+<prop-details name="ngpTooltipTriggerHideDelay" type="number" default="0">
   Define the delay before the tooltip hides.
-</response-field>
+</prop-details>
 
-<response-field name="ngpTooltipTriggerFlip" type="boolean" default="true">
+<prop-details name="ngpTooltipTriggerFlip" type="boolean" default="true">
   Define if the tooltip should flip when it reaches the edge of the viewport.
-</response-field>
+</prop-details>
 
-<response-field name="ngpTooltipTriggerContainer" type="HTMLElement">
+<prop-details name="ngpTooltipTriggerContainer" type="HTMLElement">
   Define the container element for the tooltip. This is the document body by default.
-</response-field>
+</prop-details>
 
 #### Data Attributes
 
@@ -116,26 +116,26 @@ bootstrapApplication(AppComponent, {
 
 ### NgpTooltipConfig
 
-<response-field name="offset" type="number">
+<prop-details name="offset" type="number">
   Define the offset from the trigger element.
-</response-field>
+</prop-details>
 
-<response-field name="placement" type="'top' | 'right' | 'bottom' | 'left'">
+<prop-details name="placement" type="'top' | 'right' | 'bottom' | 'left'">
   Define the placement of the tooltip.
-</response-field>
+</prop-details>
 
-<response-field name="showDelay" type="number">
+<prop-details name="showDelay" type="number">
   Define the delay before the tooltip shows.
-</response-field>
+</prop-details>
 
-<response-field name="hideDelay" type="number">
+<prop-details name="hideDelay" type="number">
   Define the delay before the tooltip hides.
-</response-field>
+</prop-details>
 
-<response-field name="flip" type="boolean">
+<prop-details name="flip" type="boolean">
   Define if the tooltip should flip when it reaches the edge of the viewport.
-</response-field>
+</prop-details>
 
-<response-field name="container" type="HTMLElement">
+<prop-details name="container" type="HTMLElement">
   Define the container element for the tooltip. This is the document body by default.
-</response-field>
+</prop-details>

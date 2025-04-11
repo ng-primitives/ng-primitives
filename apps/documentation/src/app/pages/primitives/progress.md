@@ -59,17 +59,17 @@ Apply the `ngpProgress` directive to an element that represents the progress bar
 - Selector: `[ngpProgress]`
 - Exported As: `ngpProgress`
 
-<response-field name="ngpProgressValue" type="number">
+<prop-details name="ngpProgressValue" type="number">
   Define the progress value.
-</response-field>
+</prop-details>
 
-<response-field name="ngpProgressMax" type="number" default="100">
+<prop-details name="ngpProgressMax" type="number" default="100">
   Define the progress max value.
-</response-field>
+</prop-details>
 
-<response-field name="ngpProgressValueLabel" type="(value: number, max: number) => string">
+<prop-details name="ngpProgressValueLabel" type="(value: number, max: number) => string">
   Define a function that returns the progress value label.
-</response-field>
+</prop-details>
 
 ### NgpProgressIndicator
 

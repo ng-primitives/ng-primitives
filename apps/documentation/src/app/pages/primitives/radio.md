@@ -73,19 +73,19 @@ Apply the `ngpRadioGroup` directive to an element that represents the group of r
 - Exported As: `ngpRadioGroup`
 - Host Directives: [NgpRovingFocusGroup](/primitives/roving-focus), [NgpFormControl](/primitives/form-field)
 
-<response-field name="ngpRadioGroupValue" type="string | undefined">
+<prop-details name="ngpRadioGroupValue" type="string | undefined">
   Define the selected value.
-</response-field>
+</prop-details>
 
-<response-field name="ngpRadioGroupDisabled" type="boolean" default="false">
+<prop-details name="ngpRadioGroupDisabled" type="boolean" default="false">
   Define the disabled state.
-</response-field>
+</prop-details>
 
-<response-field name="ngpRadioGroupOrientation" type="'vertical' | 'horizontal'" default="horizontal"> Define the orientation.</response-field>
+<prop-details name="ngpRadioGroupOrientation" type="'vertical' | 'horizontal'" default="horizontal"> Define the orientation.</prop-details>
 
-<response-field name="ngpRadioGroupValueChange" type="boolean">
+<prop-details name="ngpRadioGroupValueChange" type="boolean">
   Event emitted when the selection changes.
-</response-field>
+</prop-details>
 
 ### NgpRadioItem
 
@@ -95,13 +95,13 @@ Apply the `ngpRadioItem` directive to an element that represents a radio item. T
 - Exported As: `ngpRadioItem`
 - Host Directives: [NgpRovingFocusItem](/primitives/roving-focus), [NgpHover](/interactions/hover), [NgpFocusVisible](/interactions/focus-visible), [NgpPress](/interactions/press)
 
-<response-field name="ngpRadioItemValue" type="string" required="true">
+<prop-details name="ngpRadioItemValue" type="string" required="true">
   Define the value of this item.
-</response-field>
+</prop-details>
 
-<response-field name="ngpRadioItemDisabled" type="boolean" default="false">
+<prop-details name="ngpRadioItemDisabled" type="boolean" default="false">
   Define the disabled state.
-</response-field>
+</prop-details>
 
 #### Data Attributes
 

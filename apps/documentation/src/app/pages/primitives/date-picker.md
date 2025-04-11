@@ -90,29 +90,29 @@ The outermost container for the date picker.
 - Selector: `[ngpDatePicker]`
 - Exported As: `ngpDatePicker`
 
-<response-field name="ngpDatePickerDate" type="T">
+<prop-details name="ngpDatePickerDate" type="T">
   Define the selected date. The type `T` is a generic type that represents the date value which can be a `Date` or a custom Date object handled by a `NgpDateAdapter`.
-</response-field>
+</prop-details>
 
-<response-field name="ngpDatePickerMin" type="T">
+<prop-details name="ngpDatePickerMin" type="T">
   Define the minimum date that can be selected.
-</response-field>
+</prop-details>
 
-<response-field name="ngpDatePickerMax" type="T">
+<prop-details name="ngpDatePickerMax" type="T">
   Define the maximum date that can be selected.
-</response-field>
+</prop-details>
 
-<response-field name="ngpDatePickerDisabled" type="boolean" default="false">
+<prop-details name="ngpDatePickerDisabled" type="boolean" default="false">
   Define the disabled state.
-</response-field>
+</prop-details>
 
-<response-field name="ngpDatePickerDateDisabled" type="(date: T) => boolean">
+<prop-details name="ngpDatePickerDateDisabled" type="(date: T) => boolean">
   Define a function that determines if a date is disabled. The function receives a date value and should return `true` if the date is disabled.
-</response-field>
+</prop-details>
 
-<response-field name="ngpDatePickerFocusedDate" type="T">
+<prop-details name="ngpDatePickerFocusedDate" type="T">
   Define the focused date.
-</response-field>
+</prop-details>
 
 #### Data Attributes
 
@@ -206,9 +206,9 @@ A structural directive that renders a cell in the date picker grid.
 
 The following context fields are available on the `ngpDatePickerCellRender` directive:
 
-<response-field name="$implicit" type="T">
+<prop-details name="$implicit" type="T">
   The date value for the cell.
-</response-field>
+</prop-details>
 
 ### NgpDatePickerCell
 

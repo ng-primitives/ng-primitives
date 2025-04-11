@@ -85,10 +85,10 @@ Apply the `ngpAvatarFallback` directive to an element that represents the user i
 - Selector: `[ngpAvatarFallback]`
 - Exported As: `ngpAvatarFallback`
 
-<response-field name="ngpAvatarFallbackDelay" type="number" default="0">
+<prop-details name="ngpAvatarFallbackDelay" type="number" default="0">
   Define a delay before the fallback is shown. This is useful to only show the fallback for those
   with slower connections.
-</response-field>
+</prop-details>
 
 ## Global Configuration
 
@@ -104,7 +104,7 @@ bootstrapApplication(AppComponent, {
 
 ### NgpAvatarConfig
 
-<response-field name="delay" type="number">
+<prop-details name="delay" type="number">
   Define a delay before the fallback is shown. This is useful to only show the fallback for those
   with slower connections.
-</response-field>
+</prop-details>

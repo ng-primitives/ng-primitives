@@ -2,16 +2,16 @@ import {
   ChangeDetectionStrategy,
   Component,
   ElementRef,
-  Input,
   computed,
   inject,
+  input,
 } from '@angular/core';
 import { TabGroupData } from '../tab-group/tab-group';
 
 @Component({
   selector: 'docs-tab',
 
-  templateUrl: './tab.ng.html',
+  templateUrl: './tab.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
     '[hidden]': '!isActive()',
@@ -33,7 +33,7 @@ export class Tab {
   /**
    * The label of the tab.
    */
-  @Input({ required: true }) label!: string;
+  readonly label = input.required<string>();
 
   /**
    * Determine if this tab is active.

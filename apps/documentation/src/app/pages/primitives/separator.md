@@ -55,9 +55,9 @@ The following directives are available to import from the `ng-primitives/separat
 - Selector: `[ngpSeparator]`
 - Exported As: `ngpSeparator`
 
-<response-field name="ngpSeparatorOrientation" type="horizontal | vertical" default="horizontal">
+<prop-details name="ngpSeparatorOrientation" type="horizontal | vertical" default="horizontal">
   The orientation of the separator.
-</response-field>
+</prop-details>
 
 #### Data Attributes
 
@@ -85,9 +85,9 @@ bootstrapApplication(AppComponent, {
 
 The following options are available to configure the default tab options:
 
-<response-field name="orientation" type="'horizontal' | 'vertical'" default="horizontal">
+<prop-details name="orientation" type="'horizontal' | 'vertical'" default="horizontal">
   Define the default orientation of the separator.
-</response-field
+</prop-details
 
 ## Accessibility
 

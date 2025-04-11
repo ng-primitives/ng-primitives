@@ -35,6 +35,6 @@ Apply the `ngpResize` directive to an element to listen for resize events.
 - Selector: `[ngpResize]`
 - Exported As: `ngpResize`
 
-<response-field name="ngpResize" type="OutputEmitterRef<boolean>">
+<prop-details name="ngpResize" type="OutputEmitterRef<boolean>">
   Event emitted when the element is resize.
-</response-field>
+</prop-details>

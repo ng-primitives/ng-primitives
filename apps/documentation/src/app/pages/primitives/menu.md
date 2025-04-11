@@ -53,9 +53,9 @@ The `NgpMenuTrigger` directive allows you to turn an element into a menu trigger
 - Selector: `[ngpMenuTrigger]`
 - Exported As: `ngpMenuTrigger`
 
-<response-field name="ngpMenuTrigger" type="TemplateRef" required="true">
+<prop-details name="ngpMenuTrigger" type="TemplateRef" required="true">
   The menu template to display when the trigger is activated.
-</response-field>
+</prop-details>
 
 #### Data Attributes
 
@@ -80,9 +80,9 @@ The `NgpMenuItem` directive represents a menu item.
 - Exported As: `ngpMenuItem`
 - Host Directives: [NgpHover](/interactions/hover), [NgpFocusVisible](/interactions/focus-visible), [NgpPress](/interactions/press)
 
-<response-field name="ngpMenuItemDisabled" type="boolean" default="false">
+<prop-details name="ngpMenuItemDisabled" type="boolean" default="false">
   Define if the menu item is disabled.
-</response-field>
+</prop-details>
 
 #### Data Attributes
 

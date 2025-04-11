@@ -24,7 +24,7 @@ const { highlight, languages } = prismjs;
 @Component({
   selector: 'docs-example',
   imports: [NgComponentOutlet, NgClass, NgIcon],
-  templateUrl: './example.ng.html',
+  templateUrl: './example.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
   providers: [provideIcons({ phosphorLightning, lucideClipboard })],
 })

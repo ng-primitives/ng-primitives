@@ -17,7 +17,7 @@ import { ThemeToggle } from '../theme-toggle/theme-toggle';
   selector: 'docs-navbar',
   imports: [NgIcon, NgpButton, ThemeToggle],
   viewProviders: [provideIcons({ lucideSearch, bootstrapGithub, bootstrapDiscord, lucideMenu })],
-  templateUrl: './navbar.ng.html',
+  templateUrl: './navbar.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class Navbar implements OnInit {

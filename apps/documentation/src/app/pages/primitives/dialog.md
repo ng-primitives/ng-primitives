@@ -56,13 +56,13 @@ The dialog container.
 - Selector: `[ngpDialog]`
 - Exported As: `ngpDialog`
 
-<response-field name="ngpDialogRole" type="'dialog' | 'alertdialog">
+<prop-details name="ngpDialogRole" type="'dialog' | 'alertdialog">
   The role of the dialog. Use `'dialog'` for dialogs that require user interaction and `'alertdialog'` for dialogs that require immediate user attention.
-</response-field>
+</prop-details>
 
-<response-field name="ngpDialogModal" type="boolean">
+<prop-details name="ngpDialogModal" type="boolean">
   Whether the dialog is modal. A modal dialog prevents the user from interacting with the rest of the page until the dialog is closed.
-</response-field>
+</prop-details>
 
 | Attribute      | Description                         |
 | -------------- | ----------------------------------- |
@@ -89,9 +89,9 @@ Add to a button or link to open the dialog.
 - Selector: `[ngpDialogTrigger]`
 - Exported As: `ngpDialogTrigger`
 
-<response-field name="ngpDialogTrigger" type="TemplateRef<NgpDialogContext>">
+<prop-details name="ngpDialogTrigger" type="TemplateRef<NgpDialogContext>">
   The dialog template to open when the trigger is activated.
-</response-field>
+</prop-details>
 
 | Attribute            | Description                           |
 | -------------------- | ------------------------------------- |

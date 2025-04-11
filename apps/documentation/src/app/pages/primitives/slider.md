@@ -73,25 +73,25 @@ Apply the `ngpSlider` directive to an element that represents the slider and con
 - Exported As: `ngpSlider`
 - Host Directives: [NgpFormControl](/primitives/form-field)
 
-<response-field name="ngpSliderValue" type="number">
+<prop-details name="ngpSliderValue" type="number">
   Define the selected value.
-</response-field>
+</prop-details>
 
-<response-field name="ngpSliderMin" type="number" default="0">
+<prop-details name="ngpSliderMin" type="number" default="0">
   Define the minimum value.
-</response-field>
+</prop-details>
 
-<response-field name="ngpSliderMax" type="number" default="100">
+<prop-details name="ngpSliderMax" type="number" default="100">
   Define the maximum value.
-</response-field>
+</prop-details>
 
-<response-field name="ngpSliderStep" type="number" default="1">
+<prop-details name="ngpSliderStep" type="number" default="1">
   Define the step value.
-</response-field>
+</prop-details>
 
-<response-field name="ngpSliderOrientation" type="'horizontal' | 'vertical'" default="horizontal">
+<prop-details name="ngpSliderOrientation" type="'horizontal' | 'vertical'" default="horizontal">
   Define the orientation.
-</response-field>
+</prop-details>
 
 #### Data Attributes
 

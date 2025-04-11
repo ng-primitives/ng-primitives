@@ -70,17 +70,17 @@ Apply the `ngpSwitch` directive to an element to manage the checked state.
 - Exported As: `ngpSwitch`
 - Host Directives: [NgpFormControl](/primitives/form-field), [NgpHover](/interactions/hover), [NgpFocusVisible](/interactions/focus-visible), [NgpPress](/interactions/press)
 
-<response-field name="ngpSwitchChecked" type="boolean" default="false">
+<prop-details name="ngpSwitchChecked" type="boolean" default="false">
   Define the checked state.
-</response-field>
+</prop-details>
 
-<response-field name="ngpSwitchDisabled" type="boolean" default="false">
+<prop-details name="ngpSwitchDisabled" type="boolean" default="false">
   Define the disabled state.
-</response-field>
+</prop-details>
 
-<response-field name="ngpSwitchCheckedChange" type="boolean">
+<prop-details name="ngpSwitchCheckedChange" type="boolean">
   Event emitted when the state changes.
-</response-field>
+</prop-details>
 
 #### Data Attributes
 

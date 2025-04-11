@@ -35,9 +35,9 @@ The `NgpFocusTrap` directive traps focus within the host element.
 - Selector: `[ngpFocusTrap]`
 - Exported As: `ngpFocusTrap`
 
-<response-field name="ngpFocusTrapDisabled" type="boolean">
+<prop-details name="ngpFocusTrapDisabled" type="boolean">
   Disables the focus trap.
-</response-field>
+</prop-details>
 
 #### Data Attributes
 
