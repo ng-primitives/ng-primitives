@@ -139,7 +139,6 @@ Apply the `ngpAccordionTrigger` directive to an element that represents the trig
 
 - Selector: `[ngpAccordionTrigger]`
 - Exported As: `ngpAccordionTrigger`
-- Host Directives: [NgpHover](/interactions/hover), [NgpFocusVisible](/interactions/focus-visible), [NgpPress](/interactions/press)
 
 #### Data Attributes
 

@@ -56,7 +56,6 @@ A directive that can be used to create a button.
 
 - Selector: `[ngpButton]`
 - Exported As: `ngpButton`
-- Host Directives: [NgpHover](/interactions/hover), [NgpFocusVisible](/interactions/focus-visible), [NgpPress](/interactions/press)
 
 #### Data Attributes
 
