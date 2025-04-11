@@ -1,3 +1,13 @@
+## 0.31.0 (2025-04-11)
+
+### 🩹 Fixes
+
+- **menu:** resolve open issues on touch devices ([#180](https://github.com/ng-primitives/ng-primitives/pull/180))
+
+### ❤️ Thank You
+
+- Ashley Hunter
+
 ## 0.30.0 (2025-04-10)
 
 ### 🚀 Features
