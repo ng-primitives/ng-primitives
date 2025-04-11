@@ -1,7 +1,6 @@
 import { BooleanInput } from '@angular/cdk/coercion';
 import { Directive, booleanAttribute, input, output } from '@angular/core';
 import { NgpOrientation } from 'ng-primitives/common';
-import { NgpCanOrientate } from 'ng-primitives/internal';
 import { injectAccordionConfig } from '../config/accordion-config';
 import { accordionState, provideAccordionState } from './accordion-state';
 
@@ -14,7 +13,7 @@ import { accordionState, provideAccordionState } from './accordion-state';
     '[attr.data-disabled]': 'state.disabled() ? "" : null',
   },
 })
-export class NgpAccordion<T> implements NgpCanOrientate {
+export class NgpAccordion<T> {
   /**
    * Access the global accordion configuration.
    */

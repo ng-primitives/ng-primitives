@@ -10,3 +10,7 @@ export {
   NgpRovingFocusItemToken,
   injectRovingFocusItem,
 } from './roving-focus-item/roving-focus-item-token';
+export {
+  provideRovingFocusGroupState,
+  injectRovingFocusGroupState,
+} from './roving-focus-group/roving-focus-group-state';

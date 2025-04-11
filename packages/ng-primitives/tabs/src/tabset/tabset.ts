@@ -1,8 +1,15 @@
 import { BooleanInput } from '@angular/cdk/coercion';
-import { Directive, booleanAttribute, computed, input, output, signal } from '@angular/core';
+import {
+  booleanAttribute,
+  computed,
+  Directive,
+  input,
+  OnInit,
+  output,
+  signal,
+} from '@angular/core';
 import { NgpOrientation } from 'ng-primitives/common';
-import { NgpCanOrientate, provideOrientation } from 'ng-primitives/internal';
-import { NgpRovingFocusGroup } from 'ng-primitives/roving-focus';
+import { injectRovingFocusGroupState, NgpRovingFocusGroup } from 'ng-primitives/roving-focus';
 import { uniqueId } from 'ng-primitives/utils';
 import { injectTabsConfig } from '../config/tabs-config';
 import type { NgpTabPanel } from '../tab-panel/tab-panel';
@@ -12,18 +19,28 @@ import { provideTabset } from './tabset-token';
 @Directive({
   selector: '[ngpTabset]',
   exportAs: 'ngpTabset',
-  providers: [provideTabset(NgpTabset), provideTabsetState(), provideOrientation(NgpTabset)],
-  hostDirectives: [NgpRovingFocusGroup],
+  providers: [provideTabset(NgpTabset), provideTabsetState()],
+  hostDirectives: [
+    {
+      directive: NgpRovingFocusGroup,
+      inputs: ['ngpRovingFocusGroupOrientation:ngpTabsetOrientation'],
+    },
+  ],
   host: {
     '[attr.id]': 'state.id()',
     '[attr.data-orientation]': 'state.orientation()',
   },
 })
-export class NgpTabset implements NgpCanOrientate {
+export class NgpTabset implements OnInit {
   /**
    * Access the global tabset configuration
    */
   private readonly config = injectTabsConfig();
+
+  /**
+   * Access the roving focus group state
+   */
+  private readonly rovingFocusGroupState = injectRovingFocusGroupState();
 
   /**
    * Define the id for the tabset
@@ -86,6 +103,12 @@ export class NgpTabset implements NgpCanOrientate {
    * The state of the tabset
    */
   protected readonly state = tabsetState<NgpTabset>(this);
+
+  ngOnInit(): void {
+    // the roving focus group defaults to vertical orientation whereas
+    // the default for the tabset may be different if provided via global config
+    this.rovingFocusGroupState().orientation.set(this.state.orientation());
+  }
 
   /**
    * Select a tab by its value

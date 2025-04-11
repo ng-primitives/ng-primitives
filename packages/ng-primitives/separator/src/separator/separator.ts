@@ -1,6 +1,5 @@
 import { Directive, input } from '@angular/core';
 import { NgpOrientation } from 'ng-primitives/common';
-import { NgpCanOrientate } from 'ng-primitives/internal';
 import { injectSeparatorConfig } from '../config/separator-config';
 import { NgpSeparatorToken } from './separator-token';
 
@@ -14,7 +13,7 @@ import { NgpSeparatorToken } from './separator-token';
     '[attr.data-orientation]': 'orientation()',
   },
 })
-export class NgpSeparator implements NgpCanOrientate {
+export class NgpSeparator {
   private readonly config = injectSeparatorConfig();
 
   /**
