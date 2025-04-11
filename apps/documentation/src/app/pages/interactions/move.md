@@ -35,21 +35,21 @@ The `NgpMove` directive is used to enable the pointer and keyboard move interact
 - Selector: `[ngpMove]`
 - Exported As: `ngpMove`
 
-<response-field name="ngpMoveDisabled" type="boolean">
+<prop-details name="ngpMoveDisabled" type="boolean">
   Disables the move interaction.
-</response-field>
+</prop-details>
 
-<response-field name="ngpMoveStart" type="OutputEmitterRef<NgpMoveStartEvent>">
+<prop-details name="ngpMoveStart" type="OutputEmitterRef<NgpMoveStartEvent>">
   Emits when the move interaction starts.
-</response-field>
+</prop-details>
 
-<response-field name="ngpMove" type="OutputEmitterRef<NgpMoveEvent>">
+<prop-details name="ngpMove" type="OutputEmitterRef<NgpMoveEvent>">
   Emits when the move interaction is in progress.
-</response-field>
+</prop-details>
 
-<response-field name="ngpMoveEnd" type="OutputEmitterRef<NgpMoveEndEvent>">
+<prop-details name="ngpMoveEnd" type="OutputEmitterRef<NgpMoveEndEvent>">
   Emits when the move interaction ends.
-</response-field>
+</prop-details>
 
 #### Data Attributes
 

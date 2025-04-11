@@ -69,21 +69,21 @@ The following directives are available to import from the `ng-primitives/toggle-
 - Selector: `[ngpToggleGroup]`
 - Exported As: `ngpToggleGroup`
 
-<response-field name="ngpToggleGroupOrientation" type="'horizontal' | 'vertical'" default="horizontal">
+<prop-details name="ngpToggleGroupOrientation" type="'horizontal' | 'vertical'" default="horizontal">
   The orientation of the toggle group.
-</response-field>
+</prop-details>
 
-<response-field name="ngpToggleGroupValue" type="string | string[]">
+<prop-details name="ngpToggleGroupValue" type="string | string[]">
   he selected value(s) of the toggle group.
-</response-field>
+</prop-details>
 
-<response-field name="ngpToggleGroupType" type="single | multiple" default="single">
+<prop-details name="ngpToggleGroupType" type="single | multiple" default="single">
   The type of the toggle group, whether only one item can be selected or multiple.
-</response-field>
+</prop-details>
 
-<response-field name="ngpToggleGroupDisabled" type="boolean" default="false">
+<prop-details name="ngpToggleGroupDisabled" type="boolean" default="false">
   Whether the toggle group is disabled.
-</response-field>
+</prop-details>
 
 #### Data Attributes
 
@@ -100,13 +100,13 @@ The following data attributes are available to style the toggle group:
 - Selector: `[ngpToggleGroupItem]`
 - Exported As: `ngpToggleGroupItem`
 
-<response-field name="ngpToggleGroupItemValue" type="string">
+<prop-details name="ngpToggleGroupItemValue" type="string">
   The value of the toggle group item.
-</response-field>
+</prop-details>
 
-<response-field name="ngpToggleGroupItemDisabled" type="boolean" default="false">
+<prop-details name="ngpToggleGroupItemDisabled" type="boolean" default="false">
   Whether the toggle group item is disabled.
-</response-field>
+</prop-details>
 
 #### Data Attributes
 
@@ -136,13 +136,13 @@ bootstrapApplication(AppComponent, {
 
 ### NgpToggleGroupConfig
 
-<response-field name="orientation" type="'horizontal' | 'vertical'" default="horizontal">
+<prop-details name="orientation" type="'horizontal' | 'vertical'" default="horizontal">
   The default orientation of the toggle group.
-</response-field>
+</prop-details>
 
-<response-field name="type" type="'single' | 'multiple'" default="single">
+<prop-details name="type" type="'single' | 'multiple'" default="single">
   The default type of the toggle group.
-</response-field>
+</prop-details>
 
 ### Keyboard Interaction
 

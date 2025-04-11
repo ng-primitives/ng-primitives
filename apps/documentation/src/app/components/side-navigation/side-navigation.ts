@@ -21,7 +21,7 @@ import { getRouterLinks } from '../../utils/router';
       phosphorLightbulbDuotone,
     }),
   ],
-  templateUrl: './side-navigation.ng.html',
+  templateUrl: './side-navigation.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SideNavigation {

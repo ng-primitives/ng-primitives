@@ -72,32 +72,32 @@ Apply the `ngpAccordion` directive to an element that represents the group of ac
 - Selector: `[ngpAccordion]`
 - Exported As: `ngpAccordion`
 
-<response-field name="ngpAccordionType" type="single | multiple" default="single">
+<prop-details name="ngpAccordionType" type="single | multiple" default="single">
   Define whether only one or multiple accordion items can be open at a time.
-</response-field>
+</prop-details>
 
-<response-field name="ngpAccordionCollapsible" type="boolean" default="false">
+<prop-details name="ngpAccordionCollapsible" type="boolean" default="false">
   Define an accordion can be collapsed. This is only applicable when `ngpAccordionType` is set to
   `single`.
-</response-field>
+</prop-details>
 
-<response-field name="ngpAccordionValue" type="T | T[]">
+<prop-details name="ngpAccordionValue" type="T | T[]">
   Define the expanded accordion items. This should be a single value when `ngpAccordionType` is set
   to `single` and an array when set to `multiple`.
-</response-field>
+</prop-details>
 
-<response-field name="ngpAccordionDisabled" type="boolean" default="false">
+<prop-details name="ngpAccordionDisabled" type="boolean" default="false">
   Define whether the accordion is disabled.
-</response-field>
+</prop-details>
 
-<response-field name="ngpAccordionOrientation" type="horizontal | vertical" default="vertical">
+<prop-details name="ngpAccordionOrientation" type="horizontal | vertical" default="vertical">
   Define the orientation of the accordion.
-</response-field>
+</prop-details>
 
-<response-field name="ngpAccordionValueChange" type="T | T[]">
+<prop-details name="ngpAccordionValueChange" type="T | T[]">
   Emitted when the expanded accordion items change. This will be a single value when
   `ngpAccordionType` is set to `single` and an array when set to `multiple`.
-</response-field>
+</prop-details>
 
 #### Data Attributes
 
@@ -115,13 +115,13 @@ Apply the `ngpAccordionItem` directive to an element that represents an accordio
 - Selector: `[ngpAccordionItem]`
 - Exported As: `ngpAccordionItem`
 
-<response-field name="ngpAccordionItemValue" type="T" required>
+<prop-details name="ngpAccordionItemValue" type="T" required>
   Define the value of the accordion item.
-</response-field>
+</prop-details>
 
-<response-field name="ngpAccordionItemDisabled" type="boolean" default="false">
+<prop-details name="ngpAccordionItemDisabled" type="boolean" default="false">
   Define whether the accordion item is disabled.
-</response-field>
+</prop-details>
 
 #### Data Attributes
 
@@ -187,17 +187,17 @@ bootstrapApplication(AppComponent, {
 
 ### NgpAccordionConfig
 
-<response-field name="type" type="single | multiple">
+<prop-details name="type" type="single | multiple">
   Define whether only one or multiple accordion items can be open at a time.
-</response-field>
+</prop-details>
 
-<response-field name="collapsible" type="boolean">
+<prop-details name="collapsible" type="boolean">
   Define an accordion can be collapsed. This is only applicable when `type` is set to `single`.
-</response-field>
+</prop-details>
 
-<response-field name="orientation" type="horizontal | vertical">
+<prop-details name="orientation" type="horizontal | vertical">
   Define the orientation of the accordion.
-</response-field>
+</prop-details>
 
 ## Accessibility
 

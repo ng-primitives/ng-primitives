@@ -13,7 +13,7 @@ import {
 import { provideClientHydration } from '@angular/platform-browser';
 import { withInMemoryScrolling } from '@angular/router';
 import { Example } from './components/example/example';
-import { ResponseFieldComponent } from './components/response-field/response-field';
+import { ResponseFieldComponent } from './components/prop-details/prop-details';
 import { Snippet } from './components/snippet/snippet';
 import { TabGroup } from './components/tab-group/tab-group';
 import { Tab } from './components/tab/tab';
@@ -45,7 +45,7 @@ export function initializeCustomElements(
       customElements.define('docs-snippet', createCustomElement(Snippet, { injector }));
 
       customElements.define(
-        'response-field',
+        'prop-details',
         createCustomElement(ResponseFieldComponent, { injector }),
       );
 

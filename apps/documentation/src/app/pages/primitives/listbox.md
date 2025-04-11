@@ -79,21 +79,21 @@ The following directives are available to import from the `ng-primitives/listbox
 - Selector: `[ngpListbox]`
 - Exported As: `ngpListbox`
 
-<response-field name="ngpListboxMode" type="single | multiple" default="single">
+<prop-details name="ngpListboxMode" type="single | multiple" default="single">
   The selection mode of the listbox. Can be either `single` or `multiple`.
-</response-field>
+</prop-details>
 
-<response-field name="ngpListboxValue" type="T[]" default="[]">
+<prop-details name="ngpListboxValue" type="T[]" default="[]">
   The selected value(s) of the listbox.
-</response-field>
+</prop-details>
 
-<response-field name="ngpListboxDisabled" type="boolean" default="false">
+<prop-details name="ngpListboxDisabled" type="boolean" default="false">
   Whether the listbox is disabled.
-</response-field>
+</prop-details>
 
-<response-field name="ngpListboxCompareWith" type="(a: T, b: T) => boolean">
+<prop-details name="ngpListboxCompareWith" type="(a: T, b: T) => boolean">
   A function to compare two values of the listbox. The function should return `true` if the values are equal. This is useful when the listbox options are objects.
-</response-field>
+</prop-details>
 
 #### Data Attributes
 
@@ -108,13 +108,13 @@ The following data attributes are applied to the `ngpListbox` directive:
 - Selector: `[ngpListboxOption]`
 - Exported As: `ngpListboxOption`
 
-<response-field name="ngpListboxOptionValue" type="T">
+<prop-details name="ngpListboxOptionValue" type="T">
   The value of the option.
-</response-field>
+</prop-details>
 
-<response-field name="ngpListboxOptionDisabled" type="boolean" default="false">
+<prop-details name="ngpListboxOptionDisabled" type="boolean" default="false">
   Whether the option is disabled.
-</response-field>
+</prop-details>
 
 #### Data Attributes
 

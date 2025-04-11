@@ -4,7 +4,7 @@ name: 'Focus Visible'
 
 # Focus Visible
 
-Determine whether focus should be visible based on user interaction.
+Determine whether focus should be visible based on user interaction. This is useful for accessibility and user experience, as it allows you to provide visual feedback when an element is focused using keyboard navigation, while not showing the focus outline when the user is using a mouse or touch device.
 
 <docs-example name="focus-visible"></docs-example>
 
@@ -33,18 +33,18 @@ The following directives are available to import from the `ng-primitives/interac
 - Selector: `[ngpFocusVisible]`
 - Exported As: `ngpFocusVisible`
 
-<response-field name="ngpFocusVisibleDisabled" type="boolean">
+<prop-details name="ngpFocusVisibleDisabled" type="boolean">
   Whether listening for focus-visible events is disabled.
-</response-field>
+</prop-details>
 
-<response-field name="ngpFocusVisible" type="OutputEmitterRef<boolean>">
+<prop-details name="ngpFocusVisible" type="OutputEmitterRef<boolean>">
   Event emitted when the focus visible state changes.
-</response-field>
+</prop-details>
 
 #### Data Attributes
 
 The following data attributes are applied to the `ngpFocusVisible` directive:
 
-| Attribute            | Description                          |
-| -------------------- | ------------------------------------ |
-| `data-focus-visible` | Applied when the element is focused. |
+| Attribute            | Description                                                  |
+| -------------------- | ------------------------------------------------------------ |
+| `data-focus-visible` | Applied when the element is focused via keyboard navigation. |

@@ -34,9 +34,9 @@ The following directives are available to import from the `ng-primitives/autofil
 - Selector: `[ngpAutofill]`
 - Exported As: `ngpAutofill`
 
-<response-field name="ngpAutofill" type="OutputEmitterRef<boolean>">
+<prop-details name="ngpAutofill" type="OutputEmitterRef<boolean>">
   Event emitted when the autofill state changes.
-</response-field>
+</prop-details>
 
 #### Data Attributes
 

@@ -14,7 +14,7 @@ import { filter } from 'rxjs/operators';
 
 @Component({
   selector: 'docs-quick-links',
-  templateUrl: './quick-links.ng.html',
+  templateUrl: './quick-links.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
     class: 'hidden lg:block',

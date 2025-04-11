@@ -39,21 +39,21 @@ The following directives are available to import from the `ng-primitives/interac
 
 Apply the `ngpHover` directive to an element that you want to listen for hover events. This is particulaly useful for supporting hover events on touch devices, where hover events are not handled consistently. On iOS relying on the `:hover` pseudo-class can result in the hover state being stuck until the user taps elsewhere on the screen.
 
-<response-field name="ngpHover" type="OutputEmitterRef<boolean>">
+<prop-details name="ngpHover" type="OutputEmitterRef<boolean>">
   Event emitted when the hover state changes.
-</response-field>
+</prop-details>
 
-<response-field name="ngpHoverStart" type="OutputEmitterRef<void>">
+<prop-details name="ngpHoverStart" type="OutputEmitterRef<void>">
   Event emitted when the hover starts.
-</response-field>
+</prop-details>
 
-<response-field name="ngpHoverEnd" type="OutputEmitterRef<void>">
+<prop-details name="ngpHoverEnd" type="OutputEmitterRef<void>">
   Event emitted when the hover ends.
-</response-field>
+</prop-details>
 
-<response-field name="ngpHoverDisabled" type="boolean" default="false">
+<prop-details name="ngpHoverDisabled" type="boolean" default="false">
   Whether hover events are disabled.
-</response-field>
+</prop-details>
 
 #### Data Attributes
 

@@ -39,21 +39,21 @@ Apply the `ngpRovingFocusGroup` directive to an element to manage focus for a gr
 - Selector: `[ngpRovingFocusGroup]`
 - Exported As: `ngpRovingFocusGroup`
 
-<response-field name="ngpRovingFocusGroupOrientation" type="'horizontal' | 'vertical'" default="horizontal">
+<prop-details name="ngpRovingFocusGroupOrientation" type="'horizontal' | 'vertical'" default="horizontal">
   Define the orientation of the roving focus group.
-</response-field>
+</prop-details>
 
-<response-field name="ngpRovingFocusGroupWrap" type="boolean">
+<prop-details name="ngpRovingFocusGroupWrap" type="boolean">
   Define whether the focus should wrap around the group.
-</response-field>
+</prop-details>
 
-<response-field name="ngpRovingFocusGroupHomeEnd" type="boolean">
+<prop-details name="ngpRovingFocusGroupHomeEnd" type="boolean">
   Define whether the focus should move to the first or last element when pressing the Home or End key.
-</response-field>
+</prop-details>
 
-<response-field name="ngpRovingFocusGroupDisabled" type="boolean">
+<prop-details name="ngpRovingFocusGroupDisabled" type="boolean">
   Define whether the roving focus group is disabled.
-</response-field>
+</prop-details>
 
 ### NgpRovingFocusItem
 
@@ -62,9 +62,9 @@ Apply the `ngpRovingFocusItem` directive to an element within a roving focus gro
 - Selector: `[ngpRovingFocusItem]`
 - Exported As: `ngpRovingFocusItem`
 
-<response-field name="ngpRovingFocusItemDisabled" type="boolean">
+<prop-details name="ngpRovingFocusItemDisabled" type="boolean">
   Define whether the roving focus item is disabled.
-</response-field>
+</prop-details>
 
 ## Accessibility
 

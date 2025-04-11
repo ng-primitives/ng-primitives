@@ -57,17 +57,17 @@ Apply the `ngpToggle` directive to an element to manage the toggle state. This m
 - Selector: `[ngpToggle]`
 - Exported As: `ngpToggle`
 
-<response-field name="ngpToggleSelected" type="boolean" default="false">
+<prop-details name="ngpToggleSelected" type="boolean" default="false">
   Define the selected state.
-</response-field>
+</prop-details>
 
-<response-field name="ngpToggleDisabled" type="boolean" default="false">
+<prop-details name="ngpToggleDisabled" type="boolean" default="false">
   Define the disabled state.
-</response-field>
+</prop-details>
 
-<response-field name="ngpToggleSelectedChange" type="boolean">
+<prop-details name="ngpToggleSelectedChange" type="boolean">
   Event emitted when the selected state changes.
-</response-field>
+</prop-details>
 
 #### Data Attributes
 

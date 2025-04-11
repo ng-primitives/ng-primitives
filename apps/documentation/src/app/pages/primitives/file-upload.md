@@ -40,37 +40,37 @@ A directive that allows you to turn any element into a file upload trigger.
 - Exported As: `ngpFileUpload`
 - Host Directives: [NgpHover](/interactions/hover), [NgpFocusVisible](/interactions/focus-visible), [NgpPress](/interactions/press)
 
-<response-field name="ngpFileUploadMultiple" type="boolean" default="false">
+<prop-details name="ngpFileUploadMultiple" type="boolean" default="false">
   Define if multiple files can be selected.
-</response-field>
+</prop-details>
 
-<response-field name="ngpFileUploadFileTypes" type="string[]">
+<prop-details name="ngpFileUploadFileTypes" type="string[]">
   Define the file types that can be selected.
-</response-field>
+</prop-details>
 
-<response-field name="ngpFileUploadDirectory" type="boolean" default="false">
+<prop-details name="ngpFileUploadDirectory" type="boolean" default="false">
   Define if directories can be selected.
-</response-field>
+</prop-details>
 
-<response-field name="ngpFileUploadDragDrop" type="boolean" default="true">
+<prop-details name="ngpFileUploadDragDrop" type="boolean" default="true">
   Define if drag and drop is enabled.
-</response-field>
+</prop-details>
 
-<response-field name="ngpFileUploadDisabled" type="boolean" default="false">
+<prop-details name="ngpFileUploadDisabled" type="boolean" default="false">
   Define if the file upload is disabled.
-</response-field>
+</prop-details>
 
-<response-field name="ngpFileUploadSelected" type="OutputEmitterRef<FileList | null>">
+<prop-details name="ngpFileUploadSelected" type="OutputEmitterRef<FileList | null>">
   Event emitted when files are selected.
-</response-field>
+</prop-details>
 
-<response-field name="ngpFileUploadCanceled" type="OutputEmitterRef<void>">
+<prop-details name="ngpFileUploadCanceled" type="OutputEmitterRef<void>">
   Event emitted when the user cancels the file upload or selects the same file(s) again.
-</response-field>
+</prop-details>
 
-<response-field name="ngpFileUploadDragOver" type="OutputEmitterRef<boolean>">
+<prop-details name="ngpFileUploadDragOver" type="OutputEmitterRef<boolean>">
   Event emitted when a file is dragged over or out of the element.
-</response-field>
+</prop-details>
 
 #### Data Attributes
 

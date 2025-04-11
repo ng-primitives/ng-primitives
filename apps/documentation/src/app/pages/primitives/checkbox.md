@@ -70,25 +70,25 @@ Apply the `ngpCheckbox` directive to an element to that represents the checkbox,
 - Exported As: `ngpCheckbox`
 - Host Directives: [NgpFormControl](/primitives/form-field), [NgpHover](/interactions/hover), [NgpFocusVisible](/interactions/focus-visible), [NgpPress](/interactions/press)
 
-<response-field name="ngpCheckboxChecked" type="boolean" default="false">
+<prop-details name="ngpCheckboxChecked" type="boolean" default="false">
   Define the checked state.
-</response-field>
+</prop-details>
 
-<response-field name="ngpCheckboxIndeterminate" type="boolean" default="false">
+<prop-details name="ngpCheckboxIndeterminate" type="boolean" default="false">
   Define the interminate state.
-</response-field>
+</prop-details>
 
-<response-field name="ngpCheckboxDisabled" type="boolean" default="false">
+<prop-details name="ngpCheckboxDisabled" type="boolean" default="false">
   Define the disabled state.
-</response-field>
+</prop-details>
 
-<response-field name="ngpCheckboxCheckedChange" type="boolean">
+<prop-details name="ngpCheckboxCheckedChange" type="boolean">
   Event emitted when the state changes.
-</response-field>
+</prop-details>
 
-<response-field name="ngpCheckboxIndeterminateChange" type="boolean">
+<prop-details name="ngpCheckboxIndeterminateChange" type="boolean">
   Event emitted when the indeterminate state changes.
-</response-field>
+</prop-details>
 
 | Attribute            | Description                                 |
 | -------------------- | ------------------------------------------- |

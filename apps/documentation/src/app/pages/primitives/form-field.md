@@ -124,9 +124,9 @@ The `NgpError` directive is used to mark an error message element within a form 
 - Selector: `[ngpError]`
 - Exported As: `ngpError`
 
-<response-field name="ngpErrorValidator" type="string">
+<prop-details name="ngpErrorValidator" type="string">
   The name of the validator associated with this error message.
-</response-field>
+</prop-details>
 
 #### Data Attributes
 

@@ -49,9 +49,9 @@ Apply the `ngpSelect` directive to a select element that you want to enhance.
 - Exported As: `ngpSelect`
 - Host Directives: [NgpFormControl](/primitives/form-field), [NgpHover](/interactions/hover), [NgpFocusVisible](/interactions/focus-visible), [NgpPress](/interactions/press)
 
-<response-field name="ngpSelectDisabled" type="boolean">
+<prop-details name="ngpSelectDisabled" type="boolean">
   Define the disabled state.
-</response-field>
+</prop-details>
 
 #### Data Attributes
 

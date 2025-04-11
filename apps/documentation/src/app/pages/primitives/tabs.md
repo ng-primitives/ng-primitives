@@ -67,17 +67,17 @@ Apply the `ngpTabset` directive to an element to manage the tabs.
 - Exported As: `ngpTabset`
 - Host Directives: [NgpRovingFocusGroup](/primitives/roving-focus)
 
-<response-field name="ngpTabsetValue" type="string">
+<prop-details name="ngpTabsetValue" type="string">
   Define the selected tab.
-</response-field>
+</prop-details>
 
-<response-field name="ngpTabsetOrientation" type="'horizontal' | 'vertical'" default="horizontal">
+<prop-details name="ngpTabsetOrientation" type="'horizontal' | 'vertical'" default="horizontal">
   Define the orientation of the tabs.
-</response-field>
+</prop-details>
 
-<response-field name="ngpTabsetActivateOnFocus" type="boolean">
+<prop-details name="ngpTabsetActivateOnFocus" type="boolean">
   Define whether the tab should activate on focus.
-</response-field>
+</prop-details>
 
 #### Data Attributes
 
@@ -110,13 +110,13 @@ Apply the `ngpTabButton` directive to an element within a tab list to represent 
 - Exported As: `ngpTabButton`
 - Host Directives: [NgpRovingFocusItem](/primitives/roving-focus), [NgpHover](/interactions/hover), [NgpFocusVisible](/interactions/focus-visible), [NgpPress](/interactions/press)
 
-<response-field name="ngpTabButtonValue" type="string" required="true">
+<prop-details name="ngpTabButtonValue" type="string" required="true">
   Define the value of the tab.
-</response-field>
+</prop-details>
 
-<response-field name="ngpTabButtonDisabled" type="boolean">
+<prop-details name="ngpTabButtonDisabled" type="boolean">
   Define whether the tab button is disabled.
-</response-field>
+</prop-details>
 
 #### Data Attributes
 
@@ -138,9 +138,9 @@ Apply the `ngpTabPanel` directive to an element that represents the content of a
 - Selector: `[ngpTabPanel]`
 - Exported As: `ngpTabPanel`
 
-<response-field name="ngpTabPanelValue" type="string" required="true">
+<prop-details name="ngpTabPanelValue" type="string" required="true">
   Define the value of the tab.
-</response-field>
+</prop-details>
 
 #### Data Attributes
 
@@ -173,17 +173,17 @@ bootstrapApplication(AppComponent, {
 
 The following options are available to configure the default tab options:
 
-<response-field name="orientation" type="'horizontal' | 'vertical'" default="horizontal">
+<prop-details name="orientation" type="'horizontal' | 'vertical'" default="horizontal">
   Define the default orientation of the tabs.
-</response-field>
+</prop-details>
 
-<response-field name="activateOnFocus" type="boolean" default="false">
+<prop-details name="activateOnFocus" type="boolean" default="false">
   Define whether the tab should activate on focus.
-</response-field>
+</prop-details>
 
-<response-field name="wrap" type="boolean" default="false">
+<prop-details name="wrap" type="boolean" default="false">
   Define whether the tabs should wrap around the tab list.
-</response-field>
+</prop-details>
 
 ## Accessibility
 

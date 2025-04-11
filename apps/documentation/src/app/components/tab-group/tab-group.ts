@@ -11,7 +11,7 @@ import type { Tab } from '../tab/tab';
 
 @Component({
   selector: 'docs-tab-group',
-  templateUrl: './tab-group.ng.html',
+  templateUrl: './tab-group.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [NgClass],
 })
