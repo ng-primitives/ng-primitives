@@ -128,7 +128,17 @@ export function createState(token: ProviderToken<WritableSignal<State<unknown>>>
       const prototype = Object.getPrototypeOf(state);
 
       for (const key of Object.getOwnPropertyNames(prototype)) {
-        (obj as Record<string, unknown>)[key] = prototype[key as keyof U].bind(state);
+        const descriptor = Object.getOwnPropertyDescriptor(prototype, key);
+
+        // if this is a getter or setter, we need to define it on the object
+        if (descriptor?.get || descriptor?.set) {
+          Object.defineProperty(obj, key, descriptor);
+        } else if (typeof prototype[key as keyof U] === 'function') {
+          (obj as Record<string, unknown>)[key] = prototype[key as keyof U].bind(state);
+        } else {
+          // @ts-ignore
+          obj[key] = prototype[key as keyof U];
+        }
       }
 
       return { ...obj };

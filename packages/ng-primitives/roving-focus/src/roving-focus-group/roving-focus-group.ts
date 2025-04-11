@@ -1,18 +1,18 @@
 import { FocusOrigin } from '@angular/cdk/a11y';
 import { Directionality } from '@angular/cdk/bidi';
 import { BooleanInput } from '@angular/cdk/coercion';
-import { booleanAttribute, Directive, inject, input, output, signal } from '@angular/core';
+import { booleanAttribute, Directive, inject, input, signal } from '@angular/core';
 import { NgpOrientation } from 'ng-primitives/common';
-import { injectOrientation, NgpCanOrientate } from 'ng-primitives/internal';
 import { NgpRovingFocusItem } from '../roving-focus-item/roving-focus-item';
+import { provideRovingFocusGroupState, rovingFocusGroupState } from './roving-focus-group-state';
 import { provideRovingFocusGroup } from './roving-focus-group-token';
 
 @Directive({
   selector: '[ngpRovingFocusGroup]',
   exportAs: 'ngpRovingFocusGroup',
-  providers: [provideRovingFocusGroup(NgpRovingFocusGroup)],
+  providers: [provideRovingFocusGroup(NgpRovingFocusGroup), provideRovingFocusGroupState()],
 })
-export class NgpRovingFocusGroup implements NgpCanOrientate {
+export class NgpRovingFocusGroup {
   /**
    * Access the directionality service.
    */
@@ -25,18 +25,6 @@ export class NgpRovingFocusGroup implements NgpCanOrientate {
   readonly orientation = input<NgpOrientation>('vertical', {
     alias: 'ngpRovingFocusGroupOrientation',
   });
-
-  /**
-   * Emit when the orientation of the roving focus group changes.
-   */
-  readonly orientationChange = output<NgpOrientation>({
-    alias: 'ngpRovingFocusGroupOrientationChange',
-  });
-
-  /**
-   * Determine the orientation of the roving focus group.
-   */
-  readonly groupOrientation = injectOrientation(this.orientation);
 
   /**
    * Determine if focus should wrap when the end or beginning is reached.
@@ -85,6 +73,11 @@ export class NgpRovingFocusGroup implements NgpCanOrientate {
    * @internal
    */
   readonly activeItem = signal<NgpRovingFocusItem | null>(null);
+
+  /**
+   * The state of the roving focus group.
+   */
+  readonly state = rovingFocusGroupState<NgpRovingFocusGroup>(this);
 
   /**
    * Register an item with the roving focus group.
@@ -169,7 +162,7 @@ export class NgpRovingFocusGroup implements NgpCanOrientate {
     const item = this.sortedItems.slice(index + 1).find(i => !i.disabled()) ?? null;
 
     // if we are at the end of the list, wrap to the beginning
-    if (!item && this.wrap()) {
+    if (!item && this.state.wrap()) {
       this.activateFirstItem(origin);
       return;
     }
@@ -207,7 +200,7 @@ export class NgpRovingFocusGroup implements NgpCanOrientate {
         .find(i => !i.disabled()) ?? null;
 
     // if we are at the beginning of the list, wrap to the end
-    if (!item && this.wrap()) {
+    if (!item && this.state.wrap()) {
       this.activateLastItem(origin);
       return;
     }
@@ -227,25 +220,25 @@ export class NgpRovingFocusGroup implements NgpCanOrientate {
    * @internal
    */
   onKeydown(event: KeyboardEvent): void {
-    if (this.disabled()) {
+    if (this.state.disabled()) {
       return;
     }
 
     switch (event.key) {
       case 'ArrowUp':
-        if (this.groupOrientation() === 'vertical') {
+        if (this.state.orientation() === 'vertical') {
           event.preventDefault();
           this.activatePreviousItem('keyboard');
         }
         break;
       case 'ArrowDown':
-        if (this.groupOrientation() === 'vertical') {
+        if (this.state.orientation() === 'vertical') {
           event.preventDefault();
           this.activateNextItem('keyboard');
         }
         break;
       case 'ArrowLeft':
-        if (this.groupOrientation() === 'horizontal') {
+        if (this.state.orientation() === 'horizontal') {
           event.preventDefault();
 
           if (this.directionality.value === 'ltr') {
@@ -256,7 +249,7 @@ export class NgpRovingFocusGroup implements NgpCanOrientate {
         }
         break;
       case 'ArrowRight':
-        if (this.groupOrientation() === 'horizontal') {
+        if (this.state.orientation() === 'horizontal') {
           event.preventDefault();
 
           if (this.directionality.value === 'ltr') {
@@ -267,13 +260,13 @@ export class NgpRovingFocusGroup implements NgpCanOrientate {
         }
         break;
       case 'Home':
-        if (this.homeEnd()) {
+        if (this.state.homeEnd()) {
           event.preventDefault();
           this.activateFirstItem('keyboard');
         }
         break;
       case 'End':
-        if (this.homeEnd()) {
+        if (this.state.homeEnd()) {
           event.preventDefault();
           this.activateLastItem('keyboard');
         }

@@ -1,21 +1,25 @@
 import { Directive, input } from '@angular/core';
 import { NgpOrientation } from 'ng-primitives/common';
-import { NgpCanOrientate, provideOrientation } from 'ng-primitives/internal';
 import { NgpRovingFocusGroup } from 'ng-primitives/roving-focus';
 import { provideToolbar } from './toolbar-token';
 
 @Directive({
   selector: '[ngpToolbar]',
   exportAs: 'ngpToolbar',
-  providers: [provideToolbar(NgpToolbar), provideOrientation(NgpToolbar)],
-  hostDirectives: [NgpRovingFocusGroup],
+  providers: [provideToolbar(NgpToolbar)],
+  hostDirectives: [
+    {
+      directive: NgpRovingFocusGroup,
+      inputs: ['ngpRovingFocusGroupOrientation:ngpToolbarOrientation'],
+    },
+  ],
   host: {
     role: 'toolbar',
     '[attr.aria-orientation]': 'orientation()',
     '[attr.data-orientation]': 'orientation()',
   },
 })
-export class NgpToolbar implements NgpCanOrientate {
+export class NgpToolbar {
   /**
    * The orientation of the toolbar.
    */

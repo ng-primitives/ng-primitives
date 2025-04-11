@@ -1,14 +1,9 @@
 import { BooleanInput } from '@angular/cdk/coercion';
-import { Directive, booleanAttribute, input, output } from '@angular/core';
+import { booleanAttribute, Directive, input, OnInit, output } from '@angular/core';
 import { NgpOrientation } from 'ng-primitives/common';
 import { NgpFormControl } from 'ng-primitives/form-field';
-import {
-  NgpCanDisable,
-  NgpCanOrientate,
-  NgpDisabledToken,
-  provideOrientation,
-} from 'ng-primitives/internal';
-import { NgpRovingFocusGroup } from 'ng-primitives/roving-focus';
+import { NgpCanDisable, NgpDisabledToken } from 'ng-primitives/internal';
+import { injectRovingFocusGroupState, NgpRovingFocusGroup } from 'ng-primitives/roving-focus';
 import { provideRadioGroupState, radioGroupState } from './radio-group-state';
 import { provideRadioGroup } from './radio-group-token';
 
@@ -17,10 +12,18 @@ import { provideRadioGroup } from './radio-group-token';
   providers: [
     provideRadioGroup(NgpRadioGroup),
     provideRadioGroupState(),
-    provideOrientation(NgpRadioGroup),
     { provide: NgpDisabledToken, useExisting: NgpRadioGroup },
   ],
-  hostDirectives: [NgpRovingFocusGroup, NgpFormControl],
+  hostDirectives: [
+    {
+      directive: NgpRovingFocusGroup,
+      inputs: [
+        'ngpRovingFocusGroupOrientation:ngpRadioGroupOrientation',
+        'ngpRovingFocusGroupDisabled:ngpRadioGroupDisabled',
+      ],
+    },
+    NgpFormControl,
+  ],
   host: {
     role: 'radiogroup',
     '[attr.aria-orientation]': 'state.orientation()',
@@ -28,7 +31,12 @@ import { provideRadioGroup } from './radio-group-token';
     '[attr.data-disabled]': 'state.disabled() ? "" : null',
   },
 })
-export class NgpRadioGroup implements NgpCanDisable, NgpCanOrientate {
+export class NgpRadioGroup implements OnInit, NgpCanDisable {
+  /**
+   * Access the roving focus group state.
+   */
+  private readonly rovingFocusGroupState = injectRovingFocusGroupState();
+
   /**
    * The value of the radio group.
    */
@@ -62,6 +70,11 @@ export class NgpRadioGroup implements NgpCanDisable, NgpCanOrientate {
    * @internal
    */
   protected readonly state = radioGroupState<NgpRadioGroup>(this);
+
+  ngOnInit(): void {
+    // the roving focus group defaults to vertical orientation whereas we want to default to vertical
+    this.rovingFocusGroupState().orientation.set(this.state.orientation());
+  }
 
   /**
    * Select a radio item.
