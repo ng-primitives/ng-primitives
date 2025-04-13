@@ -1,6 +1,7 @@
 import { Route } from '@angular/router';
 
 export const appRoutes: Route[] = [
+  { path: 'toolbar', loadComponent: () => import('./toolbar/app') },
   { path: 'separator', loadComponent: () => import('./separator/app') },
   { path: 'textarea', loadComponent: () => import('./textarea/app') },
   { path: 'listbox', loadComponent: () => import('./listbox/app') },
