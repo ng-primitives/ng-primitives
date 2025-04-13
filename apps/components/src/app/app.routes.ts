@@ -5,6 +5,7 @@ export const appRoutes: Route[] = [
   { path: 'search', loadComponent: () => import('./search/app') },
   { path: 'file-upload', loadComponent: () => import('./file-upload/app') },
   { path: 'dialog', loadComponent: () => import('./dialog/app') },
+  { path: 'toolbar', loadComponent: () => import('./toolbar/app') },
   { path: 'separator', loadComponent: () => import('./separator/app') },
   { path: 'textarea', loadComponent: () => import('./textarea/app') },
   { path: 'listbox', loadComponent: () => import('./listbox/app') },
