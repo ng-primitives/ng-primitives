@@ -18,7 +18,8 @@ export interface AngularPrimitivesComponentSchema {
     | 'tabs'
     | 'listbox'
     | 'separator'
-    | 'textarea';
+    | 'textarea'
+    | 'dialog';
 
   /**
    * The path where the component files should be created, relative to the current workspace.

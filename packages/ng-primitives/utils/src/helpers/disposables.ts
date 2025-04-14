@@ -36,6 +36,7 @@ export function injectDisposables() {
     addEventListener: <K extends keyof HTMLElementEventMap>(
       target: EventTarget,
       type: K,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any,
       options?: boolean | AddEventListenerOptions,
     ) => {

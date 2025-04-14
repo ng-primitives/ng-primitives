@@ -15,6 +15,7 @@
         "button",
         "checkbox",
         "date-picker",
+        "dialog",
         "form-field",
         "input",
         "listbox",

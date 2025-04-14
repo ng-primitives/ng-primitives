@@ -24,6 +24,7 @@ import { RouterLink, RouterOutlet } from '@angular/router';
       <a routerLink="/listbox">Listbox</a>
       <a routerLink="/separator">Separator</a>
       <a routerLink="/textarea">Textarea</a>
+      <a routerLink="/dialog">Dialog</a>
     </nav>
     <router-outlet />
   `,

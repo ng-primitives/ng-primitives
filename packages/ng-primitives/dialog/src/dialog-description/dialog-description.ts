@@ -1,6 +1,6 @@
 import { Directive, input, OnDestroy } from '@angular/core';
 import { onChange, uniqueId } from 'ng-primitives/utils';
-import { injectDialog } from '../dialog/dialog-token';
+import { injectDialogState } from '../dialog/dialog-state';
 import { NgpDialogDescriptionToken } from './dialog-description-token';
 
 @Directive({
@@ -13,7 +13,7 @@ import { NgpDialogDescriptionToken } from './dialog-description-token';
 })
 export class NgpDialogDescription implements OnDestroy {
   /** Access the dialog */
-  private readonly dialog = injectDialog();
+  private readonly dialog = injectDialogState();
 
   /** The id of the descriptions. */
   readonly id = input<string>(uniqueId('ngp-dialog-description'));
@@ -21,16 +21,16 @@ export class NgpDialogDescription implements OnDestroy {
   constructor() {
     onChange(this.id, (id, prevId) => {
       if (prevId) {
-        this.dialog.removeDescribedBy(prevId);
+        this.dialog().removeDescribedBy(prevId);
       }
 
       if (id) {
-        this.dialog.setDescribedBy(id);
+        this.dialog().setDescribedBy(id);
       }
     });
   }
 
   ngOnDestroy(): void {
-    this.dialog.removeDescribedBy(this.id());
+    this.dialog().removeDescribedBy(this.id());
   }
 }

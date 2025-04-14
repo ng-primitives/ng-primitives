@@ -5,18 +5,18 @@ import { NgpExitAnimation } from 'ng-primitives/internal';
 import { uniqueId } from 'ng-primitives/utils';
 import { injectDialogConfig } from '../config/dialog-config';
 import { injectDialogRef } from './dialog-ref';
-import { NgpDialogToken } from './dialog-token';
+import { dialogState, provideDialogState } from './dialog-state';
 
 @Directive({
   selector: '[ngpDialog]',
   exportAs: 'ngpDialog',
-  providers: [{ provide: NgpDialogToken, useExisting: NgpDialog }],
+  providers: [provideDialogState()],
   hostDirectives: [NgpFocusTrap, NgpExitAnimation],
   host: {
     tabindex: '-1',
-    '[id]': 'id()',
-    '[attr.role]': 'role()',
-    '[attr.aria-modal]': 'modal()',
+    '[id]': 'state.id()',
+    '[attr.role]': 'state.role()',
+    '[attr.aria-modal]': 'state.modal()',
     '[attr.aria-labelledby]': 'labelledBy().join(" ")',
     '[attr.aria-describedby]': 'describedBy().join(" ")',
   },
@@ -46,6 +46,9 @@ export class NgpDialog<T = unknown> implements OnDestroy {
 
   /** The describedby ids */
   protected readonly describedBy = signal<string[]>([]);
+
+  /** The dialog state */
+  protected readonly state = dialogState<NgpDialog>(this);
 
   ngOnDestroy(): void {
     this.close();
