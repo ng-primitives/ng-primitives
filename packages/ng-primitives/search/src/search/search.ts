@@ -2,6 +2,9 @@ import { computed, contentChild, Directive, ElementRef, HostListener } from '@an
 import { NgpInputToken } from 'ng-primitives/input';
 import { NgpSearchToken } from './search-token';
 
+/**
+ * The `NgpSearch` directive is a container for the search field components.
+ */
 @Directive({
   selector: '[ngpSearch]',
   exportAs: 'ngpSearch',

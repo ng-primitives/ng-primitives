@@ -6,6 +6,9 @@ import { injectElementRef, NgpCanDisable, NgpDisabledToken } from 'ng-primitives
 import { provideSwitchState, switchState } from './switch-state';
 import { provideSwitch } from './switch-token';
 
+/**
+ * Apply the `ngpSwitch` directive to an element to manage the checked state.
+ */
 @Directive({
   selector: '[ngpSwitch]',
   exportAs: 'ngpSwitch',

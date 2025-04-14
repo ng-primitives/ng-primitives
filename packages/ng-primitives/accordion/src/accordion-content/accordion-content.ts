@@ -4,6 +4,9 @@ import { injectAccordionItemState } from '../accordion-item/accordion-item-state
 import type { NgpAccordion } from '../accordion/accordion';
 import { injectAccordionState } from '../accordion/accordion-state';
 
+/**
+ * Apply the `ngpAccordionContent` directive to an element that represents the content of an accordion item.
+ */
 @Directive({
   selector: '[ngpAccordionContent]',
   exportAs: 'ngpAccordionContent',

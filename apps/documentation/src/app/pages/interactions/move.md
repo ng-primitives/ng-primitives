@@ -30,26 +30,7 @@ The following directives are available to import from the `ng-primitives/interac
 
 ### NgpMove
 
-The `NgpMove` directive is used to enable the pointer and keyboard move interactions on an element.
-
-- Selector: `[ngpMove]`
-- Exported As: `ngpMove`
-
-<prop-details name="ngpMoveDisabled" type="boolean">
-  Disables the move interaction.
-</prop-details>
-
-<prop-details name="ngpMoveStart" type="OutputEmitterRef<NgpMoveStartEvent>">
-  Emits when the move interaction starts.
-</prop-details>
-
-<prop-details name="ngpMove" type="OutputEmitterRef<NgpMoveEvent>">
-  Emits when the move interaction is in progress.
-</prop-details>
-
-<prop-details name="ngpMoveEnd" type="OutputEmitterRef<NgpMoveEndEvent>">
-  Emits when the move interaction ends.
-</prop-details>
+<api-docs name="NgpMove"></api-docs>
 
 #### Data Attributes
 

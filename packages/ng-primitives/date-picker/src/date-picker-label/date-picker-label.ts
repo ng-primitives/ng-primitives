@@ -3,6 +3,9 @@ import { uniqueId } from 'ng-primitives/utils';
 import { injectDatePickerState } from '../date-picker/date-picker-state';
 import { NgpDatePickerLabelToken } from './date-picker-label-token';
 
+/**
+ * The label that displays the current month and year typically in the header of the date picker. This will be announced by screen readers when the date changes.
+ */
 @Directive({
   selector: '[ngpDatePickerLabel]',
   exportAs: 'ngpDatePickerLabel',

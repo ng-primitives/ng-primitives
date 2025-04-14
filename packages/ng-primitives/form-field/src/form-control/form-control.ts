@@ -4,6 +4,11 @@ import { uniqueId } from 'ng-primitives/utils';
 import { injectFormField } from '../form-field/form-field-token';
 import { NgpFormControlToken } from './form-control-token';
 
+/**
+ * Typically this primitive would be not be used directly, but instead a more specific form control primitive would be used (e.g. `ngpInput`). All of our form control primitives use `ngpFormControl` internally so they will have the same accessibility features as described below.
+ *
+ * The `NgpFormControl` directive is used to mark a form control element within a form field. This element will have an `aria-labelledby` attribute set to the ID of the label element within the form field and an `aria-describedby` attribute set to the ID of the description elements within the form field.
+ */
 @Directive({
   selector: '[ngpFormControl]',
   exportAs: 'ngpFormControl',

@@ -2,6 +2,9 @@ import { Directive, HostListener } from '@angular/core';
 import { injectSearch } from '../search/search-token';
 import { NgpSearchClearToken } from './search-clear-token';
 
+/**
+ * The `NgpSearchClear` directive is can be added to a button to clear the search field on click.
+ */
 @Directive({
   selector: '[ngpSearchClear]',
   exportAs: 'ngpSearchClear',

@@ -80,6 +80,9 @@ class FocusTrapStack {
 // create a global stack of focus traps
 const focusTrapStack = new FocusTrapStack();
 
+/**
+ * The `NgpFocusTrap` directive traps focus within the host element.
+ */
 @Directive({
   selector: '[ngpFocusTrap]',
   exportAs: 'ngpFocusTrap',

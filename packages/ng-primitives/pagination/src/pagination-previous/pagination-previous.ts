@@ -6,6 +6,9 @@ import { injectPaginationState } from '../pagination/pagination-state';
 import { injectPagination } from '../pagination/pagination-token';
 import { NgpPaginationPreviousToken } from './pagination-previous-token';
 
+/**
+ * The `NgpPaginationPrevious` directive is used to create a pagination button that navigates to the previous page.
+ */
 @Directive({
   selector: '[ngpPaginationPrevious]',
   exportAs: 'ngpPaginationPrevious',

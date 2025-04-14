@@ -8,6 +8,9 @@ import { injectDatePickerState } from '../date-picker/date-picker-state';
 import { injectDatePicker } from '../date-picker/date-picker-token';
 import { NgpDatePickerDateButtonToken } from './date-picker-date-button-token';
 
+/**
+ * A button that represents a date in the date picker grid.
+ */
 @Directive({
   selector: '[ngpDatePickerDateButton]',
   exportAs: 'ngpDatePickerDateButton',

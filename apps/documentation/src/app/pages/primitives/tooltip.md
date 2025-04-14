@@ -34,57 +34,11 @@ The following directives are available to import from the `ng-primitives/tooltip
 
 ### NgpTooltip
 
-Apply the `ngpTooltip` directive to an element that represents the tooltip. This typically would be a `div` inside an `ng-template`.
-
-- Selector: `[ngpTooltip]`
-- Exported As: `ngpTooltip`
+<api-docs name="NgpTooltip"></api-docs>
 
 ### NgpTooltipTrigger
 
-Apply the `ngpTooltipTrigger` directive to an element that triggers the tooltip to show.
-
-- Selector: `[ngpTooltipTrigger]`
-- Exported As: `ngpTooltipTrigger`
-
-<prop-details name="ngpTooltipTrigger" type="TemplateRef">
-  Define the content of the tooltip. This should be reference to an `ng-template`.
-</prop-details>
-
-<prop-details name="ngpTooltipTriggerOpen" type="boolean" default="false">
-  Define the open state.
-</prop-details>
-
-<prop-details name="ngpTooltipTriggerOpenChange"  type="boolean">
-  Event emitted when the state changes.
-</prop-details>
-
-<prop-details name="ngpTooltipTriggerOffset" type="number" default="0">
-  Define the offset from the trigger element.
-</prop-details>
-
-<prop-details name="ngpTooltipTriggerDisabled" type="boolean" default="false">
-  Define the disabled state.
-</prop-details>
-
-<prop-details name="ngpTooltipTriggerPlacement" type="'top' | 'right' | 'bottom' | 'left'" default="top">
-  Define the placement of the tooltip.
-</prop-details>
-
-<prop-details name="ngpTooltipTriggerShowDelay" type="number" default="0">
-  Define the delay before the tooltip shows.
-</prop-details>
-
-<prop-details name="ngpTooltipTriggerHideDelay" type="number" default="0">
-  Define the delay before the tooltip hides.
-</prop-details>
-
-<prop-details name="ngpTooltipTriggerFlip" type="boolean" default="true">
-  Define if the tooltip should flip when it reaches the edge of the viewport.
-</prop-details>
-
-<prop-details name="ngpTooltipTriggerContainer" type="HTMLElement">
-  Define the container element for the tooltip. This is the document body by default.
-</prop-details>
+<api-docs name="NgpTooltipTrigger"></api-docs>
 
 #### Data Attributes
 

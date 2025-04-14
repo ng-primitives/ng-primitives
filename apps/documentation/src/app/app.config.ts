@@ -12,8 +12,9 @@ import {
 } from '@angular/core';
 import { provideClientHydration } from '@angular/platform-browser';
 import { withInMemoryScrolling } from '@angular/router';
+import { ApiDocs } from './components/api-docs/api-docs';
 import { Example } from './components/example/example';
-import { ResponseFieldComponent } from './components/prop-details/prop-details';
+import { PropDetails } from './components/prop-details/prop-details';
 import { Snippet } from './components/snippet/snippet';
 import { TabGroup } from './components/tab-group/tab-group';
 import { Tab } from './components/tab/tab';
@@ -44,13 +45,11 @@ export function initializeCustomElements(
       customElements.define('docs-example', createCustomElement(Example, { injector }));
       customElements.define('docs-snippet', createCustomElement(Snippet, { injector }));
 
-      customElements.define(
-        'prop-details',
-        createCustomElement(ResponseFieldComponent, { injector }),
-      );
+      customElements.define('prop-details', createCustomElement(PropDetails, { injector }));
 
       customElements.define('tab-group', createCustomElement(TabGroup, { injector }));
       customElements.define('tab-item', createCustomElement(Tab, { injector }));
+      customElements.define('api-docs', createCustomElement(ApiDocs, { injector }));
     }
   };
 }

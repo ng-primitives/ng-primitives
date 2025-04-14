@@ -12,6 +12,9 @@ import { getTransformOrigin } from 'ng-primitives/popover';
 import { injectTooltipTrigger } from '../tooltip-trigger/tooltip-trigger-token';
 import { NgpTooltipToken } from './tooltip-token';
 
+/**
+ * Apply the `ngpTooltip` directive to an element that represents the tooltip. This typically would be a `div` inside an `ng-template`.
+ */
 @Directive({
   selector: '[ngpTooltip]',
   exportAs: 'ngpTooltip',
@@ -60,9 +63,9 @@ export class NgpTooltip implements OnInit {
     if (isDevMode() && isPlatformBrowser(this.platform)) {
       const { position } = getComputedStyle(this.tooltip.nativeElement);
 
-      if (position !== 'absolute') {
+      if (position !== 'absolute' && position !== 'fixed') {
         console.warn(
-          `The tooltip element must have an absolute position. The current position is ${position}.`,
+          `The tooltip element must have an absolute or fixed position. The current position is ${position}.`,
         );
       }
     }

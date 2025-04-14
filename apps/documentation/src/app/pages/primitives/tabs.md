@@ -61,23 +61,7 @@ The following directives are available to import from the `ng-primitives/tabs` p
 
 ### NgpTabset
 
-Apply the `ngpTabset` directive to an element to manage the tabs.
-
-- Selector: `[ngpTabset]`
-- Exported As: `ngpTabset`
-- Host Directives: [NgpRovingFocusGroup](/primitives/roving-focus)
-
-<prop-details name="ngpTabsetValue" type="string">
-  Define the selected tab.
-</prop-details>
-
-<prop-details name="ngpTabsetOrientation" type="'horizontal' | 'vertical'" default="horizontal">
-  Define the orientation of the tabs.
-</prop-details>
-
-<prop-details name="ngpTabsetActivateOnFocus" type="boolean">
-  Define whether the tab should activate on focus.
-</prop-details>
+<api-docs name="NgpTabset"></api-docs>
 
 #### Data Attributes
 
@@ -89,10 +73,7 @@ The following data attributes are applied to the `ngpTabset` directive:
 
 ### NgpTabList
 
-Apply the `ngpTabList` directive to an element that represents the list of tab buttons.
-
-- Selector: `[ngpTabList]`
-- Exported As: `ngpTabList`
+<api-docs name="NgpTabList"></api-docs>
 
 #### Data Attributes
 
@@ -104,19 +85,7 @@ The following data attributes are applied to the `ngpTabList` directive:
 
 ### NgpTabButton
 
-Apply the `ngpTabButton` directive to an element within a tab list to represent a tab button. This directive should be applied to a button element.
-
-- Selector: `[ngpTabButton]`
-- Exported As: `ngpTabButton`
-- Host Directives: [NgpRovingFocusItem](/primitives/roving-focus), [NgpHover](/interactions/hover), [NgpFocusVisible](/interactions/focus-visible), [NgpPress](/interactions/press)
-
-<prop-details name="ngpTabButtonValue" type="string" required="true">
-  Define the value of the tab.
-</prop-details>
-
-<prop-details name="ngpTabButtonDisabled" type="boolean">
-  Define whether the tab button is disabled.
-</prop-details>
+<api-docs name="NgpTabButton"></api-docs>
 
 #### Data Attributes
 
@@ -133,14 +102,7 @@ The following data attributes are applied to the `ngpTabButton` directive:
 
 ### NgpTabPanel
 
-Apply the `ngpTabPanel` directive to an element that represents the content of a tab.
-
-- Selector: `[ngpTabPanel]`
-- Exported As: `ngpTabPanel`
-
-<prop-details name="ngpTabPanelValue" type="string" required="true">
-  Define the value of the tab.
-</prop-details>
+<api-docs name="NgpTabPanel"></api-docs>
 
 #### Data Attributes
 

@@ -2,6 +2,9 @@ import { Directive, OnDestroy, OnInit, computed, input } from '@angular/core';
 import { injectTabsetState } from '../tabset/tabset-state';
 import { NgpTabPanelToken } from './tab-panel-token';
 
+/**
+ * Apply the `ngpTabPanel` directive to an element that represents the content of a tab.
+ */
 @Directive({
   selector: '[ngpTabPanel]',
   exportAs: 'ngpTabPanel',

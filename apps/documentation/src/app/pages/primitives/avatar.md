@@ -55,11 +55,7 @@ The following directives are available to import from the `ng-primitives/avatar`
 
 ### NgpAvatar
 
-Apply the `ngpAvatar` directive to an element that represents the avatar. This directive is a container for the image and/or fallback.
-
-- Selector: `[ngpAvatar]`
-- Exported As: `ngpAvatar`
-- Host Directives: [NgpHover](/interactions/hover), [NgpFocusVisible](/interactions/focus-visible), [NgpPress](/interactions/press)
+<api-docs name="NgpAvatar"></api-docs>
 
 #### Data Attributes
 
@@ -72,23 +68,11 @@ Apply the `ngpAvatar` directive to an element that represents the avatar. This d
 
 ### NgpAvatarImage
 
-Apply the `ngpAvatarImage` directive to an element that represents the avatar image. This would typically be an `img` element or a `div` with a background image.
-
-- Selector: `[ngpAvatarImage]`
-- Exported As: `ngpAvatarImage`
-- Host Directives: [NgpVisuallyHidden](/utilities/visually-hidden)
+<api-docs name="NgpAvatarImage"></api-docs>
 
 ### NgpAvatarFallback
 
-Apply the `ngpAvatarFallback` directive to an element that represents the user in the absence of an image. This is typically the user's initials.
-
-- Selector: `[ngpAvatarFallback]`
-- Exported As: `ngpAvatarFallback`
-
-<prop-details name="ngpAvatarFallbackDelay" type="number" default="0">
-  Define a delay before the fallback is shown. This is useful to only show the fallback for those
-  with slower connections.
-</prop-details>
+<api-docs name="NgpAvatarFallback"></api-docs>
 
 ## Global Configuration
 

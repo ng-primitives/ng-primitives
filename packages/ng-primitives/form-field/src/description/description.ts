@@ -3,6 +3,9 @@ import { uniqueId } from 'ng-primitives/utils';
 import { injectFormField } from '../form-field/form-field-token';
 import { NgpDescriptionToken } from './description-token';
 
+/**
+ * The `NgpDescription` directive is used to mark a description element within a form field. There may be multiple descriptions associated with a form control.
+ */
 @Directive({
   selector: '[ngpDescription]',
   exportAs: 'ngpDescription',

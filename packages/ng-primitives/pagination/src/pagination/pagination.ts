@@ -10,6 +10,9 @@ import {
 import { paginationState, providePaginationState } from './pagination-state';
 import { providePagination } from './pagination-token';
 
+/**
+ * The `NgpPagination` directive is used to create a pagination control.
+ */
 @Directive({
   selector: '[ngpPagination]',
   exportAs: 'ngpPagination',

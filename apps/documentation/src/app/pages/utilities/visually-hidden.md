@@ -28,10 +28,7 @@ The following directives are available to import from the `ng-primitives/a11y` p
 
 ### NgpVisuallyHidden
 
-Hide an element visually while keeping it present in the DOM.
-
-- Selector: `[ngpVisuallyHidden]`
-- Exported As: `ngpVisuallyHidden`
+<api-docs name="NgpVisuallyHidden"></api-docs>
 
 ## Accessibility
 

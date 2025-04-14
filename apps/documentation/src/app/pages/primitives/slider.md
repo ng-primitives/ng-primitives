@@ -67,31 +67,7 @@ The following directives are available to import from the `ng-primitives/slider`
 
 ### NgpSlider
 
-Apply the `ngpSlider` directive to an element that represents the slider and contains the track, range, and thumb.
-
-- Selector: `[ngpSlider]`
-- Exported As: `ngpSlider`
-- Host Directives: [NgpFormControl](/primitives/form-field)
-
-<prop-details name="ngpSliderValue" type="number">
-  Define the selected value.
-</prop-details>
-
-<prop-details name="ngpSliderMin" type="number" default="0">
-  Define the minimum value.
-</prop-details>
-
-<prop-details name="ngpSliderMax" type="number" default="100">
-  Define the maximum value.
-</prop-details>
-
-<prop-details name="ngpSliderStep" type="number" default="1">
-  Define the step value.
-</prop-details>
-
-<prop-details name="ngpSliderOrientation" type="'horizontal' | 'vertical'" default="horizontal">
-  Define the orientation.
-</prop-details>
+<api-docs name="NgpSlider"></api-docs>
 
 #### Data Attributes
 
@@ -104,10 +80,7 @@ The following data attributes are available to style the slider:
 
 ### NgpSliderTrack
 
-Apply the `ngpSliderTrack` directive to an element that represents the track of the slider.
-
-- Selector: `[ngpSliderTrack]`
-- Exported As: `ngpSliderTrack`
+<api-docs name="NgpSliderTrack"></api-docs>
 
 #### Data Attributes
 
@@ -120,10 +93,7 @@ The following data attributes are available to style the slider track:
 
 ### NgpSliderRange
 
-Apply the `ngpSliderRange` directive to an element that represents the range of the slider.
-
-- Selector: `[ngpSliderRange]`
-- Exported As: `ngpSliderRange`
+<api-docs name="NgpSliderRange"></api-docs>
 
 #### Data Attributes
 
@@ -136,11 +106,7 @@ The following data attributes are available to style the slider range:
 
 ### NgpSliderThumb
 
-Apply the `ngpSliderThumb` directive to an element that represents the thumb of the slider.
-
-- Selector: `[ngpSliderThumb]`
-- Exported As: `ngpSliderThumb`
-- Host Directives: [NgpHover](/interactions/hover), [NgpFocusVisible](/interactions/focus-visible), [NgpPress](/interactions/press)
+<api-docs name="NgpSliderThumb"></api-docs>
 
 #### Data Attributes
 

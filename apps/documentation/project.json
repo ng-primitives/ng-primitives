@@ -3,9 +3,13 @@
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "projectType": "application",
   "targets": {
+    "api-extraction": {
+      "executor": "@ng-primitives/tools:api-extraction"
+    },
     "build": {
       "executor": "@analogjs/platform:vite",
       "defaultConfiguration": "production",
+      "dependsOn": ["api-extraction"],
       "configurations": {
         "development": {
           "mode": "development"
@@ -31,6 +35,7 @@
     "serve": {
       "executor": "@analogjs/platform:vite-dev-server",
       "defaultConfiguration": "development",
+      "dependsOn": ["api-extraction"],
       "options": {
         "buildTarget": "documentation:build",
         "port": 4200

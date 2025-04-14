@@ -43,15 +43,7 @@ The following directives are available to import from the `ng-primitives/select`
 
 ### NgpSelect
 
-Apply the `ngpSelect` directive to a select element that you want to enhance.
-
-- Selector: `[ngpSelect]`
-- Exported As: `ngpSelect`
-- Host Directives: [NgpFormControl](/primitives/form-field), [NgpHover](/interactions/hover), [NgpFocusVisible](/interactions/focus-visible), [NgpPress](/interactions/press)
-
-<prop-details name="ngpSelectDisabled" type="boolean">
-  Define the disabled state.
-</prop-details>
+<api-docs name="NgpSelect"></api-docs>
 
 #### Data Attributes
 

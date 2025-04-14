@@ -3,11 +3,12 @@ import { Directive, booleanAttribute, input, output } from '@angular/core';
 import { injectDisabled, setupHover } from 'ng-primitives/internal';
 import { NgpHoverToken } from './hover-token';
 
+// This is an Angular port of the useHover hook from react-aria: https://github.com/adobe/react-spectrum/blob/main/packages/%40react-aria/interactions/src/useHover.ts
+
 /**
- * A directive for normalizing hover events across the different browsers and devices.
- *
- * This is an Angular port of the useHover hook from
- * react-aria: https://github.com/adobe/react-spectrum/blob/main/packages/%40react-aria/interactions/src/useHover.ts
+ * Apply the `ngpHover` directive to an element that you want to listen for hover events. T
+ * his is particulaly useful for supporting hover events on touch devices, where hover events are not handled consistently.
+ * On iOS relying on the `:hover` pseudo-class can result in the hover state being stuck until the user taps elsewhere on the screen.
  */
 @Directive({
   selector: '[ngpHover]',

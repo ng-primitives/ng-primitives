@@ -64,23 +64,7 @@ The following directives are available to import from the `ng-primitives/switch`
 
 ### NgpSwitch
 
-Apply the `ngpSwitch` directive to an element to manage the checked state.
-
-- Selector: `[ngpSwitch]`
-- Exported As: `ngpSwitch`
-- Host Directives: [NgpFormControl](/primitives/form-field), [NgpHover](/interactions/hover), [NgpFocusVisible](/interactions/focus-visible), [NgpPress](/interactions/press)
-
-<prop-details name="ngpSwitchChecked" type="boolean" default="false">
-  Define the checked state.
-</prop-details>
-
-<prop-details name="ngpSwitchDisabled" type="boolean" default="false">
-  Define the disabled state.
-</prop-details>
-
-<prop-details name="ngpSwitchCheckedChange" type="boolean">
-  Event emitted when the state changes.
-</prop-details>
+<api-docs name="NgpSwitch"></api-docs>
 
 #### Data Attributes
 
@@ -96,11 +80,7 @@ The following data attributes are applied to the `ngpSwitch` directive:
 
 ### NgpSwitchThumb
 
-Apply the `ngpSwitchThumb` directive to an element within a switch to represent the thumb.
-
-- Selector: `[ngpSwitchThumb]`
-- Exported As: `ngpSwitchThumb`
-- Host Directives: [NgpHover](/interactions/hover), [NgpFocusVisible](/interactions/focus-visible), [NgpPress](/interactions/press)
+<api-docs name="NgpSwitchThumb"></api-docs>
 
 #### Data Attributes
 

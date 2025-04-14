@@ -5,8 +5,12 @@ import { NgpAvatarStatus } from '../avatar/avatar';
 import { injectAvatarState } from '../avatar/avatar-state';
 import { injectAvatarConfig } from '../config/avatar-config';
 
+/**
+ * Apply the `ngpAvatarFallback` directive to an element that represents the user in the absence of an image. This is typically the user's initials.
+ */
 @Directive({
   selector: '[ngpAvatarFallback]',
+  exportAs: 'ngpAvatarFallback',
   host: {
     '[style.display]': 'visible() ? null : "none"',
   },

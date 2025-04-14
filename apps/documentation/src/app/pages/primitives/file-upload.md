@@ -34,43 +34,7 @@ The following directives are available to import from the `ng-primitives/file-up
 
 ### NgpFileUpload
 
-A directive that allows you to turn any element into a file upload trigger.
-
-- Selector: `[ngpFileUpload]`
-- Exported As: `ngpFileUpload`
-- Host Directives: [NgpHover](/interactions/hover), [NgpFocusVisible](/interactions/focus-visible), [NgpPress](/interactions/press)
-
-<prop-details name="ngpFileUploadMultiple" type="boolean" default="false">
-  Define if multiple files can be selected.
-</prop-details>
-
-<prop-details name="ngpFileUploadFileTypes" type="string[]">
-  Define the file types that can be selected.
-</prop-details>
-
-<prop-details name="ngpFileUploadDirectory" type="boolean" default="false">
-  Define if directories can be selected.
-</prop-details>
-
-<prop-details name="ngpFileUploadDragDrop" type="boolean" default="true">
-  Define if drag and drop is enabled.
-</prop-details>
-
-<prop-details name="ngpFileUploadDisabled" type="boolean" default="false">
-  Define if the file upload is disabled.
-</prop-details>
-
-<prop-details name="ngpFileUploadSelected" type="OutputEmitterRef<FileList | null>">
-  Event emitted when files are selected.
-</prop-details>
-
-<prop-details name="ngpFileUploadCanceled" type="OutputEmitterRef<void>">
-  Event emitted when the user cancels the file upload or selects the same file(s) again.
-</prop-details>
-
-<prop-details name="ngpFileUploadDragOver" type="OutputEmitterRef<boolean>">
-  Event emitted when a file is dragged over or out of the element.
-</prop-details>
+<api-docs name="NgpFileUpload"></api-docs>
 
 #### Data Attributes
 

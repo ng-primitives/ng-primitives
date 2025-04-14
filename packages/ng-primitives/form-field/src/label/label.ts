@@ -11,6 +11,9 @@ import { uniqueId } from 'ng-primitives/utils';
 import { injectFormField } from '../form-field/form-field-token';
 import { NgpLabelToken } from './label-token';
 
+/**
+ * The `NgpLabel` directive is used to mark a label element within a form field. Preferably, there should use an HTML `<label>` element.
+ */
 @Directive({
   selector: '[ngpLabel]',
   exportAs: 'ngpLabel',

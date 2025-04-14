@@ -7,6 +7,9 @@ import { NgpRovingFocusItem } from '../roving-focus-item/roving-focus-item';
 import { provideRovingFocusGroupState, rovingFocusGroupState } from './roving-focus-group-state';
 import { provideRovingFocusGroup } from './roving-focus-group-token';
 
+/**
+ * Apply the `ngpRovingFocusGroup` directive to an element to manage focus for a group of child elements.
+ */
 @Directive({
   selector: '[ngpRovingFocusGroup]',
   exportAs: 'ngpRovingFocusGroup',

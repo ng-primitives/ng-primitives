@@ -64,31 +64,7 @@ The following directives are available to import from the `ng-primitives/checkbo
 
 ### NgpCheckbox
 
-Apply the `ngpCheckbox` directive to an element to that represents the checkbox, such as a `button`.
-
-- Selector: `[ngpCheckbox]`
-- Exported As: `ngpCheckbox`
-- Host Directives: [NgpFormControl](/primitives/form-field), [NgpHover](/interactions/hover), [NgpFocusVisible](/interactions/focus-visible), [NgpPress](/interactions/press)
-
-<prop-details name="ngpCheckboxChecked" type="boolean" default="false">
-  Define the checked state.
-</prop-details>
-
-<prop-details name="ngpCheckboxIndeterminate" type="boolean" default="false">
-  Define the interminate state.
-</prop-details>
-
-<prop-details name="ngpCheckboxDisabled" type="boolean" default="false">
-  Define the disabled state.
-</prop-details>
-
-<prop-details name="ngpCheckboxCheckedChange" type="boolean">
-  Event emitted when the state changes.
-</prop-details>
-
-<prop-details name="ngpCheckboxIndeterminateChange" type="boolean">
-  Event emitted when the indeterminate state changes.
-</prop-details>
+<api-docs name="NgpCheckbox"></api-docs>
 
 | Attribute            | Description                                 |
 | -------------------- | ------------------------------------------- |

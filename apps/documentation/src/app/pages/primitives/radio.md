@@ -67,41 +67,7 @@ The following directives are available to import from the `ng-primitives/radio` 
 
 ### NgpRadioGroup
 
-Apply the `ngpRadioGroup` directive to an element that represents the group of radio items.
-
-- Selector: `[ngpRadioGroup]`
-- Exported As: `ngpRadioGroup`
-- Host Directives: [NgpRovingFocusGroup](/primitives/roving-focus), [NgpFormControl](/primitives/form-field)
-
-<prop-details name="ngpRadioGroupValue" type="string | undefined">
-  Define the selected value.
-</prop-details>
-
-<prop-details name="ngpRadioGroupDisabled" type="boolean" default="false">
-  Define the disabled state.
-</prop-details>
-
-<prop-details name="ngpRadioGroupOrientation" type="'vertical' | 'horizontal'" default="horizontal"> Define the orientation.</prop-details>
-
-<prop-details name="ngpRadioGroupValueChange" type="boolean">
-  Event emitted when the selection changes.
-</prop-details>
-
-### NgpRadioItem
-
-Apply the `ngpRadioItem` directive to an element that represents a radio item. This would typically be a `button` element.
-
-- Selector: `[ngpRadioItem]`
-- Exported As: `ngpRadioItem`
-- Host Directives: [NgpRovingFocusItem](/primitives/roving-focus), [NgpHover](/interactions/hover), [NgpFocusVisible](/interactions/focus-visible), [NgpPress](/interactions/press)
-
-<prop-details name="ngpRadioItemValue" type="string" required="true">
-  Define the value of this item.
-</prop-details>
-
-<prop-details name="ngpRadioItemDisabled" type="boolean" default="false">
-  Define the disabled state.
-</prop-details>
+<api-docs name="NgpRadioGroup"></api-docs>
 
 #### Data Attributes
 
@@ -111,6 +77,10 @@ The following data attributes are applied to the `ngpRadioGroup` directive:
 | ------------------ | ----------------------------------------- | -------------------------- |
 | `data-orientation` | The orientation of the radio group.       | `vertical` \| `horizontal` |
 | `data-disabled`    | Applied when the radio group is disabled. | `-`                        |
+
+### NgpRadioItem
+
+<api-docs name="NgpRadioItem"></api-docs>
 
 #### Data Attributes
 
@@ -126,11 +96,7 @@ The following data attributes are applied to the `ngpRadioItem` directive:
 
 ### NgpRadioIndicator
 
-Apply the `ngpRadioIndicator` directive to an element that represents the radio indicator (i.e. the dot).
-
-- Selector: `[ngpRadioIndicator]`
-- Exported As: `ngpRadioIndicator`
-- Host Directives: [NgpHover](/interactions/hover), [NgpPress](/interactions/press)
+<api-docs name="NgpRadioIndicator"></api-docs>
 
 #### Data Attributes
 

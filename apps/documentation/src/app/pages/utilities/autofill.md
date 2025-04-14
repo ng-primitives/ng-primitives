@@ -31,12 +31,7 @@ The following directives are available to import from the `ng-primitives/autofil
 
 ### NgpAutofill
 
-- Selector: `[ngpAutofill]`
-- Exported As: `ngpAutofill`
-
-<prop-details name="ngpAutofill" type="OutputEmitterRef<boolean>">
-  Event emitted when the autofill state changes.
-</prop-details>
+<api-docs name="NgpAutofill"></api-docs>
 
 #### Data Attributes
 

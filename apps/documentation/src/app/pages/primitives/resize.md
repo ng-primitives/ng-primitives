@@ -30,11 +30,4 @@ The following directives are available to import from the `ng-primitives/resize`
 
 ### NgpResize
 
-Apply the `ngpResize` directive to an element to listen for resize events.
-
-- Selector: `[ngpResize]`
-- Exported As: `ngpResize`
-
-<prop-details name="ngpResize" type="OutputEmitterRef<boolean>">
-  Event emitted when the element is resize.
-</prop-details>
+<api-docs name="NgpResize"></api-docs>

@@ -6,6 +6,9 @@ import { injectPaginationState } from '../pagination/pagination-state';
 import { injectPagination } from '../pagination/pagination-token';
 import { NgpPaginationFirstToken } from './pagination-first-token';
 
+/**
+ * The `NgpPaginationFirst` directive is used to create a pagination button that navigates to the first page.
+ */
 @Directive({
   selector: '[ngpPaginationFirst]',
   exportAs: 'ngpPaginationFirst',

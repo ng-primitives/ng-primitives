@@ -40,6 +40,9 @@ import {
 } from './popover-trigger-state';
 import { NgpPopoverTriggerToken, providePopoverTrigger } from './popover-trigger-token';
 
+/**
+ * Apply the `ngpPopoverTrigger` directive to an element that triggers the popover to show.
+ */
 @Directive({
   selector: '[ngpPopoverTrigger]',
   exportAs: 'ngpPopoverTrigger',
@@ -436,10 +439,14 @@ export class NgpPopoverTrigger implements OnDestroy {
 
     const outletElement = this.viewRef.rootNodes[0];
 
+    // determine if the popover is fixed or absolute
+    const strategy = getComputedStyle(outletElement).position === 'fixed' ? 'fixed' : 'absolute';
+
     this.dispose = autoUpdate(this.trigger.nativeElement, outletElement, async () => {
       const position = await computePosition(this.trigger.nativeElement, outletElement, {
         placement: this.state.placement(),
         middleware: this.middleware(),
+        strategy,
       });
 
       this.position.set({ x: position.x, y: position.y });

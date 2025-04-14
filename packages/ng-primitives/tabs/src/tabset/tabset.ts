@@ -16,6 +16,9 @@ import type { NgpTabPanel } from '../tab-panel/tab-panel';
 import { provideTabsetState, tabsetState } from './tabset-state';
 import { provideTabset } from './tabset-token';
 
+/**
+ * Apply the `ngpTabset` directive to an element to manage the tabs.
+ */
 @Directive({
   selector: '[ngpTabset]',
   exportAs: 'ngpTabset',

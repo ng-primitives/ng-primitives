@@ -52,10 +52,7 @@ The following directives are available to import from the `ng-primitives/button`
 
 ### NgpButton
 
-A directive that can be used to create a button.
-
-- Selector: `[ngpButton]`
-- Exported As: `ngpButton`
+<api-docs name="NgpButton"></api-docs>
 
 #### Data Attributes
 

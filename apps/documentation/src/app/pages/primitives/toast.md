@@ -34,30 +34,9 @@ To show a toast, call the `show` method on the `ngpToast` directive.
 
 The following directives are available to import from the `ng-primitives/toast` package:
 
-<prop-details name="ngpToastDuration" type="number" default="3000">
-  The duration in milliseconds that the toast will be visible.
-</prop-details>
-
-<prop-details name="ngpToastPosition" type="start | center | end" default="end">
-  The position of the toast.
-</prop-details>
-
-<prop-details name="ngpToastGravity" type="top | bottom" default="top">
-  The gravity of the toast. This will determine the location the toast will slide in and out.
-</prop-details>
-
-<prop-details name="ngpToastStopOnHover" type="boolean" default="true">
-  Whether the toast should stop the timer when hovered over. Once the mouse leaves the toast, the timer will restart.
-</prop-details>
-
-<prop-details name="ngpToastAriaLive" type="assertive | polite" default="polite">
-  The `aria-live` attribute value for the toast. This will determine how the toast will be read by screen readers.
-</prop-details>
-
 ### NgpToast
 
-- Selector: `[ngpToast]`
-- Exported As: `ngpToast`
+<api-docs name="NgpToast"></api-docs>
 
 #### Data Attributes
 

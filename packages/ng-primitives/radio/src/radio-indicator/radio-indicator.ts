@@ -3,6 +3,9 @@ import { NgpHover, NgpPress } from 'ng-primitives/interactions';
 import { injectRadioGroupState } from '../radio-group/radio-group-state';
 import { injectRadioItemState } from '../radio-item/radio-item-state';
 
+/**
+ * Apply the `ngpRadioIndicator` directive to an element that represents the radio indicator (i.e. the dot).
+ */
 @Directive({
   selector: '[ngpRadioIndicator]',
   host: {

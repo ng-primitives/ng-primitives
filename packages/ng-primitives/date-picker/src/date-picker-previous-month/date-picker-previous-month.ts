@@ -6,6 +6,9 @@ import { injectDatePickerState } from '../date-picker/date-picker-state';
 import { injectDatePicker } from '../date-picker/date-picker-token';
 import { NgpDatePickerPreviousMonthToken } from './date-picker-previous-month-token';
 
+/**
+ * A button that navigates to the previous month.
+ */
 @Directive({
   selector: '[ngpDatePickerPreviousMonth]',
   exportAs: 'ngpDatePickerPreviousMonth',

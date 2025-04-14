@@ -3,6 +3,9 @@ import { NgpDatePickerDateButtonToken } from '../date-picker-date-button/date-pi
 import { injectDatePicker } from '../date-picker/date-picker-token';
 import { NgpDatePickerCellToken } from './date-picker-cell-token';
 
+/**
+ * A cell in the date picker grid.
+ */
 @Directive({
   selector: '[ngpDatePickerCell]',
   exportAs: 'ngpDatePickerCell',

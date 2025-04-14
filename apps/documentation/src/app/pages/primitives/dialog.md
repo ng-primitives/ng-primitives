@@ -64,9 +64,9 @@ The dialog container.
   Whether the dialog is modal. A modal dialog prevents the user from interacting with the rest of the page until the dialog is closed.
 </prop-details>
 
-| Attribute      | Description                         |
-| -------------- | ----------------------------------- |
-| `data-closing` | Applied when the dialog is closing. |
+| Attribute   | Description                         |
+| ----------- | ----------------------------------- |
+| `data-exit` | Applied when the dialog is closing. |
 
 ### NgpDialogTitle
 
@@ -107,9 +107,9 @@ The dialog overlay.
 - Selector: `[ngpDialogOverlay]`
 - Exported As: `ngpDialogOverlay`
 
-| Attribute      | Description                         |
-| -------------- | ----------------------------------- |
-| `data-closing` | Applied when the dialog is closing. |
+| Attribute   | Description                         |
+| ----------- | ----------------------------------- |
+| `data-exit` | Applied when the dialog is closing. |
 
 ## Examples
 

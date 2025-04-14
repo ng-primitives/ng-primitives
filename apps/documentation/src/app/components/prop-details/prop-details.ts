@@ -5,7 +5,7 @@ import { ChangeDetectionStrategy, Component, booleanAttribute, input } from '@an
   templateUrl: './prop-details.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class ResponseFieldComponent {
+export class PropDetails {
   readonly name = input.required<string>();
   readonly type = input.required<string>();
   readonly default = input<string>();

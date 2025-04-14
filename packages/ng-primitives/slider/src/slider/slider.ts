@@ -15,6 +15,9 @@ import type { NgpSliderTrack } from '../slider-track/slider-track';
 import { provideSliderState, sliderState } from './slider-state';
 import { provideSlider } from './slider-token';
 
+/**
+ * Apply the `ngpSlider` directive to an element that represents the slider and contains the track, range, and thumb.
+ */
 @Directive({
   selector: '[ngpSlider]',
   exportAs: 'ngpSlider',

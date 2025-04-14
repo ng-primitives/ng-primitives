@@ -12,6 +12,9 @@ import {
 import { NgpFocusVisible, NgpHover, NgpPress } from 'ng-primitives/interactions';
 import { fileUploadState, provideFileUploadState } from './file-upload-state';
 
+/**
+ * A directive that allows you to turn any element into a file upload trigger.
+ */
 @Directive({
   selector: '[ngpFileUpload]',
   exportAs: 'ngpFileUpload',

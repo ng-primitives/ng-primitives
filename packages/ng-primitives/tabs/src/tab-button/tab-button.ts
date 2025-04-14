@@ -4,6 +4,9 @@ import { NgpFocusVisible, NgpHover, NgpPress } from 'ng-primitives/interactions'
 import { NgpRovingFocusItem } from 'ng-primitives/roving-focus';
 import { injectTabsetState } from '../tabset/tabset-state';
 
+/**
+ * Apply the `ngpTabButton` directive to an element within a tab list to represent a tab button. This directive should be applied to a button element.
+ */
 @Directive({
   selector: '[ngpTabButton]',
   exportAs: 'ngpTabButton',

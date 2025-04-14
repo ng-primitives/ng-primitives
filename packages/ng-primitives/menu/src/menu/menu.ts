@@ -10,6 +10,9 @@ import { NgpRovingFocusGroup, provideRovingFocusGroup } from 'ng-primitives/rovi
 import { Subject } from 'rxjs';
 import { NgpMenuToken, provideMenu } from './menu-token';
 
+/**
+ * The `NgpMenu` is a container for menu items.
+ */
 @Directive({
   selector: '[ngpMenu]',
   exportAs: 'ngpMenu',

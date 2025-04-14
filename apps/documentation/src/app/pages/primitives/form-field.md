@@ -62,10 +62,7 @@ The following directives are available to import from the `ng-primitives/form-fi
 
 ### NgpFormField
 
-The `NgpFormField` directive is a container for form field elements. Any labels, form controls, or descriptions should be placed within this directive.
-
-- Selector: `[ngpFormField]`
-- Exported As: `ngpFormField`
+<api-docs name="NgpFormField"></api-docs>
 
 #### Data Attributes
 
@@ -81,10 +78,7 @@ The `NgpFormField` directive is a container for form field elements. Any labels,
 
 ### NgpLabel
 
-The `NgpLabel` directive is used to mark a label element within a form field. Preferably, there should use an HTML `<label>` element.
-
-- Selector: `[ngpLabel]`
-- Exported As: `ngpLabel`
+<api-docs name="NgpLabel"></api-docs>
 
 #### Data Attributes
 
@@ -100,10 +94,7 @@ The `NgpLabel` directive is used to mark a label element within a form field. Pr
 
 ### NgpDescription
 
-The `NgpDescription` directive is used to mark a description element within a form field. There may be multiple descriptions associated with a form control.
-
-- Selector: `[ngpDescription]`
-- Exported As: `ngpDescription`
+<api-docs name="NgpDescription"></api-docs>
 
 #### Data Attributes
 
@@ -119,14 +110,7 @@ The `NgpDescription` directive is used to mark a description element within a fo
 
 ### NgpError
 
-The `NgpError` directive is used to mark an error message element within a form field. There may be multiple error messages associated with a form control.
-
-- Selector: `[ngpError]`
-- Exported As: `ngpError`
-
-<prop-details name="ngpErrorValidator" type="string">
-  The name of the validator associated with this error message.
-</prop-details>
+<api-docs name="NgpError"></api-docs>
 
 #### Data Attributes
 
@@ -143,12 +127,7 @@ The `NgpError` directive is used to mark an error message element within a form 
 
 ### NgpFormControl
 
-Typically this primitive would be not be used directly, but instead a more specific form control primitive would be used (e.g. `ngpInput`). All of our form control primitives use `ngpFormControl` internally so they will have the same accessibility features as described below.
-
-The `NgpFormControl` directive is used to mark a form control element within a form field. This element will have an `aria-labelledby` attribute set to the ID of the label element within the form field and an `aria-describedby` attribute set to the ID of the description elements within the form field.
-
-- Selector: `[ngpFormControl]`
-- Exported As: `ngpFormControl`
+<api-docs name="NgpFormControl"></api-docs>
 
 #### Data Attributes
 

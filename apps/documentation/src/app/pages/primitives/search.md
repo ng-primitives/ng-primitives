@@ -36,10 +36,7 @@ The following directives are available to import from the `ng-primitives/search`
 
 ### NgpSearch
 
-The `NgpSearch` directive is a container for the search field components.
-
-- Selector: `[ngpSearch]`
-- Exported As: `ngpSearch`
+<api-docs name="NgpSearch"></api-docs>
 
 #### Data Attributes
 
@@ -49,10 +46,7 @@ The `NgpSearch` directive is a container for the search field components.
 
 ### NgpSearchClear
 
-The `NgpSearchClear` directive is can be added to a button to clear the search field on click.
-
-- Selector: `[ngpSearchClear]`
-- Exported As: `ngpSearchClear`
+<api-docs name="NgpSearchClear"></api-docs>
 
 | Attribute    | Description                             |
 | ------------ | --------------------------------------- |

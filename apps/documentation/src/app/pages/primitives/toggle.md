@@ -52,22 +52,7 @@ The following directives are available to import from the `ng-primitives/toggle`
 
 ### NgpToggle
 
-Apply the `ngpToggle` directive to an element to manage the toggle state. This must be applied to a `button` element.
-
-- Selector: `[ngpToggle]`
-- Exported As: `ngpToggle`
-
-<prop-details name="ngpToggleSelected" type="boolean" default="false">
-  Define the selected state.
-</prop-details>
-
-<prop-details name="ngpToggleDisabled" type="boolean" default="false">
-  Define the disabled state.
-</prop-details>
-
-<prop-details name="ngpToggleSelectedChange" type="boolean">
-  Event emitted when the selected state changes.
-</prop-details>
+<api-docs name="NgpToggle"></api-docs>
 
 #### Data Attributes
 

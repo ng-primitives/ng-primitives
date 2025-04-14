@@ -4,6 +4,9 @@ import { injectSliderState } from '../slider/slider-state';
 import { injectSlider } from '../slider/slider-token';
 import { provideSliderThumb } from './slider-thumb-token';
 
+/**
+ * Apply the `ngpSliderThumb` directive to an element that represents the thumb of the slider.
+ */
 @Directive({
   selector: '[ngpSliderThumb]',
   exportAs: 'ngpSliderThumb',

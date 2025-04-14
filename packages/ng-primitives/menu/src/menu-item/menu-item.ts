@@ -6,6 +6,9 @@ import { NgpRovingFocusItem } from 'ng-primitives/roving-focus';
 import { injectMenu } from '../menu/menu-token';
 import { NgpSubmenuTrigger } from '../submenu-trigger/submenu-trigger';
 
+/**
+ * The `NgpMenuItem` directive represents a menu item.
+ */
 @Directive({
   selector: '[ngpMenuItem]',
   exportAs: 'ngpMenuItem',

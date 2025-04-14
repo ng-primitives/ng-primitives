@@ -2,6 +2,9 @@ import { Directive } from '@angular/core';
 import { injectSliderState } from '../slider/slider-state';
 import { provideSliderRange } from './slider-range-token';
 
+/**
+ * Apply the `ngpSliderRange` directive to an element that represents the range of the slider.
+ */
 @Directive({
   selector: '[ngpSliderRange]',
   exportAs: 'ngpSliderRange',

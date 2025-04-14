@@ -5,7 +5,9 @@ import { injectElementRef } from '../utilities/element-ref';
   selector: '[ngpExitAnimation]',
   exportAs: 'ngpExitAnimation',
   host: {
+    // Deprecated - use data-exit instead
     '[attr.data-closing]': 'state() === "exit" ? "" : null',
+    '[attr.data-exit]': 'state() === "exit" ? "" : null',
   },
 })
 export class NgpExitAnimation implements OnDestroy {

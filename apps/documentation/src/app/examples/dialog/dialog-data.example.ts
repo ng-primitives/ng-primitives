@@ -118,7 +118,7 @@ export default class DialogDataExample {
       animation: fadeIn 300ms cubic-bezier(0.4, 0, 0.2, 1);
     }
 
-    [ngpDialogOverlay][data-closing] {
+    [ngpDialogOverlay][data-exit] {
       animation: fadeOut 300ms cubic-bezier(0.4, 0, 0.2, 1);
     }
 
@@ -130,7 +130,7 @@ export default class DialogDataExample {
       animation: slideIn 300ms cubic-bezier(0.4, 0, 0.2, 1);
     }
 
-    [ngpDialog][data-closing] {
+    [ngpDialog][data-exit] {
       animation: slideOut 300ms cubic-bezier(0.4, 0, 0.2, 1);
     }
 
