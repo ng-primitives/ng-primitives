@@ -6,6 +6,9 @@ import { injectPopoverTrigger } from '../popover-trigger/popover-trigger-token';
 import { getTransformOrigin } from '../utils/transform-origin';
 import { NgpPopoverToken } from './popover-token';
 
+/**
+ * Apply the `ngpPopover` directive to an element that represents the popover. This typically would be a `div` inside an `ng-template`.
+ */
 @Directive({
   selector: '[ngpPopover]',
   exportAs: 'ngpPopover',

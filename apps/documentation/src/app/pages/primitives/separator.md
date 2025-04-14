@@ -52,12 +52,7 @@ The following directives are available to import from the `ng-primitives/separat
 
 ### NgpSeparator
 
-- Selector: `[ngpSeparator]`
-- Exported As: `ngpSeparator`
-
-<prop-details name="ngpSeparatorOrientation" type="horizontal | vertical" default="horizontal">
-  The orientation of the separator.
-</prop-details>
+<api-docs name="NgpSeparator"></api-docs>
 
 #### Data Attributes
 

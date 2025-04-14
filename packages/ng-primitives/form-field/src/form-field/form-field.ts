@@ -4,6 +4,9 @@ import { onChange } from 'ng-primitives/utils';
 import { Subscription } from 'rxjs';
 import { NgpFormFieldToken } from './form-field-token';
 
+/**
+ * The `NgpFormField` directive is a container for form field elements. Any labels, form controls, or descriptions should be placed within this directive.
+ */
 @Directive({
   selector: '[ngpFormField]',
   exportAs: 'ngpFormField',

@@ -3,6 +3,10 @@ import { Directive, booleanAttribute, input, output } from '@angular/core';
 import { injectDisabled, setupFocusVisible } from 'ng-primitives/internal';
 import { NgpFocusVisibleToken } from './focus-visible-token';
 
+/**
+ * Apply the `ngpFocusVisible` directive to an element that should be visually focused. This is similar to `ngpFocus`
+ * but it will only apply the focus visible styles when the element is focused via keyboard navigation.
+ */
 @Directive({
   selector: '[ngpFocusVisible]',
   exportAs: 'ngpFocusVisible',

@@ -106,26 +106,7 @@ The following directives are available to import from the `ng-primitives/paginat
 
 ### NgpPagination
 
-The `NgpPagination` directive is used to create a pagination control.
-
-- Selector: `[ngpPagination]`
-- Exported As: `ngpPagination`
-
-<prop-details name="ngpPaginationPage" type="number">
-  The current page number.
-</prop-details>
-
-<prop-details name="ngpPaginationPageCount" type="number">
-  The total number of pages.
-</prop-details>
-
-<prop-details name="ngpPaginationPageChange" type="OutputEmitterRef<number>">
-  Emits the new page number when the page changes.
-</prop-details>
-
-<prop-details name="ngpPaginationDisabled" type="boolean">
-  Disables the pagination control.
-</prop-details>
+<api-docs name="NgpPagination"></api-docs>
 
 #### Data Attributes
 
@@ -141,19 +122,7 @@ The following data attributes are applied to the `ngpPagination` directive:
 
 ### NgpPaginationButton
 
-The `NgpPaginationButton` directive is used to create a pagination button.
-
-- Selector: `[ngpPaginationButton]`
-- Exported As: `ngpPaginationButton`
-- Host Directives: [NgpButton](/primitives/button)
-
-<prop-details name="ngpPaginationButtonPage" type="number">
-  The page number that the button navigates to.
-</prop-details>
-
-<prop-details name="ngpPaginationButtonDisabled" type="boolean">
-  Disables the pagination button.
-</prop-details>
+<api-docs name="NgpPaginationButton"></api-docs>
 
 #### Data Attributes
 
@@ -170,15 +139,7 @@ The following data attributes are applied to the `ngpPaginationButton` directive
 
 ### NgpPaginationFirst
 
-The `NgpPaginationFirst` directive is used to create a pagination button that navigates to the first page.
-
-- Selector: `[ngpPaginationFirst]`
-- Exported As: `ngpPaginationFirst`
-- Host Directives: [NgpButton](/primitives/button)
-
-<prop-details name="ngpPaginationFirstDisabled" type="boolean">
-  Disables the pagination button.
-</prop-details>
+<api-docs name="NgpPaginationFirst"></api-docs>
 
 #### Data Attributes
 
@@ -194,15 +155,7 @@ The following data attributes are applied to the `ngpPaginationFirst` directive:
 
 ### NgpPaginationPrevious
 
-The `NgpPaginationPrevious` directive is used to create a pagination button that navigates to the previous page.
-
-- Selector: `[ngpPaginationPrevious]`
-- Exported As: `ngpPaginationPrevious`
-- Host Directives: [NgpButton](/primitives/button)
-
-<prop-details name="ngpPaginationPreviousDisabled" type="boolean">
-  Disables the pagination button.
-</prop-details>
+<api-docs name="NgpPaginationPrevious"></api-docs>
 
 #### Data Attributes
 
@@ -218,15 +171,7 @@ The following data attributes are applied to the `ngpPaginationPrevious` directi
 
 ### NgpPaginationNext
 
-The `NgpPaginationNext` directive is used to create a pagination button that navigates to the next page.
-
-- Selector: `[ngpPaginationNext]`
-- Exported As: `ngpPaginationNext`
-- Host Directives: [NgpButton](/primitives/button)
-
-<prop-details name="ngpPaginationNextDisabled" type="boolean">
-  Disables the pagination button.
-</prop-details>
+<api-docs name="NgpPaginationNext"></api-docs>
 
 #### Data Attributes
 
@@ -242,15 +187,7 @@ The following data attributes are applied to the `ngpPaginationNext` directive:
 
 ### NgpPaginationLast
 
-The `NgpPaginationLast` directive is used to create a pagination button that navigates to the last page.
-
-- Selector: `[ngpPaginationLast]`
-- Exported As: `ngpPaginationLast`
-- Host Directives: [NgpButton](/primitives/button)
-
-<prop-details name="ngpPaginationLastDisabled" type="boolean">
-  Disables the pagination button.
-</prop-details>
+<api-docs name="NgpPaginationLast"></api-docs>
 
 #### Data Attributes
 

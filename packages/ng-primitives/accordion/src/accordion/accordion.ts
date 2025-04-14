@@ -4,6 +4,9 @@ import { NgpOrientation } from 'ng-primitives/common';
 import { injectAccordionConfig } from '../config/accordion-config';
 import { accordionState, provideAccordionState } from './accordion-state';
 
+/**
+ * Apply the `ngpAccordion` directive to an element that represents the group of accordion items.
+ */
 @Directive({
   selector: '[ngpAccordion]',
   exportAs: 'ngpAccordion',

@@ -6,6 +6,9 @@ import { injectDatePickerState } from '../date-picker/date-picker-state';
 import { injectDatePicker } from '../date-picker/date-picker-token';
 import { NgpDatePickerNextMonthToken } from './date-picker-next-month-token';
 
+/**
+ * A button that navigates to the next month.
+ */
 @Directive({
   selector: '[ngpDatePickerNextMonth]',
   exportAs: 'ngpDatePickerNextMonth',

@@ -1,6 +1,9 @@
 import { Directive } from '@angular/core';
 import { injectTabsetState } from '../tabset/tabset-state';
 
+/**
+ * Apply the `ngpTabList` directive to an element that represents the list of tab buttons.
+ */
 @Directive({
   selector: '[ngpTabList]',
   exportAs: 'ngpTabList',

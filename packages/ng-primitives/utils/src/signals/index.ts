@@ -1,4 +1,4 @@
-import { effect, Injector, Signal, signal } from '@angular/core';
+import { effect, Injector, Signal, signal, untracked } from '@angular/core';
 
 /**
  * Listen for changes to a signal and call a function when the signal changes.
@@ -19,7 +19,7 @@ export function onChange<T>(
     () => {
       const value = source();
       if (value !== previousValue()) {
-        fn(value, previousValue());
+        untracked(() => fn(value, previousValue()));
         previousValue.set(value);
       }
     },
@@ -44,30 +44,4 @@ export function onBooleanChange(
   options?: { injector: Injector },
 ): void {
   onChange(source, value => (value ? onTrue?.() : onFalse?.()), options);
-}
-
-/**
- * A utility to sync the value of a signal with the Angular Forms onChange callback.
- * @param source The signal to sync with the onChange callback.
- * @param fn The onChange callback.
- * @param options The options for the effect.
- */
-export function onFormControlChange<T>(
-  source: Signal<T | null | undefined>,
-  fn?: (value: T) => void,
-  options?: { injector: Injector },
-): void {
-  const previousValue = signal(source());
-
-  effect(
-    () => {
-      const value = source();
-
-      if (value !== previousValue() && value !== undefined && value !== null) {
-        fn?.(value);
-        previousValue.set(value);
-      }
-    },
-    { injector: options?.injector },
-  );
 }

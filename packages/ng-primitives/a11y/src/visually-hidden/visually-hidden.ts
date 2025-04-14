@@ -1,6 +1,9 @@
 import { Directive, computed, signal } from '@angular/core';
 import { NgpVisuallyHiddenToken } from './visually-hidden-token';
 
+/**
+ * Hide an element visually while keeping it present in the DOM.
+ */
 @Directive({
   selector: '[ngpVisuallyHidden]',
   exportAs: 'ngpVisuallyHidden',

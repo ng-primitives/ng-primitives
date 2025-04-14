@@ -67,37 +67,7 @@ The following directives are available to import from the `ng-primitives/accordi
 
 ### NgpAccordion
 
-Apply the `ngpAccordion` directive to an element that represents the group of accordion items.
-
-- Selector: `[ngpAccordion]`
-- Exported As: `ngpAccordion`
-
-<prop-details name="ngpAccordionType" type="single | multiple" default="single">
-  Define whether only one or multiple accordion items can be open at a time.
-</prop-details>
-
-<prop-details name="ngpAccordionCollapsible" type="boolean" default="false">
-  Define an accordion can be collapsed. This is only applicable when `ngpAccordionType` is set to
-  `single`.
-</prop-details>
-
-<prop-details name="ngpAccordionValue" type="T | T[]">
-  Define the expanded accordion items. This should be a single value when `ngpAccordionType` is set
-  to `single` and an array when set to `multiple`.
-</prop-details>
-
-<prop-details name="ngpAccordionDisabled" type="boolean" default="false">
-  Define whether the accordion is disabled.
-</prop-details>
-
-<prop-details name="ngpAccordionOrientation" type="horizontal | vertical" default="vertical">
-  Define the orientation of the accordion.
-</prop-details>
-
-<prop-details name="ngpAccordionValueChange" type="T | T[]">
-  Emitted when the expanded accordion items change. This will be a single value when
-  `ngpAccordionType` is set to `single` and an array when set to `multiple`.
-</prop-details>
+<api-docs name="NgpAccordion"></api-docs>
 
 #### Data Attributes
 
@@ -110,18 +80,7 @@ The following data attributes are applied to the `ngpAccordion` directive:
 
 ### NgpAccordionItem
 
-Apply the `ngpAccordionItem` directive to an element that represents an accordion item.
-
-- Selector: `[ngpAccordionItem]`
-- Exported As: `ngpAccordionItem`
-
-<prop-details name="ngpAccordionItemValue" type="T" required>
-  Define the value of the accordion item.
-</prop-details>
-
-<prop-details name="ngpAccordionItemDisabled" type="boolean" default="false">
-  Define whether the accordion item is disabled.
-</prop-details>
+<api-docs name="NgpAccordionItem"></api-docs>
 
 #### Data Attributes
 
@@ -135,10 +94,7 @@ The following data attributes are applied to the `ngpAccordionItem` directive:
 
 ### NgpAccordionTrigger
 
-Apply the `ngpAccordionTrigger` directive to an element that represents the trigger for an accordion item, such as a button.
-
-- Selector: `[ngpAccordionTrigger]`
-- Exported As: `ngpAccordionTrigger`
+<api-docs name="NgpAccordionTrigger"></api-docs>
 
 #### Data Attributes
 
@@ -152,10 +108,7 @@ The following data attributes are applied to the `ngpAccordionTrigger` directive
 
 ### NgpAccordionContent
 
-Apply the `ngpAccordionContent` directive to an element that represents the content of an accordion item.
-
-- Selector: `[ngpAccordionContent]`
-- Exported As: `ngpAccordionContent`
+<api-docs name="NgpAccordionContent"></api-docs>
 
 #### Data Attributes
 

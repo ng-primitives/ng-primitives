@@ -7,6 +7,9 @@ import { injectRovingFocusGroupState, NgpRovingFocusGroup } from 'ng-primitives/
 import { provideRadioGroupState, radioGroupState } from './radio-group-state';
 import { provideRadioGroup } from './radio-group-token';
 
+/**
+ * Apply the `ngpRadioGroup` directive to an element that represents the group of radio items.
+ */
 @Directive({
   selector: '[ngpRadioGroup]',
   providers: [

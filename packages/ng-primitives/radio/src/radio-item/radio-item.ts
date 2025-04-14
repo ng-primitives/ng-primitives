@@ -7,6 +7,9 @@ import { injectRadioGroup } from '../radio-group/radio-group-token';
 import { provideRadioItemState, radioItemState } from './radio-item-state';
 import { provideRadioItem } from './radio-item-token';
 
+/**
+ * Apply the `ngpRadioItem` directive to an element that represents a radio item. This would typically be a `button` element.
+ */
 @Directive({
   selector: '[ngpRadioItem]',
   hostDirectives: [NgpRovingFocusItem, NgpHover, NgpFocusVisible, NgpPress],

@@ -4,6 +4,9 @@ import { injectSliderState } from '../slider/slider-state';
 import { injectSlider } from '../slider/slider-token';
 import { provideSliderTrack } from './slider-track-token';
 
+/**
+ * Apply the `ngpSliderTrack` directive to an element that represents the track of the slider.
+ */
 @Directive({
   selector: '[ngpSliderTrack]',
   exportAs: 'ngpSliderTrack',

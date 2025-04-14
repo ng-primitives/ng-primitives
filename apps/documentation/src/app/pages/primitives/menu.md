@@ -48,14 +48,7 @@ The following directives are available to import from the `ng-primitives/menu` p
 
 ### NgpMenuTrigger
 
-The `NgpMenuTrigger` directive allows you to turn an element into a menu trigger.
-
-- Selector: `[ngpMenuTrigger]`
-- Exported As: `ngpMenuTrigger`
-
-<prop-details name="ngpMenuTrigger" type="TemplateRef" required="true">
-  The menu template to display when the trigger is activated.
-</prop-details>
+<api-docs name="NgpMenuTrigger"></api-docs>
 
 #### Data Attributes
 
@@ -67,22 +60,11 @@ The following data attributes are available on the `NgpMenuTrigger` directive:
 
 ### NgpMenu
 
-The `NgpMenu` is a container for menu items.
-
-- Selector: `[ngpMenu]`
-- Exported As: `ngpMenu`
+<api-docs name="NgpMenu"></api-docs>
 
 ### NgpMenuItem
 
-The `NgpMenuItem` directive represents a menu item.
-
-- Selector: `[ngpMenuItem]`
-- Exported As: `ngpMenuItem`
-- Host Directives: [NgpHover](/interactions/hover), [NgpFocusVisible](/interactions/focus-visible), [NgpPress](/interactions/press)
-
-<prop-details name="ngpMenuItemDisabled" type="boolean" default="false">
-  Define if the menu item is disabled.
-</prop-details>
+<api-docs name="NgpMenuItem"></api-docs>
 
 #### Data Attributes
 

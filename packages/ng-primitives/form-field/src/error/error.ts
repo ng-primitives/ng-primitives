@@ -3,6 +3,9 @@ import { onBooleanChange, uniqueId } from 'ng-primitives/utils';
 import { injectFormField } from '../form-field/form-field-token';
 import { NgpErrorToken } from './error-token';
 
+/**
+ * The `NgpError` directive is used to mark an error message element within a form field. There may be multiple error messages associated with a form control.
+ */
 @Directive({
   selector: '[ngpError]',
   exportAs: 'ngpError',

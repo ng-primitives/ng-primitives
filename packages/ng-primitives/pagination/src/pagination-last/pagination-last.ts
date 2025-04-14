@@ -6,6 +6,9 @@ import { injectPaginationState } from '../pagination/pagination-state';
 import { injectPagination } from '../pagination/pagination-token';
 import { NgpPaginationLastToken } from './pagination-last-token';
 
+/**
+ * The `NgpPaginationLast` directive is used to create a pagination button that navigates to the last page.
+ */
 @Directive({
   selector: '[ngpPaginationLast]',
   exportAs: 'ngpPaginationLast',

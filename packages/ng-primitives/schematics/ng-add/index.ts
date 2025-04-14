@@ -5,7 +5,7 @@ import {
   NodeDependencyType,
 } from '@schematics/angular/utility/dependencies';
 
-export default function (): Rule {
+export default function ngAdd(): Rule {
   return (tree: Tree, context) => {
     addPackageJsonDependency(tree, {
       type: NodeDependencyType.Default,

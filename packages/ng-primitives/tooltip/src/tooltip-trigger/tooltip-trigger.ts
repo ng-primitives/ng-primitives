@@ -33,6 +33,9 @@ import { injectTooltipConfig } from '../config/tooltip-config';
 import { provideTooltipTriggerState, tooltipTriggerState } from './tooltip-trigger-state';
 import { NgpTooltipTriggerToken, provideTooltipTrigger } from './tooltip-trigger-token';
 
+/**
+ * Apply the `ngpTooltipTrigger` directive to an element that triggers the tooltip to show.
+ */
 @Directive({
   selector: '[ngpTooltipTrigger]',
   exportAs: 'ngpTooltipTrigger',
@@ -267,10 +270,15 @@ export class NgpTooltipTrigger implements OnDestroy {
 
     const outletElement = this.viewRef.rootNodes[0];
 
+    // we want to determine the strategy to use. If the tooltip has position: fixed then we want to use
+    // fixed positioning. Otherwise we want to use absolute positioning.
+    const strategy = getComputedStyle(outletElement).position === 'fixed' ? 'fixed' : 'absolute';
+
     this.dispose = autoUpdate(this.trigger.nativeElement, outletElement, async () => {
       const position = await computePosition(this.trigger.nativeElement, outletElement, {
         placement: this.state.placement(),
         middleware: this.middleware(),
+        strategy,
       });
 
       this.position.set({ x: position.x, y: position.y });

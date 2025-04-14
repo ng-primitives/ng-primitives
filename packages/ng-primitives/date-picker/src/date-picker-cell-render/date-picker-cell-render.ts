@@ -13,6 +13,9 @@ import {
   NgpDatePickerCellRenderToken,
 } from './date-picker-cell-render-token';
 
+/**
+ * A structural directive that renders a cell in the date picker grid.
+ */
 @Directive({
   selector: '[ngpDatePickerCellRender]',
   exportAs: 'ngpDatePickerCellRender',

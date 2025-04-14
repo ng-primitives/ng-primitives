@@ -6,6 +6,9 @@ import { NgpCanDisable, NgpDisabledToken } from 'ng-primitives/internal';
 import { uniqueId } from 'ng-primitives/utils';
 import { checkboxState, provideCheckboxState } from './checkbox-state';
 
+/**
+ * Apply the `ngpCheckbox` directive to an element to that represents the checkbox, such as a `button`.
+ */
 @Directive({
   selector: '[ngpCheckbox]',
   providers: [provideCheckboxState(), { provide: NgpDisabledToken, useExisting: NgpCheckbox }],

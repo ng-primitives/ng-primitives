@@ -5,6 +5,9 @@ import { NgpFocusVisible, NgpHover, NgpPress } from 'ng-primitives/interactions'
 import { NgpCanDisable, NgpDisabledToken } from 'ng-primitives/internal';
 import { NgpSelectToken } from './select-token';
 
+/**
+ * Apply the `ngpSelect` directive to a select element that you want to enhance.
+ */
 @Directive({
   selector: 'select[ngpSelect]',
   exportAs: 'ngpSelect',

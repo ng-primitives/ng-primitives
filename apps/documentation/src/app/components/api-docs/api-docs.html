@@ -1,0 +1,29 @@
+<p>{{ directive()?.description }}</p>
+
+<ul>
+  <li>
+    Selector:
+    <code>{{ directive()?.selector }}</code>
+  </li>
+  @if (directive()?.exportAs?.length) {
+  <li>
+    Exported As:
+    <code>{{ directive()?.exportAs?.join(', ') }}</code>
+  </li>
+  }
+</ul>
+
+@for (input of directive()?.inputs; track input.name) {
+<docs-prop-details
+  [name]="input.name"
+  [type]="input.type"
+  [default]="input.defaultValue"
+  [required]="input.isRequired"
+>
+  {{ input.description }}
+</docs-prop-details>
+} @for (output of directive()?.outputs; track output.name) {
+<docs-prop-details [name]="output.name" [type]="output.type">
+  {{ output.description }}
+</docs-prop-details>
+}

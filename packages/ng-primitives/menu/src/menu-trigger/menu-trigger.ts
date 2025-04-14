@@ -2,6 +2,9 @@ import { Directive, inject } from '@angular/core';
 import { injectPopoverTriggerState, NgpPopoverTrigger } from 'ng-primitives/popover';
 import { NgpMenuToken } from '../menu/menu-token';
 
+/**
+ * The `NgpMenuTrigger` directive allows you to turn an element into a menu trigger.
+ */
 @Directive({
   selector: '[ngpMenuTrigger]',
   exportAs: 'ngpMenuTrigger',

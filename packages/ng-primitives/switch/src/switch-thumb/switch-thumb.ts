@@ -2,6 +2,9 @@ import { Directive } from '@angular/core';
 import { NgpFocusVisible, NgpHover, NgpPress } from 'ng-primitives/interactions';
 import { injectSwitchState } from '../switch/switch-state';
 
+/**
+ * Apply the `ngpSwitchThumb` directive to an element within a switch to represent the thumb.
+ */
 @Directive({
   selector: '[ngpSwitchThumb]',
   host: {

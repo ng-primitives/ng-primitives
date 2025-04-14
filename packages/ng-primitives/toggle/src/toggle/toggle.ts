@@ -11,6 +11,9 @@ import {
 import { provideToggleState, toggleState } from './toggle-state';
 import { provideToggle } from './toggle-token';
 
+/**
+ * Apply the `ngpToggle` directive to an element to manage the toggle state. This must be applied to a `button` element.
+ */
 @Directive({
   selector: '[ngpToggle]',
   exportAs: 'ngpToggle',

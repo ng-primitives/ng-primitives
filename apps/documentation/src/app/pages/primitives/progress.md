@@ -54,27 +54,8 @@ The following directives are available to import from the `ng-primitives/progres
 
 ### NgpProgress
 
-Apply the `ngpProgress` directive to an element that represents the progress bar.
-
-- Selector: `[ngpProgress]`
-- Exported As: `ngpProgress`
-
-<prop-details name="ngpProgressValue" type="number">
-  Define the progress value.
-</prop-details>
-
-<prop-details name="ngpProgressMax" type="number" default="100">
-  Define the progress max value.
-</prop-details>
-
-<prop-details name="ngpProgressValueLabel" type="(value: number, max: number) => string">
-  Define a function that returns the progress value label.
-</prop-details>
+<api-docs name="NgpProgress"></api-docs>
 
 ### NgpProgressIndicator
 
-Apply the `ngpProgressIndicator` directive to an element that represents the current progress.
-The width of this element can be set to the percentage of the progress value.
-
-- Selector: `[ngpProgressIndicator]`
-- Exported As: `ngpProgressIndicator`
+<api-docs name="NgpProgressIndicator"></api-docs>

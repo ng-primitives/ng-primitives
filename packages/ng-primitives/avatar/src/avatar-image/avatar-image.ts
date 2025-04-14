@@ -3,8 +3,12 @@ import { injectVisuallyHidden, NgpVisuallyHidden } from 'ng-primitives/a11y';
 import { NgpAvatarStatus } from '../avatar/avatar';
 import { injectAvatarState } from '../avatar/avatar-state';
 
+/**
+ * Apply the `ngpAvatarImage` directive to an element that represents the avatar image. This would typically be an `img` element or a `div` with a background image.
+ */
 @Directive({
   selector: 'img[ngpAvatarImage]',
+  exportAs: 'ngpAvatarImage',
   hostDirectives: [NgpVisuallyHidden],
 })
 export class NgpAvatarImage implements OnInit {

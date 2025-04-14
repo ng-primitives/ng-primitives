@@ -30,14 +30,7 @@ The following directives are available to import from the `ng-primitives/focus-t
 
 ### NgpFocusTrap
 
-The `NgpFocusTrap` directive traps focus within the host element.
-
-- Selector: `[ngpFocusTrap]`
-- Exported As: `ngpFocusTrap`
-
-<prop-details name="ngpFocusTrapDisabled" type="boolean">
-  Disables the focus trap.
-</prop-details>
+<api-docs name="NgpFocusTrap"></api-docs>
 
 #### Data Attributes
 

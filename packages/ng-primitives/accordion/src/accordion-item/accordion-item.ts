@@ -6,6 +6,9 @@ import { NgpAccordion } from '../accordion/accordion';
 import { injectAccordionState } from '../accordion/accordion-state';
 import { accordionItemState, provideAccordionItemState } from './accordion-item-state';
 
+/**
+ * Apply the `ngpAccordionItem` directive to an element that represents an accordion item.
+ */
 @Directive({
   selector: '[ngpAccordionItem]',
   exportAs: 'ngpAccordionItem',

@@ -30,16 +30,7 @@ The following directives are available to import from the `ng-primitives/interac
 
 ### NgpFocus
 
-- Selector: `[ngpFocus]`
-- Exported As: `ngpFocus`
-
-<prop-details name="ngpFocusDisabled" type="boolean">
-  Whether listening for focus events is disabled.
-</prop-details>
-
-<prop-details name="ngpFocus" type="OutputEmitterRef<boolean>">
-  Event emitted when the focus state changes.
-</prop-details>
+<api-docs name="NgpFocus"></api-docs>
 
 #### Data Attributes
 

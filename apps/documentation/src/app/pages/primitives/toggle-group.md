@@ -66,24 +66,7 @@ The following directives are available to import from the `ng-primitives/toggle-
 
 ### NgpToggleGroup
 
-- Selector: `[ngpToggleGroup]`
-- Exported As: `ngpToggleGroup`
-
-<prop-details name="ngpToggleGroupOrientation" type="'horizontal' | 'vertical'" default="horizontal">
-  The orientation of the toggle group.
-</prop-details>
-
-<prop-details name="ngpToggleGroupValue" type="string | string[]">
-  he selected value(s) of the toggle group.
-</prop-details>
-
-<prop-details name="ngpToggleGroupType" type="single | multiple" default="single">
-  The type of the toggle group, whether only one item can be selected or multiple.
-</prop-details>
-
-<prop-details name="ngpToggleGroupDisabled" type="boolean" default="false">
-  Whether the toggle group is disabled.
-</prop-details>
+<api-docs name="NgpToggleGroup"></api-docs>
 
 #### Data Attributes
 
@@ -97,16 +80,7 @@ The following data attributes are available to style the toggle group:
 
 ### NgpToggleGroupItem
 
-- Selector: `[ngpToggleGroupItem]`
-- Exported As: `ngpToggleGroupItem`
-
-<prop-details name="ngpToggleGroupItemValue" type="string">
-  The value of the toggle group item.
-</prop-details>
-
-<prop-details name="ngpToggleGroupItemDisabled" type="boolean" default="false">
-  Whether the toggle group item is disabled.
-</prop-details>
+<api-docs name="NgpToggleGroupItem"></api-docs>
 
 #### Data Attributes
 

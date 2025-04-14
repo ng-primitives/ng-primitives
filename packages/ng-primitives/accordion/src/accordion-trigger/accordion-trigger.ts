@@ -5,6 +5,9 @@ import { injectAccordionItemState } from '../accordion-item/accordion-item-state
 import { NgpAccordion } from '../accordion/accordion';
 import { injectAccordionState } from '../accordion/accordion-state';
 
+/**
+ * Apply the `ngpAccordionTrigger` directive to an element that represents the trigger for an accordion item, such as a button.
+ */
 @Directive({
   selector: '[ngpAccordionTrigger]',
   exportAs: 'ngpAccordionTrigger',

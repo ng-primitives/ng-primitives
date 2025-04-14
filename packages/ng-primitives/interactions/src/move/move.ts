@@ -4,11 +4,11 @@ import { injectDisabled } from 'ng-primitives/internal';
 import { injectDisposables } from 'ng-primitives/utils';
 import { NgpMoveToken } from './move-token';
 
-/**
- * Inspired by react-aria useMove hook:
- * https://github.com/adobe/react-spectrum/blob/main/packages/%40react-aria/interactions/src/useMove.ts
- */
+// Inspired by react-aria useMove hook: https://github.com/adobe/react-spectrum/blob/main/packages/%40react-aria/interactions/src/useMove.ts
 
+/**
+ * The `NgpMove` directive is used to enable the pointer and keyboard move interactions on an element.
+ */
 @Directive({
   selector: '[ngpMove]',
   exportAs: 'ngpMove',

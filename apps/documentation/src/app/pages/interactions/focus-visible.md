@@ -30,16 +30,7 @@ The following directives are available to import from the `ng-primitives/interac
 
 ### NgpFocusVisible
 
-- Selector: `[ngpFocusVisible]`
-- Exported As: `ngpFocusVisible`
-
-<prop-details name="ngpFocusVisibleDisabled" type="boolean">
-  Whether listening for focus-visible events is disabled.
-</prop-details>
-
-<prop-details name="ngpFocusVisible" type="OutputEmitterRef<boolean>">
-  Event emitted when the focus visible state changes.
-</prop-details>
+<api-docs name="NgpFocusVisible"></api-docs>
 
 #### Data Attributes
 

@@ -3,11 +3,11 @@ import { Directive, booleanAttribute, input, output } from '@angular/core';
 import { injectDisabled, setupPress } from 'ng-primitives/internal';
 import { NgpPressToken } from './press-token';
 
-/**
- * This was inpsired by Headless UI's active-press hook:
- * https://github.com/tailwindlabs/headlessui/blob/main/packages/%40headlessui-react/src/hooks/use-active-press.tsx
- */
+// This was inpsired by Headless UI's active-press hook: https://github.com/tailwindlabs/headlessui/blob/main/packages/%40headlessui-react/src/hooks/use-active-press.tsx
 
+/**
+ * The `ngpPress` directive listens for press events on an element. This is particularly useful for supporting press events on touch devices, where press events are not handled consistently.
+ */
 @Directive({
   selector: '[ngpPress]',
   exportAs: 'ngpPress',

@@ -85,34 +85,7 @@ The following directives are available to import from the `ng-primitives/date-pi
 
 ### NgpDatePicker
 
-The outermost container for the date picker.
-
-- Selector: `[ngpDatePicker]`
-- Exported As: `ngpDatePicker`
-
-<prop-details name="ngpDatePickerDate" type="T">
-  Define the selected date. The type `T` is a generic type that represents the date value which can be a `Date` or a custom Date object handled by a `NgpDateAdapter`.
-</prop-details>
-
-<prop-details name="ngpDatePickerMin" type="T">
-  Define the minimum date that can be selected.
-</prop-details>
-
-<prop-details name="ngpDatePickerMax" type="T">
-  Define the maximum date that can be selected.
-</prop-details>
-
-<prop-details name="ngpDatePickerDisabled" type="boolean" default="false">
-  Define the disabled state.
-</prop-details>
-
-<prop-details name="ngpDatePickerDateDisabled" type="(date: T) => boolean">
-  Define a function that determines if a date is disabled. The function receives a date value and should return `true` if the date is disabled.
-</prop-details>
-
-<prop-details name="ngpDatePickerFocusedDate" type="T">
-  Define the focused date.
-</prop-details>
+<api-docs name="NgpDatePicker"></api-docs>
 
 #### Data Attributes
 
@@ -124,10 +97,7 @@ The following data attributes are available on the `ngpDatePicker` directive:
 
 ### NgpDatePickerLabel
 
-The label that displays the current month and year typically in the header of the date picker. This will be announced by screen readers when the date changes.
-
-- Selector: `[ngpDatePickerLabel]`
-- Exported As: `ngpDatePickerLabel`
+<api-docs name="NgpDatePickerLabel"></api-docs>
 
 #### Data Attributes
 
@@ -139,11 +109,7 @@ The following data attributes are available on the `ngpDatePickerLabel` directiv
 
 ### NgpDatePickerPreviousMonth
 
-A button that navigates to the previous month.
-
-- Selector: `[ngpDatePickerPreviousMonth]`
-- Exported As: `ngpDatePickerPreviousMonth`
-- Host Directives: [NgpButton](/primitives/button)
+<api-docs name="NgpDatePickerPreviousMonth"></api-docs>
 
 #### Data Attributes
 
@@ -158,11 +124,7 @@ The following data attributes are available on the `ngpDatePickerPreviousMonth` 
 
 ### NgpDatePickerNextMonth
 
-A button that navigates to the next month.
-
-- Selector: `[ngpDatePickerNextMonth]`
-- Exported As: `ngpDatePickerNextMonth`
-- Host Directives: [NgpButton](/primitives/button)
+<api-docs name="NgpDatePickerNextMonth"></api-docs>
 
 #### Data Attributes
 
@@ -177,10 +139,7 @@ The following data attributes are available on the `ngpDatePickerNextMonth` dire
 
 ### NgpDatePickerGrid
 
-The grid that contains the days of the month.
-
-- Selector: `[ngpDatePickerGrid]`
-- Exported As: `ngpDatePickerGrid`
+<api-docs name="NgpDatePickerGrid"></api-docs>
 
 #### Data Attributes
 
@@ -192,10 +151,7 @@ The following data attributes are available on the `ngpDatePickerGrid` directive
 
 ### NgpDatePickerRowRender
 
-A structural directive that renders a row of weekdays in the date picker grid.
-
-- Selector: `*ngpDatePickerRowRender`
-- Exported As: `ngpDatePickerRowRender`
+<api-docs name="NgpDatePickerRowRender"></api-docs>
 
 ### NgpDatePickerCellRender
 
@@ -212,10 +168,7 @@ The following context fields are available on the `ngpDatePickerCellRender` dire
 
 ### NgpDatePickerCell
 
-A cell in the date picker grid.
-
-- Selector: `[ngpDatePickerCell]`
-- Exported As: `ngpDatePickerCell`
+<api-docs name="NgpDatePickerCell"></api-docs>
 
 #### Data Attributes
 
@@ -228,11 +181,7 @@ The following data attributes are available on the `ngpDatePickerCell` directive
 
 ### NgpDatePickerDateButton
 
-A button that represents a date in the date picker grid.
-
-- Selector: `[ngpDatePickerDateButton]`
-- Exported As: `ngpDatePickerDateButton`
-- Host Directives: [NgpButton](/primitives/button)
+<api-docs name="NgpDatePickerDateButton"></api-docs>
 
 #### Data Attributes
 

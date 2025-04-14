@@ -32,12 +32,7 @@ The following directives are available to import from the `ng-primitives/toolbar
 
 ### NgpToolbar
 
-- Selector: `[ngpToolbar]`
-- Exported As: `ngpToolbar`
-
-<prop-details name="ngpToolbarOrientation" type="horizontal | vertical">
-  The orientation of the toolbar.
-</prop-details>
+<api-docs name="NgpToolbar"></api-docs>
 
 #### Data Attributes
 

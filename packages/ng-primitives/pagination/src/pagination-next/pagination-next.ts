@@ -6,6 +6,9 @@ import { injectPaginationState } from '../pagination/pagination-state';
 import { injectPagination } from '../pagination/pagination-token';
 import { NgpPaginationNextToken } from './pagination-next-token';
 
+/**
+ * The `NgpPaginationNext` directive is used to create a pagination button that navigates to the next page.
+ */
 @Directive({
   selector: '[ngpPaginationNext]',
   exportAs: 'ngpPaginationNext',

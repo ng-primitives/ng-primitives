@@ -16,6 +16,9 @@ import {
   NgpDatePickerWeekToken,
 } from './date-picker-row-render-token';
 
+/**
+ * A structural directive that renders a row of weekdays in the date picker grid.
+ */
 @Directive({
   selector: '[ngpDatePickerRowRender]',
   exportAs: 'ngpDatePickerRowRender',

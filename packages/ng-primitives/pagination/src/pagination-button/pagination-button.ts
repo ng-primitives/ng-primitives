@@ -13,6 +13,9 @@ import { injectPaginationState } from '../pagination/pagination-state';
 import { injectPagination } from '../pagination/pagination-token';
 import { NgpPaginationButtonToken } from './pagination-button-token';
 
+/**
+ * The `NgpPaginationButton` directive is used to create a pagination button.
+ */
 @Directive({
   selector: '[ngpPaginationButton]',
   exportAs: 'ngpPaginationButton',

@@ -34,37 +34,11 @@ The following directives are available to import from the `ng-primitives/roving-
 
 ### NgpRovingFocusGroup
 
-Apply the `ngpRovingFocusGroup` directive to an element to manage focus for a group of child elements.
-
-- Selector: `[ngpRovingFocusGroup]`
-- Exported As: `ngpRovingFocusGroup`
-
-<prop-details name="ngpRovingFocusGroupOrientation" type="'horizontal' | 'vertical'" default="horizontal">
-  Define the orientation of the roving focus group.
-</prop-details>
-
-<prop-details name="ngpRovingFocusGroupWrap" type="boolean">
-  Define whether the focus should wrap around the group.
-</prop-details>
-
-<prop-details name="ngpRovingFocusGroupHomeEnd" type="boolean">
-  Define whether the focus should move to the first or last element when pressing the Home or End key.
-</prop-details>
-
-<prop-details name="ngpRovingFocusGroupDisabled" type="boolean">
-  Define whether the roving focus group is disabled.
-</prop-details>
+<api-docs name="NgpRovingFocusGroup"></api-docs>
 
 ### NgpRovingFocusItem
 
-Apply the `ngpRovingFocusItem` directive to an element within a roving focus group to automatically manage focus.
-
-- Selector: `[ngpRovingFocusItem]`
-- Exported As: `ngpRovingFocusItem`
-
-<prop-details name="ngpRovingFocusItemDisabled" type="boolean">
-  Define whether the roving focus item is disabled.
-</prop-details>
+<api-docs name="NgpRovingFocusItem"></api-docs>
 
 ## Accessibility
 
