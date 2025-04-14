@@ -1,6 +1,7 @@
 ## 0.32.0 (2025-04-14)
 
-This was a version bump only, there were no code changes.
+- documentation api extraction
+- dialog reusable component
 
 ## 0.31.0 (2025-04-11)
 
