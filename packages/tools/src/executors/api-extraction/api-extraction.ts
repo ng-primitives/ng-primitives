@@ -11,6 +11,7 @@ import {
 } from '@angular/compiler-cli';
 import { logger, PromiseExecutor } from '@nx/devkit';
 import { writeFileSync } from 'fs';
+import { ensureDirSync } from 'fs-extra';
 import * as ts from 'typescript';
 import { ApiExtractionExecutorSchema } from './schema';
 
@@ -53,6 +54,8 @@ const runExecutor: PromiseExecutor<ApiExtractionExecutorSchema> = async () => {
       continue;
     }
   }
+
+  ensureDirSync('apps/documentation/src/app/api');
 
   writeFileSync(
     'apps/documentation/src/app/api/documentation.json',
