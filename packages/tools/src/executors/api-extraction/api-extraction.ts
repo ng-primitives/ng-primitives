@@ -9,7 +9,7 @@ import {
   PropertyEntry,
   readConfiguration,
 } from '@angular/compiler-cli';
-import { PromiseExecutor } from '@nx/devkit';
+import { logger, PromiseExecutor } from '@nx/devkit';
 import { writeFileSync } from 'fs';
 import * as ts from 'typescript';
 import { ApiExtractionExecutorSchema } from './schema';
@@ -37,6 +37,8 @@ const runExecutor: PromiseExecutor<ApiExtractionExecutorSchema> = async () => {
           continue;
         }
 
+        logger.info(`Processing ${directive.name}...`);
+
         directives[directive.name] = {
           name: directive.name,
           description: directive.description,
@@ -56,6 +58,8 @@ const runExecutor: PromiseExecutor<ApiExtractionExecutorSchema> = async () => {
     'apps/documentation/src/app/api/documentation.json',
     JSON.stringify(directives, null, 2),
   );
+
+  logger.info('API extraction completed successfully.');
 
   return { success: true };
 };
