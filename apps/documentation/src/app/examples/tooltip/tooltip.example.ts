@@ -52,6 +52,7 @@ import { NgpTooltip, NgpTooltipTrigger } from 'ng-primitives/tooltip';
       font-weight: 500;
       color: var(--ngp-text-inverse);
       animation: tooltip-show 200ms ease-in-out;
+      transform-origin: var(--ngp-tooltip-transform-origin);
     }
 
     @keyframes tooltip-show {

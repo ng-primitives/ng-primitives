@@ -63,15 +63,17 @@ import { NgpButton } from 'ng-primitives/button';
     }
 
     [ngpAccordionContent] {
-      display: none;
       font-size: 0.875rem;
       color: var(--ngp-text-secondary);
       overflow: hidden;
-      transition: height 0.3s ease;
     }
 
     [ngpAccordionContent][data-open] {
-      display: block;
+      animation: slideDown 0.2s ease-in-out forwards;
+    }
+
+    [ngpAccordionContent][data-closed] {
+      animation: slideUp 0.2s ease-in-out forwards;
     }
 
     .accordion-content {
@@ -85,6 +87,24 @@ import { NgpButton } from 'ng-primitives/button';
 
     [ngpAccordionTrigger][data-open] ng-icon {
       transform: rotate(180deg);
+    }
+
+    @keyframes slideDown {
+      from {
+        height: 0;
+      }
+      to {
+        height: var(--ngp-accordion-content-height);
+      }
+    }
+
+    @keyframes slideUp {
+      from {
+        height: var(--ngp-accordion-content-height);
+      }
+      to {
+        height: 0;
+      }
     }
   `,
   template: `
