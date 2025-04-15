@@ -12,7 +12,7 @@
     "build": "NODE_OPTIONS='--max-old-space-size=8192' nx run-many -t build,typings",
     "release:version": "nx release version",
     "release:changelog": "nx release changelog",
-    "release:publish": "nx release publish"
+    "release:publish": "nx release publish && git push origin HEAD:main"
   },
   "devDependencies": {
     "@analogjs/platform": "1.13.0",
