@@ -1,3 +1,17 @@
+## 0.33.0 (2025-04-15)
+
+### 🚀 Features
+
+- **file-upload:** dropzone ([#187](https://github.com/ng-primitives/ng-primitives/pull/187))
+
+### 🩹 Fixes
+
+- **dialog:** resolve dialog view container ref issue ([#188](https://github.com/ng-primitives/ng-primitives/pull/188))
+
+### ❤️ Thank You
+
+- Ashley Hunter
+
 ## 0.32.0 (2025-04-14)
 
 - documentation api extraction
