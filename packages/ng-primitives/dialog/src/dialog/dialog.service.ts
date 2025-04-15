@@ -72,7 +72,7 @@ export class NgpDialogManager implements OnDestroy {
    */
   open(
     templateRefOrComponentType: TemplateRef<NgpDialogContext> | ComponentType<any>,
-    config: NgpDialogConfig = {},
+    config?: NgpDialogConfig,
   ): NgpDialogRef {
     // this is not ideal, but there is a case where a dialog trigger is within an overlay (e.g. menu),
     // which may be removed before the dialog is closed. This is not desired, so we need to access a view container ref
