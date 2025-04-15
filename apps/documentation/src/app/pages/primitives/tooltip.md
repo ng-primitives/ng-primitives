@@ -47,6 +47,10 @@ The following directives are available to import from the `ng-primitives/tooltip
 | `data-open`     | Applied when the popover is open.     |
 | `data-disabled` | Applied when the tooltip is disabled. |
 
+## Animations
+
+The `ngpTooltip` primitive adds a CSS custom property `--ngp-tooltip-transform-origin` to the element that can be used to animate the tooltip from the trigger element.
+
 ## Global Configuration
 
 You can configure the default options for all tooltips in your application by using the `provideTooltipConfig` function in a providers array.
