@@ -1,3 +1,13 @@
+## 0.33.1 (2025-04-15)
+
+### 🚀 Features
+
+- **accordion:** animation support ([#189](https://github.com/ng-primitives/ng-primitives/pull/189))
+
+### ❤️ Thank You
+
+- Ashley Hunter
+
 ## 0.33.0 (2025-04-15)
 
 ### 🚀 Features
