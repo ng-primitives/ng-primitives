@@ -1,11 +1,13 @@
 import { Overlay, OverlayConfig, OverlayContainer, ScrollStrategy } from '@angular/cdk/overlay';
 import { ComponentPortal, ComponentType, TemplatePortal } from '@angular/cdk/portal';
 import {
+  ApplicationRef,
   Injectable,
   Injector,
   OnDestroy,
   StaticProvider,
   TemplateRef,
+  ViewContainerRef,
   inject,
   isDevMode,
 } from '@angular/core';
@@ -25,6 +27,7 @@ import { NgpDialogRef } from './dialog-ref';
   providedIn: 'root',
 })
 export class NgpDialogManager implements OnDestroy {
+  private readonly applicationRef = inject(ApplicationRef);
   private readonly overlay = inject(Overlay);
   private readonly defaultOptions = injectDialogConfig();
   private readonly parentDialogManager = inject(NgpDialogManager, {
@@ -69,10 +72,16 @@ export class NgpDialogManager implements OnDestroy {
    */
   open(
     templateRefOrComponentType: TemplateRef<NgpDialogContext> | ComponentType<any>,
-    config?: NgpDialogConfig,
+    config: NgpDialogConfig = {},
   ): NgpDialogRef {
+    // this is not ideal, but there is a case where a dialog trigger is within an overlay (e.g. menu),
+    // which may be removed before the dialog is closed. This is not desired, so we need to access a view container ref
+    // that is not within the overlay. To solve this we use the view container ref of the root component.
+    // Could this have any unintended side effects? For example, the dialog would not be closed during route changes?
+    const viewContainerRef = this.applicationRef.components[0].injector.get(ViewContainerRef);
+
     const defaults = this.defaultOptions;
-    config = { ...defaults, ...config };
+    config = { ...defaults, viewContainerRef, ...config };
     config.id = config.id ?? uniqueId('ngp-dialog');
 
     if (config.id && this.getDialogById(config.id) && isDevMode()) {
