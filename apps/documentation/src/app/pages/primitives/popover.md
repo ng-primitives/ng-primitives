@@ -47,6 +47,10 @@ The following directives are available to import from the `ng-primitives/popover
 | `data-open`     | Applied when the popover is open.     |
 | `data-disabled` | Applied when the popover is disabled. |
 
+## Animations
+
+The `ngpPopover` primitive adds a CSS custom property `--ngp-popover-transform-origin` to the element that can be used to animate the popover from the trigger element.
+
 ## Global Configuration
 
 You can configure the default options for all popovers in your application by using the `providePopoverConfig` function in a providers array.

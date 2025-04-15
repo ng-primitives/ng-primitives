@@ -10,7 +10,6 @@ import {
 
 @Component({
   selector: 'app-dialog-drawer',
-  standalone: true,
   imports: [
     NgpButton,
     NgpDialog,

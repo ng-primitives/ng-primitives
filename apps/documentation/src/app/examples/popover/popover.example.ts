@@ -59,7 +59,7 @@ import { NgpPopover, NgpPopoverTrigger } from 'ng-primitives/popover';
       border: 1px solid var(--ngp-border);
       outline: none;
       animation: popover-show 0.1s ease-out;
-      transform-origin: var(--popover-transform-origin);
+      transform-origin: var(--ngp-popover-transform-origin);
     }
 
     [ngpPopover] h3 {
