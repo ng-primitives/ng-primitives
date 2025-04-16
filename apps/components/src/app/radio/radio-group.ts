@@ -33,7 +33,7 @@ import { ChangeFn, provideValueAccessor, TouchedFn } from 'ng-primitives/utils';
 })
 export class RadioGroup implements ControlValueAccessor {
   /** Access the radio group state */
-  protected readonly state = injectRadioGroupState();
+  protected readonly state = injectRadioGroupState<string>();
 
   /** The on change callback */
   private onChange?: ChangeFn<string | null>;

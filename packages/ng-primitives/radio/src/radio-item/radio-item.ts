@@ -3,9 +3,7 @@ import { Directive, HostListener, booleanAttribute, computed, input } from '@ang
 import { NgpFocusVisible, NgpHover, NgpPress } from 'ng-primitives/interactions';
 import { NgpRovingFocusItem } from 'ng-primitives/roving-focus';
 import { injectRadioGroupState } from '../radio-group/radio-group-state';
-import { injectRadioGroup } from '../radio-group/radio-group-token';
 import { provideRadioItemState, radioItemState } from './radio-item-state';
-import { provideRadioItem } from './radio-item-token';
 
 /**
  * Apply the `ngpRadioItem` directive to an element that represents a radio item. This would typically be a `button` element.
@@ -13,7 +11,7 @@ import { provideRadioItem } from './radio-item-token';
 @Directive({
   selector: '[ngpRadioItem]',
   hostDirectives: [NgpRovingFocusItem, NgpHover, NgpFocusVisible, NgpPress],
-  providers: [provideRadioItem(NgpRadioItem), provideRadioItemState()],
+  providers: [provideRadioItemState()],
   host: {
     role: 'radio',
     '[attr.aria-checked]': 'checked() ? "true" : "false"',
@@ -21,20 +19,16 @@ import { provideRadioItem } from './radio-item-token';
     '[attr.data-checked]': 'checked() ? "" : null',
   },
 })
-export class NgpRadioItem {
-  /**
-   * Access the radio group.
-   */
-  private readonly radioGroup = injectRadioGroup();
+export class NgpRadioItem<T> {
   /**
    * Access the radio group state.
    */
-  private readonly radioGroupState = injectRadioGroupState();
+  private readonly radioGroupState = injectRadioGroupState<T>();
 
   /**
    * The value of the radio item.
    */
-  readonly value = input.required<string>({ alias: 'ngpRadioItemValue' });
+  readonly value = input.required<T>({ alias: 'ngpRadioItemValue' });
 
   /**
    * Whether the radio item is disabled.
@@ -48,12 +42,14 @@ export class NgpRadioItem {
   /**
    * Whether the radio item is checked.
    */
-  readonly checked = computed(() => this.radioGroupState().value() === this.value());
+  readonly checked = computed(() =>
+    this.radioGroupState().compareWith()(this.radioGroupState().value(), this.value()),
+  );
 
   /**
    * The state of the radio item.
    */
-  protected readonly state = radioItemState<NgpRadioItem>(this);
+  protected readonly state = radioItemState<NgpRadioItem<T>>(this);
 
   /**
    * When the item receives focus, select it.
@@ -61,7 +57,7 @@ export class NgpRadioItem {
    */
   @HostListener('focus')
   protected onFocus(): void {
-    this.radioGroup.select(this.value());
+    this.radioGroupState().select(this.value());
   }
 
   /**
@@ -70,6 +66,6 @@ export class NgpRadioItem {
    */
   @HostListener('click')
   protected onClick(): void {
-    this.radioGroup.select(this.value());
+    this.radioGroupState().select(this.value());
   }
 }
