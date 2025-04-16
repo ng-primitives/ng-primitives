@@ -72,8 +72,7 @@ import { NgpButton } from 'ng-primitives/button';
   `,
   hostDirectives: [{ directive: NgpButton, inputs: ['disabled'] }],
 })
-export class MyButtonComponent {
-}
+export class MyButtonComponent {}
 ```
 
 This lets consumers bind to the `disabled` input just as if they were using `ngpButton` directly.
