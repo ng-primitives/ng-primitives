@@ -3,13 +3,14 @@ import {
   createStateInjector,
   createStateProvider,
   createStateToken,
+  InjectedState,
 } from 'ng-primitives/state';
 import type { NgpRadioGroup } from './radio-group';
 
 /**
  * The state token  for the RadioGroup primitive.
  */
-export const NgpRadioGroupStateToken = createStateToken<NgpRadioGroup>('RadioGroup');
+export const NgpRadioGroupStateToken = createStateToken<NgpRadioGroup<unknown>>('RadioGroup');
 
 /**
  * Provides the RadioGroup state.
@@ -19,7 +20,9 @@ export const provideRadioGroupState = createStateProvider(NgpRadioGroupStateToke
 /**
  * Injects the RadioGroup state.
  */
-export const injectRadioGroupState = createStateInjector(NgpRadioGroupStateToken);
+export const injectRadioGroupState = createStateInjector(NgpRadioGroupStateToken) as <
+  T,
+>() => InjectedState<NgpRadioGroup<T>>;
 
 /**
  * The RadioGroup state registration function.

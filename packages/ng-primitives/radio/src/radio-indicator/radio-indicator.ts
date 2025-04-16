@@ -14,16 +14,16 @@ import { injectRadioItemState } from '../radio-item/radio-item-state';
   },
   hostDirectives: [NgpHover, NgpPress],
 })
-export class NgpRadioIndicator {
+export class NgpRadioIndicator<T> {
   /**
    * Access the radio group state.
    */
-  protected readonly radioGroupState = injectRadioGroupState();
+  protected readonly radioGroupState = injectRadioGroupState<T>();
 
   /**
    * Access the radio group item state
    */
-  protected readonly radioItemState = injectRadioItemState();
+  protected readonly radioItemState = injectRadioItemState<T>();
 
   /**
    * Determine if the radio indicator is checked.

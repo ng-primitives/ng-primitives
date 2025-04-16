@@ -38,8 +38,6 @@ const runExecutor: PromiseExecutor<ApiExtractionExecutorSchema> = async () => {
           continue;
         }
 
-        logger.info(`Processing ${directive.name}...`);
-
         directives[directive.name] = {
           name: directive.name,
           description: directive.description,
@@ -50,7 +48,7 @@ const runExecutor: PromiseExecutor<ApiExtractionExecutorSchema> = async () => {
         };
       }
     } catch (e) {
-      console.error(`Error processing entrypoint ${entrypoint}:`, e);
+      logger.error(`Error processing entrypoint ${entrypoint}: ${e}`);
       continue;
     }
   }
