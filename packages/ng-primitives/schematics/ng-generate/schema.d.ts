@@ -20,7 +20,8 @@ export interface AngularPrimitivesComponentSchema {
     | 'separator'
     | 'textarea'
     | 'dialog'
-    | 'file-upload';
+    | 'file-upload'
+    | 'search';
 
   /**
    * The path where the component files should be created, relative to the current workspace.

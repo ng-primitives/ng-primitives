@@ -26,6 +26,7 @@ import { RouterLink, RouterOutlet } from '@angular/router';
       <a routerLink="/textarea">Textarea</a>
       <a routerLink="/dialog">Dialog</a>
       <a routerLink="/file-upload">File Upload</a>
+      <a routerLink="/search">Search</a>
     </nav>
     <main>
       <router-outlet />
