@@ -1,4 +1,4 @@
-import { AttributeSelectorUpgradeData, TargetVersion } from '@angular/cdk/schematics';
+import { AttributeSelectorUpgradeData } from '@angular/cdk/schematics';
 import { NgpTargetVersion, NgpVersionChanges } from './changeset';
 
 export const attributeSelectors: NgpVersionChanges<AttributeSelectorUpgradeData> = {
