@@ -25,13 +25,27 @@ import { RouterLink, RouterOutlet } from '@angular/router';
       <a routerLink="/separator">Separator</a>
       <a routerLink="/textarea">Textarea</a>
       <a routerLink="/dialog">Dialog</a>
+      <a routerLink="/file-upload">File Upload</a>
+      <a routerLink="/search">Search</a>
     </nav>
-    <router-outlet />
+    <main>
+      <router-outlet />
+    </main>
   `,
   styles: `
+    :host {
+      display: flex;
+    }
+
     nav {
       display: flex;
+      flex-direction: column;
       gap: 1rem;
+      flex: none;
+    }
+
+    main {
+      flex: 1;
     }
   `,
 })

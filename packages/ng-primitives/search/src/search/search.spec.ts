@@ -46,4 +46,34 @@ describe('NgpSearch', () => {
 
     expect(input.value).toBe('');
   });
+
+  it('should remove the data-empty attribute when the input is not empty', async () => {
+    const { getByTestId, detectChanges } = await render(
+      `
+      <div data-testid="search" ngpSearch>
+        <input data-testid="input" ngpInput type="search" placeholder="Search for a customer" />
+        <button data-testid="clear" ngpSearchClear>Clear</button>
+      </div>
+    `,
+      {
+        imports: [NgpSearch, NgpSearchClear, NgpInput],
+      },
+    );
+
+    const input = getByTestId('input') as HTMLInputElement;
+    const search = getByTestId('search');
+    const clearButton = getByTestId('clear');
+    expect(input.value).toBe('');
+    expect(search).toHaveAttribute('data-empty', '');
+    expect(clearButton).toHaveAttribute('data-empty', '');
+
+    input.value = 'test';
+    input.dispatchEvent(new Event('input', { bubbles: true }));
+
+    detectChanges();
+    expect(input.value).toBe('test');
+
+    expect(search).not.toHaveAttribute('data-empty');
+    expect(clearButton).not.toHaveAttribute('data-empty');
+  });
 });

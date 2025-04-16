@@ -3,6 +3,7 @@ import {
   FactoryProvider,
   inject,
   InjectionToken,
+  InjectOptions,
   InputSignal,
   InputSignalWithTransform,
   isSignal,
@@ -76,25 +77,25 @@ type CreateStateInjectorOptions = {
 export function createStateInjector<T>(
   token: ProviderToken<State<T>>,
   options: { deferred: true },
-): <U = T>() => Signal<State<U> | undefined>;
+): <U = T>(injectOptions?: InjectOptions) => Signal<State<U> | undefined>;
 export function createStateInjector<T>(
   token: ProviderToken<State<T>>,
   options?: CreateStateInjectorOptions,
-): <U = T>() => Signal<State<U>>;
+): <U = T>(injectOptions?: InjectOptions) => Signal<State<U>>;
 export function createStateInjector<T>(
   token: ProviderToken<State<T>>,
   options: CreateStateInjectorOptions = {},
-): <U = T>() => Signal<State<U> | undefined> {
-  return <U = T>() => {
-    const value = inject(token) as Signal<State<U> | undefined>;
+): <U = T>(injectOptions?: InjectOptions) => Signal<State<U> | undefined> {
+  return <U = T>(injectOptions: InjectOptions = {}) => {
+    const value = inject(token, injectOptions) as Signal<State<U> | undefined> | null;
 
     if (options.deferred) {
       return computed(() =>
-        Object.keys(value() ?? {}).length === 0 ? undefined : value(),
+        value && Object.keys(value() ?? {}).length === 0 ? undefined : value?.(),
       ) as Signal<State<U> | undefined>;
     }
 
-    return value as Signal<State<U>>;
+    return (value as Signal<State<U>>) ?? signal(undefined);
   };
 }
 
