@@ -7,13 +7,12 @@ import { NgpFileDropzone } from 'ng-primitives/file-upload';
   template: `
     <div (ngpFileDropzoneSelected)="onFilesSelected($event)" ngpFileDropzone>
       <h3>Drag and drop files anywhere here!</h3>
-      <p>Max file size: 10MB</p>
+      <p>But clicking won't open a file selection dialog.</p>
     </div>
   `,
   styles: `
     [ngpFileDropzone] {
       display: flex;
-      cursor: pointer;
       align-items: center;
       justify-content: center;
       padding: 2rem 3rem;

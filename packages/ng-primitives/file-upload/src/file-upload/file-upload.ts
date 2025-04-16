@@ -1,8 +1,15 @@
 import { BooleanInput, coerceStringArray } from '@angular/cdk/coercion';
-import { booleanAttribute, Directive, HostListener, input, output } from '@angular/core';
-import { explicitEffect, setupInteractions } from 'ng-primitives/internal';
-import { NgpFileDropzone } from '../file-dropzone/file-dropzone';
-import { injectFileDropzoneState } from '../file-dropzone/file-dropzone-state';
+import {
+  booleanAttribute,
+  Directive,
+  ElementRef,
+  HostListener,
+  inject,
+  input,
+  output,
+  signal,
+} from '@angular/core';
+import { setupInteractions } from 'ng-primitives/internal';
 import { fileUploadState, provideFileUploadState } from './file-upload-state';
 
 /**
@@ -14,28 +21,14 @@ import { fileUploadState, provideFileUploadState } from './file-upload-state';
   providers: [provideFileUploadState()],
   host: {
     '[attr.data-disabled]': 'state.disabled() ? "" : null',
+    '[attr.data-dragover]': 'isDragOver() ? "" : null',
   },
-  hostDirectives: [
-    {
-      directive: NgpFileDropzone,
-      inputs: [
-        'ngpFileDropzoneFileTypes:ngpFileUploadFileTypes',
-        'ngpFileDropzoneMultiple:ngpFileUploadMultiple',
-        'ngpFileDropzoneDirectory:ngpFileUploadDirectory',
-        'ngpFileDropzoneDisabled:ngpFileUploadDisabled',
-      ],
-      outputs: [
-        'ngpFileDropzoneSelected:ngpFileUploadSelected',
-        'ngpFileDropzoneDragOver:ngpFileUploadDragOver',
-      ],
-    },
-  ],
 })
 export class NgpFileUpload {
   /**
-   * Access the dropzone state.
+   * Access the host element.
    */
-  private readonly dropzone = injectFileDropzoneState();
+  private readonly elementRef = inject<ElementRef<HTMLElement>>(ElementRef);
 
   /**
    * The accepted file types.
@@ -85,12 +78,23 @@ export class NgpFileUpload {
   });
 
   /**
-   * Emits when the user cancels the file upload.
-   * This is emitted when the user clicks the cancel button in the file upload dialog.
+   * Emits when the user selects files.
    */
   readonly canceled = output<void>({
     alias: 'ngpFileUploadCanceled',
   });
+
+  /**
+   * Emits when the user drags a file over the file upload.
+   */
+  readonly dragOver = output<boolean>({
+    alias: 'ngpFileUploadDragOver',
+  });
+
+  /**
+   * Whether the user is currently dragging a file over the file upload.
+   */
+  protected readonly isDragOver = signal<boolean>(false);
 
   /**
    * Store the file input element.
@@ -103,16 +107,10 @@ export class NgpFileUpload {
   protected readonly state = fileUploadState<NgpFileUpload>(this);
 
   constructor() {
+    setupInteractions({ disabled: this.state.disabled });
     this.input.type = 'file';
     this.input.addEventListener('change', () => this.selected.emit(this.input.files));
     this.input.addEventListener('cancel', () => this.canceled.emit());
-
-    setupInteractions({ disabled: this.state.disabled });
-
-    // sync the disabled and dragAndDrop state with the dropzone
-    explicitEffect([this.state.disabled, this.state.dragAndDrop], ([disabled, dragAndDrop]) => {
-      this.dropzone().disabled.set(disabled || !dragAndDrop);
-    });
   }
 
   @HostListener('click')
@@ -130,5 +128,60 @@ export class NgpFileUpload {
     this.input.multiple = this.state.multiple();
     this.input.webkitdirectory = this.state.directory();
     this.input.click();
+  }
+
+  @HostListener('dragenter', ['$event'])
+  protected onDragEnter(event: DragEvent): void {
+    if (this.state.disabled() || !this.state.dragAndDrop()) {
+      return;
+    }
+
+    event.preventDefault();
+    event.stopPropagation();
+    this.isDragOver.set(true);
+    this.dragOver.emit(true);
+  }
+
+  @HostListener('dragover', ['$event'])
+  protected onDragOver(event: DragEvent): void {
+    if (this.state.disabled() || !this.state.dragAndDrop()) {
+      return;
+    }
+
+    event.stopPropagation();
+    event.preventDefault();
+    this.isDragOver.set(true);
+  }
+
+  @HostListener('dragleave', ['$event'])
+  protected onDragLeave(event: DragEvent): void {
+    if (this.state.disabled() || !this.state.dragAndDrop() || !this.isDragOver()) {
+      return;
+    }
+
+    // if the element we are dragging over is a child of the file upload, ignore the event
+    if (this.elementRef.nativeElement.contains(event.relatedTarget as Node)) {
+      return;
+    }
+
+    event.preventDefault();
+    event.stopPropagation();
+    this.isDragOver.set(false);
+    this.dragOver.emit(false);
+  }
+
+  @HostListener('drop', ['$event'])
+  protected onDrop(event: DragEvent): void {
+    if (this.state.disabled() || !this.state.dragAndDrop()) {
+      return;
+    }
+
+    event.preventDefault();
+    this.isDragOver.set(false);
+    this.dragOver.emit(false);
+
+    if (event.dataTransfer?.files) {
+      this.selected.emit(event.dataTransfer.files);
+    }
   }
 }

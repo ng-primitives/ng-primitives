@@ -16,6 +16,7 @@
         "checkbox",
         "date-picker",
         "dialog",
+        "file-upload",
         "form-field",
         "input",
         "listbox",

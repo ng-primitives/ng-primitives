@@ -1,6 +1,7 @@
 import { Route } from '@angular/router';
 
 export const appRoutes: Route[] = [
+  { path: 'file-upload', loadComponent: () => import('./file-upload/app') },
   { path: 'dialog', loadComponent: () => import('./dialog/app') },
   { path: 'separator', loadComponent: () => import('./separator/app') },
   { path: 'textarea', loadComponent: () => import('./textarea/app') },
