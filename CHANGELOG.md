@@ -1,3 +1,13 @@
+## 0.33.2 (2025-04-16)
+
+### 🩹 Fixes
+
+- missing dependency ([a552648](https://github.com/ng-primitives/ng-primitives/commit/a552648))
+
+### ❤️ Thank You
+
+- Ashley Hunter
+
 ## 0.33.1 (2025-04-15)
 
 ### 🚀 Features
