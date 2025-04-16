@@ -1,3 +1,13 @@
+## 0.34.0 (2025-04-16)
+
+### 🚀 Features
+
+- **radio:** adding support for any value type ([#190](https://github.com/ng-primitives/ng-primitives/pull/190))
+
+### ❤️ Thank You
+
+- Ashley Hunter
+
 ## 0.33.2 (2025-04-16)
 
 ### 🩹 Fixes
