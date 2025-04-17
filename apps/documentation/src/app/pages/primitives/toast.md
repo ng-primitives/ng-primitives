@@ -30,6 +30,28 @@ Assemble the toast directives in your template.
 
 To show a toast, call the `show` method on the `ngpToast` directive.
 
+## Reusable Component
+
+Create a toast component that uses the `NgpToast` directive.
+
+<docs-snippet name="toast"></docs-snippet>
+
+## Schematics
+
+Generate a reusable toast component using the Angular CLI.
+
+```bash npm
+ng g ng-primitives:primitive toast
+```
+
+### Options
+
+- `path`: The path at which to create the component file.
+- `prefix`: The prefix to apply to the generated component selector.
+- `componentSuffix`: The suffix to apply to the generated component class name.
+- `fileSuffix`: The suffix to apply to the generated component file name. Defaults to `component`.
+- `exampleStyles`: Whether to include example styles in the generated component file. Defaults to `true`.
+
 ## API Reference
 
 The following directives are available to import from the `ng-primitives/toast` package:

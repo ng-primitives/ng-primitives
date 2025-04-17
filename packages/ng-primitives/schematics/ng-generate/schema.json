@@ -29,6 +29,7 @@
         "switch",
         "tabs",
         "textarea",
+        "toast",
         "toggle",
         "toggle-group"
       ],

@@ -39,24 +39,44 @@ export class NgpToast {
   /** Access the document */
   private readonly document = inject(DOCUMENT);
 
+  /**
+   * The duration the toast will display for before it is automatically dismissed in milliseconds.
+   * @default 3000
+   */
   readonly duration = input<number, NumberInput>(this.config.duration, {
     alias: 'ngpToastDuration',
     transform: numberAttribute,
   });
 
+  /**
+   * The direction the toast will appear from.
+   * @default 'top'
+   */
   readonly gravity = input<NgpToastGravity>(this.config.gravity, {
     alias: 'ngpToastGravity',
   });
 
+  /**
+   * The position the toast will on the horizontal axis.
+   * @default 'end'
+   */
   readonly position = input<NgpToastPosition>(this.config.position, {
     alias: 'ngpToastPosition',
   });
 
+  /**
+   * Whether the automatic dismissal of the toast should be paused when the user hovers over it.
+   * @default true
+   */
   readonly stopOnHover = input<boolean, BooleanInput>(this.config.stopOnHover, {
     alias: 'ngpToastStopOnHover',
     transform: booleanAttribute,
   });
 
+  /**
+   * Whether the toast should be announced to assistive technologies.
+   * @default 'polite'
+   */
   readonly ariaLive = input(this.config.ariaLive, {
     alias: 'ngpToastAriaLive',
   });
