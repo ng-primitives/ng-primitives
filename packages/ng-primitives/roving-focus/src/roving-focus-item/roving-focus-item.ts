@@ -12,7 +12,6 @@ import {
   input,
 } from '@angular/core';
 import { injectRovingFocusGroup } from '../roving-focus-group/roving-focus-group-token';
-import { NgpRovingFocusItemToken } from './roving-focus-item-token';
 
 /**
  * Apply the `ngpRovingFocusItem` directive to an element within a roving focus group to automatically manage focus.
@@ -20,7 +19,6 @@ import { NgpRovingFocusItemToken } from './roving-focus-item-token';
 @Directive({
   selector: '[ngpRovingFocusItem]',
   exportAs: 'ngpRovingFocusItem',
-  providers: [{ provide: NgpRovingFocusItemToken, useExisting: NgpRovingFocusItem }],
   host: {
     '[attr.tabindex]': 'tabindex()',
   },

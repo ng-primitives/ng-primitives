@@ -1,4 +1,5 @@
 import { Directive, computed, signal } from '@angular/core';
+import { provideVisuallyHiddenState, visuallyHiddenState } from './visually-hidden-state';
 
 /**
  * Hide an element visually while keeping it present in the DOM.
@@ -6,6 +7,7 @@ import { Directive, computed, signal } from '@angular/core';
 @Directive({
   selector: '[ngpVisuallyHidden]',
   exportAs: 'ngpVisuallyHidden',
+  providers: [provideVisuallyHiddenState()],
   host: {
     '[style]': 'style()',
   },
@@ -38,6 +40,8 @@ export class NgpVisuallyHidden {
       'inset-inline-start': '0',
     };
   });
+
+  protected readonly state = visuallyHiddenState<NgpVisuallyHidden>(this);
 
   /**
    * Set the element visibility.

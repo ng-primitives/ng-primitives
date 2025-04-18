@@ -1,7 +1,6 @@
 import { computed, contentChild, Directive } from '@angular/core';
 import { NgpDatePickerDateButtonToken } from '../date-picker-date-button/date-picker-date-button-token';
 import { injectDatePicker } from '../date-picker/date-picker-token';
-import { NgpDatePickerCellToken } from './date-picker-cell-token';
 
 /**
  * A cell in the date picker grid.
@@ -9,7 +8,6 @@ import { NgpDatePickerCellToken } from './date-picker-cell-token';
 @Directive({
   selector: '[ngpDatePickerCell]',
   exportAs: 'ngpDatePickerCell',
-  providers: [{ provide: NgpDatePickerCellToken, useExisting: NgpDatePickerCell }],
   host: {
     role: 'gridcell',
     '[attr.data-selected]': 'datePickerButton()?.selected() ? "" : null',

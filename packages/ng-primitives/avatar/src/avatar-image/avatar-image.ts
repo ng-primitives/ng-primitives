@@ -1,5 +1,5 @@
 import { Directive, ElementRef, HostListener, inject, OnInit } from '@angular/core';
-import { injectVisuallyHidden, NgpVisuallyHidden } from 'ng-primitives/a11y';
+import { injectVisuallyHiddenState, NgpVisuallyHidden } from 'ng-primitives/a11y';
 import { NgpAvatarStatus } from '../avatar/avatar';
 import { injectAvatarState } from '../avatar/avatar-state';
 
@@ -15,7 +15,7 @@ export class NgpAvatarImage implements OnInit {
   /**
    * Control the visibility of the image.
    */
-  protected readonly visuallyHidden = injectVisuallyHidden();
+  protected readonly visuallyHidden = injectVisuallyHiddenState();
 
   /**
    * Access the avatar
@@ -56,6 +56,6 @@ export class NgpAvatarImage implements OnInit {
     this.avatar().setStatus(state);
 
     // if the state is loaded then we should make the image visible
-    this.visuallyHidden.setVisibility(state === NgpAvatarStatus.Loaded);
+    this.visuallyHidden().setVisibility(state === NgpAvatarStatus.Loaded);
   }
 }

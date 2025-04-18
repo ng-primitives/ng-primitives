@@ -3,7 +3,6 @@ import { NgpButton, syncButton } from 'ng-primitives/button';
 import { injectDateAdapter } from 'ng-primitives/date-time';
 import { injectDatePickerState } from '../date-picker/date-picker-state';
 import { injectDatePicker } from '../date-picker/date-picker-token';
-import { NgpDatePickerPreviousMonthToken } from './date-picker-previous-month-token';
 
 /**
  * A button that navigates to the previous month.
@@ -11,9 +10,6 @@ import { NgpDatePickerPreviousMonthToken } from './date-picker-previous-month-to
 @Directive({
   selector: '[ngpDatePickerPreviousMonth]',
   exportAs: 'ngpDatePickerPreviousMonth',
-  providers: [
-    { provide: NgpDatePickerPreviousMonthToken, useExisting: NgpDatePickerPreviousMonth },
-  ],
   hostDirectives: [NgpButton],
   host: {
     '[attr.data-disabled]': 'disabled() ? "" : null',
