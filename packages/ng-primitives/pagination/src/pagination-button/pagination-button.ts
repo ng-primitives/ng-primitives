@@ -9,7 +9,6 @@ import {
 } from '@angular/core';
 import { NgpButton, syncButton } from 'ng-primitives/button';
 import { injectPaginationState } from '../pagination/pagination-state';
-import { NgpPaginationButtonToken } from './pagination-button-token';
 
 /**
  * The `NgpPaginationButton` directive is used to create a pagination button.
@@ -17,7 +16,6 @@ import { NgpPaginationButtonToken } from './pagination-button-token';
 @Directive({
   selector: '[ngpPaginationButton]',
   exportAs: 'ngpPaginationButton',
-  providers: [{ provide: NgpPaginationButtonToken, useExisting: NgpPaginationButton }],
   hostDirectives: [NgpButton],
   host: {
     '[tabindex]': 'disabled() ? -1 : 0',

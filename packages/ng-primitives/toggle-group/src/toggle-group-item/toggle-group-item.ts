@@ -1,15 +1,19 @@
 import { BooleanInput } from '@angular/cdk/coercion';
 import { booleanAttribute, computed, Directive, input, OnInit } from '@angular/core';
 import { NgpRovingFocusItem } from 'ng-primitives/roving-focus';
-import { injectToggleGroup } from '../toggle-group/toggle-group-token';
+import { injectToggleGroupState } from '../toggle-group/toggle-group-state';
 import { provideToggleGroupItemState, toggleGroupItemState } from './toggle-group-item-state';
-import { provideToggleGroupItem } from './toggle-group-item-token';
 
 @Directive({
   selector: '[ngpToggleGroupItem]',
   exportAs: 'ngpToggleGroupItem',
-  providers: [provideToggleGroupItem(NgpToggleGroupItem), provideToggleGroupItemState()],
-  hostDirectives: [NgpRovingFocusItem],
+  providers: [provideToggleGroupItemState()],
+  hostDirectives: [
+    {
+      directive: NgpRovingFocusItem,
+      inputs: ['ngpRovingFocusItemDisabled: ngpToggleGroupItemDisabled'],
+    },
+  ],
   host: {
     role: 'radio',
     '[attr.aria-checked]': 'selected()',
@@ -23,7 +27,7 @@ export class NgpToggleGroupItem implements OnInit {
   /**
    * Access the group that the item belongs to.
    */
-  private readonly toggleGroup = injectToggleGroup();
+  private readonly toggleGroup = injectToggleGroupState();
 
   /**
    * The value of the item.
@@ -43,7 +47,7 @@ export class NgpToggleGroupItem implements OnInit {
   /**
    * Whether the item is selected.
    */
-  protected readonly selected = computed(() => this.toggleGroup.isSelected(this.state.value()!));
+  protected readonly selected = computed(() => this.toggleGroup().isSelected(this.state.value()!));
 
   /**
    * The state of the item.
@@ -65,6 +69,6 @@ export class NgpToggleGroupItem implements OnInit {
       return;
     }
 
-    this.toggleGroup.toggle(this.state.value()!);
+    this.toggleGroup().toggle(this.state.value()!);
   }
 }

@@ -34,11 +34,11 @@ import { injectDisposables, onBooleanChange } from 'ng-primitives/utils';
 import { injectPopoverConfig } from '../config/popover-config';
 import type { NgpPopover } from '../popover/popover';
 import {
+  injectPopoverTriggerState,
   NgpPopoverTriggerStateToken,
   popoverTriggerState,
   providePopoverTriggerState,
 } from './popover-trigger-state';
-import { NgpPopoverTriggerToken, providePopoverTrigger } from './popover-trigger-token';
 
 /**
  * Apply the `ngpPopoverTrigger` directive to an element that triggers the popover to show.
@@ -46,7 +46,7 @@ import { NgpPopoverTriggerToken, providePopoverTrigger } from './popover-trigger
 @Directive({
   selector: '[ngpPopoverTrigger]',
   exportAs: 'ngpPopoverTrigger',
-  providers: [providePopoverTrigger(NgpPopoverTrigger), providePopoverTriggerState()],
+  providers: [providePopoverTriggerState()],
   host: {
     '[attr.aria-expanded]': 'state.open() ? "true" : "false"',
     '[attr.data-open]': 'state.open() ? "" : null',
@@ -65,7 +65,7 @@ export class NgpPopoverTrigger implements OnDestroy {
   /**
    * Inject the parent popover trigger if available.
    */
-  private readonly parentTrigger = inject(NgpPopoverTriggerToken, {
+  private readonly parentTrigger = injectPopoverTriggerState({
     optional: true,
     skipSelf: true,
   });
@@ -216,11 +216,6 @@ export class NgpPopoverTrigger implements OnDestroy {
   });
 
   /**
-   * The popover trigger state.
-   */
-  protected readonly state = popoverTriggerState<NgpPopoverTrigger>(this);
-
-  /**
    * Store the popover view ref.
    */
   private viewRef: EmbeddedViewRef<void> | null = null;
@@ -283,7 +278,7 @@ export class NgpPopoverTrigger implements OnDestroy {
    * @internal
    * Register any child popover to the stack.
    */
-  private readonly stack: NgpPopoverTrigger[] = [];
+  readonly stack: NgpPopoverTrigger[] = [];
 
   /**
    * @internal
@@ -297,9 +292,14 @@ export class NgpPopoverTrigger implements OnDestroy {
    */
   private closeTimeout?: () => void;
 
+  /**
+   * The popover trigger state.
+   */
+  protected readonly state = popoverTriggerState<NgpPopoverTrigger>(this);
+
   constructor() {
     // if the trigger has a parent trigger then register it to the stack
-    this.parentTrigger?.stack.push(this);
+    this.parentTrigger()?.stack.push(this);
 
     // any time the open state changes then show or hide the popover
     onBooleanChange(
@@ -316,7 +316,7 @@ export class NgpPopoverTrigger implements OnDestroy {
 
   ngOnDestroy(): void {
     // remove the trigger from the parent trigger's stack
-    this.parentTrigger?.stack.splice(this.parentTrigger.stack.indexOf(this), 1);
+    this.parentTrigger()?.stack.splice(this.parentTrigger().stack.indexOf(this), 1);
 
     this.destroyPopover();
   }
@@ -427,10 +427,7 @@ export class NgpPopoverTrigger implements OnDestroy {
       undefined,
       Injector.create({
         parent: this.injector,
-        providers: [
-          { provide: NgpPopoverTriggerToken, useValue: this },
-          { provide: NgpPopoverTriggerStateToken, useValue: signal(this.state) },
-        ],
+        providers: [{ provide: NgpPopoverTriggerStateToken, useValue: signal(this.state) }],
       }),
     );
 

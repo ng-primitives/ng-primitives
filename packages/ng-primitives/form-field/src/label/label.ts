@@ -8,8 +8,7 @@ import {
   input,
 } from '@angular/core';
 import { uniqueId } from 'ng-primitives/utils';
-import { injectFormField } from '../form-field/form-field-token';
-import { NgpLabelToken } from './label-token';
+import { injectFormFieldState } from '../form-field/form-field-state';
 
 /**
  * The `NgpLabel` directive is used to mark a label element within a form field. Preferably, there should use an HTML `<label>` element.
@@ -17,17 +16,16 @@ import { NgpLabelToken } from './label-token';
 @Directive({
   selector: '[ngpLabel]',
   exportAs: 'ngpLabel',
-  providers: [{ provide: NgpLabelToken, useExisting: NgpLabel }],
   host: {
     '[attr.id]': 'id()',
     '[attr.for]': 'htmlFor()',
-    '[attr.data-invalid]': 'formField?.invalid() ? "" : null',
-    '[attr.data-valid]': 'formField?.valid() ? "" : null',
-    '[attr.data-touched]': 'formField?.touched() ? "" : null',
-    '[attr.data-pristine]': 'formField?.pristine() ? "" : null',
-    '[attr.data-dirty]': 'formField?.dirty() ? "" : null',
-    '[attr.data-pending]': 'formField?.pending() ? "" : null',
-    '[attr.data-disabled]': 'formField?.disabled() ? "" : null',
+    '[attr.data-invalid]': 'formField()?.invalid() ? "" : null',
+    '[attr.data-valid]': 'formField()?.valid() ? "" : null',
+    '[attr.data-touched]': 'formField()?.touched() ? "" : null',
+    '[attr.data-pristine]': 'formField()?.pristine() ? "" : null',
+    '[attr.data-dirty]': 'formField()?.dirty() ? "" : null',
+    '[attr.data-pending]': 'formField()?.pending() ? "" : null',
+    '[attr.data-disabled]': 'formField()?.disabled() ? "" : null',
   },
 })
 export class NgpLabel {
@@ -38,11 +36,11 @@ export class NgpLabel {
   /**
    * Access the form field that the label is associated with.
    */
-  protected readonly formField = injectFormField();
+  protected readonly formField = injectFormFieldState({ optional: true });
   /**
    * Derive the for attribute value if the label is an HTML label element.
    */
-  protected readonly htmlFor = computed(() => this.formField?.formControl());
+  protected readonly htmlFor = computed(() => this.formField()?.formControl());
   /**
    * Access the element that the label is associated with.
    */
@@ -54,8 +52,8 @@ export class NgpLabel {
 
   constructor() {
     effect(onCleanup => {
-      this.formField?.addLabel(this.id());
-      onCleanup(() => this.formField?.removeLabel(this.id()));
+      this.formField()?.addLabel(this.id());
+      onCleanup(() => this.formField()?.removeLabel(this.id()));
     });
   }
 

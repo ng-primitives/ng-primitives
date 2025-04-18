@@ -2,7 +2,6 @@ import { BooleanInput } from '@angular/cdk/coercion';
 import { booleanAttribute, computed, Directive, HostListener, input } from '@angular/core';
 import { NgpButton, syncButton } from 'ng-primitives/button';
 import { injectPaginationState } from '../pagination/pagination-state';
-import { NgpPaginationFirstToken } from './pagination-first-token';
 
 /**
  * The `NgpPaginationFirst` directive is used to create a pagination button that navigates to the first page.
@@ -10,7 +9,6 @@ import { NgpPaginationFirstToken } from './pagination-first-token';
 @Directive({
   selector: '[ngpPaginationFirst]',
   exportAs: 'ngpPaginationFirst',
-  providers: [{ provide: NgpPaginationFirstToken, useExisting: NgpPaginationFirst }],
   hostDirectives: [NgpButton],
   host: {
     '[tabindex]': 'disabled() ? -1 : 0',

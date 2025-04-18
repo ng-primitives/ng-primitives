@@ -1,7 +1,6 @@
 import { Directive, effect, input } from '@angular/core';
 import { uniqueId } from 'ng-primitives/utils';
-import { injectFormField } from '../form-field/form-field-token';
-import { NgpDescriptionToken } from './description-token';
+import { injectFormFieldState } from '../form-field/form-field-state';
 
 /**
  * The `NgpDescription` directive is used to mark a description element within a form field. There may be multiple descriptions associated with a form control.
@@ -9,16 +8,15 @@ import { NgpDescriptionToken } from './description-token';
 @Directive({
   selector: '[ngpDescription]',
   exportAs: 'ngpDescription',
-  providers: [{ provide: NgpDescriptionToken, useExisting: NgpDescription }],
   host: {
     '[attr.id]': 'id()',
-    '[attr.data-invalid]': 'formField?.invalid() ? "" : null',
-    '[attr.data-valid]': 'formField?.valid() ? "" : null',
-    '[attr.data-touched]': 'formField?.touched() ? "" : null',
-    '[attr.data-pristine]': 'formField?.pristine() ? "" : null',
-    '[attr.data-dirty]': 'formField?.dirty() ? "" : null',
-    '[attr.data-pending]': 'formField?.pending() ? "" : null',
-    '[attr.data-disabled]': 'formField?.disabled() ? "" : null',
+    '[attr.data-invalid]': 'formField()?.invalid() ? "" : null',
+    '[attr.data-valid]': 'formField()?.valid() ? "" : null',
+    '[attr.data-touched]': 'formField()?.touched() ? "" : null',
+    '[attr.data-pristine]': 'formField()?.pristine() ? "" : null',
+    '[attr.data-dirty]': 'formField()?.dirty() ? "" : null',
+    '[attr.data-pending]': 'formField()?.pending() ? "" : null',
+    '[attr.data-disabled]': 'formField()?.disabled() ? "" : null',
   },
 })
 export class NgpDescription {
@@ -29,12 +27,12 @@ export class NgpDescription {
   /**
    * Access the form field that the description is associated with.
    */
-  protected readonly formField = injectFormField();
+  protected readonly formField = injectFormFieldState({ optional: true });
 
   constructor() {
     effect(onCleanup => {
-      this.formField?.addDescription(this.id());
-      onCleanup(() => this.formField?.removeDescription(this.id()));
+      this.formField()?.addDescription(this.id());
+      onCleanup(() => this.formField()?.removeDescription(this.id()));
     });
   }
 }

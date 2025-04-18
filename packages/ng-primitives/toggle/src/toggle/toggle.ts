@@ -9,7 +9,6 @@ import {
   output,
 } from '@angular/core';
 import { provideToggleState, toggleState } from './toggle-state';
-import { provideToggle } from './toggle-token';
 
 /**
  * Apply the `ngpToggle` directive to an element to manage the toggle state. This must be applied to a `button` element.
@@ -17,7 +16,7 @@ import { provideToggle } from './toggle-token';
 @Directive({
   selector: '[ngpToggle]',
   exportAs: 'ngpToggle',
-  providers: [provideToggle(NgpToggle), provideToggleState()],
+  providers: [provideToggleState()],
   host: {
     '[attr.type]': 'isButton ? "button" : null',
     '[attr.aria-pressed]': 'state.selected()',

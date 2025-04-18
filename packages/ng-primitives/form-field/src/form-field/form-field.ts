@@ -2,7 +2,7 @@ import { Directive, OnDestroy, contentChild, signal } from '@angular/core';
 import { NgControl } from '@angular/forms';
 import { onChange } from 'ng-primitives/utils';
 import { Subscription } from 'rxjs';
-import { NgpFormFieldToken } from './form-field-token';
+import { formFieldState, provideFormFieldState } from './form-field-state';
 
 /**
  * The `NgpFormField` directive is a container for form field elements. Any labels, form controls, or descriptions should be placed within this directive.
@@ -10,7 +10,7 @@ import { NgpFormFieldToken } from './form-field-token';
 @Directive({
   selector: '[ngpFormField]',
   exportAs: 'ngpFormField',
-  providers: [{ provide: NgpFormFieldToken, useExisting: NgpFormField }],
+  providers: [provideFormFieldState()],
   host: {
     '[attr.data-invalid]': 'invalid() ? "" : null',
     '[attr.data-valid]': 'valid() ? "" : null',
@@ -97,6 +97,11 @@ export class NgpFormField implements OnDestroy {
    * Store the current status subscription.
    */
   private subscription?: Subscription;
+
+  /**
+   * The form field state.
+   */
+  protected readonly state = formFieldState<NgpFormField>(this);
 
   constructor() {
     // any time the ngControl changes, setup the subscriptions.

@@ -1,12 +1,10 @@
 import { Directive, input } from '@angular/core';
 import { NgpOrientation } from 'ng-primitives/common';
 import { NgpRovingFocusGroup } from 'ng-primitives/roving-focus';
-import { provideToolbar } from './toolbar-token';
 
 @Directive({
   selector: '[ngpToolbar]',
   exportAs: 'ngpToolbar',
-  providers: [provideToolbar(NgpToolbar)],
   hostDirectives: [
     {
       directive: NgpRovingFocusGroup,

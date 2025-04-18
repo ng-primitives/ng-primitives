@@ -1,10 +1,5 @@
 export { NgpFocusVisible } from './focus-visible/focus-visible';
-export { NgpFocusVisibleToken, injectFocusVisible } from './focus-visible/focus-visible-token';
 export { NgpFocus } from './focus/focus';
-export { NgpFocusToken, injectFocus } from './focus/focus-token';
 export { NgpHover } from './hover/hover';
-export { NgpHoverToken, injectHover } from './hover/hover-token';
 export { NgpMove, NgpMoveEvent } from './move/move';
-export { NgpMoveToken, injectMove } from './move/move-token';
 export { NgpPress } from './press/press';
-export { NgpPressToken, injectPress } from './press/press-token';

@@ -1,14 +1,13 @@
 import { NumberInput } from '@angular/cdk/coercion';
 import { Directive, computed, input, numberAttribute } from '@angular/core';
 import { progressState, provideProgressState } from './progress-state';
-import { provideProgress } from './progress-token';
 
 /**
  * Apply the `ngpProgress` directive to an element that represents the progress bar.
  */
 @Directive({
   selector: '[ngpProgress]',
-  providers: [provideProgress(NgpProgress), provideProgressState()],
+  providers: [provideProgressState()],
   host: {
     role: 'progressbar',
     '[attr.aria-valuemax]': 'state.max()',

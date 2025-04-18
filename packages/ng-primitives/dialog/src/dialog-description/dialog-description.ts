@@ -1,12 +1,10 @@
 import { Directive, input, OnDestroy } from '@angular/core';
 import { onChange, uniqueId } from 'ng-primitives/utils';
 import { injectDialogState } from '../dialog/dialog-state';
-import { NgpDialogDescriptionToken } from './dialog-description-token';
 
 @Directive({
   selector: '[ngpDialogDescription]',
   exportAs: 'ngpDialogDescription',
-  providers: [{ provide: NgpDialogDescriptionToken, useExisting: NgpDialogDescription }],
   host: {
     '[id]': 'id()',
   },

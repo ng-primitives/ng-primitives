@@ -1,7 +1,6 @@
 import { BooleanInput } from '@angular/cdk/coercion';
 import { Directive, booleanAttribute, input, output } from '@angular/core';
 import { setupPress } from 'ng-primitives/internal';
-import { NgpPressToken } from './press-token';
 
 // This was inpsired by Headless UI's active-press hook: https://github.com/tailwindlabs/headlessui/blob/main/packages/%40headlessui-react/src/hooks/use-active-press.tsx
 
@@ -11,7 +10,6 @@ import { NgpPressToken } from './press-token';
 @Directive({
   selector: '[ngpPress]',
   exportAs: 'ngpPress',
-  providers: [{ provide: NgpPressToken, useExisting: NgpPress }],
 })
 export class NgpPress {
   /**
