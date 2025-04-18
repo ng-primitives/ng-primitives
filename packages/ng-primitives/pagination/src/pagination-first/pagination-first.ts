@@ -1,9 +1,7 @@
 import { BooleanInput } from '@angular/cdk/coercion';
 import { booleanAttribute, computed, Directive, HostListener, input } from '@angular/core';
-import { NgpButton } from 'ng-primitives/button';
-import { NgpCanDisable, NgpDisabledToken } from 'ng-primitives/internal';
+import { NgpButton, syncButton } from 'ng-primitives/button';
 import { injectPaginationState } from '../pagination/pagination-state';
-import { injectPagination } from '../pagination/pagination-token';
 import { NgpPaginationFirstToken } from './pagination-first-token';
 
 /**
@@ -12,27 +10,19 @@ import { NgpPaginationFirstToken } from './pagination-first-token';
 @Directive({
   selector: '[ngpPaginationFirst]',
   exportAs: 'ngpPaginationFirst',
-  providers: [
-    { provide: NgpPaginationFirstToken, useExisting: NgpPaginationFirst },
-    { provide: NgpDisabledToken, useExisting: NgpPaginationFirst },
-  ],
+  providers: [{ provide: NgpPaginationFirstToken, useExisting: NgpPaginationFirst }],
   hostDirectives: [NgpButton],
   host: {
     '[tabindex]': 'disabled() ? -1 : 0',
     '[attr.data-disabled]': 'disabled() ? "" : null',
-    '[attr.data-first-page]': 'pagination.firstPage() ? "" : null',
+    '[attr.data-first-page]': 'paginationState().firstPage() ? "" : null',
   },
 })
-export class NgpPaginationFirst implements NgpCanDisable {
-  /**
-   * Access the pagination directive.
-   */
-  protected readonly pagination = injectPagination();
-
+export class NgpPaginationFirst {
   /**
    * Access the pagination state.
    */
-  protected readonly state = injectPaginationState();
+  protected readonly paginationState = injectPaginationState();
 
   /**
    * Whether the button is disabled.
@@ -43,9 +33,15 @@ export class NgpPaginationFirst implements NgpCanDisable {
   });
 
   readonly disabled = computed(
-    () => this.buttonDisabled() || this.state().disabled() || this.pagination.firstPage(),
+    () =>
+      this.buttonDisabled() ||
+      this.paginationState().disabled() ||
+      this.paginationState().firstPage(),
   );
 
+  constructor() {
+    syncButton({ disabled: this.disabled });
+  }
   /**
    * Go to the first page.
    */
@@ -55,7 +51,7 @@ export class NgpPaginationFirst implements NgpCanDisable {
       return;
     }
 
-    this.pagination.goToPage(1);
+    this.paginationState().goToPage(1);
   }
 
   /**

@@ -1,10 +1,14 @@
 export { NgpDescription } from './description/description';
-export { NgpDescriptionToken, injectDescription } from './description/description-token';
+export { injectDescription, NgpDescriptionToken } from './description/description-token';
 export { NgpError } from './error/error';
-export { NgpErrorToken, injectError } from './error/error-token';
+export { injectError, NgpErrorToken } from './error/error-token';
 export { NgpFormControl } from './form-control/form-control';
-export { NgpFormControlToken, injectFormControl } from './form-control/form-control-token';
+export {
+  injectFormControlState,
+  provideFormControlState,
+  syncFormControl,
+} from './form-control/form-control-state';
 export { NgpFormField } from './form-field/form-field';
-export { NgpFormFieldToken, injectFormField } from './form-field/form-field-token';
+export { injectFormField, NgpFormFieldToken } from './form-field/form-field-token';
 export { NgpLabel } from './label/label';
-export { NgpLabelToken, injectLabel } from './label/label-token';
+export { injectLabel, NgpLabelToken } from './label/label-token';

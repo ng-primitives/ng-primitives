@@ -1,7 +1,6 @@
 import { computed, Directive, ElementRef, HostListener, inject } from '@angular/core';
-import { NgpButton } from 'ng-primitives/button';
+import { NgpButton, syncButton } from 'ng-primitives/button';
 import { injectDateAdapter } from 'ng-primitives/date-time';
-import { NgpCanDisable, NgpDisabledToken } from 'ng-primitives/internal';
 import { injectDatePickerState } from '../date-picker/date-picker-state';
 import { injectDatePicker } from '../date-picker/date-picker-token';
 import { NgpDatePickerPreviousMonthToken } from './date-picker-previous-month-token';
@@ -14,7 +13,6 @@ import { NgpDatePickerPreviousMonthToken } from './date-picker-previous-month-to
   exportAs: 'ngpDatePickerPreviousMonth',
   providers: [
     { provide: NgpDatePickerPreviousMonthToken, useExisting: NgpDatePickerPreviousMonth },
-    { provide: NgpDisabledToken, useExisting: NgpDatePickerPreviousMonth },
   ],
   hostDirectives: [NgpButton],
   host: {
@@ -24,7 +22,7 @@ import { NgpDatePickerPreviousMonthToken } from './date-picker-previous-month-to
     '[attr.type]': 'isButton ? "button" : null',
   },
 })
-export class NgpDatePickerPreviousMonth<T> implements NgpCanDisable {
+export class NgpDatePickerPreviousMonth<T> {
   /**
    * Access the element ref.
    */
@@ -79,6 +77,10 @@ export class NgpDatePickerPreviousMonth<T> implements NgpCanDisable {
 
     return false;
   });
+
+  constructor() {
+    syncButton({ disabled: this.disabled });
+  }
 
   /**
    * Navigate to the previous month.

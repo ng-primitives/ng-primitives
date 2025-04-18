@@ -59,12 +59,6 @@ export class NgpPagination {
   });
 
   /**
-   * The control state for the pagination.
-   * @internal
-   */
-  private readonly state = paginationState<NgpPagination>(this);
-
-  /**
    * Determine if we are on the first page.
    * @internal
    */
@@ -75,6 +69,12 @@ export class NgpPagination {
    * @internal
    */
   readonly lastPage = computed(() => this.state.page() === this.state.pageCount());
+
+  /**
+   * The control state for the pagination.
+   * @internal
+   */
+  private readonly state = paginationState<NgpPagination>(this);
 
   /**
    * Go to the specified page.

@@ -1,8 +1,7 @@
 import { FocusMonitor } from '@angular/cdk/a11y';
 import { computed, Directive, ElementRef, HostListener, inject, OnDestroy } from '@angular/core';
-import { NgpButton } from 'ng-primitives/button';
+import { NgpButton, syncButton } from 'ng-primitives/button';
 import { injectDateAdapter } from 'ng-primitives/date-time';
-import { NgpCanDisable, NgpDisabledToken } from 'ng-primitives/internal';
 import { injectDatePickerCellDate } from '../date-picker-cell-render/date-picker-cell-render-token';
 import { injectDatePickerState } from '../date-picker/date-picker-state';
 import { injectDatePicker } from '../date-picker/date-picker-token';
@@ -14,10 +13,7 @@ import { NgpDatePickerDateButtonToken } from './date-picker-date-button-token';
 @Directive({
   selector: '[ngpDatePickerDateButton]',
   exportAs: 'ngpDatePickerDateButton',
-  providers: [
-    { provide: NgpDatePickerDateButtonToken, useExisting: NgpDatePickerDateButton },
-    { provide: NgpDisabledToken, useExisting: NgpDatePickerDateButton },
-  ],
+  providers: [{ provide: NgpDatePickerDateButtonToken, useExisting: NgpDatePickerDateButton }],
   host: {
     '[attr.role]': '!isButton ? "button" : null',
     '[attr.tabindex]': 'focused() ? 0 : -1',
@@ -29,7 +25,7 @@ import { NgpDatePickerDateButtonToken } from './date-picker-date-button-token';
   },
   hostDirectives: [NgpButton],
 })
-export class NgpDatePickerDateButton<T> implements NgpCanDisable, OnDestroy {
+export class NgpDatePickerDateButton<T> implements OnDestroy {
   /**
    * Access the element ref.
    */
@@ -120,6 +116,7 @@ export class NgpDatePickerDateButton<T> implements NgpCanDisable, OnDestroy {
 
   constructor() {
     this.datePicker.registerButton(this);
+    syncButton({ disabled: this.disabled });
   }
 
   ngOnDestroy(): void {

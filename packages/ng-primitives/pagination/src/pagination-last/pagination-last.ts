@@ -1,9 +1,7 @@
 import { BooleanInput } from '@angular/cdk/coercion';
 import { booleanAttribute, computed, Directive, HostListener, input } from '@angular/core';
-import { NgpButton } from 'ng-primitives/button';
-import { NgpCanDisable, NgpDisabledToken } from 'ng-primitives/internal';
+import { NgpButton, syncButton } from 'ng-primitives/button';
 import { injectPaginationState } from '../pagination/pagination-state';
-import { injectPagination } from '../pagination/pagination-token';
 import { NgpPaginationLastToken } from './pagination-last-token';
 
 /**
@@ -12,27 +10,19 @@ import { NgpPaginationLastToken } from './pagination-last-token';
 @Directive({
   selector: '[ngpPaginationLast]',
   exportAs: 'ngpPaginationLast',
-  providers: [
-    { provide: NgpPaginationLastToken, useExisting: NgpPaginationLast },
-    { provide: NgpDisabledToken, useExisting: NgpPaginationLast },
-  ],
+  providers: [{ provide: NgpPaginationLastToken, useExisting: NgpPaginationLast }],
   hostDirectives: [NgpButton],
   host: {
     '[tabindex]': 'disabled() ? -1 : 0',
     '[attr.data-disabled]': 'disabled() ? "" : null',
-    '[attr.data-last-page]': 'pagination.lastPage() ? "" : null',
+    '[attr.data-last-page]': 'paginationState().lastPage() ? "" : null',
   },
 })
-export class NgpPaginationLast implements NgpCanDisable {
-  /**
-   * Access the pagination directive.
-   */
-  protected readonly pagination = injectPagination();
-
+export class NgpPaginationLast {
   /**
    * Access the pagination state.
    */
-  private readonly state = injectPaginationState();
+  private readonly paginationState = injectPaginationState();
 
   /**
    * Whether the button is disabled.
@@ -43,8 +33,15 @@ export class NgpPaginationLast implements NgpCanDisable {
   });
 
   readonly disabled = computed(
-    () => this.buttonDisabled() || this.state().disabled() || this.pagination.lastPage(),
+    () =>
+      this.buttonDisabled() ||
+      this.paginationState().disabled() ||
+      this.paginationState().lastPage(),
   );
+
+  constructor() {
+    syncButton({ disabled: this.disabled });
+  }
 
   /**
    * Go to the last page.
@@ -55,7 +52,7 @@ export class NgpPaginationLast implements NgpCanDisable {
       return;
     }
 
-    this.pagination.goToPage(this.state().pageCount());
+    this.paginationState().goToPage(this.paginationState().pageCount());
   }
 
   /**

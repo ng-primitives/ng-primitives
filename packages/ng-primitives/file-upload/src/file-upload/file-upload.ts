@@ -107,7 +107,12 @@ export class NgpFileUpload {
   protected readonly state = fileUploadState<NgpFileUpload>(this);
 
   constructor() {
-    setupInteractions({ disabled: this.state.disabled });
+    setupInteractions({
+      hover: true,
+      press: true,
+      focusVisible: true,
+      disabled: this.state.disabled,
+    });
     this.input.type = 'file';
     this.input.addEventListener('change', () => this.selected.emit(this.input.files));
     this.input.addEventListener('cancel', () => this.canceled.emit());

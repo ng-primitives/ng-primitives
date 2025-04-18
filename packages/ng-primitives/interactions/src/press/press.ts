@@ -1,6 +1,6 @@
 import { BooleanInput } from '@angular/cdk/coercion';
 import { Directive, booleanAttribute, input, output } from '@angular/core';
-import { injectDisabled, setupPress } from 'ng-primitives/internal';
+import { setupPress } from 'ng-primitives/internal';
 import { NgpPressToken } from './press-token';
 
 // This was inpsired by Headless UI's active-press hook: https://github.com/tailwindlabs/headlessui/blob/main/packages/%40headlessui-react/src/hooks/use-active-press.tsx
@@ -21,11 +21,6 @@ export class NgpPress {
     alias: 'ngpPressDisabled',
     transform: booleanAttribute,
   });
-
-  /**
-   * Access the disabled state from any parent.
-   */
-  private readonly isDisabled = injectDisabled(this.disabled);
 
   /**
    * Emit when the press begins.
@@ -59,7 +54,7 @@ export class NgpPress {
         this.pressEnd.emit();
         this.pressChange.emit(false);
       },
-      disabled: this.isDisabled,
+      disabled: this.disabled,
     });
   }
 }

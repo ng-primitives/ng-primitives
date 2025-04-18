@@ -1,9 +1,8 @@
 import { BooleanInput } from '@angular/cdk/coercion';
 import { booleanAttribute, Directive, input } from '@angular/core';
-import { NgpFormControl } from 'ng-primitives/form-field';
-import { NgpFocusVisible, NgpHover, NgpPress } from 'ng-primitives/interactions';
-import { NgpCanDisable, NgpDisabledToken } from 'ng-primitives/internal';
-import { NgpSelectToken } from './select-token';
+import { NgpFormControl, syncFormControl } from 'ng-primitives/form-field';
+import { setupInteractions } from 'ng-primitives/internal';
+import { provideSelectState, selectState } from './select-state';
 
 /**
  * Apply the `ngpSelect` directive to a select element that you want to enhance.
@@ -11,16 +10,13 @@ import { NgpSelectToken } from './select-token';
 @Directive({
   selector: 'select[ngpSelect]',
   exportAs: 'ngpSelect',
-  providers: [
-    { provide: NgpSelectToken, useExisting: NgpSelect },
-    { provide: NgpDisabledToken, useExisting: NgpSelect },
-  ],
-  hostDirectives: [NgpFormControl, NgpFocusVisible, NgpHover, NgpPress],
+  providers: [provideSelectState()],
+  hostDirectives: [NgpFormControl],
   host: {
     '[attr.disabled]': 'disabled() || null',
   },
 })
-export class NgpSelect implements NgpCanDisable {
+export class NgpSelect {
   /**
    * Whether the select is disabled.
    */
@@ -28,4 +24,20 @@ export class NgpSelect implements NgpCanDisable {
     alias: 'ngpSelectDisabled',
     transform: booleanAttribute,
   });
+
+  /**
+   * The select state.
+   */
+  private readonly state = selectState<NgpSelect>(this);
+
+  constructor() {
+    setupInteractions({
+      hover: true,
+      press: true,
+      focus: true,
+      focusVisible: true,
+      disabled: this.state.disabled,
+    });
+    syncFormControl({ disabled: this.state.disabled });
+  }
 }

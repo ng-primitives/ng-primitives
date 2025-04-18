@@ -1,8 +1,6 @@
 import { Directive, HostListener } from '@angular/core';
-import { NgpFocusVisible, NgpHover, NgpPress } from 'ng-primitives/interactions';
+import { setupInteractions } from 'ng-primitives/internal';
 import { injectSliderState } from '../slider/slider-state';
-import { injectSlider } from '../slider/slider-token';
-import { provideSliderThumb } from './slider-thumb-token';
 
 /**
  * Apply the `ngpSliderThumb` directive to an element that represents the thumb of the slider.
@@ -10,44 +8,46 @@ import { provideSliderThumb } from './slider-thumb-token';
 @Directive({
   selector: '[ngpSliderThumb]',
   exportAs: 'ngpSliderThumb',
-  providers: [provideSliderThumb(NgpSliderThumb)],
   host: {
     role: 'slider',
-    '[attr.aria-valuemin]': 'state().min()',
-    '[attr.aria-valuemax]': 'state().max()',
-    '[attr.aria-valuenow]': 'state().value()',
-    '[attr.aria-orientation]': 'state().orientation()',
-    '[tabindex]': 'state().disabled() ? -1 : 0',
-    '[attr.data-orientation]': 'state().orientation()',
-    '[attr.data-disabled]': 'state().disabled() ? "" : null',
+    '[attr.aria-valuemin]': 'sliderState().min()',
+    '[attr.aria-valuemax]': 'sliderState().max()',
+    '[attr.aria-valuenow]': 'sliderState().value()',
+    '[attr.aria-orientation]': 'sliderState().orientation()',
+    '[tabindex]': 'sliderState().disabled() ? -1 : 0',
+    '[attr.data-orientation]': 'sliderState().orientation()',
+    '[attr.data-disabled]': 'sliderState().disabled() ? "" : null',
     '[style.inset-inline-start.%]':
-      'state().orientation() === "horizontal" ? state().percentage() : undefined',
+      'sliderState().orientation() === "horizontal" ? sliderState().percentage() : undefined',
     '[style.inset-block-start.%]':
-      'state().orientation() === "vertical" ? state().percentage() : undefined',
+      'sliderState().orientation() === "vertical" ? sliderState().percentage() : undefined',
   },
-  hostDirectives: [NgpHover, NgpFocusVisible, NgpPress],
 })
 export class NgpSliderThumb {
   /**
-   * Access the slider.
-   */
-  protected readonly slider = injectSlider();
-
-  /**
    * Access the slider state.
    */
-  protected readonly state = injectSliderState();
+  protected readonly sliderState = injectSliderState();
 
   /**
    * Store the dragging state.
    */
   protected dragging = false;
 
+  constructor() {
+    setupInteractions({
+      hover: true,
+      focusVisible: true,
+      press: true,
+      disabled: this.sliderState().disabled,
+    });
+  }
+
   @HostListener('pointerdown', ['$event'])
   protected handlePointerDown(event: PointerEvent): void {
     event.preventDefault();
 
-    if (this.state().disabled()) {
+    if (this.sliderState().disabled()) {
       return;
     }
 
@@ -56,7 +56,7 @@ export class NgpSliderThumb {
 
   @HostListener('document:pointerup')
   protected handlePointerUp(): void {
-    if (this.state().disabled()) {
+    if (this.sliderState().disabled()) {
       return;
     }
 
@@ -65,26 +65,27 @@ export class NgpSliderThumb {
 
   @HostListener('document:pointermove', ['$event'])
   protected handlePointerMove(event: PointerEvent): void {
-    if (this.state().disabled() || !this.dragging) {
+    if (this.sliderState().disabled() || !this.dragging) {
       return;
     }
 
-    const rect = this.slider.track()?.element.nativeElement.getBoundingClientRect();
+    const rect = this.sliderState().track()?.element.nativeElement.getBoundingClientRect();
 
     if (!rect) {
       return;
     }
 
     const percentage =
-      this.state().orientation() === 'horizontal'
+      this.sliderState().orientation() === 'horizontal'
         ? (event.clientX - rect.left) / rect.width
         : 1 - (event.clientY - rect.top) / rect.height;
 
-    this.state().value.set(
-      this.state().min() +
-        (this.state().max() - this.state().min()) * Math.max(0, Math.min(1, percentage)),
+    this.sliderState().value.set(
+      this.sliderState().min() +
+        (this.sliderState().max() - this.sliderState().min()) *
+          Math.max(0, Math.min(1, percentage)),
     );
-    this.state().valueChange.emit(this.state().value());
+    this.sliderState().valueChange.emit(this.sliderState().value());
   }
 
   /**
@@ -94,33 +95,33 @@ export class NgpSliderThumb {
   @HostListener('keydown', ['$event'])
   protected handleKeydown(event: KeyboardEvent): void {
     const multiplier = event.shiftKey ? 10 : 1;
-    const value = this.state().value();
+    const value = this.sliderState().value();
 
     switch (event.key) {
       case 'ArrowLeft':
       case 'ArrowDown':
-        this.state().value.set(
-          Math.max(value - this.state().step() * multiplier, this.state().min()),
+        this.sliderState().value.set(
+          Math.max(value - this.sliderState().step() * multiplier, this.sliderState().min()),
         );
-        this.state().valueChange.emit(this.state().value());
+        this.sliderState().valueChange.emit(this.sliderState().value());
         event.preventDefault();
         break;
       case 'ArrowRight':
       case 'ArrowUp':
-        this.state().value.set(
-          Math.min(value + this.state().step() * multiplier, this.state().max()),
+        this.sliderState().value.set(
+          Math.min(value + this.sliderState().step() * multiplier, this.sliderState().max()),
         );
-        this.state().valueChange.emit(this.state().value());
+        this.sliderState().valueChange.emit(this.sliderState().value());
         event.preventDefault();
         break;
       case 'Home':
-        this.state().value.set(this.state().min());
-        this.state().valueChange.emit(this.state().value());
+        this.sliderState().value.set(this.sliderState().min());
+        this.sliderState().valueChange.emit(this.sliderState().value());
         event.preventDefault();
         break;
       case 'End':
-        this.state().value.set(this.state().max());
-        this.state().valueChange.emit(this.state().value());
+        this.sliderState().value.set(this.sliderState().max());
+        this.sliderState().valueChange.emit(this.sliderState().value());
         event.preventDefault();
         break;
     }

@@ -9,11 +9,9 @@ import {
   signal,
 } from '@angular/core';
 import { NgpOrientation } from 'ng-primitives/common';
-import { NgpFormControl } from 'ng-primitives/form-field';
-import { NgpCanDisable, NgpDisabledToken } from 'ng-primitives/internal';
+import { NgpFormControl, syncFormControl } from 'ng-primitives/form-field';
 import type { NgpSliderTrack } from '../slider-track/slider-track';
 import { provideSliderState, sliderState } from './slider-state';
-import { provideSlider } from './slider-token';
 
 /**
  * Apply the `ngpSlider` directive to an element that represents the slider and contains the track, range, and thumb.
@@ -21,17 +19,13 @@ import { provideSlider } from './slider-token';
 @Directive({
   selector: '[ngpSlider]',
   exportAs: 'ngpSlider',
-  providers: [
-    provideSlider(NgpSlider),
-    provideSliderState(),
-    { provide: NgpDisabledToken, useExisting: NgpSlider },
-  ],
+  providers: [provideSliderState()],
   hostDirectives: [NgpFormControl],
   host: {
     '[attr.data-orientation]': 'state.orientation()',
   },
 })
-export class NgpSlider implements NgpCanDisable {
+export class NgpSlider {
   /**
    * The value of the slider.
    */
@@ -104,4 +98,8 @@ export class NgpSlider implements NgpCanDisable {
    * @internal
    */
   protected readonly state = sliderState<NgpSlider>(this);
+
+  constructor() {
+    syncFormControl({ disabled: this.state.disabled });
+  }
 }
