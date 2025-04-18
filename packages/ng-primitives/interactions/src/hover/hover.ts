@@ -1,7 +1,6 @@
 import type { BooleanInput } from '@angular/cdk/coercion';
 import { Directive, booleanAttribute, input, output } from '@angular/core';
 import { setupHover } from 'ng-primitives/internal';
-import { NgpHoverToken } from './hover-token';
 
 // This is an Angular port of the useHover hook from react-aria: https://github.com/adobe/react-spectrum/blob/main/packages/%40react-aria/interactions/src/useHover.ts
 
@@ -13,7 +12,6 @@ import { NgpHoverToken } from './hover-token';
 @Directive({
   selector: '[ngpHover]',
   exportAs: 'ngpHover',
-  providers: [{ provide: NgpHoverToken, useExisting: NgpHover }],
 })
 export class NgpHover {
   /**

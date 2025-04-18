@@ -2,7 +2,6 @@ import { BooleanInput } from '@angular/cdk/coercion';
 import { booleanAttribute, computed, Directive, HostListener, input } from '@angular/core';
 import { NgpButton, syncButton } from 'ng-primitives/button';
 import { injectPaginationState } from '../pagination/pagination-state';
-import { NgpPaginationLastToken } from './pagination-last-token';
 
 /**
  * The `NgpPaginationLast` directive is used to create a pagination button that navigates to the last page.
@@ -10,7 +9,6 @@ import { NgpPaginationLastToken } from './pagination-last-token';
 @Directive({
   selector: '[ngpPaginationLast]',
   exportAs: 'ngpPaginationLast',
-  providers: [{ provide: NgpPaginationLastToken, useExisting: NgpPaginationLast }],
   hostDirectives: [NgpButton],
   host: {
     '[tabindex]': 'disabled() ? -1 : 0',

@@ -2,7 +2,6 @@ import { BooleanInput } from '@angular/cdk/coercion';
 import { booleanAttribute, computed, Directive, HostListener, input } from '@angular/core';
 import { NgpButton, syncButton } from 'ng-primitives/button';
 import { injectPaginationState } from '../pagination/pagination-state';
-import { NgpPaginationNextToken } from './pagination-next-token';
 
 /**
  * The `NgpPaginationNext` directive is used to create a pagination button that navigates to the next page.
@@ -10,7 +9,6 @@ import { NgpPaginationNextToken } from './pagination-next-token';
 @Directive({
   selector: '[ngpPaginationNext]',
   exportAs: 'ngpPaginationNext',
-  providers: [{ provide: NgpPaginationNextToken, useExisting: NgpPaginationNext }],
   hostDirectives: [NgpButton],
   host: {
     '[tabindex]': 'disabled() ? -1 : 0',

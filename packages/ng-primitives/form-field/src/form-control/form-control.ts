@@ -1,7 +1,7 @@
 import { BooleanInput } from '@angular/cdk/coercion';
 import { booleanAttribute, computed, Directive, effect, input } from '@angular/core';
 import { uniqueId } from 'ng-primitives/utils';
-import { injectFormField } from '../form-field/form-field-token';
+import { injectFormFieldState } from '../form-field/form-field-state';
 import { formControlState, provideFormControlState } from './form-control-state';
 
 /**
@@ -17,13 +17,13 @@ import { formControlState, provideFormControlState } from './form-control-state'
     '[id]': 'id()',
     '[attr.aria-labelledby]': 'ariaLabelledBy()',
     '[attr.aria-describedby]': 'ariaDescribedBy()',
-    '[attr.data-invalid]': 'formField?.invalid() ? "" : null',
-    '[attr.data-valid]': 'formField?.valid() ? "" : null',
-    '[attr.data-touched]': 'formField?.touched() ? "" : null',
-    '[attr.data-pristine]': 'formField?.pristine() ? "" : null',
-    '[attr.data-dirty]': 'formField?.dirty() ? "" : null',
-    '[attr.data-pending]': 'formField?.pending() ? "" : null',
-    '[attr.data-disabled]': 'formField?.disabled() || state.disabled() ? "" : null',
+    '[attr.data-invalid]': 'formField()?.invalid() ? "" : null',
+    '[attr.data-valid]': 'formField()?.valid() ? "" : null',
+    '[attr.data-touched]': 'formField()?.touched() ? "" : null',
+    '[attr.data-pristine]': 'formField()?.pristine() ? "" : null',
+    '[attr.data-dirty]': 'formField()?.dirty() ? "" : null',
+    '[attr.data-pending]': 'formField()?.pending() ? "" : null',
+    '[attr.data-disabled]': 'formField()?.disabled() || state.disabled() ? "" : null',
   },
 })
 export class NgpFormControl {
@@ -43,16 +43,16 @@ export class NgpFormControl {
   /**
    * Access the form field that the form control is associated with.
    */
-  protected readonly formField = injectFormField();
+  protected readonly formField = injectFormFieldState({ optional: true });
   /**
    * Determine the aria-labelledby attribute value.
    */
-  protected readonly ariaLabelledBy = computed(() => this.formField?.labels().join(' '));
+  protected readonly ariaLabelledBy = computed(() => this.formField()?.labels().join(' '));
 
   /**
    * Determine the aria-describedby attribute value.
    */
-  protected readonly ariaDescribedBy = computed(() => this.formField?.descriptions().join(' '));
+  protected readonly ariaDescribedBy = computed(() => this.formField()?.descriptions().join(' '));
 
   /**
    * The state of the form control.
@@ -61,8 +61,8 @@ export class NgpFormControl {
 
   constructor() {
     effect(onCleanup => {
-      this.formField?.setFormControl(this.state.id());
-      onCleanup(() => this.formField?.removeFormControl());
+      this.formField()?.setFormControl(this.state.id());
+      onCleanup(() => this.formField()?.removeFormControl());
     });
   }
 }

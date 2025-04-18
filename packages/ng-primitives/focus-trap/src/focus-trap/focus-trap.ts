@@ -11,7 +11,6 @@ import {
   OnDestroy,
   OnInit,
 } from '@angular/core';
-import { NgpFocusTrapToken } from './focus-trap-token';
 
 /**
  * This implementation is based on the Radix UI FocusScope:
@@ -86,7 +85,6 @@ const focusTrapStack = new FocusTrapStack();
 @Directive({
   selector: '[ngpFocusTrap]',
   exportAs: 'ngpFocusTrap',
-  providers: [{ provide: NgpFocusTrapToken, useExisting: NgpFocusTrap }],
   host: {
     '[attr.tabindex]': '-1',
     '[attr.data-focus-trap]': '!disabled() ? "" : null',

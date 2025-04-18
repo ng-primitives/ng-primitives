@@ -1,7 +1,6 @@
 import { BooleanInput } from '@angular/cdk/coercion';
 import { Directive, booleanAttribute, input, output } from '@angular/core';
 import { setupFocus } from 'ng-primitives/internal';
-import { NgpFocusToken } from './focus-token';
 
 /**
  * This was inspired by the React Aria useFocus hook.
@@ -10,7 +9,6 @@ import { NgpFocusToken } from './focus-token';
 @Directive({
   selector: '[ngpFocus]',
   exportAs: 'ngpFocus',
-  providers: [{ provide: NgpFocusToken, useExisting: NgpFocus }],
 })
 export class NgpFocus {
   /**

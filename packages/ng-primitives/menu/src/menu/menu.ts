@@ -1,11 +1,6 @@
 import { FocusOrigin } from '@angular/cdk/a11y';
 import { Directive, inject } from '@angular/core';
-import {
-  injectPopoverTriggerState,
-  NgpPopover,
-  NgpPopoverTrigger,
-  providePopoverTrigger,
-} from 'ng-primitives/popover';
+import { injectPopoverTriggerState, NgpPopover } from 'ng-primitives/popover';
 import { NgpRovingFocusGroup, provideRovingFocusGroup } from 'ng-primitives/roving-focus';
 import { Subject } from 'rxjs';
 import { NgpMenuToken, provideMenu } from './menu-token';
@@ -20,8 +15,6 @@ import { NgpMenuToken, provideMenu } from './menu-token';
   providers: [
     // ensure we don't inherit the focus group from the parent menu if there is one
     provideRovingFocusGroup(NgpRovingFocusGroup, { inherit: false }),
-    // Expose the popover trigger as a menu trigger
-    providePopoverTrigger(NgpPopoverTrigger),
     provideMenu(NgpMenu),
   ],
 })

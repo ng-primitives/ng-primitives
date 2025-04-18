@@ -1,12 +1,10 @@
 import { Directive, input } from '@angular/core';
 import { NgpOrientation } from 'ng-primitives/common';
 import { injectSeparatorConfig } from '../config/separator-config';
-import { NgpSeparatorToken } from './separator-token';
 
 @Directive({
   selector: '[ngpSeparator]',
   exportAs: 'ngpSeparator',
-  providers: [{ provide: NgpSeparatorToken, useExisting: NgpSeparator }],
   host: {
     role: 'separator',
     '[attr.aria-orientation]': 'orientation()',

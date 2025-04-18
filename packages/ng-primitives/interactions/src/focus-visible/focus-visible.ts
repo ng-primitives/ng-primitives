@@ -1,7 +1,6 @@
 import { BooleanInput } from '@angular/cdk/coercion';
 import { Directive, booleanAttribute, input, output } from '@angular/core';
 import { setupFocusVisible } from 'ng-primitives/internal';
-import { NgpFocusVisibleToken } from './focus-visible-token';
 
 /**
  * Apply the `ngpFocusVisible` directive to an element that should be visually focused. This is similar to `ngpFocus`
@@ -10,7 +9,6 @@ import { NgpFocusVisibleToken } from './focus-visible-token';
 @Directive({
   selector: '[ngpFocusVisible]',
   exportAs: 'ngpFocusVisible',
-  providers: [{ provide: NgpFocusVisibleToken, useExisting: NgpFocusVisible }],
 })
 export class NgpFocusVisible {
   /**

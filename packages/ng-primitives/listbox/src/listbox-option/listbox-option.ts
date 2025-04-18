@@ -18,12 +18,10 @@ import {
 import { uniqueId } from 'ng-primitives/utils';
 import type { NgpListbox } from '../listbox/listbox';
 import { injectListboxState } from '../listbox/listbox-state';
-import { NgpListboxOptionToken } from './listbox-option-token';
 
 @Directive({
   selector: '[ngpListboxOption]',
   exportAs: 'ngpListboxOption',
-  providers: [{ provide: NgpListboxOptionToken, useExisting: NgpListboxOption }],
   host: {
     role: 'option',
     '[attr.id]': 'id()',

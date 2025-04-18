@@ -10,12 +10,10 @@ import {
 } from '@angular/core';
 import { NgpDialogRef } from '../dialog/dialog-ref';
 import { NgpDialogContext, NgpDialogManager } from '../dialog/dialog.service';
-import { NgpDialogTriggerToken } from './dialog-trigger-token';
 
 @Directive({
   selector: '[ngpDialogTrigger]',
   exportAs: 'ngpDialogTrigger',
-  providers: [{ provide: NgpDialogTriggerToken, useExisting: NgpDialogTrigger }],
 })
 export class NgpDialogTrigger {
   /** Access the dialog manager. */

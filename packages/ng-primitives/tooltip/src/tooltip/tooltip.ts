@@ -9,8 +9,7 @@ import {
   isDevMode,
 } from '@angular/core';
 import { getTransformOrigin } from 'ng-primitives/popover';
-import { injectTooltipTrigger } from '../tooltip-trigger/tooltip-trigger-token';
-import { NgpTooltipToken } from './tooltip-token';
+import { injectTooltipTriggerState } from '../tooltip-trigger/tooltip-trigger-state';
 
 /**
  * Apply the `ngpTooltip` directive to an element that represents the tooltip. This typically would be a `div` inside an `ng-template`.
@@ -18,12 +17,11 @@ import { NgpTooltipToken } from './tooltip-token';
 @Directive({
   selector: '[ngpTooltip]',
   exportAs: 'ngpTooltip',
-  providers: [{ provide: NgpTooltipToken, useExisting: NgpTooltip }],
   host: {
     role: 'tooltip',
     '[style.left.px]': 'x()',
     '[style.top.px]': 'y()',
-    '[style.--ngp-tooltip-trigger-width.px]': 'trigger.width()',
+    '[style.--ngp-tooltip-trigger-width.px]': 'trigger().width()',
     '[style.--ngp-tooltip-transform-origin]': 'transformOrigin()',
   },
 })
@@ -41,22 +39,24 @@ export class NgpTooltip implements OnInit {
   /**
    * Access the trigger instance.
    */
-  private readonly trigger = injectTooltipTrigger();
+  private readonly trigger = injectTooltipTriggerState();
 
   /**
    * Compute the x position of the tooltip.
    */
-  protected readonly x = computed(() => this.trigger.position().x);
+  protected readonly x = computed(() => this.trigger().position().x);
 
   /**
    * Compute the y position of the tooltip.
    */
-  protected readonly y = computed(() => this.trigger.position().y);
+  protected readonly y = computed(() => this.trigger().position().y);
 
   /**
    * Derive the transform origin of the popover.
    */
-  protected readonly transformOrigin = computed(() => getTransformOrigin(this.trigger.placement()));
+  protected readonly transformOrigin = computed(() =>
+    getTransformOrigin(this.trigger().placement()),
+  );
 
   ngOnInit(): void {
     // if the element does not have a fixed position then throw a warning in dev mode

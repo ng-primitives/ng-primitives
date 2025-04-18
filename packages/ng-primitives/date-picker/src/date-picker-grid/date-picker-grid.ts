@@ -1,6 +1,5 @@
 import { computed, Directive } from '@angular/core';
 import { injectDatePickerState } from '../date-picker/date-picker-state';
-import { NgpDatePickerGridToken } from './date-picker-grid-token';
 
 /**
  * The grid that contains the days of the month.
@@ -8,7 +7,6 @@ import { NgpDatePickerGridToken } from './date-picker-grid-token';
 @Directive({
   selector: '[ngpDatePickerGrid]',
   exportAs: 'ngpDatePickerGrid',
-  providers: [{ provide: NgpDatePickerGridToken, useExisting: NgpDatePickerGrid }],
   host: {
     role: 'grid',
     '[attr.aria-labelledby]': 'labelId()',

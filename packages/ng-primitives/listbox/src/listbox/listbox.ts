@@ -16,16 +16,15 @@ import {
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { NgpSelectionMode } from 'ng-primitives/common';
 import { explicitEffect, setupFocusVisible } from 'ng-primitives/internal';
-import { NgpPopoverTriggerToken } from 'ng-primitives/popover';
+import { injectPopoverTriggerState } from 'ng-primitives/popover';
 import { uniqueId } from 'ng-primitives/utils';
 import type { NgpListboxOption } from '../listbox-option/listbox-option';
 import { listboxState, provideListboxState } from './listbox-state';
-import { NgpListboxToken } from './listbox-token';
 
 @Directive({
   selector: '[ngpListbox]',
   exportAs: 'ngpListbox',
-  providers: [{ provide: NgpListboxToken, useExisting: NgpListbox }, provideListboxState()],
+  providers: [provideListboxState()],
   host: {
     '[id]': 'state.id()',
     role: 'listbox',
@@ -51,7 +50,7 @@ export class NgpListbox<T> implements AfterContentInit {
   /**
    * The listbox may be used within a popover, which we may want to close on selection.
    */
-  private readonly popoverTrigger = inject(NgpPopoverTriggerToken, { optional: true });
+  private readonly popoverTrigger = injectPopoverTriggerState({ optional: true });
 
   /**
    * The id of the listbox.
@@ -205,7 +204,7 @@ export class NgpListbox<T> implements AfterContentInit {
 
     // If the listbox is within a popover, close the popover on selection if it is not in a multiple selection mode.
     if (this.state.mode() !== 'multiple') {
-      this.popoverTrigger?.hide(origin);
+      this.popoverTrigger()?.hide(origin);
     }
   }
 

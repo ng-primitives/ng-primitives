@@ -13,7 +13,6 @@ import {
 } from '@angular/core';
 import { injectToastConfig } from '../config/toast-config';
 import { NgpToastGravity, NgpToastPosition, NgpToastRef } from './toast-ref';
-import { NgpToastToken } from './toast-token';
 
 export interface NgpToastContext {
   dismiss: () => void;
@@ -22,7 +21,6 @@ export interface NgpToastContext {
 @Directive({
   selector: '[ngpToast]',
   exportAs: 'ngpToast',
-  providers: [{ provide: NgpToastToken, useExisting: NgpToast }],
 })
 export class NgpToast {
   private readonly config = injectToastConfig();

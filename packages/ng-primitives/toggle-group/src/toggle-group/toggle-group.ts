@@ -4,12 +4,11 @@ import { NgpOrientation } from 'ng-primitives/common';
 import { injectRovingFocusGroupState, NgpRovingFocusGroup } from 'ng-primitives/roving-focus';
 import { injectToggleGroupConfig } from '../config/toggle-group-config';
 import { provideToggleGroupState, toggleGroupState } from './toggle-group-state';
-import { provideToggleGroup } from './toggle-group-token';
 
 @Directive({
   selector: '[ngpToggleGroup]',
   exportAs: 'ngpToggleGroup',
-  providers: [provideToggleGroup(NgpToggleGroup), provideToggleGroupState()],
+  providers: [provideToggleGroupState()],
   hostDirectives: [
     {
       directive: NgpRovingFocusGroup,

@@ -1,7 +1,6 @@
 import { BooleanInput } from '@angular/cdk/coercion';
 import { booleanAttribute, Directive, HostListener, input, output, signal } from '@angular/core';
 import { injectDisposables } from 'ng-primitives/utils';
-import { NgpMoveToken } from './move-token';
 
 // Inspired by react-aria useMove hook: https://github.com/adobe/react-spectrum/blob/main/packages/%40react-aria/interactions/src/useMove.ts
 
@@ -11,7 +10,6 @@ import { NgpMoveToken } from './move-token';
 @Directive({
   selector: '[ngpMove]',
   exportAs: 'ngpMove',
-  providers: [{ provide: NgpMoveToken, useExisting: NgpMove }],
   host: {
     '[attr.data-move]': 'isMoving() ? "" : null',
   },
