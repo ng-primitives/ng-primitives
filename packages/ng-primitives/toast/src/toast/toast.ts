@@ -80,7 +80,7 @@ export class NgpToast {
   });
 
   /** Store the list of toasts */
-  private toasts: NgpToastRef[] = [];
+  private static toasts: NgpToastRef[] = [];
 
   /** Show the toast. */
   show(): void {
@@ -122,12 +122,12 @@ export class NgpToast {
       this.stopOnHover(),
       this.ariaLive(),
       () => {
-        this.toasts = this.toasts.filter(t => t !== toastRef);
+        NgpToast.toasts = NgpToast.toasts.filter(t => t !== toastRef);
         this.reposition();
       },
     );
 
-    this.toasts = [...this.toasts, toastRef];
+    NgpToast.toasts = [...NgpToast.toasts, toastRef];
   }
 
   /** Position the toast on the DOM */
@@ -145,7 +145,7 @@ export class NgpToast {
     let position: 'top' | 'bottom';
 
     // update the position of the toasts
-    for (const toast of this.toasts) {
+    for (const toast of NgpToast.toasts) {
       // Getting the applied gravity
       position = toast.gravity;
 
