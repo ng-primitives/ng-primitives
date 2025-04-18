@@ -1,3 +1,7 @@
+import {
+  RULE_NAME as avoidEarlyStateName,
+  rule as avoidEarlyState,
+} from './rules/avoid-early-state';
 import { RULE_NAME as avoidModelName, rule as avoidModel } from './rules/avoid-model';
 import {
   RULE_NAME as preferEntrypointImportsName,
@@ -34,5 +38,6 @@ module.exports = {
     [preferEntrypointImportsName]: preferEntrypointImports,
     [preferStateName]: preferState,
     [avoidModelName]: avoidModel,
+    [avoidEarlyStateName]: avoidEarlyState,
   },
 };
