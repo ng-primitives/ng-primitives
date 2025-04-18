@@ -1,2 +1,2 @@
 export { NgpSelect } from './select/select';
-export { NgpSelectToken, injectSelect } from './select/select-token';
+export { injectSelectState, provideSelectState } from './select/select-state';

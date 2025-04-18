@@ -1,10 +1,8 @@
 import { BooleanInput } from '@angular/cdk/coercion';
 import { booleanAttribute, Directive, HostListener, input, output } from '@angular/core';
 import { NgpFormControl } from 'ng-primitives/form-field';
-import { NgpFocusVisible, NgpHover, NgpPress } from 'ng-primitives/interactions';
-import { injectElementRef, NgpCanDisable, NgpDisabledToken } from 'ng-primitives/internal';
+import { injectElementRef, setupInteractions } from 'ng-primitives/internal';
 import { provideSwitchState, switchState } from './switch-state';
-import { provideSwitch } from './switch-token';
 
 /**
  * Apply the `ngpSwitch` directive to an element to manage the checked state.
@@ -12,12 +10,8 @@ import { provideSwitch } from './switch-token';
 @Directive({
   selector: '[ngpSwitch]',
   exportAs: 'ngpSwitch',
-  providers: [
-    provideSwitch(NgpSwitch),
-    provideSwitchState(),
-    { provide: NgpDisabledToken, useExisting: NgpSwitch },
-  ],
-  hostDirectives: [NgpFormControl, NgpHover, NgpPress, NgpFocusVisible],
+  providers: [provideSwitchState()],
+  hostDirectives: [NgpFormControl],
   host: {
     role: 'switch',
     '[attr.type]': 'isButton ? "button" : null',
@@ -29,7 +23,7 @@ import { provideSwitch } from './switch-token';
     '[attr.tabindex]': 'state.disabled() ? -1 : 0',
   },
 })
-export class NgpSwitch implements NgpCanDisable {
+export class NgpSwitch {
   /**
    * Access the element ref.
    */
@@ -70,6 +64,15 @@ export class NgpSwitch implements NgpCanDisable {
    * @internal
    */
   readonly state = switchState<NgpSwitch>(this);
+
+  constructor() {
+    setupInteractions({
+      hover: true,
+      press: true,
+      focusVisible: true,
+      disabled: this.state.disabled,
+    });
+  }
 
   /**
    * Toggle the checked state.

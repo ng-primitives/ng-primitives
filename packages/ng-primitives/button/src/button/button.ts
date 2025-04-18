@@ -1,18 +1,18 @@
 import { BooleanInput } from '@angular/cdk/coercion';
 import { booleanAttribute, Directive, ElementRef, inject, input } from '@angular/core';
-import { NgpCanDisable, NgpDisabledToken, setupInteractions } from 'ng-primitives/internal';
+import { setupInteractions } from 'ng-primitives/internal';
 import { buttonState, provideButtonState } from './button-state';
 
 @Directive({
   selector: '[ngpButton]',
   exportAs: 'ngpButton',
-  providers: [{ provide: NgpDisabledToken, useExisting: NgpButton }, provideButtonState()],
+  providers: [provideButtonState()],
   host: {
     '[attr.data-disabled]': 'state.disabled() ? "" : null',
     '[attr.disabled]': 'isButton && state.disabled() ? true : null',
   },
 })
-export class NgpButton implements NgpCanDisable {
+export class NgpButton {
   /**
    * Get the native element of the button.
    */
@@ -37,6 +37,11 @@ export class NgpButton implements NgpCanDisable {
 
   constructor() {
     // setup the hover, press, and focus-visible listeners
-    setupInteractions({ disabled: this.state.disabled });
+    setupInteractions({
+      disabled: this.state.disabled,
+      hover: true,
+      press: true,
+      focusVisible: true,
+    });
   }
 }

@@ -88,7 +88,13 @@ export class NgpListboxOption<T> implements OnDestroy {
   );
 
   constructor() {
-    setupInteractions({ disabled: this._disabled });
+    setupInteractions({
+      hover: true,
+      press: true,
+      focusVisible: true,
+      focus: true,
+      disabled: this._disabled,
+    });
 
     // the listbox may not be available when the option is initialized
     // so we need to add the option when the listbox is available

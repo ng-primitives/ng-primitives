@@ -1,6 +1,5 @@
 import { BooleanInput } from '@angular/cdk/coercion';
 import { booleanAttribute, Directive, HostListener, input, output, signal } from '@angular/core';
-import { injectDisabled } from 'ng-primitives/internal';
 import { injectDisposables } from 'ng-primitives/utils';
 import { NgpMoveToken } from './move-token';
 
@@ -30,11 +29,6 @@ export class NgpMove {
     alias: 'ngpMoveDisabled',
     transform: booleanAttribute,
   });
-
-  /**
-   * Access the disabled state from any parent.
-   */
-  private readonly isDisabled = injectDisabled(this.disabled);
 
   /**
    * Emit when the move event begins.
@@ -140,7 +134,7 @@ export class NgpMove {
   @HostListener('pointerdown', ['$event'])
   protected onPointerDown(event: PointerEvent): void {
     // ignore right-click or additional pointers
-    if (event.button !== 0 || this.pointerId !== null || this.isDisabled()) {
+    if (event.button !== 0 || this.pointerId !== null || this.disabled()) {
       return;
     }
 
@@ -217,7 +211,7 @@ export class NgpMove {
   }
 
   private triggerKeyboardMove(event: KeyboardEvent, deltaX: number, deltaY: number): void {
-    if (this.isDisabled()) {
+    if (this.disabled()) {
       return;
     }
 

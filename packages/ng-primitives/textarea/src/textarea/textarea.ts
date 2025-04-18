@@ -1,24 +1,35 @@
 import { BooleanInput } from '@angular/cdk/coercion';
 import { booleanAttribute, Directive, input } from '@angular/core';
-import { NgpFormControl } from 'ng-primitives/form-field';
-import { NgpFocus, NgpHover, NgpPress } from 'ng-primitives/interactions';
-import { NgpCanDisable, NgpDisabledToken } from 'ng-primitives/internal';
-import { NgpTextareaToken } from './textarea-token';
+import { NgpFormControl, syncFormControl } from 'ng-primitives/form-field';
+import { setupInteractions } from 'ng-primitives/internal';
+import { provideTextareaState, textareaState } from './textarea-state';
 
 @Directive({
   selector: '[ngpTextarea]',
   exportAs: 'ngpTextarea',
-  providers: [
-    { provide: NgpTextareaToken, useExisting: NgpTextarea },
-    { provide: NgpDisabledToken, useExisting: NgpTextarea },
-  ],
-  hostDirectives: [NgpFormControl, NgpHover, NgpFocus, NgpPress],
+  providers: [provideTextareaState()],
+  hostDirectives: [NgpFormControl],
 })
-export class NgpTextarea implements NgpCanDisable {
+export class NgpTextarea {
   /**
    * Whether the element is disabled.
    */
   readonly disabled = input<boolean, BooleanInput>(false, {
     transform: booleanAttribute,
   });
+
+  /**
+   * The state of the textarea.
+   */
+  protected readonly state = textareaState<NgpTextarea>(this);
+
+  constructor() {
+    setupInteractions({
+      hover: true,
+      press: true,
+      focus: true,
+      disabled: this.state.disabled,
+    });
+    syncFormControl({ disabled: this.state.disabled });
+  }
 }

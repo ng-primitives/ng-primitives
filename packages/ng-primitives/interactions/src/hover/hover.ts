@@ -1,6 +1,6 @@
 import type { BooleanInput } from '@angular/cdk/coercion';
 import { Directive, booleanAttribute, input, output } from '@angular/core';
-import { injectDisabled, setupHover } from 'ng-primitives/internal';
+import { setupHover } from 'ng-primitives/internal';
 import { NgpHoverToken } from './hover-token';
 
 // This is an Angular port of the useHover hook from react-aria: https://github.com/adobe/react-spectrum/blob/main/packages/%40react-aria/interactions/src/useHover.ts
@@ -23,11 +23,6 @@ export class NgpHover {
     alias: 'ngpHoverDisabled',
     transform: booleanAttribute,
   });
-
-  /**
-   * Access the disabled state from any parent.
-   */
-  private readonly isDisabled = injectDisabled(this.disabled);
 
   /**
    * Emit an event when hovering starts.
@@ -58,7 +53,7 @@ export class NgpHover {
         this.hoverEnd.emit();
         this.hoverChange.emit(false);
       },
-      disabled: this.isDisabled,
+      disabled: this.disabled,
     });
   }
 }

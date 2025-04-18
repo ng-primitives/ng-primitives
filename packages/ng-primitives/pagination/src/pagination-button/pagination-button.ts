@@ -7,10 +7,8 @@ import {
   input,
   numberAttribute,
 } from '@angular/core';
-import { NgpButton } from 'ng-primitives/button';
-import { NgpCanDisable, NgpDisabledToken } from 'ng-primitives/internal';
+import { NgpButton, syncButton } from 'ng-primitives/button';
 import { injectPaginationState } from '../pagination/pagination-state';
-import { injectPagination } from '../pagination/pagination-token';
 import { NgpPaginationButtonToken } from './pagination-button-token';
 
 /**
@@ -19,10 +17,7 @@ import { NgpPaginationButtonToken } from './pagination-button-token';
 @Directive({
   selector: '[ngpPaginationButton]',
   exportAs: 'ngpPaginationButton',
-  providers: [
-    { provide: NgpPaginationButtonToken, useExisting: NgpPaginationButton },
-    { provide: NgpDisabledToken, useExisting: NgpPaginationButton },
-  ],
+  providers: [{ provide: NgpPaginationButtonToken, useExisting: NgpPaginationButton }],
   hostDirectives: [NgpButton],
   host: {
     '[tabindex]': 'disabled() ? -1 : 0',
@@ -32,16 +27,11 @@ import { NgpPaginationButtonToken } from './pagination-button-token';
     '[attr.aria-current]': 'selected()',
   },
 })
-export class NgpPaginationButton implements NgpCanDisable {
-  /**
-   * Access the pagination.
-   */
-  protected readonly pagination = injectPagination();
-
+export class NgpPaginationButton {
   /**
    * Access the pagination state.
    */
-  protected readonly state = injectPaginationState();
+  protected readonly paginationState = injectPaginationState();
 
   /**
    * Define the page this button represents.
@@ -62,12 +52,16 @@ export class NgpPaginationButton implements NgpCanDisable {
   /**
    * Whether the button is disabled.
    */
-  readonly disabled = computed(() => this.buttonDisabled() || this.state().disabled());
+  readonly disabled = computed(() => this.buttonDisabled() || this.paginationState().disabled());
 
   /**
    * Whether this page is the currently selected page.
    */
-  protected readonly selected = computed(() => this.page() === this.state().page());
+  protected readonly selected = computed(() => this.page() === this.paginationState().page());
+
+  constructor() {
+    syncButton({ disabled: this.disabled });
+  }
 
   /**
    * Go to the page this button represents.
@@ -78,7 +72,7 @@ export class NgpPaginationButton implements NgpCanDisable {
       return;
     }
 
-    this.pagination.goToPage(this.page());
+    this.paginationState().goToPage(this.page());
   }
 
   /**

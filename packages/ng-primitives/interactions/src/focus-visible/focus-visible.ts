@@ -1,6 +1,6 @@
 import { BooleanInput } from '@angular/cdk/coercion';
 import { Directive, booleanAttribute, input, output } from '@angular/core';
-import { injectDisabled, setupFocusVisible } from 'ng-primitives/internal';
+import { setupFocusVisible } from 'ng-primitives/internal';
 import { NgpFocusVisibleToken } from './focus-visible-token';
 
 /**
@@ -22,11 +22,6 @@ export class NgpFocusVisible {
   });
 
   /**
-   * Access the disabled state from any parent.
-   */
-  private readonly isDisabled = injectDisabled(this.disabled);
-
-  /**
    * Emit when the element is visually focused.
    */
   readonly focusChange = output<boolean>({
@@ -36,7 +31,7 @@ export class NgpFocusVisible {
   constructor() {
     // setup the focus visible listener
     setupFocusVisible({
-      disabled: this.isDisabled,
+      disabled: this.disabled,
       focusChange: value => this.focusChange.emit(value),
     });
   }

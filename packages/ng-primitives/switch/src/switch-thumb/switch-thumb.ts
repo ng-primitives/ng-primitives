@@ -1,5 +1,5 @@
 import { Directive } from '@angular/core';
-import { NgpFocusVisible, NgpHover, NgpPress } from 'ng-primitives/interactions';
+import { setupInteractions } from 'ng-primitives/internal';
 import { injectSwitchState } from '../switch/switch-state';
 
 /**
@@ -11,11 +11,19 @@ import { injectSwitchState } from '../switch/switch-state';
     '[attr.data-checked]': 'state().checked() ? "" : null',
     '[attr.data-disabled]': 'state().disabled() ? "" : null',
   },
-  hostDirectives: [NgpHover, NgpFocusVisible, NgpPress],
 })
 export class NgpSwitchThumb {
   /**
    * Access the switch state.
    */
   protected readonly state = injectSwitchState();
+
+  constructor() {
+    setupInteractions({
+      hover: true,
+      focusVisible: true,
+      press: true,
+      disabled: this.state().disabled,
+    });
+  }
 }

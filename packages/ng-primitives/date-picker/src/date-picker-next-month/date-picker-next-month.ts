@@ -1,7 +1,6 @@
 import { computed, Directive, ElementRef, HostListener, inject } from '@angular/core';
-import { NgpButton } from 'ng-primitives/button';
+import { NgpButton, syncButton } from 'ng-primitives/button';
 import { injectDateAdapter } from 'ng-primitives/date-time';
-import { NgpCanDisable, NgpDisabledToken } from 'ng-primitives/internal';
 import { injectDatePickerState } from '../date-picker/date-picker-state';
 import { injectDatePicker } from '../date-picker/date-picker-token';
 import { NgpDatePickerNextMonthToken } from './date-picker-next-month-token';
@@ -12,10 +11,7 @@ import { NgpDatePickerNextMonthToken } from './date-picker-next-month-token';
 @Directive({
   selector: '[ngpDatePickerNextMonth]',
   exportAs: 'ngpDatePickerNextMonth',
-  providers: [
-    { provide: NgpDatePickerNextMonthToken, useExisting: NgpDatePickerNextMonth },
-    { provide: NgpDisabledToken, useExisting: NgpDatePickerNextMonth },
-  ],
+  providers: [{ provide: NgpDatePickerNextMonthToken, useExisting: NgpDatePickerNextMonth }],
   hostDirectives: [NgpButton],
   host: {
     '[attr.data-disabled]': 'disabled() ? "" : null',
@@ -24,7 +20,7 @@ import { NgpDatePickerNextMonthToken } from './date-picker-next-month-token';
     '[attr.type]': 'isButton ? "button" : null',
   },
 })
-export class NgpDatePickerNextMonth<T> implements NgpCanDisable {
+export class NgpDatePickerNextMonth<T> {
   /**
    * Access the element ref.
    */
@@ -74,6 +70,10 @@ export class NgpDatePickerNextMonth<T> implements NgpCanDisable {
 
     return false;
   });
+
+  constructor() {
+    syncButton({ disabled: this.disabled });
+  }
 
   /**
    * Navigate to the next month.

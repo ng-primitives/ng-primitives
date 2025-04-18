@@ -1,6 +1,6 @@
 import { BooleanInput } from '@angular/cdk/coercion';
 import { Directive, booleanAttribute, input, output } from '@angular/core';
-import { injectDisabled, setupFocus } from 'ng-primitives/internal';
+import { setupFocus } from 'ng-primitives/internal';
 import { NgpFocusToken } from './focus-token';
 
 /**
@@ -22,11 +22,6 @@ export class NgpFocus {
   });
 
   /**
-   * Access the disabled state from any parent.
-   */
-  private readonly isDisabled = injectDisabled(this.disabled);
-
-  /**
    * Emit when the focus state changes.
    */
   readonly focus = output<boolean>({ alias: 'ngpFocus' });
@@ -34,7 +29,7 @@ export class NgpFocus {
   constructor() {
     // setup the focus listener
     setupFocus({
-      disabled: this.isDisabled,
+      disabled: this.disabled,
       focus: () => this.focus.emit(true),
       blur: () => this.focus.emit(false),
     });

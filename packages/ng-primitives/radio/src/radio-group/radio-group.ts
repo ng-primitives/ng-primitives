@@ -1,8 +1,7 @@
 import { BooleanInput } from '@angular/cdk/coercion';
 import { booleanAttribute, Directive, input, OnInit, output } from '@angular/core';
 import { NgpOrientation } from 'ng-primitives/common';
-import { NgpFormControl } from 'ng-primitives/form-field';
-import { NgpCanDisable, NgpDisabledToken } from 'ng-primitives/internal';
+import { NgpFormControl, syncFormControl } from 'ng-primitives/form-field';
 import { injectRovingFocusGroupState, NgpRovingFocusGroup } from 'ng-primitives/roving-focus';
 import { provideRadioGroupState, radioGroupState } from './radio-group-state';
 
@@ -11,7 +10,7 @@ import { provideRadioGroupState, radioGroupState } from './radio-group-state';
  */
 @Directive({
   selector: '[ngpRadioGroup]',
-  providers: [provideRadioGroupState(), { provide: NgpDisabledToken, useExisting: NgpRadioGroup }],
+  providers: [provideRadioGroupState()],
   hostDirectives: [
     {
       directive: NgpRovingFocusGroup,
@@ -29,7 +28,7 @@ import { provideRadioGroupState, radioGroupState } from './radio-group-state';
     '[attr.data-disabled]': 'state.disabled() ? "" : null',
   },
 })
-export class NgpRadioGroup<T> implements OnInit, NgpCanDisable {
+export class NgpRadioGroup<T> implements OnInit {
   /**
    * Access the roving focus group state.
    */
@@ -76,6 +75,10 @@ export class NgpRadioGroup<T> implements OnInit, NgpCanDisable {
    * @internal
    */
   protected readonly state = radioGroupState<NgpRadioGroup<T>>(this);
+
+  constructor() {
+    syncFormControl({ disabled: this.state.disabled });
+  }
 
   ngOnInit(): void {
     // the roving focus group defaults to vertical orientation whereas we want to default to vertical

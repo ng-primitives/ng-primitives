@@ -1,8 +1,7 @@
 import { BooleanInput } from '@angular/cdk/coercion';
 import { Directive, HostListener, booleanAttribute, input, output } from '@angular/core';
-import { NgpFormControl } from 'ng-primitives/form-field';
-import { NgpFocusVisible, NgpHover, NgpPress } from 'ng-primitives/interactions';
-import { NgpCanDisable, NgpDisabledToken } from 'ng-primitives/internal';
+import { NgpFormControl, syncFormControl } from 'ng-primitives/form-field';
+import { setupInteractions } from 'ng-primitives/internal';
 import { uniqueId } from 'ng-primitives/utils';
 import { checkboxState, provideCheckboxState } from './checkbox-state';
 
@@ -11,8 +10,8 @@ import { checkboxState, provideCheckboxState } from './checkbox-state';
  */
 @Directive({
   selector: '[ngpCheckbox]',
-  providers: [provideCheckboxState(), { provide: NgpDisabledToken, useExisting: NgpCheckbox }],
-  hostDirectives: [NgpFormControl, NgpHover, NgpFocusVisible, NgpPress],
+  providers: [provideCheckboxState()],
+  hostDirectives: [NgpFormControl],
   host: {
     role: 'checkbox',
     '[attr.aria-checked]': 'state.indeterminate() ? "mixed" : state.checked()',
@@ -22,7 +21,7 @@ import { checkboxState, provideCheckboxState } from './checkbox-state';
     '[tabindex]': 'state.disabled() ? -1 : 0',
   },
 })
-export class NgpCheckbox implements NgpCanDisable {
+export class NgpCheckbox {
   /**
    * The id of the checkbox.
    * @internal
@@ -79,6 +78,16 @@ export class NgpCheckbox implements NgpCanDisable {
    * The state of the checkbox.
    */
   protected readonly state = checkboxState<NgpCheckbox>(this);
+
+  constructor() {
+    syncFormControl({ disabled: this.state.disabled });
+    setupInteractions({
+      hover: true,
+      press: true,
+      focusVisible: true,
+      disabled: this.state.disabled,
+    });
+  }
 
   @HostListener('keydown.enter', ['$event'])
   protected onEnter(event: KeyboardEvent): void {
