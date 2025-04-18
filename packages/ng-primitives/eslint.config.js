@@ -35,6 +35,7 @@ module.exports = [
       '@typescript-eslint/no-non-null-assertion': 'off',
       '@nx/workspace-prefer-state': 'error',
       '@nx/workspace-avoid-model': 'error',
+      '@nx/workspace-avoid-early-state': 'error',
     },
   },
   {
