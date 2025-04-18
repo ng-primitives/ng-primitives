@@ -31,7 +31,6 @@ import { fromResizeEvent } from 'ng-primitives/resize';
 import { injectDisposables, onBooleanChange } from 'ng-primitives/utils';
 import { injectTooltipConfig } from '../config/tooltip-config';
 import { provideTooltipTriggerState, tooltipTriggerState } from './tooltip-trigger-state';
-import { NgpTooltipTriggerToken, provideTooltipTrigger } from './tooltip-trigger-token';
 
 /**
  * Apply the `ngpTooltipTrigger` directive to an element that triggers the tooltip to show.
@@ -39,10 +38,7 @@ import { NgpTooltipTriggerToken, provideTooltipTrigger } from './tooltip-trigger
 @Directive({
   selector: '[ngpTooltipTrigger]',
   exportAs: 'ngpTooltipTrigger',
-  providers: [
-    provideTooltipTriggerState(),
-    { provide: NgpTooltipTriggerToken, useExisting: NgpTooltipTrigger },
-  ],
+  providers: [provideTooltipTriggerState()],
   host: {
     '[attr.data-open]': 'state.open() ? "" : null',
     '[attr.data-disabled]': 'disabled() ? "" : null',
@@ -195,12 +191,6 @@ export class NgpTooltipTrigger implements OnDestroy {
   });
 
   /**
-   * Store the state of the tooltip.
-   * @internal
-   */
-  readonly state = tooltipTriggerState<NgpTooltipTrigger>(this);
-
-  /**
    * The dispose function to stop computing the position of the tooltip.
    */
   private dispose?: () => void;
@@ -210,6 +200,12 @@ export class NgpTooltipTrigger implements OnDestroy {
    * Store the trigger width.
    */
   readonly width = signal<number | null>(null);
+
+  /**
+   * Store the state of the tooltip.
+   * @internal
+   */
+  readonly state = tooltipTriggerState<NgpTooltipTrigger>(this);
 
   constructor() {
     // any time the open state changes then show or hide the tooltip
@@ -261,7 +257,7 @@ export class NgpTooltipTrigger implements OnDestroy {
       undefined,
       Injector.create({
         parent: this.injector,
-        providers: [provideTooltipTrigger(this)],
+        providers: [],
       }),
     );
 
