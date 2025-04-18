@@ -1,3 +1,17 @@
+## 0.35.0 (2025-04-18)
+
+### 🚀 Features
+
+- **toast:** reusable component ([#192](https://github.com/ng-primitives/ng-primitives/pull/192))
+
+### 🩹 Fixes
+
+- **toast:** ensure toasts always stack ([#195](https://github.com/ng-primitives/ng-primitives/pull/195))
+
+### ❤️ Thank You
+
+- Ashley Hunter
+
 ## 0.34.0 (2025-04-16)
 
 ### 🚀 Features
