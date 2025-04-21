@@ -29,6 +29,7 @@ import {
   Placement,
   shift,
 } from '@floating-ui/dom';
+import { injectExitAnimationManager, provideExitAnimationManager } from 'ng-primitives/internal';
 import { fromResizeEvent } from 'ng-primitives/resize';
 import { injectDisposables, onBooleanChange } from 'ng-primitives/utils';
 import { injectPopoverConfig } from '../config/popover-config';
@@ -46,7 +47,7 @@ import {
 @Directive({
   selector: '[ngpPopoverTrigger]',
   exportAs: 'ngpPopoverTrigger',
-  providers: [providePopoverTriggerState()],
+  providers: [providePopoverTriggerState(), provideExitAnimationManager()],
   host: {
     '[attr.aria-expanded]': 'state.open() ? "true" : "false"',
     '[attr.data-open]': 'state.open() ? "" : null',
@@ -61,6 +62,11 @@ export class NgpPopoverTrigger implements OnDestroy {
    * Access the trigger element
    */
   private readonly trigger = inject(ElementRef<HTMLElement>);
+
+  /**
+   * Access the exit animation state.
+   */
+  private readonly exitAnimationState = injectExitAnimationManager();
 
   /**
    * Inject the parent popover trigger if available.
@@ -457,12 +463,14 @@ export class NgpPopoverTrigger implements OnDestroy {
     this.popoverInstance?.setInitialFocus(origin);
   }
 
-  private destroyPopover(): void {
+  private async destroyPopover(): Promise<void> {
     // clear the close timeout
     this.closeTimeout = undefined;
 
     this.state.open.set(false);
     this.openChange.emit(false);
+
+    await this.exitAnimationState.exit();
 
     // if the view is already destroyed then do not destroy it again
     if (this.viewRef && !this.viewRef.destroyed) {
