@@ -14,7 +14,6 @@ import { uniqueId } from 'ng-primitives/utils';
 import { injectTabsConfig } from '../config/tabs-config';
 import type { NgpTabPanel } from '../tab-panel/tab-panel';
 import { provideTabsetState, tabsetState } from './tabset-state';
-import { provideTabset } from './tabset-token';
 
 /**
  * Apply the `ngpTabset` directive to an element to manage the tabs.
@@ -22,7 +21,7 @@ import { provideTabset } from './tabset-token';
 @Directive({
   selector: '[ngpTabset]',
   exportAs: 'ngpTabset',
-  providers: [provideTabset(NgpTabset), provideTabsetState()],
+  providers: [provideTabsetState()],
   hostDirectives: [
     {
       directive: NgpRovingFocusGroup,
