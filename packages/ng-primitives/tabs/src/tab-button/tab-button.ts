@@ -1,6 +1,6 @@
 import { BooleanInput } from '@angular/cdk/coercion';
 import { Directive, HostListener, OnInit, booleanAttribute, computed, input } from '@angular/core';
-import { NgpFocusVisible, NgpHover, NgpPress } from 'ng-primitives/interactions';
+import { setupInteractions } from 'ng-primitives/internal';
 import { NgpRovingFocusItem } from 'ng-primitives/roving-focus';
 import { injectTabsetState } from '../tabset/tabset-state';
 
@@ -18,7 +18,7 @@ import { injectTabsetState } from '../tabset/tabset-state';
     '[attr.data-disabled]': 'disabled() ? "" : null',
     '[attr.data-orientation]': 'state().orientation()',
   },
-  hostDirectives: [NgpRovingFocusItem, NgpHover, NgpFocusVisible, NgpPress],
+  hostDirectives: [NgpRovingFocusItem],
 })
 export class NgpTabButton implements OnInit {
   /**
@@ -62,6 +62,15 @@ export class NgpTabButton implements OnInit {
    * Whether the tab is active
    */
   readonly active = computed(() => this.state().selectedTab() === this.value());
+
+  constructor() {
+    setupInteractions({
+      hover: true,
+      press: true,
+      focusVisible: true,
+      disabled: this.disabled,
+    });
+  }
 
   ngOnInit(): void {
     if (this.value() === undefined) {
