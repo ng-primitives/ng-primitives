@@ -31,7 +31,8 @@
         "textarea",
         "toast",
         "toggle",
-        "toggle-group"
+        "toggle-group",
+        "toolbar"
       ],
       "x-prompt": "What primitive would you like to generate?",
       "$default": {
