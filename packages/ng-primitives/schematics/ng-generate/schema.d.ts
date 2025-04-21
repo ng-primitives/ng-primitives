@@ -23,7 +23,8 @@ export interface AngularPrimitivesComponentSchema {
     | 'file-upload'
     | 'search'
     | 'toast'
-    | 'toolbar';
+    | 'toolbar'
+    | 'tooltip';
 
   /**
    * The path where the component files should be created, relative to the current workspace.

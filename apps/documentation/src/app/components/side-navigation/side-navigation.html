@@ -3,41 +3,45 @@
     class="sticky top-24 flex h-[calc(100dvh-140px)] w-full flex-col gap-y-4 overflow-auto overscroll-contain md:h-max md:overflow-visible"
   >
     @for (section of sections; track section.title) {
-    <div class="mb-2">
-      <h2 class="mb-4 text-sm font-semibold text-zinc-800 dark:text-zinc-100">
-        {{ section.title }}
-      </h2>
-      <ul>
-        @for (link of section.links; track link) {
-        <li class="text-zinc-600 hover:text-zinc-950 dark:text-zinc-300 dark:hover:text-white">
-          <a
-            class="relative flex h-10 items-center border-l border-zinc-200 px-4 outline-none transition-colors focus-visible:ring-2 focus-visible:ring-blue-500 dark:border-zinc-800"
-            [routerLink]="link.link"
-            routerLinkActive="text-black dark:text-white font-medium before:w-0.5 before:bg-zinc-950 before:rounded-lg before:h-6 before:absolute before:left-0 before:-translate-x-1/2 dark:before:bg-white"
-          >
-            @if (link.icon) {
-            <ng-icon class="mr-2 text-base text-zinc-600 dark:text-zinc-300" [name]="link.icon" />
-            } {{ link.name }}
-          </a>
-        </li>
-        }
-      </ul>
-    </div>
+      <div class="mb-2">
+        <h2 class="mb-4 text-sm font-semibold text-zinc-800 dark:text-zinc-100">
+          {{ section.title }}
+        </h2>
+        <ul>
+          @for (link of section.links; track link) {
+            <li class="text-zinc-600 hover:text-zinc-950 dark:text-zinc-300 dark:hover:text-white">
+              <a
+                class="relative flex h-10 items-center border-l border-zinc-200 px-4 outline-none transition-colors focus-visible:ring-2 focus-visible:ring-blue-500 dark:border-zinc-800"
+                [routerLink]="link.link"
+                routerLinkActive="text-black dark:text-white font-medium before:w-0.5 before:bg-zinc-950 before:rounded-lg before:h-6 before:absolute before:left-0 before:-translate-x-1/2 dark:before:bg-white"
+              >
+                @if (link.icon) {
+                  <ng-icon
+                    class="mr-2 text-base text-zinc-600 dark:text-zinc-300"
+                    [name]="link.icon"
+                  />
+                }
+                {{ link.name }}
+              </a>
+            </li>
+          }
+        </ul>
+      </div>
     }
   </div>
 </ng-template>
 
 @if (menuOpen()) {
-<div class="fixed inset-0 z-10 bg-black/50" (click)="menuOpen.set(false)">
-  <div
-    class="h-full w-72 max-w-full bg-white px-10 shadow-xl dark:bg-zinc-900"
-    (click)="$event.stopPropagation()"
-  >
+  <div class="fixed inset-0 z-10 bg-black/50" (click)="menuOpen.set(false)">
+    <div
+      class="h-full w-72 max-w-full bg-white px-10 shadow-xl dark:bg-zinc-900"
+      (click)="$event.stopPropagation()"
+    >
+      <ng-container [ngTemplateOutlet]="content" />
+    </div>
+  </div>
+} @else {
+  <div class="hidden w-40 md:block xl:w-44">
     <ng-container [ngTemplateOutlet]="content" />
   </div>
-</div>
-} @else {
-<div class="hidden w-40 md:block xl:w-44">
-  <ng-container [ngTemplateOutlet]="content" />
-</div>
 }
