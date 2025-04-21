@@ -1,10 +1,116 @@
 import { render } from '@testing-library/angular';
-import { NgpTabset } from './tabset';
+import { NgpTabButton, NgpTabList, NgpTabPanel, NgpTabset } from 'ng-primitives/tabs';
 
 describe('NgpTabset', () => {
-  it('should initialise correctly', async () => {
-    const container = await render(`<div ngpTabset></div>`, {
-      imports: [NgpTabset],
-    });
+  it('should default to horizontal orientation', async () => {
+    const { getByRole } = await render(
+      `
+      <div ngpTabset>
+        <div ngpTabList>
+          <button ngpTabButton ngpTabButtonValue="overview">Overview</button>
+          <button ngpTabButton ngpTabButtonValue="features">Features</button>
+        </div>
+        <div ngpTabPanel ngpTabPanelValue="overview">Overview content</div>
+        <div ngpTabPanel ngpTabPanelValue="features">Features content</div>
+      </div>
+    `,
+      {
+        imports: [NgpTabset, NgpTabButton, NgpTabList, NgpTabPanel],
+      },
+    );
+
+    const tabset = getByRole('tablist');
+    expect(tabset).toHaveAttribute('data-orientation', 'horizontal');
+  });
+
+  it('should set the orientation to vertical', async () => {
+    const { getByRole } = await render(
+      `
+      <div ngpTabset ngpTabsetOrientation="vertical">
+        <div ngpTabList>
+          <button ngpTabButton ngpTabButtonValue="overview">Overview</button>
+          <button ngpTabButton ngpTabButtonValue="features">Features</button>
+        </div>
+        <div ngpTabPanel ngpTabPanelValue="overview">Overview content</div>
+        <div ngpTabPanel ngpTabPanelValue="features">Features content</div>
+      </div>
+    `,
+      {
+        imports: [NgpTabset, NgpTabButton, NgpTabList, NgpTabPanel],
+      },
+    );
+
+    const tabset = getByRole('tablist');
+    expect(tabset).toHaveAttribute('data-orientation', 'vertical');
+  });
+
+  it('should select the first tab by default', async () => {
+    const { getByRole } = await render(
+      `
+      <div ngpTabset>
+        <div ngpTabList>
+          <button ngpTabButton ngpTabButtonValue="overview">Overview</button>
+          <button ngpTabButton ngpTabButtonValue="features">Features</button>
+        </div>
+        <div ngpTabPanel ngpTabPanelValue="overview">Overview content</div>
+        <div ngpTabPanel ngpTabPanelValue="features">Features content</div>
+      </div>
+    `,
+      {
+        imports: [NgpTabset, NgpTabButton, NgpTabList, NgpTabPanel],
+      },
+    );
+
+    const tab = getByRole('tab', { name: 'Overview' });
+    expect(tab).toHaveAttribute('data-active');
+  });
+
+  it('should set the selected tab based on the value input', async () => {
+    const { getByRole } = await render(
+      `
+      <div ngpTabset ngpTabsetValue="features">
+        <div ngpTabList>
+          <button ngpTabButton ngpTabButtonValue="overview">Overview</button>
+          <button ngpTabButton ngpTabButtonValue="features">Features</button>
+        </div>
+        <div ngpTabPanel ngpTabPanelValue="overview">Overview content</div>
+        <div ngpTabPanel ngpTabPanelValue="features">Features content</div>
+      </div>
+    `,
+      {
+        imports: [NgpTabset, NgpTabButton, NgpTabList, NgpTabPanel],
+      },
+    );
+
+    const tab = getByRole('tab', { name: 'Features' });
+    expect(tab).toHaveAttribute('data-active');
+  });
+
+  it('should emit the valueChange event when the selected tab changes', async () => {
+    const valueChange = jest.fn();
+    const { getByRole } = await render(
+      `
+      <div ngpTabset (ngpTabsetValueChange)="valueChange($event)">
+        <div ngpTabList>
+          <button ngpTabButton ngpTabButtonValue="overview">Overview</button>
+          <button ngpTabButton ngpTabButtonValue="features">Features</button>
+        </div>
+        <div ngpTabPanel ngpTabPanelValue="overview">Overview content</div>
+        <div ngpTabPanel ngpTabPanelValue="features">Features content</div>
+      </div>
+    `,
+      {
+        imports: [NgpTabset, NgpTabButton, NgpTabList, NgpTabPanel],
+        componentProperties: {
+          valueChange,
+        },
+      },
+    );
+
+    const tab = getByRole('tab', { name: 'Features' });
+    tab.click();
+
+    expect(valueChange).toHaveBeenCalledWith('features');
+    expect(valueChange).toHaveBeenCalledTimes(1);
   });
 });

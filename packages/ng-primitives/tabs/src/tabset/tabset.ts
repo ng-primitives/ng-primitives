@@ -118,6 +118,11 @@ export class NgpTabset implements OnInit {
    * @param value The value of the tab to select
    */
   select(value: string): void {
+    // if the value is already selected, do nothing
+    if (this.state.value() === value) {
+      return;
+    }
+
     this.state.value.set(value);
     this.valueChange.emit(value);
   }

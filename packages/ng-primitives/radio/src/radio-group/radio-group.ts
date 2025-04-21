@@ -90,6 +90,11 @@ export class NgpRadioGroup<T> implements OnInit {
    * @param value The value of the radio item to select.
    */
   select(value: T): void {
+    // if the value is already selected, do nothing
+    if (this.state.compareWith()(this.state.value(), value)) {
+      return;
+    }
+
     this.state.value.set(value);
     this.valueChange.emit(value);
   }
