@@ -1,25 +1,26 @@
-import { ChangeDetectorRef, Directive, inject, Injectable, OnDestroy, signal } from '@angular/core';
+import { ChangeDetectorRef, Directive, inject, OnDestroy, signal } from '@angular/core';
 import { injectElementRef } from '../utilities/element-ref';
+import { injectExitAnimationManager } from './exit-animation-manager';
 
 @Directive({
   selector: '[ngpExitAnimation]',
   exportAs: 'ngpExitAnimation',
   host: {
     // Deprecated - use data-exit instead
-    '[attr.data-closing]': 'state() === "exit" ? "" : null',
-    '[attr.data-exit]': 'state() === "exit" ? "" : null',
+    '[attr.data-closing]': 'animationState() === "exit" ? "" : null',
+    '[attr.data-exit]': 'animationState() === "exit" ? "" : null',
   },
 })
 export class NgpExitAnimation implements OnDestroy {
   /** The animation manager. */
-  private readonly animationManager = inject(NgpExitAnimationManager);
+  private readonly animationManager = injectExitAnimationManager();
   /** The element to animate. */
   private readonly element = injectElementRef();
   /** Access the change detector. */
   private readonly changeDetector = inject(ChangeDetectorRef);
 
   /** The animation state */
-  private readonly state = signal<'enter' | 'exit'>('enter');
+  private readonly animationState = signal<'enter' | 'exit'>('enter');
 
   constructor() {
     this.animationManager.add(this);
@@ -31,7 +32,12 @@ export class NgpExitAnimation implements OnDestroy {
 
   /** Mark the element as exiting. */
   exit(): Promise<void> {
-    this.state.set('exit');
+    // Capture the initial animation name before changing state
+    const initialStyle = window.getComputedStyle(this.element.nativeElement);
+    const initialAnimationName = initialStyle.animationName;
+    const initialTransitionProperty = initialStyle.transitionProperty;
+
+    this.animationState.set('exit');
     this.changeDetector.detectChanges();
     return new Promise(resolve => {
       // check if there are any exit animations or transitions
@@ -39,7 +45,16 @@ export class NgpExitAnimation implements OnDestroy {
       const hasTransition = parseFloat(computedStyle.transitionDuration) > 0;
       const hasAnimation = parseFloat(computedStyle.animationDuration) > 0;
 
-      if (!hasTransition && !hasAnimation) {
+      // Compare animation properties to see if they've changed
+      const animationChanged =
+        computedStyle.animationName !== initialAnimationName &&
+        computedStyle.animationName !== 'none';
+      const transitionChanged =
+        computedStyle.transitionProperty !== initialTransitionProperty &&
+        computedStyle.transitionProperty !== 'none';
+
+      // If no new animations/transitions, resolve immediately
+      if ((!hasTransition && !hasAnimation) || (!animationChanged && !transitionChanged)) {
         resolve();
         return;
       }
@@ -59,30 +74,5 @@ export class NgpExitAnimation implements OnDestroy {
       this.element.nativeElement.addEventListener('transitionend', done);
       this.element.nativeElement.addEventListener('animationend', done);
     });
-  }
-}
-
-@Injectable()
-export class NgpExitAnimationManager {
-  /** Store the instances of the exit animation directive. */
-  private readonly instances: NgpExitAnimation[] = [];
-
-  /** Add an instance to the manager. */
-  add(instance: NgpExitAnimation): void {
-    this.instances.push(instance);
-  }
-
-  /** Remove an instance from the manager. */
-  remove(instance: NgpExitAnimation): void {
-    const index = this.instances.indexOf(instance);
-    if (index !== -1) {
-      this.instances.splice(index, 1);
-    }
-  }
-
-  /** Exit all instances. */
-  exit(): Promise<void[]> {
-    const promises = this.instances.map(instance => instance.exit());
-    return Promise.all(promises);
   }
 }

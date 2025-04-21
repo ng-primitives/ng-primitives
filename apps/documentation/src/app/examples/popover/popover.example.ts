@@ -62,6 +62,10 @@ import { NgpPopover, NgpPopoverTrigger } from 'ng-primitives/popover';
       transform-origin: var(--ngp-popover-transform-origin);
     }
 
+    [ngpPopover][data-exit] {
+      animation: popover-hide 0.1s ease-out;
+    }
+
     [ngpPopover] h3 {
       font-size: 13px;
       font-weight: 500;
@@ -89,6 +93,17 @@ import { NgpPopover, NgpPopoverTrigger } from 'ng-primitives/popover';
       100% {
         opacity: 1;
         transform: scale(1);
+      }
+    }
+
+    @keyframes popover-hide {
+      0% {
+        opacity: 1;
+        transform: scale(1);
+      }
+      100% {
+        opacity: 0;
+        transform: scale(0.9);
       }
     }
   `,

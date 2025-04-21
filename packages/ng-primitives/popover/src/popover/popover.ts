@@ -1,7 +1,7 @@
 import { FocusMonitor, FocusOrigin, InteractivityChecker } from '@angular/cdk/a11y';
 import { computed, Directive, inject } from '@angular/core';
 import { NgpFocusTrap } from 'ng-primitives/focus-trap';
-import { injectElementRef } from 'ng-primitives/internal';
+import { injectElementRef, NgpExitAnimation } from 'ng-primitives/internal';
 import { injectPopoverTriggerState } from '../popover-trigger/popover-trigger-state';
 import { getTransformOrigin } from '../utils/transform-origin';
 
@@ -11,14 +11,14 @@ import { getTransformOrigin } from '../utils/transform-origin';
 @Directive({
   selector: '[ngpPopover]',
   exportAs: 'ngpPopover',
-  hostDirectives: [NgpFocusTrap],
+  hostDirectives: [NgpFocusTrap, NgpExitAnimation],
   host: {
     role: 'menu',
     '[style.left.px]': 'x()',
     '[style.top.px]': 'y()',
     '[style.--ngp-popover-trigger-width.px]': 'trigger().width()',
     '[style.--ngp-popover-transform-origin]': 'transformOrigin()',
-    '(keydown.escape)': 'trigger.handleEscapeKey()',
+    '(keydown.escape)': 'trigger().handleEscapeKey()',
   },
 })
 export class NgpPopover {
