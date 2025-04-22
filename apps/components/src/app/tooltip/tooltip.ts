@@ -1,12 +1,10 @@
 import { Component } from '@angular/core';
-import { NgpButton } from 'ng-primitives/button';
 import { NgpTooltip, NgpTooltipTrigger } from 'ng-primitives/tooltip';
 
 @Component({
-  selector: 'button[app-tooltip]',
+  selector: '[app-tooltip]',
   hostDirectives: [
     NgpTooltip,
-    NgpButton,
     { directive: NgpTooltipTrigger, inputs: ['ngpTooltipTrigger: trigger'] },
   ],
   template: ``,

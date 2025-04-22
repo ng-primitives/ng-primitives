@@ -26,8 +26,8 @@ import { NgpSwitch, NgpSwitchThumb } from 'ng-primitives/switch';
       border: 1px solid var(--ngp-border);
       padding: 0;
       outline: none;
-      transition-property:
-        color, background-color, border-color, text-decoration-color, fill, stroke;
+      transition-property: color, background-color, border-color, text-decoration-color, fill,
+        stroke;
       transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
       transition-duration: 150ms;
     }
