@@ -27,6 +27,7 @@ import {
   offset,
   shift,
 } from '@floating-ui/dom';
+import { injectExitAnimationManager, provideExitAnimationManager } from 'ng-primitives/internal';
 import { fromResizeEvent } from 'ng-primitives/resize';
 import { injectDisposables, onBooleanChange } from 'ng-primitives/utils';
 import { injectTooltipConfig } from '../config/tooltip-config';
@@ -38,7 +39,7 @@ import { provideTooltipTriggerState, tooltipTriggerState } from './tooltip-trigg
 @Directive({
   selector: '[ngpTooltipTrigger]',
   exportAs: 'ngpTooltipTrigger',
-  providers: [provideTooltipTriggerState()],
+  providers: [provideTooltipTriggerState(), provideExitAnimationManager()],
   host: {
     '[attr.data-open]': 'state.open() ? "" : null',
     '[attr.data-disabled]': 'disabled() ? "" : null',
@@ -49,6 +50,11 @@ import { provideTooltipTriggerState, tooltipTriggerState } from './tooltip-trigg
   },
 })
 export class NgpTooltipTrigger implements OnDestroy {
+  /**
+   * Access the exit animation manager.
+   */
+  private readonly exitAnimationManager = injectExitAnimationManager();
+
   /**
    * Access the trigger element
    */
@@ -202,6 +208,18 @@ export class NgpTooltipTrigger implements OnDestroy {
   readonly width = signal<number | null>(null);
 
   /**
+   * @internal
+   * The timeout to open the tooltip.
+   */
+  private openTimeout?: () => void;
+
+  /**
+   * @internal
+   * The timeout to close the tooltip.
+   */
+  private closeTimeout?: () => void;
+
+  /**
    * Store the state of the tooltip.
    * @internal
    */
@@ -209,7 +227,8 @@ export class NgpTooltipTrigger implements OnDestroy {
 
   constructor() {
     // any time the open state changes then show or hide the tooltip
-    onBooleanChange(this.state.open, this.show.bind(this), this.hide.bind(this));
+    // eslint-disable-next-line @nx/workspace-prefer-state
+    onBooleanChange(this.open, this.show.bind(this), this.hide.bind(this));
 
     // update the width of the trigger when it resizes
     fromResizeEvent(this.trigger.nativeElement)
@@ -222,28 +241,43 @@ export class NgpTooltipTrigger implements OnDestroy {
   }
 
   private show(): void {
+    // if closing is in progress then clear the timeout to stop the popover from closing
+    this.closeTimeout?.();
+
     // if the trigger is disabled or the tooltip is already open then do not show the tooltip
-    if (this.state.disabled() || this.state.open()) {
+    if (this.state.disabled() || this.state.open() || this.openTimeout || this.viewRef) {
       return;
     }
 
     this.state.open.set(true);
     this.openChange.emit(true);
-    this.disposables.setTimeout(() => this.createTooltip(), this.state.showDelay());
+
+    this.openTimeout = this.disposables.setTimeout(
+      () => this.createTooltip(),
+      this.state.showDelay(),
+    );
   }
 
   private hide(): void {
+    // if closing is in progress then clear the timeout to stop the popover from opening
+    this.openTimeout?.();
+
     // if the trigger is disabled or the tooltip is already closed then do not hide the tooltip
-    if (this.state.disabled() || !this.state.open()) {
+    if (this.state.disabled() || !this.state.open() || this.closeTimeout) {
       return;
     }
 
     this.state.open.set(false);
     this.openChange.emit(false);
-    this.disposables.setTimeout(() => this.destroyTooltip(), this.state.hideDelay());
+    this.closeTimeout = this.disposables.setTimeout(
+      () => this.destroyTooltip(),
+      this.state.hideDelay(),
+    );
   }
 
   private createTooltip(): void {
+    this.openTimeout = undefined;
+
     const portal = new TemplatePortal(
       this.tooltip(),
       this.viewContainerRef,
@@ -281,7 +315,10 @@ export class NgpTooltipTrigger implements OnDestroy {
     });
   }
 
-  private destroyTooltip(): void {
+  private async destroyTooltip(): Promise<void> {
+    this.closeTimeout = undefined;
+    await this.exitAnimationManager.exit();
+
     this.state.open.set(false);
     this.openChange.emit(false);
     this.viewRef?.destroy();

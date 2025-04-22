@@ -39,6 +39,7 @@ export class NgpExitAnimation implements OnDestroy {
 
     this.animationState.set('exit');
     this.changeDetector.detectChanges();
+
     return new Promise(resolve => {
       // check if there are any exit animations or transitions
       const computedStyle = window.getComputedStyle(this.element.nativeElement);
@@ -68,6 +69,11 @@ export class NgpExitAnimation implements OnDestroy {
 
         this.element.nativeElement.removeEventListener('transitionend', done);
         this.element.nativeElement.removeEventListener('animationend', done);
+
+        // reset the animation state
+        this.animationState.set('enter');
+        this.changeDetector.markForCheck();
+
         resolve();
       };
 

@@ -55,6 +55,10 @@ import { NgpTooltip, NgpTooltipTrigger } from 'ng-primitives/tooltip';
       transform-origin: var(--ngp-tooltip-transform-origin);
     }
 
+    [ngpTooltip][data-exit] {
+      animation: tooltip-hide 200ms ease-in-out;
+    }
+
     @keyframes tooltip-show {
       0% {
         opacity: 0;
@@ -63,6 +67,17 @@ import { NgpTooltip, NgpTooltipTrigger } from 'ng-primitives/tooltip';
       100% {
         opacity: 1;
         transform: scale(1);
+      }
+    }
+
+    @keyframes tooltip-hide {
+      0% {
+        opacity: 1;
+        transform: scale(1);
+      }
+      100% {
+        opacity: 0;
+        transform: scale(0.9);
       }
     }
   `,

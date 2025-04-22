@@ -21,8 +21,7 @@ export class NgpExitAnimationManager {
 
   /** Exit all instances. */
   exit(): Promise<void[]> {
-    const promises = this.instances.map(instance => instance.exit());
-    return Promise.all(promises);
+    return Promise.all(this.instances.map(instance => instance.exit()));
   }
 }
 
