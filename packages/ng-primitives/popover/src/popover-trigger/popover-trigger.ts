@@ -309,7 +309,8 @@ export class NgpPopoverTrigger implements OnDestroy {
 
     // any time the open state changes then show or hide the popover
     onBooleanChange(
-      this.state.open,
+      // eslint-disable-next-line @nx/workspace-prefer-state
+      this.open,
       this.show.bind(this, 'program'),
       this.hide.bind(this, 'program'),
     );

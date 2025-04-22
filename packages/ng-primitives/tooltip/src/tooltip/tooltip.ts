@@ -8,6 +8,7 @@ import {
   inject,
   isDevMode,
 } from '@angular/core';
+import { NgpExitAnimation } from 'ng-primitives/internal';
 import { getTransformOrigin } from 'ng-primitives/popover';
 import { injectTooltipTriggerState } from '../tooltip-trigger/tooltip-trigger-state';
 
@@ -17,6 +18,7 @@ import { injectTooltipTriggerState } from '../tooltip-trigger/tooltip-trigger-st
 @Directive({
   selector: '[ngpTooltip]',
   exportAs: 'ngpTooltip',
+  hostDirectives: [NgpExitAnimation],
   host: {
     role: 'tooltip',
     '[style.left.px]': 'x()',
