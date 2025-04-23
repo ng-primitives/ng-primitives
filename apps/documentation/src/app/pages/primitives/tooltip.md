@@ -28,6 +28,28 @@ Assemble the tooltip directives in your template.
 </ng-template>
 ```
 
+## Reusable Component
+
+Create a tooltip component that uses the `NgpTooltip` directive.
+
+<docs-snippet name="tooltip"></docs-snippet>
+
+## Schematics
+
+Generate a reusable tooltip component using the Angular CLI.
+
+```bash npm
+ng g ng-primitives:primitive tooltip
+```
+
+### Options
+
+- `path`: The path at which to create the component file.
+- `prefix`: The prefix to apply to the generated component selector.
+- `componentSuffix`: The suffix to apply to the generated component class name.
+- `fileSuffix`: The suffix to apply to the generated component file name. Defaults to `component`.
+- `exampleStyles`: Whether to include example styles in the generated component file. Defaults to `true`.
+
 ## API Reference
 
 The following directives are available to import from the `ng-primitives/tooltip` package:
@@ -35,6 +57,13 @@ The following directives are available to import from the `ng-primitives/tooltip
 ### NgpTooltip
 
 <api-docs name="NgpTooltip"></api-docs>
+
+#### Data Attributes
+
+| Attribute    | Description                                                                                     |
+| ------------ | ----------------------------------------------------------------------------------------------- |
+| `data-enter` | Applied when the tooltip is being added to the DOM. This can be used to trigger animations.     |
+| `data-exit`  | Applied when the tooltip is being removed from the DOM. This can be used to trigger animations. |
 
 ### NgpTooltipTrigger
 
@@ -50,6 +79,18 @@ The following directives are available to import from the `ng-primitives/tooltip
 ## Animations
 
 The `ngpTooltip` primitive adds a CSS custom property `--ngp-tooltip-transform-origin` to the element that can be used to animate the tooltip from the trigger element.
+
+The `ngpTooltip` will also add the `data-enter` and `data-exit` attributes to the element when it is being added or removed from the DOM. This can be used to trigger animations.
+
+```css
+:host[data-enter] {
+  animation: fade-in 0.2s ease-in-out;
+}
+
+:host[data-exit] {
+  animation: fade-out 0.2s ease-in-out;
+}
+```
 
 ## Global Configuration
 

@@ -1,0 +1,29 @@
+import { Component } from '@angular/core';
+import { NgpToolbar } from 'ng-primitives/toolbar';
+
+@Component({
+  selector: '<%= prefix %>-toolbar',
+  hostDirectives: [{ directive: NgpToolbar, inputs: ['ngpToolbarOrientation:orientation'] }],
+  template: `
+    <ng-content />
+  `,
+  styles: `
+/* These styles rely on CSS variables that can be imported from ng-primitives/example-theme/index.css in your global styles */
+
+    :host {
+      display: flex;
+      column-gap: 0.25rem;
+      align-items: center;
+      border-radius: 0.375rem;
+      background-color: var(--ngp-background);
+      box-shadow: var(--ngp-button-shadow);
+      padding: 0.25rem;
+    }
+
+    :host[data-orientation='vertical'] {
+      flex-direction: column;
+      row-gap: 0.25rem;
+    }
+  `,
+})
+export class Toolbar<%= componentSuffix %> {}

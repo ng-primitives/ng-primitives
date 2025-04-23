@@ -11,7 +11,8 @@ import type { NgpTooltipTrigger } from './tooltip-trigger';
 /**
  * The state token  for the TooltipTrigger primitive.
  */
-export const NgpTooltipTriggerStateToken = createStateToken<NgpTooltipTrigger>('TooltipTrigger');
+export const NgpTooltipTriggerStateToken =
+  createStateToken<NgpTooltipTrigger<unknown>>('TooltipTrigger');
 
 /**
  * Provides the TooltipTrigger state.
@@ -21,9 +22,9 @@ export const provideTooltipTriggerState = createStateProvider(NgpTooltipTriggerS
 /**
  * Injects the TooltipTrigger state.
  */
-export const injectTooltipTriggerState = createStateInjector(
-  NgpTooltipTriggerStateToken,
-) as () => Signal<State<NgpTooltipTrigger>>;
+export const injectTooltipTriggerState = createStateInjector(NgpTooltipTriggerStateToken) as <
+  T,
+>() => Signal<State<NgpTooltipTrigger<T>>>;
 
 /**
  * The TooltipTrigger state registration function.

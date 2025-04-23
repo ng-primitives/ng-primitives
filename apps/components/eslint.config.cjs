@@ -25,6 +25,7 @@ module.exports = [
         },
       ],
       '@angular-eslint/component-class-suffix': 'off',
+      '@angular-eslint/directive-class-suffix': 'off',
     },
   },
   {

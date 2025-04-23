@@ -1,20 +1,21 @@
 import { BooleanInput, NumberInput } from '@angular/cdk/coercion';
-import { DomPortalOutlet, TemplatePortal } from '@angular/cdk/portal';
+import { ComponentPortal, DomPortalOutlet, TemplatePortal } from '@angular/cdk/portal';
 import { DOCUMENT } from '@angular/common';
 import {
+  ComponentRef,
   Directive,
   ElementRef,
   EmbeddedViewRef,
   Injector,
   OnDestroy,
   TemplateRef,
+  Type,
   ViewContainerRef,
   booleanAttribute,
   computed,
   inject,
   input,
   numberAttribute,
-  output,
   signal,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -29,8 +30,9 @@ import {
 } from '@floating-ui/dom';
 import { injectExitAnimationManager, provideExitAnimationManager } from 'ng-primitives/internal';
 import { fromResizeEvent } from 'ng-primitives/resize';
-import { injectDisposables, onBooleanChange } from 'ng-primitives/utils';
+import { injectDisposables } from 'ng-primitives/utils';
 import { injectTooltipConfig } from '../config/tooltip-config';
+import { provideTooltipContext } from '../tooltip/tooltip-token';
 import { provideTooltipTriggerState, tooltipTriggerState } from './tooltip-trigger-state';
 
 /**
@@ -41,15 +43,15 @@ import { provideTooltipTriggerState, tooltipTriggerState } from './tooltip-trigg
   exportAs: 'ngpTooltipTrigger',
   providers: [provideTooltipTriggerState(), provideExitAnimationManager()],
   host: {
-    '[attr.data-open]': 'state.open() ? "" : null',
-    '[attr.data-disabled]': 'disabled() ? "" : null',
+    '[attr.data-open]': 'viewRef !== null ? "" : null',
+    '[attr.data-disabled]': 'state.disabled() ? "" : null',
     '(mouseenter)': 'show()',
     '(mouseleave)': 'hide()',
     '(focus)': 'show()',
     '(blur)': 'hide()',
   },
 })
-export class NgpTooltipTrigger implements OnDestroy {
+export class NgpTooltipTrigger<T = null> implements OnDestroy {
   /**
    * Access the exit animation manager.
    */
@@ -88,24 +90,8 @@ export class NgpTooltipTrigger implements OnDestroy {
   /**
    * Access the tooltip template ref.
    */
-  readonly tooltip = input.required<TemplateRef<void>>({
+  readonly tooltip = input<NgpTooltipContent<T> | null>(null, {
     alias: 'ngpTooltipTrigger',
-  });
-
-  /**
-   * The open state of the tooltip.
-   * @default false
-   */
-  readonly open = input<boolean, BooleanInput>(false, {
-    alias: 'ngpTooltipTriggerOpen',
-    transform: booleanAttribute,
-  });
-
-  /**
-   * Emit an event when the tooltip is opened or closed.
-   */
-  readonly openChange = output<boolean>({
-    alias: 'ngpTooltipTriggerOpenChange',
   });
 
   /**
@@ -170,9 +156,17 @@ export class NgpTooltipTrigger implements OnDestroy {
   });
 
   /**
+   * Provide context to the tooltip.
+   * @default null
+   */
+  readonly context = input<T | null>(null, {
+    alias: 'ngpTooltipTriggerContext',
+  });
+
+  /**
    * Store the tooltip view ref.
    */
-  private viewRef: EmbeddedViewRef<void> | null = null;
+  protected viewRef: ComponentRef<unknown> | EmbeddedViewRef<T> | null = null;
 
   /**
    * Derive the tooltip middleware from the provided configuration.
@@ -223,13 +217,9 @@ export class NgpTooltipTrigger implements OnDestroy {
    * Store the state of the tooltip.
    * @internal
    */
-  readonly state = tooltipTriggerState<NgpTooltipTrigger>(this);
+  readonly state = tooltipTriggerState<NgpTooltipTrigger<T>>(this);
 
   constructor() {
-    // any time the open state changes then show or hide the tooltip
-    // eslint-disable-next-line @nx/workspace-prefer-state
-    onBooleanChange(this.open, this.show.bind(this), this.hide.bind(this));
-
     // update the width of the trigger when it resizes
     fromResizeEvent(this.trigger.nativeElement)
       .pipe(takeUntilDestroyed())
@@ -240,7 +230,10 @@ export class NgpTooltipTrigger implements OnDestroy {
     this.destroyTooltip();
   }
 
-  private show(): void {
+  /**
+   * Show the tooltip.
+   */
+  show(): void {
     // if closing is in progress then clear the timeout to stop the popover from closing
     if (this.closeTimeout) {
       this.closeTimeout();
@@ -248,12 +241,9 @@ export class NgpTooltipTrigger implements OnDestroy {
     }
 
     // if the trigger is disabled or the tooltip is already open then do not show the tooltip
-    if (this.state.disabled() || this.state.open() || this.openTimeout) {
+    if (this.state.disabled() || this.openTimeout) {
       return;
     }
-
-    this.state.open.set(true);
-    this.openChange.emit(true);
 
     // if the tooltip exists in the DOM then do not create it again
     if (this.viewRef) {
@@ -266,7 +256,10 @@ export class NgpTooltipTrigger implements OnDestroy {
     );
   }
 
-  private hide(): void {
+  /**
+   * Hide the tooltip.
+   */
+  hide(): void {
     // if closing is in progress then clear the timeout to stop the popover from opening
     if (this.openTimeout) {
       this.openTimeout();
@@ -274,12 +267,9 @@ export class NgpTooltipTrigger implements OnDestroy {
     }
 
     // if the trigger is disabled or the tooltip is already closed then do not hide the tooltip
-    if (this.state.disabled() || !this.state.open() || this.closeTimeout) {
+    if (this.state.disabled() || this.closeTimeout) {
       return;
     }
-
-    this.state.open.set(false);
-    this.openChange.emit(false);
 
     this.closeTimeout = this.disposables.setTimeout(
       () => this.destroyTooltip(),
@@ -289,28 +279,51 @@ export class NgpTooltipTrigger implements OnDestroy {
 
   private createTooltip(): void {
     this.openTimeout = undefined;
+    const tooltip = this.state.tooltip();
 
-    const portal = new TemplatePortal(
-      this.tooltip(),
-      this.viewContainerRef,
-      undefined,
-      this.injector,
-    );
+    let portal: TemplatePortal | ComponentPortal<unknown>;
+
+    // Create a new inject with the tooltip context
+    const injector = Injector.create({
+      parent: this.injector,
+      providers: [provideTooltipContext(this.state.context())],
+    });
+
+    if (tooltip instanceof TemplateRef) {
+      portal = new TemplatePortal<NgpTooltipTemplateContext<T>>(
+        tooltip,
+        this.viewContainerRef,
+        { $implicit: this.state.context() } as NgpTooltipTemplateContext<T>,
+        injector,
+      );
+    } else if (tooltip instanceof Type) {
+      portal = new ComponentPortal(tooltip, this.viewContainerRef, injector);
+    } else {
+      throw new Error('Tooltip must be either a TemplateRef or a ComponentType');
+    }
 
     const domOutlet = new DomPortalOutlet(
       this.state.container() ?? this.document.body,
       undefined,
       undefined,
-      Injector.create({
-        parent: this.injector,
-        providers: [],
-      }),
+      injector,
     );
 
     this.viewRef = domOutlet.attach(portal);
-    this.viewRef.detectChanges();
 
-    const outletElement = this.viewRef.rootNodes[0];
+    let outletElement: HTMLElement | null = null;
+
+    if (this.viewRef instanceof ComponentRef) {
+      this.viewRef.changeDetectorRef.detectChanges();
+      outletElement = this.viewRef.location.nativeElement;
+    } else if (this.viewRef) {
+      this.viewRef.detectChanges();
+      outletElement = this.viewRef.rootNodes[0] as HTMLElement;
+    }
+
+    if (!outletElement) {
+      throw new Error('Outlet element is not available.');
+    }
 
     // we want to determine the strategy to use. If the tooltip has position: fixed then we want to use
     // fixed positioning. Otherwise we want to use absolute positioning.
@@ -331,10 +344,13 @@ export class NgpTooltipTrigger implements OnDestroy {
     this.closeTimeout = undefined;
     await this.exitAnimationManager.exit();
 
-    this.state.open.set(false);
-    this.openChange.emit(false);
     this.viewRef?.destroy();
     this.viewRef = null;
     this.dispose?.();
   }
 }
+
+type NgpTooltipTemplateContext<T> = {
+  $implicit: T;
+};
+type NgpTooltipContent<T> = TemplateRef<NgpTooltipTemplateContext<T>> | Type<unknown>;
