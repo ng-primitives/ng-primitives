@@ -242,15 +242,23 @@ export class NgpTooltipTrigger implements OnDestroy {
 
   private show(): void {
     // if closing is in progress then clear the timeout to stop the popover from closing
-    this.closeTimeout?.();
+    if (this.closeTimeout) {
+      this.closeTimeout();
+      this.closeTimeout = undefined;
+    }
 
     // if the trigger is disabled or the tooltip is already open then do not show the tooltip
-    if (this.state.disabled() || this.state.open() || this.openTimeout || this.viewRef) {
+    if (this.state.disabled() || this.state.open() || this.openTimeout) {
       return;
     }
 
     this.state.open.set(true);
     this.openChange.emit(true);
+
+    // if the tooltip exists in the DOM then do not create it again
+    if (this.viewRef) {
+      return;
+    }
 
     this.openTimeout = this.disposables.setTimeout(
       () => this.createTooltip(),
@@ -260,7 +268,10 @@ export class NgpTooltipTrigger implements OnDestroy {
 
   private hide(): void {
     // if closing is in progress then clear the timeout to stop the popover from opening
-    this.openTimeout?.();
+    if (this.openTimeout) {
+      this.openTimeout();
+      this.openTimeout = undefined;
+    }
 
     // if the trigger is disabled or the tooltip is already closed then do not hide the tooltip
     if (this.state.disabled() || !this.state.open() || this.closeTimeout) {
@@ -269,6 +280,7 @@ export class NgpTooltipTrigger implements OnDestroy {
 
     this.state.open.set(false);
     this.openChange.emit(false);
+
     this.closeTimeout = this.disposables.setTimeout(
       () => this.destroyTooltip(),
       this.state.hideDelay(),
