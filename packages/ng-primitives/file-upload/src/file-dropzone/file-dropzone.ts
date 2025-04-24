@@ -31,11 +31,12 @@ export class NgpFileDropzone {
   private readonly elementRef = inject<ElementRef<HTMLElement>>(ElementRef);
 
   /**
-   * The accepted file types.
+   * The accepted file types. This can be an array of strings or a comma-separated string.
+   * Accepted types can either be file extensions (e.g. `.jpg`) or MIME types (e.g. `image/jpeg`).
    */
-  readonly fileTypes = input<string[] | undefined, string>(undefined, {
+  readonly fileTypes = input<string[], string | string[]>(undefined, {
     alias: 'ngpFileDropzoneFileTypes',
-    transform: coerceStringArray,
+    transform: types => coerceStringArray(types, ','),
   });
 
   /**
