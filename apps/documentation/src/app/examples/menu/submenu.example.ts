@@ -67,6 +67,11 @@ import { NgpMenu, NgpMenuItem, NgpMenuTrigger, NgpSubmenuTrigger } from 'ng-prim
       box-shadow: var(--ngp-shadow);
       border-radius: 8px;
       padding: 4px;
+      animation: menu-show 0.2s ease-out;
+    }
+
+    [ngpMenu][data-exit] {
+      animation: menu-hide 0.2s ease-out;
     }
 
     [ngpMenuItem] {
@@ -93,6 +98,28 @@ import { NgpMenu, NgpMenuItem, NgpMenuTrigger, NgpSubmenuTrigger } from 'ng-prim
     [ngpMenuItem][data-focus-visible] {
       outline: 2px solid var(--ngp-focus-ring);
       z-index: 1;
+    }
+
+    @keyframes menu-show {
+      0% {
+        opacity: 0;
+        transform: scale(0.9);
+      }
+      100% {
+        opacity: 1;
+        transform: scale(1);
+      }
+    }
+
+    @keyframes menu-hide {
+      0% {
+        opacity: 1;
+        transform: scale(1);
+      }
+      100% {
+        opacity: 0;
+        transform: scale(0.9);
+      }
     }
   `,
 })
