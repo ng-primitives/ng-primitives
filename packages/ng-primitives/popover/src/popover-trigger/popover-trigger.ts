@@ -381,10 +381,10 @@ export class NgpPopoverTrigger<T = null> implements OnDestroy {
       child.hide(origin);
     }
 
-    this.closeTimeout = this.disposables.setTimeout(() => {
+    this.closeTimeout = this.disposables.setTimeout(async () => {
       this.closeTimeout = undefined;
 
-      this.destroyPopover();
+      await this.destroyPopover();
       // ensure the trigger is focused after closing the popover
       this.disposables.setTimeout(() => this.focusTrigger(origin), 0);
     }, this.state.hideDelay());
