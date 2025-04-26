@@ -1,8 +1,10 @@
+import { InjectOptions, Signal } from '@angular/core';
 import {
   createState,
   createStateInjector,
   createStateProvider,
   createStateToken,
+  State,
 } from 'ng-primitives/state';
 import type { NgpPopoverTrigger } from './popover-trigger';
 
@@ -21,7 +23,7 @@ export const providePopoverTriggerState = createStateProvider(NgpPopoverTriggerS
  */
 export const injectPopoverTriggerState = createStateInjector<NgpPopoverTrigger>(
   NgpPopoverTriggerStateToken,
-);
+) as <T>(options?: InjectOptions) => Signal<State<NgpPopoverTrigger<T>>>;
 
 /**
  * The PopoverTrigger state registration function.

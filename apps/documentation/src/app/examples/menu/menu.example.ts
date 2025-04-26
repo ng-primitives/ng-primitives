@@ -53,11 +53,14 @@ import { NgpMenu, NgpMenuItem, NgpMenuTrigger } from 'ng-primitives/menu';
       box-shadow: var(--ngp-shadow);
       border-radius: 8px;
       padding: 4px;
-      animation: menu-show 0.2s ease-out;
+    }
+
+    [ngpMenu][data-enter] {
+      animation: menu-show 0.1s ease-out;
     }
 
     [ngpMenu][data-exit] {
-      animation: menu-hide 0.2s ease-out;
+      animation: menu-hide 0.1s ease-out;
     }
 
     [ngpMenuItem] {
