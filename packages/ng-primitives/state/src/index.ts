@@ -50,16 +50,32 @@ export function createStateToken<T>(description: string): InjectionToken<T> {
   return new InjectionToken<Signal<State<T>>>(`Ngp${description}StateToken`);
 }
 
+export interface CreateStateProviderOptions {
+  /**
+   * Whether we should check for the state in the parent injector.
+   */
+  inherit?: boolean;
+}
+
 /**
  * Create a new provider for the state. It first tries to inject the state from the parent injector,
  * as this allows for the state to be hoisted to a higher level in the component tree. This can
  * be useful to avoid issues where the injector can't be shared in some cases when ng-content is used.
  * @param token The token for the state
  */
-export function createStateProvider<T>(token: ProviderToken<T>): () => FactoryProvider {
-  return () => ({
+export function createStateProvider<T>(
+  token: ProviderToken<T>,
+): (options?: CreateStateProviderOptions) => FactoryProvider {
+  return ({ inherit }: CreateStateProviderOptions = {}) => ({
     provide: token,
-    useFactory: () => inject(token, { optional: true, skipSelf: true }) ?? signal({}),
+    useFactory: () => {
+      if (inherit === false) {
+        // if we are not checking the parent, we want to create a new state
+        return signal({});
+      }
+      // if we are checking the parent, we want to check if the state is already defined
+      return inject(token, { optional: true, skipSelf: true }) ?? signal({});
+    },
   });
 }
 
