@@ -11,6 +11,7 @@ import {
   OnDestroy,
   OnInit,
 } from '@angular/core';
+import { focusTrapState, provideFocusTrapState } from './focus-trap-state';
 
 /**
  * This implementation is based on the Radix UI FocusScope:
@@ -85,6 +86,7 @@ const focusTrapStack = new FocusTrapStack();
 @Directive({
   selector: '[ngpFocusTrap]',
   exportAs: 'ngpFocusTrap',
+  providers: [provideFocusTrapState()],
   host: {
     '[attr.tabindex]': '-1',
     '[attr.data-focus-trap]': '!disabled() ? "" : null',
@@ -129,6 +131,11 @@ export class NgpFocusTrap implements OnInit, OnDestroy {
     transform: booleanAttribute,
   });
 
+  /**
+   * The focus trap state.
+   */
+  protected readonly state = focusTrapState<NgpFocusTrap>(this);
+
   ngOnInit(): void {
     focusTrapStack.add(this.focusTrap);
 
@@ -163,7 +170,7 @@ export class NgpFocusTrap implements OnInit, OnDestroy {
   }
 
   private handleFocusIn(event: FocusEvent): void {
-    if (!this.focusTrap.active || this.disabled()) {
+    if (!this.focusTrap.active || this.state.disabled()) {
       return;
     }
 
@@ -180,7 +187,7 @@ export class NgpFocusTrap implements OnInit, OnDestroy {
    * Handles the `focusout` event.
    */
   private handleFocusOut(event: FocusEvent) {
-    if (!this.focusTrap.active || this.disabled() || event.relatedTarget === null) {
+    if (!this.focusTrap.active || this.state.disabled() || event.relatedTarget === null) {
       return;
     }
 
@@ -214,7 +221,7 @@ export class NgpFocusTrap implements OnInit, OnDestroy {
    */
   @HostListener('keydown', ['$event'])
   protected handleKeyDown(event: KeyboardEvent): void {
-    if (!this.focusTrap.active || this.disabled()) {
+    if (!this.focusTrap.active || this.state.disabled()) {
       return;
     }
 
