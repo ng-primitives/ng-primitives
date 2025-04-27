@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { NgpToolbar } from 'ng-primitives/toolbar';
+import { injectToolbarState, NgpToolbar } from 'ng-primitives/toolbar';
 
 @Component({
   selector: 'app-toolbar',
@@ -24,4 +24,12 @@ import { NgpToolbar } from 'ng-primitives/toolbar';
     }
   `,
 })
-export class Toolbar {}
+export class Toolbar {
+  /** Access the toolbar state */
+  private readonly toolbar = injectToolbarState();
+
+  constructor() {
+    // default to horizontal orientation
+    this.toolbar().orientation.set('horizontal');
+  }
+}
