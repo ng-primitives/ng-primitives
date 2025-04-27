@@ -381,12 +381,17 @@ export class NgpPopoverTrigger<T = null> implements OnDestroy {
       child.hide(origin);
     }
 
+    // disable the focus trap in the popover to prevent it trying to return focus to the popover
+    // when the popover is closed/closing
+    this.popoverInstance?.focusTrap().disabled.set(true);
+
+    // ensure the trigger is focused after closing the popover
+    this.focusTrigger(origin);
+
     this.closeTimeout = this.disposables.setTimeout(async () => {
       this.closeTimeout = undefined;
 
       await this.destroyPopover();
-      // ensure the trigger is focused after closing the popover
-      this.disposables.setTimeout(() => this.focusTrigger(origin), 0);
     }, this.state.hideDelay());
   }
 
@@ -487,19 +492,22 @@ export class NgpPopoverTrigger<T = null> implements OnDestroy {
     // clear the close timeout
     this.closeTimeout = undefined;
 
-    await this.exitAnimationState.exit();
-
     const viewRef = this.viewRef();
 
-    // if the view is already destroyed then do not destroy it again
-    const isDestroyed = viewRef instanceof ComponentRef ? false : viewRef?.destroyed;
-
-    if (viewRef && !isDestroyed) {
-      // destroy the view ref
-      viewRef.destroy();
+    if (!viewRef) {
+      return;
     }
 
+    // we remove this to prevent the popover from being destroyed twice
+    // because ngOnDestroy will be called on the viewRef
+    // when the popover is destroyed triggering this method again
     this.viewRef.set(null);
+
+    await this.exitAnimationState.exit();
+
+    // destroy the view ref
+    viewRef.destroy();
+
     this.dispose?.();
 
     // deactivate the scroll strategy
