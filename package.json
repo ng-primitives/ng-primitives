@@ -4,7 +4,7 @@
   "license": "Apache-2.0",
   "private": true,
   "scripts": {
-    "prepare": "husky",
+    "prepare": "husky && pnpm exec playwright install",
     "start": "nx serve documentation",
     "format": "nx format:write",
     "lint": "nx run-many -t lint",
