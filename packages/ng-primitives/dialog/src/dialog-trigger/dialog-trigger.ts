@@ -1,13 +1,5 @@
 import { FocusMonitor } from '@angular/cdk/a11y';
-import {
-  ApplicationRef,
-  Directive,
-  ElementRef,
-  HostListener,
-  inject,
-  input,
-  TemplateRef,
-} from '@angular/core';
+import { Directive, ElementRef, HostListener, inject, input, TemplateRef } from '@angular/core';
 import { NgpDialogRef } from '../dialog/dialog-ref';
 import { NgpDialogContext, NgpDialogManager } from '../dialog/dialog.service';
 
@@ -18,9 +10,6 @@ import { NgpDialogContext, NgpDialogManager } from '../dialog/dialog.service';
 export class NgpDialogTrigger {
   /** Access the dialog manager. */
   private readonly dialogManager = inject(NgpDialogManager);
-
-  /** Access the application ref. */
-  private readonly applicationRef = inject(ApplicationRef);
 
   /** Access the focus monitor. */
   private readonly focusMonitor = inject(FocusMonitor);
