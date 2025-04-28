@@ -73,18 +73,7 @@ The following directives are available to import from the `ng-primitives/dialog`
 
 ### NgpDialog
 
-The dialog container.
-
-- Selector: `[ngpDialog]`
-- Exported As: `ngpDialog`
-
-<prop-details name="ngpDialogRole" type="'dialog' | 'alertdialog">
-  The role of the dialog. Use `'dialog'` for dialogs that require user interaction and `'alertdialog'` for dialogs that require immediate user attention.
-</prop-details>
-
-<prop-details name="ngpDialogModal" type="boolean">
-  Whether the dialog is modal. A modal dialog prevents the user from interacting with the rest of the page until the dialog is closed.
-</prop-details>
+<api-docs name="NgpDialog"></api-docs>
 
 | Attribute   | Description                         |
 | ----------- | ----------------------------------- |
@@ -92,28 +81,15 @@ The dialog container.
 
 ### NgpDialogTitle
 
-The dialog title.
-
-- Selector: `[ngpDialogTitle]`
-- Exported As: `ngpDialogTitle`
+<api-docs name="NgpDialogTitle"></api-docs>
 
 ### NgpDialogDescription
 
-The dialog description.
-
-- Selector: `[ngpDialogDescription]`
-- Exported As: `ngpDialogDescription`
+<api-docs name="NgpDialogDescription"></api-docs>
 
 ### NgpDialogTrigger
 
-Add to a button or link to open the dialog.
-
-- Selector: `[ngpDialogTrigger]`
-- Exported As: `ngpDialogTrigger`
-
-<prop-details name="ngpDialogTrigger" type="TemplateRef<NgpDialogContext>">
-  The dialog template to open when the trigger is activated.
-</prop-details>
+<api-docs name="NgpDialogTrigger"></api-docs>
 
 | Attribute            | Description                           |
 | -------------------- | ------------------------------------- |
@@ -124,10 +100,7 @@ Add to a button or link to open the dialog.
 
 ### NgpDialogOverlay
 
-The dialog overlay.
-
-- Selector: `[ngpDialogOverlay]`
-- Exported As: `ngpDialogOverlay`
+<api-docs name="NgpDialogOverlay"></api-docs>
 
 | Attribute   | Description                         |
 | ----------- | ----------------------------------- |
