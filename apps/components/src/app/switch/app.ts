@@ -6,7 +6,7 @@ import { Switch } from './switch';
   selector: 'app-switch-example',
   imports: [Switch, FormsModule],
   template: `
-    <app-switch [(ngModel)]="checked" />
+    <app-switch [(ngModel)]="checked" aria-label="Toggle Switch" />
   `,
 })
 export default class App {

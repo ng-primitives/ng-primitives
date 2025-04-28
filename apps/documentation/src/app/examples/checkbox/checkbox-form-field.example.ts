@@ -7,7 +7,7 @@ import { NgpDescription, NgpFormField, NgpLabel } from 'ng-primitives/form-field
 @Component({
   selector: 'app-checkbox-form-control',
   imports: [NgIcon, NgpCheckbox, NgpFormField, NgpLabel, NgpDescription],
-  viewProviders: [provideIcons({ heroCheckMini })],
+  providers: [provideIcons({ heroCheckMini })],
   styles: `
     [ngpFormField] {
       display: flex;

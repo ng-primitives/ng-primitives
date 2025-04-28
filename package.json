@@ -4,7 +4,7 @@
   "license": "Apache-2.0",
   "private": true,
   "scripts": {
-    "prepare": "husky",
+    "prepare": "husky && pnpm exec playwright install",
     "start": "nx serve documentation",
     "format": "nx format:write",
     "lint": "nx run-many -t lint",
@@ -26,6 +26,7 @@
     "@angular/cli": "~19.0.7",
     "@angular/compiler-cli": "19.0.7",
     "@angular/language-service": "19.0.7",
+    "@axe-core/playwright": "^4.10.1",
     "@eslint/eslintrc": "^2.1.4",
     "@nx/angular": "20.3.1",
     "@nx/eslint": "20.3.1",

@@ -6,7 +6,7 @@ import { NgpButton } from 'ng-primitives/button';
 
 @Component({
   selector: 'docs-theme-toggler',
-  viewProviders: [provideIcons({ lucideMoon, lucideSun })],
+  providers: [provideIcons({ lucideMoon, lucideSun })],
   templateUrl: './theme-toggle.html',
   imports: [NgIcon, NgpButton],
   styles: `

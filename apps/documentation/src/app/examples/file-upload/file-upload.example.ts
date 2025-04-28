@@ -6,7 +6,7 @@ import { NgpFileUpload } from 'ng-primitives/file-upload';
 @Component({
   selector: 'app-file-upload',
   imports: [NgpFileUpload, NgIcon],
-  viewProviders: [provideIcons({ heroCloudArrowUp })],
+  providers: [provideIcons({ heroCloudArrowUp })],
   template: `
     <div
       (ngpFileUploadSelected)="onFilesSelected($event)"
