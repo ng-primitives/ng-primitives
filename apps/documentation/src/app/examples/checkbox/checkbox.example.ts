@@ -6,7 +6,7 @@ import { NgpCheckbox } from 'ng-primitives/checkbox';
 @Component({
   selector: 'app-checkbox',
   imports: [NgIcon, NgpCheckbox],
-  viewProviders: [provideIcons({ heroCheckMini })],
+  providers: [provideIcons({ heroCheckMini })],
   styles: `
     [ngpCheckbox] {
       display: flex;

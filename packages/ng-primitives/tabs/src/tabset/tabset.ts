@@ -1,14 +1,7 @@
 import { BooleanInput } from '@angular/cdk/coercion';
-import {
-  booleanAttribute,
-  computed,
-  Directive,
-  input,
-  OnInit,
-  output,
-  signal,
-} from '@angular/core';
+import { booleanAttribute, computed, Directive, input, output, signal } from '@angular/core';
 import { NgpOrientation } from 'ng-primitives/common';
+import { syncState } from 'ng-primitives/internal';
 import { injectRovingFocusGroupState, NgpRovingFocusGroup } from 'ng-primitives/roving-focus';
 import { uniqueId } from 'ng-primitives/utils';
 import { injectTabsConfig } from '../config/tabs-config';
@@ -22,18 +15,13 @@ import { provideTabsetState, tabsetState } from './tabset-state';
   selector: '[ngpTabset]',
   exportAs: 'ngpTabset',
   providers: [provideTabsetState()],
-  hostDirectives: [
-    {
-      directive: NgpRovingFocusGroup,
-      inputs: ['ngpRovingFocusGroupOrientation:ngpTabsetOrientation'],
-    },
-  ],
+  hostDirectives: [NgpRovingFocusGroup],
   host: {
     '[attr.id]': 'state.id()',
     '[attr.data-orientation]': 'state.orientation()',
   },
 })
-export class NgpTabset implements OnInit {
+export class NgpTabset {
   /**
    * Access the global tabset configuration
    */
@@ -106,10 +94,8 @@ export class NgpTabset implements OnInit {
    */
   protected readonly state = tabsetState<NgpTabset>(this);
 
-  ngOnInit(): void {
-    // the roving focus group defaults to vertical orientation whereas
-    // the default for the tabset may be different if provided via global config
-    this.rovingFocusGroupState().orientation.set(this.state.orientation());
+  constructor() {
+    syncState(this.state.orientation, this.rovingFocusGroupState().orientation);
   }
 
   /**

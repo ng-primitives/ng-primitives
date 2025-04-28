@@ -6,7 +6,7 @@ import { NgpListbox, NgpListboxOption } from 'ng-primitives/listbox';
 @Component({
   selector: 'app-listbox',
   imports: [NgpListbox, NgpListboxOption, NgIcon],
-  viewProviders: [provideIcons({ heroCheckSolid })],
+  providers: [provideIcons({ heroCheckSolid })],
   template: `
     <div class="listbox" [(ngpListboxValue)]="selection" ngpListbox aria-label="Characters">
       @for (option of options; track option.id) {

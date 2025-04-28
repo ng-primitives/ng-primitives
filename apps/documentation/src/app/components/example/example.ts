@@ -135,7 +135,7 @@ export class Example {
         '@angular/cli': `^${VERSION.major}.0.0`,
         '@angular/compiler-cli': `^${VERSION.major}.0.0`,
         typescript: `~${versionMajorMinor}.0`,
-        'zone.js': '~0.14.0',
+        'zone.js': '~0.15.0',
       },
     };
 

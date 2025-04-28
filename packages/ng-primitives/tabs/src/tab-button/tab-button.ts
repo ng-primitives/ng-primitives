@@ -12,7 +12,7 @@ import { injectTabsetState } from '../tabset/tabset-state';
   exportAs: 'ngpTabButton',
   host: {
     role: 'tab',
-    '[attr.id]': 'id() ?? defaultId()',
+    '[attr.id]': 'buttonId()',
     '[attr.aria-controls]': 'ariaControls()',
     '[attr.data-active]': 'active() ? "" : null',
     '[attr.data-disabled]': 'disabled() ? "" : null',
@@ -50,7 +50,7 @@ export class NgpTabButton implements OnInit {
    * Determine a unique id for the tab button if not provided
    * @internal
    */
-  readonly defaultId = computed(() => `${this.state().id()}-button-${this.value()}`);
+  readonly buttonId = computed(() => this.id() ?? `${this.state().id()}-button-${this.value()}`);
 
   /**
    * Determine the aria-controls of the tab button

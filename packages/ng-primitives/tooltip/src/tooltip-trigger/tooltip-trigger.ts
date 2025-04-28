@@ -43,7 +43,7 @@ import { provideTooltipTriggerState, tooltipTriggerState } from './tooltip-trigg
   exportAs: 'ngpTooltipTrigger',
   providers: [provideTooltipTriggerState(), provideExitAnimationManager()],
   host: {
-    '[attr.data-open]': 'viewRef !== null ? "" : null',
+    '[attr.data-open]': 'open() ? "" : null',
     '[attr.data-disabled]': 'state.disabled() ? "" : null',
     '(mouseenter)': 'show()',
     '(mouseleave)': 'hide()',
@@ -166,7 +166,7 @@ export class NgpTooltipTrigger<T = null> implements OnDestroy {
   /**
    * Store the tooltip view ref.
    */
-  protected viewRef: ComponentRef<unknown> | EmbeddedViewRef<T> | null = null;
+  protected viewRef = signal<ComponentRef<unknown> | EmbeddedViewRef<T> | null>(null);
 
   /**
    * Derive the tooltip middleware from the provided configuration.
@@ -214,6 +214,12 @@ export class NgpTooltipTrigger<T = null> implements OnDestroy {
   private closeTimeout?: () => void;
 
   /**
+   * @internal
+   * Whether the tooltip is open or not.
+   */
+  readonly open = computed(() => this.viewRef() !== null);
+
+  /**
    * Store the state of the tooltip.
    * @internal
    */
@@ -246,7 +252,7 @@ export class NgpTooltipTrigger<T = null> implements OnDestroy {
     }
 
     // if the tooltip exists in the DOM then do not create it again
-    if (this.viewRef) {
+    if (this.viewRef()) {
       return;
     }
 
@@ -309,16 +315,17 @@ export class NgpTooltipTrigger<T = null> implements OnDestroy {
       injector,
     );
 
-    this.viewRef = domOutlet.attach(portal);
+    const viewRef = domOutlet.attach(portal);
+    this.viewRef.set(viewRef);
 
     let outletElement: HTMLElement | null = null;
 
-    if (this.viewRef instanceof ComponentRef) {
-      this.viewRef.changeDetectorRef.detectChanges();
-      outletElement = this.viewRef.location.nativeElement;
-    } else if (this.viewRef) {
-      this.viewRef.detectChanges();
-      outletElement = this.viewRef.rootNodes[0] as HTMLElement;
+    if (viewRef instanceof ComponentRef) {
+      viewRef.changeDetectorRef.detectChanges();
+      outletElement = viewRef.location.nativeElement;
+    } else if (viewRef) {
+      viewRef.detectChanges();
+      outletElement = viewRef.rootNodes[0] as HTMLElement;
     }
 
     if (!outletElement) {
@@ -344,8 +351,8 @@ export class NgpTooltipTrigger<T = null> implements OnDestroy {
     this.closeTimeout = undefined;
     await this.exitAnimationManager.exit();
 
-    this.viewRef?.destroy();
-    this.viewRef = null;
+    this.viewRef()?.destroy();
+    this.viewRef.set(null);
     this.dispose?.();
   }
 }

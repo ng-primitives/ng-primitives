@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, input } from '@angular/core';
 import { ControlValueAccessor } from '@angular/forms';
 import {
   injectSliderState,
@@ -24,12 +24,12 @@ import { ChangeFn, provideValueAccessor, TouchedFn } from 'ng-primitives/utils';
     },
   ],
   imports: [NgpSliderTrack, NgpSliderRange, NgpSliderThumb],
-  viewProviders: [provideValueAccessor(Slider)],
+  providers: [provideValueAccessor(Slider)],
   template: `
     <div ngpSliderTrack>
       <div ngpSliderRange></div>
     </div>
-    <div ngpSliderThumb></div>
+    <div [ariaLabel]="ariaLabel()" ngpSliderThumb></div>
   `,
   styles: `
     :host {
@@ -81,6 +81,11 @@ import { ChangeFn, provideValueAccessor, TouchedFn } from 'ng-primitives/utils';
 export class Slider implements ControlValueAccessor {
   /** Access the slider state */
   private readonly state = injectSliderState();
+
+  /** Forward the aria-label to the thumb */
+  readonly ariaLabel = input<string | null>(null, {
+    alias: 'aria-label',
+  });
 
   /**
    * The onChange callback function.

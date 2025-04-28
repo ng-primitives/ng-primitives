@@ -26,7 +26,7 @@ import {
     NgpPaginationPrevious,
     NgpPaginationLast,
   ],
-  viewProviders: [
+  providers: [
     provideIcons({
       heroChevronDoubleLeft,
       heroChevronDoubleRight,
@@ -43,43 +43,43 @@ import {
     >
       <ul>
         <li>
-          <a ngpPaginationFirst aria-label="First Page">
+          <button ngpPaginationFirst aria-label="First Page">
             <ng-icon name="heroChevronDoubleLeft" />
-          </a>
+          </button>
         </li>
 
         <li>
-          <a ngpPaginationPrevious aria-label="Previous Page">
+          <button ngpPaginationPrevious aria-label="Previous Page">
             <ng-icon name="heroChevronLeft" />
-          </a>
+          </button>
         </li>
 
         <li>
-          <a ngpPaginationButton ngpPaginationButtonPage="1" aria-label="Page 1">1</a>
+          <button ngpPaginationButton ngpPaginationButtonPage="1" aria-label="Page 1">1</button>
         </li>
         <li>
-          <a ngpPaginationButton ngpPaginationButtonPage="2" aria-label="Page 2">2</a>
+          <button ngpPaginationButton ngpPaginationButtonPage="2" aria-label="Page 2">2</button>
         </li>
         <li>
-          <a ngpPaginationButton ngpPaginationButtonPage="3" aria-label="Page 3">3</a>
+          <button ngpPaginationButton ngpPaginationButtonPage="3" aria-label="Page 3">3</button>
         </li>
         <li>
-          <a ngpPaginationButton ngpPaginationButtonPage="4" aria-label="Page 4">4</a>
+          <button ngpPaginationButton ngpPaginationButtonPage="4" aria-label="Page 4">4</button>
         </li>
         <li>
-          <a ngpPaginationButton ngpPaginationButtonPage="5" aria-label="Page 5">5</a>
+          <button ngpPaginationButton ngpPaginationButtonPage="5" aria-label="Page 5">5</button>
         </li>
 
         <li>
-          <a ngpPaginationNext aria-label="Next Page">
+          <button ngpPaginationNext aria-label="Next Page">
             <ng-icon name="heroChevronRight" />
-          </a>
+          </button>
         </li>
 
         <li>
-          <a ngpPaginationLast aria-label="Last Page">
+          <button ngpPaginationLast aria-label="Last Page">
             <ng-icon name="heroChevronDoubleRight" />
-          </a>
+          </button>
         </li>
       </ul>
     </nav>
@@ -114,7 +114,7 @@ import {
       background-color: var(--ngp-background);
       box-shadow: var(--ngp-button-shadow);
       cursor: pointer;
-      transition: all 0.2s;
+      transition: background-color 0.2s;
 
       &[data-hover]:not([data-disabled]):not([data-selected]) {
         background-color: var(--ngp-background-hover);

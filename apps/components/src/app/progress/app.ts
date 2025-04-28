@@ -5,7 +5,7 @@ import { Progress } from './progress';
   selector: 'app-progress-example',
   imports: [Progress],
   template: `
-    <app-progress value="50" />
+    <app-progress value="50" aria-label="Progress indicator" />
   `,
 })
 export default class App {}

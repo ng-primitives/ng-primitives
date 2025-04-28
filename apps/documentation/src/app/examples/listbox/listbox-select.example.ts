@@ -20,7 +20,7 @@ import { NgpPopover, NgpPopoverTrigger } from 'ng-primitives/popover';
     NgpListboxTrigger,
     NgIcon,
   ],
-  viewProviders: [provideIcons({ heroCheckSolid, heroChevronDownSolid })],
+  providers: [provideIcons({ heroCheckSolid, heroChevronDownSolid })],
   template: `
     <div ngpFormField>
       <label ngpLabel>Character</label>

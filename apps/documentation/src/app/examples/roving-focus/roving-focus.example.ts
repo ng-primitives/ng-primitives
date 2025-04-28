@@ -15,7 +15,7 @@ import { NgpSeparator } from 'ng-primitives/separator';
 @Component({
   selector: 'app-roving-focus',
   imports: [NgpRovingFocusGroup, NgpRovingFocusItem, NgIcon, NgpButton, NgpSeparator],
-  viewProviders: [
+  providers: [
     provideIcons({
       heroDocument,
       heroFolder,

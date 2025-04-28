@@ -10,7 +10,7 @@ import { SideNavigation } from './components/side-navigation/side-navigation';
 @Component({
   selector: 'docs-root',
   imports: [RouterOutlet, Navbar, SideNavigation],
-  viewProviders: [provideIcons({ saxMoonOutline })],
+  providers: [provideIcons({ saxMoonOutline })],
   template: `
     <docs-navbar [(menuOpen)]="menuOpen" />
 

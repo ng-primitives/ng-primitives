@@ -26,7 +26,7 @@ import { heroUsers } from '@ng-icons/heroicons/outline';
     <ng-icon name="heroUsers" />
   `,
   imports: [NgIcon],
-  viewProviders: [provideIcons({ featherAirplay, heroUsers })],
+  providers: [provideIcons({ featherAirplay, heroUsers })],
 })
 export class AppComponent {}
 ```
