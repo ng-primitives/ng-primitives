@@ -24,7 +24,7 @@ import { ChangeFn, provideValueAccessor, TouchedFn } from 'ng-primitives/utils';
     },
   ],
   imports: [NgpSliderTrack, NgpSliderRange, NgpSliderThumb],
-  viewProviders: [provideValueAccessor(Slider<%= componentSuffix %>)],
+  providers: [provideValueAccessor(Slider<%= componentSuffix %>)],
   template: `
     <div ngpSliderTrack>
       <div ngpSliderRange></div>

@@ -113,6 +113,12 @@ export async function reusableComponentGenerator(
     return json;
   });
 
+  // add a spec file for the component
+  generateFiles(tree, path.join(__dirname, 'spec-files'), 'apps/components-e2e/src', {
+    options,
+    ...formattedNames,
+  });
+
   await formatFiles(tree);
 }
 

@@ -5,7 +5,7 @@ import { Slider } from './slider';
   selector: 'app-slider-example',
   imports: [Slider],
   template: `
-    <app-slider />
+    <app-slider aria-label="Slider control" />
   `,
 })
 export default class App {}

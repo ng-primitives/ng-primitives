@@ -16,13 +16,13 @@ import { ToolbarButton } from './toolbar-button';
   ],
   template: `
     <app-toolbar>
-      <button app-toolbar-button>
+      <button app-toolbar-button aria-label="New Document">
         <ng-icon name="heroDocument" />
       </button>
-      <button app-toolbar-button>
+      <button app-toolbar-button aria-label="New Folder">
         <ng-icon name="heroFolder" />
       </button>
-      <button app-toolbar-button>
+      <button app-toolbar-button aria-label="Settings">
         <ng-icon name="heroCog6Tooth" />
       </button>
     </app-toolbar>

@@ -13,7 +13,6 @@
         "outputPath": "dist/apps/components",
         "index": "apps/components/src/index.html",
         "browser": "apps/components/src/main.ts",
-        "polyfills": ["zone.js"],
         "tsConfig": "apps/components/tsconfig.app.json",
         "assets": [
           {

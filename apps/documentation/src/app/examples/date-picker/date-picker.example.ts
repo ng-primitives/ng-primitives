@@ -27,7 +27,7 @@ import {
     NgpDatePickerCellRender,
     NgpDatePickerDateButton,
   ],
-  viewProviders: [provideIcons({ heroChevronRightMini, heroChevronLeftMini })],
+  providers: [provideIcons({ heroChevronRightMini, heroChevronLeftMini })],
   template: `
     <div [(ngpDatePickerDate)]="date" [(ngpDatePickerFocusedDate)]="focused" ngpDatePicker>
       <div class="date-picker-header">
