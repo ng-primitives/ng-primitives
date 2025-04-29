@@ -64,23 +64,23 @@ The following directives are available to import from the `ng-primitives/meter` 
 
 ### NgpMeter
 
-<api-docs name="NgpMeter" />
+<api-docs name="NgpMeter"></api-docs>
 
 ### NgpMeterLabel
 
-<api-docs name="NgpMeterLabel" />
+<api-docs name="NgpMeterLabel"></api-docs>
 
 ### NgpMeterValue
 
-<api-docs name="NgpMeterValue" />
+<api-docs name="NgpMeterValue"></api-docs>
 
 ### NgpMeterTrack
 
-<api-docs name="NgpMeterTrack" />
+<api-docs name="NgpMeterTrack"></api-docs>
 
 ### NgpMeterIndicator
 
-<api-docs name="NgpMeterIndicator" />
+<api-docs name="NgpMeterIndicator"></api-docs>
 
 ## Accessibility
 
