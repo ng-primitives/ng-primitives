@@ -132,7 +132,10 @@
   "pnpm": {
     "patchedDependencies": {
       "@phenomnomnominal/tsquery@6.1.3": "patches/@phenomnomnominal__tsquery@6.1.3.patch"
-    }
+    },
+    "onlyBuiltDependencies": [
+      "nx"
+    ]
   },
   "volta": {
     "node": "22.15.0"
