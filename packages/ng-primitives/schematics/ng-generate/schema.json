@@ -20,6 +20,7 @@
         "form-field",
         "input",
         "listbox",
+        "meter",
         "pagination",
         "progress",
         "radio",

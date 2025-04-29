@@ -73,3 +73,7 @@ The following data attributes are available on the `NgpMenuItem` directive:
 | Attribute       | Description                        |
 | --------------- | ---------------------------------- |
 | `data-disabled` | Applied when the item is disabled. |
+
+## Accessibility
+
+Adhere to the [WAI-ARIA Authoring Practices](https://www.w3.org/WAI/ARIA/apg/patterns/menu-button/) for menus and submenus.
