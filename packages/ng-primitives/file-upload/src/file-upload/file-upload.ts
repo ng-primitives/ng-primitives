@@ -115,7 +115,11 @@ export class NgpFileUpload {
       disabled: this.state.disabled,
     });
     this.input.type = 'file';
-    this.input.addEventListener('change', () => this.selected.emit(this.input.files));
+    this.input.addEventListener('change', () => {
+      this.selected.emit(this.input.files);
+      // clear the input value to allow re-uploading the same file
+      this.input.value = '';
+    });
     this.input.addEventListener('cancel', () => this.canceled.emit());
   }
 
