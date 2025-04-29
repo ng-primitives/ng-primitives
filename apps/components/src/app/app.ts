@@ -30,6 +30,7 @@ import { RouterLink, RouterOutlet } from '@angular/router';
       <a routerLink="/toast">Toast</a>
       <a routerLink="/toolbar">Toolbar</a>
       <a routerLink="/tooltip">Tooltip</a>
+      <a routerLink="/meter">Meter</a>
     </nav>
     <main>
       <router-outlet />
