@@ -81,3 +81,7 @@ The following directives are available to import from the `ng-primitives/meter` 
 ### NgpMeterIndicator
 
 <api-docs name="NgpMeterIndicator" />
+
+## Accessibility
+
+Adheres to the [Meter Accessibility](https://www.w3.org/WAI/ARIA/apg/patterns/meter/) guidelines.

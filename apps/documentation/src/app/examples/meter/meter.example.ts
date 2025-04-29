@@ -42,7 +42,7 @@ import {
       font-weight: 500;
       text-align: right;
       grid-column-start: 2;
-      text-align: right;
+      text-align: end;
     }
 
     [ngpMeterTrack] {

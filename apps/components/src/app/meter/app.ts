@@ -5,7 +5,7 @@ import { Meter } from './meter';
   selector: 'app-meter-example',
   imports: [Meter],
   template: `
-    <app-meter />
+    <app-meter label="Label" value="40" />
   `,
 })
 export default class App {}

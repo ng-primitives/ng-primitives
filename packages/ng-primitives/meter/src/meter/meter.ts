@@ -12,7 +12,7 @@ import { meterState, provideMeterState } from './meter-state';
     '[attr.aria-valuenow]': 'percentage()',
     '[attr.aria-valuemin]': 'min()',
     '[attr.aria-valuemax]': 'max()',
-    '[attr.aria-valuetext]': 'valueLabel()',
+    '[attr.aria-valuetext]': 'valueLabel()(value(), max())',
     '[attr.aria-labelledby]': 'label()?.id()',
   },
 })
