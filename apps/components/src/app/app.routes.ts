@@ -1,6 +1,7 @@
 import { Route } from '@angular/router';
 
 export const appRoutes: Route[] = [
+  { path: 'meter', loadComponent: () => import('./meter/app') },
   { path: 'toast', loadComponent: () => import('./toast/app') },
   { path: 'search', loadComponent: () => import('./search/app') },
   { path: 'file-upload', loadComponent: () => import('./file-upload/app') },

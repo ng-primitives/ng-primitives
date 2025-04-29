@@ -24,6 +24,7 @@
   --ngp-background-inverse: var(--ngp-black);
   --ngp-background-disabled: var(--ngp-gray-100);
   --ngp-background-blue: #dbeafe;
+  --ngp-background-success: oklch(84.1% 0.238 128.85);
 
   --ngp-border: var(--ngp-gray-200);
   --ngp-border-secondary: var(--ngp-gray-300);
@@ -41,6 +42,7 @@
   --ngp-text-red: #ef4444;
 
   --ngp-shadow: 0 1px 2px 0 rgba(0 0 0 0.05);
+  --ngp-shadow-border: inset 0 0 0 1px rgba(0, 0, 0, 0.1);
 
   --ngp-focus-ring: rgb(59 130 246);
 
