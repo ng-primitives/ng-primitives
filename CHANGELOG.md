@@ -1,3 +1,21 @@
+## 0.37.0 (2025-04-29)
+
+### 🚀 Features
+
+- **dialog:** allow backdrop click to be disabled ([#215](https://github.com/ng-primitives/ng-primitives/pull/215))
+- **meter:** adding meter primitive ([#219](https://github.com/ng-primitives/ng-primitives/pull/219))
+
+### 🩹 Fixes
+
+- accessibility issues and adding e2e tests ([#214](https://github.com/ng-primitives/ng-primitives/pull/214))
+- **file-upload:** allow same file reupload ([#218](https://github.com/ng-primitives/ng-primitives/pull/218))
+- **menu:** menu animation fixes ([#211](https://github.com/ng-primitives/ng-primitives/pull/211))
+- **toolbar:** ensure orientation defaults to horizontal ([#212](https://github.com/ng-primitives/ng-primitives/pull/212))
+
+### ❤️ Thank You
+
+- Ashley Hunter
+
 ## 0.36.0 (2025-04-26)
 
 ### 🚀 Features
