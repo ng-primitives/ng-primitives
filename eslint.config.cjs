@@ -46,4 +46,7 @@ module.exports = [
       '@angular-eslint/template/prefer-self-closing-tags': ['error'],
     },
   },
+  {
+    ignores: ['**/vite.config.*.timestamp*', '**/vitest.config.*.timestamp*'],
+  },
 ];
