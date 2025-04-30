@@ -13,7 +13,13 @@ Display an indicator representing the progress of a task.
 Import the Progress primitives from `ng-primitives/progress`.
 
 ```ts
-import { NgpProgress, NgpProgressIndicator } from 'ng-primitives/progress';
+import {
+  NgpProgress,
+  NgpProgressTrack,
+  NgpProgressLabel,
+  NgpProgressValue,
+  NgpProgressIndicator,
+} from 'ng-primitives/progress';
 ```
 
 ## Usage
@@ -22,7 +28,12 @@ Assemble the avatar directives in your template.
 
 ```html
 <div ngpProgress [ngpProgressValue]="percentage">
-  <div ngpProgressIndicator [style.width.%]="percentage"></div>
+  <span ngpProgressLabel></span>
+  <span ngpProgressValue></span>
+
+  <div ngpProgressTrack>
+    <div ngpProgressIndicator></div>
+  </div>
 </div>
 ```
 
@@ -56,6 +67,72 @@ The following directives are available to import from the `ng-primitives/progres
 
 <api-docs name="NgpProgress"></api-docs>
 
+#### Data Attributes
+
+The following data attributes are applied to the `ngpProgress` directive:
+
+| Attribute            | Description                                   |
+| -------------------- | --------------------------------------------- |
+| `data-progressing`   | Indicates that the progress is in progress.   |
+| `data-indeterminate` | Indicates that the progress is indeterminate. |
+| `data-complete`      | Indicates that the progress is complete.      |
+
 ### NgpProgressIndicator
 
 <api-docs name="NgpProgressIndicator"></api-docs>
+
+#### Data Attributes
+
+The following data attributes are applied to the `ngpProgress` directive:
+
+| Attribute            | Description                                   |
+| -------------------- | --------------------------------------------- |
+| `data-progressing`   | Indicates that the progress is in progress.   |
+| `data-indeterminate` | Indicates that the progress is indeterminate. |
+| `data-complete`      | Indicates that the progress is complete.      |
+
+### NgpProgressTrack
+
+<api-docs name="NgpProgressTrack"></api-docs>
+
+#### Data Attributes
+
+The following data attributes are applied to the `ngpProgressTrack` directive:
+
+| Attribute            | Description                                   |
+| -------------------- | --------------------------------------------- |
+| `data-progressing`   | Indicates that the progress is in progress.   |
+| `data-indeterminate` | Indicates that the progress is indeterminate. |
+| `data-complete`      | Indicates that the progress is complete.      |
+
+### NgpProgressLabel
+
+<api-docs name="NgpProgressLabel"></api-docs>
+
+#### Data Attributes
+
+The following data attributes are applied to the `ngpProgressLabel` directive:
+
+| Attribute            | Description                                   |
+| -------------------- | --------------------------------------------- |
+| `data-progressing`   | Indicates that the progress is in progress.   |
+| `data-indeterminate` | Indicates that the progress is indeterminate. |
+| `data-complete`      | Indicates that the progress is complete.      |
+
+### NgpProgressValue
+
+<api-docs name="NgpProgressValue"></api-docs>
+
+#### Data Attributes
+
+The following data attributes are applied to the `ngpProgressValue` directive:
+
+| Attribute            | Description                                   |
+| -------------------- | --------------------------------------------- |
+| `data-progressing`   | Indicates that the progress is in progress.   |
+| `data-indeterminate` | Indicates that the progress is indeterminate. |
+| `data-complete`      | Indicates that the progress is complete.      |
+
+## Accessibility
+
+Adheres to the [WAI-ARIA Progressbar](https://www.w3.org/WAI/ARIA/apg/patterns/progressbar/) pattern.
