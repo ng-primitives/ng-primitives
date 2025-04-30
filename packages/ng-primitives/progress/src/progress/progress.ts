@@ -1,5 +1,6 @@
 import { NumberInput } from '@angular/cdk/coercion';
-import { Directive, computed, input, numberAttribute } from '@angular/core';
+import { Directive, computed, input, numberAttribute, signal } from '@angular/core';
+import { NgpProgressLabel } from '../progress-label/progress-label';
 import { progressState, provideProgressState } from './progress-state';
 
 /**
@@ -13,18 +14,28 @@ import { progressState, provideProgressState } from './progress-state';
     '[attr.aria-valuemax]': 'state.max()',
     '[attr.aria-valuemin]': '0',
     '[attr.aria-valuenow]': 'state.value()',
-    '[attr.aria-valuetext]': 'label()',
-    '[attr.data-state]': 'dataState()',
-    '[attr.data-value]': 'state.value()',
-    '[attr.data-max]': 'state.max()',
+    '[attr.aria-valuetext]': 'valueText()',
+    '[attr.aria-labelledby]': 'label() ? label().id : null',
+    '[attr.data-progressing]': 'progressing() ? "" : null',
+    '[attr.data-indeterminate]': 'indeterminate() ? "" : null',
+    '[attr.data-complete]': 'complete() ? "" : null',
   },
 })
 export class NgpProgress {
   /**
    * Define the progress value.
    */
-  readonly value = input<number, NumberInput>(0, {
+  readonly value = input<number | null, NumberInput>(0, {
     alias: 'ngpProgressValue',
+    transform: v => (v == null ? null : numberAttribute(v)),
+  });
+
+  /**
+   * Define the progress min value.
+   * @default '0'
+   */
+  readonly min = input<number, NumberInput>(0, {
+    alias: 'ngpProgressMin',
     transform: numberAttribute,
   });
 
@@ -43,7 +54,7 @@ export class NgpProgress {
    * @param max The maximum value
    * @returns The value label
    */
-  readonly valueLabel = input<NgpProgressValueLabelFn>(
+  readonly valueLabel = input<NgpProgressValueTextFn>(
     (value, max) => `${Math.round((value / max) * 100)}%`,
     {
       alias: 'ngpProgressValueLabel',
@@ -51,24 +62,46 @@ export class NgpProgress {
   );
 
   /**
-   * Get the state of the progress bar.
-   * @returns 'indeterminate' | 'loading' | 'complete'
+   * Determine if the progress is indeterminate.
    * @internal
    */
-  protected readonly dataState = computed(() =>
-    this.state.value() == null
-      ? 'indeterminate'
-      : this.state.value() === this.state.max()
-        ? 'complete'
-        : 'loading',
+  readonly indeterminate = computed(() => this.state.value() === null);
+
+  /**
+   * Determine if the progress is in a progressing state.
+   * @internal
+   */
+  readonly progressing = computed(
+    () =>
+      this.state.value() != null &&
+      this.state.value()! > 0 &&
+      this.state.value()! < this.state.max(),
   );
 
   /**
-   * Get the progress value label.
+   * Determine if the progress is complete.
+   * @internal
    */
-  protected readonly label = computed(() =>
-    this.state.valueLabel()(this.state.value(), this.state.max()),
-  );
+  readonly complete = computed(() => this.state.value() === this.state.max());
+
+  /**
+   * Get the progress value text.
+   */
+  protected readonly valueText = computed(() => {
+    const value = this.state.value();
+
+    if (value == null) {
+      return '';
+    }
+
+    return this.state.valueLabel()(value, this.state.max());
+  });
+
+  /**
+   * The label associated with the progress bar.
+   * @internal
+   */
+  readonly label = signal<NgpProgressLabel | null>(null);
 
   /**
    * The state of the progress bar.
@@ -77,4 +110,4 @@ export class NgpProgress {
   protected readonly state = progressState<NgpProgress>(this);
 }
 
-export type NgpProgressValueLabelFn = (value: number, max: number) => string;
+export type NgpProgressValueTextFn = (value: number, max: number) => string;
