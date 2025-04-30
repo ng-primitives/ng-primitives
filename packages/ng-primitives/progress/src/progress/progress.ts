@@ -27,7 +27,7 @@ export class NgpProgress {
    */
   readonly value = input<number | null, NumberInput>(0, {
     alias: 'ngpProgressValue',
-    transform: numberAttribute,
+    transform: v => (v == null ? null : numberAttribute(v)),
   });
 
   /**
@@ -65,7 +65,7 @@ export class NgpProgress {
    * Determine if the progress is indeterminate.
    * @internal
    */
-  readonly indeterminate = computed(() => this.state.value() == null);
+  readonly indeterminate = computed(() => this.state.value() === null);
 
   /**
    * Determine if the progress is in a progressing state.

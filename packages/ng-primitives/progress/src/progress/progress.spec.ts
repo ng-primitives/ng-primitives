@@ -48,8 +48,13 @@ describe('NgpProgress', () => {
 
   it('should set the data-indeterminate attribute when value is null', async () => {
     const container = await render(
-      `<div data-testid="progress" ngpProgress [ngpProgressValue]="null"></div>`,
-      { imports: [NgpProgress] },
+      `<div data-testid="progress" ngpProgress [ngpProgressValue]="value"></div>`,
+      {
+        imports: [NgpProgress],
+        componentProperties: {
+          value: null,
+        },
+      },
     );
 
     const progress = container.getByTestId('progress');
