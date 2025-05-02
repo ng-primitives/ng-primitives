@@ -31,11 +31,6 @@ export class NgpDialogTrigger {
   @HostListener('click')
   protected launch(): void {
     this.dialogRef = this.dialogManager.open(this.template());
-
-    this.dialogRef.closed.subscribe(focusOrigin => {
-      this.dialogRef = null;
-      // Focus the trigger element after the dialog closes.
-      this.focusMonitor.focusVia(this.elementRef.nativeElement, focusOrigin);
-    });
+    this.dialogRef.closed.subscribe(() => (this.dialogRef = null));
   }
 }

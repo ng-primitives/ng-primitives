@@ -1,4 +1,4 @@
-import { InteractivityChecker } from '@angular/cdk/a11y';
+import { FocusMonitor, InteractivityChecker } from '@angular/cdk/a11y';
 import { BooleanInput } from '@angular/cdk/coercion';
 import {
   booleanAttribute,
@@ -97,6 +97,11 @@ export class NgpFocusTrap implements OnInit, OnDestroy {
    * Create a new focus trap.
    */
   private readonly focusTrap = new FocusTrap();
+
+  /**
+   * Access the focus monitor.
+   */
+  private readonly focusMonitor = inject(FocusMonitor);
 
   /**
    * Access the interactivity checker.
@@ -286,8 +291,15 @@ export class NgpFocusTrap implements OnInit, OnDestroy {
     return elements.find(element => this.interactivityChecker.isVisible(element)) ?? null;
   }
 
-  private focus(element?: HTMLElement | null) {
-    element?.focus({ preventScroll: true });
+  private focus(element: HTMLElement | null): void {
+    if (!element) {
+      return;
+    }
+    // Its not great that we are relying on an internal API here, but we need to in order to
+    // try and best determine the focus origin when it is programmatically closed by the user.
+    this.focusMonitor.focusVia(element, (this.focusMonitor as any)._lastFocusOrigin, {
+      preventScroll: true,
+    });
   }
 
   private focusFirst(): void {

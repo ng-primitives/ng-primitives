@@ -1,5 +1,7 @@
+import { FocusMonitor } from '@angular/cdk/a11y';
 import { Overlay, OverlayConfig, OverlayContainer, ScrollStrategy } from '@angular/cdk/overlay';
 import { ComponentPortal, ComponentType, TemplatePortal } from '@angular/cdk/portal';
+import { DOCUMENT } from '@angular/common';
 import {
   ApplicationRef,
   Injectable,
@@ -28,7 +30,9 @@ import { NgpDialogRef } from './dialog-ref';
 })
 export class NgpDialogManager implements OnDestroy {
   private readonly applicationRef = inject(ApplicationRef);
+  private readonly document = inject<Document>(DOCUMENT);
   private readonly overlay = inject(Overlay);
+  private readonly focusMonitor = inject(FocusMonitor);
   private readonly defaultOptions = injectDialogConfig();
   private readonly parentDialogManager = inject(NgpDialogManager, {
     optional: true,
@@ -74,6 +78,9 @@ export class NgpDialogManager implements OnDestroy {
     templateRefOrComponentType: TemplateRef<NgpDialogContext> | ComponentType<any>,
     config?: NgpDialogConfig,
   ): NgpDialogRef {
+    // store the current active element so we can focus it after the dialog is closed
+    const activeElement = this.document.activeElement;
+
     // this is not ideal, but there is a case where a dialog trigger is within an overlay (e.g. menu),
     // which may be removed before the dialog is closed. This is not desired, so we need to access a view container ref
     // that is not within the overlay. To solve this we use the view container ref of the root component.
@@ -117,8 +124,20 @@ export class NgpDialogManager implements OnDestroy {
     }
 
     (this.openDialogs as NgpDialogRef[]).push(dialogRef);
-    dialogRef.closed.subscribe(() => this.removeOpenDialog(dialogRef, true));
     this.afterOpened.next(dialogRef);
+
+    dialogRef.closed.subscribe(focusOrigin => {
+      this.removeOpenDialog(dialogRef, true);
+      // Focus the trigger element after the dialog closes.
+      if (activeElement instanceof HTMLElement && this.document.body.contains(activeElement)) {
+        // Its not great that we are relying on an internal API here, but we need to in order to
+        // try and best determine the focus origin when it is programmatically closed by the user.
+        this.focusMonitor.focusVia(
+          activeElement,
+          focusOrigin ?? (this.focusMonitor as any)._lastFocusOrigin,
+        );
+      }
+    });
 
     return dialogRef;
   }
