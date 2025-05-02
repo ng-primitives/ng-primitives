@@ -33,7 +33,7 @@ export class NgpNumberPicker {
   });
 
   /** Event emitted when the value changes. */
-  readonly valueChange = output<number>();
+  readonly valueChange = output<number | undefined>();
 
   /** Whether the number picker is disabled. */
   readonly disabled = input<boolean, BooleanInput>(false, {

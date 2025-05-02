@@ -47,7 +47,7 @@ export class NgpFormControl {
   /**
    * Determine the aria-labelledby attribute value.
    */
-  protected readonly ariaLabelledBy = computed(() => this.formField()?.labels().join(' '));
+  protected readonly ariaLabelledBy = this.formField()?.labelledBy;
 
   /**
    * Determine the aria-describedby attribute value.
