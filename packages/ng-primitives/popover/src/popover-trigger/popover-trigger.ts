@@ -381,10 +381,6 @@ export class NgpPopoverTrigger<T = null> implements OnDestroy {
       child.hide(origin);
     }
 
-    // disable the focus trap in the popover to prevent it trying to return focus to the popover
-    // when the popover is closed/closing
-    this.popoverInstance?.focusTrap().disabled.set(true);
-
     // ensure the trigger is focused after closing the popover
     this.focusTrigger(origin);
 
