@@ -167,6 +167,8 @@ export class NgpFocusTrap implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     focusTrapStack.remove(this.focusTrap);
     this.mutationObserver?.disconnect();
+    this.mutationObserver = null;
+    this.focusTrap.deactivate();
   }
 
   private handleFocusIn(event: FocusEvent): void {
