@@ -10,7 +10,7 @@ import { injectNumberPickerState } from '../number-picker/number-picker-state';
     autocomplete: 'off',
     autocorrect: 'off',
     spellcheck: 'false',
-    'aria-roledescription': 'Number field',
+    'aria-roledescription': 'Number picker',
   },
 })
 export class NgpNumberPickerInput {
