@@ -42,10 +42,9 @@ The following directives are available to import from the `ng-primitives/popover
 
 #### Data Attributes
 
-| Attribute       | Description                           |
-| --------------- | ------------------------------------- |
-| `data-open`     | Applied when the popover is open.     |
-| `data-disabled` | Applied when the popover is disabled. |
+| Attribute   | Description                       |
+| ----------- | --------------------------------- |
+| `data-open` | Applied when the popover is open. |
 
 ## Animations
 

@@ -1,5 +1,5 @@
 import { BooleanInput } from '@angular/cdk/coercion';
-import { booleanAttribute, Directive, ElementRef, inject, input } from '@angular/core';
+import { booleanAttribute, Directive, HOST_TAG_NAME, inject, input } from '@angular/core';
 import { setupInteractions } from 'ng-primitives/internal';
 import { buttonState, provideButtonState } from './button-state';
 
@@ -14,9 +14,9 @@ import { buttonState, provideButtonState } from './button-state';
 })
 export class NgpButton {
   /**
-   * Get the native element of the button.
+   * Get the tag name of the element.
    */
-  private readonly elementRef = inject<ElementRef<HTMLElement>>(ElementRef);
+  private readonly tagName = inject(HOST_TAG_NAME);
 
   /**
    * Whether the button is disabled.
@@ -28,7 +28,7 @@ export class NgpButton {
   /**
    * Detect if this is an HTML button element.
    */
-  protected readonly isButton = this.elementRef.nativeElement.tagName.toLowerCase() === 'button';
+  protected readonly isButton = this.tagName.toLowerCase() === 'button';
 
   /**
    * The button state.
