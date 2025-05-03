@@ -94,7 +94,7 @@
     "@analogjs/content": "1.14.1",
     "@analogjs/router": "1.14.1",
     "@angular/animations": "19.2.8",
-    "@angular/cdk": "19.2.11",
+    "@angular/cdk": "19.1.0",
     "@angular/common": "19.2.8",
     "@angular/compiler": "19.2.8",
     "@angular/core": "19.2.8",
