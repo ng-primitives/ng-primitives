@@ -1,3 +1,18 @@
+## 0.38.0 (2025-05-03)
+
+### 🚀 Features
+
+- **progress:** adding additional progress primitives ([#222](https://github.com/ng-primitives/ng-primitives/pull/222))
+
+### 🩹 Fixes
+
+- **button:** resolve data-disabled attribute ([#228](https://github.com/ng-primitives/ng-primitives/pull/228))
+- **dialog:** resolving focus issue ([#226](https://github.com/ng-primitives/ng-primitives/pull/226))
+
+### ❤️ Thank You
+
+- Ashley Hunter
+
 ## 0.37.0 (2025-04-29)
 
 ### 🚀 Features
