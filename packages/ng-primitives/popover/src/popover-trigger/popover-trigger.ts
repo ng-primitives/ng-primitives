@@ -56,7 +56,6 @@ import {
     '[attr.aria-expanded]': 'open() ? "true" : "false"',
     '[attr.data-open]': 'open() ? "" : null',
     '[attr.data-placement]': 'state.placement()',
-    '[attr.data-disabled]': 'state.disabled() ? "" : null',
     '(click)': 'toggleOpenState($event)',
     '(document:keydown.escape)': 'handleEscapeKey()',
   },
