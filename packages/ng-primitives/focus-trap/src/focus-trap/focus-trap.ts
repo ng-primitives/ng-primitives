@@ -1,11 +1,13 @@
 import { FocusMonitor, InteractivityChecker } from '@angular/cdk/a11y';
 import { BooleanInput } from '@angular/cdk/coercion';
 import {
+  afterNextRender,
   booleanAttribute,
   Directive,
   ElementRef,
   HostListener,
   inject,
+  Injector,
   input,
   NgZone,
   OnDestroy,
@@ -99,6 +101,11 @@ export class NgpFocusTrap implements OnInit, OnDestroy {
   private readonly focusTrap = new FocusTrap();
 
   /**
+   * Access the injector.
+   */
+  private readonly injector = inject(Injector);
+
+  /**
    * Access the focus monitor.
    */
   private readonly focusMonitor = inject(FocusMonitor);
@@ -160,12 +167,21 @@ export class NgpFocusTrap implements OnInit, OnDestroy {
     const hasFocusedCandidate = this.elementRef.nativeElement.contains(previouslyFocusedElement);
 
     if (!hasFocusedCandidate) {
-      this.focusFirst();
+      // we do this to ensure the content is rendered before we try to find the first focusable element
+      // and focus it
+      afterNextRender(
+        {
+          write: () => {
+            this.focusFirst();
 
-      // if the focus didn't change, focus the container
-      if (document.activeElement === previouslyFocusedElement) {
-        this.focus(this.elementRef.nativeElement);
-      }
+            // if the focus didn't change, focus the container
+            if (document.activeElement === previouslyFocusedElement) {
+              this.focus(this.elementRef.nativeElement);
+            }
+          },
+        },
+        { injector: this.injector },
+      );
     }
   }
 
