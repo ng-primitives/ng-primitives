@@ -1,6 +1,6 @@
 import { FocusMonitor, FocusOrigin, InteractivityChecker } from '@angular/cdk/a11y';
 import { computed, Directive, inject } from '@angular/core';
-import { injectFocusTrapState, NgpFocusTrap } from 'ng-primitives/focus-trap';
+import { NgpFocusTrap } from 'ng-primitives/focus-trap';
 import { injectElementRef, NgpExitAnimation } from 'ng-primitives/internal';
 import { injectPopoverTriggerState } from '../popover-trigger/popover-trigger-state';
 import { getTransformOrigin } from '../utils/transform-origin';
@@ -36,12 +36,6 @@ export class NgpPopover {
    * Access the focus monitor.
    */
   private readonly focusMonitor = inject(FocusMonitor);
-
-  /**
-   * Access the focus trap.
-   * @internal
-   */
-  readonly focusTrap = injectFocusTrapState();
 
   /**
    * Access the trigger instance.
