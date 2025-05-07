@@ -1,20 +1,21 @@
 // Much of the code in this file is inspired by BaseUI:
 // https://github.com/mui/base-ui/blob/master/packages/react/src/number-field/input/NumberFieldInput.tsx
-import { Directive, HostListener } from '@angular/core';
+import { computed, Directive, HostListener } from '@angular/core';
 import { injectFormFieldState } from 'ng-primitives/form-field';
-import { injectNumberPickerState } from '../number-picker/number-picker-state';
 import { injectElementRef } from '../../../internal/src';
+import { injectNumberPickerState } from '../number-picker/number-picker-state';
+import { formatNumber } from '../utils/fomat-number';
+import { ARABIC_RE, getNumberLocaleDetails, HAN_RE, parseNumber } from '../utils/parse';
 
 @Directive({
   selector: 'input[ngpNumberPickerInput]',
   exportAs: 'ngpNumberPickerInput',
   host: {
-    '[attr.value]': 'state().value()',
+    '[value]': 'inputValue()',
     type: 'text',
     autocomplete: 'off',
     autocorrect: 'off',
     spellcheck: 'false',
-    'aria-roledescription': 'Number picker',
     '[attr.aria-labelledby]': 'formField()?.labelledBy()',
   },
 })
@@ -28,6 +29,16 @@ export class NgpNumberPickerInput {
   /** Access the element reference */
   protected readonly elementRef = injectElementRef<HTMLInputElement>();
 
+  protected readonly inputValue = computed(() => {
+    const value = this.state().value();
+
+    if (value === undefined) {
+      return '';
+    }
+
+    return formatNumber(value, this.state().locale(), this.state().format());
+  });
+
   /** Whether the input has been touched */
   protected touched = false;
 
@@ -35,7 +46,7 @@ export class NgpNumberPickerInput {
   protected focused = false;
 
   @HostListener('focus', ['$event'])
-  protectedonFocus(event: FocusEvent): void {
+  protected onFocus(event: FocusEvent): void {
     if (this.state().readonly() || this.state().disabled() || this.touched) {
       return;
     }
@@ -51,7 +62,7 @@ export class NgpNumberPickerInput {
   }
 
   @HostListener('blur', ['$event'])
-  protected onBlur(event: FocusEvent): void {
+  protected onBlur(): void {
     if (this.state().readonly() || this.state().disabled()) {
       return;
     }
@@ -59,68 +70,57 @@ export class NgpNumberPickerInput {
     this.touched = true;
     this.focused = false;
 
-
     // allowInputSyncRef.current = true;
 
     if (this.elementRef.nativeElement.value.trim() === '') {
-      this.setValue(null);
+      this.setValue(undefined);
       return;
     }
 
-    const parsedValue = parseNumber(inputValue, locale, formatOptionsRef.current);
+    const inputValue = this.elementRef.nativeElement.value;
+    const parsedValue = parseNumber(inputValue, this.state().locale(), this.state().format());
 
     if (parsedValue !== null) {
-      setValue(parsedValue, event.nativeEvent);
+      this.setValue(parsedValue);
     }
   }
 
-  onChange(event) {
-    // Workaround for https://github.com/facebook/react/issues/9023
-    if (event.nativeEvent.defaultPrevented) {
-      return;
-    }
-
-    allowInputSyncRef.current = false;
-    const targetValue = event.target.value;
+  @HostListener('change')
+  protected onChange(): void {
+    // allowInputSyncRef.current = false;
+    const targetValue = this.elementRef.nativeElement.value;
 
     if (targetValue.trim() === '') {
-      setInputValue(targetValue);
-      setValue(null, event.nativeEvent);
+      this.setValue(undefined);
       return;
     }
 
-    if (event.isTrusted) {
-      setInputValue(targetValue);
-      return;
-    }
-
-    const parsedValue = parseNumber(targetValue, locale, formatOptionsRef.current);
+    const parsedValue = parseNumber(targetValue, this.state().locale(), this.state().format());
 
     if (parsedValue !== null) {
-      setInputValue(targetValue);
-      setValue(parsedValue, event.nativeEvent);
+      this.setValue(parsedValue);
     }
-  },
-  onKeyDown(event) {
-    if (event.defaultPrevented || readOnly || disabled) {
+  }
+
+  @HostListener('keydown', ['$event'])
+  protected onKeyDown(event: KeyboardEvent): void {
+    if (this.state().readonly() || this.state().disabled()) {
       return;
     }
 
-    const nativeEvent = event.nativeEvent;
+    const currentTarget = event.currentTarget as HTMLInputElement;
+    const inputValue = currentTarget.value;
 
-    allowInputSyncRef.current = true;
+    // allowInputSyncRef.current = true;
 
-    const allowedNonNumericKeys = getAllowedNonNumericKeys();
+    const allowedNonNumericKeys = this.state().getAllowedNonNumericKeys();
 
     let isAllowedNonNumericKey = allowedNonNumericKeys.includes(event.key);
 
-    const { decimal, currency, percentSign } = getNumberLocaleDetails(
-      [],
-      formatOptionsRef.current,
-    );
+    const { decimal, currency, percentSign } = getNumberLocaleDetails([], this.state().format());
 
-    const selectionStart = event.currentTarget.selectionStart;
-    const selectionEnd = event.currentTarget.selectionEnd;
+    const selectionStart = currentTarget.selectionStart;
+    const selectionEnd = currentTarget.selectionEnd;
     const isAllSelected = selectionStart === 0 && selectionEnd === inputValue.length;
 
     // Allow the minus key only if there isn't already a plus or minus sign, or if all the text
@@ -128,12 +128,11 @@ export class NgpNumberPickerInput {
     if (event.key === '-' && allowedNonNumericKeys.includes('-')) {
       const isMinusHighlighted =
         selectionStart === 0 && selectionEnd === 1 && inputValue[0] === '-';
-      isAllowedNonNumericKey =
-        !inputValue.includes('-') || isAllSelected || isMinusHighlighted;
+      isAllowedNonNumericKey = !inputValue.includes('-') || isAllSelected || isMinusHighlighted;
     }
 
     // Only allow one of each symbol.
-    [decimal, currency, percentSign].forEach((symbol) => {
+    [decimal, currency, percentSign].forEach(symbol => {
       if (event.key === symbol) {
         const symbolIndex = inputValue.indexOf(symbol);
         const isSymbolHighlighted =
@@ -172,26 +171,23 @@ export class NgpNumberPickerInput {
       return;
     }
 
-    // We need to commit the number at this point if the input hasn't been blurred.
-    const parsedValue = parseNumber(inputValue, locale, formatOptionsRef.current);
-
-    const amount = getStepAmount(event) ?? DEFAULT_STEP;
-
     // Prevent insertion of text or caret from moving.
     event.preventDefault();
 
     if (event.key === 'ArrowUp') {
-      incrementValue(amount, 1, parsedValue, nativeEvent);
+      this.state().increment(event);
     } else if (event.key === 'ArrowDown') {
-      incrementValue(amount, -1, parsedValue, nativeEvent);
-    } else if (event.key === 'Home' && min != null) {
-      setValue(min, nativeEvent);
-    } else if (event.key === 'End' && max != null) {
-      setValue(max, nativeEvent);
+      this.state().decrement(event);
+    } else if (event.key === 'Home') {
+      this.setValue(this.state().min());
+    } else if (event.key === 'End') {
+      this.setValue(this.state().max());
     }
-  },
-  onPaste(event) {
-    if (event.defaultPrevented || readOnly || disabled) {
+  }
+
+  @HostListener('paste', ['$event'])
+  protected onPaste(event: ClipboardEvent): void {
+    if (this.state().readonly() || this.state().disabled()) {
       return;
     }
 
@@ -199,13 +195,13 @@ export class NgpNumberPickerInput {
     event.preventDefault();
 
     const clipboardData = event.clipboardData || window.Clipboard;
-    const pastedData = clipboardData.getData('text/plain');
-    const parsedValue = parseNumber(pastedData, locale, formatOptionsRef.current);
+    debugger;
+    const pastedData = (clipboardData as any).getData('text/plain');
+    const parsedValue = parseNumber(pastedData, this.state().locale(), this.state().format());
 
     if (parsedValue !== null) {
-      allowInputSyncRef.current = false;
-      setValue(parsedValue, event.nativeEvent);
-      setInputValue(pastedData);
+      // allowInputSyncRef.current = false;
+      this.setValue(parsedValue);
     }
   }
 

@@ -4,6 +4,7 @@ import { injectFormControlState, NgpFormControl } from 'ng-primitives/form-field
 import { syncState } from 'ng-primitives/internal';
 import { uniqueId } from 'ng-primitives/utils';
 import { injectNumberPickerConfig } from '../config/number-picker-config';
+import { getNumberLocaleDetails, PERCENTAGES } from '../utils/parse';
 import { numberPickerState, provideNumberPickerState } from './number-picker-state';
 
 @Directive({
@@ -88,6 +89,11 @@ export class NgpNumberPicker {
     alias: 'ngpNumberPickerFormat',
   });
 
+  /** The locale of the number picker. */
+  readonly locale = input<Intl.LocalesArgument | undefined>(this.config.locale, {
+    alias: 'ngpNumberPickerLocale',
+  });
+
   /** The state of the number picker. */
   private readonly state = numberPickerState<NgpNumberPicker>(this);
 
@@ -97,7 +103,7 @@ export class NgpNumberPicker {
   }
 
   /** Increment the value. */
-  increment(event?: PointerEvent | MouseEvent): void {
+  increment(event?: PointerEvent | MouseEvent | KeyboardEvent): void {
     const value = this.state.value();
     const amount = this.getStepAmount(event);
 
@@ -108,7 +114,7 @@ export class NgpNumberPicker {
   }
 
   /** Decrement the value. */
-  decrement(event?: PointerEvent | MouseEvent): void {
+  decrement(event?: PointerEvent | MouseEvent | KeyboardEvent): void {
     const value = this.state.value();
     const amount = this.getStepAmount(event);
 
@@ -118,8 +124,11 @@ export class NgpNumberPicker {
     this.state.value.set(newValue);
   }
 
-  /** Determine the step value based on the event. */
-  getStepAmount(event?: PointerEvent | MouseEvent): number {
+  /**
+   * Determine the step value based on the event.
+   * @internal
+   */
+  getStepAmount(event?: PointerEvent | MouseEvent | KeyboardEvent): number {
     if (event?.altKey) {
       return this.state.smallStep();
     }
@@ -129,5 +138,32 @@ export class NgpNumberPicker {
     }
 
     return this.state.step();
+  }
+
+  /**
+   * Get the allowed non-numeric keys based on the locale and format.
+   * @internal
+   */
+  getAllowedNonNumericKeys(): string[] {
+    const { decimal, group, currency } = getNumberLocaleDetails(
+      this.state.locale(),
+      this.state.format(),
+    );
+
+    const keys = Array.from(new Set(['.', ',', decimal, group]));
+
+    const formatStyle = this.state.format()?.style;
+
+    if (formatStyle === 'percent') {
+      keys.push(...PERCENTAGES);
+    }
+    if (formatStyle === 'currency' && currency) {
+      keys.push(currency);
+    }
+    if (this.state.min() < 0) {
+      keys.push('-');
+    }
+
+    return keys as string[];
   }
 }

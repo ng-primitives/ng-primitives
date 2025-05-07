@@ -38,6 +38,11 @@ export interface NgpNumberPickerConfig {
    * The format of the number picker.
    */
   format?: Intl.NumberFormatOptions;
+
+  /**
+   * The locale of the number picker.
+   */
+  locale?: Intl.LocalesArgument;
 }
 
 export const defaultNumberPickerConfig: NgpNumberPickerConfig = {
@@ -47,6 +52,8 @@ export const defaultNumberPickerConfig: NgpNumberPickerConfig = {
   smallStep: 0.1,
   largeStep: 10,
   allowWheelScrub: true,
+  format: undefined,
+  locale: undefined,
 };
 
 export const NgpNumberPickerConfigToken = new InjectionToken<NgpNumberPickerConfig>(

@@ -15,7 +15,7 @@ import { formControlState, provideFormControlState } from './form-control-state'
   providers: [provideFormControlState()],
   host: {
     '[id]': 'state.id()',
-    '[attr.aria-labelledby]': 'ariaLabelledBy()',
+    '[attr.aria-labelledby]': 'ariaLabelledBy?.()',
     '[attr.aria-describedby]': 'ariaDescribedBy()',
     '[attr.data-invalid]': 'formField()?.invalid() ? "" : null',
     '[attr.data-valid]': 'formField()?.valid() ? "" : null',
