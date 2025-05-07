@@ -21,6 +21,7 @@
         "input",
         "listbox",
         "meter",
+        "number-picker",
         "pagination",
         "progress",
         "radio",
