@@ -24,6 +24,7 @@
       "ng-primitives/avatar": ["packages/ng-primitives/avatar/src/index.ts"],
       "ng-primitives/button": ["packages/ng-primitives/button/src/index.ts"],
       "ng-primitives/checkbox": ["packages/ng-primitives/checkbox/src/index.ts"],
+      "ng-primitives/combobox": ["packages/ng-primitives/combobox/src/index.ts"],
       "ng-primitives/common": ["packages/ng-primitives/common/src/index.ts"],
       "ng-primitives/date-picker": ["packages/ng-primitives/date-picker/src/index.ts"],
       "ng-primitives/date-time": ["packages/ng-primitives/date-time/src/index.ts"],
