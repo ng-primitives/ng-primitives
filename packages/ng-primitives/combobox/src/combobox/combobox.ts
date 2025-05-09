@@ -1,5 +1,15 @@
+import { ActiveDescendantKeyManager } from '@angular/cdk/a11y';
 import { BooleanInput } from '@angular/cdk/coercion';
-import { booleanAttribute, computed, Directive, input, output, signal } from '@angular/core';
+import {
+  booleanAttribute,
+  computed,
+  Directive,
+  inject,
+  Injector,
+  input,
+  output,
+  signal,
+} from '@angular/core';
 import { injectElementRef } from 'ng-primitives/internal';
 import type { NgpComboboxButton } from '../combobox-button/combobox-button';
 import type { NgpComboboxDropdown } from '../combobox-dropdown/combobox-dropdown';
@@ -21,6 +31,9 @@ import { comboboxState, provideComboboxState } from './combobox-state';
 export class NgpCombobox<T> {
   /** Access the combobox element. */
   readonly elementRef = injectElementRef();
+
+  /** Access the injector. */
+  private readonly injector = inject(Injector);
 
   /** The value of the combobox. */
   readonly value = input<T>(undefined, {
@@ -47,6 +60,16 @@ export class NgpCombobox<T> {
   /** Emit when the dropdown open state changes. */
   readonly openChange = output<boolean>({
     alias: 'ngpComboboxOpenChange',
+  });
+
+  /** The comparator function used to compare options. */
+  readonly compareWith = input<(a: T | undefined, b: T | undefined) => boolean>(Object.is, {
+    alias: 'ngpComboboxCompareWith',
+  });
+
+  /** The position of the dropdown. */
+  readonly dropdownPosition = input<'top' | 'bottom' | 'auto'>('bottom', {
+    alias: 'ngpComboboxDropdownPosition',
   });
 
   /**
@@ -77,13 +100,26 @@ export class NgpCombobox<T> {
    * Store the combobox options.
    * @internal
    */
-  readonly options = signal<NgpComboboxOption<any>[]>([]);
+  readonly options = signal<NgpComboboxOption<ComboboxValue<T>>[]>([]);
 
   /** The open state of the combobox. */
   protected readonly open = computed(() => this.portal()?.viewRef() !== null);
 
+  /**
+   * The active key descendant manager.
+   * @internal
+   */
+  readonly activeDescendantManager;
+
   /** The state of the combobox. */
   protected readonly state = comboboxState<NgpCombobox<T>>(this);
+
+  constructor() {
+    this.activeDescendantManager = new ActiveDescendantKeyManager<
+      NgpComboboxOption<ComboboxValue<T>>
+    >(this.options, this.injector).withWrap();
+    this.activeDescendantManager.setFirstItemActive();
+  }
 
   /**
    * Open the dropdown.
@@ -164,8 +200,8 @@ export class NgpCombobox<T> {
    * @param option The option to register.
    * @internal
    */
-  registerOption(option: NgpComboboxOption<any>): void {
-    const options = [...this.options(), option];
+  registerOption<U>(option: NgpComboboxOption<U>): void {
+    const options = [...this.options(), option] as NgpComboboxOption<U>[];
 
     // sort the options based on their order in the DOM
     options.sort((a, b) =>
@@ -175,7 +211,7 @@ export class NgpCombobox<T> {
         : 1,
     );
 
-    this.options.set(options);
+    this.options.set(options as NgpComboboxOption<ComboboxValue<T>>[]);
   }
 
   /**
@@ -183,7 +219,10 @@ export class NgpCombobox<T> {
    * @param option The option to unregister.
    * @internal
    */
-  unregisterOption(option: NgpComboboxOption<any>): void {
+  unregisterOption<T>(option: NgpComboboxOption<T>): void {
     this.options.update(options => options.filter(o => o !== option));
   }
 }
+
+// T may be an array of values, we want to get the type of the first element
+type ComboboxValue<T> = T extends Array<infer U> ? U : T;

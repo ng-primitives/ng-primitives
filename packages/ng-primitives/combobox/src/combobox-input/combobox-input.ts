@@ -1,5 +1,5 @@
 import { computed, Directive, HostListener, input } from '@angular/core';
-import { setupInteractions } from 'ng-primitives/internal';
+import { injectElementRef, setupInteractions } from 'ng-primitives/internal';
 import { uniqueId } from 'ng-primitives/utils';
 import { injectComboboxState } from '../combobox/combobox-state';
 
@@ -27,11 +27,20 @@ export class NgpComboboxInput {
   /** Access the combobox state. */
   protected readonly state = injectComboboxState();
 
+  /**
+   * Access the element reference.
+   * @internal
+   */
+  readonly elementRef = injectElementRef<HTMLInputElement>();
+
   /** The id of the input. */
   readonly id = input<string>(uniqueId('ngp-combobox-input'));
 
   /** The id of the dropdown. */
   readonly dropdownId = computed(() => this.state().dropdown()?.id());
+
+  /** Determine if the pointer was used to focus the input. */
+  protected pointerFocused = false;
 
   constructor() {
     setupInteractions({
@@ -64,11 +73,56 @@ export class NgpComboboxInput {
         this.state().closeDropdown();
         event.preventDefault();
         break;
+      default:
+        // if this was a character key, we want to open the dropdown
+        if (event.key.length === 1) {
+          this.state().openDropdown();
+        }
     }
   }
 
-  @HostListener('blur')
-  protected closeDropdown(): void {
+  @HostListener('blur', ['$event'])
+  protected closeDropdown(event: FocusEvent): void {
+    const relatedTarget = event.relatedTarget as HTMLElement;
+
+    // if the blur was caused by focus moving to the dropdown, don't close
+    if (
+      relatedTarget &&
+      this.state().dropdown()?.elementRef.nativeElement.contains(relatedTarget)
+    ) {
+      return;
+    }
+
+    // if the blur was caused by focus moving to the button, don't close
+    if (relatedTarget && this.state().button()?.elementRef.nativeElement.contains(relatedTarget)) {
+      return;
+    }
+
     this.state().closeDropdown();
+    event.preventDefault();
+  }
+
+  /**
+   * Focus the input field
+   * @internal
+   */
+  focus(): void {
+    this.elementRef.nativeElement.focus();
+  }
+
+  @HostListener('focus', ['$event'])
+  protected highlightText(): void {
+    if (this.pointerFocused) {
+      this.pointerFocused = false;
+      return;
+    }
+
+    // highlight the text in the input
+    this.elementRef.nativeElement.setSelectionRange(0, this.elementRef.nativeElement.value.length);
+  }
+
+  @HostListener('pointerdown', ['$event'])
+  protected handlePointerDown(): void {
+    this.pointerFocused = true;
   }
 }

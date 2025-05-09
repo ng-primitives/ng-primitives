@@ -5,7 +5,23 @@ import { Combobox } from './combobox';
   selector: 'app-combobox-example',
   imports: [Combobox],
   template: `
-    <app-combobox />
+    <app-combobox [options]="options" />
   `,
 })
-export default class App {}
+export default class App {
+  readonly options: string[] = [
+    'Marty McFly',
+    'Doc Brown',
+    'Biff Tannen',
+    'George McFly',
+    'Jennifer Parker',
+    'Emmett Brown',
+    'Einstein',
+    'Clara Clayton',
+    'Needles',
+    'Goldie Wilson',
+    'Marvin Berry',
+    'Lorraine Baines',
+    'Strickland',
+  ];
+}

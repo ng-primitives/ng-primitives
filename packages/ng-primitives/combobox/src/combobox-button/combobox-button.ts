@@ -1,5 +1,5 @@
 import { computed, Directive, HostListener, input } from '@angular/core';
-import { setupInteractions } from 'ng-primitives/internal';
+import { injectElementRef, setupInteractions } from 'ng-primitives/internal';
 import { uniqueId } from 'ng-primitives/utils';
 import { injectComboboxState } from '../combobox/combobox-state';
 
@@ -23,6 +23,12 @@ export class NgpComboboxButton {
   /** Access the combobox state. */
   protected readonly state = injectComboboxState();
 
+  /**
+   * Access the element reference.
+   * @internal
+   */
+  readonly elementRef = injectElementRef<HTMLButtonElement>();
+
   /** The id of the button. */
   readonly id = input<string>(uniqueId('ngp-combobox-button'));
 
@@ -42,5 +48,6 @@ export class NgpComboboxButton {
   @HostListener('click')
   protected toggleDropdown(): void {
     this.state().toggleDropdown();
+    this.state().input()?.focus();
   }
 }
