@@ -1,3 +1,13 @@
+## 0.39.0 (2025-05-12)
+
+### 🩹 Fixes
+
+- **listbox:** resolve focus trap issue ([#238](https://github.com/ng-primitives/ng-primitives/pull/238))
+
+### ❤️ Thank You
+
+- Ashley Hunter
+
 ## 0.38.0 (2025-05-03)
 
 ### 🚀 Features
