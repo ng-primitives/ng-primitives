@@ -16,7 +16,7 @@ import { SideNavigation } from './components/side-navigation/side-navigation';
 
     <div class="container mx-auto px-8 pt-24">
       <div class="flex">
-        <docs-side-navigation class="md:mr-12" [(menuOpen)]="menuOpen" />
+        <docs-side-navigation [(menuOpen)]="menuOpen" />
 
         <router-outlet />
       </div>
