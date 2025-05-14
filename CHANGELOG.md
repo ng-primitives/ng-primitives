@@ -1,3 +1,13 @@
+## 0.40.0 (2025-05-14)
+
+### 🩹 Fixes
+
+- **tooltip:** gracefully handling animation abort ([#240](https://github.com/ng-primitives/ng-primitives/pull/240))
+
+### ❤️ Thank You
+
+- Ashley Hunter
+
 ## 0.39.0 (2025-05-12)
 
 ### 🩹 Fixes
