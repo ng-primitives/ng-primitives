@@ -1,4 +1,3 @@
-import { ActiveDescendantKeyManager } from '@angular/cdk/a11y';
 import { BooleanInput } from '@angular/cdk/coercion';
 import {
   booleanAttribute,
@@ -10,6 +9,7 @@ import {
   output,
   signal,
 } from '@angular/core';
+import { ActiveDescendantItem, activeDescendantManager } from 'ng-primitives/a11y';
 import { injectElementRef } from 'ng-primitives/internal';
 import type { NgpComboboxButton } from '../combobox-button/combobox-button';
 import type { NgpComboboxDropdown } from '../combobox-dropdown/combobox-dropdown';
@@ -102,24 +102,33 @@ export class NgpCombobox<T> {
    */
   readonly options = signal<NgpComboboxOption<ComboboxValue<T>>[]>([]);
 
-  /** The open state of the combobox. */
-  protected readonly open = computed(() => this.portal()?.viewRef() !== null);
+  /**
+   * The open state of the combobox.
+   * @internal
+   */
+  readonly open = computed(() => this.portal()?.viewRef() !== null);
+
+  /**
+   * The active descendant items.
+   */
+  private readonly activeDescendantItems = computed(() => {
+    return this.options().map<ActiveDescendantItem>(option => ({
+      id: option.id,
+      disabled: option.disabled,
+    }));
+  });
 
   /**
    * The active key descendant manager.
    * @internal
    */
-  readonly activeDescendantManager;
+  readonly activeDescendantManager = activeDescendantManager({
+    disabled: this.disabled,
+    items: this.activeDescendantItems,
+  });
 
   /** The state of the combobox. */
   protected readonly state = comboboxState<NgpCombobox<T>>(this);
-
-  constructor() {
-    this.activeDescendantManager = new ActiveDescendantKeyManager<
-      NgpComboboxOption<ComboboxValue<T>>
-    >(this.options, this.injector).withWrap();
-    this.activeDescendantManager.setFirstItemActive();
-  }
 
   /**
    * Open the dropdown.

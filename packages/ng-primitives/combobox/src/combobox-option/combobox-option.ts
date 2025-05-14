@@ -1,4 +1,3 @@
-import { Highlightable } from '@angular/cdk/a11y';
 import { BooleanInput } from '@angular/cdk/coercion';
 import { booleanAttribute, computed, Directive, input, OnDestroy, OnInit } from '@angular/core';
 import { injectElementRef, setupInteractions } from 'ng-primitives/internal';
@@ -14,10 +13,11 @@ import { injectComboboxState } from '../combobox/combobox-state';
     '[attr.tabindex]': '-1',
     '[attr.aria-selected]': 'selected() ? "true" : undefined',
     '[attr.data-selected]': 'selected() ? "" : undefined',
+    '[attr.data-active]': 'active() ? "" : undefined',
     '[attr.data-disabled]': 'disabled() ? "" : undefined',
   },
 })
-export class NgpComboboxOption<T> implements OnInit, OnDestroy, Highlightable {
+export class NgpComboboxOption<T> implements OnInit, OnDestroy {
   /** Access the combobox state. */
   protected readonly state = injectComboboxState<T | T[]>();
 
@@ -40,6 +40,14 @@ export class NgpComboboxOption<T> implements OnInit, OnDestroy, Highlightable {
     alias: 'ngpComboboxOptionDisabled',
     transform: booleanAttribute,
   });
+
+  /**
+   * Whether this option is the active descendant.
+   * @internal
+   */
+  protected readonly active = computed(
+    () => this.state().activeDescendantManager.activeDescendant() === this.id(),
+  );
 
   /** Whether this option is selected. */
   protected readonly selected = computed(() => {
@@ -79,8 +87,4 @@ export class NgpComboboxOption<T> implements OnInit, OnDestroy, Highlightable {
   ngOnDestroy(): void {
     this.state().unregisterOption(this);
   }
-
-  setActiveStyles(): void {}
-
-  setInactiveStyles(): void {}
 }

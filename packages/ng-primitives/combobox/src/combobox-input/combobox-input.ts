@@ -20,6 +20,7 @@ import { injectComboboxState } from '../combobox/combobox-state';
     '[attr.data-open]': 'state().open() ? "" : undefined',
     '[attr.data-disabled]': 'state().disabled() ? "" : undefined',
     '[attr.data-multiple]': 'state().multiple() ? "" : undefined',
+    '[attr.aria-activedescendant]': 'state().activeDescendantManager().activeDescendant()',
     '[disabled]': 'state().disabled()',
   },
 })
@@ -58,11 +59,33 @@ export class NgpComboboxInput {
   protected handleKeydown(event: KeyboardEvent): void {
     switch (event.key) {
       case 'ArrowDown':
-        this.state().openDropdown();
+        if (this.state().open()) {
+          this.state().activeDescendantManager.next();
+        } else {
+          this.state().activeDescendantManager.first();
+          this.state().openDropdown();
+        }
         event.preventDefault();
         break;
       case 'ArrowUp':
-        // this.state().navigateOptions('up');
+        if (this.state().open()) {
+          this.state().activeDescendantManager.previous();
+        } else {
+          this.state().activeDescendantManager.last();
+          this.state().openDropdown();
+        }
+        event.preventDefault();
+        break;
+      case 'Home':
+        if (this.state().open()) {
+          this.state().activeDescendantManager.first();
+        }
+        event.preventDefault();
+        break;
+      case 'End':
+        if (this.state().open()) {
+          this.state().activeDescendantManager.last();
+        }
         event.preventDefault();
         break;
       case 'Enter':
