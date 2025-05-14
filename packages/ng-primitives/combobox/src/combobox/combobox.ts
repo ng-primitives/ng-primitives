@@ -139,7 +139,8 @@ export class NgpCombobox<T> {
       return;
     }
 
-    this.openChange.emit(true);
+    // if there is a selected option(s), set the active descendant to the first selected option
+    // TODO
     this.portal()?.attach();
   }
 
