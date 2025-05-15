@@ -73,8 +73,18 @@ The following directives are available to import from the `ng-primitives/tooltip
 
 | Attribute       | Description                           |
 | --------------- | ------------------------------------- |
-| `data-open`     | Applied when the popover is open.     |
+| `data-open`     | Applied when the tooltip is open.     |
 | `data-disabled` | Applied when the tooltip is disabled. |
+
+## Styling
+
+For the tooltip to be positioned correctly relative to the trigger element, it must be absolutely positioned. For example, you can use the following CSS:
+
+```css
+[ngpTooltip] {
+  position: absolute;
+}
+```
 
 ## Animations
 

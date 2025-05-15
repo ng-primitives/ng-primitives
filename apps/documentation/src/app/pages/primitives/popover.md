@@ -46,6 +46,16 @@ The following directives are available to import from the `ng-primitives/popover
 | ----------- | --------------------------------- |
 | `data-open` | Applied when the popover is open. |
 
+## Styling
+
+For the popover to be positioned correctly relative to the trigger element, it must be absolutely positioned. For example, you can use the following CSS:
+
+```css
+[ngpPopover] {
+  position: absolute;
+}
+```
+
 ## Animations
 
 The `ngpPopover` primitive adds a CSS custom property `--ngp-popover-transform-origin` to the element that can be used to animate the popover from the trigger element.
