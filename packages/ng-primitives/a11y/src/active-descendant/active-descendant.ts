@@ -1,6 +1,6 @@
 import { computed, Signal, signal } from '@angular/core';
 
-interface ActiveDescendantOptions {
+interface ActiveDescendantManagerOptions {
   /**
    * The disabled state of the active descendant group.
    * @default false
@@ -9,7 +9,7 @@ interface ActiveDescendantOptions {
   /**
    * The items in the active descendant group.
    */
-  items: Signal<ActiveDescendantItem[]>;
+  items: Signal<NgpActivatable[]>;
   /**
    * Whether active descendant should wrap around.
    * @default false
@@ -17,7 +17,7 @@ interface ActiveDescendantOptions {
   wrap?: Signal<boolean>;
 }
 
-export interface ActiveDescendantItem {
+export interface NgpActivatable {
   /**
    * The id of the item.
    */
@@ -28,7 +28,7 @@ export interface ActiveDescendantItem {
   disabled?: Signal<boolean>;
 }
 
-export function activeDescendantManager(options: ActiveDescendantOptions) {
+export function activeDescendantManager(options: ActiveDescendantManagerOptions) {
   const activeIndex = signal<number>(0);
   const activeItem = computed(() => options.items()?.[activeIndex()]);
   const disabled = computed(
@@ -49,8 +49,8 @@ export function activeDescendantManager(options: ActiveDescendantOptions) {
    * Activate an item in the active descendant group.
    * @param item The item to activate.
    */
-  const activate = (item: ActiveDescendantItem) => {
-    if (disabled() || item.disabled?.()) {
+  const activate = (item: NgpActivatable | undefined) => {
+    if (disabled() || !item || item.disabled?.()) {
       return;
     }
 
@@ -83,7 +83,7 @@ export function activeDescendantManager(options: ActiveDescendantOptions) {
   };
 
   const findNextIndex = (
-    items: ActiveDescendantItem[],
+    items: NgpActivatable[],
     currentIndex: number,
     direction: 1 | -1,
     wrap: boolean,
@@ -132,12 +132,21 @@ export function activeDescendantManager(options: ActiveDescendantOptions) {
     }
   };
 
+  /**
+   * Reset the active descendant group, clearing the active index.
+   */
+  const reset = () => {
+    activeIndex.set(-1);
+  };
+
   return {
     activeDescendant,
+    activeItem,
     activate,
     first,
     last,
     next,
     previous,
+    reset,
   };
 }

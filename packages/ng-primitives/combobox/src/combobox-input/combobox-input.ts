@@ -1,6 +1,7 @@
 import { computed, Directive, HostListener, input } from '@angular/core';
 import { injectElementRef, setupInteractions } from 'ng-primitives/internal';
 import { uniqueId } from 'ng-primitives/utils';
+import type { NgpComboboxOption } from '../combobox-option/combobox-option';
 import { injectComboboxState } from '../combobox/combobox-state';
 
 @Directive({
@@ -20,11 +21,11 @@ import { injectComboboxState } from '../combobox/combobox-state';
     '[attr.data-open]': 'state().open() ? "" : undefined',
     '[attr.data-disabled]': 'state().disabled() ? "" : undefined',
     '[attr.data-multiple]': 'state().multiple() ? "" : undefined',
-    '[attr.aria-activedescendant]': 'state().activeDescendantManager().activeDescendant()',
+    '[attr.aria-activedescendant]': 'activeDescendant()',
     '[disabled]': 'state().disabled()',
   },
 })
-export class NgpComboboxInput {
+export class NgpComboboxInput<T> {
   /** Access the combobox state. */
   protected readonly state = injectComboboxState();
 
@@ -37,8 +38,24 @@ export class NgpComboboxInput {
   /** The id of the input. */
   readonly id = input<string>(uniqueId('ngp-combobox-input'));
 
+  /**
+   * Extract the string representation of the value.
+   */
+  readonly displayWith = input<(value: T) => string>((value: T) => {
+    if (typeof value === 'string') {
+      return value;
+    }
+
+    throw new Error('You must provide a displayWith function for non-string values');
+  });
+
   /** The id of the dropdown. */
   readonly dropdownId = computed(() => this.state().dropdown()?.id());
+
+  /** The id of the active descendant. */
+  protected readonly activeDescendant = computed(() =>
+    this.state().activeDescendantManager.activeDescendant(),
+  );
 
   /** Determine if the pointer was used to focus the input. */
   protected pointerFocused = false;
@@ -51,7 +68,7 @@ export class NgpComboboxInput {
       disabled: this.state().disabled,
     });
 
-    this.state().registerInput(this);
+    this.state().registerInput(this as NgpComboboxInput<unknown>);
   }
 
   /** Handle keydown events for accessibility. */
@@ -62,7 +79,6 @@ export class NgpComboboxInput {
         if (this.state().open()) {
           this.state().activeDescendantManager.next();
         } else {
-          this.state().activeDescendantManager.first();
           this.state().openDropdown();
         }
         event.preventDefault();
@@ -71,8 +87,8 @@ export class NgpComboboxInput {
         if (this.state().open()) {
           this.state().activeDescendantManager.previous();
         } else {
-          this.state().activeDescendantManager.last();
           this.state().openDropdown();
+          this.state().activeDescendantManager.last();
         }
         event.preventDefault();
         break;
@@ -89,7 +105,9 @@ export class NgpComboboxInput {
         event.preventDefault();
         break;
       case 'Enter':
-        // this.state().selectHighlightedOption();
+        this.state().selectOption(
+          this.state().activeDescendantManager.activeItem() as NgpComboboxOption<T>,
+        );
         event.preventDefault();
         break;
       case 'Escape':

@@ -2,6 +2,8 @@ import { BooleanInput } from '@angular/cdk/coercion';
 import { booleanAttribute, computed, Directive, input, OnDestroy, OnInit } from '@angular/core';
 import { injectElementRef, setupInteractions } from 'ng-primitives/internal';
 import { uniqueId } from 'ng-primitives/utils';
+import { NgpActivatable } from '../../../a11y/src';
+import { NgpComboboxValue } from '../combobox/combobox';
 import { injectComboboxState } from '../combobox/combobox-state';
 
 @Directive({
@@ -15,9 +17,10 @@ import { injectComboboxState } from '../combobox/combobox-state';
     '[attr.data-selected]': 'selected() ? "" : undefined',
     '[attr.data-active]': 'active() ? "" : undefined',
     '[attr.data-disabled]': 'disabled() ? "" : undefined',
+    '(click)': 'select()',
   },
 })
-export class NgpComboboxOption<T> implements OnInit, OnDestroy {
+export class NgpComboboxOption<T> implements OnInit, OnDestroy, NgpActivatable {
   /** Access the combobox state. */
   protected readonly state = injectComboboxState<T | T[]>();
 
@@ -59,11 +62,12 @@ export class NgpComboboxOption<T> implements OnInit, OnDestroy {
 
     if (this.state().multiple()) {
       return (
-        Array.isArray(value) && value.some(v => this.state().compareWith()(v, this.state().value()))
+        Array.isArray(value) &&
+        value.some(v => this.state().compareWith()(v, this.state().value() as NgpComboboxValue<T>))
       );
     }
 
-    return this.state().compareWith()(value, this.state().value());
+    return this.state().compareWith()(value, this.state().value() as NgpComboboxValue<T>);
   });
 
   constructor() {
@@ -86,5 +90,17 @@ export class NgpComboboxOption<T> implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.state().unregisterOption(this);
+  }
+
+  /**
+   * Select the option.
+   * @internal
+   */
+  select(): void {
+    if (this.disabled()) {
+      return;
+    }
+
+    this.state().toggleOption(this);
   }
 }

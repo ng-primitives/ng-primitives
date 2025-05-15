@@ -1,15 +1,6 @@
 import { BooleanInput } from '@angular/cdk/coercion';
-import {
-  booleanAttribute,
-  computed,
-  Directive,
-  inject,
-  Injector,
-  input,
-  output,
-  signal,
-} from '@angular/core';
-import { ActiveDescendantItem, activeDescendantManager } from 'ng-primitives/a11y';
+import { booleanAttribute, computed, Directive, input, output, signal } from '@angular/core';
+import { activeDescendantManager } from 'ng-primitives/a11y';
 import { injectElementRef } from 'ng-primitives/internal';
 import type { NgpComboboxButton } from '../combobox-button/combobox-button';
 import type { NgpComboboxDropdown } from '../combobox-dropdown/combobox-dropdown';
@@ -31,9 +22,6 @@ import { comboboxState, provideComboboxState } from './combobox-state';
 export class NgpCombobox<T> {
   /** Access the combobox element. */
   readonly elementRef = injectElementRef();
-
-  /** Access the injector. */
-  private readonly injector = inject(Injector);
 
   /** The value of the combobox. */
   readonly value = input<T>(undefined, {
@@ -63,7 +51,9 @@ export class NgpCombobox<T> {
   });
 
   /** The comparator function used to compare options. */
-  readonly compareWith = input<(a: T | undefined, b: T | undefined) => boolean>(Object.is, {
+  readonly compareWith = input<
+    (a: NgpComboboxValue<T> | undefined, b: NgpComboboxValue<T> | undefined) => boolean
+  >(Object.is, {
     alias: 'ngpComboboxCompareWith',
   });
 
@@ -76,7 +66,7 @@ export class NgpCombobox<T> {
    * Store the combobox input
    * @internal
    */
-  readonly input = signal<NgpComboboxInput | undefined>(undefined);
+  readonly input = signal<NgpComboboxInput<T> | undefined>(undefined);
 
   /**
    * Store the combobox button.
@@ -100,7 +90,7 @@ export class NgpCombobox<T> {
    * Store the combobox options.
    * @internal
    */
-  readonly options = signal<NgpComboboxOption<ComboboxValue<T>>[]>([]);
+  readonly options = signal<NgpComboboxOption<NgpComboboxValue<T>>[]>([]);
 
   /**
    * The open state of the combobox.
@@ -109,22 +99,12 @@ export class NgpCombobox<T> {
   readonly open = computed(() => this.portal()?.viewRef() !== null);
 
   /**
-   * The active descendant items.
-   */
-  private readonly activeDescendantItems = computed(() => {
-    return this.options().map<ActiveDescendantItem>(option => ({
-      id: option.id,
-      disabled: option.disabled,
-    }));
-  });
-
-  /**
    * The active key descendant manager.
    * @internal
    */
   readonly activeDescendantManager = activeDescendantManager({
     disabled: this.disabled,
-    items: this.activeDescendantItems,
+    items: this.options,
   });
 
   /** The state of the combobox. */
@@ -139,9 +119,13 @@ export class NgpCombobox<T> {
       return;
     }
 
-    // if there is a selected option(s), set the active descendant to the first selected option
-    // TODO
     this.portal()?.attach();
+
+    // if there is a selected option(s), set the active descendant to the first selected option
+    const selectedOption = this.options().find(option => this.isOptionSelected(option));
+
+    // activate the selected option or the first option
+    this.activeDescendantManager.activate(selectedOption ?? this.options()[0]);
   }
 
   /**
@@ -155,6 +139,9 @@ export class NgpCombobox<T> {
 
     this.openChange.emit(false);
     this.portal()?.detach();
+
+    // clear the active descendant
+    this.activeDescendantManager.reset();
   }
 
   /**
@@ -167,6 +154,99 @@ export class NgpCombobox<T> {
     } else {
       this.openDropdown();
     }
+  }
+
+  /**
+   * Select an option.
+   * @param option The option to select.
+   * @internal
+   */
+  selectOption<U>(option: NgpComboboxOption<U>): void {
+    if (this.disabled() || this.isOptionSelected(option)) {
+      return;
+    }
+
+    if (this.multiple()) {
+      const value = [...(this.value() as T[]), option.value() as T];
+
+      // add the option to the value
+      this.state.value.set(value as T);
+      this.valueChange.emit(value as T);
+    } else {
+      this.state.value.set(option.value() as T);
+      this.valueChange.emit(option.value() as T);
+
+      // close the dropdown on single selection
+      this.closeDropdown();
+    }
+  }
+
+  /**
+   * Deselect an option.
+   * @param option The option to deselect.
+   * @internal
+   */
+  deselectOption<U>(option: NgpComboboxOption<U>): void {
+    // if the combobox is disabled or the option is not selected, do nothing
+    // if the combobox is single selection, we don't allow deselecting
+    if (this.disabled() || !this.isOptionSelected(option) || !this.multiple()) {
+      return;
+    }
+
+    const values = (this.value() as NgpComboboxValue<T>[]) ?? [];
+
+    const newValue = values.filter(
+      v => !this.compareWith()(v, option.value() as NgpComboboxValue<T>),
+    );
+
+    // remove the option from the value
+    this.state.value.set(newValue as T);
+    this.valueChange.emit(newValue as T);
+  }
+
+  /**
+   * Toggle the selection of an option.
+   * @param option The option to toggle.
+   * @internal
+   */
+  toggleOption<U>(option: NgpComboboxOption<U>): void {
+    if (this.disabled()) {
+      return;
+    }
+
+    if (this.isOptionSelected(option)) {
+      this.deselectOption(option);
+    } else {
+      this.selectOption(option);
+    }
+  }
+
+  /**
+   * Determine if an option is selected.
+   * @param option The option to check.
+   * @internal
+   */
+  isOptionSelected<U>(option: NgpComboboxOption<U>): boolean {
+    if (this.disabled()) {
+      return false;
+    }
+
+    const value = this.value();
+
+    if (!value) {
+      return false;
+    }
+
+    if (this.multiple()) {
+      return (
+        value &&
+        (value as NgpComboboxValue<T>[]).some(v =>
+          this.compareWith()(option.value() as NgpComboboxValue<T>, v),
+        )
+      );
+    }
+
+    return this.compareWith()(option.value() as NgpComboboxValue<T>, value as NgpComboboxValue<T>);
   }
 
   /**
@@ -183,7 +263,7 @@ export class NgpCombobox<T> {
    * @param input The combobox input.
    * @internal
    */
-  registerInput(input: NgpComboboxInput): void {
+  registerInput(input: NgpComboboxInput<T>): void {
     this.input.set(input);
   }
 
@@ -221,7 +301,7 @@ export class NgpCombobox<T> {
         : 1,
     );
 
-    this.options.set(options as NgpComboboxOption<ComboboxValue<T>>[]);
+    this.options.set(options as NgpComboboxOption<NgpComboboxValue<T>>[]);
   }
 
   /**
@@ -235,4 +315,4 @@ export class NgpCombobox<T> {
 }
 
 // T may be an array of values, we want to get the type of the first element
-type ComboboxValue<T> = T extends Array<infer U> ? U : T;
+export type NgpComboboxValue<T> = T extends Array<infer U> ? U : T;
