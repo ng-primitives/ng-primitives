@@ -190,8 +190,32 @@ export class NgpFileUpload {
     this.isDragOver.set(false);
     this.dragOver.emit(false);
 
-    if (event.dataTransfer?.files) {
-      this.selected.emit(event.dataTransfer.files);
+    const fileList = event.dataTransfer?.files;
+    if (fileList) {
+      const validFiles = Array.from(fileList).filter(file => this.isFileTypeAccepted(file));
+
+      const limitedFiles = this.state.multiple() ? validFiles : validFiles.slice(0, 1);
+
+      if (limitedFiles.length > 0) {
+        this.selected.emit(this.filesToFileList(limitedFiles));
+      } else {
+        this.selected.emit(null);
+      }
     }
+  }
+
+  private isFileTypeAccepted(file: File) {
+    const acceptedTypes = this.state.fileTypes();
+
+    // allow all file types if no types are specified
+    if (!acceptedTypes || acceptedTypes.length === 0) return true;
+
+    return acceptedTypes.some(acceptedType => file.type.match(acceptedType));
+  }
+
+  private filesToFileList(files: File[]): FileList {
+    const dataTransfer = new DataTransfer();
+    files.forEach(file => dataTransfer.items.add(file));
+    return dataTransfer.files;
   }
 }
