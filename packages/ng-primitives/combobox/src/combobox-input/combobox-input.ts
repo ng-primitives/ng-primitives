@@ -25,7 +25,7 @@ import { injectComboboxState } from '../combobox/combobox-state';
     '[disabled]': 'state().disabled()',
   },
 })
-export class NgpComboboxInput<T> {
+export class NgpComboboxInput {
   /** Access the combobox state. */
   protected readonly state = injectComboboxState();
 
@@ -41,7 +41,7 @@ export class NgpComboboxInput<T> {
   /**
    * Extract the string representation of the value.
    */
-  readonly displayWith = input<(value: T) => string>((value: T) => {
+  readonly displayWith = input<(value: any) => string>((value: any) => {
     if (typeof value === 'string') {
       return value;
     }
@@ -68,7 +68,7 @@ export class NgpComboboxInput<T> {
       disabled: this.state().disabled,
     });
 
-    this.state().registerInput(this as NgpComboboxInput<unknown>);
+    this.state().registerInput(this);
   }
 
   /** Handle keydown events for accessibility. */
@@ -106,7 +106,7 @@ export class NgpComboboxInput<T> {
         break;
       case 'Enter':
         this.state().selectOption(
-          this.state().activeDescendantManager.activeItem() as NgpComboboxOption<T>,
+          this.state().activeDescendantManager.activeItem() as NgpComboboxOption,
         );
         event.preventDefault();
         break;

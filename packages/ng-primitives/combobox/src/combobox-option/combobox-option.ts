@@ -3,7 +3,6 @@ import { booleanAttribute, computed, Directive, input, OnDestroy, OnInit } from 
 import { injectElementRef, setupInteractions } from 'ng-primitives/internal';
 import { uniqueId } from 'ng-primitives/utils';
 import { NgpActivatable } from '../../../a11y/src';
-import { NgpComboboxValue } from '../combobox/combobox';
 import { injectComboboxState } from '../combobox/combobox-state';
 
 @Directive({
@@ -20,9 +19,9 @@ import { injectComboboxState } from '../combobox/combobox-state';
     '(click)': 'select()',
   },
 })
-export class NgpComboboxOption<T> implements OnInit, OnDestroy, NgpActivatable {
+export class NgpComboboxOption implements OnInit, OnDestroy, NgpActivatable {
   /** Access the combobox state. */
-  protected readonly state = injectComboboxState<T | T[]>();
+  protected readonly state = injectComboboxState();
 
   /**
    * The element reference of the option.
@@ -34,7 +33,7 @@ export class NgpComboboxOption<T> implements OnInit, OnDestroy, NgpActivatable {
   readonly id = input<string>(uniqueId('ngp-combobox-option'));
 
   /** The value of the option. */
-  readonly value = input<T>(undefined, {
+  readonly value = input<any>(undefined, {
     alias: 'ngpComboboxOptionValue',
   });
 
@@ -62,12 +61,11 @@ export class NgpComboboxOption<T> implements OnInit, OnDestroy, NgpActivatable {
 
     if (this.state().multiple()) {
       return (
-        Array.isArray(value) &&
-        value.some(v => this.state().compareWith()(v, this.state().value() as NgpComboboxValue<T>))
+        Array.isArray(value) && value.some(v => this.state().compareWith()(v, this.state().value()))
       );
     }
 
-    return this.state().compareWith()(value, this.state().value() as NgpComboboxValue<T>);
+    return this.state().compareWith()(value, this.state().value());
   });
 
   constructor() {

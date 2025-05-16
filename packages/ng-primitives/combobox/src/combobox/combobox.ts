@@ -9,6 +9,19 @@ import { NgpComboboxOption } from '../combobox-option/combobox-option';
 import type { NgpComboboxPortal } from '../combobox-portal/combobox-portal';
 import { comboboxState, provideComboboxState } from './combobox-state';
 
+/**
+ * Ideally we would use a generic type here, unfortunately, unlike in React,
+ * we cannot infer the type based on another input. For example, if multiple
+ * is true, we cannot infer that the value is an array of T. Using a union
+ * type is not ideal either because it requires the user to handle multiple cases.
+ * Using a generic also isn't ideal because we need to use T as both an array and
+ * a single value.
+ *
+ * Any seems to be used by Angular Material, ng-select, and other libraries
+ * so we will use it here as well.
+ */
+type T = any;
+
 @Directive({
   selector: '[ngpCombobox]',
   exportAs: 'ngpCombobox',
@@ -19,7 +32,7 @@ import { comboboxState, provideComboboxState } from './combobox-state';
     '[attr.data-multiple]': 'multiple() ? "" : undefined',
   },
 })
-export class NgpCombobox<T> {
+export class NgpCombobox {
   /** Access the combobox element. */
   readonly elementRef = injectElementRef();
 
@@ -51,9 +64,7 @@ export class NgpCombobox<T> {
   });
 
   /** The comparator function used to compare options. */
-  readonly compareWith = input<
-    (a: NgpComboboxValue<T> | undefined, b: NgpComboboxValue<T> | undefined) => boolean
-  >(Object.is, {
+  readonly compareWith = input<(a: T | undefined, b: T | undefined) => boolean>(Object.is, {
     alias: 'ngpComboboxCompareWith',
   });
 
@@ -66,7 +77,7 @@ export class NgpCombobox<T> {
    * Store the combobox input
    * @internal
    */
-  readonly input = signal<NgpComboboxInput<T> | undefined>(undefined);
+  readonly input = signal<NgpComboboxInput | undefined>(undefined);
 
   /**
    * Store the combobox button.
@@ -90,7 +101,7 @@ export class NgpCombobox<T> {
    * Store the combobox options.
    * @internal
    */
-  readonly options = signal<NgpComboboxOption<NgpComboboxValue<T>>[]>([]);
+  readonly options = signal<NgpComboboxOption[]>([]);
 
   /**
    * The open state of the combobox.
@@ -108,7 +119,7 @@ export class NgpCombobox<T> {
   });
 
   /** The state of the combobox. */
-  protected readonly state = comboboxState<NgpCombobox<T>>(this);
+  protected readonly state = comboboxState<NgpCombobox>(this);
 
   /**
    * Open the dropdown.
@@ -161,7 +172,7 @@ export class NgpCombobox<T> {
    * @param option The option to select.
    * @internal
    */
-  selectOption<U>(option: NgpComboboxOption<U>): void {
+  selectOption(option: NgpComboboxOption): void {
     if (this.disabled() || this.isOptionSelected(option)) {
       return;
     }
@@ -186,18 +197,16 @@ export class NgpCombobox<T> {
    * @param option The option to deselect.
    * @internal
    */
-  deselectOption<U>(option: NgpComboboxOption<U>): void {
+  deselectOption(option: NgpComboboxOption): void {
     // if the combobox is disabled or the option is not selected, do nothing
     // if the combobox is single selection, we don't allow deselecting
     if (this.disabled() || !this.isOptionSelected(option) || !this.multiple()) {
       return;
     }
 
-    const values = (this.value() as NgpComboboxValue<T>[]) ?? [];
+    const values = (this.value() as T[]) ?? [];
 
-    const newValue = values.filter(
-      v => !this.compareWith()(v, option.value() as NgpComboboxValue<T>),
-    );
+    const newValue = values.filter(v => !this.compareWith()(v, option.value() as T));
 
     // remove the option from the value
     this.state.value.set(newValue as T);
@@ -209,7 +218,7 @@ export class NgpCombobox<T> {
    * @param option The option to toggle.
    * @internal
    */
-  toggleOption<U>(option: NgpComboboxOption<U>): void {
+  toggleOption<U>(option: NgpComboboxOption): void {
     if (this.disabled()) {
       return;
     }
@@ -226,7 +235,7 @@ export class NgpCombobox<T> {
    * @param option The option to check.
    * @internal
    */
-  isOptionSelected<U>(option: NgpComboboxOption<U>): boolean {
+  isOptionSelected<U>(option: NgpComboboxOption): boolean {
     if (this.disabled()) {
       return false;
     }
@@ -238,15 +247,10 @@ export class NgpCombobox<T> {
     }
 
     if (this.multiple()) {
-      return (
-        value &&
-        (value as NgpComboboxValue<T>[]).some(v =>
-          this.compareWith()(option.value() as NgpComboboxValue<T>, v),
-        )
-      );
+      return value && (value as T[]).some(v => this.compareWith()(option.value(), v));
     }
 
-    return this.compareWith()(option.value() as NgpComboboxValue<T>, value as NgpComboboxValue<T>);
+    return this.compareWith()(option.value(), value);
   }
 
   /**
@@ -263,7 +267,7 @@ export class NgpCombobox<T> {
    * @param input The combobox input.
    * @internal
    */
-  registerInput(input: NgpComboboxInput<T>): void {
+  registerInput(input: NgpComboboxInput): void {
     this.input.set(input);
   }
 
@@ -290,8 +294,8 @@ export class NgpCombobox<T> {
    * @param option The option to register.
    * @internal
    */
-  registerOption<U>(option: NgpComboboxOption<U>): void {
-    const options = [...this.options(), option] as NgpComboboxOption<U>[];
+  registerOption<U>(option: NgpComboboxOption): void {
+    const options = [...this.options(), option] as NgpComboboxOption[];
 
     // sort the options based on their order in the DOM
     options.sort((a, b) =>
@@ -301,7 +305,7 @@ export class NgpCombobox<T> {
         : 1,
     );
 
-    this.options.set(options as NgpComboboxOption<NgpComboboxValue<T>>[]);
+    this.options.set(options as NgpComboboxOption[]);
   }
 
   /**
@@ -309,10 +313,7 @@ export class NgpCombobox<T> {
    * @param option The option to unregister.
    * @internal
    */
-  unregisterOption<T>(option: NgpComboboxOption<T>): void {
+  unregisterOption<T>(option: NgpComboboxOption): void {
     this.options.update(options => options.filter(o => o !== option));
   }
 }
-
-// T may be an array of values, we want to get the type of the first element
-export type NgpComboboxValue<T> = T extends Array<infer U> ? U : T;
