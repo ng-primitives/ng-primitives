@@ -25,7 +25,8 @@ export interface AngularPrimitivesComponentSchema {
     | 'toast'
     | 'toolbar'
     | 'tooltip'
-    | 'meter';
+    | 'meter'
+    | 'number-picker';
 
   /**
    * The path where the component files should be created, relative to the current workspace.

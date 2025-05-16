@@ -14,8 +14,8 @@ import { formControlState, provideFormControlState } from './form-control-state'
   exportAs: 'ngpFormControl',
   providers: [provideFormControlState()],
   host: {
-    '[id]': 'id()',
-    '[attr.aria-labelledby]': 'ariaLabelledBy()',
+    '[id]': 'state.id()',
+    '[attr.aria-labelledby]': 'ariaLabelledBy?.()',
     '[attr.aria-describedby]': 'ariaDescribedBy()',
     '[attr.data-invalid]': 'formField()?.invalid() ? "" : null',
     '[attr.data-valid]': 'formField()?.valid() ? "" : null',
@@ -47,7 +47,7 @@ export class NgpFormControl {
   /**
    * Determine the aria-labelledby attribute value.
    */
-  protected readonly ariaLabelledBy = computed(() => this.formField()?.labels().join(' '));
+  protected readonly ariaLabelledBy = this.formField()?.labelledBy;
 
   /**
    * Determine the aria-describedby attribute value.

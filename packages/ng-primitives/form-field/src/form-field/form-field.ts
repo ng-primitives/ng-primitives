@@ -1,4 +1,4 @@
-import { Directive, OnDestroy, contentChild, signal } from '@angular/core';
+import { Directive, OnDestroy, computed, contentChild, signal } from '@angular/core';
 import { NgControl } from '@angular/forms';
 import { onChange } from 'ng-primitives/utils';
 import { Subscription } from 'rxjs';
@@ -92,6 +92,12 @@ export class NgpFormField implements OnDestroy {
    * @internal
    */
   readonly disabled = signal<boolean | null>(null);
+
+  /**
+   * The labelledby attribute for the form field.
+   * @internal
+   */
+  readonly labelledBy = computed(() => this.labels().join(' '));
 
   /**
    * Store the current status subscription.

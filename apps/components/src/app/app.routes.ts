@@ -1,6 +1,7 @@
 import { Route } from '@angular/router';
 
 export const appRoutes: Route[] = [
+  { path: 'number-picker', loadComponent: () => import('./number-picker/app') },
   { path: 'meter', loadComponent: () => import('./meter/app') },
   { path: 'toast', loadComponent: () => import('./toast/app') },
   { path: 'search', loadComponent: () => import('./search/app') },
