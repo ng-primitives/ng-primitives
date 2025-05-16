@@ -38,8 +38,8 @@ type T = any;
   providers: [provideComboboxState()],
   host: {
     '[attr.data-open]': 'state.open() ? "" : undefined',
-    '[attr.data-disabled]': 'disabled() ? "" : undefined',
-    '[attr.data-multiple]': 'multiple() ? "" : undefined',
+    '[attr.data-disabled]': 'state.disabled() ? "" : undefined',
+    '[attr.data-multiple]': 'state.multiple() ? "" : undefined',
   },
 })
 export class NgpCombobox {
@@ -127,7 +127,7 @@ export class NgpCombobox {
    * @internal
    */
   readonly activeDescendantManager = activeDescendantManager({
-    disabled: this.disabled,
+    disabled: this.state.disabled,
     items: this.options,
   });
 
@@ -201,12 +201,12 @@ export class NgpCombobox {
    * @internal
    */
   selectOption(option: NgpComboboxOption): void {
-    if (this.disabled() || this.isOptionSelected(option)) {
+    if (this.state.disabled() || this.isOptionSelected(option)) {
       return;
     }
 
-    if (this.multiple()) {
-      const value = [...(this.value() as T[]), option.value() as T];
+    if (this.state.multiple()) {
+      const value = [...(this.state.value() as T[]), option.value() as T];
 
       // add the option to the value
       this.state.value.set(value as T);
@@ -228,13 +228,13 @@ export class NgpCombobox {
   deselectOption(option: NgpComboboxOption): void {
     // if the combobox is disabled or the option is not selected, do nothing
     // if the combobox is single selection, we don't allow deselecting
-    if (this.disabled() || !this.isOptionSelected(option) || !this.multiple()) {
+    if (this.state.disabled() || !this.isOptionSelected(option) || !this.state.multiple()) {
       return;
     }
 
-    const values = (this.value() as T[]) ?? [];
+    const values = (this.state.value() as T[]) ?? [];
 
-    const newValue = values.filter(v => !this.compareWith()(v, option.value() as T));
+    const newValue = values.filter(v => !this.state.compareWith()(v, option.value() as T));
 
     // remove the option from the value
     this.state.value.set(newValue as T);
@@ -247,7 +247,7 @@ export class NgpCombobox {
    * @internal
    */
   toggleOption(option: NgpComboboxOption): void {
-    if (this.disabled()) {
+    if (this.state.disabled()) {
       return;
     }
 
@@ -264,21 +264,21 @@ export class NgpCombobox {
    * @internal
    */
   isOptionSelected<U>(option: NgpComboboxOption): boolean {
-    if (this.disabled()) {
+    if (this.state.disabled()) {
       return false;
     }
 
-    const value = this.value();
+    const value = this.state.value();
 
     if (!value) {
       return false;
     }
 
-    if (this.multiple()) {
-      return value && (value as T[]).some(v => this.compareWith()(option.value(), v));
+    if (this.state.multiple()) {
+      return value && (value as T[]).some(v => this.state.compareWith()(option.value(), v));
     }
 
-    return this.compareWith()(option.value(), value);
+    return this.state.compareWith()(option.value(), value);
   }
 
   /**
