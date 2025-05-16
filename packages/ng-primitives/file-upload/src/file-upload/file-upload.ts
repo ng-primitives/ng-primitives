@@ -10,6 +10,7 @@ import {
   signal,
 } from '@angular/core';
 import { setupInteractions } from 'ng-primitives/internal';
+import { fileDropFilter } from '../file-dropzone/file-drop-filter';
 import { fileUploadState, provideFileUploadState } from './file-upload-state';
 
 /**
@@ -79,10 +80,17 @@ export class NgpFileUpload {
   });
 
   /**
-   * Emits when the user selects files.
+   * Emits when the user cancel the file selection.
    */
   readonly canceled = output<void>({
     alias: 'ngpFileUploadCanceled',
+  });
+
+  /**
+   * Emits when uploaded files are rejected because they do not match the allowed {@link fileTypes}.
+   */
+  readonly rejected = output<void>({
+    alias: 'ngpFileUploadRejected',
   });
 
   /**
@@ -190,8 +198,15 @@ export class NgpFileUpload {
     this.isDragOver.set(false);
     this.dragOver.emit(false);
 
-    if (event.dataTransfer?.files) {
-      this.selected.emit(event.dataTransfer.files);
+    const fileList = event.dataTransfer?.files;
+    if (fileList) {
+      const filteredFiles = fileDropFilter(fileList, this.state.fileTypes(), this.state.multiple());
+
+      if (filteredFiles) {
+        this.selected.emit(filteredFiles);
+      } else {
+        this.rejected.emit();
+      }
     }
   }
 }

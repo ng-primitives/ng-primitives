@@ -10,6 +10,7 @@ import { NgpFileUpload } from 'ng-primitives/file-upload';
   template: `
     <div
       (ngpFileUploadSelected)="onFilesSelected($event)"
+      (ngpFileUploadRejected)="onFilesRejected()"
       ngpFileUploadFileTypes=".svg, .pdf"
       ngpFileUpload
       ngpFileUploadMultiple
@@ -67,5 +68,9 @@ export default class FileUploadExample {
     if (files) {
       alert(`Selected ${files.length} files.`);
     }
+  }
+
+  onFilesRejected(): void {
+    alert('File type not supported.');
   }
 }
