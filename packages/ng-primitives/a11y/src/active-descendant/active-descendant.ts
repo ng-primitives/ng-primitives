@@ -1,6 +1,6 @@
 import { computed, Signal, signal } from '@angular/core';
 
-interface ActiveDescendantManagerOptions {
+interface ActiveDescendantManagerOptions<T extends NgpActivatable> {
   /**
    * The disabled state of the active descendant group.
    * @default false
@@ -9,7 +9,7 @@ interface ActiveDescendantManagerOptions {
   /**
    * The items in the active descendant group.
    */
-  items: Signal<NgpActivatable[]>;
+  items: Signal<T[]>;
   /**
    * Whether active descendant should wrap around.
    * @default false
@@ -28,9 +28,11 @@ export interface NgpActivatable {
   disabled?: Signal<boolean>;
 }
 
-export function activeDescendantManager(options: ActiveDescendantManagerOptions) {
+export function activeDescendantManager<T extends NgpActivatable>(
+  options: ActiveDescendantManagerOptions<T>,
+) {
   const activeIndex = signal<number>(0);
-  const activeItem = computed(() => options.items()?.[activeIndex()]);
+  const activeItem = computed<T | undefined>(() => options.items()?.[activeIndex()]);
   const disabled = computed(
     () => options.disabled?.() || options.items().every(item => item.disabled?.()),
   );
@@ -49,7 +51,7 @@ export function activeDescendantManager(options: ActiveDescendantManagerOptions)
    * Activate an item in the active descendant group.
    * @param item The item to activate.
    */
-  const activate = (item: NgpActivatable | undefined) => {
+  const activate = (item: T | undefined) => {
     if (disabled() || !item || item.disabled?.()) {
       return;
     }

@@ -5,7 +5,7 @@ import { Combobox } from './combobox';
   selector: 'app-combobox-example',
   imports: [Combobox],
   template: `
-    <app-combobox [options]="options" />
+    <app-combobox [options]="options" placeholder="Select a character" />
   `,
 })
 export default class App {

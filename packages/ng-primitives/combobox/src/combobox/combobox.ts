@@ -1,7 +1,17 @@
 import { BooleanInput } from '@angular/cdk/coercion';
-import { booleanAttribute, computed, Directive, input, output, signal } from '@angular/core';
+import {
+  afterNextRender,
+  booleanAttribute,
+  computed,
+  Directive,
+  inject,
+  Injector,
+  input,
+  output,
+  signal,
+} from '@angular/core';
 import { activeDescendantManager } from 'ng-primitives/a11y';
-import { injectElementRef } from 'ng-primitives/internal';
+import { explicitEffect, injectElementRef } from 'ng-primitives/internal';
 import type { NgpComboboxButton } from '../combobox-button/combobox-button';
 import type { NgpComboboxDropdown } from '../combobox-dropdown/combobox-dropdown';
 import type { NgpComboboxInput } from '../combobox-input/combobox-input';
@@ -33,8 +43,11 @@ type T = any;
   },
 })
 export class NgpCombobox {
-  /** Access the combobox element. */
+  /** @internal Access the combobox element. */
   readonly elementRef = injectElementRef();
+
+  /** Access the injector. */
+  protected readonly injector = inject(Injector);
 
   /** The value of the combobox. */
   readonly value = input<T>(undefined, {
@@ -121,6 +134,13 @@ export class NgpCombobox {
   /** The state of the combobox. */
   protected readonly state = comboboxState<NgpCombobox>(this);
 
+  constructor() {
+    // any time the active descendant changes, ensure we scroll it into view
+    explicitEffect([this.activeDescendantManager.activeItem], ([option]) =>
+      afterNextRender({ write: () => option?.scrollIntoView?.() }, { injector: this.injector }),
+    );
+  }
+
   /**
    * Open the dropdown.
    * @internal
@@ -135,8 +155,16 @@ export class NgpCombobox {
     // if there is a selected option(s), set the active descendant to the first selected option
     const selectedOption = this.options().find(option => this.isOptionSelected(option));
 
+    // if there is no selected option, set the active descendant to the first option
+    const targetOption = selectedOption ?? this.options()[0];
+
+    // if there is no target option, do nothing
+    if (!targetOption) {
+      return;
+    }
+
     // activate the selected option or the first option
-    this.activeDescendantManager.activate(selectedOption ?? this.options()[0]);
+    this.activeDescendantManager.activate(targetOption);
   }
 
   /**
@@ -218,7 +246,7 @@ export class NgpCombobox {
    * @param option The option to toggle.
    * @internal
    */
-  toggleOption<U>(option: NgpComboboxOption): void {
+  toggleOption(option: NgpComboboxOption): void {
     if (this.disabled()) {
       return;
     }
@@ -294,8 +322,8 @@ export class NgpCombobox {
    * @param option The option to register.
    * @internal
    */
-  registerOption<U>(option: NgpComboboxOption): void {
-    const options = [...this.options(), option] as NgpComboboxOption[];
+  registerOption(option: NgpComboboxOption): void {
+    const options = [...this.options(), option];
 
     // sort the options based on their order in the DOM
     options.sort((a, b) =>
@@ -305,7 +333,7 @@ export class NgpCombobox {
         : 1,
     );
 
-    this.options.set(options as NgpComboboxOption[]);
+    this.options.set(options);
   }
 
   /**
@@ -313,7 +341,7 @@ export class NgpCombobox {
    * @param option The option to unregister.
    * @internal
    */
-  unregisterOption<T>(option: NgpComboboxOption): void {
+  unregisterOption(option: NgpComboboxOption): void {
     this.options.update(options => options.filter(o => o !== option));
   }
 }

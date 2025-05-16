@@ -101,4 +101,12 @@ export class NgpComboboxOption implements OnInit, OnDestroy, NgpActivatable {
 
     this.state().toggleOption(this);
   }
+
+  /**
+   * Scroll the option into view.
+   * @internal
+   */
+  scrollIntoView(): void {
+    this.elementRef.nativeElement.scrollIntoView({ block: 'nearest' });
+  }
 }

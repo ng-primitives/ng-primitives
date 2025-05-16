@@ -1,5 +1,5 @@
 import { BooleanInput } from '@angular/cdk/coercion';
-import { booleanAttribute, Component, computed, input, signal } from '@angular/core';
+import { booleanAttribute, Component, computed, input, model, signal } from '@angular/core';
 import { ControlValueAccessor } from '@angular/forms';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { heroChevronDown } from '@ng-icons/heroicons/outline';
@@ -26,8 +26,20 @@ import { ChangeFn, provideValueAccessor, TouchedFn } from 'ng-primitives/utils';
   ],
   providers: [provideIcons({ heroChevronDown }), provideValueAccessor(Combobox)],
   template: `
-    <div ngpCombobox>
-      <input [value]="filter()" (input)="onFilterChange($event)" ngpComboboxInput />
+    <div
+      [(ngpComboboxValue)]="value"
+      [ngpComboboxDisabled]="disabled() || formDisabled()"
+      (ngpComboboxValueChange)="onValueChange($event)"
+      ngpCombobox
+    >
+      <input
+        [value]="filter()"
+        [placeholder]="placeholder()"
+        (input)="onFilterChange($event)"
+        (blur)="resetOnBlur()"
+        ngpComboboxInput
+      />
+
       <button ngpComboboxButton>
         <ng-icon name="heroChevronDown" />
       </button>
@@ -37,6 +49,8 @@ import { ChangeFn, provideValueAccessor, TouchedFn } from 'ng-primitives/utils';
           <div [ngpComboboxOptionValue]="option" ngpComboboxOption>
             {{ option }}
           </div>
+        } @empty {
+          <div class="empty-message">No options found</div>
         }
       </div>
     </div>
@@ -92,6 +106,8 @@ import { ChangeFn, provideValueAccessor, TouchedFn } from 'ng-primitives/utils';
       width: var(--ngp-combobox-width);
       box-sizing: border-box;
       margin-top: 4px;
+      max-height: 240px;
+      overflow-y: auto;
     }
 
     [ngpComboboxOption] {
@@ -119,6 +135,17 @@ import { ChangeFn, provideValueAccessor, TouchedFn } from 'ng-primitives/utils';
     [ngpComboboxOption][data-active] {
       background-color: var(--ngp-background-active);
     }
+
+    .empty-message {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 0.5rem;
+      color: var(--ngp-text-secondary);
+      font-size: 14px;
+      font-weight: 500;
+      text-align: center;
+    }
   `,
 })
 export class Combobox implements ControlValueAccessor {
@@ -126,7 +153,10 @@ export class Combobox implements ControlValueAccessor {
   readonly options = input<string[]>([]);
 
   /** The selected value. */
-  readonly value = input<string | undefined>();
+  readonly value = model<string | undefined>();
+
+  /** The placeholder for the input. */
+  readonly placeholder = input<string>('');
 
   /** The disabled state of the combobox. */
   readonly disabled = input<boolean, BooleanInput>(false, {
@@ -134,10 +164,10 @@ export class Combobox implements ControlValueAccessor {
   });
 
   /** The filter value. */
-  readonly filter = signal<string>('');
+  protected readonly filter = signal<string>('');
 
   /** Get the filtered options. */
-  readonly filteredOptions = computed(() => {
+  protected readonly filteredOptions = computed(() => {
     const filter = this.filter();
 
     // if the filter perfectly matches an option, return all options
@@ -149,22 +179,26 @@ export class Combobox implements ControlValueAccessor {
     return this.options().filter(option => option.toLowerCase().includes(filter.toLowerCase()));
   });
 
+  /** Store the form disabled state */
+  protected readonly formDisabled = signal(false);
+
   /** The on change callback */
   private onChange?: ChangeFn<string>;
 
   /** The on touch callback */
-  private onTouched?: TouchedFn;
+  protected onTouched?: TouchedFn;
 
   onFilterChange(event: Event): void {
     const input = event.target as HTMLInputElement;
     this.filter.set(input.value);
   }
 
-  writeValue(value: string): void {
-    this.filter.set(value);
+  writeValue(value: string | undefined): void {
+    this.value.set(value);
+    this.filter.set(value ?? '');
   }
 
-  registerOnChange(fn: ChangeFn<string>): void {
+  registerOnChange(fn: ChangeFn<string | undefined>): void {
     this.onChange = fn;
   }
 
@@ -173,6 +207,25 @@ export class Combobox implements ControlValueAccessor {
   }
 
   setDisabledState(isDisabled: boolean): void {
-    // Todo
+    this.formDisabled.set(isDisabled);
+  }
+
+  protected onValueChange(value: string): void {
+    this.onChange?.(value);
+    // update the filter value
+    this.filter.set(value);
+  }
+
+  protected resetOnBlur(): void {
+    // if the filter value is empty, set the value to undefined
+    if (this.filter() === '') {
+      this.value.set(undefined);
+    } else {
+      // otherwise set the filter value to the selected value
+      this.filter.set(this.value() ?? '');
+    }
+
+    // mark the control as touched
+    this.onTouched?.();
   }
 }

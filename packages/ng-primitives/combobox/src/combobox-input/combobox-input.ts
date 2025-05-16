@@ -105,9 +105,11 @@ export class NgpComboboxInput {
         event.preventDefault();
         break;
       case 'Enter':
-        this.state().selectOption(
-          this.state().activeDescendantManager.activeItem() as NgpComboboxOption,
-        );
+        if (this.state().open()) {
+          this.state().selectOption(
+            this.state().activeDescendantManager.activeItem() as NgpComboboxOption,
+          );
+        }
         event.preventDefault();
         break;
       case 'Escape':
@@ -115,10 +117,14 @@ export class NgpComboboxInput {
         event.preventDefault();
         break;
       default:
-        // if this was a character key, we want to open the dropdown
-        if (event.key.length === 1) {
-          this.state().openDropdown();
+        // Ignore keys with length > 1 (e.g., 'Shift', 'ArrowLeft', 'Enter', etc.)
+        // Filter out control/meta key combos (e.g., Ctrl+C)
+        if (event.key.length > 1 || event.ctrlKey || event.metaKey || event.altKey) {
+          return;
         }
+
+        // if this was a character key, we want to open the dropdown
+        this.state().openDropdown();
     }
   }
 
