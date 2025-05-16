@@ -1,4 +1,4 @@
-import { NumberInput } from '@angular/cdk/number-property.d-BzBQchZ2';
+import { NumberInput } from '@angular/cdk/coercion';
 import { Component, input, numberAttribute } from '@angular/core';
 import {
   NgpProgress,

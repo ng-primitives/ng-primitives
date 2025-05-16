@@ -1,8 +1,8 @@
 import { BooleanInput } from '@angular/cdk/coercion';
 import { booleanAttribute, computed, Directive, input, OnDestroy, OnInit } from '@angular/core';
+import { NgpActivatable } from 'ng-primitives/a11y';
 import { injectElementRef, setupInteractions } from 'ng-primitives/internal';
 import { uniqueId } from 'ng-primitives/utils';
-import { NgpActivatable } from 'ng-primitives/a11y';
 import { injectComboboxState } from '../combobox/combobox-state';
 
 @Directive({

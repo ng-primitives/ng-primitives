@@ -30,6 +30,7 @@ import { comboboxState, provideComboboxState } from './combobox-state';
  * Any seems to be used by Angular Material, ng-select, and other libraries
  * so we will use it here as well.
  */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 type T = any;
 
 @Directive({
@@ -127,7 +128,8 @@ export class NgpCombobox {
    * @internal
    */
   readonly activeDescendantManager = activeDescendantManager({
-    disabled: this.state.disabled,
+    // we must wrap the signal in a computed to ensure it is not used before it is defined
+    disabled: computed(() => this.state.disabled()),
     items: this.options,
   });
 
@@ -137,6 +139,8 @@ export class NgpCombobox {
   constructor() {
     // any time the active descendant changes, ensure we scroll it into view
     explicitEffect([this.activeDescendantManager.activeItem], ([option]) =>
+      // perform after next render to ensure the DOM is updated
+      // e.g. the dropdown is open before the option is scrolled into view
       afterNextRender({ write: () => option?.scrollIntoView?.() }, { injector: this.injector }),
     );
   }
@@ -263,7 +267,7 @@ export class NgpCombobox {
    * @param option The option to check.
    * @internal
    */
-  isOptionSelected<U>(option: NgpComboboxOption): boolean {
+  isOptionSelected(option: NgpComboboxOption): boolean {
     if (this.state.disabled()) {
       return false;
     }
