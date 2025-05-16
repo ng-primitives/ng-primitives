@@ -10,11 +10,27 @@ export function fileDropFilter(
   return limitedFiles.length > 0 ? filesToFileList(limitedFiles) : null;
 }
 
-function isFileTypeAccepted(file: File, acceptedTypes: string[] | undefined) {
+export function isFileTypeAccepted(file: File, acceptedTypes: string[] | undefined) {
   // allow all file types if no types are specified
   if (!acceptedTypes || acceptedTypes.length === 0) return true;
 
-  return acceptedTypes.some(acceptedType => file.type.match(acceptedType));
+  const mimeType = file.type;
+  const fileName = file.name.toLowerCase();
+
+  return acceptedTypes.some(type => {
+    type = type.toLowerCase();
+
+    if (type.startsWith('.')) {
+      return fileName.endsWith(type);
+    }
+
+    if (type.endsWith('/*')) {
+      const baseType = type.replace('/*', '');
+      return mimeType.startsWith(baseType);
+    }
+
+    return mimeType === type;
+  });
 }
 
 function filesToFileList(files: File[]): FileList {
