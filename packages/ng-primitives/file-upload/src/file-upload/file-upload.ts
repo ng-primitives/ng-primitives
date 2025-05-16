@@ -80,10 +80,17 @@ export class NgpFileUpload {
   });
 
   /**
-   * Emits when the user selects files.
+   * Emits when the user cancel the file selection.
    */
   readonly canceled = output<void>({
     alias: 'ngpFileUploadCanceled',
+  });
+
+  /**
+   * Emits when uploaded files are rejected because they do not match the allowed {@link fileTypes}.
+   */
+  readonly rejected = output<void>({
+    alias: 'ngpFileUploadRejected',
   });
 
   /**
@@ -197,6 +204,8 @@ export class NgpFileUpload {
 
       if (filteredFiles) {
         this.selected.emit(filteredFiles);
+      } else {
+        this.rejected.emit();
       }
     }
   }

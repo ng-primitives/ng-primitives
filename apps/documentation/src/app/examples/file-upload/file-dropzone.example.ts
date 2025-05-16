@@ -7,6 +7,7 @@ import { NgpFileDropzone } from 'ng-primitives/file-upload';
   template: `
     <div
       (ngpFileDropzoneSelected)="onFilesSelected($event)"
+      (ngpFileDropzoneRejected)="onFilesRejected()"
       ngpFileDropzoneFileTypes=".svg, .pdf"
       ngpFileDropzone
     >
@@ -58,5 +59,9 @@ export default class FileDropzoneExample {
     if (files) {
       alert(`Selected ${files.length} files.`);
     }
+  }
+
+  onFilesRejected(): void {
+    alert('File type not supported.');
   }
 }

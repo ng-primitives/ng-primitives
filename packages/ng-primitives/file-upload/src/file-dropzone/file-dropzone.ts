@@ -72,6 +72,13 @@ export class NgpFileDropzone {
   });
 
   /**
+   * Emits when uploaded files are rejected because they do not match the allowed {@link fileTypes}.
+   */
+  readonly rejected = output<void>({
+    alias: 'ngpFileDropzoneRejected',
+  });
+
+  /**
    * Emits when the user drags a file over the file upload.
    */
   readonly dragOver = output<boolean>({
@@ -148,6 +155,8 @@ export class NgpFileDropzone {
 
       if (filteredFiles) {
         this.selected.emit(filteredFiles);
+      } else {
+        this.rejected.emit();
       }
     }
   }
