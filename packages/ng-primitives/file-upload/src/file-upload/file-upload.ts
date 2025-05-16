@@ -10,6 +10,7 @@ import {
   signal,
 } from '@angular/core';
 import { setupInteractions } from 'ng-primitives/internal';
+import { fileDropFilter } from '../file-dropzone/file-drop-filter';
 import { fileUploadState, provideFileUploadState } from './file-upload-state';
 
 /**
@@ -192,30 +193,11 @@ export class NgpFileUpload {
 
     const fileList = event.dataTransfer?.files;
     if (fileList) {
-      const validFiles = Array.from(fileList).filter(file => this.isFileTypeAccepted(file));
+      const filteredFiles = fileDropFilter(fileList, this.state.fileTypes(), this.state.multiple());
 
-      const limitedFiles = this.state.multiple() ? validFiles : validFiles.slice(0, 1);
-
-      if (limitedFiles.length > 0) {
-        this.selected.emit(this.filesToFileList(limitedFiles));
-      } else {
-        this.selected.emit(null);
+      if (filteredFiles) {
+        this.selected.emit(filteredFiles);
       }
     }
-  }
-
-  private isFileTypeAccepted(file: File) {
-    const acceptedTypes = this.state.fileTypes();
-
-    // allow all file types if no types are specified
-    if (!acceptedTypes || acceptedTypes.length === 0) return true;
-
-    return acceptedTypes.some(acceptedType => file.type.match(acceptedType));
-  }
-
-  private filesToFileList(files: File[]): FileList {
-    const dataTransfer = new DataTransfer();
-    files.forEach(file => dataTransfer.items.add(file));
-    return dataTransfer.files;
   }
 }

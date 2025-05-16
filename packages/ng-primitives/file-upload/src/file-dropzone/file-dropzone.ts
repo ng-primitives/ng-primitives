@@ -10,6 +10,7 @@ import {
   signal,
 } from '@angular/core';
 import { setupHover } from 'ng-primitives/internal';
+import { fileDropFilter } from './file-drop-filter';
 import { fileDropzoneState, provideFileDropzoneState } from './file-dropzone-state';
 
 /**
@@ -141,8 +142,13 @@ export class NgpFileDropzone {
     this.isDragOver.set(false);
     this.dragOver.emit(false);
 
-    if (event.dataTransfer?.files) {
-      this.selected.emit(event.dataTransfer.files);
+    const fileList = event.dataTransfer?.files;
+    if (fileList) {
+      const filteredFiles = fileDropFilter(fileList, this.state.fileTypes(), this.state.multiple());
+
+      if (filteredFiles) {
+        this.selected.emit(filteredFiles);
+      }
     }
   }
 }
