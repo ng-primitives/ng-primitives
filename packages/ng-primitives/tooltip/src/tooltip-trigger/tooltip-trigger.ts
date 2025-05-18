@@ -26,9 +26,9 @@ import {
   shift,
 } from '@floating-ui/dom';
 import { injectExitAnimationManager, provideExitAnimationManager } from 'ng-primitives/internal';
+import { NgpPortal, createPortal } from 'ng-primitives/portal';
 import { fromResizeEvent } from 'ng-primitives/resize';
 import { injectDisposables } from 'ng-primitives/utils';
-import { NgpPortal, createPortal } from 'ng-primitives/portal';
 import { injectTooltipConfig } from '../config/tooltip-config';
 import { provideTooltipContext } from '../tooltip/tooltip-token';
 import { provideTooltipTriggerState, tooltipTriggerState } from './tooltip-trigger-state';

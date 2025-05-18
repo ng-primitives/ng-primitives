@@ -31,9 +31,9 @@ import {
   injectExitAnimationManager,
   provideExitAnimationManager,
 } from 'ng-primitives/internal';
+import { createPortal, NgpPortal } from 'ng-primitives/portal';
 import { fromResizeEvent } from 'ng-primitives/resize';
 import { injectDisposables } from 'ng-primitives/utils';
-import { createPortal, NgpPortal } from 'ng-primitives/portal';
 import { injectPopoverConfig } from '../config/popover-config';
 import type { NgpPopover } from '../popover/popover';
 import { providePopoverContext } from '../popover/popover-token';
