@@ -1,3 +1,18 @@
+## 0.41.0 (2025-05-18)
+
+### 🚀 Features
+
+- **file-upload:** filter dropped files by accepted fileTypes and lim… ([#242](https://github.com/ng-primitives/ng-primitives/pull/242))
+
+### 🩹 Fixes
+
+- **popover:** detect changes issue ([#248](https://github.com/ng-primitives/ng-primitives/pull/248))
+
+### ❤️ Thank You
+
+- Ashley Hunter
+- Marc Stammerjohann @marcjulian
+
 ## 0.40.0 (2025-05-14)
 
 ### 🩹 Fixes
