@@ -1,3 +1,81 @@
+## 0.40.0 (2025-05-14)
+
+### 🩹 Fixes
+
+- **tooltip:** gracefully handling animation abort ([#240](https://github.com/ng-primitives/ng-primitives/pull/240))
+
+### ❤️ Thank You
+
+- Ashley Hunter
+
+## 0.39.0 (2025-05-12)
+
+### 🩹 Fixes
+
+- **listbox:** resolve focus trap issue ([#238](https://github.com/ng-primitives/ng-primitives/pull/238))
+
+### ❤️ Thank You
+
+- Ashley Hunter
+
+## 0.38.0 (2025-05-03)
+
+### 🚀 Features
+
+- **progress:** adding additional progress primitives ([#222](https://github.com/ng-primitives/ng-primitives/pull/222))
+
+### 🩹 Fixes
+
+- **button:** resolve data-disabled attribute ([#228](https://github.com/ng-primitives/ng-primitives/pull/228))
+- **dialog:** resolving focus issue ([#226](https://github.com/ng-primitives/ng-primitives/pull/226))
+
+### ❤️ Thank You
+
+- Ashley Hunter
+
+## 0.37.0 (2025-04-29)
+
+### 🚀 Features
+
+- **dialog:** allow backdrop click to be disabled ([#215](https://github.com/ng-primitives/ng-primitives/pull/215))
+- **meter:** adding meter primitive ([#219](https://github.com/ng-primitives/ng-primitives/pull/219))
+
+### 🩹 Fixes
+
+- accessibility issues and adding e2e tests ([#214](https://github.com/ng-primitives/ng-primitives/pull/214))
+- **file-upload:** allow same file reupload ([#218](https://github.com/ng-primitives/ng-primitives/pull/218))
+- **menu:** menu animation fixes ([#211](https://github.com/ng-primitives/ng-primitives/pull/211))
+- **toolbar:** ensure orientation defaults to horizontal ([#212](https://github.com/ng-primitives/ng-primitives/pull/212))
+
+### ❤️ Thank You
+
+- Ashley Hunter
+
+## 0.36.0 (2025-04-26)
+
+### 🚀 Features
+
+- add reusable toolbar component ([#183](https://github.com/ng-primitives/ng-primitives/pull/183))
+- add tooltip reusable component ([#198](https://github.com/ng-primitives/ng-primitives/pull/198))
+- **menu:** add exit animation support ([#149](https://github.com/ng-primitives/ng-primitives/pull/149), [#206](https://github.com/ng-primitives/ng-primitives/pull/206))
+- **popover:** exit animations ([#200](https://github.com/ng-primitives/ng-primitives/pull/200))
+- **popover:** popover component support ([#204](https://github.com/ng-primitives/ng-primitives/pull/204))
+- **tooltip:** tooltip exit animation ([#201](https://github.com/ng-primitives/ng-primitives/pull/201))
+
+### 🩹 Fixes
+
+- **file-upload:** fixing accepted types ([#209](https://github.com/ng-primitives/ng-primitives/pull/209))
+- **radio,tabs:** ensure valueChange events only emit once ([#199](https://github.com/ng-primitives/ng-primitives/pull/199))
+- **tooltip:** clear timeouts properly and check view ref after setting open state ([#203](https://github.com/ng-primitives/ng-primitives/pull/203))
+
+### ❤️ Thank You
+
+- Adrian Kopytko @adriankopytko
+- Ashley Hunter
+- Ayush Seth
+- kedevked @kedevked
+- Ruud Walraven
+
 ## 0.35.0 (2025-04-18)
 
 ### 🚀 Features

@@ -10,6 +10,7 @@ import {
   signal,
 } from '@angular/core';
 import { setupHover } from 'ng-primitives/internal';
+import { fileDropFilter } from './file-drop-filter';
 import { fileDropzoneState, provideFileDropzoneState } from './file-dropzone-state';
 
 /**
@@ -31,11 +32,12 @@ export class NgpFileDropzone {
   private readonly elementRef = inject<ElementRef<HTMLElement>>(ElementRef);
 
   /**
-   * The accepted file types.
+   * The accepted file types. This can be an array of strings or a comma-separated string.
+   * Accepted types can either be file extensions (e.g. `.jpg`) or MIME types (e.g. `image/jpeg`).
    */
-  readonly fileTypes = input<string[] | undefined, string>(undefined, {
+  readonly fileTypes = input<string[], string | string[]>(undefined, {
     alias: 'ngpFileDropzoneFileTypes',
-    transform: coerceStringArray,
+    transform: types => coerceStringArray(types, ','),
   });
 
   /**
@@ -67,6 +69,13 @@ export class NgpFileDropzone {
    */
   readonly selected = output<FileList | null>({
     alias: 'ngpFileDropzoneSelected',
+  });
+
+  /**
+   * Emits when uploaded files are rejected because they do not match the allowed {@link fileTypes}.
+   */
+  readonly rejected = output<void>({
+    alias: 'ngpFileDropzoneRejected',
   });
 
   /**
@@ -140,8 +149,15 @@ export class NgpFileDropzone {
     this.isDragOver.set(false);
     this.dragOver.emit(false);
 
-    if (event.dataTransfer?.files) {
-      this.selected.emit(event.dataTransfer.files);
+    const fileList = event.dataTransfer?.files;
+    if (fileList) {
+      const filteredFiles = fileDropFilter(fileList, this.state.fileTypes(), this.state.multiple());
+
+      if (filteredFiles) {
+        this.selected.emit(filteredFiles);
+      } else {
+        this.rejected.emit();
+      }
     }
   }
 }

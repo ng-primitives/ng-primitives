@@ -19,7 +19,7 @@ import { NgpButton } from 'ng-primitives/button';
     NgpAccordionContent,
     NgpAccordionTrigger,
   ],
-  viewProviders: [provideIcons({ heroChevronDownMini })],
+  providers: [provideIcons({ heroChevronDownMini })],
   styles: `
     :host {
       display: flex;

@@ -24,53 +24,15 @@ export class NgpExitAnimation implements OnDestroy {
   }
 
   /** Mark the element as exiting. */
-  exit(): Promise<void> {
-    // Capture the initial animation name before changing state
-    const initialStyle = window.getComputedStyle(this.elementRef.nativeElement);
-    const initialAnimationName = initialStyle.animationName;
-    const initialTransitionProperty = initialStyle.transitionProperty;
-
+  async exit(): Promise<void> {
     this.setAnimationState('exit');
 
-    return new Promise(resolve => {
-      // check if there are any exit animations or transitions
-      const computedStyle = window.getComputedStyle(this.elementRef.nativeElement);
-      const hasTransition = parseFloat(computedStyle.transitionDuration) > 0;
-      const hasAnimation = parseFloat(computedStyle.animationDuration) > 0;
+    const animation = this.elementRef.nativeElement.getAnimations();
 
-      // Compare animation properties to see if they've changed
-      const animationChanged =
-        computedStyle.animationName !== initialAnimationName &&
-        computedStyle.animationName !== 'none';
-      const transitionChanged =
-        computedStyle.transitionProperty !== initialTransitionProperty &&
-        computedStyle.transitionProperty !== 'none';
-
-      // If no new animations/transitions, resolve immediately
-      if ((!hasTransition && !hasAnimation) || (!animationChanged && !transitionChanged)) {
-        resolve();
-        return;
-      }
-
-      // wait for the exit animation to finish
-      const done = (event: AnimationEvent | TransitionEvent) => {
-        // check if the event is for this element
-        if (event.target !== this.elementRef.nativeElement) {
-          return;
-        }
-
-        this.elementRef.nativeElement.removeEventListener('transitionend', done);
-        this.elementRef.nativeElement.removeEventListener('animationend', done);
-
-        // reset the animation state
-        this.setAnimationState(null);
-
-        resolve();
-      };
-
-      this.elementRef.nativeElement.addEventListener('transitionend', done);
-      this.elementRef.nativeElement.addEventListener('animationend', done);
-    });
+    if (animation.length > 0) {
+      // Wait for the exit animation to finish
+      await Promise.all(animation.map(anim => anim.finished));
+    }
   }
 
   private setAnimationState(state: 'enter' | 'exit' | null): void {
@@ -83,6 +45,8 @@ export class NgpExitAnimation implements OnDestroy {
       this.renderer.setAttribute(this.elementRef.nativeElement, 'data-enter', '');
     } else if (state === 'exit') {
       this.renderer.setAttribute(this.elementRef.nativeElement, 'data-exit', '');
+      // make the element inert to prevent interaction while exiting
+      this.renderer.setAttribute(this.elementRef.nativeElement, 'inert', '');
     }
   }
 }

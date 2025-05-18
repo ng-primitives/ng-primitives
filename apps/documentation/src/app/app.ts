@@ -10,13 +10,13 @@ import { SideNavigation } from './components/side-navigation/side-navigation';
 @Component({
   selector: 'docs-root',
   imports: [RouterOutlet, Navbar, SideNavigation],
-  viewProviders: [provideIcons({ saxMoonOutline })],
+  providers: [provideIcons({ saxMoonOutline })],
   template: `
     <docs-navbar [(menuOpen)]="menuOpen" />
 
     <div class="container mx-auto px-8 pt-24">
       <div class="flex">
-        <docs-side-navigation class="md:mr-12" [(menuOpen)]="menuOpen" />
+        <docs-side-navigation [(menuOpen)]="menuOpen" />
 
         <router-outlet />
       </div>

@@ -6,9 +6,15 @@ import { NgpFileUpload } from 'ng-primitives/file-upload';
 @Component({
   selector: 'app-file-upload',
   imports: [NgpFileUpload, NgIcon],
-  viewProviders: [provideIcons({ heroCloudArrowUp })],
+  providers: [provideIcons({ heroCloudArrowUp })],
   template: `
-    <div (ngpFileUploadSelected)="onFilesSelected($event)" ngpFileUpload ngpFileUploadMultiple>
+    <div
+      (ngpFileUploadSelected)="onFilesSelected($event)"
+      (ngpFileUploadRejected)="onFilesRejected()"
+      ngpFileUploadFileTypes=".svg, .pdf"
+      ngpFileUpload
+      ngpFileUploadMultiple
+    >
       <ng-icon name="heroCloudArrowUp" aria-hidden="true" />
       <p class="heading">Select or drag and drop files here.</p>
       <p class="subheading">Max file size: 10MB</p>
@@ -62,5 +68,9 @@ export default class FileUploadExample {
     if (files) {
       alert(`Selected ${files.length} files.`);
     }
+  }
+
+  onFilesRejected(): void {
+    alert('File type not supported.');
   }
 }

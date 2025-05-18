@@ -1,4 +1,4 @@
-import { Directive, HostListener, input } from '@angular/core';
+import { Directive, HOST_TAG_NAME, HostListener, inject, input } from '@angular/core';
 import { uniqueId } from 'ng-primitives/utils';
 import { NgpAccordionItem } from '../accordion-item/accordion-item';
 import { injectAccordionItemState } from '../accordion-item/accordion-item-state';
@@ -13,6 +13,7 @@ import { injectAccordionState } from '../accordion/accordion-state';
   exportAs: 'ngpAccordionTrigger',
   host: {
     '[id]': 'id()',
+    '[attr.type]': 'tagName === "button" ? "button" : null',
     '[attr.data-orientation]': 'accordion().orientation()',
     '[attr.data-open]': 'accordionItem().open() ? "" : null',
     '[attr.data-disabled]': 'accordionItem().disabled() || accordion().disabled() ? "" : null',
@@ -21,6 +22,11 @@ import { injectAccordionState } from '../accordion/accordion-state';
   },
 })
 export class NgpAccordionTrigger<T> {
+  /**
+   * The tag name of the element.
+   */
+  protected readonly tagName = inject(HOST_TAG_NAME);
+
   /**
    * Access the parent accordion.
    */

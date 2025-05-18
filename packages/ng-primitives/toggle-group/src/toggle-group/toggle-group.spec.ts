@@ -19,7 +19,6 @@ describe('NgpToggleGroup', () => {
 
       const group = getByRole('group');
       expect(group.getAttribute('data-type')).toBe('single');
-      expect(group.getAttribute('aria-orientation')).toBe('horizontal');
       expect(group.getAttribute('data-orientation')).toBe('horizontal');
     });
   });

@@ -115,6 +115,25 @@
       "contributions": [
         "code"
       ]
+    },
+    {
+      "login": "Ruudt",
+      "name": "Ruud Walraven",
+      "avatar_url": "https://avatars.githubusercontent.com/u/1218555?v=4",
+      "profile": "https://github.com/Ruudt",
+      "contributions": [
+        "code"
+      ]
+    },
+    {
+      "login": "marcjulian",
+      "name": "Marc Stammerjohann",
+      "avatar_url": "https://avatars.githubusercontent.com/u/8985933?v=4",
+      "profile": "https://paddlingspots.com/",
+      "contributions": [
+        "code",
+        "ideas"
+      ]
     }
   ],
   "contributorsPerLine": 7,

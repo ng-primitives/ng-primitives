@@ -42,10 +42,19 @@ The following directives are available to import from the `ng-primitives/popover
 
 #### Data Attributes
 
-| Attribute       | Description                           |
-| --------------- | ------------------------------------- |
-| `data-open`     | Applied when the popover is open.     |
-| `data-disabled` | Applied when the popover is disabled. |
+| Attribute   | Description                       |
+| ----------- | --------------------------------- |
+| `data-open` | Applied when the popover is open. |
+
+## Styling
+
+For the popover to be positioned correctly relative to the trigger element, it must be absolutely positioned. For example, you can use the following CSS:
+
+```css
+[ngpPopover] {
+  position: absolute;
+}
+```
 
 ## Animations
 

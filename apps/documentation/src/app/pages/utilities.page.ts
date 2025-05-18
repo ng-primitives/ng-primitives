@@ -3,7 +3,7 @@ import { RouterOutlet } from '@angular/router';
 import { QuickLinks } from '../components/quick-links/quick-links';
 
 @Component({
-  selector: 'docs-primitives',
+  selector: 'docs-utilites',
   template: `
     <div class="flex gap-x-12">
       <div
@@ -24,7 +24,7 @@ import { QuickLinks } from '../components/quick-links/quick-links';
   `,
   imports: [RouterOutlet, QuickLinks],
   host: {
-    class: 'flex-1 overflow-hidden',
+    class: 'flex-1 max-w-full md:max-w-[78%]',
   },
 })
-export default class PrimitivesPage {}
+export default class UtilitiesPage {}

@@ -24,7 +24,7 @@ import { QuickLinks } from '../components/quick-links/quick-links';
   `,
   imports: [RouterOutlet, QuickLinks],
   host: {
-    class: 'flex-1 overflow-hidden',
+    class: 'flex-1 max-w-full md:max-w-[78%]',
   },
 })
 export default class GettingStartedPage {}

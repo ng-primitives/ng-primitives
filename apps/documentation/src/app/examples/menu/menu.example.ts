@@ -60,6 +60,14 @@ import { NgpMenu, NgpMenuItem, NgpMenuTrigger } from 'ng-primitives/menu';
       animation: menu-hide 0.2s ease-out;
     }
 
+    [ngpMenu][data-enter] {
+      animation: menu-show 0.1s ease-out;
+    }
+
+    [ngpMenu][data-exit] {
+      animation: menu-hide 0.1s ease-out;
+    }
+
     [ngpMenuItem] {
       padding: 6px 14px;
       border: none;

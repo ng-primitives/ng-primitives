@@ -9,6 +9,9 @@ import { DestroyRef, inject } from '@angular/core';
  */
 export function injectDisposables() {
   const destroyRef = inject(DestroyRef);
+  let isDestroyed = false;
+
+  destroyRef.onDestroy(() => (isDestroyed = true));
 
   return {
     /**
@@ -18,6 +21,11 @@ export function injectDisposables() {
      * @returns A function to clear the timeout
      */
     setTimeout: (callback: () => void, delay: number) => {
+      if (isDestroyed) {
+        // eslint-disable-next-line @typescript-eslint/no-empty-function
+        return () => {};
+      }
+
       const id = setTimeout(callback, delay);
       const cleanup = () => clearTimeout(id);
       destroyRef.onDestroy(cleanup);
@@ -40,6 +48,11 @@ export function injectDisposables() {
       listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any,
       options?: boolean | AddEventListenerOptions,
     ) => {
+      if (isDestroyed) {
+        // eslint-disable-next-line @typescript-eslint/no-empty-function
+        return () => {};
+      }
+
       target.addEventListener(type, listener as EventListenerOrEventListenerObject, options);
       const cleanup = () =>
         target.removeEventListener(type, listener as EventListenerOrEventListenerObject, options);
@@ -53,6 +66,11 @@ export function injectDisposables() {
      * @returns A function to clear the interval
      */
     setInterval: (callback: () => void, delay: number) => {
+      if (isDestroyed) {
+        // eslint-disable-next-line @typescript-eslint/no-empty-function
+        return () => {};
+      }
+
       const id = setInterval(callback, delay);
       const cleanup = () => clearInterval(id);
       destroyRef.onDestroy(cleanup);
@@ -64,6 +82,11 @@ export function injectDisposables() {
      * @returns A function to clear the requestAnimationFrame
      */
     requestAnimationFrame: (callback: FrameRequestCallback) => {
+      if (isDestroyed) {
+        // eslint-disable-next-line @typescript-eslint/no-empty-function
+        return () => {};
+      }
+
       const id = requestAnimationFrame(callback);
       const cleanup = () => cancelAnimationFrame(id);
       destroyRef.onDestroy(cleanup);

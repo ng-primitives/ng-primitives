@@ -24,17 +24,17 @@ jobs:
 
       - uses: pnpm/action-setup@v2
         with:
-          version: 9
+          version: 10
       # Cache node_modules
       - uses: actions/setup-node@v3
         with:
-          node-version: 20
+          node-version: 22
           cache: 'pnpm'
       - run: pnpm install --frozen-lockfile
       - uses: nrwl/nx-set-shas@v4
 
       - run: pnpm exec nx-cloud record -- nx format:check
-      - run: pnpm exec nx run-many -t lint,build,typings,test --all --parallel
+      - run: pnpm exec nx run-many -t lint,build,typings,test,e2e --all --parallel
         env:
           NODE_OPTIONS: '--max-old-space-size=8192' # Increase memory to 8GB
       - run: pnpx pkg-pr-new publish ./dist/packages/ng-primitives

@@ -12,7 +12,7 @@ import { NgpToggleGroup, NgpToggleGroupItem } from 'ng-primitives/toggle-group';
 @Component({
   selector: 'app-toggle-group',
   imports: [NgpToggleGroup, NgpToggleGroupItem, NgpButton, NgIcon],
-  viewProviders: [provideIcons({ heroBold, heroItalic, heroStrikethrough, heroUnderline })],
+  providers: [provideIcons({ heroBold, heroItalic, heroStrikethrough, heroUnderline })],
   template: `
     <div ngpToggleGroup ngpToggleGroupType="multiple" aria-label="Text formatting">
       <button ngpButton ngpToggleGroupItem ngpToggleGroupItemValue="bold" aria-label="Bold">

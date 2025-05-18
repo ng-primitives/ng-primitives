@@ -1,6 +1,6 @@
 import { FocusMonitor, FocusOrigin, InteractivityChecker } from '@angular/cdk/a11y';
 import { computed, Directive, inject } from '@angular/core';
-import { NgpFocusTrap } from 'ng-primitives/focus-trap';
+import { injectFocusTrapState, NgpFocusTrap } from 'ng-primitives/focus-trap';
 import { injectElementRef, NgpExitAnimation } from 'ng-primitives/internal';
 import { injectPopoverTriggerState } from '../popover-trigger/popover-trigger-state';
 import { getTransformOrigin } from '../utils/transform-origin';
@@ -26,6 +26,11 @@ export class NgpPopover {
    * Access the popover element.
    */
   private readonly popover = injectElementRef();
+
+  /**
+   * Access the focus trap.
+   */
+  private readonly focusTrap = injectFocusTrapState();
 
   /**
    * Access the interactivity checker.
@@ -89,5 +94,13 @@ export class NgpPopover {
       // if no tabbable child is found, focus the popover element itself
       this.popover.nativeElement.focus();
     }
+  }
+
+  /**
+   * Disable the focus trap.
+   * @internal
+   */
+  disableFocusTrap(): void {
+    this.focusTrap().disabled.set(true);
   }
 }

@@ -7,7 +7,7 @@ import { NgpListbox, NgpListboxOption, NgpListboxSection } from 'ng-primitives/l
 @Component({
   selector: 'app-listbox-sections',
   imports: [NgpListbox, NgpListboxOption, NgpListboxSection, NgpHeader, NgIcon],
-  viewProviders: [provideIcons({ heroCheckSolid })],
+  providers: [provideIcons({ heroCheckSolid })],
   template: `
     <div class="listbox" [(ngpListboxValue)]="selection" ngpListbox aria-label="Sections">
       @for (section of sections; track section.name) {

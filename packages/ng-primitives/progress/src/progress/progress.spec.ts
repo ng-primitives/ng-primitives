@@ -16,43 +16,58 @@ describe('NgpProgress', () => {
     expect(progress.getAttribute('aria-valuetext')).toBe('50%');
   });
 
-  it('should set the data-state attribute when value is between min and max', async () => {
+  it('should set the data-progressing attribute when value is between min and max', async () => {
     const container = await render(
       `<div data-testid="progress" ngpProgress ngpProgressValue="50"></div>`,
       { imports: [NgpProgress] },
     );
 
     const progress = container.getByTestId('progress');
-    expect(progress.getAttribute('data-state')).toBe('loading');
+    expect(progress).toHaveAttribute('data-progressing');
   });
 
-  it('should set the data-state attribute when value is equal to max', async () => {
+  it('should not set the data-progressing attribute when value is equal to max', async () => {
     const container = await render(
       `<div data-testid="progress" ngpProgress ngpProgressValue="100"></div>`,
       { imports: [NgpProgress] },
     );
 
     const progress = container.getByTestId('progress');
-    expect(progress.getAttribute('data-state')).toBe('complete');
+    expect(progress).not.toHaveAttribute('data-progressing');
   });
 
-  it('should set the data-value attribute', async () => {
+  it('should not set the data-progressing attribute when value is equal to min', async () => {
     const container = await render(
-      `<div data-testid="progress" ngpProgress ngpProgressValue="50"></div>`,
+      `<div data-testid="progress" ngpProgress ngpProgressValue="0"></div>`,
       { imports: [NgpProgress] },
     );
 
     const progress = container.getByTestId('progress');
-    expect(progress.getAttribute('data-value')).toBe('50');
+    expect(progress).not.toHaveAttribute('data-progressing');
   });
 
-  it('should set the data-max attribute', async () => {
+  it('should set the data-indeterminate attribute when value is null', async () => {
     const container = await render(
-      `<div data-testid="progress" ngpProgress ngpProgressMax="200"></div>`,
+      `<div data-testid="progress" ngpProgress [ngpProgressValue]="value"></div>`,
+      {
+        imports: [NgpProgress],
+        componentProperties: {
+          value: null,
+        },
+      },
+    );
+
+    const progress = container.getByTestId('progress');
+    expect(progress).toHaveAttribute('data-indeterminate');
+  });
+
+  it('should set the data-complete attribute when value is equal to max', async () => {
+    const container = await render(
+      `<div data-testid="progress" ngpProgress ngpProgressValue="100"></div>`,
       { imports: [NgpProgress] },
     );
 
     const progress = container.getByTestId('progress');
-    expect(progress.getAttribute('data-max')).toBe('200');
+    expect(progress).toHaveAttribute('data-complete');
   });
 });

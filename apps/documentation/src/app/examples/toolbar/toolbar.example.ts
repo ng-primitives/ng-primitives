@@ -26,7 +26,7 @@ import { NgpToolbar } from 'ng-primitives/toolbar';
     NgpToggleGroupItem,
     NgpSeparator,
   ],
-  viewProviders: [
+  providers: [
     provideIcons({
       heroDocument,
       heroFolder,

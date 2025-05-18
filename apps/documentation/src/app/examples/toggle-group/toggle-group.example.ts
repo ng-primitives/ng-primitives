@@ -7,7 +7,7 @@ import { NgpToggleGroup, NgpToggleGroupItem } from 'ng-primitives/toggle-group';
 @Component({
   selector: 'app-toggle-group',
   imports: [NgpToggleGroup, NgpToggleGroupItem, NgpButton, NgIcon],
-  viewProviders: [
+  providers: [
     provideIcons({
       heroBars3BottomLeft,
       heroBars3,

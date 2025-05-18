@@ -1,4 +1,4 @@
-import { Directive } from '@angular/core';
+import { computed, Directive } from '@angular/core';
 import { injectProgressState } from '../progress/progress-state';
 
 /**
@@ -8,9 +8,10 @@ import { injectProgressState } from '../progress/progress-state';
 @Directive({
   selector: '[ngpProgressIndicator]',
   host: {
-    '[attr.data-state]': 'state().dataState()',
-    '[attr.data-value]': 'state().value()',
-    '[attr.data-max]': 'state().max()',
+    '[style.width.%]': 'percentage()',
+    '[attr.data-progressing]': 'state().progressing() ? "" : null',
+    '[attr.data-indeterminate]': 'state().indeterminate() ? "" : null',
+    '[attr.data-complete]': 'state().complete() ? "" : null',
   },
 })
 export class NgpProgressIndicator {
@@ -18,4 +19,14 @@ export class NgpProgressIndicator {
    * Access the progress state.
    */
   protected readonly state = injectProgressState();
+
+  /**
+   * Get the percentage of the progress value.
+   */
+  protected readonly percentage = computed(() =>
+    this.state().value() === null
+      ? null
+      : ((this.state().value()! - this.state().min()) / (this.state().max() - this.state().min())) *
+        100,
+  );
 }

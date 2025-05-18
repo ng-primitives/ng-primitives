@@ -8,7 +8,7 @@ import {
   Injector,
   PLATFORM_ID,
   provideAppInitializer,
-  provideZoneChangeDetection,
+  provideExperimentalZonelessChangeDetection,
 } from '@angular/core';
 import { provideClientHydration } from '@angular/platform-browser';
 import { withInMemoryScrolling } from '@angular/router';
@@ -26,7 +26,7 @@ export const appConfig: ApplicationConfig = {
     ),
     provideClientHydration(),
     provideContent(withMarkdownRenderer(), withPrismHighlighter()),
-    provideZoneChangeDetection({ eventCoalescing: true }),
+    provideExperimentalZonelessChangeDetection(),
     provideAppInitializer(() => {
       const initializerFn = initializeCustomElements(inject(Injector), inject(PLATFORM_ID));
       return initializerFn();

@@ -12,6 +12,7 @@ import { NgpTabPanelToken } from './tab-panel-token';
   host: {
     role: 'tabpanel',
     tabIndex: '0',
+    '[id]': 'panelId()',
     '[attr.aria-labelledby]': 'labelledBy()',
     '[attr.data-active]': 'active() ? "" : null',
     '[attr.data-orientation]': 'state().orientation()',
@@ -38,7 +39,9 @@ export class NgpTabPanel implements OnInit, OnDestroy {
    * Determine a unique id for the tab panel if not provided
    * @internal
    */
-  protected readonly defaultId = computed(() => `${this.state().id()}-panel-${this.value()}`);
+  protected readonly panelId = computed(
+    () => this.id() ?? `${this.state().id()}-panel-${this.value()}`,
+  );
 
   /**
    * Determine the aria-labelledby of the tab panel

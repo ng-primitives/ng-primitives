@@ -1,16 +1,19 @@
-import { InteractivityChecker } from '@angular/cdk/a11y';
+import { FocusMonitor, InteractivityChecker } from '@angular/cdk/a11y';
 import { BooleanInput } from '@angular/cdk/coercion';
 import {
+  afterNextRender,
   booleanAttribute,
   Directive,
   ElementRef,
   HostListener,
   inject,
+  Injector,
   input,
   NgZone,
   OnDestroy,
   OnInit,
 } from '@angular/core';
+import { focusTrapState, provideFocusTrapState } from './focus-trap-state';
 
 /**
  * This implementation is based on the Radix UI FocusScope:
@@ -85,6 +88,7 @@ const focusTrapStack = new FocusTrapStack();
 @Directive({
   selector: '[ngpFocusTrap]',
   exportAs: 'ngpFocusTrap',
+  providers: [provideFocusTrapState()],
   host: {
     '[attr.tabindex]': '-1',
     '[attr.data-focus-trap]': '!disabled() ? "" : null',
@@ -95,6 +99,16 @@ export class NgpFocusTrap implements OnInit, OnDestroy {
    * Create a new focus trap.
    */
   private readonly focusTrap = new FocusTrap();
+
+  /**
+   * Access the injector.
+   */
+  private readonly injector = inject(Injector);
+
+  /**
+   * Access the focus monitor.
+   */
+  private readonly focusMonitor = inject(FocusMonitor);
 
   /**
    * Access the interactivity checker.
@@ -129,6 +143,11 @@ export class NgpFocusTrap implements OnInit, OnDestroy {
     transform: booleanAttribute,
   });
 
+  /**
+   * The focus trap state.
+   */
+  protected readonly state = focusTrapState<NgpFocusTrap>(this);
+
   ngOnInit(): void {
     focusTrapStack.add(this.focusTrap);
 
@@ -148,22 +167,33 @@ export class NgpFocusTrap implements OnInit, OnDestroy {
     const hasFocusedCandidate = this.elementRef.nativeElement.contains(previouslyFocusedElement);
 
     if (!hasFocusedCandidate) {
-      this.focusFirst();
+      // we do this to ensure the content is rendered before we try to find the first focusable element
+      // and focus it
+      afterNextRender(
+        {
+          write: () => {
+            this.focusFirst();
 
-      // if the focus didn't change, focus the container
-      if (document.activeElement === previouslyFocusedElement) {
-        this.focus(this.elementRef.nativeElement);
-      }
+            // if the focus didn't change, focus the container
+            if (document.activeElement === previouslyFocusedElement) {
+              this.focus(this.elementRef.nativeElement);
+            }
+          },
+        },
+        { injector: this.injector },
+      );
     }
   }
 
   ngOnDestroy(): void {
     focusTrapStack.remove(this.focusTrap);
     this.mutationObserver?.disconnect();
+    this.mutationObserver = null;
+    this.focusTrap.deactivate();
   }
 
   private handleFocusIn(event: FocusEvent): void {
-    if (!this.focusTrap.active || this.disabled()) {
+    if (!this.focusTrap.active || this.state.disabled()) {
       return;
     }
 
@@ -180,7 +210,7 @@ export class NgpFocusTrap implements OnInit, OnDestroy {
    * Handles the `focusout` event.
    */
   private handleFocusOut(event: FocusEvent) {
-    if (!this.focusTrap.active || this.disabled() || event.relatedTarget === null) {
+    if (!this.focusTrap.active || this.state.disabled() || event.relatedTarget === null) {
       return;
     }
 
@@ -214,7 +244,7 @@ export class NgpFocusTrap implements OnInit, OnDestroy {
    */
   @HostListener('keydown', ['$event'])
   protected handleKeyDown(event: KeyboardEvent): void {
-    if (!this.focusTrap.active || this.disabled()) {
+    if (!this.focusTrap.active || this.state.disabled()) {
       return;
     }
 
@@ -277,8 +307,15 @@ export class NgpFocusTrap implements OnInit, OnDestroy {
     return elements.find(element => this.interactivityChecker.isVisible(element)) ?? null;
   }
 
-  private focus(element?: HTMLElement | null) {
-    element?.focus({ preventScroll: true });
+  private focus(element: HTMLElement | null): void {
+    if (!element) {
+      return;
+    }
+    // Its not great that we are relying on an internal API here, but we need to in order to
+    // try and best determine the focus origin when it is programmatically closed by the user.
+    this.focusMonitor.focusVia(element, (this.focusMonitor as any)._lastFocusOrigin, {
+      preventScroll: true,
+    });
   }
 
   private focusFirst(): void {
