@@ -1,11 +1,8 @@
 import { BooleanInput, NumberInput } from '@angular/cdk/coercion';
-import { ComponentPortal, DomPortalOutlet, TemplatePortal } from '@angular/cdk/portal';
 import { DOCUMENT } from '@angular/common';
 import {
-  ComponentRef,
   Directive,
   ElementRef,
-  EmbeddedViewRef,
   Injector,
   OnDestroy,
   TemplateRef,
@@ -29,6 +26,7 @@ import {
   shift,
 } from '@floating-ui/dom';
 import { injectExitAnimationManager, provideExitAnimationManager } from 'ng-primitives/internal';
+import { NgpPortal, createPortal } from 'ng-primitives/portal';
 import { fromResizeEvent } from 'ng-primitives/resize';
 import { injectDisposables } from 'ng-primitives/utils';
 import { injectTooltipConfig } from '../config/tooltip-config';
@@ -166,7 +164,7 @@ export class NgpTooltipTrigger<T = null> implements OnDestroy {
   /**
    * Store the tooltip view ref.
    */
-  protected viewRef = signal<ComponentRef<unknown> | EmbeddedViewRef<T> | null>(null);
+  protected viewRef = signal<NgpPortal | null>(null);
 
   /**
    * Derive the tooltip middleware from the provided configuration.
@@ -287,7 +285,9 @@ export class NgpTooltipTrigger<T = null> implements OnDestroy {
     this.openTimeout = undefined;
     const tooltip = this.state.tooltip();
 
-    let portal: TemplatePortal | ComponentPortal<unknown>;
+    if (!tooltip) {
+      throw new Error('Tooltip must be either a TemplateRef or a ComponentType');
+    }
 
     // Create a new inject with the tooltip context
     const injector = Injector.create({
@@ -295,41 +295,22 @@ export class NgpTooltipTrigger<T = null> implements OnDestroy {
       providers: [provideTooltipContext(this.state.context())],
     });
 
-    if (tooltip instanceof TemplateRef) {
-      portal = new TemplatePortal<NgpTooltipTemplateContext<T>>(
-        tooltip,
-        this.viewContainerRef,
-        { $implicit: this.state.context() } as NgpTooltipTemplateContext<T>,
-        injector,
-      );
-    } else if (tooltip instanceof Type) {
-      portal = new ComponentPortal(tooltip, this.viewContainerRef, injector);
-    } else {
-      throw new Error('Tooltip must be either a TemplateRef or a ComponentType');
-    }
+    const portal = createPortal(tooltip, this.viewContainerRef, injector, {
+      $implicit: this.state.context(),
+    } as NgpTooltipTemplateContext<T>);
+    const viewRef = portal.attach(this.state.container() ?? this.document.body);
 
-    const domOutlet = new DomPortalOutlet(
-      this.state.container() ?? this.document.body,
-      undefined,
-      undefined,
-      injector,
-    );
-
-    const viewRef = domOutlet.attach(portal);
     this.viewRef.set(viewRef);
+    viewRef.detectChanges();
 
-    let outletElement: HTMLElement | null = null;
-
-    if (viewRef instanceof ComponentRef) {
-      viewRef.changeDetectorRef.detectChanges();
-      outletElement = viewRef.location.nativeElement;
-    } else if (viewRef) {
-      viewRef.detectChanges();
-      outletElement = viewRef.rootNodes[0] as HTMLElement;
-    }
+    const outletElement = viewRef.getElements()[0] as HTMLElement | null;
 
     if (!outletElement) {
       throw new Error('Outlet element is not available.');
+    }
+
+    if (viewRef.getElements().length > 1) {
+      throw new Error('Popover must have only one root element.');
     }
 
     // we want to determine the strategy to use. If the tooltip has position: fixed then we want to use
@@ -349,10 +330,20 @@ export class NgpTooltipTrigger<T = null> implements OnDestroy {
 
   private async destroyTooltip(): Promise<void> {
     this.closeTimeout = undefined;
-    await this.exitAnimationManager.exit();
+    const viewRef = this.viewRef();
 
-    this.viewRef()?.destroy();
+    if (!viewRef) {
+      return;
+    }
+
+    // we remove this to prevent the popover from being destroyed twice
+    // because ngOnDestroy will be called on the viewRef
+    // when the popover is destroyed triggering this method again
     this.viewRef.set(null);
+
+    // destroy the view ref
+    viewRef.detach();
+
     this.dispose?.();
   }
 }

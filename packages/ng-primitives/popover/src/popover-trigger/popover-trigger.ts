@@ -1,14 +1,11 @@
 import { FocusMonitor, FocusOrigin } from '@angular/cdk/a11y';
 import { BooleanInput, NumberInput } from '@angular/cdk/coercion';
 import { BlockScrollStrategy, NoopScrollStrategy, ViewportRuler } from '@angular/cdk/overlay';
-import { ComponentPortal, DomPortalOutlet, TemplatePortal } from '@angular/cdk/portal';
 import { DOCUMENT } from '@angular/common';
 import {
   booleanAttribute,
-  ComponentRef,
   computed,
   Directive,
-  EmbeddedViewRef,
   inject,
   Injector,
   input,
@@ -34,6 +31,7 @@ import {
   injectExitAnimationManager,
   provideExitAnimationManager,
 } from 'ng-primitives/internal';
+import { createPortal, NgpPortal } from 'ng-primitives/portal';
 import { fromResizeEvent } from 'ng-primitives/resize';
 import { injectDisposables } from 'ng-primitives/utils';
 import { injectPopoverConfig } from '../config/popover-config';
@@ -219,12 +217,12 @@ export class NgpPopoverTrigger<T = null> implements OnDestroy {
   /**
    * Store the popover view ref.
    */
-  protected readonly viewRef = signal<ComponentRef<unknown> | EmbeddedViewRef<void> | null>(null);
+  protected readonly viewRef = signal<NgpPortal | undefined>(undefined);
 
   /**
    * Determines if the popover is open.
    */
-  readonly open = computed(() => this.viewRef() !== null);
+  readonly open = computed(() => this.viewRef()?.getAttached() ?? false);
 
   /**
    * Derive the popover middleware from the provided configuration.
@@ -400,8 +398,7 @@ export class NgpPopoverTrigger<T = null> implements OnDestroy {
     const viewRef = this.viewRef();
 
     // get the popover element
-    const popoverElement =
-      viewRef instanceof ComponentRef ? viewRef.location.nativeElement : viewRef?.rootNodes[0];
+    const popoverElement = viewRef?.getElements()[0] as HTMLElement | null;
 
     // Check if the click is outside the trigger or the popover
     const isOutside =
@@ -421,7 +418,9 @@ export class NgpPopoverTrigger<T = null> implements OnDestroy {
 
     const popover = this.state.popover();
 
-    let portal: TemplatePortal | ComponentPortal<unknown>;
+    if (!popover) {
+      throw new Error('Popover must be either a TemplateRef or a ComponentType');
+    }
 
     // Create a new inject with the tooltip context
     const injector = Injector.create({
@@ -429,41 +428,22 @@ export class NgpPopoverTrigger<T = null> implements OnDestroy {
       providers: [providePopoverContext(this.state.context())],
     });
 
-    if (popover instanceof TemplateRef) {
-      portal = new TemplatePortal<NgpPopoverTemplateContext<T>>(
-        popover,
-        this.viewContainerRef,
-        { $implicit: this.state.context() } as NgpPopoverTemplateContext<T>,
-        injector,
-      );
-    } else if (popover instanceof Type) {
-      portal = new ComponentPortal(popover, this.viewContainerRef, injector);
-    } else {
-      throw new Error('Popover must be either a TemplateRef or a ComponentType');
-    }
+    const portal = createPortal(popover, this.viewContainerRef, injector, {
+      $implicit: this.state.context(),
+    } as NgpPopoverTemplateContext<T>);
+    const viewRef = portal.attach(this.state.container() ?? this.document.body);
 
-    const domOutlet = new DomPortalOutlet(
-      this.state.container() ?? this.document.body,
-      undefined,
-      undefined,
-      injector,
-    );
-
-    const viewRef = domOutlet.attach(portal);
     this.viewRef.set(viewRef);
+    viewRef.detectChanges();
 
-    let outletElement: HTMLElement | null = null;
-
-    if (viewRef instanceof ComponentRef) {
-      viewRef.changeDetectorRef.detectChanges();
-      outletElement = viewRef.location.nativeElement;
-    } else if (viewRef) {
-      viewRef.detectChanges();
-      outletElement = viewRef.rootNodes[0] as HTMLElement;
-    }
+    const outletElement = viewRef.getElements()[0] as HTMLElement | null;
 
     if (!outletElement) {
       throw new Error('Outlet element is not available.');
+    }
+
+    if (viewRef.getElements().length > 1) {
+      throw new Error('Popover must have only one root element.');
     }
 
     // determine if the popover is fixed or absolute
@@ -500,12 +480,10 @@ export class NgpPopoverTrigger<T = null> implements OnDestroy {
     // we remove this to prevent the popover from being destroyed twice
     // because ngOnDestroy will be called on the viewRef
     // when the popover is destroyed triggering this method again
-    this.viewRef.set(null);
-
-    await this.exitAnimationState.exit();
+    this.viewRef.set(undefined);
 
     // destroy the view ref
-    viewRef.destroy();
+    viewRef.detach();
 
     this.dispose?.();
 
