@@ -1,16 +1,16 @@
-import { DomPortalOutlet, TemplatePortal } from '@angular/cdk/portal';
 import { DOCUMENT } from '@angular/common';
 import {
   Directive,
   effect,
-  EmbeddedViewRef,
   inject,
+  Injector,
   signal,
   TemplateRef,
   ViewContainerRef,
 } from '@angular/core';
 import { autoUpdate, computePosition, flip, Middleware, Placement } from '@floating-ui/dom';
 import { observeResize } from 'ng-primitives/resize';
+import { createPortal, NgpPortal } from '../../../portal/src';
 import { injectComboboxState } from '../combobox/combobox-state';
 
 @Directive({
@@ -27,6 +27,9 @@ export class NgpComboboxPortal {
   /** Access the view container reference. */
   private readonly viewContainerRef = inject(ViewContainerRef);
 
+  /** Access the injector. */
+  private readonly injector = inject(Injector);
+
   /** Access the document. */
   private readonly document = inject<Document>(DOCUMENT);
 
@@ -34,7 +37,7 @@ export class NgpComboboxPortal {
    * Store the embedded view reference.
    * @internal
    */
-  readonly viewRef = signal<EmbeddedViewRef<void> | null>(null);
+  readonly viewRef = signal<NgpPortal | null>(null);
 
   /** Store the dispose function. */
   private dispose: (() => void) | null = null;
@@ -59,7 +62,12 @@ export class NgpComboboxPortal {
     this.state().registerPortal(this);
 
     effect(() => {
-      const dropdownElement = this.viewRef()?.rootNodes[0];
+      const dropdownElement = this.viewRef()?.getElements()[0] as HTMLElement | null;
+
+      if (!dropdownElement) {
+        return;
+      }
+
       const position = this.position();
       const comboboxWidth = this.comboboxDimensions().width;
       const inputWidth = this.inputDimensions().width;
@@ -89,12 +97,17 @@ export class NgpComboboxPortal {
    * @internal
    */
   attach(): void {
-    const templatePortal = new TemplatePortal(this.templateRef, this.viewContainerRef);
-    const domPortal = new DomPortalOutlet(this.document.body);
-    this.viewRef.set(domPortal.attach(templatePortal));
-    this.viewRef()?.detectChanges();
+    const viewRef = createPortal(this.templateRef, this.viewContainerRef, this.injector);
+    viewRef.attach(this.document.body);
+    viewRef.detectChanges();
 
-    const dropdownElement = this.viewRef()?.rootNodes[0];
+    this.viewRef.set(viewRef);
+
+    const dropdownElement = this.viewRef()?.getElements()[0] as HTMLElement | null;
+
+    if (!dropdownElement) {
+      throw new Error('Dropdown element not found');
+    }
 
     let placement: Placement;
     const middleware: Middleware[] = [];
@@ -128,7 +141,7 @@ export class NgpComboboxPortal {
    * @internal
    */
   detach(): void {
-    this.viewRef()?.destroy();
+    this.viewRef()?.detach();
     this.viewRef.set(null);
     this.dispose?.();
     this.dispose = null;
