@@ -10,7 +10,7 @@ import {
 } from '@angular/core';
 import { autoUpdate, computePosition, flip, Middleware, Placement } from '@floating-ui/dom';
 import { observeResize } from 'ng-primitives/resize';
-import { createPortal, NgpPortal } from '../../../portal/src';
+import { createPortal, NgpPortal } from 'ng-primitives/portal';
 import { injectComboboxState } from '../combobox/combobox-state';
 
 @Directive({
