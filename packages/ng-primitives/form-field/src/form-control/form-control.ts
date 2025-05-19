@@ -72,9 +72,9 @@ export function setupFormControl({
 
   afterRenderEffect({
     write: () => {
-      element.setAttribute('id', id());
-      element.setAttribute('aria-labelledby', ariaLabelledBy());
-      element.setAttribute('aria-describedby', ariaDescribedBy());
+      setAttribute(element, 'id', id());
+      setAttribute(element, 'aria-labelledby', ariaLabelledBy());
+      setAttribute(element, 'aria-describedby', ariaDescribedBy());
 
       setStateAttribute(element, formField()?.invalid(), 'data-invalid');
       setStateAttribute(element, formField()?.valid(), 'data-valid');
@@ -85,6 +85,21 @@ export function setupFormControl({
       setStateAttribute(element, disabled() || formField()?.disabled(), 'data-disabled');
     },
   });
+}
+
+/**
+ * Sets the attribute on the element. If the value is not empty, the attribute is set to the value.
+ * If the value is empty, the attribute is removed.
+ * @param element The element to set the attribute on.
+ * @param attribute The attribute to set on the element.
+ * @param value The value to set on the attribute.
+ */
+function setAttribute(element: HTMLElement, attribute: string, value: string) {
+  if (value && value.length > 0) {
+    element.setAttribute(attribute, value);
+  } else {
+    element.removeAttribute(attribute);
+  }
 }
 
 /**
