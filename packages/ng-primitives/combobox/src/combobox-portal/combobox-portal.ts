@@ -9,8 +9,8 @@ import {
   ViewContainerRef,
 } from '@angular/core';
 import { autoUpdate, computePosition, flip, Middleware, Placement } from '@floating-ui/dom';
-import { observeResize } from 'ng-primitives/resize';
 import { createPortal, NgpPortal } from 'ng-primitives/portal';
+import { observeResize } from 'ng-primitives/resize';
 import { injectComboboxState } from '../combobox/combobox-state';
 
 @Directive({
