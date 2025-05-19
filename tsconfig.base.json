@@ -38,6 +38,7 @@
       "ng-primitives/listbox": ["packages/ng-primitives/listbox/src/index.ts"],
       "ng-primitives/menu": ["packages/ng-primitives/menu/src/index.ts"],
       "ng-primitives/meter": ["packages/ng-primitives/meter/src/index.ts"],
+      "ng-primitives/number-picker": ["packages/ng-primitives/number-picker/src/index.ts"],
       "ng-primitives/pagination": ["packages/ng-primitives/pagination/src/index.ts"],
       "ng-primitives/popover": ["packages/ng-primitives/popover/src/index.ts"],
       "ng-primitives/portal": ["packages/ng-primitives/portal/src/index.ts"],
