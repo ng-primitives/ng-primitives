@@ -1,7 +1,7 @@
 import { BooleanInput } from '@angular/cdk/coercion';
 import { booleanAttribute, Directive, input, OnInit, output } from '@angular/core';
 import { NgpOrientation } from 'ng-primitives/common';
-import { NgpFormControl, syncFormControl } from 'ng-primitives/form-field';
+import { setupFormControl } from 'ng-primitives/form-field';
 import { injectRovingFocusGroupState, NgpRovingFocusGroup } from 'ng-primitives/roving-focus';
 import { provideRadioGroupState, radioGroupState } from './radio-group-state';
 
@@ -19,7 +19,6 @@ import { provideRadioGroupState, radioGroupState } from './radio-group-state';
         'ngpRovingFocusGroupDisabled:ngpRadioGroupDisabled',
       ],
     },
-    NgpFormControl,
   ],
   host: {
     role: 'radiogroup',
@@ -77,7 +76,7 @@ export class NgpRadioGroup<T> implements OnInit {
   protected readonly state = radioGroupState<NgpRadioGroup<T>>(this);
 
   constructor() {
-    syncFormControl({ disabled: this.state.disabled });
+    setupFormControl({ disabled: this.state.disabled });
   }
 
   ngOnInit(): void {

@@ -1,5 +1,14 @@
 import { BooleanInput } from '@angular/cdk/coercion';
-import { booleanAttribute, computed, Directive, effect, input } from '@angular/core';
+import {
+  afterRenderEffect,
+  booleanAttribute,
+  computed,
+  Directive,
+  input,
+  signal,
+  Signal,
+} from '@angular/core';
+import { explicitEffect, injectElementRef } from 'ng-primitives/internal';
 import { uniqueId } from 'ng-primitives/utils';
 import { injectFormFieldState } from '../form-field/form-field-state';
 import { formControlState, provideFormControlState } from './form-control-state';
@@ -13,18 +22,6 @@ import { formControlState, provideFormControlState } from './form-control-state'
   selector: '[ngpFormControl]',
   exportAs: 'ngpFormControl',
   providers: [provideFormControlState()],
-  host: {
-    '[id]': 'id()',
-    '[attr.aria-labelledby]': 'ariaLabelledBy()',
-    '[attr.aria-describedby]': 'ariaDescribedBy()',
-    '[attr.data-invalid]': 'formField()?.invalid() ? "" : null',
-    '[attr.data-valid]': 'formField()?.valid() ? "" : null',
-    '[attr.data-touched]': 'formField()?.touched() ? "" : null',
-    '[attr.data-pristine]': 'formField()?.pristine() ? "" : null',
-    '[attr.data-dirty]': 'formField()?.dirty() ? "" : null',
-    '[attr.data-pending]': 'formField()?.pending() ? "" : null',
-    '[attr.data-disabled]': 'formField()?.disabled() || state.disabled() ? "" : null',
-  },
 })
 export class NgpFormControl {
   /**
@@ -41,28 +38,66 @@ export class NgpFormControl {
   });
 
   /**
-   * Access the form field that the form control is associated with.
-   */
-  protected readonly formField = injectFormFieldState({ optional: true });
-  /**
-   * Determine the aria-labelledby attribute value.
-   */
-  protected readonly ariaLabelledBy = computed(() => this.formField()?.labels().join(' '));
-
-  /**
-   * Determine the aria-describedby attribute value.
-   */
-  protected readonly ariaDescribedBy = computed(() => this.formField()?.descriptions().join(' '));
-
-  /**
    * The state of the form control.
    */
   private readonly state = formControlState<NgpFormControl>(this);
 
   constructor() {
-    effect(onCleanup => {
-      this.formField()?.setFormControl(this.state.id());
-      onCleanup(() => this.formField()?.removeFormControl());
-    });
+    // Sync the form control state with the control state.
+    setupFormControl({ id: this.state.id, disabled: this.state.disabled });
+  }
+}
+
+interface FormControlState {
+  id?: Signal<string>;
+  disabled?: Signal<boolean>;
+}
+
+export function setupFormControl({
+  id = signal(uniqueId('ngp-form-control')),
+  disabled = signal(false),
+}: FormControlState) {
+  const element = injectElementRef().nativeElement;
+  // Access the form field that the form control is associated with.
+  const formField = injectFormFieldState({ optional: true });
+  // Determine the aria-labelledby attribute value.
+  const ariaLabelledBy = computed(() => formField()?.labels().join(' '));
+  // Determine the aria-describedby attribute value.
+  const ariaDescribedBy = computed(() => formField()?.descriptions().join(' '));
+
+  explicitEffect([id], ([id], onCleanup) => {
+    formField()?.setFormControl(id);
+    onCleanup(() => formField()?.removeFormControl());
+  });
+
+  afterRenderEffect({
+    write: () => {
+      element.setAttribute('id', id());
+      element.setAttribute('aria-labelledby', ariaLabelledBy());
+      element.setAttribute('aria-describedby', ariaDescribedBy());
+
+      setStateAttribute(element, formField()?.invalid(), 'data-invalid');
+      setStateAttribute(element, formField()?.valid(), 'data-valid');
+      setStateAttribute(element, formField()?.touched(), 'data-touched');
+      setStateAttribute(element, formField()?.pristine(), 'data-pristine');
+      setStateAttribute(element, formField()?.dirty(), 'data-dirty');
+      setStateAttribute(element, formField()?.pending(), 'data-pending');
+      setStateAttribute(element, disabled() || formField()?.disabled(), 'data-disabled');
+    },
+  });
+}
+
+/**
+ * Sets the attribute on the element based on the state. If the state is true, the attribute
+ * is set to an empty string. If the state is false, the attribute is removed.
+ * @param element The element to set the attribute on.
+ * @param state The state to set the attribute based on.
+ * @param attribute The attribute to set on the element.
+ */
+function setStateAttribute(element: HTMLElement, state: boolean | null, attribute: string) {
+  if (state) {
+    element.setAttribute(attribute, '');
+  } else {
+    element.removeAttribute(attribute);
   }
 }

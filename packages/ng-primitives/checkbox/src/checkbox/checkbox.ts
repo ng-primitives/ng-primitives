@@ -1,8 +1,8 @@
 import { BooleanInput } from '@angular/cdk/coercion';
 import { Directive, HostListener, booleanAttribute, input, output } from '@angular/core';
-import { NgpFormControl, syncFormControl } from 'ng-primitives/form-field';
 import { setupInteractions } from 'ng-primitives/internal';
 import { uniqueId } from 'ng-primitives/utils';
+import { setupFormControl } from 'ng-primitives/form-field';
 import { checkboxState, provideCheckboxState } from './checkbox-state';
 
 /**
@@ -11,7 +11,6 @@ import { checkboxState, provideCheckboxState } from './checkbox-state';
 @Directive({
   selector: '[ngpCheckbox]',
   providers: [provideCheckboxState()],
-  hostDirectives: [NgpFormControl],
   host: {
     role: 'checkbox',
     '[attr.aria-checked]': 'state.indeterminate() ? "mixed" : state.checked()',
@@ -80,7 +79,7 @@ export class NgpCheckbox {
   protected readonly state = checkboxState<NgpCheckbox>(this);
 
   constructor() {
-    syncFormControl({ disabled: this.state.disabled });
+    setupFormControl({ id: this.state.id, disabled: this.state.disabled });
     setupInteractions({
       hover: true,
       press: true,
