@@ -1,8 +1,8 @@
 import { BooleanInput } from '@angular/cdk/coercion';
 import { Directive, HostListener, booleanAttribute, input, output } from '@angular/core';
+import { setupFormControl } from 'ng-primitives/form-field';
 import { setupInteractions } from 'ng-primitives/internal';
 import { uniqueId } from 'ng-primitives/utils';
-import { setupFormControl } from 'ng-primitives/form-field';
 import { checkboxState, provideCheckboxState } from './checkbox-state';
 
 /**
