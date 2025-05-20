@@ -1,5 +1,3 @@
-import { Signal } from '@angular/core';
-import { syncState } from 'ng-primitives/internal';
 import {
   createState,
   createStateInjector,
@@ -27,16 +25,3 @@ export const injectFormControlState = createStateInjector(NgpFormControlStateTok
  * The FormControl state registration function.
  */
 export const formControlState = createState(NgpFormControlStateToken);
-
-interface SyncFormControl {
-  disabled: Signal<boolean>;
-}
-
-/**
- * Sync the form control state with control state.
- * @param disabled The disabled state of the control.
- */
-export function syncFormControl({ disabled }: SyncFormControl) {
-  const formControl = injectFormControlState();
-  syncState(disabled, formControl().disabled);
-}

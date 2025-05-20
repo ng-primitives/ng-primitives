@@ -1,3 +1,13 @@
+## 0.42.0 (2025-05-19)
+
+### 🩹 Fixes
+
+- **checkbox:** id syncing issue ([#250](https://github.com/ng-primitives/ng-primitives/pull/250))
+
+### ❤️ Thank You
+
+- Ashley Hunter
+
 ## 0.41.0 (2025-05-18)
 
 ### 🚀 Features

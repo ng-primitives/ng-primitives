@@ -9,7 +9,7 @@ import {
   signal,
 } from '@angular/core';
 import { NgpOrientation } from 'ng-primitives/common';
-import { NgpFormControl, syncFormControl } from 'ng-primitives/form-field';
+import { setupFormControl } from 'ng-primitives/form-field';
 import type { NgpSliderTrack } from '../slider-track/slider-track';
 import { provideSliderState, sliderState } from './slider-state';
 
@@ -20,7 +20,6 @@ import { provideSliderState, sliderState } from './slider-state';
   selector: '[ngpSlider]',
   exportAs: 'ngpSlider',
   providers: [provideSliderState()],
-  hostDirectives: [NgpFormControl],
   host: {
     '[attr.data-orientation]': 'state.orientation()',
   },
@@ -100,6 +99,6 @@ export class NgpSlider {
   protected readonly state = sliderState<NgpSlider>(this);
 
   constructor() {
-    syncFormControl({ disabled: this.state.disabled });
+    setupFormControl({ disabled: this.state.disabled });
   }
 }
