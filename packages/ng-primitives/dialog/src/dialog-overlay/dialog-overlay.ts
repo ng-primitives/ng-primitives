@@ -1,5 +1,5 @@
 import { BooleanInput } from '@angular/cdk/coercion';
-import { booleanAttribute, Directive, HostListener, input } from '@angular/core';
+import { booleanAttribute, Directive, effect, HostListener, input } from '@angular/core';
 import { NgpExitAnimation } from 'ng-primitives/internal';
 import { injectDialogRef } from '../dialog/dialog-ref';
 
@@ -19,6 +19,23 @@ export class NgpDialogOverlay {
   readonly closeOnClick = input<boolean, BooleanInput>(true, {
     alias: 'ngpDialogOverlayCloseOnClick',
     transform: booleanAttribute,
+  });
+
+  /**
+   * Whether the dialog should close on escape key press.
+   * @default `false`
+   */
+  readonly disableEscapeKey = input<boolean, BooleanInput>(false, {
+    alias: 'ngpDialogOverlayDisableEscapeKey',
+    transform: booleanAttribute,
+  });
+
+  disableEscapeKeyEffect = effect(() => {
+    if (this.disableEscapeKey()) {
+      this.dialogRef.disableEscapeKey = true;
+    } else {
+      this.dialogRef.disableEscapeKey = false;
+    }
   });
 
   @HostListener('click')
