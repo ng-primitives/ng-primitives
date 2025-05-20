@@ -28,6 +28,12 @@ Assemble the popover directives in your template.
 </ng-template>
 ```
 
+## Reusable Component
+
+Create a popover component that uses the `NgpPopover` directive.
+
+<docs-snippet name="popover"></docs-snippet>
+
 ## API Reference
 
 The following directives are available to import from the `ng-primitives/popover` package:
