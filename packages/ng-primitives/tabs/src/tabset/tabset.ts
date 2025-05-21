@@ -80,8 +80,9 @@ export class NgpTabset {
   readonly selectedTab = computed(() => {
     const panels = this.panels();
 
+    // if there are no tabs then return the selected value
     // if there is a value set and a tab with that value exists, return the value
-    if (panels.some(panel => panel.value() === this.state.value())) {
+    if (panels.length === 0 || panels.some(panel => panel.value() === this.state.value())) {
       return this.state.value();
     }
 
