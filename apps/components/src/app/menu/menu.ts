@@ -22,11 +22,11 @@ import { NgpMenu, NgpMenuItem } from 'ng-primitives/menu';
       box-shadow: var(--ngp-shadow);
       border-radius: 8px;
       padding: 4px;
-      animation: menu-show 2s ease-out;
+      animation: menu-show 300ms ease-out;
     }
 
     [ngpMenu][data-exit] {
-      animation: menu-hide 2s ease-out;
+      animation: menu-hide 300ms ease-out;
     }
 
     [ngpMenuItem] {
