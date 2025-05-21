@@ -1,3 +1,13 @@
+## 0.43.1 (2025-05-21)
+
+### 🩹 Fixes
+
+- **tab:** tab button should be disabled when button element is used ([4debb55](https://github.com/ng-primitives/ng-primitives/commit/4debb55))
+
+### ❤️ Thank You
+
+- Ashley Hunter @ashley-hunter
+
 ## 0.43.0 (2025-05-21)
 
 ### 🚀 Features
