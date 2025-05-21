@@ -1,3 +1,21 @@
+## 0.43.0 (2025-05-21)
+
+### 🚀 Features
+
+- add popover reusable component ([#251](https://github.com/ng-primitives/ng-primitives/pull/251))
+- add .nvmrc ([#254](https://github.com/ng-primitives/ng-primitives/pull/254))
+
+### 🩹 Fixes
+
+- **resize:** support server environments ([#257](https://github.com/ng-primitives/ng-primitives/pull/257))
+- **tabs:** support tabs without panels ([#256](https://github.com/ng-primitives/ng-primitives/pull/256))
+
+### ❤️ Thank You
+
+- Ashley Hunter
+- Harshit-Prasad @Harshit-Prasad
+- kedevked @kedevked
+
 ## 0.42.0 (2025-05-19)
 
 ### 🩹 Fixes
