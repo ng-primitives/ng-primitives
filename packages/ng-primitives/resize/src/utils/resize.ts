@@ -8,8 +8,9 @@ import { Observable } from 'rxjs';
 export function fromResizeEvent(element: HTMLElement): Observable<Dimensions> {
   return new Observable(observer => {
     // ResizeObserver may not be available in all environments, so check for its existence
-    if (typeof ResizeObserver === 'undefined') {
-      // if not available, we can return an empty observable
+    if (typeof window === 'undefined' || typeof window.ResizeObserver === 'undefined') {
+      // ResizeObserver is not available (SSR or unsupported browser)
+      // Complete the observable without emitting any values
       observer.complete();
       return;
     }
