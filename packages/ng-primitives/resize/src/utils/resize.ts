@@ -1,4 +1,5 @@
-import { Observable } from 'rxjs';
+import { effect, signal, Signal } from '@angular/core';
+import { Observable, Subscription } from 'rxjs';
 
 /**
  * A simple helper function to create a resize observer as an RxJS Observable.
@@ -43,6 +44,34 @@ export function fromResizeEvent(element: HTMLElement): Observable<Dimensions> {
 
     return () => resizeObserver.disconnect();
   });
+}
+
+/**
+ * A utility function to observe any element for resize events and return the dimensions as a signal.
+ */
+export function observeResize(elementFn: () => HTMLElement | undefined): Signal<Dimensions> {
+  const dimensions = signal<Dimensions>({ width: 0, height: 0 });
+
+  // store the subscription to the resize event
+  let subscription: Subscription | null = null;
+
+  effect(() => {
+    const targetElement = elementFn();
+
+    if (!targetElement) {
+      return;
+    }
+
+    // if we already have a subscription, unsubscribe from it
+    subscription?.unsubscribe();
+
+    // create a new subscription to the resize event
+    subscription = fromResizeEvent(targetElement).subscribe(event =>
+      dimensions.set({ width: event.width, height: event.height }),
+    );
+  });
+
+  return dimensions;
 }
 
 export interface Dimensions {

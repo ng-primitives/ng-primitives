@@ -49,6 +49,7 @@
     "@testing-library/angular": "17.3.6",
     "@testing-library/dom": "10.4.0",
     "@testing-library/jest-dom": "^6.6.3",
+    "@testing-library/user-event": "^14.6.1",
     "@trivago/prettier-plugin-sort-imports": "^4.3.0",
     "@types/fs-extra": "^11.0.4",
     "@types/jest": "29.5.14",
