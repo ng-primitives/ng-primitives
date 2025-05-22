@@ -1,3 +1,15 @@
+## 0.44.0 (2025-05-22)
+
+### 🚀 Features
+
+- add option to disable escape key ([#253](https://github.com/ng-primitives/ng-primitives/pull/253))
+- combobox ([#231](https://github.com/ng-primitives/ng-primitives/pull/231))
+
+### ❤️ Thank You
+
+- Ashley Hunter
+- kedevked @kedevked
+
 ## 0.43.1 (2025-05-21)
 
 ### 🩹 Fixes
