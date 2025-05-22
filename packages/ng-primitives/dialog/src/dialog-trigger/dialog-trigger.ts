@@ -1,13 +1,16 @@
 import { Directive, HostListener, inject, input, TemplateRef } from '@angular/core';
+import { injectDialogConfig } from '../config/dialog-config';
 import { NgpDialogRef } from '../dialog/dialog-ref';
 import { NgpDialogContext, NgpDialogManager } from '../dialog/dialog.service';
-import { defaultDialogConfig } from '../config/dialog-config';
 
 @Directive({
   selector: '[ngpDialogTrigger]',
   exportAs: 'ngpDialogTrigger',
 })
 export class NgpDialogTrigger {
+  /** Access the global configuration */
+  private readonly config = injectDialogConfig();
+
   /** Access the dialog manager. */
   private readonly dialogManager = inject(NgpDialogManager);
 
@@ -17,12 +20,11 @@ export class NgpDialogTrigger {
   });
 
   /**
-   * Whether the escape key is allowed to close the dialog.
-   * @default `false`
-
+   * Whether the dialog should close on escape.
+   * @default `true`
    */
-  readonly disableEscapeKey = input(false, {
-    alias: 'ngpDialogTriggerDisableEscapeKey',
+  readonly closeOnEscape = input(this.config.closeOnEscape, {
+    alias: 'ngpDialogTriggerCloseOnEscape',
   });
 
   /**
@@ -34,8 +36,7 @@ export class NgpDialogTrigger {
   @HostListener('click')
   protected launch(): void {
     this.dialogRef = this.dialogManager.open(this.template(), {
-      ...defaultDialogConfig,
-      disableEscapeKey: this.disableEscapeKey(),
+      closeOnEscape: this.closeOnEscape(),
     });
     this.dialogRef.closed.subscribe(() => (this.dialogRef = null));
   }

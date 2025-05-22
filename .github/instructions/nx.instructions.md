@@ -27,7 +27,6 @@ If the user wants to generate something, use the following flow:
 - wait for the user to finish the generator
 - read the generator log file using the 'nx_read_generator_log' tool
 - use the information provided in the log file to answer the user's question or continue with what they were doing
-undefined
 
 # Running Tasks Guidelines
 If the user wants help with tasks or commands (which include keywords like "test", "build", "lint", or other similar actions), use the following flow:

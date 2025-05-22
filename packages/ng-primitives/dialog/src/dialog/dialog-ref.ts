@@ -14,7 +14,7 @@ export class NgpDialogRef<T = unknown> {
   disableClose: boolean | undefined;
 
   /** Whether the escape key is allowed to close the dialog. */
-  disableEscapeKey: boolean | undefined;
+  closeOnEscape: boolean | undefined;
 
   /** Emits when the dialog has been closed. */
   readonly closed = new Subject<FocusOrigin | null>();
@@ -48,13 +48,13 @@ export class NgpDialogRef<T = unknown> {
     this.keydownEvents = overlayRef.keydownEvents();
     this.outsidePointerEvents = overlayRef.outsidePointerEvents();
     this.id = config.id!; // By the time the dialog is created we are guaranteed to have an ID.
-    this.disableEscapeKey = config.disableEscapeKey;
+    this.closeOnEscape = config.closeOnEscape ?? true;
 
     this.keydownEvents.subscribe(event => {
       if (
         event.key === 'Escape' &&
         !this.disableClose &&
-        !this.disableEscapeKey &&
+        this.closeOnEscape !== false &&
         !hasModifierKey(event)
       ) {
         event.preventDefault();

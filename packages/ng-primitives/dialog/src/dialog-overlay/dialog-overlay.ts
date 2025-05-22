@@ -1,5 +1,5 @@
 import { BooleanInput } from '@angular/cdk/coercion';
-import { booleanAttribute, Directive, effect, HostListener, input } from '@angular/core';
+import { booleanAttribute, Directive, HostListener, input } from '@angular/core';
 import { NgpExitAnimation } from 'ng-primitives/internal';
 import { injectDialogRef } from '../dialog/dialog-ref';
 

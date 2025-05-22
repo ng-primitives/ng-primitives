@@ -29,8 +29,8 @@ export interface NgpDialogConfig<T = any> {
    */
   closeOnNavigation?: boolean;
 
-  /** Whether the escape key is allowed to close the dialog. */
-  disableEscapeKey?: boolean | undefined;
+  /** Whether the dialog should close when the user presses the escape key. */
+  closeOnEscape?: boolean;
 
   data?: T;
 }
@@ -39,6 +39,7 @@ export const defaultDialogConfig: NgpDialogConfig = {
   role: 'dialog',
   modal: true,
   closeOnNavigation: true,
+  closeOnEscape: true,
 };
 
 export const NgpDialogConfigToken = new InjectionToken<NgpDialogConfig>('NgpDialogConfigToken');
