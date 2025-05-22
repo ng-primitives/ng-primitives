@@ -5,7 +5,7 @@ import type { NgpComboboxOption } from '../combobox-option/combobox-option';
 import { injectComboboxState } from '../combobox/combobox-state';
 
 @Directive({
-  selector: '[ngpComboboxInput]',
+  selector: 'input[ngpComboboxInput]',
   exportAs: 'ngpComboboxInput',
   host: {
     role: 'combobox',

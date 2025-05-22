@@ -4,6 +4,7 @@ import {
   effect,
   inject,
   Injector,
+  OnDestroy,
   signal,
   TemplateRef,
   ViewContainerRef,
@@ -17,7 +18,7 @@ import { injectComboboxState } from '../combobox/combobox-state';
   selector: '[ngpComboboxPortal]',
   exportAs: 'ngpComboboxPortal',
 })
-export class NgpComboboxPortal {
+export class NgpComboboxPortal implements OnDestroy {
   /** Access the combobox state. */
   private readonly state = injectComboboxState();
 
@@ -92,6 +93,12 @@ export class NgpComboboxPortal {
     });
   }
 
+  /** Cleanup the portal. */
+  ngOnDestroy(): void {
+    this.detach();
+    this.dispose?.();
+  }
+
   /**
    * Attach the portal.
    * @internal
@@ -140,8 +147,8 @@ export class NgpComboboxPortal {
    * Detach the portal.
    * @internal
    */
-  detach(): void {
-    this.viewRef()?.detach();
+  async detach(): Promise<void> {
+    await this.viewRef()?.detach();
     this.viewRef.set(null);
     this.dispose?.();
     this.dispose = null;

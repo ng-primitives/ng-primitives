@@ -384,17 +384,7 @@ export class NgpCombobox {
    * @internal
    */
   registerOption(option: NgpComboboxOption): void {
-    const options = [...this.options(), option];
-
-    // sort the options based on their order in the DOM
-    options.sort((a, b) =>
-      a.elementRef.nativeElement.compareDocumentPosition(b.elementRef.nativeElement) &
-      Node.DOCUMENT_POSITION_FOLLOWING
-        ? -1
-        : 1,
-    );
-
-    this.options.set(options);
+    this.options.update(options => [...options, option]);
   }
 
   /**
