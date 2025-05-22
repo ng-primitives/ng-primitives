@@ -29,6 +29,9 @@ export interface NgpDialogConfig<T = any> {
    */
   closeOnNavigation?: boolean;
 
+  /** Whether the escape key is allowed to close the dialog. */
+  disableEscapeKey?: boolean | undefined;
+
   data?: T;
 }
 

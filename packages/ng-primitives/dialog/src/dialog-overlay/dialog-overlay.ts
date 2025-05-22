@@ -21,23 +21,6 @@ export class NgpDialogOverlay {
     transform: booleanAttribute,
   });
 
-  /**
-   * Whether the dialog should close on escape key press.
-   * @default `false`
-   */
-  readonly disableEscapeKey = input<boolean, BooleanInput>(false, {
-    alias: 'ngpDialogOverlayDisableEscapeKey',
-    transform: booleanAttribute,
-  });
-
-  disableEscapeKeyEffect = effect(() => {
-    if (this.disableEscapeKey()) {
-      this.dialogRef.disableEscapeKey = true;
-    } else {
-      this.dialogRef.disableEscapeKey = false;
-    }
-  });
-
   @HostListener('click')
   protected close(): void {
     if (this.closeOnClick()) {

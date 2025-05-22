@@ -1,6 +1,7 @@
 import { Directive, HostListener, inject, input, TemplateRef } from '@angular/core';
 import { NgpDialogRef } from '../dialog/dialog-ref';
 import { NgpDialogContext, NgpDialogManager } from '../dialog/dialog.service';
+import { defaultDialogConfig } from '../config/dialog-config';
 
 @Directive({
   selector: '[ngpDialogTrigger]',
@@ -16,6 +17,15 @@ export class NgpDialogTrigger {
   });
 
   /**
+   * Whether the escape key is allowed to close the dialog.
+   * @default `false`
+
+   */
+  readonly disableEscapeKey = input(false, {
+    alias: 'ngpDialogTriggerDisableEscapeKey',
+  });
+
+  /**
    * Store the dialog ref.
    * @internal
    */
@@ -23,7 +33,10 @@ export class NgpDialogTrigger {
 
   @HostListener('click')
   protected launch(): void {
-    this.dialogRef = this.dialogManager.open(this.template());
+    this.dialogRef = this.dialogManager.open(this.template(), {
+      ...defaultDialogConfig,
+      disableEscapeKey: this.disableEscapeKey(),
+    });
     this.dialogRef.closed.subscribe(() => (this.dialogRef = null));
   }
 }

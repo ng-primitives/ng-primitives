@@ -48,6 +48,7 @@ export class NgpDialogRef<T = unknown> {
     this.keydownEvents = overlayRef.keydownEvents();
     this.outsidePointerEvents = overlayRef.outsidePointerEvents();
     this.id = config.id!; // By the time the dialog is created we are guaranteed to have an ID.
+    this.disableEscapeKey = config.disableEscapeKey;
 
     this.keydownEvents.subscribe(event => {
       if (
