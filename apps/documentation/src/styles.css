@@ -44,7 +44,7 @@ html,
 body {
   display: block;
   height: 100%;
-  font-feature-settings: 'liga', 'calt', 'tnum', 'ss01', 'cv11';
+  font-feature-settings: 'liga', 'calt', 'ss01', 'cv11';
 }
 
 pre[class*='language-'],

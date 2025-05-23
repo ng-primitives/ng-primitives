@@ -1,7 +1,5 @@
-import { FocusMonitor, FocusOrigin } from '@angular/cdk/a11y';
+import { FocusOrigin } from '@angular/cdk/a11y';
 import { BooleanInput, NumberInput } from '@angular/cdk/coercion';
-import { ViewportRuler } from '@angular/cdk/overlay';
-import { DOCUMENT } from '@angular/common';
 import {
   booleanAttribute,
   computed,
@@ -19,13 +17,8 @@ import { Placement } from '@floating-ui/dom';
 import { injectElementRef, provideExitAnimationManager } from 'ng-primitives/internal';
 import { createOverlay, NgpOverlay, NgpOverlayConfig } from 'ng-primitives/portal';
 import { injectPopoverConfig } from '../config/popover-config';
-import type { NgpPopover } from '../popover/popover';
 import { providePopoverContext } from '../popover/popover-token';
-import {
-  injectPopoverTriggerState,
-  popoverTriggerState,
-  providePopoverTriggerState,
-} from './popover-trigger-state';
+import { popoverTriggerState, providePopoverTriggerState } from './popover-trigger-state';
 
 /**
  * Apply the `ngpPopoverTrigger` directive to an element that triggers the popover to show.
@@ -39,7 +32,6 @@ import {
     '[attr.data-open]': 'open() ? "" : null',
     '[attr.data-placement]': 'state.placement()',
     '(click)': 'toggleOpenState($event)',
-    '(document:keydown.escape)': 'handleEscapeKey()',
   },
 })
 export class NgpPopoverTrigger<T = null> implements OnDestroy {
@@ -47,24 +39,6 @@ export class NgpPopoverTrigger<T = null> implements OnDestroy {
    * Access the trigger element
    */
   private readonly trigger = injectElementRef();
-
-  /**
-   * Inject the parent popover trigger if available.
-   */
-  private readonly parentTrigger = injectPopoverTriggerState<T>({
-    skipSelf: true,
-    optional: true,
-  });
-
-  /**
-   * Access the document.
-   */
-  private readonly document = inject(DOCUMENT);
-
-  /**
-   * Access the viewport ruler.
-   */
-  private readonly viewportRuler = inject(ViewportRuler);
 
   /**
    * Access the injector.
@@ -75,11 +49,6 @@ export class NgpPopoverTrigger<T = null> implements OnDestroy {
    * Access the global popover configuration.
    */
   private readonly config = injectPopoverConfig();
-
-  /**
-   * Access the focus monitor.
-   */
-  private readonly focusMonitor = inject(FocusMonitor);
 
   /**
    * Access the popover template ref.
@@ -196,28 +165,12 @@ export class NgpPopoverTrigger<T = null> implements OnDestroy {
   readonly open = computed(() => this.overlay()?.isOpen() ?? false);
 
   /**
-   * A document-wide click listener that checks if the click
-   * occurred outside of the popover and trigger elements.
-   */
-  private documentClickListener?: (event: MouseEvent) => void;
-
-  /**
-   * Store the popover instance.
-   * @internal
-   */
-  private popoverInstance: NgpPopover | null = null;
-  /**
    * The popover trigger state.
    */
   readonly state = popoverTriggerState<NgpPopoverTrigger<T>>(this);
 
   ngOnDestroy(): void {
     this.overlay()?.destroy();
-
-    // Remove document click listener if exists
-    if (this.documentClickListener) {
-      this.document.removeEventListener('mouseup', this.documentClickListener, true);
-    }
   }
 
   protected toggleOpenState(event: MouseEvent): void {
@@ -233,14 +186,14 @@ export class NgpPopoverTrigger<T = null> implements OnDestroy {
     if (this.open()) {
       this.hide(origin);
     } else {
-      this.show(origin);
+      this.show();
     }
   }
 
   /**
    * Show the popover.
    */
-  show(origin: FocusOrigin): void {
+  show(): void {
     // If the trigger is disabled, don't show the popover
     if (this.state.disabled()) {
       return;
@@ -251,19 +204,8 @@ export class NgpPopoverTrigger<T = null> implements OnDestroy {
       this.createOverlay();
     }
 
-    // Add document click listener to detect outside clicks
-    if (this.state.closeOnOutsideClick() && !this.documentClickListener) {
-      this.documentClickListener = this.onDocumentClick.bind(this);
-      this.document.addEventListener('mouseup', this.documentClickListener, true);
-    }
-
     // Show the overlay
-    this.overlay()?.show(this.state.showDelay());
-
-    if (this.open()) {
-      // Set initial focus in the popover
-      this.popoverInstance?.setInitialFocus(origin);
-    }
+    this.overlay()?.show();
   }
 
   /**
@@ -276,36 +218,8 @@ export class NgpPopoverTrigger<T = null> implements OnDestroy {
       return;
     }
 
-    // Disable the focus trap before closing the popover
-    this.popoverInstance?.disableFocusTrap();
-
-    // Ensure the trigger is focused after closing the popover
-    this.focusTrigger(origin);
-
     // Hide the overlay
-    this.overlay()?.hide(this.state.hideDelay());
-
-    // Remove document click listener
-    if (this.documentClickListener) {
-      this.document.removeEventListener('mouseup', this.documentClickListener, true);
-      this.documentClickListener = undefined;
-    }
-  }
-
-  private onDocumentClick(event: MouseEvent): void {
-    const target = event.target as HTMLElement;
-
-    // Get the popover element from the overlay
-    const popoverElement = this.overlay()?.getElements()[0] as HTMLElement | undefined;
-
-    // Check if the click is outside the trigger or the popover
-    const isOutside =
-      !this.trigger.nativeElement.contains(target) && !popoverElement?.contains(target);
-
-    if (isOutside) {
-      // Close the popover
-      this.hide('mouse');
-    }
+    this.overlay()?.hide({ origin });
   }
 
   /**
@@ -330,32 +244,13 @@ export class NgpPopoverTrigger<T = null> implements OnDestroy {
       flip: this.state.flip(),
       showDelay: this.state.showDelay(),
       hideDelay: this.state.hideDelay(),
+      closeOnOutsideClick: this.state.closeOnOutsideClick(),
+      closeOnEscape: this.state.closeOnEscape(),
+      restoreFocus: true,
       providers: [providePopoverContext(this.state.context())],
     };
 
     this.overlay.set(createOverlay(config));
-  }
-
-  /**
-   * @internal
-   * Handle escape key press to close the popover.
-   */
-  protected handleEscapeKey(): void {
-    if (this.state.closeOnEscape()) {
-      this.hide('keyboard');
-    }
-  }
-
-  private focusTrigger(origin: FocusOrigin): void {
-    this.focusMonitor.focusVia(this.trigger.nativeElement, origin);
-  }
-
-  /**
-   * Set the popover instance.
-   * @internal
-   */
-  setPopover(instance: NgpPopover): void {
-    this.popoverInstance = instance;
   }
 }
 

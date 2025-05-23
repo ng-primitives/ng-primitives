@@ -164,7 +164,7 @@ export class NgpTooltipTrigger<T = null> implements OnDestroy {
       this.createOverlay();
     }
 
-    this.overlay()?.show(this.state.showDelay());
+    this.overlay()?.show();
   }
 
   /**
@@ -176,7 +176,7 @@ export class NgpTooltipTrigger<T = null> implements OnDestroy {
       return;
     }
 
-    this.overlay()?.hide(this.state.hideDelay());
+    this.overlay()?.hide();
   }
 
   /**
@@ -201,6 +201,8 @@ export class NgpTooltipTrigger<T = null> implements OnDestroy {
       flip: this.state.flip(),
       showDelay: this.state.showDelay(),
       hideDelay: this.state.hideDelay(),
+      closeOnEscape: true,
+      closeOnOutsideClick: true,
       providers: [provideTooltipContext(this.state.context())],
     };
 

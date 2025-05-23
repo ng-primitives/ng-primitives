@@ -1,3 +1,4 @@
+import { FocusMonitor, FocusOrigin, InteractivityChecker } from '@angular/cdk/a11y';
 import { BlockScrollStrategy, NoopScrollStrategy, ViewportRuler } from '@angular/cdk/overlay';
 import { DOCUMENT } from '@angular/common';
 import {
@@ -25,7 +26,7 @@ import {
 } from '@floating-ui/dom';
 import { fromResizeEvent } from 'ng-primitives/resize';
 import { injectDisposables } from 'ng-primitives/utils';
-import { Subject } from 'rxjs';
+import { Subject, fromEvent } from 'rxjs';
 import { NgpPortal, createPortal } from './portal';
 
 /**
@@ -68,7 +69,12 @@ export interface NgpOverlayConfig<T = unknown> {
 
   /** The scroll strategy to use for the overlay */
   scrollStrategy?: 'block' | 'noop';
-
+  /** Whether to close the overlay when clicking outside */
+  closeOnOutsideClick?: boolean;
+  /** Whether to close the overlay when pressing escape */
+  closeOnEscape?: boolean;
+  /** Whether to restore focus to the trigger element when hiding the overlay */
+  restoreFocus?: boolean;
   /** Additional middleware for floating UI positioning */
   additionalMiddleware?: Middleware[];
 
@@ -95,6 +101,8 @@ export class NgpOverlay<T = unknown> {
   private readonly destroyRef = inject(DestroyRef);
   private readonly viewContainerRef = inject(ViewContainerRef);
   private readonly viewportRuler = inject(ViewportRuler);
+  private readonly focusMonitor = inject(FocusMonitor);
+  private readonly interactivity = inject(InteractivityChecker);
   /** Access any parent overlays */
   private readonly parentOverlay = inject(NgpOverlay, { optional: true });
   /** Signal tracking the portal instance */
@@ -124,8 +132,11 @@ export class NgpOverlay<T = unknown> {
   /** The scroll strategy */
   private scrollStrategy = new NoopScrollStrategy();
 
+  /** An observable that emits when the overlay is closing */
+  readonly closing = new Subject<void>();
+
   /** An observable that emits when the overlay is closed */
-  private readonly closed = new Subject<void>();
+  readonly closed = new Subject<void>();
 
   /**
    * Creates a new overlay instance
@@ -147,6 +158,34 @@ export class NgpOverlay<T = unknown> {
       }
     });
 
+    // If closeOnOutsideClick is enabled, set up a click listener
+    fromEvent<MouseEvent>(this.document, 'click', { capture: true })
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(event => {
+        if (!this.config.closeOnOutsideClick) return;
+
+        const overlay = this.portal();
+        if (!overlay) return;
+
+        const path = event.composedPath();
+        const isInsideOverlay = overlay.getElements().some(el => path.includes(el));
+        const isInsideTrigger = path.includes(this.config.triggerElement);
+
+        if (!isInsideOverlay && !isInsideTrigger) {
+          this.hide();
+        }
+      });
+
+    // If closeOnEscape is enabled, set up a keydown listener
+    fromEvent<KeyboardEvent>(this.document, 'keydown', { capture: true })
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(event => {
+        if (!this.config.closeOnEscape) return;
+        if (event.key === 'Escape' && this.isOpen()) {
+          this.hide({ origin: 'keyboard', immediate: true });
+        }
+      });
+
     // Ensure cleanup on destroy
     this.destroyRef.onDestroy(() => this.destroy());
   }
@@ -155,7 +194,7 @@ export class NgpOverlay<T = unknown> {
    * Show the overlay with the specified delay
    * @param showDelay Optional delay to override the configured showDelay
    */
-  show(showDelay?: number): void {
+  show(): void {
     // If closing is in progress, cancel it
     if (this.closeTimeout) {
       this.closeTimeout();
@@ -168,7 +207,7 @@ export class NgpOverlay<T = unknown> {
     }
 
     // Use the provided delay or fall back to config
-    const delay = showDelay ?? this.config.showDelay ?? 0;
+    const delay = this.config.showDelay ?? 0;
 
     this.openTimeout = this.disposables.setTimeout(() => {
       this.openTimeout = undefined;
@@ -178,9 +217,9 @@ export class NgpOverlay<T = unknown> {
 
   /**
    * Hide the overlay with the specified delay
-   * @param hideDelay Optional delay to override the configured hideDelay
+   * @param options Optional options for hiding the overlay
    */
-  hide(hideDelay?: number): void {
+  hide(options?: { origin?: FocusOrigin; immediate?: boolean }): void {
     // If opening is in progress, cancel it
     if (this.openTimeout) {
       this.openTimeout();
@@ -192,11 +231,18 @@ export class NgpOverlay<T = unknown> {
       return;
     }
 
+    this.closing.next();
+
     // Use the provided delay or fall back to config
-    const delay = hideDelay ?? this.config.hideDelay ?? 0;
+    const delay = options?.immediate ? 0 : (this.config.hideDelay ?? 0);
 
     this.closeTimeout = this.disposables.setTimeout(async () => {
       this.closeTimeout = undefined;
+
+      if (this.config.restoreFocus) {
+        this.focusMonitor.focusVia(this.config.triggerElement, options?.origin ?? 'program');
+      }
+
       await this.destroyOverlay();
     }, delay);
   }
@@ -215,17 +261,10 @@ export class NgpOverlay<T = unknown> {
   }
 
   /**
-   * Immediately show the overlay without any delay
-   */
-  showImmediate(): void {
-    this.show(0);
-  }
-
-  /**
    * Immediately hide the overlay without any delay
    */
   hideImmediate(): void {
-    this.hide(0);
+    this.hide({ immediate: true });
   }
 
   /**

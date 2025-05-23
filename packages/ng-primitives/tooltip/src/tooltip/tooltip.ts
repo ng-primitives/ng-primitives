@@ -1,12 +1,6 @@
-import { isPlatformBrowser } from '@angular/common';
-import { Directive, ElementRef, OnInit, PLATFORM_ID, inject, isDevMode } from '@angular/core';
+import { Directive } from '@angular/core';
 import { NgpExitAnimation } from 'ng-primitives/internal';
-import {
-  injectOverlayPosition,
-  injectOverlayTransformOrigin,
-  injectOverlayTriggerWidth,
-} from 'ng-primitives/portal';
-import { injectTooltipTriggerState } from '../tooltip-trigger/tooltip-trigger-state';
+import { injectOverlay } from 'ng-primitives/portal';
 
 /**
  * Apply the `ngpTooltip` directive to an element that represents the tooltip. This typically would be a `div` inside an `ng-template`.
@@ -17,53 +11,15 @@ import { injectTooltipTriggerState } from '../tooltip-trigger/tooltip-trigger-st
   hostDirectives: [NgpExitAnimation],
   host: {
     role: 'tooltip',
-    '[style.left.px]': 'position().x',
-    '[style.top.px]': 'position().y',
-    '[style.--ngp-tooltip-trigger-width.px]': 'triggerWidth()',
-    '[style.--ngp-tooltip-transform-origin]': 'transformOrigin()',
+    '[style.left.px]': 'overlay.position().x',
+    '[style.top.px]': 'overlay.position().y',
+    '[style.--ngp-tooltip-trigger-width.px]': 'overlay.triggerWidth()',
+    '[style.--ngp-tooltip-transform-origin]': 'overlay.transformOrigin()',
   },
 })
-export class NgpTooltip implements OnInit {
+export class NgpTooltip {
   /**
-   * Access the tooltip element.
+   * Access the overlay.
    */
-  private readonly tooltip = inject(ElementRef<HTMLElement>);
-
-  /**
-   * Access the platform.
-   */
-  private readonly platform = inject(PLATFORM_ID);
-
-  /**
-   * Access the trigger instance.
-   */
-  private readonly trigger = injectTooltipTriggerState();
-
-  /**
-   * Compute the position of the tooltip.
-   */
-  protected readonly position = injectOverlayPosition();
-
-  /**
-   * Access the trigger width.
-   */
-  protected readonly triggerWidth = injectOverlayTriggerWidth();
-
-  /**
-   * Access the transform origin of the tooltip.
-   */
-  protected readonly transformOrigin = injectOverlayTransformOrigin();
-
-  ngOnInit(): void {
-    // if the element does not have a fixed position then throw a warning in dev mode
-    if (isDevMode() && isPlatformBrowser(this.platform)) {
-      const { position } = getComputedStyle(this.tooltip.nativeElement);
-
-      if (position !== 'absolute' && position !== 'fixed') {
-        console.warn(
-          `The tooltip element must have an absolute or fixed position. The current position is ${position}.`,
-        );
-      }
-    }
-  }
+  protected readonly overlay = injectOverlay();
 }
