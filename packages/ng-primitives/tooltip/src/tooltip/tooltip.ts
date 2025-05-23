@@ -1,16 +1,11 @@
 import { isPlatformBrowser } from '@angular/common';
-import {
-  Directive,
-  ElementRef,
-  OnInit,
-  PLATFORM_ID,
-  computed,
-  inject,
-  isDevMode,
-} from '@angular/core';
+import { Directive, ElementRef, OnInit, PLATFORM_ID, inject, isDevMode } from '@angular/core';
 import { NgpExitAnimation } from 'ng-primitives/internal';
-import { getTransformOrigin } from 'ng-primitives/popover';
-import { injectOverlayPosition, injectOverlayTriggerWidth } from 'ng-primitives/portal';
+import {
+  injectOverlayPosition,
+  injectOverlayTransformOrigin,
+  injectOverlayTriggerWidth,
+} from 'ng-primitives/portal';
 import { injectTooltipTriggerState } from '../tooltip-trigger/tooltip-trigger-state';
 
 /**
@@ -55,11 +50,9 @@ export class NgpTooltip implements OnInit {
   protected readonly triggerWidth = injectOverlayTriggerWidth();
 
   /**
-   * Derive the transform origin of the popover.
+   * Access the transform origin of the tooltip.
    */
-  protected readonly transformOrigin = computed(() =>
-    getTransformOrigin(this.trigger().placement()),
-  );
+  protected readonly transformOrigin = injectOverlayTransformOrigin();
 
   ngOnInit(): void {
     // if the element does not have a fixed position then throw a warning in dev mode

@@ -74,6 +74,32 @@ The following data attributes are available on the `NgpMenuItem` directive:
 | --------------- | ---------------------------------- |
 | `data-disabled` | Applied when the item is disabled. |
 
+## Styling
+
+For the menu to be positioned correctly relative to the trigger element, it use absolute or fixed positioning. For example, you can use the following CSS:
+
+```css
+[ngpMenu] {
+  position: absolute;
+}
+```
+
+## Animations
+
+The `ngpMenu` primitive adds a CSS custom property `--ngp-menu-transform-origin` to the element that can be used to animate the menu from the trigger element.
+
+The `ngpMenu` will also add the `data-enter` and `data-exit` attributes to the element when it is being added or removed from the DOM. This can be used to trigger animations.
+
+```css
+:host[data-enter] {
+  animation: fade-in 0.2s ease-in-out;
+}
+
+:host[data-exit] {
+  animation: fade-out 0.2s ease-in-out;
+}
+```
+
 ## Accessibility
 
 Adhere to the [WAI-ARIA Authoring Practices](https://www.w3.org/WAI/ARIA/apg/patterns/menu-button/) for menus and submenus.

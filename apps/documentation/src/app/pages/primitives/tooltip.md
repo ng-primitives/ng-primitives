@@ -78,7 +78,7 @@ The following directives are available to import from the `ng-primitives/tooltip
 
 ## Styling
 
-For the tooltip to be positioned correctly relative to the trigger element, it must be absolutely positioned. For example, you can use the following CSS:
+For the tooltip to be positioned correctly relative to the trigger element, it must use absolute or fixed positioning. For example, you can use the following CSS:
 
 ```css
 [ngpTooltip] {

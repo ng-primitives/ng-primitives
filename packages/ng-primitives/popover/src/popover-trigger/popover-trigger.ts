@@ -1,6 +1,6 @@
 import { FocusMonitor, FocusOrigin } from '@angular/cdk/a11y';
 import { BooleanInput, NumberInput } from '@angular/cdk/coercion';
-import { BlockScrollStrategy, NoopScrollStrategy, ViewportRuler } from '@angular/cdk/overlay';
+import { ViewportRuler } from '@angular/cdk/overlay';
 import { DOCUMENT } from '@angular/common';
 import {
   booleanAttribute,
@@ -190,9 +190,10 @@ export class NgpPopoverTrigger<T = null> implements OnDestroy {
   readonly overlay = signal<NgpOverlay<T> | null>(null);
 
   /**
-   * Determines if the popover is open.
+   * The open state of the popover.
+   * @internal
    */
-  readonly open = computed(() => this.overlay()?.isOpen() || false);
+  readonly open = computed(() => this.overlay()?.isOpen() ?? false);
 
   /**
    * A document-wide click listener that checks if the click
@@ -205,47 +206,17 @@ export class NgpPopoverTrigger<T = null> implements OnDestroy {
    * @internal
    */
   private popoverInstance: NgpPopover | null = null;
-
-  /**
-   * Get the scroll strategy based on the configuration.
-   */
-  private readonly scrollStrategy = computed(() =>
-    this.state.scrollBehavior() === 'block'
-      ? new BlockScrollStrategy(this.viewportRuler, this.document)
-      : new NoopScrollStrategy(),
-  );
-
-  /**
-   * @internal
-   * Register any child popover to the stack.
-   */
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  readonly stack: NgpPopoverTrigger<any>[] = [];
-
   /**
    * The popover trigger state.
    */
   readonly state = popoverTriggerState<NgpPopoverTrigger<T>>(this);
 
-  constructor() {
-    // if the trigger has a parent trigger then register it to the stack
-    this.parentTrigger()?.stack.push(this);
-  }
-
   ngOnDestroy(): void {
-    // remove the trigger from the parent trigger's stack
-    this.parentTrigger()?.stack.splice(this.parentTrigger()?.stack.indexOf(this), 1);
-
     this.overlay()?.destroy();
 
     // Remove document click listener if exists
     if (this.documentClickListener) {
       this.document.removeEventListener('mouseup', this.documentClickListener, true);
-    }
-
-    // Deactivate scroll strategy if active
-    if (this.open()) {
-      this.scrollStrategy().disable();
     }
   }
 
@@ -289,9 +260,7 @@ export class NgpPopoverTrigger<T = null> implements OnDestroy {
     // Show the overlay
     this.overlay()?.show(this.state.showDelay());
 
-    // Activate the scroll strategy when the overlay is shown
-    if (this.overlay()?.isOpen()) {
-      this.scrollStrategy().enable();
+    if (this.open()) {
       // Set initial focus in the popover
       this.popoverInstance?.setInitialFocus(origin);
     }
@@ -310,19 +279,11 @@ export class NgpPopoverTrigger<T = null> implements OnDestroy {
     // Disable the focus trap before closing the popover
     this.popoverInstance?.disableFocusTrap();
 
-    // Close all child popovers
-    for (const child of this.stack) {
-      child.hide(origin);
-    }
-
     // Ensure the trigger is focused after closing the popover
     this.focusTrigger(origin);
 
     // Hide the overlay
     this.overlay()?.hide(this.state.hideDelay());
-
-    // Deactivate the scroll strategy
-    this.scrollStrategy().disable();
 
     // Remove document click listener
     if (this.documentClickListener) {

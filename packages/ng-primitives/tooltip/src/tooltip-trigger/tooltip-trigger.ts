@@ -135,10 +135,10 @@ export class NgpTooltipTrigger<T = null> implements OnDestroy {
   readonly overlay = signal<NgpOverlay<T> | null>(null);
 
   /**
+   * The open state of the tooltip.
    * @internal
-   * Whether the tooltip is open or not.
    */
-  readonly open = computed(() => this.overlay()?.isOpen() || false);
+  readonly open = computed(() => this.overlay()?.isOpen() ?? false);
 
   /**
    * Store the state of the tooltip.
@@ -155,7 +155,7 @@ export class NgpTooltipTrigger<T = null> implements OnDestroy {
    */
   show(): void {
     // If the trigger is disabled, do not show the tooltip
-    if (this.state.disabled()) {
+    if (this.state.disabled() || this.open()) {
       return;
     }
 

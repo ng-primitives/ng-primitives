@@ -58,16 +58,17 @@ import { NgpMenu, NgpMenuItem, NgpMenuTrigger, NgpSubmenuTrigger } from 'ng-prim
     }
 
     [ngpMenu] {
-      position: fixed;
+      position: absolute;
       display: flex;
       flex-direction: column;
       width: max-content;
       background: var(--ngp-background);
       border: 1px solid var(--ngp-border);
-      box-shadow: var(--ngp-shadow);
+      box-shadow: var(--ngp-shadow-lg);
       border-radius: 8px;
       padding: 4px;
       animation: menu-show 0.2s ease-out;
+      transform-origin: var(--ngp-popover-transform-origin);
     }
 
     [ngpMenu][data-exit] {

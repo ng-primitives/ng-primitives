@@ -1,3 +1,4 @@
+import { BlockScrollStrategy, NoopScrollStrategy, ViewportRuler } from '@angular/cdk/overlay';
 import { DOCUMENT } from '@angular/common';
 import {
   DestroyRef,
@@ -24,10 +25,12 @@ import {
 } from '@floating-ui/dom';
 import { fromResizeEvent } from 'ng-primitives/resize';
 import { injectDisposables } from 'ng-primitives/utils';
+import { Subject } from 'rxjs';
 import { NgpPortal, createPortal } from './portal';
 
 /**
  * Configuration options for creating an overlay
+ * @internal
  */
 export interface NgpOverlayConfig<T = unknown> {
   /** Content to display in the overlay (component or template) */
@@ -63,6 +66,9 @@ export interface NgpOverlayConfig<T = unknown> {
   /** Whether the overlay should be positioned with fixed or absolute strategy */
   strategy?: Strategy;
 
+  /** The scroll strategy to use for the overlay */
+  scrollStrategy?: 'block' | 'noop';
+
   /** Additional middleware for floating UI positioning */
   additionalMiddleware?: Middleware[];
 
@@ -81,12 +87,16 @@ export type NgpOverlayTemplateContext<T> = {
 /**
  * NgpOverlay manages the lifecycle and positioning of overlay UI elements.
  * It abstracts the common behavior shared by tooltips, popovers, menus, etc.
+ * @internal
  */
 export class NgpOverlay<T = unknown> {
   private readonly disposables = injectDisposables();
   private readonly document = inject(DOCUMENT);
   private readonly destroyRef = inject(DestroyRef);
   private readonly viewContainerRef = inject(ViewContainerRef);
+  private readonly viewportRuler = inject(ViewportRuler);
+  /** Access any parent overlays */
+  private readonly parentOverlay = inject(NgpOverlay, { optional: true });
   /** Signal tracking the portal instance */
   private readonly portal = signal<NgpPortal | null>(null);
 
@@ -95,6 +105,9 @@ export class NgpOverlay<T = unknown> {
 
   /** Signal tracking the trigger element width */
   readonly triggerWidth = signal<number | null>(null);
+
+  /** The transform origin for the overlay */
+  readonly transformOrigin = signal<string>(this.getTransformOrigin());
 
   /** Function to dispose the positioning auto-update */
   private disposePositioning?: () => void;
@@ -108,6 +121,12 @@ export class NgpOverlay<T = unknown> {
   /** Signal tracking whether the overlay is open */
   readonly isOpen = signal(false);
 
+  /** The scroll strategy */
+  private scrollStrategy = new NoopScrollStrategy();
+
+  /** An observable that emits when the overlay is closed */
+  private readonly closed = new Subject<void>();
+
   /**
    * Creates a new overlay instance
    * @param config Initial configuration for the overlay
@@ -120,6 +139,13 @@ export class NgpOverlay<T = unknown> {
       .subscribe(() => {
         this.triggerWidth.set(this.config.triggerElement.offsetWidth);
       });
+
+    // if there is a parent overlay and it is closed, close this overlay
+    this.parentOverlay?.closed.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => {
+      if (this.isOpen()) {
+        this.hideImmediate();
+      }
+    });
 
     // Ensure cleanup on destroy
     this.destroyRef.onDestroy(() => this.destroy());
@@ -218,10 +244,16 @@ export class NgpOverlay<T = unknown> {
    */
   updatePosition(): void {
     const portal = this.portal();
-    if (!portal) return;
+
+    if (!portal) {
+      return;
+    }
 
     const elements = portal.getElements();
-    if (elements.length === 0) return;
+
+    if (elements.length === 0) {
+      return;
+    }
 
     const overlayElement = elements[0] as HTMLElement;
 
@@ -235,13 +267,14 @@ export class NgpOverlay<T = unknown> {
   destroy(): void {
     this.hideImmediate();
     this.disposePositioning?.();
+    this.scrollStrategy.disable();
   }
 
   /**
    * Get the elements of the overlay
    */
   getElements(): HTMLElement[] {
-    return this.portal()?.getElements() || [];
+    return this.portal()?.getElements() ?? [];
   }
 
   /**
@@ -288,6 +321,13 @@ export class NgpOverlay<T = unknown> {
 
     // Mark as open
     this.isOpen.set(true);
+
+    this.scrollStrategy =
+      this.config.scrollStrategy === 'block'
+        ? new BlockScrollStrategy(this.viewportRuler, this.document)
+        : new NoopScrollStrategy();
+
+    this.scrollStrategy.enable();
   }
 
   /**
@@ -362,25 +402,85 @@ export class NgpOverlay<T = unknown> {
 
     // Mark as closed
     this.isOpen.set(false);
+
+    // Emit closed event
+    this.closed.next();
+
+    // disable scroll strategy
+    this.scrollStrategy.disable();
+    this.scrollStrategy = new NoopScrollStrategy();
+  }
+
+  /**
+   * Get the transform origin for the overlay
+   */
+  private getTransformOrigin(): string {
+    const placement = this.config.placement ?? 'top';
+
+    const basePlacement = placement.split('-')[0]; // Extract "top", "bottom", etc.
+    const alignment = placement.split('-')[1]; // Extract "start" or "end"
+
+    const map: Record<string, string> = {
+      top: 'bottom',
+      bottom: 'top',
+      left: 'right',
+      right: 'left',
+    };
+
+    let x = 'center';
+    let y = 'center';
+
+    if (basePlacement === 'top' || basePlacement === 'bottom') {
+      y = map[basePlacement];
+      if (alignment === 'start') x = 'left';
+      else if (alignment === 'end') x = 'right';
+    } else {
+      x = map[basePlacement];
+      if (alignment === 'start') y = 'top';
+      else if (alignment === 'end') y = 'bottom';
+    }
+
+    return `${y} ${x}`;
   }
 }
 
 /**
  * Helper function to create an overlay in a single call
+ * @internal
  */
 export function createOverlay<T>(config: NgpOverlayConfig<T>): NgpOverlay<T> {
   // we run the overlay creation in the injector context to ensure that it can call the inject function
   return runInInjectionContext(config.injector, () => new NgpOverlay<T>(config));
 }
 
+/**
+ * Helper function to inject the NgpOverlay instance
+ * @internal
+ */
 export function injectOverlay<T>(): NgpOverlay<T> {
   return inject(NgpOverlay);
 }
 
+/**
+ * Helper function to inject the overlay position signal
+ * @internal
+ */
 export function injectOverlayPosition(): Signal<{ x: number; y: number }> {
   return inject(NgpOverlay).position;
 }
 
+/**
+ * Helper function to inject the trigger element width signal
+ * @internal
+ */
 export function injectOverlayTriggerWidth(): Signal<number | null> {
   return inject(NgpOverlay).triggerWidth;
+}
+
+/**
+ * Helper function to inject the transform origin signal
+ * @internal
+ */
+export function injectOverlayTransformOrigin(): Signal<string> {
+  return inject(NgpOverlay).transformOrigin;
 }

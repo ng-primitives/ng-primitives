@@ -1,10 +1,13 @@
 import { FocusMonitor, FocusOrigin, InteractivityChecker } from '@angular/cdk/a11y';
-import { computed, Directive, inject } from '@angular/core';
+import { Directive, inject } from '@angular/core';
 import { injectFocusTrapState, NgpFocusTrap } from 'ng-primitives/focus-trap';
 import { injectElementRef, NgpExitAnimation } from 'ng-primitives/internal';
-import { injectOverlayPosition, injectOverlayTriggerWidth } from 'ng-primitives/portal';
+import {
+  injectOverlayPosition,
+  injectOverlayTransformOrigin,
+  injectOverlayTriggerWidth,
+} from 'ng-primitives/portal';
 import { injectPopoverTriggerState } from '../popover-trigger/popover-trigger-state';
-import { getTransformOrigin } from '../utils/transform-origin';
 
 /**
  * Apply the `ngpPopover` directive to an element that represents the popover. This typically would be a `div` inside an `ng-template`.
@@ -59,11 +62,9 @@ export class NgpPopover {
   protected readonly triggerWidth = injectOverlayTriggerWidth();
 
   /**
-   * Derive the transform origin of the popover.
+   * Access the transform origin of the popover.
    */
-  protected readonly transformOrigin = computed(() =>
-    getTransformOrigin(this.trigger().placement()),
-  );
+  protected readonly transformOrigin = injectOverlayTransformOrigin();
 
   constructor() {
     this.trigger().setPopover(this);
