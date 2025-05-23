@@ -13,7 +13,7 @@ Display additional information on hover.
 Import the Tooltip primitives from `ng-primitives/tooltip`.
 
 ```ts
-import { NgpTooltip } from 'ng-primitives/tooltip';
+import { NgpTooltip, NgpTooltipTrigger } from 'ng-primitives/tooltip';
 ```
 
 ## Usage

@@ -2,6 +2,7 @@ import { FocusMonitor, FocusOrigin, InteractivityChecker } from '@angular/cdk/a1
 import { computed, Directive, inject } from '@angular/core';
 import { injectFocusTrapState, NgpFocusTrap } from 'ng-primitives/focus-trap';
 import { injectElementRef, NgpExitAnimation } from 'ng-primitives/internal';
+import { injectOverlayPosition, injectOverlayTriggerWidth } from 'ng-primitives/portal';
 import { injectPopoverTriggerState } from '../popover-trigger/popover-trigger-state';
 import { getTransformOrigin } from '../utils/transform-origin';
 
@@ -13,10 +14,10 @@ import { getTransformOrigin } from '../utils/transform-origin';
   exportAs: 'ngpPopover',
   hostDirectives: [NgpFocusTrap, NgpExitAnimation],
   host: {
-    role: 'menu',
-    '[style.left.px]': 'x()',
-    '[style.top.px]': 'y()',
-    '[style.--ngp-popover-trigger-width.px]': 'trigger().width()',
+    role: 'dialog',
+    '[style.left.px]': 'position().x',
+    '[style.top.px]': 'position().y',
+    '[style.--ngp-popover-trigger-width.px]': 'triggerWidth()',
     '[style.--ngp-popover-transform-origin]': 'transformOrigin()',
     '(keydown.escape)': 'trigger().handleEscapeKey()',
   },
@@ -48,14 +49,14 @@ export class NgpPopover {
   protected readonly trigger = injectPopoverTriggerState();
 
   /**
-   * Compute the x position of the popover.
+   * Compute the position of the popover.
    */
-  protected readonly x = computed(() => this.trigger().position().x);
+  protected readonly position = injectOverlayPosition();
 
   /**
-   * Compute the y position of the popover.
+   * Access the trigger width.
    */
-  protected readonly y = computed(() => this.trigger().position().y);
+  protected readonly triggerWidth = injectOverlayTriggerWidth();
 
   /**
    * Derive the transform origin of the popover.

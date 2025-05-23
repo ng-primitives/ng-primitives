@@ -13,7 +13,7 @@ Display arbitrary content inside floating panels.
 Import the Popover primitives from `ng-primitives/popover`.
 
 ```ts
-import { NgpPopover } from 'ng-primitives/popover';
+import { NgpPopover, NgpPopoverTrigger } from 'ng-primitives/popover';
 ```
 
 ## Usage

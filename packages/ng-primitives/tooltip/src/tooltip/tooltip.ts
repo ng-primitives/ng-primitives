@@ -10,6 +10,7 @@ import {
 } from '@angular/core';
 import { NgpExitAnimation } from 'ng-primitives/internal';
 import { getTransformOrigin } from 'ng-primitives/popover';
+import { injectOverlayPosition, injectOverlayTriggerWidth } from 'ng-primitives/portal';
 import { injectTooltipTriggerState } from '../tooltip-trigger/tooltip-trigger-state';
 
 /**
@@ -21,9 +22,9 @@ import { injectTooltipTriggerState } from '../tooltip-trigger/tooltip-trigger-st
   hostDirectives: [NgpExitAnimation],
   host: {
     role: 'tooltip',
-    '[style.left.px]': 'x()',
-    '[style.top.px]': 'y()',
-    '[style.--ngp-tooltip-trigger-width.px]': 'trigger().width()',
+    '[style.left.px]': 'position().x',
+    '[style.top.px]': 'position().y',
+    '[style.--ngp-tooltip-trigger-width.px]': 'triggerWidth()',
     '[style.--ngp-tooltip-transform-origin]': 'transformOrigin()',
   },
 })
@@ -44,14 +45,14 @@ export class NgpTooltip implements OnInit {
   private readonly trigger = injectTooltipTriggerState();
 
   /**
-   * Compute the x position of the tooltip.
+   * Compute the position of the tooltip.
    */
-  protected readonly x = computed(() => this.trigger().position().x);
+  protected readonly position = injectOverlayPosition();
 
   /**
-   * Compute the y position of the tooltip.
+   * Access the trigger width.
    */
-  protected readonly y = computed(() => this.trigger().position().y);
+  protected readonly triggerWidth = injectOverlayTriggerWidth();
 
   /**
    * Derive the transform origin of the popover.
