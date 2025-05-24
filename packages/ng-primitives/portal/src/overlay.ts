@@ -133,9 +133,6 @@ export class NgpOverlay<T = unknown> {
   /** An observable that emits when the overlay is closing */
   readonly closing = new Subject<void>();
 
-  /** An observable that emits when the overlay is closed */
-  readonly closed = new Subject<void>();
-
   /**
    * Creates a new overlay instance
    * @param config Initial configuration for the overlay
@@ -150,7 +147,7 @@ export class NgpOverlay<T = unknown> {
       });
 
     // if there is a parent overlay and it is closed, close this overlay
-    this.parentOverlay?.closed.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => {
+    this.parentOverlay?.closing.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => {
       if (this.isOpen()) {
         this.hideImmediate();
       }
@@ -444,9 +441,6 @@ export class NgpOverlay<T = unknown> {
 
     // Mark as closed
     this.isOpen.set(false);
-
-    // Emit closed event
-    this.closed.next();
 
     // disable scroll strategy
     this.scrollStrategy.disable();

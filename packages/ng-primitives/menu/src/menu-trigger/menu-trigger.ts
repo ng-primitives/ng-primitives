@@ -36,7 +36,7 @@ import { menuTriggerState, provideMenuTriggerState } from './menu-trigger-state'
     '(click)': 'toggle($event)',
   },
 })
-export class NgpMenuTrigger<T = void> {
+export class NgpMenuTrigger<T = unknown> {
   /**
    * Access the trigger element
    */
@@ -139,7 +139,7 @@ export class NgpMenuTrigger<T = void> {
   }
 
   protected toggle(event: MouseEvent): void {
-    // if the trigger is disabled then do not toggle the popover
+    // if the trigger is disabled then do not toggle the menu
     if (this.state.disabled()) {
       return;
     }
@@ -147,7 +147,7 @@ export class NgpMenuTrigger<T = void> {
     // determine the origin of the event, 0 is keyboard, 1 is mouse
     const origin: FocusOrigin = event.detail === 0 ? 'keyboard' : 'mouse';
 
-    // if the popover is open then hide it
+    // if the menu is open then hide it
     if (this.open()) {
       this.hide(origin);
     } else {
@@ -156,10 +156,10 @@ export class NgpMenuTrigger<T = void> {
   }
 
   /**
-   * Show the popover.
+   * Show the menu.
    */
   show(): void {
-    // If the trigger is disabled, don't show the popover
+    // If the trigger is disabled, don't show the menu
     if (this.state.disabled()) {
       return;
     }
@@ -175,10 +175,10 @@ export class NgpMenuTrigger<T = void> {
 
   /**
    * @internal
-   * Hide the popover.
+   * Hide the menu.
    */
   hide(origin: FocusOrigin = 'program'): void {
-    // If the trigger is disabled or the popover is not open, do nothing
+    // If the trigger is disabled or the menu is not open, do nothing
     if (this.state.disabled() || !this.open()) {
       return;
     }
@@ -188,7 +188,7 @@ export class NgpMenuTrigger<T = void> {
   }
 
   /**
-   * Create the overlay that will contain the popover
+   * Create the overlay that will contain the menu
    */
   private createOverlay(): void {
     const menu = this.state.menu();
