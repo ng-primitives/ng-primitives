@@ -180,7 +180,7 @@ export class NgpSubmenuTrigger<T = unknown> {
    * Create the overlay that will contain the menu
    */
   private createOverlay(): void {
-    const menu = this.menu();
+    const menu = this.state.menu();
 
     if (!menu) {
       throw new Error('Menu must be either a TemplateRef or a ComponentType');

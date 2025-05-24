@@ -8,6 +8,7 @@ import {
   Injector,
   input,
   numberAttribute,
+  OnDestroy,
   signal,
 } from '@angular/core';
 import { Placement } from '@floating-ui/dom';
@@ -36,7 +37,7 @@ import { menuTriggerState, provideMenuTriggerState } from './menu-trigger-state'
     '(click)': 'toggle($event)',
   },
 })
-export class NgpMenuTrigger<T = unknown> {
+export class NgpMenuTrigger<T = unknown> implements OnDestroy {
   /**
    * Access the trigger element
    */

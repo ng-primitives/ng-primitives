@@ -10,6 +10,7 @@ import {
   output,
   signal,
 } from '@angular/core';
+import { Placement } from '@floating-ui/dom';
 import { activeDescendantManager } from 'ng-primitives/a11y';
 import { explicitEffect, injectElementRef } from 'ng-primitives/internal';
 import type { NgpComboboxButton } from '../combobox-button/combobox-button';
@@ -83,8 +84,8 @@ export class NgpCombobox {
   });
 
   /** The position of the dropdown. */
-  readonly dropdownPosition = input<'top' | 'bottom' | 'auto'>('bottom', {
-    alias: 'ngpComboboxDropdownPosition',
+  readonly placement = input<Placement>('bottom-start', {
+    alias: 'ngpComboboxDropdownPlacement',
   });
 
   /**
@@ -118,10 +119,16 @@ export class NgpCombobox {
   readonly options = signal<NgpComboboxOption[]>([]);
 
   /**
+   * Access the overlay
+   * @internal
+   */
+  readonly overlay = computed(() => this.portal()?.overlay());
+
+  /**
    * The open state of the combobox.
    * @internal
    */
-  readonly open = computed(() => this.portal()?.viewRef() !== null);
+  readonly open = computed(() => this.overlay()?.isOpen() ?? false);
 
   /**
    * The active key descendant manager.
@@ -149,12 +156,12 @@ export class NgpCombobox {
    * Open the dropdown.
    * @internal
    */
-  openDropdown(): void {
+  async openDropdown(): Promise<void> {
     if (this.state.disabled() || this.open()) {
       return;
     }
 
-    this.portal()?.attach();
+    await this.portal()?.show();
 
     // if there is a selected option(s), set the active descendant to the first selected option
     const selectedOption = this.options().find(option => this.isOptionSelected(option));

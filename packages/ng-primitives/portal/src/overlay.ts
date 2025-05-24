@@ -194,25 +194,28 @@ export class NgpOverlay<T = unknown> {
    * Show the overlay with the specified delay
    * @param showDelay Optional delay to override the configured showDelay
    */
-  show(): void {
-    // If closing is in progress, cancel it
-    if (this.closeTimeout) {
-      this.closeTimeout();
-      this.closeTimeout = undefined;
-    }
+  show(): Promise<void> {
+    return new Promise<void>(resolve => {
+      // If closing is in progress, cancel it
+      if (this.closeTimeout) {
+        this.closeTimeout();
+        this.closeTimeout = undefined;
+      }
 
-    // Don't proceed if already opening or open
-    if (this.openTimeout || this.isOpen()) {
-      return;
-    }
+      // Don't proceed if already opening or open
+      if (this.openTimeout || this.isOpen()) {
+        return;
+      }
 
-    // Use the provided delay or fall back to config
-    const delay = this.config.showDelay ?? 0;
+      // Use the provided delay or fall back to config
+      const delay = this.config.showDelay ?? 0;
 
-    this.openTimeout = this.disposables.setTimeout(() => {
-      this.openTimeout = undefined;
-      this.createOverlay();
-    }, delay);
+      this.openTimeout = this.disposables.setTimeout(() => {
+        this.openTimeout = undefined;
+        this.createOverlay();
+        resolve();
+      }, delay);
+    });
   }
 
   /**
