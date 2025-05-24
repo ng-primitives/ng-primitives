@@ -1,5 +1,6 @@
 import { Directive, input } from '@angular/core';
 import { injectElementRef } from 'ng-primitives/internal';
+import { observeResize } from 'ng-primitives/resize';
 import { uniqueId } from 'ng-primitives/utils';
 import { injectComboboxState } from '../combobox/combobox-state';
 
@@ -9,11 +10,31 @@ import { injectComboboxState } from '../combobox/combobox-state';
   host: {
     role: 'listbox',
     '[id]': 'id()',
+    '[style.left.px]': 'state().overlay()?.position()?.x',
+    '[style.top.px]': 'state().overlay()?.position()?.y',
+    '[style.--ngp-combobox-width.px]': 'comboboxDimensions().width',
+    '[style.--ngp-combobox-input-width.px]': 'inputDimensions().width',
+    '[style.--ngp-combobox-button-width.px]': 'buttonDimensions().width',
   },
 })
 export class NgpComboboxDropdown {
   /** Access the combobox state. */
-  private readonly state = injectComboboxState();
+  protected readonly state = injectComboboxState();
+
+  /** The dimensions of the combobox. */
+  protected readonly comboboxDimensions = observeResize(
+    () => this.state().elementRef.nativeElement,
+  );
+
+  /** The dimensions of the combobox. */
+  protected readonly inputDimensions = observeResize(
+    () => this.state().input()?.elementRef.nativeElement,
+  );
+
+  /** Store the combobox button dimensions. */
+  protected readonly buttonDimensions = observeResize(
+    () => this.state().button()?.elementRef.nativeElement,
+  );
 
   /**
    * Access the element reference.

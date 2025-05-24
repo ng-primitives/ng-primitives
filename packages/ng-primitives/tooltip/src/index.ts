@@ -5,8 +5,3 @@ export {
   provideTooltipTriggerState,
 } from './tooltip-trigger/tooltip-trigger-state';
 export { NgpTooltip } from './tooltip/tooltip';
-export {
-  injectTooltipContext,
-  NgpTooltipContextToken,
-  provideTooltipContext,
-} from './tooltip/tooltip-token';

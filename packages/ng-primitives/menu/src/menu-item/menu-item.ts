@@ -67,7 +67,7 @@ export class NgpMenuItem {
       event.preventDefault();
 
       if (trigger) {
-        trigger.closeMenu('keyboard');
+        trigger.hide('keyboard');
       }
     }
   }

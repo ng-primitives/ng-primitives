@@ -17,7 +17,7 @@ export class NgpListboxTrigger {
   @HostListener('keydown', ['$event'])
   openPopover(event: KeyboardEvent) {
     if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
-      this.popoverTrigger().show('keyboard');
+      this.popoverTrigger().show();
       event.preventDefault();
     }
   }

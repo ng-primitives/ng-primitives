@@ -357,6 +357,7 @@ describe('NgpCombobox', () => {
 
     const button = screen.getByTestId('combobox-button');
     await userEvent.click(button);
+    fixture.detectChanges();
 
     // Banana option should have active state
     const bananaOption = screen.getByText('Banana');
@@ -501,12 +502,15 @@ describe('NgpComboboxInput accessibility', () => {
   });
 
   it('should have appropriate ARIA attributes', async () => {
-    await render(TestComponent);
+    const { detectChanges } = await render(TestComponent);
     const input = screen.getByRole('combobox');
     expect(input).toHaveAttribute('aria-autocomplete', 'list');
     // Open dropdown
     const button = screen.getByTestId('combobox-button');
     await userEvent.click(button);
+    detectChanges();
+    const dropdown = screen.getByRole('listbox');
+    expect(dropdown).toBeInTheDocument();
     expect(input).toHaveAttribute('aria-expanded', 'true');
     // Close dropdown
     await userEvent.keyboard('{escape}');
