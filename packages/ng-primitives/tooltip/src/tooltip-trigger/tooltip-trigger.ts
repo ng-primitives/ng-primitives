@@ -10,14 +10,16 @@ import {
   numberAttribute,
   OnDestroy,
   signal,
-  TemplateRef,
-  Type,
 } from '@angular/core';
 import { Placement } from '@floating-ui/dom';
 import { provideExitAnimationManager } from 'ng-primitives/internal';
-import { createOverlay, NgpOverlay, NgpOverlayConfig } from 'ng-primitives/portal';
+import {
+  createOverlay,
+  NgpOverlay,
+  NgpOverlayConfig,
+  NgpOverlayContent,
+} from 'ng-primitives/portal';
 import { injectTooltipConfig } from '../config/tooltip-config';
-import { provideTooltipContext } from '../tooltip/tooltip-token';
 import { provideTooltipTriggerState, tooltipTriggerState } from './tooltip-trigger-state';
 
 /**
@@ -55,7 +57,7 @@ export class NgpTooltipTrigger<T = null> implements OnDestroy {
   /**
    * Access the tooltip template ref.
    */
-  readonly tooltip = input<NgpTooltipContent<T> | null>(null, {
+  readonly tooltip = input<NgpOverlayContent<T>>(undefined, {
     alias: 'ngpTooltipTrigger',
   });
 
@@ -121,10 +123,9 @@ export class NgpTooltipTrigger<T = null> implements OnDestroy {
   });
 
   /**
-   * Provide context to the tooltip.
-   * @default null
+   * Provide context to the tooltip. This can be used to pass data to the tooltip content.
    */
-  readonly context = input<T | null>(null, {
+  readonly context = input<T>(undefined, {
     alias: 'ngpTooltipTriggerContext',
   });
 
@@ -203,15 +204,9 @@ export class NgpTooltipTrigger<T = null> implements OnDestroy {
       hideDelay: this.state.hideDelay(),
       closeOnEscape: true,
       closeOnOutsideClick: true,
-      providers: [provideTooltipContext(this.state.context())],
     };
 
     // Create the overlay instance
     this.overlay.set(createOverlay(config));
   }
 }
-
-type NgpTooltipTemplateContext<T> = {
-  $implicit: T;
-};
-type NgpTooltipContent<T> = TemplateRef<NgpTooltipTemplateContext<T>> | Type<unknown>;

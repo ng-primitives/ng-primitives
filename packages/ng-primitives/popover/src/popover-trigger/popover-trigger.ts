@@ -10,14 +10,16 @@ import {
   numberAttribute,
   OnDestroy,
   signal,
-  TemplateRef,
-  Type,
 } from '@angular/core';
 import { Placement } from '@floating-ui/dom';
 import { injectElementRef, provideExitAnimationManager } from 'ng-primitives/internal';
-import { createOverlay, NgpOverlay, NgpOverlayConfig } from 'ng-primitives/portal';
+import {
+  createOverlay,
+  NgpOverlay,
+  NgpOverlayConfig,
+  NgpOverlayContent,
+} from 'ng-primitives/portal';
 import { injectPopoverConfig } from '../config/popover-config';
-import { providePopoverContext } from '../popover/popover-token';
 import { popoverTriggerState, providePopoverTriggerState } from './popover-trigger-state';
 
 /**
@@ -31,7 +33,7 @@ import { popoverTriggerState, providePopoverTriggerState } from './popover-trigg
     '[attr.aria-expanded]': 'open() ? "true" : "false"',
     '[attr.data-open]': 'open() ? "" : null',
     '[attr.data-placement]': 'state.placement()',
-    '(click)': 'toggleOpenState($event)',
+    '(click)': 'toggle($event)',
   },
 })
 export class NgpPopoverTrigger<T = null> implements OnDestroy {
@@ -53,7 +55,7 @@ export class NgpPopoverTrigger<T = null> implements OnDestroy {
   /**
    * Access the popover template ref.
    */
-  readonly popover = input<NgpPopoverContent<T> | null>(null, {
+  readonly popover = input<NgpOverlayContent<T>>(undefined, {
     alias: 'ngpPopoverTrigger',
   });
 
@@ -145,10 +147,9 @@ export class NgpPopoverTrigger<T = null> implements OnDestroy {
   });
 
   /**
-   * Provide context to the popover.
-   * @default null
+   * Provide context to the popover. This can be used to pass data to the popover content.
    */
-  readonly context = input<T | null>(null, {
+  readonly context = input<T>(undefined, {
     alias: 'ngpPopoverTriggerContext',
   });
 
@@ -173,7 +174,7 @@ export class NgpPopoverTrigger<T = null> implements OnDestroy {
     this.overlay()?.destroy();
   }
 
-  protected toggleOpenState(event: MouseEvent): void {
+  protected toggle(event: MouseEvent): void {
     // if the trigger is disabled then do not toggle the popover
     if (this.state.disabled()) {
       return;
@@ -248,14 +249,8 @@ export class NgpPopoverTrigger<T = null> implements OnDestroy {
       closeOnEscape: this.state.closeOnEscape(),
       restoreFocus: true,
       scrollBehaviour: this.state.scrollBehavior(),
-      providers: [providePopoverContext(this.state.context())],
     };
 
     this.overlay.set(createOverlay(config));
   }
 }
-
-type NgpPopoverTemplateContext<T> = {
-  $implicit: T;
-};
-type NgpPopoverContent<T> = TemplateRef<NgpPopoverTemplateContext<T>> | Type<unknown>;

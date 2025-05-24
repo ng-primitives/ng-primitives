@@ -157,13 +157,18 @@ export class NgpOverlay<T = unknown> {
     });
 
     // If closeOnOutsideClick is enabled, set up a click listener
-    fromEvent<MouseEvent>(this.document, 'click', { capture: true })
+    fromEvent<MouseEvent>(this.document, 'mouseup', { capture: true })
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(event => {
-        if (!this.config.closeOnOutsideClick) return;
+        if (!this.config.closeOnOutsideClick) {
+          return;
+        }
 
         const overlay = this.portal();
-        if (!overlay) return;
+
+        if (!overlay || !this.isOpen()) {
+          return;
+        }
 
         const path = event.composedPath();
         const isInsideOverlay = overlay.getElements().some(el => path.includes(el));
