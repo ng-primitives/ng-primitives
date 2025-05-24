@@ -247,6 +247,7 @@ export class NgpPopoverTrigger<T = null> implements OnDestroy {
       closeOnOutsideClick: this.state.closeOnOutsideClick(),
       closeOnEscape: this.state.closeOnEscape(),
       restoreFocus: true,
+      scrollBehaviour: this.state.scrollBehavior(),
       providers: [providePopoverContext(this.state.context())],
     };
 

@@ -76,11 +76,11 @@ The following data attributes are available on the `NgpMenuItem` directive:
 
 ## Styling
 
-For the menu to be positioned correctly relative to the trigger element, it use absolute or fixed positioning. For example, you can use the following CSS:
+For the menu to be positioned correctly relative to the trigger element, it should use fixed positioning. For example, you can use the following CSS:
 
 ```css
 [ngpMenu] {
-  position: absolute;
+  position: fixed;
 }
 ```
 

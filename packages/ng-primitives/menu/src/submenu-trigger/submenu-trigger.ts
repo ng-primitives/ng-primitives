@@ -44,13 +44,13 @@ export class NgpSubmenuTrigger {
   /**
    * @internal
    */
-  openMenu(origin: FocusOrigin): void {
+  openMenu(): void {
     // if the menu is already open, we don't want to do anything
     if (this.popoverTrigger().open()) {
       return;
     }
 
-    this.popoverTrigger().show(origin);
+    this.popoverTrigger().show();
   }
 
   /**
@@ -78,7 +78,7 @@ export class NgpSubmenuTrigger {
 
     if ((isRightArrow && !isRtl) || (isLeftArrow && isRtl)) {
       event.preventDefault();
-      this.openMenu('keyboard');
+      this.openMenu();
     }
   }
 
@@ -87,6 +87,6 @@ export class NgpSubmenuTrigger {
    */
   @HostListener('mouseenter')
   protected showSubmenuOnHover(): void {
-    this.openMenu('mouse');
+    this.openMenu();
   }
 }

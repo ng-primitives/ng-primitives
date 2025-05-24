@@ -1,11 +1,10 @@
-import { FocusMonitor, FocusOrigin, InteractivityChecker } from '@angular/cdk/a11y';
+import { FocusMonitor, FocusOrigin } from '@angular/cdk/a11y';
 import { BlockScrollStrategy, NoopScrollStrategy, ViewportRuler } from '@angular/cdk/overlay';
 import { DOCUMENT } from '@angular/common';
 import {
   DestroyRef,
   Injector,
   Provider,
-  Signal,
   TemplateRef,
   Type,
   ViewContainerRef,
@@ -68,7 +67,7 @@ export interface NgpOverlayConfig<T = unknown> {
   strategy?: Strategy;
 
   /** The scroll strategy to use for the overlay */
-  scrollStrategy?: 'block' | 'noop';
+  scrollBehaviour?: 'reposition' | 'block';
   /** Whether to close the overlay when clicking outside */
   closeOnOutsideClick?: boolean;
   /** Whether to close the overlay when pressing escape */
@@ -102,7 +101,6 @@ export class NgpOverlay<T = unknown> {
   private readonly viewContainerRef = inject(ViewContainerRef);
   private readonly viewportRuler = inject(ViewportRuler);
   private readonly focusMonitor = inject(FocusMonitor);
-  private readonly interactivity = inject(InteractivityChecker);
   /** Access any parent overlays */
   private readonly parentOverlay = inject(NgpOverlay, { optional: true });
   /** Signal tracking the portal instance */
@@ -219,7 +217,7 @@ export class NgpOverlay<T = unknown> {
    * Hide the overlay with the specified delay
    * @param options Optional options for hiding the overlay
    */
-  hide(options?: { origin?: FocusOrigin; immediate?: boolean }): void {
+  hide(options?: OverlayTriggerOptions): void {
     // If opening is in progress, cancel it
     if (this.openTimeout) {
       this.openTimeout();
@@ -362,7 +360,7 @@ export class NgpOverlay<T = unknown> {
     this.isOpen.set(true);
 
     this.scrollStrategy =
-      this.config.scrollStrategy === 'block'
+      this.config.scrollBehaviour === 'block'
         ? new BlockScrollStrategy(this.viewportRuler, this.document)
         : new NoopScrollStrategy();
 
@@ -500,26 +498,13 @@ export function injectOverlay<T>(): NgpOverlay<T> {
   return inject(NgpOverlay);
 }
 
-/**
- * Helper function to inject the overlay position signal
- * @internal
- */
-export function injectOverlayPosition(): Signal<{ x: number; y: number }> {
-  return inject(NgpOverlay).position;
-}
-
-/**
- * Helper function to inject the trigger element width signal
- * @internal
- */
-export function injectOverlayTriggerWidth(): Signal<number | null> {
-  return inject(NgpOverlay).triggerWidth;
-}
-
-/**
- * Helper function to inject the transform origin signal
- * @internal
- */
-export function injectOverlayTransformOrigin(): Signal<string> {
-  return inject(NgpOverlay).transformOrigin;
+export interface OverlayTriggerOptions {
+  /**
+   * Whether the visibility change should be immediate.
+   */
+  immediate?: boolean;
+  /**
+   * The origin of the focus event that triggered the visibility change.
+   */
+  origin?: FocusOrigin;
 }

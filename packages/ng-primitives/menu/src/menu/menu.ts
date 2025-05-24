@@ -17,6 +17,9 @@ import { NgpMenuToken, provideMenu } from './menu-token';
     provideRovingFocusGroup(NgpRovingFocusGroup, { inherit: false }),
     provideMenu(NgpMenu),
   ],
+  host: {
+    role: 'menu',
+  },
 })
 export class NgpMenu {
   /** Access the popover trigger state */

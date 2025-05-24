@@ -1,9 +1,6 @@
 export {
   createOverlay,
   injectOverlay,
-  injectOverlayPosition,
-  injectOverlayTransformOrigin,
-  injectOverlayTriggerWidth,
   NgpOverlay,
   NgpOverlayConfig,
   NgpOverlayContent,

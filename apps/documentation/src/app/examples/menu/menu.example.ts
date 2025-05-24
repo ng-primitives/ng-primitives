@@ -44,7 +44,7 @@ import { NgpMenu, NgpMenuItem, NgpMenuTrigger } from 'ng-primitives/menu';
     }
 
     [ngpMenu] {
-      position: absolute;
+      position: fixed;
       display: flex;
       flex-direction: column;
       width: max-content;

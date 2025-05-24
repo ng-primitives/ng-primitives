@@ -40,7 +40,7 @@ import { ChangeFn, provideValueAccessor, TouchedFn } from 'ng-primitives/utils';
         ngpComboboxInput
       />
 
-      <button ngpComboboxButton>
+      <button ngpComboboxButton aria-label="Toggle dropdown">
         <ng-icon name="heroChevronDown" />
       </button>
 

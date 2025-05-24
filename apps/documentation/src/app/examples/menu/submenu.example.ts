@@ -58,7 +58,7 @@ import { NgpMenu, NgpMenuItem, NgpMenuTrigger, NgpSubmenuTrigger } from 'ng-prim
     }
 
     [ngpMenu] {
-      position: absolute;
+      position: fixed;
       display: flex;
       flex-direction: column;
       width: max-content;
