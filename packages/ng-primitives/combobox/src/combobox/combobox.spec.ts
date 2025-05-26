@@ -122,19 +122,6 @@ class MultiSelectTestComponent {
   }
 }
 
-// mock ResizeObserver
-window.ResizeObserver = class {
-  // eslint-disable-next-line @typescript-eslint/no-empty-function
-  observe() {}
-  // eslint-disable-next-line @typescript-eslint/no-empty-function
-  unobserve() {}
-  // eslint-disable-next-line @typescript-eslint/no-empty-function
-  disconnect() {}
-};
-
-// patch scrollIntoView
-Element.prototype.scrollIntoView = jest.fn();
-
 describe('NgpCombobox', () => {
   afterEach(() => {
     // the dropdown should be removed from the DOM after each test
