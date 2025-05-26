@@ -26,6 +26,7 @@ import {
 import { fromResizeEvent } from 'ng-primitives/resize';
 import { injectDisposables } from 'ng-primitives/utils';
 import { Subject, fromEvent } from 'rxjs';
+import { provideOverlayContext } from './overlay-token';
 import { NgpPortal, createPortal } from './portal';
 
 /**
@@ -333,7 +334,11 @@ export class NgpOverlay<T = unknown> {
       this.viewContainerRef,
       Injector.create({
         parent: this.config.injector,
-        providers: [...(this.config.providers || []), { provide: NgpOverlay, useValue: this }],
+        providers: [
+          ...(this.config.providers || []),
+          { provide: NgpOverlay, useValue: this },
+          provideOverlayContext<T>(this.config.context as T),
+        ],
       }),
       { $implicit: this.config.context } as NgpOverlayTemplateContext<T>,
     );
@@ -454,7 +459,12 @@ export class NgpOverlay<T = unknown> {
    * Get the transform origin for the overlay
    */
   private getTransformOrigin(): string {
-    const placement = this.config.placement ?? 'top';
+    // config may be undefined if this is called during initialization
+    if (!this.config) {
+      return 'top';
+    }
+
+    const placement = this.config?.placement ?? 'top';
 
     const basePlacement = placement.split('-')[0]; // Extract "top", "bottom", etc.
     const alignment = placement.split('-')[1]; // Extract "start" or "end"

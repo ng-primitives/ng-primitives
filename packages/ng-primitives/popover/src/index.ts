@@ -1,3 +1,4 @@
+export { injectOverlayContext as injectPopoverContext } from 'ng-primitives/portal';
 export { NgpPopoverConfig, providePopoverConfig } from './config/popover-config';
 export { NgpPopoverTrigger } from './popover-trigger/popover-trigger';
 export {
