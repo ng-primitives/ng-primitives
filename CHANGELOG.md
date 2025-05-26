@@ -1,6 +1,13 @@
 ## 0.45.0 (2025-05-26)
 
-This was a version bump only, there were no code changes.
+- all overlay primitives have now been unified to use the same API internally, greatly simplifying the codebase and making it easier to maintain. This includes the `NgpPopover`, `NgpTooltip`, `NgpMenu`, and `NgpCombobox` primitives.
+
+### 🚨 Breaking Changes
+
+- **menu:** the `NgpMenu` primitives no longer extend the `NgpPopover` primitive. As a result if you had been binding to any `ngpPopover` inputs or outputs, these would need to be updated to use the `ngpMenu` inputs and outputs instead. This also includes any usages of `injectPopoverTriggerState` which should now be replaced with `injectMenuTriggerState`.
+The CSS custom property `--ngp-popover-transform-origin` has been replaced with `--ngp-menu-transform-origin` to reflect the new unified API.
+
+If you encounter any other issues related to this change, please raise an issue on GitHub.
 
 ## 0.44.0 (2025-05-22)
 
