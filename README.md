@@ -7,7 +7,7 @@
 ![GitHub contributors from allcontributors.org](https://img.shields.io/github/all-contributors/ng-primitives/ng-primitives)
 [![Discord server](https://dcbadge.vercel.app/api/server/NTdjc5r3gC?style=flat)](https://discord.gg/NTdjc5r3gC)
 
-Angular Primitives is a low-level UI component library with a focus on accessibility, customization, and developer experience. Whether you're building a design system from scratch or looking to enhance your existing one, our primitives are here to support you every step of the way.
+Angular Primitives is a Headless UI library with a focus on accessibility, customization, and developer experience. Whether you're building a design system from scratch or looking to enhance your existing one, our primitives are here to support you every step of the way.
 
 You can find our [documentation site here](https://angularprimitives.com).
 
