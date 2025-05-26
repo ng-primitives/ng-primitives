@@ -100,6 +100,48 @@ The `ngpMenu` will also add the `data-enter` and `data-exit` attributes to the e
 }
 ```
 
+## Global Configuration
+
+You can configure the default options for all menus in your application by using the `provideMenuConfig` function in a providers array.
+
+```ts
+import { provideMenuConfig } from 'ng-primitives/menu';
+
+bootstrapApplication(AppComponent, {
+  providers: [
+    provideMenuConfig({
+      offset: 4,
+      placement: 'top',
+      flip: true,
+      container: document.body,
+      scrollBehavior: 'reposition',
+    }),
+  ],
+});
+```
+
+### NgpMenuConfig
+
+<prop-details name="offset" type="number">
+  Define the offset from the trigger element.
+</prop-details>
+
+<prop-details name="placement" type="'top' | 'right' | 'bottom' | 'left'">
+  Define the placement of the menu.
+</prop-details>
+
+<prop-details name="flip" type="boolean">
+  Define if the menu should flip when it reaches the edge of the viewport.
+</prop-details>
+
+<prop-details name="container" type="HTMLElement">
+  Define the container element for the menu. This is the document body by default.
+</prop-details>
+
+<prop-details name="scrollBehavior" type="reposition | block">
+Defines how the menu behaves when the window is scrolled. If set to `reposition`, the menu will adjust its position automatically during scrolling. Make sure the menu uses `position: absolute` in this mode. If set to `block`, scrolling will be disabled while the menu is open. In this case, the menu should use `position: fixed`.
+</prop-details>
+
 ## Accessibility
 
 Adhere to the [WAI-ARIA Authoring Practices](https://www.w3.org/WAI/ARIA/apg/patterns/menu-button/) for menus and submenus.

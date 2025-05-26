@@ -12,7 +12,11 @@ import {
 } from '@angular/core';
 import { Placement } from '@floating-ui/dom';
 import { activeDescendantManager } from 'ng-primitives/a11y';
-import { explicitEffect, injectElementRef } from 'ng-primitives/internal';
+import {
+  explicitEffect,
+  injectElementRef,
+  provideExitAnimationManager,
+} from 'ng-primitives/internal';
 import type { NgpComboboxButton } from '../combobox-button/combobox-button';
 import type { NgpComboboxDropdown } from '../combobox-dropdown/combobox-dropdown';
 import type { NgpComboboxInput } from '../combobox-input/combobox-input';
@@ -37,7 +41,7 @@ type T = any;
 @Directive({
   selector: '[ngpCombobox]',
   exportAs: 'ngpCombobox',
-  providers: [provideComboboxState()],
+  providers: [provideComboboxState(), provideExitAnimationManager()],
   host: {
     '[attr.data-open]': 'state.open() ? "" : undefined',
     '[attr.data-disabled]': 'state.disabled() ? "" : undefined',

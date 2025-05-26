@@ -141,6 +141,22 @@ The portal for rendering the combobox dropdown in an overlay.
 
 <api-docs name="NgpComboboxPortal"></api-docs>
 
+## Animations
+
+The `ngpComboboxDropdown` primitive adds a CSS custom property `--ngp-combobox-transform-origin` to the element that can be used to animate the menu from the trigger element.
+
+The `ngpComboboxDropdown` will also add the `data-enter` and `data-exit` attributes to the element when it is being added or removed from the DOM. This can be used to trigger animations.
+
+```css
+:host[data-enter] {
+  animation: fade-in 0.2s ease-in-out;
+}
+
+:host[data-exit] {
+  animation: fade-out 0.2s ease-in-out;
+}
+```
+
 ## Accessibility
 
 Adheres to the [WAI-ARIA](https://www.w3.org/WAI/ARIA/apg/patterns/combobox/) guidelines for comboboxes.

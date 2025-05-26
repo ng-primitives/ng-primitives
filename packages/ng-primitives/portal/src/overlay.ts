@@ -114,7 +114,7 @@ export class NgpOverlay<T = unknown> {
   readonly triggerWidth = signal<number | null>(null);
 
   /** The transform origin for the overlay */
-  readonly transformOrigin = signal<string>(this.getTransformOrigin());
+  readonly transformOrigin = signal<string>('center center');
 
   /** Function to dispose the positioning auto-update */
   private disposePositioning?: () => void;
@@ -140,6 +140,9 @@ export class NgpOverlay<T = unknown> {
    * @param destroyRef Reference for automatic cleanup
    */
   constructor(private config: NgpOverlayConfig<T>) {
+    // this must be done after the config is set
+    this.transformOrigin.set(this.getTransformOrigin());
+
     // Monitor trigger element resize
     fromResizeEvent(this.config.triggerElement)
       .pipe(takeUntilDestroyed(this.destroyRef))
@@ -459,12 +462,7 @@ export class NgpOverlay<T = unknown> {
    * Get the transform origin for the overlay
    */
   private getTransformOrigin(): string {
-    // config may be undefined if this is called during initialization
-    if (!this.config) {
-      return 'top';
-    }
-
-    const placement = this.config?.placement ?? 'top';
+    const placement = this.config.placement ?? 'top';
 
     const basePlacement = placement.split('-')[0]; // Extract "top", "bottom", etc.
     const alignment = placement.split('-')[1]; // Extract "start" or "end"
