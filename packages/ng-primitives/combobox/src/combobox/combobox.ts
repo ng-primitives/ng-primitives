@@ -88,7 +88,7 @@ export class NgpCombobox {
   });
 
   /** The position of the dropdown. */
-  readonly placement = input<Placement>('bottom-start', {
+  readonly placement = input<Placement>('bottom', {
     alias: 'ngpComboboxDropdownPlacement',
   });
 

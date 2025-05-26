@@ -108,6 +108,15 @@ import { ChangeFn, provideValueAccessor, TouchedFn } from 'ng-primitives/utils';
       margin-top: 4px;
       max-height: 240px;
       overflow-y: auto;
+      transform-origin: var(--ngp-combobox-transform-origin);
+    }
+
+    [ngpComboboxDropdown][data-enter] {
+      animation: combobox-show 0.1s ease-out;
+    }
+
+    [ngpComboboxDropdown][data-exit] {
+      animation: combobox-hide 0.1s ease-out;
     }
 
     [ngpComboboxOption] {
@@ -145,6 +154,28 @@ import { ChangeFn, provideValueAccessor, TouchedFn } from 'ng-primitives/utils';
       font-size: 14px;
       font-weight: 500;
       text-align: center;
+    }
+
+    @keyframes combobox-show {
+      0% {
+        opacity: 0;
+        transform: scale(0.9);
+      }
+      100% {
+        opacity: 1;
+        transform: scale(1);
+      }
+    }
+
+    @keyframes combobox-hide {
+      0% {
+        opacity: 1;
+        transform: scale(1);
+      }
+      100% {
+        opacity: 0;
+        transform: scale(0.9);
+      }
     }
   `,
 })

@@ -57,16 +57,10 @@ export class NgpComboboxPortal implements OnDestroy {
    * Create the overlay that will contain the dropdown
    */
   private createOverlay(): void {
-    const triggerElement = this.state().input()?.elementRef.nativeElement;
-
-    if (!triggerElement) {
-      return;
-    }
-
     // Create config for the overlay
     const config: NgpOverlayConfig<void> = {
       content: this.templateRef,
-      triggerElement,
+      triggerElement: this.state().elementRef.nativeElement,
       injector: this.injector,
       placement: this.state().placement(),
       closeOnOutsideClick: true,
