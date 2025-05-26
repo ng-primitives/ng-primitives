@@ -1,17 +1,5 @@
-import { DOCUMENT } from '@angular/common';
-import {
-  Directive,
-  effect,
-  inject,
-  Injector,
-  OnDestroy,
-  signal,
-  TemplateRef,
-  ViewContainerRef,
-} from '@angular/core';
-import { autoUpdate, computePosition, flip, Middleware, Placement } from '@floating-ui/dom';
-import { createPortal, NgpPortal } from 'ng-primitives/portal';
-import { observeResize } from 'ng-primitives/resize';
+import { Directive, inject, Injector, OnDestroy, signal, TemplateRef } from '@angular/core';
+import { createOverlay, NgpOverlay, NgpOverlayConfig } from 'ng-primitives/portal';
 import { injectComboboxState } from '../combobox/combobox-state';
 
 @Directive({
@@ -25,122 +13,36 @@ export class NgpComboboxPortal implements OnDestroy {
   /** Access the template reference. */
   private readonly templateRef = inject(TemplateRef);
 
-  /** Access the view container reference. */
-  private readonly viewContainerRef = inject(ViewContainerRef);
-
   /** Access the injector. */
   private readonly injector = inject(Injector);
 
-  /** Access the document. */
-  private readonly document = inject<Document>(DOCUMENT);
-
   /**
-   * Store the embedded view reference.
+   * The overlay that manages the popover
    * @internal
    */
-  readonly viewRef = signal<NgpPortal | null>(null);
-
-  /** Store the dispose function. */
-  private dispose: (() => void) | null = null;
-
-  /** The position of the dropdown. */
-  readonly position = signal<{ x: number; y: number }>({ x: 0, y: 0 });
-
-  /** The dimensions of the combobox. */
-  private readonly comboboxDimensions = observeResize(() => this.state().elementRef.nativeElement);
-
-  /** The dimensions of the combobox. */
-  private readonly inputDimensions = observeResize(
-    () => this.state().input()?.elementRef.nativeElement,
-  );
-
-  /** Store the combobox button dimensions. */
-  private readonly buttonDimensions = observeResize(
-    () => this.state().button()?.elementRef.nativeElement,
-  );
+  readonly overlay = signal<NgpOverlay<void> | null>(null);
 
   constructor() {
     this.state().registerPortal(this);
-
-    effect(() => {
-      const dropdownElement = this.viewRef()?.getElements()[0] as HTMLElement | null;
-
-      if (!dropdownElement) {
-        return;
-      }
-
-      const position = this.position();
-      const comboboxWidth = this.comboboxDimensions().width;
-      const inputWidth = this.inputDimensions().width;
-      const buttonWidth = this.buttonDimensions().width;
-
-      if (!dropdownElement) {
-        return;
-      }
-
-      const styles = {
-        position: 'absolute',
-        left: `${position.x}px`,
-        top: `${position.y}px`,
-        '--ngp-combobox-width': `${comboboxWidth}px`,
-        '--ngp-combobox-input-width': `${inputWidth}px`,
-        '--ngp-combobox-button-width': `${buttonWidth}px`,
-      };
-
-      for (const [key, value] of Object.entries(styles)) {
-        dropdownElement.style.setProperty(key, value);
-      }
-    });
   }
 
   /** Cleanup the portal. */
   ngOnDestroy(): void {
-    this.detach();
-    this.dispose?.();
+    this.overlay()?.destroy();
   }
 
   /**
    * Attach the portal.
    * @internal
    */
-  attach(): void {
-    const viewRef = createPortal(this.templateRef, this.viewContainerRef, this.injector);
-    viewRef.attach(this.document.body);
-    viewRef.detectChanges();
-
-    this.viewRef.set(viewRef);
-
-    const dropdownElement = this.viewRef()?.getElements()[0] as HTMLElement | null;
-
-    if (!dropdownElement) {
-      throw new Error('Dropdown element not found');
+  show(): Promise<void> {
+    // Create the overlay if it doesn't exist yet
+    if (!this.overlay()) {
+      this.createOverlay();
     }
 
-    let placement: Placement;
-    const middleware: Middleware[] = [];
-
-    switch (this.state().dropdownPosition()) {
-      case 'top':
-        placement = 'top-start';
-        break;
-      case 'bottom':
-        placement = 'bottom-start';
-        break;
-      case 'auto':
-        placement = 'bottom-start';
-        middleware.push(flip({ fallbackPlacements: ['top-start'] }));
-        break;
-    }
-
-    this.dispose = autoUpdate(this.state().elementRef.nativeElement, dropdownElement, async () => {
-      const position = await computePosition(
-        this.state().elementRef.nativeElement,
-        dropdownElement,
-        { placement, middleware, strategy: 'absolute' },
-      );
-
-      this.position.set({ x: position.x, y: position.y });
-    });
+    // Show the overlay
+    return this.overlay()!.show();
   }
 
   /**
@@ -148,9 +50,25 @@ export class NgpComboboxPortal implements OnDestroy {
    * @internal
    */
   async detach(): Promise<void> {
-    await this.viewRef()?.detach();
-    this.viewRef.set(null);
-    this.dispose?.();
-    this.dispose = null;
+    this.overlay()?.hide();
+  }
+
+  /**
+   * Create the overlay that will contain the dropdown
+   */
+  private createOverlay(): void {
+    // Create config for the overlay
+    const config: NgpOverlayConfig<void> = {
+      content: this.templateRef,
+      triggerElement: this.state().elementRef.nativeElement,
+      injector: this.injector,
+      placement: this.state().placement(),
+      closeOnOutsideClick: true,
+      closeOnEscape: true,
+      restoreFocus: false,
+      scrollBehaviour: 'reposition',
+    };
+
+    this.overlay.set(createOverlay(config));
   }
 }

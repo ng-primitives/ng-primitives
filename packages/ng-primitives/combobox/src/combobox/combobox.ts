@@ -10,8 +10,13 @@ import {
   output,
   signal,
 } from '@angular/core';
+import { Placement } from '@floating-ui/dom';
 import { activeDescendantManager } from 'ng-primitives/a11y';
-import { explicitEffect, injectElementRef } from 'ng-primitives/internal';
+import {
+  explicitEffect,
+  injectElementRef,
+  provideExitAnimationManager,
+} from 'ng-primitives/internal';
 import type { NgpComboboxButton } from '../combobox-button/combobox-button';
 import type { NgpComboboxDropdown } from '../combobox-dropdown/combobox-dropdown';
 import type { NgpComboboxInput } from '../combobox-input/combobox-input';
@@ -36,7 +41,7 @@ type T = any;
 @Directive({
   selector: '[ngpCombobox]',
   exportAs: 'ngpCombobox',
-  providers: [provideComboboxState()],
+  providers: [provideComboboxState(), provideExitAnimationManager()],
   host: {
     '[attr.data-open]': 'state.open() ? "" : undefined',
     '[attr.data-disabled]': 'state.disabled() ? "" : undefined',
@@ -83,8 +88,8 @@ export class NgpCombobox {
   });
 
   /** The position of the dropdown. */
-  readonly dropdownPosition = input<'top' | 'bottom' | 'auto'>('bottom', {
-    alias: 'ngpComboboxDropdownPosition',
+  readonly placement = input<Placement>('bottom', {
+    alias: 'ngpComboboxDropdownPlacement',
   });
 
   /**
@@ -118,10 +123,16 @@ export class NgpCombobox {
   readonly options = signal<NgpComboboxOption[]>([]);
 
   /**
+   * Access the overlay
+   * @internal
+   */
+  readonly overlay = computed(() => this.portal()?.overlay());
+
+  /**
    * The open state of the combobox.
    * @internal
    */
-  readonly open = computed(() => this.portal()?.viewRef() !== null);
+  readonly open = computed(() => this.overlay()?.isOpen() ?? false);
 
   /**
    * The active key descendant manager.
@@ -149,12 +160,12 @@ export class NgpCombobox {
    * Open the dropdown.
    * @internal
    */
-  openDropdown(): void {
+  async openDropdown(): Promise<void> {
     if (this.state.disabled() || this.open()) {
       return;
     }
 
-    this.portal()?.attach();
+    await this.portal()?.show();
 
     // if there is a selected option(s), set the active descendant to the first selected option
     const selectedOption = this.options().find(option => this.isOptionSelected(option));
@@ -205,11 +216,16 @@ export class NgpCombobox {
    * @internal
    */
   selectOption(option: NgpComboboxOption): void {
-    if (this.state.disabled() || this.isOptionSelected(option)) {
+    if (this.state.disabled()) {
       return;
     }
 
     if (this.state.multiple()) {
+      // if the option is already selected, do nothing
+      if (this.isOptionSelected(option)) {
+        return;
+      }
+
       const value = [...(this.state.value() as T[]), option.value() as T];
 
       // add the option to the value

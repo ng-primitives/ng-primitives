@@ -74,6 +74,74 @@ The following data attributes are available on the `NgpMenuItem` directive:
 | --------------- | ---------------------------------- |
 | `data-disabled` | Applied when the item is disabled. |
 
+## Styling
+
+For the menu to be positioned correctly relative to the trigger element, it should use fixed positioning. For example, you can use the following CSS:
+
+```css
+[ngpMenu] {
+  position: fixed;
+}
+```
+
+## Animations
+
+The `ngpMenu` primitive adds a CSS custom property `--ngp-menu-transform-origin` to the element that can be used to animate the menu from the trigger element.
+
+The `ngpMenu` will also add the `data-enter` and `data-exit` attributes to the element when it is being added or removed from the DOM. This can be used to trigger animations.
+
+```css
+:host[data-enter] {
+  animation: fade-in 0.2s ease-in-out;
+}
+
+:host[data-exit] {
+  animation: fade-out 0.2s ease-in-out;
+}
+```
+
+## Global Configuration
+
+You can configure the default options for all menus in your application by using the `provideMenuConfig` function in a providers array.
+
+```ts
+import { provideMenuConfig } from 'ng-primitives/menu';
+
+bootstrapApplication(AppComponent, {
+  providers: [
+    provideMenuConfig({
+      offset: 4,
+      placement: 'top',
+      flip: true,
+      container: document.body,
+      scrollBehavior: 'reposition',
+    }),
+  ],
+});
+```
+
+### NgpMenuConfig
+
+<prop-details name="offset" type="number">
+  Define the offset from the trigger element.
+</prop-details>
+
+<prop-details name="placement" type="'top' | 'right' | 'bottom' | 'left'">
+  Define the placement of the menu.
+</prop-details>
+
+<prop-details name="flip" type="boolean">
+  Define if the menu should flip when it reaches the edge of the viewport.
+</prop-details>
+
+<prop-details name="container" type="HTMLElement">
+  Define the container element for the menu. This is the document body by default.
+</prop-details>
+
+<prop-details name="scrollBehavior" type="reposition | block">
+Defines how the menu behaves when the window is scrolled. If set to `reposition`, the menu will adjust its position automatically during scrolling. Make sure the menu uses `position: absolute` in this mode. If set to `block`, scrolling will be disabled while the menu is open. In this case, the menu should use `position: fixed`.
+</prop-details>
+
 ## Accessibility
 
 Adhere to the [WAI-ARIA Authoring Practices](https://www.w3.org/WAI/ARIA/apg/patterns/menu-button/) for menus and submenus.

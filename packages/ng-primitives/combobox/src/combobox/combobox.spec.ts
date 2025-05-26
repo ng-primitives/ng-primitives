@@ -122,19 +122,6 @@ class MultiSelectTestComponent {
   }
 }
 
-// mock ResizeObserver
-window.ResizeObserver = class {
-  // eslint-disable-next-line @typescript-eslint/no-empty-function
-  observe() {}
-  // eslint-disable-next-line @typescript-eslint/no-empty-function
-  unobserve() {}
-  // eslint-disable-next-line @typescript-eslint/no-empty-function
-  disconnect() {}
-};
-
-// patch scrollIntoView
-Element.prototype.scrollIntoView = jest.fn();
-
 describe('NgpCombobox', () => {
   afterEach(() => {
     // the dropdown should be removed from the DOM after each test
@@ -357,6 +344,7 @@ describe('NgpCombobox', () => {
 
     const button = screen.getByTestId('combobox-button');
     await userEvent.click(button);
+    fixture.detectChanges();
 
     // Banana option should have active state
     const bananaOption = screen.getByText('Banana');
@@ -501,12 +489,15 @@ describe('NgpComboboxInput accessibility', () => {
   });
 
   it('should have appropriate ARIA attributes', async () => {
-    await render(TestComponent);
+    const { detectChanges } = await render(TestComponent);
     const input = screen.getByRole('combobox');
     expect(input).toHaveAttribute('aria-autocomplete', 'list');
     // Open dropdown
     const button = screen.getByTestId('combobox-button');
     await userEvent.click(button);
+    detectChanges();
+    const dropdown = screen.getByRole('listbox');
+    expect(dropdown).toBeInTheDocument();
     expect(input).toHaveAttribute('aria-expanded', 'true');
     // Close dropdown
     await userEvent.keyboard('{escape}');
