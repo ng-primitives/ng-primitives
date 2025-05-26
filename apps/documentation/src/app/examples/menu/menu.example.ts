@@ -53,7 +53,7 @@ import { NgpMenu, NgpMenuItem, NgpMenuTrigger } from 'ng-primitives/menu';
       box-shadow: var(--ngp-shadow-lg);
       border-radius: 8px;
       padding: 4px;
-      transform-origin: var(--ngp-popover-transform-origin);
+      transform-origin: var(--ngp-menu-transform-origin);
     }
 
     [ngpMenu][data-enter] {

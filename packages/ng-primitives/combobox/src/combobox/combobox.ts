@@ -212,11 +212,16 @@ export class NgpCombobox {
    * @internal
    */
   selectOption(option: NgpComboboxOption): void {
-    if (this.state.disabled() || this.isOptionSelected(option)) {
+    if (this.state.disabled()) {
       return;
     }
 
     if (this.state.multiple()) {
+      // if the option is already selected, do nothing
+      if (this.isOptionSelected(option)) {
+        return;
+      }
+
       const value = [...(this.state.value() as T[]), option.value() as T];
 
       // add the option to the value

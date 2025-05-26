@@ -1,6 +1,7 @@
 import { FocusOrigin } from '@angular/cdk/a11y';
 import { Directive, inject } from '@angular/core';
 import { NgpPopover } from 'ng-primitives/popover';
+import { injectOverlay } from 'ng-primitives/portal';
 import { NgpRovingFocusGroup, provideRovingFocusGroup } from 'ng-primitives/roving-focus';
 import { Subject } from 'rxjs';
 import { injectMenuTriggerState } from '../menu-trigger/menu-trigger-state';
@@ -20,9 +21,18 @@ import { NgpMenuToken, provideMenu } from './menu-token';
   ],
   host: {
     role: 'menu',
+    '[style.left.px]': 'overlay.position().x',
+    '[style.top.px]': 'overlay.position().y',
+    '[style.--ngp-menu-trigger-width.px]': 'overlay.triggerWidth()',
+    '[style.--ngp-menu-transform-origin]': 'overlay.transformOrigin()',
   },
 })
 export class NgpMenu {
+  /**
+   * Access the overlay.
+   */
+  protected readonly overlay = injectOverlay();
+
   /** Access the menu trigger state */
   private readonly menuTrigger = injectMenuTriggerState();
 
