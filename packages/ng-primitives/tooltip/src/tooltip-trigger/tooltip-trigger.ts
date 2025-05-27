@@ -10,6 +10,7 @@ import {
   numberAttribute,
   OnDestroy,
   signal,
+  ViewContainerRef,
 } from '@angular/core';
 import { Placement } from '@floating-ui/dom';
 import { provideExitAnimationManager } from 'ng-primitives/internal';
@@ -48,6 +49,11 @@ export class NgpTooltipTrigger<T = null> implements OnDestroy {
    * Access the injector.
    */
   private readonly injector = inject(Injector);
+
+  /**
+   * Access the view container reference.
+   */
+  private readonly viewContainerRef = inject(ViewContainerRef);
 
   /**
    * Access the global tooltip configuration.
@@ -204,6 +210,7 @@ export class NgpTooltipTrigger<T = null> implements OnDestroy {
       hideDelay: this.state.hideDelay(),
       closeOnEscape: true,
       closeOnOutsideClick: true,
+      viewContainerRef: this.viewContainerRef,
     };
 
     // Create the overlay instance

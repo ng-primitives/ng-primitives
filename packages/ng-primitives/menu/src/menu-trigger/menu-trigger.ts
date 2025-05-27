@@ -10,6 +10,7 @@ import {
   numberAttribute,
   OnDestroy,
   signal,
+  ViewContainerRef,
 } from '@angular/core';
 import { Placement } from '@floating-ui/dom';
 import { injectElementRef, provideExitAnimationManager } from 'ng-primitives/internal';
@@ -47,6 +48,11 @@ export class NgpMenuTrigger<T = unknown> implements OnDestroy {
    * Access the injector.
    */
   private readonly injector = inject(Injector);
+
+  /**
+   * Access the view container reference.
+   */
+  private readonly viewContainerRef = inject(ViewContainerRef);
 
   /**
    * Access the global menu configuration.
@@ -202,6 +208,7 @@ export class NgpMenuTrigger<T = unknown> implements OnDestroy {
     const config: NgpOverlayConfig<T> = {
       content: menu,
       triggerElement: this.trigger.nativeElement,
+      viewContainerRef: this.viewContainerRef,
       injector: this.injector,
       context: this.state.context(),
       container: this.state.container(),

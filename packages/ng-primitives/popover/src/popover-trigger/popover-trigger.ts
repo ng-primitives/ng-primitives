@@ -10,6 +10,7 @@ import {
   numberAttribute,
   OnDestroy,
   signal,
+  ViewContainerRef,
 } from '@angular/core';
 import { Placement } from '@floating-ui/dom';
 import { injectElementRef, provideExitAnimationManager } from 'ng-primitives/internal';
@@ -46,6 +47,11 @@ export class NgpPopoverTrigger<T = null> implements OnDestroy {
    * Access the injector.
    */
   private readonly injector = inject(Injector);
+
+  /**
+   * Access the view container reference.
+   */
+  private readonly viewContainerRef = inject(ViewContainerRef);
 
   /**
    * Access the global popover configuration.
@@ -249,6 +255,7 @@ export class NgpPopoverTrigger<T = null> implements OnDestroy {
       closeOnEscape: this.state.closeOnEscape(),
       restoreFocus: true,
       scrollBehaviour: this.state.scrollBehavior(),
+      viewContainerRef: this.viewContainerRef,
     };
 
     this.overlay.set(createOverlay(config));
