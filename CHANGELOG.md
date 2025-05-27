@@ -1,3 +1,13 @@
+## 0.45.1 (2025-05-27)
+
+### 🩹 Fixes
+
+- **menu:** ssr issue ([#261](https://github.com/ng-primitives/ng-primitives/pull/261))
+
+### ❤️ Thank You
+
+- Ashley Hunter
+
 ## 0.45.0 (2025-05-26)
 
 - all overlay primitives have now been unified to use the same API internally, greatly simplifying the codebase and making it easier to maintain. This includes the `NgpPopover`, `NgpTooltip`, `NgpMenu`, and `NgpCombobox` primitives.
