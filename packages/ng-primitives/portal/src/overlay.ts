@@ -42,6 +42,8 @@ export interface NgpOverlayConfig<T = unknown> {
 
   /** The injector to use for creating the portal */
   injector: Injector;
+  /** ViewContainerRef to use for creating the portal */
+  viewContainerRef: ViewContainerRef;
 
   /** Context data to pass to the overlay content */
   context?: T | null;
@@ -99,7 +101,7 @@ export class NgpOverlay<T = unknown> {
   private readonly disposables = injectDisposables();
   private readonly document = inject(DOCUMENT);
   private readonly destroyRef = inject(DestroyRef);
-  private readonly viewContainerRef = inject(ViewContainerRef);
+  private readonly viewContainerRef: ViewContainerRef;
   private readonly viewportRuler = inject(ViewportRuler);
   private readonly focusMonitor = inject(FocusMonitor);
   /** Access any parent overlays */
@@ -140,6 +142,9 @@ export class NgpOverlay<T = unknown> {
    * @param destroyRef Reference for automatic cleanup
    */
   constructor(private config: NgpOverlayConfig<T>) {
+    // we cannot inject the viewContainerRef as this can throw an error during hydration in SSR
+    this.viewContainerRef = config.viewContainerRef;
+
     // this must be done after the config is set
     this.transformOrigin.set(this.getTransformOrigin());
 

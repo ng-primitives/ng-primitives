@@ -10,6 +10,7 @@ import {
   input,
   numberAttribute,
   signal,
+  ViewContainerRef,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Placement } from '@floating-ui/dom';
@@ -45,6 +46,11 @@ export class NgpSubmenuTrigger<T = unknown> {
    * Access the injector.
    */
   private readonly injector = inject(Injector);
+
+  /**
+   * Access the view container reference.
+   */
+  private readonly viewContainerRef = inject(ViewContainerRef);
 
   /** Access the menu trigger state */
   private readonly menuTrigger = injectMenuTriggerState();
@@ -197,6 +203,7 @@ export class NgpSubmenuTrigger<T = unknown> {
       closeOnOutsideClick: true,
       closeOnEscape: true,
       restoreFocus: true,
+      viewContainerRef: this.viewContainerRef,
     };
 
     this.overlay.set(createOverlay(config));

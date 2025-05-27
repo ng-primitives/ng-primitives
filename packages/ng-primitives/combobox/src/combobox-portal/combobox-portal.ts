@@ -1,4 +1,12 @@
-import { Directive, inject, Injector, OnDestroy, signal, TemplateRef } from '@angular/core';
+import {
+  Directive,
+  inject,
+  Injector,
+  OnDestroy,
+  signal,
+  TemplateRef,
+  ViewContainerRef,
+} from '@angular/core';
 import { createOverlay, NgpOverlay, NgpOverlayConfig } from 'ng-primitives/portal';
 import { injectComboboxState } from '../combobox/combobox-state';
 
@@ -9,6 +17,8 @@ import { injectComboboxState } from '../combobox/combobox-state';
 export class NgpComboboxPortal implements OnDestroy {
   /** Access the combobox state. */
   private readonly state = injectComboboxState();
+  /** Access the view container reference. */
+  private readonly viewContainerRef = inject(ViewContainerRef);
 
   /** Access the template reference. */
   private readonly templateRef = inject(TemplateRef);
@@ -60,6 +70,7 @@ export class NgpComboboxPortal implements OnDestroy {
     // Create config for the overlay
     const config: NgpOverlayConfig<void> = {
       content: this.templateRef,
+      viewContainerRef: this.viewContainerRef,
       triggerElement: this.state().elementRef.nativeElement,
       injector: this.injector,
       placement: this.state().placement(),
