@@ -1,3 +1,13 @@
+## 0.46.0 (2025-05-28)
+
+### 🚀 Features
+
+- **form-control:** add support for standalone form control ([#263](https://github.com/ng-primitives/ng-primitives/pull/263))
+
+### ❤️ Thank You
+
+- Ashley Hunter
+
 ## 0.45.1 (2025-05-27)
 
 ### 🩹 Fixes
