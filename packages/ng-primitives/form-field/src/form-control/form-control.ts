@@ -9,7 +9,7 @@ import {
   Signal,
 } from '@angular/core';
 import { explicitEffect, injectElementRef } from 'ng-primitives/internal';
-import { uniqueId } from 'ng-primitives/utils';
+import { controlStatus, uniqueId } from 'ng-primitives/utils';
 import { injectFormFieldState } from '../form-field/form-field-state';
 import { formControlState, provideFormControlState } from './form-control-state';
 
@@ -60,6 +60,8 @@ export function setupFormControl({
   const element = injectElementRef().nativeElement;
   // Access the form field that the form control is associated with.
   const formField = injectFormFieldState({ optional: true });
+  // Access the form control status.
+  const status = controlStatus();
   // Determine the aria-labelledby attribute value.
   const ariaLabelledBy = computed(() => formField()?.labels().join(' '));
   // Determine the aria-describedby attribute value.
@@ -76,13 +78,13 @@ export function setupFormControl({
       setAttribute(element, 'aria-labelledby', ariaLabelledBy());
       setAttribute(element, 'aria-describedby', ariaDescribedBy());
 
-      setStateAttribute(element, formField()?.invalid(), 'data-invalid');
-      setStateAttribute(element, formField()?.valid(), 'data-valid');
-      setStateAttribute(element, formField()?.touched(), 'data-touched');
-      setStateAttribute(element, formField()?.pristine(), 'data-pristine');
-      setStateAttribute(element, formField()?.dirty(), 'data-dirty');
-      setStateAttribute(element, formField()?.pending(), 'data-pending');
-      setStateAttribute(element, disabled() || formField()?.disabled(), 'data-disabled');
+      setStateAttribute(element, status().invalid, 'data-invalid');
+      setStateAttribute(element, status().valid, 'data-valid');
+      setStateAttribute(element, status().touched, 'data-touched');
+      setStateAttribute(element, status().pristine, 'data-pristine');
+      setStateAttribute(element, status().dirty, 'data-dirty');
+      setStateAttribute(element, status().pending, 'data-pending');
+      setStateAttribute(element, disabled() || status().disabled, 'data-disabled');
     },
   });
 }
