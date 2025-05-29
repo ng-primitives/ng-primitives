@@ -74,6 +74,18 @@ The following data attributes are available on the `NgpMenuItem` directive:
 | --------------- | ---------------------------------- |
 | `data-disabled` | Applied when the item is disabled. |
 
+### NgpSubmenuTrigger
+
+<api-docs name="NgpSubmenuTrigger"></api-docs>
+
+#### Data Attributes
+
+The following data attributes are available on the `NgpSubmenuTrigger` directive:
+
+| Attribute   | Description                       |
+| ----------- | --------------------------------- |
+| `data-open` | Applied when the submenu is open. |
+
 ## Styling
 
 For the menu to be positioned correctly relative to the trigger element, it should use fixed positioning. For example, you can use the following CSS:

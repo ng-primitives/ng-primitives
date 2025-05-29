@@ -252,7 +252,9 @@ export class NgpOverlay<T = unknown> {
       this.closeTimeout = undefined;
 
       if (this.config.restoreFocus) {
-        this.focusMonitor.focusVia(this.config.triggerElement, options?.origin ?? 'program');
+        this.focusMonitor.focusVia(this.config.triggerElement, options?.origin ?? 'program', {
+          preventScroll: true,
+        });
       }
 
       await this.destroyOverlay();

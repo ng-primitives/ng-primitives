@@ -79,6 +79,10 @@ import { NgpMenu, NgpMenuItem, NgpMenuTrigger } from 'ng-primitives/menu';
     }
 
     [ngpMenuItem][data-hover] {
+      background-color: var(--ngp-background-hover);
+    }
+
+    [ngpMenuItem][data-press] {
       background-color: var(--ngp-background-active);
     }
 

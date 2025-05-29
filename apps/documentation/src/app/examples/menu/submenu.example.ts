@@ -93,6 +93,10 @@ import { NgpMenu, NgpMenuItem, NgpMenuTrigger, NgpSubmenuTrigger } from 'ng-prim
     }
 
     [ngpMenuItem][data-hover] {
+      background-color: var(--ngp-background-hover);
+    }
+
+    [ngpMenuItem][data-press] {
       background-color: var(--ngp-background-active);
     }
 

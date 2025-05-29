@@ -1,9 +1,10 @@
 import { FocusOrigin } from '@angular/cdk/a11y';
 import { Directive, inject } from '@angular/core';
-import { NgpPopover } from 'ng-primitives/popover';
 import { injectOverlay } from 'ng-primitives/portal';
 import { NgpRovingFocusGroup, provideRovingFocusGroup } from 'ng-primitives/roving-focus';
 import { Subject } from 'rxjs';
+import { NgpFocusTrap } from 'ng-primitives/focus-trap';
+import { NgpExitAnimation } from 'ng-primitives/internal';
 import { injectMenuTriggerState } from '../menu-trigger/menu-trigger-state';
 import { NgpMenuToken, provideMenu } from './menu-token';
 
@@ -13,7 +14,7 @@ import { NgpMenuToken, provideMenu } from './menu-token';
 @Directive({
   selector: '[ngpMenu]',
   exportAs: 'ngpMenu',
-  hostDirectives: [NgpPopover, NgpRovingFocusGroup],
+  hostDirectives: [NgpRovingFocusGroup, NgpFocusTrap, NgpExitAnimation],
   providers: [
     // ensure we don't inherit the focus group from the parent menu if there is one
     provideRovingFocusGroup(NgpRovingFocusGroup, { inherit: false }),
@@ -42,7 +43,7 @@ export class NgpMenu {
   /** @internal Whether we should close submenus */
   readonly closeSubmenus = new Subject<HTMLElement>();
 
-  /** Close the menu and any parent menus */
+  /** @internal Close the menu and any parent menus */
   closeAllMenus(origin: FocusOrigin): void {
     this.menuTrigger().hide(origin);
     this.parentMenu?.closeAllMenus(origin);
