@@ -2,15 +2,20 @@ import { Component } from '@angular/core';
 import { NgpButton } from 'ng-primitives/button';
 import { NgpMenuTrigger } from 'ng-primitives/menu';
 import { Menu } from './menu';
+import { MenuItem } from './menu-item';
 
 @Component({
   selector: 'app-menu-example',
-  imports: [Menu, NgpButton, NgpMenuTrigger],
+  imports: [Menu, NgpButton, NgpMenuTrigger, MenuItem],
   template: `
     <button [ngpMenuTrigger]="menu" ngpButton>Open Menu</button>
 
     <ng-template #menu>
-      <app-menu />
+      <app-menu>
+        <button app-menu-item>Item 1</button>
+        <button app-menu-item>Item 2</button>
+        <button app-menu-item>Item 3</button>
+      </app-menu>
     </ng-template>
   `,
   styles: `

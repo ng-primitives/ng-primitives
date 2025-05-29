@@ -1,18 +1,14 @@
 import { Component } from '@angular/core';
-import { NgpMenu, NgpMenuItem } from 'ng-primitives/menu';
+import { NgpMenu } from 'ng-primitives/menu';
 
 @Component({
   selector: 'app-menu',
-  imports: [NgpMenu, NgpMenuItem],
+  hostDirectives: [NgpMenu],
   template: `
-    <div ngpMenu>
-      <button ngpMenuItem>Item 1</button>
-      <button ngpMenuItem>Item 2</button>
-      <button ngpMenuItem>Item 3</button>
-    </div>
+    <ng-content />
   `,
   styles: `
-    [ngpMenu] {
+    :host {
       position: fixed;
       display: flex;
       flex-direction: column;
@@ -25,34 +21,8 @@ import { NgpMenu, NgpMenuItem } from 'ng-primitives/menu';
       animation: menu-show 300ms ease-out;
     }
 
-    [ngpMenu][data-exit] {
+    :host[data-exit] {
       animation: menu-hide 300ms ease-out;
-    }
-
-    [ngpMenuItem] {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 6px 8px 6px 14px;
-      border: none;
-      background: none;
-      cursor: pointer;
-      transition: background-color 0.2s;
-      border-radius: 4px;
-      min-width: 120px;
-      text-align: start;
-      outline: none;
-      font-size: 14px;
-      font-weight: 400;
-    }
-
-    [ngpMenuItem][data-hover] {
-      background-color: var(--ngp-background-active);
-    }
-
-    [ngpMenuItem][data-focus-visible] {
-      outline: 2px solid var(--ngp-focus-ring);
-      z-index: 1;
     }
 
     @keyframes menu-show {
