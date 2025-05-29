@@ -13,7 +13,6 @@ import {
   ViewContainerRef,
 } from '@angular/core';
 import { Placement } from '@floating-ui/dom';
-import { provideExitAnimationManager } from 'ng-primitives/internal';
 import {
   createOverlay,
   NgpOverlay,
@@ -29,7 +28,7 @@ import { provideTooltipTriggerState, tooltipTriggerState } from './tooltip-trigg
 @Directive({
   selector: '[ngpTooltipTrigger]',
   exportAs: 'ngpTooltipTrigger',
-  providers: [provideTooltipTriggerState(), provideExitAnimationManager()],
+  providers: [provideTooltipTriggerState()],
   host: {
     '[attr.data-open]': 'open() ? "" : null',
     '[attr.data-disabled]': 'state.disabled() ? "" : null',

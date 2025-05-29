@@ -13,7 +13,7 @@ import {
   ViewContainerRef,
 } from '@angular/core';
 import { Placement } from '@floating-ui/dom';
-import { injectElementRef, provideExitAnimationManager } from 'ng-primitives/internal';
+import { injectElementRef } from 'ng-primitives/internal';
 import {
   createOverlay,
   NgpOverlay,
@@ -29,7 +29,7 @@ import { popoverTriggerState, providePopoverTriggerState } from './popover-trigg
 @Directive({
   selector: '[ngpPopoverTrigger]',
   exportAs: 'ngpPopoverTrigger',
-  providers: [providePopoverTriggerState({ inherit: false }), provideExitAnimationManager()],
+  providers: [providePopoverTriggerState({ inherit: false })],
   host: {
     '[attr.aria-expanded]': 'open() ? "true" : "false"',
     '[attr.data-open]': 'open() ? "" : null',

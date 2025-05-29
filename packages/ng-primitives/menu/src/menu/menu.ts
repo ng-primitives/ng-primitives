@@ -1,10 +1,9 @@
 import { FocusOrigin } from '@angular/cdk/a11y';
 import { Directive, inject } from '@angular/core';
+import { NgpFocusTrap } from 'ng-primitives/focus-trap';
 import { injectOverlay } from 'ng-primitives/portal';
 import { NgpRovingFocusGroup, provideRovingFocusGroup } from 'ng-primitives/roving-focus';
 import { Subject } from 'rxjs';
-import { NgpFocusTrap } from 'ng-primitives/focus-trap';
-import { NgpExitAnimation } from 'ng-primitives/internal';
 import { injectMenuTriggerState } from '../menu-trigger/menu-trigger-state';
 import { NgpMenuToken, provideMenu } from './menu-token';
 
@@ -14,7 +13,7 @@ import { NgpMenuToken, provideMenu } from './menu-token';
 @Directive({
   selector: '[ngpMenu]',
   exportAs: 'ngpMenu',
-  hostDirectives: [NgpRovingFocusGroup, NgpFocusTrap, NgpExitAnimation],
+  hostDirectives: [NgpRovingFocusGroup, NgpFocusTrap],
   providers: [
     // ensure we don't inherit the focus group from the parent menu if there is one
     provideRovingFocusGroup(NgpRovingFocusGroup, { inherit: false }),
@@ -29,9 +28,7 @@ import { NgpMenuToken, provideMenu } from './menu-token';
   },
 })
 export class NgpMenu {
-  /**
-   * Access the overlay.
-   */
+  /** Access the overlay. */
   protected readonly overlay = injectOverlay();
 
   /** Access the menu trigger state */

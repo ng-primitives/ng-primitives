@@ -1,5 +1,4 @@
 import { Directive } from '@angular/core';
-import { NgpExitAnimation } from 'ng-primitives/internal';
 import { injectOverlay } from 'ng-primitives/portal';
 
 /**
@@ -8,7 +7,6 @@ import { injectOverlay } from 'ng-primitives/portal';
 @Directive({
   selector: '[ngpTooltip]',
   exportAs: 'ngpTooltip',
-  hostDirectives: [NgpExitAnimation],
   host: {
     role: 'tooltip',
     '[style.left.px]': 'overlay.position().x',

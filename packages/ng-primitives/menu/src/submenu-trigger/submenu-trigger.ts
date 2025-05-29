@@ -14,7 +14,7 @@ import {
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Placement } from '@floating-ui/dom';
-import { injectElementRef, provideExitAnimationManager } from 'ng-primitives/internal';
+import { injectElementRef } from 'ng-primitives/internal';
 import {
   createOverlay,
   NgpOverlay,
@@ -27,7 +27,7 @@ import { provideSubmenuTriggerState, submenuTriggerState } from './submenu-trigg
 @Directive({
   selector: '[ngpSubmenuTrigger]',
   exportAs: 'ngpSubmenuTrigger',
-  providers: [provideSubmenuTriggerState({ inherit: false }), provideExitAnimationManager()],
+  providers: [provideSubmenuTriggerState({ inherit: false })],
   host: {
     'aria-haspopup': 'true',
     '[attr.aria-expanded]': 'open() ? "true" : "false"',

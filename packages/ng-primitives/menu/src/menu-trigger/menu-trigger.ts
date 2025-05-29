@@ -13,7 +13,7 @@ import {
   ViewContainerRef,
 } from '@angular/core';
 import { Placement } from '@floating-ui/dom';
-import { injectElementRef, provideExitAnimationManager } from 'ng-primitives/internal';
+import { injectElementRef } from 'ng-primitives/internal';
 import {
   createOverlay,
   NgpOverlay,
@@ -29,7 +29,7 @@ import { menuTriggerState, provideMenuTriggerState } from './menu-trigger-state'
 @Directive({
   selector: '[ngpMenuTrigger]',
   exportAs: 'ngpMenuTrigger',
-  providers: [provideMenuTriggerState({ inherit: false }), provideExitAnimationManager()],
+  providers: [provideMenuTriggerState({ inherit: false })],
   host: {
     'aria-haspopup': 'true',
     '[attr.aria-expanded]': 'open() ? "true" : "false"',

@@ -1,6 +1,5 @@
 import { Directive } from '@angular/core';
 import { NgpFocusTrap } from 'ng-primitives/focus-trap';
-import { NgpExitAnimation } from 'ng-primitives/internal';
 import { injectOverlay } from 'ng-primitives/portal';
 
 /**
@@ -9,7 +8,7 @@ import { injectOverlay } from 'ng-primitives/portal';
 @Directive({
   selector: '[ngpPopover]',
   exportAs: 'ngpPopover',
-  hostDirectives: [NgpFocusTrap, NgpExitAnimation],
+  hostDirectives: [NgpFocusTrap],
   host: {
     role: 'dialog',
     '[style.left.px]': 'overlay.position().x',

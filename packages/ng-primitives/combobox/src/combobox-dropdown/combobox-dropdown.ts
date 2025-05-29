@@ -1,5 +1,5 @@
 import { Directive, input } from '@angular/core';
-import { injectElementRef, NgpExitAnimation } from 'ng-primitives/internal';
+import { injectElementRef } from 'ng-primitives/internal';
 import { observeResize } from 'ng-primitives/resize';
 import { uniqueId } from 'ng-primitives/utils';
 import { injectComboboxState } from '../combobox/combobox-state';
@@ -7,7 +7,6 @@ import { injectComboboxState } from '../combobox/combobox-state';
 @Directive({
   selector: '[ngpComboboxDropdown]',
   exportAs: 'ngpComboboxDropdown',
-  hostDirectives: [NgpExitAnimation],
   host: {
     role: 'listbox',
     '[id]': 'id()',
