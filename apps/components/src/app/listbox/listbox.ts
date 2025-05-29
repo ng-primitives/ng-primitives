@@ -74,6 +74,7 @@ import { ChangeFn, provideValueAccessor, TouchedFn } from 'ng-primitives/utils';
       position: absolute;
       animation: popover-show 0.1s ease-out;
       width: var(--ngp-popover-trigger-width);
+      box-shadow: var(--ngp-shadow-lg);
       box-sizing: border-box;
     }
   `,

@@ -7,7 +7,7 @@ import {
   Type,
   ViewContainerRef,
 } from '@angular/core';
-import { NgpExitAnimationManager } from 'ng-primitives/internal';
+import { NgpExitAnimationRef, setupExitAnimation } from 'ng-primitives/internal';
 
 export abstract class NgpPortal {
   constructor(
@@ -46,6 +46,7 @@ export class NgpComponentPortal<T> extends NgpPortal {
   private readonly componentPortal: ComponentPortal<T>;
   private viewRef: ComponentRef<T> | null = null;
   private isDestroying = false;
+  private exitAnimationRef: NgpExitAnimationRef | null = null;
 
   constructor(component: Type<T>, viewContainerRef: ViewContainerRef, injector: Injector) {
     super(viewContainerRef, injector);
@@ -59,6 +60,11 @@ export class NgpComponentPortal<T> extends NgpPortal {
   attach(container: HTMLElement): this {
     const domOutlet = new DomPortalOutlet(container, undefined, undefined, this.injector);
     this.viewRef = domOutlet.attach(this.componentPortal);
+
+    const element = this.viewRef.location.nativeElement as HTMLElement;
+
+    this.exitAnimationRef = setupExitAnimation({ element });
+
     return this;
   }
 
@@ -93,11 +99,7 @@ export class NgpComponentPortal<T> extends NgpPortal {
     this.isDestroying = true;
 
     // if there is an exit animation manager, wait for it to finish
-    const exitAnimationManager = this.injector.get(NgpExitAnimationManager, null, {
-      optional: true,
-    });
-
-    await exitAnimationManager?.exit();
+    await this.exitAnimationRef?.exit();
 
     if (this.viewRef) {
       this.viewRef.destroy();
@@ -109,6 +111,7 @@ export class NgpComponentPortal<T> extends NgpPortal {
 export class NgpTemplatePortal<T> extends NgpPortal {
   private readonly templatePortal: TemplatePortal<T>;
   private viewRef: EmbeddedViewRef<T> | null = null;
+  private exitAnimationRefs: NgpExitAnimationRef[] = [];
   private isDestroying = false;
 
   constructor(
@@ -128,6 +131,15 @@ export class NgpTemplatePortal<T> extends NgpPortal {
   attach(container: HTMLElement): this {
     const domOutlet = new DomPortalOutlet(container, undefined, undefined, this.injector);
     this.viewRef = domOutlet.attach(this.templatePortal);
+
+    for (const rootNode of this.viewRef.rootNodes) {
+      if (rootNode instanceof HTMLElement) {
+        // Setup exit animation for each root node
+        const exitAnimationRef = setupExitAnimation({ element: rootNode });
+        this.exitAnimationRefs.push(exitAnimationRef);
+      }
+    }
+
     return this;
   }
 
@@ -163,11 +175,7 @@ export class NgpTemplatePortal<T> extends NgpPortal {
     this.isDestroying = true;
 
     // if there is an exit animation manager, wait for it to finish
-    const exitAnimationManager = this.injector.get(NgpExitAnimationManager, null, {
-      optional: true,
-    });
-
-    await exitAnimationManager?.exit();
+    await Promise.all(this.exitAnimationRefs.map(ref => ref.exit()));
 
     if (this.viewRef) {
       this.viewRef.destroy();

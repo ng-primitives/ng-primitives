@@ -96,6 +96,7 @@ import {
       position: absolute;
       animation: popover-show 0.1s ease-out;
       width: var(--ngp-combobox-width);
+      box-shadow: var(--ngp-shadow-lg);
       box-sizing: border-box;
       margin-top: 4px;
       max-height: 240px;
@@ -150,22 +151,22 @@ import {
     @keyframes combobox-show {
       0% {
         opacity: 0;
-        transform: scale(0.9);
+        transform: translateY(-10px) scale(0.9);
       }
       100% {
         opacity: 1;
-        transform: scale(1);
+        transform: translateY(0) scale(1);
       }
     }
 
     @keyframes combobox-hide {
       0% {
         opacity: 1;
-        transform: scale(1);
+        transform: translateY(0) scale(1);
       }
       100% {
         opacity: 0;
-        transform: scale(0.9);
+        transform: translateY(-10px) scale(0.9);
       }
     }
   `,

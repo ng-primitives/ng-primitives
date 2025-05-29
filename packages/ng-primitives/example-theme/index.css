@@ -26,7 +26,7 @@
   --ngp-background-blue: #dbeafe;
   --ngp-background-success: oklch(84.1% 0.238 128.85);
 
-  --ngp-border: var(--ngp-gray-200);
+  --ngp-border: rgba(0, 0, 0, 0.1);
   --ngp-border-secondary: var(--ngp-gray-300);
   --ngp-border-blue: #3b82f6;
   --ngp-border-inverse: var(--ngp-black);

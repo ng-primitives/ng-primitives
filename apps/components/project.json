@@ -21,7 +21,12 @@
           }
         ],
         "styles": ["apps/components/src/styles.css"],
-        "scripts": []
+        "scripts": [],
+        "server": "apps/components/src/main.server.ts",
+        "ssr": {
+          "entry": "apps/components/src/server.ts"
+        },
+        "prerender": true
       },
       "configurations": {
         "production": {
