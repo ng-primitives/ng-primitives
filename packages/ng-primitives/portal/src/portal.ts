@@ -111,7 +111,7 @@ export class NgpComponentPortal<T> extends NgpPortal {
 export class NgpTemplatePortal<T> extends NgpPortal {
   private readonly templatePortal: TemplatePortal<T>;
   private viewRef: EmbeddedViewRef<T> | null = null;
-  private exitAnimationRef: NgpExitAnimationRef | null = null;
+  private exitAnimationRefs: NgpExitAnimationRef[] = [];
   private isDestroying = false;
 
   constructor(
@@ -132,8 +132,13 @@ export class NgpTemplatePortal<T> extends NgpPortal {
     const domOutlet = new DomPortalOutlet(container, undefined, undefined, this.injector);
     this.viewRef = domOutlet.attach(this.templatePortal);
 
-    const element = this.viewRef.rootNodes[0] as HTMLElement;
-    this.exitAnimationRef = setupExitAnimation({ element });
+    for (const rootNode of this.viewRef.rootNodes) {
+      if (rootNode instanceof HTMLElement) {
+        // Setup exit animation for each root node
+        const exitAnimationRef = setupExitAnimation({ element: rootNode });
+        this.exitAnimationRefs.push(exitAnimationRef);
+      }
+    }
 
     return this;
   }
@@ -170,7 +175,7 @@ export class NgpTemplatePortal<T> extends NgpPortal {
     this.isDestroying = true;
 
     // if there is an exit animation manager, wait for it to finish
-    await this.exitAnimationRef?.exit();
+    await Promise.all(this.exitAnimationRefs.map(ref => ref.exit()));
 
     if (this.viewRef) {
       this.viewRef.destroy();

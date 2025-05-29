@@ -9,13 +9,13 @@ import { NgpListbox, NgpListboxOption, NgpListboxSection } from 'ng-primitives/l
   imports: [NgpListbox, NgpListboxOption, NgpListboxSection, NgpHeader, NgIcon],
   providers: [provideIcons({ heroCheckSolid })],
   template: `
-    <div class="listbox" [(ngpListboxValue)]="selection" ngpListbox aria-label="Sections">
+    <div [(ngpListboxValue)]="selection" ngpListbox aria-label="Sections">
       @for (section of sections; track section.name) {
         <header class="listbox-header" ngpHeader>{{ section.name }}</header>
 
         <div ngpListboxSection>
           @for (option of section.options; track option.id) {
-            <div class="listbox-option" [ngpListboxOptionValue]="option" ngpListboxOption>
+            <div [ngpListboxOptionValue]="option" ngpListboxOption>
               <ng-icon name="heroCheckSolid" size="16px" />
               {{ option.name }}
             </div>
@@ -25,7 +25,7 @@ import { NgpListbox, NgpListboxOption, NgpListboxSection } from 'ng-primitives/l
     </div>
   `,
   styles: `
-    .listbox {
+    [ngpListbox] {
       background-color: var(--ngp-background);
       border: 1px solid var(--ngp-border);
       padding: 0.25rem;
@@ -41,7 +41,7 @@ import { NgpListbox, NgpListboxOption, NgpListboxSection } from 'ng-primitives/l
       font-weight: 600;
     }
 
-    .listbox-option {
+    [ngpListboxOption] {
       display: flex;
       align-items: center;
       gap: 0.5rem;
@@ -53,23 +53,23 @@ import { NgpListbox, NgpListboxOption, NgpListboxSection } from 'ng-primitives/l
       box-sizing: border-box;
     }
 
-    .listbox-option[data-hover] {
+    [ngpListboxOption][data-hover] {
       background-color: var(--ngp-background-hover);
     }
 
-    .listbox-option[data-press] {
+    [ngpListboxOption][data-press] {
       background-color: var(--ngp-background-active);
     }
 
-    .listbox-option[data-active] {
+    [ngpListboxOption][data-active] {
       background-color: var(--ngp-background-active);
     }
 
-    .listbox-option ng-icon {
+    [ngpListboxOption] ng-icon {
       visibility: hidden;
     }
 
-    .listbox-option[data-selected] ng-icon {
+    [ngpListboxOption][data-selected] ng-icon {
       visibility: visible;
     }
   `,

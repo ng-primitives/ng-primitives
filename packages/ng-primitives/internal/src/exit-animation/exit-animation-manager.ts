@@ -20,22 +20,8 @@ export class NgpExitAnimationManager {
   }
 
   /** Exit all instances. */
-  exit(): Promise<void> {
-    return new Promise((resolve, reject) => {
-      const exitPromises = this.instances.map(instance => instance.exit());
-
-      // Wait for all exit animations to finish
-      Promise.all(exitPromises)
-        .then(() => resolve())
-        .catch(err => {
-          if (err instanceof Error && err.name !== 'AbortError') {
-            return reject(err);
-          }
-          // Ignore abort errors as they are expected when the animation is interrupted
-          // by the removal of the element - e.g. when the user navigates away to another page
-          resolve();
-        });
-    });
+  async exit(): Promise<void> {
+    await Promise.all(this.instances.map(instance => instance.exit()));
   }
 }
 
