@@ -178,7 +178,6 @@ import { ChangeFn, provideValueAccessor, TouchedFn } from 'ng-primitives/utils';
         transform: translateY(-10px) scale(0.9);
       }
     }
-}
   `,
 })
 export class Combobox implements ControlValueAccessor {

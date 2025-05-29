@@ -90,8 +90,11 @@ export class NgpSwitch {
   /**
    * Handle the keydown event.
    */
-  @HostListener('keydown.space')
-  protected onKeyDown(): void {
+  @HostListener('keydown.space', ['$event'])
+  protected onKeyDown(event: KeyboardEvent): void {
+    // Prevent the default action of the space key, which is to scroll the page.
+    event.preventDefault();
+
     // If the switch is not a button then the space key will not toggle the checked state automatically,
     // so we need to do it manually.
     if (!this.isButton) {
