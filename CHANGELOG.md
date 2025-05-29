@@ -1,3 +1,13 @@
+## 0.47.0 (2025-05-29)
+
+### 🩹 Fixes
+
+- **menu:** resolve flicker issue on mobile ([#265](https://github.com/ng-primitives/ng-primitives/pull/265))
+
+### ❤️ Thank You
+
+- Ashley Hunter
+
 ## 0.46.0 (2025-05-28)
 
 ### 🚀 Features
