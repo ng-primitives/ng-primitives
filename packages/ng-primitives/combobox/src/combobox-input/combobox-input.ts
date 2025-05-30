@@ -116,6 +116,12 @@ export class NgpComboboxInput {
         this.state().closeDropdown();
         event.preventDefault();
         break;
+      case 'Backspace':
+        // if the input is not empty then open the dropdown
+        if (this.elementRef.nativeElement.value.length > 0) {
+          this.state().openDropdown();
+        }
+        break;
       default:
         // Ignore keys with length > 1 (e.g., 'Shift', 'ArrowLeft', 'Enter', etc.)
         // Filter out control/meta key combos (e.g., Ctrl+C)

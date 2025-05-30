@@ -267,6 +267,14 @@ export class NgpCombobox {
       return;
     }
 
+    // if the state is single selection, we don't allow toggling
+    if (!this.state.multiple()) {
+      // always select the option in single selection mode even if it is already selected so that we update the input
+      this.selectOption(option);
+      return;
+    }
+
+    // otherwise toggle the option
     if (this.isOptionSelected(option)) {
       this.deselectOption(option);
     } else {

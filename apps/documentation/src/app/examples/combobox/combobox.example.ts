@@ -1,4 +1,4 @@
-import { Component, computed, signal } from '@angular/core';
+import { Component, signal } from '@angular/core';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { heroChevronDown } from '@ng-icons/heroicons/outline';
 import {
@@ -23,11 +23,15 @@ import {
   ],
   providers: [provideIcons({ heroChevronDown })],
   template: `
-    <div [(ngpComboboxValue)]="value" (ngpComboboxValueChange)="onValueChange($event)" ngpCombobox>
+    <div
+      [(ngpComboboxValue)]="value"
+      (ngpComboboxValueChange)="onValueChange($event)"
+      (ngpComboboxOpenChange)="resetOnClose($event)"
+      ngpCombobox
+    >
       <input
         [value]="filter()"
         (input)="onFilterChange($event)"
-        (blur)="resetOnBlur()"
         placeholder="Select an option"
         ngpComboboxInput
       />
@@ -196,21 +200,22 @@ export default class ComboboxExample {
   readonly filter = signal<string>('');
 
   /** Get the filtered options. */
-  protected readonly filteredOptions = computed(() => {
-    const filter = this.filter();
+  protected readonly filteredOptions = signal(this.options);
+
+  protected onFilterChange(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    this.filter.set(input.value);
 
     // if the filter perfectly matches an option, return all options
-    if (this.options.some(option => option === filter)) {
-      return this.options;
+    if (this.options.some(option => option === this.filter())) {
+      this.filteredOptions.set(this.options);
+      return;
     }
 
     // otherwise case insensitive filter
-    return this.options.filter(option => option.toLowerCase().includes(filter.toLowerCase()));
-  });
-
-  onFilterChange(event: Event): void {
-    const input = event.target as HTMLInputElement;
-    this.filter.set(input.value);
+    this.filteredOptions.set(
+      this.options.filter(option => option.toLowerCase().includes(this.filter().toLowerCase())),
+    );
   }
 
   protected onValueChange(value: string): void {
@@ -218,7 +223,12 @@ export default class ComboboxExample {
     this.filter.set(value);
   }
 
-  protected resetOnBlur(): void {
+  protected resetOnClose(open: boolean): void {
+    // if the dropdown is closed, reset the filter value
+    if (open) {
+      return;
+    }
+
     // if the filter value is empty, set the value to undefined
     if (this.filter() === '') {
       this.value.set(undefined);
