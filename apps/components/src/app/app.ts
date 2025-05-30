@@ -32,6 +32,8 @@ import { RouterLink, RouterOutlet } from '@angular/router';
       <a routerLink="/tooltip">Tooltip</a>
       <a routerLink="/meter">Meter</a>
       <a routerLink="/menu">Menu</a>
+      <a routerLink="/popover">Popover</a>
+      <a routerLink="/combobox">Combobox</a>
     </nav>
     <main>
       <router-outlet />

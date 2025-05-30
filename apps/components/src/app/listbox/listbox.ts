@@ -57,6 +57,7 @@ import { ChangeFn, provideValueAccessor, TouchedFn } from 'ng-primitives/utils';
       outline: none;
       font-family: inherit;
       font-size: 14px;
+      box-sizing: border-box;
     }
 
     [ngpButton][data-focus-visible] {
@@ -73,6 +74,8 @@ import { ChangeFn, provideValueAccessor, TouchedFn } from 'ng-primitives/utils';
       position: absolute;
       animation: popover-show 0.1s ease-out;
       width: var(--ngp-popover-trigger-width);
+      box-shadow: var(--ngp-shadow-lg);
+      box-sizing: border-box;
     }
   `,
 })

@@ -31,11 +31,23 @@
       "dependsOn": ["^build"],
       "inputs": ["production", "^production"]
     },
-    "e2e-ci--**/*": { "dependsOn": ["^build"] }
+    "e2e-ci--**/*": {
+      "dependsOn": ["^build"]
+    }
   },
   "plugins": [
-    { "plugin": "@nx/jest/plugin", "options": { "targetName": "test" } },
-    { "plugin": "@nx/eslint/plugin", "options": { "targetName": "lint" } },
+    {
+      "plugin": "@nx/jest/plugin",
+      "options": {
+        "targetName": "test"
+      }
+    },
+    {
+      "plugin": "@nx/eslint/plugin",
+      "options": {
+        "targetName": "lint"
+      }
+    },
     {
       "plugin": "@nx/playwright/plugin",
       "options": {
@@ -45,8 +57,13 @@
     }
   ],
   "generators": {
-    "@nx/angular:library": { "linter": "eslint", "unitTestRunner": "jest" },
-    "@nx/angular:component": { "style": "css" },
+    "@nx/angular:library": {
+      "linter": "eslint",
+      "unitTestRunner": "jest"
+    },
+    "@nx/angular:component": {
+      "style": "css"
+    },
     "@nx/angular:application": {
       "e2eTestRunner": "playwright",
       "linter": "eslint",
@@ -54,10 +71,19 @@
       "unitTestRunner": "none"
     }
   },
-  "tasksRunnerOptions": { "default": { "options": { "cacheableOperations": [] } } },
+  "tasksRunnerOptions": {
+    "default": {
+      "options": {
+        "cacheableOperations": []
+      }
+    }
+  },
   "release": {
     "projects": ["ng-primitives", "state"],
-    "changelog": { "workspaceChangelog": true, "automaticFromRef": true },
+    "changelog": {
+      "workspaceChangelog": true,
+      "automaticFromRef": true
+    },
     "projectsRelationship": "fixed"
   },
   "defaultBase": "origin/next",

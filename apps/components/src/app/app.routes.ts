@@ -1,6 +1,8 @@
 import { Route } from '@angular/router';
 
 export const appRoutes: Route[] = [
+  { path: 'popover', loadComponent: () => import('./popover/app') },
+  { path: 'combobox', loadComponent: () => import('./combobox/app') },
   { path: 'meter', loadComponent: () => import('./meter/app') },
   { path: 'toast', loadComponent: () => import('./toast/app') },
   { path: 'search', loadComponent: () => import('./search/app') },

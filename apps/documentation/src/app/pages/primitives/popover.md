@@ -13,7 +13,7 @@ Display arbitrary content inside floating panels.
 Import the Popover primitives from `ng-primitives/popover`.
 
 ```ts
-import { NgpPopover } from 'ng-primitives/popover';
+import { NgpPopover, NgpPopoverTrigger } from 'ng-primitives/popover';
 ```
 
 ## Usage
@@ -27,6 +27,12 @@ Assemble the popover directives in your template.
   <div ngpPopover>Popover content</div>
 </ng-template>
 ```
+
+## Reusable Component
+
+Create a popover component that uses the `NgpPopover` directive.
+
+<docs-snippet name="popover"></docs-snippet>
 
 ## API Reference
 
@@ -48,7 +54,7 @@ The following directives are available to import from the `ng-primitives/popover
 
 ## Styling
 
-For the popover to be positioned correctly relative to the trigger element, it must be absolutely positioned. For example, you can use the following CSS:
+For the popover to be positioned correctly relative to the trigger element, it must use absolute or fixed positioning. For example, you can use the following CSS:
 
 ```css
 [ngpPopover] {
@@ -59,6 +65,18 @@ For the popover to be positioned correctly relative to the trigger element, it m
 ## Animations
 
 The `ngpPopover` primitive adds a CSS custom property `--ngp-popover-transform-origin` to the element that can be used to animate the popover from the trigger element.
+
+The `ngpPopover` will also add the `data-enter` and `data-exit` attributes to the element when it is being added or removed from the DOM. This can be used to trigger animations.
+
+```css
+:host[data-enter] {
+  animation: fade-in 0.2s ease-in-out;
+}
+
+:host[data-exit] {
+  animation: fade-out 0.2s ease-in-out;
+}
+```
 
 ## Global Configuration
 

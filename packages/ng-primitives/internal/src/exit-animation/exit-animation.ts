@@ -1,4 +1,4 @@
-import { Directive, inject, OnDestroy, Renderer2 } from '@angular/core';
+import { Directive, OnDestroy } from '@angular/core';
 import { injectElementRef } from '../utilities/element-ref';
 import { injectExitAnimationManager } from './exit-animation-manager';
 
@@ -9,14 +9,14 @@ import { injectExitAnimationManager } from './exit-animation-manager';
 export class NgpExitAnimation implements OnDestroy {
   /** The animation manager. */
   private readonly animationManager = injectExitAnimationManager();
-  /** The element to animate. */
-  private readonly elementRef = injectElementRef();
-  /** Access the renderer. */
-  private readonly renderer = inject(Renderer2);
+  /** Access the element reference. */
+  protected readonly elementRef = injectElementRef();
+
+  /** Exist animation reference. */
+  protected readonly ref = setupExitAnimation({ element: this.elementRef.nativeElement });
 
   constructor() {
     this.animationManager.add(this);
-    this.setAnimationState('enter');
   }
 
   ngOnDestroy(): void {
@@ -25,28 +25,67 @@ export class NgpExitAnimation implements OnDestroy {
 
   /** Mark the element as exiting. */
   async exit(): Promise<void> {
-    this.setAnimationState('exit');
-
-    const animation = this.elementRef.nativeElement.getAnimations();
-
-    if (animation.length > 0) {
-      // Wait for the exit animation to finish
-      await Promise.all(animation.map(anim => anim.finished));
-    }
+    await this.ref.exit();
   }
+}
 
-  private setAnimationState(state: 'enter' | 'exit' | null): void {
+interface NgpExitAnimationOptions {
+  /** The element to animate. */
+  element: HTMLElement;
+}
+
+export interface NgpExitAnimationRef {
+  /** Mark the element as exiting and wait for the animation to finish. */
+  exit: () => Promise<void>;
+}
+
+export function setupExitAnimation({ element }: NgpExitAnimationOptions): NgpExitAnimationRef {
+  let state: 'enter' | 'exit' = 'enter';
+
+  function setState(newState: 'enter' | 'exit') {
+    state = newState;
+
     // remove all current animation state attributes
-    this.renderer.removeAttribute(this.elementRef.nativeElement, 'data-enter');
-    this.renderer.removeAttribute(this.elementRef.nativeElement, 'data-exit');
+    element.removeAttribute('data-enter');
+    element.removeAttribute('data-exit');
+    element.removeAttribute('inert');
 
     // add the new animation state attribute
     if (state === 'enter') {
-      this.renderer.setAttribute(this.elementRef.nativeElement, 'data-enter', '');
+      element.setAttribute('data-enter', '');
     } else if (state === 'exit') {
-      this.renderer.setAttribute(this.elementRef.nativeElement, 'data-exit', '');
+      element.setAttribute('data-exit', '');
       // make the element inert to prevent interaction while exiting
-      this.renderer.setAttribute(this.elementRef.nativeElement, 'inert', '');
+      element.setAttribute('inert', '');
     }
   }
+
+  // Set the initial state to 'enter'
+  setState('enter');
+
+  return {
+    exit: () => {
+      return new Promise((resolve, reject) => {
+        setState('exit');
+
+        const animations = element.getAnimations();
+
+        // Wait for the exit animations to finish
+        if (animations.length > 0) {
+          Promise.all(animations.map(anim => anim.finished))
+            .then(() => resolve())
+            .catch(err => {
+              if (err instanceof Error && err.name !== 'AbortError') {
+                return reject(err);
+              }
+              // Ignore abort errors as they are expected when the animation is interrupted
+              // by the removal of the element - e.g. when the user navigates away to another page
+              resolve();
+            });
+        } else {
+          resolve();
+        }
+      });
+    },
+  };
 }

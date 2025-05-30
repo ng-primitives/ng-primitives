@@ -32,15 +32,9 @@ import { NgpPopover, NgpPopoverTrigger } from 'ng-primitives/popover';
       </button>
 
       <ng-template #dropdown>
-        <div
-          class="listbox"
-          [(ngpListboxValue)]="selection"
-          ngpPopover
-          ngpListbox
-          aria-label="Characters"
-        >
+        <div [(ngpListboxValue)]="selection" ngpPopover ngpListbox aria-label="Characters">
           @for (option of options; track option.id) {
-            <div class="listbox-option" [ngpListboxOptionValue]="option" ngpListboxOption>
+            <div [ngpListboxOptionValue]="option" ngpListboxOption>
               <ng-icon name="heroCheckSolid" size="16px" />
               {{ option.name }}
             </div>
@@ -92,7 +86,7 @@ import { NgpPopover, NgpPopoverTrigger } from 'ng-primitives/popover';
       outline-offset: 2px;
     }
 
-    .listbox {
+    [ngpListbox] {
       background-color: var(--ngp-background);
       border: 1px solid var(--ngp-border);
       padding: 0.25rem;
@@ -101,9 +95,10 @@ import { NgpPopover, NgpPopoverTrigger } from 'ng-primitives/popover';
       position: absolute;
       animation: popover-show 0.1s ease-out;
       width: var(--ngp-popover-trigger-width);
+      box-shadow: var(--ngp-shadow-lg);
     }
 
-    .listbox-option {
+    [ngpListboxOption] {
       display: flex;
       align-items: center;
       gap: 0.5rem;
@@ -115,34 +110,34 @@ import { NgpPopover, NgpPopoverTrigger } from 'ng-primitives/popover';
       box-sizing: border-box;
     }
 
-    .listbox-option[data-hover] {
+    [ngpListboxOption][data-hover] {
       background-color: var(--ngp-background-hover);
     }
 
-    .listbox-option[data-press] {
+    [ngpListboxOption][data-press] {
       background-color: var(--ngp-background-active);
     }
 
-    .listbox-option[data-active] {
+    [ngpListboxOption][data-active] {
       background-color: var(--ngp-background-active);
     }
 
-    .listbox-option ng-icon {
+    [ngpListboxOption] ng-icon {
       visibility: hidden;
     }
 
-    .listbox-option[data-selected] ng-icon {
+    [ngpListboxOption][data-selected] ng-icon {
       visibility: visible;
     }
 
     @keyframes popover-show {
       0% {
         opacity: 0;
-        transform: translateY(-4px);
+        transform: translateY(-10px) scale(0.9);
       }
       100% {
         opacity: 1;
-        transform: translateY(0);
+        transform: translateY(0) scale(1);
       }
     }
   `,

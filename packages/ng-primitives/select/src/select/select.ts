@@ -1,6 +1,6 @@
 import { BooleanInput } from '@angular/cdk/coercion';
 import { booleanAttribute, Directive, input } from '@angular/core';
-import { NgpFormControl, syncFormControl } from 'ng-primitives/form-field';
+import { setupFormControl } from 'ng-primitives/form-field';
 import { setupInteractions } from 'ng-primitives/internal';
 import { provideSelectState, selectState } from './select-state';
 
@@ -11,7 +11,6 @@ import { provideSelectState, selectState } from './select-state';
   selector: 'select[ngpSelect]',
   exportAs: 'ngpSelect',
   providers: [provideSelectState()],
-  hostDirectives: [NgpFormControl],
   host: {
     '[attr.disabled]': 'disabled() || null',
   },
@@ -38,6 +37,6 @@ export class NgpSelect {
       focusVisible: true,
       disabled: this.state.disabled,
     });
-    syncFormControl({ disabled: this.state.disabled });
+    setupFormControl({ disabled: this.state.disabled });
   }
 }

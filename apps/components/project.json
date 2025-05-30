@@ -21,7 +21,12 @@
           }
         ],
         "styles": ["apps/components/src/styles.css"],
-        "scripts": []
+        "scripts": [],
+        "server": "apps/components/src/main.server.ts",
+        "ssr": {
+          "entry": "apps/components/src/server.ts"
+        },
+        "prerender": true
       },
       "configurations": {
         "production": {
@@ -57,7 +62,8 @@
           "buildTarget": "components:build:development"
         }
       },
-      "defaultConfiguration": "development"
+      "defaultConfiguration": "development",
+      "continuous": true
     },
     "extract-i18n": {
       "executor": "@angular-devkit/build-angular:extract-i18n",

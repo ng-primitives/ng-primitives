@@ -64,10 +64,11 @@ import { NgpMenu, NgpMenuItem, NgpMenuTrigger, NgpSubmenuTrigger } from 'ng-prim
       width: max-content;
       background: var(--ngp-background);
       border: 1px solid var(--ngp-border);
-      box-shadow: var(--ngp-shadow);
+      box-shadow: var(--ngp-shadow-lg);
       border-radius: 8px;
       padding: 4px;
       animation: menu-show 0.2s ease-out;
+      transform-origin: var(--ngp-popover-transform-origin);
     }
 
     [ngpMenu][data-exit] {
@@ -92,6 +93,10 @@ import { NgpMenu, NgpMenuItem, NgpMenuTrigger, NgpSubmenuTrigger } from 'ng-prim
     }
 
     [ngpMenuItem][data-hover] {
+      background-color: var(--ngp-background-hover);
+    }
+
+    [ngpMenuItem][data-press] {
       background-color: var(--ngp-background-active);
     }
 

@@ -1,3 +1,109 @@
+## 0.47.0 (2025-05-29)
+
+### 🩹 Fixes
+
+- **menu:** resolve flicker issue on mobile ([#265](https://github.com/ng-primitives/ng-primitives/pull/265))
+
+### ❤️ Thank You
+
+- Ashley Hunter
+
+## 0.46.0 (2025-05-28)
+
+### 🚀 Features
+
+- **form-control:** add support for standalone form control ([#263](https://github.com/ng-primitives/ng-primitives/pull/263))
+
+### ❤️ Thank You
+
+- Ashley Hunter
+
+## 0.45.1 (2025-05-27)
+
+### 🩹 Fixes
+
+- **menu:** ssr issue ([#261](https://github.com/ng-primitives/ng-primitives/pull/261))
+
+### ❤️ Thank You
+
+- Ashley Hunter
+
+## 0.45.0 (2025-05-26)
+
+- all overlay primitives have now been unified to use the same API internally, greatly simplifying the codebase and making it easier to maintain. This includes the `NgpPopover`, `NgpTooltip`, `NgpMenu`, and `NgpCombobox` primitives.
+
+### 🚨 Breaking Changes
+
+- **menu:** the `NgpMenu` primitives no longer extend the `NgpPopover` primitive. As a result if you had been binding to any `ngpPopover` inputs or outputs, these would need to be updated to use the `ngpMenu` inputs and outputs instead. This also includes any usages of `injectPopoverTriggerState` which should now be replaced with `injectMenuTriggerState`.
+The CSS custom property `--ngp-popover-transform-origin` has been replaced with `--ngp-menu-transform-origin` to reflect the new unified API.
+
+If you encounter any other issues related to this change, please raise an issue on GitHub.
+
+## 0.44.0 (2025-05-22)
+
+### 🚀 Features
+
+- add option to disable escape key ([#253](https://github.com/ng-primitives/ng-primitives/pull/253))
+- combobox ([#231](https://github.com/ng-primitives/ng-primitives/pull/231))
+
+### ❤️ Thank You
+
+- Ashley Hunter
+- kedevked @kedevked
+
+## 0.43.1 (2025-05-21)
+
+### 🩹 Fixes
+
+- **tab:** tab button should be disabled when button element is used ([4debb55](https://github.com/ng-primitives/ng-primitives/commit/4debb55))
+
+### ❤️ Thank You
+
+- Ashley Hunter @ashley-hunter
+
+## 0.43.0 (2025-05-21)
+
+### 🚀 Features
+
+- add popover reusable component ([#251](https://github.com/ng-primitives/ng-primitives/pull/251))
+- add .nvmrc ([#254](https://github.com/ng-primitives/ng-primitives/pull/254))
+
+### 🩹 Fixes
+
+- **resize:** support server environments ([#257](https://github.com/ng-primitives/ng-primitives/pull/257))
+- **tabs:** support tabs without panels ([#256](https://github.com/ng-primitives/ng-primitives/pull/256))
+
+### ❤️ Thank You
+
+- Ashley Hunter
+- Harshit-Prasad @Harshit-Prasad
+- kedevked @kedevked
+
+## 0.42.0 (2025-05-19)
+
+### 🩹 Fixes
+
+- **checkbox:** id syncing issue ([#250](https://github.com/ng-primitives/ng-primitives/pull/250))
+
+### ❤️ Thank You
+
+- Ashley Hunter
+
+## 0.41.0 (2025-05-18)
+
+### 🚀 Features
+
+- **file-upload:** filter dropped files by accepted fileTypes and lim… ([#242](https://github.com/ng-primitives/ng-primitives/pull/242))
+
+### 🩹 Fixes
+
+- **popover:** detect changes issue ([#248](https://github.com/ng-primitives/ng-primitives/pull/248))
+
+### ❤️ Thank You
+
+- Ashley Hunter
+- Marc Stammerjohann @marcjulian
+
 ## 0.40.0 (2025-05-14)
 
 ### 🩹 Fixes

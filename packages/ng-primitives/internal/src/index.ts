@@ -1,4 +1,8 @@
-export { NgpExitAnimation } from './exit-animation/exit-animation';
+export {
+  NgpExitAnimation,
+  NgpExitAnimationRef,
+  setupExitAnimation,
+} from './exit-animation/exit-animation';
 export {
   injectExitAnimationManager,
   NgpExitAnimationManager,

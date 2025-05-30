@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { ControlValueAccessor } from '@angular/forms';
 import { injectSwitchState, NgpSwitch, NgpSwitchThumb } from 'ng-primitives/switch';
 import { ChangeFn, provideValueAccessor, TouchedFn } from 'ng-primitives/utils';
@@ -66,7 +66,7 @@ import { ChangeFn, provideValueAccessor, TouchedFn } from 'ng-primitives/utils';
     '(focusout)': 'onTouched?.()',
   },
 })
-export class Switch implements ControlValueAccessor {
+export class Switch implements OnInit, ControlValueAccessor {
   /** Access the switch state. */
   private readonly switch = injectSwitchState();
 
@@ -76,7 +76,7 @@ export class Switch implements ControlValueAccessor {
   /** The on touched callback */
   protected onTouched?: TouchedFn;
 
-  constructor() {
+  ngOnInit() {
     // Any time the switch changes, update the form value.
     this.switch().checkedChange.subscribe(value => this.onChange?.(value));
   }

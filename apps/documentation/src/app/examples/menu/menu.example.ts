@@ -50,9 +50,10 @@ import { NgpMenu, NgpMenuItem, NgpMenuTrigger } from 'ng-primitives/menu';
       width: max-content;
       background: var(--ngp-background);
       border: 1px solid var(--ngp-border);
-      box-shadow: var(--ngp-shadow);
+      box-shadow: var(--ngp-shadow-lg);
       border-radius: 8px;
       padding: 4px;
+      transform-origin: var(--ngp-menu-transform-origin);
     }
 
     [ngpMenu][data-enter] {
@@ -86,6 +87,10 @@ import { NgpMenu, NgpMenuItem, NgpMenuTrigger } from 'ng-primitives/menu';
     }
 
     [ngpMenuItem][data-hover] {
+      background-color: var(--ngp-background-hover);
+    }
+
+    [ngpMenuItem][data-press] {
       background-color: var(--ngp-background-active);
     }
 

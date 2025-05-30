@@ -1,4 +1,5 @@
 import { BooleanInput, coerceStringArray } from '@angular/cdk/coercion';
+import { DOCUMENT } from '@angular/common';
 import {
   booleanAttribute,
   Directive,
@@ -26,6 +27,11 @@ import { fileUploadState, provideFileUploadState } from './file-upload-state';
   },
 })
 export class NgpFileUpload {
+  /**
+   * Access the document
+   */
+  private readonly document = inject<Document>(DOCUMENT);
+
   /**
    * Access the host element.
    */
@@ -108,7 +114,7 @@ export class NgpFileUpload {
   /**
    * Store the file input element.
    */
-  private input: HTMLInputElement = document.createElement('input');
+  private input: HTMLInputElement = this.document.createElement('input');
 
   /**
    * The file upload state.

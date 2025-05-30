@@ -1,38 +1,25 @@
 import { BooleanInput, NumberInput } from '@angular/cdk/coercion';
-import { ComponentPortal, DomPortalOutlet, TemplatePortal } from '@angular/cdk/portal';
-import { DOCUMENT } from '@angular/common';
 import {
-  ComponentRef,
-  Directive,
-  ElementRef,
-  EmbeddedViewRef,
-  Injector,
-  OnDestroy,
-  TemplateRef,
-  Type,
-  ViewContainerRef,
   booleanAttribute,
   computed,
+  Directive,
+  ElementRef,
   inject,
+  Injector,
   input,
   numberAttribute,
+  OnDestroy,
   signal,
+  ViewContainerRef,
 } from '@angular/core';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { Placement } from '@floating-ui/dom';
 import {
-  Middleware,
-  Placement,
-  autoUpdate,
-  computePosition,
-  flip,
-  offset,
-  shift,
-} from '@floating-ui/dom';
-import { injectExitAnimationManager, provideExitAnimationManager } from 'ng-primitives/internal';
-import { fromResizeEvent } from 'ng-primitives/resize';
-import { injectDisposables } from 'ng-primitives/utils';
+  createOverlay,
+  NgpOverlay,
+  NgpOverlayConfig,
+  NgpOverlayContent,
+} from 'ng-primitives/portal';
 import { injectTooltipConfig } from '../config/tooltip-config';
-import { provideTooltipContext } from '../tooltip/tooltip-token';
 import { provideTooltipTriggerState, tooltipTriggerState } from './tooltip-trigger-state';
 
 /**
@@ -41,7 +28,7 @@ import { provideTooltipTriggerState, tooltipTriggerState } from './tooltip-trigg
 @Directive({
   selector: '[ngpTooltipTrigger]',
   exportAs: 'ngpTooltipTrigger',
-  providers: [provideTooltipTriggerState(), provideExitAnimationManager()],
+  providers: [provideTooltipTriggerState()],
   host: {
     '[attr.data-open]': 'open() ? "" : null',
     '[attr.data-disabled]': 'state.disabled() ? "" : null',
@@ -53,24 +40,9 @@ import { provideTooltipTriggerState, tooltipTriggerState } from './tooltip-trigg
 })
 export class NgpTooltipTrigger<T = null> implements OnDestroy {
   /**
-   * Access the exit animation manager.
-   */
-  private readonly exitAnimationManager = injectExitAnimationManager();
-
-  /**
    * Access the trigger element
    */
   private readonly trigger = inject(ElementRef<HTMLElement>);
-
-  /**
-   * Access the view container ref.
-   */
-  private readonly viewContainerRef = inject(ViewContainerRef);
-
-  /**
-   * Access the document.
-   */
-  private readonly document = inject(DOCUMENT);
 
   /**
    * Access the injector.
@@ -78,19 +50,19 @@ export class NgpTooltipTrigger<T = null> implements OnDestroy {
   private readonly injector = inject(Injector);
 
   /**
+   * Access the view container reference.
+   */
+  private readonly viewContainerRef = inject(ViewContainerRef);
+
+  /**
    * Access the global tooltip configuration.
    */
   private readonly config = injectTooltipConfig();
 
   /**
-   * Access the disposable utilities
-   */
-  private readonly disposables = injectDisposables();
-
-  /**
    * Access the tooltip template ref.
    */
-  readonly tooltip = input<NgpTooltipContent<T> | null>(null, {
+  readonly tooltip = input<NgpOverlayContent<T>>(undefined, {
     alias: 'ngpTooltipTrigger',
   });
 
@@ -156,68 +128,23 @@ export class NgpTooltipTrigger<T = null> implements OnDestroy {
   });
 
   /**
-   * Provide context to the tooltip.
-   * @default null
+   * Provide context to the tooltip. This can be used to pass data to the tooltip content.
    */
-  readonly context = input<T | null>(null, {
+  readonly context = input<T>(undefined, {
     alias: 'ngpTooltipTriggerContext',
   });
 
   /**
-   * Store the tooltip view ref.
-   */
-  protected viewRef = signal<ComponentRef<unknown> | EmbeddedViewRef<T> | null>(null);
-
-  /**
-   * Derive the tooltip middleware from the provided configuration.
-   */
-  private readonly middleware = computed(() => {
-    const middleware: Middleware[] = [offset(this.state.offset()), shift()];
-
-    if (this.state.flip()) {
-      middleware.push(flip());
-    }
-
-    return middleware;
-  });
-
-  /**
-   * Store the computed position of the tooltip.
+   * The overlay that manages the tooltip
    * @internal
    */
-  readonly position = signal<{ x: number; y: number }>({
-    x: 0,
-    y: 0,
-  });
+  readonly overlay = signal<NgpOverlay<T> | null>(null);
 
   /**
-   * The dispose function to stop computing the position of the tooltip.
-   */
-  private dispose?: () => void;
-
-  /**
+   * The open state of the tooltip.
    * @internal
-   * Store the trigger width.
    */
-  readonly width = signal<number | null>(null);
-
-  /**
-   * @internal
-   * The timeout to open the tooltip.
-   */
-  private openTimeout?: () => void;
-
-  /**
-   * @internal
-   * The timeout to close the tooltip.
-   */
-  private closeTimeout?: () => void;
-
-  /**
-   * @internal
-   * Whether the tooltip is open or not.
-   */
-  readonly open = computed(() => this.viewRef() !== null);
+  readonly open = computed(() => this.overlay()?.isOpen() ?? false);
 
   /**
    * Store the state of the tooltip.
@@ -225,139 +152,67 @@ export class NgpTooltipTrigger<T = null> implements OnDestroy {
    */
   readonly state = tooltipTriggerState<NgpTooltipTrigger<T>>(this);
 
-  constructor() {
-    // update the width of the trigger when it resizes
-    fromResizeEvent(this.trigger.nativeElement)
-      .pipe(takeUntilDestroyed())
-      .subscribe(() => this.width.set(this.trigger.nativeElement.offsetWidth));
-  }
-
   ngOnDestroy(): void {
-    this.destroyTooltip();
+    this.overlay()?.destroy();
   }
 
   /**
    * Show the tooltip.
    */
   show(): void {
-    // if closing is in progress then clear the timeout to stop the popover from closing
-    if (this.closeTimeout) {
-      this.closeTimeout();
-      this.closeTimeout = undefined;
-    }
-
-    // if the trigger is disabled or the tooltip is already open then do not show the tooltip
-    if (this.state.disabled() || this.openTimeout) {
+    // If the trigger is disabled, do not show the tooltip
+    if (this.state.disabled() || this.open()) {
       return;
     }
 
-    // if the tooltip exists in the DOM then do not create it again
-    if (this.viewRef()) {
-      return;
+    // Create the overlay if it doesn't exist yet
+    if (!this.overlay()) {
+      this.createOverlay();
     }
 
-    this.openTimeout = this.disposables.setTimeout(
-      () => this.createTooltip(),
-      this.state.showDelay(),
-    );
+    this.overlay()?.show();
   }
 
   /**
    * Hide the tooltip.
    */
   hide(): void {
-    // if closing is in progress then clear the timeout to stop the popover from opening
-    if (this.openTimeout) {
-      this.openTimeout();
-      this.openTimeout = undefined;
-    }
-
-    // if the trigger is disabled or the tooltip is already closed then do not hide the tooltip
-    if (this.state.disabled() || this.closeTimeout) {
+    // If the trigger is disabled, do nothing
+    if (this.state.disabled()) {
       return;
     }
 
-    this.closeTimeout = this.disposables.setTimeout(
-      () => this.destroyTooltip(),
-      this.state.hideDelay(),
-    );
+    this.overlay()?.hide();
   }
 
-  private createTooltip(): void {
-    this.openTimeout = undefined;
+  /**
+   * Create the overlay that will contain the tooltip
+   */
+  private createOverlay(): void {
     const tooltip = this.state.tooltip();
 
-    let portal: TemplatePortal | ComponentPortal<unknown>;
-
-    // Create a new inject with the tooltip context
-    const injector = Injector.create({
-      parent: this.injector,
-      providers: [provideTooltipContext(this.state.context())],
-    });
-
-    if (tooltip instanceof TemplateRef) {
-      portal = new TemplatePortal<NgpTooltipTemplateContext<T>>(
-        tooltip,
-        this.viewContainerRef,
-        { $implicit: this.state.context() } as NgpTooltipTemplateContext<T>,
-        injector,
-      );
-    } else if (tooltip instanceof Type) {
-      portal = new ComponentPortal(tooltip, this.viewContainerRef, injector);
-    } else {
+    if (!tooltip) {
       throw new Error('Tooltip must be either a TemplateRef or a ComponentType');
     }
 
-    const domOutlet = new DomPortalOutlet(
-      this.state.container() ?? this.document.body,
-      undefined,
-      undefined,
-      injector,
-    );
+    // Create config for the overlay
+    const config: NgpOverlayConfig<T> = {
+      content: tooltip,
+      triggerElement: this.trigger.nativeElement,
+      injector: this.injector,
+      context: this.state.context(),
+      container: this.state.container(),
+      placement: this.state.placement(),
+      offset: this.state.offset(),
+      flip: this.state.flip(),
+      showDelay: this.state.showDelay(),
+      hideDelay: this.state.hideDelay(),
+      closeOnEscape: true,
+      closeOnOutsideClick: true,
+      viewContainerRef: this.viewContainerRef,
+    };
 
-    const viewRef = domOutlet.attach(portal);
-    this.viewRef.set(viewRef);
-
-    let outletElement: HTMLElement | null = null;
-
-    if (viewRef instanceof ComponentRef) {
-      viewRef.changeDetectorRef.detectChanges();
-      outletElement = viewRef.location.nativeElement;
-    } else if (viewRef) {
-      viewRef.detectChanges();
-      outletElement = viewRef.rootNodes[0] as HTMLElement;
-    }
-
-    if (!outletElement) {
-      throw new Error('Outlet element is not available.');
-    }
-
-    // we want to determine the strategy to use. If the tooltip has position: fixed then we want to use
-    // fixed positioning. Otherwise we want to use absolute positioning.
-    const strategy = getComputedStyle(outletElement).position === 'fixed' ? 'fixed' : 'absolute';
-
-    this.dispose = autoUpdate(this.trigger.nativeElement, outletElement, async () => {
-      const position = await computePosition(this.trigger.nativeElement, outletElement, {
-        placement: this.state.placement(),
-        middleware: this.middleware(),
-        strategy,
-      });
-
-      this.position.set({ x: position.x, y: position.y });
-    });
-  }
-
-  private async destroyTooltip(): Promise<void> {
-    this.closeTimeout = undefined;
-    await this.exitAnimationManager.exit();
-
-    this.viewRef()?.destroy();
-    this.viewRef.set(null);
-    this.dispose?.();
+    // Create the overlay instance
+    this.overlay.set(createOverlay(config));
   }
 }
-
-type NgpTooltipTemplateContext<T> = {
-  $implicit: T;
-};
-type NgpTooltipContent<T> = TemplateRef<NgpTooltipTemplateContext<T>> | Type<unknown>;

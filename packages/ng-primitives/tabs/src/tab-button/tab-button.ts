@@ -1,5 +1,14 @@
 import { BooleanInput } from '@angular/cdk/coercion';
-import { Directive, HostListener, OnInit, booleanAttribute, computed, input } from '@angular/core';
+import {
+  Directive,
+  HOST_TAG_NAME,
+  HostListener,
+  OnInit,
+  booleanAttribute,
+  computed,
+  inject,
+  input,
+} from '@angular/core';
 import { setupInteractions } from 'ng-primitives/internal';
 import { NgpRovingFocusItem } from 'ng-primitives/roving-focus';
 import { injectTabsetState } from '../tabset/tabset-state';
@@ -16,11 +25,17 @@ import { injectTabsetState } from '../tabset/tabset-state';
     '[attr.aria-controls]': 'ariaControls()',
     '[attr.data-active]': 'active() ? "" : null',
     '[attr.data-disabled]': 'disabled() ? "" : null',
+    '[attr.disabled]': 'tagName === "button" && disabled() ? "" : null',
     '[attr.data-orientation]': 'state().orientation()',
   },
   hostDirectives: [NgpRovingFocusItem],
 })
 export class NgpTabButton implements OnInit {
+  /**
+   * Access the tag host name
+   */
+  protected readonly tagName = inject(HOST_TAG_NAME);
+
   /**
    * Access the tabset state
    */

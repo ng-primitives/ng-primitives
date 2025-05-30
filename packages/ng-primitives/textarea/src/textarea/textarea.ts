@@ -1,6 +1,6 @@
 import { BooleanInput } from '@angular/cdk/coercion';
 import { booleanAttribute, Directive, input } from '@angular/core';
-import { NgpFormControl, syncFormControl } from 'ng-primitives/form-field';
+import { setupFormControl } from 'ng-primitives/form-field';
 import { setupInteractions } from 'ng-primitives/internal';
 import { provideTextareaState, textareaState } from './textarea-state';
 
@@ -8,7 +8,6 @@ import { provideTextareaState, textareaState } from './textarea-state';
   selector: '[ngpTextarea]',
   exportAs: 'ngpTextarea',
   providers: [provideTextareaState()],
-  hostDirectives: [NgpFormControl],
 })
 export class NgpTextarea {
   /**
@@ -30,6 +29,6 @@ export class NgpTextarea {
       focus: true,
       disabled: this.state.disabled,
     });
-    syncFormControl({ disabled: this.state.disabled });
+    setupFormControl({ disabled: this.state.disabled });
   }
 }

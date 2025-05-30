@@ -26,7 +26,9 @@ export interface AngularPrimitivesComponentSchema {
     | 'toolbar'
     | 'tooltip'
     | 'meter'
-    | 'menu';
+    | 'menu',
+    | 'popover'
+    | 'combobox';
 
   /**
    * The path where the component files should be created, relative to the current workspace.

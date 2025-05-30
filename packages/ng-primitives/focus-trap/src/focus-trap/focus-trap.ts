@@ -13,6 +13,8 @@ import {
   OnDestroy,
   OnInit,
 } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { NgpOverlay } from 'ng-primitives/portal';
 import { focusTrapState, provideFocusTrapState } from './focus-trap-state';
 
 /**
@@ -96,6 +98,11 @@ const focusTrapStack = new FocusTrapStack();
 })
 export class NgpFocusTrap implements OnInit, OnDestroy {
   /**
+   * Access any parent overlay.
+   */
+  private readonly overlay = inject(NgpOverlay, { optional: true });
+
+  /**
    * Create a new focus trap.
    */
   private readonly focusTrap = new FocusTrap();
@@ -147,6 +154,11 @@ export class NgpFocusTrap implements OnInit, OnDestroy {
    * The focus trap state.
    */
   protected readonly state = focusTrapState<NgpFocusTrap>(this);
+
+  constructor() {
+    // if this is used within an overlay we must disable the focus trap as soon as the overlay is closing
+    this.overlay?.closing.pipe(takeUntilDestroyed()).subscribe(() => this.focusTrap.deactivate());
+  }
 
   ngOnInit(): void {
     focusTrapStack.add(this.focusTrap);

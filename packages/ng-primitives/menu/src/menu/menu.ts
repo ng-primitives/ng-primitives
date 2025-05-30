@@ -1,8 +1,10 @@
 import { FocusOrigin } from '@angular/cdk/a11y';
 import { Directive, inject } from '@angular/core';
-import { injectPopoverTriggerState, NgpPopover } from 'ng-primitives/popover';
+import { NgpFocusTrap } from 'ng-primitives/focus-trap';
+import { injectOverlay } from 'ng-primitives/portal';
 import { NgpRovingFocusGroup, provideRovingFocusGroup } from 'ng-primitives/roving-focus';
 import { Subject } from 'rxjs';
+import { injectMenuTriggerState } from '../menu-trigger/menu-trigger-state';
 import { NgpMenuToken, provideMenu } from './menu-token';
 
 /**
@@ -11,16 +13,26 @@ import { NgpMenuToken, provideMenu } from './menu-token';
 @Directive({
   selector: '[ngpMenu]',
   exportAs: 'ngpMenu',
-  hostDirectives: [NgpPopover, NgpRovingFocusGroup],
+  hostDirectives: [NgpRovingFocusGroup, NgpFocusTrap],
   providers: [
     // ensure we don't inherit the focus group from the parent menu if there is one
     provideRovingFocusGroup(NgpRovingFocusGroup, { inherit: false }),
     provideMenu(NgpMenu),
   ],
+  host: {
+    role: 'menu',
+    '[style.left.px]': 'overlay.position().x',
+    '[style.top.px]': 'overlay.position().y',
+    '[style.--ngp-menu-trigger-width.px]': 'overlay.triggerWidth()',
+    '[style.--ngp-menu-transform-origin]': 'overlay.transformOrigin()',
+  },
 })
 export class NgpMenu {
-  /** Access the popover trigger state */
-  private readonly popover = injectPopoverTriggerState();
+  /** Access the overlay. */
+  protected readonly overlay = injectOverlay();
+
+  /** Access the menu trigger state */
+  private readonly menuTrigger = injectMenuTriggerState();
 
   /** Access any parent menus */
   private readonly parentMenu = inject(NgpMenuToken, { optional: true, skipSelf: true });
@@ -28,9 +40,9 @@ export class NgpMenu {
   /** @internal Whether we should close submenus */
   readonly closeSubmenus = new Subject<HTMLElement>();
 
-  /** Close the menu and any parent menus */
+  /** @internal Close the menu and any parent menus */
   closeAllMenus(origin: FocusOrigin): void {
-    this.popover().hide(origin);
+    this.menuTrigger().hide(origin);
     this.parentMenu?.closeAllMenus(origin);
   }
 }

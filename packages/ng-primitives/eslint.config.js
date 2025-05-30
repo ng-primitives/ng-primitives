@@ -36,6 +36,7 @@ module.exports = [
       '@nx/workspace-prefer-state': 'error',
       '@nx/workspace-avoid-model': 'error',
       '@nx/workspace-avoid-early-state': 'error',
+      '@nx/workspace-prefer-entrypoint-imports': 'error',
     },
   },
   {

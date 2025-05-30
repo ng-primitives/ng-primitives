@@ -25,7 +25,6 @@ export const rule = ESLintUtils.RuleCreator(() => __filename)({
     fixable: 'code',
     docs: {
       description: `Prefer imports from the secondary entrypoints of the workspace instead of a relative import.`,
-      recommended: 'recommended',
     },
     schema: [],
     messages: {
