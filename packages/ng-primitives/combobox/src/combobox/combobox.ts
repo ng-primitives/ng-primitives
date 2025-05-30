@@ -198,11 +198,11 @@ export class NgpCombobox {
    * Toggle the dropdown.
    * @internal
    */
-  toggleDropdown(): void {
+  async toggleDropdown(): Promise<void> {
     if (this.open()) {
       this.closeDropdown();
     } else {
-      this.openDropdown();
+      await this.openDropdown();
     }
   }
 
