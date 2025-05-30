@@ -5,11 +5,13 @@ import {
   ChangeDetectionStrategy,
   ChangeDetectorRef,
   Component,
-  Input,
   PLATFORM_ID,
   Type,
   VERSION,
+  computed,
+  effect,
   inject,
+  input,
   signal,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
@@ -41,75 +43,95 @@ export class Example {
     import: 'default',
     query: '?source',
   });
-  selectedStyle = signal<'unstyled' | 'css'>('unstyled');
-  component: Type<unknown> | null = null;
+
+  // Inputs
+  name = input.required<string>();
+
+  // Writable signals for component state and template
+  readonly selectedStyle = signal<string>('');
+  readonly component = signal<Type<unknown> | null>(null);
   readonly mode = signal<'preview' | 'source'>('preview');
-  private raw: string | null = null;
   readonly code = signal<string>('');
 
-  // Store the base name of the example
-  private exampleBaseName: string = '';
+  // Private properties
+  private raw: string | null = null;
 
-  // Available styles for the current exampleBaseName
-  readonly availableStyles = signal<Array<'css' | 'unstyled'>>([]); // could include tailwind in the future
+  // Computed signals
+  readonly availableStyles = computed(() => {
+    const currentName = this.name();
+    if (!currentName) return [];
 
-  @Input({ required: true }) set name(name: string) {
-    this.exampleBaseName = name;
-
-    // Determine available styles for this component name
-    const styles: Array<'css' | 'unstyled'> = [];
+    const detectedStyles = new Set<string>();
     const exampleKeys = Object.keys(this.examples);
-    if (exampleKeys.some(key => key.endsWith(`/${name}.example.ts`))) {
-      styles.push('css');
-    }
-    if (exampleKeys.some(key => key.endsWith(`/${name}.unstyled.example.ts`))) {
-      styles.push('unstyled');
-    }
-    this.availableStyles.set(styles);
 
-    // Set initial style and load
-    // Default to 'css' if available, otherwise 'unstyled', otherwise error
-    let initialStyleToLoad: 'css' | 'unstyled' | null = null;
-    if (styles.includes('css')) {
-      initialStyleToLoad = 'css';
-    } else if (styles.includes('unstyled')) {
-      initialStyleToLoad = 'unstyled';
-    }
+    for (const key of exampleKeys) {
+      // Standard pattern: componentName.example.ts -> 'css'
+      if (key.endsWith(`/${currentName}.example.ts`)) {
+        detectedStyles.add('css');
+        continue;
+      }
 
-    if (!initialStyleToLoad) {
-      throw new Error(`No example versions (css or unstyled) found for path: ${name}`);
+      // Styled pattern: componentName.styleName.example.ts
+      const stylePatternRegex = new RegExp(`/${currentName}\\.([a-zA-Z0-9-]+)\\.example\\.ts$`);
+      const match = key.match(stylePatternRegex);
+      if (match && match[1]) {
+        detectedStyles.add(match[1]); // match[1] is the captured style name
+      }
     }
 
-    this.selectedStyle.set(initialStyleToLoad);
-    const examplePath = this.getExamplePathForNameAndStyle(
-      this.exampleBaseName,
-      this.selectedStyle(),
+    return Array.from(detectedStyles).sort((a, b) => {
+      if (a === 'css') return -1; // 'css' always first
+      if (b === 'css') return 1;
+      if (a === 'unstyled') return -1; // 'unstyled' second
+      if (b === 'unstyled') return 1;
+      return a.localeCompare(b); // Others alphabetically
+    });
+  });
+
+  readonly initialStyleToLoad = computed(() => {
+    const styles = this.availableStyles();
+    const currentName = this.name();
+    if (styles.length === 0 && currentName) {
+      throw new Error(`No example versions found for path: ${currentName}`);
+    }
+    return styles.find(s => s === 'css') || styles.find(s => s === 'unstyled') || styles[0] || null;
+  });
+
+  readonly currentExamplePath = computed(() => {
+    const currentName = this.name();
+    const currentStyle = this.selectedStyle();
+    if (!currentName || !currentStyle) return '';
+    return this.getExamplePathForNameAndStyle(currentName, currentStyle);
+  });
+
+  constructor() {
+    // Effect to initialize/reset selectedStyle when the component name (and thus initial style) changes
+    effect(
+      () => {
+        const initial = this.initialStyleToLoad();
+        if (initial) {
+          this.selectedStyle.set(initial);
+        }
+      },
+      { allowSignalWrites: true },
     );
 
-    if (!examplePath) {
-      // This should not happen if initialStyleToLoad was set based on `styles`
-      throw new Error(`No example found for path: ${name} with style ${this.selectedStyle()}`);
-    }
-
-    this.loadExample(examplePath);
+    // Effect to load example when the path changes
+    effect(() => {
+      this.loadExample(this.currentExamplePath());
+    });
   }
 
-  selectStyle(style: 'unstyled' | 'css'): void {
+  selectStyle(style: string): void {
     if (!this.availableStyles().includes(style)) {
-      console.warn(`Style ${style} is not available for ${this.exampleBaseName}.`);
+      console.warn(`Style ${style} is not available for ${this.name()}.`);
       return;
     }
 
-    this.selectedStyle.set(style);
-    if (!this.exampleBaseName) {
-      console.error('Example base name is not set. Cannot select style.');
-      return;
-    }
-    const examplePath = this.getExamplePathForNameAndStyle(this.exampleBaseName, style);
-    this.loadExample(examplePath);
+    this.selectedStyle.set(style); // This will trigger currentExamplePath recomputation and the loadExample effect
   }
 
-  private getExamplePathForNameAndStyle(baseName: string, style: 'unstyled' | 'css'): string {
+  private getExamplePathForNameAndStyle(baseName: string, style: string): string {
     let pathKey: string | undefined;
     const exampleKeys = Object.keys(this.examples);
 
@@ -125,23 +147,21 @@ export class Example {
 
   private async loadExample(path: string): Promise<void> {
     if (!path) {
-      this.component = null;
+      this.component.set(null);
       this.code.set('');
       this.raw = null;
-      this.changeDetector.detectChanges();
       console.warn(`Example path is empty. Clearing example view.`);
       return;
     }
 
     try {
       const componentModule = await this.examples[path]!();
-      this.component = componentModule as Type<unknown>;
-      this.changeDetector.detectChanges();
+      this.component.set(componentModule as Type<unknown>);
 
       if (isPlatformServer(this.platform)) {
         return;
       }
-      const originalSource = (await this.source[path]!()) as string;
+      const originalSource = (await this.source[path]!()) as string; // Non-null assertion for path
       if (typeof originalSource !== 'string') {
         console.error(`Source code not found or not a string for path: ${path}`);
         this.code.set('// Source code not available');
@@ -176,11 +196,9 @@ export class Example {
       this.code.set(
         highlight(formattedCodeForDisplay.trim(), languages['typescript'], 'typescript'),
       );
-
-      this.changeDetector.detectChanges();
     } catch (error) {
       console.error(`Error loading example from path ${path}:`, error);
-      this.component = null;
+      this.component.set(null);
       this.code.set('// Error loading example code.');
       this.raw = null;
       this.changeDetector.detectChanges();
@@ -195,7 +213,7 @@ export class Example {
     // Prepare source for StackBlitz from this.raw
     const stackBlitzSource = this.raw
       .replace(/export default class (\w+)/, 'export class AppComponent')
-      .replace(/selector:\s*'[^']*'/, "selector: 'app-root'")
+      .replace(/selector:\s*'[^']*'/, "selector: 'app-root'");
 
     const packageJson = {
       name: 'angular-starter',
@@ -247,7 +265,7 @@ export class Example {
 </html>
 `,
         'src/global_styles.css': `/* Add application styles & imports to this file! */
-@import 'ng-primitives/example-theme/index.css'; // Ensure this path is correct for StackBlitz
+@import 'ng-primitives/example-theme/index.css'; 
 
 :root {
   font-family: InterVariable, sans-serif;
