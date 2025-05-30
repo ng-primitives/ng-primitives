@@ -46,8 +46,8 @@ export class NgpComboboxButton {
   }
 
   @HostListener('click')
-  protected toggleDropdown(): void {
-    this.state().toggleDropdown();
+  protected async toggleDropdown(): Promise<void> {
+    await this.state().toggleDropdown();
     this.state().input()?.focus();
   }
 }
