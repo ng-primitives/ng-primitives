@@ -1,6 +1,6 @@
 import { BooleanInput } from '@angular/cdk/coercion';
 import { booleanAttribute, Directive, HostListener, input, output } from '@angular/core';
-import { NgpFormControl } from 'ng-primitives/form-field';
+import { setupFormControl } from 'ng-primitives/form-field';
 import { injectElementRef, setupInteractions } from 'ng-primitives/internal';
 import { provideSwitchState, switchState } from './switch-state';
 
@@ -11,7 +11,6 @@ import { provideSwitchState, switchState } from './switch-state';
   selector: '[ngpSwitch]',
   exportAs: 'ngpSwitch',
   providers: [provideSwitchState()],
-  hostDirectives: [NgpFormControl],
   host: {
     role: 'switch',
     '[attr.type]': 'isButton ? "button" : null',
@@ -72,6 +71,7 @@ export class NgpSwitch {
       focusVisible: true,
       disabled: this.state.disabled,
     });
+    setupFormControl({ disabled: this.state.disabled });
   }
 
   /**
