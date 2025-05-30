@@ -1,4 +1,4 @@
-import { Component, signal } from '@angular/core';
+import { Component, computed, signal } from '@angular/core';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { heroChevronDown } from '@ng-icons/heroicons/outline';
 import {
@@ -25,7 +25,7 @@ import {
   template: `
     <div
       [(ngpComboboxValue)]="value"
-      (ngpComboboxValueChange)="onValueChange($event)"
+      (ngpComboboxValueChange)="filter.set($event)"
       (ngpComboboxOpenChange)="resetOnClose($event)"
       ngpCombobox
     >
@@ -200,27 +200,13 @@ export default class ComboboxExample {
   readonly filter = signal<string>('');
 
   /** Get the filtered options. */
-  protected readonly filteredOptions = signal(this.options);
+  protected readonly filteredOptions = computed(() =>
+    this.options.filter(option => option.toLowerCase().includes(this.filter().toLowerCase())),
+  );
 
   protected onFilterChange(event: Event): void {
     const input = event.target as HTMLInputElement;
     this.filter.set(input.value);
-
-    // if the filter perfectly matches an option, return all options
-    if (this.options.some(option => option === this.filter())) {
-      this.filteredOptions.set(this.options);
-      return;
-    }
-
-    // otherwise case insensitive filter
-    this.filteredOptions.set(
-      this.options.filter(option => option.toLowerCase().includes(this.filter().toLowerCase())),
-    );
-  }
-
-  protected onValueChange(value: string): void {
-    // update the filter value
-    this.filter.set(value);
   }
 
   protected resetOnClose(open: boolean): void {

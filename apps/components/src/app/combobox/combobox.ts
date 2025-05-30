@@ -29,6 +29,7 @@ import { ChangeFn, provideValueAccessor, TouchedFn } from 'ng-primitives/utils';
     <div
       [(ngpComboboxValue)]="value"
       [ngpComboboxDisabled]="disabled() || formDisabled()"
+      (ngpComboboxOpenChange)="resetOnClose($event)"
       (ngpComboboxValueChange)="onValueChange($event)"
       ngpCombobox
     >
@@ -36,7 +37,7 @@ import { ChangeFn, provideValueAccessor, TouchedFn } from 'ng-primitives/utils';
         [value]="filter()"
         [placeholder]="placeholder()"
         (input)="onFilterChange($event)"
-        (blur)="resetOnBlur()"
+        (blur)="onTouched?.()"
         ngpComboboxInput
       />
 
@@ -199,17 +200,9 @@ export class Combobox implements ControlValueAccessor {
   protected readonly filter = signal<string>('');
 
   /** Get the filtered options. */
-  protected readonly filteredOptions = computed(() => {
-    const filter = this.filter();
-
-    // if the filter perfectly matches an option, return all options
-    if (this.options().some(option => option === filter)) {
-      return this.options();
-    }
-
-    // otherwise case insensitive filter
-    return this.options().filter(option => option.toLowerCase().includes(filter.toLowerCase()));
-  });
+  protected readonly filteredOptions = computed(() =>
+    this.options().filter(option => option.toLowerCase().includes(this.filter().toLowerCase())),
+  );
 
   /** Store the form disabled state */
   protected readonly formDisabled = signal(false);
@@ -248,7 +241,12 @@ export class Combobox implements ControlValueAccessor {
     this.filter.set(value);
   }
 
-  protected resetOnBlur(): void {
+  protected resetOnClose(open: boolean): void {
+    // if the dropdown is closed, reset the filter value
+    if (open) {
+      return;
+    }
+
     // if the filter value is empty, set the value to undefined
     if (this.filter() === '') {
       this.value.set(undefined);
@@ -256,8 +254,5 @@ export class Combobox implements ControlValueAccessor {
       // otherwise set the filter value to the selected value
       this.filter.set(this.value() ?? '');
     }
-
-    // mark the control as touched
-    this.onTouched?.();
   }
 }
