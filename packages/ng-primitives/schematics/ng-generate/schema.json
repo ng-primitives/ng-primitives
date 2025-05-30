@@ -21,6 +21,7 @@
         "form-field",
         "input",
         "listbox",
+        "menu",
         "meter",
         "pagination",
         "popover",

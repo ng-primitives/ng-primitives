@@ -25,12 +25,34 @@ Assemble the menu directives in your template.
 
 <ng-template #menu>
   <div ngpMenu>
-    <div ngpMenuItem>Item 1</div>
-    <div ngpMenuItem>Item 2</div>
-    <div ngpMenuItem>Item 3</div>
+    <button ngpMenuItem>Item 1</button>
+    <button ngpMenuItem>Item 2</button>
+    <button ngpMenuItem>Item 3</button>
   </div>
 </ng-template>
 ```
+
+## Reusable Component
+
+Create reusable components that use the `NgpMenu` directive.
+
+<docs-snippet name="menu"></docs-snippet>
+
+## Schematics
+
+Generate a reusable menu component using the Angular CLI.
+
+```bash npm
+ng g ng-primitives:primitive menu
+```
+
+### Options
+
+- `path`: The path at which to create the component file.
+- `prefix`: The prefix to apply to the generated component selector.
+- `componentSuffix`: The suffix to apply to the generated component class name.
+- `fileSuffix`: The suffix to apply to the generated component file name. Defaults to `component`.
+- `exampleStyles`: Whether to include example styles in the generated component file. Defaults to `true`.
 
 ## Examples
 

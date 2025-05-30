@@ -26,6 +26,7 @@ export interface AngularPrimitivesComponentSchema {
     | 'toolbar'
     | 'tooltip'
     | 'meter'
+    | 'menu'
     | 'popover'
     | 'combobox';
 

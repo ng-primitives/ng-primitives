@@ -13,6 +13,7 @@ export const appRoutes: Route[] = [
   { path: 'separator', loadComponent: () => import('./separator/app') },
   { path: 'textarea', loadComponent: () => import('./textarea/app') },
   { path: 'listbox', loadComponent: () => import('./listbox/app') },
+  { path: 'menu', loadComponent: () => import('./menu/app') },
   { path: 'tabs', loadComponent: () => import('./tabs/app') },
   { path: 'toggle-group', loadComponent: () => import('./toggle-group/app') },
   { path: 'toggle', loadComponent: () => import('./toggle/app') },
