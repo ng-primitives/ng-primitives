@@ -1,5 +1,5 @@
 import { FocusMonitor, FocusOrigin } from '@angular/cdk/a11y';
-import { BlockScrollStrategy, NoopScrollStrategy, ViewportRuler } from '@angular/cdk/overlay';
+import { ViewportRuler } from '@angular/cdk/overlay';
 import { DOCUMENT } from '@angular/common';
 import {
   DestroyRef,
@@ -28,6 +28,7 @@ import { injectDisposables } from 'ng-primitives/utils';
 import { Subject, fromEvent } from 'rxjs';
 import { provideOverlayContext } from './overlay-token';
 import { NgpPortal, createPortal } from './portal';
+import { BlockScrollStrategy, NoopScrollStrategy } from './scroll-strategy';
 
 /**
  * Configuration options for creating an overlay
