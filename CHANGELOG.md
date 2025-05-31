@@ -1,3 +1,23 @@
+## 0.48.0 (2025-05-31)
+
+### 🚀 Features
+
+- add support for csp nonce to style injector ([#275](https://github.com/ng-primitives/ng-primitives/pull/275))
+- **menu:** reusable component ([#246](https://github.com/ng-primitives/ng-primitives/pull/246), [#149](https://github.com/ng-primitives/ng-primitives/issues/149), [#207](https://github.com/ng-primitives/ng-primitives/issues/207), [#209](https://github.com/ng-primitives/ng-primitives/issues/209), [#204](https://github.com/ng-primitives/ng-primitives/issues/204), [#211](https://github.com/ng-primitives/ng-primitives/issues/211), [#212](https://github.com/ng-primitives/ng-primitives/issues/212), [#214](https://github.com/ng-primitives/ng-primitives/issues/214), [#215](https://github.com/ng-primitives/ng-primitives/issues/215), [#218](https://github.com/ng-primitives/ng-primitives/issues/218), [#219](https://github.com/ng-primitives/ng-primitives/issues/219), [#220](https://github.com/ng-primitives/ng-primitives/issues/220), [#221](https://github.com/ng-primitives/ng-primitives/issues/221), [#222](https://github.com/ng-primitives/ng-primitives/issues/222), [#228](https://github.com/ng-primitives/ng-primitives/issues/228), [#226](https://github.com/ng-primitives/ng-primitives/issues/226), [#237](https://github.com/ng-primitives/ng-primitives/issues/237), [#238](https://github.com/ng-primitives/ng-primitives/issues/238), [#240](https://github.com/ng-primitives/ng-primitives/issues/240), [#243](https://github.com/ng-primitives/ng-primitives/issues/243), [#242](https://github.com/ng-primitives/ng-primitives/issues/242), [#244](https://github.com/ng-primitives/ng-primitives/issues/244), [#152](https://github.com/ng-primitives/ng-primitives/issues/152))
+
+### 🩹 Fixes
+
+- **combobox:** Select input after dropdown opened ([#268](https://github.com/ng-primitives/ng-primitives/pull/268))
+- **combobox:** resolve dropdown close issue ([#273](https://github.com/ng-primitives/ng-primitives/pull/273))
+- **input:** correct disabled attribute ([#274](https://github.com/ng-primitives/ng-primitives/pull/274))
+- **menu:** resolve scroll blocking not working ([#270](https://github.com/ng-primitives/ng-primitives/pull/270))
+- **switch:** resolve form control timing issue ([#269](https://github.com/ng-primitives/ng-primitives/pull/269))
+
+### ❤️ Thank You
+
+- Ashley Hunter
+- Ruud Walraven
+
 ## 0.47.0 (2025-05-29)
 
 ### 🩹 Fixes
