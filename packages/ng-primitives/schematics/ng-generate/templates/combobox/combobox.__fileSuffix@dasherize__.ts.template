@@ -29,6 +29,7 @@ import { ChangeFn, provideValueAccessor, TouchedFn } from 'ng-primitives/utils';
     <div
       [(ngpComboboxValue)]="value"
       [ngpComboboxDisabled]="disabled() || formDisabled()"
+      (ngpComboboxOpenChange)="resetOnClose($event)"
       (ngpComboboxValueChange)="onValueChange($event)"
       ngpCombobox
     >
@@ -36,7 +37,7 @@ import { ChangeFn, provideValueAccessor, TouchedFn } from 'ng-primitives/utils';
         [value]="filter()"
         [placeholder]="placeholder()"
         (input)="onFilterChange($event)"
-        (blur)="resetOnBlur()"
+        (blur)="onTouched?.()"
         ngpComboboxInput
       />
 
@@ -106,6 +107,7 @@ import { ChangeFn, provideValueAccessor, TouchedFn } from 'ng-primitives/utils';
       position: absolute;
       animation: popover-show 0.1s ease-out;
       width: var(--ngp-combobox-width);
+      box-shadow: var(--ngp-shadow-lg);
       box-sizing: border-box;
       margin-top: 4px;
       max-height: 240px;
@@ -161,22 +163,22 @@ import { ChangeFn, provideValueAccessor, TouchedFn } from 'ng-primitives/utils';
     @keyframes combobox-show {
       0% {
         opacity: 0;
-        transform: scale(0.9);
+        transform: translateY(-10px) scale(0.9);
       }
       100% {
         opacity: 1;
-        transform: scale(1);
+        transform: translateY(0) scale(1);
       }
     }
 
     @keyframes combobox-hide {
       0% {
         opacity: 1;
-        transform: scale(1);
+        transform: translateY(0) scale(1);
       }
       100% {
         opacity: 0;
-        transform: scale(0.9);
+        transform: translateY(-10px) scale(0.9);
       }
     }
   `,
@@ -200,17 +202,9 @@ export class Combobox<%= componentSuffix %> implements ControlValueAccessor {
   protected readonly filter = signal<string>('');
 
   /** Get the filtered options. */
-  protected readonly filteredOptions = computed(() => {
-    const filter = this.filter();
-
-    // if the filter perfectly matches an option, return all options
-    if (this.options().some(option => option === filter)) {
-      return this.options();
-    }
-
-    // otherwise case insensitive filter
-    return this.options().filter(option => option.toLowerCase().includes(filter.toLowerCase()));
-  });
+  protected readonly filteredOptions = computed(() =>
+    this.options().filter(option => option.toLowerCase().includes(this.filter().toLowerCase())),
+  );
 
   /** Store the form disabled state */
   protected readonly formDisabled = signal(false);
@@ -249,7 +243,12 @@ export class Combobox<%= componentSuffix %> implements ControlValueAccessor {
     this.filter.set(value);
   }
 
-  protected resetOnBlur(): void {
+  protected resetOnClose(open: boolean): void {
+    // if the dropdown is closed, reset the filter value
+    if (open) {
+      return;
+    }
+
     // if the filter value is empty, set the value to undefined
     if (this.filter() === '') {
       this.value.set(undefined);
@@ -257,8 +256,5 @@ export class Combobox<%= componentSuffix %> implements ControlValueAccessor {
       // otherwise set the filter value to the selected value
       this.filter.set(this.value() ?? '');
     }
-
-    // mark the control as touched
-    this.onTouched?.();
   }
 }

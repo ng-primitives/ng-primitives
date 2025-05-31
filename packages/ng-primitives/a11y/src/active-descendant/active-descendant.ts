@@ -1,4 +1,4 @@
-import { computed, Signal, signal } from '@angular/core';
+import { computed, effect, Signal, signal } from '@angular/core';
 
 interface ActiveDescendantManagerOptions<T extends NgpActivatable> {
   /**
@@ -36,6 +36,20 @@ export function activeDescendantManager<T extends NgpActivatable>(
   const disabled = computed(
     () => options.disabled?.() || options.items().every(item => item.disabled?.()),
   );
+
+  // any time the item list changes, check if the active index is still valid
+  effect(() => {
+    const items = options.items();
+    if (activeIndex() >= items.length || activeIndex() < 0) {
+      activeIndex.set(items.findIndex(item => !item.disabled?.()));
+    }
+    if (activeIndex() === -1 && items.length > 0) {
+      activeIndex.set(0);
+    }
+    if (disabled() || items.length === 0) {
+      activeIndex.set(-1);
+    }
+  });
 
   const activeDescendant = computed(() => {
     const item = activeItem();

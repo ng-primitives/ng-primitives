@@ -12,7 +12,7 @@ import {
 } from '@angular/core';
 import { Placement } from '@floating-ui/dom';
 import { activeDescendantManager } from 'ng-primitives/a11y';
-import { explicitEffect, injectElementRef } from 'ng-primitives/internal';
+import { domSort, explicitEffect, injectElementRef } from 'ng-primitives/internal';
 import type { NgpComboboxButton } from '../combobox-button/combobox-button';
 import type { NgpComboboxDropdown } from '../combobox-dropdown/combobox-dropdown';
 import type { NgpComboboxInput } from '../combobox-input/combobox-input';
@@ -131,13 +131,20 @@ export class NgpCombobox {
   readonly open = computed(() => this.overlay()?.isOpen() ?? false);
 
   /**
+   * Sort the options by their dom order.
+   */
+  private readonly sortedOptions = domSort(this.options, {
+    getElement: option => option.elementRef.nativeElement,
+  });
+
+  /**
    * The active key descendant manager.
    * @internal
    */
   readonly activeDescendantManager = activeDescendantManager({
     // we must wrap the signal in a computed to ensure it is not used before it is defined
     disabled: computed(() => this.state.disabled()),
-    items: this.options,
+    items: this.sortedOptions,
   });
 
   /** The state of the combobox. */
