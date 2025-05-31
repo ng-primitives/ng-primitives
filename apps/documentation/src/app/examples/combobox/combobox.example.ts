@@ -23,11 +23,15 @@ import {
   ],
   providers: [provideIcons({ heroChevronDown })],
   template: `
-    <div [(ngpComboboxValue)]="value" (ngpComboboxValueChange)="onValueChange($event)" ngpCombobox>
+    <div
+      [(ngpComboboxValue)]="value"
+      (ngpComboboxValueChange)="filter.set($event)"
+      (ngpComboboxOpenChange)="resetOnClose($event)"
+      ngpCombobox
+    >
       <input
         [value]="filter()"
         (input)="onFilterChange($event)"
-        (blur)="resetOnBlur()"
         placeholder="Select an option"
         ngpComboboxInput
       />
@@ -196,29 +200,21 @@ export default class ComboboxExample {
   readonly filter = signal<string>('');
 
   /** Get the filtered options. */
-  protected readonly filteredOptions = computed(() => {
-    const filter = this.filter();
+  protected readonly filteredOptions = computed(() =>
+    this.options.filter(option => option.toLowerCase().includes(this.filter().toLowerCase())),
+  );
 
-    // if the filter perfectly matches an option, return all options
-    if (this.options.some(option => option === filter)) {
-      return this.options;
-    }
-
-    // otherwise case insensitive filter
-    return this.options.filter(option => option.toLowerCase().includes(filter.toLowerCase()));
-  });
-
-  onFilterChange(event: Event): void {
+  protected onFilterChange(event: Event): void {
     const input = event.target as HTMLInputElement;
     this.filter.set(input.value);
   }
 
-  protected onValueChange(value: string): void {
-    // update the filter value
-    this.filter.set(value);
-  }
+  protected resetOnClose(open: boolean): void {
+    // if the dropdown is closed, reset the filter value
+    if (open) {
+      return;
+    }
 
-  protected resetOnBlur(): void {
     // if the filter value is empty, set the value to undefined
     if (this.filter() === '') {
       this.value.set(undefined);

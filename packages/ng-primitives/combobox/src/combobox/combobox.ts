@@ -1,6 +1,6 @@
 import { BooleanInput } from '@angular/cdk/coercion';
 import {
-  afterNextRender,
+  afterRenderEffect,
   booleanAttribute,
   computed,
   Directive,
@@ -12,7 +12,7 @@ import {
 } from '@angular/core';
 import { Placement } from '@floating-ui/dom';
 import { activeDescendantManager } from 'ng-primitives/a11y';
-import { explicitEffect, injectElementRef } from 'ng-primitives/internal';
+import { injectElementRef } from 'ng-primitives/internal';
 import type { NgpComboboxButton } from '../combobox-button/combobox-button';
 import type { NgpComboboxDropdown } from '../combobox-dropdown/combobox-dropdown';
 import type { NgpComboboxInput } from '../combobox-input/combobox-input';
@@ -145,11 +145,11 @@ export class NgpCombobox {
 
   constructor() {
     // any time the active descendant changes, ensure we scroll it into view
-    explicitEffect([this.activeDescendantManager.activeItem], ([option]) =>
-      // perform after next render to ensure the DOM is updated
-      // e.g. the dropdown is open before the option is scrolled into view
-      afterNextRender({ write: () => option?.scrollIntoView?.() }, { injector: this.injector }),
-    );
+    // perform after next render to ensure the DOM is updated
+    // e.g. the dropdown is open before the option is scrolled into view
+    afterRenderEffect({
+      write: () => this.activeDescendantManager.activeItem()?.scrollIntoView?.(),
+    });
   }
 
   /**
@@ -267,6 +267,14 @@ export class NgpCombobox {
       return;
     }
 
+    // if the state is single selection, we don't allow toggling
+    if (!this.state.multiple()) {
+      // always select the option in single selection mode even if it is already selected so that we update the input
+      this.selectOption(option);
+      return;
+    }
+
+    // otherwise toggle the option
     if (this.isOptionSelected(option)) {
       this.deselectOption(option);
     } else {
