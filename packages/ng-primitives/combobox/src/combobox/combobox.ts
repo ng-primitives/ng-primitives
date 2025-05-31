@@ -1,6 +1,6 @@
 import { BooleanInput } from '@angular/cdk/coercion';
 import {
-  afterNextRender,
+  afterRenderEffect,
   booleanAttribute,
   computed,
   Directive,
@@ -12,7 +12,7 @@ import {
 } from '@angular/core';
 import { Placement } from '@floating-ui/dom';
 import { activeDescendantManager } from 'ng-primitives/a11y';
-import { domSort, explicitEffect, injectElementRef } from 'ng-primitives/internal';
+import { injectElementRef } from 'ng-primitives/internal';
 import type { NgpComboboxButton } from '../combobox-button/combobox-button';
 import type { NgpComboboxDropdown } from '../combobox-dropdown/combobox-dropdown';
 import type { NgpComboboxInput } from '../combobox-input/combobox-input';
@@ -131,20 +131,13 @@ export class NgpCombobox {
   readonly open = computed(() => this.overlay()?.isOpen() ?? false);
 
   /**
-   * Sort the options by their dom order.
-   */
-  private readonly sortedOptions = domSort(this.options, {
-    getElement: option => option.elementRef.nativeElement,
-  });
-
-  /**
    * The active key descendant manager.
    * @internal
    */
   readonly activeDescendantManager = activeDescendantManager({
     // we must wrap the signal in a computed to ensure it is not used before it is defined
     disabled: computed(() => this.state.disabled()),
-    items: this.sortedOptions,
+    items: this.options,
   });
 
   /** The state of the combobox. */
@@ -152,11 +145,11 @@ export class NgpCombobox {
 
   constructor() {
     // any time the active descendant changes, ensure we scroll it into view
-    explicitEffect([this.activeDescendantManager.activeItem], ([option]) =>
-      // perform after next render to ensure the DOM is updated
-      // e.g. the dropdown is open before the option is scrolled into view
-      afterNextRender({ write: () => option?.scrollIntoView?.() }, { injector: this.injector }),
-    );
+    // perform after next render to ensure the DOM is updated
+    // e.g. the dropdown is open before the option is scrolled into view
+    afterRenderEffect({
+      write: () => this.activeDescendantManager.activeItem()?.scrollIntoView?.(),
+    });
   }
 
   /**

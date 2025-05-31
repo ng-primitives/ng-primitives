@@ -38,17 +38,6 @@ export class NgpComboboxInput {
   /** The id of the input. */
   readonly id = input<string>(uniqueId('ngp-combobox-input'));
 
-  /**
-   * Extract the string representation of the value.
-   */
-  readonly displayWith = input<(value: any) => string>((value: any) => {
-    if (typeof value === 'string') {
-      return value;
-    }
-
-    throw new Error('You must provide a displayWith function for non-string values');
-  });
-
   /** The id of the dropdown. */
   readonly dropdownId = computed(() => this.state().dropdown()?.id());
 

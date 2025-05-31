@@ -13,6 +13,5 @@ export * from './signals/explicit-effect';
 export * from './signals/sync-state';
 export * from './style-injector/style-injector';
 export * from './utilities/dom-removal';
-export { domSort } from './utilities/dom-sort';
 export * from './utilities/element-ref';
 export * from './utilities/scrolling';

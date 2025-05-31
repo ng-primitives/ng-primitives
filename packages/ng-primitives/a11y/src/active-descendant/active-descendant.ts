@@ -1,4 +1,4 @@
-import { computed, effect, Signal, signal } from '@angular/core';
+import { computed, effect, ElementRef, Signal, signal } from '@angular/core';
 
 interface ActiveDescendantManagerOptions<T extends NgpActivatable> {
   /**
@@ -26,20 +26,36 @@ export interface NgpActivatable {
    * Whether the item is disabled.
    */
   disabled?: Signal<boolean>;
+  /**
+   * The element that represents the item.
+   */
+  elementRef: ElementRef<HTMLElement>;
 }
 
 export function activeDescendantManager<T extends NgpActivatable>(
   options: ActiveDescendantManagerOptions<T>,
 ) {
+  const sortedOptions = () =>
+    options
+      .items()
+      .slice()
+      .sort((a, b) => {
+        const aElement = a.elementRef.nativeElement;
+        const bElement = b.elementRef.nativeElement;
+        return aElement.compareDocumentPosition(bElement) & Node.DOCUMENT_POSITION_FOLLOWING
+          ? -1
+          : 1;
+      });
+
   const activeIndex = signal<number>(0);
-  const activeItem = computed<T | undefined>(() => options.items()?.[activeIndex()]);
+  const activeItem = computed<T | undefined>(() => sortedOptions()?.[activeIndex()]);
   const disabled = computed(
     () => options.disabled?.() || options.items().every(item => item.disabled?.()),
   );
 
   // any time the item list changes, check if the active index is still valid
   effect(() => {
-    const items = options.items();
+    const items = sortedOptions();
     if (activeIndex() >= items.length || activeIndex() < 0) {
       activeIndex.set(items.findIndex(item => !item.disabled?.()));
     }
@@ -66,7 +82,7 @@ export function activeDescendantManager<T extends NgpActivatable>(
    * @param item The item to activate.
    */
   const activate = (item: T | undefined) => {
-    if (!item) {
+    if (item === undefined) {
       activeIndex.set(-1);
       return;
     }
@@ -75,14 +91,14 @@ export function activeDescendantManager<T extends NgpActivatable>(
       return;
     }
 
-    activeIndex.set(options.items().indexOf(item));
+    activeIndex.set(sortedOptions().indexOf(item));
   };
 
   /**
    * Activate the first enabled item in the active descendant group.
    */
   const first = () => {
-    const item = options.items().findIndex(item => !item.disabled?.());
+    const item = sortedOptions().findIndex(item => !item.disabled?.());
 
     if (item) {
       activeIndex.set(item);
@@ -93,13 +109,12 @@ export function activeDescendantManager<T extends NgpActivatable>(
    * Activate the last enabled item in the active descendant group.
    */
   const last = () => {
-    const item = options
-      .items()
+    const item = sortedOptions()
       .reverse()
       .findIndex(item => !item.disabled?.());
 
     if (item !== -1) {
-      activeIndex.set(options.items().length - 1 - item);
+      activeIndex.set(sortedOptions().length - 1 - item);
     }
   };
 
@@ -133,7 +148,7 @@ export function activeDescendantManager<T extends NgpActivatable>(
    * Activate the next enabled item in the active descendant group.
    */
   const next = () => {
-    const items = options.items();
+    const items = sortedOptions();
     const nextIndex = findNextIndex(items, activeIndex(), 1, options.wrap?.() ?? false);
 
     if (nextIndex !== undefined) {
@@ -145,7 +160,7 @@ export function activeDescendantManager<T extends NgpActivatable>(
    * Activate the previous enabled item in the active descendant group.
    */
   const previous = () => {
-    const items = options.items();
+    const items = sortedOptions();
     const prevIndex = findNextIndex(items, activeIndex(), -1, options.wrap?.() ?? false);
 
     if (prevIndex !== undefined) {
