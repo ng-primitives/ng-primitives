@@ -1,5 +1,5 @@
 import { DOCUMENT, isPlatformBrowser } from '@angular/common';
-import { inject, Injectable, PLATFORM_ID } from '@angular/core';
+import { CSP_NONCE, inject, Injectable, PLATFORM_ID } from '@angular/core';
 
 /**
  * A utility service for injecting styles into the document.
@@ -11,6 +11,11 @@ import { inject, Injectable, PLATFORM_ID } from '@angular/core';
   providedIn: 'root',
 })
 export class StyleInjector {
+  /**
+   * Access the CSP nonce
+   */
+  private readonly cspNonce = inject(CSP_NONCE, { optional: true });
+
   /**
    * Access the document.
    */
@@ -45,6 +50,11 @@ export class StyleInjector {
     const styleElement = this.document.createElement('style');
     styleElement.setAttribute('data-ngp-style', id);
     styleElement.textContent = style;
+
+    // If a CSP nonce is provided, set it on the style element
+    if (this.cspNonce) {
+      styleElement.setAttribute('nonce', this.cspNonce);
+    }
 
     this.document.head.appendChild(styleElement);
     this.styleElements.set(id, styleElement);
