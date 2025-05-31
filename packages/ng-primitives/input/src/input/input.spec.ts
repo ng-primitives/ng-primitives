@@ -1,5 +1,6 @@
 import { FormsModule } from '@angular/forms';
 import { fireEvent, render } from '@testing-library/angular';
+import userEvent from '@testing-library/user-event';
 import { NgpInput } from './input';
 
 describe('NgpInput', () => {
@@ -48,5 +49,16 @@ describe('NgpInput', () => {
 
     expect(input).not.toHaveAttribute('data-pristine');
     expect(input).toHaveAttribute('data-dirty');
+  });
+
+  it('should not allow text entering when disabled', async () => {
+    const { getByTestId } = await render(`<input ngpInput data-testid="input" disabled="true" />`, {
+      imports: [NgpInput],
+    });
+
+    const input = getByTestId('input');
+    fireEvent.focus(input);
+    userEvent.type(input, 'Hello World');
+    expect(input).toHaveValue('');
   });
 });

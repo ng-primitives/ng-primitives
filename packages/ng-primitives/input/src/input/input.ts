@@ -11,6 +11,9 @@ import { inputState, provideInputState } from './input-state';
   exportAs: 'ngpInput',
   providers: [provideInputState()],
   hostDirectives: [NgpAutofill],
+  host: {
+    '[attr.disabled]': 'disabled() ? "" : null',
+  },
 })
 export class NgpInput {
   /**
