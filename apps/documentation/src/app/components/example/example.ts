@@ -327,6 +327,19 @@ export class Example {
     }
   }
 
+  protected getStyleName(name: string): string {
+    const names = {
+      css: 'Example CSS',
+      unstyled: 'Unstyled',
+    } as const;
+
+    if (name in names) {
+      return names[name as keyof typeof names];
+    }
+
+    throw new Error(`Unknown style name: ${name}`);
+  }
+
   protected openStackBlitz(): void {
     if (!this.raw) {
       return;
@@ -387,7 +400,7 @@ export class Example {
 </html>
 `,
         'src/global_styles.css': `/* Add application styles & imports to this file! */
-@import 'ng-primitives/example-theme/index.css'; 
+@import 'ng-primitives/example-theme/index.css';
 
 :root {
   font-family: InterVariable, sans-serif;
