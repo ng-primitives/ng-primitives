@@ -20,7 +20,9 @@ export const provideRadioItemState = createStateProvider(NgpRadioItemStateToken)
 /**
  * Injects the RadioItem state.
  */
-export const injectRadioItemState = createStateInjector<NgpRadioItem>(NgpRadioItemStateToken);
+export const injectRadioItemState = createStateInjector<NgpRadioItem<unknown>>(
+  NgpRadioItemStateToken,
+) as <T>() => InjectedState<NgpRadioItem<T>>;
 
 /**
  * The RadioItem state registration function.

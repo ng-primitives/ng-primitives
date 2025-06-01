@@ -10,7 +10,7 @@
     "lint": "nx run-many -t lint",
     "test": "nx run-many -t test",
     "e2e": "nx e2e components-e2e --ui",
-    "build": "NODE_OPTIONS='--max-old-space-size=8192' nx run-many -t build,typings",
+    "build": "NODE_OPTIONS='--max-old-space-size=8192' nx run-many -t build",
     "release:version": "nx release version",
     "release:changelog": "nx release changelog",
     "release:publish": "nx release publish && git push origin HEAD:main"

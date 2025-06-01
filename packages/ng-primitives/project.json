@@ -65,10 +65,6 @@
         ]
       }
     },
-    "typings": {
-      "executor": "@ng-primitives/tools:typings",
-      "dependsOn": ["build"]
-    },
     "test": {
       "executor": "@nx/jest:jest",
       "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
@@ -78,7 +74,7 @@
       }
     },
     "nx-release-publish": {
-      "dependsOn": ["build", "typings"],
+      "dependsOn": ["build"],
       "options": {
         "packageRoot": "{workspaceRoot}/dist/{projectRoot}"
       }
