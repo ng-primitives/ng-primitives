@@ -46,7 +46,7 @@ body {
   font-feature-settings: 'liga', 'calt', 'ss01', 'cv11';
 }
 
-pre[class*='language-'],
+pre:has(> [class*='language-']),
 code[class*='language-'] {
   font-family: 'Geist Mono';
   font-size: 12px;

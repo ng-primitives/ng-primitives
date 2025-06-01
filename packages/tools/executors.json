@@ -1,10 +1,5 @@
 {
   "executors": {
-    "typings": {
-      "implementation": "./src/executors/typings/typings",
-      "schema": "./src/executors/typings/schema.json",
-      "description": "Correct the TypeScript typings to use correct imports"
-    },
     "api-extraction": {
       "implementation": "./src/executors/api-extraction/api-extraction",
       "schema": "./src/executors/api-extraction/schema.json",

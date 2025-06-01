@@ -19,7 +19,7 @@ export const provideTabsetState = createStateProvider(NgpTabsetStateToken);
 /**
  * Injects the Tabset state.
  */
-export const injectTabsetState = createStateInjector(NgpTabsetStateToken);
+export const injectTabsetState = createStateInjector<NgpTabset>(NgpTabsetStateToken);
 
 /**
  * The Tabset state registration function.

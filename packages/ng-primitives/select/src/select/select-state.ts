@@ -19,7 +19,7 @@ export const provideSelectState = createStateProvider(NgpSelectStateToken);
 /**
  * Injects the Select state.
  */
-export const injectSelectState = createStateInjector(NgpSelectStateToken);
+export const injectSelectState = createStateInjector<NgpSelect>(NgpSelectStateToken);
 
 /**
  * The Select state registration function.

@@ -19,7 +19,7 @@ export const provideToolbarState = createStateProvider(NgpToolbarStateToken);
 /**
  * Injects the Toolbar state.
  */
-export const injectToolbarState = createStateInjector(NgpToolbarStateToken);
+export const injectToolbarState = createStateInjector<NgpToolbar>(NgpToolbarStateToken);
 
 /**
  * The Toolbar state registration function.

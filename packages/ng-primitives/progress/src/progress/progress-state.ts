@@ -19,7 +19,7 @@ export const provideProgressState = createStateProvider(NgpProgressStateToken);
 /**
  * Injects the Progress state.
  */
-export const injectProgressState = createStateInjector(NgpProgressStateToken);
+export const injectProgressState = createStateInjector<NgpProgress>(NgpProgressStateToken);
 
 /**
  * The Progress state registration function.

@@ -22,9 +22,9 @@ export const provideTooltipTriggerState = createStateProvider(NgpTooltipTriggerS
 /**
  * Injects the TooltipTrigger state.
  */
-export const injectTooltipTriggerState = createStateInjector(NgpTooltipTriggerStateToken) as <
-  T,
->() => Signal<State<NgpTooltipTrigger<T>>>;
+export const injectTooltipTriggerState = createStateInjector<NgpTooltipTrigger<unknown>>(
+  NgpTooltipTriggerStateToken,
+);
 
 /**
  * The TooltipTrigger state registration function.

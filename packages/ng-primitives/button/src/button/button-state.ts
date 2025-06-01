@@ -21,7 +21,7 @@ export const provideButtonState = createStateProvider(NgpButtonStateToken);
 /**
  * Injects the Button state.
  */
-export const injectButtonState = createStateInjector(NgpButtonStateToken);
+export const injectButtonState = createStateInjector<NgpButton>(NgpButtonStateToken);
 
 /**
  * The Button state registration function.

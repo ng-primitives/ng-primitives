@@ -19,7 +19,8 @@ export const provideAccordionState = createStateProvider(NgpAccordionStateToken)
 /**
  * Injects the Accordion state.
  */
-export const injectAccordionState = createStateInjector(NgpAccordionStateToken);
+export const injectAccordionState =
+  createStateInjector<NgpAccordion<unknown>>(NgpAccordionStateToken);
 
 /**
  * The Accordion state registration function.

@@ -19,7 +19,7 @@ export const provideSliderState = createStateProvider(NgpSliderStateToken);
 /**
  * Injects the Slider state.
  */
-export const injectSliderState = createStateInjector(NgpSliderStateToken);
+export const injectSliderState = createStateInjector<NgpSlider>(NgpSliderStateToken);
 
 /**
  * The Slider state registration function.

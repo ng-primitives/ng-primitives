@@ -19,7 +19,7 @@ export const provideTextareaState = createStateProvider(NgpTextareaStateToken);
 /**
  * Injects the Textarea state.
  */
-export const injectTextareaState = createStateInjector(NgpTextareaStateToken);
+export const injectTextareaState = createStateInjector<NgpTextarea>(NgpTextareaStateToken);
 
 /**
  * The Textarea state registration function.

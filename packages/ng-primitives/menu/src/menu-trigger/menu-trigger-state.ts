@@ -19,7 +19,7 @@ export const provideMenuTriggerState = createStateProvider(NgpMenuTriggerStateTo
 /**
  * Injects the MenuTrigger state.
  */
-export const injectMenuTriggerState = createStateInjector(NgpMenuTriggerStateToken);
+export const injectMenuTriggerState = createStateInjector<NgpMenuTrigger>(NgpMenuTriggerStateToken);
 
 /**
  * The MenuTrigger state registration function.

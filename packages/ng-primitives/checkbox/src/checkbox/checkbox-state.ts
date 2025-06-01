@@ -19,7 +19,7 @@ export const provideCheckboxState = createStateProvider(NgpCheckboxStateToken);
 /**
  * Injects the Checkbox state.
  */
-export const injectCheckboxState = createStateInjector(NgpCheckboxStateToken);
+export const injectCheckboxState = createStateInjector<NgpCheckbox>(NgpCheckboxStateToken);
 
 /**
  * The Checkbox state registration function.

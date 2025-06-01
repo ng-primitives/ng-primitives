@@ -19,7 +19,7 @@ export const provideFocusTrapState = createStateProvider(NgpFocusTrapStateToken)
 /**
  * Injects the FocusTrap state.
  */
-export const injectFocusTrapState = createStateInjector(NgpFocusTrapStateToken);
+export const injectFocusTrapState = createStateInjector<NgpFocusTrap>(NgpFocusTrapStateToken);
 
 /**
  * The FocusTrap state registration function.
