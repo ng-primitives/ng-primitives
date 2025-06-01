@@ -19,7 +19,9 @@ export const provideListboxState = createStateProvider(NgpListboxStateToken);
 /**
  * Injects the Listbox state.
  */
-export const injectListboxState = createStateInjector(NgpListboxStateToken, { deferred: true });
+export const injectListboxState = createStateInjector<NgpListbox<unknown>>(NgpListboxStateToken, {
+  deferred: true,
+});
 
 /**
  * The Listbox state registration function.

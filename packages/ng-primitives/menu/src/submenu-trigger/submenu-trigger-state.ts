@@ -19,7 +19,9 @@ export const provideSubmenuTriggerState = createStateProvider(NgpSubmenuTriggerS
 /**
  * Injects the SubmenuTrigger state.
  */
-export const injectSubmenuTriggerState = createStateInjector(NgpSubmenuTriggerStateToken);
+export const injectSubmenuTriggerState = createStateInjector<NgpSubmenuTrigger>(
+  NgpSubmenuTriggerStateToken,
+);
 
 /**
  * The SubmenuTrigger state registration function.
