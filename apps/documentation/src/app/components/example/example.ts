@@ -5,13 +5,16 @@ import {
   ChangeDetectionStrategy,
   ChangeDetectorRef,
   Component,
-  Input,
   PLATFORM_ID,
   Type,
   VERSION,
+  computed,
+  effect,
   inject,
+  input,
   signal,
 } from '@angular/core';
+import { FormsModule } from '@angular/forms';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { lucideClipboard } from '@ng-icons/lucide';
 import { phosphorLightning } from '@ng-icons/phosphor-icons/regular';
@@ -21,9 +24,11 @@ import { versionMajorMinor } from 'typescript';
 
 const { highlight, languages } = prismjs;
 
+const GLOBAL_STORAGE_STYLE_KEY = 'ngp-example-style';
+
 @Component({
   selector: 'docs-example',
-  imports: [NgComponentOutlet, NgClass, NgIcon],
+  imports: [NgComponentOutlet, NgClass, NgIcon, FormsModule],
   templateUrl: './example.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
   providers: [provideIcons({ phosphorLightning, lucideClipboard })],
@@ -33,80 +38,317 @@ export class Example {
   private readonly platform = inject(PLATFORM_ID);
   private readonly changeDetector = inject(ChangeDetectorRef);
   private readonly examples = import.meta.glob!('../../**/*.example.ts', {
-    import: 'default',
+    import: 'default', // Imports the default export (the component class)
+    eager: false, // Load lazily
   });
 
   private readonly source = import.meta.glob!('../../**/*.example.ts', {
     import: 'default',
-    query: '?source',
+    query: '?source', // Custom query that should make the default import the raw source string
+    eager: false, // Load lazily
   });
 
-  component: Type<unknown> | null = null;
+  // Inputs
+  name = input.required<string>();
 
+  // Writable signals for component state and template
+  readonly selectedStyle = signal<string>('');
+  readonly component = signal<Type<unknown> | null>(null);
   readonly mode = signal<'preview' | 'source'>('preview');
-
-  private raw: string | null = null;
-
   readonly code = signal<string>('');
+  // Private properties
+  private raw: string | null = null; // Raw source code for copying and StackBlitz
 
-  @Input({ required: true }) set name(name: string) {
-    // the path provided will be something like 'button', so we should find the path
-    // that matches the pattern `../../examples/button/button.example.ts`
-    const examplePath = Object.keys(this.examples).find(key => key.endsWith(`/${name}.example.ts`));
+  // Computed signals
+  readonly availableStyles = computed(() => {
+    const currentName = this.name();
+    if (!currentName) return [];
 
-    if (!examplePath) {
-      throw new Error(`No example found for path: ${name}`);
+    const detectedStyles = new Set<string>();
+    const exampleComponentKeys = Object.keys(this.examples);
+    const sourceKeys = Object.keys(this.source);
+    let cssComponentVersionExists = false;
+
+    for (const key of exampleComponentKeys) {
+      // Standard pattern: componentName.example.ts -> 'css'
+      if (key.endsWith(`/${currentName}.example.ts`)) {
+        detectedStyles.add('css');
+        cssComponentVersionExists = true;
+        continue;
+      }
+
+      // Styled pattern: componentName.styleName.example.ts
+      const stylePatternRegex = new RegExp(`/${currentName}\\.([a-zA-Z0-9-]+)\\.example\\.ts$`);
+      const match = key.match(stylePatternRegex);
+      if (match && match[1]) {
+        detectedStyles.add(match[1]);
+      }
     }
 
-    this.loadExample(examplePath);
+    // If a 'css' component file exists and its source file also exists, 'unstyled' is a valid option
+    if (cssComponentVersionExists) {
+      const cssSourcePath = this.getExamplePathForNameAndStyle(currentName, 'css', sourceKeys);
+      if (cssSourcePath && this.source[cssSourcePath]) {
+        detectedStyles.add('unstyled');
+      }
+    }
+
+    return Array.from(detectedStyles).sort((a, b) => {
+      if (a === 'css') return -1; // 'css' always first
+      if (b === 'css') return 1;
+      if (a === 'unstyled') return -1; // 'unstyled' second
+      if (b === 'unstyled') return 1;
+      return a.localeCompare(b); // Others alphabetically
+    });
+  });
+
+  readonly initialStyleToLoad = computed(() => {
+    const styles = this.availableStyles();
+    const currentName = this.name();
+    if (styles.length === 0 && currentName) {
+      console.error(`No example versions found for component: ${currentName}`);
+      return null;
+    }
+    return styles.find(s => s === 'css') || styles.find(s => s === 'unstyled') || styles[0] || null;
+  });
+
+  constructor() {
+    effect(() => {
+      const currentName = this.name(); // Establish dependency on name
+      // This effect runs when `name` or `initialStyleToLoad` or `availableStyles` change.
+      // We need `currentName` to ensure we are not operating on a stale context if `name` is resetting.
+      if (!currentName) {
+        this.selectedStyle.set('');
+        return;
+      }
+
+      if (isPlatformServer(this.platform)) {
+        const initialFromServer = this.initialStyleToLoad(); // Dependency
+        this.selectedStyle.set(initialFromServer || '');
+        return;
+      }
+
+      // Client-side logic with localStorage
+      const availableStylesForComponent = this.availableStyles();
+      if (availableStylesForComponent.length === 0) {
+        this.selectedStyle.set('');
+        return;
+      }
+
+      let styleFromStorage: string | null = null;
+      try {
+        styleFromStorage = localStorage.getItem(GLOBAL_STORAGE_STYLE_KEY);
+      } catch (e) {
+        console.warn(
+          `Could not access localStorage to get item for key ${GLOBAL_STORAGE_STYLE_KEY}:`,
+          e,
+        );
+      }
+
+      if (styleFromStorage && availableStylesForComponent.includes(styleFromStorage)) {
+        this.selectedStyle.set(styleFromStorage);
+      } else {
+        // Fallback to initialStyleToLoad if global value is invalid for this component or not present
+        const initialFallback = this.initialStyleToLoad(); // Dependency
+        this.selectedStyle.set(initialFallback || availableStylesForComponent[0] || '');
+      }
+    });
+
+    effect(() => {
+      const currentName = this.name();
+      const currentStyle = this.selectedStyle();
+      if (currentName && currentStyle) {
+        this.loadExample(currentName, currentStyle);
+      } else {
+        // Clear example if name or style is not set
+        this.component.set(null);
+        this.code.set('');
+        this.raw = null;
+      }
+    });
   }
 
-  private async loadExample(path: string): Promise<void> {
-    this.component = (await this.examples[path]()) as Type<unknown>;
-    this.changeDetector.detectChanges();
+  selectStyle(style: string): void {
+    if (!this.availableStyles().includes(style)) {
+      console.warn(
+        `Style "${style}" is not available for ${this.name()}. Available: ${this.availableStyles().join(', ')}`,
+      );
+      return;
+    }
+    this.selectedStyle.set(style);
 
+    if (!isPlatformServer(this.platform)) {
+      try {
+        localStorage.setItem(GLOBAL_STORAGE_STYLE_KEY, style);
+      } catch (e) {
+        console.warn(`Could not write to localStorage for key ${GLOBAL_STORAGE_STYLE_KEY}:`, e);
+      }
+    }
+  }
+
+  private getExamplePathForNameAndStyle(
+    baseName: string,
+    style: string,
+    keysToSearch: string[],
+  ): string {
+    let pathKey: string | undefined;
+    if (style === 'css') {
+      // Default style, e.g., `button.example.ts`
+      pathKey = keysToSearch.find(key => key.endsWith(`/${baseName}.example.ts`));
+    } else {
+      // Other styles, e.g., `button.unstyled.example.ts`
+      pathKey = keysToSearch.find(key => key.endsWith(`/${baseName}.${style}.example.ts`));
+    }
+    return pathKey ?? '';
+  }
+
+  private async loadExample(exampleName: string, exampleStyle: string): Promise<void> {
     if (isPlatformServer(this.platform)) {
       return;
     }
 
-    this.raw = ((await this.source[path]()) as string)
-      // find the class name after `export class ` and replace it with `AppComponent`
-      .replace(/export default class (\w+)/, 'export class AppComponent')
-      // find the selector and replace it with `app-root`
-      .replace(/selector:\s*'[^']*'/, "selector: 'app-root'");
-
-    // add the comment to the top of the file about importing the css file
-    if (this.raw.includes('styles:')) {
-      this.raw =
-        `/** This example uses ng-primitives styles, which are imported from ng-primitives/example-theme/index.css in the global styles file **/\n` +
-        this.raw;
+    // Determine component file to load
+    let componentFileToLoadPath = this.getExamplePathForNameAndStyle(
+      exampleName,
+      exampleStyle,
+      Object.keys(this.examples),
+    );
+    if (!componentFileToLoadPath || !this.examples[componentFileToLoadPath]) {
+      // If the specific styled component doesn't exist (e.g., unstyled.example.ts is missing for component)
+      // or if the exampleStyle is 'unstyled' and its component file is missing,
+      // fall back to the 'css' version for the *component*.
+      const cssComponentPath = this.getExamplePathForNameAndStyle(
+        exampleName,
+        'css',
+        Object.keys(this.examples),
+      );
+      if (cssComponentPath && this.examples[cssComponentPath]) {
+        componentFileToLoadPath = cssComponentPath;
+      } else {
+        console.error(
+          `No component file found for ${exampleName} (tried style: ${exampleStyle}, fallback: css)`,
+        );
+        this.component.set(null);
+        this.code.set('// Error: Component not found.');
+        this.raw = null;
+        this.changeDetector.detectChanges();
+        return;
+      }
     }
 
-    // we import these from esm.sh to keep our bandwidth usage down
-    const [prettier, pluginEstree, pluginTypescript, pluginHtml, pluginAngular, pluginPostcss] =
-      await Promise.all([
-        import('https://esm.sh/prettier@3.3.2/standalone'),
-        import('https://esm.sh/prettier@3.3.2/plugins/estree'),
-        import('https://esm.sh/prettier@3.3.2/plugins/typescript'),
-        import('https://esm.sh/prettier@3.3.2/plugins/html'),
-        import('https://esm.sh/prettier@3.3.2/plugins/angular'),
-        import('https://esm.sh/prettier@3.3.2/plugins/postcss'),
-      ]);
+    try {
+      // Load the component
+      const componentModule = await this.examples[componentFileToLoadPath!]!();
+      this.component.set(componentModule as Type<unknown>);
 
-    const code = await prettier.format(this.raw, {
-      parser: 'typescript',
-      plugins: [pluginEstree, pluginTypescript, pluginAngular, pluginHtml, pluginPostcss],
-    });
+      // Determine and load/generate source code for the *requested* exampleStyle
+      let originalSource: string | null = null;
+      let sourceIsGenerated = false;
 
-    this.code.set(highlight(code.trim(), languages['typescript'], 'typescript'));
+      const directSourcePath = this.getExamplePathForNameAndStyle(
+        exampleName,
+        exampleStyle,
+        Object.keys(this.source),
+      );
 
-    this.changeDetector.detectChanges();
+      if (directSourcePath && this.source[directSourcePath]) {
+        originalSource = (await this.source[directSourcePath]!()) as string;
+      } else if (exampleStyle === 'unstyled') {
+        // Unstyled source file doesn't exist, try to generate from 'css' source
+        const cssSourcePath = this.getExamplePathForNameAndStyle(
+          exampleName,
+          'css',
+          Object.keys(this.source),
+        );
+        if (cssSourcePath && this.source[cssSourcePath]) {
+          const cssRawSource = (await this.source[cssSourcePath]!()) as string;
+          if (typeof cssRawSource === 'string') {
+            originalSource = cssRawSource.replace(/styles\s*:\s*`[^`]*`,?\s*/, '');
+            sourceIsGenerated = true;
+            originalSource =
+              `// Unstyled version generated from ${exampleName}.example.ts\n` +
+              `// Original styles property has been removed.\n` +
+              originalSource;
+          } else {
+            console.error(`CSS source code not found or not a string for path: ${cssSourcePath}`);
+            originalSource = `// Source code for CSS base not available for ${exampleName}`;
+          }
+        } else {
+          originalSource = `// Unstyled example source not found, and base CSS example not found for ${exampleName}.`;
+        }
+      } else {
+        originalSource = `// Source code not found for ${exampleName} with style ${exampleStyle}.`;
+        console.warn(
+          `Source file not found for ${directSourcePath || `style ${exampleStyle} of ${exampleName}`}.`,
+        );
+      }
+
+      if (typeof originalSource !== 'string') {
+        this.code.set(originalSource || '// Source code not available');
+        this.raw = null;
+        this.changeDetector.detectChanges();
+        return;
+      }
+
+      const codeToFormat = originalSource;
+      this.raw = originalSource;
+
+      // Add the "ng-primitives styles" comment to `this.raw` if the *original* source had styles
+      // and we are not showing a generated unstyled version.
+      if (!sourceIsGenerated && exampleStyle !== 'unstyled' && originalSource.includes('styles:')) {
+        this.raw =
+          `/** This example uses ng-primitives styles, which are imported from ng-primitives/example-theme/index.css in the global styles file **/\n` +
+          originalSource;
+      }
+
+      const [prettier, pluginEstree, pluginTypescript, pluginHtml, pluginAngular, pluginPostcss] =
+        await Promise.all([
+          import('https://esm.sh/prettier@3.3.2/standalone'),
+          import('https://esm.sh/prettier@3.3.2/plugins/estree'),
+          import('https://esm.sh/prettier@3.3.2/plugins/typescript'),
+          import('https://esm.sh/prettier@3.3.2/plugins/html'),
+          import('https://esm.sh/prettier@3.3.2/plugins/angular'),
+          import('https://esm.sh/prettier@3.3.2/plugins/postcss'),
+        ]);
+
+      const formattedCodeForDisplay = await prettier.format(codeToFormat, {
+        parser: 'typescript',
+        plugins: [pluginEstree, pluginTypescript, pluginAngular, pluginHtml, pluginPostcss],
+      });
+      this.code.set(
+        highlight(formattedCodeForDisplay.trim(), languages['typescript'], 'typescript'),
+      );
+    } catch (error) {
+      console.error(`Error loading example ${exampleName} (style ${exampleStyle}):`, error);
+      this.component.set(null);
+      this.code.set('// Error loading example code.');
+      this.raw = null;
+      this.changeDetector.detectChanges();
+    }
+  }
+
+  protected getStyleName(name: string): string {
+    const names = {
+      css: 'Example CSS',
+      unstyled: 'Unstyled',
+    } as const;
+
+    if (name in names) {
+      return names[name as keyof typeof names];
+    }
+
+    throw new Error(`Unknown style name: ${name}`);
   }
 
   protected openStackBlitz(): void {
     if (!this.raw) {
       return;
     }
+
+    // this.raw already contains the source code (original, or generated unstyled with its own comment, or styled with theme comment)
+    const stackBlitzSource = this.raw
+      .replace(/export default class (\w+)/, 'export class AppComponent')
+      .replace(/selector:\s*'[^']*'/, "selector: 'app-root'");
 
     const packageJson = {
       name: 'angular-starter',
@@ -175,7 +417,7 @@ export class Example {
 }`,
         'src/main.ts': `import { bootstrapApplication } from '@angular/platform-browser';
 import 'zone.js';
-${this.raw}
+${stackBlitzSource}
 
 bootstrapApplication(AppComponent);`,
         '.gitignore': `.angular
@@ -291,6 +533,6 @@ node_modules`,
       return;
     }
 
-    this.clipboard.copy(this.raw);
+    this.clipboard.copy(this.raw); // Copies the content of this.raw
   }
 }
