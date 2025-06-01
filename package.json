@@ -60,6 +60,7 @@
     "@types/luxon": "^3.4.2",
     "@types/node": "18.16.9",
     "@types/prismjs": "^1.26.4",
+    "@typescript-eslint/rule-tester": "^8.19.0",
     "@typescript-eslint/utils": "8.32.1",
     "all-contributors-cli": "^6.26.1",
     "angular-eslint": "19.4.0",
