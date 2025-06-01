@@ -24,6 +24,8 @@ import { versionMajorMinor } from 'typescript';
 
 const { highlight, languages } = prismjs;
 
+const GLOBAL_STORAGE_STYLE_KEY = 'ngp-example-style';
+
 @Component({
   selector: 'docs-example',
   imports: [NgComponentOutlet, NgClass, NgIcon, FormsModule],
@@ -111,17 +113,46 @@ export class Example {
   });
 
   constructor() {
-    effect(
-      () => {
-        const initial = this.initialStyleToLoad();
-        if (initial) {
-          this.selectedStyle.set(initial);
-        } else {
-          this.selectedStyle.set(''); // Clear if no initial style
-        }
-      },
-      { allowSignalWrites: true },
-    );
+    effect(() => {
+      const currentName = this.name(); // Establish dependency on name
+      // This effect runs when `name` or `initialStyleToLoad` or `availableStyles` change.
+      // We need `currentName` to ensure we are not operating on a stale context if `name` is resetting.
+      if (!currentName) {
+        this.selectedStyle.set('');
+        return;
+      }
+
+      if (isPlatformServer(this.platform)) {
+        const initialFromServer = this.initialStyleToLoad(); // Dependency
+        this.selectedStyle.set(initialFromServer || '');
+        return;
+      }
+
+      // Client-side logic with localStorage
+      const availableStylesForComponent = this.availableStyles();
+      if (availableStylesForComponent.length === 0) {
+        this.selectedStyle.set('');
+        return;
+      }
+
+      let styleFromStorage: string | null = null;
+      try {
+        styleFromStorage = localStorage.getItem(GLOBAL_STORAGE_STYLE_KEY);
+      } catch (e) {
+        console.warn(
+          `Could not access localStorage to get item for key ${GLOBAL_STORAGE_STYLE_KEY}:`,
+          e,
+        );
+      }
+
+      if (styleFromStorage && availableStylesForComponent.includes(styleFromStorage)) {
+        this.selectedStyle.set(styleFromStorage);
+      } else {
+        // Fallback to initialStyleToLoad if global value is invalid for this component or not present
+        const initialFallback = this.initialStyleToLoad(); // Dependency
+        this.selectedStyle.set(initialFallback || availableStylesForComponent[0] || '');
+      }
+    });
 
     effect(() => {
       const currentName = this.name();
@@ -145,6 +176,14 @@ export class Example {
       return;
     }
     this.selectedStyle.set(style);
+
+    if (!isPlatformServer(this.platform)) {
+      try {
+        localStorage.setItem(GLOBAL_STORAGE_STYLE_KEY, style);
+      } catch (e) {
+        console.warn(`Could not write to localStorage for key ${GLOBAL_STORAGE_STYLE_KEY}:`, e);
+      }
+    }
   }
 
   private getExamplePathForNameAndStyle(
@@ -251,7 +290,7 @@ export class Example {
         return;
       }
 
-      const codeToFormat = originalSource; 
+      const codeToFormat = originalSource;
       this.raw = originalSource;
 
       // Add the "ng-primitives styles" comment to `this.raw` if the *original* source had styles
