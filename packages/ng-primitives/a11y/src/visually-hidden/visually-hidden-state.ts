@@ -19,7 +19,9 @@ export const provideVisuallyHiddenState = createStateProvider(NgpVisuallyHiddenS
 /**
  * Injects the VisuallyHidden state.
  */
-export const injectVisuallyHiddenState = createStateInjector(NgpVisuallyHiddenStateToken);
+export const injectVisuallyHiddenState = createStateInjector<NgpVisuallyHidden>(
+  NgpVisuallyHiddenStateToken,
+);
 
 /**
  * The VisuallyHidden state registration function.

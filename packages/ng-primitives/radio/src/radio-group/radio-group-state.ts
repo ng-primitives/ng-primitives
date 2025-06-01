@@ -20,9 +20,7 @@ export const provideRadioGroupState = createStateProvider(NgpRadioGroupStateToke
 /**
  * Injects the RadioGroup state.
  */
-export const injectRadioGroupState = createStateInjector(NgpRadioGroupStateToken) as <
-  T,
->() => InjectedState<NgpRadioGroup<T>>;
+export const injectRadioGroupState = createStateInjector<NgpRadioGroup>(NgpRadioGroupStateToken);
 
 /**
  * The RadioGroup state registration function.

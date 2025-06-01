@@ -19,7 +19,8 @@ export const provideFileDropzoneState = createStateProvider(NgpFileDropzoneState
 /**
  * Injects the FileDropzone state.
  */
-export const injectFileDropzoneState = createStateInjector(NgpFileDropzoneStateToken);
+export const injectFileDropzoneState =
+  createStateInjector<NgpFileDropzone>(NgpFileDropzoneStateToken);
 
 /**
  * The FileDropzone state registration function.

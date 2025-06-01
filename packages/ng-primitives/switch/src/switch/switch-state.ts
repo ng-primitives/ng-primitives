@@ -19,7 +19,7 @@ export const provideSwitchState = createStateProvider(NgpSwitchStateToken);
 /**
  * Injects the Switch state.
  */
-export const injectSwitchState = createStateInjector(NgpSwitchStateToken);
+export const injectSwitchState = createStateInjector<NgpSwitch>(NgpSwitchStateToken);
 
 /**
  * The Switch state registration function.

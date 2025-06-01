@@ -19,7 +19,7 @@ export const provideMeterState = createStateProvider(NgpMeterStateToken);
 /**
  * Injects the Meter state.
  */
-export const injectMeterState = createStateInjector(NgpMeterStateToken);
+export const injectMeterState = createStateInjector<NgpMeter>(NgpMeterStateToken);
 
 /**
  * The Meter state registration function.

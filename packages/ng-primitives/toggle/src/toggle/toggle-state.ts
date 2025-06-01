@@ -19,7 +19,7 @@ export const provideToggleState = createStateProvider(NgpToggleStateToken);
 /**
  * Injects the Toggle state.
  */
-export const injectToggleState = createStateInjector(NgpToggleStateToken);
+export const injectToggleState = createStateInjector<NgpToggle>(NgpToggleStateToken);
 
 /**
  * The Toggle state registration function.

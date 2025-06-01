@@ -20,7 +20,9 @@ export const provideRovingFocusGroupState = createStateProvider(NgpRovingFocusGr
 /**
  * Injects the RovingFocusGroup state.
  */
-export const injectRovingFocusGroupState = createStateInjector(NgpRovingFocusGroupStateToken);
+export const injectRovingFocusGroupState = createStateInjector<NgpRovingFocusGroup>(
+  NgpRovingFocusGroupStateToken,
+);
 
 /**
  * The RovingFocusGroup state registration function.

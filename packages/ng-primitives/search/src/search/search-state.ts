@@ -19,7 +19,7 @@ export const provideSearchState = createStateProvider(NgpSearchStateToken);
 /**
  * Injects the Search state.
  */
-export const injectSearchState = createStateInjector(NgpSearchStateToken);
+export const injectSearchState = createStateInjector<NgpSearch>(NgpSearchStateToken);
 
 /**
  * The Search state registration function.

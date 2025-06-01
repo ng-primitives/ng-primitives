@@ -19,7 +19,7 @@ export const provideFormControlState = createStateProvider(NgpFormControlStateTo
 /**
  * Injects the FormControl state.
  */
-export const injectFormControlState = createStateInjector(NgpFormControlStateToken);
+export const injectFormControlState = createStateInjector<NgpFormControl>(NgpFormControlStateToken);
 
 /**
  * The FormControl state registration function.

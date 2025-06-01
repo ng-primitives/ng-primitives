@@ -9,7 +9,6 @@ import type { NgpDatePicker } from './date-picker';
 
 export const NgpDatePickerStateToken = createStateToken<NgpDatePicker<unknown>>('DatePicker');
 export const provideDatePickerState = createStateProvider(NgpDatePickerStateToken);
-export const injectDatePickerState = createStateInjector(NgpDatePickerStateToken) as <
-  T,
->() => InjectedState<NgpDatePicker<T>>;
+export const injectDatePickerState =
+  createStateInjector<NgpDatePicker<unknown>>(NgpDatePickerStateToken);
 export const datePickerState = createState(NgpDatePickerStateToken);

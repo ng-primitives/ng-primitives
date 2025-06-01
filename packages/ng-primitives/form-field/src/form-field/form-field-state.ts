@@ -19,7 +19,7 @@ export const provideFormFieldState = createStateProvider(NgpFormFieldStateToken)
 /**
  * Injects the FormField state.
  */
-export const injectFormFieldState = createStateInjector(NgpFormFieldStateToken);
+export const injectFormFieldState = createStateInjector<NgpFormField>(NgpFormFieldStateToken);
 
 /**
  * The FormField state registration function.

@@ -19,7 +19,7 @@ export const provideInputState = createStateProvider(NgpInputStateToken);
 /**
  * Injects the Input state.
  */
-export const injectInputState = createStateInjector(NgpInputStateToken);
+export const injectInputState = createStateInjector<NgpInput>(NgpInputStateToken);
 
 /**
  * The Input state registration function.

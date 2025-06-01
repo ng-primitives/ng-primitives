@@ -19,7 +19,7 @@ export const provideAvatarState = createStateProvider(NgpAvatarStateToken);
 /**
  * Injects the Avatar state.
  */
-export const injectAvatarState = createStateInjector(NgpAvatarStateToken);
+export const injectAvatarState = createStateInjector<NgpAvatar>(NgpAvatarStateToken);
 
 /**
  * The Avatar state registration function.

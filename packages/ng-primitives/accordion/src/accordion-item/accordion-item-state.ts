@@ -20,7 +20,9 @@ export const provideAccordionItemState = createStateProvider(NgpAccordionItemSta
 /**
  * Injects the AccordionItem state.
  */
-export const injectAccordionItemState = createStateInjector(NgpAccordionItemStateToken);
+export const injectAccordionItemState = createStateInjector<NgpAccordionItem<unknown>>(
+  NgpAccordionItemStateToken,
+);
 
 /**
  * The AccordionItem state registration function.

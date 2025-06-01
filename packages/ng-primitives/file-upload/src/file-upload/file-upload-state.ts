@@ -19,7 +19,7 @@ export const provideFileUploadState = createStateProvider(NgpFileUploadStateToke
 /**
  * Injects the FileUpload state.
  */
-export const injectFileUploadState = createStateInjector(NgpFileUploadStateToken);
+export const injectFileUploadState = createStateInjector<NgpFileUpload>(NgpFileUploadStateToken);
 
 /**
  * The FileUpload state registration function.

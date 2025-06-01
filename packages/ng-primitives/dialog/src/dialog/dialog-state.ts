@@ -19,7 +19,7 @@ export const provideDialogState = createStateProvider(NgpDialogStateToken);
 /**
  * Injects the Dialog state.
  */
-export const injectDialogState = createStateInjector(NgpDialogStateToken);
+export const injectDialogState = createStateInjector<NgpDialog>(NgpDialogStateToken);
 
 /**
  * The Dialog state registration function.

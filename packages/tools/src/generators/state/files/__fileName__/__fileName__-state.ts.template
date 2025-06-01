@@ -19,7 +19,7 @@ export const provide<%= className %>State = createStateProvider(Ngp<%= className
 /**
  * Injects the <%= className %> state.
  */
-export const inject<%= className %>State = createStateInjector(Ngp<%= className %>StateToken);
+export const inject<%= className %>State = createStateInjector<Ngp<%= className %>>(Ngp<%= className %>StateToken);
 
 /**
  * The <%= className %> state registration function.

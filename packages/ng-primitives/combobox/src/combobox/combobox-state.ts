@@ -19,7 +19,7 @@ export const provideComboboxState = createStateProvider(NgpComboboxStateToken);
 /**
  * Injects the Combobox state.
  */
-export const injectComboboxState = createStateInjector(NgpComboboxStateToken);
+export const injectComboboxState = createStateInjector<NgpCombobox>(NgpComboboxStateToken);
 
 /**
  * The Combobox state registration function.

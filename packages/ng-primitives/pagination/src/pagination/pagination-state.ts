@@ -19,7 +19,7 @@ export const providePaginationState = createStateProvider(NgpPaginationStateToke
 /**
  * Injects the Pagination state.
  */
-export const injectPaginationState = createStateInjector(NgpPaginationStateToken);
+export const injectPaginationState = createStateInjector<NgpPagination>(NgpPaginationStateToken);
 
 /**
  * The Pagination state registration function.
