@@ -1,3 +1,13 @@
+## 0.49.0 (2025-06-03)
+
+### 🩹 Fixes
+
+- resolving id sync issues ([#278](https://github.com/ng-primitives/ng-primitives/pull/278))
+
+### ❤️ Thank You
+
+- Ashley Hunter
+
 ## 0.48.0 (2025-05-31)
 
 ### 🚀 Features
