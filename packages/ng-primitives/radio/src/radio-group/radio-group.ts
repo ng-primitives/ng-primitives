@@ -3,6 +3,7 @@ import { booleanAttribute, Directive, input, OnInit, output } from '@angular/cor
 import { NgpOrientation } from 'ng-primitives/common';
 import { setupFormControl } from 'ng-primitives/form-field';
 import { injectRovingFocusGroupState, NgpRovingFocusGroup } from 'ng-primitives/roving-focus';
+import { uniqueId } from 'ng-primitives/utils';
 import { provideRadioGroupState, radioGroupState } from './radio-group-state';
 
 /**
@@ -22,6 +23,7 @@ import { provideRadioGroupState, radioGroupState } from './radio-group-state';
   ],
   host: {
     role: 'radiogroup',
+    '[id]': 'id()',
     '[attr.aria-orientation]': 'state.orientation()',
     '[attr.data-orientation]': 'state.orientation()',
     '[attr.data-disabled]': 'state.disabled() ? "" : null',
@@ -32,6 +34,11 @@ export class NgpRadioGroup<T> implements OnInit {
    * Access the roving focus group state.
    */
   private readonly rovingFocusGroupState = injectRovingFocusGroupState();
+
+  /**
+   * The id of the radio group. If not provided, a unique id will be generated.
+   */
+  readonly id = input<string>(uniqueId('ngp-radio-group'));
 
   /**
    * The value of the radio group.
@@ -76,7 +83,7 @@ export class NgpRadioGroup<T> implements OnInit {
   protected readonly state = radioGroupState<NgpRadioGroup<T>>(this);
 
   constructor() {
-    setupFormControl({ disabled: this.state.disabled });
+    setupFormControl({ id: this.state.id, disabled: this.state.disabled });
   }
 
   ngOnInit(): void {

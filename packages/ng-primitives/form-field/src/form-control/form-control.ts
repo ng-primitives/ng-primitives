@@ -49,14 +49,11 @@ export class NgpFormControl {
 }
 
 interface FormControlState {
-  id?: Signal<string>;
+  id: Signal<string>;
   disabled?: Signal<boolean>;
 }
 
-export function setupFormControl({
-  id = signal(uniqueId('ngp-form-control')),
-  disabled = signal(false),
-}: FormControlState) {
+export function setupFormControl({ id, disabled = signal(false) }: FormControlState) {
   const element = injectElementRef().nativeElement;
   // Access the form field that the form control is associated with.
   const formField = injectFormFieldState({ optional: true });

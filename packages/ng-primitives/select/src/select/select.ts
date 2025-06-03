@@ -2,6 +2,7 @@ import { BooleanInput } from '@angular/cdk/coercion';
 import { booleanAttribute, Directive, input } from '@angular/core';
 import { setupFormControl } from 'ng-primitives/form-field';
 import { setupInteractions } from 'ng-primitives/internal';
+import { uniqueId } from 'ng-primitives/utils';
 import { provideSelectState, selectState } from './select-state';
 
 /**
@@ -12,10 +13,16 @@ import { provideSelectState, selectState } from './select-state';
   exportAs: 'ngpSelect',
   providers: [provideSelectState()],
   host: {
+    '[id]': 'id()',
     '[attr.disabled]': 'disabled() || null',
   },
 })
 export class NgpSelect {
+  /**
+   * The id of the select. If not provided, a unique id will be generated.
+   */
+  readonly id = input<string>(uniqueId('ngp-select'));
+
   /**
    * Whether the select is disabled.
    */
@@ -37,6 +44,6 @@ export class NgpSelect {
       focusVisible: true,
       disabled: this.state.disabled,
     });
-    setupFormControl({ disabled: this.state.disabled });
+    setupFormControl({ id: this.state.id, disabled: this.state.disabled });
   }
 }

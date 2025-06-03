@@ -10,6 +10,7 @@ import {
 } from '@angular/core';
 import { NgpOrientation } from 'ng-primitives/common';
 import { setupFormControl } from 'ng-primitives/form-field';
+import { uniqueId } from 'ng-primitives/utils';
 import type { NgpSliderTrack } from '../slider-track/slider-track';
 import { provideSliderState, sliderState } from './slider-state';
 
@@ -21,10 +22,16 @@ import { provideSliderState, sliderState } from './slider-state';
   exportAs: 'ngpSlider',
   providers: [provideSliderState()],
   host: {
+    '[id]': 'id()',
     '[attr.data-orientation]': 'state.orientation()',
   },
 })
 export class NgpSlider {
+  /**
+   * The id of the slider. If not provided, a unique id will be generated.
+   */
+  readonly id = input<string>(uniqueId('ngp-slider'));
+
   /**
    * The value of the slider.
    */
@@ -99,6 +106,6 @@ export class NgpSlider {
   protected readonly state = sliderState<NgpSlider>(this);
 
   constructor() {
-    setupFormControl({ disabled: this.state.disabled });
+    setupFormControl({ id: this.state.id, disabled: this.state.disabled });
   }
 }

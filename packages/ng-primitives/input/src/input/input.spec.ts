@@ -1,6 +1,7 @@
 import { FormsModule } from '@angular/forms';
 import { fireEvent, render } from '@testing-library/angular';
 import userEvent from '@testing-library/user-event';
+import { NgpFormField, NgpLabel } from 'ng-primitives/form-field';
 import { NgpInput } from './input';
 
 describe('NgpInput', () => {
@@ -60,5 +61,56 @@ describe('NgpInput', () => {
     fireEvent.focus(input);
     userEvent.type(input, 'Hello World');
     expect(input).toHaveValue('');
+  });
+
+  it('should set the id attribute', async () => {
+    const { getByTestId } = await render(`<input ngpInput data-testid="input" />`, {
+      imports: [NgpInput],
+    });
+
+    const input = getByTestId('input');
+    expect(input).toHaveAttribute('id');
+    expect(input.id).toMatch(/^ngp-input-\d+$/);
+  });
+
+  it('should allow th user to set a custom id', async () => {
+    const customId = 'custom-input-id';
+    const { getByTestId } = await render(
+      `<input ngpInput id="${customId}" data-testid="input" />`,
+      {
+        imports: [NgpInput],
+      },
+    );
+
+    const input = getByTestId('input');
+    expect(input).toHaveAttribute('id', customId);
+  });
+
+  it('should add the disabled attribute when disabled is true', async () => {
+    const { getByTestId } = await render(`<input ngpInput data-testid="input" disabled />`, {
+      imports: [NgpInput],
+    });
+
+    const input = getByTestId('input');
+    expect(input).toHaveAttribute('disabled');
+    expect(input).toBeDisabled();
+  });
+
+  it('should connect the label with the input', async () => {
+    const { getByTestId } = await render(
+      `<div ngpFormField>
+        <label ngpLabel id="label-id" data-testid="label">Custom Label</label>
+        <input ngpInput data-testid="input" id="custom-id" />
+      </div>`,
+      {
+        imports: [NgpInput, NgpFormField, NgpLabel],
+      },
+    );
+
+    const input = getByTestId('input');
+    const label = getByTestId('label');
+    expect(label).toHaveAttribute('for', 'custom-id');
+    expect(input).toHaveAttribute('id', 'custom-id');
+    expect(input).toHaveAttribute('aria-labelledby', 'label-id');
   });
 });

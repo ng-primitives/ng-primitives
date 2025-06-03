@@ -2,6 +2,7 @@ import { BooleanInput } from '@angular/cdk/coercion';
 import { booleanAttribute, Directive, HostListener, input, output } from '@angular/core';
 import { setupFormControl } from 'ng-primitives/form-field';
 import { injectElementRef, setupInteractions } from 'ng-primitives/internal';
+import { uniqueId } from 'ng-primitives/utils';
 import { provideSwitchState, switchState } from './switch-state';
 
 /**
@@ -13,6 +14,7 @@ import { provideSwitchState, switchState } from './switch-state';
   providers: [provideSwitchState()],
   host: {
     role: 'switch',
+    '[id]': 'id()',
     '[attr.type]': 'isButton ? "button" : null',
     '[attr.aria-checked]': 'state.checked()',
     '[attr.data-checked]': 'state.checked() ? "" : null',
@@ -32,6 +34,11 @@ export class NgpSwitch {
    * Determine if the switch is a button
    */
   protected isButton = this.elementRef.nativeElement.tagName === 'BUTTON';
+
+  /**
+   * The id of the switch. If not provided, a unique id will be generated.
+   */
+  readonly id = input<string>(uniqueId('ngp-switch'));
 
   /**
    * Determine if the switch is checked.
@@ -71,7 +78,7 @@ export class NgpSwitch {
       focusVisible: true,
       disabled: this.state.disabled,
     });
-    setupFormControl({ disabled: this.state.disabled });
+    setupFormControl({ id: this.state.id, disabled: this.state.disabled });
   }
 
   /**
