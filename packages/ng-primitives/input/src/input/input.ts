@@ -4,7 +4,7 @@ import { NgpAutofill } from 'ng-primitives/autofill';
 import { setupFormControl } from 'ng-primitives/form-field';
 import { injectElementRef, setupInteractions } from 'ng-primitives/internal';
 import { injectSearchState } from 'ng-primitives/search';
-import { uniqueId } from '../../../utils/src';
+import { uniqueId } from 'ng-primitives/utils';
 import { inputState, provideInputState } from './input-state';
 
 @Directive({
@@ -52,7 +52,7 @@ export class NgpInput {
       focus: true,
       disabled: this.state.disabled,
     });
-    setupFormControl({ id: this.id, disabled: this.state.disabled });
+    setupFormControl({ id: this.state.id, disabled: this.state.disabled });
 
     this.searchState()?.registerInput(this.elementRef.nativeElement);
   }
