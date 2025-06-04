@@ -1,4 +1,3 @@
-import { addRoute } from '@nx/angular/src/utils';
 import { formatFiles, generateFiles, names, Tree, updateJson } from '@nx/devkit';
 import { query } from '@phenomnomnominal/tsquery';
 import * as path from 'path';
@@ -30,23 +29,13 @@ export async function reusableComponentGenerator(
     .map(word => word.charAt(0).toUpperCase() + word.slice(1))
     .join(' ');
 
-  // insert the link (<a routerLink="/input">Input</a>) before the closing nav tag
+  // insert the link (<a routerLink="/reusable-components/input">Input</a>) before the closing nav tag
   content = content.replace(
     /<\/nav>/,
-    `  <a routerLink="/${formattedNames.fileName}">${words}</a>\n</nav>`,
+    `  <a routerLink="/reusable-components/${formattedNames.fileName}">${words}</a>\n</nav>`,
   );
 
   tree.write(appComponentPath, content);
-
-  // add route to the app.routes.ts
-  addRoute(
-    tree,
-    'apps/components/src/app/app.routes.ts',
-    `{ path: '${formattedNames.fileName}', loadComponent: () => import('./${formattedNames.fileName}/app') }`,
-    true,
-    'appRoutes',
-    `'./${formattedNames.fileName}/app'`,
-  );
 
   // add the primitive to the schema enum
   const schemaPath = 'packages/ng-primitives/schematics/ng-generate/schema.d.ts';

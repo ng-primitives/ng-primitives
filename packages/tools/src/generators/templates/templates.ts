@@ -19,8 +19,8 @@ export async function templatesGenerator(tree: Tree) {
     const files = tree.children(`${templatesPath}/${primitive}`);
 
     for (const file of files) {
-      // skip any app.ts files as they are for example purposes only
-      if (file.endsWith('app.ts')) {
+      // skip any index.page.ts files as they are for example purposes only
+      if (file.endsWith('index.page.ts')) {
         continue;
       }
 
