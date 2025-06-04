@@ -1,6 +1,6 @@
 import { expect, test } from '@playwright/test';
 
-test.describe('Checkbox', () => {
+test.describe('Reusable Component - Checkbox', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/reusable-components/checkbox');
   });

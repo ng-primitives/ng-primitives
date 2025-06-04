@@ -2,7 +2,7 @@
 import AxeBuilder from '@axe-core/playwright';
 import { expect, Page, test } from '@playwright/test';
 
-test.describe('Accordion', () => {
+test.describe('Reusable Component - Accordion', () => {
   async function expectAccordionState(page: Page, expandedIndex: number) {
     for (let i = 1; i <= 3; i++) {
       const isExpanded = i === expandedIndex;

@@ -1,7 +1,7 @@
 import AxeBuilder from '@axe-core/playwright';
 import { expect, test } from '@playwright/test';
 
-test.describe('Date Picker', () => {
+test.describe('Reusable Component - Date Picker', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/date-picker');
   });

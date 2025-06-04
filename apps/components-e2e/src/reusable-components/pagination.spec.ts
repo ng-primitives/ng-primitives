@@ -1,7 +1,7 @@
 import AxeBuilder from '@axe-core/playwright';
 import { expect, test } from '@playwright/test';
 
-test.describe('Pagination', () => {
+test.describe('Reusable Component - Pagination', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/pagination');
   });

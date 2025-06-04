@@ -1,7 +1,7 @@
 import AxeBuilder from '@axe-core/playwright';
 import { expect, test } from '@playwright/test';
 
-test.describe('Separator', () => {
+test.describe('Reusable Component - Separator', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/reusable-components/separator');
   });

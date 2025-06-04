@@ -1,7 +1,7 @@
 import AxeBuilder from '@axe-core/playwright';
 import { expect, test } from '@playwright/test';
 
-test.describe('Radio', () => {
+test.describe('Reusable Component - Radio', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/reusable-components/radio');
   });

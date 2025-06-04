@@ -26,7 +26,7 @@ export class Snippet {
   private readonly clipboard = inject(Clipboard);
   private readonly changeDetector = inject(ChangeDetectorRef);
   private readonly snippets = import.meta.glob!(
-    '../../../../../components/src/app/reusable-components/**/*.ts',
+    '../../../../../components/src/app/pages/reusable-components/**/*.ts',
     {
       import: 'default',
       query: '?source',
@@ -97,8 +97,8 @@ export class Snippet {
     // sort the files so app.ts is always first, followed by the items in alphabetical order
     this.files.update(state => {
       state.sort((a, b) => {
-        if (a.label === 'app.ts') return -1;
-        if (b.label === 'app.ts') return 1;
+        if (a.label === 'index.page.ts') return -1;
+        if (b.label === 'index.page.ts') return 1;
 
         // Split by hyphen to prioritize base names first
         const aParts = a.label.split(/[-.]/);

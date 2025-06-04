@@ -1,7 +1,7 @@
 import AxeBuilder from '@axe-core/playwright';
 import { expect, test } from '@playwright/test';
 
-test.describe('Form Field', () => {
+test.describe('Reusable Component - Form Field', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/reusable-components/form-field');
   });

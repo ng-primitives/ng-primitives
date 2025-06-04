@@ -1,7 +1,7 @@
 import AxeBuilder from '@axe-core/playwright';
 import { expect, test } from '@playwright/test';
 
-test.describe('Toggle Group', () => {
+test.describe('Reusable Component - Toggle Group', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/reusable-components/toggle-group');
   });

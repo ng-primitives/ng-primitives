@@ -1,7 +1,7 @@
 import AxeBuilder from '@axe-core/playwright';
 import { expect, test } from '@playwright/test';
 
-test.describe('Toast', () => {
+test.describe('Reusable Component - Toast', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/reusable-components/toast');
   });
