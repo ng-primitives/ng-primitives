@@ -97,8 +97,8 @@ export class Snippet {
     // sort the files so app.ts is always first, followed by the items in alphabetical order
     this.files.update(state => {
       state.sort((a, b) => {
-        if (a.label === 'index.page.ts') return -1;
-        if (b.label === 'index.page.ts') return 1;
+        if (a.label === 'app.ts') return -1;
+        if (b.label === 'app.ts') return 1;
 
         // Split by hyphen to prioritize base names first
         const aParts = a.label.split(/[-.]/);
