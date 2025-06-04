@@ -13,11 +13,18 @@ export interface NgpToggleGroupConfig {
    * @default 'single'
    */
   type: 'single' | 'multiple';
+
+  /**
+   * Whether a toggle button can be deselected.
+   * @default true
+   */
+  allowDeselection: boolean;
 }
 
 export const defaultToggleGroupConfig: NgpToggleGroupConfig = {
   orientation: 'horizontal',
   type: 'single',
+  allowDeselection: true,
 };
 
 export const NgpToggleGroupConfigToken = new InjectionToken<NgpToggleGroupConfig>(

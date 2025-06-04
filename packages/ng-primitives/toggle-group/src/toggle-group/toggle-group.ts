@@ -37,6 +37,15 @@ export class NgpToggleGroup {
   });
 
   /**
+   * Whether toggle buttons can be deselected. If set to `false`, clicking a selected toggle button will not deselect it.
+   * @default true
+   */
+  readonly allowDeselection = input<boolean, BooleanInput>(this.config.allowDeselection, {
+    alias: 'ngpToggleGroupAllowDeselection',
+    transform: booleanAttribute,
+  });
+
+  /**
    * The type of the toggle group, whether only one item can be selected or multiple.
    */
   readonly type = input<'single' | 'multiple'>(this.config.type, { alias: 'ngpToggleGroupType' });
@@ -91,7 +100,7 @@ export class NgpToggleGroup {
    * De-select a value in the toggle group.
    */
   private deselect(value: string): void {
-    if (this.state.disabled()) {
+    if (this.state.disabled() || !this.state.allowDeselection()) {
       return;
     }
 
