@@ -98,7 +98,9 @@ export class NgpTabButton implements OnInit {
    */
   @HostListener('click')
   select(): void {
-    this.state().select(this.value()!);
+    if (this.disabled() === false) {
+      this.state().select(this.value()!);
+    }
   }
 
   /**
