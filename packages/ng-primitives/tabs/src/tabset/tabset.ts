@@ -6,7 +6,6 @@ import { injectRovingFocusGroupState, NgpRovingFocusGroup } from 'ng-primitives/
 import { uniqueId } from 'ng-primitives/utils';
 import { injectTabsConfig } from '../config/tabs-config';
 import type { NgpTabButton } from '../tab-button/tab-button';
-import type { NgpTabPanel } from '../tab-panel/tab-panel';
 import { provideTabsetState, tabsetState } from './tabset-state';
 
 /**
@@ -67,12 +66,6 @@ export class NgpTabset {
     alias: 'ngpTabsetActivateOnFocus',
     transform: booleanAttribute,
   });
-
-  /**
-   * Access the tabs within the tabset
-   * @internal
-   */
-  readonly panels = signal<NgpTabPanel[]>([]);
 
   /**
    * Access the tab buttons within the tabset
