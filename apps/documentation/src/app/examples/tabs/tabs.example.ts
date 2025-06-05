@@ -44,6 +44,11 @@ import { NgpTabButton, NgpTabList, NgpTabPanel, NgpTabset } from 'ng-primitives/
       color: var(--ngp-text-primary);
     }
 
+    [ngpTabButton][data-disabled] {
+      color: var(--ngp-text-disabled);
+      cursor: not-allowed;
+    }
+
     [ngpTabPanel] {
       padding: 0.5rem 0;
       outline: none;

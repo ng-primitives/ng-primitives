@@ -3,6 +3,7 @@ import {
   Directive,
   HOST_TAG_NAME,
   HostListener,
+  OnDestroy,
   OnInit,
   booleanAttribute,
   computed,
@@ -28,9 +29,14 @@ import { injectTabsetState } from '../tabset/tabset-state';
     '[attr.disabled]': 'tagName === "button" && disabled() ? "" : null',
     '[attr.data-orientation]': 'state().orientation()',
   },
-  hostDirectives: [NgpRovingFocusItem],
+  hostDirectives: [
+    {
+      directive: NgpRovingFocusItem,
+      inputs: ['ngpRovingFocusItemDisabled: ngpTabButtonDisabled'],
+    },
+  ],
 })
-export class NgpTabButton implements OnInit {
+export class NgpTabButton implements OnInit, OnDestroy {
   /**
    * Access the tag host name
    */
@@ -79,6 +85,8 @@ export class NgpTabButton implements OnInit {
   readonly active = computed(() => this.state().selectedTab() === this.value());
 
   constructor() {
+    this.state().registerTab(this);
+
     setupInteractions({
       hover: true,
       press: true,
@@ -91,6 +99,10 @@ export class NgpTabButton implements OnInit {
     if (this.value() === undefined) {
       throw new Error('ngpTabButton: value is required');
     }
+  }
+
+  ngOnDestroy(): void {
+    this.state().unregisterTab(this);
   }
 
   /**

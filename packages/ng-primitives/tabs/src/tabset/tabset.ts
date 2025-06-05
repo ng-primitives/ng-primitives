@@ -5,6 +5,7 @@ import { syncState } from 'ng-primitives/internal';
 import { injectRovingFocusGroupState, NgpRovingFocusGroup } from 'ng-primitives/roving-focus';
 import { uniqueId } from 'ng-primitives/utils';
 import { injectTabsConfig } from '../config/tabs-config';
+import type { NgpTabButton } from '../tab-button/tab-button';
 import type { NgpTabPanel } from '../tab-panel/tab-panel';
 import { provideTabsetState, tabsetState } from './tabset-state';
 
@@ -74,20 +75,26 @@ export class NgpTabset {
   readonly panels = signal<NgpTabPanel[]>([]);
 
   /**
+   * Access the tab buttons within the tabset
+   * @internal
+   */
+  readonly buttons = signal<NgpTabButton[]>([]);
+
+  /**
    * @internal
    * Get the id of the selected tab
    */
   readonly selectedTab = computed(() => {
-    const panels = this.panels();
+    const buttons = this.buttons();
 
     // if there are no tabs then return the selected value
     // if there is a value set and a tab with that value exists, return the value
-    if (panels.length === 0 || panels.some(panel => panel.value() === this.state.value())) {
+    if (buttons.length === 0 || buttons.some(button => button.value() === this.state.value())) {
       return this.state.value();
     }
 
-    // otherwise return the first tab
-    return panels[0]?.value();
+    // otherwise return the first non-disabled tab's value
+    return buttons.find(button => !button.disabled())?.value();
   });
 
   /**
@@ -115,17 +122,17 @@ export class NgpTabset {
 
   /**
    * @internal
-   * Register a tab with the tabset
+   * Register a button with the tabset
    */
-  registerTab(tab: NgpTabPanel): void {
-    this.panels.update(panels => [...panels, tab]);
+  registerTab(button: NgpTabButton): void {
+    this.buttons.update(buttons => [...buttons, button]);
   }
 
   /**
    * @internal
-   * Unregister a tab with the tabset
+   * Unregister a button with the tabset
    */
-  unregisterTab(tab: NgpTabPanel): void {
-    this.panels.update(panels => panels.filter(panel => panel !== tab));
+  unregisterTab(button: NgpTabButton): void {
+    this.buttons.update(buttons => buttons.filter(btn => btn !== button));
   }
 }
