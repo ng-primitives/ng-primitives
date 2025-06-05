@@ -90,9 +90,7 @@ import { NgpTabButton, NgpTabList, NgpTabPanel, NgpTabset } from 'ng-primitives/
       </div>
 
       <div ngpTabPanel ngpTabPanelValue="disabled">
-        <p>
-          Disabled content
-        </p>
+        <p>Disabled content</p>
       </div>
     </div>
   `,
