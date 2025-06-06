@@ -25,10 +25,13 @@ const { highlight, languages } = prismjs;
 export class Snippet {
   private readonly clipboard = inject(Clipboard);
   private readonly changeDetector = inject(ChangeDetectorRef);
-  private readonly snippets = import.meta.glob!('../../../../../components/src/app/**/*.ts', {
-    import: 'default',
-    query: '?source',
-  });
+  private readonly snippets = import.meta.glob!(
+    '../../../../../components/src/app/pages/reusable-components/**/*.ts',
+    {
+      import: 'default',
+      query: '?source',
+    },
+  );
 
   readonly files = signal<Tab[]>([]);
 
@@ -63,8 +66,8 @@ export class Snippet {
       let source = (await this.snippets[file]()) as string;
       const filename = file.split('/').pop()!;
 
-      // if the file is app.ts then we should replace the select with `app-root`
-      if (filename === 'app.ts') {
+      // if the file is index.page.ts then we should replace the select with `app-root`
+      if (filename === 'index.page.ts') {
         // replace selector: 'app-*' with selector: 'app-root'
         source = source.replace(/selector: 'app-[^']*'/, "selector: 'app-root'");
       } else {
@@ -82,8 +85,11 @@ export class Snippet {
         }
       }
 
+      // if the filename is index.page.ts, we should use app.ts as the label
+      const label = filename === 'index.page.ts' ? 'app.ts' : filename;
+
       this.files.update(state => {
-        state.push({ label: filename, value: source });
+        state.push({ label, value: source });
         return state;
       });
     }

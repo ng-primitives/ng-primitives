@@ -7,68 +7,40 @@
   "tags": [],
   "targets": {
     "build": {
-      "executor": "@angular-devkit/build-angular:application",
-      "outputs": ["{options.outputPath}"],
+      "executor": "@analogjs/platform:vite",
       "options": {
-        "outputPath": "dist/apps/components",
-        "index": "apps/components/src/index.html",
-        "browser": "apps/components/src/main.ts",
-        "tsConfig": "apps/components/tsconfig.app.json",
-        "assets": [
-          {
-            "glob": "**/*",
-            "input": "apps/components/public"
-          }
-        ],
-        "styles": ["apps/components/src/styles.css"],
-        "scripts": [],
-        "server": "apps/components/src/main.server.ts",
-        "ssr": {
-          "entry": "apps/components/src/server.ts"
-        },
-        "prerender": true
+        "configFile": "apps/components/vite.config.ts",
+        "main": "apps/components/src/main.ts",
+        "outputPath": "dist/apps/components/client",
+        "tsConfig": "apps/components/tsconfig.app.json"
       },
+      "defaultConfiguration": "production",
       "configurations": {
-        "production": {
-          "budgets": [
-            {
-              "type": "initial",
-              "maximumWarning": "500kb",
-              "maximumError": "1mb"
-            },
-            {
-              "type": "anyComponentStyle",
-              "maximumWarning": "4kb",
-              "maximumError": "8kb"
-            }
-          ],
-          "outputHashing": "all"
-        },
         "development": {
-          "optimization": false,
-          "extractLicenses": false,
-          "sourceMap": true
+          "mode": "development"
+        },
+        "production": {
+          "sourcemap": false,
+          "mode": "production"
         }
       },
-      "defaultConfiguration": "production"
+      "outputs": ["{workspaceRoot}/dist/apps/components"]
     },
     "serve": {
-      "executor": "@angular-devkit/build-angular:dev-server",
+      "executor": "@analogjs/platform:vite-dev-server",
+      "defaultConfiguration": "development",
+      "options": {
+        "buildTarget": "components:build",
+        "port": 4200
+      },
       "configurations": {
+        "development": {
+          "buildTarget": "components:build:development",
+          "hmr": true
+        },
         "production": {
           "buildTarget": "components:build:production"
-        },
-        "development": {
-          "buildTarget": "components:build:development"
         }
-      },
-      "defaultConfiguration": "development",
-      "continuous": true
-    },
-    "extract-i18n": {
-      "executor": "@angular-devkit/build-angular:extract-i18n",
-      "options": {
-        "buildTarget": "components:build"
       }
     },
     "lint": {
@@ -79,7 +51,7 @@
       "options": {
         "buildTarget": "components:build",
         "port": 4200,
-        "staticFilePath": "dist/apps/components/browser",
+        "staticFilePath": "dist/apps/components/client",
         "spa": true
       }
     }

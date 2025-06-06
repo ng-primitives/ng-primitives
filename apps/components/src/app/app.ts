@@ -6,34 +6,34 @@ import { RouterLink, RouterOutlet } from '@angular/router';
   selector: 'app-root',
   template: `
     <nav>
-      <a routerLink="/accordion">Accordion</a>
-      <a routerLink="/avatar">Avatar</a>
-      <a routerLink="/button">Button</a>
-      <a routerLink="/checkbox">Checkbox</a>
-      <a routerLink="/input">Input</a>
-      <a routerLink="/date-picker">Date Picker</a>
-      <a routerLink="/form-field">Form Field</a>
-      <a routerLink="/slider">Slider</a>
-      <a routerLink="/pagination">Pagination</a>
-      <a routerLink="/progress">Progress</a>
-      <a routerLink="/radio">Radio</a>
-      <a routerLink="/switch">Switch</a>
-      <a routerLink="/toggle">Toggle</a>
-      <a routerLink="/toggle-group">Toggle Group</a>
-      <a routerLink="/tabs">Tabs</a>
-      <a routerLink="/listbox">Listbox</a>
-      <a routerLink="/separator">Separator</a>
-      <a routerLink="/textarea">Textarea</a>
-      <a routerLink="/dialog">Dialog</a>
-      <a routerLink="/file-upload">File Upload</a>
-      <a routerLink="/search">Search</a>
-      <a routerLink="/toast">Toast</a>
-      <a routerLink="/toolbar">Toolbar</a>
-      <a routerLink="/tooltip">Tooltip</a>
-      <a routerLink="/meter">Meter</a>
-      <a routerLink="/menu">Menu</a>
-      <a routerLink="/popover">Popover</a>
-      <a routerLink="/combobox">Combobox</a>
+      <a routerLink="/reusable-components/accordion">Accordion</a>
+      <a routerLink="/reusable-components/avatar">Avatar</a>
+      <a routerLink="/reusable-components/button">Button</a>
+      <a routerLink="/reusable-components/checkbox">Checkbox</a>
+      <a routerLink="/reusable-components/combobox">Combobox</a>
+      <a routerLink="/reusable-components/date-picker">Date Picker</a>
+      <a routerLink="/reusable-components/dialog">Dialog</a>
+      <a routerLink="/reusable-components/file-upload">File Upload</a>
+      <a routerLink="/reusable-components/form-field">Form Field</a>
+      <a routerLink="/reusable-components/input">Input</a>
+      <a routerLink="/reusable-components/listbox">Listbox</a>
+      <a routerLink="/reusable-components/menu">Menu</a>
+      <a routerLink="/reusable-components/meter">Meter</a>
+      <a routerLink="/reusable-components/pagination">Pagination</a>
+      <a routerLink="/reusable-components/popover">Popover</a>
+      <a routerLink="/reusable-components/progress">Progress</a>
+      <a routerLink="/reusable-components/radio">Radio</a>
+      <a routerLink="/reusable-components/search">Search</a>
+      <a routerLink="/reusable-components/separator">Separator</a>
+      <a routerLink="/reusable-components/slider">Slider</a>
+      <a routerLink="/reusable-components/switch">Switch</a>
+      <a routerLink="/reusable-components/tabs">Tabs</a>
+      <a routerLink="/reusable-components/textarea">Textarea</a>
+      <a routerLink="/reusable-components/toast">Toast</a>
+      <a routerLink="/reusable-components/toggle-group">Toggle Group</a>
+      <a routerLink="/reusable-components/toggle">Toggle</a>
+      <a routerLink="/reusable-components/toolbar">Toolbar</a>
+      <a routerLink="/reusable-components/tooltip">Tooltip</a>
     </nav>
     <main>
       <router-outlet />

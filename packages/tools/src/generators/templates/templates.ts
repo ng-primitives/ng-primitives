@@ -3,7 +3,7 @@ import { query } from '@phenomnomnominal/tsquery';
 import * as ts from 'typescript';
 
 export async function templatesGenerator(tree: Tree) {
-  const templatesPath = 'apps/components/src/app';
+  const templatesPath = 'apps/components/src/app/pages/reusable-components';
 
   // delete the existing templates
   tree.delete('packages/ng-primitives/schematics/ng-generate/templates');
@@ -19,13 +19,19 @@ export async function templatesGenerator(tree: Tree) {
     const files = tree.children(`${templatesPath}/${primitive}`);
 
     for (const file of files) {
-      // skip any app.ts files as they are for example purposes only
-      if (file.endsWith('app.ts')) {
+      // skip any index.page.ts files as they are for example purposes only
+      if (file.endsWith('index.page.ts')) {
         continue;
       }
 
+      const filePath = `${templatesPath}/${primitive}/${file}`;
+
+      if (!tree.exists(filePath)) {
+        throw new Error(`File not found: ${filePath}`);
+      }
+
       // read the file contents
-      let content = tree.read(`${templatesPath}/${primitive}/${file}`, 'utf-8');
+      let content = tree.read(filePath, 'utf-8');
 
       // process the template
       content = processTemplate(content);
