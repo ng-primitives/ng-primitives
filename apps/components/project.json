@@ -51,7 +51,7 @@
       "options": {
         "buildTarget": "components:build",
         "port": 4200,
-        "staticFilePath": "dist/apps/components/browser",
+        "staticFilePath": "dist/apps/components/client",
         "spa": true
       }
     }
