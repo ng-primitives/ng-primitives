@@ -171,36 +171,39 @@ function createControlledInput(
 
   const symbol = Object.getOwnPropertySymbols(property).find(s => s.description === 'SIGNAL');
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const inputDefinition = property[symbol as keyof typeof property] as any;
+  const inputDefinition = symbol ? (property as any)[symbol] : undefined;
 
-  if (!symbol || !inputDefinition || !('applyValueToInputSignal' in inputDefinition)) {
-    console.log(
+  if (
+    !symbol ||
+    !inputDefinition ||
+    typeof inputDefinition.applyValueToInputSignal !== 'function'
+  ) {
+    console.warn(
       'Angular has changed its internal Input implementation, report this issue to ng-primitives.',
     );
-
-    // we fallback to a linked signal which is partially controlled
+    // fallback to a linked signal which is partially controlled
     return linkedSignal(() => property());
   }
 
-  const apply = inputDefinition['applyValueToInputSignal'];
-  const setter = value.set;
-  const updater = value.update;
+  const originalApply = inputDefinition.applyValueToInputSignal.bind(inputDefinition);
+  const originalSet = value.set.bind(value);
+  const originalUpdate = value.update.bind(value);
 
-  inputDefinition['applyValueToInputSignal'] = (inputSignalNode: unknown, value: unknown) => {
+  inputDefinition.applyValueToInputSignal = (inputSignalNode: unknown, newValue: unknown) => {
     isControlled = true;
-    setter(value);
-    apply(inputSignalNode, value);
+    originalSet(newValue);
+    originalApply(inputSignalNode, newValue);
   };
 
-  value.set = (value: unknown) => {
+  value.set = (newValue: unknown) => {
     if (!isControlled) {
-      setter(value);
+      originalSet(newValue);
     }
   };
 
   value.update = (updateFn: (value: unknown) => unknown) => {
     if (!isControlled) {
-      updater(updateFn);
+      originalUpdate(updateFn);
     }
   };
 
