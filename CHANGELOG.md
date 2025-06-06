@@ -1,3 +1,14 @@
+## 0.50.0 (2025-06-06)
+
+### 🚀 Features
+
+- controlled inputs ([#286](https://github.com/ng-primitives/ng-primitives/pull/286))
+- **toggle-group:** adding option to allow deselection ([#280](https://github.com/ng-primitives/ng-primitives/pull/280))
+
+### ❤️ Thank You
+
+- Ashley Hunter
+
 ## 0.49.0 (2025-06-03)
 
 ### 🩹 Fixes
