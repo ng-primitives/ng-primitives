@@ -75,8 +75,10 @@ export class NgpToggle {
       return;
     }
 
-    this.state.selected.set(!this.state.selected());
-    this.selectedChange.emit(this.state.selected());
+    const isSelected = !this.state.selected();
+
+    this.state.selected.set(isSelected);
+    this.selectedChange.emit(isSelected);
   }
 
   /**

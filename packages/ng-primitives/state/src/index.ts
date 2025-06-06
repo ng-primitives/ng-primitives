@@ -128,13 +128,10 @@ export function createState(token: ProviderToken<WritableSignal<State<unknown>>>
       for (const key in state) {
         const value = state[key as keyof U];
 
-        // If this is a signal but doesn't have a set method, we need to wrap it in a linked signal
-        // This is because the signal is not writable
-        // and we need to create a new signal that is writable
-        // and linked to the original signal
-        if (isSignal(value) && 'set' in value === false) {
+        // We want to make this a controlled input if it is an InputSignal or InputSignalWithTransform
+        if (isSignalInput(value)) {
           // @ts-ignore
-          obj[key] = linkedSignal(() => value());
+          obj[key] = createControlledInput(value);
         } else {
           // @ts-ignore
           obj[key] = value;
@@ -163,4 +160,75 @@ export function createState(token: ProviderToken<WritableSignal<State<unknown>>>
 
     return internalState() as unknown as CreatedState<U>;
   };
+}
+
+// this is a bit hacky, but we need to do it to track whether this is controlled
+function createControlledInput(
+  property: InputSignal<unknown> | InputSignalWithTransform<unknown, unknown>,
+): WritableSignal<unknown> {
+  const value = signal(property());
+  let isControlled = false;
+
+  const symbol = Object.getOwnPropertySymbols(property).find(s => s.description === 'SIGNAL');
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const inputDefinition = symbol ? (property as any)[symbol] : undefined;
+
+  if (
+    !symbol ||
+    !inputDefinition ||
+    typeof inputDefinition.applyValueToInputSignal !== 'function'
+  ) {
+    console.warn(
+      'Angular has changed its internal Input implementation, report this issue to ng-primitives.',
+    );
+    // fallback to a linked signal which is partially controlled
+    return linkedSignal(() => property());
+  }
+
+  const originalApply = inputDefinition.applyValueToInputSignal.bind(inputDefinition);
+  const originalSet = value.set.bind(value);
+  const originalUpdate = value.update.bind(value);
+
+  inputDefinition.applyValueToInputSignal = (inputSignalNode: unknown, newValue: unknown) => {
+    isControlled = true;
+    originalSet(newValue);
+    originalApply(inputSignalNode, newValue);
+  };
+
+  value.set = (newValue: unknown) => {
+    if (!isControlled) {
+      originalSet(newValue);
+    }
+  };
+
+  value.update = (updateFn: (value: unknown) => unknown) => {
+    if (!isControlled) {
+      originalUpdate(updateFn);
+    }
+  };
+
+  return value;
+}
+
+function isSignalInput(
+  property: unknown,
+): property is InputSignal<unknown> | InputSignalWithTransform<unknown, unknown> {
+  if (!isSignal(property)) {
+    return false;
+  }
+
+  const symbol = Object.getOwnPropertySymbols(property).find(s => s.description === 'SIGNAL');
+
+  if (!symbol) {
+    return false;
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const inputDefinition = symbol ? (property as any)[symbol] : undefined;
+
+  if (!inputDefinition) {
+    return false;
+  }
+
+  return 'transformFn' in inputDefinition || 'applyValueToInputSignal' in inputDefinition;
 }

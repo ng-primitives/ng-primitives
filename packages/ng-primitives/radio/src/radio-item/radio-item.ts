@@ -1,5 +1,5 @@
 import { BooleanInput } from '@angular/cdk/coercion';
-import { Directive, HostListener, booleanAttribute, computed, input } from '@angular/core';
+import { Directive, HostListener, OnInit, booleanAttribute, computed, input } from '@angular/core';
 import { NgpFocusVisible, NgpHover, NgpPress } from 'ng-primitives/interactions';
 import { NgpRovingFocusItem } from 'ng-primitives/roving-focus';
 import { injectRadioGroupState } from '../radio-group/radio-group-state';
@@ -19,7 +19,7 @@ import { provideRadioItemState, radioItemState } from './radio-item-state';
     '[attr.data-checked]': 'checked() ? "" : null',
   },
 })
-export class NgpRadioItem<T> {
+export class NgpRadioItem<T> implements OnInit {
   /**
    * Access the radio group state.
    */
@@ -28,7 +28,7 @@ export class NgpRadioItem<T> {
   /**
    * The value of the radio item.
    */
-  readonly value = input.required<T>({ alias: 'ngpRadioItemValue' });
+  readonly value = input<T>(undefined, { alias: 'ngpRadioItemValue' });
 
   /**
    * Whether the radio item is disabled.
@@ -43,7 +43,7 @@ export class NgpRadioItem<T> {
    * Whether the radio item is checked.
    */
   readonly checked = computed(() =>
-    this.radioGroupState().compareWith()(this.radioGroupState().value(), this.value()),
+    this.radioGroupState().compareWith()(this.radioGroupState().value(), this.state.value()!),
   );
 
   /**
@@ -51,13 +51,19 @@ export class NgpRadioItem<T> {
    */
   protected readonly state = radioItemState<NgpRadioItem<T>>(this);
 
+  ngOnInit(): void {
+    if (this.state.value() === undefined) {
+      throw new Error('The `ngpRadioItem` directive requires a `value` input.');
+    }
+  }
+
   /**
    * When the item receives focus, select it.
    * @internal
    */
   @HostListener('focus')
   protected onFocus(): void {
-    this.radioGroupState().select(this.value());
+    this.radioGroupState().select(this.state.value()!);
   }
 
   /**
@@ -66,6 +72,6 @@ export class NgpRadioItem<T> {
    */
   @HostListener('click')
   protected onClick(): void {
-    this.radioGroupState().select(this.value());
+    this.radioGroupState().select(this.state.value()!);
   }
 }
