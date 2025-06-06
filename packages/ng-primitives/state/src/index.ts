@@ -213,5 +213,22 @@ function createControlledInput(
 function isSignalInput(
   property: unknown,
 ): property is InputSignal<unknown> | InputSignalWithTransform<unknown, unknown> {
-  return isSignal(property) && property.name === 'inputValueFn';
+  if (!isSignal(property)) {
+    return false;
+  }
+
+  const symbol = Object.getOwnPropertySymbols(property).find(s => s.description === 'SIGNAL');
+
+  if (!symbol) {
+    return false;
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const inputDefinition = symbol ? (property as any)[symbol] : undefined;
+
+  if (!inputDefinition) {
+    return false;
+  }
+
+  return 'transformFn' in inputDefinition || 'applyValueToInputSignal' in inputDefinition;
 }
