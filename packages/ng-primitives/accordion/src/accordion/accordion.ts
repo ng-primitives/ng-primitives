@@ -94,20 +94,22 @@ export class NgpAccordion<T> {
 
     // if we are in single mode then toggle the value
     if (this.state.type() === 'single') {
-      this.state.value.set(isOpen ? null : value);
-      this.valueChange.emit(this.state.value());
+      const newValue = isOpen ? null : value;
+      this.state.value.set(newValue);
+      this.valueChange.emit(newValue);
       return;
     }
 
     // if we are in multiple mode then toggle the value
-    const values = (this.state.value() as T[]) ?? [];
+    let values = (this.state.value() as T[]) ?? [];
 
     if (isOpen) {
-      this.state.value.set(values.filter(v => v !== value));
+      values = values.filter(v => v !== value);
     } else {
-      this.state.value.set([...values, value]);
+      values = [...values, value];
     }
-    this.valueChange.emit(this.state.value());
+    this.state.value.set(values);
+    this.valueChange.emit(values);
   }
 }
 

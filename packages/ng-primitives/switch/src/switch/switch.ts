@@ -90,8 +90,9 @@ export class NgpSwitch {
       return;
     }
 
-    this.state.checked.set(!this.state.checked());
-    this.checkedChange.emit(this.state.checked());
+    const checked = !this.state.checked();
+    this.state.checked.set(checked);
+    this.checkedChange.emit(checked);
   }
 
   /**

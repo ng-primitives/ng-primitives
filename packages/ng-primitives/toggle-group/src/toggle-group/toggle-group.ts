@@ -87,13 +87,16 @@ export class NgpToggleGroup {
       return;
     }
 
+    let newValue: string[] = [];
+
     if (this.state.type() === 'single') {
-      this.state.value.set([value]);
+      newValue = [value];
     } else {
-      this.state.value.set([...this.state.value(), value]);
+      newValue = [...this.state.value(), value];
     }
 
-    this.valueChange.emit(this.state.value());
+    this.state.value.set(newValue);
+    this.valueChange.emit(newValue);
   }
 
   /**
@@ -104,8 +107,9 @@ export class NgpToggleGroup {
       return;
     }
 
-    this.state.value.set(this.state.value().filter(v => v !== value));
-    this.valueChange.emit(this.state.value());
+    const newValue = this.state.value().filter(v => v !== value);
+    this.state.value.set(newValue);
+    this.valueChange.emit(newValue);
   }
 
   /**

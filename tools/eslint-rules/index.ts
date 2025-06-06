@@ -3,6 +3,7 @@ import {
   RULE_NAME as avoidEarlyStateName,
 } from './rules/avoid-early-state';
 import { rule as avoidModel, RULE_NAME as avoidModelName } from './rules/avoid-model';
+import { RULE_NAME as avoidStateEmitName, rule as avoidStateEmit } from './rules/avoid-state-emit';
 import {
   rule as preferEntrypointImports,
   RULE_NAME as preferEntrypointImportsName,
@@ -44,5 +45,6 @@ module.exports = {
     [avoidModelName]: avoidModel,
     [avoidEarlyStateName]: avoidEarlyState,
     [requireStateGenericName]: requireStateGeneric,
+    [avoidStateEmitName]: avoidStateEmit,
   },
 };

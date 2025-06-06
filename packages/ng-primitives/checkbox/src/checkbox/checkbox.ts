@@ -104,8 +104,9 @@ export class NgpCheckbox {
     // prevent this firing twice in cases where the label is clicked and the checkbox is clicked by the one event
     event?.preventDefault();
 
-    this.state.checked.set(this.state.indeterminate() ? true : !this.state.checked());
-    this.checkedChange.emit(this.state.checked());
+    const checked = this.state.indeterminate() ? true : !this.state.checked();
+    this.state.checked.set(checked);
+    this.checkedChange.emit(checked);
 
     // if the checkbox was indeterminate, it isn't anymore
     if (this.state.indeterminate()) {

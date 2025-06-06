@@ -58,10 +58,31 @@ describe('NgpAccordion', () => {
 
   it('should toggle the item when a trigger is clicked', async () => {
     const valueChange = jest.fn();
-    const fixture = await renderTemplate({ valueChange });
+    const fixture = await render(
+      `
+    <div data-testid="accordion" ngpAccordion [(ngpAccordionValue)]="value" (ngpAccordionValueChange)="valueChange($event)">
+      <div data-testid="accordion-item" ngpAccordionItem ngpAccordionItemValue="item-1">
+        <button data-testid="accordion-trigger" ngpAccordionTrigger>Header 1</button>
+        <div data-testid="accordion-content" ngpAccordionContent>Content 1</div>
+      </div>
+      <div data-testid="accordion-item" ngpAccordionItem ngpAccordionItemValue="item-2">
+        <button data-testid="accordion-trigger" ngpAccordionTrigger>Header 2</button>
+        <div data-testid="accordion-content" ngpAccordionContent>Content 2</div>
+      </div>
+    </div>
+    `,
+      {
+        imports: [NgpAccordion, NgpAccordionItem, NgpAccordionContent, NgpAccordionTrigger],
+        componentProperties: {
+          value: 'item-1',
+          valueChange,
+        },
+      },
+    );
     const triggers = fixture.getAllByTestId('accordion-trigger');
 
     fireEvent.click(triggers[1]);
+    fixture.detectChanges();
     expect(triggers[0]).not.toHaveAttribute('data-open');
     expect(triggers[1]).toHaveAttribute('data-open');
 
@@ -221,7 +242,7 @@ describe('NgpAccordion', () => {
          [ngpAccordionOrientation]="orientation"
          [ngpAccordionCollapsible]="collapsible"
          [ngpAccordionDisabled]="accordionDisabled"
-         [ngpAccordionValue]="value"
+         [(ngpAccordionValue)]="value"
          (ngpAccordionValueChange)="valueChange($event)">
 
       <div data-testid="accordion-item"

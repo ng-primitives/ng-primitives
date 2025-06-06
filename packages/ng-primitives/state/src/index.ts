@@ -178,7 +178,7 @@ function createControlledInput(
       'Angular has changed its internal Input implementation, report this issue to ng-primitives.',
     );
 
-    // we fallback to a linked signal which is partally controlled
+    // we fallback to a linked signal which is partially controlled
     return linkedSignal(() => property());
   }
 

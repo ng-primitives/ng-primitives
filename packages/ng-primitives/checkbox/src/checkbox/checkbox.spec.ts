@@ -14,7 +14,7 @@ describe('NgpCheckbox', () => {
     container = await render(
       `<div
         ngpCheckbox
-        [ngpCheckboxChecked]="checked"
+        [(ngpCheckboxChecked)]="checked"
         [ngpCheckboxIndeterminate]="indeterminate"
         (ngpCheckboxCheckedChange)="checkedChange($event)"
         (ngpCheckboxIndeterminateChange)="indeterminateChange($event)"
