@@ -320,6 +320,7 @@ export class NgpOverlay<T = unknown> {
    */
   destroy(): void {
     this.hideImmediate();
+    this.destroyOverlay();
     this.disposePositioning?.();
     this.scrollStrategy.disable();
   }
