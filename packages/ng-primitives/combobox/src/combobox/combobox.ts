@@ -157,10 +157,10 @@ export class NgpCombobox {
     // e.g. the dropdown is open before the option is scrolled into view
     afterRenderEffect({
       write: () => {
-        const isOpen = this.portal()?.overlay()?.isOpen() ?? false;
+        const isPositioned = this.portal()?.overlay()?.isPositioned() ?? false;
         const activeItem = this.activeDescendantManager.activeItem();
 
-        if (!isOpen || !activeItem) {
+        if (!isPositioned || !activeItem) {
           return;
         }
 
