@@ -8,6 +8,7 @@ import {
   TemplateRef,
   Type,
   ViewContainerRef,
+  computed,
   inject,
   runInInjectionContext,
   signal,
@@ -111,7 +112,18 @@ export class NgpOverlay<T = unknown> {
   private readonly portal = signal<NgpPortal | null>(null);
 
   /** Signal tracking the overlay position */
-  readonly position = signal<{ x: number; y: number }>({ x: 0, y: 0 });
+  readonly position = signal<{ x: number | undefined; y: number | undefined }>({
+    x: undefined,
+    y: undefined,
+  });
+
+  /**
+   * Determine if the overlay has been positioned
+   * @internal
+   */
+  readonly isPositioned = computed(
+    () => this.position().x !== undefined && this.position().y !== undefined,
+  );
 
   /** Signal tracking the trigger element width */
   readonly triggerWidth = signal<number | null>(null);
