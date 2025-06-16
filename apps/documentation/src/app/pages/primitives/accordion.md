@@ -119,6 +119,13 @@ The following data attributes are applied to the `ngpAccordionContent` directive
 | `data-orientation` | The orientation of the accordion.        | `horizontal` \| `vertical` |
 | `data-open`        | Applied when the accordion item is open. | `-`                        |
 
+The following CSS custom properties are applied to the `ngpAccordionContent` directive:
+
+| Property                         | Description                          |
+| -------------------------------- | ------------------------------------ |
+| `--ngp-accordion-content-width`  | The width of the accordion content.  |
+| `--ngp-accordion-content-height` | The height of the accordion content. |
+
 ## Animations
 
 The `ngpAccordionContent` primitive adds several CSS custom properties `--ngp-accordion-content-width` and `--ngp-accordion-content-height` to the element that can be used to animate the accordion content on open and close.

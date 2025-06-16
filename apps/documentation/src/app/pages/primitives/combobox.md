@@ -106,6 +106,17 @@ The dropdown that contains the combobox options.
 
 <api-docs name="NgpComboboxDropdown"></api-docs>
 
+#### CSS Custom Properties
+
+The following CSS custom properties are applied to the `ngpComboboxDropdown` directive:
+
+| Property                          | Description                                      |
+| --------------------------------- | ------------------------------------------------ |
+| `--ngp-combobox-transform-origin` | The transform origin for the dropdown animation. |
+| `--ngp-combobox-width`            | The width of the combobox dropdown.              |
+| `--ngp-combobox-input-width`      | The width of the combobox input field.           |
+| `--ngp-combobox-button-width`     | The width of the combobox button.                |
+
 ### NgpComboboxInput
 
 The input field for the combobox.

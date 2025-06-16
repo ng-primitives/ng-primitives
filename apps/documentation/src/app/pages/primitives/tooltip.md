@@ -65,6 +65,13 @@ The following directives are available to import from the `ng-primitives/tooltip
 | `data-enter` | Applied when the tooltip is being added to the DOM. This can be used to trigger animations.     |
 | `data-exit`  | Applied when the tooltip is being removed from the DOM. This can be used to trigger animations. |
 
+The following CSS custom properties are applied to the `ngpTooltip` directive:
+
+| Property                         | Description                                         |
+| -------------------------------- | --------------------------------------------------- |
+| `--ngp-tooltip-transform-origin` | The transform origin of the tooltip for animations. |
+| `--ngp-tooltip-trigger-width`    | The width of the trigger element.                   |
+
 ### NgpTooltipTrigger
 
 <api-docs name="NgpTooltipTrigger"></api-docs>

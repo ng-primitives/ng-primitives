@@ -84,6 +84,13 @@ The following data attributes are available on the `NgpMenuTrigger` directive:
 
 <api-docs name="NgpMenu"></api-docs>
 
+The following CSS custom properties are applied to the `ngpMenu` directive:
+
+| Property                      | Description                                      |
+| ----------------------------- | ------------------------------------------------ |
+| `--ngp-menu-transform-origin` | The transform origin of the menu for animations. |
+| `--ngp-menu-trigger-width`    | The width of the trigger element.                |
+
 ### NgpMenuItem
 
 <api-docs name="NgpMenuItem"></api-docs>
