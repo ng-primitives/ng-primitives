@@ -10,24 +10,24 @@ import { injectSliderState } from '../slider/slider-state';
   exportAs: 'ngpSliderThumb',
   host: {
     role: 'slider',
-    '[attr.aria-valuemin]': 'sliderState().min()',
-    '[attr.aria-valuemax]': 'sliderState().max()',
-    '[attr.aria-valuenow]': 'sliderState().value()',
-    '[attr.aria-orientation]': 'sliderState().orientation()',
-    '[tabindex]': 'sliderState().disabled() ? -1 : 0',
-    '[attr.data-orientation]': 'sliderState().orientation()',
-    '[attr.data-disabled]': 'sliderState().disabled() ? "" : null',
+    '[attr.aria-valuemin]': 'state().min()',
+    '[attr.aria-valuemax]': 'state().max()',
+    '[attr.aria-valuenow]': 'state().value()',
+    '[attr.aria-orientation]': 'state().orientation()',
+    '[tabindex]': 'state().disabled() ? -1 : 0',
+    '[attr.data-orientation]': 'state().orientation()',
+    '[attr.data-disabled]': 'state().disabled() ? "" : null',
     '[style.inset-inline-start.%]':
-      'sliderState().orientation() === "horizontal" ? sliderState().percentage() : undefined',
+      'state().orientation() === "horizontal" ? state().percentage() : undefined',
     '[style.inset-block-start.%]':
-      'sliderState().orientation() === "vertical" ? sliderState().percentage() : undefined',
+      'state().orientation() === "vertical" ? state().percentage() : undefined',
   },
 })
 export class NgpSliderThumb {
   /**
    * Access the slider state.
    */
-  protected readonly sliderState = injectSliderState();
+  protected readonly state = injectSliderState();
 
   /**
    * Store the dragging state.
@@ -39,7 +39,7 @@ export class NgpSliderThumb {
       hover: true,
       focusVisible: true,
       press: true,
-      disabled: this.sliderState().disabled,
+      disabled: this.state().disabled,
     });
   }
 
@@ -47,7 +47,7 @@ export class NgpSliderThumb {
   protected handlePointerDown(event: PointerEvent): void {
     event.preventDefault();
 
-    if (this.sliderState().disabled()) {
+    if (this.state().disabled()) {
       return;
     }
 
@@ -56,7 +56,7 @@ export class NgpSliderThumb {
 
   @HostListener('document:pointerup')
   protected handlePointerUp(): void {
-    if (this.sliderState().disabled()) {
+    if (this.state().disabled()) {
       return;
     }
 
@@ -65,27 +65,27 @@ export class NgpSliderThumb {
 
   @HostListener('document:pointermove', ['$event'])
   protected handlePointerMove(event: PointerEvent): void {
-    if (this.sliderState().disabled() || !this.dragging) {
+    if (this.state().disabled() || !this.dragging) {
       return;
     }
 
-    const rect = this.sliderState().track()?.element.nativeElement.getBoundingClientRect();
+    const rect = this.state().track()?.element.nativeElement.getBoundingClientRect();
 
     if (!rect) {
       return;
     }
 
     const percentage =
-      this.sliderState().orientation() === 'horizontal'
+      this.state().orientation() === 'horizontal'
         ? (event.clientX - rect.left) / rect.width
         : 1 - (event.clientY - rect.top) / rect.height;
 
-    this.sliderState().value.set(
-      this.sliderState().min() +
-        (this.sliderState().max() - this.sliderState().min()) *
-          Math.max(0, Math.min(1, percentage)),
-    );
-    this.sliderState().valueChange.emit(this.sliderState().value());
+    const value =
+      this.state().min() +
+      (this.state().max() - this.state().min()) * Math.max(0, Math.min(1, percentage));
+
+    this.state().value.set(value);
+    this.state().valueChange.emit(value);
   }
 
   /**
@@ -95,33 +95,33 @@ export class NgpSliderThumb {
   @HostListener('keydown', ['$event'])
   protected handleKeydown(event: KeyboardEvent): void {
     const multiplier = event.shiftKey ? 10 : 1;
-    const value = this.sliderState().value();
+    const value = this.state().value();
 
     switch (event.key) {
       case 'ArrowLeft':
       case 'ArrowDown':
-        this.sliderState().value.set(
-          Math.max(value - this.sliderState().step() * multiplier, this.sliderState().min()),
+        this.state().value.set(
+          Math.max(value - this.state().step() * multiplier, this.state().min()),
         );
-        this.sliderState().valueChange.emit(this.sliderState().value());
+        this.state().valueChange.emit(this.state().value());
         event.preventDefault();
         break;
       case 'ArrowRight':
       case 'ArrowUp':
-        this.sliderState().value.set(
-          Math.min(value + this.sliderState().step() * multiplier, this.sliderState().max()),
+        this.state().value.set(
+          Math.min(value + this.state().step() * multiplier, this.state().max()),
         );
-        this.sliderState().valueChange.emit(this.sliderState().value());
+        this.state().valueChange.emit(this.state().value());
         event.preventDefault();
         break;
       case 'Home':
-        this.sliderState().value.set(this.sliderState().min());
-        this.sliderState().valueChange.emit(this.sliderState().value());
+        this.state().value.set(this.state().min());
+        this.state().valueChange.emit(this.state().value());
         event.preventDefault();
         break;
       case 'End':
-        this.sliderState().value.set(this.sliderState().max());
-        this.sliderState().valueChange.emit(this.sliderState().value());
+        this.state().value.set(this.state().max());
+        this.state().valueChange.emit(this.state().value());
         event.preventDefault();
         break;
     }
