@@ -12,7 +12,7 @@ import {
 } from '@angular/core';
 import { Placement } from '@floating-ui/dom';
 import { activeDescendantManager } from 'ng-primitives/a11y';
-import { injectElementRef } from 'ng-primitives/internal';
+import { injectElementRef, setupInteractions } from 'ng-primitives/internal';
 import type { NgpComboboxButton } from '../combobox-button/combobox-button';
 import type { NgpComboboxDropdown } from '../combobox-dropdown/combobox-dropdown';
 import type { NgpComboboxInput } from '../combobox-input/combobox-input';
@@ -144,11 +144,28 @@ export class NgpCombobox {
   protected readonly state = comboboxState<NgpCombobox>(this);
 
   constructor() {
+    setupInteractions({
+      focus: true,
+      focusWithin: true,
+      hover: true,
+      press: true,
+      disabled: this.state.disabled,
+    });
+
     // any time the active descendant changes, ensure we scroll it into view
     // perform after next render to ensure the DOM is updated
     // e.g. the dropdown is open before the option is scrolled into view
     afterRenderEffect({
-      write: () => this.activeDescendantManager.activeItem()?.scrollIntoView?.(),
+      write: () => {
+        const isOpen = this.portal()?.overlay()?.isOpen() ?? false;
+        const activeItem = this.activeDescendantManager.activeItem();
+
+        if (!isOpen || !activeItem) {
+          return;
+        }
+
+        this.activeDescendantManager.activeItem()?.scrollIntoView?.();
+      },
     });
   }
 

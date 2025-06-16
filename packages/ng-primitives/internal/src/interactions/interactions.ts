@@ -8,6 +8,7 @@ export interface NgpInteractionOptions {
   hover?: boolean;
   press?: boolean;
   focus?: boolean;
+  focusWithin?: boolean;
   focusVisible?: boolean;
   disabled?: Signal<boolean>;
 }
@@ -19,6 +20,7 @@ export function setupInteractions({
   focus,
   hover,
   press,
+  focusWithin,
   focusVisible,
   disabled = signal(false),
 }: NgpInteractionOptions): void {
@@ -29,7 +31,7 @@ export function setupInteractions({
     setupPress({ disabled });
   }
   if (focus) {
-    setupFocus({ disabled });
+    setupFocus({ focusWithin, disabled });
   }
   if (focusVisible) {
     setupFocusVisible({ disabled });

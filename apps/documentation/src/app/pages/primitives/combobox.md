@@ -80,6 +80,9 @@ The following data attributes are applied to the `ngpCombobox` directive:
 | `data-open`     | Applied when the combobox is open.             |
 | `data-disabled` | Applied when the combobox is disabled.         |
 | `data-multiple` | Applied when the combobox is in multiple mode. |
+| `data-hover`    | Applied when the combobox is hovered.          |
+| `data-press`    | Applied when the combobox is pressed.          |
+| `data-focus`    | Applied when the combobox has focus within it. |
 
 ### NgpComboboxButton
 

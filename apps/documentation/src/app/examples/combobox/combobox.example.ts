@@ -65,6 +65,11 @@ import {
       box-sizing: border-box;
     }
 
+    [ngpCombobox][data-focus] {
+      outline: 2px solid var(--ngp-focus-ring);
+      outline-offset: 2px;
+    }
+
     [ngpComboboxInput] {
       flex: 1;
       padding: 0 16px;
