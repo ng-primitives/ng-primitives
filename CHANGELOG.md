@@ -1,3 +1,13 @@
+## 0.52.0 (2025-06-16)
+
+### 🩹 Fixes
+
+- **combobox:** prevent unexpected scroll ([#296](https://github.com/ng-primitives/ng-primitives/pull/296))
+
+### ❤️ Thank You
+
+- Ashley Hunter
+
 ## 0.50.0 (2025-06-06)
 
 ### 🚀 Features
