@@ -1,5 +1,5 @@
 import { DestroyRef, Directive, ElementRef, NgZone, OnInit, inject, output } from '@angular/core';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { safeTakeUntilDestroyed } from 'ng-primitives/utils';
 import { Dimensions, fromResizeEvent } from '../utils/resize';
 
 /**
@@ -34,7 +34,7 @@ export class NgpResize implements OnInit {
   ngOnInit(): void {
     // oberve the element for resize events
     fromResizeEvent(this.element.nativeElement)
-      .pipe(takeUntilDestroyed(this.destroyRef))
+      .pipe(safeTakeUntilDestroyed(this.destroyRef))
       .subscribe(event => this.ngZone.run(() => this.didResize.emit(event)));
   }
 }

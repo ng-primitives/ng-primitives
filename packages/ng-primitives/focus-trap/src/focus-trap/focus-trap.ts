@@ -13,8 +13,8 @@ import {
   OnDestroy,
   OnInit,
 } from '@angular/core';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { NgpOverlay } from 'ng-primitives/portal';
+import { safeTakeUntilDestroyed } from 'ng-primitives/utils';
 import { focusTrapState, provideFocusTrapState } from './focus-trap-state';
 
 /**
@@ -157,7 +157,9 @@ export class NgpFocusTrap implements OnInit, OnDestroy {
 
   constructor() {
     // if this is used within an overlay we must disable the focus trap as soon as the overlay is closing
-    this.overlay?.closing.pipe(takeUntilDestroyed()).subscribe(() => this.focusTrap.deactivate());
+    this.overlay?.closing
+      .pipe(safeTakeUntilDestroyed())
+      .subscribe(() => this.focusTrap.deactivate());
   }
 
   ngOnInit(): void {

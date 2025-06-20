@@ -13,6 +13,10 @@ import {
   rule as requireStateGeneric,
   RULE_NAME as requireStateGenericName,
 } from './rules/require-state-generic';
+import {
+  RULE_NAME as takeUntilDestroyedName,
+  rule as takeUntilDestroyed,
+} from './rules/take-until-destroyed';
 
 /**
  * Import your custom workspace rules at the top of this file.
@@ -46,5 +50,6 @@ module.exports = {
     [avoidEarlyStateName]: avoidEarlyState,
     [requireStateGenericName]: requireStateGeneric,
     [avoidStateEmitName]: avoidStateEmit,
+    [takeUntilDestroyedName]: takeUntilDestroyed,
   },
 };

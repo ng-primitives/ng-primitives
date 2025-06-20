@@ -13,7 +13,6 @@ import {
   runInInjectionContext,
   signal,
 } from '@angular/core';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import {
   Middleware,
   Placement,
@@ -25,6 +24,7 @@ import {
   shift,
 } from '@floating-ui/dom';
 import { fromResizeEvent } from 'ng-primitives/resize';
+import { safeTakeUntilDestroyed } from 'ng-primitives/utils';
 import { injectDisposables } from 'ng-primitives/utils';
 import { Subject, fromEvent } from 'rxjs';
 import { provideOverlayContext } from './overlay-token';
@@ -163,13 +163,13 @@ export class NgpOverlay<T = unknown> {
 
     // Monitor trigger element resize
     fromResizeEvent(this.config.triggerElement)
-      .pipe(takeUntilDestroyed(this.destroyRef))
+      .pipe(safeTakeUntilDestroyed(this.destroyRef))
       .subscribe(() => {
         this.triggerWidth.set(this.config.triggerElement.offsetWidth);
       });
 
     // if there is a parent overlay and it is closed, close this overlay
-    this.parentOverlay?.closing.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => {
+    this.parentOverlay?.closing.pipe(safeTakeUntilDestroyed(this.destroyRef)).subscribe(() => {
       if (this.isOpen()) {
         this.hideImmediate();
       }
@@ -177,7 +177,7 @@ export class NgpOverlay<T = unknown> {
 
     // If closeOnOutsideClick is enabled, set up a click listener
     fromEvent<MouseEvent>(this.document, 'mouseup', { capture: true })
-      .pipe(takeUntilDestroyed(this.destroyRef))
+      .pipe(safeTakeUntilDestroyed(this.destroyRef))
       .subscribe(event => {
         if (!this.config.closeOnOutsideClick) {
           return;
@@ -200,7 +200,7 @@ export class NgpOverlay<T = unknown> {
 
     // If closeOnEscape is enabled, set up a keydown listener
     fromEvent<KeyboardEvent>(this.document, 'keydown', { capture: true })
-      .pipe(takeUntilDestroyed(this.destroyRef))
+      .pipe(safeTakeUntilDestroyed(this.destroyRef))
       .subscribe(event => {
         if (!this.config.closeOnEscape) return;
         if (event.key === 'Escape' && this.isOpen()) {

@@ -13,11 +13,11 @@ import {
   output,
   signal,
 } from '@angular/core';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { NgpSelectionMode } from 'ng-primitives/common';
 import { explicitEffect, setupFocusVisible } from 'ng-primitives/internal';
 import { injectPopoverTriggerState } from 'ng-primitives/popover';
 import { uniqueId } from 'ng-primitives/utils';
+import { safeTakeUntilDestroyed } from 'ng-primitives/utils';
 import type { NgpListboxOption } from '../listbox-option/listbox-option';
 import { listboxState, provideListboxState } from './listbox-state';
 
@@ -133,7 +133,7 @@ export class NgpListbox<T> implements AfterContentInit {
     this.keyManager.withHomeAndEnd().withTypeAhead().withVerticalOrientation();
 
     this.keyManager.change
-      .pipe(takeUntilDestroyed(this.destroyRef))
+      .pipe(safeTakeUntilDestroyed(this.destroyRef))
       .subscribe(() => this.activeDescendant.set(this.keyManager.activeItem?.id()));
 
     // On initialization, set the first selected option as the active descendant if there is one.

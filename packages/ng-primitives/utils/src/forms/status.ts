@@ -1,6 +1,6 @@
 import { DestroyRef, Signal, WritableSignal, afterNextRender, inject, signal } from '@angular/core';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { NgControl } from '@angular/forms';
+import { safeTakeUntilDestroyed } from '../observables/take-until-destroyed';
 
 export interface NgpControlStatus {
   valid: boolean | null;
@@ -41,7 +41,7 @@ function subscribeToControlStatus(
   }
 
   control.control.events
-    .pipe(takeUntilDestroyed(destroyRef))
+    .pipe(safeTakeUntilDestroyed(destroyRef))
     .subscribe(() => setStatusSignal(control, status));
 }
 

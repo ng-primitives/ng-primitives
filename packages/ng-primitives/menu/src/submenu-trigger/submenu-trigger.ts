@@ -12,7 +12,6 @@ import {
   signal,
   ViewContainerRef,
 } from '@angular/core';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Placement } from '@floating-ui/dom';
 import { injectElementRef } from 'ng-primitives/internal';
 import {
@@ -21,6 +20,7 @@ import {
   NgpOverlayConfig,
   NgpOverlayContent,
 } from 'ng-primitives/portal';
+import { safeTakeUntilDestroyed } from 'ng-primitives/utils';
 import { NgpMenuToken } from '../menu/menu-token';
 import { provideSubmenuTriggerState, submenuTriggerState } from './submenu-trigger-state';
 
@@ -114,7 +114,7 @@ export class NgpSubmenuTrigger<T = unknown> {
   readonly state = submenuTriggerState<NgpSubmenuTrigger<T>>(this);
 
   constructor() {
-    this.parentMenu?.closeSubmenus.pipe(takeUntilDestroyed()).subscribe(element => {
+    this.parentMenu?.closeSubmenus.pipe(safeTakeUntilDestroyed()).subscribe(element => {
       // if the element is not the trigger, we want to close the menu
       if (element === this.trigger.nativeElement) {
         return;
