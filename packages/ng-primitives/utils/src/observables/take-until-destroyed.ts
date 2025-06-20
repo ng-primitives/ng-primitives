@@ -8,7 +8,7 @@ import { catchError, defaultIfEmpty, takeUntil } from 'rxjs/operators';
  * The built-in `takeUntilDestroyed` operator does not handle the case when the component is destroyed before the source observable emits.
  * This operator ensures that the source observable completes gracefully without throwing an error.
  * https://github.com/angular/angular/issues/54527#issuecomment-2098254508
- * 
+ *
  * @internal
  */
 export function safeTakeUntilDestroyed<T>(destroyRef?: DestroyRef): MonoTypeOperatorFunction<T> {

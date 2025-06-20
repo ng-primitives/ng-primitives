@@ -14,13 +14,13 @@ import {
 } from '@angular/core';
 import { Placement } from '@floating-ui/dom';
 import { injectElementRef } from 'ng-primitives/internal';
-import { safeTakeUntilDestroyed } from 'ng-primitives/utils';
 import {
   createOverlay,
   NgpOverlay,
   NgpOverlayConfig,
   NgpOverlayContent,
 } from 'ng-primitives/portal';
+import { safeTakeUntilDestroyed } from 'ng-primitives/utils';
 import { NgpMenuToken } from '../menu/menu-token';
 import { provideSubmenuTriggerState, submenuTriggerState } from './submenu-trigger-state';
 
