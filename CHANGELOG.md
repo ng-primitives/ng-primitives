@@ -1,3 +1,13 @@
+## 0.53.0 (2025-06-20)
+
+### 🩹 Fixes
+
+- sync state and data-attributes in form-field and form-control - control status ([#298](https://github.com/ng-primitives/ng-primitives/pull/298))
+
+### ❤️ Thank You
+
+- Adrian Kopytko @adriankopytko
+
 ## 0.52.0 (2025-06-16)
 
 ### 🩹 Fixes
