@@ -17,7 +17,7 @@ import {
 import { FormsModule } from '@angular/forms';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { lucideClipboard } from '@ng-icons/lucide';
-import { phosphorLightning } from '@ng-icons/phosphor-icons/regular';
+import { phosphorLightning, phosphorCode, phosphorEye } from '@ng-icons/phosphor-icons/regular';
 import sdk from '@stackblitz/sdk';
 import * as prismjs from 'prismjs';
 import { versionMajorMinor } from 'typescript';
@@ -31,7 +31,7 @@ const GLOBAL_STORAGE_STYLE_KEY = 'ngp-example-style';
   imports: [NgComponentOutlet, NgClass, NgIcon, FormsModule],
   templateUrl: './example.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  providers: [provideIcons({ phosphorLightning, lucideClipboard })],
+  providers: [provideIcons({ phosphorLightning, lucideClipboard, phosphorEye, phosphorCode })],
 })
 export class Example {
   private readonly clipboard = inject(Clipboard);

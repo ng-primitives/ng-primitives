@@ -12,7 +12,8 @@
           }"
           (click)="mode.set('preview')"
         >
-          Preview
+          <ng-icon name="phosphorEye" class="md:hidden" />
+          <span class="hidden md:inline-block">Preview</span>
         </button>
         <button
           class="w-16 rounded-md px-2 py-1.5 text-xs font-medium outline-none focus-visible:z-10 focus-visible:ring-2 focus-visible:ring-blue-500"
@@ -23,7 +24,8 @@
           }"
           (click)="mode.set('source')"
         >
-          Source
+          <ng-icon name="phosphorCode" class="md:hidden" />
+          <span class="hidden md:inline-block">Source</span>
         </button>
       </div>
     </div>
