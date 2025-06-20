@@ -123,8 +123,10 @@ export class NgpFormField implements OnDestroy {
     // set the initial values
     this.updateStatus();
 
-    // Listen for changes to the form control.
-    this.subscription = control?.valueChanges?.subscribe(this.updateStatus.bind(this));
+    const underlyingControl = control?.control;
+
+    // Listen for changes to the underlying control's status.
+    this.subscription = underlyingControl?.events?.subscribe(this.updateStatus.bind(this));
   }
 
   private updateStatus(): void {
