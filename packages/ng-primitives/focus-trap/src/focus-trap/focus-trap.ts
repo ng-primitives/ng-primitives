@@ -13,7 +13,7 @@ import {
   OnDestroy,
   OnInit,
 } from '@angular/core';
-import { safeTakeUntilDestroyed } from 'ng-primitives/internal';
+import { safeTakeUntilDestroyed } from 'ng-primitives/utils';
 import { NgpOverlay } from 'ng-primitives/portal';
 import { focusTrapState, provideFocusTrapState } from './focus-trap-state';
 

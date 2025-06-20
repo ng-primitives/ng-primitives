@@ -13,7 +13,8 @@ import {
   ViewContainerRef,
 } from '@angular/core';
 import { Placement } from '@floating-ui/dom';
-import { injectElementRef, safeTakeUntilDestroyed } from 'ng-primitives/internal';
+import { injectElementRef } from 'ng-primitives/internal';
+import { safeTakeUntilDestroyed } from 'ng-primitives/utils';
 import {
   createOverlay,
   NgpOverlay,

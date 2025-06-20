@@ -1,7 +1,6 @@
 import { FocusMonitor, FocusOrigin } from '@angular/cdk/a11y';
 import { ElementRef, inject, Renderer2, Signal, signal } from '@angular/core';
-import { onBooleanChange } from 'ng-primitives/utils';
-import { safeTakeUntilDestroyed } from '../observables/take-until-destroyed';
+import { onBooleanChange, safeTakeUntilDestroyed } from 'ng-primitives/utils';
 
 export interface NgpFocusVisibleOptions {
   disabled?: Signal<boolean>;

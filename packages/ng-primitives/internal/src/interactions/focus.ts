@@ -1,6 +1,6 @@
 import { FocusMonitor } from '@angular/cdk/a11y';
 import { ElementRef, Renderer2, Signal, inject, signal } from '@angular/core';
-import { safeTakeUntilDestroyed } from '../observables/take-until-destroyed';
+import { safeTakeUntilDestroyed } from 'ng-primitives/utils';
 
 export interface NgpFocusOptions {
   disabled?: Signal<boolean>;

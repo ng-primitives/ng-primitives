@@ -1,5 +1,5 @@
 import { DestroyRef, Directive, ElementRef, NgZone, OnInit, inject, output } from '@angular/core';
-import { safeTakeUntilDestroyed } from 'ng-primitives/internal';
+import { safeTakeUntilDestroyed } from 'ng-primitives/utils';
 import { Dimensions, fromResizeEvent } from '../utils/resize';
 
 /**

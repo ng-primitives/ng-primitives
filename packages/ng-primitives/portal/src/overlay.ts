@@ -23,7 +23,7 @@ import {
   offset,
   shift,
 } from '@floating-ui/dom';
-import { safeTakeUntilDestroyed } from 'ng-primitives/internal';
+import { safeTakeUntilDestroyed } from 'ng-primitives/utils';
 import { fromResizeEvent } from 'ng-primitives/resize';
 import { injectDisposables } from 'ng-primitives/utils';
 import { Subject, fromEvent } from 'rxjs';

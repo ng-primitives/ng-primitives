@@ -14,11 +14,12 @@ import {
   signal,
 } from '@angular/core';
 import { NgpSelectionMode } from 'ng-primitives/common';
-import { explicitEffect, safeTakeUntilDestroyed, setupFocusVisible } from 'ng-primitives/internal';
+import { explicitEffect, setupFocusVisible } from 'ng-primitives/internal';
 import { injectPopoverTriggerState } from 'ng-primitives/popover';
 import { uniqueId } from 'ng-primitives/utils';
 import type { NgpListboxOption } from '../listbox-option/listbox-option';
 import { listboxState, provideListboxState } from './listbox-state';
+import { safeTakeUntilDestroyed } from 'ng-primitives/utils';
 
 @Directive({
   selector: '[ngpListbox]',

@@ -23,12 +23,12 @@ export const rule = ESLintUtils.RuleCreator(() => __filename)({
   meta: {
     type: 'problem',
     docs: {
-      description: `Prefer safeTakeUntilDestroyed from ng-primitives/internal over takeUntilDestroyed from @angular/core/rxjs-interop`,
+      description: `Prefer safeTakeUntilDestroyed from ng-primitives/utils over takeUntilDestroyed from @angular/core/rxjs-interop`,
     },
     schema: [],
     messages: {
       preferSafeTakeUntilDestroyed:
-        'Use safeTakeUntilDestroyed from ng-primitives/internal instead of takeUntilDestroyed from @angular/core/rxjs-interop',
+        'Use safeTakeUntilDestroyed from ng-primitives/utils instead of takeUntilDestroyed from @angular/core/rxjs-interop',
     },
     fixable: 'code',
   },
@@ -86,7 +86,7 @@ export const rule = ESLintUtils.RuleCreator(() => __filename)({
                   .filter(statement => statement.type === 'ImportDeclaration')
                   .pop();
 
-                const newImport = `import { safeTakeUntilDestroyed } from 'ng-primitives/internal';\n`;
+                const newImport = `import { safeTakeUntilDestroyed } from 'ng-primitives/utils';\n`;
 
                 if (lastImport) {
                   fixes.push(fixer.insertTextAfter(lastImport, newImport));

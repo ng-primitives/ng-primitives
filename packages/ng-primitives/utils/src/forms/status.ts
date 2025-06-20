@@ -1,6 +1,6 @@
 import { DestroyRef, Signal, WritableSignal, afterNextRender, inject, signal } from '@angular/core';
 import { NgControl } from '@angular/forms';
-import { safeTakeUntilDestroyed } from 'ng-primitives/internal';
+import { safeTakeUntilDestroyed } from 'ng-primitives/utils';
 
 export interface NgpControlStatus {
   valid: boolean | null;

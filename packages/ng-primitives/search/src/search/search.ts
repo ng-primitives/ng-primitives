@@ -1,5 +1,5 @@
 import { computed, DestroyRef, Directive, HostListener, inject, signal } from '@angular/core';
-import { safeTakeUntilDestroyed } from 'ng-primitives/internal';
+import { safeTakeUntilDestroyed } from 'ng-primitives/utils';
 import { fromEvent } from 'rxjs';
 import { provideSearchState, searchState } from './search-state';
 
