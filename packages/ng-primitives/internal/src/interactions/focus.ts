@@ -1,6 +1,6 @@
 import { FocusMonitor } from '@angular/cdk/a11y';
 import { ElementRef, Renderer2, Signal, inject, signal } from '@angular/core';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { safeTakeUntilDestroyed } from '../observables/take-until-destroyed';
 
 export interface NgpFocusOptions {
   disabled?: Signal<boolean>;
@@ -41,7 +41,7 @@ export function setupFocus({
 
   focusMonitor
     .monitor(elementRef, focusWithin)
-    .pipe(takeUntilDestroyed())
+    .pipe(safeTakeUntilDestroyed())
     .subscribe(focusOrigin => {
       if (disabled()) {
         return;

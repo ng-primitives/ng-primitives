@@ -39,6 +39,7 @@ module.exports = [
       '@nx/workspace-prefer-entrypoint-imports': 'error',
       '@nx/workspace-require-state-generic': 'error',
       '@nx/workspace-avoid-state-emit': 'error',
+      '@nx/workspace-take-until-destroyed': 'error',
     },
   },
   {

@@ -1,5 +1,5 @@
 import { computed, DestroyRef, Directive, HostListener, inject, signal } from '@angular/core';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { safeTakeUntilDestroyed } from 'ng-primitives/internal';
 import { fromEvent } from 'rxjs';
 import { provideSearchState, searchState } from './search-state';
 
@@ -63,7 +63,7 @@ export class NgpSearch {
     this.value.set(input.value);
 
     fromEvent(input, 'input')
-      .pipe(takeUntilDestroyed(this.destroyRef))
+      .pipe(safeTakeUntilDestroyed(this.destroyRef))
       .subscribe(() => this.value.set(input.value));
   }
 }
