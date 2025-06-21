@@ -1,4 +1,4 @@
-import { FormsModule } from '@angular/forms';
+import { FormControl, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { fireEvent, render } from '@testing-library/angular';
 import userEvent from '@testing-library/user-event';
 import { NgpFormField, NgpLabel } from 'ng-primitives/form-field';
@@ -112,5 +112,23 @@ describe('NgpInput', () => {
     expect(label).toHaveAttribute('for', 'custom-id');
     expect(input).toHaveAttribute('id', 'custom-id');
     expect(input).toHaveAttribute('aria-labelledby', 'label-id');
+  });
+
+  it('should add the disabled attribute when the form control is disabled via ReactiveForms', async () => {
+    const { getByTestId, detectChanges } = await render(
+      `<input ngpInput data-testid="input" [formControl]="control" />`,
+      {
+        imports: [NgpInput, ReactiveFormsModule],
+        componentProperties: {
+          control: new FormControl({ value: '', disabled: true }),
+        },
+      },
+    );
+
+    detectChanges();
+
+    const input = getByTestId('input');
+    expect(input).toHaveAttribute('disabled');
+    expect(input).toBeDisabled();
   });
 });
