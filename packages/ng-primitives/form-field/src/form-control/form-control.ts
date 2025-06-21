@@ -9,7 +9,7 @@ import {
   Signal,
 } from '@angular/core';
 import { explicitEffect, injectElementRef } from 'ng-primitives/internal';
-import { controlStatus, uniqueId } from 'ng-primitives/utils';
+import { controlStatus, NgpControlStatus, uniqueId } from 'ng-primitives/utils';
 import { injectFormFieldState } from '../form-field/form-field-state';
 import { formControlState, provideFormControlState } from './form-control-state';
 
@@ -53,7 +53,10 @@ interface FormControlState {
   disabled?: Signal<boolean>;
 }
 
-export function setupFormControl({ id, disabled = signal(false) }: FormControlState) {
+export function setupFormControl({
+  id,
+  disabled = signal(false),
+}: FormControlState): Signal<NgpControlStatus> {
   const element = injectElementRef().nativeElement;
   // Access the form field that the form control is associated with.
   const formField = injectFormFieldState({ optional: true });
@@ -84,6 +87,8 @@ export function setupFormControl({ id, disabled = signal(false) }: FormControlSt
       setStateAttribute(element, disabled() || status().disabled, 'data-disabled');
     },
   });
+
+  return computed(() => ({ ...status(), disabled: status().disabled || disabled() }));
 }
 
 /**
