@@ -5,7 +5,7 @@ import { injectTooltipContext, NgpTooltip } from 'ng-primitives/tooltip';
   selector: '<%= prefix %>-tooltip',
   hostDirectives: [NgpTooltip],
   template: `
-    {{ content }}
+    {{ content() }}
   `,
   styles: `
 /* These styles rely on CSS variables that can be imported from ng-primitives/example-theme/index.css in your global styles */

@@ -5,7 +5,7 @@ import { injectTooltipContext, NgpTooltip } from 'ng-primitives/tooltip';
   selector: 'app-tooltip',
   hostDirectives: [NgpTooltip],
   template: `
-    {{ content }}
+    {{ content() }}
   `,
   styles: `
     :host {

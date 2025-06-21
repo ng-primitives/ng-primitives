@@ -5,6 +5,7 @@ import {
   DestroyRef,
   Injector,
   Provider,
+  Signal,
   TemplateRef,
   Type,
   ViewContainerRef,
@@ -24,8 +25,7 @@ import {
   shift,
 } from '@floating-ui/dom';
 import { fromResizeEvent } from 'ng-primitives/resize';
-import { safeTakeUntilDestroyed } from 'ng-primitives/utils';
-import { injectDisposables } from 'ng-primitives/utils';
+import { injectDisposables, safeTakeUntilDestroyed } from 'ng-primitives/utils';
 import { Subject, fromEvent } from 'rxjs';
 import { provideOverlayContext } from './overlay-token';
 import { NgpPortal, createPortal } from './portal';
@@ -48,7 +48,7 @@ export interface NgpOverlayConfig<T = unknown> {
   viewContainerRef: ViewContainerRef;
 
   /** Context data to pass to the overlay content */
-  context?: T | null;
+  context?: Signal<T | undefined>;
 
   /** Container element to attach the overlay to (defaults to document.body) */
   container?: HTMLElement | null;
@@ -360,7 +360,7 @@ export class NgpOverlay<T = unknown> {
         providers: [
           ...(this.config.providers || []),
           { provide: NgpOverlay, useValue: this },
-          provideOverlayContext<T>(this.config.context as T),
+          provideOverlayContext<T>(this.config.context),
         ],
       }),
       { $implicit: this.config.context } as NgpOverlayTemplateContext<T>,
