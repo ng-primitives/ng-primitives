@@ -1,3 +1,15 @@
+## 0.54.0 (2025-06-21)
+
+### 🩹 Fixes
+
+- **combobox:** resolve view destroy issue ([#299](https://github.com/ng-primitives/ng-primitives/pull/299))
+- **input:** fix form disabled issue ([#302](https://github.com/ng-primitives/ng-primitives/pull/302))
+- **overlay:** context injection is now a signal ([#301](https://github.com/ng-primitives/ng-primitives/pull/301))
+
+### ❤️ Thank You
+
+- Ashley Hunter
+
 ## 0.53.0 (2025-06-20)
 
 ### 🩹 Fixes
