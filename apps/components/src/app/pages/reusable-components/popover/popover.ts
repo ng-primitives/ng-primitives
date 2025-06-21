@@ -5,7 +5,7 @@ import { injectPopoverContext, NgpPopover } from 'ng-primitives/popover';
   selector: 'app-popover',
   hostDirectives: [NgpPopover],
   template: `
-    {{ content }}
+    {{ content() }}
   `,
   styles: `
     :host {

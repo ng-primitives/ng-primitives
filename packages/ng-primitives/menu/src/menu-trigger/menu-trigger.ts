@@ -210,7 +210,7 @@ export class NgpMenuTrigger<T = unknown> implements OnDestroy {
       triggerElement: this.trigger.nativeElement,
       viewContainerRef: this.viewContainerRef,
       injector: this.injector,
-      context: this.state.context(),
+      context: this.state.context,
       container: this.state.container(),
       placement: this.state.placement(),
       offset: this.state.offset(),
