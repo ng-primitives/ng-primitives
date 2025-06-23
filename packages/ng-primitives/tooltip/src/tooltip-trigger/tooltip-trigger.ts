@@ -13,14 +13,12 @@ import {
   ViewContainerRef,
 } from '@angular/core';
 import { Placement } from '@floating-ui/dom';
-import { onDomHidden } from 'ng-primitives/internal';
 import {
   createOverlay,
   NgpOverlay,
   NgpOverlayConfig,
   NgpOverlayContent,
 } from 'ng-primitives/portal';
-import { safeTakeUntilDestroyed } from 'ng-primitives/utils';
 import { injectTooltipConfig } from '../config/tooltip-config';
 import { provideTooltipTriggerState, tooltipTriggerState } from './tooltip-trigger-state';
 
@@ -153,12 +151,6 @@ export class NgpTooltipTrigger<T = null> implements OnDestroy {
    * @internal
    */
   readonly state = tooltipTriggerState<NgpTooltipTrigger<T>>(this);
-
-  constructor() {
-    onDomHidden(this.trigger.nativeElement)
-      .pipe(safeTakeUntilDestroyed())
-      .subscribe(() => this.overlay()?.hide());
-  }
 
   ngOnDestroy(): void {
     this.overlay()?.destroy();
