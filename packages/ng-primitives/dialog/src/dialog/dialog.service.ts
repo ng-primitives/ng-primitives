@@ -127,7 +127,7 @@ export class NgpDialogManager implements OnDestroy {
     this.afterOpened.next(dialogRef as NgpDialogRef<any, any>);
 
     dialogRef.closed.subscribe(closeResult => {
-      this.removeOpenDialog(dialogRef as NgpDialogRef<any, any> , true);
+      this.removeOpenDialog(dialogRef as NgpDialogRef<any, any>, true);
       // Focus the trigger element after the dialog closes.
       if (activeElement instanceof HTMLElement && this.document.body.contains(activeElement)) {
         // Its not great that we are relying on an internal API here, but we need to in order to
