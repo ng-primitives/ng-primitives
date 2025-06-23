@@ -251,17 +251,14 @@ export class NgpOverlay<T = unknown> {
       this.openTimeout = undefined;
     }
 
-    // Don't proceed if already closing or closed
-    if (this.closeTimeout || !this.isOpen()) {
+    // Don't proceed if already closing or closed unless immediate is true
+    if ((this.closeTimeout && !options?.immediate) || !this.isOpen()) {
       return;
     }
 
     this.closing.next();
 
-    // Use the provided delay or fall back to config
-    const delay = options?.immediate ? 0 : (this.config.hideDelay ?? 0);
-
-    this.closeTimeout = this.disposables.setTimeout(async () => {
+    const dispose = async () => {
       this.closeTimeout = undefined;
 
       if (this.config.restoreFocus) {
@@ -271,7 +268,14 @@ export class NgpOverlay<T = unknown> {
       }
 
       await this.destroyOverlay();
-    }, delay);
+    };
+
+    if (options?.immediate) {
+      // If immediate, dispose right away
+      dispose();
+    } else {
+      this.closeTimeout = this.disposables.setTimeout(dispose, this.config.hideDelay ?? 0);
+    }
   }
 
   /**

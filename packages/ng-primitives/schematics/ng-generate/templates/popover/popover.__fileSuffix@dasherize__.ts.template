@@ -5,7 +5,7 @@ import { injectPopoverContext, NgpPopover } from 'ng-primitives/popover';
   selector: '<%= prefix %>-popover',
   hostDirectives: [NgpPopover],
   template: `
-    {{ content }}
+    {{ content() }}
   `,
   styles: `
 /* These styles rely on CSS variables that can be imported from ng-primitives/example-theme/index.css in your global styles */
