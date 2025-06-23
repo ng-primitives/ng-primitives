@@ -9,12 +9,12 @@ import { NgpDialogConfig } from '../config/dialog-config';
 /**
  * Reference to a dialog opened via the Dialog service.
  */
-export class NgpDialogRef<T = unknown> {
+export class NgpDialogRef<T = unknown, R = unknown> {
   /** Whether the user is allowed to close the dialog. */
   disableClose: boolean | undefined;
 
   /** Emits when the dialog has been closed. */
-  readonly closed = new Subject<FocusOrigin | null>();
+  readonly closed = new Subject<{ focusOrigin: FocusOrigin; result?: R } | null>();
 
   /** Emits when on keyboard events within the dialog. */
   readonly keydownEvents: Observable<KeyboardEvent>;
@@ -49,7 +49,7 @@ export class NgpDialogRef<T = unknown> {
     this.keydownEvents.subscribe(event => {
       if (event.key === 'Escape' && !this.disableClose && !hasModifierKey(event)) {
         event.preventDefault();
-        this.close('keyboard');
+        this.close(undefined, 'keyboard');
       }
     });
 
@@ -61,7 +61,7 @@ export class NgpDialogRef<T = unknown> {
    * @param result Optional result to return to the dialog opener.
    * @param options Additional options to customize the closing behavior.
    */
-  async close(focusOrigin?: FocusOrigin): Promise<void> {
+  async close(result?: R, focusOrigin?: FocusOrigin): Promise<void> {
     // If the dialog is already closed, do nothing.
     if (this.closing) {
       return;
@@ -78,7 +78,11 @@ export class NgpDialogRef<T = unknown> {
 
     this.overlayRef.dispose();
     this.detachSubscription.unsubscribe();
-    this.closed.next(focusOrigin ?? null);
+    if (focusOrigin) {
+      this.closed.next({ focusOrigin, result });
+    } else {
+      this.closed.next(null);
+    }
     this.closed.complete();
   }
 
@@ -89,6 +93,6 @@ export class NgpDialogRef<T = unknown> {
   }
 }
 
-export function injectDialogRef<T = unknown>(): NgpDialogRef<T> {
-  return inject<NgpDialogRef<T>>(NgpDialogRef);
+export function injectDialogRef<T = unknown, R = unknown>(): NgpDialogRef<T, R> {
+  return inject<NgpDialogRef<T, R>>(NgpDialogRef);
 }

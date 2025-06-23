@@ -21,11 +21,11 @@ import { dialogState, provideDialogState } from './dialog-state';
     '[attr.aria-describedby]': 'describedBy().join(" ")',
   },
 })
-export class NgpDialog<T = unknown> implements OnDestroy {
+export class NgpDialog<T = unknown, R = unknown> implements OnDestroy {
   private readonly config = injectDialogConfig();
 
   /** Access the dialog ref */
-  private readonly dialogRef = injectDialogRef<T>();
+  private readonly dialogRef = injectDialogRef<T, R>();
 
   /** The id of the dialog */
   readonly id = input<string>(uniqueId('ngp-dialog'));
@@ -48,15 +48,15 @@ export class NgpDialog<T = unknown> implements OnDestroy {
   protected readonly describedBy = signal<string[]>([]);
 
   /** The dialog state */
-  protected readonly state = dialogState<NgpDialog>(this);
+  protected readonly state = dialogState<NgpDialog<T, R>>(this);
 
   ngOnDestroy(): void {
     this.close();
   }
 
   /** Close the dialog. */
-  close(): void {
-    this.dialogRef.close();
+  close(result?: R): void {
+    this.dialogRef.close(result);
   }
 
   /** Stop click events from propagating to the overlay */
