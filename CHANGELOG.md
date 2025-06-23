@@ -8,6 +8,20 @@
 
 - Ashley Hunter
 
+## 0.54.0 (2025-06-21)
+
+### 🩹 Fixes
+
+* fix(combobox): resolve view destroy issue by @ashley-hunter in https://github.com/ng-primitives/ng-primitives/pull/299
+* fix(overlay)!: context injection is now a signal by @ashley-hunter in https://github.com/ng-primitives/ng-primitives/pull/301
+* fix(input): fix form disabled issue by @ashley-hunter in https://github.com/ng-primitives/ng-primitives/pull/302
+
+> **Note:** This version contains a minor breaking change. The injectOverlayContext, injectTooltipContext and injectPopoverContext functions now return a signal instead of a value to allow for dynamic values.
+
+### ❤️ Thank You
+
+- Ashley Hunter
+
 ## 0.53.0 (2025-06-20)
 
 ### 🩹 Fixes
