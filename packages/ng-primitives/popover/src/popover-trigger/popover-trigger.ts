@@ -13,13 +13,14 @@ import {
   ViewContainerRef,
 } from '@angular/core';
 import { Placement } from '@floating-ui/dom';
-import { injectElementRef } from 'ng-primitives/internal';
+import { injectElementRef, onDomHidden } from 'ng-primitives/internal';
 import {
   createOverlay,
   NgpOverlay,
   NgpOverlayConfig,
   NgpOverlayContent,
 } from 'ng-primitives/portal';
+import { safeTakeUntilDestroyed } from 'ng-primitives/utils';
 import { injectPopoverConfig } from '../config/popover-config';
 import { popoverTriggerState, providePopoverTriggerState } from './popover-trigger-state';
 
@@ -175,6 +176,12 @@ export class NgpPopoverTrigger<T = null> implements OnDestroy {
    * The popover trigger state.
    */
   readonly state = popoverTriggerState<NgpPopoverTrigger<T>>(this);
+
+  constructor() {
+    onDomHidden(this.trigger.nativeElement)
+      .pipe(safeTakeUntilDestroyed())
+      .subscribe(() => this.overlay()?.hide());
+  }
 
   ngOnDestroy(): void {
     this.overlay()?.destroy();

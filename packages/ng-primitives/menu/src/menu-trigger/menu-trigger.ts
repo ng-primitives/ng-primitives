@@ -13,13 +13,14 @@ import {
   ViewContainerRef,
 } from '@angular/core';
 import { Placement } from '@floating-ui/dom';
-import { injectElementRef } from 'ng-primitives/internal';
+import { injectElementRef, onDomHidden } from 'ng-primitives/internal';
 import {
   createOverlay,
   NgpOverlay,
   NgpOverlayConfig,
   NgpOverlayContent,
 } from 'ng-primitives/portal';
+import { safeTakeUntilDestroyed } from 'ng-primitives/utils';
 import { injectMenuConfig } from '../config/menu-config';
 import { menuTriggerState, provideMenuTriggerState } from './menu-trigger-state';
 
@@ -140,6 +141,12 @@ export class NgpMenuTrigger<T = unknown> implements OnDestroy {
    * The menu trigger state.
    */
   readonly state = menuTriggerState<NgpMenuTrigger<T>>(this);
+
+  constructor() {
+    onDomHidden(this.trigger.nativeElement)
+      .pipe(safeTakeUntilDestroyed())
+      .subscribe(() => this.overlay()?.hide());
+  }
 
   ngOnDestroy(): void {
     this.overlay()?.destroy();

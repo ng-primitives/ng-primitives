@@ -15,3 +15,4 @@ export * from './style-injector/style-injector';
 export * from './utilities/dom-removal';
 export * from './utilities/element-ref';
 export * from './utilities/scrolling';
+export { onDomHidden } from './utilities/dom-hidden';
