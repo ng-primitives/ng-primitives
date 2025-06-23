@@ -1,3 +1,4 @@
+import { ComponentType } from '@angular/cdk/overlay';
 import { Component, inject } from '@angular/core';
 import { NgpButton } from 'ng-primitives/button';
 import {
@@ -48,7 +49,7 @@ export default class DialogDataExample {
   private dialogManager = inject(NgpDialogManager);
 
   openDialog() {
-    this.dialogManager.open(Dialog, {
+    this.dialogManager.open(Dialog as ComponentType<any>, {
       data: 'This came from the dialog opener!',
     });
   }
