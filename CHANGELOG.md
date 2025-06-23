@@ -1,3 +1,13 @@
+## 0.55.0 (2025-06-23)
+
+### 🩹 Fixes
+
+- ensure popover is destroyed when trigger is destroyed ([#304](https://github.com/ng-primitives/ng-primitives/pull/304))
+
+### ❤️ Thank You
+
+- Ashley Hunter
+
 ## 0.53.0 (2025-06-20)
 
 ### 🩹 Fixes
