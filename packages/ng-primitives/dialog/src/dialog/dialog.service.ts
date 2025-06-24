@@ -1,6 +1,6 @@
 import { FocusMonitor } from '@angular/cdk/a11y';
 import { Overlay, OverlayConfig, OverlayContainer, ScrollStrategy } from '@angular/cdk/overlay';
-import { ComponentPortal, ComponentType, TemplatePortal } from '@angular/cdk/portal';
+import { ComponentPortal, TemplatePortal } from '@angular/cdk/portal';
 import { DOCUMENT } from '@angular/common';
 import {
   ApplicationRef,
@@ -9,6 +9,7 @@ import {
   OnDestroy,
   StaticProvider,
   TemplateRef,
+  Type,
   ViewContainerRef,
   inject,
   isDevMode,
@@ -74,10 +75,10 @@ export class NgpDialogManager implements OnDestroy {
   /**
    * Opens a modal dialog containing the given template.
    */
-  open(
-    templateRefOrComponentType: TemplateRef<NgpDialogContext> | ComponentType<any>,
-    config?: NgpDialogConfig,
-  ): NgpDialogRef {
+  open<T, R>(
+    templateRefOrComponentType: TemplateRef<NgpDialogContext<T, R>> | Type<unknown>,
+    config?: NgpDialogConfig<T>,
+  ): NgpDialogRef<T, R> {
     // store the current active element so we can focus it after the dialog is closed
     const activeElement = this.document.activeElement;
 
@@ -97,13 +98,13 @@ export class NgpDialogManager implements OnDestroy {
 
     const overlayConfig = this.getOverlayConfig(config);
     const overlayRef = this.overlay.create(overlayConfig);
-    const dialogRef = new NgpDialogRef(overlayRef, config);
+    const dialogRef = new NgpDialogRef<T, R>(overlayRef, config);
     const injector = this.createInjector(config, dialogRef, undefined);
 
     // store the injector in the dialog ref - this is so we can access the exit animation manager
     dialogRef.injector = injector;
 
-    const context: NgpDialogContext = {
+    const context: NgpDialogContext<T, R> = {
       $implicit: dialogRef,
       close: dialogRef.close.bind(dialogRef),
     };
@@ -123,18 +124,18 @@ export class NgpDialogManager implements OnDestroy {
       this.hideNonDialogContentFromAssistiveTechnology();
     }
 
-    (this.openDialogs as NgpDialogRef[]).push(dialogRef);
-    this.afterOpened.next(dialogRef);
+    (this.openDialogs as NgpDialogRef[]).push(dialogRef as NgpDialogRef<any, any>);
+    this.afterOpened.next(dialogRef as NgpDialogRef<any, any>);
 
-    dialogRef.closed.subscribe(focusOrigin => {
-      this.removeOpenDialog(dialogRef, true);
+    dialogRef.closed.subscribe(closeResult => {
+      this.removeOpenDialog(dialogRef as NgpDialogRef<any, any>, true);
       // Focus the trigger element after the dialog closes.
       if (activeElement instanceof HTMLElement && this.document.body.contains(activeElement)) {
         // Its not great that we are relying on an internal API here, but we need to in order to
         // try and best determine the focus origin when it is programmatically closed by the user.
         this.focusMonitor.focusVia(
           activeElement,
-          focusOrigin ?? (this.focusMonitor as any)._lastFocusOrigin,
+          closeResult?.focusOrigin ?? (this.focusMonitor as any)._lastFocusOrigin,
         );
       }
     });
@@ -194,9 +195,9 @@ export class NgpDialogManager implements OnDestroy {
    * Creates a custom injector to be used inside the dialog. This allows a component loaded inside
    * of a dialog to close itself and, optionally, to return a value.
    */
-  private createInjector(
-    config: NgpDialogConfig,
-    dialogRef: NgpDialogRef,
+  private createInjector<T, R>(
+    config: NgpDialogConfig<T>,
+    dialogRef: NgpDialogRef<T, R>,
     fallbackInjector: Injector | undefined,
   ): Injector {
     const userInjector = config.injector || config.viewContainerRef?.injector;
@@ -279,9 +280,9 @@ function reverseForEach<T>(items: T[] | readonly T[], callback: (current: T) => 
   }
 }
 
-export interface NgpDialogContext {
-  $implicit: NgpDialogRef;
-  close: () => void;
+export interface NgpDialogContext<T = unknown, R = unknown> {
+  $implicit: NgpDialogRef<T, R>;
+  close: (result?: R) => void;
 }
 
 export function injectDialogManager(): NgpDialogManager {
