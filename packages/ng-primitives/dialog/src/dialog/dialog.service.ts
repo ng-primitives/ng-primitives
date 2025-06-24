@@ -1,6 +1,6 @@
 import { FocusMonitor } from '@angular/cdk/a11y';
 import { Overlay, OverlayConfig, OverlayContainer, ScrollStrategy } from '@angular/cdk/overlay';
-import { ComponentPortal, ComponentType, TemplatePortal } from '@angular/cdk/portal';
+import { ComponentPortal, TemplatePortal } from '@angular/cdk/portal';
 import { DOCUMENT } from '@angular/common';
 import {
   ApplicationRef,
@@ -9,6 +9,7 @@ import {
   OnDestroy,
   StaticProvider,
   TemplateRef,
+  Type,
   ViewContainerRef,
   inject,
   isDevMode,
@@ -75,7 +76,7 @@ export class NgpDialogManager implements OnDestroy {
    * Opens a modal dialog containing the given template.
    */
   open<T, R>(
-    templateRefOrComponentType: TemplateRef<NgpDialogContext<T, R>> | ComponentType<T>,
+    templateRefOrComponentType: TemplateRef<NgpDialogContext<T, R>> | Type<unknown>,
     config?: NgpDialogConfig<T>,
   ): NgpDialogRef<T, R> {
     // store the current active element so we can focus it after the dialog is closed
