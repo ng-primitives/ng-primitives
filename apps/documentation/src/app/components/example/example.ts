@@ -346,12 +346,22 @@ export class Example {
       return;
     }
 
+    const isTailwind = this.selectedStyle() === 'tailwind';
+
     // this.raw already contains the source code (original, or generated unstyled with its own comment, or styled with theme comment)
     const stackBlitzSource = this.raw
       .replace(/export default class (\w+)/, 'export class AppComponent')
       .replace(/selector:\s*'[^']*'/, "selector: 'app-root'");
 
-    const packageJson = {
+    const ANGULAR_VERSION = `^${VERSION.major}.0.0`;
+
+    const packageJson: {
+      name: string;
+      private: boolean;
+      scripts: Record<string, string>;
+      dependencies: Record<string, string>;
+      devDependencies: Record<string, string>;
+    } = {
       name: 'angular-starter',
       private: true,
       scripts: {
@@ -360,32 +370,42 @@ export class Example {
         build: 'ng build',
       },
       dependencies: {
-        '@angular/animations': `^${VERSION.major}.0.0`,
-        '@angular/common': `^${VERSION.major}.0.0`,
-        '@angular/compiler': `^${VERSION.major}.0.0`,
-        '@angular/core': `^${VERSION.major}.0.0`,
-        '@angular/forms': `^${VERSION.major}.0.0`,
-        '@angular/platform-browser': `^${VERSION.major}.0.0`,
-        '@angular/router': `^${VERSION.major}.0.0`,
-        '@angular/cdk': `^${VERSION.major}.0.0`,
+        '@angular/animations': ANGULAR_VERSION,
+        '@angular/common': ANGULAR_VERSION,
+        '@angular/compiler': ANGULAR_VERSION,
+        '@angular/core': ANGULAR_VERSION,
+        '@angular/forms': ANGULAR_VERSION,
+        '@angular/platform-browser': ANGULAR_VERSION,
+        '@angular/router': ANGULAR_VERSION,
+        '@angular/cdk': ANGULAR_VERSION,
         'ng-primitives': 'latest',
         '@ng-icons/core': 'latest',
         '@ng-icons/heroicons': 'latest',
         '@floating-ui/dom': '^1.6.0',
         rxjs: '^7.8.1',
         tslib: '^2.5.0',
-        '@angular-devkit/build-angular': `^${VERSION.major}.0.0`,
-        '@angular/cli': `^${VERSION.major}.0.0`,
-        '@angular/compiler-cli': `^${VERSION.major}.0.0`,
-        typescript: `~${versionMajorMinor}.0`,
         'zone.js': '~0.15.0',
+      },
+      devDependencies: {
+        '@angular-devkit/build-angular': ANGULAR_VERSION,
+        '@angular/cli': ANGULAR_VERSION,
+        '@angular/compiler-cli': ANGULAR_VERSION,
+        typescript: '^5.8.2',
       },
     };
 
+    if (isTailwind) {
+      packageJson.devDependencies['tailwindcss'] = '^3.4.4';
+      packageJson.devDependencies['postcss'] = '^8.4.38';
+      packageJson.devDependencies['autoprefixer'] = '^10.4.19';
+      packageJson.devDependencies['@tailwindcss/typography'] = '^0.5.13';
+    }
+
     sdk.openProject({
       title: 'Angular Example',
-      template: 'angular-cli',
-      dependencies: packageJson.dependencies,
+      template: 'node',
+      // No `dependencies` property needed, it is inferred from `package.json`
+
       files: {
         'src/index.html': `<!DOCTYPE html>
 <html lang="en">
@@ -398,9 +418,16 @@ export class Example {
   <body>
     <app-root>Loading...</app-root>
   </body>
-</html>
-`,
-        'src/global_styles.css': `/* Add application styles & imports to this file! */
+</html>`,
+        'src/global_styles.css': `${
+          isTailwind
+            ? `@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+`
+            : ''
+        }/* Add application styles & imports to this file! */
 @import 'ng-primitives/example-theme/index.css';
 
 :root {
@@ -525,6 +552,26 @@ node_modules`,
     "strictTemplates": true
   }
 }`,
+        ...(isTailwind
+          ? {
+              'tailwind.config.js': `/** @type {import('tailwindcss').Config} */
+module.exports = {
+  content: [
+    "./src/**/*.{html,ts}",
+  ],
+  theme: {
+    extend: {},
+  },
+  plugins: [require('@tailwindcss/typography')],
+};`,
+              'postcss.config.js': `module.exports = {
+  plugins: {
+    tailwindcss: {},
+    autoprefixer: {},
+  },
+};`,
+            }
+          : {}),
       },
     });
   }
