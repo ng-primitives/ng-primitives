@@ -331,6 +331,7 @@ export class Example {
     const names = {
       css: 'Example CSS',
       unstyled: 'Unstyled',
+      tailwind: 'Tailwind',
     } as const;
 
     if (name in names) {
