@@ -562,7 +562,7 @@ module.exports = {
   theme: {
     extend: {},
   },
-  plugins: [require('@tailwindcss/typography')],
+  plugins: [],
 };`,
               'postcss.config.js': `module.exports = {
   plugins: {
