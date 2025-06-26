@@ -228,8 +228,14 @@ export class NgpCombobox {
    * @param option The option to select.
    * @internal
    */
-  selectOption(option: NgpComboboxOption): void {
+  selectOption(option: NgpComboboxOption | undefined): void {
     if (this.state.disabled()) {
+      return;
+    }
+
+    if (!option) {
+      this.state.value.set(undefined);
+      this.closeDropdown();
       return;
     }
 
