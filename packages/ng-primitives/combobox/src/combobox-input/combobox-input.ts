@@ -1,7 +1,6 @@
 import { computed, Directive, HostListener, input } from '@angular/core';
 import { injectElementRef, setupInteractions } from 'ng-primitives/internal';
 import { uniqueId } from 'ng-primitives/utils';
-import type { NgpComboboxOption } from '../combobox-option/combobox-option';
 import { injectComboboxState } from '../combobox/combobox-state';
 
 @Directive({
@@ -95,9 +94,7 @@ export class NgpComboboxInput {
         break;
       case 'Enter':
         if (this.state().open()) {
-          this.state().selectOption(
-            this.state().activeDescendantManager.activeItem() as NgpComboboxOption,
-          );
+          this.state().selectOption(this.state().activeDescendantManager.activeItem());
         }
         event.preventDefault();
         break;
