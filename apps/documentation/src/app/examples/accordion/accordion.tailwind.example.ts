@@ -21,18 +21,6 @@ import { NgpButton } from 'ng-primitives/button';
   ],
   providers: [provideIcons({ heroChevronDownMini })],
   styles: `
-    [ngpAccordionContent][data-open] {
-      animation: slideDown 0.2s ease-in-out forwards;
-    }
-
-    [ngpAccordionContent][data-closed] {
-      animation: slideUp 0.2s ease-in-out forwards;
-    }
-
-    ng-icon[data-open='true'] {
-      transform: rotate(180deg);
-    }
-
     @keyframes slideDown {
       from {
         height: 0;
@@ -53,25 +41,28 @@ import { NgpButton } from 'ng-primitives/button';
   `,
   template: `
     <div
-      class="w-full max-w-sm divide-y divide-[var(--ngp-border)] rounded-xl border border-[var(--ngp-border)] bg-[var(--ngp-background)] shadow-[var(--ngp-shadow)]"
+      class="w-full max-w-sm divide-y divide-gray-200 rounded-xl border border-gray-200 bg-white shadow-md ring-1 ring-black/5 dark:divide-gray-800 dark:border-gray-800 dark:bg-black dark:ring-white/10"
       ngpAccordion
       ngpAccordionType="single"
       ngpAccordionCollapsible
     >
       <div #panel1="ngpAccordionItem" ngpAccordionItem ngpAccordionItemValue="item-1">
         <button
-          class="flex h-11 w-full items-center justify-between rounded-xl bg-[var(--ngp-background)] px-4 text-sm font-medium text-[var(--ngp-text-primary)] outline-none data-[focus-visible]:ring-2 data-[focus-visible]:ring-[var(--ngp-focus-ring)]"
+          class="flex h-11 w-full items-center justify-between rounded-xl bg-white px-4 text-sm font-medium text-gray-900 outline-none data-[focus-visible]:ring-2 data-[focus-visible]:ring-blue-500 dark:bg-black dark:text-gray-100"
           ngpAccordionTrigger
           ngpButton
         >
           Would you like to learn more?
           <ng-icon
-            class="text-xl text-[var(--ngp-text-secondary)] transition-transform duration-200 ease-in-out"
+            class="text-xl text-gray-500 transition-transform duration-200 ease-in-out data-[open=true]:rotate-180 dark:text-gray-400"
             [attr.data-open]="panel1.open()"
             name="heroChevronDownMini"
           />
         </button>
-        <div class="overflow-hidden text-sm text-[var(--ngp-text-secondary)]" ngpAccordionContent>
+        <div
+          class="overflow-hidden text-sm text-gray-500 data-[closed]:animate-[slideUp] data-[open]:animate-[slideDown] dark:text-gray-400"
+          ngpAccordionContent
+        >
           <div class="px-4 pb-4 pt-0">
             If you would like to learn more please reach out to us on GitHub.
           </div>
@@ -80,18 +71,21 @@ import { NgpButton } from 'ng-primitives/button';
 
       <div #panel2="ngpAccordionItem" ngpAccordionItem ngpAccordionItemValue="item-2">
         <button
-          class="flex h-11 w-full items-center justify-between rounded-xl bg-[var(--ngp-background)] px-4 text-sm font-medium text-[var(--ngp-text-primary)] outline-none data-[focus-visible]:ring-2 data-[focus-visible]:ring-[var(--ngp-focus-ring)]"
+          class="flex h-11 w-full items-center justify-between rounded-xl bg-white px-4 text-sm font-medium text-gray-900 outline-none data-[focus-visible]:ring-2 data-[focus-visible]:ring-blue-500 dark:bg-black dark:text-gray-100"
           ngpAccordionTrigger
           ngpButton
         >
           Can I use this in my project?
           <ng-icon
-            class="text-xl text-[var(--ngp-text-secondary)] transition-transform duration-200 ease-in-out"
+            class="text-xl text-gray-500 transition-transform duration-200 ease-in-out data-[open=true]:rotate-180 dark:text-gray-400"
             [attr.data-open]="panel2.open()"
             name="heroChevronDownMini"
           />
         </button>
-        <div class="overflow-hidden text-sm text-[var(--ngp-text-secondary)]" ngpAccordionContent>
+        <div
+          class="overflow-hidden text-sm text-gray-500 data-[closed]:animate-[slideUp] data-[open]:animate-[slideDown] dark:text-gray-400"
+          ngpAccordionContent
+        >
           <div class="px-4 pb-4 pt-0">
             Yes, this is open source and you can use it in your project.
           </div>
