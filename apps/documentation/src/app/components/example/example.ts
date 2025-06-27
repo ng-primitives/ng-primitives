@@ -85,19 +85,19 @@ export class Example {
       }
     }
 
-    // If a 'css' component file exists and its source file also exists, 'unstyled' is a valid option
+    // If a 'css' component file exists and its source file also exists, 'minimal' is a valid option
     if (cssComponentVersionExists) {
       const cssSourcePath = this.getExamplePathForNameAndStyle(currentName, 'css', sourceKeys);
       if (cssSourcePath && this.source[cssSourcePath]) {
-        detectedStyles.add('unstyled');
+        detectedStyles.add('minimal');
       }
     }
 
     return Array.from(detectedStyles).sort((a, b) => {
       if (a === 'css') return -1; // 'css' always first
       if (b === 'css') return 1;
-      if (a === 'unstyled') return -1; // 'unstyled' second
-      if (b === 'unstyled') return 1;
+      if (a === 'minimal') return -1; // 'minimal' second
+      if (b === 'minimal') return 1;
       return a.localeCompare(b); // Others alphabetically
     });
   });
@@ -109,7 +109,7 @@ export class Example {
       console.error(`No example versions found for component: ${currentName}`);
       return null;
     }
-    return styles.find(s => s === 'css') || styles.find(s => s === 'unstyled') || styles[0] || null;
+    return styles.find(s => s === 'css') || styles.find(s => s === 'minimal') || styles[0] || null;
   });
 
   constructor() {
@@ -196,7 +196,7 @@ export class Example {
       // Default style, e.g., `button.example.ts`
       pathKey = keysToSearch.find(key => key.endsWith(`/${baseName}.example.ts`));
     } else {
-      // Other styles, e.g., `button.unstyled.example.ts`
+      // Other styles, e.g., `button.minimal.example.ts`
       pathKey = keysToSearch.find(key => key.endsWith(`/${baseName}.${style}.example.ts`));
     }
     return pathKey ?? '';
@@ -214,8 +214,8 @@ export class Example {
       Object.keys(this.examples),
     );
     if (!componentFileToLoadPath || !this.examples[componentFileToLoadPath]) {
-      // If the specific styled component doesn't exist (e.g., unstyled.example.ts is missing for component)
-      // or if the exampleStyle is 'unstyled' and its component file is missing,
+      // If the specific styled component doesn't exist (e.g., minimal.example.ts is missing for component)
+      // or if the exampleStyle is 'minimal' and its component file is missing,
       // fall back to the 'css' version for the *component*.
       const cssComponentPath = this.getExamplePathForNameAndStyle(
         exampleName,
@@ -253,8 +253,8 @@ export class Example {
 
       if (directSourcePath && this.source[directSourcePath]) {
         originalSource = (await this.source[directSourcePath]!()) as string;
-      } else if (exampleStyle === 'unstyled') {
-        // Unstyled source file doesn't exist, try to generate from 'css' source
+      } else if (exampleStyle === 'minimal') {
+        // Minimal source file doesn't exist, try to generate from 'css' source
         const cssSourcePath = this.getExamplePathForNameAndStyle(
           exampleName,
           'css',
@@ -294,8 +294,8 @@ export class Example {
       this.raw = originalSource;
 
       // Add the "ng-primitives styles" comment to `this.raw` if the *original* source had styles
-      // and we are not showing a generated unstyled version.
-      if (!sourceIsGenerated && exampleStyle !== 'unstyled' && originalSource.includes('styles:')) {
+      // and we are not showing a generated minimal version.
+      if (!sourceIsGenerated && exampleStyle !== 'minimal' && originalSource.includes('styles:')) {
         this.raw =
           `/** This example uses ng-primitives styles, which are imported from ng-primitives/example-theme/index.css in the global styles file **/\n` +
           originalSource;
@@ -330,7 +330,7 @@ export class Example {
   protected getStyleName(name: string): string {
     const names = {
       css: 'Example CSS',
-      unstyled: 'Unstyled',
+      minimal: 'Minimal styles',
       tailwind: 'Tailwind',
     } as const;
 
@@ -348,7 +348,7 @@ export class Example {
 
     const isTailwind = this.selectedStyle() === 'tailwind';
 
-    // this.raw already contains the source code (original, or generated unstyled with its own comment, or styled with theme comment)
+    // this.raw already contains the source code (original, or generated minimal with its own comment, or styled with theme comment)
     const stackBlitzSource = this.raw
       .replace(/export default class (\w+)/, 'export class AppComponent')
       .replace(/selector:\s*'[^']*'/, "selector: 'app-root'");
