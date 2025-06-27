@@ -38,10 +38,16 @@ import { NgpButton } from 'ng-primitives/button';
         height: 0;
       }
     }
+    [ngpAccordionContent][data-open] {
+      animation: slideDown 0.2s ease-in-out forwards;
+    }
+    [ngpAccordionContent][data-closed] {
+      animation: slideUp 0.2s ease-in-out forwards;
+    }
   `,
   template: `
     <div
-      class="w-full max-w-sm divide-y divide-gray-200 rounded-xl border border-gray-200 bg-white shadow-md ring-1 ring-black/5 dark:divide-gray-800 dark:border-gray-800 dark:bg-black dark:ring-white/10"
+      class="w-full max-w-sm divide-y divide-gray-200 rounded-xl border border-gray-200 bg-white ring-1 ring-black/5 dark:divide-gray-800 dark:border-gray-800 dark:bg-black dark:ring-white/10"
       ngpAccordion
       ngpAccordionType="single"
       ngpAccordionCollapsible
