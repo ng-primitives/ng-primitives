@@ -1,7 +1,6 @@
 import { Component } from '@angular/core';
 import { NgpAvatar, NgpAvatarFallback, NgpAvatarImage } from 'ng-primitives/avatar';
 
-// class="relative inline-flex size-12 items-center justify-center overflow-hidden rounded-full border-2 border-white bg-sky-200 before:absolute before:inset-0 before:rounded-full before:border before:border-black/10 dark:border-zinc-800 dark:bg-sky-900"
 @Component({
   selector: 'app-avatar',
   standalone: true,
