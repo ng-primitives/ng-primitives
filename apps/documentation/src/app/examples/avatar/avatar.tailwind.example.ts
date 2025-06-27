@@ -3,7 +3,6 @@ import { NgpAvatar, NgpAvatarFallback, NgpAvatarImage } from 'ng-primitives/avat
 
 @Component({
   selector: 'app-avatar',
-  standalone: true,
   imports: [NgpAvatar, NgpAvatarImage, NgpAvatarFallback],
   template: `
     <span
