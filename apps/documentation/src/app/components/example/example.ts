@@ -20,7 +20,6 @@ import { lucideClipboard } from '@ng-icons/lucide';
 import { phosphorLightning } from '@ng-icons/phosphor-icons/regular';
 import sdk from '@stackblitz/sdk';
 import * as prismjs from 'prismjs';
-import { versionMajorMinor } from 'typescript';
 
 const { highlight, languages } = prismjs;
 
