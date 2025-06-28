@@ -1,17 +1,17 @@
-import { Component } from '@angular/core';
-import { NgpToast } from 'ng-primitives/toast';
+import { Component, inject, TemplateRef } from '@angular/core';
+import { NgpToast, NgpToastManager } from 'ng-primitives/toast';
 
 @Component({
   selector: 'app-toast',
   imports: [NgpToast],
   template: `
-    <button class="toast-trigger" (click)="toast.show()" ngpButton>Show Toast</button>
+    <button class="toast-trigger" (click)="show(toast)" ngpButton>Show Toast</button>
 
-    <ng-template #toast="ngpToast" ngpToast let-dismiss="dismiss">
-      <div class="toast">
+    <ng-template #toast>
+      <div class="toast" ngpToast>
         <p class="toast-title">This is a toast message</p>
         <p class="toast-description">It will disappear in 3 seconds</p>
-        <button class="toast-dismiss" (click)="dismiss()" ngpButton>Dismiss</button>
+        <button class="toast-dismiss" ngpButton>Dismiss</button>
       </div>
     </ng-template>
   `,
@@ -122,4 +122,10 @@ import { NgpToast } from 'ng-primitives/toast';
     }
   `,
 })
-export default class ToastExample {}
+export default class ToastExample {
+  private readonly toastManager = inject(NgpToastManager);
+
+  show(toast: TemplateRef<void>): void {
+    const toastRef = this.toastManager.show(toast);
+  }
+}

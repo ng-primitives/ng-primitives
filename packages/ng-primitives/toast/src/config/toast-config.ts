@@ -1,5 +1,6 @@
 import { InjectionToken, Provider, inject } from '@angular/core';
-import { NgpToastGravity, NgpToastPosition } from '../toast/toast-ref';
+
+// import { NgpToastGravity, NgpToastPosition } from '../toast/toast-ref';
 
 export interface NgpToastConfig {
   /**
@@ -7,15 +8,15 @@ export interface NgpToastConfig {
    */
   duration: number;
 
-  /**
-   * The gravity of each toast.
-   */
-  gravity: NgpToastGravity;
+  // /**
+  //  * The gravity of each toast.
+  //  */
+  // gravity: NgpToastGravity;
 
-  /**
-   * The position of each toast.
-   */
-  position: NgpToastPosition;
+  // /**
+  //  * The position of each toast.
+  //  */
+  // position: NgpToastPosition;
 
   /**
    * Whether we should stop on hover.
@@ -36,8 +37,8 @@ export interface NgpToastConfig {
 export const defaultToastConfig: NgpToastConfig = {
   gap: 16,
   duration: 3000,
-  gravity: 'top',
-  position: 'end',
+  // gravity: 'top',
+  // position: 'end',
   stopOnHover: true,
   ariaLive: 'polite',
 };
