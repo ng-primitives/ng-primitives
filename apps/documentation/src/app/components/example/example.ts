@@ -66,14 +66,11 @@ export class Example {
 
     const detectedStyles = new Set<string>();
     const exampleComponentKeys = Object.keys(this.examples);
-    const sourceKeys = Object.keys(this.source);
-    let cssComponentVersionExists = false;
 
     for (const key of exampleComponentKeys) {
       // Standard pattern: componentName.example.ts -> 'css'
       if (key.endsWith(`/${currentName}.example.ts`)) {
         detectedStyles.add('css');
-        cssComponentVersionExists = true;
         continue;
       }
 
@@ -82,14 +79,6 @@ export class Example {
       const match = key.match(stylePatternRegex);
       if (match && match[1]) {
         detectedStyles.add(match[1]);
-      }
-    }
-
-    // If a 'css' component file exists and its source file also exists, 'minimal' is a valid option
-    if (cssComponentVersionExists) {
-      const cssSourcePath = this.getExamplePathForNameAndStyle(currentName, 'css', sourceKeys);
-      if (cssSourcePath && this.source[cssSourcePath]) {
-        detectedStyles.add('minimal');
       }
     }
 
@@ -243,7 +232,6 @@ export class Example {
 
       // Determine and load/generate source code for the *requested* exampleStyle
       let originalSource: string | null = null;
-      let sourceIsGenerated = false;
 
       const directSourcePath = this.getExamplePathForNameAndStyle(
         exampleName,
@@ -253,29 +241,6 @@ export class Example {
 
       if (directSourcePath && this.source[directSourcePath]) {
         originalSource = (await this.source[directSourcePath]!()) as string;
-      } else if (exampleStyle === 'minimal') {
-        // Minimal source file doesn't exist, try to generate from 'css' source
-        const cssSourcePath = this.getExamplePathForNameAndStyle(
-          exampleName,
-          'css',
-          Object.keys(this.source),
-        );
-        if (cssSourcePath && this.source[cssSourcePath]) {
-          const cssRawSource = (await this.source[cssSourcePath]!()) as string;
-          if (typeof cssRawSource === 'string') {
-            originalSource = cssRawSource.replace(/styles\s*:\s*`[^`]*`,?\s*/, '');
-            sourceIsGenerated = true;
-            originalSource =
-              `// Unstyled version generated from ${exampleName}.example.ts\n` +
-              `// Original styles property has been removed.\n` +
-              originalSource;
-          } else {
-            console.error(`CSS source code not found or not a string for path: ${cssSourcePath}`);
-            originalSource = `// Source code for CSS base not available for ${exampleName}`;
-          }
-        } else {
-          originalSource = `// Unstyled example source not found, and base CSS example not found for ${exampleName}.`;
-        }
       } else {
         originalSource = `// Source code not found for ${exampleName} with style ${exampleStyle}.`;
         console.warn(
@@ -293,9 +258,8 @@ export class Example {
       const codeToFormat = originalSource;
       this.raw = originalSource;
 
-      // Add the "ng-primitives styles" comment to `this.raw` if the *original* source had styles
-      // and we are not showing a generated minimal version.
-      if (!sourceIsGenerated && exampleStyle !== 'minimal' && originalSource.includes('styles:')) {
+      // Add the "ng-primitives styles" comment to `this.raw` if the *original* source had styles.
+      if (exampleStyle === 'css' && originalSource.includes('styles:')) {
         this.raw =
           `/** This example uses ng-primitives styles, which are imported from ng-primitives/example-theme/index.css in the global styles file **/\n` +
           originalSource;
