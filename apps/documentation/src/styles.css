@@ -8,6 +8,8 @@
   .revert-parent-styles :not(ng-icon, svg, svg *) {
     all: revert;
     font-family: inherit;
+    font-feature-settings: inherit;
+    font-variation-settings: inherit;
   }
 }
 
