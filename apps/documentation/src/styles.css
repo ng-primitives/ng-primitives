@@ -4,6 +4,13 @@
 @tailwind components;
 @tailwind utilities;
 
+@layer utilities {
+  .revert-parent-styles :not(ng-icon, svg, svg *) {
+    all: revert;
+    font-family: inherit;
+  }
+}
+
 :root {
   color-scheme: light;
 
