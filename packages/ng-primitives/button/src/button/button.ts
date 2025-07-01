@@ -6,7 +6,7 @@ import { buttonState, provideButtonState } from './button-state';
 @Directive({
   selector: '[ngpButton]',
   exportAs: 'ngpButton',
-  providers: [provideButtonState()],
+  providers: [provideButtonState({ inherit: false })],
   host: {
     '[attr.data-disabled]': 'state.disabled() ? "" : null',
     '[attr.disabled]': 'isButton && state.disabled() ? true : null',
