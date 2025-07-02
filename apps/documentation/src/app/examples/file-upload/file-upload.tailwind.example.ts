@@ -5,7 +5,6 @@ import { NgpFileUpload } from 'ng-primitives/file-upload';
 
 @Component({
   selector: 'app-file-upload',
-  standalone: true,
   imports: [NgpFileUpload, NgIcon],
   providers: [provideIcons({ heroCloudArrowUp })],
   template: `
