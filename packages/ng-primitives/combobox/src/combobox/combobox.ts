@@ -42,12 +42,12 @@ type T = any;
     '[attr.data-open]': 'state.open() ? "" : undefined',
     '[attr.data-disabled]': 'state.disabled() ? "" : undefined',
     '[attr.data-multiple]': 'state.multiple() ? "" : undefined',
-    '[attr.data-invalid]': 'input()?.controlState().invalid ? "" : undefined',
-    '[attr.data-valid]': 'input()?.controlState().valid ? "" : undefined',
-    '[attr.data-touched]': 'input()?.controlState().touched ? "" : undefined',
-    '[attr.data-pristine]': 'input()?.controlState().pristine ? "" : undefined',
-    '[attr.data-dirty]': 'input()?.controlState().dirty ? "" : undefined',
-    '[attr.data-pending]': 'input()?.controlState().pending ? "" : undefined',
+    '[attr.data-invalid]': 'controlStatus().invalid ? "" : undefined',
+    '[attr.data-valid]': 'controlStatus().valid ? "" : undefined',
+    '[attr.data-touched]': 'controlStatus().touched ? "" : undefined',
+    '[attr.data-pristine]': 'controlStatus().pristine ? "" : undefined',
+    '[attr.data-dirty]': 'controlStatus().dirty ? "" : undefined',
+    '[attr.data-pending]': 'controlStatus().pending ? "" : undefined',
   },
 })
 export class NgpCombobox {
@@ -145,6 +145,9 @@ export class NgpCombobox {
     disabled: computed(() => this.state.disabled()),
     items: this.options,
   });
+
+  /** The control status */
+  protected readonly controlStatus = computed(() => this.input()?.controlStatus());
 
   /** The state of the combobox. */
   protected readonly state = comboboxState<NgpCombobox>(this);
