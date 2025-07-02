@@ -1,0 +1,7 @@
+{
+  "$schema": "https://context7.com/schema/context7.json",
+  "projectTitle": "Angular Primitives",
+  "description": "Headless, composable primitives for building accessible UI components in Angular.",
+  "folders": ["packages", "apps"],
+  "excludeFolders": ["apps/components-e2e", "node_modules", "patches", "tools"]
+}

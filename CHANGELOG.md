@@ -1,3 +1,26 @@
+## 0.56.0 (2025-07-01)
+
+### 🚀 Features
+
+- return dialog close value ([#305](https://github.com/ng-primitives/ng-primitives/pull/305))
+- add tailwind example for button ([#306](https://github.com/ng-primitives/ng-primitives/pull/306))
+- add avatar tailwind example ([#311](https://github.com/ng-primitives/ng-primitives/pull/311))
+- add accordion tailwind example ([#312](https://github.com/ng-primitives/ng-primitives/pull/312))
+- add combobox tailwind example ([#320](https://github.com/ng-primitives/ng-primitives/pull/320))
+- add checkbox tailwind example ([#319](https://github.com/ng-primitives/ng-primitives/pull/319))
+
+### 🩹 Fixes
+
+- **combobox:** handle undefined option selection in combobox ([#313](https://github.com/ng-primitives/ng-primitives/pull/313))
+- **combobox:** set up form control for combobox-input ([#316](https://github.com/ng-primitives/ng-primitives/pull/316))
+- **menu:** fix menu disabled state ([#323](https://github.com/ng-primitives/ng-primitives/pull/323))
+
+### ❤️ Thank You
+
+- Adrian Kopytko @adriankopytko
+- Ashley Hunter
+- kedevked @kedevked
+
 ## 0.55.0 (2025-06-23)
 
 ### 🩹 Fixes

@@ -1,4 +1,5 @@
 import { computed, Directive, HostListener, input } from '@angular/core';
+import { setupFormControl } from 'ng-primitives/form-field';
 import { injectElementRef, setupInteractions } from 'ng-primitives/internal';
 import { uniqueId } from 'ng-primitives/utils';
 import { injectComboboxState } from '../combobox/combobox-state';
@@ -55,6 +56,8 @@ export class NgpComboboxInput {
       press: true,
       disabled: this.state().disabled,
     });
+
+    setupFormControl({ id: this.id, disabled: this.state().disabled });
 
     this.state().registerInput(this);
   }

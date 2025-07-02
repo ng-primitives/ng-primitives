@@ -14,7 +14,7 @@ import { NgpSubmenuTrigger } from '../submenu-trigger/submenu-trigger';
   exportAs: 'ngpMenuItem',
   hostDirectives: [
     { directive: NgpButton, inputs: ['disabled: ngpMenuItemDisabled'] },
-    NgpRovingFocusItem,
+    { directive: NgpRovingFocusItem, inputs: ['ngpRovingFocusItemDisabled: ngpMenuItemDisabled'] },
   ],
   host: {
     role: 'menuitem',
