@@ -100,4 +100,4 @@ import { NgpButton } from 'ng-primitives/button';
     </div>
   `,
 })
-export default class AccordionTailwind {}
+export default class AccordionExample {}
