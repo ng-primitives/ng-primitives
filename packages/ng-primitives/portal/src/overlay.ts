@@ -539,6 +539,7 @@ export class NgpOverlay<T = unknown> {
 
   /**
    * Register the arrow element for positioning
+   * @internal
    */
   registerArrow(arrowElement: HTMLElement | null): void {
     this.arrowElement = arrowElement;
@@ -546,6 +547,7 @@ export class NgpOverlay<T = unknown> {
 
   /**
    * Remove the registered arrow element
+   * @internal
    */
   unregisterArrow(): void {
     this.arrowElement = null;
