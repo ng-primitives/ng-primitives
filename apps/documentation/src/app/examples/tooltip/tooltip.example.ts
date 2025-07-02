@@ -1,10 +1,10 @@
 import { Component } from '@angular/core';
 import { NgpButton } from 'ng-primitives/button';
-import { NgpTooltip, NgpTooltipTrigger } from 'ng-primitives/tooltip';
+import { NgpTooltip, NgpTooltipArrow, NgpTooltipTrigger } from 'ng-primitives/tooltip';
 
 @Component({
   selector: 'app-tooltip',
-  imports: [NgpTooltipTrigger, NgpTooltip, NgpButton],
+  imports: [NgpTooltipTrigger, NgpTooltip, NgpTooltipArrow, NgpButton],
   template: `
     <button [ngpTooltipTrigger]="tooltip" ngpButton type="button">Tooltip</button>
 
@@ -12,6 +12,8 @@ import { NgpTooltip, NgpTooltipTrigger } from 'ng-primitives/tooltip';
       <div ngpTooltip>
         Hover over items to reveal additional context or details. Tooltips provide quick insights
         without cluttering your screen.
+
+        <div ngpTooltipArrow></div>
       </div>
     </ng-template>
   `,
@@ -57,6 +59,17 @@ import { NgpTooltip, NgpTooltipTrigger } from 'ng-primitives/tooltip';
 
     [ngpTooltip][data-exit] {
       animation: tooltip-hide 200ms ease-in-out;
+    }
+
+    [ngpTooltipArrow] {
+      position: absolute;
+      pointer-events: none;
+      background-color: var(--ngp-background-inverse);
+      width: 8px;
+      height: 8px;
+      top: calc(100% - 5px);
+      transform: rotate(45deg);
+      border-radius: 2px;
     }
 
     @keyframes tooltip-show {

@@ -18,6 +18,7 @@ import {
   Middleware,
   Placement,
   Strategy,
+  arrow,
   autoUpdate,
   computePosition,
   flip,
@@ -148,6 +149,15 @@ export class NgpOverlay<T = unknown> {
 
   /** An observable that emits when the overlay is closing */
   readonly closing = new Subject<void>();
+
+  /** Store the arrow element */
+  private arrowElement: HTMLElement | null = null;
+
+  /** @internal The position of the arrow */
+  readonly arrowPosition = signal<{ x: number | undefined; y: number | undefined }>({
+    x: undefined,
+    y: undefined,
+  });
 
   /**
    * Creates a new overlay instance
@@ -440,6 +450,11 @@ export class NgpOverlay<T = unknown> {
       middleware.push(...this.config.additionalMiddleware);
     }
 
+    // If the arrow element is registered, add arrow middleware
+    if (this.arrowElement) {
+      middleware.push(arrow({ element: this.arrowElement }));
+    }
+
     // Compute the position
     const position = await computePosition(this.config.triggerElement, overlayElement, {
       placement: this.config.placement || 'top',
@@ -449,6 +464,14 @@ export class NgpOverlay<T = unknown> {
 
     // Update position signal
     this.position.set({ x: position.x, y: position.y });
+
+    // Update arrow position if available
+    if (this.arrowElement) {
+      this.arrowPosition.set({
+        x: position.middlewareData.arrow?.x,
+        y: position.middlewareData.arrow?.y,
+      });
+    }
 
     // Ensure view is updated
     this.portal()?.detectChanges();
@@ -512,6 +535,20 @@ export class NgpOverlay<T = unknown> {
     }
 
     return `${y} ${x}`;
+  }
+
+  /**
+   * Register the arrow element for positioning
+   */
+  registerArrow(arrowElement: HTMLElement | null): void {
+    this.arrowElement = arrowElement;
+  }
+
+  /**
+   * Remove the registered arrow element
+   */
+  unregisterArrow(): void {
+    this.arrowElement = null;
   }
 }
 

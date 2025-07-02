@@ -13,7 +13,7 @@ Display arbitrary content inside floating panels.
 Import the Popover primitives from `ng-primitives/popover`.
 
 ```ts
-import { NgpPopover, NgpPopoverTrigger } from 'ng-primitives/popover';
+import { NgpPopover, NgpPopoverTrigger, NgpPopoverArrow } from 'ng-primitives/popover';
 ```
 
 ## Usage
@@ -58,6 +58,12 @@ The following CSS custom properties are applied to the `ngpPopover` directive:
 | Attribute   | Description                       |
 | ----------- | --------------------------------- |
 | `data-open` | Applied when the popover is open. |
+
+### NgpPopoverArrow
+
+The `NgpPopoverArrow` directive is used to add an arrow to the popover. It should be placed inside the popover content. It will receive `inset-inline-start` or `inset-block-start` styles to position the arrow based on the popover's placement. As a result it should be positioned absolutely within the popover content.
+
+<api-docs name="NgpPopoverArrow"></api-docs>
 
 ## Styling
 
