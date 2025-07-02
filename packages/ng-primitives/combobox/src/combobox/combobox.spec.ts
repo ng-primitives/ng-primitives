@@ -447,7 +447,6 @@ describe('NgpComboboxOption', () => {
 
   it('should render custom content inside option', async () => {
     @Component({
-      standalone: true,
       imports: [
         NgpCombobox,
         NgpComboboxButton,
