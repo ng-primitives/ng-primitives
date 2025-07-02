@@ -42,12 +42,12 @@ type T = any;
     '[attr.data-open]': 'state.open() ? "" : undefined',
     '[attr.data-disabled]': 'state.disabled() ? "" : undefined',
     '[attr.data-multiple]': 'state.multiple() ? "" : undefined',
-    '[attr.data-invalid]': 'controlStatus().invalid ? "" : undefined',
-    '[attr.data-valid]': 'controlStatus().valid ? "" : undefined',
-    '[attr.data-touched]': 'controlStatus().touched ? "" : undefined',
-    '[attr.data-pristine]': 'controlStatus().pristine ? "" : undefined',
-    '[attr.data-dirty]': 'controlStatus().dirty ? "" : undefined',
-    '[attr.data-pending]': 'controlStatus().pending ? "" : undefined',
+    '[attr.data-invalid]': 'controlStatus()?.invalid ? "" : undefined',
+    '[attr.data-valid]': 'controlStatus()?.valid ? "" : undefined',
+    '[attr.data-touched]': 'controlStatus()?.touched ? "" : undefined',
+    '[attr.data-pristine]': 'controlStatus()?.pristine ? "" : undefined',
+    '[attr.data-dirty]': 'controlStatus()?.dirty ? "" : undefined',
+    '[attr.data-pending]': 'controlStatus()?.pending ? "" : undefined',
   },
 })
 export class NgpCombobox {
