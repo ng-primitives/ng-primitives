@@ -5,7 +5,8 @@
 @tailwind utilities;
 
 @layer utilities {
-  .revert-parent-styles :not(ng-icon, svg, svg *) {
+  /* Selects the app-* example component's descendants */
+  .revert-parent-styles > * :not(ng-icon, svg, svg *) {
     all: revert;
     font-family: inherit;
     font-feature-settings: inherit;
