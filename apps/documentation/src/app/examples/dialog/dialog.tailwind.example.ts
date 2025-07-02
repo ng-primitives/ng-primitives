@@ -10,7 +10,6 @@ import {
 
 @Component({
   selector: 'app-dialog',
-  standalone: true,
   imports: [
     NgpButton,
     NgpDialog,
