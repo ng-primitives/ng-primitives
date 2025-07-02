@@ -13,7 +13,7 @@ Display additional information on hover.
 Import the Tooltip primitives from `ng-primitives/tooltip`.
 
 ```ts
-import { NgpTooltip, NgpTooltipTrigger } from 'ng-primitives/tooltip';
+import { NgpTooltip, NgpTooltipTrigger, NgpTooltipArrow } from 'ng-primitives/tooltip';
 ```
 
 ## Usage
@@ -82,6 +82,12 @@ The following CSS custom properties are applied to the `ngpTooltip` directive:
 | --------------- | ------------------------------------- |
 | `data-open`     | Applied when the tooltip is open.     |
 | `data-disabled` | Applied when the tooltip is disabled. |
+
+### NgpTooltipArrow
+
+The `NgpTooltipArrow` directive is used to add an arrow to the tooltip. It should be placed inside the tooltip content. It will receive `inset-inline-start` or `inset-block-start` styles to position the arrow based on the tooltip's placement. As a result it should be positioned absolutely within the tooltip content.
+
+<api-docs name="NgpTooltipArrow"></api-docs>
 
 ## Styling
 
