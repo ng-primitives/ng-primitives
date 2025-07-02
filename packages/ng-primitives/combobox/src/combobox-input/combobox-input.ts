@@ -49,6 +49,12 @@ export class NgpComboboxInput {
   /** Determine if the pointer was used to focus the input. */
   protected pointerFocused = false;
 
+  /**
+   * The control status - this is required as we apply them to the combobox element as well as the input element.
+   * @internal
+   */
+  readonly controlStatus = setupFormControl({ id: this.id, disabled: this.state().disabled });
+
   constructor() {
     setupInteractions({
       focus: true,
@@ -56,8 +62,6 @@ export class NgpComboboxInput {
       press: true,
       disabled: this.state().disabled,
     });
-
-    setupFormControl({ id: this.id, disabled: this.state().disabled });
 
     this.state().registerInput(this);
   }

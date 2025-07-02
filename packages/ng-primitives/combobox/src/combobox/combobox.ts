@@ -42,6 +42,12 @@ type T = any;
     '[attr.data-open]': 'state.open() ? "" : undefined',
     '[attr.data-disabled]': 'state.disabled() ? "" : undefined',
     '[attr.data-multiple]': 'state.multiple() ? "" : undefined',
+    '[attr.data-invalid]': 'input()?.controlState().invalid ? "" : undefined',
+    '[attr.data-valid]': 'input()?.controlState().valid ? "" : undefined',
+    '[attr.data-touched]': 'input()?.controlState().touched ? "" : undefined',
+    '[attr.data-pristine]': 'input()?.controlState().pristine ? "" : undefined',
+    '[attr.data-dirty]': 'input()?.controlState().dirty ? "" : undefined',
+    '[attr.data-pending]': 'input()?.controlState().pending ? "" : undefined',
   },
 })
 export class NgpCombobox {
