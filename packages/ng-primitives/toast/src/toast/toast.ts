@@ -32,4 +32,8 @@ export class NgpToast {
   constructor() {
     this.context.register(this);
   }
+
+  hide(): void {
+    this.context.hide(this);
+  }
 }
