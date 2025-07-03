@@ -32,4 +32,10 @@ export interface NgpToastContext {
    * @internal
    */
   register: (toast: NgpToast) => void;
+
+  /**
+   * Hide a toast instance.
+   * @internal
+   */
+  hide: (toast: NgpToast) => void;
 }

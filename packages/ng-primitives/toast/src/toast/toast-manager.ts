@@ -8,7 +8,7 @@ import {
   Type,
   ViewContainerRef,
 } from '@angular/core';
-import { createPortal } from 'ng-primitives/portal';
+import { createPortal, NgpPortal } from 'ng-primitives/portal';
 import { NgpToast } from './toast';
 import { provideToastContext } from './toast-context';
 
@@ -21,7 +21,7 @@ export class NgpToastManager {
   private readonly renderer = this.rendererFactory.createRenderer(null, null);
   private readonly injector = inject(Injector);
   private readonly container = this.createContainer();
-  private readonly toasts: NgpToast[] = [];
+  private toasts: NgpToastRef[] = [];
 
   /** Show a toast notification */
   show(toast: TemplateRef<void> | Type<unknown>, options: NgpToastOptions = {}) {
@@ -40,6 +40,7 @@ export class NgpToastManager {
             position: options.position ?? 'top-end',
             duration: options.duration ?? 5000,
             register: (toast: NgpToast) => (instance = toast),
+            hide: (toast: NgpToast) => this.hide(toast),
           }),
         ],
       }),
@@ -52,12 +53,20 @@ export class NgpToastManager {
       throw new Error('A toast must have the NgpToast directive applied.');
     }
 
-    this.toasts.push(instance);
+    this.toasts.push({ instance, portal });
   }
 
   /** Hide a toast notification */
-  hide(toast: TemplateRef<void> | Type<unknown>) {
-    // this.toasts.update(current => current.filter(t => t.id !== toast.id));
+  hide(toast: NgpToast): void {
+    const ref = this.toasts.find(t => t.instance === toast);
+
+    if (ref) {
+      // Detach the portal from the container
+      ref.portal.detach();
+
+      // Remove the toast from the list of toasts
+      this.toasts = this.toasts.filter(t => t !== ref);
+    }
   }
 
   /**
@@ -87,4 +96,9 @@ export interface NgpToastOptions {
 
   /** The duration of the toast in milliseconds */
   duration?: number;
+}
+
+interface NgpToastRef {
+  instance: NgpToast;
+  portal: NgpPortal;
 }
