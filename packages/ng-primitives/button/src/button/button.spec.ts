@@ -2,7 +2,7 @@ import { FocusMonitor } from '@angular/cdk/a11y';
 import { TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
 import { fireEvent, render } from '@testing-library/angular';
-import { NgpButton } from './button';
+import { NgpButton, NgpButtonSize } from './button';
 
 describe('NgpButton', () => {
   it('should set the disabled attribute when disabled', async () => {
@@ -146,5 +146,45 @@ describe('NgpButton', () => {
     const button = container.getByRole('button');
     fireEvent.mouseEnter(button);
     expect(button).not.toHaveAttribute('data-hover');
+  });
+
+  it('should set the data-size attribute with default value', async () => {
+    const container = await render(`<button ngpButton></button>`, {
+      imports: [NgpButton],
+    });
+
+    const button = container.getByRole('button');
+    expect(button).toHaveAttribute('data-size', 'md');
+  });
+
+  it.each(['sm', 'md', 'lg', 'xl'] as NgpButtonSize[])(
+    'should set the data-size attribute with %s value',
+    async size => {
+      const container = await render(`<button ngpButton [size]="'${size}'"></button>`, {
+        imports: [NgpButton],
+      });
+
+      const button = container.getByRole('button');
+      expect(button).toHaveAttribute('data-size', size);
+    },
+  );
+
+  it('should update the data-size attribute when size changes', async () => {
+    const { fixture, getByRole } = await render<{ size: NgpButtonSize }>(
+      `<button ngpButton [size]="size"></button>`,
+      {
+        imports: [NgpButton],
+        componentProperties: {
+          size: 'sm',
+        },
+      },
+    );
+
+    const button = getByRole('button');
+    expect(button).toHaveAttribute('data-size', 'sm');
+
+    fixture.componentInstance.size = 'lg';
+    fixture.detectChanges();
+    expect(button).toHaveAttribute('data-size', 'lg');
   });
 });

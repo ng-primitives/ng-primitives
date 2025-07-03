@@ -30,6 +30,12 @@ Create a button component that uses the `NgpButton` directive.
 
 <docs-snippet name="button"></docs-snippet>
 
+## Sizes
+
+The button component supports different sizes that can be applied using the `size` input.
+
+<docs-example name="button-sizes"></docs-example>
+
 ## Schematics
 
 Generate a reusable button component using the Angular CLI.
@@ -54,11 +60,23 @@ The following directives are available to import from the `ng-primitives/button`
 
 <api-docs name="NgpButton"></api-docs>
 
+#### Sizes
+
+The button component supports different sizes that can be applied using the `size` input.
+
+| Size | Description                                    |
+| ---- | ---------------------------------------------- |
+| `sm` | Small button size.                             |
+| `md` | Medium button size (default if not specified). |
+| `lg` | Large button size.                             |
+| `xl` | Extra large button size.                       |
+
 #### Data Attributes
 
-| Attribute            | Description                        |
-| -------------------- | ---------------------------------- |
-| `data-hover`         | Added to the button when hovered.  |
-| `data-focus-visible` | Added to the button when focused.  |
-| `data-press`         | Added to the button when pressed.  |
-| `data-disabled`      | Added to the button when disabled. |
+| Attribute            | Description                               |
+| -------------------- | ----------------------------------------- |
+| `data-hover`         | Added to the button when hovered.         |
+| `data-focus-visible` | Added to the button when focused.         |
+| `data-press`         | Added to the button when pressed.         |
+| `data-disabled`      | Added to the button when disabled.        |
+| `data-size`          | Indicates the current size of the button. |

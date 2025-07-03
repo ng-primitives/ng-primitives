@@ -3,6 +3,11 @@ import { booleanAttribute, Directive, HOST_TAG_NAME, inject, input } from '@angu
 import { setupInteractions } from 'ng-primitives/internal';
 import { buttonState, provideButtonState } from './button-state';
 
+/**
+ * The size of the button.
+ */
+export type NgpButtonSize = 'sm' | 'md' | 'lg' | 'xl';
+
 @Directive({
   selector: '[ngpButton]',
   exportAs: 'ngpButton',
@@ -10,6 +15,7 @@ import { buttonState, provideButtonState } from './button-state';
   host: {
     '[attr.data-disabled]': 'state.disabled() ? "" : null',
     '[attr.disabled]': 'isButton && state.disabled() ? true : null',
+    '[attr.data-size]': 'state.size()',
   },
 })
 export class NgpButton {
@@ -24,6 +30,11 @@ export class NgpButton {
   readonly disabled = input<boolean, BooleanInput>(false, {
     transform: booleanAttribute,
   });
+
+  /**
+   * The size of the button.
+   */
+  readonly size = input<NgpButtonSize>('md');
 
   /**
    * Detect if this is an HTML button element.
