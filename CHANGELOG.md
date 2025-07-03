@@ -1,3 +1,23 @@
+## 0.57.0 (2025-07-03)
+
+### 🚀 Features
+
+- add date picker tailwind example ([#324](https://github.com/ng-primitives/ng-primitives/pull/324))
+- add dialog tailwind example ([#325](https://github.com/ng-primitives/ng-primitives/pull/325))
+- add file-upload tailwind example ([#328](https://github.com/ng-primitives/ng-primitives/pull/328))
+- adding arrow support for tooltip and popover ([#329](https://github.com/ng-primitives/ng-primitives/pull/329))
+- adding support for context7 ([#330](https://github.com/ng-primitives/ng-primitives/pull/330))
+- **combobox:** combobox adding status attributes ([#331](https://github.com/ng-primitives/ng-primitives/pull/331))
+
+### 🩹 Fixes
+
+- **tab:** disabled button ([#333](https://github.com/ng-primitives/ng-primitives/pull/333))
+
+### ❤️ Thank You
+
+- Ashley Hunter
+- kedevked @kedevked
+
 ## 0.56.0 (2025-07-01)
 
 ### 🚀 Features
