@@ -1,4 +1,4 @@
-import { Directive, OnDestroy, OnInit, computed, input } from '@angular/core';
+import { Directive, OnInit, computed, input } from '@angular/core';
 import { injectTabsetState } from '../tabset/tabset-state';
 import { NgpTabPanelToken } from './tab-panel-token';
 
@@ -18,7 +18,7 @@ import { NgpTabPanelToken } from './tab-panel-token';
     '[attr.data-orientation]': 'state().orientation()',
   },
 })
-export class NgpTabPanel implements OnInit, OnDestroy {
+export class NgpTabPanel implements OnInit {
   /**
    * Access the tabset
    */
@@ -55,14 +55,8 @@ export class NgpTabPanel implements OnInit, OnDestroy {
   protected readonly active = computed(() => this.state().selectedTab() === this.value());
 
   ngOnInit(): void {
-    this.state().registerTab(this);
-
     if (this.value() === undefined) {
       throw new Error('ngpTabPanel: value is required');
     }
-  }
-
-  ngOnDestroy(): void {
-    this.state().unregisterTab(this);
   }
 }
