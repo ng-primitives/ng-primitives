@@ -44,6 +44,11 @@ import { NgpTabButton, NgpTabList, NgpTabPanel, NgpTabset } from 'ng-primitives/
       color: var(--ngp-text-primary);
     }
 
+    [ngpTabButton][data-disabled] {
+      color: var(--ngp-text-disabled);
+      cursor: not-allowed;
+    }
+
     [ngpTabPanel] {
       padding: 0.5rem 0;
       outline: none;
@@ -59,6 +64,7 @@ import { NgpTabButton, NgpTabList, NgpTabPanel, NgpTabset } from 'ng-primitives/
         <button ngpTabButton ngpTabButtonValue="overview">Overview</button>
         <button ngpTabButton ngpTabButtonValue="features">Features</button>
         <button ngpTabButton ngpTabButtonValue="pricing">Pricing</button>
+        <button ngpTabButton ngpTabButtonValue="disabled" ngpTabButtonDisabled>Disabled</button>
       </div>
 
       <div ngpTabPanel ngpTabPanelValue="overview">
@@ -86,6 +92,10 @@ import { NgpTabButton, NgpTabList, NgpTabPanel, NgpTabset } from 'ng-primitives/
           vel velit. Donec sed nisi ac lacus placerat iaculis. Donec blandit eros sit amet nibh
           accumsan cursus. Morbi sit amet ex et enim tempus porttitor non eu erat.
         </p>
+      </div>
+
+      <div ngpTabPanel ngpTabPanelValue="disabled">
+        <p>Disabled content</p>
       </div>
     </div>
   `,
