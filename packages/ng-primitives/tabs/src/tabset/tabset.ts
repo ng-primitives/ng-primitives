@@ -1,7 +1,7 @@
 import { BooleanInput } from '@angular/cdk/coercion';
 import { booleanAttribute, computed, Directive, input, output, signal } from '@angular/core';
 import { NgpOrientation } from 'ng-primitives/common';
-import { syncState } from 'ng-primitives/internal';
+import { explicitEffect } from 'ng-primitives/internal';
 import { injectRovingFocusGroupState, NgpRovingFocusGroup } from 'ng-primitives/roving-focus';
 import { uniqueId } from 'ng-primitives/utils';
 import { injectTabsConfig } from '../config/tabs-config';
@@ -96,7 +96,9 @@ export class NgpTabset {
   protected readonly state = tabsetState<NgpTabset>(this);
 
   constructor() {
-    syncState(this.state.orientation, this.rovingFocusGroupState().orientation);
+    explicitEffect([this.state.orientation], ([orientation]) =>
+      this.rovingFocusGroupState().orientation.set(orientation),
+    );
   }
 
   /**

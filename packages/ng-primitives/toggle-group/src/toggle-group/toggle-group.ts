@@ -1,7 +1,7 @@
 import { BooleanInput } from '@angular/cdk/coercion';
 import { booleanAttribute, Directive, input, output } from '@angular/core';
 import { NgpOrientation } from 'ng-primitives/common';
-import { syncState } from 'ng-primitives/internal';
+import { explicitEffect } from 'ng-primitives/internal';
 import { injectRovingFocusGroupState, NgpRovingFocusGroup } from 'ng-primitives/roving-focus';
 import { injectToggleGroupConfig } from '../config/toggle-group-config';
 import { provideToggleGroupState, toggleGroupState } from './toggle-group-state';
@@ -76,7 +76,9 @@ export class NgpToggleGroup {
   constructor() {
     // the roving focus group defaults to vertical orientation whereas
     // the default for the toggle group may be different if provided via global config
-    syncState(this.state.orientation, this.rovingFocusGroupState().orientation);
+    explicitEffect([this.state.orientation], ([orientation]) =>
+      this.rovingFocusGroupState().orientation.set(orientation),
+    );
   }
 
   /**

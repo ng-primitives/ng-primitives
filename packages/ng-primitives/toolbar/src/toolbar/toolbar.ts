@@ -1,6 +1,6 @@
 import { Directive, input } from '@angular/core';
 import { NgpOrientation } from 'ng-primitives/common';
-import { syncState } from 'ng-primitives/internal';
+import { explicitEffect } from 'ng-primitives/internal';
 import { injectRovingFocusGroupState, NgpRovingFocusGroup } from 'ng-primitives/roving-focus';
 import { provideToolbarState, toolbarState } from './toolbar-state';
 
@@ -34,6 +34,8 @@ export class NgpToolbar {
   protected readonly state = toolbarState<NgpToolbar>(this);
 
   constructor() {
-    syncState(this.state.orientation, this.rovingFocusGroup().orientation);
+    explicitEffect([this.state.orientation], ([orientation]) =>
+      this.rovingFocusGroup().orientation.set(orientation),
+    );
   }
 }

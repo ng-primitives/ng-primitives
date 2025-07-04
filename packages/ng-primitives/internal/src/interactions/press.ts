@@ -16,14 +16,7 @@ export function setupPress({
   pressEnd,
   disabled = signal(false),
 }: NgpPressOptions): NgpPressState {
-  /**
-   * Access the element reference.
-   */
   const elementRef = inject<ElementRef<HTMLElement>>(ElementRef);
-
-  /**
-   * Access the disposables helper.
-   */
   const disposables = injectDisposables();
 
   /**
