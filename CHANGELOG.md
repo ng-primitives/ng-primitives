@@ -1,3 +1,18 @@
+## 0.58.0 (2025-07-04)
+
+### 🚀 Features
+
+- **button:** add size to reusable component ([#334](https://github.com/ng-primitives/ng-primitives/pull/334))
+
+### 🩹 Fixes
+
+- **pagination:** allow ngpButton for pagination buttons ([#336](https://github.com/ng-primitives/ng-primitives/pull/336))
+
+### ❤️ Thank You
+
+- Ashley Hunter
+- Eugene Rusakov @eurusik
+
 ## 0.57.0 (2025-07-03)
 
 ### 🚀 Features
