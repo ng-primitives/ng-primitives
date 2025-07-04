@@ -59,7 +59,7 @@ import { NgpToast, NgpToastManager } from 'ng-primitives/toast';
       overflow-wrap: anywhere;
       padding: 16px;
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-      width: var(--width);
+      width: var(--ngp-toast-width);
       font-size: 13px;
       display: flex;
       align-items: center;
@@ -121,19 +121,19 @@ import { NgpToast, NgpToastManager } from 'ng-primitives/toast';
     }
 
     .toast[data-position-x='end'] {
-      right: 0;
+      right: var(--ngp-toast-offset-right);
     }
 
     .toast[data-position-x='start'] {
-      left: 0;
+      left: var(--ngp-toast-offset-left);
     }
 
     .toast[data-position-y='top'] {
-      top: 0;
+      top: var(--ngp-toast-offset-top);
     }
 
     .toast[data-position-y='bottom'] {
-      bottom: 0;
+      bottom: var(--ngp-toast-offset-bottom);
     }
   `,
 })

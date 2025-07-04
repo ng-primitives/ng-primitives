@@ -8,6 +8,31 @@ export interface NgpToastConfig {
    */
   duration: number;
 
+  /**
+   * The width of each toast in pixels.
+   */
+  width: number;
+
+  /**
+   * The offset from the top of the viewport in pixels.
+   */
+  offsetTop: number;
+
+  /**
+   * The offset from the bottom of the viewport in pixels.
+   */
+  offsetBottom: number;
+
+  /**
+   * The offset from the left of the viewport in pixels.
+   */
+  offsetLeft: number;
+
+  /**
+   * The offset from the right of the viewport in pixels.
+   */
+  offsetRight: number;
+
   // /**
   //  * The gravity of each toast.
   //  */
@@ -17,11 +42,6 @@ export interface NgpToastConfig {
   //  * The position of each toast.
   //  */
   // position: NgpToastPosition;
-
-  /**
-   * Whether we should stop on hover.
-   */
-  stopOnHover: boolean;
 
   /**
    * The aria live setting.
@@ -37,9 +57,11 @@ export interface NgpToastConfig {
 export const defaultToastConfig: NgpToastConfig = {
   gap: 16,
   duration: 3000,
-  // gravity: 'top',
-  // position: 'end',
-  stopOnHover: true,
+  width: 360,
+  offsetTop: 24,
+  offsetBottom: 24,
+  offsetLeft: 24,
+  offsetRight: 24,
   ariaLive: 'polite',
 };
 
