@@ -98,6 +98,6 @@ export class Button {
       align-items: center;
       gap: 1rem;
     }
-  `
+  `,
 })
 export default class ButtonSizesExample {}
