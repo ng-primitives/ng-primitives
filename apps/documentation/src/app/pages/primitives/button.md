@@ -52,7 +52,6 @@ You can add size support to your reusable button component. This is implemented 
 <button app-button size="xl">Extra Large Button</button>
 ```
 
-
 ## Schematics
 
 Generate a reusable button component using the Angular CLI.

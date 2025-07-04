@@ -85,10 +85,10 @@ export class DocsButton {
   imports: [DocsButton],
   template: `
     <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 1rem;">
-      <button app-button [size]="'sm'">Small</button>
+      <button [size]="'sm'" app-button>Small</button>
       <button app-button>Medium</button>
-      <button app-button [size]="'lg'">Large</button>
-      <button app-button [size]="'xl'">Extra Large</button>
+      <button [size]="'lg'" app-button>Large</button>
+      <button [size]="'xl'" app-button>Extra Large</button>
     </div>
   `,
 })
