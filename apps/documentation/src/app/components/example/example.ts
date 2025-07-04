@@ -65,14 +65,11 @@ export class Example {
 
     const detectedStyles = new Set<string>();
     const exampleComponentKeys = Object.keys(this.examples);
-    const sourceKeys = Object.keys(this.source);
-    let cssComponentVersionExists = false;
 
     for (const key of exampleComponentKeys) {
       // Standard pattern: componentName.example.ts -> 'css'
       if (key.endsWith(`/${currentName}.example.ts`)) {
         detectedStyles.add('css');
-        cssComponentVersionExists = true;
         continue;
       }
 
@@ -84,19 +81,11 @@ export class Example {
       }
     }
 
-    // If a 'css' component file exists and its source file also exists, 'unstyled' is a valid option
-    if (cssComponentVersionExists) {
-      const cssSourcePath = this.getExamplePathForNameAndStyle(currentName, 'css', sourceKeys);
-      if (cssSourcePath && this.source[cssSourcePath]) {
-        detectedStyles.add('unstyled');
-      }
-    }
-
     return Array.from(detectedStyles).sort((a, b) => {
       if (a === 'css') return -1; // 'css' always first
       if (b === 'css') return 1;
-      if (a === 'unstyled') return -1; // 'unstyled' second
-      if (b === 'unstyled') return 1;
+      if (a === 'minimal') return -1; // 'minimal' second
+      if (b === 'minimal') return 1;
       return a.localeCompare(b); // Others alphabetically
     });
   });
@@ -108,7 +97,7 @@ export class Example {
       console.error(`No example versions found for component: ${currentName}`);
       return null;
     }
-    return styles.find(s => s === 'css') || styles.find(s => s === 'unstyled') || styles[0] || null;
+    return styles.find(s => s === 'css') || styles.find(s => s === 'minimal') || styles[0] || null;
   });
 
   constructor() {
@@ -195,7 +184,7 @@ export class Example {
       // Default style, e.g., `button.example.ts`
       pathKey = keysToSearch.find(key => key.endsWith(`/${baseName}.example.ts`));
     } else {
-      // Other styles, e.g., `button.unstyled.example.ts`
+      // Other styles, e.g., `button.minimal.example.ts`
       pathKey = keysToSearch.find(key => key.endsWith(`/${baseName}.${style}.example.ts`));
     }
     return pathKey ?? '';
@@ -213,8 +202,8 @@ export class Example {
       Object.keys(this.examples),
     );
     if (!componentFileToLoadPath || !this.examples[componentFileToLoadPath]) {
-      // If the specific styled component doesn't exist (e.g., unstyled.example.ts is missing for component)
-      // or if the exampleStyle is 'unstyled' and its component file is missing,
+      // If the specific styled component doesn't exist (e.g., minimal.example.ts is missing for component)
+      // or if the exampleStyle is 'minimal' and its component file is missing,
       // fall back to the 'css' version for the *component*.
       const cssComponentPath = this.getExamplePathForNameAndStyle(
         exampleName,
@@ -242,7 +231,6 @@ export class Example {
 
       // Determine and load/generate source code for the *requested* exampleStyle
       let originalSource: string | null = null;
-      let sourceIsGenerated = false;
 
       const directSourcePath = this.getExamplePathForNameAndStyle(
         exampleName,
@@ -252,29 +240,6 @@ export class Example {
 
       if (directSourcePath && this.source[directSourcePath]) {
         originalSource = (await this.source[directSourcePath]!()) as string;
-      } else if (exampleStyle === 'unstyled') {
-        // Unstyled source file doesn't exist, try to generate from 'css' source
-        const cssSourcePath = this.getExamplePathForNameAndStyle(
-          exampleName,
-          'css',
-          Object.keys(this.source),
-        );
-        if (cssSourcePath && this.source[cssSourcePath]) {
-          const cssRawSource = (await this.source[cssSourcePath]!()) as string;
-          if (typeof cssRawSource === 'string') {
-            originalSource = cssRawSource.replace(/styles\s*:\s*`[^`]*`,?\s*/, '');
-            sourceIsGenerated = true;
-            originalSource =
-              `// Unstyled version generated from ${exampleName}.example.ts\n` +
-              `// Original styles property has been removed.\n` +
-              originalSource;
-          } else {
-            console.error(`CSS source code not found or not a string for path: ${cssSourcePath}`);
-            originalSource = `// Source code for CSS base not available for ${exampleName}`;
-          }
-        } else {
-          originalSource = `// Unstyled example source not found, and base CSS example not found for ${exampleName}.`;
-        }
       } else {
         originalSource = `// Source code not found for ${exampleName} with style ${exampleStyle}.`;
         console.warn(
@@ -292,9 +257,8 @@ export class Example {
       const codeToFormat = originalSource;
       this.raw = originalSource;
 
-      // Add the "ng-primitives styles" comment to `this.raw` if the *original* source had styles
-      // and we are not showing a generated unstyled version.
-      if (!sourceIsGenerated && exampleStyle !== 'unstyled' && originalSource.includes('styles:')) {
+      // Add the "ng-primitives styles" comment to `this.raw` if the *original* source had styles.
+      if (exampleStyle === 'css' && originalSource.includes('styles:')) {
         this.raw =
           `/** This example uses ng-primitives styles, which are imported from ng-primitives/example-theme/index.css in the global styles file **/\n` +
           originalSource;
@@ -329,7 +293,7 @@ export class Example {
   protected getStyleName(name: string): string {
     const names = {
       css: 'Example CSS',
-      unstyled: 'Unstyled',
+      minimal: 'Minimal styles',
       tailwind: 'Tailwind',
     } as const;
 
@@ -347,7 +311,7 @@ export class Example {
 
     const isTailwind = this.selectedStyle() === 'tailwind';
 
-    // this.raw already contains the source code (original, or generated unstyled with its own comment, or styled with theme comment)
+    // this.raw already contains the source code (original, or generated minimal with its own comment, or styled with theme comment)
     const stackBlitzSource = this.raw
       .replace(/export default class (\w+)/, 'export class AppComponent')
       .replace(/selector:\s*'[^']*'/, "selector: 'app-root'");
