@@ -4,11 +4,13 @@ import {
   Injectable,
   Injector,
   RendererFactory2,
+  signal,
   TemplateRef,
   Type,
   ViewContainerRef,
 } from '@angular/core';
 import { createPortal, NgpPortal } from 'ng-primitives/portal';
+import { injectToastConfig } from '../config/toast-config';
 import { NgpToast } from './toast';
 import { provideToastContext } from './toast-context';
 
@@ -16,12 +18,14 @@ import { provideToastContext } from './toast-context';
   providedIn: 'root',
 })
 export class NgpToastManager {
+  private readonly config = injectToastConfig();
   private readonly applicationRef = inject(ApplicationRef);
   private readonly rendererFactory = inject(RendererFactory2);
   private readonly renderer = this.rendererFactory.createRenderer(null, null);
   private readonly injector = inject(Injector);
   private readonly container = this.createContainer();
-  private toasts: NgpToastRef[] = [];
+
+  readonly toasts = signal<NgpToastRef[]>([]);
 
   /** Show a toast notification */
   show(toast: TemplateRef<void> | Type<unknown>, options: NgpToastOptions = {}) {
@@ -53,19 +57,19 @@ export class NgpToastManager {
       throw new Error('A toast must have the NgpToast directive applied.');
     }
 
-    this.toasts.push({ instance, portal });
+    this.toasts.update(toasts => [...toasts, { instance: instance!, portal }]);
   }
 
   /** Hide a toast notification */
-  hide(toast: NgpToast): void {
-    const ref = this.toasts.find(t => t.instance === toast);
+  async hide(toast: NgpToast): Promise<void> {
+    const ref = this.toasts().find(t => t.instance === toast);
 
     if (ref) {
       // Detach the portal from the container
-      ref.portal.detach();
+      await ref.portal.detach();
 
       // Remove the toast from the list of toasts
-      this.toasts = this.toasts.filter(t => t !== ref);
+      this.toasts.update(toasts => toasts.filter(t => t !== ref));
     }
   }
 
@@ -73,13 +77,21 @@ export class NgpToastManager {
    * Create a section in which toasts will be rendered.
    */
   private createContainer(): HTMLElement {
-    const container = this.renderer.createElement('section');
+    const container = this.renderer.createElement('section') as HTMLElement;
     this.renderer.setAttribute(container, 'aria-live', 'polite');
     this.renderer.setAttribute(container, 'aria-atomic', 'false');
     this.renderer.setAttribute(container, 'tabindex', '-1');
 
+    container.style.setProperty('--ngp-toast-offset-top', `${this.config.offsetTop}px`);
+    container.style.setProperty('--ngp-toast-offset-bottom', `${this.config.offsetBottom}px`);
+    container.style.setProperty('--ngp-toast-offset-left', `${this.config.offsetLeft}px`);
+    container.style.setProperty('--ngp-toast-offset-right', `${this.config.offsetRight}px`);
+    container.style.setProperty('--ngp-toast-gap', `${this.config.gap}px`);
+    container.style.setProperty('--ngp-toast-width', `${this.config.width}px`);
+
     // add the container to the body
     this.renderer.appendChild(document.body, container);
+
     return container;
   }
 }

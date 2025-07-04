@@ -1,5 +1,7 @@
-import { Directive } from '@angular/core';
+import { computed, Directive, inject } from '@angular/core';
+import { injectDimensions } from 'ng-primitives/utils';
 import { injectToastContext } from './toast-context';
+import { NgpToastManager } from './toast-manager';
 
 @Directive({
   selector: '[ngpToast]',
@@ -7,11 +9,35 @@ import { injectToastContext } from './toast-context';
   host: {
     '[attr.data-position-x]': 'x',
     '[attr.data-position-y]': 'y',
-    '[style.--gravity]': 'gravity',
+    '[style.--ngp-toast-gravity]': 'gravity',
+    '[style.--ngp-toast-index]': 'index()',
+    '[style.--ngp-toast-height.px]': 'dimensions().height',
   },
 })
 export class NgpToast {
+  private readonly manager = inject(NgpToastManager);
   private readonly context = injectToastContext();
+
+  /**
+   * Get all toasts that are currently being displayed in the same position.
+   */
+  private readonly toasts = computed(() =>
+    this.manager
+      .toasts()
+      .filter(toast => toast.instance.context.position === this.context.position),
+  );
+
+  /**
+   * The number of toasts that are currently being displayed before this toast.
+   */
+  readonly index = computed(() => {
+    return this.toasts().findIndex(toast => toast.instance === this);
+  });
+
+  /**
+   * The height of the toast in pixels.
+   */
+  protected readonly dimensions = injectDimensions();
 
   /**
    * The x position of the toast.
