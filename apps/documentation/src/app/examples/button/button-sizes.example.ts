@@ -72,7 +72,7 @@ export type ButtonSize = 'sm' | 'md' | 'lg' | 'xl';
     }
   `,
 })
-export class DocsButton {
+export class Button {
   /**
    * The size of the button.
    */
@@ -82,14 +82,22 @@ export class DocsButton {
 @Component({
   selector: 'app-button-sizes-example',
   standalone: true,
-  imports: [DocsButton],
+  imports: [Button],
   template: `
-    <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 1rem;">
-      <button [size]="'sm'" app-button>Small</button>
+    <div class="button-container">
+      <button size="sm" app-button>Small</button>
       <button app-button>Medium</button>
-      <button [size]="'lg'" app-button>Large</button>
-      <button [size]="'xl'" app-button>Extra Large</button>
+      <button size="lg" app-button>Large</button>
+      <button size="xl" app-button>Extra Large</button>
     </div>
+  `,
+  styles: `
+    .button-container {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 1rem;
+    }
   `,
 })
 export default class ButtonSizesExample {}
