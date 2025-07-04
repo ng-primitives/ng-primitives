@@ -30,6 +30,28 @@ Create a button component that uses the `NgpButton` directive.
 
 <docs-snippet name="button"></docs-snippet>
 
+### Button Sizes
+
+You can add size support to your reusable button component. This is implemented at the component level rather than in the primitive to provide more flexibility for different design systems.
+
+<docs-example name="button-sizes"></docs-example>
+
+#### Usage
+
+```html
+<!-- Small button -->
+<button app-button size="sm">Small Button</button>
+
+<!-- Default (Medium) button -->
+<button app-button>Default Button</button>
+
+<!-- Large button -->
+<button app-button size="lg">Large Button</button>
+
+<!-- Extra Large button -->
+<button app-button size="xl">Extra Large Button</button>
+```
+
 ## Schematics
 
 Generate a reusable button component using the Angular CLI.

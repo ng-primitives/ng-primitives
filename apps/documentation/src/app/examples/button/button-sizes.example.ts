@@ -8,6 +8,7 @@ export type ButtonSize = 'sm' | 'md' | 'lg' | 'xl';
 
 @Component({
   selector: 'button[app-button]',
+  standalone: true,
   hostDirectives: [{ directive: NgpButton, inputs: ['disabled'] }],
   template: '<ng-content />',
   host: {
@@ -40,6 +41,7 @@ export type ButtonSize = 'sm' | 'md' | 'lg' | 'xl';
       background-color: var(--ngp-background-active);
     }
 
+    /* Size variants */
     :host[data-size='sm'] {
       height: 2rem;
       padding-left: 0.75rem;
@@ -76,3 +78,26 @@ export class Button {
    */
   readonly size = input<ButtonSize>('md');
 }
+
+@Component({
+  selector: 'app-button-sizes-example',
+  standalone: true,
+  imports: [Button],
+  template: `
+    <div class="button-container">
+      <button size="sm" app-button>Small</button>
+      <button app-button>Medium</button>
+      <button size="lg" app-button>Large</button>
+      <button size="xl" app-button>Extra Large</button>
+    </div>
+  `,
+  styles: `
+    .button-container {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 1rem;
+    }
+  `,
+})
+export default class ButtonSizesExample {}
