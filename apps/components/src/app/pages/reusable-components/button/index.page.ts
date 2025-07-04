@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 import { Button } from './button';
 
 @Component({
-  selector: 'app-root',
+  selector: 'app-button-example',
   imports: [Button],
   template: '<button app-button>Click me</button>',
 })
