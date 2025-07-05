@@ -30,4 +30,30 @@ describe('NgpTooltipTrigger', () => {
       expect(document.querySelector('[ngpTooltip]')).not.toBeInTheDocument();
     });
   });
+
+  it('should set the data-placement attribute on the tooltip element', async () => {
+    const { getByRole } = await render(
+      `
+        <button [ngpTooltipTrigger]="content" ngpTooltipTriggerPlacement="top"></button>
+
+        <ng-template #content>
+          <div ngpTooltip>
+            Tooltip content
+          </div>
+        </ng-template>
+      `,
+      {
+        imports: [NgpTooltipTrigger, NgpTooltip],
+      },
+    );
+
+    const trigger = getByRole('button');
+    fireEvent.mouseEnter(trigger);
+
+    await waitFor(() => {
+      const tooltip = document.querySelector('[ngpTooltip]');
+      expect(tooltip).toBeInTheDocument();
+      expect(tooltip?.getAttribute('data-placement')).toBeTruthy();
+    });
+  });
 });
