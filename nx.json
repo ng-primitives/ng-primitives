@@ -87,5 +87,8 @@
     "projectsRelationship": "fixed"
   },
   "defaultBase": "origin/next",
-  "nxCloudId": "67def28b82912dfd7fe03d22"
+  "nxCloudId": "67def28b82912dfd7fe03d22",
+  "tui": {
+    "autoExit": true
+  }
 }
