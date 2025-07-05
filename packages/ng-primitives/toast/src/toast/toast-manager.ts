@@ -57,7 +57,7 @@ export class NgpToastManager {
       throw new Error('A toast must have the NgpToast directive applied.');
     }
 
-    this.toasts.update(toasts => [...toasts, { instance: instance!, portal }]);
+    this.toasts.update(toasts => [{ instance: instance!, portal }, ...toasts]);
   }
 
   /** Hide a toast notification */
@@ -81,7 +81,12 @@ export class NgpToastManager {
     this.renderer.setAttribute(container, 'aria-live', 'polite');
     this.renderer.setAttribute(container, 'aria-atomic', 'false');
     this.renderer.setAttribute(container, 'tabindex', '-1');
+    this.renderer.setAttribute(container, 'data-ngp-toast-container', '');
 
+    container.style.setProperty('position', 'fixed');
+    container.style.setProperty('inset', '0');
+    container.style.setProperty('pointer-events', 'none');
+    container.style.setProperty('z-index', `${this.config.zIndex}`);
     container.style.setProperty('--ngp-toast-offset-top', `${this.config.offsetTop}px`);
     container.style.setProperty('--ngp-toast-offset-bottom', `${this.config.offsetBottom}px`);
     container.style.setProperty('--ngp-toast-offset-left', `${this.config.offsetLeft}px`);

@@ -44,10 +44,8 @@ import { NgpToast, NgpToastManager } from 'ng-primitives/toast';
     }
 
     .toast {
-      z-index: var(--z-index);
       position: absolute;
       opacity: 0;
-      transform: var(--y);
       touch-action: none;
       transition:
         transform 0.4s,
@@ -65,7 +63,6 @@ import { NgpToast, NgpToastManager } from 'ng-primitives/toast';
       align-items: center;
       gap: 6px;
 
-      position: absolute;
       display: inline-grid;
       background: var(--ngp-background);
       box-shadow: var(--ngp-shadow);
@@ -74,13 +71,15 @@ import { NgpToast, NgpToastManager } from 'ng-primitives/toast';
       opacity: 0;
       transition: all 0.4s cubic-bezier(0.215, 0.61, 0.355, 1);
       border-radius: 8px;
-      z-index: 9999;
+      z-index: var(--ngp-toast-z-index);
       grid-template-columns: 1fr auto;
       grid-template-rows: auto auto;
       column-gap: 12px;
       align-items: center;
-      bottom: 0;
+      width: var(--ngp-toast-width);
       height: fit-content;
+      transform: var(--y);
+      overflow-wrap: anywhere;
 
       &[data-enter] {
         opacity: 1;
@@ -120,6 +119,18 @@ import { NgpToast, NgpToastManager } from 'ng-primitives/toast';
       max-height: 27px;
     }
 
+    .toast[data-expanded='false'][data-front='false'] {
+      --scale: var(--ngp-toast-index) * 0.05 + 1;
+      --y: translateY(calc(var(--lift-amount) * var(--ngp-toast-index)))
+        scale(calc(-1 * var(--scale)));
+      height: var(--ngp-toast-front-height);
+    }
+
+    .toast[data-visible='false'] {
+      opacity: 0;
+      pointer-events: none;
+    }
+
     .toast[data-position-x='end'] {
       right: var(--ngp-toast-offset-right);
     }
@@ -129,11 +140,15 @@ import { NgpToast, NgpToastManager } from 'ng-primitives/toast';
     }
 
     .toast[data-position-y='top'] {
-      top: var(--ngp-toast-offset-top);
+      top: var(--ngp-toast-offset);
+      --gravity: 1;
+      --lift-amount: calc(var(--gravity) * var(--ngp-toast-gap));
     }
 
     .toast[data-position-y='bottom'] {
-      bottom: var(--ngp-toast-offset-bottom);
+      bottom: 0;
+      --gravity: -1;
+      --lift-amount: calc(var(--gravity) * var(--ngp-toast-gap));
     }
   `,
 })
