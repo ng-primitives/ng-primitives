@@ -34,6 +34,7 @@ import { popoverTriggerState, providePopoverTriggerState } from './popover-trigg
     '[attr.aria-expanded]': 'open() ? "true" : "false"',
     '[attr.data-open]': 'open() ? "" : null',
     '[attr.data-placement]': 'state.placement()',
+    '[attr.data-disabled]': 'state.disabled() ? "" : null',
     '(click)': 'toggle($event)',
   },
 })
