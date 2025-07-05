@@ -1,0 +1,170 @@
+import {
+  ApplicationRef,
+  inject,
+  Injectable,
+  Injector,
+  RendererFactory2,
+  signal,
+  TemplateRef,
+  Type,
+  ViewContainerRef,
+} from '@angular/core';
+import { createPortal, NgpPortal } from 'ng-primitives/portal';
+import { injectToastConfig } from '../config/toast-config';
+import { NgpToast } from './toast';
+import { provideToastContext } from './toast-context';
+
+@Injectable({
+  providedIn: 'root',
+})
+export class NgpToastManager {
+  private readonly config = injectToastConfig();
+  private readonly applicationRef = inject(ApplicationRef);
+  private readonly rendererFactory = inject(RendererFactory2);
+  private readonly renderer = this.rendererFactory.createRenderer(null, null);
+  private readonly injector = inject(Injector);
+  // Map to store containers by placement
+  private readonly containers = new Map<string, HTMLElement>();
+
+  readonly toasts = signal<NgpToastRef[]>([]);
+
+  /** Show a toast notification */
+  show(toast: TemplateRef<void> | Type<unknown>, options: NgpToastOptions = {}) {
+    // services can't access the view container directly, so this is a workaround
+    const viewContainerRef = this.applicationRef.components[0].injector.get(ViewContainerRef);
+
+    let instance: NgpToast | null = null;
+    const position = options.placement ?? 'top-end';
+    const container = this.getOrCreateContainer(position);
+
+    const portal = createPortal(
+      toast,
+      viewContainerRef,
+      Injector.create({
+        parent: this.injector,
+        providers: [
+          provideToastContext({
+            position,
+            duration: options.duration ?? 5000,
+            register: (toast: NgpToast) => (instance = toast),
+            hide: (toast: NgpToast) => this.hide(toast),
+          }),
+        ],
+      }),
+    );
+
+    portal.attach(container);
+
+    // Add the toast to the list of toasts
+    if (!instance) {
+      throw new Error('A toast must have the NgpToast directive applied.');
+    }
+
+    this.toasts.update(toasts => [{ instance: instance!, portal }, ...toasts]);
+  }
+
+  /** Hide a toast notification */
+  async hide(toast: NgpToast): Promise<void> {
+    const ref = this.toasts().find(t => t.instance === toast);
+
+    if (ref) {
+      // Detach the portal from the container
+      await ref.portal.detach();
+
+      // Remove the toast from the list of toasts
+      this.toasts.update(toasts => toasts.filter(t => t !== ref));
+    }
+  }
+
+  /**
+   * Lazily create or get a container for a given placement.
+   */
+  private getOrCreateContainer(placement: string): HTMLElement {
+    if (this.containers.has(placement)) {
+      return this.containers.get(placement)!;
+    }
+    const container = this.createContainer(placement);
+    this.containers.set(placement, container);
+    return container;
+  }
+
+  /**
+   * Create a section in which toasts will be rendered for a specific placement.
+   */
+  private createContainer(placement: string): HTMLElement {
+    const container = this.renderer.createElement('section') as HTMLElement;
+    this.renderer.setAttribute(container, 'aria-live', 'polite');
+    this.renderer.setAttribute(container, 'aria-atomic', 'false');
+    this.renderer.setAttribute(container, 'tabindex', '-1');
+    this.renderer.setAttribute(container, 'data-ngp-toast-container', placement);
+
+    container.style.setProperty('position', 'fixed');
+    container.style.setProperty('z-index', `${this.config.zIndex}`);
+    container.style.setProperty('width', `${this.config.width}px`);
+
+    container.style.setProperty('--ngp-toast-offset-top', `${this.config.offsetTop}px`);
+    container.style.setProperty('--ngp-toast-offset-bottom', `${this.config.offsetBottom}px`);
+    container.style.setProperty('--ngp-toast-offset-left', `${this.config.offsetLeft}px`);
+    container.style.setProperty('--ngp-toast-offset-right', `${this.config.offsetRight}px`);
+    container.style.setProperty('--ngp-toast-gap', `${this.config.gap}px`);
+    container.style.setProperty('--ngp-toast-width', `${this.config.width}px`);
+
+    // Set placement styles
+    switch (placement) {
+      case 'top-start':
+        container.style.setProperty('top', `${this.config.offsetTop}px`);
+        container.style.setProperty('left', `${this.config.offsetLeft}px`);
+        break;
+      case 'top-center':
+        // container.style.setProperty('top', '0');
+        // container.style.setProperty('left', '50%');
+        // container.style.setProperty('transform', 'translateX(-50%)');
+        // container.style.setProperty('right', 'auto');
+        // container.style.setProperty('bottom', 'auto');
+        break;
+      case 'top-end':
+        container.style.setProperty('top', `${this.config.offsetTop}px`);
+        container.style.setProperty('right', `${this.config.offsetRight}px`);
+        break;
+      case 'bottom-start':
+        container.style.setProperty('bottom', `${this.config.offsetBottom}px`);
+        container.style.setProperty('left', `${this.config.offsetLeft}px`);
+        break;
+      case 'bottom-center':
+        // container.style.setProperty('bottom', '0');
+        // container.style.setProperty('left', '50%');
+        // container.style.setProperty('transform', 'translateX(-50%)');
+        // container.style.setProperty('right', 'auto');
+        // container.style.setProperty('top', 'auto');
+        break;
+      case 'bottom-end':
+        container.style.setProperty('bottom', `${this.config.offsetBottom}px`);
+        container.style.setProperty('right', `${this.config.offsetRight}px`);
+        break;
+      default:
+        throw new Error(`Unknown toast placement: ${placement}`);
+    }
+
+    this.renderer.appendChild(document.body, container);
+    return container;
+  }
+}
+
+export interface NgpToastOptions {
+  /** The position of the toast */
+  placement?:
+    | 'top-start'
+    | 'top-end'
+    | 'top-center'
+    | 'bottom-start'
+    | 'bottom-end'
+    | 'bottom-center';
+
+  /** The duration of the toast in milliseconds */
+  duration?: number;
+}
+
+interface NgpToastRef {
+  instance: NgpToast;
+  portal: NgpPortal;
+}

@@ -1,17 +1,17 @@
-import { Component } from '@angular/core';
-import { NgpToast } from 'ng-primitives/toast';
+import { Component, inject, TemplateRef } from '@angular/core';
+import { NgpToast, NgpToastManager } from 'ng-primitives/toast';
 
 @Component({
   selector: 'app-toast',
   imports: [NgpToast],
   template: `
-    <button class="toast-trigger" (click)="toast.show()" ngpButton>Show Toast</button>
+    <button class="toast-trigger" (click)="show(toast)" ngpButton>Show Toast</button>
 
-    <ng-template #toast="ngpToast" ngpToast let-dismiss="dismiss">
-      <div class="toast">
+    <ng-template #toast>
+      <div class="toast" ngpToast>
         <p class="toast-title">This is a toast message</p>
         <p class="toast-description">It will disappear in 3 seconds</p>
-        <button class="toast-dismiss" (click)="dismiss()" ngpButton>Dismiss</button>
+        <button class="toast-dismiss" ngpButton>Dismiss</button>
       </div>
     </ng-template>
   `,
@@ -44,7 +44,25 @@ import { NgpToast } from 'ng-primitives/toast';
     }
 
     .toast {
-      position: fixed;
+      position: absolute;
+      opacity: 0;
+      touch-action: none;
+      transition:
+        transform 0.4s,
+        opacity 0.4s,
+        height 0.4s,
+        box-shadow 0.2s;
+      box-sizing: border-box;
+      outline: 0;
+      overflow-wrap: anywhere;
+      padding: 16px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      width: var(--ngp-toast-width);
+      font-size: 13px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+
       display: inline-grid;
       background: var(--ngp-background);
       box-shadow: var(--ngp-shadow);
@@ -53,11 +71,19 @@ import { NgpToast } from 'ng-primitives/toast';
       opacity: 0;
       transition: all 0.4s cubic-bezier(0.215, 0.61, 0.355, 1);
       border-radius: 8px;
-      z-index: 9999;
+      z-index: var(--ngp-toast-z-index);
       grid-template-columns: 1fr auto;
       grid-template-rows: auto auto;
       column-gap: 12px;
       align-items: center;
+      width: var(--ngp-toast-width);
+      height: fit-content;
+      transform: var(--y);
+      overflow-wrap: anywhere;
+
+      &[data-enter] {
+        opacity: 1;
+      }
     }
 
     .toast-title {
@@ -93,33 +119,45 @@ import { NgpToast } from 'ng-primitives/toast';
       max-height: 27px;
     }
 
-    .toast[data-toast='visible'] {
-      opacity: 1;
+    .toast[data-expanded='false'][data-front='false'] {
+      --scale: var(--ngp-toast-index) * 0.05 + 1;
+      --y: translateY(calc(var(--lift-amount) * var(--ngp-toast-index)))
+        scale(calc(-1 * var(--scale)));
+      height: var(--ngp-toast-front-height);
     }
 
-    .toast[data-position='end'] {
-      right: 16px;
+    .toast[data-visible='false'] {
+      opacity: 0;
+      pointer-events: none;
     }
 
-    .toast[data-position='start'] {
-      left: 16px;
+    .toast[data-position-x='end'] {
+      right: var(--ngp-toast-offset-right);
     }
 
-    .toast[data-gravity='top'] {
-      top: -150px;
+    .toast[data-position-x='start'] {
+      left: var(--ngp-toast-offset-left);
     }
 
-    .toast[data-gravity='bottom'] {
-      bottom: -150px;
+    .toast[data-position-y='top'] {
+      top: 0;
+      --gravity: 1;
+      --lift-amount: calc(var(--gravity) * var(--ngp-toast-gap));
     }
 
-    .toast[data-position='center'] {
-      margin-left: auto;
-      margin-right: auto;
-      left: 0;
-      right: 0;
-      max-width: fit-content;
+    .toast[data-position-y='bottom'] {
+      bottom: 0;
+      --gravity: -1;
+      --lift-amount: calc(var(--gravity) * var(--ngp-toast-gap));
     }
   `,
 })
-export default class ToastExample {}
+export default class ToastExample {
+  private readonly toastManager = inject(NgpToastManager);
+
+  show(toast: TemplateRef<void>): void {
+    const toastRef = this.toastManager.show(toast, {
+      placement: 'bottom-end',
+    });
+  }
+}

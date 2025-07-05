@@ -4,6 +4,7 @@ import { nxViteTsPaths } from '@nx/vite/plugins/nx-tsconfig-paths.plugin';
 import { readFileSync } from 'fs';
 import { globSync } from 'glob';
 import { Plugin, defineConfig } from 'vite';
+import devtoolsJson from 'vite-plugin-devtools-json';
 
 function sourceQueryPlugin(): Plugin {
   return {
@@ -40,6 +41,7 @@ export default defineConfig(({ mode }) => {
       },
     },
     plugins: [
+      devtoolsJson(),
       analog({
         static: true,
         prerender: {
