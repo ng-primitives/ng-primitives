@@ -63,6 +63,7 @@ We welcome contributions from the community. Please refer to our [contributing g
     </tr>
     <tr>
       <td align="center" valign="top" width="14.28%"><a href="https://eurusik.medium.com"><img src="https://avatars.githubusercontent.com/u/789033?v=4?s=100" width="100px;" alt="Eugene Rusakov"/><br /><sub><b>Eugene Rusakov</b></sub></a><br /><a href="https://github.com/ng-primitives/ng-primitives/commits?author=eurusik" title="Code">💻</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/ido-g-coralogix"><img src="https://avatars.githubusercontent.com/u/122212383?v=4?s=100" width="100px;" alt="Ido Golan"/><br /><sub><b>Ido Golan</b></sub></a><br /><a href="https://github.com/ng-primitives/ng-primitives/commits?author=ido-g-coralogix" title="Code">💻</a></td>
     </tr>
   </tbody>
 </table>
