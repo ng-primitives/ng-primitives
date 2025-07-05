@@ -1,8 +1,6 @@
 import { Component, input } from '@angular/core';
 import { NgpButton } from 'ng-primitives/button';
 
-
-
 /**
  * The variant of the button.
  */
@@ -131,19 +129,14 @@ export type ButtonVariant = 'primary' | 'secondary' | 'destructive' | 'outline' 
     :host[data-focus-visible] {
       outline: 2px solid var(--ngp-focus-ring);
     }
-
-
   `,
 })
 export class Button {
-
-
   /**
    * The variant of the button.
    */
   readonly variant = input<ButtonVariant>('primary');
 }
-
 
 @Component({
   selector: 'app-button-variants-example',

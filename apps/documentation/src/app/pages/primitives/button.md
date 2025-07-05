@@ -82,14 +82,14 @@ You can add variant support to your reusable button component to indicate differ
 
 #### Variant Types
 
-| Variant      | Description                                                   | Visual Characteristics                                     | Recommended Use                                            |
-| ------------ | ------------------------------------------------------------- | ---------------------------------------------------------- | ---------------------------------------------------------- |
-| `primary`    | Default style, used for primary actions.                      | Solid background with high contrast, prominent appearance.  | Main actions like "Submit", "Save", or "Continue".         |
-| `secondary`  | Used for secondary actions that don't require primary focus.  | Lighter background color, less prominent than primary.      | Alternative actions like "Cancel", "Back", or "View".       |
-| `destructive`| Used for destructive actions that may have consequences.      | Red or warning color to indicate caution.                   | Actions like "Delete", "Remove", or "Terminate".           |
-| `outline`    | Button with an outline and transparent background.            | Border with transparent background, subtle appearance.      | Less important actions or in dense interfaces.              |
-| `ghost`      | Button with no background or border until interaction.        | No background or border, only shows on hover/interaction.   | Toolbar actions, toggles, or in card headers.              |
-| `link`       | Button that appears as a text link.                           | Appears as text with underline, no button-like appearance.  | Navigation, "Learn more", or secondary page actions.       |
+| Variant       | Description                                                  | Visual Characteristics                                     | Recommended Use                                       |
+| ------------- | ------------------------------------------------------------ | ---------------------------------------------------------- | ----------------------------------------------------- |
+| `primary`     | Default style, used for primary actions.                     | Solid background with high contrast, prominent appearance. | Main actions like "Submit", "Save", or "Continue".    |
+| `secondary`   | Used for secondary actions that don't require primary focus. | Lighter background color, less prominent than primary.     | Alternative actions like "Cancel", "Back", or "View". |
+| `destructive` | Used for destructive actions that may have consequences.     | Red or warning color to indicate caution.                  | Actions like "Delete", "Remove", or "Terminate".      |
+| `outline`     | Button with an outline and transparent background.           | Border with transparent background, subtle appearance.     | Less important actions or in dense interfaces.        |
+| `ghost`       | Button with no background or border until interaction.       | No background or border, only shows on hover/interaction.  | Toolbar actions, toggles, or in card headers.         |
+| `link`        | Button that appears as a text link.                          | Appears as text with underline, no button-like appearance. | Navigation, "Learn more", or secondary page actions.  |
 
 ## Schematics
 
