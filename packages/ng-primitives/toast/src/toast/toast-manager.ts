@@ -23,7 +23,8 @@ export class NgpToastManager {
   private readonly rendererFactory = inject(RendererFactory2);
   private readonly renderer = this.rendererFactory.createRenderer(null, null);
   private readonly injector = inject(Injector);
-  private readonly container = this.createContainer();
+  // Map to store containers by placement
+  private readonly containers = new Map<string, HTMLElement>();
 
   readonly toasts = signal<NgpToastRef[]>([]);
 
@@ -33,6 +34,8 @@ export class NgpToastManager {
     const viewContainerRef = this.applicationRef.components[0].injector.get(ViewContainerRef);
 
     let instance: NgpToast | null = null;
+    const position = options.placement ?? 'top-end';
+    const container = this.getOrCreateContainer(position);
 
     const portal = createPortal(
       toast,
@@ -41,7 +44,7 @@ export class NgpToastManager {
         parent: this.injector,
         providers: [
           provideToastContext({
-            position: options.position ?? 'top-end',
+            position,
             duration: options.duration ?? 5000,
             register: (toast: NgpToast) => (instance = toast),
             hide: (toast: NgpToast) => this.hide(toast),
@@ -50,7 +53,7 @@ export class NgpToastManager {
       }),
     );
 
-    portal.attach(this.container);
+    portal.attach(container);
 
     // Add the toast to the list of toasts
     if (!instance) {
@@ -74,19 +77,31 @@ export class NgpToastManager {
   }
 
   /**
-   * Create a section in which toasts will be rendered.
+   * Lazily create or get a container for a given placement.
    */
-  private createContainer(): HTMLElement {
+  private getOrCreateContainer(placement: string): HTMLElement {
+    if (this.containers.has(placement)) {
+      return this.containers.get(placement)!;
+    }
+    const container = this.createContainer(placement);
+    this.containers.set(placement, container);
+    return container;
+  }
+
+  /**
+   * Create a section in which toasts will be rendered for a specific placement.
+   */
+  private createContainer(placement: string): HTMLElement {
     const container = this.renderer.createElement('section') as HTMLElement;
     this.renderer.setAttribute(container, 'aria-live', 'polite');
     this.renderer.setAttribute(container, 'aria-atomic', 'false');
     this.renderer.setAttribute(container, 'tabindex', '-1');
-    this.renderer.setAttribute(container, 'data-ngp-toast-container', '');
+    this.renderer.setAttribute(container, 'data-ngp-toast-container', placement);
 
     container.style.setProperty('position', 'fixed');
-    container.style.setProperty('inset', '0');
-    container.style.setProperty('pointer-events', 'none');
     container.style.setProperty('z-index', `${this.config.zIndex}`);
+    container.style.setProperty('width', `${this.config.width}px`);
+
     container.style.setProperty('--ngp-toast-offset-top', `${this.config.offsetTop}px`);
     container.style.setProperty('--ngp-toast-offset-bottom', `${this.config.offsetBottom}px`);
     container.style.setProperty('--ngp-toast-offset-left', `${this.config.offsetLeft}px`);
@@ -94,16 +109,50 @@ export class NgpToastManager {
     container.style.setProperty('--ngp-toast-gap', `${this.config.gap}px`);
     container.style.setProperty('--ngp-toast-width', `${this.config.width}px`);
 
-    // add the container to the body
-    this.renderer.appendChild(document.body, container);
+    // Set placement styles
+    switch (placement) {
+      case 'top-start':
+        container.style.setProperty('top', `${this.config.offsetTop}px`);
+        container.style.setProperty('left', `${this.config.offsetLeft}px`);
+        break;
+      case 'top-center':
+        // container.style.setProperty('top', '0');
+        // container.style.setProperty('left', '50%');
+        // container.style.setProperty('transform', 'translateX(-50%)');
+        // container.style.setProperty('right', 'auto');
+        // container.style.setProperty('bottom', 'auto');
+        break;
+      case 'top-end':
+        container.style.setProperty('top', `${this.config.offsetTop}px`);
+        container.style.setProperty('right', `${this.config.offsetRight}px`);
+        break;
+      case 'bottom-start':
+        container.style.setProperty('bottom', `${this.config.offsetBottom}px`);
+        container.style.setProperty('left', `${this.config.offsetLeft}px`);
+        break;
+      case 'bottom-center':
+        // container.style.setProperty('bottom', '0');
+        // container.style.setProperty('left', '50%');
+        // container.style.setProperty('transform', 'translateX(-50%)');
+        // container.style.setProperty('right', 'auto');
+        // container.style.setProperty('top', 'auto');
+        break;
+      case 'bottom-end':
+        container.style.setProperty('bottom', `${this.config.offsetBottom}px`);
+        container.style.setProperty('right', `${this.config.offsetRight}px`);
+        break;
+      default:
+        throw new Error(`Unknown toast placement: ${placement}`);
+    }
 
+    this.renderer.appendChild(document.body, container);
     return container;
   }
 }
 
 export interface NgpToastOptions {
   /** The position of the toast */
-  position?:
+  placement?:
     | 'top-start'
     | 'top-end'
     | 'top-center'

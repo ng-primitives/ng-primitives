@@ -140,7 +140,7 @@ import { NgpToast, NgpToastManager } from 'ng-primitives/toast';
     }
 
     .toast[data-position-y='top'] {
-      top: var(--ngp-toast-offset);
+      top: 0;
       --gravity: 1;
       --lift-amount: calc(var(--gravity) * var(--ngp-toast-gap));
     }
@@ -156,6 +156,8 @@ export default class ToastExample {
   private readonly toastManager = inject(NgpToastManager);
 
   show(toast: TemplateRef<void>): void {
-    const toastRef = this.toastManager.show(toast);
+    const toastRef = this.toastManager.show(toast, {
+      placement: 'bottom-end',
+    });
   }
 }
