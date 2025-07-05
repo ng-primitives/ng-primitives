@@ -33,15 +33,20 @@ export interface NgpToastConfig {
    */
   offsetRight: number;
 
-  // /**
-  //  * The gravity of each toast.
-  //  */
-  // gravity: NgpToastGravity;
+  /**
+   * Whether a toast can be dismissed by swiping.
+   */
+  swipeDismiss: boolean;
 
-  // /**
-  //  * The position of each toast.
-  //  */
-  // position: NgpToastPosition;
+  /**
+   * The amount a toast must be swiped before it is considered dismissed.
+   */
+  swipeThreshold: number;
+
+  /**
+   * The maximum number of toasts that can be displayed at once.
+   */
+  maxToasts: number;
 
   /**
    * The aria live setting.
@@ -52,6 +57,12 @@ export interface NgpToastConfig {
    * The gap between each toast.
    */
   gap: number;
+
+  /**
+   * The z-index of the toast container.
+   * This is used to ensure that the toast container is always on top of other elements.
+   */
+  zIndex: number;
 }
 
 export const defaultToastConfig: NgpToastConfig = {
@@ -62,6 +73,10 @@ export const defaultToastConfig: NgpToastConfig = {
   offsetBottom: 24,
   offsetLeft: 24,
   offsetRight: 24,
+  swipeThreshold: 45,
+  swipeDismiss: true,
+  maxToasts: 3,
+  zIndex: 9999999,
   ariaLive: 'polite',
 };
 
