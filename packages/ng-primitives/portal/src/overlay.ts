@@ -133,7 +133,7 @@ export class NgpOverlay<T = unknown> {
   readonly transformOrigin = signal<string>('center center');
 
   /** Signal tracking the final placement of the overlay */
-  readonly finalPlacement = signal<Placement | null>(null);
+  readonly finalPlacement = signal<Placement | undefined>(undefined);
 
   /** Function to dispose the positioning auto-update */
   private disposePositioning?: () => void;
@@ -507,7 +507,7 @@ export class NgpOverlay<T = unknown> {
     this.isOpen.set(false);
 
     // Reset final placement
-    this.finalPlacement.set(null);
+    this.finalPlacement.set(undefined);
 
     // disable scroll strategy
     this.scrollStrategy.disable();

@@ -18,5 +18,6 @@ export function setupOverlayArrow(): void {
     const position = overlay.arrowPosition();
     element.nativeElement.style.setProperty('inset-inline-start', `${position.x}px`);
     element.nativeElement.style.setProperty('inset-block-start', `${position.y}px`);
+    element.nativeElement.dataset['placement'] = overlay.finalPlacement();
   });
 }
