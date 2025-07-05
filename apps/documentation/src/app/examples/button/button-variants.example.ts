@@ -1,10 +1,7 @@
 import { Component, input } from '@angular/core';
 import { NgpButton } from 'ng-primitives/button';
 
-/**
- * The size of the button.
- */
-export type ButtonSize = 'sm' | 'md' | 'lg' | 'xl';
+
 
 /**
  * The variant of the button.
@@ -16,7 +13,6 @@ export type ButtonVariant = 'primary' | 'secondary' | 'destructive' | 'outline' 
   hostDirectives: [{ directive: NgpButton, inputs: ['disabled'] }],
   template: '<ng-content />',
   host: {
-    '[attr.data-size]': 'size()',
     '[attr.data-variant]': 'variant()',
   },
   styles: `
@@ -136,44 +132,40 @@ export type ButtonVariant = 'primary' | 'secondary' | 'destructive' | 'outline' 
       outline: 2px solid var(--ngp-focus-ring);
     }
 
-    :host[data-size='sm'] {
-      height: 2rem;
-      padding-left: 0.75rem;
-      padding-right: 0.75rem;
-      font-size: 0.875rem;
-    }
 
-    :host[data-size='md'],
-    :host:not([data-size]) {
-      height: 2.5rem;
-      padding-left: 1rem;
-      padding-right: 1rem;
-      font-size: 0.875rem;
-    }
-
-    :host[data-size='lg'] {
-      height: 3rem;
-      padding-left: 1.25rem;
-      padding-right: 1.25rem;
-      font-size: 1rem;
-    }
-
-    :host[data-size='xl'] {
-      height: 3.5rem;
-      padding-left: 1.5rem;
-      padding-right: 1.5rem;
-      font-size: 1.125rem;
-    }
   `,
 })
 export class Button {
-  /**
-   * The size of the button.
-   */
-  readonly size = input<ButtonSize>('md');
+
 
   /**
    * The variant of the button.
    */
   readonly variant = input<ButtonVariant>('primary');
 }
+
+
+@Component({
+  selector: 'app-button-variants-example',
+  standalone: true,
+  imports: [Button],
+  template: `
+    <div class="button-container">
+      <button app-button>Primary</button>
+      <button variant="secondary" app-button>Secondary</button>
+      <button variant="destructive" app-button>Destructive</button>
+      <button variant="outline" app-button>Outline</button>
+      <button variant="ghost" app-button>Ghost</button>
+      <button variant="link" app-button>Link</button>
+    </div>
+  `,
+  styles: `
+    .button-container {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 1rem;
+    }
+  `,
+})
+export default class ButtonVariantsExample {}
