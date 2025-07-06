@@ -35,7 +35,9 @@ import { provideTooltipTriggerState, tooltipTriggerState } from './tooltip-trigg
 function isElementOverflowing(element: HTMLElement): boolean {
   const hostOffsetWidth = element.offsetWidth;
 
-  return hostOffsetWidth > element.parentElement!.offsetWidth || hostOffsetWidth < element.scrollWidth;
+  return (
+    hostOffsetWidth > element.parentElement!.offsetWidth || hostOffsetWidth < element.scrollWidth
+  );
 }
 
 /**

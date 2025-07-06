@@ -45,9 +45,6 @@ export interface NgpTooltipConfig {
   showOnOverflow: boolean;
 }
 
-/**
- * The default tooltip configuration.
- */
 export const defaultTooltipConfig: NgpTooltipConfig = {
   offset: 4,
   placement: 'top',

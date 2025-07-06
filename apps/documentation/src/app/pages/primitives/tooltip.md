@@ -113,11 +113,11 @@ The arrow can be styled conditionally based on the tooltip's final placement usi
 The `showOnOverflow` input allows you to show tooltips only when the trigger element has overflowing content. This is particularly useful for text that might be truncated with ellipsis.
 
 ```html
-<div 
-  class="truncated-text" 
+<div
+  class="truncated-text"
   appTooltipTrigger="This tooltip only shows when text overflows"
   ngpTooltipTriggerShowOnOverflow
-  >
+>
   This text might be truncated
 </div>
 ```
