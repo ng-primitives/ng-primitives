@@ -37,8 +37,17 @@ export interface NgpTooltipConfig {
    * @default document.body
    */
   container: HTMLElement | null;
+
+  /**
+   * Whether the tooltip should only show when the trigger element overflows.
+   * @default false
+   */
+  showOnOverflow: boolean;
 }
 
+/**
+ * The default tooltip configuration.
+ */
 export const defaultTooltipConfig: NgpTooltipConfig = {
   offset: 4,
   placement: 'top',
@@ -46,6 +55,7 @@ export const defaultTooltipConfig: NgpTooltipConfig = {
   hideDelay: 0,
   flip: true,
   container: null,
+  showOnOverflow: false,
 };
 
 export const NgpTooltipConfigToken = new InjectionToken<NgpTooltipConfig>('NgpTooltipConfigToken');
