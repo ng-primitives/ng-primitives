@@ -2,7 +2,6 @@ import { BooleanInput, NumberInput } from '@angular/cdk/coercion';
 import {
   booleanAttribute,
   computed,
-  DestroyRef,
   Directive,
   ElementRef,
   inject,
@@ -10,35 +9,20 @@ import {
   input,
   numberAttribute,
   OnDestroy,
-  AfterViewInit,
+  Signal,
   signal,
   ViewContainerRef,
 } from '@angular/core';
 import { Placement } from '@floating-ui/dom';
+import { setupOverflowListener } from 'ng-primitives/internal';
 import {
   createOverlay,
   NgpOverlay,
   NgpOverlayConfig,
   NgpOverlayContent,
 } from 'ng-primitives/portal';
-import { fromResizeEvent } from 'ng-primitives/resize';
-import { safeTakeUntilDestroyed } from 'ng-primitives/utils';
 import { injectTooltipConfig } from '../config/tooltip-config';
 import { provideTooltipTriggerState, tooltipTriggerState } from './tooltip-trigger-state';
-
-/**
- * Checks if an element is overflowing its content area.
- * This is useful for showing tooltips only when text is truncated.
- * @param element The element to check for overflow
- * @returns True if the element is overflowing, false otherwise
- */
-function isElementOverflowing(element: HTMLElement): boolean {
-  const hostOffsetWidth = element.offsetWidth;
-
-  return (
-    hostOffsetWidth > element.parentElement!.offsetWidth || hostOffsetWidth < element.scrollWidth
-  );
-}
 
 /**
  * Apply the `ngpTooltipTrigger` directive to an element that triggers the tooltip to show.
@@ -50,13 +34,13 @@ function isElementOverflowing(element: HTMLElement): boolean {
   host: {
     '[attr.data-open]': 'open() ? "" : null',
     '[attr.data-disabled]': 'state.disabled() ? "" : null',
-    '(mouseenter)': 'onMouseEnter()',
-    '(mouseleave)': 'onMouseLeave()',
-    '(focus)': 'onFocus()',
-    '(blur)': 'onBlur()',
+    '(mouseenter)': 'show()',
+    '(mouseleave)': 'hide()',
+    '(focus)': 'show()',
+    '(blur)': 'hide()',
   },
 })
-export class NgpTooltipTrigger<T = null> implements AfterViewInit, OnDestroy {
+export class NgpTooltipTrigger<T = null> implements OnDestroy {
   /**
    * Access the trigger element
    */
@@ -71,11 +55,6 @@ export class NgpTooltipTrigger<T = null> implements AfterViewInit, OnDestroy {
    * Access the view container reference.
    */
   private readonly viewContainerRef = inject(ViewContainerRef);
-
-  /**
-   * Access the destroy ref.
-   */
-  private readonly destroyRef = inject(DestroyRef);
 
   /**
    * Access the global tooltip configuration.
@@ -179,22 +158,9 @@ export class NgpTooltipTrigger<T = null> implements AfterViewInit, OnDestroy {
   readonly open = computed(() => this.overlay()?.isOpen() ?? false);
 
   /**
-   * Track whether the user is currently hovering over the trigger
-   * @internal
+   * Determine if the trigger element has overflow.
    */
-  private readonly isHovering = signal<boolean>(false);
-
-  /**
-   * Track whether the user is currently focusing the trigger
-   * @internal
-   */
-  private readonly isFocusing = signal<boolean>(false);
-
-  /**
-   * Track the current overflow state
-   * @internal
-   */
-  private readonly hasOverflow = signal<boolean>(false);
+  private readonly hasOverflow: Signal<boolean>;
 
   /**
    * Store the state of the tooltip.
@@ -202,8 +168,10 @@ export class NgpTooltipTrigger<T = null> implements AfterViewInit, OnDestroy {
    */
   readonly state = tooltipTriggerState<NgpTooltipTrigger<T>>(this);
 
-  ngAfterViewInit(): void {
-    this.setupResizeMonitoring();
+  constructor() {
+    this.hasOverflow = setupOverflowListener(this.trigger.nativeElement, {
+      disabled: computed(() => !this.state.showOnOverflow()),
+    });
   }
 
   ngOnDestroy(): void {
@@ -219,17 +187,18 @@ export class NgpTooltipTrigger<T = null> implements AfterViewInit, OnDestroy {
       return;
     }
 
-    // If showOnOverflow is enabled, check overflow state
-    if (this.state.showOnOverflow()) {
-      // Check current overflow state and show if overflowing
-      if (isElementOverflowing(this.trigger.nativeElement)) {
-        this.forceShow();
-      }
+    // if we should only show when there is overflow, check if the trigger has overflow
+    if (this.state.showOnOverflow() && !this.hasOverflow()) {
+      // If the trigger does not have overflow, do not show the tooltip
       return;
     }
 
-    // Normal tooltip behavior - always show
-    this.forceShow();
+    // Create the overlay if it doesn't exist yet
+    if (!this.overlay()) {
+      this.createOverlay();
+    }
+
+    this.overlay()?.show();
   }
 
   /**
@@ -241,46 +210,7 @@ export class NgpTooltipTrigger<T = null> implements AfterViewInit, OnDestroy {
       return;
     }
 
-    // If showOnOverflow is enabled, let updateOverflowState handle the logic
-    if (this.state.showOnOverflow()) {
-      this.updateOverflowState();
-      return;
-    }
-
-    // Normal tooltip behavior - always hide
-    this.forceHide();
-  }
-
-  /**
-   * Handle mouse enter event
-   */
-  onMouseEnter(): void {
-    this.isHovering.set(true);
-    this.show();
-  }
-
-  /**
-   * Handle mouse leave event
-   */
-  onMouseLeave(): void {
-    this.isHovering.set(false);
-    this.hide();
-  }
-
-  /**
-   * Handle focus event
-   */
-  onFocus(): void {
-    this.isFocusing.set(true);
-    this.show();
-  }
-
-  /**
-   * Handle blur event
-   */
-  onBlur(): void {
-    this.isFocusing.set(false);
-    this.hide();
+    this.overlay()?.hide();
   }
 
   /**
@@ -312,77 +242,5 @@ export class NgpTooltipTrigger<T = null> implements AfterViewInit, OnDestroy {
 
     // Create the overlay instance
     this.overlay.set(createOverlay(config));
-  }
-
-  /**
-   * Setup resize monitoring to detect dimension changes
-   * @internal
-   */
-  private setupResizeMonitoring(): void {
-    // Only setup resize monitoring if showOnOverflow is enabled
-    if (!this.state.showOnOverflow()) {
-      return;
-    }
-
-    // Initial overflow check
-    this.updateOverflowState();
-
-    // Monitor resize events using the existing utility
-    fromResizeEvent(this.trigger.nativeElement)
-      .pipe(safeTakeUntilDestroyed(this.destroyRef))
-      .subscribe(() => {
-        this.updateOverflowState();
-      });
-  }
-
-  /**
-   * Update the overflow state and tooltip visibility
-   * @internal
-   */
-  private updateOverflowState(): void {
-    const currentOverflow = isElementOverflowing(this.trigger.nativeElement);
-    this.hasOverflow.set(currentOverflow);
-
-    // If showOnOverflow is enabled, update tooltip visibility based on overflow state
-    if (this.state.showOnOverflow()) {
-      const shouldShow = (this.isHovering() || this.isFocusing()) && currentOverflow;
-      const isCurrentlyOpen = this.open();
-
-      if (shouldShow && !isCurrentlyOpen) {
-        this.forceShow();
-      } else if (!shouldShow && isCurrentlyOpen) {
-        this.forceHide();
-      }
-    }
-  }
-
-  /**
-   * Force show the tooltip without checking overflow state
-   * @internal
-   */
-  private forceShow(): void {
-    if (this.state.disabled()) {
-      return;
-    }
-
-    if (!this.overlay()) {
-      this.createOverlay();
-    }
-
-    if (this.overlay()) {
-      this.overlay()?.show();
-    }
-  }
-
-  /**
-   * Force hide the tooltip
-   * @internal
-   */
-  private forceHide(): void {
-    if (this.state.disabled()) {
-      return;
-    }
-
-    this.overlay()?.hide();
   }
 }

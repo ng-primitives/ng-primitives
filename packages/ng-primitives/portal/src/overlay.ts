@@ -25,7 +25,7 @@ import {
   offset,
   shift,
 } from '@floating-ui/dom';
-import { fromResizeEvent } from 'ng-primitives/resize';
+import { fromResizeEvent } from 'ng-primitives/internal';
 import { injectDisposables, safeTakeUntilDestroyed } from 'ng-primitives/utils';
 import { Subject, fromEvent } from 'rxjs';
 import { provideOverlayContext } from './overlay-token';
