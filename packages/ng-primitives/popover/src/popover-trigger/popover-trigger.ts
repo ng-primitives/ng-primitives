@@ -9,6 +9,7 @@ import {
   input,
   numberAttribute,
   OnDestroy,
+  output,
   signal,
   ViewContainerRef,
 } from '@angular/core';
@@ -173,6 +174,16 @@ export class NgpPopoverTrigger<T = null> implements OnDestroy {
   readonly open = computed(() => this.overlay()?.isOpen() ?? false);
 
   /**
+   * Event emitted when the popover is opened.
+   */
+  readonly opened = output<void>();
+
+  /**
+   * Event emitted when the popover is closed.
+   */
+  readonly closed = output<void>();
+
+  /**
    * The popover trigger state.
    */
   readonly state = popoverTriggerState<NgpPopoverTrigger<T>>(this);
@@ -213,7 +224,11 @@ export class NgpPopoverTrigger<T = null> implements OnDestroy {
     }
 
     // Show the overlay
-    this.overlay()?.show();
+    this.overlay()?.show().then(() => {
+      if (this.open()) {
+        this.opened.emit();
+      }
+    });
   }
 
   /**
@@ -228,6 +243,8 @@ export class NgpPopoverTrigger<T = null> implements OnDestroy {
 
     // Hide the overlay
     this.overlay()?.hide({ origin });
+    
+    this.closed.emit();
   }
 
   /**
