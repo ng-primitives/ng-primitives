@@ -15,6 +15,7 @@ import { NgpToastManager } from './toast-manager';
     '[attr.data-expanded]': 'false',
     '[style.--ngp-toast-gap.px]': 'config.gap',
     '[style.--ngp-toast-z-index]': 'zIndex()',
+    '[style.--ngp-toasts-before]': 'index()',
     '[style.--ngp-toast-index]': 'index() + 1',
     '[style.--ngp-toast-width.px]': 'config.width',
     '[style.--ngp-toast-height.px]': 'dimensions().height',
@@ -72,7 +73,12 @@ export class NgpToast {
    * This is used to determine the height of the toast when it is not expanded.
    */
   protected readonly frontToastHeight = computed(() => {
-    return this.toasts().length > 0 ? this.toasts()[0].instance.dimensions().height : 0;
+    // get the first toast in the list with height - as when a new toast is added, it may not initially have dimensions
+    return (
+      this.toasts()
+        .find(toast => toast.instance.dimensions().height)
+        ?.instance.dimensions().height || 0
+    );
   });
 
   /**

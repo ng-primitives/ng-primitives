@@ -80,10 +80,6 @@ import { NgpToast, NgpToastManager } from 'ng-primitives/toast';
       height: fit-content;
       transform: var(--y);
       overflow-wrap: anywhere;
-
-      &[data-enter] {
-        opacity: 1;
-      }
     }
 
     .toast-title {
@@ -120,35 +116,47 @@ import { NgpToast, NgpToastManager } from 'ng-primitives/toast';
     }
 
     .toast[data-expanded='false'][data-front='false'] {
-      --scale: var(--ngp-toast-index) * 0.05 + 1;
-      --y: translateY(calc(var(--lift-amount) * var(--ngp-toast-index)))
+      --scale: var(--ngp-toasts-before) * 0.05 + 1;
+      --y: translateY(calc(var(--lift-amount) * var(--ngp-toasts-before)))
         scale(calc(-1 * var(--scale)));
       height: var(--ngp-toast-front-height);
     }
 
-    .toast[data-visible='false'] {
-      opacity: 0;
-      pointer-events: none;
+    .toast[data-expanded='true'] {
+      --y: translateY(calc(var(--lift) * var(--ngp-toast-offset)));
+      height: var(--ngp-toast-height);
     }
 
     .toast[data-position-x='end'] {
-      right: var(--ngp-toast-offset-right);
+      right: 0;
     }
 
     .toast[data-position-x='start'] {
-      left: var(--ngp-toast-offset-left);
+      left: 0;
     }
 
     .toast[data-position-y='top'] {
       top: 0;
       --gravity: 1;
       --lift-amount: calc(var(--gravity) * var(--ngp-toast-gap));
+      --y: translateY(-100%);
     }
 
     .toast[data-position-y='bottom'] {
       bottom: 0;
       --gravity: -1;
       --lift-amount: calc(var(--gravity) * var(--ngp-toast-gap));
+      --y: translateY(100%);
+    }
+
+    .toast[data-enter] {
+      opacity: 1;
+      --y: translateY(0);
+    }
+
+    .toast[data-visible='false'] {
+      opacity: 0;
+      pointer-events: none;
     }
   `,
 })

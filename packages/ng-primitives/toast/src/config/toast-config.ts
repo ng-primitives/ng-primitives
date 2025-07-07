@@ -66,7 +66,7 @@ export interface NgpToastConfig {
 }
 
 export const defaultToastConfig: NgpToastConfig = {
-  gap: 16,
+  gap: 14,
   duration: 3000,
   width: 360,
   offsetTop: 24,
