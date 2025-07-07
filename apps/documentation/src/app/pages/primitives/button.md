@@ -97,6 +97,13 @@ You can add icons to your buttons using any Angular icon library or simple SVG e
 
 <docs-example name="button-icon"></docs-example>
 
+#### Icon Slot System
+
+The Button component uses Angular's content projection with named slots to position icons. The component provides two slots:
+
+- `slot="left"` - Places content before the button text (left side)
+- `slot="right"` - Places content after the button text (right side)
+
 #### Usage
 
 ```html

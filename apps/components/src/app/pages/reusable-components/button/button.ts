@@ -209,7 +209,6 @@ export type ButtonVariant = 'primary' | 'secondary' | 'destructive' | 'outline' 
   `,
 })
 export class Button {
-  
   /**
    * The size of the button.
    */

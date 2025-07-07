@@ -56,8 +56,6 @@ export type ButtonVariant = 'primary' | 'secondary' | 'destructive' | 'outline' 
       gap: 0.5rem;
     }
 
-    /* Button already has display: inline-flex, align-items and justify-content in :host */
-
     .icon-left {
       margin-right: 0.5rem;
       display: inline-flex;
