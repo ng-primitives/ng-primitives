@@ -101,19 +101,19 @@ You can add icons to your buttons using any Angular icon library or simple SVG e
 
 ```html
 <!-- Button with left icon -->
-<button app-button [hasLeftSlotContent]="true">
+<button app-button>
   <ng-icon slot="left" name="lucideArrowRight"></ng-icon>
   Left Icon
 </button>
 
 <!-- Button with right icon -->
-<button app-button [hasRightSlotContent]="true">
+<button app-button>
   Right Icon
   <ng-icon slot="right" name="lucideCheck"></ng-icon>
 </button>
 
 <!-- Button with both icons -->
-<button app-button [hasLeftSlotContent]="true" [hasRightSlotContent]="true">
+<button app-button>
   <ng-icon slot="left" name="lucideArrowRight"></ng-icon>
   Both Icons
   <ng-icon slot="right" name="lucideCheck"></ng-icon>

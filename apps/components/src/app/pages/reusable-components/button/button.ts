@@ -16,17 +16,13 @@ export type ButtonVariant = 'primary' | 'secondary' | 'destructive' | 'outline' 
   standalone: true,
   hostDirectives: [{ directive: NgpButton, inputs: ['disabled'] }],
   template: `
-    @if (hasLeftSlotContent()) {
-      <span class="icon-left">
-        <ng-content select="[slot=left]" />
-      </span>
-    }
+    <span class="icon-left">
+      <ng-content select="[slot=left]" />
+    </span>
     <ng-content />
-    @if (hasRightSlotContent()) {
-      <span class="icon-right">
-        <ng-content select="[slot=right]" />
-      </span>
-    }
+    <span class="icon-right">
+      <ng-content select="[slot=right]" />
+    </span>
   `,
   host: {
     '[attr.data-size]': 'size()',
@@ -213,6 +209,7 @@ export type ButtonVariant = 'primary' | 'secondary' | 'destructive' | 'outline' 
   `,
 })
 export class Button {
+  
   /**
    * The size of the button.
    */
@@ -222,18 +219,6 @@ export class Button {
    * The variant of the button.
    */
   readonly variant = input<ButtonVariant>('primary');
-
-  /**
-   * Flag indicating if there is content in the left slot.
-   * This should be set to true when using the left slot for icons or other content.
-   */
-  readonly hasLeftSlotContent = input<boolean>(false);
-
-  /**
-   * Flag indicating if there is content in the right slot.
-   * This should be set to true when using the right slot for icons or other content.
-   */
-  readonly hasRightSlotContent = input<boolean>(false);
 
   /**
    * Map of button sizes to icon classes

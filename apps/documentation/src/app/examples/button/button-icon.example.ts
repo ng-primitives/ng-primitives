@@ -24,17 +24,13 @@ export type ButtonVariant = 'primary' | 'secondary' | 'destructive' | 'outline' 
   imports: [NgIcon],
   hostDirectives: [{ directive: NgpButton, inputs: ['disabled'] }],
   template: `
-    @if (hasLeftSlotContent()) {
-      <span class="icon-left">
-        <ng-content select="[slot=left]" />
-      </span>
-    }
+    <span class="icon-left">
+      <ng-content select="[slot=left]" />
+    </span>
     <ng-content />
-    @if (hasRightSlotContent()) {
-      <span class="icon-right">
-        <ng-content select="[slot=right]" />
-      </span>
-    }
+    <span class="icon-right">
+      <ng-content select="[slot=right]" />
+    </span>
   `,
   host: {
     '[attr.data-size]': 'size()',
@@ -244,18 +240,6 @@ export class Button {
   readonly variant = input<ButtonVariant>('primary');
 
   /**
-   * Flag indicating if there is content in the left slot.
-   * This should be set to true when using the left slot for icons or other content.
-   */
-  readonly hasLeftSlotContent = input<boolean>(false);
-
-  /**
-   * Flag indicating if there is content in the right slot.
-   * This should be set to true when using the right slot for icons or other content.
-   */
-  readonly hasRightSlotContent = input<boolean>(false);
-
-  /**
    * Map of button sizes to icon classes
    */
   private readonly sizeToIconClassMap: Record<ButtonSize, string> = {
@@ -284,19 +268,19 @@ export class Button {
     <div class="button-container">
       <h3>Button with left icon</h3>
       <div class="button-row">
-        <button [hasLeftSlotContent]="true" app-button>
+        <button app-button>
           <ng-icon slot="left" name="lucideArrowRight" />
           Left Icon
         </button>
-        <button [hasLeftSlotContent]="true" app-button variant="secondary">
+        <button app-button variant="secondary">
           <ng-icon slot="left" name="lucideCheck" />
           Left Icon
         </button>
-        <button [hasLeftSlotContent]="true" app-button variant="destructive">
+        <button app-button variant="destructive">
           <ng-icon slot="left" name="lucideShoppingBasket" />
           Left Icon
         </button>
-        <button [hasLeftSlotContent]="true" app-button variant="outline">
+        <button app-button variant="outline">
           <ng-icon slot="left" name="lucideChevronRight" />
           Left Icon
         </button>
@@ -304,19 +288,19 @@ export class Button {
 
       <h3>Button with right icon</h3>
       <div class="button-row">
-        <button [hasRightSlotContent]="true" app-button>
+        <button app-button>
           Right Icon
           <ng-icon slot="right" name="lucideArrowRight" />
         </button>
-        <button [hasRightSlotContent]="true" app-button variant="secondary">
+        <button app-button variant="secondary">
           Right Icon
           <ng-icon slot="right" name="lucideCheck" />
         </button>
-        <button [hasRightSlotContent]="true" app-button variant="destructive">
+        <button app-button variant="destructive">
           Right Icon
           <ng-icon slot="right" name="lucideShoppingBasket" />
         </button>
-        <button [hasRightSlotContent]="true" app-button variant="outline">
+        <button app-button variant="outline">
           Right Icon
           <ng-icon slot="right" name="lucideChevronRight" />
         </button>
@@ -324,22 +308,22 @@ export class Button {
 
       <h3>Button sizes with icons</h3>
       <div class="button-row">
-        <button [hasLeftSlotContent]="true" [hasRightSlotContent]="true" app-button size="sm">
+        <button app-button size="sm">
           <ng-icon slot="left" name="lucideArrowRight" />
           Small
           <ng-icon slot="right" name="lucideCheck" />
         </button>
-        <button [hasLeftSlotContent]="true" [hasRightSlotContent]="true" app-button>
+        <button app-button>
           <ng-icon slot="left" name="lucideArrowRight" />
           Medium
           <ng-icon slot="right" name="lucideCheck" />
         </button>
-        <button [hasLeftSlotContent]="true" [hasRightSlotContent]="true" app-button size="lg">
+        <button app-button size="lg">
           <ng-icon slot="left" name="lucideArrowRight" />
           Large
           <ng-icon slot="right" name="lucideCheck" />
         </button>
-        <button [hasLeftSlotContent]="true" [hasRightSlotContent]="true" app-button size="xl">
+        <button app-button size="xl">
           <ng-icon slot="left" name="lucideArrowRight" />
           Extra Large
           <ng-icon slot="right" name="lucideCheck" />
