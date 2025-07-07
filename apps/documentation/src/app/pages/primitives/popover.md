@@ -21,10 +21,7 @@ import { NgpPopover, NgpPopoverTrigger, NgpPopoverArrow } from 'ng-primitives/po
 Assemble the popover directives in your template.
 
 ```html
-<button 
-  [ngpPopoverTrigger]="popover"
-  (opened)="onPopoverOpened()"
-  (closed)="onPopoverClosed()">
+<button [ngpPopoverTrigger]="popover" (opened)="onPopoverOpened()" (closed)="onPopoverClosed()">
   Click me
 </button>
 
@@ -70,10 +67,10 @@ The following CSS custom properties are applied to the `ngpPopover` directive:
 
 #### Events
 
-| Event      | Description                                 |
-| ---------- | ------------------------------------------- |
-| `opened`   | Emitted when the popover has been opened.    |
-| `closed`   | Emitted when the popover has been closed.    |
+| Event    | Description                               |
+| -------- | ----------------------------------------- |
+| `opened` | Emitted when the popover has been opened. |
+| `closed` | Emitted when the popover has been closed. |
 
 #### Data Attributes
 

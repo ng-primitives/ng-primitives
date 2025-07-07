@@ -224,11 +224,13 @@ export class NgpPopoverTrigger<T = null> implements OnDestroy {
     }
 
     // Show the overlay
-    this.overlay()?.show().then(() => {
-      if (this.open()) {
-        this.opened.emit();
-      }
-    });
+    this.overlay()
+      ?.show()
+      .then(() => {
+        if (this.open()) {
+          this.opened.emit();
+        }
+      });
   }
 
   /**
@@ -243,7 +245,7 @@ export class NgpPopoverTrigger<T = null> implements OnDestroy {
 
     // Hide the overlay
     this.overlay()?.hide({ origin });
-    
+
     this.closed.emit();
   }
 
