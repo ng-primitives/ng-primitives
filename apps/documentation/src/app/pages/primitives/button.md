@@ -91,6 +91,41 @@ You can add variant support to your reusable button component to indicate differ
 | `ghost`       | Button with no background or border until interaction.       | No background or border, only shows on hover/interaction.  | Toolbar actions, toggles, or in card headers.         |
 | `link`        | Button that appears as a text link.                          | Appears as text with underline, no button-like appearance. | Navigation, "Learn more", or secondary page actions.  |
 
+### Button with Icons
+
+You can add icons to your buttons using any Angular icon library or simple SVG elements, but we recommend the [`@ng-icons`](https://github.com/ng-icons/ng-icons) library. This example shows how to create buttons with icons on the left, right, or both sides using content projection slots.
+
+<docs-example name="button-icon"></docs-example>
+
+#### Usage
+
+```html
+<!-- Button with left icon -->
+<button app-button [hasLeftSlotContent]="true">
+  <ng-icon slot="left" name="lucideArrowRight"></ng-icon>
+  Left Icon
+</button>
+
+<!-- Button with right icon -->
+<button app-button [hasRightSlotContent]="true">
+  Right Icon
+  <ng-icon slot="right" name="lucideCheck"></ng-icon>
+</button>
+
+<!-- Button with both icons -->
+<button app-button [hasLeftSlotContent]="true" [hasRightSlotContent]="true">
+  <ng-icon slot="left" name="lucideArrowRight"></ng-icon>
+  Both Icons
+  <ng-icon slot="right" name="lucideCheck"></ng-icon>
+</button>
+
+<!-- Button with icon and size variant -->
+<button app-button size="lg">
+  <ng-icon slot="left" name="lucideArrowRight"></ng-icon>
+  Large with Icon
+</button>
+```
+
 ## Schematics
 
 Generate a reusable button component using the Angular CLI.
