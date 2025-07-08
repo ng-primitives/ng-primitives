@@ -1,6 +1,5 @@
 import { Directive, input } from '@angular/core';
-import { injectElementRef } from 'ng-primitives/internal';
-import { observeResize } from 'ng-primitives/resize';
+import { injectElementRef, observeResize } from 'ng-primitives/internal';
 import { uniqueId } from 'ng-primitives/utils';
 import { injectComboboxState } from '../combobox/combobox-state';
 

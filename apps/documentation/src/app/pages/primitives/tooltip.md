@@ -108,6 +108,20 @@ The arrow can be styled conditionally based on the tooltip's final placement usi
 | ---------------- | -------------------------------------------- |
 | `data-placement` | The final rendered placement of the tooltip. |
 
+## Conditional Tooltips
+
+The `showOnOverflow` input allows you to show tooltips only when the trigger element has overflowing content. This is particularly useful for text that might be truncated with ellipsis.
+
+```html
+<div
+  class="truncated-text"
+  appTooltipTrigger="This tooltip only shows when text overflows"
+  ngpTooltipTriggerShowOnOverflow
+>
+  This text might be truncated
+</div>
+```
+
 ## Styling
 
 For the tooltip to be positioned correctly relative to the trigger element, it must use absolute or fixed positioning. For example, you can use the following CSS:
@@ -179,4 +193,8 @@ bootstrapApplication(AppComponent, {
 
 <prop-details name="container" type="HTMLElement">
   Define the container element for the tooltip. This is the document body by default.
+</prop-details>
+
+<prop-details name="showOnOverflow" type="boolean">
+  Define if the tooltip should only show when the trigger element has overflowing content. This is useful for showing tooltips only when content is truncated.
 </prop-details>
