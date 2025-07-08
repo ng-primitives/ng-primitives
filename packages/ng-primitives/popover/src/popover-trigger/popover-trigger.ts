@@ -177,7 +177,7 @@ export class NgpPopoverTrigger<T = null> implements OnDestroy {
    * Event emitted when the popover open state changes.
    */
   readonly openChange = output<boolean>({
-    alias: 'ngpPopoverTriggerOpenChange'
+    alias: 'ngpPopoverTriggerOpenChange',
   });
 
   /**
@@ -223,7 +223,7 @@ export class NgpPopoverTrigger<T = null> implements OnDestroy {
 
     // Show the overlay
     await this.overlay()?.show();
-    
+
     if (this.open()) {
       this.openChange.emit(true);
     }

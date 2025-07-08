@@ -67,8 +67,8 @@ The following CSS custom properties are applied to the `ngpPopover` directive:
 
 #### Events
 
-| Event                       | Description                                                                                |
-| --------------------------- | ------------------------------------------------------------------------------------------ |
+| Event                         | Description                                                                                               |
+| ----------------------------- | --------------------------------------------------------------------------------------------------------- |
 | `ngpPopoverTriggerOpenChange` | Emitted when the popover open state changes. Emits a boolean value (true when opened, false when closed). |
 
 #### Data Attributes
