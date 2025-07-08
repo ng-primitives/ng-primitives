@@ -21,7 +21,7 @@ import { NgpPopover, NgpPopoverTrigger, NgpPopoverArrow } from 'ng-primitives/po
 Assemble the popover directives in your template.
 
 ```html
-<button [ngpPopoverTrigger]="popover" (opened)="onPopoverOpened()" (closed)="onPopoverClosed()">
+<button [ngpPopoverTrigger]="popover" (ngpPopoverTriggerOpenChange)="onPopoverStateChange($event)">
   Click me
 </button>
 
@@ -30,7 +30,7 @@ Assemble the popover directives in your template.
 </ng-template>
 ```
 
-You can listen to the `opened` and `closed` events to perform actions when the popover state changes:
+You can listen to the `ngpPopoverTriggerOpenChange` event to perform actions when the popover state changes. The event emits a boolean value indicating whether the popover is open or closed:
 
 ## Reusable Component
 
@@ -67,10 +67,9 @@ The following CSS custom properties are applied to the `ngpPopover` directive:
 
 #### Events
 
-| Event    | Description                               |
-| -------- | ----------------------------------------- |
-| `opened` | Emitted when the popover has been opened. |
-| `closed` | Emitted when the popover has been closed. |
+| Event                       | Description                                                                                |
+| --------------------------- | ------------------------------------------------------------------------------------------ |
+| `ngpPopoverTriggerOpenChange` | Emitted when the popover open state changes. Emits a boolean value (true when opened, false when closed). |
 
 #### Data Attributes
 

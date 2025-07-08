@@ -33,10 +33,10 @@ describe('NgpPopoverTrigger', () => {
     });
   });
 
-  it('should emit opened and closed events', async () => {
+  it('should emit openChange event with correct state', async () => {
     @Component({
       template: `
-        <button [ngpPopoverTrigger]="content" (opened)="onOpened()" (closed)="onClosed()">
+        <button [ngpPopoverTrigger]="content" (ngpPopoverTriggerOpenChange)="onOpenChange($event)">
           Open Popover
         </button>
 
@@ -48,29 +48,29 @@ describe('NgpPopoverTrigger', () => {
       imports: [NgpPopoverTrigger, NgpPopover],
     })
     class EventTestComponent {
-      onOpened = jest.fn();
-      onClosed = jest.fn();
+      onOpenChange = jest.fn();
     }
 
     const { fixture, getByRole } = await render(EventTestComponent);
     const component = fixture.componentInstance;
     const trigger = getByRole('button');
 
-    expect(component.onOpened).not.toHaveBeenCalled();
-    expect(component.onClosed).not.toHaveBeenCalled();
+    expect(component.onOpenChange).not.toHaveBeenCalled();
 
     fireEvent.click(trigger);
 
     await waitFor(() => {
       expect(document.querySelector('[ngpPopover]')).toBeInTheDocument();
-      expect(component.onOpened).toHaveBeenCalledTimes(1);
+      expect(component.onOpenChange).toHaveBeenCalledTimes(1);
+      expect(component.onOpenChange).toHaveBeenCalledWith(true);
     });
 
     fireEvent.click(trigger);
 
     await waitFor(() => {
       expect(document.querySelector('[ngpPopover]')).not.toBeInTheDocument();
-      expect(component.onClosed).toHaveBeenCalledTimes(1);
+      expect(component.onOpenChange).toHaveBeenCalledTimes(2);
+      expect(component.onOpenChange).toHaveBeenCalledWith(false);
     });
   });
 });
