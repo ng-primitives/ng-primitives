@@ -110,6 +110,7 @@ import {
       margin-top: 4px;
       max-height: 240px;
       overflow-y: auto;
+      z-index: 1001;
     }
 
     [ngpComboboxDropdown][data-enter] {
