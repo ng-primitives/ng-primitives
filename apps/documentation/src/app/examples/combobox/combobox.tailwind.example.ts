@@ -47,7 +47,7 @@ import {
       </button>
 
       <div
-        class="absolute left-0 z-10 mt-1 box-border max-h-[240px] w-[300px] overflow-y-auto rounded-[12px] border border-gray-200 bg-white p-1 shadow-lg outline-none dark:border-gray-700 dark:bg-black dark:ring-white/10"
+        class="absolute left-0 z-[1001] mt-1 box-border max-h-[240px] w-[300px] overflow-y-auto rounded-[12px] border border-gray-200 bg-white p-1 shadow-lg outline-none dark:border-gray-700 dark:bg-black dark:ring-white/10"
         *ngpComboboxPortal
         ngpComboboxDropdown
       >
