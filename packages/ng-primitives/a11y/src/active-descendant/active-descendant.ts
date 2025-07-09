@@ -1,4 +1,5 @@
-import { computed, effect, ElementRef, Signal, signal } from '@angular/core';
+import { computed, ElementRef, Signal, signal } from '@angular/core';
+import { explicitEffect } from 'ng-primitives/internal';
 
 interface ActiveDescendantManagerOptions<T extends NgpActivatable> {
   /**
@@ -54,8 +55,7 @@ export function activeDescendantManager<T extends NgpActivatable>(
   );
 
   // any time the item list changes, check if the active index is still valid
-  effect(() => {
-    const items = sortedOptions();
+  explicitEffect([sortedOptions], ([items]) => {
     if (activeIndex() >= items.length || activeIndex() < 0) {
       activeIndex.set(items.findIndex(item => !item.disabled?.()));
     }
