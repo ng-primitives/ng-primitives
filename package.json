@@ -139,9 +139,6 @@
   },
   "packageManager": "pnpm@10.10.0",
   "pnpm": {
-    "patchedDependencies": {
-      "@phenomnomnominal/tsquery@6.1.3": "patches/@phenomnomnominal__tsquery@6.1.3.patch"
-    },
     "onlyBuiltDependencies": [
       "nx"
     ]
