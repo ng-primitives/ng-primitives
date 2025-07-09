@@ -1,4 +1,5 @@
 import { InjectionToken, Provider, inject } from '@angular/core';
+import { NgpToastSwipeDirection } from '../toast/toast';
 
 // import { NgpToastGravity, NgpToastPosition } from '../toast/toast-ref';
 
@@ -36,12 +37,17 @@ export interface NgpToastConfig {
   /**
    * Whether a toast can be dismissed by swiping.
    */
-  swipeDismiss: boolean;
+  dismissible: boolean;
 
   /**
    * The amount a toast must be swiped before it is considered dismissed.
    */
   swipeThreshold: number;
+
+  /**
+   * The default swipe directions supported by the toast.
+   */
+  swipeDirections: NgpToastSwipeDirection[];
 
   /**
    * The maximum number of toasts that can be displayed at once.
@@ -74,7 +80,8 @@ export const defaultToastConfig: NgpToastConfig = {
   offsetLeft: 24,
   offsetRight: 24,
   swipeThreshold: 45,
-  swipeDismiss: true,
+  swipeDirections: ['left', 'right', 'top', 'bottom'],
+  dismissible: true,
   maxToasts: 3,
   zIndex: 9999999,
   ariaLive: 'polite',

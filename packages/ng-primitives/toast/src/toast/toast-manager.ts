@@ -1,5 +1,6 @@
 import {
   ApplicationRef,
+  computed,
   inject,
   Injectable,
   Injector,
@@ -11,7 +12,7 @@ import {
 } from '@angular/core';
 import { createPortal, NgpPortal } from 'ng-primitives/portal';
 import { injectToastConfig } from '../config/toast-config';
-import { NgpToast } from './toast';
+import { NgpToast, NgpToastSwipeDirection } from './toast';
 import { provideToastContext } from './toast-context';
 
 @Injectable({
@@ -28,14 +29,17 @@ export class NgpToastManager {
 
   readonly toasts = signal<NgpToastRef[]>([]);
 
+  /** Signal that tracks which placements are expanded */
+  private readonly expanded = signal<NgpToastPlacement[]>([]);
+
   /** Show a toast notification */
   show(toast: TemplateRef<void> | Type<unknown>, options: NgpToastOptions = {}) {
     // services can't access the view container directly, so this is a workaround
     const viewContainerRef = this.applicationRef.components[0].injector.get(ViewContainerRef);
 
     let instance: NgpToast | null = null;
-    const position = options.placement ?? 'top-end';
-    const container = this.getOrCreateContainer(position);
+    const placement = options.placement ?? 'top-end';
+    const container = this.getOrCreateContainer(placement);
 
     const portal = createPortal(
       toast,
@@ -44,13 +48,19 @@ export class NgpToastManager {
         parent: this.injector,
         providers: [
           provideToastContext({
-            position,
+            placement,
             duration: options.duration ?? 5000,
             register: (toast: NgpToast) => (instance = toast),
-            hide: (toast: NgpToast) => this.hide(toast),
+            expanded: computed(() => this.expanded().includes(placement)),
+            dismissible: options.dismissible ?? this.config.dismissible,
+            swipeDirections: options.swipeDirections ?? this.config.swipeDirections,
           }),
         ],
       }),
+      {
+        // Hide the toast when the dismiss method is called
+        dismiss: () => this.hide(instance!),
+      },
     );
 
     portal.attach(container);
@@ -73,6 +83,11 @@ export class NgpToastManager {
 
       // Remove the toast from the list of toasts
       this.toasts.update(toasts => toasts.filter(t => t !== ref));
+
+      // if there are no more toasts, ensure the container is no longer considered expanded
+      if (this.toasts().length === 0) {
+        this.expanded.update(expanded => expanded.filter(p => p !== toast.context.placement));
+      }
     }
   }
 
@@ -109,6 +124,17 @@ export class NgpToastManager {
     container.style.setProperty('--ngp-toast-gap', `${this.config.gap}px`);
     container.style.setProperty('--ngp-toast-width', `${this.config.width}px`);
 
+    // mark the container as expanded
+    this.renderer.listen(container, 'mouseenter', () =>
+      this.expanded.update(expanded => [...expanded, placement as NgpToastPlacement]),
+    );
+
+    this.renderer.listen(container, 'mouseleave', () => {
+      this.expanded.update(expanded =>
+        expanded.filter(p => p !== (placement as NgpToastPlacement)),
+      );
+    });
+
     // Set placement styles
     switch (placement) {
       case 'top-start':
@@ -116,11 +142,9 @@ export class NgpToastManager {
         container.style.setProperty('left', `${this.config.offsetLeft}px`);
         break;
       case 'top-center':
-        // container.style.setProperty('top', '0');
-        // container.style.setProperty('left', '50%');
-        // container.style.setProperty('transform', 'translateX(-50%)');
-        // container.style.setProperty('right', 'auto');
-        // container.style.setProperty('bottom', 'auto');
+        container.style.setProperty('top', '0');
+        container.style.setProperty('left', '50%');
+        container.style.setProperty('transform', 'translateX(-50%)');
         break;
       case 'top-end':
         container.style.setProperty('top', `${this.config.offsetTop}px`);
@@ -131,11 +155,9 @@ export class NgpToastManager {
         container.style.setProperty('left', `${this.config.offsetLeft}px`);
         break;
       case 'bottom-center':
-        // container.style.setProperty('bottom', '0');
-        // container.style.setProperty('left', '50%');
-        // container.style.setProperty('transform', 'translateX(-50%)');
-        // container.style.setProperty('right', 'auto');
-        // container.style.setProperty('top', 'auto');
+        container.style.setProperty('bottom', '0');
+        container.style.setProperty('left', '50%');
+        container.style.setProperty('transform', 'translateX(-50%)');
         break;
       case 'bottom-end':
         container.style.setProperty('bottom', `${this.config.offsetBottom}px`);
@@ -150,18 +172,26 @@ export class NgpToastManager {
   }
 }
 
+export type NgpToastPlacement =
+  | 'top-start'
+  | 'top-end'
+  | 'top-center'
+  | 'bottom-start'
+  | 'bottom-end'
+  | 'bottom-center';
+
 export interface NgpToastOptions {
   /** The position of the toast */
-  placement?:
-    | 'top-start'
-    | 'top-end'
-    | 'top-center'
-    | 'bottom-start'
-    | 'bottom-end'
-    | 'bottom-center';
+  placement?: NgpToastPlacement;
 
   /** The duration of the toast in milliseconds */
   duration?: number;
+
+  /** Whether the toast is dismissible */
+  dismissible?: boolean;
+
+  /** The swipe directions supported by the toast */
+  swipeDirections?: NgpToastSwipeDirection[];
 }
 
 interface NgpToastRef {

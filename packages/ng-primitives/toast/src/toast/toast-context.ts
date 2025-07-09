@@ -1,5 +1,5 @@
-import { inject, InjectionToken, ValueProvider } from '@angular/core';
-import type { NgpToast } from './toast';
+import { inject, InjectionToken, Signal, ValueProvider } from '@angular/core';
+import type { NgpToast, NgpToastSwipeDirection } from './toast';
 
 const NgpToastContext = new InjectionToken<NgpToastContext>('NgpToastContext');
 
@@ -15,7 +15,7 @@ export interface NgpToastContext {
   /**
    * The position of the toast.
    */
-  position:
+  placement:
     | 'top-start'
     | 'top-end'
     | 'bottom-start'
@@ -34,8 +34,20 @@ export interface NgpToastContext {
   register: (toast: NgpToast) => void;
 
   /**
-   * Hide a toast instance.
+   * Whether the toast region is expanded.
    * @internal
    */
-  hide: (toast: NgpToast) => void;
+  expanded: Signal<boolean>;
+
+  /**
+   * Whether the toast supports swipe dismiss.
+   * @internal
+   */
+  dismissible: boolean;
+
+  /**
+   * The swipe directions supported by the toast.
+   * @internal
+   */
+  swipeDirections: NgpToastSwipeDirection[];
 }

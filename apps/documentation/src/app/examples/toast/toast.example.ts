@@ -7,11 +7,11 @@ import { NgpToast, NgpToastManager } from 'ng-primitives/toast';
   template: `
     <button class="toast-trigger" (click)="show(toast)" ngpButton>Show Toast</button>
 
-    <ng-template #toast>
+    <ng-template #toast let-dismiss="dismiss">
       <div class="toast" ngpToast>
         <p class="toast-title">This is a toast message</p>
         <p class="toast-description">It will disappear in 3 seconds</p>
-        <button class="toast-dismiss" ngpButton>Dismiss</button>
+        <button class="toast-dismiss" (click)="dismiss()" ngpButton>Dismiss</button>
       </div>
     </ng-template>
   `,
@@ -90,6 +90,7 @@ import { NgpToast, NgpToastManager } from 'ng-primitives/toast';
       grid-column: 1 / 2;
       grid-row: 1;
       line-height: 16px;
+      user-select: none;
     }
 
     .toast-description {
@@ -99,6 +100,7 @@ import { NgpToast, NgpToastManager } from 'ng-primitives/toast';
       grid-column: 1 / 2;
       grid-row: 2;
       line-height: 16px;
+      user-select: none;
     }
 
     .toast-dismiss {
@@ -115,6 +117,43 @@ import { NgpToast, NgpToastManager } from 'ng-primitives/toast';
       max-height: 27px;
     }
 
+    .toast[data-position-x='end'] {
+      right: 0;
+    }
+
+    .toast[data-position-x='start'] {
+      left: 0;
+    }
+
+    .toast[data-position-y='top'] {
+      top: 0;
+      --lift: 1;
+      --lift-amount: calc(var(--lift) * var(--ngp-toast-gap));
+      --y: translateY(-100%);
+    }
+
+    .toast[data-position-y='bottom'] {
+      bottom: 0;
+      --lift: -1;
+      --lift-amount: calc(var(--lift) * var(--ngp-toast-gap));
+      --y: translateY(100%);
+    }
+
+    .toast[data-enter] {
+      opacity: 1;
+      --y: translateY(0);
+    }
+
+    .toast[data-exit] {
+      opacity: 0;
+      --y: translateY(calc(calc(var(--lift) * var(--ngp-toast-gap)) * -1));
+    }
+
+    .toast[data-visible='false'] {
+      opacity: 0;
+      pointer-events: none;
+    }
+
     .toast[data-expanded='false'][data-front='false'] {
       --scale: var(--ngp-toasts-before) * 0.05 + 1;
       --y: translateY(calc(var(--lift-amount) * var(--ngp-toasts-before)))
@@ -127,36 +166,81 @@ import { NgpToast, NgpToastManager } from 'ng-primitives/toast';
       height: var(--ngp-toast-height);
     }
 
-    .toast[data-position-x='end'] {
-      right: 0;
+    .toast[data-swiping='true'] {
+      transform: var(--y) translateY(var(--ngp-toast-swipe-amount-y, 0))
+        translateX(var(--ngp-toast-swipe-amount-x, 0));
+      transition: none;
     }
 
-    .toast[data-position-x='start'] {
-      left: 0;
+    .toast[data-exit][data-y-position='bottom'],
+    .toast[data-exit][data-y-position='top'] {
+      animation-duration: 200ms;
+      animation-timing-function: ease-out;
+      animation-fill-mode: forwards;
     }
 
-    .toast[data-position-y='top'] {
-      top: 0;
-      --gravity: 1;
-      --lift-amount: calc(var(--gravity) * var(--ngp-toast-gap));
-      --y: translateY(-100%);
+    .toast[data-exit][data-swipe-direction='left'] {
+      animation-name: swipe-out-left;
     }
 
-    .toast[data-position-y='bottom'] {
-      bottom: 0;
-      --gravity: -1;
-      --lift-amount: calc(var(--gravity) * var(--ngp-toast-gap));
-      --y: translateY(100%);
+    .toast[data-exit][data-swipe-direction='right'] {
+      animation-name: swipe-out-right;
     }
 
-    .toast[data-enter] {
-      opacity: 1;
-      --y: translateY(0);
+    .toast[data-exit][data-swipe-direction='up'] {
+      animation-name: swipe-out-up;
     }
 
-    .toast[data-visible='false'] {
-      opacity: 0;
-      pointer-events: none;
+    .toast[data-exit][data-swipe-direction='down'] {
+      animation-name: swipe-out-down;
+    }
+
+    @keyframes swipe-out-left {
+      from {
+        transform: var(--y) translateX(var(--ngp-toast-swipe-amount-x));
+        opacity: 1;
+      }
+
+      to {
+        transform: var(--y) translateX(calc(var(--ngp-toast-swipe-amount-x) - 100%));
+        opacity: 0;
+      }
+    }
+
+    @keyframes swipe-out-right {
+      from {
+        transform: var(--y) translateX(var(--ngp-toast-swipe-amount-x));
+        opacity: 1;
+      }
+
+      to {
+        transform: var(--y) translateX(calc(var(--ngp-toast-swipe-amount-x) + 100%));
+        opacity: 0;
+      }
+    }
+
+    @keyframes swipe-out-up {
+      from {
+        transform: var(--y) translateY(var(--ngp-toast-swipe-amount-y));
+        opacity: 1;
+      }
+
+      to {
+        transform: var(--y) translateY(calc(var(--ngp-toast-swipe-amount-y) - 100%));
+        opacity: 0;
+      }
+    }
+
+    @keyframes swipe-out-down {
+      from {
+        transform: var(--y) translateY(var(--ngp-toast-swipe-amount-y));
+        opacity: 1;
+      }
+
+      to {
+        transform: var(--y) translateY(calc(var(--ngp-toast-swipe-amount-y) + 100%));
+        opacity: 0;
+      }
     }
   `,
 })
