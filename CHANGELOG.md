@@ -1,6 +1,14 @@
 ## 0.61.0 (2025-07-10)
 
-This was a version bump only, there were no code changes.
+- **refactor(toast)**: reworking toast component 
+
+> **Note**: This version contains a breaking change. The `NgpToast` component has been refactored to improve its API and functionality. If you were using the previous version, please refer to the updated documentation on how to use the new `NgpToast` component.
+
+## 0.60.0 (2025-07-09)
+
+- **feat(popover)**: add opened and closed event outputs to NgpPopoverTrigger by @eurusik in #343
+- **fix(combobox)**: update z-index of dropdown to fix menu item visibility in dialog by @kostetskyroma in #348
+- **fix(combobox)**: scroll issue by @ashley-hunter in #350
 
 ## 0.59.0 (2025-07-08)
 
