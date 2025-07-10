@@ -19,7 +19,7 @@ import { NgpCheckbox } from 'ng-primitives/checkbox';
     </span>
   `,
 })
-export default class CheckboxTailwind {
+export default class CheckboxExample {
   /**
    * The checked state of the checkbox.
    */
