@@ -1,8 +1,6 @@
 import { InjectionToken, Provider, inject } from '@angular/core';
 import { NgpToastSwipeDirection } from '../toast/toast';
 
-// import { NgpToastGravity, NgpToastPosition } from '../toast/toast-ref';
-
 export interface NgpToastConfig {
   /**
    * The duration of each toast.

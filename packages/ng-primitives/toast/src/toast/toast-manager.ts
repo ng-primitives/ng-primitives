@@ -14,6 +14,7 @@ import { createPortal, NgpPortal } from 'ng-primitives/portal';
 import { injectToastConfig } from '../config/toast-config';
 import { NgpToast, NgpToastSwipeDirection } from './toast';
 import { provideToastContext } from './toast-context';
+import { provideToastOptions } from './toast-options';
 
 @Injectable({
   providedIn: 'root',
@@ -27,13 +28,13 @@ export class NgpToastManager {
   // Map to store containers by placement
   private readonly containers = new Map<string, HTMLElement>();
 
-  readonly toasts = signal<NgpToastRef[]>([]);
+  readonly toasts = signal<NgpToastRecord[]>([]);
 
   /** Signal that tracks which placements are expanded */
   private readonly expanded = signal<NgpToastPlacement[]>([]);
 
   /** Show a toast notification */
-  show(toast: TemplateRef<void> | Type<unknown>, options: NgpToastOptions = {}) {
+  show(toast: TemplateRef<void> | Type<unknown>, options: NgpToastOptions = {}): NgpToastRef {
     // services can't access the view container directly, so this is a workaround
     const viewContainerRef = this.applicationRef.components[0].injector.get(ViewContainerRef);
 
@@ -47,7 +48,8 @@ export class NgpToastManager {
       Injector.create({
         parent: this.injector,
         providers: [
-          provideToastContext({
+          provideToastContext(options.context),
+          provideToastOptions({
             placement,
             duration: options.duration ?? 5000,
             register: (toast: NgpToast) => (instance = toast),
@@ -59,7 +61,8 @@ export class NgpToastManager {
       }),
       {
         // Hide the toast when the dismiss method is called
-        dismiss: () => this.hide(instance!),
+        dismiss: () => this.dismiss(instance!),
+        context: options.context,
       },
     );
 
@@ -71,10 +74,14 @@ export class NgpToastManager {
     }
 
     this.toasts.update(toasts => [{ instance: instance!, portal }, ...toasts]);
+
+    return {
+      dismiss: () => this.dismiss(instance!),
+    };
   }
 
   /** Hide a toast notification */
-  async hide(toast: NgpToast): Promise<void> {
+  async dismiss(toast: NgpToast): Promise<void> {
     const ref = this.toasts().find(t => t.instance === toast);
 
     if (ref) {
@@ -108,7 +115,7 @@ export class NgpToastManager {
    */
   private createContainer(placement: string): HTMLElement {
     const container = this.renderer.createElement('section') as HTMLElement;
-    this.renderer.setAttribute(container, 'aria-live', 'polite');
+    this.renderer.setAttribute(container, 'aria-live', this.config.ariaLive);
     this.renderer.setAttribute(container, 'aria-atomic', 'false');
     this.renderer.setAttribute(container, 'tabindex', '-1');
     this.renderer.setAttribute(container, 'data-ngp-toast-container', placement);
@@ -180,7 +187,7 @@ export type NgpToastPlacement =
   | 'bottom-end'
   | 'bottom-center';
 
-export interface NgpToastOptions {
+export interface NgpToastOptions<T = unknown> {
   /** The position of the toast */
   placement?: NgpToastPlacement;
 
@@ -192,9 +199,16 @@ export interface NgpToastOptions {
 
   /** The swipe directions supported by the toast */
   swipeDirections?: NgpToastSwipeDirection[];
+
+  /** The context to make available to the toast */
+  context?: T;
+}
+
+interface NgpToastRecord {
+  instance: NgpToast;
+  portal: NgpPortal;
 }
 
 interface NgpToastRef {
-  instance: NgpToast;
-  portal: NgpPortal;
+  dismiss(): Promise<void>;
 }

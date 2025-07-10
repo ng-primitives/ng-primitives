@@ -8,7 +8,7 @@ import { NgpToast, NgpToastManager } from 'ng-primitives/toast';
     <button class="toast-trigger" (click)="show(toast)" ngpButton>Show Toast</button>
 
     <ng-template #toast let-dismiss="dismiss">
-      <div class="toast" ngpToast>
+      <div ngpToast>
         <p class="toast-title">This is a toast message</p>
         <p class="toast-description">It will disappear in 3 seconds</p>
         <button class="toast-dismiss" (click)="dismiss()" ngpButton>Dismiss</button>
@@ -43,9 +43,8 @@ import { NgpToast, NgpToastManager } from 'ng-primitives/toast';
       background-color: var(--ngp-background-active);
     }
 
-    .toast {
+    [ngpToast] {
       position: absolute;
-      opacity: 0;
       touch-action: none;
       transition:
         transform 0.4s,
@@ -53,16 +52,8 @@ import { NgpToast, NgpToastManager } from 'ng-primitives/toast';
         height 0.4s,
         box-shadow 0.2s;
       box-sizing: border-box;
-      outline: 0;
-      overflow-wrap: anywhere;
-      padding: 16px;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-      width: var(--ngp-toast-width);
-      font-size: 13px;
-      display: flex;
       align-items: center;
       gap: 6px;
-
       display: inline-grid;
       background: var(--ngp-background);
       box-shadow: var(--ngp-shadow);
@@ -79,7 +70,6 @@ import { NgpToast, NgpToastManager } from 'ng-primitives/toast';
       width: var(--ngp-toast-width);
       height: fit-content;
       transform: var(--y);
-      overflow-wrap: anywhere;
     }
 
     .toast-title {
@@ -117,130 +107,88 @@ import { NgpToast, NgpToastManager } from 'ng-primitives/toast';
       max-height: 27px;
     }
 
-    .toast[data-position-x='end'] {
+    [ngpToast][data-position-x='end'] {
       right: 0;
     }
 
-    .toast[data-position-x='start'] {
+    [ngpToast][data-position-x='start'] {
       left: 0;
     }
 
-    .toast[data-position-y='top'] {
+    [ngpToast][data-position-y='top'] {
       top: 0;
       --lift: 1;
       --lift-amount: calc(var(--lift) * var(--ngp-toast-gap));
       --y: translateY(-100%);
     }
 
-    .toast[data-position-y='bottom'] {
+    [ngpToast][data-position-y='bottom'] {
       bottom: 0;
       --lift: -1;
       --lift-amount: calc(var(--lift) * var(--ngp-toast-gap));
       --y: translateY(100%);
     }
 
-    .toast[data-enter] {
+    [ngpToast][data-enter] {
       opacity: 1;
       --y: translateY(0);
     }
 
-    .toast[data-exit] {
+    [ngpToast][data-exit] {
       opacity: 0;
       --y: translateY(calc(calc(var(--lift) * var(--ngp-toast-gap)) * -1));
     }
 
-    .toast[data-visible='false'] {
+    [ngpToast][data-visible='false'] {
       opacity: 0;
       pointer-events: none;
     }
 
-    .toast[data-expanded='false'][data-front='false'] {
+    [ngpToast][data-expanded='true']::after {
+      content: '';
+      position: absolute;
+      left: 0;
+      height: calc(var(--ngp-toast-gap) + 1px);
+      bottom: 100%;
+      width: 100%;
+    }
+
+    [ngpToast][data-expanded='false'][data-front='false'] {
       --scale: var(--ngp-toasts-before) * 0.05 + 1;
       --y: translateY(calc(var(--lift-amount) * var(--ngp-toasts-before)))
         scale(calc(-1 * var(--scale)));
       height: var(--ngp-toast-front-height);
     }
 
-    .toast[data-expanded='true'] {
+    [ngpToast][data-expanded='true'] {
       --y: translateY(calc(var(--lift) * var(--ngp-toast-offset)));
       height: var(--ngp-toast-height);
     }
 
-    .toast[data-swiping='true'] {
+    [ngpToast][data-swiping='true'] {
       transform: var(--y) translateY(var(--ngp-toast-swipe-amount-y, 0))
         translateX(var(--ngp-toast-swipe-amount-x, 0));
       transition: none;
     }
 
-    .toast[data-exit][data-y-position='bottom'],
-    .toast[data-exit][data-y-position='top'] {
-      animation-duration: 200ms;
-      animation-timing-function: ease-out;
-      animation-fill-mode: forwards;
+    [ngpToast][data-swiping='true'][data-swipe-direction='left'] {
+      /* Fade out from -45px to -100px swipe */
+      opacity: calc(1 - clamp(0, ((-1 * var(--ngp-toast-swipe-x, 0px)) - 45) / 55, 1));
     }
 
-    .toast[data-exit][data-swipe-direction='left'] {
-      animation-name: swipe-out-left;
+    [ngpToast][data-swiping='true'][data-swipe-direction='right'] {
+      /* Fade out from 45px to 100px swipe */
+      opacity: calc(1 - clamp(0, (var(--ngp-toast-swipe-x, 0px) - 45) / 55, 1));
     }
 
-    .toast[data-exit][data-swipe-direction='right'] {
-      animation-name: swipe-out-right;
+    [ngpToast][data-swiping='true'][data-swipe-direction='top'] {
+      /* Fade out from -45px to -100px swipe */
+      opacity: calc(1 - clamp(0, ((-1 * var(--ngp-toast-swipe-y, 0px)) - 45) / 55, 1));
     }
 
-    .toast[data-exit][data-swipe-direction='up'] {
-      animation-name: swipe-out-up;
-    }
-
-    .toast[data-exit][data-swipe-direction='down'] {
-      animation-name: swipe-out-down;
-    }
-
-    @keyframes swipe-out-left {
-      from {
-        transform: var(--y) translateX(var(--ngp-toast-swipe-amount-x));
-        opacity: 1;
-      }
-
-      to {
-        transform: var(--y) translateX(calc(var(--ngp-toast-swipe-amount-x) - 100%));
-        opacity: 0;
-      }
-    }
-
-    @keyframes swipe-out-right {
-      from {
-        transform: var(--y) translateX(var(--ngp-toast-swipe-amount-x));
-        opacity: 1;
-      }
-
-      to {
-        transform: var(--y) translateX(calc(var(--ngp-toast-swipe-amount-x) + 100%));
-        opacity: 0;
-      }
-    }
-
-    @keyframes swipe-out-up {
-      from {
-        transform: var(--y) translateY(var(--ngp-toast-swipe-amount-y));
-        opacity: 1;
-      }
-
-      to {
-        transform: var(--y) translateY(calc(var(--ngp-toast-swipe-amount-y) - 100%));
-        opacity: 0;
-      }
-    }
-
-    @keyframes swipe-out-down {
-      from {
-        transform: var(--y) translateY(var(--ngp-toast-swipe-amount-y));
-        opacity: 1;
-      }
-
-      to {
-        transform: var(--y) translateY(calc(var(--ngp-toast-swipe-amount-y) + 100%));
-        opacity: 0;
-      }
+    [ngpToast][data-swiping='true'][data-swipe-direction='bottom'] {
+      /* Fade out from 45px to 100px swipe */
+      opacity: calc(1 - clamp(0, (var(--ngp-toast-swipe-y, 0px) - 45) / 55, 1));
     }
   `,
 })
@@ -248,8 +196,6 @@ export default class ToastExample {
   private readonly toastManager = inject(NgpToastManager);
 
   show(toast: TemplateRef<void>): void {
-    const toastRef = this.toastManager.show(toast, {
-      placement: 'bottom-end',
-    });
+    this.toastManager.show(toast, { placement: 'bottom-end' });
   }
 }

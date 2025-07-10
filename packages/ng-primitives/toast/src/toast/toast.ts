@@ -11,8 +11,8 @@ import {
 import { explicitEffect } from 'ng-primitives/internal';
 import { injectDimensions } from 'ng-primitives/utils';
 import { injectToastConfig } from '../config/toast-config';
-import { injectToastContext } from './toast-context';
 import { NgpToastManager } from './toast-manager';
+import { injectToastOptions } from './toast-options';
 import { toastTimer } from './toast-timer';
 
 @Directive({
@@ -24,9 +24,8 @@ import { toastTimer } from './toast-timer';
     '[attr.data-visible]': 'visible()',
     '[attr.data-front]': 'index() === 0',
     '[attr.data-swiping]': 'swiping()',
-    '[attr.data-expanded]': 'context.expanded()',
     '[attr.data-swipe-direction]': 'swipeOutDirection()',
-    '[attr.data-swipe-out]': 'swipeOut()',
+    '[attr.data-expanded]': 'context.expanded()',
     '[style.--ngp-toast-gap.px]': 'config.gap',
     '[style.--ngp-toast-z-index]': 'zIndex()',
     '[style.--ngp-toasts-before]': 'index()',
@@ -37,6 +36,8 @@ import { toastTimer } from './toast-timer';
     '[style.--ngp-toast-front-height.px]': 'frontToastHeight()',
     '[style.--ngp-toast-swipe-amount-x.px]': 'swipeAmount().x',
     '[style.--ngp-toast-swipe-amount-y.px]': 'swipeAmount().y',
+    '[style.--ngp-toast-swipe-x]': 'swipeAmount().x',
+    '[style.--ngp-toast-swipe-y]': 'swipeAmount().y',
   },
 })
 export class NgpToast {
@@ -44,18 +45,25 @@ export class NgpToast {
   private readonly injector = inject(Injector);
   protected readonly config = injectToastConfig();
   /** @internal */
-  readonly context = injectToastContext();
+  readonly context = injectToastOptions();
   private readonly interactivityChecker = inject(InteractivityChecker);
   private readonly isInteracting = signal(false);
 
   private pointerStartRef: { x: number; y: number } | null = null;
   private dragStartTime: Date | null = null;
-  protected readonly offsetBeforeRemove = signal(0);
   protected readonly swiping = signal(false);
   protected readonly swipeDirection = signal<'x' | 'y' | null>(null);
   protected readonly swipeAmount = signal({ x: 0, y: 0 });
-  protected readonly swipeOut = signal(false);
-  protected readonly swipeOutDirection = signal<'left' | 'right' | 'up' | 'down' | null>(null);
+
+  protected readonly swipeOutDirection = computed(() => {
+    const direction = this.swipeDirection();
+    if (direction === 'x') {
+      return this.swipeAmount().x > 0 ? 'right' : 'left';
+    } else if (direction === 'y') {
+      return this.swipeAmount().y > 0 ? 'bottom' : 'top';
+    }
+    return null;
+  });
 
   /**
    * Get all toasts that are currently being displayed in the same position.
@@ -133,7 +141,7 @@ export class NgpToast {
   /**
    * The toast timer instance.
    */
-  private readonly timer = toastTimer(this.config.duration, () => this.manager.hide(this));
+  private readonly timer = toastTimer(this.config.duration, () => this.manager.dismiss(this));
 
   constructor() {
     this.context.register(this);
@@ -167,7 +175,6 @@ export class NgpToast {
     }
 
     this.dragStartTime = new Date();
-    this.offsetBeforeRemove.set(this.offset());
     // Ensure we maintain correct pointer capture even when going outside of the toast (e.g. when swiping)
     (event.target as HTMLElement).setPointerCapture(event.pointerId);
     this.swiping.set(true);
@@ -267,17 +274,7 @@ export class NgpToast {
     const velocity = Math.abs(swipeAmount) / timeTaken;
 
     if (Math.abs(swipeAmount) >= this.config.swipeThreshold || velocity > 0.11) {
-      this.offsetBeforeRemove.set(this.offset());
-
-      if (this.swipeDirection() === 'x') {
-        this.swipeOutDirection.set(swipeAmountX > 0 ? 'right' : 'left');
-      } else {
-        this.swipeOutDirection.set(swipeAmountY > 0 ? 'down' : 'up');
-      }
-      this.swipeOut.set(true);
-
-      afterNextRender({ write: () => this.manager.hide(this) }, { injector: this.injector });
-
+      afterNextRender({ write: () => this.manager.dismiss(this) }, { injector: this.injector });
       return;
     } else {
       this.swipeAmount.set({ x: 0, y: 0 });
