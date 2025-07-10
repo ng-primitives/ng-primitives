@@ -1,3 +1,16 @@
+## 0.59.0 (2025-07-08)
+
+### 🚀 Features
+
+- **button:** add button variants to reusable components ([#339](https://github.com/ng-primitives/ng-primitives/pull/339))
+- **tooltip:** add data placement attribute support ([#340](https://github.com/ng-primitives/ng-primitives/pull/340))
+- **tooltip:** add showOnOverflow input to tooltip trigger ([#342](https://github.com/ng-primitives/ng-primitives/pull/342))
+
+### ❤️ Thank You
+
+- Eugene Rusakov @eurusik
+- Ido Golan @ido-g-coralogix
+
 ## 0.58.0 (2025-07-04)
 
 ### 🚀 Features

@@ -21,12 +21,16 @@ import { NgpPopover, NgpPopoverTrigger, NgpPopoverArrow } from 'ng-primitives/po
 Assemble the popover directives in your template.
 
 ```html
-<button [ngpPopoverTrigger]="popover">Click me</button>
+<button [ngpPopoverTrigger]="popover" (ngpPopoverTriggerOpenChange)="onPopoverStateChange($event)">
+  Click me
+</button>
 
 <ng-template #popover>
   <div ngpPopover>Popover content</div>
 </ng-template>
 ```
+
+You can listen to the `ngpPopoverTriggerOpenChange` event to perform actions when the popover state changes. The event emits a boolean value indicating whether the popover is open or closed:
 
 ## Reusable Component
 
