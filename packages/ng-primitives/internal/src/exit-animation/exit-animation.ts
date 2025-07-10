@@ -61,7 +61,7 @@ export function setupExitAnimation({ element }: NgpExitAnimationOptions): NgpExi
   }
 
   // Set the initial state to 'enter'
-  setState('enter');
+  requestAnimationFrame(() => setState('enter'));
 
   return {
     exit: () => {

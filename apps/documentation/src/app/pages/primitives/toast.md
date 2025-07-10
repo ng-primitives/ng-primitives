@@ -21,14 +21,27 @@ import { NgpToast } from 'ng-primitives/toast';
 Assemble the toast directives in your template.
 
 ```html
-<button (click)="toast.show()">Show Toast</button>
-
-<ng-template ngpToast #toast="ngpToast">
-  <div>...</div>
+<ng-template #toast>
+  <div ngpToast>...</div>
 </ng-template>
 ```
 
-To show a toast, call the `show` method on the `ngpToast` directive.
+To show a toast, inject the `NgpToastManager` service and call the `show` method passing the toast template or a component
+class that uses the `NgpToast` directive as a Host Directive.
+
+```ts
+import { NgpToastManager } from 'ng-primitives/toast';
+
+export class MyComponent {
+  private readonly toastManager = inject(NgpToastManager);
+
+  showToast(): void {
+    this.toastManager.show(toastTemplate);
+    // or
+    this.toastManager.show(MyToastComponent);
+  }
+}
+```
 
 ## Reusable Component
 
@@ -64,11 +77,32 @@ The following directives are available to import from the `ng-primitives/toast` 
 
 The following data attributes are applied to the first child of the `ngpToast` ng-template:
 
-| Attribute       | Description                     | Value                        |
-| --------------- | ------------------------------- | ---------------------------- |
-| `data-toast`    | The visible state of the toast. | `visible` \| `hidden`        |
-| `data-position` | The position of the toast.      | `start` \| `center` \| `end` |
-| `data-gravity`  | The gravity of the toast.       | `top` \| `bottom`            |
+| Attribute              | Description                                                                                                                              | Value                         |
+| ---------------------- | ---------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------- |
+| `data-position-x`      | The horizontal position of the toast                                                                                                     | `start`, `center`, `end`      |
+| `data-position-y`      | The vertical position of the toast                                                                                                       | `top`, `bottom`               |
+| `data-visible`         | Whether the toast is currently visible. This is based on how many toasts are shown compared to the `maxToasts` set in the global config. | `true`, `false`               |
+| `data-front`           | Whether the toast is the front-most toast in the stack.                                                                                  | `true`, `false`               |
+| `data-swiping`         | Whether the toast is currently being swiped.                                                                                             | `true`, `false`               |
+| `data-swipe-direction` | The direction of the swipe gesture.                                                                                                      | `left`, `right`, `up`, `down` |
+| `data-expanded`        | Whether the toast is currently expanded. This can be used to collapse or expand stacked toasts.                                          | `true`, `false`               |
+
+The following CSS custom properties are available to the `ngpToast` directive:
+
+| Property                     | Description                                   |
+| ---------------------------- | --------------------------------------------- |
+| `--ngp-toast-gap`            | The gap between each toast.                   |
+| `--ngp-toast-z-index`        | The z-index of the toast.                     |
+| `--ngp-toasts-before`        | The number of toasts before this one.         |
+| `--ngp-toast-index`          | The index of the toast (1-based).             |
+| `--ngp-toast-width`          | The width of the toast in pixels.             |
+| `--ngp-toast-height`         | The height of the toast in pixels.            |
+| `--ngp-toast-offset`         | The vertical offset position of the toast.    |
+| `--ngp-toast-front-height`   | The height of the front-most toast.           |
+| `--ngp-toast-swipe-amount-x` | The swipe amount on the X axis (pixel value). |
+| `--ngp-toast-swipe-amount-y` | The swipe amount on the Y axis (pixel value). |
+| `--ngp-toast-swipe-x`        | The swipe value on the X axis.                |
+| `--ngp-toast-swipe-y`        | The swipe value on the Y axis.                |
 
 ## Global Configuration
 
@@ -81,9 +115,15 @@ bootstrapApplication(AppComponent, {
   providers: [
     provideToastConfig({
       duration: 5000,
-      position: 'center',
-      gravity: 'top',
-      stopOnHover: false,
+      width: 300,
+      offsetTop: 16,
+      offsetBottom: 16,
+      offsetLeft: 16,
+      offsetRight: 16,
+      dismissible: true,
+      maxToasts: 3,
+      zIndex: 9999999,
+      swipeDirections: ['left', 'right'],
       ariaLive: 'assertive',
       gap: 16,
     }),
@@ -97,22 +137,50 @@ bootstrapApplication(AppComponent, {
   The duration in milliseconds that the toast will be visible.
 </prop-details>
 
-<prop-details name="position" type="start | center | end" default="end">
-  The position of the toast.
+<prop-details name="width" type="number" default="360">
+  The width of each toast in pixels.
 </prop-details>
 
-<prop-details name="gravity" type="top | bottom" default="top">
-  The gravity of the toast. This will determine the location the toast will slide in and out.
+<prop-details name="offsetTop" type="number" default="24">
+  The offset from the top of the viewport in pixels.
 </prop-details>
 
-<prop-details name="stopOnHover" type="boolean" default="true">
-  Whether the toast should stop the timer when hovered over. Once the mouse leaves the toast, the timer will restart.
+<prop-details name="offsetBottom" type="number" default="24">
+  The offset from the bottom of the viewport in pixels.
 </prop-details>
 
-<prop-details name="ariaLive" type="assertive | polite" default="polite">
-  The `aria-live` attribute value for the toast. This will determine how the toast will be read by screen readers.
+<prop-details name="offsetLeft" type="number" default="24">
+  The offset from the left of the viewport in pixels.
 </prop-details>
 
-<prop-details name="gap" type="number" default="16">
+<prop-details name="offsetRight" type="number" default="24">
+  The offset from the right of the viewport in pixels.
+</prop-details>
+
+<prop-details name="dismissible" type="boolean" default="true">
+  Whether a toast can be dismissed by swiping.
+</prop-details>
+
+<prop-details name="swipeThreshold" type="number" default="45">
+  The amount a toast must be swiped before it is considered dismissed.
+</prop-details>
+
+<prop-details name="swipeDirections" type="NgpToastSwipeDirection[]" default="['left', 'right', 'top', 'bottom']">
+  The default swipe directions supported by the toast.
+</prop-details>
+
+<prop-details name="maxToasts" type="number" default="3">
+  The maximum number of toasts that can be displayed at once.
+</prop-details>
+
+<prop-details name="ariaLive" type="string" default="'polite'">
+  The aria live setting.
+</prop-details>
+
+<prop-details name="gap" type="number" default="14">
   The gap between each toast.
+</prop-details>
+
+<prop-details name="zIndex" type="number" default="9999999">
+  The z-index of the toast container.
 </prop-details>

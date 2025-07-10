@@ -1,5 +1,5 @@
 import { InjectionToken, Provider, inject } from '@angular/core';
-import { NgpToastGravity, NgpToastPosition } from '../toast/toast-ref';
+import { NgpToastSwipeDirection } from '../toast/toast';
 
 export interface NgpToastConfig {
   /**
@@ -8,19 +8,49 @@ export interface NgpToastConfig {
   duration: number;
 
   /**
-   * The gravity of each toast.
+   * The width of each toast in pixels.
    */
-  gravity: NgpToastGravity;
+  width: number;
 
   /**
-   * The position of each toast.
+   * The offset from the top of the viewport in pixels.
    */
-  position: NgpToastPosition;
+  offsetTop: number;
 
   /**
-   * Whether we should stop on hover.
+   * The offset from the bottom of the viewport in pixels.
    */
-  stopOnHover: boolean;
+  offsetBottom: number;
+
+  /**
+   * The offset from the left of the viewport in pixels.
+   */
+  offsetLeft: number;
+
+  /**
+   * The offset from the right of the viewport in pixels.
+   */
+  offsetRight: number;
+
+  /**
+   * Whether a toast can be dismissed by swiping.
+   */
+  dismissible: boolean;
+
+  /**
+   * The amount a toast must be swiped before it is considered dismissed.
+   */
+  swipeThreshold: number;
+
+  /**
+   * The default swipe directions supported by the toast.
+   */
+  swipeDirections: NgpToastSwipeDirection[];
+
+  /**
+   * The maximum number of toasts that can be displayed at once.
+   */
+  maxToasts: number;
 
   /**
    * The aria live setting.
@@ -31,14 +61,27 @@ export interface NgpToastConfig {
    * The gap between each toast.
    */
   gap: number;
+
+  /**
+   * The z-index of the toast container.
+   * This is used to ensure that the toast container is always on top of other elements.
+   */
+  zIndex: number;
 }
 
 export const defaultToastConfig: NgpToastConfig = {
-  gap: 16,
+  gap: 14,
   duration: 3000,
-  gravity: 'top',
-  position: 'end',
-  stopOnHover: true,
+  width: 360,
+  offsetTop: 24,
+  offsetBottom: 24,
+  offsetLeft: 24,
+  offsetRight: 24,
+  swipeThreshold: 45,
+  swipeDirections: ['left', 'right', 'top', 'bottom'],
+  dismissible: true,
+  maxToasts: 3,
+  zIndex: 9999999,
   ariaLive: 'polite',
 };
 
