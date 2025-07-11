@@ -48,15 +48,12 @@ export function setupExitAnimation({ element }: NgpExitAnimationOptions): NgpExi
     // remove all current animation state attributes
     element.removeAttribute('data-enter');
     element.removeAttribute('data-exit');
-    element.removeAttribute('inert');
 
     // add the new animation state attribute
     if (state === 'enter') {
       element.setAttribute('data-enter', '');
     } else if (state === 'exit') {
       element.setAttribute('data-exit', '');
-      // make the element inert to prevent interaction while exiting
-      element.setAttribute('inert', '');
     }
   }
 

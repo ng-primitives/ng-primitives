@@ -26,7 +26,7 @@ import {
   shift,
 } from '@floating-ui/dom';
 import { fromResizeEvent } from 'ng-primitives/internal';
-import { injectDisposables, safeTakeUntilDestroyed } from 'ng-primitives/utils';
+import { injectDisposables, safeTakeUntilDestroyed, uniqueId } from 'ng-primitives/utils';
 import { Subject, fromEvent } from 'rxjs';
 import { provideOverlayContext } from './overlay-token';
 import { NgpPortal, createPortal } from './portal';
@@ -147,6 +147,12 @@ export class NgpOverlay<T = unknown> {
   /** Signal tracking whether the overlay is open */
   readonly isOpen = signal(false);
 
+  /** A unique id for the overlay */
+  readonly id = signal<string>(uniqueId('ngp-overlay'));
+
+  /** The aria-describedby attribute for accessibility */
+  readonly ariaDescribedBy = computed(() => (this.isOpen() ? this.id() : undefined));
+
   /** The scroll strategy */
   private scrollStrategy = new NoopScrollStrategy();
 
@@ -251,6 +257,18 @@ export class NgpOverlay<T = unknown> {
         resolve();
       }, delay);
     });
+  }
+
+  /**
+   * Stop any pending close operation. This is useful for example, if we move the mouse from the tooltip trigger to the tooltip itself.
+   * This will prevent the tooltip from closing immediately when the mouse leaves the trigger.
+   * @internal
+   */
+  cancelPendingClose(): void {
+    if (this.closeTimeout) {
+      this.closeTimeout();
+      this.closeTimeout = undefined;
+    }
   }
 
   /**

@@ -34,6 +34,7 @@ import { provideTooltipTriggerState, tooltipTriggerState } from './tooltip-trigg
   host: {
     '[attr.data-open]': 'open() ? "" : null',
     '[attr.data-disabled]': 'state.disabled() ? "" : null',
+    '[attr.aria-describedby]': 'overlay()?.ariaDescribedBy()',
     '(mouseenter)': 'show()',
     '(mouseleave)': 'hide()',
     '(focus)': 'show()',
@@ -152,6 +153,11 @@ export class NgpTooltipTrigger<T = null> implements OnDestroy {
   readonly overlay = signal<NgpOverlay<T> | null>(null);
 
   /**
+   * The unique id of the tooltip.
+   */
+  readonly tooltipId = signal<string | undefined>(undefined);
+
+  /**
    * The open state of the tooltip.
    * @internal
    */
@@ -184,6 +190,8 @@ export class NgpTooltipTrigger<T = null> implements OnDestroy {
   show(): void {
     // If the trigger is disabled, do not show the tooltip
     if (this.state.disabled() || this.open()) {
+      // we mark this as show again to stop it dismissing
+      this.overlay()?.cancelPendingClose();
       return;
     }
 
@@ -242,5 +250,12 @@ export class NgpTooltipTrigger<T = null> implements OnDestroy {
 
     // Create the overlay instance
     this.overlay.set(createOverlay(config));
+  }
+
+  /**
+   * Set the tooltip id.
+   */
+  setTooltipId(id: string): void {
+    this.tooltipId.set(id);
   }
 }
