@@ -31,6 +31,7 @@ export class NgpToggleGroupItem implements OnInit {
 
   /**
    * The value of the item.
+   * @required
    */
   readonly value = input<string>(undefined, {
     alias: 'ngpToggleGroupItemValue',

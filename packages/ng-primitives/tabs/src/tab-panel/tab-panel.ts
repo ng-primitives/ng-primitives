@@ -26,6 +26,7 @@ export class NgpTabPanel implements OnInit {
 
   /**
    * The value of the tab
+   * @required
    */
   readonly value = input<string>(undefined, { alias: 'ngpTabPanelValue' });
 

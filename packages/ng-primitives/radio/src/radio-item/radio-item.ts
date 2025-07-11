@@ -27,6 +27,7 @@ export class NgpRadioItem<T> implements OnInit {
 
   /**
    * The value of the radio item.
+   * @required
    */
   readonly value = input<T>(undefined, { alias: 'ngpRadioItemValue' });
 

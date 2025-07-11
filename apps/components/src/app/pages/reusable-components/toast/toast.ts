@@ -33,7 +33,7 @@ import { injectToastContext, NgpToast, NgpToastManager } from 'ng-primitives/toa
       border-radius: 8px;
       z-index: var(--ngp-toast-z-index);
       grid-template-columns: 1fr auto;
-      grid-template-rows: auto auto;
+      grid-template-rows: min-content min-content;
       column-gap: 12px;
       align-items: center;
       width: var(--ngp-toast-width);
