@@ -49,6 +49,7 @@ export class NgpTabButton implements OnInit, OnDestroy {
 
   /**
    * The value of the tab this trigger controls
+   * @required
    */
   readonly value = input<string>(undefined, { alias: 'ngpTabButtonValue' });
 
