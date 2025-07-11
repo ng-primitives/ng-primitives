@@ -22,7 +22,7 @@ export interface NgpTooltipConfig {
 
   /**
    * Define the delay before the tooltip is hidden.
-   * @default 0
+   * @default 500
    */
   hideDelay: number;
 
@@ -49,7 +49,7 @@ export const defaultTooltipConfig: NgpTooltipConfig = {
   offset: 4,
   placement: 'top',
   showDelay: 0,
-  hideDelay: 0,
+  hideDelay: 500,
   flip: true,
   container: null,
   showOnOverflow: false,

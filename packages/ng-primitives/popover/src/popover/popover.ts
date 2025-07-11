@@ -1,5 +1,6 @@
-import { Directive } from '@angular/core';
+import { Directive, input } from '@angular/core';
 import { NgpFocusTrap } from 'ng-primitives/focus-trap';
+import { explicitEffect } from 'ng-primitives/internal';
 import { injectOverlay } from 'ng-primitives/portal';
 
 /**
@@ -11,6 +12,7 @@ import { injectOverlay } from 'ng-primitives/portal';
   hostDirectives: [NgpFocusTrap],
   host: {
     role: 'dialog',
+    '[id]': 'id()',
     '[style.left.px]': 'overlay.position().x',
     '[style.top.px]': 'overlay.position().y',
     '[style.--ngp-popover-trigger-width.px]': 'overlay.triggerWidth()',
@@ -23,4 +25,13 @@ export class NgpPopover {
    * Access the overlay.
    */
   protected readonly overlay = injectOverlay();
+
+  /**
+   * The unique id of the tooltip.
+   */
+  readonly id = input(this.overlay.id());
+
+  constructor() {
+    explicitEffect([this.id], ([id]) => this.overlay.id.set(id));
+  }
 }

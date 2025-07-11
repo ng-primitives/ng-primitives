@@ -36,6 +36,7 @@ import { popoverTriggerState, providePopoverTriggerState } from './popover-trigg
     '[attr.data-open]': 'open() ? "" : null',
     '[attr.data-placement]': 'state.placement()',
     '[attr.data-disabled]': 'state.disabled() ? "" : null',
+    '[attr.aria-describedby]': 'overlay()?.ariaDescribedBy()',
     '(click)': 'toggle($event)',
   },
 })
