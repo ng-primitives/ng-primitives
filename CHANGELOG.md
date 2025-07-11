@@ -1,3 +1,14 @@
+## 0.62.0 (2025-07-11)
+
+### 🩹 Fixes
+
+- **accordion:** provide default values ([#354](https://github.com/ng-primitives/ng-primitives/pull/354))
+- **tooltip:** resolve accessibility issues ([#355](https://github.com/ng-primitives/ng-primitives/pull/355))
+
+### ❤️ Thank You
+
+- Ashley Hunter
+
 ## 0.61.0 (2025-07-10)
 
 - **refactor(toast)**: reworking toast component 
