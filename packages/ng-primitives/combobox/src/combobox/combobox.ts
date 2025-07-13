@@ -187,6 +187,7 @@ export class NgpCombobox {
       return;
     }
 
+    this.openChange.emit(true);
     await this.portal()?.show();
 
     // if there is a selected option(s), set the active descendant to the first selected option
