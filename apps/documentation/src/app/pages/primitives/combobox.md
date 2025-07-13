@@ -69,7 +69,7 @@ The following directives are available to import from the `ng-primitives/combobo
 
 The main container for the combobox.
 
-<api-docus name="NgpCombobox"></api-docs>
+<api-docs name="NgpCombobox"></api-docs>
 
 #### Data Attributes
 
