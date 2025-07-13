@@ -6,9 +6,7 @@ import { NgpComboboxDropdown } from '../combobox-dropdown/combobox-dropdown';
 import { NgpComboboxInput } from '../combobox-input/combobox-input';
 import { NgpComboboxOption } from '../combobox-option/combobox-option';
 import { NgpComboboxPortal } from '../combobox-portal/combobox-portal';
-import { NgpCombobox } from './combobox';
-
-import exp = require('constants');
+import { NgpCombobox } from './combobox'
 
 @Component({
   imports: [
