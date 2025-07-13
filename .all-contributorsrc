@@ -170,6 +170,15 @@
       "contributions": [
         "code"
       ]
+    },
+    {
+      "login": "TrieBr",
+      "name": "Brad Triebwasser",
+      "avatar_url": "https://avatars.githubusercontent.com/u/348719?v=4",
+      "profile": "https://github.com/TrieBr",
+      "contributions": [
+        "code"
+      ]
     }
   ],
   "contributorsPerLine": 7,
