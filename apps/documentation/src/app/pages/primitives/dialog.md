@@ -106,6 +106,22 @@ The following directives are available to import from the `ng-primitives/dialog`
 | ----------- | ----------------------------------- |
 | `data-exit` | Applied when the dialog is closing. |
 
+### NgpDialogManager
+
+The `NgpDialogManager` can be used as an alternative to the `NgpDialogTrigger` directive for programmatically opening dialogs.
+
+The manager provides a method to open or close all dialogs and accepts a component or template reference to display.
+
+<prop-details name="open" type="(component: Type | TemplateRef, options?: NgpDialogConfig) => NgpDialogRef">
+  Opens a dialog with the specified component or template reference.
+</prop-details>
+
+<prop-details name="closeAll" type="() => void">
+  Closes all open dialogs.
+</prop-details>
+
+</prop-details>
+
 ## Examples
 
 ### Dialog with external data
@@ -129,3 +145,7 @@ Adheres to the [WAI-ARIA design pattern](https://www.w3.org/WAI/ARIA/apg/pattern
 - <kbd>Esc</kbd>: Close the dialog.
 - <kbd>Tab</kbd>: Navigate through focusable elements within the dialog.
 - <kbd>Shift</kbd> + <kbd>Tab</kbd>: Navigate backwards through focusable elements within the dialog.
+
+```
+
+```
