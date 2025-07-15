@@ -78,6 +78,7 @@ export class NgpComboboxPortal implements OnDestroy {
       closeOnEscape: true,
       restoreFocus: false,
       scrollBehaviour: 'reposition',
+      container: this.state().container(),
     };
 
     this.overlay.set(createOverlay(config));

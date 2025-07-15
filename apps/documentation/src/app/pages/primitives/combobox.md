@@ -185,6 +185,28 @@ The `ngpComboboxDropdown` will also add the `data-enter` and `data-exit` attribu
 }
 ```
 
+## Global Configuration
+
+You can configure the default options for all comboboxes in your application by using the `provideComboboxConfig` function in a providers array.
+
+```ts
+import { provideComboboxConfig } from 'ng-primitives/combobox';
+
+bootstrapApplication(AppComponent, {
+  providers: [provideComboboxConfig({ placement: 'bottom', container: document.body })],
+});
+```
+
+### NgpComboboxConfig
+
+<prop-details name="placement" type="'top' | 'right' | 'bottom' | 'left'">
+  Define the placement of the combobox dropdown.
+</prop-details>
+
+<prop-details name="container" type="HTMLElement" default="document.body">
+  Define the container element for the combobox dropdown. This is useful for rendering the dropdown in a specific part of the DOM.
+</prop-details>
+
 ## Accessibility
 
 Adheres to the [WAI-ARIA](https://www.w3.org/WAI/ARIA/apg/patterns/combobox/) guidelines for comboboxes.
