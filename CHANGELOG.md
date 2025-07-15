@@ -1,3 +1,19 @@
+## 0.64.0 (2025-07-15)
+
+### 🚀 Features
+
+- **combobox:** allow dropdown container to be set ([#367](https://github.com/ng-primitives/ng-primitives/pull/367))
+
+### 🩹 Fixes
+
+- **combobox:** Emit ngpComboboxOpenChange event when dropdown is opened. ([#358](https://github.com/ng-primitives/ng-primitives/pull/358))
+- **menu:** allow menu item to alias the disabled input ([#366](https://github.com/ng-primitives/ng-primitives/pull/366))
+
+### ❤️ Thank You
+
+- Ashley Hunter
+- Brad Triebwasser
+
 ## 0.62.1 (2025-07-11)
 
 ### 🩹 Fixes
