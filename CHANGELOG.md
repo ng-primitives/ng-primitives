@@ -1,3 +1,18 @@
+## 0.65.0 (2025-07-16)
+
+### 🚀 Features
+
+- **button:** add icon to button ([#345](https://github.com/ng-primitives/ng-primitives/pull/345), [#342](https://github.com/ng-primitives/ng-primitives/issues/342), [#343](https://github.com/ng-primitives/ng-primitives/issues/343), [#348](https://github.com/ng-primitives/ng-primitives/issues/348), [#349](https://github.com/ng-primitives/ng-primitives/issues/349), [#350](https://github.com/ng-primitives/ng-primitives/issues/350))
+
+### 🩹 Fixes
+
+- **pagination:** fix pagination button disabled states ([#369](https://github.com/ng-primitives/ng-primitives/pull/369))
+
+### ❤️ Thank You
+
+- Ashley Hunter
+- Eugene Rusakov @eurusik
+
 ## 0.64.0 (2025-07-15)
 
 ### 🚀 Features
