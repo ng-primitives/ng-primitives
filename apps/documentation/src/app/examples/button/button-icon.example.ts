@@ -1,4 +1,11 @@
 import { Component, input } from '@angular/core';
+import { NgIcon, provideIcons } from '@ng-icons/core';
+import {
+  lucideArrowRight,
+  lucideCheck,
+  lucideChevronRight,
+  lucideShoppingBasket,
+} from '@ng-icons/lucide';
 import { NgpButton } from 'ng-primitives/button';
 
 /**
@@ -196,3 +203,99 @@ export class Button {
    */
   readonly variant = input<ButtonVariant>('primary');
 }
+
+@Component({
+  selector: 'app-button-icon-example',
+  imports: [Button, NgIcon],
+  providers: [
+    provideIcons({ lucideArrowRight, lucideCheck, lucideChevronRight, lucideShoppingBasket }),
+  ],
+  template: `
+    <div class="button-container">
+      <h3>Button with left icon</h3>
+      <div class="button-row">
+        <button app-button>
+          <ng-icon slot="leading" name="lucideArrowRight" />
+          Left Icon
+        </button>
+        <button app-button variant="secondary">
+          <ng-icon slot="leading" name="lucideCheck" />
+          Left Icon
+        </button>
+        <button app-button variant="destructive">
+          <ng-icon slot="leading" name="lucideShoppingBasket" />
+          Left Icon
+        </button>
+        <button app-button variant="outline">
+          <ng-icon slot="leading" name="lucideChevronRight" />
+          Left Icon
+        </button>
+      </div>
+
+      <h3>Button with right icon</h3>
+      <div class="button-row">
+        <button app-button>
+          Right Icon
+          <ng-icon slot="trailing" name="lucideArrowRight" />
+        </button>
+        <button app-button variant="secondary">
+          Right Icon
+          <ng-icon slot="trailing" name="lucideCheck" />
+        </button>
+        <button app-button variant="destructive">
+          Right Icon
+          <ng-icon slot="trailing" name="lucideShoppingBasket" />
+        </button>
+        <button app-button variant="outline">
+          Right Icon
+          <ng-icon slot="trailing" name="lucideChevronRight" />
+        </button>
+      </div>
+
+      <h3>Button sizes with icons</h3>
+      <div class="button-row">
+        <button app-button size="sm">
+          <ng-icon slot="leading" name="lucideArrowRight" />
+          Small
+          <ng-icon slot="trailing" name="lucideCheck" />
+        </button>
+        <button app-button>
+          <ng-icon slot="leading" name="lucideArrowRight" />
+          Medium
+          <ng-icon slot="trailing" name="lucideCheck" />
+        </button>
+        <button app-button size="lg">
+          <ng-icon slot="leading" name="lucideArrowRight" />
+          Large
+          <ng-icon slot="trailing" name="lucideCheck" />
+        </button>
+        <button app-button size="xl">
+          <ng-icon slot="leading" name="lucideArrowRight" />
+          Extra Large
+          <ng-icon slot="trailing" name="lucideCheck" />
+        </button>
+      </div>
+    </div>
+  `,
+  styles: `
+    .button-container {
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+
+    .button-row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    h3 {
+      margin-bottom: 0.5rem;
+      font-size: 1rem;
+      font-weight: 500;
+    }
+  `,
+})
+export default class ButtonIconExample {}

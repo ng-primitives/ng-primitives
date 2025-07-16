@@ -44,7 +44,6 @@ describe('NgpPopoverTrigger', () => {
           <div ngpPopover>Popover content</div>
         </ng-template>
       `,
-      standalone: true,
       imports: [NgpPopoverTrigger, NgpPopover],
     })
     class EventTestComponent {

@@ -140,7 +140,6 @@ export class Button {
 
 @Component({
   selector: 'app-button-variants-example',
-  standalone: true,
   imports: [Button],
   template: `
     <div class="button-container">

@@ -14,7 +14,11 @@ export type ButtonVariant = 'primary' | 'secondary' | 'destructive' | 'outline' 
 @Component({
   selector: 'button[<%= prefix %>-button]',
   hostDirectives: [{ directive: NgpButton, inputs: ['disabled'] }],
-  template: '<ng-content />',
+  template: `
+    <ng-content select="[slot=leading]" />
+    <ng-content />
+    <ng-content select="[slot=trailing]" />
+  `,
   host: {
     '[attr.data-size]': 'size()',
     '[attr.data-variant]': 'variant()',
@@ -38,8 +42,56 @@ export type ButtonVariant = 'primary' | 'secondary' | 'destructive' | 'outline' 
       align-items: center;
       justify-content: center;
       cursor: pointer;
+      gap: 0.5rem;
     }
 
+    :host[data-hover] {
+      background-color: var(--ngp-background-hover);
+    }
+
+    :host[data-focus-visible] {
+      outline: 2px solid var(--ngp-focus-ring);
+    }
+
+    :host[data-press] {
+      background-color: var(--ngp-background-active);
+    }
+
+    /* Size variants */
+    :host[data-size='sm'] {
+      height: 2rem;
+      padding-left: 0.75rem;
+      padding-right: 0.75rem;
+      font-size: 0.875rem;
+      --ng-icon__size: 0.875rem;
+    }
+
+    :host[data-size='md'],
+    :host:not([data-size]) {
+      height: 2.5rem;
+      padding-left: 1rem;
+      padding-right: 1rem;
+      font-size: 0.875rem;
+      --ng-icon__size: 0.875rem;
+    }
+
+    :host[data-size='lg'] {
+      height: 3rem;
+      padding-left: 1.25rem;
+      padding-right: 1.25rem;
+      font-size: 1rem;
+      --ng-icon__size: 1rem;
+    }
+
+    :host[data-size='xl'] {
+      height: 3.5rem;
+      padding-left: 1.5rem;
+      padding-right: 1.5rem;
+      font-size: 1.125rem;
+      --ng-icon__size: 1.125rem;
+    }
+
+    /* Variant styles */
     :host[data-variant='primary'],
     :host:not([data-variant]) {
       background-color: var(--ngp-background);
@@ -113,58 +165,25 @@ export type ButtonVariant = 'primary' | 'secondary' | 'destructive' | 'outline' 
     }
 
     :host[data-variant='ghost'][data-press] {
-      background-color: var(--ngp-ghost-background-active, rgba(15, 23, 42, 0.1));
+      background-color: var(--ngp-background-active);
     }
 
     :host[data-variant='link'] {
       background-color: transparent;
-      color: var(--ngp-text-primary);
+      color: var(--ngp-link-color, #3b82f6);
       border: none;
       box-shadow: none;
-      text-decoration-line: none;
-      height: auto;
-      padding: 0;
+      text-decoration: underline;
+      text-underline-offset: 4px;
     }
 
     :host[data-variant='link'][data-hover] {
-      text-decoration-line: underline;
+      text-decoration-thickness: 2px;
     }
 
-    :host[data-variant='link'][data-press] {
-      text-decoration-line: underline;
-    }
-
-    :host[data-focus-visible] {
-      outline: 2px solid var(--ngp-focus-ring);
-    }
-
-    :host[data-size='sm'] {
-      height: 2rem;
-      padding-left: 0.75rem;
-      padding-right: 0.75rem;
-      font-size: 0.875rem;
-    }
-
-    :host[data-size='md'],
-    :host:not([data-size]) {
-      height: 2.5rem;
-      padding-left: 1rem;
-      padding-right: 1rem;
-      font-size: 0.875rem;
-    }
-
-    :host[data-size='lg'] {
-      height: 3rem;
-      padding-left: 1.25rem;
-      padding-right: 1.25rem;
-      font-size: 1rem;
-    }
-
-    :host[data-size='xl'] {
-      height: 3.5rem;
-      padding-left: 1.5rem;
-      padding-right: 1.5rem;
-      font-size: 1.125rem;
+    :host[disabled] {
+      opacity: 0.5;
+      cursor: not-allowed;
     }
   `,
 })
