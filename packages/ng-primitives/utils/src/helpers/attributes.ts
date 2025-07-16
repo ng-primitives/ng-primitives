@@ -1,4 +1,4 @@
-import { afterNextRender, Signal } from '@angular/core';
+import { afterRenderEffect, Signal } from '@angular/core';
 
 export function booleanAttributeBinding(
   element: HTMLElement,
@@ -9,7 +9,7 @@ export function booleanAttributeBinding(
     return;
   }
 
-  afterNextRender({
+  afterRenderEffect({
     write: () =>
       value() ? element.setAttribute(attribute, '') : element.removeAttribute(attribute),
   });
