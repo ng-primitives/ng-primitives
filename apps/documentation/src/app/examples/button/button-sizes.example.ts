@@ -8,7 +8,6 @@ export type ButtonSize = 'sm' | 'md' | 'lg' | 'xl';
 
 @Component({
   selector: 'button[app-button]',
-  standalone: true,
   hostDirectives: [{ directive: NgpButton, inputs: ['disabled'] }],
   template: '<ng-content />',
   host: {
@@ -81,7 +80,6 @@ export class Button {
 
 @Component({
   selector: 'app-button-sizes-example',
-  standalone: true,
   imports: [Button],
   template: `
     <div class="button-container">

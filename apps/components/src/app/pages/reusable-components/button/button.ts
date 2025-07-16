@@ -13,16 +13,11 @@ export type ButtonVariant = 'primary' | 'secondary' | 'destructive' | 'outline' 
 
 @Component({
   selector: 'button[app-button]',
-  standalone: true,
   hostDirectives: [{ directive: NgpButton, inputs: ['disabled'] }],
   template: `
-    <span class="icon-left">
-      <ng-content select="[slot=left]" />
-    </span>
+    <ng-content select="[slot=leading]" />
     <ng-content />
-    <span class="icon-right">
-      <ng-content select="[slot=right]" />
-    </span>
+    <ng-content select="[slot=trailing]" />
   `,
   host: {
     '[attr.data-size]': 'size()',
@@ -48,38 +43,53 @@ export type ButtonVariant = 'primary' | 'secondary' | 'destructive' | 'outline' 
       gap: 0.5rem;
     }
 
-    .icon-left {
-      margin-right: 0.25rem;
-      display: inline-flex;
-      align-items: center;
+    :host[data-hover] {
+      background-color: var(--ngp-background-hover);
     }
 
-    .icon-right {
-      margin-left: 0.25rem;
-      display: inline-flex;
-      align-items: center;
+    :host[data-focus-visible] {
+      outline: 2px solid var(--ngp-focus-ring);
     }
 
-    .icon-small {
-      height: 1rem;
-      width: 1rem;
+    :host[data-press] {
+      background-color: var(--ngp-background-active);
     }
 
-    .icon-medium {
-      height: 1.25rem;
-      width: 1.25rem;
+    /* Size variants */
+    :host[data-size='sm'] {
+      height: 2rem;
+      padding-left: 0.75rem;
+      padding-right: 0.75rem;
+      font-size: 0.875rem;
+      --ng-icon__size: 0.875rem;
     }
 
-    .icon-large {
-      height: 1.5rem;
-      width: 1.5rem;
+    :host[data-size='md'],
+    :host:not([data-size]) {
+      height: 2.5rem;
+      padding-left: 1rem;
+      padding-right: 1rem;
+      font-size: 0.875rem;
+      --ng-icon__size: 0.875rem;
     }
 
-    .icon-xlarge {
-      height: 1.75rem;
-      width: 1.75rem;
+    :host[data-size='lg'] {
+      height: 3rem;
+      padding-left: 1.25rem;
+      padding-right: 1.25rem;
+      font-size: 1rem;
+      --ng-icon__size: 1rem;
     }
 
+    :host[data-size='xl'] {
+      height: 3.5rem;
+      padding-left: 1.5rem;
+      padding-right: 1.5rem;
+      font-size: 1.125rem;
+      --ng-icon__size: 1.125rem;
+    }
+
+    /* Variant styles */
     :host[data-variant='primary'],
     :host:not([data-variant]) {
       background-color: var(--ngp-background);
@@ -153,58 +163,25 @@ export type ButtonVariant = 'primary' | 'secondary' | 'destructive' | 'outline' 
     }
 
     :host[data-variant='ghost'][data-press] {
-      background-color: var(--ngp-ghost-background-active, rgba(15, 23, 42, 0.1));
+      background-color: var(--ngp-background-active);
     }
 
     :host[data-variant='link'] {
       background-color: transparent;
-      color: var(--ngp-text-primary);
+      color: var(--ngp-link-color, #3b82f6);
       border: none;
       box-shadow: none;
-      text-decoration-line: none;
-      height: auto;
-      padding: 0;
+      text-decoration: underline;
+      text-underline-offset: 4px;
     }
 
     :host[data-variant='link'][data-hover] {
-      text-decoration-line: underline;
+      text-decoration-thickness: 2px;
     }
 
-    :host[data-variant='link'][data-press] {
-      text-decoration-line: underline;
-    }
-
-    :host[data-focus-visible] {
-      outline: 2px solid var(--ngp-focus-ring);
-    }
-
-    :host[data-size='sm'] {
-      height: 2rem;
-      padding-left: 0.75rem;
-      padding-right: 0.75rem;
-      font-size: 0.875rem;
-    }
-
-    :host[data-size='md'],
-    :host:not([data-size]) {
-      height: 2.5rem;
-      padding-left: 1rem;
-      padding-right: 1rem;
-      font-size: 0.875rem;
-    }
-
-    :host[data-size='lg'] {
-      height: 3rem;
-      padding-left: 1.25rem;
-      padding-right: 1.25rem;
-      font-size: 1rem;
-    }
-
-    :host[data-size='xl'] {
-      height: 3.5rem;
-      padding-left: 1.5rem;
-      padding-right: 1.5rem;
-      font-size: 1.125rem;
+    :host[disabled] {
+      opacity: 0.5;
+      cursor: not-allowed;
     }
   `,
 })
@@ -218,21 +195,4 @@ export class Button {
    * The variant of the button.
    */
   readonly variant = input<ButtonVariant>('primary');
-
-  /**
-   * Map of button sizes to icon classes
-   */
-  private readonly sizeToIconClassMap: Record<ButtonSize, string> = {
-    sm: 'icon-small',
-    md: 'icon-medium',
-    lg: 'icon-large',
-    xl: 'icon-xlarge',
-  };
-
-  /**
-   * Returns the appropriate icon class based on button size
-   */
-  protected iconClass(): string {
-    return this.sizeToIconClassMap[this.size()] || 'icon-medium';
-  }
 }
