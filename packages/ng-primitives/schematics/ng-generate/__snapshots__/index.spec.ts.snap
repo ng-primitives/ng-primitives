@@ -17,7 +17,11 @@ export type ButtonVariant = 'primary' | 'secondary' | 'destructive' | 'outline' 
 @Component({
   selector: 'button[app-button]',
   hostDirectives: [{ directive: NgpButton, inputs: ['disabled'] }],
-  template: '<ng-content />',
+  template: \`
+    <ng-content select="[slot=leading]" />
+    <ng-content />
+    <ng-content select="[slot=trailing]" />
+  \`,
   host: {
     '[attr.data-size]': 'size()',
     '[attr.data-variant]': 'variant()',
@@ -41,6 +45,16 @@ export type ButtonVariant = 'primary' | 'secondary' | 'destructive' | 'outline' 
       align-items: center;
       justify-content: center;
       cursor: pointer;
+      gap: 0.5rem;
+    }
+    
+    ::ng-deep [slot=leading], ::ng-deep [slot=trailing] {
+      display: inline-flex;
+      align-items: center;
+    }
+    
+    ::ng-deep [slot=leading] ng-icon, ::ng-deep [slot=trailing] ng-icon {
+      --ng-icon__size: 1.25rem;
     }
 
     :host[data-variant='primary'],
