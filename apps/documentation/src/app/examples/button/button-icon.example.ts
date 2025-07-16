@@ -20,7 +20,6 @@ export type ButtonVariant = 'primary' | 'secondary' | 'destructive' | 'outline' 
 
 @Component({
   selector: 'button[app-button]',
-  standalone: true,
   imports: [NgIcon],
   hostDirectives: [{ directive: NgpButton, inputs: ['disabled'] }],
   template: `
@@ -257,7 +256,6 @@ export class Button {
 
 @Component({
   selector: 'app-button-icon-example',
-  standalone: true,
   imports: [Button, NgIcon],
   providers: [
     provideIcons({ lucideArrowRight, lucideCheck, lucideChevronRight, lucideShoppingBasket }),
