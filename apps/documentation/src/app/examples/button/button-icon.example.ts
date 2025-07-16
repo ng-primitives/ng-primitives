@@ -20,16 +20,11 @@ export type ButtonVariant = 'primary' | 'secondary' | 'destructive' | 'outline' 
 
 @Component({
   selector: 'button[app-button]',
-  imports: [NgIcon],
   hostDirectives: [{ directive: NgpButton, inputs: ['disabled'] }],
   template: `
-    <span class="icon-left">
-      <ng-content select="[slot=left]" />
-    </span>
+    <ng-content select="[slot=leading]" />
     <ng-content />
-    <span class="icon-right">
-      <ng-content select="[slot=right]" />
-    </span>
+    <ng-content select="[slot=trailing]" />
   `,
   host: {
     '[attr.data-size]': 'size()',
@@ -55,38 +50,6 @@ export type ButtonVariant = 'primary' | 'secondary' | 'destructive' | 'outline' 
       gap: 0.5rem;
     }
 
-    .icon-left {
-      margin-right: 0.5rem;
-      display: inline-flex;
-      align-items: center;
-    }
-
-    .icon-right {
-      margin-left: 0.5rem;
-      display: inline-flex;
-      align-items: center;
-    }
-
-    .icon-small {
-      height: 1rem;
-      width: 1rem;
-    }
-
-    .icon-medium {
-      height: 1.25rem;
-      width: 1.25rem;
-    }
-
-    .icon-large {
-      height: 1.5rem;
-      width: 1.5rem;
-    }
-
-    .icon-xlarge {
-      height: 1.75rem;
-      width: 1.75rem;
-    }
-
     :host[data-hover] {
       background-color: var(--ngp-background-hover);
     }
@@ -105,6 +68,7 @@ export type ButtonVariant = 'primary' | 'secondary' | 'destructive' | 'outline' 
       padding-left: 0.75rem;
       padding-right: 0.75rem;
       font-size: 0.875rem;
+      --ng-icon__size: 0.875rem;
     }
 
     :host[data-size='md'],
@@ -113,6 +77,7 @@ export type ButtonVariant = 'primary' | 'secondary' | 'destructive' | 'outline' 
       padding-left: 1rem;
       padding-right: 1rem;
       font-size: 0.875rem;
+      --ng-icon__size: 0.875rem;
     }
 
     :host[data-size='lg'] {
@@ -120,6 +85,7 @@ export type ButtonVariant = 'primary' | 'secondary' | 'destructive' | 'outline' 
       padding-left: 1.25rem;
       padding-right: 1.25rem;
       font-size: 1rem;
+      --ng-icon__size: 1rem;
     }
 
     :host[data-size='xl'] {
@@ -127,6 +93,7 @@ export type ButtonVariant = 'primary' | 'secondary' | 'destructive' | 'outline' 
       padding-left: 1.5rem;
       padding-right: 1.5rem;
       font-size: 1.125rem;
+      --ng-icon__size: 1.125rem;
     }
 
     /* Variant styles */
@@ -235,23 +202,6 @@ export class Button {
    * The variant of the button.
    */
   readonly variant = input<ButtonVariant>('primary');
-
-  /**
-   * Map of button sizes to icon classes
-   */
-  private readonly sizeToIconClassMap: Record<ButtonSize, string> = {
-    sm: 'icon-small',
-    md: 'icon-medium',
-    lg: 'icon-large',
-    xl: 'icon-xlarge',
-  };
-
-  /**
-   * Returns the appropriate icon class based on button size
-   */
-  protected iconClass(): string {
-    return this.sizeToIconClassMap[this.size()] || 'icon-medium';
-  }
 }
 
 @Component({
@@ -265,19 +215,19 @@ export class Button {
       <h3>Button with left icon</h3>
       <div class="button-row">
         <button app-button>
-          <ng-icon slot="left" name="lucideArrowRight" />
+          <ng-icon slot="leading" name="lucideArrowRight" />
           Left Icon
         </button>
         <button app-button variant="secondary">
-          <ng-icon slot="left" name="lucideCheck" />
+          <ng-icon slot="leading" name="lucideCheck" />
           Left Icon
         </button>
         <button app-button variant="destructive">
-          <ng-icon slot="left" name="lucideShoppingBasket" />
+          <ng-icon slot="leading" name="lucideShoppingBasket" />
           Left Icon
         </button>
         <button app-button variant="outline">
-          <ng-icon slot="left" name="lucideChevronRight" />
+          <ng-icon slot="leading" name="lucideChevronRight" />
           Left Icon
         </button>
       </div>
@@ -286,43 +236,43 @@ export class Button {
       <div class="button-row">
         <button app-button>
           Right Icon
-          <ng-icon slot="right" name="lucideArrowRight" />
+          <ng-icon slot="trailing" name="lucideArrowRight" />
         </button>
         <button app-button variant="secondary">
           Right Icon
-          <ng-icon slot="right" name="lucideCheck" />
+          <ng-icon slot="trailing" name="lucideCheck" />
         </button>
         <button app-button variant="destructive">
           Right Icon
-          <ng-icon slot="right" name="lucideShoppingBasket" />
+          <ng-icon slot="trailing" name="lucideShoppingBasket" />
         </button>
         <button app-button variant="outline">
           Right Icon
-          <ng-icon slot="right" name="lucideChevronRight" />
+          <ng-icon slot="trailing" name="lucideChevronRight" />
         </button>
       </div>
 
       <h3>Button sizes with icons</h3>
       <div class="button-row">
         <button app-button size="sm">
-          <ng-icon slot="left" name="lucideArrowRight" />
+          <ng-icon slot="leading" name="lucideArrowRight" />
           Small
-          <ng-icon slot="right" name="lucideCheck" />
+          <ng-icon slot="trailing" name="lucideCheck" />
         </button>
         <button app-button>
-          <ng-icon slot="left" name="lucideArrowRight" />
+          <ng-icon slot="leading" name="lucideArrowRight" />
           Medium
-          <ng-icon slot="right" name="lucideCheck" />
+          <ng-icon slot="trailing" name="lucideCheck" />
         </button>
         <button app-button size="lg">
-          <ng-icon slot="left" name="lucideArrowRight" />
+          <ng-icon slot="leading" name="lucideArrowRight" />
           Large
-          <ng-icon slot="right" name="lucideCheck" />
+          <ng-icon slot="trailing" name="lucideCheck" />
         </button>
         <button app-button size="xl">
-          <ng-icon slot="left" name="lucideArrowRight" />
+          <ng-icon slot="leading" name="lucideArrowRight" />
           Extra Large
-          <ng-icon slot="right" name="lucideCheck" />
+          <ng-icon slot="trailing" name="lucideCheck" />
         </button>
       </div>
     </div>
