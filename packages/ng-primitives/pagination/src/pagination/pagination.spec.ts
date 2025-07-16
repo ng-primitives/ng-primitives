@@ -4,6 +4,8 @@ import {
   NgpPaginationButton,
   NgpPaginationFirst,
   NgpPaginationLast,
+  NgpPaginationNext,
+  NgpPaginationPrevious,
 } from 'ng-primitives/pagination';
 
 describe('NgpPagination', () => {
@@ -184,5 +186,110 @@ describe('NgpPagination', () => {
 
     fireEvent.click(lastPageButton);
     expect(pagination.getAttribute('data-page')).toBe('5');
+  });
+
+  it('should disable the first and previous buttons when on the first page', async () => {
+    const { getByTestId } = await render(
+      `<div ngpPagination [(ngpPaginationPage)]="page" [ngpPaginationPageCount]="5">
+        <button data-testid="first-page-button" ngpPaginationFirst>First</button>
+        <button data-testid="previous-page-button" ngpPaginationPrevious>Previous</button>
+      </div>`,
+      {
+        imports: [NgpPagination, NgpPaginationFirst, NgpPaginationPrevious],
+        componentProperties: {
+          page: 1,
+        },
+      },
+    );
+    const firstPageButton = getByTestId('first-page-button');
+    const previousPageButton = getByTestId('previous-page-button');
+
+    expect(firstPageButton).toHaveAttribute('data-disabled');
+    expect(firstPageButton).toHaveAttribute('disabled');
+    expect(previousPageButton).toHaveAttribute('data-disabled');
+    expect(previousPageButton).toHaveAttribute('disabled');
+  });
+
+  it('should disable the last and next buttons when on the last page', async () => {
+    const { getByTestId } = await render(
+      `<div ngpPagination [(ngpPaginationPage)]="page" [ngpPaginationPageCount]="5">
+        <button data-testid="last-page-button" ngpPaginationLast>Last</button>
+        <button data-testid="next-page-button" ngpPaginationNext>Next</button>
+      </div>`,
+      {
+        imports: [NgpPagination, NgpPaginationLast, NgpPaginationNext],
+        componentProperties: {
+          page: 5,
+        },
+      },
+    );
+    const lastPageButton = getByTestId('last-page-button');
+    const nextPageButton = getByTestId('next-page-button');
+
+    expect(lastPageButton).toHaveAttribute('data-disabled');
+    expect(lastPageButton).toHaveAttribute('disabled');
+    expect(nextPageButton).toHaveAttribute('data-disabled');
+    expect(nextPageButton).toHaveAttribute('disabled');
+  });
+
+  it('should enable the first and previous buttons when not on the first page', async () => {
+    const { getByTestId } = await render(
+      `<div ngpPagination [(ngpPaginationPage)]="page" [ngpPaginationPageCount]="5">
+        <button data-testid="first-page-button" ngpPaginationFirst>First</button>
+        <button data-testid="previous-page-button" ngpPaginationPrevious>Previous</button>
+        <button data-testid="next-page-button" ngpPaginationNext>Next</button>
+      </div>`,
+      {
+        imports: [NgpPagination, NgpPaginationFirst, NgpPaginationPrevious, NgpPaginationNext],
+        componentProperties: {
+          page: 1,
+        },
+      },
+    );
+    const firstPageButton = getByTestId('first-page-button');
+    const previousPageButton = getByTestId('previous-page-button');
+    const nextPageButton = getByTestId('next-page-button');
+
+    expect(firstPageButton).toHaveAttribute('data-disabled');
+    expect(firstPageButton).toHaveAttribute('disabled');
+    expect(previousPageButton).toHaveAttribute('data-disabled');
+    expect(previousPageButton).toHaveAttribute('disabled');
+
+    fireEvent.click(nextPageButton);
+    expect(previousPageButton).not.toHaveAttribute('data-disabled');
+    expect(previousPageButton).not.toHaveAttribute('disabled');
+    expect(firstPageButton).not.toHaveAttribute('data-disabled');
+    expect(firstPageButton).not.toHaveAttribute('disabled');
+  });
+
+  it('should enable the last and next buttons when not on the last page', async () => {
+    const { getByTestId } = await render(
+      `<div ngpPagination [(ngpPaginationPage)]="page" [ngpPaginationPageCount]="5">
+        <button data-testid="previous-page-button" ngpPaginationPrevious>Previous</button>
+        <button data-testid="last-page-button" ngpPaginationLast>Last</button>
+        <button data-testid="next-page-button" ngpPaginationNext>Next</button>
+      </div>`,
+      {
+        imports: [NgpPagination, NgpPaginationLast, NgpPaginationNext, NgpPaginationPrevious],
+        componentProperties: {
+          page: 5,
+        },
+      },
+    );
+
+    const lastPageButton = getByTestId('last-page-button');
+    const nextPageButton = getByTestId('next-page-button');
+    const previousPageButton = getByTestId('previous-page-button');
+
+    expect(lastPageButton).toHaveAttribute('data-disabled');
+    expect(lastPageButton).toHaveAttribute('disabled');
+    expect(nextPageButton).toHaveAttribute('data-disabled');
+    expect(nextPageButton).toHaveAttribute('disabled');
+
+    fireEvent.click(previousPageButton);
+    expect(nextPageButton).not.toHaveAttribute('data-disabled');
+    expect(nextPageButton).not.toHaveAttribute('disabled');
+    expect(lastPageButton).not.toHaveAttribute('data-disabled');
+    expect(lastPageButton).not.toHaveAttribute('disabled');
   });
 });
