@@ -4,6 +4,8 @@ import {
   booleanAttribute,
   computed,
   Directive,
+  HOST_TAG_NAME,
+  inject,
   input,
   signal,
   Signal,
@@ -12,6 +14,12 @@ import { explicitEffect, injectElementRef } from 'ng-primitives/internal';
 import { controlStatus, NgpControlStatus, uniqueId } from 'ng-primitives/utils';
 import { injectFormFieldState } from '../form-field/form-field-state';
 import { formControlState, provideFormControlState } from './form-control-state';
+
+/**
+ * Custom elements that support the disabled attribute.
+ * Example: 'mat-select', 'ng-select'
+ */
+const CUSTOM_ELEMENTS_WITH_DISABLED_ATTRIBUTE: string[] = [];
 
 /**
  * Typically this primitive would be not be used directly, but instead a more specific form control primitive would be used (e.g. `ngpInput`). All of our form control primitives use `ngpFormControl` internally so they will have the same accessibility features as described below.
@@ -23,7 +31,7 @@ import { formControlState, provideFormControlState } from './form-control-state'
   exportAs: 'ngpFormControl',
   providers: [provideFormControlState()],
   host: {
-    '[attr.disabled]': 'status().disabled ? "" : null',
+    '[attr.disabled]': 'isDisabledAttributeSupported() && status().disabled ? "" : null',
   },
 })
 export class NgpFormControl {
@@ -46,6 +54,23 @@ export class NgpFormControl {
   readonly status: Signal<NgpControlStatus>;
 
   /**
+   * Whether the element supports the disabled attribute.
+   */
+  readonly isDisabledAttributeSupported = computed(() =>
+    this.checkDisabledAttributeSupport(this.elementRef.nativeElement, this.tagName),
+  );
+
+  /**
+   * The element reference.
+   */
+  private readonly elementRef = injectElementRef();
+
+  /**
+   * The tag name of the element.
+   */
+  private readonly tagName = inject(HOST_TAG_NAME);
+
+  /**
    * The state of the form control.
    */
   private readonly state = formControlState<NgpFormControl>(this);
@@ -53,6 +78,16 @@ export class NgpFormControl {
   constructor() {
     // Sync the form control state with the control state.
     this.status = setupFormControl({ id: this.state.id, disabled: this.state.disabled });
+  }
+
+  /**
+   * Check if the element supports the disabled attribute.
+   * - HTML elements that support the disabled attribute.
+   * - Custom elements that support the disabled attribute.
+   * @param element The element to check.
+   */
+  private checkDisabledAttributeSupport(element: HTMLElement, tagName: string): boolean {
+    return 'disabled' in element || CUSTOM_ELEMENTS_WITH_DISABLED_ATTRIBUTE.includes(tagName);
   }
 }
 
