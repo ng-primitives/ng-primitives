@@ -58,6 +58,10 @@ import { NgpDescription, NgpFormField, NgpLabel } from 'ng-primitives/form-field
       color: var(--ngp-text-primary);
     }
 
+    [ngpLabel] p {
+      margin: 0;
+    }
+
     [ngpDescription] {
       font-size: 12px;
       line-height: 16px;
