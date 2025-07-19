@@ -11,7 +11,7 @@ import {
 } from 'ng-primitives/combobox';
 
 @Component({
-  selector: 'app-combobox-tailwind',
+  selector: 'app-combobox',
   imports: [
     NgpCombobox,
     NgpComboboxDropdown,
@@ -70,7 +70,7 @@ import {
     </div>
   `,
 })
-export default class ComboboxTailwind {
+export default class ComboboxExample {
   /** The options for the combobox. */
   readonly options: string[] = [
     'Marty McFly',
