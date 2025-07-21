@@ -99,7 +99,6 @@ The following data attributes are applied to the `ngpListboxOption` directive:
 | `data-hover`         | Applied to the listbox option when hovered.                     |
 | `data-focus`         | Applied to the listbox option when focused.                     |
 | `data-focus-visible` | Applied to the listbox option when focused via the keyboard.    |
-| `data-disabled`      | Applied to the listbox option when disabled.                    |
 | `data-active`        | Applied to the listbox option when it is the active descendant. |
 | `data-disabled`      | Applied to the listbox option when it is disabled.              |
 | `data-selected`      | Applied to the listbox option when it is selected.              |
