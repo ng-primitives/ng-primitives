@@ -1,9 +1,9 @@
 import { Component } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
-import { QuickLinks } from '../components/quick-links/quick-links';
+import { QuickLinks } from '../../components/quick-links/quick-links';
 
 @Component({
-  selector: 'docs-primitives',
+  selector: 'docs-interactions',
   template: `
     <div class="flex gap-x-12">
       <div
@@ -13,8 +13,9 @@ import { QuickLinks } from '../components/quick-links/quick-links';
         <p
           class="from-primary to-accent mb-2 inline-block bg-gradient-to-r bg-clip-text text-sm font-medium text-transparent"
         >
-          Primitives
+          Interactions
         </p>
+
         <div class="max-w-3xl">
           <router-outlet />
         </div>
@@ -27,4 +28,4 @@ import { QuickLinks } from '../components/quick-links/quick-links';
     class: 'flex-1 max-w-full md:max-w-[78%]',
   },
 })
-export default class PrimitivesPage {}
+export default class InteractionsPage {}

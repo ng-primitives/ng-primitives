@@ -128,3 +128,14 @@ pre[class*='language-'] {
   --docsearch-key-gradient: transparent;
   @apply top-0 m-0 h-4 w-3 bg-transparent p-0 font-sans text-xs font-medium text-zinc-400 shadow-none dark:text-zinc-500;
 }
+
+#docsearch-landing .DocSearch-Button {
+  @apply relative h-8 rounded-md border-0 bg-white/10 px-4 py-2 pl-2.5 text-sm font-normal text-white/50 shadow-none outline-none ring-0 transition-all hover:bg-white/20 hover:text-white/80 focus-visible:ring-[3px] md:w-40 lg:w-56 xl:w-64;
+  @apply group-data-[scrolled]:bg-black/5 group-data-[scrolled]:text-black/80;
+}
+
+#docsearch-landing .DocSearch-Button-Placeholder,
+#docsearch-landing .DocSearch-Search-Icon,
+#docsearch-landing .DocSearch-Button-Keys .DocSearch-Button-Key {
+  @apply text-white/50 group-data-[scrolled]:text-black/50;
+}
