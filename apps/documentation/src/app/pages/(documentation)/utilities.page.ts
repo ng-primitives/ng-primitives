@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
-import { QuickLinks } from '../components/quick-links/quick-links';
+import { QuickLinks } from '../../components/quick-links/quick-links';
 
 @Component({
   selector: 'docs-utilites',

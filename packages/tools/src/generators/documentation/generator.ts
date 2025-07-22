@@ -4,7 +4,7 @@ import { exampleGenerator } from '../example/generator';
 import { DocumentationGeneratorSchema } from './schema';
 
 export async function documentationGenerator(tree: Tree, options: DocumentationGeneratorSchema) {
-  const projectRoot = `apps/documentation/src/app/pages/${names(options.section).fileName}`;
+  const projectRoot = `apps/documentation/src/app/pages/(documentation)/${names(options.section).fileName}`;
 
   generateFiles(tree, path.join(__dirname, 'files'), projectRoot, {
     ...options,
