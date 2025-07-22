@@ -8,10 +8,13 @@ export {
   NgpExitAnimationManager,
   provideExitAnimationManager,
 } from './exit-animation/exit-animation-manager';
+export { NgpButtonOptions, setupButton } from './interactions/button';
 export * from './interactions/index';
 export * from './signals/explicit-effect';
-export * from './signals/sync-state';
 export * from './style-injector/style-injector';
 export * from './utilities/dom-removal';
 export * from './utilities/element-ref';
+export { fromMutationObserver } from './utilities/mutation-observer';
+export { setupOverflowListener } from './utilities/overflow';
+export { Dimensions, fromResizeEvent, observeResize } from './utilities/resize';
 export * from './utilities/scrolling';

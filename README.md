@@ -5,7 +5,7 @@
 ![NPM Version](https://img.shields.io/npm/v/ng-primitives)
 ![GitHub Sponsors](https://img.shields.io/github/sponsors/ashley-hunter)
 ![GitHub contributors from allcontributors.org](https://img.shields.io/github/all-contributors/ng-primitives/ng-primitives)
-[![Discord server](https://dcbadge.vercel.app/api/server/NTdjc5r3gC?style=flat)](https://discord.gg/NTdjc5r3gC)
+[![Discord server](https://dcbadge.limes.pink/api/server/NTdjc5r3gC?style=flat)](https://discord.gg/NTdjc5r3gC)
 
 Angular Primitives is a Headless UI library with a focus on accessibility, customization, and developer experience. Whether you're building a design system from scratch or looking to enhance your existing one, our primitives are here to support you every step of the way.
 
@@ -27,10 +27,10 @@ npm install ng-primitives
 
 The following table shows the compatibility between Angular Primitives and Angular versions:
 
-| Angular Primitives | Angular |
-| ------------------ | ------- |
-| 0.1.0 - 0.18.0     | 18.0.x  |
-| 0.19.0+            | 19.0.x  |
+| Angular Primitives | Angular           |
+| ------------------ | ----------------- |
+| 0.1.0 - 0.18.0     | 18.0.x            |
+| 0.19.0+            | 19.x.x or v20.x.x |
 
 ## Contributing
 
@@ -60,6 +60,13 @@ We welcome contributions from the community. Please refer to our [contributing g
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/Ruudt"><img src="https://avatars.githubusercontent.com/u/1218555?v=4?s=100" width="100px;" alt="Ruud Walraven"/><br /><sub><b>Ruud Walraven</b></sub></a><br /><a href="https://github.com/ng-primitives/ng-primitives/commits?author=Ruudt" title="Code">💻</a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://paddlingspots.com/"><img src="https://avatars.githubusercontent.com/u/8985933?v=4?s=100" width="100px;" alt="Marc Stammerjohann"/><br /><sub><b>Marc Stammerjohann</b></sub></a><br /><a href="https://github.com/ng-primitives/ng-primitives/commits?author=marcjulian" title="Code">💻</a> <a href="#ideas-marcjulian" title="Ideas, Planning, & Feedback">🤔</a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/Harshit-Prasad"><img src="https://avatars.githubusercontent.com/u/130169629?v=4?s=100" width="100px;" alt="Harshit-Prasad"/><br /><sub><b>Harshit-Prasad</b></sub></a><br /><a href="https://github.com/ng-primitives/ng-primitives/commits?author=Harshit-Prasad" title="Code">💻</a></td>
+    </tr>
+    <tr>
+      <td align="center" valign="top" width="14.28%"><a href="https://eurusik.medium.com"><img src="https://avatars.githubusercontent.com/u/789033?v=4?s=100" width="100px;" alt="Eugene Rusakov"/><br /><sub><b>Eugene Rusakov</b></sub></a><br /><a href="https://github.com/ng-primitives/ng-primitives/commits?author=eurusik" title="Code">💻</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/ido-g-coralogix"><img src="https://avatars.githubusercontent.com/u/122212383?v=4?s=100" width="100px;" alt="Ido Golan"/><br /><sub><b>Ido Golan</b></sub></a><br /><a href="https://github.com/ng-primitives/ng-primitives/commits?author=ido-g-coralogix" title="Code">💻</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/kostetskyroma"><img src="https://avatars.githubusercontent.com/u/12156197?v=4?s=100" width="100px;" alt="Roman Kostetskyi"/><br /><sub><b>Roman Kostetskyi</b></sub></a><br /><a href="https://github.com/ng-primitives/ng-primitives/commits?author=kostetskyroma" title="Code">💻</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/TrieBr"><img src="https://avatars.githubusercontent.com/u/348719?v=4?s=100" width="100px;" alt="Brad Triebwasser"/><br /><sub><b>Brad Triebwasser</b></sub></a><br /><a href="https://github.com/ng-primitives/ng-primitives/commits?author=TrieBr" title="Code">💻</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/JoshuaNitschke"><img src="https://avatars.githubusercontent.com/u/33307206?v=4?s=100" width="100px;" alt="Joshua Nitschke"/><br /><sub><b>Joshua Nitschke</b></sub></a><br /><a href="https://github.com/ng-primitives/ng-primitives/commits?author=JoshuaNitschke" title="Code">💻</a></td>
     </tr>
   </tbody>
 </table>

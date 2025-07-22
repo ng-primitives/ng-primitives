@@ -1,6 +1,6 @@
-import { DestroyRef, Directive, ElementRef, NgZone, OnInit, inject, output } from '@angular/core';
+import { DestroyRef, Directive, ElementRef, NgZone, inject, output } from '@angular/core';
+import { Dimensions, fromResizeEvent } from 'ng-primitives/internal';
 import { safeTakeUntilDestroyed } from 'ng-primitives/utils';
-import { Dimensions, fromResizeEvent } from '../utils/resize';
 
 /**
  * Apply the `ngpResize` directive to an element to listen for resize events.
@@ -8,7 +8,7 @@ import { Dimensions, fromResizeEvent } from '../utils/resize';
 @Directive({
   selector: '[ngpResize]',
 })
-export class NgpResize implements OnInit {
+export class NgpResize {
   /**
    * Access the element.
    */
@@ -31,8 +31,8 @@ export class NgpResize implements OnInit {
     alias: 'ngpResize',
   });
 
-  ngOnInit(): void {
-    // oberve the element for resize events
+  constructor() {
+    // observe the element for resize events
     fromResizeEvent(this.element.nativeElement)
       .pipe(safeTakeUntilDestroyed(this.destroyRef))
       .subscribe(event => this.ngZone.run(() => this.didResize.emit(event)));

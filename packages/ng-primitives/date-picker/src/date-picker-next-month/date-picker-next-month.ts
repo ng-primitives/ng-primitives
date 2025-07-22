@@ -1,6 +1,6 @@
 import { computed, Directive, ElementRef, HostListener, inject } from '@angular/core';
-import { NgpButton, syncButton } from 'ng-primitives/button';
 import { injectDateAdapter } from 'ng-primitives/date-time';
+import { setupButton } from 'ng-primitives/internal';
 import { injectDatePickerState } from '../date-picker/date-picker-state';
 import { injectDatePicker } from '../date-picker/date-picker-token';
 
@@ -10,11 +10,8 @@ import { injectDatePicker } from '../date-picker/date-picker-token';
 @Directive({
   selector: '[ngpDatePickerNextMonth]',
   exportAs: 'ngpDatePickerNextMonth',
-  hostDirectives: [NgpButton],
   host: {
-    '[attr.data-disabled]': 'disabled() ? "" : null',
     '[attr.aria-disabled]': 'disabled()',
-    '[attr.disabled]': 'isButton && disabled() ? true : null',
     '[attr.type]': 'isButton ? "button" : null',
   },
 })
@@ -70,7 +67,7 @@ export class NgpDatePickerNextMonth<T> {
   });
 
   constructor() {
-    syncButton({ disabled: this.disabled });
+    setupButton({ disabled: this.disabled });
   }
 
   /**

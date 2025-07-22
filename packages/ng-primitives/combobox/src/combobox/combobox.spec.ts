@@ -22,6 +22,7 @@ import { NgpCombobox } from './combobox';
       [ngpComboboxValue]="value"
       [ngpComboboxDisabled]="disabled"
       (ngpComboboxValueChange)="onValueChange($event)"
+      (ngpComboboxOpenChange)="onOpenChange($event)"
       ngpCombobox
     >
       <input
@@ -49,6 +50,7 @@ class TestComponent {
   value: string | undefined = undefined;
   disabled = false;
   filter = '';
+  open = false;
   options = ['Apple', 'Banana', 'Cherry', 'Dragon Fruit', 'Elderberry'];
 
   filteredOptions() {
@@ -64,6 +66,10 @@ class TestComponent {
 
   onFilterChange(event: Event) {
     this.filter = (event.target as HTMLInputElement).value;
+  }
+
+  onOpenChange(event: boolean) {
+    this.open = event;
   }
 }
 
@@ -231,6 +237,25 @@ describe('NgpCombobox', () => {
     // Select with Enter
     await userEvent.keyboard('{enter}');
     expect(component.value).toBe('Banana');
+  });
+
+  it('should emit open/close events', async () => {
+    const { fixture } = await render(TestComponent);
+    const component = fixture.componentInstance;
+
+    const button = screen.getByTestId('combobox-button');
+    await userEvent.click(button);
+
+    // Dropdown should be open
+    expect(component.open).toBeTruthy();
+
+    // Click outside
+    await userEvent.click(document.body);
+
+    // Dropdown should be closed
+    await waitFor(() => {
+      expect(component.open).toBeFalsy();
+    });
   });
 
   it('should close dropdown when clicking outside', async () => {
@@ -447,7 +472,6 @@ describe('NgpComboboxOption', () => {
 
   it('should render custom content inside option', async () => {
     @Component({
-      standalone: true,
       imports: [
         NgpCombobox,
         NgpComboboxButton,

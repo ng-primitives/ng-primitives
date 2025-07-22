@@ -1,3 +1,116 @@
+## 0.65.0 (2025-07-16)
+
+### 🚀 Features
+
+- **button:** add icon to button ([#345](https://github.com/ng-primitives/ng-primitives/pull/345), [#342](https://github.com/ng-primitives/ng-primitives/issues/342), [#343](https://github.com/ng-primitives/ng-primitives/issues/343), [#348](https://github.com/ng-primitives/ng-primitives/issues/348), [#349](https://github.com/ng-primitives/ng-primitives/issues/349), [#350](https://github.com/ng-primitives/ng-primitives/issues/350))
+
+### 🩹 Fixes
+
+- **pagination:** fix pagination button disabled states ([#369](https://github.com/ng-primitives/ng-primitives/pull/369))
+
+### ❤️ Thank You
+
+- Ashley Hunter
+- Eugene Rusakov @eurusik
+
+## 0.64.0 (2025-07-15)
+
+### 🚀 Features
+
+- **combobox:** allow dropdown container to be set ([#367](https://github.com/ng-primitives/ng-primitives/pull/367))
+
+### 🩹 Fixes
+
+- **combobox:** Emit ngpComboboxOpenChange event when dropdown is opened. ([#358](https://github.com/ng-primitives/ng-primitives/pull/358))
+- **menu:** allow menu item to alias the disabled input ([#366](https://github.com/ng-primitives/ng-primitives/pull/366))
+
+### ❤️ Thank You
+
+- Ashley Hunter
+- Brad Triebwasser
+
+## 0.62.1 (2025-07-11)
+
+### 🩹 Fixes
+
+- **accordion:** provide default values ([#354](https://github.com/ng-primitives/ng-primitives/pull/354))
+- **tooltip:** resolve accessibility issues ([#355](https://github.com/ng-primitives/ng-primitives/pull/355))
+
+### ❤️ Thank You
+
+- Ashley Hunter
+
+## 0.62.0 (2025-07-11)
+
+### 🩹 Fixes
+
+- **accordion:** provide default values ([#354](https://github.com/ng-primitives/ng-primitives/pull/354))
+- **tooltip:** resolve accessibility issues ([#355](https://github.com/ng-primitives/ng-primitives/pull/355))
+
+### ❤️ Thank You
+
+- Ashley Hunter
+
+## 0.61.0 (2025-07-10)
+
+- **refactor(toast)**: reworking toast component 
+
+> **Note**: This version contains a breaking change. The `NgpToast` component has been refactored to improve its API and functionality. If you were using the previous version, please refer to the updated documentation on how to use the new `NgpToast` component.
+
+## 0.60.0 (2025-07-09)
+
+- **feat(popover)**: add opened and closed event outputs to NgpPopoverTrigger by @eurusik in #343
+- **fix(combobox)**: update z-index of dropdown to fix menu item visibility in dialog by @kostetskyroma in #348
+- **fix(combobox)**: scroll issue by @ashley-hunter in #350
+
+## 0.59.0 (2025-07-08)
+
+### 🚀 Features
+
+- **button:** add button variants to reusable components ([#339](https://github.com/ng-primitives/ng-primitives/pull/339))
+- **tooltip:** add data placement attribute support ([#340](https://github.com/ng-primitives/ng-primitives/pull/340))
+- **tooltip:** add showOnOverflow input to tooltip trigger ([#342](https://github.com/ng-primitives/ng-primitives/pull/342))
+
+### ❤️ Thank You
+
+- Eugene Rusakov @eurusik
+- Ido Golan @ido-g-coralogix
+
+## 0.58.0 (2025-07-04)
+
+### 🚀 Features
+
+- **button:** add size to reusable component ([#334](https://github.com/ng-primitives/ng-primitives/pull/334))
+
+### 🩹 Fixes
+
+- **pagination:** allow ngpButton for pagination buttons ([#336](https://github.com/ng-primitives/ng-primitives/pull/336))
+
+### ❤️ Thank You
+
+- Ashley Hunter
+- Eugene Rusakov @eurusik
+
+## 0.57.0 (2025-07-03)
+
+### 🚀 Features
+
+- add date picker tailwind example ([#324](https://github.com/ng-primitives/ng-primitives/pull/324))
+- add dialog tailwind example ([#325](https://github.com/ng-primitives/ng-primitives/pull/325))
+- add file-upload tailwind example ([#328](https://github.com/ng-primitives/ng-primitives/pull/328))
+- adding arrow support for tooltip and popover ([#329](https://github.com/ng-primitives/ng-primitives/pull/329))
+- adding support for context7 ([#330](https://github.com/ng-primitives/ng-primitives/pull/330))
+- **combobox:** combobox adding status attributes ([#331](https://github.com/ng-primitives/ng-primitives/pull/331))
+
+### 🩹 Fixes
+
+- **tab:** disabled button ([#333](https://github.com/ng-primitives/ng-primitives/pull/333))
+
+### ❤️ Thank You
+
+- Ashley Hunter
+- kedevked @kedevked
+
 ## 0.56.0 (2025-07-01)
 
 ### 🚀 Features

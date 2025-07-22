@@ -18,14 +18,15 @@ import {
   Middleware,
   Placement,
   Strategy,
+  arrow,
   autoUpdate,
   computePosition,
   flip,
   offset,
   shift,
 } from '@floating-ui/dom';
-import { fromResizeEvent } from 'ng-primitives/resize';
-import { injectDisposables, safeTakeUntilDestroyed } from 'ng-primitives/utils';
+import { fromResizeEvent } from 'ng-primitives/internal';
+import { injectDisposables, safeTakeUntilDestroyed, uniqueId } from 'ng-primitives/utils';
 import { Subject, fromEvent } from 'rxjs';
 import { provideOverlayContext } from './overlay-token';
 import { NgpPortal, createPortal } from './portal';
@@ -131,6 +132,9 @@ export class NgpOverlay<T = unknown> {
   /** The transform origin for the overlay */
   readonly transformOrigin = signal<string>('center center');
 
+  /** Signal tracking the final placement of the overlay */
+  readonly finalPlacement = signal<Placement | undefined>(undefined);
+
   /** Function to dispose the positioning auto-update */
   private disposePositioning?: () => void;
 
@@ -143,11 +147,26 @@ export class NgpOverlay<T = unknown> {
   /** Signal tracking whether the overlay is open */
   readonly isOpen = signal(false);
 
+  /** A unique id for the overlay */
+  readonly id = signal<string>(uniqueId('ngp-overlay'));
+
+  /** The aria-describedby attribute for accessibility */
+  readonly ariaDescribedBy = computed(() => (this.isOpen() ? this.id() : undefined));
+
   /** The scroll strategy */
   private scrollStrategy = new NoopScrollStrategy();
 
   /** An observable that emits when the overlay is closing */
   readonly closing = new Subject<void>();
+
+  /** Store the arrow element */
+  private arrowElement: HTMLElement | null = null;
+
+  /** @internal The position of the arrow */
+  readonly arrowPosition = signal<{ x: number | undefined; y: number | undefined }>({
+    x: undefined,
+    y: undefined,
+  });
 
   /**
    * Creates a new overlay instance
@@ -238,6 +257,18 @@ export class NgpOverlay<T = unknown> {
         resolve();
       }, delay);
     });
+  }
+
+  /**
+   * Stop any pending close operation. This is useful for example, if we move the mouse from the tooltip trigger to the tooltip itself.
+   * This will prevent the tooltip from closing immediately when the mouse leaves the trigger.
+   * @internal
+   */
+  cancelPendingClose(): void {
+    if (this.closeTimeout) {
+      this.closeTimeout();
+      this.closeTimeout = undefined;
+    }
   }
 
   /**
@@ -440,6 +471,11 @@ export class NgpOverlay<T = unknown> {
       middleware.push(...this.config.additionalMiddleware);
     }
 
+    // If the arrow element is registered, add arrow middleware
+    if (this.arrowElement) {
+      middleware.push(arrow({ element: this.arrowElement }));
+    }
+
     // Compute the position
     const position = await computePosition(this.config.triggerElement, overlayElement, {
       placement: this.config.placement || 'top',
@@ -449,6 +485,17 @@ export class NgpOverlay<T = unknown> {
 
     // Update position signal
     this.position.set({ x: position.x, y: position.y });
+
+    // Update final placement signal
+    this.finalPlacement.set(position.placement);
+
+    // Update arrow position if available
+    if (this.arrowElement) {
+      this.arrowPosition.set({
+        x: position.middlewareData.arrow?.x,
+        y: position.middlewareData.arrow?.y,
+      });
+    }
 
     // Ensure view is updated
     this.portal()?.detectChanges();
@@ -476,6 +523,9 @@ export class NgpOverlay<T = unknown> {
 
     // Mark as closed
     this.isOpen.set(false);
+
+    // Reset final placement
+    this.finalPlacement.set(undefined);
 
     // disable scroll strategy
     this.scrollStrategy.disable();
@@ -512,6 +562,22 @@ export class NgpOverlay<T = unknown> {
     }
 
     return `${y} ${x}`;
+  }
+
+  /**
+   * Register the arrow element for positioning
+   * @internal
+   */
+  registerArrow(arrowElement: HTMLElement | null): void {
+    this.arrowElement = arrowElement;
+  }
+
+  /**
+   * Remove the registered arrow element
+   * @internal
+   */
+  unregisterArrow(): void {
+    this.arrowElement = null;
   }
 }
 

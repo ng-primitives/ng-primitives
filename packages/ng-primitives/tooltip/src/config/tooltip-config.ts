@@ -22,7 +22,7 @@ export interface NgpTooltipConfig {
 
   /**
    * Define the delay before the tooltip is hidden.
-   * @default 0
+   * @default 500
    */
   hideDelay: number;
 
@@ -37,15 +37,22 @@ export interface NgpTooltipConfig {
    * @default document.body
    */
   container: HTMLElement | null;
+
+  /**
+   * Whether the tooltip should only show when the trigger element overflows.
+   * @default false
+   */
+  showOnOverflow: boolean;
 }
 
 export const defaultTooltipConfig: NgpTooltipConfig = {
   offset: 4,
   placement: 'top',
   showDelay: 0,
-  hideDelay: 0,
+  hideDelay: 500,
   flip: true,
   container: null,
+  showOnOverflow: false,
 };
 
 export const NgpTooltipConfigToken = new InjectionToken<NgpTooltipConfig>('NgpTooltipConfigToken');

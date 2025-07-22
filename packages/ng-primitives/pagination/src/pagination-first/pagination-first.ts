@@ -1,6 +1,6 @@
 import { BooleanInput } from '@angular/cdk/coercion';
 import { booleanAttribute, computed, Directive, HostListener, input } from '@angular/core';
-import { NgpButton, syncButton } from 'ng-primitives/button';
+import { setupButton } from 'ng-primitives/internal';
 import { injectPaginationState } from '../pagination/pagination-state';
 
 /**
@@ -9,10 +9,8 @@ import { injectPaginationState } from '../pagination/pagination-state';
 @Directive({
   selector: '[ngpPaginationFirst]',
   exportAs: 'ngpPaginationFirst',
-  hostDirectives: [NgpButton],
   host: {
     '[tabindex]': 'disabled() ? -1 : 0',
-    '[attr.data-disabled]': 'disabled() ? "" : null',
     '[attr.data-first-page]': 'paginationState().firstPage() ? "" : null',
   },
 })
@@ -38,7 +36,7 @@ export class NgpPaginationFirst {
   );
 
   constructor() {
-    syncButton({ disabled: this.disabled });
+    setupButton({ disabled: this.disabled });
   }
   /**
    * Go to the first page.

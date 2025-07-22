@@ -1,10 +1,10 @@
 import { Component } from '@angular/core';
 import { NgpButton } from 'ng-primitives/button';
-import { NgpPopover, NgpPopoverTrigger } from 'ng-primitives/popover';
+import { NgpPopover, NgpPopoverArrow, NgpPopoverTrigger } from 'ng-primitives/popover';
 
 @Component({
   selector: 'app-popover',
-  imports: [NgpPopoverTrigger, NgpPopover, NgpButton],
+  imports: [NgpPopoverTrigger, NgpPopover, NgpPopoverArrow, NgpButton],
   template: `
     <button [ngpPopoverTrigger]="popover" ngpButton type="button">Popover</button>
 
@@ -17,6 +17,8 @@ import { NgpPopover, NgpPopoverTrigger } from 'ng-primitives/popover';
         </p>
 
         <a target="_blank" href="https://www.youtube.com/watch?v=xvFZjo5PgG0">Learn More</a>
+
+        <div ngpPopoverArrow></div>
       </div>
     </ng-template>
   `,
@@ -64,6 +66,43 @@ import { NgpPopover, NgpPopoverTrigger } from 'ng-primitives/popover';
 
     [ngpPopover][data-exit] {
       animation: popover-hide 0.1s ease-out;
+    }
+
+    [ngpPopoverArrow] {
+      position: absolute;
+      pointer-events: none;
+    }
+
+    [ngpPopoverArrow][data-placement='top'] {
+      bottom: 0;
+    }
+
+    [ngpPopoverArrow][data-placement='bottom'] {
+      top: 0;
+    }
+
+    [ngpPopoverArrow]:before {
+      content: '';
+      display: block;
+      position: absolute;
+      left: 0;
+      bottom: 100%;
+      width: 0;
+      height: 0;
+      border: 6px solid transparent;
+      border-bottom-color: var(--ngp-background-inverse);
+    }
+
+    [ngpPopoverArrow]:after {
+      content: '';
+      display: block;
+      position: absolute;
+      left: 0;
+      bottom: 100%;
+      width: 0;
+      height: 0;
+      border: 6px solid transparent;
+      border-bottom-color: var(--ngp-background);
     }
 
     [ngpPopover] h3 {

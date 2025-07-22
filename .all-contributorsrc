@@ -143,6 +143,51 @@
       "contributions": [
         "code"
       ]
+    },
+    {
+      "login": "eurusik",
+      "name": "Eugene Rusakov",
+      "avatar_url": "https://avatars.githubusercontent.com/u/789033?v=4",
+      "profile": "https://eurusik.medium.com",
+      "contributions": [
+        "code"
+      ]
+    },
+    {
+      "login": "ido-g-coralogix",
+      "name": "Ido Golan",
+      "avatar_url": "https://avatars.githubusercontent.com/u/122212383?v=4",
+      "profile": "https://github.com/ido-g-coralogix",
+      "contributions": [
+        "code"
+      ]
+    },
+    {
+      "login": "kostetskyroma",
+      "name": "Roman Kostetskyi",
+      "avatar_url": "https://avatars.githubusercontent.com/u/12156197?v=4",
+      "profile": "https://github.com/kostetskyroma",
+      "contributions": [
+        "code"
+      ]
+    },
+    {
+      "login": "TrieBr",
+      "name": "Brad Triebwasser",
+      "avatar_url": "https://avatars.githubusercontent.com/u/348719?v=4",
+      "profile": "https://github.com/TrieBr",
+      "contributions": [
+        "code"
+      ]
+    },
+    {
+      "login": "JoshuaNitschke",
+      "name": "Joshua Nitschke",
+      "avatar_url": "https://avatars.githubusercontent.com/u/33307206?v=4",
+      "profile": "https://github.com/JoshuaNitschke",
+      "contributions": [
+        "code"
+      ]
     }
   ],
   "contributorsPerLine": 7,

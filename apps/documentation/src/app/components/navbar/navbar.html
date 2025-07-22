@@ -11,18 +11,20 @@
       <ng-icon class="text-lg text-zinc-800 dark:text-zinc-100" name="lucideMenu" />
     </button>
 
-    <img
-      class="hidden h-8 w-auto md:block dark:hidden"
-      src="assets/logo.svg"
-      alt="Angular Primitives"
-    />
-    <img
-      class="hidden h-8 w-auto dark:md:block"
-      src="assets/logo-dark.svg"
-      alt="Angular Primitives"
-    />
+    <a routerLink="/" aria-label="Angular Primitives Homepage">
+      <img
+        class="hidden h-10 md:block dark:hidden"
+        src="assets/logo.svg"
+        alt="Angular Primitives"
+      />
+      <img class="hidden h-10 dark:md:block" src="assets/logo-dark.svg" alt="Angular Primitives" />
+      <img
+        class="block h-8 w-auto md:hidden"
+        src="assets/logo-small.svg"
+        alt="Angular Primitives"
+      />
+    </a>
 
-    <img class="block h-8 w-auto md:hidden" src="assets/logo-small.svg" alt="Angular Primitives" />
     <div class="ml-auto flex gap-x-1 sm:gap-x-2 md:ml-0 md:w-full">
       <div class="md:ml-auto">
         <div id="docsearch"></div>
@@ -34,7 +36,9 @@
         <a
           class="inline-flex items-center justify-center gap-x-2 rounded-lg bg-white px-3 py-2 outline-none transition-colors data-[hover]:bg-zinc-50 data-[press]:bg-zinc-100 data-[focus-visible]:text-zinc-800 data-[hover]:text-zinc-800 data-[focus-visible]:ring-2 data-[focus-visible]:ring-blue-500 dark:bg-zinc-800 dark:data-[hover]:bg-zinc-700 dark:data-[press]:bg-zinc-700 dark:data-[focus-visible]:text-zinc-100 dark:data-[hover]:text-zinc-100 dark:data-[focus-visible]:ring-blue-800"
           target="_blank"
+          rel="noopener noreferrer"
           href="https://discord.gg/NTdjc5r3gC"
+          aria-label="Join our Discord community"
           ngpButton
         >
           <ng-icon class="text-lg text-zinc-500 dark:text-zinc-400" name="bootstrapDiscord" />
@@ -44,7 +48,9 @@
         <a
           class="inline-flex items-center justify-center gap-x-2 rounded-lg bg-white px-3 py-2 outline-none transition-colors data-[hover]:bg-zinc-50 data-[press]:bg-zinc-100 data-[focus-visible]:text-zinc-800 data-[hover]:text-zinc-800 data-[focus-visible]:ring-2 data-[focus-visible]:ring-blue-500 dark:bg-zinc-800 dark:data-[hover]:bg-zinc-700 dark:data-[press]:bg-zinc-700 dark:data-[focus-visible]:text-zinc-100 dark:data-[hover]:text-zinc-100 dark:data-[focus-visible]:ring-blue-800"
           target="_blank"
+          rel="noopener noreferrer"
           href="https://github.com/ng-primitives/ng-primitives/"
+          aria-label="View source code on GitHub"
           ngpButton
         >
           <ng-icon class="text-lg text-zinc-500 dark:text-zinc-400" name="bootstrapGithub" />
