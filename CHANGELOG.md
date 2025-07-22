@@ -1,3 +1,21 @@
+## 0.66.0 (2025-07-22)
+
+### 🚀 Features
+
+- add input tailwind ([#376](https://github.com/ng-primitives/ng-primitives/pull/376))
+- add fom-field tailwind ([#374](https://github.com/ng-primitives/ng-primitives/pull/374))
+
+### 🩹 Fixes
+
+- **form-control:** apply native disabled attribute to ngpFormControl host element ([#363](https://github.com/ng-primitives/ng-primitives/pull/363))
+- **listbox:** resolve reusable template not working with reactive forms OOTB ([#370](https://github.com/ng-primitives/ng-primitives/pull/370))
+
+### ❤️ Thank You
+
+- Joshua Nitschke @JoshuaNitschke
+- kedevked @kedevked
+- Roman Kostetskyi @kostetskyroma
+
 ## 0.65.0 (2025-07-16)
 
 ### 🚀 Features
