@@ -70,7 +70,7 @@ import {
     </div>
   `,
 })
-export default class ComboboxTailwind {
+export default class ComboboxExample {
   /** The options for the combobox. */
   readonly options: string[] = [
     'Marty McFly',
