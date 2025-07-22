@@ -164,7 +164,7 @@ export class DocsNavbar implements OnInit {
               alt="Sidebar Logo"
             />
             <img
-              class="h-8 brightness-0 invert"
+              class="h-8 brightness-[5] invert-0 saturate-0"
               src="/assets/company-logos/flowbite.svg"
               alt="Flowbite Logo"
             />
