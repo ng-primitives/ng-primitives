@@ -11,7 +11,7 @@ import {
 } from 'ng-primitives/combobox';
 
 @Component({
-  selector: 'app-combobox',
+  selector: 'app-combobox-tailwind',
   imports: [
     NgpCombobox,
     NgpComboboxDropdown,
