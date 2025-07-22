@@ -7,6 +7,7 @@ import {
   inject,
   model,
 } from '@angular/core';
+import { RouterLink } from '@angular/router';
 import { bootstrapDiscord, bootstrapGithub } from '@ng-icons/bootstrap-icons';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { lucideMenu, lucideSearch } from '@ng-icons/lucide';
@@ -15,7 +16,7 @@ import { ThemeToggle } from '../theme-toggle/theme-toggle';
 
 @Component({
   selector: 'docs-navbar',
-  imports: [NgIcon, NgpButton, ThemeToggle],
+  imports: [NgIcon, NgpButton, ThemeToggle, RouterLink],
   providers: [provideIcons({ lucideSearch, bootstrapGithub, bootstrapDiscord, lucideMenu })],
   templateUrl: './navbar.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
