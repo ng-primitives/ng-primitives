@@ -17,7 +17,7 @@ import {
   imports: [NgIcon, RouterLink],
   template: `
     <nav
-      class="group fixed z-20 h-16 w-full border-b border-transparent px-6 transition-all duration-500 data-[scrolled]:border-black/10 data-[scrolled]:bg-white data-[scrolled]:shadow-sm md:px-12"
+      class="group fixed z-20 h-16 w-full border-b border-transparent px-6 transition-all duration-500 data-[scrolled]:border-zinc-200 data-[scrolled]:bg-zinc-50 data-[scrolled]:shadow-sm md:px-12 dark:data-[scrolled]:border-zinc-800 dark:data-[scrolled]:bg-zinc-900"
       [attr.data-scrolled]="scrolled() ? '' : undefined"
     >
       <div
@@ -27,13 +27,13 @@ import {
         class="container mx-auto flex h-full max-w-screen-xl items-center justify-between gap-x-2"
       >
         <img
-          class="hidden h-8 transition-all duration-500 group-data-[scrolled]:invert-[1] md:block"
+          class="hidden h-8 transition-all duration-500 group-data-[scrolled]:invert-[1] md:block dark:group-data-[scrolled]:invert-[0]"
           src="/assets/logo-light.svg"
           alt="Logo"
         />
 
         <img
-          class="h-8 transition-all duration-500 group-data-[scrolled]:invert-[1] md:hidden"
+          class="h-8 transition-all duration-500 group-data-[scrolled]:invert-[1] md:hidden dark:group-data-[scrolled]:invert-[0]"
           src="/assets/logo-light-small.svg"
           alt="Logo"
         />
@@ -46,14 +46,14 @@ import {
           </div>
 
           <a
-            class="inline-flex h-10 items-center justify-center rounded-md px-4 text-[13px] font-medium text-white transition-colors hover:bg-white/10 active:bg-white/15 group-data-[scrolled]:text-black group-data-[scrolled]:hover:bg-black/5 group-data-[scrolled]:active:bg-black/10"
+            class="inline-flex h-10 items-center justify-center rounded-md px-4 text-[13px] font-medium text-zinc-100 transition-colors hover:bg-zinc-100/10 active:bg-zinc-100/15 group-data-[scrolled]:text-zinc-800 group-data-[scrolled]:hover:bg-zinc-800/5 group-data-[scrolled]:active:bg-zinc-800/10 dark:group-data-[scrolled]:text-zinc-100"
             routerLink="/getting-started/introduction"
             aria-label="Documentation"
           >
             Documentation
           </a>
           <a
-            class="inline-flex h-10 items-center justify-center rounded-md px-4 text-[13px] font-medium text-white transition-colors hover:bg-white/10 active:bg-white/15 group-data-[scrolled]:text-black group-data-[scrolled]:hover:bg-black/5 group-data-[scrolled]:active:bg-black/10"
+            class="inline-flex h-10 items-center justify-center rounded-md px-4 text-[13px] font-medium text-zinc-100 transition-colors hover:bg-zinc-100/10 active:bg-zinc-100/15 group-data-[scrolled]:text-zinc-800 group-data-[scrolled]:hover:bg-zinc-800/5 group-data-[scrolled]:active:bg-zinc-800/10 dark:group-data-[scrolled]:text-zinc-100"
             href="https://discord.gg/NTdjc5r3gC"
             target="_blank"
             rel="noopener noreferrer"
@@ -62,7 +62,7 @@ import {
             Discord
           </a>
           <a
-            class="inline-flex h-10 items-center justify-center rounded-md px-4 text-[13px] font-medium text-white transition-colors hover:bg-white/10 active:bg-white/15 group-data-[scrolled]:text-black group-data-[scrolled]:hover:bg-black/5 group-data-[scrolled]:active:bg-black/10"
+            class="inline-flex h-10 items-center justify-center rounded-md px-4 text-[13px] font-medium text-zinc-100 transition-colors hover:bg-zinc-100/10 active:bg-zinc-100/15 group-data-[scrolled]:text-zinc-800 group-data-[scrolled]:hover:bg-zinc-800/5 group-data-[scrolled]:active:bg-zinc-800/10 dark:group-data-[scrolled]:text-zinc-100"
             target="_blank"
             href="https://github.com/ng-primitives/ng-primitives"
             rel="noopener noreferrer"
