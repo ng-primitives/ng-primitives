@@ -46,14 +46,14 @@ import {
           </div>
 
           <a
-            class="inline-flex h-10 items-center justify-center rounded-md px-4 text-[13px] font-medium text-zinc-100 transition-colors hover:bg-zinc-100/10 active:bg-zinc-100/15 group-data-[scrolled]:text-zinc-800 group-data-[scrolled]:hover:bg-zinc-800/5 group-data-[scrolled]:active:bg-zinc-800/10 dark:group-data-[scrolled]:text-zinc-100"
+            class="inline-flex h-10 items-center justify-center rounded-md px-4 text-[13px] font-medium text-zinc-100 transition-colors hover:bg-zinc-100/10 active:bg-zinc-100/15 group-data-[scrolled]:text-zinc-800 group-data-[scrolled]:hover:bg-zinc-800/5 group-data-[scrolled]:active:bg-zinc-800/10 dark:group-data-[scrolled]:text-zinc-100 dark:group-data-[scrolled]:hover:bg-zinc-200/5"
             routerLink="/getting-started/introduction"
             aria-label="Documentation"
           >
             Documentation
           </a>
           <a
-            class="inline-flex h-10 items-center justify-center rounded-md px-4 text-[13px] font-medium text-zinc-100 transition-colors hover:bg-zinc-100/10 active:bg-zinc-100/15 group-data-[scrolled]:text-zinc-800 group-data-[scrolled]:hover:bg-zinc-800/5 group-data-[scrolled]:active:bg-zinc-800/10 dark:group-data-[scrolled]:text-zinc-100"
+            class="inline-flex h-10 items-center justify-center rounded-md px-4 text-[13px] font-medium text-zinc-100 transition-colors hover:bg-zinc-100/10 active:bg-zinc-100/15 group-data-[scrolled]:text-zinc-800 group-data-[scrolled]:hover:bg-zinc-800/5 group-data-[scrolled]:active:bg-zinc-800/10 dark:group-data-[scrolled]:text-zinc-100 dark:group-data-[scrolled]:hover:bg-zinc-200/5"
             href="https://discord.gg/NTdjc5r3gC"
             target="_blank"
             rel="noopener noreferrer"
@@ -62,7 +62,7 @@ import {
             Discord
           </a>
           <a
-            class="inline-flex h-10 items-center justify-center rounded-md px-4 text-[13px] font-medium text-zinc-100 transition-colors hover:bg-zinc-100/10 active:bg-zinc-100/15 group-data-[scrolled]:text-zinc-800 group-data-[scrolled]:hover:bg-zinc-800/5 group-data-[scrolled]:active:bg-zinc-800/10 dark:group-data-[scrolled]:text-zinc-100"
+            class="inline-flex h-10 items-center justify-center rounded-md px-4 text-[13px] font-medium text-zinc-100 transition-colors hover:bg-zinc-100/10 active:bg-zinc-100/15 group-data-[scrolled]:text-zinc-800 group-data-[scrolled]:hover:bg-zinc-800/5 group-data-[scrolled]:active:bg-zinc-800/10 dark:group-data-[scrolled]:text-zinc-100 dark:group-data-[scrolled]:hover:bg-zinc-200/5"
             target="_blank"
             href="https://github.com/ng-primitives/ng-primitives"
             rel="noopener noreferrer"
