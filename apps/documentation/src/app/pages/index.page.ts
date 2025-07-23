@@ -274,7 +274,7 @@ export class DocsNavbar implements OnInit {
       <div class="grid grid-cols-1 gap-8 lg:grid-cols-3">
         @for (testimonial of testimonials; track testimonial) {
           <div
-            class="flex flex-col justify-between rounded-xl bg-zinc-50 p-8 shadow-sm ring-1 ring-zinc-200 dark:bg-zinc-800 dark:ring-zinc-700"
+            class="flex flex-col justify-between rounded-xl bg-white p-8 shadow-sm ring-1 ring-zinc-200 dark:bg-zinc-800 dark:ring-zinc-700"
           >
             <p class="mb-6 text-sm leading-loose text-zinc-600 dark:text-zinc-400">
               “{{ testimonial.quote }}”
