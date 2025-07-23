@@ -135,8 +135,10 @@
     "prismjs": "^1.29.0",
     "rxjs": "~7.8.1",
     "tslib": "^2.6.3",
-    "zone.js": "0.15.0",
-    "stylus": "github:stylus/stylus#0.64.0"
+    "zone.js": "0.15.0"
+  },
+  "resolutions": {
+    "stylus": "0.0.1-security"
   },
   "packageManager": "pnpm@10.10.0",
   "pnpm": {
