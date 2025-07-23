@@ -4,6 +4,7 @@ import { nxViteTsPaths } from '@nx/vite/plugins/nx-tsconfig-paths.plugin';
 import { readFileSync } from 'fs';
 import { globSync } from 'glob';
 import { Plugin, defineConfig } from 'vite';
+import devtoolsJson from 'vite-plugin-devtools-json';
 
 function sourceQueryPlugin(): Plugin {
   return {
@@ -40,15 +41,21 @@ export default defineConfig(({ mode }) => {
       },
     },
     plugins: [
+      devtoolsJson(),
       analog({
         static: true,
         prerender: {
           routes: async () => [
             '/',
-            ...globSync('apps/documentation/src/app/pages/**/*.md').map(
-              file =>
-                '/' + file.replace('apps/documentation/src/app/pages/', '').replace('.md', ''),
-            ),
+            ...globSync('apps/documentation/src/app/pages/**/*.md').map(file => {
+              return (
+                '/' +
+                file
+                  .replace('apps/documentation/src/app/pages/(documentation)/', '')
+                  .replace('apps/documentation/src/app/pages/', '')
+                  .replace('.md', '')
+              );
+            }),
           ],
           sitemap: {
             host: 'https://ng-primitives.netlify.app/',

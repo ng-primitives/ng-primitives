@@ -25,8 +25,8 @@ import {
   offset,
   shift,
 } from '@floating-ui/dom';
-import { fromResizeEvent } from 'ng-primitives/resize';
-import { injectDisposables, safeTakeUntilDestroyed } from 'ng-primitives/utils';
+import { fromResizeEvent } from 'ng-primitives/internal';
+import { injectDisposables, safeTakeUntilDestroyed, uniqueId } from 'ng-primitives/utils';
 import { Subject, fromEvent } from 'rxjs';
 import { provideOverlayContext } from './overlay-token';
 import { NgpPortal, createPortal } from './portal';
@@ -132,6 +132,9 @@ export class NgpOverlay<T = unknown> {
   /** The transform origin for the overlay */
   readonly transformOrigin = signal<string>('center center');
 
+  /** Signal tracking the final placement of the overlay */
+  readonly finalPlacement = signal<Placement | undefined>(undefined);
+
   /** Function to dispose the positioning auto-update */
   private disposePositioning?: () => void;
 
@@ -143,6 +146,12 @@ export class NgpOverlay<T = unknown> {
 
   /** Signal tracking whether the overlay is open */
   readonly isOpen = signal(false);
+
+  /** A unique id for the overlay */
+  readonly id = signal<string>(uniqueId('ngp-overlay'));
+
+  /** The aria-describedby attribute for accessibility */
+  readonly ariaDescribedBy = computed(() => (this.isOpen() ? this.id() : undefined));
 
   /** The scroll strategy */
   private scrollStrategy = new NoopScrollStrategy();
@@ -248,6 +257,18 @@ export class NgpOverlay<T = unknown> {
         resolve();
       }, delay);
     });
+  }
+
+  /**
+   * Stop any pending close operation. This is useful for example, if we move the mouse from the tooltip trigger to the tooltip itself.
+   * This will prevent the tooltip from closing immediately when the mouse leaves the trigger.
+   * @internal
+   */
+  cancelPendingClose(): void {
+    if (this.closeTimeout) {
+      this.closeTimeout();
+      this.closeTimeout = undefined;
+    }
   }
 
   /**
@@ -465,6 +486,9 @@ export class NgpOverlay<T = unknown> {
     // Update position signal
     this.position.set({ x: position.x, y: position.y });
 
+    // Update final placement signal
+    this.finalPlacement.set(position.placement);
+
     // Update arrow position if available
     if (this.arrowElement) {
       this.arrowPosition.set({
@@ -499,6 +523,9 @@ export class NgpOverlay<T = unknown> {
 
     // Mark as closed
     this.isOpen.set(false);
+
+    // Reset final placement
+    this.finalPlacement.set(undefined);
 
     // disable scroll strategy
     this.scrollStrategy.disable();

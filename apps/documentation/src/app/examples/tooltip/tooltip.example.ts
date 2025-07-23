@@ -67,9 +67,16 @@ import { NgpTooltip, NgpTooltipArrow, NgpTooltipTrigger } from 'ng-primitives/to
       background-color: var(--ngp-background-inverse);
       width: 8px;
       height: 8px;
-      top: calc(100% - 5px);
-      transform: rotate(45deg);
       border-radius: 2px;
+      transform: rotate(45deg);
+    }
+
+    [ngpTooltipArrow][data-placement='top'] {
+      top: calc(100% - 5px);
+    }
+
+    [ngpTooltipArrow][data-placement='bottom'] {
+      bottom: calc(100% - 5px);
     }
 
     @keyframes tooltip-show {

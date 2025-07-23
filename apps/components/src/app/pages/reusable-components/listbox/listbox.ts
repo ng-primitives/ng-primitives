@@ -34,6 +34,7 @@ import { ChangeFn, provideValueAccessor, TouchedFn } from 'ng-primitives/utils';
         [ngpListboxMode]="mode()"
         [ngpListboxDisabled]="disabled()"
         [ngpListboxCompareWith]="compareWith()"
+        (ngpListboxValueChange)="onListboxValueChange($event)"
         ngpPopover
         ngpListbox
       >
@@ -136,5 +137,10 @@ export class Listbox implements ControlValueAccessor {
 
   setDisabledState(isDisabled: boolean): void {
     this.state()?.disabled.set(isDisabled);
+  }
+
+  onListboxValueChange(value: string[]): void {
+    this.value.set(value);
+    if (this.onChange) this.onChange(value);
   }
 }

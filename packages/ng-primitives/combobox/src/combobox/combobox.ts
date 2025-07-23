@@ -10,7 +10,7 @@ import {
   output,
   signal,
 } from '@angular/core';
-import { Placement } from '@floating-ui/dom';
+import type { Placement } from '@floating-ui/dom';
 import { activeDescendantManager } from 'ng-primitives/a11y';
 import { injectElementRef, setupInteractions } from 'ng-primitives/internal';
 import type { NgpComboboxButton } from '../combobox-button/combobox-button';
@@ -18,6 +18,7 @@ import type { NgpComboboxDropdown } from '../combobox-dropdown/combobox-dropdown
 import type { NgpComboboxInput } from '../combobox-input/combobox-input';
 import { NgpComboboxOption } from '../combobox-option/combobox-option';
 import type { NgpComboboxPortal } from '../combobox-portal/combobox-portal';
+import { injectComboboxConfig } from '../config/combobox-config';
 import { comboboxState, provideComboboxState } from './combobox-state';
 
 /**
@@ -42,9 +43,18 @@ type T = any;
     '[attr.data-open]': 'state.open() ? "" : undefined',
     '[attr.data-disabled]': 'state.disabled() ? "" : undefined',
     '[attr.data-multiple]': 'state.multiple() ? "" : undefined',
+    '[attr.data-invalid]': 'controlStatus()?.invalid ? "" : undefined',
+    '[attr.data-valid]': 'controlStatus()?.valid ? "" : undefined',
+    '[attr.data-touched]': 'controlStatus()?.touched ? "" : undefined',
+    '[attr.data-pristine]': 'controlStatus()?.pristine ? "" : undefined',
+    '[attr.data-dirty]': 'controlStatus()?.dirty ? "" : undefined',
+    '[attr.data-pending]': 'controlStatus()?.pending ? "" : undefined',
   },
 })
 export class NgpCombobox {
+  /** Access the combobox configuration. */
+  protected readonly config = injectComboboxConfig();
+
   /** @internal Access the combobox element. */
   readonly elementRef = injectElementRef();
 
@@ -84,8 +94,13 @@ export class NgpCombobox {
   });
 
   /** The position of the dropdown. */
-  readonly placement = input<Placement>('bottom', {
+  readonly placement = input<Placement>(this.config.placement, {
     alias: 'ngpComboboxDropdownPlacement',
+  });
+
+  /** The container for the dropdown. */
+  readonly container = input<HTMLElement | null>(this.config.container, {
+    alias: 'ngpComboboxDropdownContainer',
   });
 
   /**
@@ -140,6 +155,9 @@ export class NgpCombobox {
     items: this.options,
   });
 
+  /** The control status */
+  protected readonly controlStatus = computed(() => this.input()?.controlStatus());
+
   /** The state of the combobox. */
   protected readonly state = comboboxState<NgpCombobox>(this);
 
@@ -178,6 +196,7 @@ export class NgpCombobox {
       return;
     }
 
+    this.openChange.emit(true);
     await this.portal()?.show();
 
     // if there is a selected option(s), set the active descendant to the first selected option

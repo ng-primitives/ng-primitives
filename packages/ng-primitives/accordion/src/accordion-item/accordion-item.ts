@@ -1,5 +1,6 @@
 import { BooleanInput } from '@angular/cdk/coercion';
-import { Directive, OnInit, booleanAttribute, computed, input, signal } from '@angular/core';
+import { Directive, booleanAttribute, computed, input, signal } from '@angular/core';
+import { uniqueId } from 'ng-primitives/utils';
 import { NgpAccordionContent } from '../accordion-content/accordion-content';
 import { NgpAccordionTrigger } from '../accordion-trigger/accordion-trigger';
 import { NgpAccordion } from '../accordion/accordion';
@@ -19,7 +20,7 @@ import { accordionItemState, provideAccordionItemState } from './accordion-item-
     '[attr.data-disabled]': 'state.disabled() || accordion().disabled() ? "" : null',
   },
 })
-export class NgpAccordionItem<T> implements OnInit {
+export class NgpAccordionItem<T> {
   /**
    * Access the accordion.
    */
@@ -28,7 +29,7 @@ export class NgpAccordionItem<T> implements OnInit {
   /**
    * The value of the accordion item.
    */
-  readonly value = input<T>(undefined, {
+  readonly value = input<T>(uniqueId('ngp-accordion-item') as T, {
     alias: 'ngpAccordionItemValue',
   });
 
@@ -71,10 +72,4 @@ export class NgpAccordionItem<T> implements OnInit {
    * The accordion item state.
    */
   private readonly state = accordionItemState<NgpAccordionItem<T>>(this);
-
-  ngOnInit(): void {
-    if (!this.state.value()) {
-      throw new Error('The accordion item value is required');
-    }
-  }
 }

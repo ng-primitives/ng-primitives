@@ -71,7 +71,14 @@ import { NgpPopover, NgpPopoverArrow, NgpPopoverTrigger } from 'ng-primitives/po
     [ngpPopoverArrow] {
       position: absolute;
       pointer-events: none;
-      top: 0px;
+    }
+
+    [ngpPopoverArrow][data-placement='top'] {
+      bottom: 0;
+    }
+
+    [ngpPopoverArrow][data-placement='bottom'] {
+      top: 0;
     }
 
     [ngpPopoverArrow]:before {

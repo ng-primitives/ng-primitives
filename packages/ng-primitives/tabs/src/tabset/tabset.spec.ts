@@ -1,4 +1,4 @@
-import { render } from '@testing-library/angular';
+import { fireEvent, render } from '@testing-library/angular';
 import { NgpTabButton, NgpTabList, NgpTabPanel, NgpTabset } from 'ng-primitives/tabs';
 
 describe('NgpTabset', () => {
@@ -190,5 +190,32 @@ describe('NgpTabset', () => {
     });
 
     expect(tabset).toHaveAttribute('data-orientation', 'vertical');
+  });
+
+  it('should not allow interaction when disabled', async () => {
+    const { getByRole } = await render(
+      `
+      <div ngpTabset>
+        <div ngpTabList>
+          <button ngpTabButton ngpTabButtonDisabled="true" ngpTabButtonValue="overview">Overview</button>
+          <button ngpTabButton ngpTabButtonValue="features">Features</button>
+        </div>
+        <div ngpTabPanel ngpTabPanelValue="overview">Overview content</div>
+        <div ngpTabPanel ngpTabPanelValue="features">Features content</div>
+      </div>
+    `,
+      {
+        imports: [NgpTabset, NgpTabButton, NgpTabList, NgpTabPanel],
+      },
+    );
+
+    const tab = getByRole('tab', { name: 'Overview' });
+    expect(tab).toBeDisabled();
+    expect(tab).toHaveAttribute('data-disabled');
+    expect(tab).not.toHaveAttribute('data-active');
+
+    fireEvent.click(tab);
+    expect(tab).toBeDisabled();
+    expect(tab).not.toHaveAttribute('data-active');
   });
 });

@@ -69,20 +69,27 @@ The following directives are available to import from the `ng-primitives/combobo
 
 The main container for the combobox.
 
-<api-docus name="NgpCombobox"></api-docs>
+<api-docs name="NgpCombobox"></api-docs>
 
 #### Data Attributes
 
 The following data attributes are applied to the `ngpCombobox` directive:
 
-| Attribute       | Description                                    |
-| --------------- | ---------------------------------------------- |
-| `data-open`     | Applied when the combobox is open.             |
-| `data-disabled` | Applied when the combobox is disabled.         |
-| `data-multiple` | Applied when the combobox is in multiple mode. |
-| `data-hover`    | Applied when the combobox is hovered.          |
-| `data-press`    | Applied when the combobox is pressed.          |
-| `data-focus`    | Applied when the combobox has focus within it. |
+| Attribute       | Description                                                    |
+| --------------- | -------------------------------------------------------------- |
+| `data-open`     | Applied when the combobox is open.                             |
+| `data-disabled` | Applied when the combobox is disabled.                         |
+| `data-multiple` | Applied when the combobox is in multiple mode.                 |
+| `data-hover`    | Applied when the combobox is hovered.                          |
+| `data-press`    | Applied when the combobox is pressed.                          |
+| `data-focus`    | Applied when the combobox has focus within it.                 |
+| `data-invalid`  | Applied when the combobox is invalid.                          |
+| `data-valid`    | Applied when the combobox is valid.                            |
+| `data-touched`  | Applied when the combobox has been touched.                    |
+| `data-pristine` | Applied when the combobox is pristine (not modified).          |
+| `data-dirty`    | Applied when the combobox has been modified.                   |
+| `data-pending`  | Applied when the combobox is pending (e.g., async validation). |
+| `data-disabled` | Applied when the combobox is disabled.                         |
 
 ### NgpComboboxButton
 
@@ -127,11 +134,18 @@ The input field for the combobox.
 
 The following data attributes are applied to the `ngpComboboxInput` directive:
 
-| Attribute       | Description                                    |
-| --------------- | ---------------------------------------------- |
-| `data-open`     | Applied when the combobox is open.             |
-| `data-disabled` | Applied when the combobox is disabled.         |
-| `data-multiple` | Applied when the combobox is in multiple mode. |
+| Attribute       | Description                                                 |
+| --------------- | ----------------------------------------------------------- |
+| `data-open`     | Applied when the combobox is open.                          |
+| `data-disabled` | Applied when the combobox is disabled.                      |
+| `data-multiple` | Applied when the combobox is in multiple mode.              |
+| `data-invalid`  | Applied when the input is invalid.                          |
+| `data-valid`    | Applied when the input is valid.                            |
+| `data-touched`  | Applied when the input has been touched.                    |
+| `data-pristine` | Applied when the input is pristine (not modified).          |
+| `data-dirty`    | Applied when the input has been modified.                   |
+| `data-pending`  | Applied when the input is pending (e.g., async validation). |
+| `data-disabled` | Applied when the input is disabled.                         |
 
 ### NgpComboboxOption
 
@@ -170,6 +184,28 @@ The `ngpComboboxDropdown` will also add the `data-enter` and `data-exit` attribu
   animation: fade-out 0.2s ease-in-out;
 }
 ```
+
+## Global Configuration
+
+You can configure the default options for all comboboxes in your application by using the `provideComboboxConfig` function in a providers array.
+
+```ts
+import { provideComboboxConfig } from 'ng-primitives/combobox';
+
+bootstrapApplication(AppComponent, {
+  providers: [provideComboboxConfig({ placement: 'bottom', container: document.body })],
+});
+```
+
+### NgpComboboxConfig
+
+<prop-details name="placement" type="'top' | 'right' | 'bottom' | 'left'">
+  Define the placement of the combobox dropdown.
+</prop-details>
+
+<prop-details name="container" type="HTMLElement" default="document.body">
+  Define the container element for the combobox dropdown. This is useful for rendering the dropdown in a specific part of the DOM.
+</prop-details>
 
 ## Accessibility
 

@@ -30,6 +30,24 @@ Create a button component that uses the `NgpButton` directive.
 
 <docs-snippet name="button"></docs-snippet>
 
+### Button Sizes
+
+You can add size support to your reusable button component. This is implemented at the component level rather than in the primitive to provide more flexibility for different design systems.
+
+<docs-example name="button-sizes"></docs-example>
+
+### Button Variants
+
+You can add variant support to your reusable button component to indicate different purposes or importance levels.
+
+<docs-example name="button-variants"></docs-example>
+
+### Button with Icons
+
+You can add icons to your buttons using any Angular icon library or simple SVG elements, but we recommend the [`@ng-icons`](https://github.com/ng-icons/ng-icons) library. This example shows how to create buttons with icons on the leading, trailing, or both sides using content projection slots.
+
+<docs-example name="button-icon"></docs-example>
+
 ## Schematics
 
 Generate a reusable button component using the Angular CLI.

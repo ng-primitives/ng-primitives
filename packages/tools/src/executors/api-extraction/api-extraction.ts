@@ -122,7 +122,7 @@ function mapToInputDefinition(entry: PropertyEntry): InputDefinition {
       .replace(/^(InputSignal|InputSignalWithTransform|ModelSignal)<(.*)>$/, '$2')
       .split(',')[0],
     description: entry.description,
-    isRequired: entry.isRequiredInput,
+    isRequired: entry.isRequiredInput || entry.jsdocTags.some(tag => tag.name === 'required'),
     defaultValue: entry.jsdocTags.find(tag => tag.name === 'default')?.comment,
   };
 }

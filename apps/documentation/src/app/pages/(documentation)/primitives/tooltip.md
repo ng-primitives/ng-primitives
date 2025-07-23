@@ -60,10 +60,11 @@ The following directives are available to import from the `ng-primitives/tooltip
 
 #### Data Attributes
 
-| Attribute    | Description                                                                                     |
-| ------------ | ----------------------------------------------------------------------------------------------- |
-| `data-enter` | Applied when the tooltip is being added to the DOM. This can be used to trigger animations.     |
-| `data-exit`  | Applied when the tooltip is being removed from the DOM. This can be used to trigger animations. |
+| Attribute        | Description                                                                                     |
+| ---------------- | ----------------------------------------------------------------------------------------------- |
+| `data-enter`     | Applied when the tooltip is being added to the DOM. This can be used to trigger animations.     |
+| `data-exit`      | Applied when the tooltip is being removed from the DOM. This can be used to trigger animations. |
+| `data-placement` | The final rendered placement of the tooltip.                                                    |
 
 The following CSS custom properties are applied to the `ngpTooltip` directive:
 
@@ -87,7 +88,39 @@ The following CSS custom properties are applied to the `ngpTooltip` directive:
 
 The `NgpTooltipArrow` directive is used to add an arrow to the tooltip. It should be placed inside the tooltip content. It will receive `inset-inline-start` or `inset-block-start` styles to position the arrow based on the tooltip's placement. As a result it should be positioned absolutely within the tooltip content.
 
+The arrow can be styled conditionally based on the tooltip's final placement using the `data-placement` attribute:
+
+```css
+[ngpTooltipArrow][data-placement='top'] {
+  /* Arrow styles when tooltip is positioned on top */
+}
+
+[ngpTooltipArrow][data-placement='bottom'] {
+  /* Arrow styles when tooltip is positioned on bottom */
+}
+```
+
 <api-docs name="NgpTooltipArrow"></api-docs>
+
+### Data Attributes
+
+| Attribute        | Description                                  |
+| ---------------- | -------------------------------------------- |
+| `data-placement` | The final rendered placement of the tooltip. |
+
+## Conditional Tooltips
+
+The `showOnOverflow` input allows you to show tooltips only when the trigger element has overflowing content. This is particularly useful for text that might be truncated with ellipsis.
+
+```html
+<div
+  class="truncated-text"
+  appTooltipTrigger="This tooltip only shows when text overflows"
+  ngpTooltipTriggerShowOnOverflow
+>
+  This text might be truncated
+</div>
+```
 
 ## Styling
 
@@ -128,7 +161,7 @@ bootstrapApplication(AppComponent, {
       offset: 4,
       placement: 'top',
       showDelay: 0,
-      hideDelay: 0,
+      hideDelay: 500,
       flip: true,
       container: document.body,
     }),
@@ -150,7 +183,7 @@ bootstrapApplication(AppComponent, {
   Define the delay before the tooltip shows.
 </prop-details>
 
-<prop-details name="hideDelay" type="number">
+<prop-details name="hideDelay" type="number" default="500">
   Define the delay before the tooltip hides.
 </prop-details>
 
@@ -160,4 +193,8 @@ bootstrapApplication(AppComponent, {
 
 <prop-details name="container" type="HTMLElement">
   Define the container element for the tooltip. This is the document body by default.
+</prop-details>
+
+<prop-details name="showOnOverflow" type="boolean">
+  Define if the tooltip should only show when the trigger element has overflowing content. This is useful for showing tooltips only when content is truncated.
 </prop-details>

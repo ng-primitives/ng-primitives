@@ -46,6 +46,24 @@ describe('NgpButton', () => {
     expect(container.getByRole('button')).not.toHaveAttribute('data-disabled');
   });
 
+  it('should update the data-disabled attribute when disabled changes', async () => {
+    const { getByRole, rerender } = await render(
+      `<button ngpButton [disabled]="isDisabled"></button>`,
+      {
+        imports: [NgpButton],
+        componentProperties: { isDisabled: false },
+      },
+    );
+
+    const button = getByRole('button');
+    expect(button).not.toHaveAttribute('data-disabled');
+    expect(button).not.toHaveAttribute('disabled');
+
+    await rerender({ componentProperties: { isDisabled: true } });
+    expect(button).toHaveAttribute('data-disabled');
+    expect(button).toHaveAttribute('disabled');
+  });
+
   it('should add the data-hover attribute when hovered', async () => {
     const container = await render(`<button ngpButton></button>`, {
       imports: [NgpButton],

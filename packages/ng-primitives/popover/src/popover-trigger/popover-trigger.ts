@@ -9,6 +9,7 @@ import {
   input,
   numberAttribute,
   OnDestroy,
+  output,
   signal,
   ViewContainerRef,
 } from '@angular/core';
@@ -34,6 +35,8 @@ import { popoverTriggerState, providePopoverTriggerState } from './popover-trigg
     '[attr.aria-expanded]': 'open() ? "true" : "false"',
     '[attr.data-open]': 'open() ? "" : null',
     '[attr.data-placement]': 'state.placement()',
+    '[attr.data-disabled]': 'state.disabled() ? "" : null',
+    '[attr.aria-describedby]': 'overlay()?.ariaDescribedBy()',
     '(click)': 'toggle($event)',
   },
 })
@@ -172,6 +175,13 @@ export class NgpPopoverTrigger<T = null> implements OnDestroy {
   readonly open = computed(() => this.overlay()?.isOpen() ?? false);
 
   /**
+   * Event emitted when the popover open state changes.
+   */
+  readonly openChange = output<boolean>({
+    alias: 'ngpPopoverTriggerOpenChange',
+  });
+
+  /**
    * The popover trigger state.
    */
   readonly state = popoverTriggerState<NgpPopoverTrigger<T>>(this);
@@ -199,8 +209,9 @@ export class NgpPopoverTrigger<T = null> implements OnDestroy {
 
   /**
    * Show the popover.
+   * @returns A promise that resolves when the popover has been shown
    */
-  show(): void {
+  async show(): Promise<void> {
     // If the trigger is disabled, don't show the popover
     if (this.state.disabled()) {
       return;
@@ -212,21 +223,28 @@ export class NgpPopoverTrigger<T = null> implements OnDestroy {
     }
 
     // Show the overlay
-    this.overlay()?.show();
+    await this.overlay()?.show();
+
+    if (this.open()) {
+      this.openChange.emit(true);
+    }
   }
 
   /**
    * @internal
    * Hide the popover.
+   * @returns A promise that resolves when the popover has been hidden
    */
-  hide(origin: FocusOrigin = 'program'): void {
+  async hide(origin: FocusOrigin = 'program'): Promise<void> {
     // If the trigger is disabled or the popover is not open, do nothing
     if (this.state.disabled() || !this.open()) {
       return;
     }
 
     // Hide the overlay
-    this.overlay()?.hide({ origin });
+    await this.overlay()?.hide({ origin });
+
+    this.openChange.emit(false);
   }
 
   /**

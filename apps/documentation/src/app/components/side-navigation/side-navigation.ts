@@ -33,7 +33,10 @@ export class SideNavigation {
   readonly sections = Object.entries(getRouterLinks())
     .map(([path, data]) => {
       // the path as we get it starts with '../pages/', so we remove it, and it also ends with '.md', so we remove it
-      const normalizedPath = path.replace('../pages/', '').replace('.md', '');
+      const normalizedPath = path
+        .replace('../pages/', '')
+        .replace('.md', '')
+        .replace('(documentation)/', '');
 
       // next split the path up, the first part is the section, the second part is the page
       const [section] = normalizedPath.split('/');

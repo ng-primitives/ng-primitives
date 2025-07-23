@@ -22,6 +22,9 @@ import { formControlState, provideFormControlState } from './form-control-state'
   selector: '[ngpFormControl]',
   exportAs: 'ngpFormControl',
   providers: [provideFormControlState()],
+  host: {
+    '[attr.disabled]': 'supportsDisabledAttribute && status().disabled ? "" : null',
+  },
 })
 export class NgpFormControl {
   /**
@@ -38,13 +41,28 @@ export class NgpFormControl {
   });
 
   /**
+   * The status of the form control.
+   */
+  readonly status: Signal<NgpControlStatus>;
+
+  /**
+   * The element reference.
+   */
+  private readonly elementRef = injectElementRef();
+
+  /**
+   * Whether the element supports the disabled attribute.
+   */
+  protected readonly supportsDisabledAttribute = 'disabled' in this.elementRef.nativeElement;
+
+  /**
    * The state of the form control.
    */
   private readonly state = formControlState<NgpFormControl>(this);
 
   constructor() {
     // Sync the form control state with the control state.
-    setupFormControl({ id: this.state.id, disabled: this.state.disabled });
+    this.status = setupFormControl({ id: this.state.id, disabled: this.state.disabled });
   }
 }
 

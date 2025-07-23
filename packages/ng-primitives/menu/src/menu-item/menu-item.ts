@@ -1,7 +1,7 @@
 import { FocusOrigin } from '@angular/cdk/a11y';
-import { Directive, HostListener, inject, Injector } from '@angular/core';
-import { NgpButton } from 'ng-primitives/button';
-import { injectElementRef } from 'ng-primitives/internal';
+import { BooleanInput } from '@angular/cdk/coercion';
+import { booleanAttribute, Directive, HostListener, inject, Injector, input } from '@angular/core';
+import { injectElementRef, setupButton } from 'ng-primitives/internal';
 import { NgpRovingFocusItem } from 'ng-primitives/roving-focus';
 import { injectMenu } from '../menu/menu-token';
 import { NgpSubmenuTrigger } from '../submenu-trigger/submenu-trigger';
@@ -13,7 +13,6 @@ import { NgpSubmenuTrigger } from '../submenu-trigger/submenu-trigger';
   selector: '[ngpMenuItem]',
   exportAs: 'ngpMenuItem',
   hostDirectives: [
-    { directive: NgpButton, inputs: ['disabled: ngpMenuItemDisabled'] },
     { directive: NgpRovingFocusItem, inputs: ['ngpRovingFocusItemDisabled: ngpMenuItemDisabled'] },
   ],
   host: {
@@ -31,6 +30,16 @@ export class NgpMenuItem {
 
   /** Access the parent menu */
   private readonly parentMenu = injectMenu();
+
+  /** Whether the menu item is disabled */
+  readonly disabled = input<boolean, BooleanInput>(false, {
+    alias: 'ngpMenuItemDisabled',
+    transform: booleanAttribute,
+  });
+
+  constructor() {
+    setupButton({ disabled: this.disabled });
+  }
 
   /** Close the menu when the item is clicked */
   protected onClick(event: MouseEvent): void {

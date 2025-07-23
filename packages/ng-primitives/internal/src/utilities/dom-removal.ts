@@ -1,7 +1,7 @@
 import { isPlatformServer } from '@angular/common';
 import { inject, PLATFORM_ID } from '@angular/core';
-import { fromResizeEvent } from 'ng-primitives/resize';
 import { safeTakeUntilDestroyed } from 'ng-primitives/utils';
+import { fromResizeEvent } from './resize';
 
 /**
  * Whenever an element is removed from the DOM, we call the callback.

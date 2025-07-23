@@ -15,24 +15,11 @@ export function setupFocusVisible({
   focusChange,
   disabled = signal(false),
 }: NgpFocusVisibleOptions): NgpFocusVisibleState {
-  /**
-   * Access the element that the directive is applied to.
-   */
   const elementRef = inject<ElementRef<HTMLElement>>(ElementRef);
-
-  /**
-   * Access the renderer.
-   */
   const renderer = inject(Renderer2);
-
-  /**
-   * Access the focus monitor.
-   */
   const focusMonitor = inject(FocusMonitor);
 
-  /**
-   * Whether the element is currently focused.
-   */
+  // Whether the element is currently focused.
   const isFocused = signal<boolean>(false);
 
   // handle focus state

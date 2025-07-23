@@ -7,7 +7,7 @@ import {
   input,
   numberAttribute,
 } from '@angular/core';
-import { NgpButton, syncButton } from 'ng-primitives/button';
+import { setupButton } from 'ng-primitives/internal';
 import { injectPaginationState } from '../pagination/pagination-state';
 
 /**
@@ -16,10 +16,8 @@ import { injectPaginationState } from '../pagination/pagination-state';
 @Directive({
   selector: '[ngpPaginationButton]',
   exportAs: 'ngpPaginationButton',
-  hostDirectives: [NgpButton],
   host: {
     '[tabindex]': 'disabled() ? -1 : 0',
-    '[attr.data-disabled]': 'disabled() ? "" : null',
     '[attr.data-page]': 'page()',
     '[attr.data-selected]': 'selected() ? "" : null',
     '[attr.aria-current]': 'selected()',
@@ -58,7 +56,7 @@ export class NgpPaginationButton {
   protected readonly selected = computed(() => this.page() === this.paginationState().page());
 
   constructor() {
-    syncButton({ disabled: this.disabled });
+    setupButton({ disabled: this.disabled });
   }
 
   /**

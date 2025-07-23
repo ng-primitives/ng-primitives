@@ -40,7 +40,7 @@ export class NgpComboboxOption implements OnInit, OnDestroy, NgpActivatable {
   /** The id of the option. */
   readonly id = input<string>(uniqueId('ngp-combobox-option'));
 
-  /** The value of the option. */
+  /** @required The value of the option. */
   readonly value = input<any>(undefined, {
     alias: 'ngpComboboxOptionValue',
   });
