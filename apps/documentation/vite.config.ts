@@ -48,8 +48,11 @@ export default defineConfig(({ mode }) => {
           routes: async () => [
             '/',
             ...globSync('apps/documentation/src/app/pages/**/*.md').map(
-              file =>
-                '/' + file.replace('apps/documentation/src/app/pages/', '').replace('.md', ''),
+              file => {
+                return '/' + file.replace('apps/documentation/src/app/pages/(documentation)/', '')
+                .replace('apps/documentation/src/app/pages/', '')
+                .replace('.md', '')
+              },
             ),
           ],
           sitemap: {

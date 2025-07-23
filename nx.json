@@ -89,6 +89,7 @@
   "defaultBase": "origin/next",
   "nxCloudId": "67def28b82912dfd7fe03d22",
   "tui": {
-    "autoExit": true
+    "autoExit": true,
+    "enabled": false
   }
 }
