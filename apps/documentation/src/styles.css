@@ -139,3 +139,11 @@ pre[class*='language-'] {
 #docsearch-landing .DocSearch-Button-Keys .DocSearch-Button-Key {
   @apply text-white/50 group-data-[scrolled]:text-black/50 dark:group-data-[scrolled]:text-zinc-100/50;
 }
+
+#docsearch-landing {
+  opacity: 0;
+}
+
+#docsearch-landing:has(.DocSearch) {
+  opacity: 1;
+}

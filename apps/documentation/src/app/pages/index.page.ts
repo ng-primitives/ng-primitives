@@ -401,6 +401,13 @@ export default class IndexPage {
       image: '/assets/testimonials/ayushseth.webp',
     },
     {
+      name: 'Mohammad Javed',
+      role: 'Creator of SlateUI',
+      quote:
+        'Angular Primitives has been a game-changer for SlateUI. Its headless, accessible approach lets us build flexible components with full control over design and UX. A must-have for modern Angular libraries.',
+      image: '/assets/testimonials/mohammadjaved.webp',
+    },
+    {
       name: 'Ruud Walraven',
       role: 'Angular Developer',
       quote:
