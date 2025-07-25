@@ -53,9 +53,9 @@ import {
           #inputElement
           [class.chips]="value().length > 0"
           [value]="filter()"
-          [placeholder]="getPlaceholderText()"
           (input)="onFilterChange($event)"
           (keydown)="onInputKeyDown($event)"
+          placeholder="Select an option"
           ngpComboboxInput
         />
       </div>
@@ -326,15 +326,6 @@ export default class ComboboxMultipleExample {
   protected readonly filteredOptions = computed(() =>
     this.options.filter(option => option.toLowerCase().includes(this.filter().toLowerCase())),
   );
-
-  /** Get the placeholder text. */
-  protected readonly getPlaceholderText = computed(() => {
-    const selectedCount = this.value().length;
-    if (selectedCount === 0) {
-      return 'Select options...';
-    }
-    return 'Search options...';
-  });
 
   protected onFilterChange(event: Event): void {
     const input = event.target as HTMLInputElement;
