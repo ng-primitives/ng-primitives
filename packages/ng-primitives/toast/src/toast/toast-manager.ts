@@ -12,7 +12,7 @@ import {
 } from '@angular/core';
 import { createPortal, NgpPortal } from 'ng-primitives/portal';
 import { injectToastConfig } from '../config/toast-config';
-import { NgpToast, NgpToastSwipeDirection } from './toast';
+import { NgpToast, NgpToastPlacement, NgpToastSwipeDirection } from './toast';
 import { provideToastContext } from './toast-context';
 import { provideToastOptions } from './toast-options';
 
@@ -39,7 +39,7 @@ export class NgpToastManager {
     const viewContainerRef = this.applicationRef.components[0].injector.get(ViewContainerRef);
 
     let instance: NgpToast | null = null;
-    const placement = options.placement ?? 'top-end';
+    const placement = options.placement ?? this.config.placement;
     const container = this.getOrCreateContainer(placement);
 
     const portal = createPortal(
@@ -149,7 +149,7 @@ export class NgpToastManager {
         container.style.setProperty('left', `${this.config.offsetLeft}px`);
         break;
       case 'top-center':
-        container.style.setProperty('top', '0');
+        container.style.setProperty('top', `${this.config.offsetTop}px`);
         container.style.setProperty('left', '50%');
         container.style.setProperty('transform', 'translateX(-50%)');
         break;
@@ -162,7 +162,7 @@ export class NgpToastManager {
         container.style.setProperty('left', `${this.config.offsetLeft}px`);
         break;
       case 'bottom-center':
-        container.style.setProperty('bottom', '0');
+        container.style.setProperty('bottom', `${this.config.offsetBottom}px`);
         container.style.setProperty('left', '50%');
         container.style.setProperty('transform', 'translateX(-50%)');
         break;
@@ -178,14 +178,6 @@ export class NgpToastManager {
     return container;
   }
 }
-
-export type NgpToastPlacement =
-  | 'top-start'
-  | 'top-end'
-  | 'top-center'
-  | 'bottom-start'
-  | 'bottom-end'
-  | 'bottom-center';
 
 export interface NgpToastOptions<T = unknown> {
   /** The position of the toast */
