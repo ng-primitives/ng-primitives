@@ -25,6 +25,7 @@ import { NgpMenuToken, provideMenu } from './menu-token';
     '[style.top.px]': 'overlay.position().y',
     '[style.--ngp-menu-trigger-width.px]': 'overlay.triggerWidth()',
     '[style.--ngp-menu-transform-origin]': 'overlay.transformOrigin()',
+    '[attr.data-placement]': 'overlay.finalPlacement()',
   },
 })
 export class NgpMenu {
