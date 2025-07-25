@@ -149,7 +149,7 @@ export class NgpToastManager {
         container.style.setProperty('left', `${this.config.offsetLeft}px`);
         break;
       case 'top-center':
-        container.style.setProperty('top', '0');
+        container.style.setProperty('top', `${this.config.offsetTop}px`);
         container.style.setProperty('left', '50%');
         container.style.setProperty('transform', 'translateX(-50%)');
         break;
@@ -162,7 +162,7 @@ export class NgpToastManager {
         container.style.setProperty('left', `${this.config.offsetLeft}px`);
         break;
       case 'bottom-center':
-        container.style.setProperty('bottom', '0');
+        container.style.setProperty('bottom', `${this.config.offsetBottom}px`);
         container.style.setProperty('left', '50%');
         container.style.setProperty('transform', 'translateX(-50%)');
         break;
