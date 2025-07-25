@@ -1,5 +1,5 @@
 import { inject, InjectionToken, Signal, ValueProvider } from '@angular/core';
-import type { NgpToast, NgpToastSwipeDirection } from './toast';
+import type { NgpToast, NgpToastSwipeDirection, NgpToastPlacement } from './toast';
 
 const NgpToastOptions = new InjectionToken<NgpToastOptions>('NgpToastOptions');
 
@@ -15,13 +15,8 @@ export interface NgpToastOptions {
   /**
    * The position of the toast.
    */
-  placement:
-    | 'top-start'
-    | 'top-end'
-    | 'bottom-start'
-    | 'bottom-end'
-    | 'top-center'
-    | 'bottom-center';
+  placement: NgpToastPlacement;
+
   /**
    * The duration of the toast in milliseconds.
    */

@@ -1,7 +1,12 @@
 import { InjectionToken, Provider, inject } from '@angular/core';
-import { NgpToastSwipeDirection } from '../toast/toast';
+import { NgpToastPlacement, NgpToastSwipeDirection } from '../toast/toast';
 
 export interface NgpToastConfig {
+  /**
+   * The position of the toast.
+   */
+  placement: NgpToastPlacement;
+
   /**
    * The duration of each toast.
    */
@@ -73,6 +78,7 @@ export const defaultToastConfig: NgpToastConfig = {
   gap: 14,
   duration: 3000,
   width: 360,
+  placement: 'top-end',
   offsetTop: 24,
   offsetBottom: 24,
   offsetLeft: 24,

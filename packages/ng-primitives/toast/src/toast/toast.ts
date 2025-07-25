@@ -287,3 +287,11 @@ export class NgpToast {
 }
 
 export type NgpToastSwipeDirection = 'top' | 'right' | 'bottom' | 'left';
+
+export type NgpToastPlacement =
+  | 'top-start'
+  | 'top-end'
+  | 'top-center'
+  | 'bottom-start'
+  | 'bottom-end'
+  | 'bottom-center';
