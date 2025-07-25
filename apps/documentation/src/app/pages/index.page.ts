@@ -169,7 +169,7 @@ export class DocsNavbar implements OnInit {
               alt="Sidebar Logo"
             />
             <img
-              class="h-8 brightness-[5] invert-0 saturate-0"
+              class="h-8 brightness-[9] invert-0 saturate-0"
               src="/assets/company-logos/flowbite.svg"
               alt="Flowbite Logo"
             />
@@ -399,6 +399,13 @@ export default class IndexPage {
       quote:
         'Moving from React to Angular, I struggled to find solid headless UI libraries like Radix or Headless UI. Angular Primitives was a breath of fresh air—modern, actively maintained, and a joy to use. Ashley and the other contributors are doing amazing work.',
       image: '/assets/testimonials/ayushseth.webp',
+    },
+    {
+      name: 'Mohammad Javed',
+      role: 'Creator of SlateUI',
+      quote:
+        'Angular Primitives has been a game-changer for SlateUI. Its headless, accessible approach lets us build flexible components with full control over design and UX. A must-have for modern Angular libraries.',
+      image: '/assets/testimonials/mohammadjaved.webp',
     },
     {
       name: 'Ruud Walraven',

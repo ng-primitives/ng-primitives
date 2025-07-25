@@ -84,6 +84,16 @@ The following data attributes are available on the `NgpMenuTrigger` directive:
 
 <api-docs name="NgpMenu"></api-docs>
 
+#### Data Attributes
+
+The following data attributes are available on the `NgpMenu` directive:
+
+| Attribute        | Description                                                                                  |
+| ---------------- | -------------------------------------------------------------------------------------------- |
+| `data-enter`     | Applied when the menu is being added to the DOM. This can be used to trigger animations.     |
+| `data-exit`      | Applied when the menu is being removed from the DOM. This can be used to trigger animations. |
+| `data-placement` | The final rendered placement of the menu.                                                    |
+
 The following CSS custom properties are applied to the `ngpMenu` directive:
 
 | Property                      | Description                                      |
