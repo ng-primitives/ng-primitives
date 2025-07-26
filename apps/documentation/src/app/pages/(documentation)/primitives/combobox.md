@@ -45,6 +45,10 @@ Create a reusable component that uses the `NgpCombobox` directive.
 
 <docs-snippet name="combobox"></docs-snippet>
 
+## Multiple Selection with chips
+
+<docs-example name="combobox-multiple"></docs-example>
+
 ## Schematics
 
 Generate a reusable combobox component using the Angular CLI.
