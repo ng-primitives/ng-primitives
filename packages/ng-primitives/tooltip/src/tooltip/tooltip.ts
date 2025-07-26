@@ -16,6 +16,7 @@ import { injectOverlay } from 'ng-primitives/portal';
     '[style.--ngp-tooltip-trigger-width.px]': 'overlay.triggerWidth()',
     '[style.--ngp-tooltip-transform-origin]': 'overlay.transformOrigin()',
     '[attr.data-placement]': 'overlay.finalPlacement()',
+    'data-overlay': '',
   },
 })
 export class NgpTooltip {
