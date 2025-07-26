@@ -1,6 +1,7 @@
-import { afterRenderEffect, Directive, input, signal } from '@angular/core';
-import { injectElementRef } from 'ng-primitives/internal';
-import { uniqueId } from 'ng-primitives/utils';
+import { afterRenderEffect, computed, Directive, input } from '@angular/core';
+import { fromMutationObserver, injectElementRef } from 'ng-primitives/internal';
+import { safeTakeUntilDestroyed, uniqueId } from 'ng-primitives/utils';
+import { debounceTime } from 'rxjs';
 import { injectAccordionItemState } from '../accordion-item/accordion-item-state';
 import type { NgpAccordion } from '../accordion/accordion';
 import { injectAccordionState } from '../accordion/accordion-state';
@@ -18,8 +19,6 @@ import { injectAccordionState } from '../accordion/accordion-state';
     '[attr.data-open]': 'accordionItem().open() ? "" : null',
     '[attr.data-closed]': 'accordionItem().open() ? null : ""',
     '[attr.aria-labelledby]': 'accordionItem().triggerId()',
-    '[style.--ngp-accordion-content-width.px]': 'width()',
-    '[style.--ngp-accordion-content-height.px]': 'height()',
   },
 })
 export class NgpAccordionContent<T> {
@@ -43,24 +42,36 @@ export class NgpAccordionContent<T> {
    */
   readonly id = input<string>(uniqueId('ngp-accordion-content'));
 
-  /**
-   * The content width
-   */
-  readonly width = signal<number>(0);
-
-  /**
-   * The content height
-   */
-  readonly height = signal<number>(0);
-
   constructor() {
     this.accordionItem().content.set(this);
 
-    afterRenderEffect(() => {
-      if (this.accordionItem().open()) {
-        this.width.set(this.elementRef.nativeElement.scrollWidth);
-        this.height.set(this.elementRef.nativeElement.scrollHeight);
-      }
-    });
+    // any time the open state of the accordion item changes, update the dimensions
+    afterRenderEffect(() => this.updateDimensions());
+
+    // update dimensions when the content changes
+    fromMutationObserver(this.elementRef.nativeElement, {
+      childList: true,
+      subtree: true,
+      disabled: computed(() => !this.accordionItem().open()),
+    })
+      .pipe(debounceTime(0), safeTakeUntilDestroyed())
+      .subscribe(() => this.updateDimensions());
+  }
+
+  private updateDimensions(): void {
+    if (this.accordionItem().open()) {
+      // remove the inline styles to reset them
+      this.elementRef.nativeElement.style.removeProperty('--ngp-accordion-content-width');
+      this.elementRef.nativeElement.style.removeProperty('--ngp-accordion-content-height');
+      // set the dimensions based on the content
+      this.elementRef.nativeElement.style.setProperty(
+        '--ngp-accordion-content-width',
+        `${this.elementRef.nativeElement.scrollWidth}px`,
+      );
+      this.elementRef.nativeElement.style.setProperty(
+        '--ngp-accordion-content-height',
+        `${this.elementRef.nativeElement.scrollHeight}px`,
+      );
+    }
   }
 }
