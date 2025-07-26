@@ -25,7 +25,7 @@ import { toastTimer } from './toast-timer';
     '[attr.data-front]': 'index() === 0',
     '[attr.data-swiping]': 'swiping()',
     '[attr.data-swipe-direction]': 'swipeOutDirection()',
-    '[attr.data-expanded]': 'context.expanded()',
+    '[attr.data-expanded]': 'options.expanded()',
     '[style.--ngp-toast-gap.px]': 'config.gap',
     '[style.--ngp-toast-z-index]': 'zIndex()',
     '[style.--ngp-toasts-before]': 'index()',
@@ -45,7 +45,7 @@ export class NgpToast {
   private readonly injector = inject(Injector);
   protected readonly config = injectToastConfig();
   /** @internal */
-  readonly context = injectToastOptions();
+  readonly options = injectToastOptions();
   private readonly interactivityChecker = inject(InteractivityChecker);
   private readonly isInteracting = signal(false);
 
@@ -71,7 +71,7 @@ export class NgpToast {
   private readonly toasts = computed(() =>
     this.manager
       .toasts()
-      .filter(toast => toast.instance.context.placement === this.context.placement),
+      .filter(toast => toast.instance.options.placement === this.options.placement),
   );
 
   /**
@@ -131,26 +131,26 @@ export class NgpToast {
   /**
    * The x position of the toast.
    */
-  readonly x = this.context.placement.split('-')[1] || 'end';
+  readonly x = this.options.placement.split('-')[1] || 'end';
 
   /**
    * The y position of the toast.
    */
-  readonly y = this.context.placement.split('-')[0] || 'top';
+  readonly y = this.options.placement.split('-')[0] || 'top';
 
   /**
    * The toast timer instance.
    */
-  private readonly timer = toastTimer(this.config.duration, () => this.manager.dismiss(this));
+  private readonly timer = toastTimer(this.options.duration, () => this.manager.dismiss(this));
 
   constructor() {
-    this.context.register(this);
+    this.options.register(this);
 
     // Start the timer when the toast is created
     this.timer.start();
 
     // Pause the timer when the toast is expanded or when the user is interacting with it
-    explicitEffect([this.context.expanded, this.isInteracting], ([expanded, interacting]) => {
+    explicitEffect([this.options.expanded, this.isInteracting], ([expanded, interacting]) => {
       // If the toast is expanded, or if the user is interacting with it, reset the timer
       if (expanded || interacting) {
         this.timer.pause();
@@ -163,7 +163,7 @@ export class NgpToast {
   @HostListener('pointerdown', ['$event'])
   protected onPointerDown(event: PointerEvent): void {
     // right click should not trigger swipe and we check if the toast is dismissible
-    if (event.button === 2 || !this.context.dismissible) {
+    if (event.button === 2 || !this.options.dismissible) {
       return;
     }
 
@@ -183,7 +183,7 @@ export class NgpToast {
 
   @HostListener('pointermove', ['$event'])
   protected onPointerMove(event: PointerEvent): void {
-    if (!this.pointerStartRef || !this.context.dismissible) {
+    if (!this.pointerStartRef || !this.options.dismissible) {
       return;
     }
 
@@ -196,7 +196,7 @@ export class NgpToast {
     const yDelta = event.clientY - this.pointerStartRef.y;
     const xDelta = event.clientX - this.pointerStartRef.x;
 
-    const swipeDirections = this.context.swipeDirections;
+    const swipeDirections = this.options.swipeDirections;
 
     // Determine swipe direction if not already locked
     if (!this.swipeDirection() && (Math.abs(xDelta) > 1 || Math.abs(yDelta) > 1)) {
