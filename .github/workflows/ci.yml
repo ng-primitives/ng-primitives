@@ -33,7 +33,7 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - uses: nrwl/nx-set-shas@v4
 
-      - run: pnpm exec nx-cloud record -- nx format:check
+      - run: pnpm exec nx format:check
       - run: pnpm exec nx run-many -t lint,build,test,e2e --all --parallel
         env:
           NODE_OPTIONS: '--max-old-space-size=8192' # Increase memory to 8GB
