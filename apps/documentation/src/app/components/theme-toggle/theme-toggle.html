@@ -1,10 +1,2 @@
-<button
-  class="inline-flex items-center justify-center gap-x-2 rounded-lg bg-white px-3 py-2 outline-none transition-colors data-[hover]:bg-zinc-50 data-[press]:bg-zinc-100 data-[focus-visible]:text-zinc-800 data-[hover]:text-zinc-800 data-[focus-visible]:ring-2 data-[focus-visible]:ring-blue-500 dark:bg-zinc-800 dark:data-[hover]:bg-zinc-700 dark:data-[press]:bg-zinc-700 dark:data-[focus-visible]:text-zinc-100 dark:data-[hover]:text-zinc-100 dark:data-[focus-visible]:ring-blue-800"
-  (click)="toggleTheme()"
-  ngpButton
->
-  <ng-icon
-    class="text-lg text-zinc-500 dark:text-zinc-400"
-    [name]="isDark() ? 'lucideSun' : 'lucideMoon'"
-  />
-</button>
+<ng-content />
+<ng-icon [name]="isDark() ? 'lucideSun' : 'lucideMoon'" />
