@@ -161,9 +161,10 @@ bootstrapApplication(AppComponent, {
       offset: 4,
       placement: 'top',
       showDelay: 0,
-      hideDelay: 500,
+      hideDelay: 0,
       flip: true,
       container: document.body,
+      showOnOverflow: false,
     }),
   ],
 });
@@ -171,30 +172,30 @@ bootstrapApplication(AppComponent, {
 
 ### NgpTooltipConfig
 
-<prop-details name="offset" type="number">
-  Define the offset from the trigger element.
+<prop-details name="offset" type="number" default="4">
+Define the offset from the trigger element.
 </prop-details>
 
-<prop-details name="placement" type="'top' | 'right' | 'bottom' | 'left'">
+<prop-details name="placement" type="'top' | 'right' | 'bottom' | 'left'" default="top">
   Define the placement of the tooltip.
 </prop-details>
 
-<prop-details name="showDelay" type="number">
+<prop-details name="showDelay" type="number" default="0">
   Define the delay before the tooltip shows.
 </prop-details>
 
-<prop-details name="hideDelay" type="number" default="500">
+<prop-details name="hideDelay" type="number" default="0">
   Define the delay before the tooltip hides.
 </prop-details>
 
-<prop-details name="flip" type="boolean">
+<prop-details name="flip" type="boolean" default="true">
   Define if the tooltip should flip when it reaches the edge of the viewport.
 </prop-details>
 
-<prop-details name="container" type="HTMLElement">
+<prop-details name="container" type="HTMLElement" default="document.body">
   Define the container element for the tooltip. This is the document body by default.
 </prop-details>
 
-<prop-details name="showOnOverflow" type="boolean">
+<prop-details name="showOnOverflow" type="boolean" default="false">
   Define if the tooltip should only show when the trigger element has overflowing content. This is useful for showing tooltips only when content is truncated.
 </prop-details>
