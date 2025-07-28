@@ -100,6 +100,7 @@ import {
       display: flex;
       flex-wrap: wrap;
       align-items: center;
+      width: 100%;
     }
 
     [ngpComboboxInput] {
@@ -111,6 +112,7 @@ import {
       font-size: 14px;
       outline: none;
       height: 100%;
+      width: inherit;
     }
 
     [ngpComboboxInput].chips {
