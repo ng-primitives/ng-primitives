@@ -42,6 +42,6 @@ describe('NgpVisuallyHidden', () => {
     expect(getComputedStyle(element).wordWrap).toBe('normal');
     expect(getComputedStyle(element).outline).toBe('0');
     expect(getComputedStyle(element).insetInlineStart).toBe('0');
-    expect(getComputedStyle(element).color).toBe('red');
+    expect(getComputedStyle(element).color).toBe('rgb(255, 0, 0)');
   });
 });
