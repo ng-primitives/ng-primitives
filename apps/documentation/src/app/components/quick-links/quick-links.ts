@@ -1,10 +1,13 @@
+import { isPlatformBrowser } from '@angular/common';
 import {
   afterNextRender,
+  AfterViewInit,
   ChangeDetectionStrategy,
   ChangeDetectorRef,
   Component,
   inject,
   Injector,
+  PLATFORM_ID,
   signal,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -20,8 +23,9 @@ import { filter } from 'rxjs/operators';
     class: 'hidden lg:block sticky top-[5.5rem] w-64 h-[calc(100vh-8rem)] overflow-y-auto',
   },
 })
-export class QuickLinks {
+export class QuickLinks implements AfterViewInit {
   private readonly router = inject(Router);
+  private readonly platformId = inject(PLATFORM_ID);
   private readonly injector = inject(Injector);
   private readonly changeDetector = inject(ChangeDetectorRef);
   protected links = signal<HeadingData[]>([]);
@@ -41,6 +45,12 @@ export class QuickLinks {
           { injector: this.injector },
         );
       });
+  }
+
+  ngAfterViewInit(): void {
+    if (isPlatformBrowser(this.platformId)) {
+      this.links.set(getHeadingList());
+    }
   }
 
   scrollTo(id: string): void {

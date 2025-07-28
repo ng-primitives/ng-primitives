@@ -47,10 +47,15 @@ export default defineConfig(({ mode }) => {
         prerender: {
           routes: async () => [
             '/',
-            ...globSync('apps/documentation/src/app/pages/**/*.md').map(
-              file =>
-                '/' + file.replace('apps/documentation/src/app/pages/', '').replace('.md', ''),
-            ),
+            ...globSync('apps/documentation/src/app/pages/**/*.md').map(file => {
+              return (
+                '/' +
+                file
+                  .replace('apps/documentation/src/app/pages/(documentation)/', '')
+                  .replace('apps/documentation/src/app/pages/', '')
+                  .replace('.md', '')
+              );
+            }),
           ],
           sitemap: {
             host: 'https://ng-primitives.netlify.app/',

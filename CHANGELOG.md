@@ -1,3 +1,30 @@
+## 0.68.0 (2025-07-26)
+
+### 🚀 Features
+
+- **overlay:** allow multiple elements within overlay ([#390](https://github.com/ng-primitives/ng-primitives/pull/390))
+
+### 🩹 Fixes
+
+- **accordion:** ensure accordion resizes when content changes ([#388](https://github.com/ng-primitives/ng-primitives/pull/388))
+- **toast:** toast placement and offset ([#385](https://github.com/ng-primitives/ng-primitives/pull/385))
+- **toast:** fixing toast duration ([#389](https://github.com/ng-primitives/ng-primitives/pull/389))
+
+### ❤️ Thank You
+
+- Ashley Hunter
+- Ruud Walraven
+
+## 0.67.0 (2025-07-25)
+
+### 🚀 Features
+
+- **menu:** add data-placement attribute to menu ([#383](https://github.com/ng-primitives/ng-primitives/pull/383))
+
+### ❤️ Thank You
+
+- Ayush Seth @ayush-seth
+
 ## 0.66.0 (2025-07-22)
 
 ### 🚀 Features

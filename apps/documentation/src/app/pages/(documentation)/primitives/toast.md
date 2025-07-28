@@ -114,6 +114,7 @@ import { provideToastConfig } from 'ng-primitives/toast';
 bootstrapApplication(AppComponent, {
   providers: [
     provideToastConfig({
+      placement: 'top-end',
       duration: 5000,
       width: 300,
       offsetTop: 16,
@@ -132,6 +133,10 @@ bootstrapApplication(AppComponent, {
 ```
 
 ### NgpToastConfig
+
+<prop-details name="placement" type="NgpToastPlacement" default="top-end">
+  The default placement of the toast. Can be one of `top-start`, `top-end`, `top-center`, `bottom-start`, `bottom-end`, or `bottom-center`.
+</prop-details>
 
 <prop-details name="duration" type="number" default="3000">
   The duration in milliseconds that the toast will be visible.

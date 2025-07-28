@@ -411,14 +411,14 @@ export class NgpOverlay<T = unknown> {
     // Ensure view is up to date
     portal.detectChanges();
 
-    const outletElement = portal.getElements()[0] as HTMLElement | null;
+    // find a dedicated outlet element
+    // this is the element that has the `data-overlay` attribute
+    // if no such element exists, we use the first element in the portal
+    const outletElement =
+      portal.getElements().find(el => el.hasAttribute('data-overlay')) ?? portal.getElements()[0];
 
     if (!outletElement) {
       throw new Error('Overlay element is not available.');
-    }
-
-    if (portal.getElements().length > 1) {
-      throw new Error('Overlay must have only one root element.');
     }
 
     // Set up positioning
