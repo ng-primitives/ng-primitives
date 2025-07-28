@@ -161,7 +161,7 @@ bootstrapApplication(AppComponent, {
       offset: 4,
       placement: 'top',
       showDelay: 0,
-      hideDelay: 0,
+      hideDelay: 500,
       flip: true,
       container: document.body,
       showOnOverflow: false,
@@ -184,7 +184,7 @@ Define the offset from the trigger element.
   Define the delay before the tooltip shows.
 </prop-details>
 
-<prop-details name="hideDelay" type="number" default="0">
+<prop-details name="hideDelay" type="number" default="500">
   Define the delay before the tooltip hides.
 </prop-details>
 

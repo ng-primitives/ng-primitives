@@ -97,7 +97,7 @@ export class NgpTooltipTrigger<T = null> implements OnDestroy {
 
   /**
    * Define the delay before the tooltip is displayed.
-   * @default 0
+   * @default 500
    */
   readonly showDelay = input<number, NumberInput>(this.config.showDelay, {
     alias: 'ngpTooltipTriggerShowDelay',
