@@ -67,6 +67,7 @@ We welcome contributions from the community. Please refer to our [contributing g
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/kostetskyroma"><img src="https://avatars.githubusercontent.com/u/12156197?v=4?s=100" width="100px;" alt="Roman Kostetskyi"/><br /><sub><b>Roman Kostetskyi</b></sub></a><br /><a href="https://github.com/ng-primitives/ng-primitives/commits?author=kostetskyroma" title="Code">💻</a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/TrieBr"><img src="https://avatars.githubusercontent.com/u/348719?v=4?s=100" width="100px;" alt="Brad Triebwasser"/><br /><sub><b>Brad Triebwasser</b></sub></a><br /><a href="https://github.com/ng-primitives/ng-primitives/commits?author=TrieBr" title="Code">💻</a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/JoshuaNitschke"><img src="https://avatars.githubusercontent.com/u/33307206?v=4?s=100" width="100px;" alt="Joshua Nitschke"/><br /><sub><b>Joshua Nitschke</b></sub></a><br /><a href="https://github.com/ng-primitives/ng-primitives/commits?author=JoshuaNitschke" title="Code">💻</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://ramonmartinez.dev"><img src="https://avatars.githubusercontent.com/u/39868803?v=4?s=100" width="100px;" alt="Ramon Martinez"/><br /><sub><b>Ramon Martinez</b></sub></a><br /><a href="https://github.com/ng-primitives/ng-primitives/commits?author=RaimonxDev" title="Code">💻</a></td>
     </tr>
   </tbody>
 </table>
