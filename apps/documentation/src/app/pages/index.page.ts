@@ -11,10 +11,11 @@ import {
   heroSquares2x2,
   heroUsers,
 } from '@ng-icons/heroicons/outline';
+import { ThemeToggle } from '../components/theme-toggle/theme-toggle';
 
 @Component({
   selector: 'docs-navbar',
-  imports: [NgIcon, RouterLink],
+  imports: [NgIcon, RouterLink, ThemeToggle],
   template: `
     <nav
       class="group fixed z-20 h-16 w-full border-b border-transparent px-6 transition-all duration-500 data-[scrolled]:border-zinc-200 data-[scrolled]:bg-white data-[scrolled]:shadow-sm md:px-12 dark:data-[scrolled]:border-zinc-800 dark:data-[scrolled]:bg-zinc-900"
@@ -44,6 +45,13 @@ import {
               <span class="inline-flex">Search...</span>
             </div>
           </div>
+
+          <button
+            class="inline-flex h-10 items-center justify-center rounded-md px-4 text-[13px] font-medium text-zinc-100 transition-colors hover:bg-zinc-100/10 active:bg-zinc-100/15 group-data-[scrolled]:text-zinc-800 group-data-[scrolled]:hover:bg-zinc-800/5 group-data-[scrolled]:active:bg-zinc-800/10 dark:group-data-[scrolled]:text-zinc-100 dark:group-data-[scrolled]:hover:bg-zinc-200/5"
+            docs-theme-toggler
+          >
+            <span class="sr-only">Toggle theme</span>
+          </button>
 
           <a
             class="inline-flex h-10 items-center justify-center rounded-md px-4 text-[13px] font-medium text-zinc-100 transition-colors hover:bg-zinc-100/10 active:bg-zinc-100/15 group-data-[scrolled]:text-zinc-800 group-data-[scrolled]:hover:bg-zinc-800/5 group-data-[scrolled]:active:bg-zinc-800/10 dark:group-data-[scrolled]:text-zinc-100 dark:group-data-[scrolled]:hover:bg-zinc-200/5"

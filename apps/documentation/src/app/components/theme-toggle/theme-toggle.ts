@@ -5,15 +5,15 @@ import { lucideMoon, lucideSun } from '@ng-icons/lucide';
 import { NgpButton } from 'ng-primitives/button';
 
 @Component({
-  selector: 'docs-theme-toggler',
+  selector: 'button[docs-theme-toggler]',
   providers: [provideIcons({ lucideMoon, lucideSun })],
   templateUrl: './theme-toggle.html',
-  imports: [NgIcon, NgpButton],
-  styles: `
-    :host {
-      display: contents;
-    }
-  `,
+  imports: [NgIcon],
+  hostDirectives: [NgpButton],
+  host: {
+    '(click)': 'toggleTheme()',
+    '[attr.data-theme]': 'theme()',
+  },
 })
 export class ThemeToggle {
   private readonly platform = inject(PLATFORM_ID);
