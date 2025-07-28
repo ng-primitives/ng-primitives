@@ -1,6 +1,7 @@
 import { Component, computed, signal, ElementRef, viewChild } from '@angular/core';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { heroChevronDown, heroXMark } from '@ng-icons/heroicons/outline';
+import { heroCheckSolid } from '@ng-icons/heroicons/solid';
 import {
   NgpCombobox,
   NgpComboboxButton,
@@ -21,7 +22,7 @@ import {
     NgpComboboxButton,
     NgIcon,
   ],
-  providers: [provideIcons({ heroChevronDown, heroXMark })],
+  providers: [provideIcons({ heroChevronDown, heroXMark, heroCheckSolid })],
   template: `
     <!-- Combobox multiple with chips -->
     <div
@@ -68,7 +69,7 @@ import {
           <div [ngpComboboxOptionValue]="option" ngpComboboxOption>
             {{ option }}
             @if (isSelected(option)) {
-              <span class="checkmark">✓</span>
+              <ng-icon name="heroCheckSolid" />
             }
           </div>
         } @empty {
@@ -188,7 +189,7 @@ import {
       background-color: var(--ngp-background-active);
     }
 
-    [ngpcomboboxoption] .checkmark {
+    [ngpComboboxOption] ng-icon {
       font-weight: bold;
       margin-left: auto;
     }
