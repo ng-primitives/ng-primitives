@@ -3,13 +3,13 @@ import { Component, HostListener, inject, OnInit, PLATFORM_ID, signal } from '@a
 import { RouterLink } from '@angular/router';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import {
-  heroAdjustmentsHorizontal,
   heroBolt,
   heroCodeBracket,
   heroCubeTransparent,
   heroEye,
   heroMagnifyingGlass,
   heroSquares2x2,
+  heroUsers,
 } from '@ng-icons/heroicons/outline';
 import { ThemeToggle } from '../components/theme-toggle/theme-toggle';
 
@@ -18,7 +18,7 @@ import { ThemeToggle } from '../components/theme-toggle/theme-toggle';
   imports: [NgIcon, RouterLink, ThemeToggle],
   template: `
     <nav
-      class="group fixed z-20 h-16 w-full border-b border-transparent px-6 transition-all duration-500 data-[scrolled]:border-zinc-200 data-[scrolled]:bg-zinc-50 data-[scrolled]:shadow-sm md:px-12 dark:data-[scrolled]:border-zinc-800 dark:data-[scrolled]:bg-zinc-900"
+      class="group fixed z-20 h-16 w-full border-b border-transparent px-6 transition-all duration-500 data-[scrolled]:border-zinc-200 data-[scrolled]:bg-white data-[scrolled]:shadow-sm md:px-12 dark:data-[scrolled]:border-zinc-800 dark:data-[scrolled]:bg-zinc-900"
       [attr.data-scrolled]="scrolled() ? '' : undefined"
     >
       <div
@@ -119,8 +119,12 @@ export class DocsNavbar implements OnInit {
       heroEye,
       heroCubeTransparent,
       heroBolt,
-      heroAdjustmentsHorizontal,
       heroSquares2x2,
+      heroUsers,
+      coralogix: `<svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path d="M8 2C4.68874 2 2 4.69011 2 8C2 11.3099 4.68874 14 8 14C11.3113 14 14 11.3099 14 8C14 4.69011 11.3113 2 8 2Z" fill="white"/>
+<path opacity="0.4" d="M8 1.60563C4.46643 1.60563 1.59717 4.47887 1.59717 8.01408C1.59717 11.5493 4.46643 14.4225 8 14.4225C11.5336 14.4225 14.4028 11.5493 14.4028 8.01408C14.417 4.47887 11.5336 1.60563 8 1.60563ZM8 16C3.59011 16 0 12.4085 0 8C0 3.59155 3.59011 0 8 0C12.4099 0 16 3.59155 16 8C16 12.4225 12.4099 16 8 16Z" fill="white"/>
+</svg>`,
     }),
   ],
   template: `
@@ -131,6 +135,15 @@ export class DocsNavbar implements OnInit {
         class="container relative z-10 mx-auto grid max-w-screen-xl items-center gap-8 lg:grid-cols-12"
       >
         <div class="text-center lg:col-span-7 lg:text-left">
+          <a
+            class="mb-6 inline-flex h-8 items-center gap-1.5 rounded-full border-t border-white/10 bg-white/10 px-3 text-[13px] font-semibold text-white ring-1 ring-black/5 transition-colors duration-300 hover:bg-white/15"
+            href="https://coralogix.com"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <ng-icon name="coralogix" />
+            Proudly partnered with Coralogix
+          </a>
           <h1
             class="font-jakarta mb-6 text-4xl font-semibold leading-tight text-white sm:text-5xl md:text-6xl"
           >
@@ -384,13 +397,12 @@ export default class IndexPage {
       icon: 'heroBolt',
       title: 'Powered by Angular Signals',
       description:
-        "Leverages Angular's latest reactivity model for blazing-fast updates and a more predictable developer experience.",
+        "Leverages Angular's latest reactivity model for blazing-fast updates and a more predictable developer experience and fully supports Zoneless Angular.",
     },
     {
-      icon: 'heroAdjustmentsHorizontal',
-      title: 'Future Proofed',
-      description:
-        'Built specifically for the latest Angular versions, ensuring compatibility with the latest features and best practices including Zoneless support.',
+      icon: 'heroUsers',
+      title: 'Future-Proofed',
+      description: `We're proud to partner with Coralogix, whose world-class Angular engineers now help evolve Angular Primitives - ensuring long-term sustainability and a bright future for the library.`,
     },
     {
       icon: 'heroSquares2x2',
