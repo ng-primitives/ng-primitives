@@ -123,14 +123,22 @@ export class NgpToastManager {
 
     container.style.setProperty('position', 'fixed');
     container.style.setProperty('z-index', `${this.config.zIndex}`);
-    container.style.setProperty('width', `${this.config.width}px`);
+    
+    // Only set width if it's specified in the config
+    if (this.config.width !== undefined) {
+      container.style.setProperty('width', `${this.config.width}px`);
+    }
 
     container.style.setProperty('--ngp-toast-offset-top', `${this.config.offsetTop}px`);
     container.style.setProperty('--ngp-toast-offset-bottom', `${this.config.offsetBottom}px`);
     container.style.setProperty('--ngp-toast-offset-left', `${this.config.offsetLeft}px`);
     container.style.setProperty('--ngp-toast-offset-right', `${this.config.offsetRight}px`);
     container.style.setProperty('--ngp-toast-gap', `${this.config.gap}px`);
-    container.style.setProperty('--ngp-toast-width', `${this.config.width}px`);
+    
+    // Only set width CSS variable if it's specified in the config
+    if (this.config.width !== undefined) {
+      container.style.setProperty('--ngp-toast-width', `${this.config.width}px`);
+    }
 
     // mark the container as expanded
     this.renderer.listen(container, 'mouseenter', () =>

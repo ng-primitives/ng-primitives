@@ -142,8 +142,8 @@ bootstrapApplication(AppComponent, {
   The duration in milliseconds that the toast will be visible.
 </prop-details>
 
-<prop-details name="width" type="number" default="360">
-  The width of each toast in pixels.
+<prop-details name="width" type="number | undefined" default="undefined">
+  The width of each toast in pixels. If not provided, the toast will be responsive based on viewport width, allowing for custom styling via CSS.
 </prop-details>
 
 <prop-details name="offsetTop" type="number" default="24">
