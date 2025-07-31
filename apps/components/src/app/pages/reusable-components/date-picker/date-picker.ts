@@ -213,7 +213,7 @@ export class DatePicker implements ControlValueAccessor {
   /**
    * The onChange callback function for the date picker.
    */
-  private onChange?: ChangeFn<Date | undefined>;
+  protected onChange?: ChangeFn<Date | undefined>;
 
   /**
    * The onTouched callback function for the date picker.
