@@ -125,6 +125,7 @@ export class NgpToast {
         NgpToast.toasts = NgpToast.toasts.filter(t => t !== toastRef);
         this.reposition();
       },
+      this.config.width,
     );
 
     NgpToast.toasts = [...NgpToast.toasts, toastRef];

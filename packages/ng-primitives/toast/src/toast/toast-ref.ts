@@ -24,8 +24,15 @@ export class NgpToastRef {
     /** The aria live setting */
     private readonly ariaLive: string,
     private readonly onDismiss: () => void,
+    /** The toast width */
+    private readonly width?: string,
   ) {
     this.toastElement.setAttribute('data-toast', 'visible');
+
+    // Only apply width if defined
+    if (this.width !== undefined) {
+      this.toastElement.style.width = this.width;
+    }
 
     this.setPosition(position);
     this.setGravity(gravity);

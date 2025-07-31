@@ -36,6 +36,31 @@ Create a toast component that uses the `NgpToast` directive.
 
 <docs-snippet name="toast"></docs-snippet>
 
+## Global Configuration
+
+You can configure the default options for all toasts in your application using the `provideToastConfig` function in a providers array. This is the recommended way to set duration, position, gravity, gap, and width globally:
+
+```ts
+import { provideToastConfig } from 'ng-primitives/toast';
+
+bootstrapApplication(AppComponent, {
+  providers: [
+    provideToastConfig({
+      duration: 5000, // how long the toast is visible (ms)
+      position: 'center', // 'start' | 'center' | 'end'
+      gravity: 'top',     // 'top' | 'bottom'
+      stopOnHover: false,
+      ariaLive: 'assertive',
+      gap: 16,
+      width: '400px',     // default width (set to undefined for responsive CSS)
+    }),
+  ],
+});
+```
+
+- To use **responsive width** (controlled by your CSS), simply do not set the `width` property in the config.
+- If you want a fixed width for all toasts, set `width` to a pixel or percent value (e.g., `'400px'`).
+
 ## Schematics
 
 Generate a reusable toast component using the Angular CLI.

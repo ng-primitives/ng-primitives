@@ -3,6 +3,10 @@ import { NgpToastGravity, NgpToastPosition } from '../toast/toast-ref';
 
 export interface NgpToastConfig {
   /**
+   * The width of each toast. If omitted or set to 'auto' or 'unset', no inline width is applied and CSS can control width responsively.
+   */
+  width?: string;
+  /**
    * The duration of each toast.
    */
   duration: number;
@@ -34,6 +38,7 @@ export interface NgpToastConfig {
 }
 
 export const defaultToastConfig: NgpToastConfig = {
+  width: '400px',
   gap: 16,
   duration: 3000,
   gravity: 'top',

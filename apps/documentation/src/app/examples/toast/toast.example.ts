@@ -49,6 +49,10 @@ import { NgpToast } from 'ng-primitives/toast';
       background: var(--ngp-background);
       box-shadow: var(--ngp-shadow);
       border: 1px solid var(--ngp-border);
+      max-width: 90vw;
+      width: 100%;
+      box-sizing: border-box;
+      margin-inline: auto;
       padding: 12px 16px;
       opacity: 0;
       transition: all 0.4s cubic-bezier(0.215, 0.61, 0.355, 1);
@@ -59,6 +63,7 @@ import { NgpToast } from 'ng-primitives/toast';
       column-gap: 12px;
       align-items: center;
     }
+
 
     .toast-title {
       color: var(--ngp-text-primary);
