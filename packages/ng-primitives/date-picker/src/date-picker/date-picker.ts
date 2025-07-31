@@ -15,7 +15,6 @@ import { injectDateAdapter } from 'ng-primitives/date-time';
 import type { NgpDatePickerDateButton } from '../date-picker-date-button/date-picker-date-button';
 import { NgpDatePickerLabelToken } from '../date-picker-label/date-picker-label-token';
 import { datePickerState, provideDatePickerState } from './date-picker-state';
-import { provideDatePicker } from './date-picker-token';
 
 /**
  * The outermost container for the date picker.
@@ -23,7 +22,7 @@ import { provideDatePicker } from './date-picker-token';
 @Directive({
   selector: '[ngpDatePicker]',
   exportAs: 'ngpDatePicker',
-  providers: [provideDatePicker(NgpDatePicker), provideDatePickerState()],
+  providers: [provideDatePickerState()],
   host: {
     '[attr.data-disabled]': 'state.disabled() ? "" : null',
   },
@@ -179,5 +178,60 @@ export class NgpDatePicker<T> {
    */
   unregisterButton(button: NgpDatePickerDateButton<T>): void {
     this.buttons.update(buttons => buttons.filter(b => b !== button));
+  }
+
+  /**
+   * Select a date.
+   * @param date The date to select.
+   * @internal
+   */
+  select(date: T): void {
+    this.state.date.set(date);
+    this.dateChange.emit(date);
+  }
+
+  /**
+   * Determine if a date is selected.
+   * @param date The date to check.
+   * @returns True if the date is selected, false otherwise.
+   * @internal
+   */
+  isSelected(date: T): boolean {
+    const selected = this.state.date();
+    if (!selected) {
+      return false;
+    }
+
+    return this.dateAdapter.isSameDay(date, selected);
+  }
+
+  /**
+   * Determine if a date is the start of a range. In a date picker, this is always false.
+   * @param date The date to check.
+   * @returns Always false.
+   * @internal
+   */
+  isStartOfRange(_: T): boolean {
+    return false;
+  }
+
+  /**
+   * Determine if a date is the end of a range. In a date picker, this is always false.
+   * @param date The date to check.
+   * @returns Always false.
+   * @internal
+   */
+  isEndOfRange(_: T): boolean {
+    return false;
+  }
+
+  /**
+   * Determine if a date is between the start and end dates. In a date picker, this is always false.
+   * @param date The date to check.
+   * @returns True if the date is between the start and end dates, false otherwise.
+   * @internal
+   */
+  isBetweenRange(_: T): boolean {
+    return false;
   }
 }

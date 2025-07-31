@@ -14,12 +14,15 @@ import {
 import { injectDateAdapter } from 'ng-primitives/date-time';
 import { NgpDatePickerDateButton } from '../date-picker-date-button/date-picker-date-button';
 import { NgpDatePickerLabelToken } from '../date-picker-label/date-picker-label-token';
-import { dateRangePickerState, provideDateRangePickerState } from './date-range-picker-state';
+import { datePickerState, provideDatePickerState } from '../date-picker/date-picker-state';
 
 @Directive({
   selector: '[ngpDateRangePicker]',
   exportAs: 'ngpDateRangePicker',
-  providers: [provideDateRangePickerState()],
+  providers: [provideDatePickerState()],
+  host: {
+    '[attr.data-disabled]': 'state.disabled() ? "" : null',
+  },
 })
 export class NgpDateRangePicker<T> {
   private readonly dateAdapter = injectDateAdapter<T>();
@@ -114,7 +117,7 @@ export class NgpDateRangePicker<T> {
   /**
    * The date range picker state.
    */
-  private readonly state = dateRangePickerState<NgpDateRangePicker<T>>(this);
+  private readonly state = datePickerState<NgpDateRangePicker<T>>(this);
 
   /**
    * Set the focused date.
@@ -183,5 +186,111 @@ export class NgpDateRangePicker<T> {
    */
   unregisterButton(button: NgpDatePickerDateButton<T>): void {
     this.buttons.update(buttons => buttons.filter(b => b !== button));
+  }
+
+  /**
+   * Select a date.
+   * @param date The date to select.
+   * @internal
+   */
+  /**
+   * Handles the selection of a date within the date range picker.
+   *
+   * Selection logic:
+   * - If neither a start date nor an end date is selected:
+   *   - Sets the selected date as the start date.
+   * - If a start date is selected but no end date:
+   *   - If the selected date is after the start date, sets it as the end date.
+   *   - If the selected date is before or equal to the start date, resets the start date to the selected date.
+   * - If both start and end dates are already selected:
+   *   - Resets the selection, setting the selected date as the new start date and clearing the end date.
+   *
+   * @param date The date to select.
+   */
+  select(date: T): void {
+    const start = this.state.startDate();
+    const end = this.state.endDate();
+
+    if (!start && !end) {
+      this.state.startDate.set(date);
+      this.startDateChange.emit(date);
+      return;
+    }
+
+    if (start && !end) {
+      if (this.dateAdapter.isAfter(date, start)) {
+        this.state.endDate.set(date);
+        this.endDateChange.emit(date);
+      } else {
+        this.state.startDate.set(date);
+        this.startDateChange.emit(date);
+      }
+      return;
+    }
+
+    // If both start and end are selected, reset selection
+    this.state.startDate.set(date);
+    this.startDateChange.emit(date);
+    this.state.endDate.set(undefined);
+    this.endDateChange.emit(undefined);
+  }
+
+  /**
+   * Determine if a date is selected. A date is selected if it is either the start date or the end date.
+   * @param date The date to check.
+   * @returns True if the date is selected, false otherwise.
+   * @internal
+   */
+  isSelected(date: T): boolean {
+    const start = this.state.startDate();
+    const end = this.state.endDate();
+
+    if (!start && !end) {
+      return false;
+    }
+
+    const isStartSelected = start ? this.dateAdapter.isSameDay(date, start) : false;
+    const isEndSelected = end ? this.dateAdapter.isSameDay(date, end) : false;
+
+    return isStartSelected || isEndSelected;
+  }
+
+  /**
+   * Determine if a date is the start of a range.
+   * @param date The date to check.
+   * @returns Always false.
+   * @internal
+   */
+  isStartOfRange(date: T): boolean {
+    const start = this.state.startDate();
+    return start ? this.dateAdapter.isSameDay(date, start) : false;
+  }
+
+  /**
+   * Determine if a date is the end of a range.
+   * @param date The date to check.
+   * @returns Always false.
+   * @internal
+   */
+  isEndOfRange(date: T): boolean {
+    const end = this.state.endDate();
+    return end ? this.dateAdapter.isSameDay(date, end) : false;
+  }
+
+  /**
+   * Determine if a date is between the start and end dates.
+   * @param date The date to check.
+   * @returns True if the date is between the start and end dates, false otherwise.
+   * @internal
+   */
+  isBetweenRange(date: T): boolean {
+    const start = this.state.startDate();
+    const end = this.state.endDate();
+
+    if (!start || !end) {
+      return false;
+    }
+
+    return this.dateAdapter.isAfter(date, start) && this.dateAdapter.isBefore(date, end);
   }
 }

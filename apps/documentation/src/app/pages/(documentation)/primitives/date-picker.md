@@ -15,6 +15,7 @@ Import the DatePicker primitives from `ng-primitives/date-picker`.
 ```ts
 import {
   NgpDatePicker,
+  NgpDateRangePicker,
   NgpDatePickerLabel,
   NgpDatePickerNextMonth,
   NgpDatePickerPreviousMonth,
@@ -77,6 +78,16 @@ ng g ng-primitives:primitive date-picker
 - `fileSuffix`: The suffix to apply to the generated component file name. Defaults to `component`.
 - `exampleStyles`: Whether to include example styles in the generated component file. Defaults to `true`.
 
+## Examples
+
+Here are some additional examples of how to use the Date Picker primitives.
+
+### Date Range Picker
+
+The date range picker allows users to select a range of dates by selecting the start and end dates.
+
+<docs-example name="date-range-picker"></docs-example>
+
 ## API Reference
 
 By default, the date picker uses the native JavaScript `Date` object, however the date picker is designed to work with any date library. To use a date library, such as Luxon, you need to specify the appropriate date adapter. The date adapter is an abstraction layer that allows components to use date objects from any date library, ensuring compatibility and easy integration. To learn more about the date adapter, see the [Date Adapter](/utilities/date-adapter) documentation.
@@ -94,6 +105,18 @@ The following data attributes are available on the `ngpDatePicker` directive:
 | Attribute       | Description                               |
 | --------------- | ----------------------------------------- |
 | `data-disabled` | Applied when the date picker is disabled. |
+
+### NgpDateRangePicker
+
+<api-docs name="NgpDateRangePicker"></api-docs>
+
+#### Data Attributes
+
+The following data attributes are available on the `ngpDateRangePicker` directive:
+
+| Attribute       | Description                                     |
+| --------------- | ----------------------------------------------- |
+| `data-disabled` | Applied when the date range picker is disabled. |
 
 ### NgpDatePickerLabel
 
@@ -187,15 +210,18 @@ The following data attributes are available on the `ngpDatePickerCell` directive
 
 The following data attributes are available on the `ngpDatePickerDateButton` directive:
 
-| Attribute            | Description                                           |
-| -------------------- | ----------------------------------------------------- |
-| `data-selected`      | Applied when the button is selected.                  |
-| `data-outside-month` | Applied when the button is outside the current month. |
-| `data-today`         | Applied when the button represents the current date.  |
-| `data-hover`         | Applied when the button is hovered.                   |
-| `data-focus-visible` | Applied when the button is focused.                   |
-| `data-press`         | Applied when the button is pressed.                   |
-| `data-disabled`      | Applied when the button is disabled.                  |
+| Attribute            | Description                                                           |
+| -------------------- | --------------------------------------------------------------------- |
+| `data-selected`      | Applied when the button is selected.                                  |
+| `data-outside-month` | Applied when the button is outside the current month.                 |
+| `data-today`         | Applied when the button represents the current date.                  |
+| `data-hover`         | Applied when the button is hovered.                                   |
+| `data-focus-visible` | Applied when the button is focused.                                   |
+| `data-press`         | Applied when the button is pressed.                                   |
+| `data-disabled`      | Applied when the button is disabled.                                  |
+| `data-range-start`   | Applied when the button is the start of a date range.                 |
+| `data-range-end`     | Applied when the button is the end of a date range.                   |
+| `data-range-between` | Applied when the button is between the start and end of a date range. |
 
 ## Accessibility
 
