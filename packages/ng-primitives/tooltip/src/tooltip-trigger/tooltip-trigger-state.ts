@@ -1,10 +1,8 @@
-import { Signal } from '@angular/core';
 import {
   createState,
   createStateInjector,
   createStateProvider,
   createStateToken,
-  State,
 } from 'ng-primitives/state';
 import type { NgpTooltipTrigger } from './tooltip-trigger';
 
