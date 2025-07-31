@@ -1,6 +1,6 @@
 import { computed, contentChild, Directive } from '@angular/core';
 import { NgpDatePickerDateButtonToken } from '../date-picker-date-button/date-picker-date-button-token';
-import { injectDatePickerState } from '../date-picker/date-picker-state';
+import { injectDateControllerState } from '../date-picker/date-picker-state';
 
 /**
  * A cell in the date picker grid.
@@ -21,7 +21,7 @@ export class NgpDatePickerCell {
   /**
    * Access the date picker.
    */
-  private readonly state = injectDatePickerState();
+  private readonly state = injectDateControllerState();
 
   /**
    * Access the child date picker date button.

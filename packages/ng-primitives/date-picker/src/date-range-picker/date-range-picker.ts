@@ -14,12 +14,12 @@ import {
 import { injectDateAdapter } from 'ng-primitives/date-time';
 import { NgpDatePickerDateButton } from '../date-picker-date-button/date-picker-date-button';
 import { NgpDatePickerLabelToken } from '../date-picker-label/date-picker-label-token';
-import { datePickerState, provideDatePickerState } from '../date-picker/date-picker-state';
+import { dateRangePickerState, provideDateRangePickerState } from './date-range-picker-state';
 
 @Directive({
   selector: '[ngpDateRangePicker]',
   exportAs: 'ngpDateRangePicker',
-  providers: [provideDatePickerState()],
+  providers: [provideDateRangePickerState()],
   host: {
     '[attr.data-disabled]': 'state.disabled() ? "" : null',
   },
@@ -117,7 +117,7 @@ export class NgpDateRangePicker<T> {
   /**
    * The date range picker state.
    */
-  private readonly state = datePickerState<NgpDateRangePicker<T>>(this);
+  private readonly state = dateRangePickerState<NgpDateRangePicker<T>>(this);
 
   /**
    * Set the focused date.

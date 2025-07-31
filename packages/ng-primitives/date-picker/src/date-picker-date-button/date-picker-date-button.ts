@@ -3,7 +3,7 @@ import { computed, Directive, ElementRef, HostListener, inject, OnDestroy } from
 import { injectDateAdapter } from 'ng-primitives/date-time';
 import { setupButton } from 'ng-primitives/internal';
 import { injectDatePickerCellDate } from '../date-picker-cell-render/date-picker-cell-render-token';
-import { injectDatePickerState } from '../date-picker/date-picker-state';
+import { injectDateControllerState } from '../date-picker/date-picker-state';
 import { NgpDatePickerDateButtonToken } from './date-picker-date-button-token';
 
 /**
@@ -39,7 +39,7 @@ export class NgpDatePickerDateButton<T> implements OnDestroy {
   /**
    * Access the date picker state.
    */
-  private readonly state = injectDatePickerState<T>();
+  private readonly state = injectDateControllerState<T>();
 
   /**
    * Access the date adapter.
