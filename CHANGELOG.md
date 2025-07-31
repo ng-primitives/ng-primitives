@@ -1,3 +1,15 @@
+## 0.69.0 (2025-07-31)
+
+### 🚀 Features
+
+- **date-range-picker:** date range picker primitive ([#396](https://github.com/ng-primitives/ng-primitives/pull/396))
+- **docs:** add the ability to switch theme on the main page ([#391](https://github.com/ng-primitives/ng-primitives/pull/391))
+
+### ❤️ Thank You
+
+- Ashley Hunter
+- Benjamin Forrás @benjaminforras
+
 ## 0.68.0 (2025-07-26)
 
 ### 🚀 Features
