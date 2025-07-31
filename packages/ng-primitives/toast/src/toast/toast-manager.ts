@@ -123,7 +123,7 @@ export class NgpToastManager {
 
     container.style.setProperty('position', 'fixed');
     container.style.setProperty('z-index', `${this.config.zIndex}`);
-    
+
     // Only set width if it's specified in the config
     if (this.config.width !== undefined) {
       container.style.setProperty('width', `${this.config.width}px`);
