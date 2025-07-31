@@ -2,7 +2,6 @@ import { computed, Directive, ElementRef, HostListener, inject } from '@angular/
 import { injectDateAdapter } from 'ng-primitives/date-time';
 import { setupButton } from 'ng-primitives/internal';
 import { injectDatePickerState } from '../date-picker/date-picker-state';
-import { injectDatePicker } from '../date-picker/date-picker-token';
 
 /**
  * A button that navigates to the previous month.
@@ -25,11 +24,6 @@ export class NgpDatePickerPreviousMonth<T> {
    * Access the date adapter.
    */
   private readonly dateAdapter = injectDateAdapter<T>();
-
-  /**
-   * Access the date picker.
-   */
-  private readonly datePicker = injectDatePicker<T>();
 
   /**
    * Access the date picker state.
@@ -95,6 +89,6 @@ export class NgpDatePickerPreviousMonth<T> {
       millisecond: 0,
     });
 
-    this.datePicker.setFocusedDate(date, 'mouse', 'backward');
+    this.state().setFocusedDate(date, 'mouse', 'backward');
   }
 }

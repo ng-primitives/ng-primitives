@@ -12,25 +12,19 @@ import {
   signal,
 } from '@angular/core';
 import { injectDateAdapter } from 'ng-primitives/date-time';
-import type { NgpDatePickerDateButton } from '../date-picker-date-button/date-picker-date-button';
+import { NgpDatePickerDateButton } from '../date-picker-date-button/date-picker-date-button';
 import { NgpDatePickerLabelToken } from '../date-picker-label/date-picker-label-token';
-import { datePickerState, provideDatePickerState } from './date-picker-state';
+import { dateRangePickerState, provideDateRangePickerState } from './date-range-picker-state';
 
-/**
- * The outermost container for the date picker.
- */
 @Directive({
-  selector: '[ngpDatePicker]',
-  exportAs: 'ngpDatePicker',
-  providers: [provideDatePickerState()],
+  selector: '[ngpDateRangePicker]',
+  exportAs: 'ngpDateRangePicker',
+  providers: [provideDateRangePickerState()],
   host: {
     '[attr.data-disabled]': 'state.disabled() ? "" : null',
   },
 })
-export class NgpDatePicker<T> {
-  /**
-   * Access the date adapter.
-   */
+export class NgpDateRangePicker<T> {
   private readonly dateAdapter = injectDateAdapter<T>();
 
   /**
@@ -42,21 +36,21 @@ export class NgpDatePicker<T> {
    * The minimum date that can be selected.
    */
   readonly min = input<T | undefined>(undefined, {
-    alias: 'ngpDatePickerMin',
+    alias: 'ngpDateRangePickerMin',
   });
 
   /**
    * The maximum date that can be selected.
    */
   readonly max = input<T | undefined>(undefined, {
-    alias: 'ngpDatePickerMax',
+    alias: 'ngpDateRangePickerMax',
   });
 
   /**
    * Determine if the date picker is disabled.
    */
   readonly disabled = input<boolean, BooleanInput>(false, {
-    alias: 'ngpDatePickerDisabled',
+    alias: 'ngpDateRangePickerDisabled',
     transform: booleanAttribute,
   });
 
@@ -64,35 +58,49 @@ export class NgpDatePicker<T> {
    * A function that is called to determine if a specific date should be disabled.
    */
   readonly dateDisabled = input<(date: T) => boolean>(() => false, {
-    alias: 'ngpDatePickerDateDisabled',
+    alias: 'ngpDateRangePickerDateDisabled',
   });
 
   /**
-   * The selected value.
+   * The selected start date
    */
-  readonly date = input<T | undefined>(undefined, {
-    alias: 'ngpDatePickerDate',
+  readonly startDate = input<T | undefined>(undefined, {
+    alias: 'ngpDateRangePickerStartDate',
   });
 
   /**
    * Emit when the date changes.
    */
-  readonly dateChange = output<T | undefined>({
-    alias: 'ngpDatePickerDateChange',
+  readonly startDateChange = output<T | undefined>({
+    alias: 'ngpDateRangePickerStartDateChange',
+  });
+
+  /**
+   * The selected end date
+   */
+  readonly endDate = input<T | undefined>(undefined, {
+    alias: 'ngpDateRangePickerEndDate',
+  });
+
+  /**
+   * Emit when the end date changes.
+   */
+  readonly endDateChange = output<T | undefined>({
+    alias: 'ngpDateRangePickerEndDateChange',
   });
 
   /**
    * The focused value.
    */
   readonly focusedDate = input<T>(this.dateAdapter.now(), {
-    alias: 'ngpDatePickerFocusedDate',
+    alias: 'ngpDateRangePickerFocusedDate',
   });
 
   /**
    * Emit when the focused date changes.
    */
   readonly focusedDateChange = output<T>({
-    alias: 'ngpDatePickerFocusedDateChange',
+    alias: 'ngpDateRangePickerFocusedDateChange',
   });
 
   /**
@@ -107,9 +115,9 @@ export class NgpDatePicker<T> {
   private readonly buttons = signal<NgpDatePickerDateButton<T>[]>([]);
 
   /**
-   * The date picker state.
+   * The date range picker state.
    */
-  protected readonly state = datePickerState<NgpDatePicker<T>>(this);
+  private readonly state = dateRangePickerState<NgpDateRangePicker<T>>(this);
 
   /**
    * Set the focused date.
@@ -185,53 +193,104 @@ export class NgpDatePicker<T> {
    * @param date The date to select.
    * @internal
    */
+  /**
+   * Handles the selection of a date within the date range picker.
+   *
+   * Selection logic:
+   * - If neither a start date nor an end date is selected:
+   *   - Sets the selected date as the start date.
+   * - If a start date is selected but no end date:
+   *   - If the selected date is after the start date, sets it as the end date.
+   *   - If the selected date is before or equal to the start date, resets the start date to the selected date.
+   * - If both start and end dates are already selected:
+   *   - Resets the selection, setting the selected date as the new start date and clearing the end date.
+   *
+   * @param date The date to select.
+   */
   select(date: T): void {
-    this.state.date.set(date);
-    this.dateChange.emit(date);
+    const start = this.state.startDate();
+    const end = this.state.endDate();
+
+    if (!start && !end) {
+      this.state.startDate.set(date);
+      this.startDateChange.emit(date);
+      return;
+    }
+
+    if (start && !end) {
+      if (this.dateAdapter.isAfter(date, start)) {
+        this.state.endDate.set(date);
+        this.endDateChange.emit(date);
+      } else {
+        this.state.startDate.set(date);
+        this.startDateChange.emit(date);
+      }
+      return;
+    }
+
+    // If both start and end are selected, reset selection
+    this.state.startDate.set(date);
+    this.startDateChange.emit(date);
+    this.state.endDate.set(undefined);
+    this.endDateChange.emit(undefined);
   }
 
   /**
-   * Determine if a date is selected.
+   * Determine if a date is selected. A date is selected if it is either the start date or the end date.
    * @param date The date to check.
    * @returns True if the date is selected, false otherwise.
    * @internal
    */
   isSelected(date: T): boolean {
-    const selected = this.state.date();
-    if (!selected) {
+    const start = this.state.startDate();
+    const end = this.state.endDate();
+
+    if (!start && !end) {
       return false;
     }
 
-    return this.dateAdapter.isSameDay(date, selected);
+    const isStartSelected = start ? this.dateAdapter.isSameDay(date, start) : false;
+    const isEndSelected = end ? this.dateAdapter.isSameDay(date, end) : false;
+
+    return isStartSelected || isEndSelected;
   }
 
   /**
-   * Determine if a date is the start of a range. In a date picker, this is always false.
+   * Determine if a date is the start of a range.
    * @param date The date to check.
    * @returns Always false.
    * @internal
    */
-  isStartOfRange(_: T): boolean {
-    return false;
+  isStartOfRange(date: T): boolean {
+    const start = this.state.startDate();
+    return start ? this.dateAdapter.isSameDay(date, start) : false;
   }
 
   /**
-   * Determine if a date is the end of a range. In a date picker, this is always false.
+   * Determine if a date is the end of a range.
    * @param date The date to check.
    * @returns Always false.
    * @internal
    */
-  isEndOfRange(_: T): boolean {
-    return false;
+  isEndOfRange(date: T): boolean {
+    const end = this.state.endDate();
+    return end ? this.dateAdapter.isSameDay(date, end) : false;
   }
 
   /**
-   * Determine if a date is between the start and end dates. In a date picker, this is always false.
+   * Determine if a date is between the start and end dates.
    * @param date The date to check.
    * @returns True if the date is between the start and end dates, false otherwise.
    * @internal
    */
-  isBetweenRange(_: T): boolean {
-    return false;
+  isBetweenRange(date: T): boolean {
+    const start = this.state.startDate();
+    const end = this.state.endDate();
+
+    if (!start || !end) {
+      return false;
+    }
+
+    return this.dateAdapter.isAfter(date, start) && this.dateAdapter.isBefore(date, end);
   }
 }

@@ -1,6 +1,6 @@
 import { Directive, input } from '@angular/core';
 import { uniqueId } from 'ng-primitives/utils';
-import { injectDatePickerState } from '../date-picker/date-picker-state';
+import { injectDateControllerState } from '../date-picker/date-picker-state';
 import { NgpDatePickerLabelToken } from './date-picker-label-token';
 
 /**
@@ -20,7 +20,7 @@ export class NgpDatePickerLabel<T> {
   /**
    * Access the date picker.
    */
-  protected readonly state = injectDatePickerState<T>();
+  protected readonly state = injectDateControllerState<T>();
 
   /**
    * Define a unique id for the label.

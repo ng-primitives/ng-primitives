@@ -1,10 +1,7 @@
-import { Component, computed } from '@angular/core';
-import { ControlValueAccessor } from '@angular/forms';
+import { Component, computed, signal } from '@angular/core';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { heroChevronLeftMini, heroChevronRightMini } from '@ng-icons/heroicons/mini';
 import {
-  injectDatePickerState,
-  NgpDatePicker,
   NgpDatePickerCell,
   NgpDatePickerCellRender,
   NgpDatePickerDateButton,
@@ -13,25 +10,14 @@ import {
   NgpDatePickerNextMonth,
   NgpDatePickerPreviousMonth,
   NgpDatePickerRowRender,
+  NgpDateRangePicker,
 } from 'ng-primitives/date-picker';
-import { ChangeFn, provideValueAccessor, TouchedFn } from 'ng-primitives/utils';
 
 @Component({
-  selector: 'app-date-picker',
-  hostDirectives: [
-    {
-      directive: NgpDatePicker,
-      inputs: [
-        'ngpDatePickerDate: date',
-        'ngpDatePickerMin: min',
-        'ngpDatePickerMax: max',
-        'ngpDatePickerDisabled: disabled',
-      ],
-      outputs: ['ngpDatePickerDateChange: dateChange'],
-    },
-  ],
+  selector: 'app-date-range-picker',
   imports: [
     NgIcon,
+    NgpDateRangePicker,
     NgpDatePickerLabel,
     NgpDatePickerNextMonth,
     NgpDatePickerPreviousMonth,
@@ -41,45 +27,47 @@ import { ChangeFn, provideValueAccessor, TouchedFn } from 'ng-primitives/utils';
     NgpDatePickerCellRender,
     NgpDatePickerDateButton,
   ],
-  providers: [
-    provideIcons({ heroChevronRightMini, heroChevronLeftMini }),
-    provideValueAccessor(DatePicker),
-  ],
+  providers: [provideIcons({ heroChevronRightMini, heroChevronLeftMini })],
   template: `
-    <div class="date-picker-header">
-      <button ngpDatePickerPreviousMonth aria-label="previous month">
-        <ng-icon name="heroChevronLeftMini" />
-      </button>
-      <h2 ngpDatePickerLabel>{{ label() }}</h2>
-      <button ngpDatePickerNextMonth aria-label="next month">
-        <ng-icon name="heroChevronRightMini" />
-      </button>
+    <div
+      [(ngpDateRangePickerStartDate)]="startDate"
+      [(ngpDateRangePickerEndDate)]="endDate"
+      [(ngpDateRangePickerFocusedDate)]="focused"
+      ngpDateRangePicker
+    >
+      <div class="date-picker-header">
+        <button ngpDatePickerPreviousMonth aria-label="previous month">
+          <ng-icon name="heroChevronLeftMini" />
+        </button>
+        <h2 ngpDatePickerLabel>{{ label() }}</h2>
+        <button ngpDatePickerNextMonth aria-label="next month">
+          <ng-icon name="heroChevronRightMini" />
+        </button>
+      </div>
+      <table ngpDatePickerGrid>
+        <thead>
+          <tr>
+            <th scope="col" abbr="Sunday">S</th>
+            <th scope="col" abbr="Monday">M</th>
+            <th scope="col" abbr="Tuesday">T</th>
+            <th scope="col" abbr="Wednesday">W</th>
+            <th scope="col" abbr="Thursday">T</th>
+            <th scope="col" abbr="Friday">F</th>
+            <th scope="col" abbr="Saturday">S</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngpDatePickerRowRender>
+            <td *ngpDatePickerCellRender="let date" ngpDatePickerCell>
+              <button ngpDatePickerDateButton>{{ date.getDate() }}</button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
     </div>
-    <table ngpDatePickerGrid>
-      <thead>
-        <tr>
-          <th scope="col" abbr="Sunday">S</th>
-          <th scope="col" abbr="Monday">M</th>
-          <th scope="col" abbr="Tuesday">T</th>
-          <th scope="col" abbr="Wednesday">W</th>
-          <th scope="col" abbr="Thursday">T</th>
-          <th scope="col" abbr="Friday">F</th>
-          <th scope="col" abbr="Saturday">S</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr *ngpDatePickerRowRender>
-          <td *ngpDatePickerCellRender="let date" ngpDatePickerCell>
-            <button ngpDatePickerDateButton>
-              {{ date.getDate() }}
-            </button>
-          </td>
-        </tr>
-      </tbody>
-    </table>
   `,
   styles: `
-    :host {
+    [ngpDateRangePicker] {
       display: inline-block;
       background-color: var(--ngp-background);
       border-radius: 12px;
@@ -146,6 +134,10 @@ import { ChangeFn, provideValueAccessor, TouchedFn } from 'ng-primitives/utils';
       color: var(--ngp-text-disabled);
     }
 
+    [ngpDatePickerCell] {
+      padding: 0;
+    }
+
     [ngpDatePickerDateButton] {
       all: unset;
       width: 40px;
@@ -162,7 +154,7 @@ import { ChangeFn, provideValueAccessor, TouchedFn } from 'ng-primitives/utils';
     }
 
     [ngpDatePickerDateButton][data-hover] {
-      background-color: var(--ngp-background-hover);
+      background: var(--ngp-background-hover);
     }
 
     [ngpDatePickerDateButton][data-focus-visible] {
@@ -171,7 +163,7 @@ import { ChangeFn, provideValueAccessor, TouchedFn } from 'ng-primitives/utils';
     }
 
     [ngpDatePickerDateButton][data-press] {
-      background-color: var(--ngp-background-active);
+      background: var(--ngp-background-active);
     }
 
     [ngpDatePickerDateButton][data-outside-month] {
@@ -179,8 +171,25 @@ import { ChangeFn, provideValueAccessor, TouchedFn } from 'ng-primitives/utils';
     }
 
     [ngpDatePickerDateButton][data-selected] {
-      background-color: var(--ngp-background-inverse);
+      background: var(--ngp-background-inverse);
       color: var(--ngp-text-inverse);
+    }
+
+    [ngpDatePickerDateButton][data-selected]:not([data-range-end]) {
+      border-radius: 8px 0 0 8px;
+    }
+
+    [ngpDatePickerDateButton][data-selected][data-range-end] {
+      border-radius: 0 8px 8px 0;
+    }
+
+    [ngpDatePickerDateButton][data-selected][data-range-start][data-range-end] {
+      border-radius: 8px;
+    }
+
+    [ngpDatePickerDateButton][data-range-between] {
+      background: color-mix(in srgb, var(--ngp-background-inverse) 5%, transparent);
+      border-radius: 0;
     }
 
     [ngpDatePickerDateButton][data-selected][data-outside-month] {
@@ -193,13 +202,22 @@ import { ChangeFn, provideValueAccessor, TouchedFn } from 'ng-primitives/utils';
       color: var(--ngp-text-disabled);
     }
   `,
-  host: {
-    '(focusout)': 'onTouched?.()',
-  },
 })
-export class DatePicker implements ControlValueAccessor {
-  /** Access the date picker host directive */
-  private readonly state = injectDatePickerState<Date>();
+export default class DateRangePickerExample {
+  /**
+   * The start date of the range.
+   */
+  readonly startDate = signal<Date>(new Date(2025, 7, 10));
+
+  /**
+   * The end date of the range.
+   */
+  readonly endDate = signal<Date>(new Date(2025, 7, 14));
+
+  /**
+   * Store the current focused date.
+   */
+  readonly focused = signal<Date>(new Date(2025, 7, 10));
 
   /**
    * Get the current focused date in string format.
@@ -207,37 +225,6 @@ export class DatePicker implements ControlValueAccessor {
    */
   readonly label = computed(
     () =>
-      `${this.state().focusedDate().toLocaleString('default', { month: 'long' })} ${this.state().focusedDate().getFullYear()}`,
+      `${this.focused().toLocaleString('default', { month: 'long' })} ${this.focused().getFullYear()}`,
   );
-
-  /**
-   * The onChange callback function for the date picker.
-   */
-  protected onChange?: ChangeFn<Date | undefined>;
-
-  /**
-   * The onTouched callback function for the date picker.
-   */
-  protected onTouched?: TouchedFn;
-
-  constructor() {
-    // Whenever the user interacts with the date picker, call the onChange function with the new value.
-    this.state().dateChange.subscribe(date => this.onChange?.(date));
-  }
-
-  writeValue(date: Date): void {
-    this.state().select(date);
-  }
-
-  registerOnChange(fn: ChangeFn<Date | undefined>): void {
-    this.onChange = fn;
-  }
-
-  registerOnTouched(fn: TouchedFn): void {
-    this.onTouched = fn;
-  }
-
-  setDisabledState(isDisabled: boolean): void {
-    this.state().disabled.set(isDisabled);
-  }
 }

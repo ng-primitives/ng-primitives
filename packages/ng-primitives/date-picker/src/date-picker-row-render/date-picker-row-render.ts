@@ -10,7 +10,7 @@ import {
 } from '@angular/core';
 import { injectDateAdapter } from 'ng-primitives/date-time';
 import { onChange } from 'ng-primitives/utils';
-import { injectDatePickerState } from '../date-picker/date-picker-state';
+import { injectDateControllerState } from '../date-picker/date-picker-state';
 import {
   NgpDatePickerRowRenderToken,
   NgpDatePickerWeekToken,
@@ -33,7 +33,7 @@ export class NgpDatePickerRowRender<T> implements OnDestroy {
   /**
    * Access the date picker.
    */
-  private readonly state = injectDatePickerState<T>();
+  private readonly state = injectDateControllerState<T>();
 
   /**
    * Access the template ref for the cell.
