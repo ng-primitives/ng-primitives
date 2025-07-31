@@ -134,7 +134,7 @@ export class NgpToastManager {
     container.style.setProperty('--ngp-toast-offset-left', `${this.config.offsetLeft}px`);
     container.style.setProperty('--ngp-toast-offset-right', `${this.config.offsetRight}px`);
     container.style.setProperty('--ngp-toast-gap', `${this.config.gap}px`);
-    
+
     // Only set width CSS variable if it's specified in the config
     if (this.config.width !== undefined) {
       container.style.setProperty('--ngp-toast-width', `${this.config.width}px`);
