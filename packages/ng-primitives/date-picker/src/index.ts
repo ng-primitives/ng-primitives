@@ -26,4 +26,8 @@ export {
 } from './date-picker-row-render/date-picker-row-render-token';
 export { NgpDatePicker } from './date-picker/date-picker';
 export { injectDatePickerState, provideDatePickerState } from './date-picker/date-picker-state';
-export { injectDatePicker, NgpDatePickerToken } from './date-picker/date-picker-token';
+export { NgpDateRangePicker } from './date-range-picker/date-range-picker';
+export {
+  provideDateRangePickerState,
+  injectDateRangePickerState,
+} from './date-range-picker/date-range-picker-state';

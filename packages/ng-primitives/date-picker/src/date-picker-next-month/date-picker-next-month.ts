@@ -1,8 +1,7 @@
 import { computed, Directive, ElementRef, HostListener, inject } from '@angular/core';
 import { injectDateAdapter } from 'ng-primitives/date-time';
 import { setupButton } from 'ng-primitives/internal';
-import { injectDatePickerState } from '../date-picker/date-picker-state';
-import { injectDatePicker } from '../date-picker/date-picker-token';
+import { injectDateControllerState } from '../date-picker/date-picker-state';
 
 /**
  * A button that navigates to the next month.
@@ -27,14 +26,9 @@ export class NgpDatePickerNextMonth<T> {
   private readonly dateAdapter = injectDateAdapter<T>();
 
   /**
-   * Access the date picker.
-   */
-  private readonly datePicker = injectDatePicker<T>();
-
-  /**
    * Access the date picker state.
    */
-  private readonly state = injectDatePickerState<T>();
+  private readonly state = injectDateControllerState<T>();
 
   /**
    * Determine if this is a button element
@@ -90,6 +84,6 @@ export class NgpDatePickerNextMonth<T> {
       millisecond: 0,
     });
 
-    this.datePicker.setFocusedDate(date, 'mouse', 'forward');
+    this.state().setFocusedDate(date, 'mouse', 'forward');
   }
 }
