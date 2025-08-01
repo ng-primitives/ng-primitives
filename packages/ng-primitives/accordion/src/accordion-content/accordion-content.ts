@@ -1,4 +1,5 @@
-import { afterRenderEffect, computed, Directive, input } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
+import { afterRenderEffect, computed, Directive, inject, input, PLATFORM_ID } from '@angular/core';
 import { fromMutationObserver, injectElementRef } from 'ng-primitives/internal';
 import { safeTakeUntilDestroyed, uniqueId } from 'ng-primitives/utils';
 import { debounceTime } from 'rxjs';
@@ -19,6 +20,7 @@ import { injectAccordionState } from '../accordion/accordion-state';
     '[attr.data-open]': 'accordionItem().open() ? "" : null',
     '[attr.data-closed]': 'accordionItem().open() ? null : ""',
     '[attr.aria-labelledby]': 'accordionItem().triggerId()',
+    '(beforematch)': 'onBeforeMatch()',
   },
 })
 export class NgpAccordionContent<T> {
@@ -42,6 +44,11 @@ export class NgpAccordionContent<T> {
    */
   readonly id = input<string>(uniqueId('ngp-accordion-content'));
 
+  /**
+   * The platform id
+   */
+  private readonly platformId = inject(PLATFORM_ID);
+
   constructor() {
     this.accordionItem().content.set(this);
 
@@ -56,6 +63,34 @@ export class NgpAccordionContent<T> {
     })
       .pipe(debounceTime(0), safeTakeUntilDestroyed())
       .subscribe(() => this.updateDimensions());
+
+    /**
+     * Compatibility with older browsers that do not support the beforematch event
+     * The hidden attribute must be removed.
+     */
+    afterRenderEffect({
+      write: () => {
+        if (!this.supportsBeforeMatch()) return;
+
+        if (this.accordionItem().open()) {
+          this.elementRef.nativeElement.removeAttribute('hidden');
+        } else {
+          this.elementRef.nativeElement.setAttribute('hidden', 'until-found');
+        }
+      },
+    });
+  }
+
+  /**
+   * Handle the beforematch event to automatically open the accordion item
+   * when the browser's find-in-page functionality tries to reveal hidden content.
+   */
+  onBeforeMatch(): void {
+    const isDisabled = this.accordion().disabled() || this.accordionItem().disabled();
+    if (!this.supportsBeforeMatch() || isDisabled) {
+      return;
+    }
+    this.accordion().toggle(this.accordionItem().value() as T);
   }
 
   private updateDimensions(): void {
@@ -73,5 +108,13 @@ export class NgpAccordionContent<T> {
         `${this.elementRef.nativeElement.scrollHeight}px`,
       );
     }
+  }
+
+  private supportsBeforeMatch() {
+    if (!isPlatformBrowser(this.platformId)) {
+      return false;
+    }
+    // Check if the beforematch event is supported
+    return typeof HTMLElement !== 'undefined' && 'onbeforematch' in HTMLElement.prototype;
   }
 }
