@@ -14,8 +14,9 @@ export interface NgpToastConfig {
 
   /**
    * The width of each toast in pixels.
+   * If not provided, the toast will be responsive based on viewport width.
    */
-  width: number;
+  width?: number;
 
   /**
    * The offset from the top of the viewport in pixels.
