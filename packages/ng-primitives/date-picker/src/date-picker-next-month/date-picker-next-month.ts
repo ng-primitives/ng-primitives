@@ -1,7 +1,7 @@
 import { computed, Directive, ElementRef, HostListener, inject } from '@angular/core';
 import { injectDateAdapter } from 'ng-primitives/date-time';
 import { setupButton } from 'ng-primitives/internal';
-import { injectDatePickerState } from '../date-picker/date-picker-state';
+import { injectDateControllerState } from '../date-picker/date-picker-state';
 
 /**
  * A button that navigates to the next month.
@@ -28,7 +28,7 @@ export class NgpDatePickerNextMonth<T> {
   /**
    * Access the date picker state.
    */
-  private readonly state = injectDatePickerState<T>();
+  private readonly state = injectDateControllerState<T>();
 
   /**
    * Determine if this is a button element

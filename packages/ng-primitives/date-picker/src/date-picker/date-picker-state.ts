@@ -20,7 +20,14 @@ export const datePickerState = createState(NgpDatePickerStateToken);
 export function injectDateControllerState<T>(): InjectedState<
   NgpDatePicker<T> | NgpDateRangePicker<T>
 > {
-  return (
-    injectDatePickerState({ optional: true }) ?? injectDateRangePickerState({ optional: true })
-  );
+  const datePickerState = injectDatePickerState<T>({ optional: true });
+  const dateRangePickerState = injectDateRangePickerState<T>({ optional: true });
+
+  if (datePickerState()) {
+    return datePickerState;
+  } else if (dateRangePickerState()) {
+    return dateRangePickerState;
+  } else {
+    throw new Error('No date picker or date range picker state found');
+  }
 }
