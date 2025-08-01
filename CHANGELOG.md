@@ -1,3 +1,13 @@
+## 0.69.1 (2025-08-01)
+
+### 🩹 Fixes
+
+- **date-range-picker:** state fix ([98542a63](https://github.com/ng-primitives/ng-primitives/commit/98542a63))
+
+### ❤️ Thank You
+
+- Ashley Hunter
+
 ## 0.69.0 (2025-07-31)
 
 ### 🚀 Features
