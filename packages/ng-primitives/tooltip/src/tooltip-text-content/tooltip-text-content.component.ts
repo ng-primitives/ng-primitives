@@ -11,6 +11,8 @@ import { NgpTooltip } from '../tooltip/tooltip';
   template: '{{ content() }}',
   hostDirectives: [NgpTooltip],
   host: {
+    // Used only for styling, since the host directive isn’t added to the DOM.
+    // This acts as the styling entry point.
     ngpTooltip: '',
   },
 })
