@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, ViewEncapsulation } from '@angular/core';
 import { NgpButton } from 'ng-primitives/button';
 import { NgpTooltip, NgpTooltipArrow, NgpTooltipTrigger } from 'ng-primitives/tooltip';
 
@@ -6,7 +6,14 @@ import { NgpTooltip, NgpTooltipArrow, NgpTooltipTrigger } from 'ng-primitives/to
   selector: 'app-tooltip',
   imports: [NgpTooltipTrigger, NgpTooltip, NgpTooltipArrow, NgpButton],
   template: `
-    <button [ngpTooltipTrigger]="tooltip" ngpButton type="button">Tooltip</button>
+    <div class="examples">
+      <button [ngpTooltipTrigger]="tooltip" ngpButton type="button">Custom Tooltip</button>
+
+      <button class="ellipsis-text" ngpTooltipTrigger>
+        This is a very long text that will be truncated with ellipsis and show the full content in a
+        tooltip when you hover over it
+      </button>
+    </div>
 
     <ng-template #tooltip>
       <div ngpTooltip>
@@ -18,29 +25,50 @@ import { NgpTooltip, NgpTooltipArrow, NgpTooltipTrigger } from 'ng-primitives/to
     </ng-template>
   `,
   styles: `
-    button {
-      padding-left: 1rem;
-      padding-right: 1rem;
-      border-radius: 0.5rem;
-      color: var(--ngp-text-primary);
-      outline: none;
-      height: 2.5rem;
-      font-weight: 500;
-      background-color: var(--ngp-background);
-      transition: background-color 300ms cubic-bezier(0.4, 0, 0.2, 1);
-      box-shadow: var(--ngp-button-shadow);
-    }
+    app-tooltip {
+      .examples {
+        display: flex;
+        gap: 1rem;
+        align-items: center;
+        flex-wrap: wrap;
+      }
 
-    button[data-hover] {
-      background-color: var(--ngp-background-hover);
-    }
+      .ellipsis-text {
+        max-width: 200px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        font-size: 0.875rem;
+      }
 
-    button[data-focus-visible] {
-      outline: 2px solid var(--ngp-focus-ring);
-    }
+      .ellipsis-text:hover {
+        background-color: var(--ngp-background-hover);
+      }
 
-    button[data-press] {
-      background-color: var(--ngp-background-active);
+      button {
+        padding-left: 1rem;
+        padding-right: 1rem;
+        border-radius: 0.5rem;
+        color: var(--ngp-text-primary);
+        outline: none;
+        height: 2.5rem;
+        font-weight: 500;
+        background-color: var(--ngp-background);
+        transition: background-color 300ms cubic-bezier(0.4, 0, 0.2, 1);
+        box-shadow: var(--ngp-button-shadow);
+      }
+
+      button[data-hover] {
+        background-color: var(--ngp-background-hover);
+      }
+
+      button[data-focus-visible] {
+        outline: 2px solid var(--ngp-focus-ring);
+      }
+
+      button[data-press] {
+        background-color: var(--ngp-background-active);
+      }
     }
 
     [ngpTooltip] {
@@ -101,5 +129,6 @@ import { NgpTooltip, NgpTooltipArrow, NgpTooltipTrigger } from 'ng-primitives/to
       }
     }
   `,
+  encapsulation: ViewEncapsulation.None,
 })
 export default class TooltipExample {}

@@ -4,6 +4,7 @@
  */
 import { coerceCssPixelValue } from '@angular/cdk/coercion';
 import { ViewportRuler } from '@angular/cdk/overlay';
+import { isFunction, isObject } from 'ng-primitives/utils';
 
 export interface ScrollStrategy {
   enable(): void;
@@ -20,7 +21,7 @@ export function supportsScrollBehavior(): boolean {
 
   // If we're not in the browser, it can't be supported. Also check for `Element`, because
   // some projects stub out the global `document` during SSR which can throw us off.
-  if (typeof document !== 'object' || !document || typeof Element !== 'function' || !Element) {
+  if (!isObject(document) || !document || !isFunction(Element) || !Element) {
     return (scrollBehaviorSupported = false);
   }
 
