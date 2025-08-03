@@ -10,7 +10,7 @@ describe('NgpTooltipTrigger', () => {
   it('should destroy the overlay when the trigger is destroyed', async () => {
     const { fixture, getByRole } = await render(
       `
-        <button [ngpTooltipTrigger]="content" ngpTooltipTriggerUseTextContent="false"></button>
+        <button [ngpTooltipTrigger]="content"></button>
 
         <ng-template #content>
           <div ngpTooltip>
@@ -39,7 +39,7 @@ describe('NgpTooltipTrigger', () => {
   it('should set the data-placement attribute on the tooltip element', async () => {
     const { getByRole } = await render(
       `
-        <button [ngpTooltipTrigger]="content" ngpTooltipTriggerPlacement="top" ngpTooltipTriggerUseTextContent="false"></button>
+        <button [ngpTooltipTrigger]="content" ngpTooltipTriggerPlacement="top"></button>
 
         <ng-template #content>
           <div ngpTooltip>
@@ -68,7 +68,6 @@ describe('NgpTooltipTrigger', () => {
         <button
           [ngpTooltipTrigger]="content"
           ngpTooltipTriggerShowOnOverflow="true"
-          ngpTooltipTriggerUseTextContent="false"
           style="width: 200px; height: 40px; overflow: hidden;"
         >
           Short text
@@ -100,7 +99,6 @@ describe('NgpTooltipTrigger', () => {
         <button
           [ngpTooltipTrigger]="content"
           ngpTooltipTriggerShowOnOverflow="true"
-          ngpTooltipTriggerUseTextContent="false"
           style="width: 50px; height: 20px; overflow: hidden; white-space: nowrap;"
         >
           This is a very long text that will definitely overflow the button width
@@ -168,10 +166,10 @@ describe('NgpTooltipTrigger', () => {
       consoleSpy.mockRestore();
     });
 
-    it('should prioritize useTextContent over tooltip template when both are provided', async () => {
+    it('should prioritize tooltip template over useTextContent when both are provided', async () => {
       const { getByRole } = await render(
         `
-          <button [ngpTooltipTrigger]="content" ngpTooltipTriggerUseTextContent="true">
+          <button [ngpTooltipTrigger]="content" [ngpTooltipTriggerUseTextContent]="true">
             Button text
           </button>
 
@@ -190,7 +188,7 @@ describe('NgpTooltipTrigger', () => {
       await waitFor(() => {
         const tooltip = document.querySelector('[role="tooltip"]');
         expect(tooltip).toBeInTheDocument();
-        expect(tooltip?.textContent?.trim()).toBe('Button text');
+        expect(tooltip?.textContent?.trim()).toBe('Template content');
       });
     });
 
@@ -217,7 +215,7 @@ describe('NgpTooltipTrigger', () => {
     it('should override global config when useTextContent is explicitly set to false', async () => {
       const { getByRole } = await render(
         `
-          <button [ngpTooltipTrigger]="content" ngpTooltipTriggerUseTextContent="false">
+          <button [ngpTooltipTrigger]="content">
             Button text
           </button>
 
@@ -263,7 +261,9 @@ describe('NgpTooltipTrigger', () => {
       });
     });
 
-    it('should throw error when no tooltip content provided and useTextContent is false', async () => {
+    it('should log error when no tooltip content provided and useTextContent is false', async () => {
+      const consoleSpy = jest.spyOn(console, 'error').mockImplementation();
+
       const { getByRole } = await render(
         `<button ngpTooltipTrigger ngpTooltipTriggerUseTextContent="false">Button text</button>`,
         {
@@ -272,10 +272,19 @@ describe('NgpTooltipTrigger', () => {
       );
 
       const trigger = getByRole('button');
+      fireEvent.mouseEnter(trigger);
 
-      expect(() => fireEvent.mouseEnter(trigger)).toThrow(
-        '[ngpTooltipTrigger]: Tooltip must be a string, TemplateRef, or ComponentType. Alternatively, set useTextContent to true if none is provided.',
+      // Wait a bit to ensure the error is logged
+      await new Promise(resolve => setTimeout(resolve, 100));
+
+      expect(consoleSpy).toHaveBeenCalledWith(
+        'ERROR',
+        expect.objectContaining({
+          message: expect.stringMatching(/ngpTooltipTrigger.+(none is provided)/),
+        }),
       );
+
+      consoleSpy.mockRestore();
     });
   });
 });
