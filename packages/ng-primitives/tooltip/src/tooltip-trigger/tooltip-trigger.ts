@@ -21,6 +21,7 @@ import {
   NgpOverlayConfig,
   NgpOverlayContent,
 } from 'ng-primitives/portal';
+import { isString } from 'ng-primitives/utils';
 import { injectTooltipConfig } from '../config/tooltip-config';
 import { NgpTooltipTextContentComponent } from '../tooltip-text-content/tooltip-text-content.component';
 import { provideTooltipTriggerState, tooltipTriggerState } from './tooltip-trigger-state';
@@ -70,7 +71,7 @@ export class NgpTooltipTrigger<T = null> implements OnDestroy {
    */
   readonly tooltip = input<NgpOverlayContent<T> | string | null, TooltipInput<T>>(null, {
     alias: 'ngpTooltipTrigger',
-    transform: (value: TooltipInput<T>) => (value && typeof value !== 'string' ? value : null),
+    transform: (value: TooltipInput<T>) => (value && !isString(value) ? value : null),
   });
 
   /**
@@ -264,7 +265,7 @@ export class NgpTooltipTrigger<T = null> implements OnDestroy {
       }
       content = NgpTooltipTextContentComponent;
       context = signal(textContent);
-    } else if (typeof content === 'string') {
+    } else if (isString(content)) {
       context = signal(content);
       content = NgpTooltipTextContentComponent;
     }
