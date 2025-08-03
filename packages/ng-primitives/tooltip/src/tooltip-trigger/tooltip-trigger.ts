@@ -22,7 +22,10 @@ import {
   NgpOverlayContent,
 } from 'ng-primitives/portal';
 import { injectTooltipConfig } from '../config/tooltip-config';
+import { NgpTooltipTextContentComponent } from '../tooltip-text-content/tooltip-text-content.component';
 import { provideTooltipTriggerState, tooltipTriggerState } from './tooltip-trigger-state';
+
+type TooltipInput<T> = NgpOverlayContent<T> | string | null | undefined;
 
 /**
  * Apply the `ngpTooltipTrigger` directive to an element that triggers the tooltip to show.
@@ -65,8 +68,9 @@ export class NgpTooltipTrigger<T = null> implements OnDestroy {
   /**
    * Access the tooltip template ref.
    */
-  readonly tooltip = input<NgpOverlayContent<T>>(undefined, {
+  readonly tooltip = input<NgpOverlayContent<T> | string | null, TooltipInput<T>>(null, {
     alias: 'ngpTooltipTrigger',
+    transform: (value: TooltipInput<T>) => (value && typeof value !== 'string' ? value : null),
   });
 
   /**
@@ -147,10 +151,20 @@ export class NgpTooltipTrigger<T = null> implements OnDestroy {
   });
 
   /**
+   * Define whether to use the text content of the trigger element as the tooltip content.
+   * When enabled, the tooltip will display the text content of the trigger element.
+   * @default true
+   */
+  readonly useTextContent = input<boolean, BooleanInput>(this.config.useTextContent, {
+    alias: 'ngpTooltipTriggerUseTextContent',
+    transform: booleanAttribute,
+  });
+
+  /**
    * The overlay that manages the tooltip
    * @internal
    */
-  readonly overlay = signal<NgpOverlay<T> | null>(null);
+  readonly overlay = signal<NgpOverlay<T | string> | null>(null);
 
   /**
    * The unique id of the tooltip.
@@ -225,18 +239,38 @@ export class NgpTooltipTrigger<T = null> implements OnDestroy {
    * Create the overlay that will contain the tooltip
    */
   private createOverlay(): void {
-    const tooltip = this.state.tooltip();
+    // Determine the content and context based on useTextContent setting
+    const shouldUseTextContent = this.state.useTextContent();
+    let content = this.state.tooltip();
+    let context: Signal<T | string | undefined> = this.state.context;
 
-    if (!tooltip) {
-      throw new Error('Tooltip must be either a TemplateRef or a ComponentType');
+    if (!content) {
+      if (!shouldUseTextContent) {
+        throw new Error(
+          '[ngpTooltipTrigger]: Tooltip must be a string, TemplateRef, or ComponentType. Alternatively, set useTextContent to true if none is provided.',
+        );
+      }
+
+      const textContent = this.trigger.nativeElement.textContent?.trim() || '';
+      if (ngDevMode && !textContent) {
+        console.warn(
+          '[ngpTooltipTrigger]: useTextContent is enabled but trigger element has no text content',
+        );
+        return;
+      }
+      content = NgpTooltipTextContentComponent;
+      context = signal(textContent);
+    } else if (typeof content === 'string') {
+      context = signal(content);
+      content = NgpTooltipTextContentComponent;
     }
 
     // Create config for the overlay
-    const config: NgpOverlayConfig<T> = {
-      content: tooltip,
+    const config: NgpOverlayConfig<T | string> = {
+      content,
       triggerElement: this.trigger.nativeElement,
       injector: this.injector,
-      context: this.state.context,
+      context,
       container: this.state.container(),
       placement: this.state.placement(),
       offset: this.state.offset(),

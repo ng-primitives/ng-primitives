@@ -1,5 +1,5 @@
 import { fireEvent, render, waitFor } from '@testing-library/angular';
-import { NgpTooltip, NgpTooltipTrigger } from 'ng-primitives/tooltip';
+import { NgpTooltip, NgpTooltipTrigger, provideTooltipConfig } from 'ng-primitives/tooltip';
 
 describe('NgpTooltipTrigger', () => {
   afterEach(() => {
@@ -10,7 +10,7 @@ describe('NgpTooltipTrigger', () => {
   it('should destroy the overlay when the trigger is destroyed', async () => {
     const { fixture, getByRole } = await render(
       `
-        <button [ngpTooltipTrigger]="content"></button>
+        <button [ngpTooltipTrigger]="content" ngpTooltipTriggerUseTextContent="false"></button>
 
         <ng-template #content>
           <div ngpTooltip>
@@ -39,7 +39,7 @@ describe('NgpTooltipTrigger', () => {
   it('should set the data-placement attribute on the tooltip element', async () => {
     const { getByRole } = await render(
       `
-        <button [ngpTooltipTrigger]="content" ngpTooltipTriggerPlacement="top"></button>
+        <button [ngpTooltipTrigger]="content" ngpTooltipTriggerPlacement="top" ngpTooltipTriggerUseTextContent="false"></button>
 
         <ng-template #content>
           <div ngpTooltip>
@@ -68,6 +68,7 @@ describe('NgpTooltipTrigger', () => {
         <button
           [ngpTooltipTrigger]="content"
           ngpTooltipTriggerShowOnOverflow="true"
+          ngpTooltipTriggerUseTextContent="false"
           style="width: 200px; height: 40px; overflow: hidden;"
         >
           Short text
@@ -99,6 +100,7 @@ describe('NgpTooltipTrigger', () => {
         <button
           [ngpTooltipTrigger]="content"
           ngpTooltipTriggerShowOnOverflow="true"
+          ngpTooltipTriggerUseTextContent="false"
           style="width: 50px; height: 20px; overflow: hidden; white-space: nowrap;"
         >
           This is a very long text that will definitely overflow the button width
@@ -124,5 +126,156 @@ describe('NgpTooltipTrigger', () => {
     const tooltip = document.querySelector('[ngpTooltip]');
 
     expect(tooltip).not.toBeInTheDocument();
+  });
+
+  describe('useTextContent', () => {
+    it('should show tooltip with trigger element text content when useTextContent is enabled', async () => {
+      const { getByRole } = await render(`<button ngpTooltipTrigger>Button text</button>`, {
+        imports: [NgpTooltipTrigger, NgpTooltip],
+      });
+
+      const trigger = getByRole('button');
+      fireEvent.mouseEnter(trigger);
+
+      await waitFor(() => {
+        const tooltip = document.querySelector('[role="tooltip"]');
+        expect(tooltip).toBeInTheDocument();
+        expect(tooltip?.textContent?.trim()).toBe('Button text');
+      });
+    });
+
+    it('should not show tooltip when useTextContent is enabled but trigger has no text content', async () => {
+      const consoleSpy = jest.spyOn(console, 'warn').mockImplementation();
+
+      const { getByRole } = await render(
+        `<button ngpTooltipTrigger ngpTooltipTriggerUseTextContent="true"></button>`,
+        {
+          imports: [NgpTooltipTrigger, NgpTooltip],
+        },
+      );
+
+      const trigger = getByRole('button');
+      fireEvent.mouseEnter(trigger);
+
+      // Wait a bit to ensure tooltip doesn't show
+      await new Promise(resolve => setTimeout(resolve, 100));
+
+      expect(document.querySelector('[role="tooltip"]')).not.toBeInTheDocument();
+      expect(consoleSpy).toHaveBeenCalledWith(
+        '[ngpTooltipTrigger]: useTextContent is enabled but trigger element has no text content',
+      );
+
+      consoleSpy.mockRestore();
+    });
+
+    it('should prioritize useTextContent over tooltip template when both are provided', async () => {
+      const { getByRole } = await render(
+        `
+          <button [ngpTooltipTrigger]="content" ngpTooltipTriggerUseTextContent="true">
+            Button text
+          </button>
+
+          <ng-template #content>
+            <div ngpTooltip>Template content</div>
+          </ng-template>
+        `,
+        {
+          imports: [NgpTooltipTrigger, NgpTooltip],
+        },
+      );
+
+      const trigger = getByRole('button');
+      fireEvent.mouseEnter(trigger);
+
+      await waitFor(() => {
+        const tooltip = document.querySelector('[role="tooltip"]');
+        expect(tooltip).toBeInTheDocument();
+        expect(tooltip?.textContent?.trim()).toBe('Button text');
+      });
+    });
+
+    it('should use global config for useTextContent when not specified on element', async () => {
+      const { getByRole } = await render(`<button ngpTooltipTrigger>Button text</button>`, {
+        imports: [NgpTooltipTrigger, NgpTooltip],
+        providers: [
+          provideTooltipConfig({
+            useTextContent: true,
+          }),
+        ],
+      });
+
+      const trigger = getByRole('button');
+      fireEvent.mouseEnter(trigger);
+
+      await waitFor(() => {
+        const tooltip = document.querySelector('[role="tooltip"]');
+        expect(tooltip).toBeInTheDocument();
+        expect(tooltip?.textContent?.trim()).toBe('Button text');
+      });
+    });
+
+    it('should override global config when useTextContent is explicitly set to false', async () => {
+      const { getByRole } = await render(
+        `
+          <button [ngpTooltipTrigger]="content" ngpTooltipTriggerUseTextContent="false">
+            Button text
+          </button>
+
+          <ng-template #content>
+            <div ngpTooltip>Template content</div>
+          </ng-template>
+        `,
+        {
+          imports: [NgpTooltipTrigger, NgpTooltip],
+          providers: [
+            provideTooltipConfig({
+              useTextContent: true,
+            }),
+          ],
+        },
+      );
+
+      const trigger = getByRole('button');
+      fireEvent.mouseEnter(trigger);
+
+      await waitFor(() => {
+        const tooltip = document.querySelector('[role="tooltip"]');
+        expect(tooltip).toBeInTheDocument();
+        expect(tooltip?.textContent?.trim()).toBe('Template content');
+      });
+    });
+
+    it('should trim whitespace from text content', async () => {
+      const { getByRole } = await render(
+        `<button ngpTooltipTrigger ngpTooltipTriggerUseTextContent="true">   Button text with whitespace   </button>`,
+        {
+          imports: [NgpTooltipTrigger, NgpTooltip],
+        },
+      );
+
+      const trigger = getByRole('button');
+      fireEvent.mouseEnter(trigger);
+
+      await waitFor(() => {
+        const tooltip = document.querySelector('[role="tooltip"]');
+        expect(tooltip).toBeInTheDocument();
+        expect(tooltip?.textContent?.trim()).toBe('Button text with whitespace');
+      });
+    });
+
+    it('should throw error when no tooltip content provided and useTextContent is false', async () => {
+      const { getByRole } = await render(
+        `<button ngpTooltipTrigger ngpTooltipTriggerUseTextContent="false">Button text</button>`,
+        {
+          imports: [NgpTooltipTrigger, NgpTooltip],
+        },
+      );
+
+      const trigger = getByRole('button');
+
+      expect(() => fireEvent.mouseEnter(trigger)).toThrow(
+        '[ngpTooltipTrigger]: Tooltip must be a string, TemplateRef, or ComponentType. Alternatively, set useTextContent to true if none is provided.',
+      );
+    });
   });
 });
