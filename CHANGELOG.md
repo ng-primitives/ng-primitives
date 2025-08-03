@@ -1,3 +1,13 @@
+## 0.70.0 (2025-08-03)
+
+### 🚀 Features
+
+- **tooltip:** add useTextContent feature for automatic text content tooltips ([#403](https://github.com/ng-primitives/ng-primitives/pull/403))
+
+### ❤️ Thank You
+
+- Shahar Kazaz
+
 ## 0.69.1 (2025-08-01)
 
 ### 🩹 Fixes
