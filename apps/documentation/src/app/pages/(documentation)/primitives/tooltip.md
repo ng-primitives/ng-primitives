@@ -108,6 +108,43 @@ The arrow can be styled conditionally based on the tooltip's final placement usi
 | ---------------- | -------------------------------------------- |
 | `data-placement` | The final rendered placement of the tooltip. |
 
+## Using Text Content as Tooltip
+
+The `useTextContent` input (enabled by default) allows the tooltip to automatically use the text content of the trigger element as the tooltip content. This is particularly useful for displaying full text when content is truncated with ellipsis.
+
+```html
+<!-- Simple usage - uses text content automatically -->
+<div class="truncated-text" ngpTooltipTrigger>
+  This text might be truncated with ellipsis and show the full content in the tooltip
+</div>
+
+<!-- Passing content directly takes precedence -->
+<button [ngpTooltipTrigger]="myToolip">This won't show a tooltip unless content is provided</button>
+```
+
+### Important: Global Styles Required
+
+When using the `useTextContent` feature or string values, the tooltip styles **must be global** and not encapsulated to the component. This is because the tooltip content is rendered in a portal outside of your component's scope.
+
+```css
+/* ✅ Global styles (in styles.css or with ViewEncapsulation.None) */
+[ngpTooltip] {
+  position: absolute;
+  background-color: #333;
+  color: white;
+  padding: 8px 12px;
+  border-radius: 4px;
+  font-size: 14px;
+}
+
+/* ❌ Encapsulated styles won't work with useTextContent */
+.my-component [ngpTooltip] {
+  /* This won't be applied to text content tooltips */
+}
+```
+
+If you need component-scoped styles, use template-based or component-based tooltips instead of `useTextContent`.
+
 ## Conditional Tooltips
 
 The `showOnOverflow` input allows you to show tooltips only when the trigger element has overflowing content. This is particularly useful for text that might be truncated with ellipsis.
@@ -165,6 +202,7 @@ bootstrapApplication(AppComponent, {
       flip: true,
       container: document.body,
       showOnOverflow: false,
+      useTextContent: true,
     }),
   ],
 });
@@ -198,4 +236,8 @@ Define the offset from the trigger element.
 
 <prop-details name="showOnOverflow" type="boolean" default="false">
   Define if the tooltip should only show when the trigger element has overflowing content. This is useful for showing tooltips only when content is truncated.
+</prop-details>
+
+<prop-details name="useTextContent" type="boolean" default="true">
+  Define whether to use the text content of the trigger element as the tooltip content. When enabled, the tooltip will automatically display the text content of the trigger element. Note that this requires global styles to work properly since the tooltip is rendered in a portal.
 </prop-details>

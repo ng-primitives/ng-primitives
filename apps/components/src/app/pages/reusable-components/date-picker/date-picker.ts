@@ -70,7 +70,9 @@ import { ChangeFn, provideValueAccessor, TouchedFn } from 'ng-primitives/utils';
       <tbody>
         <tr *ngpDatePickerRowRender>
           <td *ngpDatePickerCellRender="let date" ngpDatePickerCell>
-            <button ngpDatePickerDateButton>{{ date.getDate() }}</button>
+            <button ngpDatePickerDateButton>
+              {{ date.getDate() }}
+            </button>
           </td>
         </tr>
       </tbody>
@@ -211,7 +213,7 @@ export class DatePicker implements ControlValueAccessor {
   /**
    * The onChange callback function for the date picker.
    */
-  private onChange?: ChangeFn<Date | undefined>;
+  protected onChange?: ChangeFn<Date | undefined>;
 
   /**
    * The onTouched callback function for the date picker.
@@ -224,7 +226,7 @@ export class DatePicker implements ControlValueAccessor {
   }
 
   writeValue(date: Date): void {
-    this.state().date.set(date);
+    this.state().select(date);
   }
 
   registerOnChange(fn: ChangeFn<Date | undefined>): void {

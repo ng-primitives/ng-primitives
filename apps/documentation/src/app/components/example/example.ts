@@ -1,24 +1,25 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 import { Clipboard } from '@angular/cdk/clipboard';
-import { NgClass, NgComponentOutlet, isPlatformServer } from '@angular/common';
+import { isPlatformServer, NgClass, NgComponentOutlet } from '@angular/common';
 import {
   ChangeDetectionStrategy,
   ChangeDetectorRef,
   Component,
-  PLATFORM_ID,
-  Type,
-  VERSION,
   computed,
   effect,
   inject,
   input,
+  PLATFORM_ID,
   signal,
+  Type,
+  VERSION,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { lucideClipboard } from '@ng-icons/lucide';
 import { phosphorLightning } from '@ng-icons/phosphor-icons/regular';
 import sdk from '@stackblitz/sdk';
+import { isString } from 'ng-primitives/utils';
 import * as prismjs from 'prismjs';
 
 const { highlight, languages } = prismjs;
@@ -261,7 +262,7 @@ export class Example {
         );
         if (cssSourcePath && this.source[cssSourcePath]) {
           const cssRawSource = (await this.source[cssSourcePath]!()) as string;
-          if (typeof cssRawSource === 'string') {
+          if (isString(cssRawSource)) {
             originalSource = cssRawSource.replace(/styles\s*:\s*`[^`]*`,?\s*/, '');
             sourceIsGenerated = true;
             originalSource =
@@ -282,7 +283,7 @@ export class Example {
         );
       }
 
-      if (typeof originalSource !== 'string') {
+      if (!isString(originalSource)) {
         this.code.set(originalSource || '// Source code not available');
         this.raw = null;
         this.changeDetector.detectChanges();

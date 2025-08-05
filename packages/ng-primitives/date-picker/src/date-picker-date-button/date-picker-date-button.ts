@@ -3,8 +3,7 @@ import { computed, Directive, ElementRef, HostListener, inject, OnDestroy } from
 import { injectDateAdapter } from 'ng-primitives/date-time';
 import { setupButton } from 'ng-primitives/internal';
 import { injectDatePickerCellDate } from '../date-picker-cell-render/date-picker-cell-render-token';
-import { injectDatePickerState } from '../date-picker/date-picker-state';
-import { injectDatePicker } from '../date-picker/date-picker-token';
+import { injectDateControllerState } from '../date-picker/date-picker-state';
 import { NgpDatePickerDateButtonToken } from './date-picker-date-button-token';
 
 /**
@@ -21,6 +20,9 @@ import { NgpDatePickerDateButtonToken } from './date-picker-date-button-token';
     '[attr.aria-disabled]': 'disabled()',
     '[attr.data-outside-month]': 'outside() ? "" : null',
     '[attr.data-today]': 'today() ? "" : null',
+    '[attr.data-range-start]': 'start() ? "" : null',
+    '[attr.data-range-end]': 'end() ? "" : null',
+    '[attr.data-range-between]': 'betweenRange() ? "" : null',
   },
 })
 export class NgpDatePickerDateButton<T> implements OnDestroy {
@@ -35,14 +37,9 @@ export class NgpDatePickerDateButton<T> implements OnDestroy {
   private readonly focusMonitor = inject(FocusMonitor);
 
   /**
-   * Access the date picker.
-   */
-  private readonly datePicker = injectDatePicker<T>();
-
-  /**
    * Access the date picker state.
    */
-  private readonly state = injectDatePickerState<T>();
+  private readonly state = injectDateControllerState<T>();
 
   /**
    * Access the date adapter.
@@ -63,12 +60,23 @@ export class NgpDatePickerDateButton<T> implements OnDestroy {
 
   /**
    * Determine if this is the selected date.
-   * @internal
    */
-  readonly selected = computed(() => {
-    const selected = this.state().date();
-    return selected && this.dateAdapter.isSameDay(this.date, selected);
-  });
+  protected readonly selected = computed(() => this.state().isSelected(this.date));
+
+  /**
+   * Determine if this is the start date of the range.
+   */
+  protected readonly start = computed(() => this.state().isStartOfRange(this.date));
+
+  /**
+   * Determine if this is the end date of the range.
+   */
+  protected readonly end = computed(() => this.state().isEndOfRange(this.date));
+
+  /**
+   * Determine if this is between the start and end dates of the range.
+   */
+  protected readonly betweenRange = computed(() => this.state().isBetweenRange(this.date));
 
   /**
    * Determine if this date is outside the current month.
@@ -113,12 +121,12 @@ export class NgpDatePickerDateButton<T> implements OnDestroy {
   protected readonly isButton = this.elementRef.nativeElement.tagName === 'BUTTON';
 
   constructor() {
-    this.datePicker.registerButton(this);
+    this.state().registerButton(this);
     setupButton({ disabled: this.disabled });
   }
 
   ngOnDestroy(): void {
-    this.datePicker.unregisterButton(this);
+    this.state().unregisterButton(this);
   }
 
   /**
@@ -140,9 +148,8 @@ export class NgpDatePickerDateButton<T> implements OnDestroy {
       event.stopPropagation();
     }
 
-    this.state().date.set(this.date);
-    this.state().dateChange.emit(this.date);
-    this.datePicker.setFocusedDate(this.date, 'mouse', 'forward');
+    this.state().select(this.date);
+    this.state().setFocusedDate(this.date, 'mouse', 'forward');
   }
 
   /**
@@ -284,7 +291,7 @@ export class NgpDatePickerDateButton<T> implements OnDestroy {
   }
 
   private focusDate(date: T, direction: 'forward' | 'backward'): void {
-    this.datePicker.setFocusedDate(date, 'keyboard', direction);
+    this.state().setFocusedDate(date, 'keyboard', direction);
   }
 
   /**

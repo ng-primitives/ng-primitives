@@ -1,3 +1,35 @@
+## 0.70.0 (2025-08-03)
+
+### 🚀 Features
+
+- **tooltip:** add useTextContent feature for automatic text content tooltips ([#403](https://github.com/ng-primitives/ng-primitives/pull/403))
+
+### ❤️ Thank You
+
+- Shahar Kazaz
+
+## 0.69.1 (2025-08-01)
+
+### 🩹 Fixes
+
+- **date-range-picker:** state fix ([98542a63](https://github.com/ng-primitives/ng-primitives/commit/98542a63))
+
+### ❤️ Thank You
+
+- Ashley Hunter
+
+## 0.69.0 (2025-07-31)
+
+### 🚀 Features
+
+- **date-range-picker:** date range picker primitive ([#396](https://github.com/ng-primitives/ng-primitives/pull/396))
+- **docs:** add the ability to switch theme on the main page ([#391](https://github.com/ng-primitives/ng-primitives/pull/391))
+
+### ❤️ Thank You
+
+- Ashley Hunter
+- Benjamin Forrás @benjaminforras
+
 ## 0.68.0 (2025-07-26)
 
 ### 🚀 Features

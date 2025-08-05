@@ -1,5 +1,5 @@
 import { computed, Directive } from '@angular/core';
-import { injectDatePickerState } from '../date-picker/date-picker-state';
+import { injectDateControllerState } from '../date-picker/date-picker-state';
 
 /**
  * The grid that contains the days of the month.
@@ -17,7 +17,7 @@ export class NgpDatePickerGrid<T> {
   /**
    * Access the date picker state.
    */
-  protected readonly state = injectDatePickerState<T>();
+  protected readonly state = injectDateControllerState<T>();
 
   /**
    * Determine the id for the label.

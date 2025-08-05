@@ -13,6 +13,7 @@ import {
   Signal,
   WritableSignal,
 } from '@angular/core';
+import { isFunction } from 'ng-primitives/utils';
 
 /**
  * This converts the state object to a writable state object.
@@ -147,7 +148,7 @@ export function createState(token: ProviderToken<WritableSignal<State<unknown>>>
         // if this is a getter or setter, we need to define it on the object
         if (descriptor?.get || descriptor?.set) {
           Object.defineProperty(obj, key, descriptor);
-        } else if (typeof prototype[key as keyof U] === 'function') {
+        } else if (isFunction(prototype[key as keyof U])) {
           (obj as Record<string, unknown>)[key] = prototype[key as keyof U].bind(state);
         } else {
           // @ts-ignore
@@ -173,11 +174,7 @@ function createControlledInput(
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const inputDefinition = symbol ? (property as any)[symbol] : undefined;
 
-  if (
-    !symbol ||
-    !inputDefinition ||
-    typeof inputDefinition.applyValueToInputSignal !== 'function'
-  ) {
+  if (!symbol || !inputDefinition || !isFunction(inputDefinition.applyValueToInputSignal)) {
     console.warn(
       'Angular has changed its internal Input implementation, report this issue to ng-primitives.',
     );

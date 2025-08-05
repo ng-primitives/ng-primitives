@@ -1,4 +1,5 @@
 import { effect, inject, Injector, signal, Signal, untracked } from '@angular/core';
+import { isUndefined } from 'ng-primitives/utils';
 import { Observable, Subscription } from 'rxjs';
 import { explicitEffect } from '../signals/explicit-effect';
 
@@ -25,7 +26,7 @@ export function fromResizeEvent(
 ): Observable<Dimensions> {
   return new Observable(observable => {
     // ResizeObserver may not be available in all environments, so check for its existence
-    if (typeof window === 'undefined' || typeof window.ResizeObserver === 'undefined') {
+    if (isUndefined(window?.ResizeObserver)) {
       // ResizeObserver is not available (SSR or unsupported browser)
       // Complete the observable without emitting any values
       observable.complete();
