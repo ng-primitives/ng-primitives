@@ -12,11 +12,6 @@ export interface NgpToastConfig {
    */
   duration: number;
 
-  /**
-   * The width of each toast in pixels.
-   * If not provided, the toast will be responsive based on viewport width.
-   */
-  width?: number;
 
   /**
    * The offset from the top of the viewport in pixels.
@@ -78,7 +73,6 @@ export interface NgpToastConfig {
 export const defaultToastConfig: NgpToastConfig = {
   gap: 14,
   duration: 3000,
-  width: 360,
   placement: 'top-end',
   offsetTop: 24,
   offsetBottom: 24,
