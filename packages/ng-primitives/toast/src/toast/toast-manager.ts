@@ -120,12 +120,8 @@ export class NgpToastManager {
     this.renderer.setAttribute(container, 'aria-atomic', 'false');
     this.renderer.setAttribute(container, 'tabindex', '-1');
     this.renderer.setAttribute(container, 'data-ngp-toast-container', placement);
-
     container.style.setProperty('position', 'fixed');
     container.style.setProperty('z-index', `${this.config.zIndex}`);
-
-    // Only set width if it's specified in the config
-
     container.style.setProperty('--ngp-toast-offset-top', `${this.config.offsetTop}px`);
     container.style.setProperty('--ngp-toast-offset-bottom', `${this.config.offsetBottom}px`);
     container.style.setProperty('--ngp-toast-offset-left', `${this.config.offsetLeft}px`);
