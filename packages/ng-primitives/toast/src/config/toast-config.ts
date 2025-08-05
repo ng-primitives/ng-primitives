@@ -12,7 +12,6 @@ export interface NgpToastConfig {
    */
   duration: number;
 
-
   /**
    * The offset from the top of the viewport in pixels.
    */
