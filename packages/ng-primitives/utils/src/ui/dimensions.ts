@@ -1,4 +1,6 @@
-import { ElementRef, Renderer2, afterNextRender, inject, signal } from '@angular/core';
+import { ElementRef, Renderer2, afterNextRender, inject, signal, DestroyRef } from '@angular/core';
+import { fromResizeEvent } from 'ng-primitives/internal';
+import { safeTakeUntilDestroyed } from '../observables/take-until-destroyed';
 
 /**
  * Injects the dimensions of the element
@@ -7,6 +9,7 @@ import { ElementRef, Renderer2, afterNextRender, inject, signal } from '@angular
 export function injectDimensions() {
   const renderer = inject(Renderer2);
   const element = inject<ElementRef<HTMLElement>>(ElementRef).nativeElement;
+  const destroyRef = inject(DestroyRef);
   const size = signal<{ width: number; height: number; mounted: boolean }>({
     width: 0,
     height: 0,
@@ -32,6 +35,14 @@ export function injectDimensions() {
       renderer.setStyle(element, 'animationName', animationName);
     },
   });
+
+  // Start listening to toast resizes to update dimensions
+  fromResizeEvent(element)
+    .pipe(safeTakeUntilDestroyed(destroyRef))
+    .subscribe(() => {
+      const { width, height } = element.getBoundingClientRect();
+      size.set({ width, height, mounted: true });
+    });
 
   return size;
 }
