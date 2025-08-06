@@ -23,6 +23,7 @@ import {
 import { injectMenuConfig } from '../config/menu-config';
 import { menuTriggerState, provideMenuTriggerState } from './menu-trigger-state';
 
+
 /**
  * The `NgpMenuTrigger` directive allows you to turn an element into a menu trigger.
  */
@@ -35,7 +36,8 @@ import { menuTriggerState, provideMenuTriggerState } from './menu-trigger-state'
     '[attr.aria-expanded]': 'open() ? "true" : "false"',
     '[attr.data-open]': 'open() ? "" : null',
     '[attr.data-placement]': 'state.placement()',
-    '(click)': 'toggle($event)',
+    '(mousedown)': 'handleMouseClick($event)',
+    '(contextmenu)': 'handleContextMenu($event)',
   },
 })
 export class NgpMenuTrigger<T = unknown> implements OnDestroy {
@@ -73,6 +75,14 @@ export class NgpMenuTrigger<T = unknown> implements OnDestroy {
   readonly disabled = input<boolean, BooleanInput>(false, {
     alias: 'ngpMenuTriggerDisabled',
     transform: booleanAttribute,
+  });
+
+  /**
+   * Define which click events should trigger the menu.
+   * @default 'left'
+   */
+  readonly triggerEvent = input<'left' | 'right' | 'both'>('left', {
+    alias: 'ngpMenuTriggerOn',
   });
 
   /**
@@ -143,6 +153,32 @@ export class NgpMenuTrigger<T = unknown> implements OnDestroy {
 
   ngOnDestroy(): void {
     this.overlay()?.destroy();
+  }
+
+  protected handleMouseClick(event: MouseEvent): void {
+    const triggerEventType = this.state.triggerEvent();
+    
+    if (event.button === 0) {
+      // Left click
+      if (triggerEventType === 'left' || triggerEventType === 'both') {
+        this.toggle(event);
+      }
+    } else if (event.button === 2) {
+      // Right click
+      if (triggerEventType === 'right' || triggerEventType === 'both') {
+        event.preventDefault(); // Prevent context menu here
+        this.toggle(event);
+      }
+    }
+  }
+
+  protected handleContextMenu(event: MouseEvent): void {
+    const triggerEventType = this.state.triggerEvent();
+    
+    // Prevent context menu if right-click is configured to trigger the menu
+    if (triggerEventType === 'right' || triggerEventType === 'both') {
+      event.preventDefault();
+    }
   }
 
   protected toggle(event: MouseEvent): void {
