@@ -1,3 +1,18 @@
+## 0.71.0 (2025-08-07)
+
+### 🚀 Features
+
+- **date-picker:** add option to change the first day of the week for… ([#407](https://github.com/ng-primitives/ng-primitives/pull/407))
+
+### 🩹 Fixes
+
+- **toast:** Update dimensions on toast resize ([#411](https://github.com/ng-primitives/ng-primitives/pull/411))
+
+### ❤️ Thank You
+
+- Benny Böhm
+- Ruud Walraven
+
 ## 0.70.0 (2025-08-03)
 
 ### 🚀 Features
