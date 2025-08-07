@@ -161,6 +161,8 @@ export class NgpDatePickerRowRender<T> implements OnDestroy {
    * Get the offset of the first day of the week.
    * @param firstCalendarDay The first day of the calendar without the offset.
    * @returns The offset of the first day of the week.
+   *
+   * @internal
    */
   getFirstDayOfWeekOffset(firstCalendarDay: T): number {
     return (
