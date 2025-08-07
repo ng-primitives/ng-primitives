@@ -1,17 +1,15 @@
 import {
-  afterNextRender,
   computed,
   Directive,
   EmbeddedViewRef,
   inject,
   Injector,
   OnDestroy,
-  runInInjectionContext,
   TemplateRef,
   ViewContainerRef,
 } from '@angular/core';
 import { injectDateAdapter } from 'ng-primitives/date-time';
-import { onChange } from 'ng-primitives/utils';
+import { explicitEffect } from 'ng-primitives/internal';
 import { injectDateControllerState } from '../date-picker/date-picker-state';
 import {
   NgpDatePickerRowRenderToken,
@@ -102,18 +100,16 @@ export class NgpDatePickerRowRender<T> implements OnDestroy {
    */
   private readonly viewRefs: EmbeddedViewRef<void>[] = [];
 
+  /**
+   * Store the previously rendered month.
+   */
+  private previousMonth: T | null = null;
+
   constructor() {
     // Wait for the inputs of the containing picker to be initialized.
-    afterNextRender(() => {
-      runInInjectionContext(this.viewContainerRef.injector, () => {
-        // re-render the rows when the month changes
-        onChange(this.state().focusedDate, (date, previousDate) => {
-          if (!date || !previousDate || !this.dateAdapter.isSameMonth(date, previousDate)) {
-            this.renderRows();
-          }
-        });
-      });
-    });
+    explicitEffect([this.state().focusedDate, this.state().firstDayOfWeek], () =>
+      this.renderRows(),
+    );
   }
 
   ngOnDestroy(): void {
@@ -124,6 +120,17 @@ export class NgpDatePickerRowRender<T> implements OnDestroy {
    * Render the row.
    */
   private renderRows(): void {
+    // If the focused date has not changed, do not re-render.
+    if (
+      this.previousMonth &&
+      this.dateAdapter.isSameMonth(this.previousMonth, this.state().focusedDate())
+    ) {
+      return;
+    }
+
+    // Store the current focused month.
+    this.previousMonth = this.state().focusedDate();
+
     const weeks = this.weeks();
 
     // clear the view container.
