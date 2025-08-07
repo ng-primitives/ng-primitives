@@ -26,7 +26,7 @@ import { NgpListbox, NgpListboxOption, NgpListboxSection } from 'ng-primitives/l
         <div ngpListboxSection>
           @for (option of section.options; track option.id) {
             <div
-              class="flex h-9 w-[200px] w-full cursor-pointer items-center gap-2 rounded-lg px-3 py-1 text-[14px] text-gray-600 transition-colors hover:bg-gray-50 data-[active]:bg-gray-100 data-[press]:bg-gray-100 dark:text-gray-300 dark:hover:bg-white/5 dark:data-[active]:bg-white/10 dark:data-[press]:bg-white/10"
+              class="flex h-9 w-[200px] cursor-pointer items-center gap-2 rounded-lg px-3 py-1 text-[14px] text-gray-600 transition-colors hover:bg-gray-50 data-[active]:bg-gray-100 data-[press]:bg-gray-100 dark:text-gray-300 dark:hover:bg-white/5 dark:data-[active]:bg-white/10 dark:data-[press]:bg-white/10"
               #listboxOption="ngpListboxOption"
               [ngpListboxOptionValue]="option"
               ngpListboxOption
