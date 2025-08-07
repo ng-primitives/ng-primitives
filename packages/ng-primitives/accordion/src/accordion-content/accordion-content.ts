@@ -1,6 +1,6 @@
 import { isPlatformBrowser } from '@angular/common';
 import { afterRenderEffect, computed, Directive, inject, input, PLATFORM_ID } from '@angular/core';
-import { fromMutationObserver, injectElementRef } from 'ng-primitives/internal';
+import { fromMutationObserver, fromResizeEvent, injectElementRef } from 'ng-primitives/internal';
 import { safeTakeUntilDestroyed, uniqueId } from 'ng-primitives/utils';
 import { debounceTime } from 'rxjs';
 import { injectAccordionItemState } from '../accordion-item/accordion-item-state';
@@ -64,18 +64,26 @@ export class NgpAccordionContent<T> {
       .pipe(debounceTime(0), safeTakeUntilDestroyed())
       .subscribe(() => this.updateDimensions());
 
+    // height observer for compatibility with beforematch event
+    fromResizeEvent(this.elementRef.nativeElement)
+      .pipe(safeTakeUntilDestroyed())
+      .subscribe(({ height }) => {
+        if (this.supportsBeforeMatch()) {
+          if (!this.accordionItem().open() && height === 0) {
+            this.elementRef.nativeElement.setAttribute('hidden', 'until-found');
+          }
+        }
+      });
+
     /**
      * Compatibility with older browsers that do not support the beforematch event
-     * The hidden attribute must be removed.
      */
     afterRenderEffect({
       write: () => {
         if (!this.supportsBeforeMatch()) return;
-
+        // Only remove hidden immediately when opening
         if (this.accordionItem().open()) {
           this.elementRef.nativeElement.removeAttribute('hidden');
-        } else {
-          this.elementRef.nativeElement.setAttribute('hidden', 'until-found');
         }
       },
     });
