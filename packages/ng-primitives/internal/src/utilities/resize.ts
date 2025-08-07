@@ -1,7 +1,8 @@
-import { effect, inject, Injector, signal, Signal, untracked } from '@angular/core';
-import { isUndefined } from 'ng-primitives/utils';
-import { Observable, Subscription } from 'rxjs';
+import { DestroyRef, effect, inject, Injector, signal, Signal, untracked } from '@angular/core';
+import { isUndefined, safeTakeUntilDestroyed } from 'ng-primitives/utils';
+import { map, Observable, Subscription } from 'rxjs';
 import { explicitEffect } from '../signals/explicit-effect';
+import { injectElementRef } from './element-ref';
 
 interface NgpResizeObserverOptions {
   /**
@@ -86,6 +87,7 @@ export function fromResizeEvent(
 export function observeResize(elementFn: () => HTMLElement | undefined): Signal<Dimensions> {
   const dimensions = signal<Dimensions>({ width: 0, height: 0 });
   const injector = inject(Injector);
+  const destroyRef = inject(DestroyRef);
 
   // store the subscription to the resize event
   let subscription: Subscription | null = null;
@@ -102,9 +104,9 @@ export function observeResize(elementFn: () => HTMLElement | undefined): Signal<
       subscription?.unsubscribe();
 
       // create a new subscription to the resize event
-      subscription = fromResizeEvent(targetElement, { injector }).subscribe(event =>
-        dimensions.set({ width: event.width, height: event.height }),
-      );
+      subscription = fromResizeEvent(targetElement, { injector })
+        .pipe(safeTakeUntilDestroyed(destroyRef))
+        .subscribe(event => dimensions.set({ width: event.width, height: event.height }));
     });
   });
 
@@ -114,4 +116,22 @@ export function observeResize(elementFn: () => HTMLElement | undefined): Signal<
 export interface Dimensions {
   width: number;
   height: number;
+}
+
+/**
+ * A simple utility to get the dimensions of an element as a signal.
+ */
+export function injectDimensions(): Signal<Dimensions> {
+  const elementRef = injectElementRef<HTMLElement>();
+  const destroyRef = inject(DestroyRef);
+  const dimensions = signal<Dimensions>({ width: 0, height: 0 });
+
+  fromResizeEvent(elementRef.nativeElement)
+    .pipe(
+      safeTakeUntilDestroyed(destroyRef),
+      map(({ width, height }) => ({ width, height })),
+    )
+    .subscribe(event => dimensions.set(event));
+
+  return dimensions;
 }
