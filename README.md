@@ -70,6 +70,9 @@ We welcome contributions from the community. Please refer to our [contributing g
       <td align="center" valign="top" width="14.28%"><a href="https://ramonmartinez.dev"><img src="https://avatars.githubusercontent.com/u/39868803?v=4?s=100" width="100px;" alt="Ramon Martinez"/><br /><sub><b>Ramon Martinez</b></sub></a><br /><a href="https://github.com/ng-primitives/ng-primitives/commits?author=RaimonxDev" title="Code">💻</a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/shaharkazaz"><img src="https://avatars.githubusercontent.com/u/17194830?v=4?s=100" width="100px;" alt="Shahar Kazaz"/><br /><sub><b>Shahar Kazaz</b></sub></a><br /><a href="https://github.com/ng-primitives/ng-primitives/commits?author=shaharkazaz" title="Code">💻</a></td>
     </tr>
+    <tr>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/bboehm86"><img src="https://avatars.githubusercontent.com/u/1027091?v=4?s=100" width="100px;" alt="Benny Böhm"/><br /><sub><b>Benny Böhm</b></sub></a><br /><a href="https://github.com/ng-primitives/ng-primitives/commits?author=bboehm86" title="Code">💻</a></td>
+    </tr>
   </tbody>
 </table>
 
