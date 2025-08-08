@@ -183,8 +183,13 @@ export class NgpOverlay<T = unknown> {
     // Monitor trigger element resize
     fromResizeEvent(this.config.triggerElement)
       .pipe(safeTakeUntilDestroyed(this.destroyRef))
-      .subscribe(() => {
-        this.triggerWidth.set(this.config.triggerElement.offsetWidth);
+      .subscribe(({ width, height }) => {
+        this.triggerWidth.set(width);
+
+        // if the element has been hidden, hide immediately
+        if (width === 0 || height === 0) {
+          this.hideImmediate();
+        }
       });
 
     // if there is a parent overlay and it is closed, close this overlay
