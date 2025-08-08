@@ -8,8 +8,7 @@ import {
   Injector,
   signal,
 } from '@angular/core';
-import { explicitEffect } from 'ng-primitives/internal';
-import { injectDimensions } from 'ng-primitives/utils';
+import { explicitEffect, injectDimensions } from 'ng-primitives/internal';
 import { injectToastConfig } from '../config/toast-config';
 import { NgpToastManager } from './toast-manager';
 import { injectToastOptions } from './toast-options';

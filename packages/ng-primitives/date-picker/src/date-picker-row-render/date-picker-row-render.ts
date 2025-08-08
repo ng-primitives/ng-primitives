@@ -9,12 +9,18 @@ import {
   ViewContainerRef,
 } from '@angular/core';
 import { injectDateAdapter } from 'ng-primitives/date-time';
-import { onChange } from 'ng-primitives/utils';
+import { explicitEffect } from 'ng-primitives/internal';
 import { injectDateControllerState } from '../date-picker/date-picker-state';
 import {
   NgpDatePickerRowRenderToken,
   NgpDatePickerWeekToken,
 } from './date-picker-row-render-token';
+
+/**
+ * The number of days in a week.
+ * @internal
+ */
+const DAYS_PER_WEEK = 7;
 
 /**
  * A structural directive that renders a row of weekdays in the date picker grid.
@@ -57,9 +63,12 @@ export class NgpDatePickerRowRender<T> implements OnDestroy {
     let firstDay = this.dateAdapter.startOfMonth(month);
     let lastDay = this.dateAdapter.endOfMonth(month);
 
+    // calculate the offset of the first day of the week.
+    const firstDayOfWeekOffset = this.getFirstDayOfWeekOffset(firstDay);
+
     // find the first and last day of visible in the grid.
     firstDay = this.dateAdapter.subtract(firstDay, {
-      days: this.dateAdapter.getDay(firstDay),
+      days: firstDayOfWeekOffset,
     });
     lastDay = this.dateAdapter.add(lastDay, {
       days: 6 - this.dateAdapter.getDay(lastDay),
@@ -91,13 +100,16 @@ export class NgpDatePickerRowRender<T> implements OnDestroy {
    */
   private readonly viewRefs: EmbeddedViewRef<void>[] = [];
 
+  /**
+   * Store the previously rendered month.
+   */
+  private previousMonth: T | null = null;
+
   constructor() {
-    // re-render the rows when the month changes.
-    onChange(this.state().focusedDate, (date, previousDate) => {
-      if (!date || !previousDate || !this.dateAdapter.isSameMonth(date, previousDate)) {
-        this.renderRows();
-      }
-    });
+    // Wait for the inputs of the containing picker to be initialized.
+    explicitEffect([this.state().focusedDate, this.state().firstDayOfWeek], () =>
+      this.renderRows(),
+    );
   }
 
   ngOnDestroy(): void {
@@ -108,6 +120,17 @@ export class NgpDatePickerRowRender<T> implements OnDestroy {
    * Render the row.
    */
   private renderRows(): void {
+    // If the focused date has not changed, do not re-render.
+    if (
+      this.previousMonth &&
+      this.dateAdapter.isSameMonth(this.previousMonth, this.state().focusedDate())
+    ) {
+      return;
+    }
+
+    // Store the current focused month.
+    this.previousMonth = this.state().focusedDate();
+
     const weeks = this.weeks();
 
     // clear the view container.
@@ -132,5 +155,19 @@ export class NgpDatePickerRowRender<T> implements OnDestroy {
     for (const viewRef of this.viewRefs) {
       viewRef.destroy();
     }
+  }
+
+  /**
+   * Get the offset of the first day of the week.
+   * @param firstCalendarDay The first day of the calendar without the offset.
+   * @returns The offset of the first day of the week.
+   *
+   * @internal
+   */
+  getFirstDayOfWeekOffset(firstCalendarDay: T): number {
+    return (
+      (DAYS_PER_WEEK + this.dateAdapter.getDay(firstCalendarDay) - this.state().firstDayOfWeek()) %
+      DAYS_PER_WEEK
+    );
   }
 }

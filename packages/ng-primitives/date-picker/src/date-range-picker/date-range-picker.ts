@@ -12,8 +12,10 @@ import {
   signal,
 } from '@angular/core';
 import { injectDateAdapter } from 'ng-primitives/date-time';
+import { injectDatePickerConfig } from '../config/date-picker-config';
 import { NgpDatePickerDateButton } from '../date-picker-date-button/date-picker-date-button';
 import { NgpDatePickerLabelToken } from '../date-picker-label/date-picker-label-token';
+import { transformToFirstDayOfWeekNumber } from '../date-picker/date-picker-first-day-of-week';
 import { dateRangePickerState, provideDateRangePickerState } from './date-range-picker-state';
 
 @Directive({
@@ -26,6 +28,11 @@ import { dateRangePickerState, provideDateRangePickerState } from './date-range-
 })
 export class NgpDateRangePicker<T> {
   private readonly dateAdapter = injectDateAdapter<T>();
+
+  /**
+   * Access the date range picker config.
+   */
+  private readonly config = injectDatePickerConfig();
 
   /**
    * Access the injector.
@@ -59,6 +66,18 @@ export class NgpDateRangePicker<T> {
    */
   readonly dateDisabled = input<(date: T) => boolean>(() => false, {
     alias: 'ngpDateRangePickerDateDisabled',
+  });
+
+  /**
+   * Sets which day starts the week in the calendar.
+   * Accepts 0-7 where 1=Monday, 2=Tuesday, 3=Wednesday, 4=Thursday, 5=Friday, 6=Saturday, 7=Sunday.
+   * Defaults to NgpDatePickerConfig.firstDayOfWeek (default 7 if not overridden).
+   * Note: Update calendar header column order when changing from Sunday start.
+   * @default 7 (Sunday)
+   */
+  readonly firstDayOfWeek = input(transformToFirstDayOfWeekNumber(this.config.firstDayOfWeek), {
+    alias: 'ngpDateRangePickerFirstDayOfWeek',
+    transform: transformToFirstDayOfWeekNumber,
   });
 
   /**

@@ -1,3 +1,4 @@
+export { injectDatePickerConfig, provideDatePickerConfig } from './config/date-picker-config';
 export { NgpDatePickerCellRender } from './date-picker-cell-render/date-picker-cell-render';
 export {
   injectDatePickerCellDate,
@@ -25,6 +26,11 @@ export {
   NgpDatePickerRowRenderToken,
 } from './date-picker-row-render/date-picker-row-render-token';
 export { NgpDatePicker } from './date-picker/date-picker';
+export {
+  transformToFirstDayOfWeekNumber,
+  type NgpDatePickerFirstDayOfWeekNumber,
+  type NgpDatePickerFirstDayOfWeekNumberInput,
+} from './date-picker/date-picker-first-day-of-week';
 export { injectDatePickerState, provideDatePickerState } from './date-picker/date-picker-state';
 export { NgpDateRangePicker } from './date-range-picker/date-range-picker';
 export {

@@ -5,13 +5,12 @@ export { booleanAttributeBinding } from './helpers/attributes';
 export { injectDisposables } from './helpers/disposables';
 export { uniqueId } from './helpers/unique-id';
 export {
-  isString,
-  isNumber,
   isBoolean,
   isFunction,
+  isNumber,
   isObject,
+  isString,
   isUndefined,
 } from './helpers/validators';
 export { safeTakeUntilDestroyed } from './observables/take-until-destroyed';
 export { onBooleanChange, onChange } from './signals';
-export { injectDimensions } from './ui/dimensions';
