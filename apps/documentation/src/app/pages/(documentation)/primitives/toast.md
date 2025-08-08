@@ -95,7 +95,6 @@ The following CSS custom properties are available to the `ngpToast` directive:
 | `--ngp-toast-z-index`        | The z-index of the toast.                     |
 | `--ngp-toasts-before`        | The number of toasts before this one.         |
 | `--ngp-toast-index`          | The index of the toast (1-based).             |
-| `--ngp-toast-width`          | The width of the toast in pixels.             |
 | `--ngp-toast-height`         | The height of the toast in pixels.            |
 | `--ngp-toast-offset`         | The vertical offset position of the toast.    |
 | `--ngp-toast-front-height`   | The height of the front-most toast.           |
@@ -116,7 +115,6 @@ bootstrapApplication(AppComponent, {
     provideToastConfig({
       placement: 'top-end',
       duration: 5000,
-      width: 300,
       offsetTop: 16,
       offsetBottom: 16,
       offsetLeft: 16,
@@ -140,10 +138,6 @@ bootstrapApplication(AppComponent, {
 
 <prop-details name="duration" type="number" default="3000">
   The duration in milliseconds that the toast will be visible.
-</prop-details>
-
-<prop-details name="width" type="number" default="360">
-  The width of each toast in pixels.
 </prop-details>
 
 <prop-details name="offsetTop" type="number" default="24">

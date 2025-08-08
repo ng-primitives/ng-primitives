@@ -29,7 +29,6 @@ import { toastTimer } from './toast-timer';
     '[style.--ngp-toast-z-index]': 'zIndex()',
     '[style.--ngp-toasts-before]': 'index()',
     '[style.--ngp-toast-index]': 'index() + 1',
-    '[style.--ngp-toast-width.px]': 'config.width',
     '[style.--ngp-toast-height.px]': 'dimensions().height',
     '[style.--ngp-toast-offset.px]': 'offset()',
     '[style.--ngp-toast-front-height.px]': 'frontToastHeight()',
