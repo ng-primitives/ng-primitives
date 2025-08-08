@@ -1,0 +1,129 @@
+import {
+  Component,
+  InputSignal,
+  InputSignalWithTransform,
+  Provider,
+  signal,
+  viewChild,
+} from '@angular/core';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { defaultDatePickerConfig } from '../config/date-picker-config';
+import { NgpDatePicker } from '../date-picker/date-picker';
+import {
+  NgpDatePickerFirstDayOfWeekNumber,
+  NgpDatePickerFirstDayOfWeekNumberInput,
+} from '../date-picker/date-picker-first-day-of-week';
+import {
+  injectDateControllerState,
+  NgpDatePickerStateToken,
+} from '../date-picker/date-picker-state';
+import { NgpDatePickerRowRender } from './date-picker-row-render';
+
+describe('NgpDatePickerRowRender', () => {
+  const firstOfAugust2025 = new Date(2025, 7, 1);
+  let fixture: ComponentFixture<TestHost>;
+  let host: TestHost;
+
+  beforeEach(() => {
+    TestBed.configureTestingModule({
+      imports: [TestHost],
+      providers: [
+        provideMockDatePickerState(firstOfAugust2025, defaultDatePickerConfig.firstDayOfWeek),
+      ],
+    });
+    fixture = TestBed.createComponent(TestHost);
+    fixture.detectChanges();
+    host = fixture.componentInstance;
+  });
+
+  it('should calculate the first day of the week offset', () => {
+    const firstDayOfWeek = TestBed.runInInjectionContext(
+      () => injectDateControllerState()().firstDayOfWeek,
+    );
+
+    expect(host.rowRender().getFirstDayOfWeekOffset(firstOfAugust2025)).toBe(5);
+
+    firstDayOfWeek.set(1);
+
+    expect(host.rowRender().getFirstDayOfWeekOffset(firstOfAugust2025)).toBe(4);
+
+    firstDayOfWeek.set(2);
+    expect(host.rowRender().getFirstDayOfWeekOffset(firstOfAugust2025)).toBe(3);
+
+    firstDayOfWeek.set(3);
+    expect(host.rowRender().getFirstDayOfWeekOffset(firstOfAugust2025)).toBe(2);
+
+    firstDayOfWeek.set(4);
+    expect(host.rowRender().getFirstDayOfWeekOffset(firstOfAugust2025)).toBe(1);
+
+    firstDayOfWeek.set(5);
+    expect(host.rowRender().getFirstDayOfWeekOffset(firstOfAugust2025)).toBe(0);
+
+    firstDayOfWeek.set(6);
+    expect(host.rowRender().getFirstDayOfWeekOffset(firstOfAugust2025)).toBe(6);
+  });
+
+  it('should calculate the days and first week', () => {
+    expect(host.rowRender()['weeks']()).toEqual(
+      expect.arrayContaining([
+        [
+          new Date(2025, 6, 27),
+          new Date(2025, 6, 28),
+          new Date(2025, 6, 29),
+          new Date(2025, 6, 30),
+          new Date(2025, 6, 31),
+          new Date(2025, 7, 1),
+          new Date(2025, 7, 2),
+        ],
+      ]),
+    );
+  });
+
+  it('should calculate the days and first week with the first day of the week offset', () => {
+    const firstDayOfWeek = TestBed.runInInjectionContext(
+      () => injectDateControllerState()().firstDayOfWeek,
+    );
+
+    firstDayOfWeek.set(1);
+    expect(host.rowRender()['weeks']()).toEqual(
+      expect.arrayContaining([
+        [
+          new Date(2025, 6, 28),
+          new Date(2025, 6, 29),
+          new Date(2025, 6, 30),
+          new Date(2025, 6, 31),
+          new Date(2025, 7, 1),
+          new Date(2025, 7, 2),
+          new Date(2025, 7, 3),
+        ],
+      ]),
+    );
+  });
+});
+
+@Component({
+  template: `
+    <div *ngpDatePickerRowRender></div>
+  `,
+  imports: [NgpDatePickerRowRender],
+})
+class TestHost {
+  public rowRender = viewChild.required<NgpDatePickerRowRender<Date>>(NgpDatePickerRowRender);
+}
+
+/** Provide a partial mock date picker state. */
+function provideMockDatePickerState(
+  date: Date,
+  firstDayOfWeek: NgpDatePickerFirstDayOfWeekNumber,
+): Provider {
+  return {
+    provide: NgpDatePickerStateToken,
+    useValue: signal({
+      focusedDate: signal(date) as unknown as InputSignal<Date>,
+      firstDayOfWeek: signal(firstDayOfWeek) as unknown as InputSignalWithTransform<
+        NgpDatePickerFirstDayOfWeekNumber,
+        NgpDatePickerFirstDayOfWeekNumberInput
+      >,
+    } satisfies Partial<NgpDatePicker<Date>>),
+  };
+}

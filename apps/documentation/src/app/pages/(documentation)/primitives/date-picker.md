@@ -239,3 +239,40 @@ Adheres to the [WAI-ARIA design pattern](https://www.w3.org/WAI/ARIA/apg/pattern
 - <kbd>End</kbd> - Moves focus to the last day of the month.
 - <kbd>PageUp</kbd> - Moves focus to the same date in the previous month.
 - <kbd>PageDown</kbd> - Moves focus to the same date in the next month.
+
+## Global Configuration
+
+You can configure the default options for all `NgpDatePicker` and `NgpDateRangePicker` calendars in your application by using the `provideDatePickerConfig` function in a providers array.
+
+```ts
+import { provideDatePickerConfig } from 'ng-primitives/date-picker';
+
+bootstrapApplication(AppComponent, {
+  providers: [
+    provideDatePickerConfig({
+      firstDayOfWeek: 1, // Monday
+    }),
+  ],
+});
+```
+
+### NgpDatePickerConfig
+
+<prop-details name="firstDayOfWeek" type="NgpDatePickerFirstDayOfWeekNumber (1-7)">
+  Sets which day starts the week in date picker and date range picker calendars.
+  Accepts <code>1-7</code> where:
+  <ul>
+    <li><code>1</code>=Monday,</li>
+    <li><code>2</code>=Tuesday,</li>
+    <li><code>3</code>=Wednesday,</li>
+    <li><code>4</code>=Thursday,</li>
+    <li><code>5</code>=Friday,</li>
+    <li><code>6</code>=Saturday,</li>
+    <li><code>7</code>=Sunday (<code>default</code>).</li>
+  </ul>
+  Choose based on your users' cultural expectations - most international
+  applications use <code>1</code> (Monday), while US applications typically use
+  <code>7</code> (Sunday).
+  <br />
+  Note: When using a non-Sunday start day, update your calendar header column order accordingly.
+</prop-details>

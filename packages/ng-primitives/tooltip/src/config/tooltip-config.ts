@@ -43,6 +43,12 @@ export interface NgpTooltipConfig {
    * @default false
    */
   showOnOverflow: boolean;
+
+  /**
+   * Whether to use the text content of the trigger element as the tooltip content.
+   * @default true
+   */
+  useTextContent: boolean;
 }
 
 export const defaultTooltipConfig: NgpTooltipConfig = {
@@ -53,6 +59,7 @@ export const defaultTooltipConfig: NgpTooltipConfig = {
   flip: true,
   container: null,
   showOnOverflow: false,
+  useTextContent: true,
 };
 
 export const NgpTooltipConfigToken = new InjectionToken<NgpTooltipConfig>('NgpTooltipConfigToken');
