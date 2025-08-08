@@ -1,6 +1,5 @@
-import { isPlatformBrowser } from '@angular/common';
-import { afterRenderEffect, computed, Directive, inject, input, PLATFORM_ID } from '@angular/core';
-import { fromMutationObserver, fromResizeEvent, injectElementRef } from 'ng-primitives/internal';
+import { afterRenderEffect, computed, Directive, input } from '@angular/core';
+import { fromMutationObserver, injectDimensions, injectElementRef } from 'ng-primitives/internal';
 import { safeTakeUntilDestroyed, uniqueId } from 'ng-primitives/utils';
 import { debounceTime } from 'rxjs';
 import { injectAccordionItemState } from '../accordion-item/accordion-item-state';
@@ -21,6 +20,7 @@ import { injectAccordionState } from '../accordion/accordion-state';
     '[attr.data-closed]': 'accordionItem().open() ? null : ""',
     '[attr.aria-labelledby]': 'accordionItem().triggerId()',
     '(beforematch)': 'onBeforeMatch()',
+    '[attr.hidden]': 'hidden()',
   },
 })
 export class NgpAccordionContent<T> {
@@ -45,9 +45,16 @@ export class NgpAccordionContent<T> {
   readonly id = input<string>(uniqueId('ngp-accordion-content'));
 
   /**
-   * The platform id
+   * The dimensions of the content
    */
-  private readonly platformId = inject(PLATFORM_ID);
+  private dimensions = injectDimensions();
+
+  /**
+   * The hidden until-found state of the content
+   */
+  protected readonly hidden = computed(() =>
+    !this.accordionItem().open() && this.dimensions().height === 0 ? 'until-found' : null,
+  );
 
   constructor() {
     this.accordionItem().content.set(this);
@@ -63,30 +70,6 @@ export class NgpAccordionContent<T> {
     })
       .pipe(debounceTime(0), safeTakeUntilDestroyed())
       .subscribe(() => this.updateDimensions());
-
-    // height observer for compatibility with beforematch event
-    fromResizeEvent(this.elementRef.nativeElement)
-      .pipe(safeTakeUntilDestroyed())
-      .subscribe(({ height }) => {
-        if (this.supportsBeforeMatch()) {
-          if (!this.accordionItem().open() && height === 0) {
-            this.elementRef.nativeElement.setAttribute('hidden', 'until-found');
-          }
-        }
-      });
-
-    /**
-     * Compatibility with older browsers that do not support the beforematch event
-     */
-    afterRenderEffect({
-      write: () => {
-        if (!this.supportsBeforeMatch()) return;
-        // Only remove hidden immediately when opening
-        if (this.accordionItem().open()) {
-          this.elementRef.nativeElement.removeAttribute('hidden');
-        }
-      },
-    });
   }
 
   /**
@@ -95,9 +78,7 @@ export class NgpAccordionContent<T> {
    */
   onBeforeMatch(): void {
     const isDisabled = this.accordion().disabled() || this.accordionItem().disabled();
-    if (!this.supportsBeforeMatch() || isDisabled) {
-      return;
-    }
+    if (isDisabled) return;
     this.accordion().toggle(this.accordionItem().value() as T);
   }
 
@@ -116,13 +97,5 @@ export class NgpAccordionContent<T> {
         `${this.elementRef.nativeElement.scrollHeight}px`,
       );
     }
-  }
-
-  private supportsBeforeMatch() {
-    if (!isPlatformBrowser(this.platformId)) {
-      return false;
-    }
-    // Check if the beforematch event is supported
-    return typeof HTMLElement !== 'undefined' && 'onbeforematch' in HTMLElement.prototype;
   }
 }
