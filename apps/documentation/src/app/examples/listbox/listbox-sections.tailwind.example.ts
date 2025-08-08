@@ -17,7 +17,7 @@ import { NgpListbox, NgpListboxOption, NgpListboxSection } from 'ng-primitives/l
     >
       @for (section of sections; track section.name) {
         <header
-          class="flex h-8 px-3 py-1 text-sm font-semibold text-gray-600 dark:text-zinc-300"
+          class="flex h-8 px-3 py-1 text-sm font-semibold leading-6 text-gray-600 dark:text-zinc-300"
           ngpHeader
         >
           {{ section.name }}
