@@ -4,7 +4,6 @@ import { NgpMenu, NgpMenuItem, NgpMenuTrigger } from 'ng-primitives/menu';
 
 @Component({
   selector: 'app-menu-tailwind',
-  standalone: true,
   imports: [NgpButton, NgpMenu, NgpMenuTrigger, NgpMenuItem],
   template: `
     <button

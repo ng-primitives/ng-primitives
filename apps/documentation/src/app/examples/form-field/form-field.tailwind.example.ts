@@ -10,7 +10,6 @@ import {
 
 @Component({
   selector: 'app-form-field-tailwind',
-  standalone: true,
   imports: [NgpFormField, NgpLabel, NgpError, NgpDescription, NgpFormControl, ReactiveFormsModule],
   template: `
     <div class="flex w-[90%] flex-col gap-1.5" [formGroup]="formGroup" ngpFormField>

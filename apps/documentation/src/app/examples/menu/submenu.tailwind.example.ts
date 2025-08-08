@@ -6,7 +6,6 @@ import { NgpMenu, NgpMenuItem, NgpMenuTrigger, NgpSubmenuTrigger } from 'ng-prim
 
 @Component({
   selector: 'app-menu-submenu-tailwind',
-  standalone: true,
   imports: [NgpButton, NgpMenu, NgpMenuTrigger, NgpMenuItem, NgpSubmenuTrigger, NgIcon],
   providers: [provideIcons({ heroChevronRightMini })],
   template: `
