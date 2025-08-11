@@ -12,8 +12,8 @@ import {
 } from '@angular/core';
 import type { Placement } from '@floating-ui/dom';
 import { activeDescendantManager } from 'ng-primitives/a11y';
-import { injectElementRef, setupInteractions } from 'ng-primitives/internal';
 import { setupFormControl } from 'ng-primitives/form-field';
+import { injectElementRef, setupInteractions } from 'ng-primitives/internal';
 import { uniqueId } from 'ng-primitives/utils';
 import { injectSelectConfig } from '../config/select-config';
 import type { NgpSelectButton } from '../select-button/select-button';
