@@ -1,3 +1,24 @@
+## 0.72.0 (2025-08-11)
+
+### 🚀 Features
+
+- add tailwind for listbox ([#408](https://github.com/ng-primitives/ng-primitives/pull/408))
+- **accordion:** add hidden until found support in accordion content ([#402](https://github.com/ng-primitives/ng-primitives/pull/402))
+- **toast:** remove width config ([#406](https://github.com/ng-primitives/ng-primitives/pull/406))
+
+### 🩹 Fixes
+
+- **favicon:** use svg as type ([#414](https://github.com/ng-primitives/ng-primitives/pull/414))
+- **tooltip:** ensure overlays are hidden when an element is hidden ([#415](https://github.com/ng-primitives/ng-primitives/pull/415))
+
+### ❤️ Thank You
+
+- Ashley Hunter
+- Eugene Rusakov @eurusik
+- kedevked @kedevked
+- Marc Stammerjohann @marcjulian
+- Ramon Martinez @RaimonxDev
+
 ## 0.71.0 (2025-08-07)
 
 ### 🚀 Features
