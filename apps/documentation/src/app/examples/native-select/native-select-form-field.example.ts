@@ -1,18 +1,45 @@
 import { Component } from '@angular/core';
-import { NgpSelect } from 'ng-primitives/select';
+import { NgpDescription, NgpFormField, NgpLabel } from 'ng-primitives/form-field';
+import { NgpNativeSelect } from 'ng-primitives/select';
 
 @Component({
-  selector: 'app-select',
-  imports: [NgpSelect],
+  selector: 'app-native-select-form-field',
+  imports: [NgpNativeSelect, NgpFormField, NgpLabel, NgpDescription],
   template: `
-    <select ngpSelect>
-      <option value="24">24 hours</option>
-      <option value="12">12 hours</option>
-    </select>
+    <div ngpFormField>
+      <label ngpLabel>Time Format</label>
+      <p ngpDescription>Choose between 12-hour and 24-hour time formats.</p>
+      <select ngpNativeSelect>
+        <option value="24">24 hours</option>
+        <option value="12">12 hours</option>
+      </select>
+    </div>
   `,
   styles: `
     :host {
       display: contents;
+    }
+
+    [ngpFormField] {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      width: 90%;
+    }
+
+    [ngpLabel] {
+      color: var(--ngp-text-primary);
+      font-size: 0.875rem;
+      line-height: 1.25rem;
+      font-weight: 500;
+      margin: 0;
+    }
+
+    [ngpDescription] {
+      color: var(--ngp-text-secondary);
+      font-size: 0.75rem;
+      line-height: 1rem;
+      margin: 0 0 4px;
     }
 
     select {
@@ -49,4 +76,4 @@ import { NgpSelect } from 'ng-primitives/select';
     }
   `,
 })
-export default class SelectExample {}
+export default class NativeSelectFormFieldExample {}

@@ -1,48 +1,14 @@
 import { Component } from '@angular/core';
-import { NgpDescription, NgpFormField, NgpLabel } from 'ng-primitives/form-field';
-import { NgpSelect } from 'ng-primitives/select';
+import { NgpNativeSelect } from 'ng-primitives/select';
 
 @Component({
-  selector: 'app-select-form-field',
-  imports: [NgpSelect, NgpFormField, NgpLabel, NgpDescription],
+  selector: 'select[app-select]',
+  hostDirectives: [{ directive: NgpNativeSelect, inputs: ['ngpNativeSelectDisabled:disabled'] }],
   template: `
-    <div ngpFormField>
-      <label ngpLabel>Time Format</label>
-      <p ngpDescription>Choose between 12-hour and 24-hour time formats.</p>
-      <select ngpSelect>
-        <option value="24">24 hours</option>
-        <option value="12">12 hours</option>
-      </select>
-    </div>
+    <ng-content />
   `,
   styles: `
     :host {
-      display: contents;
-    }
-
-    [ngpFormField] {
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-      width: 90%;
-    }
-
-    [ngpLabel] {
-      color: var(--ngp-text-primary);
-      font-size: 0.875rem;
-      line-height: 1.25rem;
-      font-weight: 500;
-      margin: 0;
-    }
-
-    [ngpDescription] {
-      color: var(--ngp-text-secondary);
-      font-size: 0.75rem;
-      line-height: 1rem;
-      margin: 0 0 4px;
-    }
-
-    select {
       all: unset;
       appearance: none;
       display: flex;
@@ -62,18 +28,18 @@ import { NgpSelect } from 'ng-primitives/select';
       background-repeat: no-repeat;
     }
 
-    select[data-hover] {
+    :host[data-hover] {
       background-color: var(--ngp-background-hover);
     }
 
-    select[data-focus-visible] {
+    :host[data-focus-visible] {
       outline: 2px solid var(--ngp-focus-ring);
       outline-offset: 0;
     }
 
-    select[data-press] {
+    :host[data-press] {
       background-color: var(--ngp-background-active);
     }
   `,
 })
-export default class SelectFormFieldExample {}
+export class NativeSelect {}

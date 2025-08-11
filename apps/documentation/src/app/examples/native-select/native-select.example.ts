@@ -1,14 +1,21 @@
 import { Component } from '@angular/core';
-import { NgpSelect } from 'ng-primitives/select';
+import { NgpNativeSelect } from 'ng-primitives/select';
 
 @Component({
-  selector: 'select[app-select]',
-  hostDirectives: [{ directive: NgpSelect, inputs: ['ngpSelectDisabled:disabled'] }],
+  selector: 'app-native-select',
+  imports: [NgpNativeSelect],
   template: `
-    <ng-content />
+    <select ngpNativeSelect>
+      <option value="24">24 hours</option>
+      <option value="12">12 hours</option>
+    </select>
   `,
   styles: `
     :host {
+      display: contents;
+    }
+
+    select {
       all: unset;
       appearance: none;
       display: flex;
@@ -28,18 +35,18 @@ import { NgpSelect } from 'ng-primitives/select';
       background-repeat: no-repeat;
     }
 
-    :host[data-hover] {
+    select[data-hover] {
       background-color: var(--ngp-background-hover);
     }
 
-    :host[data-focus-visible] {
+    select[data-focus-visible] {
       outline: 2px solid var(--ngp-focus-ring);
       outline-offset: 0;
     }
 
-    :host[data-press] {
+    select[data-press] {
       background-color: var(--ngp-background-active);
     }
   `,
 })
-export class Select {}
+export default class NativeSelectExample {}

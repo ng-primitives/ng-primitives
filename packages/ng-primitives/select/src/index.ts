@@ -1,2 +1,5 @@
-export { NgpSelect } from './select/select';
-export { injectSelectState, provideSelectState } from './select/select-state';
+export { NgpNativeSelect } from './native-select/native-select';
+export {
+  injectNativeSelectState,
+  provideNativeSelectState,
+} from './native-select/native-select-state';

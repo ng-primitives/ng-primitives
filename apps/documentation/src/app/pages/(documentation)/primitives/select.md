@@ -6,14 +6,14 @@ name: 'Select'
 
 A select is a form control that allows users to select options from a list. This primitive enhances the native select element with improved accessibility and interaction handling for hover and focus.
 
-<docs-example name="select"></docs-example>
+<docs-example name="native-select"></docs-example>
 
 ## Import
 
 Import the Select primitives from `ng-primitives/select`.
 
 ```ts
-import { NgpSelect } from 'ng-primitives/select';
+import { NgpNativeSelect } from 'ng-primitives/select';
 ```
 
 ## Usage
@@ -21,7 +21,7 @@ import { NgpSelect } from 'ng-primitives/select';
 Assemble the select directives in your template.
 
 ```html
-<select ngpSelect>
+<select ngpNativeSelect>
   <option value="24">24 hours</option>
   <option value="12">12 hours</option>
 </select>
@@ -29,16 +29,16 @@ Assemble the select directives in your template.
 
 ## Reusable Component
 
-Create a reusable component that uses the `NgpSelect` directive.
+Create a reusable component that uses the `NgpNativeSelect` directive.
 
-<docs-snippet name="select"></docs-snippet>
+<docs-snippet name="native-select"></docs-snippet>
 
 ## Schematics
 
 Generate a reusable select component using the Angular CLI.
 
 ```bash npm
-ng g ng-primitives:primitive select
+ng g ng-primitives:primitive native-select
 ```
 
 ### Options
@@ -53,19 +53,19 @@ ng g ng-primitives:primitive select
 
 Here are some additional examples of how to use the Select primitives.
 
-### Select Form Field
+### Native Select Form Field
 
 The select automatically integrates with the form field primitives.
 
-<docs-example name="select-form-field"></docs-example>
+<docs-example name="native-select-form-field"></docs-example>
 
 ## API Reference
 
 The following directives are available to import from the `ng-primitives/select` package:
 
-### NgpSelect
+### NgpNativeSelect
 
-<api-docs name="NgpSelect"></api-docs>
+<api-docs name="NgpNativeSelect"></api-docs>
 
 #### Data Attributes
 

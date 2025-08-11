@@ -1,9 +1,9 @@
 import { Component } from '@angular/core';
-import { Select } from './select';
+import { NativeSelect } from './native-select';
 
 @Component({
   selector: 'app-select-example',
-  imports: [Select],
+  imports: [NativeSelect],
   template: `
     <select app-select>
       <option value="1">Option 1</option>
