@@ -1,5 +1,5 @@
 import { afterRenderEffect, computed, Directive, input } from '@angular/core';
-import { fromMutationObserver, injectElementRef } from 'ng-primitives/internal';
+import { fromMutationObserver, injectDimensions, injectElementRef } from 'ng-primitives/internal';
 import { safeTakeUntilDestroyed, uniqueId } from 'ng-primitives/utils';
 import { debounceTime } from 'rxjs';
 import { injectAccordionItemState } from '../accordion-item/accordion-item-state';
@@ -19,6 +19,8 @@ import { injectAccordionState } from '../accordion/accordion-state';
     '[attr.data-open]': 'accordionItem().open() ? "" : null',
     '[attr.data-closed]': 'accordionItem().open() ? null : ""',
     '[attr.aria-labelledby]': 'accordionItem().triggerId()',
+    '(beforematch)': 'onBeforeMatch()',
+    '[attr.hidden]': 'hidden()',
   },
 })
 export class NgpAccordionContent<T> {
@@ -42,6 +44,18 @@ export class NgpAccordionContent<T> {
    */
   readonly id = input<string>(uniqueId('ngp-accordion-content'));
 
+  /**
+   * The dimensions of the content
+   */
+  private dimensions = injectDimensions();
+
+  /**
+   * The hidden until-found state of the content
+   */
+  protected readonly hidden = computed(() =>
+    !this.accordionItem().open() && this.dimensions().height === 0 ? 'until-found' : null,
+  );
+
   constructor() {
     this.accordionItem().content.set(this);
 
@@ -56,6 +70,16 @@ export class NgpAccordionContent<T> {
     })
       .pipe(debounceTime(0), safeTakeUntilDestroyed())
       .subscribe(() => this.updateDimensions());
+  }
+
+  /**
+   * Handle the beforematch event to automatically open the accordion item
+   * when the browser's find-in-page functionality tries to reveal hidden content.
+   */
+  onBeforeMatch(): void {
+    const isDisabled = this.accordion().disabled() || this.accordionItem().disabled();
+    if (isDisabled) return;
+    this.accordion().toggle(this.accordionItem().value() as T);
   }
 
   private updateDimensions(): void {

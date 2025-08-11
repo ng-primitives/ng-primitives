@@ -170,3 +170,9 @@ Adheres to the [Accordion WAI-ARIA design pattern](https://www.w3.org/WAI/ARIA/a
 
 - <kbd>Space</kbd> - Toggle the expanded state of the accordion item when the trigger is focused.
 - <kbd>Enter</kbd> - Toggle the expanded state of the accordion item when the trigger is focused.
+
+### Hidden Until Found
+
+The `ngpAccordionContent` primitive uses the `until-found` attribute to allow the browser to search text within the hidden region and reveal the section if a match is found. If the browser does not support this functionality, the attribute is ignored.
+
+More information about the `until-found` attribute can be found on [Can I use](https://caniuse.com/?search=hidden%20until-found).
