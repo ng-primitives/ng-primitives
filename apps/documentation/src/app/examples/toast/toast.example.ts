@@ -67,7 +67,7 @@ import { NgpToast, NgpToastManager } from 'ng-primitives/toast';
       grid-template-rows: min-content min-content;
       column-gap: 12px;
       align-items: center;
-      width: var(--ngp-toast-width);
+      width: 350px;
       height: fit-content;
       transform: var(--y);
     }
