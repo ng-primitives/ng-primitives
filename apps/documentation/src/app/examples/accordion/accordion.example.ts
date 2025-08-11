@@ -40,6 +40,11 @@ import { NgpButton } from 'ng-primitives/button';
       border-bottom: 1px solid var(--ngp-border);
     }
 
+    /* Reset default heading margins inside accordion items to avoid layout shifts */
+    [ngpAccordionItem] h3 {
+      margin: 0;
+    }
+
     [ngpAccordionTrigger] {
       display: flex;
       padding-left: 1rem;
@@ -110,11 +115,13 @@ import { NgpButton } from 'ng-primitives/button';
   template: `
     <div ngpAccordion ngpAccordionType="single" ngpAccordionCollapsible>
       <div #panel1="ngpAccordionItem" ngpAccordionItem ngpAccordionItemValue="item-1">
-        <button ngpAccordionTrigger ngpButton>
-          Would you like to learn more?
+        <h3>
+          <button ngpAccordionTrigger ngpButton>
+            Would you like to learn more?
 
-          <ng-icon [attr.data-open]="panel1.open()" name="heroChevronDownMini" />
-        </button>
+            <ng-icon [attr.data-open]="panel1.open()" name="heroChevronDownMini" />
+          </button>
+        </h3>
         <div ngpAccordionContent>
           <div class="accordion-content">
             If you would like to learn more please reach out to us on GitHub.
@@ -123,11 +130,13 @@ import { NgpButton } from 'ng-primitives/button';
       </div>
 
       <div #panel2="ngpAccordionItem" ngpAccordionItem ngpAccordionItemValue="item-2">
-        <button ngpAccordionTrigger ngpButton>
-          Can I use this in my project?
+        <h3>
+          <button ngpAccordionTrigger ngpButton>
+            Can I use this in my project?
 
-          <ng-icon [attr.data-open]="panel2.open()" name="heroChevronDownMini" />
-        </button>
+            <ng-icon [attr.data-open]="panel2.open()" name="heroChevronDownMini" />
+          </button>
+        </h3>
         <div ngpAccordionContent>
           <div class="accordion-content">
             Yes, this is open source and you can use it in your project.
