@@ -76,7 +76,7 @@ export class NgpAccordionContent<T> {
    * Handle the beforematch event to automatically open the accordion item
    * when the browser's find-in-page functionality tries to reveal hidden content.
    */
-  onBeforeMatch(): void {
+  protected onBeforeMatch(): void {
     const isDisabled = this.accordion().disabled() || this.accordionItem().disabled();
     if (isDisabled) return;
     this.accordion().toggle(this.accordionItem().value() as T);
