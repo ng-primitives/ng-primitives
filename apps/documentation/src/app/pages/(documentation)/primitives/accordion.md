@@ -31,18 +31,14 @@ Assemble the accordion directives in your template.
     <h3>
       <button ngpAccordionTrigger ngpButton>Would you like to learn more?</button>
     </h3>
-    <div ngpAccordionContent>
-      If you would like to learn more please reach out to us on GitHub.
-    </div>
+    <div ngpAccordionContent>If you would like to learn more please reach out to us on GitHub.</div>
   </div>
 
   <div ngpAccordionItem ngpAccordionItemValue="item-2">
     <h3>
       <button ngpAccordionTrigger ngpButton>Can I use this in my project?</button>
     </h3>
-    <div ngpAccordionContent>
-      Yes, this is open source and you can use it in your project.
-    </div>
+    <div ngpAccordionContent>Yes, this is open source and you can use it in your project.</div>
   </div>
 </div>
 ```
