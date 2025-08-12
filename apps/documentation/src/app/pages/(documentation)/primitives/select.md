@@ -6,7 +6,7 @@ name: 'Select'
 
 A select is a form control that allows users to select options from a list. This primitive enhances the native select element with improved accessibility and interaction handling for hover and focus.
 
-<docs-example name="native-select"></docs-example>
+<docs-example name="select"></docs-example>
 
 ## Import
 
@@ -52,6 +52,12 @@ ng g ng-primitives:primitive native-select
 ## Examples
 
 Here are some additional examples of how to use the Select primitives.
+
+### Native Select
+
+The native select is a simple wrapper around the native `<select>` element.
+
+<docs-example name="native-select"></docs-example>
 
 ### Native Select Form Field
 

@@ -13,7 +13,6 @@ import { injectSelectState } from '../select/select-state';
     '[style.top.px]': 'state().overlay()?.position()?.y',
     '[style.--ngp-select-transform-origin]': 'state().overlay()?.transformOrigin()',
     '[style.--ngp-select-width.px]': 'selectDimensions().width',
-    '[style.--ngp-select-button-width.px]': 'buttonDimensions().width',
   },
 })
 export class NgpSelectDropdown {
@@ -22,11 +21,6 @@ export class NgpSelectDropdown {
 
   /** The dimensions of the select. */
   protected readonly selectDimensions = observeResize(() => this.state().elementRef.nativeElement);
-
-  /** Store the select button dimensions. */
-  protected readonly buttonDimensions = observeResize(
-    () => this.state().button()?.elementRef.nativeElement,
-  );
 
   /**
    * Access the element reference.

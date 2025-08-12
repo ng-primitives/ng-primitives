@@ -4,6 +4,7 @@ import {
   booleanAttribute,
   computed,
   Directive,
+  HostListener,
   inject,
   Injector,
   input,
@@ -16,7 +17,6 @@ import { setupFormControl } from 'ng-primitives/form-field';
 import { injectElementRef, setupInteractions } from 'ng-primitives/internal';
 import { uniqueId } from 'ng-primitives/utils';
 import { injectSelectConfig } from '../config/select-config';
-import type { NgpSelectButton } from '../select-button/select-button';
 import type { NgpSelectDropdown } from '../select-dropdown/select-dropdown';
 import { NgpSelectOption } from '../select-option/select-option';
 import type { NgpSelectPortal } from '../select-portal/select-portal';
@@ -41,6 +41,13 @@ type T = any;
   exportAs: 'ngpSelect',
   providers: [provideSelectState()],
   host: {
+    role: 'combobox',
+    '[id]': 'state.id()',
+    '[attr.aria-expanded]': 'state.open()',
+    '[attr.aria-controls]': 'state.open() ? state.dropdown()?.id() : undefined',
+    '[attr.aria-activedescendant]':
+      'state.open() ? activeDescendantManager.activeDescendant() : undefined',
+    '[attr.tabindex]': 'state.disabled() ? -1 : 0',
     '[attr.data-open]': 'state.open() ? "" : undefined',
     '[attr.data-disabled]': 'state.disabled() ? "" : undefined',
     '[attr.data-multiple]': 'state.multiple() ? "" : undefined',
@@ -100,12 +107,6 @@ export class NgpSelect {
   readonly container = input<HTMLElement | null>(this.config.container, {
     alias: 'ngpSelectDropdownContainer',
   });
-
-  /**
-   * Store the select button.
-   * @internal
-   */
-  readonly button = signal<NgpSelectButton | undefined>(undefined);
 
   /**
    * Store the select portal.
@@ -225,6 +226,7 @@ export class NgpSelect {
    * Toggle the dropdown.
    * @internal
    */
+  @HostListener('click')
   async toggleDropdown(): Promise<void> {
     if (this.open()) {
       this.closeDropdown();
@@ -255,7 +257,7 @@ export class NgpSelect {
         return;
       }
 
-      const value = [...(this.state.value() as T[]), option.value() as T];
+      const value = [...((this.state.value() ?? []) as T[]), option.value() as T];
 
       // add the option to the value
       this.state.value.set(value as T);
@@ -405,15 +407,6 @@ export class NgpSelect {
   }
 
   /**
-   * Register the select button with the select.
-   * @param button The select button.
-   * @internal
-   */
-  registerButton(button: NgpSelectButton): void {
-    this.button.set(button);
-  }
-
-  /**
    * Register the dropdown with the select.
    * @param dropdown The dropdown to register.
    * @internal
@@ -446,5 +439,66 @@ export class NgpSelect {
    */
   focus(): void {
     this.elementRef.nativeElement.focus();
+  }
+
+  /** Handle keydown events for accessibility. */
+  @HostListener('keydown', ['$event'])
+  protected handleKeydown(event: KeyboardEvent): void {
+    switch (event.key) {
+      case 'ArrowDown':
+        if (this.open()) {
+          this.activateNextOption();
+        } else {
+          this.openDropdown();
+        }
+        event.preventDefault();
+        break;
+      case 'ArrowUp':
+        if (this.open()) {
+          this.activatePreviousOption();
+        } else {
+          this.openDropdown();
+          this.activeDescendantManager.last();
+        }
+        event.preventDefault();
+        break;
+      case 'Home':
+        if (this.open()) {
+          this.activeDescendantManager.first();
+        }
+        event.preventDefault();
+        break;
+      case 'End':
+        if (this.open()) {
+          this.activeDescendantManager.last();
+        }
+        event.preventDefault();
+        break;
+      case 'Enter':
+        if (this.open()) {
+          this.selectOption(this.activeDescendantManager.activeItem());
+        } else {
+          this.openDropdown();
+        }
+        event.preventDefault();
+        break;
+      case ' ':
+        this.toggleDropdown();
+        event.preventDefault();
+        break;
+    }
+  }
+
+  @HostListener('blur', ['$event'])
+  protected onBlur(event: FocusEvent): void {
+    const relatedTarget = event.relatedTarget as HTMLElement;
+
+    // if the blur was caused by focus moving to the dropdown, don't close
+    if (relatedTarget && this.dropdown()?.elementRef.nativeElement.contains(relatedTarget)) {
+      return;
+    }
+
+    this.closeDropdown();
+    event.preventDefault();
   }
 }
