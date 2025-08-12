@@ -28,12 +28,16 @@ Assemble the accordion directives in your template.
 ```html
 <div ngpAccordion ngpAccordionType="single" ngpAccordionCollapsible>
   <div ngpAccordionItem ngpAccordionItemValue="item-1">
-    <button ngpAccordionTrigger ngpButton>Would you like to learn more?</button>
+    <h3>
+      <button ngpAccordionTrigger ngpButton>Would you like to learn more?</button>
+    </h3>
     <div ngpAccordionContent>If you would like to learn more please reach out to us on GitHub.</div>
   </div>
 
   <div ngpAccordionItem ngpAccordionItemValue="item-2">
-    <button ngpAccordionTrigger ngpButton>Can I use this in my project?</button>
+    <h3>
+      <button ngpAccordionTrigger ngpButton>Can I use this in my project?</button>
+    </h3>
     <div ngpAccordionContent>Yes, this is open source and you can use it in your project.</div>
   </div>
 </div>
@@ -165,6 +169,8 @@ bootstrapApplication(AppComponent, {
 ## Accessibility
 
 Adheres to the [Accordion WAI-ARIA design pattern](https://www.w3.org/WAI/ARIA/apg/patterns/accordion).
+
+Tip: Per APG, wrap each trigger button in a heading element (e.g., `h3`) or an element with `role="heading"` and an appropriate `aria-level`. Ensure the button is the only child of the heading.
 
 ### Keyboard Interactions
 

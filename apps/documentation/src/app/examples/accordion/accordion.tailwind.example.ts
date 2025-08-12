@@ -53,18 +53,20 @@ import { NgpButton } from 'ng-primitives/button';
       ngpAccordionCollapsible
     >
       <div #panel1="ngpAccordionItem" ngpAccordionItem ngpAccordionItemValue="item-1">
-        <button
-          class="flex h-11 w-full items-center justify-between rounded-xl bg-white px-4 text-sm font-medium text-gray-900 outline-none data-[focus-visible]:ring-2 data-[focus-visible]:ring-blue-500 dark:bg-black dark:text-gray-100"
-          ngpAccordionTrigger
-          ngpButton
-        >
-          Would you like to learn more?
-          <ng-icon
-            class="text-xl text-gray-500 transition-transform duration-200 ease-in-out data-[open=true]:rotate-180 dark:text-gray-400"
-            [attr.data-open]="panel1.open()"
-            name="heroChevronDownMini"
-          />
-        </button>
+        <h3 class="m-0">
+          <button
+            class="flex h-11 w-full items-center justify-between rounded-xl bg-white px-4 text-sm font-medium text-gray-900 outline-none data-[focus-visible]:ring-2 data-[focus-visible]:ring-blue-500 dark:bg-black dark:text-gray-100"
+            ngpAccordionTrigger
+            ngpButton
+          >
+            Would you like to learn more?
+            <ng-icon
+              class="text-xl text-gray-500 transition-transform duration-200 ease-in-out data-[open=true]:rotate-180 dark:text-gray-400"
+              [attr.data-open]="panel1.open()"
+              name="heroChevronDownMini"
+            />
+          </button>
+        </h3>
         <div
           class="overflow-hidden text-sm text-gray-500 data-[closed]:animate-[slideUp] data-[open]:animate-[slideDown] dark:text-gray-400"
           ngpAccordionContent
@@ -76,18 +78,20 @@ import { NgpButton } from 'ng-primitives/button';
       </div>
 
       <div #panel2="ngpAccordionItem" ngpAccordionItem ngpAccordionItemValue="item-2">
-        <button
-          class="flex h-11 w-full items-center justify-between rounded-xl bg-white px-4 text-sm font-medium text-gray-900 outline-none data-[focus-visible]:ring-2 data-[focus-visible]:ring-blue-500 dark:bg-black dark:text-gray-100"
-          ngpAccordionTrigger
-          ngpButton
-        >
-          Can I use this in my project?
-          <ng-icon
-            class="text-xl text-gray-500 transition-transform duration-200 ease-in-out data-[open=true]:rotate-180 dark:text-gray-400"
-            [attr.data-open]="panel2.open()"
-            name="heroChevronDownMini"
-          />
-        </button>
+        <h3 class="m-0">
+          <button
+            class="flex h-11 w-full items-center justify-between rounded-xl bg-white px-4 text-sm font-medium text-gray-900 outline-none data-[focus-visible]:ring-2 data-[focus-visible]:ring-blue-500 dark:bg-black dark:text-gray-100"
+            ngpAccordionTrigger
+            ngpButton
+          >
+            Can I use this in my project?
+            <ng-icon
+              class="text-xl text-gray-500 transition-transform duration-200 ease-in-out data-[open=true]:rotate-180 dark:text-gray-400"
+              [attr.data-open]="panel2.open()"
+              name="heroChevronDownMini"
+            />
+          </button>
+        </h3>
         <div
           class="overflow-hidden text-sm text-gray-500 data-[closed]:animate-[slideUp] data-[open]:animate-[slideDown] dark:text-gray-400"
           ngpAccordionContent
