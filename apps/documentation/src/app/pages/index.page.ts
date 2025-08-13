@@ -210,7 +210,9 @@ export class DocsNavbar implements OnInit {
         <h2 class="font-jakarta mb-4 text-[40px] font-semibold leading-tight">
           Designed for Flexibility. Built for Angular.
         </h2>
-        <p class="w-full text-pretty text-base leading-relaxed text-zinc-500 lg:w-1/2">
+        <p
+          class="w-full text-pretty text-base leading-relaxed text-zinc-500 lg:w-1/2 dark:text-zinc-300"
+        >
           Angular Primitives helps you move faster by replacing traditional component libraries with
           a collection of low-level, accessible building blocks. No more fighting against
           opinionated styles or complex overrides! Style and compose your UI exactly how you want
@@ -232,7 +234,7 @@ export class DocsNavbar implements OnInit {
             <h3 class="font-jakarta text-center text-base font-semibold">
               {{ feature.title }}
             </h3>
-            <p class="text-center text-sm text-zinc-500">
+            <p class="text-center text-sm text-zinc-500 dark:text-zinc-300">
               {{ feature.description }}
             </p>
           </div>
@@ -252,7 +254,7 @@ export class DocsNavbar implements OnInit {
             Try it out
           </h2>
           <p
-            class="mb-4 w-full text-pretty text-center text-base leading-relaxed text-zinc-500 lg:w-1/2"
+            class="mb-4 w-full text-pretty text-center text-base leading-relaxed text-zinc-500 lg:w-1/2 dark:text-zinc-300"
           >
             Get started with Angular Primitives with just a single command. We provide Angular
             schematics to help you quickly add primitives to your project.
@@ -284,7 +286,9 @@ export class DocsNavbar implements OnInit {
         <h2 class="font-jakarta mb-4 text-[40px] font-semibold leading-tight">
           Loved by Angular Developers
         </h2>
-        <p class="w-full text-pretty text-base leading-relaxed text-zinc-500 lg:w-1/2">
+        <p
+          class="w-full text-pretty text-base leading-relaxed text-zinc-500 lg:w-1/2 dark:text-zinc-300"
+        >
           From solo developers to enterprise teams, Angular Primitives is accelerating UI
           development and empowering teams to build with confidence.
         </p>
@@ -297,7 +301,7 @@ export class DocsNavbar implements OnInit {
           <div
             class="flex flex-col justify-between rounded-xl bg-white p-8 shadow-sm ring-1 ring-zinc-200 dark:bg-zinc-800 dark:ring-zinc-700"
           >
-            <p class="mb-6 text-sm leading-loose text-zinc-600 dark:text-zinc-400">
+            <p class="mb-6 text-sm leading-loose text-zinc-600 dark:text-zinc-300">
               “{{ testimonial.quote }}”
             </p>
             <div class="flex items-center gap-4 pt-4">
@@ -320,26 +324,26 @@ export class DocsNavbar implements OnInit {
       <div
         class="container mx-auto flex flex-col items-center justify-between gap-y-4 px-10 py-6 md:flex-row"
       >
-        <span class="text-[13px] opacity-50">
+        <span class="text-[13px] opacity-50 dark:opacity-80">
           © {{ year }} Angular Primitives. All rights reserved.
         </span>
         <div class="flex gap-x-4">
           <a
-            class="inline-flex h-10 items-center justify-center rounded-md px-4 text-[13px] font-medium opacity-50 transition-colors hover:bg-zinc-900/10 dark:hover:bg-zinc-100/10"
+            class="inline-flex h-10 items-center justify-center rounded-md px-4 text-[13px] font-medium opacity-50 transition-colors hover:bg-zinc-900/10 dark:opacity-80 dark:hover:bg-zinc-100/10"
             target="_blank"
             href="https://github.com/sponsors/ng-primitives"
           >
             Sponsor Us
           </a>
           <a
-            class="inline-flex h-10 items-center justify-center rounded-md px-4 text-[13px] font-medium opacity-50 transition-colors hover:bg-zinc-900/10 dark:hover:bg-zinc-100/10"
+            class="inline-flex h-10 items-center justify-center rounded-md px-4 text-[13px] font-medium opacity-50 transition-colors hover:bg-zinc-900/10 dark:opacity-80 dark:hover:bg-zinc-100/10"
             target="_blank"
             href="https://discord.gg/NTdjc5r3gC"
           >
             Discord
           </a>
           <a
-            class="inline-flex h-10 items-center justify-center rounded-md px-4 text-[13px] font-medium opacity-50 transition-colors hover:bg-zinc-900/10 dark:hover:bg-zinc-100/10"
+            class="inline-flex h-10 items-center justify-center rounded-md px-4 text-[13px] font-medium opacity-50 transition-colors hover:bg-zinc-900/10 dark:opacity-80 dark:hover:bg-zinc-100/10"
             target="_blank"
             href="https://github.com/ng-primitives/ng-primitives"
           >
