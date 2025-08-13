@@ -48,10 +48,6 @@ import {
     </div>
   `,
   styles: `
-    :host {
-      display: contents;
-    }
-
     [ngpFormField] {
       display: flex;
       flex-direction: column;

@@ -4,7 +4,7 @@ name: 'Select'
 
 # Select
 
-A select is a form control that allows users to select options from a list. This primitive enhances the native select element with improved accessibility and interaction handling for hover and focus.
+A select is a form control that allows users to select options from a list.
 
 <docs-example name="select"></docs-example>
 
