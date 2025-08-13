@@ -1,3 +1,30 @@
+## 0.73.0 (2025-08-13)
+
+### 🚀 Features
+
+- add tailwind for listbox ([#408](https://github.com/ng-primitives/ng-primitives/pull/408))
+- add meter tailwind example ([#420](https://github.com/ng-primitives/ng-primitives/pull/420))
+- add popover tailwind example ([#422](https://github.com/ng-primitives/ng-primitives/pull/422))
+- add pagination tailwind example ([#421](https://github.com/ng-primitives/ng-primitives/pull/421))
+- **accordion:** add hidden until found support in accordion content ([#402](https://github.com/ng-primitives/ng-primitives/pull/402))
+- **date-picker:** refine date selection logic for the date-range-picker ([#424](https://github.com/ng-primitives/ng-primitives/pull/424), [#407](https://github.com/ng-primitives/ng-primitives/issues/407))
+- **toast:** remove width config ([#406](https://github.com/ng-primitives/ng-primitives/pull/406))
+
+### 🩹 Fixes
+
+- **accordion:** improve accordion header accessibility ([#417](https://github.com/ng-primitives/ng-primitives/pull/417))
+- **favicon:** use svg as type ([#414](https://github.com/ng-primitives/ng-primitives/pull/414))
+- **tooltip:** ensure overlays are hidden when an element is hidden ([#415](https://github.com/ng-primitives/ng-primitives/pull/415))
+
+### ❤️ Thank You
+
+- Ashley Hunter
+- Benny Böhm @bboehm86
+- Eugene Rusakov @eurusik
+- kedevked @kedevked
+- Marc Stammerjohann @marcjulian
+- Ramon Martinez @RaimonxDev
+
 ## 0.72.0 (2025-08-11)
 
 ### 🚀 Features
