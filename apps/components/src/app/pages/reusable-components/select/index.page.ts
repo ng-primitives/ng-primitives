@@ -5,10 +5,23 @@ import { Select } from './select';
   selector: 'app-select-example',
   imports: [Select],
   template: `
-    <select app-select>
-      <option value="1">Option 1</option>
-      <option value="2">Option 2</option>
-    </select>
+    <app-select [options]="options" placeholder="Select a character" />
   `,
 })
-export default class App {}
+export default class App {
+  readonly options: string[] = [
+    'Marty McFly',
+    'Doc Brown',
+    'Biff Tannen',
+    'George McFly',
+    'Jennifer Parker',
+    'Emmett Brown',
+    'Einstein',
+    'Clara Clayton',
+    'Needles',
+    'Goldie Wilson',
+    'Marvin Berry',
+    'Lorraine Baines',
+    'Strickland',
+  ];
+}

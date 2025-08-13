@@ -4,9 +4,9 @@ name: 'Listbox'
 
 # Listbox
 
-A listbox presents a set of choices and lets users select one or multiple options. It can be paired with the `NgpPopover` directive to create a dropdown listbox.
+A listbox presents a set of choices and lets users select one or multiple options.
 
-<docs-example name="listbox-select"></docs-example>
+<docs-example name="listbox"></docs-example>
 
 ## Import
 
@@ -52,12 +52,6 @@ ng g ng-primitives:primitive listbox
 
 ## Examples
 
-### Single-Select Listbox
-
-The listbox can be configured to allow a single selection.
-
-<docs-example name="listbox"></docs-example>
-
 ### Multi-Select Listbox
 
 The listbox can be configured to allow multiple selections.
@@ -69,6 +63,12 @@ The listbox can be configured to allow multiple selections.
 The listbox can be configured to have sections and headers.
 
 <docs-example name="listbox-sections"></docs-example>
+
+### Listbox with popover
+
+The listbox can be paired with the `NgpPopover` directive to create a dropdown listbox.
+
+<docs-example name="listbox-select"></docs-example>
 
 ## API Reference
 

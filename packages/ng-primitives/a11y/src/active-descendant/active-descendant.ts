@@ -100,7 +100,7 @@ export function activeDescendantManager<T extends NgpActivatable>(
   const first = () => {
     const item = sortedOptions().findIndex(item => !item.disabled?.());
 
-    if (item) {
+    if (item !== -1) {
       activeIndex.set(item);
     }
   };
