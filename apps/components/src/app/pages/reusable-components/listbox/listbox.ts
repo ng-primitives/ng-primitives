@@ -21,8 +21,8 @@ import { ChangeFn, provideValueAccessor, TouchedFn } from 'ng-primitives/utils';
       [ngpListboxMode]="mode()"
       [ngpListboxDisabled]="disabled()"
       [ngpListboxCompareWith]="compareWith()"
+      [attr.aria-label]="ariaLabel()"
       (ngpListboxValueChange)="onListboxValueChange($event)"
-      ngpPopover
       ngpListbox
     >
       <ng-content />
@@ -39,6 +39,9 @@ import { ChangeFn, provideValueAccessor, TouchedFn } from 'ng-primitives/utils';
       box-sizing: border-box;
     }
   `,
+  host: {
+    '[attr.aria-label]': 'null',
+  },
 })
 export class Listbox implements ControlValueAccessor {
   /**
@@ -72,6 +75,13 @@ export class Listbox implements ControlValueAccessor {
    * The placeholder text.
    */
   readonly placeholder = input<string>('Select an option');
+
+  /**
+   * The aria-label attribute for the listbox.
+   */
+  readonly ariaLabel = input<string>('Listbox', {
+    alias: 'aria-label',
+  });
 
   /**
    * The onChange callback.
