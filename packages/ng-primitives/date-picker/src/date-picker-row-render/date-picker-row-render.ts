@@ -155,6 +155,7 @@ export class NgpDatePickerRowRender<T> implements OnDestroy {
     for (const viewRef of this.viewRefs) {
       viewRef.destroy();
     }
+    this.viewRefs.length = 0;
   }
 
   /**
