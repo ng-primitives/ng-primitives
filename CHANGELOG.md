@@ -1,3 +1,18 @@
+## 0.73.1 (2025-08-13)
+
+### 🚀 Features
+
+- **select:** select primitives ([#418](https://github.com/ng-primitives/ng-primitives/pull/418))
+
+### 🩹 Fixes
+
+- **date-picker:** clear viewRefs for weeks on destroy ([#425](https://github.com/ng-primitives/ng-primitives/pull/425))
+
+### ❤️ Thank You
+
+- Ashley Hunter
+- Benny Böhm @bboehm86
+
 ## 0.73.0 (2025-08-13)
 
 ### 🚀 Features
