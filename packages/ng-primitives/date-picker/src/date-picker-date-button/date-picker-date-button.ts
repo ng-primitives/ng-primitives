@@ -136,8 +136,8 @@ export class NgpDatePickerDateButton<T> implements OnDestroy {
   @HostListener('keydown.enter', ['$event'])
   @HostListener('keydown.space', ['$event'])
   protected select(event?: KeyboardEvent): void {
-    // if the button is disabled, or is already selected, do nothing.
-    if (this.disabled() || this.selected()) {
+    // if the button is disabled, do nothing.
+    if (this.disabled()) {
       return;
     }
 

@@ -220,7 +220,10 @@ export class NgpDateRangePicker<T> {
    *   - Sets the selected date as the start date.
    * - If a start date is selected but no end date:
    *   - If the selected date is after the start date, sets it as the end date.
-   *   - If the selected date is before or equal to the start date, resets the start date to the selected date.
+   *   - If the selected date is before the start date, sets the selected date as the start date
+   *     and the previous start date as the end date.
+   *   - If the selected date is the same as the start date, sets the selected date as the end date
+   *     to select a single date.
    * - If both start and end dates are already selected:
    *   - Resets the selection, setting the selected date as the new start date and clearing the end date.
    *
@@ -240,9 +243,14 @@ export class NgpDateRangePicker<T> {
       if (this.dateAdapter.isAfter(date, start)) {
         this.state.endDate.set(date);
         this.endDateChange.emit(date);
-      } else {
+      } else if (this.dateAdapter.isBefore(date, start)) {
         this.state.startDate.set(date);
+        this.state.endDate.set(start);
         this.startDateChange.emit(date);
+        this.endDateChange.emit(start);
+      } else if (this.dateAdapter.isSameDay(date, start)) {
+        this.state.endDate.set(date);
+        this.endDateChange.emit(date);
       }
       return;
     }
