@@ -4,7 +4,7 @@ name: 'Select'
 
 # Select
 
-A select is a form control that allows users to select options from a list. This primitive enhances the native select element with improved accessibility and interaction handling for hover and focus.
+A select is a form control that allows users to select options from a list.
 
 <docs-example name="select"></docs-example>
 
@@ -13,7 +13,12 @@ A select is a form control that allows users to select options from a list. This
 Import the Select primitives from `ng-primitives/select`.
 
 ```ts
-import { NgpSelect } from 'ng-primitives/select';
+import {
+  NgpSelect,
+  NgpSelectDropdown,
+  NgpSelectPortal,
+  NgpSelectOption,
+} from 'ng-primitives/select';
 ```
 
 ## Usage
@@ -21,10 +26,13 @@ import { NgpSelect } from 'ng-primitives/select';
 Assemble the select directives in your template.
 
 ```html
-<select ngpSelect>
-  <option value="24">24 hours</option>
-  <option value="12">12 hours</option>
-</select>
+<div ngpSelect>
+  <div *ngpSelectPortal ngpSelectDropdown>
+    <div ngpSelectOptionValue="option-1" ngpSelectOption>One</div>
+    <div ngpSelectOptionValue="option-2" ngpSelectOption>Two</div>
+    <div ngpSelectOptionValue="option-3" ngpSelectOption>Three</div>
+  </div>
+</div>
 ```
 
 ## Reusable Component
@@ -55,9 +63,21 @@ Here are some additional examples of how to use the Select primitives.
 
 ### Select Form Field
 
-The select automatically integrates with the form field primitives.
+The select can be used within a form field for better integration with form controls.
 
 <docs-example name="select-form-field"></docs-example>
+
+### Native Select
+
+The native select is a simple wrapper around the native `select` element.
+
+<docs-example name="native-select"></docs-example>
+
+### Native Select Form Field
+
+The select automatically integrates with the form field primitives.
+
+<docs-example name="native-select-form-field"></docs-example>
 
 ## API Reference
 
@@ -66,6 +86,22 @@ The following directives are available to import from the `ng-primitives/select`
 ### NgpSelect
 
 <api-docs name="NgpSelect"></api-docs>
+
+### NgpSelectDropdown
+
+<api-docs name="NgpSelectDropdown"></api-docs>
+
+### NgpSelectPortal
+
+<api-docs name="NgpSelectPortal"></api-docs>
+
+### NgpSelectOption
+
+<api-docs name="NgpSelectOption"></api-docs>
+
+### NgpNativeSelect
+
+<api-docs name="NgpNativeSelect"></api-docs>
 
 #### Data Attributes
 

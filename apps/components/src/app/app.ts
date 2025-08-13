@@ -35,6 +35,7 @@ import { RouterLink, RouterOutlet } from '@angular/router';
       <a routerLink="/reusable-components/toolbar">Toolbar</a>
       <a routerLink="/reusable-components/tooltip">Tooltip</a>
       <a routerLink="/reusable-components/select">Select</a>
+      <a routerLink="/reusable-components/native-select">Native Select</a>
     </nav>
     <main>
       <router-outlet />

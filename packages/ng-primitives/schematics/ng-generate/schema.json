@@ -29,6 +29,7 @@
         "radio",
         "search",
         "select",
+        "native-select",
         "separator",
         "slider",
         "switch",
