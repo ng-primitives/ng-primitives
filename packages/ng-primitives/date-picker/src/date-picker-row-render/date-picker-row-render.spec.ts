@@ -7,6 +7,7 @@ import {
   viewChild,
 } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { NgpNativeDateAdapter } from 'ng-primitives/date-time';
 import { defaultDatePickerConfig } from '../config/date-picker-config';
 import { NgpDatePicker } from '../date-picker/date-picker';
 import {
@@ -20,7 +21,10 @@ import {
 import { NgpDatePickerRowRender } from './date-picker-row-render';
 
 describe('NgpDatePickerRowRender', () => {
-  const firstOfAugust2025 = new Date(2025, 7, 1);
+  const adapter = new NgpNativeDateAdapter();
+  const firstOfAugust2025 = adapter.create({ year: 2025, month: 8, day: 1 });
+  const lastOfAugust2025 = adapter.create({ year: 2025, month: 8, day: 31 });
+
   let fixture: ComponentFixture<TestHost>;
   let host: TestHost;
 
@@ -42,25 +46,32 @@ describe('NgpDatePickerRowRender', () => {
     );
 
     expect(host.rowRender().getFirstDayOfWeekOffset(firstOfAugust2025)).toBe(5);
+    expect(host.rowRender().getLastDayOfWeekOffset(lastOfAugust2025)).toBe(6);
 
     firstDayOfWeek.set(1);
 
     expect(host.rowRender().getFirstDayOfWeekOffset(firstOfAugust2025)).toBe(4);
+    expect(host.rowRender().getLastDayOfWeekOffset(lastOfAugust2025)).toBe(0);
 
     firstDayOfWeek.set(2);
     expect(host.rowRender().getFirstDayOfWeekOffset(firstOfAugust2025)).toBe(3);
+    expect(host.rowRender().getLastDayOfWeekOffset(lastOfAugust2025)).toBe(1);
 
     firstDayOfWeek.set(3);
     expect(host.rowRender().getFirstDayOfWeekOffset(firstOfAugust2025)).toBe(2);
+    expect(host.rowRender().getLastDayOfWeekOffset(lastOfAugust2025)).toBe(2);
 
     firstDayOfWeek.set(4);
     expect(host.rowRender().getFirstDayOfWeekOffset(firstOfAugust2025)).toBe(1);
+    expect(host.rowRender().getLastDayOfWeekOffset(lastOfAugust2025)).toBe(3);
 
     firstDayOfWeek.set(5);
     expect(host.rowRender().getFirstDayOfWeekOffset(firstOfAugust2025)).toBe(0);
+    expect(host.rowRender().getLastDayOfWeekOffset(lastOfAugust2025)).toBe(4);
 
     firstDayOfWeek.set(6);
     expect(host.rowRender().getFirstDayOfWeekOffset(firstOfAugust2025)).toBe(6);
+    expect(host.rowRender().getLastDayOfWeekOffset(lastOfAugust2025)).toBe(5);
   });
 
   it('should calculate the days and first week', () => {
@@ -79,7 +90,23 @@ describe('NgpDatePickerRowRender', () => {
     );
   });
 
-  it('should calculate the days and first week with the first day of the week offset', () => {
+  it('should calculate the days and last week', () => {
+    expect(host.rowRender()['weeks']()).toEqual(
+      expect.arrayContaining([
+        [
+          new Date(2025, 7, 31),
+          new Date(2025, 8, 1),
+          new Date(2025, 8, 2),
+          new Date(2025, 8, 3),
+          new Date(2025, 8, 4),
+          new Date(2025, 8, 5),
+          new Date(2025, 8, 6),
+        ],
+      ]),
+    );
+  });
+
+  it('should calculate the days and last week with the first day of the week offset', () => {
     const firstDayOfWeek = TestBed.runInInjectionContext(
       () => injectDateControllerState()().firstDayOfWeek,
     );
@@ -95,6 +122,27 @@ describe('NgpDatePickerRowRender', () => {
           new Date(2025, 7, 1),
           new Date(2025, 7, 2),
           new Date(2025, 7, 3),
+        ],
+      ]),
+    );
+  });
+
+  it('should calculate the days and last week with the first day of the week offset', () => {
+    const firstDayOfWeek = TestBed.runInInjectionContext(
+      () => injectDateControllerState()().firstDayOfWeek,
+    );
+
+    firstDayOfWeek.set(1);
+    expect(host.rowRender()['weeks']()).toEqual(
+      expect.arrayContaining([
+        [
+          new Date(2025, 7, 25),
+          new Date(2025, 7, 26),
+          new Date(2025, 7, 27),
+          new Date(2025, 7, 28),
+          new Date(2025, 7, 29),
+          new Date(2025, 7, 30),
+          new Date(2025, 7, 31),
         ],
       ]),
     );
