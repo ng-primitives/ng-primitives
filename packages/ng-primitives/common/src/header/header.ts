@@ -20,4 +20,12 @@ export class NgpHeader {
    * The id of the header.
    */
   readonly id = input(uniqueId('ngp-header'));
+
+  constructor() {
+    if (ngDevMode) {
+      console.warn(
+        `NgpHeader is deprecated and will be removed in a future version. Please use NgpListboxHeader instead.`,
+      );
+    }
+  }
 }

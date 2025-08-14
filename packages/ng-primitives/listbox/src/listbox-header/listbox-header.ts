@@ -1,5 +1,6 @@
 import { Directive, input } from '@angular/core';
 import { uniqueId } from 'ng-primitives/utils';
+import { NgpHeaderToken } from '../../../common/src';
 
 @Directive({
   selector: '[ngpListboxHeader]',
@@ -8,6 +9,8 @@ import { uniqueId } from 'ng-primitives/utils';
     role: 'presentation',
     '[attr.id]': 'id()',
   },
+  // temporary until we remove NgpHeader completely - this prevents breaking changes
+  providers: [{ provide: NgpHeaderToken, useExisting: NgpListboxHeader }],
 })
 export class NgpListboxHeader {
   /**
