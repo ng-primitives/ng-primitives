@@ -1,6 +1,6 @@
 import { Directive, input } from '@angular/core';
 import { uniqueId } from 'ng-primitives/utils';
-import { NgpHeaderToken } from '../../../common/src';
+import { NgpHeaderToken } from 'ng-primitives/common';
 
 @Directive({
   selector: '[ngpListboxHeader]',
