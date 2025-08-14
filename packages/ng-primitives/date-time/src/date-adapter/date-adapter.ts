@@ -79,7 +79,14 @@ export interface NgpDateAdapter<T> {
   getDate(date: T): number;
 
   /**
-   * Get the day.
+   * Get the day of the week as a number (1-7).
+   * - `1` = Monday
+   * - `2` = Tuesday
+   * - `3` = Wednesday
+   * - `4` = Thursday
+   * - `5` = Friday
+   * - `6` = Saturday
+   * - `7` = Sunday
    */
   getDay(date: T): number;
 
@@ -131,7 +138,7 @@ export interface NgpDateUnits {
   year?: number;
 
   /**
-   * The month.
+   * The month 1-12.
    */
   month?: number;
 

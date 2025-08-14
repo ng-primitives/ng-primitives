@@ -9,7 +9,7 @@ export class NgpNativeDateAdapter implements NgpDateAdapter<Date> {
 
     return new Date(
       year ?? now.getFullYear(),
-      month ?? now.getMonth(),
+      month ? month - 1 : now.getMonth(),
       day ?? now.getDate(),
       hour ?? now.getHours(),
       minute ?? now.getMinutes(),
@@ -135,10 +135,17 @@ export class NgpNativeDateAdapter implements NgpDateAdapter<Date> {
   }
 
   /**
-   * Get the day.
+   * Get the day of the week as a number (1-7).
+   * - `1` = Monday
+   * - `2` = Tuesday
+   * - `3` = Wednesday
+   * - `4` = Thursday
+   * - `5` = Friday
+   * - `6` = Saturday
+   * - `7` = Sunday
    */
   getDay(date: Date): number {
-    return date.getDay();
+    return date.getDay() === 0 ? 7 : date.getDay();
   }
 
   /**
