@@ -12,7 +12,7 @@ import { NgpRadioGroup, NgpRadioIndicator, NgpRadioItem } from 'ng-primitives/ra
       ngpRadioGroupOrientation="vertical"
     >
       <div
-        class="grid h-[66px] cursor-pointer grid-cols-[auto,1fr] grid-rows-2 gap-x-[0.625rem] gap-y-[0.125rem] rounded-lg bg-gray-50 px-4 py-3 text-black shadow outline-none transition-colors duration-200 data-[checked]:bg-black data-[hover]:bg-gray-100 data-[press]:bg-gray-200 data-[checked]:text-white data-[focus-visible]:outline-2 data-[focus-visible]:outline-offset-2 data-[focus-visible]:outline-blue-500 dark:bg-black dark:text-white dark:data-[checked]:bg-white dark:data-[hover]:bg-zinc-800 dark:data-[press]:bg-zinc-700 dark:data-[checked]:text-black"
+        class="grid h-[66px] cursor-pointer grid-cols-[auto,1fr] grid-rows-2 gap-x-[0.625rem] gap-y-[0.125rem] rounded-lg bg-gray-50 px-4 py-3 text-black shadow outline-none ring-1 ring-black/5 transition-colors duration-200 data-[checked]:bg-black data-[hover]:bg-gray-100 data-[press]:bg-gray-200 data-[checked]:text-white data-[focus-visible]:outline-2 data-[focus-visible]:outline-offset-2 data-[focus-visible]:outline-blue-500 dark:bg-black dark:text-white dark:shadow dark:ring-white/10 dark:data-[checked]:bg-white dark:data-[hover]:bg-zinc-800 dark:data-[press]:bg-zinc-700 dark:data-[checked]:text-black"
         ngpRadioItem
         ngpRadioItemValue="indie"
       >
@@ -31,7 +31,7 @@ import { NgpRadioGroup, NgpRadioIndicator, NgpRadioItem } from 'ng-primitives/ra
       </div>
 
       <div
-        class="grid h-[66px] cursor-pointer grid-cols-[auto,1fr] grid-rows-2 gap-x-[0.625rem] gap-y-[0.125rem] rounded-lg bg-gray-50 px-4 py-3 text-black shadow outline-none transition-colors duration-200 data-[checked]:bg-black data-[hover]:bg-gray-100 data-[press]:bg-gray-200 data-[checked]:text-white data-[focus-visible]:outline-2 data-[focus-visible]:outline-offset-2 data-[focus-visible]:outline-blue-500 dark:bg-black dark:text-white dark:data-[checked]:bg-white dark:data-[hover]:bg-zinc-800 dark:data-[press]:bg-zinc-700 dark:data-[checked]:text-black"
+        class="grid h-[66px] cursor-pointer grid-cols-[auto,1fr] grid-rows-2 gap-x-[0.625rem] gap-y-[0.125rem] rounded-lg bg-gray-50 px-4 py-3 text-black shadow outline-none ring-1 ring-black/5 transition-colors duration-200 data-[checked]:bg-black data-[hover]:bg-gray-100 data-[press]:bg-gray-200 data-[checked]:text-white data-[focus-visible]:outline-2 data-[focus-visible]:outline-offset-2 data-[focus-visible]:outline-blue-500 dark:bg-black dark:text-white dark:shadow dark:ring-white/10 dark:data-[checked]:bg-white dark:data-[hover]:bg-zinc-800 dark:data-[press]:bg-zinc-700 dark:data-[checked]:text-black"
         ngpRadioItem
         ngpRadioItemValue="growth"
       >
@@ -50,7 +50,7 @@ import { NgpRadioGroup, NgpRadioIndicator, NgpRadioItem } from 'ng-primitives/ra
       </div>
 
       <div
-        class="grid h-[66px] cursor-pointer grid-cols-[auto,1fr] grid-rows-2 gap-x-[0.625rem] gap-y-[0.125rem] rounded-lg bg-gray-50 px-4 py-3 text-black shadow outline-none transition-colors duration-200 data-[checked]:bg-black data-[hover]:bg-gray-100 data-[press]:bg-gray-200 data-[checked]:text-white data-[focus-visible]:outline-2 data-[focus-visible]:outline-offset-2 data-[focus-visible]:outline-blue-500 dark:bg-black dark:text-white dark:data-[checked]:bg-white dark:data-[hover]:bg-zinc-800 dark:data-[press]:bg-zinc-700 dark:data-[checked]:text-black"
+        class="grid h-[66px] cursor-pointer grid-cols-[auto,1fr] grid-rows-2 gap-x-[0.625rem] gap-y-[0.125rem] rounded-lg bg-gray-50 px-4 py-3 text-black shadow outline-none ring-1 ring-black/5 transition-colors duration-200 data-[checked]:bg-black data-[hover]:bg-gray-100 data-[press]:bg-gray-200 data-[checked]:text-white data-[focus-visible]:outline-2 data-[focus-visible]:outline-offset-2 data-[focus-visible]:outline-blue-500 dark:bg-black dark:text-white dark:shadow dark:ring-white/10 dark:data-[checked]:bg-white dark:data-[hover]:bg-zinc-800 dark:data-[press]:bg-zinc-700 dark:data-[checked]:text-black"
         ngpRadioItem
         ngpRadioItemValue="unicorn"
       >
