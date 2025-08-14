@@ -2,6 +2,10 @@ import { Directive, input } from '@angular/core';
 import { uniqueId } from 'ng-primitives/utils';
 import { NgpHeaderToken } from './header-token';
 
+/**
+ * @deprecated
+ */
+
 @Directive({
   selector: '[ngpHeader]',
   exportAs: 'ngpHeader',

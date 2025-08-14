@@ -1,17 +1,21 @@
 import { Component, signal } from '@angular/core';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { heroCheckSolid } from '@ng-icons/heroicons/solid';
-import { NgpHeader } from 'ng-primitives/common';
-import { NgpListbox, NgpListboxOption, NgpListboxSection } from 'ng-primitives/listbox';
+import {
+  NgpListbox,
+  NgpListboxHeader,
+  NgpListboxOption,
+  NgpListboxSection,
+} from 'ng-primitives/listbox';
 
 @Component({
   selector: 'app-listbox-sections',
-  imports: [NgpListbox, NgpListboxOption, NgpListboxSection, NgpHeader, NgIcon],
+  imports: [NgpListbox, NgpListboxOption, NgpListboxSection, NgpListboxHeader, NgIcon],
   providers: [provideIcons({ heroCheckSolid })],
   template: `
     <div [(ngpListboxValue)]="selection" ngpListbox aria-label="Sections">
       @for (section of sections; track section.name) {
-        <header class="listbox-header" ngpHeader>{{ section.name }}</header>
+        <header class="listbox-header" ngpListboxHeader>{{ section.name }}</header>
 
         <div ngpListboxSection>
           @for (option of section.options; track option.id) {
