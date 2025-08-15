@@ -104,7 +104,7 @@ export class NgpSliderThumb {
     const percentage =
       this.state().orientation() === 'horizontal'
         ? (event.clientX - rect.left) / rect.width
-        : 1 - (event.clientY - rect.top) / rect.height;
+        : (event.clientY - rect.top) / rect.height;
 
     const value =
       this.state().min() +
