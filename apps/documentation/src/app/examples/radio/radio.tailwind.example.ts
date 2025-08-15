@@ -12,7 +12,7 @@ import { NgpRadioGroup, NgpRadioIndicator, NgpRadioItem } from 'ng-primitives/ra
       ngpRadioGroupOrientation="vertical"
     >
       <div
-        class="grid h-[66px] cursor-pointer grid-cols-[auto,1fr] grid-rows-2 gap-x-[0.625rem] gap-y-[0.125rem] rounded-lg bg-gray-50 px-4 py-3 text-black shadow outline-none ring-1 ring-black/5 transition-colors duration-200 data-[checked]:bg-black data-[hover]:bg-gray-100 data-[press]:bg-gray-200 data-[checked]:text-white data-[focus-visible]:outline-2 data-[focus-visible]:outline-offset-2 data-[focus-visible]:outline-blue-500 dark:bg-black dark:text-white dark:shadow dark:ring-white/10 dark:data-[checked]:bg-white dark:data-[hover]:bg-zinc-800 dark:data-[press]:bg-zinc-700 dark:data-[checked]:text-black"
+        class="grid h-[66px] cursor-pointer grid-cols-[auto,1fr] grid-rows-2 gap-x-[0.625rem] gap-y-[0.125rem] rounded-lg bg-gray-50 px-4 py-3 text-black shadow outline-none ring-1 ring-black/5 transition-colors duration-200 data-[checked]:bg-black data-[checked]:text-white data-[focus-visible]:outline-2 data-[focus-visible]:outline-offset-2 data-[focus-visible]:outline-blue-500 dark:bg-black dark:text-white dark:shadow dark:ring-white/10 dark:data-[checked]:bg-white dark:data-[checked]:text-black [&[data-hover]:not([data-checked])]:bg-gray-100 dark:[&[data-hover]:not([data-checked])]:bg-zinc-800 [&[data-press]:not([data-checked])]:bg-gray-200 dark:[&[data-press]:not([data-checked])]:bg-zinc-700"
         ngpRadioItem
         ngpRadioItemValue="indie"
       >
@@ -21,7 +21,7 @@ import { NgpRadioGroup, NgpRadioIndicator, NgpRadioItem } from 'ng-primitives/ra
           ngpRadioIndicator
         >
           <span
-            class="h-2 w-2 rounded-full bg-white transition-colors group-[data-checked]:bg-white dark:group-[data-checked]:bg-black"
+            class="h-2 w-2 rounded-full bg-white transition-colors group-data-[checked]:bg-white dark:bg-transparent dark:group-data-[checked]:bg-black"
           ></span>
         </div>
         <p class="title col-start-2 row-start-1 m-0 text-sm font-medium leading-5">Indie Plan</p>
@@ -31,7 +31,7 @@ import { NgpRadioGroup, NgpRadioIndicator, NgpRadioItem } from 'ng-primitives/ra
       </div>
 
       <div
-        class="grid h-[66px] cursor-pointer grid-cols-[auto,1fr] grid-rows-2 gap-x-[0.625rem] gap-y-[0.125rem] rounded-lg bg-gray-50 px-4 py-3 text-black shadow outline-none ring-1 ring-black/5 transition-colors duration-200 data-[checked]:bg-black data-[hover]:bg-gray-100 data-[press]:bg-gray-200 data-[checked]:text-white data-[focus-visible]:outline-2 data-[focus-visible]:outline-offset-2 data-[focus-visible]:outline-blue-500 dark:bg-black dark:text-white dark:shadow dark:ring-white/10 dark:data-[checked]:bg-white dark:data-[hover]:bg-zinc-800 dark:data-[press]:bg-zinc-700 dark:data-[checked]:text-black"
+        class="grid h-[66px] cursor-pointer grid-cols-[auto,1fr] grid-rows-2 gap-x-[0.625rem] gap-y-[0.125rem] rounded-lg bg-gray-50 px-4 py-3 text-black shadow outline-none ring-1 ring-black/5 transition-colors duration-200 data-[checked]:bg-black data-[checked]:text-white data-[focus-visible]:outline-2 data-[focus-visible]:outline-offset-2 data-[focus-visible]:outline-blue-500 dark:bg-black dark:text-white dark:shadow dark:ring-white/10 dark:data-[checked]:bg-white dark:data-[checked]:text-black [&[data-hover]:not([data-checked])]:bg-gray-100 dark:[&[data-hover]:not([data-checked])]:bg-zinc-800 [&[data-press]:not([data-checked])]:bg-gray-200 dark:[&[data-press]:not([data-checked])]:bg-zinc-700"
         ngpRadioItem
         ngpRadioItemValue="growth"
       >
@@ -40,7 +40,7 @@ import { NgpRadioGroup, NgpRadioIndicator, NgpRadioItem } from 'ng-primitives/ra
           ngpRadioIndicator
         >
           <span
-            class="h-2 w-2 rounded-full bg-white transition-colors group-[data-checked]:bg-white dark:group-[data-checked]:bg-black"
+            class="h-2 w-2 rounded-full bg-transparent transition-colors group-data-[checked]:bg-white dark:group-data-[checked]:bg-black"
           ></span>
         </div>
         <p class="title col-start-2 row-start-1 m-0 text-sm font-medium leading-5">Growth Plan</p>
@@ -50,7 +50,7 @@ import { NgpRadioGroup, NgpRadioIndicator, NgpRadioItem } from 'ng-primitives/ra
       </div>
 
       <div
-        class="grid h-[66px] cursor-pointer grid-cols-[auto,1fr] grid-rows-2 gap-x-[0.625rem] gap-y-[0.125rem] rounded-lg bg-gray-50 px-4 py-3 text-black shadow outline-none ring-1 ring-black/5 transition-colors duration-200 data-[checked]:bg-black data-[hover]:bg-gray-100 data-[press]:bg-gray-200 data-[checked]:text-white data-[focus-visible]:outline-2 data-[focus-visible]:outline-offset-2 data-[focus-visible]:outline-blue-500 dark:bg-black dark:text-white dark:shadow dark:ring-white/10 dark:data-[checked]:bg-white dark:data-[hover]:bg-zinc-800 dark:data-[press]:bg-zinc-700 dark:data-[checked]:text-black"
+        class="grid h-[66px] cursor-pointer grid-cols-[auto,1fr] grid-rows-2 gap-x-[0.625rem] gap-y-[0.125rem] rounded-lg bg-gray-50 px-4 py-3 text-black shadow outline-none ring-1 ring-black/5 transition-colors duration-200 data-[checked]:bg-black data-[checked]:text-white data-[focus-visible]:outline-2 data-[focus-visible]:outline-offset-2 data-[focus-visible]:outline-blue-500 dark:bg-black dark:text-white dark:shadow dark:ring-white/10 dark:data-[checked]:bg-white dark:data-[checked]:text-black [&[data-hover]:not([data-checked])]:bg-gray-100 dark:[&[data-hover]:not([data-checked])]:bg-zinc-800 [&[data-press]:not([data-checked])]:bg-gray-200 dark:[&[data-press]:not([data-checked])]:bg-zinc-700"
         ngpRadioItem
         ngpRadioItemValue="unicorn"
       >
@@ -59,7 +59,7 @@ import { NgpRadioGroup, NgpRadioIndicator, NgpRadioItem } from 'ng-primitives/ra
           ngpRadioIndicator
         >
           <span
-            class="h-2 w-2 rounded-full bg-white transition-colors group-[data-checked]:bg-white dark:group-[data-checked]:bg-black"
+            class="h-2 w-2 rounded-full bg-transparent transition-colors group-data-[checked]:bg-white dark:group-data-[checked]:bg-black"
           ></span>
         </div>
         <p class="title col-start-2 row-start-1 m-0 text-sm font-medium leading-5">Unicorn Plan</p>
