@@ -17,7 +17,7 @@ import { NgpRadioGroup, NgpRadioIndicator, NgpRadioItem } from 'ng-primitives/ra
         ngpRadioItemValue="indie"
       >
         <div
-          class="group inline-flex h-4 w-4 items-center justify-center self-center rounded-full border border-gray-300 bg-white transition-colors duration-200 data-[checked]:border-gray-900 data-[checked]:bg-black dark:border-zinc-700 dark:bg-black dark:data-[checked]:border-black dark:data-[checked]:bg-white"
+          class="group inline-flex h-4 w-4 items-center justify-center self-center rounded-full border border-gray-300 bg-white transition-colors duration-200 data-[checked]:border-gray-900 data-[checked]:bg-black dark:border-zinc-700 dark:bg-transparent dark:data-[checked]:border-black dark:data-[checked]:bg-white"
           ngpRadioIndicator
         >
           <span
@@ -36,7 +36,7 @@ import { NgpRadioGroup, NgpRadioIndicator, NgpRadioItem } from 'ng-primitives/ra
         ngpRadioItemValue="growth"
       >
         <div
-          class="group inline-flex h-4 w-4 items-center justify-center self-center rounded-full border border-gray-300 bg-white transition-colors duration-200 data-[checked]:border-gray-900 data-[checked]:bg-black dark:border-zinc-700 dark:bg-black dark:data-[checked]:border-black dark:data-[checked]:bg-white"
+          class="group inline-flex h-4 w-4 items-center justify-center self-center rounded-full border border-gray-300 bg-white transition-colors duration-200 data-[checked]:border-gray-900 data-[checked]:bg-black dark:border-zinc-700 dark:bg-transparent dark:data-[checked]:border-black dark:data-[checked]:bg-white"
           ngpRadioIndicator
         >
           <span
@@ -55,7 +55,7 @@ import { NgpRadioGroup, NgpRadioIndicator, NgpRadioItem } from 'ng-primitives/ra
         ngpRadioItemValue="unicorn"
       >
         <div
-          class="group inline-flex h-4 w-4 items-center justify-center self-center rounded-full border border-gray-300 bg-white transition-colors duration-200 data-[checked]:border-gray-900 data-[checked]:bg-black dark:border-zinc-700 dark:bg-black dark:data-[checked]:border-black dark:data-[checked]:bg-white"
+          class="group inline-flex h-4 w-4 items-center justify-center self-center rounded-full border border-gray-300 bg-white transition-colors duration-200 data-[checked]:border-gray-900 data-[checked]:bg-black dark:border-zinc-700 dark:bg-transparent dark:data-[checked]:border-black dark:data-[checked]:bg-white"
           ngpRadioIndicator
         >
           <span
