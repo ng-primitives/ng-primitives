@@ -3,17 +3,17 @@ import { injectElementRef } from 'ng-primitives/internal';
 import { injectRangeSliderState } from '../range-slider/range-slider-state';
 
 /**
- * Apply the `ngpSliderTrack` directive to an element that represents the track of the range slider.
+ * Apply the `ngpRangeSliderTrack` directive to an element that represents the track of the range slider.
  */
 @Directive({
-  selector: '[ngpSliderTrack]',
-  exportAs: 'ngpSliderTrack',
+  selector: '[ngpRangeSliderTrack]',
+  exportAs: 'ngpRangeSliderTrack',
   host: {
     '[attr.data-orientation]': 'rangeSliderState().orientation()',
     '[attr.data-disabled]': 'rangeSliderState().disabled() ? "" : null',
   },
 })
-export class NgpSliderTrack {
+export class NgpRangeSliderTrack {
   /**
    * Access the range slider state.
    */

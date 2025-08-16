@@ -3,12 +3,12 @@ import { setupInteractions } from 'ng-primitives/internal';
 import { injectRangeSliderState } from '../range-slider/range-slider-state';
 
 /**
- * Apply the `ngpSliderThumb` directive to an element that represents a thumb of the range slider.
+ * Apply the `ngpRangeSliderThumb` directive to an element that represents a thumb of the range slider.
  * Each thumb can be configured to control either the 'low' or 'high' value.
  */
 @Directive({
-  selector: '[ngpSliderThumb]',
-  exportAs: 'ngpSliderThumb',
+  selector: '[ngpRangeSliderThumb]',
+  exportAs: 'ngpRangeSliderThumb',
   host: {
     role: 'slider',
     '[attr.aria-valuemin]': 'state().min()',
@@ -25,13 +25,13 @@ import { injectRangeSliderState } from '../range-slider/range-slider-state';
       'state().orientation() === "vertical" ? currentPercentage() : undefined',
   },
 })
-export class NgpSliderThumb {
+export class NgpRangeSliderThumb {
   /**
    * Specifies which value this thumb controls ('low' or 'high').
    * If not specified, it will be automatically determined based on the order in the DOM.
    */
   readonly thumbType = input<'low' | 'high'>('low', {
-    alias: 'ngpSliderThumbType',
+    alias: 'ngpRangeSliderThumbType',
   });
 
   /**

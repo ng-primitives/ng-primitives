@@ -44,7 +44,6 @@
       "ng-primitives/portal": ["packages/ng-primitives/portal/src/index.ts"],
       "ng-primitives/progress": ["packages/ng-primitives/progress/src/index.ts"],
       "ng-primitives/radio": ["packages/ng-primitives/radio/src/index.ts"],
-      "ng-primitives/range-slider": ["packages/ng-primitives/range-slider/src/index.ts"],
       "ng-primitives/resize": ["packages/ng-primitives/resize/src/index.ts"],
       "ng-primitives/roving-focus": ["packages/ng-primitives/roving-focus/src/index.ts"],
       "ng-primitives/search": ["packages/ng-primitives/search/src/index.ts"],

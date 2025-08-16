@@ -2,11 +2,11 @@ import { Directive } from '@angular/core';
 import { injectRangeSliderState } from '../range-slider/range-slider-state';
 
 /**
- * Apply the `ngpSliderRange` directive to an element that represents the range between the low and high values.
+ * Apply the `ngpRangeSliderRange` directive to an element that represents the range between the low and high values.
  */
 @Directive({
-  selector: '[ngpSliderRange]',
-  exportAs: 'ngpSliderRange',
+  selector: '[ngpRangeSliderRange]',
+  exportAs: 'ngpRangeSliderRange',
   host: {
     '[attr.data-orientation]': 'rangeSliderState().orientation()',
     '[attr.data-disabled]': 'rangeSliderState().disabled() ? "" : null',
@@ -20,7 +20,7 @@ import { injectRangeSliderState } from '../range-slider/range-slider-state';
       'rangeSliderState().orientation() === "vertical" ? rangeSliderState().lowPercentage() : undefined',
   },
 })
-export class NgpSliderRange {
+export class NgpRangeSliderRange {
   /**
    * Access the range slider state.
    */

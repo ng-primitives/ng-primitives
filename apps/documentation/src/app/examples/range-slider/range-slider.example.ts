@@ -1,14 +1,14 @@
 import { Component } from '@angular/core';
 import {
   NgpRangeSlider,
-  NgpSliderRange,
-  NgpSliderThumb,
-  NgpSliderTrack,
-} from 'ng-primitives/range-slider';
+  NgpRangeSliderRange,
+  NgpRangeSliderThumb,
+  NgpRangeSliderTrack,
+} from 'ng-primitives/slider';
 
 @Component({
   selector: 'app-range-slider',
-  imports: [NgpRangeSlider, NgpSliderRange, NgpSliderThumb, NgpSliderTrack],
+  imports: [NgpRangeSlider, NgpRangeSliderRange, NgpRangeSliderThumb, NgpRangeSliderTrack],
   styles: `
     [ngpRangeSlider] {
       display: flex;
@@ -20,7 +20,7 @@ import {
       align-items: center;
     }
 
-    [ngpSliderTrack] {
+    [ngpRangeSliderTrack] {
       position: relative;
       height: 5px;
       width: 100%;
@@ -28,14 +28,14 @@ import {
       background-color: var(--ngp-background-secondary);
     }
 
-    [ngpSliderRange] {
+    [ngpRangeSliderRange] {
       position: absolute;
       height: 100%;
       border-radius: 999px;
       background-color: var(--ngp-background-inverse);
     }
 
-    [ngpSliderThumb] {
+    [ngpRangeSliderThumb] {
       position: absolute;
       display: block;
       height: 20px;
@@ -48,12 +48,12 @@ import {
       z-index: 1;
     }
 
-    [ngpSliderThumb][data-focus-visible] {
+    [ngpRangeSliderThumb][data-focus-visible] {
       outline: 2px solid var(--ngp-focus-ring);
       outline-offset: 0;
     }
 
-    [ngpSliderThumb][data-thumb='high'] {
+    [ngpRangeSliderThumb][data-thumb='high'] {
       z-index: 2;
     }
   `,
@@ -65,11 +65,11 @@ import {
       (ngpRangeSliderHighChange)="high = $event"
       ngpRangeSlider
     >
-      <div ngpSliderTrack>
-        <div ngpSliderRange></div>
+      <div ngpRangeSliderTrack>
+        <div ngpRangeSliderRange></div>
       </div>
-      <div ngpSliderThumb ngpSliderThumbType="low"></div>
-      <div ngpSliderThumb ngpSliderThumbType="high"></div>
+      <div ngpRangeSliderThumb ngpRangeSliderThumbType="low"></div>
+      <div ngpRangeSliderThumb ngpRangeSliderThumbType="high"></div>
     </div>
   `,
 })

@@ -11,7 +11,7 @@ import {
 import { NgpOrientation } from 'ng-primitives/common';
 import { setupFormControl } from 'ng-primitives/form-field';
 import { uniqueId } from 'ng-primitives/utils';
-import type { NgpSliderTrack } from '../slider-track/slider-track';
+import type { NgpRangeSliderTrack } from '../range-slider-track/range-slider-track';
 import { provideRangeSliderState, rangeSliderState } from './range-slider-state';
 
 /**
@@ -105,7 +105,7 @@ export class NgpRangeSlider {
    * Access the slider track.
    * @internal
    */
-  readonly track = signal<NgpSliderTrack | undefined>(undefined);
+  readonly track = signal<NgpRangeSliderTrack | undefined>(undefined);
 
   /**
    * The low value as a percentage based on the min and max values.

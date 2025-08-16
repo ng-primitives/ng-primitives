@@ -1,14 +1,9 @@
 import { Component, effect, signal } from '@angular/core';
-import {
-  NgpRangeSlider,
-  NgpSliderRange,
-  NgpSliderThumb,
-  NgpSliderTrack,
-} from 'ng-primitives/range-slider';
+import { NgpRangeSlider, NgpRangeSliderThumb, NgpRangeSliderTrack } from 'ng-primitives/slider';
 
 @Component({
   selector: 'app-range-slider-vertical',
-  imports: [NgpRangeSlider, NgpSliderRange, NgpSliderThumb, NgpSliderTrack],
+  imports: [NgpRangeSlider, NgpRangeSlider, NgpRangeSliderThumb, NgpRangeSliderTrack],
   styles: `
     [ngpRangeSlider] {
       display: flex;
@@ -28,14 +23,14 @@ import {
       background-color: var(--ngp-background-secondary);
     }
 
-    [ngpSliderRange] {
+    [ngpRangeSlider] {
       position: absolute;
       width: 100%;
       border-radius: 999px;
       background-color: var(--ngp-background-inverse);
     }
 
-    [ngpSliderThumb] {
+    [ngpRangeSliderThumb] {
       position: absolute;
       display: block;
       height: 20px;
@@ -48,12 +43,12 @@ import {
       z-index: 1;
     }
 
-    [ngpSliderThumb][data-focus-visible] {
+    [ngpRangeSliderThumb][data-focus-visible] {
       outline: 2px solid var(--ngp-focus-ring);
       outline-offset: 0;
     }
 
-    [ngpSliderThumb][data-thumb='high'] {
+    [ngpRangeSliderThumb][data-thumb='high'] {
       z-index: 2;
     }
   `,
@@ -66,11 +61,11 @@ import {
       ngpRangeSlider
       ngpRangeSliderOrientation="vertical"
     >
-      <div ngpSliderTrack>
-        <div ngpSliderRange></div>
+      <div ngpRangeSliderTrack>
+        <div ngpRangeSlider></div>
       </div>
-      <div ngpSliderThumb ngpSliderThumbType="low"></div>
-      <div ngpSliderThumb ngpSliderThumbType="high"></div>
+      <div ngpRangeSliderThumb ngpRangeSliderThumbType="low"></div>
+      <div ngpRangeSliderThumb ngpRangeSliderThumbType="high"></div>
     </div>
   `,
 })
