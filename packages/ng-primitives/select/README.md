@@ -9,7 +9,7 @@ Render the selected option text in the trigger using the select's exported API. 
 ```html
 <div #s="ngpSelect" [(ngpSelectValue)]="selected" ngpSelect>
   @if (selected(); as selected) {
-    <span>{{ s.triggerText() }}</span>
+  <span>{{ s.triggerText() }}</span>
   } @else {
   <span>Select an option</span>
   }

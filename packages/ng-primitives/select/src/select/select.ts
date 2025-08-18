@@ -23,7 +23,6 @@ import { NgpSelectOption } from '../select-option/select-option';
 import type { NgpSelectPortal } from '../select-portal/select-portal';
 import { provideSelectState, selectState } from './select-state';
 
-
 /**
  * Ideally we would use a generic type here, unfortunately, unlike in React,
  * we cannot infer the type based on another input. For example, if multiple

@@ -1,10 +1,17 @@
 import { BooleanInput } from '@angular/cdk/coercion';
-import { booleanAttribute, computed, Directive, HostListener, input, OnDestroy, OnInit } from '@angular/core';
+import {
+  booleanAttribute,
+  computed,
+  Directive,
+  HostListener,
+  input,
+  OnDestroy,
+  OnInit,
+} from '@angular/core';
 import { NgpActivatable } from 'ng-primitives/a11y';
 import { injectElementRef, setupInteractions } from 'ng-primitives/internal';
 import { uniqueId } from 'ng-primitives/utils';
 import { injectSelectState } from '../select/select-state';
-
 
 @Directive({
   selector: '[ngpSelectOption]',
