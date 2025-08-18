@@ -110,9 +110,6 @@ export class NgpSelectOption implements OnInit, OnDestroy, NgpActivatable {
     this.state().toggleOption(this);
   }
 
-  // Note: The displayed trigger text is resolved by the Select using the
-  // option's DOM textContent. No separate view value input is needed here.
-
   /**
    * Scroll the option into view.
    * @internal
