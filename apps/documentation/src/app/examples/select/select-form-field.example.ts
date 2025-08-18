@@ -27,9 +27,9 @@ import {
       <label ngpLabel>Choose a character</label>
       <p ngpDescription>Which character is your favorite?</p>
 
-      <div [(ngpSelectValue)]="value" ngpSelect>
+      <div #s="ngpSelect" [(ngpSelectValue)]="value" ngpSelect>
         @if (value(); as value) {
-          <span class="select-value">{{ value }}</span>
+          <span class="select-value">{{ s.triggerText() }}</span>
         } @else {
           <span class="select-placeholder">Select an option</span>
         }
