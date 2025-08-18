@@ -60,7 +60,21 @@ export class NgpSelectOption implements OnInit, OnDestroy, NgpActivatable {
   );
 
   /** Whether this option is selected. */
-  protected readonly selected = computed(() => this.state().isOptionSelected(this));
+  protected readonly selected = computed(() => {
+    const value = this.value();
+
+    if (!value) {
+      return false;
+    }
+
+    if (this.state().multiple()) {
+      return (
+        Array.isArray(value) && value.some(v => this.state().compareWith()(v, this.state().value()))
+      );
+    }
+
+    return this.state().compareWith()(value, this.state().value());
+  });
 
   constructor() {
     this.state().registerOption(this);
