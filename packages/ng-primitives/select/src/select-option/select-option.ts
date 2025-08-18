@@ -1,17 +1,10 @@
 import { BooleanInput } from '@angular/cdk/coercion';
-import {
-  booleanAttribute,
-  computed,
-  Directive,
-  HostListener,
-  input,
-  OnDestroy,
-  OnInit,
-} from '@angular/core';
+import { booleanAttribute, computed, Directive, HostListener, input, OnDestroy, OnInit } from '@angular/core';
 import { NgpActivatable } from 'ng-primitives/a11y';
 import { injectElementRef, setupInteractions } from 'ng-primitives/internal';
 import { uniqueId } from 'ng-primitives/utils';
 import { injectSelectState } from '../select/select-state';
+
 
 @Directive({
   selector: '[ngpSelectOption]',
@@ -60,21 +53,7 @@ export class NgpSelectOption implements OnInit, OnDestroy, NgpActivatable {
   );
 
   /** Whether this option is selected. */
-  protected readonly selected = computed(() => {
-    const value = this.value();
-
-    if (!value) {
-      return false;
-    }
-
-    if (this.state().multiple()) {
-      return (
-        Array.isArray(value) && value.some(v => this.state().compareWith()(v, this.state().value()))
-      );
-    }
-
-    return this.state().compareWith()(value, this.state().value());
-  });
+  protected readonly selected = computed(() => this.state().isOptionSelected(this));
 
   constructor() {
     this.state().registerOption(this);
@@ -109,6 +88,9 @@ export class NgpSelectOption implements OnInit, OnDestroy, NgpActivatable {
 
     this.state().toggleOption(this);
   }
+
+  // Note: The displayed trigger text is resolved by the Select using the
+  // option's DOM textContent. No separate view value input is needed here.
 
   /**
    * Scroll the option into view.

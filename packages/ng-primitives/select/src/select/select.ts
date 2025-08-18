@@ -10,6 +10,7 @@ import {
   input,
   output,
   signal,
+  effect,
 } from '@angular/core';
 import type { Placement } from '@floating-ui/dom';
 import { activeDescendantManager } from 'ng-primitives/a11y';
@@ -21,6 +22,7 @@ import type { NgpSelectDropdown } from '../select-dropdown/select-dropdown';
 import { NgpSelectOption } from '../select-option/select-option';
 import type { NgpSelectPortal } from '../select-portal/select-portal';
 import { provideSelectState, selectState } from './select-state';
+
 
 /**
  * Ideally we would use a generic type here, unfortunately, unlike in React,
@@ -126,11 +128,61 @@ export class NgpSelect {
    */
   readonly options = signal<NgpSelectOption[]>([]);
 
+  /** Cache of last rendered trigger text (like MatSelect). */
+  readonly triggerTextCache = signal<string>('');
+
   /**
    * Access the overlay
    * @internal
    */
   readonly overlay = computed(() => this.portal()?.overlay());
+
+  // Removed programmatic viewValue accessor to keep API minimal.
+
+  /**
+   * String displayed in the trigger area, derived from selected option(s).
+   * Uses cached text when options are not attached, similar to MatSelect's triggerValue.
+   */
+  readonly triggerText = computed<string>(() => {
+    const compare = this.state.compareWith();
+    const options = this.options();
+    const rawValue = this.state.value();
+
+    const toText = (val: unknown): string => {
+      const opt = options.find(o => compare(o.value(), val as T));
+      const text = opt?.elementRef.nativeElement?.textContent?.trim();
+      if (text) {
+        return text;
+      }
+      return val != null ? String(val) : '';
+    };
+
+    const buildFromRaw = (): string => {
+      if (rawValue === undefined) {
+        return '';
+      }
+      if (this.state.multiple()) {
+        const values = (rawValue as T[]) ?? [];
+        return values.map(v => (v != null ? String(v) : '')).join(', ');
+      }
+      return rawValue != null ? String(rawValue) : '';
+    };
+
+    let text: string;
+    if (options.length > 0) {
+      if (this.state.multiple()) {
+        const values = (rawValue as T[]) ?? [];
+        text = values.map(v => toText(v)).join(', ');
+      } else {
+        text = rawValue === undefined ? '' : toText(rawValue);
+      }
+      return text;
+    }
+
+    // No options present: prefer raw value text; otherwise fall back to cached text
+    const rawText = buildFromRaw();
+    return rawText !== '' ? rawText : this.triggerTextCache();
+  });
 
   /**
    * The open state of the select.
@@ -161,6 +213,15 @@ export class NgpSelect {
     });
 
     setupFormControl({ id: this.state.id, disabled: this.state.disabled });
+
+    // Cache the current trigger text whenever options are attached/present.
+    effect(() => {
+      const hasOptions = this.options().length > 0;
+      const text = this.triggerText();
+      if (hasOptions) {
+        this.triggerTextCache.set(text);
+      }
+    });
 
     // any time the active descendant changes, ensure we scroll it into view
     // perform after next render to ensure the DOM is updated

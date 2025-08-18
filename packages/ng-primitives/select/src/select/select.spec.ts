@@ -1,13 +1,13 @@
 import { Component, signal } from '@angular/core';
 import { fireEvent, render, screen, waitFor } from '@testing-library/angular';
 import userEvent from '@testing-library/user-event';
-import { NgpSelect, NgpSelectDropdown, NgpSelectOption, NgpSelectPortal } from '../index';
+import { NgpSelect, NgpSelectDropdown, NgpSelectOption, NgpSelectPortal, NgpSelectViewValue } from '../index';
 
 @Component({
   template: `
-    <div [(ngpSelectValue)]="value" ngpSelect data-testid="select">
+    <div #s="ngpSelect" [(ngpSelectValue)]="value" ngpSelect data-testid="select">
       @if (value(); as value) {
-        <span data-testid="selected-value">{{ value }}</span>
+        <span data-testid="selected-value" ngpSelectViewValue></span>
       } @else {
         <span data-testid="placeholder">Select an option</span>
       }
@@ -25,7 +25,7 @@ import { NgpSelect, NgpSelectDropdown, NgpSelectOption, NgpSelectPortal } from '
       </div>
     </div>
   `,
-  imports: [NgpSelect, NgpSelectDropdown, NgpSelectOption, NgpSelectPortal],
+  imports: [NgpSelect, NgpSelectDropdown, NgpSelectOption, NgpSelectPortal, NgpSelectViewValue],
 })
 class TestSelectComponent {
   readonly options = ['Apple', 'Banana', 'Cherry'];
@@ -34,9 +34,15 @@ class TestSelectComponent {
 
 @Component({
   template: `
-    <div [(ngpSelectValue)]="value" ngpSelect ngpSelectMultiple data-testid="multi-select">
+    <div
+      #s="ngpSelect"
+      [(ngpSelectValue)]="value"
+      ngpSelect
+      ngpSelectMultiple
+      data-testid="multi-select"
+    >
       @if (value().length > 0) {
-        <span data-testid="selected-values">{{ value().join(', ') }}</span>
+        <span data-testid="selected-values" ngpSelectViewValue></span>
       } @else {
         <span data-testid="placeholder">Select options</span>
       }
@@ -54,12 +60,14 @@ class TestSelectComponent {
       </div>
     </div>
   `,
-  imports: [NgpSelect, NgpSelectDropdown, NgpSelectOption, NgpSelectPortal],
+  imports: [NgpSelect, NgpSelectDropdown, NgpSelectOption, NgpSelectPortal, NgpSelectViewValue],
 })
 class TestMultiSelectComponent {
   readonly options = ['Apple', 'Banana', 'Cherry'];
   readonly value = signal<string[]>([]);
 }
+
+// Removed custom view value tests that relied on non-DOM inputs.
 
 @Component({
   template: `
@@ -177,6 +185,8 @@ describe('NgpSelect', () => {
 
       expect(screen.getByTestId('selected-value')).toHaveTextContent('Banana');
     });
+
+    // The trigger text is resolved from option DOM text via ngpSelectViewValue directive.
   });
 
   describe('Keyboard navigation', () => {
