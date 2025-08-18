@@ -1,13 +1,13 @@
 import { Component, signal } from '@angular/core';
 import { fireEvent, render, screen, waitFor } from '@testing-library/angular';
 import userEvent from '@testing-library/user-event';
-import { NgpSelect, NgpSelectDropdown, NgpSelectOption, NgpSelectPortal, NgpSelectViewValue } from '../index';
+import { NgpSelect, NgpSelectDropdown, NgpSelectOption, NgpSelectPortal } from '../index';
 
 @Component({
   template: `
     <div #s="ngpSelect" [(ngpSelectValue)]="value" ngpSelect data-testid="select">
       @if (value(); as value) {
-        <span data-testid="selected-value" ngpSelectViewValue></span>
+        <span data-testid="selected-value">{{ s.triggerText() }}</span>
       } @else {
         <span data-testid="placeholder">Select an option</span>
       }
@@ -25,7 +25,7 @@ import { NgpSelect, NgpSelectDropdown, NgpSelectOption, NgpSelectPortal, NgpSele
       </div>
     </div>
   `,
-  imports: [NgpSelect, NgpSelectDropdown, NgpSelectOption, NgpSelectPortal, NgpSelectViewValue],
+  imports: [NgpSelect, NgpSelectDropdown, NgpSelectOption, NgpSelectPortal],
 })
 class TestSelectComponent {
   readonly options = ['Apple', 'Banana', 'Cherry'];
@@ -42,7 +42,7 @@ class TestSelectComponent {
       data-testid="multi-select"
     >
       @if (value().length > 0) {
-        <span data-testid="selected-values" ngpSelectViewValue></span>
+        <span data-testid="selected-values">{{ s.triggerText() }}</span>
       } @else {
         <span data-testid="placeholder">Select options</span>
       }
@@ -60,7 +60,7 @@ class TestSelectComponent {
       </div>
     </div>
   `,
-  imports: [NgpSelect, NgpSelectDropdown, NgpSelectOption, NgpSelectPortal, NgpSelectViewValue],
+  imports: [NgpSelect, NgpSelectDropdown, NgpSelectOption, NgpSelectPortal],
 })
 class TestMultiSelectComponent {
   readonly options = ['Apple', 'Banana', 'Cherry'];
