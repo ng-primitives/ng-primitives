@@ -156,15 +156,22 @@ export class NgpSelect {
       return val != null ? String(val) : '';
     };
 
+    const isPrimitive = (v: unknown): boolean =>
+      v === null || (typeof v !== 'object' && typeof v !== 'function');
+
     const buildFromRaw = (): string => {
       if (rawValue === undefined) {
         return '';
       }
       if (this.state.multiple()) {
         const values = (rawValue as T[]) ?? [];
-        return values.map(v => (v != null ? String(v) : '')).join(', ');
+        // Only stringify when ALL entries are primitive; otherwise return empty to prefer cache
+        if (values.every(isPrimitive)) {
+          return values.map(v => (v != null ? String(v) : '')).join(', ');
+        }
+        return '';
       }
-      return rawValue != null ? String(rawValue) : '';
+      return isPrimitive(rawValue) && rawValue != null ? String(rawValue) : '';
     };
 
     let text: string;
@@ -178,7 +185,7 @@ export class NgpSelect {
       return text;
     }
 
-    // No options present: prefer raw value text; otherwise fall back to cached text
+    // No options present: prefer raw value text for primitives; otherwise use cached text
     const rawText = buildFromRaw();
     return rawText !== '' ? rawText : this.triggerTextCache();
   });
