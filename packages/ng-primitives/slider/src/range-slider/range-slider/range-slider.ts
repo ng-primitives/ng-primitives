@@ -172,8 +172,6 @@ export class NgpRangeSlider {
   }
 
   constructor() {
-    setupFormControl({ id: this.state.id, disabled: this.state.disabled });
-
     afterNextRender({
       earlyRead: () => {
         this.thumbs().forEach((thumb, index) => {
@@ -181,5 +179,6 @@ export class NgpRangeSlider {
         });
       },
     });
+    setupFormControl({ id: this.state.id, disabled: this.state.disabled });
   }
 }
