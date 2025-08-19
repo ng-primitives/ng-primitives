@@ -1,7 +1,6 @@
 import { BooleanInput, NumberInput } from '@angular/cdk/coercion';
 import {
   Directive,
-  afterNextRender,
   booleanAttribute,
   computed,
   contentChildren,
@@ -30,9 +29,6 @@ import { provideRangeSliderState, rangeSliderState } from './range-slider-state'
   },
 })
 export class NgpRangeSlider {
-  /** Capture thumbs */
-  private readonly thumbs = contentChildren<NgpRangeSliderThumb>(NgpRangeSliderThumb);
-
   /**
    * The id of the range slider. If not provided, a unique id will be generated.
    */
@@ -114,7 +110,14 @@ export class NgpRangeSlider {
   readonly track = signal<NgpRangeSliderTrack | undefined>(undefined);
 
   /**
+   * The thumbs of the range slider.
+   * @internal
+   */
+  readonly thumbs = contentChildren<NgpRangeSliderThumb>(NgpRangeSliderThumb);
+
+  /**
    * The low value as a percentage based on the min and max values.
+   * @internal
    */
   readonly lowPercentage = computed(
     () => ((this.state.low() - this.state.min()) / (this.state.max() - this.state.min())) * 100,
@@ -122,6 +125,7 @@ export class NgpRangeSlider {
 
   /**
    * The high value as a percentage based on the min and max values.
+   * @internal
    */
   readonly highPercentage = computed(
     () => ((this.state.high() - this.state.min()) / (this.state.max() - this.state.min())) * 100,
@@ -129,6 +133,7 @@ export class NgpRangeSlider {
 
   /**
    * The range between low and high values as a percentage.
+   * @internal
    */
   readonly rangePercentage = computed(() => this.highPercentage() - this.lowPercentage());
 
@@ -138,11 +143,16 @@ export class NgpRangeSlider {
    */
   protected readonly state = rangeSliderState<NgpRangeSlider>(this);
 
+  constructor() {
+    setupFormControl({ id: this.state.id, disabled: this.state.disabled });
+  }
+
   /**
    * Updates the low value, ensuring it doesn't exceed the high value.
    * @param value The new low value
+   * @internal
    */
-  updateLowValue(value: number): void {
+  setLowValue(value: number): void {
     const clampedValue = Math.max(this.state.min(), Math.min(value, this.state.high()));
     this.state.low.set(clampedValue);
     this.lowChange.emit(clampedValue);
@@ -151,8 +161,9 @@ export class NgpRangeSlider {
   /**
    * Updates the high value, ensuring it doesn't go below the low value.
    * @param value The new high value
+   * @internal
    */
-  updateHighValue(value: number): void {
+  setHighValue(value: number): void {
     const clampedValue = Math.min(this.state.max(), Math.max(value, this.state.low()));
     this.state.high.set(clampedValue);
     this.highChange.emit(clampedValue);
@@ -162,6 +173,8 @@ export class NgpRangeSlider {
    * Determines which thumb should be moved based on the position clicked.
    * @param percentage The percentage position of the click
    * @returns 'low' or 'high' indicating which thumb should move
+   *
+   * @internal
    */
   getClosestThumb(percentage: number): 'low' | 'high' {
     const value = this.state.min() + (this.state.max() - this.state.min()) * (percentage / 100);
@@ -169,16 +182,5 @@ export class NgpRangeSlider {
     const distanceToHigh = Math.abs(value - this.state.high());
 
     return distanceToLow <= distanceToHigh ? 'low' : 'high';
-  }
-
-  constructor() {
-    afterNextRender({
-      earlyRead: () => {
-        this.thumbs().forEach((thumb, index) => {
-          thumb.thumbType.set(index === 0 ? 'low' : 'high');
-        });
-      },
-    });
-    setupFormControl({ id: this.state.id, disabled: this.state.disabled });
   }
 }

@@ -55,9 +55,9 @@ export class NgpRangeSliderTrack {
     const closestThumb = this.rangeSliderState().getClosestThumb(percentage * 100);
 
     if (closestThumb === 'low') {
-      this.rangeSliderState().updateLowValue(value);
+      this.rangeSliderState().setLowValue(value);
     } else {
-      this.rangeSliderState().updateHighValue(value);
+      this.rangeSliderState().setHighValue(value);
     }
   }
 }

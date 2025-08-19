@@ -32,43 +32,10 @@ Assemble the range slider directives in your template.
   <div ngpRangeSliderTrack>
     <div ngpRangeSliderRange></div>
   </div>
-  <div ngpRangeSliderThumb ngpRangeSliderThumbType="low"></div>
-  <div ngpRangeSliderThumb ngpRangeSliderThumbType="high"></div>
+  <div ngpRangeSliderThumb></div>
+  <div ngpRangeSliderThumb></div>
 </div>
 ```
-
-## Reusable Component
-
-Create a reusable component that uses the range slider directives.
-
-<!-- <docs-snippet name="range-slider"></docs-snippet> -->
-
-## Schematics
-
-Generate a reusable range slider component using the Angular CLI.
-
-```bash npm
-ng g ng-primitives:primitive range-slider
-```
-
-### Options
-
-- `path`: The path at which to create the component file.
-- `prefix`: The prefix to apply to the generated component selector.
-- `componentSuffix`: The suffix to apply to the generated component class name.
-- `fileSuffix`: The suffix to apply to the generated component file name. Defaults to `component`.
-- `exampleStyles`: Whether to include example styles in the generated component file. Defaults to `true`.
-
-## Examples
-
-Here are some additional examples of how to use the Range Slider primitives.
-
-### Range Slider Form Field
-
-The range slider automatically integrates with the form field primitives.
-
-<!--
-<docs-example name="range-slider-form-field"></docs-example> -->
 
 ## API Reference
 

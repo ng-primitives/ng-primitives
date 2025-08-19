@@ -1,5 +1,5 @@
-import { computed, Directive, HostListener, signal } from '@angular/core';
-import { setupInteractions } from 'ng-primitives/internal';
+import { computed, Directive, HostListener } from '@angular/core';
+import { injectElementRef, setupInteractions } from 'ng-primitives/internal';
 import { injectRangeSliderState } from '../range-slider/range-slider-state';
 
 /**
@@ -13,29 +13,35 @@ import { injectRangeSliderState } from '../range-slider/range-slider-state';
     role: 'slider',
     '[attr.aria-valuemin]': 'state().min()',
     '[attr.aria-valuemax]': 'state().max()',
-    '[attr.aria-valuenow]': 'currentValue()',
+    '[attr.aria-valuenow]': 'state().value()',
     '[attr.aria-orientation]': 'state().orientation()',
     '[tabindex]': 'state().disabled() ? -1 : 0',
     '[attr.data-orientation]': 'state().orientation()',
     '[attr.data-disabled]': 'state().disabled() ? "" : null',
-    '[attr.data-thumb]': 'thumbType()',
+    '[attr.data-thumb]': 'state().thumb()',
     '[style.inset-inline-start.%]':
-      'state().orientation() === "horizontal" ? currentPercentage() : undefined',
+      'state().orientation() === "horizontal" ? percentage() : undefined',
     '[style.inset-block-start.%]':
-      'state().orientation() === "vertical" ? currentPercentage() : undefined',
+      'state().orientation() === "vertical" ? percentage() : undefined',
   },
 })
 export class NgpRangeSliderThumb {
   /**
-   * Specifies which value this thumb controls ('low' or 'high').
-   * If not specified, it will be automatically determined based on the order in the DOM.
-   */
-  readonly thumbType = signal<'low' | 'high'>('low');
-
-  /**
    * Access the range slider state.
    */
   protected readonly state = injectRangeSliderState();
+
+  /**
+   * Access the thumb element.
+   */
+  private readonly elementRef = injectElementRef();
+
+  /**
+   * Determines which value this thumb controls ('low' or 'high').
+   */
+  protected readonly thumb = computed(() =>
+    this.state().thumbs().indexOf(this) === 0 ? 'low' : 'high',
+  );
 
   /**
    * Store the dragging state.
@@ -45,18 +51,16 @@ export class NgpRangeSliderThumb {
   /**
    * Get the current value for this thumb.
    */
-  protected currentValue = computed(() => {
-    return this.thumbType() === 'low' ? this.state().low() : this.state().high();
-  });
+  protected readonly value = computed(() =>
+    this.thumb() === 'low' ? this.state().low() : this.state().high(),
+  );
 
   /**
    * Get the current percentage for this thumb.
    */
-  protected currentPercentage = computed(() => {
-    return this.thumbType() === 'low'
-      ? this.state().lowPercentage()
-      : this.state().highPercentage();
-  });
+  protected readonly percentage = computed(() =>
+    this.thumb() === 'low' ? this.state().lowPercentage() : this.state().highPercentage(),
+  );
 
   constructor() {
     setupInteractions({
@@ -109,10 +113,10 @@ export class NgpRangeSliderThumb {
       (this.state().max() - this.state().min()) * Math.max(0, Math.min(1, percentage));
 
     // Update the appropriate value based on thumb type
-    if (this.thumbType() === 'low') {
-      this.state().updateLowValue(value);
+    if (this.thumb() === 'low') {
+      this.state().setLowValue(value);
     } else {
-      this.state().updateHighValue(value);
+      this.state().setHighValue(value);
     }
   }
 
@@ -123,35 +127,46 @@ export class NgpRangeSliderThumb {
   @HostListener('keydown', ['$event'])
   protected handleKeydown(event: KeyboardEvent): void {
     const multiplier = event.shiftKey ? 10 : 1;
-    const currentValue = this.currentValue();
+    const currentValue = this.value();
     const step = this.state().step() * multiplier;
+
+    // determine the document direction
+    const isRTL = getComputedStyle(this.elementRef.nativeElement).direction === 'rtl';
 
     let newValue: number;
 
     switch (event.key) {
       case 'ArrowLeft':
+        newValue = isRTL
+          ? Math.min(currentValue - step, this.state().max())
+          : Math.max(currentValue - step, this.state().min());
+        break;
       case 'ArrowDown':
         newValue = Math.max(currentValue - step, this.state().min());
         break;
       case 'ArrowRight':
+        newValue = isRTL
+          ? Math.max(currentValue + step, this.state().min())
+          : Math.min(currentValue + step, this.state().max());
+        break;
       case 'ArrowUp':
         newValue = Math.min(currentValue + step, this.state().max());
         break;
       case 'Home':
-        newValue = this.state().min();
+        newValue = isRTL ? this.state().max() : this.state().min();
         break;
       case 'End':
-        newValue = this.state().max();
+        newValue = isRTL ? this.state().min() : this.state().max();
         break;
       default:
         return;
     }
 
     // Update the appropriate value based on thumb type
-    if (this.thumbType() === 'low') {
-      this.state().updateLowValue(newValue);
+    if (this.thumb() === 'low') {
+      this.state().setLowValue(newValue);
     } else {
-      this.state().updateHighValue(newValue);
+      this.state().setHighValue(newValue);
     }
 
     event.preventDefault();
