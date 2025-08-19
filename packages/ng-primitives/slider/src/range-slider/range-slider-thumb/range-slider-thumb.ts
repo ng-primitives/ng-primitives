@@ -1,4 +1,4 @@
-import { Directive, HostListener, input } from '@angular/core';
+import { computed, Directive, HostListener, input } from '@angular/core';
 import { setupInteractions } from 'ng-primitives/internal';
 import { injectRangeSliderState } from '../range-slider/range-slider-state';
 
@@ -47,18 +47,18 @@ export class NgpRangeSliderThumb {
   /**
    * Get the current value for this thumb.
    */
-  protected currentValue = () => {
+  protected currentValue = computed(() => {
     return this.thumbType() === 'low' ? this.state().low() : this.state().high();
-  };
+  });
 
   /**
    * Get the current percentage for this thumb.
    */
-  protected currentPercentage = () => {
+  protected currentPercentage = computed(() => {
     return this.thumbType() === 'low'
       ? this.state().lowPercentage()
       : this.state().highPercentage();
-  };
+  });
 
   constructor() {
     setupInteractions({
