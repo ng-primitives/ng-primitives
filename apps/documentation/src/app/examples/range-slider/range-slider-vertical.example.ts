@@ -64,19 +64,12 @@ import { NgpRangeSlider, NgpRangeSliderThumb, NgpRangeSliderTrack } from 'ng-pri
       <div ngpRangeSliderTrack>
         <div ngpRangeSlider></div>
       </div>
-      <div ngpRangeSliderThumb ngpRangeSliderThumbType="low"></div>
-      <div ngpRangeSliderThumb ngpRangeSliderThumbType="high"></div>
+      <div ngpRangeSliderThumb></div>
+      <div ngpRangeSliderThumb></div>
     </div>
   `,
 })
 export default class RangeSliderVerticalExample {
   low = signal(25);
   high = signal(75);
-
-  constructor() {
-    effect(() => {
-      console.log('low', this.low());
-      console.log('high', this.high());
-    });
-  }
 }

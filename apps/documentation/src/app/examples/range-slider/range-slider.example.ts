@@ -1,11 +1,9 @@
-import { Component, effect } from '@angular/core';
+import { Component, signal } from '@angular/core';
 import {
-  injectRangeSliderState,
   NgpRangeSlider,
   NgpRangeSliderRange,
   NgpRangeSliderThumb,
   NgpRangeSliderTrack,
-  provideRangeSliderState,
 } from 'ng-primitives/slider';
 
 @Component({
@@ -61,10 +59,10 @@ import {
   `,
   template: `
     <div
-      [ngpRangeSliderLow]="low"
-      [ngpRangeSliderHigh]="high"
-      (ngpRangeSliderLowChange)="low = $event"
-      (ngpRangeSliderHighChange)="high = $event"
+      [ngpRangeSliderLow]="low()"
+      [ngpRangeSliderHigh]="high()"
+      (ngpRangeSliderLowChange)="low.set($event)"
+      (ngpRangeSliderHighChange)="high.set($event)"
       ngpRangeSlider
     >
       <div ngpRangeSliderTrack>
@@ -76,6 +74,6 @@ import {
   `,
 })
 export default class RangeSliderExample {
-  low = 25;
-  high = 75;
+  low = signal(25);
+  high = signal(75);
 }
