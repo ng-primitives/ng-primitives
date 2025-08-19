@@ -1,8 +1,10 @@
 import { BooleanInput, NumberInput } from '@angular/cdk/coercion';
 import {
   Directive,
+  afterNextRender,
   booleanAttribute,
   computed,
+  contentChildren,
   input,
   numberAttribute,
   output,
@@ -11,6 +13,7 @@ import {
 import { NgpOrientation } from 'ng-primitives/common';
 import { setupFormControl } from 'ng-primitives/form-field';
 import { uniqueId } from 'ng-primitives/utils';
+import { NgpRangeSliderThumb } from '../range-slider-thumb/range-slider-thumb';
 import type { NgpRangeSliderTrack } from '../range-slider-track/range-slider-track';
 import { provideRangeSliderState, rangeSliderState } from './range-slider-state';
 
@@ -27,6 +30,9 @@ import { provideRangeSliderState, rangeSliderState } from './range-slider-state'
   },
 })
 export class NgpRangeSlider {
+  /** Capture thumbs */
+  private readonly thumbs = contentChildren<NgpRangeSliderThumb>(NgpRangeSliderThumb);
+
   /**
    * The id of the range slider. If not provided, a unique id will be generated.
    */
@@ -167,5 +173,13 @@ export class NgpRangeSlider {
 
   constructor() {
     setupFormControl({ id: this.state.id, disabled: this.state.disabled });
+
+    afterNextRender({
+      earlyRead: () => {
+        this.thumbs().forEach((thumb, index) => {
+          thumb.thumbType.set(index === 0 ? 'low' : 'high');
+        });
+      },
+    });
   }
 }

@@ -1,9 +1,11 @@
-import { Component } from '@angular/core';
+import { Component, effect } from '@angular/core';
 import {
+  injectRangeSliderState,
   NgpRangeSlider,
   NgpRangeSliderRange,
   NgpRangeSliderThumb,
   NgpRangeSliderTrack,
+  provideRangeSliderState,
 } from 'ng-primitives/slider';
 
 @Component({
@@ -68,8 +70,8 @@ import {
       <div ngpRangeSliderTrack>
         <div ngpRangeSliderRange></div>
       </div>
-      <div ngpRangeSliderThumb ngpRangeSliderThumbType="low"></div>
-      <div ngpRangeSliderThumb ngpRangeSliderThumbType="high"></div>
+      <div ngpRangeSliderThumb></div>
+      <div ngpRangeSliderThumb></div>
     </div>
   `,
 })
