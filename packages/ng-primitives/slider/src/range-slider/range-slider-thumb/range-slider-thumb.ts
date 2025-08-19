@@ -1,4 +1,4 @@
-import { computed, Directive, HostListener, model } from '@angular/core';
+import { computed, Directive, HostListener, signal } from '@angular/core';
 import { setupInteractions } from 'ng-primitives/internal';
 import { injectRangeSliderState } from '../range-slider/range-slider-state';
 
@@ -30,9 +30,7 @@ export class NgpRangeSliderThumb {
    * Specifies which value this thumb controls ('low' or 'high').
    * If not specified, it will be automatically determined based on the order in the DOM.
    */
-  readonly thumbType = model<'low' | 'high'>('low', {
-    alias: 'ngpRangeSliderThumbType',
-  });
+  readonly thumbType = signal<'low' | 'high'>('low');
 
   /**
    * Access the range slider state.
