@@ -85,7 +85,7 @@ export class NgpMenuTrigger<T = unknown> implements OnDestroy {
 
   /**
    * Define the offset of the menu relative to the trigger.
-   * @default 0
+   * @default 4
    */
   readonly offset = input<number, NumberInput>(this.config.offset, {
     alias: 'ngpMenuTriggerOffset',
