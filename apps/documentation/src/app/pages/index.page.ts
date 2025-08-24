@@ -10,8 +10,11 @@ import {
   heroMagnifyingGlass,
   heroSquares2x2,
   heroUsers,
+  heroSquare2Stack,
+  heroCheck,
 } from '@ng-icons/heroicons/outline';
 import { ThemeToggle } from '../components/theme-toggle/theme-toggle';
+import { Clipboard } from '@angular/cdk/clipboard';
 
 @Component({
   selector: 'docs-navbar',
@@ -121,6 +124,8 @@ export class DocsNavbar implements OnInit {
       heroBolt,
       heroSquares2x2,
       heroUsers,
+      heroSquare2Stack,
+      heroCheck,
       coralogix: `<svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
 <path d="M8 2C4.68874 2 2 4.69011 2 8C2 11.3099 4.68874 14 8 14C11.3113 14 14 11.3099 14 8C14 4.69011 11.3113 2 8 2Z" fill="white"/>
 <path opacity="0.4" d="M8 1.60563C4.46643 1.60563 1.59717 4.47887 1.59717 8.01408C1.59717 11.5493 4.46643 14.4225 8 14.4225C11.5336 14.4225 14.4028 11.5493 14.4028 8.01408C14.417 4.47887 11.5336 1.60563 8 1.60563ZM8 16C3.59011 16 0 12.4085 0 8C0 3.59155 3.59011 0 8 0C12.4099 0 16 3.59155 16 8C16 12.4225 12.4099 16 8 16Z" fill="white"/>
@@ -262,10 +267,26 @@ export class DocsNavbar implements OnInit {
 
           <div class="w-full max-w-sm overflow-hidden rounded-lg bg-zinc-950 text-white/90">
             <div class="mt-0 flex flex-1 flex-col outline-none">
-              <div class="flex h-8 items-center border-b border-b-zinc-800 px-4">
-                <div class="mr-2 h-3 w-3 rounded-full bg-red-500"></div>
-                <div class="mr-2 h-3 w-3 rounded-full bg-yellow-500"></div>
-                <div class="h-3 w-3 rounded-full bg-green-500"></div>
+              <div class="flex h-8 items-center justify-between border-b border-b-zinc-800 ps-4 pe-2">
+                <div class="flex items-center">
+                  <div class="mr-2 h-3 w-3 rounded-full bg-red-500"></div>
+                  <div class="mr-2 h-3 w-3 rounded-full bg-yellow-500"></div>
+                  <div class="h-3 w-3 rounded-full bg-green-500"></div>
+                </div>
+                <button
+                  class="flex items-center justify-center rounded-md p-1 text-white hover:bg-zinc-700/60 "
+                  [class.min-w-[60px]]="isCopied()"
+                  (click)="copyCommand()"
+                  type="button"
+                  aria-label="Copy command"
+                >
+                  @if (isCopied()) {
+                    <ng-icon name="heroCheck" class="mr-1 text-xs" />
+                    <span class="text-[10px]">Copied</span>
+                  } @else {
+                    <ng-icon name="heroSquare2Stack" class="text-md" />
+                  }
+                </button>
               </div>
               <pre
                 class="px-4 py-3.5"
@@ -302,7 +323,7 @@ export class DocsNavbar implements OnInit {
             class="flex flex-col justify-between rounded-xl bg-white p-8 shadow-sm ring-1 ring-zinc-200 dark:bg-zinc-800 dark:ring-zinc-700"
           >
             <p class="mb-6 text-sm leading-loose text-zinc-600 dark:text-zinc-300">
-              “{{ testimonial.quote }}”
+              "{{ testimonial.quote }}"
             </p>
             <div class="flex items-center gap-4 pt-4">
               <img
@@ -377,7 +398,11 @@ export class DocsNavbar implements OnInit {
   `,
 })
 export default class IndexPage {
+  private readonly clipboard = inject(Clipboard);
+  
   readonly year = new Date().getFullYear();
+  readonly isCopied = signal<boolean>(false);
+  
   readonly features = [
     {
       icon: 'heroCodeBracket',
@@ -446,4 +471,16 @@ export default class IndexPage {
       image: '/assets/testimonials/kedevked.jpg',
     },
   ];
+
+  protected copyCommand(): void {
+    this.clipboard.copy('ng add ng-primitives');
+    
+    // Set copied state to true
+    this.isCopied.set(true);
+    
+    // Reset after 2 seconds
+    setTimeout(() => {
+      this.isCopied.set(false);
+    }, 2000);
+  }
 }
