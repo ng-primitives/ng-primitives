@@ -24,12 +24,18 @@
         }
 
         <button
-          class="relative -mb-px ml-auto flex size-7 items-center justify-center whitespace-nowrap rounded-md text-base font-medium text-white outline-none hover:bg-zinc-700/60 hover:text-white"
+          class="relative -mb-px ml-auto flex items-center justify-center whitespace-nowrap rounded-md px-2 py-1 text-base font-medium text-white outline-none hover:bg-zinc-700/60 hover:text-white"
+          [class.min-w-[80px]]="isCopied()"
           (click)="copyToClipboard()"
           type="button"
           tabindex="0"
         >
+          @if (isCopied()) {
+          <ng-icon class="mr-1" name="heroCheck" />
+          <span class="text-xs">Copied</span>
+          } @else {
           <ng-icon name="heroSquare2Stack" />
+          }
         </button>
       </div>
 

@@ -10,7 +10,7 @@ import {
   signal,
 } from '@angular/core';
 import { NgIcon, provideIcons } from '@ng-icons/core';
-import { heroSquare2Stack } from '@ng-icons/heroicons/outline';
+import { heroSquare2Stack, heroCheck } from '@ng-icons/heroicons/outline';
 import * as prismjs from 'prismjs';
 
 const { highlight, languages } = prismjs;
@@ -18,7 +18,7 @@ const { highlight, languages } = prismjs;
 @Component({
   selector: 'docs-snippet',
   imports: [NgIcon],
-  providers: [provideIcons({ heroSquare2Stack })],
+  providers: [provideIcons({ heroSquare2Stack, heroCheck })],
   templateUrl: './snippet.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -34,8 +34,8 @@ export class Snippet {
   );
 
   readonly files = signal<Tab[]>([]);
-
   readonly selectedFile = signal<string | null>(null);
+  readonly isCopied = signal<boolean>(false);
 
   readonly code = computed(() => {
     const files = this.files();
@@ -126,6 +126,13 @@ export class Snippet {
     }
     const code = this.files().find(file => file.label === this.selectedFile())!.value;
     this.clipboard.copy(code);
+
+    this.isCopied.set(true);
+
+    setTimeout(() => {
+      this.isCopied.set(false);
+      this.changeDetector.detectChanges();
+    }, 2000);
   }
 }
 

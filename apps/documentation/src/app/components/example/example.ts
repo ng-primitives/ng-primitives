@@ -16,7 +16,7 @@ import {
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { NgIcon, provideIcons } from '@ng-icons/core';
-import { lucideClipboard } from '@ng-icons/lucide';
+import { lucideClipboard, lucideCheck } from '@ng-icons/lucide';
 import { phosphorLightning } from '@ng-icons/phosphor-icons/regular';
 import sdk from '@stackblitz/sdk';
 import { isString } from 'ng-primitives/utils';
@@ -31,7 +31,7 @@ const GLOBAL_STORAGE_STYLE_KEY = 'ngp-example-style';
   imports: [NgComponentOutlet, NgClass, NgIcon, FormsModule],
   templateUrl: './example.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  providers: [provideIcons({ phosphorLightning, lucideClipboard })],
+  providers: [provideIcons({ phosphorLightning, lucideClipboard, lucideCheck })],
 })
 export class Example {
   private readonly clipboard = inject(Clipboard);
@@ -56,6 +56,7 @@ export class Example {
   readonly component = signal<Type<unknown> | null>(null);
   readonly mode = signal<'preview' | 'source'>('preview');
   readonly code = signal<string>('');
+  readonly isCopied = signal<boolean>(false);
   // Private properties
   private raw: string | null = null; // Raw source code for copying and StackBlitz
 
@@ -582,5 +583,13 @@ module.exports = {
     }
 
     this.clipboard.copy(this.raw); // Copies the content of this.raw
+    // Set copied state to true
+    this.isCopied.set(true);
+
+    // Reset after 2 seconds
+    setTimeout(() => {
+      this.isCopied.set(false);
+      this.changeDetector.detectChanges();
+    }, 2000);
   }
 }
