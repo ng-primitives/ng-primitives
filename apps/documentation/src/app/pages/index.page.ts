@@ -1,3 +1,4 @@
+import { Clipboard } from '@angular/cdk/clipboard';
 import { isPlatformBrowser } from '@angular/common';
 import { Component, HostListener, inject, OnInit, PLATFORM_ID, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
@@ -14,7 +15,6 @@ import {
   heroCheck,
 } from '@ng-icons/heroicons/outline';
 import { ThemeToggle } from '../components/theme-toggle/theme-toggle';
-import { Clipboard } from '@angular/cdk/clipboard';
 
 @Component({
   selector: 'docs-navbar',
@@ -267,24 +267,26 @@ export class DocsNavbar implements OnInit {
 
           <div class="w-full max-w-sm overflow-hidden rounded-lg bg-zinc-950 text-white/90">
             <div class="mt-0 flex flex-1 flex-col outline-none">
-              <div class="flex h-8 items-center justify-between border-b border-b-zinc-800 ps-4 pe-2">
+              <div
+                class="flex h-8 items-center justify-between border-b border-b-zinc-800 pe-2 ps-4"
+              >
                 <div class="flex items-center">
                   <div class="mr-2 h-3 w-3 rounded-full bg-red-500"></div>
                   <div class="mr-2 h-3 w-3 rounded-full bg-yellow-500"></div>
                   <div class="h-3 w-3 rounded-full bg-green-500"></div>
                 </div>
                 <button
-                  class="flex items-center justify-center rounded-md p-1 text-white hover:bg-zinc-700/60 "
+                  class="flex items-center justify-center rounded-md p-1 text-white hover:bg-zinc-700/60"
                   [class.min-w-[60px]]="isCopied()"
                   (click)="copyCommand()"
                   type="button"
                   aria-label="Copy command"
                 >
                   @if (isCopied()) {
-                    <ng-icon name="heroCheck" class="mr-1 text-xs" />
+                    <ng-icon class="mr-1 text-xs" name="heroCheck" />
                     <span class="text-[10px]">Copied</span>
                   } @else {
-                    <ng-icon name="heroSquare2Stack" class="text-md" />
+                    <ng-icon class="text-md" name="heroSquare2Stack" />
                   }
                 </button>
               </div>
@@ -399,10 +401,10 @@ export class DocsNavbar implements OnInit {
 })
 export default class IndexPage {
   private readonly clipboard = inject(Clipboard);
-  
+
   readonly year = new Date().getFullYear();
   readonly isCopied = signal<boolean>(false);
-  
+
   readonly features = [
     {
       icon: 'heroCodeBracket',
@@ -474,10 +476,10 @@ export default class IndexPage {
 
   protected copyCommand(): void {
     this.clipboard.copy('ng add ng-primitives');
-    
+
     // Set copied state to true
     this.isCopied.set(true);
-    
+
     // Reset after 2 seconds
     setTimeout(() => {
       this.isCopied.set(false);
