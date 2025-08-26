@@ -65,13 +65,14 @@ export class NgpDatePickerRowRender<T> implements OnDestroy {
 
     // calculate the offset of the first day of the week.
     const firstDayOfWeekOffset = this.getFirstDayOfWeekOffset(firstDay);
+    const lastDayOfWeekOffset = this.getLastDayOfWeekOffset(lastDay);
 
     // find the first and last day of visible in the grid.
     firstDay = this.dateAdapter.subtract(firstDay, {
       days: firstDayOfWeekOffset,
     });
     lastDay = this.dateAdapter.add(lastDay, {
-      days: 6 - this.dateAdapter.getDay(lastDay),
+      days: lastDayOfWeekOffset,
     });
 
     // collect all the days to display.
@@ -170,5 +171,19 @@ export class NgpDatePickerRowRender<T> implements OnDestroy {
       (DAYS_PER_WEEK + this.dateAdapter.getDay(firstCalendarDay) - this.state().firstDayOfWeek()) %
       DAYS_PER_WEEK
     );
+  }
+
+  /**
+   * Get the offset of the last day of the week.
+   * @param lastCalendarDay The last day of the calendar without the offset.
+   * @returns The offset of the last day of the week.
+   *
+   * @internal
+   */
+  getLastDayOfWeekOffset(lastCalendarDay: T): number {
+    const lastDay = this.dateAdapter.getDay(lastCalendarDay);
+    const firstDay = this.state().firstDayOfWeek();
+
+    return (DAYS_PER_WEEK + firstDay + DAYS_PER_WEEK - 1 - lastDay) % DAYS_PER_WEEK;
   }
 }

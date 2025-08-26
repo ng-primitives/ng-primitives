@@ -1,3 +1,26 @@
+## 0.74.0 (2025-08-22)
+
+### 🚀 Features
+
+- add progress tailwind example ([#428](https://github.com/ng-primitives/ng-primitives/pull/428))
+- add NgpListboxHeader directive and deprecate NgpHeader ([#427](https://github.com/ng-primitives/ng-primitives/pull/427))
+- add radio tailwind example ([#429](https://github.com/ng-primitives/ng-primitives/pull/429))
+- add resize tailwind example ([#433](https://github.com/ng-primitives/ng-primitives/pull/433))
+- add roving tailwind example ([#434](https://github.com/ng-primitives/ng-primitives/pull/434))
+- add search tailwind example ([#437](https://github.com/ng-primitives/ng-primitives/pull/437))
+
+### 🩹 Fixes
+
+- **date-picker:** missing last day of week offset calculation for calendars using firstDayOfWeek ([#426](https://github.com/ng-primitives/ng-primitives/pull/426))
+- **dialog:** add viewcontainerref fallback ([309f43a0](https://github.com/ng-primitives/ng-primitives/commit/309f43a0))
+
+### ❤️ Thank You
+
+- Ashley Hunter
+- Benny Böhm @bboehm86
+- kedevked @kedevked
+- Ramon Martinez @RaimonxDev
+
 ## 0.73.1 (2025-08-13)
 
 ### 🚀 Features

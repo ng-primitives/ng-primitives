@@ -1,12 +1,16 @@
 import { Component, signal } from '@angular/core';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { heroCheckSolid } from '@ng-icons/heroicons/solid';
-import { NgpHeader } from 'ng-primitives/common';
-import { NgpListbox, NgpListboxOption, NgpListboxSection } from 'ng-primitives/listbox';
+import {
+  NgpListbox,
+  NgpListboxOption,
+  NgpListboxSection,
+  NgpListboxHeader,
+} from 'ng-primitives/listbox';
 
 @Component({
   selector: 'app-listbox-sections-tailwind',
-  imports: [NgpListbox, NgpListboxOption, NgpListboxSection, NgpHeader, NgIcon],
+  imports: [NgpListbox, NgpListboxOption, NgpListboxSection, NgpListboxHeader, NgIcon],
   providers: [provideIcons({ heroCheckSolid })],
   template: `
     <div
@@ -18,7 +22,7 @@ import { NgpListbox, NgpListboxOption, NgpListboxSection } from 'ng-primitives/l
       @for (section of sections; track section.name) {
         <header
           class="flex h-8 px-3 py-1 text-sm font-semibold leading-6 text-gray-600 dark:text-zinc-300"
-          ngpHeader
+          ngpListboxHeader
         >
           {{ section.name }}
         </header>

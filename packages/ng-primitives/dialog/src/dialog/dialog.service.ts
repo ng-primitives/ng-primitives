@@ -86,7 +86,10 @@ export class NgpDialogManager implements OnDestroy {
     // which may be removed before the dialog is closed. This is not desired, so we need to access a view container ref
     // that is not within the overlay. To solve this we use the view container ref of the root component.
     // Could this have any unintended side effects? For example, the dialog would not be closed during route changes?
-    const viewContainerRef = this.applicationRef.components[0].injector.get(ViewContainerRef);
+    const viewContainerRef =
+      this.applicationRef.components[0]?.injector.get(ViewContainerRef) ??
+      config?.viewContainerRef ??
+      config?.injector?.get(ViewContainerRef);
 
     const defaults = this.defaultOptions;
     config = { ...defaults, viewContainerRef, ...config };
