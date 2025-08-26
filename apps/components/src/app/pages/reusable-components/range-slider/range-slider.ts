@@ -82,7 +82,6 @@ import { ChangeFn, provideValueAccessor, TouchedFn } from 'ng-primitives/utils';
 
     [ngpRangeSliderThumb][data-thumb='high'] {
       z-index: 2;
-      background-color: red; // TODO: Remove this
     }
   `,
   host: {
