@@ -1,4 +1,4 @@
-import { computed, Directive, HostListener } from '@angular/core';
+import { computed, Directive, effect, HostListener } from '@angular/core';
 import { injectElementRef, setupInteractions } from 'ng-primitives/internal';
 import { injectRangeSliderState } from '../range-slider/range-slider-state';
 
@@ -63,6 +63,9 @@ export class NgpRangeSliderThumb {
   );
 
   constructor() {
+    effect(() => {
+      console.log(this.state().thumbs().indexOf(this));
+    });
     setupInteractions({
       hover: true,
       focusVisible: true,
