@@ -13,12 +13,12 @@ import { injectRangeSliderState } from '../range-slider/range-slider-state';
     role: 'slider',
     '[attr.aria-valuemin]': 'state().min()',
     '[attr.aria-valuemax]': 'state().max()',
-    '[attr.aria-valuenow]': 'state().value()',
+    '[attr.aria-valuenow]': 'value()',
     '[attr.aria-orientation]': 'state().orientation()',
     '[tabindex]': 'state().disabled() ? -1 : 0',
     '[attr.data-orientation]': 'state().orientation()',
     '[attr.data-disabled]': 'state().disabled() ? "" : null',
-    '[attr.data-thumb]': 'state().thumb()',
+    '[attr.data-thumb]': 'thumb()',
     '[style.inset-inline-start.%]':
       'state().orientation() === "horizontal" ? percentage() : undefined',
     '[style.inset-block-start.%]':
