@@ -92,8 +92,8 @@ export class RangeSlider implements ControlValueAccessor {
   private readonly state = injectRangeSliderState();
 
   /** Forward aria-labels to each thumb */
-  readonly ariaLabelLow = input<string | null>(null, { alias: 'aria-label-low' });
-  readonly ariaLabelHigh = input<string | null>(null, { alias: 'aria-label-high' });
+  readonly ariaLabelLow = input<string | null>(null);
+  readonly ariaLabelHigh = input<string | null>(null);
 
   /** The onChange callback function. */
   private onChange?: ChangeFn<[number, number]>;
