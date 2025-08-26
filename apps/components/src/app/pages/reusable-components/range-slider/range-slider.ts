@@ -1,11 +1,13 @@
-import { Component, effect, input } from '@angular/core';
+import { Component, input } from '@angular/core';
 import { ControlValueAccessor } from '@angular/forms';
+import { explicitEffect } from 'ng-primitives/internal';
 import {
+  injectRangeSliderState,
   NgpRangeSlider,
   NgpRangeSliderRange,
   NgpRangeSliderThumb,
   NgpRangeSliderTrack,
-  injectRangeSliderState,
+  provideRangeSliderState,
 } from 'ng-primitives/slider';
 import { ChangeFn, provideValueAccessor, TouchedFn } from 'ng-primitives/utils';
 
@@ -27,7 +29,7 @@ import { ChangeFn, provideValueAccessor, TouchedFn } from 'ng-primitives/utils';
     },
   ],
   imports: [NgpRangeSliderTrack, NgpRangeSliderRange, NgpRangeSliderThumb],
-  providers: [provideValueAccessor(RangeSlider)],
+  providers: [provideRangeSliderState(), provideValueAccessor(RangeSlider)],
   template: `
     <div ngpRangeSliderTrack>
       <div ngpRangeSliderRange></div>
@@ -99,21 +101,20 @@ export class RangeSlider implements ControlValueAccessor {
   private onChange?: ChangeFn<[number, number]>;
 
   /** The onTouched callback function. */
-  private onTouched?: TouchedFn;
+  protected onTouched?: TouchedFn;
 
   constructor() {
     // Whenever either value changes, call the onChange function with the new tuple [low, high].
-    effect(() => {
-      const low = this.state().low();
-      const high = this.state().high();
-      this.onChange?.([low, high]);
-
-      console.log(this.state().thumbs());
-    });
+    explicitEffect([this.state().low, this.state().high], ([low, high]) =>
+      this.onChange?.([low, high]),
+    );
   }
 
   writeValue(value: [number, number]): void {
-    if (!value || value.length !== 2) return;
+    if (!value || value.length !== 2) {
+      return;
+    }
+
     const [low, high] = value;
     // Use the directive's clamping setters to respect min/max and ordering
     this.state().setLowValue(low);

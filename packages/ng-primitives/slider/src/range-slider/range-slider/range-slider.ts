@@ -3,7 +3,6 @@ import {
   Directive,
   booleanAttribute,
   computed,
-  contentChildren,
   input,
   numberAttribute,
   output,
@@ -113,7 +112,7 @@ export class NgpRangeSlider {
    * The thumbs of the range slider.
    * @internal
    */
-  readonly thumbs = contentChildren<NgpRangeSliderThumb>(NgpRangeSliderThumb);
+  readonly thumbs = signal<NgpRangeSliderThumb[]>([]);
 
   /**
    * The low value as a percentage based on the min and max values.
@@ -182,5 +181,23 @@ export class NgpRangeSlider {
     const distanceToHigh = Math.abs(value - this.state.high());
 
     return distanceToLow <= distanceToHigh ? 'low' : 'high';
+  }
+
+  /**
+   * Updates the thumbs array when a new thumb is added.
+   * @param thumb The new thumb to add
+   * @internal
+   */
+  addThumb(thumb: NgpRangeSliderThumb): void {
+    this.thumbs.update(thumbs => [...thumbs, thumb]);
+  }
+
+  /**
+   * Removes a thumb from the thumbs array.
+   * @param thumb The thumb to remove
+   * @internal
+   */
+  removeThumb(thumb: NgpRangeSliderThumb): void {
+    this.thumbs.update(thumbs => thumbs.filter(t => t !== thumb));
   }
 }

@@ -1,4 +1,4 @@
-import { computed, Directive, effect, HostListener } from '@angular/core';
+import { computed, Directive, HostListener, OnDestroy } from '@angular/core';
 import { injectElementRef, setupInteractions } from 'ng-primitives/internal';
 import { injectRangeSliderState } from '../range-slider/range-slider-state';
 
@@ -25,7 +25,7 @@ import { injectRangeSliderState } from '../range-slider/range-slider-state';
       'state().orientation() === "vertical" ? percentage() : undefined',
   },
 })
-export class NgpRangeSliderThumb {
+export class NgpRangeSliderThumb implements OnDestroy {
   /**
    * Access the range slider state.
    */
@@ -63,15 +63,18 @@ export class NgpRangeSliderThumb {
   );
 
   constructor() {
-    effect(() => {
-      console.log(this.state().thumbs().indexOf(this));
-    });
     setupInteractions({
       hover: true,
       focusVisible: true,
       press: true,
       disabled: this.state().disabled,
     });
+
+    this.state().addThumb(this);
+  }
+
+  ngOnDestroy(): void {
+    this.state().removeThumb(this);
   }
 
   @HostListener('pointerdown', ['$event'])
