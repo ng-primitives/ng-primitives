@@ -120,6 +120,10 @@ The following data attributes are available to style the thumb:
 | `data-focus-visible` | Applied when the slider thumb is focused. | `-`                        |
 | `data-press`         | Applied when the slider thumb is pressed. | `-`                        |
 
+## API Reference
+
+The following directives are available to import from the `ng-primitives/slider` package:
+
 ## Accessibility
 
 Adheres to the [Slider WAI-ARIA design pattern](https://www.w3.org/WAI/ARIA/apg/patterns/slider-multithumb).
