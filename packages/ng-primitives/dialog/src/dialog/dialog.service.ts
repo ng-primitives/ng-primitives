@@ -138,7 +138,7 @@ export class NgpDialogManager implements OnDestroy {
         // try and best determine the focus origin when it is programmatically closed by the user.
         this.focusMonitor.focusVia(
           activeElement,
-          closeResult?.focusOrigin ?? (this.focusMonitor as any)._lastFocusOrigin,
+          closeResult.focusOrigin ?? (this.focusMonitor as any)._lastFocusOrigin,
         );
       }
     });
