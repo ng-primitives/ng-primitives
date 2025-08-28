@@ -17,7 +17,7 @@ export class NgpDialogRef<T = unknown, R = unknown> {
   closeOnEscape: boolean | undefined;
 
   /** Emits when the dialog has been closed. */
-  readonly closed = new Subject<{ focusOrigin: FocusOrigin; result?: R } | null>();
+  readonly closed = new Subject<{ focusOrigin?: FocusOrigin; result?: R }>();
 
   /** Emits when on keyboard events within the dialog. */
   readonly keydownEvents: Observable<KeyboardEvent>;
@@ -87,11 +87,7 @@ export class NgpDialogRef<T = unknown, R = unknown> {
 
     this.overlayRef.dispose();
     this.detachSubscription.unsubscribe();
-    if (focusOrigin) {
-      this.closed.next({ focusOrigin, result });
-    } else {
-      this.closed.next(null);
-    }
+    this.closed.next({ focusOrigin, result });
     this.closed.complete();
   }
 
