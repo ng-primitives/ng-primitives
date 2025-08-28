@@ -2,7 +2,7 @@
   "name": "@ng-primitives/state",
   "description": "Angular Primitives State is a low-level state library with a focus on developer experience.",
   "license": "Apache-2.0",
-  "version": "0.74.0",
+  "version": "0.75.0",
   "keywords": [
     "angular",
     "primitives",
@@ -29,7 +29,7 @@
     "@angular/core": ">=19.0.0"
   },
   "dependencies": {
-    "ng-primitives": "0.74.0"
+    "ng-primitives": "0.75.0"
   },
   "sideEffects": false
 }

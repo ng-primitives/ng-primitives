@@ -1,3 +1,20 @@
+## 0.75.0 (2025-08-28)
+
+### 🚀 Features
+
+- Range Slider ([#430](https://github.com/ng-primitives/ng-primitives/pull/430))
+- **snippet:** add copy confirmation feedback to code snippet and exa… ([#438](https://github.com/ng-primitives/ng-primitives/pull/438))
+
+### 🩹 Fixes
+
+- **dialog:** fixing programmatic result ([#444](https://github.com/ng-primitives/ng-primitives/pull/444))
+
+### ❤️ Thank You
+
+- Ashley Hunter
+- Ramon Martinez @RaimonxDev
+- Zagham Nadeem @zagham-nadeem
+
 ## 0.74.0 (2025-08-22)
 
 ### 🚀 Features
