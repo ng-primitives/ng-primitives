@@ -1,11 +1,13 @@
-import { Component, effect, input } from '@angular/core';
+import { Component, input } from '@angular/core';
 import { ControlValueAccessor } from '@angular/forms';
+import { explicitEffect } from 'ng-primitives/internal';
 import {
+  injectRangeSliderState,
   NgpRangeSlider,
   NgpRangeSliderRange,
   NgpRangeSliderThumb,
   NgpRangeSliderTrack,
-  injectRangeSliderState,
+  provideRangeSliderState,
 } from 'ng-primitives/slider';
 import { ChangeFn, provideValueAccessor, TouchedFn } from 'ng-primitives/utils';
 
@@ -23,22 +25,19 @@ import { ChangeFn, provideValueAccessor, TouchedFn } from 'ng-primitives/utils';
         'ngpRangeSliderDisabled:disabled',
         'ngpRangeSliderOrientation:orientation',
       ],
-      outputs: [
-        'ngpRangeSliderLowChange:lowChange',
-        'ngpRangeSliderHighChange:highChange',
-      ],
+      outputs: ['ngpRangeSliderLowChange:lowChange', 'ngpRangeSliderHighChange:highChange'],
     },
   ],
   imports: [NgpRangeSliderTrack, NgpRangeSliderRange, NgpRangeSliderThumb],
-  providers: [provideValueAccessor(RangeSlider<%= componentSuffix %>)],
+  providers: [provideRangeSliderState(), provideValueAccessor(RangeSlider<%= componentSuffix %>)],
   template: `
-      <div ngpRangeSliderTrack>
-        <div ngpRangeSliderRange></div>
-      </div>
-      <div ngpRangeSliderThumb></div>
-      <div ngpRangeSliderThumb></div>
-    `,
-    styles: `
+    <div ngpRangeSliderTrack>
+      <div ngpRangeSliderRange></div>
+    </div>
+    <div ngpRangeSliderThumb></div>
+    <div ngpRangeSliderThumb></div>
+  `,
+  styles: `
 /* These styles rely on CSS variables that can be imported from ng-primitives/example-theme/index.css in your global styles */
 
     :host {
@@ -82,51 +81,56 @@ import { ChangeFn, provideValueAccessor, TouchedFn } from 'ng-primitives/utils';
       outline: 2px solid var(--ngp-focus-ring);
       outline-offset: 0;
     }
+
+    [ngpRangeSliderThumb][data-thumb='high'] {
+      z-index: 2;
+    }
   `,
   host: {
-    '(focusout)': 'onTouched?.()'
+    '(focusout)': 'onTouched?.()',
   },
 })
-export class RangeSlider<%= componentSuffix %> {
+export class RangeSlider<%= componentSuffix %> implements ControlValueAccessor {
   /** Access the range slider state */
-  // private readonly state = injectRangeSliderState();
+  private readonly state = injectRangeSliderState();
 
-  // /** Forward aria-labels to each thumb */
-  // readonly ariaLabelLow = input<string | null>(null, { alias: 'aria-label-low' });
-  // readonly ariaLabelHigh = input<string | null>(null, { alias: 'aria-label-high' });
+  /** Forward aria-labels to each thumb */
+  readonly ariaLabelLow = input<string | null>(null);
+  readonly ariaLabelHigh = input<string | null>(null);
 
-  // /** The onChange callback function. */
-  // private onChange?: ChangeFn<[number, number]>;
+  /** The onChange callback function. */
+  private onChange?: ChangeFn<[number, number]>;
 
-  // /** The onTouched callback function. */
-  // protected onTouched?: TouchedFn;
+  /** The onTouched callback function. */
+  protected onTouched?: TouchedFn;
 
-  // constructor() {
-  //   // Whenever either value changes, call the onChange function with the new tuple [low, high].
-  //   effect(() => {
-  //     const low = this.state().low();
-  //     const high = this.state().high();
-  //     this.onChange?.([low, high]);
-  //   });
-  // }
+  constructor() {
+    // Whenever either value changes, call the onChange function with the new tuple [low, high].
+    explicitEffect([this.state().low, this.state().high], ([low, high]) =>
+      this.onChange?.([low, high]),
+    );
+  }
 
-  // writeValue(value: [number, number]): void {
-  //   if (!value || value.length !== 2) return;
-  //   const [low, high] = value;
-  //   // Use the directive's clamping setters to respect min/max and ordering
-  //   this.state().setLowValue(low);
-  //   this.state().setHighValue(high);
-  // }
+  writeValue(value: [number, number]): void {
+    if (!value || value.length !== 2) {
+      return;
+    }
 
-  // registerOnChange(fn: ChangeFn<[number, number]>): void {
-  //   this.onChange = fn;
-  // }
+    const [low, high] = value;
+    // Use the directive's clamping setters to respect min/max and ordering
+    this.state().setLowValue(low);
+    this.state().setHighValue(high);
+  }
 
-  // registerOnTouched(fn: TouchedFn): void {
-  //   this.onTouched = fn;
-  // }
+  registerOnChange(fn: ChangeFn<[number, number]>): void {
+    this.onChange = fn;
+  }
 
-  // setDisabledState(isDisabled: boolean): void {
-  //   this.state().disabled.set(isDisabled);
-  // }
+  registerOnTouched(fn: TouchedFn): void {
+    this.onTouched = fn;
+  }
+
+  setDisabledState(isDisabled: boolean): void {
+    this.state().disabled.set(isDisabled);
+  }
 }
