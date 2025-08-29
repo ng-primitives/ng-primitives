@@ -45,7 +45,7 @@ import {
         <ng-icon class="mx-2 h-full text-gray-500" name="heroChevronDown" />
 
         <div
-          class="absolute z-[1001] mt-1 max-h-[240px] w-[300px] overflow-y-auto rounded-xl border border-gray-200 bg-white p-1 shadow-lg outline-none ring-1 ring-black/10 dark:border-gray-800 dark:bg-black dark:ring-white/10"
+          class="absolute z-[1001] mt-1 max-h-[240px] w-[300px] overflow-y-auto rounded-xl border border-gray-200 bg-white p-1 shadow-lg outline-none dark:border-gray-800 dark:bg-black"
           *ngpSelectPortal
           ngpSelectDropdown
         >
@@ -67,6 +67,37 @@ import {
         </div>
       </div>
     </div>
+  `,
+  styles: `
+    [ngpSelectDropdown][data-enter] {
+      animation: select-show 0.1s ease-out;
+    }
+
+    [ngpSelectDropdown][data-exit] {
+      animation: select-hide 0.1s ease-out;
+    }
+
+    @keyframes select-show {
+      from {
+        opacity: 0;
+        transform: translateY(-10px) scale(0.9);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+    }
+
+    @keyframes select-hide {
+      from {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+      to {
+        opacity: 0;
+        transform: translateY(-10px) scale(0.9);
+      }
+    }
   `,
 })
 export default class SelectFormFieldTailwindExample {
