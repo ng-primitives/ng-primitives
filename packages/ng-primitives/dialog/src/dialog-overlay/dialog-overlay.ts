@@ -1,7 +1,7 @@
 import { booleanAttribute, Directive, HostListener, input } from '@angular/core';
 import { NgpExitAnimation } from 'ng-primitives/internal';
-import { injectDialogRef } from '../dialog/dialog-ref';
 import { injectDialogConfig } from '../config/dialog-config';
+import { injectDialogRef } from '../dialog/dialog-ref';
 
 @Directive({
   selector: '[ngpDialogOverlay]',
@@ -10,7 +10,7 @@ import { injectDialogConfig } from '../config/dialog-config';
 })
 export class NgpDialogOverlay {
   /** Access the global configuration */
-    private readonly config = injectDialogConfig();
+  private readonly config = injectDialogConfig();
 
   /** Access the dialog ref. */
   private readonly dialogRef = injectDialogRef();
