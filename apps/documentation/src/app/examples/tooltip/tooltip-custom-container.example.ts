@@ -1,6 +1,11 @@
 import { Component, ViewEncapsulation } from '@angular/core';
 import { NgpButton } from 'ng-primitives/button';
-import { NgpTooltip, NgpTooltipArrow, NgpTooltipTrigger, provideTooltipConfig } from 'ng-primitives/tooltip';
+import {
+  NgpTooltip,
+  NgpTooltipArrow,
+  NgpTooltipTrigger,
+  provideTooltipConfig,
+} from 'ng-primitives/tooltip';
 
 @Component({
   selector: 'app-tooltip-custom-container',
@@ -11,17 +16,17 @@ import { NgpTooltip, NgpTooltipArrow, NgpTooltipTrigger, provideTooltipConfig } 
     }),
   ],
   template: `
-      <div class="tooltip-container"></div>
+    <div class="tooltip-container"></div>
 
-      <div class="examples">
-        <button [ngpTooltipTrigger]="tooltip1" ngpButton type="button">
-          Custom Container Tooltip
-        </button>
+    <div class="examples">
+      <button [ngpTooltipTrigger]="tooltip1" ngpButton type="button">
+        Custom Container Tooltip
+      </button>
 
-        <button class="ellipsis-text" [ngpTooltipTrigger]="tooltip2">
-          This text uses custom container for tooltip rendering
-        </button>
-      </div>
+      <button class="ellipsis-text" [ngpTooltipTrigger]="tooltip2">
+        This text uses custom container for tooltip rendering
+      </button>
+    </div>
 
     <!-- Tooltip templates -->
     <ng-template #tooltip1>

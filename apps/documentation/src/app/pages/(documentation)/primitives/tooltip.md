@@ -52,7 +52,7 @@ ng g ng-primitives:primitive tooltip
 
 ## Examples
 
-###  Tooltip with Custom Container
+### Tooltip with Custom Container
 
 The tooltip can be rendered inside a custom container. You can open DevTools and inspect the DOM to see it mounted within this container.
 
