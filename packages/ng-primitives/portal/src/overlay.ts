@@ -596,6 +596,12 @@ export class NgpOverlay<T = unknown> {
 
     if (typeof this.config.container === 'string') {
       const element = this.document.querySelector(this.config.container);
+      if (!element) {
+        // Fallback to document.body if the container is not found
+        console.warn(`NgPrimitives: Container element with selector "${this.config.container}" not found. Falling back to document.body.`);
+        return this.document.body;
+      }
+
       return element as HTMLElement;
     }
 
