@@ -105,7 +105,7 @@ export class NgpMenuTrigger<T = unknown> implements OnDestroy {
    * Define the container in which the menu should be attached.
    * @default document.body
    */
-  readonly container = input<HTMLElement | null>(this.config.container, {
+  readonly container = input<HTMLElement | string | null>(this.config.container, {
     alias: 'ngpMenuTriggerContainer',
   });
 

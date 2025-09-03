@@ -104,7 +104,7 @@ export class NgpSelect {
   });
 
   /** The container for the dropdown. */
-  readonly container = input<HTMLElement | null>(this.config.container, {
+  readonly container = input<HTMLElement | string | null>(this.config.container, {
     alias: 'ngpSelectDropdownContainer',
   });
 

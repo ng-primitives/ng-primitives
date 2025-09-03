@@ -21,10 +21,10 @@ export interface NgpMenuConfig {
   flip: boolean;
 
   /**
-   * Define the container in to which the menu should be attached.
-   * @default document.body
+   * Define the container element or selector in to which the menu should be attached.
+   * @default 'body'
    */
-  container: HTMLElement | null;
+  container: HTMLElement | string | null;
 
   /**
    * Defines how the menu behaves when the window is scrolled.
@@ -37,7 +37,7 @@ export const defaultMenuConfig: NgpMenuConfig = {
   offset: 4,
   placement: 'bottom-start',
   flip: true,
-  container: null,
+  container: 'body',
   scrollBehavior: 'block',
 };
 

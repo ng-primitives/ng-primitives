@@ -33,10 +33,10 @@ export interface NgpPopoverConfig {
   flip: boolean;
 
   /**
-   * Define the container in to which the popover should be attached.
-   * @default document.body
+   * Define the container element or selector in to which the popover should be attached.
+   * @default 'body'
    */
-  container: HTMLElement | null;
+  container: HTMLElement | string | null;
 
   /**
    * Define whether the popover should close when clicking outside of it.
@@ -63,7 +63,7 @@ export const defaultPopoverConfig: NgpPopoverConfig = {
   showDelay: 0,
   hideDelay: 0,
   flip: true,
-  container: null,
+  container: 'body',
   closeOnOutsideClick: true,
   closeOnEscape: true,
   scrollBehavior: 'reposition',

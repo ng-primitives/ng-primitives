@@ -33,10 +33,10 @@ export interface NgpTooltipConfig {
   flip: boolean;
 
   /**
-   * Define the container in to which the tooltip should be attached.
-   * @default document.body
+   * Define the container element or selector in to which the tooltip should be attached.
+   * @default 'body'
    */
-  container: HTMLElement | null;
+  container: HTMLElement | string | null;
 
   /**
    * Whether the tooltip should only show when the trigger element overflows.
@@ -57,7 +57,7 @@ export const defaultTooltipConfig: NgpTooltipConfig = {
   showDelay: 0,
   hideDelay: 500,
   flip: true,
-  container: null,
+  container: 'body',
   showOnOverflow: false,
   useTextContent: true,
 };
