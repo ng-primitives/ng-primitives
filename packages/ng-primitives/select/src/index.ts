@@ -9,3 +9,4 @@ export { NgpSelectOption } from './select-option/select-option';
 export { NgpSelectPortal } from './select-portal/select-portal';
 export { NgpSelect } from './select/select';
 export { injectSelectState, provideSelectState } from './select/select-state';
+export { provideSelectConfig, injectSelectConfig } from './config/select-config';
