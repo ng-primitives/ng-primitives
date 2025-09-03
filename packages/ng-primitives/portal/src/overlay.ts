@@ -51,8 +51,8 @@ export interface NgpOverlayConfig<T = unknown> {
   /** Context data to pass to the overlay content */
   context?: Signal<T | undefined>;
 
-  /** Container element to attach the overlay to (defaults to document.body) */
-  container?: HTMLElement | null;
+  /** Container element or selector to attach the overlay to (defaults to document.body) */
+  container?: HTMLElement | string | null;
 
   /** Preferred placement of the overlay relative to the trigger */
   placement?: Placement;
@@ -407,7 +407,7 @@ export class NgpOverlay<T = unknown> {
     );
 
     // Attach portal to container
-    const container = this.config.container || this.document.body;
+    const container = this.resolveContainer();
     portal.attach(container);
 
     // Update portal signal
@@ -583,6 +583,23 @@ export class NgpOverlay<T = unknown> {
    */
   unregisterArrow(): void {
     this.arrowElement = null;
+  }
+
+  /**
+   * Resolve the container element from the configuration
+   * @internal
+   */
+  private resolveContainer(): HTMLElement {
+    if (!this.config.container) {
+      return this.document.body;
+    }
+
+    if (typeof this.config.container === 'string') {
+      const element = this.document.querySelector(this.config.container);
+      return element as HTMLElement;
+    }
+
+    return this.config.container;
   }
 }
 
