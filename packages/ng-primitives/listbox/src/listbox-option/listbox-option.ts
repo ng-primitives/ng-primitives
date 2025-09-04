@@ -9,12 +9,8 @@ import {
   OnDestroy,
   signal,
 } from '@angular/core';
-import {
-  injectElementRef,
-  onDomRemoval,
-  scrollIntoViewIfNeeded,
-  setupInteractions,
-} from 'ng-primitives/internal';
+import { setupInteractions } from 'ng-primitives/interactions';
+import { injectElementRef, onDomRemoval, scrollIntoViewIfNeeded } from 'ng-primitives/internal';
 import { uniqueId } from 'ng-primitives/utils';
 import type { NgpListbox } from '../listbox/listbox';
 import { injectListboxState } from '../listbox/listbox-state';

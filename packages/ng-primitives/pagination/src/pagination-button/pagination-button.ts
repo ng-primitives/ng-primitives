@@ -7,7 +7,7 @@ import {
   input,
   numberAttribute,
 } from '@angular/core';
-import { setupButton } from 'ng-primitives/internal';
+import { setupButton } from 'ng-primitives/button';
 import { injectPaginationState } from '../pagination/pagination-state';
 
 /**

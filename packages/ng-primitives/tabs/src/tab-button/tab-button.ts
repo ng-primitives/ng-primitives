@@ -10,7 +10,7 @@ import {
   inject,
   input,
 } from '@angular/core';
-import { setupInteractions } from 'ng-primitives/internal';
+import { setupInteractions } from 'ng-primitives/interactions';
 import { NgpRovingFocusItem } from 'ng-primitives/roving-focus';
 import { injectTabsetState } from '../tabset/tabset-state';
 

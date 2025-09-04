@@ -1,7 +1,7 @@
 import { Signal } from '@angular/core';
+import { setupInteractions } from 'ng-primitives/interactions';
+import { injectElementRef } from 'ng-primitives/internal';
 import { booleanAttributeBinding } from 'ng-primitives/utils';
-import { injectElementRef } from '../utilities/element-ref';
-import { setupInteractions } from './interactions';
 
 export interface NgpButtonOptions {
   /**
@@ -15,6 +15,7 @@ export interface NgpButtonOptions {
  * Setup the button interactions and attributes.
  *
  * @param options - The options for the button.
+ * @internal
  */
 export function setupButton({ disabled }: NgpButtonOptions): void {
   const elementRef = injectElementRef();

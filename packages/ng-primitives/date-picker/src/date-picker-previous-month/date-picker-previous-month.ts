@@ -1,6 +1,6 @@
 import { computed, Directive, ElementRef, HostListener, inject } from '@angular/core';
+import { setupButton } from 'ng-primitives/button';
 import { injectDateAdapter } from 'ng-primitives/date-time';
-import { setupButton } from 'ng-primitives/internal';
 import { injectDateControllerState } from '../date-picker/date-picker-state';
 
 /**

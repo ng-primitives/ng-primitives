@@ -1,7 +1,7 @@
 import { BooleanInput } from '@angular/cdk/coercion';
 import { booleanAttribute, Directive, input } from '@angular/core';
-import { setupButton } from 'ng-primitives/internal';
 import { buttonState, provideButtonState } from './button-state';
+import { setupButton } from './setup-button';
 
 @Directive({
   selector: '[ngpButton]',

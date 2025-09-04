@@ -1,7 +1,8 @@
 import { BooleanInput } from '@angular/cdk/coercion';
 import { booleanAttribute, Directive, HostListener, input, output } from '@angular/core';
 import { setupFormControl } from 'ng-primitives/form-field';
-import { injectElementRef, setupInteractions } from 'ng-primitives/internal';
+import { setupInteractions } from 'ng-primitives/interactions';
+import { injectElementRef } from 'ng-primitives/internal';
 import { uniqueId } from 'ng-primitives/utils';
 import { provideSwitchState, switchState } from './switch-state';
 

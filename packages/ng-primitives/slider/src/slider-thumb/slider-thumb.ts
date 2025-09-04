@@ -1,5 +1,5 @@
 import { Directive, HostListener } from '@angular/core';
-import { setupInteractions } from 'ng-primitives/internal';
+import { setupInteractions } from 'ng-primitives/interactions';
 import { injectSliderState } from '../slider/slider-state';
 
 /**

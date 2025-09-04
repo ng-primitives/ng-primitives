@@ -1,6 +1,6 @@
 import { BooleanInput } from '@angular/cdk/coercion';
 import { booleanAttribute, computed, Directive, HostListener, input } from '@angular/core';
-import { setupButton } from 'ng-primitives/internal';
+import { setupButton } from 'ng-primitives/button';
 import { injectPaginationState } from '../pagination/pagination-state';
 
 /**

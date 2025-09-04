@@ -9,7 +9,8 @@ import {
   OnInit,
 } from '@angular/core';
 import { NgpActivatable } from 'ng-primitives/a11y';
-import { injectElementRef, setupInteractions } from 'ng-primitives/internal';
+import { setupInteractions } from 'ng-primitives/interactions';
+import { injectElementRef } from 'ng-primitives/internal';
 import { uniqueId } from 'ng-primitives/utils';
 import { injectComboboxState } from '../combobox/combobox-state';
 
