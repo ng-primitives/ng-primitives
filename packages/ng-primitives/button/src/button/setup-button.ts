@@ -3,6 +3,7 @@ import { setupInteractions } from 'ng-primitives/interactions';
 import { injectElementRef } from 'ng-primitives/internal';
 import { booleanAttributeBinding } from 'ng-primitives/utils';
 
+/** @internal */
 export interface NgpButtonOptions {
   /**
    * Whether the button is disabled.
@@ -12,10 +13,9 @@ export interface NgpButtonOptions {
 }
 
 /**
- * Setup the button interactions and attributes.
- *
- * @param options - The options for the button.
  * @internal
+ * Setup the button interactions and attributes.
+ * @param options - The options for the button.
  */
 export function setupButton({ disabled }: NgpButtonOptions): void {
   const elementRef = injectElementRef();
