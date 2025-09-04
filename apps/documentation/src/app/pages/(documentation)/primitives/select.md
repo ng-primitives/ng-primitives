@@ -79,6 +79,12 @@ The select automatically integrates with the form field primitives.
 
 <docs-example name="native-select-form-field"></docs-example>
 
+### Select with Custom Container
+
+The select component can be rendered inside a custom container. You can open DevTools and inspect the DOM to see it mounted within this container.
+
+<docs-example name="select-custom-container"></docs-example>
+
 ## API Reference
 
 The following directives are available to import from the `ng-primitives/select` package:

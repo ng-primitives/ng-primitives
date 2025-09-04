@@ -125,7 +125,7 @@ export class NgpPopoverTrigger<T = null> implements OnDestroy {
    * Define the container in which the popover should be attached.
    * @default document.body
    */
-  readonly container = input<HTMLElement | null>(this.config.container, {
+  readonly container = input<HTMLElement | string | null>(this.config.container, {
     alias: 'ngpPopoverTriggerContainer',
   });
 

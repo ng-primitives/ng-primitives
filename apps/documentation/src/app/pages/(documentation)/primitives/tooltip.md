@@ -50,6 +50,14 @@ ng g ng-primitives:primitive tooltip
 - `fileSuffix`: The suffix to apply to the generated component file name. Defaults to `component`.
 - `exampleStyles`: Whether to include example styles in the generated component file. Defaults to `true`.
 
+## Examples
+
+### Tooltip with Custom Container
+
+The tooltip can be rendered inside a custom container. You can open DevTools and inspect the DOM to see it mounted within this container.
+
+<docs-example name="tooltip-custom-container"></docs-example>
+
 ## API Reference
 
 The following directives are available to import from the `ng-primitives/tooltip` package:

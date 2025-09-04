@@ -9,16 +9,16 @@ export interface NgpSelectConfig {
   placement: Placement;
 
   /**
-   * The container for the select dropdown.
+   * The container element or selector for the select dropdown.
    * This can be used to control where the dropdown is rendered in the DOM.
-   * @default document.body
+   * @default 'body'
    */
-  container: HTMLElement | null;
+  container: HTMLElement | string | null;
 }
 
 export const defaultSelectConfig: NgpSelectConfig = {
   placement: 'bottom',
-  container: null,
+  container: 'body',
 };
 
 export const NgpSelectConfigToken = new InjectionToken<NgpSelectConfig>('NgpSelectConfigToken');

@@ -131,7 +131,7 @@ export class NgpTooltipTrigger<T = null> implements OnDestroy {
    * Define the container in which the tooltip should be attached.
    * @default document.body
    */
-  readonly container = input<HTMLElement | null>(this.config.container, {
+  readonly container = input<HTMLElement | string | null>(this.config.container, {
     alias: 'ngpTooltipTriggerContainer',
   });
 

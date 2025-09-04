@@ -9,16 +9,16 @@ export interface NgpComboboxConfig {
   placement: Placement;
 
   /**
-   * The container for the combobox dropdown.
+   * The container element or selector for the combobox dropdown.
    * This can be used to control where the dropdown is rendered in the DOM.
-   * @default document.body
+   * @default 'body'
    */
-  container: HTMLElement | null;
+  container: HTMLElement | string | null;
 }
 
 export const defaultComboboxConfig: NgpComboboxConfig = {
   placement: 'bottom',
-  container: null,
+  container: 'body',
 };
 
 export const NgpComboboxConfigToken = new InjectionToken<NgpComboboxConfig>(
