@@ -10,7 +10,7 @@ import {
   output,
   signal,
 } from '@angular/core';
-import { setupInteractions } from 'ng-primitives/internal';
+import { setupInteractions } from 'ng-primitives/interactions';
 import { fileDropFilter } from '../file-dropzone/file-drop-filter';
 import { fileUploadState, provideFileUploadState } from './file-upload-state';
 

@@ -1,5 +1,5 @@
 import { Directive } from '@angular/core';
-import { setupInteractions } from 'ng-primitives/internal';
+import { setupInteractions } from 'ng-primitives/interactions';
 import { injectSwitchState } from '../switch/switch-state';
 
 /**

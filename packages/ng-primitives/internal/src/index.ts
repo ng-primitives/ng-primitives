@@ -8,7 +8,6 @@ export {
   NgpExitAnimationManager,
   provideExitAnimationManager,
 } from './exit-animation/exit-animation-manager';
-export { NgpButtonOptions, setupButton } from './interactions/button';
 export * from './interactions/index';
 export * from './signals/explicit-effect';
 export * from './style-injector/style-injector';

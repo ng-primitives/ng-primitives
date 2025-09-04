@@ -1,10 +1,12 @@
 import { signal, Signal } from '@angular/core';
-import { injectElementRef } from '../utilities/element-ref';
-import { hasInteraction } from '../utilities/interaction';
-import { setupFocus } from './focus';
-import { setupFocusVisible } from './focus-visible';
-import { setupHover } from './hover';
-import { setupPress } from './press';
+import {
+  injectElementRef,
+  setupFocus,
+  setupFocusVisible,
+  setupHover,
+  setupPress,
+} from 'ng-primitives/internal';
+import { hasInteraction } from './interaction';
 
 export interface NgpInteractionOptions {
   hover?: boolean;

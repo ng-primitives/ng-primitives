@@ -1,5 +1,6 @@
 import { computed, Directive, HostListener, OnDestroy } from '@angular/core';
-import { injectElementRef, setupInteractions } from 'ng-primitives/internal';
+import { setupInteractions } from 'ng-primitives/interactions';
+import { injectElementRef } from 'ng-primitives/internal';
 import { injectRangeSliderState } from '../range-slider/range-slider-state';
 
 /**

@@ -1,7 +1,8 @@
 import { FocusOrigin } from '@angular/cdk/a11y';
 import { BooleanInput } from '@angular/cdk/coercion';
 import { booleanAttribute, Directive, HostListener, inject, Injector, input } from '@angular/core';
-import { injectElementRef, setupButton } from 'ng-primitives/internal';
+import { setupButton } from 'ng-primitives/button';
+import { injectElementRef } from 'ng-primitives/internal';
 import { NgpRovingFocusItem } from 'ng-primitives/roving-focus';
 import { injectMenu } from '../menu/menu-token';
 import { NgpSubmenuTrigger } from '../submenu-trigger/submenu-trigger';
