@@ -2,7 +2,7 @@
   "name": "ng-primitives",
   "description": "Angular Primitives is a low-level headless UI component library with a focus on accessibility, customization, and developer experience. ",
   "license": "Apache-2.0",
-  "version": "0.75.0",
+  "version": "0.76.0",
   "keywords": [
     "angular",
     "primitives",

@@ -1,3 +1,21 @@
+## 0.76.0 (2025-09-08)
+
+### 🚀 Features
+
+- add select tailwind example ([#441](https://github.com/ng-primitives/ng-primitives/pull/441))
+- add separator tailwind example ([#451](https://github.com/ng-primitives/ng-primitives/pull/451))
+- **dialog:** Add config to NgpDialogOverlay for preventing ngpDialogOverlayCloseOnClick ([#446](https://github.com/ng-primitives/ng-primitives/pull/446))
+
+### 🩹 Fixes
+
+- **visually-hidden:** ensure visiblity updates ([bfcb3dd7](https://github.com/ng-primitives/ng-primitives/commit/bfcb3dd7))
+
+### ❤️ Thank You
+
+- Ashley Hunter
+- kedevked @kedevked
+- Mohammad Javed @immohammadjaved
+
 ## 0.75.0 (2025-08-28)
 
 ### 🚀 Features
