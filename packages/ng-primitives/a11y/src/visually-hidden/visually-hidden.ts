@@ -1,4 +1,4 @@
-import { Directive, computed, signal } from '@angular/core';
+import { ChangeDetectorRef, Directive, computed, inject, signal } from '@angular/core';
 import { provideVisuallyHiddenState, visuallyHiddenState } from './visually-hidden-state';
 
 /**
@@ -13,6 +13,8 @@ import { provideVisuallyHiddenState, visuallyHiddenState } from './visually-hidd
   },
 })
 export class NgpVisuallyHidden {
+  private readonly _changeDetector = inject(ChangeDetectorRef);
+
   /**
    * Whether the element is hidden.
    */
@@ -49,5 +51,6 @@ export class NgpVisuallyHidden {
    */
   setVisibility(visible: boolean): void {
     this.hidden.set(!visible);
+    this._changeDetector.detectChanges();
   }
 }
