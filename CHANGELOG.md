@@ -1,3 +1,13 @@
+## 0.76.1 (2025-09-08)
+
+### 🚀 Features
+
+- **dialog:** adding dialog closed trigger directive ([#453](https://github.com/ng-primitives/ng-primitives/pull/453))
+
+### ❤️ Thank You
+
+- Ashley Hunter
+
 ## 0.76.0 (2025-09-08)
 
 ### 🚀 Features
