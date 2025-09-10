@@ -13,7 +13,7 @@ import { provideVisuallyHiddenState, visuallyHiddenState } from './visually-hidd
   },
 })
 export class NgpVisuallyHidden {
-  private readonly _changeDetector = inject(ChangeDetectorRef);
+  private readonly changeDetector = inject(ChangeDetectorRef);
 
   /**
    * Whether the element is hidden.
@@ -51,6 +51,6 @@ export class NgpVisuallyHidden {
    */
   setVisibility(visible: boolean): void {
     this.hidden.set(!visible);
-    this._changeDetector.detectChanges();
+    this.changeDetector.detectChanges();
   }
 }

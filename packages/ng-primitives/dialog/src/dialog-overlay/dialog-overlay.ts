@@ -27,7 +27,7 @@ export class NgpDialogOverlay {
   @HostListener('click')
   protected close(): void {
     if (this.closeOnClick()) {
-      this.dialogRef.close();
+      this.dialogRef.close(undefined, 'mouse');
     }
   }
 }
