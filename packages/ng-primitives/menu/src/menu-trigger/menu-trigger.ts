@@ -35,7 +35,7 @@ import { menuTriggerState, provideMenuTriggerState } from './menu-trigger-state'
     '[attr.aria-expanded]': 'open() ? "true" : "false"',
     '[attr.data-open]': 'open() ? "" : null',
     '[attr.data-placement]': 'state.placement()',
-    '(click)': 'onClick($event)'
+    '(click)': 'onClick($event)',
   },
 })
 export class NgpMenuTrigger<T = unknown> implements OnDestroy {
