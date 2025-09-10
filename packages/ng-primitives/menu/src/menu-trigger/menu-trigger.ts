@@ -35,7 +35,7 @@ import { menuTriggerState, provideMenuTriggerState } from './menu-trigger-state'
     '[attr.aria-expanded]': 'open() ? "true" : "false"',
     '[attr.data-open]': 'open() ? "" : null',
     '[attr.data-placement]': 'state.placement()',
-    '(click)': 'toggle($event)',
+    '(click)': 'onClick($event)',
   },
 })
 export class NgpMenuTrigger<T = unknown> implements OnDestroy {
@@ -60,7 +60,7 @@ export class NgpMenuTrigger<T = unknown> implements OnDestroy {
   private readonly config = injectMenuConfig();
 
   /**
-   * Access the menu template ref.
+   * Access the menu template ref or ComponentType.
    */
   readonly menu = input<NgpOverlayContent<T>>(undefined, {
     alias: 'ngpMenuTrigger',
@@ -145,12 +145,14 @@ export class NgpMenuTrigger<T = unknown> implements OnDestroy {
     this.overlay()?.destroy();
   }
 
-  protected toggle(event: MouseEvent): void {
-    // if the trigger is disabled then do not toggle the menu
+  protected onClick(event: MouseEvent): void {
     if (this.state.disabled()) {
       return;
     }
+    this.toggle(event);
+  }
 
+  toggle(event: MouseEvent): void {
     // determine the origin of the event, 0 is keyboard, 1 is mouse
     const origin: FocusOrigin = event.detail === 0 ? 'keyboard' : 'mouse';
 
@@ -166,11 +168,6 @@ export class NgpMenuTrigger<T = unknown> implements OnDestroy {
    * Show the menu.
    */
   show(): void {
-    // If the trigger is disabled, don't show the menu
-    if (this.state.disabled()) {
-      return;
-    }
-
     // Create the overlay if it doesn't exist yet
     if (!this.overlay()) {
       this.createOverlay();
@@ -186,7 +183,7 @@ export class NgpMenuTrigger<T = unknown> implements OnDestroy {
    */
   hide(origin: FocusOrigin = 'program'): void {
     // If the trigger is disabled or the menu is not open, do nothing
-    if (this.state.disabled() || !this.open()) {
+    if (!this.open()) {
       return;
     }
 
