@@ -1,3 +1,18 @@
+## 0.77.0 (2025-09-10)
+
+### 🚀 Features
+
+- add slider tailwind example ([#456](https://github.com/ng-primitives/ng-primitives/pull/456))
+
+### 🩹 Fixes
+
+- **dialog:** report origin on overlay click ([#458](https://github.com/ng-primitives/ng-primitives/pull/458))
+
+### ❤️ Thank You
+
+- Ashley Hunter
+- kedevked @kedevked
+
 ## 0.76.1 (2025-09-08)
 
 ### 🚀 Features
