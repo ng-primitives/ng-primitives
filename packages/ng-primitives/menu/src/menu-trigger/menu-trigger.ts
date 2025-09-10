@@ -12,7 +12,6 @@ import {
   signal,
   ViewContainerRef,
 } from '@angular/core';
-import { Placement } from '@floating-ui/dom';
 import { injectElementRef } from 'ng-primitives/internal';
 import {
   createOverlay,
@@ -79,7 +78,7 @@ export class NgpMenuTrigger<T = unknown> implements OnDestroy {
    * Define the placement of the menu relative to the trigger.
    * @default 'bottom-start'
    */
-  readonly placement = input<Placement>(this.config.placement, {
+  readonly placement = input<NgpMenuPlacement>(this.config.placement, {
     alias: 'ngpMenuTriggerPlacement',
   });
 
@@ -221,3 +220,17 @@ export class NgpMenuTrigger<T = unknown> implements OnDestroy {
     this.overlay.set(createOverlay(config));
   }
 }
+
+export type NgpMenuPlacement =
+  | 'top'
+  | 'right'
+  | 'bottom'
+  | 'left'
+  | 'top-start'
+  | 'top-end'
+  | 'right-start'
+  | 'right-end'
+  | 'bottom-start'
+  | 'bottom-end'
+  | 'left-start'
+  | 'left-end';

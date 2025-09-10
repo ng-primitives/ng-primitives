@@ -1,5 +1,5 @@
 import { InjectionToken, Provider, inject } from '@angular/core';
-import { Placement } from '@floating-ui/dom';
+import type { NgpMenuPlacement } from '../menu-trigger/menu-trigger';
 
 export interface NgpMenuConfig {
   /**
@@ -12,7 +12,7 @@ export interface NgpMenuConfig {
    * Define the placement of the menu relative to the trigger.
    * @default 'bottom-start'
    */
-  placement: Placement;
+  placement: NgpMenuPlacement;
 
   /**
    * Define whether the menu should flip when there is not enough space for the menu.

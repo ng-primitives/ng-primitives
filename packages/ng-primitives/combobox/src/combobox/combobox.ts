@@ -10,7 +10,6 @@ import {
   output,
   signal,
 } from '@angular/core';
-import type { Placement } from '@floating-ui/dom';
 import { activeDescendantManager } from 'ng-primitives/a11y';
 import { setupInteractions } from 'ng-primitives/interactions';
 import { injectElementRef } from 'ng-primitives/internal';
@@ -95,7 +94,7 @@ export class NgpCombobox {
   });
 
   /** The position of the dropdown. */
-  readonly placement = input<Placement>(this.config.placement, {
+  readonly placement = input<NgpComboboxPlacement>(this.config.placement, {
     alias: 'ngpComboboxDropdownPlacement',
   });
 
@@ -459,3 +458,17 @@ export class NgpCombobox {
     this.options.update(options => options.filter(o => o !== option));
   }
 }
+
+export type NgpComboboxPlacement =
+  | 'top'
+  | 'right'
+  | 'bottom'
+  | 'left'
+  | 'top-start'
+  | 'top-end'
+  | 'right-start'
+  | 'right-end'
+  | 'bottom-start'
+  | 'bottom-end'
+  | 'left-start'
+  | 'left-end';
