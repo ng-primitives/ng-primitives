@@ -13,7 +13,6 @@ import {
   signal,
   ViewContainerRef,
 } from '@angular/core';
-import { Placement } from '@floating-ui/dom';
 import { setupOverflowListener } from 'ng-primitives/internal';
 import {
   createOverlay,
@@ -87,7 +86,7 @@ export class NgpTooltipTrigger<T = null> implements OnDestroy {
    * Define the placement of the tooltip relative to the trigger.
    * @default 'top'
    */
-  readonly placement = input<Placement>(this.config.placement, {
+  readonly placement = input<NgpTooltipPlacement>(this.config.placement, {
     alias: 'ngpTooltipTriggerPlacement',
   });
 
@@ -298,3 +297,17 @@ export class NgpTooltipTrigger<T = null> implements OnDestroy {
     this.tooltipId.set(id);
   }
 }
+
+export type NgpTooltipPlacement =
+  | 'top'
+  | 'right'
+  | 'bottom'
+  | 'left'
+  | 'top-start'
+  | 'top-end'
+  | 'right-start'
+  | 'right-end'
+  | 'bottom-start'
+  | 'bottom-end'
+  | 'left-start'
+  | 'left-end';

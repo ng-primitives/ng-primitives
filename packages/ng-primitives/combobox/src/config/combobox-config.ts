@@ -1,12 +1,12 @@
 import { InjectionToken, Provider, inject } from '@angular/core';
-import type { Placement } from '@floating-ui/dom';
+import { type NgpComboboxPlacement } from '../combobox/combobox';
 
 export interface NgpComboboxConfig {
   /**
    * The default placement for the combobox dropdown.
    * @default 'bottom'
    */
-  placement: Placement;
+  placement: NgpComboboxPlacement;
 
   /**
    * The container element or selector for the combobox dropdown.

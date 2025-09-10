@@ -12,7 +12,6 @@ import {
   signal,
   ViewContainerRef,
 } from '@angular/core';
-import { Placement } from '@floating-ui/dom';
 import { injectElementRef } from 'ng-primitives/internal';
 import {
   createOverlay,
@@ -21,6 +20,7 @@ import {
   NgpOverlayContent,
 } from 'ng-primitives/portal';
 import { safeTakeUntilDestroyed } from 'ng-primitives/utils';
+import { NgpMenuPlacement } from '../menu-trigger/menu-trigger';
 import { NgpMenuToken } from '../menu/menu-token';
 import { provideSubmenuTriggerState, submenuTriggerState } from './submenu-trigger-state';
 
@@ -74,7 +74,7 @@ export class NgpSubmenuTrigger<T = unknown> {
    * Define the placement of the menu relative to the trigger.
    * @default 'right-start'
    */
-  readonly placement = input<Placement>('right-start', {
+  readonly placement = input<NgpMenuPlacement>('right-start', {
     alias: 'ngpSubmenuTriggerPlacement',
   });
 
