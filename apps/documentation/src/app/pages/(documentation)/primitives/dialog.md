@@ -120,8 +120,6 @@ The manager provides a method to open or close all dialogs and accepts a compone
   Closes all open dialogs.
 </prop-details>
 
-</prop-details>
-
 ## Examples
 
 ### Dialog with external data

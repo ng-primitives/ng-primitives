@@ -9,7 +9,7 @@ import {
 } from 'ng-primitives/dialog';
 
 @Component({
-  selector: 'app-dialog',
+  selector: 'app-dialog-drawer',
   imports: [
     NgpButton,
     NgpDialog,
@@ -21,28 +21,25 @@ import {
   template: `
     <button
       class="h-10 rounded-lg border-none bg-white px-4 font-medium text-zinc-900 shadow ring-1 ring-black/5 transition-colors duration-300 ease-in-out data-[hover]:bg-zinc-50 data-[press]:bg-zinc-100 data-[focus-visible]:outline-2 data-[focus-visible]:outline-offset-2 data-[focus-visible]:outline-blue-500 dark:bg-zinc-950 dark:text-zinc-100 dark:ring-white/10 dark:data-[hover]:bg-zinc-900 dark:data-[press]:bg-zinc-800"
-      [ngpDialogTrigger]="dialog"
+      [ngpDialogTrigger]="drawer"
       ngpButton
     >
-      Launch Dialog
+      Launch Drawer
     </button>
 
-    <ng-template #dialog let-close="close">
+    <ng-template #drawer let-close="close">
       <div
-        class="animate-fade fixed inset-0 z-40 flex items-center justify-center bg-black/50 backdrop-blur-sm"
+        class="animate-fade fixed inset-0 flex items-stretch justify-end bg-black/50 backdrop-blur"
         ngpDialogOverlay
       >
-        <div
-          class="animate-slide w-full max-w-md rounded-xl bg-white p-6 shadow-xl dark:bg-zinc-950"
-          ngpDialog
-        >
+        <div class="animate-drawer h-full w-80 max-w-full bg-white p-6 dark:bg-zinc-950" ngpDialog>
           <h1 class="mb-1 text-lg font-semibold text-zinc-900 dark:text-zinc-100" ngpDialogTitle>
-            Publish this article?
+            Settings
           </h1>
           <p class="text-sm text-zinc-600 dark:text-zinc-400" ngpDialogDescription>
-            Are you sure you want to publish this article? This action is irreversible.
+            Change your preferences or manage your account in this drawer.
           </p>
-          <div class="mt-8 flex justify-end gap-2">
+          <div class="mt-8 flex justify-end gap-x-2">
             <button
               class="h-10 rounded-lg border-none bg-white px-4 font-medium text-zinc-900 shadow ring-1 ring-black/5 transition-colors duration-300 ease-in-out data-[hover]:bg-zinc-50 data-[press]:bg-zinc-100 data-[focus-visible]:outline-2 data-[focus-visible]:outline-offset-2 data-[focus-visible]:outline-blue-500 dark:bg-zinc-950 dark:text-zinc-100 dark:ring-white/10 dark:data-[hover]:bg-zinc-900 dark:data-[press]:bg-zinc-800"
               (click)="close()"
@@ -51,11 +48,11 @@ import {
               Cancel
             </button>
             <button
-              class="h-10 rounded-lg border-none bg-white px-4 font-medium text-blue-600 shadow ring-1 ring-black/5 transition-colors duration-300 ease-in-out data-[hover]:bg-zinc-50 data-[press]:bg-blue-100 data-[focus-visible]:outline-2 data-[focus-visible]:outline-offset-2 data-[focus-visible]:outline-blue-500 dark:bg-zinc-950 dark:text-blue-400 dark:ring-white/10 dark:data-[hover]:bg-zinc-900 dark:data-[press]:bg-zinc-800"
+              class="h-10 rounded-lg border-none bg-white px-4 font-medium text-blue-600 shadow ring-1 ring-black/5 transition-colors duration-300 ease-in-out data-[hover]:bg-blue-50 data-[press]:bg-blue-100 data-[focus-visible]:outline-2 data-[focus-visible]:outline-offset-2 data-[focus-visible]:outline-blue-500 dark:bg-zinc-950 dark:text-blue-400 dark:ring-white/10 dark:data-[hover]:bg-zinc-900 dark:data-[press]:bg-zinc-800"
               (click)="close()"
               ngpButton
             >
-              Confirm
+              Save
             </button>
           </div>
         </div>
@@ -81,24 +78,24 @@ import {
       }
     }
 
-    @keyframes slideIn {
+    @keyframes drawerSlideIn {
       0% {
-        transform: translateY(-20px);
+        transform: translateX(100%);
         opacity: 0;
       }
       100% {
-        transform: translateY(0);
+        transform: translateX(0);
         opacity: 1;
       }
     }
 
-    @keyframes slideOut {
+    @keyframes drawerSlideOut {
       0% {
-        transform: translateY(0);
+        transform: translateX(0);
         opacity: 1;
       }
       100% {
-        transform: translateY(-20px);
+        transform: translateX(100%);
         opacity: 0;
       }
     }
@@ -111,13 +108,13 @@ import {
       animation: fadeOut 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     }
 
-    .animate-slide {
-      animation: slideIn 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    .animate-drawer {
+      animation: drawerSlideIn 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     }
 
-    .animate-slide[data-exit] {
-      animation: slideOut 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    .animate-drawer[data-exit] {
+      animation: drawerSlideOut 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     }
   `,
 })
-export default class DialogExample {}
+export default class DialogDrawerExample {}
