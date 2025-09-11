@@ -83,6 +83,12 @@ export class NgpCombobox {
     transform: booleanAttribute,
   });
 
+  /** Whether the combobox allows deselection in single selection mode. */
+  readonly allowDeselect = input<boolean, BooleanInput>(false, {
+    alias: 'ngpComboboxAllowDeselect',
+    transform: booleanAttribute,
+  });
+
   /** Emit when the dropdown open state changes. */
   readonly openChange = output<boolean>({
     alias: 'ngpComboboxOpenChange',
@@ -285,18 +291,27 @@ export class NgpCombobox {
    */
   deselectOption(option: NgpComboboxOption): void {
     // if the combobox is disabled or the option is not selected, do nothing
-    // if the combobox is single selection, we don't allow deselecting
-    if (this.state.disabled() || !this.isOptionSelected(option) || !this.state.multiple()) {
+    if (this.state.disabled() || !this.isOptionSelected(option)) {
       return;
     }
 
-    const values = (this.state.value() as T[]) ?? [];
+    // in single selection mode, only allow deselecting if allowDeselect is true
+    if (!this.state.multiple() && !this.state.allowDeselect()) {
+      return;
+    }
 
-    const newValue = values.filter(v => !this.state.compareWith()(v, option.value() as T));
+    if (this.state.multiple()) {
+      const values = (this.state.value() as T[]) ?? [];
+      const newValue = values.filter(v => !this.state.compareWith()(v, option.value() as T));
 
-    // remove the option from the value
-    this.state.value.set(newValue as T);
-    this.valueChange.emit(newValue as T);
+      // remove the option from the value
+      this.state.value.set(newValue as T);
+      this.valueChange.emit(newValue as T);
+    } else {
+      // in single selection mode with allowDeselect enabled, set value to undefined
+      this.state.value.set(undefined);
+      this.valueChange.emit(undefined);
+    }
   }
 
   /**
@@ -309,18 +324,23 @@ export class NgpCombobox {
       return;
     }
 
-    // if the state is single selection, we don't allow toggling
-    if (!this.state.multiple()) {
-      // always select the option in single selection mode even if it is already selected so that we update the input
-      this.selectOption(option);
-      return;
-    }
-
-    // otherwise toggle the option
-    if (this.isOptionSelected(option)) {
-      this.deselectOption(option);
+    if (this.state.multiple()) {
+      // In multiple selection mode, always allow toggling
+      if (this.isOptionSelected(option)) {
+        this.deselectOption(option);
+      } else {
+        this.selectOption(option);
+      }
     } else {
-      this.selectOption(option);
+      // In single selection mode, check if deselection is allowed
+      if (this.isOptionSelected(option) && this.state.allowDeselect()) {
+        // Deselect the option by setting value to undefined
+        this.state.value.set(undefined);
+        this.valueChange.emit(undefined);
+      } else {
+        // Select the option (works even if already selected to update the input)
+        this.selectOption(option);
+      }
     }
   }
 

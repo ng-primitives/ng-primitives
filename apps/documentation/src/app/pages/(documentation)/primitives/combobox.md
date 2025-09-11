@@ -219,5 +219,5 @@ Adheres to the [WAI-ARIA](https://www.w3.org/WAI/ARIA/apg/patterns/combobox/) gu
 
 - <kbd>ArrowDown</kbd>: Open the dropdown and focus the first option. If the dropdown is already open, move focus to the next option.
 - <kbd>ArrowUp</kbd>: Move focus to the previous option.
-- <kbd>Enter</kbd>: Select the focused option and close the dropdown.
+- <kbd>Enter</kbd>: Toggle the selection state of the focused option. In single selection mode, this will select the option and close the dropdown. In multiple selection mode, this will toggle the option without closing the dropdown. When `ngpComboboxAllowDeselect` is enabled on single selection comboboxes, pressing Enter on an already selected option will deselect it.
 - <kbd>Escape</kbd>: Close the dropdown without selecting an option.

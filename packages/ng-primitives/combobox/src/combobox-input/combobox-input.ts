@@ -102,7 +102,10 @@ export class NgpComboboxInput {
         break;
       case 'Enter':
         if (this.state().open()) {
-          this.state().selectOption(this.state().activeDescendantManager.activeItem());
+          const activeItem = this.state().activeDescendantManager.activeItem();
+          if (activeItem) {
+            this.state().toggleOption(activeItem);
+          }
         }
         event.preventDefault();
         break;
