@@ -134,7 +134,6 @@ The input field for the combobox.
 
 <api-docs name="NgpComboboxInput"></api-docs>
 
-
 #### Data Attributes
 
 The following data attributes are applied to the `ngpComboboxInput` directive:
