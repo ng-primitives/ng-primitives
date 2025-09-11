@@ -1,7 +1,7 @@
 import { afterRenderEffect, computed, Directive, input } from '@angular/core';
 import { fromMutationObserver, injectDimensions, injectElementRef } from 'ng-primitives/internal';
 import { safeTakeUntilDestroyed, uniqueId } from 'ng-primitives/utils';
-import { debounceTime } from 'rxjs';
+import { debounceTime } from 'rxjs/operators';
 import { injectAccordionItemState } from '../accordion-item/accordion-item-state';
 import type { NgpAccordion } from '../accordion/accordion';
 import { injectAccordionState } from '../accordion/accordion-state';

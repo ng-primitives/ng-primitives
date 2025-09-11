@@ -40,6 +40,7 @@ module.exports = [
       '@nx/workspace-require-state-generic': 'error',
       '@nx/workspace-avoid-state-emit': 'error',
       '@nx/workspace-take-until-destroyed': 'error',
+      '@nx/workspace-rxjs-compat': 'error',
       '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
     },
   },

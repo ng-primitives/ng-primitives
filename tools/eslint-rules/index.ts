@@ -13,6 +13,7 @@ import {
   rule as requireStateGeneric,
   RULE_NAME as requireStateGenericName,
 } from './rules/require-state-generic';
+import { RULE_NAME as rxjsCompatName, rule as rxjsCompat } from './rules/rxjs-compat';
 import {
   RULE_NAME as takeUntilDestroyedName,
   rule as takeUntilDestroyed,
@@ -51,5 +52,6 @@ module.exports = {
     [requireStateGenericName]: requireStateGeneric,
     [avoidStateEmitName]: avoidStateEmit,
     [takeUntilDestroyedName]: takeUntilDestroyed,
+    [rxjsCompatName]: rxjsCompat,
   },
 };

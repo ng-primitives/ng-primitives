@@ -1,6 +1,7 @@
 import { DestroyRef, effect, inject, Injector, signal, Signal, untracked } from '@angular/core';
 import { isUndefined, safeTakeUntilDestroyed } from 'ng-primitives/utils';
-import { map, Observable, Subscription } from 'rxjs';
+import { Observable, Subscription } from 'rxjs';
+import { map } from 'rxjs/operators';
 import { explicitEffect } from '../signals/explicit-effect';
 import { injectElementRef } from './element-ref';
 
