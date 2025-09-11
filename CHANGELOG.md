@@ -1,3 +1,13 @@
+## 0.78.0 (2025-09-11)
+
+### 🩹 Fixes
+
+- **dialog:** prevent overlay close when disableClose is set ([#462](https://github.com/ng-primitives/ng-primitives/pull/462))
+
+### ❤️ Thank You
+
+- BennyPLS
+
 ## 0.77.1 (2025-09-11)
 
 ### 🩹 Fixes
