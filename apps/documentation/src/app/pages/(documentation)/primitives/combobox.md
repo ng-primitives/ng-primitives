@@ -134,6 +134,12 @@ The input field for the combobox.
 
 <api-docs name="NgpComboboxInput"></api-docs>
 
+#### Inputs
+
+| Input           | Type      | Default | Description                                                                                                                      |
+| --------------- | --------- | ------- | -------------------------------------------------------------------------------------------------------------------------------- |
+| `toggleOnEnter` | `boolean` | `false` | When `true`, pressing Enter will toggle the selection state of the focused option (deselect if selected, select if not selected). When `false` (default), Enter will only select the option. |
+
 #### Data Attributes
 
 The following data attributes are applied to the `ngpComboboxInput` directive:
@@ -219,5 +225,5 @@ Adheres to the [WAI-ARIA](https://www.w3.org/WAI/ARIA/apg/patterns/combobox/) gu
 
 - <kbd>ArrowDown</kbd>: Open the dropdown and focus the first option. If the dropdown is already open, move focus to the next option.
 - <kbd>ArrowUp</kbd>: Move focus to the previous option.
-- <kbd>Enter</kbd>: Select the focused option and close the dropdown.
+- <kbd>Enter</kbd>: Select the focused option and close the dropdown. When `toggleOnEnter` is enabled, this will toggle the selection state of the option.
 - <kbd>Escape</kbd>: Close the dropdown without selecting an option.

@@ -39,6 +39,9 @@ export class NgpComboboxInput {
   /** The id of the input. */
   readonly id = input<string>(uniqueId('ngp-combobox-input'));
 
+  /** Whether pressing Enter should toggle selection (deselect if selected). Default is false (select only). */
+  readonly toggleOnEnter = input<boolean>(false);
+
   /** The id of the dropdown. */
   readonly dropdownId = computed(() => this.state().dropdown()?.id());
 
@@ -102,7 +105,12 @@ export class NgpComboboxInput {
         break;
       case 'Enter':
         if (this.state().open()) {
-          this.state().selectOption(this.state().activeDescendantManager.activeItem());
+          const activeItem = this.state().activeDescendantManager.activeItem();
+          if (this.toggleOnEnter() && activeItem) {
+            this.state().toggleOption(activeItem);
+          } else {
+            this.state().selectOption(activeItem);
+          }
         }
         event.preventDefault();
         break;
