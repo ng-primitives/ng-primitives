@@ -1,3 +1,13 @@
+## 0.77.1 (2025-09-11)
+
+### 🩹 Fixes
+
+- fix issue with rxjs 6 ([1e237e8e](https://github.com/ng-primitives/ng-primitives/commit/1e237e8e))
+
+### ❤️ Thank You
+
+- Ashley Hunter
+
 ## 0.77.0 (2025-09-10)
 
 ### 🚀 Features
