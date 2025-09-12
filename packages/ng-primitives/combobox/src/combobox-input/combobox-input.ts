@@ -157,7 +157,7 @@ export class NgpComboboxInput {
    * @internal
    */
   focus(): void {
-    this.elementRef.nativeElement.focus();
+    this.elementRef.nativeElement.focus({preventScroll: true});
   }
 
   @HostListener('focus', ['$event'])
