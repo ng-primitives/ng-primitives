@@ -4,9 +4,16 @@
 
 - **combobox:** add keyboard navigation support without input ([#468](https://github.com/ng-primitives/ng-primitives/pull/468))
 
+### 🩹 Fixes
+
+- **combobox:** Prevent screen from scrolling when combobox input receives focus 
+- Added Dialog tailwind examples & Fixed Color Palette & Animation fix ([#465](https://github.com/ng-primitives/ng-primitives/pull/465))
+
 ### ❤️ Thank You
 
 - Ido Golan @ido-g-coralogix
+- Ruud Walraven
+- BennyPLS
 
 ## 0.78.0 (2025-09-11)
 
