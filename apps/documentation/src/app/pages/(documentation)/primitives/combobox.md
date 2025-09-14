@@ -62,13 +62,15 @@ Create a reusable component that uses the `NgpCombobox` directive.
 
 <docs-snippet name="combobox"></docs-snippet>
 
-## Button-only Combobox
+## Examples
+
+### Button-only Combobox
 
 This example demonstrates a combobox without an input field. The combobox element itself becomes focusable.
 
 <docs-example name="combobox-button"></docs-example>
 
-## Multiple Selection with chips
+### Multiple Selection with chips
 
 <docs-example name="combobox-multiple"></docs-example>
 
