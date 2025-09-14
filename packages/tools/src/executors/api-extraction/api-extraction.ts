@@ -120,7 +120,7 @@ function mapToInputDefinition(entry: PropertyEntry): InputDefinition {
     type: (() => {
       const match = entry.type.match(/^(InputSignal|InputSignalWithTransform|ModelSignal)<(.+)>$/);
       if (!match) return entry.type;
-      let typeParam = match[2];
+      const typeParam = match[2];
       // For InputSignalWithTransform<T, U>, only extract T (but avoid splitting inside parens)
       // Find the first comma not inside parentheses
       let depth = 0;
