@@ -575,10 +575,7 @@ export class NgpCombobox {
     const relatedTarget = event.relatedTarget as HTMLElement;
 
     // if the blur was caused by focus moving to the dropdown, don't close
-    if (
-      relatedTarget &&
-      this.dropdown()?.elementRef.nativeElement.contains(relatedTarget)
-    ) {
+    if (relatedTarget && this.dropdown()?.elementRef.nativeElement.contains(relatedTarget)) {
       return;
     }
 

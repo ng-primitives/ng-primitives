@@ -767,12 +767,18 @@ describe('NgpCombobox without input', () => {
 
   it('should have tabindex -1 when disabled', async () => {
     @Component({
-      imports: [NgpCombobox, NgpComboboxButton, NgpComboboxDropdown, NgpComboboxOption, NgpComboboxPortal],
+      imports: [
+        NgpCombobox,
+        NgpComboboxButton,
+        NgpComboboxDropdown,
+        NgpComboboxOption,
+        NgpComboboxPortal,
+      ],
       template: `
-        <div ngpCombobox [ngpComboboxDisabled]="true" data-testid="disabled-combobox">
+        <div [ngpComboboxDisabled]="true" ngpCombobox data-testid="disabled-combobox">
           <button ngpComboboxButton>Select</button>
           <div *ngpComboboxPortal ngpComboboxDropdown>
-            <div ngpComboboxOption [ngpComboboxOptionValue]="'test'">Test</div>
+            <div [ngpComboboxOptionValue]="'test'" ngpComboboxOption>Test</div>
           </div>
         </div>
       `,
