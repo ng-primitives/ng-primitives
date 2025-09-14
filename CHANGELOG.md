@@ -1,3 +1,13 @@
+## 0.79.0 (2025-09-14)
+
+### 🚀 Features
+
+- **combobox:** add keyboard navigation support without input ([#468](https://github.com/ng-primitives/ng-primitives/pull/468))
+
+### ❤️ Thank You
+
+- Ido Golan @ido-g-coralogix
+
 ## 0.78.0 (2025-09-11)
 
 ### 🩹 Fixes
