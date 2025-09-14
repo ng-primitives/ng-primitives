@@ -557,3 +557,230 @@ describe('NgpComboboxPortal', () => {
     expect(dropdown?.parentElement).not.toBe(button.parentElement);
   });
 });
+
+describe('NgpCombobox without input', () => {
+  @Component({
+    imports: [
+      NgpCombobox,
+      NgpComboboxButton,
+      NgpComboboxDropdown,
+      NgpComboboxOption,
+      NgpComboboxPortal,
+    ],
+    template: `
+      <div
+        [ngpComboboxValue]="value"
+        (ngpComboboxValueChange)="onValueChange($event)"
+        (ngpComboboxOpenChange)="onOpenChange($event)"
+        ngpCombobox
+        data-testid="combobox-without-input"
+      >
+        <button data-testid="combobox-button" ngpComboboxButton>
+          {{ value || 'Select an option' }} ▼
+        </button>
+
+        <div *ngpComboboxPortal ngpComboboxDropdown>
+          @for (option of options; track option) {
+            <div [ngpComboboxOptionValue]="option" ngpComboboxOption>
+              {{ option }}
+            </div>
+          }
+        </div>
+      </div>
+    `,
+  })
+  class NoInputTestComponent {
+    value: string | undefined = undefined;
+    open = false;
+    options = ['Apple', 'Banana', 'Cherry', 'Dragon Fruit', 'Elderberry'];
+
+    onValueChange(value: string) {
+      this.value = value;
+    }
+
+    onOpenChange(event: boolean) {
+      this.open = event;
+    }
+  }
+
+  afterEach(() => {
+    const dropdown = screen.queryByRole('listbox');
+    if (dropdown) {
+      dropdown.remove();
+    }
+  });
+
+  it('should have proper tabindex when no input is present', async () => {
+    await render(NoInputTestComponent);
+    const combobox = screen.getByTestId('combobox-without-input');
+    expect(combobox).toHaveAttribute('tabindex', '0');
+  });
+
+  it('should focus combobox element when focus() is called without input', async () => {
+    await render(NoInputTestComponent);
+    const combobox = screen.getByTestId('combobox-without-input');
+    combobox.focus();
+    expect(document.activeElement).toBe(combobox);
+  });
+
+  it('should handle keyboard navigation without input', async () => {
+    const { fixture } = await render(NoInputTestComponent);
+    const component = fixture.componentInstance;
+    const combobox = screen.getByTestId('combobox-without-input');
+    const button = screen.getByTestId('combobox-button');
+
+    combobox.focus();
+
+    // Open with arrow down
+    await userEvent.keyboard('{arrowdown}');
+
+    // Check dropdown is open via aria-expanded
+    await waitFor(() => {
+      expect(button).toHaveAttribute('aria-expanded', 'true');
+    });
+
+    // First option should be highlighted
+    const options = screen.getAllByRole('option');
+    expect(options[0]).toHaveAttribute('data-active');
+
+    // Navigate to second option
+    await userEvent.keyboard('{arrowdown}');
+    expect(options[1]).toHaveAttribute('data-active');
+
+    // Select with Enter
+    await userEvent.keyboard('{enter}');
+
+    await waitFor(() => {
+      expect(button).toHaveAttribute('aria-expanded', 'false');
+    });
+    expect(component.value).toBe('Banana');
+  });
+
+  it('should open dropdown with arrow up and select last item', async () => {
+    await render(NoInputTestComponent);
+    const combobox = screen.getByTestId('combobox-without-input');
+    const button = screen.getByTestId('combobox-button');
+
+    combobox.focus();
+
+    // Open with arrow up - should open and select last item
+    await userEvent.keyboard('{arrowup}');
+
+    // Wait for dropdown to open
+    await waitFor(() => {
+      expect(button).toHaveAttribute('aria-expanded', 'true');
+    });
+
+    const options = screen.getAllByRole('option');
+    expect(options[options.length - 1]).toHaveAttribute('data-active');
+  });
+
+  it('should navigate to first item with Home key', async () => {
+    await render(NoInputTestComponent);
+    const combobox = screen.getByTestId('combobox-without-input');
+
+    combobox.focus();
+    await userEvent.keyboard('{arrowdown}');
+
+    // Navigate to middle
+    await userEvent.keyboard('{arrowdown}');
+    await userEvent.keyboard('{arrowdown}');
+
+    // Press Home
+    await userEvent.keyboard('{Home}');
+
+    const options = screen.getAllByRole('option');
+    expect(options[0]).toHaveAttribute('data-active');
+  });
+
+  it('should navigate to last item with End key', async () => {
+    await render(NoInputTestComponent);
+    const combobox = screen.getByTestId('combobox-without-input');
+
+    combobox.focus();
+    await userEvent.keyboard('{arrowdown}');
+
+    // Press End
+    await userEvent.keyboard('{End}');
+
+    const options = screen.getAllByRole('option');
+    expect(options[options.length - 1]).toHaveAttribute('data-active');
+  });
+
+  it('should close dropdown with Escape key', async () => {
+    await render(NoInputTestComponent);
+    const combobox = screen.getByTestId('combobox-without-input');
+    const button = screen.getByTestId('combobox-button');
+
+    combobox.focus();
+    await userEvent.keyboard('{arrowdown}');
+
+    // Wait for dropdown to open
+    await waitFor(() => {
+      expect(button).toHaveAttribute('aria-expanded', 'true');
+    });
+
+    await userEvent.keyboard('{escape}');
+
+    // Check dropdown is closed via aria-expanded
+    await waitFor(() => {
+      expect(button).toHaveAttribute('aria-expanded', 'false');
+    });
+  });
+
+  it('should handle blur events correctly without input', async () => {
+    const { fixture } = await render(NoInputTestComponent);
+    const component = fixture.componentInstance;
+    const combobox = screen.getByTestId('combobox-without-input');
+
+    combobox.focus();
+    await userEvent.keyboard('{arrowdown}');
+    expect(component.open).toBeTruthy();
+
+    // Blur by clicking outside
+    await userEvent.click(document.body);
+
+    await waitFor(() => {
+      expect(component.open).toBeFalsy();
+    });
+  });
+
+  it('should not close dropdown when focus moves to button', async () => {
+    const { fixture } = await render(NoInputTestComponent);
+    const component = fixture.componentInstance;
+    const combobox = screen.getByTestId('combobox-without-input');
+    const button = screen.getByTestId('combobox-button');
+
+    combobox.focus();
+    await userEvent.keyboard('{arrowdown}');
+    expect(component.open).toBeTruthy();
+
+    // Focus button - dropdown should stay open
+    button.focus();
+    fixture.detectChanges();
+
+    // Give it a moment to process the blur/focus events
+    await new Promise(resolve => setTimeout(resolve, 100));
+
+    expect(component.open).toBeTruthy();
+  });
+
+  it('should have tabindex -1 when disabled', async () => {
+    @Component({
+      imports: [NgpCombobox, NgpComboboxButton, NgpComboboxDropdown, NgpComboboxOption, NgpComboboxPortal],
+      template: `
+        <div ngpCombobox [ngpComboboxDisabled]="true" data-testid="disabled-combobox">
+          <button ngpComboboxButton>Select</button>
+          <div *ngpComboboxPortal ngpComboboxDropdown>
+            <div ngpComboboxOption [ngpComboboxOptionValue]="'test'">Test</div>
+          </div>
+        </div>
+      `,
+    })
+    class DisabledComboboxComponent {}
+
+    await render(DisabledComboboxComponent);
+    const combobox = screen.getByTestId('disabled-combobox');
+    expect(combobox).toHaveAttribute('tabindex', '-1');
+  });
+});

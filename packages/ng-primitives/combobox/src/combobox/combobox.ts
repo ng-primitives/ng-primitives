@@ -4,6 +4,7 @@ import {
   booleanAttribute,
   computed,
   Directive,
+  HostListener,
   inject,
   Injector,
   input,
@@ -40,6 +41,7 @@ type T = any;
   exportAs: 'ngpCombobox',
   providers: [provideComboboxState()],
   host: {
+    '[attr.tabindex]': 'input() ? -1 : (state.disabled() ? -1 : 0)',
     '[attr.data-open]': 'state.open() ? "" : undefined',
     '[attr.data-disabled]': 'state.disabled() ? "" : undefined',
     '[attr.data-multiple]': 'state.multiple() ? "" : undefined',
@@ -476,6 +478,121 @@ export class NgpCombobox {
    */
   unregisterOption(option: NgpComboboxOption): void {
     this.options.update(options => options.filter(o => o !== option));
+  }
+
+  /**
+   * Focus the combobox.
+   * When an input element is present, it will be focused.
+   * Otherwise, the combobox element itself will be focused.
+   * This enables keyboard navigation for comboboxes without input elements.
+   * @internal
+   */
+  focus(): void {
+    if (this.input()) {
+      this.input()?.focus();
+    } else {
+      this.elementRef.nativeElement.focus();
+    }
+  }
+
+  /**
+   * Handle keydown events for keyboard navigation and accessibility.
+   * Supports:
+   * - Arrow Down: Open dropdown or navigate to next option
+   * - Arrow Up: Open dropdown or navigate to previous option
+   * - Home: Navigate to first option
+   * - End: Navigate to last option
+   * - Enter: Select the currently active option
+   * - Escape: Close the dropdown
+   * @param event - The keyboard event
+   * @internal
+   */
+  @HostListener('keydown', ['$event'])
+  protected handleKeydown(event: KeyboardEvent): void {
+    // If the event originated from the input element, let the input handle it
+    if (this.input() && event.target === this.input()?.elementRef.nativeElement) {
+      return;
+    }
+
+    switch (event.key) {
+      case 'ArrowDown':
+        if (this.open()) {
+          this.activateNextOption();
+        } else {
+          this.openDropdown();
+        }
+        event.preventDefault();
+        break;
+      case 'ArrowUp':
+        if (this.open()) {
+          this.activatePreviousOption();
+        } else {
+          this.openDropdown();
+          // Use setTimeout to ensure dropdown is rendered before selecting last item
+          setTimeout(() => this.activeDescendantManager.last());
+        }
+        event.preventDefault();
+        break;
+      case 'Home':
+        if (this.open()) {
+          this.activeDescendantManager.first();
+        }
+        event.preventDefault();
+        break;
+      case 'End':
+        if (this.open()) {
+          this.activeDescendantManager.last();
+        }
+        event.preventDefault();
+        break;
+      case 'Enter':
+        if (this.open()) {
+          this.selectOption(this.activeDescendantManager.activeItem());
+        }
+        event.preventDefault();
+        break;
+      case 'Escape':
+        if (this.open()) {
+          this.closeDropdown();
+        }
+        event.preventDefault();
+        break;
+    }
+  }
+
+  /**
+   * Handle blur events to manage dropdown closing behavior.
+   * The dropdown will remain open if focus moves to:
+   * - The dropdown itself
+   * - The combobox button
+   * - The combobox input
+   * Otherwise, the dropdown will be closed.
+   * @param event - The focus event
+   * @internal
+   */
+  @HostListener('blur', ['$event'])
+  protected onBlur(event: FocusEvent): void {
+    const relatedTarget = event.relatedTarget as HTMLElement;
+
+    // if the blur was caused by focus moving to the dropdown, don't close
+    if (
+      relatedTarget &&
+      this.dropdown()?.elementRef.nativeElement.contains(relatedTarget)
+    ) {
+      return;
+    }
+
+    // if the blur was caused by focus moving to the button, don't close
+    if (relatedTarget && this.button()?.elementRef.nativeElement.contains(relatedTarget)) {
+      return;
+    }
+
+    // if the blur was caused by focus moving to the input, don't close
+    if (relatedTarget && this.input()?.elementRef.nativeElement === relatedTarget) {
+      return;
+    }
+
+    this.closeDropdown();
   }
 }
 
