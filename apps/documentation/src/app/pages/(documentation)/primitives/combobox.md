@@ -39,13 +39,38 @@ Assemble the combobox directives in your template.
 </div>
 ```
 
+### Without Input Field
+
+You can also create a combobox without an input field, which is useful for select-like behavior with keyboard navigation:
+
+```html
+<div ngpCombobox>
+  <button ngpComboboxButton>{{ selectedOption || 'Select an option' }} ▼</button>
+  <div ngpComboboxDropdown>
+    @for (option of options; track option) {
+    <div ngpComboboxOption [ngpComboboxOptionValue]="option">{{ option }}</div>
+    }
+  </div>
+</div>
+```
+
+When no input is present, the combobox element itself becomes focusable and supports full keyboard navigation.
+
 ## Reusable Component
 
 Create a reusable component that uses the `NgpCombobox` directive.
 
 <docs-snippet name="combobox"></docs-snippet>
 
-## Multiple Selection with chips
+## Examples
+
+### Button-only Combobox
+
+This example demonstrates a combobox without an input field. The combobox element itself becomes focusable.
+
+<docs-example name="combobox-button"></docs-example>
+
+### Multiple Selection with chips
 
 <docs-example name="combobox-multiple"></docs-example>
 
@@ -94,6 +119,14 @@ The following data attributes are applied to the `ngpCombobox` directive:
 | `data-dirty`    | Applied when the combobox has been modified.                   |
 | `data-pending`  | Applied when the combobox is pending (e.g., async validation). |
 | `data-disabled` | Applied when the combobox is disabled.                         |
+
+#### Focus Management
+
+When no `ngpComboboxInput` is present, the combobox element itself receives:
+
+- `tabindex="0"` to make it focusable via keyboard navigation
+- `tabindex="-1"` when disabled or when an input is present
+- Full keyboard navigation support
 
 ### NgpComboboxButton
 
@@ -217,7 +250,26 @@ Adheres to the [WAI-ARIA](https://www.w3.org/WAI/ARIA/apg/patterns/combobox/) gu
 
 ### Keyboard Interactions
 
+The combobox supports comprehensive keyboard navigation whether or not an input field is present:
+
+#### With Input Field
+
 - <kbd>ArrowDown</kbd>: Open the dropdown and focus the first option. If the dropdown is already open, move focus to the next option.
-- <kbd>ArrowUp</kbd>: Move focus to the previous option.
-- <kbd>Enter</kbd>: Toggle the selection state of the focused option. In single selection mode, this will select the option and close the dropdown. In multiple selection mode, this will toggle the option without closing the dropdown. When `ngpComboboxAllowDeselect` is enabled on single selection comboboxes, pressing Enter on an already selected option will deselect it.
+- <kbd>ArrowUp</kbd>: Open the dropdown and focus the last option. If the dropdown is already open, move focus to the previous option.
+- <kbd>Home</kbd>: Move focus to the first option (when dropdown is open).
+- <kbd>End</kbd>: Move focus to the last option (when dropdown is open).
+- <kbd>Enter</kbd>: Toggle the selection state of the focused option. In single selection mode, this will select the option and close the dropdown. In multiple selection mode, this will toggle the option without closing the dropdown.
+- <kbd>Escape</kbd>: Close the dropdown without selecting an option.
+- <kbd>Any character key</kbd>: Open the dropdown and filter options based on typed text.
+
+#### Without Input Field
+
+When no `ngpComboboxInput` is present, the combobox container becomes focusable and supports:
+
+- <kbd>Tab</kbd>: Focus the combobox container.
+- <kbd>ArrowDown</kbd>: Open the dropdown and focus the first option. If already open, move to the next option.
+- <kbd>ArrowUp</kbd>: Open the dropdown and focus the last option. If already open, move to the previous option.
+- <kbd>Home</kbd>: Move focus to the first option (when dropdown is open).
+- <kbd>End</kbd>: Move focus to the last option (when dropdown is open).
+- <kbd>Enter</kbd>: Select the focused option and close the dropdown.
 - <kbd>Escape</kbd>: Close the dropdown without selecting an option.

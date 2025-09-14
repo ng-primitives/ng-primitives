@@ -116,11 +116,23 @@ function isOutput(entry: MemberEntry): entry is PropertyEntry {
 function mapToInputDefinition(entry: PropertyEntry): InputDefinition {
   return {
     name: entry.inputAlias,
-    // the type will be InputSignal<T>, InputSignalWithTransform<T> or ModelSignal<T>, we want to extract the T
-    // in the case of InputSignalWithTransform<T, U>, we only want the T
-    type: entry.type
-      .replace(/^(InputSignal|InputSignalWithTransform|ModelSignal)<(.*)>$/, '$2')
-      .split(',')[0],
+    // Extract the type parameter, handling nested generics and function types with commas
+    type: (() => {
+      const match = entry.type.match(/^(InputSignal|InputSignalWithTransform|ModelSignal)<(.+)>$/);
+      if (!match) return entry.type;
+      const typeParam = match[2];
+      // For InputSignalWithTransform<T, U>, only extract T (but avoid splitting inside parens)
+      // Find the first comma not inside parentheses
+      let depth = 0;
+      for (let i = 0; i < typeParam.length; i++) {
+        if (typeParam[i] === '(') depth++;
+        else if (typeParam[i] === ')') depth--;
+        else if (typeParam[i] === ',' && depth === 0) {
+          return typeParam.slice(0, i).trim();
+        }
+      }
+      return typeParam.trim();
+    })(),
     description: entry.description,
     isRequired: entry.isRequiredInput || entry.jsdocTags.some(tag => tag.name === 'required'),
     defaultValue: entry.jsdocTags.find(tag => tag.name === 'default')?.comment,
