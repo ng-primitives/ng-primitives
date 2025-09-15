@@ -2,23 +2,17 @@ import { BooleanInput, NumberInput } from '@angular/cdk/coercion';
 import {
   afterNextRender,
   booleanAttribute,
-  contentChild,
-  contentChildren,
   DestroyRef,
   Directive,
   ElementRef,
-  HostListener,
   inject,
   Injector,
   input,
   numberAttribute,
-  signal,
 } from '@angular/core';
-import { explicitEffect, fromResizeEvent } from 'ng-primitives/internal';
-import { safeTakeUntilDestroyed } from 'ng-primitives/utils';
-import { combineLatest } from 'rxjs';
-import { NgpThreadMessage } from '../thread-message/thread-message';
-import { NgpThreadViewport } from '../thread-viewport/thread-viewport';
+import { debounceTime, fromEvent } from 'rxjs';
+import { explicitEffect, injectDimensions } from '../../../internal/src';
+import { safeTakeUntilDestroyed } from '../../../utils/src';
 
 @Directive({
   selector: '[ngpThread]',
@@ -41,166 +35,51 @@ export class NgpThread {
     transform: booleanAttribute,
   });
 
-  // Internal signals for state
-  private readonly isAtBottom = signal<boolean>(this.startAtBottom());
-  private readonly isNearBottom = signal<boolean>(false);
-  private readonly escapedFromLock = signal<boolean>(false);
-  private scrollPosition = 0;
-  private height?: number;
+  /** Store the dimensions of the scrollable container */
+  private readonly dimensions = injectDimensions();
 
-  private readonly viewport = contentChild(NgpThreadViewport, { read: ElementRef });
-  private readonly messages = contentChildren(NgpThreadMessage, { descendants: true });
+  /** Determine if we are at the bottom of the scrollable container (within the threshold) */
+  protected isAtBottom = false;
+
+  /** Determine if we are still initializing */
+  private initializing = true;
 
   constructor() {
-    this.updateScrollState();
+    // update the scroll position when the user scrolls
+    // but debounce it to avoid conflicts with the resize
+    fromEvent(this.elementRef.nativeElement, 'scroll')
+      .pipe(debounceTime(1), safeTakeUntilDestroyed())
+      .subscribe(() => this.updateIsAtBottom());
 
-    afterNextRender(() => this.setupResizeObserver());
+    // if the size of the container changes, update the scroll position
+    explicitEffect([this.dimensions], () => {
+      // if we were at the bottom, but the size changed, stay at the bottom
+      if (this.isAtBottom) {
+        this.scrollToBottom('instant');
+      }
+    });
 
-    // any time a new message is added, scroll to the bottom
-    explicitEffect([this.messages], ([messages]) => {
-      if (messages.length === 0) {
-        return;
+    afterNextRender(() => {
+      // if we should start at the bottom, scroll to the bottom
+      if (this.startAtBottom()) {
+        this.scrollToBottom('instant');
       }
 
-      this.scrollToBottom('smooth');
+      this.initializing = false;
     });
   }
 
-  private setupResizeObserver(): void {
-    const viewport = this.viewport();
-
-    if (!viewport) {
-      return;
-    }
-
-    combineLatest([
-      fromResizeEvent(this.scrollElement, { injector: this.injector }),
-      fromResizeEvent(viewport.nativeElement, { injector: this.injector }),
-    ])
-      .pipe(safeTakeUntilDestroyed(this.destroyRef))
-      .subscribe(() => {
-        const height = this.viewport()?.nativeElement.offsetHeight ?? 0;
-        const heightDifference = height - (this.height ?? height);
-
-        // Handle overscroll - adjust if we've scrolled past the target
-        if (this.scrollTop > this.targetScrollTop) {
-          this.scrollElement.scrollTop = this.targetScrollTop;
-        }
-
-        // Update near bottom state after resize
-        this.isNearBottom.set(this.scrollDifference <= this.threshold());
-
-        if (heightDifference >= 0) {
-          // Content grew - auto-scroll to bottom if we're already at bottom
-          if (this.isAtBottom() && !this.escapedFromLock()) {
-            this.scrollToBottom('smooth');
-          }
-        } else {
-          // Content shrunk - check if we're now near bottom and should re-engage
-          if (this.scrollDifference <= this.threshold()) {
-            // Scroll to bottom if we were at bottom before
-            if (this.isAtBottom()) {
-              this.scrollToBottom('smooth');
-            }
-
-            this.escapedFromLock.set(false);
-            this.isAtBottom.set(true);
-          }
-        }
-
-        this.height = height;
-      });
+  /** @internal Scroll to the bottom of the thread */
+  scrollToBottom(behavior: ScrollBehavior = 'smooth'): void {
+    this.elementRef.nativeElement.scrollTo({
+      top: this.elementRef.nativeElement.scrollHeight,
+      behavior: this.initializing ? 'instant' : behavior,
+    });
   }
 
-  @HostListener('scroll')
-  protected onScroll(): void {
-    // Use setTimeout to handle timing issues between resize and scroll events
-    setTimeout(() => this.updateScrollState(), 1);
-  }
-
-  @HostListener('wheel', ['$event'])
-  protected onWheel(event: WheelEvent): void {
-    let element = event.target as HTMLElement;
-
-    // Find the scrollable element in the hierarchy
-    while (!['scroll', 'auto'].includes(getComputedStyle(element).overflow)) {
-      if (!element.parentElement) {
-        return;
-      }
-      element = element.parentElement;
-    }
-
-    // If scrolling up with wheel on our scroll element and content is scrollable
-    if (
-      element === this.scrollElement &&
-      event.deltaY < 0 &&
-      this.scrollHeight > this.clientHeight
-    ) {
-      this.escapedFromLock.set(true);
-      this.isAtBottom.set(false);
-    }
-  }
-
-  private updateScrollState(): void {
-    const currentScrollTop = this.scrollTop;
-    const isScrollingUp = currentScrollTop < this.scrollPosition;
-    const isScrollingDown = currentScrollTop > this.scrollPosition;
-    const isNearBottom = this.scrollDifference <= this.threshold();
-
-    // Update near bottom state
-    this.isNearBottom.set(isNearBottom);
-
-    // Handle user scrolling up - escape from lock
-    if (isScrollingUp) {
-      this.escapedFromLock.set(true);
-      this.isAtBottom.set(false);
-    }
-
-    // Handle user scrolling down - clear escape if scrolling down
-    if (isScrollingDown) {
-      this.escapedFromLock.set(false);
-    }
-
-    // Re-engage auto-scroll if we're near bottom and not escaped
-    if (!this.escapedFromLock() && isNearBottom) {
-      this.isAtBottom.set(true);
-    }
-
-    this.scrollPosition = currentScrollTop;
-  }
-
-  // Getter for the scroll element
-  private get scrollElement(): HTMLElement {
-    return this.elementRef.nativeElement;
-  }
-
-  // Helper methods for scroll calculations
-  private get scrollTop(): number {
-    return this.scrollElement.scrollTop;
-  }
-
-  private get scrollHeight(): number {
-    return this.scrollElement.scrollHeight;
-  }
-
-  private get clientHeight(): number {
-    return this.scrollElement.clientHeight;
-  }
-
-  private get targetScrollTop(): number {
-    return Math.max(0, this.scrollHeight - this.clientHeight);
-  }
-
-  private get scrollDifference(): number {
-    return this.targetScrollTop - this.scrollTop;
-  }
-
-  /**
-   * Scrolls the content to the bottom.
-   */
-  private scrollToBottom(behavior: ScrollBehavior): void {
-    this.scrollElement.scrollTo({ top: this.targetScrollTop, behavior });
-    this.isAtBottom.set(true);
-    this.escapedFromLock.set(false);
+  private updateIsAtBottom(): void {
+    const scrollPosition = this.elementRef.nativeElement.scrollTop + this.dimensions().height;
+    const scrollHeight = this.elementRef.nativeElement.scrollHeight;
+    this.isAtBottom = scrollHeight - scrollPosition <= this.threshold();
   }
 }

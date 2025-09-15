@@ -37,35 +37,33 @@ interface Message {
         class="flex h-full flex-col items-stretch rounded-2xl bg-white px-4 ring-1 ring-black/10"
       >
         <div class="flex flex-grow flex-col gap-4 overflow-hidden pt-4">
-          <div class="overflow-y-auto px-2 pb-4" ngpThread>
-            <div class="flex flex-grow flex-col gap-4" ngpThreadViewport>
-              @for (message of messages(); track message.id) {
+          <div class="flex flex-grow flex-col gap-4 overflow-y-auto px-2 pb-4" ngpThread>
+            @for (message of messages(); track message.id) {
+              <div
+                class="flex"
+                [class.justify-end]="message.isUser"
+                [class.justify-start]="!message.isUser"
+                ngpThreadMessage
+              >
                 <div
-                  class="flex"
-                  [class.justify-end]="message.isUser"
-                  [class.justify-start]="!message.isUser"
-                  ngpThreadMessage
+                  class="max-w-[80%] rounded-2xl px-4 py-3 text-sm"
+                  [class.bg-black]="message.isUser"
+                  [class.text-white]="message.isUser"
+                  [class.bg-gray-100]="!message.isUser"
+                  [class.text-black]="!message.isUser"
                 >
-                  <div
-                    class="max-w-[80%] rounded-2xl px-4 py-3 text-sm"
-                    [class.bg-black]="message.isUser"
-                    [class.text-white]="message.isUser"
-                    [class.bg-gray-100]="!message.isUser"
-                    [class.text-black]="!message.isUser"
+                  <p>{{ message.content }}</p>
+                  <p
+                    [class]="
+                      'mt-1 text-xs opacity-70 ' +
+                      (message.isUser ? 'text-white/70' : 'text-black/70')
+                    "
                   >
-                    <p>{{ message.content }}</p>
-                    <p
-                      [class]="
-                        'mt-1 text-xs opacity-70 ' +
-                        (message.isUser ? 'text-white/70' : 'text-black/70')
-                      "
-                    >
-                      {{ formatTime(message.timestamp) }}
-                    </p>
-                  </div>
+                    {{ formatTime(message.timestamp) }}
+                  </p>
                 </div>
-              }
-            </div>
+              </div>
+            }
           </div>
         </div>
 
