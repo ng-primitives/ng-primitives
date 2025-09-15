@@ -44,38 +44,36 @@ export class NgpThread implements OnDestroy {
   /** Store the animation frame ID for canceling smooth scrolls */
   private scrollAnimationId: number | null = null;
 
+  /** Track the last time the user manually scrolled */
+  private lastManualScrollTime = 0;
+
   constructor() {
-    // update the scroll position when the user scrolls
-    // but debounce it to avoid conflicts with the resize
+    // Update scroll position when user scrolls, but debounce to avoid conflicts with the resize observer
     fromEvent(this.elementRef.nativeElement, 'scroll')
       .pipe(debounceTime(1), safeTakeUntilDestroyed())
       .subscribe(() => {
-        // If user manually scrolls during a programmatic smooth scroll, cancel it
-        if (!this.isScrollingProgrammatically && this.scrollAnimationId !== null) {
-          cancelAnimationFrame(this.scrollAnimationId);
-          this.scrollAnimationId = null;
-          this.isScrollingProgrammatically = false;
+        // Cancel any ongoing programmatic scroll if user scrolls manually
+        if (!this.isScrollingProgrammatically) {
+          this.lastManualScrollTime = Date.now();
+          this.cancelScrollAnimation();
         }
-
         this.updateIsAtBottom();
       });
 
-    // if the size of the container changes, update the scroll position
+    // Maintain bottom position when container resizes
     fromResizeEvent(this.elementRef.nativeElement)
       .pipe(safeTakeUntilDestroyed())
       .subscribe(() => {
-        // if we were at the bottom, but the size changed, stay at the bottom
         if (this.isAtBottom) {
           this.scrollToBottom();
         }
       });
 
+    // Initialize scroll position after render
     afterNextRender(() => {
-      // if we should start at the bottom, scroll to the bottom
       if (this.startAtBottom()) {
         this.scrollToBottom();
       }
-
       this.initializing = false;
     });
   }
@@ -86,57 +84,51 @@ export class NgpThread implements OnDestroy {
 
   /** @internal Scroll to the bottom of the thread */
   scrollToBottom(): void {
-    // Cancel any ongoing smooth scroll animation
-    if (this.scrollAnimationId !== null) {
-      cancelAnimationFrame(this.scrollAnimationId);
-      this.scrollAnimationId = null;
+    this.cancelScrollAnimation();
+
+    // Don't scroll if user has manually scrolled within the last 500ms
+    if (!this.initializing && Date.now() - this.lastManualScrollTime < 500) {
+      return;
     }
 
     const element = this.elementRef.nativeElement;
     const targetScrollTop = element.scrollHeight - element.clientHeight;
 
     if (this.initializing) {
-      // Instant scroll during initialization
       element.scrollTop = targetScrollTop;
       return;
     }
 
-    // Perform custom smooth scroll
+    this.startSmoothScroll(element, targetScrollTop);
+  }
+
+  private startSmoothScroll(element: HTMLElement, targetScrollTop: number): void {
     const startScrollTop = element.scrollTop;
     const distance = targetScrollTop - startScrollTop;
 
-    if (Math.abs(distance) < 1) {
-      // Already at target position
-      return;
-    }
+    if (Math.abs(distance) < 1) return; // Already at target
 
-    const duration = 300; // Smooth scroll duration in milliseconds
+    const duration = 300;
     const startTime = performance.now();
-
     this.isScrollingProgrammatically = true;
 
-    const animateScroll = (currentTime: number) => {
-      const elapsed = currentTime - startTime;
-      const progress = Math.min(elapsed / duration, 1);
-
-      // Ease-out cubic function for smooth animation
-      const easeProgress = 1 - Math.pow(1 - progress, 3);
+    const animate = (currentTime: number) => {
+      const progress = Math.min((currentTime - startTime) / duration, 1);
+      const easeProgress = 1 - Math.pow(1 - progress, 3); // Ease-out cubic
 
       element.scrollTop = startScrollTop + distance * easeProgress;
 
       if (progress < 1 && this.isScrollingProgrammatically) {
-        this.scrollAnimationId = requestAnimationFrame(animateScroll);
+        this.scrollAnimationId = requestAnimationFrame(animate);
       } else {
-        // Animation complete or cancelled
         this.isScrollingProgrammatically = false;
         this.scrollAnimationId = null;
       }
     };
 
-    this.scrollAnimationId = requestAnimationFrame(animateScroll);
+    this.scrollAnimationId = requestAnimationFrame(animate);
   }
 
-  /** @internal Clean up any ongoing animations */
   private cancelScrollAnimation(): void {
     if (this.scrollAnimationId !== null) {
       cancelAnimationFrame(this.scrollAnimationId);
@@ -146,9 +138,8 @@ export class NgpThread implements OnDestroy {
   }
 
   private updateIsAtBottom(): void {
-    const scrollPosition =
-      this.elementRef.nativeElement.scrollTop + this.elementRef.nativeElement.clientHeight;
-    const scrollHeight = this.elementRef.nativeElement.scrollHeight;
+    const { scrollTop, clientHeight, scrollHeight } = this.elementRef.nativeElement;
+    const scrollPosition = scrollTop + clientHeight;
     this.isAtBottom = scrollHeight - scrollPosition <= this.threshold();
   }
 }
