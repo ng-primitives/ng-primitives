@@ -1,16 +1,18 @@
 import { Component, computed, signal } from '@angular/core';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { heroArrowUp, heroPlus } from '@ng-icons/heroicons/outline';
-import { NgpAutoScroll } from 'ng-primitives/ai';
+import { NgpThread } from 'ng-primitives/ai';
 import { NgpButton } from 'ng-primitives/button';
 
 @Component({
   selector: 'app-ai',
-  imports: [NgpAutoScroll, NgIcon, NgpButton],
+  imports: [NgpThread, NgIcon, NgpButton],
   providers: [provideIcons({ heroArrowUp, heroPlus })],
   template: `
     <div class="h-[700px] w-full">
-      <div class="dark flex h-full flex-col items-stretch rounded-2xl bg-white px-4">
+      <div
+        class="flex h-full flex-col items-stretch rounded-2xl bg-white px-4 ring-1 ring-black/10"
+      >
         <div class="flex flex-grow flex-col gap-8 pt-16">
           <div class="flex flex-grow flex-col items-center justify-center">
             <p class="text-xl text-black">Hello there!</p>
@@ -30,13 +32,14 @@ import { NgpButton } from 'ng-primitives/button';
           </button>
 
           <textarea
-            class="h-12 max-h-40 flex-grow resize-none bg-transparent py-3.5 text-sm outline-none placeholder:text-black/50"
+            class="max-h-40 min-h-12 flex-grow resize-none bg-transparent py-3.5 text-sm outline-none placeholder:text-black/50"
             #promptInput
             [value]="prompt()"
             (input)="prompt.set(promptInput.value)"
+            style="field-sizing: content;"
             name="input"
             placeholder="Message ChatNGP"
-            style="height: 48px !important;"
+            rows="1"
           ></textarea>
 
           <button

@@ -6,7 +6,7 @@ name: AI Assistant
 
 Combine many primitives to create an AI chat assistant.
 
-<docs-example name="ai"></docs-example>
+<docs-example name="ai-messages"></docs-example>
 
 ## Import
 
