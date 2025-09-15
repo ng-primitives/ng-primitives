@@ -1,7 +1,7 @@
 import { Directive, HostListener, inject } from '@angular/core';
 import { fromEvent } from 'rxjs';
-import { explicitEffect, injectElementRef } from '../../../internal/src';
-import { safeTakeUntilDestroyed } from '../../../utils/src';
+import { explicitEffect, injectElementRef } from 'ng-primitives/internal';
+import { safeTakeUntilDestroyed } from 'ng-primitives/utils';
 import { NgpPromptComposer } from '../prompt-composer/prompt-composer';
 
 @Directive({

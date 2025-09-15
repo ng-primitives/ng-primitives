@@ -11,8 +11,8 @@ import {
   numberAttribute,
 } from '@angular/core';
 import { debounceTime, fromEvent } from 'rxjs';
-import { explicitEffect, injectDimensions } from '../../../internal/src';
-import { safeTakeUntilDestroyed } from '../../../utils/src';
+import { fromResizeEvent } from 'ng-primitives/internal';
+import { safeTakeUntilDestroyed } from 'ng-primitives/utils';
 
 @Directive({
   selector: '[ngpThread]',
@@ -35,9 +35,6 @@ export class NgpThread {
     transform: booleanAttribute,
   });
 
-  /** Store the dimensions of the scrollable container */
-  private readonly dimensions = injectDimensions();
-
   /** Determine if we are at the bottom of the scrollable container (within the threshold) */
   protected isAtBottom = false;
 
@@ -52,12 +49,14 @@ export class NgpThread {
       .subscribe(() => this.updateIsAtBottom());
 
     // if the size of the container changes, update the scroll position
-    explicitEffect([this.dimensions], () => {
-      // if we were at the bottom, but the size changed, stay at the bottom
-      if (this.isAtBottom) {
-        this.scrollToBottom('instant');
-      }
-    });
+    fromResizeEvent(this.elementRef.nativeElement)
+      .pipe(safeTakeUntilDestroyed(this.destroyRef))
+      .subscribe(() => {
+        // if we were at the bottom, but the size changed, stay at the bottom
+        if (this.isAtBottom) {
+          this.scrollToBottom('instant');
+        }
+      });
 
     afterNextRender(() => {
       // if we should start at the bottom, scroll to the bottom
@@ -78,7 +77,8 @@ export class NgpThread {
   }
 
   private updateIsAtBottom(): void {
-    const scrollPosition = this.elementRef.nativeElement.scrollTop + this.dimensions().height;
+    const scrollPosition =
+      this.elementRef.nativeElement.scrollTop + this.elementRef.nativeElement.clientHeight;
     const scrollHeight = this.elementRef.nativeElement.scrollHeight;
     this.isAtBottom = scrollHeight - scrollPosition <= this.threshold();
   }

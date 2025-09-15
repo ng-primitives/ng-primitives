@@ -7,7 +7,6 @@ import {
   NgpPromptComposerSubmit,
   NgpThread,
   NgpThreadMessage,
-  NgpThreadViewport,
 } from 'ng-primitives/ai';
 import { NgpButton } from 'ng-primitives/button';
 
@@ -22,7 +21,6 @@ interface Message {
   selector: 'app-ai',
   imports: [
     NgpThread,
-    NgpThreadViewport,
     NgpThreadMessage,
     NgpPromptComposer,
     NgpPromptComposerInput,
