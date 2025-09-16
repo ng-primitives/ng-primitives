@@ -3,3 +3,4 @@ export { NgpPromptComposerSubmit } from './prompt-composer-submit/prompt-compose
 export { NgpPromptComposer } from './prompt-composer/prompt-composer';
 export { NgpThreadMessage } from './thread-message/thread-message';
 export { NgpThread } from './thread/thread';
+export { NgpPromptComposerDictation } from './prompt-composer-dictation/prompt-composer-dictation';

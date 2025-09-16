@@ -9,7 +9,7 @@ import {
   numberAttribute,
   OnDestroy,
 } from '@angular/core';
-import { fromMutationObserver, fromResizeEvent } from 'ng-primitives/internal';
+import { fromResizeEvent } from 'ng-primitives/internal';
 import { safeTakeUntilDestroyed } from 'ng-primitives/utils';
 import { debounceTime, fromEvent } from 'rxjs';
 
@@ -20,13 +20,26 @@ import { debounceTime, fromEvent } from 'rxjs';
 export class NgpThread implements OnDestroy {
   private readonly elementRef = inject(ElementRef<HTMLElement>);
 
-  /** The distance that is considered the bottom */
+  /**
+   * The distance in pixels from the bottom of the scrollable container that is considered "at the bottom".
+   * When the user scrolls within this threshold, the thread is treated as being at the bottom.
+   * This value is used to determine whether automatic scrolling to the bottom should occur,
+   * for example when new content is added or the container is resized.
+   *
+   * @default 70
+   */
   readonly threshold = input<number, NumberInput>(70, {
     alias: 'ngpThreadThreshold',
     transform: numberAttribute,
   });
 
-  /** Whether to start at the bottom */
+  /* Whether to initialize the scroll position at the bottom of the container when the thread is first rendered.
+   * If set to `true`, the thread will automatically scroll to the bottom on initialization to show the most recent message.
+   * If set to `false`, the initial scroll position will be not be modified.
+   * This is useful for chat or feed interfaces where you want to show the latest content by default.
+   *
+   * @default true
+   */
   readonly startAtBottom = input<boolean, BooleanInput>(true, {
     alias: 'ngpThreadStartAtBottom',
     transform: booleanAttribute,
@@ -67,30 +80,12 @@ export class NgpThread implements OnDestroy {
         if (this.isAtBottom) {
           this.scrollToBottom();
         }
-        this.updateIsAtBottom();
-      });
-
-    // Keep pinned when content changes without resizing (e.g. token streaming)
-    fromMutationObserver(this.elementRef.nativeElement, {
-      childList: true,
-      subtree: true,
-      characterData: true,
-    })
-      .pipe(debounceTime(1), safeTakeUntilDestroyed())
-      .subscribe(() => {
-        if (this.isAtBottom) {
-          this.maintainBottom();
-        } else {
-          this.updateIsAtBottom();
-        }
       });
 
     // Initialize scroll position after render
     afterNextRender(() => {
       if (this.startAtBottom()) {
         this.scrollToBottom();
-      } else {
-        this.updateIsAtBottom();
       }
       this.initializing = false;
     });
@@ -104,6 +99,11 @@ export class NgpThread implements OnDestroy {
   scrollToBottom(): void {
     this.cancelScrollAnimation();
 
+    // if we are initializing and startAtBottom is false, do nothing
+    if (this.initializing && !this.startAtBottom()) {
+      return;
+    }
+
     // Don't scroll if user has manually scrolled within the last 500ms
     if (!this.initializing && Date.now() - this.lastManualScrollTime < 500) {
       return;
@@ -113,24 +113,11 @@ export class NgpThread implements OnDestroy {
     const targetScrollTop = element.scrollHeight - element.clientHeight;
 
     if (this.initializing) {
-      this.maintainBottom();
+      element.scrollTop = targetScrollTop;
       return;
     }
 
     this.startSmoothScroll(element, targetScrollTop);
-  }
-
-  private maintainBottom(): void {
-    const element = this.elementRef.nativeElement;
-    const targetScrollTop = element.scrollHeight - element.clientHeight;
-
-    if (Math.abs(element.scrollTop - targetScrollTop) < 1) {
-      this.updateIsAtBottom();
-      return;
-    }
-
-    element.scrollTop = targetScrollTop;
-    this.updateIsAtBottom();
   }
 
   private startSmoothScroll(element: HTMLElement, targetScrollTop: number): void {

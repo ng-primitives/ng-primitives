@@ -61,10 +61,6 @@ pre[class*='language-'] {
   padding-inline: 1.25rem;
 }
 
-.token {
-  @apply bg-zinc-950;
-}
-
 .token.function,
 .token.tag,
 .token.class-name,
