@@ -1,4 +1,6 @@
+import { DatePipe } from '@angular/common';
 import { Component, signal } from '@angular/core';
+import * as webllm from '@mlc-ai/web-llm';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { lucideArrowUp, lucideMic, lucidePlus, lucideX } from '@ng-icons/lucide';
 import {
@@ -19,13 +21,12 @@ interface Attachment {
   type: 'image' | 'file';
 }
 
-interface Message {
+type Message = webllm.ChatCompletionMessageParam & {
   id: string;
-  content: string;
-  isUser: boolean;
   timestamp: Date;
   attachments?: Attachment[];
-}
+  isStreaming?: boolean;
+};
 
 @Component({
   selector: 'app-ai',
@@ -39,6 +40,7 @@ interface Message {
     NgpFileUpload,
     NgIcon,
     NgpButton,
+    DatePipe,
   ],
   providers: [provideIcons({ lucideArrowUp, lucideMic, lucidePlus, lucideX })],
   template: `
@@ -47,54 +49,75 @@ interface Message {
         class="flex h-full flex-col items-stretch rounded-2xl bg-white px-4 ring-1 ring-black/10"
       >
         <div class="flex flex-grow flex-col gap-4 overflow-hidden pt-4">
+          @if (isModelLoading()) {
+            <div class="flex items-center justify-center p-4">
+              <div class="flex items-center gap-2 text-sm text-gray-600">
+                <div
+                  class="h-4 w-4 animate-spin rounded-full border-2 border-gray-300 border-t-black"
+                ></div>
+                Loading WebLLM model...
+              </div>
+            </div>
+          }
+
           <div class="flex flex-grow flex-col gap-4 overflow-y-auto px-2 pb-4" ngpThread>
             @for (message of messages(); track message.id) {
-              <div
-                class="flex flex-col gap-2"
-                [class.items-end]="message.isUser"
-                [class.items-start]="!message.isUser"
-                ngpThreadMessage
-              >
-                <!-- Message Attachments -->
-                @if (message.attachments && message.attachments.length > 0) {
-                  <div class="flex max-w-[80%] flex-wrap gap-2">
-                    @for (attachment of message.attachments; track attachment.id) {
-                      @if (attachment.type === 'image') {
-                        <img
-                          class="max-h-32 max-w-xs rounded-lg border border-gray-300 object-cover"
-                          [src]="attachment.preview"
-                          [alt]="attachment.file.name"
-                        />
-                      } @else {
-                        <div
-                          class="flex items-center gap-2 rounded-lg border border-gray-300 bg-gray-50 px-2 py-1 text-xs text-gray-700"
-                        >
-                          <span>{{ attachment.file.name }}</span>
-                        </div>
+              @if (message.role !== 'system') {
+                <div
+                  class="flex flex-col gap-2"
+                  [class.items-end]="message.role === 'user'"
+                  [class.items-start]="message.role !== 'user'"
+                  ngpThreadMessage
+                >
+                  <!-- Message Attachments -->
+                  @if (message.attachments && message.attachments.length > 0) {
+                    {{ message.timestamp | date: 'hh:mm a' }}
+                    <div class="flex max-w-[80%] flex-wrap gap-2">
+                      @for (attachment of message.attachments; track attachment.id) {
+                        @if (attachment.type === 'image') {
+                          <img
+                            class="max-h-32 max-w-xs rounded-lg border border-gray-300 object-cover"
+                            [src]="attachment.preview"
+                            [alt]="attachment.file.name"
+                          />
+                        } @else {
+                          <div
+                            class="flex items-center gap-2 rounded-lg border border-gray-300 bg-gray-50 px-2 py-1 text-xs text-gray-700"
+                          >
+                            <span>{{ attachment.file.name }}</span>
+                          </div>
+                        }
                       }
+                    </div>
+                  }
+
+                  <div
+                    class="max-w-[80%] rounded-2xl px-4 py-3 text-sm"
+                    [class.bg-black]="message.role === 'user'"
+                    [class.text-white]="message.role === 'user'"
+                    [class.bg-gray-100]="message.role !== 'user'"
+                    [class.text-black]="message.role !== 'user'"
+                  >
+                    <p>{{ message.content }}</p>
+
+                    @if (message.isStreaming) {
+                      <div class="mt-1 flex items-center gap-1">
+                        <div class="flex space-x-1">
+                          <div class="h-1 w-1 animate-pulse rounded-full bg-gray-400"></div>
+                          <div
+                            class="h-1 w-1 animate-pulse rounded-full bg-gray-400"
+                            style="animation-delay: 0.2s"
+                          ></div>
+                          <div
+                            class="h-1 w-1 animate-pulse rounded-full bg-gray-400"
+                            style="animation-delay: 0.4s"
+                          ></div>
+                        </div>
+                      </div>
                     }
                   </div>
-                }
-
-                <div
-                  class="max-w-[80%] rounded-2xl px-4 py-3 text-sm"
-                  [class.bg-black]="message.isUser"
-                  [class.text-white]="message.isUser"
-                  [class.bg-gray-100]="!message.isUser"
-                  [class.text-black]="!message.isUser"
-                >
-                  <p>{{ message.content }}</p>
-
-                  <p
-                    [class]="
-                      'mt-1 text-xs opacity-70 ' +
-                      (message.isUser ? 'text-white/70' : 'text-black/70')
-                    "
-                  >
-                    {{ formatTime(message.timestamp) }}
-                  </p>
                 </div>
-              </div>
+              }
             }
           </div>
         </div>
@@ -193,66 +216,62 @@ interface Message {
   `,
 })
 export default class AiExample {
+  private engine: webllm.MLCEngineInterface | null = null;
+  readonly isModelLoading = signal(false);
+
   readonly messages = signal<Message[]>([
     {
-      id: '1',
+      id: new Date().getTime().toString(),
+      role: 'system',
       content:
-        "Hello! I'm working on an Angular application and I need help with component communication. What's the best way to pass data between parent and child components?",
-      isUser: true,
-      timestamp: new Date(Date.now() - 300000), // 5 minutes ago
-    },
-    {
-      id: '2',
-      content:
-        'Great question! There are several ways to handle component communication in Angular: input() and output() for parent-child communication, Services for unrelated components or complex state, ViewChild/ContentChild for direct component references, and NgRx or other state management for complex applications. For parent-child communication, input() and output() are typically the best choice. Would you like me to show you an example?',
-      isUser: false,
-      timestamp: new Date(Date.now() - 280000), // 4 min 40 sec ago
-    },
-    {
-      id: '3',
-      content:
-        'Yes, an example would be perfect! Could you show me how to use input() and output() together?',
-      isUser: true,
-      timestamp: new Date(Date.now() - 260000), // 4 min 20 sec ago
-    },
-    {
-      id: '4',
-      content:
-        'Absolutely! Here is a complete example. In the parent component, you can pass data to the child using input() and receive events using output(). The child component declares an input() property to receive data and an output() EventEmitter to send data back to the parent. This creates a two-way communication channel between components.',
-      isUser: false,
-      timestamp: new Date(Date.now() - 200000), // 3 min 20 sec ago
-    },
-    {
-      id: '5',
-      content:
-        "That's really helpful, thank you! Could you also explain how services can be used for component communication?",
-      isUser: true,
-      timestamp: new Date(Date.now() - 180000), // 3 min ago
-    },
-    {
-      id: '6',
-      content:
-        'Of course! Services in Angular are singleton objects that can be injected into any component. They are great for sharing data and functionality between components that do not have a direct parent-child relationship. You can create a service that holds shared state or methods, and then inject that service into any component that needs access to it. This allows for decoupled and reusable code. Would you like to see an example of using services for communication?',
-      isUser: false,
-      timestamp: new Date(Date.now() - 160000), // 2 min 40 sec ago
-    },
-    {
-      id: '7',
-      content:
-        'Yes, an example would be great! I want to understand how to implement this in my app.',
-      isUser: true,
-      timestamp: new Date(Date.now() - 140000), // 2 min 20 sec ago
+        'You are a helpful AI assistant. Responses should be in plain text only, without markdown formatting.',
+      timestamp: new Date(Date.now()),
     },
   ]);
 
   readonly attachments = signal<Attachment[]>([]);
 
-  formatTime(date: Date): string {
-    return new Intl.DateTimeFormat('en-US', {
-      hour: '2-digit',
-      minute: '2-digit',
-      hour12: true,
-    }).format(date);
+  constructor() {
+    this.initializeWebLLM();
+  }
+
+  private async initializeWebLLM(): Promise<void> {
+    try {
+      this.isModelLoading.set(true);
+
+      // Initialize WebLLM engine with a small model
+      this.engine = new webllm.MLCEngine();
+
+      // Load a lightweight model - you can change this to other models
+      await this.engine.reload('Llama-3.2-1B-Instruct-q4f16_1-MLC');
+
+      this.isModelLoading.set(false);
+
+      // Add a system message indicating the model is ready
+      this.messages.update(messages => [
+        ...messages,
+        {
+          id: Date.now().toString(),
+          content: "Hello! I'm your AI assistant powered by WebLLM. How can I help you today?",
+          role: 'assistant',
+          timestamp: new Date(),
+        },
+      ]);
+    } catch (error) {
+      console.error('Failed to initialize WebLLM:', error);
+      this.isModelLoading.set(false);
+
+      // Add error message
+      this.messages.update(messages => [
+        ...messages,
+        {
+          id: Date.now().toString(),
+          content: 'Failed to load WebLLM model. Falling back to demo responses.',
+          role: 'assistant',
+          timestamp: new Date(),
+        },
+      ]);
+    }
   }
 
   sendMessage(prompt: string): void {
@@ -260,7 +279,7 @@ export default class AiExample {
     const userMessage: Message = {
       id: Date.now().toString(),
       content: prompt,
-      isUser: true,
+      role: 'user',
       timestamp: new Date(),
       attachments: this.attachments().length > 0 ? [...this.attachments()] : undefined,
     };
@@ -270,20 +289,106 @@ export default class AiExample {
     // Clear attachments after sending
     this.attachments.set([]);
 
-    // Simulate AI response after a short delay
-    setTimeout(() => {
-      const aiMessage: Message = {
-        id: (Date.now() + 1).toString(),
-        content: this.generateAiResponse(prompt),
-        isUser: false,
-        timestamp: new Date(),
-      };
-      this.messages.update(messages => [...messages, aiMessage]);
-    }, 1000);
+    // Generate AI response
+    this.generateAiResponse(prompt);
   }
 
-  private generateAiResponse(userMessage: string): string {
-    // Simple response generation based on keywords
+  private async generateAiResponse(userMessage: string): Promise<void> {
+    const aiMessageId = (Date.now() + 1).toString();
+
+    // Create initial AI message
+    const aiMessage: Message = {
+      id: aiMessageId,
+      content: '',
+      role: 'assistant',
+      timestamp: new Date(),
+      isStreaming: true,
+    };
+
+    this.messages.update(messages => [...messages, aiMessage]);
+
+    try {
+      if (this.engine && !this.isModelLoading()) {
+        // Use WebLLM for streaming response
+        await this.streamWebLLMResponse(userMessage, aiMessageId);
+      } else {
+        // Fallback to demo response
+        await this.streamDemoResponse(userMessage, aiMessageId);
+      }
+    } catch (error) {
+      console.error('Error generating response:', error);
+      // Update with error message
+      this.messages.update(messages =>
+        messages.map(msg =>
+          msg.id === aiMessageId
+            ? {
+                ...msg,
+                content: 'Sorry, I encountered an error. Please try again.',
+                isStreaming: false,
+              }
+            : msg,
+        ),
+      );
+    }
+  }
+
+  private async streamWebLLMResponse(userMessage: string, messageId: string): Promise<void> {
+    if (!this.engine) return;
+
+    const asyncChunkGenerator = await this.engine.chat.completions.create({
+      messages: [...this.messages(), { role: 'user', content: userMessage }],
+      temperature: 0.7,
+      stream: true,
+    });
+
+    let fullContent = '';
+
+    for await (const chunk of asyncChunkGenerator) {
+      const delta = chunk.choices[0]?.delta?.content || '';
+      if (delta) {
+        fullContent += delta;
+
+        // Update the message with streaming content
+        this.messages.update(messages =>
+          messages.map(msg =>
+            msg.id === messageId ? { ...msg, content: fullContent, isStreaming: true } : msg,
+          ),
+        );
+      }
+    }
+
+    // Mark streaming as complete
+    this.messages.update(messages =>
+      messages.map(msg => (msg.id === messageId ? { ...msg, isStreaming: false } : msg)),
+    );
+  }
+
+  private async streamDemoResponse(userMessage: string, messageId: string): Promise<void> {
+    // Generate demo response
+    const response = this.getDemoResponse(userMessage);
+
+    // Simulate streaming by adding characters with delay
+    let currentContent = '';
+
+    for (let i = 0; i < response.length; i++) {
+      await new Promise(resolve => setTimeout(resolve, 20)); // 20ms delay between characters
+      currentContent += response[i];
+
+      this.messages.update(messages =>
+        messages.map(msg =>
+          msg.id === messageId ? { ...msg, content: currentContent, isStreaming: true } : msg,
+        ),
+      );
+    }
+
+    // Mark streaming as complete
+    this.messages.update(messages =>
+      messages.map(msg => (msg.id === messageId ? { ...msg, isStreaming: false } : msg)),
+    );
+  }
+
+  private getDemoResponse(userMessage: string): string {
+    // Simple response generation based on keywords for demo
     const lowerMessage = userMessage.toLowerCase();
 
     if (lowerMessage.includes('angular')) {
