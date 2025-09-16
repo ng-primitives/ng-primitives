@@ -9,7 +9,7 @@ import {
   numberAttribute,
   OnDestroy,
 } from '@angular/core';
-import { fromResizeEvent } from 'ng-primitives/internal';
+import { fromMutationObserver, fromResizeEvent } from 'ng-primitives/internal';
 import { safeTakeUntilDestroyed } from 'ng-primitives/utils';
 import { debounceTime, fromEvent } from 'rxjs';
 
@@ -67,12 +67,30 @@ export class NgpThread implements OnDestroy {
         if (this.isAtBottom) {
           this.scrollToBottom();
         }
+        this.updateIsAtBottom();
+      });
+
+    // Keep pinned when content changes without resizing (e.g. token streaming)
+    fromMutationObserver(this.elementRef.nativeElement, {
+      childList: true,
+      subtree: true,
+      characterData: true,
+    })
+      .pipe(debounceTime(1), safeTakeUntilDestroyed())
+      .subscribe(() => {
+        if (this.isAtBottom) {
+          this.maintainBottom();
+        } else {
+          this.updateIsAtBottom();
+        }
       });
 
     // Initialize scroll position after render
     afterNextRender(() => {
       if (this.startAtBottom()) {
         this.scrollToBottom();
+      } else {
+        this.updateIsAtBottom();
       }
       this.initializing = false;
     });
@@ -95,11 +113,24 @@ export class NgpThread implements OnDestroy {
     const targetScrollTop = element.scrollHeight - element.clientHeight;
 
     if (this.initializing) {
-      element.scrollTop = targetScrollTop;
+      this.maintainBottom();
       return;
     }
 
     this.startSmoothScroll(element, targetScrollTop);
+  }
+
+  private maintainBottom(): void {
+    const element = this.elementRef.nativeElement;
+    const targetScrollTop = element.scrollHeight - element.clientHeight;
+
+    if (Math.abs(element.scrollTop - targetScrollTop) < 1) {
+      this.updateIsAtBottom();
+      return;
+    }
+
+    element.scrollTop = targetScrollTop;
+    this.updateIsAtBottom();
   }
 
   private startSmoothScroll(element: HTMLElement, targetScrollTop: number): void {
