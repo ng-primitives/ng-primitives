@@ -1,4 +1,3 @@
-import { DatePipe } from '@angular/common';
 import { Component, signal } from '@angular/core';
 import * as webllm from '@mlc-ai/web-llm';
 import { NgIcon, provideIcons } from '@ng-icons/core';
@@ -23,7 +22,6 @@ interface Attachment {
 
 type Message = webllm.ChatCompletionMessageParam & {
   id: string;
-  timestamp: Date;
   attachments?: Attachment[];
   isStreaming?: boolean;
 };
@@ -40,7 +38,6 @@ type Message = webllm.ChatCompletionMessageParam & {
     NgpFileUpload,
     NgIcon,
     NgpButton,
-    DatePipe,
   ],
   providers: [provideIcons({ lucideArrowUp, lucideMic, lucidePlus, lucideX })],
   template: `
@@ -71,7 +68,6 @@ type Message = webllm.ChatCompletionMessageParam & {
                 >
                   <!-- Message Attachments -->
                   @if (message.attachments && message.attachments.length > 0) {
-                    {{ message.timestamp | date: 'hh:mm a' }}
                     <div class="flex max-w-[80%] flex-wrap gap-2">
                       @for (attachment of message.attachments; track attachment.id) {
                         @if (attachment.type === 'image') {
@@ -101,7 +97,7 @@ type Message = webllm.ChatCompletionMessageParam & {
                     <p>{{ message.content }}</p>
 
                     @if (message.isStreaming) {
-                      <div class="mt-1 flex items-center gap-1">
+                      <div class="mt-1 inline-flex items-center gap-1">
                         <div class="flex space-x-1">
                           <div class="h-1 w-1 animate-pulse rounded-full bg-gray-400"></div>
                           <div
@@ -225,7 +221,6 @@ export default class AiExample {
       role: 'system',
       content:
         'You are a helpful AI assistant. Responses should be in plain text only, without markdown formatting.',
-      timestamp: new Date(Date.now()),
     },
   ]);
 
@@ -280,7 +275,6 @@ export default class AiExample {
       id: Date.now().toString(),
       content: prompt,
       role: 'user',
-      timestamp: new Date(),
       attachments: this.attachments().length > 0 ? [...this.attachments()] : undefined,
     };
 
@@ -301,7 +295,6 @@ export default class AiExample {
       id: aiMessageId,
       content: '',
       role: 'assistant',
-      timestamp: new Date(),
       isStreaming: true,
     };
 

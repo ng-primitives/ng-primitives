@@ -8,10 +8,13 @@ import {
   input,
   numberAttribute,
   OnDestroy,
+  signal,
 } from '@angular/core';
 import { fromResizeEvent } from 'ng-primitives/internal';
 import { safeTakeUntilDestroyed } from 'ng-primitives/utils';
-import { debounceTime, fromEvent } from 'rxjs';
+import { fromEvent } from 'rxjs';
+import { debounceTime } from 'rxjs/operators';
+import type { NgpThreadMessage } from '../thread-message/thread-message';
 
 @Directive({
   selector: '[ngpThread]',
@@ -60,6 +63,9 @@ export class NgpThread implements OnDestroy {
   /** Track the last time the user manually scrolled */
   private lastManualScrollTime = 0;
 
+  /** The message element associated with this thread */
+  private readonly messages = signal<NgpThreadMessage[]>([]);
+
   constructor() {
     // Update scroll position when user scrolls, but debounce to avoid conflicts with the resize observer
     fromEvent(this.elementRef.nativeElement, 'scroll')
@@ -93,6 +99,18 @@ export class NgpThread implements OnDestroy {
 
   ngOnDestroy(): void {
     this.cancelScrollAnimation();
+  }
+
+  /**
+   * Check if we should scroll to bottom and do so if we are currently at the bottom.
+   * This should be called when content is dynamically added or updated (like during streaming).
+   */
+  checkAndScrollToBottom(message: NgpThreadMessage): void {
+    this.updateIsAtBottom();
+    // if this is not the last message, do nothing
+    if (this.isAtBottom && message === this.messages().at(-1) && !this.initializing) {
+      this.scrollToBottom();
+    }
   }
 
   /** @internal Scroll to the bottom of the thread */
@@ -159,5 +177,15 @@ export class NgpThread implements OnDestroy {
     const { scrollTop, clientHeight, scrollHeight } = this.elementRef.nativeElement;
     const scrollPosition = scrollTop + clientHeight;
     this.isAtBottom = scrollHeight - scrollPosition <= this.threshold();
+  }
+
+  /** @internal */
+  registerMessage(message: NgpThreadMessage): void {
+    this.messages.update(msgs => [...msgs, message]);
+  }
+
+  /** @internal */
+  unregisterMessage(message: NgpThreadMessage): void {
+    this.messages.update(msgs => msgs.filter(m => m !== message));
   }
 }

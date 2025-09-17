@@ -9,7 +9,7 @@ import {
   OnDestroy,
   signal,
 } from '@angular/core';
-import { setupButton } from '../../../button/src';
+import { setupButton } from 'ng-primitives/button';
 import { NgpPromptComposer } from '../prompt-composer/prompt-composer';
 
 declare global {
