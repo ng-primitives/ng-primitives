@@ -10,10 +10,11 @@ import type { NgpComboboxOption } from './combobox-option/combobox-option';
 export function areAllOptionsSelected(
   options: NgpComboboxOption[],
   selectedValues: any[],
-  compareWith: (a: any, b: any) => boolean
+  compareWith: (a: any, b: any) => boolean,
 ): boolean {
   const regularOptions = options.filter(opt => opt.value() !== 'all' && opt.value() !== undefined);
-  return regularOptions.length > 0 && regularOptions.every(opt =>
-    selectedValues.some(val => compareWith(val, opt.value()))
+  return (
+    regularOptions.length > 0 &&
+    regularOptions.every(opt => selectedValues.some(val => compareWith(val, opt.value())))
   );
 }

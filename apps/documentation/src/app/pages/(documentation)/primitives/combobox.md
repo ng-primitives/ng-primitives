@@ -91,9 +91,7 @@ The combobox supports a "Select All" option for multiple selection mode, allowin
 To implement Select All, use the special value `'all'` for your Select All option:
 
 ```html
-<div [ngpComboboxOptionValue]="'all'" ngpComboboxOption>
-  Select All
-</div>
+<div [ngpComboboxOptionValue]="'all'" ngpComboboxOption>Select All</div>
 ```
 
 ## Schematics

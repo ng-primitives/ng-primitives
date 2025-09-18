@@ -584,9 +584,7 @@ describe('NgpComboboxPortal', () => {
       <button data-testid="select-all-combobox-button" ngpComboboxButton>▼</button>
 
       <div *ngpComboboxPortal ngpComboboxDropdown>
-        <div [ngpComboboxOptionValue]="'all'" ngpComboboxOption>
-          Select All
-        </div>
+        <div [ngpComboboxOptionValue]="'all'" ngpComboboxOption>Select All</div>
         @for (option of filteredOptions(); track option) {
           <div [ngpComboboxOptionValue]="option" ngpComboboxOption>
             {{ option }}
@@ -775,12 +773,8 @@ describe('NgpCombobox Select All', () => {
           <input ngpComboboxInput />
           <button data-testid="single-select-button" ngpComboboxButton>▼</button>
           <div *ngpComboboxPortal ngpComboboxDropdown>
-            <div [ngpComboboxOptionValue]="'all'" ngpComboboxOption>
-              Select All
-            </div>
-            <div [ngpComboboxOptionValue]="'Apple'" ngpComboboxOption>
-              Apple
-            </div>
+            <div [ngpComboboxOptionValue]="'all'" ngpComboboxOption>Select All</div>
+            <div [ngpComboboxOptionValue]="'Apple'" ngpComboboxOption>Apple</div>
           </div>
         </div>
       `,
@@ -826,9 +820,7 @@ describe('NgpCombobox Select All', () => {
           <input ngpComboboxInput />
           <button data-testid="empty-options-button" ngpComboboxButton>▼</button>
           <div *ngpComboboxPortal ngpComboboxDropdown>
-            <div [ngpComboboxOptionValue]="'all'" ngpComboboxOption>
-              Select All
-            </div>
+            <div [ngpComboboxOptionValue]="'all'" ngpComboboxOption>Select All</div>
           </div>
         </div>
       `,
@@ -878,12 +870,8 @@ describe('NgpComboboxOption without value', () => {
           <input ngpComboboxInput />
           <button data-testid="no-value-button" ngpComboboxButton>▼</button>
           <div *ngpComboboxPortal ngpComboboxDropdown>
-            <div ngpComboboxOption>
-              Option without value
-            </div>
-            <div [ngpComboboxOptionValue]="'Apple'" ngpComboboxOption>
-              Apple
-            </div>
+            <div ngpComboboxOption>Option without value</div>
+            <div [ngpComboboxOptionValue]="'Apple'" ngpComboboxOption>Apple</div>
           </div>
         </div>
       `,

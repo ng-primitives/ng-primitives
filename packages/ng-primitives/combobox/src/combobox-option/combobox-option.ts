@@ -77,7 +77,11 @@ export class NgpComboboxOption implements OnInit, OnDestroy, NgpActivatable {
       }
 
       const selectedValues = Array.isArray(stateValue) ? stateValue : [];
-      return areAllOptionsSelected(this.state().options(), selectedValues, this.state().compareWith());
+      return areAllOptionsSelected(
+        this.state().options(),
+        selectedValues,
+        this.state().compareWith(),
+      );
     }
 
     if (!stateValue) {
@@ -85,7 +89,9 @@ export class NgpComboboxOption implements OnInit, OnDestroy, NgpActivatable {
     }
 
     if (this.state().multiple()) {
-      return Array.isArray(stateValue) && stateValue.some(v => this.state().compareWith()(value, v));
+      return (
+        Array.isArray(stateValue) && stateValue.some(v => this.state().compareWith()(value, v))
+      );
     }
 
     return this.state().compareWith()(value, stateValue);

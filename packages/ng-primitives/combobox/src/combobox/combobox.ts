@@ -274,7 +274,9 @@ export class NgpCombobox {
       }
 
       // Get currently visible regular options (respects filtering)
-      const regularOptions = this.options().filter(opt => opt.value() !== 'all' && opt.value() !== undefined);
+      const regularOptions = this.options().filter(
+        opt => opt.value() !== 'all' && opt.value() !== undefined,
+      );
       const allValues = regularOptions.map(opt => opt.value());
 
       this.state.value.set(allValues as T);

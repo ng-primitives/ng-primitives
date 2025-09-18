@@ -43,11 +43,7 @@ import {
 
       <div *ngpComboboxPortal ngpComboboxDropdown>
         <!-- Select All Option -->
-        <div
-          [ngpComboboxOptionValue]="'all'"
-          ngpComboboxOption
-          class="select-all-option"
-        >
+        <div class="select-all-option" [ngpComboboxOptionValue]="'all'" ngpComboboxOption>
           <span>Select All</span>
           @if (selectAllState() === 'all') {
             <ng-icon name="heroCheckSolid" />
@@ -224,7 +220,6 @@ import {
   `,
 })
 export default class ComboboxSelectAllExample {
-
   /** The options for the combobox */
   readonly options: string[] = [
     'Marty McFly',
@@ -251,9 +246,7 @@ export default class ComboboxSelectAllExample {
   /** Get the filtered options */
   protected readonly filteredOptions = computed(() =>
     this.filter()
-      ? this.options.filter(option =>
-          option.toLowerCase().includes(this.filter().toLowerCase())
-        )
+      ? this.options.filter(option => option.toLowerCase().includes(this.filter().toLowerCase()))
       : this.options,
   );
 
