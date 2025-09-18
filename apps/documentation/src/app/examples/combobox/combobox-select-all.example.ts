@@ -43,7 +43,7 @@ import {
 
       <div *ngpComboboxPortal ngpComboboxDropdown>
         <!-- Select All Option -->
-        <div class="select-all-option" [ngpComboboxOptionValue]="'all'" ngpComboboxOption>
+        <div class="select-all-option" ngpComboboxOptionValue="all" ngpComboboxOption>
           <span>Select All</span>
           @if (selectAllState() === 'all') {
             <ng-icon name="heroCheckSolid" />

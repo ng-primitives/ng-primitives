@@ -74,13 +74,13 @@ This example demonstrates a combobox without an input field. The combobox elemen
 
 <docs-example name="combobox-multiple"></docs-example>
 
-## Select All Functionality
+### Select All Functionality
 
 The combobox supports a "Select All" option for multiple selection mode, allowing users to select or deselect all options at once.
 
 <docs-example name="combobox-select-all"></docs-example>
 
-### Select All Features
+#### Select All Features
 
 - **Toggle All**: Click to select all options if not all are selected, or deselect all if all are selected
 - **Visual State**: The "Select All" option shows as selected when all individual options are selected
@@ -91,7 +91,7 @@ The combobox supports a "Select All" option for multiple selection mode, allowin
 To implement Select All, use the special value `'all'` for your Select All option:
 
 ```html
-<div [ngpComboboxOptionValue]="'all'" ngpComboboxOption>Select All</div>
+<div ngpComboboxOptionValue="all" ngpComboboxOption>Select All</div>
 ```
 
 ## Schematics
