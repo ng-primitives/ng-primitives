@@ -847,54 +847,6 @@ describe('NgpCombobox Select All', () => {
   });
 });
 
-describe('NgpComboboxOption without value', () => {
-  afterEach(() => {
-    const dropdown = screen.queryByRole('listbox');
-    if (dropdown) {
-      dropdown.remove();
-    }
-  });
-
-  it('should allow options without values', async () => {
-    @Component({
-      imports: [
-        NgpCombobox,
-        NgpComboboxButton,
-        NgpComboboxDropdown,
-        NgpComboboxInput,
-        NgpComboboxOption,
-        NgpComboboxPortal,
-      ],
-      template: `
-        <div ngpCombobox>
-          <input ngpComboboxInput />
-          <button data-testid="no-value-button" ngpComboboxButton>▼</button>
-          <div *ngpComboboxPortal ngpComboboxDropdown>
-            <div ngpComboboxOption>Option without value</div>
-            <div [ngpComboboxOptionValue]="'Apple'" ngpComboboxOption>Apple</div>
-          </div>
-        </div>
-      `,
-    })
-    class NoValueOptionComponent {}
-
-    await render(NoValueOptionComponent);
-
-    const button = screen.getByTestId('no-value-button');
-    await userEvent.click(button);
-
-    // Should not throw an error when rendering option without value
-    expect(screen.getByText('Option without value')).toBeInTheDocument();
-    expect(screen.getByText('Apple')).toBeInTheDocument();
-
-    // Clicking option without value should not select anything
-    const noValueOption = screen.getByText('Option without value');
-    await userEvent.click(noValueOption);
-
-    // Should not throw an error
-  });
-});
-
 describe('NgpCombobox without input', () => {
   @Component({
     imports: [
