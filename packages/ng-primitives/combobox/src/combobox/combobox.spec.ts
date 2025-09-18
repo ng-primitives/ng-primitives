@@ -558,6 +558,355 @@ describe('NgpComboboxPortal', () => {
   });
 });
 
+@Component({
+  imports: [
+    NgpCombobox,
+    NgpComboboxButton,
+    NgpComboboxDropdown,
+    NgpComboboxInput,
+    NgpComboboxOption,
+    NgpComboboxPortal,
+  ],
+  template: `
+    <div
+      [ngpComboboxValue]="value"
+      [ngpComboboxMultiple]="true"
+      (ngpComboboxValueChange)="onValueChange($event)"
+      ngpCombobox
+    >
+      <input
+        [value]="filter"
+        (input)="onFilterChange($event)"
+        placeholder="Select options"
+        ngpComboboxInput
+      />
+
+      <button data-testid="select-all-combobox-button" ngpComboboxButton>▼</button>
+
+      <div *ngpComboboxPortal ngpComboboxDropdown>
+        <div [ngpComboboxOptionValue]="'all'" ngpComboboxOption>
+          Select All
+        </div>
+        @for (option of filteredOptions(); track option) {
+          <div [ngpComboboxOptionValue]="option" ngpComboboxOption>
+            {{ option }}
+          </div>
+        }
+      </div>
+    </div>
+  `,
+})
+class SelectAllTestComponent {
+  value: string[] = [];
+  filter = '';
+  options = ['Apple', 'Banana', 'Cherry', 'Dragon Fruit', 'Elderberry'];
+
+  filteredOptions() {
+    return this.filter
+      ? this.options.filter(option => option.toLowerCase().includes(this.filter.toLowerCase()))
+      : this.options;
+  }
+
+  onValueChange(values: string[]) {
+    this.value = values;
+  }
+
+  onFilterChange(event: Event) {
+    this.filter = (event.target as HTMLInputElement).value;
+  }
+}
+
+describe('NgpCombobox Select All', () => {
+  afterEach(() => {
+    // the dropdown should be removed from the DOM after each test
+    // to avoid interference with other tests - it may linger due to waiting for animations
+    const dropdown = screen.queryByRole('listbox');
+    if (dropdown) {
+      dropdown.remove();
+    }
+  });
+
+  it('should display "Select All" option', async () => {
+    await render(SelectAllTestComponent);
+
+    const button = screen.getByTestId('select-all-combobox-button');
+    await userEvent.click(button);
+
+    expect(screen.getByText('Select All')).toBeInTheDocument();
+    expect(screen.getByText('Apple')).toBeInTheDocument();
+    expect(screen.getByText('Banana')).toBeInTheDocument();
+  });
+
+  it('should select all options when "Select All" is clicked', async () => {
+    const { fixture } = await render(SelectAllTestComponent);
+    const component = fixture.componentInstance;
+
+    const button = screen.getByTestId('select-all-combobox-button');
+    await userEvent.click(button);
+
+    const selectAllOption = screen.getByText('Select All');
+    await userEvent.click(selectAllOption);
+
+    expect(component.value).toEqual(['Apple', 'Banana', 'Cherry', 'Dragon Fruit', 'Elderberry']);
+  });
+
+  it('should deselect all options when "Select All" is clicked while all are selected', async () => {
+    const { fixture } = await render(SelectAllTestComponent);
+    const component = fixture.componentInstance;
+
+    // Pre-select all options
+    component.value = ['Apple', 'Banana', 'Cherry', 'Dragon Fruit', 'Elderberry'];
+    fixture.detectChanges();
+
+    const button = screen.getByTestId('select-all-combobox-button');
+    await userEvent.click(button);
+
+    const selectAllOption = screen.getByText('Select All');
+    expect(selectAllOption).toHaveAttribute('data-selected');
+
+    await userEvent.click(selectAllOption);
+
+    expect(component.value).toEqual([]);
+  });
+
+  it('should show "Select All" as selected when all individual options are selected', async () => {
+    const { fixture } = await render(SelectAllTestComponent);
+    const component = fixture.componentInstance;
+
+    const button = screen.getByTestId('select-all-combobox-button');
+    await userEvent.click(button);
+
+    // Select all options individually
+    await userEvent.click(screen.getByText('Apple'));
+    await userEvent.click(screen.getByText('Banana'));
+    await userEvent.click(screen.getByText('Cherry'));
+    await userEvent.click(screen.getByText('Dragon Fruit'));
+    await userEvent.click(screen.getByText('Elderberry'));
+
+    expect(component.value).toEqual(['Apple', 'Banana', 'Cherry', 'Dragon Fruit', 'Elderberry']);
+
+    // "Select All" should show as selected
+    const selectAllOption = screen.getByText('Select All');
+    expect(selectAllOption).toHaveAttribute('data-selected');
+  });
+
+  it('should not show "Select All" as selected when only some options are selected', async () => {
+    const { fixture } = await render(SelectAllTestComponent);
+    const component = fixture.componentInstance;
+
+    const button = screen.getByTestId('select-all-combobox-button');
+    await userEvent.click(button);
+
+    // Select only some options
+    await userEvent.click(screen.getByText('Apple'));
+    await userEvent.click(screen.getByText('Banana'));
+
+    expect(component.value).toEqual(['Apple', 'Banana']);
+
+    // "Select All" should not show as selected
+    const selectAllOption = screen.getByText('Select All');
+    expect(selectAllOption).not.toHaveAttribute('data-selected');
+  });
+
+  it('should work with keyboard navigation', async () => {
+    const { fixture } = await render(SelectAllTestComponent);
+    const component = fixture.componentInstance;
+
+    const input = screen.getByRole('combobox');
+    input.focus();
+
+    // Open dropdown with arrow down
+    await userEvent.keyboard('{arrowdown}');
+
+    // First option should be "Select All"
+    const selectAllOption = screen.getByText('Select All');
+    expect(selectAllOption).toHaveAttribute('data-active');
+
+    // Select with Enter
+    await userEvent.keyboard('{enter}');
+    expect(component.value).toEqual(['Apple', 'Banana', 'Cherry', 'Dragon Fruit', 'Elderberry']);
+  });
+
+  it('should handle filtering correctly with "Select All"', async () => {
+    const { fixture } = await render(SelectAllTestComponent);
+    const component = fixture.componentInstance;
+
+    // First open the dropdown
+    const button = screen.getByTestId('select-all-combobox-button');
+    await userEvent.click(button);
+
+    // Then type in the filter
+    const input = screen.getByRole('combobox');
+    await userEvent.type(input, 'Berr');
+
+    // Need to trigger change detection after filtering
+    fixture.detectChanges();
+    await waitFor(() => {
+      // Only filtered options and Select All should be visible
+      expect(screen.getByText('Select All')).toBeInTheDocument();
+      expect(screen.getByText('Elderberry')).toBeInTheDocument();
+      expect(screen.queryByText('Apple')).not.toBeInTheDocument();
+    });
+
+    const selectAllOption = screen.getByText('Select All');
+    await userEvent.click(selectAllOption);
+
+    // Should select only the visible (filtered) options
+    expect(component.value).toEqual(['Elderberry']);
+  });
+
+  it('should not allow "Select All" in single selection mode', async () => {
+    @Component({
+      imports: [
+        NgpCombobox,
+        NgpComboboxButton,
+        NgpComboboxDropdown,
+        NgpComboboxInput,
+        NgpComboboxOption,
+        NgpComboboxPortal,
+      ],
+      template: `
+        <div
+          [ngpComboboxValue]="value"
+          [ngpComboboxMultiple]="false"
+          (ngpComboboxValueChange)="onValueChange($event)"
+          ngpCombobox
+        >
+          <input ngpComboboxInput />
+          <button data-testid="single-select-button" ngpComboboxButton>▼</button>
+          <div *ngpComboboxPortal ngpComboboxDropdown>
+            <div [ngpComboboxOptionValue]="'all'" ngpComboboxOption>
+              Select All
+            </div>
+            <div [ngpComboboxOptionValue]="'Apple'" ngpComboboxOption>
+              Apple
+            </div>
+          </div>
+        </div>
+      `,
+    })
+    class SingleSelectWithSelectAllComponent {
+      value: string | undefined = undefined;
+
+      onValueChange(value: string) {
+        this.value = value;
+      }
+    }
+
+    const { fixture } = await render(SingleSelectWithSelectAllComponent);
+    const component = fixture.componentInstance;
+
+    const button = screen.getByTestId('single-select-button');
+    await userEvent.click(button);
+
+    const selectAllOption = screen.getByText('Select All');
+    await userEvent.click(selectAllOption);
+
+    // In single selection mode, "Select All" should not work
+    expect(component.value).toBeUndefined();
+  });
+
+  it('should handle empty options list gracefully', async () => {
+    @Component({
+      imports: [
+        NgpCombobox,
+        NgpComboboxButton,
+        NgpComboboxDropdown,
+        NgpComboboxInput,
+        NgpComboboxOption,
+        NgpComboboxPortal,
+      ],
+      template: `
+        <div
+          [ngpComboboxValue]="value"
+          [ngpComboboxMultiple]="true"
+          (ngpComboboxValueChange)="onValueChange($event)"
+          ngpCombobox
+        >
+          <input ngpComboboxInput />
+          <button data-testid="empty-options-button" ngpComboboxButton>▼</button>
+          <div *ngpComboboxPortal ngpComboboxDropdown>
+            <div [ngpComboboxOptionValue]="'all'" ngpComboboxOption>
+              Select All
+            </div>
+          </div>
+        </div>
+      `,
+    })
+    class EmptyOptionsComponent {
+      value: string[] = [];
+
+      onValueChange(values: string[]) {
+        this.value = values;
+      }
+    }
+
+    const { fixture } = await render(EmptyOptionsComponent);
+    const component = fixture.componentInstance;
+
+    const button = screen.getByTestId('empty-options-button');
+    await userEvent.click(button);
+
+    const selectAllOption = screen.getByText('Select All');
+    await userEvent.click(selectAllOption);
+
+    // Should handle empty options gracefully
+    expect(component.value).toEqual([]);
+  });
+});
+
+describe('NgpComboboxOption without value', () => {
+  afterEach(() => {
+    const dropdown = screen.queryByRole('listbox');
+    if (dropdown) {
+      dropdown.remove();
+    }
+  });
+
+  it('should allow options without values', async () => {
+    @Component({
+      imports: [
+        NgpCombobox,
+        NgpComboboxButton,
+        NgpComboboxDropdown,
+        NgpComboboxInput,
+        NgpComboboxOption,
+        NgpComboboxPortal,
+      ],
+      template: `
+        <div ngpCombobox>
+          <input ngpComboboxInput />
+          <button data-testid="no-value-button" ngpComboboxButton>▼</button>
+          <div *ngpComboboxPortal ngpComboboxDropdown>
+            <div ngpComboboxOption>
+              Option without value
+            </div>
+            <div [ngpComboboxOptionValue]="'Apple'" ngpComboboxOption>
+              Apple
+            </div>
+          </div>
+        </div>
+      `,
+    })
+    class NoValueOptionComponent {}
+
+    await render(NoValueOptionComponent);
+
+    const button = screen.getByTestId('no-value-button');
+    await userEvent.click(button);
+
+    // Should not throw an error when rendering option without value
+    expect(screen.getByText('Option without value')).toBeInTheDocument();
+    expect(screen.getByText('Apple')).toBeInTheDocument();
+
+    // Clicking option without value should not select anything
+    const noValueOption = screen.getByText('Option without value');
+    await userEvent.click(noValueOption);
+
+    // Should not throw an error
+  });
+});
+
 describe('NgpCombobox without input', () => {
   @Component({
     imports: [

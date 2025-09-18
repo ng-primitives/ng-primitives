@@ -13,6 +13,7 @@ import { setupInteractions } from 'ng-primitives/interactions';
 import { injectElementRef } from 'ng-primitives/internal';
 import { uniqueId } from 'ng-primitives/utils';
 import { injectComboboxState } from '../combobox/combobox-state';
+import { areAllOptionsSelected } from '../utils';
 
 @Directive({
   selector: '[ngpComboboxOption]',
@@ -63,18 +64,31 @@ export class NgpComboboxOption implements OnInit, OnDestroy, NgpActivatable {
   /** Whether this option is selected. */
   protected readonly selected = computed(() => {
     const value = this.value();
+    const stateValue = this.state().value();
 
     if (!value) {
       return false;
     }
 
-    if (this.state().multiple()) {
-      return (
-        Array.isArray(value) && value.some(v => this.state().compareWith()(v, this.state().value()))
-      );
+    // Handle select all functionality - only works in multiple selection mode
+    if (value === 'all') {
+      if (!this.state().multiple()) {
+        return false; // Never selected in single selection mode
+      }
+
+      const selectedValues = Array.isArray(stateValue) ? stateValue : [];
+      return areAllOptionsSelected(this.state().options(), selectedValues, this.state().compareWith());
     }
 
-    return this.state().compareWith()(value, this.state().value());
+    if (!stateValue) {
+      return false;
+    }
+
+    if (this.state().multiple()) {
+      return Array.isArray(stateValue) && stateValue.some(v => this.state().compareWith()(value, v));
+    }
+
+    return this.state().compareWith()(value, stateValue);
   });
 
   constructor() {

@@ -20,6 +20,7 @@ import type { NgpComboboxInput } from '../combobox-input/combobox-input';
 import { NgpComboboxOption } from '../combobox-option/combobox-option';
 import type { NgpComboboxPortal } from '../combobox-portal/combobox-portal';
 import { injectComboboxConfig } from '../config/combobox-config';
+import { areAllOptionsSelected } from '../utils';
 import { comboboxState, provideComboboxState } from './combobox-state';
 
 /**
@@ -266,6 +267,21 @@ export class NgpCombobox {
       return;
     }
 
+    // Handle select all functionality - only works in multiple selection mode
+    if (option.value() === 'all') {
+      if (!this.state.multiple()) {
+        return; // Do nothing in single selection mode
+      }
+
+      // Get currently visible regular options (respects filtering)
+      const regularOptions = this.options().filter(opt => opt.value() !== 'all' && opt.value() !== undefined);
+      const allValues = regularOptions.map(opt => opt.value());
+
+      this.state.value.set(allValues as T);
+      this.valueChange.emit(allValues as T);
+      return;
+    }
+
     if (this.state.multiple()) {
       // if the option is already selected, do nothing
       if (this.isOptionSelected(option)) {
@@ -302,6 +318,17 @@ export class NgpCombobox {
       return;
     }
 
+    // Handle select all for deselect all functionality - only works in multiple selection mode
+    if (option.value() === 'all') {
+      if (!this.state.multiple()) {
+        return; // Do nothing in single selection mode
+      }
+
+      this.state.value.set([] as T);
+      this.valueChange.emit([] as T);
+      return;
+    }
+
     if (this.state.multiple()) {
       const values = (this.state.value() as T[]) ?? [];
       const newValue = values.filter(v => !this.state.compareWith()(v, option.value() as T));
@@ -323,6 +350,20 @@ export class NgpCombobox {
    */
   toggleOption(option: NgpComboboxOption): void {
     if (this.state.disabled()) {
+      return;
+    }
+
+    // Handle select all for select/deselect all functionality - only works in multiple selection mode
+    if (option.value() === 'all') {
+      if (!this.state.multiple()) {
+        return; // Do nothing in single selection mode
+      }
+
+      if (this.isOptionSelected(option)) {
+        this.deselectOption(option);
+      } else {
+        this.selectOption(option);
+      }
       return;
     }
 
@@ -356,17 +397,28 @@ export class NgpCombobox {
       return false;
     }
 
+    const optionValue = option.value();
     const value = this.state.value();
+
+    // Handle select all functionality - only works in multiple selection mode
+    if (optionValue === 'all') {
+      if (!this.state.multiple()) {
+        return false; // Never selected in single selection mode
+      }
+
+      const selectedValues = Array.isArray(value) ? value : [];
+      return areAllOptionsSelected(this.options(), selectedValues, this.state.compareWith());
+    }
 
     if (!value) {
       return false;
     }
 
     if (this.state.multiple()) {
-      return value && (value as T[]).some(v => this.state.compareWith()(option.value(), v));
+      return value && (value as T[]).some(v => this.state.compareWith()(optionValue, v));
     }
 
-    return this.state.compareWith()(option.value(), value);
+    return this.state.compareWith()(optionValue, value);
   }
 
   /**
