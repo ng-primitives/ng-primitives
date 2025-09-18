@@ -39,6 +39,7 @@ export class NgpThread {
     return this.messages.length > 0 && this.messages[this.messages.length - 1] === message;
   }
 
+  /** @internal Set the prompt text in the associated prompt composer */
   setPrompt(value: string): void {
     this.requestPrompt.next(value);
   }
