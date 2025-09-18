@@ -4,13 +4,16 @@ import {
   computed,
   Directive,
   HostListener,
-  inject,
   input,
   OnDestroy,
   signal,
 } from '@angular/core';
 import { setupButton } from 'ng-primitives/button';
-import { NgpPromptComposer } from '../prompt-composer/prompt-composer';
+import { injectPromptComposerState } from '../prompt-composer/prompt-composer-state';
+import {
+  promptComposerDictationState,
+  providePromptComposerDictationState,
+} from './prompt-composer-dictation-state';
 
 declare global {
   interface Window {
@@ -22,15 +25,16 @@ declare global {
 @Directive({
   selector: 'button[ngpPromptComposerDictation]',
   exportAs: 'ngpPromptComposerDictation',
+  providers: [providePromptComposerDictationState()],
   host: {
     type: 'button',
     '[attr.data-dictating]': 'isDictating() ? "" : null',
-    '[attr.data-dictation-supported]': 'composer.dictationSupported ? "" : null',
-    '[attr.data-prompt]': 'composer.hasPrompt() ? "" : null',
+    '[attr.data-dictation-supported]': 'composer().dictationSupported ? "" : null',
+    '[attr.data-prompt]': 'composer().hasPrompt() ? "" : null',
   },
 })
 export class NgpPromptComposerDictation implements OnDestroy {
-  protected readonly composer = inject(NgpPromptComposer);
+  protected readonly composer = injectPromptComposerState();
   private recognition: any = null;
   private basePrompt = signal<string>(''); // Store the prompt before dictation started
 
@@ -40,11 +44,16 @@ export class NgpPromptComposerDictation implements OnDestroy {
   });
 
   /** Whether dictation is currently active */
-  readonly isDictating = computed(() => this.composer.isDictating());
+  readonly isDictating = computed(() => this.composer().isDictating());
+
+  /** The state of the prompt composer. */
+  protected readonly state = promptComposerDictationState<NgpPromptComposerDictation>(this);
 
   constructor() {
     setupButton({
-      disabled: computed(() => this.disabled() || this.composer.dictationSupported === false),
+      disabled: computed(
+        () => this.state.disabled() || this.composer().dictationSupported === false,
+      ),
     });
     this.initializeSpeechRecognition();
   }
@@ -63,7 +72,7 @@ export class NgpPromptComposerDictation implements OnDestroy {
       return;
     }
 
-    if (this.composer.isDictating()) {
+    if (this.composer().isDictating()) {
       this.stopDictation();
     } else {
       this.startDictation();
@@ -72,7 +81,7 @@ export class NgpPromptComposerDictation implements OnDestroy {
 
   @HostListener('document:keydown', ['$event'])
   protected onKeydown(event: KeyboardEvent): void {
-    if (event.key === 'Escape' && this.composer.isDictating()) {
+    if (event.key === 'Escape' && this.composer().isDictating()) {
       event.preventDefault();
       this.stopDictation();
     }
@@ -91,9 +100,9 @@ export class NgpPromptComposerDictation implements OnDestroy {
     this.recognition.lang = 'en-US';
 
     this.recognition.onstart = () => {
-      this.composer.isDictating.set(true);
+      this.composer().isDictating.set(true);
       // Store the current prompt as the base
-      this.basePrompt.set(this.composer.prompt());
+      this.basePrompt.set(this.composer().prompt());
     };
 
     this.recognition.onresult = (event: any) => {
@@ -115,27 +124,27 @@ export class NgpPromptComposerDictation implements OnDestroy {
       const separator = baseText ? ' ' : '';
       const newPrompt = baseText + separator + finalTranscript + interimTranscript;
 
-      this.composer.prompt.set(newPrompt.trim());
+      this.composer().prompt.set(newPrompt.trim());
     };
 
     this.recognition.onend = () => {
-      this.composer.isDictating.set(false);
+      this.composer().isDictating.set(false);
     };
 
     this.recognition.onerror = (event: any) => {
       console.error('Speech recognition error:', event.error);
-      this.composer.isDictating.set(false);
+      this.composer().isDictating.set(false);
     };
   }
 
   private startDictation(): void {
-    if (this.recognition && !this.composer.isDictating()) {
+    if (this.recognition && !this.composer().isDictating()) {
       this.recognition.start();
     }
   }
 
   private stopDictation(): void {
-    if (this.recognition && this.composer.isDictating()) {
+    if (this.recognition && this.composer().isDictating()) {
       this.recognition.stop();
     }
   }

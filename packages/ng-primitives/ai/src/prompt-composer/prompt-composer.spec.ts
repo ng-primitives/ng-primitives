@@ -1,20 +1,39 @@
-import { render, screen } from '@testing-library/angular';
+import { fireEvent, render, screen } from '@testing-library/angular';
 import { userEvent } from '@testing-library/user-event';
+import { NgpPromptComposerDictation } from '../prompt-composer-dictation/prompt-composer-dictation';
+import { MockSpeechRecognition } from '../prompt-composer-dictation/prompt-composer-dictation.spec';
 import { NgpPromptComposerInput } from '../prompt-composer-input/prompt-composer-input';
 import { NgpPromptComposerSubmit } from '../prompt-composer-submit/prompt-composer-submit';
+import { NgpThread } from '../thread/thread';
 import { NgpPromptComposer } from './prompt-composer';
 
 describe('NgpPromptComposer', () => {
+  let mockSpeechRecognition: MockSpeechRecognition;
+
+  beforeEach(() => {
+    mockSpeechRecognition = new MockSpeechRecognition();
+    (globalThis as any).SpeechRecognition = jest.fn(() => mockSpeechRecognition);
+    (globalThis as any).webkitSpeechRecognition = jest.fn(() => mockSpeechRecognition);
+  });
+
+  afterEach(() => {
+    delete (globalThis as any).SpeechRecognition;
+    delete (globalThis as any).webkitSpeechRecognition;
+  });
+
   it('should set data attributes based on state', async () => {
     // Mock SpeechRecognition for dictation support
     (globalThis as any).SpeechRecognition = jest.fn();
 
     const { fixture } = await render(
-      `<div ngpPromptComposer data-testid="composer" #composer="ngpPromptComposer">
-        <input ngpPromptComposerInput />
-      </div>`,
+      `<div ngpThread>
+        <div ngpPromptComposer data-testid="composer" #composer="ngpPromptComposer">
+          <input ngpPromptComposerInput />
+        </div>
+      </div>
+      `,
       {
-        imports: [NgpPromptComposer, NgpPromptComposerInput],
+        imports: [NgpThread, NgpPromptComposer, NgpPromptComposerInput],
       },
     );
 
@@ -39,12 +58,14 @@ describe('NgpPromptComposer', () => {
     const submitSpy = jest.fn();
 
     await render(
-      `<div ngpPromptComposer data-testid="composer" (ngpPromptComposerSubmit)="onSubmit($event)" #composer="ngpPromptComposer">
-        <input ngpPromptComposerInput />
-        <button ngpPromptComposerSubmit>Submit</button>
+      `<div ngpThread>
+        <div ngpPromptComposer data-testid="composer" (ngpPromptComposerSubmit)="onSubmit($event)" #composer="ngpPromptComposer">
+          <input ngpPromptComposerInput />
+          <button ngpPromptComposerSubmit>Submit</button>
+        </div>
       </div>`,
       {
-        imports: [NgpPromptComposer, NgpPromptComposerInput, NgpPromptComposerSubmit],
+        imports: [NgpThread, NgpPromptComposer, NgpPromptComposerInput, NgpPromptComposerSubmit],
         componentProperties: { onSubmit: submitSpy },
       },
     );
@@ -64,12 +85,14 @@ describe('NgpPromptComposer', () => {
     const submitSpy = jest.fn();
 
     await render(
-      `<div ngpPromptComposer data-testid="composer" (ngpPromptComposerSubmit)="onSubmit($event)" #composer="ngpPromptComposer">
-        <input ngpPromptComposerInput />
-        <button ngpPromptComposerSubmit>Submit</button>
+      `<div ngpThread>
+        <div ngpPromptComposer data-testid="composer" (ngpPromptComposerSubmit)="onSubmit($event)" #composer="ngpPromptComposer">
+          <input ngpPromptComposerInput />
+          <button ngpPromptComposerSubmit>Submit</button>
+        </div>
       </div>`,
       {
-        imports: [NgpPromptComposer, NgpPromptComposerInput, NgpPromptComposerSubmit],
+        imports: [NgpThread, NgpPromptComposer, NgpPromptComposerInput, NgpPromptComposerSubmit],
         componentProperties: { onSubmit: submitSpy },
       },
     );
@@ -85,12 +108,14 @@ describe('NgpPromptComposer', () => {
     const submitSpy = jest.fn();
 
     await render(
-      `<div ngpPromptComposer data-testid="composer" (ngpPromptComposerSubmit)="onSubmit($event)" #composer="ngpPromptComposer">
-        <input ngpPromptComposerInput />
-        <button ngpPromptComposerSubmit>Submit</button>
+      `<div ngpThread>
+        <div ngpPromptComposer data-testid="composer" (ngpPromptComposerSubmit)="onSubmit($event)" #composer="ngpPromptComposer">
+          <input ngpPromptComposerInput />
+          <button ngpPromptComposerSubmit>Submit</button>
+        </div>
       </div>`,
       {
-        imports: [NgpPromptComposer, NgpPromptComposerInput, NgpPromptComposerSubmit],
+        imports: [NgpThread, NgpPromptComposer, NgpPromptComposerInput, NgpPromptComposerSubmit],
         componentProperties: { onSubmit: submitSpy },
       },
     );
@@ -106,47 +131,69 @@ describe('NgpPromptComposer', () => {
 
   it('should track dictation state', async () => {
     const { fixture } = await render(
-      `<div ngpPromptComposer data-testid="composer" #composer="ngpPromptComposer">
-        <span data-testid="dictation-status">Dictating: {{ composer.isDictating() ? 'Yes' : 'No' }}</span>
+      `<div ngpThread>
+        <div ngpPromptComposer data-testid="composer" #composer="ngpPromptComposer">
+          <input ngpPromptComposerInput />
+          <button ngpPromptComposerDictation data-testid="dictation-button" #dictation="ngpPromptComposerDictation">
+            {{ dictation.isDictating() ? 'Stop' : 'Start' }} Dictation
+          </button>
+          <span data-testid="dictation-status">Dictating: {{ composer.isDictating() ? 'Yes' : 'No' }}</span>
+        </div>
       </div>`,
       {
-        imports: [NgpPromptComposer],
+        imports: [NgpThread, NgpPromptComposer, NgpPromptComposerInput, NgpPromptComposerDictation],
       },
     );
 
-    expect(screen.getByTestId('dictation-status')).toHaveTextContent('Dictating: No');
+    const dictationButton = screen.getByTestId('dictation-button');
+    const dictationStatus = screen.getByTestId('dictation-status');
 
-    // Get the directive instance directly from the fixture
-    const directiveInstance = fixture.debugElement.children[0].injector.get(NgpPromptComposer);
-    directiveInstance.isDictating.set(true);
+    // Initially not dictating
+    expect(dictationStatus).toHaveTextContent('Dictating: No');
+    expect(dictationButton).toHaveTextContent('Start Dictation');
+
+    // Start dictation by clicking the button
+    fireEvent.click(dictationButton);
     fixture.detectChanges();
 
-    expect(screen.getByTestId('dictation-status')).toHaveTextContent('Dictating: Yes');
+    expect(dictationStatus).toHaveTextContent('Dictating: Yes');
+    expect(dictationButton).toHaveTextContent('Stop Dictation');
+
+    // Stop dictation by clicking the button again
+    fireEvent.click(dictationButton);
+    fixture.detectChanges();
+
+    expect(dictationStatus).toHaveTextContent('Dictating: No');
+    expect(dictationButton).toHaveTextContent('Start Dictation');
   });
 
   it('should support dictation detection', async () => {
     // Test without SpeechRecognition
     await render(
-      `<div ngpPromptComposer data-testid="composer" #composer="ngpPromptComposer">
-        <span data-testid="dictation-support">Dictation Supported: {{ composer.dictationSupported ? 'Yes' : 'No' }}</span>
+      `<div ngpThread>
+        <div ngpPromptComposer data-testid="composer" #composer="ngpPromptComposer">
+          <span data-testid="dictation-support">Dictation Supported: {{ composer.dictationSupported ? 'Yes' : 'No' }}</span>
+        </div>
       </div>`,
       {
-        imports: [NgpPromptComposer],
+        imports: [NgpThread, NgpPromptComposer],
       },
     );
 
-    expect(screen.getByTestId('dictation-support')).toHaveTextContent('Dictation Supported: No');
+    expect(screen.getByTestId('dictation-support')).toHaveTextContent('Dictation Supported: Yes');
   });
 
   it('should manage prompt state correctly', async () => {
     const { fixture } = await render(
-      `<div ngpPromptComposer data-testid="composer" #composer="ngpPromptComposer">
-        <input ngpPromptComposerInput />
-        <span data-testid="current-prompt">Current prompt: "{{ composer.prompt() }}"</span>
-        <span data-testid="has-prompt">Has prompt: {{ composer.hasPrompt() ? 'Yes' : 'No' }}</span>
+      `<div ngpThread>
+        <div ngpPromptComposer data-testid="composer" #composer="ngpPromptComposer">
+          <input ngpPromptComposerInput />
+          <span data-testid="current-prompt">Current prompt: "{{ composer.prompt() }}"</span>
+          <span data-testid="has-prompt">Has prompt: {{ composer.hasPrompt() ? 'Yes' : 'No' }}</span>
+        </div>
       </div>`,
       {
-        imports: [NgpPromptComposer, NgpPromptComposerInput],
+        imports: [NgpThread, NgpPromptComposer, NgpPromptComposerInput],
       },
     );
 

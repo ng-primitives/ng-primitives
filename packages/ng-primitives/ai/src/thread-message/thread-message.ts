@@ -1,16 +1,21 @@
-import { AfterViewInit, DestroyRef, Directive, ElementRef, inject } from '@angular/core';
-import { fromMutationObserver } from '../../../internal/src';
-import { safeTakeUntilDestroyed } from '../../../utils/src';
-import { NgpThread } from '../thread/thread';
+import { DestroyRef, Directive, ElementRef, inject } from '@angular/core';
+import { fromMutationObserver } from 'ng-primitives/internal';
+import { safeTakeUntilDestroyed } from 'ng-primitives/utils';
+import { injectThreadState } from '../thread/thread-state';
+import { provideThreadMessageState, threadMessageState } from './thread-message-state';
 
 @Directive({
   selector: '[ngpThreadMessage]',
   exportAs: 'ngpThreadMessage',
+  providers: [provideThreadMessageState()],
 })
-export class NgpThreadMessage implements AfterViewInit {
+export class NgpThreadMessage {
   private readonly elementRef = inject(ElementRef<HTMLElement>);
   private readonly destroyRef = inject(DestroyRef);
-  private readonly thread = inject(NgpThread);
+  private readonly thread = injectThreadState();
+
+  /** The state of the thread message. */
+  protected readonly state = threadMessageState<NgpThreadMessage>(this);
 
   constructor() {
     // Watch for content changes (like streaming text) and maintain scroll position
@@ -22,15 +27,13 @@ export class NgpThreadMessage implements AfterViewInit {
     })
       .pipe(safeTakeUntilDestroyed())
       .subscribe(() => {
-        // When content changes, check if we should maintain bottom scroll position
-        this.thread.checkAndScrollToBottom(this);
+        // if this is the last message, scroll to bottom
+        if (this.thread().isLastMessage(this)) {
+          this.thread().scrollToBottom('smooth');
+        }
       });
 
-    this.thread.registerMessage(this);
-    this.destroyRef.onDestroy(() => this.thread.unregisterMessage(this));
-  }
-
-  ngAfterViewInit() {
-    this.thread.scrollToBottom();
+    this.thread().registerMessage(this);
+    this.destroyRef.onDestroy(() => this.thread().unregisterMessage(this));
   }
 }

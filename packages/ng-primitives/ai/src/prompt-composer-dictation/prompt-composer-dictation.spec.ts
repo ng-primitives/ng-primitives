@@ -2,10 +2,11 @@ import { render, screen } from '@testing-library/angular';
 import { userEvent } from '@testing-library/user-event';
 import { NgpPromptComposerInput } from '../prompt-composer-input/prompt-composer-input';
 import { NgpPromptComposer } from '../prompt-composer/prompt-composer';
+import { NgpThread } from '../thread/thread';
 import { NgpPromptComposerDictation } from './prompt-composer-dictation';
 
 // Mock SpeechRecognition
-class MockSpeechRecognition {
+export class MockSpeechRecognition {
   continuous = false;
   interimResults = false;
   lang = '';
@@ -15,11 +16,11 @@ class MockSpeechRecognition {
   onerror: ((event: any) => void) | null = null;
 
   start() {
-    setTimeout(() => this.onstart?.({}), 0);
+    this.onstart?.({});
   }
 
   stop() {
-    setTimeout(() => this.onend?.({}), 0);
+    this.onend?.({});
   }
 
   mockResult(transcript: string, isFinal: boolean = true) {
@@ -58,11 +59,13 @@ describe('NgpPromptComposerDictation', () => {
 
   it('should initialize correctly', async () => {
     await render(
-      `<div ngpPromptComposer>
-        <button ngpPromptComposerDictation>Dictate</button>
+      `<div ngpThread>
+        <div ngpPromptComposer>
+          <button ngpPromptComposerDictation>Dictate</button>
+        </div>
       </div>`,
       {
-        imports: [NgpPromptComposer, NgpPromptComposerDictation],
+        imports: [NgpThread, NgpPromptComposer, NgpPromptComposerDictation],
       },
     );
 
@@ -77,11 +80,13 @@ describe('NgpPromptComposerDictation', () => {
     delete (globalThis as any).webkitSpeechRecognition;
 
     await render(
-      `<div ngpPromptComposer>
-        <button ngpPromptComposerDictation>Dictate</button>
+      `<div ngpThread>
+        <div ngpPromptComposer>
+          <button ngpPromptComposerDictation>Dictate</button>
+        </div>
       </div>`,
       {
-        imports: [NgpPromptComposer, NgpPromptComposerDictation],
+        imports: [NgpThread, NgpPromptComposer, NgpPromptComposerDictation],
       },
     );
 
@@ -91,12 +96,14 @@ describe('NgpPromptComposerDictation', () => {
 
   it('should set data attributes correctly', async () => {
     const { fixture } = await render(
-      `<div ngpPromptComposer>
-        <input ngpPromptComposerInput />
-        <button ngpPromptComposerDictation>Dictate</button>
+      `<div ngpThread>
+        <div ngpPromptComposer>
+          <input ngpPromptComposerInput />
+          <button ngpPromptComposerDictation>Dictate</button>
+        </div>
       </div>`,
       {
-        imports: [NgpPromptComposer, NgpPromptComposerInput, NgpPromptComposerDictation],
+        imports: [NgpThread, NgpPromptComposer, NgpPromptComposerInput, NgpPromptComposerDictation],
       },
     );
 
@@ -116,11 +123,13 @@ describe('NgpPromptComposerDictation', () => {
 
   it('should start dictation on click', async () => {
     const { fixture } = await render(
-      `<div ngpPromptComposer #composer="ngpPromptComposer">
-        <button ngpPromptComposerDictation data-testid="dictate-button">Dictate</button>
+      `<div ngpThread>
+        <div ngpPromptComposer #composer="ngpPromptComposer">
+          <button ngpPromptComposerDictation data-testid="dictate-button">Dictate</button>
+        </div>
       </div>`,
       {
-        imports: [NgpPromptComposer, NgpPromptComposerDictation],
+        imports: [NgpThread, NgpPromptComposer, NgpPromptComposerDictation],
       },
     );
 
@@ -138,11 +147,13 @@ describe('NgpPromptComposerDictation', () => {
 
   it('should stop dictation on second click', async () => {
     const { fixture } = await render(
-      `<div ngpPromptComposer #composer="ngpPromptComposer">
-        <button ngpPromptComposerDictation data-testid="dictate-button">Dictate</button>
+      `<div ngpThread>
+        <div ngpPromptComposer #composer="ngpPromptComposer">
+          <button ngpPromptComposerDictation data-testid="dictate-button">Dictate</button>
+        </div>
       </div>`,
       {
-        imports: [NgpPromptComposer, NgpPromptComposerDictation],
+        imports: [NgpThread, NgpPromptComposer, NgpPromptComposerDictation],
       },
     );
 
@@ -161,13 +172,15 @@ describe('NgpPromptComposerDictation', () => {
 
   it('should transcribe speech results', async () => {
     const { fixture } = await render(
-      `<div ngpPromptComposer #composer="ngpPromptComposer">
-        <input ngpPromptComposerInput />
-        <button ngpPromptComposerDictation>Dictate</button>
-        Current: "{{ composer.prompt() }}"
+      `<div ngpThread>
+        <div ngpPromptComposer #composer="ngpPromptComposer">
+          <input ngpPromptComposerInput />
+          <button ngpPromptComposerDictation>Dictate</button>
+          Current: "{{ composer.prompt() }}"
+        </div>
       </div>`,
       {
-        imports: [NgpPromptComposer, NgpPromptComposerInput, NgpPromptComposerDictation],
+        imports: [NgpThread, NgpPromptComposer, NgpPromptComposerInput, NgpPromptComposerDictation],
       },
     );
 
@@ -187,13 +200,15 @@ describe('NgpPromptComposerDictation', () => {
 
   it('should append to existing prompt', async () => {
     const { fixture } = await render(
-      `<div ngpPromptComposer #composer="ngpPromptComposer">
-        <input ngpPromptComposerInput />
-        <button ngpPromptComposerDictation>Dictate</button>
-        Current: "{{ composer.prompt() }}"
+      `<div ngpThread>
+        <div ngpPromptComposer #composer="ngpPromptComposer">
+          <input ngpPromptComposerInput />
+          <button ngpPromptComposerDictation>Dictate</button>
+          Current: "{{ composer.prompt() }}"
+        </div>
       </div>`,
       {
-        imports: [NgpPromptComposer, NgpPromptComposerInput, NgpPromptComposerDictation],
+        imports: [NgpThread, NgpPromptComposer, NgpPromptComposerInput, NgpPromptComposerDictation],
       },
     );
 
@@ -218,13 +233,15 @@ describe('NgpPromptComposerDictation', () => {
 
   it('should handle interim results', async () => {
     const { fixture } = await render(
-      `<div ngpPromptComposer #composer="ngpPromptComposer">
-        <input ngpPromptComposerInput />
-        <button ngpPromptComposerDictation>Dictate</button>
-        Current: "{{ composer.prompt() }}"
+      `<div ngpThread>
+        <div ngpPromptComposer #composer="ngpPromptComposer">
+          <input ngpPromptComposerInput />
+          <button ngpPromptComposerDictation>Dictate</button>
+          Current: "{{ composer.prompt() }}"
+        </div>
       </div>`,
       {
-        imports: [NgpPromptComposer, NgpPromptComposerInput, NgpPromptComposerDictation],
+        imports: [NgpThread, NgpPromptComposer, NgpPromptComposerInput, NgpPromptComposerDictation],
       },
     );
 
@@ -251,11 +268,13 @@ describe('NgpPromptComposerDictation', () => {
 
   it('should stop dictation on Escape key', async () => {
     const { fixture } = await render(
-      `<div ngpPromptComposer #composer="ngpPromptComposer">
-        <button ngpPromptComposerDictation data-testid="dictate-button">Dictate</button>
+      `<div ngpThread>
+        <div ngpPromptComposer #composer="ngpPromptComposer">
+          <button ngpPromptComposerDictation data-testid="dictate-button">Dictate</button>
+        </div>
       </div>`,
       {
-        imports: [NgpPromptComposer, NgpPromptComposerDictation],
+        imports: [NgpThread, NgpPromptComposer, NgpPromptComposerDictation],
       },
     );
 
@@ -277,11 +296,13 @@ describe('NgpPromptComposerDictation', () => {
     const consoleSpy = jest.spyOn(console, 'error').mockImplementation();
 
     const { fixture } = await render(
-      `<div ngpPromptComposer>
-        <button ngpPromptComposerDictation data-testid="dictate-button">Dictate</button>
+      `<div ngpThread>
+        <div ngpPromptComposer>
+          <button ngpPromptComposerDictation data-testid="dictate-button">Dictate</button>
+        </div>
       </div>`,
       {
-        imports: [NgpPromptComposer, NgpPromptComposerDictation],
+        imports: [NgpThread, NgpPromptComposer, NgpPromptComposerDictation],
       },
     );
 
@@ -305,11 +326,13 @@ describe('NgpPromptComposerDictation', () => {
 
   it('should respect disabled input', async () => {
     await render(
-      `<div ngpPromptComposer>
-        <button ngpPromptComposerDictation [disabled]="true">Dictate</button>
+      `<div ngpThread>
+        <div ngpPromptComposer>
+          <button ngpPromptComposerDictation [disabled]="true">Dictate</button>
+        </div>
       </div>`,
       {
-        imports: [NgpPromptComposer, NgpPromptComposerDictation],
+        imports: [NgpThread, NgpPromptComposer, NgpPromptComposerDictation],
       },
     );
 
@@ -325,11 +348,13 @@ describe('NgpPromptComposerDictation', () => {
     const consoleSpy = jest.spyOn(console, 'warn').mockImplementation();
 
     await render(
-      `<div ngpPromptComposer>
-        <button ngpPromptComposerDictation data-testid="dictate-button">Dictate</button>
+      `<div ngpThread>
+        <div ngpPromptComposer>
+          <button ngpPromptComposerDictation data-testid="dictate-button">Dictate</button>
+        </div>
       </div>`,
       {
-        imports: [NgpPromptComposer, NgpPromptComposerDictation],
+        imports: [NgpThread, NgpPromptComposer, NgpPromptComposerDictation],
       },
     );
 

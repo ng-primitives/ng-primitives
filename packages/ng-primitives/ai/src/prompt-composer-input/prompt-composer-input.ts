@@ -1,29 +1,49 @@
-import { Directive, HostListener, inject } from '@angular/core';
+import { Directive, HostListener } from '@angular/core';
 import { explicitEffect, injectElementRef } from 'ng-primitives/internal';
 import { safeTakeUntilDestroyed } from 'ng-primitives/utils';
 import { fromEvent } from 'rxjs';
-import { NgpPromptComposer } from '../prompt-composer/prompt-composer';
+import { injectPromptComposerState } from '../prompt-composer/prompt-composer-state';
+import { injectThreadState } from '../thread/thread-state';
+import {
+  promptComposerInputState,
+  providePromptComposerInputState,
+} from './prompt-composer-input-state';
 
 @Directive({
   selector: 'input[ngpPromptComposerInput], textarea[ngpPromptComposerInput]',
   exportAs: 'ngpPromptComposerInput',
+  providers: [providePromptComposerInputState()],
 })
 export class NgpPromptComposerInput {
-  private readonly composed = inject(NgpPromptComposer);
+  protected readonly thread = injectThreadState();
+  private readonly composer = injectPromptComposerState();
   private readonly element = injectElementRef<HTMLInputElement | HTMLTextAreaElement>();
+
+  /** The state of the prompt composer input. */
+  protected readonly state = promptComposerInputState<NgpPromptComposerInput>(this);
 
   constructor() {
     // set the initial state
-    this.composed.prompt.set(this.element.nativeElement.value);
+    this.composer().prompt.set(this.element.nativeElement.value);
+
+    // listen for requests to set the prompt
+    this.thread()
+      .requestPrompt.pipe(safeTakeUntilDestroyed())
+      .subscribe(value => {
+        // set the cursor to the end
+        this.composer().prompt.set(value);
+        this.element.nativeElement.setSelectionRange(value.length, value.length);
+        this.element.nativeElement.focus();
+      });
 
     // listen for changes to the text content
     fromEvent(this.element.nativeElement, 'input')
       .pipe(safeTakeUntilDestroyed())
-      .subscribe(() => this.composed.prompt.set(this.element.nativeElement.value));
+      .subscribe(() => this.composer().prompt.set(this.element.nativeElement.value));
 
     // any time the prompt changes, update the input value if needed
     explicitEffect(
-      [this.composed.prompt],
+      [this.composer().prompt],
       ([prompt]) => (this.element.nativeElement.value = prompt),
     );
   }
@@ -45,6 +65,6 @@ export class NgpPromptComposerInput {
       return;
     }
 
-    this.composed.submitPrompt();
+    this.composer().submitPrompt();
   }
 }

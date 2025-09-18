@@ -116,7 +116,6 @@
     "@docsearch/js": "^3.6.0",
     "@floating-ui/dom": "^1.6.5",
     "@fontsource-variable/inter": "^5.2.5",
-    "@mlc-ai/web-llm": "^0.2.79",
     "@ng-icons/bootstrap-icons": "29.0.0",
     "@ng-icons/core": "29.0.0",
     "@ng-icons/heroicons": "29.0.0",

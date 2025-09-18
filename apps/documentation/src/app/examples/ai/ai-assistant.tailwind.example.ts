@@ -46,25 +46,27 @@ interface Message {
   ],
   providers: [provideIcons({ lucideArrowUp, lucideMic, lucidePlus, lucideX })],
   template: `
-    <div class="ai-container" ngpThread>
-      <div class="ai-chat-wrapper">
-        <div class="ai-chat-content">
-          <div class="ai-viewport" ngpThreadViewport>
+    <div class="h-[700px] w-full" ngpThread>
+      <div
+        class="flex h-full flex-col items-stretch rounded-2xl bg-white px-4 ring-1 ring-black/10"
+      >
+        <div class="flex flex-grow flex-col gap-4 overflow-hidden pt-4">
+          <div class="flex flex-grow flex-col gap-4 overflow-y-auto px-2 pb-4" ngpThreadViewport>
             @if (!hasMessages()) {
               <!-- Welcome Message and Suggestions -->
-              <div class="ai-welcome-container">
-                <div class="ai-welcome-content">
-                  <h1 class="ai-welcome-title">{{ welcomeMessage }}</h1>
-                  <p class="ai-welcome-subtitle">
+              <div class="flex flex-grow flex-col items-center justify-center gap-8 text-center">
+                <div class="max-w-md">
+                  <h1 class="mb-2 text-2xl font-semibold text-gray-900">{{ welcomeMessage }}</h1>
+                  <p class="text-sm text-gray-600">
                     Choose a suggestion below or type your own message to get started.
                   </p>
                 </div>
 
                 <!-- Suggestions -->
-                <div class="ai-suggestions-grid">
+                <div class="grid w-full max-w-lg grid-cols-1 gap-3 md:grid-cols-2">
                   @for (suggestion of suggestions; track suggestion) {
                     <button
-                      class="ai-suggestion-button"
+                      class="rounded-lg border border-gray-200 p-3 text-left text-sm transition-colors data-[hover]:border-gray-300 data-[hover]:bg-gray-50"
                       (click)="sendMessage(suggestion)"
                       ngpThreadSuggestion
                       ngpButton
@@ -80,23 +82,25 @@ interface Message {
               @for (message of messages(); track message.id) {
                 @if (message.role !== 'system') {
                   <div
-                    class="ai-message"
-                    [class.ai-message-user]="message.role === 'user'"
-                    [class.ai-message-assistant]="message.role !== 'user'"
+                    class="flex flex-col gap-2"
+                    [class.items-end]="message.role === 'user'"
+                    [class.items-start]="message.role !== 'user'"
                     ngpThreadMessage
                   >
                     <!-- Message Attachments -->
                     @if (message.attachments && message.attachments.length > 0) {
-                      <div class="ai-attachments">
+                      <div class="flex max-w-[80%] flex-wrap gap-2">
                         @for (attachment of message.attachments; track attachment.id) {
                           @if (attachment.type === 'image') {
                             <img
-                              class="ai-attachment-image"
+                              class="max-h-32 max-w-xs rounded-lg border border-gray-300 object-cover"
                               [src]="attachment.preview"
                               [alt]="attachment.file.name"
                             />
                           } @else {
-                            <div class="ai-attachment-file">
+                            <div
+                              class="flex items-center gap-2 rounded-lg border border-gray-300 bg-gray-50 px-2 py-1 text-xs text-gray-700"
+                            >
                               <span>{{ attachment.file.name }}</span>
                             </div>
                           }
@@ -105,16 +109,18 @@ interface Message {
                     }
 
                     <div
-                      class="ai-message-bubble"
-                      [class.ai-message-bubble-user]="message.role === 'user'"
-                      [class.ai-message-bubble-assistant]="message.role !== 'user'"
+                      class="max-w-[80%] rounded-2xl px-4 py-3 text-sm"
+                      [class.bg-black]="message.role === 'user'"
+                      [class.text-white]="message.role === 'user'"
+                      [class.bg-gray-100]="message.role !== 'user'"
+                      [class.text-black]="message.role !== 'user'"
                     >
                       <p>
                         {{ message.content }}
 
                         @if (message.isStreaming) {
-                          <span class="ai-streaming-wrapper">
-                            <div class="streaming-indicator"></div>
+                          <span class="ml-1 inline-flex">
+                            <div class="streaming-indicator h-2 w-2 rounded-full bg-gray-900"></div>
                           </span>
                         }
                       </p>
@@ -128,25 +134,27 @@ interface Message {
 
         <!-- Attachment Previews -->
         @if (attachments().length > 0) {
-          <div class="ai-attachment-previews-container">
-            <div class="ai-attachment-previews">
+          <div class="mx-auto w-full max-w-screen-md px-4 pb-2">
+            <div class="flex flex-wrap gap-2">
               @for (attachment of attachments(); track attachment.id) {
-                <div class="ai-attachment-preview-item">
+                <div class="group relative">
                   @if (attachment.type === 'image') {
                     <img
-                      class="ai-attachment-preview-image"
+                      class="h-16 w-16 cursor-pointer rounded-lg border border-gray-200 object-cover transition-opacity hover:opacity-80"
                       [src]="attachment.preview"
                       [alt]="attachment.file.name"
                     />
                   } @else {
-                    <div class="ai-attachment-preview-file">
-                      <span class="ai-attachment-extension">
+                    <div
+                      class="flex h-16 w-16 items-center justify-center rounded-lg border border-gray-200 bg-gray-50"
+                    >
+                      <span class="text-xs text-gray-600">
                         {{ attachment.file.name.split('.').pop()?.toUpperCase() }}
                       </span>
                     </div>
                   }
                   <button
-                    class="ai-attachment-remove"
+                    class="absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-white opacity-0 transition-opacity group-hover:opacity-100"
                     (click)="removeAttachment(attachment.id)"
                     type="button"
                   >
@@ -158,9 +166,13 @@ interface Message {
           </div>
         }
 
-        <div class="ai-composer" (ngpPromptComposerSubmit)="sendMessage($event)" ngpPromptComposer>
+        <div
+          class="mx-auto flex w-full max-w-screen-md items-end rounded-3xl bg-white/5 shadow-sm ring-1 ring-black/10"
+          (ngpPromptComposerSubmit)="sendMessage($event)"
+          ngpPromptComposer
+        >
           <button
-            class="ai-composer-button ai-file-button"
+            class="m-2 flex size-8 items-center justify-center rounded-full transition-colors hover:bg-black/5"
             (ngpFileUploadSelected)="addAttachment($event)"
             ngpButton
             type="button"
@@ -169,11 +181,11 @@ interface Message {
             ngpFileUploadFileTypes="image/*"
             aria-label="Add Attachment"
           >
-            <ng-icon class="ai-icon" name="lucidePlus" />
+            <ng-icon class="font-base text-black" name="lucidePlus" />
           </button>
 
           <textarea
-            class="ai-textarea"
+            class="max-h-40 min-h-12 flex-grow resize-none bg-transparent py-3.5 text-sm outline-none placeholder:text-black/50"
             ngpPromptComposerInput
             style="field-sizing: content;"
             name="input"
@@ -182,26 +194,28 @@ interface Message {
           ></textarea>
 
           <button
-            class="ai-composer-button ai-dictation-button"
+            class="data-[prompt]:not([data-dictating]):hidden not([data-dictation-supported]):hidden m-2 flex size-8 items-center justify-center rounded-full transition-colors hover:bg-black/5 data-[dictating]:bg-black/5 data-[dictating]:hover:bg-black/10"
             #dictation="ngpPromptComposerDictation"
             type="button"
             ngpPromptComposerDictation
             aria-label="Dictation"
           >
-            <ng-icon class="ai-icon" [name]="dictation.isDictating() ? 'lucideX' : 'lucideMic'" />
+            <ng-icon class="font-base" [name]="dictation.isDictating() ? 'lucideX' : 'lucideMic'" />
           </button>
 
           <button
-            class="ai-composer-button ai-send-button"
+            class="m-2 hidden size-8 items-center justify-center rounded-full bg-black text-white transition-colors data-[prompt]:flex"
             type="button"
             ngpPromptComposerSubmit
             aria-label="Send Message"
           >
-            <ng-icon class="ai-icon" name="lucideArrowUp" />
+            <ng-icon class="font-base" name="lucideArrowUp" />
           </button>
         </div>
 
-        <p class="ai-disclaimer">ChatNGP can make mistakes. Check important info.</p>
+        <p class="my-1 p-2 text-center text-xs text-black/50">
+          ChatNGP can make mistakes. Check important info.
+        </p>
       </div>
     </div>
   `,
@@ -210,345 +224,10 @@ interface Message {
       display: contents;
     }
 
-    /* Container */
-    .ai-container {
-      height: 700px;
-      width: 100%;
-    }
-
-    .ai-chat-wrapper {
-      display: flex;
-      height: 100%;
-      flex-direction: column;
-      align-items: stretch;
-      border-radius: 1rem;
-      background-color: var(--ngp-background);
-      padding: 0 1rem;
-      box-shadow: var(--ngp-shadow-border);
-    }
-
-    .ai-chat-content {
-      display: flex;
-      flex-grow: 1;
-      flex-direction: column;
-      gap: 1rem;
-      overflow: hidden;
-      padding-top: 1rem;
-    }
-
-    .ai-viewport {
-      display: flex;
-      flex-grow: 1;
-      flex-direction: column;
-      gap: 1rem;
-      overflow-y: auto;
-      padding: 0 0.5rem 1rem;
-    }
-
-    /* Welcome State */
-    .ai-welcome-container {
-      display: flex;
-      flex-grow: 1;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      gap: 2rem;
-      text-align: center;
-    }
-
-    .ai-welcome-content {
-      max-width: 28rem;
-    }
-
-    .ai-welcome-title {
-      margin-bottom: 0.5rem;
-      font-size: 1.5rem;
-      font-weight: 600;
-      color: var(--ngp-text-emphasis);
-      line-height: 32px;
-    }
-
-    .ai-welcome-subtitle {
-      font-size: 0.875rem;
-      color: var(--ngp-text-secondary);
-      line-height: 24px;
-    }
-
-    .ai-suggestions-grid {
-      display: grid;
-      width: 100%;
-      max-width: 32rem;
-      grid-template-columns: 1fr;
-      gap: 0.75rem;
-    }
-
-    @media (min-width: 768px) {
-      .ai-suggestions-grid {
-        grid-template-columns: 1fr 1fr;
-      }
-    }
-
-    .ai-suggestion-button {
-      border-radius: 0.5rem;
-      box-shadow: var(--ngp-shadow-border);
-      padding: 10px 0.75rem;
-      text-align: left;
-      font-size: 0.875rem;
-      background-color: var(--ngp-background);
-      color: var(--ngp-text-secondary);
-      transition: all 0.2s ease;
-      cursor: pointer;
-    }
-
-    .ai-suggestion-button:hover,
-    .ai-suggestion-button[data-hover] {
-      border-color: var(--ngp-border);
-      background-color: var(--ngp-background-hover);
-    }
-
-    /* Messages */
-    .ai-message {
-      display: flex;
-      flex-direction: column;
-      gap: 0.5rem;
-    }
-
-    .ai-message-user {
-      align-items: flex-end;
-    }
-
-    .ai-message-assistant {
-      align-items: flex-start;
-    }
-
-    .ai-attachments {
-      display: flex;
-      max-width: 80%;
-      flex-wrap: wrap;
-      gap: 0.5rem;
-    }
-
-    .ai-attachment-image {
-      max-height: 8rem;
-      max-width: 20rem;
-      border-radius: 0.5rem;
-      border: 1px solid var(--ngp-border-secondary);
-      object-fit: cover;
-    }
-
-    .ai-attachment-file {
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-      border-radius: 0.5rem;
-      border: 1px solid var(--ngp-border-secondary);
-      background-color: var(--ngp-background-hover);
-      padding: 0.5rem;
-      font-size: 0.75rem;
-      color: var(--ngp-text-secondary);
-    }
-
-    .ai-message-bubble {
-      max-width: 80%;
-      border-radius: 1rem;
-      padding: 0.75rem 1rem;
-      font-size: 0.875rem;
-    }
-
-    .ai-message-bubble-user {
-      background-color: var(--ngp-background-inverse);
-      color: var(--ngp-text-inverse);
-    }
-
-    .ai-message-bubble-assistant {
-      background-color: var(--ngp-background-active);
-      color: var(--ngp-text-primary);
-    }
-
-    .ai-streaming-wrapper {
-      margin-left: 0.25rem;
-      display: inline-flex;
-    }
-
     .streaming-indicator {
-      height: 0.5rem;
-      width: 0.5rem;
-      border-radius: 50%;
-      background-color: var(--ngp-text-tertiary);
       animation: pulse 1.5s ease-in-out infinite;
     }
 
-    /* Attachment Previews */
-    .ai-attachment-previews-container {
-      margin: 0 auto;
-      width: 100%;
-      max-width: 768px;
-      padding: 0 1rem 0.5rem;
-    }
-
-    .ai-attachment-previews {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 0.5rem;
-    }
-
-    .ai-attachment-preview-item {
-      position: relative;
-    }
-
-    .ai-attachment-preview-item:hover .ai-attachment-remove {
-      opacity: 1;
-    }
-
-    .ai-attachment-preview-image {
-      height: 4rem;
-      width: 4rem;
-      cursor: pointer;
-      border-radius: 0.5rem;
-      border: 1px solid var(--ngp-border-secondary);
-      object-fit: cover;
-      transition: opacity 0.2s ease;
-    }
-
-    .ai-attachment-preview-image:hover {
-      opacity: 0.8;
-    }
-
-    .ai-attachment-preview-file {
-      display: flex;
-      height: 4rem;
-      width: 4rem;
-      align-items: center;
-      justify-content: center;
-      border-radius: 0.5rem;
-      border: 1px solid var(--ngp-border-secondary);
-      background-color: var(--ngp-background-hover);
-    }
-
-    .ai-attachment-extension {
-      font-size: 0.75rem;
-      color: var(--ngp-text-secondary);
-    }
-
-    .ai-attachment-remove {
-      position: absolute;
-      right: -0.25rem;
-      top: -0.25rem;
-      display: flex;
-      height: 1.25rem;
-      width: 1.25rem;
-      align-items: center;
-      justify-content: center;
-      border-radius: 50%;
-      background-color: var(--ngp-text-red);
-      color: var(--ngp-text-inverse);
-      opacity: 0;
-      transition: opacity 0.2s ease;
-      border: none;
-      cursor: pointer;
-      font-size: 0.75rem;
-    }
-
-    /* Composer */
-    .ai-composer {
-      margin: 0 auto;
-      display: flex;
-      width: 100%;
-      max-width: 768px;
-      align-items: flex-end;
-      border-radius: 1.5rem;
-      background-color: rgba(255, 255, 255, 0.05);
-      box-shadow: var(--ngp-shadow-border);
-    }
-
-    .ai-composer-button {
-      margin: 0.5rem;
-      display: flex;
-      height: 2rem;
-      width: 2rem;
-      align-items: center;
-      justify-content: center;
-      border-radius: 50%;
-      transition: background-color 0.2s ease;
-      border: none;
-      cursor: pointer;
-      background-color: transparent;
-    }
-
-    .ai-file-button:hover {
-      background-color: rgba(0, 0, 0, 0.05);
-    }
-
-    .ai-dictation-button {
-      display: none;
-    }
-
-    .ai-dictation-button[data-dictation-supported]:not([data-prompt]) {
-      display: flex;
-    }
-
-    .ai-dictation-button[data-prompt]:not([data-dictating]) {
-      display: none;
-    }
-
-    .ai-dictation-button:hover {
-      background-color: rgba(0, 0, 0, 0.05);
-    }
-
-    .ai-dictation-button[data-dictating] {
-      background-color: rgba(0, 0, 0, 0.05);
-    }
-
-    .ai-dictation-button[data-dictating]:hover {
-      background-color: rgba(0, 0, 0, 0.1);
-    }
-
-    .ai-send-button {
-      display: none;
-      background-color: var(--ngp-background-inverse);
-      color: var(--ngp-text-inverse);
-    }
-
-    .ai-send-button[data-prompt] {
-      display: flex;
-    }
-
-    .ai-textarea {
-      max-height: 10rem;
-      min-height: 3rem;
-      flex-grow: 1;
-      resize: none;
-      background-color: transparent;
-      padding: 0.75rem 0;
-      font-size: 0.875rem;
-      outline: none;
-      border: none;
-      color: var(--ngp-text-primary);
-    }
-
-    .ai-textarea::placeholder {
-      color: var(--ngp-text-placeholder);
-    }
-
-    .ai-icon {
-      font-size: 14px;
-      color: var(--ngp-text-secondary);
-    }
-
-    .ai-send-button .ai-icon {
-      color: var(--ngp-text-inverse);
-    }
-
-    /* Disclaimer */
-    .ai-disclaimer {
-      margin: 0.25rem 0;
-      padding: 0.5rem;
-      text-align: center;
-      font-size: 0.75rem;
-      color: var(--ngp-text-placeholder);
-    }
-
-    /* Animations */
     @keyframes pulse {
       0%,
       100% {

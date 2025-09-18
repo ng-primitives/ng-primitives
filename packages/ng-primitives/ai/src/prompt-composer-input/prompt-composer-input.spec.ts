@@ -1,16 +1,19 @@
 import { render, screen } from '@testing-library/angular';
 import { userEvent } from '@testing-library/user-event';
 import { NgpPromptComposer } from '../prompt-composer/prompt-composer';
+import { NgpThread } from '../thread/thread';
 import { NgpPromptComposerInput } from './prompt-composer-input';
 
 describe('NgpPromptComposerInput', () => {
   it('should initialize correctly with input element', async () => {
     await render(
-      `<div ngpPromptComposer>
-        <input ngpPromptComposerInput placeholder="Enter message" />
+      `<div ngpThread>
+        <div ngpPromptComposer>
+          <input ngpPromptComposerInput placeholder="Enter message" />
+        </div>
       </div>`,
       {
-        imports: [NgpPromptComposer, NgpPromptComposerInput],
+        imports: [NgpThread, NgpPromptComposer, NgpPromptComposerInput],
       },
     );
 
@@ -21,11 +24,13 @@ describe('NgpPromptComposerInput', () => {
 
   it('should initialize correctly with textarea element', async () => {
     await render(
-      `<div ngpPromptComposer>
-        <textarea ngpPromptComposerInput placeholder="Enter message"></textarea>
+      `<div ngpThread>
+        <div ngpPromptComposer>
+          <textarea ngpPromptComposerInput placeholder="Enter message"></textarea>
+        </div>
       </div>`,
       {
-        imports: [NgpPromptComposer, NgpPromptComposerInput],
+        imports: [NgpThread, NgpPromptComposer, NgpPromptComposerInput],
       },
     );
 
@@ -36,12 +41,14 @@ describe('NgpPromptComposerInput', () => {
 
   it('should sync input value with composer prompt state', async () => {
     const { fixture } = await render(
-      `<div ngpPromptComposer #composer="ngpPromptComposer">
-        <input ngpPromptComposerInput />
-        Current prompt: "{{ composer.prompt() }}"
+      `<div ngpThread>
+        <div ngpPromptComposer #composer="ngpPromptComposer">
+          <input ngpPromptComposerInput />
+          Current prompt: "{{ composer.prompt() }}"
+        </div>
       </div>`,
       {
-        imports: [NgpPromptComposer, NgpPromptComposerInput],
+        imports: [NgpThread, NgpPromptComposer, NgpPromptComposerInput],
       },
     );
 
@@ -57,12 +64,14 @@ describe('NgpPromptComposerInput', () => {
 
   it('should set initial value from input element', async () => {
     const { fixture } = await render(
-      `<div ngpPromptComposer #composer="ngpPromptComposer">
-        <input ngpPromptComposerInput value="Initial value" />
-        Current prompt: "{{ composer.prompt() }}"
+      `<div ngpThread>
+        <div ngpPromptComposer #composer="ngpPromptComposer">
+          <input ngpPromptComposerInput value="Initial value" />
+          Current prompt: "{{ composer.prompt() }}"
+        </div>
       </div>`,
       {
-        imports: [NgpPromptComposer, NgpPromptComposerInput],
+        imports: [NgpThread, NgpPromptComposer, NgpPromptComposerInput],
       },
     );
 
@@ -76,11 +85,13 @@ describe('NgpPromptComposerInput', () => {
     const submitSpy = jest.fn();
 
     await render(
-      `<div ngpPromptComposer (ngpPromptComposerSubmit)="onSubmit($event)">
-        <input ngpPromptComposerInput />
+      `<div ngpThread>
+        <div ngpPromptComposer (ngpPromptComposerSubmit)="onSubmit($event)">
+          <input ngpPromptComposerInput />
+        </div>
       </div>`,
       {
-        imports: [NgpPromptComposer, NgpPromptComposerInput],
+        imports: [NgpThread, NgpPromptComposer, NgpPromptComposerInput],
         componentProperties: { onSubmit: submitSpy },
       },
     );
@@ -97,11 +108,13 @@ describe('NgpPromptComposerInput', () => {
     const submitSpy = jest.fn();
 
     await render(
-      `<div ngpPromptComposer (ngpPromptComposerSubmit)="onSubmit($event)">
-        <textarea ngpPromptComposerInput></textarea>
+      `<div ngpThread>
+        <div ngpPromptComposer (ngpPromptComposerSubmit)="onSubmit($event)">
+          <textarea ngpPromptComposerInput></textarea>
+        </div>
       </div>`,
       {
-        imports: [NgpPromptComposer, NgpPromptComposerInput],
+        imports: [NgpThread, NgpPromptComposer, NgpPromptComposerInput],
         componentProperties: { onSubmit: submitSpy },
       },
     );
@@ -120,11 +133,13 @@ describe('NgpPromptComposerInput', () => {
     const submitSpy = jest.fn();
 
     await render(
-      `<div ngpPromptComposer (ngpPromptComposerSubmit)="onSubmit($event)">
-        <input ngpPromptComposerInput />
+      `<div ngpThread>
+        <div ngpPromptComposer (ngpPromptComposerSubmit)="onSubmit($event)">
+          <input ngpPromptComposerInput />
+        </div>
       </div>`,
       {
-        imports: [NgpPromptComposer, NgpPromptComposerInput],
+        imports: [NgpThread, NgpPromptComposer, NgpPromptComposerInput],
         componentProperties: { onSubmit: submitSpy },
       },
     );
@@ -138,11 +153,13 @@ describe('NgpPromptComposerInput', () => {
     const submitSpy = jest.fn();
 
     await render(
-      `<div ngpPromptComposer (ngpPromptComposerSubmit)="onSubmit($event)">
-        <input ngpPromptComposerInput />
+      `<div ngpThread>
+        <div ngpPromptComposer (ngpPromptComposerSubmit)="onSubmit($event)">
+          <input ngpPromptComposerInput />
+        </div>
       </div>`,
       {
-        imports: [NgpPromptComposer, NgpPromptComposerInput],
+        imports: [NgpThread, NgpPromptComposer, NgpPromptComposerInput],
         componentProperties: { onSubmit: submitSpy },
       },
     );
@@ -157,12 +174,14 @@ describe('NgpPromptComposerInput', () => {
 
   it('should handle rapid typing correctly', async () => {
     const { fixture } = await render(
-      `<div ngpPromptComposer #composer="ngpPromptComposer">
-        <input ngpPromptComposerInput />
-        Current prompt: "{{ composer.prompt() }}"
+      `<div ngpThread>
+        <div ngpPromptComposer #composer="ngpPromptComposer">
+          <input ngpPromptComposerInput />
+          Current prompt: "{{ composer.prompt() }}"
+        </div>
       </div>`,
       {
-        imports: [NgpPromptComposer, NgpPromptComposerInput],
+        imports: [NgpThread, NgpPromptComposer, NgpPromptComposerInput],
       },
     );
 
@@ -177,11 +196,13 @@ describe('NgpPromptComposerInput', () => {
 
   it('should clear input after submit', async () => {
     await render(
-      `<div ngpPromptComposer>
-        <input ngpPromptComposerInput />
+      `<div ngpThread>
+        <div ngpPromptComposer>
+          <input ngpPromptComposerInput />
+        </div>
       </div>`,
       {
-        imports: [NgpPromptComposer, NgpPromptComposerInput],
+        imports: [NgpThread, NgpPromptComposer, NgpPromptComposerInput],
       },
     );
 

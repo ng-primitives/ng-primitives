@@ -1,17 +1,35 @@
-import { render, screen } from '@testing-library/angular';
+import { fireEvent, render, screen } from '@testing-library/angular';
 import { userEvent } from '@testing-library/user-event';
+import { NgpPromptComposerDictation } from '../prompt-composer-dictation/prompt-composer-dictation';
+import { MockSpeechRecognition } from '../prompt-composer-dictation/prompt-composer-dictation.spec';
 import { NgpPromptComposerInput } from '../prompt-composer-input/prompt-composer-input';
 import { NgpPromptComposer } from '../prompt-composer/prompt-composer';
+import { NgpThread } from '../thread/thread';
 import { NgpPromptComposerSubmit } from './prompt-composer-submit';
 
 describe('NgpPromptComposerSubmit', () => {
+  let mockSpeechRecognition: MockSpeechRecognition;
+
+  beforeEach(() => {
+    mockSpeechRecognition = new MockSpeechRecognition();
+    (globalThis as any).SpeechRecognition = jest.fn(() => mockSpeechRecognition);
+    (globalThis as any).webkitSpeechRecognition = jest.fn(() => mockSpeechRecognition);
+  });
+
+  afterEach(() => {
+    delete (globalThis as any).SpeechRecognition;
+    delete (globalThis as any).webkitSpeechRecognition;
+  });
+
   it('should initialize correctly', async () => {
     await render(
-      `<div ngpPromptComposer>
-        <button ngpPromptComposerSubmit>Submit</button>
+      `<div ngpThread>
+        <div ngpPromptComposer>
+          <button ngpPromptComposerSubmit>Submit</button>
+        </div>
       </div>`,
       {
-        imports: [NgpPromptComposer, NgpPromptComposerSubmit],
+        imports: [NgpThread, NgpPromptComposer, NgpPromptComposerSubmit],
       },
     );
 
@@ -22,12 +40,14 @@ describe('NgpPromptComposerSubmit', () => {
 
   it('should be disabled when no prompt content', async () => {
     await render(
-      `<div ngpPromptComposer>
-        <input ngpPromptComposerInput />
-        <button ngpPromptComposerSubmit>Submit</button>
+      `<div ngpThread>
+        <div ngpPromptComposer>
+          <input ngpPromptComposerInput />
+          <button ngpPromptComposerSubmit>Submit</button>
+        </div>
       </div>`,
       {
-        imports: [NgpPromptComposer, NgpPromptComposerInput, NgpPromptComposerSubmit],
+        imports: [NgpThread, NgpPromptComposer, NgpPromptComposerInput, NgpPromptComposerSubmit],
       },
     );
 
@@ -37,12 +57,14 @@ describe('NgpPromptComposerSubmit', () => {
 
   it('should be enabled when prompt has content', async () => {
     const { fixture } = await render(
-      `<div ngpPromptComposer>
-        <input ngpPromptComposerInput />
-        <button ngpPromptComposerSubmit>Submit</button>
+      `<div ngpThread>
+        <div ngpPromptComposer>
+          <input ngpPromptComposerInput />
+          <button ngpPromptComposerSubmit>Submit</button>
+        </div>
       </div>`,
       {
-        imports: [NgpPromptComposer, NgpPromptComposerInput, NgpPromptComposerSubmit],
+        imports: [NgpThread, NgpPromptComposer, NgpPromptComposerInput, NgpPromptComposerSubmit],
       },
     );
 
@@ -59,12 +81,14 @@ describe('NgpPromptComposerSubmit', () => {
     (globalThis as any).SpeechRecognition = jest.fn();
 
     const { fixture } = await render(
-      `<div ngpPromptComposer>
-        <input ngpPromptComposerInput />
-        <button ngpPromptComposerSubmit>Submit</button>
+      `<div ngpThread>
+        <div ngpPromptComposer>
+          <input ngpPromptComposerInput />
+          <button ngpPromptComposerSubmit>Submit</button>
+        </div>
       </div>`,
       {
-        imports: [NgpPromptComposer, NgpPromptComposerInput, NgpPromptComposerSubmit],
+        imports: [NgpThread, NgpPromptComposer, NgpPromptComposerInput, NgpPromptComposerSubmit],
       },
     );
 
@@ -86,12 +110,14 @@ describe('NgpPromptComposerSubmit', () => {
     const submitSpy = jest.fn();
 
     await render(
-      `<div ngpPromptComposer (ngpPromptComposerSubmit)="onSubmit($event)">
-        <input ngpPromptComposerInput />
-        <button ngpPromptComposerSubmit>Submit</button>
+      `<div ngpThread>
+        <div ngpPromptComposer (ngpPromptComposerSubmit)="onSubmit($event)">
+          <input ngpPromptComposerInput />
+          <button ngpPromptComposerSubmit>Submit</button>
+        </div>
       </div>`,
       {
-        imports: [NgpPromptComposer, NgpPromptComposerInput, NgpPromptComposerSubmit],
+        imports: [NgpThread, NgpPromptComposer, NgpPromptComposerInput, NgpPromptComposerSubmit],
         componentProperties: { onSubmit: submitSpy },
       },
     );
@@ -109,12 +135,14 @@ describe('NgpPromptComposerSubmit', () => {
     const submitSpy = jest.fn();
 
     await render(
-      `<div ngpPromptComposer (ngpPromptComposerSubmit)="onSubmit($event)">
-        <input ngpPromptComposerInput />
-        <button ngpPromptComposerSubmit>Submit</button>
+      `<div ngpThread>
+        <div ngpPromptComposer (ngpPromptComposerSubmit)="onSubmit($event)">
+          <input ngpPromptComposerInput />
+          <button ngpPromptComposerSubmit>Submit</button>
+        </div>
       </div>`,
       {
-        imports: [NgpPromptComposer, NgpPromptComposerInput, NgpPromptComposerSubmit],
+        imports: [NgpThread, NgpPromptComposer, NgpPromptComposerInput, NgpPromptComposerSubmit],
         componentProperties: { onSubmit: submitSpy },
       },
     );
@@ -130,12 +158,14 @@ describe('NgpPromptComposerSubmit', () => {
 
   it('should respect disabled input', async () => {
     const { fixture } = await render(
-      `<div ngpPromptComposer>
-        <input ngpPromptComposerInput />
-        <button ngpPromptComposerSubmit [disabled]="true">Submit</button>
+      `<div ngpThread>
+        <div ngpPromptComposer>
+          <input ngpPromptComposerInput />
+          <button ngpPromptComposerSubmit [disabled]="true">Submit</button>
+        </div>
       </div>`,
       {
-        imports: [NgpPromptComposer, NgpPromptComposerInput, NgpPromptComposerSubmit],
+        imports: [NgpThread, NgpPromptComposer, NgpPromptComposerInput, NgpPromptComposerSubmit],
       },
     );
 
@@ -151,12 +181,21 @@ describe('NgpPromptComposerSubmit', () => {
 
   it('should track dictating state', async () => {
     const { fixture } = await render(
-      `<div ngpPromptComposer #composer="ngpPromptComposer">
-        <input ngpPromptComposerInput />
-        <button ngpPromptComposerSubmit data-testid="submit-button">Submit</button>
+      `<div ngpThread>
+        <div ngpPromptComposer #composer="ngpPromptComposer">
+          <input ngpPromptComposerInput />
+          <button ngpPromptComposerSubmit data-testid="submit-button">Submit</button>
+          <button ngpPromptComposerDictation data-testid="dictate-button">Dictate</button>
+        </div>
       </div>`,
       {
-        imports: [NgpPromptComposer, NgpPromptComposerInput, NgpPromptComposerSubmit],
+        imports: [
+          NgpThread,
+          NgpPromptComposer,
+          NgpPromptComposerInput,
+          NgpPromptComposerSubmit,
+          NgpPromptComposerDictation,
+        ],
       },
     );
 
@@ -166,15 +205,15 @@ describe('NgpPromptComposerSubmit', () => {
     expect(button).not.toHaveAttribute('data-dictating');
 
     // Simulate dictation state change
-    const directiveInstance = fixture.debugElement.children[0].injector.get(NgpPromptComposer);
-    directiveInstance.isDictating.set(true);
+    const dictateButton = screen.getByTestId('dictate-button');
+    fireEvent.click(dictateButton);
     fixture.detectChanges();
 
     // Should now have data-dictating attribute
     expect(button).toHaveAttribute('data-dictating');
 
     // Turn off dictation
-    directiveInstance.isDictating.set(false);
+    fireEvent.click(dictateButton);
     fixture.detectChanges();
 
     // Should not have data-dictating attribute
@@ -183,12 +222,14 @@ describe('NgpPromptComposerSubmit', () => {
 
   it('should clear input after successful submit', async () => {
     await render(
-      `<div ngpPromptComposer>
-        <input ngpPromptComposerInput />
-        <button ngpPromptComposerSubmit>Submit</button>
+      `<div ngpThread>
+        <div ngpPromptComposer>
+          <input ngpPromptComposerInput />
+          <button ngpPromptComposerSubmit>Submit</button>
+        </div>
       </div>`,
       {
-        imports: [NgpPromptComposer, NgpPromptComposerInput, NgpPromptComposerSubmit],
+        imports: [NgpThread, NgpPromptComposer, NgpPromptComposerInput, NgpPromptComposerSubmit],
       },
     );
 

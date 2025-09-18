@@ -6,7 +6,7 @@ name: AI Assistant
 
 Build a customizable AI chat assistant by composing multiple primitives. These primitives provide accessible, flexible building blocks for chat threads, message display, prompt input, dictation, and submission—allowing you to create rich conversational interfaces tailored to your application's needs.
 
-**Note:** The AI Assistant primitives are currently in beta. The API may change in future releases.
+**Note:** The AI Assistant primitives are currently experimental. The API may change in future releases.
 
 <docs-example name="ai-assistant"></docs-example>
 
@@ -17,7 +17,9 @@ Import the AI primitives from `ng-primitives/ai`.
 ```ts
 import {
   NgpThread,
+  NgpThreadViewport,
   NgpThreadMessage,
+  NgpThreadSuggestion,
   NgpPromptComposer,
   NgpPromptComposerInput,
   NgpPromptComposerSubmit,
@@ -31,15 +33,19 @@ Assemble the AI directives in your template.
 
 ```html
 <div ngpThread>
-  <div ngpThreadMessage>
-    <div>Message content</div>
+  <div ngpThreadViewport>
+    <div ngpThreadMessage>
+      <div>Message content</div>
+    </div>
   </div>
-</div>
 
-<div ngpPromptComposer>
-  <textarea ngpPromptComposerInput></textarea>
-  <button ngpPromptComposerDictation>Mic</button>
-  <button ngpPromptComposerSubmit>Send</button>
+  <div ngpThreadSuggestion>...</div>
+
+  <div ngpPromptComposer>
+    <textarea ngpPromptComposerInput></textarea>
+    <button ngpPromptComposerDictation>Mic</button>
+    <button ngpPromptComposerSubmit>Send</button>
+  </div>
 </div>
 ```
 
@@ -49,15 +55,27 @@ The following directives are available to import from the `ng-primitives/ai` pac
 
 ### NgpThread
 
-The `NgpThread` directive is used to create a thread of messages in the AI assistant chat.
+The `NgpThread` directive is wrapper around the thread viewport, messages and composer in the AI assistant chat.
 
 <api-docs name="NgpThread"></api-docs>
+
+### NgpThreadViewport
+
+The `NgpThreadViewport` directive creates a scrollable container for displaying the messages in the AI assistant chat thread.
+
+<api-docs name="NgpThreadViewport"></api-docs>
 
 ### NgpThreadMessage
 
 The `NgpThreadMessage` directive represents an individual message within a thread in the AI assistant chat.
 
 <api-docs name="NgpThreadMessage"></api-docs>
+
+### NgpThreadSuggestion
+
+The `NgpThreadSuggestion` directive displays suggested text that the user can click to populate the prompt input field.
+
+<api-docs name="NgpThreadSuggestion"></api-docs>
 
 ### NgpPromptComposer
 
@@ -67,11 +85,11 @@ The `NgpPromptComposer` directive creates a container for composing and submitti
 
 #### Data Attributes
 
-| Attribute                  | Description                                     |
-| -------------------------- | ----------------------------------------------- |
-| `data-prompt`              | Added when there is text content in the prompt. |
-| `data-dictating`           | Added when speech dictation is active.          |
-| `data-dictation-supported` | Added when speech dictation is supported.       |
+| Attribute                  | Description                                              |
+| -------------------------- | -------------------------------------------------------- |
+| `data-prompt`              | Added when there is text content in the prompt.          |
+| `data-dictating`           | Added when speech dictation is active.                   |
+| `data-dictation-supported` | Added when speech dictation is supported by the browser. |
 
 ### NgpPromptComposerInput
 
@@ -87,11 +105,11 @@ The `NgpPromptComposerSubmit` directive handles the submission of composed promp
 
 #### Data Attributes
 
-| Attribute                  | Description                                     |
-| -------------------------- | ----------------------------------------------- |
-| `data-prompt`              | Added when there is text content in the prompt. |
-| `data-dictating`           | Added when speech dictation is active.          |
-| `data-dictation-supported` | Added when speech dictation is supported.       |
+| Attribute                  | Description                                              |
+| -------------------------- | -------------------------------------------------------- |
+| `data-prompt`              | Added when there is text content in the prompt.          |
+| `data-dictating`           | Added when speech dictation is active.                   |
+| `data-dictation-supported` | Added when speech dictation is supported by the browser. |
 
 ### NgpPromptComposerDictation
 
@@ -101,8 +119,15 @@ The `NgpPromptComposerDictation` directive enables voice input functionality for
 
 #### Data Attributes
 
-| Attribute                  | Description                                     |
-| -------------------------- | ----------------------------------------------- |
-| `data-dictating`           | Added when speech dictation is active.          |
-| `data-dictation-supported` | Added when speech dictation is supported.       |
-| `data-prompt`              | Added when there is text content in the prompt. |
+| Attribute                  | Description                                              |
+| -------------------------- | -------------------------------------------------------- |
+| `data-dictating`           | Added when speech dictation is active.                   |
+| `data-dictation-supported` | Added when speech dictation is supported by the browser. |
+| `data-prompt`              | Added when there is text content in the prompt.          |
+
+## Accessibility
+
+### Keyboard Interactions
+
+- <kbd>Enter</kbd> - Submits the prompt when focused on the input field.
+- <kbd>Shift+Enter</kbd> - Inserts a newline in the input field.

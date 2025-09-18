@@ -30,6 +30,8 @@ Create a button component that uses the `NgpButton` directive.
 
 <docs-snippet name="button"></docs-snippet>
 
+## Examples
+
 ### Button Sizes
 
 You can add size support to your reusable button component. This is implemented at the component level rather than in the primitive to provide more flexibility for different design systems.
