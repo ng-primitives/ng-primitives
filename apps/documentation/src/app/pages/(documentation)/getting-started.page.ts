@@ -10,13 +10,15 @@ import { QuickLinks } from '../../components/quick-links/quick-links';
         class="prose prose-sm prose-zinc dark:prose-invert flex-1 overflow-hidden px-px"
         data-page-content
       >
-        <p
-          class="from-primary to-accent mb-2 inline-block bg-gradient-to-r bg-clip-text text-sm font-medium text-transparent"
-        >
-          Getting Started
-        </p>
-        <div class="max-w-3xl">
-          <router-outlet />
+        <div class="mx-auto w-fit">
+          <p
+            class="from-primary to-accent mb-2 inline-block bg-gradient-to-r bg-clip-text text-sm font-medium text-transparent"
+          >
+            Getting Started
+          </p>
+          <div class="max-w-3xl">
+            <router-outlet />
+          </div>
         </div>
       </div>
       <docs-quick-links />
@@ -24,7 +26,7 @@ import { QuickLinks } from '../../components/quick-links/quick-links';
   `,
   imports: [RouterOutlet, QuickLinks],
   host: {
-    class: 'flex-1 max-w-full md:max-w-[78%]',
+    class: 'flex-1',
   },
 })
 export default class GettingStartedPage {}

@@ -10,14 +10,16 @@ import {
 import { RouterLink } from '@angular/router';
 import { bootstrapDiscord, bootstrapGithub } from '@ng-icons/bootstrap-icons';
 import { NgIcon, provideIcons } from '@ng-icons/core';
-import { lucideMenu, lucideSearch } from '@ng-icons/lucide';
+import { lucideHeart, lucideMenu, lucideSearch } from '@ng-icons/lucide';
 import { NgpButton } from 'ng-primitives/button';
 import { ThemeToggle } from '../theme-toggle/theme-toggle';
 
 @Component({
   selector: 'docs-navbar',
   imports: [NgIcon, NgpButton, ThemeToggle, RouterLink],
-  providers: [provideIcons({ lucideSearch, bootstrapGithub, bootstrapDiscord, lucideMenu })],
+  providers: [
+    provideIcons({ lucideSearch, bootstrapGithub, bootstrapDiscord, lucideMenu, lucideHeart }),
+  ],
   templateUrl: './navbar.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
