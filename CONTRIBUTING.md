@@ -10,7 +10,7 @@ We welcome contributions from the community! Whether you're a seasoned developer
 
 ## Requesting a new feature
 
-While we draw inspiration from the libraries like Radix UI, Headless UI and React Aria we are not looking to port their features as-is.
+While we draw inspiration from libraries like Radix UI, Headless UI, and React Aria, we are not looking to port their features as-is.
 We want to develop a feature in whatever way is best for Angular.
 
 If you wish to develop a feature, please raise an issue or discussion first to discuss the feature and how it fits into the library.
@@ -45,7 +45,7 @@ To set up the development environment, follow these steps:
 
 ## Adding a new feature
 
-Angular Primitives is built with Nx which comes with support for generators. We have created several generators to help you quickly scaffold new features.
+Angular Primitives is built with Nx, which comes with support for generators. We have created several generators to help you quickly scaffold new features.
 
 The following generators are available:
 
@@ -55,7 +55,7 @@ The following generators are available:
 - `nx g @ng-primitives/tools:example <name> --primitive <primitive>`: Generates a new example for a primitive.
 - `nx g @ng-primitives/tools:reusable-component button`: Generates a new reusable component.
 
-It is recommended to use the [Nx Console](https://nx.dev/getting-started/editor-setup) to run these generators as it provides a user-friendly interface right in your IDE.
+It is recommended to use the [Nx Console](https://nx.dev/getting-started/editor-setup) to run these generators, as it provides a user-friendly interface right in your IDE.
 
 ## Running the linting
 
@@ -91,7 +91,7 @@ pnpm start
 
 ## Creating reusable components
 
-We provide example reusable components for consumers to easily build their own components using out primitives.
+We provide example reusable components for consumers to easily build their own components using our primitives.
 
 We can generate the boilerplate by running:
 
@@ -99,15 +99,15 @@ We can generate the boilerplate by running:
 nx g @ng-primitives/tools:reusable-component button
 ```
 
-That will create all the files you need, they will be under `apps/components/src/app/button`.
+That will create all the files you need. They will be under `apps/components/src/app/button`.
 
-A preview site is availble to build and test these components which can be run using the following command:
+A preview site is available to build and test these components, which can be run using the following command:
 
 ```bash
 nx serve components
 ```
 
-This can be added as an example in the documentation site like so:
+This can be added as an example in the documentation site, like so:
 
 ```html
 <docs-snippet name="button"></docs-snippet>
@@ -119,8 +119,8 @@ This can be added as an example in the documentation site like so:
 
 We name our primitives using the following conventions:
 
-- Selectors should should have the `ngp` prefix.
-- Class names should have the `Ngp` prefix and be in PascalCase. We do not add suffixes to the class names like `NgpButtonDirective`, instead we use `NgpButton`.
+- Selectors should have the `ngp` prefix.
+- Class names should have the `Ngp` prefix and be in PascalCase. We do not add suffixes to the class names like `NgpButtonDirective`. Instead, we use `NgpButton`.
 - File names should be in kebab-case, but for directives we omit `.directive` from the file name. For example, `button.directive.ts` should be named `button.ts`.
 
 ### Inputs and outputs
@@ -129,9 +129,9 @@ We use the following conventions for inputs and outputs:
 
 - All inputs should be signal inputs.
 - All outputs should use the `output` function.
-- We do not use `model`, instead we prefer a dedicated input and output for each property. The reason for this is outputs should only emit on user interaction, not necessarily on every change. This gives us more control over the events we emit.
+- We do not use `model`. Instead, we prefer a dedicated input and output for each property. The reason for this is that outputs should only emit on user interaction, not necessarily on every change. This gives us more control over the events we emit.
 
-## Troubleshoting
+## Troubleshooting
 
 The documentation site is built using Analog, which may exhibit instability based on reports on Windows systems. For a smoother experience, we recommend running the site using Ubuntu inside WSL2 (Windows Subsystem for Linux). This should provide a more stable environment for running the documentation site.
 
