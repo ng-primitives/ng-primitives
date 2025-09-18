@@ -1,3 +1,4 @@
+import { NgClass } from '@angular/common';
 import { Component, computed, signal } from '@angular/core';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { lucideArrowUp, lucideMic, lucidePlus, lucideX } from '@ng-icons/lucide';
@@ -43,12 +44,13 @@ interface Message {
     NgpFileUpload,
     NgIcon,
     NgpButton,
+    NgClass,
   ],
   providers: [provideIcons({ lucideArrowUp, lucideMic, lucidePlus, lucideX })],
   template: `
     <div class="h-[700px] w-full" ngpThread>
       <div
-        class="flex h-full flex-col items-stretch rounded-2xl bg-white px-4 ring-1 ring-black/10"
+        class="flex h-full flex-col items-stretch rounded-2xl bg-white px-4 ring-1 ring-black/10 dark:bg-black"
       >
         <div class="flex flex-grow flex-col gap-4 overflow-hidden pt-4">
           <div class="flex flex-grow flex-col gap-4 overflow-y-auto px-2 pb-4" ngpThreadViewport>
@@ -56,8 +58,10 @@ interface Message {
               <!-- Welcome Message and Suggestions -->
               <div class="flex flex-grow flex-col items-center justify-center gap-8 text-center">
                 <div class="max-w-md">
-                  <h1 class="mb-2 text-2xl font-semibold text-gray-900">{{ welcomeMessage }}</h1>
-                  <p class="text-sm text-gray-600">
+                  <h1 class="mb-2 text-2xl font-semibold text-black dark:text-white">
+                    {{ welcomeMessage }}
+                  </h1>
+                  <p class="text-sm text-zinc-600 dark:text-zinc-400">
                     Choose a suggestion below or type your own message to get started.
                   </p>
                 </div>
@@ -66,7 +70,7 @@ interface Message {
                 <div class="grid w-full max-w-lg grid-cols-1 gap-3 md:grid-cols-2">
                   @for (suggestion of suggestions; track suggestion) {
                     <button
-                      class="rounded-lg border border-gray-200 p-3 text-left text-sm transition-colors data-[hover]:border-gray-300 data-[hover]:bg-gray-50"
+                      class="rounded-lg border border-zinc-200 p-3 text-left text-sm transition-colors data-[hover]:border-zinc-300 data-[hover]:bg-zinc-50 dark:border-zinc-800 dark:data-[hover]:border-zinc-600 dark:data-[hover]:bg-zinc-800"
                       (click)="sendMessage(suggestion)"
                       ngpThreadSuggestion
                       ngpButton
@@ -93,13 +97,13 @@ interface Message {
                         @for (attachment of message.attachments; track attachment.id) {
                           @if (attachment.type === 'image') {
                             <img
-                              class="max-h-32 max-w-xs rounded-lg border border-gray-300 object-cover"
+                              class="max-h-32 max-w-xs rounded-lg border border-zinc-300 object-cover dark:border-zinc-700"
                               [src]="attachment.preview"
                               [alt]="attachment.file.name"
                             />
                           } @else {
                             <div
-                              class="flex items-center gap-2 rounded-lg border border-gray-300 bg-gray-50 px-2 py-1 text-xs text-gray-700"
+                              class="flex items-center gap-2 rounded-lg border border-zinc-300 bg-zinc-50 px-2 py-1 text-xs text-zinc-700 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-300"
                             >
                               <span>{{ attachment.file.name }}</span>
                             </div>
@@ -110,17 +114,21 @@ interface Message {
 
                     <div
                       class="max-w-[80%] rounded-2xl px-4 py-3 text-sm"
-                      [class.bg-black]="message.role === 'user'"
-                      [class.text-white]="message.role === 'user'"
-                      [class.bg-gray-100]="message.role !== 'user'"
-                      [class.text-black]="message.role !== 'user'"
+                      [ngClass]="{
+                        'bg-black text-white dark:bg-white dark:text-black':
+                          message.role === 'user',
+                        'bg-zinc-100 text-black dark:bg-zinc-800 dark:text-white':
+                          message.role !== 'user',
+                      }"
                     >
                       <p>
                         {{ message.content }}
 
                         @if (message.isStreaming) {
                           <span class="ml-1 inline-flex">
-                            <div class="streaming-indicator h-2 w-2 rounded-full bg-gray-900"></div>
+                            <div
+                              class="streaming-indicator h-2 w-2 rounded-full bg-black dark:bg-white"
+                            ></div>
                           </span>
                         }
                       </p>
@@ -140,15 +148,15 @@ interface Message {
                 <div class="group relative">
                   @if (attachment.type === 'image') {
                     <img
-                      class="h-16 w-16 cursor-pointer rounded-lg border border-gray-200 object-cover transition-opacity hover:opacity-80"
+                      class="h-16 w-16 cursor-pointer rounded-lg border border-zinc-200 object-cover transition-opacity hover:opacity-80 dark:border-zinc-700"
                       [src]="attachment.preview"
                       [alt]="attachment.file.name"
                     />
                   } @else {
                     <div
-                      class="flex h-16 w-16 items-center justify-center rounded-lg border border-gray-200 bg-gray-50"
+                      class="flex h-16 w-16 items-center justify-center rounded-lg border border-zinc-200 bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-800"
                     >
-                      <span class="text-xs text-gray-600">
+                      <span class="text-xs text-zinc-600 dark:text-zinc-400">
                         {{ attachment.file.name.split('.').pop()?.toUpperCase() }}
                       </span>
                     </div>
@@ -167,12 +175,12 @@ interface Message {
         }
 
         <div
-          class="mx-auto flex w-full max-w-screen-md items-end rounded-3xl bg-white/5 shadow-sm ring-1 ring-black/10"
+          class="mx-auto flex w-full max-w-screen-md items-end rounded-3xl bg-white/5 shadow-sm ring-1 ring-black/10 dark:bg-black/20 dark:ring-white/10"
           (ngpPromptComposerSubmit)="sendMessage($event)"
           ngpPromptComposer
         >
           <button
-            class="m-2 flex size-8 items-center justify-center rounded-full transition-colors hover:bg-black/5"
+            class="m-2 flex size-8 items-center justify-center rounded-full transition-colors hover:bg-black/5 dark:hover:bg-white/5"
             (ngpFileUploadSelected)="addAttachment($event)"
             ngpButton
             type="button"
@@ -181,11 +189,11 @@ interface Message {
             ngpFileUploadFileTypes="image/*"
             aria-label="Add Attachment"
           >
-            <ng-icon class="font-base text-black" name="lucidePlus" />
+            <ng-icon class="font-base text-black dark:text-white" name="lucidePlus" />
           </button>
 
           <textarea
-            class="max-h-40 min-h-12 flex-grow resize-none bg-transparent py-3.5 text-sm outline-none placeholder:text-black/50"
+            class="max-h-40 min-h-12 flex-grow resize-none bg-transparent py-3.5 text-sm outline-none placeholder:text-black/50 dark:placeholder:text-white/50"
             ngpPromptComposerInput
             style="field-sizing: content;"
             name="input"
@@ -194,7 +202,7 @@ interface Message {
           ></textarea>
 
           <button
-            class="data-[prompt]:not([data-dictating]):hidden not([data-dictation-supported]):hidden m-2 flex size-8 items-center justify-center rounded-full transition-colors hover:bg-black/5 data-[dictating]:bg-black/5 data-[dictating]:hover:bg-black/10"
+            class="data-[prompt]:not([data-dictating]):hidden not([data-dictation-supported]):hidden m-2 flex size-8 items-center justify-center rounded-full transition-colors hover:bg-black/5 data-[dictating]:bg-black/5 data-[dictating]:hover:bg-black/10 dark:hover:bg-white/5 dark:data-[dictating]:bg-white/5 dark:data-[dictating]:hover:bg-white/10"
             #dictation="ngpPromptComposerDictation"
             type="button"
             ngpPromptComposerDictation
@@ -204,7 +212,7 @@ interface Message {
           </button>
 
           <button
-            class="m-2 hidden size-8 items-center justify-center rounded-full bg-black text-white transition-colors data-[prompt]:flex"
+            class="m-2 hidden size-8 items-center justify-center rounded-full bg-black text-white transition-colors hover:bg-black/90 data-[prompt]:flex dark:bg-white dark:text-black dark:hover:bg-white/90"
             type="button"
             ngpPromptComposerSubmit
             aria-label="Send Message"
@@ -213,7 +221,7 @@ interface Message {
           </button>
         </div>
 
-        <p class="my-1 p-2 text-center text-xs text-black/50">
+        <p class="my-1 p-2 text-center text-xs text-black/50 dark:text-white/50">
           ChatNGP can make mistakes. Check important info.
         </p>
       </div>
