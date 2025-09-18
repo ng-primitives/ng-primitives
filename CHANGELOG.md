@@ -1,3 +1,16 @@
+## 0.80.0 (2025-09-18)
+
+### 🚀 Features
+
+- ai assistant primitives ([#471](https://github.com/ng-primitives/ng-primitives/pull/471))
+- **combobox:** add keyboard navigation support without input ([#468](https://github.com/ng-primitives/ng-primitives/pull/468))
+- **combobox:** select all ([#470](https://github.com/ng-primitives/ng-primitives/pull/470))
+
+### ❤️ Thank You
+
+- Ashley Hunter
+- Ido Golan @ido-g-coralogix
+
 ## 0.79.0 (2025-09-14)
 
 ### 🚀 Features
