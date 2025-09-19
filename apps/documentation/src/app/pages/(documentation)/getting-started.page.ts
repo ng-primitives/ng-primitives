@@ -10,7 +10,7 @@ import { QuickLinks } from '../../components/quick-links/quick-links';
         class="prose prose-sm prose-zinc dark:prose-invert flex-1 overflow-hidden px-px"
         data-page-content
       >
-        <div class="mx-auto w-fit">
+        <div class="mx-auto w-fit max-w-full">
           <p
             class="from-primary to-accent mb-2 inline-block bg-gradient-to-r bg-clip-text text-sm font-medium text-transparent"
           >
@@ -26,7 +26,7 @@ import { QuickLinks } from '../../components/quick-links/quick-links';
   `,
   imports: [RouterOutlet, QuickLinks],
   host: {
-    class: 'flex-1',
+    class: 'flex-1 max-w-full',
   },
 })
 export default class GettingStartedPage {}
