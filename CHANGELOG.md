@@ -1,3 +1,13 @@
+## 0.81.1 (2025-09-23)
+
+### 🩹 Fixes
+
+- **combobox:** open dropdown for Android virtual keyboard 'Unidentified' key ([#467](https://github.com/ng-primitives/ng-primitives/pull/467), [#476](https://github.com/ng-primitives/ng-primitives/pull/476))
+
+### ❤️ Thank You
+
+- BennyPLS
+
 ## 0.81.0 (2025-09-23)
 
 ### 🚀 Features
