@@ -1,3 +1,18 @@
+## 0.81.0 (2025-09-23)
+
+### 🚀 Features
+
+- add switch tailwind examples ([#473](https://github.com/ng-primitives/ng-primitives/pull/473))
+
+### 🩹 Fixes
+
+- **popover:** dynamic-placement ([#475](https://github.com/ng-primitives/ng-primitives/pull/475))
+
+### ❤️ Thank You
+
+- Ashley Hunter
+- kedevked @kedevked
+
 ## 0.80.0 (2025-09-18)
 
 ### 🚀 Features
