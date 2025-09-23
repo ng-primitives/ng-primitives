@@ -55,3 +55,21 @@ export function isObject(value: unknown): value is Record<string, unknown> {
 export function isUndefined(value: unknown): value is undefined {
   return typeof value === 'undefined';
 }
+
+/**
+ * Checks if a value is null or undefined
+ * @param value - The value to check
+ * @returns true if the value is null or undefined, false otherwise
+ */
+export function isNil(value: unknown): value is null | undefined {
+  return isUndefined(value) || value === null;
+}
+
+/**
+ * Checks if a value is not null and not undefined
+ * @param value - The value to check
+ * @returns true if the value is not null and not undefined, false otherwise
+ */
+export function notNil<T>(value: T | null | undefined): value is T {
+  return !isNil(value);
+}

@@ -58,6 +58,23 @@ The tooltip can be rendered inside a custom container. You can open DevTools and
 
 <docs-example name="tooltip-custom-container"></docs-example>
 
+### Custom Offset
+
+You can customize the offset using either a simple number or an object for more precise control:
+
+```html
+<!-- Simple number offset -->
+<button [ngpTooltipTrigger]="tooltip" ngpTooltipTriggerOffset="12">Tooltip with 12px offset</button>
+
+<!-- Object offset for precise control -->
+<button
+  [ngpTooltipTrigger]="tooltip"
+  [ngpTooltipTriggerOffset]="{mainAxis: 8, crossAxis: 4, alignmentAxis: 2}"
+>
+  Tooltip with custom offset
+</button>
+```
+
 ## API Reference
 
 The following directives are available to import from the `ng-primitives/tooltip` package:
@@ -218,8 +235,21 @@ bootstrapApplication(AppComponent, {
 
 ### NgpTooltipConfig
 
-<prop-details name="offset" type="number" default="4">
-Define the offset from the trigger element.
+<prop-details name="offset" type="number | NgpOffsetOptions" default="4">
+Define the offset from the trigger element. Can be a number (applies to mainAxis) or an object with mainAxis, crossAxis, and alignmentAxis properties.
+
+**Number format:** `offset: 8` - Applies to mainAxis (distance from trigger)
+
+**Object format:**
+
+```ts
+offset: {
+  mainAxis: 8,     // Distance between tooltip and trigger element
+  crossAxis: 4,    // Skidding along the alignment axis
+  alignmentAxis: 2 // Same as crossAxis but for aligned placements
+}
+```
+
 </prop-details>
 
 <prop-details name="placement" type="'top' | 'right' | 'bottom' | 'left'" default="top">

@@ -32,6 +32,25 @@ Assemble the popover directives in your template.
 
 You can listen to the `ngpPopoverTriggerOpenChange` event to perform actions when the popover state changes. The event emits a boolean value indicating whether the popover is open or closed:
 
+## Examples
+
+### Custom Offset
+
+You can customize the offset using either a simple number or an object for more precise control:
+
+```html
+<!-- Simple number offset -->
+<button [ngpPopoverTrigger]="popover" ngpPopoverTriggerOffset="12">Popover with 12px offset</button>
+
+<!-- Object offset for precise control -->
+<button
+  [ngpPopoverTrigger]="popover"
+  [ngpPopoverTriggerOffset]="{mainAxis: 8, crossAxis: 4, alignmentAxis: 2}"
+>
+  Popover with custom offset
+</button>
+```
+
 ## Reusable Component
 
 Create a popover component that uses the `NgpPopover` directive.
@@ -147,8 +166,19 @@ bootstrapApplication(AppComponent, {
 
 ### NgpPopoverConfig
 
-<prop-details name="offset" type="number">
-  Define the offset from the trigger element.
+<prop-details name="offset" type="number | NgpOffsetOptions">
+  Define the offset from the trigger element. Can be a number (applies to mainAxis) or an object with mainAxis, crossAxis, and alignmentAxis properties.
+  
+  **Number format:** `offset: 8` - Applies to mainAxis (distance from trigger)
+  
+  **Object format:** 
+  ```ts
+  offset: {
+    mainAxis: 8,     // Distance between popover and trigger element
+    crossAxis: 4,    // Skidding along the alignment axis  
+    alignmentAxis: 2 // Same as crossAxis but for aligned placements
+  }
+  ```
 </prop-details>
 
 <prop-details name="placement" type="'top' | 'right' | 'bottom' | 'left'">

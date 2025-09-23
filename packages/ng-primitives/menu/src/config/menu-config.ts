@@ -1,12 +1,14 @@
 import { InjectionToken, Provider, inject } from '@angular/core';
+import { NgpOffset } from 'ng-primitives/portal';
 import type { NgpMenuPlacement } from '../menu-trigger/menu-trigger';
 
 export interface NgpMenuConfig {
   /**
    * Define the offset of the menu relative to the trigger.
+   * Can be a number (applies to mainAxis) or an object with mainAxis, crossAxis, and alignmentAxis.
    * @default 4
    */
-  offset: number;
+  offset: NgpOffset;
 
   /**
    * Define the placement of the menu relative to the trigger.

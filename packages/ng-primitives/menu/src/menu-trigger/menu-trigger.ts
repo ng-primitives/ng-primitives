@@ -1,5 +1,5 @@
 import { FocusOrigin } from '@angular/cdk/a11y';
-import { BooleanInput, NumberInput } from '@angular/cdk/coercion';
+import { BooleanInput } from '@angular/cdk/coercion';
 import {
   booleanAttribute,
   computed,
@@ -7,7 +7,6 @@ import {
   inject,
   Injector,
   input,
-  numberAttribute,
   OnDestroy,
   signal,
   ViewContainerRef,
@@ -18,6 +17,9 @@ import {
   NgpOverlay,
   NgpOverlayConfig,
   NgpOverlayContent,
+  coerceOffset,
+  NgpOffset,
+  NgpOffsetInput,
 } from 'ng-primitives/portal';
 import { injectMenuConfig } from '../config/menu-config';
 import { menuTriggerState, provideMenuTriggerState } from './menu-trigger-state';
@@ -84,11 +86,12 @@ export class NgpMenuTrigger<T = unknown> implements OnDestroy {
 
   /**
    * Define the offset of the menu relative to the trigger.
+   * Can be a number (applies to mainAxis) or an object with mainAxis, crossAxis, and alignmentAxis.
    * @default 4
    */
-  readonly offset = input<number, NumberInput>(this.config.offset, {
+  readonly offset = input<NgpOffset, NgpOffsetInput>(this.config.offset, {
     alias: 'ngpMenuTriggerOffset',
-    transform: numberAttribute,
+    transform: coerceOffset,
   });
 
   /**

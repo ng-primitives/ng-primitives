@@ -1,5 +1,5 @@
 import { FocusOrigin } from '@angular/cdk/a11y';
-import { BooleanInput, NumberInput } from '@angular/cdk/coercion';
+import { BooleanInput } from '@angular/cdk/coercion';
 import {
   booleanAttribute,
   computed,
@@ -8,7 +8,6 @@ import {
   inject,
   Injector,
   input,
-  numberAttribute,
   signal,
   ViewContainerRef,
 } from '@angular/core';
@@ -18,6 +17,9 @@ import {
   NgpOverlay,
   NgpOverlayConfig,
   NgpOverlayContent,
+  coerceOffset,
+  NgpOffset,
+  NgpOffsetInput,
 } from 'ng-primitives/portal';
 import { safeTakeUntilDestroyed } from 'ng-primitives/utils';
 import { NgpMenuPlacement } from '../menu-trigger/menu-trigger';
@@ -80,11 +82,12 @@ export class NgpSubmenuTrigger<T = unknown> {
 
   /**
    * Define the offset of the menu relative to the trigger.
+   * Can be a number (applies to mainAxis) or an object with mainAxis, crossAxis, and alignmentAxis.
    * @default 0
    */
-  readonly offset = input<number, NumberInput>(0, {
+  readonly offset = input<NgpOffset, NgpOffsetInput>(0, {
     alias: 'ngpSubmenuTriggerOffset',
-    transform: numberAttribute,
+    transform: coerceOffset,
   });
 
   /**

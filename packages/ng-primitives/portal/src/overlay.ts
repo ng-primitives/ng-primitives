@@ -28,6 +28,7 @@ import {
 import { explicitEffect, fromResizeEvent } from 'ng-primitives/internal';
 import { injectDisposables, safeTakeUntilDestroyed, uniqueId } from 'ng-primitives/utils';
 import { Subject, fromEvent } from 'rxjs';
+import { NgpOffset } from './offset';
 import { provideOverlayContext } from './overlay-token';
 import { NgpPortal, createPortal } from './portal';
 import { BlockScrollStrategy, NoopScrollStrategy } from './scroll-strategy';
@@ -57,8 +58,8 @@ export interface NgpOverlayConfig<T = unknown> {
   /** Preferred placement of the overlay relative to the trigger. */
   placement?: Signal<Placement>;
 
-  /** Offset distance between the overlay and trigger in pixels */
-  offset?: number;
+  /** Offset distance between the overlay and trigger. Can be a number or an object with axis-specific offsets */
+  offset?: NgpOffset;
 
   /** Whether to enable flip behavior when space is limited */
   flip?: boolean;
@@ -469,7 +470,7 @@ export class NgpOverlay<T = unknown> {
     strategy: Strategy = 'absolute',
   ): Promise<void> {
     // Create middleware array
-    const middleware: Middleware[] = [offset(this.config.offset || 0), shift()];
+    const middleware: Middleware[] = [offset(this.config.offset ?? 0), shift()];
 
     // Add flip middleware if requested
     if (this.config.flip !== false) {
