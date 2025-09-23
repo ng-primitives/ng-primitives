@@ -548,7 +548,7 @@ export class NgpOverlay<T = unknown> {
    * Get the transform origin for the overlay
    */
   private getTransformOrigin(): string {
-    const placement = this.config.placement?.() ?? 'top'
+    const placement = this.config.placement?.() ?? 'top';
     const basePlacement = placement.split('-')[0]; // Extract "top", "bottom", etc.
     const alignment = placement.split('-')[1]; // Extract "start" or "end"
 
