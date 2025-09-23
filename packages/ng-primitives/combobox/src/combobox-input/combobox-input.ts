@@ -122,7 +122,10 @@ export class NgpComboboxInput {
       default:
         // Ignore keys with length > 1 (e.g., 'Shift', 'ArrowLeft', 'Enter', etc.)
         // Filter out control/meta key combos (e.g., Ctrl+C)
-        if (event.key.length > 1 || event.ctrlKey || event.metaKey || event.altKey) {
+        if (
+          event.key !== 'Unidentified' &&
+          (event.key.length > 1 || event.ctrlKey || event.metaKey || event.altKey)
+        ) {
           return;
         }
 
