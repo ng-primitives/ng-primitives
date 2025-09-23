@@ -25,7 +25,7 @@ import {
   offset,
   shift,
 } from '@floating-ui/dom';
-import { fromResizeEvent } from 'ng-primitives/internal';
+import { explicitEffect, fromResizeEvent } from 'ng-primitives/internal';
 import { injectDisposables, safeTakeUntilDestroyed, uniqueId } from 'ng-primitives/utils';
 import { Subject, fromEvent } from 'rxjs';
 import { provideOverlayContext } from './overlay-token';
@@ -54,8 +54,8 @@ export interface NgpOverlayConfig<T = unknown> {
   /** Container element or selector to attach the overlay to (defaults to document.body) */
   container?: HTMLElement | string | null;
 
-  /** Preferred placement of the overlay relative to the trigger */
-  placement?: Placement;
+  /** Preferred placement of the overlay relative to the trigger. */
+  placement?: Signal<Placement>;
 
   /** Offset distance between the overlay and trigger in pixels */
   offset?: number;
@@ -176,6 +176,11 @@ export class NgpOverlay<T = unknown> {
   constructor(private config: NgpOverlayConfig<T>) {
     // we cannot inject the viewContainerRef as this can throw an error during hydration in SSR
     this.viewContainerRef = config.viewContainerRef;
+
+    // Listen for placement signal changes to update position
+    if (config.placement) {
+      explicitEffect([config.placement], () => this.updatePosition());
+    }
 
     // this must be done after the config is set
     this.transformOrigin.set(this.getTransformOrigin());
@@ -482,8 +487,10 @@ export class NgpOverlay<T = unknown> {
     }
 
     // Compute the position
+    const placement = this.config.placement?.() ?? 'top';
+
     const position = await computePosition(this.config.triggerElement, overlayElement, {
-      placement: this.config.placement || 'top',
+      placement,
       middleware,
       strategy,
     });
@@ -541,8 +548,7 @@ export class NgpOverlay<T = unknown> {
    * Get the transform origin for the overlay
    */
   private getTransformOrigin(): string {
-    const placement = this.config.placement ?? 'top';
-
+    const placement = this.config.placement?.() ?? 'top'
     const basePlacement = placement.split('-')[0]; // Extract "top", "bottom", etc.
     const alignment = placement.split('-')[1]; // Extract "start" or "end"
 

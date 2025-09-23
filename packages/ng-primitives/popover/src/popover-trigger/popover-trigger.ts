@@ -263,7 +263,7 @@ export class NgpPopoverTrigger<T = null> implements OnDestroy {
       injector: this.injector,
       context: this.state.context,
       container: this.state.container(),
-      placement: this.state.placement(),
+  placement: this.state.placement,
       offset: this.state.offset(),
       flip: this.state.flip(),
       showDelay: this.state.showDelay(),

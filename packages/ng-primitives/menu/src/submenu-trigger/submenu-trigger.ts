@@ -188,7 +188,7 @@ export class NgpSubmenuTrigger<T = unknown> {
       content: menu,
       triggerElement: this.trigger.nativeElement,
       injector: this.injector,
-      placement: this.state.placement(),
+      placement: this.state.placement,
       offset: this.state.offset(),
       flip: this.state.flip(),
       closeOnOutsideClick: true,

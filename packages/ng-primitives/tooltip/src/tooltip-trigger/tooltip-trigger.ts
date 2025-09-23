@@ -276,7 +276,7 @@ export class NgpTooltipTrigger<T = null> implements OnDestroy {
       injector: this.injector,
       context,
       container: this.state.container(),
-      placement: this.state.placement(),
+      placement: this.state.placement,
       offset: this.state.offset(),
       flip: this.state.flip(),
       showDelay: this.state.showDelay(),
