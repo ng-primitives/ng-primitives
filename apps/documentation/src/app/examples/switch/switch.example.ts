@@ -25,8 +25,8 @@ import { NgpSwitch, NgpSwitchThumb } from 'ng-primitives/switch';
     }
 
     [ngpSwitch][data-checked] {
-      background-color: var(--ngp-background-inverse);
-      border-color: var(--ngp-border-inverse);
+      background-color: var(--ngp-background-blue);
+      border-color: var(--ngp-border-blue);
     }
 
     [ngpSwitchThumb] {
