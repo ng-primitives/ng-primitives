@@ -1,12 +1,14 @@
 import { InjectionToken, Provider, inject } from '@angular/core';
 import { type Placement } from '@floating-ui/dom';
+import { NgpOffset } from 'ng-primitives/portal';
 
 export interface NgpPopoverConfig {
   /**
    * Define the offset of the popover relative to the trigger.
+   * Can be a number (applies to mainAxis) or an object with mainAxis, crossAxis, and alignmentAxis.
    * @default 4
    */
-  offset: number;
+  offset: NgpOffset;
 
   /**
    * Define the placement of the popover relative to the trigger.

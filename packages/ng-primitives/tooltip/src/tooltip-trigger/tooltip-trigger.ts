@@ -19,6 +19,9 @@ import {
   NgpOverlay,
   NgpOverlayConfig,
   NgpOverlayContent,
+  coerceOffset,
+  NgpOffset,
+  NgpOffsetInput,
 } from 'ng-primitives/portal';
 import { isString } from 'ng-primitives/utils';
 import { injectTooltipConfig } from '../config/tooltip-config';
@@ -92,11 +95,12 @@ export class NgpTooltipTrigger<T = null> implements OnDestroy {
 
   /**
    * Define the offset of the tooltip relative to the trigger.
+   * Can be a number (applies to mainAxis) or an object with mainAxis, crossAxis, and alignmentAxis.
    * @default 0
    */
-  readonly offset = input<number, NumberInput>(this.config.offset, {
+  readonly offset = input<NgpOffset, NgpOffsetInput>(this.config.offset, {
     alias: 'ngpTooltipTriggerOffset',
-    transform: numberAttribute,
+    transform: coerceOffset,
   });
 
   /**

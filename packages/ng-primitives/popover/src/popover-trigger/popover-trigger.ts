@@ -19,6 +19,9 @@ import {
   NgpOverlay,
   NgpOverlayConfig,
   NgpOverlayContent,
+  coerceOffset,
+  NgpOffset,
+  NgpOffsetInput,
 } from 'ng-primitives/portal';
 import { injectPopoverConfig } from '../config/popover-config';
 import { popoverTriggerState, providePopoverTriggerState } from './popover-trigger-state';
@@ -86,11 +89,12 @@ export class NgpPopoverTrigger<T = null> implements OnDestroy {
 
   /**
    * Define the offset of the popover relative to the trigger.
+   * Can be a number (applies to mainAxis) or an object with mainAxis, crossAxis, and alignmentAxis.
    * @default 0
    */
-  readonly offset = input<number, NumberInput>(this.config.offset, {
+  readonly offset = input<NgpOffset, NgpOffsetInput>(this.config.offset, {
     alias: 'ngpPopoverTriggerOffset',
-    transform: numberAttribute,
+    transform: coerceOffset,
   });
 
   /**

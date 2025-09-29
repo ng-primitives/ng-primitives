@@ -11,6 +11,8 @@ export {
   isObject,
   isString,
   isUndefined,
+  isNil,
+  notNil,
 } from './helpers/validators';
 export { safeTakeUntilDestroyed } from './observables/take-until-destroyed';
 export { onBooleanChange, onChange } from './signals';
