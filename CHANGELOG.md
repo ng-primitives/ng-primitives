@@ -1,3 +1,13 @@
+## 0.82.0 (2025-09-29)
+
+### 🚀 Features
+
+- enhance offset control with axis-specific configuration ([#477](https://github.com/ng-primitives/ng-primitives/pull/477))
+
+### ❤️ Thank You
+
+- Shahar Kazaz @shaharkazaz
+
 ## 0.81.1 (2025-09-23)
 
 ### 🩹 Fixes
