@@ -11,14 +11,12 @@
       "outputs": ["{workspaceRoot}/dist/{projectRoot}"],
       "dependsOn": ["build:schematics"],
       "options": {
-        "project": "packages/ng-primitives/ng-package.json"
+        "project": "packages/ng-primitives/ng-package.json",
+        "tsConfig": "packages/ng-primitives/tsconfig.lib.json"
       },
       "configurations": {
         "production": {
           "tsConfig": "packages/ng-primitives/tsconfig.lib.prod.json"
-        },
-        "development": {
-          "tsConfig": "packages/ng-primitives/tsconfig.lib.json"
         }
       },
       "defaultConfiguration": "production"
@@ -70,7 +68,8 @@
       "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
       "options": {
         "jestConfig": "packages/ng-primitives/jest.config.ts",
-        "passWithNoTests": true
+        "passWithNoTests": true,
+        "tsConfig": "packages/ng-primitives/tsconfig.spec.json"
       }
     },
     "nx-release-publish": {
