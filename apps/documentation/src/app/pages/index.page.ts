@@ -5,14 +5,14 @@ import { RouterLink } from '@angular/router';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import {
   heroBolt,
+  heroCheck,
   heroCodeBracket,
   heroCubeTransparent,
   heroEye,
   heroMagnifyingGlass,
+  heroSquare2Stack,
   heroSquares2x2,
   heroUsers,
-  heroSquare2Stack,
-  heroCheck,
 } from '@ng-icons/heroicons/outline';
 import { ThemeToggle } from '../components/theme-toggle/theme-toggle';
 
@@ -199,7 +199,8 @@ export class DocsNavbar implements OnInit {
               src="/assets/company-logos/flowbite.svg"
               alt="Flowbite Logo"
             />
-            <img class="h-8" src="/assets/company-logos/angular-ui.svg" alt="AngularUI Logo" />
+            <img class="h-8" src="/assets/company-logos/angular-ui.svg" alt="SlateUI Logo" />
+            <img class="h-8" src="/assets/company-logos/stackfusion.svg" alt="StackFusion Logo" />
           </div>
         </div>
       </div>
