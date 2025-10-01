@@ -3,6 +3,7 @@
 ### 🚀 Features
 
 - **interactions:** adding support to disable interactions ([#482](https://github.com/ng-primitives/ng-primitives/pull/482))
+- **avatar:** focus, hover and press states are now removed. To add these states, wrap the avatar in a button or apply the interaction directives. ([#483](https://github.com/ng-primitives/ng-primitives/pull/483))
 
 ### ❤️ Thank You
 
