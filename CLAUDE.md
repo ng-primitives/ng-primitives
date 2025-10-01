@@ -19,6 +19,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 This is an Nx monorepo for Angular Primitives, a headless UI library focused on accessibility and customization.
 
 ### Key Packages
+
 - `packages/ng-primitives/` - Main primitives library with secondary entry points for each primitive (button, accordion, etc.)
 - `packages/state/` - State management utilities
 - `packages/tools/` - Custom Nx generators and build tools
@@ -27,12 +28,14 @@ This is an Nx monorepo for Angular Primitives, a headless UI library focused on 
 - `apps/components-e2e/` - Playwright E2E tests
 
 ### Project Structure
+
 - Each primitive is a standalone Angular module under `packages/ng-primitives/<primitive>/`
 - Documentation examples are in `apps/documentation/src/app/examples/`
 - Reusable component examples are in `apps/components/src/app/`
 - Custom generators are available for scaffolding new primitives and components
 
 ### Key Technologies
+
 - Angular 19+, Nx 21+, pnpm package manager
 - AnalogJS for documentation site (Vite-based SSG/SSR)
 - Jest for unit testing, Playwright for E2E testing
@@ -41,6 +44,7 @@ This is an Nx monorepo for Angular Primitives, a headless UI library focused on 
 ## Nx Generators
 
 Use these generators to scaffold new code:
+
 - `nx g @ng-primitives/tools:primitive <name>` - New primitive secondary entry point
 - `nx g @ng-primitives/tools:reusable-component <name>` - New reusable component
 - `nx g @ng-primitives/tools:example <name> --primitive <primitive>` - New example
@@ -50,11 +54,13 @@ Prefer using Nx Console UI in your IDE for running generators.
 ## Coding Conventions
 
 ### Naming
+
 - Selectors: `ngp` prefix (e.g., `ngpButton`)
 - Class names: `Ngp` prefix, PascalCase, no suffixes (e.g., `NgpButton`, not `NgpButtonDirective`)
 - File names: kebab-case, omit `.directive` for directives (e.g., `button.ts`)
 
 ### Angular Patterns
+
 - Use signal inputs and `output()` function for outputs
 - Avoid `model()` - prefer explicit input/output pairs
 - Follow existing patterns in the primitives for consistency
