@@ -1,3 +1,13 @@
+## 0.83.0 (2025-10-01)
+
+### 🚀 Features
+
+- **interactions:** adding support to disable interactions ([#482](https://github.com/ng-primitives/ng-primitives/pull/482))
+
+### ❤️ Thank You
+
+- Ashley Hunter
+
 ## 0.82.0 (2025-09-29)
 
 ### 🚀 Features
