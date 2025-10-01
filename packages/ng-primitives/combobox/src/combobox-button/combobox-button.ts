@@ -1,5 +1,5 @@
 import { computed, Directive, HostListener, input } from '@angular/core';
-import { setupInteractions } from 'ng-primitives/interactions';
+import { ngpInteractions } from 'ng-primitives/interactions';
 import { injectElementRef } from 'ng-primitives/internal';
 import { uniqueId } from 'ng-primitives/utils';
 import { injectComboboxState } from '../combobox/combobox-state';
@@ -37,7 +37,7 @@ export class NgpComboboxButton {
   readonly dropdownId = computed(() => this.state().dropdown()?.id());
 
   constructor() {
-    setupInteractions({
+    ngpInteractions({
       hover: true,
       press: true,
       disabled: this.state().disabled,

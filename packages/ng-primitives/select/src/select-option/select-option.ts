@@ -9,7 +9,7 @@ import {
   OnInit,
 } from '@angular/core';
 import { NgpActivatable } from 'ng-primitives/a11y';
-import { setupInteractions } from 'ng-primitives/interactions';
+import { ngpInteractions } from 'ng-primitives/interactions';
 import { injectElementRef } from 'ng-primitives/internal';
 import { uniqueId } from 'ng-primitives/utils';
 import { injectSelectState } from '../select/select-state';
@@ -80,7 +80,7 @@ export class NgpSelectOption implements OnInit, OnDestroy, NgpActivatable {
   constructor() {
     this.state().registerOption(this);
 
-    setupInteractions({
+    ngpInteractions({
       hover: true,
       press: true,
       disabled: this.disabled,

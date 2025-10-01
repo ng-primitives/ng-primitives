@@ -1,6 +1,6 @@
 import type { BooleanInput } from '@angular/cdk/coercion';
 import { Directive, booleanAttribute, input, output } from '@angular/core';
-import { setupHover } from 'ng-primitives/internal';
+import { ngpHoverInteraction } from './hover-interaction';
 
 // This is an Angular port of the useHover hook from react-aria: https://github.com/adobe/react-spectrum/blob/main/packages/%40react-aria/interactions/src/useHover.ts
 
@@ -42,7 +42,7 @@ export class NgpHover {
    */
   constructor() {
     // setup the hover listener
-    setupHover({
+    ngpHoverInteraction({
       hoverStart: () => {
         this.hoverStart.emit();
         this.hoverChange.emit(true);

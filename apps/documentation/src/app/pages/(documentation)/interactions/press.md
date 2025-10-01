@@ -42,3 +42,17 @@ The following directives are available to import from the `ng-primitives/interac
 | Attribute    | Description                                |
 | ------------ | ------------------------------------------ |
 | `data-press` | Applied when the element is being pressed. |
+
+### Disabling Press Interaction
+
+Many primitives automatically add press handling to components. If you want to disable press handling, either globally or on a per-component/per-directive basis, you can do so by registering the `provideInteractionConfig` provider and setting the `press` option to `false`.
+
+```ts
+import { provideInteractionConfig } from 'ng-primitives/interactions';
+
+providers: [
+  provideInteractionConfig({
+    press: false,
+  }),
+],
+```

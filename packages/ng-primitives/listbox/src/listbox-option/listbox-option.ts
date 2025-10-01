@@ -9,7 +9,7 @@ import {
   OnDestroy,
   signal,
 } from '@angular/core';
-import { setupInteractions } from 'ng-primitives/interactions';
+import { ngpInteractions } from 'ng-primitives/interactions';
 import { injectElementRef, onDomRemoval, scrollIntoViewIfNeeded } from 'ng-primitives/internal';
 import { uniqueId } from 'ng-primitives/utils';
 import type { NgpListbox } from '../listbox/listbox';
@@ -82,7 +82,7 @@ export class NgpListboxOption<T> implements OnDestroy {
   );
 
   constructor() {
-    setupInteractions({
+    ngpInteractions({
       hover: true,
       press: true,
       focusVisible: true,

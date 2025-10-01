@@ -39,3 +39,17 @@ The following data attributes are applied to the `ngpFocusVisible` directive:
 | Attribute            | Description                                                  |
 | -------------------- | ------------------------------------------------------------ |
 | `data-focus-visible` | Applied when the element is focused via keyboard navigation. |
+
+### Disabling Focus Visible Interaction
+
+Many primitives automatically add focus handling to components. If you want to disable focus handling, either globally or on a per-component/per-directive basis, you can do so by registering the `provideInteractionConfig` provider and setting the `focusVisible` option to `false`.
+
+```ts
+import { provideInteractionConfig } from 'ng-primitives/interactions';
+
+providers: [
+  provideInteractionConfig({
+    focusVisible: false,
+  }),
+],
+```

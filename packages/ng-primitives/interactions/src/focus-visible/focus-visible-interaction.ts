@@ -1,6 +1,7 @@
 import { FocusMonitor, FocusOrigin } from '@angular/cdk/a11y';
 import { ElementRef, inject, Renderer2, Signal, signal } from '@angular/core';
 import { onBooleanChange, safeTakeUntilDestroyed } from 'ng-primitives/utils';
+import { isFocusVisibleEnabled } from '../config/interactions-config';
 
 export interface NgpFocusVisibleOptions {
   disabled?: Signal<boolean>;
@@ -11,10 +12,19 @@ export interface NgpFocusVisibleState {
   isFocused: Signal<boolean>;
 }
 
-export function setupFocusVisible({
+/**
+ * @internal
+ */
+export function ngpFocusVisibleInteraction({
   focusChange,
   disabled = signal(false),
 }: NgpFocusVisibleOptions): NgpFocusVisibleState {
+  const canFocusVisible = isFocusVisibleEnabled();
+
+  if (!canFocusVisible) {
+    return { isFocused: signal(false) };
+  }
+
   const elementRef = inject<ElementRef<HTMLElement>>(ElementRef);
   const renderer = inject(Renderer2);
   const focusMonitor = inject(FocusMonitor);

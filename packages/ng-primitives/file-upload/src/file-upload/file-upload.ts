@@ -10,7 +10,7 @@ import {
   output,
   signal,
 } from '@angular/core';
-import { setupInteractions } from 'ng-primitives/interactions';
+import { ngpInteractions } from 'ng-primitives/interactions';
 import { fileDropFilter } from '../file-dropzone/file-drop-filter';
 import { fileUploadState, provideFileUploadState } from './file-upload-state';
 
@@ -122,7 +122,7 @@ export class NgpFileUpload {
   protected readonly state = fileUploadState<NgpFileUpload>(this);
 
   constructor() {
-    setupInteractions({
+    ngpInteractions({
       hover: true,
       press: true,
       focusVisible: true,

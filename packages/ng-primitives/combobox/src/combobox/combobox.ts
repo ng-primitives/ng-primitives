@@ -12,7 +12,7 @@ import {
   signal,
 } from '@angular/core';
 import { activeDescendantManager } from 'ng-primitives/a11y';
-import { setupInteractions } from 'ng-primitives/interactions';
+import { ngpInteractions } from 'ng-primitives/interactions';
 import { injectElementRef } from 'ng-primitives/internal';
 import type { NgpComboboxButton } from '../combobox-button/combobox-button';
 import type { NgpComboboxDropdown } from '../combobox-dropdown/combobox-dropdown';
@@ -171,7 +171,7 @@ export class NgpCombobox {
   protected readonly state = comboboxState<NgpCombobox>(this);
 
   constructor() {
-    setupInteractions({
+    ngpInteractions({
       focus: true,
       focusWithin: true,
       hover: true,

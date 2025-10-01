@@ -1,6 +1,7 @@
 import { FocusMonitor } from '@angular/cdk/a11y';
 import { TestBed } from '@angular/core/testing';
 import { fireEvent, render } from '@testing-library/angular';
+import { provideInteractionsConfig } from '../config/interactions-config';
 import { NgpFocusVisible } from './focus-visible';
 
 describe('NgpFocusVisible', () => {
@@ -280,5 +281,73 @@ describe('NgpFocusVisible', () => {
     });
 
     expect(trigger).not.toHaveAttribute('data-focus-visible');
+  });
+
+  describe('global configuration', () => {
+    it('should not emit focus visible events when all interactions are globally disabled', async () => {
+      const container = await render(
+        `<button data-testid="trigger" (ngpFocusVisible)="focusChange($event)"></button>`,
+        {
+          imports: [NgpFocusVisible],
+          providers: [provideInteractionsConfig({ disabled: true })],
+          componentProperties: {
+            focusChange,
+          },
+        },
+      );
+
+      const focusMonitor = TestBed.inject(FocusMonitor);
+      const trigger = container.getByTestId('trigger');
+
+      focusMonitor.focusVia(trigger, 'keyboard');
+      container.detectChanges();
+
+      expect(trigger).not.toHaveAttribute('data-focus-visible');
+      expect(focusChange).not.toHaveBeenCalled();
+    });
+
+    it('should not emit focus visible events when focus visible interactions are specifically disabled', async () => {
+      const container = await render(
+        `<button data-testid="trigger" (ngpFocusVisible)="focusChange($event)"></button>`,
+        {
+          imports: [NgpFocusVisible],
+          providers: [provideInteractionsConfig({ focusVisible: false })],
+          componentProperties: {
+            focusChange,
+          },
+        },
+      );
+
+      const focusMonitor = TestBed.inject(FocusMonitor);
+      const trigger = container.getByTestId('trigger');
+
+      focusMonitor.focusVia(trigger, 'keyboard');
+      container.detectChanges();
+
+      expect(trigger).not.toHaveAttribute('data-focus-visible');
+      expect(focusChange).not.toHaveBeenCalled();
+    });
+
+    it('should emit focus visible events when focus visible interactions are enabled', async () => {
+      const container = await render(
+        `<button data-testid="trigger" (ngpFocusVisible)="focusChange($event)"></button>`,
+        {
+          imports: [NgpFocusVisible],
+          providers: [provideInteractionsConfig({ focusVisible: true })],
+          componentProperties: {
+            focusChange,
+          },
+        },
+      );
+
+      const focusMonitor = TestBed.inject(FocusMonitor);
+      const trigger = container.getByTestId('trigger');
+
+      focusMonitor.focusVia(trigger, 'keyboard');
+      container.detectChanges();
+
+      expect(trigger).toHaveAttribute('data-focus-visible');
+      expect(focusChange).toHaveBeenCalledWith(true);
+    });
   });
 });

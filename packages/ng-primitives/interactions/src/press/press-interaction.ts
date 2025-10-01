@@ -1,5 +1,6 @@
 import { ElementRef, Signal, effect, inject, signal } from '@angular/core';
 import { injectDisposables } from 'ng-primitives/utils';
+import { isPressEnabled } from '../config/interactions-config';
 
 interface NgpPressState {
   pressed: Signal<boolean>;
@@ -11,11 +12,20 @@ interface NgpPressOptions {
   pressEnd?: () => void;
 }
 
-export function setupPress({
+/**
+ * @internal
+ */
+export function ngpPressInteraction({
   pressStart,
   pressEnd,
   disabled = signal(false),
 }: NgpPressOptions): NgpPressState {
+  const canPress = isPressEnabled();
+
+  if (!canPress) {
+    return { pressed: signal(false) };
+  }
+
   const elementRef = inject<ElementRef<HTMLElement>>(ElementRef);
   const disposables = injectDisposables();
 

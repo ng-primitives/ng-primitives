@@ -14,7 +14,7 @@ import {
 import type { Placement } from '@floating-ui/dom';
 import { activeDescendantManager } from 'ng-primitives/a11y';
 import { setupFormControl } from 'ng-primitives/form-field';
-import { setupInteractions } from 'ng-primitives/interactions';
+import { ngpInteractions } from 'ng-primitives/interactions';
 import { injectElementRef } from 'ng-primitives/internal';
 import { uniqueId } from 'ng-primitives/utils';
 import { injectSelectConfig } from '../config/select-config';
@@ -153,7 +153,7 @@ export class NgpSelect {
   protected readonly state = selectState<NgpSelect>(this);
 
   constructor() {
-    setupInteractions({
+    ngpInteractions({
       focus: true,
       focusWithin: true,
       hover: true,
