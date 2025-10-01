@@ -1,5 +1,5 @@
 import { Directive, HostListener } from '@angular/core';
-import { setupInteractions } from 'ng-primitives/interactions';
+import { ngpInteractions } from 'ng-primitives/interactions';
 import { injectSliderState } from '../slider/slider-state';
 
 /**
@@ -35,7 +35,7 @@ export class NgpSliderThumb {
   protected dragging = false;
 
   constructor() {
-    setupInteractions({
+    ngpInteractions({
       hover: true,
       focusVisible: true,
       press: true,

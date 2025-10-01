@@ -1,5 +1,5 @@
 import { Signal } from '@angular/core';
-import { setupInteractions } from 'ng-primitives/interactions';
+import { ngpInteractions } from 'ng-primitives/interactions';
 import { injectElementRef } from 'ng-primitives/internal';
 import { booleanAttributeBinding } from 'ng-primitives/utils';
 
@@ -21,7 +21,7 @@ export function setupButton({ disabled }: NgpButtonOptions): void {
   const elementRef = injectElementRef();
   const isButton = elementRef.nativeElement.tagName.toLowerCase() === 'button';
 
-  setupInteractions({ hover: true, press: true, focusVisible: true, disabled });
+  ngpInteractions({ hover: true, press: true, focusVisible: true, disabled });
 
   // add the `data-disabled` attribute to the element
   booleanAttributeBinding(elementRef.nativeElement, 'data-disabled', disabled);

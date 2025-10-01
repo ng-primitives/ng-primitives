@@ -10,7 +10,7 @@ import {
   inject,
   input,
 } from '@angular/core';
-import { setupInteractions } from 'ng-primitives/interactions';
+import { ngpInteractions } from 'ng-primitives/interactions';
 import { NgpRovingFocusItem } from 'ng-primitives/roving-focus';
 import { injectTabsetState } from '../tabset/tabset-state';
 
@@ -88,7 +88,7 @@ export class NgpTabButton implements OnInit, OnDestroy {
   constructor() {
     this.state().registerTab(this);
 
-    setupInteractions({
+    ngpInteractions({
       hover: true,
       press: true,
       focusVisible: true,

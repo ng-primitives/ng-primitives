@@ -2,7 +2,7 @@ import { BooleanInput } from '@angular/cdk/coercion';
 import { booleanAttribute, Directive, input, Signal } from '@angular/core';
 import { NgpAutofill } from 'ng-primitives/autofill';
 import { setupFormControl } from 'ng-primitives/form-field';
-import { setupInteractions } from 'ng-primitives/interactions';
+import { ngpInteractions } from 'ng-primitives/interactions';
 import { injectElementRef } from 'ng-primitives/internal';
 import { injectSearchState } from 'ng-primitives/search';
 import { NgpControlStatus, uniqueId } from 'ng-primitives/utils';
@@ -52,7 +52,7 @@ export class NgpInput {
   protected readonly state = inputState<NgpInput>(this);
 
   constructor() {
-    setupInteractions({
+    ngpInteractions({
       hover: true,
       press: true,
       focus: true,

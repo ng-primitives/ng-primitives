@@ -1,5 +1,5 @@
 import { computed, Directive, HostListener, OnDestroy } from '@angular/core';
-import { setupInteractions } from 'ng-primitives/interactions';
+import { ngpInteractions } from 'ng-primitives/interactions';
 import { injectElementRef } from 'ng-primitives/internal';
 import { injectRangeSliderState } from '../range-slider/range-slider-state';
 
@@ -64,7 +64,7 @@ export class NgpRangeSliderThumb implements OnDestroy {
   );
 
   constructor() {
-    setupInteractions({
+    ngpInteractions({
       hover: true,
       focusVisible: true,
       press: true,

@@ -39,3 +39,17 @@ The following data attributes are applied to the `ngpFocus` directive:
 | Attribute    | Description                          |
 | ------------ | ------------------------------------ |
 | `data-focus` | Applied when the element is focused. |
+
+### Disabling Focus Interaction
+
+Many primitives automatically add focus handling to components. If you want to disable focus handling, either globally or on a per-component/per-directive basis, you can do so by registering the `provideInteractionConfig` provider and setting the `focus` option to `false`.
+
+```ts
+import { provideInteractionConfig } from 'ng-primitives/interactions';
+
+providers: [
+  provideInteractionConfig({
+    focus: false,
+  }),
+],
+```

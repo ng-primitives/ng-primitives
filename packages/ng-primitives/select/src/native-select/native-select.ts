@@ -1,7 +1,7 @@
 import { BooleanInput } from '@angular/cdk/coercion';
 import { booleanAttribute, Directive, input } from '@angular/core';
 import { setupFormControl } from 'ng-primitives/form-field';
-import { setupInteractions } from 'ng-primitives/interactions';
+import { ngpInteractions } from 'ng-primitives/interactions';
 import { uniqueId } from 'ng-primitives/utils';
 import { provideNativeSelectState, selectNativeSelectState } from './native-select-state';
 
@@ -36,7 +36,7 @@ export class NgpNativeSelect {
   private readonly state = selectNativeSelectState<NgpNativeSelect>(this);
 
   constructor() {
-    setupInteractions({
+    ngpInteractions({
       hover: true,
       press: true,
       focus: true,

@@ -9,7 +9,7 @@ import {
   output,
   signal,
 } from '@angular/core';
-import { setupHover } from 'ng-primitives/internal';
+import { ngpHoverInteraction } from 'ng-primitives/interactions';
 import { fileDropFilter } from './file-drop-filter';
 import { fileDropzoneState, provideFileDropzoneState } from './file-dropzone-state';
 
@@ -96,7 +96,7 @@ export class NgpFileDropzone {
   private readonly state = fileDropzoneState<NgpFileDropzone>(this);
 
   constructor() {
-    setupHover({ disabled: this.state.disabled });
+    ngpHoverInteraction({ disabled: this.state.disabled });
   }
 
   @HostListener('dragenter', ['$event'])

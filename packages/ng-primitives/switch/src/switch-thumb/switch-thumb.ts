@@ -1,5 +1,5 @@
 import { Directive } from '@angular/core';
-import { setupInteractions } from 'ng-primitives/interactions';
+import { ngpInteractions } from 'ng-primitives/interactions';
 import { injectSwitchState } from '../switch/switch-state';
 
 /**
@@ -19,7 +19,7 @@ export class NgpSwitchThumb {
   protected readonly state = injectSwitchState();
 
   constructor() {
-    setupInteractions({
+    ngpInteractions({
       hover: true,
       focusVisible: true,
       press: true,

@@ -1,7 +1,7 @@
 import { BooleanInput } from '@angular/cdk/coercion';
 import { Directive, HostListener, booleanAttribute, input, output } from '@angular/core';
 import { setupFormControl } from 'ng-primitives/form-field';
-import { setupInteractions } from 'ng-primitives/interactions';
+import { ngpInteractions } from 'ng-primitives/interactions';
 import { uniqueId } from 'ng-primitives/utils';
 import { checkboxState, provideCheckboxState } from './checkbox-state';
 
@@ -80,7 +80,7 @@ export class NgpCheckbox {
 
   constructor() {
     setupFormControl({ id: this.state.id, disabled: this.state.disabled });
-    setupInteractions({
+    ngpInteractions({
       hover: true,
       press: true,
       focusVisible: true,

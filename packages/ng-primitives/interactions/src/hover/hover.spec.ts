@@ -1,4 +1,5 @@
 import { fireEvent, render } from '@testing-library/angular';
+import { provideInteractionsConfig } from '../config/interactions-config';
 import { NgpHover } from './hover';
 
 describe('NgpHover', () => {
@@ -135,5 +136,89 @@ describe('NgpHover', () => {
 
     fireEvent.mouseLeave(trigger);
     expect(hoverEnd).not.toHaveBeenCalled();
+  });
+
+  describe('global configuration', () => {
+    it('should not trigger hover events when all interactions are globally disabled', async () => {
+      const hoverStart = jest.fn();
+      const hoverEnd = jest.fn();
+      const hoverChange = jest.fn();
+
+      const container = await render(
+        `<div data-testid="trigger" ngpHover (ngpHoverStart)="hoverStart()" (ngpHoverEnd)="hoverEnd()" (ngpHover)="hoverChange($event)"></div>`,
+        {
+          imports: [NgpHover],
+          providers: [provideInteractionsConfig({ disabled: true })],
+          componentProperties: {
+            hoverStart,
+            hoverEnd,
+            hoverChange,
+          },
+        },
+      );
+
+      const trigger = container.getByTestId('trigger');
+      fireEvent.mouseEnter(trigger);
+      expect(hoverStart).not.toHaveBeenCalled();
+      expect(hoverChange).not.toHaveBeenCalled();
+
+      fireEvent.mouseLeave(trigger);
+      expect(hoverEnd).not.toHaveBeenCalled();
+    });
+
+    it('should not trigger hover events when hover interactions are specifically disabled', async () => {
+      const hoverStart = jest.fn();
+      const hoverEnd = jest.fn();
+      const hoverChange = jest.fn();
+
+      const container = await render(
+        `<div data-testid="trigger" ngpHover (ngpHoverStart)="hoverStart()" (ngpHoverEnd)="hoverEnd()" (ngpHover)="hoverChange($event)"></div>`,
+        {
+          imports: [NgpHover],
+          providers: [provideInteractionsConfig({ hover: false })],
+          componentProperties: {
+            hoverStart,
+            hoverEnd,
+            hoverChange,
+          },
+        },
+      );
+
+      const trigger = container.getByTestId('trigger');
+      fireEvent.mouseEnter(trigger);
+      expect(hoverStart).not.toHaveBeenCalled();
+      expect(hoverChange).not.toHaveBeenCalled();
+
+      fireEvent.mouseLeave(trigger);
+      expect(hoverEnd).not.toHaveBeenCalled();
+    });
+
+    it('should trigger hover events when hover interactions are enabled', async () => {
+      const hoverStart = jest.fn();
+      const hoverEnd = jest.fn();
+      const hoverChange = jest.fn();
+
+      const container = await render(
+        `<div data-testid="trigger" ngpHover (ngpHoverStart)="hoverStart()" (ngpHoverEnd)="hoverEnd()" (ngpHover)="hoverChange($event)"></div>`,
+        {
+          imports: [NgpHover],
+          providers: [provideInteractionsConfig({ hover: true })],
+          componentProperties: {
+            hoverStart,
+            hoverEnd,
+            hoverChange,
+          },
+        },
+      );
+
+      const trigger = container.getByTestId('trigger');
+      fireEvent.mouseEnter(trigger);
+      expect(hoverStart).toHaveBeenCalled();
+      expect(hoverChange).toHaveBeenCalledWith(true);
+
+      fireEvent.mouseLeave(trigger);
+      expect(hoverEnd).toHaveBeenCalled();
+      expect(hoverChange).toHaveBeenCalledWith(false);
+    });
   });
 });

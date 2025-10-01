@@ -14,10 +14,10 @@ import {
   signal,
 } from '@angular/core';
 import { NgpSelectionMode } from 'ng-primitives/common';
-import { explicitEffect, setupFocusVisible } from 'ng-primitives/internal';
+import { ngpFocusVisibleInteraction } from 'ng-primitives/interactions';
+import { explicitEffect } from 'ng-primitives/internal';
 import { injectPopoverTriggerState } from 'ng-primitives/popover';
-import { uniqueId } from 'ng-primitives/utils';
-import { safeTakeUntilDestroyed } from 'ng-primitives/utils';
+import { safeTakeUntilDestroyed, uniqueId } from 'ng-primitives/utils';
 import type { NgpListboxOption } from '../listbox-option/listbox-option';
 import { listboxState, provideListboxState } from './listbox-state';
 
@@ -126,7 +126,7 @@ export class NgpListbox<T> implements AfterContentInit {
   private readonly state = listboxState<NgpListbox<T>>(this);
 
   constructor() {
-    setupFocusVisible({ disabled: this.state.disabled });
+    ngpFocusVisibleInteraction({ disabled: this.state.disabled });
   }
 
   ngAfterContentInit(): void {

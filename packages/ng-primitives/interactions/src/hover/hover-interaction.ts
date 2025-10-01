@@ -1,7 +1,8 @@
 import { DOCUMENT, isPlatformBrowser } from '@angular/common';
 import { effect, ElementRef, inject, Injectable, PLATFORM_ID, Signal, signal } from '@angular/core';
+import { onDomRemoval } from 'ng-primitives/internal';
 import { injectDisposables, onBooleanChange } from 'ng-primitives/utils';
-import { onDomRemoval } from '../utilities/dom-removal';
+import { isHoverEnabled } from '../config/interactions-config';
 
 /**
  * We use a service here as this value is a singleton
@@ -68,12 +69,19 @@ export interface NgpHoverState {
  * Programatically add the hover functionality to an element.
  * This is useful in cases where we can't necessarily use a HostDirective,
  * because there is a chance the directive has already been used.
+ * @internal
  */
-export function setupHover({
+export function ngpHoverInteraction({
   hoverStart,
   hoverEnd,
   disabled = signal(false),
 }: NgpHoverOptions): NgpHoverState {
+  const canHover = isHoverEnabled();
+
+  if (!canHover) {
+    return { hovered: signal(false) };
+  }
+
   /**
    * Access the element.
    */

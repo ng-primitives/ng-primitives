@@ -1,6 +1,7 @@
 import { FocusMonitor } from '@angular/cdk/a11y';
 import { ElementRef, Renderer2, Signal, inject, signal } from '@angular/core';
 import { safeTakeUntilDestroyed } from 'ng-primitives/utils';
+import { isFocusEnabled } from '../config/interactions-config';
 
 export interface NgpFocusOptions {
   disabled?: Signal<boolean>;
@@ -13,12 +14,20 @@ export interface NgpFocusState {
   isFocused: Signal<boolean>;
 }
 
-export function setupFocus({
+/**
+ * @internal
+ */
+export function ngpFocusInteraction({
   focus,
   blur,
   focusWithin = false,
   disabled = signal(false),
 }: NgpFocusOptions): NgpFocusState {
+  const canFocus = isFocusEnabled();
+
+  if (!canFocus) {
+    return { isFocused: signal(false) };
+  }
   /**
    * Access the element reference.
    */

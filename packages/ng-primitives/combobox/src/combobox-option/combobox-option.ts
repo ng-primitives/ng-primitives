@@ -9,7 +9,7 @@ import {
   OnInit,
 } from '@angular/core';
 import { NgpActivatable } from 'ng-primitives/a11y';
-import { setupInteractions } from 'ng-primitives/interactions';
+import { ngpInteractions } from 'ng-primitives/interactions';
 import { injectElementRef } from 'ng-primitives/internal';
 import { uniqueId } from 'ng-primitives/utils';
 import { injectComboboxState } from '../combobox/combobox-state';
@@ -100,7 +100,7 @@ export class NgpComboboxOption implements OnInit, OnDestroy, NgpActivatable {
   constructor() {
     this.state().registerOption(this);
 
-    setupInteractions({
+    ngpInteractions({
       hover: true,
       press: true,
       disabled: this.disabled,
