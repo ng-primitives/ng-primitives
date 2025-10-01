@@ -1,5 +1,4 @@
 import { Directive, signal } from '@angular/core';
-import { NgpFocusVisible, NgpHover, NgpPress } from 'ng-primitives/interactions';
 import { avatarState, provideAvatarState } from './avatar-state';
 
 /**
@@ -12,7 +11,6 @@ import { avatarState, provideAvatarState } from './avatar-state';
   host: {
     '[attr.data-status]': 'status()',
   },
-  hostDirectives: [NgpHover, NgpFocusVisible, NgpPress],
 })
 export class NgpAvatar {
   /**

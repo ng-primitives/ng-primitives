@@ -59,12 +59,9 @@ The following directives are available to import from the `ng-primitives/avatar`
 
 #### Data Attributes
 
-| Attribute            | Description                                 | Value                                      |
-| -------------------- | ------------------------------------------- | ------------------------------------------ |
-| `data-status`        | The loading status of the avatar image.     | `idle` \| `loading` \| `loaded` \| `error` |
-| `data-hover`         | The added to the avatar when hovered.       | `-`                                        |
-| `data-focus-visible` | The added to the avatar when focus visible. | `-`                                        |
-| `data-press`         | The added to the avatar when pressed.       | `-`                                        |
+| Attribute     | Description                             | Value                                      |
+| ------------- | --------------------------------------- | ------------------------------------------ |
+| `data-status` | The loading status of the avatar image. | `idle` \| `loading` \| `loaded` \| `error` |
 
 ### NgpAvatarImage
 
