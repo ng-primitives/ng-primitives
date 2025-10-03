@@ -1,5 +1,5 @@
 import { InjectionToken, Provider, inject } from '@angular/core';
-import { NgpAccordionType } from '../accordion/accordion';
+import { NgpAccordionType } from '../accordion/accordion-pattern';
 
 export interface NgpAccordionConfig {
   /**
