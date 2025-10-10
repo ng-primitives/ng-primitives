@@ -58,7 +58,7 @@ export class NgpComponentPortal<T> extends NgpPortal {
    * @param container The DOM element to attach the portal to.
    */
   attach(container: HTMLElement): this {
-    const domOutlet = new DomPortalOutlet(container, undefined, undefined, this.injector);
+    const domOutlet = new DomPortalOutlet(container, undefined, this.injector);
     this.viewRef = domOutlet.attach(this.componentPortal);
 
     const element = this.viewRef.location.nativeElement as HTMLElement;
@@ -129,7 +129,7 @@ export class NgpTemplatePortal<T> extends NgpPortal {
    * @param container The DOM element to attach the portal to.
    */
   attach(container: HTMLElement): this {
-    const domOutlet = new DomPortalOutlet(container, undefined, undefined, this.injector);
+    const domOutlet = new DomPortalOutlet(container, undefined, this.injector);
     this.viewRef = domOutlet.attach(this.templatePortal);
 
     for (const rootNode of this.viewRef.rootNodes) {
