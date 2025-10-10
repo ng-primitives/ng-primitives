@@ -1,5 +1,6 @@
 import { ComponentPortal, DomPortalOutlet, TemplatePortal } from '@angular/cdk/portal';
 import {
+  type ApplicationRef,
   ComponentRef,
   EmbeddedViewRef,
   Injector,
@@ -40,6 +41,15 @@ export abstract class NgpPortal {
    * Detach the portal from the DOM.
    */
   abstract detach(): Promise<void>;
+
+  // todo: remove this temp workaround once base repo migrates to v20
+  // this temp fix prevents several issues when consuming in a v20 app
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  protected _getDomPortalOutletCtorParamsCompat(): (ApplicationRef | Injector | undefined | any)[] {
+    return DomPortalOutlet.prototype.constructor.length > 3
+      ? [undefined, this.injector]
+      : [this.injector];
+  }
 }
 
 export class NgpComponentPortal<T> extends NgpPortal {
@@ -58,7 +68,11 @@ export class NgpComponentPortal<T> extends NgpPortal {
    * @param container The DOM element to attach the portal to.
    */
   attach(container: HTMLElement): this {
-    const domOutlet = new DomPortalOutlet(container, undefined, this.injector);
+    const domOutlet = new DomPortalOutlet(
+      container,
+      undefined,
+      ...this._getDomPortalOutletCtorParamsCompat(),
+    );
     this.viewRef = domOutlet.attach(this.componentPortal);
 
     const element = this.viewRef.location.nativeElement as HTMLElement;
@@ -129,7 +143,11 @@ export class NgpTemplatePortal<T> extends NgpPortal {
    * @param container The DOM element to attach the portal to.
    */
   attach(container: HTMLElement): this {
-    const domOutlet = new DomPortalOutlet(container, undefined, this.injector);
+    const domOutlet = new DomPortalOutlet(
+      container,
+      undefined,
+      ...this._getDomPortalOutletCtorParamsCompat(),
+    );
     this.viewRef = domOutlet.attach(this.templatePortal);
 
     for (const rootNode of this.viewRef.rootNodes) {
