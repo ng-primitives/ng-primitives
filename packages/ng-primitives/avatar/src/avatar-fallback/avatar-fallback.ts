@@ -1,9 +1,10 @@
 import { NumberInput } from '@angular/cdk/coercion';
-import { computed, Directive, input, numberAttribute, OnInit, signal } from '@angular/core';
-import { injectDisposables } from 'ng-primitives/utils';
-import { NgpAvatarStatus } from '../avatar/avatar';
-import { injectAvatarState } from '../avatar/avatar-state';
+import { Directive, input, numberAttribute, OnInit } from '@angular/core';
 import { injectAvatarConfig } from '../config/avatar-config';
+import {
+  ngpAvatarFallbackPattern,
+  provideAvatarFallbackPattern,
+} from './avatar-fallback-pattern';
 
 /**
  * Apply the `ngpAvatarFallback` directive to an element that represents the user in the absence of an image. This is typically the user's initials.
@@ -11,25 +12,16 @@ import { injectAvatarConfig } from '../config/avatar-config';
 @Directive({
   selector: '[ngpAvatarFallback]',
   exportAs: 'ngpAvatarFallback',
+  providers: [provideAvatarFallbackPattern(NgpAvatarFallback, m => m.state)],
   host: {
     '[style.display]': 'visible() ? null : "none"',
   },
 })
 export class NgpAvatarFallback implements OnInit {
   /**
-   * Access the avatar
-   */
-  private readonly avatar = injectAvatarState();
-
-  /**
    * Access the global configuration.
    */
   private readonly config = injectAvatarConfig();
-
-  /**
-   * Access the disposable utilities.
-   */
-  private readonly disposables = injectDisposables();
 
   /**
    * Define a delay before the fallback is shown. This is useful to only show the fallback for those with slower connections.
@@ -41,21 +33,19 @@ export class NgpAvatarFallback implements OnInit {
   });
 
   /**
+   * The avatar fallback state.
+   */
+  readonly state = ngpAvatarFallbackPattern();
+
+  /**
    * Determine if this element should be hidden.
    * @returns True if the element should be visible
    */
-  protected readonly visible = computed(
-    () =>
-      // we need to check if the element can render and if the avatar is not in a loaded state
-      this.delayElapsed() && this.avatar().status() !== NgpAvatarStatus.Loaded,
-  );
-
-  /**
-   * Determine the delay has elapsed, and we can show the fallback.
-   */
-  private delayElapsed = signal(false);
+  get visible() {
+    return this.state.visible;
+  }
 
   ngOnInit(): void {
-    this.disposables.setTimeout(() => this.delayElapsed.set(true), this.delay());
+    this.state.startDelayTimer(this.delay());
   }
 }
