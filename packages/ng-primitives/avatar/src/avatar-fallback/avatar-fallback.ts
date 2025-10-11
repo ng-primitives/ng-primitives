@@ -1,10 +1,7 @@
 import { NumberInput } from '@angular/cdk/coercion';
 import { Directive, input, numberAttribute, OnInit } from '@angular/core';
 import { injectAvatarConfig } from '../config/avatar-config';
-import {
-  ngpAvatarFallbackPattern,
-  provideAvatarFallbackPattern,
-} from './avatar-fallback-pattern';
+import { ngpAvatarFallbackPattern, provideAvatarFallbackPattern } from './avatar-fallback-pattern';
 
 /**
  * Apply the `ngpAvatarFallback` directive to an element that represents the user in the absence of an image. This is typically the user's initials.

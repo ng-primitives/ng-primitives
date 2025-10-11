@@ -1,10 +1,4 @@
-import {
-  ElementRef,
-  FactoryProvider,
-  inject,
-  InjectionToken,
-  Type,
-} from '@angular/core';
+import { ElementRef, FactoryProvider, inject, InjectionToken, Type } from '@angular/core';
 import { injectVisuallyHiddenState } from 'ng-primitives/a11y';
 import { injectElementRef } from 'ng-primitives/internal';
 import { listener } from 'ng-primitives/state';
