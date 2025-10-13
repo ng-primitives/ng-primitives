@@ -14,7 +14,7 @@ import { provideTabsetState, tabsetState } from './tabset-state';
 @Directive({
   selector: '[ngpTabset]',
   exportAs: 'ngpTabset',
-  providers: [provideTabsetState()],
+  providers: [provideTabsetState({ inherit: false })],
   hostDirectives: [NgpRovingFocusGroup],
   host: {
     '[attr.id]': 'state.id()',
