@@ -1,3 +1,18 @@
+## 0.84.0 (2025-10-13)
+
+### 🚀 Features
+
+- add tabs tailwind example ([#485](https://github.com/ng-primitives/ng-primitives/pull/485))
+
+### 🩹 Fixes
+
+- **tabs:** resolve nested tabs state conflict ([#488](https://github.com/ng-primitives/ng-primitives/pull/488))
+
+### ❤️ Thank You
+
+- Andrii Rastorhuiev @arastorhuiev
+- kedevked @kedevked
+
 ## 0.83.0 (2025-10-01)
 
 ### 🚀 Features
