@@ -76,6 +76,7 @@ We welcome contributions from the community. Please refer to our [contributing g
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/immohammadjaved"><img src="https://avatars.githubusercontent.com/u/31125009?v=4?s=100" width="100px;" alt="Mohammad Javed"/><br /><sub><b>Mohammad Javed</b></sub></a><br /><a href="https://github.com/ng-primitives/ng-primitives/commits?author=immohammadjaved" title="Code">💻</a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/liranmizrahi1"><img src="https://avatars.githubusercontent.com/u/212209501?v=4?s=100" width="100px;" alt="liranmizrahi1"/><br /><sub><b>liranmizrahi1</b></sub></a><br /><a href="https://github.com/ng-primitives/ng-primitives/commits?author=liranmizrahi1" title="Code">💻</a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/BennyPLS"><img src="https://avatars.githubusercontent.com/u/77506823?v=4?s=100" width="100px;" alt="BennyPLS"/><br /><sub><b>BennyPLS</b></sub></a><br /><a href="https://github.com/ng-primitives/ng-primitives/commits?author=BennyPLS" title="Code">💻</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/arastorhuiev"><img src="https://avatars.githubusercontent.com/u/114357806?v=4?s=100" width="100px;" alt="Andrii Rastorhuiev"/><br /><sub><b>Andrii Rastorhuiev</b></sub></a><br /><a href="https://github.com/ng-primitives/ng-primitives/commits?author=arastorhuiev" title="Code">💻</a></td>
     </tr>
   </tbody>
 </table>
