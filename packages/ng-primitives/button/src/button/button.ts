@@ -1,12 +1,11 @@
 import { BooleanInput } from '@angular/cdk/coercion';
 import { booleanAttribute, Directive, input } from '@angular/core';
-import { buttonState, provideButtonState } from './button-state';
-import { setupButton } from './setup-button';
+import { ngpButtonPattern, provideButtonPattern } from './button-pattern';
 
 @Directive({
   selector: '[ngpButton]',
   exportAs: 'ngpButton',
-  providers: [provideButtonState({ inherit: false })],
+  providers: [provideButtonPattern(NgpButton, instance => instance.pattern)],
 })
 export class NgpButton {
   /**
@@ -17,11 +16,9 @@ export class NgpButton {
   });
 
   /**
-   * The button state.
+   * The button pattern.
    */
-  protected readonly state = buttonState<NgpButton>(this);
-
-  constructor() {
-    setupButton({ disabled: this.state.disabled });
-  }
+  readonly pattern = ngpButtonPattern({
+    disabled: this.disabled,
+  });
 }
