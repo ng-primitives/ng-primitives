@@ -1,5 +1,8 @@
-import { computed, Directive } from '@angular/core';
-import { injectProgressState } from '../progress/progress-state';
+import { Directive } from '@angular/core';
+import {
+  ngpProgressIndicatorPattern,
+  provideProgressIndicatorPattern,
+} from './progress-indicator-pattern';
 
 /**
  * Apply the `ngpProgressIndicator` directive to an element that represents the current progress.
@@ -7,26 +10,11 @@ import { injectProgressState } from '../progress/progress-state';
  */
 @Directive({
   selector: '[ngpProgressIndicator]',
-  host: {
-    '[style.width.%]': 'percentage()',
-    '[attr.data-progressing]': 'state().progressing() ? "" : null',
-    '[attr.data-indeterminate]': 'state().indeterminate() ? "" : null',
-    '[attr.data-complete]': 'state().complete() ? "" : null',
-  },
+  providers: [provideProgressIndicatorPattern(NgpProgressIndicator, instance => instance.pattern)],
 })
 export class NgpProgressIndicator {
   /**
-   * Access the progress state.
+   * The pattern instance.
    */
-  protected readonly state = injectProgressState();
-
-  /**
-   * Get the percentage of the progress value.
-   */
-  protected readonly percentage = computed(() =>
-    this.state().value() === null
-      ? null
-      : ((this.state().value()! - this.state().min()) / (this.state().max() - this.state().min())) *
-        100,
-  );
+  protected readonly pattern = ngpProgressIndicatorPattern({});
 }

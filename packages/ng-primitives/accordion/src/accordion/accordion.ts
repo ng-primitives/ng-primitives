@@ -1,8 +1,12 @@
 import { BooleanInput } from '@angular/cdk/coercion';
-import { Directive, booleanAttribute, input, output } from '@angular/core';
+import { booleanAttribute, Directive, input, output } from '@angular/core';
 import { NgpOrientation } from 'ng-primitives/common';
 import { injectAccordionConfig } from '../config/accordion-config';
-import { accordionState, provideAccordionState } from './accordion-state';
+import {
+  ngpAccordionPattern,
+  NgpAccordionType,
+  provideAccordionPattern,
+} from './accordion-pattern';
 
 /**
  * Apply the `ngpAccordion` directive to an element that represents the group of accordion items.
@@ -10,11 +14,7 @@ import { accordionState, provideAccordionState } from './accordion-state';
 @Directive({
   selector: '[ngpAccordion]',
   exportAs: 'ngpAccordion',
-  providers: [provideAccordionState()],
-  host: {
-    '[attr.data-orientation]': 'state.orientation()',
-    '[attr.data-disabled]': 'state.disabled() ? "" : null',
-  },
+  providers: [provideAccordionPattern(NgpAccordion, m => m.state)],
 })
 export class NgpAccordion<T> {
   /**
@@ -69,48 +69,12 @@ export class NgpAccordion<T> {
   /**
    * The accordion state.
    */
-  private readonly state = accordionState<NgpAccordion<T>>(this);
-
-  /**
-   * @param value The value to check.
-   * @returns Whether the value is open.
-   * @internal
-   */
-  isOpen(value: T): boolean {
-    if (this.state.type() === 'multiple') {
-      return (this.state.value() as T[] | null)?.includes(value) ?? false;
-    }
-
-    return this.state.value() === value;
-  }
-
-  toggle(value: T): void {
-    const isOpen = this.isOpen(value);
-
-    // if we are in single mode and the value is already open and the accordion is not collapsible, do nothing
-    if (this.state.type() === 'single' && isOpen && !this.state.collapsible()) {
-      return;
-    }
-
-    // if we are in single mode then toggle the value
-    if (this.state.type() === 'single') {
-      const newValue = isOpen ? null : value;
-      this.state.value.set(newValue);
-      this.valueChange.emit(newValue);
-      return;
-    }
-
-    // if we are in multiple mode then toggle the value
-    let values = (this.state.value() as T[]) ?? [];
-
-    if (isOpen) {
-      values = values.filter(v => v !== value);
-    } else {
-      values = [...values, value];
-    }
-    this.state.value.set(values);
-    this.valueChange.emit(values);
-  }
+  readonly state = ngpAccordionPattern({
+    type: this.type,
+    collapsible: this.collapsible,
+    disabled: this.disabled,
+    value: this.value,
+    valueChange: this.valueChange,
+    orientation: this.orientation,
+  });
 }
-
-export type NgpAccordionType = 'single' | 'multiple';

@@ -44,6 +44,11 @@
       "factory": "./src/generators/reusable-component/reusable-component",
       "schema": "./src/generators/reusable-component/schema.json",
       "description": "Create a reusable component for a primitive."
+    },
+    "pattern": {
+      "factory": "./src/generators/pattern/generator",
+      "schema": "./src/generators/pattern/schema.json",
+      "description": "Create a new component pattern file"
     }
   }
 }

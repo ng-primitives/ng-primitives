@@ -1,11 +1,7 @@
 import { BooleanInput } from '@angular/cdk/coercion';
-import { Directive, booleanAttribute, computed, input, signal } from '@angular/core';
+import { Directive, booleanAttribute, input } from '@angular/core';
 import { uniqueId } from 'ng-primitives/utils';
-import { NgpAccordionContent } from '../accordion-content/accordion-content';
-import { NgpAccordionTrigger } from '../accordion-trigger/accordion-trigger';
-import { NgpAccordion } from '../accordion/accordion';
-import { injectAccordionState } from '../accordion/accordion-state';
-import { accordionItemState, provideAccordionItemState } from './accordion-item-state';
+import { ngpAccordionItemPattern, provideAccordionItemPattern } from './accordion-item-pattern';
 
 /**
  * Apply the `ngpAccordionItem` directive to an element that represents an accordion item.
@@ -13,19 +9,9 @@ import { accordionItemState, provideAccordionItemState } from './accordion-item-
 @Directive({
   selector: '[ngpAccordionItem]',
   exportAs: 'ngpAccordionItem',
-  providers: [provideAccordionItemState()],
-  host: {
-    '[attr.data-orientation]': 'accordion().orientation()',
-    '[attr.data-open]': 'state.open() ? "" : null',
-    '[attr.data-disabled]': 'state.disabled() || accordion().disabled() ? "" : null',
-  },
+  providers: [provideAccordionItemPattern(NgpAccordionItem, instance => instance.pattern)],
 })
 export class NgpAccordionItem<T> {
-  /**
-   * Access the accordion.
-   */
-  protected readonly accordion = injectAccordionState<NgpAccordion<T>>();
-
   /**
    * The value of the accordion item.
    */
@@ -42,34 +28,15 @@ export class NgpAccordionItem<T> {
   });
 
   /**
-   * Access the accordion trigger
-   * @internal
+   * The accordion item pattern
    */
-  readonly trigger = signal<NgpAccordionTrigger<T> | undefined>(undefined);
+  readonly pattern = ngpAccordionItemPattern<T>({
+    value: this.value,
+    disabled: this.disabled,
+  });
 
   /**
-   * Access the accordion content
-   * @internal
+   * Expose the open state for convenience.
    */
-  readonly content = signal<NgpAccordionContent<T> | undefined>(undefined);
-
-  /**
-   * Whether the accordion item is expanded.
-   */
-  readonly open = computed<boolean>(() => this.accordion().isOpen(this.state.value()!));
-
-  /**
-   * The trigger id.
-   */
-  readonly triggerId = computed(() => this.trigger()?.id());
-
-  /**
-   * The content id.
-   */
-  readonly contentId = computed(() => this.content()?.id());
-
-  /**
-   * The accordion item state.
-   */
-  private readonly state = accordionItemState<NgpAccordionItem<T>>(this);
+  readonly open = this.pattern.open;
 }

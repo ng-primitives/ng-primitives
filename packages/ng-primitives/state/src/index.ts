@@ -1,5 +1,8 @@
 import {
+  afterRenderEffect,
   computed,
+  DestroyRef,
+  ElementRef,
   FactoryProvider,
   inject,
   InjectionToken,
@@ -8,6 +11,8 @@ import {
   InputSignalWithTransform,
   isSignal,
   linkedSignal,
+  NgZone,
+  OutputEmitterRef,
   ProviderToken,
   signal,
   Signal,
@@ -228,4 +233,84 @@ function isSignalInput(
   }
 
   return 'transformFn' in inputDefinition || 'applyValueToInputSignal' in inputDefinition;
+}
+
+export function controlled<T>(value: Signal<T>, onChange: OutputEmitterRef<T>): WritableSignal<T> {
+  // determine if the value is controlled based on whether there are listeners on the output emitter ref
+  const isControlled = () => (onChange as any).listeners?.length > 0;
+
+  const newSignal = linkedSignal(() => value());
+  const originalSetter = newSignal.set;
+
+  const newSetter = (value: T): void => {
+    if (!isControlled()) {
+      originalSetter(value);
+    }
+  };
+
+  newSignal.set = newSetter.bind(newSignal);
+
+  return newSignal;
+}
+
+function setAttribute(element: ElementRef<HTMLElement>, attr: string, value: string | null): void {
+  if (value !== null) {
+    element.nativeElement.setAttribute(attr, value);
+  } else {
+    element.nativeElement.removeAttribute(attr);
+  }
+}
+
+export function attrBinding(
+  element: ElementRef<HTMLElement>,
+  attr: string,
+  value: () => string | null,
+): void {
+  afterRenderEffect({ write: () => setAttribute(element, attr, value()) });
+}
+
+export function dataBinding(
+  element: ElementRef<HTMLElement>,
+  attr: string,
+  value: () => string | boolean | null,
+): void {
+  afterRenderEffect({
+    write: () => {
+      let valueResult = value();
+
+      if (valueResult === false) {
+        valueResult = null;
+      } else if (valueResult === true) {
+        valueResult = '';
+      } else if (valueResult !== null && typeof valueResult !== 'string') {
+        valueResult = String(valueResult);
+      }
+
+      setAttribute(element, attr, valueResult);
+    },
+  });
+}
+export function listener<K extends keyof HTMLElementEventMap>(
+  element: ElementRef<HTMLElement>,
+  event: K,
+  handler: (event: HTMLElementEventMap[K]) => void,
+): void;
+export function listener(
+  element: ElementRef<HTMLElement>,
+  event: string,
+  handler: (event: Event) => void,
+): void;
+export function listener<K extends keyof HTMLElementEventMap>(
+  element: ElementRef<HTMLElement>,
+  event: K | string,
+  handler: (event: HTMLElementEventMap[K] | Event) => void,
+): void {
+  const ngZone = inject(NgZone);
+  const destroyRef = inject(DestroyRef);
+  ngZone.runOutsideAngular(() =>
+    element.nativeElement.addEventListener(event, handler as EventListener),
+  );
+  destroyRef.onDestroy(() =>
+    element.nativeElement.removeEventListener(event, handler as EventListener),
+  );
 }

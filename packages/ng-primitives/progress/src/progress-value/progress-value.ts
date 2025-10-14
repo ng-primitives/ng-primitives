@@ -1,19 +1,14 @@
 import { Directive } from '@angular/core';
-import { injectProgressState } from '../progress/progress-state';
+import { ngpProgressValuePattern, provideProgressValuePattern } from './progress-value-pattern';
 
 @Directive({
   selector: '[ngpProgressValue]',
   exportAs: 'ngpProgressValue',
-  host: {
-    'aria-hidden': 'true',
-    '[attr.data-progressing]': 'state().progressing() ? "" : null',
-    '[attr.data-indeterminate]': 'state().indeterminate() ? "" : null',
-    '[attr.data-complete]': 'state().complete() ? "" : null',
-  },
+  providers: [provideProgressValuePattern(NgpProgressValue, instance => instance.pattern)],
 })
 export class NgpProgressValue {
   /**
-   * Access the progress state.
+   * The pattern instance.
    */
-  protected readonly state = injectProgressState();
+  protected readonly pattern = ngpProgressValuePattern();
 }

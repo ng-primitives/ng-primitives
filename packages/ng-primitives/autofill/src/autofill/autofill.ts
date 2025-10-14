@@ -1,24 +1,12 @@
-import { Directive, HostListener, output, signal } from '@angular/core';
-import { injectStyleInjector } from 'ng-primitives/internal';
+import { Directive, output } from '@angular/core';
+import { ngpAutofillPattern, provideAutofillPattern } from './autofill-pattern';
 
 @Directive({
   selector: '[ngpAutofill]',
   exportAs: 'ngpAutofill',
-  host: {
-    '[attr.data-autofill]': 'autofilled() ? "" : null',
-  },
+  providers: [provideAutofillPattern(NgpAutofill, instance => instance.pattern)],
 })
 export class NgpAutofill {
-  /**
-   * Access the style injector.
-   */
-  private readonly styleInjector = injectStyleInjector();
-
-  /**
-   * Store the autofill state.
-   */
-  protected readonly autofilled = signal(false);
-
   /**
    * Emit when the autofill state changes.
    */
@@ -26,36 +14,10 @@ export class NgpAutofill {
     alias: 'ngpAutofill',
   });
 
-  constructor() {
-    // This technique is based on that used by the Angular CDK
-    // https://github.com/angular/components/blob/main/src/cdk/text-field/_index.scss
-    this.styleInjector.add(
-      'ngp-autofill',
-      `
-        @keyframes ngp-autofill-start { }
-        @keyframes ngp-autofill-end {}
-
-        [data-autofill]:-webkit-autofill {
-          animation: ngp-autofill-start 0s 1ms;
-        }
-
-        [data-autofill]:not(:-webkit-autofill) {
-          animation: ngp-autofill-end 0s 1ms;
-        }
-      `,
-    );
-  }
-
-  @HostListener('animationstart', ['$event'])
-  protected onAnimationStart(event: AnimationEvent): void {
-    if (event.animationName === 'ngp-autofill-start') {
-      this.autofilled.set(true);
-      this.autofillChange.emit(true);
-    }
-
-    if (event.animationName === 'ngp-autofill-end') {
-      this.autofilled.set(false);
-      this.autofillChange.emit(false);
-    }
-  }
+  /**
+   * The pattern instance.
+   */
+  protected readonly pattern = ngpAutofillPattern({
+    onAutofillChange: autofilled => this.autofillChange.emit(autofilled),
+  });
 }
