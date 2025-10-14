@@ -8,9 +8,6 @@ import { ngpVisuallyHiddenPattern, provideVisuallyHiddenPattern } from './visual
   selector: '[ngpVisuallyHidden]',
   exportAs: 'ngpVisuallyHidden',
   providers: [provideVisuallyHiddenPattern(NgpVisuallyHidden, instance => instance.pattern)],
-  host: {
-    '[style]': 'pattern.style()',
-  },
 })
 export class NgpVisuallyHidden {
   /**
