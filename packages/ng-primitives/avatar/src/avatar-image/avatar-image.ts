@@ -1,5 +1,4 @@
 import { Directive, OnInit } from '@angular/core';
-import { NgpVisuallyHidden } from 'ng-primitives/a11y';
 import { ngpAvatarImagePattern, provideAvatarImagePattern } from './avatar-image-pattern';
 
 /**
@@ -8,7 +7,6 @@ import { ngpAvatarImagePattern, provideAvatarImagePattern } from './avatar-image
 @Directive({
   selector: 'img[ngpAvatarImage]',
   exportAs: 'ngpAvatarImage',
-  hostDirectives: [NgpVisuallyHidden],
   providers: [provideAvatarImagePattern(NgpAvatarImage, m => m.state)],
 })
 export class NgpAvatarImage implements OnInit {

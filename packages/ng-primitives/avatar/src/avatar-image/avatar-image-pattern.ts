@@ -1,9 +1,8 @@
 import { ElementRef, FactoryProvider, inject, InjectionToken, Type } from '@angular/core';
-import { injectVisuallyHiddenState } from 'ng-primitives/a11y';
+import { ngpVisuallyHiddenPattern } from 'ng-primitives/a11y';
 import { injectElementRef } from 'ng-primitives/internal';
 import { listener } from 'ng-primitives/state';
-import { NgpAvatarStatus } from '../avatar/avatar-pattern';
-import { injectAvatarPattern } from '../avatar/avatar-pattern';
+import { injectAvatarPattern, NgpAvatarStatus } from '../avatar/avatar-pattern';
 
 export interface NgpAvatarImageState {
   checkImageStatus(): void;
@@ -18,7 +17,7 @@ export function ngpAvatarImagePattern({
   element = injectElementRef<HTMLImageElement>(),
 }: NgpAvatarImageProps = {}): NgpAvatarImageState {
   const avatar = injectAvatarPattern();
-  const visuallyHidden = injectVisuallyHiddenState();
+  const visuallyHidden = ngpVisuallyHiddenPattern({ element });
 
   // Set up event listeners
   listener(element, 'load', () => setState(NgpAvatarStatus.Loaded));
@@ -44,7 +43,7 @@ export function ngpAvatarImagePattern({
     avatar.setStatus(status);
 
     // if the state is loaded then we should make the image visible
-    visuallyHidden().setVisibility(status === NgpAvatarStatus.Loaded);
+    visuallyHidden.setVisibility(status === NgpAvatarStatus.Loaded);
   }
 
   return { checkImageStatus, setState };

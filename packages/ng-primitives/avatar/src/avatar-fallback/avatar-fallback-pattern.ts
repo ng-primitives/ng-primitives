@@ -10,22 +10,29 @@ import {
   WritableSignal,
 } from '@angular/core';
 import { injectDisposables } from 'ng-primitives/utils';
+import { injectElementRef } from '../../../internal/src';
+import { styleBinding } from '../../../state/src';
 import { injectAvatarPattern, NgpAvatarStatus } from '../avatar/avatar-pattern';
+import { injectAvatarConfig } from '../config/avatar-config';
 
 export interface NgpAvatarFallbackState {
   visible: Signal<boolean>;
   delayElapsed: WritableSignal<boolean>;
-  startDelayTimer(delay: number): void;
+  startTimer(delay: number): void;
 }
 
 export interface NgpAvatarFallbackProps {
   element?: ElementRef<HTMLElement>;
+  delay?: Signal<number>;
 }
 
-export function ngpAvatarFallbackPattern(): NgpAvatarFallbackState {
+export function ngpAvatarFallbackPattern({
+  delay,
+  element = injectElementRef<HTMLElement>(),
+}: NgpAvatarFallbackProps = {}): NgpAvatarFallbackState {
   const avatar = injectAvatarPattern();
   const disposables = injectDisposables();
-
+  const config = injectAvatarConfig();
   const delayElapsed = signal(false);
 
   const visible = computed(
@@ -34,11 +41,18 @@ export function ngpAvatarFallbackPattern(): NgpAvatarFallbackState {
       delayElapsed() && avatar.status() !== NgpAvatarStatus.Loaded,
   );
 
-  function startDelayTimer(delay: number): void {
-    disposables.setTimeout(() => delayElapsed.set(true), delay);
+  function startTimer(): void {
+    disposables.setTimeout(() => delayElapsed.set(true), delay?.() ?? config.delay);
   }
 
-  return { visible, delayElapsed, startDelayTimer };
+  // Setup style bindings
+  styleBinding(
+    element,
+    'display',
+    computed(() => (visible() ? null : 'none')),
+  );
+
+  return { visible, delayElapsed, startTimer };
 }
 
 export const NgpAvatarFallbackPatternToken = new InjectionToken<NgpAvatarFallbackState>(

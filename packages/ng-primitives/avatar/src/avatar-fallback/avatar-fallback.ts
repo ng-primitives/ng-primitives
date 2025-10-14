@@ -9,10 +9,7 @@ import { ngpAvatarFallbackPattern, provideAvatarFallbackPattern } from './avatar
 @Directive({
   selector: '[ngpAvatarFallback]',
   exportAs: 'ngpAvatarFallback',
-  providers: [provideAvatarFallbackPattern(NgpAvatarFallback, m => m.state)],
-  host: {
-    '[style.display]': 'visible() ? null : "none"',
-  },
+  providers: [provideAvatarFallbackPattern(NgpAvatarFallback, m => m.pattern)],
 })
 export class NgpAvatarFallback implements OnInit {
   /**
@@ -32,17 +29,11 @@ export class NgpAvatarFallback implements OnInit {
   /**
    * The avatar fallback state.
    */
-  readonly state = ngpAvatarFallbackPattern();
-
-  /**
-   * Determine if this element should be hidden.
-   * @returns True if the element should be visible
-   */
-  get visible() {
-    return this.state.visible;
-  }
+  readonly pattern = ngpAvatarFallbackPattern({
+    delay: this.delay,
+  });
 
   ngOnInit(): void {
-    this.state.startDelayTimer(this.delay());
+    this.pattern.startTimer(this.delay());
   }
 }

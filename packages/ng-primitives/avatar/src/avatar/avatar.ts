@@ -7,11 +7,11 @@ import { ngpAvatarPattern, provideAvatarPattern } from './avatar-pattern';
 @Directive({
   selector: '[ngpAvatar]',
   exportAs: 'ngpAvatar',
-  providers: [provideAvatarPattern(NgpAvatar, m => m.state)],
+  providers: [provideAvatarPattern(NgpAvatar, m => m.patter)],
 })
 export class NgpAvatar {
   /**
    * The avatar state.
    */
-  readonly state = ngpAvatarPattern();
+  readonly patter = ngpAvatarPattern();
 }
