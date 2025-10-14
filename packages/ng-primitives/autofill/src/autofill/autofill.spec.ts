@@ -18,11 +18,7 @@ class MockAnimationEvent extends Event {
 
 @Component({
   template: `
-    <input
-      ngpAutofill
-      (ngpAutofill)="onAutofillChange($event)"
-      #autofillRef="ngpAutofill"
-    />
+    <input #autofillRef="ngpAutofill" (ngpAutofill)="onAutofillChange($event)" ngpAutofill />
   `,
   imports: [NgpAutofill],
 })
@@ -149,9 +145,9 @@ describe('NgpAutofill', () => {
   it('should inject autofill detection styles', () => {
     // Check if styles are injected in the document head
     const allStyles = document.querySelectorAll('style');
-    const autofillStyles = Array.from(allStyles).find(style =>
-      style.textContent?.includes('ngp-autofill-start') ||
-      style.dataset['id'] === 'ngp-autofill'
+    const autofillStyles = Array.from(allStyles).find(
+      style =>
+        style.textContent?.includes('ngp-autofill-start') || style.dataset['id'] === 'ngp-autofill',
     );
 
     expect(autofillStyles).toBeTruthy();
