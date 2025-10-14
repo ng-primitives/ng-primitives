@@ -1,2 +1,8 @@
 export { NgpInput } from './input/input';
-export { injectInputState, provideInputState } from './input/input-state';
+export {
+  NgpInputState,
+  NgpInputProps,
+  ngpInputPattern,
+  injectInputPattern,
+  provideInputPattern,
+} from './input/input-pattern';
