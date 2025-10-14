@@ -1,25 +1,17 @@
 import { NumberInput } from '@angular/cdk/coercion';
-import { Directive, computed, input, numberAttribute, signal } from '@angular/core';
-import { NgpProgressLabel } from '../progress-label/progress-label';
-import { progressState, provideProgressState } from './progress-state';
+import { Directive, input, numberAttribute, signal } from '@angular/core';
+import {
+  ngpProgressPattern,
+  provideProgressPattern,
+  type NgpProgressValueTextFn,
+} from './progress-pattern';
 
 /**
  * Apply the `ngpProgress` directive to an element that represents the progress bar.
  */
 @Directive({
   selector: '[ngpProgress]',
-  providers: [provideProgressState()],
-  host: {
-    role: 'progressbar',
-    '[attr.aria-valuemax]': 'state.max()',
-    '[attr.aria-valuemin]': '0',
-    '[attr.aria-valuenow]': 'state.value()',
-    '[attr.aria-valuetext]': 'valueText()',
-    '[attr.aria-labelledby]': 'label() ? label().id : null',
-    '[attr.data-progressing]': 'progressing() ? "" : null',
-    '[attr.data-indeterminate]': 'indeterminate() ? "" : null',
-    '[attr.data-complete]': 'complete() ? "" : null',
-  },
+  providers: [provideProgressPattern(NgpProgress, instance => instance.pattern)],
 })
 export class NgpProgress {
   /**
@@ -61,53 +53,25 @@ export class NgpProgress {
     },
   );
 
-  /**
-   * Determine if the progress is indeterminate.
-   * @internal
-   */
-  readonly indeterminate = computed(() => this.state.value() === null);
+  private readonly labelId = signal<string | null>(null);
 
   /**
-   * Determine if the progress is in a progressing state.
-   * @internal
+   * The progress pattern.
    */
-  readonly progressing = computed(
-    () =>
-      this.state.value() != null &&
-      this.state.value()! > 0 &&
-      this.state.value()! < this.state.max(),
-  );
-
-  /**
-   * Determine if the progress is complete.
-   * @internal
-   */
-  readonly complete = computed(() => this.state.value() === this.state.max());
-
-  /**
-   * Get the progress value text.
-   */
-  protected readonly valueText = computed(() => {
-    const value = this.state.value();
-
-    if (value == null) {
-      return '';
-    }
-
-    return this.state.valueLabel()(value, this.state.max());
+  readonly pattern = ngpProgressPattern({
+    value: this.value,
+    min: this.min,
+    max: this.max,
+    valueLabel: this.valueLabel,
+    labelId: this.labelId,
   });
 
   /**
-   * The label associated with the progress bar.
+   * Register a progress label with the progress to provide accessibility.
+   * @param id The id of the label element
    * @internal
    */
-  readonly label = signal<NgpProgressLabel | null>(null);
-
-  /**
-   * The state of the progress bar.
-   * @internal
-   */
-  protected readonly state = progressState<NgpProgress>(this);
+  setLabel(id: string | null) {
+    this.labelId.set(id);
+  }
 }
-
-export type NgpProgressValueTextFn = (value: number, max: number) => string;

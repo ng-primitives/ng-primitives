@@ -6,18 +6,24 @@ import { NgpTextarea } from './textarea';
 
 describe('NgpTextarea', () => {
   it('should initialise correctly', async () => {
-    const { getByTestId } = await render(`<textarea ngpTextarea data-testid="textarea"></textarea>`, {
-      imports: [NgpTextarea],
-    });
+    const { getByTestId } = await render(
+      `<textarea ngpTextarea data-testid="textarea"></textarea>`,
+      {
+        imports: [NgpTextarea],
+      },
+    );
 
     const textarea = getByTestId('textarea');
     expect(textarea).toBeInTheDocument();
   });
 
   it('should set the id attribute', async () => {
-    const { getByTestId } = await render(`<textarea ngpTextarea data-testid="textarea"></textarea>`, {
-      imports: [NgpTextarea],
-    });
+    const { getByTestId } = await render(
+      `<textarea ngpTextarea data-testid="textarea"></textarea>`,
+      {
+        imports: [NgpTextarea],
+      },
+    );
 
     const textarea = getByTestId('textarea');
     expect(textarea).toHaveAttribute('id');
@@ -38,9 +44,12 @@ describe('NgpTextarea', () => {
   });
 
   it('should add the disabled attribute when disabled is true', async () => {
-    const { getByTestId } = await render(`<textarea ngpTextarea data-testid="textarea" disabled></textarea>`, {
-      imports: [NgpTextarea],
-    });
+    const { getByTestId } = await render(
+      `<textarea ngpTextarea data-testid="textarea" disabled></textarea>`,
+      {
+        imports: [NgpTextarea],
+      },
+    );
 
     const textarea = getByTestId('textarea');
     expect(textarea).toHaveAttribute('disabled');
@@ -48,9 +57,12 @@ describe('NgpTextarea', () => {
   });
 
   it('should not add the disabled attribute when disabled is false', async () => {
-    const { getByTestId } = await render(`<textarea ngpTextarea data-testid="textarea"></textarea>`, {
-      imports: [NgpTextarea],
-    });
+    const { getByTestId } = await render(
+      `<textarea ngpTextarea data-testid="textarea"></textarea>`,
+      {
+        imports: [NgpTextarea],
+      },
+    );
 
     const textarea = getByTestId('textarea');
     expect(textarea).not.toHaveAttribute('disabled');
@@ -58,18 +70,24 @@ describe('NgpTextarea', () => {
   });
 
   it('should set the data-disabled attribute when disabled', async () => {
-    const { getByTestId } = await render(`<textarea ngpTextarea data-testid="textarea" disabled></textarea>`, {
-      imports: [NgpTextarea],
-    });
+    const { getByTestId } = await render(
+      `<textarea ngpTextarea data-testid="textarea" disabled></textarea>`,
+      {
+        imports: [NgpTextarea],
+      },
+    );
 
     const textarea = getByTestId('textarea');
     expect(textarea).toHaveAttribute('data-disabled', '');
   });
 
   it('should not set the data-disabled attribute when not disabled', async () => {
-    const { getByTestId } = await render(`<textarea ngpTextarea data-testid="textarea"></textarea>`, {
-      imports: [NgpTextarea],
-    });
+    const { getByTestId } = await render(
+      `<textarea ngpTextarea data-testid="textarea"></textarea>`,
+      {
+        imports: [NgpTextarea],
+      },
+    );
 
     const textarea = getByTestId('textarea');
     expect(textarea).not.toHaveAttribute('data-disabled');
@@ -94,9 +112,12 @@ describe('NgpTextarea', () => {
   });
 
   it('should add the data-hover attribute on hover', async () => {
-    const { getByTestId } = await render(`<textarea ngpTextarea data-testid="textarea"></textarea>`, {
-      imports: [NgpTextarea],
-    });
+    const { getByTestId } = await render(
+      `<textarea ngpTextarea data-testid="textarea"></textarea>`,
+      {
+        imports: [NgpTextarea],
+      },
+    );
 
     const textarea = getByTestId('textarea');
     fireEvent.mouseEnter(textarea);
@@ -106,9 +127,12 @@ describe('NgpTextarea', () => {
   });
 
   it('should add the data-press attribute on press', async () => {
-    const { getByTestId } = await render(`<textarea ngpTextarea data-testid="textarea"></textarea>`, {
-      imports: [NgpTextarea],
-    });
+    const { getByTestId } = await render(
+      `<textarea ngpTextarea data-testid="textarea"></textarea>`,
+      {
+        imports: [NgpTextarea],
+      },
+    );
 
     const textarea = getByTestId('textarea');
     fireEvent.pointerDown(textarea);
@@ -118,9 +142,12 @@ describe('NgpTextarea', () => {
   });
 
   it('should add the data-focus attribute when focused', async () => {
-    const { getByTestId } = await render(`<textarea ngpTextarea data-testid="textarea"></textarea>`, {
-      imports: [NgpTextarea],
-    });
+    const { getByTestId } = await render(
+      `<textarea ngpTextarea data-testid="textarea"></textarea>`,
+      {
+        imports: [NgpTextarea],
+      },
+    );
 
     const textarea = getByTestId('textarea');
     fireEvent.focus(textarea);
@@ -130,9 +157,12 @@ describe('NgpTextarea', () => {
   });
 
   it('should not add interaction attributes when disabled', async () => {
-    const { getByTestId } = await render(`<textarea ngpTextarea data-testid="textarea" disabled></textarea>`, {
-      imports: [NgpTextarea],
-    });
+    const { getByTestId } = await render(
+      `<textarea ngpTextarea data-testid="textarea" disabled></textarea>`,
+      {
+        imports: [NgpTextarea],
+      },
+    );
 
     const textarea = getByTestId('textarea');
 
@@ -147,9 +177,12 @@ describe('NgpTextarea', () => {
   });
 
   it('should not allow text entering when disabled', async () => {
-    const { getByTestId } = await render(`<textarea ngpTextarea data-testid="textarea" disabled></textarea>`, {
-      imports: [NgpTextarea],
-    });
+    const { getByTestId } = await render(
+      `<textarea ngpTextarea data-testid="textarea" disabled></textarea>`,
+      {
+        imports: [NgpTextarea],
+      },
+    );
 
     const textarea = getByTestId('textarea');
     fireEvent.focus(textarea);

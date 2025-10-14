@@ -1,18 +1,14 @@
 import { Directive } from '@angular/core';
-import { injectProgressState } from '../progress/progress-state';
+import { ngpProgressTrackPattern, provideProgressTrackPattern } from './progress-track-pattern';
 
 @Directive({
   selector: '[ngpProgressTrack]',
   exportAs: 'ngpProgressTrack',
-  host: {
-    '[attr.data-progressing]': 'state().progressing() ? "" : null',
-    '[attr.data-indeterminate]': 'state().indeterminate() ? "" : null',
-    '[attr.data-complete]': 'state().complete() ? "" : null',
-  },
+  providers: [provideProgressTrackPattern(NgpProgressTrack, instance => instance.pattern)],
 })
 export class NgpProgressTrack {
   /**
-   * Access the progress state.
+   * The pattern instance.
    */
-  protected readonly state = injectProgressState();
+  protected readonly pattern = ngpProgressTrackPattern();
 }
