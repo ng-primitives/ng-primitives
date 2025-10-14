@@ -1,5 +1,5 @@
-import { ChangeDetectorRef, Directive, computed, inject, signal } from '@angular/core';
-import { provideVisuallyHiddenState, visuallyHiddenState } from './visually-hidden-state';
+import { Directive } from '@angular/core';
+import { ngpVisuallyHiddenPattern, provideVisuallyHiddenPattern } from './visually-hidden-pattern';
 
 /**
  * Hide an element visually while keeping it present in the DOM.
@@ -7,50 +7,22 @@ import { provideVisuallyHiddenState, visuallyHiddenState } from './visually-hidd
 @Directive({
   selector: '[ngpVisuallyHidden]',
   exportAs: 'ngpVisuallyHidden',
-  providers: [provideVisuallyHiddenState()],
+  providers: [provideVisuallyHiddenPattern(NgpVisuallyHidden, instance => instance.pattern)],
   host: {
-    '[style]': 'style()',
+    '[style]': 'pattern.style()',
   },
 })
 export class NgpVisuallyHidden {
-  private readonly changeDetector = inject(ChangeDetectorRef);
-
   /**
-   * Whether the element is hidden.
+   * The visually hidden pattern.
    */
-  protected readonly hidden = signal<boolean>(true);
-
-  protected readonly style = computed(() => {
-    if (!this.hidden()) {
-      return {};
-    }
-
-    return {
-      position: 'absolute',
-      width: '1px',
-      height: '1px',
-      margin: '-1px',
-      padding: '0',
-      overflow: 'hidden',
-      clip: 'rect(0, 0, 0, 0)',
-      whiteSpace: 'nowrap',
-      border: '0',
-      wordWrap: 'normal',
-      outline: '0',
-      '-webkit-appearance': 'none',
-      '-moz-appearance': 'none',
-      'inset-inline-start': '0',
-    };
-  });
-
-  protected readonly state = visuallyHiddenState<NgpVisuallyHidden>(this);
+  readonly pattern = ngpVisuallyHiddenPattern({});
 
   /**
    * Set the element visibility.
    * @param visible
    */
   setVisibility(visible: boolean): void {
-    this.hidden.set(!visible);
-    this.changeDetector.detectChanges();
+    this.pattern.setVisibility(visible);
   }
 }
