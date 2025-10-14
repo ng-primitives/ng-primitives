@@ -1,0 +1,65 @@
+import {
+  ElementRef,
+  FactoryProvider,
+  inject,
+  InjectionToken,
+  Signal,
+  Type,
+} from '@angular/core';
+import { injectElementRef } from 'ng-primitives/internal';
+import { attrBinding, dataBinding, listener } from 'ng-primitives/state';
+
+/**
+ * The state interface for the <%= className %> pattern.
+ */
+export interface Ngp<%= className %>State {
+  // Define state properties and methods
+}
+
+/**
+ * The props interface for the <%= className %> pattern.
+ */
+export interface Ngp<%= className %>Props {
+  /**
+   * The element reference for the <%= fileName %>.
+   */
+  element?: ElementRef<HTMLElement>;
+  // Add other props
+}
+
+/**
+ * The <%= className %> pattern function.
+ */
+export function ngp<%= className %>Pattern({
+  element = injectElementRef(),
+  // Add other props
+}: Ngp<%= className %>Props = {}): Ngp<%= className %>State {
+
+  return {
+    // Return state object
+  };
+}
+
+/**
+ * The injection token for the <%= className %> pattern.
+ */
+export const Ngp<%= className %>PatternToken = new InjectionToken<Ngp<%= className %>State>(
+  'Ngp<%= className %>PatternToken',
+);
+
+/**
+ * Injects the <%= className %> pattern.
+ */
+export function inject<%= className %>Pattern(): Ngp<%= className %>State {
+  return inject(Ngp<%= className %>PatternToken);
+}
+
+/**
+ * Provides the <%= className %> pattern.
+ */
+export function provide<%= className %>Pattern<T>(
+  type: Type<T>,
+  fn: (instance: T) => Ngp<%= className %>State,
+): FactoryProvider {
+  return { provide: Ngp<%= className %>PatternToken, useFactory: () => fn(inject(type)) };
+}
