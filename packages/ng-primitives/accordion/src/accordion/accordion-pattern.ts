@@ -37,7 +37,7 @@ export function ngpAccordionPattern<T>({
   valueChange,
   element = injectElementRef(),
 }: NgpAccordionProps<T>): NgpAccordionState<T> {
-  const value = controlled(_value, valueChange);
+  const value = controlled(_value);
 
   // setup data bindings
   dataBinding(element, 'data-orientation', orientation);

@@ -1,2 +1,8 @@
 export { NgpToggle } from './toggle/toggle';
-export { injectToggleState, provideToggleState } from './toggle/toggle-state';
+export {
+  NgpToggleState,
+  NgpToggleProps,
+  ngpTogglePattern,
+  injectTogglePattern,
+  provideTogglePattern,
+} from './toggle/toggle-pattern';
