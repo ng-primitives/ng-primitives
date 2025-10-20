@@ -1,12 +1,12 @@
 import { ElementRef, FactoryProvider, inject, InjectionToken, Signal, Type } from '@angular/core';
 import { NgpOrientation } from 'ng-primitives/common';
 import { injectElementRef } from 'ng-primitives/internal';
-import { attrBinding, dataBinding } from 'ng-primitives/state';
 import {
   ngpRovingFocusGroupPattern,
   NgpRovingFocusGroupState,
   provideRovingFocusGroupPattern,
 } from 'ng-primitives/roving-focus';
+import { attrBinding, dataBinding } from 'ng-primitives/state';
 
 export interface NgpToolbarState {
   orientation: Signal<NgpOrientation>;

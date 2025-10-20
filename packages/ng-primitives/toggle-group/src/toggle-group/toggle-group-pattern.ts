@@ -8,8 +8,8 @@ import {
   Type,
 } from '@angular/core';
 import { attrBinding, controlled, dataBinding } from '@ng-primitives/state';
-import { injectElementRef } from 'ng-primitives/internal';
 import { NgpOrientation } from 'ng-primitives/common';
+import { injectElementRef } from 'ng-primitives/internal';
 import {
   ngpRovingFocusGroupPattern,
   NgpRovingFocusGroupState,

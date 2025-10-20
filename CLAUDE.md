@@ -78,7 +78,6 @@ Prefer using Nx Console UI in your IDE for running generators.
 - Release projects: `ng-primitives` and `state`
 - Use `pnpm release:version` and `pnpm release:publish` commands
 
-
 <!-- nx configuration start-->
 <!-- Leave the start & end comments to automatically receive updates. -->
 
@@ -90,6 +89,5 @@ Prefer using Nx Console UI in your IDE for running generators.
 - When working in individual projects, use the `nx_project_details` mcp tool to analyze and understand the specific project structure and dependencies
 - For questions around nx configuration, best practices or if you're unsure, use the `nx_docs` tool to get relevant, up-to-date docs. Always use this instead of assuming things about nx configuration
 - If the user needs help with an Nx configuration or project graph error, use the `nx_workspace` tool to get any errors
-
 
 <!-- nx configuration end-->
