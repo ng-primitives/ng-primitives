@@ -1,6 +1,6 @@
 import { ElementRef, FactoryProvider, inject, InjectionToken, Type } from '@angular/core';
-import { attrBinding, dataBinding } from '@ng-primitives/state';
 import { injectElementRef } from 'ng-primitives/internal';
+import { attrBinding, dataBinding } from 'ng-primitives/state';
 import { injectTabsetPattern } from '../tabset/tabset-pattern';
 
 /**

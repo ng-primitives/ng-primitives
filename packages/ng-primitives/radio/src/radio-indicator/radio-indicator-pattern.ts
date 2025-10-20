@@ -7,9 +7,9 @@ import {
   Signal,
   Type,
 } from '@angular/core';
-import { dataBinding } from '@ng-primitives/state';
 import { setupInteractions } from 'ng-primitives/interactions';
 import { injectElementRef } from 'ng-primitives/internal';
+import { dataBinding } from 'ng-primitives/state';
 import { injectRadioGroupPattern } from '../radio-group/radio-group-pattern';
 import { injectRadioItemPattern } from '../radio-item/radio-item-pattern';
 

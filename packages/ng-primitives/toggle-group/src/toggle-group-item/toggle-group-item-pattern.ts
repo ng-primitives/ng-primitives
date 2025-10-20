@@ -8,8 +8,8 @@ import {
   Signal,
   Type,
 } from '@angular/core';
-import { attrBinding, dataBinding, listener } from '@ng-primitives/state';
 import { injectElementRef } from 'ng-primitives/internal';
+import { attrBinding, dataBinding, listener } from 'ng-primitives/state';
 import { injectToggleGroupPattern } from '../toggle-group/toggle-group-pattern';
 
 /**
