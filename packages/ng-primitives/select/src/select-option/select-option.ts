@@ -69,8 +69,9 @@ export class NgpSelectOption implements OnInit, OnDestroy, NgpActivatable {
     }
 
     if (this.state().multiple()) {
+      const selectValue = this.state().value();
       return (
-        Array.isArray(value) && value.some(v => this.state().compareWith()(v, this.state().value()))
+        Array.isArray(selectValue) && selectValue.some(v => this.state().compareWith()(value, v))
       );
     }
 
