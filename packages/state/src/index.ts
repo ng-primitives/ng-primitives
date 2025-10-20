@@ -131,10 +131,10 @@ export function createState(token: ProviderToken<WritableSignal<State<unknown>>>
 
         // We want to make this a controlled input if it is an InputSignal or InputSignalWithTransform
         if (isSignalInput(value)) {
-          // @ts-ignore
+          // @ts-expect-error TS is not able to infer the type here
           obj[key] = createControlledInput(value);
         } else {
-          // @ts-ignore
+          // @ts-expect-error TS is not able to infer the type here
           obj[key] = value;
         }
       }
@@ -151,7 +151,7 @@ export function createState(token: ProviderToken<WritableSignal<State<unknown>>>
         } else if (isFunction(prototype[key as keyof U])) {
           (obj as Record<string, unknown>)[key] = prototype[key as keyof U].bind(state);
         } else {
-          // @ts-ignore
+          // @ts-expect-error TS is not able to infer the type here
           obj[key] = prototype[key as keyof U];
         }
       }
