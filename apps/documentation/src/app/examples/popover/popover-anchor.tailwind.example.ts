@@ -9,8 +9,8 @@ import { NgpPopover, NgpPopoverArrow, NgpPopoverTrigger } from 'ng-primitives/po
   template: `
     <div class="flex w-full items-center gap-2">
       <input
+        class="h-9 min-w-0 flex-1 rounded-lg border-none bg-white px-4 text-gray-900 shadow-sm outline-none ring-1 ring-black/10 placeholder:text-gray-400 focus:outline-2 focus:outline-offset-2 focus:outline-blue-500 dark:bg-zinc-900 dark:text-gray-100 dark:placeholder:text-gray-500"
         #emailInput
-        class="h-9 flex-1 min-w-0 rounded-lg border-none bg-white px-4 text-gray-900 shadow-sm outline-none ring-1 ring-black/10 placeholder:text-gray-400 focus:outline-2 focus:outline-offset-2 focus:outline-blue-500 dark:bg-zinc-900 dark:text-gray-100 dark:placeholder:text-gray-500"
         ngpInput
         type="email"
         placeholder="Enter your email address"

@@ -76,10 +76,17 @@ describe('NgpPopoverTrigger', () => {
   it('should position popover relative to anchor element when provided', async () => {
     @Component({
       template: `
-        <div #anchor style="position: absolute; top: 100px; left: 200px; width: 50px; height: 30px;">
+        <div
+          #anchor
+          style="position: absolute; top: 100px; left: 200px; width: 50px; height: 30px;"
+        >
           Anchor Element
         </div>
-        <button [ngpPopoverTrigger]="content" [ngpPopoverTriggerAnchor]="anchor" style="position: absolute; top: 300px; left: 400px;">
+        <button
+          [ngpPopoverTrigger]="content"
+          [ngpPopoverTriggerAnchor]="anchor"
+          style="position: absolute; top: 300px; left: 400px;"
+        >
           Trigger
         </button>
 
@@ -113,7 +120,11 @@ describe('NgpPopoverTrigger', () => {
   it('should fall back to trigger element when anchor is null', async () => {
     @Component({
       template: `
-        <button [ngpPopoverTrigger]="content" [ngpPopoverTriggerAnchor]="null" style="position: absolute; top: 100px; left: 200px;">
+        <button
+          [ngpPopoverTrigger]="content"
+          [ngpPopoverTriggerAnchor]="null"
+          style="position: absolute; top: 100px; left: 200px;"
+        >
           Trigger
         </button>
 
@@ -143,9 +154,7 @@ describe('NgpPopoverTrigger', () => {
     @Component({
       template: `
         <div #anchor>Anchor Element</div>
-        <button [ngpPopoverTrigger]="content" [ngpPopoverTriggerAnchor]="anchor">
-          Trigger
-        </button>
+        <button [ngpPopoverTrigger]="content" [ngpPopoverTriggerAnchor]="anchor">Trigger</button>
 
         <ng-template #content>
           <div ngpPopover>Popover content</div>

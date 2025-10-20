@@ -226,7 +226,9 @@ export class NgpOverlay<T = unknown> {
         const path = event.composedPath();
         const isInsideOverlay = overlay.getElements().some(el => path.includes(el));
         const isInsideTrigger = path.includes(this.config.triggerElement);
-        const isInsideAnchor = this.config.anchorElement ? path.includes(this.config.anchorElement) : false;
+        const isInsideAnchor = this.config.anchorElement
+          ? path.includes(this.config.anchorElement)
+          : false;
 
         if (!isInsideOverlay && !isInsideTrigger && !isInsideAnchor) {
           this.hide();
