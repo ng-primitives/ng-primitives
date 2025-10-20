@@ -10,8 +10,8 @@ import {
   WritableSignal,
 } from '@angular/core';
 import { injectDisposables } from 'ng-primitives/utils';
-import { injectElementRef } from '../../../internal/src';
-import { styleBinding } from '../../../state/src';
+import { injectElementRef } from 'ng-primitives/internal';
+import { styleBinding } from 'ng-primitives/state';
 import { injectAvatarPattern, NgpAvatarStatus } from '../avatar/avatar-pattern';
 import { injectAvatarConfig } from '../config/avatar-config';
 

@@ -30,7 +30,7 @@ export interface NgpVisuallyHiddenProps {
 
 export function ngpVisuallyHiddenPattern({
   element = injectElementRef(),
-  hidden: _hidden = signal(false),
+  hidden: _hidden = signal(true),
 }: NgpVisuallyHiddenProps = {}): NgpVisuallyHiddenState {
   const hidden = controlled(_hidden);
   const changeDetector = inject(ChangeDetectorRef);
@@ -42,9 +42,9 @@ export function ngpVisuallyHiddenPattern({
   styleBinding(element, 'padding', () => (hidden() ? '0' : null));
   styleBinding(element, 'overflow', () => (hidden() ? 'hidden' : null));
   styleBinding(element, 'clip', () => (hidden() ? 'rect(0, 0, 0, 0)' : null));
-  styleBinding(element, 'whiteSpace', () => (hidden() ? 'nowrap' : null));
+  styleBinding(element, 'white-space', () => (hidden() ? 'nowrap' : null));
   styleBinding(element, 'border', () => (hidden() ? '0' : null));
-  styleBinding(element, 'wordWrap', () => (hidden() ? 'normal' : null));
+  styleBinding(element, 'word-wrap', () => (hidden() ? 'normal' : null));
   styleBinding(element, 'outline', () => (hidden() ? '0' : null));
   styleBinding(element, '-webkit-appearance', () => (hidden() ? 'none' : null));
   styleBinding(element, '-moz-appearance', () => (hidden() ? 'none' : null));

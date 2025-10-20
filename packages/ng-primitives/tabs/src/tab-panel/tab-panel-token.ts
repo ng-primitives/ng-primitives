@@ -1,4 +1,4 @@
-import { InjectionToken, inject } from '@angular/core';
+import { ExistingProvider, InjectionToken, Type, inject } from '@angular/core';
 import type { NgpTabPanel } from './tab-panel';
 
 export const NgpTabPanelToken = new InjectionToken<NgpTabPanel>('NgpTabPanelToken');
@@ -9,4 +9,8 @@ export const NgpTabPanelToken = new InjectionToken<NgpTabPanel>('NgpTabPanelToke
  */
 export function injectTabPanel(): NgpTabPanel {
   return inject(NgpTabPanelToken);
+}
+
+export function provideTabPanel(type: Type<NgpTabPanel>): ExistingProvider {
+  return { provide: NgpTabPanelToken, useExisting: type };
 }

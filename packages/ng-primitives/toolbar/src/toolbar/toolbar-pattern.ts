@@ -1,13 +1,16 @@
 import { ElementRef, FactoryProvider, inject, InjectionToken, Signal, Type } from '@angular/core';
 import { NgpOrientation } from 'ng-primitives/common';
 import { injectElementRef } from 'ng-primitives/internal';
-import { ngpRovingFocusGroupPattern, NgpRovingFocusGroupState } from 'ng-primitives/roving-focus';
 import { attrBinding, dataBinding } from 'ng-primitives/state';
-import { NgpRovingFocusGroupPatternToken } from '../../../roving-focus/src/roving-focus-group/roving-focus-group-pattern';
+import {
+  ngpRovingFocusGroupPattern,
+  NgpRovingFocusGroupState,
+  provideRovingFocusGroupPattern,
+} from 'ng-primitives/roving-focus';
 
 export interface NgpToolbarState {
   orientation: Signal<NgpOrientation>;
-  rovingFocusGroup: NgpRovingFocusGroupState;
+  rovingFocus: NgpRovingFocusGroupState;
 }
 
 export interface NgpToolbarProps {
@@ -19,7 +22,7 @@ export function ngpToolbarPattern({
   orientation,
   element = injectElementRef(),
 }: NgpToolbarProps): NgpToolbarState {
-  const rovingFocusGroup = ngpRovingFocusGroupPattern({
+  const rovingFocus = ngpRovingFocusGroupPattern({
     orientation,
     element,
   });
@@ -31,7 +34,7 @@ export function ngpToolbarPattern({
 
   return {
     orientation,
-    rovingFocusGroup,
+    rovingFocus,
   };
 }
 
@@ -47,9 +50,6 @@ export function provideToolbarPattern<T>(
 ): FactoryProvider[] {
   return [
     { provide: NgpToolbarPatternToken, useFactory: () => fn(inject(type)) },
-    {
-      provide: NgpRovingFocusGroupPatternToken,
-      useFactory: () => fn(inject(type)).rovingFocusGroup,
-    },
+    provideRovingFocusGroupPattern(type, instance => fn(instance).rovingFocus),
   ];
 }

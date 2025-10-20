@@ -12,7 +12,6 @@ import {
   isSignal,
   linkedSignal,
   NgZone,
-  OutputEmitterRef,
   ProviderToken,
   signal,
   Signal,
@@ -235,22 +234,8 @@ function isSignalInput(
   return 'transformFn' in inputDefinition || 'applyValueToInputSignal' in inputDefinition;
 }
 
-export function controlled<T>(value: Signal<T>, onChange: OutputEmitterRef<T>): WritableSignal<T> {
-  // determine if the value is controlled based on whether there are listeners on the output emitter ref
-  const isControlled = () => (onChange as any).listeners?.length > 0;
-
-  const newSignal = linkedSignal(() => value());
-  const originalSetter = newSignal.set;
-
-  const newSetter = (value: T): void => {
-    if (!isControlled()) {
-      originalSetter(value);
-    }
-  };
-
-  newSignal.set = newSetter.bind(newSignal);
-
-  return newSignal;
+export function controlled<T>(value: Signal<T>): WritableSignal<T> {
+  return linkedSignal(() => value());
 }
 
 function setAttribute(element: ElementRef<HTMLElement>, attr: string, value: string | null): void {
@@ -264,9 +249,65 @@ function setAttribute(element: ElementRef<HTMLElement>, attr: string, value: str
 export function attrBinding(
   element: ElementRef<HTMLElement>,
   attr: string,
-  value: () => string | null,
+  value: (() => string | boolean | null) | string,
 ): void {
-  afterRenderEffect({ write: () => setAttribute(element, attr, value()) });
+  afterRenderEffect({
+    write: () => {
+      const valueResult = typeof value === 'function' ? value() : value;
+      setAttribute(element, attr, valueResult?.toString() ?? null);
+    },
+  });
+}
+
+function getStyleUnit(style: string): string {
+  const parts = style.split('.');
+
+  if (parts.length > 1) {
+    const unit = parts[parts.length - 1];
+
+    switch (unit) {
+      case 'px':
+      case 'em':
+      case 'rem':
+      case '%':
+      case 'vh':
+      case 'vw':
+      case 'vmin':
+      case 'vmax':
+      case 'cm':
+      case 'mm':
+      case 'in':
+      case 'pt':
+      case 'pc':
+      case 'ex':
+      case 'ch':
+        return unit;
+      default:
+        return '';
+    }
+  }
+
+  return '';
+}
+
+export function styleBinding(
+  element: ElementRef<HTMLElement>,
+  style: string,
+  value: () => string | number | null,
+): void {
+  afterRenderEffect({
+    write: () => {
+      const styleValue = value();
+      // we should look for units in the style name, just like Angular does e.g. width.px
+      const styleUnit = getStyleUnit(style);
+
+      if (styleValue !== null) {
+        element.nativeElement.style.setProperty(style, styleValue + styleUnit);
+      } else {
+        element.nativeElement.style.removeProperty(style);
+      }
+    },
+  });
 }
 
 export function dataBinding(
@@ -274,6 +315,10 @@ export function dataBinding(
   attr: string,
   value: () => string | boolean | null,
 ): void {
+  if (!attr.startsWith('data-')) {
+    throw new Error(`dataBinding: attribute "${attr}" must start with "data-"`);
+  }
+
   afterRenderEffect({
     write: () => {
       let valueResult = value();
@@ -313,4 +358,9 @@ export function listener<K extends keyof HTMLElementEventMap>(
   destroyRef.onDestroy(() =>
     element.nativeElement.removeEventListener(event, handler as EventListener),
   );
+}
+
+export function onDestroy(callback: () => void): void {
+  const destroyRef = inject(DestroyRef);
+  destroyRef.onDestroy(callback);
 }

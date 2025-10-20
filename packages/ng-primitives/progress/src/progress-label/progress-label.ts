@@ -1,6 +1,6 @@
 import { Directive, inject, input } from '@angular/core';
 import { uniqueId } from 'ng-primitives/utils';
-import { explicitEffect } from '../../../internal/src';
+import { explicitEffect } from 'ng-primitives/internal';
 import { NgpProgress } from '../progress/progress';
 import { ngpProgressLabelPattern, provideProgressLabelPattern } from './progress-label-pattern';
 

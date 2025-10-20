@@ -1,4 +1,4 @@
-import { signal, Signal } from '@angular/core';
+import { ElementRef, signal, Signal } from '@angular/core';
 import { injectElementRef } from 'ng-primitives/internal';
 import { ngpFocusVisibleInteraction } from '../focus-visible/focus-visible-interaction';
 import { ngpFocusInteraction } from '../focus/focus-interaction';
@@ -12,6 +12,7 @@ export interface NgpInteractionOptions {
   focusWithin?: boolean;
   focusVisible?: boolean;
   disabled?: Signal<boolean>;
+  element?: ElementRef<HTMLElement>;
 }
 
 /**
@@ -25,10 +26,10 @@ export function ngpInteractions({
   focusWithin,
   focusVisible,
   disabled = signal(false),
+  element = injectElementRef(),
 }: NgpInteractionOptions): void {
-  const elementRef = injectElementRef();
   // If the interaction has already been setup, we can skip the setup.
-  if (hasInteraction(elementRef.nativeElement, 'interactions')) {
+  if (hasInteraction(element.nativeElement, 'interactions')) {
     return;
   }
 

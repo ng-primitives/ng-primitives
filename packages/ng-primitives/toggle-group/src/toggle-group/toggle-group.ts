@@ -1,29 +1,15 @@
 import { BooleanInput } from '@angular/cdk/coercion';
 import { booleanAttribute, Directive, input, output } from '@angular/core';
 import { NgpOrientation } from 'ng-primitives/common';
-import { explicitEffect } from 'ng-primitives/internal';
-import { injectRovingFocusGroupState, NgpRovingFocusGroup } from 'ng-primitives/roving-focus';
 import { injectToggleGroupConfig } from '../config/toggle-group-config';
-import { provideToggleGroupState, toggleGroupState } from './toggle-group-state';
+import { ngpToggleGroupPattern, provideToggleGroupPattern } from './toggle-group-pattern';
 
 @Directive({
   selector: '[ngpToggleGroup]',
   exportAs: 'ngpToggleGroup',
-  providers: [provideToggleGroupState()],
-  hostDirectives: [NgpRovingFocusGroup],
-  host: {
-    role: 'group',
-    '[attr.data-orientation]': 'state.orientation()',
-    '[attr.data-type]': 'state.type()',
-    '[attr.data-disabled]': 'state.disabled() ? "" : null',
-  },
+  providers: [provideToggleGroupPattern(NgpToggleGroup, instance => instance.pattern)],
 })
 export class NgpToggleGroup {
-  /**
-   * Access the roving focus group state.
-   */
-  private readonly rovingFocusGroupState = injectRovingFocusGroupState();
-
   /**
    * Access the global toggle group configuration.
    */
@@ -69,57 +55,22 @@ export class NgpToggleGroup {
   });
 
   /**
-   * The state of the toggle group.
+   * The pattern instance.
    */
-  protected readonly state = toggleGroupState<NgpToggleGroup>(this);
-
-  constructor() {
-    // the roving focus group defaults to vertical orientation whereas
-    // the default for the toggle group may be different if provided via global config
-    explicitEffect([this.state.orientation], ([orientation]) =>
-      this.rovingFocusGroupState().orientation.set(orientation),
-    );
-  }
-
-  /**
-   * Select a value in the toggle group.
-   */
-  private select(value: string): void {
-    if (this.state.disabled()) {
-      return;
-    }
-
-    let newValue: string[] = [];
-
-    if (this.state.type() === 'single') {
-      newValue = [value];
-    } else {
-      newValue = [...this.state.value(), value];
-    }
-
-    this.state.value.set(newValue);
-    this.valueChange.emit(newValue);
-  }
-
-  /**
-   * De-select a value in the toggle group.
-   */
-  private deselect(value: string): void {
-    if (this.state.disabled() || !this.state.allowDeselection()) {
-      return;
-    }
-
-    const newValue = this.state.value().filter(v => v !== value);
-    this.state.value.set(newValue);
-    this.valueChange.emit(newValue);
-  }
+  protected readonly pattern = ngpToggleGroupPattern({
+    orientation: this.orientation,
+    allowDeselection: this.allowDeselection,
+    type: this.type,
+    value: this.value,
+    disabled: this.disabled,
+  });
 
   /**
    * Check if a value is selected in the toggle group.
    * @internal
    */
   isSelected(value: string): boolean {
-    return this.state.value()?.includes(value) ?? false;
+    return this.pattern.isSelected(value);
   }
 
   /**
@@ -127,10 +78,6 @@ export class NgpToggleGroup {
    * @internal
    */
   toggle(value: string): void {
-    if (this.isSelected(value)) {
-      this.deselect(value);
-    } else {
-      this.select(value);
-    }
+    this.pattern.toggle(value);
   }
 }

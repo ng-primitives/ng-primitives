@@ -45,6 +45,13 @@ module.exports = [
     },
   },
   {
+    files: ['**/*-pattern.ts'],
+    rules: {
+      '@typescript-eslint/no-empty-object-type': 'off',
+      '@typescript-eslint/no-empty-interface': 'off',
+    },
+  },
+  {
     files: ['**/*.html'],
     rules: {},
   },

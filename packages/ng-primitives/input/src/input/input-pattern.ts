@@ -8,12 +8,11 @@ import {
   Signal,
   Type,
 } from '@angular/core';
+import { ngpAutofillPattern } from 'ng-primitives/autofill';
 import { setupFormControl } from 'ng-primitives/form-field';
 import { ngpInteractions } from 'ng-primitives/interactions';
 import { injectElementRef } from 'ng-primitives/internal';
 import { attrBinding, dataBinding } from 'ng-primitives/state';
-import { ngpAutofillPattern } from '../../../autofill/src';
-import { injectSearchPattern } from '../../../search/src';
 
 export interface NgpInputState {
   id: Signal<string>;
@@ -31,11 +30,8 @@ export function ngpInputPattern({
   disabled = signal(false),
   element = injectElementRef<HTMLInputElement>(),
 }: NgpInputProps): NgpInputState {
-  const search = injectSearchPattern({ optional: true });
-
   // setup the form control
   const formControl = setupFormControl({ id, disabled });
-  search?.registerInput(element.nativeElement);
 
   // derive the disabled state from the form control if available
   disabled = computed(() => formControl().disabled ?? disabled());

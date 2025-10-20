@@ -1,8 +1,17 @@
 export { NgpToggleGroupConfig, provideToggleGroupConfig } from './config/toggle-group-config';
 export { NgpToggleGroupItem } from './toggle-group-item/toggle-group-item';
 export {
-  injectToggleGroupItemState,
-  provideToggleGroupItemState,
-} from './toggle-group-item/toggle-group-item-state';
+  injectToggleGroupItemPattern,
+  ngpToggleGroupItemPattern,
+  provideToggleGroupItemPattern,
+  type NgpToggleGroupItemProps,
+  type NgpToggleGroupItemState,
+} from './toggle-group-item/toggle-group-item-pattern';
 export { NgpToggleGroup } from './toggle-group/toggle-group';
-export { injectToggleGroupState, provideToggleGroupState } from './toggle-group/toggle-group-state';
+export {
+  injectToggleGroupPattern,
+  ngpToggleGroupPattern,
+  provideToggleGroupPattern,
+  type NgpToggleGroupProps,
+  type NgpToggleGroupState,
+} from './toggle-group/toggle-group-pattern';
