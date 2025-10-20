@@ -1,3 +1,13 @@
+## 0.85.0 (2025-10-20)
+
+### 🚀 Features
+
+- **popover:** popover anchor ([#495](https://github.com/ng-primitives/ng-primitives/pull/495))
+
+### ❤️ Thank You
+
+- Ashley Hunter
+
 ## 0.84.0 (2025-10-13)
 
 ### 🚀 Features
