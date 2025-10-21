@@ -350,19 +350,19 @@ export function listener<K extends keyof HTMLElementEventMap>(
   element: HTMLElement | ElementRef<HTMLElement>,
   event: K,
   handler: (event: HTMLElementEventMap[K]) => void,
-  options?: { injector: Injector },
+  options?: { injector?: Injector },
 ): void;
 export function listener(
   element: HTMLElement | ElementRef<HTMLElement>,
   event: string,
   handler: (event: Event) => void,
-  options?: { injector: Injector },
+  options?: { injector?: Injector },
 ): void;
 export function listener<K extends keyof HTMLElementEventMap>(
   element: HTMLElement | ElementRef<HTMLElement>,
   event: K | string,
   handler: (event: HTMLElementEventMap[K] | Event) => void,
-  options?: { injector: Injector },
+  options?: { injector?: Injector },
 ): void {
   runInInjectionContext(options?.injector ?? inject(Injector), () => {
     const ngZone = inject(NgZone);
@@ -377,19 +377,26 @@ export function onPress(
   element: ElementRef<HTMLElement>,
   key: string,
   handler: (event: KeyboardEvent) => void,
+  options?: { injector: Injector },
 ): void {
-  listener(element, 'keydown', (event: KeyboardEvent) => {
-    if (event.key === key) {
-      handler(event);
-    }
-  });
+  listener(
+    element,
+    'keydown',
+    (event: KeyboardEvent) => {
+      if (event.key === key) {
+        handler(event);
+      }
+    },
+    { injector: options?.injector },
+  );
 }
 
 export function onClick(
   element: ElementRef<HTMLElement>,
   handler: (event: MouseEvent) => void,
+  options?: { injector: Injector },
 ): void {
-  listener(element, 'click', handler);
+  listener(element, 'click', handler, options);
 }
 
 export function onDestroy(callback: () => void): void {

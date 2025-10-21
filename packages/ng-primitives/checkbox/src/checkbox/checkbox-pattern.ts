@@ -8,11 +8,11 @@ import {
   Signal,
   Type,
 } from '@angular/core';
+import { setupFormControl } from 'ng-primitives/form-field';
+import { ngpInteractions } from 'ng-primitives/interactions';
 import { injectElementRef } from 'ng-primitives/internal';
 import { attrBinding, controlled, dataBinding, onClick, onPress } from 'ng-primitives/state';
-import { setupFormControl } from '../../../form-field/src';
-import { ngpInteractions } from '../../../interactions/src';
-import { uniqueId } from '../../../utils/src';
+import { uniqueId } from 'ng-primitives/utils';
 
 /**
  * The state interface for the Checkbox pattern.
@@ -70,7 +70,6 @@ export function ngpCheckboxPattern({
   id = signal(uniqueId('ngp-checkbox')),
   checked: _checked = signal(false),
   indeterminate: _indeterminate = signal(false),
-  required = signal(false),
   disabled = signal(false),
   onCheckedChange,
   onIndeterminateChange,
@@ -115,7 +114,7 @@ export function ngpCheckboxPattern({
 
   // Method implementations
   function onEnter(event: KeyboardEvent): void {
-    // According to WAI ARIA, Checkboxes don&#39;t activate on enter keypress
+    // According to WAI ARIA, Checkboxes don't activate on enter keypress
     event.preventDefault();
   }
 

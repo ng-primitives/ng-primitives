@@ -6,6 +6,7 @@ import {
   inject,
   InjectionToken,
   InjectOptions,
+  Injector,
   signal,
   Signal,
   Type,
@@ -58,6 +59,7 @@ export function ngpSearchPattern({
   element = injectElementRef(),
   input: _input = signal<HTMLInputElement | null>(null),
 }: NgpSearchProps): NgpSearchState {
+  const injector = inject(Injector);
   const input = controlled(_input);
   const value = signal<string>('');
 
@@ -74,7 +76,7 @@ export function ngpSearchPattern({
 
     value.set(inputField.value);
 
-    listener(inputField, 'input', () => value.set(inputField.value));
+    listener(inputField, 'input', () => value.set(inputField.value), { injector });
   });
 
   // Host bindings

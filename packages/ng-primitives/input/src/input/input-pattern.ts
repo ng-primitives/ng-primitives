@@ -13,7 +13,7 @@ import { setupFormControl } from 'ng-primitives/form-field';
 import { ngpInteractions } from 'ng-primitives/interactions';
 import { injectElementRef } from 'ng-primitives/internal';
 import { attrBinding, dataBinding } from 'ng-primitives/state';
-import { injectSearchPattern } from '../../../search/src';
+import { injectSearchPattern } from 'ng-primitives/search';
 
 export interface NgpInputState {
   id: Signal<string>;
