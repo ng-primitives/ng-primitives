@@ -108,9 +108,20 @@ export function ngp<%= className %>Pattern({
           if (binding.key.startsWith('[attr.')) {
             const attrName = cleanKey.replace('attr.', '');
             const attrSignalValue = convertToSignalExpression(value);
-            return `attrBinding(element, '${attrName}', ${attrSignalValue});`;
+
+            // Check if it's a data attribute
+            if (attrName.startsWith('data-')) {
+              return `dataBinding(element, '${attrName}', ${attrSignalValue});`;
+            } else {
+              return `attrBinding(element, '${attrName}', ${attrSignalValue});`;
+            }
           } else {
-            return `attrBinding(element, '${cleanKey}', '${value}');`;
+            // Check if static attribute is a data attribute
+            if (cleanKey.startsWith('data-')) {
+              return `dataBinding(element, '${cleanKey}', '${value}');`;
+            } else {
+              return `attrBinding(element, '${cleanKey}', '${value}');`;
+            }
           }
         case 'property':
           if (cleanKey.startsWith('data-')) {
