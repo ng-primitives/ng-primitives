@@ -1,7 +1,7 @@
 import { FocusMonitor } from '@angular/cdk/a11y';
 import { ElementRef, Renderer2, Signal, inject, signal } from '@angular/core';
-import { safeTakeUntilDestroyed } from 'ng-primitives/utils';
 import { injectElementRef } from 'ng-primitives/internal';
+import { safeTakeUntilDestroyed } from 'ng-primitives/utils';
 import { isFocusEnabled } from '../config/interactions-config';
 
 export interface NgpFocusProps {

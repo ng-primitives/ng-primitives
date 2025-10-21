@@ -1,7 +1,7 @@
 import { FocusMonitor, FocusOrigin } from '@angular/cdk/a11y';
 import { ElementRef, inject, Renderer2, Signal, signal } from '@angular/core';
-import { onBooleanChange, safeTakeUntilDestroyed } from 'ng-primitives/utils';
 import { injectElementRef } from 'ng-primitives/internal';
+import { onBooleanChange, safeTakeUntilDestroyed } from 'ng-primitives/utils';
 import { isFocusVisibleEnabled } from '../config/interactions-config';
 
 export interface NgpFocusVisibleProps {

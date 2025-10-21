@@ -9,8 +9,8 @@ import {
   Signal,
 } from '@angular/core';
 import { explicitEffect, injectElementRef } from 'ng-primitives/internal';
-import { controlStatus, NgpControlStatus, uniqueId } from 'ng-primitives/utils';
 import { attrBinding, dataBinding } from 'ng-primitives/state';
+import { controlStatus, NgpControlStatus, uniqueId } from 'ng-primitives/utils';
 import { injectFormFieldState } from '../form-field/form-field-state';
 import { formControlState, provideFormControlState } from './form-control-state';
 

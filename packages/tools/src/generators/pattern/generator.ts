@@ -46,22 +46,20 @@ function parseDirectiveInputs(sourceCode: string): DirectiveInput[] {
   const inputs: DirectiveInput[] = [];
 
   // Find all readonly properties that call input() function
-  const properties = tsquery(
-    ast,
-    'PropertyDeclaration:has(ReadonlyKeyword)'
-  );
+  const properties = tsquery(ast, 'PropertyDeclaration:has(ReadonlyKeyword)');
 
-  properties.forEach((property) => {
+  properties.forEach(property => {
     const prop = property as ts.PropertyDeclaration;
     if (!prop.name || !prop.initializer) return;
 
     const propertyName = (prop.name as ts.Identifier).text;
 
     // Check if initializer is a call to input()
-    if (ts.isCallExpression(prop.initializer) &&
-        ts.isIdentifier(prop.initializer.expression) &&
-        prop.initializer.expression.text === 'input') {
-
+    if (
+      ts.isCallExpression(prop.initializer) &&
+      ts.isIdentifier(prop.initializer.expression) &&
+      prop.initializer.expression.text === 'input'
+    ) {
       const callExpr = prop.initializer;
 
       // Get type from the property declaration or input() generic
@@ -89,7 +87,7 @@ function parseDirectiveInputs(sourceCode: string): DirectiveInput[] {
       if (callExpr.arguments.length > 1) {
         const optionsArg = callExpr.arguments[1];
         if (ts.isObjectLiteralExpression(optionsArg)) {
-          optionsArg.properties.forEach((optionProp) => {
+          optionsArg.properties.forEach(optionProp => {
             if (ts.isPropertyAssignment(optionProp) && ts.isIdentifier(optionProp.name)) {
               const propName = optionProp.name.text;
               if (propName === 'alias') {
@@ -120,22 +118,20 @@ function parseDirectiveOutputs(sourceCode: string): DirectiveOutput[] {
   const outputs: DirectiveOutput[] = [];
 
   // Find all readonly properties that call output() function
-  const properties = tsquery(
-    ast,
-    'PropertyDeclaration:has(ReadonlyKeyword)'
-  );
+  const properties = tsquery(ast, 'PropertyDeclaration:has(ReadonlyKeyword)');
 
-  properties.forEach((property) => {
+  properties.forEach(property => {
     const prop = property as ts.PropertyDeclaration;
     if (!prop.name || !prop.initializer) return;
 
     const propertyName = (prop.name as ts.Identifier).text;
 
     // Check if initializer is a call to output()
-    if (ts.isCallExpression(prop.initializer) &&
-        ts.isIdentifier(prop.initializer.expression) &&
-        prop.initializer.expression.text === 'output') {
-
+    if (
+      ts.isCallExpression(prop.initializer) &&
+      ts.isIdentifier(prop.initializer.expression) &&
+      prop.initializer.expression.text === 'output'
+    ) {
       const callExpr = prop.initializer;
 
       // Get type from the property declaration or output() generic
@@ -155,7 +151,7 @@ function parseDirectiveOutputs(sourceCode: string): DirectiveOutput[] {
       if (callExpr.arguments.length > 0) {
         const optionsArg = callExpr.arguments[0];
         if (ts.isObjectLiteralExpression(optionsArg)) {
-          optionsArg.properties.forEach((optionProp) => {
+          optionsArg.properties.forEach(optionProp => {
             if (ts.isPropertyAssignment(optionProp) && ts.isIdentifier(optionProp.name)) {
               const propName = optionProp.name.text;
               if (propName === 'alias') {
@@ -184,19 +180,16 @@ function parseHostBindings(sourceCode: string): HostBinding[] {
   // Find the @Directive decorator with host property
   const decorators = tsquery(ast, 'Decorator:has(Identifier[name=Directive])');
 
-  decorators.forEach((decorator) => {
+  decorators.forEach(decorator => {
     // Find the host property in the decorator
-    const hostProperty = tsquery(
-      decorator,
-      'PropertyAssignment:has(Identifier[name=host])'
-    );
+    const hostProperty = tsquery(decorator, 'PropertyAssignment:has(Identifier[name=host])');
 
     if (hostProperty.length > 0) {
       const hostAssignment = hostProperty[0] as ts.PropertyAssignment;
       if (ts.isObjectLiteralExpression(hostAssignment.initializer)) {
         const hostObject = hostAssignment.initializer;
 
-        hostObject.properties.forEach((prop) => {
+        hostObject.properties.forEach(prop => {
           if (ts.isPropertyAssignment(prop)) {
             let key: string;
 
@@ -247,15 +240,12 @@ function parseDirectiveMethods(sourceCode: string, className: string): Directive
   const methods: DirectiveMethod[] = [];
 
   // Find the directive class
-  const classDeclarations = tsquery(
-    ast,
-    `ClassDeclaration:has(Identifier[name=${className}])`
-  );
+  const classDeclarations = tsquery(ast, `ClassDeclaration:has(Identifier[name=${className}])`);
 
   if (classDeclarations.length > 0) {
     const classDeclaration = classDeclarations[0] as ts.ClassDeclaration;
 
-    classDeclaration.members.forEach((member) => {
+    classDeclaration.members.forEach(member => {
       if (ts.isMethodDeclaration(member) && member.name && ts.isIdentifier(member.name)) {
         const methodName = member.name.text;
 
@@ -271,19 +261,19 @@ function parseDirectiveMethods(sourceCode: string, className: string): Directive
         }
 
         // Determine if method is public (no private/protected modifiers)
-        const isPublic = !member.modifiers?.some(mod =>
-          mod.kind === ts.SyntaxKind.PrivateKeyword ||
-          mod.kind === ts.SyntaxKind.ProtectedKeyword
+        const isPublic = !member.modifiers?.some(
+          mod =>
+            mod.kind === ts.SyntaxKind.PrivateKeyword ||
+            mod.kind === ts.SyntaxKind.ProtectedKeyword,
         );
 
         // Check if method is async
-        const isAsync = member.modifiers?.some(mod =>
-          mod.kind === ts.SyntaxKind.AsyncKeyword
-        ) || false;
+        const isAsync =
+          member.modifiers?.some(mod => mod.kind === ts.SyntaxKind.AsyncKeyword) || false;
 
         // Parse parameters
         const parameters: Array<{ name: string; type: string; defaultValue?: string }> = [];
-        member.parameters.forEach((param) => {
+        member.parameters.forEach(param => {
           if (ts.isIdentifier(param.name)) {
             const paramName = param.name.text;
             const paramType = param.type ? param.type.getText() : 'any';
@@ -323,15 +313,12 @@ function parseDirectiveDependencies(sourceCode: string, className: string): Dire
   const dependencies: DirectiveDependency[] = [];
 
   // Find the directive class
-  const classDeclarations = tsquery(
-    ast,
-    `ClassDeclaration:has(Identifier[name=${className}])`
-  );
+  const classDeclarations = tsquery(ast, `ClassDeclaration:has(Identifier[name=${className}])`);
 
   if (classDeclarations.length > 0) {
     const classDeclaration = classDeclarations[0] as ts.ClassDeclaration;
 
-    classDeclaration.members.forEach((member) => {
+    classDeclaration.members.forEach(member => {
       if (ts.isPropertyDeclaration(member) && member.name && ts.isIdentifier(member.name)) {
         const propertyName = member.name.text;
 
@@ -351,10 +338,12 @@ function parseDirectiveDependencies(sourceCode: string, className: string): Dire
             }
 
             // Determine if property is private/protected
-            const isPrivate = member.modifiers?.some(mod =>
-              mod.kind === ts.SyntaxKind.PrivateKeyword ||
-              mod.kind === ts.SyntaxKind.ProtectedKeyword
-            ) || false;
+            const isPrivate =
+              member.modifiers?.some(
+                mod =>
+                  mod.kind === ts.SyntaxKind.PrivateKeyword ||
+                  mod.kind === ts.SyntaxKind.ProtectedKeyword,
+              ) || false;
 
             // Get property type
             let type = 'any';
@@ -520,11 +509,14 @@ export async function patternGenerator(tree: Tree, options: PatternGeneratorSche
           let insertPosition = classDeclaration.members.pos;
 
           for (const member of classDeclaration.members) {
-            if (ts.isPropertyDeclaration(member) &&
-                member.initializer &&
-                ts.isCallExpression(member.initializer) &&
-                ts.isIdentifier(member.initializer.expression) &&
-                (member.initializer.expression.text === 'input' || member.initializer.expression.text === 'output')) {
+            if (
+              ts.isPropertyDeclaration(member) &&
+              member.initializer &&
+              ts.isCallExpression(member.initializer) &&
+              ts.isIdentifier(member.initializer.expression) &&
+              (member.initializer.expression.text === 'input' ||
+                member.initializer.expression.text === 'output')
+            ) {
               insertPosition = member.getEnd();
             }
           }
@@ -533,22 +525,23 @@ export async function patternGenerator(tree: Tree, options: PatternGeneratorSche
           const patternArgs: string[] = [];
 
           // Add inputs to pattern
-          inputs.forEach((input) => {
+          inputs.forEach(input => {
             patternArgs.push(`${input.name}: this.${input.name}`);
           });
 
           // Add output callbacks
-          outputs.forEach((output) => {
+          outputs.forEach(output => {
             const callbackName = `on${output.name.charAt(0).toUpperCase() + output.name.slice(1)}`;
             // Extract the type from OutputEmitter<T> to get T
             const typeMatch = output.type.match(/OutputEmitter<(.+)>/);
             const emitType = typeMatch ? typeMatch[1] : 'any';
-            patternArgs.push(`${callbackName}: (value: ${emitType}) => this.${output.name}.emit(value)`);
+            patternArgs.push(
+              `${callbackName}: (value: ${emitType}) => this.${output.name}.emit(value)`,
+            );
           });
 
-          const argsString = patternArgs.length > 0
-            ? `{\n    ${patternArgs.join(',\n    ')}\n  }`
-            : '{}';
+          const argsString =
+            patternArgs.length > 0 ? `{\n    ${patternArgs.join(',\n    ')}\n  }` : '{}';
 
           const patternProperty = `\n\n  /**\n   * The pattern instance.\n   */\n  protected readonly pattern = ngp${directiveNames.className}Pattern(${argsString});\n`;
           directiveContent =

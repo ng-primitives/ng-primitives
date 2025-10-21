@@ -1,7 +1,7 @@
 import { ElementRef, Signal, signal } from '@angular/core';
-import { injectDisposables } from 'ng-primitives/utils';
 import { injectElementRef } from 'ng-primitives/internal';
 import { dataBinding, listener } from 'ng-primitives/state';
+import { injectDisposables } from 'ng-primitives/utils';
 import { isPressEnabled } from '../config/interactions-config';
 
 interface NgpPressState {

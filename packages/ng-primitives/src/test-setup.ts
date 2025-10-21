@@ -28,12 +28,12 @@ class MockDataTransferItemList extends Array {
     const item = {
       kind: typeof dataOrFile === 'string' ? 'string' : 'file',
       type: typeof dataOrFile === 'string' ? type || 'text/plain' : dataOrFile.type,
-      getAsFile: () => typeof dataOrFile === 'string' ? null : dataOrFile,
+      getAsFile: () => (typeof dataOrFile === 'string' ? null : dataOrFile),
       getAsString: (callback: (data: string) => void) => {
         if (typeof dataOrFile === 'string') {
           callback(dataOrFile);
         }
-      }
+      },
     } as DataTransferItem;
 
     this.push(item);
@@ -55,7 +55,16 @@ global.DataTransfer = class {
   items: DataTransferItemList = new MockDataTransferItemList() as unknown as DataTransferItemList;
   types: readonly string[] = [];
   dropEffect: 'none' | 'copy' | 'link' | 'move' = 'none';
-  effectAllowed: 'none' | 'copy' | 'copyLink' | 'copyMove' | 'link' | 'linkMove' | 'move' | 'all' | 'uninitialized' = 'uninitialized';
+  effectAllowed:
+    | 'none'
+    | 'copy'
+    | 'copyLink'
+    | 'copyMove'
+    | 'link'
+    | 'linkMove'
+    | 'move'
+    | 'all'
+    | 'uninitialized' = 'uninitialized';
 
   clearData(): void {
     this.data = {};
