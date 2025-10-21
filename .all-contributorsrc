@@ -260,6 +260,15 @@
       "contributions": [
         "code"
       ]
+    },
+    {
+      "login": "heddendorp",
+      "name": "Lukas Heddendorp",
+      "avatar_url": "https://avatars.githubusercontent.com/u/3612748?v=4",
+      "profile": "https://github.com/heddendorp",
+      "contributions": [
+        "code"
+      ]
     }
   ],
   "contributorsPerLine": 7,
