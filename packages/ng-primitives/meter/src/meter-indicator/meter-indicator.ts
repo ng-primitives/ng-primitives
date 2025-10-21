@@ -1,14 +1,14 @@
 import { Directive } from '@angular/core';
-import { injectMeterState } from '../meter/meter-state';
+import { ngpMeterIndicatorPattern, provideMeterIndicatorPattern } from './meter-indicator-pattern';
 
 @Directive({
   selector: '[ngpMeterIndicator]',
   exportAs: 'ngpMeterIndicator',
-  host: {
-    '[style.width.%]': 'meter().percentage()',
-  },
+  providers: [provideMeterIndicatorPattern(NgpMeterIndicator, instance => instance.pattern)],
 })
 export class NgpMeterIndicator {
-  /** Access the meter */
-  protected readonly meter = injectMeterState();
+  /**
+   * The pattern instance.
+   */
+  protected readonly pattern = ngpMeterIndicatorPattern({});
 }

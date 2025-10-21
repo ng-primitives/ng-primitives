@@ -1,17 +1,6 @@
 import { BooleanInput, coerceStringArray } from '@angular/cdk/coercion';
-import {
-  booleanAttribute,
-  Directive,
-  ElementRef,
-  HostListener,
-  inject,
-  input,
-  output,
-  signal,
-} from '@angular/core';
-import { ngpHoverInteraction } from 'ng-primitives/interactions';
-import { fileDropFilter } from './file-drop-filter';
-import { fileDropzoneState, provideFileDropzoneState } from './file-dropzone-state';
+import { booleanAttribute, Directive, input, output } from '@angular/core';
+import { ngpFileDropzonePattern, provideFileDropzonePattern } from './file-dropzone-pattern';
 
 /**
  * Capture files dropped on the element.
@@ -19,18 +8,9 @@ import { fileDropzoneState, provideFileDropzoneState } from './file-dropzone-sta
 @Directive({
   selector: '[ngpFileDropzone]',
   exportAs: 'ngpFileDropzone',
-  providers: [provideFileDropzoneState()],
-  host: {
-    '[attr.data-dragover]': 'isDragOver() ? "" : null',
-    '[attr.data-disabled]': 'disabled() ? "" : null',
-  },
+  providers: [provideFileDropzonePattern(NgpFileDropzone, instance => instance.pattern)],
 })
 export class NgpFileDropzone {
-  /**
-   * Access the host element.
-   */
-  private readonly elementRef = inject<ElementRef<HTMLElement>>(ElementRef);
-
   /**
    * The accepted file types. This can be an array of strings or a comma-separated string.
    * Accepted types can either be file extensions (e.g. `.jpg`) or MIME types (e.g. `image/jpeg`).
@@ -84,80 +64,15 @@ export class NgpFileDropzone {
   readonly dragOver = output<boolean>({
     alias: 'ngpFileDropzoneDragOver',
   });
-
   /**
-   * Whether the user is currently dragging a file over the file upload.
+   * The pattern instance.
    */
-  protected readonly isDragOver = signal<boolean>(false);
-
-  /**
-   * The file upload state.
-   */
-  private readonly state = fileDropzoneState<NgpFileDropzone>(this);
-
-  constructor() {
-    ngpHoverInteraction({ disabled: this.state.disabled });
-  }
-
-  @HostListener('dragenter', ['$event'])
-  protected onDragEnter(event: DragEvent): void {
-    if (this.state.disabled()) {
-      return;
-    }
-
-    event.preventDefault();
-    event.stopPropagation();
-    this.isDragOver.set(true);
-    this.dragOver.emit(true);
-  }
-
-  @HostListener('dragover', ['$event'])
-  protected onDragOver(event: DragEvent): void {
-    if (this.state.disabled()) {
-      return;
-    }
-
-    event.stopPropagation();
-    event.preventDefault();
-    this.isDragOver.set(true);
-  }
-
-  @HostListener('dragleave', ['$event'])
-  protected onDragLeave(event: DragEvent): void {
-    if (this.state.disabled() || !this.isDragOver()) {
-      return;
-    }
-
-    // if the element we are dragging over is a child of the file upload, ignore the event
-    if (this.elementRef.nativeElement.contains(event.relatedTarget as Node)) {
-      return;
-    }
-
-    event.preventDefault();
-    event.stopPropagation();
-    this.isDragOver.set(false);
-    this.dragOver.emit(false);
-  }
-
-  @HostListener('drop', ['$event'])
-  protected onDrop(event: DragEvent): void {
-    if (this.state.disabled()) {
-      return;
-    }
-
-    event.preventDefault();
-    this.isDragOver.set(false);
-    this.dragOver.emit(false);
-
-    const fileList = event.dataTransfer?.files;
-    if (fileList) {
-      const filteredFiles = fileDropFilter(fileList, this.state.fileTypes(), this.state.multiple());
-
-      if (filteredFiles) {
-        this.selected.emit(filteredFiles);
-      } else {
-        this.rejected.emit();
-      }
-    }
-  }
+  protected readonly pattern = ngpFileDropzonePattern({
+    fileTypes: this.fileTypes,
+    multiple: this.multiple,
+    disabled: this.disabled,
+    onSelected: (files: FileList | null) => this.selected.emit(files),
+    onRejected: () => this.rejected.emit(),
+    onDragOver: (isDragOver: boolean) => this.dragOver.emit(isDragOver),
+  });
 }

@@ -13,6 +13,7 @@ import { setupFormControl } from 'ng-primitives/form-field';
 import { ngpInteractions } from 'ng-primitives/interactions';
 import { injectElementRef } from 'ng-primitives/internal';
 import { attrBinding, dataBinding } from 'ng-primitives/state';
+import { injectSearchPattern } from '../../../search/src';
 
 export interface NgpInputState {
   id: Signal<string>;
@@ -46,6 +47,10 @@ export function ngpInputPattern({
 
   // Monitor autofill state
   ngpAutofillPattern({ element });
+
+  // Register with search if available
+  const search = injectSearchPattern({ optional: true });
+  search?.registerInput(element.nativeElement);
 
   // Setup host attribute bindings
   attrBinding(element, 'id', id);

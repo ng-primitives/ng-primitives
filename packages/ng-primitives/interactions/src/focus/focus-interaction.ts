@@ -1,13 +1,15 @@
 import { FocusMonitor } from '@angular/cdk/a11y';
 import { ElementRef, Renderer2, Signal, inject, signal } from '@angular/core';
 import { safeTakeUntilDestroyed } from 'ng-primitives/utils';
+import { injectElementRef } from 'ng-primitives/internal';
 import { isFocusEnabled } from '../config/interactions-config';
 
-export interface NgpFocusOptions {
+export interface NgpFocusProps {
   disabled?: Signal<boolean>;
   focusWithin?: boolean;
   focus?: () => void;
   blur?: () => void;
+  element?: ElementRef<HTMLElement>;
 }
 
 export interface NgpFocusState {
@@ -22,16 +24,13 @@ export function ngpFocusInteraction({
   blur,
   focusWithin = false,
   disabled = signal(false),
-}: NgpFocusOptions): NgpFocusState {
+  element = injectElementRef(),
+}: NgpFocusProps): NgpFocusState {
   const canFocus = isFocusEnabled();
 
   if (!canFocus) {
     return { isFocused: signal(false) };
   }
-  /**
-   * Access the element reference.
-   */
-  const elementRef = inject<ElementRef<HTMLElement>>(ElementRef);
 
   /**
    * Access the focus monitor.
@@ -49,7 +48,7 @@ export function ngpFocusInteraction({
   const isFocused = signal<boolean>(false);
 
   focusMonitor
-    .monitor(elementRef, focusWithin)
+    .monitor(element, focusWithin)
     .pipe(safeTakeUntilDestroyed())
     .subscribe(focusOrigin => {
       if (disabled()) {
@@ -61,12 +60,12 @@ export function ngpFocusInteraction({
         if (focus) {
           focus();
         }
-        renderer.setAttribute(elementRef.nativeElement, 'data-focus', '');
+        renderer.setAttribute(element.nativeElement, 'data-focus', '');
       } else {
         if (blur) {
           blur();
         }
-        renderer.removeAttribute(elementRef.nativeElement, 'data-focus');
+        renderer.removeAttribute(element.nativeElement, 'data-focus');
       }
     });
 

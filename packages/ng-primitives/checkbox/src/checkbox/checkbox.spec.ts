@@ -55,16 +55,19 @@ describe('NgpCheckbox', () => {
 
     it('should set the aria-checked attribute to "true" when checked', async () => {
       await container.rerender({ componentProperties: { checked: true } });
+      container.detectChanges();
       expect(checkbox.getAttribute('aria-checked')).toBe('true');
     });
 
     it('should set the aria-checked attribute to "mixed" when indeterminate', async () => {
       await container.rerender({ componentProperties: { checked: true, indeterminate: true } });
+      container.detectChanges();
       expect(checkbox.getAttribute('aria-checked')).toBe('mixed');
     });
 
     it('should set the data-checked attribute when checked', async () => {
       await container.rerender({ componentProperties: { checked: true } });
+      container.detectChanges();
       expect(checkbox.getAttribute('data-checked')).toBe('');
     });
 
@@ -74,6 +77,7 @@ describe('NgpCheckbox', () => {
 
     it('should set the data-indeterminate when indeterminate', async () => {
       await container.rerender({ componentProperties: { indeterminate: true } });
+      container.detectChanges();
       expect(checkbox.getAttribute('data-indeterminate')).toBe('');
     });
 
@@ -83,6 +87,7 @@ describe('NgpCheckbox', () => {
 
     it('should set the data-disabled when disabled', async () => {
       await container.rerender({ componentProperties: { disabled: true } });
+      container.detectChanges();
       expect(checkbox.getAttribute('data-disabled')).toBe('');
     });
 
@@ -115,6 +120,11 @@ describe('NgpCheckbox', () => {
       fireEvent.click(container.getByRole('checkbox'));
       expect(checkedChange).toHaveBeenCalledWith(true);
       expect(indeterminateChange).toHaveBeenCalledWith(false);
+    });
+
+    it('should not emit the checkedChange event when the enter key is pressed', () => {
+      fireEvent.keyDown(container.getByRole('checkbox'), { key: 'Enter' });
+      expect(checkedChange).not.toHaveBeenCalled();
     });
   });
 });

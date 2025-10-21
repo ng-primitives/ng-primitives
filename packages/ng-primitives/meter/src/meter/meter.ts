@@ -1,20 +1,12 @@
 import { NumberInput } from '@angular/cdk/coercion';
-import { computed, Directive, input, numberAttribute, signal } from '@angular/core';
-import type { NgpMeterLabel } from '../meter-label/meter-label';
-import { meterState, provideMeterState } from './meter-state';
+import { Directive, input, numberAttribute, signal } from '@angular/core';
+import { ngpMeterPattern, provideMeterPattern } from './meter-pattern';
+import { provideMeter } from './meter-token';
 
 @Directive({
   selector: '[ngpMeter]',
   exportAs: 'ngpMeter',
-  providers: [provideMeterState()],
-  host: {
-    role: 'meter',
-    '[attr.aria-valuenow]': 'percentage()',
-    '[attr.aria-valuemin]': 'min()',
-    '[attr.aria-valuemax]': 'max()',
-    '[attr.aria-valuetext]': 'valueLabel()(value(), max())',
-    '[attr.aria-labelledby]': 'label()?.id()',
-  },
+  providers: [provideMeter(NgpMeter), provideMeterPattern(NgpMeter, instance => instance.pattern)],
 })
 export class NgpMeter {
   /** The value of the meter. */
@@ -49,31 +41,18 @@ export class NgpMeter {
   );
 
   /** @internal Store the label instance */
-  readonly label = signal<NgpMeterLabel | null>(null);
+  readonly label = signal<string | null>(null);
 
-  /** @internal The percentage of the meter. */
-  readonly percentage = computed(() => {
-    const value = this.state.value();
-    const min = this.state.min();
-    const max = this.state.max();
-
-    if (value == null) {
-      return 0;
-    }
-
-    if (value < min) {
-      return 0;
-    }
-
-    if (value > max) {
-      return 100;
-    }
-
-    return ((value - min) / (max - min)) * 100;
+  /**
+   * The pattern instance.
+   */
+  protected readonly pattern = ngpMeterPattern({
+    value: this.value,
+    min: this.min,
+    max: this.max,
+    valueLabel: this.valueLabel,
+    label: this.label,
   });
-
-  /** The state of the meter. */
-  private readonly state = meterState<NgpMeter>(this);
 }
 
 export type NgpMeterValueTextFn = (value: number, max: number) => string;

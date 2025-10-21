@@ -1,29 +1,16 @@
 import { Directive } from '@angular/core';
-import { ngpInteractions } from 'ng-primitives/interactions';
-import { injectSwitchState } from '../switch/switch-state';
+import { ngpSwitchThumbPattern, provideSwitchThumbPattern } from './switch-thumb-pattern';
 
 /**
  * Apply the `ngpSwitchThumb` directive to an element within a switch to represent the thumb.
  */
 @Directive({
   selector: '[ngpSwitchThumb]',
-  host: {
-    '[attr.data-checked]': 'state().checked() ? "" : null',
-    '[attr.data-disabled]': 'state().disabled() ? "" : null',
-  },
+  providers: [provideSwitchThumbPattern(NgpSwitchThumb, instance => instance.pattern)],
 })
 export class NgpSwitchThumb {
   /**
-   * Access the switch state.
+   * The pattern instance.
    */
-  protected readonly state = injectSwitchState();
-
-  constructor() {
-    ngpInteractions({
-      hover: true,
-      focusVisible: true,
-      press: true,
-      disabled: this.state().disabled,
-    });
-  }
+  protected readonly pattern = ngpSwitchThumbPattern({});
 }

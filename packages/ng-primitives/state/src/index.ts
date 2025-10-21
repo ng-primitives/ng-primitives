@@ -1,3 +1,4 @@
+import { coerceElement } from '@angular/cdk/coercion';
 import {
   afterRenderEffect,
   computed,
@@ -7,12 +8,14 @@ import {
   inject,
   InjectionToken,
   InjectOptions,
+  Injector,
   InputSignal,
   InputSignalWithTransform,
   isSignal,
   linkedSignal,
   NgZone,
   ProviderToken,
+  runInInjectionContext,
   signal,
   Signal,
   WritableSignal,
@@ -239,7 +242,13 @@ export function controlled<T>(value: Signal<T>): WritableSignal<T> {
 }
 
 function setAttribute(element: ElementRef<HTMLElement>, attr: string, value: string | null): void {
-  if (value !== null) {
+  // if the attribute is "disabled" and the value is 'false', we need to remove the attribute
+  if (attr === 'disabled' && value === 'false') {
+    element.nativeElement.removeAttribute(attr);
+    return;
+  }
+
+  if (value !== null && value !== undefined) {
     element.nativeElement.setAttribute(attr, value);
   } else {
     element.nativeElement.removeAttribute(attr);
@@ -249,11 +258,12 @@ function setAttribute(element: ElementRef<HTMLElement>, attr: string, value: str
 export function attrBinding(
   element: ElementRef<HTMLElement>,
   attr: string,
-  value: (() => string | boolean | null) | string,
+  value: (() => string | number | boolean | null) | string | number | boolean | null,
 ): void {
   afterRenderEffect({
     write: () => {
       const valueResult = typeof value === 'function' ? value() : value;
+
       setAttribute(element, attr, valueResult?.toString() ?? null);
     },
   });
@@ -300,11 +310,12 @@ export function styleBinding(
       const styleValue = value();
       // we should look for units in the style name, just like Angular does e.g. width.px
       const styleUnit = getStyleUnit(style);
+      const styleName = styleUnit ? style.replace(`.${styleUnit}`, '') : style;
 
       if (styleValue !== null) {
-        element.nativeElement.style.setProperty(style, styleValue + styleUnit);
+        element.nativeElement.style.setProperty(styleName, styleValue + styleUnit);
       } else {
-        element.nativeElement.style.removeProperty(style);
+        element.nativeElement.style.removeProperty(styleName);
       }
     },
   });
@@ -336,28 +347,49 @@ export function dataBinding(
   });
 }
 export function listener<K extends keyof HTMLElementEventMap>(
-  element: ElementRef<HTMLElement>,
+  element: HTMLElement | ElementRef<HTMLElement>,
   event: K,
   handler: (event: HTMLElementEventMap[K]) => void,
+  options?: { injector: Injector },
 ): void;
 export function listener(
-  element: ElementRef<HTMLElement>,
+  element: HTMLElement | ElementRef<HTMLElement>,
   event: string,
   handler: (event: Event) => void,
+  options?: { injector: Injector },
 ): void;
 export function listener<K extends keyof HTMLElementEventMap>(
-  element: ElementRef<HTMLElement>,
+  element: HTMLElement | ElementRef<HTMLElement>,
   event: K | string,
   handler: (event: HTMLElementEventMap[K] | Event) => void,
+  options?: { injector: Injector },
 ): void {
-  const ngZone = inject(NgZone);
-  const destroyRef = inject(DestroyRef);
-  ngZone.runOutsideAngular(() =>
-    element.nativeElement.addEventListener(event, handler as EventListener),
-  );
-  destroyRef.onDestroy(() =>
-    element.nativeElement.removeEventListener(event, handler as EventListener),
-  );
+  runInInjectionContext(options?.injector ?? inject(Injector), () => {
+    const ngZone = inject(NgZone);
+    const destroyRef = inject(DestroyRef);
+    const nativeElement = coerceElement(element);
+    ngZone.runOutsideAngular(() => nativeElement.addEventListener(event, handler as EventListener));
+    destroyRef.onDestroy(() => nativeElement.removeEventListener(event, handler as EventListener));
+  });
+}
+
+export function onPress(
+  element: ElementRef<HTMLElement>,
+  key: string,
+  handler: (event: KeyboardEvent) => void,
+): void {
+  listener(element, 'keydown', (event: KeyboardEvent) => {
+    if (event.key === key) {
+      handler(event);
+    }
+  });
+}
+
+export function onClick(
+  element: ElementRef<HTMLElement>,
+  handler: (event: MouseEvent) => void,
+): void {
+  listener(element, 'click', handler);
 }
 
 export function onDestroy(callback: () => void): void {

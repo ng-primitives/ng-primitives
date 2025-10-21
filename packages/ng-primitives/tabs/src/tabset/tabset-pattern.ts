@@ -15,7 +15,7 @@ import {
   NgpRovingFocusGroupState,
   provideRovingFocusGroupPattern,
 } from 'ng-primitives/roving-focus';
-import { controlled, dataBinding } from 'ng-primitives/state';
+import { attrBinding, controlled, dataBinding } from 'ng-primitives/state';
 import { uniqueId } from 'ng-primitives/utils';
 import { NgpTabButtonState } from '../tab-button/tab-button-pattern';
 
@@ -139,7 +139,7 @@ export function ngpTabsetPattern({
   });
 
   // Setup host bindings
-  dataBinding(element, 'id', id);
+  attrBinding(element, 'id', id);
   dataBinding(element, 'data-orientation', orientation);
 
   // setup roving focus

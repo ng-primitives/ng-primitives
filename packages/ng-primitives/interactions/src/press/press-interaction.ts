@@ -1,15 +1,18 @@
-import { ElementRef, Signal, effect, inject, signal } from '@angular/core';
+import { ElementRef, Signal, signal } from '@angular/core';
 import { injectDisposables } from 'ng-primitives/utils';
+import { injectElementRef } from 'ng-primitives/internal';
+import { dataBinding, listener } from 'ng-primitives/state';
 import { isPressEnabled } from '../config/interactions-config';
 
 interface NgpPressState {
   pressed: Signal<boolean>;
 }
 
-interface NgpPressOptions {
+interface NgpPressProps {
   disabled?: Signal<boolean>;
   pressStart?: () => void;
   pressEnd?: () => void;
+  element?: ElementRef<HTMLElement>;
 }
 
 /**
@@ -19,14 +22,14 @@ export function ngpPressInteraction({
   pressStart,
   pressEnd,
   disabled = signal(false),
-}: NgpPressOptions): NgpPressState {
+  element = injectElementRef(),
+}: NgpPressProps): NgpPressState {
   const canPress = isPressEnabled();
 
   if (!canPress) {
     return { pressed: signal(false) };
   }
 
-  const elementRef = inject<ElementRef<HTMLElement>>(ElementRef);
   const disposables = injectDisposables();
 
   /**
@@ -35,14 +38,10 @@ export function ngpPressInteraction({
   const pressed = signal<boolean>(false);
 
   // setup event listeners
-  disposables.addEventListener(elementRef.nativeElement, 'pointerdown', onPointerDown);
+  listener(element, 'pointerdown', onPointerDown);
 
   // anytime the press state changes we want to update the attribute
-  effect(() =>
-    pressed() && !disabled()
-      ? elementRef.nativeElement.setAttribute('data-press', '')
-      : elementRef.nativeElement.removeAttribute('data-press'),
-  );
+  dataBinding(element, 'data-press', pressed);
 
   /**
    * Reset the press state.
@@ -77,7 +76,7 @@ export function ngpPressInteraction({
     pressStart?.();
 
     // setup global event listeners to catch events on elements outside the directive
-    const ownerDocument = elementRef.nativeElement.ownerDocument ?? document;
+    const ownerDocument = element.nativeElement.ownerDocument ?? document;
 
     // if the pointer up event happens on any elements, then we are no longer pressing on this element
     const pointerUp = disposables.addEventListener(
@@ -110,8 +109,8 @@ export function ngpPressInteraction({
 
   function onPointerMove(event: PointerEvent): void {
     if (
-      elementRef.nativeElement !== event.target &&
-      !elementRef.nativeElement.contains(event.target as Node)
+      element.nativeElement !== event.target &&
+      !element.nativeElement.contains(event.target as Node)
     ) {
       reset();
     }

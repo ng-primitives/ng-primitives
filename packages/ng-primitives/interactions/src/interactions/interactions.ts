@@ -34,16 +34,16 @@ export function ngpInteractions({
   }
 
   if (hover) {
-    ngpHoverInteraction({ disabled });
+    ngpHoverInteraction({ element, disabled });
   }
   if (press) {
-    ngpPressInteraction({ disabled });
+    ngpPressInteraction({ element, disabled });
   }
   if (focus) {
-    ngpFocusInteraction({ focusWithin, disabled });
+    ngpFocusInteraction({ element, focusWithin, disabled });
   }
   if (focusVisible) {
-    ngpFocusVisibleInteraction({ disabled });
+    ngpFocusVisibleInteraction({ element, disabled });
   }
 }
 

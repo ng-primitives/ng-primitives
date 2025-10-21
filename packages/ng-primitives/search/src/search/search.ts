@@ -1,7 +1,5 @@
-import { computed, DestroyRef, Directive, HostListener, inject, signal } from '@angular/core';
-import { safeTakeUntilDestroyed } from 'ng-primitives/utils';
-import { fromEvent } from 'rxjs';
-import { provideSearchState, searchState } from './search-state';
+import { Directive, signal } from '@angular/core';
+import { ngpSearchPattern, provideSearchPattern } from './search-pattern';
 
 /**
  * The `NgpSearch` directive is a container for the search field components.
@@ -9,48 +7,23 @@ import { provideSearchState, searchState } from './search-state';
 @Directive({
   selector: '[ngpSearch]',
   exportAs: 'ngpSearch',
-  providers: [provideSearchState()],
-  host: {
-    '[attr.data-empty]': 'empty() ? "" : null',
-  },
+  providers: [provideSearchPattern(NgpSearch, instance => instance.pattern)],
 })
 export class NgpSearch {
-  /**
-   * The destroy reference.
-   */
-  private readonly destroyRef = inject(DestroyRef);
-
   /**
    * The input field.
    */
   private readonly input = signal<HTMLInputElement | null>(null);
 
   /**
-   * The value of the input.
+   * The pattern instance.
    */
-  private readonly value = signal<string>('');
+  protected readonly pattern = ngpSearchPattern({
+    input: this.input,
+  });
 
-  /**
-   * Whether the input field is empty.
-   * @internal
-   */
-  protected readonly empty = computed(() => this.value() === '');
-
-  /**
-   * The search field state.
-   */
-  protected readonly state = searchState<NgpSearch>(this);
-
-  @HostListener('keydown.escape')
   clear(): void {
-    const input = this.input();
-
-    if (!input) {
-      return;
-    }
-
-    input.value = '';
-    input.dispatchEvent(new Event('input', { bubbles: true }));
+    this.pattern.clear();
   }
 
   /**
@@ -60,10 +33,5 @@ export class NgpSearch {
    */
   registerInput(input: HTMLInputElement): void {
     this.input.set(input);
-    this.value.set(input.value);
-
-    fromEvent(input, 'input')
-      .pipe(safeTakeUntilDestroyed(this.destroyRef))
-      .subscribe(() => this.value.set(input.value));
   }
 }

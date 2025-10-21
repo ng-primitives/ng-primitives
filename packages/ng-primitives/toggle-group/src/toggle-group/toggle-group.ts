@@ -63,6 +63,7 @@ export class NgpToggleGroup {
     type: this.type,
     value: this.value,
     disabled: this.disabled,
+    onValueChange: (value: string[]) => this.valueChange.emit(value),
   });
 
   /**

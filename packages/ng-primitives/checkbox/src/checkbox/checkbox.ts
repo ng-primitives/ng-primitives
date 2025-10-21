@@ -1,24 +1,14 @@
 import { BooleanInput } from '@angular/cdk/coercion';
-import { Directive, HostListener, booleanAttribute, input, output } from '@angular/core';
-import { setupFormControl } from 'ng-primitives/form-field';
-import { ngpInteractions } from 'ng-primitives/interactions';
+import { Directive, booleanAttribute, input, output } from '@angular/core';
 import { uniqueId } from 'ng-primitives/utils';
-import { checkboxState, provideCheckboxState } from './checkbox-state';
+import { ngpCheckboxPattern, provideCheckboxPattern } from './checkbox-pattern';
 
 /**
  * Apply the `ngpCheckbox` directive to an element to that represents the checkbox, such as a `button`.
  */
 @Directive({
   selector: '[ngpCheckbox]',
-  providers: [provideCheckboxState()],
-  host: {
-    role: 'checkbox',
-    '[attr.aria-checked]': 'state.indeterminate() ? "mixed" : state.checked()',
-    '[attr.data-checked]': 'state.checked() ? "" : null',
-    '[attr.data-indeterminate]': 'state.indeterminate() ? "" : null',
-    '[attr.aria-disabled]': 'state.disabled()',
-    '[tabindex]': 'state.disabled() ? -1 : 0',
-  },
+  providers: [provideCheckboxPattern(NgpCheckbox, instance => instance.pattern)],
 })
 export class NgpCheckbox {
   /**
@@ -74,44 +64,19 @@ export class NgpCheckbox {
   });
 
   /**
-   * The state of the checkbox.
+   * The pattern instance.
    */
-  protected readonly state = checkboxState<NgpCheckbox>(this);
+  protected readonly pattern = ngpCheckboxPattern({
+    id: this.id,
+    checked: this.checked,
+    indeterminate: this.indeterminate,
+    required: this.required,
+    disabled: this.disabled,
+    onCheckedChange: (value: boolean) => this.checkedChange.emit(value),
+    onIndeterminateChange: (value: boolean) => this.indeterminateChange.emit(value),
+  });
 
-  constructor() {
-    setupFormControl({ id: this.state.id, disabled: this.state.disabled });
-    ngpInteractions({
-      hover: true,
-      press: true,
-      focusVisible: true,
-      disabled: this.state.disabled,
-    });
-  }
-
-  @HostListener('keydown.enter', ['$event'])
-  protected onEnter(event: KeyboardEvent): void {
-    // According to WAI ARIA, Checkboxes don't activate on enter keypress
-    event.preventDefault();
-  }
-
-  @HostListener('click', ['$event'])
-  @HostListener('keydown.space', ['$event'])
-  toggle(event?: Event): void {
-    if (this.state.disabled()) {
-      return;
-    }
-
-    // prevent this firing twice in cases where the label is clicked and the checkbox is clicked by the one event
-    event?.preventDefault();
-
-    const checked = this.state.indeterminate() ? true : !this.state.checked();
-    this.state.checked.set(checked);
-    this.checkedChange.emit(checked);
-
-    // if the checkbox was indeterminate, it isn't anymore
-    if (this.state.indeterminate()) {
-      this.state.indeterminate.set(false);
-      this.indeterminateChange.emit(false);
-    }
+  toggle(): void {
+    this.pattern.toggle();
   }
 }

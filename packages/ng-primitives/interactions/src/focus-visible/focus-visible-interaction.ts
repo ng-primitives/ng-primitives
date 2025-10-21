@@ -1,11 +1,13 @@
 import { FocusMonitor, FocusOrigin } from '@angular/cdk/a11y';
 import { ElementRef, inject, Renderer2, Signal, signal } from '@angular/core';
 import { onBooleanChange, safeTakeUntilDestroyed } from 'ng-primitives/utils';
+import { injectElementRef } from 'ng-primitives/internal';
 import { isFocusVisibleEnabled } from '../config/interactions-config';
 
-export interface NgpFocusVisibleOptions {
+export interface NgpFocusVisibleProps {
   disabled?: Signal<boolean>;
   focusChange?: (value: boolean) => void;
+  element?: ElementRef<HTMLElement>;
 }
 
 export interface NgpFocusVisibleState {
@@ -18,14 +20,14 @@ export interface NgpFocusVisibleState {
 export function ngpFocusVisibleInteraction({
   focusChange,
   disabled = signal(false),
-}: NgpFocusVisibleOptions): NgpFocusVisibleState {
+  element = injectElementRef(),
+}: NgpFocusVisibleProps): NgpFocusVisibleState {
   const canFocusVisible = isFocusVisibleEnabled();
 
   if (!canFocusVisible) {
     return { isFocused: signal(false) };
   }
 
-  const elementRef = inject<ElementRef<HTMLElement>>(ElementRef);
   const renderer = inject(Renderer2);
   const focusMonitor = inject(FocusMonitor);
 
@@ -34,7 +36,7 @@ export function ngpFocusVisibleInteraction({
 
   // handle focus state
   focusMonitor
-    .monitor(elementRef.nativeElement)
+    .monitor(element.nativeElement)
     .pipe(safeTakeUntilDestroyed())
     .subscribe(origin =>
       // null indicates the element was blurred
@@ -82,9 +84,9 @@ export function ngpFocusVisibleInteraction({
     focusChange?.(value);
 
     if (value) {
-      renderer.setAttribute(elementRef.nativeElement, 'data-focus-visible', '');
+      renderer.setAttribute(element.nativeElement, 'data-focus-visible', '');
     } else {
-      renderer.removeAttribute(elementRef.nativeElement, 'data-focus-visible');
+      renderer.removeAttribute(element.nativeElement, 'data-focus-visible');
     }
   }
 
@@ -103,21 +105,21 @@ export function ngpFocusVisibleInteraction({
 
     // if this is an input element and it is a text input
     if (
-      elementRef.nativeElement instanceof HTMLInputElement &&
-      !nonTextInputTypes.includes(elementRef.nativeElement.type)
+      element.nativeElement instanceof HTMLInputElement &&
+      !nonTextInputTypes.includes(element.nativeElement.type)
     ) {
       return true;
     }
 
     // if this is a textarea
-    if (elementRef.nativeElement instanceof HTMLTextAreaElement) {
+    if (element.nativeElement instanceof HTMLTextAreaElement) {
       return true;
     }
 
     // if this is an element with contenteditable
     if (
-      elementRef.nativeElement.isContentEditable ||
-      elementRef.nativeElement.hasAttribute('contenteditable')
+      element.nativeElement.isContentEditable ||
+      element.nativeElement.hasAttribute('contenteditable')
     ) {
       return true;
     }

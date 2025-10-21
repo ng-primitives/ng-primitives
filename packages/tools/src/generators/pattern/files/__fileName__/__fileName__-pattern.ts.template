@@ -1,19 +1,33 @@
 import {
+  computed,
   ElementRef,
   FactoryProvider,
   inject,
   InjectionToken,
+  signal,
   Signal,
   Type,
 } from '@angular/core';
 import { injectElementRef } from 'ng-primitives/internal';
-import { attrBinding, dataBinding, listener } from 'ng-primitives/state';
+import { attrBinding, dataBinding, listener, onPress, styleBinding } from 'ng-primitives/state';
 
 /**
  * The state interface for the <%= className %> pattern.
  */
 export interface Ngp<%= className %>State {
+<% const publicMethods = methods.filter(m => m.isPublic); -%>
+<% if (publicMethods.length > 0) { -%>
+<% publicMethods.forEach(function(method) { -%>
+  /**
+   * <%= method.name.charAt(0).toUpperCase() + method.name.slice(1) %> method.
+   */
+  <%= method.name %>: (<% method.parameters.forEach((param, index) => { -%>
+<%= param.name %>: <%= param.type %><% if (index < method.parameters.length - 1) { %>, <% } -%>
+<% }); -%>) => <%= method.returnType %>;
+<% }); -%>
+<% } else { -%>
   // Define state properties and methods
+<% } -%>
 }
 
 /**
@@ -24,7 +38,18 @@ export interface Ngp<%= className %>Props {
    * The element reference for the <%= fileName %>.
    */
   element?: ElementRef<HTMLElement>;
-  // Add other props
+<% inputs.forEach(function(input) { -%>
+  /**
+   * <%= input.name.charAt(0).toUpperCase() + input.name.slice(1) %> signal input.
+   */
+  readonly <%= input.name %>?: Signal<<%- input.type.replace(/\s*,\s*\w+Input\s*/, '') %>>;
+<% }); -%>
+<% outputs.forEach(function(output) { -%>
+  /**
+   * Event listener for <%= output.name %> events.
+   */
+  readonly on<%= output.name.charAt(0).toUpperCase() + output.name.slice(1) %>?: (value: <%- output.type.includes('OutputEmitter') ? output.type.match(/OutputEmitter<(.+)>/)?.[1] || 'any' : 'any' %>) => void;
+<% }); -%>
 }
 
 /**
@@ -32,11 +57,112 @@ export interface Ngp<%= className %>Props {
  */
 export function ngp<%= className %>Pattern({
   element = injectElementRef(),
-  // Add other props
+<% inputs.forEach(function(input) { -%>
+  <%= input.name %><%- input.defaultValue ? ' = signal(' + input.defaultValue + ')' : '' %>,
+<% }); -%>
+<% outputs.forEach(function(output) { -%>
+  on<%= output.name.charAt(0).toUpperCase() + output.name.slice(1) %>,
+<% }); -%>
 }: Ngp<%= className %>Props = {}): Ngp<%= className %>State {
+<% if (dependencies && dependencies.length > 0) { -%>
+  // Dependency injection
+<% dependencies.forEach(function(dep) { -%>
+  const <%= dep.name %> = <%= dep.injectionCall %>;
+<% }); -%>
+<% } -%>
+<% if (hostBindings && hostBindings.length > 0) { -%>
+
+  // Host bindings
+<% hostBindings.forEach(function(binding) { -%>
+  <%-
+    (() => {
+      const cleanKey = binding.key.replace(/[\[\]()]/g, '');
+      const value = binding.value;
+
+      // Helper function to convert directive expressions to pattern signal usage
+      const convertToSignalExpression = (expression) => {
+        // For simple function calls like 'percentage()', just remove the parentheses
+        if (/^\w+\(\)$/.test(expression)) {
+          return expression.replace(/\(\)/g, '');
+        }
+
+        // For chained calls like 'min()' or 'max()', remove parentheses
+        let converted = expression.replace(/(\w+)\(\)/g, '$1');
+
+        // For expressions like 'valueLabel()(value(), max())', convert to computed
+        if (expression.includes('()(')) {
+          // This is a complex expression that needs computed
+          converted = `computed(() => ${expression})`;
+        }
+
+        // For expressions with optional chaining like 'label()?.id()', convert appropriately
+        if (expression.includes('?.')) {
+          converted = `computed(() => ${expression})`;
+        }
+
+        return converted;
+      };
+
+      switch (binding.type) {
+        case 'attribute':
+          if (binding.key.startsWith('[attr.')) {
+            const attrName = cleanKey.replace('attr.', '');
+            const attrSignalValue = convertToSignalExpression(value);
+            return `attrBinding(element, '${attrName}', ${attrSignalValue});`;
+          } else {
+            return `attrBinding(element, '${cleanKey}', '${value}');`;
+          }
+        case 'property':
+          if (cleanKey.startsWith('data-')) {
+            const dataKey = cleanKey.replace('data-', '');
+            const dataSignalValue = convertToSignalExpression(value);
+            return `dataBinding(element, 'data-${dataKey}', ${dataSignalValue});`;
+          } else {
+            const propSignalValue = convertToSignalExpression(value);
+            return `attrBinding(element, '${cleanKey}', ${propSignalValue});`;
+          }
+        case 'class':
+          const className = cleanKey.replace('class.', '');
+          const classSignalValue = convertToSignalExpression(value);
+          return `attrBinding(element, 'class', computed(() => ${classSignalValue}() ? '${className}' : ''));`;
+        case 'style':
+          const styleProp = cleanKey.replace('style.', '');
+          const styleSignalValue = convertToSignalExpression(value);
+          return `styleBinding(element, '${styleProp}', ${styleSignalValue});`;
+        case 'listener':
+          const eventName = cleanKey;
+          if (eventName === 'keydown.enter' || eventName === 'keydown.space') {
+            const key = eventName.split('.')[1];
+            return `onPress(element, '${key === 'enter' ? 'Enter' : ' '}', () => ${value});`;
+          } else {
+            return `listener(element, '${eventName}', () => ${value});`;
+          }
+        default:
+          return `// ${binding.key}: ${binding.value}`;
+      }
+    })()
+  %>
+<% }); -%>
+<% } -%>
+<% if (methods && methods.length > 0) { -%>
+
+  // Method implementations
+<% methods.forEach(function(method) { -%>
+  <% if (method.isAsync) { -%>async <% } -%>function <%= method.name %>(<% method.parameters.forEach((param, index) => { -%>
+<%= param.name %>: <%= param.type %><% if (param.defaultValue) { %> = <%= param.defaultValue %><% } -%>
+<% if (index < method.parameters.length - 1) { %>, <% } -%>
+<% }); -%>): <%= method.returnType %> <%= method.body %>
+<% }); -%>
+<% } -%>
 
   return {
+<% if (publicMethods.length > 0) { -%>
+<% publicMethods.forEach(function(method) { -%>
+    <%= method.name %>,
+<% }); -%>
+<% } else { -%>
     // Return state object
+<% } -%>
   };
 }
 
