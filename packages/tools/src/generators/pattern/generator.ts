@@ -272,13 +272,14 @@ function parseHostBindings(sourceCode: string): HostBinding[] {
               const args = decorator.expression.arguments;
               if (args.length > 0 && ts.isStringLiteral(args[0])) {
                 const eventName = args[0].text;
-                const methodName = member.name && ts.isIdentifier(member.name) ? member.name.text : '';
+                const methodName =
+                  member.name && ts.isIdentifier(member.name) ? member.name.text : '';
 
                 // Create a listener binding
                 hostBindings.push({
                   key: `(${eventName})`,
                   value: `${methodName}($event)`,
-                  type: 'listener'
+                  type: 'listener',
                 });
               }
             }

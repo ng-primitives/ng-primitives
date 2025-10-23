@@ -8,9 +8,9 @@ import {
   Signal,
   Type,
 } from '@angular/core';
+import { ngpButtonPattern } from 'ng-primitives/button';
 import { injectElementRef } from 'ng-primitives/internal';
 import { attrBinding, dataBinding, onClick } from 'ng-primitives/state';
-import { ngpButtonPattern } from 'ng-primitives/button';
 import { injectPromptComposerPattern } from '../prompt-composer/prompt-composer-pattern';
 
 /**

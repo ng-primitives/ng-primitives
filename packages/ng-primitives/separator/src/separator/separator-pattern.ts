@@ -7,9 +7,9 @@ import {
   Signal,
   Type,
 } from '@angular/core';
+import { NgpOrientation } from 'ng-primitives/common';
 import { injectElementRef } from 'ng-primitives/internal';
 import { attrBinding, dataBinding } from 'ng-primitives/state';
-import { NgpOrientation } from 'ng-primitives/common';
 
 /**
  * The state interface for the Separator pattern.

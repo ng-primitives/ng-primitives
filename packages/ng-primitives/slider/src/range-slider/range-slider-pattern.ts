@@ -8,10 +8,10 @@ import {
   Signal,
   Type,
 } from '@angular/core';
-import { injectElementRef } from 'ng-primitives/internal';
-import { attrBinding, controlled, dataBinding } from 'ng-primitives/state';
 import { NgpOrientation } from 'ng-primitives/common';
 import { setupFormControl } from 'ng-primitives/form-field';
+import { injectElementRef } from 'ng-primitives/internal';
+import { attrBinding, controlled, dataBinding } from 'ng-primitives/state';
 import { uniqueId } from 'ng-primitives/utils';
 
 /**

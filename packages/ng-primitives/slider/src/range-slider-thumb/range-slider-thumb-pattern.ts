@@ -1,8 +1,8 @@
 import { DOCUMENT } from '@angular/common';
 import { computed, ElementRef, FactoryProvider, inject, InjectionToken, Type } from '@angular/core';
+import { ngpInteractions } from 'ng-primitives/interactions';
 import { injectElementRef } from 'ng-primitives/internal';
 import { attrBinding, dataBinding, listener, styleBinding } from 'ng-primitives/state';
-import { ngpInteractions } from 'ng-primitives/interactions';
 import { uniqueId } from 'ng-primitives/utils';
 import { injectRangeSliderPattern } from '../range-slider/range-slider-pattern';
 

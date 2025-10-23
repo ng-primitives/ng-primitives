@@ -1,8 +1,8 @@
 import { ElementRef, FactoryProvider, inject, InjectionToken, Type } from '@angular/core';
 import { explicitEffect, injectElementRef } from 'ng-primitives/internal';
 import { onPress } from 'ng-primitives/state';
-import { fromEvent } from 'rxjs';
 import { safeTakeUntilDestroyed } from 'ng-primitives/utils';
+import { fromEvent } from 'rxjs';
 import { injectPromptComposerPattern } from '../prompt-composer/prompt-composer-pattern';
 import { injectThreadPattern } from '../thread/thread-pattern';
 
