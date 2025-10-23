@@ -1,5 +1,6 @@
 import { inject, InjectionToken, Signal, ValueProvider } from '@angular/core';
-import type { NgpToast, NgpToastSwipeDirection, NgpToastPlacement } from './toast';
+import type { NgpToastPlacement, NgpToastSwipeDirection } from './toast';
+import { NgpToastState } from './toast-pattern';
 
 const NgpToastOptions = new InjectionToken<NgpToastOptions>('NgpToastOptions');
 
@@ -26,7 +27,7 @@ export interface NgpToastOptions {
    * A function to register the toast instance with the manager.
    * @internal
    */
-  register: (toast: NgpToast) => void;
+  register: (toast: NgpToastState) => void;
 
   /**
    * Whether the toast region is expanded.

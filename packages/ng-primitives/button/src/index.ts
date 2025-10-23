@@ -1,9 +1,8 @@
 export { NgpButton } from './button/button';
 export {
+  injectButtonPattern,
   ngpButtonPattern,
   provideButtonPattern,
-  injectButtonPattern,
-  type NgpButtonState,
   type NgpButtonProps,
+  type NgpButtonState,
 } from './button/button-pattern';
-export { setupButton } from './button/setup-button';

@@ -303,11 +303,11 @@ function getStyleUnit(style: string): string {
 export function styleBinding(
   element: ElementRef<HTMLElement>,
   style: string,
-  value: () => string | number | null,
+  value: (() => string | number | null) | string | number | null,
 ): void {
   afterRenderEffect({
     write: () => {
-      const styleValue = value();
+      const styleValue = typeof value === 'function' ? value() : value;
       // we should look for units in the style name, just like Angular does e.g. width.px
       const styleUnit = getStyleUnit(style);
       const styleName = styleUnit ? style.replace(`.${styleUnit}`, '') : style;
@@ -324,7 +324,7 @@ export function styleBinding(
 export function dataBinding(
   element: ElementRef<HTMLElement>,
   attr: string,
-  value: () => string | boolean | null,
+  value: (() => string | boolean | null) | string | boolean | null,
 ): void {
   if (!attr.startsWith('data-')) {
     throw new Error(`dataBinding: attribute "${attr}" must start with "data-"`);
@@ -332,7 +332,7 @@ export function dataBinding(
 
   afterRenderEffect({
     write: () => {
-      let valueResult = value();
+      let valueResult = typeof value === 'function' ? value() : value;
 
       if (valueResult === false) {
         valueResult = null;

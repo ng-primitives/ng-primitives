@@ -67,8 +67,20 @@ export function ngp<%= className %>Pattern({
 <% if (dependencies && dependencies.length > 0) { -%>
   // Dependency injection
 <% dependencies.forEach(function(dep) { -%>
-  const <%= dep.name %> = <%= dep.injectionCall %>;
+  const <%= dep.name %> = <%- dep.injectionCall %>;
 <% }); -%>
+<% } -%>
+<% if (signals && signals.length > 0) { -%>
+
+  // Signals and computed values
+<% signals.forEach(function(signal) { -%>
+  const <%= signal.name %> = <%- signal.initializer %>;
+<% }); -%>
+<% } -%>
+<% if (constructor && constructor.body) { -%>
+
+  // Constructor logic
+  <%- constructor.body.replace(/^\{|\}$/g, '').trim() %>
 <% } -%>
 <% if (hostBindings && hostBindings.length > 0) { -%>
 
@@ -81,6 +93,27 @@ export function ngp<%= className %>Pattern({
 
       // Helper function to convert directive expressions to pattern signal usage
       const convertToSignalExpression = (expression) => {
+        // Simplify ternary expressions that check for empty strings or null
+        // Common patterns like: signal() ? '' : null or signal() ? null : ''
+        if (expression.includes(' ? ') && expression.includes(' : ')) {
+          // Match: condition ? value1 : value2
+          const parts = expression.split(' ? ');
+          if (parts.length === 2) {
+            const condition = parts[0].trim();
+            const valueParts = parts[1].split(' : ');
+            if (valueParts.length === 2) {
+              const trueValue = valueParts[0].trim();
+              const falseValue = valueParts[1].trim();
+
+              // Check if both values are "empty" (empty string, null, or undefined)
+              const emptyPattern = /^(''{1,2}|""{1,2}|null|undefined)$/;
+              if (emptyPattern.test(trueValue) && emptyPattern.test(falseValue)) {
+                return condition.replace(/\(\)/g, '');
+              }
+            }
+          }
+        }
+
         // For simple function calls like 'percentage()', just remove the parentheses
         if (/^\w+\(\)$/.test(expression)) {
           return expression.replace(/\(\)/g, '');
@@ -142,10 +175,23 @@ export function ngp<%= className %>Pattern({
           return `styleBinding(element, '${styleProp}', ${styleSignalValue});`;
         case 'listener':
           const eventName = cleanKey;
+          // Handle keyboard events with onPress
           if (eventName === 'keydown.enter' || eventName === 'keydown.space') {
             const key = eventName.split('.')[1];
             return `onPress(element, '${key === 'enter' ? 'Enter' : ' '}', () => ${value});`;
-          } else {
+          }
+          // Handle general keydown events with onPress
+          else if (eventName.startsWith('keydown.')) {
+            const key = eventName.replace('keydown.', '');
+            const keyValue = key === 'enter' ? 'Enter' : key === 'space' ? ' ' : key;
+            return `onPress(element, '${keyValue}', () => ${value});`;
+          }
+          // Handle click events with onClick
+          else if (eventName === 'click') {
+            return `onClick(element, () => ${value});`;
+          }
+          // Handle other events with listener
+          else {
             return `listener(element, '${eventName}', () => ${value});`;
           }
         default:
@@ -162,7 +208,7 @@ export function ngp<%= className %>Pattern({
   <% if (method.isAsync) { -%>async <% } -%>function <%= method.name %>(<% method.parameters.forEach((param, index) => { -%>
 <%= param.name %>: <%= param.type %><% if (param.defaultValue) { %> = <%= param.defaultValue %><% } -%>
 <% if (index < method.parameters.length - 1) { %>, <% } -%>
-<% }); -%>): <%= method.returnType %> <%= method.body %>
+<% }); -%>): <%= method.returnType %> <%- method.body %>
 <% }); -%>
 <% } -%>
 

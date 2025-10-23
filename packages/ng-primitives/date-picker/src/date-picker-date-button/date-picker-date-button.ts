@@ -1,6 +1,6 @@
 import { FocusMonitor } from '@angular/cdk/a11y';
 import { computed, Directive, ElementRef, HostListener, inject, OnDestroy } from '@angular/core';
-import { setupButton } from 'ng-primitives/button';
+import { ngpButtonPattern } from 'ng-primitives/button';
 import { injectDateAdapter } from 'ng-primitives/date-time';
 import { injectDatePickerCellDate } from '../date-picker-cell-render/date-picker-cell-render-token';
 import { injectDateControllerState } from '../date-picker/date-picker-state';
@@ -122,7 +122,7 @@ export class NgpDatePickerDateButton<T> implements OnDestroy {
 
   constructor() {
     this.state().registerButton(this);
-    setupButton({ disabled: this.disabled });
+    ngpButtonPattern({ disabled: this.disabled });
   }
 
   ngOnDestroy(): void {

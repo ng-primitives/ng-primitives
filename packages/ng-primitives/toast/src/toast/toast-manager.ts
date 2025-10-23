@@ -12,9 +12,10 @@ import {
 } from '@angular/core';
 import { createPortal, NgpPortal } from 'ng-primitives/portal';
 import { injectToastConfig } from '../config/toast-config';
-import { NgpToast, NgpToastPlacement, NgpToastSwipeDirection } from './toast';
+import { NgpToastPlacement, NgpToastSwipeDirection } from './toast';
 import { provideToastContext } from './toast-context';
 import { provideToastOptions } from './toast-options';
+import { NgpToastState } from './toast-pattern';
 
 @Injectable({
   providedIn: 'root',
@@ -38,7 +39,7 @@ export class NgpToastManager {
     // services can't access the view container directly, so this is a workaround
     const viewContainerRef = this.applicationRef.components[0].injector.get(ViewContainerRef);
 
-    let instance: NgpToast | null = null;
+    let instance: NgpToastState | null = null;
     const placement = options.placement ?? this.config.placement;
     const duration = options.duration ?? this.config.duration;
     const container = this.getOrCreateContainer(placement);
@@ -53,7 +54,7 @@ export class NgpToastManager {
           provideToastOptions({
             placement,
             duration,
-            register: (toast: NgpToast) => (instance = toast),
+            register: (toast: NgpToastState) => (instance = toast),
             expanded: computed(() => this.expanded().includes(placement)),
             dismissible: options.dismissible ?? this.config.dismissible,
             swipeDirections: options.swipeDirections ?? this.config.swipeDirections,
@@ -82,8 +83,8 @@ export class NgpToastManager {
   }
 
   /** Hide a toast notification */
-  async dismiss(toast: NgpToast): Promise<void> {
-    const ref = this.toasts().find(t => t.instance === toast);
+  async dismiss(toast: NgpToastState): Promise<void> {
+    const ref = this.toasts().find(t => t.instance.id === toast.id);
 
     if (ref) {
       // Detach the portal from the container
@@ -94,7 +95,7 @@ export class NgpToastManager {
 
       // if there are no more toasts, ensure the container is no longer considered expanded
       if (this.toasts().length === 0) {
-        this.expanded.update(expanded => expanded.filter(p => p !== toast.options.placement));
+        this.expanded.update(expanded => expanded.filter(p => p !== ref.instance.placement));
       }
     }
   }
@@ -194,7 +195,7 @@ export interface NgpToastOptions<T = unknown> {
 }
 
 interface NgpToastRecord {
-  instance: NgpToast;
+  instance: NgpToastState;
   portal: NgpPortal;
 }
 

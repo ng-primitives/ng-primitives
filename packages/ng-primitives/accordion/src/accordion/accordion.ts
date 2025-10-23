@@ -14,7 +14,7 @@ import {
 @Directive({
   selector: '[ngpAccordion]',
   exportAs: 'ngpAccordion',
-  providers: [provideAccordionPattern(NgpAccordion, m => m.state)],
+  providers: [provideAccordionPattern(NgpAccordion, m => m.pattern)],
 })
 export class NgpAccordion<T> {
   /**
@@ -69,7 +69,7 @@ export class NgpAccordion<T> {
   /**
    * The accordion state.
    */
-  readonly state = ngpAccordionPattern({
+  protected readonly pattern = ngpAccordionPattern({
     type: this.type,
     collapsible: this.collapsible,
     disabled: this.disabled,

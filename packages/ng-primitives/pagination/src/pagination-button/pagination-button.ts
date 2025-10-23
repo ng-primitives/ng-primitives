@@ -7,7 +7,7 @@ import {
   input,
   numberAttribute,
 } from '@angular/core';
-import { setupButton } from 'ng-primitives/button';
+import { ngpButtonPattern } from 'ng-primitives/button';
 import { injectPaginationState } from '../pagination/pagination-state';
 
 /**
@@ -56,7 +56,7 @@ export class NgpPaginationButton {
   protected readonly selected = computed(() => this.page() === this.paginationState().page());
 
   constructor() {
-    setupButton({ disabled: this.disabled });
+    ngpButtonPattern({ disabled: this.disabled });
   }
 
   /**

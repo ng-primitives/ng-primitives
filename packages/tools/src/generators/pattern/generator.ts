@@ -41,6 +41,27 @@ interface DirectiveDependency {
   isPrivate: boolean;
 }
 
+interface DirectiveSignal {
+  name: string;
+  type: string;
+  initializer: string;
+  isPrivate: boolean;
+}
+
+interface DirectiveConstructor {
+  body: string;
+}
+
+function cleanupThisReferences(code: string): string {
+  // First, remove this.state references (e.g., this.state.disabled() becomes disabled())
+  let cleaned = code.replace(/this\.state\.(\w+)/g, '$1');
+
+  // Then remove remaining this references (e.g., this.disabled() becomes disabled())
+  cleaned = cleaned.replace(/this\.(\w+)/g, '$1');
+
+  return cleaned;
+}
+
 function parseDirectiveInputs(sourceCode: string): DirectiveInput[] {
   const ast = tsquery.ast(sourceCode);
   const inputs: DirectiveInput[] = [];
@@ -232,6 +253,41 @@ function parseHostBindings(sourceCode: string): HostBinding[] {
     }
   });
 
+  // Also parse @HostListener decorators on methods
+  const classDeclarations = tsquery(ast, 'ClassDeclaration');
+
+  classDeclarations.forEach(classDeclaration => {
+    if (ts.isClassDeclaration(classDeclaration)) {
+      classDeclaration.members.forEach(member => {
+        if (ts.isMethodDeclaration(member) && member.modifiers) {
+          const decorators = member.modifiers.filter(modifier => ts.isDecorator(modifier));
+          decorators.forEach(decorator => {
+            if (
+              ts.isDecorator(decorator) &&
+              ts.isCallExpression(decorator.expression) &&
+              ts.isIdentifier(decorator.expression.expression) &&
+              decorator.expression.expression.text === 'HostListener'
+            ) {
+              // Get the event name from the first argument
+              const args = decorator.expression.arguments;
+              if (args.length > 0 && ts.isStringLiteral(args[0])) {
+                const eventName = args[0].text;
+                const methodName = member.name && ts.isIdentifier(member.name) ? member.name.text : '';
+
+                // Create a listener binding
+                hostBindings.push({
+                  key: `(${eventName})`,
+                  value: `${methodName}($event)`,
+                  type: 'listener'
+                });
+              }
+            }
+          });
+        }
+      });
+    }
+  });
+
   return hostBindings;
 }
 
@@ -290,8 +346,9 @@ function parseDirectiveMethods(sourceCode: string, className: string): Directive
         // Get return type
         const returnType = member.type ? member.type.getText() : 'void';
 
-        // Get method body
-        const body = member.body ? member.body.getText() : '{}';
+        // Get method body and clean up this references
+        const rawBody = member.body ? member.body.getText() : '{}';
+        const body = cleanupThisReferences(rawBody);
 
         methods.push({
           name: methodName,
@@ -351,8 +408,9 @@ function parseDirectiveDependencies(sourceCode: string, className: string): Dire
               type = member.type.getText();
             }
 
-            // Get the full injection call
-            const injectionCall = member.initializer.getText();
+            // Get the full injection call and clean up this references
+            const rawInjectionCall = member.initializer.getText();
+            const injectionCall = cleanupThisReferences(rawInjectionCall);
 
             dependencies.push({
               name: propertyName,
@@ -369,6 +427,89 @@ function parseDirectiveDependencies(sourceCode: string, className: string): Dire
   return dependencies;
 }
 
+function parseDirectiveSignals(sourceCode: string, className: string): DirectiveSignal[] {
+  const ast = tsquery.ast(sourceCode);
+  const signals: DirectiveSignal[] = [];
+
+  // Find the directive class
+  const classDeclarations = tsquery(ast, `ClassDeclaration:has(Identifier[name=${className}])`);
+  if (classDeclarations.length > 0) {
+    const classDeclaration = classDeclarations[0] as ts.ClassDeclaration;
+
+    classDeclaration.members.forEach(member => {
+      if (ts.isPropertyDeclaration(member) && member.name && ts.isIdentifier(member.name)) {
+        const propertyName = member.name.text;
+
+        // Look for signal() or computed() calls
+        if (
+          member.initializer &&
+          ts.isCallExpression(member.initializer) &&
+          ts.isIdentifier(member.initializer.expression)
+        ) {
+          const callExpressionName = member.initializer.expression.text;
+
+          if (callExpressionName === 'signal' || callExpressionName === 'computed') {
+            // Determine if property is private/protected
+            const isPrivate =
+              member.modifiers?.some(
+                mod =>
+                  mod.kind === ts.SyntaxKind.PrivateKeyword ||
+                  mod.kind === ts.SyntaxKind.ProtectedKeyword,
+              ) || false;
+
+            // Get property type
+            let type = 'any';
+            if (member.type) {
+              type = member.type.getText();
+            }
+
+            // Get the full initializer and clean up this references
+            const rawInitializer = member.initializer.getText();
+            const initializer = cleanupThisReferences(rawInitializer);
+
+            signals.push({
+              name: propertyName,
+              type,
+              initializer,
+              isPrivate,
+            });
+          }
+        }
+      }
+    });
+  }
+
+  return signals;
+}
+
+function parseDirectiveConstructor(
+  sourceCode: string,
+  className: string,
+): DirectiveConstructor | null {
+  const ast = tsquery.ast(sourceCode);
+
+  // Find the directive class
+  const classDeclarations = tsquery(ast, `ClassDeclaration:has(Identifier[name=${className}])`);
+  if (classDeclarations.length > 0) {
+    const classDeclaration = classDeclarations[0] as ts.ClassDeclaration;
+
+    // Find constructor
+    const constructor = classDeclaration.members.find(member =>
+      ts.isConstructorDeclaration(member),
+    ) as ts.ConstructorDeclaration | undefined;
+
+    if (constructor && constructor.body) {
+      // Get constructor body and clean up this references
+      const rawBody = constructor.body.getText();
+      const body = cleanupThisReferences(rawBody);
+
+      return { body };
+    }
+  }
+
+  return null;
+}
+
 export async function patternGenerator(tree: Tree, options: PatternGeneratorSchema) {
   // normalize the directive name - for example someone might pass in NgpAvatar, but we want to use avatar
   options.directive = options.directive.replace('Ngp', '').toLowerCase();
@@ -383,6 +524,8 @@ export async function patternGenerator(tree: Tree, options: PatternGeneratorSche
   let hostBindings: HostBinding[] = [];
   let methods: DirectiveMethod[] = [];
   let dependencies: DirectiveDependency[] = [];
+  let signals: DirectiveSignal[] = [];
+  let constructor: DirectiveConstructor | null = null;
 
   if (tree.exists(directivePath)) {
     const directiveContent = tree.read(directivePath, 'utf-8');
@@ -391,9 +534,11 @@ export async function patternGenerator(tree: Tree, options: PatternGeneratorSche
     hostBindings = parseHostBindings(directiveContent);
     methods = parseDirectiveMethods(directiveContent, `Ngp${directiveNames.className}`);
     dependencies = parseDirectiveDependencies(directiveContent, `Ngp${directiveNames.className}`);
+    signals = parseDirectiveSignals(directiveContent, `Ngp${directiveNames.className}`);
+    constructor = parseDirectiveConstructor(directiveContent, `Ngp${directiveNames.className}`);
   }
 
-  // Generate pattern file with parsed inputs, outputs, host bindings, methods, and dependencies
+  // Generate pattern file with parsed inputs, outputs, host bindings, methods, dependencies, signals, and constructor
   generateFiles(tree, path.join(__dirname, 'files'), sourceRoot, {
     ...options,
     ...directiveNames,
@@ -402,6 +547,8 @@ export async function patternGenerator(tree: Tree, options: PatternGeneratorSche
     hostBindings,
     methods,
     dependencies,
+    signals,
+    constructor,
   });
 
   // Update the existing directive file to add the pattern provider
