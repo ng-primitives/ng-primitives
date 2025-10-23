@@ -13,7 +13,7 @@ import {
 } from '@angular/core';
 import { explicitEffect, injectDimensions, injectElementRef } from 'ng-primitives/internal';
 import { dataBinding, listener, styleBinding } from 'ng-primitives/state';
-import { uniqueId } from '../../../utils/src';
+import { uniqueId } from 'ng-primitives/utils';
 import { injectToastConfig } from '../config/toast-config';
 import type { NgpToastPlacement } from './toast';
 import { NgpToastManager } from './toast-manager';

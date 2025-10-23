@@ -8,7 +8,7 @@ import {
   Type,
 } from '@angular/core';
 import { Dimensions, fromResizeEvent, injectElementRef } from 'ng-primitives/internal';
-import { safeTakeUntilDestroyed } from '../../../utils/src';
+import { safeTakeUntilDestroyed } from 'ng-primitives/utils';
 
 /**
  * The state interface for the Resize pattern.

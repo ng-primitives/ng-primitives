@@ -11,7 +11,7 @@ import {
 } from '@angular/core';
 import { injectElementRef } from 'ng-primitives/internal';
 import { attrBinding, dataBinding } from 'ng-primitives/state';
-import { uniqueId } from '../../../utils/src';
+import { uniqueId } from 'ng-primitives/utils';
 import { injectFormFieldPattern } from '../form-field/form-field-pattern';
 
 /**
