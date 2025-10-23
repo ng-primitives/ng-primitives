@@ -1,18 +1,7 @@
 import { BooleanInput } from '@angular/cdk/coercion';
-import {
-  booleanAttribute,
-  computed,
-  Directive,
-  ElementRef,
-  input,
-  signal,
-  Signal,
-} from '@angular/core';
-import { explicitEffect, injectElementRef } from 'ng-primitives/internal';
-import { attrBinding, dataBinding } from 'ng-primitives/state';
-import { controlStatus, NgpControlStatus, uniqueId } from 'ng-primitives/utils';
-import { injectFormFieldState } from '../form-field/form-field-state';
-import { formControlState, provideFormControlState } from './form-control-state';
+import { booleanAttribute, Directive, input } from '@angular/core';
+import { uniqueId } from 'ng-primitives/utils';
+import { ngpFormControlPattern, provideFormControlPattern } from './form-control-pattern';
 
 /**
  * Typically this primitive would be not be used directly, but instead a more specific form control primitive would be used (e.g. `ngpInput`). All of our form control primitives use `ngpFormControl` internally so they will have the same accessibility features as described below.
@@ -22,10 +11,7 @@ import { formControlState, provideFormControlState } from './form-control-state'
 @Directive({
   selector: '[ngpFormControl]',
   exportAs: 'ngpFormControl',
-  providers: [provideFormControlState()],
-  host: {
-    '[attr.disabled]': 'supportsDisabledAttribute && status().disabled ? "" : null',
-  },
+  providers: [provideFormControlPattern(NgpFormControl, instance => instance.pattern)],
 })
 export class NgpFormControl {
   /**
@@ -42,100 +28,15 @@ export class NgpFormControl {
   });
 
   /**
-   * The status of the form control.
+   * The pattern instance.
    */
-  readonly status: Signal<NgpControlStatus>;
-
-  /**
-   * The element reference.
-   */
-  private readonly elementRef = injectElementRef();
-
-  /**
-   * Whether the element supports the disabled attribute.
-   */
-  protected readonly supportsDisabledAttribute = 'disabled' in this.elementRef.nativeElement;
-
-  /**
-   * The state of the form control.
-   */
-  private readonly state = formControlState<NgpFormControl>(this);
-
-  constructor() {
-    // Sync the form control state with the control state.
-    this.status = setupFormControl({ id: this.state.id, disabled: this.state.disabled });
-  }
-}
-
-interface FormControlProps {
-  id: Signal<string>;
-  disabled?: Signal<boolean>;
-  element?: ElementRef<HTMLElement>;
-}
-
-export function setupFormControl({
-  id,
-  disabled = signal(false),
-  element = injectElementRef(),
-}: FormControlProps): Signal<NgpControlStatus> {
-  // Access the form field that the form control is associated with.
-  const formField = injectFormFieldState({ optional: true });
-  // Access the form control status.
-  const status = controlStatus();
-  // Determine the aria-labelledby attribute value.
-  const ariaLabelledBy = computed(() => formField()?.labels().join(' '));
-  // Determine the aria-describedby attribute value.
-  const ariaDescribedBy = computed(() => formField()?.descriptions().join(' '));
-
-  explicitEffect([id], ([id], onCleanup) => {
-    formField()?.setFormControl(id);
-    onCleanup(() => formField()?.removeFormControl());
+  protected readonly pattern = ngpFormControlPattern({
+    id: this.id,
+    disabled: this.disabled,
   });
 
-  attrBinding(element, 'id', id);
-  attrBinding(element, 'aria-labelledby', ariaLabelledBy);
-  attrBinding(element, 'aria-describedby', ariaDescribedBy);
-
-  dataBinding(
-    element,
-    'data-invalid',
-    computed(() => status().invalid),
-  );
-  dataBinding(
-    element,
-    'data-valid',
-    computed(() => status().valid),
-  );
-  dataBinding(
-    element,
-    'data-touched',
-    computed(() => status().touched),
-  );
-  dataBinding(
-    element,
-    'data-untouched',
-    computed(() => !status().touched),
-  );
-  dataBinding(
-    element,
-    'data-dirty',
-    computed(() => status().dirty),
-  );
-  dataBinding(
-    element,
-    'data-pristine',
-    computed(() => !status().dirty),
-  );
-  dataBinding(
-    element,
-    'data-pending',
-    computed(() => status().pending),
-  );
-  dataBinding(
-    element,
-    'data-disabled',
-    computed(() => disabled() || status().disabled),
-  );
-
-  return computed(() => ({ ...status(), disabled: status().disabled || disabled() }));
+  /**
+   * The status of the form control.
+   */
+  readonly status = this.pattern;
 }

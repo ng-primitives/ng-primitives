@@ -8,7 +8,7 @@ import {
   Signal,
   Type,
 } from '@angular/core';
-import { setupFormControl } from 'ng-primitives/form-field';
+import { ngpFormControlPattern } from 'ng-primitives/form-field';
 import { ngpInteractions } from 'ng-primitives/interactions';
 import { injectElementRef } from 'ng-primitives/internal';
 import { attrBinding, controlled, dataBinding, onClick, onPress } from 'ng-primitives/state';
@@ -93,7 +93,7 @@ export function ngpCheckboxPattern({
     computed(() => (disabled() ? -1 : 0)),
   );
 
-  setupFormControl({ id, disabled, element });
+  ngpFormControlPattern({ id, disabled, element });
 
   ngpInteractions({
     hover: true,

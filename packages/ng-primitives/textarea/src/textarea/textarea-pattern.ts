@@ -8,7 +8,7 @@ import {
   Signal,
   Type,
 } from '@angular/core';
-import { setupFormControl } from 'ng-primitives/form-field';
+import { ngpFormControlPattern } from 'ng-primitives/form-field';
 import { ngpInteractions } from 'ng-primitives/interactions';
 import { injectElementRef } from 'ng-primitives/internal';
 import { attrBinding, dataBinding } from 'ng-primitives/state';
@@ -30,9 +30,9 @@ export function ngpTextareaPattern({
   element = injectElementRef<HTMLTextAreaElement>(),
 }: NgpTextareaProps): NgpTextareaState {
   // Setup form control
-  const formControl = setupFormControl({ id, disabled });
+  const formControl = ngpFormControlPattern({ id, disabled });
 
-  disabled = computed(() => formControl().disabled ?? disabled());
+  disabled = computed(() => formControl.disabled() ?? false);
 
   // Setup interactions
   ngpInteractions({

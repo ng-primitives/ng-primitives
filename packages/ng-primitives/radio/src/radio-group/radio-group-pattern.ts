@@ -8,7 +8,7 @@ import {
   Type,
 } from '@angular/core';
 import { NgpOrientation } from 'ng-primitives/common';
-import { setupFormControl } from 'ng-primitives/form-field';
+import { ngpFormControlPattern } from 'ng-primitives/form-field';
 import { injectElementRef } from 'ng-primitives/internal';
 import {
   ngpRovingFocusGroupPattern,
@@ -119,7 +119,7 @@ export function ngpRadioGroupPattern<T = unknown>({
   dataBinding(element, 'data-disabled', disabled);
 
   // integrate with form field
-  setupFormControl({ id, disabled });
+  ngpFormControlPattern({ id, disabled });
 
   // setup the roving focus pattern
   const rovingFocus = ngpRovingFocusGroupPattern({

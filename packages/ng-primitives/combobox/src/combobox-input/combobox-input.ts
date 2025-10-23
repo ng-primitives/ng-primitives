@@ -1,5 +1,5 @@
 import { computed, Directive, HostListener, input } from '@angular/core';
-import { setupFormControl } from 'ng-primitives/form-field';
+import { ngpFormControlPattern } from 'ng-primitives/form-field';
 import { ngpInteractions } from 'ng-primitives/interactions';
 import { injectElementRef } from 'ng-primitives/internal';
 import { uniqueId } from 'ng-primitives/utils';
@@ -54,7 +54,7 @@ export class NgpComboboxInput {
    * The control status - this is required as we apply them to the combobox element as well as the input element.
    * @internal
    */
-  readonly controlStatus = setupFormControl({ id: this.id, disabled: this.state().disabled });
+  readonly controlStatus = ngpFormControlPattern({ id: this.id, disabled: this.state().disabled });
 
   constructor() {
     ngpInteractions({

@@ -9,7 +9,7 @@ import {
   Signal,
   Type,
 } from '@angular/core';
-import { setupFormControl } from 'ng-primitives/form-field';
+import { ngpFormControlPattern } from 'ng-primitives/form-field';
 import { ngpInteractions } from 'ng-primitives/interactions';
 import { injectElementRef } from 'ng-primitives/internal';
 import { attrBinding, controlled, dataBinding, listener, onPress } from 'ng-primitives/state';
@@ -101,7 +101,7 @@ export function ngpSwitchPattern({
   });
 
   // Form control setup
-  setupFormControl({ id, disabled, element });
+  ngpFormControlPattern({ id, disabled, element });
 
   // Host listeners
   listener(element, 'click', toggle);

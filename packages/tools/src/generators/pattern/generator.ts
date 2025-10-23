@@ -409,7 +409,11 @@ function parseDirectiveDependencies(sourceCode: string, className: string): Dire
             }
 
             // Check if it's inject(ElementRef)
-            if (callExpressionName === 'inject' && member.initializer && ts.isCallExpression(member.initializer)) {
+            if (
+              callExpressionName === 'inject' &&
+              member.initializer &&
+              ts.isCallExpression(member.initializer)
+            ) {
               const args = member.initializer.arguments;
               if (args.length > 0 && ts.isIdentifier(args[0]) && args[0].text === 'ElementRef') {
                 return;
@@ -630,7 +634,9 @@ export async function patternGenerator(tree: Tree, options: PatternGeneratorSche
     // Check if ngOnDestroy exists and add destroyRef dependency if needed
     const hasNgOnDestroy = methods.some(method => method.name === 'ngOnDestroy');
     if (hasNgOnDestroy) {
-      const hasDestroyRef = dependencies.some(dep => dep.name === 'destroyRef' || dep.injectionCall.includes('DestroyRef'));
+      const hasDestroyRef = dependencies.some(
+        dep => dep.name === 'destroyRef' || dep.injectionCall.includes('DestroyRef'),
+      );
       if (!hasDestroyRef) {
         dependencies.push({
           name: 'destroyRef',

@@ -9,7 +9,7 @@ import {
   Type,
 } from '@angular/core';
 import { NgpOrientation } from 'ng-primitives/common';
-import { setupFormControl } from 'ng-primitives/form-field';
+import { ngpFormControlPattern } from 'ng-primitives/form-field';
 import { injectElementRef } from 'ng-primitives/internal';
 import { attrBinding, controlled, dataBinding } from 'ng-primitives/state';
 import { uniqueId } from 'ng-primitives/utils';
@@ -102,7 +102,7 @@ export function ngpSliderPattern({
   const percentage = computed(() => ((value() - min()) / (max() - min())) * 100);
 
   // Constructor logic
-  setupFormControl({ id, disabled });
+  ngpFormControlPattern({ id, disabled });
 
   // Host bindings
   attrBinding(element, 'id', id);

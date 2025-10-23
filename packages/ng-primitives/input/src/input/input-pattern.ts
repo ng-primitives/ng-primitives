@@ -9,7 +9,7 @@ import {
   Type,
 } from '@angular/core';
 import { ngpAutofillPattern } from 'ng-primitives/autofill';
-import { setupFormControl } from 'ng-primitives/form-field';
+import { ngpFormControlPattern } from 'ng-primitives/form-field';
 import { ngpInteractions } from 'ng-primitives/interactions';
 import { injectElementRef } from 'ng-primitives/internal';
 import { injectSearchPattern } from 'ng-primitives/search';
@@ -32,10 +32,10 @@ export function ngpInputPattern({
   element = injectElementRef<HTMLInputElement>(),
 }: NgpInputProps): NgpInputState {
   // setup the form control
-  const formControl = setupFormControl({ id, disabled });
+  const formControl = ngpFormControlPattern({ id, disabled });
 
   // derive the disabled state from the form control if available
-  disabled = computed(() => formControl().disabled ?? disabled());
+  disabled = computed(() => formControl.disabled() ?? false);
 
   // Setup interactions
   ngpInteractions({

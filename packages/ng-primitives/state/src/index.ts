@@ -241,7 +241,11 @@ export function controlled<T>(value: Signal<T>): WritableSignal<T> {
   return linkedSignal(() => value());
 }
 
-function setAttribute(element: ElementRef<HTMLElement>, attr: string, value: string | null): void {
+function setAttribute(
+  element: ElementRef<HTMLElement>,
+  attr: string,
+  value: string | null | undefined,
+): void {
   // if the attribute is "disabled" and the value is 'false', we need to remove the attribute
   if (attr === 'disabled' && value === 'false') {
     element.nativeElement.removeAttribute(attr);
@@ -258,7 +262,13 @@ function setAttribute(element: ElementRef<HTMLElement>, attr: string, value: str
 export function attrBinding(
   element: ElementRef<HTMLElement>,
   attr: string,
-  value: (() => string | number | boolean | null) | string | number | boolean | null,
+  value:
+    | (() => string | number | boolean | null | undefined)
+    | string
+    | number
+    | boolean
+    | null
+    | undefined,
 ): void {
   afterRenderEffect({
     write: () => {

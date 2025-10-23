@@ -165,7 +165,7 @@ export class NgpCombobox {
   });
 
   /** The control status */
-  protected readonly controlStatus = computed(() => this.input()?.controlStatus());
+  protected readonly controlStatus = computed(() => this.input()?.controlStatus);
 
   /** The state of the combobox. */
   protected readonly state = comboboxState<NgpCombobox>(this);

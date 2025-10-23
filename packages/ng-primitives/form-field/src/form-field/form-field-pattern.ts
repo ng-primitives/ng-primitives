@@ -22,35 +22,49 @@ export interface NgpFormFieldState {
   /**
    * Pristine signal.
    */
-  pristine: Signal<boolean | null>;
+  readonly pristine: Signal<boolean | null>;
   /**
    * Touched signal.
    */
-  touched: Signal<boolean | null>;
+  readonly touched: Signal<boolean | null>;
   /**
    * Dirty signal.
    */
-  dirty: Signal<boolean | null>;
+  readonly dirty: Signal<boolean | null>;
   /**
    * Valid signal.
    */
-  valid: Signal<boolean | null>;
+  readonly valid: Signal<boolean | null>;
   /**
    * Invalid signal.
    */
-  invalid: Signal<boolean | null>;
+  readonly invalid: Signal<boolean | null>;
   /**
    * Pending signal.
    */
-  pending: Signal<boolean | null>;
+  readonly pending: Signal<boolean | null>;
   /**
    * Disabled signal.
    */
-  disabled: Signal<boolean | null>;
+  readonly disabled: Signal<boolean | null>;
   /**
    * Errors signal.
    */
-  errors: Signal<string[]>;
+  readonly errors: Signal<string[]>;
+
+  /**
+   * Labels signal.
+   */
+  readonly labels: Signal<string[]>;
+  /**
+   * Descriptions signal.
+   */
+  readonly descriptions: Signal<string[]>;
+
+  /**
+   * FormControl signal.
+   */
+  readonly formControl: Signal<string | null>;
 
   /**
    * SetFormControl method.
@@ -187,6 +201,9 @@ export function ngpFormFieldPattern({
     pending,
     disabled,
     errors,
+    labels,
+    descriptions,
+    formControl,
     setFormControl,
     addLabel,
     addDescription,
@@ -207,7 +224,6 @@ export const NgpFormFieldPatternToken = new InjectionToken<NgpFormFieldState>(
  * Injects the FormField pattern.
  */
 export function injectFormFieldPattern(): NgpFormFieldState;
-export function injectFormFieldPattern({ optional }: InjectOptions): NgpFormFieldState;
 export function injectFormFieldPattern({
   optional,
 }: InjectOptions & { optional: true }): NgpFormFieldState | null;

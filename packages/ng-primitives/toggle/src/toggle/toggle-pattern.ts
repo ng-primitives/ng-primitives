@@ -7,7 +7,7 @@ import {
   Signal,
   Type,
 } from '@angular/core';
-import { setupFormControl } from 'ng-primitives/form-field';
+import { ngpFormControlPattern } from 'ng-primitives/form-field';
 import { ngpInteractions } from 'ng-primitives/interactions';
 import { injectElementRef } from 'ng-primitives/internal';
 import { attrBinding, controlled, dataBinding, listener } from 'ng-primitives/state';
@@ -38,7 +38,7 @@ export function ngpTogglePattern({
   const isButton = element.nativeElement.tagName.toLowerCase() === 'button';
 
   // Setup form control
-  setupFormControl({ id, disabled });
+  ngpFormControlPattern({ id, disabled });
 
   // Setup interactions
   ngpInteractions({
