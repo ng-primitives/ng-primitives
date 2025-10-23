@@ -48,6 +48,13 @@ interface DirectiveSignal {
   isPrivate: boolean;
 }
 
+interface DirectiveProperty {
+  name: string;
+  type: string;
+  initializer: string;
+  isPrivate: boolean;
+}
+
 interface DirectiveConstructor {
   body: string;
 }
@@ -306,10 +313,11 @@ function parseDirectiveMethods(sourceCode: string, className: string): Directive
       if (ts.isMethodDeclaration(member) && member.name && ts.isIdentifier(member.name)) {
         const methodName = member.name.text;
 
-        // Skip internal methods, getters, setters, and lifecycle hooks
+        // Skip internal methods, getters, setters, and most lifecycle hooks
+        // but keep ngOnDestroy for special handling
         if (
           methodName.startsWith('_') ||
-          methodName.startsWith('ng') ||
+          (methodName.startsWith('ng') && methodName !== 'ngOnDestroy') ||
           methodName.includes('Listener') ||
           ts.isGetAccessorDeclaration(member) ||
           ts.isSetAccessorDeclaration(member)
@@ -393,6 +401,19 @@ function parseDirectiveDependencies(sourceCode: string, className: string): Dire
             // Skip input() and output() calls
             if (callExpressionName === 'input' || callExpressionName === 'output') {
               return;
+            }
+
+            // Skip ElementRef and injectElementRef since pattern provides element
+            if (callExpressionName === 'injectElementRef') {
+              return;
+            }
+
+            // Check if it's inject(ElementRef)
+            if (callExpressionName === 'inject' && member.initializer && ts.isCallExpression(member.initializer)) {
+              const args = member.initializer.arguments;
+              if (args.length > 0 && ts.isIdentifier(args[0]) && args[0].text === 'ElementRef') {
+                return;
+              }
             }
 
             // Determine if property is private/protected
@@ -483,6 +504,72 @@ function parseDirectiveSignals(sourceCode: string, className: string): Directive
   return signals;
 }
 
+function parseDirectiveProperties(sourceCode: string, className: string): DirectiveProperty[] {
+  const ast = tsquery.ast(sourceCode);
+  const properties: DirectiveProperty[] = [];
+
+  // Find the directive class
+  const classDeclarations = tsquery(ast, `ClassDeclaration:has(Identifier[name=${className}])`);
+  if (classDeclarations.length > 0) {
+    const classDeclaration = classDeclarations[0] as ts.ClassDeclaration;
+
+    classDeclaration.members.forEach(member => {
+      if (ts.isPropertyDeclaration(member) && member.name && ts.isIdentifier(member.name)) {
+        const propertyName = member.name.text;
+
+        // Skip input(), output(), and inject() calls as they're handled separately
+        if (
+          member.initializer &&
+          ts.isCallExpression(member.initializer) &&
+          ts.isIdentifier(member.initializer.expression)
+        ) {
+          const callExpressionName = member.initializer.expression.text;
+
+          // Skip these function calls as they're handled by other parsers
+          if (
+            callExpressionName === 'input' ||
+            callExpressionName === 'output' ||
+            callExpressionName === 'inject' ||
+            callExpressionName.startsWith('inject')
+          ) {
+            return;
+          }
+        }
+
+        // Include all other properties with initializers
+        if (member.initializer) {
+          // Determine if property is private/protected
+          const isPrivate =
+            member.modifiers?.some(
+              mod =>
+                mod.kind === ts.SyntaxKind.PrivateKeyword ||
+                mod.kind === ts.SyntaxKind.ProtectedKeyword,
+            ) || false;
+
+          // Get property type
+          let type = 'any';
+          if (member.type) {
+            type = member.type.getText();
+          }
+
+          // Get the full initializer and clean up this references
+          const rawInitializer = member.initializer.getText();
+          const initializer = cleanupThisReferences(rawInitializer);
+
+          properties.push({
+            name: propertyName,
+            type,
+            initializer,
+            isPrivate,
+          });
+        }
+      }
+    });
+  }
+
+  return properties;
+}
+
 function parseDirectiveConstructor(
   sourceCode: string,
   className: string,
@@ -526,6 +613,7 @@ export async function patternGenerator(tree: Tree, options: PatternGeneratorSche
   let methods: DirectiveMethod[] = [];
   let dependencies: DirectiveDependency[] = [];
   let signals: DirectiveSignal[] = [];
+  let properties: DirectiveProperty[] = [];
   let constructor: DirectiveConstructor | null = null;
 
   if (tree.exists(directivePath)) {
@@ -536,10 +624,25 @@ export async function patternGenerator(tree: Tree, options: PatternGeneratorSche
     methods = parseDirectiveMethods(directiveContent, `Ngp${directiveNames.className}`);
     dependencies = parseDirectiveDependencies(directiveContent, `Ngp${directiveNames.className}`);
     signals = parseDirectiveSignals(directiveContent, `Ngp${directiveNames.className}`);
+    properties = parseDirectiveProperties(directiveContent, `Ngp${directiveNames.className}`);
     constructor = parseDirectiveConstructor(directiveContent, `Ngp${directiveNames.className}`);
+
+    // Check if ngOnDestroy exists and add destroyRef dependency if needed
+    const hasNgOnDestroy = methods.some(method => method.name === 'ngOnDestroy');
+    if (hasNgOnDestroy) {
+      const hasDestroyRef = dependencies.some(dep => dep.name === 'destroyRef' || dep.injectionCall.includes('DestroyRef'));
+      if (!hasDestroyRef) {
+        dependencies.push({
+          name: 'destroyRef',
+          type: 'DestroyRef',
+          injectionCall: 'inject(DestroyRef)',
+          isPrivate: true,
+        });
+      }
+    }
   }
 
-  // Generate pattern file with parsed inputs, outputs, host bindings, methods, dependencies, signals, and constructor
+  // Generate pattern file with parsed inputs, outputs, host bindings, methods, dependencies, signals, properties, and constructor
   generateFiles(tree, path.join(__dirname, 'files'), sourceRoot, {
     ...options,
     ...directiveNames,
@@ -549,6 +652,7 @@ export async function patternGenerator(tree: Tree, options: PatternGeneratorSche
     methods,
     dependencies,
     signals,
+    properties,
     constructor,
   });
 

@@ -1,5 +1,8 @@
 import {
   computed,
+<% if (methods && methods.some(m => m.name === 'ngOnDestroy')) { -%>
+  DestroyRef,
+<% } -%>
   ElementRef,
   FactoryProvider,
   inject,
@@ -9,13 +12,13 @@ import {
   Type,
 } from '@angular/core';
 import { injectElementRef } from 'ng-primitives/internal';
-import { attrBinding, dataBinding, listener, onPress, styleBinding } from 'ng-primitives/state';
+import { attrBinding, dataBinding, listener, onClick, onPress, styleBinding } from 'ng-primitives/state';
 
 /**
  * The state interface for the <%= className %> pattern.
  */
 export interface Ngp<%= className %>State {
-<% const publicMethods = methods.filter(m => m.isPublic); -%>
+<% const publicMethods = methods.filter(m => m.isPublic && m.name !== 'ngOnDestroy'); -%>
 <% if (publicMethods.length > 0) { -%>
 <% publicMethods.forEach(function(method) { -%>
   /**
@@ -70,11 +73,11 @@ export function ngp<%= className %>Pattern({
   const <%= dep.name %> = <%- dep.injectionCall %>;
 <% }); -%>
 <% } -%>
-<% if (signals && signals.length > 0) { -%>
+<% if (properties && properties.length > 0) { -%>
 
-  // Signals and computed values
-<% signals.forEach(function(signal) { -%>
-  const <%= signal.name %> = <%- signal.initializer %>;
+  // Properties and computed values
+<% properties.forEach(function(property) { -%>
+  const <%= property.name %> = <%- property.initializer %>;
 <% }); -%>
 <% } -%>
 <% if (constructor && constructor.body) { -%>
@@ -178,21 +181,21 @@ export function ngp<%= className %>Pattern({
           // Handle keyboard events with onPress
           if (eventName === 'keydown.enter' || eventName === 'keydown.space') {
             const key = eventName.split('.')[1];
-            return `onPress(element, '${key === 'enter' ? 'Enter' : ' '}', () => ${value});`;
+            return `onPress(element, '${key === 'enter' ? 'Enter' : ' '}', ${value});`;
           }
           // Handle general keydown events with onPress
           else if (eventName.startsWith('keydown.')) {
             const key = eventName.replace('keydown.', '');
             const keyValue = key === 'enter' ? 'Enter' : key === 'space' ? ' ' : key;
-            return `onPress(element, '${keyValue}', () => ${value});`;
+            return `onPress(element, '${keyValue}', ${value});`;
           }
           // Handle click events with onClick
           else if (eventName === 'click') {
-            return `onClick(element, () => ${value});`;
+            return `onClick(element, ${value});`;
           }
           // Handle other events with listener
           else {
-            return `listener(element, '${eventName}', () => ${value});`;
+            return `listener(element, '${eventName}', ${value});`;
           }
         default:
           return `// ${binding.key}: ${binding.value}`;
@@ -202,19 +205,29 @@ export function ngp<%= className %>Pattern({
 <% }); -%>
 <% } -%>
 <% if (methods && methods.length > 0) { -%>
+<% const regularMethods = methods.filter(m => m.name !== 'ngOnDestroy'); -%>
+<% const ngOnDestroyMethod = methods.find(m => m.name === 'ngOnDestroy'); -%>
+<% if (ngOnDestroyMethod) { -%>
+
+  // Lifecycle cleanup
+  destroyRef.onDestroy(() => <%- ngOnDestroyMethod.body %>);
+<% } -%>
+<% if (regularMethods.length > 0) { -%>
 
   // Method implementations
-<% methods.forEach(function(method) { -%>
+<% regularMethods.forEach(function(method) { -%>
   <% if (method.isAsync) { -%>async <% } -%>function <%= method.name %>(<% method.parameters.forEach((param, index) => { -%>
 <%= param.name %>: <%= param.type %><% if (param.defaultValue) { %> = <%= param.defaultValue %><% } -%>
 <% if (index < method.parameters.length - 1) { %>, <% } -%>
 <% }); -%>): <%= method.returnType %> <%- method.body %>
 <% }); -%>
 <% } -%>
+<% } -%>
 
   return {
-<% if (publicMethods.length > 0) { -%>
-<% publicMethods.forEach(function(method) { -%>
+<% const returnMethods = methods.filter(m => m.isPublic && m.name !== 'ngOnDestroy'); -%>
+<% if (returnMethods.length > 0) { -%>
+<% returnMethods.forEach(function(method) { -%>
     <%= method.name %>,
 <% }); -%>
 <% } else { -%>
