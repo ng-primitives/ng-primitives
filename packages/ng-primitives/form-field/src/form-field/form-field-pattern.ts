@@ -12,8 +12,8 @@ import {
 import { NgControl } from '@angular/forms';
 import { injectElementRef } from 'ng-primitives/internal';
 import { dataBinding } from 'ng-primitives/state';
-import { Subscription } from 'rxjs';
 import { onChange } from 'ng-primitives/utils';
+import { Subscription } from 'rxjs';
 
 /**
  * The state interface for the FormField pattern.
