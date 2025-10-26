@@ -81,6 +81,7 @@ We welcome contributions from the community. Please refer to our [contributing g
     </tr>
     <tr>
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/ainsly"><img src="https://avatars.githubusercontent.com/u/1775015?v=4?s=100" width="100px;" alt="ainsly"/><br /><sub><b>ainsly</b></sub></a><br /><a href="https://github.com/ng-primitives/ng-primitives/commits?author=ainsly" title="Code">💻</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/abiramcodes"><img src="https://avatars.githubusercontent.com/u/131433061?v=4?s=100" width="100px;" alt="Abiram"/><br /><sub><b>Abiram</b></sub></a><br /><a href="https://github.com/ng-primitives/ng-primitives/commits?author=abiramcodes" title="Code">💻</a></td>
     </tr>
   </tbody>
 </table>
