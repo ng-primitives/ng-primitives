@@ -1,6 +1,9 @@
 import { Directive, HostListener } from '@angular/core';
 import { ngpInteractions } from 'ng-primitives/interactions';
+import { injectElementRef } from 'ng-primitives/internal';
 import { injectSliderState } from '../slider/slider-state';
+
+type SliderKey = 'ArrowLeft' | 'ArrowDown' | 'ArrowRight' | 'ArrowUp' | 'Home' | 'End';
 
 /**
  * Apply the `ngpSliderThumb` directive to an element that represents the thumb of the slider.
@@ -28,6 +31,11 @@ export class NgpSliderThumb {
    * Access the slider state.
    */
   protected readonly state = injectSliderState();
+
+  /**
+   * Access the thumb element.
+   */
+  private readonly elementRef = injectElementRef();
 
   /**
    * Store the dragging state.
@@ -95,35 +103,48 @@ export class NgpSliderThumb {
   @HostListener('keydown', ['$event'])
   protected handleKeydown(event: KeyboardEvent): void {
     const multiplier = event.shiftKey ? 10 : 1;
-    const value = this.state().value();
+    const step = this.state().step() * multiplier;
+    const currentValue = this.state().value();
 
-    switch (event.key) {
+    // determine the document direction
+    const isRTL = getComputedStyle(this.elementRef.nativeElement).direction === 'rtl';
+
+    let newValue: number;
+
+    switch (event.key as SliderKey) {
       case 'ArrowLeft':
+        newValue = isRTL
+          ? Math.min(currentValue + step, this.state().max())
+          : Math.max(currentValue - step, this.state().min());
+        break;
       case 'ArrowDown':
-        this.state().value.set(
-          Math.max(value - this.state().step() * multiplier, this.state().min()),
-        );
-        this.state().valueChange.emit(this.state().value());
-        event.preventDefault();
+        newValue = Math.max(currentValue - step, this.state().min());
         break;
       case 'ArrowRight':
+        newValue = isRTL
+          ? Math.max(currentValue - step, this.state().min())
+          : Math.min(currentValue + step, this.state().max());
+        break;
       case 'ArrowUp':
-        this.state().value.set(
-          Math.min(value + this.state().step() * multiplier, this.state().max()),
-        );
-        this.state().valueChange.emit(this.state().value());
-        event.preventDefault();
+        newValue = Math.min(currentValue + step, this.state().max());
         break;
       case 'Home':
-        this.state().value.set(this.state().min());
-        this.state().valueChange.emit(this.state().value());
-        event.preventDefault();
+        newValue = isRTL ? this.state().max() : this.state().min();
         break;
       case 'End':
-        this.state().value.set(this.state().max());
-        this.state().valueChange.emit(this.state().value());
-        event.preventDefault();
+        newValue = isRTL ? this.state().min() : this.state().max();
         break;
+      default:
+        return;
     }
+
+    // if the value is the same, do not emit an event
+    if (newValue === currentValue) {
+      return;
+    }
+
+    this.state().value.set(newValue);
+    this.state().valueChange.emit(newValue);
+    event.preventDefault();
   }
 }
