@@ -1,3 +1,22 @@
+## 0.86.0 (2025-10-29)
+
+### 🚀 Features
+
+- **slider:** added rtl support ([#499](https://github.com/ng-primitives/ng-primitives/pull/499))
+
+### 🩹 Fixes
+
+- add compatibility for @angular/cdk@20 caused by removed deprecations in DomPortalOutlet ([#486](https://github.com/ng-primitives/ng-primitives/pull/486))
+- **combobox:** resolve issue with option not de-selecting on enter keypress ([#503](https://github.com/ng-primitives/ng-primitives/pull/503))
+- **select:** apply data-selected attribute in multi-select mode ([#494](https://github.com/ng-primitives/ng-primitives/pull/494))
+
+### ❤️ Thank You
+
+- Abiram @abiramcodes
+- ainsly @ainsly
+- Alex
+- Lukas Heddendorp @heddendorp
+
 ## 0.85.0 (2025-10-20)
 
 ### 🚀 Features
