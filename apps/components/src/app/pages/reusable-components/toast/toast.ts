@@ -75,7 +75,6 @@ import { injectToastContext, NgpToast, NgpToastManager } from 'ng-primitives/toa
       grid-row: 1 / 3;
       max-height: 27px;
     }
-
     :host[data-position-x='end'] {
       right: 0;
     }
@@ -108,12 +107,12 @@ import { injectToastContext, NgpToast, NgpToastManager } from 'ng-primitives/toa
       --y: translateY(calc(calc(var(--lift) * var(--ngp-toast-gap)) * -1));
     }
 
-    :host[data-visible='false'] {
+    :host:not([data-visible]) {
       opacity: 0;
       pointer-events: none;
     }
 
-    :host[data-expanded='true']::after {
+    :host[data-expanded]::after {
       content: '';
       position: absolute;
       left: 0;
@@ -122,40 +121,40 @@ import { injectToastContext, NgpToast, NgpToastManager } from 'ng-primitives/toa
       width: 100%;
     }
 
-    :host[data-expanded='false'][data-front='false'] {
+    :host:not([data-expanded]):not([data-front]) {
       --scale: var(--ngp-toasts-before) * 0.05 + 1;
       --y: translateY(calc(var(--lift-amount) * var(--ngp-toasts-before)))
         scale(calc(-1 * var(--scale)));
       height: var(--ngp-toast-front-height);
     }
 
-    :host[data-expanded='true'] {
+    :host[data-expanded] {
       --y: translateY(calc(var(--lift) * var(--ngp-toast-offset)));
       height: var(--ngp-toast-height);
     }
 
-    :host[data-swiping='true'] {
+    :host[data-swiping] {
       transform: var(--y) translateY(var(--ngp-toast-swipe-amount-y, 0))
         translateX(var(--ngp-toast-swipe-amount-x, 0));
       transition: none;
     }
 
-    :host[data-swiping='true'][data-swipe-direction='left'] {
+    :host[data-swiping] [data-swipe-direction='left'] {
       /* Fade out from -45px to -100px swipe */
       opacity: calc(1 - clamp(0, ((-1 * var(--ngp-toast-swipe-x, 0px)) - 45) / 55, 1));
     }
 
-    :host[data-swiping='true'][data-swipe-direction='right'] {
+    :host[data-swiping][data-swipe-direction='right'] {
       /* Fade out from 45px to 100px swipe */
       opacity: calc(1 - clamp(0, (var(--ngp-toast-swipe-x, 0px) - 45) / 55, 1));
     }
 
-    :host[data-swiping='true'][data-swipe-direction='top'] {
+    :host[data-swiping][data-swipe-direction='top'] {
       /* Fade out from -45px to -100px swipe */
       opacity: calc(1 - clamp(0, ((-1 * var(--ngp-toast-swipe-y, 0px)) - 45) / 55, 1));
     }
 
-    :host[data-swiping='true'][data-swipe-direction='bottom'] {
+    :host[data-swiping][data-swipe-direction='bottom'] {
       /* Fade out from 45px to 100px swipe */
       opacity: calc(1 - clamp(0, (var(--ngp-toast-swipe-y, 0px) - 45) / 55, 1));
     }

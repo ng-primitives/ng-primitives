@@ -4,6 +4,7 @@ import {
   FactoryProvider,
   inject,
   InjectionToken,
+  linkedSignal,
   signal,
   Signal,
   Type,
@@ -11,7 +12,7 @@ import {
 import { NgpOrientation } from 'ng-primitives/common';
 import { ngpFormControlPattern } from 'ng-primitives/form-field';
 import { injectElementRef } from 'ng-primitives/internal';
-import { attrBinding, controlled, dataBinding } from 'ng-primitives/state';
+import { attrBinding, controlled, createStateInjectFn, dataBinding } from 'ng-primitives/state';
 import { uniqueId } from 'ng-primitives/utils';
 
 /**
@@ -90,6 +91,10 @@ export interface NgpRangeSliderState {
    * Set the track element reference.
    */
   setTrack: (element: ElementRef<HTMLElement>) => void;
+  /**
+   * Set the disabled state.
+   */
+  setDisabled: (isDisabled: boolean) => void;
 }
 
 /**
@@ -153,13 +158,14 @@ export function ngpRangeSliderPattern({
   min = signal(0),
   max = signal(100),
   step = signal(1),
+  disabled: _disabled = signal(false),
   orientation = signal('horizontal'),
-  disabled = signal(false),
   onLowChange,
   onHighChange,
 }: NgpRangeSliderProps = {}): NgpRangeSliderState {
   const low = controlled(_low);
   const high = controlled(_high);
+  const disabled = controlled(_disabled);
 
   // Signals and computed values
   const track = signal<ElementRef<HTMLElement> | undefined>(undefined);
@@ -205,6 +211,10 @@ export function ngpRangeSliderPattern({
     track.set(elementRef);
   }
 
+  function setDisabled(isDisabled: boolean): void {
+    disabled.set(isDisabled);
+  }
+
   return {
     orientation,
     disabled,
@@ -224,6 +234,7 @@ export function ngpRangeSliderPattern({
     addThumb,
     removeThumb,
     setTrack,
+    setDisabled,
   };
 }
 
@@ -250,3 +261,13 @@ export function provideRangeSliderPattern<T>(
 ): FactoryProvider {
   return { provide: NgpRangeSliderPatternToken, useFactory: () => fn(inject(type)) };
 }
+
+/**
+ * @deprecated use `injectRangeSliderPattern` instead.
+ */
+export const injectRangeSliderState = createStateInjectFn(injectRangeSliderPattern, pattern => {
+  const disabled = linkedSignal(pattern.disabled);
+  disabled.set = pattern.setDisabled;
+
+  return { ...pattern, disabled };
+});

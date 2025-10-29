@@ -3,10 +3,12 @@ import {
   FactoryProvider,
   inject,
   InjectionToken,
+  linkedSignal,
   signal,
   Signal,
   Type,
 } from '@angular/core';
+import { toObservable } from '@angular/core/rxjs-interop';
 import { NgpOrientation } from 'ng-primitives/common';
 import { injectElementRef } from 'ng-primitives/internal';
 import {
@@ -14,13 +16,22 @@ import {
   NgpRovingFocusGroupState,
   provideRovingFocusGroupPattern,
 } from 'ng-primitives/roving-focus';
-import { attrBinding, controlled, dataBinding } from 'ng-primitives/state';
+import { attrBinding, controlled, createStateInjectFn, dataBinding } from 'ng-primitives/state';
 
 /**
  * The state interface for the ToggleGroup pattern.
  */
 export interface NgpToggleGroupState {
-  rovingFocus: NgpRovingFocusGroupState;
+  _rovingFocus: NgpRovingFocusGroupState;
+  /**
+   * The current value(s) of the toggle group.
+   */
+  readonly value: Signal<string[]>;
+
+  /**
+   * Whether the toggle group is disabled.
+   */
+  readonly disabled: Signal<boolean>;
   /**
    * Select a value in the toggle group.
    */
@@ -40,6 +51,16 @@ export interface NgpToggleGroupState {
    * Toggle a value in the toggle group.
    */
   toggle(selection: string): void;
+
+  /**
+   * Set the value(s) of the toggle group.
+   */
+  setValue(newValue: string[]): void;
+
+  /**
+   * Set the disabled state of the toggle group.
+   */
+  setDisabled(isDisabled: boolean): void;
 }
 
 /**
@@ -65,7 +86,7 @@ export interface NgpToggleGroupProps {
   /**
    * The value(s) of the toggle-group.
    */
-  readonly value?: Signal<string[]>;
+  readonly value?: Signal<string[] | undefined>;
   /**
    * Whether the toggle-group is disabled.
    */
@@ -85,16 +106,17 @@ export function ngpToggleGroupPattern({
   allowDeselection = signal(true),
   type = signal<'single' | 'multiple'>('single'),
   value: _value = signal<string[]>([]),
-  disabled = signal(false),
+  disabled: _disabled = signal(false),
   onValueChange,
 }: NgpToggleGroupProps = {}): NgpToggleGroupState {
+  const disabled = controlled(_disabled);
+  const value = controlled(_value);
+
   const rovingFocus = ngpRovingFocusGroupPattern({
     orientation,
     disabled,
     element,
   });
-
-  const value = controlled(_value);
 
   // Host bindings
   attrBinding(element, 'role', 'group');
@@ -130,7 +152,7 @@ export function ngpToggleGroupPattern({
       return;
     }
 
-    const newValue = value().filter(v => v !== selection);
+    const newValue = value()?.filter(v => v !== selection) || [];
     value.set(newValue);
     onValueChange?.(newValue);
   };
@@ -140,7 +162,7 @@ export function ngpToggleGroupPattern({
    * @internal
    */
   const isSelected = (itemValue: string): boolean => {
-    return value().includes(itemValue) ?? false;
+    return value()?.includes(itemValue) ?? false;
   };
 
   /**
@@ -155,12 +177,25 @@ export function ngpToggleGroupPattern({
     }
   };
 
+  const setValue = (newValue: string[]): void => {
+    value.set(newValue);
+    onValueChange?.(newValue);
+  };
+
+  const setDisabled = (isDisabled: boolean): void => {
+    disabled.set(isDisabled);
+  };
+
   return {
-    rovingFocus,
+    _rovingFocus: rovingFocus,
     select,
     deselect,
+    disabled,
     isSelected,
     toggle,
+    value: value as Signal<string[]>,
+    setValue,
+    setDisabled,
   };
 }
 
@@ -187,6 +222,19 @@ export function provideToggleGroupPattern<T>(
 ): FactoryProvider[] {
   return [
     { provide: NgpToggleGroupPatternToken, useFactory: () => fn(inject(type)) },
-    provideRovingFocusGroupPattern(type, instance => fn(instance).rovingFocus),
+    provideRovingFocusGroupPattern(type, instance => fn(instance)._rovingFocus),
   ];
 }
+
+/**
+ * @deprecated use `injectToggleGroupPattern` instead.
+ */
+export const injectToggleGroupState = createStateInjectFn(injectToggleGroupPattern, pattern => {
+  const value = linkedSignal(pattern.value);
+  value.set = pattern.setValue;
+
+  const disabled = linkedSignal(pattern.disabled);
+  disabled.set = pattern.setDisabled;
+
+  return { ...pattern, value, disabled, valueChange: toObservable(pattern.value) };
+});

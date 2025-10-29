@@ -10,6 +10,7 @@ export {
 export { NgpToggleGroup } from './toggle-group/toggle-group';
 export {
   injectToggleGroupPattern,
+  injectToggleGroupState,
   ngpToggleGroupPattern,
   provideToggleGroupPattern,
   type NgpToggleGroupProps,

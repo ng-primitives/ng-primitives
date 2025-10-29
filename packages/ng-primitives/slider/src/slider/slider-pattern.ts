@@ -4,14 +4,16 @@ import {
   FactoryProvider,
   inject,
   InjectionToken,
+  linkedSignal,
   signal,
   Signal,
   Type,
 } from '@angular/core';
+import { toObservable } from '@angular/core/rxjs-interop';
 import { NgpOrientation } from 'ng-primitives/common';
 import { ngpFormControlPattern } from 'ng-primitives/form-field';
 import { injectElementRef } from 'ng-primitives/internal';
-import { attrBinding, controlled, dataBinding } from 'ng-primitives/state';
+import { attrBinding, controlled, createStateInjectFn, dataBinding } from 'ng-primitives/state';
 import { uniqueId } from 'ng-primitives/utils';
 
 /**
@@ -38,6 +40,7 @@ export interface NgpSliderState {
   setTrack: (el: ElementRef<HTMLElement> | undefined) => void;
   /** Sets the value. */
   setValue: (newValue: number) => void;
+  setDisabled: (isDisabled: boolean) => void;
 }
 
 /**
@@ -93,11 +96,12 @@ export function ngpSliderPattern({
   max = signal(100),
   step = signal(1),
   orientation = signal('horizontal'),
-  disabled = signal(false),
+  disabled: _disabled = signal(false),
   onValueChange,
 }: NgpSliderProps = {}): NgpSliderState {
   // Signals and computed values
   const value = controlled(_value);
+  const disabled = controlled(_disabled);
   const track = signal<ElementRef<HTMLElement> | undefined>(undefined);
   const percentage = computed(() => ((value() - min()) / (max() - min())) * 100);
 
@@ -120,6 +124,10 @@ export function ngpSliderPattern({
     }
   }
 
+  function setDisabled(isDisabled: boolean): void {
+    disabled.set(isDisabled);
+  }
+
   return {
     value,
     min,
@@ -131,6 +139,7 @@ export function ngpSliderPattern({
     track: track.asReadonly(),
     setTrack,
     setValue,
+    setDisabled,
   };
 }
 
@@ -155,3 +164,16 @@ export function provideSliderPattern<T>(
 ): FactoryProvider {
   return { provide: NgpSliderPatternToken, useFactory: () => fn(inject(type)) };
 }
+
+/**
+ * @deprecated use `injectSliderPattern` instead.
+ */
+export const injectSliderState = createStateInjectFn(injectSliderPattern, pattern => {
+  const value = linkedSignal(pattern.value);
+  value.set = pattern.setValue;
+
+  const disabled = linkedSignal(pattern.disabled);
+  disabled.set = pattern.setDisabled;
+
+  return { ...pattern, disabled, value, valueChange: toObservable(value) };
+});

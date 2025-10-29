@@ -4,14 +4,23 @@ import {
   FactoryProvider,
   inject,
   InjectionToken,
+  linkedSignal,
   signal,
   Signal,
   Type,
 } from '@angular/core';
+import { toObservable } from '@angular/core/rxjs-interop';
 import { ngpFormControlPattern } from 'ng-primitives/form-field';
 import { ngpInteractions } from 'ng-primitives/interactions';
 import { injectElementRef } from 'ng-primitives/internal';
-import { attrBinding, controlled, dataBinding, onClick, onPress } from 'ng-primitives/state';
+import {
+  attrBinding,
+  controlled,
+  createStateInjectFn,
+  dataBinding,
+  onClick,
+  onPress,
+} from 'ng-primitives/state';
 import { uniqueId } from 'ng-primitives/utils';
 
 /**
@@ -19,9 +28,34 @@ import { uniqueId } from 'ng-primitives/utils';
  */
 export interface NgpCheckboxState {
   /**
+   * The checked state of the checkbox.
+   */
+  readonly checked: Signal<boolean>;
+  /**
+   * The indeterminate state of the checkbox.
+   */
+  readonly indeterminate: Signal<boolean>;
+  /**
+   * The disabled state of the checkbox.
+   */
+  readonly disabled: Signal<boolean>;
+  /**
    * Toggle method.
    */
   toggle: () => void;
+  /**
+   * Set the checked state
+   */
+  setChecked: (value: boolean) => void;
+  /**
+   * Set the indeterminate state
+   */
+  setIndeterminate: (value: boolean) => void;
+
+  /**
+   * Set the disabled state
+   */
+  setDisabled: (value: boolean) => void;
 }
 
 /**
@@ -70,12 +104,13 @@ export function ngpCheckboxPattern({
   id = signal(uniqueId('ngp-checkbox')),
   checked: _checked = signal(false),
   indeterminate: _indeterminate = signal(false),
-  disabled = signal(false),
+  disabled: _disabled = signal(false),
   onCheckedChange,
   onIndeterminateChange,
 }: NgpCheckboxProps = {}): NgpCheckboxState {
   const checked = controlled(_checked);
   const indeterminate = controlled(_indeterminate);
+  const disabled = controlled(_disabled);
 
   // Host bindings
   attrBinding(element, 'role', 'checkbox');
@@ -118,6 +153,16 @@ export function ngpCheckboxPattern({
     event.preventDefault();
   }
 
+  function setChecked(value: boolean): void {
+    checked.set(value);
+    onCheckedChange?.(value);
+  }
+
+  function setIndeterminate(value: boolean): void {
+    indeterminate.set(value);
+    onIndeterminateChange?.(value);
+  }
+
   function toggle(): void {
     if (disabled()) {
       return;
@@ -134,8 +179,18 @@ export function ngpCheckboxPattern({
     }
   }
 
+  function setDisabled(value: boolean): void {
+    disabled.set(value);
+  }
+
   return {
+    checked,
+    indeterminate,
+    disabled,
     toggle,
+    setChecked,
+    setIndeterminate,
+    setDisabled,
   };
 }
 
@@ -162,3 +217,26 @@ export function provideCheckboxPattern<T>(
 ): FactoryProvider {
   return { provide: NgpCheckboxPatternToken, useFactory: () => fn(inject(type)) };
 }
+
+/**
+ * @deprecated Use injectCheckboxPattern instead.
+ */
+export const injectCheckboxState = createStateInjectFn(injectCheckboxPattern, pattern => {
+  // wrap the checked and indeterminate signals to provide set methods
+  const checked = linkedSignal(pattern.checked);
+  const indeterminate = linkedSignal(pattern.indeterminate);
+  const disabled = linkedSignal(pattern.disabled);
+
+  checked.set = pattern.setChecked;
+  indeterminate.set = pattern.setIndeterminate;
+  disabled.set = pattern.setDisabled;
+
+  return {
+    ...pattern,
+    checked,
+    indeterminate,
+    disabled,
+    checkedChange: toObservable(pattern.checked),
+    indeterminateChange: toObservable(pattern.indeterminate),
+  };
+});

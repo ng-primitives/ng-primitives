@@ -3,20 +3,31 @@ import {
   FactoryProvider,
   inject,
   InjectionToken,
+  linkedSignal,
   OutputEmitterRef,
+  signal,
   Signal,
   Type,
 } from '@angular/core';
+import { toObservable } from '@angular/core/rxjs-interop';
 import { ngpFormControlPattern } from 'ng-primitives/form-field';
 import { ngpInteractions } from 'ng-primitives/interactions';
 import { injectElementRef } from 'ng-primitives/internal';
-import { attrBinding, controlled, dataBinding, listener } from 'ng-primitives/state';
+import {
+  attrBinding,
+  controlled,
+  createStateInjectFn,
+  dataBinding,
+  listener,
+} from 'ng-primitives/state';
 
 export interface NgpToggleState {
   id: Signal<string>;
   selected: Signal<boolean>;
   disabled: Signal<boolean>;
   toggle(event?: Event): void;
+  setSelected(value: boolean): void;
+  setDisabled(isDisabled: boolean): void;
 }
 
 export interface NgpToggleProps {
@@ -30,11 +41,13 @@ export interface NgpToggleProps {
 export function ngpTogglePattern({
   id,
   selected: _selected,
-  disabled,
+  disabled: _disabled = signal(false),
   selectedChange,
   element = injectElementRef(),
 }: NgpToggleProps): NgpToggleState {
   const selected = controlled(_selected);
+  const disabled = controlled(_disabled);
+
   const isButton = element.nativeElement.tagName.toLowerCase() === 'button';
 
   // Setup form control
@@ -64,13 +77,20 @@ export function ngpTogglePattern({
   });
 
   function toggle(): void {
+    setSelected(!selected());
+  }
+
+  function setSelected(value: boolean): void {
     if (disabled()) {
       return;
     }
 
-    const newSelected = !selected();
-    selected.set(newSelected);
-    selectedChange.emit(newSelected);
+    selected.set(value);
+    selectedChange.emit(value);
+  }
+
+  function setDisabled(isDisabled: boolean): void {
+    disabled.set(isDisabled);
   }
 
   return {
@@ -78,6 +98,8 @@ export function ngpTogglePattern({
     selected: selected.asReadonly(),
     disabled,
     toggle,
+    setSelected,
+    setDisabled,
   };
 }
 
@@ -93,3 +115,14 @@ export function provideTogglePattern<T>(
 ): FactoryProvider {
   return { provide: NgpTogglePatternToken, useFactory: () => fn(inject(type)) };
 }
+
+/**
+ * @deprecated Use `injectTogglePattern` instead.
+ */
+export const injectToggleState = createStateInjectFn(injectTogglePattern, pattern => {
+  const selected = linkedSignal(pattern.selected);
+  selected.set = pattern.setSelected;
+  const disabled = linkedSignal(pattern.disabled);
+  disabled.set = pattern.setDisabled;
+  return { ...pattern, selected, disabled, selectedChange: toObservable(pattern.selected) };
+});

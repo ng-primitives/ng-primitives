@@ -3,10 +3,12 @@ import {
   FactoryProvider,
   inject,
   InjectionToken,
+  linkedSignal,
   Signal,
   signal,
   Type,
 } from '@angular/core';
+import { toObservable } from '@angular/core/rxjs-interop';
 import { NgpOrientation } from 'ng-primitives/common';
 import { ngpFormControlPattern } from 'ng-primitives/form-field';
 import { injectElementRef } from 'ng-primitives/internal';
@@ -15,7 +17,7 @@ import {
   NgpRovingFocusGroupState,
   provideRovingFocusGroupPattern,
 } from 'ng-primitives/roving-focus';
-import { attrBinding, controlled, dataBinding } from 'ng-primitives/state';
+import { attrBinding, controlled, createStateInjectFn, dataBinding } from 'ng-primitives/state';
 import { uniqueId } from 'ng-primitives/utils';
 
 /**
@@ -179,3 +181,12 @@ export function provideRadioGroupPattern<T>(
     provideRovingFocusGroupPattern(type, (instance: T) => fn(instance).rovingFocus),
   ];
 }
+
+/**
+ * @deprecated use `injectRadioGroupPattern` instead.
+ */
+export const injectRadioGroupState = createStateInjectFn(injectRadioGroupPattern, pattern => {
+  const value = linkedSignal<any>(pattern.value);
+  value.set = pattern.select;
+  return { ...pattern, value, valueChange: toObservable(value) };
+});

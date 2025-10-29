@@ -1,4 +1,12 @@
-import { ElementRef, FactoryProvider, inject, InjectionToken, Signal, Type } from '@angular/core';
+import {
+  ElementRef,
+  FactoryProvider,
+  inject,
+  InjectionToken,
+  linkedSignal,
+  Signal,
+  Type,
+} from '@angular/core';
 import { NgpOrientation } from 'ng-primitives/common';
 import { injectElementRef } from 'ng-primitives/internal';
 import {
@@ -6,11 +14,12 @@ import {
   NgpRovingFocusGroupState,
   provideRovingFocusGroupPattern,
 } from 'ng-primitives/roving-focus';
-import { attrBinding, dataBinding } from 'ng-primitives/state';
+import { attrBinding, controlled, createStateInjectFn, dataBinding } from 'ng-primitives/state';
 
 export interface NgpToolbarState {
   orientation: Signal<NgpOrientation>;
-  rovingFocus: NgpRovingFocusGroupState;
+  _rovingFocus: NgpRovingFocusGroupState;
+  setOrientation(value: NgpOrientation): void;
 }
 
 export interface NgpToolbarProps {
@@ -19,9 +28,10 @@ export interface NgpToolbarProps {
 }
 
 export function ngpToolbarPattern({
-  orientation,
+  orientation: _orientation,
   element = injectElementRef(),
 }: NgpToolbarProps): NgpToolbarState {
+  const orientation = controlled(_orientation);
   const rovingFocus = ngpRovingFocusGroupPattern({
     orientation,
     element,
@@ -32,9 +42,14 @@ export function ngpToolbarPattern({
   attrBinding(element, 'aria-orientation', () => orientation());
   dataBinding(element, 'data-orientation', orientation);
 
+  function setOrientation(value: NgpOrientation) {
+    orientation.set(value);
+  }
+
   return {
     orientation,
-    rovingFocus,
+    _rovingFocus: rovingFocus,
+    setOrientation,
   };
 }
 
@@ -50,6 +65,15 @@ export function provideToolbarPattern<T>(
 ): FactoryProvider[] {
   return [
     { provide: NgpToolbarPatternToken, useFactory: () => fn(inject(type)) },
-    provideRovingFocusGroupPattern(type, instance => fn(instance).rovingFocus),
+    provideRovingFocusGroupPattern(type, instance => fn(instance)._rovingFocus),
   ];
 }
+
+/**
+ * @deprecated Use `injectToolbarPattern` instead.
+ */
+export const injectToolbarState = createStateInjectFn(injectToolbarPattern, pattern => {
+  const orientation = linkedSignal(pattern.orientation);
+  orientation.set = pattern.setOrientation;
+  return { ...pattern, orientation };
+});

@@ -413,3 +413,31 @@ export function onDestroy(callback: () => void): void {
   const destroyRef = inject(DestroyRef);
   destroyRef.onDestroy(callback);
 }
+
+/**
+ * @deprecated
+ * Return the pattern injector as a signal for backwards compatibility.
+ * @param injectFn The function that returns the pattern
+ * @param mutateFn Optional function to mutate the pattern and add additional properties
+ */
+export function createStateInjectFn<T extends () => any>(injectFn: T): () => Signal<ReturnType<T>>;
+export function createStateInjectFn<T extends () => any, U extends Record<string, any>>(
+  injectFn: T,
+  mutateFn: (pattern: ReturnType<T>) => U,
+): () => Signal<ReturnType<T> & U>;
+export function createStateInjectFn<T extends () => any, U extends Record<string, any>>(
+  injectFn: T,
+  mutateFn?: (pattern: ReturnType<T>) => U,
+): () => Signal<ReturnType<T> & U> | (() => Signal<ReturnType<T>>) {
+  return () => {
+    const pattern = injectFn();
+
+    if (mutateFn) {
+      const additionalProps = mutateFn(pattern);
+      const combined = { ...pattern, ...additionalProps };
+      return signal(combined).asReadonly() as Signal<ReturnType<T> & U>;
+    }
+
+    return signal(pattern).asReadonly() as Signal<ReturnType<T>>;
+  };
+}

@@ -30,6 +30,7 @@ export {
 export { NgpRangeSlider } from './range-slider/range-slider';
 export {
   injectRangeSliderPattern,
+  injectRangeSliderState,
   ngpRangeSliderPattern,
   provideRangeSliderPattern,
   type NgpRangeSliderProps,
@@ -58,6 +59,7 @@ export {
 } from './slider-track/slider-track-pattern';
 export {
   injectSliderPattern,
+  injectSliderState,
   ngpSliderPattern,
   provideSliderPattern,
   type NgpSliderProps,

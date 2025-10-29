@@ -9,6 +9,7 @@ export {
 export { NgpSwitch } from './switch/switch';
 export {
   injectSwitchPattern,
+  injectSwitchState,
   ngpSwitchPattern,
   provideSwitchPattern,
   type NgpSwitchProps,

@@ -1,4 +1,13 @@
-import { DestroyRef, Signal, WritableSignal, afterNextRender, inject, signal } from '@angular/core';
+import {
+  DestroyRef,
+  Injector,
+  Signal,
+  WritableSignal,
+  afterNextRender,
+  inject,
+  runInInjectionContext,
+  signal,
+} from '@angular/core';
 import { NgControl } from '@angular/forms';
 import { safeTakeUntilDestroyed } from '../observables/take-until-destroyed';
 
@@ -51,7 +60,7 @@ function subscribeToControlStatus(
  * @internal
  */
 export function controlStatus(): Signal<NgpControlStatus> {
-  const control = inject(NgControl, { optional: true });
+  const injector = inject(Injector);
   const destroyRef = inject(DestroyRef);
 
   const status = signal<NgpControlStatus>({
@@ -64,24 +73,22 @@ export function controlStatus(): Signal<NgpControlStatus> {
     disabled: null,
   });
 
-  // Fallback if control is not yet available
-  if (!control?.control) {
-    // There is still a chance that the control will be available i.e. after executing OnInit lifecycle hook
-    // in `formControlName` directive, so we set up an effect to subscribe to the control status
-    afterNextRender({
-      write: () => {
-        // If control is still not available, we do nothing, otherwise we subscribe to the control status
-        if (control?.control) {
-          subscribeToControlStatus(control, status, destroyRef);
-          // We re-set the status to ensure it reflects the current state on initialization
-          setStatusSignal(control, status);
-        }
-      },
-    });
-    return status;
-  }
+  // we do this in the next render to avoid circular dependency issues where the control status is
+  // on the host that provides the control itself.
+  afterNextRender(() => {
+    runInInjectionContext(injector, () => {
+      const control = inject(NgControl, { optional: true });
 
-  subscribeToControlStatus(control, status);
+      // There is still a chance that the control will be available i.e. after executing OnInit lifecycle hook
+      // in `formControlName` directive, so we set up an effect to subscribe to the control status
+      // If control is still not available, we do nothing, otherwise we subscribe to the control status
+      if (control?.control) {
+        subscribeToControlStatus(control, status, destroyRef);
+        // We re-set the status to ensure it reflects the current state on initialization
+        setStatusSignal(control, status);
+      }
+    });
+  });
 
   return status;
 }

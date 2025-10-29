@@ -5,14 +5,23 @@ import {
   HOST_TAG_NAME,
   inject,
   InjectionToken,
+  linkedSignal,
   signal,
   Signal,
   Type,
 } from '@angular/core';
+import { toObservable } from '@angular/core/rxjs-interop';
 import { ngpFormControlPattern } from 'ng-primitives/form-field';
 import { ngpInteractions } from 'ng-primitives/interactions';
 import { injectElementRef } from 'ng-primitives/internal';
-import { attrBinding, controlled, dataBinding, listener, onPress } from 'ng-primitives/state';
+import {
+  attrBinding,
+  controlled,
+  createStateInjectFn,
+  dataBinding,
+  listener,
+  onPress,
+} from 'ng-primitives/state';
 import { uniqueId } from 'ng-primitives/utils';
 
 /**
@@ -31,6 +40,14 @@ export interface NgpSwitchState {
    * Toggle method.
    */
   toggle: () => void;
+  /**
+   * Set the checked state.
+   */
+  setChecked: (value: boolean) => void;
+  /**
+   * Set the disabled state.
+   */
+  setDisabled: (value: boolean) => void;
 }
 
 /**
@@ -66,12 +83,13 @@ export function ngpSwitchPattern({
   element = injectElementRef(),
   id = signal(uniqueId('ngp-switch')),
   checked: _checked = signal(false),
-  disabled = signal(false),
+  disabled: _disabled = signal(false),
   onCheckedChange,
 }: NgpSwitchProps = {}): NgpSwitchState {
   const tag = inject(HOST_TAG_NAME).toLowerCase();
   const isButton = tag === 'button';
   const checked = controlled(_checked);
+  const disabled = controlled(_disabled);
 
   // Host bindings
   attrBinding(element, 'role', 'switch');
@@ -118,6 +136,14 @@ export function ngpSwitchPattern({
     onCheckedChange?.(newChecked);
   }
 
+  function setChecked(value: boolean): void {
+    checked.set(value);
+  }
+
+  function setDisabled(value: boolean): void {
+    disabled.set(value);
+  }
+
   function onKeyDown(event: KeyboardEvent): void {
     // Prevent the default action of the space key, which is to scroll the page.
     event.preventDefault();
@@ -133,6 +159,8 @@ export function ngpSwitchPattern({
     checked,
     disabled,
     toggle,
+    setChecked,
+    setDisabled,
   };
 }
 
@@ -157,3 +185,16 @@ export function provideSwitchPattern<T>(
 ): FactoryProvider {
   return { provide: NgpSwitchPatternToken, useFactory: () => fn(inject(type)) };
 }
+
+/**
+ * @deprecated use `injectSwitchPattern` instead.
+ */
+export const injectSwitchState = createStateInjectFn(injectSwitchPattern, pattern => {
+  const checked = linkedSignal(pattern.checked);
+  checked.set = pattern.setChecked;
+
+  const disabled = linkedSignal(pattern.disabled);
+  disabled.set = pattern.setDisabled;
+
+  return { ...pattern, disabled, checked, checkedChange: toObservable(checked) };
+});

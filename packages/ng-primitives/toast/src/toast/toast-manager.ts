@@ -12,7 +12,7 @@ import {
 } from '@angular/core';
 import { createPortal, NgpPortal } from 'ng-primitives/portal';
 import { injectToastConfig } from '../config/toast-config';
-import { NgpToastPlacement, NgpToastSwipeDirection } from './toast';
+import type { NgpToast, NgpToastPlacement, NgpToastSwipeDirection } from './toast';
 import { provideToastContext } from './toast-context';
 import { provideToastOptions } from './toast-options';
 import { NgpToastState } from './toast-pattern';
@@ -83,7 +83,11 @@ export class NgpToastManager {
   }
 
   /** Hide a toast notification */
-  async dismiss(toast: NgpToastState): Promise<void> {
+  async dismiss(toast: NgpToastState | NgpToast): Promise<void> {
+    if (isNgpToast(toast)) {
+      toast = (toast as any).pattern as NgpToastState;
+    }
+
     const ref = this.toasts().find(t => t.instance.id === toast.id);
 
     if (ref) {
@@ -201,4 +205,8 @@ interface NgpToastRecord {
 
 interface NgpToastRef {
   dismiss(): Promise<void>;
+}
+
+function isNgpToast(obj: any): obj is NgpToast {
+  return 'pattern' in obj;
 }
