@@ -1,3 +1,17 @@
+## 0.87.0 (2025-11-04)
+
+### 🩹 Fixes
+
+- **date-picker:** resolve issue of not selecting previous month if day doesn't exists ([#506](https://github.com/ng-primitives/ng-primitives/pull/506))
+- **file-upload:** hide native input to prevent visible injection ([#501](https://github.com/ng-primitives/ng-primitives/pull/501), [#507](https://github.com/ng-primitives/ng-primitives/pull/507))
+- **resize:** support inline elements ([#511](https://github.com/ng-primitives/ng-primitives/pull/511))
+
+### ❤️ Thank You
+
+- Alex
+- Ashley Hunter
+- zecka @zecka
+
 ## 0.86.0 (2025-10-29)
 
 ### 🚀 Features
