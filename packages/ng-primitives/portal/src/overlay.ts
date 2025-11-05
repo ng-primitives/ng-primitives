@@ -44,6 +44,9 @@ export interface NgpOverlayConfig<T = unknown> {
   /** The element that triggers the overlay */
   triggerElement: HTMLElement;
 
+  /** The element to use for positioning the overlay (if different from trigger) */
+  anchorElement?: HTMLElement | null;
+
   /** The injector to use for creating the portal */
   injector: Injector;
   /** ViewContainerRef to use for creating the portal */
@@ -187,7 +190,8 @@ export class NgpOverlay<T = unknown> {
     this.transformOrigin.set(this.getTransformOrigin());
 
     // Monitor trigger element resize
-    fromResizeEvent(this.config.triggerElement)
+    const elementToMonitor = this.config.anchorElement || this.config.triggerElement;
+    fromResizeEvent(elementToMonitor)
       .pipe(safeTakeUntilDestroyed(this.destroyRef))
       .subscribe(({ width, height }) => {
         this.triggerWidth.set(width);
@@ -222,8 +226,11 @@ export class NgpOverlay<T = unknown> {
         const path = event.composedPath();
         const isInsideOverlay = overlay.getElements().some(el => path.includes(el));
         const isInsideTrigger = path.includes(this.config.triggerElement);
+        const isInsideAnchor = this.config.anchorElement
+          ? path.includes(this.config.anchorElement)
+          : false;
 
-        if (!isInsideOverlay && !isInsideTrigger) {
+        if (!isInsideOverlay && !isInsideTrigger && !isInsideAnchor) {
           this.hide();
         }
       });
@@ -456,8 +463,11 @@ export class NgpOverlay<T = unknown> {
         ? 'fixed'
         : this.config.strategy || 'absolute';
 
+    // Use anchor element for positioning if provided, otherwise use trigger element
+    const referenceElement = this.config.anchorElement || this.config.triggerElement;
+
     // Setup auto-update for positioning
-    this.disposePositioning = autoUpdate(this.config.triggerElement, overlayElement, () =>
+    this.disposePositioning = autoUpdate(referenceElement, overlayElement, () =>
       this.computePosition(overlayElement, strategy),
     );
   }
@@ -490,7 +500,10 @@ export class NgpOverlay<T = unknown> {
     // Compute the position
     const placement = this.config.placement?.() ?? 'top';
 
-    const position = await computePosition(this.config.triggerElement, overlayElement, {
+    // Use anchor element for positioning if provided, otherwise use trigger element
+    const referenceElement = this.config.anchorElement || this.config.triggerElement;
+
+    const position = await computePosition(referenceElement, overlayElement, {
       placement,
       middleware,
       strategy,

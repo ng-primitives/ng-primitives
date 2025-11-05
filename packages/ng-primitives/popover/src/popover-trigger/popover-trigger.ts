@@ -166,6 +166,14 @@ export class NgpPopoverTrigger<T = null> implements OnDestroy {
   });
 
   /**
+   * Define an anchor element for positioning the popover.
+   * If provided, the popover will be positioned relative to this element instead of the trigger.
+   */
+  readonly anchor = input<HTMLElement | null>(null, {
+    alias: 'ngpPopoverTriggerAnchor',
+  });
+
+  /**
    * The overlay that manages the popover
    * @internal
    */
@@ -264,6 +272,7 @@ export class NgpPopoverTrigger<T = null> implements OnDestroy {
     const config: NgpOverlayConfig<T> = {
       content: popover,
       triggerElement: this.trigger.nativeElement,
+      anchorElement: this.state.anchor(),
       injector: this.injector,
       context: this.state.context,
       container: this.state.container(),

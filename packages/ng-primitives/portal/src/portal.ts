@@ -1,5 +1,7 @@
+import { VERSION } from '@angular/cdk';
 import { ComponentPortal, DomPortalOutlet, TemplatePortal } from '@angular/cdk/portal';
 import {
+  type ApplicationRef,
   ComponentRef,
   EmbeddedViewRef,
   Injector,
@@ -40,6 +42,22 @@ export abstract class NgpPortal {
    * Detach the portal from the DOM.
    */
   abstract detach(): Promise<void>;
+
+  /**
+   * Angular v20 removes `_unusedComponentFactoryResolver` and `_document` from DomPortalOutlet's
+   * constructor signature as they have been deprecated since v18, and replaced with optional
+   * `_appRef` and `_defaultInjector` params.
+   * This temporary change ensures consistent behaviour for consumers using ng v20+.
+   * @see {@link https://github.com/angular/components/pull/24504 The implementing PR} for the new implementation.
+   * @see {@link https://github.com/angular/components/blob/732a0d7ab69ec25925cc06a0fb17b0fb16a4b0ae/src/cdk/portal/dom-portal-outlet.ts#L27 The latest v20 version comments}
+   * describe the importance of passing the `_appRef` and `_defaultInjector` when it comes to component portals
+   */
+  // todo: remove this compat fix once support for v19 is dropped when v21 is released
+  //  - should aim to add appRef also to prevent unforeseen issues in certain edge cases
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  protected _getDomPortalOutletCtorParamsCompat(): (ApplicationRef | Injector | undefined | any)[] {
+    return Number(VERSION.major) >= 20 ? [this.injector] : [undefined, this.injector];
+  }
 }
 
 export class NgpComponentPortal<T> extends NgpPortal {
@@ -58,7 +76,11 @@ export class NgpComponentPortal<T> extends NgpPortal {
    * @param container The DOM element to attach the portal to.
    */
   attach(container: HTMLElement): this {
-    const domOutlet = new DomPortalOutlet(container, undefined, undefined, this.injector);
+    const domOutlet = new DomPortalOutlet(
+      container,
+      undefined,
+      ...this._getDomPortalOutletCtorParamsCompat(),
+    );
     this.viewRef = domOutlet.attach(this.componentPortal);
 
     const element = this.viewRef.location.nativeElement as HTMLElement;
@@ -129,7 +151,11 @@ export class NgpTemplatePortal<T> extends NgpPortal {
    * @param container The DOM element to attach the portal to.
    */
   attach(container: HTMLElement): this {
-    const domOutlet = new DomPortalOutlet(container, undefined, undefined, this.injector);
+    const domOutlet = new DomPortalOutlet(
+      container,
+      undefined,
+      ...this._getDomPortalOutletCtorParamsCompat(),
+    );
     this.viewRef = domOutlet.attach(this.templatePortal);
 
     for (const rootNode of this.viewRef.rootNodes) {

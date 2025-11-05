@@ -251,6 +251,60 @@
       "contributions": [
         "code"
       ]
+    },
+    {
+      "login": "arastorhuiev",
+      "name": "Andrii Rastorhuiev",
+      "avatar_url": "https://avatars.githubusercontent.com/u/114357806?v=4",
+      "profile": "https://github.com/arastorhuiev",
+      "contributions": [
+        "code"
+      ]
+    },
+    {
+      "login": "heddendorp",
+      "name": "Lukas Heddendorp",
+      "avatar_url": "https://avatars.githubusercontent.com/u/3612748?v=4",
+      "profile": "https://github.com/heddendorp",
+      "contributions": [
+        "code"
+      ]
+    },
+    {
+      "login": "ainsly",
+      "name": "ainsly",
+      "avatar_url": "https://avatars.githubusercontent.com/u/1775015?v=4",
+      "profile": "https://github.com/ainsly",
+      "contributions": [
+        "code"
+      ]
+    },
+    {
+      "login": "abiramcodes",
+      "name": "Abiram",
+      "avatar_url": "https://avatars.githubusercontent.com/u/131433061?v=4",
+      "profile": "https://github.com/abiramcodes",
+      "contributions": [
+        "code"
+      ]
+    },
+    {
+      "login": "alexknipfer",
+      "name": "Alex",
+      "avatar_url": "https://avatars.githubusercontent.com/u/1299646?v=4",
+      "profile": "https://alexknipfer.com",
+      "contributions": [
+        "code"
+      ]
+    },
+    {
+      "login": "zecka",
+      "name": "zecka",
+      "avatar_url": "https://avatars.githubusercontent.com/u/18116930?v=4",
+      "profile": "https://github.com/zecka",
+      "contributions": [
+        "code"
+      ]
     }
   ],
   "contributorsPerLine": 7,

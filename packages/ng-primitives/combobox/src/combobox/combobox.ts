@@ -601,7 +601,11 @@ export class NgpCombobox {
         break;
       case 'Enter':
         if (this.open()) {
-          this.selectOption(this.activeDescendantManager.activeItem());
+          const activeItem = this.activeDescendantManager.activeItem();
+
+          if (activeItem) {
+            this.toggleOption(activeItem);
+          }
         }
         event.preventDefault();
         break;

@@ -56,6 +56,8 @@ export function fromResizeEvent(
           // otherwise, take the first entry and emit the dimensions
           const entry = entries[0];
 
+          let width: number, height: number;
+
           if ('borderBoxSize' in entry) {
             const borderSizeEntry = entry['borderBoxSize'];
             // this may be different across browsers so normalize it
@@ -63,11 +65,23 @@ export function fromResizeEvent(
               ? borderSizeEntry[0]
               : borderSizeEntry;
 
-            observable.next({ width: borderSize['inlineSize'], height: borderSize['blockSize'] });
+            width = borderSize['inlineSize'];
+            height = borderSize['blockSize'];
           } else {
             // fallback for browsers that don't support borderBoxSize
-            observable.next({ width: element.offsetWidth, height: element.offsetHeight });
+            width = element.offsetWidth;
+            height = element.offsetHeight;
           }
+
+          // For inline elements, ResizeObserver may report 0,0 dimensions
+          // Use getBoundingClientRect as fallback for inline elements with zero dimensions
+          if ((width === 0 || height === 0) && getComputedStyle(element).display === 'inline') {
+            const rect = element.getBoundingClientRect();
+            width = rect.width;
+            height = rect.height;
+          }
+
+          observable.next({ width, height });
         });
 
         observer.observe(element);

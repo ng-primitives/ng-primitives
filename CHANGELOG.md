@@ -1,3 +1,61 @@
+## 0.87.0 (2025-11-04)
+
+### 🩹 Fixes
+
+- **date-picker:** resolve issue of not selecting previous month if day doesn't exists ([#506](https://github.com/ng-primitives/ng-primitives/pull/506))
+- **file-upload:** hide native input to prevent visible injection ([#501](https://github.com/ng-primitives/ng-primitives/pull/501), [#507](https://github.com/ng-primitives/ng-primitives/pull/507))
+- **resize:** support inline elements ([#511](https://github.com/ng-primitives/ng-primitives/pull/511))
+
+### ❤️ Thank You
+
+- Alex
+- Ashley Hunter
+- zecka @zecka
+
+## 0.86.0 (2025-10-29)
+
+### 🚀 Features
+
+- **slider:** added rtl support ([#499](https://github.com/ng-primitives/ng-primitives/pull/499))
+
+### 🩹 Fixes
+
+- add compatibility for @angular/cdk@20 caused by removed deprecations in DomPortalOutlet ([#486](https://github.com/ng-primitives/ng-primitives/pull/486))
+- **combobox:** resolve issue with option not de-selecting on enter keypress ([#503](https://github.com/ng-primitives/ng-primitives/pull/503))
+- **select:** apply data-selected attribute in multi-select mode ([#494](https://github.com/ng-primitives/ng-primitives/pull/494))
+
+### ❤️ Thank You
+
+- Abiram @abiramcodes
+- ainsly @ainsly
+- Alex
+- Lukas Heddendorp @heddendorp
+
+## 0.85.0 (2025-10-20)
+
+### 🚀 Features
+
+- **popover:** popover anchor ([#495](https://github.com/ng-primitives/ng-primitives/pull/495))
+
+### ❤️ Thank You
+
+- Ashley Hunter
+
+## 0.84.0 (2025-10-13)
+
+### 🚀 Features
+
+- add tabs tailwind example ([#485](https://github.com/ng-primitives/ng-primitives/pull/485))
+
+### 🩹 Fixes
+
+- **tabs:** resolve nested tabs state conflict ([#488](https://github.com/ng-primitives/ng-primitives/pull/488))
+
+### ❤️ Thank You
+
+- Andrii Rastorhuiev @arastorhuiev
+- kedevked @kedevked
+
 ## 0.83.0 (2025-10-01)
 
 ### 🚀 Features

@@ -458,6 +458,26 @@ describe('NgpCombobox Multi-select', () => {
       expect(screen.queryByText('Apple')).not.toBeInTheDocument();
     });
   });
+
+  it('should deselect an already selected option when pressing Enter key', async () => {
+    const { fixture } = await render(MultiSelectTestComponent);
+    const component = fixture.componentInstance;
+    const input = screen.getByRole('combobox');
+    input.focus();
+    // Open dropdown with arrow down
+    await userEvent.keyboard('{arrowdown}');
+    // Select first option (Apple) with enter
+    await userEvent.keyboard('{enter}');
+    expect(component.value).toEqual(['Apple']);
+    // Dropdown should remain open
+    expect(screen.getByText('Apple')).toBeInTheDocument();
+    // Press Enter again to deselect
+    await userEvent.keyboard('{enter}');
+    // Value should be empty now that Apple is deselected
+    expect(component.value).toEqual([]);
+    // Dropdown should remain open
+    expect(screen.getByText('Apple')).toBeInTheDocument();
+  });
 });
 
 describe('NgpComboboxOption', () => {

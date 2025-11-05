@@ -219,4 +219,59 @@ describe('NgpTabset', () => {
     expect(tab).toBeDisabled();
     expect(tab).not.toHaveAttribute('data-active');
   });
+
+  it('should keep outer and inner tabsets state independent', async () => {
+    const { fixture, getByRole } = await render(
+      `
+      <div ngpTabset>
+        <div ngpTabList>
+          <button ngpTabButton ngpTabButtonValue="outer-1">Outer 1</button>
+          <button ngpTabButton ngpTabButtonValue="outer-2">Outer 2</button>
+        </div>
+        <div ngpTabPanel ngpTabPanelValue="outer-1">
+          <div ngpTabset>
+            <div ngpTabList>
+              <button ngpTabButton ngpTabButtonValue="inner-1">Inner 1</button>
+              <button ngpTabButton ngpTabButtonValue="inner-2">Inner 2</button>
+            </div>
+            <div ngpTabPanel ngpTabPanelValue="inner-1">Inner 1 content</div>
+            <div ngpTabPanel ngpTabPanelValue="inner-2">Inner 2 content</div>
+          </div>
+        </div>
+        <div ngpTabPanel ngpTabPanelValue="outer-2">Outer 2 content</div>
+      </div>
+    `,
+      {
+        imports: [NgpTabset, NgpTabButton, NgpTabList, NgpTabPanel],
+      },
+    );
+
+    const outerFirst = getByRole('tab', { name: 'Outer 1' });
+    const outerSecond = getByRole('tab', { name: 'Outer 2' });
+    const innerFirst = getByRole('tab', { name: 'Inner 1' });
+    const innerSecond = getByRole('tab', { name: 'Inner 2' });
+
+    expect(outerFirst).toHaveAttribute('data-active');
+    expect(outerSecond).not.toHaveAttribute('data-active');
+    expect(innerFirst).toHaveAttribute('data-active');
+    expect(innerSecond).not.toHaveAttribute('data-active');
+
+    innerSecond.click();
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    expect(innerSecond).toHaveAttribute('data-active');
+    expect(innerFirst).not.toHaveAttribute('data-active');
+    expect(outerFirst).toHaveAttribute('data-active');
+    expect(outerSecond).not.toHaveAttribute('data-active');
+
+    outerSecond.click();
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    expect(outerSecond).toHaveAttribute('data-active');
+    expect(outerFirst).not.toHaveAttribute('data-active');
+    expect(innerSecond).toHaveAttribute('data-active');
+    expect(innerFirst).not.toHaveAttribute('data-active');
+  });
 });
