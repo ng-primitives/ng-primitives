@@ -109,28 +109,48 @@ export function ngpSliderThumbPattern({
   }
   function handleKeydown(event: KeyboardEvent): void {
     const multiplier = event.shiftKey ? 10 : 1;
-    const value = slider.value();
+    const step = slider.step() * multiplier;
+    const currentValue = slider.value();
+
+    // determine the document direction
+    const isRTL = getComputedStyle(element.nativeElement).direction === 'rtl';
+
+    let newValue: number;
 
     switch (event.key) {
       case 'ArrowLeft':
+        newValue = isRTL
+          ? Math.min(currentValue + step, slider.max())
+          : Math.max(currentValue - step, slider.min());
+        break;
       case 'ArrowDown':
-        slider.setValue(Math.max(value - slider.step() * multiplier, slider.min()));
-        event.preventDefault();
+        newValue = Math.max(currentValue - step, slider.min());
         break;
       case 'ArrowRight':
+        newValue = isRTL
+          ? Math.max(currentValue - step, slider.min())
+          : Math.min(currentValue + step, slider.max());
+        break;
       case 'ArrowUp':
-        slider.setValue(Math.min(value + slider.step() * multiplier, slider.max()));
-        event.preventDefault();
+        newValue = Math.min(currentValue + step, slider.max());
         break;
       case 'Home':
-        slider.setValue(slider.min());
-        event.preventDefault();
+        newValue = isRTL ? slider.max() : slider.min();
         break;
       case 'End':
-        slider.setValue(slider.max());
-        event.preventDefault();
+        newValue = isRTL ? slider.min() : slider.max();
         break;
+      default:
+        return;
     }
+
+    // if the value is the same, do not emit an event
+    if (newValue === currentValue) {
+      return;
+    }
+
+    slider.setValue(newValue);
+    event.preventDefault();
   }
 
   return {

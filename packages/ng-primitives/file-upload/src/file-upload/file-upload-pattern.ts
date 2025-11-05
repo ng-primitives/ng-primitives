@@ -102,6 +102,8 @@ export function ngpFileUploadPattern({
   // Create file input element
   const input: HTMLInputElement = document.createElement('input');
   input.type = 'file';
+  input.style.display = 'none';
+
   input.addEventListener('change', () => {
     onSelected?.(input.files);
     // clear the input value to allow re-uploading the same file
