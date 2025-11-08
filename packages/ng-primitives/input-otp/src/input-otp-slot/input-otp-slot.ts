@@ -7,9 +7,9 @@ import { injectInputOtpState } from '../input-otp/input-otp-state';
   host: {
     role: 'presentation',
     '[attr.data-slot-index]': 'index()',
-    '[attr.data-active]': 'slotData()?.focused ? "" : null',
-    '[attr.data-filled]': 'slotData()?.filled ? "" : null',
-    '[attr.data-caret]': 'slotData()?.caret ? "" : null',
+    '[attr.data-active]': 'focused() ? "" : null',
+    '[attr.data-filled]': 'filled() ? "" : null',
+    '[attr.data-caret]': 'caret() ? "" : null',
     '[attr.data-placeholder]': 'showPlaceholder() ? "" : null',
     '[textContent]': 'displayChar()',
     '(click)': 'onClick($event)',
@@ -17,40 +17,79 @@ import { injectInputOtpState } from '../input-otp/input-otp-state';
 })
 export class NgpInputOtpSlot implements OnDestroy {
   /**
-   * The computed index of this slot based on registration order.
-   */
-  readonly index = computed(() => this.state().getSlotIndex(this));
-
-  /**
    * Access the input-otp state.
    */
   protected readonly state = injectInputOtpState();
 
   /**
-   * The slot data for this specific slot.
+   * The computed index of this slot based on registration order.
    */
-  readonly slotData = computed(() => {
-    const slots = this.state().slotData();
+  readonly index = computed(() => this.state().getSlotIndex(this));
+
+  /**
+   * The character for this slot from the value string.
+   */
+  readonly char = computed(() => {
+    const value = this.state().value();
     const currentIndex = this.index();
-    return currentIndex >= 0 ? slots[currentIndex] || null : null;
+    return currentIndex >= 0 && currentIndex < value.length ? value[currentIndex] : null;
   });
+
+  /**
+   * Whether this slot is focused (active).
+   */
+  readonly focused = computed(() => {
+    const currentIndex = this.index();
+    const isFocused = this.state().isFocused();
+    const selectionStart = this.state().selectionStart();
+    const value = this.state().value();
+    const maxLength = this.state().maxLength();
+
+    return (
+      isFocused &&
+      (currentIndex === selectionStart ||
+        (value.length === maxLength && currentIndex === maxLength - 1))
+    );
+  });
+
+  /**
+   * Whether this slot should show the caret.
+   */
+  readonly caret = computed(() => {
+    const currentIndex = this.index();
+    const isFocused = this.state().isFocused();
+    const selectionStart = this.state().selectionStart();
+    const selectionEnd = this.state().selectionEnd();
+    const value = this.state().value();
+    const maxLength = this.state().maxLength();
+
+    return (
+      isFocused &&
+      currentIndex === selectionStart &&
+      selectionStart === selectionEnd &&
+      value.length < maxLength
+    );
+  });
+
+  /**
+   * Whether this slot is filled with a character.
+   */
+  readonly filled = computed(() => this.char() !== null);
 
   /**
    * Whether to show placeholder for this slot.
    */
   readonly showPlaceholder = computed(() => {
-    const slot = this.slotData();
     const placeholder = this.state().placeholder();
-    return slot && !slot.filled && placeholder;
+    return !this.filled() && !!placeholder;
   });
 
   /**
    * The display character for this slot (character or placeholder).
    */
   readonly displayChar = computed(() => {
-    const slot = this.slotData();
-    if (!slot) return '';
-    if (slot.char) return slot.char;
+    const char = this.char();
+    if (char) return char;
     if (this.showPlaceholder()) return this.state().placeholder();
     return '';
   });

@@ -16,14 +16,6 @@ export type NgpInputOtpInputMode =
   | 'email'
   | 'url';
 
-export interface NgpInputOtpSlotData {
-  index: number;
-  char: string | null;
-  focused: boolean;
-  caret: boolean;
-  filled: boolean;
-}
-
 @Directive({
   selector: '[ngpInputOtp]',
   exportAs: 'ngpInputOtp',
@@ -50,7 +42,7 @@ export class NgpInputOtp {
   /**
    * The regex pattern for allowed characters.
    */
-  readonly pattern = input<string>(undefined, {
+  readonly pattern = input<string>('[0-9]', {
     alias: 'ngpInputOtpPattern',
   });
 
@@ -131,42 +123,6 @@ export class NgpInputOtp {
    * @internal
    */
   readonly selectionEnd = signal(0);
-
-  /**
-   * The computed slot data for rendering.
-   */
-  readonly slotData = computed<NgpInputOtpSlotData[]>(() => {
-    const value = this.state.value();
-    const maxLength = this.maxLength();
-    const isFocused = this.isFocused();
-    const selectionStart = this.selectionStart();
-    const selectionEnd = this.selectionEnd();
-
-    const slots: NgpInputOtpSlotData[] = [];
-    for (let i = 0; i < maxLength; i++) {
-      const char = i < value.length ? value[i] : null;
-      // Show focus on the current cursor position, or last slot if filled and focused
-      const focused =
-        isFocused && (i === selectionStart || (value.length === maxLength && i === maxLength - 1));
-      // Only show caret if there are empty slots and we're at the cursor position
-      const caret =
-        isFocused &&
-        i === selectionStart &&
-        selectionStart === selectionEnd &&
-        value.length < maxLength;
-      const filled = char !== null;
-
-      slots.push({
-        index: i,
-        char,
-        focused,
-        caret,
-        filled,
-      });
-    }
-
-    return slots;
-  });
 
   /**
    * The state of the input-otp.
