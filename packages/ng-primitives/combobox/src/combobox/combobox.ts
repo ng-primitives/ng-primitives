@@ -615,6 +615,12 @@ export class NgpCombobox {
         }
         event.preventDefault();
         break;
+      case ' ':
+        if (!this.input()) {
+          this.toggleDropdown();
+          event.preventDefault();
+        }
+        break;
     }
   }
 
