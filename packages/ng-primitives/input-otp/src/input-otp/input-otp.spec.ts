@@ -1,9 +1,9 @@
 import { FocusMonitor } from '@angular/cdk/a11y';
 import { TestBed } from '@angular/core/testing';
 import { fireEvent, render, screen } from '@testing-library/angular';
-import { NgpInputOtp } from './input-otp';
 import { NgpInputOtpInput } from '../input-otp-input/input-otp-input';
 import { NgpInputOtpSlot } from '../input-otp-slot/input-otp-slot';
+import { NgpInputOtp } from './input-otp';
 
 describe('NgpInputOtp', () => {
   describe('Basic Rendering', () => {
@@ -475,6 +475,5 @@ describe('NgpInputOtp', () => {
       fireEvent.pointerUp(inputOtp);
       expect(inputOtp).not.toHaveAttribute('data-press');
     });
-
   });
 });

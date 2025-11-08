@@ -28,9 +28,6 @@ Assemble the input-otp directives in your template.
     <div ngpInputOtpSlot></div>
     <div ngpInputOtpSlot></div>
     <div ngpInputOtpSlot></div>
-    <div ngpInputOtpSlot></div>
-    <div ngpInputOtpSlot></div>
-    <div ngpInputOtpSlot></div>
   </div>
 </div>
 ```
