@@ -50,13 +50,6 @@ import { ChangeFn, TouchedFn } from 'ng-primitives/utils';
       max-width: 100%;
     }
 
-    input[ngpInputOtpInput] {
-      position: absolute;
-      left: -9999px;
-      opacity: 0;
-      pointer-events: none;
-    }
-
     .slots {
       display: flex;
       gap: 8px;
