@@ -148,8 +148,18 @@ export class NgpDatePickerDateButton<T> implements OnDestroy {
       event.stopPropagation();
     }
 
-    this.state().select(this.date);
-    this.state().setFocusedDate(this.date, 'mouse', 'forward');
+    // Preserve the time components by using this.date as the base
+    // and only setting the year/month/day from this.date itself.
+    // This allows a date-picker to be used with a time-picker without
+    // resetting hours/minutes/seconds to 0.
+    const updatedDate = this.dateAdapter.set(this.date, {
+      year: this.dateAdapter.getYear(this.date),
+      month: this.dateAdapter.getMonth(this.date),
+      day: this.dateAdapter.getDate(this.date),
+    });
+
+    this.state().select(updatedDate);
+    this.state().setFocusedDate(updatedDate, 'mouse', 'forward');
   }
 
   /**
