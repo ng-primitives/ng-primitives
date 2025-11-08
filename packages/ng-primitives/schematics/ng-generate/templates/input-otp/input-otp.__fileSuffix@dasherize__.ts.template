@@ -1,0 +1,197 @@
+import { BooleanInput, NumberInput } from '@angular/cdk/coercion';
+import {
+  booleanAttribute,
+  Component,
+  computed,
+  forwardRef,
+  input,
+  model,
+  numberAttribute,
+  signal,
+} from '@angular/core';
+import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
+import { NgpInputOtp, NgpInputOtpInput, NgpInputOtpSlot } from 'ng-primitives/input-otp';
+import { ChangeFn, TouchedFn } from 'ng-primitives/utils';
+
+@Component({
+  selector: '<%= prefix %>-input-otp',
+  imports: [NgpInputOtp, NgpInputOtpInput, NgpInputOtpSlot],
+  providers: [
+    {
+      provide: NG_VALUE_ACCESSOR,
+      useExisting: forwardRef(() => InputOtp<%= componentSuffix %>),
+      multi: true,
+    },
+  ],
+  template: `
+    <div
+      [ngpInputOtpValue]="value()"
+      [ngpInputOtpDisabled]="disabled() || formDisabled()"
+      [ngpInputOtpPattern]="pattern()"
+      [ngpInputOtpPlaceholder]="placeholder()"
+      [ngpInputOtpInputMode]="inputMode()"
+      (ngpInputOtpValueChange)="onValueChange($event)"
+      (ngpInputOtpComplete)="onComplete()"
+      ngpInputOtp
+    >
+      <input ngpInputOtpInput />
+      <div class="slots">
+        @for (_ of slots(); track $index) {
+          <div class="slot" ngpInputOtpSlot></div>
+        }
+      </div>
+    </div>
+  `,
+  styles: `
+/* These styles rely on CSS variables that can be imported from ng-primitives/example-theme/index.css in your global styles */
+
+    :host {
+      display: inline-flex;
+      flex-direction: column;
+      gap: 12px;
+      max-width: 100%;
+    }
+
+    .slots {
+      display: flex;
+      gap: 8px;
+    }
+
+    .slot {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 48px;
+      height: 48px;
+      border: 2px solid var(--ngp-border);
+      border-radius: 8px;
+      background: var(--ngp-background);
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--ngp-text-primary);
+      transition: all 150ms cubic-bezier(0.4, 0, 0.2, 1);
+      cursor: pointer;
+      position: relative;
+    }
+
+    .slot[data-filled] {
+      border-color: var(--ngp-border-strong);
+      background: var(--ngp-background-accent);
+    }
+
+    .slot[data-active] {
+      border-color: var(--ngp-focus-ring);
+      box-shadow: 0 0 0 1px var(--ngp-focus-ring);
+    }
+
+    .slot[data-placeholder] {
+      color: var(--ngp-text-placeholder);
+    }
+
+    .slot[data-caret]::after {
+      content: '';
+      position: absolute;
+      width: 2px;
+      height: 20px;
+      background: var(--ngp-focus-ring);
+      animation: blink 1s infinite;
+    }
+
+    @keyframes blink {
+      0%,
+      50% {
+        opacity: 1;
+      }
+      51%,
+      100% {
+        opacity: 0;
+      }
+    }
+
+    :host([data-disabled]) .slot {
+      background: var(--ngp-background-disabled);
+      color: var(--ngp-text-disabled);
+      border-color: var(--ngp-border-disabled);
+      cursor: not-allowed;
+    }
+  `,
+})
+export class InputOtp<%= componentSuffix %> implements ControlValueAccessor {
+  /**
+   * The number of slots to display.
+   */
+  readonly length = input<number, NumberInput>(6, {
+    transform: numberAttribute,
+  });
+
+  /**
+   * Whether the input is disabled.
+   */
+  readonly disabled = input<boolean, BooleanInput>(false, {
+    transform: booleanAttribute,
+  });
+
+  /**
+   * The pattern for allowed characters.
+   */
+  readonly pattern = input('[0-9]');
+
+  /**
+   * The placeholder character for empty slots.
+   */
+  readonly placeholder = input('');
+
+  /**
+   * The input mode for the hidden input.
+   */
+  readonly inputMode = input<'numeric' | 'text' | 'decimal' | 'tel' | 'search' | 'email' | 'url'>(
+    'numeric',
+  );
+
+  /**
+   * Create an array for tracking slots.
+   */
+  protected readonly slots = computed(() => Array.from({ length: this.length() }, (_, i) => i));
+
+  /**
+   * The current value.
+   */
+  readonly value = model<string>('');
+
+  private onChange: ChangeFn<string> = () => {};
+  private onTouched: TouchedFn = () => {};
+
+  protected readonly formDisabled = signal(false);
+
+  /**
+   * Handle value changes from the input-otp directive.
+   */
+  onValueChange(value: string): void {
+    this.value.set(value);
+    this.onChange(value);
+  }
+
+  /**
+   * Handle completion events from the input-otp directive.
+   */
+  onComplete(): void {
+    this.onTouched();
+  }
+
+  // ControlValueAccessor implementation
+  writeValue(value: string): void {
+    this.value.set(value);
+  }
+
+  registerOnChange(fn: ChangeFn<string>): void {
+    this.onChange = fn;
+  }
+
+  registerOnTouched(fn: TouchedFn): void {
+    this.onTouched = fn;
+  }
+
+  setDisabledState(isDisabled: boolean): void {
+    this.formDisabled.set(isDisabled);
+  }
+}

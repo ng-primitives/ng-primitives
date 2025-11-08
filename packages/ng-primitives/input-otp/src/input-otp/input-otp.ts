@@ -1,0 +1,231 @@
+import { BooleanInput } from '@angular/cdk/coercion';
+import { booleanAttribute, computed, Directive, input, output, signal } from '@angular/core';
+import { ngpInteractions } from 'ng-primitives/interactions';
+import { injectElementRef } from 'ng-primitives/internal';
+import { uniqueId } from 'ng-primitives/utils';
+import type { NgpInputOtpInput } from '../input-otp-input/input-otp-input';
+import type { NgpInputOtpSlot } from '../input-otp-slot/input-otp-slot';
+import { inputOtpState, provideInputOtpState } from './input-otp-state';
+
+export type NgpInputOtpInputMode =
+  | 'numeric'
+  | 'text'
+  | 'decimal'
+  | 'tel'
+  | 'search'
+  | 'email'
+  | 'url';
+
+@Directive({
+  selector: '[ngpInputOtp]',
+  exportAs: 'ngpInputOtp',
+  providers: [provideInputOtpState()],
+})
+export class NgpInputOtp {
+  /**
+   * Access the element reference.
+   */
+  readonly elementRef = injectElementRef<HTMLElement>();
+
+  /**
+   * The id of the input-otp.
+   */
+  readonly id = input(uniqueId('ngp-input-otp'));
+
+  /**
+   * The current value of the OTP.
+   */
+  readonly value = input<string>('', {
+    alias: 'ngpInputOtpValue',
+  });
+
+  /**
+   * The regex pattern for allowed characters.
+   */
+  readonly pattern = input<string>('[0-9]', {
+    alias: 'ngpInputOtpPattern',
+  });
+
+  /**
+   * The input mode for the hidden input.
+   */
+  readonly inputMode = input<NgpInputOtpInputMode>('text', {
+    alias: 'ngpInputOtpInputMode',
+  });
+
+  /**
+   * Function to transform pasted text.
+   */
+  readonly pasteTransformer = input<(text: string) => string>(undefined, {
+    alias: 'ngpInputOtpPasteTransformer',
+  });
+
+  /**
+   * Whether the input-otp is disabled.
+   */
+  readonly disabled = input<boolean, BooleanInput>(false, {
+    alias: 'ngpInputOtpDisabled',
+    transform: booleanAttribute,
+  });
+
+  /**
+   * The placeholder character to display when a slot is empty.
+   */
+  readonly placeholder = input<string>('', {
+    alias: 'ngpInputOtpPlaceholder',
+  });
+
+  /**
+   * Event emitted when the value changes.
+   */
+  readonly valueChange = output<string>({
+    alias: 'ngpInputOtpValueChange',
+  });
+
+  /**
+   * Event emitted when the OTP is complete (maxLength characters entered).
+   */
+  readonly complete = output<string>({
+    alias: 'ngpInputOtpComplete',
+  });
+
+  /**
+   * Store the input element reference.
+   * @internal
+   */
+  private readonly inputElement = signal<NgpInputOtpInput | undefined>(undefined);
+
+  /**
+   * Store registered slots in order.
+   * @internal
+   */
+  private readonly slots = signal<NgpInputOtpSlot[]>([]);
+
+  /**
+   * The number of characters in the OTP, derived from registered slots.
+   */
+  readonly maxLength = computed(() => this.slots().length);
+
+  /**
+   * The focus state of the input.
+   * @internal
+   */
+  readonly isFocused = signal(false);
+
+  /**
+   * The selection start position.
+   * @internal
+   */
+  readonly selectionStart = signal(0);
+
+  /**
+   * The selection end position.
+   * @internal
+   */
+  readonly selectionEnd = signal(0);
+
+  /**
+   * The state of the input-otp.
+   */
+  protected readonly state = inputOtpState<NgpInputOtp>(this);
+
+  constructor() {
+    ngpInteractions({
+      hover: true,
+      press: true,
+      focus: true,
+      disabled: this.state.disabled,
+    });
+  }
+
+  /**
+   * Register an input element with the input-otp.
+   * @param input The input element to register.
+   * @internal
+   */
+  registerInput(input: NgpInputOtpInput): void {
+    this.inputElement.set(input);
+  }
+
+  /**
+   * Register a slot with the input-otp.
+   * @param slot The slot to register.
+   * @internal
+   */
+  registerSlot(slot: NgpInputOtpSlot): void {
+    this.slots.update(currentSlots => [...currentSlots, slot]);
+  }
+
+  /**
+   * Unregister a slot from the input-otp.
+   * @param slot The slot to unregister.
+   * @internal
+   */
+  unregisterSlot(slot: NgpInputOtpSlot): void {
+    this.slots.update(currentSlots => currentSlots.filter(s => s !== slot));
+  }
+
+  /**
+   * Get the index of a registered slot.
+   * @param slot The slot to get the index for.
+   * @returns The index of the slot, or -1 if not found.
+   * @internal
+   */
+  getSlotIndex(slot: NgpInputOtpSlot): number {
+    return this.slots().indexOf(slot);
+  }
+
+  /**
+   * Update the value and emit change events.
+   * @param newValue The new value.
+   * @internal
+   */
+  updateValue(newValue: string): void {
+    if (newValue === this.state.value()) {
+      return;
+    }
+
+    this.state.value.set(newValue);
+    this.valueChange.emit(newValue);
+
+    // Emit complete event when the OTP is complete
+    if (newValue.length === this.maxLength()) {
+      this.complete.emit(newValue);
+    }
+  }
+
+  /**
+   * Update focus state.
+   * @param focused Whether the input is focused.
+   * @internal
+   */
+  updateFocus(focused: boolean): void {
+    this.isFocused.set(focused);
+  }
+
+  /**
+   * Update selection state.
+   * @param start Selection start position.
+   * @param end Selection end position.
+   * @internal
+   */
+  updateSelection(start: number, end: number): void {
+    this.selectionStart.set(start);
+    this.selectionEnd.set(end);
+  }
+
+  /**
+   * Focus the input and set caret to the specified position.
+   * @param position The position to set the caret to.
+   * @internal
+   */
+  focusAtPosition(position: number): void {
+    const input = this.inputElement();
+    if (!input) {
+      return;
+    }
+
+    input.focus();
+    input.setSelectionRange(position, position);
+  }
+}

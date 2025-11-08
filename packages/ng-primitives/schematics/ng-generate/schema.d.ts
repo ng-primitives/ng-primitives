@@ -30,7 +30,8 @@ export interface AngularPrimitivesComponentSchema {
     | 'popover'
     | 'combobox'
     | 'select'
-    | 'native-select';
+    | 'native-select'
+    | 'input-otp';
 
   /**
    * The path where the component files should be created, relative to the current workspace.
