@@ -1,5 +1,5 @@
 export { NgpInputOtpInput } from './input-otp-input/input-otp-input';
-export { NgpInputOtpSlot, type NgpInputOtpSlotContext } from './input-otp-slot/input-otp-slot';
+export { NgpInputOtpSlot } from './input-otp-slot/input-otp-slot';
 export {
   NgpInputOtp,
   type NgpInputOtpInputMode,

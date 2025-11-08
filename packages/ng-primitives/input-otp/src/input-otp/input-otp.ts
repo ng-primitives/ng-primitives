@@ -85,6 +85,11 @@ export class NgpInputOtp {
   });
 
   /**
+   * The placeholder character to display when a slot is empty.
+   */
+  readonly placeholder = input<string>('');
+
+  /**
    * Event emitted when the value changes.
    */
   readonly valueChange = output<string>();

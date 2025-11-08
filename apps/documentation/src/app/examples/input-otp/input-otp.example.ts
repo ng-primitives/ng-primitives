@@ -1,27 +1,19 @@
-import { Component, signal } from '@angular/core';
+import { Component, computed, signal } from '@angular/core';
 import { NgpInputOtp, NgpInputOtpInput, NgpInputOtpSlot } from 'ng-primitives/input-otp';
 
 @Component({
   selector: 'app-input-otp',
   imports: [NgpInputOtp, NgpInputOtpInput, NgpInputOtpSlot],
   template: `
-    <div
-      [(value)]="value"
-      [maxLength]="6"
-      (complete)="onComplete($event)"
-      pattern="[0-9]"
-      inputMode="numeric"
-      ngpInputOtp
-    >
+    <div [(value)]="value" [maxLength]="6" (complete)="onComplete($event)" ngpInputOtp>
       <input ngpInputOtpInput />
 
       <div class="slot-container">
-        <div class="slot" *ngpInputOtpSlot="let slot">
-          <span class="slot-content">
-            {{ slot.char }}
-          </span>
-          <div class="slot-caret" [class.active]="slot.hasFakeCaret"></div>
-        </div>
+        @for (slot of slots(); let index = $index; track slot) {
+          <div class="slot" [index]="index" ngpInputOtpSlot>
+            <div class="slot-caret"></div>
+          </div>
+        }
       </div>
     </div>
 
@@ -60,6 +52,14 @@ import { NgpInputOtp, NgpInputOtpInput, NgpInputOtpSlot } from 'ng-primitives/in
       cursor: pointer;
       transition: all 0.2s ease;
       overflow: hidden;
+      font-size: 1.25rem;
+      font-weight: 600;
+      color: var(--ngp-text-primary);
+    }
+
+    [ngpInputOtp][data-disabled] .slot {
+      cursor: default;
+      opacity: 0.5;
     }
 
     .slot:hover {
@@ -71,15 +71,7 @@ import { NgpInputOtp, NgpInputOtpInput, NgpInputOtpSlot } from 'ng-primitives/in
       box-shadow: 0 0 0 1px var(--ngp-focus-ring);
     }
 
-    .slot-content {
-      font-size: 1.25rem;
-      font-weight: 600;
-      color: var(--ngp-text-primary);
-      z-index: 2;
-    }
-
-    .slot-content:empty::before {
-      content: attr(data-placeholder);
+    .slot[data-placeholder] {
       color: var(--ngp-text-placeholder);
     }
 
@@ -89,11 +81,6 @@ import { NgpInputOtp, NgpInputOtpInput, NgpInputOtpSlot } from 'ng-primitives/in
       height: 1.5rem;
       background-color: var(--ngp-focus-ring);
       opacity: 0;
-    }
-
-    .slot-caret.active {
-      opacity: 1;
-      animation: blink 1s infinite;
     }
 
     .slot[data-caret] .slot-caret {
@@ -132,6 +119,11 @@ import { NgpInputOtp, NgpInputOtpInput, NgpInputOtpSlot } from 'ng-primitives/in
 export default class InputOtpExample {
   readonly value = signal<string>('');
   readonly isComplete = signal<boolean>(false);
+  readonly maxLength = 6;
+
+  readonly slots = computed(() => {
+    return Array.from({ length: this.maxLength }, (_, i) => i);
+  });
 
   protected onComplete(value: string): void {
     this.isComplete.set(true);

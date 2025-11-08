@@ -21,11 +21,13 @@ import { NgpInputOtp, NgpInputOtpInput, NgpInputOtpSlot } from 'ng-primitives/in
 Assemble the input-otp directives in your template.
 
 ```html
-<div ngpInputOtp [(value)]="otpValue" [maxLength]="6">
+<div ngpInputOtp [(value)]="otpValue" [maxLength]="6" placeholder="○">
   <input ngpInputOtpInput />
 
   <div class="slots">
-    <div class="slot" *ngpInputOtpSlot="let slot">{{ slot.char }}</div>
+    @for (slot of slots; track slot) {
+      <div class="slot" [ngpInputOtpSlot]="slot"></div>
+    }
   </div>
 </div>
 ```
@@ -76,14 +78,16 @@ The hidden input element that captures user input.
 
 ### NgpInputOtpSlot
 
-A structural directive that renders individual character slots.
+A directive that represents individual character slots. Now works as a standard attribute directive.
 
 <api-docs name="NgpInputOtpSlot"></api-docs>
 
 #### Data Attributes
 
-| Attribute     | Description                              |
-| ------------- | ---------------------------------------- |
-| `data-active` | Added to the active (focused) slot.      |
-| `data-filled` | Added to slots that contain a character. |
-| `data-caret`  | Added to slots that show the cursor.     |
+| Attribute           | Description                                        |
+| ------------------- | -------------------------------------------------- |
+| `data-slot-index`   | The index of this slot.                            |
+| `data-active`       | Added to the active (focused) slot.                |
+| `data-filled`       | Added to slots that contain a character.           |
+| `data-caret`        | Added to slots that show the cursor.               |
+| `data-placeholder`  | Added to slots that should show placeholder text.  |

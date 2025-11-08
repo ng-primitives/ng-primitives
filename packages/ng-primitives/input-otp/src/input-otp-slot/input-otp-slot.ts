@@ -1,65 +1,41 @@
 import {
+  computed,
   Directive,
   effect,
-  EmbeddedViewRef,
-  inject,
-  OnDestroy,
+  input,
+  numberAttribute,
   OnInit,
-  TemplateRef,
-  ViewContainerRef,
 } from '@angular/core';
-import type { NgpInputOtpSlotData } from '../input-otp/input-otp';
+import { NumberInput } from '@angular/cdk/coercion';
+import { injectElementRef } from 'ng-primitives/internal';
 import { injectInputOtpState } from '../input-otp/input-otp-state';
 
-/**
- * Template context for the input OTP slot directive.
- */
-export interface NgpInputOtpSlotContext {
-  /**
-   * The slot data (implicit context).
-   */
-  $implicit: NgpInputOtpSlotData;
-
-  /**
-   * The slot index.
-   */
-  index: number;
-
-  /**
-   * The character in this slot (null if empty).
-   */
-  char: string | null;
-
-  /**
-   * Whether this slot is currently active (has focus).
-   */
-  focused: boolean;
-
-  /**
-   * Whether this slot should show a fake caret.
-   */
-  caret: boolean;
-
-  /**
-   * Whether this slot is filled with a character.
-   */
-  filled: boolean;
-}
 
 @Directive({
   selector: '[ngpInputOtpSlot]',
   exportAs: 'ngpInputOtpSlot',
+  host: {
+    '[attr.data-slot-index]': 'index()',
+    '[attr.data-active]': 'slotData()?.focused ? "" : null',
+    '[attr.data-filled]': 'slotData()?.filled ? "" : null',
+    '[attr.data-caret]': 'slotData()?.caret ? "" : null',
+    '[attr.data-placeholder]': 'showPlaceholder() ? "" : null',
+    '[attr.role]': '"presentation"',
+    '(click)': 'onClick($event)',
+  },
 })
-export class NgpInputOtpSlot implements OnInit, OnDestroy {
+export class NgpInputOtpSlot implements OnInit {
   /**
-   * Access the template reference.
+   * The index of this slot.
    */
-  private readonly templateRef = inject(TemplateRef<NgpInputOtpSlotContext>);
+  readonly index = input.required<number, NumberInput>({
+    transform: numberAttribute,
+  });
 
   /**
-   * Access the view container reference.
+   * Access the element reference.
    */
-  private readonly viewContainerRef = inject(ViewContainerRef);
+  private readonly elementRef = injectElementRef<HTMLElement>();
 
   /**
    * Access the input-otp state.
@@ -67,131 +43,71 @@ export class NgpInputOtpSlot implements OnInit, OnDestroy {
   protected readonly state = injectInputOtpState();
 
   /**
-   * Map of embedded views by slot index.
+   * The slot data for this specific slot.
    */
-  private embeddedViews = new Map<number, EmbeddedViewRef<NgpInputOtpSlotContext>>();
+  readonly slotData = computed(() => {
+    const slots = this.state().slotData();
+    return slots.find(slot => slot.index === this.index()) || null;
+  });
+
+  /**
+   * Whether to show placeholder for this slot.
+   */
+  readonly showPlaceholder = computed(() => {
+    const slot = this.slotData();
+    const placeholder = this.state().placeholder();
+    return slot && !slot.filled && placeholder;
+  });
+
+  /**
+   * The display character for this slot (character or placeholder).
+   */
+  readonly displayChar = computed(() => {
+    const slot = this.slotData();
+    if (!slot) return '';
+    if (slot.char) return slot.char;
+    if (this.showPlaceholder()) return this.state().placeholder();
+    return '';
+  });
 
   constructor() {
-    // Update existing embedded view contexts when slot data changes
+    // Update the slot content when slot data changes
     effect(() => {
-      // Only update if we have rendered views
-      if (this.embeddedViews.size > 0) {
-        this.updateSlotContexts();
-      }
+      this.updateSlotContent();
     });
   }
 
   ngOnInit(): void {
-    // Register this template with the parent and immediately render all slots
-    this.renderAllSlots();
-  }
-
-  ngOnDestroy(): void {
-    // Clean up all embedded views
-    this.embeddedViews.forEach(view => view.destroy());
-    this.embeddedViews.clear();
+    this.updateSlotContent();
   }
 
   /**
-   * Render slots for all indices based on maxLength.
+   * Handle click events on the slot.
    * @internal
    */
-  private renderAllSlots(): void {
+  protected onClick(event: Event): void {
+    if (this.state().disabled()) return;
+
+    const currentValue = this.state().value();
     const maxLength = this.state().maxLength();
-    const slotData = this.state().slotData();
 
-    // Create embedded view for each slot
-    for (let i = 0; i < maxLength; i++) {
-      const slot = slotData.find(s => s.index === i);
-      if (slot) {
-        this.createSlotView(slot);
-      }
-    }
+    // Focus the first empty slot, or the last slot if all are filled
+    const targetPosition =
+      currentValue.length < maxLength ? currentValue.length : maxLength - 1;
+    this.state().focusAtPosition(targetPosition);
+    event.preventDefault();
+    event.stopPropagation();
   }
 
   /**
-   * Create an embedded view for a specific slot.
+   * Update the slot content with the current character or placeholder.
    * @internal
    */
-  private createSlotView(slotData: NgpInputOtpSlotData): void {
-    const context: NgpInputOtpSlotContext = {
-      $implicit: slotData,
-      index: slotData.index,
-      char: slotData.char,
-      focused: slotData.focused,
-      caret: slotData.caret,
-      filled: slotData.filled,
-    };
+  private updateSlotContent(): void {
+    const element = this.elementRef.nativeElement;
+    const displayChar = this.displayChar();
 
-    const embeddedView = this.viewContainerRef.createEmbeddedView(this.templateRef, context);
-
-    // Add click handler to the root element
-    const rootElement = embeddedView.rootNodes[0] as HTMLElement;
-    if (rootElement) {
-      // Set data attributes for styling
-      rootElement.setAttribute('data-slot-index', slotData.index.toString());
-      rootElement.setAttribute('role', 'presentation');
-
-      if (slotData.focused) rootElement.setAttribute('data-active', '');
-      if (slotData.filled) rootElement.setAttribute('data-filled', '');
-      if (slotData.caret) rootElement.setAttribute('data-caret', '');
-
-      rootElement.style.cursor = this.state().disabled() ? 'default' : 'pointer';
-
-      // Add click handler
-      rootElement.addEventListener('click', event => {
-        if (this.state().disabled()) return;
-
-        const currentValue = this.state().value();
-        const maxLength = this.state().maxLength();
-
-        // Focus the first empty slot, or the last slot if all are filled
-        const targetPosition =
-          currentValue.length < maxLength ? currentValue.length : maxLength - 1;
-        this.state().focusAtPosition(targetPosition);
-        event.preventDefault();
-        event.stopPropagation();
-      });
-    }
-
-    this.embeddedViews.set(slotData.index, embeddedView);
-  }
-
-  /**
-   * Update the context of existing embedded views with current slot data.
-   * @internal
-   */
-  private updateSlotContexts(): void {
-    const slotData = this.state().slotData();
-
-    slotData.forEach(slot => {
-      const embeddedView = this.embeddedViews.get(slot.index);
-      if (embeddedView) {
-        // Update the existing context
-        const context = embeddedView.context;
-        context.$implicit = slot;
-        context.char = slot.char;
-        context.focused = slot.focused;
-        context.caret = slot.caret;
-        context.filled = slot.filled;
-
-        // Update data attributes on the root element
-        const rootElement = embeddedView.rootNodes[0] as HTMLElement;
-        if (rootElement) {
-          // Clear existing data attributes
-          rootElement.removeAttribute('data-active');
-          rootElement.removeAttribute('data-filled');
-          rootElement.removeAttribute('data-caret');
-
-          // Set current data attributes
-          if (slot.focused) rootElement.setAttribute('data-active', '');
-          if (slot.filled) rootElement.setAttribute('data-filled', '');
-          if (slot.caret) rootElement.setAttribute('data-caret', '');
-        }
-
-        // Mark the view for check to trigger change detection
-        embeddedView.markForCheck();
-      }
-    });
+    // Update the text content of the element
+    element.textContent = displayChar;
   }
 }
