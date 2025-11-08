@@ -21,16 +21,16 @@ import { NgpInputOtp, NgpInputOtpInput, NgpInputOtpSlot } from 'ng-primitives/in
 Assemble the input-otp directives in your template.
 
 ```html
-<div ngpInputOtp [(ngpInputOtpValue)]="otpValue" [ngpInputOtpMaxLength]="6">
+<div ngpInputOtp [(ngpInputOtpValue)]="otpValue">
   <input ngpInputOtpInput />
 
   <div>
-    <div ngpInputOtpSlotIndex="0" ngpInputOtpSlot></div>
-    <div ngpInputOtpSlotIndex="1" ngpInputOtpSlot></div>
-    <div ngpInputOtpSlotIndex="2" ngpInputOtpSlot></div>
-    <div ngpInputOtpSlotIndex="3" ngpInputOtpSlot></div>
-    <div ngpInputOtpSlotIndex="4" ngpInputOtpSlot></div>
-    <div ngpInputOtpSlotIndex="5" ngpInputOtpSlot></div>
+    <div ngpInputOtpSlot></div>
+    <div ngpInputOtpSlot></div>
+    <div ngpInputOtpSlot></div>
+    <div ngpInputOtpSlot></div>
+    <div ngpInputOtpSlot></div>
+    <div ngpInputOtpSlot></div>
   </div>
 </div>
 ```
@@ -75,7 +75,7 @@ The hidden input element that captures user input.
 
 ### NgpInputOtpSlot
 
-A directive that represents individual character slots. Now works as a standard attribute directive.
+A directive that represents individual character slots. Automatically registers with the parent input OTP and derives its index from registration order.
 
 <api-docs name="NgpInputOtpSlot"></api-docs>
 

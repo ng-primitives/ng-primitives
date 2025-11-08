@@ -1,17 +1,10 @@
-import { BooleanInput, NumberInput } from '@angular/cdk/coercion';
-import {
-  booleanAttribute,
-  computed,
-  Directive,
-  input,
-  numberAttribute,
-  output,
-  signal,
-} from '@angular/core';
+import { BooleanInput } from '@angular/cdk/coercion';
+import { booleanAttribute, computed, Directive, input, output, signal } from '@angular/core';
 import { ngpInteractions } from 'ng-primitives/interactions';
 import { injectElementRef } from 'ng-primitives/internal';
 import { uniqueId } from 'ng-primitives/utils';
 import type { NgpInputOtpInput } from '../input-otp-input/input-otp-input';
+import type { NgpInputOtpSlot } from '../input-otp-slot/input-otp-slot';
 import { inputOtpState, provideInputOtpState } from './input-otp-state';
 
 export type NgpInputOtpInputMode =
@@ -46,14 +39,6 @@ export class NgpInputOtp {
    * The id of the input-otp.
    */
   readonly id = input(uniqueId('ngp-input-otp'));
-
-  /**
-   * The number of characters in the OTP.
-   */
-  readonly maxLength = input<number, NumberInput>(6, {
-    alias: 'ngpInputOtpMaxLength',
-    transform: numberAttribute,
-  });
 
   /**
    * The current value of the OTP.
@@ -119,6 +104,17 @@ export class NgpInputOtp {
   readonly inputElement = signal<NgpInputOtpInput | undefined>(undefined);
 
   /**
+   * Store registered slots in order.
+   * @internal
+   */
+  readonly slots = signal<NgpInputOtpSlot[]>([]);
+
+  /**
+   * The number of characters in the OTP, derived from registered slots.
+   */
+  readonly maxLength = computed(() => this.slots().length);
+
+  /**
    * The focus state of the input.
    * @internal
    */
@@ -137,16 +133,11 @@ export class NgpInputOtp {
   readonly selectionEnd = signal(0);
 
   /**
-   * Whether all slots are empty (for placeholder showing).
-   */
-  readonly isEmpty = computed(() => this.state.value().length === 0);
-
-  /**
    * The computed slot data for rendering.
    */
   readonly slotData = computed<NgpInputOtpSlotData[]>(() => {
     const value = this.state.value();
-    const maxLength = this.state.maxLength();
+    const maxLength = this.maxLength();
     const isFocused = this.isFocused();
     const selectionStart = this.selectionStart();
     const selectionEnd = this.selectionEnd();
@@ -201,6 +192,34 @@ export class NgpInputOtp {
   }
 
   /**
+   * Register a slot with the input-otp.
+   * @param slot The slot to register.
+   * @internal
+   */
+  registerSlot(slot: NgpInputOtpSlot): void {
+    this.slots.update(currentSlots => [...currentSlots, slot]);
+  }
+
+  /**
+   * Unregister a slot from the input-otp.
+   * @param slot The slot to unregister.
+   * @internal
+   */
+  unregisterSlot(slot: NgpInputOtpSlot): void {
+    this.slots.update(currentSlots => currentSlots.filter(s => s !== slot));
+  }
+
+  /**
+   * Get the index of a registered slot.
+   * @param slot The slot to get the index for.
+   * @returns The index of the slot, or -1 if not found.
+   * @internal
+   */
+  getSlotIndex(slot: NgpInputOtpSlot): number {
+    return this.slots().indexOf(slot);
+  }
+
+  /**
    * Update the value and emit change events.
    * @param newValue The new value.
    * @internal
@@ -214,7 +233,7 @@ export class NgpInputOtp {
     this.valueChange.emit(newValue);
 
     // Emit complete event when the OTP is complete
-    if (newValue.length === this.state.maxLength()) {
+    if (newValue.length === this.maxLength()) {
       this.complete.emit(newValue);
     }
   }

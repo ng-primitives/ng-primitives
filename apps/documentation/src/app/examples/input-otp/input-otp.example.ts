@@ -7,29 +7,28 @@ import { NgpInputOtp, NgpInputOtpInput, NgpInputOtpSlot } from 'ng-primitives/in
   template: `
     <div
       [(ngpInputOtpValue)]="value"
-      [ngpInputOtpMaxLength]="6"
       (ngpInputOtpComplete)="onComplete($event)"
       ngpInputOtp
     >
       <input ngpInputOtpInput />
 
       <div class="slots">
-        <div ngpInputOtpSlotIndex="0" ngpInputOtpSlot>
+        <div ngpInputOtpSlot>
           <div class="caret"></div>
         </div>
-        <div ngpInputOtpSlotIndex="1" ngpInputOtpSlot>
+        <div ngpInputOtpSlot>
           <div class="caret"></div>
         </div>
-        <div ngpInputOtpSlotIndex="2" ngpInputOtpSlot>
+        <div ngpInputOtpSlot>
           <div class="caret"></div>
         </div>
-        <div ngpInputOtpSlotIndex="3" ngpInputOtpSlot>
+        <div ngpInputOtpSlot>
           <div class="caret"></div>
         </div>
-        <div ngpInputOtpSlotIndex="4" ngpInputOtpSlot>
+        <div ngpInputOtpSlot>
           <div class="caret"></div>
         </div>
-        <div ngpInputOtpSlotIndex="5" ngpInputOtpSlot>
+        <div ngpInputOtpSlot>
           <div class="caret"></div>
         </div>
       </div>

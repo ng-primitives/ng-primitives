@@ -1,6 +1,4 @@
-import { NumberInput } from '@angular/cdk/coercion';
-import { computed, Directive, effect, input, numberAttribute, OnInit } from '@angular/core';
-import { injectElementRef } from 'ng-primitives/internal';
+import { computed, Directive, OnDestroy } from '@angular/core';
 import { injectInputOtpState } from '../input-otp/input-otp-state';
 
 @Directive({
@@ -13,22 +11,15 @@ import { injectInputOtpState } from '../input-otp/input-otp-state';
     '[attr.data-caret]': 'slotData()?.caret ? "" : null',
     '[attr.data-placeholder]': 'showPlaceholder() ? "" : null',
     '[attr.role]': '"presentation"',
+    '[textContent]': 'displayChar()',
     '(click)': 'onClick($event)',
   },
 })
-export class NgpInputOtpSlot implements OnInit {
+export class NgpInputOtpSlot implements OnDestroy {
   /**
-   * The index of this slot.
+   * The computed index of this slot based on registration order.
    */
-  readonly index = input.required<number, NumberInput>({
-    alias: 'ngpInputOtpSlotIndex',
-    transform: numberAttribute,
-  });
-
-  /**
-   * Access the element reference.
-   */
-  private readonly elementRef = injectElementRef<HTMLElement>();
+  readonly index = computed(() => this.state().getSlotIndex(this));
 
   /**
    * Access the input-otp state.
@@ -40,7 +31,8 @@ export class NgpInputOtpSlot implements OnInit {
    */
   readonly slotData = computed(() => {
     const slots = this.state().slotData();
-    return slots.find(slot => slot.index === this.index()) || null;
+    const currentIndex = this.index();
+    return currentIndex >= 0 ? slots[currentIndex] || null : null;
   });
 
   /**
@@ -64,14 +56,12 @@ export class NgpInputOtpSlot implements OnInit {
   });
 
   constructor() {
-    // Update the slot content when slot data changes
-    effect(() => {
-      this.updateSlotContent();
-    });
+    this.state().registerSlot(this);
   }
 
-  ngOnInit(): void {
-    this.updateSlotContent();
+  ngOnDestroy(): void {
+    // Unregister this slot when destroyed
+    this.state().unregisterSlot(this);
   }
 
   /**
@@ -89,17 +79,5 @@ export class NgpInputOtpSlot implements OnInit {
     this.state().focusAtPosition(targetPosition);
     event.preventDefault();
     event.stopPropagation();
-  }
-
-  /**
-   * Update the slot content with the current character or placeholder.
-   * @internal
-   */
-  private updateSlotContent(): void {
-    const element = this.elementRef.nativeElement;
-    const displayChar = this.displayChar();
-
-    // Update the text content of the element
-    element.textContent = displayChar;
   }
 }
