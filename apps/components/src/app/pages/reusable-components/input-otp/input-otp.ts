@@ -31,7 +31,7 @@ import { ChangeFn, TouchedFn } from 'ng-primitives/utils';
       [ngpInputOtpPlaceholder]="placeholder()"
       [ngpInputOtpInputMode]="inputMode()"
       (ngpInputOtpValueChange)="onValueChange($event)"
-      (ngpInputOtpComplete)="onComplete($event)"
+      (ngpInputOtpComplete)="onComplete()"
       ngpInputOtp
     >
       <input ngpInputOtpInput />

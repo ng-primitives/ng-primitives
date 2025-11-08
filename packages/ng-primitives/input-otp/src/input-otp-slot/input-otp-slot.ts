@@ -29,7 +29,7 @@ export class NgpInputOtpSlot implements OnDestroy {
   /**
    * The character for this slot from the value string.
    */
-  readonly char = computed(() => {
+  private readonly char = computed(() => {
     const value = this.state().value();
     const currentIndex = this.index();
     return currentIndex >= 0 && currentIndex < value.length ? value[currentIndex] : null;
@@ -38,7 +38,7 @@ export class NgpInputOtpSlot implements OnDestroy {
   /**
    * Whether this slot is focused (active).
    */
-  readonly focused = computed(() => {
+  protected readonly focused = computed(() => {
     const currentIndex = this.index();
     const isFocused = this.state().isFocused();
     const selectionStart = this.state().selectionStart();
@@ -55,7 +55,7 @@ export class NgpInputOtpSlot implements OnDestroy {
   /**
    * Whether this slot should show the caret.
    */
-  readonly caret = computed(() => {
+  protected readonly caret = computed(() => {
     const currentIndex = this.index();
     const isFocused = this.state().isFocused();
     const selectionStart = this.state().selectionStart();
@@ -74,12 +74,12 @@ export class NgpInputOtpSlot implements OnDestroy {
   /**
    * Whether this slot is filled with a character.
    */
-  readonly filled = computed(() => this.char() !== null);
+  protected readonly filled = computed(() => this.char() !== null);
 
   /**
    * Whether to show placeholder for this slot.
    */
-  readonly showPlaceholder = computed(() => {
+  protected readonly showPlaceholder = computed(() => {
     const placeholder = this.state().placeholder();
     return !this.filled() && !!placeholder;
   });
@@ -87,7 +87,7 @@ export class NgpInputOtpSlot implements OnDestroy {
   /**
    * The display character for this slot (character or placeholder).
    */
-  readonly displayChar = computed(() => {
+  protected readonly displayChar = computed(() => {
     const char = this.char();
     if (char) return char;
     if (this.showPlaceholder()) return this.state().placeholder();

@@ -9,24 +9,12 @@ import { NgpInputOtp, NgpInputOtpInput, NgpInputOtpSlot } from 'ng-primitives/in
       <input ngpInputOtpInput />
 
       <div class="slots">
-        <div ngpInputOtpSlot>
-          <div class="caret"></div>
-        </div>
-        <div ngpInputOtpSlot>
-          <div class="caret"></div>
-        </div>
-        <div ngpInputOtpSlot>
-          <div class="caret"></div>
-        </div>
-        <div ngpInputOtpSlot>
-          <div class="caret"></div>
-        </div>
-        <div ngpInputOtpSlot>
-          <div class="caret"></div>
-        </div>
-        <div ngpInputOtpSlot>
-          <div class="caret"></div>
-        </div>
+        <div ngpInputOtpSlot></div>
+        <div ngpInputOtpSlot></div>
+        <div ngpInputOtpSlot></div>
+        <div ngpInputOtpSlot></div>
+        <div ngpInputOtpSlot></div>
+        <div ngpInputOtpSlot></div>
       </div>
     </div>
   `,
@@ -81,16 +69,12 @@ import { NgpInputOtp, NgpInputOtpInput, NgpInputOtpSlot } from 'ng-primitives/in
       color: var(--ngp-text-placeholder);
     }
 
-    .caret {
+    [ngpInputOtpSlot][data-caret]::after {
+      content: '';
       position: absolute;
       width: 1px;
       height: 1.5rem;
       background-color: var(--ngp-focus-ring);
-      opacity: 0;
-    }
-
-    [ngpInputOtpSlot][data-caret] .caret {
-      opacity: 1;
       animation: blink 1s infinite;
     }
 
