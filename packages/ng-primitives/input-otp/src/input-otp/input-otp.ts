@@ -93,13 +93,13 @@ export class NgpInputOtp {
    * Store the input element reference.
    * @internal
    */
-  readonly inputElement = signal<NgpInputOtpInput | undefined>(undefined);
+  private readonly inputElement = signal<NgpInputOtpInput | undefined>(undefined);
 
   /**
    * Store registered slots in order.
    * @internal
    */
-  readonly slots = signal<NgpInputOtpSlot[]>([]);
+  private readonly slots = signal<NgpInputOtpSlot[]>([]);
 
   /**
    * The number of characters in the OTP, derived from registered slots.
