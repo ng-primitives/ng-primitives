@@ -5,12 +5,12 @@ import { injectInputOtpState } from '../input-otp/input-otp-state';
   selector: '[ngpInputOtpSlot]',
   exportAs: 'ngpInputOtpSlot',
   host: {
+    role: 'presentation',
     '[attr.data-slot-index]': 'index()',
     '[attr.data-active]': 'slotData()?.focused ? "" : null',
     '[attr.data-filled]': 'slotData()?.filled ? "" : null',
     '[attr.data-caret]': 'slotData()?.caret ? "" : null',
     '[attr.data-placeholder]': 'showPlaceholder() ? "" : null',
-    '[attr.role]': '"presentation"',
     '[textContent]': 'displayChar()',
     '(click)': 'onClick($event)',
   },

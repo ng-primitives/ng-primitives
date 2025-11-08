@@ -5,11 +5,7 @@ import { NgpInputOtp, NgpInputOtpInput, NgpInputOtpSlot } from 'ng-primitives/in
   selector: 'app-input-otp',
   imports: [NgpInputOtp, NgpInputOtpInput, NgpInputOtpSlot],
   template: `
-    <div
-      [(ngpInputOtpValue)]="value"
-      (ngpInputOtpComplete)="onComplete($event)"
-      ngpInputOtp
-    >
+    <div [(ngpInputOtpValue)]="value" (ngpInputOtpComplete)="onComplete($event)" ngpInputOtp>
       <input ngpInputOtpInput />
 
       <div class="slots">
