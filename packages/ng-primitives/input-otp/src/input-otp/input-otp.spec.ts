@@ -1,5 +1,3 @@
-import { FocusMonitor } from '@angular/cdk/a11y';
-import { TestBed } from '@angular/core/testing';
 import { fireEvent, render, screen } from '@testing-library/angular';
 import { NgpInputOtpInput } from '../input-otp-input/input-otp-input';
 import { NgpInputOtpSlot } from '../input-otp-slot/input-otp-slot';

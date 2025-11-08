@@ -179,7 +179,7 @@ export class InputOtp implements ControlValueAccessor {
   /**
    * Handle completion events from the input-otp directive.
    */
-  onComplete(value: string): void {
+  onComplete(): void {
     this.onTouched();
   }
 
