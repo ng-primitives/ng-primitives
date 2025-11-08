@@ -1,9 +1,9 @@
 import AxeBuilder from '@axe-core/playwright';
 import { expect, test } from '@playwright/test';
 
-test.describe('Select', () => {
+test.describe('Reusable Component - Input', () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto('/select');
+    await page.goto('/input-otp');
   });
 
   test('should have no detectable accessibility issues', async ({ page }) => {

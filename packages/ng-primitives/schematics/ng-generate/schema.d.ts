@@ -31,6 +31,7 @@ export interface AngularPrimitivesComponentSchema {
     | 'combobox'
     | 'select'
     | 'native-select'
+    | 'input-otp'
     | 'input-otp';
 
   /**
