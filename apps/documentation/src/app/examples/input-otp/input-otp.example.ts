@@ -1,27 +1,38 @@
-import { Component, computed, signal } from '@angular/core';
+import { Component, signal } from '@angular/core';
 import { NgpInputOtp, NgpInputOtpInput, NgpInputOtpSlot } from 'ng-primitives/input-otp';
 
 @Component({
   selector: 'app-input-otp',
   imports: [NgpInputOtp, NgpInputOtpInput, NgpInputOtpSlot],
   template: `
-    <div [(value)]="value" [maxLength]="6" (complete)="onComplete($event)" ngpInputOtp>
+    <div
+      [(ngpInputOtpValue)]="value"
+      [ngpInputOtpMaxLength]="6"
+      (ngpInputOtpComplete)="onComplete($event)"
+      ngpInputOtp
+    >
       <input ngpInputOtpInput />
 
-      <div class="slot-container">
-        @for (slot of slots(); let index = $index; track slot) {
-          <div class="slot" [index]="index" ngpInputOtpSlot>
-            <div class="slot-caret"></div>
-          </div>
-        }
+      <div class="slots">
+        <div ngpInputOtpSlotIndex="0" ngpInputOtpSlot>
+          <div class="caret"></div>
+        </div>
+        <div ngpInputOtpSlotIndex="1" ngpInputOtpSlot>
+          <div class="caret"></div>
+        </div>
+        <div ngpInputOtpSlotIndex="2" ngpInputOtpSlot>
+          <div class="caret"></div>
+        </div>
+        <div ngpInputOtpSlotIndex="3" ngpInputOtpSlot>
+          <div class="caret"></div>
+        </div>
+        <div ngpInputOtpSlotIndex="4" ngpInputOtpSlot>
+          <div class="caret"></div>
+        </div>
+        <div ngpInputOtpSlotIndex="5" ngpInputOtpSlot>
+          <div class="caret"></div>
+        </div>
       </div>
-    </div>
-
-    <div class="status">
-      <p>Value: {{ value() || 'Empty' }}</p>
-      @if (isComplete()) {
-        <p class="complete">OTP Complete! ✅</p>
-      }
     </div>
   `,
   styles: `
@@ -33,13 +44,13 @@ import { NgpInputOtp, NgpInputOtpInput, NgpInputOtpSlot } from 'ng-primitives/in
       position: relative;
     }
 
-    .slot-container {
+    .slots {
       display: flex;
       gap: 0.5rem;
       align-items: center;
     }
 
-    .slot {
+    [ngpInputOtpSlot] {
       position: relative;
       width: 3rem;
       height: 3rem;
@@ -57,25 +68,25 @@ import { NgpInputOtp, NgpInputOtpInput, NgpInputOtpSlot } from 'ng-primitives/in
       color: var(--ngp-text-primary);
     }
 
-    [ngpInputOtp][data-disabled] .slot {
+    [ngpInputOtp][data-disabled] [ngpInputOtpSlot] {
       cursor: default;
       opacity: 0.5;
     }
 
-    .slot:hover {
+    [ngpInputOtpSlot]:hover {
       border-color: var(--ngp-border-hover);
     }
 
-    .slot[data-active] {
+    [ngpInputOtpSlot][data-active] {
       border-color: var(--ngp-focus-ring);
       box-shadow: 0 0 0 1px var(--ngp-focus-ring);
     }
 
-    .slot[data-placeholder] {
+    [ngpInputOtpSlot][data-placeholder] {
       color: var(--ngp-text-placeholder);
     }
 
-    .slot-caret {
+    .caret {
       position: absolute;
       width: 1px;
       height: 1.5rem;
@@ -83,25 +94,9 @@ import { NgpInputOtp, NgpInputOtpInput, NgpInputOtpSlot } from 'ng-primitives/in
       opacity: 0;
     }
 
-    .slot[data-caret] .slot-caret {
+    [ngpInputOtpSlot][data-caret] .caret {
       opacity: 1;
       animation: blink 1s infinite;
-    }
-
-    .status {
-      margin-top: 1rem;
-      text-align: center;
-    }
-
-    .status p {
-      margin: 0.25rem 0;
-      color: var(--ngp-text-secondary);
-      font-size: 0.875rem;
-    }
-
-    .complete {
-      color: var(--ngp-text-success) !important;
-      font-weight: 600;
     }
 
     @keyframes blink {
@@ -118,17 +113,8 @@ import { NgpInputOtp, NgpInputOtpInput, NgpInputOtpSlot } from 'ng-primitives/in
 })
 export default class InputOtpExample {
   readonly value = signal<string>('');
-  readonly isComplete = signal<boolean>(false);
-  readonly maxLength = 6;
-
-  readonly slots = computed(() => {
-    return Array.from({ length: this.maxLength }, (_, i) => i);
-  });
 
   protected onComplete(value: string): void {
-    this.isComplete.set(true);
     console.log('OTP Complete:', value);
-
-    setTimeout(() => this.isComplete.set(false), 3000);
   }
 }

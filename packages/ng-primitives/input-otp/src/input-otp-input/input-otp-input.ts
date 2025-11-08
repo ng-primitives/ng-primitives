@@ -1,6 +1,6 @@
 import { AfterViewInit, Directive, HostListener } from '@angular/core';
-import { injectElementRef } from 'ng-primitives/internal';
 import { NgpVisuallyHidden } from 'ng-primitives/a11y';
+import { injectElementRef } from 'ng-primitives/internal';
 import { injectInputOtpState } from '../input-otp/input-otp-state';
 
 @Directive({

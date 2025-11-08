@@ -21,13 +21,16 @@ import { NgpInputOtp, NgpInputOtpInput, NgpInputOtpSlot } from 'ng-primitives/in
 Assemble the input-otp directives in your template.
 
 ```html
-<div ngpInputOtp [(value)]="otpValue" [maxLength]="6" placeholder="○">
+<div ngpInputOtp [(ngpInputOtpValue)]="otpValue" [ngpInputOtpMaxLength]="6">
   <input ngpInputOtpInput />
 
-  <div class="slots">
-    @for (slot of slots; track slot) {
-      <div class="slot" [ngpInputOtpSlot]="slot"></div>
-    }
+  <div>
+    <div ngpInputOtpSlotIndex="0" ngpInputOtpSlot></div>
+    <div ngpInputOtpSlotIndex="1" ngpInputOtpSlot></div>
+    <div ngpInputOtpSlotIndex="2" ngpInputOtpSlot></div>
+    <div ngpInputOtpSlotIndex="3" ngpInputOtpSlot></div>
+    <div ngpInputOtpSlotIndex="4" ngpInputOtpSlot></div>
+    <div ngpInputOtpSlotIndex="5" ngpInputOtpSlot></div>
   </div>
 </div>
 ```
@@ -64,12 +67,6 @@ The root container for the OTP input component.
 
 <api-docs name="NgpInputOtp"></api-docs>
 
-#### Data Attributes
-
-| Attribute    | Description                          |
-| ------------ | ------------------------------------ |
-| `data-empty` | Added when the input value is empty. |
-
 ### NgpInputOtpInput
 
 The hidden input element that captures user input.
@@ -84,10 +81,10 @@ A directive that represents individual character slots. Now works as a standard 
 
 #### Data Attributes
 
-| Attribute           | Description                                        |
-| ------------------- | -------------------------------------------------- |
-| `data-slot-index`   | The index of this slot.                            |
-| `data-active`       | Added to the active (focused) slot.                |
-| `data-filled`       | Added to slots that contain a character.           |
-| `data-caret`        | Added to slots that show the cursor.               |
-| `data-placeholder`  | Added to slots that should show placeholder text.  |
+| Attribute          | Description                                       |
+| ------------------ | ------------------------------------------------- |
+| `data-slot-index`  | The index of this slot.                           |
+| `data-active`      | Added to the active (focused) slot.               |
+| `data-filled`      | Added to slots that contain a character.          |
+| `data-caret`       | Added to slots that show the cursor.              |
+| `data-placeholder` | Added to slots that should show placeholder text. |

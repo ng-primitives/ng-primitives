@@ -35,9 +35,6 @@ export interface NgpInputOtpSlotData {
   selector: '[ngpInputOtp]',
   exportAs: 'ngpInputOtp',
   providers: [provideInputOtpState()],
-  host: {
-    '[attr.data-empty]': 'isEmpty() ? "" : null',
-  },
 })
 export class NgpInputOtp {
   /**
@@ -54,50 +51,66 @@ export class NgpInputOtp {
    * The number of characters in the OTP.
    */
   readonly maxLength = input<number, NumberInput>(6, {
+    alias: 'ngpInputOtpMaxLength',
     transform: numberAttribute,
   });
 
   /**
    * The current value of the OTP.
    */
-  readonly value = input<string>('');
+  readonly value = input<string>('', {
+    alias: 'ngpInputOtpValue',
+  });
 
   /**
    * The regex pattern for allowed characters.
    */
-  readonly pattern = input<string>();
+  readonly pattern = input<string>(undefined, {
+    alias: 'ngpInputOtpPattern',
+  });
 
   /**
    * The input mode for the hidden input.
    */
-  readonly inputMode = input<NgpInputOtpInputMode>('text');
+  readonly inputMode = input<NgpInputOtpInputMode>('text', {
+    alias: 'ngpInputOtpInputMode',
+  });
 
   /**
    * Function to transform pasted text.
    */
-  readonly pasteTransformer = input<(text: string) => string>();
+  readonly pasteTransformer = input<(text: string) => string>(undefined, {
+    alias: 'ngpInputOtpPasteTransformer',
+  });
 
   /**
    * Whether the input-otp is disabled.
    */
   readonly disabled = input<boolean, BooleanInput>(false, {
+    alias: 'ngpInputOtpDisabled',
     transform: booleanAttribute,
   });
 
   /**
    * The placeholder character to display when a slot is empty.
    */
-  readonly placeholder = input<string>('');
+  readonly placeholder = input<string>('', {
+    alias: 'ngpInputOtpPlaceholder',
+  });
 
   /**
    * Event emitted when the value changes.
    */
-  readonly valueChange = output<string>();
+  readonly valueChange = output<string>({
+    alias: 'ngpInputOtpValueChange',
+  });
 
   /**
    * Event emitted when the OTP is complete (maxLength characters entered).
    */
-  readonly complete = output<string>();
+  readonly complete = output<string>({
+    alias: 'ngpInputOtpComplete',
+  });
 
   /**
    * Store the input element reference.

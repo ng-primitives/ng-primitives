@@ -1,15 +1,7 @@
-import {
-  computed,
-  Directive,
-  effect,
-  input,
-  numberAttribute,
-  OnInit,
-} from '@angular/core';
 import { NumberInput } from '@angular/cdk/coercion';
+import { computed, Directive, effect, input, numberAttribute, OnInit } from '@angular/core';
 import { injectElementRef } from 'ng-primitives/internal';
 import { injectInputOtpState } from '../input-otp/input-otp-state';
-
 
 @Directive({
   selector: '[ngpInputOtpSlot]',
@@ -29,6 +21,7 @@ export class NgpInputOtpSlot implements OnInit {
    * The index of this slot.
    */
   readonly index = input.required<number, NumberInput>({
+    alias: 'ngpInputOtpSlotIndex',
     transform: numberAttribute,
   });
 
@@ -92,8 +85,7 @@ export class NgpInputOtpSlot implements OnInit {
     const maxLength = this.state().maxLength();
 
     // Focus the first empty slot, or the last slot if all are filled
-    const targetPosition =
-      currentValue.length < maxLength ? currentValue.length : maxLength - 1;
+    const targetPosition = currentValue.length < maxLength ? currentValue.length : maxLength - 1;
     this.state().focusAtPosition(targetPosition);
     event.preventDefault();
     event.stopPropagation();
