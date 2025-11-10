@@ -207,7 +207,6 @@ export class NgpDateRangePicker<T> {
     this.buttons.update(buttons => buttons.filter(b => b !== button));
   }
 
-
   /**
    * Select a date.
    * @param date The date to select.
