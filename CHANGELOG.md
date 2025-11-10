@@ -1,3 +1,18 @@
+## 0.88.0 (2025-11-10)
+
+### 🚀 Features
+
+- input otp ([#519](https://github.com/ng-primitives/ng-primitives/pull/519))
+
+### 🩹 Fixes
+
+- **combobox:** open dropdown on Space key press when no input is present ([#522](https://github.com/ng-primitives/ng-primitives/pull/522), [#523](https://github.com/ng-primitives/ng-primitives/pull/523))
+
+### ❤️ Thank You
+
+- Ashley Hunter
+- Robin Ferrari @zecka
+
 ## 0.87.0 (2025-11-04)
 
 ### 🩹 Fixes
