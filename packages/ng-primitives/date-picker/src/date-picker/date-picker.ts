@@ -202,11 +202,25 @@ export class NgpDatePicker<T> {
   /**
    * Select a date.
    * @param date The date to select.
+   * @param preserveTime Whether to preserve time components from existing selected date.
    * @internal
    */
-  select(date: T): void {
-    this.state.date.set(date);
-    this.dateChange.emit(date);
+  select(date: T, preserveTime = false): void {
+    let selectedDate = date;
+
+    if (preserveTime) {
+      const existingDate = this.state.date();
+      if (existingDate) {
+        selectedDate = this.dateAdapter.set(existingDate, {
+          year: this.dateAdapter.getYear(date),
+          month: this.dateAdapter.getMonth(date),
+          day: this.dateAdapter.getDate(date),
+        });
+      }
+    }
+
+    this.state.date.set(selectedDate);
+    this.dateChange.emit(selectedDate);
   }
 
   /**
