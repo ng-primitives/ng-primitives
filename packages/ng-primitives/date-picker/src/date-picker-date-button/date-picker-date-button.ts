@@ -148,7 +148,8 @@ export class NgpDatePickerDateButton<T> implements OnDestroy {
       event.stopPropagation();
     }
 
-    this.state().select(this.date);
+    // Select the date with time preservation enabled for button clicks
+    this.state().select(this.date, true);
     this.state().setFocusedDate(this.date, 'mouse', 'forward');
   }
 
