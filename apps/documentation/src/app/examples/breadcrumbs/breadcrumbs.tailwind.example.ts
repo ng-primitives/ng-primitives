@@ -1,4 +1,6 @@
 import { Component } from '@angular/core';
+import { NgIcon, provideIcons } from '@ng-icons/core';
+import { lucideChevronRight, lucideMoreHorizontal } from '@ng-icons/lucide';
 import {
   NgpBreadcrumbEllipsis,
   NgpBreadcrumbItem,
@@ -12,7 +14,6 @@ import { NgpMenu, NgpMenuItem, NgpMenuTrigger } from 'ng-primitives/menu';
 
 @Component({
   selector: 'app-breadcrumbs-tailwind',
-  standalone: true,
   imports: [
     NgpBreadcrumbs,
     NgpBreadcrumbList,
@@ -24,53 +25,66 @@ import { NgpMenu, NgpMenuItem, NgpMenuTrigger } from 'ng-primitives/menu';
     NgpMenu,
     NgpMenuTrigger,
     NgpMenuItem,
+    NgIcon,
   ],
+  providers: [provideIcons({ lucideChevronRight, lucideMoreHorizontal })],
   template: `
-    <nav
-      class="inline-flex rounded-full border border-neutral-200/80 bg-white/80 px-2 py-1 text-sm shadow-sm ring-1 ring-black/5 backdrop-blur dark:border-white/10 dark:bg-neutral-900/70 dark:text-neutral-200"
-      aria-label="Breadcrumb"
-      ngpBreadcrumbs
-    >
-      <ol class="flex items-center gap-1" ngpBreadcrumbList>
-        <li class="flex items-center" ngpBreadcrumbItem>
+    <nav aria-label="Breadcrumb" ngpBreadcrumbs>
+      <ol
+        class="flex flex-wrap items-center gap-1.5 text-sm text-zinc-500 sm:gap-2.5 dark:text-zinc-400"
+        ngpBreadcrumbList
+      >
+        <li class="inline-flex items-center gap-1.5" ngpBreadcrumbItem>
           <a
-            class="rounded-full px-2 py-1 text-neutral-500 transition-colors duration-150 data-[hover]:bg-neutral-100 data-[hover]:text-neutral-900 data-[focus-visible]:outline data-[focus-visible]:outline-2 data-[focus-visible]:outline-blue-500 dark:text-neutral-400 dark:data-[hover]:bg-white/10 dark:data-[hover]:text-white"
-            href="/"
+            class="transition-colors duration-150 hover:text-zinc-900 dark:hover:text-zinc-50"
+            href="#"
             ngpBreadcrumbLink
           >
             Home
           </a>
         </li>
-        <li class="px-1 text-neutral-300 dark:text-neutral-600" ngpBreadcrumbSeparator>/</li>
-        <li class="flex items-center" ngpBreadcrumbItem>
+        <li class="text-zinc-300 dark:text-zinc-700" ngpBreadcrumbSeparator>
+          <ng-icon
+            class="text-current"
+            style="--ng-icon__size: 0.85rem"
+            name="lucideChevronRight"
+          />
+        </li>
+        <li class="inline-flex items-center gap-1.5" ngpBreadcrumbItem>
           <button
-            class="inline-flex items-center gap-1 rounded-full p-1 text-neutral-500 transition-colors duration-150 data-[hover]:bg-neutral-100 data-[hover]:text-neutral-900 dark:text-neutral-400 dark:data-[hover]:bg-white/10 dark:data-[hover]:text-white"
+            class="inline-flex h-9 w-9 items-center justify-center text-zinc-500 transition-colors duration-150 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-50"
             [ngpMenuTrigger]="menu"
             type="button"
             aria-label="Toggle breadcrumb menu"
           >
-            <span ngpBreadcrumbEllipsis>...</span>
+            <span class="flex h-full w-full items-center justify-center" ngpBreadcrumbEllipsis>
+              <ng-icon
+                class="text-current"
+                style="--ng-icon__size: 1.1rem"
+                name="lucideMoreHorizontal"
+              />
+            </span>
           </button>
 
           <ng-template #menu>
             <div
-              class="flex min-w-[140px] flex-col rounded-lg border border-neutral-200/70 bg-white/90 p-1 text-left shadow-lg ring-1 ring-black/5 dark:border-white/10 dark:bg-neutral-900/80"
+              class="fixed z-50 flex min-w-[140px] flex-col rounded-lg border border-zinc-200 bg-white p-1 text-left text-sm shadow-lg ring-1 ring-black/5 dark:border-zinc-800 dark:bg-zinc-900"
               ngpMenu
             >
               <button
-                class="rounded-md px-3 py-2 text-sm text-neutral-700 transition-colors duration-150 data-[hover]:bg-neutral-100 dark:text-neutral-200 dark:data-[hover]:bg-white/10"
+                class="rounded-md px-3 py-2 text-left text-zinc-700 transition-colors duration-150 hover:bg-zinc-100 dark:text-zinc-200 dark:hover:bg-zinc-800/80"
                 ngpMenuItem
               >
                 Documentation
               </button>
               <button
-                class="rounded-md px-3 py-2 text-sm text-neutral-700 transition-colors duration-150 data-[hover]:bg-neutral-100 dark:text-neutral-200 dark:data-[hover]:bg-white/10"
+                class="rounded-md px-3 py-2 text-left text-zinc-700 transition-colors duration-150 hover:bg-zinc-100 dark:text-zinc-200 dark:hover:bg-zinc-800/80"
                 ngpMenuItem
               >
                 Themes
               </button>
               <button
-                class="rounded-md px-3 py-2 text-sm text-neutral-700 transition-colors duration-150 data-[hover]:bg-neutral-100 dark:text-neutral-200 dark:data-[hover]:bg-white/10"
+                class="rounded-md px-3 py-2 text-left text-zinc-700 transition-colors duration-150 hover:bg-zinc-100 dark:text-zinc-200 dark:hover:bg-zinc-800/80"
                 ngpMenuItem
               >
                 GitHub
@@ -78,22 +92,31 @@ import { NgpMenu, NgpMenuItem, NgpMenuTrigger } from 'ng-primitives/menu';
             </div>
           </ng-template>
         </li>
-        <li class="px-1 text-neutral-300 dark:text-neutral-600" ngpBreadcrumbSeparator>/</li>
-        <li class="flex items-center" ngpBreadcrumbItem>
+        <li class="text-zinc-300 dark:text-zinc-700" ngpBreadcrumbSeparator>
+          <ng-icon
+            class="text-current"
+            style="--ng-icon__size: 0.85rem"
+            name="lucideChevronRight"
+          />
+        </li>
+        <li class="inline-flex items-center gap-1.5" ngpBreadcrumbItem>
           <a
-            class="rounded-full px-2 py-1 text-neutral-500 transition-colors duration-150 data-[hover]:bg-neutral-100 data-[hover]:text-neutral-900 data-[focus-visible]:outline data-[focus-visible]:outline-2 data-[focus-visible]:outline-blue-500 dark:text-neutral-400 dark:data-[hover]:bg-white/10 dark:data-[hover]:text-white"
-            href="/docs/components"
+            class="transition-colors duration-150 hover:text-zinc-900 dark:hover:text-zinc-50"
+            href="#"
             ngpBreadcrumbLink
           >
             Components
           </a>
         </li>
-        <li class="px-1 text-neutral-300 dark:text-neutral-600" ngpBreadcrumbSeparator>/</li>
-        <li class="flex items-center" ngpBreadcrumbItem>
-          <span
-            class="rounded-full bg-neutral-100 px-2 py-1 font-semibold text-neutral-900 dark:bg-white/10 dark:text-white"
-            ngpBreadcrumbPage
-          >
+        <li class="text-zinc-300 dark:text-zinc-700" ngpBreadcrumbSeparator>
+          <ng-icon
+            class="text-current"
+            style="--ng-icon__size: 0.85rem"
+            name="lucideChevronRight"
+          />
+        </li>
+        <li class="inline-flex items-center gap-1.5" ngpBreadcrumbItem>
+          <span class="font-medium text-zinc-900 dark:text-zinc-50" ngpBreadcrumbPage>
             Breadcrumbs
           </span>
         </li>

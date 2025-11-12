@@ -1,4 +1,6 @@
 import { Component } from '@angular/core';
+import { NgIcon, provideIcons } from '@ng-icons/core';
+import { lucideChevronRight, lucideMoreHorizontal } from '@ng-icons/lucide';
 import {
   NgpBreadcrumbEllipsis,
   NgpBreadcrumbItem,
@@ -23,51 +25,43 @@ import { NgpMenu, NgpMenuItem, NgpMenuTrigger } from 'ng-primitives/menu';
     NgpMenu,
     NgpMenuTrigger,
     NgpMenuItem,
+    NgIcon,
   ],
+  providers: [provideIcons({ lucideChevronRight, lucideMoreHorizontal })],
   styles: `
     :host {
       display: contents;
     }
 
     [ngpBreadcrumbs] {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.5rem;
-      border-radius: 999px;
-      border: 1px solid rgba(15, 23, 42, 0.08);
-      background-color: var(--ngp-background, #fff);
-      padding: 0.35rem 0.75rem;
-      box-shadow: 0 2px 8px rgba(15, 23, 42, 0.08);
+      display: block;
     }
 
     [ngpBreadcrumbList] {
       display: flex;
+      flex-wrap: wrap;
       align-items: center;
-      gap: 0.35rem;
+      gap: 0.4rem;
       list-style: none;
       margin: 0;
       padding: 0;
       font-size: 0.875rem;
+      color: var(--ngp-text-secondary);
     }
 
     [ngpBreadcrumbItem] {
       display: inline-flex;
       align-items: center;
-      gap: 0.25rem;
+      gap: 0.35rem;
     }
 
     [ngpBreadcrumbLink] {
-      color: var(--ngp-text-secondary);
+      color: inherit;
       text-decoration: none;
-      border-radius: 999px;
-      padding: 0.35rem 0.6rem;
-      transition:
-        background-color 150ms ease,
-        color 150ms ease;
+      transition: color 150ms ease;
     }
 
     [ngpBreadcrumbLink][data-hover] {
-      background-color: var(--ngp-background-secondary);
       color: var(--ngp-text-primary);
     }
 
@@ -77,38 +71,58 @@ import { NgpMenu, NgpMenuItem, NgpMenuTrigger } from 'ng-primitives/menu';
     }
 
     [ngpBreadcrumbPage] {
-      font-weight: 600;
+      font-weight: 500;
       color: var(--ngp-text-primary);
-      padding: 0.35rem 0.6rem;
-      border-radius: 999px;
-      background-color: var(--ngp-background-secondary);
     }
 
     [ngpBreadcrumbSeparator] {
       color: var(--ngp-border-strong);
-      padding: 0 0.25rem;
+      display: inline-flex;
+      align-items: center;
+      padding: 0;
     }
 
     [ngpBreadcrumbEllipsis] {
-      border: none;
-      background: none;
-      border-radius: 999px;
-      color: var(--ngp-text-secondary);
-      padding: 0.25rem 0.45rem;
       display: inline-flex;
       align-items: center;
       justify-content: center;
+      width: 2.25rem;
+      height: 2.25rem;
+      border-radius: 999px;
+      color: var(--ngp-text-secondary);
+      padding: 0;
+      border: none;
+      background: none;
       cursor: pointer;
-      font-size: 1rem;
+    }
+
+    [ngpBreadcrumbEllipsis] ng-icon {
+      --ng-icon__size: 1.1rem;
     }
 
     [ngpBreadcrumbEllipsis][data-hover] {
-      background-color: var(--ngp-background-secondary);
+      color: var(--ngp-text-primary);
     }
 
     [ngpBreadcrumbEllipsis][data-focus-visible] {
       outline: 2px solid var(--ngp-focus-ring);
       outline-offset: 2px;
+    }
+
+    [ngpBreadcrumbSeparator] ng-icon {
+      --ng-icon__size: 0.85rem;
+    }
+
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
     }
 
     [ngpMenu] {
@@ -150,16 +164,20 @@ import { NgpMenu, NgpMenuItem, NgpMenuTrigger } from 'ng-primitives/menu';
     <nav aria-label="Breadcrumb" ngpBreadcrumbs>
       <ol ngpBreadcrumbList>
         <li ngpBreadcrumbItem>
-          <a ngpBreadcrumbLink href="/">Home</a>
+          <a ngpBreadcrumbLink href="#">Home</a>
         </li>
-        <li ngpBreadcrumbSeparator>/</li>
+        <li ngpBreadcrumbSeparator aria-hidden="true">
+          <ng-icon name="lucideChevronRight" />
+        </li>
         <li ngpBreadcrumbItem>
           <button
             [ngpMenuTrigger]="breadcrumbMenu"
             type="button"
             aria-label="Toggle breadcrumb menu"
           >
-            <span ngpBreadcrumbEllipsis>...</span>
+            <span ngpBreadcrumbEllipsis>
+              <ng-icon name="lucideMoreHorizontal" />
+            </span>
           </button>
 
           <ng-template #breadcrumbMenu>
@@ -170,11 +188,15 @@ import { NgpMenu, NgpMenuItem, NgpMenuTrigger } from 'ng-primitives/menu';
             </div>
           </ng-template>
         </li>
-        <li ngpBreadcrumbSeparator>/</li>
-        <li ngpBreadcrumbItem>
-          <a ngpBreadcrumbLink href="/docs/components">Components</a>
+        <li ngpBreadcrumbSeparator>
+          <ng-icon name="lucideChevronRight" />
         </li>
-        <li ngpBreadcrumbSeparator>/</li>
+        <li ngpBreadcrumbItem>
+          <a ngpBreadcrumbLink href="#">Components</a>
+        </li>
+        <li ngpBreadcrumbSeparator>
+          <ng-icon name="lucideChevronRight" />
+        </li>
         <li ngpBreadcrumbItem>
           <span ngpBreadcrumbPage>Breadcrumbs</span>
         </li>
