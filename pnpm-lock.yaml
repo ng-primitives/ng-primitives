@@ -63,23 +63,23 @@ importers:
         specifier: ^5.2.5
         version: 5.2.6
       '@ng-icons/bootstrap-icons':
-        specifier: 29.0.0
-        version: 29.0.0
+        specifier: ^32.0.0
+        version: 32.4.0
       '@ng-icons/core':
-        specifier: 29.0.0
-        version: 29.0.0(@angular/core@19.2.11(rxjs@7.8.2)(zone.js@0.15.0))(rxjs@7.8.2)
+        specifier: ^31.0.0
+        version: 31.4.0(@angular/common@19.2.11(@angular/core@19.2.11(rxjs@7.8.2)(zone.js@0.15.0))(rxjs@7.8.2))(@angular/core@19.2.11(rxjs@7.8.2)(zone.js@0.15.0))(rxjs@7.8.2)
       '@ng-icons/heroicons':
-        specifier: 29.0.0
-        version: 29.0.0
+        specifier: ^32.0.0
+        version: 32.4.0
       '@ng-icons/iconsax':
-        specifier: 29.0.0
-        version: 29.0.0
+        specifier: ^32.0.0
+        version: 32.4.0
       '@ng-icons/lucide':
-        specifier: 29.0.0
-        version: 29.0.0
+        specifier: ^32.0.0
+        version: 32.4.0
       '@ng-icons/phosphor-icons':
-        specifier: ^31.2.0
-        version: 31.4.0
+        specifier: ^32.0.0
+        version: 32.4.0
       '@nx/devkit':
         specifier: 21.6.1
         version: 21.6.1(nx@21.6.1(@swc-node/register@1.9.1(@swc/core@1.5.7(@swc/helpers@0.5.11))(@swc/types@0.1.7)(typescript@5.8.3))(@swc/core@1.5.7(@swc/helpers@0.5.11)))
@@ -2897,26 +2897,27 @@ packages:
     cpu: [x64]
     os: [win32]
 
-  '@ng-icons/bootstrap-icons@29.0.0':
-    resolution: {integrity: sha512-3l+8642dsUqfrq5f0+ozlmB0zmWT39RxR1427dwsFwATav0aGHUGL6KcXyI3rVmYofOpjJomjaqFriBSU8XPYQ==}
+  '@ng-icons/bootstrap-icons@32.4.0':
+    resolution: {integrity: sha512-10pqPyKq+yDnU9b6rvHwnKraDZTMvvLJnbn87VY1IWvyULoGhUUCsmLEkbr9N5mRDD+if3ZS30XnpLgef+5+qg==}
 
-  '@ng-icons/core@29.0.0':
-    resolution: {integrity: sha512-HAPB4KbMMCkc7SEk/kKzyNzSIRO241bVtXWUMQPr/JuY5Gd7Jh2fFjdue0VIUBP3qjjCEMOhwdZV6zsefrVVaA==}
+  '@ng-icons/core@31.4.0':
+    resolution: {integrity: sha512-JfLiJGDX/ihWmawcnLGXtwyCqMi2qXz7gMJyXXWdUN5JA18EAnt3JnyuxDAGkoU/u7wRlcOI7irlXHU4spAKOg==}
     peerDependencies:
+      '@angular/common': '>=18.0.0'
       '@angular/core': '>=18.0.0'
       rxjs: ^6.5.3 || ^7.4.0
 
-  '@ng-icons/heroicons@29.0.0':
-    resolution: {integrity: sha512-URrPoBZfn60SCXkY/ZuJZzxAV4mAEsIVxIMrp6wQMa/clju2AuKx1FTMFvCjz2mdQR1+k8Pj67BHdcWyPuAZZg==}
+  '@ng-icons/heroicons@32.4.0':
+    resolution: {integrity: sha512-wfNZ5QsoDAxUNgQ8POnowt8yAn1R6iliZ7ULEYdtX6ex/y7Hpqo8lOsJAAc66sTW5nipM+KqXS0DuEqhH3cIaA==}
 
-  '@ng-icons/iconsax@29.0.0':
-    resolution: {integrity: sha512-JXf1vkwDwdndnbFCfBHub/+mQ1NK5+WDGhT9Nd7b6pKTW5CNPChcyc76A+fZBtP0S924CIaxVP0lDkHrTgWRMw==}
+  '@ng-icons/iconsax@32.4.0':
+    resolution: {integrity: sha512-LFw/t14k48NYOSJRzolvAhSaUctrM7Wvm+NBwlll6CXiuRlTYIzAXB8DLhluKvJZ09vWTlDYNW6aSS/tE5DOBg==}
 
-  '@ng-icons/lucide@29.0.0':
-    resolution: {integrity: sha512-sTkxb5rdRHtRyomKuQcT9s3OcJnA6WEF1e569PAXwxppswQcVoUceohkTaHkN43z2YqTNE7pcfMB35EmvpTI0g==}
+  '@ng-icons/lucide@32.4.0':
+    resolution: {integrity: sha512-wIbrgFcYq5t9azAqIGi/lOf82HhxF/vxF1stVC2EuDxRVrA7EHBAVaM/jAbJxy+mBhhucw96mMpYPwWCyPc/hA==}
 
-  '@ng-icons/phosphor-icons@31.4.0':
-    resolution: {integrity: sha512-9XyW5qz4UEXg3I227Q2kZPnZOLf/p2tvqALjWrlZLN5myqMIQR0XyWBK3/dVLoP8mwKFk/IHl+94LL8Qrph0dQ==}
+  '@ng-icons/phosphor-icons@32.4.0':
+    resolution: {integrity: sha512-6/S4dbgIMM25N8M1X3PdiZ4dgmTv8fbHAxf8YlBl9aMGX4t+zdL5r4TAYgsXtSHfS3EUGz/k8V8qODVxOo7ssw==}
 
   '@ngtools/webpack@19.2.9':
     resolution: {integrity: sha512-CLfUauqi2Xp/jKGxp5wUwjqfVQWcBE09GMd51ovcCRLkgB2Kh26+CiVnGw5/lkBpISUCNdgN6nGiS+nfqMfFeQ==}
@@ -14382,29 +14383,30 @@ snapshots:
   '@next/swc-win32-x64-msvc@15.3.5':
     optional: true
 
-  '@ng-icons/bootstrap-icons@29.0.0':
+  '@ng-icons/bootstrap-icons@32.4.0':
     dependencies:
       tslib: 2.8.1
 
-  '@ng-icons/core@29.0.0(@angular/core@19.2.11(rxjs@7.8.2)(zone.js@0.15.0))(rxjs@7.8.2)':
+  '@ng-icons/core@31.4.0(@angular/common@19.2.11(@angular/core@19.2.11(rxjs@7.8.2)(zone.js@0.15.0))(rxjs@7.8.2))(@angular/core@19.2.11(rxjs@7.8.2)(zone.js@0.15.0))(rxjs@7.8.2)':
     dependencies:
+      '@angular/common': 19.2.11(@angular/core@19.2.11(rxjs@7.8.2)(zone.js@0.15.0))(rxjs@7.8.2)
       '@angular/core': 19.2.11(rxjs@7.8.2)(zone.js@0.15.0)
       rxjs: 7.8.2
       tslib: 2.8.1
 
-  '@ng-icons/heroicons@29.0.0':
+  '@ng-icons/heroicons@32.4.0':
     dependencies:
       tslib: 2.8.1
 
-  '@ng-icons/iconsax@29.0.0':
+  '@ng-icons/iconsax@32.4.0':
     dependencies:
       tslib: 2.8.1
 
-  '@ng-icons/lucide@29.0.0':
+  '@ng-icons/lucide@32.4.0':
     dependencies:
       tslib: 2.8.1
 
-  '@ng-icons/phosphor-icons@31.4.0':
+  '@ng-icons/phosphor-icons@32.4.0':
     dependencies:
       tslib: 2.8.1
 
