@@ -23,6 +23,7 @@
       "ng-primitives/ai": ["packages/ng-primitives/ai/src/index.ts"],
       "ng-primitives/autofill": ["packages/ng-primitives/autofill/src/index.ts"],
       "ng-primitives/avatar": ["packages/ng-primitives/avatar/src/index.ts"],
+      "ng-primitives/breadcrumbs": ["packages/ng-primitives/breadcrumbs/src/index.ts"],
       "ng-primitives/button": ["packages/ng-primitives/button/src/index.ts"],
       "ng-primitives/checkbox": ["packages/ng-primitives/checkbox/src/index.ts"],
       "ng-primitives/combobox": ["packages/ng-primitives/combobox/src/index.ts"],
