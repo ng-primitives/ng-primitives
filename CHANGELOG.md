@@ -1,3 +1,17 @@
+## 0.89.0 (2025-11-12)
+
+### 🚀 Features
+
+- breadcrumbs ([#527](https://github.com/ng-primitives/ng-primitives/pull/527))
+
+### 🩹 Fixes
+
+- **date picker:** preserve time on date selection ([#525](https://github.com/ng-primitives/ng-primitives/pull/525))
+
+### ❤️ Thank You
+
+- Ashley Hunter
+
 ## 0.88.0 (2025-11-10)
 
 ### 🚀 Features
