@@ -1,7 +1,8 @@
 import { DOCUMENT, isPlatformBrowser } from '@angular/common';
-import { effect, ElementRef, inject, Injectable, PLATFORM_ID, Signal, signal } from '@angular/core';
-import { onDomRemoval } from 'ng-primitives/internal';
-import { injectDisposables, onBooleanChange } from 'ng-primitives/utils';
+import { ElementRef, inject, Injectable, PLATFORM_ID, Signal, signal } from '@angular/core';
+import { injectElementRef, onDomRemoval } from 'ng-primitives/internal';
+import { dataBinding, listener } from 'ng-primitives/state';
+import { onBooleanChange } from 'ng-primitives/utils';
 import { isHoverEnabled } from '../config/interactions-config';
 
 /**
@@ -55,10 +56,11 @@ class GlobalPointerEvents {
   }
 }
 
-interface NgpHoverOptions {
+interface NgpHoverProps {
   disabled?: Signal<boolean>;
   hoverStart?: () => void;
   hoverEnd?: () => void;
+  element?: ElementRef<HTMLElement>;
 }
 
 export interface NgpHoverState {
@@ -75,7 +77,8 @@ export function ngpHoverInteraction({
   hoverStart,
   hoverEnd,
   disabled = signal(false),
-}: NgpHoverOptions): NgpHoverState {
+  element = injectElementRef(),
+}: NgpHoverProps): NgpHoverState {
   const canHover = isHoverEnabled();
 
   if (!canHover) {
@@ -83,19 +86,9 @@ export function ngpHoverInteraction({
   }
 
   /**
-   * Access the element.
-   */
-  const elementRef = inject<ElementRef<HTMLElement>>(ElementRef);
-
-  /**
    * Access the global pointer events handler.
    */
   const globalPointerEvents = inject(GlobalPointerEvents);
-
-  /**
-   * Access the disposable helper.
-   */
-  const disposables = injectDisposables();
 
   /**
    * Store the current hover state.
@@ -110,11 +103,11 @@ export function ngpHoverInteraction({
   /**
    * Setup event listeners.
    */
-  disposables.addEventListener(elementRef.nativeElement, 'pointerenter', onPointerEnter);
-  disposables.addEventListener(elementRef.nativeElement, 'pointerleave', onPointerLeave);
-  disposables.addEventListener(elementRef.nativeElement, 'touchstart', onTouchStart);
-  disposables.addEventListener(elementRef.nativeElement, 'mouseenter', onMouseEnter);
-  disposables.addEventListener(elementRef.nativeElement, 'mouseleave', onMouseLeave);
+  listener(element, 'pointerenter', onPointerEnter);
+  listener(element, 'pointerleave', onPointerLeave);
+  listener(element, 'touchstart', onTouchStart);
+  listener(element, 'mouseenter', onMouseEnter);
+  listener(element, 'mouseleave', onMouseLeave);
 
   // anytime the disabled state changes to true, we must reset the hover state
   if (disabled) {
@@ -122,14 +115,10 @@ export function ngpHoverInteraction({
   }
 
   // if the element is removed from the dom, we want to reset the hover state
-  onDomRemoval(elementRef.nativeElement, reset);
+  onDomRemoval(element.nativeElement, reset);
 
   // anytime the hover state changes we want to update the attribute
-  effect(() =>
-    hovered()
-      ? elementRef.nativeElement.setAttribute('data-hover', '')
-      : elementRef.nativeElement.removeAttribute('data-hover'),
-  );
+  dataBinding(element, 'data-hover', hovered);
 
   /**
    * Reset the hover state.

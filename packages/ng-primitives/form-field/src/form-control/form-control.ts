@@ -1,17 +1,7 @@
 import { BooleanInput } from '@angular/cdk/coercion';
-import {
-  afterRenderEffect,
-  booleanAttribute,
-  computed,
-  Directive,
-  input,
-  signal,
-  Signal,
-} from '@angular/core';
-import { explicitEffect, injectElementRef } from 'ng-primitives/internal';
-import { controlStatus, NgpControlStatus, uniqueId } from 'ng-primitives/utils';
-import { injectFormFieldState } from '../form-field/form-field-state';
-import { formControlState, provideFormControlState } from './form-control-state';
+import { booleanAttribute, Directive, input } from '@angular/core';
+import { uniqueId } from 'ng-primitives/utils';
+import { ngpFormControlPattern, provideFormControlPattern } from './form-control-pattern';
 
 /**
  * Typically this primitive would be not be used directly, but instead a more specific form control primitive would be used (e.g. `ngpInput`). All of our form control primitives use `ngpFormControl` internally so they will have the same accessibility features as described below.
@@ -21,10 +11,7 @@ import { formControlState, provideFormControlState } from './form-control-state'
 @Directive({
   selector: '[ngpFormControl]',
   exportAs: 'ngpFormControl',
-  providers: [provideFormControlState()],
-  host: {
-    '[attr.disabled]': 'supportsDisabledAttribute && status().disabled ? "" : null',
-  },
+  providers: [provideFormControlPattern(NgpFormControl, instance => instance.pattern)],
 })
 export class NgpFormControl {
   /**
@@ -41,100 +28,15 @@ export class NgpFormControl {
   });
 
   /**
+   * The pattern instance.
+   */
+  protected readonly pattern = ngpFormControlPattern({
+    id: this.id,
+    disabled: this.disabled,
+  });
+
+  /**
    * The status of the form control.
    */
-  readonly status: Signal<NgpControlStatus>;
-
-  /**
-   * The element reference.
-   */
-  private readonly elementRef = injectElementRef();
-
-  /**
-   * Whether the element supports the disabled attribute.
-   */
-  protected readonly supportsDisabledAttribute = 'disabled' in this.elementRef.nativeElement;
-
-  /**
-   * The state of the form control.
-   */
-  private readonly state = formControlState<NgpFormControl>(this);
-
-  constructor() {
-    // Sync the form control state with the control state.
-    this.status = setupFormControl({ id: this.state.id, disabled: this.state.disabled });
-  }
-}
-
-interface FormControlState {
-  id: Signal<string>;
-  disabled?: Signal<boolean>;
-}
-
-export function setupFormControl({
-  id,
-  disabled = signal(false),
-}: FormControlState): Signal<NgpControlStatus> {
-  const element = injectElementRef().nativeElement;
-  // Access the form field that the form control is associated with.
-  const formField = injectFormFieldState({ optional: true });
-  // Access the form control status.
-  const status = controlStatus();
-  // Determine the aria-labelledby attribute value.
-  const ariaLabelledBy = computed(() => formField()?.labels().join(' '));
-  // Determine the aria-describedby attribute value.
-  const ariaDescribedBy = computed(() => formField()?.descriptions().join(' '));
-
-  explicitEffect([id], ([id], onCleanup) => {
-    formField()?.setFormControl(id);
-    onCleanup(() => formField()?.removeFormControl());
-  });
-
-  afterRenderEffect({
-    write: () => {
-      setAttribute(element, 'id', id());
-      setAttribute(element, 'aria-labelledby', ariaLabelledBy());
-      setAttribute(element, 'aria-describedby', ariaDescribedBy());
-
-      setStateAttribute(element, status().invalid, 'data-invalid');
-      setStateAttribute(element, status().valid, 'data-valid');
-      setStateAttribute(element, status().touched, 'data-touched');
-      setStateAttribute(element, status().pristine, 'data-pristine');
-      setStateAttribute(element, status().dirty, 'data-dirty');
-      setStateAttribute(element, status().pending, 'data-pending');
-      setStateAttribute(element, disabled() || status().disabled, 'data-disabled');
-    },
-  });
-
-  return computed(() => ({ ...status(), disabled: status().disabled || disabled() }));
-}
-
-/**
- * Sets the attribute on the element. If the value is not empty, the attribute is set to the value.
- * If the value is empty, the attribute is removed.
- * @param element The element to set the attribute on.
- * @param attribute The attribute to set on the element.
- * @param value The value to set on the attribute.
- */
-function setAttribute(element: HTMLElement, attribute: string, value: string) {
-  if (value && value.length > 0) {
-    element.setAttribute(attribute, value);
-  } else {
-    element.removeAttribute(attribute);
-  }
-}
-
-/**
- * Sets the attribute on the element based on the state. If the state is true, the attribute
- * is set to an empty string. If the state is false, the attribute is removed.
- * @param element The element to set the attribute on.
- * @param state The state to set the attribute based on.
- * @param attribute The attribute to set on the element.
- */
-function setStateAttribute(element: HTMLElement, state: boolean | null, attribute: string) {
-  if (state) {
-    element.setAttribute(attribute, '');
-  } else {
-    element.removeAttribute(attribute);
-  }
+  readonly status = this.pattern;
 }

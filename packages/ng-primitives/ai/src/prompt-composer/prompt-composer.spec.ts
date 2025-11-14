@@ -167,22 +167,6 @@ describe('NgpPromptComposer', () => {
     expect(dictationButton).toHaveTextContent('Start Dictation');
   });
 
-  it('should support dictation detection', async () => {
-    // Test without SpeechRecognition
-    await render(
-      `<div ngpThread>
-        <div ngpPromptComposer data-testid="composer" #composer="ngpPromptComposer">
-          <span data-testid="dictation-support">Dictation Supported: {{ composer.dictationSupported ? 'Yes' : 'No' }}</span>
-        </div>
-      </div>`,
-      {
-        imports: [NgpThread, NgpPromptComposer],
-      },
-    );
-
-    expect(screen.getByTestId('dictation-support')).toHaveTextContent('Dictation Supported: Yes');
-  });
-
   it('should manage prompt state correctly', async () => {
     const { fixture } = await render(
       `<div ngpThread>

@@ -139,12 +139,12 @@ import { NgpToast, NgpToastManager } from 'ng-primitives/toast';
       --y: translateY(calc(calc(var(--lift) * var(--ngp-toast-gap)) * -1));
     }
 
-    [ngpToast][data-visible='false'] {
+    [ngpToast]:not([data-visible]) {
       opacity: 0;
       pointer-events: none;
     }
 
-    [ngpToast][data-expanded='true']::after {
+    [ngpToast][data-expanded]::after {
       content: '';
       position: absolute;
       left: 0;
@@ -153,40 +153,40 @@ import { NgpToast, NgpToastManager } from 'ng-primitives/toast';
       width: 100%;
     }
 
-    [ngpToast][data-expanded='false'][data-front='false'] {
+    [ngpToast]:not([data-expanded]):not([data-front]) {
       --scale: var(--ngp-toasts-before) * 0.05 + 1;
       --y: translateY(calc(var(--lift-amount) * var(--ngp-toasts-before)))
         scale(calc(-1 * var(--scale)));
       height: var(--ngp-toast-front-height);
     }
 
-    [ngpToast][data-expanded='true'] {
+    [ngpToast][data-expanded] {
       --y: translateY(calc(var(--lift) * var(--ngp-toast-offset)));
       height: var(--ngp-toast-height);
     }
 
-    [ngpToast][data-swiping='true'] {
+    [ngpToast][data-swiping] {
       transform: var(--y) translateY(var(--ngp-toast-swipe-amount-y, 0))
         translateX(var(--ngp-toast-swipe-amount-x, 0));
       transition: none;
     }
 
-    [ngpToast][data-swiping='true'][data-swipe-direction='left'] {
+    [ngpToast][data-swiping] [data-swipe-direction='left'] {
       /* Fade out from -45px to -100px swipe */
       opacity: calc(1 - clamp(0, ((-1 * var(--ngp-toast-swipe-x, 0px)) - 45) / 55, 1));
     }
 
-    [ngpToast][data-swiping='true'][data-swipe-direction='right'] {
+    [ngpToast][data-swiping][data-swipe-direction='right'] {
       /* Fade out from 45px to 100px swipe */
       opacity: calc(1 - clamp(0, (var(--ngp-toast-swipe-x, 0px) - 45) / 55, 1));
     }
 
-    [ngpToast][data-swiping='true'][data-swipe-direction='top'] {
+    [ngpToast][data-swiping][data-swipe-direction='top'] {
       /* Fade out from -45px to -100px swipe */
       opacity: calc(1 - clamp(0, ((-1 * var(--ngp-toast-swipe-y, 0px)) - 45) / 55, 1));
     }
 
-    [ngpToast][data-swiping='true'][data-swipe-direction='bottom'] {
+    [ngpToast][data-swiping][data-swipe-direction='bottom'] {
       /* Fade out from 45px to 100px swipe */
       opacity: calc(1 - clamp(0, (var(--ngp-toast-swipe-y, 0px) - 45) / 55, 1));
     }

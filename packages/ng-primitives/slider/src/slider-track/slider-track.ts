@@ -1,6 +1,7 @@
 import { Directive, HostListener } from '@angular/core';
 import { injectElementRef } from 'ng-primitives/internal';
-import { injectSliderState } from '../slider/slider-state';
+import { injectSliderPattern } from '../slider/slider-pattern';
+import { ngpSliderTrackPattern, provideSliderTrackPattern } from './slider-track-pattern';
 
 /**
  * Apply the `ngpSliderTrack` directive to an element that represents the track of the slider.
@@ -9,15 +10,21 @@ import { injectSliderState } from '../slider/slider-state';
   selector: '[ngpSliderTrack]',
   exportAs: 'ngpSliderTrack',
   host: {
-    '[attr.data-orientation]': 'sliderState().orientation()',
-    '[attr.data-disabled]': 'sliderState().disabled() ? "" : null',
+    '[attr.data-orientation]': 'slider.orientation()',
+    '[attr.data-disabled]': 'slider.disabled() ? "" : null',
   },
+  providers: [provideSliderTrackPattern(NgpSliderTrack, instance => instance.pattern)],
 })
 export class NgpSliderTrack {
   /**
+   * The pattern instance.
+   */
+  protected readonly pattern = ngpSliderTrackPattern({});
+
+  /**
    * Access the slider state.
    */
-  protected readonly sliderState = injectSliderState();
+  protected readonly slider = injectSliderPattern();
 
   /**
    * The element that represents the slider track.
@@ -25,7 +32,7 @@ export class NgpSliderTrack {
   readonly element = injectElementRef<HTMLElement>();
 
   constructor() {
-    this.sliderState().track.set(this);
+    this.slider.setTrack(this.element);
   }
 
   /**
@@ -34,22 +41,18 @@ export class NgpSliderTrack {
    */
   @HostListener('pointerdown', ['$event'])
   protected handlePointerDown(event: PointerEvent): void {
-    if (this.sliderState().disabled()) {
+    if (this.slider.disabled()) {
       return;
     }
 
     // get the position the click occurred within the slider track
-    const position =
-      this.sliderState().orientation() === 'horizontal' ? event.clientX : event.clientY;
+    const position = this.slider.orientation() === 'horizontal' ? event.clientX : event.clientY;
     const rect = this.element.nativeElement.getBoundingClientRect();
     const percentage =
-      (position - (this.sliderState().orientation() === 'horizontal' ? rect.left : rect.top)) /
-      (this.sliderState().orientation() === 'horizontal' ? rect.width : rect.height);
+      (position - (this.slider.orientation() === 'horizontal' ? rect.left : rect.top)) /
+      (this.slider.orientation() === 'horizontal' ? rect.width : rect.height);
 
     // update the value based on the position
-    this.sliderState().value.set(
-      this.sliderState().min() + (this.sliderState().max() - this.sliderState().min()) * percentage,
-    );
-    this.sliderState().valueChange.emit(this.sliderState().value());
+    this.slider.setValue(this.slider.min() + (this.slider.max() - this.slider.min()) * percentage);
   }
 }

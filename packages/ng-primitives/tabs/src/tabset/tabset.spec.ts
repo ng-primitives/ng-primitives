@@ -108,7 +108,7 @@ describe('NgpTabset', () => {
     );
 
     const tab = getByRole('tab', { name: 'Features' });
-    tab.click();
+    fireEvent.click(tab);
 
     expect(valueChange).toHaveBeenCalledWith('features');
     expect(valueChange).toHaveBeenCalledTimes(1);
@@ -161,7 +161,7 @@ describe('NgpTabset', () => {
   });
 
   it('should update orientation dynamically', async () => {
-    const { getByRole, rerender } = await render(
+    const { getByRole, rerender, detectChanges } = await render(
       `
       <div ngpTabset [ngpTabsetOrientation]="orientation">
         <div ngpTabList>
@@ -183,11 +183,12 @@ describe('NgpTabset', () => {
     const tabset = getByRole('tablist');
     expect(tabset).toHaveAttribute('data-orientation', 'horizontal');
 
-    rerender({
+    await rerender({
       componentProperties: {
         orientation: 'vertical',
       },
     });
+    detectChanges();
 
     expect(tabset).toHaveAttribute('data-orientation', 'vertical');
   });

@@ -1,6 +1,6 @@
 import { BooleanInput } from '@angular/cdk/coercion';
 import { booleanAttribute, Directive, input } from '@angular/core';
-import { setupFormControl } from 'ng-primitives/form-field';
+import { ngpFormControlPattern } from 'ng-primitives/form-field';
 import { ngpInteractions } from 'ng-primitives/interactions';
 import { uniqueId } from 'ng-primitives/utils';
 import { provideNativeSelectState, selectNativeSelectState } from './native-select-state';
@@ -43,6 +43,6 @@ export class NgpNativeSelect {
       focusVisible: true,
       disabled: this.state.disabled,
     });
-    setupFormControl({ id: this.state.id, disabled: this.state.disabled });
+    ngpFormControlPattern({ id: this.state.id, disabled: this.state.disabled });
   }
 }

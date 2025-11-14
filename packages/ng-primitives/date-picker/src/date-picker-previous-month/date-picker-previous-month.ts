@@ -1,5 +1,5 @@
 import { computed, Directive, ElementRef, HostListener, inject } from '@angular/core';
-import { setupButton } from 'ng-primitives/button';
+import { ngpButtonPattern } from 'ng-primitives/button';
 import { injectDateAdapter } from 'ng-primitives/date-time';
 import { injectDateControllerState } from '../date-picker/date-picker-state';
 
@@ -66,7 +66,7 @@ export class NgpDatePickerPreviousMonth<T> {
   });
 
   constructor() {
-    setupButton({ disabled: this.disabled });
+    ngpButtonPattern({ disabled: this.disabled });
   }
 
   /**

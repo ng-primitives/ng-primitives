@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { ControlValueAccessor } from '@angular/forms';
-import { injectRadioGroupState, NgpRadioGroup } from 'ng-primitives/radio';
+import { injectRadioGroupPattern, injectRadioGroupState, NgpRadioGroup } from 'ng-primitives/radio';
 import { ChangeFn, provideValueAccessor, TouchedFn } from 'ng-primitives/utils';
 
 @Component({
@@ -33,7 +33,8 @@ import { ChangeFn, provideValueAccessor, TouchedFn } from 'ng-primitives/utils';
 })
 export class RadioGroup implements ControlValueAccessor {
   /** Access the radio group state */
-  protected readonly state = injectRadioGroupState<string>();
+  private readonly pattern = injectRadioGroupPattern();
+  protected readonly state = injectRadioGroupState();
 
   /** The on change callback */
   private onChange?: ChangeFn<string | null>;

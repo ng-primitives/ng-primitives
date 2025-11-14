@@ -1,14 +1,6 @@
 import { BooleanInput } from '@angular/cdk/coercion';
-import {
-  Directive,
-  ElementRef,
-  HostListener,
-  booleanAttribute,
-  inject,
-  input,
-  output,
-} from '@angular/core';
-import { provideToggleState, toggleState } from './toggle-state';
+import { Directive, booleanAttribute, input, output } from '@angular/core';
+import { ngpTogglePattern, provideTogglePattern } from './toggle-pattern';
 
 /**
  * Apply the `ngpToggle` directive to an element to manage the toggle state. This must be applied to a `button` element.
@@ -16,19 +8,13 @@ import { provideToggleState, toggleState } from './toggle-state';
 @Directive({
   selector: '[ngpToggle]',
   exportAs: 'ngpToggle',
-  providers: [provideToggleState()],
-  host: {
-    '[attr.type]': 'isButton ? "button" : null',
-    '[attr.aria-pressed]': 'state.selected()',
-    '[attr.data-selected]': 'state.selected() ? "" : null',
-    '[attr.data-disabled]': 'state.disabled() ? "" : null',
-  },
+  providers: [provideTogglePattern(NgpToggle, instance => instance.pattern)],
 })
 export class NgpToggle {
   /**
-   * Access the element.
+   * An optional id for the toggle.
    */
-  private readonly element = inject<ElementRef<HTMLElement>>(ElementRef);
+  readonly id = input<string>('', { alias: 'ngpToggleId' });
 
   /**
    * Whether the toggle is selected.
@@ -56,39 +42,13 @@ export class NgpToggle {
   });
 
   /**
-   * Determine if the element is a button.
-   */
-  protected isButton = this.element.nativeElement.tagName === 'BUTTON';
-
-  /**
-   * The state for the toggle primitive.
+   * The pattern for the toggle primitive.
    * @internal
    */
-  protected readonly state = toggleState<NgpToggle>(this);
-
-  /**
-   * Toggle the selected state.
-   */
-  @HostListener('click')
-  toggle(): void {
-    if (this.state.disabled()) {
-      return;
-    }
-
-    const isSelected = !this.state.selected();
-
-    this.state.selected.set(isSelected);
-    this.selectedChange.emit(isSelected);
-  }
-
-  /**
-   * If the element is not a button or a link the space key should toggle the selected state.
-   */
-  @HostListener('keydown.space', ['$event'])
-  protected onKeyDown(event: KeyboardEvent): void {
-    if (!this.isButton && this.element.nativeElement.tagName !== 'A') {
-      event.preventDefault();
-      this.toggle();
-    }
-  }
+  protected readonly pattern = ngpTogglePattern({
+    id: this.id,
+    selected: this.selected,
+    disabled: this.disabled,
+    selectedChange: this.selectedChange,
+  });
 }

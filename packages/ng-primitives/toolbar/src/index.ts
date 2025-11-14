@@ -1,2 +1,9 @@
 export { NgpToolbar } from './toolbar/toolbar';
-export { provideToolbarState, injectToolbarState } from './toolbar/toolbar-state';
+export {
+  injectToolbarPattern,
+  injectToolbarState,
+  ngpToolbarPattern,
+  provideToolbarPattern,
+  type NgpToolbarProps,
+  type NgpToolbarState,
+} from './toolbar/toolbar-pattern';

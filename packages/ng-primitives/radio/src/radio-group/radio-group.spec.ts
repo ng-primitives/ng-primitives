@@ -1,4 +1,4 @@
-import { render } from '@testing-library/angular';
+import { fireEvent, render } from '@testing-library/angular';
 import { NgpRadioGroup, NgpRadioItem } from 'ng-primitives/radio';
 
 describe('RadioGroup', () => {
@@ -92,7 +92,7 @@ describe('RadioGroup', () => {
     const radioOne = getByRole('radio', { name: 'One' });
     const radioTwo = getByRole('radio', { name: 'Two' });
 
-    radioOne.click();
+    fireEvent.click(radioOne);
     detectChanges();
 
     expect(radioOne).toHaveAttribute('aria-checked', 'true');

@@ -1,5 +1,5 @@
 import { Directive } from '@angular/core';
-import { injectSliderState } from '../slider/slider-state';
+import { ngpSliderRangePattern, provideSliderRangePattern } from './slider-range-pattern';
 
 /**
  * Apply the `ngpSliderRange` directive to an element that represents the range of the slider.
@@ -7,18 +7,11 @@ import { injectSliderState } from '../slider/slider-state';
 @Directive({
   selector: '[ngpSliderRange]',
   exportAs: 'ngpSliderRange',
-  host: {
-    '[attr.data-orientation]': 'sliderState().orientation()',
-    '[attr.data-disabled]': 'sliderState().disabled() ? "" : null',
-    '[style.width.%]':
-      'sliderState().orientation() === "horizontal" ? sliderState().percentage() : undefined',
-    '[style.height.%]':
-      'sliderState().orientation() === "vertical" ? sliderState().percentage() : undefined',
-  },
+  providers: [provideSliderRangePattern(NgpSliderRange, instance => instance.pattern)],
 })
 export class NgpSliderRange {
   /**
-   * Access the slider state.
+   * The pattern instance.
    */
-  protected readonly sliderState = injectSliderState();
+  protected readonly pattern = ngpSliderRangePattern({});
 }

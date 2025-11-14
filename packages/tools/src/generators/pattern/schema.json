@@ -1,0 +1,27 @@
+{
+  "$schema": "http://json-schema.org/schema",
+  "$id": "Pattern",
+  "title": "",
+  "type": "object",
+  "properties": {
+    "directive": {
+      "type": "string",
+      "description": "The name of the directive to create pattern for, e.g. avatar.",
+      "$default": {
+        "$source": "argv",
+        "index": 0
+      },
+      "x-prompt": "What directive would you like to create pattern for?"
+    },
+    "primitive": {
+      "type": "string",
+      "description": "The primitive to add the pattern to.",
+      "$default": {
+        "$source": "argv",
+        "index": 1
+      },
+      "x-prompt": "What primitive should the pattern be added to?"
+    }
+  },
+  "required": ["directive", "primitive"]
+}

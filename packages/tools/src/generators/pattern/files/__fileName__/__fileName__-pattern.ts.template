@@ -1,0 +1,261 @@
+import {
+  computed,
+<% if (methods && methods.some(m => m.name === 'ngOnDestroy')) { -%>
+  DestroyRef,
+<% } -%>
+  ElementRef,
+  FactoryProvider,
+  inject,
+  InjectionToken,
+  signal,
+  Signal,
+  Type,
+} from '@angular/core';
+import { injectElementRef } from 'ng-primitives/internal';
+import { attrBinding, dataBinding, listener, onClick, onPress, styleBinding } from 'ng-primitives/state';
+
+/**
+ * The state interface for the <%= className %> pattern.
+ */
+export interface Ngp<%= className %>State {
+<% const publicMethods = methods.filter(m => m.isPublic && m.name !== 'ngOnDestroy'); -%>
+<% if (publicMethods.length > 0) { -%>
+<% publicMethods.forEach(function(method) { -%>
+  /**
+   * <%= method.name.charAt(0).toUpperCase() + method.name.slice(1) %> method.
+   */
+  <%= method.name %>: (<% method.parameters.forEach((param, index) => { -%>
+<%= param.name %>: <%= param.type %><% if (index < method.parameters.length - 1) { %>, <% } -%>
+<% }); -%>) => <%= method.returnType %>;
+<% }); -%>
+<% } else { -%>
+  // Define state properties and methods
+<% } -%>
+}
+
+/**
+ * The props interface for the <%= className %> pattern.
+ */
+export interface Ngp<%= className %>Props {
+  /**
+   * The element reference for the <%= fileName %>.
+   */
+  element?: ElementRef<HTMLElement>;
+<% inputs.forEach(function(input) { -%>
+  /**
+   * <%= input.name.charAt(0).toUpperCase() + input.name.slice(1) %> signal input.
+   */
+  readonly <%= input.name %>?: Signal<<%- input.type.replace(/\s*,\s*\w+Input\s*/, '') %>>;
+<% }); -%>
+<% outputs.forEach(function(output) { -%>
+  /**
+   * Event listener for <%= output.name %> events.
+   */
+  readonly on<%= output.name.charAt(0).toUpperCase() + output.name.slice(1) %>?: (value: <%- output.type.includes('OutputEmitter') ? output.type.match(/OutputEmitter<(.+)>/)?.[1] || 'any' : 'any' %>) => void;
+<% }); -%>
+}
+
+/**
+ * The <%= className %> pattern function.
+ */
+export function ngp<%= className %>Pattern({
+  element = injectElementRef(),
+<% inputs.forEach(function(input) { -%>
+  <%= input.name %><%- input.defaultValue ? ' = signal(' + input.defaultValue + ')' : '' %>,
+<% }); -%>
+<% outputs.forEach(function(output) { -%>
+  on<%= output.name.charAt(0).toUpperCase() + output.name.slice(1) %>,
+<% }); -%>
+}: Ngp<%= className %>Props = {}): Ngp<%= className %>State {
+<% if (dependencies && dependencies.length > 0) { -%>
+  // Dependency injection
+<% dependencies.forEach(function(dep) { -%>
+  const <%= dep.name %> = <%- dep.injectionCall %>;
+<% }); -%>
+<% } -%>
+<% if (properties && properties.length > 0) { -%>
+
+  // Properties and computed values
+<% properties.forEach(function(property) { -%>
+  const <%= property.name %> = <%- property.initializer %>;
+<% }); -%>
+<% } -%>
+<% if (constructor && constructor.body) { -%>
+
+  // Constructor logic
+  <%- constructor.body.replace(/^\{|\}$/g, '').trim() %>
+<% } -%>
+<% if (hostBindings && hostBindings.length > 0) { -%>
+
+  // Host bindings
+<% hostBindings.forEach(function(binding) { -%>
+  <%-
+    (() => {
+      const cleanKey = binding.key.replace(/[\[\]()]/g, '');
+      const value = binding.value;
+
+      // Helper function to convert directive expressions to pattern signal usage
+      const convertToSignalExpression = (expression) => {
+        // Simplify ternary expressions that check for empty strings or null
+        // Common patterns like: signal() ? '' : null or signal() ? null : ''
+        if (expression.includes(' ? ') && expression.includes(' : ')) {
+          // Match: condition ? value1 : value2
+          const parts = expression.split(' ? ');
+          if (parts.length === 2) {
+            const condition = parts[0].trim();
+            const valueParts = parts[1].split(' : ');
+            if (valueParts.length === 2) {
+              const trueValue = valueParts[0].trim();
+              const falseValue = valueParts[1].trim();
+
+              // Check if both values are "empty" (empty string, null, or undefined)
+              const emptyPattern = /^(''{1,2}|""{1,2}|null|undefined)$/;
+              if (emptyPattern.test(trueValue) && emptyPattern.test(falseValue)) {
+                return condition.replace(/\(\)/g, '');
+              }
+            }
+          }
+        }
+
+        // For simple function calls like 'percentage()', just remove the parentheses
+        if (/^\w+\(\)$/.test(expression)) {
+          return expression.replace(/\(\)/g, '');
+        }
+
+        // For chained calls like 'min()' or 'max()', remove parentheses
+        let converted = expression.replace(/(\w+)\(\)/g, '$1');
+
+        // For expressions like 'valueLabel()(value(), max())', convert to computed
+        if (expression.includes('()(')) {
+          // This is a complex expression that needs computed
+          converted = `computed(() => ${expression})`;
+        }
+
+        // For expressions with optional chaining like 'label()?.id()', convert appropriately
+        if (expression.includes('?.')) {
+          converted = `computed(() => ${expression})`;
+        }
+
+        return converted;
+      };
+
+      switch (binding.type) {
+        case 'attribute':
+          if (binding.key.startsWith('[attr.')) {
+            const attrName = cleanKey.replace('attr.', '');
+            const attrSignalValue = convertToSignalExpression(value);
+
+            // Check if it's a data attribute
+            if (attrName.startsWith('data-')) {
+              return `dataBinding(element, '${attrName}', ${attrSignalValue});`;
+            } else {
+              return `attrBinding(element, '${attrName}', ${attrSignalValue});`;
+            }
+          } else {
+            // Check if static attribute is a data attribute
+            if (cleanKey.startsWith('data-')) {
+              return `dataBinding(element, '${cleanKey}', '${value}');`;
+            } else {
+              return `attrBinding(element, '${cleanKey}', '${value}');`;
+            }
+          }
+        case 'property':
+          if (cleanKey.startsWith('data-')) {
+            const dataKey = cleanKey.replace('data-', '');
+            const dataSignalValue = convertToSignalExpression(value);
+            return `dataBinding(element, 'data-${dataKey}', ${dataSignalValue});`;
+          } else {
+            const propSignalValue = convertToSignalExpression(value);
+            return `attrBinding(element, '${cleanKey}', ${propSignalValue});`;
+          }
+        case 'class':
+          const className = cleanKey.replace('class.', '');
+          const classSignalValue = convertToSignalExpression(value);
+          return `attrBinding(element, 'class', computed(() => ${classSignalValue}() ? '${className}' : ''));`;
+        case 'style':
+          const styleProp = cleanKey.replace('style.', '');
+          const styleSignalValue = convertToSignalExpression(value);
+          return `styleBinding(element, '${styleProp}', ${styleSignalValue});`;
+        case 'listener':
+          const eventName = cleanKey;
+          // Handle keyboard events with onPress
+          if (eventName === 'keydown.enter' || eventName === 'keydown.space') {
+            const key = eventName.split('.')[1];
+            return `onPress(element, '${key === 'enter' ? 'Enter' : ' '}', ${value});`;
+          }
+          // Handle general keydown events with onPress
+          else if (eventName.startsWith('keydown.')) {
+            const key = eventName.replace('keydown.', '');
+            const keyValue = key === 'enter' ? 'Enter' : key === 'space' ? ' ' : key;
+            return `onPress(element, '${keyValue}', ${value});`;
+          }
+          // Handle click events with onClick
+          else if (eventName === 'click') {
+            return `onClick(element, ${value});`;
+          }
+          // Handle other events with listener
+          else {
+            return `listener(element, '${eventName}', ${value});`;
+          }
+        default:
+          return `// ${binding.key}: ${binding.value}`;
+      }
+    })()
+  %>
+<% }); -%>
+<% } -%>
+<% if (methods && methods.length > 0) { -%>
+<% const regularMethods = methods.filter(m => m.name !== 'ngOnDestroy'); -%>
+<% const ngOnDestroyMethod = methods.find(m => m.name === 'ngOnDestroy'); -%>
+<% if (ngOnDestroyMethod) { -%>
+
+  // Lifecycle cleanup
+  destroyRef.onDestroy(() => <%- ngOnDestroyMethod.body %>);
+<% } -%>
+<% if (regularMethods.length > 0) { -%>
+
+  // Method implementations
+<% regularMethods.forEach(function(method) { -%>
+  <% if (method.isAsync) { -%>async <% } -%>function <%= method.name %>(<% method.parameters.forEach((param, index) => { -%>
+<%= param.name %>: <%= param.type %><% if (param.defaultValue) { %> = <%= param.defaultValue %><% } -%>
+<% if (index < method.parameters.length - 1) { %>, <% } -%>
+<% }); -%>): <%= method.returnType %> <%- method.body %>
+<% }); -%>
+<% } -%>
+<% } -%>
+
+  return {
+<% const returnMethods = methods.filter(m => m.isPublic && m.name !== 'ngOnDestroy'); -%>
+<% if (returnMethods.length > 0) { -%>
+<% returnMethods.forEach(function(method) { -%>
+    <%= method.name %>,
+<% }); -%>
+<% } else { -%>
+    // Return state object
+<% } -%>
+  };
+}
+
+/**
+ * The injection token for the <%= className %> pattern.
+ */
+export const Ngp<%= className %>PatternToken = new InjectionToken<Ngp<%= className %>State>(
+  'Ngp<%= className %>PatternToken',
+);
+
+/**
+ * Injects the <%= className %> pattern.
+ */
+export function inject<%= className %>Pattern(): Ngp<%= className %>State {
+  return inject(Ngp<%= className %>PatternToken);
+}
+
+/**
+ * Provides the <%= className %> pattern.
+ */
+export function provide<%= className %>Pattern<T>(
+  type: Type<T>,
+  fn: (instance: T) => Ngp<%= className %>State,
+): FactoryProvider {
+  return { provide: Ngp<%= className %>PatternToken, useFactory: () => fn(inject(type)) };
+}

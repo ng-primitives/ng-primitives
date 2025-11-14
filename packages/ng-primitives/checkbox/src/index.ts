@@ -1,2 +1,9 @@
 export { NgpCheckbox } from './checkbox/checkbox';
-export { injectCheckboxState, provideCheckboxState } from './checkbox/checkbox-state';
+export {
+  injectCheckboxPattern,
+  injectCheckboxState,
+  ngpCheckboxPattern,
+  provideCheckboxPattern,
+  type NgpCheckboxProps,
+  type NgpCheckboxState,
+} from './checkbox/checkbox-pattern';

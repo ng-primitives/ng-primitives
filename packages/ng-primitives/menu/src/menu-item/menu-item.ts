@@ -1,7 +1,7 @@
 import { FocusOrigin } from '@angular/cdk/a11y';
 import { BooleanInput } from '@angular/cdk/coercion';
 import { booleanAttribute, Directive, HostListener, inject, Injector, input } from '@angular/core';
-import { setupButton } from 'ng-primitives/button';
+import { ngpButtonPattern } from 'ng-primitives/button';
 import { injectElementRef } from 'ng-primitives/internal';
 import { NgpRovingFocusItem } from 'ng-primitives/roving-focus';
 import { injectMenu } from '../menu/menu-token';
@@ -39,7 +39,7 @@ export class NgpMenuItem {
   });
 
   constructor() {
-    setupButton({ disabled: this.disabled });
+    ngpButtonPattern({ disabled: this.disabled });
   }
 
   /** Close the menu when the item is clicked */

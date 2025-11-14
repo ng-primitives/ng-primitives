@@ -1,7 +1,16 @@
 export { NgpFileDropzone } from './file-dropzone/file-dropzone';
 export {
-  injectFileDropzoneState,
-  provideFileDropzoneState,
-} from './file-dropzone/file-dropzone-state';
+  injectFileDropzonePattern,
+  ngpFileDropzonePattern,
+  provideFileDropzonePattern,
+  type NgpFileDropzoneProps,
+  type NgpFileDropzoneState,
+} from './file-dropzone/file-dropzone-pattern';
 export { NgpFileUpload } from './file-upload/file-upload';
-export { injectFileUploadState, provideFileUploadState } from './file-upload/file-upload-state';
+export {
+  injectFileUploadPattern,
+  ngpFileUploadPattern,
+  provideFileUploadPattern,
+  type NgpFileUploadProps,
+  type NgpFileUploadState,
+} from './file-upload/file-upload-pattern';

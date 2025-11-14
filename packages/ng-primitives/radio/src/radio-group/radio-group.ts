@@ -1,17 +1,16 @@
 import { BooleanInput } from '@angular/cdk/coercion';
-import { booleanAttribute, Directive, input, OnInit, output } from '@angular/core';
+import { booleanAttribute, Directive, input, output } from '@angular/core';
 import { NgpOrientation } from 'ng-primitives/common';
-import { setupFormControl } from 'ng-primitives/form-field';
-import { injectRovingFocusGroupState, NgpRovingFocusGroup } from 'ng-primitives/roving-focus';
+import { NgpRovingFocusGroup } from 'ng-primitives/roving-focus';
 import { uniqueId } from 'ng-primitives/utils';
-import { provideRadioGroupState, radioGroupState } from './radio-group-state';
+import { ngpRadioGroupPattern, provideRadioGroupPattern } from './radio-group-pattern';
 
 /**
  * Apply the `ngpRadioGroup` directive to an element that represents the group of radio items.
  */
 @Directive({
   selector: '[ngpRadioGroup]',
-  providers: [provideRadioGroupState()],
+  providers: [provideRadioGroupPattern(NgpRadioGroup, instance => instance.pattern)],
   hostDirectives: [
     {
       directive: NgpRovingFocusGroup,
@@ -24,17 +23,9 @@ import { provideRadioGroupState, radioGroupState } from './radio-group-state';
   host: {
     role: 'radiogroup',
     '[id]': 'id()',
-    '[attr.aria-orientation]': 'state.orientation()',
-    '[attr.data-orientation]': 'state.orientation()',
-    '[attr.data-disabled]': 'state.disabled() ? "" : null',
   },
 })
-export class NgpRadioGroup<T> implements OnInit {
-  /**
-   * Access the roving focus group state.
-   */
-  private readonly rovingFocusGroupState = injectRovingFocusGroupState();
-
+export class NgpRadioGroup<T> {
   /**
    * The id of the radio group. If not provided, a unique id will be generated.
    */
@@ -77,19 +68,16 @@ export class NgpRadioGroup<T> implements OnInit {
   });
 
   /**
-   * The state of the radio group.
-   * @internal
+   * The pattern instance.
    */
-  protected readonly state = radioGroupState<NgpRadioGroup<T>>(this);
-
-  constructor() {
-    setupFormControl({ id: this.state.id, disabled: this.state.disabled });
-  }
-
-  ngOnInit(): void {
-    // the roving focus group defaults to vertical orientation whereas we want to default to vertical
-    this.rovingFocusGroupState().orientation.set(this.state.orientation());
-  }
+  protected readonly pattern = ngpRadioGroupPattern({
+    id: this.id,
+    value: this.value,
+    disabled: this.disabled,
+    orientation: this.orientation,
+    compareWith: this.compareWith,
+    onValueChange: (value: T) => this.valueChange.emit(value),
+  });
 
   /**
    * Select a radio item.
@@ -97,11 +85,11 @@ export class NgpRadioGroup<T> implements OnInit {
    */
   select(value: T): void {
     // if the value is already selected, do nothing
-    if (this.state.compareWith()(this.state.value(), value)) {
+    if (this.pattern.compareWith()(this.pattern.value(), value)) {
       return;
     }
 
-    this.state.value.set(value);
+    // Instead of using pattern.select, directly handle the value change
     this.valueChange.emit(value);
   }
 }

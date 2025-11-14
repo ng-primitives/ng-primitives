@@ -7,7 +7,6 @@ import {
   NgpRangeSliderRange,
   NgpRangeSliderThumb,
   NgpRangeSliderTrack,
-  provideRangeSliderState,
 } from 'ng-primitives/slider';
 import { ChangeFn, provideValueAccessor, TouchedFn } from 'ng-primitives/utils';
 
@@ -29,7 +28,7 @@ import { ChangeFn, provideValueAccessor, TouchedFn } from 'ng-primitives/utils';
     },
   ],
   imports: [NgpRangeSliderTrack, NgpRangeSliderRange, NgpRangeSliderThumb],
-  providers: [provideRangeSliderState(), provideValueAccessor(RangeSlider)],
+  providers: [provideValueAccessor(RangeSlider)],
   template: `
     <div ngpRangeSliderTrack>
       <div ngpRangeSliderRange></div>
