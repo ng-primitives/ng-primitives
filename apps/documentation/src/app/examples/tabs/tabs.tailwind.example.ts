@@ -7,34 +7,34 @@ import { NgpTabButton, NgpTabList, NgpTabPanel, NgpTabset } from 'ng-primitives/
   imports: [NgpTabset, NgpTabList, NgpTabButton, NgpTabPanel],
   template: `
     <div
-      class="w-full max-w-[512px] rounded-xl bg-white px-4 py-1 shadow ring-1 ring-black/5 dark:bg-transparent dark:ring-white/10"
+      class="w-full max-w-[512px] rounded-xl bg-white px-4 py-1 shadow-sm ring-1 ring-black/5 dark:bg-transparent dark:ring-white/10"
       [(ngpTabsetValue)]="selectedTab"
       ngpTabset
     >
       <div class="flex gap-6 border-b border-neutral-200/60 dark:border-neutral-700/60" ngpTabList>
         <button
-          class="border-b-2 border-transparent bg-transparent py-2 text-neutral-600 outline-none transition-colors duration-150 ease-in-out data-[disabled]:cursor-not-allowed data-[active]:border-black data-[active]:text-neutral-900 data-[disabled]:text-neutral-400 data-[focus-visible]:ring-2 data-[focus-visible]:ring-blue-500 dark:text-neutral-300 dark:data-[active]:border-white dark:data-[active]:text-neutral-100 dark:data-[disabled]:text-neutral-600"
+          class="border-b-2 border-transparent bg-transparent py-2 text-neutral-600 outline-hidden transition-colors duration-150 ease-in-out data-disabled:cursor-not-allowed data-active:border-black data-active:text-neutral-900 data-disabled:text-neutral-400 data-focus-visible:ring-2 data-focus-visible:ring-blue-500 dark:text-neutral-300 dark:data-active:border-white dark:data-active:text-neutral-100 dark:data-disabled:text-neutral-600"
           ngpTabButton
           ngpTabButtonValue="overview"
         >
           Overview
         </button>
         <button
-          class="border-b-2 border-transparent bg-transparent py-2 text-neutral-600 outline-none transition-colors duration-150 ease-in-out data-[disabled]:cursor-not-allowed data-[active]:border-black data-[active]:text-neutral-900 data-[disabled]:text-neutral-400 data-[focus-visible]:ring-2 data-[focus-visible]:ring-blue-500 dark:text-neutral-300 dark:data-[active]:border-white dark:data-[active]:text-neutral-100 dark:data-[disabled]:text-neutral-600"
+          class="border-b-2 border-transparent bg-transparent py-2 text-neutral-600 outline-hidden transition-colors duration-150 ease-in-out data-disabled:cursor-not-allowed data-active:border-black data-active:text-neutral-900 data-disabled:text-neutral-400 data-focus-visible:ring-2 data-focus-visible:ring-blue-500 dark:text-neutral-300 dark:data-active:border-white dark:data-active:text-neutral-100 dark:data-disabled:text-neutral-600"
           ngpTabButton
           ngpTabButtonValue="features"
         >
           Features
         </button>
         <button
-          class="border-b-2 border-transparent bg-transparent py-2 text-neutral-600 outline-none transition-colors duration-150 ease-in-out data-[disabled]:cursor-not-allowed data-[active]:border-black data-[active]:text-neutral-900 data-[disabled]:text-neutral-400 data-[focus-visible]:ring-2 data-[focus-visible]:ring-blue-500 dark:text-neutral-300 dark:data-[active]:border-white dark:data-[active]:text-neutral-100 dark:data-[disabled]:text-neutral-600"
+          class="border-b-2 border-transparent bg-transparent py-2 text-neutral-600 outline-hidden transition-colors duration-150 ease-in-out data-disabled:cursor-not-allowed data-active:border-black data-active:text-neutral-900 data-disabled:text-neutral-400 data-focus-visible:ring-2 data-focus-visible:ring-blue-500 dark:text-neutral-300 dark:data-active:border-white dark:data-active:text-neutral-100 dark:data-disabled:text-neutral-600"
           ngpTabButton
           ngpTabButtonValue="pricing"
         >
           Pricing
         </button>
         <button
-          class="border-b-2 border-transparent bg-transparent py-2 text-neutral-600 outline-none transition-colors duration-150 ease-in-out data-[disabled]:cursor-not-allowed data-[active]:border-black data-[active]:text-neutral-900 data-[disabled]:text-neutral-400 data-[focus-visible]:ring-2 data-[focus-visible]:ring-blue-500 dark:text-neutral-300 dark:data-[active]:border-white dark:data-[active]:text-neutral-100 dark:data-[disabled]:text-neutral-600"
+          class="border-b-2 border-transparent bg-transparent py-2 text-neutral-600 outline-hidden transition-colors duration-150 ease-in-out data-disabled:cursor-not-allowed data-active:border-black data-active:text-neutral-900 data-disabled:text-neutral-400 data-focus-visible:ring-2 data-focus-visible:ring-blue-500 dark:text-neutral-300 dark:data-active:border-white dark:data-active:text-neutral-100 dark:data-disabled:text-neutral-600"
           ngpTabButton
           ngpTabButtonValue="disabled"
           ngpTabButtonDisabled
@@ -44,7 +44,7 @@ import { NgpTabButton, NgpTabList, NgpTabPanel, NgpTabset } from 'ng-primitives/
       </div>
 
       <div
-        class="hidden py-2 text-neutral-700 data-[active]:block dark:text-neutral-300"
+        class="hidden py-2 text-neutral-700 data-active:block dark:text-neutral-300"
         ngpTabPanel
         ngpTabPanelValue="overview"
       >
@@ -57,7 +57,7 @@ import { NgpTabButton, NgpTabList, NgpTabPanel, NgpTabset } from 'ng-primitives/
       </div>
 
       <div
-        class="hidden py-2 text-neutral-700 data-[active]:block dark:text-neutral-300"
+        class="hidden py-2 text-neutral-700 data-active:block dark:text-neutral-300"
         ngpTabPanel
         ngpTabPanelValue="features"
       >
@@ -70,7 +70,7 @@ import { NgpTabButton, NgpTabList, NgpTabPanel, NgpTabset } from 'ng-primitives/
       </div>
 
       <div
-        class="hidden py-2 text-neutral-700 data-[active]:block dark:text-neutral-300"
+        class="hidden py-2 text-neutral-700 data-active:block dark:text-neutral-300"
         ngpTabPanel
         ngpTabPanelValue="pricing"
       >
@@ -82,7 +82,7 @@ import { NgpTabButton, NgpTabList, NgpTabPanel, NgpTabset } from 'ng-primitives/
         </p>
       </div>
       <div
-        class="hidden py-2 text-neutral-700 data-[active]:block dark:text-neutral-300"
+        class="hidden py-2 text-neutral-700 data-active:block dark:text-neutral-300"
         ngpTabPanel
         ngpTabPanelValue="disabled"
       >

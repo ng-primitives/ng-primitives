@@ -9,7 +9,7 @@ import { NgpFileUpload } from 'ng-primitives/file-upload';
   providers: [provideIcons({ heroCloudArrowUp })],
   template: `
     <div
-      class="flex cursor-pointer flex-col items-center justify-center gap-1 rounded-lg border border-dashed border-gray-300 bg-white px-12 py-8 transition-colors data-[dragover]:border-gray-400 data-[dragover]:bg-gray-50 dark:border-gray-700 dark:bg-zinc-950 dark:data-[dragover]:border-gray-500 dark:data-[dragover]:bg-zinc-900"
+      class="flex cursor-pointer flex-col items-center justify-center gap-1 rounded-lg border border-dashed border-gray-300 bg-white px-12 py-8 transition-colors data-dragover:border-gray-400 data-dragover:bg-gray-50 dark:border-gray-700 dark:bg-zinc-950 dark:data-dragover:border-gray-500 dark:data-dragover:bg-zinc-900"
       (ngpFileUploadSelected)="onFilesSelected($event)"
       (ngpFileUploadRejected)="onFilesRejected()"
       ngpFileUploadFileTypes=".svg, .pdf"

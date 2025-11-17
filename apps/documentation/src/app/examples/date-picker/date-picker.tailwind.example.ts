@@ -37,7 +37,7 @@ import {
     >
       <div class="mb-4 flex h-9 items-center justify-between">
         <button
-          class="flex h-8 w-8 items-center justify-center rounded-lg border border-gray-200 bg-white text-gray-700 hover:bg-gray-50 focus:outline-none dark:border-gray-700 dark:bg-black dark:text-gray-200 dark:hover:bg-gray-900"
+          class="flex h-8 w-8 items-center justify-center rounded-lg border border-gray-200 bg-white text-gray-700 hover:bg-gray-50 focus:outline-hidden dark:border-gray-700 dark:bg-black dark:text-gray-200 dark:hover:bg-gray-900"
           ngpDatePickerPreviousMonth
           aria-label="previous month"
         >
@@ -47,7 +47,7 @@ import {
           {{ label() }}
         </h2>
         <button
-          class="flex h-8 w-8 items-center justify-center rounded-lg border border-gray-200 bg-white text-gray-700 hover:bg-gray-50 focus:outline-none dark:border-gray-700 dark:bg-black dark:text-gray-200 dark:hover:bg-gray-900"
+          class="flex h-8 w-8 items-center justify-center rounded-lg border border-gray-200 bg-white text-gray-700 hover:bg-gray-50 focus:outline-hidden dark:border-gray-700 dark:bg-black dark:text-gray-200 dark:hover:bg-gray-900"
           ngpDatePickerNextMonth
           aria-label="next month"
         >
@@ -84,7 +84,7 @@ import {
           <tr *ngpDatePickerRowRender>
             <td *ngpDatePickerCellRender="let date" ngpDatePickerCell>
               <button
-                class="flex h-10 w-10 items-center justify-center rounded-lg text-sm font-medium text-zinc-600 transition-colors focus:outline-none data-[disabled]:cursor-not-allowed data-[press]:bg-white data-[selected]:bg-gray-900 data-[selected][data-outside-month]:bg-gray-100 data-[disabled]:text-gray-300 data-[outside-month]:text-gray-300 data-[selected]:text-white data-[selected][data-outside-month]:text-gray-300 data-[selected][data-today]:text-white data-[today]:text-blue-600 dark:text-gray-300 dark:data-[selected]:bg-white dark:data-[outside-month]:text-gray-600 dark:data-[selected]:text-black dark:data-[selected][data-today]:text-black dark:data-[today]:text-blue-400"
+                class="flex h-10 w-10 items-center justify-center rounded-lg text-sm font-medium text-zinc-600 transition-colors focus:outline-hidden data-disabled:cursor-not-allowed data-press:bg-white data-selected:bg-gray-900 data-[selected][data-outside-month]:bg-gray-100 data-disabled:text-gray-300 data-outside-month:text-gray-300 data-selected:text-white data-[selected][data-outside-month]:text-gray-300 data-[selected][data-today]:text-white data-today:text-blue-600 dark:text-gray-300 dark:data-selected:bg-white dark:data-outside-month:text-gray-600 dark:data-selected:text-black dark:data-[selected][data-today]:text-black dark:data-today:text-blue-400"
                 ngpDatePickerDateButton
               >
                 {{ date.getDate() }}

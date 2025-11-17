@@ -20,7 +20,7 @@ import {
         Please include any middle names, no matter how ridiculous.
       </p>
       <input
-        class="h-9 w-full min-w-0 rounded-lg border-none px-4 shadow-sm outline-none ring-1 ring-black/10 placeholder:text-gray-400 focus:outline-2 focus:outline-offset-2 focus:outline-blue-500 dark:bg-zinc-900 dark:text-gray-100 dark:placeholder:text-gray-500"
+        class="h-9 w-full min-w-0 rounded-lg border-none px-4 shadow-xs outline-hidden ring-1 ring-black/10 placeholder:text-gray-400 focus:outline-2 focus:outline-offset-2 focus:outline-blue-500 dark:bg-zinc-900 dark:text-gray-100 dark:placeholder:text-gray-500"
         ngpFormControl
         type="text"
         placeholder="Enter your full name"

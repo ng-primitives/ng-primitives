@@ -16,10 +16,11 @@ import {
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { NgIcon, provideIcons } from '@ng-icons/core';
-import { lucideClipboard, lucideCheck } from '@ng-icons/lucide';
+import { lucideCheck, lucideClipboard } from '@ng-icons/lucide';
 import { phosphorLightning } from '@ng-icons/phosphor-icons/regular';
 import sdk from '@stackblitz/sdk';
 import { isString } from 'ng-primitives/utils';
+import { Plugin } from 'prettier';
 import * as prismjs from 'prismjs';
 
 const { highlight, languages } = prismjs;
@@ -314,7 +315,13 @@ export class Example {
 
       const formattedCodeForDisplay = await prettier.format(codeToFormat, {
         parser: 'typescript',
-        plugins: [pluginEstree, pluginTypescript, pluginAngular, pluginHtml, pluginPostcss],
+        plugins: [
+          pluginEstree as unknown as Plugin,
+          pluginTypescript,
+          pluginAngular,
+          pluginHtml,
+          pluginPostcss,
+        ],
       });
       this.code.set(
         highlight(formattedCodeForDisplay.trim(), languages['typescript'], 'typescript'),

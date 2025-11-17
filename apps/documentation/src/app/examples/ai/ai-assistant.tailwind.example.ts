@@ -52,11 +52,11 @@ interface Message {
       <div
         class="flex h-full flex-col items-stretch rounded-2xl bg-white px-4 ring-1 ring-black/10 dark:bg-black"
       >
-        <div class="flex flex-grow flex-col gap-4 overflow-hidden pt-4">
-          <div class="flex flex-grow flex-col gap-4 overflow-y-auto px-2 pb-4" ngpThreadViewport>
+        <div class="flex grow flex-col gap-4 overflow-hidden pt-4">
+          <div class="flex grow flex-col gap-4 overflow-y-auto px-2 pb-4" ngpThreadViewport>
             @if (!hasMessages()) {
               <!-- Welcome Message and Suggestions -->
-              <div class="flex flex-grow flex-col items-center justify-center gap-8 text-center">
+              <div class="flex grow flex-col items-center justify-center gap-8 text-center">
                 <div class="max-w-md">
                   <h1 class="mb-2 text-2xl font-semibold text-black dark:text-white">
                     {{ welcomeMessage }}
@@ -70,7 +70,7 @@ interface Message {
                 <div class="grid w-full max-w-lg grid-cols-1 gap-3 md:grid-cols-2">
                   @for (suggestion of suggestions; track suggestion) {
                     <button
-                      class="rounded-lg border border-zinc-200 p-3 text-left text-sm transition-colors data-[hover]:border-zinc-300 data-[hover]:bg-zinc-50 dark:border-zinc-800 dark:data-[hover]:border-zinc-600 dark:data-[hover]:bg-zinc-800"
+                      class="rounded-lg border border-zinc-200 p-3 text-left text-sm transition-colors data-hover:border-zinc-300 data-hover:bg-zinc-50 dark:border-zinc-800 dark:data-hover:border-zinc-600 dark:data-hover:bg-zinc-800"
                       (click)="sendMessage(suggestion)"
                       ngpThreadSuggestion
                       ngpButton
@@ -142,7 +142,7 @@ interface Message {
 
         <!-- Attachment Previews -->
         @if (attachments().length > 0) {
-          <div class="mx-auto w-full max-w-screen-md px-4 pb-2">
+          <div class="mx-auto w-full max-w-(--breakpoint-md) px-4 pb-2">
             <div class="flex flex-wrap gap-2">
               @for (attachment of attachments(); track attachment.id) {
                 <div class="group relative">
@@ -175,7 +175,7 @@ interface Message {
         }
 
         <div
-          class="mx-auto flex w-full max-w-screen-md items-end rounded-3xl bg-white/5 shadow-sm ring-1 ring-black/10 dark:bg-black/20 dark:ring-white/10"
+          class="mx-auto flex w-full max-w-(--breakpoint-md) items-end rounded-3xl bg-white/5 shadow-xs ring-1 ring-black/10 dark:bg-black/20 dark:ring-white/10"
           (ngpPromptComposerSubmit)="sendMessage($event)"
           ngpPromptComposer
         >
@@ -193,7 +193,7 @@ interface Message {
           </button>
 
           <textarea
-            class="max-h-40 min-h-12 flex-grow resize-none bg-transparent py-3.5 text-sm outline-none placeholder:text-black/50 dark:placeholder:text-white/50"
+            class="max-h-40 min-h-12 grow resize-none bg-transparent py-3.5 text-sm outline-hidden placeholder:text-black/50 dark:placeholder:text-white/50"
             ngpPromptComposerInput
             style="field-sizing: content;"
             name="input"
@@ -202,7 +202,7 @@ interface Message {
           ></textarea>
 
           <button
-            class="data-[prompt]:not([data-dictating]):hidden not([data-dictation-supported]):hidden m-2 flex size-8 items-center justify-center rounded-full transition-colors hover:bg-black/5 data-[dictating]:bg-black/5 data-[dictating]:hover:bg-black/10 dark:hover:bg-white/5 dark:data-[dictating]:bg-white/5 dark:data-[dictating]:hover:bg-white/10"
+            class="data-[prompt]:not([data-dictating]):hidden not([data-dictation-supported]):hidden m-2 flex size-8 items-center justify-center rounded-full transition-colors hover:bg-black/5 data-dictating:bg-black/5 data-dictating:hover:bg-black/10 dark:hover:bg-white/5 dark:data-dictating:bg-white/5 dark:data-dictating:hover:bg-white/10"
             #dictation="ngpPromptComposerDictation"
             type="button"
             ngpPromptComposerDictation
@@ -212,7 +212,7 @@ interface Message {
           </button>
 
           <button
-            class="m-2 hidden size-8 items-center justify-center rounded-full bg-black text-white transition-colors hover:bg-black/90 data-[prompt]:flex dark:bg-white dark:text-black dark:hover:bg-white/90"
+            class="m-2 hidden size-8 items-center justify-center rounded-full bg-black text-white transition-colors hover:bg-black/90 data-prompt:flex dark:bg-white dark:text-black dark:hover:bg-white/90"
             type="button"
             ngpPromptComposerSubmit
             aria-label="Send Message"

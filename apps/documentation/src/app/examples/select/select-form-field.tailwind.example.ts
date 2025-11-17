@@ -33,7 +33,7 @@ import {
       </p>
 
       <div
-        class="flex h-9 w-[300px] items-center justify-between rounded-lg border border-gray-200 bg-white text-sm text-gray-900 outline-none data-[focus]:outline-offset-2 data-[focus]:ring-2 data-[focus]:ring-blue-500 dark:border-gray-800 dark:bg-transparent dark:text-gray-50 dark:data-[focus]:ring-blue-400"
+        class="flex h-9 w-[300px] items-center justify-between rounded-lg border border-gray-200 bg-white text-sm text-gray-900 outline-hidden data-focus:outline-offset-2 data-focus:ring-2 data-focus:ring-blue-500 dark:border-gray-800 dark:bg-transparent dark:text-gray-50 dark:data-focus:ring-blue-400"
         [(ngpSelectValue)]="value"
         ngpSelect
       >
@@ -45,13 +45,13 @@ import {
         <ng-icon class="mx-2 h-full text-gray-500" name="heroChevronDown" />
 
         <div
-          class="absolute z-[1001] mt-1 max-h-[240px] w-[300px] overflow-y-auto rounded-xl border border-gray-200 bg-white p-1 shadow-lg outline-none dark:border-gray-800 dark:bg-black"
+          class="absolute z-1001 mt-1 max-h-[240px] w-[300px] overflow-y-auto rounded-xl border border-gray-200 bg-white p-1 shadow-lg outline-hidden dark:border-gray-800 dark:bg-black"
           *ngpSelectPortal
           ngpSelectDropdown
         >
           @for (option of options; track option) {
             <div
-              class="flex h-9 w-full cursor-pointer items-center gap-2 rounded-lg px-3 text-sm text-gray-800 data-[active]:bg-gray-100 data-[hover]:bg-gray-50 data-[press]:bg-gray-100 dark:text-gray-300 dark:data-[active]:bg-white/10 dark:data-[hover]:bg-white/5 dark:data-[press]:bg-white/10"
+              class="flex h-9 w-full cursor-pointer items-center gap-2 rounded-lg px-3 text-sm text-gray-800 data-active:bg-gray-100 data-hover:bg-gray-50 data-press:bg-gray-100 dark:text-gray-300 dark:data-active:bg-white/10 dark:data-hover:bg-white/5 dark:data-press:bg-white/10"
               [ngpSelectOptionValue]="option"
               ngpSelectOption
             >

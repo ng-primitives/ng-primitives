@@ -4,7 +4,7 @@
       <div class="flex items-center border-b border-white/20 pe-1.5">
         @for (file of files(); track file.label) {
         <button
-          class="group relative -mb-px flex items-center whitespace-nowrap px-2 py-2 font-medium text-white outline-none"
+          class="group relative -mb-px flex items-center whitespace-nowrap px-2 py-2 font-medium text-white outline-hidden"
           [attr.aria-selected]="selectedFile() === file.label"
           (click)="selectedFile.set(file.label)"
           role="tab"
@@ -24,7 +24,7 @@
         }
 
         <button
-          class="relative -mb-px ml-auto flex items-center justify-center whitespace-nowrap rounded-md px-2 py-1 text-base font-medium text-white outline-none hover:bg-zinc-700/60 hover:text-white"
+          class="relative -mb-px ml-auto flex items-center justify-center whitespace-nowrap rounded-md px-2 py-1 text-base font-medium text-white outline-hidden hover:bg-zinc-700/60 hover:text-white"
           [class.min-w-[80px]]="isCopied()"
           (click)="copyToClipboard()"
           type="button"

@@ -31,14 +31,14 @@ import { NgpSearch, NgpSearchClear } from 'ng-primitives/search';
           name="heroMagnifyingGlass"
         />
         <input
-          class="h-9 w-full min-w-0 rounded-lg border-none bg-white py-0 pl-10 pr-4 text-gray-900 shadow-sm outline-none ring-1 ring-black/10 placeholder:text-gray-400 focus:outline-2 focus:outline-offset-2 focus:outline-blue-500 dark:bg-transparent dark:text-gray-100 dark:ring-white/10 dark:placeholder:text-gray-400"
+          class="h-9 w-full min-w-0 rounded-lg border-none bg-white py-0 pl-10 pr-4 text-gray-900 shadow-xs outline-hidden ring-1 ring-black/10 placeholder:text-gray-400 focus:outline-2 focus:outline-offset-2 focus:outline-blue-500 dark:bg-transparent dark:text-gray-100 dark:ring-white/10 dark:placeholder:text-gray-400"
           [(ngModel)]="query"
           ngpInput
           type="search"
           placeholder="Search for a customer"
         />
         <button
-          class="absolute right-0 top-0 block h-9 cursor-pointer rounded-r-lg border-none bg-transparent px-4 text-sm text-blue-500 outline-none data-[empty]:hidden"
+          class="absolute right-0 top-0 block h-9 cursor-pointer rounded-r-lg border-none bg-transparent px-4 text-sm text-blue-500 outline-hidden data-empty:hidden"
           ngpSearchClear
           ngpButton
           aria-label="Clear search"

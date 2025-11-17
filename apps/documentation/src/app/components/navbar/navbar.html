@@ -1,10 +1,10 @@
 <header
   class="fixed top-0 z-20 h-16 w-full border-b border-black/10 bg-white dark:border-zinc-800 dark:bg-zinc-900"
 >
-  <div class="from-primary to-accent absolute inset-x-0 top-0 h-0.5 bg-gradient-to-r"></div>
+  <div class="from-primary to-accent absolute inset-x-0 top-0 h-0.5 bg-linear-to-r"></div>
   <nav class="relative mx-auto flex h-full w-full items-center gap-x-4 px-8">
     <button
-      class="inline-flex size-8 flex-shrink-0 items-center justify-center rounded-lg transition-colors data-[hover]:bg-zinc-50 data-[press]:bg-zinc-100 md:hidden dark:data-[hover]:bg-zinc-700 dark:data-[press]:bg-zinc-800"
+      class="inline-flex size-8 shrink-0 items-center justify-center rounded-lg transition-colors data-hover:bg-zinc-50 data-press:bg-zinc-100 md:hidden dark:data-hover:bg-zinc-700 dark:data-press:bg-zinc-800"
       (click)="toggle()"
       ngpButton
     >
@@ -32,14 +32,14 @@
 
       <div class="inline-flex gap-x-1 sm:gap-x-2 md:ml-auto">
         <button
-          class="inline-flex items-center justify-center gap-x-2 rounded-lg bg-white px-3 py-2 text-lg outline-none transition-colors data-[hover]:bg-zinc-50 data-[press]:bg-zinc-100 data-[focus-visible]:text-zinc-800 data-[hover]:text-zinc-800 data-[focus-visible]:ring-2 data-[focus-visible]:ring-blue-500 dark:bg-zinc-800 dark:data-[hover]:bg-zinc-700 dark:data-[press]:bg-zinc-700 dark:data-[focus-visible]:text-zinc-100 dark:data-[hover]:text-zinc-100 dark:data-[focus-visible]:ring-blue-800 [&_svg]:text-zinc-500 dark:[&_svg]:text-zinc-400"
+          class="inline-flex items-center justify-center gap-x-2 rounded-lg bg-white px-3 py-2 text-lg outline-hidden transition-colors data-hover:bg-zinc-50 data-press:bg-zinc-100 data-focus-visible:text-zinc-800 data-hover:text-zinc-800 data-focus-visible:ring-2 data-focus-visible:ring-blue-500 dark:bg-zinc-800 dark:data-hover:bg-zinc-700 dark:data-press:bg-zinc-700 dark:data-focus-visible:text-zinc-100 dark:data-hover:text-zinc-100 dark:data-focus-visible:ring-blue-800 [&_svg]:text-zinc-500 dark:[&_svg]:text-zinc-400"
           docs-theme-toggler
         >
           <span class="sr-only">Toggle theme</span>
         </button>
 
         <a
-          class="inline-flex items-center justify-center gap-x-2 rounded-lg bg-white px-3 py-2 outline-none transition-colors data-[hover]:bg-zinc-50 data-[press]:bg-zinc-100 data-[focus-visible]:text-zinc-800 data-[hover]:text-zinc-800 data-[focus-visible]:ring-2 data-[focus-visible]:ring-blue-500 dark:bg-zinc-800 dark:data-[hover]:bg-zinc-700 dark:data-[press]:bg-zinc-700 dark:data-[focus-visible]:text-zinc-100 dark:data-[hover]:text-zinc-100 dark:data-[focus-visible]:ring-blue-800"
+          class="inline-flex items-center justify-center gap-x-2 rounded-lg bg-white px-3 py-2 outline-hidden transition-colors data-hover:bg-zinc-50 data-press:bg-zinc-100 data-focus-visible:text-zinc-800 data-hover:text-zinc-800 data-focus-visible:ring-2 data-focus-visible:ring-blue-500 dark:bg-zinc-800 dark:data-hover:bg-zinc-700 dark:data-press:bg-zinc-700 dark:data-focus-visible:text-zinc-100 dark:data-hover:text-zinc-100 dark:data-focus-visible:ring-blue-800"
           target="_blank"
           rel="noopener noreferrer"
           href="https://github.com/sponsors/ng-primitives"
@@ -51,7 +51,7 @@
         </a>
 
         <a
-          class="inline-flex items-center justify-center gap-x-2 rounded-lg bg-white px-3 py-2 outline-none transition-colors data-[hover]:bg-zinc-50 data-[press]:bg-zinc-100 data-[focus-visible]:text-zinc-800 data-[hover]:text-zinc-800 data-[focus-visible]:ring-2 data-[focus-visible]:ring-blue-500 dark:bg-zinc-800 dark:data-[hover]:bg-zinc-700 dark:data-[press]:bg-zinc-700 dark:data-[focus-visible]:text-zinc-100 dark:data-[hover]:text-zinc-100 dark:data-[focus-visible]:ring-blue-800"
+          class="inline-flex items-center justify-center gap-x-2 rounded-lg bg-white px-3 py-2 outline-hidden transition-colors data-hover:bg-zinc-50 data-press:bg-zinc-100 data-focus-visible:text-zinc-800 data-hover:text-zinc-800 data-focus-visible:ring-2 data-focus-visible:ring-blue-500 dark:bg-zinc-800 dark:data-hover:bg-zinc-700 dark:data-press:bg-zinc-700 dark:data-focus-visible:text-zinc-100 dark:data-hover:text-zinc-100 dark:data-focus-visible:ring-blue-800"
           target="_blank"
           rel="noopener noreferrer"
           href="https://discord.gg/NTdjc5r3gC"
@@ -63,7 +63,7 @@
         </a>
 
         <a
-          class="inline-flex items-center justify-center gap-x-2 rounded-lg bg-white px-3 py-2 outline-none transition-colors data-[hover]:bg-zinc-50 data-[press]:bg-zinc-100 data-[focus-visible]:text-zinc-800 data-[hover]:text-zinc-800 data-[focus-visible]:ring-2 data-[focus-visible]:ring-blue-500 dark:bg-zinc-800 dark:data-[hover]:bg-zinc-700 dark:data-[press]:bg-zinc-700 dark:data-[focus-visible]:text-zinc-100 dark:data-[hover]:text-zinc-100 dark:data-[focus-visible]:ring-blue-800"
+          class="inline-flex items-center justify-center gap-x-2 rounded-lg bg-white px-3 py-2 outline-hidden transition-colors data-hover:bg-zinc-50 data-press:bg-zinc-100 data-focus-visible:text-zinc-800 data-hover:text-zinc-800 data-focus-visible:ring-2 data-focus-visible:ring-blue-500 dark:bg-zinc-800 dark:data-hover:bg-zinc-700 dark:data-press:bg-zinc-700 dark:data-focus-visible:text-zinc-100 dark:data-hover:text-zinc-100 dark:data-focus-visible:ring-blue-800"
           target="_blank"
           rel="noopener noreferrer"
           href="https://github.com/ng-primitives/ng-primitives/"

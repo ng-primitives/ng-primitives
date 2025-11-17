@@ -1,8 +1,26 @@
-@import '../../../packages/ng-primitives/example-theme/index.css';
+@import '../../../packages/ng-primitives/example-theme/index.css' layer(base);
 
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import 'tailwindcss';
+
+@config '../tailwind.config.cjs';
+
+/*
+  The default border color has changed to `currentcolor` in Tailwind CSS v4,
+  so we've added these compatibility styles to make sure everything still
+  looks the same as it did with Tailwind CSS v3.
+
+  If we ever want to remove these styles, we need to add an explicit border
+  color utility to any element that depends on these defaults.
+*/
+@layer base {
+  *,
+  ::after,
+  ::before,
+  ::backdrop,
+  ::file-selector-button {
+    border-color: var(--color-gray-200, currentcolor);
+  }
+}
 
 :root {
   color-scheme: light;
@@ -20,26 +38,26 @@
   --primary-color: #fc2781;
   --accent-color: #fb5637;
 
-  --docsearch-modal-background: theme('colors.zinc.900');
+  --docsearch-modal-background: var(--color-zinc-900);
   --docsearch-modal-shadow: var(--dark-shadow);
-  --docsearch-searchbox-focus-background: theme('colors.zinc.800');
+  --docsearch-searchbox-focus-background: var(--color-zinc-800);
   --docsearch-searchbox-shadow: var(--dark-shadow);
-  --docsearch-footer-background: theme('colors.zinc.900');
+  --docsearch-footer-background: var(--color-zinc-900);
   --docsearch-footer-shadow: var(--dark-shadow);
   --docsearch-text-color: white;
-  --docsearch-hit-background: theme('colors.zinc.800');
+  --docsearch-hit-background: var(--color-zinc-800);
   --docsearch-hit-shadow: var(--dark-shadow);
   --docsearch-hit-color: white;
 
   --docsearch-container-background: rgba(9, 10, 17, 0.8);
-  --docsearch-searchbox-background: theme('colors.zinc.800');
+  --docsearch-searchbox-background: var(--color-zinc-800);
   --docsearch-key-gradient: linear-gradient(180deg, #333, #444);
   --docsearch-key-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
   --docsearch-logo-color: white;
-  --docsearch-muted-color: theme('colors.zinc.400');
+  --docsearch-muted-color: var(--color-zinc-400);
 
   .prose-zinc {
-    --tw-prose-bold: theme('colors.zinc.100');
+    --tw-prose-bold: var(--color-zinc-100);
   }
 }
 
@@ -100,7 +118,7 @@ pre[class*='language-'] {
 }
 
 .prose :where(code):not(:where([class~='not-prose'], [class~='not-prose'] *)) {
-  @apply rounded bg-zinc-50 px-1.5 py-1 font-sans text-[13px] font-medium text-zinc-900 ring-1 ring-black/5 before:hidden after:hidden;
+  @apply rounded-sm bg-zinc-50 px-1.5 py-1 font-sans text-[13px] font-medium text-zinc-900 ring-1 ring-black/5 before:hidden after:hidden;
 }
 
 .prose-zinc :where(p):not(:where([class~='not-prose'], [class~='not-prose'] *)) {
@@ -109,7 +127,7 @@ pre[class*='language-'] {
 
 .DocSearch-Button {
   --docsearch-searchbox-shadow: 0 0 0 1px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.2);
-  @apply inline-flex flex-none items-center gap-x-3 overflow-hidden rounded-lg bg-white px-3 py-2 shadow-black/5 ring-1 ring-transparent focus-within:ring-2 focus-within:ring-blue-500 md:left-[calc(50%-104px)] md:w-52 md:shadow md:ring-black/10 lg:left-[calc(50%-160px)] lg:w-80 dark:bg-zinc-800;
+  @apply inline-flex flex-none items-center gap-x-3 overflow-hidden rounded-lg bg-white px-3 py-2 shadow-black/5 ring-1 ring-transparent focus-within:ring-2 focus-within:ring-blue-500 md:left-[calc(50%-104px)] md:w-52 md:shadow-sm md:ring-black/10 lg:left-[calc(50%-160px)] lg:w-80 dark:bg-zinc-800;
 }
 
 .DocSearch-Button-Placeholder {
@@ -130,14 +148,14 @@ pre[class*='language-'] {
 }
 
 #docsearch-landing .DocSearch-Button {
-  @apply relative h-8 rounded-md border-0 bg-white/10 px-4 py-2 pl-2.5 text-sm font-normal text-white/50 shadow-none outline-none ring-0 transition-all hover:bg-white/20 hover:text-white/80 focus-visible:ring-[3px] md:w-40 lg:w-56 xl:w-64;
-  @apply group-data-[scrolled]:bg-zinc-800/5 group-data-[scrolled]:text-zinc-800/80 dark:group-data-[scrolled]:bg-zinc-100/5 dark:group-data-[scrolled]:text-zinc-100/80 dark:group-data-[scrolled]:hover:bg-zinc-100/10 dark:group-data-[scrolled]:hover:text-zinc-100/80;
+  @apply relative h-8 rounded-md border-0 bg-white/10 px-4 py-2 pl-2.5 text-sm font-normal text-white/50 shadow-none outline-hidden ring-0 transition-all hover:bg-white/20 hover:text-white/80 focus-visible:ring-[3px] md:w-40 lg:w-56 xl:w-64;
+  @apply group-data-scrolled:bg-zinc-800/5 group-data-scrolled:text-zinc-800/80 dark:group-data-scrolled:bg-zinc-100/5 dark:group-data-scrolled:text-zinc-100/80 dark:hover:group-data-scrolled:bg-zinc-100/10 dark:hover:group-data-scrolled:text-zinc-100/80;
 }
 
 #docsearch-landing .DocSearch-Button-Placeholder,
 #docsearch-landing .DocSearch-Search-Icon,
 #docsearch-landing .DocSearch-Button-Keys .DocSearch-Button-Key {
-  @apply text-white/50 group-data-[scrolled]:text-black/50 dark:group-data-[scrolled]:text-zinc-100/50;
+  @apply text-white/50 group-data-scrolled:text-black/50 dark:group-data-scrolled:text-zinc-100/50;
 }
 
 #docsearch-landing {

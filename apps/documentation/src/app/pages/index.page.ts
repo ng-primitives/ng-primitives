@@ -21,23 +21,23 @@ import { ThemeToggle } from '../components/theme-toggle/theme-toggle';
   imports: [NgIcon, RouterLink, ThemeToggle],
   template: `
     <nav
-      class="group fixed z-20 h-16 w-full border-b border-transparent px-6 transition-all duration-500 data-[scrolled]:border-zinc-200 data-[scrolled]:bg-white data-[scrolled]:shadow-sm md:px-12 dark:data-[scrolled]:border-zinc-800 dark:data-[scrolled]:bg-zinc-900"
+      class="group fixed z-20 h-16 w-full border-b border-transparent px-6 transition-all duration-500 data-scrolled:border-zinc-200 data-scrolled:bg-white data-scrolled:shadow-xs md:px-12 dark:data-scrolled:border-zinc-800 dark:data-scrolled:bg-zinc-900"
       [attr.data-scrolled]="scrolled() ? '' : undefined"
     >
       <div
-        class="from-primary to-accent absolute inset-x-0 top-0 hidden h-0.5 bg-gradient-to-r group-data-[scrolled]:block"
+        class="from-primary to-accent absolute inset-x-0 top-0 hidden h-0.5 bg-linear-to-r group-data-scrolled:block"
       ></div>
       <div
-        class="container mx-auto flex h-full max-w-screen-xl items-center justify-between gap-x-2"
+        class="container mx-auto flex h-full max-w-(--breakpoint-xl) items-center justify-between gap-x-2"
       >
         <img
-          class="hidden h-8 transition-all duration-500 group-data-[scrolled]:invert-[1] md:block dark:group-data-[scrolled]:invert-[0]"
+          class="hidden h-8 transition-all duration-500 group-data-scrolled:invert-[1] md:block dark:group-data-scrolled:invert-[0]"
           src="/assets/logo-light.svg"
           alt="Logo"
         />
 
         <img
-          class="h-8 transition-all duration-500 group-data-[scrolled]:invert-[1] md:hidden dark:group-data-[scrolled]:invert-[0]"
+          class="h-8 transition-all duration-500 group-data-scrolled:invert-[1] md:hidden dark:group-data-scrolled:invert-[0]"
           src="/assets/logo-light-small.svg"
           alt="Logo"
         />
@@ -50,21 +50,21 @@ import { ThemeToggle } from '../components/theme-toggle/theme-toggle';
           </div>
 
           <button
-            class="inline-flex h-10 items-center justify-center rounded-md px-4 text-[13px] font-medium text-zinc-100 transition-colors hover:bg-zinc-100/10 active:bg-zinc-100/15 group-data-[scrolled]:text-zinc-800 group-data-[scrolled]:hover:bg-zinc-800/5 group-data-[scrolled]:active:bg-zinc-800/10 dark:group-data-[scrolled]:text-zinc-100 dark:group-data-[scrolled]:hover:bg-zinc-200/5"
+            class="inline-flex h-10 items-center justify-center rounded-md px-4 text-[13px] font-medium text-zinc-100 transition-colors hover:bg-zinc-100/10 active:bg-zinc-100/15 group-data-scrolled:text-zinc-800 hover:group-data-scrolled:bg-zinc-800/5 active:group-data-scrolled:bg-zinc-800/10 dark:group-data-scrolled:text-zinc-100 dark:hover:group-data-scrolled:bg-zinc-200/5"
             docs-theme-toggler
           >
             <span class="sr-only">Toggle theme</span>
           </button>
 
           <a
-            class="inline-flex h-10 items-center justify-center rounded-md px-4 text-[13px] font-medium text-zinc-100 transition-colors hover:bg-zinc-100/10 active:bg-zinc-100/15 group-data-[scrolled]:text-zinc-800 group-data-[scrolled]:hover:bg-zinc-800/5 group-data-[scrolled]:active:bg-zinc-800/10 dark:group-data-[scrolled]:text-zinc-100 dark:group-data-[scrolled]:hover:bg-zinc-200/5"
+            class="inline-flex h-10 items-center justify-center rounded-md px-4 text-[13px] font-medium text-zinc-100 transition-colors hover:bg-zinc-100/10 active:bg-zinc-100/15 group-data-scrolled:text-zinc-800 hover:group-data-scrolled:bg-zinc-800/5 active:group-data-scrolled:bg-zinc-800/10 dark:group-data-scrolled:text-zinc-100 dark:hover:group-data-scrolled:bg-zinc-200/5"
             routerLink="/getting-started/introduction"
             aria-label="Documentation"
           >
             Documentation
           </a>
           <a
-            class="inline-flex h-10 items-center justify-center rounded-md px-4 text-[13px] font-medium text-zinc-100 transition-colors hover:bg-zinc-100/10 active:bg-zinc-100/15 group-data-[scrolled]:text-zinc-800 group-data-[scrolled]:hover:bg-zinc-800/5 group-data-[scrolled]:active:bg-zinc-800/10 dark:group-data-[scrolled]:text-zinc-100 dark:group-data-[scrolled]:hover:bg-zinc-200/5"
+            class="inline-flex h-10 items-center justify-center rounded-md px-4 text-[13px] font-medium text-zinc-100 transition-colors hover:bg-zinc-100/10 active:bg-zinc-100/15 group-data-scrolled:text-zinc-800 hover:group-data-scrolled:bg-zinc-800/5 active:group-data-scrolled:bg-zinc-800/10 dark:group-data-scrolled:text-zinc-100 dark:hover:group-data-scrolled:bg-zinc-200/5"
             href="https://discord.gg/NTdjc5r3gC"
             target="_blank"
             rel="noopener noreferrer"
@@ -73,7 +73,7 @@ import { ThemeToggle } from '../components/theme-toggle/theme-toggle';
             Discord
           </a>
           <a
-            class="inline-flex h-10 items-center justify-center rounded-md px-4 text-[13px] font-medium text-zinc-100 transition-colors hover:bg-zinc-100/10 active:bg-zinc-100/15 group-data-[scrolled]:text-zinc-800 group-data-[scrolled]:hover:bg-zinc-800/5 group-data-[scrolled]:active:bg-zinc-800/10 dark:group-data-[scrolled]:text-zinc-100 dark:group-data-[scrolled]:hover:bg-zinc-200/5"
+            class="inline-flex h-10 items-center justify-center rounded-md px-4 text-[13px] font-medium text-zinc-100 transition-colors hover:bg-zinc-100/10 active:bg-zinc-100/15 group-data-scrolled:text-zinc-800 hover:group-data-scrolled:bg-zinc-800/5 active:group-data-scrolled:bg-zinc-800/10 dark:group-data-scrolled:text-zinc-100 dark:hover:group-data-scrolled:bg-zinc-200/5"
             target="_blank"
             href="https://github.com/ng-primitives/ng-primitives"
             rel="noopener noreferrer"
@@ -137,7 +137,7 @@ export class DocsNavbar implements OnInit {
 
     <section class="hero-section relative px-12 pb-20 pt-24">
       <div
-        class="container relative z-10 mx-auto grid max-w-screen-xl items-center gap-8 lg:grid-cols-12"
+        class="container relative z-10 mx-auto grid max-w-(--breakpoint-xl) items-center gap-8 lg:grid-cols-12"
       >
         <div class="text-center lg:col-span-7 lg:text-left">
           <a
@@ -183,7 +183,7 @@ export class DocsNavbar implements OnInit {
         </div>
       </div>
 
-      <div class="container mx-auto flex max-w-screen-xl justify-center px-12 pt-12">
+      <div class="container mx-auto flex max-w-(--breakpoint-xl) justify-center px-12 pt-12">
         <div class="flex flex-col gap-y-10">
           <h3 class="text-center text-sm font-medium text-white/70">Trusted by teams worldwide</h3>
 
@@ -209,7 +209,7 @@ export class DocsNavbar implements OnInit {
     <section class="container mx-auto flex min-h-[332px] items-center px-8 pt-16">
       <div class="flex w-full flex-col gap-y-4">
         <p
-          class="bg-gradient-to-r from-[#E90364] to-[#FA2C05] bg-clip-text text-sm font-medium text-transparent"
+          class="bg-linear-to-r from-[#E90364] to-[#FA2C05] bg-clip-text text-sm font-medium text-transparent"
         >
           About
         </p>
@@ -233,7 +233,7 @@ export class DocsNavbar implements OnInit {
         @for (feature of features; track feature) {
           <div class="-m-[0.5px] flex flex-col items-center gap-y-3 p-10">
             <div
-              class="inline-flex size-12 items-center justify-center rounded-[10px] shadow-sm ring-1 ring-zinc-200 dark:ring-zinc-800"
+              class="inline-flex size-12 items-center justify-center rounded-[10px] shadow-xs ring-1 ring-zinc-200 dark:ring-zinc-800"
             >
               <ng-icon class="text-2xl text-[#FA2C05]" [name]="feature.icon" />
             </div>
@@ -252,7 +252,7 @@ export class DocsNavbar implements OnInit {
       <section class="container mx-auto flex min-h-[332px] items-center px-8 py-8">
         <div class="flex w-full flex-col items-center gap-y-4">
           <p
-            class="bg-gradient-to-r from-[#E90364] to-[#FA2C05] bg-clip-text text-sm font-medium text-transparent"
+            class="bg-linear-to-r from-[#E90364] to-[#FA2C05] bg-clip-text text-sm font-medium text-transparent"
           >
             Get Started
           </p>
@@ -267,7 +267,7 @@ export class DocsNavbar implements OnInit {
           </p>
 
           <div class="w-full max-w-sm overflow-hidden rounded-lg bg-zinc-950 text-white/90">
-            <div class="mt-0 flex flex-1 flex-col outline-none">
+            <div class="mt-0 flex flex-1 flex-col outline-hidden">
               <div
                 class="flex h-8 items-center justify-between border-b border-b-zinc-800 pe-2 ps-4"
               >
@@ -303,7 +303,7 @@ export class DocsNavbar implements OnInit {
     <section class="container mx-auto flex min-h-[332px] items-center px-8 pt-8">
       <div class="flex w-full flex-col gap-y-4">
         <p
-          class="bg-gradient-to-r from-[#E90364] to-[#FA2C05] bg-clip-text text-sm font-medium text-transparent"
+          class="bg-linear-to-r from-[#E90364] to-[#FA2C05] bg-clip-text text-sm font-medium text-transparent"
         >
           Testimonials
         </p>
@@ -323,7 +323,7 @@ export class DocsNavbar implements OnInit {
       <div class="grid grid-cols-1 gap-8 lg:grid-cols-3">
         @for (testimonial of testimonials; track testimonial) {
           <div
-            class="flex flex-col justify-between rounded-xl bg-white p-8 shadow-sm ring-1 ring-zinc-200 dark:bg-zinc-800 dark:ring-zinc-700"
+            class="flex flex-col justify-between rounded-xl bg-white p-8 shadow-xs ring-1 ring-zinc-200 dark:bg-zinc-800 dark:ring-zinc-700"
           >
             <p class="mb-6 text-sm leading-loose text-zinc-600 dark:text-zinc-300">
               "{{ testimonial.quote }}"

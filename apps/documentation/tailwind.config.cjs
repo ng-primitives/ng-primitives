@@ -61,7 +61,7 @@ module.exports = {
     function ({ addUtilities }) {
       addUtilities({
         '.prose code[class^="language-"]': {
-          '@apply !bg-inherit': {},
+          '@apply bg-inherit!': {},
         },
       });
     },

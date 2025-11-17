@@ -20,7 +20,7 @@ import { filter } from 'rxjs/operators';
   templateUrl: './quick-links.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
-    class: 'hidden xl:block sticky top-[5.5rem] w-64 h-[calc(100vh-8rem)] overflow-y-auto',
+    class: 'hidden xl:block sticky top-22 w-64 h-[calc(100vh-8rem)] overflow-y-auto',
   },
 })
 export class QuickLinks implements AfterViewInit {

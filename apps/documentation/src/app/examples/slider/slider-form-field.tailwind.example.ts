@@ -35,7 +35,7 @@ import { NgpSlider, NgpSliderRange, NgpSliderThumb, NgpSliderTrack } from 'ng-pr
           ></div>
         </div>
         <div
-          class="absolute block h-5 w-5 -translate-x-1/2 transform rounded-full bg-white shadow-sm outline-none ring-1 ring-black/5 data-[focus-visible]:ring-2 data-[focus-visible]:ring-blue-500 dark:bg-white dark:ring-white/10 dark:data-[focus-visible]:ring-blue-400"
+          class="absolute block h-5 w-5 -translate-x-1/2 transform rounded-full bg-white shadow-xs outline-hidden ring-1 ring-black/5 data-focus-visible:ring-2 data-focus-visible:ring-blue-500 dark:bg-white dark:ring-white/10 dark:data-focus-visible:ring-blue-400"
           ngpSliderThumb
         ></div>
       </div>
