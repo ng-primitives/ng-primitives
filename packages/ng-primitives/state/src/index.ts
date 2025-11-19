@@ -1,14 +1,22 @@
+import { coerceElement } from '@angular/cdk/coercion';
 import {
+  afterRenderEffect,
   computed,
+  DestroyRef,
+  ElementRef,
   FactoryProvider,
   inject,
   InjectionToken,
   InjectOptions,
+  Injector,
   InputSignal,
   InputSignalWithTransform,
   isSignal,
   linkedSignal,
+  NgZone,
+  Provider,
   ProviderToken,
+  runInInjectionContext,
   signal,
   Signal,
   WritableSignal,
@@ -228,4 +236,221 @@ function isSignalInput(
   }
 
   return 'transformFn' in inputDefinition || 'applyValueToInputSignal' in inputDefinition;
+}
+
+export interface CreatePatternOptions {
+  injector?: Injector;
+  element?: ElementRef<HTMLElement>;
+}
+
+const NgpPatternProvidersToken = new InjectionToken<Provider[]>('NgpPatternProvidersToken');
+
+export function createPrimitive<P, S>(
+  token: ProviderToken<WritableSignal<S>>,
+  creator: (props: P, options?: CreatePatternOptions) => S,
+) {
+  return (props: P, options?: CreatePatternOptions): S => {
+    const internalState = inject(token);
+
+    // if no element is provided, inject it
+    const element = options?.element ?? inject(ElementRef);
+
+    // store the providers registered by the pattern
+    const providers: Provider[] = [];
+
+    const patternInjector = Injector.create({
+      providers: [
+        { provide: NgpPatternProvidersToken, useValue: providers },
+        { provide: ElementRef, useValue: element },
+      ],
+      parent: options?.injector ?? inject(Injector),
+    });
+
+    const state = runInInjectionContext(patternInjector, () => {
+      const state = creator(props, options);
+
+      return state;
+    });
+
+    internalState.set(state);
+
+    return state;
+  };
+}
+
+export function controlled<T>(value: Signal<T>): WritableSignal<T> {
+  return linkedSignal(() => value());
+}
+
+function setAttribute(
+  element: ElementRef<HTMLElement>,
+  attr: string,
+  value: string | null | undefined,
+): void {
+  // if the attribute is "disabled" and the value is 'false', we need to remove the attribute
+  if (attr === 'disabled' && value === 'false') {
+    element.nativeElement.removeAttribute(attr);
+    return;
+  }
+
+  if (value !== null && value !== undefined) {
+    element.nativeElement.setAttribute(attr, value);
+  } else {
+    element.nativeElement.removeAttribute(attr);
+  }
+}
+
+export function attrBinding(
+  element: ElementRef<HTMLElement>,
+  attr: string,
+  value:
+    | (() => string | number | boolean | null | undefined)
+    | string
+    | number
+    | boolean
+    | null
+    | undefined,
+): void {
+  afterRenderEffect({
+    write: () => {
+      const valueResult = typeof value === 'function' ? value() : value;
+
+      setAttribute(element, attr, valueResult?.toString() ?? null);
+    },
+  });
+}
+
+function getStyleUnit(style: string): string {
+  const parts = style.split('.');
+
+  if (parts.length > 1) {
+    const unit = parts[parts.length - 1];
+
+    switch (unit) {
+      case 'px':
+      case 'em':
+      case 'rem':
+      case '%':
+      case 'vh':
+      case 'vw':
+      case 'vmin':
+      case 'vmax':
+      case 'cm':
+      case 'mm':
+      case 'in':
+      case 'pt':
+      case 'pc':
+      case 'ex':
+      case 'ch':
+        return unit;
+      default:
+        return '';
+    }
+  }
+
+  return '';
+}
+
+export function styleBinding(
+  element: ElementRef<HTMLElement>,
+  style: string,
+  value: (() => string | number | null) | string | number | null,
+): void {
+  afterRenderEffect({
+    write: () => {
+      const styleValue = typeof value === 'function' ? value() : value;
+      // we should look for units in the style name, just like Angular does e.g. width.px
+      const styleUnit = getStyleUnit(style);
+      const styleName = styleUnit ? style.replace(`.${styleUnit}`, '') : style;
+
+      if (styleValue !== null) {
+        element.nativeElement.style.setProperty(styleName, styleValue + styleUnit);
+      } else {
+        element.nativeElement.style.removeProperty(styleName);
+      }
+    },
+  });
+}
+
+export function dataBinding(
+  element: ElementRef<HTMLElement>,
+  attr: string,
+  value: (() => string | boolean | null) | string | boolean | null,
+): void {
+  if (!attr.startsWith('data-')) {
+    throw new Error(`dataBinding: attribute "${attr}" must start with "data-"`);
+  }
+
+  afterRenderEffect({
+    write: () => {
+      let valueResult = typeof value === 'function' ? value() : value;
+
+      if (valueResult === false) {
+        valueResult = null;
+      } else if (valueResult === true) {
+        valueResult = '';
+      } else if (valueResult !== null && typeof valueResult !== 'string') {
+        valueResult = String(valueResult);
+      }
+
+      setAttribute(element, attr, valueResult);
+    },
+  });
+}
+export function listener<K extends keyof HTMLElementEventMap>(
+  element: HTMLElement | ElementRef<HTMLElement>,
+  event: K,
+  handler: (event: HTMLElementEventMap[K]) => void,
+  options?: { injector?: Injector },
+): void;
+export function listener(
+  element: HTMLElement | ElementRef<HTMLElement>,
+  event: string,
+  handler: (event: Event) => void,
+  options?: { injector?: Injector },
+): void;
+export function listener<K extends keyof HTMLElementEventMap>(
+  element: HTMLElement | ElementRef<HTMLElement>,
+  event: K | string,
+  handler: (event: HTMLElementEventMap[K] | Event) => void,
+  options?: { injector?: Injector },
+): void {
+  runInInjectionContext(options?.injector ?? inject(Injector), () => {
+    const ngZone = inject(NgZone);
+    const destroyRef = inject(DestroyRef);
+    const nativeElement = coerceElement(element);
+    ngZone.runOutsideAngular(() => nativeElement.addEventListener(event, handler as EventListener));
+    destroyRef.onDestroy(() => nativeElement.removeEventListener(event, handler as EventListener));
+  });
+}
+
+export function onPress(
+  element: ElementRef<HTMLElement>,
+  key: string,
+  handler: (event: KeyboardEvent) => void,
+  options?: { injector: Injector },
+): void {
+  listener(
+    element,
+    'keydown',
+    (event: KeyboardEvent) => {
+      if (event.key === key) {
+        handler(event);
+      }
+    },
+    { injector: options?.injector },
+  );
+}
+
+export function onClick(
+  element: ElementRef<HTMLElement>,
+  handler: (event: MouseEvent) => void,
+  options?: { injector: Injector },
+): void {
+  listener(element, 'click', handler, options);
+}
+
+export function onDestroy(callback: () => void): void {
+  const destroyRef = inject(DestroyRef);
+  destroyRef.onDestroy(callback);
 }
