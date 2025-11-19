@@ -12,6 +12,7 @@ import { NgpDescription, NgpFormField, NgpLabel } from 'ng-primitives/form-field
     [ngpFormField] {
       display: flex;
       column-gap: 0.75rem;
+      align-items: baseline;
     }
 
     [ngpCheckbox] {
@@ -51,7 +52,7 @@ import { NgpDescription, NgpFormField, NgpLabel } from 'ng-primitives/form-field
     [ngpLabel] {
       display: flex;
       flex-direction: column;
-      row-gap: 0.5rem;
+      row-gap: 0.125rem;
       font-weight: 500;
       font-size: 14px;
       line-height: 14px;

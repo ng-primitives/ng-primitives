@@ -63,8 +63,20 @@ export default defineConfig(({ mode }) => {
           },
         },
         content: {
-          prismOptions: {
-            additionalLangs: ['scss'],
+          highlighter: 'shiki',
+          shikiOptions: {
+            highlight: {
+              themes: {
+                light: 'github-light',
+                dark: 'github-dark',
+              },
+              defaultColor: false,
+            },
+            highlighter: {
+              // add more languages
+              additionalLangs: ['bash', 'typescript', 'json', 'angular-html', 'angular-ts'],
+              themes: ['github-light', 'github-dark'],
+            },
           },
         },
       }),

@@ -33,7 +33,7 @@ import {
       </p>
 
       <div
-        class="flex h-9 w-[300px] items-center justify-between rounded-lg border border-gray-200 bg-white text-sm text-gray-900 outline-hidden data-focus:outline-offset-2 data-focus:ring-2 data-focus:ring-blue-500 dark:border-gray-800 dark:bg-transparent dark:text-gray-50 dark:data-focus:ring-blue-400"
+        class="flex h-9 w-[300px] items-center justify-between rounded-lg border border-gray-200 bg-white text-sm text-gray-900 outline-hidden data-focus:ring-2 data-focus:ring-blue-500 data-focus:outline-offset-2 dark:border-gray-800 dark:bg-transparent dark:text-gray-50 dark:data-focus:ring-blue-400"
         [(ngpSelectValue)]="value"
         ngpSelect
       >

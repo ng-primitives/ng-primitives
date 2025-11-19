@@ -21,7 +21,7 @@ import { NgpFileUpload } from 'ng-primitives/file-upload';
         name="heroCloudArrowUp"
         aria-hidden="true"
       />
-      <p class="m-0 text-center text-sm font-medium leading-5 text-gray-900 dark:text-gray-100">
+      <p class="m-0 text-center text-sm leading-5 font-medium text-gray-900 dark:text-gray-100">
         Select or drag and drop files here.
       </p>
       <p class="m-0 text-center text-xs leading-4 text-gray-600 dark:text-gray-300">

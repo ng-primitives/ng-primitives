@@ -162,7 +162,7 @@ interface Message {
                     </div>
                   }
                   <button
-                    class="absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-white opacity-0 transition-opacity group-hover:opacity-100"
+                    class="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-white opacity-0 transition-opacity group-hover:opacity-100"
                     (click)="removeAttachment(attachment.id)"
                     type="button"
                   >

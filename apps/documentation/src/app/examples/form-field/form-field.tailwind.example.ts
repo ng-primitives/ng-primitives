@@ -13,21 +13,21 @@ import {
   imports: [NgpFormField, NgpLabel, NgpError, NgpDescription, NgpFormControl, ReactiveFormsModule],
   template: `
     <div class="flex w-[90%] flex-col gap-1.5" [formGroup]="formGroup" ngpFormField>
-      <label class="m-0 text-sm font-medium leading-5 text-gray-900 dark:text-gray-100" ngpLabel>
+      <label class="m-0 text-sm leading-5 font-medium text-gray-900 dark:text-gray-100" ngpLabel>
         Full Name
       </label>
       <p class="m-0 mb-1 text-xs leading-4 text-gray-500 dark:text-gray-400" ngpDescription>
         Please include any middle names, no matter how ridiculous.
       </p>
       <input
-        class="h-9 w-full min-w-0 rounded-lg border-none px-4 shadow-xs outline-hidden ring-1 ring-black/10 placeholder:text-gray-400 focus:outline-2 focus:outline-offset-2 focus:outline-blue-500 dark:bg-zinc-900 dark:text-gray-100 dark:placeholder:text-gray-500"
+        class="h-9 w-full min-w-0 rounded-lg border-none px-4 shadow-xs ring-1 ring-black/10 outline-hidden placeholder:text-gray-400 focus:outline-2 focus:outline-offset-2 focus:outline-blue-500 dark:bg-zinc-900 dark:text-gray-100 dark:placeholder:text-gray-500"
         ngpFormControl
         type="text"
         placeholder="Enter your full name"
         formControlName="fullName"
       />
       <p
-        class="m-0 hidden text-xs leading-4 text-red-600 data-[validator=fail][data-dirty]:block"
+        class="data-[validator=fail][data-dirty]:block m-0 hidden text-xs leading-4 text-red-600"
         ngpError
         ngpErrorValidator="required"
       >

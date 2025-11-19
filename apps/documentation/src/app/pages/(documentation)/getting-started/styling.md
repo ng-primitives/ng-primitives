@@ -38,7 +38,7 @@ If you are using Tailwind CSS, you can style the primitives like this:
 
 ```html
 <button
-  class="data-disabled:cursor-not-allowed data-selected:bg-blue-500 data-selected:text-white data-disabled:opacity-50"
+  class="data-disabled:cursor-not-allowed data-disabled:opacity-50 data-selected:bg-blue-500 data-selected:text-white"
   ngpToggle
 >
   Toggle

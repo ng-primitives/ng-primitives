@@ -1,10 +1,10 @@
 <div class="not-prose relative flex flex-col items-center justify-center">
   <div class="relative w-full flex-1">
-    <div class="rounded-xl bg-zinc-950">
+    <div class="rounded-xl bg-transparent">
       <div class="flex items-center border-b border-white/20 pe-1.5">
         @for (file of files(); track file.label) {
         <button
-          class="group relative -mb-px flex items-center whitespace-nowrap px-2 py-2 font-medium text-white outline-hidden"
+          class="group relative -mb-px flex items-center px-2 py-2 font-medium whitespace-nowrap text-zinc-700 outline-hidden dark:text-zinc-300"
           [attr.aria-selected]="selectedFile() === file.label"
           (click)="selectedFile.set(file.label)"
           role="tab"
@@ -12,19 +12,21 @@
           tabindex="0"
         >
           <div
-            class="inline-flex h-5 items-center rounded-md px-2 text-xs group-hover:bg-zinc-700/60 group-hover:text-white"
+            class="inline-flex h-5 items-center rounded-md px-2 text-xs group-hover:bg-zinc-900/5 group-hover:text-zinc-900 dark:group-hover:bg-zinc-100/5 dark:group-hover:text-zinc-100"
           >
             {{ file.label }}
           </div>
 
           @if (selectedFile() === file.label) {
-          <div class="pointer-events-none absolute inset-0 border-b border-white"></div>
+          <div
+            class="pointer-events-none absolute inset-0 border-b border-zinc-900 dark:border-white"
+          ></div>
           }
         </button>
         }
 
         <button
-          class="relative -mb-px ml-auto flex items-center justify-center whitespace-nowrap rounded-md px-2 py-1 text-base font-medium text-white outline-hidden hover:bg-zinc-700/60 hover:text-white"
+          class="relative -mb-px ml-auto flex items-center justify-center rounded-md px-2 py-1 text-base font-medium whitespace-nowrap text-zinc-600 outline-hidden hover:bg-zinc-900/5 hover:text-zinc-900 dark:text-zinc-400 dark:hover:bg-zinc-100/5 dark:hover:text-zinc-100"
           [class.min-w-[80px]]="isCopied()"
           (click)="copyToClipboard()"
           type="button"
@@ -39,9 +41,7 @@
         </button>
       </div>
 
-      <pre
-        class="h-fit whitespace-pre-wrap p-4"
-      ><code class="language-typescript not-prose" [innerHTML]="code()"></code></pre>
+      <div class="h-fit" [innerHTML]="code()"></div>
     </div>
   </div>
 </div>

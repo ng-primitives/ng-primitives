@@ -15,15 +15,14 @@ import {
   VERSION,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { lucideCheck, lucideClipboard } from '@ng-icons/lucide';
 import { phosphorLightning } from '@ng-icons/phosphor-icons/regular';
 import sdk from '@stackblitz/sdk';
 import { isString } from 'ng-primitives/utils';
 import { Plugin } from 'prettier';
-import * as prismjs from 'prismjs';
-
-const { highlight, languages } = prismjs;
+import { codeToHtml } from 'shiki';
 
 const GLOBAL_STORAGE_STYLE_KEY = 'ngp-example-style';
 
@@ -38,6 +37,7 @@ export class Example {
   private readonly clipboard = inject(Clipboard);
   private readonly platform = inject(PLATFORM_ID);
   private readonly changeDetector = inject(ChangeDetectorRef);
+  private readonly sanitizer = inject(DomSanitizer);
   private readonly examples = import.meta.glob!('../../**/*.example.ts', {
     import: 'default', // Imports the default export (the component class)
     eager: false, // Load lazily
@@ -56,7 +56,7 @@ export class Example {
   readonly selectedStyle = signal<string>('');
   readonly component = signal<Type<unknown> | null>(null);
   readonly mode = signal<'preview' | 'source'>('preview');
-  readonly code = signal<string>('');
+  readonly code = signal<SafeHtml | string>('');
   readonly isCopied = signal<boolean>(false);
   // Private properties
   private raw: string | null = null; // Raw source code for copying and StackBlitz
@@ -323,9 +323,8 @@ export class Example {
           pluginPostcss,
         ],
       });
-      this.code.set(
-        highlight(formattedCodeForDisplay.trim(), languages['typescript'], 'typescript'),
-      );
+      const highlightedCode = await this.highlightCodeWithShiki(formattedCodeForDisplay.trim());
+      this.code.set(highlightedCode);
     } catch (error) {
       console.error(`Error loading example ${exampleName} (style ${exampleStyle}):`, error);
       this.component.set(null);
@@ -347,6 +346,34 @@ export class Example {
     }
 
     throw new Error(`Unknown style name: ${name}`);
+  }
+
+  private async highlightCodeWithShiki(code: string): Promise<SafeHtml> {
+    const html = await codeToHtml(code.trim(), {
+      lang: 'angular-ts',
+      themes: {
+        light: 'github-light',
+        dark: 'github-dark',
+      },
+
+      transformers: [
+        {
+          pre(node) {
+            node.properties['class'] +=
+              ' no-scrollbar min-w-0 overflow-x-auto px-4 py-3.5 outline-none has-[[data-highlighted-line]]:px-0 has-[[data-line-numbers]]:px-0 !bg-transparent';
+          },
+          code(node) {
+            node.properties['data-line-numbers'] = '';
+          },
+          line(node) {
+            node.properties['data-line'] = '';
+          },
+        },
+      ],
+    });
+
+    // Bypass Angular's sanitization since Shiki HTML is safe
+    return this.sanitizer.bypassSecurityTrustHtml(html);
   }
 
   protected openStackBlitz(): void {

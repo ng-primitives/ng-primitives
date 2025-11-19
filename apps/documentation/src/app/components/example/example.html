@@ -33,7 +33,7 @@
       @if (availableStyles().length > 1) {
       <div class="relative hidden sm:block">
         <select
-          class="appearance-none rounded-md bg-white px-3 py-2 pr-8 text-xs font-medium text-zinc-950 shadow-xs outline-hidden ring-1 ring-black/5 focus-visible:z-10 focus-visible:ring-2 focus-visible:ring-blue-500 dark:bg-zinc-900 dark:text-white dark:ring-white/5"
+          class="appearance-none rounded-md bg-white px-3 py-2 pr-8 text-xs font-medium text-zinc-950 shadow-xs ring-1 ring-black/5 outline-hidden focus-visible:z-10 focus-visible:ring-2 focus-visible:ring-blue-500 dark:bg-zinc-900 dark:text-white dark:ring-white/5"
           aria-label="Select example style"
           [ngModel]="selectedStyle()"
           (ngModelChange)="selectStyle($event)"
@@ -86,10 +86,8 @@
     </div>
     }
 
-    <div class="rounded-xl bg-zinc-950" [hidden]="mode() !== 'source'">
-      <pre
-        class="h-fit whitespace-pre-wrap p-4"
-      ><code class="language-typescript not-prose" [innerHTML]="code()"></code></pre>
+    <div class="rounded-xl bg-transparent" [hidden]="mode() !== 'source'">
+      <div class="h-fit" [innerHTML]="code()"></div>
     </div>
   </div>
 </div>

@@ -7,7 +7,7 @@ import { NgpMenu, NgpMenuItem, NgpMenuTrigger } from 'ng-primitives/menu';
   imports: [NgpButton, NgpMenu, NgpMenuTrigger, NgpMenuItem],
   template: `
     <button
-      class="h-10 rounded-lg border-none bg-white px-4 font-medium text-gray-900 shadow-sm outline-hidden ring-1 ring-black/5 transition-colors duration-300 hover:bg-gray-100 focus-visible:outline-2 focus-visible:outline-blue-500 active:bg-gray-200 dark:bg-transparent dark:text-gray-100 dark:ring-white/10 dark:hover:bg-white/10 dark:active:bg-white/20"
+      class="h-10 rounded-lg border-none bg-white px-4 font-medium text-gray-900 shadow-sm ring-1 ring-black/5 outline-hidden transition-colors duration-300 hover:bg-gray-100 focus-visible:outline-2 focus-visible:outline-blue-500 active:bg-gray-200 dark:bg-transparent dark:text-gray-100 dark:ring-white/10 dark:hover:bg-white/10 dark:active:bg-white/20"
       [ngpMenuTrigger]="menu"
       ngpButton
     >

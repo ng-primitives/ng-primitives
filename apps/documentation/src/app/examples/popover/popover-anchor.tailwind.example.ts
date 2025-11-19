@@ -9,14 +9,14 @@ import { NgpPopover, NgpPopoverArrow, NgpPopoverTrigger } from 'ng-primitives/po
   template: `
     <div class="flex w-full items-center gap-2">
       <input
-        class="h-9 min-w-0 flex-1 rounded-lg border-none bg-white px-4 text-gray-900 shadow-xs outline-hidden ring-1 ring-black/10 placeholder:text-gray-400 focus:outline-2 focus:outline-offset-2 focus:outline-blue-500 dark:bg-zinc-900 dark:text-gray-100 dark:placeholder:text-gray-500"
+        class="h-9 min-w-0 flex-1 rounded-lg border-none bg-white px-4 text-gray-900 shadow-xs ring-1 ring-black/10 outline-hidden placeholder:text-gray-400 focus:outline-2 focus:outline-offset-2 focus:outline-blue-500 dark:bg-zinc-900 dark:text-gray-100 dark:placeholder:text-gray-500"
         #emailInput
         ngpInput
         type="email"
         placeholder="Enter your email address"
       />
       <button
-        class="flex h-9 w-9 items-center justify-center rounded-full bg-white text-sm font-medium text-gray-900 shadow-sm ring-1 ring-black/5 transition-colors duration-300 ease-in-out data-hover:bg-gray-50 data-press:bg-gray-100 data-focus-visible:outline-2 data-focus-visible:outline-offset-2 data-focus-visible:outline-blue-500 dark:bg-transparent dark:text-gray-100 dark:shadow-sm dark:ring-white/10 dark:data-hover:bg-black dark:data-press:bg-black"
+        class="flex h-9 w-9 items-center justify-center rounded-full bg-white text-sm font-medium text-gray-900 shadow-sm ring-1 ring-black/5 transition-colors duration-300 ease-in-out data-focus-visible:outline-2 data-focus-visible:outline-offset-2 data-focus-visible:outline-blue-500 data-hover:bg-gray-50 data-press:bg-gray-100 dark:bg-transparent dark:text-gray-100 dark:shadow-sm dark:ring-white/10 dark:data-hover:bg-black dark:data-press:bg-black"
         [ngpPopoverTrigger]="popover"
         [ngpPopoverTriggerAnchor]="emailInput"
         ngpPopoverTriggerPlacement="bottom"

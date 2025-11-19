@@ -71,7 +71,7 @@ import { NgpButton } from 'ng-primitives/button';
           class="overflow-hidden text-sm text-gray-500 data-closed:animate-[slideUp] data-open:animate-[slideDown] dark:text-gray-400"
           ngpAccordionContent
         >
-          <div class="px-4 pb-4 pt-0">
+          <div class="px-4 pt-0 pb-4">
             If you would like to learn more please reach out to us on GitHub.
           </div>
         </div>
@@ -96,7 +96,7 @@ import { NgpButton } from 'ng-primitives/button';
           class="overflow-hidden text-sm text-gray-500 data-closed:animate-[slideUp] data-open:animate-[slideDown] dark:text-gray-400"
           ngpAccordionContent
         >
-          <div class="px-4 pb-4 pt-0">
+          <div class="px-4 pt-0 pb-4">
             Yes, this is open source and you can use it in your project.
           </div>
         </div>

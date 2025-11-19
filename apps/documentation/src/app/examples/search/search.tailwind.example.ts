@@ -27,18 +27,18 @@ import { NgpSearch, NgpSearchClear } from 'ng-primitives/search';
       </label>
       <div class="relative" ngpSearch>
         <ng-icon
-          class="absolute left-3 top-1/2 -translate-y-1/2 text-xl text-gray-500 dark:text-gray-400"
+          class="absolute top-1/2 left-3 -translate-y-1/2 text-xl text-gray-500 dark:text-gray-400"
           name="heroMagnifyingGlass"
         />
         <input
-          class="h-9 w-full min-w-0 rounded-lg border-none bg-white py-0 pl-10 pr-4 text-gray-900 shadow-xs outline-hidden ring-1 ring-black/10 placeholder:text-gray-400 focus:outline-2 focus:outline-offset-2 focus:outline-blue-500 dark:bg-transparent dark:text-gray-100 dark:ring-white/10 dark:placeholder:text-gray-400"
+          class="h-9 w-full min-w-0 rounded-lg border-none bg-white py-0 pr-4 pl-10 text-gray-900 shadow-xs ring-1 ring-black/10 outline-hidden placeholder:text-gray-400 focus:outline-2 focus:outline-offset-2 focus:outline-blue-500 dark:bg-transparent dark:text-gray-100 dark:ring-white/10 dark:placeholder:text-gray-400"
           [(ngModel)]="query"
           ngpInput
           type="search"
           placeholder="Search for a customer"
         />
         <button
-          class="absolute right-0 top-0 block h-9 cursor-pointer rounded-r-lg border-none bg-transparent px-4 text-sm text-blue-500 outline-hidden data-empty:hidden"
+          class="absolute top-0 right-0 block h-9 cursor-pointer rounded-r-lg border-none bg-transparent px-4 text-sm text-blue-500 outline-hidden data-empty:hidden"
           ngpSearchClear
           ngpButton
           aria-label="Clear search"
