@@ -71,6 +71,12 @@
   }
 }
 
+@layer utilities {
+  .prose-zinc {
+    --tw-prose-kbd-shadows: 24 24 27;
+  }
+}
+
 :root {
   color-scheme: light;
 
@@ -107,6 +113,7 @@
 
   .prose-zinc {
     --tw-prose-bold: var(--color-zinc-100);
+    --tw-prose-kbd-shadows: 255 255 255;
   }
 }
 

@@ -1,5 +1,5 @@
 import { BooleanInput, coerceStringArray } from '@angular/cdk/coercion';
-import { DOCUMENT } from '@angular/common';
+
 import {
   booleanAttribute,
   Directive,
@@ -9,6 +9,7 @@ import {
   input,
   output,
   signal,
+  DOCUMENT
 } from '@angular/core';
 import { ngpInteractions } from 'ng-primitives/interactions';
 import { fileDropFilter } from '../file-dropzone/file-drop-filter';
