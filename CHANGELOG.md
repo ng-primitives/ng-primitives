@@ -1,3 +1,13 @@
+## 0.90.0 (2025-11-20)
+
+### 🚀 Features
+
+- angular 21 ([#529](https://github.com/ng-primitives/ng-primitives/pull/529))
+
+### ❤️ Thank You
+
+- Ashley Hunter
+
 ## 0.89.0 (2025-11-12)
 
 ### 🚀 Features
