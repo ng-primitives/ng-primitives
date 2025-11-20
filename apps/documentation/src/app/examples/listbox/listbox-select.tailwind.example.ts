@@ -40,7 +40,7 @@ import { NgpPopover, NgpPopoverTrigger } from 'ng-primitives/popover';
 
       <ng-template #dropdown>
         <div
-          class="absolute z-[1001] mt-1 w-[300px] rounded-xl border border-gray-200 bg-white p-1 outline-none dark:border-gray-700 dark:bg-black"
+          class="absolute z-1001 mt-1 w-[300px] rounded-xl border border-gray-200 bg-white p-1 outline-hidden dark:border-gray-700 dark:bg-black"
           [(ngpListboxValue)]="selection"
           ngpPopover
           ngpListbox
@@ -48,7 +48,7 @@ import { NgpPopover, NgpPopoverTrigger } from 'ng-primitives/popover';
         >
           @for (option of options; track option.id) {
             <div
-              class="flex h-9 w-full cursor-pointer items-center gap-2 rounded-lg px-3 text-[14px] text-gray-600 transition-colors hover:bg-gray-50 data-[active]:bg-gray-100 data-[press]:bg-gray-100 dark:text-gray-100 dark:text-gray-300 dark:hover:bg-white/5 dark:data-[active]:bg-white/10 dark:data-[press]:bg-white/10"
+              class="flex h-9 w-full cursor-pointer items-center gap-2 rounded-lg px-3 text-[14px] text-gray-600 transition-colors hover:bg-gray-50 data-active:bg-gray-100 data-press:bg-gray-100 dark:text-gray-100 dark:text-gray-300 dark:hover:bg-white/5 dark:data-active:bg-white/10 dark:data-press:bg-white/10"
               #listboxOption="ngpListboxOption"
               [ngpListboxOptionValue]="option"
               ngpListboxOption

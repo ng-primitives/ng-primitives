@@ -1,5 +1,5 @@
 import { enableProdMode } from '@angular/core';
-import { bootstrapApplication } from '@angular/platform-browser';
+import { bootstrapApplication, BootstrapContext } from '@angular/platform-browser';
 import { renderApplication } from '@angular/platform-server';
 import '@angular/platform-server/init';
 import { App } from './app/app';
@@ -9,7 +9,7 @@ if (import.meta.env.PROD) {
   enableProdMode();
 }
 
-const bootstrap = () => bootstrapApplication(App, config);
+const bootstrap = (context: BootstrapContext) => bootstrapApplication(App, config, context);
 
 export default async function render(url: string, document: string) {
   const html = await renderApplication(bootstrap, {

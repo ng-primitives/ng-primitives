@@ -14,7 +14,6 @@
     ],
     "sharedGlobals": []
   },
-  // "nxCloudAccessToken": "OTIzNjRlY2UtZDEyOS00ZjNiLWE3YzYtMWMwNWQ3OGQ1OTBjfHJlYWQtd3JpdGU=",
   "targetDefaults": {
     "@nx/angular:package": {
       "cache": true,
@@ -87,7 +86,6 @@
     "projectsRelationship": "fixed"
   },
   "defaultBase": "origin/next",
-  // "nxCloudId": "67def28b82912dfd7fe03d22",
   "tui": {
     "autoExit": true,
     "enabled": false

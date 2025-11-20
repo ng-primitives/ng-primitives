@@ -26,7 +26,7 @@
     "url": "https://github.com/sponsors/ng-primitives"
   },
   "peerDependencies": {
-    "@angular/core": ">=19.0.0"
+    "@angular/core": ">=20.0.0"
   },
   "dependencies": {
     "ng-primitives": "0.89.0"

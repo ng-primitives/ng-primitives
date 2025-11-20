@@ -4,9 +4,9 @@
       <!-- Preview/Source Toggle -->
       <div class="rounded-lg bg-zinc-100 p-0.5 ring-1 ring-black/5 dark:bg-zinc-800">
         <button
-          class="w-16 rounded-md px-2 py-1.5 text-xs font-medium outline-none focus-visible:z-10 focus-visible:ring-2 focus-visible:ring-blue-500"
+          class="w-16 rounded-md px-2 py-1.5 text-xs font-medium outline-hidden focus-visible:z-10 focus-visible:ring-2 focus-visible:ring-blue-500"
           [ngClass]="{
-            'bg-white text-zinc-950 shadow-sm ring-1 ring-black/5 dark:bg-zinc-900 dark:text-white dark:ring-white/5':
+            'bg-white text-zinc-950 shadow-xs ring-1 ring-black/5 dark:bg-zinc-900 dark:text-white dark:ring-white/5':
               mode() === 'preview',
             'text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-200': mode() !== 'preview',
           }"
@@ -15,9 +15,9 @@
           Preview
         </button>
         <button
-          class="w-16 rounded-md px-2 py-1.5 text-xs font-medium outline-none focus-visible:z-10 focus-visible:ring-2 focus-visible:ring-blue-500"
+          class="w-16 rounded-md px-2 py-1.5 text-xs font-medium outline-hidden focus-visible:z-10 focus-visible:ring-2 focus-visible:ring-blue-500"
           [ngClass]="{
-            'bg-white text-zinc-950 shadow-sm ring-1 ring-black/5 dark:bg-zinc-900 dark:text-white dark:ring-white/5':
+            'bg-white text-zinc-950 shadow-xs ring-1 ring-black/5 dark:bg-zinc-900 dark:text-white dark:ring-white/5':
               mode() === 'source',
             'text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-200': mode() !== 'source',
           }"
@@ -33,7 +33,7 @@
       @if (availableStyles().length > 1) {
       <div class="relative hidden sm:block">
         <select
-          class="appearance-none rounded-md bg-white px-3 py-2 pr-8 text-xs font-medium text-zinc-950 shadow-sm outline-none ring-1 ring-black/5 focus-visible:z-10 focus-visible:ring-2 focus-visible:ring-blue-500 dark:bg-zinc-900 dark:text-white dark:ring-white/5"
+          class="appearance-none rounded-md bg-white px-3 py-2 pr-8 text-xs font-medium text-zinc-950 shadow-xs ring-1 ring-black/5 outline-hidden focus-visible:z-10 focus-visible:ring-2 focus-visible:ring-blue-500 dark:bg-zinc-900 dark:text-white dark:ring-white/5"
           aria-label="Select example style"
           [ngModel]="selectedStyle()"
           (ngModelChange)="selectStyle($event)"
@@ -58,7 +58,7 @@
       }
 
       <button
-        class="inline-flex size-8 items-center justify-center rounded-lg bg-white p-2 shadow-sm ring-1 ring-black/5 transition-colors hover:bg-zinc-50 active:bg-zinc-100 dark:bg-zinc-900 dark:ring-white/5 dark:hover:bg-zinc-950 dark:active:bg-zinc-800"
+        class="inline-flex size-8 items-center justify-center rounded-lg bg-white p-2 shadow-xs ring-1 ring-black/5 transition-colors hover:bg-zinc-50 active:bg-zinc-100 dark:bg-zinc-900 dark:ring-white/5 dark:hover:bg-zinc-950 dark:active:bg-zinc-800"
         (click)="copyCode()"
       >
         @if (isCopied()) {
@@ -69,7 +69,7 @@
       </button>
 
       <button
-        class="inline-flex size-8 items-center justify-center rounded-lg bg-white p-2 shadow-sm ring-1 ring-black/5 transition-colors hover:bg-zinc-50 active:bg-zinc-100 dark:bg-zinc-900 dark:ring-white/5 dark:hover:bg-zinc-950 dark:active:bg-zinc-800"
+        class="inline-flex size-8 items-center justify-center rounded-lg bg-white p-2 shadow-xs ring-1 ring-black/5 transition-colors hover:bg-zinc-50 active:bg-zinc-100 dark:bg-zinc-900 dark:ring-white/5 dark:hover:bg-zinc-950 dark:active:bg-zinc-800"
         (click)="openStackBlitz()"
       >
         <ng-icon name="phosphorLightning" />
@@ -86,10 +86,8 @@
     </div>
     }
 
-    <div class="rounded-xl bg-zinc-950" [hidden]="mode() !== 'source'">
-      <pre
-        class="h-fit whitespace-pre-wrap p-4"
-      ><code class="language-typescript not-prose" [innerHTML]="code()"></code></pre>
+    <div class="rounded-xl bg-transparent" [hidden]="mode() !== 'source'">
+      <div class="h-fit" [innerHTML]="code()"></div>
     </div>
   </div>
 </div>

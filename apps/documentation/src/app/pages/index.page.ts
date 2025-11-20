@@ -21,23 +21,23 @@ import { ThemeToggle } from '../components/theme-toggle/theme-toggle';
   imports: [NgIcon, RouterLink, ThemeToggle],
   template: `
     <nav
-      class="group fixed z-20 h-16 w-full border-b border-transparent px-6 transition-all duration-500 data-[scrolled]:border-zinc-200 data-[scrolled]:bg-white data-[scrolled]:shadow-sm md:px-12 dark:data-[scrolled]:border-zinc-800 dark:data-[scrolled]:bg-zinc-900"
+      class="group fixed z-20 h-16 w-full border-b border-transparent px-6 transition-all duration-500 data-scrolled:border-zinc-200 data-scrolled:bg-white data-scrolled:shadow-xs md:px-12 dark:data-scrolled:border-zinc-800 dark:data-scrolled:bg-zinc-900"
       [attr.data-scrolled]="scrolled() ? '' : undefined"
     >
       <div
-        class="from-primary to-accent absolute inset-x-0 top-0 hidden h-0.5 bg-gradient-to-r group-data-[scrolled]:block"
+        class="from-primary to-accent absolute inset-x-0 top-0 hidden h-0.5 bg-linear-to-r group-data-scrolled:block"
       ></div>
       <div
-        class="container mx-auto flex h-full max-w-screen-xl items-center justify-between gap-x-2"
+        class="container mx-auto flex h-full max-w-(--breakpoint-xl) items-center justify-between gap-x-2"
       >
         <img
-          class="hidden h-8 transition-all duration-500 group-data-[scrolled]:invert-[1] md:block dark:group-data-[scrolled]:invert-[0]"
+          class="hidden h-8 transition-all duration-500 group-data-scrolled:invert-[1] md:block dark:group-data-scrolled:invert-[0]"
           src="/assets/logo-light.svg"
           alt="Logo"
         />
 
         <img
-          class="h-8 transition-all duration-500 group-data-[scrolled]:invert-[1] md:hidden dark:group-data-[scrolled]:invert-[0]"
+          class="h-8 transition-all duration-500 group-data-scrolled:invert-[1] md:hidden dark:group-data-scrolled:invert-[0]"
           src="/assets/logo-light-small.svg"
           alt="Logo"
         />
@@ -50,21 +50,21 @@ import { ThemeToggle } from '../components/theme-toggle/theme-toggle';
           </div>
 
           <button
-            class="inline-flex h-10 items-center justify-center rounded-md px-4 text-[13px] font-medium text-zinc-100 transition-colors hover:bg-zinc-100/10 active:bg-zinc-100/15 group-data-[scrolled]:text-zinc-800 group-data-[scrolled]:hover:bg-zinc-800/5 group-data-[scrolled]:active:bg-zinc-800/10 dark:group-data-[scrolled]:text-zinc-100 dark:group-data-[scrolled]:hover:bg-zinc-200/5"
+            class="inline-flex h-10 items-center justify-center rounded-md px-4 text-[13px] font-medium text-zinc-100 transition-colors group-data-scrolled:text-zinc-800 hover:bg-zinc-100/10 hover:group-data-scrolled:bg-zinc-800/5 active:bg-zinc-100/15 active:group-data-scrolled:bg-zinc-800/10 dark:group-data-scrolled:text-zinc-100 dark:hover:group-data-scrolled:bg-zinc-200/5"
             docs-theme-toggler
           >
             <span class="sr-only">Toggle theme</span>
           </button>
 
           <a
-            class="inline-flex h-10 items-center justify-center rounded-md px-4 text-[13px] font-medium text-zinc-100 transition-colors hover:bg-zinc-100/10 active:bg-zinc-100/15 group-data-[scrolled]:text-zinc-800 group-data-[scrolled]:hover:bg-zinc-800/5 group-data-[scrolled]:active:bg-zinc-800/10 dark:group-data-[scrolled]:text-zinc-100 dark:group-data-[scrolled]:hover:bg-zinc-200/5"
+            class="inline-flex h-10 items-center justify-center rounded-md px-4 text-[13px] font-medium text-zinc-100 transition-colors group-data-scrolled:text-zinc-800 hover:bg-zinc-100/10 hover:group-data-scrolled:bg-zinc-800/5 active:bg-zinc-100/15 active:group-data-scrolled:bg-zinc-800/10 dark:group-data-scrolled:text-zinc-100 dark:hover:group-data-scrolled:bg-zinc-200/5"
             routerLink="/getting-started/introduction"
             aria-label="Documentation"
           >
             Documentation
           </a>
           <a
-            class="inline-flex h-10 items-center justify-center rounded-md px-4 text-[13px] font-medium text-zinc-100 transition-colors hover:bg-zinc-100/10 active:bg-zinc-100/15 group-data-[scrolled]:text-zinc-800 group-data-[scrolled]:hover:bg-zinc-800/5 group-data-[scrolled]:active:bg-zinc-800/10 dark:group-data-[scrolled]:text-zinc-100 dark:group-data-[scrolled]:hover:bg-zinc-200/5"
+            class="inline-flex h-10 items-center justify-center rounded-md px-4 text-[13px] font-medium text-zinc-100 transition-colors group-data-scrolled:text-zinc-800 hover:bg-zinc-100/10 hover:group-data-scrolled:bg-zinc-800/5 active:bg-zinc-100/15 active:group-data-scrolled:bg-zinc-800/10 dark:group-data-scrolled:text-zinc-100 dark:hover:group-data-scrolled:bg-zinc-200/5"
             href="https://discord.gg/NTdjc5r3gC"
             target="_blank"
             rel="noopener noreferrer"
@@ -73,7 +73,7 @@ import { ThemeToggle } from '../components/theme-toggle/theme-toggle';
             Discord
           </a>
           <a
-            class="inline-flex h-10 items-center justify-center rounded-md px-4 text-[13px] font-medium text-zinc-100 transition-colors hover:bg-zinc-100/10 active:bg-zinc-100/15 group-data-[scrolled]:text-zinc-800 group-data-[scrolled]:hover:bg-zinc-800/5 group-data-[scrolled]:active:bg-zinc-800/10 dark:group-data-[scrolled]:text-zinc-100 dark:group-data-[scrolled]:hover:bg-zinc-200/5"
+            class="inline-flex h-10 items-center justify-center rounded-md px-4 text-[13px] font-medium text-zinc-100 transition-colors group-data-scrolled:text-zinc-800 hover:bg-zinc-100/10 hover:group-data-scrolled:bg-zinc-800/5 active:bg-zinc-100/15 active:group-data-scrolled:bg-zinc-800/10 dark:group-data-scrolled:text-zinc-100 dark:hover:group-data-scrolled:bg-zinc-200/5"
             target="_blank"
             href="https://github.com/ng-primitives/ng-primitives"
             rel="noopener noreferrer"
@@ -135,9 +135,9 @@ export class DocsNavbar implements OnInit {
   template: `
     <docs-navbar />
 
-    <section class="hero-section relative px-12 pb-20 pt-24">
+    <section class="hero-section relative px-12 pt-24 pb-20">
       <div
-        class="container relative z-10 mx-auto grid max-w-screen-xl items-center gap-8 lg:grid-cols-12"
+        class="relative z-10 container mx-auto grid max-w-(--breakpoint-xl) items-center gap-8 lg:grid-cols-12"
       >
         <div class="text-center lg:col-span-7 lg:text-left">
           <a
@@ -150,7 +150,7 @@ export class DocsNavbar implements OnInit {
             Proudly partnered with Coralogix
           </a>
           <h1
-            class="font-jakarta mb-6 text-4xl font-semibold leading-tight text-white sm:text-5xl md:text-6xl"
+            class="font-jakarta mb-6 text-4xl leading-tight font-semibold text-white sm:text-5xl md:text-6xl"
           >
             Headless UI
             <br />
@@ -183,7 +183,7 @@ export class DocsNavbar implements OnInit {
         </div>
       </div>
 
-      <div class="container mx-auto flex max-w-screen-xl justify-center px-12 pt-12">
+      <div class="container mx-auto flex max-w-(--breakpoint-xl) justify-center px-12 pt-12">
         <div class="flex flex-col gap-y-10">
           <h3 class="text-center text-sm font-medium text-white/70">Trusted by teams worldwide</h3>
 
@@ -209,15 +209,15 @@ export class DocsNavbar implements OnInit {
     <section class="container mx-auto flex min-h-[332px] items-center px-8 pt-16">
       <div class="flex w-full flex-col gap-y-4">
         <p
-          class="bg-gradient-to-r from-[#E90364] to-[#FA2C05] bg-clip-text text-sm font-medium text-transparent"
+          class="bg-linear-to-r from-[#E90364] to-[#FA2C05] bg-clip-text text-sm font-medium text-transparent"
         >
           About
         </p>
-        <h2 class="font-jakarta mb-4 text-[40px] font-semibold leading-tight">
+        <h2 class="font-jakarta mb-4 text-[40px] leading-tight font-semibold">
           Designed for Flexibility. Built for Angular.
         </h2>
         <p
-          class="w-full text-pretty text-base leading-relaxed text-zinc-500 lg:w-1/2 dark:text-zinc-300"
+          class="w-full text-base leading-relaxed text-pretty text-zinc-500 lg:w-1/2 dark:text-zinc-300"
         >
           Angular Primitives helps you move faster by replacing traditional component libraries with
           a collection of low-level, accessible building blocks. No more fighting against
@@ -233,7 +233,7 @@ export class DocsNavbar implements OnInit {
         @for (feature of features; track feature) {
           <div class="-m-[0.5px] flex flex-col items-center gap-y-3 p-10">
             <div
-              class="inline-flex size-12 items-center justify-center rounded-[10px] shadow-sm ring-1 ring-zinc-200 dark:ring-zinc-800"
+              class="inline-flex size-12 items-center justify-center rounded-[10px] shadow-xs ring-1 ring-zinc-200 dark:ring-zinc-800"
             >
               <ng-icon class="text-2xl text-[#FA2C05]" [name]="feature.icon" />
             </div>
@@ -252,24 +252,24 @@ export class DocsNavbar implements OnInit {
       <section class="container mx-auto flex min-h-[332px] items-center px-8 py-8">
         <div class="flex w-full flex-col items-center gap-y-4">
           <p
-            class="bg-gradient-to-r from-[#E90364] to-[#FA2C05] bg-clip-text text-sm font-medium text-transparent"
+            class="bg-linear-to-r from-[#E90364] to-[#FA2C05] bg-clip-text text-sm font-medium text-transparent"
           >
             Get Started
           </p>
-          <h2 class="font-jakarta mb-4 text-center text-[40px] font-semibold leading-tight">
+          <h2 class="font-jakarta mb-4 text-center text-[40px] leading-tight font-semibold">
             Try it out
           </h2>
           <p
-            class="mb-4 w-full text-pretty text-center text-base leading-relaxed text-zinc-500 lg:w-1/2 dark:text-zinc-300"
+            class="mb-4 w-full text-center text-base leading-relaxed text-pretty text-zinc-500 lg:w-1/2 dark:text-zinc-300"
           >
             Get started with Angular Primitives with just a single command. We provide Angular
             schematics to help you quickly add primitives to your project.
           </p>
 
           <div class="w-full max-w-sm overflow-hidden rounded-lg bg-zinc-950 text-white/90">
-            <div class="mt-0 flex flex-1 flex-col outline-none">
+            <div class="mt-0 flex flex-1 flex-col outline-hidden">
               <div
-                class="flex h-8 items-center justify-between border-b border-b-zinc-800 pe-2 ps-4"
+                class="flex h-8 items-center justify-between border-b border-b-zinc-800 ps-4 pe-2"
               >
                 <div class="flex items-center">
                   <div class="mr-2 h-3 w-3 rounded-full bg-red-500"></div>
@@ -303,15 +303,15 @@ export class DocsNavbar implements OnInit {
     <section class="container mx-auto flex min-h-[332px] items-center px-8 pt-8">
       <div class="flex w-full flex-col gap-y-4">
         <p
-          class="bg-gradient-to-r from-[#E90364] to-[#FA2C05] bg-clip-text text-sm font-medium text-transparent"
+          class="bg-linear-to-r from-[#E90364] to-[#FA2C05] bg-clip-text text-sm font-medium text-transparent"
         >
           Testimonials
         </p>
-        <h2 class="font-jakarta mb-4 text-[40px] font-semibold leading-tight">
+        <h2 class="font-jakarta mb-4 text-[40px] leading-tight font-semibold">
           Loved by Angular Developers
         </h2>
         <p
-          class="w-full text-pretty text-base leading-relaxed text-zinc-500 lg:w-1/2 dark:text-zinc-300"
+          class="w-full text-base leading-relaxed text-pretty text-zinc-500 lg:w-1/2 dark:text-zinc-300"
         >
           From solo developers to enterprise teams, Angular Primitives is accelerating UI
           development and empowering teams to build with confidence.
@@ -319,11 +319,11 @@ export class DocsNavbar implements OnInit {
       </div>
     </section>
 
-    <section class="container mx-auto px-8 pb-20 pt-8">
+    <section class="container mx-auto px-8 pt-8 pb-20">
       <div class="grid grid-cols-1 gap-8 lg:grid-cols-3">
         @for (testimonial of testimonials; track testimonial) {
           <div
-            class="flex flex-col justify-between rounded-xl bg-white p-8 shadow-sm ring-1 ring-zinc-200 dark:bg-zinc-800 dark:ring-zinc-700"
+            class="flex flex-col justify-between rounded-xl bg-white p-8 shadow-xs ring-1 ring-zinc-200 dark:bg-zinc-800 dark:ring-zinc-700"
           >
             <p class="mb-6 text-sm leading-loose text-zinc-600 dark:text-zinc-300">
               "{{ testimonial.quote }}"

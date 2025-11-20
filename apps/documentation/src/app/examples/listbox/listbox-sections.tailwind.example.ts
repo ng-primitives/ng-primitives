@@ -14,14 +14,14 @@ import {
   providers: [provideIcons({ heroCheckSolid })],
   template: `
     <div
-      class="max-h-[300px] overflow-y-auto rounded-xl border border-gray-200 bg-white p-1 outline-none dark:border-gray-800 dark:bg-transparent"
+      class="max-h-[300px] overflow-y-auto rounded-xl border border-gray-200 bg-white p-1 outline-hidden dark:border-gray-800 dark:bg-transparent"
       [(ngpListboxValue)]="selection"
       ngpListbox
       aria-label="Sections"
     >
       @for (section of sections; track section.name) {
         <header
-          class="flex h-8 px-3 py-1 text-sm font-semibold leading-6 text-gray-600 dark:text-zinc-300"
+          class="flex h-8 px-3 py-1 text-sm leading-6 font-semibold text-gray-600 dark:text-zinc-300"
           ngpListboxHeader
         >
           {{ section.name }}
@@ -30,7 +30,7 @@ import {
         <div ngpListboxSection>
           @for (option of section.options; track option.id) {
             <div
-              class="flex h-9 w-[200px] cursor-pointer items-center gap-2 rounded-lg px-3 py-1 text-[14px] text-gray-600 transition-colors hover:bg-gray-50 data-[active]:bg-gray-100 data-[press]:bg-gray-100 dark:text-gray-300 dark:hover:bg-white/5 dark:data-[active]:bg-white/10 dark:data-[press]:bg-white/10"
+              class="flex h-9 w-[200px] cursor-pointer items-center gap-2 rounded-lg px-3 py-1 text-[14px] text-gray-600 transition-colors hover:bg-gray-50 data-active:bg-gray-100 data-press:bg-gray-100 dark:text-gray-300 dark:hover:bg-white/5 dark:data-active:bg-white/10 dark:data-press:bg-white/10"
               #listboxOption="ngpListboxOption"
               [ngpListboxOptionValue]="option"
               ngpListboxOption

@@ -9,14 +9,14 @@ import { NgpListbox, NgpListboxOption } from 'ng-primitives/listbox';
   providers: [provideIcons({ heroCheckSolid })],
   template: `
     <div
-      class="rounded-xl border border-gray-200 bg-white p-1 outline-none dark:border-gray-800 dark:bg-transparent"
+      class="rounded-xl border border-gray-200 bg-white p-1 outline-hidden dark:border-gray-800 dark:bg-transparent"
       [(ngpListboxValue)]="selection"
       ngpListbox
       aria-label="Characters"
     >
       @for (option of options; track option.id) {
         <div
-          class="flex h-9 w-[200px] cursor-pointer items-center gap-2 rounded-lg px-3 text-[14px] text-gray-600 transition-colors hover:bg-gray-50 data-[active]:bg-gray-100 data-[press]:bg-gray-100 dark:text-gray-300 dark:hover:bg-white/5 dark:data-[active]:bg-white/10 dark:data-[press]:bg-white/10"
+          class="flex h-9 w-[200px] cursor-pointer items-center gap-2 rounded-lg px-3 text-[14px] text-gray-600 transition-colors hover:bg-gray-50 data-active:bg-gray-100 data-press:bg-gray-100 dark:text-gray-300 dark:hover:bg-white/5 dark:data-active:bg-white/10 dark:data-press:bg-white/10"
           #listboxOption="ngpListboxOption"
           [ngpListboxOptionValue]="option"
           ngpListboxOption
