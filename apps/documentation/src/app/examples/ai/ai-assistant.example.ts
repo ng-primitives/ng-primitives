@@ -229,7 +229,7 @@ interface Message {
 
     .ai-chat-content {
       display: flex;
-      grow: 1;
+      flex-grow: 1;
       flex-direction: column;
       gap: 1rem;
       overflow: hidden;
@@ -238,7 +238,7 @@ interface Message {
 
     .ai-viewport {
       display: flex;
-      grow: 1;
+      flex-grow: 1;
       flex-direction: column;
       gap: 1rem;
       overflow-y: auto;
@@ -248,7 +248,7 @@ interface Message {
     /* Welcome State */
     .ai-welcome-container {
       display: flex;
-      grow: 1;
+      flex-grow: 1;
       flex-direction: column;
       align-items: center;
       justify-content: center;
