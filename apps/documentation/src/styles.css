@@ -41,7 +41,7 @@
   }
 
   p {
-    line-height: 28px;
+    line-height: 24px;
   }
 }
 
@@ -133,11 +133,7 @@ pre.shiki code {
 }
 
 .prose :where(code):not(:where([class~='not-prose'], [class~='not-prose'] *, pre code)) {
-  @apply rounded-sm px-1.5 py-1 text-[13px] font-medium whitespace-nowrap text-zinc-900 ring-1 ring-black/5 before:hidden after:hidden;
-}
-
-.prose :where(code):not(:where([class~='not-prose'], [class~='not-prose'] *)) {
-  @apply dark:text-zinc-100! dark:ring-white/10!;
+  @apply rounded-sm px-1.5 py-1 text-[13px] font-medium whitespace-nowrap text-zinc-900 ring-1 ring-black/5 before:hidden after:hidden dark:text-zinc-100! dark:ring-white/10!;
 }
 
 .dark .shiki,
@@ -153,13 +149,6 @@ pre.shiki code {
   margin-bottom: 24px;
 }
 
-.prose :where(code):not(:where([class~='not-prose'], [class~='not-prose'] *)) {
-  @apply rounded-sm px-1.5 py-1 font-sans text-[13px] font-medium text-zinc-900 ring-1 ring-black/5 before:hidden after:hidden;
-}
-
-.prose-zinc :where(p):not(:where([class~='not-prose'], [class~='not-prose'] *)) {
-  line-height: 24px;
-}
 
 [data-line-numbers] {
   @apply grid min-w-full border-0 bg-transparent p-0 whitespace-pre;
