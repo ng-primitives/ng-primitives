@@ -149,7 +149,6 @@ pre.shiki code {
   margin-bottom: 24px;
 }
 
-
 [data-line-numbers] {
   @apply grid min-w-full border-0 bg-transparent p-0 whitespace-pre;
   counter-reset: line;
