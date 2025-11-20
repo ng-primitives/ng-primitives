@@ -83,7 +83,11 @@
       "workspaceChangelog": true,
       "automaticFromRef": true
     },
-    "projectsRelationship": "fixed"
+    "projectsRelationship": "fixed",
+    "releaseTagPattern": "v{version}",
+    "git": {
+      "commitMessage": "chore(release): publish {version}"
+    }
   },
   "defaultBase": "origin/next",
   "tui": {
