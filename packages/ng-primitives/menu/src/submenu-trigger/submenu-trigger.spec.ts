@@ -184,6 +184,5 @@ describe('NgpSubmenuTrigger', () => {
       expect(screen.queryByTestId('submenu-1-item-1')).not.toBeInTheDocument();
       expect(submenuTrigger1).toHaveFocus();
     });
-
   });
 });
