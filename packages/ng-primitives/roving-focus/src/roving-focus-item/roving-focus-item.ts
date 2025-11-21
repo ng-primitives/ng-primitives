@@ -19,7 +19,7 @@ export class NgpRovingFocusItem {
     transform: booleanAttribute,
   });
 
-  private readonly state = ngpRovingFocusItem({ disabled: this.disabled });
+  private readonly state = ngpRovingFocusItem({ disabled: this.state.disabled });
 
   /**
    * Expose the internal id of the roving focus item.

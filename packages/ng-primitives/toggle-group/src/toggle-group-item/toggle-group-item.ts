@@ -27,14 +27,14 @@ export class NgpToggleGroupItem implements OnInit {
 
   constructor() {
     ngpToggleGroupItem({
-      value: this.value as Signal<string>,
-      disabled: this.disabled,
+      value: this.state.value as Signal<string>,
+      disabled: this.state.disabled,
     });
   }
 
   ngOnInit(): void {
     // we can't use a required input for value as it is used in a computed property before the input is set
-    if (this.value() === undefined) {
+    if (this.state.value() === undefined) {
       throw new Error('The value input is required for the toggle group item.');
     }
   }

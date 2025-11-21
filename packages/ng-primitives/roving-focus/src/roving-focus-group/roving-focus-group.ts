@@ -57,10 +57,10 @@ export class NgpRovingFocusGroup {
    * The state of the roving focus group.
    */
   readonly state = ngpRovingFocusGroup({
-    orientation: this.orientation,
-    wrap: this.wrap,
-    homeEnd: this.homeEnd,
-    disabled: this.disabled,
+    orientation: this.state.orientation,
+    wrap: this.state.wrap,
+    homeEnd: this.state.homeEnd,
+    disabled: this.state.disabled,
   });
 
   /**

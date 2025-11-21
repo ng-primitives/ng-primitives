@@ -98,7 +98,6 @@ export class NgpTabset {
   constructor() {
     explicitEffect([this.state.orientation], ([orientation]) => {
       const rovingFocusGroupState = this.rovingFocusGroupState();
-      debugger;
       rovingFocusGroupState?.setOrientation(orientation);
     });
   }
