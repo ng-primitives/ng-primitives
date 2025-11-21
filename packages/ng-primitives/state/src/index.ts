@@ -14,7 +14,6 @@ import {
   isSignal,
   linkedSignal,
   NgZone,
-  Provider,
   ProviderToken,
   runInInjectionContext,
   signal,
@@ -238,44 +237,64 @@ function isSignalInput(
   return 'transformFn' in inputDefinition || 'applyValueToInputSignal' in inputDefinition;
 }
 
-export interface CreatePatternOptions {
+export interface CreatePrimitiveOptions {
   injector?: Injector;
-  element?: ElementRef<HTMLElement>;
+  elementRef?: ElementRef<HTMLElement>;
 }
 
-const NgpPatternProvidersToken = new InjectionToken<Provider[]>('NgpPatternProvidersToken');
+export function createPrimitive<TProps, TState>(
+  name: string,
+  fn: (props: TProps) => TState,
+  options: CreatePrimitiveOptions = {},
+): [
+  InjectionToken<Signal<TState>>,
+  (props: TProps) => TState,
+  () => Signal<TState | null>,
+  (opts?: { inherit?: boolean }) => FactoryProvider,
+] {
+  // Create a unique injection token for the primitive's state signal
+  const token = new InjectionToken<WritableSignal<TState>>(`Primitive: ${name}`);
 
-export function createPrimitive<P, S>(
-  token: ProviderToken<WritableSignal<S>>,
-  creator: (props: P, options?: CreatePatternOptions) => S,
-) {
-  return (props: P, options?: CreatePatternOptions): S => {
-    const internalState = inject(token);
+  // Create the state signal within the appropriate injection context
+  const factory = (props: TProps) => {
+    // determine the injector to use
+    let injector = options.injector ?? inject(Injector);
 
-    // if no element is provided, inject it
-    const element = options?.element ?? inject(ElementRef);
+    // If an ElementRef is provided in options, create a child injector
+    if (options.elementRef) {
+      injector = Injector.create({
+        providers: [{ provide: ElementRef, useValue: options.elementRef }],
+        parent: injector,
+      });
+    }
 
-    // store the providers registered by the pattern
-    const providers: Provider[] = [];
-
-    const patternInjector = Injector.create({
-      providers: [
-        { provide: NgpPatternProvidersToken, useValue: providers },
-        { provide: ElementRef, useValue: element },
-      ],
-      parent: options?.injector ?? inject(Injector),
+    return runInInjectionContext(injector, () => {
+      const state = inject(token, { optional: true });
+      const instance = fn(props);
+      state?.set(instance);
+      return instance;
     });
-
-    const state = runInInjectionContext(patternInjector, () => {
-      const state = creator(props, options);
-
-      return state;
-    });
-
-    internalState.set(state);
-
-    return state;
   };
+
+  // create an injection function that provides the state signal
+  const injectFn = () => inject(token);
+
+  // create a function to provide the state
+  const provideFn = (opts?: { inherit?: boolean }): FactoryProvider => {
+    const inherit = opts?.inherit ?? true;
+    return {
+      provide: token,
+      useFactory: () => {
+        if (inherit === false) {
+          return signal(null);
+        }
+
+        return inject(token, { optional: true, skipSelf: true }) ?? signal(null);
+      },
+    };
+  };
+
+  return [token, factory, injectFn, provideFn];
 }
 
 export function controlled<T>(value: Signal<T>): WritableSignal<T> {
@@ -453,4 +472,21 @@ export function onClick(
 export function onDestroy(callback: () => void): void {
   const destroyRef = inject(DestroyRef);
   destroyRef.onDestroy(callback);
+}
+
+/**
+ * Previously, with our state approach, we allowed signals to be written directly using their setters.
+ * However, with our new approach, we want people to use the appropriate set method instead. This function takes in a writable
+ * signal and patches the set method to warn the user that it is deprecated and should use the method instead.
+ */
+export function deprecatedSetter<T>(
+  signal: WritableSignal<T>,
+  methodName: string,
+): WritableSignal<T> {
+  const originalSet = signal.set.bind(signal);
+  signal.set = (value: T) => {
+    console.warn(`Deprecation warning: Use ${methodName}() instead of setting the value directly.`);
+    originalSet(value);
+  };
+  return signal;
 }

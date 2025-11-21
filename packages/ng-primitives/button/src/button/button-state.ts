@@ -1,30 +1,7 @@
 import { Signal } from '@angular/core';
 import { ngpInteractions } from 'ng-primitives/interactions';
 import { injectElementRef } from 'ng-primitives/internal';
-import {
-  attrBinding,
-  createPrimitive,
-  createStateInjector,
-  createStateProvider,
-  createStateToken,
-  dataBinding,
-} from 'ng-primitives/state';
-import type { NgpButton } from './button';
-
-/**
- * The state token  for the Button primitive.
- */
-export const NgpButtonStateToken = createStateToken<NgpButton>('Button');
-
-/**
- * Provides the Button state.
- */
-export const provideButtonState = createStateProvider(NgpButtonStateToken);
-
-/**
- * Injects the Button state.
- */
-export const injectButtonState = createStateInjector<NgpButton>(NgpButtonStateToken);
+import { attrBinding, createPrimitive, dataBinding } from 'ng-primitives/state';
 
 export interface NgpButtonState {
   disabled: Signal<boolean>;
@@ -34,9 +11,8 @@ export interface NgpButtonProps {
   disabled: Signal<boolean>;
 }
 
-export const ngpButton = createPrimitive<NgpButtonProps, NgpButtonState>(
-  NgpButtonStateToken,
-  ({ disabled }) => {
+export const [NgpButtonStateToken, ngpButton, injectButtonState, provideButtonState] =
+  createPrimitive('NgpButton', ({ disabled }: NgpButtonProps): NgpButtonState => {
     const element = injectElementRef();
     const isButton = element.nativeElement.tagName.toLowerCase() === 'button';
 
@@ -52,5 +28,4 @@ export const ngpButton = createPrimitive<NgpButtonProps, NgpButtonState>(
     }
 
     return { disabled };
-  },
-);
+  });

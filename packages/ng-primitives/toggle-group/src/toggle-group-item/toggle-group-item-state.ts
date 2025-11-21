@@ -1,29 +1,63 @@
-import {
-  createState,
-  createStateInjector,
-  createStateProvider,
-  createStateToken,
-} from 'ng-primitives/state';
-import type { NgpToggleGroupItem } from './toggle-group-item';
+import { computed, signal, Signal } from '@angular/core';
+import { attrBinding, createPrimitive, dataBinding, listener } from 'ng-primitives/state';
+import { injectElementRef } from 'ng-primitives/internal';
+import { injectToggleGroupState } from '../toggle-group/toggle-group-state';
 
 /**
- * The state token  for the ToggleGroupItem primitive.
+ * The state interface for the ToggleGroupItem pattern.
  */
-export const NgpToggleGroupItemStateToken = createStateToken<NgpToggleGroupItem>('ToggleGroupItem');
+export interface NgpToggleGroupItemState {
+  selected: Signal<boolean>;
+  toggle(): void;
+}
 
 /**
- * Provides the ToggleGroupItem state.
+ * The props interface for the ToggleGroupItem pattern.
  */
-export const provideToggleGroupItemState = createStateProvider(NgpToggleGroupItemStateToken);
+export interface NgpToggleGroupItemProps {
+  /**
+   * The value of the toggle group item.
+   */
+  value: Signal<string>;
 
-/**
- * Injects the ToggleGroupItem state.
- */
-export const injectToggleGroupItemState = createStateInjector<NgpToggleGroupItem>(
-  NgpToggleGroupItemStateToken,
+  /**
+   * Whether the toggle group item is disabled.
+   */
+  disabled?: Signal<boolean>;
+}
+
+export const [
+  NgpToggleGroupItemToken,
+  ngpToggleGroupItem,
+  injectToggleGroupItemState,
+  provideToggleGroupItemState,
+] = createPrimitive(
+  'NgpToggleGroupItem',
+  ({ value, disabled = signal(false) }: NgpToggleGroupItemProps): NgpToggleGroupItemState => {
+    const element = injectElementRef();
+    const toggleGroup = injectToggleGroupState();
+
+    // Whether the item is selected.
+    const selected = computed(() => toggleGroup()?.isSelected(value()!) ?? false);
+
+    // Host bindings
+    attrBinding(element, 'role', 'radio');
+    attrBinding(element, 'aria-checked', selected);
+    dataBinding(element, 'data-selected', selected);
+    attrBinding(element, 'aria-disabled', disabled);
+    dataBinding(element, 'data-disabled', disabled);
+
+    // Host listener
+    listener(element, 'click', () => toggle());
+
+    // Toggle the item.
+    const toggle = (): void => {
+      if (disabled?.()) {
+        return;
+      }
+      toggleGroup()?.toggle(value()!);
+    };
+
+    return { selected, toggle };
+  },
 );
-
-/**
- * The ToggleGroupItem state registration function.
- */
-export const toggleGroupItemState = createState(NgpToggleGroupItemStateToken);

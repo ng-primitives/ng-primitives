@@ -88,7 +88,7 @@ export class NgpRadioGroup<T> implements OnInit {
 
   ngOnInit(): void {
     // the roving focus group defaults to vertical orientation whereas we want to default to vertical
-    this.rovingFocusGroupState().orientation.set(this.state.orientation());
+    this.rovingFocusGroupState()?.setOrientation(this.state.orientation());
   }
 
   /**

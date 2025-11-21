@@ -9,7 +9,7 @@ import {
   heroFolder,
 } from '@ng-icons/heroicons/outline';
 import { NgpButton } from 'ng-primitives/button';
-import { NgpRovingFocusGroup, NgpRovingFocusItem } from 'ng-primitives/roving-focus';
+import { NgpRovingFocusItem } from 'ng-primitives/roving-focus';
 import { NgpSeparator } from 'ng-primitives/separator';
 import { NgpToggleGroup, NgpToggleGroupItem } from 'ng-primitives/toggle-group';
 import { NgpToolbar } from 'ng-primitives/toolbar';
@@ -17,7 +17,6 @@ import { NgpToolbar } from 'ng-primitives/toolbar';
 @Component({
   selector: 'app-toolbar',
   imports: [
-    NgpRovingFocusGroup,
     NgpRovingFocusItem,
     NgIcon,
     NgpButton,
