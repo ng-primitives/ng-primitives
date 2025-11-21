@@ -1,8 +1,8 @@
 import { FocusOrigin } from '@angular/cdk/a11y';
 import { Directionality } from '@angular/cdk/bidi';
 import { forwardRef, inject, signal, Signal } from '@angular/core';
-import { controlled, createPrimitive } from '@ng-primitives/state';
 import { NgpOrientation } from 'ng-primitives/common';
+import { controlled, createPrimitive } from 'ng-primitives/state';
 import type { NgpRovingFocusItemState } from '../roving-focus-item/roving-focus-item-state';
 
 export interface NgpRovingFocusGroupState {
