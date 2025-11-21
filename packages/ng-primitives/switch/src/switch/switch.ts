@@ -100,7 +100,7 @@ export class NgpSwitch {
    * Handle the keydown event.
    */
   @HostListener('keydown.space', ['$event'])
-  protected onKeyDown(event: KeyboardEvent): void {
+  protected onKeyDown(event: Event): void {
     // Prevent the default action of the space key, which is to scroll the page.
     event.preventDefault();
 

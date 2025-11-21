@@ -18,7 +18,7 @@ export class NgpPaginationLast {
   /**
    * Access the pagination state.
    */
-  private readonly paginationState = injectPaginationState();
+  protected readonly paginationState = injectPaginationState();
 
   /**
    * Whether the button is disabled.
@@ -57,7 +57,7 @@ export class NgpPaginationLast {
    */
   @HostListener('keydown.enter', ['$event'])
   @HostListener('keydown.space', ['$event'])
-  protected onEnter(event: KeyboardEvent): void {
+  protected onEnter(event: Event): void {
     event.preventDefault();
     event.stopPropagation();
     this.goToLastPage();

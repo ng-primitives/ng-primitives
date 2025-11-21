@@ -89,7 +89,7 @@ export class NgpCheckbox {
   }
 
   @HostListener('keydown.enter', ['$event'])
-  protected onEnter(event: KeyboardEvent): void {
+  protected onEnter(event: Event): void {
     // According to WAI ARIA, Checkboxes don't activate on enter keypress
     event.preventDefault();
   }

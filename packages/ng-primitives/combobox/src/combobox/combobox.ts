@@ -43,7 +43,7 @@ type T = any;
   providers: [provideComboboxState()],
   host: {
     '[attr.tabindex]': 'input() ? -1 : (state.disabled() ? -1 : 0)',
-    '[attr.data-open]': 'state.open() ? "" : undefined',
+    '[attr.data-open]': 'open() ? "" : undefined',
     '[attr.data-disabled]': 'state.disabled() ? "" : undefined',
     '[attr.data-multiple]': 'state.multiple() ? "" : undefined',
     '[attr.data-invalid]': 'controlStatus()?.invalid ? "" : undefined',

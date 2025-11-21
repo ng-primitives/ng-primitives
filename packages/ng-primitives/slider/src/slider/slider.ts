@@ -94,8 +94,9 @@ export class NgpSlider {
 
   /**
    * The value as a percentage based on the min and max values.
+   * @internal
    */
-  protected readonly percentage = computed(
+  readonly percentage = computed(
     () => ((this.state.value() - this.state.min()) / (this.state.max() - this.state.min())) * 100,
   );
 

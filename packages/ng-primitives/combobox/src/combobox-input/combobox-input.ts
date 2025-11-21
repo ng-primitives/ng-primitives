@@ -163,7 +163,7 @@ export class NgpComboboxInput {
     this.elementRef.nativeElement.focus({ preventScroll: true });
   }
 
-  @HostListener('focus', ['$event'])
+  @HostListener('focus')
   protected highlightText(): void {
     if (this.pointerFocused) {
       this.pointerFocused = false;
@@ -174,7 +174,7 @@ export class NgpComboboxInput {
     this.elementRef.nativeElement.setSelectionRange(0, this.elementRef.nativeElement.value.length);
   }
 
-  @HostListener('pointerdown', ['$event'])
+  @HostListener('pointerdown')
   protected handlePointerDown(): void {
     this.pointerFocused = true;
   }
