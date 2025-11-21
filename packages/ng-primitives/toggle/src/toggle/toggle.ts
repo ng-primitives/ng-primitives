@@ -85,7 +85,7 @@ export class NgpToggle {
    * If the element is not a button or a link the space key should toggle the selected state.
    */
   @HostListener('keydown.space', ['$event'])
-  protected onKeyDown(event: KeyboardEvent): void {
+  protected onKeyDown(event: Event): void {
     if (!this.isButton && this.element.nativeElement.tagName !== 'A') {
       event.preventDefault();
       this.toggle();

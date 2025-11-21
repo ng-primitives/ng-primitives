@@ -34,7 +34,7 @@ export class NgpSearch {
    * Whether the input field is empty.
    * @internal
    */
-  protected readonly empty = computed(() => this.value() === '');
+  readonly empty = computed(() => this.value() === '');
 
   /**
    * The search field state.

@@ -44,12 +44,12 @@ type T = any;
   host: {
     role: 'combobox',
     '[id]': 'state.id()',
-    '[attr.aria-expanded]': 'state.open()',
-    '[attr.aria-controls]': 'state.open() ? state.dropdown()?.id() : undefined',
+    '[attr.aria-expanded]': 'open()',
+    '[attr.aria-controls]': 'open() ? dropdown()?.id() : undefined',
     '[attr.aria-activedescendant]':
-      'state.open() ? activeDescendantManager.activeDescendant() : undefined',
+      'open() ? activeDescendantManager.activeDescendant() : undefined',
     '[attr.tabindex]': 'state.disabled() ? -1 : 0',
-    '[attr.data-open]': 'state.open() ? "" : undefined',
+    '[attr.data-open]': 'open() ? "" : undefined',
     '[attr.data-disabled]': 'state.disabled() ? "" : undefined',
     '[attr.data-multiple]': 'state.multiple() ? "" : undefined',
   },

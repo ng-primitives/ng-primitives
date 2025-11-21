@@ -53,8 +53,8 @@ export class NgpPromptComposerInput {
    * This directive automatically handles that behavior.
    */
   @HostListener('keydown.enter', ['$event'])
-  protected onEnterKey(event: KeyboardEvent): void {
-    if (event.shiftKey) {
+  protected onEnterKey(event: Event): void {
+    if (event instanceof KeyboardEvent === false || event.shiftKey) {
       return;
     }
 

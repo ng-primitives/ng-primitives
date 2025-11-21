@@ -136,7 +136,7 @@ export class NgpDateRangePicker<T> {
   /**
    * The date range picker state.
    */
-  private readonly state = dateRangePickerState<NgpDateRangePicker<T>>(this);
+  protected readonly state = dateRangePickerState<NgpDateRangePicker<T>>(this);
 
   /**
    * Set the focused date.
