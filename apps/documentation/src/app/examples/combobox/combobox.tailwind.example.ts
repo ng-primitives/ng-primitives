@@ -31,7 +31,7 @@ import {
       ngpCombobox
     >
       <input
-        class="font-inherit h-full flex-1 border-none bg-transparent px-4 text-[14px] text-gray-900 outline-none focus:ring-0 dark:bg-transparent dark:text-gray-100"
+        class="font-inherit h-full flex-1 border-none bg-transparent px-4 text-[14px] text-gray-900 outline-hidden focus:ring-0 dark:bg-transparent dark:text-gray-100"
         [value]="filter()"
         (input)="onFilterChange($event)"
         placeholder="Select an option"
@@ -39,7 +39,7 @@ import {
       />
 
       <button
-        class="box-border inline-flex h-full w-9 cursor-pointer items-center justify-center border-none bg-transparent text-gray-900 focus:outline-none dark:text-gray-100 dark:hover:text-gray-200"
+        class="box-border inline-flex h-full w-9 cursor-pointer items-center justify-center border-none bg-transparent text-gray-900 focus:outline-hidden dark:text-gray-100 dark:hover:text-gray-200"
         ngpComboboxButton
         aria-label="Toggle dropdown"
       >
@@ -47,13 +47,13 @@ import {
       </button>
 
       <div
-        class="absolute left-0 z-[1001] mt-1 box-border max-h-[240px] w-[300px] overflow-y-auto rounded-[12px] border border-gray-200 bg-white p-1 shadow-lg outline-none dark:border-gray-700 dark:bg-black dark:ring-white/10"
+        class="absolute left-0 z-1001 mt-1 box-border max-h-[240px] w-[300px] overflow-y-auto rounded-[12px] border border-gray-200 bg-white p-1 shadow-lg outline-hidden dark:border-gray-700 dark:bg-black dark:ring-white/10"
         *ngpComboboxPortal
         ngpComboboxDropdown
       >
         @for (option of filteredOptions(); track option) {
           <div
-            class="box-border flex h-[36px] w-full cursor-pointer items-center gap-2 rounded-[8px] px-3 text-[14px] text-gray-900 transition-colors hover:bg-gray-100 data-[active]:bg-gray-100 data-[press]:bg-gray-100 dark:text-gray-100 dark:hover:bg-white/10 dark:data-[active]:bg-white/10 dark:data-[press]:bg-white/20"
+            class="box-border flex h-[36px] w-full cursor-pointer items-center gap-2 rounded-[8px] px-3 text-[14px] text-gray-900 transition-colors hover:bg-gray-100 data-active:bg-gray-100 data-press:bg-gray-100 dark:text-gray-100 dark:hover:bg-white/10 dark:data-active:bg-white/10 dark:data-press:bg-white/20"
             [ngpComboboxOptionValue]="option"
             ngpComboboxOption
           >

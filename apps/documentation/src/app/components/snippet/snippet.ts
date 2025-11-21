@@ -9,11 +9,10 @@ import {
   inject,
   signal,
 } from '@angular/core';
+import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { NgIcon, provideIcons } from '@ng-icons/core';
-import { heroSquare2Stack, heroCheck } from '@ng-icons/heroicons/outline';
-import * as prismjs from 'prismjs';
-
-const { highlight, languages } = prismjs;
+import { heroCheck, heroSquare2Stack } from '@ng-icons/heroicons/outline';
+import { codeToHtml } from 'shiki';
 
 @Component({
   selector: 'docs-snippet',
@@ -25,6 +24,7 @@ const { highlight, languages } = prismjs;
 export class Snippet {
   private readonly clipboard = inject(Clipboard);
   private readonly changeDetector = inject(ChangeDetectorRef);
+  private readonly sanitizer = inject(DomSanitizer);
   private readonly snippets = import.meta.glob!(
     '../../../../../components/src/app/pages/reusable-components/**/*.ts',
     {
@@ -45,8 +45,8 @@ export class Snippet {
       return '';
     }
 
-    const code = this.files().find(file => file.label === selectedFile)!.value;
-    return highlight(code, languages['typescript'], 'typescript');
+    const file = this.files().find(file => file.label === selectedFile)!;
+    return file.highlightedValue || '';
   });
 
   @Input({ required: true }) set name(name: string) {
@@ -88,8 +88,10 @@ export class Snippet {
       // if the filename is index.page.ts, we should use app.ts as the label
       const label = filename === 'index.page.ts' ? 'app.ts' : filename;
 
+      const highlightedValue = await this.highlightCodeWithShiki(source);
+
       this.files.update(state => {
-        state.push({ label, value: source });
+        state.push({ label, value: source, highlightedValue });
         return state;
       });
     }
@@ -120,6 +122,34 @@ export class Snippet {
     this.changeDetector.detectChanges();
   }
 
+  private async highlightCodeWithShiki(code: string): Promise<SafeHtml> {
+    const html = await codeToHtml(code.trim(), {
+      lang: 'angular-ts',
+      themes: {
+        light: 'github-light',
+        dark: 'github-dark',
+      },
+
+      transformers: [
+        {
+          pre(node) {
+            node.properties['class'] +=
+              ' no-scrollbar min-w-0 overflow-x-auto px-4 py-3.5 outline-none has-[[data-highlighted-line]]:px-0 has-[[data-line-numbers]]:px-0 !bg-transparent';
+          },
+          code(node) {
+            node.properties['data-line-numbers'] = '';
+          },
+          line(node) {
+            node.properties['data-line'] = '';
+          },
+        },
+      ],
+    });
+
+    // Bypass Angular's sanitization since Shiki HTML is safe
+    return this.sanitizer.bypassSecurityTrustHtml(html);
+  }
+
   protected copyToClipboard(): void {
     if (!this.selectedFile()) {
       return;
@@ -139,4 +169,5 @@ export class Snippet {
 interface Tab {
   label: string;
   value: string;
+  highlightedValue: SafeHtml;
 }

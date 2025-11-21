@@ -1,5 +1,14 @@
-import { DOCUMENT, isPlatformBrowser } from '@angular/common';
-import { effect, ElementRef, inject, Injectable, PLATFORM_ID, Signal, signal } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
+import {
+  effect,
+  ElementRef,
+  inject,
+  Injectable,
+  PLATFORM_ID,
+  Signal,
+  signal,
+  DOCUMENT,
+} from '@angular/core';
 import { onDomRemoval } from 'ng-primitives/internal';
 import { injectDisposables, onBooleanChange } from 'ng-primitives/utils';
 import { isHoverEnabled } from '../config/interactions-config';

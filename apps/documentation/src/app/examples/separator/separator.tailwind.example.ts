@@ -11,7 +11,7 @@ import { NgpSeparator } from 'ng-primitives/separator';
       <p class="m-0 text-black dark:text-white">
         The separator primitive can be used to separate content in a layout.
       </p>
-      <div class="h-[1px] w-full bg-neutral-200 dark:bg-neutral-800" ngpSeparator></div>
+      <div class="h-px w-full bg-neutral-200 dark:bg-neutral-800" ngpSeparator></div>
       <p class="m-0 text-black dark:text-white">
         It supports both horizontal and vertical orientations.
       </p>

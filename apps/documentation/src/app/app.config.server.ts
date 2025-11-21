@@ -1,8 +1,6 @@
 import { mergeApplicationConfig, ApplicationConfig } from '@angular/core';
-import {
-  provideServerRendering,
-  ɵSERVER_CONTEXT as SERVER_CONTEXT,
-} from '@angular/platform-server';
+import { ɵSERVER_CONTEXT as SERVER_CONTEXT } from '@angular/platform-server';
+import { provideServerRendering } from '@angular/ssr';
 import { appConfig } from './app.config';
 
 const serverConfig: ApplicationConfig = {

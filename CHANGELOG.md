@@ -1,3 +1,42 @@
+## 0.90.0 (2025-11-20)
+
+### 🚀 Features
+
+- angular 21 ([#529](https://github.com/ng-primitives/ng-primitives/pull/529))
+
+### ❤️ Thank You
+
+- Ashley Hunter
+
+## 0.89.0 (2025-11-12)
+
+### 🚀 Features
+
+- breadcrumbs ([#527](https://github.com/ng-primitives/ng-primitives/pull/527))
+
+### 🩹 Fixes
+
+- **date picker:** preserve time on date selection ([#525](https://github.com/ng-primitives/ng-primitives/pull/525))
+
+### ❤️ Thank You
+
+- Ashley Hunter
+
+## 0.88.0 (2025-11-10)
+
+### 🚀 Features
+
+- input otp ([#519](https://github.com/ng-primitives/ng-primitives/pull/519))
+
+### 🩹 Fixes
+
+- **combobox:** open dropdown on Space key press when no input is present ([#522](https://github.com/ng-primitives/ng-primitives/pull/522), [#523](https://github.com/ng-primitives/ng-primitives/pull/523))
+
+### ❤️ Thank You
+
+- Ashley Hunter
+- Robin Ferrari @zecka
+
 ## 0.87.0 (2025-11-04)
 
 ### 🩹 Fixes

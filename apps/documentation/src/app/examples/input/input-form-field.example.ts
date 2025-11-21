@@ -31,6 +31,7 @@ import { NgpInput } from 'ng-primitives/input';
       padding: 0 16px;
       border: none;
       box-shadow: var(--ngp-input-shadow);
+      background-color: var(--ngp-background);
       outline: none;
     }
 

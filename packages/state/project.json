@@ -20,9 +20,10 @@
       "defaultConfiguration": "production"
     },
     "nx-release-publish": {
+      "executor": "nx:run-commands",
       "dependsOn": ["build"],
       "options": {
-        "packageRoot": "{workspaceRoot}/dist/{projectRoot}"
+        "command": "pnpm publish dist/packages/state --access public --tag latest --no-git-checks"
       }
     }
   }

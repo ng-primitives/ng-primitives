@@ -516,7 +516,7 @@ interface Message {
     .ai-textarea {
       max-height: 10rem;
       min-height: 3rem;
-      flex-grow: 1;
+      grow: 1;
       resize: none;
       background-color: transparent;
       padding: 0.75rem 0;

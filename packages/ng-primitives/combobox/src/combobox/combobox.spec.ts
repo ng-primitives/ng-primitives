@@ -1098,4 +1098,25 @@ describe('NgpCombobox without input', () => {
     const combobox = screen.getByTestId('disabled-combobox');
     expect(combobox).toHaveAttribute('tabindex', '-1');
   });
+
+  it('should open the dropdown when pressing Space on focused combobox without input', async () => {
+    await render(NoInputTestComponent);
+
+    const combobox = screen.getByTestId('combobox-without-input');
+    const button = screen.getByTestId('combobox-button');
+
+    combobox.focus();
+    // Open with spacebar - should open dropdown
+    await userEvent.keyboard(' ');
+
+    // Wait for dropdown to open
+    await waitFor(() => {
+      expect(button).toHaveAttribute('aria-expanded', 'true');
+    });
+
+    // Check if options are visible
+    expect(screen.getByText('Apple')).toBeInTheDocument();
+    expect(screen.getByText('Banana')).toBeInTheDocument();
+    expect(screen.getByText('Cherry')).toBeInTheDocument();
+  });
 });
