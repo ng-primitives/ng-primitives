@@ -1,6 +1,6 @@
 import { computed, signal, Signal } from '@angular/core';
-import { attrBinding, createPrimitive, dataBinding, listener } from 'ng-primitives/state';
 import { injectElementRef } from 'ng-primitives/internal';
+import { attrBinding, createPrimitive, dataBinding, listener } from 'ng-primitives/state';
 import { injectToggleGroupState } from '../toggle-group/toggle-group-state';
 
 /**

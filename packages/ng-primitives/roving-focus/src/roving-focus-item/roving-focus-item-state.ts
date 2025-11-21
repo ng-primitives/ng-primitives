@@ -1,7 +1,7 @@
 import { FocusMonitor, FocusOrigin } from '@angular/cdk/a11y';
 import { computed, effect, ElementRef, inject, signal, Signal } from '@angular/core';
-import { attrBinding, createPrimitive, listener, onDestroy } from 'ng-primitives/state';
 import { injectElementRef } from 'ng-primitives/internal';
+import { attrBinding, createPrimitive, listener, onDestroy } from 'ng-primitives/state';
 import { uniqueId } from 'ng-primitives/utils';
 import { injectRovingFocusGroupState } from '../roving-focus-group/roving-focus-group-state';
 
