@@ -30,6 +30,6 @@ export class Toolbar {
 
   constructor() {
     // default to horizontal orientation
-    this.toolbar().orientation.set('horizontal');
+    this.toolbar()?.orientation.set('horizontal');
   }
 }

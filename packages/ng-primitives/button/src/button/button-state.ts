@@ -1,27 +1,31 @@
-import {
-  createState,
-  createStateInjector,
-  createStateProvider,
-  createStateToken,
-} from 'ng-primitives/state';
-import type { NgpButton } from './button';
+import { Signal } from '@angular/core';
+import { ngpInteractions } from 'ng-primitives/interactions';
+import { injectElementRef } from 'ng-primitives/internal';
+import { attrBinding, createPrimitive, dataBinding } from 'ng-primitives/state';
 
-/**
- * The state token  for the Button primitive.
- */
-export const NgpButtonStateToken = createStateToken<NgpButton>('Button');
+export interface NgpButtonState {
+  disabled: Signal<boolean>;
+}
 
-/**
- * Provides the Button state.
- */
-export const provideButtonState = createStateProvider(NgpButtonStateToken);
+export interface NgpButtonProps {
+  disabled: Signal<boolean>;
+}
 
-/**
- * Injects the Button state.
- */
-export const injectButtonState = createStateInjector<NgpButton>(NgpButtonStateToken);
+export const [NgpButtonStateToken, ngpButton, injectButtonState, provideButtonState] =
+  createPrimitive('NgpButton', ({ disabled }: NgpButtonProps): NgpButtonState => {
+    const element = injectElementRef();
+    const isButton = element.nativeElement.tagName.toLowerCase() === 'button';
 
-/**
- * The Button state registration function.
- */
-export const buttonState = createState(NgpButtonStateToken);
+    // Setup interactions (hover, press, focus-visible)
+    ngpInteractions({ hover: true, press: true, focusVisible: true, disabled });
+
+    // Setup host attribute bindings
+    dataBinding(element, 'data-disabled', disabled);
+
+    // Add the disabled attribute if it's a button element
+    if (isButton) {
+      attrBinding(element, 'disabled', () => (disabled() ? '' : null));
+    }
+
+    return { disabled };
+  });

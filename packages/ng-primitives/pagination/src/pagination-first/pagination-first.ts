@@ -1,6 +1,6 @@
 import { BooleanInput } from '@angular/cdk/coercion';
 import { booleanAttribute, computed, Directive, HostListener, input } from '@angular/core';
-import { setupButton } from 'ng-primitives/button';
+import { ngpButton } from 'ng-primitives/button';
 import { injectPaginationState } from '../pagination/pagination-state';
 
 /**
@@ -36,7 +36,7 @@ export class NgpPaginationFirst {
   );
 
   constructor() {
-    setupButton({ disabled: this.disabled });
+    ngpButton({ disabled: this.disabled });
   }
   /**
    * Go to the first page.

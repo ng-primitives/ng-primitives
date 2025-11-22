@@ -1,27 +1,45 @@
+import { Signal, WritableSignal } from '@angular/core';
+import { NgpOrientation } from 'ng-primitives/common';
+import { injectElementRef } from 'ng-primitives/internal';
+import { NgpRovingFocusGroupState } from 'ng-primitives/roving-focus';
 import {
-  createState,
-  createStateInjector,
-  createStateProvider,
-  createStateToken,
+  attrBinding,
+  controlled,
+  createPrimitive,
+  dataBinding,
+  deprecatedSetter,
 } from 'ng-primitives/state';
-import type { NgpToolbar } from './toolbar';
 
-/**
- * The state token  for the Toolbar primitive.
- */
-export const NgpToolbarStateToken = createStateToken<NgpToolbar>('Toolbar');
+export interface NgpToolbarState {
+  orientation: WritableSignal<NgpOrientation>;
+  setOrientation(value: NgpOrientation): void;
+}
 
-/**
- * Provides the Toolbar state.
- */
-export const provideToolbarState = createStateProvider(NgpToolbarStateToken);
+export interface NgpToolbarProps {
+  rovingFocusGroup: NgpRovingFocusGroupState;
+  orientation: Signal<NgpOrientation>;
+}
 
-/**
- * Injects the Toolbar state.
- */
-export const injectToolbarState = createStateInjector<NgpToolbar>(NgpToolbarStateToken);
+export const [NgpToolbarStateToken, ngpToolbar, injectToolbarState, provideToolbarState] =
+  createPrimitive(
+    'NgpToolbar',
+    ({ rovingFocusGroup, orientation: _orientation }: NgpToolbarProps) => {
+      const element = injectElementRef();
+      const orientation = controlled(_orientation);
 
-/**
- * The Toolbar state registration function.
- */
-export const toolbarState = createState(NgpToolbarStateToken);
+      // Setup host attribute bindings
+      attrBinding(element, 'role', () => 'toolbar');
+      attrBinding(element, 'aria-orientation', () => orientation());
+      dataBinding(element, 'data-orientation', orientation);
+
+      function setOrientation(value: NgpOrientation) {
+        orientation.set(value);
+        rovingFocusGroup.setOrientation(value);
+      }
+
+      return {
+        orientation: deprecatedSetter(orientation, 'setOrientation'),
+        setOrientation,
+      };
+    },
+  );

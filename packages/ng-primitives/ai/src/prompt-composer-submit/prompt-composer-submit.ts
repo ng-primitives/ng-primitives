@@ -1,6 +1,6 @@
 import { BooleanInput } from '@angular/cdk/coercion';
 import { booleanAttribute, computed, Directive, HostListener, input } from '@angular/core';
-import { setupButton } from 'ng-primitives/button';
+import { ngpButton } from 'ng-primitives/button';
 import { injectPromptComposerState } from '../prompt-composer/prompt-composer-state';
 import {
   promptComposerSubmitState,
@@ -33,7 +33,7 @@ export class NgpPromptComposerSubmit {
   protected readonly state = promptComposerSubmitState<NgpPromptComposerSubmit>(this);
 
   constructor() {
-    setupButton({
+    ngpButton({
       disabled: computed(() => this.state.disabled() || this.composer().hasPrompt() === false),
     });
   }
