@@ -59,7 +59,7 @@ export default defineConfig(({ mode }) => {
             }),
           ],
           sitemap: {
-            host: 'https://ng-primitives.netlify.app/',
+            host: 'https://angularprimitives.com/',
           },
         },
         content: {
