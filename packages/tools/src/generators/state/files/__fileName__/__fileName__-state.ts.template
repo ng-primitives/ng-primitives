@@ -1,27 +1,44 @@
-import {
-  createState,
-  createStateInjector,
-  createStateProvider,
-  createStateToken,
-} from 'ng-primitives/state';
-import type { Ngp<%= className %> } from './<%= fileName %>';
+import { Signal } from '@angular/core';
+import { createPrimitive } from 'ng-primitives/state';
 
 /**
- * The state token  for the <%= className %> primitive.
+ * The state interface for the <%= className %> pattern.
  */
-export const Ngp<%= className %>StateToken = createStateToken<Ngp<%= className %>>('<%= className %>');
+export interface Ngp<%= className %>State {
+  // Add your state properties here
+  // Example: readonly someProperty: Signal<string>;
+}
 
 /**
- * Provides the <%= className %> state.
+ * The props interface for the <%= className %> pattern.
  */
-export const provide<%= className %>State = createStateProvider(Ngp<%= className %>StateToken);
+export interface Ngp<%= className %>Props {
+  // Add your props here
+  // Example: readonly someInput: Signal<string>;
+}
 
-/**
- * Injects the <%= className %> state.
- */
-export const inject<%= className %>State = createStateInjector<Ngp<%= className %>>(Ngp<%= className %>StateToken);
+export const [
+  Ngp<%= className %>StateToken,
+  ngp<%= className %>,
+  inject<%= className %>State,
+  provide<%= className %>State,
+] = createPrimitive(
+  'Ngp<%= className %>',
+  ({}: Ngp<%= className %>Props): Ngp<%= className %>State => {
+    // Add your implementation here
+    // Example implementation:
+    // const element = injectElementRef();
 
-/**
- * The <%= className %> state registration function.
- */
-export const <%= propertyName %>State = createState(Ngp<%= className %>StateToken);
+    // Setup host attribute bindings
+    // attrBinding(element, 'role', () => 'button');
+
+    // Setup event listeners
+    // listener(element, 'click', (event: Event) => {
+    //   // Handle click event
+    // });
+
+    return {
+      // Return your state object here
+    };
+  },
+);

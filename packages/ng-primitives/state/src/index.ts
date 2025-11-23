@@ -248,9 +248,12 @@ export function createPrimitive<TProps, TState>(
   fn: (props: TProps) => TState,
   options: CreatePrimitiveOptions = {},
 ): [
-  InjectionToken<Signal<TState | null>>,
+  InjectionToken<Signal<TState>>,
   (props: TProps) => TState,
-  () => Signal<TState | null>,
+  {
+    (): Signal<TState>;
+    (options: { hoisted: true }): Signal<TState | null>;
+  },
   (opts?: { inherit?: boolean }) => FactoryProvider,
 ] {
   // Create a unique injection token for the primitive's state signal
@@ -278,7 +281,17 @@ export function createPrimitive<TProps, TState>(
   };
 
   // create an injection function that provides the state signal
-  const injectFn = () => inject(token);
+  function injectFn(): Signal<TState>;
+  function injectFn(options: { hoisted: true }): Signal<TState | null>;
+  function injectFn(options?: { hoisted?: boolean }): Signal<TState | null> {
+    const hoisted = options?.hoisted ?? false;
+
+    if (hoisted) {
+      return inject(token, { optional: true }) ?? signal(null);
+    }
+
+    return inject(token);
+  }
 
   // create a function to provide the state
   const provideFn = (opts?: { inherit?: boolean }): FactoryProvider => {
