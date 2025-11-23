@@ -1,5 +1,5 @@
 import { FocusMonitor, FocusOrigin } from '@angular/cdk/a11y';
-import { computed, effect, ElementRef, inject, signal, Signal } from '@angular/core';
+import { computed, ElementRef, inject, signal, Signal } from '@angular/core';
 import { injectElementRef } from 'ng-primitives/internal';
 import { attrBinding, createPrimitive, listener, onDestroy } from 'ng-primitives/state';
 import { uniqueId } from 'ng-primitives/utils';
@@ -80,7 +80,7 @@ export const [
     };
 
     // Register the item when created
-    effect(() => group()?.register(state));
+    group()?.register(state);
 
     // Unregister the item when destroyed
     onDestroy(() => group()?.unregister(state));

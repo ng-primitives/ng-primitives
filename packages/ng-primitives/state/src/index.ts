@@ -5,6 +5,7 @@ import {
   DestroyRef,
   ElementRef,
   FactoryProvider,
+  forwardRef,
   inject,
   InjectionToken,
   InjectOptions,
@@ -247,7 +248,7 @@ export function createPrimitive<TProps, TState>(
   fn: (props: TProps) => TState,
   options: CreatePrimitiveOptions = {},
 ): [
-  InjectionToken<Signal<TState>>,
+  InjectionToken<Signal<TState | null>>,
   (props: TProps) => TState,
   () => Signal<TState | null>,
   (opts?: { inherit?: boolean }) => FactoryProvider,
@@ -477,16 +478,40 @@ export function onDestroy(callback: () => void): void {
 /**
  * Previously, with our state approach, we allowed signals to be written directly using their setters.
  * However, with our new approach, we want people to use the appropriate set method instead. This function takes in a writable
- * signal and patches the set method to warn the user that it is deprecated and should use the method instead.
+ * signal and returns a proxy that warns the user when set is called directly.
  */
 export function deprecatedSetter<T>(
   signal: WritableSignal<T>,
   methodName: string,
 ): WritableSignal<T> {
-  const originalSet = signal.set.bind(signal);
-  signal.set = (value: T) => {
-    console.warn(`Deprecation warning: Use ${methodName}() instead of setting the value directly.`);
-    originalSet(value);
-  };
-  return signal;
+  return new Proxy(signal, {
+    get(target, prop) {
+      if (prop === 'set') {
+        return (value: T) => {
+          console.warn(
+            `Deprecation warning: Use ${methodName}() instead of setting the value directly.`,
+          );
+          target.set(value);
+        };
+      }
+      return target[prop as keyof WritableSignal<T>];
+    },
+  });
+}
+
+/**
+ * A utility function to inject an inherited state from a parent injector. This is useful for cases
+ * where a primitive needs to inherit state from a parent primitive, such as in roving focus groups.
+ * We could use inject with a forwardRef, but forwardRef returns an any - no thanks...
+ */
+export function injectInheritedState<T>(
+  token: () => InjectionToken<T>,
+  injectOptions: InjectOptions = {},
+): T | null {
+  return (
+    inject<T>(
+      forwardRef(() => token()),
+      { optional: true, skipSelf: true, ...injectOptions },
+    ) ?? null
+  );
 }

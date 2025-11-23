@@ -12,7 +12,10 @@ import { provideRovingFocusGroup } from './roving-focus-group-token';
 @Directive({
   selector: '[ngpRovingFocusGroup]',
   exportAs: 'ngpRovingFocusGroup',
-  providers: [provideRovingFocusGroup(NgpRovingFocusGroup), provideRovingFocusGroupState()],
+  providers: [
+    provideRovingFocusGroup(NgpRovingFocusGroup),
+    provideRovingFocusGroupState({ inherit: true }),
+  ],
 })
 export class NgpRovingFocusGroup {
   /**
@@ -57,10 +60,10 @@ export class NgpRovingFocusGroup {
    * The state of the roving focus group.
    */
   readonly state = ngpRovingFocusGroup({
-    orientation: this.state.orientation,
-    wrap: this.state.wrap,
-    homeEnd: this.state.homeEnd,
-    disabled: this.state.disabled,
+    orientation: this.orientation,
+    wrap: this.wrap,
+    homeEnd: this.homeEnd,
+    disabled: this.disabled,
   });
 
   /**

@@ -60,14 +60,14 @@ export class NgpToggleGroup {
    */
   protected readonly state = ngpToggleGroup({
     rovingFocusGroup: ngpRovingFocusGroup({
-      orientation: this.state.orientation,
-      disabled: this.state.disabled,
+      orientation: this.orientation,
+      disabled: this.disabled,
     }),
-    orientation: this.state.orientation,
-    allowDeselection: this.state.allowDeselection,
-    type: this.state.type,
-    value: this.state.value,
-    disabled: this.state.disabled,
+    orientation: this.orientation,
+    allowDeselection: this.allowDeselection,
+    type: this.type,
+    value: this.value,
+    disabled: this.disabled,
     onValueChange: (value: string[]) => {
       this.valueChange.emit(value);
     },

@@ -1,8 +1,8 @@
 import { FocusOrigin } from '@angular/cdk/a11y';
 import { Directionality } from '@angular/cdk/bidi';
-import { forwardRef, inject, signal, Signal } from '@angular/core';
+import { inject, signal, Signal } from '@angular/core';
 import { NgpOrientation } from 'ng-primitives/common';
-import { controlled, createPrimitive } from 'ng-primitives/state';
+import { controlled, createPrimitive, injectInheritedState } from 'ng-primitives/state';
 import type { NgpRovingFocusItemState } from '../roving-focus-item/roving-focus-item-state';
 
 export interface NgpRovingFocusGroupState {
@@ -41,10 +41,7 @@ export const [
     inherit = true,
   }: NgpRovingFocusGroupProps): NgpRovingFocusGroupState => {
     const parentGroup = inherit
-      ? inject<NgpRovingFocusGroupState>(
-          forwardRef(() => NgpRovingFocusGroupStateToken),
-          { optional: true, skipSelf: true },
-        )
+      ? injectInheritedState(() => NgpRovingFocusGroupStateToken)?.()
       : null;
 
     if (parentGroup) {

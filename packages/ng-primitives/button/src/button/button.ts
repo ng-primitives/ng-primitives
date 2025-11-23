@@ -18,5 +18,5 @@ export class NgpButton {
   /**
    * The button state.
    */
-  protected readonly state = ngpButton({ disabled: this.state.disabled });
+  protected readonly state = ngpButton({ disabled: this.disabled });
 }

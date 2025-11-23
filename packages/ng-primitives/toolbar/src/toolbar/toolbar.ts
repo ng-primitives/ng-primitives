@@ -20,7 +20,7 @@ export class NgpToolbar {
    * The toolbar state.
    */
   protected readonly state = ngpToolbar({
-    rovingFocusGroup: ngpRovingFocusGroup({ orientation: this.state.orientation }),
-    orientation: this.state.orientation,
+    rovingFocusGroup: ngpRovingFocusGroup({ orientation: this.orientation }),
+    orientation: this.orientation,
   });
 }
