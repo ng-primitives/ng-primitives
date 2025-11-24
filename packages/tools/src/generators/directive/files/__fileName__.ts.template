@@ -1,6 +1,6 @@
 import { Directive } from '@angular/core';
 <% if (addToken) { %>import { provide<%= className %> } from './<%= fileName %>-token';<% } %>
-<% if (addState) { %>import { <%= propertyName%>State, provide<%= className%>State } from './<%= fileName %>-state';<% } %>
+<% if (addState) { %>import { ngp<%= className %>, provide<%= className %>State } from './<%= fileName %>-state';<% } %>
 <% if (addConfig) { %>import { <%= configName %> } from '../config/<%= configFile %>';<% } %>
 
 @Directive({
@@ -13,5 +13,7 @@ import { Directive } from '@angular/core';
 })
 export class Ngp<%= className %> {
   <% if (addConfig) { %>private readonly config = <%= configName%>();<% } %>
-  <% if (addState) { %>private readonly state = <%= propertyName%>State<Ngp<%= className %>>(this);<% } %>
+  <% if (addState) { %>protected readonly state = ngp<%= className %>({
+    // Add your props here based on inputs
+  });<% } %>
 }

@@ -4,17 +4,19 @@ import { createPrimitive } from 'ng-primitives/state';
 /**
  * The state interface for the <%= className %> pattern.
  */
-export interface Ngp<%= className %>State {
+export interface Ngp<%= className %>State {<% if (stateInterface) { %>
+<%- stateInterface %><% } else { %>
   // Add your state properties here
-  // Example: readonly someProperty: Signal<string>;
+  // Example: readonly someProperty: Signal<string>;<% } %>
 }
 
 /**
  * The props interface for the <%= className %> pattern.
  */
-export interface Ngp<%= className %>Props {
+export interface Ngp<%= className %>Props {<% if (propsInterface) { %>
+<%- propsInterface %><% } else { %>
   // Add your props here
-  // Example: readonly someInput: Signal<string>;
+  // Example: readonly someInput: Signal<string>;<% } %>
 }
 
 export const [
@@ -24,7 +26,8 @@ export const [
   provide<%= className %>State,
 ] = createPrimitive(
   'Ngp<%= className %>',
-  ({}: Ngp<%= className %>Props): Ngp<%= className %>State => {
+  ({<% if (directiveMetadata && directiveMetadata.inputs && directiveMetadata.inputs.length > 0) { %>
+<%- directiveMetadata.inputs.map(input => input.name).join(', ') %><% } %>}: Ngp<%= className %>Props): Ngp<%= className %>State => {
     // Add your implementation here
     // Example implementation:
     // const element = injectElementRef();
@@ -37,8 +40,9 @@ export const [
     //   // Handle click event
     // });
 
-    return {
-      // Return your state object here
+    return {<% if (directiveMetadata && directiveMetadata.inputs && directiveMetadata.inputs.length > 0) { %>
+<%- directiveMetadata.inputs.map(input => `      ${input.name},`).join('\n') %><% } else { %>
+      // Return your state object here<% } %>
     };
   },
 );
