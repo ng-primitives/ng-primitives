@@ -34,12 +34,7 @@ export function analyzeDirective(tree: Tree, filePath: string): DirectiveMetadat
     return null;
   }
 
-  const sourceFile = ts.createSourceFile(
-    filePath,
-    content,
-    ts.ScriptTarget.Latest,
-    true
-  );
+  const sourceFile = ts.createSourceFile(filePath, content, ts.ScriptTarget.Latest, true);
 
   const metadata: DirectiveMetadata = {
     inputs: [],
@@ -52,15 +47,24 @@ export function analyzeDirective(tree: Tree, filePath: string): DirectiveMetadat
     // Find the class with @Directive decorator
     if (ts.isClassDeclaration(node)) {
       const decorators = ts.canHaveDecorators(node) ? ts.getDecorators(node) : undefined;
-      const hasDirectiveDecorator = decorators?.some((decorator: ts.Decorator) => {
-        if (ts.isCallExpression(decorator.expression) && ts.isIdentifier(decorator.expression.expression)) {
-          return decorator.expression.expression.text === 'Directive';
-        }
-        return false;
-      }) || false;
+      const hasDirectiveDecorator =
+        decorators?.some((decorator: ts.Decorator) => {
+          if (
+            ts.isCallExpression(decorator.expression) &&
+            ts.isIdentifier(decorator.expression.expression)
+          ) {
+            return decorator.expression.expression.text === 'Directive';
+          }
+          return false;
+        }) || false;
 
       if (hasDirectiveDecorator && node.name) {
         metadata.className = node.name.text;
+
+        // Extract generic parameters
+        if (node.typeParameters) {
+          metadata.genericParameters = node.typeParameters.map(param => param.name.text);
+        }
 
         // Analyze class properties for inputs and outputs
         node.members.forEach(member => {
@@ -99,7 +103,10 @@ function analyzeProperty(property: ts.PropertyDeclaration, metadata: DirectiveMe
   }
 }
 
-function findCallExpression(property: ts.PropertyDeclaration, functionName: string): ts.CallExpression | null {
+function findCallExpression(
+  property: ts.PropertyDeclaration,
+  functionName: string,
+): ts.CallExpression | null {
   if (property.initializer && ts.isCallExpression(property.initializer)) {
     const expression = property.initializer.expression;
     if (ts.isIdentifier(expression) && expression.text === functionName) {
@@ -109,7 +116,11 @@ function findCallExpression(property: ts.PropertyDeclaration, functionName: stri
   return null;
 }
 
-function analyzeInput(propertyName: string, inputCall: ts.CallExpression, property: ts.PropertyDeclaration): DirectiveInput {
+function analyzeInput(
+  propertyName: string,
+  inputCall: ts.CallExpression,
+  property: ts.PropertyDeclaration,
+): DirectiveInput {
   const input: DirectiveInput = {
     name: propertyName,
     type: extractType(property),
@@ -153,7 +164,11 @@ function analyzeInput(propertyName: string, inputCall: ts.CallExpression, proper
   return input;
 }
 
-function analyzeOutput(propertyName: string, outputCall: ts.CallExpression, property: ts.PropertyDeclaration): DirectiveOutput {
+function analyzeOutput(
+  propertyName: string,
+  outputCall: ts.CallExpression,
+  property: ts.PropertyDeclaration,
+): DirectiveOutput {
   const output: DirectiveOutput = {
     name: propertyName,
     type: extractType(property),
@@ -163,7 +178,11 @@ function analyzeOutput(propertyName: string, outputCall: ts.CallExpression, prop
   if (outputCall.arguments.length > 0 && ts.isObjectLiteralExpression(outputCall.arguments[0])) {
     const options = outputCall.arguments[0];
     options.properties.forEach(prop => {
-      if (ts.isPropertyAssignment(prop) && ts.isIdentifier(prop.name) && prop.name.text === 'alias') {
+      if (
+        ts.isPropertyAssignment(prop) &&
+        ts.isIdentifier(prop.name) &&
+        prop.name.text === 'alias'
+      ) {
         if (ts.isStringLiteral(prop.initializer)) {
           output.alias = prop.initializer.text;
         }
