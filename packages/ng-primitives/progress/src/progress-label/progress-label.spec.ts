@@ -17,4 +17,21 @@ describe('NgpProgressLabel', () => {
     expect(label).toHaveAttribute('id');
     expect(label.id).toMatch(/^ngp-progress-label-\d+$/);
   });
+
+  it('should set the for attribute to the progress id', async () => {
+    const { getByTestId } = await render(
+      `<div ngpProgress data-testid="progress" ngpProgressValue="50">
+        <label ngpProgressLabel data-testid="progress-label">Label</label>
+      </div>`,
+      {
+        imports: [NgpProgress, NgpProgressLabel],
+      },
+    );
+
+    const progress = getByTestId('progress');
+    expect(progress).toHaveAttribute('id');
+    const label = getByTestId('progress-label') as HTMLLabelElement;
+    expect(label).toHaveAttribute('id');
+    expect(label.htmlFor).toMatch(progress.id);
+  });
 });
