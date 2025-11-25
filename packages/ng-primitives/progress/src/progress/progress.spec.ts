@@ -70,4 +70,15 @@ describe('NgpProgress', () => {
     const progress = container.getByTestId('progress');
     expect(progress).toHaveAttribute('data-complete');
   });
+
+  it('should set the id attribute', async () => {
+    const container = await render(
+      `<div data-testid="progress" ngpProgress ngpProgressValue="100"></div>`,
+      { imports: [NgpProgress] },
+    );
+
+    const progress = container.getByTestId('progress');
+    expect(progress).toHaveAttribute('id');
+    expect(progress.id).toMatch(/^ngp-progress-\d+$/);
+  });
 });
