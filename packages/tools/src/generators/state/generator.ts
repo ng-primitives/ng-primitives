@@ -77,7 +77,9 @@ function generatePropsInterface(metadata: DirectiveMetadata | null): string {
       }
 
       const description = input.description || input.alias || input.name;
-      props.push(`  /**\n   * ${description}\n   */\n  ${readonly}${input.name}${optional}: ${type};`);
+      props.push(
+        `  /**\n   * ${description}\n   */\n  ${readonly}${input.name}${optional}: ${type};`,
+      );
     });
   }
 
@@ -98,7 +100,9 @@ function generatePropsInterface(metadata: DirectiveMetadata | null): string {
       }
 
       const description = `Callback fired when ${output.name} is emitted.`;
-      props.push(`  /**\n   * ${description}\n   */\n  readonly ${callbackName}?: ${callbackType};`);
+      props.push(
+        `  /**\n   * ${description}\n   */\n  readonly ${callbackName}?: ${callbackType};`,
+      );
     });
   }
 
@@ -114,12 +118,16 @@ function generatePropsInterface(metadata: DirectiveMetadata | null): string {
 
       // Add value signal
       const valueDescription = `The ${model.name} value.`;
-      props.push(`  /**\n   * ${valueDescription}\n   */\n  readonly ${model.name}?: Signal<${modelType}>;`);
+      props.push(
+        `  /**\n   * ${valueDescription}\n   */\n  readonly ${model.name}?: Signal<${modelType}>;`,
+      );
 
       // Add callback for value changes
       const callbackName = `on${model.name.charAt(0).toUpperCase() + model.name.slice(1)}Change`;
       const callbackDescription = `Callback fired when ${model.name} value changes.`;
-      props.push(`  /**\n   * ${callbackDescription}\n   */\n  readonly ${callbackName}?: (value: ${modelType}) => void;`);
+      props.push(
+        `  /**\n   * ${callbackDescription}\n   */\n  readonly ${callbackName}?: (value: ${modelType}) => void;`,
+      );
     });
   }
 

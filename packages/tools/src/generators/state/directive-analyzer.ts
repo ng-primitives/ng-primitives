@@ -118,7 +118,11 @@ export function analyzeDirective(tree: Tree, filePath: string): DirectiveMetadat
         node.members.forEach(member => {
           if (ts.isPropertyDeclaration(member) && member.name && ts.isIdentifier(member.name)) {
             analyzeProperty(member, metadata);
-          } else if (ts.isMethodDeclaration(member) && member.name && ts.isIdentifier(member.name)) {
+          } else if (
+            ts.isMethodDeclaration(member) &&
+            member.name &&
+            ts.isIdentifier(member.name)
+          ) {
             analyzeMethod(member, metadata);
           }
         });
@@ -327,7 +331,8 @@ function analyzeDependency(
   }
 
   // Determine if it's private
-  const isPrivate = property.modifiers?.some(mod => mod.kind === ts.SyntaxKind.PrivateKeyword) ?? false;
+  const isPrivate =
+    property.modifiers?.some(mod => mod.kind === ts.SyntaxKind.PrivateKeyword) ?? false;
 
   return {
     name: propertyName,
@@ -388,9 +393,9 @@ function analyzeMethod(method: ts.MethodDeclaration, metadata: DirectiveMetadata
 
   // Determine if it's public
   const isPublic = method.modifiers
-    ? !method.modifiers.some(mod =>
-        mod.kind === ts.SyntaxKind.PrivateKeyword ||
-        mod.kind === ts.SyntaxKind.ProtectedKeyword
+    ? !method.modifiers.some(
+        mod =>
+          mod.kind === ts.SyntaxKind.PrivateKeyword || mod.kind === ts.SyntaxKind.ProtectedKeyword,
       )
     : true;
 
@@ -453,8 +458,10 @@ function analyzeDirectiveHostBindings(
       let expression = unescapeHtml(prop.initializer.getText());
 
       // Remove outer quotes if they exist (TypeScript includes quotes for string literals)
-      if ((expression.startsWith("'") && expression.endsWith("'")) ||
-          (expression.startsWith('"') && expression.endsWith('"'))) {
+      if (
+        (expression.startsWith("'") && expression.endsWith("'")) ||
+        (expression.startsWith('"') && expression.endsWith('"'))
+      ) {
         expression = expression.slice(1, -1);
       }
 

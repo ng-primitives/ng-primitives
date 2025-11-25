@@ -118,9 +118,7 @@ export const rule = ESLintUtils.RuleCreator(() => __filename)({
           ASTUtils.isCallExpression(node.value)
         ) {
           // Check if any argument to the function call is 'this'
-          const hasThisArgument = node.value.arguments.some(arg =>
-            arg.type === 'ThisExpression'
-          );
+          const hasThisArgument = node.value.arguments.some(arg => arg.type === 'ThisExpression');
 
           if (hasThisArgument) {
             currentClassContext.hasStateWithThisCall = true;
