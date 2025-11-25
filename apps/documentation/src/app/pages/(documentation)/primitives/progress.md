@@ -28,7 +28,7 @@ Assemble the avatar directives in your template.
 
 ```html
 <div ngpProgress [ngpProgressValue]="percentage">
-  <span ngpProgressLabel></span>
+  <label ngpProgressLabel></label>
   <span ngpProgressValue></span>
 
   <div ngpProgressTrack>
