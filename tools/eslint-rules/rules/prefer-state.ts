@@ -23,6 +23,7 @@ export const RULE_NAME = 'prefer-state';
 interface ClassContext {
   hasStateProvider: boolean;
   inputs: string[];
+  hasStateWithThisCall: boolean;
   node: TSESTree.ClassDeclaration;
 }
 
@@ -51,6 +52,7 @@ export const rule = ESLintUtils.RuleCreator(() => __filename)({
         currentClassContext = {
           hasStateProvider: false,
           inputs: [],
+          hasStateWithThisCall: false,
           node,
         };
         classContexts.push(currentClassContext);
@@ -107,6 +109,23 @@ export const rule = ESLintUtils.RuleCreator(() => __filename)({
             currentClassContext.inputs.push(inputName);
           }
         }
+
+        // Check if this is a state property that calls a function with 'this' passed to it
+        if (
+          ESAstUtils.isIdentifier(node.key) &&
+          node.key.name === 'state' &&
+          node.value &&
+          ASTUtils.isCallExpression(node.value)
+        ) {
+          // Check if any argument to the function call is 'this'
+          const hasThisArgument = node.value.arguments.some(arg =>
+            arg.type === 'ThisExpression'
+          );
+
+          if (hasThisArgument) {
+            currentClassContext.hasStateWithThisCall = true;
+          }
+        }
       },
 
       MemberExpression(node) {
@@ -141,8 +160,9 @@ export const rule = ESLintUtils.RuleCreator(() => __filename)({
           return;
         }
 
-        // Check if this property is an input that should use state instead
-        if (classContext.inputs.includes(propertyName)) {
+        // Only report if the state property calls a function with 'this' passed to it
+        // and this property is an input that should use state instead
+        if (classContext.inputs.includes(propertyName) && classContext.hasStateWithThisCall) {
           context.report({
             node,
             messageId: 'preferState',

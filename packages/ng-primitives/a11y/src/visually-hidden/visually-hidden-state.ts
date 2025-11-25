@@ -1,6 +1,6 @@
 import { ChangeDetectorRef, inject, Signal, signal } from '@angular/core';
 import { controlled, createPrimitive, styleBinding } from 'ng-primitives/state';
-import { injectElementRef } from '../../../internal/src';
+import { injectElementRef } from 'ng-primitives/internal';
 
 /**
  * The state interface for the VisuallyHidden pattern.

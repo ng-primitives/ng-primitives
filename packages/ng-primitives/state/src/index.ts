@@ -246,7 +246,7 @@ export interface CreatePrimitiveOptions {
 export function createPrimitive<TProps, TState>(
   name: string,
   fn: (props: TProps) => TState,
-  options: CreatePrimitiveOptions = {},
+  options?: CreatePrimitiveOptions,
 ): [
   InjectionToken<Signal<TState>>,
   (props: TProps) => TState,
@@ -255,12 +255,43 @@ export function createPrimitive<TProps, TState>(
     (options: { hoisted: true }): Signal<TState | null>;
   },
   (opts?: { inherit?: boolean }) => FactoryProvider,
-] {
+];
+export function createPrimitive<TStateFactory>(
+  name: string,
+  fn: TStateFactory,
+  options?: CreatePrimitiveOptions,
+): [
+  InjectionToken<Signal<any>>,
+  TStateFactory,
+  {
+    (): Signal<any>;
+    (options: { hoisted: true }): Signal<any | null>;
+  },
+  (opts?: { inherit?: boolean }) => FactoryProvider,
+];
+export function createPrimitive<TState>(
+  name: string,
+  fn: <U>(props: any) => TState,
+  options?: CreatePrimitiveOptions,
+): [
+  InjectionToken<Signal<TState>>,
+  <U>(props: U) => TState,
+  {
+    (): Signal<TState>;
+    (options: { hoisted: true }): Signal<TState | null>;
+  },
+  (opts?: { inherit?: boolean }) => FactoryProvider,
+];
+export function createPrimitive<TState>(
+  name: string,
+  fn: any,
+  options: CreatePrimitiveOptions = {},
+): any {
   // Create a unique injection token for the primitive's state signal
   const token = new InjectionToken<WritableSignal<TState>>(`Primitive: ${name}`);
 
   // Create the state signal within the appropriate injection context
-  const factory = (props: TProps) => {
+  const factory = (props: any) => {
     // determine the injector to use
     let injector = options.injector ?? inject(Injector);
 
@@ -274,23 +305,23 @@ export function createPrimitive<TProps, TState>(
 
     return runInInjectionContext(injector, () => {
       const state = inject(token, { optional: true });
-      const instance = fn(props);
+      const instance = (fn as any)(props);
       state?.set(instance);
       return instance;
     });
   };
 
   // create an injection function that provides the state signal
-  function injectFn(): Signal<TState>;
-  function injectFn(options: { hoisted: true }): Signal<TState | null>;
-  function injectFn(options?: { hoisted?: boolean }): Signal<TState | null> {
+  function injectFn<T = TState>(): Signal<T>;
+  function injectFn<T = TState>(options: { hoisted: true }): Signal<T | null>;
+  function injectFn<T = TState>(options?: { hoisted?: boolean }): Signal<T | null> {
     const hoisted = options?.hoisted ?? false;
 
     if (hoisted) {
-      return inject(token, { optional: true }) ?? signal(null);
+      return (inject(token, { optional: true }) ?? signal(null)) as unknown as Signal<T | null>;
     }
 
-    return inject(token);
+    return inject(token) as unknown as Signal<T>;
   }
 
   // create a function to provide the state
@@ -308,7 +339,7 @@ export function createPrimitive<TProps, TState>(
     };
   };
 
-  return [token, factory, injectFn, provideFn];
+  return [token, factory as any, injectFn, provideFn];
 }
 
 export function controlled<T>(value: Signal<T>): WritableSignal<T> {

@@ -27,7 +27,7 @@ export async function stateGenerator(tree: Tree, options: StateGeneratorSchema) 
 
   const directiveMetadata = analyzeDirective(tree, directiveFilePath);
 
-  // Generate props interface based on directive inputs
+  // Generate props interface based on directive inputs, outputs, and models
   const propsInterface = generatePropsInterface(directiveMetadata);
   const stateInterface = generateStateInterface(directiveMetadata);
 
@@ -49,12 +49,15 @@ export async function stateGenerator(tree: Tree, options: StateGeneratorSchema) 
 }
 
 function generatePropsInterface(metadata: DirectiveMetadata | null): string {
-  if (!metadata || !metadata.inputs || metadata.inputs.length === 0) {
+  if (!metadata) {
     return '';
   }
 
-  const props = metadata.inputs
-    .map(input => {
+  const props: string[] = [];
+
+  // Handle inputs
+  if (metadata.inputs && metadata.inputs.length > 0) {
+    metadata.inputs.forEach(input => {
       const optional = input.required ? '' : '?';
       const readonly = 'readonly ';
 
@@ -62,8 +65,11 @@ function generatePropsInterface(metadata: DirectiveMetadata | null): string {
       let type = input.type;
       if (!type.includes('Signal')) {
         // Handle generic types and transform functions
-        if (input.transform) {
-          // For transformed inputs, the signal type is typically the base type
+        if (input.transform && input.transform.includes('booleanAttribute')) {
+          // For booleanAttribute transforms, use BooleanInput from @angular/cdk/coercion
+          type = `Signal<boolean | string>`;
+        } else if (input.transform) {
+          // For other transforms, use the base type
           type = `Signal<${type}>`;
         } else {
           type = `Signal<${type}>`;
@@ -71,39 +77,120 @@ function generatePropsInterface(metadata: DirectiveMetadata | null): string {
       }
 
       const description = input.description || input.alias || input.name;
-      return `  /**\n   * ${description}\n   */\n  ${readonly}${input.name}${optional}: ${type};`;
-    })
-    .join('\n\n');
+      props.push(`  /**\n   * ${description}\n   */\n  ${readonly}${input.name}${optional}: ${type};`);
+    });
+  }
 
-  return props;
+  // Handle outputs - convert to callback functions with 'on' prefix
+  if (metadata.outputs && metadata.outputs.length > 0) {
+    metadata.outputs.forEach(output => {
+      // Convert outputName to onOutputName
+      const callbackName = `on${output.name.charAt(0).toUpperCase() + output.name.slice(1)}`;
+
+      // Extract the generic type from OutputEmitterRef<T> or similar
+      let callbackType = output.type;
+      const match = callbackType.match(/OutputEmitterRef<(.+)>|output<(.+)>/);
+      if (match) {
+        const emitType = match[1] || match[2];
+        callbackType = `(value: ${emitType}) => void`;
+      } else {
+        callbackType = `(value: ${callbackType}) => void`;
+      }
+
+      const description = `Callback fired when ${output.name} is emitted.`;
+      props.push(`  /**\n   * ${description}\n   */\n  readonly ${callbackName}?: ${callbackType};`);
+    });
+  }
+
+  // Handle models - convert to value signal + callback
+  if (metadata.models && metadata.models.length > 0) {
+    metadata.models.forEach(model => {
+      // Extract the type from ModelSignal<T> or similar
+      let modelType = model.type;
+      const match = modelType.match(/ModelSignal<(.+)>|model<(.+)>/);
+      if (match) {
+        modelType = match[1] || match[2];
+      }
+
+      // Add value signal
+      const valueDescription = `The ${model.name} value.`;
+      props.push(`  /**\n   * ${valueDescription}\n   */\n  readonly ${model.name}?: Signal<${modelType}>;`);
+
+      // Add callback for value changes
+      const callbackName = `on${model.name.charAt(0).toUpperCase() + model.name.slice(1)}Change`;
+      const callbackDescription = `Callback fired when ${model.name} value changes.`;
+      props.push(`  /**\n   * ${callbackDescription}\n   */\n  readonly ${callbackName}?: (value: ${modelType}) => void;`);
+    });
+  }
+
+  return props.join('\n\n');
 }
 
 function generateStateInterface(metadata: DirectiveMetadata | null): string {
-  if (!metadata || !metadata.inputs) {
+  if (!metadata) {
     return '';
   }
 
-  // Generate common state properties based on patterns observed
   const stateProps: string[] = [];
 
-  // Add state properties based on inputs (these are typically readonly signals)
-  metadata.inputs.forEach(input => {
-    let type = input.type;
-    if (!type.includes('Signal')) {
-      type = `Signal<${type}>`;
-    }
-    stateProps.push(`  readonly ${input.name}: ${type};`);
-  });
+  // Add state properties based on inputs (these are typically WritableSignals)
+  if (metadata.inputs && metadata.inputs.length > 0) {
+    metadata.inputs.forEach(input => {
+      let type = input.type;
+      if (!type.includes('Signal')) {
+        type = `WritableSignal<${type}>`;
+      } else {
+        // Convert Signal to WritableSignal
+        type = type.replace('Signal<', 'WritableSignal<');
+      }
+      stateProps.push(`  readonly ${input.name}: ${type};`);
+    });
+  }
 
-  // Add setter methods for inputs that aren't readonly
-  metadata.inputs.forEach(input => {
-    if (!input.name.startsWith('readonly')) {
+  // Add state properties based on models (WritableSignals)
+  if (metadata.models && metadata.models.length > 0) {
+    metadata.models.forEach(model => {
+      let modelType = model.type;
+      const match = modelType.match(/ModelSignal<(.+)>|model<(.+)>/);
+      if (match) {
+        modelType = match[1] || match[2];
+      }
+      stateProps.push(`  readonly ${model.name}: WritableSignal<${modelType}>;`);
+    });
+  }
+
+  // Add setter methods for all inputs and models
+  if (metadata.inputs && metadata.inputs.length > 0) {
+    metadata.inputs.forEach(input => {
       const baseType = input.type.replace(/Signal<(.+)>/, '$1');
       stateProps.push(
         `  set${input.name.charAt(0).toUpperCase() + input.name.slice(1)}(value: ${baseType}): void;`,
       );
-    }
-  });
+    });
+  }
+
+  if (metadata.models && metadata.models.length > 0) {
+    metadata.models.forEach(model => {
+      let modelType = model.type;
+      const match = modelType.match(/ModelSignal<(.+)>|model<(.+)>/);
+      if (match) {
+        modelType = match[1] || match[2];
+      }
+      stateProps.push(
+        `  set${model.name.charAt(0).toUpperCase() + model.name.slice(1)}(value: ${modelType}): void;`,
+      );
+    });
+  }
+
+  // Add public methods from the directive
+  if (metadata.methods && metadata.methods.length > 0) {
+    metadata.methods
+      .filter(method => method.isPublic)
+      .forEach(method => {
+        const params = method.parameters.map(p => `${p.name}: ${p.type}`).join(', ');
+        stateProps.push(`  ${method.name}(${params}): ${method.returnType};`);
+      });
+  }
 
   return stateProps.join('\n');
 }

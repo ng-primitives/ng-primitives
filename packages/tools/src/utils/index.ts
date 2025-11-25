@@ -18,7 +18,15 @@ export function addExportToIndex(tree: Tree, primitive: string, exportStatement:
   const indexBuffer = tree.read(indexPath);
   const indexContent = indexBuffer ? indexBuffer.toString('utf-8') : '';
 
-  if (indexContent.includes(exportStatement)) {
+  // Extract the import path from the export statement to check for duplicates
+  const importPathMatch = exportStatement.match(/from '([^']+)'/);
+  if (importPathMatch) {
+    const importPath = importPathMatch[1];
+    // Check if there's already an export from the same path
+    if (indexContent.includes(`from '${importPath}'`)) {
+      return;
+    }
+  } else if (indexContent.includes(exportStatement)) {
     return;
   }
 
