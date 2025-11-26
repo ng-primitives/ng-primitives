@@ -1,11 +1,11 @@
 import { computed, Signal, signal, WritableSignal } from '@angular/core';
+import { ngpAutofill } from 'ng-primitives/autofill';
 import { ngpFormControl } from 'ng-primitives/form-field';
 import { ngpInteractions } from 'ng-primitives/interactions';
 import { injectElementRef } from 'ng-primitives/internal';
 import { injectSearchState } from 'ng-primitives/search';
 import { attrBinding, controlled, createPrimitive } from 'ng-primitives/state';
 import { uniqueId } from 'ng-primitives/utils';
-import { ngpAutofill } from 'ng-primitives/autofill';
 
 /**
  * Public state surface for the Input primitive.
