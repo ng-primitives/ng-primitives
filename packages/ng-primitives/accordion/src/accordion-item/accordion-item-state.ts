@@ -1,30 +1,104 @@
-import {
-  createState,
-  createStateInjector,
-  createStateProvider,
-  createStateToken,
-} from 'ng-primitives/state';
-import type { NgpAccordionItem } from './accordion-item';
+import { computed, Signal, signal } from '@angular/core';
+import { controlled, createPrimitive, dataBinding, deprecatedSetter } from 'ng-primitives/state';
+import { injectElementRef } from 'ng-primitives/internal';
+import { injectAccordionState } from '../accordion/accordion-state';
 
-/**
- * The state token  for the AccordionItem primitive.
- */
-export const NgpAccordionItemStateToken =
-  createStateToken<NgpAccordionItem<unknown>>('AccordionItem');
+export interface NgpAccordionItemState<T> {
+  /**
+   * The value of the accordion item.
+   */
+  readonly value: Signal<T>;
+  /**
+   * Whether the accordion item is disabled.
+   */
+  readonly disabled: Signal<boolean>;
+  /**
+   * Whether the accordion item is expanded.
+   */
+  readonly open: Signal<boolean>;
+  /**
+   * The trigger id.
+   */
+  readonly triggerId: Signal<string | undefined>;
+  /**
+   * The content id.
+   */
+  readonly contentId: Signal<string | undefined>;
+  /**
+   * Set the disabled state of the accordion item.
+   */
+  setDisabled(value: boolean): void;
+  /**
+   * Set the trigger of the accordion item.
+   */
+  setTrigger(id: string): void;
+  /**
+   * Set the content of the accordion item.
+   */
+  setContent(id: string): void;
+}
 
-/**
- * Provides the AccordionItem state.
- */
-export const provideAccordionItemState = createStateProvider(NgpAccordionItemStateToken);
+export interface NgpAccordionItemProps<T> {
+  /**
+   * The value of the accordion item.
+   */
+  readonly value: Signal<T>;
+  /**
+   * Whether the accordion item is disabled.
+   */
+  readonly disabled?: Signal<boolean>;
+}
 
-/**
- * Injects the AccordionItem state.
- */
-export const injectAccordionItemState = createStateInjector<NgpAccordionItem<unknown>>(
+export const [
   NgpAccordionItemStateToken,
+  ngpAccordionItem,
+  _injectAccordionItemState,
+  provideAccordionItemState,
+] = createPrimitive(
+  'NgpAccordionItem',
+  <T>({ value, disabled: _disabled = signal(false) }: NgpAccordionItemProps<T>) => {
+    const accordion = injectAccordionState<T>();
+    const element = injectElementRef();
+
+    const disabled = controlled(_disabled);
+
+    // Whether the accordion item is expanded.
+    const open = computed<boolean>(() => accordion().isOpen(value()));
+
+    const trigger = signal<string | undefined>(undefined);
+    const content = signal<string | undefined>(undefined);
+
+    // Setup host data bindings
+    dataBinding(element, 'data-orientation', accordion().orientation);
+    dataBinding(element, 'data-open', open);
+    dataBinding(element, 'data-disabled', () => disabled() || accordion().disabled());
+
+    // Set the disabled state of the accordion item.
+    function setDisabled(value: boolean) {
+      disabled.set(value);
+    }
+
+    function setTrigger(id: string) {
+      trigger.set(id);
+    }
+
+    function setContent(id: string) {
+      content.set(id);
+    }
+
+    return {
+      value,
+      open,
+      disabled: deprecatedSetter(disabled, 'setDisabled'),
+      triggerId: deprecatedSetter(trigger, 'setTrigger'),
+      contentId: deprecatedSetter(content, 'setContent'),
+      setDisabled,
+      setTrigger,
+      setContent,
+    };
+  },
 );
 
-/**
- * The AccordionItem state registration function.
- */
-export const accordionItemState = createState(NgpAccordionItemStateToken);
+export function injectAccordionItemState<T>(): Signal<NgpAccordionItemState<T>> {
+  return _injectAccordionItemState() as Signal<NgpAccordionItemState<T>>;
+}

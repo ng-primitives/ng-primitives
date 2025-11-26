@@ -1,128 +1,16 @@
-import { signal, Signal, WritableSignal } from '@angular/core';<% if (className === 'Accordion') { %>
-import { NgpOrientation } from 'ng-primitives/common';<% } %>
-import { createPrimitive, controlled, deprecatedSetter<% if (directiveMetadata && directiveMetadata.hostBindings && directiveMetadata.hostBindings.length > 0) { %>, attrBinding<% if (directiveMetadata.hostBindings.some(binding => binding.type === 'data')) { %>, dataBinding<% } %><% if (directiveMetadata.hostBindings.some(binding => binding.type === 'style')) { %>, styleBinding<% } %><% } %><% if (directiveMetadata && directiveMetadata.hostListeners && directiveMetadata.hostListeners.length > 0) { %>, listener<% } %> } from 'ng-primitives/state';<% if (directiveMetadata && (directiveMetadata.hostBindings?.length > 0 || directiveMetadata.hostListeners?.length > 0)) { %>
-import { injectElementRef } from 'ng-primitives/internal';<% } %><% if (directiveMetadata && directiveMetadata.dependencies && directiveMetadata.dependencies.length > 0) { %>
-// Dependencies extracted from directive<% if (className === 'Accordion') { %>
-import { injectAccordionConfig } from '../config/accordion-config';<% } else if (directiveMetadata.dependencies && directiveMetadata.dependencies.length > 0) { %><% directiveMetadata.dependencies.forEach(dep => { %>
-// import { <%= dep.name %> } from '...'; // Add appropriate imports<% }); %><% } %><% } %>
+import { createPrimitive } from 'ng-primitives/state';
 
-/**
- * The state interface for the <%= className %> pattern.
- */
-export interface Ngp<%= className %>State<% if (className === 'Accordion') { %><T><% } %> {<% if (stateInterface) { %>
-<%- stateInterface %><% } else { %>
-  // Add your state properties here
-  // Example: readonly someProperty: WritableSignal<string>;
-  // Example: setSomeProperty(value: string): void;<% } %>
+export interface Ngp<%= className %>State {
 }
 
-/**
- * The props interface for the <%= className %> pattern.
- */
-export interface Ngp<%= className %>Props<% if (className === 'Accordion') { %><T><% } %> {<% if (propsInterface) { %>
-<%- propsInterface %><% } else { %>
-  // Add your props here
-  // Example: readonly someInput?: Signal<string>;
-  // Example: readonly onSomeEvent?: (value: string) => void;<% } %>
+export interface Ngp<%= className %>Props {
 }
 
-export const [
-  Ngp<%= className %>StateToken,
-  ngp<%= className %>,
-  inject<%= className %>State,
-  provide<%= className %>State,
-] = createPrimitive(
-  'Ngp<%= className %>',<% if (className === 'Accordion') { %>
-  <T>({<% } else { %>
-  ({<% } %><% if (directiveMetadata && directiveMetadata.inputs && directiveMetadata.inputs.length > 0) { %>
-<%- directiveMetadata.inputs.map(input => {
-  // Set better default values
-  let defaultValue = 'undefined';
-  if (input.name === 'value') defaultValue = 'null';
-  if (input.name === 'disabled') defaultValue = 'false';
-  return `    ${input.name}: _${input.name} = signal(${defaultValue}),`;
-}).join('\n') %><% } %><% if (directiveMetadata && directiveMetadata.models && directiveMetadata.models.length > 0) { %>
-<%- directiveMetadata.models.map(model => `    ${model.name}: _${model.name} = signal(undefined),`).join('\n') %><% } %><% if (directiveMetadata && directiveMetadata.outputs && directiveMetadata.outputs.length > 0) { %>
-<%- directiveMetadata.outputs.map(output => `    on${output.name.charAt(0).toUpperCase() + output.name.slice(1)},`).join('\n') %><% } %><% if (directiveMetadata && directiveMetadata.models && directiveMetadata.models.length > 0) { %>
-<%- directiveMetadata.models.map(model => `    on${model.name.charAt(0).toUpperCase() + model.name.slice(1)}Change,`).join('\n') %><% } %>
-  }: Ngp<%= className %>Props<% if (className === 'Accordion') { %><T><% } %>): Ngp<%= className %>State<% if (className === 'Accordion') { %><T><% } %> => {
-<% if (directiveMetadata && (directiveMetadata.hostBindings?.length > 0 || directiveMetadata.hostListeners?.length > 0)) { %>    // Inject element reference for host bindings/listeners
-    const element = injectElementRef();
-<% } %><% if (directiveMetadata && directiveMetadata.dependencies && directiveMetadata.dependencies.length > 0) { %>
-    // Dependencies extracted from directive<% if (className === 'Accordion') { %>
-    const config = injectAccordionConfig();<% } else { %><% directiveMetadata.dependencies.forEach(dep => { %>
-    const <%= dep.name %> = <%= dep.initializerCode %>;<% }); %><% } %>
-<% } %>
-    // Set defaults from config if not provided<% if (className === 'Accordion' && directiveMetadata && directiveMetadata.inputs) { %>
-<%- directiveMetadata.inputs.map(input => {
-  let configDefault = input.defaultValue;
-  if (configDefault && configDefault.includes('this.config')) {
-    configDefault = configDefault.replace(/this\.config/g, 'config');
-    if (input.name === 'value' || input.name === 'disabled') {
-      return `    // ${input.name} uses its own default value`;
-    }
-    return `    if (_${input.name}() === undefined) _${input.name}.set(${configDefault});`;
-  }
-  return '';
-}).filter(line => line && !line.includes('// ')).join('\n') %><% } %>
+export const [Ngp<%= className %>StateToken, ngp<%= className %>, inject<%= className %>State, provide<%= className %>State] =
+  createPrimitive(
+    'Ngp<%= className %>',
+    ({  }: Ngp<%= className %>Props) => {
 
-    // Create controlled signals<% if (directiveMetadata && directiveMetadata.inputs && directiveMetadata.inputs.length > 0) { %>
-<%- directiveMetadata.inputs.map(input => `    const ${input.name} = controlled(_${input.name});`).join('\n') %><% } %><% if (directiveMetadata && directiveMetadata.models && directiveMetadata.models.length > 0) { %>
-<%- directiveMetadata.models.map(model => `    const ${model.name} = controlled(_${model.name});`).join('\n') %><% } %>
-
-<% if (directiveMetadata && directiveMetadata.hostBindings && directiveMetadata.hostBindings.length > 0) { %>    // Host bindings extracted from directive<% directiveMetadata.hostBindings.forEach(binding => {
-      let bindingCall = '';
-      // Transform state references to local variables
-      let expression = binding.expression.replace(/state\./g, '');
-      if (binding.type === 'data') {
-        bindingCall = `dataBinding(element, '${binding.attribute}', ${expression});`;
-      } else if (binding.type === 'style') {
-        bindingCall = `styleBinding(element, '${binding.attribute}', ${expression});`;
-      } else {
-        bindingCall = `attrBinding(element, '${binding.attribute}', ${expression});`;
-      }
-    %>
-    <%- bindingCall %><% }); %>
-<% } %><% if (directiveMetadata && directiveMetadata.hostListeners && directiveMetadata.hostListeners.length > 0) { %>
-    // Host listeners extracted from directive<% directiveMetadata.hostListeners.forEach(hostListener => { %>
-    listener(element, '<%= hostListener.event %>', (<%= hostListener.parameters.join(', ') %>) => {
-      // Call the original method - you may need to adapt this
-      // <%= hostListener.method %>(<%= hostListener.parameters.join(', ') %>);
-    });<% }); %>
-<% } %>
-
-    // Setter methods<% if (directiveMetadata && directiveMetadata.inputs && directiveMetadata.inputs.length > 0) { %>
-<%- directiveMetadata.inputs.map(input => `    const set${input.name.charAt(0).toUpperCase() + input.name.slice(1)} = (value: ${input.type.replace(/Signal<(.+)>/, '$1')}) => {\n      ${input.name}.set(value);\n    };`).join('\n\n') %><% } %><% if (directiveMetadata && directiveMetadata.models && directiveMetadata.models.length > 0) { %>
-
-<%- directiveMetadata.models.map(model => {
-  const modelType = model.type.match(/ModelSignal<(.+)>|model<(.+)>/) ? model.type.match(/ModelSignal<(.+)>|model<(.+)>/)[1] || model.type.match(/ModelSignal<(.+)>|model<(.+)>/)[2] : model.type;
-  return `    const set${model.name.charAt(0).toUpperCase() + model.name.slice(1)} = (value: ${modelType}) => {\n      ${model.name}.set(value);\n      on${model.name.charAt(0).toUpperCase() + model.name.slice(1)}Change?.(value);\n    };`;
-}).join('\n\n') %><% } %>
-
-<% if (directiveMetadata && directiveMetadata.methods && directiveMetadata.methods.length > 0) { %>    // Methods extracted from directive<% directiveMetadata.methods.forEach(method => { %>
-<% if (method.jsDoc) { %>    /**
-     * <%= method.jsDoc %>
-     */
-<% } %>    const <%= method.name %> = (<%= method.parameters.map(p => {
-      // Rename parameters that might shadow state properties
-      let paramName = p.name;
-      if (p.name === 'value' && className === 'Accordion') {
-        paramName = 'itemValue';
-      }
-      return `${paramName}: ${p.type}`;
-    }).join(', ') %>)<%= method.returnType !== 'void' ? `: ${method.returnType}` : ': void' %> => {
-<%- method.body.replace(/this\.state\./g, '').replace(/this\./g, '').replace(/valueChange\.emit/g, 'onValueChange?.').replace(/\bvalue\b(?![(\.])/g, 'itemValue').replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"').replace(/&#39;/g, "'").replace(/^/gm, '        ').replace(/^\s*{\s*$/m, '').replace(/^\s*}\s*$/m, '') %>
-      };<% }); %>
-<% } %>
-
-    return {<% if (directiveMetadata && directiveMetadata.inputs && directiveMetadata.inputs.length > 0) { %>
-<%- directiveMetadata.inputs.map(input => `      ${input.name}: deprecatedSetter(${input.name}, 'set${input.name.charAt(0).toUpperCase() + input.name.slice(1)}'),`).join('\n') %><% } %><% if (directiveMetadata && directiveMetadata.models && directiveMetadata.models.length > 0) { %>
-<%- directiveMetadata.models.map(model => `      ${model.name}: deprecatedSetter(${model.name}, 'set${model.name.charAt(0).toUpperCase() + model.name.slice(1)}'),`).join('\n') %><% } %><% if (directiveMetadata && directiveMetadata.inputs && directiveMetadata.inputs.length > 0) { %>
-<%- directiveMetadata.inputs.map(input => `      set${input.name.charAt(0).toUpperCase() + input.name.slice(1)},`).join('\n') %><% } %><% if (directiveMetadata && directiveMetadata.models && directiveMetadata.models.length > 0) { %>
-<%- directiveMetadata.models.map(model => `      set${model.name.charAt(0).toUpperCase() + model.name.slice(1)},`).join('\n') %><% } %><% if (directiveMetadata && directiveMetadata.methods && directiveMetadata.methods.length > 0) { %>
-<%- directiveMetadata.methods.filter(method => method.isPublic).map(method => `      ${method.name},`).join('\n') %><% } %>
-    };
-  },
-);<% if (className === 'Accordion') { %>
-
-export type NgpAccordionType = 'single' | 'multiple';<% } %>
+      return { };
+    },
+  );

@@ -243,52 +243,45 @@ export interface CreatePrimitiveOptions {
   elementRef?: ElementRef<HTMLElement>;
 }
 
-export function createPrimitive<TProps, TState>(
+type PrimitiveState<TFactory> =
+  TFactory extends <TValue = unknown>(props: any) => infer R
+    ? R
+    : TFactory extends (...args: any[]) => infer R
+      ? R
+      : never;
+
+type BasePrimitiveInjectionFn<TState> = {
+  (): Signal<TState>;
+  (options: { hoisted: true }): Signal<TState | null>;
+  (options?: { hoisted?: boolean }): Signal<TState | null>;
+};
+
+type PrimitiveInjectionFn<TFactory> =
+  TFactory extends <TValue = unknown>(props: any) => infer R
+    ? {
+        <TValue = unknown>(): Signal<R>;
+        <TValue = unknown>(options: { hoisted: true }): Signal<R | null>;
+        <TValue = unknown>(options?: { hoisted?: boolean }): Signal<R | null>;
+      }
+    : BasePrimitiveInjectionFn<PrimitiveState<TFactory>>;
+
+export function createPrimitive<TFactory extends (...args: any[]) => any>(
   name: string,
-  fn: (props: TProps) => TState,
+  fn: TFactory,
   options?: CreatePrimitiveOptions,
 ): [
-  InjectionToken<Signal<TState>>,
-  (props: TProps) => TState,
-  {
-    (): Signal<TState>;
-    (options: { hoisted: true }): Signal<TState | null>;
-  },
+  InjectionToken<Signal<PrimitiveState<TFactory>>>,
+  TFactory,
+  PrimitiveInjectionFn<TFactory>,
   (opts?: { inherit?: boolean }) => FactoryProvider,
 ];
-export function createPrimitive<TStateFactory>(
+export function createPrimitive<TFactory extends (...args: any[]) => any>(
   name: string,
-  fn: TStateFactory,
-  options?: CreatePrimitiveOptions,
-): [
-  InjectionToken<Signal<any>>,
-  TStateFactory,
-  {
-    (): Signal<any>;
-    (options: { hoisted: true }): Signal<any | null>;
-  },
-  (opts?: { inherit?: boolean }) => FactoryProvider,
-];
-export function createPrimitive<TState>(
-  name: string,
-  fn: <U>(props: any) => TState,
-  options?: CreatePrimitiveOptions,
-): [
-  InjectionToken<Signal<TState>>,
-  <U>(props: U) => TState,
-  {
-    (): Signal<TState>;
-    (options: { hoisted: true }): Signal<TState | null>;
-  },
-  (opts?: { inherit?: boolean }) => FactoryProvider,
-];
-export function createPrimitive<TState>(
-  name: string,
-  fn: any,
+  fn: TFactory,
   options: CreatePrimitiveOptions = {},
 ): any {
   // Create a unique injection token for the primitive's state signal
-  const token = new InjectionToken<WritableSignal<TState>>(`Primitive: ${name}`);
+  const token = new InjectionToken<WritableSignal<PrimitiveState<TFactory>>>(`Primitive: ${name}`);
 
   // Create the state signal within the appropriate injection context
   const factory = (props: any) => {
@@ -312,9 +305,11 @@ export function createPrimitive<TState>(
   };
 
   // create an injection function that provides the state signal
-  function injectFn<T = TState>(): Signal<T>;
-  function injectFn<T = TState>(options: { hoisted: true }): Signal<T | null>;
-  function injectFn<T = TState>(options?: { hoisted?: boolean }): Signal<T | null> {
+  function injectFn<T = PrimitiveState<TFactory>>(): Signal<T>;
+  function injectFn<T = PrimitiveState<TFactory>>(options: { hoisted: true }): Signal<T | null>;
+  function injectFn<T = PrimitiveState<TFactory>>(options?: {
+    hoisted?: boolean;
+  }): Signal<T | null> {
     const hoisted = options?.hoisted ?? false;
 
     if (hoisted) {
@@ -339,7 +334,7 @@ export function createPrimitive<TState>(
     };
   };
 
-  return [token, factory as any, injectFn, provideFn];
+  return [token, factory as TFactory, injectFn as PrimitiveInjectionFn<TFactory>, provideFn];
 }
 
 export function controlled<T>(value: Signal<T>): WritableSignal<T> {
