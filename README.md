@@ -85,6 +85,7 @@ We welcome contributions from the community. Please refer to our [contributing g
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/abiramcodes"><img src="https://avatars.githubusercontent.com/u/131433061?v=4?s=100" width="100px;" alt="Abiram"/><br /><sub><b>Abiram</b></sub></a><br /><a href="https://github.com/ng-primitives/ng-primitives/commits?author=abiramcodes" title="Code">💻</a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://alexknipfer.com"><img src="https://avatars.githubusercontent.com/u/1299646?v=4?s=100" width="100px;" alt="Alex"/><br /><sub><b>Alex</b></sub></a><br /><a href="https://github.com/ng-primitives/ng-primitives/commits?author=alexknipfer" title="Code">💻</a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/zecka"><img src="https://avatars.githubusercontent.com/u/18116930?v=4?s=100" width="100px;" alt="zecka"/><br /><sub><b>zecka</b></sub></a><br /><a href="https://github.com/ng-primitives/ng-primitives/commits?author=zecka" title="Code">💻</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/janek64"><img src="https://avatars.githubusercontent.com/u/56741217?v=4?s=100" width="100px;" alt="Janek Berg"/><br /><sub><b>Janek Berg</b></sub></a><br /><a href="https://github.com/ng-primitives/ng-primitives/commits?author=janek64" title="Code">💻</a></td>
     </tr>
   </tbody>
 </table>
