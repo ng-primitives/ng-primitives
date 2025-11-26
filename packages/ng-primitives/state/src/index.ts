@@ -243,12 +243,13 @@ export interface CreatePrimitiveOptions {
   elementRef?: ElementRef<HTMLElement>;
 }
 
-type PrimitiveState<TFactory extends (...args: any[]) => unknown> =
-  TFactory extends (props: unknown) => infer R
+type PrimitiveState<TFactory extends (...args: any[]) => unknown> = TFactory extends (
+  props: unknown,
+) => infer R
+  ? R
+  : TFactory extends (...args: any[]) => infer R
     ? R
-    : TFactory extends (...args: any[]) => infer R
-      ? R
-      : never;
+    : never;
 
 type BasePrimitiveInjectionFn<TState> = {
   (): Signal<TState>;
@@ -256,14 +257,15 @@ type BasePrimitiveInjectionFn<TState> = {
   (options?: { hoisted?: boolean }): Signal<TState | null>;
 };
 
-type PrimitiveInjectionFn<TFactory extends (...args: any[]) => unknown> =
-  TFactory extends (props: unknown) => infer R
-    ? {
-        (): Signal<R>;
-        (options: { hoisted: true }): Signal<R | null>;
-        (options?: { hoisted?: boolean }): Signal<R | null>;
-      }
-    : BasePrimitiveInjectionFn<PrimitiveState<TFactory>>;
+type PrimitiveInjectionFn<TFactory extends (...args: any[]) => unknown> = TFactory extends (
+  props: unknown,
+) => infer R
+  ? {
+      (): Signal<R>;
+      (options: { hoisted: true }): Signal<R | null>;
+      (options?: { hoisted?: boolean }): Signal<R | null>;
+    }
+  : BasePrimitiveInjectionFn<PrimitiveState<TFactory>>;
 
 export function createPrimitive<TFactory extends (...args: any[]) => unknown>(
   name: string,
