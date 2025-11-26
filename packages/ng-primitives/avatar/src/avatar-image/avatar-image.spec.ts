@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { fireEvent, render, screen, waitFor } from '@testing-library/angular';
+import { fireEvent, render, screen } from '@testing-library/angular';
 import { NgpAvatar } from '../avatar/avatar';
 import { NgpAvatarStatus } from '../avatar/avatar-state';
 import { NgpAvatarImage } from './avatar-image';
@@ -118,8 +118,8 @@ describe('NgpAvatarImage', () => {
     })
     class TestComponent {}
 
-    const container = await render(TestComponent);
-    const avatar = screen.getByTestId('avatar');
+    const { getByTestId } = await render(TestComponent);
+    const avatar = getByTestId('avatar');
 
     // Test that the component handles different states appropriately
     const status = avatar.getAttribute('data-status');

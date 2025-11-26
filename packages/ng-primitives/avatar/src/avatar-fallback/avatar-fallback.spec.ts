@@ -1,9 +1,8 @@
 import { Component } from '@angular/core';
 import { fakeAsync, tick } from '@angular/core/testing';
-import { fireEvent, render, screen, waitFor } from '@testing-library/angular';
+import { fireEvent, render, screen } from '@testing-library/angular';
 import { NgpAvatarImage } from '../avatar-image/avatar-image';
 import { NgpAvatar } from '../avatar/avatar';
-import { NgpAvatarStatus } from '../avatar/avatar-state';
 import { NgpAvatarFallback } from './avatar-fallback';
 
 describe('NgpAvatarFallback', () => {
