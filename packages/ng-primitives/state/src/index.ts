@@ -243,8 +243,8 @@ export interface CreatePrimitiveOptions {
   elementRef?: ElementRef<HTMLElement>;
 }
 
-type PrimitiveState<TFactory> =
-  TFactory extends <TValue = unknown>(props: any) => infer R
+type PrimitiveState<TFactory extends (...args: any[]) => unknown> =
+  TFactory extends <TValue = unknown>(props: unknown) => infer R
     ? R
     : TFactory extends (...args: any[]) => infer R
       ? R
@@ -256,8 +256,8 @@ type BasePrimitiveInjectionFn<TState> = {
   (options?: { hoisted?: boolean }): Signal<TState | null>;
 };
 
-type PrimitiveInjectionFn<TFactory> =
-  TFactory extends <TValue = unknown>(props: any) => infer R
+type PrimitiveInjectionFn<TFactory extends (...args: any[]) => unknown> =
+  TFactory extends <TValue = unknown>(props: unknown) => infer R
     ? {
         <TValue = unknown>(): Signal<R>;
         <TValue = unknown>(options: { hoisted: true }): Signal<R | null>;
@@ -265,26 +265,31 @@ type PrimitiveInjectionFn<TFactory> =
       }
     : BasePrimitiveInjectionFn<PrimitiveState<TFactory>>;
 
-export function createPrimitive<TFactory extends (...args: any[]) => any>(
+export function createPrimitive<TFactory extends (...args: any[]) => unknown>(
   name: string,
   fn: TFactory,
   options?: CreatePrimitiveOptions,
 ): [
-  InjectionToken<Signal<PrimitiveState<TFactory>>>,
+  InjectionToken<WritableSignal<PrimitiveState<TFactory>>>,
   TFactory,
   PrimitiveInjectionFn<TFactory>,
   (opts?: { inherit?: boolean }) => FactoryProvider,
 ];
-export function createPrimitive<TFactory extends (...args: any[]) => any>(
+export function createPrimitive<TFactory extends (...args: any[]) => unknown>(
   name: string,
   fn: TFactory,
   options: CreatePrimitiveOptions = {},
-): any {
+): [
+  InjectionToken<WritableSignal<PrimitiveState<TFactory>>>,
+  TFactory,
+  PrimitiveInjectionFn<TFactory>,
+  (opts?: { inherit?: boolean }) => FactoryProvider,
+] {
   // Create a unique injection token for the primitive's state signal
   const token = new InjectionToken<WritableSignal<PrimitiveState<TFactory>>>(`Primitive: ${name}`);
 
   // Create the state signal within the appropriate injection context
-  const factory = (props: any) => {
+  const factory = ((props: Parameters<TFactory>[0]) => {
     // determine the injector to use
     let injector = options.injector ?? inject(Injector);
 
@@ -298,11 +303,11 @@ export function createPrimitive<TFactory extends (...args: any[]) => any>(
 
     return runInInjectionContext(injector, () => {
       const state = inject(token, { optional: true });
-      const instance = (fn as any)(props);
-      state?.set(instance);
+      const instance = fn(props);
+      state?.set(instance as PrimitiveState<TFactory>);
       return instance;
     });
-  };
+  }) as TFactory;
 
   // create an injection function that provides the state signal
   function injectFn<T = PrimitiveState<TFactory>>(): Signal<T>;
@@ -481,32 +486,6 @@ export function listener<K extends keyof HTMLElementEventMap>(
     ngZone.runOutsideAngular(() => nativeElement.addEventListener(event, handler as EventListener));
     destroyRef.onDestroy(() => nativeElement.removeEventListener(event, handler as EventListener));
   });
-}
-
-export function onPress(
-  element: ElementRef<HTMLElement>,
-  key: string,
-  handler: (event: KeyboardEvent) => void,
-  options?: { injector: Injector },
-): void {
-  listener(
-    element,
-    'keydown',
-    (event: KeyboardEvent) => {
-      if (event.key === key) {
-        handler(event);
-      }
-    },
-    { injector: options?.injector },
-  );
-}
-
-export function onClick(
-  element: ElementRef<HTMLElement>,
-  handler: (event: MouseEvent) => void,
-  options?: { injector: Injector },
-): void {
-  listener(element, 'click', handler, options);
 }
 
 export function onDestroy(callback: () => void): void {

@@ -79,7 +79,7 @@ export interface NgpAccordionProps<T> {
 export const [NgpAccordionStateToken, ngpAccordion, _injectAccordionState, provideAccordionState] =
   createPrimitive(
     'NgpAccordion',
-    <T = unknown>({
+    <T>({
       type,
       collapsible,
       value: _value = signal(null),
