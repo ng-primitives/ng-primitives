@@ -1,6 +1,6 @@
 import { computed, Signal, signal } from '@angular/core';
-import { controlled, createPrimitive, dataBinding, deprecatedSetter } from 'ng-primitives/state';
 import { injectElementRef } from 'ng-primitives/internal';
+import { controlled, createPrimitive, dataBinding, deprecatedSetter } from 'ng-primitives/state';
 import { injectAccordionState } from '../accordion/accordion-state';
 
 export interface NgpAccordionItemState<T> {

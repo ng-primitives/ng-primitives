@@ -1,8 +1,8 @@
 import { afterRenderEffect, computed, signal, Signal } from '@angular/core';
-import { attrBinding, createPrimitive, dataBinding, listener } from 'ng-primitives/state';
-import { debounceTime } from 'rxjs/operators';
 import { fromMutationObserver, injectDimensions, injectElementRef } from 'ng-primitives/internal';
+import { attrBinding, createPrimitive, dataBinding, listener } from 'ng-primitives/state';
 import { safeTakeUntilDestroyed, uniqueId } from 'ng-primitives/utils';
+import { debounceTime } from 'rxjs/operators';
 import { injectAccordionItemState } from '../accordion-item/accordion-item-state';
 import { injectAccordionState } from '../accordion/accordion-state';
 

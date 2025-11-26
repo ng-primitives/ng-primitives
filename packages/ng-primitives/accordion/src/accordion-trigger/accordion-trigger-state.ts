@@ -1,6 +1,6 @@
 import { HOST_TAG_NAME, inject, signal, Signal } from '@angular/core';
-import { attrBinding, createPrimitive, dataBinding, listener } from 'ng-primitives/state';
 import { injectElementRef } from 'ng-primitives/internal';
+import { attrBinding, createPrimitive, dataBinding, listener } from 'ng-primitives/state';
 import { uniqueId } from 'ng-primitives/utils';
 import { injectAccordionItemState } from '../accordion-item/accordion-item-state';
 import { injectAccordionState } from '../accordion/accordion-state';
