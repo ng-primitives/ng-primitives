@@ -1,5 +1,8 @@
 import { Directive } from '@angular/core';
-import { ngpBreadcrumbSeparator, provideBreadcrumbSeparatorState } from './breadcrumb-separator-state';
+import {
+  ngpBreadcrumbSeparator,
+  provideBreadcrumbSeparatorState,
+} from './breadcrumb-separator-state';
 
 /**
  * Apply `ngpBreadcrumbSeparator` between breadcrumb items to render a visual divider.

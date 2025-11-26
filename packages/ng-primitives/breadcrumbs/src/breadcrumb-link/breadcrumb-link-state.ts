@@ -1,5 +1,5 @@
-import { createPrimitive } from 'ng-primitives/state';
 import { ngpInteractions } from 'ng-primitives/interactions';
+import { createPrimitive } from 'ng-primitives/state';
 
 export interface NgpBreadcrumbLinkState {}
 
