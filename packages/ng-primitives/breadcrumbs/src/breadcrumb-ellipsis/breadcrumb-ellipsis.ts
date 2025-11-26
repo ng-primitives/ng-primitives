@@ -1,4 +1,5 @@
 import { Directive } from '@angular/core';
+import { ngpBreadcrumbEllipsis, provideBreadcrumbEllipsisState } from './breadcrumb-ellipsis-state';
 
 /**
  * Apply `ngpBreadcrumbEllipsis` to elements that represent collapsed breadcrumb items.
@@ -6,9 +7,10 @@ import { Directive } from '@angular/core';
 @Directive({
   selector: '[ngpBreadcrumbEllipsis]',
   exportAs: 'ngpBreadcrumbEllipsis',
-  host: {
-    role: 'presentation',
-    'aria-hidden': 'true',
-  },
+  providers: [provideBreadcrumbEllipsisState()],
 })
-export class NgpBreadcrumbEllipsis {}
+export class NgpBreadcrumbEllipsis {
+  constructor() {
+    ngpBreadcrumbEllipsis({});
+  }
+}

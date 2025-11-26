@@ -1,4 +1,5 @@
 import { Directive } from '@angular/core';
+import { ngpBreadcrumbs, provideBreadcrumbsState } from './breadcrumbs-state';
 
 /**
  * Apply `ngpBreadcrumbs` to the navigation element that wraps the breadcrumb trail.
@@ -6,8 +7,10 @@ import { Directive } from '@angular/core';
 @Directive({
   selector: '[ngpBreadcrumbs]',
   exportAs: 'ngpBreadcrumbs',
-  host: {
-    role: 'navigation',
-  },
+  providers: [provideBreadcrumbsState()],
 })
-export class NgpBreadcrumbs {}
+export class NgpBreadcrumbs {
+  constructor() {
+    ngpBreadcrumbs({});
+  }
+}

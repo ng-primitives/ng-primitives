@@ -1,4 +1,5 @@
 import { Directive } from '@angular/core';
+import { ngpBreadcrumbList, provideBreadcrumbListState } from './breadcrumb-list-state';
 
 /**
  * Apply `ngpBreadcrumbList` to the ordered list that groups breadcrumb items.
@@ -6,8 +7,10 @@ import { Directive } from '@angular/core';
 @Directive({
   selector: '[ngpBreadcrumbList]',
   exportAs: 'ngpBreadcrumbList',
-  host: {
-    role: 'list',
-  },
+  providers: [provideBreadcrumbListState()],
 })
-export class NgpBreadcrumbList {}
+export class NgpBreadcrumbList {
+  constructor() {
+    ngpBreadcrumbList({});
+  }
+}

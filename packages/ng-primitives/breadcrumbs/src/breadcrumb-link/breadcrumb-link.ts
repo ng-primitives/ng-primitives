@@ -1,5 +1,5 @@
 import { Directive } from '@angular/core';
-import { ngpInteractions } from 'ng-primitives/interactions';
+import { ngpBreadcrumbLink, provideBreadcrumbLinkState } from './breadcrumb-link-state';
 
 /**
  * Apply `ngpBreadcrumbLink` to anchors or buttons that navigate to a breadcrumb destination.
@@ -7,9 +7,10 @@ import { ngpInteractions } from 'ng-primitives/interactions';
 @Directive({
   selector: '[ngpBreadcrumbLink]',
   exportAs: 'ngpBreadcrumbLink',
+  providers: [provideBreadcrumbLinkState()],
 })
 export class NgpBreadcrumbLink {
   constructor() {
-    ngpInteractions({ hover: true, press: true, focusVisible: true });
+    ngpBreadcrumbLink({});
   }
 }
