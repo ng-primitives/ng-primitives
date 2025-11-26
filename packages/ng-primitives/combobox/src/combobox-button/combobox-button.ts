@@ -5,7 +5,7 @@ import { uniqueId } from 'ng-primitives/utils';
 import { injectComboboxState } from '../combobox/combobox-state';
 
 @Directive({
-  selector: '[ngpComboboxButton]',
+  selector: 'button[ngpComboboxButton]',
   exportAs: 'ngpComboboxButton',
   host: {
     type: 'button',

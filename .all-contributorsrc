@@ -305,6 +305,15 @@
       "contributions": [
         "code"
       ]
+    },
+    {
+      "login": "janek64",
+      "name": "Janek Berg",
+      "avatar_url": "https://avatars.githubusercontent.com/u/56741217?v=4",
+      "profile": "https://github.com/janek64",
+      "contributions": [
+        "code"
+      ]
     }
   ],
   "contributorsPerLine": 7,

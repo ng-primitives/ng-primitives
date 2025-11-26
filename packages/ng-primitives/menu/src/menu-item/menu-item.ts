@@ -59,9 +59,13 @@ export class NgpMenuItem {
    * If the user presses the left arrow key (in LTR) and there is a parent menu,
    * we want to close the menu and focus the parent menu item.
    */
-  protected handleArrowKey(event: KeyboardEvent): void {
+  protected handleArrowKey(event: Event): void {
+    if (event instanceof KeyboardEvent === false) {
+      return;
+    }
+
     // if there is no parent menu, we don't want to do anything
-    const trigger = this.injector.get(NgpSubmenuTrigger, null, { optional: true });
+    const trigger = this.injector.get(NgpSubmenuTrigger, null, { optional: true, skipSelf: true });
 
     if (!trigger) {
       return;

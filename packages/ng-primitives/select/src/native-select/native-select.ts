@@ -33,7 +33,7 @@ export class NgpNativeSelect {
   /**
    * The select state.
    */
-  private readonly state = selectNativeSelectState<NgpNativeSelect>(this);
+  protected readonly state = selectNativeSelectState<NgpNativeSelect>(this);
 
   constructor() {
     ngpInteractions({

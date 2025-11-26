@@ -13,13 +13,13 @@ import {
 } from '@angular/core';
 import { injectElementRef } from 'ng-primitives/internal';
 import {
+  coerceOffset,
   createOverlay,
+  NgpOffset,
+  NgpOffsetInput,
   NgpOverlay,
   NgpOverlayConfig,
   NgpOverlayContent,
-  coerceOffset,
-  NgpOffset,
-  NgpOffsetInput,
 } from 'ng-primitives/portal';
 import { safeTakeUntilDestroyed } from 'ng-primitives/utils';
 import { NgpMenuPlacement } from '../menu-trigger/menu-trigger';
@@ -206,12 +206,17 @@ export class NgpSubmenuTrigger<T = unknown> {
   /**
    * If the user presses the right arrow key, we want to open the submenu
    * and focus the first item in the submenu.
+   * If the user presses the left arrow key, we want to close the submenu.
    * This behavior will be inverted if the direction is RTL.
    * @param event
    */
   @HostListener('keydown.ArrowRight', ['$event'])
   @HostListener('keydown.ArrowLeft', ['$event'])
-  protected showSubmenuOnArrow(event: KeyboardEvent): void {
+  protected handleArrowKey(event: Event): void {
+    if (event instanceof KeyboardEvent === false) {
+      return;
+    }
+
     const direction = getComputedStyle(this.trigger.nativeElement).direction;
 
     const isRtl = direction === 'rtl';
