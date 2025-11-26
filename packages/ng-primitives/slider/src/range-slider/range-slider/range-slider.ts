@@ -9,7 +9,7 @@ import {
   signal,
 } from '@angular/core';
 import { NgpOrientation } from 'ng-primitives/common';
-import { setupFormControl } from 'ng-primitives/form-field';
+import { ngpFormControl } from 'ng-primitives/form-field';
 import { uniqueId } from 'ng-primitives/utils';
 import { NgpRangeSliderThumb } from '../range-slider-thumb/range-slider-thumb';
 import type { NgpRangeSliderTrack } from '../range-slider-track/range-slider-track';
@@ -143,7 +143,7 @@ export class NgpRangeSlider {
   protected readonly state = rangeSliderState<NgpRangeSlider>(this);
 
   constructor() {
-    setupFormControl({ id: this.state.id, disabled: this.state.disabled });
+    ngpFormControl({ id: this.state.id, disabled: this.state.disabled });
   }
 
   /**

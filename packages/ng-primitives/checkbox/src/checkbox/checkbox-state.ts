@@ -1,5 +1,5 @@
 import { computed, Signal, signal, WritableSignal } from '@angular/core';
-import { setupFormControl } from 'ng-primitives/form-field';
+import { ngpFormControl } from 'ng-primitives/form-field';
 import { ngpInteractions } from 'ng-primitives/interactions';
 import { injectElementRef } from 'ng-primitives/internal';
 import {
@@ -110,7 +110,7 @@ export const [NgpCheckboxStateToken, ngpCheckbox, injectCheckboxState, provideCh
 
       // Setup interactions and form control hooks
       ngpInteractions({ hover: true, press: true, focusVisible: true, disabled });
-      setupFormControl({ id, disabled });
+      ngpFormControl({ id, disabled });
 
       // Host bindings
       attrBinding(element, 'role', 'checkbox');

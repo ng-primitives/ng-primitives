@@ -9,7 +9,7 @@ import {
   signal,
 } from '@angular/core';
 import { NgpOrientation } from 'ng-primitives/common';
-import { setupFormControl } from 'ng-primitives/form-field';
+import { ngpFormControl } from 'ng-primitives/form-field';
 import { uniqueId } from 'ng-primitives/utils';
 import type { NgpSliderTrack } from '../slider-track/slider-track';
 import { provideSliderState, sliderState } from './slider-state';
@@ -107,6 +107,6 @@ export class NgpSlider {
   protected readonly state = sliderState<NgpSlider>(this);
 
   constructor() {
-    setupFormControl({ id: this.state.id, disabled: this.state.disabled });
+    ngpFormControl({ id: this.state.id, disabled: this.state.disabled });
   }
 }

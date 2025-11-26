@@ -1,6 +1,6 @@
 import { BooleanInput } from '@angular/cdk/coercion';
 import { booleanAttribute, Directive, HostListener, input, output } from '@angular/core';
-import { setupFormControl } from 'ng-primitives/form-field';
+import { ngpFormControl } from 'ng-primitives/form-field';
 import { ngpInteractions } from 'ng-primitives/interactions';
 import { injectElementRef } from 'ng-primitives/internal';
 import { uniqueId } from 'ng-primitives/utils';
@@ -79,7 +79,7 @@ export class NgpSwitch {
       focusVisible: true,
       disabled: this.state.disabled,
     });
-    setupFormControl({ id: this.state.id, disabled: this.state.disabled });
+    ngpFormControl({ id: this.state.id, disabled: this.state.disabled });
   }
 
   /**
