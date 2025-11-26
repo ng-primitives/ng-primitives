@@ -244,7 +244,7 @@ export interface CreatePrimitiveOptions {
 }
 
 type PrimitiveState<TFactory extends (...args: any[]) => unknown> =
-  TFactory extends <TValue = unknown>(props: unknown) => infer R
+  TFactory extends (props: unknown) => infer R
     ? R
     : TFactory extends (...args: any[]) => infer R
       ? R
@@ -257,11 +257,11 @@ type BasePrimitiveInjectionFn<TState> = {
 };
 
 type PrimitiveInjectionFn<TFactory extends (...args: any[]) => unknown> =
-  TFactory extends <TValue = unknown>(props: unknown) => infer R
+  TFactory extends (props: unknown) => infer R
     ? {
-        <TValue = unknown>(): Signal<R>;
-        <TValue = unknown>(options: { hoisted: true }): Signal<R | null>;
-        <TValue = unknown>(options?: { hoisted?: boolean }): Signal<R | null>;
+        (): Signal<R>;
+        (options: { hoisted: true }): Signal<R | null>;
+        (options?: { hoisted?: boolean }): Signal<R | null>;
       }
     : BasePrimitiveInjectionFn<PrimitiveState<TFactory>>;
 

@@ -1,5 +1,5 @@
-import { Directive, signal } from '@angular/core';
-import { avatarState, provideAvatarState } from './avatar-state';
+import { Directive } from '@angular/core';
+import { ngpAvatar, NgpAvatarStatus, provideAvatarState } from './avatar-state';
 
 /**
  * Apply the `ngpAvatar` directive to an element that represents the avatar. This directive is a container for the image and/or fallback.
@@ -8,21 +8,12 @@ import { avatarState, provideAvatarState } from './avatar-state';
   selector: '[ngpAvatar]',
   exportAs: 'ngpAvatar',
   providers: [provideAvatarState()],
-  host: {
-    '[attr.data-status]': 'status()',
-  },
 })
 export class NgpAvatar {
   /**
-   * Store the current status of the avatar.
-   * @internal
-   */
-  readonly status = signal(NgpAvatarStatus.Idle);
-
-  /**
    * The avatar state.
    */
-  protected readonly state = avatarState<NgpAvatar>(this);
+  private readonly state = ngpAvatar({});
 
   /**
    * Set the avatar status.
@@ -30,13 +21,6 @@ export class NgpAvatar {
    * @internal
    */
   setStatus(status: NgpAvatarStatus): void {
-    this.status.set(status);
+    this.state.setStatus(status);
   }
-}
-
-export enum NgpAvatarStatus {
-  Idle = 'idle',
-  Loading = 'loading',
-  Loaded = 'loaded',
-  Error = 'error',
 }

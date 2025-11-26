@@ -58,7 +58,9 @@ export const [
 
     function setVisibility(visible: boolean): void {
       hidden.set(!visible);
-      changeDetector.detectChanges();
+      // If a change-detection cycle might be running, schedule detection asynchronously and exit
+      // to avoid re-entrancy. Otherwise fall through to call detectChanges synchronously.
+      Promise.resolve().then(() => changeDetector.detectChanges());
     }
 
     return {
