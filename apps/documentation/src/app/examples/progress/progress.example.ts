@@ -63,7 +63,7 @@ import { injectDisposables } from 'ng-primitives/utils';
   `,
   template: `
     <div [ngpProgressValue]="value()" ngpProgress>
-      <span ngpProgressLabel>Loading</span>
+      <label ngpProgressLabel>Loading</label>
       <span ngpProgressValue>{{ value() }}%</span>
 
       <div ngpProgressTrack>
