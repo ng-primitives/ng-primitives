@@ -1,6 +1,6 @@
 import { Directive, input } from '@angular/core';
-import { uniqueId } from 'ng-primitives/utils';
 import { injectElementRef } from 'ng-primitives/internal';
+import { uniqueId } from 'ng-primitives/utils';
 import { injectProgressState } from '../progress/progress-state';
 
 @Directive({
