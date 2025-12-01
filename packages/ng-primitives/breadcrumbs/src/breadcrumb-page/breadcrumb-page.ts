@@ -1,4 +1,5 @@
 import { Directive } from '@angular/core';
+import { ngpBreadcrumbPage, provideBreadcrumbPageState } from './breadcrumb-page-state';
 
 /**
  * Apply `ngpBreadcrumbPage` to non-link content that represents the active page.
@@ -6,8 +7,10 @@ import { Directive } from '@angular/core';
 @Directive({
   selector: '[ngpBreadcrumbPage]',
   exportAs: 'ngpBreadcrumbPage',
-  host: {
-    'aria-current': 'page',
-  },
+  providers: [provideBreadcrumbPageState()],
 })
-export class NgpBreadcrumbPage {}
+export class NgpBreadcrumbPage {
+  constructor() {
+    ngpBreadcrumbPage({});
+  }
+}

@@ -1,14 +1,22 @@
+import { coerceElement } from '@angular/cdk/coercion';
 import {
+  afterRenderEffect,
   computed,
+  DestroyRef,
+  ElementRef,
   FactoryProvider,
+  forwardRef,
   inject,
   InjectionToken,
   InjectOptions,
+  Injector,
   InputSignal,
   InputSignalWithTransform,
   isSignal,
   linkedSignal,
+  NgZone,
   ProviderToken,
+  runInInjectionContext,
   signal,
   Signal,
   WritableSignal,
@@ -228,4 +236,302 @@ function isSignalInput(
   }
 
   return 'transformFn' in inputDefinition || 'applyValueToInputSignal' in inputDefinition;
+}
+
+export interface CreatePrimitiveOptions {
+  injector?: Injector;
+  elementRef?: ElementRef<HTMLElement>;
+}
+
+type PrimitiveState<TFactory extends (...args: any[]) => unknown> = TFactory extends (
+  props: unknown,
+) => infer R
+  ? R
+  : TFactory extends (...args: any[]) => infer R
+    ? R
+    : never;
+
+type BasePrimitiveInjectionFn<TState> = {
+  (): Signal<TState>;
+  (options: { hoisted: true }): Signal<TState | null>;
+  (options?: { hoisted?: boolean }): Signal<TState | null>;
+};
+
+type PrimitiveInjectionFn<TFactory extends (...args: any[]) => unknown> = TFactory extends (
+  props: unknown,
+) => infer R
+  ? {
+      (): Signal<R>;
+      (options: { hoisted: true }): Signal<R | null>;
+      (options?: { hoisted?: boolean }): Signal<R | null>;
+    }
+  : BasePrimitiveInjectionFn<PrimitiveState<TFactory>>;
+
+export function createPrimitive<TFactory extends (...args: any[]) => unknown>(
+  name: string,
+  fn: TFactory,
+  options?: CreatePrimitiveOptions,
+): [
+  InjectionToken<WritableSignal<PrimitiveState<TFactory>>>,
+  TFactory,
+  PrimitiveInjectionFn<TFactory>,
+  (opts?: { inherit?: boolean }) => FactoryProvider,
+];
+export function createPrimitive<TFactory extends (...args: any[]) => unknown>(
+  name: string,
+  fn: TFactory,
+  options: CreatePrimitiveOptions = {},
+): [
+  InjectionToken<WritableSignal<PrimitiveState<TFactory>>>,
+  TFactory,
+  PrimitiveInjectionFn<TFactory>,
+  (opts?: { inherit?: boolean }) => FactoryProvider,
+] {
+  // Create a unique injection token for the primitive's state signal
+  const token = new InjectionToken<WritableSignal<PrimitiveState<TFactory>>>(`Primitive: ${name}`);
+
+  // Create the state signal within the appropriate injection context
+  const factory = ((props: Parameters<TFactory>[0]) => {
+    // determine the injector to use
+    let injector = options.injector ?? inject(Injector);
+
+    // If an ElementRef is provided in options, create a child injector
+    if (options.elementRef) {
+      injector = Injector.create({
+        providers: [{ provide: ElementRef, useValue: options.elementRef }],
+        parent: injector,
+      });
+    }
+
+    return runInInjectionContext(injector, () => {
+      const state = inject(token, { optional: true });
+      const instance = fn(props);
+      state?.set(instance as PrimitiveState<TFactory>);
+      return instance;
+    });
+  }) as TFactory;
+
+  // create an injection function that provides the state signal
+  function injectFn<T = PrimitiveState<TFactory>>(): Signal<T>;
+  function injectFn<T = PrimitiveState<TFactory>>(options: { hoisted: true }): Signal<T | null>;
+  function injectFn<T = PrimitiveState<TFactory>>(options?: {
+    hoisted?: boolean;
+  }): Signal<T | null> {
+    const hoisted = options?.hoisted ?? false;
+
+    if (hoisted) {
+      return (inject(token, { optional: true }) ?? signal(null)) as unknown as Signal<T | null>;
+    }
+
+    return inject(token) as unknown as Signal<T>;
+  }
+
+  // create a function to provide the state
+  const provideFn = (opts?: { inherit?: boolean }): FactoryProvider => {
+    const inherit = opts?.inherit ?? true;
+    return {
+      provide: token,
+      useFactory: () => {
+        if (inherit === false) {
+          return signal(null);
+        }
+
+        return inject(token, { optional: true, skipSelf: true }) ?? signal(null);
+      },
+    };
+  };
+
+  return [token, factory as TFactory, injectFn as PrimitiveInjectionFn<TFactory>, provideFn];
+}
+
+export function controlled<T>(value: Signal<T>): WritableSignal<T> {
+  return linkedSignal(() => value());
+}
+
+function setAttribute(
+  element: ElementRef<HTMLElement>,
+  attr: string,
+  value: string | null | undefined,
+): void {
+  // if the attribute is "disabled" and the value is 'false', we need to remove the attribute
+  if (attr === 'disabled' && value === 'false') {
+    element.nativeElement.removeAttribute(attr);
+    return;
+  }
+
+  if (value !== null && value !== undefined) {
+    element.nativeElement.setAttribute(attr, value);
+  } else {
+    element.nativeElement.removeAttribute(attr);
+  }
+}
+
+export function attrBinding(
+  element: ElementRef<HTMLElement>,
+  attr: string,
+  value:
+    | (() => string | number | boolean | null | undefined)
+    | string
+    | number
+    | boolean
+    | null
+    | undefined,
+): void {
+  afterRenderEffect({
+    write: () => {
+      const valueResult = typeof value === 'function' ? value() : value;
+
+      setAttribute(element, attr, valueResult?.toString() ?? null);
+    },
+  });
+}
+
+function getStyleUnit(style: string): string {
+  const parts = style.split('.');
+
+  if (parts.length > 1) {
+    const unit = parts[parts.length - 1];
+
+    switch (unit) {
+      case 'px':
+      case 'em':
+      case 'rem':
+      case '%':
+      case 'vh':
+      case 'vw':
+      case 'vmin':
+      case 'vmax':
+      case 'cm':
+      case 'mm':
+      case 'in':
+      case 'pt':
+      case 'pc':
+      case 'ex':
+      case 'ch':
+        return unit;
+      default:
+        return '';
+    }
+  }
+
+  return '';
+}
+
+export function styleBinding(
+  element: ElementRef<HTMLElement>,
+  style: string,
+  value: (() => string | number | null) | string | number | null,
+): void {
+  afterRenderEffect({
+    write: () => {
+      const styleValue = typeof value === 'function' ? value() : value;
+      // we should look for units in the style name, just like Angular does e.g. width.px
+      const styleUnit = getStyleUnit(style);
+      const styleName = styleUnit ? style.replace(`.${styleUnit}`, '') : style;
+
+      if (styleValue !== null) {
+        element.nativeElement.style.setProperty(styleName, styleValue + styleUnit);
+      } else {
+        element.nativeElement.style.removeProperty(styleName);
+      }
+    },
+  });
+}
+
+export function dataBinding(
+  element: ElementRef<HTMLElement>,
+  attr: string,
+  value: (() => string | boolean | null) | string | boolean | null,
+): void {
+  if (!attr.startsWith('data-')) {
+    throw new Error(`dataBinding: attribute "${attr}" must start with "data-"`);
+  }
+
+  afterRenderEffect({
+    write: () => {
+      let valueResult = typeof value === 'function' ? value() : value;
+
+      if (valueResult === false) {
+        valueResult = null;
+      } else if (valueResult === true) {
+        valueResult = '';
+      } else if (valueResult !== null && typeof valueResult !== 'string') {
+        valueResult = String(valueResult);
+      }
+
+      setAttribute(element, attr, valueResult);
+    },
+  });
+}
+export function listener<K extends keyof HTMLElementEventMap>(
+  element: HTMLElement | ElementRef<HTMLElement>,
+  event: K,
+  handler: (event: HTMLElementEventMap[K]) => void,
+  options?: { injector?: Injector },
+): void;
+export function listener(
+  element: HTMLElement | ElementRef<HTMLElement>,
+  event: string,
+  handler: (event: Event) => void,
+  options?: { injector?: Injector },
+): void;
+export function listener<K extends keyof HTMLElementEventMap>(
+  element: HTMLElement | ElementRef<HTMLElement>,
+  event: K | string,
+  handler: (event: HTMLElementEventMap[K] | Event) => void,
+  options?: { injector?: Injector },
+): void {
+  runInInjectionContext(options?.injector ?? inject(Injector), () => {
+    const ngZone = inject(NgZone);
+    const destroyRef = inject(DestroyRef);
+    const nativeElement = coerceElement(element);
+    ngZone.runOutsideAngular(() => nativeElement.addEventListener(event, handler as EventListener));
+    destroyRef.onDestroy(() => nativeElement.removeEventListener(event, handler as EventListener));
+  });
+}
+
+export function onDestroy(callback: () => void): void {
+  const destroyRef = inject(DestroyRef);
+  destroyRef.onDestroy(callback);
+}
+
+/**
+ * Previously, with our state approach, we allowed signals to be written directly using their setters.
+ * However, with our new approach, we want people to use the appropriate set method instead. This function takes in a writable
+ * signal and returns a proxy that warns the user when set is called directly.
+ */
+export function deprecatedSetter<T>(
+  signal: WritableSignal<T>,
+  methodName: string,
+): WritableSignal<T> {
+  return new Proxy(signal, {
+    get(target, prop) {
+      if (prop === 'set') {
+        return (value: T) => {
+          console.warn(
+            `Deprecation warning: Use ${methodName}() instead of setting the value directly.`,
+          );
+          target.set(value);
+        };
+      }
+      return target[prop as keyof WritableSignal<T>];
+    },
+  });
+}
+
+/**
+ * A utility function to inject an inherited state from a parent injector. This is useful for cases
+ * where a primitive needs to inherit state from a parent primitive, such as in roving focus groups.
+ * We could use inject with a forwardRef, but forwardRef returns an any - no thanks...
+ */
+export function injectInheritedState<T>(
+  token: () => InjectionToken<T>,
+  injectOptions: InjectOptions = {},
+): T | null {
+  return (
+    inject<T>(
+      forwardRef(() => token()),
+      { optional: true, skipSelf: true, ...injectOptions },
+    ) ?? null
+  );
 }

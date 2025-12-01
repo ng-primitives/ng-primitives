@@ -52,6 +52,7 @@ import { NgpLabel } from 'ng-primitives/form-field';
       padding: 0 16px;
       border: 1px solid var(--ngp-border);
       box-shadow: var(--ngp-shadow);
+      background-color: var(--ngp-background);
       outline: none;
     }
 

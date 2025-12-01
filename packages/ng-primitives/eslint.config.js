@@ -42,6 +42,9 @@ module.exports = [
       '@nx/workspace-take-until-destroyed': 'error',
       '@nx/workspace-rxjs-compat': 'error',
       '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
+      '@typescript-eslint/no-empty-interface': 'off',
+      '@typescript-eslint/no-empty-object-type': 'off',
+      'no-empty-pattern': 'off',
     },
   },
   {

@@ -62,19 +62,19 @@ export class NgpFormControl {
 
   constructor() {
     // Sync the form control state with the control state.
-    this.status = setupFormControl({ id: this.state.id, disabled: this.state.disabled });
+    this.status = ngpFormControl({ id: this.state.id, disabled: this.state.disabled });
   }
 }
 
-interface FormControlState {
+interface NgpFormControlProps {
   id: Signal<string>;
   disabled?: Signal<boolean>;
 }
 
-export function setupFormControl({
+export function ngpFormControl({
   id,
   disabled = signal(false),
-}: FormControlState): Signal<NgpControlStatus> {
+}: NgpFormControlProps): Signal<NgpControlStatus> {
   const element = injectElementRef().nativeElement;
   // Access the form field that the form control is associated with.
   const formField = injectFormFieldState({ optional: true });

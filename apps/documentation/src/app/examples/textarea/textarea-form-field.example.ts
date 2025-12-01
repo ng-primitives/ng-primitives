@@ -31,6 +31,7 @@ import { NgpTextarea } from 'ng-primitives/textarea';
       padding: 8px 12px;
       border: none;
       box-shadow: var(--ngp-input-shadow);
+      background-color: var(--ngp-background);
       outline: none;
     }
 

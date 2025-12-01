@@ -1,4 +1,5 @@
 import { Directive } from '@angular/core';
+import { ngpBreadcrumbItem, provideBreadcrumbItemState } from './breadcrumb-item-state';
 
 /**
  * Apply `ngpBreadcrumbItem` to each list item in the breadcrumb trail.
@@ -6,8 +7,10 @@ import { Directive } from '@angular/core';
 @Directive({
   selector: '[ngpBreadcrumbItem]',
   exportAs: 'ngpBreadcrumbItem',
-  host: {
-    role: 'listitem',
-  },
+  providers: [provideBreadcrumbItemState()],
 })
-export class NgpBreadcrumbItem {}
+export class NgpBreadcrumbItem {
+  constructor() {
+    ngpBreadcrumbItem({});
+  }
+}

@@ -13,7 +13,7 @@ import {
 } from '@angular/core';
 import type { Placement } from '@floating-ui/dom';
 import { activeDescendantManager } from 'ng-primitives/a11y';
-import { setupFormControl } from 'ng-primitives/form-field';
+import { ngpFormControl } from 'ng-primitives/form-field';
 import { ngpInteractions } from 'ng-primitives/interactions';
 import { injectElementRef } from 'ng-primitives/internal';
 import { uniqueId } from 'ng-primitives/utils';
@@ -161,7 +161,7 @@ export class NgpSelect {
       disabled: this.state.disabled,
     });
 
-    setupFormControl({ id: this.state.id, disabled: this.state.disabled });
+    ngpFormControl({ id: this.state.id, disabled: this.state.disabled });
 
     // any time the active descendant changes, ensure we scroll it into view
     // perform after next render to ensure the DOM is updated

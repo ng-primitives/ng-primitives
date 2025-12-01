@@ -1,7 +1,7 @@
 import { BooleanInput } from '@angular/cdk/coercion';
 import { booleanAttribute, Directive, input, OnInit, output } from '@angular/core';
 import { NgpOrientation } from 'ng-primitives/common';
-import { setupFormControl } from 'ng-primitives/form-field';
+import { ngpFormControl } from 'ng-primitives/form-field';
 import { injectRovingFocusGroupState, NgpRovingFocusGroup } from 'ng-primitives/roving-focus';
 import { uniqueId } from 'ng-primitives/utils';
 import { provideRadioGroupState, radioGroupState } from './radio-group-state';
@@ -83,12 +83,12 @@ export class NgpRadioGroup<T> implements OnInit {
   protected readonly state = radioGroupState<NgpRadioGroup<T>>(this);
 
   constructor() {
-    setupFormControl({ id: this.state.id, disabled: this.state.disabled });
+    ngpFormControl({ id: this.state.id, disabled: this.state.disabled });
   }
 
   ngOnInit(): void {
     // the roving focus group defaults to vertical orientation whereas we want to default to vertical
-    this.rovingFocusGroupState().orientation.set(this.state.orientation());
+    this.rovingFocusGroupState()?.setOrientation(this.state.orientation());
   }
 
   /**

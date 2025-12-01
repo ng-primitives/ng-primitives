@@ -1,18 +1,8 @@
 import { BooleanInput, NumberInput } from '@angular/cdk/coercion';
-import {
-  Directive,
-  booleanAttribute,
-  computed,
-  input,
-  numberAttribute,
-  output,
-  signal,
-} from '@angular/core';
+import { Directive, booleanAttribute, input, numberAttribute, output } from '@angular/core';
 import { NgpOrientation } from 'ng-primitives/common';
-import { setupFormControl } from 'ng-primitives/form-field';
 import { uniqueId } from 'ng-primitives/utils';
-import type { NgpSliderTrack } from '../slider-track/slider-track';
-import { provideSliderState, sliderState } from './slider-state';
+import { ngpSlider, provideSliderState } from './slider-state';
 
 /**
  * Apply the `ngpSlider` directive to an element that represents the slider and contains the track, range, and thumb.
@@ -21,10 +11,6 @@ import { provideSliderState, sliderState } from './slider-state';
   selector: '[ngpSlider]',
   exportAs: 'ngpSlider',
   providers: [provideSliderState()],
-  host: {
-    '[id]': 'id()',
-    '[attr.data-orientation]': 'state.orientation()',
-  },
 })
 export class NgpSlider {
   /**
@@ -87,26 +73,17 @@ export class NgpSlider {
   });
 
   /**
-   * Access the slider track.
-   * @internal
-   */
-  readonly track = signal<NgpSliderTrack | undefined>(undefined);
-
-  /**
-   * The value as a percentage based on the min and max values.
-   * @internal
-   */
-  readonly percentage = computed(
-    () => ((this.state.value() - this.state.min()) / (this.state.max() - this.state.min())) * 100,
-  );
-
-  /**
    * The state of the slider. We use this for the slider state rather than relying on the inputs.
    * @internal
    */
-  protected readonly state = sliderState<NgpSlider>(this);
-
-  constructor() {
-    setupFormControl({ id: this.state.id, disabled: this.state.disabled });
-  }
+  protected readonly state = ngpSlider({
+    id: this.id,
+    value: this.value,
+    min: this.min,
+    max: this.max,
+    step: this.step,
+    orientation: this.orientation,
+    disabled: this.disabled,
+    onValueChange: value => this.valueChange.emit(value),
+  });
 }

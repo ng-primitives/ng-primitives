@@ -8,7 +8,7 @@ import {
   OnDestroy,
   signal,
 } from '@angular/core';
-import { setupButton } from 'ng-primitives/button';
+import { ngpButton } from 'ng-primitives/button';
 import { injectPromptComposerState } from '../prompt-composer/prompt-composer-state';
 import {
   promptComposerDictationState,
@@ -50,7 +50,7 @@ export class NgpPromptComposerDictation implements OnDestroy {
   protected readonly state = promptComposerDictationState<NgpPromptComposerDictation>(this);
 
   constructor() {
-    setupButton({
+    ngpButton({
       disabled: computed(
         () => this.state.disabled() || this.composer().dictationSupported === false,
       ),

@@ -100,5 +100,5 @@ Adheres to the [WAI-ARIA switch design pattern](https://www.w3.org/WAI/ARIA/apg/
 
 ### Keyboard Interactions
 
-- <kbd>Space</kbd> - Toggle the switch state.
+- <kbd>Space</kbd> - Toggle the switch state (when switch is a button).
 - <kbd>Enter</kbd> - Toggle the switch state.

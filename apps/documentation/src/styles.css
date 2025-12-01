@@ -125,7 +125,11 @@ body {
 }
 
 pre.shiki {
-  @apply rounded-xl border bg-transparent px-5 py-3.5;
+  @apply rounded-xl border bg-transparent py-3.5;
+}
+
+pre.shiki:not(:has([data-line-numbers])) {
+  @apply px-5;
 }
 
 pre.shiki code {

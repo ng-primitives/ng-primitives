@@ -1,4 +1,8 @@
 import { Directive } from '@angular/core';
+import {
+  ngpBreadcrumbSeparator,
+  provideBreadcrumbSeparatorState,
+} from './breadcrumb-separator-state';
 
 /**
  * Apply `ngpBreadcrumbSeparator` between breadcrumb items to render a visual divider.
@@ -6,9 +10,10 @@ import { Directive } from '@angular/core';
 @Directive({
   selector: '[ngpBreadcrumbSeparator]',
   exportAs: 'ngpBreadcrumbSeparator',
-  host: {
-    role: 'presentation',
-    'aria-hidden': 'true',
-  },
+  providers: [provideBreadcrumbSeparatorState()],
 })
-export class NgpBreadcrumbSeparator {}
+export class NgpBreadcrumbSeparator {
+  constructor() {
+    ngpBreadcrumbSeparator({});
+  }
+}

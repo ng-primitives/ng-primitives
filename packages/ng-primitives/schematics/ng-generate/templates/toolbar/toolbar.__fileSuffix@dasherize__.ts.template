@@ -32,6 +32,6 @@ export class Toolbar<%= componentSuffix %> {
 
   constructor() {
     // default to horizontal orientation
-    this.toolbar().orientation.set('horizontal');
+    this.toolbar().setOrientation('horizontal');
   }
 }

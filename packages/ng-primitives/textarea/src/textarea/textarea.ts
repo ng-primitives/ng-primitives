@@ -1,18 +1,12 @@
 import { BooleanInput } from '@angular/cdk/coercion';
 import { booleanAttribute, Directive, input } from '@angular/core';
-import { setupFormControl } from 'ng-primitives/form-field';
-import { ngpInteractions } from 'ng-primitives/interactions';
 import { uniqueId } from 'ng-primitives/utils';
-import { provideTextareaState, textareaState } from './textarea-state';
+import { ngpTextarea, provideTextareaState } from './textarea-state';
 
 @Directive({
   selector: '[ngpTextarea]',
   exportAs: 'ngpTextarea',
-  providers: [provideTextareaState()],
-  host: {
-    '[id]': 'id()',
-    '[attr.disabled]': 'disabled() ? "" : null',
-  },
+  providers: [provideTextareaState({ inherit: false })],
 })
 export class NgpTextarea {
   /**
@@ -30,15 +24,8 @@ export class NgpTextarea {
   /**
    * The state of the textarea.
    */
-  protected readonly state = textareaState<NgpTextarea>(this);
-
-  constructor() {
-    ngpInteractions({
-      hover: true,
-      press: true,
-      focus: true,
-      disabled: this.state.disabled,
-    });
-    setupFormControl({ id: this.state.id, disabled: this.state.disabled });
-  }
+  protected readonly state = ngpTextarea({
+    id: this.id,
+    disabled: this.disabled,
+  });
 }

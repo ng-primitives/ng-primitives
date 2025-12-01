@@ -1,17 +1,6 @@
-import { FocusMonitor, FocusOrigin } from '@angular/cdk/a11y';
 import { BooleanInput } from '@angular/cdk/coercion';
-import {
-  Directive,
-  ElementRef,
-  HostListener,
-  OnDestroy,
-  OnInit,
-  booleanAttribute,
-  computed,
-  inject,
-  input,
-} from '@angular/core';
-import { injectRovingFocusGroup } from '../roving-focus-group/roving-focus-group-token';
+import { Directive, booleanAttribute, computed, input } from '@angular/core';
+import { ngpRovingFocusItem, provideRovingFocusItemState } from './roving-focus-item-state';
 
 /**
  * Apply the `ngpRovingFocusItem` directive to an element within a roving focus group to automatically manage focus.
@@ -19,26 +8,9 @@ import { injectRovingFocusGroup } from '../roving-focus-group/roving-focus-group
 @Directive({
   selector: '[ngpRovingFocusItem]',
   exportAs: 'ngpRovingFocusItem',
-  host: {
-    '[attr.tabindex]': 'tabindex()',
-  },
+  providers: [provideRovingFocusItemState()],
 })
-export class NgpRovingFocusItem implements OnInit, OnDestroy {
-  /**
-   * Access the group the roving focus item belongs to.
-   */
-  private readonly group = injectRovingFocusGroup();
-
-  /**
-   * Access the focus monitor service.
-   */
-  private readonly focusMonitor = inject(FocusMonitor);
-
-  /**
-   * Access the element the roving focus item is attached to.
-   */
-  readonly elementRef = inject<ElementRef<HTMLElement>>(ElementRef);
-
+export class NgpRovingFocusItem {
   /**
    * Define if the item is disabled.
    */
@@ -47,57 +19,11 @@ export class NgpRovingFocusItem implements OnInit, OnDestroy {
     transform: booleanAttribute,
   });
 
-  /**
-   * Derive the tabindex of the roving focus item.
-   */
-  readonly tabindex = computed(() =>
-    !this.group.disabled() && this.group.activeItem() === this ? 0 : -1,
-  );
+  private readonly state = ngpRovingFocusItem({ disabled: this.disabled });
 
   /**
-   * Initialize the roving focus item.
+   * Expose the internal id of the roving focus item.
+   * @internal
    */
-  ngOnInit(): void {
-    this.group.register(this);
-  }
-
-  /**
-   * Clean up the roving focus item.
-   */
-  ngOnDestroy(): void {
-    this.group.unregister(this);
-  }
-
-  /**
-   * Forward the keydown event to the roving focus group.
-   * @param event The keyboard event
-   */
-  @HostListener('keydown', ['$event'])
-  protected onKeydown(event: KeyboardEvent): void {
-    if (this.disabled()) {
-      return;
-    }
-
-    this.group.onKeydown(event);
-  }
-
-  /**
-   * Activate the roving focus item on click.
-   */
-  @HostListener('click')
-  protected activate(): void {
-    if (this.disabled()) {
-      return;
-    }
-
-    this.group.setActiveItem(this, 'mouse');
-  }
-
-  /**
-   * Focus the roving focus item.
-   * @param origin The origin of the focus
-   */
-  focus(origin: FocusOrigin): void {
-    this.focusMonitor.focusVia(this.elementRef, origin);
-  }
+  readonly id = computed(() => this.state.id());
 }

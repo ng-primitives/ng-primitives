@@ -1,4 +1,5 @@
 import { Component, input } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ControlValueAccessor } from '@angular/forms';
 import {
   injectSliderState,
@@ -99,11 +100,13 @@ export class Slider implements ControlValueAccessor {
 
   constructor() {
     // Whenever the user interacts with the slider, call the onChange function with the new value.
-    this.state().valueChange.subscribe(value => this.onChange?.(value));
+    this.state()
+      .valueChange.pipe(takeUntilDestroyed())
+      .subscribe(value => this.onChange?.(value));
   }
 
   writeValue(value: number): void {
-    this.state().value.set(value);
+    this.state().setValue(value);
   }
 
   registerOnChange(fn: ChangeFn<number>): void {
@@ -115,6 +118,6 @@ export class Slider implements ControlValueAccessor {
   }
 
   setDisabledState(isDisabled: boolean): void {
-    this.state().disabled.set(isDisabled);
+    this.state().setDisabled(isDisabled);
   }
 }

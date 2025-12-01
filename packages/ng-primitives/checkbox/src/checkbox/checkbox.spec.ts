@@ -37,53 +37,59 @@ describe('NgpCheckbox', () => {
 
   describe('checkbox', () => {
     it('should have a role of checkbox', () => {
-      expect(checkbox.getAttribute('role')).toBe('checkbox');
+      expect(checkbox).toHaveAttribute('role', 'checkbox');
     });
 
     it('should have a tabindex of 0', () => {
-      expect(checkbox.getAttribute('tabindex')).toBe('0');
+      expect(checkbox).toHaveAttribute('tabindex', '0');
     });
 
     it('should set the tabindex to -1 when disabled', async () => {
       await container.rerender({ componentProperties: { disabled: true } });
-      expect(checkbox.getAttribute('tabindex')).toBe('-1');
+      container.detectChanges();
+      expect(checkbox).toHaveAttribute('tabindex', '-1');
     });
 
     it('should set the aria-checked attribute to "false" when unchecked', () => {
-      expect(checkbox.getAttribute('aria-checked')).toBe('false');
+      expect(checkbox).toHaveAttribute('aria-checked', 'false');
     });
 
     it('should set the aria-checked attribute to "true" when checked', async () => {
       await container.rerender({ componentProperties: { checked: true } });
-      expect(checkbox.getAttribute('aria-checked')).toBe('true');
+      container.detectChanges();
+      expect(checkbox).toHaveAttribute('aria-checked', 'true');
     });
 
     it('should set the aria-checked attribute to "mixed" when indeterminate', async () => {
       await container.rerender({ componentProperties: { checked: true, indeterminate: true } });
-      expect(checkbox.getAttribute('aria-checked')).toBe('mixed');
+      container.detectChanges();
+      expect(checkbox).toHaveAttribute('aria-checked', 'mixed');
     });
 
     it('should set the data-checked attribute when checked', async () => {
       await container.rerender({ componentProperties: { checked: true } });
-      expect(checkbox.getAttribute('data-checked')).toBe('');
+      container.detectChanges();
+      expect(checkbox).toHaveAttribute('data-checked');
     });
 
     it('should remove the data-checked attribute when unchecked', () => {
-      expect(checkbox.getAttribute('data-checked')).toBeNull();
+      expect(checkbox).not.toHaveAttribute('data-checked');
     });
 
     it('should set the data-indeterminate when indeterminate', async () => {
       await container.rerender({ componentProperties: { indeterminate: true } });
-      expect(checkbox.getAttribute('data-indeterminate')).toBe('');
+      container.detectChanges();
+      expect(checkbox).toHaveAttribute('data-indeterminate');
     });
 
     it('should remove the data-checked attribute when unchecked', () => {
-      expect(checkbox.getAttribute('data-checked')).toBeNull();
+      expect(checkbox).not.toHaveAttribute('data-checked');
     });
 
     it('should set the data-disabled when disabled', async () => {
       await container.rerender({ componentProperties: { disabled: true } });
-      expect(checkbox.getAttribute('data-disabled')).toBe('');
+      container.detectChanges();
+      expect(checkbox).toHaveAttribute('data-disabled');
     });
 
     it('should emit the checkedChange event when clicked', () => {

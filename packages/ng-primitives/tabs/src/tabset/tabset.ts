@@ -96,9 +96,10 @@ export class NgpTabset {
   protected readonly state = tabsetState<NgpTabset>(this);
 
   constructor() {
-    explicitEffect([this.state.orientation], ([orientation]) =>
-      this.rovingFocusGroupState().orientation.set(orientation),
-    );
+    explicitEffect([this.state.orientation], ([orientation]) => {
+      const rovingFocusGroupState = this.rovingFocusGroupState();
+      rovingFocusGroupState?.setOrientation(orientation);
+    });
   }
 
   /**

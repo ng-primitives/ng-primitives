@@ -1,27 +1,42 @@
-import {
-  createState,
-  createStateInjector,
-  createStateProvider,
-  createStateToken,
-} from 'ng-primitives/state';
-import type { NgpAvatar } from './avatar';
+import { signal, Signal } from '@angular/core';
+import { injectElementRef } from 'ng-primitives/internal';
+import { createPrimitive, dataBinding } from 'ng-primitives/state';
 
-/**
- * The state token  for the Avatar primitive.
- */
-export const NgpAvatarStateToken = createStateToken<NgpAvatar>('Avatar');
+export interface NgpAvatarState {
+  /**
+   * The avatar status.
+   */
+  status: Signal<NgpAvatarStatus>;
 
-/**
- * Provides the Avatar state.
- */
-export const provideAvatarState = createStateProvider(NgpAvatarStateToken);
+  /**
+   * Set the avatar status.
+   */
+  setStatus(status: NgpAvatarStatus): void;
+}
 
-/**
- * Injects the Avatar state.
- */
-export const injectAvatarState = createStateInjector<NgpAvatar>(NgpAvatarStateToken);
+export interface NgpAvatarProps {}
 
-/**
- * The Avatar state registration function.
- */
-export const avatarState = createState(NgpAvatarStateToken);
+export const [NgpAvatarStateToken, ngpAvatar, injectAvatarState, provideAvatarState] =
+  createPrimitive('NgpAvatar', ({}: NgpAvatarProps) => {
+    const element = injectElementRef();
+    const status = signal(NgpAvatarStatus.Idle);
+
+    // Host bindings
+    dataBinding(element, 'data-status', status);
+
+    function setStatus(newStatus: NgpAvatarStatus): void {
+      status.set(newStatus);
+    }
+
+    return {
+      status,
+      setStatus,
+    };
+  });
+
+export enum NgpAvatarStatus {
+  Idle = 'idle',
+  Loading = 'loading',
+  Loaded = 'loaded',
+  Error = 'error',
+}

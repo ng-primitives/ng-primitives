@@ -1,2 +1,8 @@
 export { NgpTextarea } from './textarea/textarea';
-export { injectTextareaState, provideTextareaState } from './textarea/textarea-state';
+export {
+  injectTextareaState,
+  ngpTextarea,
+  NgpTextareaProps,
+  NgpTextareaState,
+  provideTextareaState,
+} from './textarea/textarea-state';
