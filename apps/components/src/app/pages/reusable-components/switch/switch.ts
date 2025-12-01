@@ -83,7 +83,7 @@ export class Switch implements ControlValueAccessor {
 
   /** Write a new value to the switch. */
   writeValue(value: boolean): void {
-    this.switch().checked.set(value);
+    this.switch().setChecked(value);
   }
 
   /** Register a callback function to be called when the value changes. */
@@ -98,6 +98,6 @@ export class Switch implements ControlValueAccessor {
 
   /** Set the disabled state of the switch. */
   setDisabledState(isDisabled: boolean): void {
-    this.switch().disabled.set(isDisabled);
+    this.switch().setDisabled(isDisabled);
   }
 }

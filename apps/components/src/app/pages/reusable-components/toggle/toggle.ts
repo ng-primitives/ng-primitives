@@ -72,7 +72,7 @@ export class Toggle implements ControlValueAccessor {
 
   /** Write a new value to the toggle. */
   writeValue(value: boolean): void {
-    this.toggle().selected.set(value);
+    this.toggle().setSelected(value);
   }
 
   /** Register a callback function to be called when the value changes. */
@@ -87,6 +87,6 @@ export class Toggle implements ControlValueAccessor {
 
   /** Set the disabled state of the toggle. */
   setDisabledState(isDisabled: boolean): void {
-    this.toggle().disabled.set(isDisabled);
+    this.toggle().setDisabled(isDisabled);
   }
 }

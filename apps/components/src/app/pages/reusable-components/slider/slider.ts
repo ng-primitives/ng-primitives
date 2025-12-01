@@ -106,7 +106,7 @@ export class Slider implements ControlValueAccessor {
   }
 
   writeValue(value: number): void {
-    this.state().value.set(value);
+    this.state().setValue(value);
   }
 
   registerOnChange(fn: ChangeFn<number>): void {
@@ -118,6 +118,6 @@ export class Slider implements ControlValueAccessor {
   }
 
   setDisabledState(isDisabled: boolean): void {
-    this.state().disabled.set(isDisabled);
+    this.state().setDisabled(isDisabled);
   }
 }
