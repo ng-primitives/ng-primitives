@@ -1,4 +1,13 @@
-import { Directive, OnDestroy, contentChild, signal } from '@angular/core';
+import {
+  Directive,
+  Injector,
+  OnDestroy,
+  contentChild,
+  effect,
+  inject,
+  signal,
+  untracked,
+} from '@angular/core';
 import { NgControl } from '@angular/forms';
 import { onChange } from 'ng-primitives/utils';
 import { Subscription } from 'rxjs';
@@ -99,6 +108,11 @@ export class NgpFormField implements OnDestroy {
   private subscription?: Subscription;
 
   /**
+   * Injector for creating effects outside the constructor.
+   */
+  private readonly injector = inject(Injector);
+
+  /**
    * The form field state.
    */
   protected readonly state = formFieldState<NgpFormField>(this);
@@ -120,13 +134,24 @@ export class NgpFormField implements OnDestroy {
     // Unsubscribe from the previous subscriptions.
     this.subscription?.unsubscribe();
 
-    // set the initial values
-    this.updateStatus();
+    if (!control) {
+      return;
+    }
 
+    // For signal-forms interop controls, use an effect to reactively track status.
+    // For classic controls, also use an effect but additionally subscribe to events.
+    effect(
+      () => {
+        this.updateStatus();
+      },
+      { injector: this.injector },
+    );
+
+    // Classic controls also have an events observable we can subscribe to.
     const underlyingControl = control?.control;
-
-    // Listen for changes to the underlying control's status.
-    this.subscription = underlyingControl?.events?.subscribe(this.updateStatus.bind(this));
+    if (underlyingControl?.events) {
+      this.subscription = underlyingControl.events.subscribe(() => this.updateStatus());
+    }
   }
 
   private updateStatus(): void {
@@ -136,14 +161,34 @@ export class NgpFormField implements OnDestroy {
       return;
     }
 
-    this.pristine.set(control.pristine);
-    this.touched.set(control.touched);
-    this.dirty.set(control.dirty);
-    this.valid.set(control.valid);
-    this.invalid.set(control.invalid);
-    this.pending.set(control.pending);
-    this.disabled.set(control.disabled);
-    this.errors.set(control?.errors ? Object.keys(control.errors) : []);
+    // Wrap in try-catch to handle signal-forms interop controls where
+    // the `field` input may not be available yet (throws NG0950).
+    // Reading the signal still establishes a dependency, so the effect
+    // will re-run when the input becomes available.
+    try {
+      const pristine = control.pristine;
+      const touched = control.touched;
+      const dirty = control.dirty;
+      const valid = control.valid;
+      const invalid = control.invalid;
+      const pending = control.pending;
+      const disabled = control.disabled;
+      const errors = control.errors;
+
+      untracked(() => {
+        this.pristine.set(pristine);
+        this.touched.set(touched);
+        this.dirty.set(dirty);
+        this.valid.set(valid);
+        this.invalid.set(invalid);
+        this.pending.set(pending);
+        this.disabled.set(disabled);
+        this.errors.set(errors ? Object.keys(errors) : []);
+      });
+    } catch {
+      // NG0950: Required input not available yet. The effect will re-run
+      // when the signal input becomes available.
+    }
   }
 
   /**
