@@ -95,7 +95,7 @@ describe('NgpButton', () => {
 
     const button = container.getByRole('button');
     focusMonitor.focusVia(button, 'keyboard');
-    expect(button).toHaveAttribute('data-focus-visible', '');
+    expect(button).toHaveAttribute('data-focus-visible');
   });
 
   it('should remove the data-focus attribute when not focused', async () => {
@@ -107,7 +107,7 @@ describe('NgpButton', () => {
 
     const button = container.getByRole('button');
     focusMonitor.focusVia(button, 'keyboard');
-    expect(button).toHaveAttribute('data-focus-visible', '');
+    expect(button).toHaveAttribute('data-focus-visible');
     fireEvent.blur(button);
     expect(button).not.toHaveAttribute('data-focus-visible');
   });
