@@ -51,13 +51,13 @@ export function ngpFocusVisibleInteraction({
 
     // for some elements the focus visible state should always appear on focus
     if (alwaysShowFocus()) {
-      focus(true);
+      focus(true, origin);
       return;
     }
 
     // if the focus origin is keyboard or program(focused programmatically), then the focus is visible
     if (origin === 'keyboard') {
-      focus(true);
+      focus(true, 'keyboard');
       return;
     }
   }
@@ -73,7 +73,7 @@ export function ngpFocusVisibleInteraction({
   /**
    * Trigger the focus signal along with the focusChange event.
    */
-  function focus(value: boolean) {
+  function focus(value: boolean, origin?: FocusOrigin) {
     if (isFocused() === value) {
       return;
     }
@@ -82,7 +82,7 @@ export function ngpFocusVisibleInteraction({
     focusChange?.(value);
 
     if (value) {
-      renderer.setAttribute(elementRef.nativeElement, 'data-focus-visible', '');
+      renderer.setAttribute(elementRef.nativeElement, 'data-focus-visible', origin ?? '');
     } else {
       renderer.removeAttribute(elementRef.nativeElement, 'data-focus-visible');
     }
