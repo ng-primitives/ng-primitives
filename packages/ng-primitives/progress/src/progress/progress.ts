@@ -15,7 +15,7 @@ import { progressState, provideProgressState } from './progress-state';
     '[attr.aria-valuemin]': '0',
     '[attr.aria-valuenow]': 'state.value()',
     '[attr.aria-valuetext]': 'valueText()',
-    '[attr.aria-labelledby]': 'label() ? label().id : null',
+    '[attr.aria-labelledby]': 'label() ? label()?.id : null',
     '[attr.data-progressing]': 'progressing() ? "" : null',
     '[attr.data-indeterminate]': 'indeterminate() ? "" : null',
     '[attr.data-complete]': 'complete() ? "" : null',

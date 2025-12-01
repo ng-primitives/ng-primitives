@@ -12,7 +12,7 @@ import { QuickLinks } from '../../components/quick-links/quick-links';
       >
         <div class="mx-auto w-fit max-w-full">
           <p
-            class="from-primary to-accent mb-2 mt-0 inline-block bg-gradient-to-r bg-clip-text text-sm font-medium text-transparent"
+            class="from-primary to-accent mt-0 mb-2 inline-block bg-linear-to-r bg-clip-text text-sm font-medium text-transparent"
           >
             Primitives
           </p>

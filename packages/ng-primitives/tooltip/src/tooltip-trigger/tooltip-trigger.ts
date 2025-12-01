@@ -251,7 +251,7 @@ export class NgpTooltipTrigger<T = null> implements OnDestroy {
     if (!content) {
       if (!shouldUseTextContent) {
         if (ngDevMode) {
-          throw new Error(
+          console.error(
             '[ngpTooltipTrigger]: Tooltip must be a string, TemplateRef, or ComponentType. Alternatively, set useTextContent to true if none is provided.',
           );
         }

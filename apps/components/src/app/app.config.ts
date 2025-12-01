@@ -1,6 +1,6 @@
 import { provideFileRouter, withDebugRoutes } from '@analogjs/router';
-import { ApplicationConfig, provideExperimentalZonelessChangeDetection } from '@angular/core';
+import { ApplicationConfig, provideZonelessChangeDetection } from '@angular/core';
 
 export const appConfig: ApplicationConfig = {
-  providers: [provideExperimentalZonelessChangeDetection(), provideFileRouter(withDebugRoutes())],
+  providers: [provideZonelessChangeDetection(), provideFileRouter(withDebugRoutes())],
 };

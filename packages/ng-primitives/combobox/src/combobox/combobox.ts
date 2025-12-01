@@ -43,7 +43,7 @@ type T = any;
   providers: [provideComboboxState()],
   host: {
     '[attr.tabindex]': 'input() ? -1 : (state.disabled() ? -1 : 0)',
-    '[attr.data-open]': 'state.open() ? "" : undefined',
+    '[attr.data-open]': 'open() ? "" : undefined',
     '[attr.data-disabled]': 'state.disabled() ? "" : undefined',
     '[attr.data-multiple]': 'state.multiple() ? "" : undefined',
     '[attr.data-invalid]': 'controlStatus()?.invalid ? "" : undefined',
@@ -601,7 +601,11 @@ export class NgpCombobox {
         break;
       case 'Enter':
         if (this.open()) {
-          this.selectOption(this.activeDescendantManager.activeItem());
+          const activeItem = this.activeDescendantManager.activeItem();
+
+          if (activeItem) {
+            this.toggleOption(activeItem);
+          }
         }
         event.preventDefault();
         break;
@@ -610,6 +614,12 @@ export class NgpCombobox {
           this.closeDropdown();
         }
         event.preventDefault();
+        break;
+      case ' ':
+        if (!this.input()) {
+          this.toggleDropdown();
+          event.preventDefault();
+        }
         break;
     }
   }

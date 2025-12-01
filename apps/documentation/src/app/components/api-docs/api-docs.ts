@@ -14,7 +14,7 @@ export class ApiDocs implements OnInit {
   readonly directive = signal<DirectiveDefinition | null>(null);
 
   async ngOnInit() {
-    const defintions = (await import('../../api/documentation.json')) as Record<
+    const defintions = (await import('../../api/documentation.json')) as unknown as Record<
       string,
       DirectiveDefinition
     >;

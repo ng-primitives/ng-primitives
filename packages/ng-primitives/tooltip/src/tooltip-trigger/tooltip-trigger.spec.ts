@@ -277,11 +277,9 @@ describe('NgpTooltipTrigger', () => {
       // Wait a bit to ensure the error is logged
       await new Promise(resolve => setTimeout(resolve, 100));
 
+      // Verify the error was logged
       expect(consoleSpy).toHaveBeenCalledWith(
-        'ERROR',
-        expect.objectContaining({
-          message: expect.stringMatching(/ngpTooltipTrigger.+(none is provided)/),
-        }),
+        '[ngpTooltipTrigger]: Tooltip must be a string, TemplateRef, or ComponentType. Alternatively, set useTextContent to true if none is provided.',
       );
 
       consoleSpy.mockRestore();

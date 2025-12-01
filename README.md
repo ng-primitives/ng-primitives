@@ -31,6 +31,7 @@ The following table shows the compatibility between Angular Primitives and Angul
 | ------------------ | ----------------- |
 | 0.1.0 - 0.18.0     | 18.0.x            |
 | 0.19.0+            | 19.x.x or v20.x.x |
+| 0.90.0+            | 20.x.x or v21.x.x |
 
 ## Contributing
 
@@ -77,6 +78,14 @@ We welcome contributions from the community. Please refer to our [contributing g
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/liranmizrahi1"><img src="https://avatars.githubusercontent.com/u/212209501?v=4?s=100" width="100px;" alt="liranmizrahi1"/><br /><sub><b>liranmizrahi1</b></sub></a><br /><a href="https://github.com/ng-primitives/ng-primitives/commits?author=liranmizrahi1" title="Code">💻</a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/BennyPLS"><img src="https://avatars.githubusercontent.com/u/77506823?v=4?s=100" width="100px;" alt="BennyPLS"/><br /><sub><b>BennyPLS</b></sub></a><br /><a href="https://github.com/ng-primitives/ng-primitives/commits?author=BennyPLS" title="Code">💻</a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/arastorhuiev"><img src="https://avatars.githubusercontent.com/u/114357806?v=4?s=100" width="100px;" alt="Andrii Rastorhuiev"/><br /><sub><b>Andrii Rastorhuiev</b></sub></a><br /><a href="https://github.com/ng-primitives/ng-primitives/commits?author=arastorhuiev" title="Code">💻</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/heddendorp"><img src="https://avatars.githubusercontent.com/u/3612748?v=4?s=100" width="100px;" alt="Lukas Heddendorp"/><br /><sub><b>Lukas Heddendorp</b></sub></a><br /><a href="https://github.com/ng-primitives/ng-primitives/commits?author=heddendorp" title="Code">💻</a></td>
+    </tr>
+    <tr>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/ainsly"><img src="https://avatars.githubusercontent.com/u/1775015?v=4?s=100" width="100px;" alt="ainsly"/><br /><sub><b>ainsly</b></sub></a><br /><a href="https://github.com/ng-primitives/ng-primitives/commits?author=ainsly" title="Code">💻</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/abiramcodes"><img src="https://avatars.githubusercontent.com/u/131433061?v=4?s=100" width="100px;" alt="Abiram"/><br /><sub><b>Abiram</b></sub></a><br /><a href="https://github.com/ng-primitives/ng-primitives/commits?author=abiramcodes" title="Code">💻</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://alexknipfer.com"><img src="https://avatars.githubusercontent.com/u/1299646?v=4?s=100" width="100px;" alt="Alex"/><br /><sub><b>Alex</b></sub></a><br /><a href="https://github.com/ng-primitives/ng-primitives/commits?author=alexknipfer" title="Code">💻</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/zecka"><img src="https://avatars.githubusercontent.com/u/18116930?v=4?s=100" width="100px;" alt="zecka"/><br /><sub><b>zecka</b></sub></a><br /><a href="https://github.com/ng-primitives/ng-primitives/commits?author=zecka" title="Code">💻</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/janek64"><img src="https://avatars.githubusercontent.com/u/56741217?v=4?s=100" width="100px;" alt="Janek Berg"/><br /><sub><b>Janek Berg</b></sub></a><br /><a href="https://github.com/ng-primitives/ng-primitives/commits?author=janek64" title="Code">💻</a></td>
     </tr>
   </tbody>
 </table>

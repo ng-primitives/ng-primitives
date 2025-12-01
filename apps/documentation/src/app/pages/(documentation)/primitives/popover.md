@@ -57,6 +57,30 @@ Create a popover component that uses the `NgpPopover` directive.
 
 <docs-snippet name="popover"></docs-snippet>
 
+## Schematics
+
+Generate a reusable tooltip component using the Angular CLI.
+
+```bash npm
+ng g ng-primitives:primitive popover
+```
+
+### Options
+
+- `path`: The path at which to create the component file.
+- `prefix`: The prefix to apply to the generated component selector.
+- `componentSuffix`: The suffix to apply to the generated component class name.
+- `fileSuffix`: The suffix to apply to the generated component file name. Defaults to `component`.
+- `exampleStyles`: Whether to include example styles in the generated component file. Defaults to `true`
+
+## Examples
+
+### Popover with anchor
+
+The popover can be anchored to a different element than the trigger.
+
+<docs-example name="popover-anchor"></docs-example>
+
 ## API Reference
 
 The following directives are available to import from the `ng-primitives/popover` package:

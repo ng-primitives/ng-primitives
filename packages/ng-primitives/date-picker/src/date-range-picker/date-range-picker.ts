@@ -136,7 +136,7 @@ export class NgpDateRangePicker<T> {
   /**
    * The date range picker state.
    */
-  private readonly state = dateRangePickerState<NgpDateRangePicker<T>>(this);
+  protected readonly state = dateRangePickerState<NgpDateRangePicker<T>>(this);
 
   /**
    * Set the focused date.
@@ -210,6 +210,7 @@ export class NgpDateRangePicker<T> {
   /**
    * Select a date.
    * @param date The date to select.
+   * @param preserveTime Whether to preserve time components from existing selected dates.
    * @internal
    */
   /**
@@ -228,36 +229,55 @@ export class NgpDateRangePicker<T> {
    *   - Resets the selection, setting the selected date as the new start date and clearing the end date.
    *
    * @param date The date to select.
+   * @param preserveTime Whether to preserve time components from existing selected dates.
    */
-  select(date: T): void {
+  select(date: T, preserveTime = false): void {
     const start = this.state.startDate();
     const end = this.state.endDate();
 
+    // Helper function to preserve time components when preserveTime is enabled
+    const maybePreserveTime = (newDate: T, existingDate: T | undefined): T => {
+      if (!preserveTime || !existingDate) {
+        return newDate;
+      }
+
+      return this.dateAdapter.set(existingDate, {
+        year: this.dateAdapter.getYear(newDate),
+        month: this.dateAdapter.getMonth(newDate),
+        day: this.dateAdapter.getDate(newDate),
+      });
+    };
+
     if (!start && !end) {
-      this.state.startDate.set(date);
-      this.startDateChange.emit(date);
+      const selectedDate = maybePreserveTime(date, undefined);
+      this.state.startDate.set(selectedDate);
+      this.startDateChange.emit(selectedDate);
       return;
     }
 
     if (start && !end) {
       if (this.dateAdapter.isAfter(date, start)) {
-        this.state.endDate.set(date);
-        this.endDateChange.emit(date);
+        const selectedDate = maybePreserveTime(date, undefined);
+        this.state.endDate.set(selectedDate);
+        this.endDateChange.emit(selectedDate);
       } else if (this.dateAdapter.isBefore(date, start)) {
-        this.state.startDate.set(date);
+        const selectedStartDate = maybePreserveTime(date, start);
+        this.state.startDate.set(selectedStartDate);
         this.state.endDate.set(start);
-        this.startDateChange.emit(date);
+        this.startDateChange.emit(selectedStartDate);
         this.endDateChange.emit(start);
       } else if (this.dateAdapter.isSameDay(date, start)) {
-        this.state.endDate.set(date);
-        this.endDateChange.emit(date);
+        const selectedDate = maybePreserveTime(date, undefined);
+        this.state.endDate.set(selectedDate);
+        this.endDateChange.emit(selectedDate);
       }
       return;
     }
 
     // If both start and end are selected, reset selection
-    this.state.startDate.set(date);
-    this.startDateChange.emit(date);
+    const selectedDate = maybePreserveTime(date, start);
+    this.state.startDate.set(selectedDate);
+    this.startDateChange.emit(selectedDate);
     this.state.endDate.set(undefined);
     this.endDateChange.emit(undefined);
   }

@@ -73,9 +73,10 @@
       }
     },
     "nx-release-publish": {
+      "executor": "nx:run-commands",
       "dependsOn": ["build"],
       "options": {
-        "packageRoot": "{workspaceRoot}/dist/{projectRoot}"
+        "command": "pnpm publish dist/packages/ng-primitives --access public --tag latest --no-git-checks"
       }
     }
   }

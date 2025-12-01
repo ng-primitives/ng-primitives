@@ -123,7 +123,7 @@ export class NgpListbox<T> implements AfterContentInit {
   /**
    * The listbox state
    */
-  private readonly state = listboxState<NgpListbox<T>>(this);
+  protected readonly state = listboxState<NgpListbox<T>>(this);
 
   constructor() {
     ngpFocusVisibleInteraction({ disabled: this.state.disabled });

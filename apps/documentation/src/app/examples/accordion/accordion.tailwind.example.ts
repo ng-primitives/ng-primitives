@@ -55,7 +55,7 @@ import { NgpButton } from 'ng-primitives/button';
       <div #panel1="ngpAccordionItem" ngpAccordionItem ngpAccordionItemValue="item-1">
         <h3 class="m-0">
           <button
-            class="flex h-11 w-full items-center justify-between rounded-xl bg-white px-4 text-sm font-medium text-gray-900 outline-none data-[focus-visible]:ring-2 data-[focus-visible]:ring-blue-500 dark:bg-black dark:text-gray-100"
+            class="flex h-11 w-full items-center justify-between rounded-xl bg-white px-4 text-sm font-medium text-gray-900 outline-hidden data-focus-visible:ring-2 data-focus-visible:ring-blue-500 dark:bg-black dark:text-gray-100"
             ngpAccordionTrigger
             ngpButton
           >
@@ -68,10 +68,10 @@ import { NgpButton } from 'ng-primitives/button';
           </button>
         </h3>
         <div
-          class="overflow-hidden text-sm text-gray-500 data-[closed]:animate-[slideUp] data-[open]:animate-[slideDown] dark:text-gray-400"
+          class="overflow-hidden text-sm text-gray-500 data-closed:animate-[slideUp] data-open:animate-[slideDown] dark:text-gray-400"
           ngpAccordionContent
         >
-          <div class="px-4 pb-4 pt-0">
+          <div class="px-4 pt-0 pb-4">
             If you would like to learn more please reach out to us on GitHub.
           </div>
         </div>
@@ -80,7 +80,7 @@ import { NgpButton } from 'ng-primitives/button';
       <div #panel2="ngpAccordionItem" ngpAccordionItem ngpAccordionItemValue="item-2">
         <h3 class="m-0">
           <button
-            class="flex h-11 w-full items-center justify-between rounded-xl bg-white px-4 text-sm font-medium text-gray-900 outline-none data-[focus-visible]:ring-2 data-[focus-visible]:ring-blue-500 dark:bg-black dark:text-gray-100"
+            class="flex h-11 w-full items-center justify-between rounded-xl bg-white px-4 text-sm font-medium text-gray-900 outline-hidden data-focus-visible:ring-2 data-focus-visible:ring-blue-500 dark:bg-black dark:text-gray-100"
             ngpAccordionTrigger
             ngpButton
           >
@@ -93,10 +93,10 @@ import { NgpButton } from 'ng-primitives/button';
           </button>
         </h3>
         <div
-          class="overflow-hidden text-sm text-gray-500 data-[closed]:animate-[slideUp] data-[open]:animate-[slideDown] dark:text-gray-400"
+          class="overflow-hidden text-sm text-gray-500 data-closed:animate-[slideUp] data-open:animate-[slideDown] dark:text-gray-400"
           ngpAccordionContent
         >
-          <div class="px-4 pb-4 pt-0">
+          <div class="px-4 pt-0 pb-4">
             Yes, this is open source and you can use it in your project.
           </div>
         </div>

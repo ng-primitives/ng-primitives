@@ -1,5 +1,5 @@
 import { provideContent, withMarkdownRenderer } from '@analogjs/content';
-import { withPrismHighlighter } from '@analogjs/content/prism-highlighter';
+import { withShikiHighlighter } from '@analogjs/content/shiki-highlighter';
 import { provideFileRouter } from '@analogjs/router';
 import { isPlatformBrowser } from '@angular/common';
 import {
@@ -8,7 +8,7 @@ import {
   Injector,
   PLATFORM_ID,
   provideAppInitializer,
-  provideExperimentalZonelessChangeDetection,
+  provideZonelessChangeDetection,
 } from '@angular/core';
 import { provideClientHydration } from '@angular/platform-browser';
 import { withInMemoryScrolling } from '@angular/router';
@@ -25,8 +25,17 @@ export const appConfig: ApplicationConfig = {
       withInMemoryScrolling({ anchorScrolling: 'enabled', scrollPositionRestoration: 'top' }),
     ),
     provideClientHydration(),
-    provideContent(withMarkdownRenderer(), withPrismHighlighter()),
-    provideExperimentalZonelessChangeDetection(),
+    provideContent(
+      withMarkdownRenderer(),
+      withShikiHighlighter({
+        theme: 'github-light',
+        themes: {
+          light: 'github-light',
+          dark: 'github-dark',
+        },
+      }),
+    ),
+    provideZonelessChangeDetection(),
     provideAppInitializer(() => {
       const initializerFn = initializeCustomElements(inject(Injector), inject(PLATFORM_ID));
       return initializerFn();

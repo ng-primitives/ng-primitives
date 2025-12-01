@@ -48,13 +48,13 @@ Angular Primitives relies on a few peer dependencies that need to be installed. 
 
 | Package          | Version  |
 | ---------------- | -------- |
-| @angular/cdk     | >=19.0.0 |
+| @angular/cdk     | >=20.0.0 |
 | @floating-ui/dom | >=1.6.0  |
 
 To install these dependencies, run the following command:
 
 ```bash
-npm i @angular/cdk@^19.0.0 @floating-ui/dom@^1.6.0
+npm i @angular/cdk@^21.0.0 @floating-ui/dom@^1.6.0
 ```
 
   </tab-item>

@@ -1,7 +1,6 @@
 import { FocusMonitor } from '@angular/cdk/a11y';
 import { Overlay, OverlayConfig, OverlayContainer, ScrollStrategy } from '@angular/cdk/overlay';
 import { ComponentPortal, TemplatePortal } from '@angular/cdk/portal';
-import { DOCUMENT } from '@angular/common';
 import {
   ApplicationRef,
   Injectable,
@@ -13,6 +12,7 @@ import {
   ViewContainerRef,
   inject,
   isDevMode,
+  DOCUMENT,
 } from '@angular/core';
 import { NgpExitAnimationManager } from 'ng-primitives/internal';
 import { uniqueId } from 'ng-primitives/utils';

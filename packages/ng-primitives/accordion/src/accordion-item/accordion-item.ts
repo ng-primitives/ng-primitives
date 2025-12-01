@@ -16,7 +16,7 @@ import { accordionItemState, provideAccordionItemState } from './accordion-item-
   providers: [provideAccordionItemState()],
   host: {
     '[attr.data-orientation]': 'accordion().orientation()',
-    '[attr.data-open]': 'state.open() ? "" : null',
+    '[attr.data-open]': 'open() ? "" : null',
     '[attr.data-disabled]': 'state.disabled() || accordion().disabled() ? "" : null',
   },
 })
@@ -71,5 +71,5 @@ export class NgpAccordionItem<T> {
   /**
    * The accordion item state.
    */
-  private readonly state = accordionItemState<NgpAccordionItem<T>>(this);
+  protected readonly state = accordionItemState<NgpAccordionItem<T>>(this);
 }

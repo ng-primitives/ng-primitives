@@ -60,7 +60,7 @@ export class NgpPaginationPrevious {
    */
   @HostListener('keydown.enter', ['$event'])
   @HostListener('keydown.space', ['$event'])
-  protected onEnter(event: KeyboardEvent): void {
+  protected onEnter(event: Event): void {
     event.preventDefault();
     event.stopPropagation();
     this.goToPreviousPage();

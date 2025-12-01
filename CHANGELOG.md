@@ -1,3 +1,85 @@
+## 0.90.0 (2025-11-20)
+
+### 🚀 Features
+
+- angular 21 ([#529](https://github.com/ng-primitives/ng-primitives/pull/529))
+
+### ❤️ Thank You
+
+- Ashley Hunter
+
+## 0.89.0 (2025-11-12)
+
+### 🚀 Features
+
+- breadcrumbs ([#527](https://github.com/ng-primitives/ng-primitives/pull/527))
+
+### 🩹 Fixes
+
+- **date picker:** preserve time on date selection ([#525](https://github.com/ng-primitives/ng-primitives/pull/525))
+
+### ❤️ Thank You
+
+- Ashley Hunter
+
+## 0.88.0 (2025-11-10)
+
+### 🚀 Features
+
+- input otp ([#519](https://github.com/ng-primitives/ng-primitives/pull/519))
+
+### 🩹 Fixes
+
+- **combobox:** open dropdown on Space key press when no input is present ([#522](https://github.com/ng-primitives/ng-primitives/pull/522), [#523](https://github.com/ng-primitives/ng-primitives/pull/523))
+
+### ❤️ Thank You
+
+- Ashley Hunter
+- Robin Ferrari @zecka
+
+## 0.87.0 (2025-11-04)
+
+### 🩹 Fixes
+
+- **date-picker:** resolve issue of not selecting previous month if day doesn't exists ([#506](https://github.com/ng-primitives/ng-primitives/pull/506))
+- **file-upload:** hide native input to prevent visible injection ([#501](https://github.com/ng-primitives/ng-primitives/pull/501), [#507](https://github.com/ng-primitives/ng-primitives/pull/507))
+- **resize:** support inline elements ([#511](https://github.com/ng-primitives/ng-primitives/pull/511))
+
+### ❤️ Thank You
+
+- Alex
+- Ashley Hunter
+- zecka @zecka
+
+## 0.86.0 (2025-10-29)
+
+### 🚀 Features
+
+- **slider:** added rtl support ([#499](https://github.com/ng-primitives/ng-primitives/pull/499))
+
+### 🩹 Fixes
+
+- add compatibility for @angular/cdk@20 caused by removed deprecations in DomPortalOutlet ([#486](https://github.com/ng-primitives/ng-primitives/pull/486))
+- **combobox:** resolve issue with option not de-selecting on enter keypress ([#503](https://github.com/ng-primitives/ng-primitives/pull/503))
+- **select:** apply data-selected attribute in multi-select mode ([#494](https://github.com/ng-primitives/ng-primitives/pull/494))
+
+### ❤️ Thank You
+
+- Abiram @abiramcodes
+- ainsly @ainsly
+- Alex
+- Lukas Heddendorp @heddendorp
+
+## 0.85.0 (2025-10-20)
+
+### 🚀 Features
+
+- **popover:** popover anchor ([#495](https://github.com/ng-primitives/ng-primitives/pull/495))
+
+### ❤️ Thank You
+
+- Ashley Hunter
+
 ## 0.84.0 (2025-10-13)
 
 ### 🚀 Features

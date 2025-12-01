@@ -69,7 +69,7 @@ export class NgpAccordion<T> {
   /**
    * The accordion state.
    */
-  private readonly state = accordionState<NgpAccordion<T>>(this);
+  protected readonly state = accordionState<NgpAccordion<T>>(this);
 
   /**
    * @param value The value to check.

@@ -1,6 +1,7 @@
 /// <reference types="vitest" />
 import analog from '@analogjs/platform';
 import { nxViteTsPaths } from '@nx/vite/plugins/nx-tsconfig-paths.plugin';
+import tailwindcss from '@tailwindcss/vite';
 import { readFileSync } from 'fs';
 import { globSync } from 'glob';
 import { Plugin, defineConfig } from 'vite';
@@ -58,17 +59,30 @@ export default defineConfig(({ mode }) => {
             }),
           ],
           sitemap: {
-            host: 'https://ng-primitives.netlify.app/',
+            host: 'https://angularprimitives.com/',
           },
         },
         content: {
-          prismOptions: {
-            additionalLangs: ['scss'],
+          highlighter: 'shiki',
+          shikiOptions: {
+            highlight: {
+              themes: {
+                light: 'github-light',
+                dark: 'github-dark',
+              },
+              defaultColor: false,
+            },
+            highlighter: {
+              // add more languages
+              additionalLangs: ['bash', 'typescript', 'json', 'angular-html', 'angular-ts'],
+              themes: ['github-light', 'github-dark'],
+            },
           },
         },
       }),
       nxViteTsPaths(),
       sourceQueryPlugin(),
+      tailwindcss(),
     ],
     test: {
       globals: true,

@@ -60,8 +60,9 @@ export class NgpDatePickerDateButton<T> implements OnDestroy {
 
   /**
    * Determine if this is the selected date.
+   * @internal
    */
-  protected readonly selected = computed(() => this.state().isSelected(this.date));
+  readonly selected = computed(() => this.state().isSelected(this.date));
 
   /**
    * Determine if this is the start date of the range.
@@ -135,7 +136,7 @@ export class NgpDatePickerDateButton<T> implements OnDestroy {
   @HostListener('click')
   @HostListener('keydown.enter', ['$event'])
   @HostListener('keydown.space', ['$event'])
-  protected select(event?: KeyboardEvent): void {
+  protected select(event?: Event): void {
     // if the button is disabled, do nothing.
     if (this.disabled()) {
       return;
@@ -148,7 +149,8 @@ export class NgpDatePickerDateButton<T> implements OnDestroy {
       event.stopPropagation();
     }
 
-    this.state().select(this.date);
+    // Select the date with time preservation enabled for button clicks
+    this.state().select(this.date, true);
     this.state().setFocusedDate(this.date, 'mouse', 'forward');
   }
 
@@ -166,7 +168,7 @@ export class NgpDatePickerDateButton<T> implements OnDestroy {
    * Focus the previous cell.
    */
   @HostListener('keydown.arrowLeft', ['$event'])
-  protected focusPrevious(event: KeyboardEvent): void {
+  protected focusPrevious(event: Event): void {
     event.preventDefault();
     event.stopPropagation();
 
@@ -185,7 +187,7 @@ export class NgpDatePickerDateButton<T> implements OnDestroy {
    * Focus the next cell.
    */
   @HostListener('keydown.arrowRight', ['$event'])
-  protected focusNext(event: KeyboardEvent): void {
+  protected focusNext(event: Event): void {
     event.preventDefault();
     event.stopPropagation();
 
@@ -204,7 +206,7 @@ export class NgpDatePickerDateButton<T> implements OnDestroy {
    * Focus the above cell.
    */
   @HostListener('keydown.arrowUp', ['$event'])
-  protected focusAbove(event: KeyboardEvent): void {
+  protected focusAbove(event: Event): void {
     event.preventDefault();
     event.stopPropagation();
 
@@ -215,7 +217,7 @@ export class NgpDatePickerDateButton<T> implements OnDestroy {
    * Focus the below cell.
    */
   @HostListener('keydown.arrowDown', ['$event'])
-  protected focusBelow(event: KeyboardEvent): void {
+  protected focusBelow(event: Event): void {
     event.preventDefault();
     event.stopPropagation();
 
@@ -226,7 +228,7 @@ export class NgpDatePickerDateButton<T> implements OnDestroy {
    * Focus the first date of the month.
    */
   @HostListener('keydown.home', ['$event'])
-  protected focusFirst(event: KeyboardEvent): void {
+  protected focusFirst(event: Event): void {
     event.preventDefault();
     event.stopPropagation();
     this.focusDate(this.dateAdapter.startOfMonth(this.state().focusedDate()), 'forward');
@@ -236,7 +238,7 @@ export class NgpDatePickerDateButton<T> implements OnDestroy {
    * Focus the last date of the month.
    */
   @HostListener('keydown.end', ['$event'])
-  protected focusLast(event: KeyboardEvent): void {
+  protected focusLast(event: Event): void {
     event.preventDefault();
     event.stopPropagation();
     this.focusDate(this.dateAdapter.endOfMonth(this.state().focusedDate()), 'backward');
@@ -246,7 +248,7 @@ export class NgpDatePickerDateButton<T> implements OnDestroy {
    * Focus the same date in the previous month.
    */
   @HostListener('keydown.pageUp', ['$event'])
-  protected focusPreviousMonth(event: KeyboardEvent): void {
+  protected focusPreviousMonth(event: Event): void {
     event.preventDefault();
     event.stopPropagation();
 
@@ -270,7 +272,7 @@ export class NgpDatePickerDateButton<T> implements OnDestroy {
    * Focus the same date in the next month.
    */
   @HostListener('keydown.pageDown', ['$event'])
-  protected focusNextMonth(event: KeyboardEvent): void {
+  protected focusNextMonth(event: Event): void {
     event.preventDefault();
     event.stopPropagation();
 

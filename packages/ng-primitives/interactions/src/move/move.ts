@@ -52,7 +52,7 @@ export class NgpMove {
   /**
    * Whether the element is currently being moved.
    */
-  private isMoving = signal<boolean>(false);
+  protected isMoving = signal<boolean>(false);
 
   /**
    * Store the last x position of the element.
@@ -219,31 +219,31 @@ export class NgpMove {
   }
 
   @HostListener('keydown.ArrowUp', ['$event'])
-  protected onArrowUp(event: KeyboardEvent): void {
+  protected onArrowUp(event: Event): void {
     event.preventDefault();
     event.stopPropagation();
-    this.triggerKeyboardMove(event, 0, -1);
+    this.triggerKeyboardMove(event as KeyboardEvent, 0, -1);
   }
 
   @HostListener('keydown.ArrowDown', ['$event'])
-  protected onArrowDown(event: KeyboardEvent): void {
+  protected onArrowDown(event: Event): void {
     event.preventDefault();
     event.stopPropagation();
-    this.triggerKeyboardMove(event, 0, 1);
+    this.triggerKeyboardMove(event as KeyboardEvent, 0, 1);
   }
 
   @HostListener('keydown.ArrowLeft', ['$event'])
-  protected onArrowLeft(event: KeyboardEvent): void {
+  protected onArrowLeft(event: Event): void {
     event.preventDefault();
     event.stopPropagation();
-    this.triggerKeyboardMove(event, -1, 0);
+    this.triggerKeyboardMove(event as KeyboardEvent, -1, 0);
   }
 
   @HostListener('keydown.ArrowRight', ['$event'])
-  protected onArrowRight(event: KeyboardEvent): void {
+  protected onArrowRight(event: Event): void {
     event.preventDefault();
     event.stopPropagation();
-    this.triggerKeyboardMove(event, 1, 0);
+    this.triggerKeyboardMove(event as KeyboardEvent, 1, 0);
   }
 }
 

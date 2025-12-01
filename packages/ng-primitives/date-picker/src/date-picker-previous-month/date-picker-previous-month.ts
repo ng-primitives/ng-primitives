@@ -80,7 +80,6 @@ export class NgpDatePickerPreviousMonth<T> {
 
     // move focus to the first day of the previous month.
     let date = this.state().focusedDate();
-    date = this.dateAdapter.subtract(date, { months: 1 });
     date = this.dateAdapter.set(date, {
       day: 1,
       hour: 0,
@@ -88,6 +87,7 @@ export class NgpDatePickerPreviousMonth<T> {
       second: 0,
       millisecond: 0,
     });
+    date = this.dateAdapter.subtract(date, { months: 1 });
 
     this.state().setFocusedDate(date, 'mouse', 'backward');
   }

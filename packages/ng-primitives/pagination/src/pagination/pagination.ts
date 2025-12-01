@@ -73,7 +73,7 @@ export class NgpPagination {
    * The control state for the pagination.
    * @internal
    */
-  private readonly state = paginationState<NgpPagination>(this);
+  protected readonly state = paginationState<NgpPagination>(this);
 
   /**
    * Go to the specified page.

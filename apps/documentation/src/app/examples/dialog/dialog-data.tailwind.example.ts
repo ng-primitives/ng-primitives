@@ -14,7 +14,7 @@ import {
   imports: [NgpButton],
   template: `
     <button
-      class="h-10 rounded-lg border-none bg-white px-4 font-medium text-zinc-900 shadow ring-1 ring-black/5 transition-colors duration-300 ease-in-out data-[hover]:bg-zinc-50 data-[press]:bg-zinc-100 data-[focus-visible]:outline-2 data-[focus-visible]:outline-offset-2 data-[focus-visible]:outline-blue-500 dark:bg-zinc-950 dark:text-zinc-100 dark:ring-white/10 dark:data-[hover]:bg-zinc-900 dark:data-[press]:bg-zinc-800"
+      class="h-10 rounded-lg border-none bg-white px-4 font-medium text-zinc-900 shadow-sm ring-1 ring-black/5 transition-colors duration-300 ease-in-out data-focus-visible:outline-2 data-focus-visible:outline-offset-2 data-focus-visible:outline-blue-500 data-hover:bg-zinc-50 data-press:bg-zinc-100 dark:bg-zinc-950 dark:text-zinc-100 dark:ring-white/10 dark:data-hover:bg-zinc-900 dark:data-press:bg-zinc-800"
       (click)="openDialog()"
       ngpButton
     >
@@ -36,7 +36,7 @@ export default class DialogDataExample {
   imports: [NgpButton, NgpDialog, NgpDialogOverlay, NgpDialogTitle, NgpDialogDescription],
   template: `
     <div
-      class="animate-fade fixed inset-0 z-40 flex items-center justify-center bg-black/50 backdrop-blur-sm"
+      class="animate-fade fixed inset-0 z-40 flex items-center justify-center bg-black/50 backdrop-blur-xs"
       ngpDialogOverlay
     >
       <div
@@ -50,20 +50,20 @@ export default class DialogDataExample {
           The following value was passed to the dialog:
         </p>
 
-        <p class="mt-2 text-sm font-semibold leading-5 text-zinc-900 dark:text-zinc-100">
+        <p class="mt-2 text-sm leading-5 font-semibold text-zinc-900 dark:text-zinc-100">
           {{ dialogRef.data }}
         </p>
 
         <div class="mt-8 flex justify-end gap-2">
           <button
-            class="h-10 rounded-lg border-none bg-white px-4 font-medium text-zinc-900 shadow ring-1 ring-black/5 transition-colors duration-300 ease-in-out data-[hover]:bg-zinc-50 data-[press]:bg-zinc-100 data-[focus-visible]:outline-2 data-[focus-visible]:outline-offset-2 data-[focus-visible]:outline-blue-500 dark:bg-zinc-950 dark:text-zinc-100 dark:ring-white/10 dark:data-[hover]:bg-zinc-900 dark:data-[press]:bg-zinc-800"
+            class="h-10 rounded-lg border-none bg-white px-4 font-medium text-zinc-900 shadow-sm ring-1 ring-black/5 transition-colors duration-300 ease-in-out data-focus-visible:outline-2 data-focus-visible:outline-offset-2 data-focus-visible:outline-blue-500 data-hover:bg-zinc-50 data-press:bg-zinc-100 dark:bg-zinc-950 dark:text-zinc-100 dark:ring-white/10 dark:data-hover:bg-zinc-900 dark:data-press:bg-zinc-800"
             (click)="close()"
             ngpButton
           >
             Cancel
           </button>
           <button
-            class="h-10 rounded-lg border-none bg-white px-4 font-medium text-blue-600 shadow ring-1 ring-black/5 transition-colors duration-300 ease-in-out data-[hover]:bg-blue-50 data-[press]:bg-blue-100 data-[focus-visible]:outline-2 data-[focus-visible]:outline-offset-2 data-[focus-visible]:outline-blue-500 dark:bg-zinc-950 dark:text-blue-400 dark:ring-white/10 dark:data-[hover]:bg-zinc-900 dark:data-[press]:bg-zinc-800"
+            class="h-10 rounded-lg border-none bg-white px-4 font-medium text-blue-600 shadow-sm ring-1 ring-black/5 transition-colors duration-300 ease-in-out data-focus-visible:outline-2 data-focus-visible:outline-offset-2 data-focus-visible:outline-blue-500 data-hover:bg-blue-50 data-press:bg-blue-100 dark:bg-zinc-950 dark:text-blue-400 dark:ring-white/10 dark:data-hover:bg-zinc-900 dark:data-press:bg-zinc-800"
             (click)="close()"
             ngpButton
           >
