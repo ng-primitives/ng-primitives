@@ -1,3 +1,22 @@
+## 0.91.0 (2025-12-01)
+
+### 🚀 Features
+
+- support signal forms ([#542](https://github.com/ng-primitives/ng-primitives/pull/542))
+
+### 🩹 Fixes
+
+- update sitemap host URL ([#535](https://github.com/ng-primitives/ng-primitives/pull/535))
+- **focus-visible:** use focus origin as data-focus-visible value ([#526](https://github.com/ng-primitives/ng-primitives/pull/526), [#543](https://github.com/ng-primitives/ng-primitives/pull/543))
+- **menu:** resolve nested submenu issue ([#533](https://github.com/ng-primitives/ng-primitives/pull/533))
+
+### ❤️ Thank You
+
+- Ajit Panigrahi
+- Ashley Hunter
+- Lukas Heddendorp
+- Robin Ferrari @zecka
+
 ## 0.90.0 (2025-11-20)
 
 ### 🚀 Features
