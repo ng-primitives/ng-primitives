@@ -81,13 +81,13 @@
     "projects": ["ng-primitives", "state"],
     "changelog": {
       "workspaceChangelog": true,
-      "automaticFromRef": true
+      "automaticFromRef": true,
+      "git": {
+        "commitMessage": "chore(release): publish {version}"
+      }
     },
     "projectsRelationship": "fixed",
-    "releaseTagPattern": "v{version}",
-    "git": {
-      "commitMessage": "chore(release): publish {version}"
-    }
+    "releaseTagPattern": "v{version}"
   },
   "defaultBase": "origin/next",
   "tui": {
