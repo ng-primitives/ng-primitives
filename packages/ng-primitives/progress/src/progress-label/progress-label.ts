@@ -8,7 +8,7 @@ import { injectProgressState } from '../progress/progress-state';
   exportAs: 'ngpProgressLabel',
   host: {
     '[attr.id]': 'id()',
-    '[attr.for]': 'elementRef.nativeElement.tagName === "LABEL" ? id() : null',
+    '[attr.for]': 'elementRef.nativeElement.tagName === "LABEL" ? state().id() : null',
     '[attr.data-progressing]': 'state().progressing() ? "" : null',
     '[attr.data-indeterminate]': 'state().indeterminate() ? "" : null',
     '[attr.data-complete]': 'state().complete() ? "" : null',

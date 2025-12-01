@@ -18,7 +18,7 @@ import {
   ],
   imports: [NgpProgressIndicator, NgpProgressTrack, NgpProgressLabel, NgpProgressValue],
   template: `
-    <span ngpProgressLabel>{{ label() }}</span>
+    <label ngpProgressLabel>{{ label() }}</label>
     <span ngpProgressValue>{{ value() }}%</span>
 
     <div ngpProgressTrack>
