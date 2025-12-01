@@ -1,4 +1,12 @@
-import { DestroyRef, Signal, WritableSignal, effect, inject, signal, untracked } from '@angular/core';
+import {
+  DestroyRef,
+  Signal,
+  WritableSignal,
+  effect,
+  inject,
+  signal,
+  untracked,
+} from '@angular/core';
 import { NgControl } from '@angular/forms';
 import { safeTakeUntilDestroyed } from '../observables/take-until-destroyed';
 
