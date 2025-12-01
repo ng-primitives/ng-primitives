@@ -10,6 +10,12 @@
 - **focus-visible:** use focus origin as data-focus-visible value ([#526](https://github.com/ng-primitives/ng-primitives/pull/526), [#543](https://github.com/ng-primitives/ng-primitives/pull/543))
 - **menu:** resolve nested submenu issue ([#533](https://github.com/ng-primitives/ng-primitives/pull/533))
 
+### Refactor
+
+This release includes a large refactor of how we handle state internally across the first batch of primitives. This refactor will enable us to avoid many of the current limitations with Host Directives. 
+
+This refactor is intended to be non-breaking, however if you do encounter any issues please raise an issue on GitHub.
+
 ### ❤️ Thank You
 
 - Ajit Panigrahi
