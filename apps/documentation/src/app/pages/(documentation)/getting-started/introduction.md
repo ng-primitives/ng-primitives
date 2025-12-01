@@ -35,6 +35,7 @@ Angular Primitives versions are compatible with the following Angular versions:
 | ------------------ | -------------- |
 | 0.1.0 - 0.18.0     | 18.x.x         |
 | 0.19.0+            | 19.x.x, 20.x.x |
+| 0.90.0+            | 20.x.x, 21.x.x |
 
 ### Version Support Policy
 

@@ -53,7 +53,7 @@ describe('NgpFocusVisible', () => {
     focusMonitor.focusVia(trigger, 'keyboard');
     container.detectChanges();
 
-    expect(trigger).toHaveAttribute('data-focus-visible');
+    expect(trigger).toHaveAttribute('data-focus-visible', 'keyboard');
     expect(focusChange).toHaveBeenCalledWith(true);
   });
 
@@ -100,6 +100,29 @@ describe('NgpFocusVisible', () => {
     container.detectChanges();
 
     expect(trigger).toHaveAttribute('data-focus-visible');
+    expect(focusChange).toHaveBeenCalledWith(true);
+  });
+
+  it('should always show focus on an input element when focused programmatically', async () => {
+    const container = await render(
+      `<input data-testid="trigger" (ngpFocusVisible)="focusChange($event)" />`,
+      {
+        imports: [NgpFocusVisible],
+        componentProperties: {
+          focusChange,
+        },
+      },
+    );
+
+    const focusMonitor = TestBed.inject(FocusMonitor);
+
+    const trigger = container.getByTestId('trigger');
+    expect(trigger).not.toHaveAttribute('data-focus-visible');
+
+    focusMonitor.focusVia(trigger, 'program');
+    container.detectChanges();
+
+    expect(trigger).toHaveAttribute('data-focus-visible', 'program');
     expect(focusChange).toHaveBeenCalledWith(true);
   });
 
@@ -174,7 +197,7 @@ describe('NgpFocusVisible', () => {
     focusMonitor.focusVia(trigger, 'mouse');
     container.detectChanges();
 
-    expect(trigger).toHaveAttribute('data-focus-visible');
+    expect(trigger).toHaveAttribute('data-focus-visible', 'mouse');
     expect(focusChange).toHaveBeenCalledWith(true);
   });
 
