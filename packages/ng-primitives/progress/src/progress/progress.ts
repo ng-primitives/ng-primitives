@@ -1,5 +1,6 @@
 import { NumberInput } from '@angular/cdk/coercion';
 import { Directive, computed, input, numberAttribute, signal } from '@angular/core';
+import { uniqueId } from 'ng-primitives/utils';
 import { NgpProgressLabel } from '../progress-label/progress-label';
 import { progressState, provideProgressState } from './progress-state';
 
@@ -11,11 +12,12 @@ import { progressState, provideProgressState } from './progress-state';
   providers: [provideProgressState()],
   host: {
     role: 'progressbar',
+    '[attr.id]': 'id()',
     '[attr.aria-valuemax]': 'state.max()',
     '[attr.aria-valuemin]': '0',
     '[attr.aria-valuenow]': 'state.value()',
     '[attr.aria-valuetext]': 'valueText()',
-    '[attr.aria-labelledby]': 'label() ? label()?.id : null',
+    '[attr.aria-labelledby]': 'label() ? label()?.id() : null',
     '[attr.data-progressing]': 'progressing() ? "" : null',
     '[attr.data-indeterminate]': 'indeterminate() ? "" : null',
     '[attr.data-complete]': 'complete() ? "" : null',
@@ -60,6 +62,11 @@ export class NgpProgress {
       alias: 'ngpProgressValueLabel',
     },
   );
+
+  /**
+   * The unique identifier for the progress.
+   */
+  readonly id = input<string>(uniqueId('ngp-progress'));
 
   /**
    * Determine if the progress is indeterminate.
