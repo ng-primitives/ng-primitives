@@ -1,3 +1,4 @@
+import { FormControl, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { render } from '@testing-library/angular';
 import { NgpFormControl } from './form-control';
 
@@ -67,6 +68,104 @@ describe('NgpFormControl', () => {
         const control = getByTestId('control');
         expect(control).not.toHaveAttribute('disabled');
       });
+    });
+  });
+
+  describe('data attributes with NgModel', () => {
+    it('should set data-pristine initially', async () => {
+      const { getByTestId } = await render(
+        `
+        <input ngpFormControl data-testid="control" [(ngModel)]="value" />
+      `,
+        {
+          imports: [NgpFormControl, FormsModule],
+          componentProperties: { value: '' },
+        },
+      );
+      const control = getByTestId('control');
+      expect(control).toHaveAttribute('data-pristine');
+    });
+
+    it('should set data-disabled when disabled', async () => {
+      const { getByTestId } = await render(
+        `
+        <input
+          ngpFormControl
+          data-testid="control"
+          [(ngModel)]="value"
+          [ngpFormControlDisabled]="true"
+        />
+      `,
+        {
+          imports: [NgpFormControl, FormsModule],
+          componentProperties: { value: '' },
+        },
+      );
+      const control = getByTestId('control');
+
+      expect(control).toHaveAttribute('data-disabled');
+    });
+  });
+
+  describe('data attributes with Reactive Forms', () => {
+    it('should set data-pristine initially', async () => {
+      const { getByTestId } = await render(
+        `
+        <input ngpFormControl data-testid="control" [formControl]="formControl" />
+      `,
+        {
+          imports: [NgpFormControl, ReactiveFormsModule],
+          componentProperties: { formControl: new FormControl('') },
+        },
+      );
+      const control = getByTestId('control');
+      expect(control).toHaveAttribute('data-pristine');
+    });
+
+    it('should set data-valid when form control is valid', async () => {
+      const { getByTestId } = await render(
+        `
+        <input ngpFormControl data-testid="control" [formControl]="formControl" />
+      `,
+        {
+          imports: [NgpFormControl, ReactiveFormsModule],
+          componentProperties: { formControl: new FormControl('valid value') },
+        },
+      );
+      const control = getByTestId('control');
+      expect(control).toHaveAttribute('data-valid');
+    });
+
+    it('should set data-invalid when form control has validation errors', async () => {
+      const formControl = new FormControl('', [Validators.required]);
+      formControl.markAsTouched(); // Mark as touched to trigger validation display
+
+      const { getByTestId } = await render(
+        `
+        <input ngpFormControl data-testid="control" [formControl]="formControl" />
+      `,
+        {
+          imports: [NgpFormControl, ReactiveFormsModule],
+          componentProperties: { formControl },
+        },
+      );
+      const control = getByTestId('control');
+      expect(control).toHaveAttribute('data-invalid');
+      expect(control).not.toHaveAttribute('data-valid');
+    });
+
+    it('should set data-disabled when form control is disabled', async () => {
+      const { getByTestId } = await render(
+        `
+        <input ngpFormControl data-testid="control" [formControl]="formControl" />
+      `,
+        {
+          imports: [NgpFormControl, ReactiveFormsModule],
+          componentProperties: { formControl: new FormControl({ value: '', disabled: true }) },
+        },
+      );
+      const control = getByTestId('control');
+      expect(control).toHaveAttribute('data-disabled');
     });
   });
 });
