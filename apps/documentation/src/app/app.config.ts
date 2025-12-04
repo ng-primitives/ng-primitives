@@ -1,7 +1,7 @@
 import { provideContent, withMarkdownRenderer } from '@analogjs/content';
 import { withShikiHighlighter } from '@analogjs/content/shiki-highlighter';
 import { provideFileRouter } from '@analogjs/router';
-import { isPlatformBrowser } from '@angular/common';
+import { isPlatformBrowser, ViewportScroller } from '@angular/common';
 import {
   ApplicationConfig,
   inject,
@@ -39,6 +39,11 @@ export const appConfig: ApplicationConfig = {
     provideAppInitializer(() => {
       const initializerFn = initializeCustomElements(inject(Injector), inject(PLATFORM_ID));
       return initializerFn();
+    }),
+    provideAppInitializer(() => {
+      const scroller = inject(ViewportScroller);
+      // Set scroll offset for fixed header (64px header + 16px buffer)
+      scroller.setOffset([0, 80]);
     }),
   ],
 };
