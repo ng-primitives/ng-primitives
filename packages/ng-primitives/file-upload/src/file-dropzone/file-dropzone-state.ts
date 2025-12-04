@@ -1,28 +1,171 @@
-import {
-  createState,
-  createStateInjector,
-  createStateProvider,
-  createStateToken,
-} from 'ng-primitives/state';
-import type { NgpFileDropzone } from './file-dropzone';
+import { Signal, signal } from '@angular/core';
+import { injectElementRef } from 'ng-primitives/internal';
+import { createPrimitive, dataBinding, listener } from 'ng-primitives/state';
+import { Observable, Subject } from 'rxjs';
+import { fileDropFilter } from './file-drop-filter';
 
 /**
- * The state token  for the FileDropzone primitive.
+ * The state for the NgpFileDropzone directive.
  */
-export const NgpFileDropzoneStateToken = createStateToken<NgpFileDropzone>('FileDropzone');
+export interface NgpFileDropzoneState {
+  /**
+   * Whether the user is currently dragging over the element.
+   */
+  readonly isDragOver: Signal<boolean>;
+  /**
+   * Observable that emits when files are selected.
+   */
+  readonly selected: Observable<FileList | null>;
+  /**
+   * Observable that emits when files are rejected.
+   */
+  readonly rejected: Observable<void>;
+  /**
+   * Observable that emits when drag over state changes.
+   */
+  readonly dragOverChanged: Observable<boolean>;
+}
 
 /**
- * Provides the FileDropzone state.
+ * The props for the NgpFileDropzone state.
  */
-export const provideFileDropzoneState = createStateProvider(NgpFileDropzoneStateToken);
+export interface NgpFileDropzoneProps {
+  /**
+   * The accepted file types.
+   */
+  readonly fileTypes?: Signal<string[] | undefined>;
+  /**
+   * Whether multiple files can be selected.
+   */
+  readonly multiple?: Signal<boolean>;
+  /**
+   * Whether directories can be selected.
+   */
+  readonly directory?: Signal<boolean>;
+  /**
+   * Whether the file dropzone is disabled.
+   */
+  readonly disabled?: Signal<boolean>;
+  /**
+   * Callback when files are selected.
+   */
+  readonly onSelected?: (files: FileList | null) => void;
+  /**
+   * Callback when files are rejected.
+   */
+  readonly onRejected?: () => void;
+  /**
+   * Callback when drag over state changes.
+   */
+  readonly onDragOver?: (isDragOver: boolean) => void;
+}
 
-/**
- * Injects the FileDropzone state.
- */
-export const injectFileDropzoneState =
-  createStateInjector<NgpFileDropzone>(NgpFileDropzoneStateToken);
+export const [
+  NgpFileDropzoneStateToken,
+  ngpFileDropzone,
+  injectFileDropzoneState,
+  provideFileDropzoneState,
+] = createPrimitive(
+  'NgpFileDropzone',
+  ({
+    fileTypes,
+    multiple,
+    directory,
+    disabled,
+    onSelected,
+    onRejected,
+    onDragOver,
+  }: NgpFileDropzoneProps) => {
+    const element = injectElementRef();
+    const isDragOverState = signal(false);
 
-/**
- * The FileDropzone state registration function.
- */
-export const fileDropzoneState = createState(NgpFileDropzoneStateToken);
+    // Create observables
+    const selectedSubject = new Subject<FileList | null>();
+    const rejectedSubject = new Subject<void>();
+    const dragOverSubject = new Subject<boolean>();
+
+    // Host bindings
+    dataBinding(element, 'data-dragover', () => (isDragOverState() ? '' : null));
+    dataBinding(element, 'data-disabled', () => (disabled?.() ? '' : null));
+
+    function onDragEnter(event: DragEvent): void {
+      if (disabled?.()) {
+        return;
+      }
+
+      event.preventDefault();
+      event.stopPropagation();
+      isDragOverState.set(true);
+      dragOverSubject.next(true);
+      onDragOver?.(true);
+    }
+
+    function onDragOverHandler(event: DragEvent): void {
+      if (disabled?.()) {
+        return;
+      }
+
+      event.stopPropagation();
+      event.preventDefault();
+      isDragOverState.set(true);
+    }
+
+    function onDragLeave(event: DragEvent): void {
+      if (disabled?.() || !isDragOverState()) {
+        return;
+      }
+
+      // if the element we are dragging over is a child of the file dropzone, ignore the event
+      if (element.nativeElement.contains(event.relatedTarget as Node)) {
+        return;
+      }
+
+      event.preventDefault();
+      event.stopPropagation();
+      isDragOverState.set(false);
+      dragOverSubject.next(false);
+      onDragOver?.(false);
+    }
+
+    function onDrop(event: DragEvent): void {
+      if (disabled?.()) {
+        return;
+      }
+
+      event.preventDefault();
+      isDragOverState.set(false);
+      dragOverSubject.next(false);
+      onDragOver?.(false);
+
+      const fileList = event.dataTransfer?.files;
+      if (fileList) {
+        const filteredFiles = fileDropFilter(fileList, fileTypes?.(), multiple?.() ?? false);
+
+        if (filteredFiles) {
+          selectedSubject.next(filteredFiles);
+          onSelected?.(filteredFiles);
+        } else {
+          rejectedSubject.next();
+          onRejected?.();
+        }
+      }
+    }
+
+    // Event listeners
+    listener(element, 'dragenter', onDragEnter);
+    listener(element, 'dragover', onDragOverHandler);
+    listener(element, 'dragleave', onDragLeave);
+    listener(element, 'drop', onDrop);
+
+    return {
+      disabled,
+      fileTypes,
+      multiple,
+      directory,
+      isDragOver: isDragOverState,
+      selected: selectedSubject.asObservable(),
+      rejected: rejectedSubject.asObservable(),
+      dragOverChanged: dragOverSubject.asObservable(),
+    };
+  },
+);

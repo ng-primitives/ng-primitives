@@ -1,18 +1,7 @@
 import { BooleanInput, coerceStringArray } from '@angular/cdk/coercion';
-import {
-  booleanAttribute,
-  Directive,
-  ElementRef,
-  HostListener,
-  inject,
-  input,
-  output,
-  signal,
-  DOCUMENT,
-} from '@angular/core';
+import { booleanAttribute, Directive, input, output } from '@angular/core';
 import { ngpInteractions } from 'ng-primitives/interactions';
-import { fileDropFilter } from '../file-dropzone/file-drop-filter';
-import { fileUploadState, provideFileUploadState } from './file-upload-state';
+import { ngpFileUpload, provideFileUploadState } from './file-upload-state';
 
 /**
  * A directive that allows you to turn any element into a file upload trigger.
@@ -21,22 +10,8 @@ import { fileUploadState, provideFileUploadState } from './file-upload-state';
   selector: '[ngpFileUpload]',
   exportAs: 'ngpFileUpload',
   providers: [provideFileUploadState()],
-  host: {
-    '[attr.data-disabled]': 'state.disabled() ? "" : null',
-    '[attr.data-dragover]': 'isDragOver() ? "" : null',
-  },
 })
 export class NgpFileUpload {
-  /**
-   * Access the document
-   */
-  private readonly document = inject<Document>(DOCUMENT);
-
-  /**
-   * Access the host element.
-   */
-  private readonly elementRef = inject<ElementRef<HTMLElement>>(ElementRef);
-
   /**
    * The accepted file types. This can be an array of strings or a comma-separated string.
    * Accepted types can either be file extensions (e.g. `.jpg`) or MIME types (e.g. `image/jpeg`).
@@ -106,114 +81,36 @@ export class NgpFileUpload {
     alias: 'ngpFileUploadDragOver',
   });
 
-  /**
-   * Whether the user is currently dragging a file over the file upload.
-   */
-  protected readonly isDragOver = signal<boolean>(false);
-
-  /**
-   * Store the file input element.
-   */
-  private input: HTMLInputElement = this.document.createElement('input');
-
-  /**
-   * The file upload state.
-   */
-  protected readonly state = fileUploadState<NgpFileUpload>(this);
+  private readonly state = ngpFileUpload({
+    fileTypes: this.fileTypes,
+    multiple: this.multiple,
+    directory: this.directory,
+    dragAndDrop: this.dragAndDrop,
+    disabled: this.disabled,
+    onSelected: files => this.selected.emit(files),
+    onCanceled: () => this.canceled.emit(),
+    onRejected: () => this.rejected.emit(),
+    onDragOver: isDragOver => this.dragOver.emit(isDragOver),
+  });
 
   constructor() {
     ngpInteractions({
       hover: true,
       press: true,
       focusVisible: true,
-      disabled: this.state.disabled,
+      disabled: this.disabled,
     });
-    this.input.type = 'file';
-    this.input.style.display = 'none';
-    this.input.addEventListener('change', () => {
-      this.selected.emit(this.input.files);
-      // clear the input value to allow re-uploading the same file
-      this.input.value = '';
-    });
-    this.input.addEventListener('cancel', () => this.canceled.emit());
   }
 
-  @HostListener('click')
-  protected showFileDialog(): void {
-    if (this.state.disabled()) {
-      return;
-    }
+  /**
+   * Whether the user is currently dragging a file over the file upload.
+   */
+  readonly isDragOver = this.state.isDragOver;
 
-    const fileTypes = this.state.fileTypes()?.join(',');
-
-    if (fileTypes) {
-      this.input.accept = fileTypes;
-    }
-
-    this.input.multiple = this.state.multiple();
-    this.input.webkitdirectory = this.state.directory();
-    this.input.click();
-  }
-
-  @HostListener('dragenter', ['$event'])
-  protected onDragEnter(event: DragEvent): void {
-    if (this.state.disabled() || !this.state.dragAndDrop()) {
-      return;
-    }
-
-    event.preventDefault();
-    event.stopPropagation();
-    this.isDragOver.set(true);
-    this.dragOver.emit(true);
-  }
-
-  @HostListener('dragover', ['$event'])
-  protected onDragOver(event: DragEvent): void {
-    if (this.state.disabled() || !this.state.dragAndDrop()) {
-      return;
-    }
-
-    event.stopPropagation();
-    event.preventDefault();
-    this.isDragOver.set(true);
-  }
-
-  @HostListener('dragleave', ['$event'])
-  protected onDragLeave(event: DragEvent): void {
-    if (this.state.disabled() || !this.state.dragAndDrop() || !this.isDragOver()) {
-      return;
-    }
-
-    // if the element we are dragging over is a child of the file upload, ignore the event
-    if (this.elementRef.nativeElement.contains(event.relatedTarget as Node)) {
-      return;
-    }
-
-    event.preventDefault();
-    event.stopPropagation();
-    this.isDragOver.set(false);
-    this.dragOver.emit(false);
-  }
-
-  @HostListener('drop', ['$event'])
-  protected onDrop(event: DragEvent): void {
-    if (this.state.disabled() || !this.state.dragAndDrop()) {
-      return;
-    }
-
-    event.preventDefault();
-    this.isDragOver.set(false);
-    this.dragOver.emit(false);
-
-    const fileList = event.dataTransfer?.files;
-    if (fileList) {
-      const filteredFiles = fileDropFilter(fileList, this.state.fileTypes(), this.state.multiple());
-
-      if (filteredFiles) {
-        this.selected.emit(filteredFiles);
-      } else {
-        this.rejected.emit();
-      }
-    }
+  /**
+   * Show the file dialog.
+   */
+  showFileDialog(): void {
+    this.state.showFileDialog();
   }
 }
