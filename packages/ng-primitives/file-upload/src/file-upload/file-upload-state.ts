@@ -1,27 +1,223 @@
-import {
-  createState,
-  createStateInjector,
-  createStateProvider,
-  createStateToken,
-} from 'ng-primitives/state';
-import type { NgpFileUpload } from './file-upload';
+import { DOCUMENT, inject, Signal, signal } from '@angular/core';
+import { injectElementRef } from 'ng-primitives/internal';
+import { createPrimitive, dataBinding, listener } from 'ng-primitives/state';
+import { Observable, Subject } from 'rxjs';
+import { fileDropFilter } from '../file-dropzone/file-drop-filter';
 
 /**
- * The state token  for the FileUpload primitive.
+ * The state for the NgpFileUpload directive.
  */
-export const NgpFileUploadStateToken = createStateToken<NgpFileUpload>('FileUpload');
+export interface NgpFileUploadState {
+  /**
+   * Whether the user is currently dragging over the element.
+   */
+  readonly isDragOver: Signal<boolean>;
+  /**
+   * Observable that emits when files are selected.
+   */
+  readonly selected: Observable<FileList | null>;
+  /**
+   * Observable that emits when file selection is canceled.
+   */
+  readonly canceled: Observable<void>;
+  /**
+   * Observable that emits when files are rejected.
+   */
+  readonly rejected: Observable<void>;
+  /**
+   * Observable that emits when drag over state changes.
+   */
+  readonly dragOverChanged: Observable<boolean>;
+  /**
+   * Show the file dialog.
+   */
+  showFileDialog(): void;
+}
 
 /**
- * Provides the FileUpload state.
+ * The props for the NgpFileUpload state.
  */
-export const provideFileUploadState = createStateProvider(NgpFileUploadStateToken);
+export interface NgpFileUploadProps {
+  /**
+   * The accepted file types.
+   */
+  readonly fileTypes?: Signal<string[] | undefined>;
+  /**
+   * Whether multiple files can be selected.
+   */
+  readonly multiple?: Signal<boolean>;
+  /**
+   * Whether directories can be selected.
+   */
+  readonly directory?: Signal<boolean>;
+  /**
+   * Whether drag and drop is enabled.
+   */
+  readonly dragAndDrop?: Signal<boolean>;
+  /**
+   * Whether the file upload is disabled.
+   */
+  readonly disabled?: Signal<boolean>;
+  /**
+   * Callback when files are selected.
+   */
+  readonly onSelected?: (files: FileList | null) => void;
+  /**
+   * Callback when file selection is canceled.
+   */
+  readonly onCanceled?: () => void;
+  /**
+   * Callback when files are rejected.
+   */
+  readonly onRejected?: () => void;
+  /**
+   * Callback when drag over state changes.
+   */
+  readonly onDragOver?: (isDragOver: boolean) => void;
+}
 
-/**
- * Injects the FileUpload state.
- */
-export const injectFileUploadState = createStateInjector<NgpFileUpload>(NgpFileUploadStateToken);
+export const [
+  NgpFileUploadStateToken,
+  ngpFileUpload,
+  injectFileUploadState,
+  provideFileUploadState,
+] = createPrimitive(
+  'NgpFileUpload',
+  ({
+    fileTypes,
+    multiple,
+    directory,
+    dragAndDrop,
+    disabled,
+    onSelected,
+    onCanceled,
+    onRejected,
+    onDragOver,
+  }: NgpFileUploadProps) => {
+    const element = injectElementRef();
+    const document = inject(DOCUMENT);
 
-/**
- * The FileUpload state registration function.
- */
-export const fileUploadState = createState(NgpFileUploadStateToken);
+    const isDragOver = signal(false);
+
+    // Create observables
+    const selectedSubject = new Subject<FileList | null>();
+    const canceledSubject = new Subject<void>();
+    const rejectedSubject = new Subject<void>();
+    const dragOverSubject = new Subject<boolean>();
+
+    // Host bindings
+    dataBinding(element, 'data-disabled', () => (disabled?.() ? '' : null));
+    dataBinding(element, 'data-dragover', () => (isDragOver() ? '' : null));
+
+    // Create file input
+    const input: HTMLInputElement = document.createElement('input');
+    input.type = 'file';
+    input.style.display = 'none';
+
+    input.addEventListener('change', () => {
+      const files = input.files;
+      selectedSubject.next(files);
+      onSelected?.(files);
+      input.value = '';
+    });
+
+    input.addEventListener('cancel', () => {
+      canceledSubject.next();
+      onCanceled?.();
+    });
+
+    function showFileDialog(): void {
+      if (disabled?.()) {
+        return;
+      }
+
+      const fileTypesValue = fileTypes?.()?.join(',');
+      if (fileTypesValue) {
+        input.accept = fileTypesValue;
+      }
+
+      input.multiple = multiple?.() ?? false;
+      input.webkitdirectory = directory?.() ?? false;
+      input.click();
+    }
+
+    function onDragEnter(event: DragEvent): void {
+      if (disabled?.() || !dragAndDrop?.()) {
+        return;
+      }
+
+      event.preventDefault();
+      event.stopPropagation();
+      isDragOver.set(true);
+      dragOverSubject.next(true);
+      onDragOver?.(true);
+    }
+
+    function onDragOverHandler(event: DragEvent): void {
+      if (disabled?.() || !dragAndDrop?.()) {
+        return;
+      }
+
+      event.stopPropagation();
+      event.preventDefault();
+      isDragOver.set(true);
+    }
+
+    function onDragLeave(event: DragEvent): void {
+      if (disabled?.() || !dragAndDrop?.() || !isDragOver()) {
+        return;
+      }
+
+      // if the element we are dragging over is a child of the file upload, ignore the event
+      if (element.nativeElement.contains(event.relatedTarget as Node)) {
+        return;
+      }
+
+      event.preventDefault();
+      event.stopPropagation();
+      isDragOver.set(false);
+      dragOverSubject.next(false);
+      onDragOver?.(false);
+    }
+
+    function onDrop(event: DragEvent): void {
+      if (disabled?.() || !dragAndDrop?.()) {
+        return;
+      }
+
+      event.preventDefault();
+      isDragOver.set(false);
+      dragOverSubject.next(false);
+      onDragOver?.(false);
+
+      const fileList = event.dataTransfer?.files;
+      if (fileList) {
+        const filteredFiles = fileDropFilter(fileList, fileTypes?.(), multiple?.() ?? false);
+
+        if (filteredFiles) {
+          selectedSubject.next(filteredFiles);
+          onSelected?.(filteredFiles);
+        } else {
+          rejectedSubject.next();
+          onRejected?.();
+        }
+      }
+    }
+
+    // Event listeners
+    listener(element, 'click', showFileDialog);
+    listener(element, 'dragenter', onDragEnter);
+    listener(element, 'dragover', onDragOverHandler);
+    listener(element, 'dragleave', onDragLeave);
+    listener(element, 'drop', onDrop);
+
+    return {
+      isDragOver,
+      selected: selectedSubject.asObservable(),
+      canceled: canceledSubject.asObservable(),
+      rejected: rejectedSubject.asObservable(),
+      dragOverChanged: dragOverSubject.asObservable(),
+      showFileDialog,
+    };
+  },
+);
