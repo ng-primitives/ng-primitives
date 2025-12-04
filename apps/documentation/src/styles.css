@@ -153,6 +153,18 @@ pre.shiki code {
   margin-bottom: 24px;
 }
 
+.prose .heading-anchor {
+  @apply hover:text-primary dark:hover:text-primary ml-2 inline-flex items-center text-zinc-400 no-underline opacity-0 transition-opacity dark:text-zinc-500;
+}
+
+.prose :where(h1, h2, h3, h4, h5, h6):hover .heading-anchor {
+  @apply opacity-100;
+}
+
+.prose .heading-anchor:focus {
+  @apply ring-primary rounded-sm opacity-100 ring-2 outline-hidden;
+}
+
 [data-line-numbers] {
   @apply grid min-w-full border-0 bg-transparent p-0 whitespace-pre;
   counter-reset: line;

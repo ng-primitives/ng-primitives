@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { QuickLinks } from '../../components/quick-links/quick-links';
+import { HeadingAnchorDirective } from '../../directives/heading-anchor.directive';
 
 @Component({
   selector: 'docs-interactions',
@@ -9,6 +10,7 @@ import { QuickLinks } from '../../components/quick-links/quick-links';
       <div
         class="prose prose-sm prose-zinc dark:prose-invert flex-1 overflow-hidden px-px"
         data-page-content
+        docsHeadingAnchor
       >
         <div class="mx-auto w-fit max-w-full">
           <p
@@ -25,7 +27,7 @@ import { QuickLinks } from '../../components/quick-links/quick-links';
       <docs-quick-links />
     </div>
   `,
-  imports: [RouterOutlet, QuickLinks],
+  imports: [RouterOutlet, QuickLinks, HeadingAnchorDirective],
   host: {
     class: 'flex-1 max-w-full',
   },
