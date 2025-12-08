@@ -576,7 +576,9 @@ describe('NgpTabset', () => {
 
       // After switch: features active, overview inactive
       // Now overview panel should be hidden and features should be accessible
-      const overviewPanelAfter = container.querySelector('[ngpTabPanelValue="overview"]') as HTMLElement;
+      const overviewPanelAfter = container.querySelector(
+        '[ngpTabPanelValue="overview"]',
+      ) as HTMLElement;
       const featuresPanelAfter = getByRole('tabpanel', { name: 'Features' });
 
       expect(overviewPanelAfter).not.toHaveAttribute('tabindex');
@@ -820,7 +822,9 @@ describe('NgpTabset', () => {
       featuresTab.click();
 
       // After switch: now features panel should be accessible and overview hidden
-      const overviewPanelAfter = container.querySelector('[ngpTabPanelValue="overview"]') as HTMLElement;
+      const overviewPanelAfter = container.querySelector(
+        '[ngpTabPanelValue="overview"]',
+      ) as HTMLElement;
       const featuresPanelAfter = getByRole('tabpanel', { name: 'Features' });
 
       expect(overviewTab).not.toHaveAttribute('data-active');
