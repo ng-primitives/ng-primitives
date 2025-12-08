@@ -74,7 +74,7 @@ export const [NgpTabButtonStateToken, ngpTabButton, injectTabButtonState, provid
     dataBinding(element, 'data-active', () => (active() ? '' : null));
     dataBinding(element, 'data-disabled', () => (disabled?.() ? '' : null));
     attrBinding(element, 'disabled', () => (tagName === 'button' && disabled() ? '' : null));
-    dataBinding(element, 'data-orientation', tabset().orientation);
+    dataBinding(element, 'data-orientation', () => tabset().orientation());
 
     // Event listeners
     listener(element, 'click', select);

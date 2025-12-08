@@ -1,8 +1,8 @@
 import { Signal, signal } from '@angular/core';
+import { ngpHoverInteraction } from 'ng-primitives/interactions';
 import { injectElementRef } from 'ng-primitives/internal';
 import { createPrimitive, dataBinding, listener } from 'ng-primitives/state';
 import { Observable, Subject } from 'rxjs';
-import { ngpHoverInteraction } from 'ng-primitives/interactions';
 import { fileDropFilter } from './file-drop-filter';
 
 /**

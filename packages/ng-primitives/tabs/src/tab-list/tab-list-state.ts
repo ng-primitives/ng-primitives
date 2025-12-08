@@ -29,8 +29,8 @@ export const [
 
     // Host bindings
     attrBinding(element, 'role', 'tablist');
-    attrBinding(element, 'aria-orientation', tabsetState().orientation);
-    dataBinding(element, 'data-orientation', tabsetState().orientation);
+    attrBinding(element, 'aria-orientation', () => tabsetState().orientation());
+    dataBinding(element, 'data-orientation', () => tabsetState().orientation());
 
     return {};
   },
