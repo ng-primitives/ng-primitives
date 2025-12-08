@@ -475,7 +475,7 @@ describe('NgpTabset', () => {
     });
 
     it('should have correct ARIA attributes for tab panels', async () => {
-      const { getByRole } = await render(
+      const { getByRole, container } = await render(
         `
         <div ngpTabset>
           <div ngpTabList>
@@ -492,15 +492,22 @@ describe('NgpTabset', () => {
       );
 
       const overviewPanel = getByRole('tabpanel', { name: 'Overview' });
-      const featuresPanel = getByRole('tabpanel', { name: 'Features' });
+      // Features panel is hidden with aria-hidden, so we need to find it by attribute
+      const featuresPanel = container.querySelector('[ngpTabPanelValue="features"]') as HTMLElement;
 
+      // Active panel should be focusable and accessible to screen readers
       expect(overviewPanel).toHaveAttribute('role', 'tabpanel');
       expect(overviewPanel).toHaveAttribute('data-active');
+      expect(overviewPanel).toHaveAttribute('tabindex', '0');
+      expect(overviewPanel).not.toHaveAttribute('aria-hidden');
       expect(overviewPanel).toBeVisible();
 
+      // Inactive panel should be hidden from screen readers and not focusable
       expect(featuresPanel).toHaveAttribute('role', 'tabpanel');
       expect(featuresPanel).not.toHaveAttribute('data-active');
-      expect(featuresPanel).toBeVisible(); // Panels are visible by default, visibility is typically controlled by CSS
+      expect(featuresPanel).not.toHaveAttribute('tabindex');
+      expect(featuresPanel).toHaveAttribute('aria-hidden', 'true');
+      expect(featuresPanel).toBeVisible(); // Still visible (CSS controls visual hiding)
     });
 
     it('should update aria-selected and data-active when tab selection changes', async () => {
@@ -534,6 +541,48 @@ describe('NgpTabset', () => {
       expect(overviewTab).not.toHaveAttribute('data-active');
       expect(featuresTab).toHaveAttribute('aria-selected', 'true');
       expect(featuresTab).toHaveAttribute('data-active');
+    });
+
+    it('should update tabpanel tabindex and aria-hidden when switching tabs', async () => {
+      const { getByRole, container } = await render(
+        `
+        <div ngpTabset>
+          <div ngpTabList>
+            <button ngpTabButton ngpTabButtonValue="overview">Overview</button>
+            <button ngpTabButton ngpTabButtonValue="features">Features</button>
+          </div>
+          <div ngpTabPanel ngpTabPanelValue="overview">Overview content</div>
+          <div ngpTabPanel ngpTabPanelValue="features">Features content</div>
+        </div>
+      `,
+        {
+          imports: [NgpTabset, NgpTabButton, NgpTabList, NgpTabPanel],
+        },
+      );
+
+      const featuresTab = getByRole('tab', { name: 'Features' });
+      const overviewPanel = getByRole('tabpanel', { name: 'Overview' });
+      // Features panel is initially hidden, so we query by attribute
+      const featuresPanel = container.querySelector('[ngpTabPanelValue="features"]') as HTMLElement;
+
+      // Initial state: overview active, features inactive
+      expect(overviewPanel).toHaveAttribute('tabindex', '0');
+      expect(overviewPanel).not.toHaveAttribute('aria-hidden');
+      expect(featuresPanel).not.toHaveAttribute('tabindex');
+      expect(featuresPanel).toHaveAttribute('aria-hidden', 'true');
+
+      // Switch to features tab
+      featuresTab.click();
+
+      // After switch: features active, overview inactive
+      // Now overview panel should be hidden and features should be accessible
+      const overviewPanelAfter = container.querySelector('[ngpTabPanelValue="overview"]') as HTMLElement;
+      const featuresPanelAfter = getByRole('tabpanel', { name: 'Features' });
+
+      expect(overviewPanelAfter).not.toHaveAttribute('tabindex');
+      expect(overviewPanelAfter).toHaveAttribute('aria-hidden', 'true');
+      expect(featuresPanelAfter).toHaveAttribute('tabindex', '0');
+      expect(featuresPanelAfter).not.toHaveAttribute('aria-hidden');
     });
 
     it('should set aria-selected=false on disabled tabs', async () => {
@@ -739,7 +788,7 @@ describe('NgpTabset', () => {
     });
 
     it('should maintain correct active state attributes', async () => {
-      const { getByRole } = await render(
+      const { getByRole, container } = await render(
         `
         <div ngpTabset>
           <div ngpTabList>
@@ -758,7 +807,8 @@ describe('NgpTabset', () => {
       const overviewTab = getByRole('tab', { name: 'Overview' });
       const featuresTab = getByRole('tab', { name: 'Features' });
       const overviewPanel = getByRole('tabpanel', { name: 'Overview' });
-      const featuresPanel = getByRole('tabpanel', { name: 'Features' });
+      // Features panel is initially hidden, so we query by attribute
+      const featuresPanel = container.querySelector('[ngpTabPanelValue="features"]') as HTMLElement;
 
       // Initial state
       expect(overviewTab).toHaveAttribute('data-active');
@@ -769,10 +819,14 @@ describe('NgpTabset', () => {
       // After clicking features tab
       featuresTab.click();
 
+      // After switch: now features panel should be accessible and overview hidden
+      const overviewPanelAfter = container.querySelector('[ngpTabPanelValue="overview"]') as HTMLElement;
+      const featuresPanelAfter = getByRole('tabpanel', { name: 'Features' });
+
       expect(overviewTab).not.toHaveAttribute('data-active');
-      expect(overviewPanel).not.toHaveAttribute('data-active');
+      expect(overviewPanelAfter).not.toHaveAttribute('data-active');
       expect(featuresTab).toHaveAttribute('data-active');
-      expect(featuresPanel).toHaveAttribute('data-active');
+      expect(featuresPanelAfter).toHaveAttribute('data-active');
     });
   });
 });

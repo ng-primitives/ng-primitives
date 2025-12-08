@@ -50,7 +50,8 @@ export const [NgpTabPanelStateToken, ngpTabPanel, injectTabPanelState, provideTa
 
     // Host bindings
     attrBinding(element, 'role', 'tabpanel');
-    attrBinding(element, 'tabindex', '0');
+    attrBinding(element, 'tabindex', () => (active() ? '0' : null));
+    attrBinding(element, 'aria-hidden', () => (active() ? null : 'true'));
     attrBinding(element, 'id', panelId);
     attrBinding(element, 'aria-labelledby', labelledBy);
     dataBinding(element, 'data-active', active);
