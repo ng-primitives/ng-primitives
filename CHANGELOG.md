@@ -1,3 +1,15 @@
+## 0.92.0 (2025-12-08)
+
+### 🩹 Fixes
+
+- **progress:** id fix ([c46d815b](https://github.com/ng-primitives/ng-primitives/commit/c46d815b))
+- **progress:** id issues ([13e3e2f1](https://github.com/ng-primitives/ng-primitives/commit/13e3e2f1))
+- **state:** resolve dependency resolution issue ([#549](https://github.com/ng-primitives/ng-primitives/pull/549))
+
+### ❤️ Thank You
+
+- Ashley Hunter
+
 ## 0.91.0 (2025-12-01)
 
 ### 🚀 Features
