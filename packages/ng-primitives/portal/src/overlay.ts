@@ -1,6 +1,7 @@
 import { FocusMonitor, FocusOrigin } from '@angular/cdk/a11y';
 import { ViewportRuler } from '@angular/cdk/overlay';
 import {
+  DOCUMENT,
   DestroyRef,
   Injector,
   Provider,
@@ -12,7 +13,6 @@ import {
   inject,
   runInInjectionContext,
   signal,
-  DOCUMENT,
 } from '@angular/core';
 import {
   Middleware,
@@ -28,6 +28,7 @@ import {
 import { explicitEffect, fromResizeEvent } from 'ng-primitives/internal';
 import { injectDisposables, safeTakeUntilDestroyed, uniqueId } from 'ng-primitives/utils';
 import { Subject, fromEvent } from 'rxjs';
+import { debounceTime } from 'rxjs/operators';
 import { NgpOffset } from './offset';
 import { provideOverlayContext } from './overlay-token';
 import { NgpPortal, createPortal } from './portal';
@@ -203,11 +204,14 @@ export class NgpOverlay<T = unknown> {
       });
 
     // if there is a parent overlay and it is closed, close this overlay
-    this.parentOverlay?.closing.pipe(safeTakeUntilDestroyed(this.destroyRef)).subscribe(() => {
-      if (this.isOpen()) {
-        this.hideImmediate();
-      }
-    });
+    this.parentOverlay?.closing
+      // we add a debounce here to ensure any dom events like clicks are processed first
+      .pipe(debounceTime(0), safeTakeUntilDestroyed(this.destroyRef))
+      .subscribe(() => {
+        if (this.isOpen()) {
+          this.hideImmediate();
+        }
+      });
 
     // If closeOnOutsideClick is enabled, set up a click listener
     fromEvent<MouseEvent>(this.document, 'mouseup', { capture: true })

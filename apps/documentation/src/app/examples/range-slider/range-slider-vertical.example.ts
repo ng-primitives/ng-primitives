@@ -1,4 +1,4 @@
-import { Component, effect, signal } from '@angular/core';
+import { Component, signal } from '@angular/core';
 import { NgpRangeSlider, NgpRangeSliderThumb, NgpRangeSliderTrack } from 'ng-primitives/slider';
 
 @Component({
