@@ -21,7 +21,6 @@ import {
   Signal,
   WritableSignal,
 } from '@angular/core';
-import { isFunction } from 'ng-primitives/utils';
 
 /**
  * This converts the state object to a writable state object.
@@ -156,7 +155,7 @@ export function createState(token: ProviderToken<WritableSignal<State<unknown>>>
         // if this is a getter or setter, we need to define it on the object
         if (descriptor?.get || descriptor?.set) {
           Object.defineProperty(obj, key, descriptor);
-        } else if (isFunction(prototype[key as keyof U])) {
+        } else if (typeof prototype[key as keyof U] === 'function') {
           (obj as Record<string, unknown>)[key] = prototype[key as keyof U].bind(state);
         } else {
           // @ts-ignore
@@ -182,7 +181,11 @@ function createControlledInput(
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const inputDefinition = symbol ? (property as any)[symbol] : undefined;
 
-  if (!symbol || !inputDefinition || !isFunction(inputDefinition.applyValueToInputSignal)) {
+  if (
+    !symbol ||
+    !inputDefinition ||
+    typeof inputDefinition.applyValueToInputSignal !== 'function'
+  ) {
     console.warn(
       'Angular has changed its internal Input implementation, report this issue to ng-primitives.',
     );
@@ -488,6 +491,11 @@ export function listener<K extends keyof HTMLElementEventMap>(
     ngZone.runOutsideAngular(() => nativeElement.addEventListener(event, handler as EventListener));
     destroyRef.onDestroy(() => nativeElement.removeEventListener(event, handler as EventListener));
   });
+}
+
+export function onMount(callback: () => void): void {
+  const injector = inject(Injector);
+  afterRenderEffect(() => runInInjectionContext(injector, callback), { injector });
 }
 
 export function onDestroy(callback: () => void): void {
