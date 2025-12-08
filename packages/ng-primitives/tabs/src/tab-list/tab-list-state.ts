@@ -16,14 +16,8 @@ export interface NgpTabListProps {
   // No props for tab list
 }
 
-export const [
-  NgpTabListStateToken,
-  ngpTabList,
-  injectTabListState,
-  provideTabListState,
-] = createPrimitive(
-  'NgpTabList',
-  ({}: NgpTabListProps) => {
+export const [NgpTabListStateToken, ngpTabList, injectTabListState, provideTabListState] =
+  createPrimitive('NgpTabList', ({}: NgpTabListProps) => {
     const element = injectElementRef();
     const tabsetState = injectTabsetState();
 
@@ -33,5 +27,4 @@ export const [
     dataBinding(element, 'data-orientation', () => tabsetState().orientation());
 
     return {};
-  },
-);
+  });
