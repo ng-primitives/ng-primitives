@@ -2,6 +2,7 @@ import { DOCUMENT, inject, Signal, signal } from '@angular/core';
 import { injectElementRef } from 'ng-primitives/internal';
 import { createPrimitive, dataBinding, listener } from 'ng-primitives/state';
 import { Observable, Subject } from 'rxjs';
+import { ngpInteractions } from 'ng-primitives/interactions';
 import { fileDropFilter } from '../file-dropzone/file-drop-filter';
 
 /**
@@ -108,6 +109,14 @@ export const [
     // Host bindings
     dataBinding(element, 'data-disabled', () => (disabled?.() ? '' : null));
     dataBinding(element, 'data-dragover', () => (isDragOver() ? '' : null));
+
+    // Setup interactions
+    ngpInteractions({
+      hover: true,
+      press: true,
+      focusVisible: true,
+      disabled,
+    });
 
     // Create file input
     const input: HTMLInputElement = document.createElement('input');

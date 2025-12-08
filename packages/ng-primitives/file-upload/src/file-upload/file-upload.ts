@@ -1,6 +1,5 @@
 import { BooleanInput, coerceStringArray } from '@angular/cdk/coercion';
 import { booleanAttribute, Directive, input, output } from '@angular/core';
-import { ngpInteractions } from 'ng-primitives/interactions';
 import { ngpFileUpload, provideFileUploadState } from './file-upload-state';
 
 /**
@@ -92,15 +91,6 @@ export class NgpFileUpload {
     onRejected: () => this.rejected.emit(),
     onDragOver: isDragOver => this.dragOver.emit(isDragOver),
   });
-
-  constructor() {
-    ngpInteractions({
-      hover: true,
-      press: true,
-      focusVisible: true,
-      disabled: this.disabled,
-    });
-  }
 
   /**
    * Whether the user is currently dragging a file over the file upload.

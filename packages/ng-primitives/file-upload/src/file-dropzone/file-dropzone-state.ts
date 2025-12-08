@@ -2,6 +2,7 @@ import { Signal, signal } from '@angular/core';
 import { injectElementRef } from 'ng-primitives/internal';
 import { createPrimitive, dataBinding, listener } from 'ng-primitives/state';
 import { Observable, Subject } from 'rxjs';
+import { ngpHoverInteraction } from 'ng-primitives/interactions';
 import { fileDropFilter } from './file-drop-filter';
 
 /**
@@ -87,6 +88,9 @@ export const [
     // Host bindings
     dataBinding(element, 'data-dragover', () => (isDragOverState() ? '' : null));
     dataBinding(element, 'data-disabled', () => (disabled?.() ? '' : null));
+
+    // Setup hover interaction
+    ngpHoverInteraction({ disabled });
 
     function onDragEnter(event: DragEvent): void {
       if (disabled?.()) {
