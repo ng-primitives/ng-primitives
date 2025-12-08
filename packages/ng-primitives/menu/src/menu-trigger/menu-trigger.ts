@@ -13,13 +13,13 @@ import {
 } from '@angular/core';
 import { injectElementRef } from 'ng-primitives/internal';
 import {
+  coerceOffset,
   createOverlay,
+  NgpOffset,
+  NgpOffsetInput,
   NgpOverlay,
   NgpOverlayConfig,
   NgpOverlayContent,
-  coerceOffset,
-  NgpOffset,
-  NgpOffsetInput,
 } from 'ng-primitives/portal';
 import { injectMenuConfig } from '../config/menu-config';
 import { menuTriggerState, provideMenuTriggerState } from './menu-trigger-state';
