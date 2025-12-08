@@ -41,23 +41,24 @@ export interface NgpTabPanelProps {
 export const [NgpTabPanelStateToken, ngpTabPanel, injectTabPanelState, provideTabPanelState] =
   createPrimitive('NgpTabPanel', ({ value, id }: NgpTabPanelProps) => {
     const element = injectElementRef();
-    const tabsetState = injectTabsetState();
+    const tabset = injectTabsetState();
 
     // Computed properties
-    const panelId = computed(() => id?.() ?? `${tabsetState().id()}-panel-${value?.()}`);
-    const labelledBy = computed(() => `${tabsetState().id()}-button-${value?.()}`);
-    const active = computed(() => tabsetState().selectedTab() === value?.());
+    const panelId = computed(() => id?.() ?? `${tabset().id()}-panel-${value?.()}`);
+    const labelledBy = computed(() => `${tabset().id()}-button-${value?.()}`);
+    const active = computed(() => tabset().selectedTab() === value?.());
 
     // Host bindings
     attrBinding(element, 'role', 'tabpanel');
     attrBinding(element, 'tabindex', '0');
     attrBinding(element, 'id', panelId);
     attrBinding(element, 'aria-labelledby', labelledBy);
-    dataBinding(element, 'data-active', () => (active() ? '' : null));
-    dataBinding(element, 'data-orientation', tabsetState().orientation);
+    dataBinding(element, 'data-active', active);
+    dataBinding(element, 'data-orientation', () => tabset().orientation());
 
+    // Ensure value is provided
     onMount(() => {
-      if (value?.() === undefined) {
+      if (value() === undefined) {
         throw new Error('ngpTabPanel: value is required');
       }
     });

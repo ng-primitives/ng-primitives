@@ -1,3 +1,4 @@
+/* eslint-disable @angular-eslint/no-uncalled-signals */
 import { coerceElement } from '@angular/cdk/coercion';
 import {
   afterRenderEffect,

@@ -1,8 +1,14 @@
 import { computed, signal, Signal, WritableSignal } from '@angular/core';
 import { NgpOrientation } from 'ng-primitives/common';
 import { injectElementRef } from 'ng-primitives/internal';
-import type { NgpRovingFocusGroupState } from 'ng-primitives/roving-focus';
-import { attrBinding, controlled, createPrimitive, deprecatedSetter } from 'ng-primitives/state';
+import {
+  attrBinding,
+  controlled,
+  createPrimitive,
+  dataBinding,
+  deprecatedSetter,
+} from 'ng-primitives/state';
+import { uniqueId } from 'ng-primitives/utils';
 
 /**
  * The state for the NgpTabset directive.
@@ -39,6 +45,11 @@ export interface NgpTabsetState {
   select(value: string): void;
 
   /**
+   * Set orientation of the tabset.
+   */
+  setOrientation(orientation: NgpOrientation): void;
+
+  /**
    * @internal Register a tab with the tabset.
    */
   registerTab(value: string, disabled: () => boolean): void;
@@ -53,11 +64,6 @@ export interface NgpTabsetState {
  * The props for the NgpTabset state.
  */
 export interface NgpTabsetProps {
-  /**
-   * The roving focus group state.
-   */
-  readonly rovingFocusGroup: NgpRovingFocusGroupState;
-
   /**
    * The unique id for the tabset.
    */
@@ -88,19 +94,20 @@ export const [NgpTabsetStateToken, ngpTabset, injectTabsetState, provideTabsetSt
   createPrimitive(
     'NgpTabset',
     ({
-      rovingFocusGroup: _rovingFocusGroup,
-      id = signal(''),
+      id = signal(uniqueId('ngp-tabset')),
       value: _value = signal(undefined),
-      orientation = signal('horizontal'),
+      orientation: _orientation = signal('horizontal'),
       activateOnFocus = signal(false),
       onValueChange,
     }: NgpTabsetProps) => {
       const element = injectElementRef();
-      const tabs = signal<Array<{ value: string; disabled: () => boolean }>>([]);
+      const tabs = signal<NgpTab[]>([]);
       const value = controlled(_value);
+      const orientation = controlled(_orientation);
 
       // Host bindings
       attrBinding(element, 'id', id);
+      dataBinding(element, 'data-orientation', orientation);
 
       // Computed selected tab
       const selectedTab = computed(() => {
@@ -113,12 +120,12 @@ export const [NgpTabsetStateToken, ngpTabset, injectTabsetState, provideTabsetSt
         }
 
         // if there is a value set and a tab with that value exists, return the value
-        if (currentValue && tabList.some(tab => tab.value === currentValue)) {
+        if (currentValue && tabList.some(tab => tab.value() === currentValue)) {
           return currentValue;
         }
 
         // otherwise return the first non-disabled tab's value
-        return tabList.find(tab => !tab.disabled())?.value;
+        return tabList.find(tab => !tab.disabled())?.value();
       });
 
       function select(newValue: string): void {
@@ -131,12 +138,16 @@ export const [NgpTabsetStateToken, ngpTabset, injectTabsetState, provideTabsetSt
         onValueChange?.(newValue);
       }
 
-      function registerTab(tabValue: string, disabled: () => boolean): void {
-        tabs.update(currentTabs => [...currentTabs, { value: tabValue, disabled }]);
+      function setOrientation(newOrientation: NgpOrientation): void {
+        orientation.set(newOrientation);
+      }
+
+      function registerTab(tab: NgpTab): void {
+        tabs.update(currentTabs => [...currentTabs, tab]);
       }
 
       function unregisterTab(tabValue: string): void {
-        tabs.update(currentTabs => currentTabs.filter(tab => tab.value !== tabValue));
+        tabs.update(currentTabs => currentTabs.filter(tab => tab.value() !== tabValue));
       }
 
       return {
@@ -146,8 +157,21 @@ export const [NgpTabsetStateToken, ngpTabset, injectTabsetState, provideTabsetSt
         value: deprecatedSetter(value, 'select'),
         selectedTab,
         select,
+        setOrientation,
         registerTab,
         unregisterTab,
       };
     },
   );
+
+export interface NgpTab {
+  /**
+   * The unique value for the tab.
+   */
+  readonly value: Signal<string>;
+
+  /**
+   * Whether the tab is disabled.
+   */
+  readonly disabled: Signal<boolean>;
+}

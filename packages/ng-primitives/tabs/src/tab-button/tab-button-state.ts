@@ -71,8 +71,8 @@ export const [NgpTabButtonStateToken, ngpTabButton, injectTabButtonState, provid
     attrBinding(element, 'role', 'tab');
     attrBinding(element, 'id', buttonId);
     attrBinding(element, 'aria-controls', ariaControls);
-    dataBinding(element, 'data-active', () => (active() ? '' : null));
-    dataBinding(element, 'data-disabled', () => (disabled?.() ? '' : null));
+    dataBinding(element, 'data-active', active);
+    dataBinding(element, 'data-disabled', disabled);
     attrBinding(element, 'disabled', () => (tagName === 'button' && disabled() ? '' : null));
     dataBinding(element, 'data-orientation', () => tabset().orientation());
 
@@ -107,7 +107,7 @@ export const [NgpTabButtonStateToken, ngpTabButton, injectTabButtonState, provid
       }
 
       // Register with tabset now that inputs are available
-      tabset().registerTab(value(), disabled);
+      tabset().registerTab({ value, disabled });
     });
 
     // Unregister on destroy

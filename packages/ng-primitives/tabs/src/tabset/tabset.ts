@@ -12,7 +12,10 @@ import { ngpTabset, provideTabsetState } from './tabset-state';
 @Directive({
   selector: '[ngpTabset]',
   exportAs: 'ngpTabset',
-  providers: [provideTabsetState(), provideRovingFocusGroupState({ inherit: false })],
+  providers: [
+    provideTabsetState({ inherit: false }),
+    provideRovingFocusGroupState({ inherit: false }),
+  ],
 })
 export class NgpTabset {
   /**
@@ -56,12 +59,6 @@ export class NgpTabset {
   });
 
   private readonly state = ngpTabset({
-    rovingFocusGroup: ngpRovingFocusGroup({
-      orientation: this.orientation,
-      disabled: signal(false),
-      wrap: signal(false),
-      homeEnd: signal(true),
-    }),
     id: this.id,
     value: this.value,
     orientation: this.orientation,
@@ -74,6 +71,15 @@ export class NgpTabset {
    * Get the id of the selected tab
    */
   readonly selectedTab = this.state.selectedTab;
+
+  constructor() {
+    ngpRovingFocusGroup({
+      orientation: this.orientation,
+      disabled: signal(false),
+      wrap: signal(false),
+      homeEnd: signal(true),
+    });
+  }
 
   /**
    * Select a tab by its value

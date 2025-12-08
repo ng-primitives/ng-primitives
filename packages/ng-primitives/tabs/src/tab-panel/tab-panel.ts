@@ -28,18 +28,6 @@ export class NgpTabPanel {
   });
 
   /**
-   * Determine a unique id for the tab panel if not provided
-   * @internal
-   */
-  readonly panelId = this.state.panelId;
-
-  /**
-   * Determine the aria-labelledby of the tab panel
-   * @internal
-   */
-  readonly labelledBy = this.state.labelledBy;
-
-  /**
    * Whether the tab is active
    */
   readonly active = this.state.active;

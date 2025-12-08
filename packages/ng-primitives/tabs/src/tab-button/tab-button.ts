@@ -1,7 +1,6 @@
 import { BooleanInput } from '@angular/cdk/coercion';
 import { booleanAttribute, Directive, input, Signal } from '@angular/core';
 import { ngpRovingFocusItem, provideRovingFocusItemState } from 'ng-primitives/roving-focus';
-import { injectTabsetState } from '../tabset/tabset-state';
 import { ngpTabButton, provideTabButtonState } from './tab-button-state';
 
 /**
@@ -13,11 +12,6 @@ import { ngpTabButton, provideTabButtonState } from './tab-button-state';
   providers: [provideTabButtonState(), provideRovingFocusItemState()],
 })
 export class NgpTabButton {
-  /**
-   * Access the tabset state
-   */
-  protected readonly tabsetState = injectTabsetState();
-
   /**
    * The value of the tab this trigger controls
    * @required

@@ -10,10 +10,10 @@ export class MockSpeechRecognition {
   continuous = false;
   interimResults = false;
   lang = '';
-  onstart: ((event: any) => void) | null = null;
-  onend: ((event: any) => void) | null = null;
-  onresult: ((event: any) => void) | null = null;
-  onerror: ((event: any) => void) | null = null;
+  onstart: ((event: unknown) => void) | null = null;
+  onend: ((event: unknown) => void) | null = null;
+  onresult: ((event: unknown) => void) | null = null;
+  onerror: ((event: unknown) => void) | null = null;
 
   start() {
     this.onstart?.({});
