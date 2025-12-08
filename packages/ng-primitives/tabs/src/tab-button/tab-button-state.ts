@@ -71,6 +71,7 @@ export const [NgpTabButtonStateToken, ngpTabButton, injectTabButtonState, provid
     attrBinding(element, 'role', 'tab');
     attrBinding(element, 'id', buttonId);
     attrBinding(element, 'aria-controls', ariaControls);
+    attrBinding(element, 'aria-selected', active);
     dataBinding(element, 'data-active', active);
     dataBinding(element, 'data-disabled', disabled);
     attrBinding(element, 'disabled', () => (tagName === 'button' && disabled() ? '' : null));
