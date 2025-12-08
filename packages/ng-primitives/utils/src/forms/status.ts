@@ -1,5 +1,6 @@
 import {
   DestroyRef,
+  Injector,
   Signal,
   WritableSignal,
   effect,
@@ -8,6 +9,7 @@ import {
   untracked,
 } from '@angular/core';
 import { NgControl } from '@angular/forms';
+import { onMount } from 'ng-primitives/state';
 import { safeTakeUntilDestroyed } from '../observables/take-until-destroyed';
 
 export interface NgpControlStatus {
@@ -64,8 +66,9 @@ function updateStatus(control: NgControl, status: WritableSignal<NgpControlStatu
  * @internal
  */
 export function controlStatus(): Signal<NgpControlStatus> {
-  const control = inject(NgControl, { optional: true });
+  const injector = inject(Injector);
   const destroyRef = inject(DestroyRef);
+  const control = signal<NgControl | null>(null);
 
   const status = signal<NgpControlStatus>({
     valid: null,
@@ -77,25 +80,37 @@ export function controlStatus(): Signal<NgpControlStatus> {
     disabled: null,
   });
 
-  if (!control) {
-    return status;
-  }
+  onMount(() => {
+    control.set(inject(NgControl, { optional: true }));
+
+    if (!control()) {
+      return;
+    }
+
+    updateStatus(control()!, status);
+
+    // For classic controls, also subscribe to the events observable.
+    const underlyingControl = (control() as any).control;
+    if (underlyingControl?.events) {
+      underlyingControl.events
+        .pipe(safeTakeUntilDestroyed(destroyRef))
+        .subscribe(() => updateStatus(control()!, status));
+    }
+  });
 
   // Use an effect to reactively track status changes.
   // For signal-forms interop controls, the status properties are signals.
   // For classic controls, this will read the current values and establish
   // no signal dependencies, but we also subscribe to events below.
-  effect(() => {
-    updateStatus(control, status);
-  });
-
-  // For classic controls, also subscribe to the events observable.
-  const underlyingControl = (control as any).control;
-  if (underlyingControl?.events) {
-    underlyingControl.events
-      .pipe(safeTakeUntilDestroyed(destroyRef))
-      .subscribe(() => updateStatus(control, status));
-  }
+  effect(
+    () => {
+      const c = control();
+      if (c) {
+        updateStatus(c, status);
+      }
+    },
+    { injector },
+  );
 
   return status;
 }
