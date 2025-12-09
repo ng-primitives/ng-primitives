@@ -1,6 +1,6 @@
 import { BooleanInput } from '@angular/cdk/coercion';
 import { Directive, booleanAttribute, input, output } from '@angular/core';
-import { ngpFocusInteraction } from './focus-interaction';
+import { ngpFocus } from './focus-interaction';
 
 /**
  * This was inspired by the React Aria useFocus hook.
@@ -26,10 +26,10 @@ export class NgpFocus {
 
   constructor() {
     // setup the focus listener
-    ngpFocusInteraction({
+    ngpFocus({
       disabled: this.disabled,
-      focus: () => this.focus.emit(true),
-      blur: () => this.focus.emit(false),
+      onFocus: () => this.focus.emit(true),
+      onBlur: () => this.focus.emit(false),
     });
   }
 }

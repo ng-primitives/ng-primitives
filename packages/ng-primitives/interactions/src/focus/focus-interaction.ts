@@ -3,11 +3,11 @@ import { ElementRef, Renderer2, Signal, inject, signal } from '@angular/core';
 import { safeTakeUntilDestroyed } from 'ng-primitives/utils';
 import { isFocusEnabled } from '../config/interactions-config';
 
-export interface NgpFocusOptions {
+export interface NgpFocusProps {
   disabled?: Signal<boolean>;
   focusWithin?: boolean;
-  focus?: () => void;
-  blur?: () => void;
+  onFocus?: () => void;
+  onBlur?: () => void;
 }
 
 export interface NgpFocusState {
@@ -17,12 +17,12 @@ export interface NgpFocusState {
 /**
  * @internal
  */
-export function ngpFocusInteraction({
-  focus,
-  blur,
+export function ngpFocus({
+  onFocus,
+  onBlur,
   focusWithin = false,
   disabled = signal(false),
-}: NgpFocusOptions): NgpFocusState {
+}: NgpFocusProps): NgpFocusState {
   const canFocus = isFocusEnabled();
 
   if (!canFocus) {
@@ -58,13 +58,13 @@ export function ngpFocusInteraction({
 
       isFocused.set(focusOrigin !== null);
       if (focusOrigin !== null) {
-        if (focus) {
-          focus();
+        if (onFocus) {
+          onFocus();
         }
         renderer.setAttribute(elementRef.nativeElement, 'data-focus', '');
       } else {
-        if (blur) {
-          blur();
+        if (onBlur) {
+          onBlur();
         }
         renderer.removeAttribute(elementRef.nativeElement, 'data-focus');
       }

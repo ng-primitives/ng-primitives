@@ -1,6 +1,6 @@
 import { BooleanInput } from '@angular/cdk/coercion';
 import { Directive, booleanAttribute, input, output } from '@angular/core';
-import { ngpPressInteraction } from './press-interaction';
+import { ngpPress } from './press-interaction';
 
 // This was inpsired by Headless UI's active-press hook: https://github.com/tailwindlabs/headlessui/blob/main/packages/%40headlessui-react/src/hooks/use-active-press.tsx
 
@@ -43,12 +43,12 @@ export class NgpPress {
 
   constructor() {
     // setup the press listener
-    ngpPressInteraction({
-      pressStart: () => {
+    ngpPress({
+      onPressStart: () => {
         this.pressStart.emit();
         this.pressChange.emit(true);
       },
-      pressEnd: () => {
+      onPressEnd: () => {
         this.pressEnd.emit();
         this.pressChange.emit(false);
       },

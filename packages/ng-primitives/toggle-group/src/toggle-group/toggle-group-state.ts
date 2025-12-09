@@ -8,8 +8,9 @@ import {
   createPrimitive,
   dataBinding,
   deprecatedSetter,
+  emitter,
 } from 'ng-primitives/state';
-import { Observable, Subject } from 'rxjs';
+import { Observable } from 'rxjs';
 
 /**
  * The state interface for the ToggleGroup pattern.
@@ -120,7 +121,7 @@ export const [
     const disabled = controlled(_disabled);
     const value = controlled(_value);
     const orientation = controlled(_orientation);
-    const valueChange = new Subject<string[]>();
+    const valueChange = emitter<string[]>();
 
     // Host bindings
     attrBinding(element, 'role', 'group');
@@ -182,7 +183,7 @@ export const [
     const setValue = (newValue: string[]): void => {
       value.set(newValue);
       onValueChange?.(newValue);
-      valueChange.next(newValue);
+      valueChange.emit(newValue);
     };
 
     const setDisabled = (isDisabled: boolean): void => {
@@ -204,7 +205,7 @@ export const [
       setValue,
       setDisabled,
       setOrientation,
-      valueChange,
+      valueChange: valueChange.asObservable(),
     };
   },
 );
