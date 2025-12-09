@@ -7,6 +7,11 @@ module.exports = [
   ...nx.configs['flat/angular-template'],
   {
     files: ['**/*.ts'],
+    languageOptions: {
+      parserOptions: {
+        project: ['./tsconfig.*?.json'],
+      },
+    },
     rules: {
       '@angular-eslint/directive-selector': [
         'error',
@@ -45,6 +50,7 @@ module.exports = [
       '@typescript-eslint/no-empty-interface': 'off',
       '@typescript-eslint/no-empty-object-type': 'off',
       'no-empty-pattern': 'off',
+      '@angular-eslint/no-uncalled-signals': 'error',
     },
   },
   {

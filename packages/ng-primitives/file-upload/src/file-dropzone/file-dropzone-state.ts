@@ -1,4 +1,5 @@
 import { Signal, signal } from '@angular/core';
+import { ngpHoverInteraction } from 'ng-primitives/interactions';
 import { injectElementRef } from 'ng-primitives/internal';
 import { createPrimitive, dataBinding, listener } from 'ng-primitives/state';
 import { Observable, Subject } from 'rxjs';
@@ -87,6 +88,9 @@ export const [
     // Host bindings
     dataBinding(element, 'data-dragover', () => (isDragOverState() ? '' : null));
     dataBinding(element, 'data-disabled', () => (disabled?.() ? '' : null));
+
+    // Setup hover interaction
+    ngpHoverInteraction({ disabled });
 
     function onDragEnter(event: DragEvent): void {
       if (disabled?.()) {

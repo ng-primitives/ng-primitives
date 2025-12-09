@@ -1,6 +1,5 @@
 import { BooleanInput, coerceStringArray } from '@angular/cdk/coercion';
 import { booleanAttribute, Directive, input, output } from '@angular/core';
-import { ngpHoverInteraction } from 'ng-primitives/interactions';
 import { ngpFileDropzone, provideFileDropzoneState } from './file-dropzone-state';
 
 /**
@@ -75,10 +74,6 @@ export class NgpFileDropzone {
     onRejected: () => this.rejected.emit(),
     onDragOver: isDragOver => this.dragOver.emit(isDragOver),
   });
-
-  constructor() {
-    ngpHoverInteraction({ disabled: this.disabled });
-  }
 
   /**
    * Whether the user is currently dragging a file over the file upload.

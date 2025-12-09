@@ -1,18 +1,7 @@
 import { BooleanInput } from '@angular/cdk/coercion';
-import {
-  Directive,
-  HOST_TAG_NAME,
-  HostListener,
-  OnDestroy,
-  OnInit,
-  booleanAttribute,
-  computed,
-  inject,
-  input,
-} from '@angular/core';
-import { ngpInteractions } from 'ng-primitives/interactions';
-import { NgpRovingFocusItem } from 'ng-primitives/roving-focus';
-import { injectTabsetState } from '../tabset/tabset-state';
+import { booleanAttribute, Directive, input, Signal } from '@angular/core';
+import { ngpRovingFocusItem, provideRovingFocusItemState } from 'ng-primitives/roving-focus';
+import { ngpTabButton, provideTabButtonState } from './tab-button-state';
 
 /**
  * Apply the `ngpTabButton` directive to an element within a tab list to represent a tab button. This directive should be applied to a button element.
@@ -20,33 +9,9 @@ import { injectTabsetState } from '../tabset/tabset-state';
 @Directive({
   selector: '[ngpTabButton]',
   exportAs: 'ngpTabButton',
-  host: {
-    role: 'tab',
-    '[attr.id]': 'buttonId()',
-    '[attr.aria-controls]': 'ariaControls()',
-    '[attr.data-active]': 'active() ? "" : null',
-    '[attr.data-disabled]': 'disabled() ? "" : null',
-    '[attr.disabled]': 'tagName === "button" && disabled() ? "" : null',
-    '[attr.data-orientation]': 'state().orientation()',
-  },
-  hostDirectives: [
-    {
-      directive: NgpRovingFocusItem,
-      inputs: ['ngpRovingFocusItemDisabled: ngpTabButtonDisabled'],
-    },
-  ],
+  providers: [provideTabButtonState(), provideRovingFocusItemState()],
 })
-export class NgpTabButton implements OnInit, OnDestroy {
-  /**
-   * Access the tag host name
-   */
-  protected readonly tagName = inject(HOST_TAG_NAME);
-
-  /**
-   * Access the tabset state
-   */
-  protected readonly state = injectTabsetState();
-
+export class NgpTabButton {
   /**
    * The value of the tab this trigger controls
    * @required
@@ -68,61 +33,25 @@ export class NgpTabButton implements OnInit, OnDestroy {
    */
   readonly id = input<string>();
 
-  /**
-   * Determine a unique id for the tab button if not provided
-   * @internal
-   */
-  readonly buttonId = computed(() => this.id() ?? `${this.state().id()}-button-${this.value()}`);
-
-  /**
-   * Determine the aria-controls of the tab button
-   * @internal
-   */
-  readonly ariaControls = computed(() => `${this.state().id()}-panel-${this.value()}`);
+  private readonly state = ngpTabButton({
+    value: this.value as Signal<string>,
+    disabled: this.disabled,
+    id: this.id,
+  });
 
   /**
    * Whether the tab is active
    */
-  readonly active = computed(() => this.state().selectedTab() === this.value());
+  readonly active = this.state.active;
 
   constructor() {
-    this.state().registerTab(this);
-
-    ngpInteractions({
-      hover: true,
-      press: true,
-      focusVisible: true,
-      disabled: this.disabled,
-    });
-  }
-
-  ngOnInit(): void {
-    if (this.value() === undefined) {
-      throw new Error('ngpTabButton: value is required');
-    }
-  }
-
-  ngOnDestroy(): void {
-    this.state().unregisterTab(this);
+    ngpRovingFocusItem({ disabled: this.disabled });
   }
 
   /**
    * Select the tab this trigger controls
    */
-  @HostListener('click')
   select(): void {
-    if (this.disabled() === false) {
-      this.state().select(this.value()!);
-    }
-  }
-
-  /**
-   * On focus select the tab this trigger controls if activateOnFocus is true
-   */
-  @HostListener('focus')
-  protected activateOnFocus(): void {
-    if (this.state().activateOnFocus()) {
-      this.select();
-    }
+    this.state.select();
   }
 }
