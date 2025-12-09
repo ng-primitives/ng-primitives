@@ -5,6 +5,7 @@
 - **progress:** id fix ([c46d815b](https://github.com/ng-primitives/ng-primitives/commit/c46d815b))
 - **progress:** id issues ([13e3e2f1](https://github.com/ng-primitives/ng-primitives/commit/13e3e2f1))
 - **state:** resolve dependency resolution issue ([#549](https://github.com/ng-primitives/ng-primitives/pull/549))
+- **menu:** resolve issue where click events were not fired in submenu
 
 ### ❤️ Thank You
 
