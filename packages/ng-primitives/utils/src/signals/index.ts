@@ -9,8 +9,8 @@ import { effect, Injector, Signal, signal, untracked } from '@angular/core';
  * @internal
  */
 export function onChange<T>(
-  source: Signal<T | null | undefined>,
-  fn: (value: T | null | undefined, previousValue: T | null | undefined) => void,
+  source: Signal<T>,
+  fn: (value: T, previousValue: T | null | undefined) => void,
   options?: { injector: Injector },
 ): void {
   const previousValue = signal(source());

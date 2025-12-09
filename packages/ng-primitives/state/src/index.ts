@@ -257,8 +257,8 @@ type PrimitiveState<TFactory extends (...args: any[]) => unknown> = TFactory ext
 
 type BasePrimitiveInjectionFn<TState> = {
   (): Signal<TState>;
-  (options: { hoisted: true }): Signal<TState | null>;
-  (options?: { hoisted?: boolean }): Signal<TState | null>;
+  (options: { hoisted: true; optional?: boolean }): Signal<TState | null>;
+  (options?: { hoisted?: boolean; optional?: boolean }): Signal<TState | null> | Signal<TState>;
 };
 
 type PrimitiveInjectionFn<TFactory extends (...args: any[]) => unknown> = TFactory extends (
@@ -266,8 +266,8 @@ type PrimitiveInjectionFn<TFactory extends (...args: any[]) => unknown> = TFacto
 ) => infer R
   ? {
       (): Signal<R>;
-      (options: { hoisted: true }): Signal<R | null>;
-      (options?: { hoisted?: boolean }): Signal<R | null>;
+      (options: { hoisted: true; optional?: boolean }): Signal<R | null>;
+      (options?: { hoisted?: boolean; optional?: boolean }): Signal<R | null> | Signal<R>;
     }
   : BasePrimitiveInjectionFn<PrimitiveState<TFactory>>;
 
@@ -317,13 +317,21 @@ export function createPrimitive<TFactory extends (...args: any[]) => unknown>(
 
   // create an injection function that provides the state signal
   function injectFn<T = PrimitiveState<TFactory>>(): Signal<T>;
-  function injectFn<T = PrimitiveState<TFactory>>(options: { hoisted: true }): Signal<T | null>;
+  function injectFn<T = PrimitiveState<TFactory>>(
+    options: { hoisted: true } & InjectOptions,
+  ): Signal<T | null>;
   function injectFn<T = PrimitiveState<TFactory>>(options?: {
     hoisted?: boolean;
-  }): Signal<T | null> {
+    optional?: boolean;
+  }): Signal<T | null> | Signal<T> {
     const hoisted = options?.hoisted ?? false;
+    const optional = options?.optional ?? false;
 
     if (hoisted) {
+      return (inject(token, { optional: true }) ?? signal(null)) as unknown as Signal<T | null>;
+    }
+
+    if (optional) {
       return (inject(token, { optional: true }) ?? signal(null)) as unknown as Signal<T | null>;
     }
 
