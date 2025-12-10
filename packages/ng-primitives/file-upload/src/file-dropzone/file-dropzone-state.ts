@@ -1,8 +1,8 @@
 import { Signal, signal } from '@angular/core';
-import { ngpHoverInteraction } from 'ng-primitives/interactions';
+import { ngpHover } from 'ng-primitives/interactions';
 import { injectElementRef } from 'ng-primitives/internal';
-import { createPrimitive, dataBinding, listener } from 'ng-primitives/state';
-import { Observable, Subject } from 'rxjs';
+import { createPrimitive, dataBinding, emitter, listener } from 'ng-primitives/state';
+import { Observable } from 'rxjs';
 import { fileDropFilter } from './file-drop-filter';
 
 /**
@@ -81,16 +81,16 @@ export const [
     const isDragOverState = signal(false);
 
     // Create observables
-    const selectedSubject = new Subject<FileList | null>();
-    const rejectedSubject = new Subject<void>();
-    const dragOverSubject = new Subject<boolean>();
+    const selected = emitter<FileList | null>();
+    const rejected = emitter<void>();
+    const dragOver = emitter<boolean>();
 
     // Host bindings
     dataBinding(element, 'data-dragover', () => (isDragOverState() ? '' : null));
     dataBinding(element, 'data-disabled', () => (disabled?.() ? '' : null));
 
     // Setup hover interaction
-    ngpHoverInteraction({ disabled });
+    ngpHover({ disabled });
 
     function onDragEnter(event: DragEvent): void {
       if (disabled?.()) {
@@ -100,7 +100,7 @@ export const [
       event.preventDefault();
       event.stopPropagation();
       isDragOverState.set(true);
-      dragOverSubject.next(true);
+      dragOver.emit(true);
       onDragOver?.(true);
     }
 
@@ -127,7 +127,7 @@ export const [
       event.preventDefault();
       event.stopPropagation();
       isDragOverState.set(false);
-      dragOverSubject.next(false);
+      dragOver.emit(false);
       onDragOver?.(false);
     }
 
@@ -138,7 +138,7 @@ export const [
 
       event.preventDefault();
       isDragOverState.set(false);
-      dragOverSubject.next(false);
+      dragOver.emit(false);
       onDragOver?.(false);
 
       const fileList = event.dataTransfer?.files;
@@ -146,10 +146,10 @@ export const [
         const filteredFiles = fileDropFilter(fileList, fileTypes?.(), multiple?.() ?? false);
 
         if (filteredFiles) {
-          selectedSubject.next(filteredFiles);
+          selected.emit(filteredFiles);
           onSelected?.(filteredFiles);
         } else {
-          rejectedSubject.next();
+          rejected.emit();
           onRejected?.();
         }
       }
@@ -167,9 +167,9 @@ export const [
       multiple,
       directory,
       isDragOver: isDragOverState,
-      selected: selectedSubject.asObservable(),
-      rejected: rejectedSubject.asObservable(),
-      dragOverChanged: dragOverSubject.asObservable(),
+      selected: selected.asObservable(),
+      rejected: rejected.asObservable(),
+      dragOverChanged: dragOver.asObservable(),
     };
   },
 );

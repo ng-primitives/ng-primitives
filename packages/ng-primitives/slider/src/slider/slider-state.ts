@@ -8,9 +8,10 @@ import {
   createPrimitive,
   dataBinding,
   deprecatedSetter,
+  emitter,
 } from 'ng-primitives/state';
 import { uniqueId } from 'ng-primitives/utils';
-import { Subject } from 'rxjs';
+import { Observable } from 'rxjs';
 
 /**
  * Public state surface for the Slider primitive.
@@ -55,7 +56,7 @@ export interface NgpSliderState {
   /**
    * Emit when the value changes.
    */
-  readonly valueChange: Subject<number>;
+  readonly valueChange: Observable<number>;
   /**
    * Set the current value (clamped).
    */
@@ -130,7 +131,7 @@ export const [NgpSliderStateToken, ngpSlider, injectSliderState, provideSliderSt
       const disabledInput = controlled(_disabled);
       const orientation = controlled(_orientation);
 
-      const valueChange = new Subject<number>();
+      const valueChange = emitter<number>();
       const track = signal<ElementRef<HTMLElement> | undefined>(undefined);
 
       // Form control integration
@@ -158,7 +159,7 @@ export const [NgpSliderStateToken, ngpSlider, injectSliderState, provideSliderSt
         const clamped = Math.min(max(), Math.max(min(), newValue));
         value.set(clamped);
         onValueChange?.(clamped);
-        valueChange.next(clamped);
+        valueChange.emit(clamped);
       }
 
       function setDisabled(isDisabled: boolean): void {
@@ -177,7 +178,7 @@ export const [NgpSliderStateToken, ngpSlider, injectSliderState, provideSliderSt
         step,
         orientation: deprecatedSetter(orientation, 'setOrientation'),
         disabled: deprecatedSetter(disabledInput, 'setDisabled'),
-        valueChange,
+        valueChange: valueChange.asObservable(),
         percentage,
         track,
         setValue,

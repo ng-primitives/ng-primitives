@@ -1,33 +1,34 @@
-import { ElementRef, Signal, effect, inject, signal } from '@angular/core';
-import { injectDisposables } from 'ng-primitives/utils';
+import { inject, Injector, Signal, signal } from '@angular/core';
+import { injectElementRef } from 'ng-primitives/internal';
+import { dataBinding, listener } from 'ng-primitives/state';
 import { isPressEnabled } from '../config/interactions-config';
 
 interface NgpPressState {
   pressed: Signal<boolean>;
 }
 
-interface NgpPressOptions {
+interface NgpPressProps {
   disabled?: Signal<boolean>;
-  pressStart?: () => void;
-  pressEnd?: () => void;
+  onPressStart?: () => void;
+  onPressEnd?: () => void;
 }
 
 /**
  * @internal
  */
-export function ngpPressInteraction({
-  pressStart,
-  pressEnd,
+export function ngpPress({
+  onPressStart,
+  onPressEnd,
   disabled = signal(false),
-}: NgpPressOptions): NgpPressState {
+}: NgpPressProps): NgpPressState {
   const canPress = isPressEnabled();
 
   if (!canPress) {
     return { pressed: signal(false) };
   }
 
-  const elementRef = inject<ElementRef<HTMLElement>>(ElementRef);
-  const disposables = injectDisposables();
+  const elementRef = injectElementRef();
+  const injector = inject(Injector);
 
   /**
    * Whether the element is currently pressed.
@@ -35,14 +36,10 @@ export function ngpPressInteraction({
   const pressed = signal<boolean>(false);
 
   // setup event listeners
-  disposables.addEventListener(elementRef.nativeElement, 'pointerdown', onPointerDown);
+  listener(elementRef, 'pointerdown', onPointerDown);
 
   // anytime the press state changes we want to update the attribute
-  effect(() =>
-    pressed() && !disabled()
-      ? elementRef.nativeElement.setAttribute('data-press', '')
-      : elementRef.nativeElement.removeAttribute('data-press'),
-  );
+  dataBinding(elementRef, 'data-press', () => pressed() && !disabled());
 
   /**
    * Reset the press state.
@@ -56,7 +53,7 @@ export function ngpPressInteraction({
     // clear any existing disposables
     disposableListeners.forEach(dispose => dispose());
     pressed.set(false);
-    pressEnd?.();
+    onPressEnd?.();
   }
 
   /**
@@ -74,36 +71,32 @@ export function ngpPressInteraction({
 
     // update the press state
     pressed.set(true);
-    pressStart?.();
+    onPressStart?.();
 
     // setup global event listeners to catch events on elements outside the directive
     const ownerDocument = elementRef.nativeElement.ownerDocument ?? document;
 
     // if the pointer up event happens on any elements, then we are no longer pressing on this element
-    const pointerUp = disposables.addEventListener(
-      ownerDocument,
-      'pointerup',
-      () => reset(),
-      false,
-    );
+    const pointerUp = listener(ownerDocument, 'pointerup', () => reset(), {
+      config: false,
+      injector,
+    });
 
     // Instead of relying on the `pointerleave` event, which is not consistently called on iOS Safari,
     // we use the `pointermove` event to determine if we are still "pressing".
     // By checking if the target is still within the element, we can determine if the press is ongoing.
-    const pointerMove = disposables.addEventListener(
+    const pointerMove = listener(
       ownerDocument,
       'pointermove',
       () => onPointerMove as EventListener,
-      false,
+      { config: false, injector },
     );
 
     // if the pointer is cancelled, then we are no longer pressing on this element
-    const pointerCancel = disposables.addEventListener(
-      ownerDocument,
-      'pointercancel',
-      () => reset(),
-      false,
-    );
+    const pointerCancel = listener(ownerDocument, 'pointercancel', () => reset(), {
+      config: false,
+      injector,
+    });
 
     disposableListeners = [pointerUp, pointerMove, pointerCancel];
   }

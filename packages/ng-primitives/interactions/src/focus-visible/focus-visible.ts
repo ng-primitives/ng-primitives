@@ -1,6 +1,6 @@
 import { BooleanInput } from '@angular/cdk/coercion';
 import { Directive, booleanAttribute, input, output } from '@angular/core';
-import { ngpFocusVisibleInteraction } from './focus-visible-interaction';
+import { ngpFocusVisible } from './focus-visible-interaction';
 
 /**
  * Apply the `ngpFocusVisible` directive to an element that should be visually focused. This is similar to `ngpFocus`
@@ -28,9 +28,9 @@ export class NgpFocusVisible {
 
   constructor() {
     // setup the focus visible listener
-    ngpFocusVisibleInteraction({
+    ngpFocusVisible({
       disabled: this.disabled,
-      focusChange: value => this.focusChange.emit(value),
+      onFocusChange: value => this.focusChange.emit(value),
     });
   }
 }

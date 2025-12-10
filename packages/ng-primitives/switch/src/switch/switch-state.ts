@@ -8,10 +8,11 @@ import {
   createPrimitive,
   dataBinding,
   deprecatedSetter,
+  emitter,
   listener,
 } from 'ng-primitives/state';
 import { uniqueId } from 'ng-primitives/utils';
-import { Subject } from 'rxjs/internal/Subject';
+import { Observable } from 'rxjs';
 
 /**
  * Public state surface for the Switch primitive.
@@ -32,7 +33,7 @@ export interface NgpSwitchState {
   /**
    * Emits when the checked state changes.
    */
-  readonly checkedChange: Subject<boolean>;
+  readonly checkedChange: Observable<boolean>;
   /**
    * Toggle the switch state.
    */
@@ -88,7 +89,7 @@ export const [NgpSwitchStateToken, ngpSwitch, injectSwitchState, provideSwitchSt
       const disabled = computed(() => status().disabled ?? disabledInput());
       ngpInteractions({ hover: true, press: true, focusVisible: true, disabled });
 
-      const checkedChange = new Subject<boolean>();
+      const checkedChange = emitter<boolean>();
       const tabindex = computed(() => (disabled() ? -1 : 0));
 
       // Host bindings
@@ -125,7 +126,7 @@ export const [NgpSwitchStateToken, ngpSwitch, injectSwitchState, provideSwitchSt
       function setChecked(value: boolean): void {
         checked.set(value);
         onCheckedChange?.(value);
-        checkedChange.next(value);
+        checkedChange.emit(value);
       }
 
       function setDisabled(value: boolean): void {
@@ -136,7 +137,7 @@ export const [NgpSwitchStateToken, ngpSwitch, injectSwitchState, provideSwitchSt
         id,
         checked: deprecatedSetter(checked, 'setChecked'),
         disabled: deprecatedSetter(disabledInput, 'setDisabled'),
-        checkedChange,
+        checkedChange: checkedChange.asObservable(),
         toggle,
         setChecked,
         setDisabled,

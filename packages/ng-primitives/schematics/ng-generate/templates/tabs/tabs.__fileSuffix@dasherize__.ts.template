@@ -9,12 +9,12 @@ import { Tab } from './tab';
   template: `
     <div [(ngpTabsetValue)]="value" ngpTabset>
       <div ngpTabList>
-        @for (tab of tabs(); track tab.label) {
+        @for (tab of tabs(); track tab.label()) {
           <button [ngpTabButtonValue]="tab.value()" ngpTabButton>{{ tab.label() }}</button>
         }
       </div>
 
-      @for (tab of tabs(); track tab.label) {
+      @for (tab of tabs(); track tab.label()) {
         <div [ngpTabPanelValue]="tab.value()" ngpTabPanel>
           <ng-container [ngTemplateOutlet]="tab.content()" />
         </div>

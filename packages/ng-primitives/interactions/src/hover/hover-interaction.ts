@@ -1,16 +1,16 @@
 import { isPlatformBrowser } from '@angular/common';
 import {
-  effect,
+  DOCUMENT,
   ElementRef,
   inject,
   Injectable,
   PLATFORM_ID,
   Signal,
   signal,
-  DOCUMENT,
 } from '@angular/core';
 import { onDomRemoval } from 'ng-primitives/internal';
-import { injectDisposables, onBooleanChange } from 'ng-primitives/utils';
+import { dataBinding, listener } from 'ng-primitives/state';
+import { onBooleanChange } from 'ng-primitives/utils';
 import { isHoverEnabled } from '../config/interactions-config';
 
 /**
@@ -64,10 +64,10 @@ class GlobalPointerEvents {
   }
 }
 
-interface NgpHoverOptions {
+interface NgpHoverProps {
   disabled?: Signal<boolean>;
-  hoverStart?: () => void;
-  hoverEnd?: () => void;
+  onHoverStart?: () => void;
+  onHoverEnd?: () => void;
 }
 
 export interface NgpHoverState {
@@ -80,11 +80,11 @@ export interface NgpHoverState {
  * because there is a chance the directive has already been used.
  * @internal
  */
-export function ngpHoverInteraction({
-  hoverStart,
-  hoverEnd,
+export function ngpHover({
+  onHoverStart,
+  onHoverEnd,
   disabled = signal(false),
-}: NgpHoverOptions): NgpHoverState {
+}: NgpHoverProps): NgpHoverState {
   const canHover = isHoverEnabled();
 
   if (!canHover) {
@@ -102,11 +102,6 @@ export function ngpHoverInteraction({
   const globalPointerEvents = inject(GlobalPointerEvents);
 
   /**
-   * Access the disposable helper.
-   */
-  const disposables = injectDisposables();
-
-  /**
    * Store the current hover state.
    */
   const hovered = signal<boolean>(false);
@@ -119,11 +114,11 @@ export function ngpHoverInteraction({
   /**
    * Setup event listeners.
    */
-  disposables.addEventListener(elementRef.nativeElement, 'pointerenter', onPointerEnter);
-  disposables.addEventListener(elementRef.nativeElement, 'pointerleave', onPointerLeave);
-  disposables.addEventListener(elementRef.nativeElement, 'touchstart', onTouchStart);
-  disposables.addEventListener(elementRef.nativeElement, 'mouseenter', onMouseEnter);
-  disposables.addEventListener(elementRef.nativeElement, 'mouseleave', onMouseLeave);
+  listener(elementRef.nativeElement, 'pointerenter', onPointerEnter);
+  listener(elementRef.nativeElement, 'pointerleave', onPointerLeave);
+  listener(elementRef.nativeElement, 'touchstart', onTouchStart);
+  listener(elementRef.nativeElement, 'mouseenter', onMouseEnter);
+  listener(elementRef.nativeElement, 'mouseleave', onMouseLeave);
 
   // anytime the disabled state changes to true, we must reset the hover state
   if (disabled) {
@@ -134,17 +129,13 @@ export function ngpHoverInteraction({
   onDomRemoval(elementRef.nativeElement, reset);
 
   // anytime the hover state changes we want to update the attribute
-  effect(() =>
-    hovered()
-      ? elementRef.nativeElement.setAttribute('data-hover', '')
-      : elementRef.nativeElement.removeAttribute('data-hover'),
-  );
+  dataBinding(elementRef, 'data-hover', hovered);
 
   /**
    * Reset the hover state.
    */
   function reset(): void {
-    onHoverEnd('mouse');
+    onHoverFinished('mouse');
   }
 
   /**
@@ -152,7 +143,7 @@ export function ngpHoverInteraction({
    * @param event
    * @param pointerType
    */
-  function onHoverStart(event: Event, pointerType: string): void {
+  function onHoverBegin(event: Event, pointerType: string): void {
     if (
       disabled() ||
       pointerType === 'touch' ||
@@ -163,20 +154,20 @@ export function ngpHoverInteraction({
     }
 
     hovered.set(true);
-    hoverStart?.();
+    onHoverStart?.();
   }
 
   /**
    * Trigger the hover end events.
    * @param pointerType
    */
-  function onHoverEnd(pointerType: string): void {
+  function onHoverFinished(pointerType: string): void {
     if (pointerType === 'touch' || !hovered()) {
       return;
     }
 
     hovered.set(false);
-    hoverEnd?.();
+    onHoverEnd?.();
   }
 
   function onPointerEnter(event: PointerEvent): void {
@@ -184,12 +175,12 @@ export function ngpHoverInteraction({
       return;
     }
 
-    onHoverStart(event, event.pointerType);
+    onHoverBegin(event, event.pointerType);
   }
 
   function onPointerLeave(event: PointerEvent): void {
     if (!disabled() && (event.currentTarget as Element)?.contains(event.target as Element)) {
-      onHoverEnd(event.pointerType);
+      onHoverFinished(event.pointerType);
     }
   }
 
@@ -199,7 +190,7 @@ export function ngpHoverInteraction({
 
   function onMouseEnter(event: MouseEvent): void {
     if (!ignoreEmulatedMouseEvents && !globalPointerEvents.ignoreEmulatedMouseEvents) {
-      onHoverStart(event, 'mouse');
+      onHoverBegin(event, 'mouse');
     }
 
     ignoreEmulatedMouseEvents = false;
@@ -207,7 +198,7 @@ export function ngpHoverInteraction({
 
   function onMouseLeave(event: MouseEvent): void {
     if (!disabled() && (event.currentTarget as Element)?.contains(event.target as Element)) {
-      onHoverEnd('mouse');
+      onHoverFinished('mouse');
     }
   }
 

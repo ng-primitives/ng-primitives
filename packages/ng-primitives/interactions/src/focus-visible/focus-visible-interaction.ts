@@ -3,9 +3,9 @@ import { ElementRef, inject, Renderer2, Signal, signal } from '@angular/core';
 import { onBooleanChange, safeTakeUntilDestroyed } from 'ng-primitives/utils';
 import { isFocusVisibleEnabled } from '../config/interactions-config';
 
-export interface NgpFocusVisibleOptions {
+export interface NgpFocusVisibleProps {
   disabled?: Signal<boolean>;
-  focusChange?: (value: boolean) => void;
+  onFocusChange?: (value: boolean) => void;
 }
 
 export interface NgpFocusVisibleState {
@@ -15,10 +15,10 @@ export interface NgpFocusVisibleState {
 /**
  * @internal
  */
-export function ngpFocusVisibleInteraction({
-  focusChange,
+export function ngpFocusVisible({
+  onFocusChange,
   disabled = signal(false),
-}: NgpFocusVisibleOptions): NgpFocusVisibleState {
+}: NgpFocusVisibleProps): NgpFocusVisibleState {
   const canFocusVisible = isFocusVisibleEnabled();
 
   if (!canFocusVisible) {
@@ -79,7 +79,7 @@ export function ngpFocusVisibleInteraction({
     }
 
     isFocused.set(value);
-    focusChange?.(value);
+    onFocusChange?.(value);
 
     if (value) {
       renderer.setAttribute(elementRef.nativeElement, 'data-focus-visible', origin ?? '');

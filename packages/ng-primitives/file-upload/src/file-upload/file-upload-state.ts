@@ -1,8 +1,8 @@
 import { DOCUMENT, inject, Signal, signal } from '@angular/core';
 import { ngpInteractions } from 'ng-primitives/interactions';
 import { injectElementRef } from 'ng-primitives/internal';
-import { createPrimitive, dataBinding, listener } from 'ng-primitives/state';
-import { Observable, Subject } from 'rxjs';
+import { createPrimitive, dataBinding, emitter, listener } from 'ng-primitives/state';
+import { Observable } from 'rxjs';
 import { fileDropFilter } from '../file-dropzone/file-drop-filter';
 
 /**
@@ -101,10 +101,10 @@ export const [
     const isDragOver = signal(false);
 
     // Create observables
-    const selectedSubject = new Subject<FileList | null>();
-    const canceledSubject = new Subject<void>();
-    const rejectedSubject = new Subject<void>();
-    const dragOverSubject = new Subject<boolean>();
+    const selected = emitter<FileList | null>();
+    const canceled = emitter<void>();
+    const rejected = emitter<void>();
+    const dragOver = emitter<boolean>();
 
     // Host bindings
     dataBinding(element, 'data-disabled', () => (disabled?.() ? '' : null));
@@ -125,13 +125,13 @@ export const [
 
     input.addEventListener('change', () => {
       const files = input.files;
-      selectedSubject.next(files);
+      selected.emit(files);
       onSelected?.(files);
       input.value = '';
     });
 
     input.addEventListener('cancel', () => {
-      canceledSubject.next();
+      canceled.emit();
       onCanceled?.();
     });
 
@@ -158,7 +158,7 @@ export const [
       event.preventDefault();
       event.stopPropagation();
       isDragOver.set(true);
-      dragOverSubject.next(true);
+      dragOver.emit(true);
       onDragOver?.(true);
     }
 
@@ -185,7 +185,7 @@ export const [
       event.preventDefault();
       event.stopPropagation();
       isDragOver.set(false);
-      dragOverSubject.next(false);
+      dragOver.emit(false);
       onDragOver?.(false);
     }
 
@@ -196,7 +196,7 @@ export const [
 
       event.preventDefault();
       isDragOver.set(false);
-      dragOverSubject.next(false);
+      dragOver.emit(false);
       onDragOver?.(false);
 
       const fileList = event.dataTransfer?.files;
@@ -204,10 +204,10 @@ export const [
         const filteredFiles = fileDropFilter(fileList, fileTypes?.(), multiple?.() ?? false);
 
         if (filteredFiles) {
-          selectedSubject.next(filteredFiles);
+          selected.emit(filteredFiles);
           onSelected?.(filteredFiles);
         } else {
-          rejectedSubject.next();
+          rejected.emit();
           onRejected?.();
         }
       }
@@ -222,10 +222,10 @@ export const [
 
     return {
       isDragOver,
-      selected: selectedSubject.asObservable(),
-      canceled: canceledSubject.asObservable(),
-      rejected: rejectedSubject.asObservable(),
-      dragOverChanged: dragOverSubject.asObservable(),
+      selected: selected.asObservable(),
+      canceled: canceled.asObservable(),
+      rejected: rejected.asObservable(),
+      dragOverChanged: dragOver.asObservable(),
       showFileDialog,
     };
   },
