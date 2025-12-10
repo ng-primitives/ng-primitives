@@ -11,13 +11,26 @@ import {
 } from 'ng-primitives/state';
 
 export interface NgpToolbarState {
-  orientation: WritableSignal<NgpOrientation>;
+  /**
+   * The orientation of the toolbar.
+   */
+  readonly orientation: WritableSignal<NgpOrientation>;
+  /**
+   * Set the orientation of the toolbar.
+   * @param value The orientation value
+   */
   setOrientation(value: NgpOrientation): void;
 }
 
 export interface NgpToolbarProps {
-  rovingFocusGroup: NgpRovingFocusGroupState;
-  orientation: Signal<NgpOrientation>;
+  /**
+   * The roving focus group state.
+   */
+  readonly rovingFocusGroup: NgpRovingFocusGroupState;
+  /**
+   * The orientation of the toolbar.
+   */
+  readonly orientation: Signal<NgpOrientation>;
 }
 
 export const [NgpToolbarStateToken, ngpToolbar, injectToolbarState, provideToolbarState] =
@@ -28,8 +41,8 @@ export const [NgpToolbarStateToken, ngpToolbar, injectToolbarState, provideToolb
       const orientation = controlled(_orientation);
 
       // Setup host attribute bindings
-      attrBinding(element, 'role', () => 'toolbar');
-      attrBinding(element, 'aria-orientation', () => orientation());
+      attrBinding(element, 'role', 'toolbar');
+      attrBinding(element, 'aria-orientation', orientation);
       dataBinding(element, 'data-orientation', orientation);
 
       function setOrientation(value: NgpOrientation) {

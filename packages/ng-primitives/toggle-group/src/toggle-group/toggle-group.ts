@@ -77,4 +77,25 @@ export class NgpToggleGroup {
   toggle(value: string): void {
     this.state.toggle(value);
   }
+
+  /**
+   * Set the value(s) of the toggle group.
+   */
+  setValue(newValue: string[]): void {
+    this.state.setValue(newValue);
+  }
+
+  /**
+   * Set the disabled state of the toggle group.
+   */
+  setDisabled(isDisabled: boolean): void {
+    this.state.setDisabled(isDisabled);
+  }
+
+  /**
+   * Set the orientation of the toggle group.
+   */
+  setOrientation(newOrientation: NgpOrientation): void {
+    this.state.setOrientation(newOrientation);
+  }
 }

@@ -4,7 +4,7 @@ import { ngpFormControl } from 'ng-primitives/form-field';
 import { ngpInteractions } from 'ng-primitives/interactions';
 import { injectElementRef } from 'ng-primitives/internal';
 import { injectSearchState } from 'ng-primitives/search';
-import { attrBinding, controlled, createPrimitive } from 'ng-primitives/state';
+import { attrBinding, controlled, createPrimitive, deprecatedSetter } from 'ng-primitives/state';
 import { uniqueId } from 'ng-primitives/utils';
 
 /**
@@ -19,6 +19,12 @@ export interface NgpInputState {
    * Whether the input is disabled.
    */
   readonly disabled: WritableSignal<boolean>;
+
+  /**
+   * Set the disabled state of the input.
+   * @param value The disabled state.
+   */
+  setDisabled(value: boolean): void;
 }
 
 /**
@@ -62,6 +68,15 @@ export const [NgpInputStateToken, ngpInput, injectInputState, provideInputState]
       search.registerInput(element.nativeElement);
     }
 
-    return { id, disabled, status };
+    function setDisabled(value: boolean): void {
+      disabled.set(value);
+    }
+
+    return {
+      id,
+      disabled: deprecatedSetter(disabled, 'setDisabled'),
+      status,
+      setDisabled,
+    };
   },
 );

@@ -9,10 +9,26 @@ import { injectRovingFocusGroupState } from '../roving-focus-group/roving-focus-
  * The state interface for the RovingFocusItem pattern.
  */
 export interface NgpRovingFocusItemState {
+  /**
+   * The unique id of the roving focus item.
+   */
   readonly id: Signal<string>;
+  /**
+   * Whether the item is disabled.
+   */
   readonly disabled: Signal<boolean>;
+  /**
+   * The tabindex of the roving focus item.
+   */
   readonly tabindex: Signal<number>;
+  /**
+   * The element reference of the roving focus item.
+   */
   readonly element: ElementRef<HTMLElement>;
+  /**
+   * Focus the roving focus item.
+   * @param origin The focus origin
+   */
   focus(origin: FocusOrigin): void;
 }
 

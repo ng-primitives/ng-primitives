@@ -83,7 +83,34 @@ export class NgpAccordion<T> {
     return this.state.isOpen(value);
   }
 
+  /**
+   * Set the value of the accordion.
+   * @param value The value to set.
+   */
+  setValue(value: T | T[] | null): void {
+    this.state.setValue(value);
+  }
+
+  /**
+   * @param value The value to toggle.
+   */
   toggle(value: T): void {
     this.state.toggle(value);
+  }
+
+  /**
+   * Set the disabled state of the accordion.
+   * @param value The disabled state.
+   */
+  setDisabled(value: boolean): void {
+    this.state.setDisabled(value);
+  }
+
+  /**
+   * Set the orientation of the accordion.
+   * @param value The orientation.
+   */
+  setOrientation(value: NgpOrientation): void {
+    this.state.setOrientation(value);
   }
 }

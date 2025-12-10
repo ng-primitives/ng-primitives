@@ -52,12 +52,12 @@ describe('NgpDescription', () => {
 
     // Initially should be registered (via aria-describedby) and log attributes
     // debug
-    // eslint-disable-next-line no-console
+     
     console.log(
       'CLEANUP: input attrs',
       input.getAttributeNames().map((n: string) => [n, input.getAttribute(n)]),
     );
-    // eslint-disable-next-line no-console
+     
     console.log(
       'CLEANUP: desc attrs',
       fixture.debugElement.nativeElement.querySelector('[ngpDescription]').getAttributeNames(),

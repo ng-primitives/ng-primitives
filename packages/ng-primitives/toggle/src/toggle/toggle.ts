@@ -1,6 +1,6 @@
 import { BooleanInput } from '@angular/cdk/coercion';
 import { booleanAttribute, Directive, input, output } from '@angular/core';
-import { provideToggleState, ngpToggle } from './toggle-state';
+import { ngpToggle, provideToggleState } from './toggle-state';
 
 /**
  * Apply the `ngpToggle` directive to an element to manage the toggle state. This must be applied to a `button` element.
@@ -51,5 +51,19 @@ export class NgpToggle {
    */
   toggle(): void {
     this.state.toggle();
+  }
+
+  /**
+   * Set the selected state.
+   */
+  setSelected(value: boolean): void {
+    this.state.setSelected(value);
+  }
+
+  /*
+   * Set the disabled state.
+   */
+  setDisabled(value: boolean): void {
+    this.state.setDisabled(value);
   }
 }

@@ -88,4 +88,11 @@ export class NgpTabset {
   select(value: string): void {
     this.state.select(value);
   }
+
+  /**
+   * Set orientation of the tabset.
+   */
+  setOrientation(orientation: NgpOrientation): void {
+    this.state.setOrientation(orientation);
+  }
 }

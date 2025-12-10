@@ -1,28 +1,9 @@
 import { FocusOrigin } from '@angular/cdk/a11y';
 import { BooleanInput } from '@angular/cdk/coercion';
-import {
-  booleanAttribute,
-  computed,
-  Directive,
-  inject,
-  Injector,
-  input,
-  OnDestroy,
-  signal,
-  ViewContainerRef,
-} from '@angular/core';
-import { injectElementRef } from 'ng-primitives/internal';
-import {
-  coerceOffset,
-  createOverlay,
-  NgpOffset,
-  NgpOffsetInput,
-  NgpOverlay,
-  NgpOverlayConfig,
-  NgpOverlayContent,
-} from 'ng-primitives/portal';
+import { booleanAttribute, Directive, input } from '@angular/core';
+import { coerceOffset, NgpOffset, NgpOffsetInput, NgpOverlayContent } from 'ng-primitives/portal';
 import { injectMenuConfig } from '../config/menu-config';
-import { menuTriggerState, provideMenuTriggerState } from './menu-trigger-state';
+import { ngpMenuTrigger, provideMenuTriggerState } from './menu-trigger-state';
 
 /**
  * The `NgpMenuTrigger` directive allows you to turn an element into a menu trigger.
@@ -30,31 +11,9 @@ import { menuTriggerState, provideMenuTriggerState } from './menu-trigger-state'
 @Directive({
   selector: '[ngpMenuTrigger]',
   exportAs: 'ngpMenuTrigger',
-  providers: [provideMenuTriggerState({ inherit: false })],
-  host: {
-    'aria-haspopup': 'true',
-    '[attr.aria-expanded]': 'open() ? "true" : "false"',
-    '[attr.data-open]': 'open() ? "" : null',
-    '[attr.data-placement]': 'state.placement()',
-    '(click)': 'onClick($event)',
-  },
+  providers: [provideMenuTriggerState()],
 })
-export class NgpMenuTrigger<T = unknown> implements OnDestroy {
-  /**
-   * Access the trigger element
-   */
-  private readonly trigger = injectElementRef();
-
-  /**
-   * Access the injector.
-   */
-  private readonly injector = inject(Injector);
-
-  /**
-   * Access the view container reference.
-   */
-  private readonly viewContainerRef = inject(ViewContainerRef);
-
+export class NgpMenuTrigger<T = unknown> {
   /**
    * Access the global menu configuration.
    */
@@ -127,100 +86,41 @@ export class NgpMenuTrigger<T = unknown> implements OnDestroy {
   });
 
   /**
-   * The overlay that manages the menu
-   * @internal
-   */
-  readonly overlay = signal<NgpOverlay<T> | null>(null);
-
-  /**
-   * The open state of the menu.
-   * @internal
-   */
-  readonly open = computed(() => this.overlay()?.isOpen() ?? false);
-
-  /**
    * The menu trigger state.
    */
-  readonly state = menuTriggerState<NgpMenuTrigger<T>>(this);
-
-  ngOnDestroy(): void {
-    this.overlay()?.destroy();
-  }
-
-  protected onClick(event: MouseEvent): void {
-    if (this.state.disabled()) {
-      return;
-    }
-    this.toggle(event);
-  }
-
-  toggle(event: MouseEvent): void {
-    // determine the origin of the event, 0 is keyboard, 1 is mouse
-    const origin: FocusOrigin = event.detail === 0 ? 'keyboard' : 'mouse';
-
-    // if the menu is open then hide it
-    if (this.open()) {
-      this.hide(origin);
-    } else {
-      this.show();
-    }
-  }
+  private readonly state = ngpMenuTrigger<T>({
+    disabled: this.disabled,
+    menu: this.menu,
+    placement: this.placement,
+    offset: this.offset,
+    flip: this.flip,
+    container: this.container,
+    scrollBehavior: this.scrollBehavior,
+    context: this.context,
+  });
 
   /**
    * Show the menu.
    */
   show(): void {
-    // Create the overlay if it doesn't exist yet
-    if (!this.overlay()) {
-      this.createOverlay();
-    }
-
-    // Show the overlay
-    this.overlay()?.show();
+    this.state.show();
   }
 
   /**
-   * @internal
    * Hide the menu.
+   * @param origin - The focus origin
+   * @internal
    */
-  hide(origin: FocusOrigin = 'program'): void {
-    // If the trigger is disabled or the menu is not open, do nothing
-    if (!this.open()) {
-      return;
-    }
-
-    // Hide the overlay
-    this.overlay()?.hide({ origin });
+  hide(origin?: FocusOrigin): void {
+    this.state.hide(origin);
   }
 
   /**
-   * Create the overlay that will contain the menu
+   * Toggle the menu.
+   * @param event - The mouse event
    */
-  private createOverlay(): void {
-    const menu = this.state.menu();
-
-    if (!menu) {
-      throw new Error('Menu must be either a TemplateRef or a ComponentType');
-    }
-
-    // Create config for the overlay
-    const config: NgpOverlayConfig<T> = {
-      content: menu,
-      triggerElement: this.trigger.nativeElement,
-      viewContainerRef: this.viewContainerRef,
-      injector: this.injector,
-      context: this.state.context,
-      container: this.state.container(),
-      placement: this.state.placement,
-      offset: this.state.offset(),
-      flip: this.state.flip(),
-      closeOnOutsideClick: true,
-      closeOnEscape: true,
-      restoreFocus: true,
-      scrollBehaviour: this.state.scrollBehavior(),
-    };
-
-    this.overlay.set(createOverlay(config));
+  toggle(event: MouseEvent): void {
+    this.state.toggle(event);
   }
 }
 
