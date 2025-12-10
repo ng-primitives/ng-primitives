@@ -1,3 +1,14 @@
+## 0.93.0 (2025-12-10)
+
+### 🩹 Fixes
+
+- expression change after checked error ([#553](https://github.com/ng-primitives/ng-primitives/pull/553))
+- **menu:** ensure submenu clicks fire ([#550](https://github.com/ng-primitives/ng-primitives/pull/550))
+
+### ❤️ Thank You
+
+- Ashley Hunter
+
 ## 0.92.0 (2025-12-08)
 
 ### 🩹 Fixes
