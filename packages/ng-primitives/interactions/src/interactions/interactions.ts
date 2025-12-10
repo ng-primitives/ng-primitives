@@ -1,9 +1,9 @@
 import { signal, Signal } from '@angular/core';
 import { injectElementRef } from 'ng-primitives/internal';
-import { ngpFocusVisibleInteraction } from '../focus-visible/focus-visible-interaction';
-import { ngpFocusInteraction } from '../focus/focus-interaction';
-import { ngpHoverInteraction } from '../hover/hover-interaction';
-import { ngpPressInteraction } from '../press/press-interaction';
+import { ngpFocusVisible } from '../focus-visible/focus-visible-interaction';
+import { ngpFocus } from '../focus/focus-interaction';
+import { ngpHover } from '../hover/hover-interaction';
+import { ngpPress } from '../press/press-interaction';
 
 export interface NgpInteractionOptions {
   hover?: boolean;
@@ -33,16 +33,16 @@ export function ngpInteractions({
   }
 
   if (hover) {
-    ngpHoverInteraction({ disabled });
+    ngpHover({ disabled });
   }
   if (press) {
-    ngpPressInteraction({ disabled });
+    ngpPress({ disabled });
   }
   if (focus) {
-    ngpFocusInteraction({ focusWithin, disabled });
+    ngpFocus({ focusWithin, disabled });
   }
   if (focusVisible) {
-    ngpFocusVisibleInteraction({ disabled });
+    ngpFocusVisible({ disabled });
   }
 }
 

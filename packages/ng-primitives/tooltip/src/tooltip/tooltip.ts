@@ -1,5 +1,5 @@
 import { Directive, input } from '@angular/core';
-import { ngpHoverInteraction } from 'ng-primitives/interactions';
+import { ngpHover } from 'ng-primitives/interactions';
 import { explicitEffect } from 'ng-primitives/internal';
 import { injectOverlay } from 'ng-primitives/portal';
 
@@ -35,9 +35,9 @@ export class NgpTooltip {
     explicitEffect([this.id], ([id]) => this.overlay.id.set(id));
 
     // if the mouse moves over the tooltip, we want to keep it open
-    ngpHoverInteraction({
-      hoverStart: () => this.overlay.cancelPendingClose(),
-      hoverEnd: () => this.overlay.hide(),
+    ngpHover({
+      onHoverStart: () => this.overlay.cancelPendingClose(),
+      onHoverEnd: () => this.overlay.hide(),
     });
   }
 }

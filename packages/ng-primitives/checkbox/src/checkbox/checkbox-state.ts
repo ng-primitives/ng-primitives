@@ -8,10 +8,11 @@ import {
   createPrimitive,
   dataBinding,
   deprecatedSetter,
+  emitter,
   listener,
 } from 'ng-primitives/state';
 import { uniqueId } from 'ng-primitives/utils';
-import { Observable, Subject } from 'rxjs';
+import { Observable } from 'rxjs';
 
 /**
  * Public state surface for the Checkbox primitive.
@@ -104,8 +105,8 @@ export const [NgpCheckboxStateToken, ngpCheckbox, injectCheckboxState, provideCh
       const checked = controlled(_checked);
       const indeterminate = controlled(_indeterminate);
       const disabled = controlled(_disabled);
-      const checkedChange = new Subject<boolean>();
-      const indeterminateChange = new Subject<boolean>();
+      const checkedChange = emitter<boolean>();
+      const indeterminateChange = emitter<boolean>();
       const tabindex = computed(() => (disabled() ? -1 : 0));
 
       // Setup interactions and form control hooks
@@ -154,13 +155,13 @@ export const [NgpCheckboxStateToken, ngpCheckbox, injectCheckboxState, provideCh
       function setChecked(value: boolean): void {
         checked.set(value);
         onCheckedChange?.(value);
-        checkedChange.next(value);
+        checkedChange.emit(value);
       }
 
       function setIndeterminate(value: boolean): void {
         indeterminate.set(value);
         onIndeterminateChange?.(value);
-        indeterminateChange.next(value);
+        indeterminateChange.emit(value);
       }
 
       function setDisabled(value: boolean): void {
@@ -172,8 +173,8 @@ export const [NgpCheckboxStateToken, ngpCheckbox, injectCheckboxState, provideCh
         checked: deprecatedSetter(checked, 'setChecked'),
         indeterminate: deprecatedSetter(indeterminate, 'setIndeterminate'),
         disabled: deprecatedSetter(disabled, 'setDisabled'),
-        checkedChange,
-        indeterminateChange,
+        checkedChange: checkedChange.asObservable(),
+        indeterminateChange: indeterminateChange.asObservable(),
         toggle,
         setChecked,
         setIndeterminate,

@@ -2,6 +2,7 @@
 import { coerceElement } from '@angular/cdk/coercion';
 import {
   afterRenderEffect,
+  ChangeDetectorRef,
   computed,
   DestroyRef,
   ElementRef,
@@ -22,6 +23,7 @@ import {
   Signal,
   WritableSignal,
 } from '@angular/core';
+import { Observable, Subject } from 'rxjs';
 
 /**
  * This converts the state object to a writable state object.
@@ -476,29 +478,36 @@ export function dataBinding(
   });
 }
 export function listener<K extends keyof HTMLElementEventMap>(
-  element: HTMLElement | ElementRef<HTMLElement>,
+  element: HTMLElement | ElementRef<HTMLElement> | Document,
   event: K,
   handler: (event: HTMLElementEventMap[K]) => void,
-  options?: { injector?: Injector },
-): void;
+  options?: { injector?: Injector; config?: AddEventListenerOptions | boolean },
+): () => void;
 export function listener(
-  element: HTMLElement | ElementRef<HTMLElement>,
+  element: HTMLElement | ElementRef<HTMLElement> | Document,
   event: string,
   handler: (event: Event) => void,
-  options?: { injector?: Injector },
-): void;
+  options?: { injector?: Injector; config?: AddEventListenerOptions | boolean },
+): () => void;
 export function listener<K extends keyof HTMLElementEventMap>(
-  element: HTMLElement | ElementRef<HTMLElement>,
+  element: HTMLElement | ElementRef<HTMLElement> | Document,
   event: K | string,
   handler: (event: HTMLElementEventMap[K] | Event) => void,
-  options?: { injector?: Injector },
-): void {
-  runInInjectionContext(options?.injector ?? inject(Injector), () => {
+  options?: { injector?: Injector; config?: AddEventListenerOptions | boolean },
+): () => void {
+  return runInInjectionContext(options?.injector ?? inject(Injector), () => {
     const ngZone = inject(NgZone);
     const destroyRef = inject(DestroyRef);
     const nativeElement = coerceElement(element);
-    ngZone.runOutsideAngular(() => nativeElement.addEventListener(event, handler as EventListener));
-    destroyRef.onDestroy(() => nativeElement.removeEventListener(event, handler as EventListener));
+
+    const removeListener = () =>
+      nativeElement.removeEventListener(event, handler as EventListener, options?.config);
+    destroyRef.onDestroy(removeListener);
+    ngZone.runOutsideAngular(() =>
+      nativeElement.addEventListener(event, handler as EventListener, options?.config),
+    );
+
+    return removeListener;
   });
 }
 
@@ -551,4 +560,28 @@ export function injectInheritedState<T>(
       { optional: true, skipSelf: true, ...injectOptions },
     ) ?? null
   );
+}
+
+export interface Emitter<T> {
+  emit(value: T): void;
+  asObservable(): Observable<T>;
+}
+
+export function emitter<T>({
+  injector = inject(Injector),
+}: { injector?: Injector } = {}): Emitter<T> {
+  return runInInjectionContext(injector, () => {
+    const eventEmitter = new Subject<T>();
+    const changeDetector = inject(ChangeDetectorRef);
+
+    return {
+      emit(value: T): void {
+        eventEmitter.next(value);
+        changeDetector.markForCheck();
+      },
+      asObservable(): Observable<T> {
+        return eventEmitter.asObservable();
+      },
+    };
+  });
 }

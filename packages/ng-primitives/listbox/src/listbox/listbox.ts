@@ -14,7 +14,7 @@ import {
   signal,
 } from '@angular/core';
 import { NgpSelectionMode } from 'ng-primitives/common';
-import { ngpFocusVisibleInteraction } from 'ng-primitives/interactions';
+import { ngpFocusVisible } from 'ng-primitives/interactions';
 import { explicitEffect } from 'ng-primitives/internal';
 import { injectPopoverTriggerState } from 'ng-primitives/popover';
 import { safeTakeUntilDestroyed, uniqueId } from 'ng-primitives/utils';
@@ -126,7 +126,7 @@ export class NgpListbox<T> implements AfterContentInit {
   protected readonly state = listboxState<NgpListbox<T>>(this);
 
   constructor() {
-    ngpFocusVisibleInteraction({ disabled: this.state.disabled });
+    ngpFocusVisible({ disabled: this.state.disabled });
   }
 
   ngAfterContentInit(): void {

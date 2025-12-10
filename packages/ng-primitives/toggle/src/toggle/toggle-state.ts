@@ -7,9 +7,10 @@ import {
   createPrimitive,
   dataBinding,
   deprecatedSetter,
+  emitter,
   listener,
 } from 'ng-primitives/state';
-import { Subject } from 'rxjs';
+import { Observable } from 'rxjs';
 
 /**
  * Public state surface for the Toggle primitive.
@@ -26,7 +27,7 @@ export interface NgpToggleState {
   /**
    * Emits when the selected state changes.
    */
-  readonly selectedChange: Subject<boolean>;
+  readonly selectedChange: Observable<boolean>;
   /**
    * Toggle the selected state.
    */
@@ -72,7 +73,7 @@ export const [NgpToggleStateToken, ngpToggle, injectToggleState, provideToggleSt
       const disabled = controlled(_disabled);
       const isButton = element.nativeElement.tagName.toLowerCase() === 'button';
 
-      const selectedChange = new Subject<boolean>();
+      const selectedChange = emitter<boolean>();
 
       ngpInteractions({
         hover: true,
@@ -114,7 +115,7 @@ export const [NgpToggleStateToken, ngpToggle, injectToggleState, provideToggleSt
       function setSelected(value: boolean): void {
         selected.set(value);
         onSelectedChange?.(value);
-        selectedChange.next(value);
+        selectedChange.emit(value);
       }
 
       function setDisabled(value: boolean): void {
@@ -124,7 +125,7 @@ export const [NgpToggleStateToken, ngpToggle, injectToggleState, provideToggleSt
       return {
         selected: deprecatedSetter(selected, 'setSelected'),
         disabled: deprecatedSetter(disabled, 'setDisabled'),
-        selectedChange,
+        selectedChange: selectedChange.asObservable(),
         toggle,
         setSelected,
         setDisabled,
