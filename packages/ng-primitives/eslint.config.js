@@ -51,11 +51,25 @@ module.exports = [
       '@typescript-eslint/no-empty-object-type': 'off',
       'no-empty-pattern': 'off',
       '@angular-eslint/no-uncalled-signals': 'error',
+      // This is only application to tests as none of our library is HTML
+      '@angular-eslint/template/label-has-associated-control': 'off',
+      '@angular-eslint/template/role-has-required-aria': 'off',
+    },
+  },
+  {
+    files: ['**/*.spec.ts'],
+    rules: {
+      '@angular-eslint/component-selector': 'off',
+      '@angular-eslint/template/role-has-required-aria': 'off',
+      '@typescript-eslint/no-explicit-any': 'off',
     },
   },
   {
     files: ['**/*.html'],
-    rules: {},
+    rules: {
+      // This is only application to tests as none of our library is HTML
+      '@angular-eslint/template/label-has-associated-control': 'off',
+    },
   },
   {
     files: ['**/*.json'],
@@ -73,12 +87,6 @@ module.exports = [
     },
     languageOptions: {
       parser: require('jsonc-eslint-parser'),
-    },
-  },
-  {
-    files: ['**/*.ts'],
-    rules: {
-      '@angular-eslint/prefer-standalone': 'off',
     },
   },
 ];
