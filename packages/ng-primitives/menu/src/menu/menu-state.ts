@@ -1,11 +1,9 @@
 import { FocusOrigin } from '@angular/cdk/a11y';
-import { inject } from '@angular/core';
 import { injectElementRef } from 'ng-primitives/internal';
 import { injectOverlay } from 'ng-primitives/portal';
 import { attrBinding, createPrimitive, styleBinding } from 'ng-primitives/state';
 import { Subject } from 'rxjs';
 import { injectMenuTriggerState } from '../menu-trigger/menu-trigger-state';
-import { NgpMenuToken } from './menu-token';
 
 export interface NgpMenuState {
   /**
@@ -28,7 +26,7 @@ export const [NgpMenuStateToken, ngpMenu, injectMenuState, provideMenuState] = c
     const element = injectElementRef();
     const overlay = injectOverlay();
     const menuTrigger = injectMenuTriggerState();
-    const parentMenu = inject(NgpMenuToken, { optional: true, skipSelf: true });
+    const parentMenu = injectMenuState({ optional: true, skipSelf: true });
 
     // Host bindings
     attrBinding(element, 'role', 'menu');
@@ -45,7 +43,7 @@ export const [NgpMenuStateToken, ngpMenu, injectMenuState, provideMenuState] = c
     // Methods
     function closeAllMenus(origin: FocusOrigin): void {
       menuTrigger().hide(origin);
-      parentMenu?.closeAllMenus(origin);
+      parentMenu()?.closeAllMenus(origin);
     }
 
     return {
