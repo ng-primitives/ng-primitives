@@ -1,6 +1,12 @@
 ## 0.94.0 (2025-12-11)
 
-This was a version bump only, there were no code changes.
+- refactor(separator): state pattern migration
+- refactor(menu): state pattern migration 
+
+### ❤️ Thank You
+
+- Ashley Hunter
+- Robin Ferrari @zecka
 
 ## 0.93.0 (2025-12-10)
 
