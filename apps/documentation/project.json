@@ -6,10 +6,17 @@
     "api-extraction": {
       "executor": "@ng-primitives/tools:api-extraction"
     },
+    "llms": {
+      "executor": "@ng-primitives/tools:llms",
+      "options": {
+        "outputDir": "apps/documentation/src/public/assets/llms",
+        "docsDir": "apps/documentation/src/app/pages/(documentation)"
+      }
+    },
     "build": {
       "executor": "@analogjs/platform:vite",
       "defaultConfiguration": "production",
-      "dependsOn": ["api-extraction"],
+      "dependsOn": ["api-extraction", "llms"],
       "configurations": {
         "development": {
           "mode": "development"

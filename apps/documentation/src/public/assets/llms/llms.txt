@@ -1,0 +1,84 @@
+# ng-primitives
+
+> ng-primitives is a collection of unstyled, accessible Angular components and utilities for building design systems and web applications. Built with Angular, TypeScript, and a focus on accessibility, customization, and developer experience. It provides headless UI primitives that can be styled with any CSS framework or design system.
+
+## Overview
+
+- [Get Started](https://angularprimitives.com/getting-started/get-started): Angular Primitives is distributed as a single package with entrypoints for each primitive.
+- [Introduction](https://angularprimitives.com/getting-started/introduction): Angular Primitives is a low-level headless UI component library with a focus on accessibility, customization, and developer experience.
+- [llms.txt](https://angularprimitives.com/getting-started/llms.txt): ng-primitives provides comprehensive documentation files optimized for Large Language Models (LLMs) and AI assistants.
+- [Styling](https://angularprimitives.com/getting-started/styling): Unlike traditional component libraries, Angular Primitives doesn't come with any built-in styles.
+- [Usage](https://angularprimitives.com/getting-started/usage): Angular Primitives are built entirely using Angular directives, offering a flexible and composable way to enhance your components.
+
+## Components
+
+### Form & Input
+
+- [Button](https://angularprimitives.com/primitives/button): A button is a clickable element that can be used to trigger an action.
+- [Checkbox](https://angularprimitives.com/primitives/checkbox): Perform state toggling.
+- [Combobox](https://angularprimitives.com/primitives/combobox): The Combobox primitive is a combination of a dropdown and an input field.
+- [Input OTP](https://angularprimitives.com/primitives/input-otp): One-Time Password (OTP) input component with individual character slots for secure authentication codes.
+- [Input](https://angularprimitives.com/primitives/input): The input primitive can be used to enhance the accessibility of an input element and provide consistent interaction handling for hover, focus, press and autofill states.
+- [Radio](https://angularprimitives.com/primitives/radio): Selection within a group.
+- [Range Slider](https://angularprimitives.com/primitives/range-slider): Select a range of values within a defined range.
+- [Search](https://angularprimitives.com/primitives/search): The search primitive is a form control that allows users to enter a search query and clear the input.
+- [Select](https://angularprimitives.com/primitives/select): A select is a form control that allows users to select options from a list.
+- [Slider](https://angularprimitives.com/primitives/slider): Select a value within a range.
+- [Switch](https://angularprimitives.com/primitives/switch): Perform state toggling.
+- [Textarea](https://angularprimitives.com/primitives/textarea): The textarea primitive can be used to enhance the accessibility of a textarea element and provide consistent interaction handling for hover, focus and press states.
+
+### Layout & Navigation
+
+- [Accordion](https://angularprimitives.com/primitives/accordion): Display a series of panels that can be expanded or collapsed.
+- [Breadcrumbs](https://angularprimitives.com/primitives/breadcrumbs): Help users understand their location within a hierarchy with a fully accessible breadcrumb trail.
+- [Menu](https://angularprimitives.com/primitives/menu): A menu is a list of options or commands presented to the user in a dropdown list.
+- [Pagination](https://angularprimitives.com/primitives/pagination): The Pagination primitives provide a set of directives to create a pagination control.
+- [Resize](https://angularprimitives.com/primitives/resize): Perform actions on element resize.
+- [Separator](https://angularprimitives.com/primitives/separator): The separator primitive allow you to semantically separate content either horizontally or vertically.
+- [Tabs](https://angularprimitives.com/primitives/tabs): Dynamically show and hide content based on an active tab.
+- [Toolbar](https://angularprimitives.com/primitives/toolbar): The Toolbar primitive is a container for grouping related controls.
+
+### Overlays & Dialogs
+
+- [Dialog](https://angularprimitives.com/primitives/dialog): A dialog is a floating window that can be used to display information or prompt the user for input.
+- [Popover](https://angularprimitives.com/primitives/popover): Display arbitrary content inside floating panels.
+- [Tooltip](https://angularprimitives.com/primitives/tooltip): Display additional information on hover.
+
+### Feedback & Status
+
+- [Meter](https://angularprimitives.com/primitives/meter): A meter is a visual representation of a value within a range.
+- [Progress](https://angularprimitives.com/primitives/progress): Display an indicator representing the progress of a task.
+- [Toast](https://angularprimitives.com/primitives/toast): A toast is a non-modal, unobtrusive window element used to display brief, auto-expiring messages to the user.
+
+### Display & Media
+
+- [Avatar](https://angularprimitives.com/primitives/avatar): Display an image that represents a user with a text fallback.
+- [Icons](https://angularprimitives.com/primitives/icons): Enhance your application by providing a visually appealing and intuitive way to represent actions, statuses, and features.
+- [Listbox](https://angularprimitives.com/primitives/listbox): A listbox presents a set of choices and lets users select one or multiple options.
+- [Table](https://angularprimitives.com/primitives/table): While tables are a very common UI element, we currently do not provide a dedicated table primitive in Angular Primitives.
+
+### Misc
+
+- [AI Assistant](https://angularprimitives.com/primitives/ai-assistant): Build a customizable AI chat assistant by composing multiple primitives.
+- [Date Picker](https://angularprimitives.com/primitives/date-picker): A date picker is a component that allows users to select a date from a calendar and navigate through months and years.
+- [File Upload](https://angularprimitives.com/primitives/file-upload): The file upload primitive allows you to trigger a file upload from any element, giving you the more control over the appearance and behavior compared to the native file input.
+- [Form Field](https://angularprimitives.com/primitives/form-field): Import the FormField primitives from `ng-primitives/form-field`.
+- [Roving Focus](https://angularprimitives.com/primitives/roving-focus): Handle focus for a group of elements.
+- [Toggle Group](https://angularprimitives.com/primitives/toggle-group): The toggle group primitive is a collection of toggle buttons that can be used to select one or more options.
+- [Toggle](https://angularprimitives.com/primitives/toggle): Toggle a button on and off.
+
+## Interactions
+
+- [Focus Visible](https://angularprimitives.com/interactions/focus-visible): Determine whether an element should display a visible focus indicator and exposes the origin of that focus (keyboard, mouse, touch, program).
+- [Focus](https://angularprimitives.com/interactions/focus): Normalizes the focus event across different browsers and devices.
+- [Hover](https://angularprimitives.com/interactions/hover): Normalizes the hover event across different browsers and devices.
+- [Move](https://angularprimitives.com/interactions/move): The Move primitives enable pointer and keyboard move interactions on an element.
+- [Press](https://angularprimitives.com/interactions/press): Normalizes the press event across different browsers and devices.
+
+## Utilities
+
+- [Autofill](https://angularprimitives.com/utilities/autofill): Detect autofill events on input elements.
+- [Date Adapter](https://angularprimitives.com/utilities/date-adapter): The Date Adapter is an abstraction layer that allows components to use date objects from any date library, ensuring compatibility and easy integration.
+- [Focus Trap](https://angularprimitives.com/utilities/focus-trap): The Focus Trap utility is a directive that traps focus within a specified element.
+- [Visually Hidden](https://angularprimitives.com/utilities/visually-hidden): Hide an element visually while keeping it present in the DOM.
+

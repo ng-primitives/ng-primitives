@@ -4,6 +4,11 @@
       "implementation": "./src/executors/api-extraction/api-extraction",
       "schema": "./src/executors/api-extraction/schema.json",
       "description": "Extract a Primitives public api for use in documentation"
+    },
+    "llms": {
+      "implementation": "./src/executors/llms/llms",
+      "schema": "./src/executors/llms/schema.json",
+      "description": "Generate llms.txt files for ng-primitives"
     }
   }
 }

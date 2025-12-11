@@ -1,0 +1,20 @@
+{
+  "$schema": "https://json-schema.org/schema",
+  "version": 2,
+  "title": "Llms executor",
+  "description": "",
+  "type": "object",
+  "properties": {
+    "outputDir": {
+      "type": "string",
+      "description": "Directory to output the generated LLM files",
+      "default": "dist/llm-docs"
+    },
+    "docsDir": {
+      "type": "string",
+      "description": "Directory containing the markdown documentation files",
+      "default": "apps/documentation/src/app/pages/(documentation)"
+    }
+  },
+  "required": ["outputDir", "docsDir"]
+}
