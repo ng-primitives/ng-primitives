@@ -6,24 +6,76 @@ import { controlled, createPrimitive, injectInheritedState } from 'ng-primitives
 import type { NgpRovingFocusItemState } from '../roving-focus-item/roving-focus-item-state';
 
 export interface NgpRovingFocusGroupState {
-  orientation: Signal<NgpOrientation>;
-  wrap: Signal<boolean>;
-  homeEnd: Signal<boolean>;
-  disabled: Signal<boolean>;
-  activeItem: Signal<string | null>;
+  /**
+   * The orientation of the roving focus group.
+   */
+  readonly orientation: Signal<NgpOrientation>;
+  /**
+   * Whether the roving focus group should wrap around.
+   */
+  readonly wrap: Signal<boolean>;
+  /**
+   * Whether the Home and End keys are enabled.
+   */
+  readonly homeEnd: Signal<boolean>;
+  /**
+   * Whether the roving focus group is disabled.
+   */
+  readonly disabled: Signal<boolean>;
+  /**
+   * The id of the currently active item.
+   */
+  readonly activeItem: Signal<string | null>;
+  /**
+   * Handle keyboard navigation.
+   * @param event The keyboard event
+   */
   onKeydown(event: KeyboardEvent): void;
+  /**
+   * Set the active item by id.
+   * @param id The id of the item to activate
+   * @param origin The origin of the focus change
+   */
   setActiveItem(id: string | null, origin?: FocusOrigin): void;
+  /**
+   * Register an item with the roving focus group.
+   * @param item The item to register
+   */
   register(item: NgpRovingFocusItemState): void;
+  /**
+   * Unregister an item from the roving focus group.
+   * @param item The item to unregister
+   * @internal
+   */
   unregister(item: NgpRovingFocusItemState): void;
+  /**
+   * Set the orientation of the roving focus group.
+   * @param orientation The orientation value
+   */
   setOrientation(orientation: NgpOrientation): void;
 }
 
 export interface NgpRovingFocusGroupProps {
-  orientation?: Signal<NgpOrientation>;
-  wrap?: Signal<boolean>;
-  homeEnd?: Signal<boolean>;
-  disabled?: Signal<boolean>;
-  inherit?: boolean;
+  /**
+   * The orientation of the roving focus group.
+   */
+  readonly orientation?: Signal<NgpOrientation>;
+  /**
+   * Whether the roving focus group should wrap around.
+   */
+  readonly wrap?: Signal<boolean>;
+  /**
+   * Whether the Home and End keys are enabled.
+   */
+  readonly homeEnd?: Signal<boolean>;
+  /**
+   * Whether the roving focus group is disabled.
+   */
+  readonly disabled?: Signal<boolean>;
+  /**
+   * Whether to inherit state from a parent roving focus group.
+   */
+  readonly inherit?: boolean;
 }
 
 export const [
@@ -279,12 +331,12 @@ export const [
 
     return {
       orientation: orientation.asReadonly(),
-      setOrientation,
       wrap,
       homeEnd,
       disabled,
       activeItem,
       setActiveItem,
+      setOrientation,
       onKeydown,
       register,
       unregister,

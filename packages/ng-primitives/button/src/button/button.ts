@@ -19,4 +19,12 @@ export class NgpButton {
    * The button state.
    */
   protected readonly state = ngpButton({ disabled: this.disabled });
+
+  /**
+   * Set the disabled state of the button.
+   * @param value The disabled state.
+   */
+  setDisabled(value: boolean): void {
+    this.state.setDisabled(value);
+  }
 }

@@ -128,14 +128,14 @@ export const [NgpSliderStateToken, ngpSlider, injectSliderState, provideSliderSt
     }: NgpSliderProps): NgpSliderState => {
       const element = injectElementRef();
       const value = controlled(_value);
-      const disabledInput = controlled(_disabled);
+      const disabled = controlled(_disabled);
       const orientation = controlled(_orientation);
 
       const valueChange = emitter<number>();
       const track = signal<ElementRef<HTMLElement> | undefined>(undefined);
 
       // Form control integration
-      const status = ngpFormControl({ id, disabled: disabledInput });
+      const status = ngpFormControl({ id, disabled });
 
       const percentage = computed(() => {
         const range = max() - min();
@@ -163,7 +163,7 @@ export const [NgpSliderStateToken, ngpSlider, injectSliderState, provideSliderSt
       }
 
       function setDisabled(isDisabled: boolean): void {
-        disabledInput.set(isDisabled);
+        disabled.set(isDisabled);
       }
 
       function setOrientation(newOrientation: NgpOrientation): void {
@@ -177,7 +177,7 @@ export const [NgpSliderStateToken, ngpSlider, injectSliderState, provideSliderSt
         max,
         step,
         orientation: deprecatedSetter(orientation, 'setOrientation'),
-        disabled: deprecatedSetter(disabledInput, 'setDisabled'),
+        disabled: deprecatedSetter(disabled, 'setDisabled'),
         valueChange: valueChange.asObservable(),
         percentage,
         track,

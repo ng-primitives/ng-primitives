@@ -28,4 +28,12 @@ export class NgpTextarea {
     id: this.id,
     disabled: this.disabled,
   });
+
+  /**
+   * Set the disabled state of the textarea.
+   * @param value The disabled state.
+   */
+  setDisabled(value: boolean): void {
+    this.state.setDisabled(value);
+  }
 }

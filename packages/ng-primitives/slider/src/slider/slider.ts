@@ -86,4 +86,24 @@ export class NgpSlider {
     disabled: this.disabled,
     onValueChange: value => this.valueChange.emit(value),
   });
+
+  /**
+   * Set the value of the slider.
+   */
+  setValue(value: number): void {
+    this.state.setValue(value);
+  }
+  /**
+   * Set the disabled state.
+   */
+  setDisabled(disabled: boolean): void {
+    this.state.setDisabled(disabled);
+  }
+
+  /**
+   * Set the orientation.
+   */
+  setOrientation(orientation: NgpOrientation): void {
+    this.state.setOrientation(orientation);
+  }
 }

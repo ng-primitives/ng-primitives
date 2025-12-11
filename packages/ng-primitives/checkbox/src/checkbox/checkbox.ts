@@ -78,4 +78,25 @@ export class NgpCheckbox {
   toggle(event?: Event): void {
     this.state.toggle(event);
   }
+
+  /**
+   * Update the checked value.
+   */
+  setChecked(value: boolean): void {
+    this.state.setChecked(value);
+  }
+
+  /**
+   * Update the indeterminate value.
+   */
+  setIndeterminate(value: boolean): void {
+    this.state.setIndeterminate(value);
+  }
+
+  /**
+   * Set the disabled value.
+   */
+  setDisabled(value: boolean): void {
+    this.state.setDisabled(value);
+  }
 }

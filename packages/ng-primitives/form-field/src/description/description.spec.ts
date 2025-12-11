@@ -50,19 +50,6 @@ describe('NgpDescription', () => {
     const { fixture } = await render(TestComponent);
     const input = fixture.debugElement.nativeElement.querySelector('input');
 
-    // Initially should be registered (via aria-describedby) and log attributes
-    // debug
-    // eslint-disable-next-line no-console
-    console.log(
-      'CLEANUP: input attrs',
-      input.getAttributeNames().map((n: string) => [n, input.getAttribute(n)]),
-    );
-    // eslint-disable-next-line no-console
-    console.log(
-      'CLEANUP: desc attrs',
-      fixture.debugElement.nativeElement.querySelector('[ngpDescription]').getAttributeNames(),
-    );
-
     expect(input).toHaveAttribute('aria-describedby', 'test-desc');
 
     // Remove description

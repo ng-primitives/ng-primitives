@@ -59,4 +59,18 @@ export class NgpSwitch {
   toggle(): void {
     this.state.toggle();
   }
+
+  /**
+   * Update the checked value.
+   */
+  setChecked(value: boolean): void {
+    this.state.setChecked(value);
+  }
+
+  /**
+   * Update the disabled value.
+   */
+  setDisabled(value: boolean): void {
+    this.state.setDisabled(value);
+  }
 }

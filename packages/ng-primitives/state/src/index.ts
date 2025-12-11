@@ -259,8 +259,12 @@ type PrimitiveState<TFactory extends (...args: any[]) => unknown> = TFactory ext
 
 type BasePrimitiveInjectionFn<TState> = {
   (): Signal<TState>;
-  (options: { hoisted: true; optional?: boolean }): Signal<TState | null>;
-  (options?: { hoisted?: boolean; optional?: boolean }): Signal<TState | null> | Signal<TState>;
+  (options: { hoisted: true; optional?: boolean; skipSelf?: boolean }): Signal<TState | null>;
+  (options?: {
+    hoisted?: boolean;
+    optional?: boolean;
+    skipSelf?: boolean;
+  }): Signal<TState | null> | Signal<TState>;
 };
 
 type PrimitiveInjectionFn<TFactory extends (...args: any[]) => unknown> = TFactory extends (
@@ -268,8 +272,12 @@ type PrimitiveInjectionFn<TFactory extends (...args: any[]) => unknown> = TFacto
 ) => infer R
   ? {
       (): Signal<R>;
-      (options: { hoisted: true; optional?: boolean }): Signal<R | null>;
-      (options?: { hoisted?: boolean; optional?: boolean }): Signal<R | null> | Signal<R>;
+      (options: { hoisted: true; optional?: boolean; skipSelf?: boolean }): Signal<R | null>;
+      (options?: {
+        hoisted?: boolean;
+        optional?: boolean;
+        skipSelf?: boolean;
+      }): Signal<R | null> | Signal<R>;
     }
   : BasePrimitiveInjectionFn<PrimitiveState<TFactory>>;
 
@@ -325,19 +333,18 @@ export function createPrimitive<TFactory extends (...args: any[]) => unknown>(
   function injectFn<T = PrimitiveState<TFactory>>(options?: {
     hoisted?: boolean;
     optional?: boolean;
+    skipSelf?: boolean;
   }): Signal<T | null> | Signal<T> {
     const hoisted = options?.hoisted ?? false;
     const optional = options?.optional ?? false;
+    const skipSelf = options?.skipSelf ?? false;
 
-    if (hoisted) {
-      return (inject(token, { optional: true }) ?? signal(null)) as unknown as Signal<T | null>;
+    if (hoisted || optional) {
+      return (inject(token, { optional: true, skipSelf }) ??
+        signal(null)) as unknown as Signal<T | null>;
     }
 
-    if (optional) {
-      return (inject(token, { optional: true }) ?? signal(null)) as unknown as Signal<T | null>;
-    }
-
-    return inject(token) as unknown as Signal<T>;
+    return inject(token, { optional, skipSelf }) as unknown as Signal<T>;
   }
 
   // create a function to provide the state
@@ -567,12 +574,20 @@ export interface Emitter<T> {
   asObservable(): Observable<T>;
 }
 
+/**
+ * An emitter is a simple wrapper around a Subject that ensures
+ * that change detection is run when an event is emitted and that
+ * the subject is automatically completed when the component is destroyed.
+ */
 export function emitter<T>({
   injector = inject(Injector),
 }: { injector?: Injector } = {}): Emitter<T> {
   return runInInjectionContext(injector, () => {
     const eventEmitter = new Subject<T>();
     const changeDetector = inject(ChangeDetectorRef);
+
+    // Complete the subject on destroy
+    onDestroy(() => eventEmitter.complete());
 
     return {
       emit(value: T): void {

@@ -28,7 +28,7 @@ export interface NgpFileUploadState {
   /**
    * Observable that emits when drag over state changes.
    */
-  readonly dragOverChanged: Observable<boolean>;
+  readonly dragOver: Observable<boolean>;
   /**
    * Show the file dialog.
    */
@@ -225,7 +225,7 @@ export const [
       selected: selected.asObservable(),
       canceled: canceled.asObservable(),
       rejected: rejected.asObservable(),
-      dragOverChanged: dragOver.asObservable(),
+      dragOver: dragOver.asObservable(),
       showFileDialog,
     };
   },
