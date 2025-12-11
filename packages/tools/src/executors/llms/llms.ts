@@ -1,6 +1,6 @@
-import { PromiseExecutor, logger } from '@nx/devkit';
-import { readdir, readFile, writeFile, mkdir } from 'fs/promises';
-import { join, relative, extname, basename } from 'path';
+import { logger, PromiseExecutor } from '@nx/devkit';
+import { mkdir, readdir, readFile, writeFile } from 'fs/promises';
+import { basename, extname, join, relative } from 'path';
 import { LlmsExecutorSchema } from './schema';
 
 interface DocumentationFile {
@@ -20,7 +20,10 @@ async function ensureDirectoryExists(dirPath: string): Promise<void> {
   }
 }
 
-function parseFrontmatter(content: string): { frontmatter: Record<string, any> | undefined; markdownContent: string } {
+function parseFrontmatter(content: string): {
+  frontmatter: Record<string, any> | undefined;
+  markdownContent: string;
+} {
   const frontmatterRegex = /^---\s*\n([\s\S]*?)\n---\s*\n([\s\S]*)$/;
   const match = content.match(frontmatterRegex);
 
@@ -72,7 +75,7 @@ async function findMarkdownFiles(docsDir: string): Promise<DocumentationFile[]> 
             category,
             name: frontmatter?.name || fileName,
             content: markdownContent,
-            frontmatter
+            frontmatter,
           });
         }
       }
@@ -85,10 +88,10 @@ async function findMarkdownFiles(docsDir: string): Promise<DocumentationFile[]> 
   return files.sort((a, b) => a.relativePath.localeCompare(b.relativePath));
 }
 
-
 function generateIndexFile(files: DocumentationFile[]): string {
-  let content = '# ng-primitives\n\n';
-  content += '> ng-primitives is a collection of unstyled, accessible Angular components and utilities for building design systems and web applications. Built with Angular, TypeScript, and a focus on accessibility, customization, and developer experience. It provides headless UI primitives that can be styled with any CSS framework or design system.\n\n';
+  let content = '# Angular Primitives\n\n';
+  content +=
+    '> Angular Primitives is a collection of unstyled, accessible Angular components and utilities for building design systems and web applications. Built with Angular, TypeScript, and a focus on accessibility, customization, and developer experience. It provides headless UI primitives that can be styled with any CSS framework or design system.\n\n';
 
   // Overview section
   content += '## Overview\n\n';
@@ -140,14 +143,16 @@ function generateIndexFile(files: DocumentationFile[]): string {
   return content;
 }
 
-function groupPrimitivesByCategory(primitiveFiles: DocumentationFile[]): Record<string, DocumentationFile[]> {
+function groupPrimitivesByCategory(
+  primitiveFiles: DocumentationFile[],
+): Record<string, DocumentationFile[]> {
   const groups: Record<string, DocumentationFile[]> = {
     'Form & Input': [],
     'Layout & Navigation': [],
     'Overlays & Dialogs': [],
     'Feedback & Status': [],
     'Display & Media': [],
-    'Misc': []
+    Misc: [],
   };
 
   for (const file of primitiveFiles) {
@@ -169,12 +174,41 @@ function categorizePrimitive(name: string): string {
   const lowerName = name.toLowerCase();
 
   // Form & Input
-  if (['button', 'input', 'textarea', 'checkbox', 'radio', 'select', 'switch', 'slider', 'range-slider', 'date-picker', 'combobox', 'search', 'form-field', 'file-upload', 'input-otp'].some(term => lowerName.includes(term))) {
+  if (
+    [
+      'button',
+      'input',
+      'textarea',
+      'checkbox',
+      'radio',
+      'select',
+      'switch',
+      'slider',
+      'range-slider',
+      'date-picker',
+      'combobox',
+      'search',
+      'form-field',
+      'file-upload',
+      'input-otp',
+    ].some(term => lowerName.includes(term))
+  ) {
     return 'Form & Input';
   }
 
   // Layout & Navigation
-  if (['accordion', 'breadcrumbs', 'tabs', 'separator', 'resize', 'menu', 'toolbar', 'pagination'].some(term => lowerName.includes(term))) {
+  if (
+    [
+      'accordion',
+      'breadcrumbs',
+      'tabs',
+      'separator',
+      'resize',
+      'menu',
+      'toolbar',
+      'pagination',
+    ].some(term => lowerName.includes(term))
+  ) {
     return 'Layout & Navigation';
   }
 
@@ -189,7 +223,9 @@ function categorizePrimitive(name: string): string {
   }
 
   // Display & Media
-  if (['avatar', 'table', 'listbox', 'ai-assistant', 'icons'].some(term => lowerName.includes(term))) {
+  if (
+    ['avatar', 'table', 'listbox', 'ai-assistant', 'icons'].some(term => lowerName.includes(term))
+  ) {
     return 'Display & Media';
   }
 
@@ -199,7 +235,9 @@ function categorizePrimitive(name: string): string {
 
 function getComponentDescription(name: string, content: string): string {
   // Extract the first sentence or paragraph that describes what the component does
-  const lines = content.split('\n').filter(line => line.trim() && !line.startsWith('#') && !line.startsWith('<'));
+  const lines = content
+    .split('\n')
+    .filter(line => line.trim() && !line.startsWith('#') && !line.startsWith('<'));
 
   if (lines.length > 0) {
     const firstLine = lines[0].trim();
@@ -212,43 +250,43 @@ function getComponentDescription(name: string, content: string): string {
 
   // Fallback descriptions
   const descriptions: Record<string, string> = {
-    'Button': 'Button component with multiple variants and interaction states.',
-    'Input': 'Text input component with validation and accessibility features.',
-    'Textarea': 'Multi-line text input component.',
-    'Checkbox': 'Checkbox input component with indeterminate state support.',
-    'Radio': 'Radio button group component.',
-    'Select': 'Select dropdown component.',
-    'Switch': 'Toggle switch component.',
-    'Slider': 'Slider input component for selecting values.',
+    Button: 'Button component with multiple variants and interaction states.',
+    Input: 'Text input component with validation and accessibility features.',
+    Textarea: 'Multi-line text input component.',
+    Checkbox: 'Checkbox input component with indeterminate state support.',
+    Radio: 'Radio button group component.',
+    Select: 'Select dropdown component.',
+    Switch: 'Toggle switch component.',
+    Slider: 'Slider input component for selecting values.',
     'Range Slider': 'Range slider component for selecting value ranges.',
     'Date Picker': 'Date picker component with calendar integration.',
-    'Combobox': 'Searchable select component with filtering.',
-    'Search': 'Search input component with filtering capabilities.',
+    Combobox: 'Searchable select component with filtering.',
+    Search: 'Search input component with filtering capabilities.',
     'Form Field': 'Form field wrapper with labels and validation.',
     'File Upload': 'File upload component with drag and drop support.',
     'Input OTP': 'One-time password input component.',
-    'Accordion': 'Collapsible accordion component.',
-    'Breadcrumbs': 'Breadcrumb navigation component.',
-    'Tabs': 'Tabbed interface component.',
-    'Separator': 'Visual divider between content sections.',
-    'Resize': 'Resizable panel component.',
-    'Menu': 'Accessible menu component with keyboard navigation.',
-    'Toolbar': 'Toolbar component for grouping actions.',
-    'Pagination': 'Pagination component for data navigation.',
-    'Dialog': 'Modal dialog component.',
-    'Popover': 'Floating popover component.',
-    'Tooltip': 'Tooltip component for additional context.',
-    'Toast': 'Toast notification component.',
-    'Progress': 'Progress bar component.',
-    'Meter': 'Meter component for displaying measurements.',
-    'Avatar': 'Avatar component for user profiles.',
-    'Table': 'Table component for displaying data.',
-    'Listbox': 'Listbox component for option selection.',
+    Accordion: 'Collapsible accordion component.',
+    Breadcrumbs: 'Breadcrumb navigation component.',
+    Tabs: 'Tabbed interface component.',
+    Separator: 'Visual divider between content sections.',
+    Resize: 'Resizable panel component.',
+    Menu: 'Accessible menu component with keyboard navigation.',
+    Toolbar: 'Toolbar component for grouping actions.',
+    Pagination: 'Pagination component for data navigation.',
+    Dialog: 'Modal dialog component.',
+    Popover: 'Floating popover component.',
+    Tooltip: 'Tooltip component for additional context.',
+    Toast: 'Toast notification component.',
+    Progress: 'Progress bar component.',
+    Meter: 'Meter component for displaying measurements.',
+    Avatar: 'Avatar component for user profiles.',
+    Table: 'Table component for displaying data.',
+    Listbox: 'Listbox component for option selection.',
     'AI Assistant': 'AI assistant component for interactive conversations.',
-    'Icons': 'Icon utilities and components.',
-    'Toggle': 'Toggle button component.',
+    Icons: 'Icon utilities and components.',
+    Toggle: 'Toggle button component.',
     'Toggle Group': 'Group of toggle buttons.',
-    'Roving Focus': 'Roving focus management utility.'
+    'Roving Focus': 'Roving focus management utility.',
   };
 
   return descriptions[name] || `${name} component for Angular applications.`;
@@ -261,7 +299,17 @@ async function replaceDocsSnippets(content: string, workspaceRoot: string): Prom
 
   while ((match = snippetRegex.exec(content)) !== null) {
     const snippetName = match[1];
-    const snippetPath = join(workspaceRoot, 'apps', 'components', 'src', 'app', 'pages', 'reusable-components', snippetName, `${snippetName}.ts`);
+    const snippetPath = join(
+      workspaceRoot,
+      'apps',
+      'components',
+      'src',
+      'app',
+      'pages',
+      'reusable-components',
+      snippetName,
+      `${snippetName}.ts`,
+    );
 
     try {
       const snippetContent = await readFile(snippetPath, 'utf-8');
@@ -281,7 +329,15 @@ async function replaceApiDocs(content: string, workspaceRoot: string): Promise<s
   let result = content;
 
   try {
-    const apiDocsPath = join(workspaceRoot, 'apps', 'documentation', 'src', 'app', 'api', 'documentation.json');
+    const apiDocsPath = join(
+      workspaceRoot,
+      'apps',
+      'documentation',
+      'src',
+      'app',
+      'api',
+      'documentation.json',
+    );
     const apiDocsContent = await readFile(apiDocsPath, 'utf-8');
     const apiData = JSON.parse(apiDocsContent);
 
@@ -334,9 +390,78 @@ async function replaceApiDocs(content: string, workspaceRoot: string): Promise<s
   return result;
 }
 
-async function generateFullDocumentation(files: DocumentationFile[], workspaceRoot: string): Promise<string> {
-  let content = '# ng-primitives Documentation\n\n';
-  content += '> ng-primitives is a collection of unstyled, accessible Angular components and utilities for building design systems and web applications. Built with Angular, TypeScript, and a focus on accessibility, customization, and developer experience. It provides headless UI primitives that can be styled with any CSS framework or design system.\n\n';
+async function replaceDocsExamples(content: string, workspaceRoot: string): Promise<string> {
+  const exampleRegex = /<docs-example name="([^"]+)"><\/docs-example>/g;
+  let result = content;
+  let match;
+
+  while ((match = exampleRegex.exec(content)) !== null) {
+    const exampleName = match[1];
+    const examplePath = join(workspaceRoot, 'apps', 'documentation', 'src', 'app', 'examples');
+
+    // Try to find the example file in different possible locations
+    const possiblePaths = [
+      // Direct path: examples/{name}/{name}.example.ts
+      join(examplePath, exampleName, `${exampleName}.example.ts`),
+      // Try looking in subdirectories for examples like "button-sizes" in "button" folder
+      ...(await findExampleInSubdirectories(examplePath, exampleName)),
+    ];
+
+    let exampleContent = null;
+    let foundPath = null;
+
+    for (const path of possiblePaths) {
+      try {
+        exampleContent = await readFile(path, 'utf-8');
+        foundPath = path;
+        break;
+      } catch (error) {
+        // Continue trying other paths
+      }
+    }
+
+    if (exampleContent && foundPath) {
+      const replacement = `## Example\n\n\`\`\`typescript\n${exampleContent}\n\`\`\``;
+      result = result.replace(match[0], replacement);
+    } else {
+      logger.warn(`Could not find example file for: ${exampleName}`);
+      result = result.replace(match[0], `_Example "${exampleName}" not found_`);
+    }
+  }
+
+  return result;
+}
+
+async function findExampleInSubdirectories(
+  basePath: string,
+  exampleName: string,
+): Promise<string[]> {
+  const possiblePaths: string[] = [];
+
+  try {
+    const entries = await readdir(basePath, { withFileTypes: true });
+
+    for (const entry of entries) {
+      if (entry.isDirectory()) {
+        const subdirPath = join(basePath, entry.name);
+        const exampleFilePath = join(subdirPath, `${exampleName}.example.ts`);
+        possiblePaths.push(exampleFilePath);
+      }
+    }
+  } catch (error) {
+    // Ignore errors when searching subdirectories
+  }
+
+  return possiblePaths;
+}
+
+async function generateFullDocumentation(
+  files: DocumentationFile[],
+  workspaceRoot: string,
+): Promise<string> {
+  let content = '# Angular Primitives Documentation\n\n';
+  content +=
+    '> Angular Primitives is a collection of unstyled, accessible Angular components and utilities for building design systems and web applications. Built with Angular, TypeScript, and a focus on accessibility, customization, and developer experience. It provides headless UI primitives that can be styled with any CSS framework or design system.\n\n';
   content += `Generated on: ${new Date().toISOString()}\n\n`;
   content += '---\n\n';
 
@@ -351,9 +476,10 @@ async function generateFullDocumentation(files: DocumentationFile[], workspaceRo
       content += `File: ${file.relativePath}\n`;
       content += `URL: https://angularprimitives.com/${file.relativePath.replace('.md', '')}\n\n`;
 
-      // Replace docs-snippet and api-docs tags with actual content
+      // Replace docs-snippet, api-docs, and docs-example tags with actual content
       let processedContent = await replaceDocsSnippets(file.content, workspaceRoot);
       processedContent = await replaceApiDocs(processedContent, workspaceRoot);
+      processedContent = await replaceDocsExamples(processedContent, workspaceRoot);
 
       content += processedContent;
       content += '\n\n---\n\n';

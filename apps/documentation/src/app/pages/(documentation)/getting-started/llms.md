@@ -18,7 +18,7 @@ A structured index file that provides an overview of all components, organized b
 - **Purpose:** Quick reference and component discovery
 - **Best For:** Initial exploration and finding specific components
 
-<a href="/assets/llms/llms.txt" download="llms.txt" class="download-button">
+<a href="./assets/llms/llms.txt" download="llms.txt" class="download-button">
   Download llms.txt
 </a>
 
@@ -33,11 +33,11 @@ A comprehensive documentation file containing the complete content of all docume
 
 The llms-full.txt file is ideal for in-depth understanding and reference when working with Angular Primitives, however, due to its size, it may consume more of your AI tool's context window.
 
-- **File Size:** ~300KB
+- **File Size:** ~500KB
 - **Purpose:** Complete reference with all implementation details
 - **Best For:** In-depth analysis and code generation, offline use or use in environments with limited internet access
 
-<a href="/assets/llms/llms-full.txt" download="llms-full.txt" class="download-button">
+<a href="./assets/llms/llms-full.txt" download="llms-full.txt" class="download-button">
   Download llms-full.txt
 </a>
 
