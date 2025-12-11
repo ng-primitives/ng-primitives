@@ -1,15 +1,12 @@
 import { Directive, input } from '@angular/core';
 import { NgpOrientation } from 'ng-primitives/common';
 import { injectSeparatorConfig } from '../config/separator-config';
+import { ngpSeparator, provideSeparatorState } from './separator-state';
 
 @Directive({
   selector: '[ngpSeparator]',
   exportAs: 'ngpSeparator',
-  host: {
-    role: 'separator',
-    '[attr.aria-orientation]': 'orientation()',
-    '[attr.data-orientation]': 'orientation()',
-  },
+  providers: [provideSeparatorState()],
 })
 export class NgpSeparator {
   private readonly config = injectSeparatorConfig();
@@ -20,4 +17,8 @@ export class NgpSeparator {
   readonly orientation = input<NgpOrientation>(this.config.orientation, {
     alias: 'ngpSeparatorOrientation',
   });
+
+  constructor() {
+    ngpSeparator(this);
+  }
 }
