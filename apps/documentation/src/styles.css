@@ -24,24 +24,24 @@
   h1 {
     font-size: 1.5rem;
     font-weight: 600;
-    margin-bottom: var(--spacing-2);
+    margin-bottom: 8px;
     line-height: 1.11111;
   }
 
   h2 {
     font-size: var(--text-lg);
     font-weight: var(--font-weight-semibold);
-    margin-bottom: var(--spacing-2);
+    margin-bottom: 8px;
   }
 
   h3 {
     font-size: var(--text-base);
     font-weight: var(--font-weight-semibold);
-    margin-bottom: var(--spacing-2);
+    margin-bottom: 8px;
   }
 
   p {
-    line-height: 24px;
+    line-height: 32px;
   }
 }
 

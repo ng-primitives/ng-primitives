@@ -1,0 +1,40 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema",
+  "$id": "angular-primitives-mcp-setup",
+  "title": "Angular Primitives MCP Setup",
+  "type": "object",
+  "properties": {
+    "tools": {
+      "type": "array",
+      "description": "AI tools/editors to configure MCP server for",
+      "items": {
+        "type": "string",
+        "enum": ["claude-code", "cursor", "vscode", "codex"]
+      },
+      "x-prompt": {
+        "message": "Which AI tools/editors would you like to configure?",
+        "type": "list",
+        "multiselect": true,
+        "items": [
+          {
+            "value": "claude-code",
+            "label": "Claude Code"
+          },
+          {
+            "value": "cursor",
+            "label": "Cursor"
+          },
+          {
+            "value": "vscode",
+            "label": "VS Code (GitHub Copilot)"
+          },
+          {
+            "value": "codex",
+            "label": "Codex"
+          }
+        ]
+      }
+    }
+  },
+  "required": ["tools"]
+}

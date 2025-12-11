@@ -9,6 +9,11 @@
       "implementation": "./src/executors/llms/llms",
       "schema": "./src/executors/llms/schema.json",
       "description": "Generate llms.txt files for ng-primitives"
+    },
+    "mcp-data-extraction": {
+      "implementation": "./src/executors/mcp-data-extraction/mcp-data-extraction",
+      "schema": "./src/executors/mcp-data-extraction/schema.json",
+      "description": "Extract primitives data, examples, and reusable components for the MCP server"
     }
   }
 }

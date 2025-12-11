@@ -6,6 +6,7 @@ import {
   phosphorBookOpenDuotone,
   phosphorLightbulbDuotone,
   phosphorPaletteDuotone,
+  phosphorPlugDuotone,
   phosphorRobotDuotone,
   phosphorRocketLaunchDuotone,
 } from '@ng-icons/phosphor-icons/duotone';
@@ -21,6 +22,7 @@ import { getRouterLinks } from '../../utils/router';
       phosphorPaletteDuotone,
       phosphorLightbulbDuotone,
       phosphorRobotDuotone,
+      phosphorPlugDuotone,
     }),
   ],
   templateUrl: './side-navigation.html',

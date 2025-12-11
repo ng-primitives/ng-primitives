@@ -81,6 +81,7 @@ export default defineConfig(({ mode }) => {
                 'angular-html',
                 'angular-ts',
                 'markdown',
+                'toml',
               ],
               themes: ['github-light', 'github-dark'],
             },

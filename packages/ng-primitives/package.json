@@ -30,7 +30,8 @@
     "url": "https://github.com/sponsors/ng-primitives"
   },
   "dependencies": {
-    "@phenomnomnominal/tsquery": "6.1.3"
+    "@phenomnomnominal/tsquery": "6.1.3",
+    "@ng-primitives/mcp": "0.94.0"
   },
   "peerDependencies": {
     "@angular/core": ">=20.0.0",

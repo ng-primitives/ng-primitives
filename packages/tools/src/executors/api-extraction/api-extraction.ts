@@ -12,19 +12,24 @@ import {
 import { logger, PromiseExecutor } from '@nx/devkit';
 import { writeFileSync } from 'fs';
 import { ensureDirSync } from 'fs-extra';
+import * as path from 'path';
 import * as ts from 'typescript';
 import { ApiExtractionExecutorSchema } from './schema';
 
-const runExecutor: PromiseExecutor<ApiExtractionExecutorSchema> = async () => {
+const runExecutor: PromiseExecutor<ApiExtractionExecutorSchema> = async (options, context) => {
+  const outputPath = options.outputPath || 'apps/documentation/src/app/api/documentation.json';
+  // Resolve output path relative to workspace root
+  const workspaceRoot = context?.root || process.cwd();
+  const resolvedOutputPath = path.resolve(workspaceRoot, outputPath);
   const tsConfigPath = ts.findConfigFile(
     'packages/ng-primitives',
     ts.sys.fileExists,
     'tsconfig.lib.json',
   );
-  const { options, rootNames } = readConfiguration(tsConfigPath);
+  const { options: compilerOptions, rootNames } = readConfiguration(tsConfigPath);
 
-  const host = createCompilerHost({ options });
-  const compilation = performCompilation({ options, rootNames, host });
+  const host = createCompilerHost({ options: compilerOptions });
+  const compilation = performCompilation({ options: compilerOptions, rootNames, host });
   const program = compilation.program as NgtscProgram;
 
   const directives: Record<string, DirectiveDefinition> = {};
@@ -53,12 +58,16 @@ const runExecutor: PromiseExecutor<ApiExtractionExecutorSchema> = async () => {
     }
   }
 
-  ensureDirSync('apps/documentation/src/app/api');
+  // Ensure the output directory exists
+  const outputDir = resolvedOutputPath.substring(0, resolvedOutputPath.lastIndexOf('/'));
+  ensureDirSync(outputDir);
 
   writeFileSync(
-    'apps/documentation/src/app/api/documentation.json',
+    resolvedOutputPath,
     JSON.stringify(directives, null, 2),
   );
+
+  logger.info(`API data written to: ${resolvedOutputPath}`);
 
   logger.info('API extraction completed successfully.');
 
