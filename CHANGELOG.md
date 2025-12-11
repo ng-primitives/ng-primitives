@@ -1,3 +1,7 @@
+## 0.94.0 (2025-12-11)
+
+This was a version bump only, there were no code changes.
+
 ## 0.93.0 (2025-12-10)
 
 ### 🩹 Fixes
