@@ -8,6 +8,7 @@
     },
     "llms": {
       "executor": "@ng-primitives/tools:llms",
+      "dependsOn": ["api-extraction"],
       "options": {
         "outputDir": "apps/documentation/src/public/assets/llms",
         "docsDir": "apps/documentation/src/app/pages/(documentation)"
