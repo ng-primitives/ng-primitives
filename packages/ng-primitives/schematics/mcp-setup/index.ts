@@ -1,5 +1,14 @@
 import { Rule, SchematicContext, Tree } from '@angular-devkit/schematics';
+import { NodePackageInstallTask } from '@angular-devkit/schematics/tasks';
+import {
+  addPackageJsonDependency,
+  NodeDependencyType,
+} from '@schematics/angular/utility/dependencies';
 import { McpSetupSchema } from './schema';
+
+// Read version from package.json at compile time
+// eslint-disable-next-line @typescript-eslint/no-require-imports
+const { version: PACKAGE_VERSION } = require('../../package.json');
 
 interface McpServerConfig {
   command: string;
@@ -175,6 +184,18 @@ export default function mcpSetup(options: McpSetupSchema): Rule {
     }
 
     context.logger.info('Setting up Angular Primitives MCP server...');
+
+    // Add @ng-primitives/mcp as a dependency
+    addPackageJsonDependency(tree, {
+      type: NodeDependencyType.Default,
+      name: '@ng-primitives/mcp',
+      version: `^${PACKAGE_VERSION}`,
+      overwrite: false,
+    });
+    context.logger.info('✓ Added @ng-primitives/mcp to dependencies');
+
+    // Schedule package installation
+    context.addTask(new NodePackageInstallTask());
 
     for (const tool of toolsToConfig) {
       try {

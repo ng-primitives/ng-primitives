@@ -3,6 +3,9 @@ import { join } from 'path';
 
 const collectionPath = join(__dirname, '../../collection.json');
 
+// eslint-disable-next-line @typescript-eslint/no-require-imports
+const { version: PACKAGE_VERSION } = require('../../package.json');
+
 describe('mcp-setup schematic', () => {
   let runner: SchematicTestRunner;
   let appTree: UnitTestTree;
@@ -245,5 +248,74 @@ args = ["other.js"]
     // Should not create configs for unselected tools
     expect(tree.files).not.toContain('/.vscode/mcp.json');
     expect(tree.files).not.toContain('/.codex/config.toml');
+  });
+
+  it('should add @ng-primitives/mcp dependency to package.json', async () => {
+    const tree = await runner.runSchematic(
+      'mcp-setup',
+      {
+        tools: ['claude-code'],
+      },
+      appTree,
+    );
+
+    const packageJson = JSON.parse(tree.readContent('/package.json'));
+    expect(packageJson.dependencies['@ng-primitives/mcp']).toBe(`^${PACKAGE_VERSION}`);
+  });
+
+  it('should not add dependency when no tools are selected', async () => {
+    const tree = await runner.runSchematic(
+      'mcp-setup',
+      {
+        tools: ['none'],
+      },
+      appTree,
+    );
+
+    const packageJson = JSON.parse(tree.readContent('/package.json'));
+    expect(packageJson.dependencies?.['@ng-primitives/mcp']).toBeUndefined();
+  });
+
+  it('should not overwrite existing @ng-primitives/mcp dependency', async () => {
+    // Add existing dependency
+    const packageJson = JSON.parse(appTree.readContent('/package.json'));
+    packageJson.dependencies = packageJson.dependencies || {};
+    packageJson.dependencies['@ng-primitives/mcp'] = '^0.90.0';
+    appTree.overwrite('/package.json', JSON.stringify(packageJson, null, 2));
+
+    const tree = await runner.runSchematic(
+      'mcp-setup',
+      {
+        tools: ['claude-code'],
+      },
+      appTree,
+    );
+
+    const updatedPackageJson = JSON.parse(tree.readContent('/package.json'));
+    // Should keep the existing version
+    expect(updatedPackageJson.dependencies['@ng-primitives/mcp']).toBe('^0.90.0');
+  });
+
+  it('should preserve other dependencies when adding @ng-primitives/mcp', async () => {
+    // Add some existing dependencies
+    const packageJson = JSON.parse(appTree.readContent('/package.json'));
+    packageJson.dependencies = {
+      '@angular/core': '^19.0.0',
+      'rxjs': '^7.0.0',
+    };
+    appTree.overwrite('/package.json', JSON.stringify(packageJson, null, 2));
+
+    const tree = await runner.runSchematic(
+      'mcp-setup',
+      {
+        tools: ['vscode'],
+      },
+      appTree,
+    );
+
+    const updatedPackageJson = JSON.parse(tree.readContent('/package.json'));
+    expect(updatedPackageJson.dependencies['@angular/core']).toBe('^19.0.0');
+    expect(updatedPackageJson.dependencies['rxjs']).toBe('^7.0.0');
+    expect(updatedPackageJson.dependencies['@ng-primitives/mcp']).toBe(`^${PACKAGE_VERSION}`);
   });
 });
