@@ -1,8 +1,7 @@
 import { NumberInput } from '@angular/cdk/coercion';
-import { Directive, computed, input, numberAttribute, signal } from '@angular/core';
+import { Directive, input, numberAttribute } from '@angular/core';
 import { uniqueId } from 'ng-primitives/utils';
-import { NgpProgressLabel } from '../progress-label/progress-label';
-import { progressState, provideProgressState } from './progress-state';
+import { ngpProgress, provideProgressState } from './progress-state';
 
 /**
  * Apply the `ngpProgress` directive to an element that represents the progress bar.
@@ -10,18 +9,6 @@ import { progressState, provideProgressState } from './progress-state';
 @Directive({
   selector: '[ngpProgress]',
   providers: [provideProgressState()],
-  host: {
-    role: 'progressbar',
-    '[attr.id]': 'id()',
-    '[attr.aria-valuemax]': 'state.max()',
-    '[attr.aria-valuemin]': '0',
-    '[attr.aria-valuenow]': 'state.value()',
-    '[attr.aria-valuetext]': 'valueText()',
-    '[attr.aria-labelledby]': 'label() ? label()?.id() : null',
-    '[attr.data-progressing]': 'progressing() ? "" : null',
-    '[attr.data-indeterminate]': 'indeterminate() ? "" : null',
-    '[attr.data-complete]': 'complete() ? "" : null',
-  },
 })
 export class NgpProgress {
   /**
@@ -69,52 +56,32 @@ export class NgpProgress {
   readonly id = input<string>(uniqueId('ngp-progress'));
 
   /**
+   * The state of the progress bar.
+   * @internal
+   */
+  readonly state = ngpProgress(this);
+
+  /**
    * Determine if the progress is indeterminate.
    * @internal
    */
-  readonly indeterminate = computed(() => this.state.value() === null);
+  readonly indeterminate = this.state.indeterminate;
 
   /**
    * Determine if the progress is in a progressing state.
    * @internal
    */
-  readonly progressing = computed(
-    () =>
-      this.state.value() != null &&
-      this.state.value()! > 0 &&
-      this.state.value()! < this.state.max(),
-  );
-
+  readonly progressing = this.state.progressing;
   /**
    * Determine if the progress is complete.
    * @internal
    */
-  readonly complete = computed(() => this.state.value() === this.state.max());
+  readonly complete = this.state.complete;
 
   /**
    * Get the progress value text.
    */
-  protected readonly valueText = computed(() => {
-    const value = this.state.value();
-
-    if (value == null) {
-      return '';
-    }
-
-    return this.state.valueLabel()(value, this.state.max());
-  });
-
-  /**
-   * The label associated with the progress bar.
-   * @internal
-   */
-  readonly label = signal<NgpProgressLabel | null>(null);
-
-  /**
-   * The state of the progress bar.
-   * @internal
-   */
-  protected readonly state = progressState<NgpProgress>(this);
+  protected readonly valueText = this.state.valueText;
 }
 
 export type NgpProgressValueTextFn = (value: number, max: number) => string;
