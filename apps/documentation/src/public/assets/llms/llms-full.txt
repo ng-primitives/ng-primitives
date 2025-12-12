@@ -2,7 +2,7 @@
 
 > Angular Primitives is a collection of unstyled, accessible Angular components and utilities for building design systems and web applications. Built with Angular, TypeScript, and a focus on accessibility, customization, and developer experience. It provides headless UI primitives that can be styled with any CSS framework or design system.
 
-Generated on: 2025-12-12T16:37:03.972Z
+Generated on: 2025-12-12T21:17:19.881Z
 
 ---
 
@@ -250,6 +250,14 @@ npx ng g ng-primitives:mcp-setup
 Select your AI tools and the schematic will create the necessary configuration files.
 
 ### Manual Setup
+
+First, install the `@ng-primitives/mcp` package:
+
+```bash
+npm install @ng-primitives/mcp
+```
+
+Then, create the configuration file for your AI tool:
 
 <tab-group>
   <tab-item label="Claude Code">
@@ -623,32 +631,7 @@ The following directives are available to import from the `ng-primitives/interac
 
 ### NgpFocusVisible
 
-## API Reference
-
-### NgpFocusVisible
-
-Apply the `ngpFocusVisible` directive to an element that should be visually focused. This is similar to `ngpFocus`
-but it will only apply the focus visible styles when the element is focused via keyboard navigation.
-
-**Selector:** `[ngpFocusVisible]`
-
-#### Inputs
-
-| Property | Type | Default | Description |
-|----------|------|---------|-------------|
-| `ngpFocusVisibleDisabled` | `boolean` | `-` | Whether focus events are listened to. |
-
-#### Outputs
-
-| Event | Type | Description |
-|-------|------|-------------|
-| `ngpFocusVisible` | `boolean` | Emit when the element is visually focused. |
-
-#### Export As
-
-`ngpFocusVisible`
-
-
+<api-docs name="NgpFocusVisible"></api-docs>
 
 #### Data Attributes
 
@@ -755,32 +738,7 @@ The following directives are available to import from the `ng-primitives/interac
 
 ### NgpFocus
 
-## API Reference
-
-### NgpFocus
-
-This was inspired by the React Aria useFocus hook.
-https://github.com/adobe/react-spectrum/blob/main/packages/%40react-aria/interactions/src/useFocus.ts#L20
-
-**Selector:** `[ngpFocus]`
-
-#### Inputs
-
-| Property | Type | Default | Description |
-|----------|------|---------|-------------|
-| `ngpFocusDisabled` | `boolean` | `-` | Whether listening for focus events is disabled. |
-
-#### Outputs
-
-| Event | Type | Description |
-|-------|------|-------------|
-| `ngpFocus` | `boolean` | Emit when the focus state changes. |
-
-#### Export As
-
-`ngpFocus`
-
-
+<api-docs name="NgpFocus"></api-docs>
 
 #### Data Attributes
 
@@ -883,35 +841,7 @@ The following directives are available to import from the `ng-primitives/interac
 
 ### NgpHover
 
-## API Reference
-
-### NgpHover
-
-Apply the `ngpHover` directive to an element that you want to listen for hover events. T
-his is particulaly useful for supporting hover events on touch devices, where hover events are not handled consistently.
-On iOS relying on the `:hover` pseudo-class can result in the hover state being stuck until the user taps elsewhere on the screen.
-
-**Selector:** `[ngpHover]`
-
-#### Inputs
-
-| Property | Type | Default | Description |
-|----------|------|---------|-------------|
-| `ngpHoverDisabled` | `boolean` | `-` | Whether hoving should be disabled. |
-
-#### Outputs
-
-| Event | Type | Description |
-|-------|------|-------------|
-| `ngpHoverStart` | `void` | Emit an event when hovering starts. |
-| `ngpHoverEnd` | `void` | Emit an event when hovering ends. |
-| `ngpHover` | `boolean` | Emit an event when the hover state changes. |
-
-#### Export As
-
-`ngpHover`
-
-
+<api-docs name="NgpHover"></api-docs>
 
 #### Data Attributes
 
@@ -1023,33 +953,7 @@ The following directives are available to import from the `ng-primitives/interac
 
 ### NgpMove
 
-## API Reference
-
-### NgpMove
-
-The `NgpMove` directive is used to enable the pointer and keyboard move interactions on an element.
-
-**Selector:** `[ngpMove]`
-
-#### Inputs
-
-| Property | Type | Default | Description |
-|----------|------|---------|-------------|
-| `ngpMoveDisabled` | `boolean` | `-` | Whether movement is disabled. |
-
-#### Outputs
-
-| Event | Type | Description |
-|-------|------|-------------|
-| `ngpMoveStart` | `NgpMoveBaseEvent` | Emit when the move event begins. |
-| `ngpMove` | `NgpMoveEvent` | Emit when the element is moved. |
-| `ngpMoveEnd` | `NgpMoveBaseEvent` | Emit when the move event ends. |
-
-#### Export As
-
-`ngpMove`
-
-
+<api-docs name="NgpMove"></api-docs>
 
 #### Data Attributes
 
@@ -1140,33 +1044,7 @@ The following directives are available to import from the `ng-primitives/interac
 
 ### NgpPress
 
-## API Reference
-
-### NgpPress
-
-The `ngpPress` directive listens for press events on an element. This is particularly useful for supporting press events on touch devices, where press events are not handled consistently.
-
-**Selector:** `[ngpPress]`
-
-#### Inputs
-
-| Property | Type | Default | Description |
-|----------|------|---------|-------------|
-| `ngpPressDisabled` | `boolean` | `-` | Whether listening for press events is disabled. |
-
-#### Outputs
-
-| Event | Type | Description |
-|-------|------|-------------|
-| `ngpPressStart` | `void` | Emit when the press begins. |
-| `ngpPressEnd` | `void` | Emit when the press ends. |
-| `ngpPress` | `boolean` | Emit when the press changes. |
-
-#### Export As
-
-`ngpPress`
-
-
+<api-docs name="NgpPress"></api-docs>
 
 #### Data Attributes
 
@@ -1457,35 +1335,7 @@ The following directives are available to import from the `ng-primitives/accordi
 
 ### NgpAccordion
 
-## API Reference
-
-### NgpAccordion
-
-Apply the `ngpAccordion` directive to an element that represents the group of accordion items.
-
-**Selector:** `[ngpAccordion]`
-
-#### Inputs
-
-| Property | Type | Default | Description |
-|----------|------|---------|-------------|
-| `ngpAccordionType` | `NgpAccordionType` | `-` | The type of the accordion. |
-| `ngpAccordionCollapsible` | `boolean` | `-` | Whether the accordion is collapsible. |
-| `ngpAccordionValue` | `T | T[] | null` | `-` | The value of the accordion. |
-| `ngpAccordionDisabled` | `boolean` | `-` | Whether the accordion is disabled. |
-| `ngpAccordionOrientation` | `NgpOrientation` | `-` | The accordion orientation. |
-
-#### Outputs
-
-| Event | Type | Description |
-|-------|------|-------------|
-| `ngpAccordionValueChange` | `T | T[] | null` | Event emitted when the accordion value changes. |
-
-#### Export As
-
-`ngpAccordion`
-
-
+<api-docs name="NgpAccordion"></api-docs>
 
 #### Data Attributes
 
@@ -1498,26 +1348,7 @@ The following data attributes are applied to the `ngpAccordion` directive:
 
 ### NgpAccordionItem
 
-## API Reference
-
-### NgpAccordionItem
-
-Apply the `ngpAccordionItem` directive to an element that represents an accordion item.
-
-**Selector:** `[ngpAccordionItem]`
-
-#### Inputs
-
-| Property | Type | Default | Description |
-|----------|------|---------|-------------|
-| `ngpAccordionItemValue` | `T` | `-` | The value of the accordion item. |
-| `ngpAccordionItemDisabled` | `boolean` | `-` | Whether the accordion item is disabled. |
-
-#### Export As
-
-`ngpAccordionItem`
-
-
+<api-docs name="NgpAccordionItem"></api-docs>
 
 #### Data Attributes
 
@@ -1531,19 +1362,7 @@ The following data attributes are applied to the `ngpAccordionItem` directive:
 
 ### NgpAccordionTrigger
 
-## API Reference
-
-### NgpAccordionTrigger
-
-Apply the `ngpAccordionTrigger` directive to an element that represents the trigger for an accordion item, such as a button.
-
-**Selector:** `[ngpAccordionTrigger]`
-
-#### Export As
-
-`ngpAccordionTrigger`
-
-
+<api-docs name="NgpAccordionTrigger"></api-docs>
 
 #### Data Attributes
 
@@ -1557,19 +1376,7 @@ The following data attributes are applied to the `ngpAccordionTrigger` directive
 
 ### NgpAccordionContent
 
-## API Reference
-
-### NgpAccordionContent
-
-Apply the `ngpAccordionContent` directive to an element that represents the content of an accordion item.
-
-**Selector:** `[ngpAccordionContent]`
-
-#### Export As
-
-`ngpAccordionContent`
-
-
+<api-docs name="NgpAccordionContent"></api-docs>
 
 #### Data Attributes
 
@@ -2472,114 +2279,31 @@ The following directives are available to import from the `ng-primitives/ai` pac
 
 The `NgpThread` directive is wrapper around the thread viewport, messages and composer in the AI assistant chat.
 
-## API Reference
-
-### NgpThread
-
-
-
-**Selector:** `[ngpThread]`
-
-#### Export As
-
-`ngpThread`
-
-
+<api-docs name="NgpThread"></api-docs>
 
 ### NgpThreadViewport
 
 The `NgpThreadViewport` directive creates a scrollable container for displaying the messages in the AI assistant chat thread.
 
-## API Reference
-
-### NgpThreadViewport
-
-
-
-**Selector:** `[ngpThreadViewport]`
-
-#### Inputs
-
-| Property | Type | Default | Description |
-|----------|------|---------|-------------|
-| `ngpThreadViewportThreshold` | `number` | `70` | The distance in pixels from the bottom of the scrollable container that is considered "at the bottom".
-When the user scrolls within this threshold, the thread is treated as being at the bottom.
-This value is used to determine whether automatic scrolling to the bottom should occur,
-for example when new content is added or the container is resized. |
-| `ngpThreadViewportAutoScroll` | `boolean` | `-` | Whether the thread should automatically scroll to the bottom when new content is added. |
-
-#### Export As
-
-`ngpThreadViewport`
-
-
+<api-docs name="NgpThreadViewport"></api-docs>
 
 ### NgpThreadMessage
 
 The `NgpThreadMessage` directive represents an individual message within a thread in the AI assistant chat.
 
-## API Reference
-
-### NgpThreadMessage
-
-
-
-**Selector:** `[ngpThreadMessage]`
-
-#### Export As
-
-`ngpThreadMessage`
-
-
+<api-docs name="NgpThreadMessage"></api-docs>
 
 ### NgpThreadSuggestion
 
 The `NgpThreadSuggestion` directive displays suggested text that the user can click to populate the prompt input field.
 
-## API Reference
-
-### NgpThreadSuggestion
-
-
-
-**Selector:** `button[ngpThreadSuggestion]`
-
-#### Inputs
-
-| Property | Type | Default | Description |
-|----------|------|---------|-------------|
-| `ngpThreadSuggestion` | `string` | `-` | The suggested text to display in the input field. |
-| `ngpThreadSuggestionSetPromptOnClick` | `boolean` | `-` | Whether the suggestion should populate the prompt when clicked. |
-
-#### Export As
-
-`ngpThreadSuggestion`
-
-
+<api-docs name="NgpThreadSuggestion"></api-docs>
 
 ### NgpPromptComposer
 
 The `NgpPromptComposer` directive creates a container for composing and submitting prompts to the AI assistant.
 
-## API Reference
-
-### NgpPromptComposer
-
-
-
-**Selector:** `[ngpPromptComposer]`
-
-#### Outputs
-
-| Event | Type | Description |
-|-------|------|-------------|
-| `ngpPromptComposerSubmit` | `string` | Emits whenever the user submits the prompt. |
-
-#### Export As
-
-`ngpPromptComposer`
-
-
+<api-docs name="NgpPromptComposer"></api-docs>
 
 #### Data Attributes
 
@@ -2593,43 +2317,13 @@ The `NgpPromptComposer` directive creates a container for composing and submitti
 
 The `NgpPromptComposerInput` directive is used for the text input field where users type their messages.
 
-## API Reference
-
-### NgpPromptComposerInput
-
-
-
-**Selector:** `input[ngpPromptComposerInput], textarea[ngpPromptComposerInput]`
-
-#### Export As
-
-`ngpPromptComposerInput`
-
-
+<api-docs name="NgpPromptComposerInput"></api-docs>
 
 ### NgpPromptComposerSubmit
 
 The `NgpPromptComposerSubmit` directive handles the submission of composed prompts to the AI assistant.
 
-## API Reference
-
-### NgpPromptComposerSubmit
-
-
-
-**Selector:** `button[ngpPromptComposerSubmit]`
-
-#### Inputs
-
-| Property | Type | Default | Description |
-|----------|------|---------|-------------|
-| `disabled` | `boolean` | `-` | Whether the submit button should be disabled |
-
-#### Export As
-
-`ngpPromptComposerSubmit`
-
-
+<api-docs name="NgpPromptComposerSubmit"></api-docs>
 
 #### Data Attributes
 
@@ -2643,25 +2337,7 @@ The `NgpPromptComposerSubmit` directive handles the submission of composed promp
 
 The `NgpPromptComposerDictation` directive enables voice input functionality for composing prompts using speech-to-text.
 
-## API Reference
-
-### NgpPromptComposerDictation
-
-
-
-**Selector:** `button[ngpPromptComposerDictation]`
-
-#### Inputs
-
-| Property | Type | Default | Description |
-|----------|------|---------|-------------|
-| `disabled` | `boolean` | `-` | Whether the submit button should be disabled. |
-
-#### Export As
-
-`ngpPromptComposerDictation`
-
-
+<api-docs name="NgpPromptComposerDictation"></api-docs>
 
 #### Data Attributes
 
@@ -2855,19 +2531,7 @@ The following directives are available to import from the `ng-primitives/avatar`
 
 ### NgpAvatar
 
-## API Reference
-
-### NgpAvatar
-
-Apply the `ngpAvatar` directive to an element that represents the avatar. This directive is a container for the image and/or fallback.
-
-**Selector:** `[ngpAvatar]`
-
-#### Export As
-
-`ngpAvatar`
-
-
+<api-docs name="NgpAvatar"></api-docs>
 
 #### Data Attributes
 
@@ -2877,41 +2541,11 @@ Apply the `ngpAvatar` directive to an element that represents the avatar. This d
 
 ### NgpAvatarImage
 
-## API Reference
-
-### NgpAvatarImage
-
-Apply the `ngpAvatarImage` directive to an element that represents the avatar image. This would typically be an `img` element or a `div` with a background image.
-
-**Selector:** `img[ngpAvatarImage]`
-
-#### Export As
-
-`ngpAvatarImage`
-
-
+<api-docs name="NgpAvatarImage"></api-docs>
 
 ### NgpAvatarFallback
 
-## API Reference
-
-### NgpAvatarFallback
-
-Apply the `ngpAvatarFallback` directive to an element that represents the user in the absence of an image. This is typically the user's initials.
-
-**Selector:** `[ngpAvatarFallback]`
-
-#### Inputs
-
-| Property | Type | Default | Description |
-|----------|------|---------|-------------|
-| `ngpAvatarFallbackDelay` | `number` | `0` | Define a delay before the fallback is shown. This is useful to only show the fallback for those with slower connections. |
-
-#### Export As
-
-`ngpAvatarFallback`
-
-
+<api-docs name="NgpAvatarFallback"></api-docs>
 
 ## Global Configuration
 
@@ -3213,67 +2847,19 @@ The following directives are available to import from the `ng-primitives/breadcr
 
 ### NgpBreadcrumbs
 
-## API Reference
-
-### NgpBreadcrumbs
-
-Apply `ngpBreadcrumbs` to the navigation element that wraps the breadcrumb trail.
-
-**Selector:** `[ngpBreadcrumbs]`
-
-#### Export As
-
-`ngpBreadcrumbs`
-
-
+<api-docs name="NgpBreadcrumbs"></api-docs>
 
 ### NgpBreadcrumbList
 
-## API Reference
-
-### NgpBreadcrumbList
-
-Apply `ngpBreadcrumbList` to the ordered list that groups breadcrumb items.
-
-**Selector:** `[ngpBreadcrumbList]`
-
-#### Export As
-
-`ngpBreadcrumbList`
-
-
+<api-docs name="NgpBreadcrumbList"></api-docs>
 
 ### NgpBreadcrumbItem
 
-## API Reference
-
-### NgpBreadcrumbItem
-
-Apply `ngpBreadcrumbItem` to each list item in the breadcrumb trail.
-
-**Selector:** `[ngpBreadcrumbItem]`
-
-#### Export As
-
-`ngpBreadcrumbItem`
-
-
+<api-docs name="NgpBreadcrumbItem"></api-docs>
 
 ### NgpBreadcrumbLink
 
-## API Reference
-
-### NgpBreadcrumbLink
-
-Apply `ngpBreadcrumbLink` to anchors or buttons that navigate to a breadcrumb destination.
-
-**Selector:** `[ngpBreadcrumbLink]`
-
-#### Export As
-
-`ngpBreadcrumbLink`
-
-
+<api-docs name="NgpBreadcrumbLink"></api-docs>
 
 #### Data Attributes
 
@@ -3286,19 +2872,7 @@ Apply `ngpBreadcrumbLink` to anchors or buttons that navigate to a breadcrumb de
 
 ### NgpBreadcrumbPage
 
-## API Reference
-
-### NgpBreadcrumbPage
-
-Apply `ngpBreadcrumbPage` to non-link content that represents the active page.
-
-**Selector:** `[ngpBreadcrumbPage]`
-
-#### Export As
-
-`ngpBreadcrumbPage`
-
-
+<api-docs name="NgpBreadcrumbPage"></api-docs>
 
 #### Data Attributes
 
@@ -3308,35 +2882,11 @@ Apply `ngpBreadcrumbPage` to non-link content that represents the active page.
 
 ### NgpBreadcrumbSeparator
 
-## API Reference
-
-### NgpBreadcrumbSeparator
-
-Apply `ngpBreadcrumbSeparator` between breadcrumb items to render a visual divider.
-
-**Selector:** `[ngpBreadcrumbSeparator]`
-
-#### Export As
-
-`ngpBreadcrumbSeparator`
-
-
+<api-docs name="NgpBreadcrumbSeparator"></api-docs>
 
 ### NgpBreadcrumbEllipsis
 
-## API Reference
-
-### NgpBreadcrumbEllipsis
-
-Apply `ngpBreadcrumbEllipsis` to elements that represent collapsed breadcrumb items.
-
-**Selector:** `[ngpBreadcrumbEllipsis]`
-
-#### Export As
-
-`ngpBreadcrumbEllipsis`
-
-
+<api-docs name="NgpBreadcrumbEllipsis"></api-docs>
 
 ## Accessibility
 
@@ -4244,25 +3794,7 @@ The following directives are available to import from the `ng-primitives/button`
 
 ### NgpButton
 
-## API Reference
-
-### NgpButton
-
-
-
-**Selector:** `[ngpButton]`
-
-#### Inputs
-
-| Property | Type | Default | Description |
-|----------|------|---------|-------------|
-| `disabled` | `boolean` | `-` | Whether the button is disabled. |
-
-#### Export As
-
-`ngpButton`
-
-
+<api-docs name="NgpButton"></api-docs>
 
 #### Data Attributes
 
@@ -4605,31 +4137,7 @@ The following directives are available to import from the `ng-primitives/checkbo
 
 ### NgpCheckbox
 
-## API Reference
-
-### NgpCheckbox
-
-Apply the `ngpCheckbox` directive to an element to that represents the checkbox, such as a `button`.
-
-**Selector:** `[ngpCheckbox]`
-
-#### Inputs
-
-| Property | Type | Default | Description |
-|----------|------|---------|-------------|
-| `ngpCheckboxChecked` | `boolean` | `-` | Defines whether the checkbox is checked. |
-| `ngpCheckboxIndeterminate` | `boolean` | `-` | Defines whether the checkbox is indeterminate. |
-| `ngpCheckboxRequired` | `boolean` | `-` | Whether the checkbox is required. |
-| `ngpCheckboxDisabled` | `boolean` | `-` | Defines whether the checkbox is disabled. |
-
-#### Outputs
-
-| Event | Type | Description |
-|-------|------|-------------|
-| `ngpCheckboxCheckedChange` | `boolean` | The event that is emitted when the checkbox value changes. |
-| `ngpCheckboxIndeterminateChange` | `boolean` | The event that is emitted when the indeterminate value changes. |
-
-
+<api-docs name="NgpCheckbox"></api-docs>
 
 | Attribute            | Description                                 |
 | -------------------- | ------------------------------------------- |
@@ -6165,38 +5673,7 @@ The following directives are available to import from the `ng-primitives/combobo
 
 The main container for the combobox.
 
-## API Reference
-
-### NgpCombobox
-
-
-
-**Selector:** `[ngpCombobox]`
-
-#### Inputs
-
-| Property | Type | Default | Description |
-|----------|------|---------|-------------|
-| `ngpComboboxValue` | `any` | `-` | The value of the combobox. |
-| `ngpComboboxMultiple` | `boolean` | `-` | Whether the combobox is multiple selection. |
-| `ngpComboboxDisabled` | `boolean` | `-` | Whether the combobox is disabled. |
-| `ngpComboboxAllowDeselect` | `boolean` | `-` | Whether the combobox allows deselection in single selection mode. |
-| `ngpComboboxCompareWith` | `(a: any, b: any) => boolean` | `-` | The comparator function used to compare options. |
-| `ngpComboboxDropdownPlacement` | `NgpComboboxPlacement` | `-` | The position of the dropdown. |
-| `ngpComboboxDropdownContainer` | `string | HTMLElement | null` | `-` | The container for the dropdown. |
-
-#### Outputs
-
-| Event | Type | Description |
-|-------|------|-------------|
-| `ngpComboboxValueChange` | `any` | Event emitted when the value changes. |
-| `ngpComboboxOpenChange` | `boolean` | Emit when the dropdown open state changes. |
-
-#### Export As
-
-`ngpCombobox`
-
-
+<api-docs name="NgpCombobox"></api-docs>
 
 #### Data Attributes
 
@@ -6230,19 +5707,7 @@ When no `ngpComboboxInput` is present, the combobox element itself receives:
 
 The button that toggles the combobox dropdown.
 
-## API Reference
-
-### NgpComboboxButton
-
-
-
-**Selector:** `button[ngpComboboxButton]`
-
-#### Export As
-
-`ngpComboboxButton`
-
-
+<api-docs name="NgpComboboxButton"></api-docs>
 
 #### Data Attributes
 
@@ -6258,19 +5723,7 @@ The following data attributes are applied to the `ngpComboboxButton` directive:
 
 The dropdown that contains the combobox options.
 
-## API Reference
-
-### NgpComboboxDropdown
-
-
-
-**Selector:** `[ngpComboboxDropdown]`
-
-#### Export As
-
-`ngpComboboxDropdown`
-
-
+<api-docs name="NgpComboboxDropdown"></api-docs>
 
 #### CSS Custom Properties
 
@@ -6287,19 +5740,7 @@ The following CSS custom properties are applied to the `ngpComboboxDropdown` dir
 
 The input field for the combobox.
 
-## API Reference
-
-### NgpComboboxInput
-
-
-
-**Selector:** `input[ngpComboboxInput]`
-
-#### Export As
-
-`ngpComboboxInput`
-
-
+<api-docs name="NgpComboboxInput"></api-docs>
 
 #### Data Attributes
 
@@ -6322,26 +5763,7 @@ The following data attributes are applied to the `ngpComboboxInput` directive:
 
 The individual options within the combobox dropdown.
 
-## API Reference
-
-### NgpComboboxOption
-
-
-
-**Selector:** `[ngpComboboxOption]`
-
-#### Inputs
-
-| Property | Type | Default | Description |
-|----------|------|---------|-------------|
-| `ngpComboboxOptionValue` | `any` | `-` | - |
-| `ngpComboboxOptionDisabled` | `boolean` | `-` | The disabled state of the option. |
-
-#### Export As
-
-`ngpComboboxOption`
-
-
+<api-docs name="NgpComboboxOption"></api-docs>
 
 #### Data Attributes
 
@@ -6357,19 +5779,7 @@ The following data attributes are applied to the `ngpComboboxOption` directive:
 
 The portal for rendering the combobox dropdown in an overlay.
 
-## API Reference
-
-### NgpComboboxPortal
-
-
-
-**Selector:** `[ngpComboboxPortal]`
-
-#### Export As
-
-`ngpComboboxPortal`
-
-
+<api-docs name="NgpComboboxPortal"></api-docs>
 
 ## Animations
 
@@ -7225,41 +6635,7 @@ The following directives are available to import from the `ng-primitives/date-pi
 
 ### NgpDatePicker
 
-## API Reference
-
-### NgpDatePicker
-
-The outermost container for the date picker.
-
-**Selector:** `[ngpDatePicker]`
-
-#### Inputs
-
-| Property | Type | Default | Description |
-|----------|------|---------|-------------|
-| `ngpDatePickerMin` | `T | undefined` | `-` | The minimum date that can be selected. |
-| `ngpDatePickerMax` | `T | undefined` | `-` | The maximum date that can be selected. |
-| `ngpDatePickerDisabled` | `boolean` | `-` | Determine if the date picker is disabled. |
-| `ngpDatePickerDateDisabled` | `(date: T) => boolean` | `-` | A function that is called to determine if a specific date should be disabled. |
-| `ngpDatePickerFirstDayOfWeek` | `NgpDatePickerFirstDayOfWeekNumber` | `7 (Sunday)` | Sets which day starts the week in the calendar.
-Accepts 0-7 where 1=Monday, 2=Tuesday, 3=Wednesday, 4=Thursday, 5=Friday, 6=Saturday, 7=Sunday.
-Defaults to NgpDatePickerConfig.firstDayOfWeek (default 7 if not overridden).
-Note: Update calendar header column order when changing from Sunday start. |
-| `ngpDatePickerDate` | `T | undefined` | `-` | The selected value. |
-| `ngpDatePickerFocusedDate` | `T` | `-` | The focused value. |
-
-#### Outputs
-
-| Event | Type | Description |
-|-------|------|-------------|
-| `ngpDatePickerDateChange` | `T | undefined` | Emit when the date changes. |
-| `ngpDatePickerFocusedDateChange` | `T` | Emit when the focused date changes. |
-
-#### Export As
-
-`ngpDatePicker`
-
-
+<api-docs name="NgpDatePicker"></api-docs>
 
 #### Data Attributes
 
@@ -7271,43 +6647,7 @@ The following data attributes are available on the `ngpDatePicker` directive:
 
 ### NgpDateRangePicker
 
-## API Reference
-
-### NgpDateRangePicker
-
-
-
-**Selector:** `[ngpDateRangePicker]`
-
-#### Inputs
-
-| Property | Type | Default | Description |
-|----------|------|---------|-------------|
-| `ngpDateRangePickerMin` | `T | undefined` | `-` | The minimum date that can be selected. |
-| `ngpDateRangePickerMax` | `T | undefined` | `-` | The maximum date that can be selected. |
-| `ngpDateRangePickerDisabled` | `boolean` | `-` | Determine if the date picker is disabled. |
-| `ngpDateRangePickerDateDisabled` | `(date: T) => boolean` | `-` | A function that is called to determine if a specific date should be disabled. |
-| `ngpDateRangePickerFirstDayOfWeek` | `NgpDatePickerFirstDayOfWeekNumber` | `7 (Sunday)` | Sets which day starts the week in the calendar.
-Accepts 0-7 where 1=Monday, 2=Tuesday, 3=Wednesday, 4=Thursday, 5=Friday, 6=Saturday, 7=Sunday.
-Defaults to NgpDatePickerConfig.firstDayOfWeek (default 7 if not overridden).
-Note: Update calendar header column order when changing from Sunday start. |
-| `ngpDateRangePickerStartDate` | `T | undefined` | `-` | The selected start date |
-| `ngpDateRangePickerEndDate` | `T | undefined` | `-` | The selected end date |
-| `ngpDateRangePickerFocusedDate` | `T` | `-` | The focused value. |
-
-#### Outputs
-
-| Event | Type | Description |
-|-------|------|-------------|
-| `ngpDateRangePickerStartDateChange` | `T | undefined` | Emit when the date changes. |
-| `ngpDateRangePickerEndDateChange` | `T | undefined` | Emit when the end date changes. |
-| `ngpDateRangePickerFocusedDateChange` | `T` | Emit when the focused date changes. |
-
-#### Export As
-
-`ngpDateRangePicker`
-
-
+<api-docs name="NgpDateRangePicker"></api-docs>
 
 #### Data Attributes
 
@@ -7319,25 +6659,7 @@ The following data attributes are available on the `ngpDateRangePicker` directiv
 
 ### NgpDatePickerLabel
 
-## API Reference
-
-### NgpDatePickerLabel
-
-The label that displays the current month and year typically in the header of the date picker. This will be announced by screen readers when the date changes.
-
-**Selector:** `[ngpDatePickerLabel]`
-
-#### Inputs
-
-| Property | Type | Default | Description |
-|----------|------|---------|-------------|
-| `aria-live` | `string` | `-` | Define the aria live attribute. |
-
-#### Export As
-
-`ngpDatePickerLabel`
-
-
+<api-docs name="NgpDatePickerLabel"></api-docs>
 
 #### Data Attributes
 
@@ -7349,19 +6671,7 @@ The following data attributes are available on the `ngpDatePickerLabel` directiv
 
 ### NgpDatePickerPreviousMonth
 
-## API Reference
-
-### NgpDatePickerPreviousMonth
-
-A button that navigates to the previous month.
-
-**Selector:** `[ngpDatePickerPreviousMonth]`
-
-#### Export As
-
-`ngpDatePickerPreviousMonth`
-
-
+<api-docs name="NgpDatePickerPreviousMonth"></api-docs>
 
 #### Data Attributes
 
@@ -7376,19 +6686,7 @@ The following data attributes are available on the `ngpDatePickerPreviousMonth` 
 
 ### NgpDatePickerNextMonth
 
-## API Reference
-
-### NgpDatePickerNextMonth
-
-A button that navigates to the next month.
-
-**Selector:** `[ngpDatePickerNextMonth]`
-
-#### Export As
-
-`ngpDatePickerNextMonth`
-
-
+<api-docs name="NgpDatePickerNextMonth"></api-docs>
 
 #### Data Attributes
 
@@ -7403,19 +6701,7 @@ The following data attributes are available on the `ngpDatePickerNextMonth` dire
 
 ### NgpDatePickerGrid
 
-## API Reference
-
-### NgpDatePickerGrid
-
-The grid that contains the days of the month.
-
-**Selector:** `[ngpDatePickerGrid]`
-
-#### Export As
-
-`ngpDatePickerGrid`
-
-
+<api-docs name="NgpDatePickerGrid"></api-docs>
 
 #### Data Attributes
 
@@ -7427,19 +6713,7 @@ The following data attributes are available on the `ngpDatePickerGrid` directive
 
 ### NgpDatePickerRowRender
 
-## API Reference
-
-### NgpDatePickerRowRender
-
-A structural directive that renders a row of weekdays in the date picker grid.
-
-**Selector:** `[ngpDatePickerRowRender]`
-
-#### Export As
-
-`ngpDatePickerRowRender`
-
-
+<api-docs name="NgpDatePickerRowRender"></api-docs>
 
 ### NgpDatePickerCellRender
 
@@ -7456,19 +6730,7 @@ The following context fields are available on the `ngpDatePickerCellRender` dire
 
 ### NgpDatePickerCell
 
-## API Reference
-
-### NgpDatePickerCell
-
-A cell in the date picker grid.
-
-**Selector:** `[ngpDatePickerCell]`
-
-#### Export As
-
-`ngpDatePickerCell`
-
-
+<api-docs name="NgpDatePickerCell"></api-docs>
 
 #### Data Attributes
 
@@ -7481,19 +6743,7 @@ The following data attributes are available on the `ngpDatePickerCell` directive
 
 ### NgpDatePickerDateButton
 
-## API Reference
-
-### NgpDatePickerDateButton
-
-A button that represents a date in the date picker grid.
-
-**Selector:** `[ngpDatePickerDateButton]`
-
-#### Export As
-
-`ngpDatePickerDateButton`
-
-
+<api-docs name="NgpDatePickerDateButton"></api-docs>
 
 #### Data Attributes
 
@@ -7928,26 +7178,7 @@ The following directives are available to import from the `ng-primitives/dialog`
 
 ### NgpDialog
 
-## API Reference
-
-### NgpDialog
-
-
-
-**Selector:** `[ngpDialog]`
-
-#### Inputs
-
-| Property | Type | Default | Description |
-|----------|------|---------|-------------|
-| `ngpDialogRole` | `NgpDialogRole | undefined` | `-` | The dialog role. |
-| `ngpDialogModal` | `boolean` | `-` | Whether the dialog is a modal. |
-
-#### Export As
-
-`ngpDialog`
-
-
+<api-docs name="NgpDialog"></api-docs>
 
 | Attribute   | Description                         |
 | ----------- | ----------------------------------- |
@@ -7955,64 +7186,15 @@ The following directives are available to import from the `ng-primitives/dialog`
 
 ### NgpDialogTitle
 
-## API Reference
-
-### NgpDialogTitle
-
-
-
-**Selector:** `[ngpDialogTitle]`
-
-#### Export As
-
-`ngpDialogTitle`
-
-
+<api-docs name="NgpDialogTitle"></api-docs>
 
 ### NgpDialogDescription
 
-## API Reference
-
-### NgpDialogDescription
-
-
-
-**Selector:** `[ngpDialogDescription]`
-
-#### Export As
-
-`ngpDialogDescription`
-
-
+<api-docs name="NgpDialogDescription"></api-docs>
 
 ### NgpDialogTrigger
 
-## API Reference
-
-### NgpDialogTrigger
-
-
-
-**Selector:** `[ngpDialogTrigger]`
-
-#### Inputs
-
-| Property | Type | Default | Description |
-|----------|------|---------|-------------|
-| `ngpDialogTrigger` | `TemplateRef<NgpDialogContext<unknown` | `-` | The template to launch. |
-| `ngpDialogTriggerCloseOnEscape` | `boolean | undefined` | ``true`` | Whether the dialog should close on escape. |
-
-#### Outputs
-
-| Event | Type | Description |
-|-------|------|-------------|
-| `ngpDialogTriggerClosed` | `T` | Emits whenever the dialog is closed with the given result. |
-
-#### Export As
-
-`ngpDialogTrigger`
-
-
+<api-docs name="NgpDialogTrigger"></api-docs>
 
 | Attribute            | Description                           |
 | -------------------- | ------------------------------------- |
@@ -8023,25 +7205,7 @@ The following directives are available to import from the `ng-primitives/dialog`
 
 ### NgpDialogOverlay
 
-## API Reference
-
-### NgpDialogOverlay
-
-
-
-**Selector:** `[ngpDialogOverlay]`
-
-#### Inputs
-
-| Property | Type | Default | Description |
-|----------|------|---------|-------------|
-| `ngpDialogOverlayCloseOnClick` | `boolean | undefined` | ``true`` | Whether the dialog should close on backdrop click. |
-
-#### Export As
-
-`ngpDialogOverlay`
-
-
+<api-docs name="NgpDialogOverlay"></api-docs>
 
 | Attribute   | Description                         |
 | ----------- | ----------------------------------- |
@@ -8735,39 +7899,7 @@ The following directives are available to import from the `ng-primitives/file-up
 
 ### NgpFileUpload
 
-## API Reference
-
-### NgpFileUpload
-
-A directive that allows you to turn any element into a file upload trigger.
-
-**Selector:** `[ngpFileUpload]`
-
-#### Inputs
-
-| Property | Type | Default | Description |
-|----------|------|---------|-------------|
-| `ngpFileUploadFileTypes` | `string[] | undefined` | `-` | The accepted file types. This can be an array of strings or a comma-separated string.
-Accepted types can either be file extensions (e.g. `.jpg`) or MIME types (e.g. `image/jpeg`). |
-| `ngpFileUploadMultiple` | `boolean` | `-` | Whether to allow multiple files to be selected. |
-| `ngpFileUploadDirectory` | `boolean` | `-` | Whether to allow the user to select directories. |
-| `ngpFileUploadDragDrop` | `boolean` | `-` | Whether drag-and-drop is enabled. |
-| `ngpFileUploadDisabled` | `boolean` | `-` | Whether the file upload is disabled. |
-
-#### Outputs
-
-| Event | Type | Description |
-|-------|------|-------------|
-| `ngpFileUploadSelected` | `FileList | null` | Emits when the user selects files. |
-| `ngpFileUploadCanceled` | `void` | Emits when the user cancel the file selection. |
-| `ngpFileUploadRejected` | `void` | Emits when uploaded files are rejected because they do not match the allowed {@link fileTypes}. |
-| `ngpFileUploadDragOver` | `boolean` | Emits when the user drags a file over the file upload. |
-
-#### Export As
-
-`ngpFileUpload`
-
-
+<api-docs name="NgpFileUpload"></api-docs>
 
 #### Data Attributes
 
@@ -8781,37 +7913,7 @@ Accepted types can either be file extensions (e.g. `.jpg`) or MIME types (e.g. `
 
 ### NgpFileDropzone
 
-## API Reference
-
-### NgpFileDropzone
-
-Capture files dropped on the element.
-
-**Selector:** `[ngpFileDropzone]`
-
-#### Inputs
-
-| Property | Type | Default | Description |
-|----------|------|---------|-------------|
-| `ngpFileDropzoneFileTypes` | `string[] | undefined` | `-` | The accepted file types. This can be an array of strings or a comma-separated string.
-Accepted types can either be file extensions (e.g. `.jpg`) or MIME types (e.g. `image/jpeg`). |
-| `ngpFileDropzoneMultiple` | `boolean` | `-` | Whether to allow multiple files to be selected. |
-| `ngpFileDropzoneDirectory` | `boolean` | `-` | Whether to allow the user to select directories. |
-| `ngpFileDropzoneDisabled` | `boolean` | `-` | Whether the file upload is disabled. |
-
-#### Outputs
-
-| Event | Type | Description |
-|-------|------|-------------|
-| `ngpFileDropzoneSelected` | `FileList | null` | Emits when the user selects files. |
-| `ngpFileDropzoneRejected` | `void` | Emits when uploaded files are rejected because they do not match the allowed {@link fileTypes}. |
-| `ngpFileDropzoneDragOver` | `boolean` | Emits when the user drags a file over the file upload. |
-
-#### Export As
-
-`ngpFileDropzone`
-
-
+<api-docs name="NgpFileDropzone"></api-docs>
 
 #### Data Attributes
 
@@ -9008,19 +8110,7 @@ The following directives are available to import from the `ng-primitives/form-fi
 
 ### NgpFormField
 
-## API Reference
-
-### NgpFormField
-
-The `NgpFormField` directive is a container for form field elements. Any labels, form controls, or descriptions should be placed within this directive.
-
-**Selector:** `[ngpFormField]`
-
-#### Export As
-
-`ngpFormField`
-
-
+<api-docs name="NgpFormField"></api-docs>
 
 #### Data Attributes
 
@@ -9036,19 +8126,7 @@ The `NgpFormField` directive is a container for form field elements. Any labels,
 
 ### NgpLabel
 
-## API Reference
-
-### NgpLabel
-
-The `NgpLabel` directive is used to mark a label element within a form field. Preferably, there should use an HTML `<label>` element.
-
-**Selector:** `[ngpLabel]`
-
-#### Export As
-
-`ngpLabel`
-
-
+<api-docs name="NgpLabel"></api-docs>
 
 #### Data Attributes
 
@@ -9064,19 +8142,7 @@ The `NgpLabel` directive is used to mark a label element within a form field. Pr
 
 ### NgpDescription
 
-## API Reference
-
-### NgpDescription
-
-The `NgpDescription` directive is used to mark a description element within a form field. There may be multiple descriptions associated with a form control.
-
-**Selector:** `[ngpDescription]`
-
-#### Export As
-
-`ngpDescription`
-
-
+<api-docs name="NgpDescription"></api-docs>
 
 #### Data Attributes
 
@@ -9092,25 +8158,7 @@ The `NgpDescription` directive is used to mark a description element within a fo
 
 ### NgpError
 
-## API Reference
-
-### NgpError
-
-The `NgpError` directive is used to mark an error message element within a form field. There may be multiple error messages associated with a form control.
-
-**Selector:** `[ngpError]`
-
-#### Inputs
-
-| Property | Type | Default | Description |
-|----------|------|---------|-------------|
-| `ngpErrorValidator` | `string | null` | `-` | The validator associated with the error message. |
-
-#### Export As
-
-`ngpError`
-
-
+<api-docs name="NgpError"></api-docs>
 
 #### Data Attributes
 
@@ -9127,27 +8175,7 @@ The `NgpError` directive is used to mark an error message element within a form 
 
 ### NgpFormControl
 
-## API Reference
-
-### NgpFormControl
-
-Typically this primitive would be not be used directly, but instead a more specific form control primitive would be used (e.g. `ngpInput`). All of our form control primitives use `ngpFormControl` internally so they will have the same accessibility features as described below.
-
-The `NgpFormControl` directive is used to mark a form control element within a form field. This element will have an `aria-labelledby` attribute set to the ID of the label element within the form field and an `aria-describedby` attribute set to the ID of the description elements within the form field.
-
-**Selector:** `[ngpFormControl]`
-
-#### Inputs
-
-| Property | Type | Default | Description |
-|----------|------|---------|-------------|
-| `ngpFormControlDisabled` | `boolean` | `-` | Whether the form control is disabled by a parent. |
-
-#### Export As
-
-`ngpFormControl`
-
-
+<api-docs name="NgpFormControl"></api-docs>
 
 #### Data Attributes
 
@@ -9574,73 +8602,19 @@ The following directives are available to import from the `ng-primitives/input-o
 
 The root container for the OTP input component.
 
-## API Reference
-
-### NgpInputOtp
-
-
-
-**Selector:** `[ngpInputOtp]`
-
-#### Inputs
-
-| Property | Type | Default | Description |
-|----------|------|---------|-------------|
-| `ngpInputOtpValue` | `string` | `-` | The current value of the OTP. |
-| `ngpInputOtpPattern` | `string` | `-` | The regex pattern for allowed characters. |
-| `ngpInputOtpInputMode` | `NgpInputOtpInputMode` | `-` | The input mode for the hidden input. |
-| `ngpInputOtpPasteTransformer` | `((text: string) => string) | undefined` | `-` | Function to transform pasted text. |
-| `ngpInputOtpDisabled` | `boolean` | `-` | Whether the input-otp is disabled. |
-| `ngpInputOtpPlaceholder` | `string` | `-` | The placeholder character to display when a slot is empty. |
-
-#### Outputs
-
-| Event | Type | Description |
-|-------|------|-------------|
-| `ngpInputOtpValueChange` | `string` | Event emitted when the value changes. |
-| `ngpInputOtpComplete` | `string` | Event emitted when the OTP is complete (maxLength characters entered). |
-
-#### Export As
-
-`ngpInputOtp`
-
-
+<api-docs name="NgpInputOtp"></api-docs>
 
 ### NgpInputOtpInput
 
 The hidden input element that captures user input.
 
-## API Reference
-
-### NgpInputOtpInput
-
-
-
-**Selector:** `input[ngpInputOtpInput]`
-
-#### Export As
-
-`ngpInputOtpInput`
-
-
+<api-docs name="NgpInputOtpInput"></api-docs>
 
 ### NgpInputOtpSlot
 
 A directive that represents individual character slots. Automatically registers with the parent input OTP and derives its index from registration order.
 
-## API Reference
-
-### NgpInputOtpSlot
-
-
-
-**Selector:** `[ngpInputOtpSlot]`
-
-#### Export As
-
-`ngpInputOtpSlot`
-
-
+<api-docs name="NgpInputOtpSlot"></api-docs>
 
 #### Data Attributes
 
@@ -9861,25 +8835,7 @@ The following directives are available to import from the `ng-primitives/input` 
 
 ### NgpInput
 
-## API Reference
-
-### NgpInput
-
-
-
-**Selector:** `input[ngpInput]`
-
-#### Inputs
-
-| Property | Type | Default | Description |
-|----------|------|---------|-------------|
-| `disabled` | `boolean` | `-` | Whether the element is disabled. |
-
-#### Export As
-
-`ngpInput`
-
-
+<api-docs name="NgpInput"></api-docs>
 
 #### Data Attributes
 
@@ -10549,35 +9505,7 @@ The following directives are available to import from the `ng-primitives/listbox
 
 ### NgpListbox
 
-## API Reference
-
-### NgpListbox
-
-
-
-**Selector:** `[ngpListbox]`
-
-#### Inputs
-
-| Property | Type | Default | Description |
-|----------|------|---------|-------------|
-| `ngpListboxMode` | `NgpSelectionMode` | `-` | The listbox selection mode. |
-| `ngpListboxValue` | `T[]` | `-` | The listbox selection. |
-| `ngpListboxDisabled` | `boolean` | `-` | The listbox disabled state. |
-| `ngpListboxCompareWith` | `(a: T, b: T) => boolean` | `-` | The comparator function to use when comparing values.
-If not provided, strict equality (===) is used. |
-
-#### Outputs
-
-| Event | Type | Description |
-|-------|------|-------------|
-| `ngpListboxValueChange` | `T[]` | Emits when the listbox selection changes. |
-
-#### Export As
-
-`ngpListbox`
-
-
+<api-docs name="NgpListbox"></api-docs>
 
 #### Data Attributes
 
@@ -10589,26 +9517,7 @@ The following data attributes are applied to the `ngpListbox` directive:
 
 ### NgpListboxOption
 
-## API Reference
-
-### NgpListboxOption
-
-
-
-**Selector:** `[ngpListboxOption]`
-
-#### Inputs
-
-| Property | Type | Default | Description |
-|----------|------|---------|-------------|
-| `ngpListboxOptionValue` | `T` | `-` | The value of the option. |
-| `ngpListboxOptionDisabled` | `boolean` | `-` | Whether the option is disabled. |
-
-#### Export As
-
-`ngpListboxOption`
-
-
+<api-docs name="NgpListboxOption"></api-docs>
 
 #### Data Attributes
 
@@ -10625,35 +9534,11 @@ The following data attributes are applied to the `ngpListboxOption` directive:
 
 ### NgpListboxSection
 
-## API Reference
-
-### NgpListboxSection
-
-
-
-**Selector:** `[ngpListboxSection]`
-
-#### Export As
-
-`ngpListboxSection`
-
-
+<api-docs name="NgpListboxSection"></api-docs>
 
 ### NgpListboxTrigger
 
-## API Reference
-
-### NgpListboxTrigger
-
-
-
-**Selector:** `[ngpListboxTrigger]`
-
-#### Export As
-
-`ngpListboxTrigger`
-
-
+<api-docs name="NgpListboxTrigger"></api-docs>
 
 Augments the popover trigger with listbox-specific behavior, such as opening the listbox when the arrow keys are pressed.
 
@@ -11083,33 +9968,7 @@ The following directives are available to import from the `ng-primitives/menu` p
 
 ### NgpMenuTrigger
 
-## API Reference
-
-### NgpMenuTrigger
-
-The `NgpMenuTrigger` directive allows you to turn an element into a menu trigger.
-
-**Selector:** `[ngpMenuTrigger]`
-
-#### Inputs
-
-| Property | Type | Default | Description |
-|----------|------|---------|-------------|
-| `ngpMenuTrigger` | `NgpOverlayContent<T> | undefined` | `-` | Access the menu template ref or ComponentType. |
-| `ngpMenuTriggerDisabled` | `boolean` | `false` | Define if the trigger should be disabled. |
-| `ngpMenuTriggerPlacement` | `NgpMenuPlacement` | `'bottom-start'` | Define the placement of the menu relative to the trigger. |
-| `ngpMenuTriggerOffset` | `NgpOffset` | `4` | Define the offset of the menu relative to the trigger.
-Can be a number (applies to mainAxis) or an object with mainAxis, crossAxis, and alignmentAxis. |
-| `ngpMenuTriggerFlip` | `boolean` | `true` | Define whether the menu should flip when there is not enough space for the menu. |
-| `ngpMenuTriggerContainer` | `string | HTMLElement | null` | `document.body` | Define the container in which the menu should be attached. |
-| `ngpMenuTriggerScrollBehavior` | `"block" | "reposition"` | `'block'` | Defines how the menu behaves when the window is scrolled. |
-| `ngpMenuTriggerContext` | `T | undefined` | `-` | Provide context to the menu. This can be used to pass data to the menu content. |
-
-#### Export As
-
-`ngpMenuTrigger`
-
-
+<api-docs name="NgpMenuTrigger"></api-docs>
 
 #### Data Attributes
 
@@ -11121,19 +9980,7 @@ The following data attributes are available on the `NgpMenuTrigger` directive:
 
 ### NgpMenu
 
-## API Reference
-
-### NgpMenu
-
-The `NgpMenu` is a container for menu items.
-
-**Selector:** `[ngpMenu]`
-
-#### Export As
-
-`ngpMenu`
-
-
+<api-docs name="NgpMenu"></api-docs>
 
 #### Data Attributes
 
@@ -11154,25 +10001,7 @@ The following CSS custom properties are applied to the `ngpMenu` directive:
 
 ### NgpMenuItem
 
-## API Reference
-
-### NgpMenuItem
-
-The `NgpMenuItem` directive represents a menu item.
-
-**Selector:** `[ngpMenuItem]`
-
-#### Inputs
-
-| Property | Type | Default | Description |
-|----------|------|---------|-------------|
-| `ngpMenuItemDisabled` | `boolean` | `-` | Whether the menu item is disabled |
-
-#### Export As
-
-`ngpMenuItem`
-
-
+<api-docs name="NgpMenuItem"></api-docs>
 
 #### Data Attributes
 
@@ -11184,30 +10013,7 @@ The following data attributes are available on the `NgpMenuItem` directive:
 
 ### NgpSubmenuTrigger
 
-## API Reference
-
-### NgpSubmenuTrigger
-
-
-
-**Selector:** `[ngpSubmenuTrigger]`
-
-#### Inputs
-
-| Property | Type | Default | Description |
-|----------|------|---------|-------------|
-| `ngpSubmenuTrigger` | `NgpOverlayContent<T> | undefined` | `-` | Access the submenu template ref. |
-| `ngpSubmenuTriggerDisabled` | `boolean` | `false` | Define if the trigger should be disabled. |
-| `ngpSubmenuTriggerPlacement` | `NgpMenuPlacement` | `'right-start'` | Define the placement of the menu relative to the trigger. |
-| `ngpSubmenuTriggerOffset` | `NgpOffset` | `0` | Define the offset of the menu relative to the trigger.
-Can be a number (applies to mainAxis) or an object with mainAxis, crossAxis, and alignmentAxis. |
-| `ngpSubmenuTriggerFlip` | `boolean` | `true` | Define whether the menu should flip when there is not enough space for the menu. |
-
-#### Export As
-
-`ngpSubmenuTrigger`
-
-
+<api-docs name="NgpSubmenuTrigger"></api-docs>
 
 #### Data Attributes
 
@@ -11523,92 +10329,23 @@ The following directives are available to import from the `ng-primitives/meter` 
 
 ### NgpMeter
 
-## API Reference
-
-### NgpMeter
-
-
-
-**Selector:** `[ngpMeter]`
-
-#### Inputs
-
-| Property | Type | Default | Description |
-|----------|------|---------|-------------|
-| `ngpMeterValue` | `number` | `-` | The value of the meter. |
-| `ngpMeterMin` | `number` | `-` | The minimum value of the meter. |
-| `ngpMeterMax` | `number` | `-` | The maximum value of the meter. |
-| `ngpMeterValueLabel` | `NgpMeterValueTextFn` | `-` | Define a function that returns the meter value label. |
-
-#### Export As
-
-`ngpMeter`
-
-
+<api-docs name="NgpMeter"></api-docs>
 
 ### NgpMeterLabel
 
-## API Reference
-
-### NgpMeterLabel
-
-
-
-**Selector:** `[ngpMeterLabel]`
-
-#### Export As
-
-`ngpMeterLabel`
-
-
+<api-docs name="NgpMeterLabel"></api-docs>
 
 ### NgpMeterValue
 
-## API Reference
-
-### NgpMeterValue
-
-
-
-**Selector:** `[ngpMeterValue]`
-
-#### Export As
-
-`ngpMeterValue`
-
-
+<api-docs name="NgpMeterValue"></api-docs>
 
 ### NgpMeterTrack
 
-## API Reference
-
-### NgpMeterTrack
-
-
-
-**Selector:** `[ngpMeterTrack]`
-
-#### Export As
-
-`ngpMeterTrack`
-
-
+<api-docs name="NgpMeterTrack"></api-docs>
 
 ### NgpMeterIndicator
 
-## API Reference
-
-### NgpMeterIndicator
-
-
-
-**Selector:** `[ngpMeterIndicator]`
-
-#### Export As
-
-`ngpMeterIndicator`
-
-
+<api-docs name="NgpMeterIndicator"></api-docs>
 
 ## Accessibility
 
@@ -12065,33 +10802,7 @@ The following directives are available to import from the `ng-primitives/paginat
 
 ### NgpPagination
 
-## API Reference
-
-### NgpPagination
-
-The `NgpPagination` directive is used to create a pagination control.
-
-**Selector:** `[ngpPagination]`
-
-#### Inputs
-
-| Property | Type | Default | Description |
-|----------|------|---------|-------------|
-| `ngpPaginationPage` | `number` | `-` | The currently selected page. |
-| `ngpPaginationPageCount` | `number` | `-` | The total number of pages. |
-| `ngpPaginationDisabled` | `boolean` | `-` | Whether the pagination is disabled. |
-
-#### Outputs
-
-| Event | Type | Description |
-|-------|------|-------------|
-| `ngpPaginationPageChange` | `number` | The event that is fired when the page changes. |
-
-#### Export As
-
-`ngpPagination`
-
-
+<api-docs name="NgpPagination"></api-docs>
 
 #### Data Attributes
 
@@ -12107,26 +10818,7 @@ The following data attributes are applied to the `ngpPagination` directive:
 
 ### NgpPaginationButton
 
-## API Reference
-
-### NgpPaginationButton
-
-The `NgpPaginationButton` directive is used to create a pagination button.
-
-**Selector:** `[ngpPaginationButton]`
-
-#### Inputs
-
-| Property | Type | Default | Description |
-|----------|------|---------|-------------|
-| `ngpPaginationButtonPage` | `number` | `-` | Define the page this button represents. |
-| `ngpPaginationButtonDisabled` | `boolean` | `-` | Whether the button is disabled. |
-
-#### Export As
-
-`ngpPaginationButton`
-
-
+<api-docs name="NgpPaginationButton"></api-docs>
 
 #### Data Attributes
 
@@ -12143,25 +10835,7 @@ The following data attributes are applied to the `ngpPaginationButton` directive
 
 ### NgpPaginationFirst
 
-## API Reference
-
-### NgpPaginationFirst
-
-The `NgpPaginationFirst` directive is used to create a pagination button that navigates to the first page.
-
-**Selector:** `[ngpPaginationFirst]`
-
-#### Inputs
-
-| Property | Type | Default | Description |
-|----------|------|---------|-------------|
-| `ngpPaginationFirstDisabled` | `boolean` | `-` | Whether the button is disabled. |
-
-#### Export As
-
-`ngpPaginationFirst`
-
-
+<api-docs name="NgpPaginationFirst"></api-docs>
 
 #### Data Attributes
 
@@ -12177,25 +10851,7 @@ The following data attributes are applied to the `ngpPaginationFirst` directive:
 
 ### NgpPaginationPrevious
 
-## API Reference
-
-### NgpPaginationPrevious
-
-The `NgpPaginationPrevious` directive is used to create a pagination button that navigates to the previous page.
-
-**Selector:** `[ngpPaginationPrevious]`
-
-#### Inputs
-
-| Property | Type | Default | Description |
-|----------|------|---------|-------------|
-| `ngpPaginationPreviousDisabled` | `boolean` | `-` | Whether the button is disabled. |
-
-#### Export As
-
-`ngpPaginationPrevious`
-
-
+<api-docs name="NgpPaginationPrevious"></api-docs>
 
 #### Data Attributes
 
@@ -12211,25 +10867,7 @@ The following data attributes are applied to the `ngpPaginationPrevious` directi
 
 ### NgpPaginationNext
 
-## API Reference
-
-### NgpPaginationNext
-
-The `NgpPaginationNext` directive is used to create a pagination button that navigates to the next page.
-
-**Selector:** `[ngpPaginationNext]`
-
-#### Inputs
-
-| Property | Type | Default | Description |
-|----------|------|---------|-------------|
-| `ngpPaginationNextDisabled` | `boolean` | `-` | Whether the button is disabled. |
-
-#### Export As
-
-`ngpPaginationNext`
-
-
+<api-docs name="NgpPaginationNext"></api-docs>
 
 #### Data Attributes
 
@@ -12245,25 +10883,7 @@ The following data attributes are applied to the `ngpPaginationNext` directive:
 
 ### NgpPaginationLast
 
-## API Reference
-
-### NgpPaginationLast
-
-The `NgpPaginationLast` directive is used to create a pagination button that navigates to the last page.
-
-**Selector:** `[ngpPaginationLast]`
-
-#### Inputs
-
-| Property | Type | Default | Description |
-|----------|------|---------|-------------|
-| `ngpPaginationLastDisabled` | `boolean` | `-` | Whether the button is disabled. |
-
-#### Export As
-
-`ngpPaginationLast`
-
-
+<api-docs name="NgpPaginationLast"></api-docs>
 
 #### Data Attributes
 
@@ -12785,19 +11405,7 @@ The following directives are available to import from the `ng-primitives/popover
 
 ### NgpPopover
 
-## API Reference
-
-### NgpPopover
-
-Apply the `ngpPopover` directive to an element that represents the popover. This typically would be a `div` inside an `ng-template`.
-
-**Selector:** `[ngpPopover]`
-
-#### Export As
-
-`ngpPopover`
-
-
+<api-docs name="NgpPopover"></api-docs>
 
 #### Data Attributes
 
@@ -12816,45 +11424,7 @@ The following CSS custom properties are applied to the `ngpPopover` directive:
 
 ### NgpPopoverTrigger
 
-## API Reference
-
-### NgpPopoverTrigger
-
-Apply the `ngpPopoverTrigger` directive to an element that triggers the popover to show.
-
-**Selector:** `[ngpPopoverTrigger]`
-
-#### Inputs
-
-| Property | Type | Default | Description |
-|----------|------|---------|-------------|
-| `ngpPopoverTrigger` | `NgpOverlayContent<T> | undefined` | `-` | Access the popover template ref. |
-| `ngpPopoverTriggerDisabled` | `boolean` | `false` | Define if the trigger should be disabled. |
-| `ngpPopoverTriggerPlacement` | `NgpPopoverPlacement` | `'top'` | Define the placement of the popover relative to the trigger. |
-| `ngpPopoverTriggerOffset` | `NgpOffset` | `0` | Define the offset of the popover relative to the trigger.
-Can be a number (applies to mainAxis) or an object with mainAxis, crossAxis, and alignmentAxis. |
-| `ngpPopoverTriggerShowDelay` | `number` | `0` | Define the delay before the popover is displayed. |
-| `ngpPopoverTriggerHideDelay` | `number` | `0` | Define the delay before the popover is hidden. |
-| `ngpPopoverTriggerFlip` | `boolean` | `true` | Define whether the popover should flip when there is not enough space for the popover. |
-| `ngpPopoverTriggerContainer` | `string | HTMLElement | null` | `document.body` | Define the container in which the popover should be attached. |
-| `ngpPopoverTriggerCloseOnOutsideClick` | `boolean` | `true` | Define whether the popover should close when clicking outside of it. |
-| `ngpPopoverTriggerCloseOnEscape` | `boolean` | `true` | Define whether the popover should close when the escape key is pressed. |
-| `ngpPopoverTriggerScrollBehavior` | `"block" | "reposition"` | `'reposition'` | Defines how the popover behaves when the window is scrolled. |
-| `ngpPopoverTriggerContext` | `T | undefined` | `-` | Provide context to the popover. This can be used to pass data to the popover content. |
-| `ngpPopoverTriggerAnchor` | `HTMLElement | null` | `-` | Define an anchor element for positioning the popover.
-If provided, the popover will be positioned relative to this element instead of the trigger. |
-
-#### Outputs
-
-| Event | Type | Description |
-|-------|------|-------------|
-| `ngpPopoverTriggerOpenChange` | `boolean` | Event emitted when the popover open state changes. |
-
-#### Export As
-
-`ngpPopoverTrigger`
-
-
+<api-docs name="NgpPopoverTrigger"></api-docs>
 
 #### Data Attributes
 
@@ -12879,19 +11449,7 @@ The arrow can be styled conditionally based on the popover's final placement usi
 }
 ```
 
-## API Reference
-
-### NgpPopoverArrow
-
-
-
-**Selector:** `[ngpPopoverArrow]`
-
-#### Export As
-
-`ngpPopoverArrow`
-
-
+<api-docs name="NgpPopoverArrow"></api-docs>
 
 ### Data Attributes
 
@@ -13245,24 +11803,7 @@ The following directives are available to import from the `ng-primitives/progres
 
 ### NgpProgress
 
-## API Reference
-
-### NgpProgress
-
-Apply the `ngpProgress` directive to an element that represents the progress bar.
-
-**Selector:** `[ngpProgress]`
-
-#### Inputs
-
-| Property | Type | Default | Description |
-|----------|------|---------|-------------|
-| `ngpProgressValue` | `number | null` | `-` | Define the progress value. |
-| `ngpProgressMin` | `number` | `'0'` | Define the progress min value. |
-| `ngpProgressMax` | `number` | `100` | Define the progress max value. |
-| `ngpProgressValueLabel` | `NgpProgressValueTextFn` | `-` | Define a function that returns the progress value label. |
-
-
+<api-docs name="NgpProgress"></api-docs>
 
 #### Data Attributes
 
@@ -13276,16 +11817,7 @@ The following data attributes are applied to the `ngpProgress` directive:
 
 ### NgpProgressIndicator
 
-## API Reference
-
-### NgpProgressIndicator
-
-Apply the `ngpProgressIndicator` directive to an element that represents the current progress.
-The width of this element can be set to the percentage of the progress value.
-
-**Selector:** `[ngpProgressIndicator]`
-
-
+<api-docs name="NgpProgressIndicator"></api-docs>
 
 #### Data Attributes
 
@@ -13299,19 +11831,7 @@ The following data attributes are applied to the `ngpProgress` directive:
 
 ### NgpProgressTrack
 
-## API Reference
-
-### NgpProgressTrack
-
-
-
-**Selector:** `[ngpProgressTrack]`
-
-#### Export As
-
-`ngpProgressTrack`
-
-
+<api-docs name="NgpProgressTrack"></api-docs>
 
 #### Data Attributes
 
@@ -13325,19 +11845,7 @@ The following data attributes are applied to the `ngpProgressTrack` directive:
 
 ### NgpProgressLabel
 
-## API Reference
-
-### NgpProgressLabel
-
-
-
-**Selector:** `[ngpProgressLabel]`
-
-#### Export As
-
-`ngpProgressLabel`
-
-
+<api-docs name="NgpProgressLabel"></api-docs>
 
 #### Data Attributes
 
@@ -13351,19 +11859,7 @@ The following data attributes are applied to the `ngpProgressLabel` directive:
 
 ### NgpProgressValue
 
-## API Reference
-
-### NgpProgressValue
-
-
-
-**Selector:** `[ngpProgressValue]`
-
-#### Export As
-
-`ngpProgressValue`
-
-
+<api-docs name="NgpProgressValue"></api-docs>
 
 #### Data Attributes
 
@@ -13588,30 +12084,7 @@ The following directives are available to import from the `ng-primitives/radio` 
 
 ### NgpRadioGroup
 
-## API Reference
-
-### NgpRadioGroup
-
-Apply the `ngpRadioGroup` directive to an element that represents the group of radio items.
-
-**Selector:** `[ngpRadioGroup]`
-
-#### Inputs
-
-| Property | Type | Default | Description |
-|----------|------|---------|-------------|
-| `ngpRadioGroupValue` | `T | null` | `-` | The value of the radio group. |
-| `ngpRadioGroupDisabled` | `boolean` | `-` | Whether the radio group is disabled. |
-| `ngpRadioGroupOrientation` | `NgpOrientation` | `'horizontal'` | The orientation of the radio group. |
-| `ngpRadioGroupCompareWith` | `(a: T | null, b: T | null) => boolean` | `(a, b) => a === b` | The comparator function for the radio group. This is useful if values are objects and you want to compare them by value, not by reference. |
-
-#### Outputs
-
-| Event | Type | Description |
-|-------|------|-------------|
-| `ngpRadioGroupValueChange` | `T | null` | Event emitted when the radio group value changes. |
-
-
+<api-docs name="NgpRadioGroup"></api-docs>
 
 #### Data Attributes
 
@@ -13624,22 +12097,7 @@ The following data attributes are applied to the `ngpRadioGroup` directive:
 
 ### NgpRadioItem
 
-## API Reference
-
-### NgpRadioItem
-
-Apply the `ngpRadioItem` directive to an element that represents a radio item. This would typically be a `button` element.
-
-**Selector:** `[ngpRadioItem]`
-
-#### Inputs
-
-| Property | Type | Default | Description |
-|----------|------|---------|-------------|
-| `ngpRadioItemValue` | `T | undefined` | `-` | The value of the radio item. |
-| `ngpRadioItemDisabled` | `boolean` | `false` | Whether the radio item is disabled. |
-
-
+<api-docs name="NgpRadioItem"></api-docs>
 
 #### Data Attributes
 
@@ -13655,15 +12113,7 @@ The following data attributes are applied to the `ngpRadioItem` directive:
 
 ### NgpRadioIndicator
 
-## API Reference
-
-### NgpRadioIndicator
-
-Apply the `ngpRadioIndicator` directive to an element that represents the radio indicator (i.e. the dot).
-
-**Selector:** `[ngpRadioIndicator]`
-
-
+<api-docs name="NgpRadioIndicator"></api-docs>
 
 #### Data Attributes
 
@@ -13900,38 +12350,7 @@ The following directives are available to import from the `ng-primitives/slider`
 
 ### NgpRangeSlider
 
-## API Reference
-
-### NgpRangeSlider
-
-Apply the `ngpRangeSlider` directive to an element that represents the range slider and contains the track, range, and thumbs.
-
-**Selector:** `[ngpRangeSlider]`
-
-#### Inputs
-
-| Property | Type | Default | Description |
-|----------|------|---------|-------------|
-| `ngpRangeSliderLow` | `number` | `-` | The low value of the range slider. |
-| `ngpRangeSliderHigh` | `number` | `-` | The high value of the range slider. |
-| `ngpRangeSliderMin` | `number` | `-` | The minimum value of the range slider. |
-| `ngpRangeSliderMax` | `number` | `-` | The maximum value of the range slider. |
-| `ngpRangeSliderStep` | `number` | `-` | The step value of the range slider. |
-| `ngpRangeSliderOrientation` | `NgpOrientation` | `-` | The orientation of the range slider. |
-| `ngpRangeSliderDisabled` | `boolean` | `-` | The disabled state of the range slider. |
-
-#### Outputs
-
-| Event | Type | Description |
-|-------|------|-------------|
-| `ngpRangeSliderLowChange` | `number` | Emits when the low value changes. |
-| `ngpRangeSliderHighChange` | `number` | Emits when the high value changes. |
-
-#### Export As
-
-`ngpRangeSlider`
-
-
+<api-docs name="NgpRangeSlider"></api-docs>
 
 #### Data Attributes
 
@@ -13944,19 +12363,7 @@ The following data attributes are available to style the range slider:
 
 ### NgpRangeSliderTrack
 
-## API Reference
-
-### NgpRangeSliderTrack
-
-Apply the `ngpRangeSliderTrack` directive to an element that represents the track of the range slider.
-
-**Selector:** `[ngpRangeSliderTrack]`
-
-#### Export As
-
-`ngpRangeSliderTrack`
-
-
+<api-docs name="NgpRangeSliderTrack"></api-docs>
 
 #### Data Attributes
 
@@ -13969,19 +12376,7 @@ The following data attributes are available to style the slider track:
 
 ### NgpRangeSliderRange
 
-## API Reference
-
-### NgpRangeSliderRange
-
-Apply the `ngpRangeSliderRange` directive to an element that represents the range between the low and high values.
-
-**Selector:** `[ngpRangeSliderRange]`
-
-#### Export As
-
-`ngpRangeSliderRange`
-
-
+<api-docs name="NgpRangeSliderRange"></api-docs>
 
 #### Data Attributes
 
@@ -13994,20 +12389,7 @@ The following data attributes are available to style the slider range:
 
 ### NgpRangeSliderThumb
 
-## API Reference
-
-### NgpRangeSliderThumb
-
-Apply the `ngpRangeSliderThumb` directive to an element that represents a thumb of the range slider.
-Each thumb can be configured to control either the 'low' or 'high' value.
-
-**Selector:** `[ngpRangeSliderThumb]`
-
-#### Export As
-
-`ngpRangeSliderThumb`
-
-
+<api-docs name="NgpRangeSliderThumb"></api-docs>
 
 #### Data Attributes
 
@@ -14115,21 +12497,7 @@ The following directives are available to import from the `ng-primitives/resize`
 
 ### NgpResize
 
-## API Reference
-
-### NgpResize
-
-Apply the `ngpResize` directive to an element to listen for resize events.
-
-**Selector:** `[ngpResize]`
-
-#### Outputs
-
-| Event | Type | Description |
-|-------|------|-------------|
-| `ngpResize` | `Dimensions` | Emits when the element is resized. |
-
-
+<api-docs name="NgpResize"></api-docs>
 
 
 ---
@@ -14289,50 +12657,11 @@ The following directives are available to import from the `ng-primitives/roving-
 
 ### NgpRovingFocusGroup
 
-## API Reference
-
-### NgpRovingFocusGroup
-
-Apply the `ngpRovingFocusGroup` directive to an element to manage focus for a group of child elements.
-
-**Selector:** `[ngpRovingFocusGroup]`
-
-#### Inputs
-
-| Property | Type | Default | Description |
-|----------|------|---------|-------------|
-| `ngpRovingFocusGroupOrientation` | `NgpOrientation` | `'vertical'` | Determine the orientation of the roving focus group. |
-| `ngpRovingFocusGroupWrap` | `boolean` | `-` | Determine if focus should wrap when the end or beginning is reached. |
-| `ngpRovingFocusGroupHomeEnd` | `boolean` | `-` | Determine if the home and end keys should navigate to the first and last items. |
-| `ngpRovingFocusGroupDisabled` | `boolean` | `-` | Determine if the roving focus group is disabled. |
-
-#### Export As
-
-`ngpRovingFocusGroup`
-
-
+<api-docs name="NgpRovingFocusGroup"></api-docs>
 
 ### NgpRovingFocusItem
 
-## API Reference
-
-### NgpRovingFocusItem
-
-Apply the `ngpRovingFocusItem` directive to an element within a roving focus group to automatically manage focus.
-
-**Selector:** `[ngpRovingFocusItem]`
-
-#### Inputs
-
-| Property | Type | Default | Description |
-|----------|------|---------|-------------|
-| `ngpRovingFocusItemDisabled` | `boolean` | `-` | Define if the item is disabled. |
-
-#### Export As
-
-`ngpRovingFocusItem`
-
-
+<api-docs name="NgpRovingFocusItem"></api-docs>
 
 ## Accessibility
 
@@ -14665,19 +12994,7 @@ The following directives are available to import from the `ng-primitives/search`
 
 ### NgpSearch
 
-## API Reference
-
-### NgpSearch
-
-The `NgpSearch` directive is a container for the search field components.
-
-**Selector:** `[ngpSearch]`
-
-#### Export As
-
-`ngpSearch`
-
-
+<api-docs name="NgpSearch"></api-docs>
 
 #### Data Attributes
 
@@ -14687,19 +13004,7 @@ The `NgpSearch` directive is a container for the search field components.
 
 ### NgpSearchClear
 
-## API Reference
-
-### NgpSearchClear
-
-The `NgpSearchClear` directive is can be added to a button to clear the search field on click.
-
-**Selector:** `[ngpSearchClear]`
-
-#### Export As
-
-`ngpSearchClear`
-
-
+<api-docs name="NgpSearchClear"></api-docs>
 
 | Attribute    | Description                             |
 | ------------ | --------------------------------------- |
@@ -15790,114 +14095,23 @@ The following directives are available to import from the `ng-primitives/select`
 
 ### NgpSelect
 
-## API Reference
-
-### NgpSelect
-
-
-
-**Selector:** `[ngpSelect]`
-
-#### Inputs
-
-| Property | Type | Default | Description |
-|----------|------|---------|-------------|
-| `ngpSelectValue` | `any` | `-` | The value of the select. |
-| `ngpSelectMultiple` | `boolean` | `-` | Whether the select is multiple selection. |
-| `ngpSelectDisabled` | `boolean` | `-` | Whether the select is disabled. |
-| `ngpSelectCompareWith` | `(a: any, b: any) => boolean` | `-` | The comparator function used to compare options. |
-| `ngpSelectDropdownPlacement` | `Placement` | `-` | The position of the dropdown. |
-| `ngpSelectDropdownContainer` | `string | HTMLElement | null` | `-` | The container for the dropdown. |
-
-#### Outputs
-
-| Event | Type | Description |
-|-------|------|-------------|
-| `ngpSelectValueChange` | `any` | Event emitted when the value changes. |
-| `ngpSelectOpenChange` | `boolean` | Emit when the dropdown open state changes. |
-
-#### Export As
-
-`ngpSelect`
-
-
+<api-docs name="NgpSelect"></api-docs>
 
 ### NgpSelectDropdown
 
-## API Reference
-
-### NgpSelectDropdown
-
-
-
-**Selector:** `[ngpSelectDropdown]`
-
-#### Export As
-
-`ngpSelectDropdown`
-
-
+<api-docs name="NgpSelectDropdown"></api-docs>
 
 ### NgpSelectPortal
 
-## API Reference
-
-### NgpSelectPortal
-
-
-
-**Selector:** `[ngpSelectPortal]`
-
-#### Export As
-
-`ngpSelectPortal`
-
-
+<api-docs name="NgpSelectPortal"></api-docs>
 
 ### NgpSelectOption
 
-## API Reference
-
-### NgpSelectOption
-
-
-
-**Selector:** `[ngpSelectOption]`
-
-#### Inputs
-
-| Property | Type | Default | Description |
-|----------|------|---------|-------------|
-| `ngpSelectOptionValue` | `any` | `-` | - |
-| `ngpSelectOptionDisabled` | `boolean` | `-` | The disabled state of the option. |
-
-#### Export As
-
-`ngpSelectOption`
-
-
+<api-docs name="NgpSelectOption"></api-docs>
 
 ### NgpNativeSelect
 
-## API Reference
-
-### NgpNativeSelect
-
-Apply the `ngpNativeSelect` directive to a select element that you want to enhance.
-
-**Selector:** `select[ngpNativeSelect]`
-
-#### Inputs
-
-| Property | Type | Default | Description |
-|----------|------|---------|-------------|
-| `ngpNativeSelectDisabled` | `boolean` | `-` | Whether the select is disabled. |
-
-#### Export As
-
-`ngpNativeSelect`
-
-
+<api-docs name="NgpNativeSelect"></api-docs>
 
 #### Data Attributes
 
@@ -16024,25 +14238,7 @@ The following directives are available to import from the `ng-primitives/separat
 
 ### NgpSeparator
 
-## API Reference
-
-### NgpSeparator
-
-
-
-**Selector:** `[ngpSeparator]`
-
-#### Inputs
-
-| Property | Type | Default | Description |
-|----------|------|---------|-------------|
-| `ngpSeparatorOrientation` | `NgpOrientation` | `-` | The orientation of the separator. |
-
-#### Export As
-
-`ngpSeparator`
-
-
+<api-docs name="NgpSeparator"></api-docs>
 
 #### Data Attributes
 
@@ -16447,36 +14643,7 @@ The following directives are available to import from the `ng-primitives/slider`
 
 ### NgpSlider
 
-## API Reference
-
-### NgpSlider
-
-Apply the `ngpSlider` directive to an element that represents the slider and contains the track, range, and thumb.
-
-**Selector:** `[ngpSlider]`
-
-#### Inputs
-
-| Property | Type | Default | Description |
-|----------|------|---------|-------------|
-| `ngpSliderValue` | `number` | `-` | The value of the slider. |
-| `ngpSliderMin` | `number` | `-` | The minimum value of the slider. |
-| `ngpSliderMax` | `number` | `-` | The maximum value of the slider. |
-| `ngpSliderStep` | `number` | `-` | The step value of the slider. |
-| `ngpSliderOrientation` | `NgpOrientation` | `-` | The orientation of the slider. |
-| `ngpSliderDisabled` | `boolean` | `-` | The disabled state of the slider. |
-
-#### Outputs
-
-| Event | Type | Description |
-|-------|------|-------------|
-| `ngpSliderValueChange` | `number` | Emits when the value changes. |
-
-#### Export As
-
-`ngpSlider`
-
-
+<api-docs name="NgpSlider"></api-docs>
 
 #### Data Attributes
 
@@ -16489,19 +14656,7 @@ The following data attributes are available to style the slider:
 
 ### NgpSliderTrack
 
-## API Reference
-
-### NgpSliderTrack
-
-Apply the `ngpSliderTrack` directive to an element that represents the track of the slider.
-
-**Selector:** `[ngpSliderTrack]`
-
-#### Export As
-
-`ngpSliderTrack`
-
-
+<api-docs name="NgpSliderTrack"></api-docs>
 
 #### Data Attributes
 
@@ -16514,19 +14669,7 @@ The following data attributes are available to style the slider track:
 
 ### NgpSliderRange
 
-## API Reference
-
-### NgpSliderRange
-
-Apply the `ngpSliderRange` directive to an element that represents the range of the slider.
-
-**Selector:** `[ngpSliderRange]`
-
-#### Export As
-
-`ngpSliderRange`
-
-
+<api-docs name="NgpSliderRange"></api-docs>
 
 #### Data Attributes
 
@@ -16539,19 +14682,7 @@ The following data attributes are available to style the slider range:
 
 ### NgpSliderThumb
 
-## API Reference
-
-### NgpSliderThumb
-
-Apply the `ngpSliderThumb` directive to an element that represents the thumb of the slider.
-
-**Selector:** `[ngpSliderThumb]`
-
-#### Export As
-
-`ngpSliderThumb`
-
-
+<api-docs name="NgpSliderThumb"></api-docs>
 
 #### Data Attributes
 
@@ -16890,32 +15021,7 @@ The following directives are available to import from the `ng-primitives/switch`
 
 ### NgpSwitch
 
-## API Reference
-
-### NgpSwitch
-
-Apply the `ngpSwitch` directive to an element to manage the checked state.
-
-**Selector:** `[ngpSwitch]`
-
-#### Inputs
-
-| Property | Type | Default | Description |
-|----------|------|---------|-------------|
-| `ngpSwitchChecked` | `boolean` | `false` | Determine if the switch is checked. |
-| `ngpSwitchDisabled` | `boolean` | `false` | Determine if the switch is disabled. |
-
-#### Outputs
-
-| Event | Type | Description |
-|-------|------|-------------|
-| `ngpSwitchCheckedChange` | `boolean` | Emits when the checked state changes. |
-
-#### Export As
-
-`ngpSwitch`
-
-
+<api-docs name="NgpSwitch"></api-docs>
 
 #### Data Attributes
 
@@ -16931,15 +15037,7 @@ The following data attributes are applied to the `ngpSwitch` directive:
 
 ### NgpSwitchThumb
 
-## API Reference
-
-### NgpSwitchThumb
-
-Apply the `ngpSwitchThumb` directive to an element within a switch to represent the thumb.
-
-**Selector:** `[ngpSwitchThumb]`
-
-
+<api-docs name="NgpSwitchThumb"></api-docs>
 
 #### Data Attributes
 
@@ -17253,33 +15351,7 @@ The following directives are available to import from the `ng-primitives/tabs` p
 
 ### NgpTabset
 
-## API Reference
-
-### NgpTabset
-
-Apply the `ngpTabset` directive to an element to manage the tabs.
-
-**Selector:** `[ngpTabset]`
-
-#### Inputs
-
-| Property | Type | Default | Description |
-|----------|------|---------|-------------|
-| `ngpTabsetValue` | `string | undefined` | `-` | Define the active tab |
-| `ngpTabsetOrientation` | `NgpOrientation` | `'horizontal'` | The orientation of the tabset |
-| `ngpTabsetActivateOnFocus` | `boolean` | `-` | Whether tabs should activate on focus |
-
-#### Outputs
-
-| Event | Type | Description |
-|-------|------|-------------|
-| `ngpTabsetValueChange` | `string | undefined` | Emit the value of the selected tab when it changes |
-
-#### Export As
-
-`ngpTabset`
-
-
+<api-docs name="NgpTabset"></api-docs>
 
 #### Data Attributes
 
@@ -17291,19 +15363,7 @@ The following data attributes are applied to the `ngpTabset` directive:
 
 ### NgpTabList
 
-## API Reference
-
-### NgpTabList
-
-Apply the `ngpTabList` directive to an element that represents the list of tab buttons.
-
-**Selector:** `[ngpTabList]`
-
-#### Export As
-
-`ngpTabList`
-
-
+<api-docs name="NgpTabList"></api-docs>
 
 #### Data Attributes
 
@@ -17315,26 +15375,7 @@ The following data attributes are applied to the `ngpTabList` directive:
 
 ### NgpTabButton
 
-## API Reference
-
-### NgpTabButton
-
-Apply the `ngpTabButton` directive to an element within a tab list to represent a tab button. This directive should be applied to a button element.
-
-**Selector:** `[ngpTabButton]`
-
-#### Inputs
-
-| Property | Type | Default | Description |
-|----------|------|---------|-------------|
-| `ngpTabButtonValue` | `string | undefined` | `-` | The value of the tab this trigger controls |
-| `ngpTabButtonDisabled` | `boolean` | `false` | Whether the tab is disabled |
-
-#### Export As
-
-`ngpTabButton`
-
-
+<api-docs name="NgpTabButton"></api-docs>
 
 #### Data Attributes
 
@@ -17351,25 +15392,7 @@ The following data attributes are applied to the `ngpTabButton` directive:
 
 ### NgpTabPanel
 
-## API Reference
-
-### NgpTabPanel
-
-Apply the `ngpTabPanel` directive to an element that represents the content of a tab.
-
-**Selector:** `[ngpTabPanel]`
-
-#### Inputs
-
-| Property | Type | Default | Description |
-|----------|------|---------|-------------|
-| `ngpTabPanelValue` | `string | undefined` | `-` | The value of the tab |
-
-#### Export As
-
-`ngpTabPanel`
-
-
+<api-docs name="NgpTabPanel"></api-docs>
 
 #### Data Attributes
 
@@ -17638,25 +15661,7 @@ The following directives are available to import from the `ng-primitives/textare
 
 ### NgpTextarea
 
-## API Reference
-
-### NgpTextarea
-
-
-
-**Selector:** `[ngpTextarea]`
-
-#### Inputs
-
-| Property | Type | Default | Description |
-|----------|------|---------|-------------|
-| `disabled` | `boolean` | `-` | Whether the element is disabled. |
-
-#### Export As
-
-`ngpTextarea`
-
-
+<api-docs name="NgpTextarea"></api-docs>
 
 #### Data Attributes
 
@@ -18131,19 +16136,7 @@ The following directives are available to import from the `ng-primitives/toast` 
 
 ### NgpToast
 
-## API Reference
-
-### NgpToast
-
-
-
-**Selector:** `[ngpToast]`
-
-#### Export As
-
-`ngpToast`
-
-
+<api-docs name="NgpToast"></api-docs>
 
 #### Data Attributes
 
@@ -18595,35 +16588,7 @@ The following directives are available to import from the `ng-primitives/toggle-
 
 ### NgpToggleGroup
 
-## API Reference
-
-### NgpToggleGroup
-
-
-
-**Selector:** `[ngpToggleGroup]`
-
-#### Inputs
-
-| Property | Type | Default | Description |
-|----------|------|---------|-------------|
-| `ngpToggleGroupOrientation` | `NgpOrientation` | `-` | The orientation of the toggle group. |
-| `ngpToggleGroupAllowDeselection` | `boolean` | `true` | Whether toggle buttons can be deselected. If set to `false`, clicking a selected toggle button will not deselect it. |
-| `ngpToggleGroupType` | `"single" | "multiple"` | `-` | The type of the toggle group, whether only one item can be selected or multiple. |
-| `ngpToggleGroupValue` | `string[]` | `-` | The selected value(s) of the toggle group. |
-| `ngpToggleGroupDisabled` | `boolean` | `-` | Whether the toggle group is disabled. |
-
-#### Outputs
-
-| Event | Type | Description |
-|-------|------|-------------|
-| `ngpToggleGroupValueChange` | `string[]` | Emits when the value of the toggle group changes. |
-
-#### Export As
-
-`ngpToggleGroup`
-
-
+<api-docs name="NgpToggleGroup"></api-docs>
 
 #### Data Attributes
 
@@ -18637,26 +16602,7 @@ The following data attributes are available to style the toggle group:
 
 ### NgpToggleGroupItem
 
-## API Reference
-
-### NgpToggleGroupItem
-
-
-
-**Selector:** `[ngpToggleGroupItem]`
-
-#### Inputs
-
-| Property | Type | Default | Description |
-|----------|------|---------|-------------|
-| `ngpToggleGroupItemValue` | `string | undefined` | `-` | The value of the item. |
-| `ngpToggleGroupItemDisabled` | `boolean` | `-` | Whether the item is disabled. |
-
-#### Export As
-
-`ngpToggleGroupItem`
-
-
+<api-docs name="NgpToggleGroupItem"></api-docs>
 
 #### Data Attributes
 
@@ -18912,32 +16858,7 @@ The following directives are available to import from the `ng-primitives/toggle`
 
 ### NgpToggle
 
-## API Reference
-
-### NgpToggle
-
-Apply the `ngpToggle` directive to an element to manage the toggle state. This must be applied to a `button` element.
-
-**Selector:** `[ngpToggle]`
-
-#### Inputs
-
-| Property | Type | Default | Description |
-|----------|------|---------|-------------|
-| `ngpToggleSelected` | `boolean` | `false` | Whether the toggle is selected. |
-| `ngpToggleDisabled` | `boolean` | `false` | Whether the toggle is disabled. |
-
-#### Outputs
-
-| Event | Type | Description |
-|-------|------|-------------|
-| `ngpToggleSelectedChange` | `boolean` | Emits when the selected state changes. |
-
-#### Export As
-
-`ngpToggle`
-
-
+<api-docs name="NgpToggle"></api-docs>
 
 #### Data Attributes
 
@@ -19207,25 +17128,7 @@ The following directives are available to import from the `ng-primitives/toolbar
 
 ### NgpToolbar
 
-## API Reference
-
-### NgpToolbar
-
-
-
-**Selector:** `[ngpToolbar]`
-
-#### Inputs
-
-| Property | Type | Default | Description |
-|----------|------|---------|-------------|
-| `ngpToolbarOrientation` | `NgpOrientation` | `-` | The orientation of the toolbar. |
-
-#### Export As
-
-`ngpToolbar`
-
-
+<api-docs name="NgpToolbar"></api-docs>
 
 #### Data Attributes
 
@@ -19698,19 +17601,7 @@ The following directives are available to import from the `ng-primitives/tooltip
 
 ### NgpTooltip
 
-## API Reference
-
-### NgpTooltip
-
-Apply the `ngpTooltip` directive to an element that represents the tooltip. This typically would be a `div` inside an `ng-template`.
-
-**Selector:** `[ngpTooltip]`
-
-#### Export As
-
-`ngpTooltip`
-
-
+<api-docs name="NgpTooltip"></api-docs>
 
 #### Data Attributes
 
@@ -19729,37 +17620,7 @@ The following CSS custom properties are applied to the `ngpTooltip` directive:
 
 ### NgpTooltipTrigger
 
-## API Reference
-
-### NgpTooltipTrigger
-
-Apply the `ngpTooltipTrigger` directive to an element that triggers the tooltip to show.
-
-**Selector:** `[ngpTooltipTrigger]`
-
-#### Inputs
-
-| Property | Type | Default | Description |
-|----------|------|---------|-------------|
-| `ngpTooltipTrigger` | `string | NgpOverlayContent<T> | null` | `-` | Access the tooltip template ref. |
-| `ngpTooltipTriggerDisabled` | `boolean` | `false` | Define if the trigger should be disabled. |
-| `ngpTooltipTriggerPlacement` | `NgpTooltipPlacement` | `'top'` | Define the placement of the tooltip relative to the trigger. |
-| `ngpTooltipTriggerOffset` | `NgpOffset` | `0` | Define the offset of the tooltip relative to the trigger.
-Can be a number (applies to mainAxis) or an object with mainAxis, crossAxis, and alignmentAxis. |
-| `ngpTooltipTriggerShowDelay` | `number` | `500` | Define the delay before the tooltip is displayed. |
-| `ngpTooltipTriggerHideDelay` | `number` | `0` | Define the delay before the tooltip is hidden. |
-| `ngpTooltipTriggerFlip` | `boolean` | `true` | Define whether the tooltip should flip when there is not enough space for the tooltip. |
-| `ngpTooltipTriggerContainer` | `string | HTMLElement | null` | `document.body` | Define the container in which the tooltip should be attached. |
-| `ngpTooltipTriggerShowOnOverflow` | `boolean` | `false` | Define whether the tooltip should only show when the trigger element overflows. |
-| `ngpTooltipTriggerContext` | `T | undefined` | `-` | Provide context to the tooltip. This can be used to pass data to the tooltip content. |
-| `ngpTooltipTriggerUseTextContent` | `boolean` | `true` | Define whether to use the text content of the trigger element as the tooltip content.
-When enabled, the tooltip will display the text content of the trigger element. |
-
-#### Export As
-
-`ngpTooltipTrigger`
-
-
+<api-docs name="NgpTooltipTrigger"></api-docs>
 
 #### Data Attributes
 
@@ -19784,19 +17645,7 @@ The arrow can be styled conditionally based on the tooltip's final placement usi
 }
 ```
 
-## API Reference
-
-### NgpTooltipArrow
-
-
-
-**Selector:** `[ngpTooltipArrow]`
-
-#### Export As
-
-`ngpTooltipArrow`
-
-
+<api-docs name="NgpTooltipArrow"></api-docs>
 
 ### Data Attributes
 
@@ -20071,25 +17920,7 @@ The following directives are available to import from the `ng-primitives/autofil
 
 ### NgpAutofill
 
-## API Reference
-
-### NgpAutofill
-
-Apply the `ngpAutofill` directive to an element to detect browser autofill.
-
-**Selector:** `[ngpAutofill]`
-
-#### Outputs
-
-| Event | Type | Description |
-|-------|------|-------------|
-| `ngpAutofill` | `boolean` | Event emitted when the autofill state changes. |
-
-#### Export As
-
-`ngpAutofill`
-
-
+<api-docs name="NgpAutofill"></api-docs>
 
 #### Data Attributes
 
@@ -20396,25 +18227,7 @@ The following directives are available to import from the `ng-primitives/focus-t
 
 ### NgpFocusTrap
 
-## API Reference
-
-### NgpFocusTrap
-
-The `NgpFocusTrap` directive traps focus within the host element.
-
-**Selector:** `[ngpFocusTrap]`
-
-#### Inputs
-
-| Property | Type | Default | Description |
-|----------|------|---------|-------------|
-| `ngpFocusTrapDisabled` | `boolean` | `-` | Whether the focus trap is disabled. |
-
-#### Export As
-
-`ngpFocusTrap`
-
-
+<api-docs name="NgpFocusTrap"></api-docs>
 
 #### Data Attributes
 
@@ -20460,19 +18273,7 @@ The following directives are available to import from the `ng-primitives/a11y` p
 
 ### NgpVisuallyHidden
 
-## API Reference
-
-### NgpVisuallyHidden
-
-Hide an element visually while keeping it present in the DOM.
-
-**Selector:** `[ngpVisuallyHidden]`
-
-#### Export As
-
-`ngpVisuallyHidden`
-
-
+<api-docs name="NgpVisuallyHidden"></api-docs>
 
 ## Accessibility
 
