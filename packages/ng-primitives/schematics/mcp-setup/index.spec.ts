@@ -301,7 +301,7 @@ args = ["other.js"]
     const packageJson = JSON.parse(appTree.readContent('/package.json'));
     packageJson.dependencies = {
       '@angular/core': '^19.0.0',
-      'rxjs': '^7.0.0',
+      rxjs: '^7.0.0',
     };
     appTree.overwrite('/package.json', JSON.stringify(packageJson, null, 2));
 
