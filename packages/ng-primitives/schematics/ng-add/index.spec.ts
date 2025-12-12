@@ -49,11 +49,7 @@ describe('Ng Add Schematic', () => {
   });
 
   it('should not set up MCP when no tools are specified', async () => {
-    const tree = await schematicRunner.runSchematic(
-      'ng-add',
-      { mcpTools: [] },
-      appTree,
-    );
+    const tree = await schematicRunner.runSchematic('ng-add', { mcpTools: [] }, appTree);
 
     // Should not create any MCP config files
     expect(tree.exists('/.mcp.json')).toBe(false);
@@ -63,11 +59,7 @@ describe('Ng Add Schematic', () => {
   });
 
   it('should not set up MCP when "none" is selected', async () => {
-    const tree = await schematicRunner.runSchematic(
-      'ng-add',
-      { mcpTools: ['none'] },
-      appTree,
-    );
+    const tree = await schematicRunner.runSchematic('ng-add', { mcpTools: ['none'] }, appTree);
 
     // Should not create any MCP config files
     expect(tree.exists('/.mcp.json')).toBe(false);
