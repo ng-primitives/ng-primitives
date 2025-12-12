@@ -88,7 +88,7 @@ args = ["-y", "@ng-primitives/mcp"]
 - _"Show me all form primitives"_
 - _"Add a dialog to my Angular app"_
 - _"What are the button primitive's inputs?"_
-- _"Generate install command for accordion and tabs"_
+- _"Generate the command to create a reusable button component"_
 - _"Show me reusable component implementations"_
 
 ## Troubleshooting

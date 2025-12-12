@@ -196,4 +196,54 @@ args = ["other.js"]
     expect(content).toContain('[mcp_servers.other]');
     expect(content).toContain('[mcp_servers.ngp-mcp]');
   });
+
+  it('should skip setup when "none" is selected', async () => {
+    const tree = await runner.runSchematic(
+      'mcp-setup',
+      {
+        tools: ['none'],
+      },
+      appTree,
+    );
+
+    // Should not create any config files
+    expect(tree.files).not.toContain('/.mcp.json');
+    expect(tree.files).not.toContain('/.cursor/mcp.json');
+    expect(tree.files).not.toContain('/.vscode/mcp.json');
+    expect(tree.files).not.toContain('/.codex/config.toml');
+  });
+
+  it('should skip setup when empty array is provided', async () => {
+    const tree = await runner.runSchematic(
+      'mcp-setup',
+      {
+        tools: [],
+      },
+      appTree,
+    );
+
+    // Should not create any config files
+    expect(tree.files).not.toContain('/.mcp.json');
+    expect(tree.files).not.toContain('/.cursor/mcp.json');
+    expect(tree.files).not.toContain('/.vscode/mcp.json');
+    expect(tree.files).not.toContain('/.codex/config.toml');
+  });
+
+  it('should filter out "none" and setup other tools', async () => {
+    const tree = await runner.runSchematic(
+      'mcp-setup',
+      {
+        tools: ['none', 'claude-code', 'cursor'],
+      },
+      appTree,
+    );
+
+    // Should create config files for selected tools (excluding none)
+    expect(tree.files).toContain('/.mcp.json');
+    expect(tree.files).toContain('/.cursor/mcp.json');
+
+    // Should not create configs for unselected tools
+    expect(tree.files).not.toContain('/.vscode/mcp.json');
+    expect(tree.files).not.toContain('/.codex/config.toml');
+  });
 });

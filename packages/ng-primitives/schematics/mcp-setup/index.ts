@@ -161,15 +161,22 @@ function updateToolConfig(tree: Tree, tool: string, context: SchematicContext): 
 
 export default function mcpSetup(options: McpSetupSchema): Rule {
   return (tree: Tree, context: SchematicContext) => {
-    context.logger.info('Setting up Angular Primitives MCP server...');
-
     if (!options.tools || options.tools.length === 0) {
-      context.logger.warn('No tools selected. Please select at least one tool to configure.');
+      context.logger.info('MCP setup skipped.');
       return tree;
     }
 
-    // Configure each selected tool
-    for (const tool of options.tools) {
+    // Filter out 'none' and configure each selected tool
+    const toolsToConfig = options.tools.filter(tool => tool !== 'none');
+
+    if (toolsToConfig.length === 0) {
+      context.logger.info('MCP setup skipped.');
+      return tree;
+    }
+
+    context.logger.info('Setting up Angular Primitives MCP server...');
+
+    for (const tool of toolsToConfig) {
       try {
         updateToolConfig(tree, tool, context);
       } catch (error) {

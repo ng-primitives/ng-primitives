@@ -28,7 +28,7 @@ import { getRouterLinks } from '../../utils/router';
   templateUrl: './side-navigation.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
-    class: 'md:pe-12',
+    class: 'lg:pe-12',
   },
 })
 export class SideNavigation {

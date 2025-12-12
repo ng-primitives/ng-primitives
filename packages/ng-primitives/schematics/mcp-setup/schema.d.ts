@@ -1,3 +1,3 @@
 export interface McpSetupSchema {
-  tools: ('claude-code' | 'cursor' | 'vscode' | 'codex')[];
+  tools: ('none' | 'claude-code' | 'cursor' | 'vscode' | 'codex')[];
 }

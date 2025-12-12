@@ -6,16 +6,22 @@
   "properties": {
     "tools": {
       "type": "array",
-      "description": "AI tools/editors to configure MCP server for",
+      "uniqueItems": true,
+      "description": "Specifies which AI tools to generate MCP configuration files for. These files are used to improve the outputs of AI tools by providing context about Angular Primitives.",
+      "default": ["none"],
       "items": {
         "type": "string",
-        "enum": ["claude-code", "cursor", "vscode", "codex"]
+        "enum": ["none", "claude-code", "cursor", "vscode", "codex"]
       },
       "x-prompt": {
-        "message": "Which AI tools/editors would you like to configure?",
+        "message": "Which AI tools would you like to configure for Angular Primitives MCP server?",
         "type": "list",
         "multiselect": true,
         "items": [
+          {
+            "value": "none",
+            "label": "None (skip MCP setup)"
+          },
           {
             "value": "claude-code",
             "label": "Claude Code"

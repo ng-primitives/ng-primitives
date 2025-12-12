@@ -62,10 +62,7 @@ const runExecutor: PromiseExecutor<ApiExtractionExecutorSchema> = async (options
   const outputDir = resolvedOutputPath.substring(0, resolvedOutputPath.lastIndexOf('/'));
   ensureDirSync(outputDir);
 
-  writeFileSync(
-    resolvedOutputPath,
-    JSON.stringify(directives, null, 2),
-  );
+  writeFileSync(resolvedOutputPath, JSON.stringify(directives, null, 2));
 
   logger.info(`API data written to: ${resolvedOutputPath}`);
 

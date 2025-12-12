@@ -7,6 +7,7 @@
 - [Get Started](https://angularprimitives.com/getting-started/get-started): Angular Primitives is distributed as a single package with entrypoints for each primitive.
 - [Introduction](https://angularprimitives.com/getting-started/introduction): Angular Primitives is a low-level headless UI component library with a focus on accessibility, customization, and developer experience.
 - [llms.txt](https://angularprimitives.com/getting-started/llms): Angular Primitives provides comprehensive documentation files optimized for Large Language Models (LLMs) and AI assistants.
+- [MCP](https://angularprimitives.com/getting-started/mcp): The Angular Primitives MCP Server allows AI assistants to interact with our headless UI primitives.
 - [Styling](https://angularprimitives.com/getting-started/styling): Unlike traditional component libraries, Angular Primitives doesn't come with any built-in styles.
 - [Usage](https://angularprimitives.com/getting-started/usage): Angular Primitives are built entirely using Angular directives, offering a flexible and composable way to enhance your components.
 
