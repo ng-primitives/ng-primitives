@@ -22,6 +22,14 @@ Select your AI tools and the schematic will create the necessary configuration f
 
 ### Manual Setup
 
+First, install the `@ng-primitives/mcp` package:
+
+```bash
+npm install @ng-primitives/mcp
+```
+
+Then, create the configuration file for your AI tool:
+
 <tab-group>
   <tab-item label="Claude Code">
     Create `.mcp.json` in your project root:
