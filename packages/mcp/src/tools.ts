@@ -40,10 +40,10 @@ export function registerTools(server: McpServer): void {
     {
       title: 'List Angular Primitives',
       description: 'List available Angular Primitives with optional filtering',
-      inputSchema: z.object({
+      inputSchema: {
         category: z.string().optional().describe('Filter primitives by category'),
         search: z.string().optional().describe('Search primitives by name or description'),
-      }),
+      } as const,
     },
     async ({ category, search }) => {
       const allPrimitives = getPrimitivesRegistry();
@@ -92,9 +92,9 @@ export function registerTools(server: McpServer): void {
     {
       title: 'Get Primitive Details',
       description: 'Get detailed information about a specific primitive',
-      inputSchema: z.object({
+      inputSchema: {
         name: z.string().describe('The name of the primitive'),
-      }),
+      } as const,
     },
     async ({ name }) => {
       const allPrimitives = getPrimitivesRegistry();
@@ -144,9 +144,9 @@ export function registerTools(server: McpServer): void {
     {
       title: 'Get Install Command',
       description: 'Generate npm install command for Angular Primitives',
-      inputSchema: z.object({
+      inputSchema: {
         primitives: z.array(z.string()).describe('Array of primitive names to install'),
-      }),
+      } as const,
     },
     async ({ primitives }) => {
       const allPrimitives = getPrimitivesRegistry();
@@ -198,7 +198,7 @@ export function registerTools(server: McpServer): void {
       title: 'List Reusable Components',
       description:
         'List available reusable component implementations with variants and size support information',
-      inputSchema: z.object({}),
+      inputSchema: {} as const,
     },
     async () => {
       const components = getReusableComponents();
@@ -228,9 +228,9 @@ export function registerTools(server: McpServer): void {
     {
       title: 'Get Reusable Component Code',
       description: 'Get the full source code for a reusable component implementation',
-      inputSchema: z.object({
+      inputSchema: {
         name: z.string().describe('The name of the reusable component'),
-      }),
+      } as const,
     },
     async ({ name }) => {
       const components = getReusableComponents();
@@ -273,7 +273,7 @@ export function registerTools(server: McpServer): void {
     {
       title: 'Get Setup Guide',
       description: 'Get setup instructions for Angular Primitives',
-      inputSchema: z.object({}),
+      inputSchema: {} as const,
     },
     async () => {
       const setupGuide = {
