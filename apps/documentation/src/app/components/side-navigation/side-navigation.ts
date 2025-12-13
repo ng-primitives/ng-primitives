@@ -6,6 +6,8 @@ import {
   phosphorBookOpenDuotone,
   phosphorLightbulbDuotone,
   phosphorPaletteDuotone,
+  phosphorPlugDuotone,
+  phosphorRobotDuotone,
   phosphorRocketLaunchDuotone,
 } from '@ng-icons/phosphor-icons/duotone';
 import { getRouterLinks } from '../../utils/router';
@@ -19,12 +21,14 @@ import { getRouterLinks } from '../../utils/router';
       phosphorRocketLaunchDuotone,
       phosphorPaletteDuotone,
       phosphorLightbulbDuotone,
+      phosphorRobotDuotone,
+      phosphorPlugDuotone,
     }),
   ],
   templateUrl: './side-navigation.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
-    class: 'md:pe-12',
+    class: 'lg:pe-12',
   },
 })
 export class SideNavigation {

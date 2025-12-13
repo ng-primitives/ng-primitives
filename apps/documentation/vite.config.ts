@@ -74,7 +74,15 @@ export default defineConfig(({ mode }) => {
             },
             highlighter: {
               // add more languages
-              additionalLangs: ['bash', 'typescript', 'json', 'angular-html', 'angular-ts'],
+              additionalLangs: [
+                'bash',
+                'typescript',
+                'json',
+                'angular-html',
+                'angular-ts',
+                'markdown',
+                'toml',
+              ],
               themes: ['github-light', 'github-dark'],
             },
           },

@@ -1,0 +1,58 @@
+{
+  "name": "mcp",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "packages/mcp/src",
+  "projectType": "library",
+  "release": {
+    "version": {
+      "manifestRootsToUpdate": ["dist/{projectRoot}"],
+      "currentVersionResolver": "git-tag",
+      "fallbackCurrentVersionResolver": "disk"
+    }
+  },
+  "tags": [],
+  "targets": {
+    "mcp-data-extraction": {
+      "executor": "@ng-primitives/tools:mcp-data-extraction",
+      "options": {
+        "outputPath": "packages/mcp/src/generated",
+        "primitivesPath": "packages/ng-primitives",
+        "docsPath": "apps/documentation/src/app/pages/(documentation)",
+        "componentsPath": "apps/components/src/app/pages/reusable-components"
+      }
+    },
+    "api-extraction": {
+      "executor": "@ng-primitives/tools:api-extraction",
+      "options": {
+        "outputPath": "packages/mcp/src/generated/api-data.json"
+      }
+    },
+    "build": {
+      "executor": "@nx/js:tsc",
+      "dependsOn": ["mcp-data-extraction", "api-extraction"],
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "outputPath": "dist/packages/mcp",
+        "main": "packages/mcp/src/index.ts",
+        "tsConfig": "packages/mcp/tsconfig.lib.json",
+        "assets": [
+          {
+            "input": "packages/mcp",
+            "glob": "*.md",
+            "output": "."
+          },
+          {
+            "input": "packages/mcp/src/generated",
+            "glob": "**/*.json",
+            "output": "src/generated"
+          }
+        ]
+      }
+    },
+    "nx-release-publish": {
+      "options": {
+        "packageRoot": "dist/{projectRoot}"
+      }
+    }
+  }
+}

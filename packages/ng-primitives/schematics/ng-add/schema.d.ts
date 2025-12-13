@@ -1,1 +1,3 @@
-export interface Schema {}
+export interface Schema {
+  mcpTools?: ('none' | 'claude-code' | 'cursor' | 'vscode' | 'codex')[];
+}

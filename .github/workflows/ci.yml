@@ -37,4 +37,4 @@ jobs:
       - run: pnpm exec nx run-many -t lint,build,test,e2e --all --parallel
         env:
           NODE_OPTIONS: '--max-old-space-size=8192' # Increase memory to 8GB
-      - run: pnpx pkg-pr-new publish ./dist/packages/ng-primitives
+      - run: pnpx pkg-pr-new publish ./dist/packages/*

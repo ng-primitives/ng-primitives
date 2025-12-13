@@ -16,6 +16,12 @@
       "description": "Add Angular Primitives to a project.",
       "factory": "./schematics/ng-generate/index",
       "schema": "./schematics/ng-generate/schema.json"
+    },
+    "mcp-setup": {
+      "description": "Configure MCP server for AI tools and editors.",
+      "factory": "./schematics/mcp-setup/index",
+      "schema": "./schematics/mcp-setup/schema.json",
+      "aliases": ["mcp"]
     }
   }
 }

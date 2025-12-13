@@ -1,10 +1,10 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema",
-  "$id": "angular-primitives-ng-add",
-  "title": "Angular Primitives ng-add",
+  "$id": "angular-primitives-mcp-setup",
+  "title": "Angular Primitives MCP Setup",
   "type": "object",
   "properties": {
-    "mcpTools": {
+    "tools": {
       "type": "array",
       "uniqueItems": true,
       "description": "Specifies which AI tools to generate MCP configuration files for. These files are used to improve the outputs of AI tools by providing context about Angular Primitives.",
@@ -42,5 +42,5 @@
       }
     }
   },
-  "required": []
+  "required": ["tools"]
 }

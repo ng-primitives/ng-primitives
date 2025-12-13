@@ -1,0 +1,4 @@
+# Generated files - do not commit
+*.json
+*.ts
+!types.ts

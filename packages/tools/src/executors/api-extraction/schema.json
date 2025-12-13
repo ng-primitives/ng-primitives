@@ -2,8 +2,14 @@
   "$schema": "https://json-schema.org/schema",
   "version": 2,
   "title": "ApiExtraction executor",
-  "description": "",
+  "description": "Extract a Primitives public API for use in documentation or other tools",
   "type": "object",
-  "properties": {},
+  "properties": {
+    "outputPath": {
+      "type": "string",
+      "description": "Path where the extracted API documentation should be written",
+      "default": "apps/documentation/src/app/api/documentation.json"
+    }
+  },
   "required": []
 }

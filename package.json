@@ -76,6 +76,7 @@
     "jest": "30.2.0",
     "jest-axe": "^10.0.0",
     "jest-environment-jsdom": "30.2.0",
+    "jest-environment-node": "^30.0.2",
     "jest-preset-angular": "15.0.0",
     "jest-util": "~30.0.0",
     "jiti": "2.4.2",
@@ -95,6 +96,7 @@
     "ts-node": "10.9.1",
     "typescript": "5.8.3",
     "typescript-eslint": "8.45.0",
+    "verdaccio": "^6.0.5",
     "vite": "7.1.7",
     "vite-plugin-devtools-json": "^0.2.1",
     "vite-tsconfig-paths": "^4.3.2",
@@ -118,6 +120,7 @@
     "@docsearch/js": "^3.6.0",
     "@floating-ui/dom": "^1.6.5",
     "@fontsource-variable/inter": "^5.2.5",
+    "@modelcontextprotocol/sdk": "^1.24.3",
     "@ng-icons/bootstrap-icons": "^32.0.0",
     "@ng-icons/core": "^32.0.0",
     "@ng-icons/heroicons": "^32.0.0",
@@ -139,6 +142,7 @@
     "rxjs": "~7.8.1",
     "shiki": "^1.29.2",
     "tslib": "^2.6.3",
+    "zod": "^4.1.0",
     "zone.js": "0.15.0"
   },
   "resolutions": {
@@ -152,5 +156,8 @@
   },
   "volta": {
     "node": "22.15.0"
+  },
+  "nx": {
+    "includedScripts": []
   }
 }

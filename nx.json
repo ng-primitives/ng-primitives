@@ -78,7 +78,7 @@
     }
   },
   "release": {
-    "projects": ["ng-primitives", "state"],
+    "projects": ["ng-primitives", "state", "mcp"],
     "changelog": {
       "workspaceChangelog": true,
       "automaticFromRef": true,
@@ -87,7 +87,10 @@
       }
     },
     "projectsRelationship": "fixed",
-    "releaseTagPattern": "v{version}"
+    "releaseTagPattern": "v{version}",
+    "version": {
+      "preVersionCommand": "pnpm dlx nx run-many -t build"
+    }
   },
   "defaultBase": "origin/next",
   "tui": {
