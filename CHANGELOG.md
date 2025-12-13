@@ -1,3 +1,13 @@
+## 0.95.0 (2025-12-13)
+
+### 🚀 Features
+
+- mcp server and llms.txt ([#567](https://github.com/ng-primitives/ng-primitives/pull/567))
+
+### ❤️ Thank You
+
+- Ashley Hunter
+
 ## 0.94.0 (2025-12-11)
 
 - refactor(separator): state pattern migration
