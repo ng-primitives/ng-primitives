@@ -87,10 +87,7 @@
       }
     },
     "projectsRelationship": "fixed",
-    "releaseTagPattern": "v{version}",
-    "version": {
-      "preVersionCommand": "pnpm dlx nx run-many -t build"
-    }
+    "releaseTagPattern": "v{version}"
   },
   "defaultBase": "origin/next",
   "tui": {

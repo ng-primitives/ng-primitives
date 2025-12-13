@@ -2,7 +2,7 @@
 
 > Angular Primitives is a collection of unstyled, accessible Angular components and utilities for building design systems and web applications. Built with Angular, TypeScript, and a focus on accessibility, customization, and developer experience. It provides headless UI primitives that can be styled with any CSS framework or design system.
 
-Generated on: 2025-12-12T22:19:48.227Z
+Generated on: 2025-12-13T22:39:58.176Z
 
 ---
 
