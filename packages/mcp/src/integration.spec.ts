@@ -57,7 +57,7 @@ describe('ngp-mcp Integration Tests', () => {
       expect(result.tools).toBeDefined();
       expect(result.tools.length).toBe(6);
 
-      const toolNames = result.tools.map(t => t.name);
+      const toolNames = result.tools.map((t: any) => t.name);
       expect(toolNames).toContain('list_primitives');
       expect(toolNames).toContain('get_primitive_details');
       expect(toolNames).toContain('get_install_command');

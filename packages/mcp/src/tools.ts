@@ -27,7 +27,7 @@ function getReusableComponents(): any[] {
 
 function getAvailableCategories(): string[] {
   const primitives = getPrimitivesRegistry();
-  const categories = new Set(primitives.map(p => p.category));
+  const categories = new Set(primitives.map((p: PrimitiveDefinition) => p.category));
   return Array.from(categories).sort();
 }
 
@@ -50,13 +50,13 @@ export function registerTools(server: McpServer): void {
       let filteredPrimitives = allPrimitives;
 
       if (category) {
-        filteredPrimitives = filteredPrimitives.filter(p => p.category === category);
+        filteredPrimitives = filteredPrimitives.filter((p: PrimitiveDefinition) => p.category === category);
       }
 
       if (search) {
         const searchLower = search.toLowerCase();
         filteredPrimitives = filteredPrimitives.filter(
-          p =>
+          (p: PrimitiveDefinition) =>
             p.name.toLowerCase().includes(searchLower) ||
             p.description.toLowerCase().includes(searchLower),
         );
@@ -71,7 +71,7 @@ export function registerTools(server: McpServer): void {
             text: JSON.stringify(
               {
                 availableCategories,
-                primitives: filteredPrimitives.map(p => ({
+                primitives: filteredPrimitives.map((p: PrimitiveDefinition) => ({
                   name: p.name,
                   description: p.description,
                   category: p.category,
@@ -98,14 +98,14 @@ export function registerTools(server: McpServer): void {
     },
     async ({ name }: { name: string }) => {
       const allPrimitives = getPrimitivesRegistry();
-      const primitive = allPrimitives.find(p => p.name === name);
+      const primitive = allPrimitives.find((p: PrimitiveDefinition) => p.name === name);
 
       if (!primitive) {
         return {
           content: [
             {
               type: 'text',
-              text: `Primitive "${name}" not found. Available primitives: ${allPrimitives.map(p => p.name).join(', ')}`,
+              text: `Primitive "${name}" not found. Available primitives: ${allPrimitives.map((p: PrimitiveDefinition) => p.name).join(', ')}`,
             },
           ],
         };
@@ -152,7 +152,7 @@ export function registerTools(server: McpServer): void {
       const allPrimitives = getPrimitivesRegistry();
 
       const invalidPrimitives = primitives.filter(
-        (name: string) => !allPrimitives.find(p => p.name === name),
+        (name: string) => !allPrimitives.find((p: PrimitiveDefinition) => p.name === name),
       );
 
       if (invalidPrimitives.length > 0) {
@@ -160,7 +160,7 @@ export function registerTools(server: McpServer): void {
           content: [
             {
               type: 'text',
-              text: `Invalid primitives: ${invalidPrimitives.join(', ')}. Available: ${allPrimitives.map(p => p.name).join(', ')}`,
+              text: `Invalid primitives: ${invalidPrimitives.join(', ')}. Available: ${allPrimitives.map((p: PrimitiveDefinition) => p.name).join(', ')}`,
             },
           ],
         };
@@ -175,7 +175,7 @@ export function registerTools(server: McpServer): void {
                 installCommand: 'npm install ng-primitives',
                 note: 'All primitives are included in the main ng-primitives package',
                 selectedPrimitives: primitives.map((name: string) => {
-                  const primitive = allPrimitives.find(p => p.name === name)!;
+                  const primitive = allPrimitives.find((p: PrimitiveDefinition) => p.name === name)!;
                   return {
                     name: primitive.name,
                     entryPoint: primitive.entryPoint,
@@ -208,7 +208,7 @@ export function registerTools(server: McpServer): void {
           {
             type: 'text',
             text: JSON.stringify(
-              components.map(c => ({
+              components.map((c: any) => ({
                 name: c.name,
                 primitive: c.primitive,
                 hasVariants: c.hasVariants,
@@ -234,14 +234,14 @@ export function registerTools(server: McpServer): void {
     },
     async ({ name }: { name: string }) => {
       const components = getReusableComponents();
-      const component = components.find(c => c.name === name);
+      const component = components.find((c: any) => c.name === name);
 
       if (!component) {
         return {
           content: [
             {
               type: 'text',
-              text: `Reusable component "${name}" not found. Available components: ${components.map(c => c.name).join(', ')}`,
+              text: `Reusable component "${name}" not found. Available components: ${components.map((c: any) => c.name).join(', ')}`,
             },
           ],
         };
