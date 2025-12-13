@@ -43,7 +43,7 @@ export function registerTools(server: McpServer): void {
       inputSchema: {
         category: z.string().optional().describe('Filter primitives by category'),
         search: z.string().optional().describe('Search primitives by name or description'),
-      } as const,
+      },
     },
     async ({ category, search }: { category?: string; search?: string }) => {
       const allPrimitives = getPrimitivesRegistry();
@@ -94,7 +94,7 @@ export function registerTools(server: McpServer): void {
       description: 'Get detailed information about a specific primitive',
       inputSchema: {
         name: z.string().describe('The name of the primitive'),
-      } as const,
+      },
     },
     async ({ name }: { name: string }) => {
       const allPrimitives = getPrimitivesRegistry();
@@ -146,7 +146,7 @@ export function registerTools(server: McpServer): void {
       description: 'Generate npm install command for Angular Primitives',
       inputSchema: {
         primitives: z.array(z.string()).describe('Array of primitive names to install'),
-      } as const,
+      },
     },
     async ({ primitives }: { primitives: string[] }) => {
       const allPrimitives = getPrimitivesRegistry();
@@ -198,7 +198,7 @@ export function registerTools(server: McpServer): void {
       title: 'List Reusable Components',
       description:
         'List available reusable component implementations with variants and size support information',
-      inputSchema: {} as const,
+      inputSchema: {},
     },
     async () => {
       const components = getReusableComponents();
@@ -230,7 +230,7 @@ export function registerTools(server: McpServer): void {
       description: 'Get the full source code for a reusable component implementation',
       inputSchema: {
         name: z.string().describe('The name of the reusable component'),
-      } as const,
+      },
     },
     async ({ name }: { name: string }) => {
       const components = getReusableComponents();
@@ -273,7 +273,7 @@ export function registerTools(server: McpServer): void {
     {
       title: 'Get Setup Guide',
       description: 'Get setup instructions for Angular Primitives',
-      inputSchema: {} as const,
+      inputSchema: {},
     },
     async () => {
       const setupGuide = {
