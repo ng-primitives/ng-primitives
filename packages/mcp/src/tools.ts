@@ -50,7 +50,9 @@ export function registerTools(server: McpServer): void {
       let filteredPrimitives = allPrimitives;
 
       if (category) {
-        filteredPrimitives = filteredPrimitives.filter((p: PrimitiveDefinition) => p.category === category);
+        filteredPrimitives = filteredPrimitives.filter(
+          (p: PrimitiveDefinition) => p.category === category,
+        );
       }
 
       if (search) {
@@ -175,7 +177,9 @@ export function registerTools(server: McpServer): void {
                 installCommand: 'npm install ng-primitives',
                 note: 'All primitives are included in the main ng-primitives package',
                 selectedPrimitives: primitives.map((name: string) => {
-                  const primitive = allPrimitives.find((p: PrimitiveDefinition) => p.name === name)!;
+                  const primitive = allPrimitives.find(
+                    (p: PrimitiveDefinition) => p.name === name,
+                  )!;
                   return {
                     name: primitive.name,
                     entryPoint: primitive.entryPoint,
