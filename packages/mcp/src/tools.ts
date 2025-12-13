@@ -45,7 +45,7 @@ export function registerTools(server: McpServer): void {
         search: z.string().optional().describe('Search primitives by name or description'),
       } as const,
     },
-    async ({ category, search }) => {
+    async ({ category, search }: { category?: string; search?: string }) => {
       const allPrimitives = getPrimitivesRegistry();
       let filteredPrimitives = allPrimitives;
 
@@ -96,7 +96,7 @@ export function registerTools(server: McpServer): void {
         name: z.string().describe('The name of the primitive'),
       } as const,
     },
-    async ({ name }) => {
+    async ({ name }: { name: string }) => {
       const allPrimitives = getPrimitivesRegistry();
       const primitive = allPrimitives.find(p => p.name === name);
 
@@ -148,7 +148,7 @@ export function registerTools(server: McpServer): void {
         primitives: z.array(z.string()).describe('Array of primitive names to install'),
       } as const,
     },
-    async ({ primitives }) => {
+    async ({ primitives }: { primitives: string[] }) => {
       const allPrimitives = getPrimitivesRegistry();
 
       const invalidPrimitives = primitives.filter(
@@ -232,7 +232,7 @@ export function registerTools(server: McpServer): void {
         name: z.string().describe('The name of the reusable component'),
       } as const,
     },
-    async ({ name }) => {
+    async ({ name }: { name: string }) => {
       const components = getReusableComponents();
       const component = components.find(c => c.name === name);
 
