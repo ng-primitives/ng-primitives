@@ -8,6 +8,6 @@ import { ngpProgressTrack, provideProgressTrackState } from './progress-track-st
 })
 export class NgpProgressTrack {
   constructor() {
-    ngpProgressTrack(this);
+    ngpProgressTrack({});
   }
 }

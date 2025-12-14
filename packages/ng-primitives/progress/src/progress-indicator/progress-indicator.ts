@@ -11,6 +11,6 @@ import { ngpProgressIndicator, provideProgressIndicatorState } from './progress-
 })
 export class NgpProgressIndicator {
   constructor() {
-    ngpProgressIndicator(this);
+    ngpProgressIndicator({});
   }
 }

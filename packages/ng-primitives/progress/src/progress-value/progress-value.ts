@@ -8,6 +8,6 @@ import { ngpProgressValue, provideProgressValueState } from './progress-value-st
 })
 export class NgpProgressValue {
   constructor() {
-    ngpProgressValue(this);
+    ngpProgressValue({});
   }
 }

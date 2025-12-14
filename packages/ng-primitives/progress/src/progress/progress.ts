@@ -59,7 +59,13 @@ export class NgpProgress {
    * The state of the progress bar.
    * @internal
    */
-  readonly state = ngpProgress(this);
+  readonly state = ngpProgress({
+    value: this.value,
+    min: this.min,
+    max: this.max,
+    valueLabel: this.valueLabel,
+    id: this.id,
+  });
 
   /**
    * Determine if the progress is indeterminate.

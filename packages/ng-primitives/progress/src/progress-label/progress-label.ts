@@ -13,6 +13,6 @@ export class NgpProgressLabel {
   readonly id = input<string>(uniqueId('ngp-progress-label'));
 
   constructor() {
-    ngpProgressLabel(this);
+    ngpProgressLabel({ id: this.id });
   }
 }
