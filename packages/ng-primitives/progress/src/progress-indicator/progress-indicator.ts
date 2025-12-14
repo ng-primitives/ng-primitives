@@ -1,5 +1,5 @@
 import { Directive } from '@angular/core';
-import { ngpProgressIndicator, provideProgressIndicatorState } from './progress-indicator-state';
+import { ngpProgressIndicator } from './progress-indicator-state';
 
 /**
  * Apply the `ngpProgressIndicator` directive to an element that represents the current progress.
@@ -7,7 +7,6 @@ import { ngpProgressIndicator, provideProgressIndicatorState } from './progress-
  */
 @Directive({
   selector: '[ngpProgressIndicator]',
-  providers: [provideProgressIndicatorState()],
 })
 export class NgpProgressIndicator {
   constructor() {

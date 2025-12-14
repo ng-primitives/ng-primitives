@@ -7,24 +7,22 @@ export interface NgpProgressIndicatorState {}
 
 export interface NgpProgressIndicatorProps {}
 
-export const [
-  NgpProgressIndicatorStateToken,
-  ngpProgressIndicator,
-  injectProgressIndicatorState,
-  provideProgressIndicatorState,
-] = createPrimitive('NgpProgressIndicator', ({}: NgpProgressIndicatorProps) => {
-  const element = injectElementRef();
+export const [NgpProgressIndicatorStateToken, ngpProgressIndicator] = createPrimitive(
+  'NgpProgressIndicator',
+  ({}: NgpProgressIndicatorProps) => {
+    const element = injectElementRef();
 
-  const state = injectProgressState();
+    const state = injectProgressState();
 
-  const percentage = computed(() => {
-    const min = state().min();
-    const max = state().max();
-    const value = state().value();
-    return value === null ? null : ((value - min) / (max - min)) * 100;
-  });
+    const percentage = computed(() => {
+      const min = state().min();
+      const max = state().max();
+      const value = state().value();
+      return value === null ? null : ((value - min) / (max - min)) * 100;
+    });
 
-  styleBinding(element, 'width.%', percentage);
+    styleBinding(element, 'width.%', percentage);
 
-  return {};
-});
+    return {};
+  },
+);

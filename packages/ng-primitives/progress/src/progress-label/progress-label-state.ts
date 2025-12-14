@@ -13,12 +13,7 @@ export interface NgpProgressLabelProps {
   readonly id?: Signal<string>;
 }
 
-export const [
-  NgpProgressLabelStateToken,
-  ngpProgressLabel,
-  injectProgressLabelState,
-  provideProgressLabelState,
-] = createPrimitive(
+export const [NgpProgressLabelStateToken, ngpProgressLabel] = createPrimitive(
   'NgpProgressLabel',
   ({ id = signal(uniqueId('ngp-progress-label')), ...props }: NgpProgressLabelProps) => {
     const element = injectElementRef();
