@@ -43,8 +43,10 @@
       }
     },
     "nx-release-publish": {
+      "executor": "nx:run-commands",
+      "dependsOn": ["build"],
       "options": {
-        "packageRoot": "dist/{projectRoot}"
+        "command": "pnpm publish dist/packages/mcp --access public --tag latest --no-git-checks"
       }
     }
   }
