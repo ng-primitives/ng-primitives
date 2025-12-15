@@ -14,9 +14,9 @@ export const [NgpProgressValueStateToken, ngpProgressValue] = createPrimitive(
     const state = injectProgressState();
     // Host bindings using helper functions
     attrBinding(element, 'aria-hidden', 'true');
-    dataBinding(element, 'data-progressing', () => (state().progressing() ? '' : null));
-    dataBinding(element, 'data-indeterminate', () => (state().indeterminate() ? '' : null));
-    dataBinding(element, 'data-complete', () => (state().complete() ? '' : null));
+    dataBinding(element, 'data-progressing', () => state().progressing());
+    dataBinding(element, 'data-indeterminate', () => state().indeterminate());
+    dataBinding(element, 'data-complete', () => state().complete());
 
     return {};
   },

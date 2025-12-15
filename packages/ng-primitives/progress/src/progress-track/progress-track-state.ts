@@ -12,9 +12,9 @@ export const [NgpProgressTrackStateToken, ngpProgressTrack] = createPrimitive(
     const element = injectElementRef();
     const state = injectProgressState();
 
-    dataBinding(element, 'data-progressing', () => (state().progressing() ? '' : null));
-    dataBinding(element, 'data-indeterminate', () => (state().indeterminate() ? '' : null));
-    dataBinding(element, 'data-complete', () => (state().complete() ? '' : null));
+    dataBinding(element, 'data-progressing', () => state().progressing());
+    dataBinding(element, 'data-indeterminate', () => state().indeterminate());
+    dataBinding(element, 'data-complete', () => state().complete());
 
     return {};
   },

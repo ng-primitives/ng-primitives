@@ -59,30 +59,13 @@ export class NgpProgress {
    * The state of the progress bar.
    * @internal
    */
-  readonly state = ngpProgress({
+  private readonly state = ngpProgress({
     value: this.value,
     min: this.min,
     max: this.max,
     valueLabel: this.valueLabel,
     id: this.id,
   });
-
-  /**
-   * Determine if the progress is indeterminate.
-   * @internal
-   */
-  readonly indeterminate = this.state.indeterminate;
-
-  /**
-   * Determine if the progress is in a progressing state.
-   * @internal
-   */
-  readonly progressing = this.state.progressing;
-  /**
-   * Determine if the progress is complete.
-   * @internal
-   */
-  readonly complete = this.state.complete;
 
   /**
    * Get the progress value text.

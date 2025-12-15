@@ -1,8 +1,7 @@
 import { computed, signal, Signal } from '@angular/core';
 import { injectElementRef } from 'ng-primitives/internal';
-import { createPrimitive, attrBinding, dataBinding } from 'ng-primitives/state';
+import { attrBinding, createPrimitive, dataBinding, deprecatedSetter } from 'ng-primitives/state';
 import { uniqueId } from 'ng-primitives/utils';
-import { NgpProgressLabelProps } from '../progress-label/progress-label-state';
 import { NgpProgressValueTextFn } from './progress';
 
 export interface NgpProgressProps {
@@ -37,7 +36,19 @@ export interface NgpProgressProps {
   readonly id?: Signal<string>;
 }
 
-export interface NgpProgressState extends Required<NgpProgressProps> {
+export interface NgpProgressState
+  extends Required<Pick<NgpProgressProps, 'value' | 'min' | 'max' | 'id'>> {
+  /**
+   * Get the progress value text.
+   */
+  readonly valueText: Signal<string>;
+
+  /**
+   * The id of label associated with the progress bar.
+   * @internal
+   */
+  readonly labelId: Signal<string | undefined>;
+
   /**
    * Determine if the progress is indeterminate.
    * @internal
@@ -57,15 +68,9 @@ export interface NgpProgressState extends Required<NgpProgressProps> {
   readonly complete: Signal<boolean>;
 
   /**
-   * Get the progress value text.
+   * Set the label of the progress bar.
    */
-  readonly valueText: Signal<string>;
-
-  /**
-   * The label associated with the progress bar.
-   * @internal
-   */
-  readonly label: Signal<Required<NgpProgressLabelProps> | null>;
+  setLabel(id: string): void;
 }
 
 export const [NgpProgressStateToken, ngpProgress, injectProgressState, provideProgressState] =
@@ -109,7 +114,11 @@ export const [NgpProgressStateToken, ngpProgress, injectProgressState, providePr
         return valueLabel()(currentValue, max());
       });
 
-      const label = signal<Required<NgpProgressLabelProps> | null>(null);
+      const labelId = signal<string | undefined>(undefined);
+
+      function setLabel(id: string) {
+        labelId.set(id);
+      }
 
       // Attribute bindings
       attrBinding(element, 'role', 'progressbar');
@@ -118,22 +127,22 @@ export const [NgpProgressStateToken, ngpProgress, injectProgressState, providePr
       attrBinding(element, 'aria-valuemin', 0);
       attrBinding(element, 'aria-valuenow', value);
       attrBinding(element, 'aria-valuetext', valueText);
-      attrBinding(element, 'aria-labelledby', () => (label()?.id() ? label()?.id() : null));
-      dataBinding(element, 'data-progressing', () => (progressing() ? '' : null));
-      dataBinding(element, 'data-indeterminate', () => (indeterminate() ? '' : null));
-      dataBinding(element, 'data-complete', () => (complete() ? '' : null));
-      // Return public API
+      attrBinding(element, 'aria-labelledby', () => (labelId() ? labelId() : null));
+      dataBinding(element, 'data-progressing', () => progressing());
+      dataBinding(element, 'data-indeterminate', () => indeterminate());
+      dataBinding(element, 'data-complete', () => complete());
+
       return {
         max,
         min,
-        label,
-        indeterminate,
-        progressing,
-        complete,
+        labelId: deprecatedSetter(labelId, 'setLabel'),
         valueText,
         id,
         value,
-        valueLabel,
+        indeterminate,
+        progressing,
+        complete,
+        setLabel,
       } satisfies NgpProgressState;
     },
   );

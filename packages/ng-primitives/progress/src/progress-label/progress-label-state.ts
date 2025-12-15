@@ -15,17 +15,18 @@ export interface NgpProgressLabelProps {
 
 export const [NgpProgressLabelStateToken, ngpProgressLabel] = createPrimitive(
   'NgpProgressLabel',
-  ({ id = signal(uniqueId('ngp-progress-label')), ...props }: NgpProgressLabelProps) => {
+  ({ id = signal(uniqueId('ngp-progress-label')) }: NgpProgressLabelProps) => {
     const element = injectElementRef();
 
     const state = injectProgressState();
-    state().label.set({ id, ...props });
 
     attrBinding(element, 'id', id);
     attrBinding(element, 'for', element.nativeElement.tagName === 'LABEL' ? state().id?.() : null);
-    dataBinding(element, 'data-progressing', () => (state().progressing() ? '' : null));
-    dataBinding(element, 'data-indeterminate', () => (state().indeterminate() ? '' : null));
-    dataBinding(element, 'data-complete', () => (state().complete() ? '' : null));
+    dataBinding(element, 'data-progressing', () => state().progressing());
+    dataBinding(element, 'data-indeterminate', () => state().indeterminate());
+    dataBinding(element, 'data-complete', () => state().complete());
+
+    state().labelId.set(id());
 
     return {};
   },
