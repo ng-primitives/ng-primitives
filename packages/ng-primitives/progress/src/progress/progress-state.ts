@@ -6,6 +6,11 @@ import { NgpProgressValueTextFn } from './progress';
 
 export interface NgpProgressProps {
   /**
+   * The unique identifier for the progress.
+   */
+  readonly id?: Signal<string>;
+
+  /**
    * Define the progress value.
    */
   readonly value?: Signal<number | null>;
@@ -29,15 +34,31 @@ export interface NgpProgressProps {
    * @returns The value label
    */
   readonly valueLabel?: Signal<NgpProgressValueTextFn>;
+}
 
+export interface NgpProgressState {
   /**
    * The unique identifier for the progress.
    */
-  readonly id?: Signal<string>;
-}
+  readonly id: Signal<string>;
 
-export interface NgpProgressState
-  extends Required<Pick<NgpProgressProps, 'value' | 'min' | 'max' | 'id'>> {
+  /**
+   * Define the progress value.
+   */
+  readonly value: Signal<number | null>;
+
+  /**
+   * Define the progress min value.
+   * @default '0'
+   */
+  readonly min: Signal<number>;
+
+  /**
+   * Define the progress max value.
+   * @default 100
+   */
+  readonly max: Signal<number>;
+
   /**
    * Get the progress value text.
    */
