@@ -198,6 +198,6 @@ interface NgpToastRecord {
   portal: NgpPortal;
 }
 
-interface NgpToastRef {
+export interface NgpToastRef {
   dismiss(): Promise<void>;
 }
