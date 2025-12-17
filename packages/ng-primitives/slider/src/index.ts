@@ -32,10 +32,34 @@ export {
 } from './slider/slider-state';
 
 export { NgpRangeSliderRange } from './range-slider/range-slider-range/range-slider-range';
+export {
+  injectRangeSliderRangeState,
+  ngpRangeSliderRange,
+  NgpRangeSliderRangeProps,
+  NgpRangeSliderRangeState,
+  provideRangeSliderRangeState,
+} from './range-slider/range-slider-range/range-slider-range-state';
 export { NgpRangeSliderThumb } from './range-slider/range-slider-thumb/range-slider-thumb';
+export {
+  injectRangeSliderThumbState,
+  ngpRangeSliderThumb,
+  NgpRangeSliderThumbProps,
+  NgpRangeSliderThumbState,
+  provideRangeSliderThumbState,
+} from './range-slider/range-slider-thumb/range-slider-thumb-state';
 export { NgpRangeSliderTrack } from './range-slider/range-slider-track/range-slider-track';
+export {
+  injectRangeSliderTrackState,
+  ngpRangeSliderTrack,
+  NgpRangeSliderTrackProps,
+  NgpRangeSliderTrackState,
+  provideRangeSliderTrackState,
+} from './range-slider/range-slider-track/range-slider-track-state';
 export { NgpRangeSlider } from './range-slider/range-slider/range-slider';
 export {
   injectRangeSliderState,
+  ngpRangeSlider,
+  NgpRangeSliderProps,
+  NgpRangeSliderState,
   provideRangeSliderState,
 } from './range-slider/range-slider/range-slider-state';

@@ -322,6 +322,35 @@ describe('NgpRangeSlider', () => {
     // Values should remain unchanged
     expect(component.low).toBe(initialLow);
   });
+
+  it('should respect min and max value', async () => {
+    const { fixture } = await render(TestComponent);
+    const component = fixture.componentInstance;
+
+    component.min = 10;
+    component.max = 90;
+
+    component.low = 20;
+    component.high = 80;
+
+    component.step = 10;
+
+    fixture.detectChanges();
+
+    const lowThumb = screen.getByTestId('low-thumb');
+    const highThumb = screen.getByTestId('high-thumb');
+
+    lowThumb.focus();
+    await userEvent.keyboard('{arrowleft}');
+    await userEvent.keyboard('{arrowleft}');
+
+    expect(component.low).toBe(10);
+
+    highThumb.focus();
+    await userEvent.keyboard('{arrowright}');
+    await userEvent.keyboard('{arrowright}');
+    expect(component.high).toBe(90);
+  });
 });
 
 describe('NgpRangeSlider Vertical Orientation', () => {

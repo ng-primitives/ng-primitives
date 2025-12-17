@@ -1,19 +1,8 @@
 import { BooleanInput, NumberInput } from '@angular/cdk/coercion';
-import {
-  Directive,
-  booleanAttribute,
-  computed,
-  input,
-  numberAttribute,
-  output,
-  signal,
-} from '@angular/core';
+import { Directive, booleanAttribute, input, numberAttribute, output } from '@angular/core';
 import { NgpOrientation } from 'ng-primitives/common';
-import { ngpFormControl } from 'ng-primitives/form-field';
 import { uniqueId } from 'ng-primitives/utils';
-import { NgpRangeSliderThumb } from '../range-slider-thumb/range-slider-thumb';
-import type { NgpRangeSliderTrack } from '../range-slider-track/range-slider-track';
-import { provideRangeSliderState, rangeSliderState } from './range-slider-state';
+import { ngpRangeSlider, provideRangeSliderState } from './range-slider-state';
 
 /**
  * Apply the `ngpRangeSlider` directive to an element that represents the range slider and contains the track, range, and thumbs.
@@ -22,10 +11,6 @@ import { provideRangeSliderState, rangeSliderState } from './range-slider-state'
   selector: '[ngpRangeSlider]',
   exportAs: 'ngpRangeSlider',
   providers: [provideRangeSliderState()],
-  host: {
-    '[id]': 'id()',
-    '[attr.data-orientation]': 'state.orientation()',
-  },
 })
 export class NgpRangeSlider {
   /**
@@ -103,101 +88,18 @@ export class NgpRangeSlider {
   });
 
   /**
-   * Access the slider track.
-   * @internal
+   * The state of the range slider.
    */
-  readonly track = signal<NgpRangeSliderTrack | undefined>(undefined);
-
-  /**
-   * The thumbs of the range slider.
-   * @internal
-   */
-  readonly thumbs = signal<NgpRangeSliderThumb[]>([]);
-
-  /**
-   * The low value as a percentage based on the min and max values.
-   * @internal
-   */
-  readonly lowPercentage = computed(
-    () => ((this.state.low() - this.state.min()) / (this.state.max() - this.state.min())) * 100,
-  );
-
-  /**
-   * The high value as a percentage based on the min and max values.
-   * @internal
-   */
-  readonly highPercentage = computed(
-    () => ((this.state.high() - this.state.min()) / (this.state.max() - this.state.min())) * 100,
-  );
-
-  /**
-   * The range between low and high values as a percentage.
-   * @internal
-   */
-  readonly rangePercentage = computed(() => this.highPercentage() - this.lowPercentage());
-
-  /**
-   * The state of the range slider. We use this for the range slider state rather than relying on the inputs.
-   * @internal
-   */
-  protected readonly state = rangeSliderState<NgpRangeSlider>(this);
-
-  constructor() {
-    ngpFormControl({ id: this.state.id, disabled: this.state.disabled });
-  }
-
-  /**
-   * Updates the low value, ensuring it doesn't exceed the high value.
-   * @param value The new low value
-   * @internal
-   */
-  setLowValue(value: number): void {
-    const clampedValue = Math.max(this.state.min(), Math.min(value, this.state.high()));
-    this.state.low.set(clampedValue);
-    this.lowChange.emit(clampedValue);
-  }
-
-  /**
-   * Updates the high value, ensuring it doesn't go below the low value.
-   * @param value The new high value
-   * @internal
-   */
-  setHighValue(value: number): void {
-    const clampedValue = Math.min(this.state.max(), Math.max(value, this.state.low()));
-    this.state.high.set(clampedValue);
-    this.highChange.emit(clampedValue);
-  }
-
-  /**
-   * Determines which thumb should be moved based on the position clicked.
-   * @param percentage The percentage position of the click
-   * @returns 'low' or 'high' indicating which thumb should move
-   *
-   * @internal
-   */
-  getClosestThumb(percentage: number): 'low' | 'high' {
-    const value = this.state.min() + (this.state.max() - this.state.min()) * (percentage / 100);
-    const distanceToLow = Math.abs(value - this.state.low());
-    const distanceToHigh = Math.abs(value - this.state.high());
-
-    return distanceToLow <= distanceToHigh ? 'low' : 'high';
-  }
-
-  /**
-   * Updates the thumbs array when a new thumb is added.
-   * @param thumb The new thumb to add
-   * @internal
-   */
-  addThumb(thumb: NgpRangeSliderThumb): void {
-    this.thumbs.update(thumbs => [...thumbs, thumb]);
-  }
-
-  /**
-   * Removes a thumb from the thumbs array.
-   * @param thumb The thumb to remove
-   * @internal
-   */
-  removeThumb(thumb: NgpRangeSliderThumb): void {
-    this.thumbs.update(thumbs => thumbs.filter(t => t !== thumb));
-  }
+  private readonly state = ngpRangeSlider({
+    id: this.id,
+    low: this.low,
+    high: this.high,
+    min: this.min,
+    max: this.max,
+    step: this.step,
+    orientation: this.orientation,
+    disabled: this.disabled,
+    onLowChange: value => this.lowChange.emit(value),
+    onHighChange: value => this.highChange.emit(value),
+  });
 }

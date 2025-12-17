@@ -1,6 +1,6 @@
 import { Component, input } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ControlValueAccessor } from '@angular/forms';
-import { explicitEffect } from 'ng-primitives/internal';
 import {
   injectRangeSliderState,
   NgpRangeSlider,
@@ -10,6 +10,7 @@ import {
   provideRangeSliderState,
 } from 'ng-primitives/slider';
 import { ChangeFn, provideValueAccessor, TouchedFn } from 'ng-primitives/utils';
+import { merge } from 'rxjs';
 
 @Component({
   selector: 'app-range-slider',
@@ -104,9 +105,9 @@ export class RangeSlider implements ControlValueAccessor {
 
   constructor() {
     // Whenever either value changes, call the onChange function with the new tuple [low, high].
-    explicitEffect([this.state().low, this.state().high], ([low, high]) =>
-      this.onChange?.([low, high]),
-    );
+    merge(this.state().lowChange, this.state().highChange)
+      .pipe(takeUntilDestroyed())
+      .subscribe(() => this.onChange?.([this.state().low(), this.state().high()]));
   }
 
   writeValue(value: [number, number]): void {
@@ -129,6 +130,6 @@ export class RangeSlider implements ControlValueAccessor {
   }
 
   setDisabledState(isDisabled: boolean): void {
-    this.state().disabled.set(isDisabled);
+    this.state().setDisabled(isDisabled);
   }
 }
