@@ -19,26 +19,26 @@ export const [
   provideRangeSliderRangeState,
 ] = createPrimitive('NgpRangeSliderRange', ({}: NgpRangeSliderRangeProps) => {
   const element = injectElementRef();
-  const state = injectRangeSliderState();
+  const rangeSlider = injectRangeSliderState();
 
   // Host bindings
-  dataBinding(element, 'data-orientation', () => state().orientation());
-  dataBinding(element, 'data-disabled', () => state().disabled());
+  dataBinding(element, 'data-orientation', () => rangeSlider().orientation());
+  dataBinding(element, 'data-disabled', () => rangeSlider().disabled());
 
   // Horizontal
   styleBinding(element, 'width.%', () =>
-    state().orientation() === 'horizontal' ? state().rangePercentage() : null,
+    rangeSlider().orientation() === 'horizontal' ? rangeSlider().rangePercentage() : null,
   );
   styleBinding(element, 'inset-inline-start.%', () =>
-    state().orientation() === 'horizontal' ? state().lowPercentage() : null,
+    rangeSlider().orientation() === 'horizontal' ? rangeSlider().lowPercentage() : null,
   );
 
   // Vertical
   styleBinding(element, 'height.%', () =>
-    state().orientation() === 'vertical' ? state().rangePercentage() : null,
+    rangeSlider().orientation() === 'vertical' ? rangeSlider().rangePercentage() : null,
   );
   styleBinding(element, 'inset-block-start.%', () =>
-    state().orientation() === 'vertical' ? state().lowPercentage() : null,
+    rangeSlider().orientation() === 'vertical' ? rangeSlider().lowPercentage() : null,
   );
 
   return {};

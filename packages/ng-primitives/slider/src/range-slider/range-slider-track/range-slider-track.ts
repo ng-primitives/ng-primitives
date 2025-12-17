@@ -1,5 +1,4 @@
 import { Directive } from '@angular/core';
-import { injectElementRef } from 'ng-primitives/internal';
 import { ngpRangeSliderTrack } from './range-slider-track-state';
 
 /**
@@ -10,11 +9,6 @@ import { ngpRangeSliderTrack } from './range-slider-track-state';
   exportAs: 'ngpRangeSliderTrack',
 })
 export class NgpRangeSliderTrack {
-  /**
-   * The element that represents the slider track.
-   */
-  readonly element = injectElementRef<HTMLElement>();
-
   constructor() {
     ngpRangeSliderTrack({});
   }

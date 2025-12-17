@@ -1,4 +1,3 @@
-import { ElementRef } from '@angular/core';
 import { injectElementRef } from 'ng-primitives/internal';
 import { createPrimitive, dataBinding, listener } from 'ng-primitives/state';
 import { injectRangeSliderState } from '../range-slider/range-slider-state';
@@ -6,12 +5,7 @@ import { injectRangeSliderState } from '../range-slider/range-slider-state';
 /**
  * Public state surface for the RangeSliderTrack primitive.
  */
-export interface NgpRangeSliderTrackState {
-  /**
-   * The element that represents the slider track.
-   */
-  readonly element: ElementRef<HTMLElement>;
-}
+export interface NgpRangeSliderTrackState {}
 
 /**
  * Inputs for configuring the RangeSliderTrack primitive.
@@ -25,21 +19,21 @@ export const [
   provideRangeSliderTrackState,
 ] = createPrimitive('NgpRangeSliderTrack', ({}: NgpRangeSliderTrackProps) => {
   const element = injectElementRef<HTMLElement>();
-  const rangeSliderState = injectRangeSliderState();
+  const rangeSlider = injectRangeSliderState();
 
   // Host bindings
-  dataBinding(element, 'data-orientation', () => rangeSliderState().orientation());
-  dataBinding(element, 'data-disabled', () => (rangeSliderState().disabled() ? '' : null));
+  dataBinding(element, 'data-orientation', () => rangeSlider().orientation());
+  dataBinding(element, 'data-disabled', () => rangeSlider().disabled());
 
   function handlePointerDown(event: PointerEvent): void {
-    if (rangeSliderState().disabled()) {
+    if (rangeSlider().disabled()) {
       return;
     }
 
     // get the position the click occurred within the slider track
-    const isHorizontal = rangeSliderState().orientation() === 'horizontal';
-    const max = rangeSliderState().max();
-    const min = rangeSliderState().min();
+    const isHorizontal = rangeSlider().orientation() === 'horizontal';
+    const max = rangeSlider().max();
+    const min = rangeSlider().min();
     const position = isHorizontal ? event.clientX : event.clientY;
     const rect = element.nativeElement.getBoundingClientRect();
 
@@ -51,12 +45,12 @@ export const [
     const value = min + (max - min) * percentage;
 
     // determine which thumb to move based on proximity
-    const closestThumb = rangeSliderState().getClosestThumb(percentage * 100);
+    const closestThumb = rangeSlider().getClosestThumb(percentage * 100);
 
     if (closestThumb === 'low') {
-      rangeSliderState().setLowValue(value);
+      rangeSlider().setLowValue(value);
     } else {
-      rangeSliderState().setHighValue(value);
+      rangeSlider().setHighValue(value);
     }
   }
 
@@ -64,9 +58,5 @@ export const [
   listener(element, 'pointerdown', handlePointerDown);
 
   // Register track with parent
-  rangeSliderState().setTrack({ element } as any);
-
-  return {
-    element,
-  };
+  rangeSlider().setTrack(element);
 });

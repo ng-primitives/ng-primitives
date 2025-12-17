@@ -42,6 +42,9 @@
         ]
       }
     },
+    "test": {
+      "dependsOn": ["build"]
+    },
     "nx-release-publish": {
       "executor": "nx:run-commands",
       "dependsOn": ["build"],

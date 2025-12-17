@@ -1,4 +1,4 @@
-import { computed, Signal, signal, WritableSignal } from '@angular/core';
+import { computed, ElementRef, Signal, signal, WritableSignal } from '@angular/core';
 import { NgpOrientation } from 'ng-primitives/common';
 import { ngpFormControl } from 'ng-primitives/form-field';
 import { injectElementRef } from 'ng-primitives/internal';
@@ -12,8 +12,6 @@ import {
 } from 'ng-primitives/state';
 import { uniqueId } from 'ng-primitives/utils';
 import { Observable } from 'rxjs';
-import type { NgpRangeSliderThumb } from '../range-slider-thumb/range-slider-thumb';
-import type { NgpRangeSliderTrack } from '../range-slider-track/range-slider-track';
 
 /**
  * Inputs for configuring the RangeSlider primitive.
@@ -115,11 +113,11 @@ export interface NgpRangeSliderState {
   /**
    * @internal The track element reference.
    */
-  readonly track: Signal<NgpRangeSliderTrack | undefined>;
+  readonly track: Signal<ElementRef<HTMLElement> | undefined>;
   /**
    * @internal The thumbs array.
    */
-  readonly thumbs: Signal<NgpRangeSliderThumb[]>;
+  readonly thumbs: Signal<ElementRef<HTMLElement>[]>;
   /**
    * Emit when the low value changes.
    */
@@ -143,15 +141,15 @@ export interface NgpRangeSliderState {
   /**
    * Updates the thumbs array when a new thumb is added.
    */
-  addThumb(thumb: NgpRangeSliderThumb): void;
+  addThumb(thumb: ElementRef<HTMLElement>): void;
   /**
    * Removes a thumb from the thumbs array.
    */
-  removeThumb(thumb: NgpRangeSliderThumb): void;
+  removeThumb(thumb: ElementRef<HTMLElement>): void;
   /**
    * Set the track element reference.
    */
-  setTrack(track: NgpRangeSliderTrack | undefined): void;
+  setTrack(track: ElementRef<HTMLElement>): void;
   /**
    * Set the disabled state.
    */
@@ -190,8 +188,8 @@ export const [
 
     const lowChange = emitter<number>();
     const highChange = emitter<number>();
-    const track = signal<NgpRangeSliderTrack | undefined>(undefined);
-    const thumbs = signal<NgpRangeSliderThumb[]>([]);
+    const track = signal<ElementRef<HTMLElement> | undefined>(undefined);
+    const thumbs = signal<ElementRef<HTMLElement>[]>([]);
 
     // Form control integration
     const status = ngpFormControl({ id, disabled });
@@ -236,11 +234,11 @@ export const [
       return distanceToLow <= distanceToHigh ? 'low' : 'high';
     }
 
-    function addThumb(thumb: NgpRangeSliderThumb): void {
+    function addThumb(thumb: ElementRef<HTMLElement>): void {
       thumbs.update(t => [...t, thumb]);
     }
 
-    function removeThumb(thumb: NgpRangeSliderThumb): void {
+    function removeThumb(thumb: ElementRef<HTMLElement>): void {
       thumbs.update(t => t.filter(existing => existing !== thumb));
     }
 
@@ -252,7 +250,7 @@ export const [
       orientation.set(newOrientation);
     }
 
-    function setTrack(newTrack: NgpRangeSliderTrack | undefined): void {
+    function setTrack(newTrack: ElementRef<HTMLElement>): void {
       track.set(newTrack);
     }
 
