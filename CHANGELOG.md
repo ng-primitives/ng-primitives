@@ -1,3 +1,18 @@
+## 0.96.0 (2025-12-18)
+
+### 🚀 Features
+
+- **toast:** expose NgpToastRef interface ([#569](https://github.com/ng-primitives/ng-primitives/pull/569))
+
+### 🩹 Fixes
+
+- **slider:** respect step value when setting via pointer ([#572](https://github.com/ng-primitives/ng-primitives/pull/572))
+
+### ❤️ Thank You
+
+- Robin Ferrari @zecka
+- Shahar Kazaz @shaharkazaz
+
 ## 0.95.0 (2025-12-13)
 
 ### 🚀 Features
