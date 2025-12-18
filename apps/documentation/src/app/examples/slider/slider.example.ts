@@ -48,8 +48,7 @@ import { NgpSlider, NgpSliderRange, NgpSliderThumb, NgpSliderTrack } from 'ng-pr
     }
   `,
   template: `
-    {{ value }}
-    <div [(ngpSliderValue)]="value" [ngpSliderStep]="4" ngpSlider>
+    <div [(ngpSliderValue)]="value" ngpSlider>
       <div ngpSliderTrack>
         <div ngpSliderRange></div>
       </div>

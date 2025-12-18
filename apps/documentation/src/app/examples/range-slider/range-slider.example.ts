@@ -58,11 +58,9 @@ import {
     }
   `,
   template: `
-    {{ low() }} - {{ high() }}
     <div
       [ngpRangeSliderLow]="low()"
       [ngpRangeSliderHigh]="high()"
-      [ngpRangeSliderStep]="2"
       (ngpRangeSliderLowChange)="low.set($event)"
       (ngpRangeSliderHighChange)="high.set($event)"
       ngpRangeSlider
