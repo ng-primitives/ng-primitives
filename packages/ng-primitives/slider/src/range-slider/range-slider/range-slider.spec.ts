@@ -516,4 +516,82 @@ describe('NgpRangeSlider Edge Cases', () => {
     await userEvent.keyboard('{arrowright}');
     expect(component.low).toBe(20.5);
   });
+
+  it('should respect step value when setting low value via pointer', async () => {
+    const { fixture } = await render(TestComponent);
+    const component = fixture.componentInstance;
+
+    component.low = 20;
+    component.high = 80;
+    component.step = 10;
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    const track = screen.getByTestId('slider-track');
+
+    // Mock getBoundingClientRect to return realistic dimensions
+    jest.spyOn(track, 'getBoundingClientRect').mockReturnValue({
+      left: 0,
+      top: 0,
+      right: 100,
+      bottom: 20,
+      width: 100,
+      height: 20,
+      x: 0,
+      y: 0,
+      // eslint-disable-next-line @typescript-eslint/no-empty-function
+      toJSON: () => {},
+    });
+
+    // Click at 33% of the track (closer to low thumb at 20%)
+    // should snap to 30 with step=10
+    const pointerEvent = new MouseEvent('pointerdown', {
+      bubbles: true,
+      cancelable: true,
+      clientX: 33,
+      clientY: 10,
+    });
+    track.dispatchEvent(pointerEvent);
+
+    expect(component.low).toBe(30);
+  });
+
+  it('should respect step value when setting high value via pointer', async () => {
+    const { fixture } = await render(TestComponent);
+    const component = fixture.componentInstance;
+
+    component.low = 20;
+    component.high = 80;
+    component.step = 10;
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    const track = screen.getByTestId('slider-track');
+
+    // Mock getBoundingClientRect to return realistic dimensions
+    jest.spyOn(track, 'getBoundingClientRect').mockReturnValue({
+      left: 0,
+      top: 0,
+      right: 100,
+      bottom: 20,
+      width: 100,
+      height: 20,
+      x: 0,
+      y: 0,
+      // eslint-disable-next-line @typescript-eslint/no-empty-function
+      toJSON: () => {},
+    });
+
+    // Click at 73% of the track (closer to high thumb at 80%)
+    // should snap to 70 with step=10
+    const pointerEvent = new MouseEvent('pointerdown', {
+      bubbles: true,
+      cancelable: true,
+      clientX: 73,
+      clientY: 10,
+    });
+    track.dispatchEvent(pointerEvent);
+
+    expect(component.high).toBe(70);
+  });
 });

@@ -157,9 +157,11 @@ export const [NgpSliderStateToken, ngpSlider, injectSliderState, provideSliderSt
 
       function setValue(newValue: number): void {
         const clamped = Math.min(max(), Math.max(min(), newValue));
-        value.set(clamped);
-        onValueChange?.(clamped);
-        valueChange.emit(clamped);
+        const stepped = Math.round((clamped - min()) / step()) * step() + min();
+        const finalValue = Math.min(max(), Math.max(min(), stepped));
+        value.set(finalValue);
+        onValueChange?.(finalValue);
+        valueChange.emit(finalValue);
       }
 
       function setDisabled(isDisabled: boolean): void {
