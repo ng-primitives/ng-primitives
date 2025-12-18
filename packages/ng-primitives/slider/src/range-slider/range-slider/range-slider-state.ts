@@ -215,16 +215,18 @@ export const [
 
     function setLowValue(value: number): void {
       const clampedValue = Math.max(min(), Math.min(value, high()));
-      low.set(clampedValue);
-      onLowChange?.(clampedValue);
-      lowChange.emit(clampedValue);
+      const steppedValue = Math.round((clampedValue - min()) / step()) * step() + min();
+      low.set(steppedValue);
+      onLowChange?.(steppedValue);
+      lowChange.emit(steppedValue);
     }
 
     function setHighValue(value: number): void {
       const clampedValue = Math.min(max(), Math.max(value, low()));
-      high.set(clampedValue);
-      onHighChange?.(clampedValue);
-      highChange.emit(clampedValue);
+      const steppedValue = Math.round((clampedValue - min()) / step()) * step() + min();
+      high.set(steppedValue);
+      onHighChange?.(steppedValue);
+      highChange.emit(steppedValue);
     }
 
     function getClosestThumb(percentage: number): 'low' | 'high' {
