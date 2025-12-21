@@ -292,8 +292,7 @@ export const [NgpSelectStateToken, ngpSelect, _injectSelectState, provideSelectS
           if (!isPositioned || !activeItem) {
             return;
           }
-
-          activeDescendantMgr.activeItem()?.scrollIntoView?.();
+          activeItem?.scrollIntoView?.();
         },
       });
 
