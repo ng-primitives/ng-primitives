@@ -1,12 +1,4 @@
-import {
-  afterRenderEffect,
-  computed,
-  inject,
-  Injector,
-  Signal,
-  signal,
-  WritableSignal,
-} from '@angular/core';
+import { afterRenderEffect, computed, Signal, signal, WritableSignal } from '@angular/core';
 import type { Placement } from '@floating-ui/dom';
 import { activeDescendantManager } from 'ng-primitives/a11y';
 import { ngpFormControl } from 'ng-primitives/form-field';
@@ -218,17 +210,14 @@ export const [NgpSelectStateToken, ngpSelect, _injectSelectState, provideSelectS
       /** @internal Access the select element. */
       const elementRef = injectElementRef();
 
-      /** Access the injector. */
-      const injector = inject(Injector);
-
       // Create controlled signals
       const id = controlled(_id);
       const value = controlled(_value);
       const multiple = controlled(_multiple);
       const disabled = controlled(_disabled);
       const compareWith = controlled(_compareWith);
-      const placement = controlled(_placement ?? signal(config.placement));
-      const container = controlled(_container ?? signal(config.container));
+      const placement = controlled(_placement ? _placement : signal(config.placement));
+      const container = controlled(_container ? _container : signal(config.container));
 
       /** @internal Store the select portal. */
       const portal = signal<NgpSelectPortal | undefined>(undefined);

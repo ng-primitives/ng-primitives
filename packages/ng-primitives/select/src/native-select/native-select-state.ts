@@ -2,14 +2,7 @@ import { signal, Signal } from '@angular/core';
 import { ngpFormControl } from 'ng-primitives/form-field';
 import { ngpInteractions } from 'ng-primitives/interactions';
 import { injectElementRef } from 'ng-primitives/internal';
-import {
-  createPrimitive,
-  attrBinding,
-  dataBinding,
-  listener,
-  controlled,
-  deprecatedSetter,
-} from 'ng-primitives/state';
+import { attrBinding, controlled, createPrimitive, deprecatedSetter } from 'ng-primitives/state';
 import { uniqueId } from 'ng-primitives/utils';
 
 export interface NgpNativeSelectState {
