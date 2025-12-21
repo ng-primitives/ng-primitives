@@ -21,7 +21,7 @@ import {
 } from 'ng-primitives/state';
 import { uniqueId } from 'ng-primitives/utils';
 import { injectSelectConfig } from '../config/select-config';
-import type { NgpSelectDropdown } from '../select-dropdown/select-dropdown';
+import { NgpSelectDropdownState } from '../select-dropdown/select-dropdown-state';
 import type { NgpSelectOption } from '../select-option/select-option';
 import type { NgpSelectPortal } from '../select-portal/select-portal';
 
@@ -66,7 +66,7 @@ export interface NgpSelectState {
   readonly portal: Signal<NgpSelectPortal | undefined>;
 
   /** @internal Store the select dropdown. */
-  readonly dropdown: Signal<NgpSelectDropdown | undefined>;
+  readonly dropdown: Signal<NgpSelectDropdownState | undefined>;
 
   /** @internal Store the select options. */
   readonly options: Signal<NgpSelectOption[]>;
@@ -123,11 +123,11 @@ export interface NgpSelectState {
   /**
    * Activate the next option in the list if there is one.
    * If there is no option currently active, activate the selected option or the first option.
-   * @internal 
+   * @internal
    */
   activateNextOption(): void;
 
-  /** 
+  /**
    * Activate the previous option in the list if there is one.
    * @internal
    */
@@ -145,7 +145,7 @@ export interface NgpSelectState {
    * @param dropdown The dropdown to register.
    * @internal
    */
-  registerDropdown(dropdown: NgpSelectDropdown): void;
+  registerDropdown(dropdown: NgpSelectDropdownState): void;
 
   /**
    * Register an option with the select.
@@ -161,7 +161,7 @@ export interface NgpSelectState {
    */
   unregisterOption(option: NgpSelectOption): void;
 
-  /** 
+  /**
    * Focus the select.
    * @internal
    */
@@ -234,7 +234,7 @@ export const [NgpSelectStateToken, ngpSelect, _injectSelectState, provideSelectS
       const portal = signal<NgpSelectPortal | undefined>(undefined);
 
       /** @internal Store the select dropdown. */
-      const dropdown = signal<NgpSelectDropdown | undefined>(undefined);
+      const dropdown = signal<NgpSelectDropdownState | undefined>(undefined);
 
       /** @internal Store the select options. */
       const options = signal<NgpSelectOption[]>([]);
@@ -256,9 +256,7 @@ export const [NgpSelectStateToken, ngpSelect, _injectSelectState, provideSelectS
       attrBinding(elementRef, 'role', 'combobox');
       attrBinding(elementRef, 'id', id);
       attrBinding(elementRef, 'aria-expanded', open);
-      attrBinding(elementRef, 'aria-controls', () =>
-        open() ? dropdown()?.id() : undefined,
-      );
+      attrBinding(elementRef, 'aria-controls', () => (open() ? dropdown()?.id() : undefined));
       attrBinding(elementRef, 'aria-activedescendant', () =>
         open() ? activeDescendantMgr.activeDescendant() : undefined,
       );
@@ -345,7 +343,6 @@ export const [NgpSelectStateToken, ngpSelect, _injectSelectState, provideSelectS
         }
       }
 
-
       function selectOption(option: NgpSelectOption | undefined): void {
         if (disabled()) {
           return;
@@ -377,7 +374,6 @@ export const [NgpSelectStateToken, ngpSelect, _injectSelectState, provideSelectS
         }
       }
 
-
       function deselectOption(option: NgpSelectOption): void {
         // if the select is disabled or the option is not selected, do nothing
         // if the select is single selection, we don't allow deselecting
@@ -393,7 +389,6 @@ export const [NgpSelectStateToken, ngpSelect, _injectSelectState, provideSelectS
         value.set(newValue as T);
         onValueChange?.(newValue as T);
       }
-
 
       function toggleOption(option: NgpSelectOption): void {
         if (disabled()) {
@@ -415,7 +410,6 @@ export const [NgpSelectStateToken, ngpSelect, _injectSelectState, provideSelectS
         }
       }
 
-
       function isOptionSelected(option: NgpSelectOption): boolean {
         if (disabled()) {
           return false;
@@ -428,9 +422,7 @@ export const [NgpSelectStateToken, ngpSelect, _injectSelectState, provideSelectS
         }
 
         if (multiple()) {
-          return (
-            currentValue && (currentValue as T[]).some(v => compareWith()(option.value(), v))
-          );
+          return currentValue && (currentValue as T[]).some(v => compareWith()(option.value(), v));
         }
 
         return compareWith()(option.value(), currentValue);
@@ -488,11 +480,9 @@ export const [NgpSelectStateToken, ngpSelect, _injectSelectState, provideSelectS
         portal.set(portalInstance);
       }
 
-
-      function registerDropdown(dropdownInstance: NgpSelectDropdown): void {
+      function registerDropdown(dropdownInstance: NgpSelectDropdownState): void {
         dropdown.set(dropdownInstance);
       }
-
 
       function registerOption(option: NgpSelectOption): void {
         options.update(opts => [...opts, option]);
