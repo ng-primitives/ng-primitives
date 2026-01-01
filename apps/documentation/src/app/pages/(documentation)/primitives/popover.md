@@ -205,6 +205,23 @@ bootstrapApplication(AppComponent, {
   ```
 </prop-details>
 
+<prop-details name="shift" type="boolean | NgpShiftOptions" default="true">
+  Define the shift behavior to keep the popover in view. When enabled (default), the popover will shift along its axis to stay visible when it would otherwise overflow the viewport. Set to `false` to disable.
+  
+  **Boolean format:** `shift: false` - Disables shift behavior
+  
+  **Object format:** 
+  ```ts
+  shift: {
+    padding: 8,     // Minimum padding between popover and viewport edges
+    limiter: {      // Optional limiter to control shifting behavior
+      fn: limitShift,
+      options: { /* limiter options */ }
+    }
+  }
+  ```
+</prop-details>
+
 <prop-details name="placement" type="'top' | 'right' | 'bottom' | 'left'">
   Define the placement of the popover.
 </prop-details>

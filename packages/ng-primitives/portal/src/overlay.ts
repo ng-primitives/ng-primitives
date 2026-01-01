@@ -33,6 +33,7 @@ import { NgpOffset } from './offset';
 import { provideOverlayContext } from './overlay-token';
 import { NgpPortal, createPortal } from './portal';
 import { BlockScrollStrategy, NoopScrollStrategy } from './scroll-strategy';
+import { NgpShift } from './shift';
 
 /**
  * Configuration options for creating an overlay
@@ -64,6 +65,9 @@ export interface NgpOverlayConfig<T = unknown> {
 
   /** Offset distance between the overlay and trigger. Can be a number or an object with axis-specific offsets */
   offset?: NgpOffset;
+
+  /** Shift configuration to keep the overlay in view. Can be a boolean, an object with options, or undefined */
+  shift?: NgpShift;
 
   /** Whether to enable flip behavior when space is limited */
   flip?: boolean;
@@ -484,7 +488,15 @@ export class NgpOverlay<T = unknown> {
     strategy: Strategy = 'absolute',
   ): Promise<void> {
     // Create middleware array
-    const middleware: Middleware[] = [offset(this.config.offset ?? 0), shift()];
+    const middleware: Middleware[] = [offset(this.config.offset ?? 0)];
+
+    // Add shift middleware (enabled by default for backward compatibility)
+    // Shift keeps the overlay in view by shifting it along its axis when it would otherwise overflow the viewport
+    const shiftConfig = this.config.shift;
+    if (shiftConfig !== false) {
+      const shiftOptions = shiftConfig === undefined || shiftConfig === true ? {} : shiftConfig;
+      middleware.push(shift(shiftOptions));
+    }
 
     // Add flip middleware if requested
     if (this.config.flip !== false) {
