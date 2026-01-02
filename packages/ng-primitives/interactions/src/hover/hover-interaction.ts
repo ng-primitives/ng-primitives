@@ -116,7 +116,7 @@ export function ngpHover({
    */
   listener(elementRef.nativeElement, 'pointerenter', onPointerEnter);
   listener(elementRef.nativeElement, 'pointerleave', onPointerLeave);
-  listener(elementRef.nativeElement, 'touchstart', onTouchStart);
+  listener(elementRef.nativeElement, 'touchstart', onTouchStart, { config: { passive: true } });
   listener(elementRef.nativeElement, 'mouseenter', onMouseEnter);
   listener(elementRef.nativeElement, 'mouseleave', onMouseLeave);
 
