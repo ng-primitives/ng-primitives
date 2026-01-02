@@ -314,6 +314,15 @@
       "contributions": [
         "code"
       ]
+    },
+    {
+      "login": "alexciesielski",
+      "name": "Alexander Ciesielski",
+      "avatar_url": "https://avatars.githubusercontent.com/u/17651898?v=4",
+      "profile": "http://ciesielski.co",
+      "contributions": [
+        "code"
+      ]
     }
   ],
   "contributorsPerLine": 7,
