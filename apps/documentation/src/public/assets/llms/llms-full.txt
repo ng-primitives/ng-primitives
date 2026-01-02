@@ -2,7 +2,7 @@
 
 > Angular Primitives is a collection of unstyled, accessible Angular components and utilities for building design systems and web applications. Built with Angular, TypeScript, and a focus on accessibility, customization, and developer experience. It provides headless UI primitives that can be styled with any CSS framework or design system.
 
-Generated on: 2025-12-13T22:39:58.176Z
+Generated on: 2026-01-02T21:34:20.533Z
 
 ---
 
@@ -11288,6 +11288,23 @@ bootstrapApplication(AppComponent, {
   ```
 </prop-details>
 
+<prop-details name="shift" type="boolean | NgpShiftOptions" default="true">
+  Define the shift behavior to keep the menu in view. When enabled (default), the menu will shift along its axis to stay visible when it would otherwise overflow the viewport. Set to `false` to disable.
+  
+  **Boolean format:** `shift: false` - Disables shift behavior
+  
+  **Object format:** 
+  ```ts
+  shift: {
+    padding: 8,     // Minimum padding between menu and viewport edges
+    limiter: {      // Optional limiter to control shifting behavior
+      fn: limitShift,
+      options: { /* limiter options */ }
+    }
+  }
+  ```
+</prop-details>
+
 <prop-details name="placement" type="'top' | 'right' | 'bottom' | 'left'">
   Define the placement of the menu.
 </prop-details>
@@ -12969,6 +12986,23 @@ bootstrapApplication(AppComponent, {
     mainAxis: 8,     // Distance between popover and trigger element
     crossAxis: 4,    // Skidding along the alignment axis  
     alignmentAxis: 2 // Same as crossAxis but for aligned placements
+  }
+  ```
+</prop-details>
+
+<prop-details name="shift" type="boolean | NgpShiftOptions" default="true">
+  Define the shift behavior to keep the popover in view. When enabled (default), the popover will shift along its axis to stay visible when it would otherwise overflow the viewport. Set to `false` to disable.
+  
+  **Boolean format:** `shift: false` - Disables shift behavior
+  
+  **Object format:** 
+  ```ts
+  shift: {
+    padding: 8,     // Minimum padding between popover and viewport edges
+    limiter: {      // Optional limiter to control shifting behavior
+      fn: limitShift,
+      options: { /* limiter options */ }
+    }
   }
   ```
 </prop-details>
@@ -19926,6 +19960,25 @@ offset: {
   mainAxis: 8,     // Distance between tooltip and trigger element
   crossAxis: 4,    // Skidding along the alignment axis
   alignmentAxis: 2 // Same as crossAxis but for aligned placements
+}
+```
+
+</prop-details>
+
+<prop-details name="shift" type="boolean | NgpShiftOptions" default="true">
+Define the shift behavior to keep the tooltip in view. When enabled (default), the tooltip will shift along its axis to stay visible when it would otherwise overflow the viewport. Set to `false` to disable.
+
+**Boolean format:** `shift: false` - Disables shift behavior
+
+**Object format:**
+
+```ts
+shift: {
+  padding: 8,     // Minimum padding between tooltip and viewport edges
+  limiter: {      // Optional limiter to control shifting behavior
+    fn: limitShift,
+    options: { /* limiter options */ }
+  }
 }
 ```
 

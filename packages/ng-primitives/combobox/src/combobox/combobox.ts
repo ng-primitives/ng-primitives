@@ -1,6 +1,5 @@
 import { BooleanInput } from '@angular/cdk/coercion';
 import {
-  afterRenderEffect,
   booleanAttribute,
   computed,
   Directive,
@@ -162,6 +161,15 @@ export class NgpCombobox {
     // we must wrap the signal in a computed to ensure it is not used before it is defined
     disabled: computed(() => this.state.disabled()),
     items: this.options,
+    onActiveDescendantChange: activeItem => {
+      const isPositioned = this.portal()?.overlay()?.isPositioned() ?? false;
+
+      if (!isPositioned || !activeItem) {
+        return;
+      }
+
+      this.activeDescendantManager.activeItem()?.scrollIntoView?.();
+    },
   });
 
   /** The control status */
@@ -177,22 +185,6 @@ export class NgpCombobox {
       hover: true,
       press: true,
       disabled: this.state.disabled,
-    });
-
-    // any time the active descendant changes, ensure we scroll it into view
-    // perform after next render to ensure the DOM is updated
-    // e.g. the dropdown is open before the option is scrolled into view
-    afterRenderEffect({
-      write: () => {
-        const isPositioned = this.portal()?.overlay()?.isPositioned() ?? false;
-        const activeItem = this.activeDescendantManager.activeItem();
-
-        if (!isPositioned || !activeItem) {
-          return;
-        }
-
-        this.activeDescendantManager.activeItem()?.scrollIntoView?.();
-      },
     });
   }
 

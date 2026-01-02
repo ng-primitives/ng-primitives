@@ -174,7 +174,7 @@ pre.shiki code {
 
 [data-line] {
   @apply inline-block w-full pe-4;
-  padding-block: 2px;
+  padding-block: 0;
   min-height: 4px;
 }
 
