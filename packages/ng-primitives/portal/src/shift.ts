@@ -66,8 +66,8 @@ export function coerceShift(value: NgpShiftInput | null | undefined): NgpShift {
   }
 
   // Handle string number values for padding shorthand
-  const numValue = coerceNumberProperty(value);
-  if (!isNaN(numValue)) {
+  const numValue = coerceNumberProperty(value, null);
+  if (numValue !== null && !isNaN(numValue)) {
     return { padding: numValue };
   }
 
