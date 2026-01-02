@@ -1,3 +1,18 @@
+## 0.97.0 (2026-01-02)
+
+### 🚀 Features
+
+- **tooltip:** ability to configure parameters of `shift()` middleware ([#576](https://github.com/ng-primitives/ng-primitives/pull/576), [#575](https://github.com/ng-primitives/ng-primitives/issues/575))
+
+### 🩹 Fixes
+
+- **combobox:** performance improvements ([#578](https://github.com/ng-primitives/ng-primitives/pull/578))
+
+### ❤️ Thank You
+
+- Alexander Ciesielski @alexciesielski
+- Ashley Hunter
+
 ## 0.96.0 (2025-12-18)
 
 ### 🚀 Features
