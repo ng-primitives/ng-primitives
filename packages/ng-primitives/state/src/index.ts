@@ -1,10 +1,12 @@
 /* eslint-disable @angular-eslint/no-uncalled-signals */
 import { coerceElement } from '@angular/cdk/coercion';
+import { isPlatformBrowser } from '@angular/common';
 import {
   afterRenderEffect,
   ChangeDetectorRef,
   computed,
   DestroyRef,
+  effect,
   ElementRef,
   FactoryProvider,
   forwardRef,
@@ -17,6 +19,7 @@ import {
   isSignal,
   linkedSignal,
   NgZone,
+  PLATFORM_ID,
   ProviderToken,
   runInInjectionContext,
   signal,
@@ -398,12 +401,9 @@ export function attrBinding(
     | null
     | undefined,
 ): void {
-  afterRenderEffect({
-    write: () => {
-      const valueResult = typeof value === 'function' ? value() : value;
-
-      setAttribute(element, attr, valueResult?.toString() ?? null);
-    },
+  isomorphicEffect(() => {
+    const valueResult = typeof value === 'function' ? value() : value;
+    setAttribute(element, attr, valueResult?.toString() ?? null);
   });
 }
 
@@ -443,19 +443,17 @@ export function styleBinding(
   style: string,
   value: (() => string | number | null) | string | number | null,
 ): void {
-  afterRenderEffect({
-    write: () => {
-      const styleValue = typeof value === 'function' ? value() : value;
-      // we should look for units in the style name, just like Angular does e.g. width.px
-      const styleUnit = getStyleUnit(style);
-      const styleName = styleUnit ? style.replace(`.${styleUnit}`, '') : style;
+  isomorphicEffect(() => {
+    const styleValue = typeof value === 'function' ? value() : value;
+    // we should look for units in the style name, just like Angular does e.g. width.px
+    const styleUnit = getStyleUnit(style);
+    const styleName = styleUnit ? style.replace(`.${styleUnit}`, '') : style;
 
-      if (styleValue !== null) {
-        element.nativeElement.style.setProperty(styleName, styleValue + styleUnit);
-      } else {
-        element.nativeElement.style.removeProperty(styleName);
-      }
-    },
+    if (styleValue !== null) {
+      element.nativeElement.style.setProperty(styleName, styleValue + styleUnit);
+    } else {
+      element.nativeElement.style.removeProperty(styleName);
+    }
   });
 }
 
@@ -468,22 +466,21 @@ export function dataBinding(
     throw new Error(`dataBinding: attribute "${attr}" must start with "data-"`);
   }
 
-  afterRenderEffect({
-    write: () => {
-      let valueResult = typeof value === 'function' ? value() : value;
+  isomorphicEffect(() => {
+    let valueResult = typeof value === 'function' ? value() : value;
 
-      if (valueResult === false) {
-        valueResult = null;
-      } else if (valueResult === true) {
-        valueResult = '';
-      } else if (valueResult !== null && typeof valueResult !== 'string') {
-        valueResult = String(valueResult);
-      }
+    if (valueResult === false) {
+      valueResult = null;
+    } else if (valueResult === true) {
+      valueResult = '';
+    } else if (valueResult !== null && typeof valueResult !== 'string') {
+      valueResult = String(valueResult);
+    }
 
-      setAttribute(element, attr, valueResult);
-    },
+    setAttribute(element, attr, valueResult);
   });
 }
+
 export function listener<K extends keyof HTMLElementEventMap>(
   element: HTMLElement | ElementRef<HTMLElement> | Document,
   event: K,
@@ -599,4 +596,16 @@ export function emitter<T>({
       },
     };
   });
+}
+
+function isomorphicEffect(callback: () => void): void {
+  const injector = inject(Injector);
+  const platformId = injector.get(PLATFORM_ID);
+
+  if (isPlatformBrowser(platformId)) {
+    afterRenderEffect(() => callback());
+  } else {
+    // On the server, we just run the effect immediately
+    effect(() => callback());
+  }
 }

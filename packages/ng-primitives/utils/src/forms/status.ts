@@ -65,10 +65,30 @@ function updateStatus(control: NgControl, status: WritableSignal<NgpControlStatu
  * It supports both classic reactive forms controls and signal-forms interop controls.
  * @internal
  */
+/**
+ * Sets up event subscription for a given NgControl.
+ * Only sets up the subscription - does not call updateStatus.
+ */
+function setupEventSubscription(
+  ngControl: NgControl,
+  status: WritableSignal<NgpControlStatus>,
+  destroyRef: DestroyRef,
+): void {
+  // For classic controls, also subscribe to the events observable.
+  const underlyingControl = (ngControl as any).control;
+  if (underlyingControl?.events) {
+    underlyingControl.events
+      .pipe(safeTakeUntilDestroyed(destroyRef))
+      .subscribe(() => updateStatus(ngControl, status));
+  }
+}
+
 export function controlStatus(): Signal<NgpControlStatus> {
   const injector = inject(Injector);
   const destroyRef = inject(DestroyRef);
-  const control = signal<NgControl | null>(null);
+
+  // Try to inject NgControl immediately for initial state
+  const control = signal<NgControl | null>(inject(NgControl, { optional: true }));
 
   const status = signal<NgpControlStatus>({
     valid: null,
@@ -80,22 +100,29 @@ export function controlStatus(): Signal<NgpControlStatus> {
     disabled: null,
   });
 
-  onMount(() => {
-    control.set(inject(NgControl, { optional: true }));
+  // If we have a control immediately, update initial status
+  if (control()) {
+    updateStatus(control()!, status);
+  }
 
-    if (!control()) {
+  onMount(() => {
+    // Get the control (either from initial injection or from mount)
+    const mountControl = control() || inject(NgControl, { optional: true });
+
+    if (!mountControl) {
       return;
     }
 
-    updateStatus(control()!, status);
-
-    // For classic controls, also subscribe to the events observable.
-    const underlyingControl = (control() as any).control;
-    if (underlyingControl?.events) {
-      underlyingControl.events
-        .pipe(safeTakeUntilDestroyed(destroyRef))
-        .subscribe(() => updateStatus(control()!, status));
+    // Update control signal if it wasn't set before
+    if (!control()) {
+      control.set(mountControl);
     }
+
+    // Update status to ensure latest values
+    updateStatus(mountControl, status);
+
+    // Set up event subscription for reactive updates
+    setupEventSubscription(mountControl, status, destroyRef);
   });
 
   // Use an effect to reactively track status changes.

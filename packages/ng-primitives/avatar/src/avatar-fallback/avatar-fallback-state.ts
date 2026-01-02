@@ -18,7 +18,7 @@ export const [
   ngpAvatarFallback,
   injectAvatarFallbackState,
   provideAvatarFallbackState,
-] = createPrimitive('NgpAvatarFallback', ({}: NgpAvatarFallbackProps) => {
+] = createPrimitive('NgpAvatarFallback', ({ delay = signal(0) }: NgpAvatarFallbackProps) => {
   const avatar = injectAvatarState();
   const element = injectElementRef();
   const disposables = injectDisposables();
@@ -26,7 +26,7 @@ export const [
   const delayElapsed = signal(false);
   const visible = computed(() => delayElapsed() && avatar().status() !== NgpAvatarStatus.Loaded);
 
-  disposables.setTimeout(() => delayElapsed.set(true), 0);
+  disposables.setTimeout(() => delayElapsed.set(true), delay());
 
   styleBinding(element, 'display', () => (visible() ? null : 'none'));
 
