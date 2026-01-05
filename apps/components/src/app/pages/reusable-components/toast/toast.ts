@@ -15,11 +15,6 @@ import { injectToastContext, NgpToast, NgpToastManager } from 'ng-primitives/toa
     :host {
       position: absolute;
       touch-action: none;
-      transition:
-        transform 0.4s,
-        opacity 0.4s,
-        height 0.4s,
-        box-shadow 0.2s;
       box-sizing: border-box;
       align-items: center;
       gap: 6px;
@@ -29,16 +24,20 @@ import { injectToastContext, NgpToast, NgpToastManager } from 'ng-primitives/toa
       border: 1px solid var(--ngp-border);
       padding: 12px 16px;
       opacity: 0;
-      transition: all 0.4s cubic-bezier(0.215, 0.61, 0.355, 1);
       border-radius: 8px;
       z-index: var(--ngp-toast-z-index);
       grid-template-columns: 1fr auto;
       grid-template-rows: min-content min-content;
       column-gap: 12px;
       align-items: center;
-      width: var(--ngp-toast-width);
+      width: 350px;
       height: fit-content;
       transform: var(--y);
+      transition:
+        transform 0.4s cubic-bezier(0.215, 0.61, 0.355, 1),
+        opacity 0.4s cubic-bezier(0.215, 0.61, 0.355, 1),
+        height 0.4s cubic-bezier(0.215, 0.61, 0.355, 1),
+        box-shadow 0.2s cubic-bezier(0.215, 0.61, 0.355, 1);
     }
 
     .toast-title {
@@ -131,7 +130,7 @@ import { injectToastContext, NgpToast, NgpToastManager } from 'ng-primitives/toa
 
     :host[data-expanded='true'] {
       --y: translateY(calc(var(--lift) * var(--ngp-toast-offset)));
-      height: var(--ngp-toast-height);
+      height: auto;
     }
 
     :host[data-swiping='true'] {
@@ -158,6 +157,19 @@ import { injectToastContext, NgpToast, NgpToastManager } from 'ng-primitives/toa
     :host[data-swiping='true'][data-swipe-direction='bottom'] {
       /* Fade out from 45px to 100px swipe */
       opacity: calc(1 - clamp(0, (var(--ngp-toast-swipe-y, 0px) - 45) / 55, 1));
+    }
+
+    /* Truncate text only when toast is not front AND not expanded */
+    :host[data-front='false'][data-expanded='false'] .toast-title {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    :host[data-front='false'][data-expanded='false'] .toast-description {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
     }
   `,
 })
