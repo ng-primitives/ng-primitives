@@ -1,3 +1,21 @@
+## 0.98.0 (2026-01-05)
+
+### 🚀 Features
+
+- **overlay:** expose `shift` config in consuming components ([#586](https://github.com/ng-primitives/ng-primitives/pull/586))
+- **toast:** expose NgpToastRef and NgpToastOptions types ([#583](https://github.com/ng-primitives/ng-primitives/pull/583))
+
+### 🩹 Fixes
+
+- **dialog:** support for cdk v21 avoiding use of popover ([#588](https://github.com/ng-primitives/ng-primitives/pull/588))
+- **toast:** fix toast animations and truncations ([#587](https://github.com/ng-primitives/ng-primitives/pull/587))
+
+### ❤️ Thank You
+
+- Alexander Ciesielski @alexciesielski
+- Ashley Hunter
+- Shahar Kazaz @shaharkazaz
+
 ## 0.97.0 (2026-01-02)
 
 ### 🚀 Features
