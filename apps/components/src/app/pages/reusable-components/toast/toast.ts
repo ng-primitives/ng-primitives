@@ -8,7 +8,7 @@ import { injectToastContext, NgpToast, NgpToastManager } from 'ng-primitives/toa
   hostDirectives: [NgpToast],
   host: {
     'animate.enter': 'toast-enter',
-    'animate.leave': 'toast-leave'
+    'animate.leave': 'toast-leave',
   },
   template: `
     <p class="toast-title">{{ context.header }}</p>
@@ -182,8 +182,9 @@ import { injectToastContext, NgpToast, NgpToastManager } from 'ng-primitives/toa
     :host[data-position-y='bottom'].toast-leave {
       opacity: 0;
       transform: translateY(100%);
-      transition: opacity 400ms cubic-bezier(0.215, 0.61, 0.355, 1),
-                  transform 400ms cubic-bezier(0.215, 0.61, 0.355, 1);
+      transition:
+        opacity 400ms cubic-bezier(0.215, 0.61, 0.355, 1),
+        transform 400ms cubic-bezier(0.215, 0.61, 0.355, 1);
     }
 
     /* Top position animations */
@@ -194,8 +195,9 @@ import { injectToastContext, NgpToast, NgpToastManager } from 'ng-primitives/toa
     :host[data-position-y='top'].toast-leave {
       opacity: 0;
       transform: translateY(-100%);
-      transition: opacity 400ms cubic-bezier(0.215, 0.61, 0.355, 1),
-                  transform 400ms cubic-bezier(0.215, 0.61, 0.355, 1);
+      transition:
+        opacity 400ms cubic-bezier(0.215, 0.61, 0.355, 1),
+        transform 400ms cubic-bezier(0.215, 0.61, 0.355, 1);
     }
 
     /* Keyframes for bottom position */

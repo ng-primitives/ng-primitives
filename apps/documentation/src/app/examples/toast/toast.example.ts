@@ -207,8 +207,9 @@ import { NgpToast, NgpToastManager } from 'ng-primitives/toast';
     .toast-leave {
       opacity: 0;
       transform: translateY(100%);
-      transition: opacity 400ms cubic-bezier(0.215, 0.61, 0.355, 1),
-                  transform 400ms cubic-bezier(0.215, 0.61, 0.355, 1);
+      transition:
+        opacity 400ms cubic-bezier(0.215, 0.61, 0.355, 1),
+        transform 400ms cubic-bezier(0.215, 0.61, 0.355, 1);
     }
 
     @keyframes toast-slide-in {
