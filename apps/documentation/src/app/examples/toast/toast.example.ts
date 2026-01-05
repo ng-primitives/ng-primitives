@@ -8,7 +8,7 @@ import { NgpToast, NgpToastManager } from 'ng-primitives/toast';
     <button class="toast-trigger" (click)="show(toast)" ngpButton>Show Toast</button>
 
     <ng-template #toast let-dismiss="dismiss">
-      <div ngpToast>
+      <div ngpToast animate.enter="toast-enter" animate.leave="toast-leave">
         <p class="toast-title">This is a toast message</p>
         <p class="toast-description">It will disappear in 3 seconds</p>
         <button class="toast-dismiss" (click)="dismiss()" ngpButton>Dismiss</button>
@@ -46,11 +46,6 @@ import { NgpToast, NgpToastManager } from 'ng-primitives/toast';
     [ngpToast] {
       position: absolute;
       touch-action: none;
-      transition:
-        transform 0.4s,
-        opacity 0.4s,
-        height 0.4s,
-        box-shadow 0.2s;
       box-sizing: border-box;
       align-items: center;
       gap: 6px;
@@ -60,7 +55,6 @@ import { NgpToast, NgpToastManager } from 'ng-primitives/toast';
       border: 1px solid var(--ngp-border);
       padding: 12px 16px;
       opacity: 0;
-      transition: all 0.4s cubic-bezier(0.215, 0.61, 0.355, 1);
       border-radius: 8px;
       z-index: var(--ngp-toast-z-index);
       grid-template-columns: 1fr auto;
@@ -70,6 +64,7 @@ import { NgpToast, NgpToastManager } from 'ng-primitives/toast';
       width: 350px;
       height: fit-content;
       transform: var(--y);
+      transition: all 0.4s cubic-bezier(0.215, 0.61, 0.355, 1);
     }
 
     .toast-title {
@@ -162,7 +157,7 @@ import { NgpToast, NgpToastManager } from 'ng-primitives/toast';
 
     [ngpToast][data-expanded='true'] {
       --y: translateY(calc(var(--lift) * var(--ngp-toast-offset)));
-      height: var(--ngp-toast-height);
+      height: auto;
     }
 
     [ngpToast][data-swiping='true'] {
@@ -189,6 +184,43 @@ import { NgpToast, NgpToastManager } from 'ng-primitives/toast';
     [ngpToast][data-swiping='true'][data-swipe-direction='bottom'] {
       /* Fade out from 45px to 100px swipe */
       opacity: calc(1 - clamp(0, (var(--ngp-toast-swipe-y, 0px) - 45) / 55, 1));
+    }
+
+    /* Truncate text only when toast is not front AND not expanded */
+    [ngpToast][data-front='false'][data-expanded='false'] .toast-title {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    [ngpToast][data-front='false'][data-expanded='false'] .toast-description {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    /* Angular animations using animate.enter and animate.leave */
+    .toast-enter {
+      animation: toast-slide-in 400ms cubic-bezier(0.215, 0.61, 0.355, 1);
+    }
+
+    .toast-leave {
+      opacity: 0;
+      transform: translateY(100%);
+      transition:
+        opacity 400ms cubic-bezier(0.215, 0.61, 0.355, 1),
+        transform 400ms cubic-bezier(0.215, 0.61, 0.355, 1);
+    }
+
+    @keyframes toast-slide-in {
+      from {
+        opacity: 0;
+        transform: translateY(100%);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
     }
   `,
 })
