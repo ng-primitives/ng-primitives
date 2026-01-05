@@ -8,7 +8,7 @@ import { NgpToast, NgpToastManager } from 'ng-primitives/toast';
     <button class="toast-trigger" (click)="show(toast)" ngpButton>Show Toast</button>
 
     <ng-template #toast let-dismiss="dismiss">
-      <div ngpToast>
+      <div ngpToast animate.enter="toast-enter" animate.leave="toast-leave">
         <p class="toast-title">This is a toast message</p>
         <p class="toast-description">It will disappear in 3 seconds</p>
         <button class="toast-dismiss" (click)="dismiss()" ngpButton>Dismiss</button>
@@ -64,11 +64,7 @@ import { NgpToast, NgpToastManager } from 'ng-primitives/toast';
       width: 350px;
       height: fit-content;
       transform: var(--y);
-      transition:
-        transform 0.4s cubic-bezier(0.215, 0.61, 0.355, 1),
-        opacity 0.4s cubic-bezier(0.215, 0.61, 0.355, 1),
-        height 0.4s cubic-bezier(0.215, 0.61, 0.355, 1),
-        box-shadow 0.2s cubic-bezier(0.215, 0.61, 0.355, 1);
+      transition: all 0.4s cubic-bezier(0.215, 0.61, 0.355, 1);
     }
 
     .toast-title {
@@ -201,6 +197,29 @@ import { NgpToast, NgpToastManager } from 'ng-primitives/toast';
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;
+    }
+
+    /* Angular animations using animate.enter and animate.leave */
+    .toast-enter {
+      animation: toast-slide-in 400ms cubic-bezier(0.215, 0.61, 0.355, 1);
+    }
+
+    .toast-leave {
+      opacity: 0;
+      transform: translateY(100%);
+      transition: opacity 400ms cubic-bezier(0.215, 0.61, 0.355, 1),
+                  transform 400ms cubic-bezier(0.215, 0.61, 0.355, 1);
+    }
+
+    @keyframes toast-slide-in {
+      from {
+        opacity: 0;
+        transform: translateY(100%);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
     }
   `,
 })

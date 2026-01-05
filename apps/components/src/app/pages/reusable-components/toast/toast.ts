@@ -6,6 +6,10 @@ import { injectToastContext, NgpToast, NgpToastManager } from 'ng-primitives/toa
   selector: 'app-toast',
   imports: [NgpButton],
   hostDirectives: [NgpToast],
+  host: {
+    'animate.enter': 'toast-enter',
+    'animate.leave': 'toast-leave'
+  },
   template: `
     <p class="toast-title">{{ context.header }}</p>
     <p class="toast-description">{{ context.description }}</p>
@@ -33,11 +37,7 @@ import { injectToastContext, NgpToast, NgpToastManager } from 'ng-primitives/toa
       width: 350px;
       height: fit-content;
       transform: var(--y);
-      transition:
-        transform 0.4s cubic-bezier(0.215, 0.61, 0.355, 1),
-        opacity 0.4s cubic-bezier(0.215, 0.61, 0.355, 1),
-        height 0.4s cubic-bezier(0.215, 0.61, 0.355, 1),
-        box-shadow 0.2s cubic-bezier(0.215, 0.61, 0.355, 1);
+      transition: all 0.4s cubic-bezier(0.215, 0.61, 0.355, 1);
     }
 
     .toast-title {
@@ -170,6 +170,56 @@ import { injectToastContext, NgpToast, NgpToastManager } from 'ng-primitives/toa
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;
+    }
+
+    /* Angular animations based on position */
+
+    /* Bottom position animations */
+    :host[data-position-y='bottom'].toast-enter {
+      animation: toast-slide-in-bottom 400ms cubic-bezier(0.215, 0.61, 0.355, 1);
+    }
+
+    :host[data-position-y='bottom'].toast-leave {
+      opacity: 0;
+      transform: translateY(100%);
+      transition: opacity 400ms cubic-bezier(0.215, 0.61, 0.355, 1),
+                  transform 400ms cubic-bezier(0.215, 0.61, 0.355, 1);
+    }
+
+    /* Top position animations */
+    :host[data-position-y='top'].toast-enter {
+      animation: toast-slide-in-top 400ms cubic-bezier(0.215, 0.61, 0.355, 1);
+    }
+
+    :host[data-position-y='top'].toast-leave {
+      opacity: 0;
+      transform: translateY(-100%);
+      transition: opacity 400ms cubic-bezier(0.215, 0.61, 0.355, 1),
+                  transform 400ms cubic-bezier(0.215, 0.61, 0.355, 1);
+    }
+
+    /* Keyframes for bottom position */
+    @keyframes toast-slide-in-bottom {
+      from {
+        opacity: 0;
+        transform: translateY(100%);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* Keyframes for top position */
+    @keyframes toast-slide-in-top {
+      from {
+        opacity: 0;
+        transform: translateY(-100%);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
     }
   `,
 })
