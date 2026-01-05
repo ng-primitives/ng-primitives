@@ -3,6 +3,7 @@ import { Overlay, OverlayConfig, OverlayContainer, ScrollStrategy } from '@angul
 import { ComponentPortal, TemplatePortal } from '@angular/cdk/portal';
 import {
   ApplicationRef,
+  DOCUMENT,
   Injectable,
   Injector,
   OnDestroy,
@@ -12,7 +13,6 @@ import {
   ViewContainerRef,
   inject,
   isDevMode,
-  DOCUMENT,
 } from '@angular/core';
 import { NgpExitAnimationManager } from 'ng-primitives/internal';
 import { uniqueId } from 'ng-primitives/utils';
@@ -189,7 +189,11 @@ export class NgpDialogManager implements OnDestroy {
       scrollStrategy: config.scrollStrategy || this.scrollStrategy,
       hasBackdrop: false,
       disposeOnNavigation: config.closeOnNavigation,
-    });
+      // required for v21 - the CDK launches overlays using the popover api which means any other overlays
+      // such as select dropdowns, or tooltips will appear behind the dialog, regardless of z-index
+      // this disables the use of popovers
+      usePopover: false,
+    } as any);
 
     return state;
   }
