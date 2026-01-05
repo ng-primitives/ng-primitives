@@ -3,10 +3,10 @@ import { BooleanInput } from '@angular/cdk/coercion';
 import { booleanAttribute, Directive, input } from '@angular/core';
 import {
   coerceOffset,
+  coerceShift,
   NgpOffset,
   NgpOffsetInput,
   NgpOverlayContent,
-  coerceShift,
   NgpShift,
   NgpShiftInput,
 } from 'ng-primitives/portal';
@@ -112,7 +112,7 @@ export class NgpMenuTrigger<T = unknown> {
     placement: this.placement,
     offset: this.offset,
     flip: this.flip,
-    shift: this.shift,
+    shift: this.shift(),
     container: this.container,
     scrollBehavior: this.scrollBehavior,
     context: this.context,
