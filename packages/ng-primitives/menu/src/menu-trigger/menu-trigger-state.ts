@@ -7,6 +7,7 @@ import {
   NgpOverlay,
   NgpOverlayConfig,
   NgpOverlayContent,
+  NgpShift,
 } from 'ng-primitives/portal';
 import { attrBinding, createPrimitive, dataBinding, listener } from 'ng-primitives/state';
 import { NgpMenuPlacement } from './menu-trigger';
@@ -58,6 +59,14 @@ export interface NgpMenuTriggerProps<T = unknown> {
    * The container in which the menu should be attached.
    */
   readonly container?: Signal<HTMLElement | string | null>;
+
+  /**
+   * Configure shift behavior to keep the menu in view.
+   * Can be a boolean to enable/disable, or an object with padding and limiter options.
+   * @default undefined (enabled by default in overlay)
+   */
+  shift: NgpShift;
+
   /**
    * How the menu behaves when the window is scrolled.
    */

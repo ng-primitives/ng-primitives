@@ -22,6 +22,9 @@ import {
   coerceOffset,
   NgpOffset,
   NgpOffsetInput,
+  coerceShift,
+  NgpShift,
+  NgpShiftInput,
 } from 'ng-primitives/portal';
 import { isString } from 'ng-primitives/utils';
 import { injectTooltipConfig } from '../config/tooltip-config';
@@ -128,6 +131,16 @@ export class NgpTooltipTrigger<T = null> implements OnDestroy {
   readonly flip = input<boolean, BooleanInput>(this.config.flip, {
     alias: 'ngpTooltipTriggerFlip',
     transform: booleanAttribute,
+  });
+
+  /**
+   * Configure shift behavior to keep the tooltip in view.
+   * Can be a boolean to enable/disable, or an object with padding and limiter options.
+   * @default undefined (enabled by default in overlay)
+   */
+  readonly shift = input<NgpShift, NgpShiftInput>(this.config.shift, {
+    alias: 'ngpTooltipTriggerShift',
+    transform: coerceShift,
   });
 
   /**
@@ -283,6 +296,7 @@ export class NgpTooltipTrigger<T = null> implements OnDestroy {
       placement: this.state.placement,
       offset: this.state.offset(),
       flip: this.state.flip(),
+      shift: this.state.shift(),
       showDelay: this.state.showDelay(),
       hideDelay: this.state.hideDelay(),
       closeOnEscape: true,

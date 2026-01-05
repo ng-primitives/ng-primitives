@@ -22,6 +22,9 @@ import {
   coerceOffset,
   NgpOffset,
   NgpOffsetInput,
+  coerceShift,
+  NgpShift,
+  NgpShiftInput,
 } from 'ng-primitives/portal';
 import { injectPopoverConfig } from '../config/popover-config';
 import { popoverTriggerState, providePopoverTriggerState } from './popover-trigger-state';
@@ -122,6 +125,16 @@ export class NgpPopoverTrigger<T = null> implements OnDestroy {
   readonly flip = input<boolean, BooleanInput>(this.config.flip, {
     alias: 'ngpPopoverTriggerFlip',
     transform: booleanAttribute,
+  });
+
+  /**
+   * Configure shift behavior to keep the popover in view.
+   * Can be a boolean to enable/disable, or an object with padding and limiter options.
+   * @default undefined (enabled by default in overlay)
+   */
+  readonly shift = input<NgpShift, NgpShiftInput>(this.config.shift, {
+    alias: 'ngpPopoverTriggerShift',
+    transform: coerceShift,
   });
 
   /**
@@ -279,6 +292,7 @@ export class NgpPopoverTrigger<T = null> implements OnDestroy {
       placement: this.state.placement,
       offset: this.state.offset(),
       flip: this.state.flip(),
+      shift: this.state.shift(),
       showDelay: this.state.showDelay(),
       hideDelay: this.state.hideDelay(),
       closeOnOutsideClick: this.state.closeOnOutsideClick(),

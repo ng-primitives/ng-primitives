@@ -1,6 +1,6 @@
 import { InjectionToken, Provider, inject } from '@angular/core';
 import { type Placement } from '@floating-ui/dom';
-import { NgpOffset } from 'ng-primitives/portal';
+import { NgpOffset, NgpShift } from 'ng-primitives/portal';
 
 export interface NgpPopoverConfig {
   /**
@@ -57,6 +57,13 @@ export interface NgpPopoverConfig {
    * @default scroll
    */
   scrollBehavior: 'reposition' | 'block';
+
+  /**
+   * Configure shift behavior to keep the popover in view.
+   * Can be a boolean to enable/disable, or an object with padding and limiter options.
+   * @default undefined (enabled by default in overlay)
+   */
+  shift: NgpShift;
 }
 
 export const defaultPopoverConfig: NgpPopoverConfig = {
@@ -69,6 +76,7 @@ export const defaultPopoverConfig: NgpPopoverConfig = {
   closeOnOutsideClick: true,
   closeOnEscape: true,
   scrollBehavior: 'reposition',
+  shift: undefined,
 };
 
 export const NgpPopoverConfigToken = new InjectionToken<NgpPopoverConfig>('NgpPopoverConfigToken');

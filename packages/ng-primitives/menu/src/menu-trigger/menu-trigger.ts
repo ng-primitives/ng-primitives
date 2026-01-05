@@ -1,7 +1,15 @@
 import { FocusOrigin } from '@angular/cdk/a11y';
 import { BooleanInput } from '@angular/cdk/coercion';
 import { booleanAttribute, Directive, input } from '@angular/core';
-import { coerceOffset, NgpOffset, NgpOffsetInput, NgpOverlayContent } from 'ng-primitives/portal';
+import {
+  coerceOffset,
+  coerceShift,
+  NgpOffset,
+  NgpOffsetInput,
+  NgpOverlayContent,
+  NgpShift,
+  NgpShiftInput,
+} from 'ng-primitives/portal';
 import { injectMenuConfig } from '../config/menu-config';
 import { ngpMenuTrigger, provideMenuTriggerState } from './menu-trigger-state';
 
@@ -63,6 +71,16 @@ export class NgpMenuTrigger<T = unknown> {
   });
 
   /**
+   * Configure shift behavior to keep the menu in view.
+   * Can be a boolean to enable/disable, or an object with padding and limiter options.
+   * @default undefined (enabled by default in overlay)
+   */
+  readonly shift = input<NgpShift, NgpShiftInput>(this.config.shift, {
+    alias: 'ngpMenuTriggerShift',
+    transform: coerceShift,
+  });
+
+  /**
    * Define the container in which the menu should be attached.
    * @default document.body
    */
@@ -94,6 +112,7 @@ export class NgpMenuTrigger<T = unknown> {
     placement: this.placement,
     offset: this.offset,
     flip: this.flip,
+    shift: this.shift(),
     container: this.container,
     scrollBehavior: this.scrollBehavior,
     context: this.context,

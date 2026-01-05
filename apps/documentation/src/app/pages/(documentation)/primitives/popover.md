@@ -51,6 +51,22 @@ You can customize the offset using either a simple number or an object for more 
 </button>
 ```
 
+### Custom Shift
+
+You can customize the shift behavior to control how the popover stays within the viewport:
+
+```html
+<!-- Disable shift -->
+<button [ngpPopoverTrigger]="popover" [ngpPopoverTriggerShift]="false">
+  Popover without shift
+</button>
+
+<!-- Object shift for precise control -->
+<button [ngpPopoverTrigger]="popover" [ngpPopoverTriggerShift]="{padding: 8}">
+  Popover with custom shift padding
+</button>
+```
+
 ## Reusable Component
 
 Create a popover component that uses the `NgpPopover` directive.
