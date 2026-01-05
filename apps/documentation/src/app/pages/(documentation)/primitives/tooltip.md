@@ -75,6 +75,22 @@ You can customize the offset using either a simple number or an object for more 
 </button>
 ```
 
+### Custom Shift
+
+You can customize the shift behavior to control how the tooltip stays within the viewport:
+
+```html
+<!-- Disable shift -->
+<button [ngpTooltipTrigger]="tooltip" [ngpTooltipTriggerShift]="false">
+  Tooltip without shift
+</button>
+
+<!-- Object shift for precise control -->
+<button [ngpTooltipTrigger]="tooltip" [ngpTooltipTriggerShift]="{padding: 8}">
+  Tooltip with custom shift padding
+</button>
+```
+
 ## API Reference
 
 The following directives are available to import from the `ng-primitives/tooltip` package:

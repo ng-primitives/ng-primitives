@@ -1,5 +1,5 @@
 import { InjectionToken, Provider, inject } from '@angular/core';
-import { NgpOffset } from 'ng-primitives/portal';
+import { NgpOffset, NgpShift } from 'ng-primitives/portal';
 import type { NgpMenuPlacement } from '../menu-trigger/menu-trigger';
 
 export interface NgpMenuConfig {
@@ -33,6 +33,13 @@ export interface NgpMenuConfig {
    * @default scroll
    */
   scrollBehavior: 'reposition' | 'block';
+
+  /**
+   * Configure shift behavior to keep the menu in view.
+   * Can be a boolean to enable/disable, or an object with padding and limiter options.
+   * @default undefined (enabled by default in overlay)
+   */
+  shift: NgpShift;
 }
 
 export const defaultMenuConfig: NgpMenuConfig = {
@@ -41,6 +48,7 @@ export const defaultMenuConfig: NgpMenuConfig = {
   flip: true,
   container: 'body',
   scrollBehavior: 'block',
+  shift: undefined,
 };
 
 export const NgpMenuConfigToken = new InjectionToken<NgpMenuConfig>('NgpMenuConfigToken');

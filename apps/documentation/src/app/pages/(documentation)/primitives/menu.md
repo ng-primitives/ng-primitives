@@ -81,6 +81,20 @@ You can customize the offset using either a simple number or an object for more 
 </button>
 ```
 
+### Custom Shift
+
+You can customize the shift behavior to control how the menu stays within the viewport:
+
+```html
+<!-- Disable shift -->
+<button [ngpMenuTrigger]="menu" [ngpMenuTriggerShift]="false">Menu without shift</button>
+
+<!-- Object shift for precise control -->
+<button [ngpMenuTrigger]="menu" [ngpMenuTriggerShift]="{padding: 8}">
+  Menu with custom shift padding
+</button>
+```
+
 ## API Reference
 
 The following directives are available to import from the `ng-primitives/menu` package:

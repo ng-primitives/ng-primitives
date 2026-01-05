@@ -1,6 +1,6 @@
 import { InjectionToken, Provider, inject } from '@angular/core';
 import { type Placement } from '@floating-ui/dom';
-import { NgpOffset } from 'ng-primitives/portal';
+import { NgpOffset, NgpShift } from 'ng-primitives/portal';
 
 export interface NgpTooltipConfig {
   /**
@@ -51,6 +51,13 @@ export interface NgpTooltipConfig {
    * @default true
    */
   useTextContent: boolean;
+
+  /**
+   * Configure shift behavior to keep the tooltip in view.
+   * Can be a boolean to enable/disable, or an object with padding and limiter options.
+   * @default undefined (enabled by default in overlay)
+   */
+  shift: NgpShift;
 }
 
 export const defaultTooltipConfig: NgpTooltipConfig = {
@@ -62,6 +69,7 @@ export const defaultTooltipConfig: NgpTooltipConfig = {
   container: 'body',
   showOnOverflow: false,
   useTextContent: true,
+  shift: undefined,
 };
 
 export const NgpTooltipConfigToken = new InjectionToken<NgpTooltipConfig>('NgpTooltipConfigToken');
