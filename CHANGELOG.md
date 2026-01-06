@@ -1,3 +1,13 @@
+## 0.99.1 (2026-01-06)
+
+### 🩹 Fixes
+
+- adding missing state functions ([#591](https://github.com/ng-primitives/ng-primitives/pull/591))
+
+### ❤️ Thank You
+
+- Ashley Hunter
+
 ## 0.99.0 (2026-01-06)
 
 ### 🩹 Fixes
