@@ -56,6 +56,6 @@ export const [
       formField()?.addDescription(newId);
     });
 
-    return { id };
+    return { id } satisfies NgpDescriptionState;
   },
 );

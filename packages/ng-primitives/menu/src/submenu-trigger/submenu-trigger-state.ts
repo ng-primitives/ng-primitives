@@ -1,5 +1,13 @@
 import { FocusOrigin } from '@angular/cdk/a11y';
-import { computed, inject, Injector, signal, Signal, ViewContainerRef } from '@angular/core';
+import {
+  computed,
+  inject,
+  Injector,
+  signal,
+  Signal,
+  ViewContainerRef,
+  WritableSignal,
+} from '@angular/core';
 import { injectElementRef } from 'ng-primitives/internal';
 import {
   createOverlay,
@@ -8,30 +16,95 @@ import {
   NgpOverlayConfig,
   NgpOverlayContent,
 } from 'ng-primitives/portal';
-import { attrBinding, createPrimitive, dataBinding, listener } from 'ng-primitives/state';
+import {
+  attrBinding,
+  controlled,
+  createPrimitive,
+  dataBinding,
+  deprecatedSetter,
+  listener,
+} from 'ng-primitives/state';
 import { safeTakeUntilDestroyed } from 'ng-primitives/utils';
 import { NgpMenuPlacement } from '../menu-trigger/menu-trigger';
 import { injectMenuState } from '../menu/menu-state';
 
 export interface NgpSubmenuTriggerState {
   /**
+   * The menu template or component.
+   */
+  readonly menu: WritableSignal<NgpOverlayContent<any> | undefined>;
+
+  /**
    * The computed placement of the menu.
    */
-  readonly placement: Signal<NgpMenuPlacement>;
+  readonly placement: WritableSignal<NgpMenuPlacement>;
+
+  /**
+   * Whether the menu is open.
+   */
+  readonly open: Signal<boolean>;
+
+  /**
+   * The offset of the menu.
+   */
+  readonly offset: WritableSignal<NgpOffset>;
+
+  /**
+   * The disabled state of the trigger.
+   */
+  readonly disabled: WritableSignal<boolean>;
+
+  /**
+   * Whether the menu should flip when there is not enough space.
+   */
+  readonly flip: WritableSignal<boolean>;
+
   /**
    * Show the menu.
    */
   show(): void;
+
   /**
    * Hide the menu.
    * @param origin - The focus origin
    */
   hide(origin?: FocusOrigin): void;
+
   /**
    * Toggle the menu.
    * @param event - The mouse event
    */
   toggle(event: MouseEvent): void;
+
+  /**
+   * Set whether the trigger is disabled.
+   * @param isDisabled - Whether the trigger is disabled
+   */
+  setDisabled(isDisabled: boolean): void;
+
+  /**
+   * Set the menu template or component.
+   * @param menu - The menu content
+   */
+  setMenu(menu: NgpOverlayContent<any> | undefined): void;
+
+  /**
+   * Set the placement of the menu.
+   * @param placement - The menu placement
+   */
+  setPlacement(placement: NgpMenuPlacement): void;
+
+  /**
+   * Set the offset of the menu.
+   * @param offset - The menu offset
+   */
+  setOffset(offset: NgpOffset): void;
+
+  /**
+   * Set whether the menu should flip when there is not enough space.
+   * @param shouldFlip - Whether the menu should flip
+   */
+  setFlip(shouldFlip: boolean): void;
 }
 
 export interface NgpSubmenuTriggerProps<T = unknown> {
@@ -65,16 +138,23 @@ export const [
 ] = createPrimitive(
   'NgpSubmenuTrigger',
   <T>({
-    disabled = signal(false),
-    menu,
-    placement = signal('right-start'),
-    offset = signal(0),
-    flip = signal(true),
+    disabled: _disabled = signal(false),
+    menu: _menu = signal<NgpOverlayContent<T> | undefined>(undefined),
+    placement: _placement = signal('right-start'),
+    offset: _offset = signal(0),
+    flip: _flip = signal(true),
   }: NgpSubmenuTriggerProps<T>) => {
     const element = injectElementRef();
     const injector = inject(Injector);
     const viewContainerRef = inject(ViewContainerRef);
     const parentMenu = injectMenuState({ optional: true });
+
+    // Controlled properties
+    const menu = controlled(_menu);
+    const disabled = controlled(_disabled);
+    const placement = controlled(_placement);
+    const flip = controlled(_flip);
+    const offset = controlled(_offset);
 
     const overlay = signal<NgpOverlay<T> | null>(null);
     const open = computed(() => overlay()?.isOpen() ?? false);
@@ -201,11 +281,45 @@ export const [
       show();
     }
 
+    function setDisabled(isDisabled: boolean): void {
+      disabled.set(isDisabled);
+
+      if (isDisabled && open()) {
+        hide();
+      }
+    }
+
+    function setMenu(newMenu: NgpOverlayContent<T> | undefined): void {
+      menu.set(newMenu);
+    }
+
+    function setPlacement(newPlacement: NgpMenuPlacement): void {
+      placement.set(newPlacement);
+    }
+
+    function setOffset(newOffset: NgpOffset): void {
+      offset.set(newOffset);
+    }
+
+    function setFlip(shouldFlip: boolean): void {
+      flip.set(shouldFlip);
+    }
+
     return {
-      placement,
+      placement: deprecatedSetter(placement, 'setPlacement'),
+      offset: deprecatedSetter(offset, 'setOffset'),
+      disabled: deprecatedSetter(disabled, 'setDisabled'),
+      menu: deprecatedSetter(menu, 'setMenu'),
+      flip: deprecatedSetter(flip, 'setFlip'),
+      open,
       show,
       hide,
       toggle,
-    };
+      setDisabled,
+      setMenu,
+      setFlip,
+      setPlacement,
+      setOffset,
+    } satisfies NgpSubmenuTriggerState;
   },
 );

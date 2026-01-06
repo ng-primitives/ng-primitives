@@ -61,6 +61,6 @@ export const [NgpTextareaStateToken, ngpTextarea, injectTextareaState, provideTe
         disabled.set(value);
       }
 
-      return { id, disabled, setDisabled };
+      return { id, disabled, setDisabled } satisfies NgpTextareaState;
     },
   );

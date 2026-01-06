@@ -31,7 +31,7 @@ export const [NgpAvatarStateToken, ngpAvatar, injectAvatarState, provideAvatarSt
     return {
       status,
       setStatus,
-    };
+    } satisfies NgpAvatarState;
   });
 
 export enum NgpAvatarStatus {

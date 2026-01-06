@@ -141,6 +141,6 @@ export const [NgpSwitchStateToken, ngpSwitch, injectSwitchState, provideSwitchSt
         toggle,
         setChecked,
         setDisabled,
-      };
+      } satisfies NgpSwitchState;
     },
   );

@@ -102,6 +102,6 @@ export const [NgpErrorStateToken, ngpError, injectErrorState, provideErrorState]
       id,
       hasError,
       state,
-    };
+    } satisfies NgpErrorState;
   },
 );

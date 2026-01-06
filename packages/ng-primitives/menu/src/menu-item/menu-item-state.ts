@@ -75,5 +75,5 @@ export const [NgpMenuItemStateToken, ngpMenuItem, injectMenuItemState, provideMe
       parentMenu()?.closeSubmenus.next(element.nativeElement);
     }
 
-    return {};
+    return {} satisfies NgpMenuItemState;
   });

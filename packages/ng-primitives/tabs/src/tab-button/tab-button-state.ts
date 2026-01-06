@@ -29,11 +29,6 @@ export interface NgpTabButtonState {
    * Select the tab this trigger controls.
    */
   select(): void;
-
-  /**
-   * Register this tab with the tabset.
-   */
-  register(): void;
 }
 
 /**
@@ -120,5 +115,5 @@ export const [NgpTabButtonStateToken, ngpTabButton, injectTabButtonState, provid
       id: buttonId,
       active,
       select,
-    };
+    } satisfies NgpTabButtonState;
   });

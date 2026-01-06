@@ -160,7 +160,7 @@ export const [NgpAccordionStateToken, ngpAccordion, _injectAccordionState, provi
         setValue,
         isOpen,
         toggle,
-      };
+      } satisfies NgpAccordionState<T>;
     },
   );
 

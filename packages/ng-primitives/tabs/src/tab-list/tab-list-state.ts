@@ -1,5 +1,5 @@
 import { injectElementRef } from 'ng-primitives/internal';
-import { createPrimitive, attrBinding, dataBinding } from 'ng-primitives/state';
+import { attrBinding, createPrimitive, dataBinding } from 'ng-primitives/state';
 import { injectTabsetState } from '../tabset/tabset-state';
 
 /**
@@ -26,5 +26,5 @@ export const [NgpTabListStateToken, ngpTabList, injectTabListState, provideTabLi
     attrBinding(element, 'aria-orientation', () => tabsetState().orientation());
     dataBinding(element, 'data-orientation', () => tabsetState().orientation());
 
-    return {};
+    return {} satisfies NgpTabListState;
   });

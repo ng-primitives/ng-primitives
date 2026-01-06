@@ -49,6 +49,6 @@ export const [NgpMenuStateToken, ngpMenu, injectMenuState, provideMenuState] = c
     return {
       closeAllMenus,
       closeSubmenus,
-    };
+    } satisfies NgpMenuState;
   },
 );

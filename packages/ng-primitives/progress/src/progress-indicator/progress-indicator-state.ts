@@ -23,6 +23,6 @@ export const [NgpProgressIndicatorStateToken, ngpProgressIndicator] = createPrim
 
     styleBinding(element, 'width.%', percentage);
 
-    return {};
+    return {} satisfies NgpProgressIndicatorState;
   },
 );

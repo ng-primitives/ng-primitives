@@ -247,5 +247,5 @@ export const [NgpFormFieldStateToken, ngpFormField, injectFormFieldState, provid
       removeFormControl,
       removeLabel,
       removeDescription,
-    };
+    } satisfies NgpFormFieldState;
   });

@@ -21,5 +21,5 @@ export const [NgpSeparatorStateToken, ngpSeparator, injectSeparatorState, provid
     attrBinding(element, 'aria-orientation', orientation);
     attrBinding(element, 'data-orientation', orientation);
 
-    return {};
+    return {} satisfies NgpSeparatorState;
   });

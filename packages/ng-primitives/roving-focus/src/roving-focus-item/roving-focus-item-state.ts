@@ -101,6 +101,6 @@ export const [
     // Unregister the item when destroyed
     onDestroy(() => group()?.unregister(state));
 
-    return state;
+    return state satisfies NgpRovingFocusItemState;
   },
 );

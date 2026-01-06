@@ -227,6 +227,6 @@ export const [
       rejected: rejected.asObservable(),
       dragOver: dragOver.asObservable(),
       showFileDialog,
-    };
+    } satisfies NgpFileUploadState;
   },
 );

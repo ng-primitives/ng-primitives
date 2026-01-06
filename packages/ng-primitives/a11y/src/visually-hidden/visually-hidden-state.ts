@@ -66,6 +66,6 @@ export const [
     return {
       hidden: hidden.asReadonly(),
       setVisibility,
-    };
+    } satisfies NgpVisuallyHiddenState;
   },
 );

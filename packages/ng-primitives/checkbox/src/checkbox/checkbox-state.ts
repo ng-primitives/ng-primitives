@@ -179,6 +179,6 @@ export const [NgpCheckboxStateToken, ngpCheckbox, injectCheckboxState, provideCh
         setChecked,
         setIndeterminate,
         setDisabled,
-      };
+      } satisfies NgpCheckboxState;
     },
   );

@@ -212,6 +212,6 @@ export const [
       setDisabled,
       setOrientation,
       valueChange: valueChange.asObservable(),
-    };
+    } satisfies NgpToggleGroupState;
   },
 );

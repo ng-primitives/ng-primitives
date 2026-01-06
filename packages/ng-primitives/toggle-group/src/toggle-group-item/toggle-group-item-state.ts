@@ -58,6 +58,6 @@ export const [
       toggleGroup()?.toggle(value()!);
     };
 
-    return { selected, toggle };
+    return { selected, toggle } satisfies NgpToggleGroupItemState;
   },
 );

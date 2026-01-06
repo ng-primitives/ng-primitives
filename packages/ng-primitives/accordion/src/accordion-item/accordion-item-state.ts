@@ -95,7 +95,7 @@ export const [
       setDisabled,
       setTrigger,
       setContent,
-    };
+    } satisfies NgpAccordionItemState<T>;
   },
 );
 

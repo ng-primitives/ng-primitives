@@ -122,6 +122,6 @@ export const [NgpLabelStateToken, ngpLabel, injectLabelState, provideLabelState]
     return {
       id,
       htmlFor,
-    };
+    } satisfies NgpLabelState;
   },
 );

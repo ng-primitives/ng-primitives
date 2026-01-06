@@ -59,4 +59,6 @@ export const [
 
   // Register track with parent
   rangeSlider().setTrack(element);
+
+  return {} satisfies NgpRangeSliderTrackState;
 });

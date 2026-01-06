@@ -16,5 +16,5 @@ export const [
   // Host bindings
   attrBinding(element, 'aria-current', 'page');
 
-  return {};
+  return {} satisfies NgpBreadcrumbPageState;
 });
