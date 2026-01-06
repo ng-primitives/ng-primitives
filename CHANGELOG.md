@@ -1,3 +1,13 @@
+## 0.99.0 (2026-01-06)
+
+### 🩹 Fixes
+
+- restoring menu and toggle group api ([#590](https://github.com/ng-primitives/ng-primitives/pull/590))
+
+### ❤️ Thank You
+
+- Ashley Hunter
+
 ## 0.98.0 (2026-01-05)
 
 ### 🚀 Features
