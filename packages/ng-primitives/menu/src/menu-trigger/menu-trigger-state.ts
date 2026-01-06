@@ -18,6 +18,14 @@ export interface NgpMenuTriggerState {
    */
   readonly placement: Signal<NgpMenuPlacement>;
   /**
+   * Whether the menu is open.
+   */
+  readonly open: Signal<boolean>;
+  /**
+   * The offset of the menu.
+   */
+  readonly offset: Signal<NgpOffset>;
+  /**
    * Show the menu.
    */
   show(): void;
@@ -179,6 +187,8 @@ export const [
 
     return {
       placement,
+      open,
+      offset,
       show,
       hide,
       toggle,
