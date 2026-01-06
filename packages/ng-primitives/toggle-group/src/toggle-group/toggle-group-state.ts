@@ -30,6 +30,11 @@ export interface NgpToggleGroupState {
    * Whether the toggle group is disabled.
    */
   readonly disabled: WritableSignal<boolean>;
+
+  /**
+   * The orientation of the toggle group.
+   */
+  readonly orientation: WritableSignal<NgpOrientation>;
   /**
    * Select a value in the toggle group.
    */
@@ -202,6 +207,7 @@ export const [
       isSelected,
       toggle,
       value: deprecatedSetter(value, 'setValue') as WritableSignal<string[]>,
+      orientation: deprecatedSetter(orientation, 'setOrientation'),
       setValue,
       setDisabled,
       setOrientation,
