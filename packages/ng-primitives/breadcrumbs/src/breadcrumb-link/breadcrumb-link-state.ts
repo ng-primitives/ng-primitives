@@ -14,5 +14,5 @@ export const [
   // Set up interactions for hover, press, and focus-visible
   ngpInteractions({ hover: true, press: true, focusVisible: true });
 
-  return {};
+  return {} satisfies NgpBreadcrumbLinkState;
 });

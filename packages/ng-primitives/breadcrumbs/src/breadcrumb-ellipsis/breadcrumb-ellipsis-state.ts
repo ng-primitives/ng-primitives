@@ -17,5 +17,5 @@ export const [
   attrBinding(element, 'role', 'presentation');
   attrBinding(element, 'aria-hidden', 'true');
 
-  return {};
+  return {} satisfies NgpBreadcrumbEllipsisState;
 });

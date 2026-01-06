@@ -93,6 +93,6 @@ export const [
       .pipe(debounceTime(0), safeTakeUntilDestroyed())
       .subscribe(() => updateDimensions());
 
-    return {};
+    return { id } satisfies NgpAccordionContentState;
   },
 );

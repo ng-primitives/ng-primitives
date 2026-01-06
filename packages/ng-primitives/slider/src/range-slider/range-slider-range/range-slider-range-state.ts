@@ -41,5 +41,5 @@ export const [
     rangeSlider().orientation() === 'vertical' ? rangeSlider().lowPercentage() : null,
   );
 
-  return {};
+  return {} satisfies NgpRangeSliderRangeState;
 });

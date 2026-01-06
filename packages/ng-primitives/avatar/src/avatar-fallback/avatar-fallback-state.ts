@@ -30,5 +30,5 @@ export const [
 
   styleBinding(element, 'display', () => (visible() ? null : 'none'));
 
-  return {};
+  return {} satisfies NgpAvatarFallbackState;
 });

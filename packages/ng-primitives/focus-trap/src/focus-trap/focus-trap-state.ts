@@ -311,5 +311,5 @@ export const [NgpFocusTrapStateToken, ngpFocusTrap, injectFocusTrapState, provid
     // if this is used within an overlay we must disable the focus trap as soon as the overlay is closing
     overlay?.closing.pipe(safeTakeUntilDestroyed()).subscribe(() => focusTrap.deactivate());
 
-    return {};
+    return {} satisfies NgpFocusTrapState;
   });

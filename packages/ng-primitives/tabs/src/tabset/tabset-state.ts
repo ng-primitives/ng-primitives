@@ -22,12 +22,12 @@ export interface NgpTabsetState {
   /**
    * The orientation of the tabset.
    */
-  readonly orientation: Signal<NgpOrientation>;
+  readonly orientation: WritableSignal<NgpOrientation>;
 
   /**
    * Whether tabs should activate on focus.
    */
-  readonly activateOnFocus: Signal<boolean>;
+  readonly activateOnFocus: WritableSignal<boolean>;
 
   /**
    * The selected tab value.
@@ -50,9 +50,14 @@ export interface NgpTabsetState {
   setOrientation(orientation: NgpOrientation): void;
 
   /**
+   * Set the activateOnFocus.
+   */
+  setActivateOnFocus(activateOnFocus: boolean): void;
+
+  /**
    * @internal Register a tab with the tabset.
    */
-  registerTab(value: string, disabled: () => boolean): void;
+  registerTab(tab: NgpTab): void;
 
   /**
    * @internal Unregister a tab with the tabset.
@@ -97,13 +102,16 @@ export const [NgpTabsetStateToken, ngpTabset, injectTabsetState, provideTabsetSt
       id = signal(uniqueId('ngp-tabset')),
       value: _value = signal(undefined),
       orientation: _orientation = signal('horizontal'),
-      activateOnFocus = signal(false),
+      activateOnFocus: _activateOnFocus = signal(false),
       onValueChange,
     }: NgpTabsetProps) => {
       const element = injectElementRef();
       const tabs = signal<NgpTab[]>([]);
+
+      // Controlled properties
       const value = controlled(_value);
       const orientation = controlled(_orientation);
+      const activateOnFocus = controlled(_activateOnFocus);
 
       // Host bindings
       attrBinding(element, 'id', id);
@@ -142,6 +150,10 @@ export const [NgpTabsetStateToken, ngpTabset, injectTabsetState, provideTabsetSt
         orientation.set(newOrientation);
       }
 
+      function setActivateOnFocus(newActivateOnFocus: boolean): void {
+        activateOnFocus.set(newActivateOnFocus);
+      }
+
       function registerTab(tab: NgpTab): void {
         tabs.update(currentTabs => [...currentTabs, tab]);
       }
@@ -152,15 +164,16 @@ export const [NgpTabsetStateToken, ngpTabset, injectTabsetState, provideTabsetSt
 
       return {
         id,
-        orientation,
-        activateOnFocus,
+        orientation: deprecatedSetter(orientation, 'setOrientation'),
+        activateOnFocus: deprecatedSetter(activateOnFocus, 'setActivateOnFocus'),
         value: deprecatedSetter(value, 'select'),
         selectedTab,
         select,
         setOrientation,
         registerTab,
         unregisterTab,
-      };
+        setActivateOnFocus,
+      } satisfies NgpTabsetState;
     },
   );
 

@@ -16,5 +16,5 @@ export const [
   // Host bindings
   attrBinding(element, 'role', 'list');
 
-  return {};
+  return {} satisfies NgpBreadcrumbListState;
 });

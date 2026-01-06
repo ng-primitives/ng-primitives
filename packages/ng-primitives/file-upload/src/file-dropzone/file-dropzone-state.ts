@@ -1,7 +1,14 @@
 import { Signal, signal } from '@angular/core';
 import { ngpHover } from 'ng-primitives/interactions';
 import { injectElementRef } from 'ng-primitives/internal';
-import { createPrimitive, dataBinding, emitter, listener } from 'ng-primitives/state';
+import {
+  controlled,
+  createPrimitive,
+  dataBinding,
+  deprecatedSetter,
+  emitter,
+  listener,
+} from 'ng-primitives/state';
 import { Observable } from 'rxjs';
 import { fileDropFilter } from './file-drop-filter';
 
@@ -9,6 +16,10 @@ import { fileDropFilter } from './file-drop-filter';
  * The state for the NgpFileDropzone directive.
  */
 export interface NgpFileDropzoneState {
+  /**
+   * Whether the file dropzone is disabled.
+   */
+  readonly disabled: Signal<boolean | undefined>;
   /**
    * Whether the user is currently dragging over the element.
    */
@@ -25,6 +36,24 @@ export interface NgpFileDropzoneState {
    * Observable that emits when drag over state changes.
    */
   readonly dragOver: Observable<boolean>;
+
+  /**
+   * Set the accepted file types.
+   */
+  readonly fileTypes: Signal<string[] | undefined>;
+  /**
+   * Whether multiple files can be selected.
+   */
+  readonly multiple: Signal<boolean | undefined>;
+  /**
+   * Whether directories can be selected.
+   */
+  readonly directory: Signal<boolean | undefined>;
+
+  /**
+   * Set the disabled state.
+   */
+  setDisabled(value: boolean): void;
 }
 
 /**
@@ -69,16 +98,19 @@ export const [
 ] = createPrimitive(
   'NgpFileDropzone',
   ({
-    fileTypes,
-    multiple,
-    directory,
-    disabled,
+    fileTypes = signal<string[] | undefined>(undefined),
+    multiple = signal<boolean>(false),
+    directory = signal<boolean>(false),
+    disabled: _disabled = signal<boolean>(false),
     onSelected,
     onRejected,
     onDragOver,
   }: NgpFileDropzoneProps) => {
     const element = injectElementRef();
     const isDragOverState = signal(false);
+
+    // Controlled properties
+    const disabled = controlled(_disabled);
 
     // Create observables
     const selected = emitter<FileList | null>();
@@ -161,8 +193,12 @@ export const [
     listener(element, 'dragleave', onDragLeave);
     listener(element, 'drop', onDrop);
 
+    function setDisabled(value: boolean): void {
+      disabled?.set(value);
+    }
+
     return {
-      disabled,
+      disabled: deprecatedSetter(disabled, 'setDisabled'),
       fileTypes,
       multiple,
       directory,
@@ -170,6 +206,7 @@ export const [
       selected: selected.asObservable(),
       rejected: rejected.asObservable(),
       dragOver: dragOver.asObservable(),
-    };
+      setDisabled,
+    } satisfies NgpFileDropzoneState;
   },
 );

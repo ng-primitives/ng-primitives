@@ -64,6 +64,6 @@ export const [
     // Event listeners
     listener(element, 'click', toggle);
 
-    return { id, toggle };
+    return { id, toggle } satisfies NgpAccordionTriggerState;
   },
 );

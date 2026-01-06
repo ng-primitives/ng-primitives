@@ -16,5 +16,5 @@ export const [
   // Host bindings
   attrBinding(element, 'role', 'listitem');
 
-  return {};
+  return {} satisfies NgpBreadcrumbItemState;
 });

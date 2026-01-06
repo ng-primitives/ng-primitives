@@ -165,5 +165,5 @@ export const [
   return {
     dragging: computed(() => dragging),
     focus,
-  };
+  } satisfies NgpSliderThumbState;
 });

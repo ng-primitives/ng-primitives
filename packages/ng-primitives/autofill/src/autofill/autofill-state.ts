@@ -63,5 +63,5 @@ export const [NgpAutofillStateToken, ngpAutofill, injectAutofillState, provideAu
 
     return {
       autofilled,
-    };
+    } satisfies NgpAutofillState;
   });

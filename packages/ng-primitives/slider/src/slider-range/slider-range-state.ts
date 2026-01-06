@@ -31,5 +31,5 @@ export const [
     slider().orientation() === 'vertical' ? slider().percentage() : null,
   );
 
-  return {};
+  return {} satisfies NgpSliderRangeState;
 });

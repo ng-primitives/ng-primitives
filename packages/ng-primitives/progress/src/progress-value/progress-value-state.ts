@@ -18,6 +18,6 @@ export const [NgpProgressValueStateToken, ngpProgressValue] = createPrimitive(
     dataBinding(element, 'data-indeterminate', () => state().indeterminate());
     dataBinding(element, 'data-complete', () => state().complete());
 
-    return {};
+    return {} satisfies NgpProgressValueState;
   },
 );

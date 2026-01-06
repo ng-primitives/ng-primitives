@@ -68,5 +68,5 @@ export const [NgpTabPanelStateToken, ngpTabPanel, injectTabPanelState, provideTa
       panelId,
       labelledBy,
       active,
-    };
+    } satisfies NgpTabPanelState;
   });

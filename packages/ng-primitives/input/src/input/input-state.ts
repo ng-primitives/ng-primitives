@@ -5,7 +5,7 @@ import { ngpInteractions } from 'ng-primitives/interactions';
 import { injectElementRef } from 'ng-primitives/internal';
 import { injectSearchState } from 'ng-primitives/search';
 import { attrBinding, controlled, createPrimitive, deprecatedSetter } from 'ng-primitives/state';
-import { uniqueId } from 'ng-primitives/utils';
+import { NgpControlStatus, uniqueId } from 'ng-primitives/utils';
 
 /**
  * Public state surface for the Input primitive.
@@ -15,6 +15,12 @@ export interface NgpInputState {
    * The id of the input.
    */
   readonly id: Signal<string>;
+
+  /**
+   * The form control state.
+   */
+  readonly status: Signal<NgpControlStatus>;
+
   /**
    * Whether the input is disabled.
    */
@@ -77,6 +83,6 @@ export const [NgpInputStateToken, ngpInput, injectInputState, provideInputState]
       disabled: deprecatedSetter(disabled, 'setDisabled'),
       status,
       setDisabled,
-    };
+    } satisfies NgpInputState;
   },
 );

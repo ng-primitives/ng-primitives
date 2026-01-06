@@ -129,6 +129,6 @@ export const [NgpToggleStateToken, ngpToggle, injectToggleState, provideToggleSt
         toggle,
         setSelected,
         setDisabled,
-      };
+      } satisfies NgpToggleState;
     },
   );

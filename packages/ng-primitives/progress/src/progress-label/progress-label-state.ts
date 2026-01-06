@@ -28,6 +28,6 @@ export const [NgpProgressLabelStateToken, ngpProgressLabel] = createPrimitive(
 
     state().labelId.set(id());
 
-    return {};
+    return {} satisfies NgpProgressLabelState;
   },
 );

@@ -11,6 +11,6 @@ export const [Ngp<%= className %>StateToken, ngp<%= className %>, inject<%= clas
     'Ngp<%= className %>',
     ({  }: Ngp<%= className %>Props) => {
 
-      return { };
+      return { } satisfies Ngp<%= className %>State;
     },
   );

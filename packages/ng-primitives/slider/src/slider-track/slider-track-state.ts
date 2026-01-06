@@ -50,5 +50,5 @@ export const [
     slider().setValue(value);
   });
 
-  return {};
+  return {} satisfies NgpSliderTrackState;
 });

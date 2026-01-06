@@ -187,6 +187,6 @@ export const [NgpSliderStateToken, ngpSlider, injectSliderState, provideSliderSt
         setTrack,
         setDisabled,
         setOrientation,
-      };
+      } satisfies NgpSliderState;
     },
   );

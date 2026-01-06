@@ -39,5 +39,5 @@ export const [
     visuallyHidden.setVisibility(state === NgpAvatarStatus.Loaded);
   }
 
-  return {};
+  return {} satisfies NgpAvatarImageState;
 });

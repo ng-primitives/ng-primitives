@@ -46,5 +46,5 @@ export const [
     disabled,
   });
 
-  return { checked, disabled };
+  return { checked, disabled } satisfies NgpSwitchThumbState;
 });

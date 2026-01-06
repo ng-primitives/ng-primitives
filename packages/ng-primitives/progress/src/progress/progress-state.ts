@@ -1,6 +1,12 @@
-import { computed, signal, Signal } from '@angular/core';
+import { computed, signal, Signal, WritableSignal } from '@angular/core';
 import { injectElementRef } from 'ng-primitives/internal';
-import { attrBinding, createPrimitive, dataBinding, deprecatedSetter } from 'ng-primitives/state';
+import {
+  attrBinding,
+  controlled,
+  createPrimitive,
+  dataBinding,
+  deprecatedSetter,
+} from 'ng-primitives/state';
 import { uniqueId } from 'ng-primitives/utils';
 import { NgpProgressValueTextFn } from './progress';
 
@@ -45,19 +51,19 @@ export interface NgpProgressState {
   /**
    * Define the progress value.
    */
-  readonly value: Signal<number | null>;
+  readonly value: WritableSignal<number | null>;
 
   /**
    * Define the progress min value.
    * @default '0'
    */
-  readonly min: Signal<number>;
+  readonly min: WritableSignal<number>;
 
   /**
    * Define the progress max value.
    * @default 100
    */
-  readonly max: Signal<number>;
+  readonly max: WritableSignal<number>;
 
   /**
    * Get the progress value text.
@@ -92,19 +98,43 @@ export interface NgpProgressState {
    * Set the label of the progress bar.
    */
   setLabel(id: string): void;
+
+  /**
+   * Set the value of the progress bar.
+   * @param value The progress value
+   */
+  setValue(value: number | null): void;
+
+  /**
+   * Set the minimum value of the progress bar.
+   * @param min The minimum value
+   */
+  setMin(min: number): void;
+
+  /**
+   * Set the maximum value of the progress bar.
+   * @param max The maximum value
+   */
+  setMax(max: number): void;
 }
 
 export const [NgpProgressStateToken, ngpProgress, injectProgressState, provideProgressState] =
   createPrimitive(
     'NgpProgress',
     ({
-      valueLabel = signal((value, max) => `${Math.round((value / max) * 100)}%`),
-      value = signal(null),
-      min = signal(0),
-      max = signal(100),
+      valueLabel: _valueLabel = signal((value, max) => `${Math.round((value / max) * 100)}%`),
+      value: _value = signal(null),
+      min: _min = signal(0),
+      max: _max = signal(100),
       id = signal(uniqueId('ngp-progress')),
     }: NgpProgressProps) => {
       const element = injectElementRef();
+
+      // Controlled properties
+      const value = controlled(_value);
+      const min = controlled(_min);
+      const max = controlled(_max);
+      const valueLabel = controlled(_valueLabel);
 
       /**
        * Determine if the progress is indeterminate.
@@ -153,17 +183,32 @@ export const [NgpProgressStateToken, ngpProgress, injectProgressState, providePr
       dataBinding(element, 'data-indeterminate', () => indeterminate());
       dataBinding(element, 'data-complete', () => complete());
 
+      function setMax(newMax: number): void {
+        max.set(newMax);
+      }
+
+      function setMin(newMin: number): void {
+        min.set(newMin);
+      }
+
+      function setValue(newValue: number | null): void {
+        value.set(newValue);
+      }
+
       return {
-        max,
-        min,
+        max: deprecatedSetter(max, 'setMax'),
+        min: deprecatedSetter(min, 'setMin'),
+        value: deprecatedSetter(value, 'setValue'),
         labelId: deprecatedSetter(labelId, 'setLabel'),
         valueText,
         id,
-        value,
         indeterminate,
         progressing,
         complete,
         setLabel,
+        setValue,
+        setMin,
+        setMax,
       } satisfies NgpProgressState;
     },
   );

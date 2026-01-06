@@ -195,5 +195,5 @@ export const [
     thumb,
     value,
     percentage,
-  };
+  } satisfies NgpRangeSliderThumbState;
 });

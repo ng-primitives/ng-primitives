@@ -340,6 +340,6 @@ export const [
       onKeydown,
       register,
       unregister,
-    };
+    } satisfies NgpRovingFocusGroupState;
   },
 );

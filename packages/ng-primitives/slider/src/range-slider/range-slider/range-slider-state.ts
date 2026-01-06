@@ -280,6 +280,6 @@ export const [
       setDisabled,
       setOrientation,
       setTrack,
-    };
+    } satisfies NgpRangeSliderState;
   },
 );

@@ -49,6 +49,6 @@ export const [NgpButtonStateToken, ngpButton, injectButtonState, provideButtonSt
       return {
         disabled: disabled.asReadonly(),
         setDisabled,
-      };
+      } satisfies NgpButtonState;
     },
   );
