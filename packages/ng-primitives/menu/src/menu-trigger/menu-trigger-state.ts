@@ -27,7 +27,7 @@ import {
 } from 'ng-primitives/state';
 import { NgpMenuPlacement } from './menu-trigger';
 
-export interface NgpMenuTriggerState {
+export interface NgpMenuTriggerState<T = unknown> {
   /**
    * The menu template or component.
    */
@@ -56,6 +56,11 @@ export interface NgpMenuTriggerState {
   readonly flip: WritableSignal<boolean>;
 
   /**
+   * The context provided to the menu.
+   */
+  readonly context?: WritableSignal<T | undefined>;
+
+  /**
    * Set whether the trigger is disabled.
    * @param isDisabled - Whether the trigger is disabled
    */
@@ -78,6 +83,12 @@ export interface NgpMenuTriggerState {
    * @param offset - The new offset
    */
   setOffset(offset: NgpOffset): void;
+
+  /**
+   * Set the context provided to the menu.
+   * @param context - The new context
+   */
+  setContext(context: T | undefined): void;
 
   /**
    * Show the menu.
@@ -158,9 +169,9 @@ export const [
     placement: _placement = signal('bottom-start' as NgpMenuPlacement),
     offset: _offset = signal(4),
     flip: _flip = signal(true),
+    context: _context = signal<T | undefined>(undefined),
     container,
     scrollBehavior,
-    context,
   }: NgpMenuTriggerProps<T>) => {
     const element = injectElementRef();
     const injector = inject(Injector);
@@ -172,6 +183,7 @@ export const [
     const placement = controlled(_placement);
     const flip = controlled(_flip);
     const offset = controlled(_offset);
+    const context = controlled(_context);
 
     // Internal state
     const overlay = signal<NgpOverlay<T> | null>(null);
@@ -277,11 +289,16 @@ export const [
       offset.set(newOffset);
     }
 
+    function setContext(newContext: T | undefined): void {
+      context.set(newContext);
+    }
+
     return {
       menu: deprecatedSetter(menu, 'setMenu'),
       placement: deprecatedSetter(placement, 'setPlacement'),
       offset: deprecatedSetter(offset, 'setOffset'),
       disabled: deprecatedSetter(disabled, 'setDisabled'),
+      context: deprecatedSetter(context, 'setContext'),
       open,
       show,
       hide,
@@ -291,7 +308,8 @@ export const [
       setFlip,
       setPlacement,
       setOffset,
+      setContext,
       flip,
-    } satisfies NgpMenuTriggerState;
+    } satisfies NgpMenuTriggerState<T>;
   },
 );
