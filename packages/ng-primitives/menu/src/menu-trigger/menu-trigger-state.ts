@@ -310,6 +310,6 @@ export const [
       setOffset,
       setContext,
       flip,
-    } satisfies NgpMenuTriggerState;
+    } satisfies NgpMenuTriggerState<T>;
   },
 );
