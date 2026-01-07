@@ -35,6 +35,11 @@ export interface NgpActivatable {
    * The element that represents the item.
    */
   elementRef: ElementRef<HTMLElement>;
+  /**
+   * Optionally define the index of the item. This is useful for scenarios where
+   * the order of items is not determined by DOM order, or when virtual scrolling is used.
+   */
+  index?: Signal<number | undefined>;
 }
 
 export function activeDescendantManager<T extends NgpActivatable>({
@@ -47,6 +52,24 @@ export function activeDescendantManager<T extends NgpActivatable>({
     items()
       .slice()
       .sort((a, b) => {
+        const aIndex = a.index?.();
+        const bIndex = b.index?.();
+
+        // If both items have explicit indices, sort by those
+        if (aIndex !== undefined && bIndex !== undefined) {
+          return aIndex - bIndex;
+        }
+
+        // If only one has an explicit index, prioritize it
+        if (aIndex !== undefined && bIndex === undefined) {
+          return -1;
+        }
+
+        if (aIndex === undefined && bIndex !== undefined) {
+          return 1;
+        }
+
+        // If neither has an explicit index, fall back to DOM order
         const aElement = a.elementRef.nativeElement;
         const bElement = b.elementRef.nativeElement;
         return aElement.compareDocumentPosition(bElement) & Node.DOCUMENT_POSITION_FOLLOWING

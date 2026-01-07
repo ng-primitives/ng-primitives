@@ -1,10 +1,11 @@
-import { BooleanInput } from '@angular/cdk/coercion';
+import { BooleanInput, NumberInput } from '@angular/cdk/coercion';
 import {
   booleanAttribute,
   computed,
   Directive,
   HostListener,
   input,
+  numberAttribute,
   OnDestroy,
   OnInit,
 } from '@angular/core';
@@ -14,6 +15,8 @@ import { injectElementRef } from 'ng-primitives/internal';
 import { uniqueId } from 'ng-primitives/utils';
 import { injectComboboxState } from '../combobox/combobox-state';
 import { areAllOptionsSelected } from '../utils';
+
+type T = any;
 
 @Directive({
   selector: '[ngpComboboxOption]',
@@ -43,7 +46,7 @@ export class NgpComboboxOption implements OnInit, OnDestroy, NgpActivatable {
   readonly id = input<string>(uniqueId('ngp-combobox-option'));
 
   /** @required The value of the option. */
-  readonly value = input<any>(undefined, {
+  readonly value = input<T>(undefined, {
     alias: 'ngpComboboxOptionValue',
   });
 
@@ -51,6 +54,15 @@ export class NgpComboboxOption implements OnInit, OnDestroy, NgpActivatable {
   readonly disabled = input<boolean, BooleanInput>(false, {
     alias: 'ngpComboboxOptionDisabled',
     transform: booleanAttribute,
+  });
+
+  /**
+   * The index of the option in the combobox. This can be used to define the order of options
+   * when virtual scrolling is used or when the order is not determined by DOM order.
+   */
+  readonly index = input<number, NumberInput>(undefined, {
+    alias: 'ngpComboboxOptionIndex',
+    transform: numberAttribute,
   });
 
   /**

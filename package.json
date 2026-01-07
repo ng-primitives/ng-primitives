@@ -129,6 +129,7 @@
     "@ng-icons/phosphor-icons": "^32.0.0",
     "@nx/devkit": "22.1.0",
     "@stackblitz/sdk": "^1.11.0",
+    "@tanstack/angular-virtual": "4.0.0",
     "cal-sans": "^1.0.1",
     "express": "^4.21.2",
     "front-matter": "^4.0.2",
