@@ -5,6 +5,7 @@ import {
   ChangeDetectorRef,
   computed,
   DestroyRef,
+  effect,
   ElementRef,
   FactoryProvider,
   forwardRef,
@@ -407,6 +408,24 @@ export function attrBinding(
   });
 }
 
+export function attrBindingImmediate(
+  element: ElementRef<HTMLElement>,
+  attr: string,
+  value:
+    | (() => string | number | boolean | null | undefined)
+    | string
+    | number
+    | boolean
+    | null
+    | undefined,
+): void {
+  effect(() => {
+    const valueResult = typeof value === 'function' ? value() : value;
+
+    setAttribute(element, attr, valueResult?.toString() ?? null);
+  });
+}
+
 function getStyleUnit(style: string): string {
   const parts = style.split('.');
 
@@ -456,6 +475,25 @@ export function styleBinding(
         element.nativeElement.style.removeProperty(styleName);
       }
     },
+  });
+}
+
+export function styleBindingImmediate(
+  element: ElementRef<HTMLElement>,
+  style: string,
+  value: (() => string | number | null) | string | number | null,
+): void {
+  effect(() => {
+    const styleValue = typeof value === 'function' ? value() : value;
+    // we should look for units in the style name, just like Angular does e.g. width.px
+    const styleUnit = getStyleUnit(style);
+    const styleName = styleUnit ? style.replace(`.${styleUnit}`, '') : style;
+
+    if (styleValue !== null) {
+      element.nativeElement.style.setProperty(styleName, styleValue + styleUnit);
+    } else {
+      element.nativeElement.style.removeProperty(styleName);
+    }
   });
 }
 

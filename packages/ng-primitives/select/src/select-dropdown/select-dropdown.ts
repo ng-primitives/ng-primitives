@@ -5,6 +5,7 @@ import { ngpSelectDropdown } from './select-dropdown-state';
 @Directive({
   selector: '[ngpSelectDropdown]',
   exportAs: 'ngpSelectDropdown',
+  host: {},
 })
 export class NgpSelectDropdown {
   /** The id of the dropdown. */
