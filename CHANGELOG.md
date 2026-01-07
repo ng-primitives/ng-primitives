@@ -1,3 +1,13 @@
+## 0.99.2 (2026-01-07)
+
+### 🩹 Fixes
+
+- **menu:** making context settable ([#592](https://github.com/ng-primitives/ng-primitives/pull/592))
+
+### ❤️ Thank You
+
+- Ashley Hunter
+
 ## 0.99.1 (2026-01-06)
 
 ### 🩹 Fixes
