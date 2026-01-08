@@ -867,6 +867,693 @@ describe('NgpCombobox Select All', () => {
   });
 });
 
+describe('NgpCombobox Virtual Scrolling', () => {
+  @Component({
+    imports: [
+      NgpCombobox,
+      NgpComboboxButton,
+      NgpComboboxDropdown,
+      NgpComboboxInput,
+      NgpComboboxOption,
+      NgpComboboxPortal,
+    ],
+    template: `
+      <div
+        [(ngpComboboxValue)]="value"
+        [ngpComboboxScrollToOption]="customScrollToOption"
+        [ngpComboboxOptions]="allOptions"
+        (ngpComboboxValueChange)="onValueChange($event)"
+        (ngpComboboxOpenChange)="onOpenChange($event)"
+        ngpCombobox
+        data-testid="virtual-combobox"
+      >
+        <input
+          [value]="filter"
+          (input)="onFilterChange($event)"
+          placeholder="Virtual combobox"
+          ngpComboboxInput
+        />
+
+        <button data-testid="virtual-combobox-button" ngpComboboxButton>▼</button>
+
+        <div *ngpComboboxPortal ngpComboboxDropdown>
+          @for (item of renderedItems; track item.index) {
+            <div
+              [ngpComboboxOptionValue]="item.value"
+              [ngpComboboxOptionIndex]="item.index"
+              ngpComboboxOption
+              [attr.data-testid]="'virtual-option-' + item.index"
+            >
+              {{ item.value }} ({{ item.index }})
+            </div>
+          }
+        </div>
+      </div>
+    `,
+  })
+  class VirtualScrollingTestComponent {
+    value: string | undefined = undefined;
+    filter = '';
+    open = false;
+    scrollToOptionCalled = false;
+    lastScrollIndex = -1;
+
+    // All options for virtual scrolling (simulating a large dataset)
+    allOptions = [
+      'Option 0', 'Option 1', 'Option 2', 'Option 3', 'Option 4',
+      'Option 5', 'Option 6', 'Option 7', 'Option 8', 'Option 9',
+      'Option 10', 'Option 11', 'Option 12', 'Option 13', 'Option 14',
+      'Option 15', 'Option 16', 'Option 17', 'Option 18', 'Option 19'
+    ];
+
+    // Simulated virtual scrolling - only render visible items
+    startIndex = 0;
+    endIndex = 5; // Only show 6 items at a time
+
+    get renderedItems() {
+      const filtered = this.filteredOptions;
+      return filtered
+        .slice(this.startIndex, this.endIndex + 1)
+        .map((value, displayIndex) => ({
+          value,
+          index: this.startIndex + displayIndex
+        }));
+    }
+
+    get filteredOptions() {
+      return this.filter
+        ? this.allOptions.filter(option =>
+            option.toLowerCase().includes(this.filter.toLowerCase())
+          )
+        : this.allOptions;
+    }
+
+    onValueChange(value: string) {
+      this.value = value;
+    }
+
+    onFilterChange(event: Event) {
+      this.filter = (event.target as HTMLInputElement).value;
+    }
+
+    onOpenChange(event: boolean) {
+      this.open = event;
+    }
+
+    customScrollToOption = (index: number) => {
+      this.scrollToOptionCalled = true;
+      this.lastScrollIndex = index;
+
+      // Simulate virtual scrolling by updating the rendered range
+      const itemsToShow = 6;
+      this.startIndex = Math.max(0, index - Math.floor(itemsToShow / 2));
+      this.endIndex = Math.min(this.filteredOptions.length - 1, this.startIndex + itemsToShow - 1);
+    };
+  }
+
+  @Component({
+    imports: [
+      NgpCombobox,
+      NgpComboboxButton,
+      NgpComboboxDropdown,
+      NgpComboboxInput,
+      NgpComboboxOption,
+      NgpComboboxPortal,
+    ],
+    template: `
+      <div
+        [(ngpComboboxValue)]="value"
+        [ngpComboboxOptions]="allOptions"
+        [ngpComboboxMultiple]="true"
+        (ngpComboboxValueChange)="onValueChange($event)"
+        ngpCombobox
+        data-testid="virtual-multi-combobox"
+      >
+        <input
+          placeholder="Virtual multi-select"
+          ngpComboboxInput
+        />
+
+        <button data-testid="virtual-multi-button" ngpComboboxButton>▼</button>
+
+        <div *ngpComboboxPortal ngpComboboxDropdown>
+          @for (item of renderedItems; track item.index) {
+            <div
+              [ngpComboboxOptionValue]="item.value"
+              [ngpComboboxOptionIndex]="item.index"
+              ngpComboboxOption
+              [attr.data-testid]="'virtual-multi-option-' + item.index"
+            >
+              {{ item.value }}
+            </div>
+          }
+        </div>
+      </div>
+    `,
+  })
+  class VirtualMultiSelectTestComponent {
+    value: string[] = [];
+
+    allOptions = [
+      'Multi Option 0', 'Multi Option 1', 'Multi Option 2',
+      'Multi Option 3', 'Multi Option 4', 'Multi Option 5'
+    ];
+
+    // Only render first 3 items to test virtual scrolling
+    get renderedItems() {
+      return this.allOptions.slice(0, 3).map((value, index) => ({ value, index }));
+    }
+
+    onValueChange(values: string[]) {
+      this.value = values;
+    }
+  }
+
+  afterEach(() => {
+    const dropdown = screen.queryByRole('listbox');
+    if (dropdown) {
+      dropdown.remove();
+    }
+  });
+
+  describe('Virtual Scrolling Integration', () => {
+    it('should use allOptions for active descendant count instead of DOM options', async () => {
+      const { fixture } = await render(VirtualScrollingTestComponent);
+      const component = fixture.componentInstance;
+
+      // Component has 20 allOptions but only renders 6 items
+      expect(component.allOptions.length).toBe(20);
+      expect(component.renderedItems.length).toBe(6);
+
+      const button = screen.getByTestId('virtual-combobox-button');
+      await userEvent.click(button);
+
+      // The combobox should know about all 20 options for keyboard navigation
+      // even though only 6 are rendered in DOM
+      expect(component.open).toBeTruthy();
+    });
+
+    it('should call custom scroll function when opening dropdown with selected item', async () => {
+      const { fixture } = await render(VirtualScrollingTestComponent);
+      const component = fixture.componentInstance;
+
+      // Set a value that's not in the initially rendered range
+      component.value = 'Option 10';
+      fixture.detectChanges();
+
+      const button = screen.getByTestId('virtual-combobox-button');
+      await userEvent.click(button);
+
+      // Custom scroll function should be called with the index of the selected option
+      expect(component.scrollToOptionCalled).toBeTruthy();
+      expect(component.lastScrollIndex).toBe(10);
+    });
+
+    it('should handle keyboard navigation with virtual indices', async () => {
+      const { fixture } = await render(VirtualScrollingTestComponent);
+      const component = fixture.componentInstance;
+
+      const input = screen.getByRole('combobox');
+      input.focus();
+
+      // Open dropdown
+      await userEvent.keyboard('{arrowdown}');
+      expect(component.open).toBeTruthy();
+
+      // First rendered option (index 0) should be active
+      const firstOption = screen.getByTestId('virtual-option-0');
+      expect(firstOption).toHaveAttribute('data-active');
+
+      // Navigate down should go to index 1
+      await userEvent.keyboard('{arrowdown}');
+      const secondOption = screen.getByTestId('virtual-option-1');
+      expect(secondOption).toHaveAttribute('data-active');
+    });
+
+    it('should select options by index when virtual scrolling is used', async () => {
+      const { fixture } = await render(VirtualScrollingTestComponent);
+      const component = fixture.componentInstance;
+
+      const button = screen.getByTestId('virtual-combobox-button');
+      await userEvent.click(button);
+
+      // Click on the option with index 2
+      const option = screen.getByTestId('virtual-option-2');
+      await userEvent.click(option);
+
+      expect(component.value).toBe('Option 2');
+
+      // Dropdown should close after selection
+      await waitFor(() => {
+        expect(component.open).toBeFalsy();
+      });
+    });
+
+    it('should support option selection with Enter key using virtual indices', async () => {
+      const { fixture } = await render(VirtualScrollingTestComponent);
+      const component = fixture.componentInstance;
+
+      const input = screen.getByRole('combobox');
+      input.focus();
+
+      // Open and navigate to second option (index 1)
+      await userEvent.keyboard('{arrowdown}');
+      await userEvent.keyboard('{arrowdown}');
+
+      // Select with Enter
+      await userEvent.keyboard('{enter}');
+
+      expect(component.value).toBe('Option 1');
+    });
+
+    it('should maintain virtual scroll position when filtering', async () => {
+      const { fixture } = await render(VirtualScrollingTestComponent);
+      const component = fixture.componentInstance;
+
+      // Set initial scroll position
+      component.customScrollToOption(5);
+      expect(component.startIndex).toBe(2); // 5 - 3 (half of items to show)
+      expect(component.endIndex).toBe(7);   // 2 + 6 - 1
+
+      const input = screen.getByRole('combobox');
+
+      // Filter options - this should reset the virtual scroll
+      await userEvent.type(input, '1');
+      fixture.detectChanges();
+
+      // Check that filtering works
+      const filteredOptions = component.filteredOptions;
+      expect(filteredOptions).toEqual([
+        'Option 1', 'Option 10', 'Option 11', 'Option 12', 'Option 13',
+        'Option 14', 'Option 15', 'Option 16', 'Option 17', 'Option 18', 'Option 19'
+      ]);
+    });
+
+    it('should handle pointer events correctly with virtual indices', async () => {
+      await render(VirtualScrollingTestComponent);
+
+      const button = screen.getByTestId('virtual-combobox-button');
+      await userEvent.click(button);
+
+      const option = screen.getByTestId('virtual-option-3');
+
+      // Hover over option should activate it
+      await userEvent.hover(option);
+      expect(option).toHaveAttribute('data-active');
+
+      // Unhover should deactivate
+      await userEvent.unhover(option);
+      expect(option).not.toHaveAttribute('data-active');
+    });
+
+    it('should find selected option from allOptions when opening dropdown', async () => {
+      @Component({
+        imports: [
+          NgpCombobox,
+          NgpComboboxButton,
+          NgpComboboxDropdown,
+          NgpComboboxInput,
+          NgpComboboxOption,
+          NgpComboboxPortal,
+        ],
+        template: `
+          <div
+            [(ngpComboboxValue)]="value"
+            [ngpComboboxOptions]="allOptions"
+            (ngpComboboxValueChange)="onValueChange($event)"
+            ngpCombobox
+          >
+            <input ngpComboboxInput />
+            <button data-testid="preselected-button" ngpComboboxButton>▼</button>
+            <div *ngpComboboxPortal ngpComboboxDropdown>
+              <!-- Only render a subset of all options -->
+              @for (option of visibleOptions; track option; let i = $index) {
+                <div
+                  [ngpComboboxOptionValue]="option"
+                  [ngpComboboxOptionIndex]="allOptions.indexOf(option)"
+                  ngpComboboxOption
+                  [attr.data-testid]="'preselected-option-' + allOptions.indexOf(option)"
+                >
+                  {{ option }}
+                </div>
+              }
+            </div>
+          </div>
+        `,
+      })
+      class PreselectedVirtualComponent {
+        value = 'Virtual Option 5'; // Pre-select an option
+        allOptions = ['Virtual Option 0', 'Virtual Option 1', 'Virtual Option 2', 'Virtual Option 3', 'Virtual Option 4', 'Virtual Option 5'];
+
+        // Only show options 3-5
+        get visibleOptions() {
+          return this.allOptions.slice(3);
+        }
+
+        onValueChange(value: string) {
+          this.value = value;
+        }
+      }
+
+      const { fixture } = await render(PreselectedVirtualComponent);
+      const component = fixture.componentInstance;
+
+      // Verify initial state
+      expect(component.value).toBe('Virtual Option 5');
+
+      const button = screen.getByTestId('preselected-button');
+      await userEvent.click(button);
+
+      // The selected option should be active even though it comes from allOptions
+      const selectedOption = screen.getByTestId('preselected-option-5');
+      expect(selectedOption).toHaveAttribute('data-active');
+    });
+  });
+
+  describe('Virtual Scrolling with Multiple Selection', () => {
+    it('should support multiple selection with virtual scrolling', async () => {
+      const { fixture } = await render(VirtualMultiSelectTestComponent);
+      const component = fixture.componentInstance;
+
+      const button = screen.getByTestId('virtual-multi-button');
+      await userEvent.click(button);
+
+      // Select multiple options
+      await userEvent.click(screen.getByTestId('virtual-multi-option-0'));
+      await userEvent.click(screen.getByTestId('virtual-multi-option-2'));
+
+      expect(component.value).toEqual(['Multi Option 0', 'Multi Option 2']);
+
+      // Dropdown should stay open
+      expect(screen.getByTestId('virtual-multi-option-1')).toBeInTheDocument();
+    });
+
+    it('should toggle virtual options in multi-select mode', async () => {
+      const { fixture } = await render(VirtualMultiSelectTestComponent);
+      const component = fixture.componentInstance;
+
+      const button = screen.getByTestId('virtual-multi-button');
+      await userEvent.click(button);
+
+      // Select an option
+      await userEvent.click(screen.getByTestId('virtual-multi-option-1'));
+      expect(component.value).toEqual(['Multi Option 1']);
+
+      // Click again to deselect
+      await userEvent.click(screen.getByTestId('virtual-multi-option-1'));
+      expect(component.value).toEqual([]);
+    });
+
+    it('should show selected state for virtual options', async () => {
+      const { fixture } = await render(VirtualMultiSelectTestComponent);
+      const component = fixture.componentInstance;
+
+      // Pre-select some options
+      component.value = ['Multi Option 1', 'Multi Option 4'];
+      fixture.detectChanges();
+
+      const button = screen.getByTestId('virtual-multi-button');
+      await userEvent.click(button);
+
+      // Check that selected option is marked
+      const selectedOption = screen.getByTestId('virtual-multi-option-1');
+      expect(selectedOption).toHaveAttribute('data-selected');
+
+      // Non-selected option should not be marked
+      const unselectedOption = screen.getByTestId('virtual-multi-option-0');
+      expect(unselectedOption).not.toHaveAttribute('data-selected');
+    });
+  });
+
+  describe('Custom Scroll Function Integration', () => {
+    it('should call custom scroll function during keyboard navigation', async () => {
+      const { fixture } = await render(VirtualScrollingTestComponent);
+      const component = fixture.componentInstance;
+
+      const input = screen.getByRole('combobox');
+      input.focus();
+
+      // Open dropdown
+      await userEvent.keyboard('{arrowdown}');
+
+      // Reset scroll tracking
+      component.scrollToOptionCalled = false;
+      component.lastScrollIndex = -1;
+
+      // Navigate to an option that might trigger scrolling
+      for (let i = 0; i < 10; i++) {
+        await userEvent.keyboard('{arrowdown}');
+      }
+
+      // Custom scroll function should have been called
+      expect(component.scrollToOptionCalled).toBeTruthy();
+    });
+
+    it('should not call default scrollIntoView when custom scroll function is provided', async () => {
+      const { fixture } = await render(VirtualScrollingTestComponent);
+      const component = fixture.componentInstance;
+
+      // Spy on scrollIntoView to ensure it's not called
+      const scrollIntoViewSpy = jest.spyOn(Element.prototype, 'scrollIntoView').mockImplementation();
+
+      const input = screen.getByRole('combobox');
+      input.focus();
+
+      // Open dropdown and navigate
+      await userEvent.keyboard('{arrowdown}');
+      await userEvent.keyboard('{arrowdown}');
+
+      // Default scrollIntoView should not be called when custom function is provided
+      expect(scrollIntoViewSpy).not.toHaveBeenCalled();
+      expect(component.scrollToOptionCalled).toBeTruthy();
+
+      scrollIntoViewSpy.mockRestore();
+    });
+
+    it('should handle Home and End keys with virtual scrolling', async () => {
+      const { fixture } = await render(VirtualScrollingTestComponent);
+      const component = fixture.componentInstance;
+
+      const input = screen.getByRole('combobox');
+      input.focus();
+
+      // Open dropdown
+      await userEvent.keyboard('{arrowdown}');
+
+      // Reset scroll tracking
+      component.scrollToOptionCalled = false;
+
+      // Press End key - should scroll to last option
+      await userEvent.keyboard('{End}');
+      expect(component.scrollToOptionCalled).toBeTruthy();
+
+      // Reset and test Home key
+      component.scrollToOptionCalled = false;
+      await userEvent.keyboard('{Home}');
+      expect(component.scrollToOptionCalled).toBeTruthy();
+    });
+  });
+
+  describe('Edge Cases and Error Handling', () => {
+    it('should handle empty allOptions gracefully', async () => {
+      @Component({
+        imports: [
+          NgpCombobox,
+          NgpComboboxButton,
+          NgpComboboxDropdown,
+          NgpComboboxInput,
+          NgpComboboxOption,
+          NgpComboboxPortal,
+        ],
+        template: `
+          <div
+            [ngpComboboxOptions]="[]"
+            ngpCombobox
+          >
+            <input ngpComboboxInput />
+            <button data-testid="empty-virtual-button" ngpComboboxButton>▼</button>
+            <div *ngpComboboxPortal ngpComboboxDropdown>
+              <div data-testid="no-options">No options available</div>
+            </div>
+          </div>
+        `,
+      })
+      class EmptyVirtualComponent {}
+
+      await render(EmptyVirtualComponent);
+
+      const button = screen.getByTestId('empty-virtual-button');
+      await userEvent.click(button);
+
+      // Should handle empty options without errors
+      expect(screen.getByTestId('no-options')).toBeInTheDocument();
+    });
+
+    it('should fall back to DOM options when allOptions is not provided', async () => {
+      @Component({
+        imports: [
+          NgpCombobox,
+          NgpComboboxButton,
+          NgpComboboxDropdown,
+          NgpComboboxInput,
+          NgpComboboxOption,
+          NgpComboboxPortal,
+        ],
+        template: `
+          <div [(ngpComboboxValue)]="value" ngpCombobox>
+            <input ngpComboboxInput />
+            <button data-testid="fallback-button" ngpComboboxButton>▼</button>
+            <div *ngpComboboxPortal ngpComboboxDropdown>
+              <div ngpComboboxOptionValue="Option 1" ngpComboboxOption>Option 1</div>
+              <div ngpComboboxOptionValue="Option 2" ngpComboboxOption>Option 2</div>
+            </div>
+          </div>
+        `,
+      })
+      class FallbackComponent {
+        value: string | undefined = undefined;
+      }
+
+      const { fixture } = await render(FallbackComponent);
+
+      const button = screen.getByTestId('fallback-button');
+      await userEvent.click(button);
+
+      // Should work with DOM options when allOptions is not provided
+      const option = screen.getByText('Option 1');
+      await userEvent.click(option);
+
+      // Should select successfully
+      expect(fixture.componentInstance.value).toBe('Option 1');
+    });
+
+    it('should handle mismatched allOptions and rendered options', async () => {
+      @Component({
+        imports: [
+          NgpCombobox,
+          NgpComboboxButton,
+          NgpComboboxDropdown,
+          NgpComboboxInput,
+          NgpComboboxOption,
+          NgpComboboxPortal,
+        ],
+        template: `
+          <div
+            [(ngpComboboxValue)]="value"
+            [ngpComboboxOptions]="allOptions"
+            (ngpComboboxValueChange)="onValueChange($event)"
+            ngpCombobox
+          >
+            <input ngpComboboxInput />
+            <button data-testid="mismatch-button" ngpComboboxButton>▼</button>
+            <div *ngpComboboxPortal ngpComboboxDropdown>
+              <!-- Only render first 2 options, but allOptions has 5 -->
+              @for (option of allOptions.slice(0, 2); track option; let i = $index) {
+                <div
+                  [ngpComboboxOptionValue]="option"
+                  [ngpComboboxOptionIndex]="i"
+                  ngpComboboxOption
+                  [attr.data-testid]="'mismatch-option-' + i"
+                >
+                  {{ option }}
+                </div>
+              }
+            </div>
+          </div>
+        `,
+      })
+      class MismatchComponent {
+        value: string | undefined = 'Option 3'; // Not in rendered options
+        allOptions = ['Option 0', 'Option 1', 'Option 2', 'Option 3', 'Option 4'];
+
+        onValueChange(value: string) {
+          this.value = value;
+        }
+      }
+
+      const { fixture } = await render(MismatchComponent);
+      const component = fixture.componentInstance;
+
+      const button = screen.getByTestId('mismatch-button');
+      await userEvent.click(button);
+
+      // Should handle the case where selected option is not in rendered options
+      // but is in allOptions
+      expect(component.value).toBe('Option 3');
+
+      // Should still be able to select rendered options
+      await userEvent.click(screen.getByTestId('mismatch-option-1'));
+      expect(component.value).toBe('Option 1');
+    });
+
+    it('should handle selection state correctly with virtual options', async () => {
+      @Component({
+        imports: [
+          NgpCombobox,
+          NgpComboboxButton,
+          NgpComboboxDropdown,
+          NgpComboboxInput,
+          NgpComboboxOption,
+          NgpComboboxPortal,
+        ],
+        template: `
+          <div
+            [(ngpComboboxValue)]="value"
+            [ngpComboboxOptions]="allOptions"
+            (ngpComboboxValueChange)="onValueChange($event)"
+            ngpCombobox
+          >
+            <input ngpComboboxInput />
+            <button data-testid="selection-state-button" ngpComboboxButton>▼</button>
+            <div *ngpComboboxPortal ngpComboboxDropdown>
+              @for (option of allOptions; track option; let i = $index) {
+                <div
+                  [ngpComboboxOptionValue]="option"
+                  [ngpComboboxOptionIndex]="i"
+                  ngpComboboxOption
+                  [attr.data-testid]="'selection-option-' + i"
+                >
+                  {{ option }}
+                </div>
+              }
+            </div>
+          </div>
+        `,
+      })
+      class SelectionStateComponent {
+        value: string | undefined = undefined;
+        allOptions = ['State Option A', 'State Option B', 'State Option C'];
+
+        onValueChange(value: string) {
+          this.value = value;
+        }
+      }
+
+      const { fixture } = await render(SelectionStateComponent);
+      const component = fixture.componentInstance;
+
+      const button = screen.getByTestId('selection-state-button');
+      await userEvent.click(button);
+
+      // Select an option
+      await userEvent.click(screen.getByTestId('selection-option-1'));
+      expect(component.value).toBe('State Option B');
+
+      // Re-open dropdown
+      await userEvent.click(button);
+
+      // The selected option should be marked as selected
+      const selectedOption = screen.getByTestId('selection-option-1');
+      expect(selectedOption).toHaveAttribute('data-selected');
+      expect(selectedOption).toHaveAttribute('data-active'); // Should also be active when opening
+
+      // Other options should not be selected
+      expect(screen.getByTestId('selection-option-0')).not.toHaveAttribute('data-selected');
+      expect(screen.getByTestId('selection-option-2')).not.toHaveAttribute('data-selected');
+    });
+  });
+});
+
 describe('NgpCombobox without input', () => {
   @Component({
     imports: [

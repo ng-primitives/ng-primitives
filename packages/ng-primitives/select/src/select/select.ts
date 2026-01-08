@@ -560,7 +560,10 @@ export class NgpSelect {
       return;
     }
 
-    this.sortedOptions()[index]?.scrollIntoView();
+    const option = this.getOptionAtIndex(index);
+    if (option) {
+      option.scrollIntoView();
+    }
   }
 
   private getOptionAtIndex(index: number): NgpSelectOption | undefined {
