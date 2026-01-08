@@ -1,3 +1,13 @@
+## 0.99.4 (2026-01-08)
+
+### 🩹 Fixes
+
+- adding missing exports ([#594](https://github.com/ng-primitives/ng-primitives/pull/594))
+
+### ❤️ Thank You
+
+- Ashley Hunter
+
 ## 0.99.3 (2026-01-08)
 
 ### 🩹 Fixes
