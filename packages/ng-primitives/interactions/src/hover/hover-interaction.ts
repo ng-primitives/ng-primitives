@@ -1,13 +1,6 @@
 import { isPlatformBrowser } from '@angular/common';
-import {
-  DOCUMENT,
-  ElementRef,
-  inject,
-  Injectable,
-  PLATFORM_ID,
-  Signal,
-  signal,
-} from '@angular/core';
+import { DOCUMENT } from '@angular/common';
+import { ElementRef, inject, Injectable, PLATFORM_ID, Signal, signal } from '@angular/core';
 import { onDomRemoval } from 'ng-primitives/internal';
 import { dataBinding, listener } from 'ng-primitives/state';
 import { onBooleanChange } from 'ng-primitives/utils';
