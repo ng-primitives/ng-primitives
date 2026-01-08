@@ -48,11 +48,6 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
-      - name: Build packages
-        run: pnpm exec nx run-many -t build --projects=ng-primitives,state,mcp --parallel
-        env:
-          NODE_OPTIONS: '--max-old-space-size=8192'
-
       - name: Version
         run: pnpm exec nx release version ${{ inputs.version }}
 
