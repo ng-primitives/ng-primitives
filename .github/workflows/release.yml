@@ -74,14 +74,10 @@ jobs:
       - name: Publish to npm (Dry Run)
         if: inputs.dryRun == true
         run: pnpm exec nx release publish --dry-run
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
       - name: Publish to npm
         if: inputs.dryRun == false
         run: pnpm exec nx release publish
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
       - name: Push to main
         if: inputs.dryRun == false
