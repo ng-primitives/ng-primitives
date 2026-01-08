@@ -49,7 +49,7 @@
       "executor": "nx:run-commands",
       "dependsOn": ["build"],
       "options": {
-        "command": "pnpm publish dist/packages/mcp --access public --tag latest --no-git-checks"
+        "command": "npm publish dist/packages/mcp --access public --tag latest --no-git-checks"
       }
     }
   }

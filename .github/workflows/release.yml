@@ -11,11 +11,6 @@ on:
           - patch
           - minor
           - major
-      dryRun:
-        description: 'Dry run (no publish, no push)'
-        required: false
-        type: boolean
-        default: false
 
 permissions:
   contents: write
@@ -58,42 +53,26 @@ jobs:
         env:
           NODE_OPTIONS: '--max-old-space-size=8192'
 
-      - name: Version (Dry Run)
-        if: inputs.dryRun == true
-        run: pnpm exec nx release version ${{ inputs.version }} --dry-run
+      - name: Version
+        run: pnpm exec nx release version ${{ inputs.version }}
 
-      - name: Version and Changelog
-        if: inputs.dryRun == false
+      - name: Publish to npm
+        run: pnpm exec nx release publish
+
+      - name: Changelog
         run: |
-          pnpm exec nx release version ${{ inputs.version }}
           VERSION=$(node -p "require('./packages/ng-primitives/package.json').version")
           pnpm exec nx release changelog ${VERSION}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Publish to npm (Dry Run)
-        if: inputs.dryRun == true
-        run: pnpm exec nx release publish --dry-run
-
-      - name: Publish to npm
-        if: inputs.dryRun == false
-        run: pnpm exec nx release publish
+      - name: Push to next
+        run: git push origin HEAD:next --follow-tags --no-verify
 
       - name: Push to main
-        if: inputs.dryRun == false
         run: git push origin HEAD:main --follow-tags --no-verify
 
-      - name: Dry Run Summary
-        if: inputs.dryRun == true
-        run: |
-          echo "## 🧪 Dry Run Complete" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "This was a dry run. No changes were published or pushed." >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "**Version bump:** ${{ inputs.version }}" >> $GITHUB_STEP_SUMMARY
-
       - name: Release Summary
-        if: inputs.dryRun == false
         run: |
           VERSION=$(node -p "require('./packages/ng-primitives/package.json').version")
           echo "## 🚀 Release Complete" >> $GITHUB_STEP_SUMMARY
