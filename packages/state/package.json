@@ -2,7 +2,7 @@
   "name": "@ng-primitives/state",
   "description": "Angular Primitives State is a low-level state library with a focus on developer experience.",
   "license": "Apache-2.0",
-  "version": "0.99.6",
+  "version": "0.99.5",
   "keywords": [
     "angular",
     "primitives",
@@ -12,7 +12,8 @@
   "homepage": "https://angularprimitives.com",
   "repository": {
     "type": "git",
-    "url": "https://github.com/ng-primitives/ng-primitives.git"
+    "url": "https://github.com/ng-primitives/ng-primitives.git",
+    "directory": "packages/state"
   },
   "bugs": {
     "url": "https://github.com/ng-primitives/ng-primitives/issues"
@@ -29,7 +30,7 @@
     "@angular/core": ">=20.0.0"
   },
   "dependencies": {
-    "ng-primitives": "0.99.6"
+    "ng-primitives": "0.99.5"
   },
   "sideEffects": false
 }
