@@ -1,4 +1,4 @@
-import { Component, computed, signal, ElementRef, viewChild } from '@angular/core';
+import { Component, computed, ElementRef, signal, viewChild } from '@angular/core';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { heroChevronDown, heroXMark } from '@ng-icons/heroicons/outline';
 import { heroCheckSolid } from '@ng-icons/heroicons/solid';
@@ -212,6 +212,7 @@ import {
       font-weight: 500;
       color: var(--ngp-text-primary);
       max-width: 200px;
+      line-height: 20px;
       transition: all 0.15s ease;
     }
 

@@ -10,7 +10,7 @@ import {
   OnInit,
 } from '@angular/core';
 import { ngpInteractions } from 'ng-primitives/interactions';
-import { injectElementRef } from 'ng-primitives/internal';
+import { injectElementRef, scrollIntoViewIfNeeded } from 'ng-primitives/internal';
 import { uniqueId } from 'ng-primitives/utils';
 import { injectComboboxState } from '../combobox/combobox-state';
 import { areAllOptionsSelected } from '../utils';
@@ -139,7 +139,7 @@ export class NgpComboboxOption implements OnInit, OnDestroy {
       return;
     }
 
-    this.state().toggleOption(this.getOptionIndex());
+    this.state().toggleOption(this.id());
   }
 
   /**
@@ -147,7 +147,7 @@ export class NgpComboboxOption implements OnInit, OnDestroy {
    * @internal
    */
   scrollIntoView(): void {
-    this.elementRef.nativeElement.scrollIntoView({ block: 'nearest' });
+    scrollIntoViewIfNeeded(this.elementRef.nativeElement);
   }
 
   /**
@@ -156,7 +156,7 @@ export class NgpComboboxOption implements OnInit, OnDestroy {
    */
   @HostListener('pointerenter')
   protected onPointerEnter(): void {
-    this.state().activeDescendantManager.activate(this.getOptionIndex());
+    this.state().activeDescendantManager.activateById(this.id());
   }
 
   /**
@@ -166,18 +166,5 @@ export class NgpComboboxOption implements OnInit, OnDestroy {
   @HostListener('pointerleave')
   protected onPointerLeave(): void {
     this.state().activeDescendantManager.reset();
-  }
-
-  /**
-   * Get the index of the option. This may be retrieved from the input or
-   * from the parent combobox state.
-   */
-  private getOptionIndex(): number {
-    const index = this.index();
-    if (index !== undefined) {
-      return index;
-    }
-
-    return this.state().sortedOptions().indexOf(this);
   }
 }

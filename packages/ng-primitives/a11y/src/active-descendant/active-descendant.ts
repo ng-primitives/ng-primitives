@@ -26,7 +26,7 @@ export interface NgpActiveDescendantManagerProps {
   /**
    * Scroll the active descendant item into view.
    */
-  scrollIntoView: (index: number) => void;
+  scrollIntoView: (id: string, index: number) => void;
 
   /**
    * Whether active descendant should wrap around.
@@ -36,7 +36,7 @@ export interface NgpActiveDescendantManagerProps {
   /**
    * A callback invoked when the active descendant changes.
    */
-  onChange?: (index: number) => void;
+  onChange?: (id: string, index: number) => void;
 }
 
 export interface NgpActiveDescendantManagerState {
@@ -53,7 +53,13 @@ export interface NgpActiveDescendantManagerState {
   /**
    * Activate an item in the active descendant group.
    */
-  activate: (index: number) => void;
+  activateByIndex: (index: number) => void;
+
+  /**
+   * Activate an item in the active descendant group by id.
+   */
+  activateById: (id: string) => void;
+
   /**
    * Activate the first enabled item in the active descendant group.
    */
@@ -98,25 +104,35 @@ export function activeDescendantManager({
     return index >= 0 && index < count() ? getItemId(index) : undefined;
   });
 
-  function activate(index: number): void {
+  function activateByIndex(index: number): void {
     if (disabled() || (index >= 0 && isItemDisabled(index))) {
       return;
     }
 
     activeIndex.set(index);
-    onChange?.(index);
 
     if (index < 0 || index >= count()) {
       return;
     }
 
-    scrollIntoView(index);
+    const id = getItemId(index);
+    onChange?.(id, index);
+    scrollIntoView(id, index);
+  }
+
+  function activateById(id: string): void {
+    for (let i = 0; i < count(); i++) {
+      if (getItemId(i) === id) {
+        activateByIndex(i);
+        return;
+      }
+    }
   }
 
   function first(): void {
     for (let i = 0; i < count(); i++) {
       if (!isItemDisabled(i)) {
-        activate(i);
+        activateByIndex(i);
         return;
       }
     }
@@ -125,7 +141,7 @@ export function activeDescendantManager({
   function last(): void {
     for (let i = count() - 1; i >= 0; i--) {
       if (!isItemDisabled(i)) {
-        activate(i);
+        activateByIndex(i);
         return;
       }
     }
@@ -144,7 +160,7 @@ export function activeDescendantManager({
       }
 
       if (!isItemDisabled(index)) {
-        activate(index);
+        activateByIndex(index);
         return;
       }
 
@@ -165,7 +181,7 @@ export function activeDescendantManager({
       }
 
       if (!isItemDisabled(index)) {
-        activate(index);
+        activateByIndex(index);
         return;
       }
 
@@ -182,12 +198,12 @@ export function activeDescendantManager({
       // find the first enabled item
       for (let i = 0; i < count(); i++) {
         if (!isItemDisabled(i)) {
-          activate(i);
+          activateByIndex(i);
           return;
         }
       }
       // if no enabled items, deactivate
-      activate(-1);
+      activateByIndex(-1);
     }
   }
 
@@ -195,13 +211,14 @@ export function activeDescendantManager({
    * Reset the active descendant group, clearing the active index.
    */
   const reset = () => {
-    activate(-1);
+    activateByIndex(-1);
   };
 
   return {
     id,
     index: activeIndex,
-    activate,
+    activateByIndex,
+    activateById,
     first,
     last,
     next,

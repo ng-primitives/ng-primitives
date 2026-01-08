@@ -80,12 +80,6 @@ The combobox supports a "Select All" option for multiple selection mode, allowin
 
 <docs-example name="combobox-select-all"></docs-example>
 
-### Virtualized Large Lists
-
-When dealing with large datasets (thousands of items), you can use TanStack Virtual or other virtualization libraries to efficiently render only the visible options, improving performance:
-
-<docs-example name="combobox-virtual"></docs-example>
-
 #### Select All Features
 
 - **Toggle All**: Click to select all options if not all are selected, or deselect all if all are selected
@@ -99,6 +93,12 @@ To implement Select All, use the special value `'all'` for your Select All optio
 ```html
 <div ngpComboboxOptionValue="all" ngpComboboxOption>Select All</div>
 ```
+
+### Virtualized Large Lists
+
+When dealing with large datasets (thousands of items), you can use TanStack Virtual or other virtualization libraries to efficiently render only the visible options, improving performance:
+
+<docs-example name="combobox-virtual"></docs-example>
 
 ## Schematics
 

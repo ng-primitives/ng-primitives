@@ -112,6 +112,15 @@ export class NgpCombobox {
   });
 
   /**
+   * A function that will scroll the active option into view. This can be overridden
+   * for cases such as virtual scrolling where we cannot scroll the option directly because
+   * it may not be rendered.
+   */
+  readonly scrollToOption = input<(id: string, index: number) => void>(undefined, {
+    alias: 'ngpComboboxScrollToOption',
+  });
+
+  /**
    * Store the combobox input
    * @internal
    */
@@ -175,13 +184,22 @@ export class NgpCombobox {
     count: computed(() => this.options().length),
     getItemId: index => this.sortedOptions()[index]?.id(),
     isItemDisabled: index => this.sortedOptions()[index]?.disabled(),
-    scrollIntoView: index => {
+    scrollIntoView: (id, index) => {
       const isPositioned = this.portal()?.overlay()?.isPositioned() ?? false;
 
       if (!isPositioned || index === -1) {
         return;
       }
 
+      // if a custom scroll to option function is provided, use it
+      const scrollToOption = this.scrollToOption();
+
+      if (scrollToOption) {
+        scrollToOption(id, index);
+        return;
+      }
+
+      // default scroll into view behavior
       this.sortedOptions()[index].scrollIntoView();
     },
   });
@@ -215,18 +233,18 @@ export class NgpCombobox {
     await this.portal()?.show();
 
     // if there is a selected option(s), set the active descendant to the first selected option
-    const selectedOption = this.sortedOptions().findIndex(option => this.isOptionSelected(option));
+    const selectedOptionIdx = this.sortedOptions().findIndex(option =>
+      this.isOptionSelected(option),
+    );
 
     // if there is no selected option, set the active descendant to the first option
-    const targetOption = selectedOption !== -1 ? selectedOption : 0;
-
-    // if there is no target option, do nothing
-    if (targetOption === -1) {
+    if (selectedOptionIdx !== -1) {
+      this.activeDescendantManager.activateByIndex(selectedOptionIdx);
       return;
     }
 
     // activate the selected option or the first option
-    this.activeDescendantManager.activate(targetOption);
+    this.activeDescendantManager.first();
   }
 
   /**
@@ -353,15 +371,15 @@ export class NgpCombobox {
 
   /**
    * Toggle the selection of an option.
-   * @param option The option to toggle.
+   * @param id The id of the option to toggle.
    * @internal
    */
-  toggleOption(index: number): void {
+  toggleOption(id: string): void {
     if (this.state.disabled()) {
       return;
     }
 
-    const option = this.sortedOptions()[index];
+    const option = this.sortedOptions().find(opt => opt.id() === id);
 
     if (!option) {
       return;
@@ -459,7 +477,7 @@ export class NgpCombobox {
       // if there is a selected option(s), set the active descendant to the first selected option
       const targetOption = selectedOption !== -1 ? selectedOption : 0;
 
-      this.activeDescendantManager.activate(targetOption);
+      this.activeDescendantManager.activateByIndex(targetOption);
       return;
     }
 
@@ -485,7 +503,7 @@ export class NgpCombobox {
       const selectedOption = options.findIndex(option => this.isOptionSelected(option));
       // if there is a selected option(s), set the active descendant to the first selected option
       const targetOption = selectedOption !== -1 ? selectedOption : options.length - 1;
-      this.activeDescendantManager.activate(targetOption);
+      this.activeDescendantManager.activateByIndex(targetOption);
       return;
     }
     // otherwise activate the previous option
@@ -613,10 +631,10 @@ export class NgpCombobox {
         break;
       case 'Enter':
         if (this.open()) {
-          const activeIndex = this.activeDescendantManager.index();
+          const activeId = this.activeDescendantManager.id();
 
-          if (activeIndex !== -1) {
-            this.toggleOption(activeIndex);
+          if (activeId) {
+            this.toggleOption(activeId);
           }
         }
         event.preventDefault();

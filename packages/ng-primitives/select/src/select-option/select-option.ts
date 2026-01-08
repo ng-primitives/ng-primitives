@@ -8,9 +8,8 @@ import {
   OnDestroy,
   OnInit,
 } from '@angular/core';
-import { NgpActivatable } from 'ng-primitives/a11y';
 import { ngpInteractions } from 'ng-primitives/interactions';
-import { injectElementRef } from 'ng-primitives/internal';
+import { injectElementRef, scrollIntoViewIfNeeded } from 'ng-primitives/internal';
 import { uniqueId } from 'ng-primitives/utils';
 import { injectSelectState } from '../select/select-state';
 
@@ -28,7 +27,7 @@ import { injectSelectState } from '../select/select-state';
     '(click)': 'select()',
   },
 })
-export class NgpSelectOption implements OnInit, OnDestroy, NgpActivatable {
+export class NgpSelectOption implements OnInit, OnDestroy {
   /** Access the select state. */
   protected readonly state = injectSelectState();
 
@@ -52,12 +51,17 @@ export class NgpSelectOption implements OnInit, OnDestroy, NgpActivatable {
     transform: booleanAttribute,
   });
 
+  /** The index of the option in the list. */
+  readonly index = input<number | undefined>(undefined, {
+    alias: 'ngpSelectOptionIndex',
+  });
+
   /**
    * Whether this option is the active descendant.
    * @internal
    */
   protected readonly active = computed(
-    () => this.state().activeDescendantManager.activeDescendant() === this.id(),
+    () => this.state().activeDescendantManager.id() === this.id(),
   );
 
   /** Whether this option is selected. */
@@ -109,7 +113,7 @@ export class NgpSelectOption implements OnInit, OnDestroy, NgpActivatable {
       return;
     }
 
-    this.state().toggleOption(this);
+    this.state().toggleOption(this.id());
   }
 
   /**
@@ -117,7 +121,7 @@ export class NgpSelectOption implements OnInit, OnDestroy, NgpActivatable {
    * @internal
    */
   scrollIntoView(): void {
-    this.elementRef.nativeElement.scrollIntoView({ block: 'nearest' });
+    scrollIntoViewIfNeeded(this.elementRef.nativeElement);
   }
 
   /**
@@ -126,7 +130,7 @@ export class NgpSelectOption implements OnInit, OnDestroy, NgpActivatable {
    */
   @HostListener('pointerenter')
   protected onPointerEnter(): void {
-    this.state().activeDescendantManager.activate(this);
+    this.state().activeDescendantManager.activateById(this.id());
   }
 
   /**
@@ -135,6 +139,6 @@ export class NgpSelectOption implements OnInit, OnDestroy, NgpActivatable {
    */
   @HostListener('pointerleave')
   protected onPointerLeave(): void {
-    this.state().activeDescendantManager.activate(undefined);
+    this.state().activeDescendantManager.reset();
   }
 }

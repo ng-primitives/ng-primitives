@@ -100,9 +100,9 @@ export class NgpComboboxInput {
         break;
       case 'Enter':
         if (this.state().open()) {
-          const activeItem = this.state().activeDescendantManager.index();
+          const activeItem = this.state().activeDescendantManager.id();
 
-          if (activeItem !== -1) {
+          if (activeItem) {
             this.state().toggleOption(activeItem);
           }
         }

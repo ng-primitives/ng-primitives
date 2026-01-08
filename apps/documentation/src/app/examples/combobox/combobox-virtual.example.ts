@@ -1,4 +1,12 @@
-import { Component, computed, ElementRef, signal, viewChild } from '@angular/core';
+import {
+  ChangeDetectorRef,
+  Component,
+  computed,
+  ElementRef,
+  inject,
+  signal,
+  viewChild,
+} from '@angular/core';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { heroChevronDown } from '@ng-icons/heroicons/outline';
 import { injectVirtualizer } from '@tanstack/angular-virtual';
@@ -26,6 +34,7 @@ import {
   template: `
     <div
       [(ngpComboboxValue)]="value"
+      [ngpComboboxScrollToOption]="scrollToOption"
       (ngpComboboxValueChange)="filter.set($event)"
       (ngpComboboxOpenChange)="resetOnClose($event)"
       ngpCombobox
@@ -226,6 +235,8 @@ import {
   `,
 })
 export default class ComboboxVirtualExample {
+  private readonly changeDectector = inject(ChangeDetectorRef);
+
   /** The options for the combobox - 10,000 generated names. */
   readonly options: string[] = generateLargeDataset(10000);
 
@@ -250,6 +261,13 @@ export default class ComboboxVirtualExample {
     estimateSize: () => 36,
     overscan: 5,
   }));
+
+  /** A custom scroll to option function. */
+  protected readonly scrollToOption = (_: string, index: number) => {
+    console.log('Scrolling to index:', index);
+    this.virtualizer.scrollToIndex(index, { behavior: 'smooth', align: 'end' });
+    this.changeDectector.detectChanges();
+  };
 
   protected onFilterChange(event: Event): void {
     const input = event.target as HTMLInputElement;

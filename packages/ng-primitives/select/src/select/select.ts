@@ -14,7 +14,7 @@ import type { Placement } from '@floating-ui/dom';
 import { activeDescendantManager } from 'ng-primitives/a11y';
 import { ngpFormControl } from 'ng-primitives/form-field';
 import { ngpInteractions } from 'ng-primitives/interactions';
-import { injectElementRef } from 'ng-primitives/internal';
+import { domSort, injectElementRef } from 'ng-primitives/internal';
 import { uniqueId } from 'ng-primitives/utils';
 import { injectSelectConfig } from '../config/select-config';
 import type { NgpSelectDropdown } from '../select-dropdown/select-dropdown';
@@ -45,8 +45,7 @@ type T = any;
     '[id]': 'state.id()',
     '[attr.aria-expanded]': 'open()',
     '[attr.aria-controls]': 'open() ? dropdown()?.id() : undefined',
-    '[attr.aria-activedescendant]':
-      'open() ? activeDescendantManager.activeDescendant() : undefined',
+    '[attr.aria-activedescendant]': 'open() ? activeDescendantManager.id() : undefined',
     '[attr.tabindex]': 'state.disabled() ? -1 : 0',
     '[attr.data-open]': 'open() ? "" : undefined',
     '[attr.data-disabled]': 'state.disabled() ? "" : undefined',
@@ -139,21 +138,35 @@ export class NgpSelect {
   readonly open = computed(() => this.overlay()?.isOpen() ?? false);
 
   /**
+   * The options sorted by their index or DOM position.
+   * @internal
+   */
+  readonly sortedOptions = computed(() =>
+    domSort(
+      this.options(),
+      option => option.elementRef.nativeElement,
+      option => option.index?.(),
+    ),
+  );
+
+  /**
    * The active key descendant manager.
    * @internal
    */
   readonly activeDescendantManager = activeDescendantManager({
     // we must wrap the signal in a computed to ensure it is not used before it is defined
     disabled: computed(() => this.state.disabled()),
-    items: this.options,
-    onActiveDescendantChange: activeItem => {
+    count: computed(() => this.options().length),
+    getItemId: index => this.sortedOptions()[index]?.id(),
+    isItemDisabled: index => this.sortedOptions()[index]?.disabled(),
+    scrollIntoView: (_, index) => {
       const isPositioned = this.portal()?.overlay()?.isPositioned() ?? false;
 
-      if (!isPositioned || !activeItem) {
+      if (!isPositioned || index === -1) {
         return;
       }
 
-      this.activeDescendantManager.activeItem()?.scrollIntoView?.();
+      this.sortedOptions()[index].scrollIntoView();
     },
   });
 
@@ -185,18 +198,18 @@ export class NgpSelect {
     await this.portal()?.show();
 
     // if there is a selected option(s), set the active descendant to the first selected option
-    const selectedOption = this.options().find(option => this.isOptionSelected(option));
+    const selectedOption = this.sortedOptions().findIndex(option => this.isOptionSelected(option));
 
     // if there is no selected option, set the active descendant to the first option
-    const targetOption = selectedOption ?? this.options()[0];
+    const targetOption = selectedOption !== -1 ? selectedOption : 0;
 
     // if there is no target option, do nothing
-    if (!targetOption) {
+    if (targetOption === -1) {
       return;
     }
 
     // activate the selected option or the first option
-    this.activeDescendantManager.activate(targetOption);
+    this.activeDescendantManager.activateByIndex(targetOption);
   }
 
   /**
@@ -230,13 +243,15 @@ export class NgpSelect {
 
   /**
    * Select an option.
-   * @param option The option to select.
+   * @param index The index of the option to select.
    * @internal
    */
-  selectOption(option: NgpSelectOption | undefined): void {
+  selectOption(id: string): void {
     if (this.state.disabled()) {
       return;
     }
+
+    const option = this.sortedOptions().find(opt => opt.id() === id);
 
     if (!option) {
       this.state.value.set(undefined);
@@ -287,18 +302,24 @@ export class NgpSelect {
 
   /**
    * Toggle the selection of an option.
-   * @param option The option to toggle.
+   * @param id The id of the option to toggle.
    * @internal
    */
-  toggleOption(option: NgpSelectOption): void {
+  toggleOption(id: string): void {
     if (this.state.disabled()) {
+      return;
+    }
+
+    const option = this.sortedOptions().find(opt => opt.id() === id);
+
+    if (!option) {
       return;
     }
 
     // if the state is single selection, we don't allow toggling
     if (!this.state.multiple()) {
       // always select the option in single selection mode even if it is already selected so that we update the input
-      this.selectOption(option);
+      this.selectOption(id);
       return;
     }
 
@@ -306,7 +327,7 @@ export class NgpSelect {
     if (this.isOptionSelected(option)) {
       this.deselectOption(option);
     } else {
-      this.selectOption(option);
+      this.selectOption(id);
     }
   }
 
@@ -343,7 +364,7 @@ export class NgpSelect {
       return;
     }
 
-    const options = this.options();
+    const options = this.sortedOptions();
 
     // if there are no options, do nothing
     if (options.length === 0) {
@@ -351,13 +372,13 @@ export class NgpSelect {
     }
 
     // if there is no active option, activate the first option
-    if (!this.activeDescendantManager.activeItem()) {
-      const selectedOption = options.find(option => this.isOptionSelected(option));
+    if (this.activeDescendantManager.index() === -1) {
+      const selectedOption = options.findIndex(option => this.isOptionSelected(option));
 
       // if there is a selected option(s), set the active descendant to the first selected option
-      const targetOption = selectedOption ?? options[0];
+      const targetOption = selectedOption !== -1 ? selectedOption : 0;
 
-      this.activeDescendantManager.activate(targetOption);
+      this.activeDescendantManager.activateByIndex(targetOption);
       return;
     }
 
@@ -373,17 +394,17 @@ export class NgpSelect {
     if (this.state.disabled()) {
       return;
     }
-    const options = this.options();
+    const options = this.sortedOptions();
     // if there are no options, do nothing
     if (options.length === 0) {
       return;
     }
     // if there is no active option, activate the last option
-    if (!this.activeDescendantManager.activeItem()) {
-      const selectedOption = options.find(option => this.isOptionSelected(option));
+    if (this.activeDescendantManager.index() === -1) {
+      const selectedOption = options.findIndex(option => this.isOptionSelected(option));
       // if there is a selected option(s), set the active descendant to the first selected option
-      const targetOption = selectedOption ?? options[options.length - 1];
-      this.activeDescendantManager.activate(targetOption);
+      const targetOption = selectedOption !== -1 ? selectedOption : options.length - 1;
+      this.activeDescendantManager.activateByIndex(targetOption);
       return;
     }
     // otherwise activate the previous option
@@ -469,7 +490,11 @@ export class NgpSelect {
         break;
       case 'Enter':
         if (this.open()) {
-          this.selectOption(this.activeDescendantManager.activeItem());
+          const activeId = this.activeDescendantManager.id();
+
+          if (activeId) {
+            this.selectOption(activeId);
+          }
         } else {
           this.openDropdown();
         }
