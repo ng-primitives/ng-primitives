@@ -1,4 +1,4 @@
-import { BooleanInput } from '@angular/cdk/coercion';
+import { BooleanInput, NumberInput } from '@angular/cdk/coercion';
 import {
   booleanAttribute,
   computed,
@@ -7,6 +7,7 @@ import {
   inject,
   Injector,
   input,
+  numberAttribute,
   output,
   signal,
 } from '@angular/core';
@@ -116,8 +117,18 @@ export class NgpCombobox {
    * for cases such as virtual scrolling where we cannot scroll the option directly because
    * it may not be rendered.
    */
-  readonly scrollToOption = input<(id: string, index: number) => void>(undefined, {
+  readonly scrollToOption = input<(index: number) => void>(undefined, {
     alias: 'ngpComboboxScrollToOption',
+  });
+
+  /**
+   * The number of options within the combobox. By default this is calculated based on the
+   * options added to the combobox, but in virtual scrolling scenarios the total number of options
+   * may be different from the number of rendered options.
+   */
+  readonly optionCount = input<number, NumberInput>(undefined, {
+    alias: 'ngpComboboxOptionCount',
+    transform: numberAttribute,
   });
 
   /**
@@ -181,26 +192,17 @@ export class NgpCombobox {
   readonly activeDescendantManager = activeDescendantManager({
     // we must wrap the signal in a computed to ensure it is not used before it is defined
     disabled: computed(() => this.state.disabled()),
-    count: computed(() => this.options().length),
-    getItemId: index => this.sortedOptions()[index]?.id(),
-    isItemDisabled: index => this.sortedOptions()[index]?.disabled(),
-    scrollIntoView: (id, index) => {
+    count: computed(() => this.optionCount() ?? this.options().length),
+    getItemId: index => this.getOptionAtIndex(index)?.id(),
+    isItemDisabled: index => this.getOptionAtIndex(index)?.disabled() ?? false,
+    scrollIntoView: index => {
       const isPositioned = this.portal()?.overlay()?.isPositioned() ?? false;
 
       if (!isPositioned || index === -1) {
         return;
       }
 
-      // if a custom scroll to option function is provided, use it
-      const scrollToOption = this.scrollToOption();
-
-      if (scrollToOption) {
-        scrollToOption(id, index);
-        return;
-      }
-
-      // default scroll into view behavior
-      this.sortedOptions()[index].scrollIntoView();
+      this.scrollTo(index);
     },
   });
 
@@ -239,6 +241,8 @@ export class NgpCombobox {
 
     // if there is no selected option, set the active descendant to the first option
     if (selectedOptionIdx !== -1) {
+      // scroll to and activate the selected option
+      this.scrollTo(selectedOptionIdx);
       this.activeDescendantManager.activateByIndex(selectedOptionIdx);
       return;
     }
@@ -684,6 +688,28 @@ export class NgpCombobox {
     }
 
     this.closeDropdown();
+  }
+
+  private scrollTo(index: number): void {
+    const scrollToOption = this.state.scrollToOption();
+
+    if (scrollToOption) {
+      scrollToOption(index);
+      return;
+    }
+
+    this.sortedOptions()[index].scrollIntoView();
+  }
+
+  private getOptionAtIndex(index: number): NgpComboboxOption | undefined {
+    // if the option has an index, use that to get the option because this is required for virtual scrolling scenarios
+    const optionIndex = this.options().findIndex(opt => opt.index() === index);
+
+    if (optionIndex !== -1) {
+      return this.options()[optionIndex];
+    }
+
+    return this.sortedOptions()[index];
   }
 }
 

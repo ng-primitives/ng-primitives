@@ -16,7 +16,7 @@ export interface NgpActiveDescendantManagerProps {
   /**
    * Get the id for the item at a given index.
    */
-  getItemId: (index: number) => string;
+  getItemId: (index: number) => string | undefined;
 
   /**
    * Whether the item at a given index is disabled.
@@ -26,17 +26,13 @@ export interface NgpActiveDescendantManagerProps {
   /**
    * Scroll the active descendant item into view.
    */
-  scrollIntoView: (id: string, index: number) => void;
+  scrollIntoView: (index: number) => void;
 
   /**
    * Whether active descendant should wrap around.
    * @default false
    */
   wrap?: Signal<boolean>;
-  /**
-   * A callback invoked when the active descendant changes.
-   */
-  onChange?: (id: string, index: number) => void;
 }
 
 export interface NgpActiveDescendantManagerState {
@@ -89,7 +85,6 @@ export interface NgpActiveDescendantManagerState {
 export function activeDescendantManager({
   disabled: _disabled = signal(false),
   wrap,
-  onChange,
   count,
   getItemId,
   isItemDisabled,
@@ -104,7 +99,7 @@ export function activeDescendantManager({
     return index >= 0 && index < count() ? getItemId(index) : undefined;
   });
 
-  function activateByIndex(index: number): void {
+  function activateByIndex(index: number, { scroll = true }: ActivationOptions = {}): void {
     if (disabled() || (index >= 0 && isItemDisabled(index))) {
       return;
     }
@@ -115,15 +110,15 @@ export function activeDescendantManager({
       return;
     }
 
-    const id = getItemId(index);
-    onChange?.(id, index);
-    scrollIntoView(id, index);
+    if (scroll) {
+      scrollIntoView(index);
+    }
   }
 
-  function activateById(id: string): void {
+  function activateById(id: string, options: ActivationOptions = {}): void {
     for (let i = 0; i < count(); i++) {
       if (getItemId(i) === id) {
-        activateByIndex(i);
+        activateByIndex(i, options);
         return;
       }
     }
@@ -211,7 +206,7 @@ export function activeDescendantManager({
    * Reset the active descendant group, clearing the active index.
    */
   const reset = () => {
-    activateByIndex(-1);
+    activateByIndex(-1, { scroll: false });
   };
 
   return {
@@ -226,4 +221,9 @@ export function activeDescendantManager({
     reset,
     validate,
   } satisfies NgpActiveDescendantManagerState;
+}
+
+export interface ActivationOptions {
+  /** Whether to scroll the activated item into view. */
+  scroll?: boolean;
 }

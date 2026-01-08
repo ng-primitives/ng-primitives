@@ -68,9 +68,17 @@ export class NgpComboboxOption implements OnInit, OnDestroy {
    * Whether this option is the active descendant.
    * @internal
    */
-  protected readonly active = computed(
-    () => this.state().activeDescendantManager.id() === this.id(),
-  );
+  protected readonly active = computed(() => {
+    // if the option has an index, use that to determine if it's active because this
+    // is required for virtual scrolling scenarios
+    const index = this.index();
+
+    if (index !== undefined) {
+      return this.state().activeDescendantManager.index() === index;
+    }
+
+    return this.state().activeDescendantManager.id() === this.id();
+  });
 
   /** Whether this option is selected. */
   protected readonly selected = computed(() => {
@@ -156,7 +164,7 @@ export class NgpComboboxOption implements OnInit, OnDestroy {
    */
   @HostListener('pointerenter')
   protected onPointerEnter(): void {
-    this.state().activeDescendantManager.activateById(this.id());
+    this.state().activeDescendantManager.activateById(this.id(), { scroll: false });
   }
 
   /**

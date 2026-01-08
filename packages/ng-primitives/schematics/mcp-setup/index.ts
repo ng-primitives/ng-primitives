@@ -7,7 +7,7 @@ import {
 import { McpSetupSchema } from './schema';
 
 // Read version from package.json at compile time
-// eslint-disable-next-line @typescript-eslint/no-require-imports
+ 
 const { version: PACKAGE_VERSION } = require('../../package.json');
 
 interface McpServerConfig {

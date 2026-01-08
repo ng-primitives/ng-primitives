@@ -159,7 +159,7 @@ export class NgpSelect {
     count: computed(() => this.options().length),
     getItemId: index => this.sortedOptions()[index]?.id(),
     isItemDisabled: index => this.sortedOptions()[index]?.disabled(),
-    scrollIntoView: (_, index) => {
+    scrollIntoView: index => {
       const isPositioned = this.portal()?.overlay()?.isPositioned() ?? false;
 
       if (!isPositioned || index === -1) {
