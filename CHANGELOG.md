@@ -1,3 +1,13 @@
+## 0.99.5 (2026-01-08)
+
+### 🩹 Fixes
+
+- improving legacy angular compatibility ([#595](https://github.com/ng-primitives/ng-primitives/pull/595))
+
+### ❤️ Thank You
+
+- Ashley Hunter
+
 ## 0.99.4 (2026-01-08)
 
 ### 🩹 Fixes
