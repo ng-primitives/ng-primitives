@@ -1,7 +1,7 @@
 import { FocusMonitor, FocusOrigin } from '@angular/cdk/a11y';
 import { ViewportRuler } from '@angular/cdk/overlay';
+import { DOCUMENT } from '@angular/common';
 import {
-  DOCUMENT,
   DestroyRef,
   Injector,
   Provider,

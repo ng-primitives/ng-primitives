@@ -1,9 +1,9 @@
 import { FocusMonitor } from '@angular/cdk/a11y';
 import { Overlay, OverlayConfig, OverlayContainer, ScrollStrategy } from '@angular/cdk/overlay';
 import { ComponentPortal, TemplatePortal } from '@angular/cdk/portal';
+import { DOCUMENT } from '@angular/common';
 import {
   ApplicationRef,
-  DOCUMENT,
   Injectable,
   Injector,
   OnDestroy,

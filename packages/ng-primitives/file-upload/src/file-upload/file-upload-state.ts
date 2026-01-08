@@ -1,4 +1,5 @@
-import { DOCUMENT, inject, Signal, signal } from '@angular/core';
+import { DOCUMENT } from '@angular/common';
+import { inject, Signal, signal } from '@angular/core';
 import { ngpInteractions } from 'ng-primitives/interactions';
 import { injectElementRef } from 'ng-primitives/internal';
 import { createPrimitive, dataBinding, emitter, listener } from 'ng-primitives/state';
