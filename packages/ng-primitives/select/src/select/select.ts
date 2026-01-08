@@ -173,6 +173,7 @@ export class NgpSelect {
   readonly activeDescendantManager = activeDescendantManager({
     // we must wrap the signal in a computed to ensure it is not used before it is defined
     disabled: computed(() => this.state.disabled()),
+    wrap: signal(true),
     count: computed(() => this.allOptions()?.length ?? this.options().length),
     getItemId: index => this.getOptionAtIndex(index)?.id(),
     isItemDisabled: index => this.getOptionAtIndex(index)?.disabled() ?? false,
@@ -217,8 +218,10 @@ export class NgpSelect {
     let selectedOptionIdx = -1;
 
     // if we have been provided with allOptions, we need to find the selected option(s) from that list
-    if (this.allOptions()) {
-      selectedOptionIdx = this.allOptions()!.findIndex(option => this.isOptionSelected(option));
+    if (this.state.allOptions()) {
+      selectedOptionIdx = this.state
+        .allOptions()!
+        .findIndex(option => this.isOptionSelected(option));
     }
 
     // if we don't have allOptions, find the selected option(s) from the registered options

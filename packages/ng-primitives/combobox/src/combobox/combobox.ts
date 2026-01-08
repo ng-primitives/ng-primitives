@@ -200,6 +200,7 @@ export class NgpCombobox {
   readonly activeDescendantManager = activeDescendantManager({
     // we must wrap the signal in a computed to ensure it is not used before it is defined
     disabled: computed(() => this.state.disabled()),
+    wrap: signal(true),
     count: computed(() => this.state.allOptions()?.length ?? this.options().length),
     getItemId: index => this.getOptionAtIndex(index)?.id(),
     isItemDisabled: index => this.getOptionAtIndex(index)?.disabled() ?? false,

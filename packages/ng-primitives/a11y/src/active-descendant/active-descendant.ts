@@ -1,6 +1,6 @@
 import { computed, Signal, signal } from '@angular/core';
 import { controlled } from 'ng-primitives/state';
-import { injectDisposables } from '../../../utils/src';
+import { injectDisposables } from 'ng-primitives/utils';
 
 export interface NgpActiveDescendantManagerProps {
   /**
