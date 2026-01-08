@@ -1,3 +1,33 @@
+## 0.99.5 (2026-01-08)
+
+### 🩹 Fixes
+
+- improving legacy angular compatibility ([#595](https://github.com/ng-primitives/ng-primitives/pull/595))
+
+### ❤️ Thank You
+
+- Ashley Hunter
+
+## 0.99.4 (2026-01-08)
+
+### 🩹 Fixes
+
+- adding missing exports ([#594](https://github.com/ng-primitives/ng-primitives/pull/594))
+
+### ❤️ Thank You
+
+- Ashley Hunter
+
+## 0.99.3 (2026-01-08)
+
+### 🩹 Fixes
+
+- **menu:** ensuring injectMenuTriggerState can accept a generic ([#593](https://github.com/ng-primitives/ng-primitives/pull/593))
+
+### ❤️ Thank You
+
+- Ashley Hunter
+
 ## 0.99.2 (2026-01-07)
 
 ### 🩹 Fixes

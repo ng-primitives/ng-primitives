@@ -1,5 +1,5 @@
-import { isPlatformBrowser } from '@angular/common';
-import { CSP_NONCE, inject, Injectable, PLATFORM_ID, DOCUMENT } from '@angular/core';
+import { DOCUMENT, isPlatformBrowser } from '@angular/common';
+import { CSP_NONCE, inject, Injectable, PLATFORM_ID } from '@angular/core';
 
 /**
  * A utility service for injecting styles into the document.

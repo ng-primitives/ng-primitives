@@ -1,6 +1,6 @@
 import { FocusOrigin } from '@angular/cdk/a11y';
 import { BooleanInput } from '@angular/cdk/coercion';
-import { booleanAttribute, Directive, input } from '@angular/core';
+import { booleanAttribute, Directive, input, Signal } from '@angular/core';
 import {
   coerceOffset,
   coerceShift,
@@ -115,7 +115,7 @@ export class NgpMenuTrigger<T = unknown> {
     shift: this.shift(),
     container: this.container,
     scrollBehavior: this.scrollBehavior,
-    context: this.context,
+    context: this.context as Signal<T>,
   });
 
   /**

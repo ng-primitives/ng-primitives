@@ -1,8 +1,8 @@
 export { NgpFocusTrap } from './focus-trap/focus-trap';
 export {
-  NgpFocusTrapState,
-  NgpFocusTrapProps,
-  ngpFocusTrap,
   injectFocusTrapState,
+  ngpFocusTrap,
+  NgpFocusTrapProps,
+  NgpFocusTrapState,
   provideFocusTrapState,
 } from './focus-trap/focus-trap-state';

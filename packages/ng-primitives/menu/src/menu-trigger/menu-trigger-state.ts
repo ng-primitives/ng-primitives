@@ -58,7 +58,7 @@ export interface NgpMenuTriggerState<T = unknown> {
   /**
    * The context provided to the menu.
    */
-  readonly context?: WritableSignal<T | undefined>;
+  readonly context: WritableSignal<T>;
 
   /**
    * Set whether the trigger is disabled.
@@ -88,7 +88,7 @@ export interface NgpMenuTriggerState<T = unknown> {
    * Set the context provided to the menu.
    * @param context - The new context
    */
-  setContext(context: T | undefined): void;
+  setContext(context: T): void;
 
   /**
    * Show the menu.
@@ -153,13 +153,13 @@ export interface NgpMenuTriggerProps<T = unknown> {
   /**
    * Context to provide to the menu.
    */
-  readonly context?: Signal<T | undefined>;
+  readonly context?: Signal<T>;
 }
 
 export const [
   NgpMenuTriggerStateToken,
   ngpMenuTrigger,
-  injectMenuTriggerState,
+  _injectMenuTriggerState,
   provideMenuTriggerState,
 ] = createPrimitive(
   'NgpMenuTrigger',
@@ -169,7 +169,7 @@ export const [
     placement: _placement = signal('bottom-start' as NgpMenuPlacement),
     offset: _offset = signal(4),
     flip: _flip = signal(true),
-    context: _context = signal<T | undefined>(undefined),
+    context: _context = signal<T>(undefined as T),
     container,
     scrollBehavior,
   }: NgpMenuTriggerProps<T>) => {
@@ -289,7 +289,7 @@ export const [
       offset.set(newOffset);
     }
 
-    function setContext(newContext: T | undefined): void {
+    function setContext(newContext: T): void {
       context.set(newContext);
     }
 
@@ -313,3 +313,7 @@ export const [
     } satisfies NgpMenuTriggerState<T>;
   },
 );
+
+export function injectMenuTriggerState<T>(): Signal<NgpMenuTriggerState<T>> {
+  return _injectMenuTriggerState() as Signal<NgpMenuTriggerState<T>>;
+}
