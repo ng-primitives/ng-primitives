@@ -1,16 +1,33 @@
-import { computed, ElementRef, Signal, signal } from '@angular/core';
-import { explicitEffect } from 'ng-primitives/internal';
+import { computed, Signal, signal } from '@angular/core';
+import { controlled } from 'ng-primitives/state';
 
-interface ActiveDescendantManagerProps<T extends NgpActivatable> {
+export interface NgpActiveDescendantManagerProps {
   /**
    * The disabled state of the active descendant group.
    * @default false
    */
   disabled?: Signal<boolean>;
+
   /**
-   * The items in the active descendant group.
+   * The number of items in the active descendant group.
    */
-  items: Signal<T[]>;
+  count: Signal<number>;
+
+  /**
+   * Get the id for the item at a given index.
+   */
+  getItemId: (index: number) => string;
+
+  /**
+   * Whether the item at a given index is disabled.
+   */
+  isItemDisabled: (index: number) => boolean;
+
+  /**
+   * Scroll the active descendant item into view.
+   */
+  scrollIntoView: (index: number) => void;
+
   /**
    * Whether active descendant should wrap around.
    * @default false
@@ -19,201 +36,177 @@ interface ActiveDescendantManagerProps<T extends NgpActivatable> {
   /**
    * A callback invoked when the active descendant changes.
    */
-  onActiveDescendantChange?: (activeDescendant: T | undefined) => void;
+  onChange?: (index: number) => void;
 }
 
-export interface NgpActivatable {
+export interface NgpActiveDescendantManagerState {
   /**
-   * The id of the item.
+   * The index of the active descendant item.
    */
-  id: Signal<string>;
+  index: Signal<number>;
+
   /**
-   * Whether the item is disabled.
+   * The id of the active descendant item.
    */
-  disabled?: Signal<boolean>;
-  /**
-   * The element that represents the item.
-   */
-  elementRef: ElementRef<HTMLElement>;
-  /**
-   * Optionally define the index of the item. This is useful for scenarios where
-   * the order of items is not determined by DOM order, or when virtual scrolling is used.
-   */
-  index?: Signal<number | undefined>;
-}
-
-export function activeDescendantManager<T extends NgpActivatable>({
-  items,
-  disabled: _disabled,
-  wrap,
-  onActiveDescendantChange,
-}: ActiveDescendantManagerProps<T>) {
-  const sortedOptions = computed(() =>
-    items()
-      .slice()
-      .sort((a, b) => {
-        const aIndex = a.index?.();
-        const bIndex = b.index?.();
-
-        // If both items have explicit indices, sort by those
-        if (aIndex !== undefined && bIndex !== undefined) {
-          return aIndex - bIndex;
-        }
-
-        // If only one has an explicit index, prioritize it
-        if (aIndex !== undefined && bIndex === undefined) {
-          return -1;
-        }
-
-        if (aIndex === undefined && bIndex !== undefined) {
-          return 1;
-        }
-
-        // If neither has an explicit index, fall back to DOM order
-        const aElement = a.elementRef.nativeElement;
-        const bElement = b.elementRef.nativeElement;
-        return aElement.compareDocumentPosition(bElement) & Node.DOCUMENT_POSITION_FOLLOWING
-          ? -1
-          : 1;
-      }),
-  );
-
-  const activeIndex = signal<number>(0);
-  const activeItem = computed<T | undefined>(() => sortedOptions()?.[activeIndex()]);
-  const disabled = computed(() => _disabled?.() || items().every(item => item.disabled?.()));
-
-  // any time the item list changes, check if the active index is still valid
-  explicitEffect([sortedOptions], ([items]) => {
-    if (activeIndex() >= items.length || activeIndex() < 0) {
-      activateByIndex(items.findIndex(item => !item.disabled?.()));
-    }
-    if (activeIndex() === -1 && items.length > 0) {
-      activateByIndex(0);
-    }
-    if (disabled() || items.length === 0) {
-      activateByIndex(-1);
-    }
-  });
-
-  const activeDescendant = computed(() => {
-    const item = activeItem();
-
-    if (disabled() || !item) {
-      return undefined;
-    }
-
-    return item.id();
-  });
-
-  function activateByIndex(index: number) {
-    activeIndex.set(index);
-    onActiveDescendantChange?.(activeItem());
-  }
+  id: Signal<string | undefined>;
 
   /**
    * Activate an item in the active descendant group.
-   * @param item The item to activate.
    */
-  const activate = (item: T | undefined) => {
-    if (item === undefined) {
-      activateByIndex(-1);
-      return;
-    }
-
-    if (disabled() || item.disabled?.()) {
-      return;
-    }
-
-    activateByIndex(sortedOptions().indexOf(item));
-  };
-
+  activate: (index: number) => void;
   /**
    * Activate the first enabled item in the active descendant group.
    */
-  const first = () => {
-    const item = sortedOptions().findIndex(item => !item.disabled?.());
-
-    if (item !== -1) {
-      activateByIndex(item);
-    }
-  };
-
+  first: () => void;
   /**
    * Activate the last enabled item in the active descendant group.
    */
-  const last = () => {
-    const item = [...sortedOptions()].reverse().findIndex(item => !item.disabled?.());
-
-    if (item !== -1) {
-      activateByIndex(sortedOptions().length - 1 - item);
-    }
-  };
-
-  const findNextIndex = (
-    items: NgpActivatable[],
-    currentIndex: number,
-    direction: 1 | -1,
-    wrap: boolean,
-  ): number | undefined => {
-    let index = (currentIndex + direction + items.length) % items.length;
-
-    while (index !== currentIndex) {
-      const item = items[index];
-      if (item && !item.disabled?.()) {
-        return index;
-      }
-      index = (index + direction + items.length) % items.length;
-
-      if (
-        !wrap &&
-        ((direction === 1 && index === 0) || (direction === -1 && index === items.length - 1))
-      ) {
-        break;
-      }
-    }
-
-    return undefined;
-  };
-
+  last: () => void;
   /**
    * Activate the next enabled item in the active descendant group.
    */
-  const next = () => {
-    const items = sortedOptions();
-    const nextIndex = findNextIndex(items, activeIndex(), 1, wrap?.() ?? false);
-
-    if (nextIndex !== undefined) {
-      activateByIndex(nextIndex);
-    }
-  };
-
+  next: () => void;
   /**
    * Activate the previous enabled item in the active descendant group.
    */
-  const previous = () => {
-    const items = sortedOptions();
-    const prevIndex = findNextIndex(items, activeIndex(), -1, wrap?.() ?? false);
+  previous: () => void;
+  /**
+   * Ensure there is an active descendant, this is useful when the items in the group change.
+   */
+  validate: () => void;
+  /**
+   * Reset the active descendant group, clearing the active index.
+   */
+  reset: () => void;
+}
 
-    if (prevIndex !== undefined) {
-      activateByIndex(prevIndex);
+export function activeDescendantManager({
+  disabled: _disabled = signal(false),
+  wrap,
+  onChange,
+  count,
+  getItemId,
+  isItemDisabled,
+  scrollIntoView,
+}: NgpActiveDescendantManagerProps) {
+  const activeIndex = signal<number>(0);
+  const disabled = controlled(_disabled);
+
+  // compute the id of the active descendant
+  const id = computed(() => {
+    const index = activeIndex();
+    return index >= 0 && index < count() ? getItemId(index) : undefined;
+  });
+
+  function activate(index: number): void {
+    if (disabled() || (index >= 0 && isItemDisabled(index))) {
+      return;
     }
-  };
+
+    activeIndex.set(index);
+    onChange?.(index);
+
+    if (index < 0 || index >= count()) {
+      return;
+    }
+
+    scrollIntoView(index);
+  }
+
+  function first(): void {
+    for (let i = 0; i < count(); i++) {
+      if (!isItemDisabled(i)) {
+        activate(i);
+        return;
+      }
+    }
+  }
+
+  function last(): void {
+    for (let i = count() - 1; i >= 0; i--) {
+      if (!isItemDisabled(i)) {
+        activate(i);
+        return;
+      }
+    }
+  }
+
+  function next(): void {
+    let index = activeIndex() + 1;
+
+    while (index !== activeIndex()) {
+      if (index >= count()) {
+        if (wrap?.()) {
+          index = 0;
+        } else {
+          return;
+        }
+      }
+
+      if (!isItemDisabled(index)) {
+        activate(index);
+        return;
+      }
+
+      index++;
+    }
+  }
+
+  function previous(): void {
+    let index = activeIndex() - 1;
+
+    while (index !== activeIndex()) {
+      if (index < 0) {
+        if (wrap?.()) {
+          index = count() - 1;
+        } else {
+          return;
+        }
+      }
+
+      if (!isItemDisabled(index)) {
+        activate(index);
+        return;
+      }
+
+      index--;
+    }
+  }
+
+  // any time the item list changes, check if the active index is still valid
+  function validate(): void {
+    const index = activeIndex();
+
+    // if the index is out of bounds, reset it
+    if (index >= count() || index < 0 || isItemDisabled(index)) {
+      // find the first enabled item
+      for (let i = 0; i < count(); i++) {
+        if (!isItemDisabled(i)) {
+          activate(i);
+          return;
+        }
+      }
+      // if no enabled items, deactivate
+      activate(-1);
+    }
+  }
 
   /**
    * Reset the active descendant group, clearing the active index.
    */
   const reset = () => {
-    activateByIndex(-1);
+    activate(-1);
   };
 
   return {
-    activeDescendant,
-    activeItem,
+    id,
+    index: activeIndex,
     activate,
     first,
     last,
     next,
     previous,
     reset,
-  };
+    validate,
+  } satisfies NgpActiveDescendantManagerState;
 }

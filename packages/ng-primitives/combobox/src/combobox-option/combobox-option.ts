@@ -9,7 +9,6 @@ import {
   OnDestroy,
   OnInit,
 } from '@angular/core';
-import { NgpActivatable } from 'ng-primitives/a11y';
 import { ngpInteractions } from 'ng-primitives/interactions';
 import { injectElementRef } from 'ng-primitives/internal';
 import { uniqueId } from 'ng-primitives/utils';
@@ -32,7 +31,7 @@ type T = any;
     '(click)': 'select()',
   },
 })
-export class NgpComboboxOption implements OnInit, OnDestroy, NgpActivatable {
+export class NgpComboboxOption implements OnInit, OnDestroy {
   /** Access the combobox state. */
   protected readonly state = injectComboboxState();
 
@@ -70,7 +69,7 @@ export class NgpComboboxOption implements OnInit, OnDestroy, NgpActivatable {
    * @internal
    */
   protected readonly active = computed(
-    () => this.state().activeDescendantManager.activeDescendant() === this.id(),
+    () => this.state().activeDescendantManager.id() === this.id(),
   );
 
   /** Whether this option is selected. */
@@ -140,7 +139,7 @@ export class NgpComboboxOption implements OnInit, OnDestroy, NgpActivatable {
       return;
     }
 
-    this.state().toggleOption(this);
+    this.state().toggleOption(this.getOptionIndex());
   }
 
   /**
@@ -157,7 +156,7 @@ export class NgpComboboxOption implements OnInit, OnDestroy, NgpActivatable {
    */
   @HostListener('pointerenter')
   protected onPointerEnter(): void {
-    this.state().activeDescendantManager.activate(this);
+    this.state().activeDescendantManager.activate(this.getOptionIndex());
   }
 
   /**
@@ -166,6 +165,19 @@ export class NgpComboboxOption implements OnInit, OnDestroy, NgpActivatable {
    */
   @HostListener('pointerleave')
   protected onPointerLeave(): void {
-    this.state().activeDescendantManager.activate(undefined);
+    this.state().activeDescendantManager.reset();
+  }
+
+  /**
+   * Get the index of the option. This may be retrieved from the input or
+   * from the parent combobox state.
+   */
+  private getOptionIndex(): number {
+    const index = this.index();
+    if (index !== undefined) {
+      return index;
+    }
+
+    return this.state().sortedOptions().indexOf(this);
   }
 }

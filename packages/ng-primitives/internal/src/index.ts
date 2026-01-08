@@ -11,6 +11,7 @@ export {
 export * from './signals/explicit-effect';
 export * from './style-injector/style-injector';
 export * from './utilities/dom-removal';
+export * from './utilities/dom-sort';
 export * from './utilities/element-ref';
 export { fromMutationObserver } from './utilities/mutation-observer';
 export { setupOverflowListener } from './utilities/overflow';
