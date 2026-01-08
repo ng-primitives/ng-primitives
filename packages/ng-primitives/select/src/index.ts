@@ -6,6 +6,14 @@ export {
 
 export { NgpSelectDropdown } from './select-dropdown/select-dropdown';
 export { NgpSelectOption } from './select-option/select-option';
+export {
+  NgpSelectOptionState,
+  NgpSelectOptionProps,
+  NgpSelectOptionStateToken,
+  ngpSelectOption,
+  injectSelectOptionState,
+  provideSelectOptionState,
+} from './select-option/select-option-state';
 export { NgpSelectPortal } from './select-portal/select-portal';
 export { NgpSelect } from './select/select';
 export {

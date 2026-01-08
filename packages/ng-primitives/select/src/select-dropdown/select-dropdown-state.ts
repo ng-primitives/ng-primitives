@@ -1,6 +1,6 @@
 import { ElementRef, signal, Signal } from '@angular/core';
 import { injectElementRef, observeResize } from 'ng-primitives/internal';
-import { attrBindingImmediate, createPrimitive, styleBindingImmediate } from 'ng-primitives/state';
+import { attrBindingEffect, createPrimitive, styleBindingEffect } from 'ng-primitives/state';
 import { uniqueId } from 'ng-primitives/utils';
 import { injectSelectState } from '../select/select-state';
 
@@ -30,16 +30,16 @@ export const [
     const selectDimensions = observeResize(() => selectState().elementRef.nativeElement);
 
     // Host bindings using helper functions
-    attrBindingImmediate(element, 'role', 'listbox');
-    attrBindingImmediate(element, 'id', id);
-    styleBindingImmediate(element, 'left.px', () => selectState().overlay()?.position()?.x ?? null);
-    styleBindingImmediate(element, 'top.px', () => selectState().overlay()?.position()?.y ?? null);
-    styleBindingImmediate(
+    attrBindingEffect(element, 'role', 'listbox');
+    attrBindingEffect(element, 'id', id);
+    styleBindingEffect(element, 'left.px', () => selectState().overlay()?.position()?.x ?? null);
+    styleBindingEffect(element, 'top.px', () => selectState().overlay()?.position()?.y ?? null);
+    styleBindingEffect(
       element,
       '--ngp-select-transform-origin',
       () => selectState().overlay()?.transformOrigin() ?? null,
     );
-    styleBindingImmediate(element, '--ngp-select-width.px', () => selectDimensions().width);
+    styleBindingEffect(element, '--ngp-select-width.px', () => selectDimensions().width);
 
     const state: NgpSelectDropdownState = {
       id,

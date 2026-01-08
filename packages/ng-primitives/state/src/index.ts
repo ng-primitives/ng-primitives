@@ -408,7 +408,7 @@ export function attrBinding(
   });
 }
 
-export function attrBindingImmediate(
+export function attrBindingEffect(
   element: ElementRef<HTMLElement>,
   attr: string,
   value:
@@ -478,7 +478,7 @@ export function styleBinding(
   });
 }
 
-export function styleBindingImmediate(
+export function styleBindingEffect(
   element: ElementRef<HTMLElement>,
   style: string,
   value: (() => string | number | null) | string | number | null,

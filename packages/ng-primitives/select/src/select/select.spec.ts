@@ -432,7 +432,7 @@ describe('NgpSelect', () => {
       const bananaOption = screen.getByTestId('option-Banana');
       fireEvent.pointerEnter(bananaOption);
       await waitFor(() => {
-        expect(bananaOption).toHaveAttribute('data-active', '');
+        expect(bananaOption).toHaveAttribute('data-active');
       });
 
       fireEvent.pointerLeave(bananaOption);

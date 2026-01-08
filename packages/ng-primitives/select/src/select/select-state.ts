@@ -14,7 +14,7 @@ import {
 import { uniqueId } from 'ng-primitives/utils';
 import { injectSelectConfig } from '../config/select-config';
 import { NgpSelectDropdownState } from '../select-dropdown/select-dropdown-state';
-import type { NgpSelectOption } from '../select-option/select-option';
+import type { NgpSelectOptionState } from '../select-option/select-option-state';
 import type { NgpSelectPortal } from '../select-portal/select-portal';
 
 /**
@@ -61,7 +61,7 @@ export interface NgpSelectState {
   readonly dropdown: Signal<NgpSelectDropdownState | undefined>;
 
   /** @internal Store the select options. */
-  readonly options: Signal<NgpSelectOption[]>;
+  readonly options: Signal<NgpSelectOptionState[]>;
 
   /** @internal Access the overlay. */
   readonly overlay: Signal<ReturnType<NonNullable<NgpSelectPortal['overlay']>> | undefined>;
@@ -70,7 +70,9 @@ export interface NgpSelectState {
   readonly open: Signal<boolean>;
 
   /** @internal The active key descendant manager. */
-  readonly activeDescendantManager: ReturnType<typeof activeDescendantManager<NgpSelectOption>>;
+  readonly activeDescendantManager: ReturnType<
+    typeof activeDescendantManager<NgpSelectOptionState>
+  >;
 
   /** @internal Access the select element. */
   readonly elementRef: ReturnType<typeof injectElementRef>;
@@ -89,28 +91,28 @@ export interface NgpSelectState {
    * @param option The option to select.
    * @internal
    */
-  selectOption(option: NgpSelectOption | undefined): void;
+  selectOption(option: NgpSelectOptionState | undefined): void;
 
   /**
    * Deselect an option.
    * @param option The option to deselect.
    * @internal
    */
-  deselectOption(option: NgpSelectOption): void;
+  deselectOption(option: NgpSelectOptionState): void;
 
   /**
    * Toggle the selection of an option.
    * @param option The option to toggle.
    * @internal
    */
-  toggleOption(option: NgpSelectOption): void;
+  toggleOption(option: NgpSelectOptionState): void;
 
   /**
    * Determine if an option is selected.
    * @param option The option to check.
    * @internal
    */
-  isOptionSelected(option: NgpSelectOption): boolean;
+  isOptionSelected(option: NgpSelectOptionState): boolean;
 
   /**
    * Activate the next option in the list if there is one.
@@ -144,14 +146,14 @@ export interface NgpSelectState {
    * @param option The option to register.
    * @internal
    */
-  registerOption(option: NgpSelectOption): void;
+  registerOption(option: NgpSelectOptionState): void;
 
   /**
    * Unregister an option from the select.
    * @param option The option to unregister.
    * @internal
    */
-  unregisterOption(option: NgpSelectOption): void;
+  unregisterOption(option: NgpSelectOptionState): void;
 
   /**
    * Focus the select.
@@ -226,7 +228,7 @@ export const [NgpSelectStateToken, ngpSelect, _injectSelectState, provideSelectS
       const dropdown = signal<NgpSelectDropdownState | undefined>(undefined);
 
       /** @internal Store the select options. */
-      const options = signal<NgpSelectOption[]>([]);
+      const options = signal<NgpSelectOptionState[]>([]);
 
       /** @internal Access the overlay. */
       const overlay = computed(() => portal()?.overlay());
@@ -235,7 +237,7 @@ export const [NgpSelectStateToken, ngpSelect, _injectSelectState, provideSelectS
       const open = computed(() => overlay()?.isOpen() ?? false);
 
       /** @internal The active key descendant manager. */
-      const activeDescendantMgr = activeDescendantManager({
+      const activeDescendantMgr = activeDescendantManager<NgpSelectOptionState>({
         // we must wrap the signal in a computed to ensure it is not used before it is defined
         disabled: computed(() => disabled()),
         items: options,
@@ -331,7 +333,7 @@ export const [NgpSelectStateToken, ngpSelect, _injectSelectState, provideSelectS
         }
       }
 
-      function selectOption(option: NgpSelectOption | undefined): void {
+      function selectOption(option: NgpSelectOptionState | undefined): void {
         if (disabled()) {
           return;
         }
@@ -362,7 +364,7 @@ export const [NgpSelectStateToken, ngpSelect, _injectSelectState, provideSelectS
         }
       }
 
-      function deselectOption(option: NgpSelectOption): void {
+      function deselectOption(option: NgpSelectOptionState): void {
         // if the select is disabled or the option is not selected, do nothing
         // if the select is single selection, we don't allow deselecting
         if (disabled() || !isOptionSelected(option) || !multiple()) {
@@ -378,7 +380,7 @@ export const [NgpSelectStateToken, ngpSelect, _injectSelectState, provideSelectS
         onValueChange?.(newValue as T);
       }
 
-      function toggleOption(option: NgpSelectOption): void {
+      function toggleOption(option: NgpSelectOptionState): void {
         if (disabled()) {
           return;
         }
@@ -398,7 +400,7 @@ export const [NgpSelectStateToken, ngpSelect, _injectSelectState, provideSelectS
         }
       }
 
-      function isOptionSelected(option: NgpSelectOption): boolean {
+      function isOptionSelected(option: NgpSelectOptionState): boolean {
         if (disabled()) {
           return false;
         }
@@ -472,11 +474,11 @@ export const [NgpSelectStateToken, ngpSelect, _injectSelectState, provideSelectS
         dropdown.set(dropdownInstance);
       }
 
-      function registerOption(option: NgpSelectOption): void {
+      function registerOption(option: NgpSelectOptionState): void {
         options.update(opts => [...opts, option]);
       }
 
-      function unregisterOption(option: NgpSelectOption): void {
+      function unregisterOption(option: NgpSelectOptionState): void {
         options.update(opts => opts.filter(o => o !== option));
       }
 

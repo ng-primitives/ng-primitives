@@ -1,43 +1,14 @@
 import { BooleanInput } from '@angular/cdk/coercion';
-import {
-  booleanAttribute,
-  computed,
-  Directive,
-  HostListener,
-  input,
-  OnDestroy,
-  OnInit,
-} from '@angular/core';
-import { NgpActivatable } from 'ng-primitives/a11y';
-import { ngpInteractions } from 'ng-primitives/interactions';
-import { injectElementRef } from 'ng-primitives/internal';
+import { booleanAttribute, Directive, input } from '@angular/core';
 import { uniqueId } from 'ng-primitives/utils';
-import { injectSelectState } from '../select/select-state';
+import { ngpSelectOption, provideSelectOptionState } from './select-option-state';
 
 @Directive({
   selector: '[ngpSelectOption]',
   exportAs: 'ngpSelectOption',
-  host: {
-    role: 'option',
-    '[id]': 'id()',
-    '[attr.tabindex]': '-1',
-    '[attr.aria-selected]': 'selected() ? "true" : undefined',
-    '[attr.data-selected]': 'selected() ? "" : undefined',
-    '[attr.data-active]': 'active() ? "" : undefined',
-    '[attr.data-disabled]': 'disabled() ? "" : undefined',
-    '(click)': 'select()',
-  },
+  providers: [provideSelectOptionState()],
 })
-export class NgpSelectOption implements OnInit, OnDestroy, NgpActivatable {
-  /** Access the select state. */
-  protected readonly state = injectSelectState();
-
-  /**
-   * The element reference of the option.
-   * @internal
-   */
-  readonly elementRef = injectElementRef();
-
+export class NgpSelectOption {
   /** The id of the option. */
   readonly id = input<string>(uniqueId('ngp-select-option'));
 
@@ -52,89 +23,11 @@ export class NgpSelectOption implements OnInit, OnDestroy, NgpActivatable {
     transform: booleanAttribute,
   });
 
-  /**
-   * Whether this option is the active descendant.
-   * @internal
-   */
-  protected readonly active = computed(
-    () => this.state().activeDescendantManager.activeDescendant() === this.id(),
-  );
-
-  /** Whether this option is selected. */
-  protected readonly selected = computed(() => {
-    const value = this.value();
-
-    if (!value) {
-      return false;
-    }
-
-    if (this.state().multiple()) {
-      const selectValue = this.state().value();
-      return (
-        Array.isArray(selectValue) && selectValue.some(v => this.state().compareWith()(value, v))
-      );
-    }
-
-    return this.state().compareWith()(value, this.state().value());
-  });
-
   constructor() {
-    this.state().registerOption(this);
-
-    ngpInteractions({
-      hover: true,
-      press: true,
+    ngpSelectOption({
+      id: this.id,
+      value: this.value,
       disabled: this.disabled,
     });
-  }
-
-  ngOnInit(): void {
-    if (this.value() === undefined) {
-      throw new Error(
-        'ngpSelectOption: The value input is required. Please provide a value for the option.',
-      );
-    }
-  }
-
-  ngOnDestroy(): void {
-    this.state().unregisterOption(this);
-  }
-
-  /**
-   * Select the option.
-   * @internal
-   */
-  select(): void {
-    if (this.disabled()) {
-      return;
-    }
-
-    this.state().toggleOption(this);
-  }
-
-  /**
-   * Scroll the option into view.
-   * @internal
-   */
-  scrollIntoView(): void {
-    this.elementRef.nativeElement.scrollIntoView({ block: 'nearest' });
-  }
-
-  /**
-   * Whenever the pointer enters the option, activate it.
-   * @internal
-   */
-  @HostListener('pointerenter')
-  protected onPointerEnter(): void {
-    this.state().activeDescendantManager.activate(this);
-  }
-
-  /**
-   * Whenever the pointer leaves the option, deactivate it.
-   * @internal
-   */
-  @HostListener('pointerleave')
-  protected onPointerLeave(): void {
-    this.state().activeDescendantManager.activate(undefined);
   }
 }
