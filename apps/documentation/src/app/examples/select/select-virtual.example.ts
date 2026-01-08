@@ -17,7 +17,7 @@ import {
     <div
       [(ngpSelectValue)]="value"
       [ngpSelectScrollToOption]="scrollToOption"
-      [ngpSelectOptionCount]="options.length"
+      [ngpSelectOptions]="options"
       ngpSelect
     >
       @if (value(); as selectedValue) {
@@ -163,8 +163,7 @@ import {
     }
 
     .virtual-item[data-selected] {
-      background-color: var(--ngp-background-selected);
-      color: var(--ngp-text-selected);
+      background-color: var(--ngp-background-active);
     }
 
     .empty-message {
