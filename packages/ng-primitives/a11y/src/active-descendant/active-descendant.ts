@@ -1,5 +1,6 @@
 import { computed, Signal, signal } from '@angular/core';
 import { controlled } from 'ng-primitives/state';
+import { injectDisposables } from '../../../utils/src';
 
 export interface NgpActiveDescendantManagerProps {
   /**
@@ -49,29 +50,29 @@ export interface NgpActiveDescendantManagerState {
   /**
    * Activate an item in the active descendant group.
    */
-  activateByIndex: (index: number) => void;
+  activateByIndex: (index: number, options?: ActivationOptions) => void;
 
   /**
    * Activate an item in the active descendant group by id.
    */
-  activateById: (id: string) => void;
+  activateById: (id: string, options?: ActivationOptions) => void;
 
   /**
    * Activate the first enabled item in the active descendant group.
    */
-  first: () => void;
+  first: (options?: ActivationOptions) => void;
   /**
    * Activate the last enabled item in the active descendant group.
    */
-  last: () => void;
+  last: (options?: ActivationOptions) => void;
   /**
    * Activate the next enabled item in the active descendant group.
    */
-  next: () => void;
+  next: (options?: ActivationOptions) => void;
   /**
    * Activate the previous enabled item in the active descendant group.
    */
-  previous: () => void;
+  previous: (options?: ActivationOptions) => void;
   /**
    * Ensure there is an active descendant, this is useful when the items in the group change.
    */
@@ -79,7 +80,7 @@ export interface NgpActiveDescendantManagerState {
   /**
    * Reset the active descendant group, clearing the active index.
    */
-  reset: () => void;
+  reset: (options?: ActivationOptions) => void;
 }
 
 export function activeDescendantManager({
@@ -90,8 +91,13 @@ export function activeDescendantManager({
   isItemDisabled,
   scrollIntoView,
 }: NgpActiveDescendantManagerProps) {
+  const disposables = injectDisposables();
+
   const activeIndex = signal<number>(0);
   const disabled = controlled(_disabled);
+  let isIgnoringPointer = false;
+
+  let clearPointerIgnoreTimer: (() => void) | undefined;
 
   // compute the id of the active descendant
   const id = computed(() => {
@@ -99,9 +105,35 @@ export function activeDescendantManager({
     return index >= 0 && index < count() ? getItemId(index) : undefined;
   });
 
-  function activateByIndex(index: number, { scroll = true }: ActivationOptions = {}): void {
+  /**
+   * Start ignoring pointer interactions temporarily.
+   */
+  function startIgnoringPointer(): void {
+    isIgnoringPointer = true;
+
+    // Clear any existing timer
+    clearPointerIgnoreTimer?.();
+
+    // Reset ignore state after a short delay
+    clearPointerIgnoreTimer = disposables.setTimeout(() => {
+      isIgnoringPointer = false;
+      clearPointerIgnoreTimer = undefined;
+    }, 200); // 200ms should be enough for scroll to complete
+  }
+
+  function activateByIndex(index: number, { scroll = true, origin }: ActivationOptions = {}): void {
     if (disabled() || (index >= 0 && isItemDisabled(index))) {
       return;
+    }
+
+    // if the origin is the pointer but we are ignoring pointer interactions, do nothing
+    if (origin === 'pointer' && isIgnoringPointer) {
+      return;
+    }
+
+    // ensure any pointer interactions triggered via scrolling due to keyboard navigation are ignored
+    if (origin === 'keyboard') {
+      startIgnoringPointer();
     }
 
     activeIndex.set(index);
@@ -124,25 +156,25 @@ export function activeDescendantManager({
     }
   }
 
-  function first(): void {
+  function first(options: ActivationOptions = {}): void {
     for (let i = 0; i < count(); i++) {
       if (!isItemDisabled(i)) {
-        activateByIndex(i);
+        activateByIndex(i, options);
         return;
       }
     }
   }
 
-  function last(): void {
+  function last(options: ActivationOptions = {}): void {
     for (let i = count() - 1; i >= 0; i--) {
       if (!isItemDisabled(i)) {
-        activateByIndex(i);
+        activateByIndex(i, options);
         return;
       }
     }
   }
 
-  function next(): void {
+  function next(options: ActivationOptions = {}): void {
     let index = activeIndex() + 1;
 
     while (index !== activeIndex()) {
@@ -155,7 +187,7 @@ export function activeDescendantManager({
       }
 
       if (!isItemDisabled(index)) {
-        activateByIndex(index);
+        activateByIndex(index, options);
         return;
       }
 
@@ -163,7 +195,7 @@ export function activeDescendantManager({
     }
   }
 
-  function previous(): void {
+  function previous(options: ActivationOptions = {}): void {
     let index = activeIndex() - 1;
 
     while (index !== activeIndex()) {
@@ -176,7 +208,7 @@ export function activeDescendantManager({
       }
 
       if (!isItemDisabled(index)) {
-        activateByIndex(index);
+        activateByIndex(index, options);
         return;
       }
 
@@ -205,8 +237,8 @@ export function activeDescendantManager({
   /**
    * Reset the active descendant group, clearing the active index.
    */
-  const reset = () => {
-    activateByIndex(-1, { scroll: false });
+  const reset = ({ scroll = false, origin }: ActivationOptions = {}) => {
+    activateByIndex(-1, { scroll, origin });
   };
 
   return {
@@ -226,4 +258,6 @@ export function activeDescendantManager({
 export interface ActivationOptions {
   /** Whether to scroll the activated item into view. */
   scroll?: boolean;
+  /** Define the source of activation. */
+  origin?: 'keyboard' | 'pointer';
 }

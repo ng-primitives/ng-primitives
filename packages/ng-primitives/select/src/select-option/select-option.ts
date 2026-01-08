@@ -138,7 +138,23 @@ export class NgpSelectOption implements OnInit, OnDestroy {
    */
   @HostListener('pointerenter')
   protected onPointerEnter(): void {
-    this.state().activeDescendantManager.activateById(this.id(), { scroll: false });
+    // if we have a known index, use that to activate the option because this
+    // is required for virtual scrolling scenarios
+    const index = this.index();
+
+    if (index !== undefined) {
+      this.state().activeDescendantManager.activateByIndex(index, {
+        scroll: false,
+        origin: 'pointer',
+      });
+      return;
+    }
+
+    // otherwise, activate by id
+    this.state().activeDescendantManager.activateById(this.id(), {
+      scroll: false,
+      origin: 'pointer',
+    });
   }
 
   /**
@@ -147,6 +163,8 @@ export class NgpSelectOption implements OnInit, OnDestroy {
    */
   @HostListener('pointerleave')
   protected onPointerLeave(): void {
-    this.state().activeDescendantManager.reset();
+    if (this.state().activeDescendantManager.id() === this.id()) {
+      this.state().activeDescendantManager.reset({ origin: 'pointer' });
+    }
   }
 }

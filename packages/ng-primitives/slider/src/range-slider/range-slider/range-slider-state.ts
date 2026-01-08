@@ -179,7 +179,6 @@ export const [
     onLowChange,
     onHighChange,
   }: NgpRangeSliderProps): NgpRangeSliderState => {
-    console.log('Creating RangeSliderState', _low(), _high(), min(), max());
     const element = injectElementRef();
     const low = controlled(_low);
     const high = controlled(_high);

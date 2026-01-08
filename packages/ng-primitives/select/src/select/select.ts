@@ -407,12 +407,12 @@ export class NgpSelect {
       // if there is a selected option(s), set the active descendant to the first selected option
       const targetOption = selectedOption !== -1 ? selectedOption : 0;
 
-      this.activeDescendantManager.activateByIndex(targetOption);
+      this.activeDescendantManager.activateByIndex(targetOption, { origin: 'keyboard' });
       return;
     }
 
     // otherwise activate the next option
-    this.activeDescendantManager.next();
+    this.activeDescendantManager.next({ origin: 'keyboard' });
   }
 
   /**
@@ -433,11 +433,11 @@ export class NgpSelect {
       const selectedOption = options.findIndex(option => this.isOptionSelected(option.value()));
       // if there is a selected option(s), set the active descendant to the first selected option
       const targetOption = selectedOption !== -1 ? selectedOption : options.length - 1;
-      this.activeDescendantManager.activateByIndex(targetOption);
+      this.activeDescendantManager.activateByIndex(targetOption, { origin: 'keyboard' });
       return;
     }
     // otherwise activate the previous option
-    this.activeDescendantManager.previous();
+    this.activeDescendantManager.previous({ origin: 'keyboard' });
   }
 
   /**
@@ -507,13 +507,13 @@ export class NgpSelect {
         break;
       case 'Home':
         if (this.open()) {
-          this.activeDescendantManager.first();
+          this.activeDescendantManager.first({ origin: 'keyboard' });
         }
         event.preventDefault();
         break;
       case 'End':
         if (this.open()) {
-          this.activeDescendantManager.last();
+          this.activeDescendantManager.last({ origin: 'keyboard' });
         }
         event.preventDefault();
         break;
