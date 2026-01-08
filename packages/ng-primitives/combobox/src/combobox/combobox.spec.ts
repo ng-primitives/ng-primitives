@@ -901,8 +901,8 @@ describe('NgpCombobox Virtual Scrolling', () => {
             <div
               [ngpComboboxOptionValue]="item.value"
               [ngpComboboxOptionIndex]="item.index"
-              ngpComboboxOption
               [attr.data-testid]="'virtual-option-' + item.index"
+              ngpComboboxOption
             >
               {{ item.value }} ({{ item.index }})
             </div>
@@ -920,10 +920,26 @@ describe('NgpCombobox Virtual Scrolling', () => {
 
     // All options for virtual scrolling (simulating a large dataset)
     allOptions = [
-      'Option 0', 'Option 1', 'Option 2', 'Option 3', 'Option 4',
-      'Option 5', 'Option 6', 'Option 7', 'Option 8', 'Option 9',
-      'Option 10', 'Option 11', 'Option 12', 'Option 13', 'Option 14',
-      'Option 15', 'Option 16', 'Option 17', 'Option 18', 'Option 19'
+      'Option 0',
+      'Option 1',
+      'Option 2',
+      'Option 3',
+      'Option 4',
+      'Option 5',
+      'Option 6',
+      'Option 7',
+      'Option 8',
+      'Option 9',
+      'Option 10',
+      'Option 11',
+      'Option 12',
+      'Option 13',
+      'Option 14',
+      'Option 15',
+      'Option 16',
+      'Option 17',
+      'Option 18',
+      'Option 19',
     ];
 
     // Simulated virtual scrolling - only render visible items
@@ -932,19 +948,15 @@ describe('NgpCombobox Virtual Scrolling', () => {
 
     get renderedItems() {
       const filtered = this.filteredOptions;
-      return filtered
-        .slice(this.startIndex, this.endIndex + 1)
-        .map((value, displayIndex) => ({
-          value,
-          index: this.startIndex + displayIndex
-        }));
+      return filtered.slice(this.startIndex, this.endIndex + 1).map((value, displayIndex) => ({
+        value,
+        index: this.startIndex + displayIndex,
+      }));
     }
 
     get filteredOptions() {
       return this.filter
-        ? this.allOptions.filter(option =>
-            option.toLowerCase().includes(this.filter.toLowerCase())
-          )
+        ? this.allOptions.filter(option => option.toLowerCase().includes(this.filter.toLowerCase()))
         : this.allOptions;
     }
 
@@ -989,10 +1001,7 @@ describe('NgpCombobox Virtual Scrolling', () => {
         ngpCombobox
         data-testid="virtual-multi-combobox"
       >
-        <input
-          placeholder="Virtual multi-select"
-          ngpComboboxInput
-        />
+        <input placeholder="Virtual multi-select" ngpComboboxInput />
 
         <button data-testid="virtual-multi-button" ngpComboboxButton>▼</button>
 
@@ -1001,8 +1010,8 @@ describe('NgpCombobox Virtual Scrolling', () => {
             <div
               [ngpComboboxOptionValue]="item.value"
               [ngpComboboxOptionIndex]="item.index"
-              ngpComboboxOption
               [attr.data-testid]="'virtual-multi-option-' + item.index"
+              ngpComboboxOption
             >
               {{ item.value }}
             </div>
@@ -1015,8 +1024,12 @@ describe('NgpCombobox Virtual Scrolling', () => {
     value: string[] = [];
 
     allOptions = [
-      'Multi Option 0', 'Multi Option 1', 'Multi Option 2',
-      'Multi Option 3', 'Multi Option 4', 'Multi Option 5'
+      'Multi Option 0',
+      'Multi Option 1',
+      'Multi Option 2',
+      'Multi Option 3',
+      'Multi Option 4',
+      'Multi Option 5',
     ];
 
     // Only render first 3 items to test virtual scrolling
@@ -1133,7 +1146,7 @@ describe('NgpCombobox Virtual Scrolling', () => {
       // Set initial scroll position
       component.customScrollToOption(5);
       expect(component.startIndex).toBe(2); // 5 - 3 (half of items to show)
-      expect(component.endIndex).toBe(7);   // 2 + 6 - 1
+      expect(component.endIndex).toBe(7); // 2 + 6 - 1
 
       const input = screen.getByRole('combobox');
 
@@ -1144,8 +1157,17 @@ describe('NgpCombobox Virtual Scrolling', () => {
       // Check that filtering works
       const filteredOptions = component.filteredOptions;
       expect(filteredOptions).toEqual([
-        'Option 1', 'Option 10', 'Option 11', 'Option 12', 'Option 13',
-        'Option 14', 'Option 15', 'Option 16', 'Option 17', 'Option 18', 'Option 19'
+        'Option 1',
+        'Option 10',
+        'Option 11',
+        'Option 12',
+        'Option 13',
+        'Option 14',
+        'Option 15',
+        'Option 16',
+        'Option 17',
+        'Option 18',
+        'Option 19',
       ]);
     });
 
@@ -1191,8 +1213,8 @@ describe('NgpCombobox Virtual Scrolling', () => {
                 <div
                   [ngpComboboxOptionValue]="option"
                   [ngpComboboxOptionIndex]="allOptions.indexOf(option)"
-                  ngpComboboxOption
                   [attr.data-testid]="'preselected-option-' + allOptions.indexOf(option)"
+                  ngpComboboxOption
                 >
                   {{ option }}
                 </div>
@@ -1203,7 +1225,14 @@ describe('NgpCombobox Virtual Scrolling', () => {
       })
       class PreselectedVirtualComponent {
         value = 'Virtual Option 5'; // Pre-select an option
-        allOptions = ['Virtual Option 0', 'Virtual Option 1', 'Virtual Option 2', 'Virtual Option 3', 'Virtual Option 4', 'Virtual Option 5'];
+        allOptions = [
+          'Virtual Option 0',
+          'Virtual Option 1',
+          'Virtual Option 2',
+          'Virtual Option 3',
+          'Virtual Option 4',
+          'Virtual Option 5',
+        ];
 
         // Only show options 3-5
         get visibleOptions() {
@@ -1314,7 +1343,9 @@ describe('NgpCombobox Virtual Scrolling', () => {
       const component = fixture.componentInstance;
 
       // Spy on scrollIntoView to ensure it's not called
-      const scrollIntoViewSpy = jest.spyOn(Element.prototype, 'scrollIntoView').mockImplementation();
+      const scrollIntoViewSpy = jest
+        .spyOn(Element.prototype, 'scrollIntoView')
+        .mockImplementation();
 
       const input = screen.getByRole('combobox');
       input.focus();
@@ -1366,10 +1397,7 @@ describe('NgpCombobox Virtual Scrolling', () => {
           NgpComboboxPortal,
         ],
         template: `
-          <div
-            [ngpComboboxOptions]="[]"
-            ngpCombobox
-          >
+          <div [ngpComboboxOptions]="[]" ngpCombobox>
             <input ngpComboboxInput />
             <button data-testid="empty-virtual-button" ngpComboboxButton>▼</button>
             <div *ngpComboboxPortal ngpComboboxDropdown>
@@ -1452,8 +1480,8 @@ describe('NgpCombobox Virtual Scrolling', () => {
                 <div
                   [ngpComboboxOptionValue]="option"
                   [ngpComboboxOptionIndex]="i"
-                  ngpComboboxOption
                   [attr.data-testid]="'mismatch-option-' + i"
+                  ngpComboboxOption
                 >
                   {{ option }}
                 </div>
@@ -1510,8 +1538,8 @@ describe('NgpCombobox Virtual Scrolling', () => {
                 <div
                   [ngpComboboxOptionValue]="option"
                   [ngpComboboxOptionIndex]="i"
-                  ngpComboboxOption
                   [attr.data-testid]="'selection-option-' + i"
+                  ngpComboboxOption
                 >
                   {{ option }}
                 </div>

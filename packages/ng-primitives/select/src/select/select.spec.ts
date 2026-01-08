@@ -534,8 +534,8 @@ describe('NgpSelect', () => {
               <div
                 [ngpSelectOptionValue]="item.value"
                 [ngpSelectOptionIndex]="item.index"
-                ngpSelectOption
                 [attr.data-testid]="'virtual-option-' + item.index"
+                ngpSelectOption
               >
                 {{ item.value }} ({{ item.index }})
               </div>
@@ -580,10 +580,12 @@ describe('NgpSelect', () => {
       endIndex = 5; // Only show 6 items at a time
 
       get renderedItems() {
-        return this.allOptions.slice(this.startIndex, this.endIndex + 1).map((value, displayIndex) => ({
-          value,
-          index: this.startIndex + displayIndex,
-        }));
+        return this.allOptions
+          .slice(this.startIndex, this.endIndex + 1)
+          .map((value, displayIndex) => ({
+            value,
+            index: this.startIndex + displayIndex,
+          }));
       }
 
       onValueChange(value: string) {
@@ -626,8 +628,8 @@ describe('NgpSelect', () => {
               <div
                 [ngpSelectOptionValue]="item.value"
                 [ngpSelectOptionIndex]="item.index"
-                ngpSelectOption
                 [attr.data-testid]="'virtual-multi-option-' + item.index"
+                ngpSelectOption
               >
                 {{ item.value }}
               </div>
@@ -769,7 +771,7 @@ describe('NgpSelect', () => {
 
         // Navigate to index 1
         fireEvent.keyDown(select, { key: 'ArrowDown' });
-        
+
         // Wait for navigation to complete
         await waitFor(() => {
           const secondOption = screen.getByTestId('virtual-option-1');
@@ -826,8 +828,8 @@ describe('NgpSelect', () => {
                   <div
                     [ngpSelectOptionValue]="option"
                     [ngpSelectOptionIndex]="allOptions.indexOf(option)"
-                    ngpSelectOption
                     [attr.data-testid]="'preselected-option-' + allOptions.indexOf(option)"
+                    ngpSelectOption
                   >
                     {{ option }}
                   </div>
@@ -1088,7 +1090,7 @@ describe('NgpSelect', () => {
 
         // Press Home key - should navigate to first option
         fireEvent.keyDown(select, { key: 'Home' });
-        
+
         await waitFor(() => {
           // Check the aria-activedescendant points to first option
           const firstOption = screen.getByTestId('virtual-option-0');
@@ -1097,7 +1099,7 @@ describe('NgpSelect', () => {
 
         // Press End key - should navigate to last option (keyboard navigation works with allOptions)
         fireEvent.keyDown(select, { key: 'End' });
-        
+
         // The End key navigates to index 19 (last of allOptions), but it may not be rendered
         // That's OK - keyboard navigation still works with virtual scrolling
         await waitFor(() => {
@@ -1195,8 +1197,8 @@ describe('NgpSelect', () => {
                   <div
                     [ngpSelectOptionValue]="option"
                     [ngpSelectOptionIndex]="i"
-                    ngpSelectOption
                     [attr.data-testid]="'mismatch-option-' + i"
+                    ngpSelectOption
                   >
                     {{ option }}
                   </div>
@@ -1250,8 +1252,8 @@ describe('NgpSelect', () => {
                   <div
                     [ngpSelectOptionValue]="option"
                     [ngpSelectOptionIndex]="i"
-                    ngpSelectOption
                     [attr.data-testid]="'selection-option-' + i"
+                    ngpSelectOption
                   >
                     {{ option }}
                   </div>
@@ -1380,8 +1382,8 @@ describe('NgpSelect', () => {
                   <div
                     [ngpSelectOptionValue]="option"
                     [ngpSelectOptionIndex]="i"
-                    ngpSelectOption
                     [attr.data-testid]="'single-option-' + i"
+                    ngpSelectOption
                   >
                     {{ option }}
                   </div>
