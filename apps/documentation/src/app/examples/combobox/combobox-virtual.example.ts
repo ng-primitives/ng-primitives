@@ -27,7 +27,7 @@ import {
     <div
       [(ngpComboboxValue)]="value"
       [ngpComboboxScrollToOption]="scrollToOption"
-      [ngpComboboxOptionCount]="filteredOptions().length"
+      [ngpComboboxOptions]="filteredOptions()"
       (ngpComboboxValueChange)="filter.set($event)"
       (ngpComboboxOpenChange)="resetOnClose($event)"
       ngpCombobox

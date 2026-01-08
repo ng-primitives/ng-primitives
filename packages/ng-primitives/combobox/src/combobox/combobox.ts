@@ -132,6 +132,14 @@ export class NgpCombobox {
   });
 
   /**
+   * Provide all the option values to the combobox. This is useful for virtual scrolling scenarios
+   * where not all options are rendered in the DOM. This is not an alternative to adding the options
+   * in the DOM, it is only to provide the combobox with the full list of options. This list should match
+   * the order of the options as they would appear in the DOM.
+   */
+  readonly allOptions = input<T[]>(undefined, { alias: 'ngpComboboxOptions' });
+
+  /**
    * Store the combobox input
    * @internal
    */
@@ -192,7 +200,7 @@ export class NgpCombobox {
   readonly activeDescendantManager = activeDescendantManager({
     // we must wrap the signal in a computed to ensure it is not used before it is defined
     disabled: computed(() => this.state.disabled()),
-    count: computed(() => this.optionCount() ?? this.options().length),
+    count: computed(() => this.state.allOptions()?.length ?? this.options().length),
     getItemId: index => this.getOptionAtIndex(index)?.id(),
     isItemDisabled: index => this.getOptionAtIndex(index)?.disabled() ?? false,
     scrollIntoView: index => {
@@ -234,12 +242,24 @@ export class NgpCombobox {
     this.openChange.emit(true);
     await this.portal()?.show();
 
-    // if there is a selected option(s), set the active descendant to the first selected option
-    const selectedOptionIdx = this.sortedOptions().findIndex(option =>
-      this.isOptionSelected(option),
-    );
+    let selectedOptionIdx = -1;
 
-    // if there is no selected option, set the active descendant to the first option
+    // if we have been provided with allOptions, we need to find the selected option(s) from that list
+    if (this.state.allOptions()) {
+      selectedOptionIdx = this.state
+        .allOptions()!
+        .findIndex(option => this.isOptionSelected(option));
+    }
+
+    // if we don't have allOptions, find the selected option(s) from the registered options
+    if (selectedOptionIdx === -1) {
+      // if there is a selected option(s), set the active descendant to the first selected option
+      selectedOptionIdx = this.sortedOptions().findIndex(option =>
+        this.isOptionSelected(option.value()),
+      );
+    }
+
+    // if after checking there is a selected option, set the active descendant to the first option
     if (selectedOptionIdx !== -1) {
       // scroll to and activate the selected option
       this.scrollTo(selectedOptionIdx);
@@ -314,7 +334,7 @@ export class NgpCombobox {
 
     if (this.state.multiple()) {
       // if the option is already selected, do nothing
-      if (this.isOptionSelected(option)) {
+      if (this.isOptionSelected(option.value())) {
         return;
       }
 
@@ -339,7 +359,7 @@ export class NgpCombobox {
    */
   deselectOption(option: NgpComboboxOption): void {
     // if the combobox is disabled or the option is not selected, do nothing
-    if (this.state.disabled() || !this.isOptionSelected(option)) {
+    if (this.state.disabled() || !this.isOptionSelected(option.value())) {
       return;
     }
 
@@ -395,7 +415,7 @@ export class NgpCombobox {
         return; // Do nothing in single selection mode
       }
 
-      if (this.isOptionSelected(option)) {
+      if (this.isOptionSelected(option.value())) {
         this.deselectOption(option);
       } else {
         this.selectOption(option);
@@ -405,14 +425,14 @@ export class NgpCombobox {
 
     if (this.state.multiple()) {
       // In multiple selection mode, always allow toggling
-      if (this.isOptionSelected(option)) {
+      if (this.isOptionSelected(option.value())) {
         this.deselectOption(option);
       } else {
         this.selectOption(option);
       }
     } else {
       // In single selection mode, check if deselection is allowed
-      if (this.isOptionSelected(option) && this.state.allowDeselect()) {
+      if (this.isOptionSelected(option.value()) && this.state.allowDeselect()) {
         // Deselect the option by setting value to undefined
         this.state.value.set(undefined);
         this.valueChange.emit(undefined);
@@ -428,12 +448,13 @@ export class NgpCombobox {
    * @param option The option to check.
    * @internal
    */
-  isOptionSelected(option: NgpComboboxOption): boolean {
+  isOptionSelected(option: T): boolean {
     if (this.state.disabled()) {
       return false;
     }
 
-    const optionValue = option.value();
+    // Handle both NgpComboboxOption and T types
+    const optionValue = (option as NgpComboboxOption).value?.() ?? (option as T);
     const value = this.state.value();
 
     // Handle select all functionality - only works in multiple selection mode
@@ -476,7 +497,7 @@ export class NgpCombobox {
 
     // if there is no active option, activate the first option
     if (this.activeDescendantManager.index() === -1) {
-      const selectedOption = options.findIndex(option => this.isOptionSelected(option));
+      const selectedOption = options.findIndex(option => this.isOptionSelected(option.value()));
 
       // if there is a selected option(s), set the active descendant to the first selected option
       const targetOption = selectedOption !== -1 ? selectedOption : 0;
@@ -504,7 +525,7 @@ export class NgpCombobox {
     }
     // if there is no active option, activate the last option
     if (this.activeDescendantManager.index() === -1) {
-      const selectedOption = options.findIndex(option => this.isOptionSelected(option));
+      const selectedOption = options.findIndex(option => this.isOptionSelected(option.value()));
       // if there is a selected option(s), set the active descendant to the first selected option
       const targetOption = selectedOption !== -1 ? selectedOption : options.length - 1;
       this.activeDescendantManager.activateByIndex(targetOption);

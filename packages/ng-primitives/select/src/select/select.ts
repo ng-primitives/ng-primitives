@@ -117,7 +117,7 @@ export class NgpSelect {
   });
 
   /**
-   * Provide all the options to the select. This is useful for virtual scrolling scenarios
+   * Provide all the option values to the select. This is useful for virtual scrolling scenarios
    * where not all options are rendered in the DOM. This is not an alternative to adding the options
    * in the DOM, it is only to provide the select with the full list of options. This list should match
    * the order of the options as they would appear in the DOM.
