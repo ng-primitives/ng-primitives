@@ -60,12 +60,12 @@ jobs:
 
       - name: Version (Dry Run)
         if: inputs.dryRun == true
-        run: pnpm exec nx release version ${{ inputs.version }} --skip-publish --dry-run
+        run: pnpm exec nx release version ${{ inputs.version }} --dry-run
 
       - name: Version and Changelog
         if: inputs.dryRun == false
         run: |
-          pnpm exec nx release version ${{ inputs.version }} --skip-publish
+          pnpm exec nx release version ${{ inputs.version }}
           VERSION=$(node -p "require('./packages/ng-primitives/package.json').version")
           pnpm exec nx release changelog ${VERSION} --create-release=github
         env:
