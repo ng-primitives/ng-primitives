@@ -1,4 +1,14 @@
-import { DestroyRef, effect, inject, Injector, signal, Signal, untracked } from '@angular/core';
+import { isPlatformServer } from '@angular/common';
+import {
+  DestroyRef,
+  effect,
+  inject,
+  Injector,
+  PLATFORM_ID,
+  signal,
+  Signal,
+  untracked,
+} from '@angular/core';
 import { isUndefined, safeTakeUntilDestroyed } from 'ng-primitives/utils';
 import { Observable, Subscription } from 'rxjs';
 import { map } from 'rxjs/operators';
@@ -26,9 +36,11 @@ export function fromResizeEvent(
   element: HTMLElement,
   { disabled = signal(false), injector }: NgpResizeObserverOptions = {},
 ): Observable<Dimensions> {
+  const platformId = injector?.get(PLATFORM_ID) ?? inject(PLATFORM_ID);
+
   return new Observable(observable => {
     // ResizeObserver may not be available in all environments, so check for its existence
-    if (isUndefined(window?.ResizeObserver)) {
+    if (isPlatformServer(platformId) || isUndefined(window?.ResizeObserver)) {
       // ResizeObserver is not available (SSR or unsupported browser)
       // Complete the observable without emitting any values
       observable.complete();
