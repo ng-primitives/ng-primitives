@@ -323,6 +323,15 @@
       "contributions": [
         "code"
       ]
+    },
+    {
+      "login": "jczacharia",
+      "name": "Jeremy Zacharia",
+      "avatar_url": "https://avatars.githubusercontent.com/u/30392170?v=4",
+      "profile": "http://jeremyzacharia.com/",
+      "contributions": [
+        "code"
+      ]
     }
   ],
   "contributorsPerLine": 7,
