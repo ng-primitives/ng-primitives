@@ -1,4 +1,4 @@
-import { BooleanInput } from '@angular/cdk/coercion';
+import { BooleanInput, NumberInput } from '@angular/cdk/coercion';
 import {
   booleanAttribute,
   computed,
@@ -7,6 +7,7 @@ import {
   inject,
   Injector,
   input,
+  numberAttribute,
   output,
   signal,
 } from '@angular/core';
@@ -108,6 +109,25 @@ export class NgpSelect {
   });
 
   /**
+   * A function that will scroll the active option into view. This can be overridden
+   * for cases such as virtual scrolling where we cannot scroll the option directly because
+   * it may not be rendered.
+   */
+  readonly scrollToOption = input<(index: number) => void>(undefined, {
+    alias: 'ngpSelectScrollToOption',
+  });
+
+  /**
+   * The number of options within the select. By default this is calculated based on the
+   * options added to the select, but in virtual scrolling scenarios the total number of options
+   * may be different from the number of rendered options.
+   */
+  readonly optionCount = input<number, NumberInput>(undefined, {
+    alias: 'ngpSelectOptionCount',
+    transform: numberAttribute,
+  });
+
+  /**
    * Store the select portal.
    * @internal
    */
@@ -156,9 +176,9 @@ export class NgpSelect {
   readonly activeDescendantManager = activeDescendantManager({
     // we must wrap the signal in a computed to ensure it is not used before it is defined
     disabled: computed(() => this.state.disabled()),
-    count: computed(() => this.options().length),
-    getItemId: index => this.sortedOptions()[index]?.id(),
-    isItemDisabled: index => this.sortedOptions()[index]?.disabled(),
+    count: computed(() => this.optionCount() ?? this.options().length),
+    getItemId: index => this.getOptionAtIndex(index)?.id(),
+    isItemDisabled: index => this.getOptionAtIndex(index)?.disabled() ?? false,
     scrollIntoView: index => {
       const isPositioned = this.portal()?.overlay()?.isPositioned() ?? false;
 
@@ -166,7 +186,7 @@ export class NgpSelect {
         return;
       }
 
-      this.sortedOptions()[index].scrollIntoView();
+      this.scrollTo(index);
     },
   });
 
@@ -198,18 +218,20 @@ export class NgpSelect {
     await this.portal()?.show();
 
     // if there is a selected option(s), set the active descendant to the first selected option
-    const selectedOption = this.sortedOptions().findIndex(option => this.isOptionSelected(option));
+    const selectedOptionIdx = this.sortedOptions().findIndex(option =>
+      this.isOptionSelected(option),
+    );
 
     // if there is no selected option, set the active descendant to the first option
-    const targetOption = selectedOption !== -1 ? selectedOption : 0;
-
-    // if there is no target option, do nothing
-    if (targetOption === -1) {
+    if (selectedOptionIdx !== -1) {
+      // scroll to and activate the selected option
+      this.scrollTo(selectedOptionIdx);
+      this.activeDescendantManager.activateByIndex(selectedOptionIdx);
       return;
     }
 
     // activate the selected option or the first option
-    this.activeDescendantManager.activateByIndex(targetOption);
+    this.activeDescendantManager.first();
   }
 
   /**
@@ -518,5 +540,27 @@ export class NgpSelect {
 
     this.closeDropdown();
     event.preventDefault();
+  }
+
+  private scrollTo(index: number): void {
+    const scrollToOption = this.state.scrollToOption();
+
+    if (scrollToOption) {
+      scrollToOption(index);
+      return;
+    }
+
+    this.sortedOptions()[index]?.scrollIntoView();
+  }
+
+  private getOptionAtIndex(index: number): NgpSelectOption | undefined {
+    // if the option has an index, use that to get the option because this is required for virtual scrolling scenarios
+    const optionIndex = this.options().findIndex(opt => opt.index?.() === index);
+
+    if (optionIndex !== -1) {
+      return this.options()[optionIndex];
+    }
+
+    return this.sortedOptions()[index];
   }
 }

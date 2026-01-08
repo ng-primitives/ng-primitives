@@ -3,7 +3,6 @@ import { join } from 'path';
 
 const collectionPath = join(__dirname, '../../collection.json');
 
- 
 const { version: PACKAGE_VERSION } = require('../../package.json');
 
 describe('mcp-setup schematic', () => {

@@ -7,7 +7,7 @@ import {
 import { McpSetupSchema } from './schema';
 
 // Read version from package.json at compile time
- 
+
 const { version: PACKAGE_VERSION } = require('../../package.json');
 
 interface McpServerConfig {
