@@ -58,7 +58,7 @@ export interface NgpMenuTriggerState<T = unknown> {
   /**
    * The context provided to the menu.
    */
-  readonly context?: WritableSignal<T>;
+  readonly context: WritableSignal<T>;
 
   /**
    * Set whether the trigger is disabled.
