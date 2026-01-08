@@ -67,7 +67,7 @@ jobs:
         run: |
           pnpm exec nx release version ${{ inputs.version }}
           VERSION=$(node -p "require('./packages/ng-primitives/package.json').version")
-          pnpm exec nx release changelog ${VERSION} --create-release=github
+          pnpm exec nx release changelog ${VERSION}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 

@@ -80,7 +80,10 @@
   "release": {
     "projects": ["ng-primitives", "state", "mcp"],
     "changelog": {
-      "workspaceChangelog": true,
+      "workspaceChangelog": {
+        "file": "CHANGELOG.md",
+        "createRelease": "github"
+      },
       "automaticFromRef": true,
       "git": {
         "commitMessage": "chore(release): publish {version}"
