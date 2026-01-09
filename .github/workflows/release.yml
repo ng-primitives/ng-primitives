@@ -1,0 +1,85 @@
+name: Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version bump type'
+        required: true
+        type: choice
+        options:
+          - patch
+          - minor
+          - major
+
+permissions:
+  contents: write
+  packages: write
+  id-token: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          fetch-tags: true
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 10
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'pnpm'
+          registry-url: 'https://registry.npmjs.org'
+
+      - name: Upgrade npm
+        run: npm install -g npm@11.5.1
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Configure Git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Version
+        run: pnpm exec nx release version ${{ inputs.version }}
+
+      - name: Publish to npm
+        run: pnpm exec nx release publish
+
+      - name: Changelog
+        run: |
+          VERSION=$(node -p "require('./packages/ng-primitives/package.json').version")
+          pnpm exec nx release changelog ${VERSION}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Push to next
+        run: git push origin HEAD:next --follow-tags --no-verify
+
+      - name: Push to main
+        run: git push origin HEAD:main --follow-tags --no-verify
+
+      - name: Release Summary
+        run: |
+          VERSION=$(node -p "require('./packages/ng-primitives/package.json').version")
+          echo "## 🚀 Release Complete" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Version:** v${VERSION}" >> $GITHUB_STEP_SUMMARY
+          echo "**Type:** ${{ inputs.version }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "✅ Versions bumped" >> $GITHUB_STEP_SUMMARY
+          echo "✅ Changelog updated" >> $GITHUB_STEP_SUMMARY
+          echo "✅ Changes committed and tagged" >> $GITHUB_STEP_SUMMARY
+          echo "✅ Published to npm" >> $GITHUB_STEP_SUMMARY
+          echo "✅ GitHub Release created" >> $GITHUB_STEP_SUMMARY

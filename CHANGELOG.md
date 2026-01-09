@@ -1,3 +1,13 @@
+## 0.99.6 (2026-01-08)
+
+### 🩹 Fixes
+
+- **resize:** isPlatformServer check before 'window' access ([#599](https://github.com/ng-primitives/ng-primitives/pull/599))
+
+### ❤️ Thank You
+
+- Jeremy Zacharia @jczacharia
+
 ## 0.99.5 (2026-01-08)
 
 ### 🩹 Fixes
