@@ -2,7 +2,7 @@
 
 > Angular Primitives is a collection of unstyled, accessible Angular components and utilities for building design systems and web applications. Built with Angular, TypeScript, and a focus on accessibility, customization, and developer experience. It provides headless UI primitives that can be styled with any CSS framework or design system.
 
-Generated on: 2026-01-09T01:00:29.462Z
+Generated on: 2026-01-09T16:21:32.324Z
 
 ---
 
@@ -458,12 +458,12 @@ import { NgpButton } from 'ng-primitives/button';
   template: `
     <ng-content />
   `,
-  hostDirectives: [{ directive: NgpButton, inputs: ['disabled'] }],
+  hostDirectives: [{ directive: NgpButton, inputs: ['disabled', 'focusableWhenDisabled'] }],
 })
 export class MyButtonComponent {}
 ```
 
-This lets consumers bind to the `disabled` input just as if they were using `ngpButton` directly.
+This lets consumers bind to the `disabled` and `focusableWhenDisabled` inputs just as if they were using `ngpButton` directly.
 
 ## Limitations & Solutions
 
@@ -3447,7 +3447,7 @@ export type ButtonVariant = 'primary' | 'secondary' | 'destructive' | 'outline' 
 
 @Component({
   selector: 'button[app-button]',
-  hostDirectives: [{ directive: NgpButton, inputs: ['disabled'] }],
+  hostDirectives: [{ directive: NgpButton, inputs: ['disabled', 'focusableWhenDisabled'] }],
   template: `
     <ng-content select="[slot=leading]" />
     <ng-content />
@@ -3652,7 +3652,7 @@ export type ButtonSize = 'sm' | 'md' | 'lg' | 'xl';
 
 @Component({
   selector: 'button[app-button]',
-  hostDirectives: [{ directive: NgpButton, inputs: ['disabled'] }],
+  hostDirectives: [{ directive: NgpButton, inputs: ['disabled', 'focusableWhenDisabled'] }],
   template: '<ng-content />',
   host: {
     '[attr.data-size]': 'size()',
@@ -3763,7 +3763,7 @@ export type ButtonVariant = 'primary' | 'secondary' | 'destructive' | 'outline' 
 
 @Component({
   selector: 'button[app-button]',
-  hostDirectives: [{ directive: NgpButton, inputs: ['disabled'] }],
+  hostDirectives: [{ directive: NgpButton, inputs: ['disabled', 'focusableWhenDisabled'] }],
   template: '<ng-content />',
   host: {
     '[attr.data-variant]': 'variant()',
@@ -3948,7 +3948,7 @@ export type ButtonVariant = 'primary' | 'secondary' | 'destructive' | 'outline' 
 
 @Component({
   selector: 'button[app-button]',
-  hostDirectives: [{ directive: NgpButton, inputs: ['disabled'] }],
+  hostDirectives: [{ directive: NgpButton, inputs: ['disabled', 'focusableWhenDisabled'] }],
   template: `
     <ng-content select="[slot=leading]" />
     <ng-content />
@@ -4230,6 +4230,97 @@ export default class ButtonIconExample {}
 
 ```
 
+### Loading States
+
+For buttons that enter a loading state after being clicked, specify `focusableWhenDisabled` to ensure focus remains on the button when it becomes disabled. This prevents focus from being lost and maintains the tab order.
+
+## Example
+
+```typescript
+import { Component, signal } from '@angular/core';
+import { NgpButton } from 'ng-primitives/button';
+
+@Component({
+  selector: 'app-button-loading-example',
+  imports: [NgpButton],
+  template: `
+    <button
+      [disabled]="loading()"
+      [focusableWhenDisabled]="loading()"
+      [aria-label]="loading() ? 'Submitting, please wait' : null"
+      (click)="startLoading()"
+      ngpButton
+    >
+      @if (loading()) {
+        <span class="loader" aria-hidden="true"></span>
+        Submitting...
+      } @else {
+        Submit
+      }
+    </button>
+  `,
+  styles: `
+    [ngpButton] {
+      padding-left: 1rem;
+      padding-right: 1rem;
+      border-radius: 0.5rem;
+      color: var(--ngp-text-primary);
+      border: none;
+      height: 2.5rem;
+      font-weight: 500;
+      background-color: var(--ngp-background);
+      transition: background-color 300ms cubic-bezier(0.4, 0, 0.2, 1);
+      box-shadow: var(--ngp-button-shadow);
+      box-sizing: border-box;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      gap: 0.5rem;
+    }
+    [ngpButton][data-hover] {
+      background-color: var(--ngp-background-hover);
+    }
+    [ngpButton][data-focus-visible] {
+      outline: 2px solid var(--ngp-focus-ring);
+    }
+    [ngpButton][data-press] {
+      background-color: var(--ngp-background-active);
+    }
+    [ngpButton][data-disabled] {
+      opacity: 0.5;
+      cursor: default;
+    }
+    [ngpButton] .loader {
+      width: 1rem;
+      height: 1rem;
+      border: 2px solid var(--ngp-text-primary);
+      border-bottom-color: transparent;
+      border-radius: 50%;
+      display: inline-block;
+      box-sizing: border-box;
+      animation: rotation 1s linear infinite;
+    }
+    @keyframes rotation {
+      0% {
+        transform: rotate(0deg);
+      }
+      100% {
+        transform: rotate(360deg);
+      }
+    }
+  `,
+})
+export default class ButtonLoadingExample {
+  readonly loading = signal(false);
+  startLoading() {
+    this.loading.set(true);
+    setTimeout(() => this.loading.set(false), 3000);
+  }
+}
+
+```
+
 ## Schematics
 
 Generate a reusable button component using the Angular CLI.
@@ -4265,12 +4356,9 @@ The following directives are available to import from the `ng-primitives/button`
 | Property | Type | Default | Description |
 |----------|------|---------|-------------|
 | `disabled` | `boolean` | `-` | Whether the button is disabled. |
-| `focusableWhenDisabled` | `boolean` | `-` | Whether the button should be focusable when disabled.
-This is useful for buttons that enter a loading state after being clicked to
-ensure focus remains on the button when it becomes disabled.
-This prevents focus from being lost and maintains the tab order. |
-| `aria-disabled` | `boolean | undefined` | `-` | The `aria-disabled` attribute value of the button. |
-| `tabindex` | `number | undefined` | `-` | Tab index for the button. |
+| `focusableWhenDisabled` | `boolean` | `-` | Whether the button should be focusable when disabled. |
+| `aria-disabled` | `boolean | null` | `-` | The `aria-disabled` attribute value of the button. |
+| `tabIndex` | `number | null` | `-` | The tab index of the button. |
 
 #### Export As
 
@@ -5366,7 +5454,6 @@ import {
       font-size: 14px;
       color: var(--ngp-text-primary);
       box-sizing: border-box;
-      transition: background-color 0.1s ease;
     }
 
     [ngpComboboxOption][data-hover] {
@@ -5382,8 +5469,8 @@ import {
     }
 
     [ngpComboboxOption][data-selected] {
-      background-color: var(--ngp-primary);
-      color: var(--ngp-primary-contrast);
+      background-color: var(--ngp-background-blue);
+      color: var(--ngp-text-emphasis);
     }
 
     @keyframes dropdown-show {
@@ -5438,7 +5525,7 @@ export default class ComboboxButtonExample {
 ## Example
 
 ```typescript
-import { Component, computed, signal, ElementRef, viewChild } from '@angular/core';
+import { Component, computed, ElementRef, signal, viewChild } from '@angular/core';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { heroChevronDown, heroXMark } from '@ng-icons/heroicons/outline';
 import { heroCheckSolid } from '@ng-icons/heroicons/solid';
@@ -5652,6 +5739,7 @@ import {
       font-weight: 500;
       color: var(--ngp-text-primary);
       max-width: 200px;
+      line-height: 20px;
       transition: all 0.15s ease;
     }
 
@@ -6155,6 +6243,442 @@ To implement Select All, use the special value `'all'` for your Select All optio
 <div ngpComboboxOptionValue="all" ngpComboboxOption>Select All</div>
 ```
 
+### Virtualized Large Lists
+
+When dealing with large datasets (thousands of items), you can use TanStack Virtual or other virtualization libraries to efficiently render only the visible options, improving performance:
+
+## Example
+
+```typescript
+import { Component, computed, ElementRef, signal, viewChild } from '@angular/core';
+import { NgIcon, provideIcons } from '@ng-icons/core';
+import { heroChevronDown } from '@ng-icons/heroicons/outline';
+import { injectVirtualizer } from '@tanstack/angular-virtual';
+import {
+  NgpCombobox,
+  NgpComboboxButton,
+  NgpComboboxDropdown,
+  NgpComboboxInput,
+  NgpComboboxOption,
+  NgpComboboxPortal,
+} from 'ng-primitives/combobox';
+
+@Component({
+  selector: 'app-combobox-virtual',
+  imports: [
+    NgpCombobox,
+    NgpComboboxDropdown,
+    NgpComboboxOption,
+    NgpComboboxInput,
+    NgpComboboxPortal,
+    NgpComboboxButton,
+    NgIcon,
+  ],
+  providers: [provideIcons({ heroChevronDown })],
+  template: `
+    <div
+      [(ngpComboboxValue)]="value"
+      [ngpComboboxScrollToOption]="scrollToOption"
+      [ngpComboboxOptions]="filteredOptions()"
+      (ngpComboboxValueChange)="filter.set($event)"
+      (ngpComboboxOpenChange)="resetOnClose($event)"
+      ngpCombobox
+    >
+      <input
+        [value]="filter()"
+        (input)="onFilterChange($event)"
+        placeholder="Select from 10,000 options"
+        ngpComboboxInput
+      />
+
+      <button ngpComboboxButton aria-label="Toggle dropdown">
+        <ng-icon name="heroChevronDown" />
+      </button>
+
+      <div *ngpComboboxPortal ngpComboboxDropdown>
+        @if (filteredOptions().length > 0) {
+          <div class="virtual-container" #scrollContainer>
+            <div
+              class="virtual-list"
+              [style.height.px]="virtualizer.getTotalSize()"
+              [style.position]="'relative'"
+            >
+              @for (virtualRow of virtualizer.getVirtualItems(); track virtualRow.index) {
+                <div
+                  class="virtual-item"
+                  [ngpComboboxOptionValue]="filteredOptions()[virtualRow.index]"
+                  [style.position]="'absolute'"
+                  [style.top.px]="virtualRow.start"
+                  [style.left]="'0'"
+                  [style.width]="'100%'"
+                  [style.height.px]="virtualRow.size"
+                  [ngpComboboxOptionIndex]="virtualRow.index"
+                  ngpComboboxOption
+                >
+                  {{ filteredOptions()[virtualRow.index] }}
+                </div>
+              }
+            </div>
+          </div>
+        } @else {
+          <div class="empty-message">No options found</div>
+        }
+
+        <div class="results-info">
+          Showing {{ filteredOptions().length }} of {{ options.length }} results
+        </div>
+      </div>
+    </div>
+  `,
+  styles: `
+    [ngpCombobox] {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      height: 36px;
+      width: 400px;
+      border-radius: 8px;
+      border: none;
+      background-color: var(--ngp-background);
+      box-shadow: var(--ngp-input-shadow);
+      box-sizing: border-box;
+    }
+
+    [ngpCombobox][data-focus] {
+      outline: 2px solid var(--ngp-focus-ring);
+      outline-offset: 2px;
+    }
+
+    [ngpComboboxInput] {
+      flex: 1;
+      padding: 0 16px;
+      border: none;
+      background-color: transparent;
+      color: var(--ngp-text);
+      font-family: inherit;
+      font-size: 14px;
+      outline: none;
+      height: 100%;
+    }
+
+    [ngpComboboxButton] {
+      display: inline-flex;
+      justify-content: center;
+      align-items: center;
+      height: 100%;
+      width: 36px;
+      background-color: transparent;
+      border: none;
+      color: var(--ngp-text);
+      cursor: pointer;
+      box-sizing: border-box;
+    }
+
+    [ngpComboboxDropdown] {
+      background-color: var(--ngp-background);
+      border: 1px solid var(--ngp-border);
+      padding: 0;
+      border-radius: 0.75rem;
+      outline: none;
+      position: absolute;
+      animation: popover-show 0.1s ease-out;
+      width: var(--ngp-combobox-width);
+      box-shadow: var(--ngp-shadow-lg);
+      box-sizing: border-box;
+      margin-top: 4px;
+      max-height: 300px;
+      overflow: hidden;
+      z-index: 1001;
+      display: flex;
+      flex-direction: column;
+    }
+
+    [ngpComboboxDropdown][data-enter] {
+      animation: combobox-show 0.1s ease-out;
+    }
+
+    [ngpComboboxDropdown][data-exit] {
+      animation: combobox-hide 0.1s ease-out;
+    }
+
+    .virtual-container {
+      flex: 1;
+      min-height: 0;
+      overflow: auto;
+      padding: 0.25rem;
+      position: relative;
+      height: 250px;
+    }
+
+    .virtual-item {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.375rem 0.75rem;
+      cursor: pointer;
+      border-radius: 0.5rem;
+      width: 100%;
+      height: 36px;
+      font-size: 14px;
+      color: var(--ngp-text-primary);
+      box-sizing: border-box;
+    }
+
+    .virtual-item[data-hover] {
+      background-color: var(--ngp-background-hover);
+    }
+
+    .virtual-item[data-press] {
+      background-color: var(--ngp-background-active);
+    }
+
+    .virtual-item[data-active] {
+      background-color: var(--ngp-background-active);
+    }
+
+    .empty-message {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 1rem;
+      color: var(--ngp-text-secondary);
+      font-size: 14px;
+      font-weight: 500;
+      text-align: center;
+    }
+
+    .results-info {
+      padding: 0.5rem 0.75rem;
+      border-top: 1px solid var(--ngp-border);
+      font-size: 12px;
+      color: var(--ngp-text-secondary);
+      background-color: var(--ngp-background-secondary);
+      border-radius: 0 0 0.75rem 0.75rem;
+    }
+
+    @keyframes combobox-show {
+      0% {
+        opacity: 0;
+        transform: translateY(-10px) scale(0.9);
+      }
+      100% {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+    }
+
+    @keyframes combobox-hide {
+      0% {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+      100% {
+        opacity: 0;
+        transform: translateY(-10px) scale(0.9);
+      }
+    }
+  `,
+})
+export default class ComboboxVirtualExample {
+  /** The options for the combobox - 10,000 generated names. */
+  readonly options: string[] = generateLargeDataset(10000);
+
+  /** The selected value. */
+  readonly value = signal<string | undefined>(undefined);
+
+  /** The filter value. */
+  readonly filter = signal<string>('');
+
+  /** Get the filtered options. */
+  protected readonly filteredOptions = computed(() =>
+    this.options.filter(option => option.toLowerCase().includes(this.filter().toLowerCase())),
+  );
+
+  /** The scroll container element reference. */
+  readonly scrollContainer = viewChild<ElementRef<HTMLDivElement>>('scrollContainer');
+
+  /** The virtualizer instance. */
+  readonly virtualizer = injectVirtualizer(() => ({
+    count: this.filteredOptions().length,
+    scrollElement: this.scrollContainer(),
+    estimateSize: () => 36,
+    overscan: 5,
+  }));
+
+  /** A custom scroll to option function. */
+  protected readonly scrollToOption = (index: number) => {
+    this.virtualizer.scrollToIndex(index, { behavior: 'auto', align: 'auto' });
+  };
+
+  protected onFilterChange(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    this.filter.set(input.value);
+  }
+
+  protected resetOnClose(open: boolean): void {
+    // if the dropdown is closed, reset the filter value
+    if (open) {
+      return;
+    }
+
+    // if the filter value is empty, set the value to undefined
+    if (this.filter() === '') {
+      this.value.set(undefined);
+    } else {
+      // otherwise set the filter value to the selected value
+      this.filter.set(this.value() ?? '');
+    }
+  }
+}
+
+// Generate a large dataset to showcase virtualization
+function generateLargeDataset(count: number): string[] {
+  const firstNames = [
+    'James',
+    'Mary',
+    'John',
+    'Patricia',
+    'Robert',
+    'Jennifer',
+    'Michael',
+    'Linda',
+    'William',
+    'Elizabeth',
+    'David',
+    'Barbara',
+    'Richard',
+    'Susan',
+    'Joseph',
+    'Jessica',
+    'Thomas',
+    'Sarah',
+    'Christopher',
+    'Karen',
+    'Charles',
+    'Nancy',
+    'Daniel',
+    'Lisa',
+    'Matthew',
+    'Betty',
+    'Anthony',
+    'Helen',
+    'Mark',
+    'Sandra',
+    'Donald',
+    'Donna',
+    'Steven',
+    'Carol',
+    'Paul',
+    'Ruth',
+    'Andrew',
+    'Sharon',
+    'Joshua',
+    'Michelle',
+    'Kenneth',
+    'Laura',
+    'Kevin',
+    'Emily',
+    'Brian',
+    'Kimberly',
+    'George',
+    'Deborah',
+    'Edward',
+    'Dorothy',
+    'Ronald',
+    'Amy',
+    'Timothy',
+    'Angela',
+    'Jason',
+    'Ashley',
+    'Jeffrey',
+    'Brenda',
+    'Ryan',
+    'Emma',
+    'Jacob',
+    'Olivia',
+    'Gary',
+    'Cynthia',
+  ];
+
+  const lastNames = [
+    'Smith',
+    'Johnson',
+    'Williams',
+    'Brown',
+    'Jones',
+    'Garcia',
+    'Miller',
+    'Davis',
+    'Rodriguez',
+    'Martinez',
+    'Hernandez',
+    'Lopez',
+    'Gonzalez',
+    'Wilson',
+    'Anderson',
+    'Thomas',
+    'Taylor',
+    'Moore',
+    'Jackson',
+    'Martin',
+    'Lee',
+    'Perez',
+    'Thompson',
+    'White',
+    'Harris',
+    'Sanchez',
+    'Clark',
+    'Ramirez',
+    'Lewis',
+    'Robinson',
+    'Walker',
+    'Young',
+    'Allen',
+    'King',
+    'Wright',
+    'Scott',
+    'Torres',
+    'Nguyen',
+    'Hill',
+    'Flores',
+    'Green',
+    'Adams',
+    'Nelson',
+    'Baker',
+    'Hall',
+    'Rivera',
+    'Campbell',
+    'Mitchell',
+    'Carter',
+    'Roberts',
+    'Gomez',
+    'Phillips',
+    'Evans',
+    'Turner',
+    'Diaz',
+    'Parker',
+    'Cruz',
+    'Edwards',
+    'Collins',
+    'Reyes',
+    'Stewart',
+    'Morris',
+    'Morales',
+    'Murphy',
+  ];
+
+  const options: string[] = [];
+  for (let i = 0; i < count; i++) {
+    const firstName = firstNames[i % firstNames.length];
+    const lastName = lastNames[Math.floor(i / firstNames.length) % lastNames.length];
+    const id = String(i + 1).padStart(4, '0');
+    options.push(`${firstName} ${lastName} (#${id})`);
+  }
+  return options;
+}
+
+```
+
 ## Schematics
 
 Generate a reusable combobox component using the Angular CLI.
@@ -6198,6 +6722,16 @@ The main container for the combobox.
 | `ngpComboboxCompareWith` | `(a: any, b: any) => boolean` | `-` | The comparator function used to compare options. |
 | `ngpComboboxDropdownPlacement` | `NgpComboboxPlacement` | `-` | The position of the dropdown. |
 | `ngpComboboxDropdownContainer` | `string | HTMLElement | null` | `-` | The container for the dropdown. |
+| `ngpComboboxScrollToOption` | `((index: number) => void) | undefined` | `-` | A function that will scroll the active option into view. This can be overridden
+for cases such as virtual scrolling where we cannot scroll the option directly because
+it may not be rendered. |
+| `ngpComboboxOptionCount` | `number | undefined` | `-` | The number of options within the combobox. By default this is calculated based on the
+options added to the combobox, but in virtual scrolling scenarios the total number of options
+may be different from the number of rendered options. |
+| `ngpComboboxOptions` | `any[] | undefined` | `-` | Provide all the option values to the combobox. This is useful for virtual scrolling scenarios
+where not all options are rendered in the DOM. This is not an alternative to adding the options
+in the DOM, it is only to provide the combobox with the full list of options. This list should match
+the order of the options as they would appear in the DOM. |
 
 #### Outputs
 
@@ -6350,6 +6884,8 @@ The individual options within the combobox dropdown.
 |----------|------|---------|-------------|
 | `ngpComboboxOptionValue` | `any` | `-` | - |
 | `ngpComboboxOptionDisabled` | `boolean` | `-` | The disabled state of the option. |
+| `ngpComboboxOptionIndex` | `number | undefined` | `-` | The index of the option in the combobox. This can be used to define the order of options
+when virtual scrolling is used or when the order is not determined by DOM order. |
 
 #### Export As
 
@@ -11132,7 +11668,7 @@ Can be a number (applies to mainAxis) or an object with mainAxis, crossAxis, and
 | `ngpMenuTriggerShift` | `NgpShift` | `undefined (enabled by default in overlay)` | Configure shift behavior to keep the menu in view.
 Can be a boolean to enable/disable, or an object with padding and limiter options. |
 | `ngpMenuTriggerContainer` | `string | HTMLElement | null` | `document.body` | Define the container in which the menu should be attached. |
-| `ngpMenuTriggerScrollBehavior` | `"block" | "reposition"` | `'block'` | Defines how the menu behaves when the window is scrolled. |
+| `ngpMenuTriggerScrollBehavior` | `"reposition" | "block"` | `'block'` | Defines how the menu behaves when the window is scrolled. |
 | `ngpMenuTriggerContext` | `T | undefined` | `-` | Provide context to the menu. This can be used to pass data to the menu content. |
 
 #### Export As
@@ -12904,7 +13440,7 @@ Can be a boolean to enable/disable, or an object with padding and limiter option
 | `ngpPopoverTriggerContainer` | `string | HTMLElement | null` | `document.body` | Define the container in which the popover should be attached. |
 | `ngpPopoverTriggerCloseOnOutsideClick` | `boolean` | `true` | Define whether the popover should close when clicking outside of it. |
 | `ngpPopoverTriggerCloseOnEscape` | `boolean` | `true` | Define whether the popover should close when the escape key is pressed. |
-| `ngpPopoverTriggerScrollBehavior` | `"block" | "reposition"` | `'reposition'` | Defines how the popover behaves when the window is scrolled. |
+| `ngpPopoverTriggerScrollBehavior` | `"reposition" | "block"` | `'reposition'` | Defines how the popover behaves when the window is scrolled. |
 | `ngpPopoverTriggerContext` | `T | undefined` | `-` | Provide context to the popover. This can be used to pass data to the popover content. |
 | `ngpPopoverTriggerAnchor` | `HTMLElement | null` | `-` | Define an anchor element for positioning the popover.
 If provided, the popover will be positioned relative to this element instead of the trigger. |
@@ -15866,6 +16402,396 @@ export default class SelectCustomContainerExample {
 
 ```
 
+### Virtualized Large Lists
+
+When dealing with large datasets (thousands of items), you can use TanStack Virtual or other virtualization libraries to efficiently render only the visible options, improving performance:
+
+## Example
+
+```typescript
+import { Component, ElementRef, signal, viewChild } from '@angular/core';
+import { NgIcon, provideIcons } from '@ng-icons/core';
+import { heroChevronDown } from '@ng-icons/heroicons/outline';
+import { injectVirtualizer } from '@tanstack/angular-virtual';
+import {
+  NgpSelect,
+  NgpSelectDropdown,
+  NgpSelectOption,
+  NgpSelectPortal,
+} from 'ng-primitives/select';
+
+@Component({
+  selector: 'app-select-virtual',
+  imports: [NgpSelect, NgpSelectDropdown, NgpSelectOption, NgpSelectPortal, NgIcon],
+  providers: [provideIcons({ heroChevronDown })],
+  template: `
+    <div
+      [(ngpSelectValue)]="value"
+      [ngpSelectScrollToOption]="scrollToOption"
+      [ngpSelectOptions]="options"
+      ngpSelect
+    >
+      @if (value(); as selectedValue) {
+        <span class="select-value">{{ selectedValue }}</span>
+      } @else {
+        <span class="select-placeholder">Select from 10,000 options</span>
+      }
+      <ng-icon name="heroChevronDown" />
+
+      <div *ngpSelectPortal ngpSelectDropdown>
+        <div class="virtual-container" #scrollContainer>
+          <div
+            class="virtual-list"
+            [style.height.px]="virtualizer.getTotalSize()"
+            [style.position]="'relative'"
+          >
+            @for (virtualRow of virtualizer.getVirtualItems(); track virtualRow.index) {
+              <div
+                class="virtual-item"
+                [ngpSelectOptionValue]="options[virtualRow.index]"
+                [style.position]="'absolute'"
+                [style.top.px]="virtualRow.start"
+                [style.left]="'0'"
+                [style.width]="'100%'"
+                [style.height.px]="virtualRow.size"
+                [ngpSelectOptionIndex]="virtualRow.index"
+                ngpSelectOption
+              >
+                {{ options[virtualRow.index] }}
+              </div>
+            }
+          </div>
+        </div>
+      </div>
+    </div>
+  `,
+  styles: `
+    [ngpSelect] {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      height: 36px;
+      width: 400px;
+      border-radius: 8px;
+      border: none;
+      background-color: var(--ngp-background);
+      box-shadow: var(--ngp-input-shadow);
+      box-sizing: border-box;
+      cursor: pointer;
+    }
+
+    [ngpSelect][data-focus] {
+      outline: 2px solid var(--ngp-focus-ring);
+      outline-offset: 2px;
+    }
+
+    .select-value,
+    .select-placeholder {
+      display: flex;
+      align-items: center;
+      flex: 1;
+      padding: 0 16px;
+      background-color: transparent;
+      color: var(--ngp-text-primary);
+      font-family: inherit;
+      font-size: 14px;
+      height: 100%;
+    }
+
+    .select-placeholder {
+      color: var(--ngp-text-tertiary);
+    }
+
+    ng-icon {
+      display: inline-flex;
+      justify-content: center;
+      align-items: center;
+      height: 100%;
+      margin-inline: 8px;
+      font-size: 14px;
+    }
+
+    [ngpSelectDropdown] {
+      background-color: var(--ngp-background);
+      border: 1px solid var(--ngp-border);
+      padding: 0;
+      border-radius: 0.75rem;
+      outline: none;
+      position: absolute;
+      animation: popover-show 0.1s ease-out;
+      width: var(--ngp-select-width);
+      box-shadow: var(--ngp-shadow-lg);
+      box-sizing: border-box;
+      margin-top: 4px;
+      max-height: 300px;
+      overflow: hidden;
+      z-index: 1001;
+      display: flex;
+      flex-direction: column;
+    }
+
+    [ngpSelectDropdown][data-enter] {
+      animation: select-show 0.1s ease-out;
+    }
+
+    [ngpSelectDropdown][data-exit] {
+      animation: select-hide 0.1s ease-out;
+    }
+
+    .virtual-container {
+      flex: 1;
+      min-height: 0;
+      overflow: auto;
+      padding: 0.25rem;
+      position: relative;
+      height: 250px;
+    }
+
+    .virtual-item {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.375rem 0.75rem;
+      cursor: pointer;
+      border-radius: 0.5rem;
+      width: 100%;
+      height: 36px;
+      font-size: 14px;
+      color: var(--ngp-text-primary);
+      box-sizing: border-box;
+    }
+
+    .virtual-item[data-hover] {
+      background-color: var(--ngp-background-hover);
+    }
+
+    .virtual-item[data-press] {
+      background-color: var(--ngp-background-active);
+    }
+
+    .virtual-item[data-active] {
+      background-color: var(--ngp-background-active);
+    }
+
+    .virtual-item[data-selected] {
+      background-color: var(--ngp-background-active);
+    }
+
+    .empty-message {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 1rem;
+      color: var(--ngp-text-secondary);
+      font-size: 14px;
+      font-weight: 500;
+      text-align: center;
+    }
+
+    .results-info {
+      padding: 0.5rem 0.75rem;
+      border-top: 1px solid var(--ngp-border);
+      font-size: 12px;
+      color: var(--ngp-text-secondary);
+      background-color: var(--ngp-background-secondary);
+      border-radius: 0 0 0.75rem 0.75rem;
+    }
+
+    @keyframes select-show {
+      0% {
+        opacity: 0;
+        transform: translateY(-10px) scale(0.9);
+      }
+      100% {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+    }
+
+    @keyframes select-hide {
+      0% {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+      100% {
+        opacity: 0;
+        transform: translateY(-10px) scale(0.9);
+      }
+    }
+  `,
+})
+export default class SelectVirtualExample {
+  /** The options for the select - 10,000 generated names. */
+  readonly options: string[] = generateLargeDataset(10000);
+
+  /** The selected value. */
+  readonly value = signal<string | undefined>(undefined);
+
+  /** The scroll container element reference. */
+  readonly scrollContainer = viewChild<ElementRef<HTMLDivElement>>('scrollContainer');
+
+  /** The virtualizer instance. */
+  readonly virtualizer = injectVirtualizer(() => ({
+    count: this.options.length,
+    scrollElement: this.scrollContainer(),
+    estimateSize: () => 36,
+    overscan: 5,
+  }));
+
+  /** A custom scroll to option function. */
+  protected readonly scrollToOption = (index: number) => {
+    this.virtualizer.scrollToIndex(index, { behavior: 'auto', align: 'auto' });
+  };
+}
+
+// Generate a large dataset to showcase virtualization
+function generateLargeDataset(count: number): string[] {
+  const firstNames = [
+    'James',
+    'Mary',
+    'John',
+    'Patricia',
+    'Robert',
+    'Jennifer',
+    'Michael',
+    'Linda',
+    'William',
+    'Elizabeth',
+    'David',
+    'Barbara',
+    'Richard',
+    'Susan',
+    'Joseph',
+    'Jessica',
+    'Thomas',
+    'Sarah',
+    'Christopher',
+    'Karen',
+    'Charles',
+    'Nancy',
+    'Daniel',
+    'Lisa',
+    'Matthew',
+    'Betty',
+    'Anthony',
+    'Helen',
+    'Mark',
+    'Sandra',
+    'Donald',
+    'Donna',
+    'Steven',
+    'Carol',
+    'Paul',
+    'Ruth',
+    'Andrew',
+    'Sharon',
+    'Joshua',
+    'Michelle',
+    'Kenneth',
+    'Laura',
+    'Kevin',
+    'Emily',
+    'Brian',
+    'Kimberly',
+    'George',
+    'Deborah',
+    'Edward',
+    'Dorothy',
+    'Ronald',
+    'Amy',
+    'Timothy',
+    'Angela',
+    'Jason',
+    'Ashley',
+    'Jeffrey',
+    'Brenda',
+    'Ryan',
+    'Emma',
+    'Jacob',
+    'Olivia',
+    'Gary',
+    'Cynthia',
+  ];
+
+  const lastNames = [
+    'Smith',
+    'Johnson',
+    'Williams',
+    'Brown',
+    'Jones',
+    'Garcia',
+    'Miller',
+    'Davis',
+    'Rodriguez',
+    'Martinez',
+    'Hernandez',
+    'Lopez',
+    'Gonzalez',
+    'Wilson',
+    'Anderson',
+    'Thomas',
+    'Taylor',
+    'Moore',
+    'Jackson',
+    'Martin',
+    'Lee',
+    'Perez',
+    'Thompson',
+    'White',
+    'Harris',
+    'Sanchez',
+    'Clark',
+    'Ramirez',
+    'Lewis',
+    'Robinson',
+    'Walker',
+    'Young',
+    'Allen',
+    'King',
+    'Wright',
+    'Scott',
+    'Torres',
+    'Nguyen',
+    'Hill',
+    'Flores',
+    'Green',
+    'Adams',
+    'Nelson',
+    'Baker',
+    'Hall',
+    'Rivera',
+    'Campbell',
+    'Mitchell',
+    'Carter',
+    'Roberts',
+    'Gomez',
+    'Phillips',
+    'Evans',
+    'Turner',
+    'Diaz',
+    'Parker',
+    'Cruz',
+    'Edwards',
+    'Collins',
+    'Reyes',
+    'Stewart',
+    'Morris',
+    'Morales',
+    'Murphy',
+  ];
+
+  const options: string[] = [];
+  for (let i = 0; i < count; i++) {
+    const firstName = firstNames[i % firstNames.length];
+    const lastName = lastNames[Math.floor(i / firstNames.length) % lastNames.length];
+    const id = String(i + 1).padStart(4, '0');
+    options.push(`${firstName} ${lastName} (#${id})`);
+  }
+  return options;
+}
+
+```
+
 ## API Reference
 
 The following directives are available to import from the `ng-primitives/select` package:
@@ -15890,6 +16816,13 @@ The following directives are available to import from the `ng-primitives/select`
 | `ngpSelectCompareWith` | `(a: any, b: any) => boolean` | `-` | The comparator function used to compare options. |
 | `ngpSelectDropdownPlacement` | `Placement` | `-` | The position of the dropdown. |
 | `ngpSelectDropdownContainer` | `string | HTMLElement | null` | `-` | The container for the dropdown. |
+| `ngpSelectScrollToOption` | `((index: number) => void) | undefined` | `-` | A function that will scroll the active option into view. This can be overridden
+for cases such as virtual scrolling where we cannot scroll the option directly because
+it may not be rendered. |
+| `ngpSelectOptions` | `any[] | undefined` | `-` | Provide all the option values to the select. This is useful for virtual scrolling scenarios
+where not all options are rendered in the DOM. This is not an alternative to adding the options
+in the DOM, it is only to provide the select with the full list of options. This list should match
+the order of the options as they would appear in the DOM. |
 
 #### Outputs
 
@@ -15952,6 +16885,7 @@ The following directives are available to import from the `ng-primitives/select`
 |----------|------|---------|-------------|
 | `ngpSelectOptionValue` | `any` | `-` | - |
 | `ngpSelectOptionDisabled` | `boolean` | `-` | The disabled state of the option. |
+| `ngpSelectOptionIndex` | `number | undefined` | `-` | The index of the option in the list. |
 
 #### Export As
 
@@ -18987,7 +19921,7 @@ import { ChangeFn, provideValueAccessor, TouchedFn } from 'ng-primitives/utils';
       inputs: ['ngpToggleSelected:selected', 'ngpToggleDisabled:disabled'],
       outputs: ['ngpToggleSelectedChange:selectedChange'],
     },
-    { directive: NgpButton, inputs: ['disabled'] },
+    { directive: NgpButton, inputs: ['disabled', 'focusableWhenDisabled'] },
   ],
   template: `
     <ng-content />
