@@ -50,6 +50,12 @@ You can add icons to your buttons using any Angular icon library or simple SVG e
 
 <docs-example name="button-icon"></docs-example>
 
+### Loading States
+
+For buttons that enter a loading state after being clicked, specify `focusableWhenDisabled` to ensure focus remains on the button when it becomes disabled. This prevents focus from being lost and maintains the tab order.
+
+<docs-example name="button-loading"></docs-example>
+
 ## Schematics
 
 Generate a reusable button component using the Angular CLI.

@@ -8,7 +8,7 @@ export type ButtonSize = 'sm' | 'md' | 'lg' | 'xl';
 
 @Component({
   selector: 'button[app-button]',
-  hostDirectives: [{ directive: NgpButton, inputs: ['disabled'] }],
+  hostDirectives: [{ directive: NgpButton, inputs: ['disabled', 'focusableWhenDisabled'] }],
   template: '<ng-content />',
   host: {
     '[attr.data-size]': 'size()',

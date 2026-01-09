@@ -70,12 +70,12 @@ import { NgpButton } from 'ng-primitives/button';
   template: `
     <ng-content />
   `,
-  hostDirectives: [{ directive: NgpButton, inputs: ['disabled'] }],
+  hostDirectives: [{ directive: NgpButton, inputs: ['disabled', 'focusableWhenDisabled'] }],
 })
 export class MyButtonComponent {}
 ```
 
-This lets consumers bind to the `disabled` input just as if they were using `ngpButton` directly.
+This lets consumers bind to the `disabled` and `focusableWhenDisabled` inputs just as if they were using `ngpButton` directly.
 
 ## Limitations & Solutions
 
