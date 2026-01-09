@@ -94,6 +94,12 @@ To implement Select All, use the special value `'all'` for your Select All optio
 <div ngpComboboxOptionValue="all" ngpComboboxOption>Select All</div>
 ```
 
+### Virtualized Large Lists
+
+When dealing with large datasets (thousands of items), you can use TanStack Virtual or other virtualization libraries to efficiently render only the visible options, improving performance:
+
+<docs-example name="combobox-virtual"></docs-example>
+
 ## Schematics
 
 Generate a reusable combobox component using the Angular CLI.

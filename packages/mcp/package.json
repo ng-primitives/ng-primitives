@@ -1,6 +1,6 @@
 {
   "name": "@ng-primitives/mcp",
-  "version": "0.99.5",
+  "version": "0.100.0",
   "description": "MCP server for Angular Primitives - headless UI library",
   "type": "commonjs",
   "main": "./src/index.js",
@@ -21,7 +21,19 @@
     "url": "https://github.com/ng-primitives/ng-primitives.git",
     "directory": "packages/mcp"
   },
-  "license": "MIT",
+  "homepage": "https://angularprimitives.com",
+  "bugs": {
+    "url": "https://github.com/ng-primitives/ng-primitives/issues"
+  },
+  "author": {
+    "name": "Ashley Hunter",
+    "url": "https://github.com/ashley-hunter"
+  },
+  "funding": {
+    "type": "github",
+    "url": "https://github.com/sponsors/ng-primitives"
+  },
+  "license": "Apache-2.0",
   "dependencies": {
     "tslib": "^2.3.0",
     "@modelcontextprotocol/sdk": "^1.24.0",

@@ -1,19 +1,21 @@
-import { BooleanInput } from '@angular/cdk/coercion';
+import { BooleanInput, NumberInput } from '@angular/cdk/coercion';
 import {
   booleanAttribute,
   computed,
   Directive,
   HostListener,
   input,
+  numberAttribute,
   OnDestroy,
   OnInit,
 } from '@angular/core';
-import { NgpActivatable } from 'ng-primitives/a11y';
 import { ngpInteractions } from 'ng-primitives/interactions';
-import { injectElementRef } from 'ng-primitives/internal';
+import { injectElementRef, scrollIntoViewIfNeeded } from 'ng-primitives/internal';
 import { uniqueId } from 'ng-primitives/utils';
 import { injectComboboxState } from '../combobox/combobox-state';
 import { areAllOptionsSelected } from '../utils';
+
+type T = any;
 
 @Directive({
   selector: '[ngpComboboxOption]',
@@ -29,7 +31,7 @@ import { areAllOptionsSelected } from '../utils';
     '(click)': 'select()',
   },
 })
-export class NgpComboboxOption implements OnInit, OnDestroy, NgpActivatable {
+export class NgpComboboxOption implements OnInit, OnDestroy {
   /** Access the combobox state. */
   protected readonly state = injectComboboxState();
 
@@ -43,7 +45,7 @@ export class NgpComboboxOption implements OnInit, OnDestroy, NgpActivatable {
   readonly id = input<string>(uniqueId('ngp-combobox-option'));
 
   /** @required The value of the option. */
-  readonly value = input<any>(undefined, {
+  readonly value = input<T>(undefined, {
     alias: 'ngpComboboxOptionValue',
   });
 
@@ -54,12 +56,29 @@ export class NgpComboboxOption implements OnInit, OnDestroy, NgpActivatable {
   });
 
   /**
+   * The index of the option in the combobox. This can be used to define the order of options
+   * when virtual scrolling is used or when the order is not determined by DOM order.
+   */
+  readonly index = input<number, NumberInput>(undefined, {
+    alias: 'ngpComboboxOptionIndex',
+    transform: numberAttribute,
+  });
+
+  /**
    * Whether this option is the active descendant.
    * @internal
    */
-  protected readonly active = computed(
-    () => this.state().activeDescendantManager.activeDescendant() === this.id(),
-  );
+  protected readonly active = computed(() => {
+    // if the option has an index, use that to determine if it's active because this
+    // is required for virtual scrolling scenarios
+    const index = this.index();
+
+    if (index !== undefined) {
+      return this.state().activeDescendantManager.index() === index;
+    }
+
+    return this.state().activeDescendantManager.id() === this.id();
+  });
 
   /** Whether this option is selected. */
   protected readonly selected = computed(() => {
@@ -128,7 +147,7 @@ export class NgpComboboxOption implements OnInit, OnDestroy, NgpActivatable {
       return;
     }
 
-    this.state().toggleOption(this);
+    this.state().toggleOption(this.id());
   }
 
   /**
@@ -136,7 +155,7 @@ export class NgpComboboxOption implements OnInit, OnDestroy, NgpActivatable {
    * @internal
    */
   scrollIntoView(): void {
-    this.elementRef.nativeElement.scrollIntoView({ block: 'nearest' });
+    scrollIntoViewIfNeeded(this.elementRef.nativeElement);
   }
 
   /**
@@ -145,7 +164,22 @@ export class NgpComboboxOption implements OnInit, OnDestroy, NgpActivatable {
    */
   @HostListener('pointerenter')
   protected onPointerEnter(): void {
-    this.state().activeDescendantManager.activate(this);
+    // if we have a known index, use that to activate the option (required for virtual scrolling)
+    const index = this.index();
+
+    if (index !== undefined) {
+      this.state().activeDescendantManager.activateByIndex(index, {
+        scroll: false,
+        origin: 'pointer',
+      });
+      return;
+    }
+
+    // otherwise, activate by id
+    this.state().activeDescendantManager.activateById(this.id(), {
+      scroll: false,
+      origin: 'pointer',
+    });
   }
 
   /**
@@ -154,6 +188,8 @@ export class NgpComboboxOption implements OnInit, OnDestroy, NgpActivatable {
    */
   @HostListener('pointerleave')
   protected onPointerLeave(): void {
-    this.state().activeDescendantManager.activate(undefined);
+    if (this.state().activeDescendantManager.id() === this.id()) {
+      this.state().activeDescendantManager.reset({ origin: 'pointer' });
+    }
   }
 }

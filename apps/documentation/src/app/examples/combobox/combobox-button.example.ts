@@ -122,7 +122,6 @@ import {
       font-size: 14px;
       color: var(--ngp-text-primary);
       box-sizing: border-box;
-      transition: background-color 0.1s ease;
     }
 
     [ngpComboboxOption][data-hover] {
@@ -138,8 +137,8 @@ import {
     }
 
     [ngpComboboxOption][data-selected] {
-      background-color: var(--ngp-primary);
-      color: var(--ngp-primary-contrast);
+      background-color: var(--ngp-background-blue);
+      color: var(--ngp-text-emphasis);
     }
 
     @keyframes dropdown-show {

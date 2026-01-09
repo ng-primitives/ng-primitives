@@ -85,6 +85,12 @@ The select component can be rendered inside a custom container. You can open Dev
 
 <docs-example name="select-custom-container"></docs-example>
 
+### Virtualized Large Lists
+
+When dealing with large datasets (thousands of items), you can use TanStack Virtual or other virtualization libraries to efficiently render only the visible options, improving performance:
+
+<docs-example name="select-virtual"></docs-example>
+
 ## API Reference
 
 The following directives are available to import from the `ng-primitives/select` package:

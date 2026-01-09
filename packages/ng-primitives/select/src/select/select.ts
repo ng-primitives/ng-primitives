@@ -14,7 +14,7 @@ import type { Placement } from '@floating-ui/dom';
 import { activeDescendantManager } from 'ng-primitives/a11y';
 import { ngpFormControl } from 'ng-primitives/form-field';
 import { ngpInteractions } from 'ng-primitives/interactions';
-import { injectElementRef } from 'ng-primitives/internal';
+import { domSort, injectElementRef } from 'ng-primitives/internal';
 import { uniqueId } from 'ng-primitives/utils';
 import { injectSelectConfig } from '../config/select-config';
 import type { NgpSelectDropdown } from '../select-dropdown/select-dropdown';
@@ -45,8 +45,7 @@ type T = any;
     '[id]': 'state.id()',
     '[attr.aria-expanded]': 'open()',
     '[attr.aria-controls]': 'open() ? dropdown()?.id() : undefined',
-    '[attr.aria-activedescendant]':
-      'open() ? activeDescendantManager.activeDescendant() : undefined',
+    '[attr.aria-activedescendant]': 'open() ? activeDescendantManager.id() : undefined',
     '[attr.tabindex]': 'state.disabled() ? -1 : 0',
     '[attr.data-open]': 'open() ? "" : undefined',
     '[attr.data-disabled]': 'state.disabled() ? "" : undefined',
@@ -109,6 +108,23 @@ export class NgpSelect {
   });
 
   /**
+   * A function that will scroll the active option into view. This can be overridden
+   * for cases such as virtual scrolling where we cannot scroll the option directly because
+   * it may not be rendered.
+   */
+  readonly scrollToOption = input<(index: number) => void>(undefined, {
+    alias: 'ngpSelectScrollToOption',
+  });
+
+  /**
+   * Provide all the option values to the select. This is useful for virtual scrolling scenarios
+   * where not all options are rendered in the DOM. This is not an alternative to adding the options
+   * in the DOM, it is only to provide the select with the full list of options. This list should match
+   * the order of the options as they would appear in the DOM.
+   */
+  readonly allOptions = input<T[]>(undefined, { alias: 'ngpSelectOptions' });
+
+  /**
    * Store the select portal.
    * @internal
    */
@@ -139,21 +155,36 @@ export class NgpSelect {
   readonly open = computed(() => this.overlay()?.isOpen() ?? false);
 
   /**
+   * The options sorted by their index or DOM position.
+   * @internal
+   */
+  readonly sortedOptions = computed(() =>
+    domSort(
+      this.options(),
+      option => option.elementRef.nativeElement,
+      option => option.index?.(),
+    ),
+  );
+
+  /**
    * The active key descendant manager.
    * @internal
    */
   readonly activeDescendantManager = activeDescendantManager({
     // we must wrap the signal in a computed to ensure it is not used before it is defined
     disabled: computed(() => this.state.disabled()),
-    items: this.options,
-    onActiveDescendantChange: activeItem => {
+    wrap: signal(true),
+    count: computed(() => this.allOptions()?.length ?? this.options().length),
+    getItemId: index => this.getOptionAtIndex(index)?.id(),
+    isItemDisabled: index => this.getOptionAtIndex(index)?.disabled() ?? false,
+    scrollIntoView: index => {
       const isPositioned = this.portal()?.overlay()?.isPositioned() ?? false;
 
-      if (!isPositioned || !activeItem) {
+      if (!isPositioned || index === -1) {
         return;
       }
 
-      this.activeDescendantManager.activeItem()?.scrollIntoView?.();
+      this.scrollTo(index);
     },
   });
 
@@ -184,19 +215,33 @@ export class NgpSelect {
     this.openChange.emit(true);
     await this.portal()?.show();
 
-    // if there is a selected option(s), set the active descendant to the first selected option
-    const selectedOption = this.options().find(option => this.isOptionSelected(option));
+    let selectedOptionIdx = -1;
 
-    // if there is no selected option, set the active descendant to the first option
-    const targetOption = selectedOption ?? this.options()[0];
+    // if we have been provided with allOptions, we need to find the selected option(s) from that list
+    if (this.state.allOptions()) {
+      selectedOptionIdx = this.state
+        .allOptions()!
+        .findIndex(option => this.isOptionSelected(option));
+    }
 
-    // if there is no target option, do nothing
-    if (!targetOption) {
+    // if we don't have allOptions, find the selected option(s) from the registered options
+    if (selectedOptionIdx === -1) {
+      // if there is a selected option(s), set the active descendant to the first selected option
+      selectedOptionIdx = this.sortedOptions().findIndex(option =>
+        this.isOptionSelected(option.value()),
+      );
+    }
+
+    // if after checking there is a selected option, set the active descendant to the first option
+    if (selectedOptionIdx !== -1) {
+      // scroll to and activate the selected option
+      this.scrollTo(selectedOptionIdx);
+      this.activeDescendantManager.activateByIndex(selectedOptionIdx);
       return;
     }
 
     // activate the selected option or the first option
-    this.activeDescendantManager.activate(targetOption);
+    this.activeDescendantManager.first();
   }
 
   /**
@@ -230,13 +275,15 @@ export class NgpSelect {
 
   /**
    * Select an option.
-   * @param option The option to select.
+   * @param index The index of the option to select.
    * @internal
    */
-  selectOption(option: NgpSelectOption | undefined): void {
+  selectOption(id: string): void {
     if (this.state.disabled()) {
       return;
     }
+
+    const option = this.sortedOptions().find(opt => opt.id() === id);
 
     if (!option) {
       this.state.value.set(undefined);
@@ -246,7 +293,7 @@ export class NgpSelect {
 
     if (this.state.multiple()) {
       // if the option is already selected, do nothing
-      if (this.isOptionSelected(option)) {
+      if (this.isOptionSelected(option.value())) {
         return;
       }
 
@@ -272,7 +319,7 @@ export class NgpSelect {
   deselectOption(option: NgpSelectOption): void {
     // if the select is disabled or the option is not selected, do nothing
     // if the select is single selection, we don't allow deselecting
-    if (this.state.disabled() || !this.isOptionSelected(option) || !this.state.multiple()) {
+    if (this.state.disabled() || !this.isOptionSelected(option.value()) || !this.state.multiple()) {
       return;
     }
 
@@ -287,26 +334,32 @@ export class NgpSelect {
 
   /**
    * Toggle the selection of an option.
-   * @param option The option to toggle.
+   * @param id The id of the option to toggle.
    * @internal
    */
-  toggleOption(option: NgpSelectOption): void {
+  toggleOption(id: string): void {
     if (this.state.disabled()) {
+      return;
+    }
+
+    const option = this.sortedOptions().find(opt => opt.id() === id);
+
+    if (!option) {
       return;
     }
 
     // if the state is single selection, we don't allow toggling
     if (!this.state.multiple()) {
       // always select the option in single selection mode even if it is already selected so that we update the input
-      this.selectOption(option);
+      this.selectOption(id);
       return;
     }
 
     // otherwise toggle the option
-    if (this.isOptionSelected(option)) {
+    if (this.isOptionSelected(option.value())) {
       this.deselectOption(option);
     } else {
-      this.selectOption(option);
+      this.selectOption(id);
     }
   }
 
@@ -315,7 +368,7 @@ export class NgpSelect {
    * @param option The option to check.
    * @internal
    */
-  isOptionSelected(option: NgpSelectOption): boolean {
+  isOptionSelected(option: T): boolean {
     if (this.state.disabled()) {
       return false;
     }
@@ -327,10 +380,10 @@ export class NgpSelect {
     }
 
     if (this.state.multiple()) {
-      return value && (value as T[]).some(v => this.state.compareWith()(option.value(), v));
+      return value && (value as T[]).some(v => this.state.compareWith()(option, v));
     }
 
-    return this.state.compareWith()(option.value(), value);
+    return this.state.compareWith()(option, value);
   }
 
   /**
@@ -343,7 +396,7 @@ export class NgpSelect {
       return;
     }
 
-    const options = this.options();
+    const options = this.sortedOptions();
 
     // if there are no options, do nothing
     if (options.length === 0) {
@@ -351,18 +404,18 @@ export class NgpSelect {
     }
 
     // if there is no active option, activate the first option
-    if (!this.activeDescendantManager.activeItem()) {
-      const selectedOption = options.find(option => this.isOptionSelected(option));
+    if (this.activeDescendantManager.index() === -1) {
+      const selectedOption = options.findIndex(option => this.isOptionSelected(option.value()));
 
       // if there is a selected option(s), set the active descendant to the first selected option
-      const targetOption = selectedOption ?? options[0];
+      const targetOption = selectedOption !== -1 ? selectedOption : 0;
 
-      this.activeDescendantManager.activate(targetOption);
+      this.activeDescendantManager.activateByIndex(targetOption, { origin: 'keyboard' });
       return;
     }
 
     // otherwise activate the next option
-    this.activeDescendantManager.next();
+    this.activeDescendantManager.next({ origin: 'keyboard' });
   }
 
   /**
@@ -373,21 +426,21 @@ export class NgpSelect {
     if (this.state.disabled()) {
       return;
     }
-    const options = this.options();
+    const options = this.sortedOptions();
     // if there are no options, do nothing
     if (options.length === 0) {
       return;
     }
     // if there is no active option, activate the last option
-    if (!this.activeDescendantManager.activeItem()) {
-      const selectedOption = options.find(option => this.isOptionSelected(option));
+    if (this.activeDescendantManager.index() === -1) {
+      const selectedOption = options.findIndex(option => this.isOptionSelected(option.value()));
       // if there is a selected option(s), set the active descendant to the first selected option
-      const targetOption = selectedOption ?? options[options.length - 1];
-      this.activeDescendantManager.activate(targetOption);
+      const targetOption = selectedOption !== -1 ? selectedOption : options.length - 1;
+      this.activeDescendantManager.activateByIndex(targetOption, { origin: 'keyboard' });
       return;
     }
     // otherwise activate the previous option
-    this.activeDescendantManager.previous();
+    this.activeDescendantManager.previous({ origin: 'keyboard' });
   }
 
   /**
@@ -457,19 +510,23 @@ export class NgpSelect {
         break;
       case 'Home':
         if (this.open()) {
-          this.activeDescendantManager.first();
+          this.activeDescendantManager.first({ origin: 'keyboard' });
         }
         event.preventDefault();
         break;
       case 'End':
         if (this.open()) {
-          this.activeDescendantManager.last();
+          this.activeDescendantManager.last({ origin: 'keyboard' });
         }
         event.preventDefault();
         break;
       case 'Enter':
         if (this.open()) {
-          this.selectOption(this.activeDescendantManager.activeItem());
+          const activeId = this.activeDescendantManager.id();
+
+          if (activeId) {
+            this.selectOption(activeId);
+          }
         } else {
           this.openDropdown();
         }
@@ -493,5 +550,30 @@ export class NgpSelect {
 
     this.closeDropdown();
     event.preventDefault();
+  }
+
+  private scrollTo(index: number): void {
+    const scrollToOption = this.state.scrollToOption();
+
+    if (scrollToOption) {
+      scrollToOption(index);
+      return;
+    }
+
+    const option = this.getOptionAtIndex(index);
+    if (option) {
+      option.scrollIntoView();
+    }
+  }
+
+  private getOptionAtIndex(index: number): NgpSelectOption | undefined {
+    // if the option has an index, use that to get the option because this is required for virtual scrolling scenarios
+    const optionIndex = this.options().findIndex(opt => opt.index?.() === index);
+
+    if (optionIndex !== -1) {
+      return this.options()[optionIndex];
+    }
+
+    return this.sortedOptions()[index];
   }
 }

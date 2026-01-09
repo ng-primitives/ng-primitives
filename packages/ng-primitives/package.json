@@ -2,7 +2,7 @@
   "name": "ng-primitives",
   "description": "Angular Primitives is a low-level headless UI component library with a focus on accessibility, customization, and developer experience. ",
   "license": "Apache-2.0",
-  "version": "0.99.5",
+  "version": "0.100.0",
   "keywords": [
     "angular",
     "primitives",
@@ -16,7 +16,8 @@
   "homepage": "https://angularprimitives.com",
   "repository": {
     "type": "git",
-    "url": "https://github.com/ng-primitives/ng-primitives.git"
+    "url": "git+https://github.com/ng-primitives/ng-primitives.git",
+    "directory": "packages/ng-primitives"
   },
   "bugs": {
     "url": "https://github.com/ng-primitives/ng-primitives/issues"
