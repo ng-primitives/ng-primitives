@@ -1,3 +1,13 @@
+## 0.100.0 (2026-01-09)
+
+### 🚀 Features
+
+- adding virtual scrolling support fro select and combobox ([#596](https://github.com/ng-primitives/ng-primitives/pull/596))
+
+### ❤️ Thank You
+
+- Ashley Hunter
+
 ## 0.99.6 (2026-01-08)
 
 ### 🩹 Fixes
