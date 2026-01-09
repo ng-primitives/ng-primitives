@@ -43,9 +43,7 @@ export class NgpComboboxInput {
   readonly dropdownId = computed(() => this.state().dropdown()?.id());
 
   /** The id of the active descendant. */
-  protected readonly activeDescendant = computed(() =>
-    this.state().activeDescendantManager.activeDescendant(),
-  );
+  protected readonly activeDescendant = computed(() => this.state().activeDescendantManager.id());
 
   /** Determine if the pointer was used to focus the input. */
   protected pointerFocused = false;
@@ -102,7 +100,8 @@ export class NgpComboboxInput {
         break;
       case 'Enter':
         if (this.state().open()) {
-          const activeItem = this.state().activeDescendantManager.activeItem();
+          const activeItem = this.state().activeDescendantManager.id();
+
           if (activeItem) {
             this.state().toggleOption(activeItem);
           }

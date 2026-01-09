@@ -3,7 +3,6 @@ import { join } from 'path';
 
 const collectionPath = join(__dirname, '../../collection.json');
 
-// eslint-disable-next-line @typescript-eslint/no-require-imports
 const { version: PACKAGE_VERSION } = require('../../package.json');
 
 describe('mcp-setup schematic', () => {
