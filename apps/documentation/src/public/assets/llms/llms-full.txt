@@ -2,7 +2,7 @@
 
 > Angular Primitives is a collection of unstyled, accessible Angular components and utilities for building design systems and web applications. Built with Angular, TypeScript, and a focus on accessibility, customization, and developer experience. It provides headless UI primitives that can be styled with any CSS framework or design system.
 
-Generated on: 2026-01-02T21:34:20.533Z
+Generated on: 2026-01-09T01:00:29.462Z
 
 ---
 
@@ -4265,6 +4265,12 @@ The following directives are available to import from the `ng-primitives/button`
 | Property | Type | Default | Description |
 |----------|------|---------|-------------|
 | `disabled` | `boolean` | `-` | Whether the button is disabled. |
+| `focusableWhenDisabled` | `boolean` | `-` | Whether the button should be focusable when disabled.
+This is useful for buttons that enter a loading state after being clicked to
+ensure focus remains on the button when it becomes disabled.
+This prevents focus from being lost and maintains the tab order. |
+| `aria-disabled` | `boolean | undefined` | `-` | The `aria-disabled` attribute value of the button. |
+| `tabindex` | `number | undefined` | `-` | Tab index for the button. |
 
 #### Export As
 
@@ -11085,6 +11091,20 @@ You can customize the offset using either a simple number or an object for more 
 </button>
 ```
 
+### Custom Shift
+
+You can customize the shift behavior to control how the menu stays within the viewport:
+
+```html
+<!-- Disable shift -->
+<button [ngpMenuTrigger]="menu" [ngpMenuTriggerShift]="false">Menu without shift</button>
+
+<!-- Object shift for precise control -->
+<button [ngpMenuTrigger]="menu" [ngpMenuTriggerShift]="{padding: 8}">
+  Menu with custom shift padding
+</button>
+```
+
 ## API Reference
 
 The following directives are available to import from the `ng-primitives/menu` package:
@@ -11109,6 +11129,8 @@ The `NgpMenuTrigger` directive allows you to turn an element into a menu trigger
 | `ngpMenuTriggerOffset` | `NgpOffset` | `4` | Define the offset of the menu relative to the trigger.
 Can be a number (applies to mainAxis) or an object with mainAxis, crossAxis, and alignmentAxis. |
 | `ngpMenuTriggerFlip` | `boolean` | `true` | Define whether the menu should flip when there is not enough space for the menu. |
+| `ngpMenuTriggerShift` | `NgpShift` | `undefined (enabled by default in overlay)` | Configure shift behavior to keep the menu in view.
+Can be a boolean to enable/disable, or an object with padding and limiter options. |
 | `ngpMenuTriggerContainer` | `string | HTMLElement | null` | `document.body` | Define the container in which the menu should be attached. |
 | `ngpMenuTriggerScrollBehavior` | `"block" | "reposition"` | `'block'` | Defines how the menu behaves when the window is scrolled. |
 | `ngpMenuTriggerContext` | `T | undefined` | `-` | Provide context to the menu. This can be used to pass data to the menu content. |
@@ -12513,6 +12535,22 @@ You can customize the offset using either a simple number or an object for more 
 </button>
 ```
 
+### Custom Shift
+
+You can customize the shift behavior to control how the popover stays within the viewport:
+
+```html
+<!-- Disable shift -->
+<button [ngpPopoverTrigger]="popover" [ngpPopoverTriggerShift]="false">
+  Popover without shift
+</button>
+
+<!-- Object shift for precise control -->
+<button [ngpPopoverTrigger]="popover" [ngpPopoverTriggerShift]="{padding: 8}">
+  Popover with custom shift padding
+</button>
+```
+
 ## Reusable Component
 
 Create a popover component that uses the `NgpPopover` directive.
@@ -12861,6 +12899,8 @@ Can be a number (applies to mainAxis) or an object with mainAxis, crossAxis, and
 | `ngpPopoverTriggerShowDelay` | `number` | `0` | Define the delay before the popover is displayed. |
 | `ngpPopoverTriggerHideDelay` | `number` | `0` | Define the delay before the popover is hidden. |
 | `ngpPopoverTriggerFlip` | `boolean` | `true` | Define whether the popover should flip when there is not enough space for the popover. |
+| `ngpPopoverTriggerShift` | `NgpShift` | `undefined (enabled by default in overlay)` | Configure shift behavior to keep the popover in view.
+Can be a boolean to enable/disable, or an object with padding and limiter options. |
 | `ngpPopoverTriggerContainer` | `string | HTMLElement | null` | `document.body` | Define the container in which the popover should be attached. |
 | `ngpPopoverTriggerCloseOnOutsideClick` | `boolean` | `true` | Define whether the popover should close when clicking outside of it. |
 | `ngpPopoverTriggerCloseOnEscape` | `boolean` | `true` | Define whether the popover should close when the escape key is pressed. |
@@ -17735,7 +17775,7 @@ import { NgpToast, NgpToastManager } from 'ng-primitives/toast';
     <button class="toast-trigger" (click)="show(toast)" ngpButton>Show Toast</button>
 
     <ng-template #toast let-dismiss="dismiss">
-      <div ngpToast>
+      <div ngpToast animate.enter="toast-enter" animate.leave="toast-leave">
         <p class="toast-title">This is a toast message</p>
         <p class="toast-description">It will disappear in 3 seconds</p>
         <button class="toast-dismiss" (click)="dismiss()" ngpButton>Dismiss</button>
@@ -17773,11 +17813,6 @@ import { NgpToast, NgpToastManager } from 'ng-primitives/toast';
     [ngpToast] {
       position: absolute;
       touch-action: none;
-      transition:
-        transform 0.4s,
-        opacity 0.4s,
-        height 0.4s,
-        box-shadow 0.2s;
       box-sizing: border-box;
       align-items: center;
       gap: 6px;
@@ -17787,7 +17822,6 @@ import { NgpToast, NgpToastManager } from 'ng-primitives/toast';
       border: 1px solid var(--ngp-border);
       padding: 12px 16px;
       opacity: 0;
-      transition: all 0.4s cubic-bezier(0.215, 0.61, 0.355, 1);
       border-radius: 8px;
       z-index: var(--ngp-toast-z-index);
       grid-template-columns: 1fr auto;
@@ -17797,6 +17831,7 @@ import { NgpToast, NgpToastManager } from 'ng-primitives/toast';
       width: 350px;
       height: fit-content;
       transform: var(--y);
+      transition: all 0.4s cubic-bezier(0.215, 0.61, 0.355, 1);
     }
 
     .toast-title {
@@ -17889,7 +17924,7 @@ import { NgpToast, NgpToastManager } from 'ng-primitives/toast';
 
     [ngpToast][data-expanded='true'] {
       --y: translateY(calc(var(--lift) * var(--ngp-toast-offset)));
-      height: var(--ngp-toast-height);
+      height: auto;
     }
 
     [ngpToast][data-swiping='true'] {
@@ -17916,6 +17951,43 @@ import { NgpToast, NgpToastManager } from 'ng-primitives/toast';
     [ngpToast][data-swiping='true'][data-swipe-direction='bottom'] {
       /* Fade out from 45px to 100px swipe */
       opacity: calc(1 - clamp(0, (var(--ngp-toast-swipe-y, 0px) - 45) / 55, 1));
+    }
+
+    /* Truncate text only when toast is not front AND not expanded */
+    [ngpToast][data-front='false'][data-expanded='false'] .toast-title {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    [ngpToast][data-front='false'][data-expanded='false'] .toast-description {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    /* Angular animations using animate.enter and animate.leave */
+    .toast-enter {
+      animation: toast-slide-in 400ms cubic-bezier(0.215, 0.61, 0.355, 1);
+    }
+
+    .toast-leave {
+      opacity: 0;
+      transform: translateY(100%);
+      transition:
+        opacity 400ms cubic-bezier(0.215, 0.61, 0.355, 1),
+        transform 400ms cubic-bezier(0.215, 0.61, 0.355, 1);
+    }
+
+    @keyframes toast-slide-in {
+      from {
+        opacity: 0;
+        transform: translateY(100%);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
     }
   `,
 })
@@ -17979,6 +18051,10 @@ import { injectToastContext, NgpToast, NgpToastManager } from 'ng-primitives/toa
   selector: 'app-toast',
   imports: [NgpButton],
   hostDirectives: [NgpToast],
+  host: {
+    'animate.enter': 'toast-enter',
+    'animate.leave': 'toast-leave',
+  },
   template: `
     <p class="toast-title">{{ context.header }}</p>
     <p class="toast-description">{{ context.description }}</p>
@@ -17988,11 +18064,6 @@ import { injectToastContext, NgpToast, NgpToastManager } from 'ng-primitives/toa
     :host {
       position: absolute;
       touch-action: none;
-      transition:
-        transform 0.4s,
-        opacity 0.4s,
-        height 0.4s,
-        box-shadow 0.2s;
       box-sizing: border-box;
       align-items: center;
       gap: 6px;
@@ -18002,16 +18073,16 @@ import { injectToastContext, NgpToast, NgpToastManager } from 'ng-primitives/toa
       border: 1px solid var(--ngp-border);
       padding: 12px 16px;
       opacity: 0;
-      transition: all 0.4s cubic-bezier(0.215, 0.61, 0.355, 1);
       border-radius: 8px;
       z-index: var(--ngp-toast-z-index);
       grid-template-columns: 1fr auto;
       grid-template-rows: min-content min-content;
       column-gap: 12px;
       align-items: center;
-      width: var(--ngp-toast-width);
+      width: 350px;
       height: fit-content;
       transform: var(--y);
+      transition: all 0.4s cubic-bezier(0.215, 0.61, 0.355, 1);
     }
 
     .toast-title {
@@ -18104,7 +18175,7 @@ import { injectToastContext, NgpToast, NgpToastManager } from 'ng-primitives/toa
 
     :host[data-expanded='true'] {
       --y: translateY(calc(var(--lift) * var(--ngp-toast-offset)));
-      height: var(--ngp-toast-height);
+      height: auto;
     }
 
     :host[data-swiping='true'] {
@@ -18131,6 +18202,71 @@ import { injectToastContext, NgpToast, NgpToastManager } from 'ng-primitives/toa
     :host[data-swiping='true'][data-swipe-direction='bottom'] {
       /* Fade out from 45px to 100px swipe */
       opacity: calc(1 - clamp(0, (var(--ngp-toast-swipe-y, 0px) - 45) / 55, 1));
+    }
+
+    /* Truncate text only when toast is not front AND not expanded */
+    :host[data-front='false'][data-expanded='false'] .toast-title {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    :host[data-front='false'][data-expanded='false'] .toast-description {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    /* Angular animations based on position */
+
+    /* Bottom position animations */
+    :host[data-position-y='bottom'].toast-enter {
+      animation: toast-slide-in-bottom 400ms cubic-bezier(0.215, 0.61, 0.355, 1);
+    }
+
+    :host[data-position-y='bottom'].toast-leave {
+      opacity: 0;
+      transform: translateY(100%);
+      transition:
+        opacity 400ms cubic-bezier(0.215, 0.61, 0.355, 1),
+        transform 400ms cubic-bezier(0.215, 0.61, 0.355, 1);
+    }
+
+    /* Top position animations */
+    :host[data-position-y='top'].toast-enter {
+      animation: toast-slide-in-top 400ms cubic-bezier(0.215, 0.61, 0.355, 1);
+    }
+
+    :host[data-position-y='top'].toast-leave {
+      opacity: 0;
+      transform: translateY(-100%);
+      transition:
+        opacity 400ms cubic-bezier(0.215, 0.61, 0.355, 1),
+        transform 400ms cubic-bezier(0.215, 0.61, 0.355, 1);
+    }
+
+    /* Keyframes for bottom position */
+    @keyframes toast-slide-in-bottom {
+      from {
+        opacity: 0;
+        transform: translateY(100%);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* Keyframes for top position */
+    @keyframes toast-slide-in-top {
+      from {
+        opacity: 0;
+        transform: translateY(-100%);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
     }
   `,
 })
@@ -19734,6 +19870,22 @@ You can customize the offset using either a simple number or an object for more 
 </button>
 ```
 
+### Custom Shift
+
+You can customize the shift behavior to control how the tooltip stays within the viewport:
+
+```html
+<!-- Disable shift -->
+<button [ngpTooltipTrigger]="tooltip" [ngpTooltipTriggerShift]="false">
+  Tooltip without shift
+</button>
+
+<!-- Object shift for precise control -->
+<button [ngpTooltipTrigger]="tooltip" [ngpTooltipTriggerShift]="{padding: 8}">
+  Tooltip with custom shift padding
+</button>
+```
+
 ## API Reference
 
 The following directives are available to import from the `ng-primitives/tooltip` package:
@@ -19791,6 +19943,8 @@ Can be a number (applies to mainAxis) or an object with mainAxis, crossAxis, and
 | `ngpTooltipTriggerShowDelay` | `number` | `500` | Define the delay before the tooltip is displayed. |
 | `ngpTooltipTriggerHideDelay` | `number` | `0` | Define the delay before the tooltip is hidden. |
 | `ngpTooltipTriggerFlip` | `boolean` | `true` | Define whether the tooltip should flip when there is not enough space for the tooltip. |
+| `ngpTooltipTriggerShift` | `NgpShift` | `undefined (enabled by default in overlay)` | Configure shift behavior to keep the tooltip in view.
+Can be a boolean to enable/disable, or an object with padding and limiter options. |
 | `ngpTooltipTriggerContainer` | `string | HTMLElement | null` | `document.body` | Define the container in which the tooltip should be attached. |
 | `ngpTooltipTriggerShowOnOverflow` | `boolean` | `false` | Define whether the tooltip should only show when the trigger element overflows. |
 | `ngpTooltipTriggerContext` | `T | undefined` | `-` | Provide context to the tooltip. This can be used to pass data to the tooltip content. |
