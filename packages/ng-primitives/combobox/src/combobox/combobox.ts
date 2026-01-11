@@ -1,4 +1,4 @@
-import { BooleanInput, NumberInput } from '@angular/cdk/coercion';
+import { BooleanInput } from '@angular/cdk/coercion';
 import {
   booleanAttribute,
   computed,
@@ -7,7 +7,6 @@ import {
   inject,
   Injector,
   input,
-  numberAttribute,
   output,
   signal,
 } from '@angular/core';
@@ -119,16 +118,6 @@ export class NgpCombobox {
    */
   readonly scrollToOption = input<(index: number) => void>(undefined, {
     alias: 'ngpComboboxScrollToOption',
-  });
-
-  /**
-   * The number of options within the combobox. By default this is calculated based on the
-   * options added to the combobox, but in virtual scrolling scenarios the total number of options
-   * may be different from the number of rendered options.
-   */
-  readonly optionCount = input<number, NumberInput>(undefined, {
-    alias: 'ngpComboboxOptionCount',
-    transform: numberAttribute,
   });
 
   /**
