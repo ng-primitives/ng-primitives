@@ -1,3 +1,13 @@
+## 0.100.1 (2026-01-11)
+
+### 🩹 Fixes
+
+- **combobox:** removing unused input ([#603](https://github.com/ng-primitives/ng-primitives/pull/603))
+
+### ❤️ Thank You
+
+- Ashley Hunter
+
 ## 0.100.0 (2026-01-09)
 
 ### 🚀 Features
