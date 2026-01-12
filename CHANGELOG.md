@@ -1,3 +1,13 @@
+## 0.101.1 (2026-01-12)
+
+### 🩹 Fixes
+
+- **combobox:** add additional check for option ([#605](https://github.com/ng-primitives/ng-primitives/pull/605))
+
+### ❤️ Thank You
+
+- Ashley Hunter
+
 ## 0.101.0 (2026-01-12)
 
 ### 🩹 Fixes
