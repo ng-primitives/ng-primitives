@@ -444,8 +444,12 @@ export class NgpCombobox {
     }
 
     // Handle both NgpComboboxOption and T types
-    const optionValue = (option as NgpComboboxOption).value?.() ?? (option as T);
+    const optionValue = isOption(option) ? option.value() : (option as T);
     const value = this.state.value();
+
+    if (!optionValue) {
+      return false;
+    }
 
     // Handle select all functionality - only works in multiple selection mode
     if (optionValue === 'all') {
@@ -740,3 +744,9 @@ export type NgpComboboxPlacement =
   | 'bottom-end'
   | 'left-start'
   | 'left-end';
+
+function isOption(value: any): value is NgpComboboxOption {
+  return (
+    value && typeof value === 'object' && 'value' in value && typeof value.value === 'function'
+  );
+}
