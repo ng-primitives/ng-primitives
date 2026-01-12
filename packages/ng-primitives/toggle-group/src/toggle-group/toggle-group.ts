@@ -24,6 +24,15 @@ export class NgpToggleGroup {
   });
 
   /**
+   * Whether focus should wrap around when reaching the end of the toggle group.
+   * @default true
+   */
+  readonly wrap = input<boolean, BooleanInput>(this.config.wrap, {
+    alias: 'ngpToggleGroupWrap',
+    transform: booleanAttribute,
+  });
+
+  /**
    * Whether toggle buttons can be deselected. If set to `false`, clicking a selected toggle button will not deselect it.
    * @default true
    */
@@ -62,6 +71,7 @@ export class NgpToggleGroup {
     rovingFocusGroup: ngpRovingFocusGroup({
       orientation: this.orientation,
       disabled: this.disabled,
+      wrap: this.wrap,
     }),
     orientation: this.orientation,
     allowDeselection: this.allowDeselection,

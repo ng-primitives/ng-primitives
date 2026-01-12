@@ -1,4 +1,4 @@
-import { FocusOrigin } from '@angular/cdk/a11y';
+import { FocusMonitor, FocusOrigin } from '@angular/cdk/a11y';
 import {
   computed,
   inject,
@@ -148,6 +148,7 @@ export const [
     const injector = inject(Injector);
     const viewContainerRef = inject(ViewContainerRef);
     const parentMenu = injectMenuState({ optional: true });
+    const focusMonitor = inject(FocusMonitor);
 
     // Controlled properties
     const menu = controlled(_menu);
@@ -197,6 +198,12 @@ export const [
       if (open()) {
         hide(origin);
       } else {
+        // if the origin was keyboard we must set this in the focus monitor manually - for some reason
+        // it doesn't pick it up automatically
+        if (origin === 'keyboard') {
+          (focusMonitor as any)._lastFocusOrigin = 'keyboard';
+        }
+
         show();
       }
     }
