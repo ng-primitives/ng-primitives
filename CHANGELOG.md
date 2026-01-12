@@ -1,3 +1,13 @@
+## 0.101.0 (2026-01-12)
+
+### 🩹 Fixes
+
+- **menu/toggle-group:** adding support for wrapping configuration ([#604](https://github.com/ng-primitives/ng-primitives/pull/604))
+
+### ❤️ Thank You
+
+- Ashley Hunter
+
 ## 0.100.1 (2026-01-11)
 
 ### 🩹 Fixes
