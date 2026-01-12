@@ -1,5 +1,6 @@
 import { FocusOrigin } from '@angular/cdk/a11y';
-import { Directive } from '@angular/core';
+import { BooleanInput } from '@angular/cdk/coercion';
+import { booleanAttribute, Directive, input } from '@angular/core';
 import { ngpFocusTrap, provideFocusTrapState } from 'ng-primitives/focus-trap';
 import { ngpRovingFocusGroup, provideRovingFocusGroupState } from 'ng-primitives/roving-focus';
 import { ngpMenu, provideMenuState } from './menu-state';
@@ -20,8 +21,17 @@ import { ngpMenu, provideMenuState } from './menu-state';
 export class NgpMenu {
   private readonly state = ngpMenu({});
 
+  /**
+   * Whether focus should wrap around when reaching the end of the menu.
+   * @default true
+   */
+  readonly wrap = input<boolean, BooleanInput>(true, {
+    alias: 'ngpMenuWrap',
+    transform: booleanAttribute,
+  });
+
   constructor() {
-    ngpRovingFocusGroup({ inherit: false });
+    ngpRovingFocusGroup({ inherit: false, wrap: this.wrap });
     ngpFocusTrap({});
   }
 

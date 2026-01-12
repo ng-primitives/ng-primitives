@@ -19,12 +19,19 @@ export interface NgpToggleGroupConfig {
    * @default true
    */
   allowDeselection: boolean;
+
+  /**
+   * Whether focus should wrap around when reaching the end of the toggle group.
+   * @default true
+   */
+  wrap: boolean;
 }
 
 export const defaultToggleGroupConfig: NgpToggleGroupConfig = {
   orientation: 'horizontal',
   type: 'single',
   allowDeselection: true,
+  wrap: true,
 };
 
 export const NgpToggleGroupConfigToken = new InjectionToken<NgpToggleGroupConfig>(
