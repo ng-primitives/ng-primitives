@@ -10,6 +10,7 @@ import { injectPaginationState } from '../pagination/pagination-state';
   selector: '[ngpPaginationPrevious]',
   exportAs: 'ngpPaginationPrevious',
   host: {
+    '[tabindex]': 'disabled() ? -1 : 0',
     '[attr.data-first-page]': 'paginationState().firstPage() ? "" : null',
   },
 })
@@ -46,6 +47,22 @@ export class NgpPaginationPrevious {
    */
   @HostListener('click')
   goToPreviousPage() {
+    if (this.disabled()) {
+      return;
+    }
+
     this.paginationState().goToPage(this.paginationState().page() - 1);
+  }
+
+  /**
+   * A click event may not be fired if this is on an anchor tag and the href is empty.
+   * This is a workaround to ensure the click event is fired.
+   */
+  @HostListener('keydown.enter', ['$event'])
+  @HostListener('keydown.space', ['$event'])
+  protected onEnter(event: Event): void {
+    event.preventDefault();
+    event.stopPropagation();
+    this.goToPreviousPage();
   }
 }

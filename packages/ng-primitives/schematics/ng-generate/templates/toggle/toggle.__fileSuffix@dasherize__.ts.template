@@ -12,7 +12,7 @@ import { ChangeFn, provideValueAccessor, TouchedFn } from 'ng-primitives/utils';
       inputs: ['ngpToggleSelected:selected', 'ngpToggleDisabled:disabled'],
       outputs: ['ngpToggleSelectedChange:selectedChange'],
     },
-    { directive: NgpButton, inputs: ['disabled', 'focusableWhenDisabled'] },
+    { directive: NgpButton, inputs: ['disabled'] },
   ],
   template: `
     <ng-content />

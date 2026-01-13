@@ -17,6 +17,7 @@ import { injectPaginationState } from '../pagination/pagination-state';
   selector: '[ngpPaginationButton]',
   exportAs: 'ngpPaginationButton',
   host: {
+    '[tabindex]': 'disabled() ? -1 : 0',
     '[attr.data-page]': 'page()',
     '[attr.data-selected]': 'selected() ? "" : null',
     '[attr.aria-current]': 'selected()',
@@ -63,6 +64,22 @@ export class NgpPaginationButton {
    */
   @HostListener('click')
   goToPage(): void {
+    if (this.disabled()) {
+      return;
+    }
+
     this.paginationState().goToPage(this.page());
+  }
+
+  /**
+   * A click event may not be fired if this is on an anchor tag and the href is empty.
+   * This is a workaround to ensure the click event is fired.
+   */
+  @HostListener('keydown.enter', ['$event'])
+  @HostListener('keydown.space', ['$event'])
+  protected onEnter(event: Event): void {
+    event.preventDefault();
+    event.stopPropagation();
+    this.goToPage();
   }
 }

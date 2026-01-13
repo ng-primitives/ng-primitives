@@ -6,7 +6,7 @@ name: 'Button'
 
 A button is a clickable element that can be used to trigger an action. This primitive enhances the native button element with improved accessibility and interaction handling for hover, press and focus.
 
-<docs-example name="button"></docs-example>
+<!-- <docs-example name="button"></docs-example> -->
 
 ## Import
 
@@ -52,7 +52,7 @@ You can add icons to your buttons using any Angular icon library or simple SVG e
 
 ### Loading States
 
-For buttons that enter a loading state after being clicked, specify `focusableWhenDisabled` to ensure focus remains on the button when it becomes disabled. This prevents focus from being lost and maintains the tab order.
+For buttons that enter a loading state after being clicked, use the [`NgpActionable`](/utilities/actionable) directive with `ngpActionableFocusableWhenDisabled` to ensure focus remains on the button when it becomes disabled. This prevents focus from being lost and maintains the tab order.
 
 <docs-example name="button-loading"></docs-example>
 

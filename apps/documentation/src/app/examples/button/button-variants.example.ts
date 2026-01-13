@@ -8,7 +8,7 @@ export type ButtonVariant = 'primary' | 'secondary' | 'destructive' | 'outline' 
 
 @Component({
   selector: 'button[app-button]',
-  hostDirectives: [{ directive: NgpButton, inputs: ['disabled', 'focusableWhenDisabled'] }],
+  hostDirectives: [{ directive: NgpButton, inputs: ['disabled'] }],
   template: '<ng-content />',
   host: {
     '[attr.data-variant]': 'variant()',

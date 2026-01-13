@@ -40,6 +40,12 @@ export interface NgpMenuConfig {
    * @default undefined (enabled by default in overlay)
    */
   shift: NgpShift;
+
+  /**
+   * Whether focus should wrap around when reaching the end of the menu.
+   * @default true
+   */
+  wrap: boolean;
 }
 
 export const defaultMenuConfig: NgpMenuConfig = {
@@ -49,6 +55,7 @@ export const defaultMenuConfig: NgpMenuConfig = {
   container: 'body',
   scrollBehavior: 'block',
   shift: undefined,
+  wrap: true,
 };
 
 export const NgpMenuConfigToken = new InjectionToken<NgpMenuConfig>('NgpMenuConfigToken');

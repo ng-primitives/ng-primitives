@@ -78,6 +78,7 @@
 
 ## Utilities
 
+- [Actionable](https://angularprimitives.com/utilities/actionable): Make any element keyboard-accessible and properly handle disabled states with focus retention.
 - [Autofill](https://angularprimitives.com/utilities/autofill): Detect autofill events on input elements.
 - [Date Adapter](https://angularprimitives.com/utilities/date-adapter): The Date Adapter is an abstraction layer that allows components to use date objects from any date library, ensuring compatibility and easy integration.
 - [Focus Trap](https://angularprimitives.com/utilities/focus-trap): The Focus Trap utility is a directive that traps focus within a specified element.

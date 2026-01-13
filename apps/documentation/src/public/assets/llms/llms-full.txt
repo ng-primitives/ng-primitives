@@ -2,7 +2,7 @@
 
 > Angular Primitives is a collection of unstyled, accessible Angular components and utilities for building design systems and web applications. Built with Angular, TypeScript, and a focus on accessibility, customization, and developer experience. It provides headless UI primitives that can be styled with any CSS framework or design system.
 
-Generated on: 2026-01-09T16:21:32.324Z
+Generated on: 2026-01-13T16:53:01.274Z
 
 ---
 
@@ -458,12 +458,12 @@ import { NgpButton } from 'ng-primitives/button';
   template: `
     <ng-content />
   `,
-  hostDirectives: [{ directive: NgpButton, inputs: ['disabled', 'focusableWhenDisabled'] }],
+  hostDirectives: [{ directive: NgpButton, inputs: ['disabled'] }],
 })
 export class MyButtonComponent {}
 ```
 
-This lets consumers bind to the `disabled` and `focusableWhenDisabled` inputs just as if they were using `ngpButton` directly.
+This lets consumers bind to the `disabled` input just as if they were using `ngpButton` directly.
 
 ## Limitations & Solutions
 
@@ -3366,7 +3366,7 @@ URL: https://angularprimitives.com/primitives/button
 
 A button is a clickable element that can be used to trigger an action. This primitive enhances the native button element with improved accessibility and interaction handling for hover, press and focus.
 
-## Example
+<!-- ## Example
 
 ```typescript
 import { Component } from '@angular/core';
@@ -3407,7 +3407,7 @@ import { NgpButton } from 'ng-primitives/button';
 })
 export default class ButtonExample {}
 
-```
+``` -->
 
 ## Import
 
@@ -3429,7 +3429,7 @@ Assemble the button directives in your template.
 
 Create a button component that uses the `NgpButton` directive.
 
-## Reusable Component
+<!-- ## Reusable Component
 
 ```typescript
 import { Component, input } from '@angular/core';
@@ -3447,7 +3447,7 @@ export type ButtonVariant = 'primary' | 'secondary' | 'destructive' | 'outline' 
 
 @Component({
   selector: 'button[app-button]',
-  hostDirectives: [{ directive: NgpButton, inputs: ['disabled', 'focusableWhenDisabled'] }],
+  hostDirectives: [{ directive: NgpButton, inputs: ['disabled'] }],
   template: `
     <ng-content select="[slot=leading]" />
     <ng-content />
@@ -3631,7 +3631,7 @@ export class Button {
   readonly variant = input<ButtonVariant>('primary');
 }
 
-```
+``` -->
 
 ## Examples
 
@@ -3639,7 +3639,7 @@ export class Button {
 
 You can add size support to your reusable button component. This is implemented at the component level rather than in the primitive to provide more flexibility for different design systems.
 
-## Example
+<!-- ## Example
 
 ```typescript
 import { Component, input } from '@angular/core';
@@ -3652,7 +3652,7 @@ export type ButtonSize = 'sm' | 'md' | 'lg' | 'xl';
 
 @Component({
   selector: 'button[app-button]',
-  hostDirectives: [{ directive: NgpButton, inputs: ['disabled', 'focusableWhenDisabled'] }],
+  hostDirectives: [{ directive: NgpButton, inputs: ['disabled'] }],
   template: '<ng-content />',
   host: {
     '[attr.data-size]': 'size()',
@@ -3744,13 +3744,13 @@ export class Button {
 })
 export default class ButtonSizesExample {}
 
-```
+``` -->
 
 ### Button Variants
 
 You can add variant support to your reusable button component to indicate different purposes or importance levels.
 
-## Example
+<!-- ## Example
 
 ```typescript
 import { Component, input } from '@angular/core';
@@ -3763,7 +3763,7 @@ export type ButtonVariant = 'primary' | 'secondary' | 'destructive' | 'outline' 
 
 @Component({
   selector: 'button[app-button]',
-  hostDirectives: [{ directive: NgpButton, inputs: ['disabled', 'focusableWhenDisabled'] }],
+  hostDirectives: [{ directive: NgpButton, inputs: ['disabled'] }],
   template: '<ng-content />',
   host: {
     '[attr.data-variant]': 'variant()',
@@ -3917,13 +3917,13 @@ export class Button {
 })
 export default class ButtonVariantsExample {}
 
-```
+``` -->
 
 ### Button with Icons
 
 You can add icons to your buttons using any Angular icon library or simple SVG elements, but we recommend the [`@ng-icons`](https://github.com/ng-icons/ng-icons) library. This example shows how to create buttons with icons on the leading, trailing, or both sides using content projection slots.
 
-## Example
+<!-- ## Example
 
 ```typescript
 import { Component, input } from '@angular/core';
@@ -3948,7 +3948,7 @@ export type ButtonVariant = 'primary' | 'secondary' | 'destructive' | 'outline' 
 
 @Component({
   selector: 'button[app-button]',
-  hostDirectives: [{ directive: NgpButton, inputs: ['disabled', 'focusableWhenDisabled'] }],
+  hostDirectives: [{ directive: NgpButton, inputs: ['disabled'] }],
   template: `
     <ng-content select="[slot=leading]" />
     <ng-content />
@@ -4228,28 +4228,30 @@ export class Button {
 })
 export default class ButtonIconExample {}
 
-```
+``` -->
 
 ### Loading States
 
-For buttons that enter a loading state after being clicked, specify `focusableWhenDisabled` to ensure focus remains on the button when it becomes disabled. This prevents focus from being lost and maintains the tab order.
+For buttons that enter a loading state after being clicked, use the [`NgpActionable`](/utilities/actionable) directive with `ngpActionableFocusableWhenDisabled` to ensure focus remains on the button when it becomes disabled. This prevents focus from being lost and maintains the tab order.
 
 ## Example
 
 ```typescript
 import { Component, signal } from '@angular/core';
+import { NgpActionable } from 'ng-primitives/actionable';
 import { NgpButton } from 'ng-primitives/button';
 
 @Component({
   selector: 'app-button-loading-example',
-  imports: [NgpButton],
+  imports: [NgpButton, NgpActionable],
   template: `
     <button
       [disabled]="loading()"
-      [focusableWhenDisabled]="loading()"
       [aria-label]="loading() ? 'Submitting, please wait' : null"
       (click)="startLoading()"
       ngpButton
+      ngpActionable
+      ngpActionableFocusableWhenDisabled
     >
       @if (loading()) {
         <span class="loader" aria-hidden="true"></span>
@@ -4313,6 +4315,7 @@ import { NgpButton } from 'ng-primitives/button';
 })
 export default class ButtonLoadingExample {
   readonly loading = signal(false);
+
   startLoading() {
     this.loading.set(true);
     setTimeout(() => this.loading.set(false), 3000);
@@ -4343,7 +4346,7 @@ The following directives are available to import from the `ng-primitives/button`
 
 ### NgpButton
 
-## API Reference
+<!-- ## API Reference
 
 ### NgpButton
 
@@ -4356,15 +4359,12 @@ The following directives are available to import from the `ng-primitives/button`
 | Property | Type | Default | Description |
 |----------|------|---------|-------------|
 | `disabled` | `boolean` | `-` | Whether the button is disabled. |
-| `focusableWhenDisabled` | `boolean` | `-` | Whether the button should be focusable when disabled. |
-| `aria-disabled` | `boolean | null` | `-` | The `aria-disabled` attribute value of the button. |
-| `tabIndex` | `number | null` | `-` | The tab index of the button. |
 
 #### Export As
 
 `ngpButton`
 
-
+ -->
 
 #### Data Attributes
 
@@ -6336,7 +6336,7 @@ import {
       justify-content: space-between;
       align-items: center;
       height: 36px;
-      width: 400px;
+      width: 300px;
       border-radius: 8px;
       border: none;
       background-color: var(--ngp-background);
@@ -6725,9 +6725,6 @@ The main container for the combobox.
 | `ngpComboboxScrollToOption` | `((index: number) => void) | undefined` | `-` | A function that will scroll the active option into view. This can be overridden
 for cases such as virtual scrolling where we cannot scroll the option directly because
 it may not be rendered. |
-| `ngpComboboxOptionCount` | `number | undefined` | `-` | The number of options within the combobox. By default this is calculated based on the
-options added to the combobox, but in virtual scrolling scenarios the total number of options
-may be different from the number of rendered options. |
 | `ngpComboboxOptions` | `any[] | undefined` | `-` | Provide all the option values to the combobox. This is useful for virtual scrolling scenarios
 where not all options are rendered in the DOM. This is not an alternative to adding the options
 in the DOM, it is only to provide the combobox with the full list of options. This list should match
@@ -11695,6 +11692,12 @@ The `NgpMenu` is a container for menu items.
 
 **Selector:** `[ngpMenu]`
 
+#### Inputs
+
+| Property | Type | Default | Description |
+|----------|------|---------|-------------|
+| `ngpMenuWrap` | `boolean` | `true` | Whether focus should wrap around when reaching the end of the menu. |
+
 #### Export As
 
 `ngpMenu`
@@ -16471,7 +16474,7 @@ import {
       justify-content: space-between;
       align-items: center;
       height: 36px;
-      width: 400px;
+      width: 300px;
       border-radius: 8px;
       border: none;
       background-color: var(--ngp-background);
@@ -19720,6 +19723,7 @@ The following directives are available to import from the `ng-primitives/toggle-
 | Property | Type | Default | Description |
 |----------|------|---------|-------------|
 | `ngpToggleGroupOrientation` | `NgpOrientation` | `-` | The orientation of the toggle group. |
+| `ngpToggleGroupWrap` | `boolean` | `true` | Whether focus should wrap around when reaching the end of the toggle group. |
 | `ngpToggleGroupAllowDeselection` | `boolean` | `true` | Whether toggle buttons can be deselected. If set to `false`, clicking a selected toggle button will not deselect it. |
 | `ngpToggleGroupType` | `"single" | "multiple"` | `-` | The type of the toggle group, whether only one item can be selected or multiple. |
 | `ngpToggleGroupValue` | `string[]` | `-` | The selected value(s) of the toggle group. |
@@ -19921,7 +19925,7 @@ import { ChangeFn, provideValueAccessor, TouchedFn } from 'ng-primitives/utils';
       inputs: ['ngpToggleSelected:selected', 'ngpToggleDisabled:disabled'],
       outputs: ['ngpToggleSelectedChange:selectedChange'],
     },
-    { directive: NgpButton, inputs: ['disabled', 'focusableWhenDisabled'] },
+    { directive: NgpButton, inputs: ['disabled'] },
   ],
   template: `
     <ng-content />
@@ -21104,6 +21108,447 @@ shift: {
 ---
 
 ## Utilities
+
+### Actionable
+
+File: utilities/actionable.md
+URL: https://angularprimitives.com/utilities/actionable
+
+# Actionable
+
+Make any element keyboard-accessible and properly handle disabled states with focus retention.
+
+## Example
+
+```typescript
+import { Component, signal } from '@angular/core';
+import { NgpActionable } from 'ng-primitives/actionable';
+
+@Component({
+  selector: 'app-actionable-example',
+  imports: [NgpActionable],
+  template: `
+    <div class="example-container">
+      <div
+        class="custom-button"
+        [ngpActionableDisabled]="isDisabled()"
+        [ngpActionableFocusableWhenDisabled]="isFocusableWhenDisabled()"
+        (click)="handleClick()"
+        ngpActionable
+        role="button"
+      >
+        Custom Div Button
+      </div>
+
+      <label class="toggle-label">
+        <input [checked]="isDisabled()" (change)="toggleDisabled()" type="checkbox" />
+        Disabled
+      </label>
+
+      <label class="toggle-label">
+        <input
+          [checked]="isFocusableWhenDisabled()"
+          (change)="toggleFocusableWhenDisabled()"
+          type="checkbox"
+        />
+        Focusable When Disabled
+      </label>
+
+      <p class="click-count">Clicks: {{ clickCount() }}</p>
+    </div>
+  `,
+  styles: `
+    .example-container {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      align-items: flex-start;
+    }
+
+    .custom-button {
+      padding: 0.75rem 1.5rem;
+      border-radius: 0.5rem;
+      background-color: var(--ngp-background);
+      color: var(--ngp-text-primary);
+      font-weight: 500;
+      box-shadow: var(--ngp-button-shadow);
+      cursor: pointer;
+      user-select: none;
+      transition: background-color 150ms cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .custom-button[data-hover] {
+      background-color: var(--ngp-background-hover);
+    }
+
+    .custom-button[data-focus-visible] {
+      outline: 2px solid var(--ngp-focus-ring);
+      outline-offset: 2px;
+    }
+
+    .custom-button[data-press] {
+      background-color: var(--ngp-background-active);
+    }
+
+    .custom-button[data-disabled] {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .toggle-label {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      cursor: pointer;
+    }
+
+    .click-count {
+      color: var(--ngp-text-secondary);
+      margin: 0;
+    }
+  `,
+})
+export default class ActionableExample {
+  readonly isDisabled = signal(false);
+  readonly isFocusableWhenDisabled = signal(false);
+  readonly clickCount = signal(0);
+
+  toggleDisabled(): void {
+    this.isDisabled.update(v => !v);
+  }
+
+  toggleFocusableWhenDisabled(): void {
+    this.isFocusableWhenDisabled.update(v => !v);
+  }
+
+  handleClick(): void {
+    this.clickCount.update(v => v + 1);
+  }
+}
+
+```
+
+## Why This Primitive Exists
+
+Native HTML `button` elements have built-in keyboard support and disabled handling, but many UI patterns require using non-semantic elements (like `div` or `span`) as interactive controls. These elements lack:
+
+- Keyboard operability (Enter/Space activation)
+- Proper focus management
+- Accessible disabled states
+
+Additionally, the native `disabled` attribute has limitations:
+
+- Removes elements from the tab order entirely, causing focus to be lost
+- Prevents screen readers from announcing the element in some contexts
+- Cannot be used for loading states where focus should be retained
+
+## Import
+
+Import the Actionable primitives from `ng-primitives/actionable`.
+
+```ts
+import { NgpActionable } from 'ng-primitives/actionable';
+```
+
+For programmatic usage:
+
+```ts
+import { ngpActionable } from 'ng-primitives/actionable';
+```
+
+## Usage
+
+### Directive API
+
+Apply the directive to any element to make it keyboard-accessible.
+
+```html
+<div ngpActionable (click)="handleClick()">Click me</div>
+```
+
+With disabled state:
+
+```html
+<div ngpActionable [ngpActionableDisabled]="isDisabled" (click)="handleClick()">Click me</div>
+```
+
+### Programmatic API
+
+Use the `ngpActionable()` function for more control in custom directives or components.
+
+```ts
+import { ngpActionable } from 'ng-primitives/actionable';
+
+// In your directive or component
+const state = ngpActionable({
+  disabled: this.disabled,
+  focusableWhenDisabled: this.focusableWhenDisabled,
+});
+
+// Check state
+if (state.disabled()) {
+  // Handle disabled state
+}
+
+// Imperatively update
+state.setDisabled(true);
+```
+
+## Examples
+
+### Focusable When Disabled
+
+For buttons that enter a loading state after being clicked, use `focusableWhenDisabled` to ensure focus remains on the button. This prevents focus from being lost and maintains the tab order, which is essential for keyboard and screen reader users.
+
+## Example
+
+```typescript
+import { Component, signal } from '@angular/core';
+import { NgpActionable } from 'ng-primitives/actionable';
+
+@Component({
+  selector: 'app-actionable-focusable-example',
+  imports: [NgpActionable],
+  template: `
+    <div class="example-container">
+      <p class="instructions">
+        Tab to the button, click it, and notice focus remains on the button while loading.
+      </p>
+
+      <button
+        ngpActionable
+        [ngpActionableDisabled]="loading()"
+        ngpActionableFocusableWhenDisabled
+        [attr.aria-label]="loading() ? 'Submitting, please wait' : null"
+        (click)="startLoading()"
+        class="submit-button"
+      >
+        @if (loading()) {
+          <span class="loader" aria-hidden="true"></span>
+          Submitting...
+        } @else {
+          Submit
+        }
+      </button>
+
+      <p class="status">
+        @if (loading()) {
+          Processing your request...
+        } @else {
+          Ready to submit
+        }
+      </p>
+    </div>
+  `,
+  styles: `
+    .example-container {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      align-items: flex-start;
+    }
+
+    .instructions {
+      color: var(--ngp-text-secondary);
+      font-size: 0.875rem;
+      margin: 0;
+    }
+
+    .submit-button {
+      padding: 0.75rem 1.5rem;
+      border-radius: 0.5rem;
+      background-color: var(--ngp-background);
+      color: var(--ngp-text-primary);
+      font-weight: 500;
+      border: none;
+      box-shadow: var(--ngp-button-shadow);
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      transition: background-color 150ms cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .submit-button[data-hover] {
+      background-color: var(--ngp-background-hover);
+    }
+
+    .submit-button[data-focus-visible] {
+      outline: 2px solid var(--ngp-focus-ring);
+      outline-offset: 2px;
+    }
+
+    .submit-button[data-press] {
+      background-color: var(--ngp-background-active);
+    }
+
+    .submit-button[data-disabled] {
+      opacity: 0.6;
+      cursor: default;
+    }
+
+    .loader {
+      width: 1rem;
+      height: 1rem;
+      border: 2px solid var(--ngp-text-primary);
+      border-bottom-color: transparent;
+      border-radius: 50%;
+      display: inline-block;
+      box-sizing: border-box;
+      animation: rotation 1s linear infinite;
+    }
+
+    @keyframes rotation {
+      0% {
+        transform: rotate(0deg);
+      }
+      100% {
+        transform: rotate(360deg);
+      }
+    }
+
+    .status {
+      color: var(--ngp-text-secondary);
+      font-size: 0.875rem;
+      margin: 0;
+    }
+  `,
+})
+export default class ActionableFocusableExample {
+  readonly loading = signal(false);
+
+  startLoading(): void {
+    this.loading.set(true);
+    setTimeout(() => this.loading.set(false), 3000);
+  }
+}
+
+```
+
+## Accessibility
+
+This primitive addresses several WCAG requirements:
+
+### WCAG 2.1.1 - Keyboard Accessibility
+
+All functionality is operable through a keyboard interface. This primitive adds Enter and Space key activation to non-native elements, matching native button behavior:
+
+- **Enter** activates immediately on keydown
+- **Space** activates on keyup (allowing cancellation by moving pointer away)
+
+### Focus Management
+
+When using native `disabled`, focus is lost if the element was focused. The `focusableWhenDisabled` option solves this by:
+
+- Using `aria-disabled` instead of `disabled` attribute
+- Keeping element in tab order
+- Blocking all interactions while appearing disabled
+- Preventing focus from jumping unexpectedly
+
+### Keyboard Interactions
+
+- <kbd>Enter</kbd> - Activates the element immediately
+- <kbd>Space</kbd> - Activates the element on key release
+- <kbd>Tab</kbd> - Moves focus to/from the element (works even when disabled with `focusableWhenDisabled`)
+
+## API Reference
+
+The following are available to import from the `ng-primitives/actionable` package:
+
+### NgpActionable
+
+## API Reference
+
+### NgpActionable
+
+Makes any element keyboard-accessible and properly handles disabled states.
+
+This directive wraps the `ngpActionable()` function, providing a template-driven
+approach to adding actionable behavior to elements.
+
+Features:
+- Keyboard activation: Adds Enter and Space key support to non-native elements
+- Disabled state management: Properly blocks interactions when disabled
+- Focus retention: Optional `focusableWhenDisabled` keeps element in tab order
+- ARIA attributes: Automatically manages `aria-disabled` and `tabindex`
+- Interaction states: Integrates with `ngpInteractions` for hover, press, focus-visible
+
+**Selector:** `[ngpActionable]`
+
+#### Inputs
+
+| Property | Type | Default | Description |
+|----------|------|---------|-------------|
+| `ngpActionableDisabled` | `boolean` | `false` | Whether the element is disabled.
+
+When `true`, all interactions (click, keyboard) are blocked and
+the `data-disabled` attribute is applied for styling. |
+| `ngpActionableFocusableWhenDisabled` | `boolean` | `false` | Whether the element should remain focusable when disabled.
+
+Essential for loading states where focus should not be lost.
+Uses `aria-disabled` instead of `disabled` attribute to keep
+the element in the tab order while preventing interactions. |
+| `ngpActionableAriaDisabled` | `boolean | null` | `null (automatic)` | Override the automatic `aria-disabled` attribute management.
+
+By default, `aria-disabled` is automatically set based on element type
+and disabled state. Set this to manually control the attribute. |
+| `ngpActionableTabIndex` | `number | null` | `null (automatic)` | Override the automatic `tabindex` attribute management.
+
+By default, non-native elements get `tabindex="0"` to be keyboard
+focusable, and disabled elements get `tabindex="-1"`. |
+
+#### Export As
+
+`ngpActionable`
+
+
+
+#### Data Attributes
+
+| Attribute                      | Description                                              |
+| ------------------------------ | -------------------------------------------------------- |
+| `data-disabled`                | Applied when the element is disabled.                    |
+| `data-focusable-when-disabled` | Applied when the element stays focusable while disabled. |
+| `data-hover`                   | Applied when the element is hovered.                     |
+| `data-focus-visible`           | Applied when the element is focused via keyboard.        |
+| `data-press`                   | Applied when the element is being pressed.               |
+
+### ngpActionable()
+
+The `ngpActionable()` function creates actionable behavior programmatically. Use this when building custom primitives or when you need more control over the state.
+
+```ts
+function ngpActionable(
+  props?: NgpActionableProps,
+  opts?: { injector?: Injector; element?: ElementRef<HTMLElement> },
+): NgpActionableState;
+```
+
+#### NgpActionableProps
+
+| Property                | Type                      | Description                                  |
+| ----------------------- | ------------------------- | -------------------------------------------- |
+| `disabled`              | `Signal<boolean>`         | Whether the element is disabled.             |
+| `focusableWhenDisabled` | `Signal<boolean>`         | Keep element focusable when disabled.        |
+| `ariaDisabled`          | `Signal<boolean \| null>` | Override automatic aria-disabled management. |
+| `tabIndex`              | `Signal<number \| null>`  | Override automatic tabindex management.      |
+
+#### NgpActionableState
+
+| Property                   | Type                            | Description                            |
+| -------------------------- | ------------------------------- | -------------------------------------- |
+| `disabled`                 | `Signal<boolean>`               | Current disabled state.                |
+| `focusableWhenDisabled`    | `Signal<boolean>`               | Current focusable when disabled state. |
+| `ariaDisabled`             | `Signal<boolean \| null>`       | Current aria-disabled value.           |
+| `tabIndex`                 | `Signal<number \| null>`        | Current tabindex value.                |
+| `setDisabled`              | `SignalMethod<boolean>`         | Set disabled state.                    |
+| `setFocusableWhenDisabled` | `SignalMethod<boolean>`         | Set focusable when disabled state.     |
+| `setAriaDisabled`          | `SignalMethod<boolean \| null>` | Set aria-disabled value.               |
+| `setTabIndex`              | `SignalMethod<number \| null>`  | Set tabindex value.                    |
+
+
+---
 
 ### Autofill
 

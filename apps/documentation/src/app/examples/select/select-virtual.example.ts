@@ -60,7 +60,7 @@ import {
       justify-content: space-between;
       align-items: center;
       height: 36px;
-      width: 400px;
+      width: 300px;
       border-radius: 8px;
       border: none;
       background-color: var(--ngp-background);

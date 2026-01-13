@@ -5,12 +5,15 @@ import { NgpRovingFocusItem } from 'ng-primitives/roving-focus';
 @Component({
   selector: 'button[app-toolbar-button]',
   hostDirectives: [
-    { directive: NgpButton, inputs: ['disabled', 'focusableWhenDisabled'] },
+    { directive: NgpButton, inputs: ['disabled'] },
     {
       directive: NgpRovingFocusItem,
       inputs: ['ngpRovingFocusItemDisabled:disabled'],
     },
   ],
+  host: {
+    type: 'button',
+  },
   template: `
     <ng-content />
   `,

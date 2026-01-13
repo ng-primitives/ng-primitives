@@ -1,27 +1,26 @@
-import { Component, signal } from '@angular/core';
+import { booleanAttribute, Component, computed, input, signal } from '@angular/core';
+import { ngpActionable } from 'ng-primitives/actionable';
 import { NgpButton } from 'ng-primitives/button';
 
 @Component({
-  selector: 'app-button-loading-example',
-  imports: [NgpButton],
+  selector: '[app-button]',
+  hostDirectives: [
+    {
+      directive: NgpButton,
+      inputs: ['disabled'],
+    },
+  ],
+  host: {
+    '[attr.aria-label]': 'loading() ? "Submitting, please wait" : null',
+  },
   template: `
-    <button
-      [disabled]="loading()"
-      [focusableWhenDisabled]="loading()"
-      [aria-label]="loading() ? 'Submitting, please wait' : null"
-      (click)="startLoading()"
-      ngpButton
-    >
-      @if (loading()) {
-        <span class="loader" aria-hidden="true"></span>
-        Submitting...
-      } @else {
-        Submit
-      }
-    </button>
+    @if (loading()) {
+      <span class="loader" aria-hidden="true"></span>
+    }
+    <ng-content />
   `,
   styles: `
-    [ngpButton] {
+    :host {
       padding-left: 1rem;
       padding-right: 1rem;
       border-radius: 0.5rem;
@@ -39,20 +38,21 @@ import { NgpButton } from 'ng-primitives/button';
       cursor: pointer;
       gap: 0.5rem;
     }
-    [ngpButton][data-hover] {
+    :host[data-hover] {
       background-color: var(--ngp-background-hover);
     }
-    [ngpButton][data-focus-visible] {
+    :host:focus-visible,
+    :host[data-focus-visible] {
       outline: 2px solid var(--ngp-focus-ring);
     }
-    [ngpButton][data-press] {
+    :host[data-press] {
       background-color: var(--ngp-background-active);
     }
-    [ngpButton][data-disabled] {
+    :host[data-disabled] {
       opacity: 0.5;
       cursor: default;
     }
-    [ngpButton] .loader {
+    :host .loader {
       width: 1rem;
       height: 1rem;
       border: 2px solid var(--ngp-text-primary);
@@ -72,8 +72,28 @@ import { NgpButton } from 'ng-primitives/button';
     }
   `,
 })
+export class Button {
+  readonly disabled = input(false, { transform: booleanAttribute });
+  readonly loading = input(false, { transform: booleanAttribute });
+
+  protected readonly actionable = ngpActionable({
+    disabled: computed(() => this.disabled() || this.loading()),
+    focusableWhenDisabled: this.loading,
+  });
+}
+
+@Component({
+  selector: 'app-button-loading-example',
+  imports: [Button],
+  template: `
+    <button [loading]="loading()" (click)="startLoading()" app-button>
+      {{ loading() ? 'Submitting...' : 'Submit' }}
+    </button>
+  `,
+})
 export default class ButtonLoadingExample {
   readonly loading = signal(false);
+
   startLoading() {
     this.loading.set(true);
     setTimeout(() => this.loading.set(false), 3000);
