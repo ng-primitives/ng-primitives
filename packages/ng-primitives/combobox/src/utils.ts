@@ -12,9 +12,11 @@ export function areAllOptionsSelected(
   selectedValues: any[],
   compareWith: (a: any, b: any) => boolean,
 ): boolean {
-  const regularOptions = options.filter(opt => opt.value() !== 'all' && opt.value() !== undefined);
+  const regularOptions = options
+    .map(opt => ({ opt, value: opt.value() }))
+    .filter(({ value }) => value !== 'all' && value !== undefined);
   return (
     regularOptions.length > 0 &&
-    regularOptions.every(opt => selectedValues.some(val => compareWith(val, opt.value())))
+    regularOptions.every(({ value }) => selectedValues.some(val => compareWith(val, value)))
   );
 }

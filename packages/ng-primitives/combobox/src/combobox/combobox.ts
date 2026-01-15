@@ -305,8 +305,15 @@ export class NgpCombobox {
       return;
     }
 
+    const optionValue = option.value();
+
+    // if the option has no associated value, do nothing
+    if (optionValue === undefined) {
+      return;
+    }
+
     // Handle select all functionality - only works in multiple selection mode
-    if (option.value() === 'all') {
+    if (optionValue === 'all') {
       if (!this.state.multiple()) {
         return; // Do nothing in single selection mode
       }
@@ -324,18 +331,18 @@ export class NgpCombobox {
 
     if (this.state.multiple()) {
       // if the option is already selected, do nothing
-      if (this.isOptionSelected(option.value())) {
+      if (this.isOptionSelected(optionValue)) {
         return;
       }
 
-      const value = [...(this.state.value() as T[]), option.value() as T];
+      const value = [...(this.state.value() as T[]), optionValue as T];
 
       // add the option to the value
       this.state.value.set(value as T);
       this.valueChange.emit(value as T);
     } else {
-      this.state.value.set(option.value() as T);
-      this.valueChange.emit(option.value() as T);
+      this.state.value.set(optionValue as T);
+      this.valueChange.emit(optionValue as T);
 
       // close the dropdown on single selection
       this.closeDropdown();
@@ -348,8 +355,15 @@ export class NgpCombobox {
    * @internal
    */
   deselectOption(option: NgpComboboxOption): void {
+    const optionValue = option.value();
+
+    // Options without values cannot be deselected (and should never be selected).
+    if (optionValue === undefined) {
+      return;
+    }
+
     // if the combobox is disabled or the option is not selected, do nothing
-    if (this.state.disabled() || !this.isOptionSelected(option.value())) {
+    if (this.state.disabled() || !this.isOptionSelected(optionValue)) {
       return;
     }
 
@@ -359,7 +373,7 @@ export class NgpCombobox {
     }
 
     // Handle select all for deselect all functionality - only works in multiple selection mode
-    if (option.value() === 'all') {
+    if (optionValue === 'all') {
       if (!this.state.multiple()) {
         return; // Do nothing in single selection mode
       }
@@ -371,7 +385,7 @@ export class NgpCombobox {
 
     if (this.state.multiple()) {
       const values = (this.state.value() as T[]) ?? [];
-      const newValue = values.filter(v => !this.state.compareWith()(v, option.value() as T));
+      const newValue = values.filter(v => !this.state.compareWith()(v, optionValue as T));
 
       // remove the option from the value
       this.state.value.set(newValue as T);
@@ -399,13 +413,20 @@ export class NgpCombobox {
       return;
     }
 
+    const optionValue = option.value();
+
+    // Options without values cannot be toggled.
+    if (optionValue === undefined) {
+      return;
+    }
+
     // Handle select all for select/deselect all functionality - only works in multiple selection mode
-    if (option.value() === 'all') {
+    if (optionValue === 'all') {
       if (!this.state.multiple()) {
         return; // Do nothing in single selection mode
       }
 
-      if (this.isOptionSelected(option.value())) {
+      if (this.isOptionSelected(optionValue)) {
         this.deselectOption(option);
       } else {
         this.selectOption(option);
@@ -415,14 +436,14 @@ export class NgpCombobox {
 
     if (this.state.multiple()) {
       // In multiple selection mode, always allow toggling
-      if (this.isOptionSelected(option.value())) {
+      if (this.isOptionSelected(optionValue)) {
         this.deselectOption(option);
       } else {
         this.selectOption(option);
       }
     } else {
       // In single selection mode, check if deselection is allowed
-      if (this.isOptionSelected(option.value()) && this.state.allowDeselect()) {
+      if (this.isOptionSelected(optionValue) && this.state.allowDeselect()) {
         // Deselect the option by setting value to undefined
         this.state.value.set(undefined);
         this.valueChange.emit(undefined);
@@ -447,7 +468,8 @@ export class NgpCombobox {
     const optionValue = isOption(option) ? option.value() : (option as T);
     const value = this.state.value();
 
-    if (!optionValue) {
+    // Only treat `undefined` as "no value" (allow '', 0, false).
+    if (optionValue === undefined) {
       return false;
     }
 
@@ -461,12 +483,13 @@ export class NgpCombobox {
       return areAllOptionsSelected(this.sortedOptions(), selectedValues, this.state.compareWith());
     }
 
-    if (!value) {
+    // Only treat `undefined` as "no selection" (allow '', 0, false).
+    if (value === undefined) {
       return false;
     }
 
     if (this.state.multiple()) {
-      return value && (value as T[]).some(v => this.state.compareWith()(optionValue, v));
+      return Array.isArray(value) && value.some(v => this.state.compareWith()(optionValue, v));
     }
 
     return this.state.compareWith()(optionValue, value);

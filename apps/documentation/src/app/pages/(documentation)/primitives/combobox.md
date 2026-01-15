@@ -100,6 +100,12 @@ When dealing with large datasets (thousands of items), you can use TanStack Virt
 
 <docs-example name="combobox-virtual"></docs-example>
 
+### Custom Option Behavior
+
+Options without a value do not perform any selection by default. You can use this to implement custom behavior, such as clearing the selection. These options are still included in keyboard navigation.
+
+<docs-example name="combobox-custom-option"></docs-example>
+
 ## Schematics
 
 Generate a reusable combobox component using the Angular CLI.
