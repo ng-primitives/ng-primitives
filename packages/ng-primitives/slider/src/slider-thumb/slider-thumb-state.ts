@@ -1,4 +1,5 @@
-import { computed, Signal } from '@angular/core';
+import { DOCUMENT } from '@angular/common';
+import { computed, inject, Injector, Signal } from '@angular/core';
 import { ngpInteractions } from 'ng-primitives/interactions';
 import { injectElementRef } from 'ng-primitives/internal';
 import {
@@ -39,8 +40,11 @@ export const [
 ] = createPrimitive('NgpSliderThumb', ({}: NgpSliderThumbProps): NgpSliderThumbState => {
   const elementRef = injectElementRef<HTMLElement>();
   const slider = injectSliderState();
+  const injector = inject(Injector);
+  const document = inject(DOCUMENT);
 
   let dragging = false;
+  let cleanupDocumentListeners: (() => void)[] = [];
 
   const ariaValueNow = computed(() => slider().value());
   const tabindex = computed(() => (slider().disabled() ? -1 : 0));
@@ -77,20 +81,30 @@ export const [
     }
 
     dragging = true;
-    elementRef.nativeElement.setPointerCapture(event.pointerId);
+
+    // Clean up any existing listeners
+    cleanupDocumentListeners.forEach(cleanup => cleanup());
+
+    // Set up document-level listeners to handle pointer events anywhere
+    const pointerMoveCleanup = listener(document, 'pointermove', onPointerMove, {
+      config: false,
+      injector,
+    });
+
+    const pointerUpCleanup = listener(document, 'pointerup', onPointerEnd, {
+      config: false,
+      injector,
+    });
+
+    const pointerCancelCleanup = listener(document, 'pointercancel', onPointerEnd, {
+      config: false,
+      injector,
+    });
+
+    cleanupDocumentListeners = [pointerMoveCleanup, pointerUpCleanup, pointerCancelCleanup];
   });
 
-  listener(elementRef, 'pointerup', (event: PointerEvent) => {
-    if (slider().disabled()) {
-      return;
-    }
-    dragging = false;
-    if (elementRef.nativeElement.hasPointerCapture(event.pointerId)) {
-      elementRef.nativeElement.releasePointerCapture(event.pointerId);
-    }
-  });
-
-  listener(elementRef, 'pointermove', (event: PointerEvent) => {
+  function onPointerMove(event: PointerEvent): void {
     if (slider().disabled() || !dragging) {
       return;
     }
@@ -110,7 +124,13 @@ export const [
       slider().min() + (slider().max() - slider().min()) * Math.max(0, Math.min(1, percentage));
 
     slider().setValue(value);
-  });
+  }
+
+  function onPointerEnd(): void {
+    dragging = false;
+    cleanupDocumentListeners.forEach(cleanup => cleanup());
+    cleanupDocumentListeners = [];
+  }
 
   // Keyboard interactions
   listener(elementRef, 'keydown', (event: KeyboardEvent) => {

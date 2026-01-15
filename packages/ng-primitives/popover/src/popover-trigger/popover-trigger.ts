@@ -187,6 +187,16 @@ export class NgpPopoverTrigger<T = null> implements OnDestroy {
   });
 
   /**
+   * Define whether to track the trigger element position on every animation frame.
+   * Useful for moving elements like slider thumbs.
+   * @default false
+   */
+  readonly trackPosition = input<boolean, BooleanInput>(this.config.trackPosition, {
+    alias: 'ngpPopoverTriggerTrackPosition',
+    transform: booleanAttribute,
+  });
+
+  /**
    * The overlay that manages the popover
    * @internal
    */
@@ -300,6 +310,7 @@ export class NgpPopoverTrigger<T = null> implements OnDestroy {
       restoreFocus: true,
       scrollBehaviour: this.state.scrollBehavior(),
       viewContainerRef: this.viewContainerRef,
+      trackPosition: this.state.trackPosition(),
     };
 
     this.overlay.set(createOverlay(config));

@@ -94,6 +94,9 @@ export interface NgpOverlayConfig<T = unknown> {
 
   /** Additional providers */
   providers?: Provider[];
+
+  /** Whether to track the trigger element position on every animation frame. Useful for moving elements like slider thumbs. */
+  trackPosition?: boolean;
 }
 
 /** Type for overlay content which can be either a template or component */
@@ -475,8 +478,11 @@ export class NgpOverlay<T = unknown> {
     const referenceElement = this.config.anchorElement || this.config.triggerElement;
 
     // Setup auto-update for positioning
-    this.disposePositioning = autoUpdate(referenceElement, overlayElement, () =>
-      this.computePosition(overlayElement, strategy),
+    this.disposePositioning = autoUpdate(
+      referenceElement,
+      overlayElement,
+      () => this.computePosition(overlayElement, strategy),
+      { animationFrame: this.config.trackPosition ?? false },
     );
   }
 

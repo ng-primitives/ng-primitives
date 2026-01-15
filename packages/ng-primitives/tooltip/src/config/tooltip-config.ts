@@ -58,6 +58,13 @@ export interface NgpTooltipConfig {
    * @default undefined (enabled by default in overlay)
    */
   shift: NgpShift;
+
+  /**
+   * Whether to track the trigger element position on every animation frame.
+   * Useful for moving elements like slider thumbs.
+   * @default false
+   */
+  trackPosition: boolean;
 }
 
 export const defaultTooltipConfig: NgpTooltipConfig = {
@@ -70,6 +77,7 @@ export const defaultTooltipConfig: NgpTooltipConfig = {
   showOnOverflow: false,
   useTextContent: true,
   shift: undefined,
+  trackPosition: false,
 };
 
 export const NgpTooltipConfigToken = new InjectionToken<NgpTooltipConfig>('NgpTooltipConfigToken');
