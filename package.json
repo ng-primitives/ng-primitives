@@ -149,6 +149,10 @@
   "resolutions": {
     "stylus": "0.0.1-security"
   },
+  "engines": {
+    "node": ">=22.15.0",
+    "pnpm": ">=10.10.0"
+  },
   "packageManager": "pnpm@10.10.0",
   "pnpm": {
     "onlyBuiltDependencies": [
