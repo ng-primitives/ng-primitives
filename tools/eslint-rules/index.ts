@@ -5,6 +5,10 @@ import {
 import { rule as avoidModel, RULE_NAME as avoidModelName } from './rules/avoid-model';
 import { RULE_NAME as avoidStateEmitName, rule as avoidStateEmit } from './rules/avoid-state-emit';
 import {
+  rule as preferDocumentFromCommon,
+  RULE_NAME as preferDocumentFromCommonName,
+} from './rules/prefer-document-from-common';
+import {
   rule as preferEntrypointImports,
   RULE_NAME as preferEntrypointImportsName,
 } from './rules/prefer-entrypoint-imports';
@@ -53,5 +57,6 @@ module.exports = {
     [avoidStateEmitName]: avoidStateEmit,
     [takeUntilDestroyedName]: takeUntilDestroyed,
     [rxjsCompatName]: rxjsCompat,
+    [preferDocumentFromCommonName]: preferDocumentFromCommon,
   },
 };

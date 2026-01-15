@@ -17,6 +17,7 @@ module.exports = [
     rules: {
       '@typescript-eslint/no-inferrable-types': 'off',
       '@nx/workspace-prefer-entrypoint-imports': 'error',
+      '@nx/workspace-prefer-document-from-common': 'error',
       '@nx/enforce-module-boundaries': [
         'error',
         {
