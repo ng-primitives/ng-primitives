@@ -1,6 +1,5 @@
 import { booleanAttribute, Directive, HostListener, input } from '@angular/core';
 import { NgpExitAnimation } from 'ng-primitives/internal';
-import { injectDialogConfig } from '../config/dialog-config';
 import { injectDialogRef } from '../dialog/dialog-ref';
 
 @Directive({
@@ -9,17 +8,13 @@ import { injectDialogRef } from '../dialog/dialog-ref';
   hostDirectives: [NgpExitAnimation],
 })
 export class NgpDialogOverlay {
-  /** Access the global configuration */
-  private readonly config = injectDialogConfig();
-
-  /** Access the dialog ref. */
   private readonly dialogRef = injectDialogRef();
 
   /**
    * Whether the dialog should close on backdrop click.
    * @default `true`
    */
-  readonly closeOnClick = input(this.config.closeOnClick, {
+  readonly closeOnClick = input(this.dialogRef.config.closeOnClick, {
     alias: 'ngpDialogOverlayCloseOnClick',
     transform: booleanAttribute,
   });
