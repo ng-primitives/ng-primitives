@@ -29,7 +29,7 @@ export const rule = ESLintUtils.RuleCreator(() => __filename)({
             specifier =>
               specifier.type === 'ImportSpecifier' &&
               specifier.imported.type === 'Identifier' &&
-              specifier.imported.name === 'DOCUMENT'
+              specifier.imported.name === 'DOCUMENT',
           );
 
           if (documentImport) {
@@ -42,14 +42,12 @@ export const rule = ESLintUtils.RuleCreator(() => __filename)({
 
                 // Check if there are other imports from @angular/core
                 const otherImports = node.specifiers.filter(
-                  specifier => specifier !== documentImport
+                  specifier => specifier !== documentImport,
                 );
 
                 if (otherImports.length === 0) {
                   // Only DOCUMENT is imported, replace the entire import
-                  fixes.push(
-                    fixer.replaceText(node.source, `'@angular/common'`)
-                  );
+                  fixes.push(fixer.replaceText(node.source, `'@angular/common'`));
                 } else {
                   // There are other imports, we need to:
                   // 1. Remove DOCUMENT from this import
@@ -62,19 +60,13 @@ export const rule = ESLintUtils.RuleCreator(() => __filename)({
 
                   // Replace the old import with updated one
                   fixes.push(
-                    fixer.replaceText(
-                      node,
-                      `import { ${newSpecifiers} } from '@angular/core';`
-                    )
+                    fixer.replaceText(node, `import { ${newSpecifiers} } from '@angular/core';`),
                   );
 
                   // Add new import for DOCUMENT from @angular/common
                   // Insert it after the current import
                   fixes.push(
-                    fixer.insertTextAfter(
-                      node,
-                      `\nimport { DOCUMENT } from '@angular/common';`
-                    )
+                    fixer.insertTextAfter(node, `\nimport { DOCUMENT } from '@angular/common';`),
                   );
                 }
 
