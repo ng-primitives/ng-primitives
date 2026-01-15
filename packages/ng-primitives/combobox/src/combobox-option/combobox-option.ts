@@ -7,7 +7,6 @@ import {
   input,
   numberAttribute,
   OnDestroy,
-  OnInit,
 } from '@angular/core';
 import { ngpInteractions } from 'ng-primitives/interactions';
 import { injectElementRef, scrollIntoViewIfNeeded } from 'ng-primitives/internal';
@@ -31,7 +30,7 @@ type T = any;
     '(click)': 'select()',
   },
 })
-export class NgpComboboxOption implements OnInit, OnDestroy {
+export class NgpComboboxOption implements OnDestroy {
   /** Access the combobox state. */
   protected readonly state = injectComboboxState();
 
@@ -85,7 +84,8 @@ export class NgpComboboxOption implements OnInit, OnDestroy {
     const value = this.value();
     const stateValue = this.state().value();
 
-    if (!value) {
+    // Only treat `undefined` as "no value" (allow '', 0, false).
+    if (value === undefined) {
       return false;
     }
 
@@ -103,7 +103,8 @@ export class NgpComboboxOption implements OnInit, OnDestroy {
       );
     }
 
-    if (!stateValue) {
+    // Only treat `undefined` as "no selection" (allow '', 0, false).
+    if (stateValue === undefined) {
       return false;
     }
 
@@ -124,14 +125,6 @@ export class NgpComboboxOption implements OnInit, OnDestroy {
       press: true,
       disabled: this.disabled,
     });
-  }
-
-  ngOnInit(): void {
-    if (this.value() === undefined) {
-      throw new Error(
-        'ngpComboboxOption: The value input is required. Please provide a value for the option.',
-      );
-    }
   }
 
   ngOnDestroy(): void {

@@ -6,7 +6,6 @@ import {
   HostListener,
   input,
   OnDestroy,
-  OnInit,
 } from '@angular/core';
 import { ngpInteractions } from 'ng-primitives/interactions';
 import { injectElementRef, scrollIntoViewIfNeeded } from 'ng-primitives/internal';
@@ -27,7 +26,7 @@ import { injectSelectState } from '../select/select-state';
     '(click)': 'select()',
   },
 })
-export class NgpSelectOption implements OnInit, OnDestroy {
+export class NgpSelectOption implements OnDestroy {
   /** Access the select state. */
   protected readonly state = injectSelectState();
 
@@ -76,7 +75,8 @@ export class NgpSelectOption implements OnInit, OnDestroy {
   protected readonly selected = computed(() => {
     const value = this.value();
 
-    if (!value) {
+    // Only treat `undefined` as "no value" (allow '', 0, false).
+    if (value === undefined) {
       return false;
     }
 
@@ -98,14 +98,6 @@ export class NgpSelectOption implements OnInit, OnDestroy {
       press: true,
       disabled: this.disabled,
     });
-  }
-
-  ngOnInit(): void {
-    if (this.value() === undefined) {
-      throw new Error(
-        'ngpSelectOption: The value input is required. Please provide a value for the option.',
-      );
-    }
   }
 
   ngOnDestroy(): void {

@@ -291,20 +291,27 @@ export class NgpSelect {
       return;
     }
 
+    const optionValue = option.value();
+
+    // If the option has no associated value, treat it as non-selectable.
+    if (optionValue === undefined) {
+      return;
+    }
+
     if (this.state.multiple()) {
       // if the option is already selected, do nothing
-      if (this.isOptionSelected(option.value())) {
+      if (this.isOptionSelected(optionValue)) {
         return;
       }
 
-      const value = [...((this.state.value() ?? []) as T[]), option.value() as T];
+      const value = [...((this.state.value() ?? []) as T[]), optionValue as T];
 
       // add the option to the value
       this.state.value.set(value as T);
       this.valueChange.emit(value as T);
     } else {
-      this.state.value.set(option.value() as T);
-      this.valueChange.emit(option.value() as T);
+      this.state.value.set(optionValue as T);
+      this.valueChange.emit(optionValue as T);
 
       // close the dropdown on single selection
       this.closeDropdown();
@@ -317,15 +324,22 @@ export class NgpSelect {
    * @internal
    */
   deselectOption(option: NgpSelectOption): void {
+    const optionValue = option.value();
+
+    // Options without values cannot be deselected (and should never be selected).
+    if (optionValue === undefined) {
+      return;
+    }
+
     // if the select is disabled or the option is not selected, do nothing
     // if the select is single selection, we don't allow deselecting
-    if (this.state.disabled() || !this.isOptionSelected(option.value()) || !this.state.multiple()) {
+    if (this.state.disabled() || !this.isOptionSelected(optionValue) || !this.state.multiple()) {
       return;
     }
 
     const values = (this.state.value() as T[]) ?? [];
 
-    const newValue = values.filter(v => !this.state.compareWith()(v, option.value() as T));
+    const newValue = values.filter(v => !this.state.compareWith()(v, optionValue as T));
 
     // remove the option from the value
     this.state.value.set(newValue as T);
@@ -348,6 +362,13 @@ export class NgpSelect {
       return;
     }
 
+    const optionValue = option.value();
+
+    // Options without values cannot be toggled.
+    if (optionValue === undefined) {
+      return;
+    }
+
     // if the state is single selection, we don't allow toggling
     if (!this.state.multiple()) {
       // always select the option in single selection mode even if it is already selected so that we update the input
@@ -356,7 +377,7 @@ export class NgpSelect {
     }
 
     // otherwise toggle the option
-    if (this.isOptionSelected(option.value())) {
+    if (this.isOptionSelected(optionValue)) {
       this.deselectOption(option);
     } else {
       this.selectOption(id);
@@ -375,12 +396,13 @@ export class NgpSelect {
 
     const value = this.state.value();
 
-    if (!value) {
+    // Only treat `undefined` as "no selection" (allow '', 0, false).
+    if (value === undefined) {
       return false;
     }
 
     if (this.state.multiple()) {
-      return value && (value as T[]).some(v => this.state.compareWith()(option, v));
+      return Array.isArray(value) && value.some(v => this.state.compareWith()(option, v));
     }
 
     return this.state.compareWith()(option, value);
