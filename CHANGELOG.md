@@ -1,3 +1,19 @@
+## 0.102.0 (2026-01-15)
+
+### 🚀 Features
+
+- **select,combobox:** optional option values ([#611](https://github.com/ng-primitives/ng-primitives/pull/611))
+- **tooltip:** add support for position tracking ([#609](https://github.com/ng-primitives/ng-primitives/pull/609))
+
+### 🩹 Fixes
+
+- **dialog:** closeOnClick ignored ([#608](https://github.com/ng-primitives/ng-primitives/pull/608))
+
+### ❤️ Thank You
+
+- Ashley Hunter
+- Evgeny Stepanovych @undsoft
+
 ## 0.101.1 (2026-01-12)
 
 ### 🩹 Fixes
