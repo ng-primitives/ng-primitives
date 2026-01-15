@@ -74,6 +74,7 @@ export class NgpSelectOption implements OnDestroy {
   /** Whether this option is selected. */
   protected readonly selected = computed(() => {
     const value = this.value();
+    const stateValue = this.state().value();
 
     // Only treat `undefined` as "no value" (allow '', 0, false).
     if (value === undefined) {
@@ -81,13 +82,15 @@ export class NgpSelectOption implements OnDestroy {
     }
 
     if (this.state().multiple()) {
-      const selectValue = this.state().value();
-      return (
-        Array.isArray(selectValue) && selectValue.some(v => this.state().compareWith()(value, v))
-      );
+      return Array.isArray(stateValue) && stateValue.some(v => this.state().compareWith()(value, v));
     }
 
-    return this.state().compareWith()(value, this.state().value());
+    // Only treat `undefined` as "no selection" (allow '', 0, false).
+    if (stateValue === undefined) {
+      return false;
+    }
+
+    return this.state().compareWith()(value, stateValue);
   });
 
   constructor() {

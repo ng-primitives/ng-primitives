@@ -415,7 +415,7 @@ export class NgpCombobox {
 
     const optionValue = option.value();
 
-    // Guard against toggling an option without a value.
+    // Options without values cannot be toggled.
     if (optionValue === undefined) {
       return;
     }
