@@ -64,6 +64,13 @@ export interface NgpPopoverConfig {
    * @default undefined (enabled by default in overlay)
    */
   shift: NgpShift;
+
+  /**
+   * Whether to track the trigger element position on every animation frame.
+   * Useful for moving elements like slider thumbs.
+   * @default false
+   */
+  trackPosition: boolean;
 }
 
 export const defaultPopoverConfig: NgpPopoverConfig = {
@@ -77,6 +84,7 @@ export const defaultPopoverConfig: NgpPopoverConfig = {
   closeOnEscape: true,
   scrollBehavior: 'reposition',
   shift: undefined,
+  trackPosition: false,
 };
 
 export const NgpPopoverConfigToken = new InjectionToken<NgpPopoverConfig>('NgpPopoverConfigToken');

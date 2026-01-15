@@ -178,6 +178,16 @@ export class NgpTooltipTrigger<T = null> implements OnDestroy {
   });
 
   /**
+   * Define whether to track the trigger element position on every animation frame.
+   * Useful for moving elements like slider thumbs.
+   * @default false
+   */
+  readonly trackPosition = input<boolean, BooleanInput>(this.config.trackPosition, {
+    alias: 'ngpTooltipTriggerTrackPosition',
+    transform: booleanAttribute,
+  });
+
+  /**
    * The overlay that manages the tooltip
    * @internal
    */
@@ -302,6 +312,7 @@ export class NgpTooltipTrigger<T = null> implements OnDestroy {
       closeOnEscape: true,
       closeOnOutsideClick: true,
       viewContainerRef: this.viewContainerRef,
+      trackPosition: this.state.trackPosition(),
     };
 
     // Create the overlay instance

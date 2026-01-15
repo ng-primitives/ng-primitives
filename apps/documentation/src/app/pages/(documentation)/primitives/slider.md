@@ -55,6 +55,12 @@ ng g ng-primitives:primitive slider
 
 Here are some additional examples of how to use the Slider primitives.
 
+### Slider with Tooltip
+
+Display the current value in a tooltip that follows the slider thumb. Use `ngpTooltipTriggerTrackPosition` to enable smooth position updates during drag.
+
+<docs-example name="slider-tooltip"></docs-example>
+
 ### Slider Form Field
 
 The slider automatically integrates with the form field primitives.

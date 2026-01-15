@@ -1,4 +1,5 @@
-import { computed, Signal } from '@angular/core';
+import { DOCUMENT } from '@angular/common';
+import { computed, inject, Injector, Signal } from '@angular/core';
 import { ngpInteractions } from 'ng-primitives/interactions';
 import { injectElementRef } from 'ng-primitives/internal';
 import {
@@ -42,9 +43,12 @@ export const [
 ] = createPrimitive('NgpRangeSliderThumb', ({}: NgpRangeSliderThumbProps) => {
   const element = injectElementRef();
   const rangeSlider = injectRangeSliderState();
+  const injector = inject(Injector);
+  const document = inject(DOCUMENT);
 
   // Store dragging state
   let dragging = false;
+  let cleanupDocumentListeners: (() => void)[] = [];
 
   // Determine which thumb this is based on registration order
   const thumb = computed(() => (rangeSlider().thumbs().indexOf(element) === 0 ? 'low' : 'high'));
@@ -88,14 +92,33 @@ export const [
     }
 
     dragging = true;
+
+    // Clean up any existing listeners
+    cleanupDocumentListeners.forEach(cleanup => cleanup());
+
+    // Set up document-level listeners to handle pointer events anywhere
+    const pointerMoveCleanup = listener(document, 'pointermove', handlePointerMove, {
+      config: false,
+      injector,
+    });
+
+    const pointerUpCleanup = listener(document, 'pointerup', handlePointerEnd, {
+      config: false,
+      injector,
+    });
+
+    const pointerCancelCleanup = listener(document, 'pointercancel', handlePointerEnd, {
+      config: false,
+      injector,
+    });
+
+    cleanupDocumentListeners = [pointerMoveCleanup, pointerUpCleanup, pointerCancelCleanup];
   }
 
-  function handlePointerUp(): void {
-    if (rangeSlider().disabled()) {
-      return;
-    }
-
+  function handlePointerEnd(): void {
     dragging = false;
+    cleanupDocumentListeners.forEach(cleanup => cleanup());
+    cleanupDocumentListeners = [];
   }
 
   function handlePointerMove(event: PointerEvent): void {
@@ -181,8 +204,6 @@ export const [
 
   // Event listeners
   listener(element, 'pointerdown', handlePointerDown);
-  listener(document, 'pointerup', handlePointerUp);
-  listener(document, 'pointermove', handlePointerMove);
   listener(element, 'keydown', handleKeydown);
 
   // Register thumb with parent

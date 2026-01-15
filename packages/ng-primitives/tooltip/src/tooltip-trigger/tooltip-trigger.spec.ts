@@ -285,4 +285,61 @@ describe('NgpTooltipTrigger', () => {
       consoleSpy.mockRestore();
     });
   });
+
+  describe('trackPosition', () => {
+    it('should accept trackPosition attribute', async () => {
+      const { getByRole } = await render(
+        `
+          <button [ngpTooltipTrigger]="content" ngpTooltipTriggerTrackPosition></button>
+
+          <ng-template #content>
+            <div ngpTooltip>
+              Tooltip content
+            </div>
+          </ng-template>
+        `,
+        {
+          imports: [NgpTooltipTrigger, NgpTooltip],
+        },
+      );
+
+      const trigger = getByRole('button');
+      fireEvent.mouseEnter(trigger);
+
+      await waitFor(() => {
+        const tooltip = document.querySelector('[ngpTooltip]');
+        expect(tooltip).toBeInTheDocument();
+      });
+    });
+
+    it('should use global config for trackPosition when not specified on element', async () => {
+      const { getByRole } = await render(
+        `
+          <button [ngpTooltipTrigger]="content"></button>
+
+          <ng-template #content>
+            <div ngpTooltip>
+              Tooltip content
+            </div>
+          </ng-template>
+        `,
+        {
+          imports: [NgpTooltipTrigger, NgpTooltip],
+          providers: [
+            provideTooltipConfig({
+              trackPosition: true,
+            }),
+          ],
+        },
+      );
+
+      const trigger = getByRole('button');
+      fireEvent.mouseEnter(trigger);
+
+      await waitFor(() => {
+        const tooltip = document.querySelector('[ngpTooltip]');
+        expect(tooltip).toBeInTheDocument();
+      });
+    });
+  });
 });
