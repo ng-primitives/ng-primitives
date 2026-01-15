@@ -82,7 +82,9 @@ export class NgpSelectOption implements OnDestroy {
     }
 
     if (this.state().multiple()) {
-      return Array.isArray(stateValue) && stateValue.some(v => this.state().compareWith()(value, v));
+      return (
+        Array.isArray(stateValue) && stateValue.some(v => this.state().compareWith()(value, v))
+      );
     }
 
     // Only treat `undefined` as "no selection" (allow '', 0, false).

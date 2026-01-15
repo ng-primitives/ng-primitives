@@ -41,9 +41,7 @@ import {
       </button>
 
       <div *ngpComboboxPortal ngpComboboxDropdown>
-        <div class="clear-option" (click)="clear()" ngpComboboxOption>
-          None
-        </div>
+        <div class="clear-option" (click)="clear()" ngpComboboxOption>None</div>
 
         <div class="divider"></div>
 
