@@ -15,14 +15,14 @@ import {
 } from '@angular/core';
 import { setupOverflowListener } from 'ng-primitives/internal';
 import {
+  coerceOffset,
+  coerceShift,
   createOverlay,
+  NgpOffset,
+  NgpOffsetInput,
   NgpOverlay,
   NgpOverlayConfig,
   NgpOverlayContent,
-  coerceOffset,
-  NgpOffset,
-  NgpOffsetInput,
-  coerceShift,
   NgpShift,
   NgpShiftInput,
 } from 'ng-primitives/portal';
@@ -44,10 +44,10 @@ type TooltipInput<T> = NgpOverlayContent<T> | string | null | undefined;
     '[attr.data-open]': 'open() ? "" : null',
     '[attr.data-disabled]': 'state.disabled() ? "" : null',
     '[attr.aria-describedby]': 'overlay()?.ariaDescribedBy()',
-    '(mouseenter)': 'show()',
-    '(mouseleave)': 'hide()',
-    '(focus)': 'show()',
-    '(blur)': 'hide()',
+    '(mouseenter)': 'showFromInteraction()',
+    '(mouseleave)': 'hideFromInteraction()',
+    '(focus)': 'showFromInteraction()',
+    '(blur)': 'hideFromInteraction()',
   },
 })
 export class NgpTooltipTrigger<T = null> implements OnDestroy {
@@ -80,7 +80,7 @@ export class NgpTooltipTrigger<T = null> implements OnDestroy {
   });
 
   /**
-   * Define if the trigger should be disabled.
+   * Define if the trigger should be disabled. This will prevent the tooltip from being shown or hidden from interactions.
    * @default false
    */
   readonly disabled = input<boolean, BooleanInput>(false, {
@@ -229,9 +229,8 @@ export class NgpTooltipTrigger<T = null> implements OnDestroy {
    * Show the tooltip.
    */
   show(): void {
-    // If the trigger is disabled, do not show the tooltip
-    if (this.state.disabled() || this.open()) {
-      // we mark this as show again to stop it dismissing
+    // If already open, cancel any pending close
+    if (this.open()) {
       this.overlay()?.cancelPendingClose();
       return;
     }
@@ -254,12 +253,29 @@ export class NgpTooltipTrigger<T = null> implements OnDestroy {
    * Hide the tooltip.
    */
   hide(): void {
-    // If the trigger is disabled, do nothing
+    this.overlay()?.hide();
+  }
+
+  /**
+   * Show the tooltip from an interaction (respects disabled state).
+   * @internal
+   */
+  protected showFromInteraction(): void {
     if (this.state.disabled()) {
       return;
     }
+    this.show();
+  }
 
-    this.overlay()?.hide();
+  /**
+   * Hide the tooltip from an interaction (respects disabled state).
+   * @internal
+   */
+  protected hideFromInteraction(): void {
+    if (this.state.disabled()) {
+      return;
+    }
+    this.hide();
   }
 
   /**

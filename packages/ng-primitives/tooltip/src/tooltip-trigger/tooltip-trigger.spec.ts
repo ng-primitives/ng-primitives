@@ -286,6 +286,187 @@ describe('NgpTooltipTrigger', () => {
     });
   });
 
+  describe('disabled', () => {
+    it('should not show tooltip on mouseenter when disabled', async () => {
+      const { getByRole } = await render(
+        `
+          <button [ngpTooltipTrigger]="content" ngpTooltipTriggerDisabled="true"></button>
+
+          <ng-template #content>
+            <div ngpTooltip>
+              Tooltip content
+            </div>
+          </ng-template>
+        `,
+        {
+          imports: [NgpTooltipTrigger, NgpTooltip],
+        },
+      );
+
+      const trigger = getByRole('button');
+      fireEvent.mouseEnter(trigger);
+
+      // Wait a bit to ensure tooltip doesn't show
+      await new Promise(resolve => setTimeout(resolve, 100));
+
+      expect(document.querySelector('[ngpTooltip]')).not.toBeInTheDocument();
+    });
+
+    it('should not show tooltip on focus when disabled', async () => {
+      const { getByRole } = await render(
+        `
+          <button [ngpTooltipTrigger]="content" ngpTooltipTriggerDisabled="true"></button>
+
+          <ng-template #content>
+            <div ngpTooltip>
+              Tooltip content
+            </div>
+          </ng-template>
+        `,
+        {
+          imports: [NgpTooltipTrigger, NgpTooltip],
+        },
+      );
+
+      const trigger = getByRole('button');
+      fireEvent.focus(trigger);
+
+      // Wait a bit to ensure tooltip doesn't show
+      await new Promise(resolve => setTimeout(resolve, 100));
+
+      expect(document.querySelector('[ngpTooltip]')).not.toBeInTheDocument();
+    });
+
+    it('should allow programmatic show() when disabled', async () => {
+      const { fixture } = await render(
+        `
+          <button [ngpTooltipTrigger]="content" ngpTooltipTriggerDisabled="true" #trigger="ngpTooltipTrigger"></button>
+
+          <ng-template #content>
+            <div ngpTooltip>
+              Tooltip content
+            </div>
+          </ng-template>
+        `,
+        {
+          imports: [NgpTooltipTrigger, NgpTooltip],
+        },
+      );
+
+      const triggerDirective = fixture.debugElement.children[0].injector.get(NgpTooltipTrigger);
+
+      // Programmatically show the tooltip
+      triggerDirective.show();
+
+      await waitFor(() => {
+        expect(document.querySelector('[ngpTooltip]')).toBeInTheDocument();
+      });
+    });
+
+    it('should allow programmatic hide() when disabled', async () => {
+      const { fixture } = await render(
+        `
+          <button [ngpTooltipTrigger]="content" ngpTooltipTriggerDisabled="true" #trigger="ngpTooltipTrigger"></button>
+
+          <ng-template #content>
+            <div ngpTooltip>
+              Tooltip content
+            </div>
+          </ng-template>
+        `,
+        {
+          imports: [NgpTooltipTrigger, NgpTooltip],
+        },
+      );
+
+      const triggerDirective = fixture.debugElement.children[0].injector.get(NgpTooltipTrigger);
+
+      // Programmatically show the tooltip
+      triggerDirective.show();
+
+      await waitFor(() => {
+        expect(document.querySelector('[ngpTooltip]')).toBeInTheDocument();
+      });
+
+      // Programmatically hide the tooltip
+      triggerDirective.hide();
+
+      await waitFor(() => {
+        expect(document.querySelector('[ngpTooltip]')).not.toBeInTheDocument();
+      });
+    });
+
+    it('should not hide tooltip on mouseleave when disabled (if shown programmatically)', async () => {
+      const { fixture, getByRole } = await render(
+        `
+          <button [ngpTooltipTrigger]="content" ngpTooltipTriggerDisabled="true" #trigger="ngpTooltipTrigger"></button>
+
+          <ng-template #content>
+            <div ngpTooltip>
+              Tooltip content
+            </div>
+          </ng-template>
+        `,
+        {
+          imports: [NgpTooltipTrigger, NgpTooltip],
+        },
+      );
+
+      const trigger = getByRole('button');
+      const triggerDirective = fixture.debugElement.children[0].injector.get(NgpTooltipTrigger);
+
+      // Programmatically show the tooltip
+      triggerDirective.show();
+
+      await waitFor(() => {
+        expect(document.querySelector('[ngpTooltip]')).toBeInTheDocument();
+      });
+
+      // Fire mouseleave event - tooltip should NOT hide because disabled
+      fireEvent.mouseLeave(trigger);
+
+      // Wait a bit and verify tooltip is still there
+      await new Promise(resolve => setTimeout(resolve, 100));
+
+      expect(document.querySelector('[ngpTooltip]')).toBeInTheDocument();
+    });
+
+    it('should not hide tooltip on blur when disabled (if shown programmatically)', async () => {
+      const { fixture, getByRole } = await render(
+        `
+          <button [ngpTooltipTrigger]="content" ngpTooltipTriggerDisabled="true" #trigger="ngpTooltipTrigger"></button>
+
+          <ng-template #content>
+            <div ngpTooltip>
+              Tooltip content
+            </div>
+          </ng-template>
+        `,
+        {
+          imports: [NgpTooltipTrigger, NgpTooltip],
+        },
+      );
+
+      const trigger = getByRole('button');
+      const triggerDirective = fixture.debugElement.children[0].injector.get(NgpTooltipTrigger);
+
+      // Programmatically show the tooltip
+      triggerDirective.show();
+
+      await waitFor(() => {
+        expect(document.querySelector('[ngpTooltip]')).toBeInTheDocument();
+      });
+
+      // Fire blur event - tooltip should NOT hide because disabled
+      fireEvent.blur(trigger);
+
+      // Wait a bit and verify tooltip is still there
+      await new Promise(resolve => setTimeout(resolve, 100));
+
+      expect(document.querySelector('[ngpTooltip]')).toBeInTheDocument();
+    });
+  });
+
   describe('trackPosition', () => {
     it('should accept trackPosition attribute', async () => {
       const { getByRole } = await render(
