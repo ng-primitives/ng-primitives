@@ -7,6 +7,7 @@ import {
   input,
   numberAttribute,
   OnDestroy,
+  output,
 } from '@angular/core';
 import { ngpInteractions } from 'ng-primitives/interactions';
 import { injectElementRef, scrollIntoViewIfNeeded } from 'ng-primitives/internal';
@@ -61,6 +62,14 @@ export class NgpComboboxOption implements OnDestroy {
   readonly index = input<number, NumberInput>(undefined, {
     alias: 'ngpComboboxOptionIndex',
     transform: numberAttribute,
+  });
+
+  /**
+   * Event emitted when the option is activated via click or keyboard.
+   * This is useful for options without values that need custom behavior.
+   */
+  readonly activated = output<void>({
+    alias: 'ngpComboboxOptionActivated',
   });
 
   /**
@@ -140,6 +149,7 @@ export class NgpComboboxOption implements OnDestroy {
       return;
     }
 
+    this.activated.emit();
     this.state().toggleOption(this.id());
   }
 

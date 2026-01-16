@@ -676,7 +676,8 @@ export class NgpCombobox {
           const activeId = this.activeDescendantManager.id();
 
           if (activeId) {
-            this.toggleOption(activeId);
+            const option = this.sortedOptions().find(opt => opt.id() === activeId);
+            option?.select();
           }
         }
         event.preventDefault();

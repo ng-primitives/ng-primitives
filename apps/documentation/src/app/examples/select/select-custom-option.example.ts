@@ -22,7 +22,7 @@ import {
       <ng-icon name="heroChevronDown" />
 
       <div *ngpSelectPortal ngpSelectDropdown>
-        <div class="clear-option" (click)="clear()" ngpSelectOption>None</div>
+        <div class="clear-option" (ngpSelectOptionActivated)="clear()" ngpSelectOption>None</div>
 
         <div class="divider"></div>
 

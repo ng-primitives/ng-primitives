@@ -76,6 +76,54 @@ class TestDisabledSelectComponent {
   readonly value = signal<string | undefined>(undefined);
 }
 
+@Component({
+  template: `
+    <div [(ngpSelectValue)]="value" ngpSelect data-testid="activated-select">
+      @if (value(); as value) {
+        <span data-testid="selected-value">{{ value }}</span>
+      } @else {
+        <span data-testid="placeholder">Select an option</span>
+      }
+
+      <div *ngpSelectPortal ngpSelectDropdown data-testid="dropdown">
+        <div
+          (ngpSelectOptionActivated)="onClearActivated()"
+          ngpSelectOption
+          data-testid="clear-option"
+        >
+          Clear
+        </div>
+        @for (option of options; track option) {
+          <div
+            [ngpSelectOptionValue]="option"
+            [attr.data-testid]="'option-' + option"
+            (ngpSelectOptionActivated)="onOptionActivated(option)"
+            ngpSelectOption
+          >
+            {{ option }}
+          </div>
+        }
+      </div>
+    </div>
+  `,
+  imports: [NgpSelect, NgpSelectDropdown, NgpSelectOption, NgpSelectPortal],
+})
+class TestActivatedOutputComponent {
+  readonly options = ['Apple', 'Banana', 'Cherry'];
+  readonly value = signal<string | undefined>(undefined);
+  readonly activatedOptions: string[] = [];
+  clearActivatedCount = 0;
+
+  onOptionActivated(option: string): void {
+    this.activatedOptions.push(option);
+  }
+
+  onClearActivated(): void {
+    this.clearActivatedCount++;
+    this.value.set(undefined);
+  }
+}
+
 describe('NgpSelect', () => {
   afterEach(() => {
     // the dropdown should be removed from the DOM after each test
@@ -440,6 +488,119 @@ describe('NgpSelect', () => {
       await waitFor(() => {
         expect(bananaOption).not.toHaveAttribute('data-active');
       });
+    });
+  });
+
+  describe('Activated output', () => {
+    it('should emit activated when option with value is clicked', async () => {
+      const user = userEvent.setup();
+      const { fixture } = await render(TestActivatedOutputComponent);
+      const component = fixture.componentInstance;
+
+      const select = screen.getByTestId('activated-select');
+      await user.click(select);
+
+      const appleOption = screen.getByTestId('option-Apple');
+      await user.click(appleOption);
+
+      expect(component.activatedOptions).toContain('Apple');
+      expect(component.value()).toBe('Apple');
+    });
+
+    it('should emit activated when option without value is clicked', async () => {
+      const user = userEvent.setup();
+      const { fixture } = await render(TestActivatedOutputComponent);
+      const component = fixture.componentInstance;
+
+      // First select a value
+      component.value.set('Banana');
+      fixture.detectChanges();
+
+      const select = screen.getByTestId('activated-select');
+      await user.click(select);
+
+      const clearOption = screen.getByTestId('clear-option');
+      await user.click(clearOption);
+
+      expect(component.clearActivatedCount).toBe(1);
+      expect(component.value()).toBeUndefined();
+    });
+
+    it('should emit activated when Enter is pressed on option with value', async () => {
+      const { fixture } = await render(TestActivatedOutputComponent);
+      const component = fixture.componentInstance;
+
+      const select = screen.getByTestId('activated-select');
+      select.focus();
+
+      // Open dropdown
+      fireEvent.keyDown(select, { key: 'ArrowDown' });
+
+      await waitFor(() => {
+        expect(select).toHaveAttribute('aria-expanded', 'true');
+      });
+
+      // Navigate to Apple (skip the Clear option which has no value)
+      fireEvent.keyDown(select, { key: 'ArrowDown' });
+
+      // Select with Enter
+      fireEvent.keyDown(select, { key: 'Enter' });
+
+      await waitFor(() => {
+        expect(component.activatedOptions).toContain('Apple');
+        expect(component.value()).toBe('Apple');
+      });
+    });
+
+    it('should emit activated when Enter is pressed on option without value', async () => {
+      const { fixture } = await render(TestActivatedOutputComponent);
+      const component = fixture.componentInstance;
+
+      // First select a value
+      component.value.set('Cherry');
+      fixture.detectChanges();
+
+      const select = screen.getByTestId('activated-select');
+      select.focus();
+
+      // Open dropdown
+      fireEvent.keyDown(select, { key: 'ArrowDown' });
+
+      await waitFor(() => {
+        expect(select).toHaveAttribute('aria-expanded', 'true');
+      });
+
+      // The Clear option (no value) should be first
+      // Navigate to it using Home key to ensure we're at the beginning
+      fireEvent.keyDown(select, { key: 'Home' });
+
+      // Select with Enter - this should trigger the activated output
+      fireEvent.keyDown(select, { key: 'Enter' });
+
+      await waitFor(() => {
+        expect(component.clearActivatedCount).toBe(1);
+        expect(component.value()).toBeUndefined();
+      });
+    });
+
+    it('should emit activated for each click on the same option', async () => {
+      const user = userEvent.setup();
+      const { fixture } = await render(TestActivatedOutputComponent);
+      const component = fixture.componentInstance;
+
+      const select = screen.getByTestId('activated-select');
+
+      // Click option multiple times
+      await user.click(select);
+      await user.click(screen.getByTestId('option-Apple'));
+
+      await user.click(select);
+      await user.click(screen.getByTestId('option-Apple'));
+
+      await user.click(select);
+      await user.click(screen.getByTestId('option-Apple'));
+
+      expect(component.activatedOptions.filter(o => o === 'Apple').length).toBe(3);
     });
   });
 
