@@ -49,6 +49,49 @@ Create a toast component that uses the `NgpToast` directive.
 
 <docs-snippet name="toast"></docs-snippet>
 
+## Sequential Mode
+
+The sequential mode prevents background toasts from auto-closing. Only the front-most toast's timer runs, and when that toast is dismissed, the timer starts on the next toast in the stack.
+
+This is useful when you have multiple notifications in quick succession (e.g., health monitoring of external services) where you want to ensure users can see all notifications before they auto-close.
+
+<docs-example name="toast-sequential"></docs-example>
+
+### Using Sequential Mode
+
+You can enable sequential mode in two ways:
+
+**1. Globally via configuration:**
+
+```ts
+import { provideToastConfig } from 'ng-primitives/toast';
+
+bootstrapApplication(AppComponent, {
+  providers: [
+    provideToastConfig({
+      sequential: true,
+      // ... other config options
+    }),
+  ],
+});
+```
+
+**2. Per-toast via the show method:**
+
+```ts
+import { NgpToastManager } from 'ng-primitives/toast';
+
+export class MyComponent {
+  private readonly toastManager = inject(NgpToastManager);
+
+  showToast(): void {
+    this.toastManager.show(ToastComponent, {
+      sequential: true,
+    });
+  }
+}
+```
+
 ## Schematics
 
 Generate a reusable toast component using the Angular CLI.
@@ -182,4 +225,8 @@ bootstrapApplication(AppComponent, {
 
 <prop-details name="zIndex" type="number" default="9999999">
   The z-index of the toast container.
+</prop-details>
+
+<prop-details name="sequential" type="boolean" default="false">
+  When enabled, only the front toast's timer will run. When a toast is dismissed, the timer will start on the next toast. Useful for scenarios with multiple notifications where you want to prevent background toasts from auto-closing.
 </prop-details>

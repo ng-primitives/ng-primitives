@@ -45,4 +45,10 @@ export interface NgpToastOptions {
    * @internal
    */
   swipeDirections: NgpToastSwipeDirection[];
+
+  /**
+   * When true, only the front toast's timer will run.
+   * @internal
+   */
+  sequential: boolean;
 }

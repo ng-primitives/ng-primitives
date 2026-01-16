@@ -67,6 +67,12 @@ export interface NgpToastConfig {
    * This is used to ensure that the toast container is always on top of other elements.
    */
   zIndex: number;
+
+  /**
+   * When true, only the front toast's timer will run.
+   * When a toast is dismissed, the timer will start on the next toast.
+   */
+  sequential: boolean;
 }
 
 export const defaultToastConfig: NgpToastConfig = {
@@ -83,6 +89,7 @@ export const defaultToastConfig: NgpToastConfig = {
   maxToasts: 3,
   zIndex: 9999999,
   ariaLive: 'polite',
+  sequential: false,
 };
 
 export const NgpToastConfigToken = new InjectionToken<NgpToastConfig>('NgpToastConfigToken');
