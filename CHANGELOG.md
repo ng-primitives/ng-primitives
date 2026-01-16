@@ -1,3 +1,13 @@
+## 0.102.1 (2026-01-16)
+
+### 🚀 Features
+
+- **select,combobox:** select option activate output ([#612](https://github.com/ng-primitives/ng-primitives/pull/612))
+
+### ❤️ Thank You
+
+- Ashley Hunter
+
 ## 0.102.0 (2026-01-15)
 
 ### 🚀 Features
