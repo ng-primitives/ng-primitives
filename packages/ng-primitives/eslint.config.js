@@ -62,6 +62,7 @@ module.exports = [
       '@angular-eslint/component-selector': 'off',
       '@angular-eslint/template/role-has-required-aria': 'off',
       '@typescript-eslint/no-explicit-any': 'off',
+      '@typescript-eslint/no-empty-function': 'off',
     },
   },
   {
