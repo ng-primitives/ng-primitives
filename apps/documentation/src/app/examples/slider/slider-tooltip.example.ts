@@ -77,10 +77,14 @@ import { NgpTooltip, NgpTooltipTrigger } from 'ng-primitives/tooltip';
         <div ngpSliderRange></div>
       </div>
       <div
+        #tooltipTrigger="ngpTooltipTrigger"
         [ngpTooltipTrigger]="tooltip"
+        (ngpSliderThumbDragStart)="tooltipTrigger.show()"
+        (ngpSliderThumbDragEnd)="tooltipTrigger.hide()"
         ngpTooltipTriggerPlacement="top"
         ngpTooltipTriggerHideDelay="200"
-        ngpTooltipTriggerTrackPosition
+        ngpTooltipTriggerTrackPosition="true"
+        ngpTooltipTriggerDisabled="true"
         ngpSliderThumb
       ></div>
     </div>
