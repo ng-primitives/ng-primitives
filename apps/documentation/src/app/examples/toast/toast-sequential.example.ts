@@ -173,6 +173,7 @@ export default class ToastSequentialExample {
 
 @Component({
   selector: 'app-toast-content',
+  imports: [NgpToast],
   template: `
     <div ngpToast animate.enter="toast-enter" animate.leave="toast-leave">
       <p class="toast-title">Sequential Toast</p>
