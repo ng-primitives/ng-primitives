@@ -316,10 +316,7 @@ export class NgpTooltipTrigger<T = null> implements OnDestroy {
     const config: NgpOverlayConfig<T | string> = {
       content,
       triggerElement: this.trigger.nativeElement,
-      injector: Injector.create({
-        parent: this.injector,
-        providers: [{ provide: NgpTooltipTrigger, useValue: this }],
-      }),
+      injector: this.injector,
       context,
       container: this.state.container(),
       placement: this.state.placement,
