@@ -1,4 +1,4 @@
-import { Directive } from '@angular/core';
+import { Directive, output } from '@angular/core';
 import { ngpSliderThumb, provideSliderThumbState } from './slider-thumb-state';
 
 /**
@@ -10,7 +10,24 @@ import { ngpSliderThumb, provideSliderThumbState } from './slider-thumb-state';
   providers: [provideSliderThumbState()],
 })
 export class NgpSliderThumb {
+  /**
+   * Emits when the thumb drag starts.
+   */
+  readonly dragStart = output<void>({
+    alias: 'ngpSliderThumbDragStart',
+  });
+
+  /**
+   * Emits when the thumb drag ends.
+   */
+  readonly dragEnd = output<void>({
+    alias: 'ngpSliderThumbDragEnd',
+  });
+
   constructor() {
-    ngpSliderThumb({});
+    ngpSliderThumb({
+      onDragStart: () => this.dragStart.emit(),
+      onDragEnd: () => this.dragEnd.emit(),
+    });
   }
 }

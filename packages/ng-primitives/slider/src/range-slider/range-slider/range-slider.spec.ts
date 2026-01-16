@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { render, screen } from '@testing-library/angular';
+import { fireEvent, render, screen } from '@testing-library/angular';
 import { userEvent } from '@testing-library/user-event';
 import { NgpRangeSliderRange } from '../range-slider-range/range-slider-range';
 import { NgpRangeSliderThumb } from '../range-slider-thumb/range-slider-thumb';
@@ -414,6 +414,156 @@ describe('NgpRangeSliderThumb', () => {
 
     // Value should have been updated during the drag operation
     expect(component.low).not.toBe(20);
+  });
+});
+
+@Component({
+  imports: [NgpRangeSlider, NgpRangeSliderThumb, NgpRangeSliderTrack, NgpRangeSliderRange],
+  template: `
+    <div
+      [ngpRangeSliderLow]="low"
+      [ngpRangeSliderHigh]="high"
+      [ngpRangeSliderMin]="0"
+      [ngpRangeSliderMax]="100"
+      [ngpRangeSliderDisabled]="disabled"
+      ngpRangeSlider
+      data-testid="range-slider"
+    >
+      <div ngpRangeSliderTrack data-testid="slider-track">
+        <div ngpRangeSliderRange data-testid="slider-range"></div>
+        <div
+          (ngpRangeSliderThumbDragStart)="onLowDragStart()"
+          (ngpRangeSliderThumbDragEnd)="onLowDragEnd()"
+          ngpRangeSliderThumb
+          data-testid="low-thumb"
+        ></div>
+        <div
+          (ngpRangeSliderThumbDragStart)="onHighDragStart()"
+          (ngpRangeSliderThumbDragEnd)="onHighDragEnd()"
+          ngpRangeSliderThumb
+          data-testid="high-thumb"
+        ></div>
+      </div>
+    </div>
+  `,
+})
+class DragEventsTestComponent {
+  low = 20;
+  high = 80;
+  disabled = false;
+
+  lowDragStartCount = 0;
+  lowDragEndCount = 0;
+  highDragStartCount = 0;
+  highDragEndCount = 0;
+
+  onLowDragStart(): void {
+    this.lowDragStartCount++;
+  }
+
+  onLowDragEnd(): void {
+    this.lowDragEndCount++;
+  }
+
+  onHighDragStart(): void {
+    this.highDragStartCount++;
+  }
+
+  onHighDragEnd(): void {
+    this.highDragEndCount++;
+  }
+}
+
+describe('NgpRangeSliderThumb Drag Events', () => {
+  it('should emit dragStart when pointer down on low thumb', async () => {
+    const { fixture } = await render(DragEventsTestComponent);
+    const component = fixture.componentInstance;
+
+    const lowThumb = screen.getByTestId('low-thumb');
+
+    fireEvent.pointerDown(lowThumb);
+
+    expect(component.lowDragStartCount).toBe(1);
+    expect(component.lowDragEndCount).toBe(0);
+
+    fireEvent.pointerUp(document);
+  });
+
+  it('should emit dragEnd when pointer up after pointer down on low thumb', async () => {
+    const { fixture } = await render(DragEventsTestComponent);
+    const component = fixture.componentInstance;
+
+    const lowThumb = screen.getByTestId('low-thumb');
+
+    fireEvent.pointerDown(lowThumb);
+    expect(component.lowDragStartCount).toBe(1);
+
+    fireEvent.pointerUp(document);
+    expect(component.lowDragEndCount).toBe(1);
+  });
+
+  it('should emit dragStart when pointer down on high thumb', async () => {
+    const { fixture } = await render(DragEventsTestComponent);
+    const component = fixture.componentInstance;
+
+    const highThumb = screen.getByTestId('high-thumb');
+
+    fireEvent.pointerDown(highThumb);
+
+    expect(component.highDragStartCount).toBe(1);
+    expect(component.highDragEndCount).toBe(0);
+
+    fireEvent.pointerUp(document);
+  });
+
+  it('should emit dragEnd when pointer up after pointer down on high thumb', async () => {
+    const { fixture } = await render(DragEventsTestComponent);
+    const component = fixture.componentInstance;
+
+    const highThumb = screen.getByTestId('high-thumb');
+
+    fireEvent.pointerDown(highThumb);
+    expect(component.highDragStartCount).toBe(1);
+
+    fireEvent.pointerUp(document);
+    expect(component.highDragEndCount).toBe(1);
+  });
+
+  it('should not emit drag events when slider is disabled', async () => {
+    const { fixture } = await render(DragEventsTestComponent);
+    const component = fixture.componentInstance;
+
+    component.disabled = true;
+    fixture.detectChanges();
+
+    const lowThumb = screen.getByTestId('low-thumb');
+
+    fireEvent.pointerDown(lowThumb);
+    fireEvent.pointerUp(document);
+
+    expect(component.lowDragStartCount).toBe(0);
+    expect(component.lowDragEndCount).toBe(0);
+  });
+
+  it('should emit events independently for each thumb', async () => {
+    const { fixture } = await render(DragEventsTestComponent);
+    const component = fixture.componentInstance;
+
+    const lowThumb = screen.getByTestId('low-thumb');
+    const highThumb = screen.getByTestId('high-thumb');
+
+    // Drag low thumb
+    fireEvent.pointerDown(lowThumb);
+    fireEvent.pointerUp(document);
+
+    // Drag high thumb
+    fireEvent.pointerDown(highThumb);
+    fireEvent.pointerUp(document);
+
+    expect(component.lowDragStartCount).toBe(1);
+    expect(component.lowDragEndCount).toBe(1);
+    expect(component.highDragStartCount).toBe(1);
+    expect(component.highDragEndCount).toBe(1);
   });
 });
 
