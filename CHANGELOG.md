@@ -1,3 +1,14 @@
+## 0.102.2 (2026-01-16)
+
+### 🚀 Features
+
+- **slider:** adding support for slider thumb events ([#613](https://github.com/ng-primitives/ng-primitives/pull/613))
+- **tooltip:** allow for disabling tooltip trigger interactions ([#614](https://github.com/ng-primitives/ng-primitives/pull/614))
+
+### ❤️ Thank You
+
+- Ashley Hunter
+
 ## 0.102.1 (2026-01-16)
 
 ### 🚀 Features
