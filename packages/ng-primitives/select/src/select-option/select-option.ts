@@ -6,6 +6,7 @@ import {
   HostListener,
   input,
   OnDestroy,
+  output,
 } from '@angular/core';
 import { ngpInteractions } from 'ng-primitives/interactions';
 import { injectElementRef, scrollIntoViewIfNeeded } from 'ng-primitives/internal';
@@ -53,6 +54,14 @@ export class NgpSelectOption implements OnDestroy {
   /** The index of the option in the list. */
   readonly index = input<number | undefined>(undefined, {
     alias: 'ngpSelectOptionIndex',
+  });
+
+  /**
+   * Event emitted when the option is activated via click or keyboard.
+   * This is useful for options without values that need custom behavior.
+   */
+  readonly activated = output<void>({
+    alias: 'ngpSelectOptionActivated',
   });
 
   /**
@@ -118,6 +127,7 @@ export class NgpSelectOption implements OnDestroy {
       return;
     }
 
+    this.activated.emit();
     this.state().toggleOption(this.id());
   }
 

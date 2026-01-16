@@ -1835,3 +1835,173 @@ describe('NgpCombobox without input', () => {
     expect(screen.getByText('Cherry')).toBeInTheDocument();
   });
 });
+
+@Component({
+  imports: [
+    NgpCombobox,
+    NgpComboboxButton,
+    NgpComboboxDropdown,
+    NgpComboboxInput,
+    NgpComboboxOption,
+    NgpComboboxPortal,
+  ],
+  template: `
+    <div
+      [ngpComboboxValue]="value"
+      (ngpComboboxValueChange)="onValueChange($event)"
+      ngpCombobox
+      data-testid="activated-combobox"
+    >
+      <input ngpComboboxInput />
+      <button data-testid="activated-combobox-button" ngpComboboxButton>▼</button>
+
+      <div *ngpComboboxPortal ngpComboboxDropdown>
+        <div
+          (ngpComboboxOptionActivated)="onClearActivated()"
+          ngpComboboxOption
+          data-testid="clear-option"
+        >
+          Clear
+        </div>
+        @for (option of options; track option) {
+          <div
+            [ngpComboboxOptionValue]="option"
+            [attr.data-testid]="'option-' + option"
+            (ngpComboboxOptionActivated)="onOptionActivated(option)"
+            ngpComboboxOption
+          >
+            {{ option }}
+          </div>
+        }
+      </div>
+    </div>
+  `,
+})
+class TestActivatedOutputComponent {
+  readonly options = ['Apple', 'Banana', 'Cherry'];
+  value: string | undefined = undefined;
+  readonly activatedOptions: string[] = [];
+  clearActivatedCount = 0;
+
+  onValueChange(value: string): void {
+    this.value = value;
+  }
+
+  onOptionActivated(option: string): void {
+    this.activatedOptions.push(option);
+  }
+
+  onClearActivated(): void {
+    this.clearActivatedCount++;
+    this.value = undefined;
+  }
+}
+
+describe('NgpComboboxOption activated output', () => {
+  afterEach(() => {
+    const dropdown = screen.queryByRole('listbox');
+    if (dropdown) {
+      dropdown.remove();
+    }
+  });
+
+  it('should emit activated when option with value is clicked', async () => {
+    const { fixture } = await render(TestActivatedOutputComponent);
+    const component = fixture.componentInstance;
+
+    const button = screen.getByTestId('activated-combobox-button');
+    await userEvent.click(button);
+
+    const appleOption = screen.getByTestId('option-Apple');
+    await userEvent.click(appleOption);
+
+    expect(component.activatedOptions).toContain('Apple');
+    expect(component.value).toBe('Apple');
+  });
+
+  it('should emit activated when option without value is clicked', async () => {
+    const { fixture } = await render(TestActivatedOutputComponent);
+    const component = fixture.componentInstance;
+
+    // First select a value
+    component.value = 'Banana';
+    fixture.detectChanges();
+
+    const button = screen.getByTestId('activated-combobox-button');
+    await userEvent.click(button);
+
+    const clearOption = screen.getByTestId('clear-option');
+    await userEvent.click(clearOption);
+
+    expect(component.clearActivatedCount).toBe(1);
+    expect(component.value).toBeUndefined();
+  });
+
+  it('should emit activated when Enter is pressed on option with value', async () => {
+    const { fixture } = await render(TestActivatedOutputComponent);
+    const component = fixture.componentInstance;
+
+    const input = screen.getByRole('combobox');
+    input.focus();
+
+    // Open dropdown
+    await userEvent.keyboard('{arrowdown}');
+
+    // Navigate to Apple (skip the Clear option which has no value)
+    await userEvent.keyboard('{arrowdown}');
+
+    // Select with Enter
+    await userEvent.keyboard('{enter}');
+
+    await waitFor(() => {
+      expect(component.activatedOptions).toContain('Apple');
+      expect(component.value).toBe('Apple');
+    });
+  });
+
+  it('should emit activated when Enter is pressed on option without value', async () => {
+    const { fixture } = await render(TestActivatedOutputComponent);
+    const component = fixture.componentInstance;
+
+    // First select a value
+    component.value = 'Cherry';
+    fixture.detectChanges();
+
+    const input = screen.getByRole('combobox');
+    input.focus();
+
+    // Open dropdown
+    await userEvent.keyboard('{arrowdown}');
+
+    // The Clear option (no value) should be first
+    // Navigate to it using Home key to ensure we're at the beginning
+    await userEvent.keyboard('{Home}');
+
+    // Select with Enter - this should trigger the activated output
+    await userEvent.keyboard('{enter}');
+
+    await waitFor(() => {
+      expect(component.clearActivatedCount).toBe(1);
+      expect(component.value).toBeUndefined();
+    });
+  });
+
+  it('should emit activated for each click on the same option', async () => {
+    const { fixture } = await render(TestActivatedOutputComponent);
+    const component = fixture.componentInstance;
+
+    const button = screen.getByTestId('activated-combobox-button');
+
+    // Click option multiple times (combobox closes after single select, so reopen each time)
+    await userEvent.click(button);
+    await userEvent.click(screen.getByTestId('option-Apple'));
+
+    await userEvent.click(button);
+    await userEvent.click(screen.getByTestId('option-Apple'));
+
+    await userEvent.click(button);
+    await userEvent.click(screen.getByTestId('option-Apple'));
+
+    expect(component.activatedOptions.filter(o => o === 'Apple').length).toBe(3);
+  });
+});

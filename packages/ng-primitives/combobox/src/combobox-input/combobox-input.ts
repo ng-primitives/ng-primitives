@@ -100,10 +100,13 @@ export class NgpComboboxInput {
         break;
       case 'Enter':
         if (this.state().open()) {
-          const activeItem = this.state().activeDescendantManager.id();
+          const activeId = this.state().activeDescendantManager.id();
 
-          if (activeItem) {
-            this.state().toggleOption(activeItem);
+          if (activeId) {
+            const option = this.state()
+              .sortedOptions()
+              .find(opt => opt.id() === activeId);
+            option?.select();
           }
         }
         event.preventDefault();
