@@ -49,15 +49,33 @@ Create a toast component that uses the `NgpToast` directive.
 
 <docs-snippet name="toast"></docs-snippet>
 
-## Sequential Mode
+## Schematics
+
+Generate a reusable toast component using the Angular CLI.
+
+```bash npm
+ng g ng-primitives:primitive toast
+```
+
+### Options
+
+- `path`: The path at which to create the component file.
+- `prefix`: The prefix to apply to the generated component selector.
+- `componentSuffix`: The suffix to apply to the generated component class name.
+- `fileSuffix`: The suffix to apply to the generated component file name. Defaults to `component`.
+- `exampleStyles`: Whether to include example styles in the generated component file. Defaults to `true`.
+
+## Examples
+
+Here are some additional examples of how to use the Toast primitive.
+
+### Sequential Mode
 
 The sequential mode prevents background toasts from auto-closing. Only the front-most toast's timer runs, and when that toast is dismissed, the timer starts on the next toast in the stack.
 
 This is useful when you have multiple notifications in quick succession (e.g., health monitoring of external services) where you want to ensure users can see all notifications before they auto-close.
 
 <docs-example name="toast-sequential"></docs-example>
-
-### Using Sequential Mode
 
 You can enable sequential mode in two ways:
 
@@ -91,22 +109,6 @@ export class MyComponent {
   }
 }
 ```
-
-## Schematics
-
-Generate a reusable toast component using the Angular CLI.
-
-```bash npm
-ng g ng-primitives:primitive toast
-```
-
-### Options
-
-- `path`: The path at which to create the component file.
-- `prefix`: The prefix to apply to the generated component selector.
-- `componentSuffix`: The suffix to apply to the generated component class name.
-- `fileSuffix`: The suffix to apply to the generated component file name. Defaults to `component`.
-- `exampleStyles`: Whether to include example styles in the generated component file. Defaults to `true`.
 
 ## API Reference
 

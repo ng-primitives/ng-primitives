@@ -23,9 +23,7 @@ import { NgpToastManager, NgpToast } from 'ng-primitives/toast';
     <div class="container">
       <h2>Sequential Toast Example</h2>
       <p>Click the button to show multiple toasts. Notice how only the front toast's timer runs.</p>
-      <button class="toast-trigger" (click)="showMultipleToasts()" ngpButton>
-        Show 3 Toasts
-      </button>
+      <button class="toast-trigger" (click)="showMultipleToasts()" ngpButton>Show 3 Toasts</button>
     </div>
   `,
   styles: `
@@ -178,9 +176,7 @@ export default class ToastSequentialExample {
   template: `
     <div ngpToast animate.enter="toast-enter" animate.leave="toast-leave">
       <p class="toast-title">Sequential Toast</p>
-      <p class="toast-description">
-        In sequential mode, only the front toast's timer runs.
-      </p>
+      <p class="toast-description">In sequential mode, only the front toast's timer runs.</p>
     </div>
   `,
   styles: `
