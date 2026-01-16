@@ -1,4 +1,5 @@
 import { Component, inject } from '@angular/core';
+import { NgpButton } from 'ng-primitives/button';
 import { NgpToastManager, NgpToast } from 'ng-primitives/toast';
 
 /**
@@ -18,7 +19,7 @@ import { NgpToastManager, NgpToast } from 'ng-primitives/toast';
  */
 @Component({
   selector: 'app-toast-sequential',
-  imports: [],
+  imports: [NgpButton],
   template: `
     <div class="container">
       <h2>Sequential Toast Example</h2>
