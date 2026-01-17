@@ -353,7 +353,14 @@ export class DocsNavbar implements OnInit {
             © {{ year }} Angular Primitives. All rights reserved.
           </span>
           <span class="text-[13px] opacity-50 dark:opacity-80">
-            This site is powered by <a href="https://www.netlify.com" target="_blank" class="underline hover:opacity-100 transition-opacity">Netlify</a>
+            This site is powered by
+            <a
+              class="underline transition-opacity hover:opacity-100"
+              href="https://www.netlify.com"
+              target="_blank"
+            >
+              Netlify
+            </a>
           </span>
         </div>
         <div class="flex gap-x-4">

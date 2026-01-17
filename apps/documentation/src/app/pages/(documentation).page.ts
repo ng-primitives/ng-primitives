@@ -20,12 +20,17 @@ import { SideNavigation } from '../components/side-navigation/side-navigation';
 
         <router-outlet />
       </div>
-      <div class="px-8 py-8 flex flex-col items-center gap-y-2 text-xs text-zinc-500">
+      <div class="flex flex-col items-center gap-y-2 px-8 py-8 text-xs text-zinc-500">
+        <p class="text-center">Copyright © {{ year }} Angular Primitives</p>
         <p class="text-center">
-          Copyright © {{ year }} Angular Primitives
-        </p>
-        <p class="text-center">
-          This site is powered by <a href="https://www.netlify.com" target="_blank" class="underline hover:text-zinc-900 dark:hover:text-zinc-100 transition-colors">Netlify</a>
+          This site is powered by
+          <a
+            class="underline transition-colors hover:text-zinc-900 dark:hover:text-zinc-100"
+            href="https://www.netlify.com"
+            target="_blank"
+          >
+            Netlify
+          </a>
         </p>
       </div>
     </div>
