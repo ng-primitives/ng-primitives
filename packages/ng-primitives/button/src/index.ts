@@ -1,4 +1,5 @@
 export { NgpButton } from './button/button';
+export * from './button/button-config';
 export {
   injectButtonState,
   ngpButton,

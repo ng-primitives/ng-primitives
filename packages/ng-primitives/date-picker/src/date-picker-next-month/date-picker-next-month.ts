@@ -1,5 +1,5 @@
-import { computed, Directive, ElementRef, HostListener, inject } from '@angular/core';
-import { ngpButton } from 'ng-primitives/button';
+import { computed, Directive, HostListener } from '@angular/core';
+import { ngpButton, provideButtonConfig } from 'ng-primitives/button';
 import { injectDateAdapter } from 'ng-primitives/date-time';
 import { injectDateControllerState } from '../date-picker/date-picker-state';
 
@@ -9,17 +9,9 @@ import { injectDateControllerState } from '../date-picker/date-picker-state';
 @Directive({
   selector: '[ngpDatePickerNextMonth]',
   exportAs: 'ngpDatePickerNextMonth',
-  host: {
-    '[attr.aria-disabled]': 'disabled()',
-    '[attr.type]': 'isButton ? "button" : null',
-  },
+  providers: [provideButtonConfig({ autoSetButtonType: true })],
 })
 export class NgpDatePickerNextMonth<T> {
-  /**
-   * Access the element ref.
-   */
-  private readonly elementRef = inject<ElementRef<HTMLElement>>(ElementRef);
-
   /**
    * Access the date adapter.
    */
@@ -29,11 +21,6 @@ export class NgpDatePickerNextMonth<T> {
    * Access the date picker state.
    */
   private readonly state = injectDateControllerState<T>();
-
-  /**
-   * Determine if this is a button element
-   */
-  protected readonly isButton = this.elementRef.nativeElement.tagName.toLowerCase() === 'button';
 
   /**
    * Determine if the next month is disabled.
@@ -61,7 +48,10 @@ export class NgpDatePickerNextMonth<T> {
   });
 
   constructor() {
-    ngpButton({ disabled: this.disabled });
+    ngpButton({
+      disabled: this.disabled,
+      ariaDisabled: computed(() => (this.disabled() ? 'true' : 'false')),
+    });
   }
 
   /**
@@ -69,10 +59,6 @@ export class NgpDatePickerNextMonth<T> {
    */
   @HostListener('click')
   protected navigateToNextMonth(): void {
-    if (this.disabled()) {
-      return;
-    }
-
     // move focus to the first day of the next month.
     let date = this.state().focusedDate();
     date = this.dateAdapter.add(date, { months: 1 });

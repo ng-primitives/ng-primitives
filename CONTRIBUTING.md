@@ -10,7 +10,7 @@ We welcome contributions from the community! Whether you're a seasoned developer
 
 ## Requesting a new feature
 
-While we draw inspiration from libraries like Radix UI, Headless UI, and React Aria, we are not looking to port their features as-is.
+While we draw inspiration from libraries like Radix UI, Headless UI, React Aria, and Base UI, we are not looking to port their features as-is.
 We want to develop a feature in whatever way is best for Angular.
 
 If you wish to develop a feature, please raise an issue or discussion first to discuss the feature and how it fits into the library.
@@ -51,7 +51,7 @@ The following generators are available:
 
 - `nx g @ng-primitives/tools:primitive <name>`: Generates a new secondary entry point for the library.
 - `nx g @ng-primitives/tools:directive <name> --primitive <primitive>`: Generates a new directive in the library.
-- `nx g @ng-primitives/tools:documentation <name> --description <description> --primitive <primitive>`: Generates a new documentation page for a primitive.
+- `nx g @ng-primitives/tools:documentation <name> --description <description> --primitive <primitive> --section <section>`: Generates a new documentation page for a primitive.
 - `nx g @ng-primitives/tools:example <name> --primitive <primitive>`: Generates a new example for a primitive.
 - `nx g @ng-primitives/tools:reusable-component button`: Generates a new reusable component.
 

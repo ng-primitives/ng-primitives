@@ -1,6 +1,7 @@
 /**
  * Type validation utilities
  */
+import { ElementRef } from '@angular/core';
 
 /**
  * Checks if a value is a string
@@ -72,4 +73,37 @@ export function isNil(value: unknown): value is null | undefined {
  */
 export function notNil<T>(value: T | null | undefined): value is T {
   return !isNil(value);
+}
+
+/**
+ * Checks if a value is a native button element
+ * @param element - The element to check
+ * @returns true if the element is a native button element, false otherwise
+ */
+export function isNativeButton(
+  element: ElementRef<HTMLElement>,
+): element is ElementRef<HTMLButtonElement> {
+  return element.nativeElement.tagName === 'BUTTON';
+}
+
+/**
+ * Checks if a value is a native anchor element
+ * @param element - The element ref to check
+ * @returns true if the element is a native anchor element, false otherwise
+ */
+export function isNativeAnchor(
+  element: ElementRef<HTMLElement>,
+): element is ElementRef<HTMLAnchorElement> {
+  return element.nativeElement.tagName === 'A';
+}
+
+/**
+ * Checks if a value is a valid link
+ * @param element - The element ref to check
+ * @returns true if the element is a valid link, false otherwise
+ */
+export function isValidLink(
+  element: ElementRef<HTMLElement>,
+): element is ElementRef<HTMLAnchorElement> {
+  return Boolean(isNativeAnchor(element) && element.nativeElement.href);
 }
