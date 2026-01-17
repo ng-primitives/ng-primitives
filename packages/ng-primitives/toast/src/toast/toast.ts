@@ -148,14 +148,19 @@ export class NgpToast {
     this.timer.start();
 
     // Pause the timer when the toast is expanded or when the user is interacting with it
-    explicitEffect([this.options.expanded, this.isInteracting], ([expanded, interacting]) => {
-      // If the toast is expanded, or if the user is interacting with it, reset the timer
-      if (expanded || interacting) {
-        this.timer.pause();
-      } else {
-        this.timer.start();
-      }
-    });
+    // Also pause when in sequential mode and this toast is not at the front
+    explicitEffect(
+      [this.options.expanded, this.isInteracting, this.index, () => this.options.sequential],
+      ([expanded, interacting, index, sequential]) => {
+        // If the toast is expanded, or if the user is interacting with it, pause the timer
+        // In sequential mode, also pause if this toast is not at the front
+        if (expanded || interacting || (sequential && index > 0)) {
+          this.timer.pause();
+        } else {
+          this.timer.start();
+        }
+      },
+    );
   }
 
   @HostListener('pointerdown', ['$event'])

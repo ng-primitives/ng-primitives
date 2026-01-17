@@ -65,6 +65,51 @@ ng g ng-primitives:primitive toast
 - `fileSuffix`: The suffix to apply to the generated component file name. Defaults to `component`.
 - `exampleStyles`: Whether to include example styles in the generated component file. Defaults to `true`.
 
+## Examples
+
+Here are some additional examples of how to use the Toast primitive.
+
+### Sequential Mode
+
+The sequential mode prevents background toasts from auto-closing. Only the front-most toast's timer runs, and when that toast is dismissed, the timer starts on the next toast in the stack.
+
+This is useful when you have multiple notifications in quick succession (e.g., health monitoring of external services) where you want to ensure users can see all notifications before they auto-close.
+
+<docs-example name="toast-sequential"></docs-example>
+
+You can enable sequential mode in two ways:
+
+**1. Globally via configuration:**
+
+```ts
+import { provideToastConfig } from 'ng-primitives/toast';
+
+bootstrapApplication(AppComponent, {
+  providers: [
+    provideToastConfig({
+      sequential: true,
+      // ... other config options
+    }),
+  ],
+});
+```
+
+**2. Per-toast via the show method:**
+
+```ts
+import { NgpToastManager } from 'ng-primitives/toast';
+
+export class MyComponent {
+  private readonly toastManager = inject(NgpToastManager);
+
+  showToast(): void {
+    this.toastManager.show(ToastComponent, {
+      sequential: true,
+    });
+  }
+}
+```
+
 ## API Reference
 
 The following directives are available to import from the `ng-primitives/toast` package:
@@ -182,4 +227,8 @@ bootstrapApplication(AppComponent, {
 
 <prop-details name="zIndex" type="number" default="9999999">
   The z-index of the toast container.
+</prop-details>
+
+<prop-details name="sequential" type="boolean" default="false">
+  When enabled, only the front toast's timer will run. When a toast is dismissed, the timer will start on the next toast. Useful for scenarios with multiple notifications where you want to prevent background toasts from auto-closing.
 </prop-details>
