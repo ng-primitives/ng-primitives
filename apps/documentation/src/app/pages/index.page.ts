@@ -348,9 +348,14 @@ export class DocsNavbar implements OnInit {
       <div
         class="container mx-auto flex flex-col items-center justify-between gap-y-4 px-10 py-6 md:flex-row"
       >
-        <span class="text-[13px] opacity-50 dark:opacity-80">
-          © {{ year }} Angular Primitives. All rights reserved.
-        </span>
+        <div class="flex flex-col items-center gap-y-2 md:items-start">
+          <span class="text-[13px] opacity-50 dark:opacity-80">
+            © {{ year }} Angular Primitives. All rights reserved.
+          </span>
+          <span class="text-[13px] opacity-50 dark:opacity-80">
+            This site is powered by <a href="https://www.netlify.com" target="_blank" class="underline hover:opacity-100 transition-opacity">Netlify</a>
+          </span>
+        </div>
         <div class="flex gap-x-4">
           <a
             class="inline-flex h-10 items-center justify-center rounded-md px-4 text-[13px] font-medium opacity-50 transition-colors hover:bg-zinc-900/10 dark:opacity-80 dark:hover:bg-zinc-100/10"

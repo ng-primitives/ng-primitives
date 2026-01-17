@@ -103,3 +103,7 @@ We welcome contributions from the community. Please refer to our [contributing g
 ## License
 
 Angular Primitives is licensed under the [Apache License 2.0](LICENSE).
+
+## Powered By
+
+This site is powered by [Netlify](https://www.netlify.com).
