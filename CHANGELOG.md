@@ -1,3 +1,13 @@
+## 0.103.0 (2026-01-17)
+
+### 🚀 Features
+
+- **toast:** adding support for sequential toasts ([#615](https://github.com/ng-primitives/ng-primitives/pull/615))
+
+### ❤️ Thank You
+
+- Ashley Hunter
+
 ## 0.102.2 (2026-01-16)
 
 ### 🚀 Features
