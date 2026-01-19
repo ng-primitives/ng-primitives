@@ -39,7 +39,9 @@ export const [
 
     const start = isHorizontal ? rect.left : rect.top;
     const size = isHorizontal ? rect.width : rect.height;
-    const percentage = (position - start) / size;
+    const rawPercentage = (position - start) / size;
+    // Invert percentage for vertical sliders so bottom = min, top = max
+    const percentage = isHorizontal ? rawPercentage : 1 - rawPercentage;
 
     // calculate the value based on the position
     const value = min + (max - min) * percentage;

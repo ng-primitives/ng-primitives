@@ -379,6 +379,100 @@ describe('NgpRangeSlider Vertical Orientation', () => {
     await userEvent.keyboard('{arrowdown}');
     expect(component.low).toBe(30);
   });
+
+  it('should invert thumb positions for vertical orientation (higher value = lower inset)', async () => {
+    await render(VerticalTestComponent);
+
+    const lowThumb = screen.getByTestId('vertical-low-thumb');
+    const highThumb = screen.getByTestId('vertical-high-thumb');
+
+    // Low thumb at 30% value should have 70% inset-block-start (100 - 30 = 70)
+    expect(lowThumb.style.getPropertyValue('inset-block-start')).toBe('70%');
+    // High thumb at 70% value should have 30% inset-block-start (100 - 70 = 30)
+    expect(highThumb.style.getPropertyValue('inset-block-start')).toBe('30%');
+  });
+
+  it('should position range correctly for vertical orientation', async () => {
+    await render(VerticalTestComponent);
+
+    const range = screen.getByTestId('vertical-slider-range');
+
+    // Range should span from 30% to 70% = 40% height
+    expect(range.style.height).toBe('40%');
+    // inset-block-start should be 100 - highPercentage = 100 - 70 = 30%
+    expect(range.style.getPropertyValue('inset-block-start')).toBe('30%');
+  });
+
+  it('should set higher value when clicking near top of vertical track', async () => {
+    const { fixture } = await render(VerticalTestComponent);
+    const component = fixture.componentInstance;
+
+    const track = screen.getByTestId('vertical-slider-track');
+
+    // Mock getBoundingClientRect for vertical track
+    jest.spyOn(track, 'getBoundingClientRect').mockReturnValue({
+      left: 0,
+      top: 0,
+      right: 20,
+      bottom: 100,
+      width: 20,
+      height: 100,
+      x: 0,
+      y: 0,
+      toJSON: () => ({}),
+    });
+
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    // Click near the top (y=10 out of 100 height = 10% from top = 90% value)
+    // This is closer to high thumb (70%), so it should move high thumb
+    const pointerEvent = new MouseEvent('pointerdown', {
+      bubbles: true,
+      cancelable: true,
+      clientX: 10,
+      clientY: 10,
+    });
+    track.dispatchEvent(pointerEvent);
+
+    expect(component.high).toBe(90);
+  });
+
+  it('should set lower value when clicking near bottom of vertical track', async () => {
+    const { fixture } = await render(VerticalTestComponent);
+    const component = fixture.componentInstance;
+
+    const track = screen.getByTestId('vertical-slider-track');
+
+    // Mock getBoundingClientRect for vertical track
+    jest.spyOn(track, 'getBoundingClientRect').mockReturnValue({
+      left: 0,
+      top: 0,
+      right: 20,
+      bottom: 100,
+      width: 20,
+      height: 100,
+      x: 0,
+      y: 0,
+      toJSON: () => ({}),
+    });
+
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    // Click near the bottom (y=90 out of 100 height = 90% from top = 10% value)
+    // This is closer to low thumb (30%), so it should move low thumb
+    const pointerEvent = new MouseEvent('pointerdown', {
+      bubbles: true,
+      cancelable: true,
+      clientX: 10,
+      clientY: 90,
+    });
+    track.dispatchEvent(pointerEvent);
+
+    expect(component.low).toBe(10);
+  });
+
 });
 
 describe('NgpRangeSliderThumb', () => {

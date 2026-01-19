@@ -38,12 +38,12 @@ export const [
     event.preventDefault();
 
     const rect = element.nativeElement.getBoundingClientRect();
-    const position =
-      slider().orientation() === 'horizontal'
-        ? event.clientX - rect.left
-        : event.clientY - rect.top;
-    const size = slider().orientation() === 'horizontal' ? rect.width : rect.height;
-    const percentage = size === 0 ? 0 : position / size;
+    const isHorizontal = slider().orientation() === 'horizontal';
+    const position = isHorizontal ? event.clientX - rect.left : event.clientY - rect.top;
+    const size = isHorizontal ? rect.width : rect.height;
+    const rawPercentage = size === 0 ? 0 : position / size;
+    // Invert percentage for vertical sliders so bottom = min, top = max
+    const percentage = isHorizontal ? rawPercentage : 1 - rawPercentage;
     const value =
       slider().min() + (slider().max() - slider().min()) * Math.max(0, Math.min(1, percentage));
 

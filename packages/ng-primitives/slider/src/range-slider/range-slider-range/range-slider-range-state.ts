@@ -33,12 +33,12 @@ export const [
     rangeSlider().orientation() === 'horizontal' ? rangeSlider().lowPercentage() : null,
   );
 
-  // Vertical
+  // Vertical - inset-block-start uses inverted high percentage (top of range)
   styleBinding(element, 'height.%', () =>
     rangeSlider().orientation() === 'vertical' ? rangeSlider().rangePercentage() : null,
   );
   styleBinding(element, 'inset-block-start.%', () =>
-    rangeSlider().orientation() === 'vertical' ? rangeSlider().lowPercentage() : null,
+    rangeSlider().orientation() === 'vertical' ? 100 - rangeSlider().highPercentage() : null,
   );
 
   return {} satisfies NgpRangeSliderRangeState;

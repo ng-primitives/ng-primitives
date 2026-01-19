@@ -55,6 +55,12 @@ ng g ng-primitives:primitive slider
 
 Here are some additional examples of how to use the Slider primitives.
 
+### Vertical Slider
+
+Display the slider in a vertical orientation by setting `ngpSliderOrientation="vertical"`.
+
+<docs-example name="slider-vertical"></docs-example>
+
 ### Slider with Tooltip
 
 Display the current value in a tooltip that follows the slider thumb. Use `ngpTooltipTriggerTrackPosition` to enable smooth position updates during drag.

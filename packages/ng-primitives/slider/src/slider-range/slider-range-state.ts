@@ -30,6 +30,9 @@ export const [
   styleBinding(element, 'height.%', () =>
     slider().orientation() === 'vertical' ? slider().percentage() : null,
   );
+  styleBinding(element, 'inset-block-end.%', () =>
+    slider().orientation() === 'vertical' ? 0 : null,
+  );
 
   return {} satisfies NgpSliderRangeState;
 });

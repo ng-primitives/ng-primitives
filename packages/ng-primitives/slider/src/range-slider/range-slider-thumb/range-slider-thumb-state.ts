@@ -92,7 +92,7 @@ export const [
       rangeSlider().orientation() === 'horizontal' ? percentage() : null,
     );
     styleBinding(element, 'inset-block-start.%', () =>
-      rangeSlider().orientation() === 'vertical' ? percentage() : null,
+      rangeSlider().orientation() === 'vertical' ? 100 - percentage() : null,
     );
 
     function handlePointerDown(event: PointerEvent): void {
@@ -148,10 +148,12 @@ export const [
 
       // Calculate the pointer position as a percentage of the track
       // p.ex. for horizontal: (pointerX - trackLeft) / trackWidth
-      const percentage =
-        rangeSlider().orientation() === 'horizontal'
-          ? ((event.clientX - rect.left) / rect.width) * 100
-          : ((event.clientY - rect.top) / rect.height) * 100;
+      // For vertical, invert so bottom = 0%, top = 100%
+      const isHorizontal = rangeSlider().orientation() === 'horizontal';
+      const rawPercentage = isHorizontal
+        ? ((event.clientX - rect.left) / rect.width) * 100
+        : ((event.clientY - rect.top) / rect.height) * 100;
+      const percentage = isHorizontal ? rawPercentage : 100 - rawPercentage;
 
       const min = rangeSlider().min();
       const max = rangeSlider().max();

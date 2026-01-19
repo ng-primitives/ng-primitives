@@ -73,7 +73,7 @@ export const [
       slider().orientation() === 'horizontal' ? slider().percentage() : null,
     );
     styleBinding(elementRef, 'inset-block-start.%', () =>
-      slider().orientation() === 'vertical' ? slider().percentage() : null,
+      slider().orientation() === 'vertical' ? 100 - slider().percentage() : null,
     );
 
     ngpInteractions({
@@ -183,12 +183,14 @@ export const [
           return;
       }
 
+      // prevent the default action to prevent the page from scrolling
+      event.preventDefault();
+
       if (newValue === currentValue) {
         return;
       }
 
       slider().setValue(newValue);
-      event.preventDefault();
     });
 
     function focus(): void {

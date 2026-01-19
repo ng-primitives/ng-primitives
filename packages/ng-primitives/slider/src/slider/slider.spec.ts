@@ -91,6 +91,157 @@ describe('NgpSlider', () => {
     expect(thumb.style.getPropertyValue('inset-block-start')).toBeDefined();
   });
 
+  it('should invert thumb position for vertical orientation (higher value = lower inset)', async () => {
+    const { getByTestId } = await render(
+      createTemplate(
+        `[ngpSliderOrientation]="'vertical'" [ngpSliderValue]="75" [ngpSliderMin]="0" [ngpSliderMax]="100"`,
+      ),
+      {
+        imports: [NgpSlider, NgpSliderTrack, NgpSliderRange, NgpSliderThumb],
+        componentProperties: { valueChange: jest.fn() },
+      },
+    );
+
+    await Promise.resolve();
+
+    const thumb = getByTestId('thumb');
+    // 75% value should have 25% inset-block-start (100 - 75 = 25)
+    expect(thumb.style.getPropertyValue('inset-block-start')).toBe('25%');
+  });
+
+  it('should position thumb at top (0% inset) for max value in vertical orientation', async () => {
+    const { getByTestId } = await render(
+      createTemplate(
+        `[ngpSliderOrientation]="'vertical'" [ngpSliderValue]="100" [ngpSliderMin]="0" [ngpSliderMax]="100"`,
+      ),
+      {
+        imports: [NgpSlider, NgpSliderTrack, NgpSliderRange, NgpSliderThumb],
+        componentProperties: { valueChange: jest.fn() },
+      },
+    );
+
+    await Promise.resolve();
+
+    const thumb = getByTestId('thumb');
+    expect(thumb.style.getPropertyValue('inset-block-start')).toBe('0%');
+  });
+
+  it('should position thumb at bottom (100% inset) for min value in vertical orientation', async () => {
+    const { getByTestId } = await render(
+      createTemplate(
+        `[ngpSliderOrientation]="'vertical'" [ngpSliderValue]="0" [ngpSliderMin]="0" [ngpSliderMax]="100"`,
+      ),
+      {
+        imports: [NgpSlider, NgpSliderTrack, NgpSliderRange, NgpSliderThumb],
+        componentProperties: { valueChange: jest.fn() },
+      },
+    );
+
+    await Promise.resolve();
+
+    const thumb = getByTestId('thumb');
+    expect(thumb.style.getPropertyValue('inset-block-start')).toBe('100%');
+  });
+
+  it('should anchor range at bottom with inset-block-end for vertical orientation', async () => {
+    const { getByTestId } = await render(
+      createTemplate(`[ngpSliderOrientation]="'vertical'" [ngpSliderValue]="50"`),
+      {
+        imports: [NgpSlider, NgpSliderTrack, NgpSliderRange, NgpSliderThumb],
+        componentProperties: { valueChange: jest.fn() },
+      },
+    );
+
+    await Promise.resolve();
+
+    const range = getByTestId('range');
+    expect(range.style.getPropertyValue('inset-block-end')).toBe('0%');
+  });
+
+  it('should set higher value when clicking near top of vertical track', async () => {
+    const valueChange = jest.fn();
+    const { getByTestId, fixture } = await render(
+      createTemplate(
+        `[ngpSliderOrientation]="'vertical'" [ngpSliderValue]="50" [ngpSliderMin]="0" [ngpSliderMax]="100"`,
+      ),
+      {
+        imports: [NgpSlider, NgpSliderTrack, NgpSliderRange, NgpSliderThumb],
+        componentProperties: { value: 50, valueChange },
+      },
+    );
+
+    const track = getByTestId('track');
+
+    // Mock getBoundingClientRect for vertical track
+    jest.spyOn(track, 'getBoundingClientRect').mockReturnValue({
+      left: 0,
+      top: 0,
+      right: 20,
+      bottom: 100,
+      width: 20,
+      height: 100,
+      x: 0,
+      y: 0,
+      toJSON: () => ({}),
+    });
+
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    // Click near the top (y=10 out of 100 height = 10% from top = 90% value)
+    const pointerEvent = new MouseEvent('pointerdown', {
+      bubbles: true,
+      cancelable: true,
+      clientX: 10,
+      clientY: 10,
+    });
+    track.dispatchEvent(pointerEvent);
+
+    expect(valueChange).toHaveBeenCalledWith(90);
+  });
+
+  it('should set lower value when clicking near bottom of vertical track', async () => {
+    const valueChange = jest.fn();
+    const { getByTestId, fixture } = await render(
+      createTemplate(
+        `[ngpSliderOrientation]="'vertical'" [ngpSliderValue]="50" [ngpSliderMin]="0" [ngpSliderMax]="100"`,
+      ),
+      {
+        imports: [NgpSlider, NgpSliderTrack, NgpSliderRange, NgpSliderThumb],
+        componentProperties: { value: 50, valueChange },
+      },
+    );
+
+    const track = getByTestId('track');
+
+    // Mock getBoundingClientRect for vertical track
+    jest.spyOn(track, 'getBoundingClientRect').mockReturnValue({
+      left: 0,
+      top: 0,
+      right: 20,
+      bottom: 100,
+      width: 20,
+      height: 100,
+      x: 0,
+      y: 0,
+      toJSON: () => ({}),
+    });
+
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    // Click near the bottom (y=90 out of 100 height = 90% from top = 10% value)
+    const pointerEvent = new MouseEvent('pointerdown', {
+      bubbles: true,
+      cancelable: true,
+      clientX: 10,
+      clientY: 90,
+    });
+    track.dispatchEvent(pointerEvent);
+
+    expect(valueChange).toHaveBeenCalledWith(10);
+  });
+
   it('should respect step value when adjusting with keyboard', async () => {
     const valueChange = jest.fn();
     const { getByTestId } = await render(
