@@ -1,3 +1,13 @@
+## 0.103.1 (2026-01-19)
+
+### 🩹 Fixes
+
+- **slider:** resolve issue with slider vertical orientation ([#617](https://github.com/ng-primitives/ng-primitives/pull/617), [#618](https://github.com/ng-primitives/ng-primitives/issues/618))
+
+### ❤️ Thank You
+
+- Ashley Hunter
+
 ## 0.103.0 (2026-01-17)
 
 ### 🚀 Features
