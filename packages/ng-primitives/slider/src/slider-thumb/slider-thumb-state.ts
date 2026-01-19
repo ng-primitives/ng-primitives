@@ -193,6 +193,9 @@ export const [
       slider().setValue(newValue);
     });
 
+    /**
+     * Moves keyboard focus to the host element without scrolling the page.
+     */
     function focus(): void {
       elementRef.nativeElement.focus({ preventScroll: true });
     }

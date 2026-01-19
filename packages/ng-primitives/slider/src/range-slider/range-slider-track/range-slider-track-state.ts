@@ -25,6 +25,13 @@ export const [
   dataBinding(element, 'data-orientation', () => rangeSlider().orientation());
   dataBinding(element, 'data-disabled', () => rangeSlider().disabled());
 
+  /**
+   * Convert a pointer down on the track into a slider value and move the nearest thumb to that value.
+   *
+   * If the slider is disabled the function returns without action. For vertical orientation the pointer-to-value mapping is inverted so the bottom of the track corresponds to the minimum value. The nearest thumb ("low" or "high") is updated to the computed value.
+   *
+   * @param event - The pointer event originating from the user interaction
+   */
   function handlePointerDown(event: PointerEvent): void {
     if (rangeSlider().disabled()) {
       return;
