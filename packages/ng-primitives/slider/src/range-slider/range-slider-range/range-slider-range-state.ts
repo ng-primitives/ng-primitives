@@ -33,7 +33,7 @@ export const [
     rangeSlider().orientation() === 'horizontal' ? rangeSlider().lowPercentage() : null,
   );
 
-  // Vertical - inset-block-start uses inverted high percentage (top of range)
+  // Vertical - position from top: 100% - highPercentage places the top of the range at the high thumb
   styleBinding(element, 'height.%', () =>
     rangeSlider().orientation() === 'vertical' ? rangeSlider().rangePercentage() : null,
   );

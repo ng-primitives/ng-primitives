@@ -472,7 +472,6 @@ describe('NgpRangeSlider Vertical Orientation', () => {
 
     expect(component.low).toBe(10);
   });
-
 });
 
 describe('NgpRangeSliderThumb', () => {

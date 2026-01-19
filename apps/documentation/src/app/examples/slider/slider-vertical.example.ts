@@ -39,8 +39,7 @@ import { NgpSlider, NgpSliderRange, NgpSliderThumb, NgpSliderTrack } from 'ng-pr
       background-color: white;
       box-shadow: var(--ngp-button-shadow);
       outline: none;
-      left: 50%;
-      transform: translate(-50%, -50%);
+      transform: translateY(-50%);
     }
 
     [ngpSliderThumb][data-focus-visible] {

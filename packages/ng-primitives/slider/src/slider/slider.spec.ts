@@ -143,7 +143,7 @@ describe('NgpSlider', () => {
     expect(thumb.style.getPropertyValue('inset-block-start')).toBe('100%');
   });
 
-  it('should anchor range at bottom with inset-block-end for vertical orientation', async () => {
+  it('should anchor range at bottom with inset-block-end and correct height for vertical orientation', async () => {
     const { getByTestId } = await render(
       createTemplate(`[ngpSliderOrientation]="'vertical'" [ngpSliderValue]="50"`),
       {
@@ -156,6 +156,7 @@ describe('NgpSlider', () => {
 
     const range = getByTestId('range');
     expect(range.style.getPropertyValue('inset-block-end')).toBe('0%');
+    expect(range.style.height).toBe('50%');
   });
 
   it('should set higher value when clicking near top of vertical track', async () => {
