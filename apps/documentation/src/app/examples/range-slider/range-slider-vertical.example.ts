@@ -28,6 +28,17 @@ import {
       background-color: var(--ngp-background-secondary);
     }
 
+    /* Increase the click area of the track without changing its visual size */
+    [ngpRangeSliderTrack]::before {
+      content: '';
+      position: absolute;
+      left: 50%;
+      top: 0;
+      bottom: 0;
+      width: 20px;
+      transform: translateX(-50%);
+    }
+
     [ngpRangeSliderRange] {
       position: absolute;
       width: 100%;

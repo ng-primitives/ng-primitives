@@ -23,6 +23,18 @@ import { NgpSlider, NgpSliderRange, NgpSliderThumb, NgpSliderTrack } from 'ng-pr
       background-color: var(--ngp-background-secondary);
     }
 
+    /* Increase the click area of the track without changing its visual size */
+    [ngpSliderTrack]::before {
+      content: '';
+      position: absolute;
+      left: 50%;
+      top: 0;
+      bottom: 0;
+      width: 20px;
+      height: 100%;
+      transform: translateX(-50%);
+    }
+
     [ngpSliderRange] {
       position: absolute;
       width: 100%;

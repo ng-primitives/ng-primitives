@@ -1,4 +1,4 @@
-import { Component, ViewEncapsulation } from '@angular/core';
+import { Component } from '@angular/core';
 import { NgpSlider, NgpSliderRange, NgpSliderThumb, NgpSliderTrack } from 'ng-primitives/slider';
 import { NgpTooltip, NgpTooltipTrigger } from 'ng-primitives/tooltip';
 
@@ -13,7 +13,7 @@ import { NgpTooltip, NgpTooltipTrigger } from 'ng-primitives/tooltip';
     NgpTooltip,
   ],
   styles: `
-    app-slider-tooltip {
+    :host {
       display: block;
     }
 
@@ -33,6 +33,17 @@ import { NgpTooltip, NgpTooltipTrigger } from 'ng-primitives/tooltip';
       width: 100%;
       border-radius: 999px;
       background-color: var(--ngp-background-secondary);
+    }
+
+    /* Increase the click area of the track without changing its visual size */
+    [ngpSliderTrack]::before {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 0;
+      right: 0;
+      height: 20px;
+      transform: translateY(-50%);
     }
 
     [ngpSliderRange] {
@@ -59,7 +70,7 @@ import { NgpTooltip, NgpTooltipTrigger } from 'ng-primitives/tooltip';
       outline-offset: 0;
     }
 
-    [ngpTooltip] {
+    ::ng-deep .ngp-slider-tooltip {
       position: absolute;
       border-radius: 0.25rem;
       background-color: var(--ngp-background-inverse);
@@ -90,10 +101,9 @@ import { NgpTooltip, NgpTooltipTrigger } from 'ng-primitives/tooltip';
     </div>
 
     <ng-template #tooltip>
-      <div ngpTooltip>{{ value }}</div>
+      <div class="ngp-slider-tooltip" ngpTooltip>{{ value }}</div>
     </ng-template>
   `,
-  encapsulation: ViewEncapsulation.None,
 })
 export default class SliderTooltipExample {
   value = 50;

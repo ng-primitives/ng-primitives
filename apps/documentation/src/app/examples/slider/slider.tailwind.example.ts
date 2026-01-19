@@ -10,7 +10,7 @@ import { NgpSlider, NgpSliderRange, NgpSliderThumb, NgpSliderTrack } from 'ng-pr
       [(ngpSliderValue)]="value"
       ngpSlider
     >
-      <div class="relative h-[5px] w-full rounded-full bg-gray-300 dark:bg-gray-700" ngpSliderTrack>
+      <div class="relative h-[5px] w-full rounded-full bg-gray-300 before:absolute before:top-1/2 before:left-0 before:right-0 before:h-5 before:-translate-y-1/2 before:content-[''] dark:bg-gray-700" ngpSliderTrack>
         <div class="absolute h-full rounded-full bg-gray-900 dark:bg-gray-50" ngpSliderRange></div>
       </div>
       <div
