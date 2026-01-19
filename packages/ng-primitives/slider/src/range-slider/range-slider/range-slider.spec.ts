@@ -6,6 +6,21 @@ import { NgpRangeSliderThumb } from '../range-slider-thumb/range-slider-thumb';
 import { NgpRangeSliderTrack } from '../range-slider-track/range-slider-track';
 import { NgpRangeSlider } from './range-slider';
 
+// Polyfill PointerEvent for jsdom
+class MockPointerEvent extends MouseEvent {
+  readonly pointerId: number;
+
+  constructor(type: string, params: PointerEventInit = {}) {
+    super(type, params);
+    this.pointerId = params.pointerId ?? 0;
+  }
+}
+
+if (typeof globalThis.PointerEvent === 'undefined') {
+  (globalThis as unknown as { PointerEvent: typeof MockPointerEvent }).PointerEvent =
+    MockPointerEvent;
+}
+
 @Component({
   imports: [NgpRangeSlider, NgpRangeSliderThumb, NgpRangeSliderTrack, NgpRangeSliderRange],
   template: `
@@ -657,6 +672,117 @@ describe('NgpRangeSliderThumb Drag Events', () => {
     expect(component.lowDragEndCount).toBe(1);
     expect(component.highDragStartCount).toBe(1);
     expect(component.highDragEndCount).toBe(1);
+  });
+
+  it('should ignore pointerup from a different pointer during drag', async () => {
+    const { fixture } = await render(DragEventsTestComponent);
+    const component = fixture.componentInstance;
+
+    const lowThumb = screen.getByTestId('low-thumb');
+
+    // Start drag with pointer ID 1
+    lowThumb.dispatchEvent(
+      new PointerEvent('pointerdown', { bubbles: true, cancelable: true, pointerId: 1 }),
+    );
+    expect(component.lowDragStartCount).toBe(1);
+
+    // Try to end drag with a different pointer ID - should be ignored
+    document.dispatchEvent(
+      new PointerEvent('pointerup', { bubbles: true, cancelable: true, pointerId: 2 }),
+    );
+    expect(component.lowDragEndCount).toBe(0);
+
+    // End drag with the correct pointer ID
+    document.dispatchEvent(
+      new PointerEvent('pointerup', { bubbles: true, cancelable: true, pointerId: 1 }),
+    );
+    expect(component.lowDragEndCount).toBe(1);
+  });
+
+  it('should ignore pointercancel from a different pointer during drag', async () => {
+    const { fixture } = await render(DragEventsTestComponent);
+    const component = fixture.componentInstance;
+
+    const highThumb = screen.getByTestId('high-thumb');
+
+    // Start drag with pointer ID 1
+    highThumb.dispatchEvent(
+      new PointerEvent('pointerdown', { bubbles: true, cancelable: true, pointerId: 1 }),
+    );
+    expect(component.highDragStartCount).toBe(1);
+
+    // Try to cancel drag with a different pointer ID - should be ignored
+    document.dispatchEvent(
+      new PointerEvent('pointercancel', { bubbles: true, cancelable: true, pointerId: 2 }),
+    );
+    expect(component.highDragEndCount).toBe(0);
+
+    // Cancel drag with the correct pointer ID
+    document.dispatchEvent(
+      new PointerEvent('pointercancel', { bubbles: true, cancelable: true, pointerId: 1 }),
+    );
+    expect(component.highDragEndCount).toBe(1);
+  });
+
+  it('should ignore pointermove from a different pointer during drag', async () => {
+    const { fixture } = await render(TestComponent);
+    const component = fixture.componentInstance;
+
+    const lowThumb = screen.getByTestId('low-thumb');
+    const track = screen.getByTestId('slider-track');
+
+    // Mock track dimensions
+    jest.spyOn(track, 'getBoundingClientRect').mockReturnValue({
+      left: 0,
+      top: 0,
+      right: 100,
+      bottom: 20,
+      width: 100,
+      height: 20,
+      x: 0,
+      y: 0,
+      toJSON: () => {},
+    });
+
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    const initialLow = component.low;
+
+    // Start drag with pointer ID 1
+    lowThumb.dispatchEvent(
+      new PointerEvent('pointerdown', { bubbles: true, cancelable: true, pointerId: 1 }),
+    );
+
+    // Move with the same pointer ID - should update value
+    document.dispatchEvent(
+      new PointerEvent('pointermove', {
+        bubbles: true,
+        cancelable: true,
+        pointerId: 1,
+        clientX: 50,
+        clientY: 10,
+      }),
+    );
+    const updatedLow = component.low;
+    expect(updatedLow).not.toBe(initialLow);
+
+    // Move with a different pointer ID - should be ignored (value unchanged)
+    document.dispatchEvent(
+      new PointerEvent('pointermove', {
+        bubbles: true,
+        cancelable: true,
+        pointerId: 2,
+        clientX: 10,
+        clientY: 10,
+      }),
+    );
+    expect(component.low).toBe(updatedLow);
+
+    // End drag with original pointer
+    document.dispatchEvent(
+      new PointerEvent('pointerup', { bubbles: true, cancelable: true, pointerId: 1 }),
+    );
   });
 });
 

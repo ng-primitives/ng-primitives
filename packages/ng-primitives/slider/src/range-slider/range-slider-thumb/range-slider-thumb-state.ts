@@ -59,6 +59,7 @@ export const [
 
     // Store dragging state
     let dragging = false;
+    let activePointerId: number | null = null;
     let cleanupDocumentListeners: (() => void)[] = [];
 
     // Determine which thumb this is based on registration order
@@ -110,6 +111,7 @@ export const [
       }
 
       dragging = true;
+      activePointerId = event.pointerId;
       onDragStart?.();
 
       // Clean up any existing listeners
@@ -134,8 +136,13 @@ export const [
       cleanupDocumentListeners = [pointerMoveCleanup, pointerUpCleanup, pointerCancelCleanup];
     }
 
-    function handlePointerEnd(): void {
+    function handlePointerEnd(event: PointerEvent): void {
+      if (event.pointerId !== activePointerId) {
+        return;
+      }
+
       dragging = false;
+      activePointerId = null;
       onDragEnd?.();
       cleanupDocumentListeners.forEach(cleanup => cleanup());
       cleanupDocumentListeners = [];
@@ -149,7 +156,7 @@ export const [
      * @param event - The pointer event used to compute the new thumb position and value
      */
     function handlePointerMove(event: PointerEvent): void {
-      if (rangeSlider().disabled() || !dragging) {
+      if (rangeSlider().disabled() || !dragging || event.pointerId !== activePointerId) {
         return;
       }
 

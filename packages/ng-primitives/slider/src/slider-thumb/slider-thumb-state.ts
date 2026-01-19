@@ -55,6 +55,7 @@ export const [
     const document = inject(DOCUMENT);
 
     let dragging = false;
+    let activePointerId: number | null = null;
     let cleanupDocumentListeners: (() => void)[] = [];
 
     const ariaValueNow = computed(() => slider().value());
@@ -92,6 +93,7 @@ export const [
       }
 
       dragging = true;
+      activePointerId = event.pointerId;
       onDragStart?.();
 
       // Clean up any existing listeners
@@ -117,7 +119,7 @@ export const [
     });
 
     function onPointerMove(event: PointerEvent): void {
-      if (slider().disabled() || !dragging) {
+      if (slider().disabled() || !dragging || event.pointerId !== activePointerId) {
         return;
       }
 
@@ -138,8 +140,13 @@ export const [
       slider().setValue(value);
     }
 
-    function onPointerEnd(): void {
+    function onPointerEnd(event: PointerEvent): void {
+      if (event.pointerId !== activePointerId) {
+        return;
+      }
+
       dragging = false;
+      activePointerId = null;
       onDragEnd?.();
       cleanupDocumentListeners.forEach(cleanup => cleanup());
       cleanupDocumentListeners = [];
