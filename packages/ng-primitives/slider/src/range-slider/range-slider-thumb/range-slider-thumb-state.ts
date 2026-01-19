@@ -95,6 +95,13 @@ export const [
       rangeSlider().orientation() === 'vertical' ? 100 - percentage() : null,
     );
 
+    /**
+     * Initiates a thumb drag: prevents default, marks dragging active, calls `onDragStart`, and attaches document-level pointer listeners.
+     *
+     * If the parent slider is disabled, the function no-ops after preventing the default event. Otherwise it replaces any existing document listeners with new move/up/cancel listeners and stores their cleanup functions.
+     *
+     * @param event - The pointerdown event that started the drag
+     */
     function handlePointerDown(event: PointerEvent): void {
       event.preventDefault();
 
@@ -134,6 +141,13 @@ export const [
       cleanupDocumentListeners = [];
     }
 
+    /**
+     * Update the thumb's value from a pointer event while dragging.
+     *
+     * Computes the pointer position relative to the slider track (inverting vertical coordinates so bottom = 0%, top = 100%), clamps it to [0, 100], maps it into the slider's value range, and sets the corresponding low or high value on the parent slider.
+     *
+     * @param event - The pointer event used to compute the new thumb position and value
+     */
     function handlePointerMove(event: PointerEvent): void {
       if (rangeSlider().disabled() || !dragging) {
         return;
