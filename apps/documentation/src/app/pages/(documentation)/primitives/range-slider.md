@@ -6,8 +6,6 @@ name: 'Range Slider'
 
 Select a range of values within a defined range.
 
-<!-- <docs-example name="range-slider-vertical"></docs-example> -->
-
 <docs-example name="range-slider"></docs-example>
 
 ## Import
@@ -36,6 +34,16 @@ Assemble the range slider directives in your template.
   <div ngpRangeSliderThumb></div>
 </div>
 ```
+
+## Examples
+
+Here are some additional examples of how to use the Range Slider primitives.
+
+### Vertical Range Slider
+
+Display the range slider in a vertical orientation by setting `ngpRangeSliderOrientation="vertical"`.
+
+<docs-example name="range-slider-vertical"></docs-example>
 
 ## API Reference
 

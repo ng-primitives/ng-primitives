@@ -59,6 +59,7 @@ export const [
 
     // Store dragging state
     let dragging = false;
+    let activePointerId: number | null = null;
     let cleanupDocumentListeners: (() => void)[] = [];
 
     // Determine which thumb this is based on registration order
@@ -92,9 +93,16 @@ export const [
       rangeSlider().orientation() === 'horizontal' ? percentage() : null,
     );
     styleBinding(element, 'inset-block-start.%', () =>
-      rangeSlider().orientation() === 'vertical' ? percentage() : null,
+      rangeSlider().orientation() === 'vertical' ? 100 - percentage() : null,
     );
 
+    /**
+     * Initiates a thumb drag: prevents default, marks dragging active, calls `onDragStart`, and attaches document-level pointer listeners.
+     *
+     * If the parent slider is disabled, the function no-ops after preventing the default event. Otherwise it replaces any existing document listeners with new move/up/cancel listeners and stores their cleanup functions.
+     *
+     * @param event - The pointerdown event that started the drag
+     */
     function handlePointerDown(event: PointerEvent): void {
       event.preventDefault();
 
@@ -103,6 +111,7 @@ export const [
       }
 
       dragging = true;
+      activePointerId = event.pointerId;
       onDragStart?.();
 
       // Clean up any existing listeners
@@ -127,15 +136,27 @@ export const [
       cleanupDocumentListeners = [pointerMoveCleanup, pointerUpCleanup, pointerCancelCleanup];
     }
 
-    function handlePointerEnd(): void {
+    function handlePointerEnd(event: PointerEvent): void {
+      if (event.pointerId !== activePointerId) {
+        return;
+      }
+
       dragging = false;
+      activePointerId = null;
       onDragEnd?.();
       cleanupDocumentListeners.forEach(cleanup => cleanup());
       cleanupDocumentListeners = [];
     }
 
+    /**
+     * Update the thumb's value from a pointer event while dragging.
+     *
+     * Computes the pointer position relative to the slider track (inverting vertical coordinates so bottom = 0%, top = 100%), clamps it to [0, 100], maps it into the slider's value range, and sets the corresponding low or high value on the parent slider.
+     *
+     * @param event - The pointer event used to compute the new thumb position and value
+     */
     function handlePointerMove(event: PointerEvent): void {
-      if (rangeSlider().disabled() || !dragging) {
+      if (rangeSlider().disabled() || !dragging || event.pointerId !== activePointerId) {
         return;
       }
 
@@ -148,10 +169,12 @@ export const [
 
       // Calculate the pointer position as a percentage of the track
       // p.ex. for horizontal: (pointerX - trackLeft) / trackWidth
-      const percentage =
-        rangeSlider().orientation() === 'horizontal'
-          ? ((event.clientX - rect.left) / rect.width) * 100
-          : ((event.clientY - rect.top) / rect.height) * 100;
+      // For vertical, invert so bottom = 0%, top = 100%
+      const isHorizontal = rangeSlider().orientation() === 'horizontal';
+      const rawPercentage = isHorizontal
+        ? ((event.clientX - rect.left) / rect.width) * 100
+        : ((event.clientY - rect.top) / rect.height) * 100;
+      const percentage = isHorizontal ? rawPercentage : 100 - rawPercentage;
 
       const min = rangeSlider().min();
       const max = rangeSlider().max();

@@ -1,9 +1,14 @@
 import { Component, signal } from '@angular/core';
-import { NgpRangeSlider, NgpRangeSliderThumb, NgpRangeSliderTrack } from 'ng-primitives/slider';
+import {
+  NgpRangeSlider,
+  NgpRangeSliderRange,
+  NgpRangeSliderThumb,
+  NgpRangeSliderTrack,
+} from 'ng-primitives/slider';
 
 @Component({
   selector: 'app-range-slider-vertical',
-  imports: [NgpRangeSlider, NgpRangeSlider, NgpRangeSliderThumb, NgpRangeSliderTrack],
+  imports: [NgpRangeSlider, NgpRangeSliderRange, NgpRangeSliderThumb, NgpRangeSliderTrack],
   styles: `
     [ngpRangeSlider] {
       display: flex;
@@ -15,7 +20,7 @@ import { NgpRangeSlider, NgpRangeSliderThumb, NgpRangeSliderTrack } from 'ng-pri
       justify-content: center;
     }
 
-    [ngpSliderTrack] {
+    [ngpRangeSliderTrack] {
       position: relative;
       width: 5px;
       height: 100%;
@@ -23,7 +28,7 @@ import { NgpRangeSlider, NgpRangeSliderThumb, NgpRangeSliderTrack } from 'ng-pri
       background-color: var(--ngp-background-secondary);
     }
 
-    [ngpRangeSlider] {
+    [ngpRangeSliderRange] {
       position: absolute;
       width: 100%;
       border-radius: 999px;
@@ -62,7 +67,7 @@ import { NgpRangeSlider, NgpRangeSliderThumb, NgpRangeSliderTrack } from 'ng-pri
       ngpRangeSliderOrientation="vertical"
     >
       <div ngpRangeSliderTrack>
-        <div ngpRangeSlider></div>
+        <div ngpRangeSliderRange></div>
       </div>
       <div ngpRangeSliderThumb></div>
       <div ngpRangeSliderThumb></div>

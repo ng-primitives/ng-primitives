@@ -55,6 +55,7 @@ export const [
     const document = inject(DOCUMENT);
 
     let dragging = false;
+    let activePointerId: number | null = null;
     let cleanupDocumentListeners: (() => void)[] = [];
 
     const ariaValueNow = computed(() => slider().value());
@@ -73,7 +74,7 @@ export const [
       slider().orientation() === 'horizontal' ? slider().percentage() : null,
     );
     styleBinding(elementRef, 'inset-block-start.%', () =>
-      slider().orientation() === 'vertical' ? slider().percentage() : null,
+      slider().orientation() === 'vertical' ? 100 - slider().percentage() : null,
     );
 
     ngpInteractions({
@@ -92,6 +93,7 @@ export const [
       }
 
       dragging = true;
+      activePointerId = event.pointerId;
       onDragStart?.();
 
       // Clean up any existing listeners
@@ -117,7 +119,7 @@ export const [
     });
 
     function onPointerMove(event: PointerEvent): void {
-      if (slider().disabled() || !dragging) {
+      if (slider().disabled() || !dragging || event.pointerId !== activePointerId) {
         return;
       }
 
@@ -138,8 +140,13 @@ export const [
       slider().setValue(value);
     }
 
-    function onPointerEnd(): void {
+    function onPointerEnd(event: PointerEvent): void {
+      if (event.pointerId !== activePointerId) {
+        return;
+      }
+
       dragging = false;
+      activePointerId = null;
       onDragEnd?.();
       cleanupDocumentListeners.forEach(cleanup => cleanup());
       cleanupDocumentListeners = [];
@@ -183,14 +190,19 @@ export const [
           return;
       }
 
+      // prevent the default action to prevent the page from scrolling
+      event.preventDefault();
+
       if (newValue === currentValue) {
         return;
       }
 
       slider().setValue(newValue);
-      event.preventDefault();
     });
 
+    /**
+     * Moves keyboard focus to the host element without scrolling the page.
+     */
     function focus(): void {
       elementRef.nativeElement.focus({ preventScroll: true });
     }

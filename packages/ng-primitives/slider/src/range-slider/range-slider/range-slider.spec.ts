@@ -6,6 +6,21 @@ import { NgpRangeSliderThumb } from '../range-slider-thumb/range-slider-thumb';
 import { NgpRangeSliderTrack } from '../range-slider-track/range-slider-track';
 import { NgpRangeSlider } from './range-slider';
 
+// Polyfill PointerEvent for jsdom
+class MockPointerEvent extends MouseEvent {
+  readonly pointerId: number;
+
+  constructor(type: string, params: PointerEventInit = {}) {
+    super(type, params);
+    this.pointerId = params.pointerId ?? 0;
+  }
+}
+
+if (typeof globalThis.PointerEvent === 'undefined') {
+  (globalThis as unknown as { PointerEvent: typeof MockPointerEvent }).PointerEvent =
+    MockPointerEvent;
+}
+
 @Component({
   imports: [NgpRangeSlider, NgpRangeSliderThumb, NgpRangeSliderTrack, NgpRangeSliderRange],
   template: `
@@ -379,6 +394,99 @@ describe('NgpRangeSlider Vertical Orientation', () => {
     await userEvent.keyboard('{arrowdown}');
     expect(component.low).toBe(30);
   });
+
+  it('should invert thumb positions for vertical orientation (higher value = lower inset)', async () => {
+    await render(VerticalTestComponent);
+
+    const lowThumb = screen.getByTestId('vertical-low-thumb');
+    const highThumb = screen.getByTestId('vertical-high-thumb');
+
+    // Low thumb at 30% value should have 70% inset-block-start (100 - 30 = 70)
+    expect(lowThumb.style.getPropertyValue('inset-block-start')).toBe('70%');
+    // High thumb at 70% value should have 30% inset-block-start (100 - 70 = 30)
+    expect(highThumb.style.getPropertyValue('inset-block-start')).toBe('30%');
+  });
+
+  it('should position range correctly for vertical orientation', async () => {
+    await render(VerticalTestComponent);
+
+    const range = screen.getByTestId('vertical-slider-range');
+
+    // Range should span from 30% to 70% = 40% height
+    expect(range.style.height).toBe('40%');
+    // inset-block-start should be 100 - highPercentage = 100 - 70 = 30%
+    expect(range.style.getPropertyValue('inset-block-start')).toBe('30%');
+  });
+
+  it('should set higher value when clicking near top of vertical track', async () => {
+    const { fixture } = await render(VerticalTestComponent);
+    const component = fixture.componentInstance;
+
+    const track = screen.getByTestId('vertical-slider-track');
+
+    // Mock getBoundingClientRect for vertical track
+    jest.spyOn(track, 'getBoundingClientRect').mockReturnValue({
+      left: 0,
+      top: 0,
+      right: 20,
+      bottom: 100,
+      width: 20,
+      height: 100,
+      x: 0,
+      y: 0,
+      toJSON: () => ({}),
+    });
+
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    // Click near the top (y=10 out of 100 height = 10% from top = 90% value)
+    // This is closer to high thumb (70%), so it should move high thumb
+    const pointerEvent = new MouseEvent('pointerdown', {
+      bubbles: true,
+      cancelable: true,
+      clientX: 10,
+      clientY: 10,
+    });
+    track.dispatchEvent(pointerEvent);
+
+    expect(component.high).toBe(90);
+  });
+
+  it('should set lower value when clicking near bottom of vertical track', async () => {
+    const { fixture } = await render(VerticalTestComponent);
+    const component = fixture.componentInstance;
+
+    const track = screen.getByTestId('vertical-slider-track');
+
+    // Mock getBoundingClientRect for vertical track
+    jest.spyOn(track, 'getBoundingClientRect').mockReturnValue({
+      left: 0,
+      top: 0,
+      right: 20,
+      bottom: 100,
+      width: 20,
+      height: 100,
+      x: 0,
+      y: 0,
+      toJSON: () => ({}),
+    });
+
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    // Click near the bottom (y=90 out of 100 height = 90% from top = 10% value)
+    // This is closer to low thumb (30%), so it should move low thumb
+    const pointerEvent = new MouseEvent('pointerdown', {
+      bubbles: true,
+      cancelable: true,
+      clientX: 10,
+      clientY: 90,
+    });
+    track.dispatchEvent(pointerEvent);
+
+    expect(component.low).toBe(10);
+  });
 });
 
 describe('NgpRangeSliderThumb', () => {
@@ -564,6 +672,117 @@ describe('NgpRangeSliderThumb Drag Events', () => {
     expect(component.lowDragEndCount).toBe(1);
     expect(component.highDragStartCount).toBe(1);
     expect(component.highDragEndCount).toBe(1);
+  });
+
+  it('should ignore pointerup from a different pointer during drag', async () => {
+    const { fixture } = await render(DragEventsTestComponent);
+    const component = fixture.componentInstance;
+
+    const lowThumb = screen.getByTestId('low-thumb');
+
+    // Start drag with pointer ID 1
+    lowThumb.dispatchEvent(
+      new PointerEvent('pointerdown', { bubbles: true, cancelable: true, pointerId: 1 }),
+    );
+    expect(component.lowDragStartCount).toBe(1);
+
+    // Try to end drag with a different pointer ID - should be ignored
+    document.dispatchEvent(
+      new PointerEvent('pointerup', { bubbles: true, cancelable: true, pointerId: 2 }),
+    );
+    expect(component.lowDragEndCount).toBe(0);
+
+    // End drag with the correct pointer ID
+    document.dispatchEvent(
+      new PointerEvent('pointerup', { bubbles: true, cancelable: true, pointerId: 1 }),
+    );
+    expect(component.lowDragEndCount).toBe(1);
+  });
+
+  it('should ignore pointercancel from a different pointer during drag', async () => {
+    const { fixture } = await render(DragEventsTestComponent);
+    const component = fixture.componentInstance;
+
+    const highThumb = screen.getByTestId('high-thumb');
+
+    // Start drag with pointer ID 1
+    highThumb.dispatchEvent(
+      new PointerEvent('pointerdown', { bubbles: true, cancelable: true, pointerId: 1 }),
+    );
+    expect(component.highDragStartCount).toBe(1);
+
+    // Try to cancel drag with a different pointer ID - should be ignored
+    document.dispatchEvent(
+      new PointerEvent('pointercancel', { bubbles: true, cancelable: true, pointerId: 2 }),
+    );
+    expect(component.highDragEndCount).toBe(0);
+
+    // Cancel drag with the correct pointer ID
+    document.dispatchEvent(
+      new PointerEvent('pointercancel', { bubbles: true, cancelable: true, pointerId: 1 }),
+    );
+    expect(component.highDragEndCount).toBe(1);
+  });
+
+  it('should ignore pointermove from a different pointer during drag', async () => {
+    const { fixture } = await render(TestComponent);
+    const component = fixture.componentInstance;
+
+    const lowThumb = screen.getByTestId('low-thumb');
+    const track = screen.getByTestId('slider-track');
+
+    // Mock track dimensions
+    jest.spyOn(track, 'getBoundingClientRect').mockReturnValue({
+      left: 0,
+      top: 0,
+      right: 100,
+      bottom: 20,
+      width: 100,
+      height: 20,
+      x: 0,
+      y: 0,
+      toJSON: () => {},
+    });
+
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    const initialLow = component.low;
+
+    // Start drag with pointer ID 1
+    lowThumb.dispatchEvent(
+      new PointerEvent('pointerdown', { bubbles: true, cancelable: true, pointerId: 1 }),
+    );
+
+    // Move with the same pointer ID - should update value
+    document.dispatchEvent(
+      new PointerEvent('pointermove', {
+        bubbles: true,
+        cancelable: true,
+        pointerId: 1,
+        clientX: 50,
+        clientY: 10,
+      }),
+    );
+    const updatedLow = component.low;
+    expect(updatedLow).not.toBe(initialLow);
+
+    // Move with a different pointer ID - should be ignored (value unchanged)
+    document.dispatchEvent(
+      new PointerEvent('pointermove', {
+        bubbles: true,
+        cancelable: true,
+        pointerId: 2,
+        clientX: 10,
+        clientY: 10,
+      }),
+    );
+    expect(component.low).toBe(updatedLow);
+
+    // End drag with original pointer
+    document.dispatchEvent(
+      new PointerEvent('pointerup', { bubbles: true, cancelable: true, pointerId: 1 }),
+    );
   });
 });
 
