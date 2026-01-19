@@ -26,7 +26,7 @@ import { NgpSlider, NgpSliderRange, NgpSliderThumb, NgpSliderTrack } from 'ng-pr
         ngpSlider
       >
         <div
-          class="relative h-[5px] w-full rounded-full bg-gray-300 before:absolute before:top-1/2 before:left-0 before:right-0 before:h-5 before:-translate-y-1/2 before:content-[''] dark:bg-gray-700"
+          class="relative h-[5px] w-full rounded-full bg-gray-300 before:absolute before:top-1/2 before:right-0 before:left-0 before:h-5 before:-translate-y-1/2 before:content-[''] dark:bg-gray-700"
           ngpSliderTrack
         >
           <div
