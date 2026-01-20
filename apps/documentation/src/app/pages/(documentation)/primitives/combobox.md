@@ -1,5 +1,6 @@
 ---
 name: 'Combobox'
+sourceUrl: 'https://github.com/ng-primitives/ng-primitives/tree/main/packages/ng-primitives/combobox'
 ---
 
 # Combobox

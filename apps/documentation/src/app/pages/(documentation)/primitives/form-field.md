@@ -1,5 +1,6 @@
 ---
 name: 'Form Field'
+sourceUrl: 'https://github.com/ng-primitives/ng-primitives/tree/main/packages/ng-primitives/form-field'
 ---
 
 # Form Field

@@ -1,5 +1,6 @@
 ---
 name: 'Visually Hidden'
+sourceUrl: 'https://github.com/ng-primitives/ng-primitives/tree/main/packages/ng-primitives/utilities/visually-hidden'
 ---
 
 # Visually Hidden

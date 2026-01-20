@@ -1,5 +1,6 @@
 ---
 name: 'Focus Visible'
+sourceUrl: 'https://github.com/ng-primitives/ng-primitives/tree/main/packages/ng-primitives/interactions/focus-visible'
 ---
 
 # Focus Visible

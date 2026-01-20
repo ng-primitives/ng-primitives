@@ -1,5 +1,6 @@
 ---
 name: 'Press'
+sourceUrl: 'https://github.com/ng-primitives/ng-primitives/tree/main/packages/ng-primitives/interactions/press'
 ---
 
 # Press

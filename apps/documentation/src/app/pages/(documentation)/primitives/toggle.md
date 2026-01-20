@@ -1,5 +1,6 @@
 ---
 name: 'Toggle'
+sourceUrl: 'https://github.com/ng-primitives/ng-primitives/tree/main/packages/ng-primitives/toggle'
 ---
 
 # Toggle

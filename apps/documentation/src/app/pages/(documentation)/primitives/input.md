@@ -1,5 +1,6 @@
 ---
 name: 'Input'
+sourceUrl: 'https://github.com/ng-primitives/ng-primitives/tree/main/packages/ng-primitives/input'
 ---
 
 # Input

@@ -1,5 +1,6 @@
 ---
 name: 'Table'
+sourceUrl: 'https://github.com/ng-primitives/ng-primitives/tree/main/packages/ng-primitives/table'
 ---
 
 # Table

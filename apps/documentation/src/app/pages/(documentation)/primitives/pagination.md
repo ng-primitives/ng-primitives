@@ -1,5 +1,6 @@
 ---
 name: 'Pagination'
+sourceUrl: 'https://github.com/ng-primitives/ng-primitives/tree/main/packages/ng-primitives/pagination'
 ---
 
 # Pagination

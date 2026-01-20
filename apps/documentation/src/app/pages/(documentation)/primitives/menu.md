@@ -1,5 +1,6 @@
 ---
 name: 'Menu'
+sourceUrl: 'https://github.com/ng-primitives/ng-primitives/tree/main/packages/ng-primitives/menu'
 ---
 
 # Menu

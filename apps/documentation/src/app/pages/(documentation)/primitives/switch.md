@@ -1,5 +1,6 @@
 ---
 name: 'Switch'
+sourceUrl: 'https://github.com/ng-primitives/ng-primitives/tree/main/packages/ng-primitives/switch'
 ---
 
 # Switch

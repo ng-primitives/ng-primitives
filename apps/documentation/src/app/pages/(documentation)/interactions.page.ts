@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { QuickLinks } from '../../components/quick-links/quick-links';
+import { SourceLink } from '../../components/source-link/source-link';
 import { HeadingAnchorDirective } from '../../directives/heading-anchor.directive';
 
 @Component({
@@ -18,7 +19,7 @@ import { HeadingAnchorDirective } from '../../directives/heading-anchor.directiv
           >
             Interactions
           </p>
-
+          <docs-source-link />
           <div class="max-w-3xl">
             <router-outlet />
           </div>
@@ -27,7 +28,7 @@ import { HeadingAnchorDirective } from '../../directives/heading-anchor.directiv
       <docs-quick-links />
     </div>
   `,
-  imports: [RouterOutlet, QuickLinks, HeadingAnchorDirective],
+  imports: [RouterOutlet, QuickLinks, SourceLink, HeadingAnchorDirective],
   host: {
     class: 'flex-1 max-w-full',
   },
