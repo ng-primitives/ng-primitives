@@ -1,3 +1,13 @@
+## 0.104.0 (2026-01-20)
+
+### 🚀 Features
+
+- **tooltip:** adding support for programmatic positioning ([#619](https://github.com/ng-primitives/ng-primitives/pull/619))
+
+### ❤️ Thank You
+
+- Ashley Hunter
+
 ## 0.103.1 (2026-01-19)
 
 ### 🩹 Fixes
