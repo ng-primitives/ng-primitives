@@ -84,10 +84,23 @@ export class SourceLink implements AfterViewInit {
       return;
     }
 
+    // Wrap existing H1 content (including heading anchor) in a container
+    const contentWrapper = this.renderer.createElement('span');
+    this.renderer.setStyle(contentWrapper, 'display', 'inline-flex');
+    this.renderer.setStyle(contentWrapper, 'alignItems', 'center');
+
+    // Move all existing children into the content wrapper
+    while (h1.firstChild) {
+      this.renderer.appendChild(contentWrapper, h1.firstChild);
+    }
+
     // Make H1 a flex container with space-between
     this.renderer.setStyle(h1, 'display', 'flex');
     this.renderer.setStyle(h1, 'justifyContent', 'space-between');
     this.renderer.setStyle(h1, 'alignItems', 'center');
+
+    // Append the content wrapper back to h1
+    this.renderer.appendChild(h1, contentWrapper);
 
     // Create wrapper span to hold the button
     const wrapper = this.renderer.createElement('span');
