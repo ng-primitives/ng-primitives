@@ -53,17 +53,10 @@ Prefer using Nx Console UI in your IDE for running generators.
 
 ## Coding Conventions
 
-### Naming
+See `.claude/rules/` for detailed coding standards:
 
-- Selectors: `ngp` prefix (e.g., `ngpButton`)
-- Class names: `Ngp` prefix, PascalCase, no suffixes (e.g., `NgpButton`, not `NgpButtonDirective`)
-- File names: kebab-case, omit `.directive` for directives (e.g., `button.ts`)
-
-### Angular Patterns
-
-- Use signal inputs and `output()` function for outputs
-- Avoid `model()` - prefer explicit input/output pairs
-- Follow existing patterns in the primitives for consistency
+- `angular-patterns.md` - Signal-based APIs, readonly signals, computed/effects
+- `naming-conventions.md` - Selector prefixes, class names, file names
 
 ## Package Management
 

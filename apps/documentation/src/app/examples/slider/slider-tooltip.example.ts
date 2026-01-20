@@ -1,4 +1,4 @@
-import { Component, ViewEncapsulation } from '@angular/core';
+import { Component, viewChild } from '@angular/core';
 import { NgpSlider, NgpSliderRange, NgpSliderThumb, NgpSliderTrack } from 'ng-primitives/slider';
 import { NgpTooltip, NgpTooltipTrigger } from 'ng-primitives/tooltip';
 
@@ -13,7 +13,7 @@ import { NgpTooltip, NgpTooltipTrigger } from 'ng-primitives/tooltip';
     NgpTooltip,
   ],
   styles: `
-    app-slider-tooltip {
+    :host {
       display: block;
     }
 
@@ -33,6 +33,17 @@ import { NgpTooltip, NgpTooltipTrigger } from 'ng-primitives/tooltip';
       width: 100%;
       border-radius: 999px;
       background-color: var(--ngp-background-secondary);
+    }
+
+    /* Increase the click area of the track without changing its visual size */
+    [ngpSliderTrack]::before {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 0;
+      right: 0;
+      height: 20px;
+      transform: translateY(-50%);
     }
 
     [ngpSliderRange] {
@@ -59,7 +70,7 @@ import { NgpTooltip, NgpTooltipTrigger } from 'ng-primitives/tooltip';
       outline-offset: 0;
     }
 
-    [ngpTooltip] {
+    ::ng-deep .ngp-slider-tooltip {
       position: absolute;
       border-radius: 0.25rem;
       background-color: var(--ngp-background-inverse);
@@ -79,10 +90,14 @@ import { NgpTooltip, NgpTooltipTrigger } from 'ng-primitives/tooltip';
       <div
         #tooltipTrigger="ngpTooltipTrigger"
         [ngpTooltipTrigger]="tooltip"
-        (ngpSliderThumbDragStart)="tooltipTrigger.show()"
-        (ngpSliderThumbDragEnd)="tooltipTrigger.hide()"
+        (pointerenter)="onThumbPointerEnter()"
+        (pointerleave)="onThumbPointerLeave()"
+        (focus)="onThumbFocus()"
+        (blur)="onThumbBlur()"
+        (ngpSliderThumbDragStart)="onThumbDragStart()"
+        (ngpSliderThumbDragEnd)="onThumbDragEnd()"
         ngpTooltipTriggerPlacement="top"
-        ngpTooltipTriggerHideDelay="200"
+        ngpTooltipTriggerHideDelay="0"
         ngpTooltipTriggerTrackPosition="true"
         ngpTooltipTriggerDisabled="true"
         ngpSliderThumb
@@ -90,11 +105,51 @@ import { NgpTooltip, NgpTooltipTrigger } from 'ng-primitives/tooltip';
     </div>
 
     <ng-template #tooltip>
-      <div ngpTooltip>{{ value }}</div>
+      <div class="ngp-slider-tooltip" ngpTooltip>{{ value }}</div>
     </ng-template>
   `,
-  encapsulation: ViewEncapsulation.None,
 })
 export default class SliderTooltipExample {
+  readonly tooltipTrigger = viewChild.required<NgpTooltipTrigger>('tooltipTrigger');
+
   value = 50;
+  private isDragging = false;
+  private isHovered = false;
+  private isFocused = false;
+
+  onThumbPointerEnter(): void {
+    this.isHovered = true;
+    this.tooltipTrigger().show();
+  }
+
+  onThumbPointerLeave(): void {
+    this.isHovered = false;
+    if (!this.isDragging && !this.isFocused) {
+      this.tooltipTrigger().hide();
+    }
+  }
+
+  onThumbFocus(): void {
+    this.isFocused = true;
+    this.tooltipTrigger().show();
+  }
+
+  onThumbBlur(): void {
+    this.isFocused = false;
+    if (!this.isDragging && !this.isHovered) {
+      this.tooltipTrigger().hide();
+    }
+  }
+
+  onThumbDragStart(): void {
+    this.isDragging = true;
+    this.tooltipTrigger().show();
+  }
+
+  onThumbDragEnd(): void {
+    this.isDragging = false;
+    if (!this.isHovered && !this.isFocused) {
+      this.tooltipTrigger().hide();
+    }
+  }
 }

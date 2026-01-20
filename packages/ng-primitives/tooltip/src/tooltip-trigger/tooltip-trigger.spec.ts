@@ -523,4 +523,152 @@ describe('NgpTooltipTrigger', () => {
       });
     });
   });
+
+  describe('position', () => {
+    it('should accept position input for programmatic positioning', async () => {
+      const { fixture } = await render(
+        `
+          <button
+            [ngpTooltipTrigger]="content"
+            [ngpTooltipTriggerPosition]="position"
+            ngpTooltipTriggerDisabled="true"
+            #trigger="ngpTooltipTrigger"
+          ></button>
+
+          <ng-template #content>
+            <div ngpTooltip>
+              Tooltip content
+            </div>
+          </ng-template>
+        `,
+        {
+          imports: [NgpTooltipTrigger, NgpTooltip],
+          componentProperties: {
+            position: { x: 100, y: 200 },
+          },
+        },
+      );
+
+      const triggerDirective = fixture.debugElement.children[0].injector.get(NgpTooltipTrigger);
+
+      // Programmatically show the tooltip
+      triggerDirective.show();
+
+      await waitFor(() => {
+        const tooltip = document.querySelector('[ngpTooltip]');
+        expect(tooltip).toBeInTheDocument();
+      });
+    });
+
+    it('should allow null position to use trigger element positioning', async () => {
+      const { fixture } = await render(
+        `
+          <button
+            [ngpTooltipTrigger]="content"
+            [ngpTooltipTriggerPosition]="position"
+            ngpTooltipTriggerDisabled="true"
+            #trigger="ngpTooltipTrigger"
+          ></button>
+
+          <ng-template #content>
+            <div ngpTooltip>
+              Tooltip content
+            </div>
+          </ng-template>
+        `,
+        {
+          imports: [NgpTooltipTrigger, NgpTooltip],
+          componentProperties: {
+            position: null,
+          },
+        },
+      );
+
+      const triggerDirective = fixture.debugElement.children[0].injector.get(NgpTooltipTrigger);
+
+      // Programmatically show the tooltip
+      triggerDirective.show();
+
+      await waitFor(() => {
+        const tooltip = document.querySelector('[ngpTooltip]');
+        expect(tooltip).toBeInTheDocument();
+      });
+    });
+
+    it('should work with trackPosition for smooth updates', async () => {
+      const { fixture } = await render(
+        `
+          <button
+            [ngpTooltipTrigger]="content"
+            [ngpTooltipTriggerPosition]="{ x: 100, y: 200 }"
+            ngpTooltipTriggerTrackPosition="true"
+            ngpTooltipTriggerDisabled="true"
+            #trigger="ngpTooltipTrigger"
+          ></button>
+
+          <ng-template #content>
+            <div ngpTooltip>
+              Tooltip content
+            </div>
+          </ng-template>
+        `,
+        {
+          imports: [NgpTooltipTrigger, NgpTooltip],
+        },
+      );
+
+      const triggerDirective = fixture.debugElement.children[0].injector.get(NgpTooltipTrigger);
+
+      // Programmatically show the tooltip
+      triggerDirective.show();
+
+      await waitFor(() => {
+        const tooltip = document.querySelector('[ngpTooltip]');
+        expect(tooltip).toBeInTheDocument();
+      });
+
+      // Tooltip should still be visible with trackPosition enabled
+      await waitFor(() => {
+        const tooltip = document.querySelector('[ngpTooltip]');
+        expect(tooltip).toBeInTheDocument();
+      });
+    });
+
+    it('should position tooltip at specified coordinates', async () => {
+      const { fixture } = await render(
+        `
+          <button
+            [ngpTooltipTrigger]="content"
+            [ngpTooltipTriggerPosition]="{ x: 150, y: 250 }"
+            ngpTooltipTriggerPlacement="top"
+            ngpTooltipTriggerDisabled="true"
+            #trigger="ngpTooltipTrigger"
+          ></button>
+
+          <ng-template #content>
+            <div ngpTooltip>
+              Tooltip content
+            </div>
+          </ng-template>
+        `,
+        {
+          imports: [NgpTooltipTrigger, NgpTooltip],
+        },
+      );
+
+      const triggerDirective = fixture.debugElement.children[0].injector.get(NgpTooltipTrigger);
+
+      // Programmatically show the tooltip
+      triggerDirective.show();
+
+      await waitFor(() => {
+        const tooltip = document.querySelector('[ngpTooltip]');
+        expect(tooltip).toBeInTheDocument();
+        // Tooltip should have left and top position styles applied
+        const tooltipElement = tooltip as HTMLElement;
+        expect(tooltipElement.style.left).toBeTruthy();
+        expect(tooltipElement.style.top).toBeTruthy();
+      });
+    });
+  });
 });

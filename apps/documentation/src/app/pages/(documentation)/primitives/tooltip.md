@@ -58,6 +58,12 @@ The tooltip can be rendered inside a custom container. You can open DevTools and
 
 <docs-example name="tooltip-custom-container"></docs-example>
 
+### Cursor-Following Tooltip
+
+You can position a tooltip at specific coordinates using the `ngpTooltipTriggerPosition` input. Combined with `ngpTooltipTriggerTrackPosition`, this enables smooth cursor-following tooltips.
+
+<docs-example name="tooltip-cursor"></docs-example>
+
 ### Custom Offset
 
 You can customize the offset using either a simple number or an object for more precise control:
