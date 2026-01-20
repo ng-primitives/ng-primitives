@@ -48,6 +48,9 @@ export class SourceLink {
     const route = this.currentRoute();
     if (!route) return null;
 
+    // Strip query parameters and fragments from the route
+    const routePath = route.split(/[?#]/)[0];
+
     // Get all router links with their metadata
     const links = getRouterLinks();
 
@@ -58,7 +61,7 @@ export class SourceLink {
         .replace('.md', '')
         .replace('(documentation)/', '');
 
-      if (route === `/${normalizedPath}`) {
+      if (routePath === `/${normalizedPath}`) {
         return data['sourceUrl'] as string | undefined;
       }
     }

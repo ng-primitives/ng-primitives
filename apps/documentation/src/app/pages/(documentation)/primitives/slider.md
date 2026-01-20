@@ -1,6 +1,6 @@
 ---
 name: 'Slider'
-sourceUrl: 'https://github.com/ng-primitives/ng-primitives/tree/main/packages/ng-primitives/slider'
+sourceUrl: 'https://github.com/ng-primitives/ng-primitives/tree/next/packages/ng-primitives/slider'
 ---
 
 # Slider

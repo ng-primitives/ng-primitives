@@ -1,6 +1,6 @@
 ---
 name: 'Range Slider'
-sourceUrl: 'https://github.com/ng-primitives/ng-primitives/tree/main/packages/ng-primitives/range-slider'
+sourceUrl: 'https://github.com/ng-primitives/ng-primitives/tree/next/packages/ng-primitives/range-slider'
 ---
 
 # Range Slider

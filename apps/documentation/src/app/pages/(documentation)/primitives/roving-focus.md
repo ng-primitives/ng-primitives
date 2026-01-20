@@ -1,6 +1,6 @@
 ---
 name: 'Roving Focus'
-sourceUrl: 'https://github.com/ng-primitives/ng-primitives/tree/main/packages/ng-primitives/roving-focus'
+sourceUrl: 'https://github.com/ng-primitives/ng-primitives/tree/next/packages/ng-primitives/roving-focus'
 ---
 
 # Roving Focus

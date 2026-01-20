@@ -1,6 +1,6 @@
 ---
 name: 'Toolbar'
-sourceUrl: 'https://github.com/ng-primitives/ng-primitives/tree/main/packages/ng-primitives/toolbar'
+sourceUrl: 'https://github.com/ng-primitives/ng-primitives/tree/next/packages/ng-primitives/toolbar'
 ---
 
 # Toolbar

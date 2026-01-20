@@ -1,6 +1,6 @@
 ---
 name: 'Toast'
-sourceUrl: 'https://github.com/ng-primitives/ng-primitives/tree/main/packages/ng-primitives/toast'
+sourceUrl: 'https://github.com/ng-primitives/ng-primitives/tree/next/packages/ng-primitives/toast'
 ---
 
 # Toast

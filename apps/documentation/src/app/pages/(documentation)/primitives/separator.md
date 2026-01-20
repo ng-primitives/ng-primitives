@@ -1,6 +1,6 @@
 ---
 name: 'Separator'
-sourceUrl: 'https://github.com/ng-primitives/ng-primitives/tree/main/packages/ng-primitives/separator'
+sourceUrl: 'https://github.com/ng-primitives/ng-primitives/tree/next/packages/ng-primitives/separator'
 ---
 
 # Separator

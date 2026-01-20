@@ -1,6 +1,6 @@
 ---
 name: 'Dialog'
-sourceUrl: 'https://github.com/ng-primitives/ng-primitives/tree/main/packages/ng-primitives/dialog'
+sourceUrl: 'https://github.com/ng-primitives/ng-primitives/tree/next/packages/ng-primitives/dialog'
 ---
 
 # Dialog

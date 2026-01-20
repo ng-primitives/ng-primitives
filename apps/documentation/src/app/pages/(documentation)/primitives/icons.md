@@ -1,6 +1,6 @@
 ---
 name: 'Icons'
-sourceUrl: 'https://github.com/ng-primitives/ng-primitives/tree/main/packages/ng-primitives/icons'
+sourceUrl: 'https://github.com/ng-primitives/ng-primitives/tree/next/packages/ng-primitives/icons'
 ---
 
 # Icons

@@ -1,6 +1,6 @@
 ---
 name: 'Listbox'
-sourceUrl: 'https://github.com/ng-primitives/ng-primitives/tree/main/packages/ng-primitives/listbox'
+sourceUrl: 'https://github.com/ng-primitives/ng-primitives/tree/next/packages/ng-primitives/listbox'
 ---
 
 # Listbox

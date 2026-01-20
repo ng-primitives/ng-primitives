@@ -1,6 +1,6 @@
 ---
 name: 'Toggle Group'
-sourceUrl: 'https://github.com/ng-primitives/ng-primitives/tree/main/packages/ng-primitives/toggle-group'
+sourceUrl: 'https://github.com/ng-primitives/ng-primitives/tree/next/packages/ng-primitives/toggle-group'
 ---
 
 # Toggle Group

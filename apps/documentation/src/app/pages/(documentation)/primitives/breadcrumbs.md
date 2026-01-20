@@ -1,6 +1,6 @@
 ---
 name: 'Breadcrumbs'
-sourceUrl: 'https://github.com/ng-primitives/ng-primitives/tree/main/packages/ng-primitives/breadcrumbs'
+sourceUrl: 'https://github.com/ng-primitives/ng-primitives/tree/next/packages/ng-primitives/breadcrumbs'
 ---
 
 # Breadcrumbs

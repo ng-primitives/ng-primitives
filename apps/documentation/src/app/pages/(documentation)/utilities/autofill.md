@@ -1,6 +1,6 @@
 ---
 name: 'Autofill'
-sourceUrl: 'https://github.com/ng-primitives/ng-primitives/tree/main/packages/ng-primitives/utilities/autofill'
+sourceUrl: 'https://github.com/ng-primitives/ng-primitives/tree/next/packages/ng-primitives/autofill'
 ---
 
 # Autofill

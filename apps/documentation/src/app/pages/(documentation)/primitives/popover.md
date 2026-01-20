@@ -1,6 +1,6 @@
 ---
 name: 'Popover'
-sourceUrl: 'https://github.com/ng-primitives/ng-primitives/tree/main/packages/ng-primitives/popover'
+sourceUrl: 'https://github.com/ng-primitives/ng-primitives/tree/next/packages/ng-primitives/popover'
 ---
 
 # Popover

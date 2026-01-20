@@ -1,6 +1,6 @@
 ---
 name: 'Progress'
-sourceUrl: 'https://github.com/ng-primitives/ng-primitives/tree/main/packages/ng-primitives/progress'
+sourceUrl: 'https://github.com/ng-primitives/ng-primitives/tree/next/packages/ng-primitives/progress'
 ---
 
 # Progress

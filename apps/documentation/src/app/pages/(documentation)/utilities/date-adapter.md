@@ -1,6 +1,6 @@
 ---
 name: 'Date Adapter'
-sourceUrl: 'https://github.com/ng-primitives/ng-primitives/tree/main/packages/ng-primitives/utilities/date-adapter'
+sourceUrl: 'https://github.com/ng-primitives/ng-primitives/tree/next/packages/ng-primitives/date-adapter'
 ---
 
 # Date Adapter

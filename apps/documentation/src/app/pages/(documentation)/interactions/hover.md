@@ -1,6 +1,6 @@
 ---
 name: 'Hover'
-sourceUrl: 'https://github.com/ng-primitives/ng-primitives/tree/main/packages/ng-primitives/interactions/hover'
+sourceUrl: 'https://github.com/ng-primitives/ng-primitives/tree/next/packages/ng-primitives/interactions/hover'
 ---
 
 # Hover

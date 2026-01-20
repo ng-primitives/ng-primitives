@@ -1,6 +1,6 @@
 ---
 name: 'Focus Trap'
-sourceUrl: 'https://github.com/ng-primitives/ng-primitives/tree/main/packages/ng-primitives/utilities/focus-trap'
+sourceUrl: 'https://github.com/ng-primitives/ng-primitives/tree/next/packages/ng-primitives/focus-trap'
 ---
 
 # Focus Trap

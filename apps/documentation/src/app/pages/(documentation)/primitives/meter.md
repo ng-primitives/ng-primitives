@@ -1,6 +1,6 @@
 ---
 name: 'Meter'
-sourceUrl: 'https://github.com/ng-primitives/ng-primitives/tree/main/packages/ng-primitives/meter'
+sourceUrl: 'https://github.com/ng-primitives/ng-primitives/tree/next/packages/ng-primitives/meter'
 ---
 
 # Meter

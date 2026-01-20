@@ -1,6 +1,6 @@
 ---
 name: 'Date Picker'
-sourceUrl: 'https://github.com/ng-primitives/ng-primitives/tree/main/packages/ng-primitives/date-picker'
+sourceUrl: 'https://github.com/ng-primitives/ng-primitives/tree/next/packages/ng-primitives/date-picker'
 ---
 
 # Date Picker
