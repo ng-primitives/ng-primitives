@@ -14,12 +14,14 @@ import { HeadingAnchorDirective } from '../../directives/heading-anchor.directiv
         docsHeadingAnchor
       >
         <div class="mx-auto w-fit max-w-full">
-          <p
-            class="from-primary to-accent mt-0 mb-2 inline-block bg-linear-to-r bg-clip-text text-sm font-medium text-transparent"
-          >
-            Primitives
-          </p>
-          <docs-source-link />
+          <div class="mb-2 flex items-center">
+            <p
+              class="from-primary to-accent m-0 inline-block bg-linear-to-r bg-clip-text text-sm font-medium text-transparent"
+            >
+              Primitives
+            </p>
+            <docs-source-link />
+          </div>
           <div class="max-w-3xl">
             <router-outlet />
           </div>

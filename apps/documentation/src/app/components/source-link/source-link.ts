@@ -17,19 +17,20 @@ import { getRouterLinks } from '../../utils/router';
   template: `
     @if (sourceUrl(); as url) {
       <a
-        class="inline-flex items-center gap-2 rounded-lg border border-zinc-200 bg-white px-4 py-2 text-sm font-medium text-zinc-700 transition-colors hover:bg-zinc-50 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-300 dark:hover:bg-zinc-800"
+        class="inline-flex h-7 w-7 items-center justify-center rounded-md text-zinc-400 transition-all duration-200 hover:bg-zinc-100 hover:text-zinc-700 focus-visible:ring-2 focus-visible:ring-zinc-400 focus-visible:outline-none dark:text-zinc-600 dark:hover:bg-zinc-800/50 dark:hover:text-zinc-300 dark:focus-visible:ring-zinc-600"
         [href]="url"
+        [attr.aria-label]="'View source code on GitHub'"
+        [attr.title]="'View source code'"
         target="_blank"
         rel="noopener noreferrer"
       >
-        <ng-icon class="text-base" name="phosphorGithubLogoDuotone" />
-        View Source
+        <ng-icon class="text-lg" name="phosphorGithubLogoDuotone" />
       </a>
     }
   `,
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
-    class: 'block mb-6',
+    class: 'inline-flex ml-3 align-middle',
   },
 })
 export class SourceLink {
