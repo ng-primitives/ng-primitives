@@ -84,10 +84,14 @@ export class SourceLink implements AfterViewInit {
       return;
     }
 
+    // Make H1 a flex container with space-between
+    this.renderer.setStyle(h1, 'display', 'flex');
+    this.renderer.setStyle(h1, 'justifyContent', 'space-between');
+    this.renderer.setStyle(h1, 'alignItems', 'center');
+
     // Create wrapper span to hold the button
     const wrapper = this.renderer.createElement('span');
     this.renderer.addClass(wrapper, 'source-link');
-    this.renderer.setStyle(wrapper, 'marginLeft', '0.75rem');
     this.renderer.setStyle(wrapper, 'display', 'inline-flex');
     this.renderer.setStyle(wrapper, 'alignItems', 'center');
 
@@ -103,26 +107,22 @@ export class SourceLink implements AfterViewInit {
     this.renderer.setStyle(anchor, 'justifyContent', 'center');
     this.renderer.setStyle(anchor, 'width', '1.75rem');
     this.renderer.setStyle(anchor, 'height', '1.75rem');
-    this.renderer.setStyle(anchor, 'borderRadius', '0.375rem');
     this.renderer.setStyle(anchor, 'color', 'rgb(161 161 170)'); // text-zinc-400
-    this.renderer.setStyle(anchor, 'transition', 'all 200ms');
+    this.renderer.setStyle(anchor, 'transition', 'color 200ms');
 
-    // Add hover styles via inline SVG with CSS
+    // Add code icon SVG
     anchor.innerHTML = `
       <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 256 256" fill="currentColor">
-        <path d="M216,40H40A16,16,0,0,0,24,56V200a16,16,0,0,0,16,16H216a16,16,0,0,0,16-16V56A16,16,0,0,0,216,40ZM92.8,145.6a8,8,0,1,1-9.6,12.8l-32-24a8,8,0,0,1,0-12.8l32-24a8,8,0,0,1,9.6,12.8L69.33,128Zm58.89-71.4-32,112a8,8,0,1,1-15.38-4.4l32-112a8,8,0,0,1,15.38,4.4Zm53.11,60.2-32,24a8,8,0,0,1-9.6-12.8L186.67,128,163.2,110.4a8,8,0,1,1,9.6-12.8l32,24a8,8,0,0,1,0,12.8Z" opacity="0.2"/>
         <path d="M69.12,94.15,28.5,128l40.62,33.85a8,8,0,1,1-10.24,12.29l-48-40a8,8,0,0,1,0-12.29l48-40a8,8,0,0,1,10.24,12.3Zm176,27.7-48-40a8,8,0,1,0-10.24,12.3L227.5,128l-40.62,33.85a8,8,0,1,0,10.24,12.29l48-40a8,8,0,0,0,0-12.29ZM162.73,32.48a8,8,0,0,0-10.25,4.79l-64,176a8,8,0,0,0,4.79,10.26A8.14,8.14,0,0,0,96,224a8,8,0,0,0,7.52-5.27l64-176A8,8,0,0,0,162.73,32.48Z"/>
       </svg>
     `;
 
-    // Add mouseover event for hover effect
+    // Add hover effect - only change color, no background
     this.renderer.listen(anchor, 'mouseenter', () => {
-      this.renderer.setStyle(anchor, 'backgroundColor', 'rgb(244 244 245)'); // bg-zinc-100
       this.renderer.setStyle(anchor, 'color', 'rgb(63 63 70)'); // text-zinc-700
     });
 
     this.renderer.listen(anchor, 'mouseleave', () => {
-      this.renderer.setStyle(anchor, 'backgroundColor', 'transparent');
       this.renderer.setStyle(anchor, 'color', 'rgb(161 161 170)'); // text-zinc-400
     });
 
