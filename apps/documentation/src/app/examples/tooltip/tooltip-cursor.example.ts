@@ -6,27 +6,25 @@ import { NgpTooltip, NgpTooltipTrigger } from 'ng-primitives/tooltip';
   imports: [NgpTooltipTrigger, NgpTooltip],
   template: `
     <div
+      class="hover-region"
       #tooltipTrigger="ngpTooltipTrigger"
       [ngpTooltipTrigger]="cursorTooltip"
       [ngpTooltipTriggerPosition]="cursorPosition()"
+      (pointerenter)="onPointerEnter()"
+      (pointermove)="onPointerMove($event)"
+      (pointerleave)="onPointerLeave()"
       ngpTooltipTriggerTrackPosition="true"
       ngpTooltipTriggerDisabled="true"
       ngpTooltipTriggerPlacement="top"
       ngpTooltipTriggerOffset="12"
       ngpTooltipTriggerShowDelay="0"
       ngpTooltipTriggerHideDelay="0"
-      (pointerenter)="onPointerEnter()"
-      (pointermove)="onPointerMove($event)"
-      (pointerleave)="onPointerLeave()"
-      class="hover-region"
     >
       Hover anywhere in this region
     </div>
 
     <ng-template #cursorTooltip>
-      <div ngpTooltip class="ngp-tooltip-content">
-        Position: {{ mouseX() }}, {{ mouseY() }}
-      </div>
+      <div class="ngp-tooltip-content" ngpTooltip>Position: {{ mouseX() }}, {{ mouseY() }}</div>
     </ng-template>
   `,
   styles: `
