@@ -1,8 +1,8 @@
 import { Component } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { QuickLinks } from '../../components/quick-links/quick-links';
-import { SourceLink } from '../../components/source-link/source-link';
-import { HeadingAnchorDirective } from '../../directives/heading-anchor.directive';
+import { HeadingAnchor } from '../../directives/heading-anchor';
+import { SourceLink } from '../../directives/source-link';
 
 @Component({
   selector: 'docs-utilites',
@@ -12,16 +12,14 @@ import { HeadingAnchorDirective } from '../../directives/heading-anchor.directiv
         class="prose prose-sm prose-zinc dark:prose-invert flex-1 overflow-hidden px-px"
         data-page-content
         docsHeadingAnchor
+        docsSourceLink
       >
         <div class="mx-auto w-fit max-w-full">
-          <div class="mb-2 flex items-center">
-            <p
-              class="from-primary to-accent m-0 inline-block bg-linear-to-r bg-clip-text text-sm font-medium text-transparent"
-            >
-              Utilities
-            </p>
-            <docs-source-link />
-          </div>
+          <p
+            class="from-primary to-accent mb-2 inline-block bg-linear-to-r bg-clip-text text-sm font-medium text-transparent"
+          >
+            Utilities
+          </p>
           <div class="max-w-3xl">
             <router-outlet />
           </div>
@@ -30,7 +28,7 @@ import { HeadingAnchorDirective } from '../../directives/heading-anchor.directiv
       <docs-quick-links />
     </div>
   `,
-  imports: [RouterOutlet, QuickLinks, SourceLink, HeadingAnchorDirective],
+  imports: [RouterOutlet, QuickLinks, HeadingAnchor, SourceLink],
   host: {
     class: 'flex-1 max-w-full',
   },

@@ -16,9 +16,8 @@ import { filter } from 'rxjs/operators';
  */
 @Directive({
   selector: '[docsHeadingAnchor]',
-  standalone: true,
 })
-export class HeadingAnchorDirective implements AfterViewInit {
+export class HeadingAnchor implements AfterViewInit {
   private readonly elementRef = inject(ElementRef);
   private readonly renderer = inject(Renderer2);
   private readonly platformId = inject(PLATFORM_ID);
