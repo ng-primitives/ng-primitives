@@ -23,6 +23,7 @@ import {
   NgpOverlay,
   NgpOverlayConfig,
   NgpOverlayContent,
+  NgpPosition,
   NgpShift,
   NgpShiftInput,
 } from 'ng-primitives/portal';
@@ -188,6 +189,15 @@ export class NgpTooltipTrigger<T = null> implements OnDestroy {
   });
 
   /**
+   * Programmatic position for the tooltip. When provided, the tooltip
+   * will be positioned at these coordinates instead of the trigger element.
+   * Use with trackPosition="true" for smooth cursor following.
+   */
+  readonly position = input<NgpPosition | null>(null, {
+    alias: 'ngpTooltipTriggerPosition',
+  });
+
+  /**
    * The overlay that manages the tooltip
    * @internal
    */
@@ -329,6 +339,7 @@ export class NgpTooltipTrigger<T = null> implements OnDestroy {
       closeOnOutsideClick: true,
       viewContainerRef: this.viewContainerRef,
       trackPosition: this.state.trackPosition(),
+      position: this.state.position,
     };
 
     // Create the overlay instance

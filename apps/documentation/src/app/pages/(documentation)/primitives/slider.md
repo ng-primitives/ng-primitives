@@ -61,11 +61,17 @@ Display the slider in a vertical orientation by setting `ngpSliderOrientation="v
 
 <docs-example name="slider-vertical"></docs-example>
 
-### Slider with Tooltip
+### Slider Thumb Tooltip
 
 Display the current value in a tooltip that follows the slider thumb. Use `ngpTooltipTriggerTrackPosition` to enable smooth position updates during drag.
 
 <docs-example name="slider-tooltip"></docs-example>
+
+### Slider Track Tooltip
+
+Display a preview tooltip as you hover over the track, showing what value would be selected at that position. The tooltip also appears on the thumb during drag. Uses `ngpTooltipTriggerPosition` for programmatic positioning.
+
+<docs-example name="slider-track-tooltip"></docs-example>
 
 ### Slider Form Field
 

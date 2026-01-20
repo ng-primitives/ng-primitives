@@ -18,6 +18,7 @@ import {
   Middleware,
   Placement,
   Strategy,
+  VirtualElement,
   arrow,
   autoUpdate,
   computePosition,
@@ -32,6 +33,7 @@ import { debounceTime } from 'rxjs/operators';
 import { NgpOffset } from './offset';
 import { provideOverlayContext } from './overlay-token';
 import { NgpPortal, createPortal } from './portal';
+import { NgpPosition } from './position';
 import { BlockScrollStrategy, NoopScrollStrategy } from './scroll-strategy';
 import { NgpShift } from './shift';
 
@@ -97,6 +99,13 @@ export interface NgpOverlayConfig<T = unknown> {
 
   /** Whether to track the trigger element position on every animation frame. Useful for moving elements like slider thumbs. */
   trackPosition?: boolean;
+
+  /**
+   * Programmatic position for the overlay. When provided, the overlay will be positioned
+   * at these coordinates instead of anchoring to the trigger element.
+   * Use with trackPosition for smooth cursor following.
+   */
+  position?: Signal<NgpPosition | null>;
 }
 
 /** Type for overlay content which can be either a template or component */
@@ -192,6 +201,11 @@ export class NgpOverlay<T = unknown> {
     // Listen for placement signal changes to update position
     if (config.placement) {
       explicitEffect([config.placement], () => this.updatePosition());
+    }
+
+    // Listen for position signal changes to update position
+    if (config.position) {
+      explicitEffect([config.position], () => this.updatePosition());
     }
 
     // this must be done after the config is set
@@ -474,7 +488,8 @@ export class NgpOverlay<T = unknown> {
         ? 'fixed'
         : this.config.strategy || 'absolute';
 
-    // Use anchor element for positioning if provided, otherwise use trigger element
+    // Get the reference for auto-update - use trigger element for resize/scroll tracking
+    // even when using programmatic position (the virtual element is created dynamically in computePosition)
     const referenceElement = this.config.anchorElement || this.config.triggerElement;
 
     // Setup auto-update for positioning
@@ -522,8 +537,8 @@ export class NgpOverlay<T = unknown> {
     // Compute the position
     const placement = this.config.placement?.() ?? 'top';
 
-    // Use anchor element for positioning if provided, otherwise use trigger element
-    const referenceElement = this.config.anchorElement || this.config.triggerElement;
+    // Use programmatic position if provided, otherwise use anchor/trigger element
+    const referenceElement = this.getPositionReference();
 
     const position = await computePosition(referenceElement, overlayElement, {
       placement,
@@ -547,6 +562,25 @@ export class NgpOverlay<T = unknown> {
 
     // Ensure view is updated
     this.portal()?.detectChanges();
+  }
+
+  /**
+   * Get the reference element for positioning. When a programmatic position is provided,
+   * creates a virtual element at that position. Otherwise returns the anchor or trigger element.
+   */
+  private getPositionReference(): HTMLElement | VirtualElement {
+    const pos = this.config.position?.();
+    if (pos) {
+      // Create virtual element that reads position fresh on each call
+      return {
+        getBoundingClientRect: () => {
+          const currentPos = this.config.position?.() ?? pos;
+          return new DOMRect(currentPos.x, currentPos.y, 0, 0);
+        },
+        contextElement: this.config.triggerElement,
+      };
+    }
+    return this.config.anchorElement || this.config.triggerElement;
   }
 
   /**

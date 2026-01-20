@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, viewChild } from '@angular/core';
 import { NgpSlider, NgpSliderRange, NgpSliderThumb, NgpSliderTrack } from 'ng-primitives/slider';
 import { NgpTooltip, NgpTooltipTrigger } from 'ng-primitives/tooltip';
 
@@ -90,10 +90,14 @@ import { NgpTooltip, NgpTooltipTrigger } from 'ng-primitives/tooltip';
       <div
         #tooltipTrigger="ngpTooltipTrigger"
         [ngpTooltipTrigger]="tooltip"
-        (ngpSliderThumbDragStart)="tooltipTrigger.show()"
-        (ngpSliderThumbDragEnd)="tooltipTrigger.hide()"
+        (pointerenter)="onThumbPointerEnter()"
+        (pointerleave)="onThumbPointerLeave()"
+        (focus)="onThumbFocus()"
+        (blur)="onThumbBlur()"
+        (ngpSliderThumbDragStart)="onThumbDragStart()"
+        (ngpSliderThumbDragEnd)="onThumbDragEnd()"
         ngpTooltipTriggerPlacement="top"
-        ngpTooltipTriggerHideDelay="200"
+        ngpTooltipTriggerHideDelay="0"
         ngpTooltipTriggerTrackPosition="true"
         ngpTooltipTriggerDisabled="true"
         ngpSliderThumb
@@ -106,5 +110,46 @@ import { NgpTooltip, NgpTooltipTrigger } from 'ng-primitives/tooltip';
   `,
 })
 export default class SliderTooltipExample {
+  readonly tooltipTrigger = viewChild.required<NgpTooltipTrigger>('tooltipTrigger');
+
   value = 50;
+  private isDragging = false;
+  private isHovered = false;
+  private isFocused = false;
+
+  onThumbPointerEnter(): void {
+    this.isHovered = true;
+    this.tooltipTrigger().show();
+  }
+
+  onThumbPointerLeave(): void {
+    this.isHovered = false;
+    if (!this.isDragging && !this.isFocused) {
+      this.tooltipTrigger().hide();
+    }
+  }
+
+  onThumbFocus(): void {
+    this.isFocused = true;
+    this.tooltipTrigger().show();
+  }
+
+  onThumbBlur(): void {
+    this.isFocused = false;
+    if (!this.isDragging && !this.isHovered) {
+      this.tooltipTrigger().hide();
+    }
+  }
+
+  onThumbDragStart(): void {
+    this.isDragging = true;
+    this.tooltipTrigger().show();
+  }
+
+  onThumbDragEnd(): void {
+    this.isDragging = false;
+    if (!this.isHovered && !this.isFocused) {
+      this.tooltipTrigger().hide();
+    }
+  }
 }
