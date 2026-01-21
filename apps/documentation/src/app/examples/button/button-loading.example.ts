@@ -1,4 +1,4 @@
-import { Component, DestroyRef, inject, signal } from '@angular/core';
+import { Component, signal } from '@angular/core';
 import { NgpButton } from 'ng-primitives/button';
 import { NgpSoftDisabled } from 'ng-primitives/soft-disabled';
 
@@ -93,12 +93,11 @@ import { NgpSoftDisabled } from 'ng-primitives/soft-disabled';
   `,
 })
 export default class ButtonLoadingExample {
-  private readonly destroyRef = inject(DestroyRef);
   readonly isLoading = signal(false);
 
-  startLoading() {
+  async startLoading() {
     this.isLoading.set(true);
-    const timeout = setTimeout(() => this.isLoading.set(false), 3000);
-    this.destroyRef.onDestroy(() => clearTimeout(timeout));
+    await new Promise(resolve => setTimeout(resolve, 3000)); // Simulate loading
+    this.isLoading.set(false);
   }
 }

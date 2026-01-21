@@ -173,7 +173,7 @@ describe('NgpSoftDisabled', () => {
         expect(button).not.toHaveAttribute('aria-disabled');
       });
 
-      it('should remove aria-disabled when soft disabled is toggled off (initial "true" attribute)', async () => {
+      it('should preserve aria-disabled when soft disabled is toggled off (initial "true" attribute)', async () => {
         const { rerender, fixture } = await render(
           `<button ngpSoftDisabled [softDisabled]="softDisabled" aria-disabled="true">Click me</button>`,
           {
