@@ -81,7 +81,7 @@ export class Button {
     <app-button [loading]="isLoading()" (click)="startLoading()">Submit</app-button>
   `,
 })
-export default class focusableLoadingReusableExample {
+export default class FocusableLoadingReusableExample {
   readonly isLoading = signal(false);
 
   async startLoading() {

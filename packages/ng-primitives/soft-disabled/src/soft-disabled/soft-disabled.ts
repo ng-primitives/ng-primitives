@@ -21,8 +21,8 @@ import { ngpSoftDisabled, provideSoftDisabledState } from './soft-disabled-state
  * - Communicate disabled state to assistive technologies via `aria-disabled`
  * - Support styling via `data-soft-disabled` and `data-soft-disabled-focusable` attributes
  *
- * **Important:** Do not use `NgpSoftDisabled` and native `disabled` simultaneously on the same
- * element, as this can cause attribute conflicts.
+ * **Important:** Do not use soft disabled and native disabled simultaneously on the same
+ * element, as this is not the intended use case and can create undefined behavior.
  */
 @Directive({
   selector: '[ngpSoftDisabled]',

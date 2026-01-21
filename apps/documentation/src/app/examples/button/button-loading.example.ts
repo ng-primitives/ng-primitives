@@ -19,7 +19,7 @@ import { NgpSoftDisabled } from 'ng-primitives/soft-disabled';
       softDisabledFocusable="true"
       ngpButton
       ngpSoftDisabled
-      type="submit"
+      type="button"
     >
       @if (isLoading()) {
         <span class="loader" aria-hidden="true"></span>

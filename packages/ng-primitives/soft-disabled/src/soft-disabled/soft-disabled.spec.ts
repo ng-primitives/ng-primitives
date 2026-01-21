@@ -511,6 +511,7 @@ describe('NgpSoftDisabled', () => {
 
       // The event should NOT be prevented since it originated from the child
       expect(preventSpy).not.toHaveBeenCalled();
+      expect(handleKeyDown).toHaveBeenCalled();
     });
   });
 
