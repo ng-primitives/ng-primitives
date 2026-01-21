@@ -135,8 +135,15 @@ export const [NgpButtonStateToken, ngpButton, injectButtonState, provideButtonSt
         },
         write: _value => {
           const value = _value();
+
           // Only set when defined; undefined means keep current state (native elements)
-          if (value !== undefined) {
+          if (value === undefined) {
+            return;
+          }
+
+          if (value === null) {
+            element.nativeElement.removeAttribute('role');
+          } else {
             element.nativeElement.role = value;
           }
         },

@@ -133,13 +133,11 @@ export const [
     const element = injectElementRef();
     const hasNativeDisable = supportsNativeDisable(element);
 
-    // Wrap inputs in controlled signals to support both input binding and programmatic updates
     const softDisabled = controlled(_softDisabled);
     const focusable = controlled(_focusable);
     const tabIndex = controlled(_tabIndex);
     const ariaDisabled = controlled(_ariaDisabled);
 
-    // Data attributes enable CSS styling without complex selector logic
     isomorphicEffect({
       write: () => {
         setDataAttribute(element, 'data-soft-disabled', softDisabled());
@@ -184,7 +182,11 @@ export const [
         // Only adjust when soft disabled and not natively disabled (native disabled
         // already removes from tab order, so no adjustment needed)
         if (!isNativeDisabled() && softDisabled()) {
-          value = focusable() ? Math.max(0, value) : Math.min(-1, value);
+          if (focusable()) {
+            value = Math.max(0, value);
+          } else {
+            value = Math.min(-1, value);
+          }
         }
 
         return value;

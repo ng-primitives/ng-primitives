@@ -583,6 +583,28 @@ describe('NgpButton', () => {
         expect(screen.getByRole('tab')).toHaveAttribute('role', 'tab');
       });
 
+      it('should properly handle role state transition', async () => {
+        const { rerender, fixture } = await render(`<div ngpButton [role]="role">Item</div>`, {
+          imports: [NgpButton],
+          componentProperties: { role: 'tab' },
+        });
+
+        const el = screen.getByRole('tab');
+        expect(el).toHaveAttribute('role', 'tab');
+
+        await rerender({ componentProperties: { role: 'option' } });
+        fixture.detectChanges();
+        expect(el).toHaveAttribute('role', 'option');
+
+        await rerender({ componentProperties: { role: null } });
+        fixture.detectChanges();
+        expect(el).not.toHaveAttribute('role');
+
+        await rerender({ componentProperties: { role: undefined } });
+        fixture.detectChanges();
+        expect(el).toHaveAttribute('role', 'button');
+      });
+
       it('should preserve role="option" from static attribute', async () => {
         await render(`<div ngpButton role="option">Option</div>`, {
           imports: [NgpButton],
