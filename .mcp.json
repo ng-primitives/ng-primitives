@@ -5,7 +5,7 @@
       "command": "npx",
       "args": ["nx", "mcp"]
     },
-    "a11y-accessibility": {
+    "a11y": {
       "type": "stdio",
       "command": "npx",
       "args": ["-y", "a11y-mcp-server"]

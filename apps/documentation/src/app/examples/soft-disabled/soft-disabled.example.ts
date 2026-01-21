@@ -65,6 +65,11 @@ import { NgpSoftDisabled } from 'ng-primitives/soft-disabled';
       gap: 1rem;
     }
 
+    input:focus-visible {
+      outline: 2px solid var(--ngp-focus-ring);
+      outline-offset: 2px;
+    }
+
     [ngpButton] {
       padding-left: 1rem;
       padding-right: 1rem;

@@ -1,4 +1,4 @@
-import { Component, computed, signal } from '@angular/core';
+import { Component, computed, DestroyRef, inject, signal } from '@angular/core';
 import { NgpButton } from 'ng-primitives/button';
 import { injectSoftDisabledState, NgpSoftDisabled } from 'ng-primitives/soft-disabled';
 
@@ -9,10 +9,10 @@ import { injectSoftDisabledState, NgpSoftDisabled } from 'ng-primitives/soft-dis
     { directive: NgpSoftDisabled, inputs: ['softDisabled:loading'] },
   ],
   host: {
-    '[attr.aria-label]': "loading() ? 'Submitting, please wait' : null",
+    '[attr.aria-label]': "isLoading() ? 'Submitting, please wait' : null",
   },
   template: `
-    @if (loading()) {
+    @if (isLoading()) {
       <span class="loader" aria-hidden="true"></span>
     }
     <ng-content />
@@ -71,21 +71,23 @@ import { injectSoftDisabledState, NgpSoftDisabled } from 'ng-primitives/soft-dis
 })
 export class Button {
   protected readonly state = injectSoftDisabledState();
-  readonly loading = computed(() => this.state().softDisabled());
+  readonly isLoading = computed(() => this.state().softDisabled());
 }
 
 @Component({
   selector: 'app-focusable-loading-reusable-example',
   imports: [Button],
   template: `
-    <app-button [loading]="loading()" (click)="startLoading()">Submit</app-button>
+    <app-button [loading]="isLoading()" (click)="startLoading()">Submit</app-button>
   `,
 })
 export default class focusableLoadingReusableExample {
-  readonly loading = signal(false);
+  private readonly destroyRef = inject(DestroyRef);
+  readonly isLoading = signal(false);
 
   startLoading() {
-    this.loading.set(true);
-    setTimeout(() => this.loading.set(false), 3000);
+    this.isLoading.set(true);
+    const timeout = setTimeout(() => this.isLoading.set(false), 3000);
+    this.destroyRef.onDestroy(() => clearTimeout(timeout));
   }
 }

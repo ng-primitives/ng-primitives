@@ -447,7 +447,9 @@ describe('NgpSoftDisabled', () => {
       expect(preventSpy).not.toHaveBeenCalled();
     });
 
-    it('should block Tab key when soft disabled and not focusable', async () => {
+    it('should always allow Tab key to prevent focus trap (even when not focusable)', async () => {
+      // Tab must always be allowed to prevent keyboard users from getting trapped
+      // in a soft-disabled element they cannot interact with
       await render(
         `<button ngpSoftDisabled softDisabled softDisabledFocusable="false">Click me</button>`,
         { imports: [NgpSoftDisabled] },
@@ -458,7 +460,7 @@ describe('NgpSoftDisabled', () => {
       const preventSpy = jest.spyOn(tabEvent, 'preventDefault');
 
       button.dispatchEvent(tabEvent);
-      expect(preventSpy).toHaveBeenCalled();
+      expect(preventSpy).not.toHaveBeenCalled();
     });
 
     it('should not block keydown events when not soft disabled', async () => {
@@ -485,6 +487,30 @@ describe('NgpSoftDisabled', () => {
 
       button.dispatchEvent(enterEvent);
       expect(stopSpy).toHaveBeenCalled();
+    });
+
+    it('should not block keydown events bubbled from child elements', async () => {
+      // When a keydown event originates from a child element and bubbles up,
+      // it should not be blocked - only direct events on the soft-disabled element should be blocked
+      const handleKeyDown = jest.fn();
+      await render(
+        `<div ngpSoftDisabled softDisabled (keydown)="onKeyDown($event)">
+          <input type="text" data-testid="child-input" />
+        </div>`,
+        {
+          imports: [NgpSoftDisabled],
+          componentProperties: { onKeyDown: handleKeyDown },
+        },
+      );
+
+      const childInput = screen.getByTestId('child-input');
+      const enterEvent = new KeyboardEvent('keydown', { key: 'Enter', bubbles: true });
+      const preventSpy = jest.spyOn(enterEvent, 'preventDefault');
+
+      childInput.dispatchEvent(enterEvent);
+
+      // The event should NOT be prevented since it originated from the child
+      expect(preventSpy).not.toHaveBeenCalled();
     });
   });
 

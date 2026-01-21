@@ -423,19 +423,20 @@ describe('NgpSoftDisabled + NgpButton composability', () => {
       expect(button).not.toHaveFocus();
     });
 
-    it('should prevent tabbing away when focusable is false', async () => {
+    it('should allow tabbing away even when focusable is false (to prevent focus trap)', async () => {
       await render(
-        `<button ngpTestButton ngpSoftDisabled softDisabled="true" softDisabledFocusable="false">Click me</button>`,
+        `<button ngpTestButton ngpSoftDisabled softDisabled="true" softDisabledFocusable="false">Click me</button>
+         <button>Other</button>`,
         { imports: [TestButton] },
       );
 
       const user = userEvent.setup();
-      const button = screen.getByRole('button');
+      const button = screen.getByRole('button', { name: 'Click me' });
       button.focus();
       expect(button).toHaveFocus();
       await user.tab();
-      // Tab is blocked when not focusable, so focus should remain
-      expect(button).toHaveFocus();
+      // Tab is always allowed to prevent focus traps, regardless of focusable state
+      expect(button).not.toHaveFocus();
     });
 
     it('should have no a11y violations with host directives', async () => {

@@ -1,4 +1,4 @@
-import { Component, signal } from '@angular/core';
+import { Component, DestroyRef, inject, signal } from '@angular/core';
 import { NgpButton } from 'ng-primitives/button';
 import { NgpSoftDisabled } from 'ng-primitives/soft-disabled';
 
@@ -13,15 +13,15 @@ import { NgpSoftDisabled } from 'ng-primitives/soft-disabled';
     </p>
 
     <button
-      [aria-label]="loading() ? 'Submitting, please wait' : null"
-      [softDisabled]="loading()"
+      [aria-label]="isLoading() ? 'Submitting, please wait' : null"
+      [softDisabled]="isLoading()"
       (click)="startLoading()"
       softDisabledFocusable="true"
       ngpButton
       ngpSoftDisabled
       type="submit"
     >
-      @if (loading()) {
+      @if (isLoading()) {
         <span class="loader" aria-hidden="true"></span>
         Submitting...
       } @else {
@@ -93,10 +93,12 @@ import { NgpSoftDisabled } from 'ng-primitives/soft-disabled';
   `,
 })
 export default class ButtonLoadingExample {
-  readonly loading = signal(false);
+  private readonly destroyRef = inject(DestroyRef);
+  readonly isLoading = signal(false);
 
   startLoading() {
-    this.loading.set(true);
-    setTimeout(() => this.loading.set(false), 2000);
+    this.isLoading.set(true);
+    const timeout = setTimeout(() => this.isLoading.set(false), 3000);
+    this.destroyRef.onDestroy(() => clearTimeout(timeout));
   }
 }

@@ -50,7 +50,7 @@ export class NgpButton {
    * @default Value from the element's current `role` property, or `undefined` for automatic assignment
    */
   readonly role = input<string | null | undefined>(
-    injectElementRef().nativeElement.role ?? undefined,
+    injectElementRef().nativeElement.getAttribute('role') ?? undefined,
   );
 
   /**

@@ -31,7 +31,7 @@ export interface NgpSoftDisabledState {
 
   /**
    * Whether the element remains focusable when soft disabled. When `true`,
-   * the element stays in the tab order but blocks clicks and most keypresses.
+   * the element stays in the tab order but blocks clicks and most key presses.
    */
   readonly focusable: Signal<boolean>;
 
@@ -165,7 +165,7 @@ export const [
           }
         });
       });
-      observer.observe(element.nativeElement, { attributes: true });
+      observer.observe(element.nativeElement, { attributes: true, attributeFilter: ['disabled'] });
       inject(DestroyRef).onDestroy(() => observer.disconnect());
       isNativeDisabled = computed(() => nativeDisabledSource() || element.nativeElement.disabled);
     } else {
@@ -236,17 +236,22 @@ export const [
     );
 
     // Block keyboard activation (Enter, Space, etc.) while preserving Tab for navigation.
-    // Users must be able to tab away from a focused disabled element.
+    // Users must always be able to tab away from a focused disabled element to avoid focus traps.
     listener(
       element,
       'keydown',
       event => {
         if (softDisabled()) {
-          if (focusable() && event.key === 'Tab') {
+          // Always allow Tab to prevent focus trap, regardless of focusable state
+          if (event.key === 'Tab') {
             return;
           }
-          event.preventDefault();
-          event.stopImmediatePropagation();
+
+          // Only block events originating from this element, not bubbled from children
+          if (event.target === event.currentTarget) {
+            event.preventDefault();
+            event.stopImmediatePropagation();
+          }
         }
       },
       evtOpts,

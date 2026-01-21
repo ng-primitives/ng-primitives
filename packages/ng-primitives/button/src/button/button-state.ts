@@ -83,7 +83,7 @@ export const [NgpButtonStateToken, ngpButton, injectButtonState, provideButtonSt
     'NgpButton',
     ({
       disabled: _disabled = signal(false),
-      role: _role = injectElementRef().nativeElement.role ?? undefined,
+      role: _role = injectElementRef().nativeElement.getAttribute('role') ?? undefined,
     }: NgpButtonProps): NgpButtonState => {
       const element = injectElementRef();
 
@@ -144,7 +144,7 @@ export const [NgpButtonStateToken, ngpButton, injectButtonState, provideButtonSt
           if (value === null) {
             element.nativeElement.removeAttribute('role');
           } else {
-            element.nativeElement.role = value;
+            element.nativeElement.setAttribute('role', value);
           }
         },
       });
