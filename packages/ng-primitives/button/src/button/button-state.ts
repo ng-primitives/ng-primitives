@@ -185,6 +185,7 @@ export const [NgpButtonStateToken, ngpButton, injectButtonState, provideButtonSt
         if (
           event.target === event.currentTarget &&
           !isButtonElement(element) &&
+          !isValidLink(element) &&
           !disabled() &&
           event.key === ' '
         ) {
