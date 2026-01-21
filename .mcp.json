@@ -4,6 +4,11 @@
       "type": "stdio",
       "command": "npx",
       "args": ["nx", "mcp"]
+    },
+    "a11y-accessibility": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["-y", "a11y-mcp-server"]
     }
   }
 }

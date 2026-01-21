@@ -1,6 +1,8 @@
 /**
  * Type validation utilities
  */
+import { coerceElement } from '@angular/cdk/coercion';
+import { ElementRef } from '@angular/core';
 
 /**
  * Checks if a value is a string
@@ -72,4 +74,55 @@ export function isNil(value: unknown): value is null | undefined {
  */
 export function notNil<T>(value: T | null | undefined): value is T {
   return !isNil(value);
+}
+
+/**
+ * Checks if a value is a native button element
+ * @param element - The element to check
+ * @returns true if the element is a native button element, false otherwise
+ */
+export function isButtonElement(element: Element): element is HTMLButtonElement;
+export function isButtonElement(element: ElementRef): element is ElementRef<HTMLButtonElement>;
+export function isButtonElement(element: Element | ElementRef) {
+  return coerceElement(element)?.tagName === 'BUTTON';
+}
+
+/**
+ * Checks if a value is a native anchor element
+ * @param element - The element to check
+ * @returns true if the element is a native anchor element, false otherwise
+ */
+export function isAnchorElement(element: Element): element is HTMLAnchorElement;
+export function isAnchorElement(element: ElementRef): element is ElementRef<HTMLAnchorElement>;
+export function isAnchorElement(element: Element | ElementRef): boolean {
+  return coerceElement(element)?.tagName === 'A';
+}
+
+/**
+ * Checks if a value is a valid link (anchor with href)
+ * @param element - The element to check
+ * @returns true if the element is a valid link, false otherwise
+ */
+export function isValidLink(element: Element): element is HTMLAnchorElement;
+export function isValidLink(element: ElementRef): element is ElementRef<HTMLAnchorElement>;
+export function isValidLink(element: Element | ElementRef): boolean {
+  const el = coerceElement(element);
+  return el?.tagName === 'A' && !!(el as HTMLAnchorElement).href;
+}
+
+/**
+ * Checks if an element supports the native `disabled` attribute.
+ * @param element - The element to check
+ * @returns true if the element supports the disabled attribute, false otherwise
+ * @see https://developer.mozilla.org/en-US/docs/Web/HTML/Attributes/disabled
+ */
+export function supportsNativeDisable(
+  element: Element,
+): element is HTMLElement & { disabled: boolean };
+export function supportsNativeDisable(
+  element: ElementRef,
+): element is ElementRef<HTMLElement & { disabled: boolean }>;
+export function supportsNativeDisable(element: Element | ElementRef): boolean {
+  const el = coerceElement(element);
+  return el instanceof HTMLElement && 'disabled' in el;
 }

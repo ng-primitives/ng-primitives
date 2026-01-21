@@ -36,10 +36,10 @@ export function ngpFormControl({
     return descriptions.length > 0 ? descriptions.join(' ') : null;
   });
 
-  const supportsDisabledAttribute = 'disabled' in elementRef.nativeElement;
+  const supportsNativeDisable = 'disabled' in elementRef.nativeElement;
 
   // Host bindings
-  attrBinding(elementRef, 'disabled', () => (supportsDisabledAttribute && disabled() ? '' : null));
+  attrBinding(elementRef, 'disabled', () => (supportsNativeDisable && disabled() ? '' : null));
 
   explicitEffect([id], ([id], onCleanup) => {
     formField()?.setFormControl(id);

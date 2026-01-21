@@ -54,6 +54,7 @@
       "ng-primitives/select": ["packages/ng-primitives/select/src/index.ts"],
       "ng-primitives/separator": ["packages/ng-primitives/separator/src/index.ts"],
       "ng-primitives/slider": ["packages/ng-primitives/slider/src/index.ts"],
+      "ng-primitives/soft-disabled": ["packages/ng-primitives/soft-disabled/src/index.ts"],
       "ng-primitives/state": ["packages/ng-primitives/state/src/index.ts"],
       "ng-primitives/switch": ["packages/ng-primitives/switch/src/index.ts"],
       "ng-primitives/tabs": ["packages/ng-primitives/tabs/src/index.ts"],
