@@ -140,7 +140,7 @@ describe('NgpDatePickerPreviousMonth', () => {
     fixture.detectChanges();
 
     const button = fixture.nativeElement.querySelector('button');
-    expect(button.getAttribute('aria-disabled')).toBe('true');
+    expect(button.hasAttribute('aria-disabled')).toBe(true);
   });
 
   it('should have correct aria-disabled attribute when not disabled', () => {
@@ -148,7 +148,7 @@ describe('NgpDatePickerPreviousMonth', () => {
     fixture.detectChanges();
 
     const button = fixture.nativeElement.querySelector('button');
-    expect(button.getAttribute('aria-disabled')).toBe('false');
+    expect(button.hasAttribute('aria-disabled')).toBe(false);
   });
 
   it('should have type="button" attribute for button elements', () => {

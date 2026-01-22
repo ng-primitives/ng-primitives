@@ -4,13 +4,13 @@ name: 'Button'
 
 # Button
 
-A button is a clickable element that can be used to trigger an action. This primitive enhances the native button element with improved accessibility and interaction handling for hover, press and focus.
+Adds accessible button behavior to any element with automatic role assignment, keyboard activation, and interaction states. Supports disabled states with optional focusable-when-disabled for loading scenarios.
 
 <docs-example name="button"></docs-example>
 
 ## Import
 
-Import the Button primitives from `ng-primitives/button`.
+Import the Button primitive from `ng-primitives/button`.
 
 ```ts
 import { NgpButton } from 'ng-primitives/button';
@@ -18,15 +18,12 @@ import { NgpButton } from 'ng-primitives/button';
 
 ## Usage
 
-Assemble the button directives in your template.
+Apply the directive to buttons or any element that should behave as a button.
 
 ```html
-<button ngpButton>Button</button>
+<button ngpButton>Native button</button>
+<div ngpButton>Custom button (gets role="button")</div>
 ```
-
-## Reusable Component
-
-Create a button component that uses the `NgpButton` directive.
 
 <docs-snippet name="button"></docs-snippet>
 
@@ -34,21 +31,60 @@ Create a button component that uses the `NgpButton` directive.
 
 ### Button Sizes
 
-You can add size support to your reusable button component. This is implemented at the component level rather than in the primitive to provide more flexibility for different design systems.
+Add size support to your reusable button component. This is implemented at the component level to provide flexibility for different design systems.
 
 <docs-example name="button-sizes"></docs-example>
 
 ### Button Variants
 
-You can add variant support to your reusable button component to indicate different purposes or importance levels.
+Add variant support to indicate different purposes or importance levels.
 
 <docs-example name="button-variants"></docs-example>
 
 ### Button with Icons
 
-You can add icons to your buttons using any Angular icon library or simple SVG elements, but we recommend the [`@ng-icons`](https://github.com/ng-icons/ng-icons) library. This example shows how to create buttons with icons on the leading, trailing, or both sides using content projection slots.
+Add icons using any Angular icon library or SVG elements. We recommend [`@ng-icons`](https://github.com/ng-icons/ng-icons). This example shows icons on leading, trailing, or both sides using content projection.
 
 <docs-example name="button-icon"></docs-example>
+
+### Loading States
+
+Use `focusableWhenDisabled` to maintain focus during async operations. Without it, keyboard users lose their place when the button becomes disabled.
+
+<docs-example name="button-loading"></docs-example>
+
+#### Reusable Component with Loading State
+
+Create a reusable button component that supports both disabled and loading states.
+
+<docs-example name="button-loading-reusable"></docs-example>
+
+## Role Assignment
+
+`NgpButton` automatically assigns `role="button"` to non-native elements for screen reader compatibility:
+
+| Element Type            | Role Assignment                     |
+| ----------------------- | ----------------------------------- |
+| `<button>`              | None (implicit button role)         |
+| `<input type="button">` | None (implicit button role)         |
+| `<a href="...">`        | None (implicit link role)           |
+| `<div>`, `<span>`, etc  | `role="button"` added automatically |
+
+Override with a custom role or set to `null` to remove:
+
+```html
+<div ngpButton [role]="'menuitem'">Menu Item</div>
+<div ngpButton [role]="null">No role attribute</div>
+```
+
+## Keyboard Support
+
+Native buttons respond to Enter and Space automatically. For non-native elements (`div`, `span`, anchors without `href`), `NgpButton` adds:
+
+| Key   | Behavior                                       |
+| ----- | ---------------------------------------------- |
+| Enter | Triggers click immediately                     |
+| Space | Triggers click on key release (matches native) |
 
 ## Schematics
 
@@ -68,7 +104,7 @@ ng g ng-primitives:primitive button
 
 ## API Reference
 
-The following directives are available to import from the `ng-primitives/button` package:
+The following directive is available from the `ng-primitives/button` package:
 
 ### NgpButton
 
@@ -76,9 +112,36 @@ The following directives are available to import from the `ng-primitives/button`
 
 #### Data Attributes
 
-| Attribute            | Description                        |
-| -------------------- | ---------------------------------- |
-| `data-hover`         | Added to the button when hovered.  |
-| `data-focus-visible` | Added to the button when focused.  |
-| `data-press`         | Added to the button when pressed.  |
-| `data-disabled`      | Added to the button when disabled. |
+| Attribute                 | Description                                  |
+| ------------------------- | -------------------------------------------- |
+| `data-hover`              | Present when the button is hovered.          |
+| `data-focus-visible`      | Present when the button has keyboard focus.  |
+| `data-press`              | Present when the button is pressed.          |
+| `data-disabled`           | Present when the button is disabled.         |
+| `data-focusable-disabled` | Present when disabled but remains focusable. |
+
+```css
+[data-hover] {
+  background: var(--button-hover);
+}
+[data-press] {
+  transform: scale(0.98);
+}
+[data-focus-visible] {
+  outline: 2px solid var(--focus-ring);
+}
+[data-disabled] {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+```
+
+## Accessibility
+
+`NgpButton` ensures WCAG compliance:
+
+| Guideline               | Requirement                     | How NgpButton Helps                            |
+| ----------------------- | ------------------------------- | ---------------------------------------------- |
+| 2.1.1 Keyboard          | Keyboard operability            | Enter/Space activation for non-native elements |
+| 4.1.2 Name, Role, Value | Proper roles for assistive tech | Auto-assigns `role="button"` when needed       |
+| 2.4.7 Focus Visible     | Visible focus indicator         | Provides `data-focus-visible` for styling      |

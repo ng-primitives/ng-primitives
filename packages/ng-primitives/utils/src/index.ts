@@ -5,14 +5,18 @@ export { booleanAttributeBinding } from './helpers/attributes';
 export { injectDisposables } from './helpers/disposables';
 export { uniqueId } from './helpers/unique-id';
 export {
+  isAnchorElement,
   isBoolean,
+  isButtonElement,
   isFunction,
+  isNil,
   isNumber,
   isObject,
   isString,
   isUndefined,
-  isNil,
+  isValidLink,
   notNil,
+  supportsNativeDisable,
 } from './helpers/validators';
 export { safeTakeUntilDestroyed } from './observables/take-until-destroyed';
 export { onBooleanChange, onChange } from './signals';

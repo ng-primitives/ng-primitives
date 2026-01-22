@@ -54,6 +54,7 @@ We would like to thank the following projects for their contributions to the ope
 - [Radix UI](https://radix-ui.com/)
 - [Headless UI](https://headlessui.com/)
 - [React Aria](https://react-spectrum.adobe.com/react-aria/)
+- [Base UI](https://base-ui.com/)
 
 ## Support
 

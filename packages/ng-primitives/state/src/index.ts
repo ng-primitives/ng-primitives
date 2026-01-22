@@ -3,10 +3,13 @@ import { coerceElement } from '@angular/cdk/coercion';
 import { isPlatformBrowser } from '@angular/common';
 import {
   afterRenderEffect,
+  AfterRenderOptions,
   ChangeDetectorRef,
   computed,
   DestroyRef,
   effect,
+  EffectCleanupRegisterFn,
+  EffectRef,
   ElementRef,
   FactoryProvider,
   forwardRef,
@@ -368,8 +371,8 @@ export function createPrimitive<TFactory extends (...args: any[]) => unknown>(
   return [token, factory as TFactory, injectFn as PrimitiveInjectionFn<TFactory>, provideFn];
 }
 
-export function controlled<T>(value: Signal<T>): WritableSignal<T> {
-  return linkedSignal(() => value());
+export function controlled<T>(value: T | (() => T)): WritableSignal<T> {
+  return linkedSignal(() => (typeof value === 'function' ? (value as () => T)() : value));
 }
 
 function setAttribute(
@@ -401,9 +404,10 @@ export function attrBinding(
     | null
     | undefined,
 ): void {
+  // Use computed to avoid unnecessary DOM changes when the value is the same
+  const val = computed(() => (typeof value === 'function' ? value() : value)?.toString() ?? null);
   isomorphicEffect(() => {
-    const valueResult = typeof value === 'function' ? value() : value;
-    setAttribute(element, attr, valueResult?.toString() ?? null);
+    setAttribute(element, attr, val());
   });
 }
 
@@ -443,18 +447,43 @@ export function styleBinding(
   style: string,
   value: (() => string | number | null) | string | number | null,
 ): void {
-  isomorphicEffect(() => {
-    const styleValue = typeof value === 'function' ? value() : value;
-    // we should look for units in the style name, just like Angular does e.g. width.px
-    const styleUnit = getStyleUnit(style);
-    const styleName = styleUnit ? style.replace(`.${styleUnit}`, '') : style;
+  // we should look for units in the style name, just like Angular does e.g. width.px
+  const styleUnit = getStyleUnit(style);
+  const styleName = styleUnit ? style.replace(`.${styleUnit}`, '') : style;
 
+  // Use computed to avoid unnecessary DOM changes when the value is the same
+  const val = computed(() => (typeof value === 'function' ? value() : value));
+
+  isomorphicEffect(() => {
+    const styleValue = val();
     if (styleValue !== null) {
       element.nativeElement.style.setProperty(styleName, styleValue + styleUnit);
     } else {
       element.nativeElement.style.removeProperty(styleName);
     }
   });
+}
+
+/**
+ * Set a data attribute on the element.
+ * @param element The element to set the data attribute on.
+ * @param attr The name of the data attribute. Must start with `data-`.
+ * @param value The value of the data attribute.
+ */
+export function setDataAttribute<K extends `data-${string}`>(
+  element: ElementRef<HTMLElement>,
+  attr: K,
+  value: string | boolean | null,
+): void {
+  if (value === false) {
+    value = null;
+  } else if (value === true) {
+    value = '';
+  } else if (value !== null && typeof value !== 'string') {
+    value = String(value);
+  }
+
+  setAttribute(element, attr, value);
 }
 
 export function dataBinding(
@@ -466,18 +495,11 @@ export function dataBinding(
     throw new Error(`dataBinding: attribute "${attr}" must start with "data-"`);
   }
 
+  // Use computed to avoid unnecessary DOM changes when the value is the same
+  const val = computed(() => (typeof value === 'function' ? value() : value));
+
   isomorphicEffect(() => {
-    let valueResult = typeof value === 'function' ? value() : value;
-
-    if (valueResult === false) {
-      valueResult = null;
-    } else if (valueResult === true) {
-      valueResult = '';
-    } else if (valueResult !== null && typeof valueResult !== 'string') {
-      valueResult = String(valueResult);
-    }
-
-    setAttribute(element, attr, valueResult);
+    setDataAttribute(element, attr as `data-${string}`, val());
   });
 }
 
@@ -598,14 +620,68 @@ export function emitter<T>({
   });
 }
 
-function isomorphicEffect(callback: () => void): void {
-  const injector = inject(Injector);
-  const platformId = injector.get(PLATFORM_ID);
+/**
+ * Cross-environment `afterRenderEffect` that works in browser and SSR.
+ *
+ * - **Browser**: Uses native `afterRenderEffect`
+ * - **SSR**: Uses synchronous `effect()` (no render cycle available)
+ *
+ * Supports all afterRenderEffect phases (earlyRead, write, mixedReadWrite, read).
+ */
+export function isomorphicEffect(
+  callback: (onCleanup: EffectCleanupRegisterFn) => void,
+  options?: AfterRenderOptions,
+): EffectRef;
 
-  if (isPlatformBrowser(platformId)) {
-    afterRenderEffect(() => callback());
-  } else {
-    // On the server, we just run the effect immediately
-    effect(() => callback());
+export function isomorphicEffect<E = never, W = never, M = never>(
+  spec: Parameters<typeof afterRenderEffect<E, W, M>>[0],
+  options?: AfterRenderOptions,
+): EffectRef;
+
+export function isomorphicEffect<E, W, M>(
+  param:
+    | Parameters<typeof afterRenderEffect<E, W, M>>[0]
+    | ((onCleanup: EffectCleanupRegisterFn) => void),
+  options?: AfterRenderOptions,
+): EffectRef {
+  // On browser, use native rendering effect
+  if (isPlatformBrowser(inject(PLATFORM_ID))) {
+    return afterRenderEffect<E, W, M>(
+      param as Parameters<typeof afterRenderEffect<E, W, M>>[0],
+      options,
+    );
   }
+
+  return effect(onCleanup => {
+    if (typeof param === 'function') {
+      (param as (onCleanup: EffectCleanupRegisterFn) => void)(onCleanup);
+      return;
+    }
+
+    // Simulate phase chain: earlyRead → write → mixedReadWrite → read
+    const spec = param as {
+      earlyRead?: (onCleanup: EffectCleanupRegisterFn) => E;
+      write?: (prev: Signal<E>, onCleanup: EffectCleanupRegisterFn) => W;
+      mixedReadWrite?: (prev: Signal<W | E>, onCleanup: EffectCleanupRegisterFn) => M;
+      read?: (prev: Signal<M | W | E>, onCleanup: EffectCleanupRegisterFn) => void;
+    };
+
+    let lastResult: E | W | M | undefined;
+
+    if (spec.earlyRead) {
+      lastResult = spec.earlyRead(onCleanup);
+    }
+
+    if (spec.write) {
+      lastResult = spec.write((() => lastResult) as Signal<E>, onCleanup);
+    }
+
+    if (spec.mixedReadWrite) {
+      lastResult = spec.mixedReadWrite((() => lastResult) as Signal<W | E>, onCleanup);
+    }
+
+    if (spec.read) {
+      spec.read((() => lastResult) as Signal<M | W | E>, onCleanup);
+    }
+  }, options);
 }
