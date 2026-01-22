@@ -1,7 +1,7 @@
 import { VERSION } from '@angular/cdk';
 import { ComponentPortal, DomPortalOutlet, TemplatePortal } from '@angular/cdk/portal';
 import {
-  type ApplicationRef,
+  ApplicationRef,
   ComponentRef,
   EmbeddedViewRef,
   Injector,
@@ -13,7 +13,7 @@ import { NgpExitAnimationRef, setupExitAnimation } from 'ng-primitives/internal'
 
 export abstract class NgpPortal {
   constructor(
-    protected readonly viewContainerRef: ViewContainerRef,
+    protected readonly viewContainerRef: ViewContainerRef | null,
     protected readonly injector: Injector,
   ) {}
 
@@ -66,7 +66,7 @@ export class NgpComponentPortal<T> extends NgpPortal {
   private isDestroying = false;
   private exitAnimationRef: NgpExitAnimationRef | null = null;
 
-  constructor(component: Type<T>, viewContainerRef: ViewContainerRef, injector: Injector) {
+  constructor(component: Type<T>, viewContainerRef: ViewContainerRef | null, injector: Injector) {
     super(viewContainerRef, injector);
     this.componentPortal = new ComponentPortal(component, viewContainerRef, injector);
   }
@@ -76,11 +76,13 @@ export class NgpComponentPortal<T> extends NgpPortal {
    * @param container The DOM element to attach the portal to.
    */
   attach(container: HTMLElement): this {
-    const domOutlet = new DomPortalOutlet(
-      container,
-      undefined,
-      ...this._getDomPortalOutletCtorParamsCompat(),
-    );
+    const appRef = this.injector.get(ApplicationRef);
+    const domOutlet =
+      Number(VERSION.major) >= 20
+        ? new DomPortalOutlet(container, appRef, this.injector)
+        : // @ts-expect-error: Compatibility for Angular versions < 20
+          new DomPortalOutlet(container, undefined, appRef, this.injector);
+
     this.viewRef = domOutlet.attach(this.componentPortal);
 
     const element = this.viewRef.location.nativeElement as HTMLElement;
@@ -212,11 +214,15 @@ export class NgpTemplatePortal<T> extends NgpPortal {
 
 export function createPortal<T>(
   componentOrTemplate: Type<T> | TemplateRef<T>,
-  viewContainerRef: ViewContainerRef,
+  viewContainerRef: ViewContainerRef | null,
   injector: Injector,
   context?: T,
 ): NgpPortal {
   if (componentOrTemplate instanceof TemplateRef) {
+    if (!viewContainerRef) {
+      throw new Error('A ViewContainerRef is required to create a TemplatePortal.');
+    }
+
     return new NgpTemplatePortal(componentOrTemplate, viewContainerRef, injector, context);
   } else {
     return new NgpComponentPortal(componentOrTemplate, viewContainerRef, injector);
