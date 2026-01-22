@@ -76,11 +76,12 @@ export class NgpComponentPortal<T> extends NgpPortal {
    * @param container The DOM element to attach the portal to.
    */
   attach(container: HTMLElement): this {
-    const domOutlet = new DomPortalOutlet(
-      container,
-      this.injector.get(ApplicationRef),
-      ...this._getDomPortalOutletCtorParamsCompat(),
-    );
+    const appRef = this.injector.get(ApplicationRef);
+    const domOutlet =
+      Number(VERSION.major) >= 20
+        ? new DomPortalOutlet(container, appRef, this.injector)
+        // @ts-expect-error: Compatibility for Angular versions < 20
+        : new DomPortalOutlet(container, undefined, appRef, this.injector);
 
     this.viewRef = domOutlet.attach(this.componentPortal);
 
