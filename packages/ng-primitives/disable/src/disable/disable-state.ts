@@ -1,10 +1,11 @@
-import { booleanAttribute, signal, Signal } from '@angular/core';
+import { Signal } from '@angular/core';
 import { injectElementRef } from 'ng-primitives/internal';
 import {
   controlled,
   createPrimitive,
   isomorphicEffect,
   listener,
+  MaybeSignal,
   setDataAttribute,
 } from 'ng-primitives/state';
 import { supportsNativeDisable } from 'ng-primitives/utils';
@@ -27,9 +28,6 @@ export interface NgpDisableState {
   /** The current tab index value (before any disabled-state adjustments). */
   readonly tabIndex: Signal<number>;
 
-  /** The base aria-disabled value (may be overridden when disabled). */
-  readonly ariaDisabled: Signal<boolean>;
-
   /** Set the disabled state. */
   setDisabled(value: boolean): void;
 
@@ -38,56 +36,36 @@ export interface NgpDisableState {
 
   /** Set the tab index. */
   setTabIndex(value: number): void;
-
-  /** Set the aria-disabled value. */
-  setAriaDisabled(value: boolean): void;
 }
 
 /**
  * Configuration props for the disable primitive.
  */
 export interface NgpDisableProps {
-  /**
-   * Whether the element is disabled.
-   * @default false
-   */
-  readonly disabled?: Signal<boolean>;
+  /** Whether the element is disabled. */
+  readonly disabled?: MaybeSignal<boolean>;
 
-  /**
-   * Whether the element remains focusable when disabled (stays in tab order).
-   * @default false
-   */
-  readonly focusableWhenDisabled?: Signal<boolean>;
+  /** Whether the element remains focusable when disabled (stays in tab order). */
+  readonly focusableWhenDisabled?: MaybeSignal<boolean>;
 
-  /**
-   * The tab index. Adjusted when disabled based on `focusableWhenDisabled`.
-   * @default Element's current tabIndex
-   */
-  readonly tabIndex?: number | Signal<number>;
-
-  /**
-   * The aria-disabled value. Forced to `true` when disabled on non-native elements.
-   * @default Element's current ariaDisabled
-   */
-  readonly ariaDisabled?: boolean | Signal<boolean>;
+  /** The tab index. Adjusted when disabled based on `focusableWhenDisabled`. */
+  readonly tabIndex?: MaybeSignal<number | undefined>;
 }
 
 export const [NgpDisableStateToken, ngpDisable, injectDisableState, provideDisableState] =
   createPrimitive(
     'NgpDisable',
     ({
-      disabled: _disabled = signal(false),
-      focusableWhenDisabled: _focusableWhenDisabled = signal(false),
-      tabIndex: _tabIndex = injectElementRef().nativeElement.tabIndex,
-      ariaDisabled: _ariaDisabled = booleanAttribute(injectElementRef().nativeElement.ariaDisabled),
+      disabled: _disabled,
+      focusableWhenDisabled: _focusableWhenDisabled,
+      tabIndex: _tabIndex,
     }: NgpDisableProps): NgpDisableState => {
       const element = injectElementRef();
       const hasNativeDisable = supportsNativeDisable(element);
 
-      const disabled = controlled(_disabled);
-      const focusableWhenDisabled = controlled(_focusableWhenDisabled);
-      const tabIndex = controlled(_tabIndex);
-      const ariaDisabled = controlled(_ariaDisabled);
+      const disabled = controlled(_disabled, false);
+      const focusableWhenDisabled = controlled(_focusableWhenDisabled, false);
+      const tabIndex = controlled(_tabIndex, element.nativeElement.tabIndex);
 
       isomorphicEffect({
         write: () => {
@@ -120,7 +98,7 @@ export const [NgpDisableStateToken, ngpDisable, injectDisableState, provideDisab
         earlyRead: () => {
           let value = tabIndex();
 
-          // Only adjust for non-native elements (native disabled already removes from tab order)
+          // Only adjust for non-native elements (native disabled already handles tab order)
           if (!hasNativeDisable && disabled()) {
             if (focusableWhenDisabled()) {
               value = Math.max(0, value);
@@ -140,20 +118,22 @@ export const [NgpDisableStateToken, ngpDisable, injectDisableState, provideDisab
       // without removing it from the accessibility tree (unlike native disabled)
       isomorphicEffect({
         earlyRead: () => {
-          let value = ariaDisabled();
+          let value = false;
 
           // Native disabled already communicates state to AT; adding aria-disabled would be redundant
-          if (hasNativeDisable) {
-            value = false;
-          } else if (disabled()) {
-            value = true;
+          if ((hasNativeDisable && focusableWhenDisabled()) || (!hasNativeDisable && disabled())) {
+            value = disabled();
           }
 
           return value;
         },
         write: value => {
-          // ARIA best practice: remove attribute when false rather than setting "false"
-          element.nativeElement.ariaDisabled = value() ? 'true' : null;
+          if (value()) {
+            element.nativeElement.setAttribute('aria-disabled', 'true');
+          } else {
+            // ARIA best practice: remove attribute when false rather than setting "false"
+            element.nativeElement.removeAttribute('aria-disabled');
+          }
         },
       });
 
@@ -162,7 +142,8 @@ export const [NgpDisableStateToken, ngpDisable, injectDisableState, provideDisab
       // what other event listeners may be attached
       const evtOpts = { config: { capture: true } satisfies AddEventListenerOptions };
 
-      // Block click to prevent form submissions, navigation, and other actions
+      // Disabled elements must not trigger actions. Native disabled elements already block events,
+      // but we need this for non-native elements and focusable when disabled enabled and as a safety net.
       listener(
         element,
         'click',
@@ -229,11 +210,9 @@ export const [NgpDisableStateToken, ngpDisable, injectDisableState, provideDisab
         disabled: disabled.asReadonly(),
         focusableWhenDisabled: focusableWhenDisabled.asReadonly(),
         tabIndex: tabIndex.asReadonly(),
-        ariaDisabled: ariaDisabled.asReadonly(),
         setDisabled: value => disabled.set(value),
         setFocusableWhenDisabled: value => focusableWhenDisabled.set(value),
         setTabIndex: value => tabIndex.set(value),
-        setAriaDisabled: value => ariaDisabled.set(value),
       } satisfies NgpDisableState;
     },
   );

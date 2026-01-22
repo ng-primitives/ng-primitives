@@ -1,16 +1,16 @@
-import { Component, computed, input, signal } from '@angular/core';
-import { NgpButton } from 'ng-primitives/button';
+import { Component, computed, signal } from '@angular/core';
+import { injectButtonState, NgpButton } from 'ng-primitives/button';
 
 @Component({
   selector: 'app-button',
   hostDirectives: [
     {
       directive: NgpButton,
-      inputs: ['disabled', 'focusableWhenDisabled:loading'],
+      inputs: ['disabled', 'focusableWhenDisabled'],
     },
   ],
   host: {
-    '[attr.aria-label]': "isLoading() ? 'Submitting, please wait' : null",
+    '[attr.aria-label]': "isLoading() ? 'Loading, please wait' : null",
   },
   template: `
     @if (isLoading()) {
@@ -37,19 +37,24 @@ import { NgpButton } from 'ng-primitives/button';
       cursor: pointer;
       gap: 0.5rem;
     }
+
     :host[data-hover] {
       background-color: var(--ngp-background-hover);
     }
+
     :host[data-focus-visible] {
       outline: 2px solid var(--ngp-focus-ring);
     }
+
     :host[data-press] {
       background-color: var(--ngp-background-active);
     }
+
     :host[data-disabled] {
       opacity: 0.5;
-      pointer-events: none;
+      cursor: not-allowed;
     }
+
     .loader {
       width: 1rem;
       height: 1rem;
@@ -60,6 +65,7 @@ import { NgpButton } from 'ng-primitives/button';
       box-sizing: border-box;
       animation: rotation 1s linear infinite;
     }
+
     @keyframes rotation {
       0% {
         transform: rotate(0deg);
@@ -71,26 +77,27 @@ import { NgpButton } from 'ng-primitives/button';
   `,
 })
 export class Button {
-  readonly disabled = input<boolean>(false);
-  readonly loading = input<boolean>(false);
-  readonly isLoading = computed(() => this.disabled() && this.loading());
+  readonly state = injectButtonState();
+  readonly isLoading = computed(
+    () => this.state().disabled() && this.state().focusableWhenDisabled(),
+  );
 }
 
 @Component({
   selector: 'app-focusable-loading-reusable-example',
   imports: [Button],
   template: `
-    <app-button [disabled]="isLoading()" [loading]="isLoading()" (click)="startLoading()">
+    <app-button [disabled]="loading()" [focusableWhenDisabled]="loading()" (click)="startLoading()">
       Submit
     </app-button>
   `,
 })
-export default class FocusableLoadingReusableExample {
-  readonly isLoading = signal(false);
+export default class ButtonLoadingReusableExample {
+  readonly loading = signal(false);
 
   async startLoading() {
-    this.isLoading.set(true);
-    await new Promise(resolve => setTimeout(resolve, 3000)); // Simulate loading
-    this.isLoading.set(false);
+    this.loading.set(true);
+    await new Promise(res => setTimeout(res, 3000)); // Simulate loading
+    this.loading.set(false);
   }
 }

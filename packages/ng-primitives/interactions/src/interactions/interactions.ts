@@ -1,4 +1,4 @@
-import { signal, Signal } from '@angular/core';
+import { computed, signal, Signal } from '@angular/core';
 import { injectElementRef } from 'ng-primitives/internal';
 import { ngpFocusVisible } from '../focus-visible/focus-visible-interaction';
 import { ngpFocus } from '../focus/focus-interaction';
@@ -12,6 +12,7 @@ export interface NgpInteractionOptions {
   focusWithin?: boolean;
   focusVisible?: boolean;
   disabled?: Signal<boolean>;
+  focusableWhenDisabled?: Signal<boolean>;
 }
 
 /**
@@ -25,12 +26,15 @@ export function ngpInteractions({
   focusWithin,
   focusVisible,
   disabled = signal(false),
+  focusableWhenDisabled = signal(false),
 }: NgpInteractionOptions): void {
   const elementRef = injectElementRef();
   // If the interaction has already been setup, we can skip the setup.
   if (hasInteraction(elementRef.nativeElement, 'interactions')) {
     return;
   }
+
+  const focusable = computed(() => disabled() && !focusableWhenDisabled());
 
   if (hover) {
     ngpHover({ disabled });
@@ -39,10 +43,10 @@ export function ngpInteractions({
     ngpPress({ disabled });
   }
   if (focus) {
-    ngpFocus({ focusWithin, disabled });
+    ngpFocus({ focusWithin, disabled: focusable });
   }
   if (focusVisible) {
-    ngpFocusVisible({ disabled });
+    ngpFocusVisible({ disabled: focusable });
   }
 }
 

@@ -207,16 +207,6 @@ describe('NgpDisable', () => {
       const div = container.debugElement.query(By.css('div'));
       expect(div.nativeElement).not.toHaveAttribute('aria-disabled');
     });
-
-    it('should preserve explicit aria-disabled when not disabled', async () => {
-      const container = await render(
-        `<div ngpDisable [disabled]="false" [ariaDisabled]="true">Custom</div>`,
-        { imports: [NgpDisable] },
-      );
-
-      const div = container.debugElement.query(By.css('div'));
-      expect(div.nativeElement).toHaveAttribute('aria-disabled', 'true');
-    });
   });
 
   describe('click event blocking', () => {
@@ -397,21 +387,6 @@ describe('NgpDisable', () => {
       fixture.detectChanges();
 
       expect(button).toHaveAttribute('tabindex', '5');
-    });
-
-    it('should support setAriaDisabled method', async () => {
-      const { fixture } = await render(`<div ngpDisable #ref="ngpDisable">Custom</div>`, {
-        imports: [NgpDisable],
-      });
-
-      const div = fixture.debugElement.query(By.css('div'));
-      expect(div.nativeElement).not.toHaveAttribute('aria-disabled');
-
-      const directive = fixture.debugElement.children[0].references['ref'] as NgpDisable;
-      directive.setAriaDisabled(true);
-      fixture.detectChanges();
-
-      expect(div.nativeElement).toHaveAttribute('aria-disabled', 'true');
     });
   });
 

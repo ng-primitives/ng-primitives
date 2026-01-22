@@ -4,6 +4,6 @@ export {
   ngpDisable,
   NgpDisableProps,
   NgpDisableState,
+  NgpDisableStateToken,
   provideDisableState,
 } from './disable/disable-state';
-export { NgpDisableBase } from './disable/disable-base';

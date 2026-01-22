@@ -57,19 +57,24 @@ import { NgpButton } from 'ng-primitives/button';
       cursor: pointer;
       gap: 0.5rem;
     }
+
     [ngpButton][data-focus-visible] {
       outline: 2px solid var(--ngp-focus-ring);
     }
+
     [ngpButton][data-hover] {
       background-color: var(--ngp-background-hover);
     }
+
     [ngpButton][data-press] {
       background-color: var(--ngp-background-active);
     }
+
     [ngpButton][data-disabled] {
       opacity: 0.5;
-      pointer-events: none;
+      cursor: not-allowed;
     }
+
     [ngpButton] .loader {
       width: 1rem;
       height: 1rem;
@@ -80,6 +85,7 @@ import { NgpButton } from 'ng-primitives/button';
       box-sizing: border-box;
       animation: rotation 1s linear infinite;
     }
+
     @keyframes rotation {
       0% {
         transform: rotate(0deg);
@@ -95,7 +101,7 @@ export default class ButtonLoadingExample {
 
   async startLoading() {
     this.isLoading.set(true);
-    await new Promise(resolve => setTimeout(resolve, 3000)); // Simulate loading
+    await new Promise(res => setTimeout(res, 3000)); // Simulate loading
     this.isLoading.set(false);
   }
 }

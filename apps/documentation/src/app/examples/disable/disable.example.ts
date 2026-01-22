@@ -57,7 +57,7 @@ import { NgpDisable } from 'ng-primitives/disable';
       outline-offset: 2px;
     }
 
-    [ngpButton] {
+    [ngpDisable] {
       padding-left: 1rem;
       padding-right: 1rem;
       border-radius: 0.5rem;
@@ -75,21 +75,21 @@ import { NgpDisable } from 'ng-primitives/disable';
       cursor: pointer;
     }
 
-    [ngpButton][data-focus-visible] {
+    [ngpDisable][data-focus-visible] {
       outline: 2px solid var(--ngp-focus-ring);
     }
 
-    [ngpButton][data-hover] {
+    [ngpDisable][data-hover] {
       background-color: var(--ngp-background-hover);
     }
 
-    [ngpButton][data-press] {
+    [ngpDisable][data-press] {
       background-color: var(--ngp-background-active);
     }
 
-    [ngpButton][data-disabled] {
+    [ngpDisable][data-disabled] {
       opacity: 0.5;
-      pointer-events: none;
+      cursor: not-allowed;
     }
   `,
 })

@@ -1,7 +1,8 @@
-import { Directive, input } from '@angular/core';
+import { BooleanInput, NumberInput } from '@angular/cdk/coercion';
+import { booleanAttribute, Directive, input, numberAttribute } from '@angular/core';
+import { provideDisableState } from 'ng-primitives/disable';
 import { injectElementRef } from 'ng-primitives/internal';
-import { NgpDisableBase, provideDisableState } from 'packages/ng-primitives/disable/src';
-import { ngpButton, NgpButtonState, provideButtonState } from './button-state';
+import { ngpButton, provideButtonState } from './button-state';
 
 /**
  * Adds accessible button behavior to any element with automatic role assignment,
@@ -32,22 +33,61 @@ import { ngpButton, NgpButtonState, provideButtonState } from './button-state';
   exportAs: 'ngpButton',
   providers: [provideDisableState({ inherit: false }), provideButtonState({ inherit: false })],
 })
-export class NgpButton extends NgpDisableBase<NgpButtonState> {
+export class NgpButton {
+  protected readonly elementRef = injectElementRef();
+
+  /**
+   * Whether the element is disabled. Applies native `disabled` on buttons/inputs,
+   * `aria-disabled` on other elements, and blocks click/keyboard events.
+   */
+  readonly disabled = input<boolean, BooleanInput>(false, {
+    transform: booleanAttribute,
+  });
+
+  /**
+   * Keep the element focusable when disabled. Useful for loading states where
+   * users should discover and tab away from a disabled control.
+   */
+  readonly focusableWhenDisabled = input<boolean, BooleanInput>(false, {
+    transform: booleanAttribute,
+    alias: 'focusableWhenDisabled',
+  });
+
+  /**
+   * Tab index of the element.
+   * Adjusted automatically when disabled based on `focusableWhenDisabled` setting.
+   */
+  readonly tabIndex = input<number, NumberInput>(0, {
+    transform: value => numberAttribute(value, 0),
+  });
+
   /**
    * The ARIA role. Auto-assigned for non-native elements (`role="button"` on divs/spans).
    * Set to a custom role, `null` to remove, or `undefined` for automatic assignment.
    */
-  readonly role = input<string | null | undefined>(
-    injectElementRef().nativeElement.getAttribute('role') ?? undefined,
-  );
+  readonly role = input<string | null>();
 
-  protected override readonly state = ngpButton({
+  protected readonly state = ngpButton({
     disabled: this.disabled,
     focusableWhenDisabled: this.focusableWhenDisabled,
     tabIndex: this.tabIndex,
-    ariaDisabled: this.ariaDisabled,
     role: this.role,
   });
+
+  /** Programmatically set the disabled state. */
+  setDisabled(value: boolean): void {
+    this.state.setDisabled(value);
+  }
+
+  /** Programmatically set whether the element is focusable when disabled. */
+  setFocusableWhenDisabled(value: boolean): void {
+    this.state.setFocusableWhenDisabled(value);
+  }
+
+  /** Programmatically set the tab index. */
+  setTabIndex(value: number): void {
+    this.state.setTabIndex(value);
+  }
 
   /** Programmatically set the role. Use `null` to remove, `undefined` for auto-assignment. */
   setRole(value: string | null | undefined): void {

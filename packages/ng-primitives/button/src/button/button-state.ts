@@ -1,14 +1,20 @@
-import { booleanAttribute, computed, Signal, signal } from '@angular/core';
+import { Signal } from '@angular/core';
+import { ngpDisable, NgpDisableProps, NgpDisableState } from 'ng-primitives/disable';
 import { ngpInteractions } from 'ng-primitives/interactions';
 import { injectElementRef } from 'ng-primitives/internal';
-import { controlled, createPrimitive, isomorphicEffect, listener } from 'ng-primitives/state';
+import {
+  controlled,
+  createPrimitive,
+  isomorphicEffect,
+  listener,
+  MaybeSignal,
+} from 'ng-primitives/state';
 import { isButtonElement, isUndefined, isValidLink } from 'ng-primitives/utils';
-import { ngpDisable, NgpDisableProps, NgpDisableState } from 'packages/ng-primitives/disable/src';
 
 /** Button state extending disable state with role management. */
 export interface NgpButtonState extends NgpDisableState {
-  /** The current role (`null` when using automatic assignment). */
-  readonly role: Signal<string | null>;
+  /** The current role (`undefined` when using automatic assignment). */
+  readonly role: Signal<string | null | undefined>;
 
   /** Set the role. Use `null` to remove, `undefined` for auto-assignment. */
   setRole(value: string | null | undefined): void;
@@ -19,32 +25,37 @@ export interface NgpButtonProps extends NgpDisableProps {
   /**
    * The ARIA role. Auto-assigned for non-native elements (`role="button"` on divs/spans).
    * Native buttons and anchors with href keep their implicit roles.
-   * @default Element's current role or `undefined` for auto-assignment
    */
-  readonly role?: string | null | Signal<string | null | undefined>;
+  readonly role?: MaybeSignal<string | null | undefined>;
 }
 
 export const [NgpButtonStateToken, ngpButton, injectButtonState, provideButtonState] =
   createPrimitive(
     'NgpButton',
     ({
-      disabled: _disabled = signal(false),
-      focusableWhenDisabled: _focusableWhenDisabled = signal(false),
-      tabIndex: _tabIndex = injectElementRef().nativeElement.tabIndex,
-      ariaDisabled: _ariaDisabled = booleanAttribute(injectElementRef().nativeElement.ariaDisabled),
-      role: _role = injectElementRef().nativeElement.getAttribute('role') ?? undefined,
+      disabled: _disabled,
+      focusableWhenDisabled: _focusableWhenDisabled,
+      tabIndex: _tabIndex,
+      role: _role,
     }: NgpButtonProps): NgpButtonState => {
       const element = injectElementRef();
 
-      const disabled = controlled(_disabled);
-      const focusableWhenDisabled = controlled(_focusableWhenDisabled);
-      const tabIndex = controlled(_tabIndex);
-      const ariaDisabled = controlled(_ariaDisabled);
+      const disableState = ngpDisable({
+        disabled: controlled(_disabled, false),
+        focusableWhenDisabled: controlled(_focusableWhenDisabled, false),
+        tabIndex: controlled(_tabIndex, 0),
+      });
+
+      const { disabled, focusableWhenDisabled } = disableState;
       const role = controlled(_role);
 
-      ngpDisable({ disabled, focusableWhenDisabled, tabIndex, ariaDisabled });
-
-      ngpInteractions({ hover: true, press: true, focusVisible: true, disabled });
+      ngpInteractions({
+        hover: true,
+        press: true,
+        focusVisible: true,
+        disabled,
+        focusableWhenDisabled,
+      });
 
       // Screen readers need an explicit role to announce non-native elements as buttons.
       // We use isomorphicEffect because routerLink sets href asynchronously, and we need
@@ -85,15 +96,6 @@ export const [NgpButtonStateToken, ngpButton, injectButtonState, provideButtonSt
             element.nativeElement.setAttribute('role', value);
           }
         },
-      });
-
-      // Disabled buttons must not trigger actions. Native disabled buttons already
-      // block events, but we need this for non-native elements and as a safety net.
-      listener(element, 'click', event => {
-        if (disabled()) {
-          event.preventDefault();
-          event.stopImmediatePropagation();
-        }
       });
 
       // WCAG 2.1.1 requires keyboard operability. Native buttons respond to Enter/Space
@@ -139,15 +141,8 @@ export const [NgpButtonStateToken, ngpButton, injectButtonState, provideButtonSt
       });
 
       return {
-        disabled: disabled.asReadonly(),
-        focusableWhenDisabled: focusableWhenDisabled.asReadonly(),
-        tabIndex: tabIndex.asReadonly(),
-        ariaDisabled: ariaDisabled.asReadonly(),
-        role: computed(() => role() ?? null),
-        setDisabled: value => disabled.set(value),
-        setFocusableWhenDisabled: value => focusableWhenDisabled.set(value),
-        setTabIndex: value => tabIndex.set(value),
-        setAriaDisabled: value => ariaDisabled.set(value),
+        ...disableState,
+        role: role.asReadonly(),
         setRole: value => role.set(value),
       } satisfies NgpButtonState;
     },

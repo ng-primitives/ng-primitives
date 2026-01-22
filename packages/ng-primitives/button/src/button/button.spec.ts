@@ -17,9 +17,7 @@ describe('NgpButton', () => {
       });
 
       it('should not set the disabled attribute when not disabled', async () => {
-        await render(`<button ngpButton>Click me</button>`, {
-          imports: [NgpButton],
-        });
+        await render(`<button ngpButton>Click me</button>`, { imports: [NgpButton] });
 
         expect(screen.getByRole('button')).not.toHaveAttribute('disabled');
       });
@@ -27,10 +25,7 @@ describe('NgpButton', () => {
       it('should update disabled attribute when disabled changes', async () => {
         const { rerender, fixture } = await render(
           `<button ngpButton [disabled]="isDisabled">Click me</button>`,
-          {
-            imports: [NgpButton],
-            componentProperties: { isDisabled: false },
-          },
+          { imports: [NgpButton], componentProperties: { isDisabled: false } },
         );
 
         const button = screen.getByRole('button');
@@ -58,9 +53,7 @@ describe('NgpButton', () => {
       });
 
       it('should not set the disabled attribute on div elements', async () => {
-        await render(`<div ngpButton [disabled]="true">Custom</div>`, {
-          imports: [NgpButton],
-        });
+        await render(`<div ngpButton [disabled]="true">Custom</div>`, { imports: [NgpButton] });
 
         const div = screen.getByRole('button');
         expect(div).not.toHaveAttribute('disabled');
@@ -78,9 +71,7 @@ describe('NgpButton', () => {
     });
 
     it('should not set data-disabled when not disabled', async () => {
-      await render(`<button ngpButton>Click me</button>`, {
-        imports: [NgpButton],
-      });
+      await render(`<button ngpButton>Click me</button>`, { imports: [NgpButton] });
 
       expect(screen.getByRole('button')).not.toHaveAttribute('data-disabled');
     });
@@ -88,10 +79,7 @@ describe('NgpButton', () => {
     it('should update data-disabled when disabled changes', async () => {
       const { rerender, fixture } = await render(
         `<button ngpButton [disabled]="isDisabled">Click me</button>`,
-        {
-          imports: [NgpButton],
-          componentProperties: { isDisabled: false },
-        },
+        { imports: [NgpButton], componentProperties: { isDisabled: false } },
       );
 
       const button = screen.getByRole('button');
@@ -103,9 +91,7 @@ describe('NgpButton', () => {
     });
 
     it('should set data-disabled on non-native elements when disabled', async () => {
-      await render(`<div ngpButton [disabled]="true">Custom</div>`, {
-        imports: [NgpButton],
-      });
+      await render(`<div ngpButton [disabled]="true">Custom</div>`, { imports: [NgpButton] });
 
       expect(screen.getByRole('button')).toHaveAttribute('data-disabled', '');
     });
@@ -115,9 +101,7 @@ describe('NgpButton', () => {
     it('should set data-focusable-disabled when disabled and focusable', async () => {
       await render(
         `<button ngpButton [disabled]="true" [focusableWhenDisabled]="true">Click me</button>`,
-        {
-          imports: [NgpButton],
-        },
+        { imports: [NgpButton] },
       );
 
       expect(screen.getByRole('button')).toHaveAttribute('data-focusable-disabled', '');
@@ -126,9 +110,7 @@ describe('NgpButton', () => {
     it('should not set native disabled when focusableWhenDisabled is true', async () => {
       await render(
         `<button ngpButton [disabled]="true" [focusableWhenDisabled]="true">Click me</button>`,
-        {
-          imports: [NgpButton],
-        },
+        { imports: [NgpButton] },
       );
 
       expect(screen.getByRole('button')).not.toHaveAttribute('disabled');
@@ -138,10 +120,7 @@ describe('NgpButton', () => {
       const handleClick = jest.fn();
       await render(
         `<button ngpButton [disabled]="true" [focusableWhenDisabled]="true" (click)="onClick()">Click me</button>`,
-        {
-          imports: [NgpButton],
-          componentProperties: { onClick: handleClick },
-        },
+        { imports: [NgpButton], componentProperties: { onClick: handleClick } },
       );
 
       fireEvent.click(screen.getByRole('button'));
@@ -151,9 +130,7 @@ describe('NgpButton', () => {
 
   describe('role attribute', () => {
     it('should not add role="button" to native button elements', async () => {
-      await render(`<button ngpButton>Click me</button>`, {
-        imports: [NgpButton],
-      });
+      await render(`<button ngpButton>Click me</button>`, { imports: [NgpButton] });
 
       // Native buttons have implicit button role, no explicit attribute needed
       const button = screen.getByRole('button');
@@ -162,18 +139,14 @@ describe('NgpButton', () => {
     });
 
     it('should add role="button" to non-native elements without explicit role', async () => {
-      await render(`<div ngpButton>Custom Button</div>`, {
-        imports: [NgpButton],
-      });
+      await render(`<div ngpButton>Custom Button</div>`, { imports: [NgpButton] });
 
       const div = screen.getByRole('button');
       expect(div).toHaveAttribute('role', 'button');
     });
 
     it('should not override explicit role attribute', async () => {
-      await render(`<div ngpButton role="menuitem">Menu Item</div>`, {
-        imports: [NgpButton],
-      });
+      await render(`<div ngpButton role="menuitem">Menu Item</div>`, { imports: [NgpButton] });
 
       const div = screen.getByRole('menuitem');
       expect(div).toHaveAttribute('role', 'menuitem');
@@ -257,9 +230,7 @@ describe('NgpButton', () => {
     });
 
     it('should prevent default on Space keydown to avoid page scroll', async () => {
-      await render(`<div ngpButton>Custom Button</div>`, {
-        imports: [NgpButton],
-      });
+      await render(`<div ngpButton>Custom Button</div>`, { imports: [NgpButton] });
 
       const div = screen.getByRole('button');
       const spaceEvent = new KeyboardEvent('keydown', { key: ' ', bubbles: true });
@@ -270,9 +241,7 @@ describe('NgpButton', () => {
     });
 
     it('should prevent default on Enter keydown for non-native elements', async () => {
-      await render(`<div ngpButton>Custom Button</div>`, {
-        imports: [NgpButton],
-      });
+      await render(`<div ngpButton>Custom Button</div>`, { imports: [NgpButton] });
 
       const div = screen.getByRole('button');
       const enterEvent = new KeyboardEvent('keydown', { key: 'Enter', bubbles: true });
@@ -351,9 +320,7 @@ describe('NgpButton', () => {
   describe('interaction states', () => {
     describe('hover state', () => {
       it('should add data-hover attribute when hovered', async () => {
-        await render(`<button ngpButton>Click me</button>`, {
-          imports: [NgpButton],
-        });
+        await render(`<button ngpButton>Click me</button>`, { imports: [NgpButton] });
 
         const button = screen.getByRole('button');
         fireEvent.mouseEnter(button);
@@ -361,9 +328,7 @@ describe('NgpButton', () => {
       });
 
       it('should remove data-hover attribute when not hovered', async () => {
-        await render(`<button ngpButton>Click me</button>`, {
-          imports: [NgpButton],
-        });
+        await render(`<button ngpButton>Click me</button>`, { imports: [NgpButton] });
 
         const button = screen.getByRole('button');
         fireEvent.mouseEnter(button);
@@ -385,9 +350,7 @@ describe('NgpButton', () => {
 
     describe('press state', () => {
       it('should add data-press attribute when pressed', async () => {
-        await render(`<button ngpButton>Click me</button>`, {
-          imports: [NgpButton],
-        });
+        await render(`<button ngpButton>Click me</button>`, { imports: [NgpButton] });
 
         const button = screen.getByRole('button');
         fireEvent.pointerDown(button);
@@ -395,9 +358,7 @@ describe('NgpButton', () => {
       });
 
       it('should remove data-press attribute when released', async () => {
-        await render(`<button ngpButton>Click me</button>`, {
-          imports: [NgpButton],
-        });
+        await render(`<button ngpButton>Click me</button>`, { imports: [NgpButton] });
 
         const button = screen.getByRole('button');
         fireEvent.pointerDown(button);
@@ -419,9 +380,7 @@ describe('NgpButton', () => {
 
     describe('focus-visible state', () => {
       it('should add data-focus-visible attribute when keyboard focused', async () => {
-        await render(`<button ngpButton>Click me</button>`, {
-          imports: [NgpButton],
-        });
+        await render(`<button ngpButton>Click me</button>`, { imports: [NgpButton] });
 
         const focusMonitor = TestBed.inject(FocusMonitor);
         const button = screen.getByRole('button');
@@ -431,9 +390,7 @@ describe('NgpButton', () => {
       });
 
       it('should remove data-focus-visible attribute when blurred', async () => {
-        await render(`<button ngpButton>Click me</button>`, {
-          imports: [NgpButton],
-        });
+        await render(`<button ngpButton>Click me</button>`, { imports: [NgpButton] });
 
         const focusMonitor = TestBed.inject(FocusMonitor);
         const button = screen.getByRole('button');
@@ -478,9 +435,7 @@ describe('NgpButton', () => {
     it('should support setFocusableWhenDisabled method', async () => {
       const { fixture } = await render(
         `<button ngpButton [disabled]="true" #ref="ngpButton">Click me</button>`,
-        {
-          imports: [NgpButton],
-        },
+        { imports: [NgpButton] },
       );
 
       const button = screen.getByRole('button');
@@ -512,9 +467,7 @@ describe('NgpButton', () => {
     it('should allow setRole to remove role with null', async () => {
       const { fixture } = await render(
         `<div ngpButton role="menuitem" #ref="ngpButton">Item</div>`,
-        {
-          imports: [NgpButton],
-        },
+        { imports: [NgpButton] },
       );
 
       const div = screen.getByRole('menuitem');
@@ -530,9 +483,7 @@ describe('NgpButton', () => {
     it('should allow setRole to set undefined for automatic role assignment', async () => {
       const { fixture } = await render(
         `<div ngpButton role="menuitem" #ref="ngpButton">Item</div>`,
-        {
-          imports: [NgpButton],
-        },
+        { imports: [NgpButton] },
       );
 
       const div = screen.getByRole('menuitem');
@@ -549,27 +500,21 @@ describe('NgpButton', () => {
 
   describe('with different element types', () => {
     it('should work with button elements', async () => {
-      await render(`<button ngpButton>Button</button>`, {
-        imports: [NgpButton],
-      });
+      await render(`<button ngpButton>Button</button>`, { imports: [NgpButton] });
 
       const button = screen.getByRole('button');
       expect(button.tagName).toBe('BUTTON');
     });
 
     it('should work with anchor elements', async () => {
-      const container = await render(`<a ngpButton href="#">Link</a>`, {
-        imports: [NgpButton],
-      });
+      const container = await render(`<a ngpButton href="#">Link</a>`, { imports: [NgpButton] });
 
       const link = container.debugElement.query(By.css('a'));
       expect(link.nativeElement.tagName).toBe('A');
     });
 
     it('should work with div elements and add role', async () => {
-      await render(`<div ngpButton>Custom</div>`, {
-        imports: [NgpButton],
-      });
+      await render(`<div ngpButton>Custom</div>`, { imports: [NgpButton] });
 
       const div = screen.getByRole('button');
       expect(div.tagName).toBe('DIV');
@@ -577,9 +522,7 @@ describe('NgpButton', () => {
     });
 
     it('should work with span elements and add role', async () => {
-      await render(`<span ngpButton>Custom</span>`, {
-        imports: [NgpButton],
-      });
+      await render(`<span ngpButton>Custom</span>`, { imports: [NgpButton] });
 
       const span = screen.getByRole('button');
       expect(span.tagName).toBe('SPAN');
@@ -596,9 +539,7 @@ describe('NgpButton', () => {
     });
 
     it('should work with input[type="submit"] elements', async () => {
-      await render(`<input ngpButton type="submit" value="Submit" />`, {
-        imports: [NgpButton],
-      });
+      await render(`<input ngpButton type="submit" value="Submit" />`, { imports: [NgpButton] });
 
       const input = screen.getByRole('button');
       expect(input.tagName).toBe('INPUT');
@@ -694,17 +635,13 @@ describe('NgpButton', () => {
   describe('initial attribute values (HostAttributeToken)', () => {
     describe('role attribute initialization', () => {
       it('should preserve role="menuitem" from static attribute', async () => {
-        await render(`<div ngpButton role="menuitem">Menu Item</div>`, {
-          imports: [NgpButton],
-        });
+        await render(`<div ngpButton role="menuitem">Menu Item</div>`, { imports: [NgpButton] });
 
         expect(screen.getByRole('menuitem')).toHaveAttribute('role', 'menuitem');
       });
 
       it('should preserve role="tab" from static attribute', async () => {
-        await render(`<div ngpButton role="tab">Tab</div>`, {
-          imports: [NgpButton],
-        });
+        await render(`<div ngpButton role="tab">Tab</div>`, { imports: [NgpButton] });
 
         expect(screen.getByRole('tab')).toHaveAttribute('role', 'tab');
       });
@@ -732,41 +669,31 @@ describe('NgpButton', () => {
       });
 
       it('should preserve role="option" from static attribute', async () => {
-        await render(`<div ngpButton role="option">Option</div>`, {
-          imports: [NgpButton],
-        });
+        await render(`<div ngpButton role="option">Option</div>`, { imports: [NgpButton] });
 
         expect(screen.getByRole('option')).toHaveAttribute('role', 'option');
       });
 
       it('should preserve role="switch" from static attribute', async () => {
-        await render(`<div ngpButton role="switch">Toggle</div>`, {
-          imports: [NgpButton],
-        });
+        await render(`<div ngpButton role="switch">Toggle</div>`, { imports: [NgpButton] });
 
         expect(screen.getByRole('switch')).toHaveAttribute('role', 'switch');
       });
 
       it('should add role="button" to div without explicit role', async () => {
-        await render(`<div ngpButton>Custom Button</div>`, {
-          imports: [NgpButton],
-        });
+        await render(`<div ngpButton>Custom Button</div>`, { imports: [NgpButton] });
 
         expect(screen.getByRole('button')).toHaveAttribute('role', 'button');
       });
 
       it('should add role="button" to span without explicit role', async () => {
-        await render(`<span ngpButton>Custom Button</span>`, {
-          imports: [NgpButton],
-        });
+        await render(`<span ngpButton>Custom Button</span>`, { imports: [NgpButton] });
 
         expect(screen.getByRole('button')).toHaveAttribute('role', 'button');
       });
 
       it('should not add explicit role to native button', async () => {
-        await render(`<button ngpButton>Click me</button>`, {
-          imports: [NgpButton],
-        });
+        await render(`<button ngpButton>Click me</button>`, { imports: [NgpButton] });
 
         // Native buttons have implicit button role, no explicit attribute added
         const button = screen.getByRole('button');
@@ -806,10 +733,7 @@ describe('NgpButton', () => {
       it('should preserve custom role through disabled state changes', async () => {
         const { rerender, fixture } = await render(
           `<div ngpButton role="tab" [disabled]="isDisabled">Tab</div>`,
-          {
-            imports: [NgpButton],
-            componentProperties: { isDisabled: false },
-          },
+          { imports: [NgpButton], componentProperties: { isDisabled: false } },
         );
 
         const div = screen.getByRole('tab');
