@@ -1,3 +1,18 @@
+## 0.105.0 (2026-01-22)
+
+### 🚀 Features
+
+- **docs:** add source code links to documentation pages ([#620](https://github.com/ng-primitives/ng-primitives/pull/620), [#490](https://github.com/ng-primitives/ng-primitives/issues/490))
+
+### 🩹 Fixes
+
+- **toast:** improve support for test environments ([#624](https://github.com/ng-primitives/ng-primitives/pull/624))
+
+### ❤️ Thank You
+
+- Ashley Hunter
+- Claude
+
 ## 0.104.0 (2026-01-20)
 
 ### 🚀 Features
