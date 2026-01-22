@@ -119,7 +119,11 @@ export class SourceLink implements AfterViewInit, OnDestroy {
     this.renderer.setAttribute(anchor, 'rel', 'noopener noreferrer');
     this.renderer.setAttribute(anchor, 'aria-label', 'View source code on GitHub');
     this.renderer.setAttribute(anchor, 'title', 'View source code');
-    this.renderer.setAttribute(anchor, 'class', 'inline-flex items-center justify-center w-7 h-7 text-zinc-400 transition-colors duration-200 hover:text-zinc-700 [&>svg]:w-5 [&>svg]:h-5');
+    this.renderer.setAttribute(
+      anchor,
+      'class',
+      'inline-flex items-center justify-center w-7 h-7 text-zinc-400 transition-colors duration-200 hover:text-zinc-700 [&>svg]:w-5 [&>svg]:h-5',
+    );
 
     // Add code icon from ng-icons
     this.renderer.setProperty(anchor, 'innerHTML', lucideCode2);
