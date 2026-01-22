@@ -22,7 +22,7 @@ import { ngpDisable, provideDisableState } from './disable-state';
  * ### Styling
  * ```css
  * [data-disabled] { opacity: 0.5; cursor: not-allowed; }
- * [data-focusable-disabled] { /* loading indicator styles *\/ }
+ * [data-disabled-focusable] { /* loading indicator styles *\/ }
  * ```
  */
 @Directive({
@@ -32,6 +32,7 @@ import { ngpDisable, provideDisableState } from './disable-state';
 })
 export class NgpDisable {
   protected readonly elementRef = injectElementRef();
+  protected readonly initialTabIndex = this.elementRef.nativeElement.tabIndex;
 
   /**
    * Whether the element is disabled. Applies native `disabled` on buttons/inputs,
@@ -53,8 +54,8 @@ export class NgpDisable {
    * Tab index of the element.
    * Adjusted automatically when disabled based on `focusableWhenDisabled` setting.
    */
-  readonly tabIndex = input<number, NumberInput>(undefined, {
-    transform: value => numberAttribute(value, 0),
+  readonly tabIndex = input<number, NumberInput>(this.initialTabIndex, {
+    transform: value => numberAttribute(value, this.initialTabIndex),
   });
 
   protected readonly state = ngpDisable({

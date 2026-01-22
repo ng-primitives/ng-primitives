@@ -101,29 +101,29 @@ describe('NgpDisable', () => {
   });
 
   describe('focusableWhenDisabled', () => {
-    it('should set data-focusable-disabled when disabled and focusable', async () => {
+    it('should set data-disabled-focusable when disabled and focusable', async () => {
       await render(
         `<button ngpDisable [disabled]="true" [focusableWhenDisabled]="true">Click me</button>`,
         { imports: [NgpDisable] },
       );
 
-      expect(screen.getByRole('button')).toHaveAttribute('data-focusable-disabled', '');
+      expect(screen.getByRole('button')).toHaveAttribute('data-disabled-focusable', '');
     });
 
-    it('should not set data-focusable-disabled when not focusable', async () => {
+    it('should not set data-disabled-focusable when not focusable', async () => {
       await render(`<button ngpDisable [disabled]="true">Click me</button>`, {
         imports: [NgpDisable],
       });
 
-      expect(screen.getByRole('button')).not.toHaveAttribute('data-focusable-disabled');
+      expect(screen.getByRole('button')).not.toHaveAttribute('data-disabled-focusable');
     });
 
-    it('should not set data-focusable-disabled when not disabled', async () => {
+    it('should not set data-disabled-focusable when not disabled', async () => {
       await render(`<button ngpDisable [focusableWhenDisabled]="true">Click me</button>`, {
         imports: [NgpDisable],
       });
 
-      expect(screen.getByRole('button')).not.toHaveAttribute('data-focusable-disabled');
+      expect(screen.getByRole('button')).not.toHaveAttribute('data-disabled-focusable');
     });
 
     it('should not set native disabled when focusableWhenDisabled is true', async () => {
@@ -365,14 +365,14 @@ describe('NgpDisable', () => {
 
       const button = screen.getByRole('button');
       expect(button).toHaveAttribute('disabled');
-      expect(button).not.toHaveAttribute('data-focusable-disabled');
+      expect(button).not.toHaveAttribute('data-disabled-focusable');
 
       const directive = fixture.debugElement.children[0].references['ref'] as NgpDisable;
       directive.setFocusableWhenDisabled(true);
       fixture.detectChanges();
 
       expect(button).not.toHaveAttribute('disabled');
-      expect(button).toHaveAttribute('data-focusable-disabled', '');
+      expect(button).toHaveAttribute('data-disabled-focusable', '');
     });
 
     it('should support setTabIndex method', async () => {

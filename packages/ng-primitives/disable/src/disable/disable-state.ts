@@ -1,11 +1,10 @@
-import { Signal } from '@angular/core';
+import { linkedSignal, signal, Signal } from '@angular/core';
 import { injectElementRef } from 'ng-primitives/internal';
 import {
   controlled,
   createPrimitive,
   isomorphicEffect,
   listener,
-  MaybeSignal,
   setDataAttribute,
 } from 'ng-primitives/state';
 import { supportsNativeDisable } from 'ng-primitives/utils';
@@ -43,29 +42,29 @@ export interface NgpDisableState {
  */
 export interface NgpDisableProps {
   /** Whether the element is disabled. */
-  readonly disabled?: MaybeSignal<boolean>;
+  readonly disabled?: Signal<boolean>;
 
   /** Whether the element remains focusable when disabled (stays in tab order). */
-  readonly focusableWhenDisabled?: MaybeSignal<boolean>;
+  readonly focusableWhenDisabled?: Signal<boolean>;
 
   /** The tab index. Adjusted when disabled based on `focusableWhenDisabled`. */
-  readonly tabIndex?: MaybeSignal<number | undefined>;
+  readonly tabIndex?: Signal<number>;
 }
 
 export const [NgpDisableStateToken, ngpDisable, injectDisableState, provideDisableState] =
   createPrimitive(
     'NgpDisable',
     ({
-      disabled: _disabled,
-      focusableWhenDisabled: _focusableWhenDisabled,
-      tabIndex: _tabIndex,
+      disabled: _disabled = signal(false),
+      focusableWhenDisabled: _focusableWhenDisabled = signal(false),
+      tabIndex: _tabIndex = signal(injectElementRef().nativeElement.tabIndex),
     }: NgpDisableProps): NgpDisableState => {
       const element = injectElementRef();
       const hasNativeDisable = supportsNativeDisable(element);
 
-      const disabled = controlled(_disabled, false);
-      const focusableWhenDisabled = controlled(_focusableWhenDisabled, false);
-      const tabIndex = controlled(_tabIndex, element.nativeElement.tabIndex);
+      const disabled = controlled(_disabled);
+      const focusableWhenDisabled = controlled(_focusableWhenDisabled);
+      const tabIndex = linkedSignal(_tabIndex);
 
       isomorphicEffect({
         write: () => {
@@ -76,7 +75,7 @@ export const [NgpDisableStateToken, ngpDisable, injectDisableState, provideDisab
       isomorphicEffect({
         earlyRead: () => disabled() && focusableWhenDisabled(),
         write: value => {
-          setDataAttribute(element, 'data-focusable-disabled', value());
+          setDataAttribute(element, 'data-disabled-focusable', value());
         },
       });
 
@@ -140,7 +139,7 @@ export const [NgpDisableStateToken, ngpDisable, injectDisableState, provideDisab
       // Capture phase listeners intercept events before they reach other handlers,
       // ensuring disabled elements truly block all interactions regardless of
       // what other event listeners may be attached
-      const evtOpts = { config: { capture: true } satisfies AddEventListenerOptions };
+      const evtOpts: { config: AddEventListenerOptions } = { config: { capture: true } };
 
       // Disabled elements must not trigger actions. Native disabled elements already block events,
       // but we need this for non-native elements and focusable when disabled enabled and as a safety net.

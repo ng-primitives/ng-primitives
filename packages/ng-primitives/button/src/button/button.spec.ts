@@ -98,13 +98,13 @@ describe('NgpButton', () => {
   });
 
   describe('focusableWhenDisabled', () => {
-    it('should set data-focusable-disabled when disabled and focusable', async () => {
+    it('should set data-disabled-focusable when disabled and focusable', async () => {
       await render(
         `<button ngpButton [disabled]="true" [focusableWhenDisabled]="true">Click me</button>`,
         { imports: [NgpButton] },
       );
 
-      expect(screen.getByRole('button')).toHaveAttribute('data-focusable-disabled', '');
+      expect(screen.getByRole('button')).toHaveAttribute('data-disabled-focusable', '');
     });
 
     it('should not set native disabled when focusableWhenDisabled is true', async () => {
@@ -446,7 +446,7 @@ describe('NgpButton', () => {
       fixture.detectChanges();
 
       expect(button).not.toHaveAttribute('disabled');
-      expect(button).toHaveAttribute('data-focusable-disabled', '');
+      expect(button).toHaveAttribute('data-disabled-focusable', '');
     });
 
     it('should support setRole method', async () => {

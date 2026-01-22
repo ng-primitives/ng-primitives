@@ -1,14 +1,8 @@
-import { Signal } from '@angular/core';
+import { signal, Signal } from '@angular/core';
 import { ngpDisable, NgpDisableProps, NgpDisableState } from 'ng-primitives/disable';
 import { ngpInteractions } from 'ng-primitives/interactions';
 import { injectElementRef } from 'ng-primitives/internal';
-import {
-  controlled,
-  createPrimitive,
-  isomorphicEffect,
-  listener,
-  MaybeSignal,
-} from 'ng-primitives/state';
+import { controlled, createPrimitive, isomorphicEffect, listener } from 'ng-primitives/state';
 import { isButtonElement, isUndefined, isValidLink } from 'ng-primitives/utils';
 
 /** Button state extending disable state with role management. */
@@ -26,24 +20,23 @@ export interface NgpButtonProps extends NgpDisableProps {
    * The ARIA role. Auto-assigned for non-native elements (`role="button"` on divs/spans).
    * Native buttons and anchors with href keep their implicit roles.
    */
-  readonly role?: MaybeSignal<string | null | undefined>;
+  readonly role?: Signal<string | null | undefined>;
 }
 
 export const [NgpButtonStateToken, ngpButton, injectButtonState, provideButtonState] =
   createPrimitive(
     'NgpButton',
     ({
-      disabled: _disabled,
-      focusableWhenDisabled: _focusableWhenDisabled,
-      tabIndex: _tabIndex,
-      role: _role,
+      tabIndex: _tabIndex = signal(0),
+      role: _role = signal(undefined),
+      ...disableProps
     }: NgpButtonProps): NgpButtonState => {
       const element = injectElementRef();
 
+      // Use returned state to allow button control from disable state
       const disableState = ngpDisable({
-        disabled: controlled(_disabled, false),
-        focusableWhenDisabled: controlled(_focusableWhenDisabled, false),
-        tabIndex: controlled(_tabIndex, 0),
+        ...disableProps,
+        tabIndex: _tabIndex,
       });
 
       const { disabled, focusableWhenDisabled } = disableState;

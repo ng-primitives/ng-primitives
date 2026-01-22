@@ -13,9 +13,7 @@ import { injectButtonState, NgpButton } from 'ng-primitives/button';
     '[attr.aria-label]': "isLoading() ? 'Loading, please wait' : null",
   },
   template: `
-    @if (isLoading()) {
-      <span class="loader" aria-hidden="true"></span>
-    }
+    <span class="loader" aria-hidden="true"></span>
     <ng-content />
   `,
   styles: `
@@ -61,9 +59,13 @@ import { injectButtonState, NgpButton } from 'ng-primitives/button';
       border: 2px solid var(--ngp-text-primary);
       border-bottom-color: transparent;
       border-radius: 50%;
-      display: inline-block;
+      display: none;
       box-sizing: border-box;
       animation: rotation 1s linear infinite;
+    }
+
+    :host[data-disabled-focusable] .loader {
+      display: inline-block;
     }
 
     @keyframes rotation {

@@ -77,7 +77,9 @@ export function notNil<T>(value: T | null | undefined): value is T {
 }
 
 /**
- * Checks if a value is a native button element
+ * Checks if a value is a native button element.
+ * Note: This only checks for `<button>` elements, not `<input type="button|submit|reset">`.
+ * For button role detection (which includes input buttons), additional checks are needed.
  * @param element - The element to check
  * @returns true if the element is a native button element, false otherwise
  */

@@ -50,7 +50,6 @@ export class NgpButton {
    */
   readonly focusableWhenDisabled = input<boolean, BooleanInput>(false, {
     transform: booleanAttribute,
-    alias: 'focusableWhenDisabled',
   });
 
   /**

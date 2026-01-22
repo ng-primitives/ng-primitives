@@ -75,15 +75,15 @@ import { NgpDisable } from 'ng-primitives/disable';
       cursor: pointer;
     }
 
-    [ngpDisable][data-focus-visible] {
+    [ngpDisable]:focus-visible {
       outline: 2px solid var(--ngp-focus-ring);
     }
 
-    [ngpDisable][data-hover] {
+    [ngpDisable]:hover:not([data-disabled]) {
       background-color: var(--ngp-background-hover);
     }
 
-    [ngpDisable][data-press] {
+    [ngpDisable]:active:not([data-disabled]) {
       background-color: var(--ngp-background-active);
     }
 

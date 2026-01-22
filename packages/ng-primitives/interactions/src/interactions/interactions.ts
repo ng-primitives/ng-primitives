@@ -34,7 +34,9 @@ export function ngpInteractions({
     return;
   }
 
-  const focusable = computed(() => disabled() && !focusableWhenDisabled());
+  // Determines when focus-related interactions should be disabled.
+  // Focus is disabled when the element is disabled AND not focusable-when-disabled.
+  const disabledFocusable = computed(() => disabled() && !focusableWhenDisabled());
 
   if (hover) {
     ngpHover({ disabled });
@@ -43,10 +45,10 @@ export function ngpInteractions({
     ngpPress({ disabled });
   }
   if (focus) {
-    ngpFocus({ focusWithin, disabled: focusable });
+    ngpFocus({ focusWithin, disabled: disabledFocusable });
   }
   if (focusVisible) {
-    ngpFocusVisible({ disabled: focusable });
+    ngpFocusVisible({ disabled: disabledFocusable });
   }
 }
 

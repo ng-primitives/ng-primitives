@@ -118,7 +118,7 @@ The following directive is available from the `ng-primitives/button` package:
 | `data-focus-visible`      | Present when the button has keyboard focus.  |
 | `data-press`              | Present when the button is pressed.          |
 | `data-disabled`           | Present when the button is disabled.         |
-| `data-focusable-disabled` | Present when disabled but remains focusable. |
+| `data-disabled-focusable` | Present when disabled but remains focusable. |
 
 ```css
 [data-hover] {

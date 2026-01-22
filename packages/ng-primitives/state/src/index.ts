@@ -371,28 +371,8 @@ export function createPrimitive<TFactory extends (...args: any[]) => unknown>(
   return [token, factory as TFactory, injectFn as PrimitiveInjectionFn<TFactory>, provideFn];
 }
 
-export type MaybeSignal<T> = T | (() => T);
-
-export function controlled<T>(
-  source: MaybeSignal<T | undefined>,
-  defaultValue: T,
-): WritableSignal<T>;
-
-export function controlled<T>(source: MaybeSignal<T>): WritableSignal<T>;
-
-export function controlled<T>(
-  source: MaybeSignal<T | undefined>,
-  defaultValue?: T,
-): WritableSignal<T | undefined> {
-  return linkedSignal(() => {
-    let value = typeof source === 'function' ? (source as () => T | undefined)() : source;
-
-    if (value === undefined && defaultValue !== undefined) {
-      value = defaultValue;
-    }
-
-    return value;
-  });
+export function controlled<T>(value: Signal<T>): WritableSignal<T> {
+  return linkedSignal(() => value());
 }
 
 function setAttribute(

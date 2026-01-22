@@ -125,11 +125,11 @@ Use `NgpDisable` as a host directive to build reusable components with built-in 
   hostDirectives: [
     {
       directive: NgpDisable,
-      inputs: ['disabled', 'focusableWhenDisabled:loading', 'tabIndex', 'ariaDisabled'],
+      inputs: ['disabled', 'focusableWhenDisabled', 'tabIndex'],
     },
   ],
   template: `
-    <span class="spinner hidden data-disabled:inline-block"></span>
+    <span class="spinner hidden data-disabled-focusable:inline-block"></span>
     <ng-content />
   `,
 })
@@ -157,7 +157,7 @@ Use these attributes in your CSS to style disabled states:
 | Attribute                 | Description                                         |
 | ------------------------- | --------------------------------------------------- |
 | `data-disabled`           | Present when the element is disabled.               |
-| `data-focusable-disabled` | Present when the element is disabled but focusable. |
+| `data-disabled-focusable` | Present when the element is disabled but focusable. |
 
 ```css
 [data-disabled] {
@@ -165,7 +165,7 @@ Use these attributes in your CSS to style disabled states:
   cursor: not-allowed;
 }
 
-[data-focusable-disabled] {
+[data-disabled-focusable] {
   /* Loading indicator styles */
 }
 ```
