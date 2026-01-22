@@ -104,7 +104,9 @@ export class SourceLink implements AfterViewInit, OnDestroy {
 
     // Make H1 a flex container with space-between while preserving existing classes
     const existingClasses = h1.getAttribute('class') || '';
-    const newClasses = existingClasses ? `${existingClasses} flex justify-between items-center` : 'flex justify-between items-center';
+    const newClasses = existingClasses
+      ? `${existingClasses} flex justify-between items-center`
+      : 'flex justify-between items-center';
     this.renderer.setAttribute(h1, 'class', newClasses);
 
     // Append the content wrapper back to h1
