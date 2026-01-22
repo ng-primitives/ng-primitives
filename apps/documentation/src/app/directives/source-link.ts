@@ -5,12 +5,14 @@ import {
   Directive,
   ElementRef,
   inject,
+  OnDestroy,
   PLATFORM_ID,
   Renderer2,
 } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { NavigationEnd, Router } from '@angular/router';
-import { filter, map, startWith } from 'rxjs';
+import { lucideCode2 } from '@ng-icons/lucide';
+import { filter, map, startWith, Subscription } from 'rxjs';
 import { getRouterLinks } from '../utils/router';
 
 /**
@@ -20,11 +22,12 @@ import { getRouterLinks } from '../utils/router';
 @Directive({
   selector: '[docsSourceLink]',
 })
-export class SourceLink implements AfterViewInit {
+export class SourceLink implements AfterViewInit, OnDestroy {
   private readonly elementRef = inject(ElementRef);
   private readonly renderer = inject(Renderer2);
   private readonly platformId = inject(PLATFORM_ID);
   private readonly router = inject(Router);
+  private routerSubscription?: Subscription;
 
   private readonly currentRoute = toSignal(
     this.router.events.pipe(
@@ -65,10 +68,16 @@ export class SourceLink implements AfterViewInit {
       this.addSourceLinkToHeading();
 
       // Re-add when navigation changes
-      this.router.events.pipe(filter(event => event instanceof NavigationEnd)).subscribe(() => {
-        setTimeout(() => this.addSourceLinkToHeading(), 0);
-      });
+      this.routerSubscription = this.router.events
+        .pipe(filter(event => event instanceof NavigationEnd))
+        .subscribe(() => {
+          setTimeout(() => this.addSourceLinkToHeading(), 0);
+        });
     }
+  }
+
+  ngOnDestroy(): void {
+    this.routerSubscription?.unsubscribe();
   }
 
   private addSourceLinkToHeading(): void {
@@ -86,8 +95,7 @@ export class SourceLink implements AfterViewInit {
 
     // Wrap existing H1 content (including heading anchor) in a container
     const contentWrapper = this.renderer.createElement('span');
-    this.renderer.setStyle(contentWrapper, 'display', 'inline-flex');
-    this.renderer.setStyle(contentWrapper, 'alignItems', 'center');
+    this.renderer.setAttribute(contentWrapper, 'class', 'inline-flex items-center');
 
     // Move all existing children into the content wrapper
     while (h1.firstChild) {
@@ -95,18 +103,14 @@ export class SourceLink implements AfterViewInit {
     }
 
     // Make H1 a flex container with space-between
-    this.renderer.setStyle(h1, 'display', 'flex');
-    this.renderer.setStyle(h1, 'justifyContent', 'space-between');
-    this.renderer.setStyle(h1, 'alignItems', 'center');
+    this.renderer.setAttribute(h1, 'class', 'flex justify-between items-center');
 
     // Append the content wrapper back to h1
     this.renderer.appendChild(h1, contentWrapper);
 
     // Create wrapper span to hold the button
     const wrapper = this.renderer.createElement('span');
-    this.renderer.addClass(wrapper, 'source-link');
-    this.renderer.setStyle(wrapper, 'display', 'inline-flex');
-    this.renderer.setStyle(wrapper, 'alignItems', 'center');
+    this.renderer.setAttribute(wrapper, 'class', 'source-link inline-flex items-center');
 
     // Create anchor link
     const anchor = this.renderer.createElement('a');
@@ -115,29 +119,10 @@ export class SourceLink implements AfterViewInit {
     this.renderer.setAttribute(anchor, 'rel', 'noopener noreferrer');
     this.renderer.setAttribute(anchor, 'aria-label', 'View source code on GitHub');
     this.renderer.setAttribute(anchor, 'title', 'View source code');
-    this.renderer.setStyle(anchor, 'display', 'inline-flex');
-    this.renderer.setStyle(anchor, 'alignItems', 'center');
-    this.renderer.setStyle(anchor, 'justifyContent', 'center');
-    this.renderer.setStyle(anchor, 'width', '1.75rem');
-    this.renderer.setStyle(anchor, 'height', '1.75rem');
-    this.renderer.setStyle(anchor, 'color', 'rgb(161 161 170)'); // text-zinc-400
-    this.renderer.setStyle(anchor, 'transition', 'color 200ms');
+    this.renderer.setAttribute(anchor, 'class', 'inline-flex items-center justify-center w-7 h-7 text-zinc-400 transition-colors duration-200 hover:text-zinc-700 [&>svg]:w-5 [&>svg]:h-5');
 
-    // Add code icon SVG
-    anchor.innerHTML = `
-      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 256 256" fill="currentColor">
-        <path d="M69.12,94.15,28.5,128l40.62,33.85a8,8,0,1,1-10.24,12.29l-48-40a8,8,0,0,1,0-12.29l48-40a8,8,0,0,1,10.24,12.3Zm176,27.7-48-40a8,8,0,1,0-10.24,12.3L227.5,128l-40.62,33.85a8,8,0,1,0,10.24,12.29l48-40a8,8,0,0,0,0-12.29ZM162.73,32.48a8,8,0,0,0-10.25,4.79l-64,176a8,8,0,0,0,4.79,10.26A8.14,8.14,0,0,0,96,224a8,8,0,0,0,7.52-5.27l64-176A8,8,0,0,0,162.73,32.48Z"/>
-      </svg>
-    `;
-
-    // Add hover effect - only change color, no background
-    this.renderer.listen(anchor, 'mouseenter', () => {
-      this.renderer.setStyle(anchor, 'color', 'rgb(63 63 70)'); // text-zinc-700
-    });
-
-    this.renderer.listen(anchor, 'mouseleave', () => {
-      this.renderer.setStyle(anchor, 'color', 'rgb(161 161 170)'); // text-zinc-400
-    });
+    // Add code icon from ng-icons
+    this.renderer.setProperty(anchor, 'innerHTML', lucideCode2);
 
     // Append anchor to wrapper, then wrapper to heading
     this.renderer.appendChild(wrapper, anchor);
