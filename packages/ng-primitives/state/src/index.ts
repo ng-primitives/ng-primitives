@@ -673,15 +673,15 @@ export function isomorphicEffect<E, W, M>(
     }
 
     if (spec.write) {
-      lastResult = spec.write((() => lastResult) as Signal<E>, onCleanup);
+      lastResult = spec.write(signal(lastResult as E), onCleanup);
     }
 
     if (spec.mixedReadWrite) {
-      lastResult = spec.mixedReadWrite((() => lastResult) as Signal<W | E>, onCleanup);
+      lastResult = spec.mixedReadWrite(signal(lastResult as W | E), onCleanup);
     }
 
     if (spec.read) {
-      spec.read((() => lastResult) as Signal<M | W | E>, onCleanup);
+      spec.read(signal(lastResult as M | W | E), onCleanup);
     }
   }, options);
 }

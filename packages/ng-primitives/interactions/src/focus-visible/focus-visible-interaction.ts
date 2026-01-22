@@ -1,5 +1,13 @@
 import { FocusMonitor, FocusOrigin } from '@angular/cdk/a11y';
-import { ElementRef, inject, Renderer2, Signal, signal } from '@angular/core';
+import {
+  afterNextRender,
+  ElementRef,
+  inject,
+  Injector,
+  Renderer2,
+  Signal,
+  signal,
+} from '@angular/core';
 import { onBooleanChange, safeTakeUntilDestroyed } from 'ng-primitives/utils';
 import { isFocusVisibleEnabled } from '../config/interactions-config';
 
@@ -28,6 +36,7 @@ export function ngpFocusVisible({
   const elementRef = inject<ElementRef<HTMLElement>>(ElementRef);
   const renderer = inject(Renderer2);
   const focusMonitor = inject(FocusMonitor);
+  const injector = inject(Injector);
 
   // Whether the element is currently focused.
   const isFocused = signal<boolean>(false);
@@ -78,14 +87,19 @@ export function ngpFocusVisible({
       return;
     }
 
-    isFocused.set(value);
-    onFocusChange?.(value);
+    afterNextRender(
+      () => {
+        isFocused.set(value);
+        onFocusChange?.(value);
 
-    if (value) {
-      renderer.setAttribute(elementRef.nativeElement, 'data-focus-visible', origin ?? '');
-    } else {
-      renderer.removeAttribute(elementRef.nativeElement, 'data-focus-visible');
-    }
+        if (value) {
+          renderer.setAttribute(elementRef.nativeElement, 'data-focus-visible', origin ?? '');
+        } else {
+          renderer.removeAttribute(elementRef.nativeElement, 'data-focus-visible');
+        }
+      },
+      { injector: injector },
+    );
   }
 
   function alwaysShowFocus(): boolean {

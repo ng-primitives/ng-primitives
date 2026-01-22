@@ -11,7 +11,7 @@ import { NgpDisable } from 'ng-primitives/disable';
       (click)="clicks.set(clicks() + 1)"
       ngpDisable
     >
-      {{ disabled() ? (focusable() ? 'Focusable Disabled' : 'Disabled') : 'Fully Interactive' }}
+      {{ disabled() ? (focusable() ? 'Disabled Focusable' : 'Disabled') : 'Fully Interactive' }}
     </div>
 
     <span class="options">
@@ -31,7 +31,7 @@ import { NgpDisable } from 'ng-primitives/disable';
       {{
         disabled()
           ? focusable()
-            ? 'Focusable Disabled - Interactions except focusing are blocked'
+            ? 'Disabled Focusable - Interactions except focusing are blocked'
             : 'Disabled - All interactions are blocked'
           : 'Enabled - Interactions work normally'
       }}

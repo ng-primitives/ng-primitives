@@ -8,6 +8,27 @@ Adds disabled behavior to any element with optional focusable-when-disabled supp
 
 <docs-example name="disable"></docs-example>
 
+## When to Use
+
+**Most users won't need to import `NgpDisable` directly.** The [`NgpButton`](/primitives/button) directive already uses `NgpDisable` internally and exposes `disabled` and `focusableWhenDisabled` inputs.
+
+```html
+<!-- NgpButton includes disable behavior automatically -->
+<button ngpButton [disabled]="loading()" [focusableWhenDisabled]="true">Submit</button>
+```
+
+Use `NgpDisable` directly when:
+
+- You need disabled behavior on non-button elements (inputs, custom controls)
+- You're building a custom primitive that doesn't extend `NgpButton`
+- You want to compose disable behavior into a component via host directives
+
+#### NgpButton Loading Example
+
+Use `focusableWhenDisabled` to maintain focus during async operations. Without it, keyboard users lose their place when the button becomes disabled.
+
+<docs-example name="button-loading"></docs-example>
+
 ## Import
 
 Import the Disable primitive from `ng-primitives/disable`.
@@ -21,13 +42,22 @@ import { NgpDisable } from 'ng-primitives/disable';
 Apply the directive to any element that needs disabled behavior.
 
 ```html
-<button ngpDisable [disabled]="loading()">Submit</button>
+<!-- When using in forms, ensure proper form validation handling -->
+<button ngpDisable [disabled]="loading()" type="submit">Submit</button>
 ```
 
 Keep the element focusable when disabled (useful for loading states):
 
 ```html
-<button ngpDisable [disabled]="loading()" [focusableWhenDisabled]="true">Submitting...</button>
+<button
+  ngpDisable
+  [disabled]="loading()"
+  [focusableWhenDisabled]="true"
+  (click)="load()"
+  type="button"
+>
+  Loading...
+</button>
 ```
 
 <docs-snippet name="disable"></docs-snippet>
@@ -59,7 +89,7 @@ This violates WCAG 2.1.1 (Keyboard) because the user loses their navigation cont
 Maintain focus during async operations. See [Button Loading States](/primitives/button#loading-states) for complete examples.
 
 ```html
-<button ngpButton [disabled]="loading()" [focusableWhenDisabled]="true" (click)="submit()">
+<button ngpButton [disabled]="loading()" [focusableWhenDisabled]="true" type="submit">
   {{ loading() ? 'Submitting...' : 'Submit' }}
 </button>
 ```
@@ -89,31 +119,12 @@ When an action is temporarily unavailable but users should understand why:
   [disabled]="!canSubmit()"
   [focusableWhenDisabled]="true"
   aria-describedby="submit-help"
+  type="submit"
 >
   Submit
 </button>
 <span id="submit-help">Complete all required fields to enable submission</span>
 ```
-
-## Native Disabled vs NgpDisable
-
-Do not combine native `disabled` with `NgpDisable` on the same element—this creates undefined behavior.
-
-```html
-<!-- ❌ Conflicting states -->
-<button ngpDisable disabled [disabled]="true">Undefined Behavior</button>
-
-<!-- ✅ Native disabled for permanently unavailable actions -->
-<button disabled>Not Allowed</button>
-
-<!-- ✅ NgpDisable for temporary states -->
-<button ngpDisable [disabled]="loading()">{{ loading() ? 'Saving...' : 'Save' }}</button>
-```
-
-**When to use which:**
-
-- **Native `disabled`**: Action will never be available to this user (permissions, completed workflows)
-- **NgpDisable**: Action is temporarily unavailable (loading, validation pending, rate limiting)
 
 ## Host Directives
 

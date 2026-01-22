@@ -5,16 +5,16 @@ export { booleanAttributeBinding } from './helpers/attributes';
 export { injectDisposables } from './helpers/disposables';
 export { uniqueId } from './helpers/unique-id';
 export {
-  isAnchorElement,
   isBoolean,
-  isButtonElement,
   isFunction,
+  isNativeAnchorTag,
+  isNativeButtonTag,
+  isNativeInputTag,
   isNil,
   isNumber,
   isObject,
   isString,
   isUndefined,
-  isValidLink,
   notNil,
   supportsNativeDisable,
 } from './helpers/validators';

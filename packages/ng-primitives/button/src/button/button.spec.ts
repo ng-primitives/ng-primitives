@@ -22,6 +22,12 @@ describe('NgpButton', () => {
         expect(screen.getByRole('button')).not.toHaveAttribute('disabled');
       });
 
+      it('should not set the disabled attribute when not disabdled', async () => {
+        await render(`<input type="button"/>`, { imports: [NgpButton] });
+
+        expect(screen.getByRole('button')).not.toHaveAttribute('disabled');
+      });
+
       it('should update disabled attribute when disabled changes', async () => {
         const { rerender, fixture } = await render(
           `<button ngpButton [disabled]="isDisabled">Click me</button>`,
@@ -586,14 +592,14 @@ describe('NgpButton', () => {
       await render(
         `
         <input type="text" />
-        <button ngpButton [disabled]="true" [focusableWhenDisabled]="true">Focusable Disabled</button>
+        <button ngpButton [disabled]="true" [focusableWhenDisabled]="true">Disabled Focusable</button>
         <button ngpButton>Enabled</button>
       `,
         { imports: [NgpButton] },
       );
 
       const user = userEvent.setup();
-      const focusableDisabled = screen.getByRole('button', { name: 'Focusable Disabled' });
+      const focusableDisabled = screen.getByRole('button', { name: 'Disabled Focusable' });
 
       await user.tab();
       await user.tab();

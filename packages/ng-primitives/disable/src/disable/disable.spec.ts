@@ -430,14 +430,14 @@ describe('NgpDisable', () => {
       await render(
         `
         <input type="text" />
-        <button ngpDisable [disabled]="true" [focusableWhenDisabled]="true">Focusable Disabled</button>
+        <button ngpDisable [disabled]="true" [focusableWhenDisabled]="true">Disabled Focusable</button>
         <button ngpDisable>Enabled</button>
       `,
         { imports: [NgpDisable] },
       );
 
       const user = userEvent.setup();
-      const focusableDisabled = screen.getByRole('button', { name: 'Focusable Disabled' });
+      const focusableDisabled = screen.getByRole('button', { name: 'Disabled Focusable' });
 
       await user.tab();
       await user.tab();

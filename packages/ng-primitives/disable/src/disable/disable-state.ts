@@ -41,13 +41,22 @@ export interface NgpDisableState {
  * Configuration props for the disable primitive.
  */
 export interface NgpDisableProps {
-  /** Whether the element is disabled. */
+  /**
+   * Whether the element is disabled.
+   * @default false
+   */
   readonly disabled?: Signal<boolean>;
 
-  /** Whether the element remains focusable when disabled (stays in tab order). */
+  /**
+   * Whether the element remains focusable when disabled (stays in tab order).
+   * @default false
+   */
   readonly focusableWhenDisabled?: Signal<boolean>;
 
-  /** The tab index. Adjusted when disabled based on `focusableWhenDisabled`. */
+  /**
+   * The tab index. Adjusted when disabled based on `focusableWhenDisabled`.
+   * @default 0
+   */
   readonly tabIndex?: Signal<number>;
 }
 
@@ -57,7 +66,7 @@ export const [NgpDisableStateToken, ngpDisable, injectDisableState, provideDisab
     ({
       disabled: _disabled = signal(false),
       focusableWhenDisabled: _focusableWhenDisabled = signal(false),
-      tabIndex: _tabIndex = signal(injectElementRef().nativeElement.tabIndex),
+      tabIndex: _tabIndex = signal(0),
     }: NgpDisableProps): NgpDisableState => {
       const element = injectElementRef();
       const hasNativeDisable = supportsNativeDisable(element);

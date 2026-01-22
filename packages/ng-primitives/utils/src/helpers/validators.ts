@@ -81,35 +81,61 @@ export function notNil<T>(value: T | null | undefined): value is T {
  * Note: This only checks for `<button>` elements, not `<input type="button|submit|reset">`.
  * For button role detection (which includes input buttons), additional checks are needed.
  * @param element - The element to check
+ * @param types - The types of the button element
  * @returns true if the element is a native button element, false otherwise
  */
-export function isButtonElement(element: Element): element is HTMLButtonElement;
-export function isButtonElement(element: ElementRef): element is ElementRef<HTMLButtonElement>;
-export function isButtonElement(element: Element | ElementRef) {
-  return coerceElement(element)?.tagName === 'BUTTON';
+export function isNativeButtonTag(
+  element: Element,
+  ...types: string[]
+): element is HTMLButtonElement;
+export function isNativeButtonTag(
+  element: ElementRef,
+  ...types: string[]
+): element is ElementRef<HTMLButtonElement>;
+export function isNativeButtonTag(element: Element | ElementRef, ...types: string[]): boolean {
+  const el = coerceElement(element);
+  return (
+    el?.tagName === 'BUTTON' &&
+    (types.length > 0 ? types.includes((el as HTMLButtonElement).type) : true)
+  );
+}
+
+/**
+ * Checks if a value is a native input element.
+ * @param element - The element to check
+ * @param types - The types of the input element
+ * @returns true if the element is a native input element, false otherwise
+ */
+export function isNativeInputTag(element: Element, ...types: string[]): element is HTMLInputElement;
+export function isNativeInputTag(
+  element: ElementRef,
+  ...types: string[]
+): element is ElementRef<HTMLInputElement>;
+export function isNativeInputTag(element: Element | ElementRef, ...types: string[]): boolean {
+  const el = coerceElement(element);
+  return (
+    el?.tagName === 'INPUT' &&
+    (types.length > 0 ? types.includes((el as HTMLInputElement).type) : true)
+  );
 }
 
 /**
  * Checks if a value is a native anchor element
  * @param element - The element to check
+ * @param validLinkOnly - Whether to check if the element has a valid link (href)
  * @returns true if the element is a native anchor element, false otherwise
  */
-export function isAnchorElement(element: Element): element is HTMLAnchorElement;
-export function isAnchorElement(element: ElementRef): element is ElementRef<HTMLAnchorElement>;
-export function isAnchorElement(element: Element | ElementRef): boolean {
-  return coerceElement(element)?.tagName === 'A';
-}
-
-/**
- * Checks if a value is a valid link (anchor with href)
- * @param element - The element to check
- * @returns true if the element is a valid link, false otherwise
- */
-export function isValidLink(element: Element): element is HTMLAnchorElement;
-export function isValidLink(element: ElementRef): element is ElementRef<HTMLAnchorElement>;
-export function isValidLink(element: Element | ElementRef): boolean {
+export function isNativeAnchorTag(
+  element: Element,
+  validLinkOnly?: boolean,
+): element is HTMLAnchorElement;
+export function isNativeAnchorTag(
+  element: ElementRef,
+  validLinkOnly?: boolean,
+): element is ElementRef<HTMLAnchorElement>;
+export function isNativeAnchorTag(element: Element | ElementRef, validLinkOnly?: boolean): boolean {
   const el = coerceElement(element);
-  return el?.tagName === 'A' && !!(el as HTMLAnchorElement).href;
+  return el?.tagName === 'A' && (validLinkOnly ? !!el.href : true);
 }
 
 /**

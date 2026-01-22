@@ -1,6 +1,5 @@
 import { BooleanInput, NumberInput } from '@angular/cdk/coercion';
 import { booleanAttribute, Directive, input, numberAttribute } from '@angular/core';
-import { injectElementRef } from 'ng-primitives/internal';
 import { ngpDisable, provideDisableState } from './disable-state';
 
 /**
@@ -31,12 +30,10 @@ import { ngpDisable, provideDisableState } from './disable-state';
   providers: [provideDisableState({ inherit: false })],
 })
 export class NgpDisable {
-  protected readonly elementRef = injectElementRef();
-  protected readonly initialTabIndex = this.elementRef.nativeElement.tabIndex;
-
   /**
    * Whether the element is disabled. Applies native `disabled` on buttons/inputs,
    * `aria-disabled` on other elements, and blocks click/keyboard events.
+   * @default false
    */
   readonly disabled = input<boolean, BooleanInput>(false, {
     transform: booleanAttribute,
@@ -45,6 +42,7 @@ export class NgpDisable {
   /**
    * Keep the element focusable when disabled. Useful for loading states where
    * users should discover and tab away from a disabled control.
+   * @default false
    */
   readonly focusableWhenDisabled = input<boolean, BooleanInput>(false, {
     transform: booleanAttribute,
@@ -53,9 +51,10 @@ export class NgpDisable {
   /**
    * Tab index of the element.
    * Adjusted automatically when disabled based on `focusableWhenDisabled` setting.
+   * @default 0
    */
-  readonly tabIndex = input<number, NumberInput>(this.initialTabIndex, {
-    transform: value => numberAttribute(value, this.initialTabIndex),
+  readonly tabIndex = input<number, NumberInput>(0, {
+    transform: value => numberAttribute(value, 0),
   });
 
   protected readonly state = ngpDisable({

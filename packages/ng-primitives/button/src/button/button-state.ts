@@ -1,24 +1,67 @@
 import { signal, Signal } from '@angular/core';
-import { ngpDisable, NgpDisableProps, NgpDisableState } from 'ng-primitives/disable';
+import { ngpDisable } from 'ng-primitives/disable';
 import { ngpInteractions } from 'ng-primitives/interactions';
 import { injectElementRef } from 'ng-primitives/internal';
 import { controlled, createPrimitive, isomorphicEffect, listener } from 'ng-primitives/state';
-import { isButtonElement, isUndefined, isValidLink } from 'ng-primitives/utils';
+import {
+  isNativeAnchorTag,
+  isNativeButtonTag,
+  isNativeInputTag,
+  isString,
+  isUndefined,
+} from 'ng-primitives/utils';
 
 /** Button state extending disable state with role management. */
-export interface NgpButtonState extends NgpDisableState {
+export interface NgpButtonState {
+  /** Whether the element is disabled. */
+  readonly disabled: Signal<boolean>;
+
+  /** Whether the element remains focusable when disabled. */
+  readonly focusableWhenDisabled: Signal<boolean>;
+
+  /** The current tab index value (before any disabled-state adjustments). */
+  readonly tabIndex: Signal<number>;
+
   /** The current role (`undefined` when using automatic assignment). */
   readonly role: Signal<string | null | undefined>;
+
+  /** Set the disabled state. */
+  setDisabled(value: boolean): void;
+
+  /** Set whether the element is focusable when disabled. */
+  setFocusableWhenDisabled(value: boolean): void;
+
+  /** Set the tab index. */
+  setTabIndex(value: number): void;
 
   /** Set the role. Use `null` to remove, `undefined` for auto-assignment. */
   setRole(value: string | null | undefined): void;
 }
 
 /** Configuration props for the button primitive. */
-export interface NgpButtonProps extends NgpDisableProps {
+export interface NgpButtonProps {
+  /**
+   * Whether the element is disabled.
+   * @default false
+   */
+  readonly disabled?: Signal<boolean>;
+
+  /**
+   * Whether the element remains focusable when disabled (stays in tab order).
+   * @default false
+   */
+  readonly focusableWhenDisabled?: Signal<boolean>;
+
+  /**
+   * The tab index. Adjusted when disabled based on `focusableWhenDisabled`.
+   * @default 0
+   */
+  readonly tabIndex?: Signal<number>;
+
   /**
    * The ARIA role. Auto-assigned for non-native elements (`role="button"` on divs/spans).
    * Native buttons and anchors with href keep their implicit roles.
+   * @default undefined
    */
   readonly role?: Signal<string | null | undefined>;
 }
@@ -27,20 +70,19 @@ export const [NgpButtonStateToken, ngpButton, injectButtonState, provideButtonSt
   createPrimitive(
     'NgpButton',
     ({
+      disabled: _disabled = signal(false),
+      focusableWhenDisabled: _focusableWhenDisabled = signal(false),
       tabIndex: _tabIndex = signal(0),
       role: _role = signal(undefined),
-      ...disableProps
     }: NgpButtonProps): NgpButtonState => {
       const element = injectElementRef();
 
-      // Use returned state to allow button control from disable state
-      const disableState = ngpDisable({
-        ...disableProps,
-        tabIndex: _tabIndex,
-      });
-
-      const { disabled, focusableWhenDisabled } = disableState;
+      const disabled = controlled(_disabled);
+      const focusableWhenDisabled = controlled(_focusableWhenDisabled);
+      const tabIndex = controlled(_tabIndex);
       const role = controlled(_role);
+
+      ngpDisable({ disabled, focusableWhenDisabled, tabIndex });
 
       ngpInteractions({
         hover: true,
@@ -56,6 +98,7 @@ export const [NgpButtonStateToken, ngpButton, injectButtonState, provideButtonSt
       isomorphicEffect({
         earlyRead: () => {
           const value = role();
+          console.log(value);
 
           // Explicit role takes precedence (including null to remove)
           if (!isUndefined(value)) {
@@ -63,12 +106,12 @@ export const [NgpButtonStateToken, ngpButton, injectButtonState, provideButtonSt
           }
 
           // Native <button> and <input type="button|submit|reset"> have implicit button role
-          if (isButtonElement(element)) {
-            return undefined;
-          }
-
           // Anchors with href have implicit link role; adding button role would be incorrect
-          if (isValidLink(element)) {
+          if (
+            isNativeButtonTag(element) ||
+            isNativeInputTag(element, 'button', 'submit', 'reset') ||
+            isNativeAnchorTag(element, true)
+          ) {
             return undefined;
           }
 
@@ -77,16 +120,10 @@ export const [NgpButtonStateToken, ngpButton, injectButtonState, provideButtonSt
         },
         write: _value => {
           const value = _value();
-
-          // Only set when defined; undefined means keep current state (native elements)
-          if (value === undefined) {
-            return;
-          }
-
-          if (value === null) {
-            element.nativeElement.removeAttribute('role');
-          } else {
+          if (isString(value)) {
             element.nativeElement.setAttribute('role', value);
+          } else if (value === null) {
+            element.nativeElement.removeAttribute('role');
           }
         },
       });
@@ -97,8 +134,8 @@ export const [NgpButtonStateToken, ngpButton, injectButtonState, provideButtonSt
         // Only handle direct events (not bubbled from children) on non-native elements
         const shouldClick =
           event.target === event.currentTarget &&
-          !isButtonElement(element) &&
-          !isValidLink(element) && // Re-check at runtime; routerLink may have added href
+          !isNativeButtonTag(element) &&
+          !isNativeAnchorTag(element, true) && // Re-check at runtime; routerLink may have added href
           !disabled();
 
         const isSpaceKey = event.key === ' ';
@@ -124,8 +161,8 @@ export const [NgpButtonStateToken, ngpButton, injectButtonState, provideButtonSt
       listener(element, 'keyup', event => {
         if (
           event.target === event.currentTarget &&
-          !isButtonElement(element) &&
-          !isValidLink(element) &&
+          !isNativeButtonTag(element) &&
+          !isNativeAnchorTag(element, true) &&
           !disabled() &&
           event.key === ' '
         ) {
@@ -134,8 +171,13 @@ export const [NgpButtonStateToken, ngpButton, injectButtonState, provideButtonSt
       });
 
       return {
-        ...disableState,
+        disabled: disabled.asReadonly(),
+        focusableWhenDisabled: focusableWhenDisabled.asReadonly(),
+        tabIndex: tabIndex.asReadonly(),
         role: role.asReadonly(),
+        setDisabled: value => disabled.set(value),
+        setFocusableWhenDisabled: value => focusableWhenDisabled.set(value),
+        setTabIndex: value => tabIndex.set(value),
         setRole: value => role.set(value),
       } satisfies NgpButtonState;
     },

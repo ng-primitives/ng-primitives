@@ -63,12 +63,12 @@ Create a reusable button component that supports both disabled and loading state
 
 `NgpButton` automatically assigns `role="button"` to non-native elements for screen reader compatibility:
 
-| Element Type            | Role Assignment                     |
-| ----------------------- | ----------------------------------- |
-| `<button>`              | None (implicit button role)         |
-| `<input type="button">` | None (implicit button role)         |
-| `<a href="...">`        | None (implicit link role)           |
-| `<div>`, `<span>`, etc  | `role="button"` added automatically |
+| Element Type                       | Role Assignment                     |
+| ---------------------------------- | ----------------------------------- |
+| `&lt;button&gt;`                   | None (implicit button role)         |
+| `&lt;input type="button"&gt;`      | None (implicit button role)         |
+| `&lt;a href="..."&gt;`             | None (implicit link role)           |
+| `&lt;div&gt;`, `&lt;span&gt;`, etc | `role="button"` added automatically |
 
 Override with a custom role or set to `null` to remove:
 
