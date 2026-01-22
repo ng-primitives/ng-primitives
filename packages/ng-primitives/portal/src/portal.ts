@@ -80,8 +80,8 @@ export class NgpComponentPortal<T> extends NgpPortal {
     const domOutlet =
       Number(VERSION.major) >= 20
         ? new DomPortalOutlet(container, appRef, this.injector)
-        // @ts-expect-error: Compatibility for Angular versions < 20
-        : new DomPortalOutlet(container, undefined, appRef, this.injector);
+        : // @ts-expect-error: Compatibility for Angular versions < 20
+          new DomPortalOutlet(container, undefined, appRef, this.injector);
 
     this.viewRef = domOutlet.attach(this.componentPortal);
 
