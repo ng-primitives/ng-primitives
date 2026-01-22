@@ -1,5 +1,6 @@
 ---
 name: 'Tooltip'
+sourceUrl: 'https://github.com/ng-primitives/ng-primitives/tree/next/packages/ng-primitives/tooltip'
 ---
 
 # Tooltip

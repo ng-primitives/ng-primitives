@@ -160,7 +160,7 @@
     ]
   },
   "volta": {
-    "node": "22.15.0"
+    "node": "24.13.0"
   },
   "nx": {
     "includedScripts": []
