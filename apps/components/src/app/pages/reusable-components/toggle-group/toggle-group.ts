@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ControlValueAccessor } from '@angular/forms';
 import { injectToggleGroupState, NgpToggleGroup } from 'ng-primitives/toggle-group';
 import { ChangeFn, provideValueAccessor, TouchedFn } from 'ng-primitives/utils';
@@ -48,7 +49,9 @@ export class ToggleGroup implements ControlValueAccessor {
 
   constructor() {
     // Any time the toggle group changes, update the form value.
-    this.toggleGroup().valueChange.subscribe(value => this.onChange?.(value));
+    this.toggleGroup()
+      .valueChange.pipe(takeUntilDestroyed())
+      .subscribe(value => this.onChange?.(value));
   }
 
   /** Write a new value to the toggle group. */
