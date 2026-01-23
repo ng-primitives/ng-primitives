@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ControlValueAccessor } from '@angular/forms';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { heroCheckMini, heroMinusMini } from '@ng-icons/heroicons/mini';
@@ -85,7 +86,7 @@ export class Checkbox implements ControlValueAccessor {
 
   constructor() {
     // Whenever the user interacts with the checkbox, call the onChange function with the new value.
-    this.state().checkedChange.subscribe(checked => this.onChangeFn?.(checked));
+    this.state().checkedChange.pipe(takeUntilDestroyed()).subscribe(checked => this.onChangeFn?.(checked));
   }
 
   writeValue(checked: boolean): void {

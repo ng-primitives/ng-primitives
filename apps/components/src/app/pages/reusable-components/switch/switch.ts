@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ControlValueAccessor } from '@angular/forms';
 import { injectSwitchState, NgpSwitch, NgpSwitchThumb } from 'ng-primitives/switch';
 import { ChangeFn, provideValueAccessor, TouchedFn } from 'ng-primitives/utils';
@@ -78,7 +79,7 @@ export class Switch implements ControlValueAccessor {
 
   constructor() {
     // Any time the switch changes, update the form value.
-    this.switch().checkedChange.subscribe(value => this.onChange?.(value));
+    this.switch().checkedChange.pipe(takeUntilDestroyed()).subscribe(value => this.onChange?.(value));
   }
 
   /** Write a new value to the switch. */

@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ControlValueAccessor } from '@angular/forms';
 import { NgpButton } from 'ng-primitives/button';
 import { injectToggleState, NgpToggle } from 'ng-primitives/toggle';
@@ -67,7 +68,7 @@ export class Toggle implements ControlValueAccessor {
 
   constructor() {
     // Any time the toggle changes, update the form value.
-    this.toggle().selectedChange.subscribe(value => this.onChange?.(value));
+    this.toggle().selectedChange.pipe(takeUntilDestroyed()).subscribe(value => this.onChange?.(value));
   }
 
   /** Write a new value to the toggle. */
