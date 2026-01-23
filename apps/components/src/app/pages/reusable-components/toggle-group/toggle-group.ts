@@ -49,7 +49,9 @@ export class ToggleGroup implements ControlValueAccessor {
 
   constructor() {
     // Any time the toggle group changes, update the form value.
-    this.toggleGroup().valueChange.pipe(takeUntilDestroyed()).subscribe(value => this.onChange?.(value));
+    this.toggleGroup()
+      .valueChange.pipe(takeUntilDestroyed())
+      .subscribe(value => this.onChange?.(value));
   }
 
   /** Write a new value to the toggle group. */

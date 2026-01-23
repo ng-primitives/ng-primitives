@@ -68,7 +68,9 @@ export class Toggle implements ControlValueAccessor {
 
   constructor() {
     // Any time the toggle changes, update the form value.
-    this.toggle().selectedChange.pipe(takeUntilDestroyed()).subscribe(value => this.onChange?.(value));
+    this.toggle()
+      .selectedChange.pipe(takeUntilDestroyed())
+      .subscribe(value => this.onChange?.(value));
   }
 
   /** Write a new value to the toggle. */

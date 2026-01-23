@@ -86,7 +86,9 @@ export class Checkbox implements ControlValueAccessor {
 
   constructor() {
     // Whenever the user interacts with the checkbox, call the onChange function with the new value.
-    this.state().checkedChange.pipe(takeUntilDestroyed()).subscribe(checked => this.onChangeFn?.(checked));
+    this.state()
+      .checkedChange.pipe(takeUntilDestroyed())
+      .subscribe(checked => this.onChangeFn?.(checked));
   }
 
   writeValue(checked: boolean): void {
