@@ -1,3 +1,15 @@
+## 0.105.1 (2026-01-23)
+
+### 🩹 Fixes
+
+- use takeUntilDestroyed in multiple schematics ([#627](https://github.com/ng-primitives/ng-primitives/pull/627))
+- **switch:** form control integration ([#628](https://github.com/ng-primitives/ng-primitives/pull/628))
+
+### ❤️ Thank You
+
+- Ashley Hunter
+- Evgeny Stepanovych @undsoft
+
 ## 0.105.0 (2026-01-22)
 
 ### 🚀 Features
