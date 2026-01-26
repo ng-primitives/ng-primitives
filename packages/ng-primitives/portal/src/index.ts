@@ -7,7 +7,14 @@ export {
   NgpOverlayContent,
   NgpOverlayTemplateContext,
 } from './overlay';
-export { setupOverlayArrow } from './overlay-arrow';
+export {
+  injectOverlayArrowState,
+  NgpOverlayArrowProps,
+  NgpOverlayArrowState,
+  NgpOverlayArrowStateToken,
+  ngpOverlayArrow,
+  provideOverlayArrowState,
+} from './overlay-arrow-state';
 export { injectOverlayContext, provideOverlayContext } from './overlay-token';
 export { createPortal, NgpComponentPortal, NgpPortal, NgpTemplatePortal } from './portal';
 export { NgpPosition } from './position';
