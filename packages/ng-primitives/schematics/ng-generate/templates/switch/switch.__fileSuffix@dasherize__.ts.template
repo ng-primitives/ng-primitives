@@ -81,7 +81,9 @@ export class Switch<%= componentSuffix %> implements ControlValueAccessor {
 
   constructor() {
     // Any time the switch changes, update the form value.
-    this.switch().checkedChange.pipe(takeUntilDestroyed()).subscribe(value => this.onChange?.(value));
+    this.switch()
+      .checkedChange.pipe(takeUntilDestroyed())
+      .subscribe(value => this.onChange?.(value));
   }
 
   /** Write a new value to the switch. */

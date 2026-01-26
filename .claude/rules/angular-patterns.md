@@ -51,3 +51,24 @@ readonly isDisabled = computed(() => this.disabled() || this.loading());
 // ❌ Incorrect
 isDisabled = computed(() => this.disabled() || this.loading());
 ```
+
+## JSDoc @internal Tag
+
+- Use `@internal` ONLY for **public** members that should not be used by consumers
+- Do NOT use `@internal` on private or protected members (they are already not accessible)
+- `@internal` is for documentation generation - it hides the member from public API docs
+
+```ts
+// ✅ Correct - public method that's internal implementation detail
+/** @internal */
+registerChild(child: NgpAccordionItem): void {
+  this.children.push(child);
+}
+
+// ❌ Incorrect - private members don't need @internal
+/** @internal */
+private readonly state = ngpButton({ disabled: this.disabled });
+
+// ✅ Correct - no JSDoc needed for private members
+private readonly state = ngpButton({ disabled: this.disabled });
+```

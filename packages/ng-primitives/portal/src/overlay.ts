@@ -183,6 +183,9 @@ export class NgpOverlay<T = unknown> {
   /** Store the arrow element */
   private arrowElement: HTMLElement | null = null;
 
+  /** Store the arrow padding signal */
+  private arrowPadding: Signal<number | undefined> | undefined = undefined;
+
   /** @internal The position of the arrow */
   readonly arrowPosition = signal<{ x: number | undefined; y: number | undefined }>({
     x: undefined,
@@ -531,7 +534,7 @@ export class NgpOverlay<T = unknown> {
 
     // If the arrow element is registered, add arrow middleware
     if (this.arrowElement) {
-      middleware.push(arrow({ element: this.arrowElement }));
+      middleware.push(arrow({ element: this.arrowElement, padding: this.arrowPadding?.() }));
     }
 
     // Compute the position
@@ -647,10 +650,13 @@ export class NgpOverlay<T = unknown> {
 
   /**
    * Register the arrow element for positioning
+   * @param arrowElement The arrow element
+   * @param padding Optional padding signal between the arrow and the edges of the floating element
    * @internal
    */
-  registerArrow(arrowElement: HTMLElement | null): void {
+  registerArrow(arrowElement: HTMLElement | null, padding?: Signal<number | undefined>): void {
     this.arrowElement = arrowElement;
+    this.arrowPadding = padding;
   }
 
   /**
