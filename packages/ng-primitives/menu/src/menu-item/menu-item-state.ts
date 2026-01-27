@@ -2,7 +2,7 @@ import { FocusOrigin } from '@angular/cdk/a11y';
 import { inject, Injector, signal, Signal } from '@angular/core';
 import { ngpButton } from 'ng-primitives/button';
 import { injectElementRef } from 'ng-primitives/internal';
-import { attrBinding, createPrimitive, listener } from 'ng-primitives/state';
+import { createPrimitive, listener } from 'ng-primitives/state';
 import { injectMenuState } from '../menu/menu-state';
 import { NgpSubmenuTrigger } from '../submenu-trigger/submenu-trigger';
 
@@ -21,10 +21,7 @@ export const [NgpMenuItemStateToken, ngpMenuItem, injectMenuItemState, provideMe
     const injector = inject(Injector);
     const parentMenu = injectMenuState({ optional: true });
 
-    ngpButton({ disabled });
-
-    // Host bindings
-    attrBinding(element, 'role', 'menuitem');
+    ngpButton({ disabled, role: 'menuitem' });
 
     // Event listeners
     listener(element, 'click', onClick);

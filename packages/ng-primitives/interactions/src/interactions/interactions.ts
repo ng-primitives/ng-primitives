@@ -1,4 +1,4 @@
-import { signal, Signal } from '@angular/core';
+import { computed, isSignal, signal, Signal } from '@angular/core';
 import { injectElementRef } from 'ng-primitives/internal';
 import { ngpFocusVisible } from '../focus-visible/focus-visible-interaction';
 import { ngpFocus } from '../focus/focus-interaction';
@@ -6,11 +6,11 @@ import { ngpHover } from '../hover/hover-interaction';
 import { ngpPress } from '../press/press-interaction';
 
 export interface NgpInteractionOptions {
-  hover?: boolean;
-  press?: boolean;
-  focus?: boolean;
+  hover?: boolean | Signal<boolean>;
+  press?: boolean | Signal<boolean>;
+  focus?: boolean | Signal<boolean>;
   focusWithin?: boolean;
-  focusVisible?: boolean;
+  focusVisible?: boolean | Signal<boolean>;
   disabled?: Signal<boolean>;
 }
 
@@ -33,16 +33,21 @@ export function ngpInteractions({
   }
 
   if (hover) {
-    ngpHover({ disabled });
+    ngpHover({ disabled: isSignal(hover) ? computed(() => !hover() || disabled()) : disabled });
   }
   if (press) {
-    ngpPress({ disabled });
+    ngpPress({ disabled: isSignal(press) ? computed(() => !press() || disabled()) : disabled });
   }
   if (focus) {
-    ngpFocus({ focusWithin, disabled });
+    ngpFocus({
+      focusWithin,
+      disabled: isSignal(focus) ? computed(() => !focus() || disabled()) : disabled,
+    });
   }
   if (focusVisible) {
-    ngpFocusVisible({ disabled });
+    ngpFocusVisible({
+      disabled: isSignal(focusVisible) ? computed(() => !focusVisible() || disabled()) : disabled,
+    });
   }
 }
 

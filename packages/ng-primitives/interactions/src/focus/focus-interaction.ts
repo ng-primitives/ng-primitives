@@ -1,11 +1,19 @@
 import { FocusMonitor } from '@angular/cdk/a11y';
-import { ElementRef, Renderer2, Signal, inject, signal } from '@angular/core';
-import { safeTakeUntilDestroyed } from 'ng-primitives/utils';
+import {
+  ElementRef,
+  Renderer2,
+  Signal,
+  afterRenderEffect,
+  inject,
+  isSignal,
+  signal,
+  untracked,
+} from '@angular/core';
 import { isFocusEnabled } from '../config/interactions-config';
 
 export interface NgpFocusProps {
   disabled?: Signal<boolean>;
-  focusWithin?: boolean;
+  focusWithin?: boolean | Signal<boolean>;
   onFocus?: () => void;
   onBlur?: () => void;
 }
@@ -48,27 +56,40 @@ export function ngpFocus({
    */
   const isFocused = signal<boolean>(false);
 
-  focusMonitor
-    .monitor(elementRef, focusWithin)
-    .pipe(safeTakeUntilDestroyed())
-    .subscribe(focusOrigin => {
-      if (disabled()) {
-        return;
-      }
+  /**
+   * Whether to count the element as focused when its children are focused.
+   */
+  const isWithin = isSignal(focusWithin) ? focusWithin : signal(focusWithin);
 
-      isFocused.set(focusOrigin !== null);
-      if (focusOrigin !== null) {
-        if (onFocus) {
-          onFocus();
+  afterRenderEffect(onCleanup => {
+    const isDisabled = disabled();
+    const within = isWithin();
+    untracked(() => {
+      const subscription = focusMonitor.monitor(elementRef, within).subscribe(focusOrigin => {
+        if (isDisabled) {
+          return;
         }
-        renderer.setAttribute(elementRef.nativeElement, 'data-focus', '');
-      } else {
-        if (onBlur) {
-          onBlur();
+
+        isFocused.set(focusOrigin !== null);
+        if (focusOrigin !== null) {
+          if (onFocus) {
+            onFocus();
+          }
+          renderer.setAttribute(elementRef.nativeElement, 'data-focus', '');
+        } else {
+          if (onBlur) {
+            onBlur();
+          }
+          renderer.removeAttribute(elementRef.nativeElement, 'data-focus');
         }
-        renderer.removeAttribute(elementRef.nativeElement, 'data-focus');
-      }
+      });
+
+      onCleanup(() => {
+        subscription.unsubscribe();
+        focusMonitor.stopMonitoring(elementRef);
+      });
     });
+  });
 
   return { isFocused };
 }
