@@ -19,7 +19,12 @@ import { NgpButton } from 'ng-primitives/button';
       Button Docs
     </a>
 
-    <a ngpButton href="https://github.com/ng-primitives/ng-primitives" target="_blank">
+    <a
+      ngpButton
+      href="https://github.com/ng-primitives/ng-primitives"
+      rel="noopener noreferrer"
+      target="_blank"
+    >
       GitHub
       <ng-icon name="lucideExternalLink" />
     </a>

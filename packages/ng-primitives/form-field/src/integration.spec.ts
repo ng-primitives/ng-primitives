@@ -438,7 +438,7 @@ describe('Form Field Integration Tests', () => {
     fixture.detectChanges();
 
     expect(input).toHaveAttribute('data-disabled');
-    expect(input).not.toHaveAttribute('disabled'); // Form control disable doesn't add HTML disabled
+    expect(input).toHaveAttribute('disabled');
   });
 
   it('should clean up all registrations on component destroy', async () => {

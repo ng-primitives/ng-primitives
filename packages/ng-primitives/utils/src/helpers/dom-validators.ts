@@ -21,7 +21,7 @@ export function isNativeButtonTag(
 
 /**
  * Checks if a value is a native input element.
- * @param element - The element to check
+ * @param elementRef - The element to check
  * @param options - The options for the input element
  * @param options.types - The types of the input element
  * @returns true if the element is a native input element, false otherwise
@@ -38,7 +38,7 @@ export function isNativeInputTag(
 
 /**
  * Checks if a value is a native anchor element
- * @param element - The element to check
+ * @param elementRef - The element to check
  * @param options - The options for the anchor element
  * @param options.validLink - Whether to check if the element is a valid link (has href or routerLink attribute)
  * @returns true if the element is a native anchor element, false otherwise
@@ -49,15 +49,13 @@ export function isNativeAnchorTag(
 ): elementRef is ElementRef<HTMLAnchorElement> {
   return (
     elementRef.nativeElement.tagName === 'A' &&
-    (!validLink ||
-      !!elementRef.nativeElement.href ||
-      !!elementRef.nativeElement.getAttribute('routerLink'))
+    (!validLink || !!elementRef.nativeElement.href || !!elementRef.nativeElement.routerLink)
   );
 }
 
 /**
  * Checks if an element supports the native `disabled` attribute.
- * @param element - The element to check
+ * @param elementRef - The element to check
  * @returns true if the element supports the disabled attribute, false otherwise
  * @see https://developer.mozilla.org/en-US/docs/Web/HTML/Attributes/disabled
  */

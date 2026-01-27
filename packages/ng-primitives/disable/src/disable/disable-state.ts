@@ -52,7 +52,7 @@ export interface NgpDisableProps {
    * Whether the element is disabled.
    * @default false
    */
-  readonly disabled?: Signal<boolean>;
+  readonly disabled?: boolean | Signal<boolean>;
 
   /**
    * Controls the `data-disabled` attribute independently of the `disabled` state.
@@ -60,26 +60,26 @@ export interface NgpDisableProps {
    * When either `disabled` or `dataDisabled` is true, `data-disabled` is set.
    * @default false
    */
-  readonly dataDisabled?: Signal<boolean | null>;
+  readonly dataDisabled?: boolean | null | Signal<boolean | null>;
 
   /**
    * Whether the element remains focusable when disabled (stays in tab order).
    * @default false
    */
-  readonly focusableWhenDisabled?: Signal<boolean>;
+  readonly focusableWhenDisabled?: boolean | Signal<boolean>;
 
   /**
    * The tab index. Adjusted when disabled based on `focusableWhenDisabled`.
    * @default 0
    */
-  readonly tabIndex?: Signal<number>;
+  readonly tabIndex?: number | Signal<number>;
 
   /**
    * Controls the `aria-disabled` attribute independently.
    * Useful when the disabled state is managed externally (e.g., by a form control).
    * @default false
    */
-  readonly ariaDisabled?: Signal<boolean>;
+  readonly ariaDisabled?: boolean | Signal<boolean>;
 }
 
 export const [NgpDisableStateToken, ngpDisable, injectDisableState, provideDisableState] =

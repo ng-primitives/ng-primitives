@@ -9,9 +9,6 @@ import { injectDateControllerState } from '../date-picker/date-picker-state';
 @Directive({
   selector: '[ngpDatePickerNextMonth]',
   exportAs: 'ngpDatePickerNextMonth',
-  host: {
-    '[attr.type]': 'isButton ? "button" : null',
-  },
 })
 export class NgpDatePickerNextMonth<T> {
   /**
@@ -60,7 +57,7 @@ export class NgpDatePickerNextMonth<T> {
   });
 
   constructor() {
-    ngpButton({ disabled: this.disabled });
+    ngpButton({ disabled: this.disabled, type: 'button' });
   }
 
   /**

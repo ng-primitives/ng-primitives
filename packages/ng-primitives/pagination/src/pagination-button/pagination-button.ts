@@ -55,7 +55,7 @@ export class NgpPaginationButton {
   protected readonly selected = computed(() => this.page() === this.paginationState().page());
 
   constructor() {
-    ngpButton({ disabled: this.disabled });
+    ngpButton({ disabled: this.disabled, type: 'button' });
   }
 
   /**

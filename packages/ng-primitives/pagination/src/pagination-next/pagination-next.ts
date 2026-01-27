@@ -38,7 +38,7 @@ export class NgpPaginationNext {
   );
 
   constructor() {
-    ngpButton({ disabled: this.disabled });
+    ngpButton({ disabled: this.disabled, type: 'button' });
   }
 
   /**

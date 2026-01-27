@@ -35,7 +35,7 @@ export class NgpPaginationFirst {
   );
 
   constructor() {
-    ngpButton({ disabled: this.disabled });
+    ngpButton({ disabled: this.disabled, type: 'button' });
   }
   /**
    * Go to the first page.

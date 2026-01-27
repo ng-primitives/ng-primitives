@@ -23,7 +23,6 @@ import { injectComboboxState } from '../combobox/combobox-state';
     '[attr.data-disabled]': 'state().disabled() ? "" : undefined',
     '[attr.data-multiple]': 'state().multiple() ? "" : undefined',
     '[attr.aria-activedescendant]': 'activeDescendant()',
-    '[disabled]': 'state().disabled()',
   },
 })
 export class NgpComboboxInput {

@@ -37,10 +37,8 @@ export function ngpFormControl({
     return descriptions.length > 0 ? descriptions.join(' ') : null;
   });
 
-  ngpDisable({
-    disabled,
-    dataDisabled: computed(() => disabled() || status().disabled),
-  });
+  const isDisabled = computed(() => status().disabled || disabled());
+  ngpDisable({ disabled: isDisabled });
 
   explicitEffect([id], ([id], onCleanup) => {
     formField()?.setFormControl(id);
@@ -57,5 +55,5 @@ export function ngpFormControl({
   dataBinding(elementRef, 'data-dirty', () => status().dirty);
   dataBinding(elementRef, 'data-pending', () => status().pending);
 
-  return computed(() => ({ ...status(), disabled: status().disabled || disabled() }));
+  return computed(() => ({ ...status(), disabled: isDisabled() }));
 }

@@ -9,7 +9,7 @@ test.describe('Reusable Component - Checkbox', () => {
     const checkbox = page.getByRole('checkbox');
     await expect(checkbox).toBeVisible();
     await expect(checkbox).toHaveAttribute('aria-checked', 'false');
-    await expect(checkbox).toHaveAttribute('aria-disabled', 'false');
+    await expect(checkbox).not.toHaveAttribute('aria-disabled');
   });
 
   test('should toggle aria-checked on click', async ({ page }) => {

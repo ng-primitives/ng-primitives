@@ -115,10 +115,7 @@ export class NgpDatePickerDateButton<T> implements OnDestroy {
 
   constructor() {
     this.state().registerButton(this);
-    ngpButton({
-      disabled: this.disabled,
-      tabIndex: computed(() => (this.focused() ? 0 : -1)),
-    });
+    ngpButton({ disabled: this.disabled });
   }
 
   ngOnDestroy(): void {

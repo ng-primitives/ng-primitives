@@ -78,7 +78,7 @@ import { NgpButton } from 'ng-primitives/button';
   },
 })
 export class CustomButton {
-  readonly variant = input<'default' | 'primary' | 'danger'>('default');
+  readonly variant = input<'default' | 'primary'>('default');
 }
 
 @Component({
