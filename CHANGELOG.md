@@ -1,3 +1,13 @@
+## 0.106.0 (2026-01-26)
+
+### 🚀 Features
+
+- **tooltip:** adding support for tooltp ([#629](https://github.com/ng-primitives/ng-primitives/pull/629))
+
+### ❤️ Thank You
+
+- Ashley Hunter
+
 ## 0.105.1 (2026-01-23)
 
 ### 🩹 Fixes
