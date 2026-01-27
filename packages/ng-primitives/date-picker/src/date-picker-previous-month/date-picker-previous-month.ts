@@ -42,7 +42,7 @@ export class NgpDatePickerPreviousMonth<T> {
 
     const minDate = this.state().min();
 
-    // if the next month is out of bounds, disable it.
+    // if the previous month is out of bounds, disable it.
     const firstDay = this.dateAdapter.set(
       this.dateAdapter.startOfMonth(this.state().focusedDate()),
       {
@@ -53,7 +53,7 @@ export class NgpDatePickerPreviousMonth<T> {
       },
     );
 
-    // if there is a min date and it is equal to or after the first day of the month, disable it.
+    // if there is a min date and it is equal to or before the first day of the month, disable it.
     if (minDate && this.dateAdapter.compare(minDate, firstDay) >= 0) {
       return true;
     }

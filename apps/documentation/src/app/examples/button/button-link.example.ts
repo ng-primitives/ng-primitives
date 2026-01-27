@@ -29,6 +29,10 @@ import { NgpButton } from 'ng-primitives/button';
       <ng-icon name="lucideExternalLink" />
     </a>
 
+    <!-- Disabled anchors: NgpButton blocks click and keyboard activation while preserving
+         the href for accessibility (screen readers can still announce the destination).
+         Note: The link remains accessible via browser context menu ("Open in new tab").
+         If full navigation prevention is required, conditionally remove the href. -->
     <a [disabled]="true" ngpButton href="/disabled-link">Disabled Link</a>
   `,
   styles: `
@@ -74,7 +78,6 @@ import { NgpButton } from 'ng-primitives/button';
     [ngpButton][data-disabled] {
       opacity: 0.5;
       cursor: not-allowed;
-      pointer-events: none;
     }
   `,
 })
