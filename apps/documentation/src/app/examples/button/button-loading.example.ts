@@ -7,7 +7,6 @@ import { NgpButton } from 'ng-primitives/button';
   template: `
     <p class="description">
       Use the keyboard to tab into the button and press Enter or Space to see the loading state.
-      <br />
       Focus remains on the button while loading.
     </p>
 
@@ -37,6 +36,7 @@ import { NgpButton } from 'ng-primitives/button';
 
     .description {
       line-height: 1.5;
+      text-wrap: balance;
     }
 
     [ngpButton] {

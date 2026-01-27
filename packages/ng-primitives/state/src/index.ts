@@ -2,6 +2,7 @@
 import { coerceElement } from '@angular/cdk/coercion';
 import { isPlatformBrowser } from '@angular/common';
 import {
+  afterNextRender,
   afterRenderEffect,
   AfterRenderOptions,
   ChangeDetectorRef,
@@ -371,8 +372,8 @@ export function createPrimitive<TFactory extends (...args: any[]) => unknown>(
   return [token, factory as TFactory, injectFn as PrimitiveInjectionFn<TFactory>, provideFn];
 }
 
-export function controlled<T>(value: Signal<T>): WritableSignal<T> {
-  return linkedSignal(() => value());
+export function controlled<T>(value: T | (() => T)): WritableSignal<T> {
+  return linkedSignal(() => (typeof value === 'function' ? (value as () => T)() : value));
 }
 
 function setAttribute(
@@ -404,10 +405,9 @@ export function attrBinding(
     | null
     | undefined,
 ): void {
-  // Use computed to avoid unnecessary DOM changes when the value is the same
-  const val = computed(() => (typeof value === 'function' ? value() : value)?.toString() ?? null);
   isomorphicEffect(() => {
-    setAttribute(element, attr, val());
+    const valueResult = typeof value === 'function' ? value() : value;
+    setAttribute(element, attr, valueResult?.toString() ?? null);
   });
 }
 
@@ -447,43 +447,18 @@ export function styleBinding(
   style: string,
   value: (() => string | number | null) | string | number | null,
 ): void {
-  // we should look for units in the style name, just like Angular does e.g. width.px
-  const styleUnit = getStyleUnit(style);
-  const styleName = styleUnit ? style.replace(`.${styleUnit}`, '') : style;
-
-  // Use computed to avoid unnecessary DOM changes when the value is the same
-  const val = computed(() => (typeof value === 'function' ? value() : value));
-
   isomorphicEffect(() => {
-    const styleValue = val();
+    const styleValue = typeof value === 'function' ? value() : value;
+    // we should look for units in the style name, just like Angular does e.g. width.px
+    const styleUnit = getStyleUnit(style);
+    const styleName = styleUnit ? style.replace(`.${styleUnit}`, '') : style;
+
     if (styleValue !== null) {
       element.nativeElement.style.setProperty(styleName, styleValue + styleUnit);
     } else {
       element.nativeElement.style.removeProperty(styleName);
     }
   });
-}
-
-/**
- * Set a data attribute on the element.
- * @param element The element to set the data attribute on.
- * @param attr The name of the data attribute. Must start with `data-`.
- * @param value The value of the data attribute.
- */
-export function setDataAttribute<K extends `data-${string}`>(
-  element: ElementRef<HTMLElement>,
-  attr: K,
-  value: string | boolean | null,
-): void {
-  if (value === false) {
-    value = null;
-  } else if (value === true) {
-    value = '';
-  } else if (value !== null && typeof value !== 'string') {
-    value = String(value);
-  }
-
-  setAttribute(element, attr, value);
 }
 
 export function dataBinding(
@@ -495,11 +470,18 @@ export function dataBinding(
     throw new Error(`dataBinding: attribute "${attr}" must start with "data-"`);
   }
 
-  // Use computed to avoid unnecessary DOM changes when the value is the same
-  const val = computed(() => (typeof value === 'function' ? value() : value));
-
   isomorphicEffect(() => {
-    setDataAttribute(element, attr as `data-${string}`, val());
+    let valueResult = typeof value === 'function' ? value() : value;
+
+    if (valueResult === false) {
+      valueResult = null;
+    } else if (valueResult === true) {
+      valueResult = '';
+    } else if (valueResult !== null && typeof valueResult !== 'string') {
+      valueResult = String(valueResult);
+    }
+
+    setAttribute(element, attr, valueResult);
   });
 }
 
@@ -684,4 +666,68 @@ export function isomorphicEffect<E, W, M>(
       spec.read(signal(lastResult as M | W | E), onCleanup);
     }
   }, options);
+}
+
+/**
+ * Cross-environment `afterNextRender` that works in browser and SSR.
+ *
+ * - **Browser**: Uses native `afterNextRender`
+ * - **SSR**: Immediately runs the callback
+ *
+ * Supports all afterNextRender phases (earlyRead, write, mixedReadWrite, read).
+ */
+export function isomorphicRender(callback: VoidFunction, options?: AfterRenderOptions): EffectRef;
+
+export function isomorphicRender<E = never, W = never, M = never>(
+  spec: Parameters<typeof afterNextRender<E, W, M>>[0],
+  options?: AfterRenderOptions,
+): EffectRef;
+
+export function isomorphicRender<E, W, M>(
+  param: Parameters<typeof afterNextRender<E, W, M>>[0] | VoidFunction,
+  options?: AfterRenderOptions,
+): EffectRef {
+  // On browser, use native rendering effect
+  if (isPlatformBrowser(inject(PLATFORM_ID))) {
+    return afterNextRender<E, W, M>(
+      param as Parameters<typeof afterNextRender<E, W, M>>[0],
+      options,
+    );
+  }
+
+  if (typeof param === 'function') {
+    (param as VoidFunction)();
+  } else {
+    // Simulate phase chain: earlyRead → write → mixedReadWrite → read
+    const spec = param as {
+      earlyRead?: () => E;
+      write?: (prev: E) => W;
+      mixedReadWrite?: (prev: W | E) => M;
+      read?: (prev: M | W | E) => void;
+    };
+
+    let lastResult: E | W | M | undefined;
+
+    if (spec.earlyRead) {
+      lastResult = spec.earlyRead();
+    }
+
+    if (spec.write) {
+      lastResult = spec.write(lastResult as E);
+    }
+
+    if (spec.mixedReadWrite) {
+      lastResult = spec.mixedReadWrite(lastResult as W | E);
+    }
+
+    if (spec.read) {
+      spec.read(lastResult as M | W | E);
+    }
+  }
+
+  return {
+    destroy: () => {
+      // noop
+    },
+  };
 }

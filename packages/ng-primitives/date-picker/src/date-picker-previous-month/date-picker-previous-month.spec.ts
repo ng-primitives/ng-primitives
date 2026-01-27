@@ -135,21 +135,7 @@ describe('NgpDatePickerPreviousMonth', () => {
     expect(dateAdapter.getMilliseconds(newDate)).toBe(0);
   });
 
-  it('should have correct aria-disabled attribute when disabled', () => {
-    disabledSignal.set(true);
-    fixture.detectChanges();
-
-    const button = fixture.nativeElement.querySelector('button');
-    expect(button.hasAttribute('aria-disabled')).toBe(true);
-  });
-
-  it('should have correct aria-disabled attribute when not disabled', () => {
-    disabledSignal.set(false);
-    fixture.detectChanges();
-
-    const button = fixture.nativeElement.querySelector('button');
-    expect(button.hasAttribute('aria-disabled')).toBe(false);
-  });
+  // aria-disabled attributes handled by ngpButton -> ngpDisable
 
   it('should have type="button" attribute for button elements', () => {
     const button = fixture.nativeElement.querySelector('button');

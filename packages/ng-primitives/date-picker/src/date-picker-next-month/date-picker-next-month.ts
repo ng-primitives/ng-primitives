@@ -10,7 +10,6 @@ import { injectDateControllerState } from '../date-picker/date-picker-state';
   selector: '[ngpDatePickerNextMonth]',
   exportAs: 'ngpDatePickerNextMonth',
   host: {
-    '[attr.aria-disabled]': 'disabled()',
     '[attr.type]': 'isButton ? "button" : null',
   },
 })
@@ -69,10 +68,6 @@ export class NgpDatePickerNextMonth<T> {
    */
   @HostListener('click')
   protected navigateToNextMonth(): void {
-    if (this.disabled()) {
-      return;
-    }
-
     // move focus to the first day of the next month.
     let date = this.state().focusedDate();
     date = this.dateAdapter.add(date, { months: 1 });

@@ -1,5 +1,6 @@
 import { BooleanInput, NumberInput } from '@angular/cdk/coercion';
 import { booleanAttribute, Directive, input, numberAttribute } from '@angular/core';
+import { injectElementRef } from 'ng-primitives/internal';
 import { ngpDisable, provideDisableState } from './disable-state';
 
 /**
@@ -48,13 +49,15 @@ export class NgpDisable {
     transform: booleanAttribute,
   });
 
+  private readonly initTabIndex = injectElementRef().nativeElement.tabIndex;
+
   /**
    * Tab index of the element.
    * Adjusted automatically when disabled based on `focusableWhenDisabled` setting.
    * @default 0
    */
-  readonly tabIndex = input<number, NumberInput>(0, {
-    transform: value => numberAttribute(value, 0),
+  readonly tabIndex = input<number, NumberInput>(this.initTabIndex, {
+    transform: value => numberAttribute(value, this.initTabIndex),
   });
 
   protected readonly state = ngpDisable({

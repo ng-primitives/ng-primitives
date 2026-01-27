@@ -1,4 +1,5 @@
 import { computed, signal, Signal } from '@angular/core';
+import { ngpButton } from 'ng-primitives/button';
 import { injectElementRef } from 'ng-primitives/internal';
 import { attrBinding, createPrimitive, dataBinding, listener } from 'ng-primitives/state';
 import { injectToggleGroupState } from '../toggle-group/toggle-group-state';
@@ -40,24 +41,18 @@ export const [
     // Whether the item is selected.
     const selected = computed(() => toggleGroup()?.isSelected(value()!) ?? false);
 
+    ngpButton({ disabled, role: 'radio', type: 'button' });
+
     // Host bindings
-    attrBinding(element, 'role', 'radio');
     attrBinding(element, 'aria-checked', selected);
     dataBinding(element, 'data-selected', selected);
-    attrBinding(element, 'aria-disabled', disabled);
-    dataBinding(element, 'data-disabled', disabled);
 
     // Host listener
-    listener(element, 'click', () => toggle());
+    listener(element, 'click', () => toggleGroup()?.toggle(value()!));
 
-    // Toggle the item.
-    const toggle = (): void => {
-      if (disabled?.()) {
-        return;
-      }
-      toggleGroup()?.toggle(value()!);
-    };
-
-    return { selected, toggle } satisfies NgpToggleGroupItemState;
+    return {
+      selected,
+      toggle: () => element.nativeElement.click(),
+    } satisfies NgpToggleGroupItemState;
   },
 );

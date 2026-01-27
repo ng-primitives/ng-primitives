@@ -1,5 +1,6 @@
 import { computed, Signal, signal, WritableSignal } from '@angular/core';
 import { ngpAutofill } from 'ng-primitives/autofill';
+import { ngpDisable } from 'ng-primitives/disable';
 import { ngpFormControl } from 'ng-primitives/form-field';
 import { ngpInteractions } from 'ng-primitives/interactions';
 import { injectElementRef } from 'ng-primitives/internal';
@@ -61,11 +62,11 @@ export const [NgpInputStateToken, ngpInput, injectInputState, provideInputState]
     const status = ngpFormControl({ id, disabled });
     const isDisabled = computed(() => status().disabled ?? disabled());
 
+    ngpDisable({ disabled: isDisabled });
     ngpInteractions({ hover: true, press: true, focus: true, disabled: isDisabled });
 
     // Host bindings
     attrBinding(element, 'id', id);
-    attrBinding(element, 'disabled', () => (isDisabled() ? '' : null));
 
     // Register the input with an enclosing search field if present
     const search = searchState();

@@ -1,8 +1,6 @@
 /**
  * Type validation utilities
  */
-import { coerceElement } from '@angular/cdk/coercion';
-import { ElementRef } from '@angular/core';
 
 /**
  * Checks if a value is a string
@@ -74,83 +72,4 @@ export function isNil(value: unknown): value is null | undefined {
  */
 export function notNil<T>(value: T | null | undefined): value is T {
   return !isNil(value);
-}
-
-/**
- * Checks if a value is a native button element.
- * Note: This only checks for `<button>` elements, not `<input type="button|submit|reset">`.
- * For button role detection (which includes input buttons), additional checks are needed.
- * @param element - The element to check
- * @param types - The types of the button element
- * @returns true if the element is a native button element, false otherwise
- */
-export function isNativeButtonTag(
-  element: Element,
-  ...types: string[]
-): element is HTMLButtonElement;
-export function isNativeButtonTag(
-  element: ElementRef,
-  ...types: string[]
-): element is ElementRef<HTMLButtonElement>;
-export function isNativeButtonTag(element: Element | ElementRef, ...types: string[]): boolean {
-  const el = coerceElement(element);
-  return (
-    el?.tagName === 'BUTTON' &&
-    (types.length > 0 ? types.includes((el as HTMLButtonElement).type) : true)
-  );
-}
-
-/**
- * Checks if a value is a native input element.
- * @param element - The element to check
- * @param types - The types of the input element
- * @returns true if the element is a native input element, false otherwise
- */
-export function isNativeInputTag(element: Element, ...types: string[]): element is HTMLInputElement;
-export function isNativeInputTag(
-  element: ElementRef,
-  ...types: string[]
-): element is ElementRef<HTMLInputElement>;
-export function isNativeInputTag(element: Element | ElementRef, ...types: string[]): boolean {
-  const el = coerceElement(element);
-  return (
-    el?.tagName === 'INPUT' &&
-    (types.length > 0 ? types.includes((el as HTMLInputElement).type) : true)
-  );
-}
-
-/**
- * Checks if a value is a native anchor element
- * @param element - The element to check
- * @param validLinkOnly - Whether to check if the element has a valid link (href)
- * @returns true if the element is a native anchor element, false otherwise
- */
-export function isNativeAnchorTag(
-  element: Element,
-  validLinkOnly?: boolean,
-): element is HTMLAnchorElement;
-export function isNativeAnchorTag(
-  element: ElementRef,
-  validLinkOnly?: boolean,
-): element is ElementRef<HTMLAnchorElement>;
-export function isNativeAnchorTag(element: Element | ElementRef, validLinkOnly?: boolean): boolean {
-  const el = coerceElement(element);
-  return el?.tagName === 'A' && (validLinkOnly ? !!el.href : true);
-}
-
-/**
- * Checks if an element supports the native `disabled` attribute.
- * @param element - The element to check
- * @returns true if the element supports the disabled attribute, false otherwise
- * @see https://developer.mozilla.org/en-US/docs/Web/HTML/Attributes/disabled
- */
-export function supportsNativeDisable(
-  element: Element,
-): element is HTMLElement & { disabled: boolean };
-export function supportsNativeDisable(
-  element: ElementRef,
-): element is ElementRef<HTMLElement & { disabled: boolean }>;
-export function supportsNativeDisable(element: Element | ElementRef): boolean {
-  const el = coerceElement(element);
-  return el instanceof HTMLElement && 'disabled' in el;
 }

@@ -1,5 +1,5 @@
-import { computed, Signal, signal, WritableSignal } from '@angular/core';
-import { ngpInteractions } from 'ng-primitives/interactions';
+import { Signal, signal, WritableSignal } from '@angular/core';
+import { ngpButton } from 'ng-primitives/button';
 import { injectElementRef } from 'ng-primitives/internal';
 import {
   attrBinding,
@@ -71,46 +71,17 @@ export const [NgpToggleStateToken, ngpToggle, injectToggleState, provideToggleSt
       const element = injectElementRef<HTMLElement>();
       const selected = controlled(_selected);
       const disabled = controlled(_disabled);
-      const isButton = element.nativeElement.tagName.toLowerCase() === 'button';
 
       const selectedChange = emitter<boolean>();
 
-      ngpInteractions({
-        hover: true,
-        press: true,
-        focusVisible: true,
-        disabled,
-      });
-
-      const tabindex = computed(() => (disabled() ? -1 : 0));
+      ngpButton({ disabled, type: 'button' });
 
       // Host bindings
-      attrBinding(element, 'type', () => (isButton ? 'button' : null));
       attrBinding(element, 'aria-pressed', selected);
       dataBinding(element, 'data-selected', selected);
-      dataBinding(element, 'data-disabled', disabled);
-      attrBinding(element, 'aria-disabled', disabled);
-      attrBinding(element, 'tabindex', () => tabindex().toString());
 
       // Listeners
-      listener(element, 'click', event => toggle(event));
-      listener(element, 'keydown', (event: KeyboardEvent) => {
-        if (event.key === ' ' || event.key === 'Spacebar') {
-          if (!isButton && element.nativeElement.tagName !== 'a') {
-            event.preventDefault();
-            toggle(event);
-          }
-        }
-      });
-
-      function toggle(event?: Event): void {
-        if (disabled()) {
-          return;
-        }
-
-        event?.preventDefault?.();
-        setSelected(!selected());
-      }
+      listener(element, 'click', () => setSelected(!selected()));
 
       function setSelected(value: boolean): void {
         selected.set(value);
@@ -126,7 +97,7 @@ export const [NgpToggleStateToken, ngpToggle, injectToggleState, provideToggleSt
         selected: deprecatedSetter(selected, 'setSelected'),
         disabled: deprecatedSetter(disabled, 'setDisabled'),
         selectedChange: selectedChange.asObservable(),
-        toggle,
+        toggle: () => element.nativeElement.click(),
         setSelected,
         setDisabled,
       } satisfies NgpToggleState;

@@ -46,9 +46,7 @@ type T = any;
     '[attr.aria-expanded]': 'open()',
     '[attr.aria-controls]': 'open() ? dropdown()?.id() : undefined',
     '[attr.aria-activedescendant]': 'open() ? activeDescendantManager.id() : undefined',
-    '[attr.tabindex]': 'state.disabled() ? -1 : 0',
     '[attr.data-open]': 'open() ? "" : undefined',
-    '[attr.data-disabled]': 'state.disabled() ? "" : undefined',
     '[attr.data-multiple]': 'state.multiple() ? "" : undefined',
   },
 })

@@ -1,6 +1,6 @@
-import { computed, Signal, signal, WritableSignal } from '@angular/core';
+import { Signal, signal, WritableSignal } from '@angular/core';
+import { ngpButton } from 'ng-primitives/button';
 import { ngpFormControl } from 'ng-primitives/form-field';
-import { ngpInteractions } from 'ng-primitives/interactions';
 import { injectElementRef } from 'ng-primitives/internal';
 import {
   attrBinding,
@@ -107,42 +107,18 @@ export const [NgpCheckboxStateToken, ngpCheckbox, injectCheckboxState, provideCh
       const disabled = controlled(_disabled);
       const checkedChange = emitter<boolean>();
       const indeterminateChange = emitter<boolean>();
-      const tabindex = computed(() => (disabled() ? -1 : 0));
 
       // Setup interactions and form control hooks
-      ngpInteractions({ hover: true, press: true, focusVisible: true, disabled });
       ngpFormControl({ id, disabled });
+      ngpButton({ disabled, role: 'checkbox', type: 'button' });
 
       // Host bindings
-      attrBinding(element, 'role', 'checkbox');
       attrBinding(element, 'aria-checked', () => (indeterminate() ? 'mixed' : checked()));
       dataBinding(element, 'data-checked', checked);
       dataBinding(element, 'data-indeterminate', indeterminate);
-      attrBinding(element, 'aria-disabled', disabled);
-      attrBinding(element, 'tabindex', () => tabindex().toString());
 
       // Event listeners
-      listener(element, 'click', event => toggle(event));
-      listener(element, 'keydown', (event: KeyboardEvent) => {
-        if (event.key === 'Enter') {
-          // According to WAI ARIA, checkboxes don't activate on enter keypress
-          event.preventDefault();
-          return;
-        }
-
-        if (event.key === ' ' || event.key === 'Spacebar') {
-          toggle(event);
-        }
-      });
-
-      function toggle(event?: Event): void {
-        if (disabled()) {
-          return;
-        }
-
-        // prevent this firing twice in cases where the label is clicked and the checkbox is clicked by the one event
-        event?.preventDefault();
-
+      listener(element, 'click', () => {
         const nextChecked = indeterminate() ? true : !checked();
         setChecked(nextChecked);
 
@@ -150,7 +126,7 @@ export const [NgpCheckboxStateToken, ngpCheckbox, injectCheckboxState, provideCh
         if (indeterminate()) {
           setIndeterminate(false);
         }
-      }
+      });
 
       function setChecked(value: boolean): void {
         checked.set(value);
@@ -175,7 +151,7 @@ export const [NgpCheckboxStateToken, ngpCheckbox, injectCheckboxState, provideCh
         disabled: deprecatedSetter(disabled, 'setDisabled'),
         checkedChange: checkedChange.asObservable(),
         indeterminateChange: indeterminateChange.asObservable(),
-        toggle,
+        toggle: () => element.nativeElement.click(),
         setChecked,
         setIndeterminate,
         setDisabled,

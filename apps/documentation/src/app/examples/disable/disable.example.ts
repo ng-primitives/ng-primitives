@@ -5,14 +5,15 @@ import { NgpDisable } from 'ng-primitives/disable';
   selector: 'app-disable-example',
   imports: [NgpDisable],
   template: `
-    <div
+    <button
       [disabled]="disabled()"
       [focusableWhenDisabled]="focusable()"
       (click)="clicks.set(clicks() + 1)"
+      type="button"
       ngpDisable
     >
       {{ disabled() ? (focusable() ? 'Disabled Focusable' : 'Disabled') : 'Fully Interactive' }}
-    </div>
+    </button>
 
     <span class="options">
       <label>

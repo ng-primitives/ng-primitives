@@ -1,184 +1,146 @@
-import { signal, Signal } from '@angular/core';
-import { ngpDisable } from 'ng-primitives/disable';
+/**
+ * @fileoverview
+ * Core button state management implementing the WAI-ARIA Button Pattern.
+ *
+ * This module provides the underlying logic for NgpButton, handling:
+ * - Disabled state with proper ARIA semantics
+ * - Keyboard interaction (Enter/Space activation)
+ * - Interaction states (hover, press, focus-visible)
+ * - Role assignment for non-native button elements
+ *
+ * @see {@link https://www.w3.org/WAI/ARIA/apg/patterns/button/ WAI-ARIA Button Pattern}
+ */
+import { computed } from '@angular/core';
+import { ngpDisable, NgpDisableProps, NgpDisableState } from 'ng-primitives/disable';
 import { ngpInteractions } from 'ng-primitives/interactions';
 import { injectElementRef } from 'ng-primitives/internal';
-import { controlled, createPrimitive, isomorphicEffect, listener } from 'ng-primitives/state';
+import { createPrimitive, isomorphicRender, listener } from 'ng-primitives/state';
 import {
   isNativeAnchorTag,
   isNativeButtonTag,
   isNativeInputTag,
   isString,
-  isUndefined,
 } from 'ng-primitives/utils';
 
-/** Button state extending disable state with role management. */
-export interface NgpButtonState {
-  /** Whether the element is disabled. */
-  readonly disabled: Signal<boolean>;
+/**
+ * Represents the current state of a button primitive.
+ */
+export interface NgpButtonState extends NgpDisableState {}
 
-  /** Whether the element remains focusable when disabled. */
-  readonly focusableWhenDisabled: Signal<boolean>;
+/**
+ * Configuration options for creating a button primitive.
+ */
+export interface NgpButtonProps extends NgpDisableProps {
+  /** Initial role attribute value. Automatically assigned if not provided. */
+  readonly role?: string;
 
-  /** The current tab index value (before any disabled-state adjustments). */
-  readonly tabIndex: Signal<number>;
-
-  /** The current role (`undefined` when using automatic assignment). */
-  readonly role: Signal<string | null | undefined>;
-
-  /** Set the disabled state. */
-  setDisabled(value: boolean): void;
-
-  /** Set whether the element is focusable when disabled. */
-  setFocusableWhenDisabled(value: boolean): void;
-
-  /** Set the tab index. */
-  setTabIndex(value: number): void;
-
-  /** Set the role. Use `null` to remove, `undefined` for auto-assignment. */
-  setRole(value: string | null | undefined): void;
-}
-
-/** Configuration props for the button primitive. */
-export interface NgpButtonProps {
-  /**
-   * Whether the element is disabled.
-   * @default false
-   */
-  readonly disabled?: Signal<boolean>;
-
-  /**
-   * Whether the element remains focusable when disabled (stays in tab order).
-   * @default false
-   */
-  readonly focusableWhenDisabled?: Signal<boolean>;
-
-  /**
-   * The tab index. Adjusted when disabled based on `focusableWhenDisabled`.
-   * @default 0
-   */
-  readonly tabIndex?: Signal<number>;
-
-  /**
-   * The ARIA role. Auto-assigned for non-native elements (`role="button"` on divs/spans).
-   * Native buttons and anchors with href keep their implicit roles.
-   * @default undefined
-   */
-  readonly role?: Signal<string | null | undefined>;
+  /** Initial type attribute value. Only valid if the element supports the type attribute. */
+  readonly type?: string;
 }
 
 export const [NgpButtonStateToken, ngpButton, injectButtonState, provideButtonState] =
   createPrimitive(
     'NgpButton',
-    ({
-      disabled: _disabled = signal(false),
-      focusableWhenDisabled: _focusableWhenDisabled = signal(false),
-      tabIndex: _tabIndex = signal(0),
-      role: _role = signal(undefined),
-    }: NgpButtonProps): NgpButtonState => {
+    ({ role, type, ...disableProps }: NgpButtonProps): NgpButtonState => {
       const element = injectElementRef();
 
-      const disabled = controlled(_disabled);
-      const focusableWhenDisabled = controlled(_focusableWhenDisabled);
-      const tabIndex = controlled(_tabIndex);
-      const role = controlled(_role);
+      // Delegate disabled state management to the a11y module.
+      // This handles: disabled/aria-disabled attributes, tabindex adjustment, and event blocking.
+      const disableState = ngpDisable(disableProps);
+      const { disabled, focusableWhenDisabled } = disableState;
 
-      ngpDisable({ disabled, focusableWhenDisabled, tabIndex });
-
+      // Setup interaction states via data attributes (data-hover, data-press, data-focus-visible).
+      // These are disabled when the button is disabled, except focus-visible which respects
+      // focusableWhenDisabled to allow focus rings on focusable disabled buttons.
+      const enabled = computed(() => !disabled());
       ngpInteractions({
-        hover: true,
-        press: true,
-        focusVisible: true,
-        disabled,
-        focusableWhenDisabled,
+        hover: enabled,
+        press: enabled,
+        focusVisible: computed(() => enabled() || focusableWhenDisabled()),
       });
 
-      // Screen readers need an explicit role to announce non-native elements as buttons.
-      // We use isomorphicEffect because routerLink sets href asynchronously, and we need
-      // to check the final DOM state to avoid incorrectly adding role="button" to links.
-      isomorphicEffect({
-        earlyRead: () => {
-          const value = role();
-          console.log(value);
+      // Assign role="button" to non-native elements for screen reader announcements.
+      // Native <button>, <input type="button|submit|reset">, and <a href> elements
+      // have implicit roles and don't need explicit assignment.
+      if (isString(role)) {
+        element.nativeElement.setAttribute('role', role);
+      } else {
+        isomorphicRender({
+          earlyRead: () => {
+            if (element.nativeElement.hasAttribute('role')) {
+              return false;
+            }
 
-          // Explicit role takes precedence (including null to remove)
-          if (!isUndefined(value)) {
-            return value;
-          }
+            // Skip elements with implicit button role
+            if (
+              isNativeButtonTag(element) ||
+              isNativeInputTag(element, { types: ['button', 'submit', 'reset', 'image'] })
+            ) {
+              return false;
+            }
 
-          // Native <button> and <input type="button|submit|reset"> have implicit button role
-          // Anchors with href have implicit link role; adding button role would be incorrect
-          if (
-            isNativeButtonTag(element) ||
-            isNativeInputTag(element, 'button', 'submit', 'reset') ||
-            isNativeAnchorTag(element, true)
-          ) {
-            return undefined;
-          }
+            // Skip anchors with href (implicit link role)
+            if (isNativeAnchorTag(element, { validLink: true })) {
+              return false;
+            }
 
-          // Non-native elements (div, span, etc.) need explicit role for accessibility
-          return 'button';
-        },
-        write: _value => {
-          const value = _value();
-          if (isString(value)) {
-            element.nativeElement.setAttribute('role', value);
-          } else if (value === null) {
-            element.nativeElement.removeAttribute('role');
-          }
-        },
-      });
+            return true;
+          },
+          write: setButtonRole => {
+            if (setButtonRole) {
+              element.nativeElement.setAttribute('role', 'button');
+            }
+          },
+        });
+      }
 
-      // WCAG 2.1.1 requires keyboard operability. Native buttons respond to Enter/Space
-      // automatically, but divs, spans, and anchors without href do not.
+      if (isString(type) && 'type' in element.nativeElement) {
+        element.nativeElement.type = type;
+      }
+
+      // Keyboard activation per WAI-ARIA Button Pattern:
+      // - Enter: Activates immediately on keydown
+      // - Space: Activates on keyup (allows cancellation by moving focus before releasing)
+      //
+      // Native buttons handle this automatically; we only add it for non-native elements.
+      // Anchors with href are excluded as browsers handle their keyboard behavior.
       listener(element, 'keydown', event => {
-        // Only handle direct events (not bubbled from children) on non-native elements
-        const shouldClick =
+        const isNonNativeButton =
           event.target === event.currentTarget &&
           !isNativeButtonTag(element) &&
-          !isNativeAnchorTag(element, true) && // Re-check at runtime; routerLink may have added href
+          !isNativeAnchorTag(element, { validLink: true }) &&
           !disabled();
+
+        if (!isNonNativeButton) return;
 
         const isSpaceKey = event.key === ' ';
         const isEnterKey = event.key === 'Enter';
 
-        if (shouldClick) {
-          // Prevent default to stop Space from scrolling the page
-          if (isSpaceKey || isEnterKey) {
-            event.preventDefault();
-          }
-
-          // Native button behavior: Enter fires immediately, Space waits for keyup
-          // (allowing users to cancel by moving focus before releasing)
-          if (isEnterKey) {
-            element.nativeElement.click();
-          }
+        // Prevent Space from scrolling the page, Enter from submitting forms
+        if (isSpaceKey || isEnterKey) {
+          event.preventDefault();
         }
-      });
 
-      // Space activation on keyup matches native button behavior and allows cancellation.
-      // Note: We cannot use keyup for native buttons because calling preventDefault
-      // in keyup suppresses the click event. See: https://codesandbox.io/p/sandbox/button-keyup-preventdefault-dn7f0
-      listener(element, 'keyup', event => {
-        if (
-          event.target === event.currentTarget &&
-          !isNativeButtonTag(element) &&
-          !isNativeAnchorTag(element, true) &&
-          !disabled() &&
-          event.key === ' '
-        ) {
+        // Enter fires immediately (consistent with native button behavior)
+        if (isEnterKey) {
           element.nativeElement.click();
         }
       });
 
-      return {
-        disabled: disabled.asReadonly(),
-        focusableWhenDisabled: focusableWhenDisabled.asReadonly(),
-        tabIndex: tabIndex.asReadonly(),
-        role: role.asReadonly(),
-        setDisabled: value => disabled.set(value),
-        setFocusableWhenDisabled: value => focusableWhenDisabled.set(value),
-        setTabIndex: value => tabIndex.set(value),
-        setRole: value => role.set(value),
-      } satisfies NgpButtonState;
+      // Space key activates on keyup to match native button behavior
+      listener(element, 'keyup', event => {
+        const isSpaceOnNonNativeButton =
+          event.target === event.currentTarget &&
+          !isNativeButtonTag(element) &&
+          !isNativeAnchorTag(element, { validLink: true }) &&
+          !disabled() &&
+          event.key === ' ';
+
+        if (isSpaceOnNonNativeButton) {
+          element.nativeElement.click();
+        }
+      });
+
+      return { ...disableState } satisfies NgpButtonState;
     },
   );

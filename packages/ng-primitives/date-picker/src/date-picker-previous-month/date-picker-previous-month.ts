@@ -10,7 +10,6 @@ import { injectDateControllerState } from '../date-picker/date-picker-state';
   selector: '[ngpDatePickerPreviousMonth]',
   exportAs: 'ngpDatePickerPreviousMonth',
   host: {
-    '[attr.aria-disabled]': 'disabled()',
     '[attr.type]': 'isButton ? "button" : null',
   },
 })
@@ -36,7 +35,7 @@ export class NgpDatePickerPreviousMonth<T> {
   protected readonly isButton = this.elementRef.nativeElement.tagName.toLowerCase() === 'button';
 
   /**
-   * Determine if the next month is disabled.
+   * Determine if the previous month is disabled.
    * @internal
    */
   readonly disabled = computed(() => {
@@ -73,11 +72,7 @@ export class NgpDatePickerPreviousMonth<T> {
    * Navigate to the previous month.
    */
   @HostListener('click')
-  protected navigateToPreviouMonth(): void {
-    if (this.disabled()) {
-      return;
-    }
-
+  protected navigateToPreviousMonth(): void {
     // move focus to the first day of the previous month.
     let date = this.state().focusedDate();
     date = this.dateAdapter.set(date, {

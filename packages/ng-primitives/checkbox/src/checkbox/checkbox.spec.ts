@@ -104,7 +104,8 @@ describe('NgpCheckbox', () => {
     });
 
     it('should emit the checkedChange event when the space key is pressed', () => {
-      fireEvent.keyDown(container.getByRole('checkbox'), { key: ' ' });
+      // Space key activates on keyup to match native button behavior
+      fireEvent.keyUp(container.getByRole('checkbox'), { key: ' ' });
       expect(checkedChange).toHaveBeenCalledWith(true);
     });
 

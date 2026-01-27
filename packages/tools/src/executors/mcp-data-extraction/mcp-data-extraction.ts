@@ -212,14 +212,13 @@ function inferCategory(primitiveName: string): string {
     layout: ['accordion', 'separator', 'portal'],
     data: ['avatar'],
     utility: [
+      'disable',
       'focus-trap',
       'roving-focus',
       'resize',
       'autofill',
       'interactions',
       'a11y',
-      'disable',
-      'visually-hidden',
     ],
     'date-time': ['date-picker', 'date-time', 'date-time-luxon'],
   };

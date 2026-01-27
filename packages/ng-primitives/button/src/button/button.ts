@@ -1,31 +1,41 @@
 import { BooleanInput, NumberInput } from '@angular/cdk/coercion';
 import { booleanAttribute, Directive, input, numberAttribute } from '@angular/core';
-import { injectElementRef } from 'ng-primitives/internal';
 import { ngpButton, provideButtonState } from './button-state';
 
 /**
- * Adds accessible button behavior to any element with automatic role assignment,
- * keyboard activation, and interaction states.
+ * Enhances any element with accessible button behavior.
+ *
+ * ## What it does
+ * - Adds `role="button"` to non-native elements (divs, spans, etc.)
+ * - Enables keyboard activation via Enter and Space keys
+ * - Manages disabled state with proper ARIA attributes
+ * - Provides interaction states (hover, press, focus) via data attributes
+ *
+ * ## When to use
+ * Apply to any element that triggers an action:
+ * - Native `<button>` elements for enhanced interaction states
+ * - `<div>`, `<span>`, or other elements when semantic HTML isn't feasible
+ * - `<a>` elements without href that act as buttons
  *
  * @usageNotes
  * ### Basic usage
  * ```html
- * <button ngpButton>Native button</button>
- * <div ngpButton>Custom button (gets role="button")</div>
+ * <button ngpButton>Save</button>
  * ```
  *
- * ### With disabled state
+ * ### Non-native element
  * ```html
- * <button ngpButton [disabled]="true" [focusableWhenDisabled]="true">Loading...</button>
+ * <div ngpButton>Custom Button</div>
  * ```
  *
- * ### Styling via data attributes
- * ```css
- * [data-hover] { background: lightblue; }
- * [data-press] { transform: scale(0.98); }
- * [data-focus-visible] { outline: 2px solid blue; }
- * [data-disabled] { opacity: 0.5; }
+ * ### Disabled with focus (for loading states or tooltips)
+ * ```html
+ * <button ngpButton [disabled]="isDisabled || isLoading" [focusableWhenDisabled]="isLoading">
+ *   {{ isLoading ? 'Loading...' : 'Submit' }}
+ * </button>
  * ```
+ *
+ * @see {@link https://www.w3.org/WAI/ARIA/apg/patterns/button/ WAI-ARIA Button Pattern}
  */
 @Directive({
   selector: '[ngpButton]',
@@ -33,65 +43,72 @@ import { ngpButton, provideButtonState } from './button-state';
   providers: [provideButtonState({ inherit: false })],
 })
 export class NgpButton {
-  protected readonly elementRef = injectElementRef();
-
   /**
-   * Whether the element is disabled. Applies native `disabled` on buttons/inputs,
-   * `aria-disabled` on other elements, and blocks click/keyboard events.
-   * @default false
+   * Whether the button is disabled.
+   *
+   * When disabled:
+   * - Click, keyboard, and pointer events are blocked
+   * - `data-disabled` attribute is added for styling
+   * - Native buttons receive the `disabled` attribute
+   * - Non-native elements receive `aria-disabled="true"`
    */
   readonly disabled = input<boolean, BooleanInput>(false, {
     transform: booleanAttribute,
   });
 
   /**
-   * Keep the element focusable when disabled. Useful for loading states where
-   * users should discover and tab away from a disabled control.
-   * @default false
+   * Whether the button remains focusable when disabled.
+   *
+   * Enable this for:
+   * - Loading states: Prevents keyboard users from losing focus when a button
+   *   temporarily disables during an async operation
+   * - Tooltips: Allows showing explanatory tooltips on disabled buttons
+   * - Discoverability: Lets screen reader users discover and understand
+   *   why an action is unavailable
+   *
+   * When enabled, uses `aria-disabled` instead of the native `disabled` attribute
+   * to keep the button in the tab order while still blocking activation.
+   *
+   * @see {@link https://www.w3.org/WAI/ARIA/apg/practices/keyboard-interface/#focusabilityofdisabledcontrols APG: Focusability of Disabled Controls}
    */
   readonly focusableWhenDisabled = input<boolean, BooleanInput>(false, {
     transform: booleanAttribute,
   });
 
   /**
-   * Tab index of the element.
-   * Adjusted automatically when disabled based on `focusableWhenDisabled` setting.
+   * The tab index for the button.
    * @default 0
    */
   readonly tabIndex = input<number, NumberInput>(0, {
-    transform: value => numberAttribute(value, 0),
+    transform: v => numberAttribute(v, 0),
   });
 
-  /**
-   * The ARIA role. Auto-assigned for non-native elements (`role="button"` on divs/spans).
-   * Set to a custom role, `null` to remove, or `undefined` for automatic assignment.
-   */
-  readonly role = input<string | null>();
-
+  /** @internal */
   protected readonly state = ngpButton({
     disabled: this.disabled,
     focusableWhenDisabled: this.focusableWhenDisabled,
     tabIndex: this.tabIndex,
-    role: this.role,
   });
 
-  /** Programmatically set the disabled state. */
+  /**
+   * Programmatically set the disabled state.
+   * Useful when the disabled state is controlled by component logic rather than a template binding.
+   */
   setDisabled(value: boolean): void {
     this.state.setDisabled(value);
   }
 
-  /** Programmatically set whether the element is focusable when disabled. */
+  /**
+   * Programmatically set whether the button remains focusable when disabled.
+   */
   setFocusableWhenDisabled(value: boolean): void {
     this.state.setFocusableWhenDisabled(value);
   }
 
-  /** Programmatically set the tab index. */
+  /**
+   * Programmatically set the tab index.
+   */
   setTabIndex(value: number): void {
     this.state.setTabIndex(value);
-  }
-
-  /** Programmatically set the role. Use `null` to remove, `undefined` for auto-assignment. */
-  setRole(value: string | null | undefined): void {
-    this.state.setRole(value);
   }
 }

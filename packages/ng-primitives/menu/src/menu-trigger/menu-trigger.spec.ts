@@ -25,5 +25,8 @@ describe('NgpMenuTrigger', () => {
 
     const menu = screen.getByTestId('ngp-menu');
     expect(menu).toBeInTheDocument();
+
+    const items = screen.getAllByRole('menuitem');
+    expect(items).toHaveLength(3);
   }));
 });

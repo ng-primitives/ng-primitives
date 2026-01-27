@@ -1,5 +1,5 @@
-import { HOST_TAG_NAME, Signal, computed, inject, signal } from '@angular/core';
-import { ngpInteractions } from 'ng-primitives/interactions';
+import { Signal, computed, signal } from '@angular/core';
+import { ngpButton } from 'ng-primitives/button';
 import { injectElementRef } from 'ng-primitives/internal';
 import {
   attrBinding,
@@ -54,7 +54,6 @@ export interface NgpTabButtonProps {
 export const [NgpTabButtonStateToken, ngpTabButton, injectTabButtonState, provideTabButtonState] =
   createPrimitive('NgpTabButton', ({ value, disabled = signal(false), id }: NgpTabButtonProps) => {
     const element = injectElementRef();
-    const tagName = inject(HOST_TAG_NAME);
     const tabset = injectTabsetState();
 
     // Computed properties
@@ -62,37 +61,22 @@ export const [NgpTabButtonStateToken, ngpTabButton, injectTabButtonState, provid
     const ariaControls = computed(() => `${tabset().id()}-panel-${value()}`);
     const active = computed(() => tabset().selectedTab() === value());
 
+    ngpButton({ disabled, role: 'tab', type: 'button' });
+
     // Host bindings
-    attrBinding(element, 'role', 'tab');
     attrBinding(element, 'id', buttonId);
     attrBinding(element, 'aria-controls', ariaControls);
     attrBinding(element, 'aria-selected', active);
     dataBinding(element, 'data-active', active);
-    dataBinding(element, 'data-disabled', disabled);
-    attrBinding(element, 'disabled', () => (tagName === 'button' && disabled() ? '' : null));
     dataBinding(element, 'data-orientation', () => tabset().orientation());
 
     // Event listeners
-    listener(element, 'click', select);
+    listener(element, 'click', () => tabset().select(value()));
     listener(element, 'focus', activateOnFocus);
-
-    // Setup interactions
-    ngpInteractions({
-      hover: true,
-      press: true,
-      focusVisible: true,
-      disabled,
-    });
-
-    function select(): void {
-      if (disabled?.() === false) {
-        tabset().select(value());
-      }
-    }
 
     function activateOnFocus(): void {
       if (tabset().activateOnFocus()) {
-        select();
+        element.nativeElement.click();
       }
     }
 
@@ -114,6 +98,6 @@ export const [NgpTabButtonStateToken, ngpTabButton, injectTabButtonState, provid
     return {
       id: buttonId,
       active,
-      select,
+      select: () => element.nativeElement.click(),
     } satisfies NgpTabButtonState;
   });

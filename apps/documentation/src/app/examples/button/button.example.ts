@@ -1,14 +1,11 @@
 import { Component } from '@angular/core';
-import { RouterLink } from '@angular/router';
 import { NgpButton } from 'ng-primitives/button';
 
 @Component({
   selector: 'app-button',
-  imports: [NgpButton, RouterLink],
+  imports: [NgpButton],
   template: `
     <button ngpButton>Button</button>
-    <a ngpButton>Button</a>
-    <a ngpButton routerLink="/">Button</a>
   `,
   styles: `
     [ngpButton] {

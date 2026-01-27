@@ -76,7 +76,7 @@ describe('NgpToggleGroup', () => {
     it('should allow deselection', async () => {
       const { getByTestId } = await render(
         `
-        <div ngpToggleGroup ngpToggleGroupAllowDeselection="true">
+        <div ngpToggleGroup ngpToggleGroupAllowDeselection="true" [ngpToggleGroupValue]="['option-1']">
           <div data-testid="toggle-item-1" ngpToggleGroupItem ngpToggleGroupItemValue="option-1"></div>
           <div data-testid="toggle-item-2" ngpToggleGroupItem ngpToggleGroupItemValue="option-2"></div>
         </div>
@@ -87,6 +87,7 @@ describe('NgpToggleGroup', () => {
       );
 
       const item1 = getByTestId('toggle-item-1');
+      expect(item1).toHaveAttribute('data-selected');
       item1.click();
       expect(item1).not.toHaveAttribute('data-selected');
     });
@@ -94,7 +95,7 @@ describe('NgpToggleGroup', () => {
     it('should not allow deselection when disabled', async () => {
       const { getByTestId } = await render(
         `
-        <div ngpToggleGroup ngpToggleGroupAllowDeselection="false">
+        <div ngpToggleGroup ngpToggleGroupAllowDeselection="false" [ngpToggleGroupValue]="['option-1']">
           <div data-testid="toggle-item-1" ngpToggleGroupItem ngpToggleGroupItemValue="option-1"></div>
           <div data-testid="toggle-item-2" ngpToggleGroupItem ngpToggleGroupItemValue="option-2"></div>
         </div>
@@ -105,6 +106,7 @@ describe('NgpToggleGroup', () => {
       );
 
       const item1 = getByTestId('toggle-item-1');
+      expect(item1).toHaveAttribute('data-selected');
       fireEvent.click(item1);
       expect(item1).toHaveAttribute('data-selected');
     });
@@ -147,6 +149,7 @@ describe('NgpToggleGroup', () => {
       );
 
       const item1 = getByTestId('toggle-item-1');
+      expect(item1).not.toHaveAttribute('data-selected');
       fireEvent.click(item1);
       expect(item1).not.toHaveAttribute('data-selected');
     });
