@@ -1,5 +1,5 @@
 import { computed, Directive, HostListener, input } from '@angular/core';
-import { ngpButton } from 'ng-primitives/button';
+import { ngpInteractions } from 'ng-primitives/interactions';
 import { injectElementRef } from 'ng-primitives/internal';
 import { uniqueId } from 'ng-primitives/utils';
 import { injectComboboxState } from '../combobox/combobox-state';
@@ -8,12 +8,16 @@ import { injectComboboxState } from '../combobox/combobox-state';
   selector: 'button[ngpComboboxButton]',
   exportAs: 'ngpComboboxButton',
   host: {
+    type: 'button',
+    tabindex: '-1',
     'aria-haspopup': 'listbox',
     '[id]': 'id()',
     '[attr.aria-controls]': 'dropdownId()',
     '[attr.aria-expanded]': 'state().open()',
     '[attr.data-open]': 'state().open() ? "" : undefined',
+    '[attr.data-disabled]': 'state().disabled() ? "" : undefined',
     '[attr.data-multiple]': 'state().multiple() ? "" : undefined',
+    '[disabled]': 'state().disabled()',
   },
 })
 export class NgpComboboxButton {
@@ -33,7 +37,12 @@ export class NgpComboboxButton {
   readonly dropdownId = computed(() => this.state().dropdown()?.id());
 
   constructor() {
-    ngpButton({ disabled: this.state().disabled, type: 'button', tabIndex: -1 });
+    ngpInteractions({
+      hover: true,
+      press: true,
+      disabled: this.state().disabled,
+    });
+
     this.state().registerButton(this);
   }
 

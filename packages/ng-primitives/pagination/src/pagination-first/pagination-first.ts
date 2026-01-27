@@ -10,6 +10,7 @@ import { injectPaginationState } from '../pagination/pagination-state';
   selector: '[ngpPaginationFirst]',
   exportAs: 'ngpPaginationFirst',
   host: {
+    '[tabindex]': 'disabled() ? -1 : 0',
     '[attr.data-first-page]': 'paginationState().firstPage() ? "" : null',
   },
 })
@@ -35,24 +36,29 @@ export class NgpPaginationFirst {
   );
 
   constructor() {
-    ngpButton({ disabled: this.disabled, type: 'button' });
+    ngpButton({ disabled: this.disabled });
   }
   /**
    * Go to the first page.
    */
   @HostListener('click')
   goToFirstPage() {
+    if (this.disabled()) {
+      return;
+    }
+
     this.paginationState().goToPage(1);
   }
 
   /**
    * A click event may not be fired if this is on an anchor tag and the href is empty.
    * This is a workaround to ensure the click event is fired.
-   *
-   * @deprecated This was a workaround to ensure the click event is fired for 'enter' and 'space' keys
-   * which now happens automatically in {@link ngpButton}.
    */
-  protected onEnter(_event: Event): void {
+  @HostListener('keydown.enter', ['$event'])
+  @HostListener('keydown.space', ['$event'])
+  protected onEnter(event: Event): void {
+    event.preventDefault();
+    event.stopPropagation();
     this.goToFirstPage();
   }
 }

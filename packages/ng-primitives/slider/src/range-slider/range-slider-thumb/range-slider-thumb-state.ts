@@ -1,6 +1,6 @@
 import { DOCUMENT } from '@angular/common';
 import { computed, inject, Injector, Signal } from '@angular/core';
-import { ngpButton } from 'ng-primitives/button';
+import { ngpInteractions } from 'ng-primitives/interactions';
 import { injectElementRef } from 'ng-primitives/internal';
 import {
   attrBinding,
@@ -71,18 +71,23 @@ export const [
       thumb() === 'low' ? rangeSlider().lowPercentage() : rangeSlider().highPercentage(),
     );
 
-    ngpButton({
+    // Setup interactions
+    ngpInteractions({
+      hover: true,
+      focusVisible: true,
+      press: true,
       disabled: rangeSlider().disabled,
-      role: 'slider',
-      type: 'button',
     });
 
     // Host bindings
+    attrBinding(element, 'role', 'slider');
     attrBinding(element, 'aria-valuemin', () => rangeSlider().min());
     attrBinding(element, 'aria-valuemax', () => rangeSlider().max());
     attrBinding(element, 'aria-valuenow', value);
     attrBinding(element, 'aria-orientation', () => rangeSlider().orientation());
+    attrBinding(element, 'tabindex', () => (rangeSlider().disabled() ? -1 : 0));
     dataBinding(element, 'data-orientation', () => rangeSlider().orientation());
+    dataBinding(element, 'data-disabled', () => rangeSlider().disabled());
     dataBinding(element, 'data-thumb', thumb);
     styleBinding(element, 'inset-inline-start.%', () =>
       rangeSlider().orientation() === 'horizontal' ? percentage() : null,

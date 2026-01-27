@@ -191,7 +191,7 @@ export const [
     const thumbs = signal<ElementRef<HTMLElement>[]>([]);
 
     // Form control integration
-    ngpFormControl({ id, disabled });
+    const status = ngpFormControl({ id, disabled });
 
     const lowPercentage = computed(() => {
       const range = max() - min();
@@ -210,6 +210,7 @@ export const [
     // Host bindings
     attrBinding(element, 'id', id);
     dataBinding(element, 'data-orientation', orientation);
+    dataBinding(element, 'data-disabled', status().disabled);
 
     function setLowValue(value: number): void {
       const clampedValue = Math.max(min(), Math.min(value, high()));

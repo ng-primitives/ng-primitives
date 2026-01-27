@@ -1,6 +1,6 @@
 import { DOCUMENT } from '@angular/common';
 import { computed, inject, Injector, Signal } from '@angular/core';
-import { ngpButton } from 'ng-primitives/button';
+import { ngpInteractions } from 'ng-primitives/interactions';
 import { injectElementRef } from 'ng-primitives/internal';
 import {
   attrBinding,
@@ -58,26 +58,31 @@ export const [
     let activePointerId: number | null = null;
     let cleanupDocumentListeners: (() => void)[] = [];
 
-    ngpButton({
-      disabled: slider().disabled,
-      role: 'slider',
-      type: 'button',
-    });
-
     const ariaValueNow = computed(() => slider().value());
+    const tabindex = computed(() => (slider().disabled() ? -1 : 0));
 
     // Host bindings
+    attrBinding(elementRef, 'role', 'slider');
     attrBinding(elementRef, 'aria-valuemin', () => slider().min().toString());
     attrBinding(elementRef, 'aria-valuemax', () => slider().max().toString());
     attrBinding(elementRef, 'aria-valuenow', () => ariaValueNow().toString());
     attrBinding(elementRef, 'aria-orientation', () => slider().orientation());
+    attrBinding(elementRef, 'tabindex', () => tabindex().toString());
     dataBinding(elementRef, 'data-orientation', () => slider().orientation());
+    dataBinding(elementRef, 'data-disabled', () => slider().disabled());
     styleBinding(elementRef, 'inset-inline-start.%', () =>
       slider().orientation() === 'horizontal' ? slider().percentage() : null,
     );
     styleBinding(elementRef, 'inset-block-start.%', () =>
       slider().orientation() === 'vertical' ? 100 - slider().percentage() : null,
     );
+
+    ngpInteractions({
+      hover: true,
+      focusVisible: true,
+      press: true,
+      disabled: slider().disabled,
+    });
 
     // Pointer interactions
     listener(elementRef, 'pointerdown', (event: PointerEvent) => {

@@ -26,6 +26,7 @@ import { provideRadioGroupState, radioGroupState } from './radio-group-state';
     '[id]': 'id()',
     '[attr.aria-orientation]': 'state.orientation()',
     '[attr.data-orientation]': 'state.orientation()',
+    '[attr.data-disabled]': 'state.disabled() ? "" : null',
   },
 })
 export class NgpRadioGroup<T> implements OnInit {

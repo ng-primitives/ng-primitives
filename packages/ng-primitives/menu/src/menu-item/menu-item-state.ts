@@ -21,7 +21,7 @@ export const [NgpMenuItemStateToken, ngpMenuItem, injectMenuItemState, provideMe
     const injector = inject(Injector);
     const parentMenu = injectMenuState({ optional: true });
 
-    ngpButton({ disabled, role: 'menuitem', type: 'button' });
+    ngpButton({ disabled, role: 'menuitem' });
 
     // Event listeners
     listener(element, 'click', onClick);

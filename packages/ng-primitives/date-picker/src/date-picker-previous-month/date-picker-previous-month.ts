@@ -9,6 +9,10 @@ import { injectDateControllerState } from '../date-picker/date-picker-state';
 @Directive({
   selector: '[ngpDatePickerPreviousMonth]',
   exportAs: 'ngpDatePickerPreviousMonth',
+  host: {
+    '[attr.aria-disabled]': 'disabled()',
+    '[attr.type]': 'isButton ? "button" : null',
+  },
 })
 export class NgpDatePickerPreviousMonth<T> {
   /**
@@ -32,7 +36,7 @@ export class NgpDatePickerPreviousMonth<T> {
   protected readonly isButton = this.elementRef.nativeElement.tagName.toLowerCase() === 'button';
 
   /**
-   * Determine if the previous month is disabled.
+   * Determine if the next month is disabled.
    * @internal
    */
   readonly disabled = computed(() => {
@@ -42,7 +46,7 @@ export class NgpDatePickerPreviousMonth<T> {
 
     const minDate = this.state().min();
 
-    // if the previous month is out of bounds, disable it.
+    // if the next month is out of bounds, disable it.
     const firstDay = this.dateAdapter.set(
       this.dateAdapter.startOfMonth(this.state().focusedDate()),
       {
@@ -53,7 +57,7 @@ export class NgpDatePickerPreviousMonth<T> {
       },
     );
 
-    // if there is a min date and it is equal to or before the first day of the month, disable it.
+    // if there is a min date and it is equal to or after the first day of the month, disable it.
     if (minDate && this.dateAdapter.compare(minDate, firstDay) >= 0) {
       return true;
     }
@@ -62,14 +66,18 @@ export class NgpDatePickerPreviousMonth<T> {
   });
 
   constructor() {
-    ngpButton({ disabled: this.disabled, type: 'button' });
+    ngpButton({ disabled: this.disabled });
   }
 
   /**
    * Navigate to the previous month.
    */
   @HostListener('click')
-  protected navigateToPreviousMonth(): void {
+  protected navigateToPreviouMonth(): void {
+    if (this.disabled()) {
+      return;
+    }
+
     // move focus to the first day of the previous month.
     let date = this.state().focusedDate();
     date = this.dateAdapter.set(date, {

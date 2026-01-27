@@ -392,7 +392,7 @@ describe('NgpFormControl', () => {
       fixture.detectChanges();
 
       expect(input).toHaveAttribute('data-disabled');
-      expect(input).toHaveAttribute('disabled');
+      expect(input).not.toHaveAttribute('disabled'); // Form control disabled doesn't add HTML disabled
     });
   });
 

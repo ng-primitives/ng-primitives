@@ -14,7 +14,10 @@ import { NgpDatePickerDateButtonToken } from './date-picker-date-button-token';
   exportAs: 'ngpDatePickerDateButton',
   providers: [{ provide: NgpDatePickerDateButtonToken, useExisting: NgpDatePickerDateButton }],
   host: {
+    '[attr.role]': '!isButton ? "button" : null',
+    '[attr.tabindex]': 'focused() ? 0 : -1',
     '[attr.data-selected]': 'selected() ? "" : null',
+    '[attr.aria-disabled]': 'disabled()',
     '[attr.data-outside-month]': 'outside() ? "" : null',
     '[attr.data-today]': 'today() ? "" : null',
     '[attr.data-range-start]': 'start() ? "" : null',
@@ -113,6 +116,11 @@ export class NgpDatePickerDateButton<T> implements OnDestroy {
     return false;
   });
 
+  /**
+   * Determine if the element is a button.
+   */
+  protected readonly isButton = this.elementRef.nativeElement.tagName === 'BUTTON';
+
   constructor() {
     this.state().registerButton(this);
     ngpButton({ disabled: this.disabled });
@@ -126,7 +134,21 @@ export class NgpDatePickerDateButton<T> implements OnDestroy {
    * When the button is clicked, select the date.
    */
   @HostListener('click')
-  protected select(): void {
+  @HostListener('keydown.enter', ['$event'])
+  @HostListener('keydown.space', ['$event'])
+  protected select(event?: Event): void {
+    // if the button is disabled, do nothing.
+    if (this.disabled()) {
+      return;
+    }
+
+    // because this may not be a button, we should stop the event from firing twice due to
+    // us listening to both the click and the keydown.enter event.
+    if (event) {
+      event.preventDefault();
+      event.stopPropagation();
+    }
+
     // Select the date with time preservation enabled for button clicks
     this.state().select(this.date, true);
     this.state().setFocusedDate(this.date, 'mouse', 'forward');

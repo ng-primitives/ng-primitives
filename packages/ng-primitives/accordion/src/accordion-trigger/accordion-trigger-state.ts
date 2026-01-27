@@ -1,5 +1,4 @@
-import { computed, signal, Signal } from '@angular/core';
-import { ngpButton } from 'ng-primitives/button';
+import { HOST_TAG_NAME, inject, signal, Signal } from '@angular/core';
 import { injectElementRef } from 'ng-primitives/internal';
 import { attrBinding, createPrimitive, dataBinding, listener } from 'ng-primitives/state';
 import { uniqueId } from 'ng-primitives/utils';
@@ -33,27 +32,38 @@ export const [
   'NgpAccordionTrigger',
   <T>({ id = signal(uniqueId('ngp-accordion-trigger')) }: NgpAccordionTriggerProps) => {
     const element = injectElementRef();
+    const tagName = inject(HOST_TAG_NAME);
     const accordion = injectAccordionState<T>();
     const accordionItem = injectAccordionItemState<T>();
 
-    ngpButton({
-      disabled: computed(() => accordionItem().disabled() || accordion().disabled()),
-      type: 'button',
-    });
-
     // Host bindings
     attrBinding(element, 'id', id);
+    attrBinding(element, 'type', tagName === 'button' ? 'button' : null);
     attrBinding(element, 'aria-controls', accordionItem().contentId);
     attrBinding(element, 'aria-expanded', accordionItem().open);
     dataBinding(element, 'data-orientation', accordion().orientation);
     dataBinding(element, 'data-open', accordionItem().open);
+    dataBinding(
+      element,
+      'data-disabled',
+      () => accordionItem().disabled() || accordion().disabled(),
+    );
 
     // register the trigger with the accordion item
     accordionItem().setTrigger(id());
 
-    // Event listeners
-    listener(element, 'click', () => accordion().toggle(accordionItem().value()!));
+    // Methods
+    function toggle(): void {
+      if (accordionItem().disabled() || accordion().disabled()) {
+        return;
+      }
 
-    return { id, toggle: () => element.nativeElement.click() } satisfies NgpAccordionTriggerState;
+      accordion().toggle(accordionItem().value()!);
+    }
+
+    // Event listeners
+    listener(element, 'click', toggle);
+
+    return { id, toggle } satisfies NgpAccordionTriggerState;
   },
 );

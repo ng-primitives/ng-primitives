@@ -1,5 +1,4 @@
 import { Signal, computed, signal } from '@angular/core';
-import { ngpDisable } from 'ng-primitives/disable';
 import { explicitEffect, injectElementRef } from 'ng-primitives/internal';
 import { attrBinding, dataBinding } from 'ng-primitives/state';
 import { NgpControlStatus, controlStatus } from 'ng-primitives/utils';
@@ -37,8 +36,10 @@ export function ngpFormControl({
     return descriptions.length > 0 ? descriptions.join(' ') : null;
   });
 
-  const isDisabled = computed(() => status().disabled || disabled());
-  ngpDisable({ disabled: isDisabled });
+  const supportsDisabledAttribute = 'disabled' in elementRef.nativeElement;
+
+  // Host bindings
+  attrBinding(elementRef, 'disabled', () => (supportsDisabledAttribute && disabled() ? '' : null));
 
   explicitEffect([id], ([id], onCleanup) => {
     formField()?.setFormControl(id);
@@ -54,6 +55,7 @@ export function ngpFormControl({
   dataBinding(elementRef, 'data-pristine', () => status().pristine);
   dataBinding(elementRef, 'data-dirty', () => status().dirty);
   dataBinding(elementRef, 'data-pending', () => status().pending);
+  dataBinding(elementRef, 'data-disabled', () => disabled() || status().disabled);
 
-  return computed(() => ({ ...status(), disabled: isDisabled() }));
+  return computed(() => ({ ...status(), disabled: status().disabled || disabled() }));
 }

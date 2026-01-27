@@ -1,6 +1,6 @@
-import { Signal, signal, WritableSignal } from '@angular/core';
-import { ngpButton } from 'ng-primitives/button';
+import { computed, Signal, signal, WritableSignal } from '@angular/core';
 import { ngpFormControl } from 'ng-primitives/form-field';
+import { ngpInteractions } from 'ng-primitives/interactions';
 import { injectElementRef } from 'ng-primitives/internal';
 import {
   attrBinding,
@@ -80,22 +80,48 @@ export const [NgpSwitchStateToken, ngpSwitch, injectSwitchState, provideSwitchSt
       onCheckedChange,
     }: NgpSwitchProps): NgpSwitchState => {
       const element = injectElementRef<HTMLElement>();
+      const isButton = element.nativeElement.tagName.toLowerCase() === 'button';
       const checked = controlled(_checked);
-      const disabled = controlled(_disabled);
+      const disabledInput = controlled(_disabled);
 
       // Form control and interactions
-      ngpFormControl({ id, disabled });
-      ngpButton({ disabled, role: 'switch', type: 'button' });
+      const status = ngpFormControl({ id, disabled: disabledInput });
+      const disabled = computed(() => status().disabled ?? disabledInput());
+      ngpInteractions({ hover: true, press: true, focusVisible: true, disabled });
 
       const checkedChange = emitter<boolean>();
+      const tabindex = computed(() => (disabled() ? -1 : 0));
 
       // Host bindings
+      attrBinding(element, 'role', 'switch');
       attrBinding(element, 'id', id);
+      attrBinding(element, 'type', () => (isButton ? 'button' : null));
       attrBinding(element, 'aria-checked', checked);
       dataBinding(element, 'data-checked', checked);
+      attrBinding(element, 'aria-disabled', disabled);
+      dataBinding(element, 'data-disabled', disabled);
+      attrBinding(element, 'disabled', () => (isButton && disabled() ? '' : null));
+      attrBinding(element, 'tabindex', tabindex);
 
       // Listeners
-      listener(element, 'click', () => setChecked(!checked()));
+      listener(element, 'click', event => toggle(event));
+      listener(element, 'keydown', (event: KeyboardEvent) => {
+        if (event.key === ' ' || event.key === 'Space') {
+          event.preventDefault();
+          if (!isButton) {
+            toggle(event);
+          }
+        }
+      });
+
+      function toggle(event?: Event): void {
+        if (disabled()) {
+          return;
+        }
+
+        event?.preventDefault?.();
+        setChecked(!checked());
+      }
 
       function setChecked(value: boolean): void {
         checked.set(value);
@@ -104,15 +130,15 @@ export const [NgpSwitchStateToken, ngpSwitch, injectSwitchState, provideSwitchSt
       }
 
       function setDisabled(value: boolean): void {
-        disabled.set(value);
+        disabledInput.set(value);
       }
 
       return {
         id,
         checked: deprecatedSetter(checked, 'setChecked'),
-        disabled: deprecatedSetter(disabled, 'setDisabled'),
+        disabled: deprecatedSetter(disabledInput, 'setDisabled'),
         checkedChange: checkedChange.asObservable(),
-        toggle: () => element.nativeElement.click(),
+        toggle,
         setChecked,
         setDisabled,
       } satisfies NgpSwitchState;

@@ -8,7 +8,6 @@ import {
   ViewContainerRef,
   WritableSignal,
 } from '@angular/core';
-import { ngpButton } from 'ng-primitives/button';
 import { injectElementRef } from 'ng-primitives/internal';
 import {
   createOverlay,
@@ -190,8 +189,6 @@ export const [
     const overlay = signal<NgpOverlay<T> | null>(null);
     const open = computed(() => overlay()?.isOpen() ?? false);
 
-    ngpButton({ disabled, type: 'button' });
-
     // Host bindings
     attrBinding(element, 'aria-haspopup', 'true');
     attrBinding(element, 'aria-expanded', open);
@@ -199,7 +196,15 @@ export const [
     dataBinding(element, 'data-placement', placement);
 
     // Event listeners
-    listener(element, 'click', event => toggle(event));
+    listener(element, 'click', onClick);
+
+    // Methods
+    function onClick(event: MouseEvent): void {
+      if (disabled?.()) {
+        return;
+      }
+      toggle(event);
+    }
 
     function toggle(event: MouseEvent): void {
       // determine the origin of the event, 0 is keyboard, 1 is mouse

@@ -12,6 +12,9 @@ import { provideNativeSelectState, selectNativeSelectState } from './native-sele
   selector: 'select[ngpNativeSelect]',
   exportAs: 'ngpNativeSelect',
   providers: [provideNativeSelectState()],
+  host: {
+    '[attr.disabled]': 'state.disabled() || null',
+  },
 })
 export class NgpNativeSelect {
   /**

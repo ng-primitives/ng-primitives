@@ -54,7 +54,7 @@ describe('NgpSwitch', () => {
   it('should not toggle or emit when disabled', async () => {
     const checkedChange = jest.fn();
     const { getByRole, rerender } = await render(
-      `<div ngpSwitch [ngpSwitchDisabled]="disabled" (ngpSwitchCheckedChange)="checkedChange($event)"></div>`,
+      `<button ngpSwitch [ngpSwitchDisabled]="disabled" (ngpSwitchCheckedChange)="checkedChange($event)"></button>`,
       {
         imports: [NgpSwitch],
         componentProperties: { disabled: true, checkedChange },
@@ -62,6 +62,7 @@ describe('NgpSwitch', () => {
     );
 
     const button = getByRole('switch');
+    expect(button).toHaveAttribute('aria-disabled', 'true');
     expect(button).toHaveAttribute('data-disabled', '');
     expect(button).toHaveAttribute('tabindex', '-1');
 
@@ -76,7 +77,7 @@ describe('NgpSwitch', () => {
   it('should toggle on space key when element is not a button', async () => {
     const checkedChange = jest.fn();
     const { getByRole } = await render(
-      `<div ngpSwitch (ngpSwitchCheckedChange)="checkedChange($event)"></div>`,
+      `<div ngpSwitch tabindex="0" (ngpSwitchCheckedChange)="checkedChange($event)"></div>`,
       {
         imports: [NgpSwitch],
         componentProperties: { checkedChange },
@@ -84,12 +85,10 @@ describe('NgpSwitch', () => {
     );
 
     const switchDiv = getByRole('switch');
-    // Space key activates on keyup to match native button behavior
-    fireEvent.keyUp(switchDiv, { key: ' ' });
+    fireEvent.keyDown(switchDiv, { key: ' ' });
 
     expect(checkedChange).toHaveBeenCalledWith(true);
     expect(switchDiv).toHaveAttribute('aria-checked', 'true');
-    expect(switchDiv).toHaveAttribute('tabindex', '0');
   });
 
   it('should expose disabled state via aria and data attributes', async () => {
@@ -98,9 +97,10 @@ describe('NgpSwitch', () => {
     });
 
     const button = getByRole('switch');
+    expect(button).toHaveAttribute('aria-disabled', 'true');
     expect(button).toHaveAttribute('data-disabled', '');
     expect(button).toHaveAttribute('disabled', '');
-    expect(button).toHaveAttribute('tabindex', '0');
+    expect(button).toHaveAttribute('tabindex', '-1');
   });
 
   describe('when used within a form', () => {
@@ -190,6 +190,7 @@ describe('NgpSwitch', () => {
       // Should reflect disabled state from form control
       formControl.disable();
       fixture.detectChanges();
+      expect(switchElement).toHaveAttribute('aria-disabled', 'true');
       expect(switchElement).toHaveAttribute('data-disabled', '');
     });
   });
