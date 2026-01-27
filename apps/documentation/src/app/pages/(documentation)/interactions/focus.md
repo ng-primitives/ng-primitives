@@ -1,5 +1,6 @@
 ---
 name: 'Focus'
+sourceUrl: 'https://github.com/ng-primitives/ng-primitives/tree/next/packages/ng-primitives/interactions/src/focus'
 ---
 
 # Focus

@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { QuickLinks } from '../../components/quick-links/quick-links';
-import { HeadingAnchorDirective } from '../../directives/heading-anchor.directive';
+import { HeadingAnchor } from '../../directives/heading-anchor';
 
 @Component({
   selector: 'docs-getting-started',
@@ -26,7 +26,7 @@ import { HeadingAnchorDirective } from '../../directives/heading-anchor.directiv
       <docs-quick-links />
     </div>
   `,
-  imports: [RouterOutlet, QuickLinks, HeadingAnchorDirective],
+  imports: [RouterOutlet, QuickLinks, HeadingAnchor],
   host: {
     class: 'flex-1 max-w-full',
   },

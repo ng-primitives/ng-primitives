@@ -1,5 +1,6 @@
 ---
 name: 'Tabs'
+sourceUrl: 'https://github.com/ng-primitives/ng-primitives/tree/next/packages/ng-primitives/tabs'
 ---
 
 # Tabs

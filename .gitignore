@@ -41,6 +41,7 @@ Thumbs.db
 .nx/cache
 .nx/workspace-data
 .angular
+node-compile-cache
 
 
 vite.config.*.timestamp*

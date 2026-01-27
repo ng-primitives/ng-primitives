@@ -87,9 +87,6 @@ export function controlStatus(): Signal<NgpControlStatus> {
   const injector = inject(Injector);
   const destroyRef = inject(DestroyRef);
 
-  // Try to inject NgControl immediately for initial state
-  const control = signal<NgControl | null>(inject(NgControl, { optional: true }));
-
   const status = signal<NgpControlStatus>({
     valid: null,
     invalid: null,
@@ -100,12 +97,17 @@ export function controlStatus(): Signal<NgpControlStatus> {
     disabled: null,
   });
 
-  // If we have a control immediately, update initial status
-  if (control()) {
-    updateStatus(control()!, status);
-  }
+  const control = signal<NgControl | null>(null);
 
   onMount(() => {
+    // Try to inject NgControl immediately for initial state
+    control.set(inject(NgControl, { optional: true }));
+
+    // If we have a control immediately, update initial status
+    if (control()) {
+      updateStatus(control()!, status);
+    }
+
     // Get the control (either from initial injection or from mount)
     const mountControl = control() || inject(NgControl, { optional: true });
 

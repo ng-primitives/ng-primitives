@@ -1,5 +1,6 @@
 ---
 name: 'File Upload'
+sourceUrl: 'https://github.com/ng-primitives/ng-primitives/tree/next/packages/ng-primitives/file-upload'
 ---
 
 # File Upload

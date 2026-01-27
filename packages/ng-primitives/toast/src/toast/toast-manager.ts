@@ -36,7 +36,8 @@ export class NgpToastManager {
   /** Show a toast notification */
   show(toast: TemplateRef<void> | Type<unknown>, options: NgpToastOptions = {}): NgpToastRef {
     // services can't access the view container directly, so this is a workaround
-    const viewContainerRef = this.applicationRef.components[0].injector.get(ViewContainerRef);
+    const rootComponent = this.applicationRef.components[0];
+    const viewContainerRef = rootComponent?.injector.get(ViewContainerRef) ?? null;
 
     let instance: NgpToast | null = null;
     const placement = options.placement ?? this.config.placement;

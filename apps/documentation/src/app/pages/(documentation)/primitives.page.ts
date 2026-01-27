@@ -1,7 +1,8 @@
 import { Component } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { QuickLinks } from '../../components/quick-links/quick-links';
-import { HeadingAnchorDirective } from '../../directives/heading-anchor.directive';
+import { HeadingAnchor } from '../../directives/heading-anchor';
+import { SourceLink } from '../../directives/source-link';
 
 @Component({
   selector: 'docs-primitives',
@@ -11,6 +12,7 @@ import { HeadingAnchorDirective } from '../../directives/heading-anchor.directiv
         class="prose prose-sm prose-zinc dark:prose-invert flex-1 overflow-hidden px-px"
         data-page-content
         docsHeadingAnchor
+        docsSourceLink
       >
         <div class="mx-auto w-fit max-w-full">
           <p
@@ -26,7 +28,7 @@ import { HeadingAnchorDirective } from '../../directives/heading-anchor.directiv
       <docs-quick-links />
     </div>
   `,
-  imports: [RouterOutlet, QuickLinks, HeadingAnchorDirective],
+  imports: [RouterOutlet, QuickLinks, HeadingAnchor, SourceLink],
   host: {
     class: 'flex-1 max-w-full',
   },
