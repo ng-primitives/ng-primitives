@@ -1,11 +1,5 @@
 import { NumberInput } from '@angular/cdk/coercion';
-import {
-  Directive,
-  input,
-  numberAttribute,
-  output,
-  signal,
-} from '@angular/core';
+import { Directive, input, numberAttribute, output, signal } from '@angular/core';
 import { NgpOrientation } from 'ng-primitives/common';
 import { ngpRovingFocusGroup, provideRovingFocusGroupState } from 'ng-primitives/roving-focus';
 import { uniqueId } from 'ng-primitives/utils';
@@ -80,7 +74,6 @@ export class NgpNavigationMenu {
     orientation: this.orientation,
     showDelay: this.showDelay,
     skipDelayDuration: this.skipDelayDuration,
-    isSubmenu: signal(false),
     onValueChange: value => this.valueChange.emit(value),
   });
 

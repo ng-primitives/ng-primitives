@@ -87,13 +87,3 @@ export {
   NgpNavigationMenuViewportStateToken,
   provideNavigationMenuViewportState,
 } from './navigation-menu-viewport/navigation-menu-viewport-state';
-
-// Navigation Menu Sub
-export { NgpNavigationMenuSub } from './navigation-menu-sub/navigation-menu-sub';
-export {
-  injectNavigationMenuSubState,
-  NgpNavigationMenuSubProps,
-  NgpNavigationMenuSubState,
-  NgpNavigationMenuSubStateToken,
-  provideNavigationMenuSubState,
-} from './navigation-menu-sub/navigation-menu-sub-state';

@@ -40,11 +40,6 @@ export interface NgpNavigationMenuState {
   readonly skipDelayDuration: Signal<number>;
 
   /**
-   * Whether the menu is in a nested submenu.
-   */
-  readonly isSubmenu: Signal<boolean>;
-
-  /**
    * The previous open item value (for motion direction).
    */
   readonly previousValue: Signal<string | undefined>;
@@ -164,11 +159,6 @@ export interface NgpNavigationMenuProps {
   readonly skipDelayDuration?: Signal<number>;
 
   /**
-   * Whether this is a submenu.
-   */
-  readonly isSubmenu?: Signal<boolean>;
-
-  /**
    * Callback when the value changes.
    */
   readonly onValueChange?: (value: string | undefined) => void;
@@ -187,7 +177,6 @@ export const [
     orientation: _orientation = signal('horizontal'),
     showDelay: _showDelay = signal(200),
     skipDelayDuration: _skipDelayDuration = signal(300),
-    isSubmenu: _isSubmenu = signal(false),
     onValueChange,
   }: NgpNavigationMenuProps) => {
     const element = injectElementRef();
@@ -205,7 +194,6 @@ export const [
     const orientation = controlled(_orientation);
     const showDelay = controlled(_showDelay);
     const skipDelayDuration = controlled(_skipDelayDuration);
-    const isSubmenu = controlled(_isSubmenu);
 
     // Track previous value for motion direction
     const previousValue = signal<string | undefined>(undefined);
@@ -348,7 +336,6 @@ export const [
       dir: directionality.valueSignal as Signal<'ltr' | 'rtl'>,
       showDelay,
       skipDelayDuration,
-      isSubmenu,
       previousValue,
       open,
       close,

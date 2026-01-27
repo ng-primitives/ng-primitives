@@ -21,137 +21,140 @@ import {
     NgpNavigationMenuIndicator,
   ],
   template: `
-    <nav ngpNavigationMenu class="flex justify-center">
-      <ul ngpNavigationMenuList class="relative flex gap-1 list-none p-1 m-0 bg-white dark:bg-neutral-900 rounded-lg shadow-sm">
+    <nav class="flex justify-center" ngpNavigationMenu>
+      <ul
+        class="relative m-0 flex list-none gap-1 rounded-lg bg-white p-1 shadow-sm dark:bg-neutral-900"
+        ngpNavigationMenuList
+      >
         <div
+          class="rounded-md bg-neutral-100 transition-all duration-150 data-[state=hidden]:opacity-0 dark:bg-neutral-800"
           ngpNavigationMenuIndicator
-          class="bg-neutral-100 dark:bg-neutral-800 rounded-md transition-all duration-150 data-[state=hidden]:opacity-0"
         ></div>
-        <li ngpNavigationMenuItem ngpNavigationMenuItemValue="getting-started" class="relative">
+        <li class="relative" ngpNavigationMenuItem ngpNavigationMenuItemValue="getting-started">
           <button
+            class="cursor-pointer rounded-md border-none bg-transparent px-4 py-2 text-sm font-medium text-neutral-700 transition-colors hover:bg-neutral-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500 data-[state=open]:bg-neutral-100 dark:text-neutral-300 dark:hover:bg-neutral-800 dark:data-[state=open]:bg-neutral-800"
             ngpNavigationMenuTrigger
-            class="px-4 py-2 border-none bg-transparent rounded-md text-sm font-medium cursor-pointer text-neutral-700 dark:text-neutral-300 transition-colors hover:bg-neutral-100 dark:hover:bg-neutral-800 focus-visible:outline-2 focus-visible:outline-blue-500 focus-visible:outline-offset-2 data-[state=open]:bg-neutral-100 dark:data-[state=open]:bg-neutral-800"
           >
             Getting Started
           </button>
           <div
-              ngpNavigationMenuContent
-              class="absolute top-full left-0 mt-2 min-w-[200px] bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-700 rounded-lg p-2 shadow-lg data-[state=closed]:hidden data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:zoom-in-95 data-[motion=from-start]:slide-in-from-left-2 data-[motion=from-end]:slide-in-from-right-2"
-            >
-              <ul class="list-none p-0 m-0">
-                <li>
-                  <a
-                    ngpNavigationMenuLink
-                    href="#"
-                    class="block px-3 py-2 rounded-md no-underline text-sm text-neutral-600 dark:text-neutral-400 transition-colors hover:bg-neutral-100 dark:hover:bg-neutral-800 hover:text-neutral-900 dark:hover:text-neutral-100 data-[active]:text-neutral-900 dark:data-[active]:text-neutral-100 data-[active]:font-medium"
-                  >
-                    Introduction
-                  </a>
-                </li>
-                <li>
-                  <a
-                    ngpNavigationMenuLink
-                    href="#"
-                    class="block px-3 py-2 rounded-md no-underline text-sm text-neutral-600 dark:text-neutral-400 transition-colors hover:bg-neutral-100 dark:hover:bg-neutral-800 hover:text-neutral-900 dark:hover:text-neutral-100"
-                  >
-                    Installation
-                  </a>
-                </li>
-                <li>
-                  <a
-                    ngpNavigationMenuLink
-                    href="#"
-                    class="block px-3 py-2 rounded-md no-underline text-sm text-neutral-600 dark:text-neutral-400 transition-colors hover:bg-neutral-100 dark:hover:bg-neutral-800 hover:text-neutral-900 dark:hover:text-neutral-100"
-                  >
-                    Quick Start
-                  </a>
-                </li>
-              </ul>
-            </div>
+            class="data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:zoom-in-95 data-[motion=from-start]:slide-in-from-left-2 data-[motion=from-end]:slide-in-from-right-2 absolute top-full left-0 mt-2 min-w-[200px] rounded-lg border border-neutral-200 bg-white p-2 shadow-lg data-[state=closed]:hidden dark:border-neutral-700 dark:bg-neutral-900"
+            ngpNavigationMenuContent
+          >
+            <ul class="m-0 list-none p-0">
+              <li>
+                <a
+                  class="block rounded-md px-3 py-2 text-sm text-neutral-600 no-underline transition-colors hover:bg-neutral-100 hover:text-neutral-900 data-[active]:font-medium data-[active]:text-neutral-900 dark:text-neutral-400 dark:hover:bg-neutral-800 dark:hover:text-neutral-100 dark:data-[active]:text-neutral-100"
+                  ngpNavigationMenuLink
+                  href="#"
+                >
+                  Introduction
+                </a>
+              </li>
+              <li>
+                <a
+                  class="block rounded-md px-3 py-2 text-sm text-neutral-600 no-underline transition-colors hover:bg-neutral-100 hover:text-neutral-900 dark:text-neutral-400 dark:hover:bg-neutral-800 dark:hover:text-neutral-100"
+                  ngpNavigationMenuLink
+                  href="#"
+                >
+                  Installation
+                </a>
+              </li>
+              <li>
+                <a
+                  class="block rounded-md px-3 py-2 text-sm text-neutral-600 no-underline transition-colors hover:bg-neutral-100 hover:text-neutral-900 dark:text-neutral-400 dark:hover:bg-neutral-800 dark:hover:text-neutral-100"
+                  ngpNavigationMenuLink
+                  href="#"
+                >
+                  Quick Start
+                </a>
+              </li>
+            </ul>
+          </div>
         </li>
-        <li ngpNavigationMenuItem ngpNavigationMenuItemValue="components" class="relative">
+        <li class="relative" ngpNavigationMenuItem ngpNavigationMenuItemValue="components">
           <button
+            class="cursor-pointer rounded-md border-none bg-transparent px-4 py-2 text-sm font-medium text-neutral-700 transition-colors hover:bg-neutral-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500 data-[state=open]:bg-neutral-100 dark:text-neutral-300 dark:hover:bg-neutral-800 dark:data-[state=open]:bg-neutral-800"
             ngpNavigationMenuTrigger
-            class="px-4 py-2 border-none bg-transparent rounded-md text-sm font-medium cursor-pointer text-neutral-700 dark:text-neutral-300 transition-colors hover:bg-neutral-100 dark:hover:bg-neutral-800 focus-visible:outline-2 focus-visible:outline-blue-500 focus-visible:outline-offset-2 data-[state=open]:bg-neutral-100 dark:data-[state=open]:bg-neutral-800"
           >
             Components
           </button>
           <div
-              ngpNavigationMenuContent
-              class="absolute top-full left-0 mt-2 min-w-[200px] bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-700 rounded-lg p-2 shadow-lg data-[state=closed]:hidden data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:zoom-in-95 data-[motion=from-start]:slide-in-from-left-2 data-[motion=from-end]:slide-in-from-right-2"
-            >
-              <ul class="list-none p-0 m-0">
-                <li>
-                  <a
-                    ngpNavigationMenuLink
-                    href="#"
-                    class="block px-3 py-2 rounded-md no-underline text-sm text-neutral-600 dark:text-neutral-400 transition-colors hover:bg-neutral-100 dark:hover:bg-neutral-800 hover:text-neutral-900 dark:hover:text-neutral-100"
-                  >
-                    Button
-                  </a>
-                </li>
-                <li>
-                  <a
-                    ngpNavigationMenuLink
-                    href="#"
-                    class="block px-3 py-2 rounded-md no-underline text-sm text-neutral-600 dark:text-neutral-400 transition-colors hover:bg-neutral-100 dark:hover:bg-neutral-800 hover:text-neutral-900 dark:hover:text-neutral-100"
-                  >
-                    Input
-                  </a>
-                </li>
-                <li>
-                  <a
-                    ngpNavigationMenuLink
-                    href="#"
-                    class="block px-3 py-2 rounded-md no-underline text-sm text-neutral-600 dark:text-neutral-400 transition-colors hover:bg-neutral-100 dark:hover:bg-neutral-800 hover:text-neutral-900 dark:hover:text-neutral-100"
-                  >
-                    Select
-                  </a>
-                </li>
-              </ul>
-            </div>
+            class="data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:zoom-in-95 data-[motion=from-start]:slide-in-from-left-2 data-[motion=from-end]:slide-in-from-right-2 absolute top-full left-0 mt-2 min-w-[200px] rounded-lg border border-neutral-200 bg-white p-2 shadow-lg data-[state=closed]:hidden dark:border-neutral-700 dark:bg-neutral-900"
+            ngpNavigationMenuContent
+          >
+            <ul class="m-0 list-none p-0">
+              <li>
+                <a
+                  class="block rounded-md px-3 py-2 text-sm text-neutral-600 no-underline transition-colors hover:bg-neutral-100 hover:text-neutral-900 dark:text-neutral-400 dark:hover:bg-neutral-800 dark:hover:text-neutral-100"
+                  ngpNavigationMenuLink
+                  href="#"
+                >
+                  Button
+                </a>
+              </li>
+              <li>
+                <a
+                  class="block rounded-md px-3 py-2 text-sm text-neutral-600 no-underline transition-colors hover:bg-neutral-100 hover:text-neutral-900 dark:text-neutral-400 dark:hover:bg-neutral-800 dark:hover:text-neutral-100"
+                  ngpNavigationMenuLink
+                  href="#"
+                >
+                  Input
+                </a>
+              </li>
+              <li>
+                <a
+                  class="block rounded-md px-3 py-2 text-sm text-neutral-600 no-underline transition-colors hover:bg-neutral-100 hover:text-neutral-900 dark:text-neutral-400 dark:hover:bg-neutral-800 dark:hover:text-neutral-100"
+                  ngpNavigationMenuLink
+                  href="#"
+                >
+                  Select
+                </a>
+              </li>
+            </ul>
+          </div>
         </li>
-        <li ngpNavigationMenuItem ngpNavigationMenuItemValue="resources" class="relative">
+        <li class="relative" ngpNavigationMenuItem ngpNavigationMenuItemValue="resources">
           <button
+            class="cursor-pointer rounded-md border-none bg-transparent px-4 py-2 text-sm font-medium text-neutral-700 transition-colors hover:bg-neutral-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500 data-[state=open]:bg-neutral-100 dark:text-neutral-300 dark:hover:bg-neutral-800 dark:data-[state=open]:bg-neutral-800"
             ngpNavigationMenuTrigger
-            class="px-4 py-2 border-none bg-transparent rounded-md text-sm font-medium cursor-pointer text-neutral-700 dark:text-neutral-300 transition-colors hover:bg-neutral-100 dark:hover:bg-neutral-800 focus-visible:outline-2 focus-visible:outline-blue-500 focus-visible:outline-offset-2 data-[state=open]:bg-neutral-100 dark:data-[state=open]:bg-neutral-800"
           >
             Resources
           </button>
           <div
-              ngpNavigationMenuContent
-              class="absolute top-full left-0 mt-2 min-w-[200px] bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-700 rounded-lg p-2 shadow-lg data-[state=closed]:hidden data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:zoom-in-95 data-[motion=from-start]:slide-in-from-left-2 data-[motion=from-end]:slide-in-from-right-2"
-            >
-              <ul class="list-none p-0 m-0">
-                <li>
-                  <a
-                    ngpNavigationMenuLink
-                    href="#"
-                    class="block px-3 py-2 rounded-md no-underline text-sm text-neutral-600 dark:text-neutral-400 transition-colors hover:bg-neutral-100 dark:hover:bg-neutral-800 hover:text-neutral-900 dark:hover:text-neutral-100"
-                  >
-                    Documentation
-                  </a>
-                </li>
-                <li>
-                  <a
-                    ngpNavigationMenuLink
-                    href="#"
-                    class="block px-3 py-2 rounded-md no-underline text-sm text-neutral-600 dark:text-neutral-400 transition-colors hover:bg-neutral-100 dark:hover:bg-neutral-800 hover:text-neutral-900 dark:hover:text-neutral-100"
-                  >
-                    GitHub
-                  </a>
-                </li>
-                <li>
-                  <a
-                    ngpNavigationMenuLink
-                    href="#"
-                    class="block px-3 py-2 rounded-md no-underline text-sm text-neutral-600 dark:text-neutral-400 transition-colors hover:bg-neutral-100 dark:hover:bg-neutral-800 hover:text-neutral-900 dark:hover:text-neutral-100"
-                  >
-                    Discord
-                  </a>
-                </li>
-              </ul>
-            </div>
+            class="data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:zoom-in-95 data-[motion=from-start]:slide-in-from-left-2 data-[motion=from-end]:slide-in-from-right-2 absolute top-full left-0 mt-2 min-w-[200px] rounded-lg border border-neutral-200 bg-white p-2 shadow-lg data-[state=closed]:hidden dark:border-neutral-700 dark:bg-neutral-900"
+            ngpNavigationMenuContent
+          >
+            <ul class="m-0 list-none p-0">
+              <li>
+                <a
+                  class="block rounded-md px-3 py-2 text-sm text-neutral-600 no-underline transition-colors hover:bg-neutral-100 hover:text-neutral-900 dark:text-neutral-400 dark:hover:bg-neutral-800 dark:hover:text-neutral-100"
+                  ngpNavigationMenuLink
+                  href="#"
+                >
+                  Documentation
+                </a>
+              </li>
+              <li>
+                <a
+                  class="block rounded-md px-3 py-2 text-sm text-neutral-600 no-underline transition-colors hover:bg-neutral-100 hover:text-neutral-900 dark:text-neutral-400 dark:hover:bg-neutral-800 dark:hover:text-neutral-100"
+                  ngpNavigationMenuLink
+                  href="#"
+                >
+                  GitHub
+                </a>
+              </li>
+              <li>
+                <a
+                  class="block rounded-md px-3 py-2 text-sm text-neutral-600 no-underline transition-colors hover:bg-neutral-100 hover:text-neutral-900 dark:text-neutral-400 dark:hover:bg-neutral-800 dark:hover:text-neutral-100"
+                  ngpNavigationMenuLink
+                  href="#"
+                >
+                  Discord
+                </a>
+              </li>
+            </ul>
+          </div>
         </li>
       </ul>
     </nav>

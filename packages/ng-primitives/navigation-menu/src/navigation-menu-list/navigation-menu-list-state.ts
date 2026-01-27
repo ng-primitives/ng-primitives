@@ -31,33 +31,30 @@ export const [
   ngpNavigationMenuList,
   injectNavigationMenuListState,
   provideNavigationMenuListState,
-] = createPrimitive(
-  'NgpNavigationMenuList',
-  (): NgpNavigationMenuListState => {
-    const element = injectElementRef();
-    const menu = injectNavigationMenuState();
+] = createPrimitive('NgpNavigationMenuList', (): NgpNavigationMenuListState => {
+  const element = injectElementRef();
+  const menu = injectNavigationMenuState();
 
-    // Track registered triggers for indicator positioning
-    const triggers = signal<NgpNavigationMenuTriggerRef[]>([]);
+  // Track registered triggers for indicator positioning
+  const triggers = signal<NgpNavigationMenuTriggerRef[]>([]);
 
-    // Host bindings
-    dataBinding(element, 'data-orientation', menu().orientation);
+  // Host bindings
+  dataBinding(element, 'data-orientation', menu().orientation);
 
-    function registerTrigger(trigger: NgpNavigationMenuTriggerRef): void {
-      triggers.update(currentTriggers => [...currentTriggers, trigger]);
-    }
+  function registerTrigger(trigger: NgpNavigationMenuTriggerRef): void {
+    triggers.update(currentTriggers => [...currentTriggers, trigger]);
+  }
 
-    function unregisterTrigger(id: string): void {
-      triggers.update(currentTriggers => currentTriggers.filter(t => t.id !== id));
-    }
+  function unregisterTrigger(id: string): void {
+    triggers.update(currentTriggers => currentTriggers.filter(t => t.id !== id));
+  }
 
-    return {
-      registerTrigger,
-      unregisterTrigger,
-      triggers,
-    } satisfies NgpNavigationMenuListState;
-  },
-);
+  return {
+    registerTrigger,
+    unregisterTrigger,
+    triggers,
+  } satisfies NgpNavigationMenuListState;
+});
 
 export interface NgpNavigationMenuTriggerRef {
   /**

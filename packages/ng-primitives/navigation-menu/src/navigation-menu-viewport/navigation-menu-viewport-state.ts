@@ -1,6 +1,13 @@
 import { computed, signal, Signal } from '@angular/core';
 import { injectElementRef } from 'ng-primitives/internal';
-import { createPrimitive, dataBinding, onDestroy, onMount, styleBinding } from 'ng-primitives/state';
+import {
+  createPrimitive,
+  dataBinding,
+  listener,
+  onDestroy,
+  onMount,
+  styleBinding,
+} from 'ng-primitives/state';
 import { injectNavigationMenuState } from '../navigation-menu/navigation-menu-state';
 
 /**
@@ -28,53 +35,59 @@ export const [
   ngpNavigationMenuViewport,
   injectNavigationMenuViewportState,
   provideNavigationMenuViewportState,
-] = createPrimitive(
-  'NgpNavigationMenuViewport',
-  (): NgpNavigationMenuViewportState => {
-    const element = injectElementRef();
-    const menu = injectNavigationMenuState();
+] = createPrimitive('NgpNavigationMenuViewport', (): NgpNavigationMenuViewportState => {
+  const element = injectElementRef();
+  const menu = injectNavigationMenuState();
 
-    // Track content dimensions
-    const width = signal<number | null>(null);
-    const height = signal<number | null>(null);
+  // Track content dimensions
+  const width = signal<number | null>(null);
+  const height = signal<number | null>(null);
 
-    // Whether any content is open
-    const open = computed(() => menu().value() !== undefined);
+  // Whether any content is open
+  const open = computed(() => menu().value() !== undefined);
 
-    // Register viewport with menu
-    onMount(() => {
-      menu().registerViewport({
-        element: element.nativeElement,
-        updateDimensions: (w: number, h: number) => {
-          width.set(w);
-          height.set(h);
-        },
-      });
+  // Register viewport with menu
+  onMount(() => {
+    menu().registerViewport({
+      element: element.nativeElement,
+      updateDimensions: (w: number, h: number) => {
+        width.set(w);
+        height.set(h);
+      },
     });
+  });
 
-    onDestroy(() => {
-      menu().registerViewport(null);
-    });
+  onDestroy(() => {
+    menu().registerViewport(null);
+  });
 
-    // Host bindings
-    dataBinding(element, 'data-state', () => (open() ? 'open' : 'closed'));
-    dataBinding(element, 'data-orientation', menu().orientation);
+  // Host bindings
+  dataBinding(element, 'data-state', () => (open() ? 'open' : 'closed'));
+  dataBinding(element, 'data-orientation', menu().orientation);
 
-    // CSS variables for dimensions
-    styleBinding(element, '--ngp-navigation-menu-viewport-width', () => {
-      const w = width();
-      return w !== null ? `${w}px` : null;
-    });
+  // CSS variables for dimensions
+  styleBinding(element, '--ngp-navigation-menu-viewport-width', () => {
+    const w = width();
+    return w !== null ? `${w}px` : null;
+  });
 
-    styleBinding(element, '--ngp-navigation-menu-viewport-height', () => {
-      const h = height();
-      return h !== null ? `${h}px` : null;
-    });
+  styleBinding(element, '--ngp-navigation-menu-viewport-height', () => {
+    const h = height();
+    return h !== null ? `${h}px` : null;
+  });
 
-    return {
-      width,
-      height,
-      open,
-    } satisfies NgpNavigationMenuViewportState;
-  },
-);
+  // Pointer event handlers - cancel close timer when hovering viewport
+  listener(element, 'pointerenter', () => {
+    menu().cancelCloseTimer();
+  });
+
+  listener(element, 'pointerleave', () => {
+    menu().startCloseTimer();
+  });
+
+  return {
+    width,
+    height,
+    open,
+  } satisfies NgpNavigationMenuViewportState;
+});

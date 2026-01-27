@@ -1,5 +1,8 @@
 import { Directive, input } from '@angular/core';
-import { ngpNavigationMenuItem, provideNavigationMenuItemState } from './navigation-menu-item-state';
+import {
+  ngpNavigationMenuItem,
+  provideNavigationMenuItemState,
+} from './navigation-menu-item-state';
 
 /**
  * Apply the `ngpNavigationMenuItem` directive to wrap a menu item trigger and content.

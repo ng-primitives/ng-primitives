@@ -1,4 +1,4 @@
-import { computed, signal, Signal } from '@angular/core';
+import { computed, effect, inject, NgZone, signal, Signal } from '@angular/core';
 import { Placement } from '@floating-ui/dom';
 import { injectElementRef } from 'ng-primitives/internal';
 import { NgpOffset, NgpShift } from 'ng-primitives/portal';
@@ -13,8 +13,8 @@ import {
 } from 'ng-primitives/state';
 import { uniqueId } from 'ng-primitives/utils';
 import { injectNavigationMenuItemState } from '../navigation-menu-item/navigation-menu-item-state';
-import { injectNavigationMenuState } from '../navigation-menu/navigation-menu-state';
 import { injectNavigationMenuTriggerState } from '../navigation-menu-trigger/navigation-menu-trigger-state';
+import { injectNavigationMenuState } from '../navigation-menu/navigation-menu-state';
 
 /**
  * Motion direction for animations.
@@ -120,12 +120,18 @@ export const [
     const menu = injectNavigationMenuState();
     const item = injectNavigationMenuItemState();
     const trigger = injectNavigationMenuTriggerState({ optional: true });
+    const ngZone = inject(NgZone);
 
     const id = signal(uniqueId('ngp-navigation-menu-content'));
     const placement = controlled(_placement);
     const offset = controlled(_offset);
     const flip = controlled(_flip);
     const shift = controlled(_shift);
+
+    // Track original parent for portal restoration
+    let originalParent: HTMLElement | null = null;
+    let originalNextSibling: Node | null = null;
+    let isPortaled = false;
 
     // Whether this content is open
     const open = computed(() => item().open());
@@ -174,7 +180,28 @@ export const [
       }
     });
 
+    // Track ResizeObserver for cleanup
+    let resizeObserverRef: ResizeObserver | null = null;
+
     onDestroy(() => {
+      // Disconnect ResizeObserver
+      if (resizeObserverRef) {
+        resizeObserverRef.disconnect();
+        resizeObserverRef = null;
+      }
+
+      // Restore element to original position if portaled
+      if (isPortaled && originalParent) {
+        ngZone.runOutsideAngular(() => {
+          if (originalNextSibling) {
+            originalParent!.insertBefore(element.nativeElement, originalNextSibling);
+          } else {
+            originalParent!.appendChild(element.nativeElement);
+          }
+        });
+        isPortaled = false;
+      }
+
       item().setContentElement(null);
 
       const triggerState = trigger?.();
@@ -188,6 +215,69 @@ export const [
     dataBinding(element, 'data-state', () => (open() ? 'open' : 'closed'));
     dataBinding(element, 'data-orientation', menu().orientation);
     dataBinding(element, 'data-motion', () => motionDirection() ?? null);
+
+    // Portal content into viewport when open and viewport exists
+    effect(() => {
+      const viewport = menu().viewport();
+      const isOpen = open();
+
+      if (isOpen && viewport && !isPortaled) {
+        // Store original position for restoration
+        originalParent = element.nativeElement.parentElement;
+        originalNextSibling = element.nativeElement.nextSibling;
+
+        // Move element into viewport
+        ngZone.runOutsideAngular(() => {
+          viewport.element.appendChild(element.nativeElement);
+        });
+        isPortaled = true;
+
+        // Wait for Angular to update DOM bindings (data-state='open') and browser to layout
+        // Double rAF ensures: 1) Angular change detection completes, 2) browser performs layout
+        ngZone.runOutsideAngular(() => {
+          requestAnimationFrame(() => {
+            requestAnimationFrame(() => {
+              const el = element.nativeElement;
+
+              // Use scrollWidth/scrollHeight for full content dimensions
+              const width = el.scrollWidth;
+              const height = el.scrollHeight;
+
+              // Only update if we got valid dimensions
+              if (width > 0 && height > 0) {
+                viewport.updateDimensions(width, height);
+              }
+
+              // Use ResizeObserver to track subsequent size changes
+              resizeObserverRef = new ResizeObserver(() => {
+                const w = el.scrollWidth;
+                const h = el.scrollHeight;
+                if (w > 0 && h > 0) {
+                  viewport.updateDimensions(w, h);
+                }
+              });
+              resizeObserverRef.observe(el);
+            });
+          });
+        });
+      } else if (!isOpen && isPortaled && originalParent) {
+        // Disconnect ResizeObserver
+        if (resizeObserverRef) {
+          resizeObserverRef.disconnect();
+          resizeObserverRef = null;
+        }
+
+        // Restore element to original position
+        ngZone.runOutsideAngular(() => {
+          if (originalNextSibling) {
+            originalParent!.insertBefore(element.nativeElement, originalNextSibling);
+          } else {
+            originalParent!.appendChild(element.nativeElement);
+          }
+        });
+        isPortaled = false;
+      }
+    });
 
     // Event handlers - cancel close timer when pointer enters content
     listener(element, 'pointerenter', onPointerEnter);

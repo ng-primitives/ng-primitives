@@ -23,7 +23,6 @@ import {
   NgpNavigationMenuLink,
   NgpNavigationMenuIndicator,
   NgpNavigationMenuViewport,
-  NgpNavigationMenuSub,
 } from 'ng-primitives/navigation-menu';
 ```
 
@@ -47,6 +46,14 @@ Assemble the navigation menu directives in your template.
   </ul>
 </nav>
 ```
+
+## Examples
+
+### Animated Viewport
+
+Use the viewport component to create a shared container that animates its dimensions as you switch between menus with different content sizes.
+
+<docs-example name="navigation-menu-viewport"></docs-example>
 
 ## API Reference
 
@@ -84,8 +91,8 @@ Wrapper for individual menu items containing a trigger and optional content.
 
 #### Data Attributes
 
-| Attribute    | Description                                 |
-| ------------ | ------------------------------------------- |
+| Attribute    | Description                                    |
+| ------------ | ---------------------------------------------- |
 | `data-state` | `open` when content is visible, else `closed`. |
 
 ### NgpNavigationMenuTrigger
@@ -109,10 +116,10 @@ The dropdown content panel that appears when a trigger is activated.
 
 #### Data Attributes
 
-| Attribute          | Description                                                |
-| ------------------ | ---------------------------------------------------------- |
-| `data-state`       | `open` when visible, else `closed`.                        |
-| `data-orientation` | The orientation of the navigation menu.                    |
+| Attribute          | Description                                                          |
+| ------------------ | -------------------------------------------------------------------- |
+| `data-state`       | `open` when visible, else `closed`.                                  |
+| `data-orientation` | The orientation of the navigation menu.                              |
 | `data-motion`      | Animation direction: `from-start`, `from-end`, `to-start`, `to-end`. |
 
 ### NgpNavigationMenuLink
@@ -123,8 +130,8 @@ A navigational link element within the menu.
 
 #### Data Attributes
 
-| Attribute     | Description                            |
-| ------------- | -------------------------------------- |
+| Attribute     | Description                             |
+| ------------- | --------------------------------------- |
 | `data-active` | Present when the link is marked active. |
 
 ### NgpNavigationMenuIndicator
@@ -135,19 +142,19 @@ A visual indicator that highlights the active trigger position.
 
 #### Data Attributes
 
-| Attribute          | Description                             |
-| ------------------ | --------------------------------------- |
+| Attribute          | Description                                    |
+| ------------------ | ---------------------------------------------- |
 | `data-state`       | `visible` when an item is open, else `hidden`. |
-| `data-orientation` | The orientation of the navigation menu. |
+| `data-orientation` | The orientation of the navigation menu.        |
 
 #### CSS Variables
 
-| Property                                   | Description                        |
-| ------------------------------------------ | ---------------------------------- |
-| `--ngp-navigation-menu-indicator-left`     | Left position of the indicator.    |
-| `--ngp-navigation-menu-indicator-top`      | Top position of the indicator.     |
-| `--ngp-navigation-menu-indicator-width`    | Width of the indicator.            |
-| `--ngp-navigation-menu-indicator-height`   | Height of the indicator.           |
+| Property                                 | Description                     |
+| ---------------------------------------- | ------------------------------- |
+| `--ngp-navigation-menu-indicator-left`   | Left position of the indicator. |
+| `--ngp-navigation-menu-indicator-top`    | Top position of the indicator.  |
+| `--ngp-navigation-menu-indicator-width`  | Width of the indicator.         |
+| `--ngp-navigation-menu-indicator-height` | Height of the indicator.        |
 
 ### NgpNavigationMenuViewport
 
@@ -157,23 +164,17 @@ An optional container for rendering content with animated dimensions.
 
 #### Data Attributes
 
-| Attribute          | Description                             |
-| ------------------ | --------------------------------------- |
+| Attribute          | Description                                    |
+| ------------------ | ---------------------------------------------- |
 | `data-state`       | `open` when content is visible, else `closed`. |
-| `data-orientation` | The orientation of the navigation menu. |
+| `data-orientation` | The orientation of the navigation menu.        |
 
 #### CSS Variables
 
-| Property                                  | Description                         |
-| ----------------------------------------- | ----------------------------------- |
-| `--ngp-navigation-menu-viewport-width`    | Width of the active content.        |
-| `--ngp-navigation-menu-viewport-height`   | Height of the active content.       |
-
-### NgpNavigationMenuSub
-
-Creates a nested sub-menu that inherits delay settings from the parent.
-
-<api-docs name="NgpNavigationMenuSub"></api-docs>
+| Property                                | Description                   |
+| --------------------------------------- | ----------------------------- |
+| `--ngp-navigation-menu-viewport-width`  | Width of the active content.  |
+| `--ngp-navigation-menu-viewport-height` | Height of the active content. |
 
 ## Animations
 
@@ -236,12 +237,12 @@ The navigation menu automatically detects the text direction from the Angular CD
 
 ### Keyboard Interactions
 
-| Key                  | Description                                    |
-| -------------------- | ---------------------------------------------- |
-| `Space` / `Enter`    | Opens/closes the content when focused on trigger. |
-| `Arrow Down`         | Opens content (horizontal) or moves to next item (vertical). |
-| `Arrow Up`           | Closes content (horizontal) or moves to previous item (vertical). |
-| `Arrow Left/Right`   | Navigates between triggers based on orientation. |
-| `Home` / `End`       | Moves focus to first/last trigger.             |
-| `Tab`                | Moves focus naturally through the menu.        |
-| `Escape`             | Closes the open content.                       |
+| Key                | Description                                                       |
+| ------------------ | ----------------------------------------------------------------- |
+| `Space` / `Enter`  | Opens/closes the content when focused on trigger.                 |
+| `Arrow Down`       | Opens content (horizontal) or moves to next item (vertical).      |
+| `Arrow Up`         | Closes content (horizontal) or moves to previous item (vertical). |
+| `Arrow Left/Right` | Navigates between triggers based on orientation.                  |
+| `Home` / `End`     | Moves focus to first/last trigger.                                |
+| `Tab`              | Moves focus naturally through the menu.                           |
+| `Escape`           | Closes the open content.                                          |

@@ -24,71 +24,68 @@ export const [
   ngpNavigationMenuIndicator,
   injectNavigationMenuIndicatorState,
   provideNavigationMenuIndicatorState,
-] = createPrimitive(
-  'NgpNavigationMenuIndicator',
-  (): NgpNavigationMenuIndicatorState => {
-    const element = injectElementRef();
-    const menu = injectNavigationMenuState();
-    const list = injectNavigationMenuListState();
+] = createPrimitive('NgpNavigationMenuIndicator', (): NgpNavigationMenuIndicatorState => {
+  const element = injectElementRef();
+  const menu = injectNavigationMenuState();
+  const list = injectNavigationMenuListState();
 
-    // Whether the indicator should be visible
-    const visible = computed(() => menu().value() !== undefined);
+  // Whether the indicator should be visible
+  const visible = computed(() => menu().value() !== undefined);
 
-    // Calculate position based on active trigger
-    const position = computed<{ left: number; top: number; width: number; height: number } | null>(
-      () => {
-        const currentValue = menu().value();
-        if (!currentValue) return null;
+  // Calculate position based on active trigger
+  const position = computed<{ left: number; top: number; width: number; height: number } | null>(
+    () => {
+      const currentValue = menu().value();
+      if (!currentValue) return null;
 
-        const triggers = list().triggers();
-        const activeTrigger = triggers.find(t => t.value() === currentValue);
-        if (!activeTrigger) return null;
+      const triggers = list().triggers();
+      const activeTrigger = triggers.find(t => t.value() === currentValue);
+      if (!activeTrigger) return null;
 
-        const triggerElement = activeTrigger.element;
-        const listElement = element.nativeElement.parentElement;
+      const triggerElement = activeTrigger.element;
+      const listElement = element.nativeElement.parentElement;
 
-        if (!listElement) return null;
+      if (!listElement) return null;
 
-        const listRect = listElement.getBoundingClientRect();
-        const triggerRect = triggerElement.getBoundingClientRect();
+      const listRect = listElement.getBoundingClientRect();
+      const triggerRect = triggerElement.getBoundingClientRect();
 
-        return {
-          left: triggerRect.left - listRect.left,
-          top: triggerRect.top - listRect.top,
-          width: triggerRect.width,
-          height: triggerRect.height,
-        };
-      },
-    );
+      return {
+        left: triggerRect.left - listRect.left,
+        top: triggerRect.top - listRect.top,
+        width: triggerRect.width,
+        height: triggerRect.height,
+      };
+    },
+  );
 
-    // Host bindings
-    dataBinding(element, 'data-state', () => (visible() ? 'visible' : 'hidden'));
-    dataBinding(element, 'data-orientation', menu().orientation);
+  // Host bindings
+  dataBinding(element, 'data-state', () => (visible() ? 'visible' : 'hidden'));
+  dataBinding(element, 'data-orientation', menu().orientation);
 
-    // Style bindings for position
-    styleBinding(element, '--ngp-navigation-menu-indicator-left', () => {
-      const pos = position();
-      return pos ? `${pos.left}px` : null;
-    });
+  // Style bindings for position
+  styleBinding(element, '--ngp-navigation-menu-indicator-left', () => {
+    const pos = position();
+    return pos ? `${pos.left}px` : null;
+  });
 
-    styleBinding(element, '--ngp-navigation-menu-indicator-top', () => {
-      const pos = position();
-      return pos ? `${pos.top}px` : null;
-    });
+  styleBinding(element, '--ngp-navigation-menu-indicator-top', () => {
+    const pos = position();
+    return pos ? `${pos.top}px` : null;
+  });
 
-    styleBinding(element, '--ngp-navigation-menu-indicator-width', () => {
-      const pos = position();
-      return pos ? `${pos.width}px` : null;
-    });
+  styleBinding(element, '--ngp-navigation-menu-indicator-width', () => {
+    const pos = position();
+    return pos ? `${pos.width}px` : null;
+  });
 
-    styleBinding(element, '--ngp-navigation-menu-indicator-height', () => {
-      const pos = position();
-      return pos ? `${pos.height}px` : null;
-    });
+  styleBinding(element, '--ngp-navigation-menu-indicator-height', () => {
+    const pos = position();
+    return pos ? `${pos.height}px` : null;
+  });
 
-    return {
-      visible,
-      position,
-    } satisfies NgpNavigationMenuIndicatorState;
-  },
-);
+  return {
+    visible,
+    position,
+  } satisfies NgpNavigationMenuIndicatorState;
+});

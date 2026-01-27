@@ -2,7 +2,10 @@ import { BooleanInput } from '@angular/cdk/coercion';
 import { booleanAttribute, Directive, input, signal } from '@angular/core';
 import { outputFromObservable } from '@angular/core/rxjs-interop';
 import { ngpRovingFocusItem, provideRovingFocusItemState } from 'ng-primitives/roving-focus';
-import { ngpNavigationMenuLink, provideNavigationMenuLinkState } from './navigation-menu-link-state';
+import {
+  ngpNavigationMenuLink,
+  provideNavigationMenuLinkState,
+} from './navigation-menu-link-state';
 
 /**
  * Apply the `ngpNavigationMenuLink` directive to navigation links within the menu.

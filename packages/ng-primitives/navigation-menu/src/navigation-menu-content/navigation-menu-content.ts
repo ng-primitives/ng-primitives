@@ -1,7 +1,14 @@
 import { BooleanInput } from '@angular/cdk/coercion';
 import { booleanAttribute, Directive, input, signal } from '@angular/core';
 import { Placement } from '@floating-ui/dom';
-import { coerceOffset, coerceShift, NgpOffset, NgpOffsetInput, NgpShift, NgpShiftInput } from 'ng-primitives/portal';
+import {
+  coerceOffset,
+  coerceShift,
+  NgpOffset,
+  NgpOffsetInput,
+  NgpShift,
+  NgpShiftInput,
+} from 'ng-primitives/portal';
 import { ngpRovingFocusGroup, provideRovingFocusGroupState } from 'ng-primitives/roving-focus';
 import {
   ngpNavigationMenuContent,

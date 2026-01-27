@@ -187,7 +187,9 @@ import {
       text-decoration: none;
       font-size: 0.875rem;
       color: var(--ngp-text-secondary);
-      transition: background-color 150ms ease, color 150ms ease;
+      transition:
+        background-color 150ms ease,
+        color 150ms ease;
     }
 
     [ngpNavigationMenuLink]:hover {

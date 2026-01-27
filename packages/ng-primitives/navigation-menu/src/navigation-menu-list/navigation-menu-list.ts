@@ -1,5 +1,8 @@
 import { Directive } from '@angular/core';
-import { ngpNavigationMenuList, provideNavigationMenuListState } from './navigation-menu-list-state';
+import {
+  ngpNavigationMenuList,
+  provideNavigationMenuListState,
+} from './navigation-menu-list-state';
 
 /**
  * Apply the `ngpNavigationMenuList` directive to contain top-level menu items.

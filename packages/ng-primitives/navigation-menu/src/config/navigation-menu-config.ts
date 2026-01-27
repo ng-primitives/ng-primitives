@@ -36,9 +36,7 @@ export const NgpNavigationMenuConfigToken = new InjectionToken<NgpNavigationMenu
  * @param config The Navigation Menu configuration
  * @returns The provider
  */
-export function provideNavigationMenuConfig(
-  config: Partial<NgpNavigationMenuConfig>,
-): Provider[] {
+export function provideNavigationMenuConfig(config: Partial<NgpNavigationMenuConfig>): Provider[] {
   return [
     {
       provide: NgpNavigationMenuConfigToken,
