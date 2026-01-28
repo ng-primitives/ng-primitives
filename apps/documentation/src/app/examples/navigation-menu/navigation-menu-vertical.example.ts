@@ -50,11 +50,7 @@ import { NgpTooltip, NgpTooltipTrigger } from 'ng-primitives/tooltip';
     }),
   ],
   template: `
-    <nav
-      class="sidebar"
-      ngpNavigationMenu
-      ngpNavigationMenuOrientation="vertical"
-    >
+    <nav class="sidebar" ngpNavigationMenu ngpNavigationMenuOrientation="vertical">
       <ul class="sidebar-list" ngpNavigationMenuList>
         <div class="sidebar-indicator" ngpNavigationMenuIndicator></div>
 
