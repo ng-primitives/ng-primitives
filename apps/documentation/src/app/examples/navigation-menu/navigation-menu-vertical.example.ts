@@ -47,15 +47,17 @@ import {
     }),
   ],
   template: `
-    <nav class="sidebar" ngpNavigationMenu ngpNavigationMenuOrientation="vertical" ngpNavigationMenuDelayDuration="0">
+    <nav
+      class="sidebar"
+      ngpNavigationMenu
+      ngpNavigationMenuOrientation="vertical"
+      ngpNavigationMenuDelayDuration="0"
+    >
       <ul class="sidebar-list" ngpNavigationMenuList>
         <div class="sidebar-indicator" ngpNavigationMenuIndicator></div>
 
         <li class="sidebar-item" ngpNavigationMenuItem ngpNavigationMenuItemValue="search">
-          <button
-            class="sidebar-trigger"
-            ngpNavigationMenuTrigger
-          >
+          <button class="sidebar-trigger" ngpNavigationMenuTrigger>
             <ng-icon name="heroMagnifyingGlass" size="20" />
           </button>
           <div class="sidebar-content" ngpNavigationMenuContent>
@@ -69,10 +71,7 @@ import {
         </li>
 
         <li class="sidebar-item" ngpNavigationMenuItem ngpNavigationMenuItemValue="dashboard">
-          <button
-            class="sidebar-trigger"
-            ngpNavigationMenuTrigger
-          >
+          <button class="sidebar-trigger" ngpNavigationMenuTrigger>
             <ng-icon name="heroSquares2x2" size="20" />
           </button>
           <div class="sidebar-content" ngpNavigationMenuContent>
@@ -86,10 +85,7 @@ import {
         </li>
 
         <li class="sidebar-item" ngpNavigationMenuItem ngpNavigationMenuItemValue="analytics">
-          <button
-            class="sidebar-trigger"
-            ngpNavigationMenuTrigger
-          >
+          <button class="sidebar-trigger" ngpNavigationMenuTrigger>
             <ng-icon name="heroChartBar" size="20" />
           </button>
           <div class="sidebar-content" ngpNavigationMenuContent>
@@ -104,10 +100,7 @@ import {
         </li>
 
         <li class="sidebar-item" ngpNavigationMenuItem ngpNavigationMenuItemValue="documents">
-          <button
-            class="sidebar-trigger"
-            ngpNavigationMenuTrigger
-          >
+          <button class="sidebar-trigger" ngpNavigationMenuTrigger>
             <ng-icon name="heroDocumentText" size="20" />
           </button>
           <div class="sidebar-content" ngpNavigationMenuContent>
@@ -121,10 +114,7 @@ import {
         </li>
 
         <li class="sidebar-item" ngpNavigationMenuItem ngpNavigationMenuItemValue="projects">
-          <button
-            class="sidebar-trigger"
-            ngpNavigationMenuTrigger
-          >
+          <button class="sidebar-trigger" ngpNavigationMenuTrigger>
             <ng-icon name="heroFolder" size="20" />
           </button>
           <div class="sidebar-content" ngpNavigationMenuContent>
@@ -137,10 +127,7 @@ import {
         </li>
 
         <li class="sidebar-item" ngpNavigationMenuItem ngpNavigationMenuItemValue="users">
-          <button
-            class="sidebar-trigger"
-            ngpNavigationMenuTrigger
-          >
+          <button class="sidebar-trigger" ngpNavigationMenuTrigger>
             <ng-icon name="heroUsers" size="20" />
           </button>
           <div class="sidebar-content" ngpNavigationMenuContent>
@@ -156,10 +143,7 @@ import {
         <li class="sidebar-divider"></li>
 
         <li class="sidebar-item" ngpNavigationMenuItem ngpNavigationMenuItemValue="notifications">
-          <button
-            class="sidebar-trigger"
-            ngpNavigationMenuTrigger
-          >
+          <button class="sidebar-trigger" ngpNavigationMenuTrigger>
             <ng-icon name="heroBell" size="20" />
           </button>
           <div class="sidebar-content" ngpNavigationMenuContent>
@@ -173,10 +157,7 @@ import {
         </li>
 
         <li class="sidebar-item" ngpNavigationMenuItem ngpNavigationMenuItemValue="settings">
-          <button
-            class="sidebar-trigger"
-            ngpNavigationMenuTrigger
-          >
+          <button class="sidebar-trigger" ngpNavigationMenuTrigger>
             <ng-icon name="heroCog6Tooth" size="20" />
           </button>
           <div class="sidebar-content" ngpNavigationMenuContent>
