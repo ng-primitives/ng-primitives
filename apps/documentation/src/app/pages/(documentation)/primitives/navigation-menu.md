@@ -55,6 +55,12 @@ Use the viewport component to create a shared container that animates its dimens
 
 <docs-example name="navigation-menu-viewport"></docs-example>
 
+### Vertical Sidebar
+
+Create a collapsed vertical sidebar navigation with icon-only triggers that expand on hover to reveal submenu content.
+
+<docs-example name="navigation-menu-vertical"></docs-example>
+
 ## API Reference
 
 The following directives are available to import from the `ng-primitives/navigation-menu` package:
@@ -171,10 +177,12 @@ An optional container for rendering content with animated dimensions.
 
 #### CSS Variables
 
-| Property                                | Description                   |
-| --------------------------------------- | ----------------------------- |
-| `--ngp-navigation-menu-viewport-width`  | Width of the active content.  |
-| `--ngp-navigation-menu-viewport-height` | Height of the active content. |
+| Property                                | Description                                        |
+| --------------------------------------- | -------------------------------------------------- |
+| `--ngp-navigation-menu-viewport-width`  | Width of the active content.                       |
+| `--ngp-navigation-menu-viewport-height` | Height of the active content.                      |
+| `--ngp-navigation-menu-viewport-left`   | Left position of the active trigger (for styling). |
+| `--ngp-navigation-menu-viewport-top`    | Top position of the active trigger (for styling).  |
 
 ## Animations
 

@@ -28,6 +28,11 @@ export interface NgpNavigationMenuViewportState {
    * Whether any content is open.
    */
   readonly open: Signal<boolean>;
+
+  /**
+   * The position of the active trigger relative to the menu.
+   */
+  readonly triggerPosition: Signal<{ left: number; top: number } | null>;
 }
 
 export const [
@@ -45,6 +50,32 @@ export const [
 
   // Whether any content is open
   const open = computed(() => menu().value() !== undefined);
+
+  // Calculate position of the active trigger relative to the menu
+  const triggerPosition = computed<{ left: number; top: number } | null>(() => {
+    const currentValue = menu().value();
+    if (!currentValue) return null;
+
+    const items = menu().items();
+    const activeItem = items.find(item => item.value() === currentValue);
+    if (!activeItem) return null;
+
+    const triggerElement = activeItem.triggerElement();
+    if (!triggerElement) return null;
+
+    // Get the menu element (parent of the viewport's parent container)
+    const viewportElement = element.nativeElement;
+    const menuElement = viewportElement.closest('[ngpNavigationMenu]');
+    if (!menuElement) return null;
+
+    const menuRect = menuElement.getBoundingClientRect();
+    const triggerRect = triggerElement.getBoundingClientRect();
+
+    return {
+      left: triggerRect.left - menuRect.left,
+      top: triggerRect.top - menuRect.top,
+    };
+  });
 
   // Register viewport with menu
   onMount(() => {
@@ -76,6 +107,17 @@ export const [
     return h !== null ? `${h}px` : null;
   });
 
+  // CSS variables for trigger position (useful for vertical menus)
+  styleBinding(element, '--ngp-navigation-menu-viewport-left', () => {
+    const pos = triggerPosition();
+    return pos !== null ? `${pos.left}px` : null;
+  });
+
+  styleBinding(element, '--ngp-navigation-menu-viewport-top', () => {
+    const pos = triggerPosition();
+    return pos !== null ? `${pos.top}px` : null;
+  });
+
   // Pointer event handlers - cancel close timer when hovering viewport
   listener(element, 'pointerenter', () => {
     menu().cancelCloseTimer();
@@ -89,5 +131,6 @@ export const [
     width,
     height,
     open,
+    triggerPosition,
   } satisfies NgpNavigationMenuViewportState;
 });
