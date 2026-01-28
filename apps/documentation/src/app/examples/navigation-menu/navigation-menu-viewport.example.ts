@@ -23,16 +23,16 @@ import {
     NgpNavigationMenuViewport,
   ],
   template: `
-    <nav ngpNavigationMenu class="navigation-menu">
-      <ul ngpNavigationMenuList class="navigation-menu-list">
-        <div ngpNavigationMenuIndicator class="navigation-menu-indicator"></div>
+    <nav class="navigation-menu" ngpNavigationMenu>
+      <ul class="navigation-menu-list" ngpNavigationMenuList>
+        <div class="navigation-menu-indicator" ngpNavigationMenuIndicator></div>
 
         <li ngpNavigationMenuItem ngpNavigationMenuItemValue="learn">
-          <button ngpNavigationMenuTrigger class="navigation-menu-trigger">Learn</button>
-          <div ngpNavigationMenuContent class="navigation-menu-content">
+          <button class="navigation-menu-trigger" ngpNavigationMenuTrigger>Learn</button>
+          <div class="navigation-menu-content" ngpNavigationMenuContent>
             <ul class="content-list content-list-wide">
               <li>
-                <a ngpNavigationMenuLink href="#" class="navigation-menu-link callout">
+                <a class="navigation-menu-link callout" ngpNavigationMenuLink href="#">
                   <div class="callout-icon">🚀</div>
                   <div class="callout-content">
                     <div class="callout-title">Getting Started</div>
@@ -43,19 +43,19 @@ import {
                 </a>
               </li>
               <li>
-                <a ngpNavigationMenuLink href="#" class="navigation-menu-link">
+                <a class="navigation-menu-link" ngpNavigationMenuLink href="#">
                   <div class="link-title">Introduction</div>
                   <p class="link-description">Build accessible components.</p>
                 </a>
               </li>
               <li>
-                <a ngpNavigationMenuLink href="#" class="navigation-menu-link">
+                <a class="navigation-menu-link" ngpNavigationMenuLink href="#">
                   <div class="link-title">Installation</div>
                   <p class="link-description">Step-by-step installation guide.</p>
                 </a>
               </li>
               <li>
-                <a ngpNavigationMenuLink href="#" class="navigation-menu-link">
+                <a class="navigation-menu-link" ngpNavigationMenuLink href="#">
                   <div class="link-title">Styling</div>
                   <p class="link-description">Learn how to style primitives.</p>
                 </a>
@@ -65,41 +65,41 @@ import {
         </li>
 
         <li ngpNavigationMenuItem ngpNavigationMenuItemValue="components">
-          <button ngpNavigationMenuTrigger class="navigation-menu-trigger">Components</button>
-          <div ngpNavigationMenuContent class="navigation-menu-content">
+          <button class="navigation-menu-trigger" ngpNavigationMenuTrigger>Components</button>
+          <div class="navigation-menu-content" ngpNavigationMenuContent>
             <ul class="content-list content-list-grid">
               <li>
-                <a ngpNavigationMenuLink href="#" class="navigation-menu-link">
+                <a class="navigation-menu-link" ngpNavigationMenuLink href="#">
                   <div class="link-title">Button</div>
                   <p class="link-description">Trigger actions.</p>
                 </a>
               </li>
               <li>
-                <a ngpNavigationMenuLink href="#" class="navigation-menu-link">
+                <a class="navigation-menu-link" ngpNavigationMenuLink href="#">
                   <div class="link-title">Dialog</div>
                   <p class="link-description">Modal dialogs.</p>
                 </a>
               </li>
               <li>
-                <a ngpNavigationMenuLink href="#" class="navigation-menu-link">
+                <a class="navigation-menu-link" ngpNavigationMenuLink href="#">
                   <div class="link-title">Tooltip</div>
                   <p class="link-description">Display information.</p>
                 </a>
               </li>
               <li>
-                <a ngpNavigationMenuLink href="#" class="navigation-menu-link">
+                <a class="navigation-menu-link" ngpNavigationMenuLink href="#">
                   <div class="link-title">Popover</div>
                   <p class="link-description">Floating content.</p>
                 </a>
               </li>
               <li>
-                <a ngpNavigationMenuLink href="#" class="navigation-menu-link">
+                <a class="navigation-menu-link" ngpNavigationMenuLink href="#">
                   <div class="link-title">Tabs</div>
                   <p class="link-description">Organize content.</p>
                 </a>
               </li>
               <li>
-                <a ngpNavigationMenuLink href="#" class="navigation-menu-link">
+                <a class="navigation-menu-link" ngpNavigationMenuLink href="#">
                   <div class="link-title">Menu</div>
                   <p class="link-description">Dropdown menus.</p>
                 </a>
@@ -109,17 +109,17 @@ import {
         </li>
 
         <li ngpNavigationMenuItem ngpNavigationMenuItemValue="resources">
-          <button ngpNavigationMenuTrigger class="navigation-menu-trigger">Resources</button>
-          <div ngpNavigationMenuContent class="navigation-menu-content">
+          <button class="navigation-menu-trigger" ngpNavigationMenuTrigger>Resources</button>
+          <div class="navigation-menu-content" ngpNavigationMenuContent>
             <ul class="content-list content-list-narrow">
               <li>
-                <a ngpNavigationMenuLink href="#" class="navigation-menu-link">
+                <a class="navigation-menu-link" ngpNavigationMenuLink href="#">
                   <div class="link-title">Documentation</div>
                   <p class="link-description">Full API reference.</p>
                 </a>
               </li>
               <li>
-                <a ngpNavigationMenuLink href="#" class="navigation-menu-link">
+                <a class="navigation-menu-link" ngpNavigationMenuLink href="#">
                   <div class="link-title">GitHub</div>
                   <p class="link-description">View the source code.</p>
                 </a>
@@ -131,7 +131,7 @@ import {
 
       <!-- Viewport provides CSS variables for animated dimensions -->
       <div class="viewport-container">
-        <div ngpNavigationMenuViewport class="navigation-menu-viewport"></div>
+        <div class="navigation-menu-viewport" ngpNavigationMenuViewport></div>
       </div>
     </nav>
   `,

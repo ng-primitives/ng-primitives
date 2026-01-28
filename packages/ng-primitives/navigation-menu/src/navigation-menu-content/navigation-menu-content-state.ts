@@ -1,4 +1,4 @@
-import { computed, effect, inject, NgZone, signal, Signal } from '@angular/core';
+import { computed, effect, signal, Signal } from '@angular/core';
 import { Placement } from '@floating-ui/dom';
 import { injectElementRef } from 'ng-primitives/internal';
 import { NgpOffset, NgpShift } from 'ng-primitives/portal';
@@ -120,18 +120,12 @@ export const [
     const menu = injectNavigationMenuState();
     const item = injectNavigationMenuItemState();
     const trigger = injectNavigationMenuTriggerState({ optional: true });
-    const ngZone = inject(NgZone);
 
     const id = signal(uniqueId('ngp-navigation-menu-content'));
     const placement = controlled(_placement);
     const offset = controlled(_offset);
     const flip = controlled(_flip);
     const shift = controlled(_shift);
-
-    // Track original parent for portal restoration
-    let originalParent: HTMLElement | null = null;
-    let originalNextSibling: Node | null = null;
-    let isPortaled = false;
 
     // Whether this content is open
     const open = computed(() => item().open());
@@ -173,35 +167,13 @@ export const [
     onMount(() => {
       item().setContentElement(element.nativeElement);
 
-      // Set content id on trigger for aria-controls
       const triggerState = trigger?.();
       if (triggerState) {
         triggerState.setContentId(id());
       }
     });
 
-    // Track ResizeObserver for cleanup
-    let resizeObserverRef: ResizeObserver | null = null;
-
     onDestroy(() => {
-      // Disconnect ResizeObserver
-      if (resizeObserverRef) {
-        resizeObserverRef.disconnect();
-        resizeObserverRef = null;
-      }
-
-      // Restore element to original position if portaled
-      if (isPortaled && originalParent) {
-        ngZone.runOutsideAngular(() => {
-          if (originalNextSibling) {
-            originalParent!.insertBefore(element.nativeElement, originalNextSibling);
-          } else {
-            originalParent!.appendChild(element.nativeElement);
-          }
-        });
-        isPortaled = false;
-      }
-
       item().setContentElement(null);
 
       const triggerState = trigger?.();
@@ -216,96 +188,47 @@ export const [
     dataBinding(element, 'data-orientation', menu().orientation);
     dataBinding(element, 'data-motion', () => motionDirection() ?? null);
 
-    // Portal content into viewport when open and viewport exists
-    effect(() => {
+    // Track portal state and ResizeObserver
+    let resizeObserver: ResizeObserver | null = null;
+    let originalParent: HTMLElement | null = null;
+
+    // Portal content into viewport and measure dimensions
+    effect(onCleanup => {
       const viewport = menu().viewport();
       const isOpen = open();
+      const el = element.nativeElement;
 
-      if (isOpen && viewport && !isPortaled) {
-        // Store original position for restoration
-        originalParent = element.nativeElement.parentElement;
-        originalNextSibling = element.nativeElement.nextSibling;
-
-        // Move element into viewport
-        ngZone.runOutsideAngular(() => {
-          viewport.element.appendChild(element.nativeElement);
-        });
-        isPortaled = true;
-
-        // Wait for Angular to update DOM bindings (data-state='open') and browser to layout
-        // Double rAF ensures: 1) Angular change detection completes, 2) browser performs layout
-        ngZone.runOutsideAngular(() => {
-          requestAnimationFrame(() => {
-            requestAnimationFrame(() => {
-              const el = element.nativeElement;
-
-              // Use scrollWidth/scrollHeight for full content dimensions
-              const width = el.scrollWidth;
-              const height = el.scrollHeight;
-
-              // Only update if we got valid dimensions
-              if (width > 0 && height > 0) {
-                viewport.updateDimensions(width, height);
-              }
-
-              // Use ResizeObserver to track subsequent size changes
-              resizeObserverRef = new ResizeObserver(() => {
-                const w = el.scrollWidth;
-                const h = el.scrollHeight;
-                if (w > 0 && h > 0) {
-                  viewport.updateDimensions(w, h);
-                }
-              });
-              resizeObserverRef.observe(el);
-            });
-          });
-        });
-      } else if (!isOpen && isPortaled && originalParent) {
-        // Disconnect ResizeObserver
-        if (resizeObserverRef) {
-          resizeObserverRef.disconnect();
-          resizeObserverRef = null;
+      if (isOpen && viewport) {
+        // Store original parent and move to viewport
+        if (!originalParent) {
+          originalParent = el.parentElement;
         }
+        viewport.element.appendChild(el);
 
-        // Restore element to original position
-        ngZone.runOutsideAngular(() => {
-          if (originalNextSibling) {
-            originalParent!.insertBefore(element.nativeElement, originalNextSibling);
-          } else {
-            originalParent!.appendChild(element.nativeElement);
+        // Use ResizeObserver to measure and track dimensions
+        resizeObserver = new ResizeObserver(() => {
+          const width = el.scrollWidth;
+          const height = el.scrollHeight;
+          if (width > 0 && height > 0) {
+            viewport.updateDimensions(width, height);
           }
         });
-        isPortaled = false;
+        resizeObserver.observe(el);
+
+        onCleanup(() => {
+          resizeObserver?.disconnect();
+          resizeObserver = null;
+          // Restore to original parent
+          if (originalParent) {
+            originalParent.appendChild(el);
+          }
+        });
       }
     });
 
-    // Event handlers - cancel close timer when pointer enters content
-    listener(element, 'pointerenter', onPointerEnter);
-    listener(element, 'pointerleave', onPointerLeave);
-
-    function onPointerEnter(): void {
-      menu().cancelCloseTimer();
-    }
-
-    function onPointerLeave(): void {
-      menu().startCloseTimer();
-    }
-
-    function setPlacement(value: Placement): void {
-      placement.set(value);
-    }
-
-    function setOffset(value: NgpOffset): void {
-      offset.set(value);
-    }
-
-    function setFlip(value: boolean): void {
-      flip.set(value);
-    }
-
-    function setShift(value: NgpShift): void {
-      shift.set(value);
-    }
+    // Cancel close timer when pointer enters content
+    listener(element, 'pointerenter', () => menu().cancelCloseTimer());
+    listener(element, 'pointerleave', () => menu().startCloseTimer());
 
     return {
       id,
@@ -315,10 +238,10 @@ export const [
       flip,
       shift,
       motionDirection,
-      setPlacement,
-      setOffset,
-      setFlip,
-      setShift,
+      setPlacement: (value: Placement) => placement.set(value),
+      setOffset: (value: NgpOffset) => offset.set(value),
+      setFlip: (value: boolean) => flip.set(value),
+      setShift: (value: NgpShift) => shift.set(value),
     } satisfies NgpNavigationMenuContentState;
   },
 );
