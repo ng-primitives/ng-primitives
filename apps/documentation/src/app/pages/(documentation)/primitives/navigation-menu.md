@@ -23,6 +23,7 @@ import {
   NgpNavigationMenuLink,
   NgpNavigationMenuIndicator,
   NgpNavigationMenuViewport,
+  NgpNavigationMenuPortal,
 } from 'ng-primitives/navigation-menu';
 ```
 
@@ -44,16 +45,14 @@ Assemble the navigation menu directives in your template.
       <a ngpNavigationMenuLink href="/about">About</a>
     </li>
   </ul>
+
+  <ng-template ngpNavigationMenuPortal>
+    <div ngpNavigationMenuViewport></div>
+  </ng-template>
 </nav>
 ```
 
 ## Examples
-
-### Animated Viewport
-
-Use the viewport component to create a shared container that animates its dimensions as you switch between menus with different content sizes.
-
-<docs-example name="navigation-menu-viewport"></docs-example>
 
 ### Vertical Sidebar
 
@@ -162,9 +161,15 @@ A visual indicator that highlights the active trigger position.
 | `--ngp-navigation-menu-indicator-width`  | Width of the indicator.         |
 | `--ngp-navigation-menu-indicator-height` | Height of the indicator.        |
 
+### NgpNavigationMenuPortal
+
+A portal that renders the viewport in a floating overlay with viewport-aware positioning via floating-ui.
+
+<api-docs name="NgpNavigationMenuPortal"></api-docs>
+
 ### NgpNavigationMenuViewport
 
-An optional container for rendering content with animated dimensions.
+A container for rendering content with animated dimensions.
 
 <api-docs name="NgpNavigationMenuViewport"></api-docs>
 

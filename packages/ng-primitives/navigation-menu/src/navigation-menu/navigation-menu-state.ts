@@ -1,7 +1,10 @@
 import { Directionality } from '@angular/cdk/bidi';
-import { inject, signal, Signal } from '@angular/core';
+import { DOCUMENT } from '@angular/common';
+import { effect, inject, signal, Signal } from '@angular/core';
+import { Placement } from '@floating-ui/dom';
 import { NgpOrientation } from 'ng-primitives/common';
 import { injectElementRef } from 'ng-primitives/internal';
+import { NgpOffset, NgpOverlay, NgpShift } from 'ng-primitives/portal';
 import { controlled, createPrimitive, dataBinding } from 'ng-primitives/state';
 import { injectDisposables, uniqueId } from 'ng-primitives/utils';
 
@@ -127,6 +130,18 @@ export interface NgpNavigationMenuState {
    * @internal
    */
   readonly viewport: Signal<NgpNavigationMenuViewportRef | null>;
+
+  /**
+   * Register a portal with the navigation menu.
+   * @internal
+   */
+  registerPortal(portal: NgpNavigationMenuPortalRef | null): void;
+
+  /**
+   * Get the portal.
+   * @internal
+   */
+  readonly portal: Signal<NgpNavigationMenuPortalRef | null>;
 }
 
 /**
@@ -182,12 +197,16 @@ export const [
     const element = injectElementRef();
     const disposables = injectDisposables();
     const directionality = inject(Directionality);
+    const document = inject(DOCUMENT);
 
     // Track registered items
     const items = signal<NgpNavigationMenuItemRef[]>([]);
 
     // Track viewport
     const viewport = signal<NgpNavigationMenuViewportRef | null>(null);
+
+    // Track portal
+    const portal = signal<NgpNavigationMenuPortalRef | null>(null);
 
     // Controlled properties
     const value = controlled(_value);
@@ -206,6 +225,44 @@ export const [
 
     // Host bindings
     dataBinding(element, 'data-orientation', orientation);
+
+    // Close on outside click when menu is open
+    effect(onCleanup => {
+      const currentValue = value();
+
+      // Only listen for clicks when menu is open
+      if (currentValue === undefined) {
+        return;
+      }
+
+      const handleOutsideClick = (event: MouseEvent) => {
+        const path = event.composedPath();
+
+        // Check if click is inside the menu element
+        const isInsideMenu = path.includes(element.nativeElement);
+
+        // Check if click is inside the viewport (which may be in a portal)
+        const viewportEl = viewport()?.element;
+        const isInsideViewport = viewportEl ? path.includes(viewportEl) : false;
+
+        // Check if click is inside any content element
+        const isInsideContent = items().some(item => {
+          const contentEl = item.contentElement();
+          return contentEl && path.includes(contentEl);
+        });
+
+        if (!isInsideMenu && !isInsideViewport && !isInsideContent) {
+          close();
+        }
+      };
+
+      // Use mouseup to match overlay behavior and avoid conflicts with click-to-toggle
+      document.addEventListener('mouseup', handleOutsideClick, { capture: true });
+
+      onCleanup(() => {
+        document.removeEventListener('mouseup', handleOutsideClick, { capture: true });
+      });
+    });
 
     function open(itemValue: string): void {
       if (value() === itemValue) {
@@ -329,6 +386,10 @@ export const [
       viewport.set(viewportState);
     }
 
+    function registerPortal(portalState: NgpNavigationMenuPortalRef | null): void {
+      portal.set(portalState);
+    }
+
     return {
       id,
       value,
@@ -352,6 +413,8 @@ export const [
       items,
       registerViewport,
       viewport,
+      registerPortal,
+      portal,
     } satisfies NgpNavigationMenuState;
   },
 );
@@ -383,4 +446,36 @@ export interface NgpNavigationMenuViewportRef {
    * Update the viewport dimensions.
    */
   updateDimensions(width: number, height: number): void;
+}
+
+export interface NgpNavigationMenuPortalRef {
+  /**
+   * The portal element.
+   */
+  readonly element: HTMLElement;
+
+  /**
+   * The placement of the portal.
+   */
+  readonly placement: Signal<Placement>;
+
+  /**
+   * The offset of the portal.
+   */
+  readonly offset: Signal<NgpOffset>;
+
+  /**
+   * Whether to flip the portal.
+   */
+  readonly flip: Signal<boolean>;
+
+  /**
+   * The shift configuration.
+   */
+  readonly shift: Signal<NgpShift>;
+
+  /**
+   * The overlay instance.
+   */
+  readonly overlay: Signal<NgpOverlay<void> | null>;
 }

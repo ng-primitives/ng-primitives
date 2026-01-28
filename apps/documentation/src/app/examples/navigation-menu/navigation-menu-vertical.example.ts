@@ -17,6 +17,7 @@ import {
   NgpNavigationMenuItem,
   NgpNavigationMenuLink,
   NgpNavigationMenuList,
+  NgpNavigationMenuPortal,
   NgpNavigationMenuTrigger,
   NgpNavigationMenuViewport,
 } from 'ng-primitives/navigation-menu';
@@ -33,6 +34,7 @@ import {
     NgpNavigationMenuLink,
     NgpNavigationMenuIndicator,
     NgpNavigationMenuViewport,
+    NgpNavigationMenuPortal,
   ],
   providers: [
     provideIcons({
@@ -171,9 +173,10 @@ import {
         </li>
       </ul>
 
-      <div class="viewport-container">
+      <!-- Portal renders viewport in a floating overlay with viewport-aware positioning -->
+      <ng-template ngpNavigationMenuPortal ngpNavigationMenuPortalPlacement="right" ngpNavigationMenuPortalOffset="8">
         <div class="sidebar-viewport" ngpNavigationMenuViewport></div>
-      </div>
+      </ng-template>
     </nav>
   `,
   styles: `
@@ -260,14 +263,6 @@ import {
       outline-offset: 2px;
     }
 
-    .viewport-container {
-      position: absolute;
-      left: 100%;
-      top: 0;
-      margin-left: 0.5rem;
-      perspective: 2000px;
-    }
-
     .sidebar-viewport {
       position: relative;
       width: var(--ngp-navigation-menu-viewport-width, 0);
@@ -277,7 +272,8 @@ import {
       border-radius: 12px;
       box-shadow: var(--ngp-shadow-lg);
       overflow: hidden;
-      transform: translateY(var(--ngp-navigation-menu-viewport-top, 0));
+      /* Start hidden - animation will fade in */
+      opacity: 0;
       transition:
         width 200ms ease,
         height 200ms ease;
@@ -290,8 +286,9 @@ import {
       pointer-events: none;
     }
 
-    .sidebar-viewport[data-state='open'] {
-      animation: viewportOpen 200ms ease;
+    /* Use data-enter to trigger show animation (set by portal system) */
+    .sidebar-viewport[data-enter] {
+      animation: viewportOpen 200ms ease forwards;
     }
 
     @keyframes viewportOpen {
@@ -308,6 +305,11 @@ import {
       top: 0;
       left: 0;
       padding: 0.375rem;
+    }
+
+    /* Hide content until moved into viewport to prevent flicker */
+    .sidebar-content:not([data-in-viewport]) {
+      display: none;
     }
 
     .sidebar-content[data-state='closed'] {

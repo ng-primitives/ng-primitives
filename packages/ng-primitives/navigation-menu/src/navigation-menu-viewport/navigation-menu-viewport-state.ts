@@ -1,5 +1,6 @@
-import { computed, signal, Signal } from '@angular/core';
+import { computed, inject, signal, Signal } from '@angular/core';
 import { injectElementRef } from 'ng-primitives/internal';
+import { NgpOverlay } from 'ng-primitives/portal';
 import {
   createPrimitive,
   dataBinding,
@@ -43,6 +44,9 @@ export const [
 ] = createPrimitive('NgpNavigationMenuViewport', (): NgpNavigationMenuViewportState => {
   const element = injectElementRef();
   const menu = injectNavigationMenuState();
+
+  // Optionally inject the overlay when inside a portal
+  const overlay = inject(NgpOverlay, { optional: true });
 
   // Track content dimensions
   const width = signal<number | null>(null);
@@ -117,6 +121,19 @@ export const [
     const pos = triggerPosition();
     return pos !== null ? `${pos.top}px` : null;
   });
+
+  // When inside a portal overlay, apply floating-ui positioning
+  if (overlay) {
+    styleBinding(element, 'position', () => 'absolute');
+    styleBinding(element, 'left', () => {
+      const x = overlay.position().x;
+      return x !== undefined ? `${x}px` : null;
+    });
+    styleBinding(element, 'top', () => {
+      const y = overlay.position().y;
+      return y !== undefined ? `${y}px` : null;
+    });
+  }
 
   // Pointer event handlers - cancel close timer when hovering viewport
   listener(element, 'pointerenter', () => {

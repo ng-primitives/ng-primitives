@@ -188,11 +188,11 @@ export const [
     dataBinding(element, 'data-orientation', menu().orientation);
     dataBinding(element, 'data-motion', () => motionDirection() ?? null);
 
-    // Track portal state and ResizeObserver
+    // Track ResizeObserver and original parent
     let resizeObserver: ResizeObserver | null = null;
     let originalParent: HTMLElement | null = null;
 
-    // Portal content into viewport and measure dimensions
+    // Move content into viewport and measure dimensions
     effect(onCleanup => {
       const viewport = menu().viewport();
       const isOpen = open();
@@ -205,6 +205,10 @@ export const [
         }
         viewport.element.appendChild(el);
 
+        // Mark as in viewport AFTER the DOM move to prevent flicker
+        // CSS hides content until this attribute is present
+        el.setAttribute('data-in-viewport', '');
+
         // Use ResizeObserver to measure and track dimensions
         resizeObserver = new ResizeObserver(() => {
           const width = el.scrollWidth;
@@ -216,6 +220,7 @@ export const [
         resizeObserver.observe(el);
 
         onCleanup(() => {
+          el.removeAttribute('data-in-viewport');
           resizeObserver?.disconnect();
           resizeObserver = null;
           // Restore to original parent

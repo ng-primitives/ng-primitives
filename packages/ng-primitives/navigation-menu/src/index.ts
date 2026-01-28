@@ -12,6 +12,7 @@ export { NgpNavigationMenu } from './navigation-menu/navigation-menu';
 export {
   injectNavigationMenuState,
   NgpNavigationMenuItemRef,
+  NgpNavigationMenuPortalRef,
   NgpNavigationMenuProps,
   NgpNavigationMenuState,
   NgpNavigationMenuStateToken,
@@ -87,3 +88,13 @@ export {
   NgpNavigationMenuViewportStateToken,
   provideNavigationMenuViewportState,
 } from './navigation-menu-viewport/navigation-menu-viewport-state';
+
+// Navigation Menu Portal
+export { NgpNavigationMenuPortal } from './navigation-menu-portal/navigation-menu-portal';
+export {
+  injectNavigationMenuPortalState,
+  NgpNavigationMenuPortalProps,
+  NgpNavigationMenuPortalState,
+  NgpNavigationMenuPortalStateToken,
+  provideNavigationMenuPortalState,
+} from './navigation-menu-portal/navigation-menu-portal-state';
