@@ -146,17 +146,18 @@ import {
     .navigation-menu-list {
       position: relative;
       display: flex;
-      gap: 0.25rem;
+      gap: 2px;
       list-style: none;
-      padding: 0.25rem;
+      padding: 4px;
       margin: 0;
       background-color: var(--ngp-background);
-      border-radius: 0.5rem;
+      border: 1px solid var(--ngp-border);
+      border-radius: 10px;
     }
 
     .navigation-menu-indicator {
       background-color: var(--ngp-background-hover);
-      border-radius: 0.375rem;
+      border-radius: 6px;
       transition: all 150ms ease;
     }
 
@@ -165,11 +166,14 @@ import {
     }
 
     .navigation-menu-trigger {
-      padding: 0.5rem 1rem;
+      display: flex;
+      align-items: center;
+      height: 32px;
+      padding: 0 12px;
       border: none;
       background: none;
-      border-radius: 0.375rem;
-      font-size: 0.875rem;
+      border-radius: 6px;
+      font-size: 0.8125rem;
       font-weight: 500;
       cursor: pointer;
       color: var(--ngp-text-primary);
@@ -307,12 +311,10 @@ import {
     /* Link styles */
     .navigation-menu-link {
       display: block;
-      padding: 0.75rem;
-      border-radius: 0.375rem;
+      padding: 0.375rem 0.5rem;
+      border-radius: 6px;
       text-decoration: none;
-      transition:
-        background-color 150ms ease,
-        color 150ms ease;
+      transition: background-color 150ms ease;
     }
 
     .navigation-menu-link:hover {
@@ -325,17 +327,18 @@ import {
     }
 
     .link-title {
-      font-size: 0.875rem;
+      font-size: 0.8125rem;
       font-weight: 500;
       color: var(--ngp-text-primary);
-      margin-bottom: 0.25rem;
+      line-height: 1.2;
+      margin-bottom: 4px;
     }
 
     .link-description {
       font-size: 0.75rem;
       color: var(--ngp-text-secondary);
       margin: 0;
-      line-height: 1.4;
+      line-height: 1.2;
     }
 
     /* Callout link style */

@@ -20,7 +20,6 @@ import {
   NgpNavigationMenuTrigger,
   NgpNavigationMenuViewport,
 } from 'ng-primitives/navigation-menu';
-import { NgpTooltip, NgpTooltipTrigger } from 'ng-primitives/tooltip';
 
 @Component({
   selector: 'app-navigation-menu-vertical',
@@ -34,8 +33,6 @@ import { NgpTooltip, NgpTooltipTrigger } from 'ng-primitives/tooltip';
     NgpNavigationMenuLink,
     NgpNavigationMenuIndicator,
     NgpNavigationMenuViewport,
-    NgpTooltip,
-    NgpTooltipTrigger,
   ],
   providers: [
     provideIcons({
@@ -50,7 +47,7 @@ import { NgpTooltip, NgpTooltipTrigger } from 'ng-primitives/tooltip';
     }),
   ],
   template: `
-    <nav class="sidebar" ngpNavigationMenu ngpNavigationMenuOrientation="vertical">
+    <nav class="sidebar" ngpNavigationMenu ngpNavigationMenuOrientation="vertical" ngpNavigationMenuDelayDuration="0">
       <ul class="sidebar-list" ngpNavigationMenuList>
         <div class="sidebar-indicator" ngpNavigationMenuIndicator></div>
 
@@ -58,8 +55,6 @@ import { NgpTooltip, NgpTooltipTrigger } from 'ng-primitives/tooltip';
           <button
             class="sidebar-trigger"
             ngpNavigationMenuTrigger
-            ngpTooltipTrigger="Search"
-            ngpTooltipPlacement="right"
           >
             <ng-icon name="heroMagnifyingGlass" size="20" />
           </button>
@@ -77,8 +72,6 @@ import { NgpTooltip, NgpTooltipTrigger } from 'ng-primitives/tooltip';
           <button
             class="sidebar-trigger"
             ngpNavigationMenuTrigger
-            ngpTooltipTrigger="Dashboard"
-            ngpTooltipPlacement="right"
           >
             <ng-icon name="heroSquares2x2" size="20" />
           </button>
@@ -96,8 +89,6 @@ import { NgpTooltip, NgpTooltipTrigger } from 'ng-primitives/tooltip';
           <button
             class="sidebar-trigger"
             ngpNavigationMenuTrigger
-            ngpTooltipTrigger="Analytics"
-            ngpTooltipPlacement="right"
           >
             <ng-icon name="heroChartBar" size="20" />
           </button>
@@ -116,8 +107,6 @@ import { NgpTooltip, NgpTooltipTrigger } from 'ng-primitives/tooltip';
           <button
             class="sidebar-trigger"
             ngpNavigationMenuTrigger
-            ngpTooltipTrigger="Documents"
-            ngpTooltipPlacement="right"
           >
             <ng-icon name="heroDocumentText" size="20" />
           </button>
@@ -135,8 +124,6 @@ import { NgpTooltip, NgpTooltipTrigger } from 'ng-primitives/tooltip';
           <button
             class="sidebar-trigger"
             ngpNavigationMenuTrigger
-            ngpTooltipTrigger="Projects"
-            ngpTooltipPlacement="right"
           >
             <ng-icon name="heroFolder" size="20" />
           </button>
@@ -153,8 +140,6 @@ import { NgpTooltip, NgpTooltipTrigger } from 'ng-primitives/tooltip';
           <button
             class="sidebar-trigger"
             ngpNavigationMenuTrigger
-            ngpTooltipTrigger="Users"
-            ngpTooltipPlacement="right"
           >
             <ng-icon name="heroUsers" size="20" />
           </button>
@@ -174,8 +159,6 @@ import { NgpTooltip, NgpTooltipTrigger } from 'ng-primitives/tooltip';
           <button
             class="sidebar-trigger"
             ngpNavigationMenuTrigger
-            ngpTooltipTrigger="Notifications"
-            ngpTooltipPlacement="right"
           >
             <ng-icon name="heroBell" size="20" />
           </button>
@@ -193,8 +176,6 @@ import { NgpTooltip, NgpTooltipTrigger } from 'ng-primitives/tooltip';
           <button
             class="sidebar-trigger"
             ngpNavigationMenuTrigger
-            ngpTooltipTrigger="Settings"
-            ngpTooltipPlacement="right"
           >
             <ng-icon name="heroCog6Tooth" size="20" />
           </button>
@@ -242,7 +223,7 @@ import { NgpTooltip, NgpTooltipTrigger } from 'ng-primitives/tooltip';
     .sidebar-indicator {
       z-index: 0 !important;
       background-color: var(--ngp-background-active);
-      border-radius: 0.5rem;
+      border-radius: 8px;
       transition:
         top 150ms ease,
         left 150ms ease,
@@ -282,7 +263,7 @@ import { NgpTooltip, NgpTooltipTrigger } from 'ng-primitives/tooltip';
       padding: 0;
       border: none;
       background: none;
-      border-radius: 0.5rem;
+      border-radius: 8px;
       cursor: pointer;
       color: var(--ngp-text-secondary);
       transition: color 150ms ease;
@@ -312,7 +293,7 @@ import { NgpTooltip, NgpTooltipTrigger } from 'ng-primitives/tooltip';
       height: var(--ngp-navigation-menu-viewport-height, 0);
       background-color: var(--ngp-background);
       border: 1px solid var(--ngp-border);
-      border-radius: 0.5rem;
+      border-radius: 12px;
       box-shadow: var(--ngp-shadow-lg);
       overflow: hidden;
       transform: translateY(var(--ngp-navigation-menu-viewport-top, 0));
@@ -345,76 +326,45 @@ import { NgpTooltip, NgpTooltipTrigger } from 'ng-primitives/tooltip';
       position: absolute;
       top: 0;
       left: 0;
-      padding: 0.75rem;
-      animation-duration: 150ms;
-      animation-timing-function: ease;
+      padding: 0.375rem;
     }
 
     .sidebar-content[data-state='closed'] {
       display: none;
     }
 
-    .sidebar-content[data-motion='from-start'] {
-      animation-name: slideFromTop;
-    }
-
-    .sidebar-content[data-motion='from-end'] {
-      animation-name: slideFromBottom;
-    }
-
-    @keyframes slideFromTop {
-      from {
-        opacity: 0;
-        transform: translateY(-8px);
-      }
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
-    }
-
-    @keyframes slideFromBottom {
-      from {
-        opacity: 0;
-        transform: translateY(8px);
-      }
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
-    }
-
     .content-header {
-      font-size: 0.75rem;
+      font-size: 0.6875rem;
       font-weight: 600;
+      line-height: 1;
       color: var(--ngp-text-tertiary);
       text-transform: uppercase;
       letter-spacing: 0.05em;
-      padding: 0.25rem 0.5rem;
-      margin-bottom: 0.25rem;
+      padding: 0.5rem 0.5rem 0.375rem;
     }
 
     .content-list {
       list-style: none;
       padding: 0;
       margin: 0;
-      min-width: 160px;
+      min-width: 140px;
     }
 
     .content-link {
-      display: block;
-      padding: 0.5rem;
-      border-radius: 0.375rem;
+      display: flex;
+      align-items: center;
+      height: 32px;
+      padding: 0 0.5rem;
+      border-radius: 6px;
       text-decoration: none;
-      font-size: 0.875rem;
-      color: var(--ngp-text-secondary);
+      font-size: 0.8125rem;
+      color: var(--ngp-text-primary);
       white-space: nowrap;
-      transition: all 150ms ease;
+      transition: background-color 150ms ease;
     }
 
     .content-link:hover {
       background-color: var(--ngp-background-hover);
-      color: var(--ngp-text-primary);
     }
 
     .content-link:focus-visible {

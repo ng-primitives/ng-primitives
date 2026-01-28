@@ -50,9 +50,14 @@ export const [
       const listRect = listElement.getBoundingClientRect();
       const triggerRect = triggerElement.getBoundingClientRect();
 
+      // Account for border width since absolute positioning is relative to the padding edge
+      const computedStyle = getComputedStyle(listElement);
+      const borderLeft = parseFloat(computedStyle.borderLeftWidth) || 0;
+      const borderTop = parseFloat(computedStyle.borderTopWidth) || 0;
+
       return {
-        left: triggerRect.left - listRect.left,
-        top: triggerRect.top - listRect.top,
+        left: triggerRect.left - listRect.left - borderLeft,
+        top: triggerRect.top - listRect.top - borderTop,
         width: triggerRect.width,
         height: triggerRect.height,
       };

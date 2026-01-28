@@ -239,10 +239,6 @@ bootstrapApplication(AppComponent, {
 
 The Navigation Menu primitive follows the [WAI-ARIA Navigation Menu pattern](https://www.w3.org/WAI/ARIA/apg/patterns/disclosure/examples/disclosure-navigation/).
 
-### RTL Support
-
-The navigation menu automatically detects the text direction from the Angular CDK's `Directionality` service, which reads the `dir` attribute from the DOM. To enable RTL support, set `dir="rtl"` on a parent element or the document.
-
 ### Keyboard Interactions
 
 | Key                | Description                                                       |
