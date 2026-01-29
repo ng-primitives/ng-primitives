@@ -3,6 +3,7 @@ import {
   effect,
   EmbeddedViewRef,
   inject,
+  Injector,
   signal,
   TemplateRef,
   ViewContainerRef,
@@ -32,11 +33,13 @@ import {
 export class NgpNavigationMenuContent {
   private readonly state = ngpNavigationMenuContent();
 
+  private readonly injector = inject(Injector);
+
   private embeddedViewRef: EmbeddedViewRef<any> | null = null;
   private resizeObserver: ResizeObserver | null = null;
   private originalParent: HTMLElement | null = null;
   private contentElement: HTMLElement | null = null;
-  private viewportMoveTimeout: ReturnType<typeof setTimeout> | null = null;
+  private viewportEffectCleanup: (() => void) | null = null;
 
   // Injectable services
   private readonly templateRef = inject(TemplateRef);
@@ -71,6 +74,8 @@ export class NgpNavigationMenuContent {
         if (rootNode && rootNode.nodeType === Node.ELEMENT_NODE) {
           this.contentElement = rootNode as HTMLElement;
           // Hide initially to prevent flicker while moving to viewport
+          // Use both display:none and visibility:hidden for maximum flicker prevention
+          this.contentElement.style.display = 'none';
           this.contentElement.style.visibility = 'hidden';
         }
 
@@ -128,67 +133,101 @@ export class NgpNavigationMenuContent {
     this.contentElement.addEventListener('pointerenter', this.handlePointerEnter);
     this.contentElement.addEventListener('pointerleave', this.handlePointerLeave);
 
-    // Move to viewport - check multiple times as viewport might not be ready immediately
-    this.attemptViewportMove();
-  }
+    // Use an effect to move content to viewport when viewport becomes available
+    const effectRef = effect(
+      () => {
+        const viewport = this.menu().viewport();
 
-  private attemptViewportMove(attempts = 0) {
-    if (!this.contentElement) return;
-
-    // Clear any pending timeout
-    if (this.viewportMoveTimeout) {
-      clearTimeout(this.viewportMoveTimeout);
-      this.viewportMoveTimeout = null;
-    }
-
-    // If we've exhausted attempts, show content anyway to avoid it being permanently hidden
-    if (attempts > 10) {
-      this.contentElement.style.visibility = '';
-      return;
-    }
-
-    const menuState = this.menu();
-    const viewport = menuState.viewport();
-
-    if (viewport && viewport.element) {
-      // Only move if we haven't already moved it
-      if (!this.originalParent) {
-        this.originalParent = this.contentElement.parentElement;
-      }
-
-      // Move element to viewport if it's not already there
-      if (this.contentElement.parentElement !== viewport.element && this.originalParent) {
-        viewport.element.appendChild(this.contentElement);
-      }
-
-      // Make visible after moving to viewport
-      this.contentElement.style.visibility = '';
-
-      // Set up resize observer if not already set up
-      if (!this.resizeObserver) {
-        this.resizeObserver = new ResizeObserver(() => {
-          if (!this.contentElement) return;
-          const width = this.contentElement.scrollWidth;
-          const height = this.contentElement.scrollHeight;
-          if (width > 0 && height > 0) {
-            viewport.updateDimensions(width, height);
+        if (viewport?.element && this.contentElement) {
+          // Store original parent for cleanup
+          if (!this.originalParent) {
+            this.originalParent = this.contentElement.parentElement;
           }
-        });
-        this.resizeObserver.observe(this.contentElement);
-      }
-    } else {
-      // Viewport not ready, try again
-      this.viewportMoveTimeout = setTimeout(() => this.attemptViewportMove(attempts + 1), 10);
-    }
+
+          // Move element to viewport if it's not already there
+          if (this.contentElement.parentElement !== viewport.element && this.originalParent) {
+            viewport.element.appendChild(this.contentElement);
+          }
+
+          // Make visible after moving to viewport
+          this.contentElement.style.display = '';
+          this.contentElement.style.visibility = '';
+
+          // Temporarily remove viewport constraints for accurate measurement
+          // This ensures shrinking works correctly when switching from larger to smaller content
+          const viewportEl = viewport.element;
+          const originalWidth = viewportEl.style.width;
+          const originalHeight = viewportEl.style.height;
+          const originalOverflow = viewportEl.style.overflow;
+
+          // Remove constraints to allow content to render at natural size
+          viewportEl.style.width = 'auto';
+          viewportEl.style.height = 'auto';
+          viewportEl.style.overflow = 'visible';
+
+          // Force layout recalculation and measure unconstrained content
+          this.contentElement.offsetHeight;
+          const rect = this.contentElement.getBoundingClientRect();
+          const measuredWidth = rect.width;
+          const measuredHeight = rect.height;
+
+          // Restore viewport styles
+          viewportEl.style.width = originalWidth;
+          viewportEl.style.height = originalHeight;
+          viewportEl.style.overflow = originalOverflow;
+
+          // Update viewport dimensions with measured values
+          if (measuredWidth > 0 && measuredHeight > 0) {
+            viewport.updateDimensions(measuredWidth, measuredHeight);
+          }
+
+          // Set up resize observer for dynamic content changes
+          if (!this.resizeObserver) {
+            const observedElement = this.contentElement;
+            this.resizeObserver = new ResizeObserver(entries => {
+              const entry = entries[0];
+              if (!entry) return;
+              // Guard: only update if this element is still in the viewport
+              // (ResizeObserver callbacks can fire after disconnect() if enqueued)
+              if (observedElement.parentElement !== viewport.element) return;
+
+              // Use borderBoxSize for accurate dimensions including padding/border
+              const borderBoxSize = entry.borderBoxSize?.[0];
+              if (borderBoxSize) {
+                const width = borderBoxSize.inlineSize;
+                const height = borderBoxSize.blockSize;
+                if (width > 0 && height > 0) {
+                  viewport.updateDimensions(width, height);
+                }
+              } else {
+                // Fallback for older browsers - use getBoundingClientRect for consistency
+                const fallbackRect = observedElement.getBoundingClientRect();
+                if (fallbackRect.width > 0 && fallbackRect.height > 0) {
+                  viewport.updateDimensions(fallbackRect.width, fallbackRect.height);
+                }
+              }
+            });
+            this.resizeObserver.observe(this.contentElement);
+          }
+
+          // Clean up this effect once we've moved to viewport
+          this.viewportEffectCleanup?.();
+          this.viewportEffectCleanup = null;
+        }
+      },
+      { injector: this.injector },
+    );
+
+    this.viewportEffectCleanup = () => effectRef.destroy();
   }
 
   private cleanupContentElement() {
     if (!this.contentElement) return;
 
-    // Clear viewport move timeout
-    if (this.viewportMoveTimeout) {
-      clearTimeout(this.viewportMoveTimeout);
-      this.viewportMoveTimeout = null;
+    // Clean up viewport effect
+    if (this.viewportEffectCleanup) {
+      this.viewportEffectCleanup();
+      this.viewportEffectCleanup = null;
     }
 
     // Remove event listeners
@@ -203,17 +242,18 @@ export class NgpNavigationMenuContent {
       triggerState.setContentId(undefined);
     }
 
-    // Clean up resize observer
-    if (this.resizeObserver) {
-      this.resizeObserver.disconnect();
-      this.resizeObserver = null;
-    }
-
-    // Restore to original parent if needed
+    // Remove from viewport FIRST (before disconnecting observer)
+    // This ensures any pending ResizeObserver callbacks see it's no longer in viewport
     if (this.originalParent && this.contentElement.parentElement) {
       this.originalParent.appendChild(this.contentElement);
     }
     this.originalParent = null;
+
+    // Clean up resize observer after content is removed from viewport
+    if (this.resizeObserver) {
+      this.resizeObserver.disconnect();
+      this.resizeObserver = null;
+    }
   }
 
   private handlePointerEnter = () => {

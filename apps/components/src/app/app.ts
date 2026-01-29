@@ -19,6 +19,7 @@ import { RouterLink, RouterOutlet } from '@angular/router';
       <a routerLink="/reusable-components/listbox">Listbox</a>
       <a routerLink="/reusable-components/menu">Menu</a>
       <a routerLink="/reusable-components/meter">Meter</a>
+      <a routerLink="/reusable-components/navigation-menu">Navigation Menu</a>
       <a routerLink="/reusable-components/pagination">Pagination</a>
       <a routerLink="/reusable-components/popover">Popover</a>
       <a routerLink="/reusable-components/progress">Progress</a>

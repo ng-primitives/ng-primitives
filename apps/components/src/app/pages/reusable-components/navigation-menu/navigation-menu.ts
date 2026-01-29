@@ -1,0 +1,242 @@
+import { NgTemplateOutlet } from '@angular/common';
+import { Component, contentChildren, input } from '@angular/core';
+import { Placement } from '@floating-ui/dom';
+import {
+  NgpNavigationMenu,
+  NgpNavigationMenuContent,
+  NgpNavigationMenuIndicator,
+  NgpNavigationMenuItem,
+  NgpNavigationMenuList,
+  NgpNavigationMenuPortal,
+  NgpNavigationMenuTrigger,
+  NgpNavigationMenuViewport,
+} from 'ng-primitives/navigation-menu';
+import { NavigationMenuItem } from './navigation-menu-item';
+
+@Component({
+  selector: 'app-navigation-menu',
+  imports: [
+    NgTemplateOutlet,
+    NgpNavigationMenuList,
+    NgpNavigationMenuItem,
+    NgpNavigationMenuTrigger,
+    NgpNavigationMenuContent,
+    NgpNavigationMenuIndicator,
+    NgpNavigationMenuPortal,
+    NgpNavigationMenuViewport,
+  ],
+  hostDirectives: [
+    {
+      directive: NgpNavigationMenu,
+      inputs: [
+        'ngpNavigationMenuValue:value',
+        'ngpNavigationMenuOrientation:orientation',
+        'ngpNavigationMenuShowDelay:showDelay',
+        'ngpNavigationMenuSkipDelayDuration:skipDelayDuration',
+      ],
+      outputs: ['ngpNavigationMenuValueChange:valueChange'],
+    },
+  ],
+  template: `
+    <ul ngpNavigationMenuList>
+      <div ngpNavigationMenuIndicator></div>
+      @for (item of items(); track item.value()) {
+        <li [ngpNavigationMenuItemValue]="item.value()" ngpNavigationMenuItem>
+          <button ngpNavigationMenuTrigger>
+            {{ item.label() }}
+            <svg
+              width="12"
+              height="12"
+              viewBox="0 0 12 12"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+              aria-hidden="true"
+            >
+              <path
+                d="M2.5 4.5L6 8L9.5 4.5"
+                stroke="currentColor"
+                stroke-width="1.5"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              />
+            </svg>
+          </button>
+          <div *ngpNavigationMenuContent>
+            <ng-container [ngTemplateOutlet]="item.contentTemplate()" />
+          </div>
+        </li>
+      }
+    </ul>
+    <ng-template
+      ngpNavigationMenuPortal
+      [ngpNavigationMenuPortalPlacement]="placement()"
+      [ngpNavigationMenuPortalOffset]="offset()"
+    >
+      <div ngpNavigationMenuViewport></div>
+    </ng-template>
+  `,
+  styles: `
+    :host {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      position: relative;
+    }
+
+    [ngpNavigationMenuList] {
+      position: relative;
+      display: flex;
+      gap: 2px;
+      list-style: none;
+      padding: 4px;
+      margin: 0;
+      background-color: var(--ngp-background);
+      border: 1px solid var(--ngp-border);
+      border-radius: 10px;
+    }
+
+    [ngpNavigationMenuIndicator] {
+      z-index: 0 !important;
+      background-color: var(--ngp-background-hover);
+      border-radius: 6px;
+      transition:
+        top 150ms ease,
+        left 150ms ease,
+        width 150ms ease,
+        height 150ms ease,
+        opacity 150ms ease;
+    }
+
+    [ngpNavigationMenuIndicator][data-state='hidden'] {
+      opacity: 0;
+      transition: none;
+    }
+
+    [ngpNavigationMenuItem] {
+      position: relative;
+      z-index: 1;
+    }
+
+    [ngpNavigationMenuTrigger] {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      height: 32px;
+      padding: 0 12px;
+      border: none;
+      background: none;
+      border-radius: 6px;
+      font-size: 0.8125rem;
+      font-weight: 500;
+      cursor: pointer;
+      color: var(--ngp-text-primary);
+      transition: color 150ms ease;
+    }
+
+    [ngpNavigationMenuTrigger]:focus-visible {
+      outline: 2px solid var(--ngp-focus-ring);
+      outline-offset: 2px;
+    }
+
+    [ngpNavigationMenuTrigger] svg {
+      transition: transform 150ms ease;
+    }
+
+    [ngpNavigationMenuTrigger][data-state='open'] svg {
+      transform: rotate(180deg);
+    }
+
+    [ngpNavigationMenuContent] {
+      position: absolute;
+      top: 0;
+      left: 0;
+      animation-duration: 200ms;
+      animation-timing-function: ease;
+    }
+
+    [ngpNavigationMenuContent][data-motion='from-start'] {
+      animation-name: slideFromLeft;
+    }
+
+    [ngpNavigationMenuContent][data-motion='from-end'] {
+      animation-name: slideFromRight;
+    }
+
+    @keyframes slideFromLeft {
+      from {
+        opacity: 0;
+        transform: translateX(-10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateX(0);
+      }
+    }
+
+    @keyframes slideFromRight {
+      from {
+        opacity: 0;
+        transform: translateX(10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateX(0);
+      }
+    }
+
+    [ngpNavigationMenuViewport] {
+      position: relative;
+      width: var(--ngp-navigation-menu-viewport-width, 0);
+      height: var(--ngp-navigation-menu-viewport-height, 0);
+      background-color: var(--ngp-background);
+      border: 1px solid var(--ngp-border);
+      border-radius: 0.5rem;
+      box-shadow: var(--ngp-shadow-lg);
+      overflow: hidden;
+      opacity: 0;
+      transition:
+        width 250ms ease,
+        height 250ms ease;
+    }
+
+    [ngpNavigationMenuViewport][data-state='closed'] {
+      width: 0;
+      height: 0;
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    [ngpNavigationMenuViewport][data-enter] {
+      animation: viewportOpen 200ms ease forwards;
+    }
+
+    @keyframes viewportOpen {
+      from {
+        opacity: 0;
+        transform: rotateX(-10deg) scale(0.96);
+      }
+      to {
+        opacity: 1;
+        transform: rotateX(0deg) scale(1);
+      }
+    }
+  `,
+})
+export class NavigationMenu {
+  /**
+   * The placement of the dropdown viewport.
+   * @default 'bottom'
+   */
+  readonly placement = input<Placement>('bottom');
+
+  /**
+   * The offset from the trigger.
+   * @default 8
+   */
+  readonly offset = input<number>(8);
+
+  /**
+   * The menu items.
+   */
+  readonly items = contentChildren(NavigationMenuItem);
+}
