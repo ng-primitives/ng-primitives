@@ -2,7 +2,6 @@ import { computed, signal, Signal } from '@angular/core';
 import { createPrimitive } from 'ng-primitives/state';
 import { uniqueId } from 'ng-primitives/utils';
 import { injectNavigationMenuItemState } from '../navigation-menu-item/navigation-menu-item-state';
-import { injectNavigationMenuTriggerState } from '../navigation-menu-trigger/navigation-menu-trigger-state';
 import { injectNavigationMenuState } from '../navigation-menu/navigation-menu-state';
 
 /**

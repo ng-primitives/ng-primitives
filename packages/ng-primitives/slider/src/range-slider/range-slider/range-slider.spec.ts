@@ -908,7 +908,7 @@ describe('NgpRangeSlider Edge Cases', () => {
       height: 20,
       x: 0,
       y: 0,
-      // eslint-disable-next-line @typescript-eslint/no-empty-function
+
       toJSON: () => {},
     });
 
@@ -947,7 +947,7 @@ describe('NgpRangeSlider Edge Cases', () => {
       height: 20,
       x: 0,
       y: 0,
-      // eslint-disable-next-line @typescript-eslint/no-empty-function
+
       toJSON: () => {},
     });
 

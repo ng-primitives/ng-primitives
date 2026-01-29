@@ -166,7 +166,6 @@ export class NgpNavigationMenuContent {
           viewportEl.style.overflow = 'visible';
 
           // Force layout recalculation and measure unconstrained content
-          this.contentElement.offsetHeight;
           const rect = this.contentElement.getBoundingClientRect();
           const measuredWidth = rect.width;
           const measuredHeight = rect.height;
