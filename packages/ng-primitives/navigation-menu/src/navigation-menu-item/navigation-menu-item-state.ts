@@ -1,4 +1,4 @@
-import { FocusMonitor } from '@angular/cdk/a11y';
+import { FocusMonitor, InteractivityChecker } from '@angular/cdk/a11y';
 import { computed, inject, signal, Signal } from '@angular/core';
 import { injectElementRef } from 'ng-primitives/internal';
 import { attrBinding, createPrimitive, dataBinding, onDestroy } from 'ng-primitives/state';
@@ -75,6 +75,7 @@ export const [
     const element = injectElementRef();
     const menu = injectNavigationMenuState();
     const focusMonitor = inject(FocusMonitor);
+    const interactivityChecker = inject(InteractivityChecker);
 
     const id = signal(uniqueId('ngp-navigation-menu-item'));
     const triggerElement = signal<HTMLElement | null>(null);
@@ -107,17 +108,47 @@ export const [
 
     /**
      * Focus the first focusable element in the content.
-     * Uses a simple query for elements with role="menuitem".
+     * Uses CDK InteractivityChecker to find focusable elements.
+     * Includes retry logic since content may be created asynchronously.
      */
     function focusFirstContentItem(): void {
-      const content = contentElement();
-      if (!content) return;
+      const tryFocus = (attempts = 0): void => {
+        const content = contentElement();
+        if (!content) {
+          // Content not ready yet, retry after a frame (max 10 attempts)
+          if (attempts < 10) {
+            requestAnimationFrame(() => tryFocus(attempts + 1));
+          }
+          return;
+        }
 
-      // Find the first menuitem in the content
-      const firstItem = content.querySelector('[role="menuitem"]') as HTMLElement | null;
-      if (firstItem) {
-        focusMonitor.focusVia(firstItem, 'keyboard');
-      }
+        // Find the first focusable element in the content using InteractivityChecker
+        const firstFocusable = findFirstFocusableElement(content);
+        if (firstFocusable) {
+          focusMonitor.focusVia(firstFocusable, 'keyboard');
+        } else if (attempts < 10) {
+          // Content exists but no focusable element found yet, retry
+          requestAnimationFrame(() => tryFocus(attempts + 1));
+        }
+      };
+
+      tryFocus();
+    }
+
+    /**
+     * Find the first focusable element within a container using tree walker.
+     */
+    function findFirstFocusableElement(container: HTMLElement): HTMLElement | null {
+      const walker = document.createTreeWalker(container, NodeFilter.SHOW_ELEMENT, {
+        acceptNode: (node: Node) => {
+          const el = node as HTMLElement;
+          return interactivityChecker.isFocusable(el) && interactivityChecker.isTabbable(el)
+            ? NodeFilter.FILTER_ACCEPT
+            : NodeFilter.FILTER_SKIP;
+        },
+      });
+
+      return walker.nextNode() as HTMLElement | null;
     }
 
     function focusTrigger(): void {
