@@ -123,7 +123,7 @@ export const [
     // Get the active trigger element
     const activeTriggerElement = computed(() => {
       const currentValue = menu().value();
-      if (!currentValue) return null;
+      if (currentValue === undefined) return null;
 
       const items = menu().items();
       const activeItem = items.find(item => item.value() === currentValue);

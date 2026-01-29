@@ -59,8 +59,8 @@ import {
         <div class="sidebar-indicator" ngpNavigationMenuIndicator></div>
 
         <li class="sidebar-item" ngpNavigationMenuItem ngpNavigationMenuItemValue="search">
-          <button class="sidebar-trigger" ngpNavigationMenuTrigger>
-            <ng-icon name="heroMagnifyingGlass" size="20" />
+          <button class="sidebar-trigger" ngpNavigationMenuTrigger aria-label="Search">
+            <ng-icon name="heroMagnifyingGlass" size="20" aria-hidden="true" />
           </button>
           <div class="sidebar-content" *ngpNavigationMenuContent>
             <div class="content-header">Search</div>
@@ -73,8 +73,8 @@ import {
         </li>
 
         <li class="sidebar-item" ngpNavigationMenuItem ngpNavigationMenuItemValue="dashboard">
-          <button class="sidebar-trigger" ngpNavigationMenuTrigger>
-            <ng-icon name="heroSquares2x2" size="20" />
+          <button class="sidebar-trigger" ngpNavigationMenuTrigger aria-label="Dashboard">
+            <ng-icon name="heroSquares2x2" size="20" aria-hidden="true" />
           </button>
           <div class="sidebar-content" *ngpNavigationMenuContent>
             <div class="content-header">Dashboard</div>
@@ -87,8 +87,8 @@ import {
         </li>
 
         <li class="sidebar-item" ngpNavigationMenuItem ngpNavigationMenuItemValue="analytics">
-          <button class="sidebar-trigger" ngpNavigationMenuTrigger>
-            <ng-icon name="heroChartBar" size="20" />
+          <button class="sidebar-trigger" ngpNavigationMenuTrigger aria-label="Analytics">
+            <ng-icon name="heroChartBar" size="20" aria-hidden="true" />
           </button>
           <div class="sidebar-content" *ngpNavigationMenuContent>
             <div class="content-header">Analytics</div>
@@ -102,8 +102,8 @@ import {
         </li>
 
         <li class="sidebar-item" ngpNavigationMenuItem ngpNavigationMenuItemValue="documents">
-          <button class="sidebar-trigger" ngpNavigationMenuTrigger>
-            <ng-icon name="heroDocumentText" size="20" />
+          <button class="sidebar-trigger" ngpNavigationMenuTrigger aria-label="Documents">
+            <ng-icon name="heroDocumentText" size="20" aria-hidden="true" />
           </button>
           <div class="sidebar-content" *ngpNavigationMenuContent>
             <div class="content-header">Documents</div>
@@ -116,8 +116,8 @@ import {
         </li>
 
         <li class="sidebar-item" ngpNavigationMenuItem ngpNavigationMenuItemValue="projects">
-          <button class="sidebar-trigger" ngpNavigationMenuTrigger>
-            <ng-icon name="heroFolder" size="20" />
+          <button class="sidebar-trigger" ngpNavigationMenuTrigger aria-label="Projects">
+            <ng-icon name="heroFolder" size="20" aria-hidden="true" />
           </button>
           <div class="sidebar-content" *ngpNavigationMenuContent>
             <div class="content-header">Projects</div>
@@ -129,8 +129,8 @@ import {
         </li>
 
         <li class="sidebar-item" ngpNavigationMenuItem ngpNavigationMenuItemValue="users">
-          <button class="sidebar-trigger" ngpNavigationMenuTrigger>
-            <ng-icon name="heroUsers" size="20" />
+          <button class="sidebar-trigger" ngpNavigationMenuTrigger aria-label="Users">
+            <ng-icon name="heroUsers" size="20" aria-hidden="true" />
           </button>
           <div class="sidebar-content" *ngpNavigationMenuContent>
             <div class="content-header">Users</div>
@@ -145,8 +145,8 @@ import {
         <li class="sidebar-divider"></li>
 
         <li class="sidebar-item" ngpNavigationMenuItem ngpNavigationMenuItemValue="notifications">
-          <button class="sidebar-trigger" ngpNavigationMenuTrigger>
-            <ng-icon name="heroBell" size="20" />
+          <button class="sidebar-trigger" ngpNavigationMenuTrigger aria-label="Notifications">
+            <ng-icon name="heroBell" size="20" aria-hidden="true" />
           </button>
           <div class="sidebar-content" *ngpNavigationMenuContent>
             <div class="content-header">Notifications</div>
@@ -159,8 +159,8 @@ import {
         </li>
 
         <li class="sidebar-item" ngpNavigationMenuItem ngpNavigationMenuItemValue="settings">
-          <button class="sidebar-trigger" ngpNavigationMenuTrigger>
-            <ng-icon name="heroCog6Tooth" size="20" />
+          <button class="sidebar-trigger" ngpNavigationMenuTrigger aria-label="Settings">
+            <ng-icon name="heroCog6Tooth" size="20" aria-hidden="true" />
           </button>
           <div class="sidebar-content" *ngpNavigationMenuContent>
             <div class="content-header">Settings</div>

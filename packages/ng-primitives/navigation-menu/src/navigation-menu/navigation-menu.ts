@@ -63,8 +63,8 @@ export class NgpNavigationMenu {
    * How much time a user has to enter another trigger without incurring a delay again.
    * @default 300
    */
-  readonly skipDelayDuration = input<number, NumberInput>(this.config.skipDelayDuration, {
-    alias: 'ngpNavigationMenuSkipDelayDuration',
+  readonly cooldown = input<number, NumberInput>(this.config.cooldown, {
+    alias: 'ngpNavigationMenuCooldown',
     transform: numberAttribute,
   });
 
@@ -73,7 +73,7 @@ export class NgpNavigationMenu {
     value: this.value,
     orientation: this.orientation,
     showDelay: this.showDelay,
-    skipDelayDuration: this.skipDelayDuration,
+    cooldown: this.cooldown,
     onValueChange: value => this.valueChange.emit(value),
   });
 

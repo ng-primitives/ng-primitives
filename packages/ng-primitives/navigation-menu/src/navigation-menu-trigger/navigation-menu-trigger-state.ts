@@ -115,6 +115,8 @@ export const [
     attrBinding(element, 'aria-haspopup', 'menu');
     attrBinding(element, 'aria-expanded', () => (open() ? 'true' : 'false'));
     attrBinding(element, 'aria-controls', contentId);
+    attrBinding(element, 'aria-disabled', () => (disabled() ? 'true' : null));
+    attrBinding(element, 'disabled', () => (disabled() ? '' : null));
     dataBinding(element, 'data-state', () => (open() ? 'open' : 'closed'));
     dataBinding(element, 'data-disabled', disabled);
 

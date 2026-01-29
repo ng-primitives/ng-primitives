@@ -58,7 +58,7 @@ export const [
   // Calculate position of the active trigger relative to the menu
   const triggerPosition = computed<{ left: number; top: number } | null>(() => {
     const currentValue = menu().value();
-    if (!currentValue) return null;
+    if (currentValue === undefined) return null;
 
     const items = menu().items();
     const activeItem = items.find(item => item.value() === currentValue);

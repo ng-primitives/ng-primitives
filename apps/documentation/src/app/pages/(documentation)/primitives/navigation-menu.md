@@ -53,6 +53,28 @@ Assemble the navigation menu directives in your template.
 </nav>
 ```
 
+## Reusable Component
+
+Create reusable components that use the `NgpNavigationMenu` directive.
+
+<docs-snippet name="navigation-menu"></docs-snippet>
+
+## Schematics
+
+Generate a reusable navigation menu component using the Angular CLI.
+
+```bash npm
+ng g ng-primitives:primitive navigation-menu
+```
+
+### Options
+
+- `path`: The path at which to create the component file.
+- `prefix`: The prefix to apply to the generated component selector.
+- `componentSuffix`: The suffix to apply to the generated component class name.
+- `fileSuffix`: The suffix to apply to the generated component file name. Defaults to `component`.
+- `exampleStyles`: Whether to include example styles in the generated component file. Defaults to `true`.
+
 ## Examples
 
 ### Vertical Sidebar
@@ -221,7 +243,7 @@ bootstrapApplication(AppComponent, {
     provideNavigationMenuConfig({
       orientation: 'horizontal',
       showDelay: 200,
-      skipDelayDuration: 300,
+      cooldown: 300,
     }),
   ],
 });
@@ -237,7 +259,7 @@ bootstrapApplication(AppComponent, {
   The delay in milliseconds before content opens on hover.
 </prop-details>
 
-<prop-details name="skipDelayDuration" type="number" default="300">
+<prop-details name="cooldown" type="number" default="300">
   The duration in milliseconds after closing where the show delay is skipped when hovering another trigger.
 </prop-details>
 

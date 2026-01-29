@@ -36,7 +36,7 @@ export const [
   const position = computed<{ left: number; top: number; width: number; height: number } | null>(
     () => {
       const currentValue = menu().value();
-      if (!currentValue) return null;
+      if (currentValue === undefined) return null;
 
       const triggers = list().triggers();
       const activeTrigger = triggers.find(t => t.value() === currentValue);
@@ -91,8 +91,8 @@ export const [
 
   // Apply positioning styles
   styleBinding(element, 'position', 'absolute');
-  styleBinding(element, 'pointerEvents', 'none');
-  styleBinding(element, 'zIndex', '-1');
+  styleBinding(element, 'pointer-events', 'none');
+  styleBinding(element, 'z-index', '-1');
   styleBinding(element, 'left', 'var(--ngp-navigation-menu-indicator-left)');
   styleBinding(element, 'top', 'var(--ngp-navigation-menu-indicator-top)');
   styleBinding(element, 'width', 'var(--ngp-navigation-menu-indicator-width)');

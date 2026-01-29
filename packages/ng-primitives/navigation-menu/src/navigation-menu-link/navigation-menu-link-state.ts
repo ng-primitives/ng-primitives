@@ -77,6 +77,7 @@ export const [
 
     function onKeydown(event: KeyboardEvent): void {
       if (event.key === 'Enter' || event.key === ' ') {
+        event.preventDefault();
         handleSelect(event);
       } else if (event.key === 'Escape') {
         event.preventDefault();

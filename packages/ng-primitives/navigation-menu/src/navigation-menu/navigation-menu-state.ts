@@ -38,9 +38,9 @@ export interface NgpNavigationMenuState {
   readonly showDelay: Signal<number>;
 
   /**
-   * The duration to skip delay after closing.
+   * The cooldown duration after closing before delays apply again.
    */
-  readonly skipDelayDuration: Signal<number>;
+  readonly cooldown: Signal<number>;
 
   /**
    * The previous open item value (for motion direction).
@@ -73,9 +73,9 @@ export interface NgpNavigationMenuState {
   setDelayDuration(duration: number): void;
 
   /**
-   * Set the skip delay duration.
+   * Set the cooldown duration.
    */
-  setSkipDelayDuration(duration: number): void;
+  setCooldown(duration: number): void;
 
   /**
    * Start the open timer for an item.
@@ -175,9 +175,9 @@ export interface NgpNavigationMenuProps {
   readonly showDelay?: Signal<number>;
 
   /**
-   * The duration to skip delay after closing.
+   * The cooldown duration after closing before delays apply again.
    */
-  readonly skipDelayDuration?: Signal<number>;
+  readonly cooldown?: Signal<number>;
 
   /**
    * Callback when the value changes.
@@ -197,7 +197,7 @@ export const [
     value: _value = signal(undefined),
     orientation: _orientation = signal('horizontal'),
     showDelay: _showDelay = signal(200),
-    skipDelayDuration: _skipDelayDuration = signal(300),
+    cooldown: _cooldown = signal(300),
     onValueChange,
   }: NgpNavigationMenuProps) => {
     const element = injectElementRef();
@@ -218,7 +218,7 @@ export const [
     const value = controlled(_value);
     const orientation = controlled(_orientation);
     const showDelay = controlled(_showDelay);
-    const skipDelayDuration = controlled(_skipDelayDuration);
+    const cooldown = controlled(_cooldown);
 
     // Track previous value for motion direction
     const previousValue = signal<string | undefined>(undefined);
@@ -226,8 +226,8 @@ export const [
     // Timer state
     let openTimerDispose: (() => void) | undefined;
     let closeTimerDispose: (() => void) | undefined;
-    let skipDelayTimerDispose: (() => void) | undefined;
-    let isSkippingDelay = false;
+    let cooldownTimerDispose: (() => void) | undefined;
+    let isInCooldown = false;
 
     // Host bindings
     dataBinding(element, 'data-orientation', orientation);
@@ -309,8 +309,8 @@ export const [
       value.set(undefined);
       onValueChange?.(undefined);
 
-      // Start skip delay timer
-      startSkipDelayTimer();
+      // Start cooldown timer
+      startCooldownTimer();
     }
 
     function setValue(newValue: string | undefined): void {
@@ -329,15 +329,15 @@ export const [
       showDelay.set(duration);
     }
 
-    function setSkipDelayDuration(duration: number): void {
-      skipDelayDuration.set(duration);
+    function setCooldown(duration: number): void {
+      cooldown.set(duration);
     }
 
     function startOpenTimer(itemValue: string): void {
       cancelOpenTimer();
 
-      // If we're skipping delay, open immediately
-      if (isSkippingDelay) {
+      // If we're in cooldown period, open immediately (no delay)
+      if (isInCooldown) {
         open(itemValue);
         return;
       }
@@ -378,21 +378,21 @@ export const [
       }
     }
 
-    function startSkipDelayTimer(): void {
-      cancelSkipDelayTimer();
+    function startCooldownTimer(): void {
+      cancelCooldownTimer();
 
-      isSkippingDelay = true;
+      isInCooldown = true;
 
-      skipDelayTimerDispose = disposables.setTimeout(() => {
-        isSkippingDelay = false;
-        skipDelayTimerDispose = undefined;
-      }, skipDelayDuration());
+      cooldownTimerDispose = disposables.setTimeout(() => {
+        isInCooldown = false;
+        cooldownTimerDispose = undefined;
+      }, cooldown());
     }
 
-    function cancelSkipDelayTimer(): void {
-      if (skipDelayTimerDispose) {
-        skipDelayTimerDispose();
-        skipDelayTimerDispose = undefined;
+    function cancelCooldownTimer(): void {
+      if (cooldownTimerDispose) {
+        cooldownTimerDispose();
+        cooldownTimerDispose = undefined;
       }
     }
 
@@ -418,14 +418,14 @@ export const [
       orientation,
       dir: directionality.valueSignal as Signal<'ltr' | 'rtl'>,
       showDelay,
-      skipDelayDuration,
+      cooldown,
       previousValue,
       open,
       close,
       setValue,
       setOrientation,
       setDelayDuration,
-      setSkipDelayDuration,
+      setCooldown,
       startOpenTimer,
       cancelOpenTimer,
       startCloseTimer,

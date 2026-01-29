@@ -25,8 +25,9 @@
               [class.bg-primary]="link.status === 'beta'"
               [class.bg-emerald-500]="link.status === 'new'"
               [class.bg-red-500]="link.status === 'deprecated'"
-              [attr.title]="link.status"
+              aria-hidden="true"
             ></span>
+            <span class="sr-only">({{ link.status }})</span>
             }
           </a>
         </li>

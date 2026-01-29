@@ -88,7 +88,7 @@ export interface NavigationMenuItemConfig {
         'ngpNavigationMenuValue:value',
         'ngpNavigationMenuOrientation:orientation',
         'ngpNavigationMenuShowDelay:showDelay',
-        'ngpNavigationMenuSkipDelayDuration:skipDelayDuration',
+        'ngpNavigationMenuCooldown:cooldown',
       ],
       outputs: ['ngpNavigationMenuValueChange:valueChange'],
     },

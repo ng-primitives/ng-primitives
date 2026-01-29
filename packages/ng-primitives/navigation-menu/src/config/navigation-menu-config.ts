@@ -18,13 +18,13 @@ export interface NgpNavigationMenuConfig {
    * How much time a user has to enter another trigger without incurring a delay again.
    * @default 300
    */
-  skipDelayDuration: number;
+  cooldown: number;
 }
 
 export const defaultNavigationMenuConfig: NgpNavigationMenuConfig = {
   orientation: 'horizontal',
   showDelay: 200,
-  skipDelayDuration: 300,
+  cooldown: 300,
 };
 
 export const NgpNavigationMenuConfigToken = new InjectionToken<NgpNavigationMenuConfig>(

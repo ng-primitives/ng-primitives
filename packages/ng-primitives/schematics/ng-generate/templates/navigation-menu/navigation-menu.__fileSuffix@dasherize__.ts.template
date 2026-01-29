@@ -1,22 +1,77 @@
-import { NgTemplateOutlet } from '@angular/common';
-import { Component, contentChildren, input } from '@angular/core';
+import { Component, input } from '@angular/core';
 import { Placement } from '@floating-ui/dom';
 import {
   NgpNavigationMenu,
   NgpNavigationMenuContent,
   NgpNavigationMenuIndicator,
   NgpNavigationMenuItem,
+  NgpNavigationMenuLink,
   NgpNavigationMenuList,
   NgpNavigationMenuPortal,
   NgpNavigationMenuTrigger,
   NgpNavigationMenuViewport,
 } from 'ng-primitives/navigation-menu';
-import { NavigationMenuItem } from './navigation-menu-item';
+
+/**
+ * A link within a navigation menu item.
+ */
+export interface NavigationMenuLink {
+  /**
+   * The title of the link.
+   */
+  title: string;
+
+  /**
+   * Optional description text.
+   */
+  description?: string;
+
+  /**
+   * The URL the link points to.
+   */
+  href: string;
+
+  /**
+   * Whether this link is the current active page.
+   */
+  active?: boolean;
+}
+
+/**
+ * Configuration for a navigation menu item.
+ */
+export interface NavigationMenuItemConfig {
+  /**
+   * Unique identifier for this menu item.
+   */
+  value: string;
+
+  /**
+   * The label shown on the trigger button.
+   */
+  label: string;
+
+  /**
+   * The links to display in the dropdown content.
+   */
+  links: NavigationMenuLink[];
+
+  /**
+   * Number of columns for the link grid.
+   * @default 1
+   */
+  columns?: number;
+
+  /**
+   * Width of the content panel.
+   * @default 'default'
+   */
+  width?: 'narrow' | 'default' | 'wide';
+}
 
 @Component({
   selector: '<%= prefix %>-navigation-menu',
   imports: [
-    NgTemplateOutlet,
     NgpNavigationMenuList,
     NgpNavigationMenuItem,
     NgpNavigationMenuTrigger,
@@ -24,6 +79,7 @@ import { NavigationMenuItem } from './navigation-menu-item';
     NgpNavigationMenuIndicator,
     NgpNavigationMenuPortal,
     NgpNavigationMenuViewport,
+    NgpNavigationMenuLink,
   ],
   hostDirectives: [
     {
@@ -32,7 +88,7 @@ import { NavigationMenuItem } from './navigation-menu-item';
         'ngpNavigationMenuValue:value',
         'ngpNavigationMenuOrientation:orientation',
         'ngpNavigationMenuShowDelay:showDelay',
-        'ngpNavigationMenuSkipDelayDuration:skipDelayDuration',
+        'ngpNavigationMenuCooldown:cooldown',
       ],
       outputs: ['ngpNavigationMenuValueChange:valueChange'],
     },
@@ -40,10 +96,10 @@ import { NavigationMenuItem } from './navigation-menu-item';
   template: `
     <ul ngpNavigationMenuList>
       <div ngpNavigationMenuIndicator></div>
-      @for (item of items(); track item.value()) {
-        <li [ngpNavigationMenuItemValue]="item.value()" ngpNavigationMenuItem>
+      @for (item of items(); track item.value) {
+        <li [ngpNavigationMenuItemValue]="item.value" ngpNavigationMenuItem>
           <button ngpNavigationMenuTrigger>
-            {{ item.label() }}
+            {{ item.label }}
             <svg
               width="12"
               height="12"
@@ -61,16 +117,38 @@ import { NavigationMenuItem } from './navigation-menu-item';
               />
             </svg>
           </button>
-          <div *ngpNavigationMenuContent>
-            <ng-container [ngTemplateOutlet]="item.contentTemplate()" />
-          </div>
+          <ul
+            class="content-list"
+            *ngpNavigationMenuContent
+            [class.content-list-narrow]="item.width === 'narrow'"
+            [class.content-list-wide]="item.width === 'wide'"
+            [style.grid-template-columns]="
+              item.columns ? 'repeat(' + item.columns + ', 1fr)' : null
+            "
+          >
+            @for (link of item.links; track $index) {
+              <li>
+                <a
+                  class="link"
+                  [ngpNavigationMenuLinkActive]="link.active ?? false"
+                  [href]="link.href"
+                  ngpNavigationMenuLink
+                >
+                  <span class="link-title">{{ link.title }}</span>
+                  @if (link.description) {
+                    <span class="link-description">{{ link.description }}</span>
+                  }
+                </a>
+              </li>
+            }
+          </ul>
         </li>
       }
     </ul>
     <ng-template
-      ngpNavigationMenuPortal
       [ngpNavigationMenuPortalPlacement]="placement()"
       [ngpNavigationMenuPortalOffset]="offset()"
+      ngpNavigationMenuPortal
     >
       <div ngpNavigationMenuViewport></div>
     </ng-template>
@@ -148,7 +226,13 @@ import { NavigationMenuItem } from './navigation-menu-item';
       transform: rotate(180deg);
     }
 
-    [ngpNavigationMenuContent] {
+    .content-list {
+      list-style: none;
+      padding: 1rem;
+      margin: 0;
+      display: grid;
+      gap: 0.5rem;
+      width: 300px;
       position: absolute;
       top: 0;
       left: 0;
@@ -156,11 +240,19 @@ import { NavigationMenuItem } from './navigation-menu-item';
       animation-timing-function: ease;
     }
 
-    [ngpNavigationMenuContent][data-motion='from-start'] {
+    .content-list-narrow {
+      width: 200px;
+    }
+
+    .content-list-wide {
+      width: 400px;
+    }
+
+    .content-list[data-motion='from-start'] {
       animation-name: slideFromLeft;
     }
 
-    [ngpNavigationMenuContent][data-motion='from-end'] {
+    .content-list[data-motion='from-end'] {
       animation-name: slideFromRight;
     }
 
@@ -184,6 +276,40 @@ import { NavigationMenuItem } from './navigation-menu-item';
         opacity: 1;
         transform: translateX(0);
       }
+    }
+
+    .link {
+      display: block;
+      padding: 0.375rem 0.5rem;
+      border-radius: 6px;
+      text-decoration: none;
+      transition: background-color 150ms ease;
+    }
+
+    .link:hover {
+      background-color: var(--ngp-background-hover);
+    }
+
+    .link:focus-visible {
+      outline: 2px solid var(--ngp-focus-ring);
+      outline-offset: -2px;
+    }
+
+    .link-title {
+      display: block;
+      font-size: 0.8125rem;
+      font-weight: 500;
+      color: var(--ngp-text-primary);
+      line-height: 1.2;
+      margin-bottom: 4px;
+    }
+
+    .link-description {
+      display: block;
+      font-size: 0.75rem;
+      color: var(--ngp-text-secondary);
+      margin: 0;
+      line-height: 1.2;
     }
 
     [ngpNavigationMenuViewport] {
@@ -226,6 +352,11 @@ import { NavigationMenuItem } from './navigation-menu-item';
 })
 export class NavigationMenu<%= componentSuffix %> {
   /**
+   * The menu items to display.
+   */
+  readonly items = input.required<NavigationMenuItemConfig[]>();
+
+  /**
    * The placement of the dropdown viewport.
    * @default 'bottom'
    */
@@ -236,9 +367,4 @@ export class NavigationMenu<%= componentSuffix %> {
    * @default 8
    */
   readonly offset = input<number>(8);
-
-  /**
-   * The menu items.
-   */
-  readonly items = contentChildren(NavigationMenuItem);
 }
