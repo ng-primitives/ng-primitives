@@ -62,7 +62,7 @@ import {
           <button class="sidebar-trigger" ngpNavigationMenuTrigger>
             <ng-icon name="heroMagnifyingGlass" size="20" />
           </button>
-          <div class="sidebar-content" ngpNavigationMenuContent>
+          <div class="sidebar-content" *ngpNavigationMenuContent>
             <div class="content-header">Search</div>
             <ul class="content-list">
               <li><a class="content-link" ngpNavigationMenuLink href="#">Quick Search</a></li>
@@ -76,7 +76,7 @@ import {
           <button class="sidebar-trigger" ngpNavigationMenuTrigger>
             <ng-icon name="heroSquares2x2" size="20" />
           </button>
-          <div class="sidebar-content" ngpNavigationMenuContent>
+          <div class="sidebar-content" *ngpNavigationMenuContent>
             <div class="content-header">Dashboard</div>
             <ul class="content-list">
               <li><a class="content-link" ngpNavigationMenuLink href="#">Overview</a></li>
@@ -90,7 +90,7 @@ import {
           <button class="sidebar-trigger" ngpNavigationMenuTrigger>
             <ng-icon name="heroChartBar" size="20" />
           </button>
-          <div class="sidebar-content" ngpNavigationMenuContent>
+          <div class="sidebar-content" *ngpNavigationMenuContent>
             <div class="content-header">Analytics</div>
             <ul class="content-list">
               <li><a class="content-link" ngpNavigationMenuLink href="#">Traffic</a></li>
@@ -105,7 +105,7 @@ import {
           <button class="sidebar-trigger" ngpNavigationMenuTrigger>
             <ng-icon name="heroDocumentText" size="20" />
           </button>
-          <div class="sidebar-content" ngpNavigationMenuContent>
+          <div class="sidebar-content" *ngpNavigationMenuContent>
             <div class="content-header">Documents</div>
             <ul class="content-list">
               <li><a class="content-link" ngpNavigationMenuLink href="#">All Documents</a></li>
@@ -119,7 +119,7 @@ import {
           <button class="sidebar-trigger" ngpNavigationMenuTrigger>
             <ng-icon name="heroFolder" size="20" />
           </button>
-          <div class="sidebar-content" ngpNavigationMenuContent>
+          <div class="sidebar-content" *ngpNavigationMenuContent>
             <div class="content-header">Projects</div>
             <ul class="content-list">
               <li><a class="content-link" ngpNavigationMenuLink href="#">Active</a></li>
@@ -132,7 +132,7 @@ import {
           <button class="sidebar-trigger" ngpNavigationMenuTrigger>
             <ng-icon name="heroUsers" size="20" />
           </button>
-          <div class="sidebar-content" ngpNavigationMenuContent>
+          <div class="sidebar-content" *ngpNavigationMenuContent>
             <div class="content-header">Users</div>
             <ul class="content-list">
               <li><a class="content-link" ngpNavigationMenuLink href="#">All Users</a></li>
@@ -148,7 +148,7 @@ import {
           <button class="sidebar-trigger" ngpNavigationMenuTrigger>
             <ng-icon name="heroBell" size="20" />
           </button>
-          <div class="sidebar-content" ngpNavigationMenuContent>
+          <div class="sidebar-content" *ngpNavigationMenuContent>
             <div class="content-header">Notifications</div>
             <ul class="content-list">
               <li><a class="content-link" ngpNavigationMenuLink href="#">All</a></li>
@@ -162,7 +162,7 @@ import {
           <button class="sidebar-trigger" ngpNavigationMenuTrigger>
             <ng-icon name="heroCog6Tooth" size="20" />
           </button>
-          <div class="sidebar-content" ngpNavigationMenuContent>
+          <div class="sidebar-content" *ngpNavigationMenuContent>
             <div class="content-header">Settings</div>
             <ul class="content-list">
               <li><a class="content-link" ngpNavigationMenuLink href="#">General</a></li>
@@ -174,7 +174,7 @@ import {
       </ul>
 
       <!-- Portal renders viewport in a floating overlay with viewport-aware positioning -->
-      <ng-template ngpNavigationMenuPortal ngpNavigationMenuPortalPlacement="right" ngpNavigationMenuPortalOffset="8">
+      <ng-template ngpNavigationMenuPortal ngpNavigationMenuPortalPlacement="right" ngpNavigationMenuPortalOffset="16">
         <div class="sidebar-viewport" ngpNavigationMenuViewport></div>
       </ng-template>
     </nav>
@@ -308,13 +308,6 @@ import {
     }
 
     /* Hide content until moved into viewport to prevent flicker */
-    .sidebar-content:not([data-in-viewport]) {
-      display: none;
-    }
-
-    .sidebar-content[data-state='closed'] {
-      display: none;
-    }
 
     .content-header {
       font-size: 0.6875rem;

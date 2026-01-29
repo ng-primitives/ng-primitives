@@ -67,9 +67,8 @@ export const [
     const triggerElement = activeItem.triggerElement();
     if (!triggerElement) return null;
 
-    // Get the menu element (parent of the viewport's parent container)
-    const viewportElement = element.nativeElement;
-    const menuElement = viewportElement.closest('[ngpNavigationMenu]');
+    // Get the menu element from the menu state
+    const menuElement = menu().element();
     if (!menuElement) return null;
 
     const menuRect = menuElement.getBoundingClientRect();

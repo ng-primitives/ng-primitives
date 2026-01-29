@@ -54,7 +54,6 @@ export {
 export { NgpNavigationMenuContent } from './navigation-menu-content/navigation-menu-content';
 export {
   injectNavigationMenuContentState,
-  NgpNavigationMenuContentProps,
   NgpNavigationMenuContentState,
   NgpNavigationMenuContentStateToken,
   NgpNavigationMenuMotionDirection,

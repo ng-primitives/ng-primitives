@@ -142,6 +142,12 @@ export interface NgpNavigationMenuState {
    * @internal
    */
   readonly portal: Signal<NgpNavigationMenuPortalRef | null>;
+
+  /**
+   * Get the menu element.
+   * @internal
+   */
+  readonly element: Signal<HTMLElement>;
 }
 
 /**
@@ -415,6 +421,7 @@ export const [
       viewport,
       registerPortal,
       portal,
+      element: signal(element.nativeElement),
     } satisfies NgpNavigationMenuState;
   },
 );

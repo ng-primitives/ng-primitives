@@ -31,7 +31,7 @@ import {
 
         <li ngpNavigationMenuItem ngpNavigationMenuItemValue="learn">
           <button class="navigation-menu-trigger" ngpNavigationMenuTrigger>Learn</button>
-          <div class="navigation-menu-content" ngpNavigationMenuContent>
+          <div class="navigation-menu-content" *ngpNavigationMenuContent>
             <ul class="content-list content-list-wide">
               <li>
                 <a class="navigation-menu-link callout" ngpNavigationMenuLink href="#">
@@ -68,7 +68,7 @@ import {
 
         <li ngpNavigationMenuItem ngpNavigationMenuItemValue="components">
           <button class="navigation-menu-trigger" ngpNavigationMenuTrigger>Components</button>
-          <div class="navigation-menu-content" ngpNavigationMenuContent>
+          <div class="navigation-menu-content" *ngpNavigationMenuContent>
             <ul class="content-list content-list-grid">
               <li>
                 <a class="navigation-menu-link" ngpNavigationMenuLink href="#">
@@ -112,7 +112,7 @@ import {
 
         <li ngpNavigationMenuItem ngpNavigationMenuItemValue="resources">
           <button class="navigation-menu-trigger" ngpNavigationMenuTrigger>Resources</button>
-          <div class="navigation-menu-content" ngpNavigationMenuContent>
+          <div class="navigation-menu-content" *ngpNavigationMenuContent>
             <ul class="content-list content-list-narrow">
               <li>
                 <a class="navigation-menu-link" ngpNavigationMenuLink href="#">
@@ -247,15 +247,6 @@ import {
       padding: 1rem;
       animation-duration: 200ms;
       animation-timing-function: ease;
-    }
-
-    /* Hide content until moved into viewport to prevent flicker */
-    .navigation-menu-content:not([data-in-viewport]) {
-      display: none;
-    }
-
-    .navigation-menu-content[data-state='closed'] {
-      display: none;
     }
 
     .navigation-menu-content[data-motion='from-start'] {
