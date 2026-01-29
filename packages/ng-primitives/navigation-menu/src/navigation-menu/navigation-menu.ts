@@ -55,7 +55,7 @@ export class NgpNavigationMenu {
    * @default 200
    */
   readonly showDelay = input<number, NumberInput>(this.config.showDelay, {
-    alias: 'ngpNavigationMenuDelayDuration',
+    alias: 'ngpNavigationMenuShowDelay',
     transform: numberAttribute,
   });
 

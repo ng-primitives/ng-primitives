@@ -193,6 +193,7 @@ export const [
           // Close any open menu when Escape is pressed on a trigger
           event.preventDefault();
           menuState.close();
+          // Focus stays on the trigger (no need to explicitly focus as it's already focused)
           break;
       }
     }

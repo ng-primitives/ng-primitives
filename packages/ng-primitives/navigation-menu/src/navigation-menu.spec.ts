@@ -41,13 +41,13 @@ describe('NgpNavigationMenu', () => {
           <ul ngpNavigationMenuList>
             <li ngpNavigationMenuItem ngpNavigationMenuItemValue="item1">
               <button ngpNavigationMenuTrigger>Item 1</button>
-              <div ngpNavigationMenuContent data-testid="content1">
+              <div *ngpNavigationMenuContent data-testid="content1">
                 <a ngpNavigationMenuLink href="#">Link 1</a>
               </div>
             </li>
             <li ngpNavigationMenuItem ngpNavigationMenuItemValue="item2">
               <button ngpNavigationMenuTrigger>Item 2</button>
-              <div ngpNavigationMenuContent data-testid="content2">
+              <div *ngpNavigationMenuContent data-testid="content2">
                 <a ngpNavigationMenuLink href="#">Link 2</a>
               </div>
             </li>
@@ -68,7 +68,7 @@ describe('NgpNavigationMenu', () => {
           <ul ngpNavigationMenuList>
             <li ngpNavigationMenuItem ngpNavigationMenuItemValue="item1">
               <button ngpNavigationMenuTrigger>Item 1</button>
-              <div ngpNavigationMenuContent>Content</div>
+              <div *ngpNavigationMenuContent>Content</div>
             </li>
           </ul>
         </nav>
@@ -86,11 +86,11 @@ describe('NgpNavigationMenu', () => {
     it('should open content on click', fakeAsync(async () => {
       await render(
         `
-        <nav ngpNavigationMenu ngpNavigationMenuDelayDuration="0">
+        <nav ngpNavigationMenu ngpNavigationMenuShowDelay="0">
           <ul ngpNavigationMenuList>
             <li ngpNavigationMenuItem ngpNavigationMenuItemValue="item1">
               <button ngpNavigationMenuTrigger>Item 1</button>
-              <div ngpNavigationMenuContent data-testid="content1">Content 1</div>
+              <div *ngpNavigationMenuContent data-testid="content1">Content 1</div>
             </li>
           </ul>
         </nav>
@@ -109,11 +109,11 @@ describe('NgpNavigationMenu', () => {
     it('should close content on second click', fakeAsync(async () => {
       await render(
         `
-        <nav ngpNavigationMenu ngpNavigationMenuDelayDuration="0">
+        <nav ngpNavigationMenu ngpNavigationMenuShowDelay="0">
           <ul ngpNavigationMenuList>
             <li ngpNavigationMenuItem ngpNavigationMenuItemValue="item1">
               <button ngpNavigationMenuTrigger>Item 1</button>
-              <div ngpNavigationMenuContent data-testid="content1">Content 1</div>
+              <div *ngpNavigationMenuContent data-testid="content1">Content 1</div>
             </li>
           </ul>
         </nav>
@@ -139,11 +139,11 @@ describe('NgpNavigationMenu', () => {
     it('should open content on pointer enter after delay', fakeAsync(async () => {
       await render(
         `
-        <nav ngpNavigationMenu ngpNavigationMenuDelayDuration="100">
+        <nav ngpNavigationMenu ngpNavigationMenuShowDelay="100">
           <ul ngpNavigationMenuList>
             <li ngpNavigationMenuItem ngpNavigationMenuItemValue="item1">
               <button ngpNavigationMenuTrigger>Item 1</button>
-              <div ngpNavigationMenuContent data-testid="content1">Content 1</div>
+              <div *ngpNavigationMenuContent data-testid="content1">Content 1</div>
             </li>
           </ul>
         </nav>
@@ -168,11 +168,11 @@ describe('NgpNavigationMenu', () => {
     it('should open immediately when delay is 0', fakeAsync(async () => {
       await render(
         `
-        <nav ngpNavigationMenu ngpNavigationMenuDelayDuration="0">
+        <nav ngpNavigationMenu ngpNavigationMenuShowDelay="0">
           <ul ngpNavigationMenuList>
             <li ngpNavigationMenuItem ngpNavigationMenuItemValue="item1">
               <button ngpNavigationMenuTrigger>Item 1</button>
-              <div ngpNavigationMenuContent>Content 1</div>
+              <div *ngpNavigationMenuContent>Content 1</div>
             </li>
           </ul>
         </nav>
@@ -190,11 +190,11 @@ describe('NgpNavigationMenu', () => {
     it('should close on pointer leave after delay', fakeAsync(async () => {
       await render(
         `
-        <nav ngpNavigationMenu ngpNavigationMenuDelayDuration="0">
+        <nav ngpNavigationMenu ngpNavigationMenuShowDelay="0">
           <ul ngpNavigationMenuList>
             <li ngpNavigationMenuItem ngpNavigationMenuItemValue="item1">
               <button ngpNavigationMenuTrigger>Item 1</button>
-              <div ngpNavigationMenuContent>Content 1</div>
+              <div *ngpNavigationMenuContent>Content 1</div>
             </li>
           </ul>
         </nav>
@@ -222,11 +222,11 @@ describe('NgpNavigationMenu', () => {
     it('should open on Enter key', fakeAsync(async () => {
       await render(
         `
-        <nav ngpNavigationMenu ngpNavigationMenuDelayDuration="0">
+        <nav ngpNavigationMenu ngpNavigationMenuShowDelay="0">
           <ul ngpNavigationMenuList>
             <li ngpNavigationMenuItem ngpNavigationMenuItemValue="item1">
               <button ngpNavigationMenuTrigger>Item 1</button>
-              <div ngpNavigationMenuContent>Content 1</div>
+              <div *ngpNavigationMenuContent>Content 1</div>
             </li>
           </ul>
         </nav>
@@ -244,11 +244,11 @@ describe('NgpNavigationMenu', () => {
     it('should open on Space key', fakeAsync(async () => {
       await render(
         `
-        <nav ngpNavigationMenu ngpNavigationMenuDelayDuration="0">
+        <nav ngpNavigationMenu ngpNavigationMenuShowDelay="0">
           <ul ngpNavigationMenuList>
             <li ngpNavigationMenuItem ngpNavigationMenuItemValue="item1">
               <button ngpNavigationMenuTrigger>Item 1</button>
-              <div ngpNavigationMenuContent>Content 1</div>
+              <div *ngpNavigationMenuContent>Content 1</div>
             </li>
           </ul>
         </nav>
@@ -266,11 +266,11 @@ describe('NgpNavigationMenu', () => {
     it('should close on Escape key', fakeAsync(async () => {
       await render(
         `
-        <nav ngpNavigationMenu ngpNavigationMenuDelayDuration="0">
+        <nav ngpNavigationMenu ngpNavigationMenuShowDelay="0">
           <ul ngpNavigationMenuList>
             <li ngpNavigationMenuItem ngpNavigationMenuItemValue="item1">
               <button ngpNavigationMenuTrigger>Item 1</button>
-              <div ngpNavigationMenuContent>Content 1</div>
+              <div *ngpNavigationMenuContent>Content 1</div>
             </li>
           </ul>
         </nav>
@@ -295,11 +295,11 @@ describe('NgpNavigationMenu', () => {
     it('should open on ArrowDown for horizontal menu', fakeAsync(async () => {
       await render(
         `
-        <nav ngpNavigationMenu ngpNavigationMenuDelayDuration="0" ngpNavigationMenuOrientation="horizontal">
+        <nav ngpNavigationMenu ngpNavigationMenuShowDelay="0" ngpNavigationMenuOrientation="horizontal">
           <ul ngpNavigationMenuList>
             <li ngpNavigationMenuItem ngpNavigationMenuItemValue="item1">
               <button ngpNavigationMenuTrigger>Item 1</button>
-              <div ngpNavigationMenuContent>Content 1</div>
+              <div *ngpNavigationMenuContent>Content 1</div>
             </li>
           </ul>
         </nav>
@@ -317,11 +317,11 @@ describe('NgpNavigationMenu', () => {
     it('should open on ArrowRight for vertical menu', fakeAsync(async () => {
       await render(
         `
-        <nav ngpNavigationMenu ngpNavigationMenuDelayDuration="0" ngpNavigationMenuOrientation="vertical">
+        <nav ngpNavigationMenu ngpNavigationMenuShowDelay="0" ngpNavigationMenuOrientation="vertical">
           <ul ngpNavigationMenuList>
             <li ngpNavigationMenuItem ngpNavigationMenuItemValue="item1">
               <button ngpNavigationMenuTrigger>Item 1</button>
-              <div ngpNavigationMenuContent>Content 1</div>
+              <div *ngpNavigationMenuContent>Content 1</div>
             </li>
           </ul>
         </nav>
@@ -341,11 +341,11 @@ describe('NgpNavigationMenu', () => {
     it('should set correct data-state on triggers', fakeAsync(async () => {
       await render(
         `
-        <nav ngpNavigationMenu ngpNavigationMenuDelayDuration="0">
+        <nav ngpNavigationMenu ngpNavigationMenuShowDelay="0">
           <ul ngpNavigationMenuList>
             <li ngpNavigationMenuItem ngpNavigationMenuItemValue="item1">
               <button ngpNavigationMenuTrigger>Item 1</button>
-              <div ngpNavigationMenuContent>Content 1</div>
+              <div *ngpNavigationMenuContent>Content 1</div>
             </li>
           </ul>
         </nav>
@@ -369,7 +369,7 @@ describe('NgpNavigationMenu', () => {
           <ul ngpNavigationMenuList>
             <li ngpNavigationMenuItem ngpNavigationMenuItemValue="item1">
               <button ngpNavigationMenuTrigger>Item 1</button>
-              <div ngpNavigationMenuContent>Content 1</div>
+              <div *ngpNavigationMenuContent>Content 1</div>
             </li>
           </ul>
         </nav>
@@ -384,15 +384,15 @@ describe('NgpNavigationMenu', () => {
     it('should set data-motion on content when switching items', fakeAsync(async () => {
       await render(
         `
-        <nav ngpNavigationMenu ngpNavigationMenuDelayDuration="0">
+        <nav ngpNavigationMenu ngpNavigationMenuShowDelay="0">
           <ul ngpNavigationMenuList>
             <li ngpNavigationMenuItem ngpNavigationMenuItemValue="item1">
               <button ngpNavigationMenuTrigger>Item 1</button>
-              <div ngpNavigationMenuContent data-testid="content1">Content 1</div>
+              <div *ngpNavigationMenuContent data-testid="content1">Content 1</div>
             </li>
             <li ngpNavigationMenuItem ngpNavigationMenuItemValue="item2">
               <button ngpNavigationMenuTrigger>Item 2</button>
-              <div ngpNavigationMenuContent data-testid="content2">Content 2</div>
+              <div *ngpNavigationMenuContent data-testid="content2">Content 2</div>
             </li>
           </ul>
         </nav>
@@ -402,7 +402,6 @@ describe('NgpNavigationMenu', () => {
 
       const trigger1 = screen.getByText('Item 1');
       const trigger2 = screen.getByText('Item 2');
-      const content2 = screen.getByTestId('content2');
 
       // Open first item
       fireEvent.click(trigger1);
@@ -413,6 +412,7 @@ describe('NgpNavigationMenu', () => {
       flush();
 
       // Content 2 should have data-motion attribute for animation direction
+      const content2 = screen.getByTestId('content2');
       expect(content2).toHaveAttribute('data-motion', 'from-end');
     }));
   });
@@ -421,11 +421,11 @@ describe('NgpNavigationMenu', () => {
     it('should render viewport with correct data-state', fakeAsync(async () => {
       await render(
         `
-        <nav ngpNavigationMenu ngpNavigationMenuDelayDuration="0">
+        <nav ngpNavigationMenu ngpNavigationMenuShowDelay="0">
           <ul ngpNavigationMenuList>
             <li ngpNavigationMenuItem ngpNavigationMenuItemValue="item1">
               <button ngpNavigationMenuTrigger>Item 1</button>
-              <div ngpNavigationMenuContent>Content 1</div>
+              <div *ngpNavigationMenuContent>Content 1</div>
             </li>
           </ul>
           <div ngpNavigationMenuViewport data-testid="viewport"></div>
@@ -449,11 +449,15 @@ describe('NgpNavigationMenu', () => {
     it('should support controlled value', fakeAsync(async () => {
       @Component({
         template: `
-          <nav ngpNavigationMenu [ngpNavigationMenuValue]="value" ngpNavigationMenuDelayDuration="0">
+          <nav
+            [ngpNavigationMenuValue]="value"
+            ngpNavigationMenu
+            ngpNavigationMenuShowDelay="0"
+          >
             <ul ngpNavigationMenuList>
               <li ngpNavigationMenuItem ngpNavigationMenuItemValue="item1">
                 <button ngpNavigationMenuTrigger>Item 1</button>
-                <div ngpNavigationMenuContent>Content 1</div>
+                <div *ngpNavigationMenuContent>Content 1</div>
               </li>
             </ul>
           </nav>
@@ -480,11 +484,15 @@ describe('NgpNavigationMenu', () => {
     it('should emit valueChange when item opens', fakeAsync(async () => {
       @Component({
         template: `
-          <nav ngpNavigationMenu (ngpNavigationMenuValueChange)="onValueChange($event)" ngpNavigationMenuDelayDuration="0">
+          <nav
+            (ngpNavigationMenuValueChange)="onValueChange($event)"
+            ngpNavigationMenu
+            ngpNavigationMenuShowDelay="0"
+          >
             <ul ngpNavigationMenuList>
               <li ngpNavigationMenuItem ngpNavigationMenuItemValue="item1">
                 <button ngpNavigationMenuTrigger>Item 1</button>
-                <div ngpNavigationMenuContent>Content 1</div>
+                <div *ngpNavigationMenuContent>Content 1</div>
               </li>
             </ul>
           </nav>
@@ -514,7 +522,7 @@ describe('NgpNavigationMenu', () => {
             <div ngpNavigationMenuIndicator data-testid="indicator"></div>
             <li ngpNavigationMenuItem ngpNavigationMenuItemValue="item1">
               <button ngpNavigationMenuTrigger>Item 1</button>
-              <div ngpNavigationMenuContent>Content 1</div>
+              <div *ngpNavigationMenuContent>Content 1</div>
             </li>
           </ul>
         </nav>
@@ -529,12 +537,12 @@ describe('NgpNavigationMenu', () => {
     it('should show indicator when item is open', fakeAsync(async () => {
       await render(
         `
-        <nav ngpNavigationMenu ngpNavigationMenuDelayDuration="0">
+        <nav ngpNavigationMenu ngpNavigationMenuShowDelay="0">
           <ul ngpNavigationMenuList>
             <div ngpNavigationMenuIndicator data-testid="indicator"></div>
             <li ngpNavigationMenuItem ngpNavigationMenuItemValue="item1">
               <button ngpNavigationMenuTrigger>Item 1</button>
-              <div ngpNavigationMenuContent>Content 1</div>
+              <div *ngpNavigationMenuContent>Content 1</div>
             </li>
           </ul>
         </nav>
@@ -552,14 +560,14 @@ describe('NgpNavigationMenu', () => {
   });
 
   describe('Links', () => {
-    it('should render links with menuitem role', async () => {
+    it('should render links with menuitem role', fakeAsync(async () => {
       await render(
         `
-        <nav ngpNavigationMenu ngpNavigationMenuDelayDuration="0">
+        <nav ngpNavigationMenu ngpNavigationMenuShowDelay="0">
           <ul ngpNavigationMenuList>
             <li ngpNavigationMenuItem ngpNavigationMenuItemValue="item1">
               <button ngpNavigationMenuTrigger>Item 1</button>
-              <div ngpNavigationMenuContent>
+              <div *ngpNavigationMenuContent>
                 <a ngpNavigationMenuLink href="#">Link 1</a>
               </div>
             </li>
@@ -569,18 +577,23 @@ describe('NgpNavigationMenu', () => {
         { imports },
       );
 
+      // Open the menu first since content is created lazily
+      const trigger = screen.getByText('Item 1');
+      fireEvent.click(trigger);
+      flush();
+
       const link = screen.getByText('Link 1');
       expect(link).toHaveAttribute('role', 'menuitem');
-    });
+    }));
 
     it('should close menu when link is clicked', fakeAsync(async () => {
       await render(
         `
-        <nav ngpNavigationMenu ngpNavigationMenuDelayDuration="0">
+        <nav ngpNavigationMenu ngpNavigationMenuShowDelay="0">
           <ul ngpNavigationMenuList>
             <li ngpNavigationMenuItem ngpNavigationMenuItemValue="item1">
               <button ngpNavigationMenuTrigger>Item 1</button>
-              <div ngpNavigationMenuContent>
+              <div *ngpNavigationMenuContent>
                 <a ngpNavigationMenuLink href="#">Link 1</a>
               </div>
             </li>
@@ -607,11 +620,11 @@ describe('NgpNavigationMenu', () => {
     it('should render portal with viewport', fakeAsync(async () => {
       await render(
         `
-        <nav ngpNavigationMenu ngpNavigationMenuDelayDuration="0">
+        <nav ngpNavigationMenu ngpNavigationMenuShowDelay="0">
           <ul ngpNavigationMenuList>
             <li ngpNavigationMenuItem ngpNavigationMenuItemValue="item1">
               <button ngpNavigationMenuTrigger>Item 1</button>
-              <div ngpNavigationMenuContent data-testid="content1">Content 1</div>
+              <div *ngpNavigationMenuContent data-testid="content1">Content 1</div>
             </li>
           </ul>
           <ng-template ngpNavigationMenuPortal>
@@ -637,11 +650,11 @@ describe('NgpNavigationMenu', () => {
     it('should position portal correctly with offset', fakeAsync(async () => {
       await render(
         `
-        <nav ngpNavigationMenu ngpNavigationMenuDelayDuration="0">
+        <nav ngpNavigationMenu ngpNavigationMenuShowDelay="0">
           <ul ngpNavigationMenuList>
             <li ngpNavigationMenuItem ngpNavigationMenuItemValue="item1">
               <button ngpNavigationMenuTrigger style="position: absolute; top: 100px; left: 100px;">Item 1</button>
-              <div ngpNavigationMenuContent data-testid="content1">Content 1</div>
+              <div *ngpNavigationMenuContent data-testid="content1">Content 1</div>
             </li>
           </ul>
           <ng-template ngpNavigationMenuPortal ngpNavigationMenuPortalOffset="10">
@@ -666,15 +679,15 @@ describe('NgpNavigationMenu', () => {
     it('should update portal position when switching triggers', fakeAsync(async () => {
       await render(
         `
-        <nav ngpNavigationMenu ngpNavigationMenuDelayDuration="0">
+        <nav ngpNavigationMenu ngpNavigationMenuShowDelay="0">
           <ul ngpNavigationMenuList>
             <li ngpNavigationMenuItem ngpNavigationMenuItemValue="item1">
               <button ngpNavigationMenuTrigger>Item 1</button>
-              <div ngpNavigationMenuContent data-testid="content1">Content 1</div>
+              <div *ngpNavigationMenuContent data-testid="content1">Content 1</div>
             </li>
             <li ngpNavigationMenuItem ngpNavigationMenuItemValue="item2">
               <button ngpNavigationMenuTrigger>Item 2</button>
-              <div ngpNavigationMenuContent data-testid="content2">Content 2</div>
+              <div *ngpNavigationMenuContent data-testid="content2">Content 2</div>
             </li>
           </ul>
           <ng-template ngpNavigationMenuPortal>
@@ -713,11 +726,11 @@ describe('NgpNavigationMenu', () => {
     it('should close menu when clicking trigger again', fakeAsync(async () => {
       await render(
         `
-        <nav ngpNavigationMenu ngpNavigationMenuDelayDuration="0">
+        <nav ngpNavigationMenu ngpNavigationMenuShowDelay="0">
           <ul ngpNavigationMenuList>
             <li ngpNavigationMenuItem ngpNavigationMenuItemValue="item1">
               <button ngpNavigationMenuTrigger>Item 1</button>
-              <div ngpNavigationMenuContent data-testid="content1">Content 1</div>
+              <div *ngpNavigationMenuContent data-testid="content1">Content 1</div>
             </li>
           </ul>
           <ng-template ngpNavigationMenuPortal>
@@ -750,11 +763,11 @@ describe('NgpNavigationMenu', () => {
     it('should not open when trigger is disabled', fakeAsync(async () => {
       await render(
         `
-        <nav ngpNavigationMenu ngpNavigationMenuDelayDuration="0">
+        <nav ngpNavigationMenu ngpNavigationMenuShowDelay="0">
           <ul ngpNavigationMenuList>
             <li ngpNavigationMenuItem ngpNavigationMenuItemValue="item1">
               <button ngpNavigationMenuTrigger ngpNavigationMenuTriggerDisabled>Item 1</button>
-              <div ngpNavigationMenuContent>Content 1</div>
+              <div *ngpNavigationMenuContent>Content 1</div>
             </li>
           </ul>
         </nav>
@@ -776,11 +789,11 @@ describe('NgpNavigationMenu', () => {
     it('should clean up when component is destroyed', fakeAsync(async () => {
       const { fixture } = await render(
         `
-        <nav ngpNavigationMenu ngpNavigationMenuDelayDuration="0">
+        <nav ngpNavigationMenu ngpNavigationMenuShowDelay="0">
           <ul ngpNavigationMenuList>
             <li ngpNavigationMenuItem ngpNavigationMenuItemValue="item1">
               <button ngpNavigationMenuTrigger>Item 1</button>
-              <div ngpNavigationMenuContent data-testid="content1">Content 1</div>
+              <div *ngpNavigationMenuContent data-testid="content1">Content 1</div>
             </li>
           </ul>
         </nav>

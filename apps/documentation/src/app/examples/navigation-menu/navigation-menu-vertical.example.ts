@@ -53,7 +53,7 @@ import {
       class="sidebar"
       ngpNavigationMenu
       ngpNavigationMenuOrientation="vertical"
-      ngpNavigationMenuDelayDuration="0"
+      ngpNavigationMenuShowDelay="0"
     >
       <ul class="sidebar-list" ngpNavigationMenuList>
         <div class="sidebar-indicator" ngpNavigationMenuIndicator></div>
@@ -174,7 +174,11 @@ import {
       </ul>
 
       <!-- Portal renders viewport in a floating overlay with viewport-aware positioning -->
-      <ng-template ngpNavigationMenuPortal ngpNavigationMenuPortalPlacement="right" ngpNavigationMenuPortalOffset="16">
+      <ng-template
+        ngpNavigationMenuPortal
+        ngpNavigationMenuPortalPlacement="right-start"
+        ngpNavigationMenuPortalOffset="16"
+      >
         <div class="sidebar-viewport" ngpNavigationMenuViewport></div>
       </ng-template>
     </nav>

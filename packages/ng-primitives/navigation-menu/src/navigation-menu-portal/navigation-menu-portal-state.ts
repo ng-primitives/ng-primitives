@@ -170,6 +170,7 @@ export const [
           });
         } else if (currentOverlay) {
           // Update the trigger element for positioning and show
+          // Always include placement signal as it's expected by overlay
           currentOverlay.updateConfig({
             triggerElement,
             placement: placement,

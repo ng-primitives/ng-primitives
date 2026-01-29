@@ -35,54 +35,51 @@ export const [
   ngpNavigationMenuContent,
   injectNavigationMenuContentState,
   provideNavigationMenuContentState,
-] = createPrimitive(
-  'NgpNavigationMenuContent',
-  (): NgpNavigationMenuContentState => {
-    const menu = injectNavigationMenuState();
-    const item = injectNavigationMenuItemState();
+] = createPrimitive('NgpNavigationMenuContent', (): NgpNavigationMenuContentState => {
+  const menu = injectNavigationMenuState();
+  const item = injectNavigationMenuItemState();
 
-    const id = signal(uniqueId('ngp-navigation-menu-content'));
+  const id = signal(uniqueId('ngp-navigation-menu-content'));
 
-    // Whether this content is open
-    const open = computed(() => item().open());
+  // Whether this content is open
+  const open = computed(() => item().open());
 
-    // Calculate motion direction based on previous and current value
-    const motionDirection = computed<NgpNavigationMenuMotionDirection | undefined>(() => {
-      const currentValue = menu().value();
-      const previousValue = menu().previousValue();
-      const thisValue = item().value();
+  // Calculate motion direction based on previous and current value
+  const motionDirection = computed<NgpNavigationMenuMotionDirection | undefined>(() => {
+    const currentValue = menu().value();
+    const previousValue = menu().previousValue();
+    const thisValue = item().value();
 
-      if (!currentValue || !previousValue) {
-        return undefined;
-      }
-
-      const items = menu().items();
-      const currentIndex = items.findIndex(i => i.value() === currentValue);
-      const previousIndex = items.findIndex(i => i.value() === previousValue);
-
-      if (currentIndex === -1 || previousIndex === -1) {
-        return undefined;
-      }
-
-      const isMovingForward = currentIndex > previousIndex;
-
-      // If this content is the one being opened
-      if (thisValue === currentValue) {
-        return isMovingForward ? 'from-end' : 'from-start';
-      }
-
-      // If this content is the one being closed
-      if (thisValue === previousValue) {
-        return isMovingForward ? 'to-start' : 'to-end';
-      }
-
+    if (!currentValue || !previousValue) {
       return undefined;
-    });
+    }
 
-    return {
-      id,
-      open,
-      motionDirection,
-    } satisfies NgpNavigationMenuContentState;
-  },
-);
+    const items = menu().items();
+    const currentIndex = items.findIndex(i => i.value() === currentValue);
+    const previousIndex = items.findIndex(i => i.value() === previousValue);
+
+    if (currentIndex === -1 || previousIndex === -1) {
+      return undefined;
+    }
+
+    const isMovingForward = currentIndex > previousIndex;
+
+    // If this content is the one being opened
+    if (thisValue === currentValue) {
+      return isMovingForward ? 'from-end' : 'from-start';
+    }
+
+    // If this content is the one being closed
+    if (thisValue === previousValue) {
+      return isMovingForward ? 'to-start' : 'to-end';
+    }
+
+    return undefined;
+  });
+
+  return {
+    id,
+    open,
+    motionDirection,
+  } satisfies NgpNavigationMenuContentState;
+});

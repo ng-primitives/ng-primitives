@@ -262,11 +262,27 @@ export const [
         }
       };
 
+      const handleEscape = (event: KeyboardEvent) => {
+        if (event.key === 'Escape') {
+          event.preventDefault();
+          close();
+
+          // Focus the trigger that was open
+          const activeItem = items().find(item => item.value() === currentValue);
+          if (activeItem) {
+            const triggerEl = activeItem.triggerElement();
+            triggerEl?.focus();
+          }
+        }
+      };
+
       // Use mouseup to match overlay behavior and avoid conflicts with click-to-toggle
       document.addEventListener('mouseup', handleOutsideClick, { capture: true });
+      document.addEventListener('keydown', handleEscape, { capture: true });
 
       onCleanup(() => {
         document.removeEventListener('mouseup', handleOutsideClick, { capture: true });
+        document.removeEventListener('keydown', handleEscape, { capture: true });
       });
     });
 

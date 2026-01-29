@@ -36,6 +36,7 @@ export class NgpNavigationMenuContent {
   private resizeObserver: ResizeObserver | null = null;
   private originalParent: HTMLElement | null = null;
   private contentElement: HTMLElement | null = null;
+  private viewportMoveTimeout: ReturnType<typeof setTimeout> | null = null;
 
   // Injectable services
   private readonly templateRef = inject(TemplateRef);
@@ -103,6 +104,13 @@ export class NgpNavigationMenuContent {
     this.contentElement.setAttribute('id', this.contentState().id());
     this.contentElement.setAttribute('data-state', this.contentState().open() ? 'open' : 'closed');
     this.contentElement.setAttribute('data-orientation', menuState.orientation());
+
+    // Set aria-labelledby to reference the trigger
+    const triggerState = this.trigger?.();
+    if (triggerState?.id) {
+      this.contentElement.setAttribute('aria-labelledby', triggerState.id());
+    }
+
     const motion = this.contentState().motionDirection();
     if (motion) {
       this.contentElement.setAttribute('data-motion', motion);
@@ -112,7 +120,6 @@ export class NgpNavigationMenuContent {
     itemState.setContentElement(this.contentElement);
 
     // Register content ID with trigger
-    const triggerState = this.trigger?.();
     if (triggerState) {
       triggerState.setContentId(this.contentState().id());
     }
@@ -127,6 +134,12 @@ export class NgpNavigationMenuContent {
 
   private attemptViewportMove(attempts = 0) {
     if (!this.contentElement) return;
+
+    // Clear any pending timeout
+    if (this.viewportMoveTimeout) {
+      clearTimeout(this.viewportMoveTimeout);
+      this.viewportMoveTimeout = null;
+    }
 
     // If we've exhausted attempts, show content anyway to avoid it being permanently hidden
     if (attempts > 10) {
@@ -165,12 +178,18 @@ export class NgpNavigationMenuContent {
       }
     } else {
       // Viewport not ready, try again
-      setTimeout(() => this.attemptViewportMove(attempts + 1), 10);
+      this.viewportMoveTimeout = setTimeout(() => this.attemptViewportMove(attempts + 1), 10);
     }
   }
 
   private cleanupContentElement() {
     if (!this.contentElement) return;
+
+    // Clear viewport move timeout
+    if (this.viewportMoveTimeout) {
+      clearTimeout(this.viewportMoveTimeout);
+      this.viewportMoveTimeout = null;
+    }
 
     // Remove event listeners
     this.contentElement.removeEventListener('pointerenter', this.handlePointerEnter);
@@ -194,6 +213,7 @@ export class NgpNavigationMenuContent {
     if (this.originalParent && this.contentElement.parentElement) {
       this.originalParent.appendChild(this.contentElement);
     }
+    this.originalParent = null;
   }
 
   private handlePointerEnter = () => {
