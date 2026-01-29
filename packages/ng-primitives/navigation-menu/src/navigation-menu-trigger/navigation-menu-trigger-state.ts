@@ -109,6 +109,8 @@ export const [
     });
 
     // Host bindings
+    attrBinding(element, 'role', 'menuitem');
+    attrBinding(element, 'type', 'button');
     attrBinding(element, 'id', id);
     attrBinding(element, 'aria-haspopup', 'menu');
     attrBinding(element, 'aria-expanded', () => (open() ? 'true' : 'false'));

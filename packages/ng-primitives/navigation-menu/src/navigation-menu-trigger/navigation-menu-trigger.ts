@@ -16,10 +16,6 @@ import {
     provideNavigationMenuTriggerState({ inherit: false }),
     provideRovingFocusItemState({ inherit: false }),
   ],
-  host: {
-    role: 'menuitem',
-    type: 'button',
-  },
 })
 export class NgpNavigationMenuTrigger {
   /**

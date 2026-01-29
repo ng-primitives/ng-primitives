@@ -11,15 +11,6 @@ import {
   selector: '[ngpNavigationMenuIndicator]',
   exportAs: 'ngpNavigationMenuIndicator',
   providers: [provideNavigationMenuIndicatorState({ inherit: false })],
-  host: {
-    '[style.position]': '"absolute"',
-    '[style.pointerEvents]': '"none"',
-    '[style.zIndex]': '"-1"',
-    '[style.left]': '"var(--ngp-navigation-menu-indicator-left)"',
-    '[style.top]': '"var(--ngp-navigation-menu-indicator-top)"',
-    '[style.width]': '"var(--ngp-navigation-menu-indicator-width)"',
-    '[style.height]': '"var(--ngp-navigation-menu-indicator-height)"',
-  },
 })
 export class NgpNavigationMenuIndicator {
   private readonly state = ngpNavigationMenuIndicator();

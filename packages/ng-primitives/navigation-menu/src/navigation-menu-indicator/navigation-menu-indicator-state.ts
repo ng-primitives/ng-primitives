@@ -89,6 +89,15 @@ export const [
     return pos ? `${pos.height}px` : null;
   });
 
+  // Apply positioning styles
+  styleBinding(element, 'position', 'absolute');
+  styleBinding(element, 'pointerEvents', 'none');
+  styleBinding(element, 'zIndex', '-1');
+  styleBinding(element, 'left', 'var(--ngp-navigation-menu-indicator-left)');
+  styleBinding(element, 'top', 'var(--ngp-navigation-menu-indicator-top)');
+  styleBinding(element, 'width', 'var(--ngp-navigation-menu-indicator-width)');
+  styleBinding(element, 'height', 'var(--ngp-navigation-menu-indicator-height)');
+
   return {
     visible,
     position,

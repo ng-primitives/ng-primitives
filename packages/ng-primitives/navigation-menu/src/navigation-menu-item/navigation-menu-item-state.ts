@@ -1,7 +1,7 @@
 import { FocusMonitor } from '@angular/cdk/a11y';
 import { computed, inject, signal, Signal } from '@angular/core';
 import { injectElementRef } from 'ng-primitives/internal';
-import { createPrimitive, dataBinding, onDestroy } from 'ng-primitives/state';
+import { attrBinding, createPrimitive, dataBinding, onDestroy } from 'ng-primitives/state';
 import { uniqueId } from 'ng-primitives/utils';
 import { injectNavigationMenuState } from '../navigation-menu/navigation-menu-state';
 
@@ -94,6 +94,7 @@ export const [
     onDestroy(() => menu().unregisterItem(value()));
 
     // Host bindings
+    attrBinding(element, 'role', 'none');
     dataBinding(element, 'data-state', () => (open() ? 'open' : 'closed'));
 
     function setTriggerElement(el: HTMLElement | null): void {

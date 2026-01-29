@@ -110,6 +110,10 @@ export const [
     return h !== null ? `${h}px` : null;
   });
 
+  // Apply the CSS variables as actual styles
+  styleBinding(element, 'width', 'var(--ngp-navigation-menu-viewport-width)');
+  styleBinding(element, 'height', 'var(--ngp-navigation-menu-viewport-height)');
+
   // CSS variables for trigger position (useful for vertical menus)
   styleBinding(element, '--ngp-navigation-menu-viewport-left', () => {
     const pos = triggerPosition();

@@ -63,6 +63,7 @@ export const [
     const selectEmitter = emitter<Event>();
 
     // Host bindings
+    attrBinding(element, 'role', 'menuitem');
     dataBinding(element, 'data-active', active);
     attrBinding(element, 'aria-current', () => (active() ? 'page' : null));
 

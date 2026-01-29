@@ -1,6 +1,6 @@
 import { signal, Signal } from '@angular/core';
 import { injectElementRef } from 'ng-primitives/internal';
-import { createPrimitive, dataBinding } from 'ng-primitives/state';
+import { attrBinding, createPrimitive, dataBinding } from 'ng-primitives/state';
 import { injectNavigationMenuState } from '../navigation-menu/navigation-menu-state';
 
 /**
@@ -39,6 +39,7 @@ export const [
   const triggers = signal<NgpNavigationMenuTriggerRef[]>([]);
 
   // Host bindings
+  attrBinding(element, 'role', 'menubar');
   dataBinding(element, 'data-orientation', menu().orientation);
 
   function registerTrigger(trigger: NgpNavigationMenuTriggerRef): void {

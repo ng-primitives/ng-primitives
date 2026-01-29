@@ -1,4 +1,4 @@
-import { computed, effect, signal, Signal } from '@angular/core';
+import { computed, effect, signal, Signal, untracked } from '@angular/core';
 import { Placement } from '@floating-ui/dom';
 import { injectElementRef } from 'ng-primitives/internal';
 import { NgpOffset, NgpOverlay, NgpShift } from 'ng-primitives/portal';
@@ -146,9 +146,6 @@ export const [
       overlay()?.destroy();
     });
 
-    // Track if we're waiting for overlay creation
-    let pendingCreation = false;
-
     // Effect to show/hide overlay based on open state
     effect(() => {
       const isOpen = open();
@@ -156,21 +153,15 @@ export const [
       const currentOverlay = overlay();
 
       if (isOpen && triggerElement) {
-        if (!currentOverlay && !pendingCreation) {
-          // Schedule overlay creation outside reactive context
-          pendingCreation = true;
-          queueMicrotask(() => {
-            // Double-check we still need to create it
-            if (!overlay()) {
-              const newOverlay = createOverlayFn(triggerElement);
-              overlay.set(newOverlay);
-              newOverlay.show();
-            }
-            pendingCreation = false;
+        if (!currentOverlay) {
+          // Create overlay using untracked to avoid NG0602
+          untracked(() => {
+            const newOverlay = createOverlayFn(triggerElement);
+            overlay.set(newOverlay);
+            newOverlay.show();
           });
-        } else if (currentOverlay) {
-          // Update the trigger element for positioning and show
-          // Always include placement signal as it's expected by overlay
+        } else {
+          // Update existing overlay
           currentOverlay.updateConfig({
             triggerElement,
             placement: placement,

@@ -11,9 +11,6 @@ import {
   selector: '[ngpNavigationMenuItem]',
   exportAs: 'ngpNavigationMenuItem',
   providers: [provideNavigationMenuItemState({ inherit: false })],
-  host: {
-    role: 'none',
-  },
 })
 export class NgpNavigationMenuItem {
   /**

@@ -11,9 +11,6 @@ import {
   selector: '[ngpNavigationMenuList]',
   exportAs: 'ngpNavigationMenuList',
   providers: [provideNavigationMenuListState({ inherit: false })],
-  host: {
-    role: 'menubar',
-  },
 })
 export class NgpNavigationMenuList {
   private readonly state = ngpNavigationMenuList();

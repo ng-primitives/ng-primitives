@@ -17,9 +17,6 @@ import {
     provideNavigationMenuLinkState({ inherit: false }),
     provideRovingFocusItemState({ inherit: false }),
   ],
-  host: {
-    role: 'menuitem',
-  },
 })
 export class NgpNavigationMenuLink {
   /**

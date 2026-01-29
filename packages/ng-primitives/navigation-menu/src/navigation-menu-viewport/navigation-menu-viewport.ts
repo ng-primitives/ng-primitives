@@ -11,10 +11,6 @@ import {
   selector: '[ngpNavigationMenuViewport]',
   exportAs: 'ngpNavigationMenuViewport',
   providers: [provideNavigationMenuViewportState({ inherit: false })],
-  host: {
-    '[style.width]': '"var(--ngp-navigation-menu-viewport-width)"',
-    '[style.height]': '"var(--ngp-navigation-menu-viewport-height)"',
-  },
 })
 export class NgpNavigationMenuViewport {
   private readonly state = ngpNavigationMenuViewport();
