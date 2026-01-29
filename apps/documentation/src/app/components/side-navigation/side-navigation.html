@@ -17,7 +17,17 @@
           >
             @if (link.icon) {
             <ng-icon class="mr-2 text-base text-zinc-600 dark:text-zinc-300" [name]="link.icon" />
-            } {{ link.name }}
+            }
+            <span class="truncate">{{ link.name }}</span>
+            @if (link.status) {
+            <span
+              class="ml-auto h-1.5 w-1.5 shrink-0 rounded-full"
+              [class.bg-primary]="link.status === 'beta'"
+              [class.bg-emerald-500]="link.status === 'new'"
+              [class.bg-red-500]="link.status === 'deprecated'"
+              [attr.title]="link.status"
+            ></span>
+            }
           </a>
         </li>
         }

@@ -1,5 +1,6 @@
 ---
 name: 'Navigation Menu'
+status: 'beta'
 sourceUrl: 'https://github.com/ng-primitives/ng-primitives/tree/next/packages/ng-primitives/navigation-menu'
 ---
 
@@ -36,7 +37,7 @@ Assemble the navigation menu directives in your template.
   <ul ngpNavigationMenuList>
     <li ngpNavigationMenuItem ngpNavigationMenuItemValue="products">
       <button ngpNavigationMenuTrigger>Products</button>
-      <div ngpNavigationMenuContent>
+      <div *ngpNavigationMenuContent>
         <a ngpNavigationMenuLink href="/product-a">Product A</a>
         <a ngpNavigationMenuLink href="/product-b">Product B</a>
       </div>
@@ -199,11 +200,11 @@ The `data-motion` attribute on `NgpNavigationMenuContent` can be used to animate
 - `to-end`: Content exiting toward the end
 
 ```css
-[ngpNavigationMenuContent][data-motion='from-start'] {
+[data-motion='from-start'] {
   animation: slideFromLeft 200ms ease;
 }
 
-[ngpNavigationMenuContent][data-motion='from-end'] {
+[data-motion='from-end'] {
   animation: slideFromRight 200ms ease;
 }
 ```

@@ -3,6 +3,7 @@ import { RouterOutlet } from '@angular/router';
 import { QuickLinks } from '../../components/quick-links/quick-links';
 import { HeadingAnchor } from '../../directives/heading-anchor';
 import { SourceLink } from '../../directives/source-link';
+import { StatusBadge } from '../../directives/status-badge';
 
 @Component({
   selector: 'docs-primitives',
@@ -13,6 +14,7 @@ import { SourceLink } from '../../directives/source-link';
         data-page-content
         docsHeadingAnchor
         docsSourceLink
+        docsStatusBadge
       >
         <div class="mx-auto w-fit max-w-full">
           <p
@@ -28,7 +30,7 @@ import { SourceLink } from '../../directives/source-link';
       <docs-quick-links />
     </div>
   `,
-  imports: [RouterOutlet, QuickLinks, HeadingAnchor, SourceLink],
+  imports: [RouterOutlet, QuickLinks, HeadingAnchor, SourceLink, StatusBadge],
   host: {
     class: 'flex-1 max-w-full',
   },

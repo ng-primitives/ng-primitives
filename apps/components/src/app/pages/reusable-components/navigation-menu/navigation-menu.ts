@@ -118,19 +118,21 @@ export interface NavigationMenuItemConfig {
             </svg>
           </button>
           <ul
-            *ngpNavigationMenuContent
             class="content-list"
+            *ngpNavigationMenuContent
             [class.content-list-narrow]="item.width === 'narrow'"
             [class.content-list-wide]="item.width === 'wide'"
-            [style.grid-template-columns]="item.columns ? 'repeat(' + item.columns + ', 1fr)' : null"
+            [style.grid-template-columns]="
+              item.columns ? 'repeat(' + item.columns + ', 1fr)' : null
+            "
           >
             @for (link of item.links; track $index) {
               <li>
                 <a
-                  ngpNavigationMenuLink
-                  [ngpNavigationMenuLinkActive]="link.active ?? false"
                   class="link"
+                  [ngpNavigationMenuLinkActive]="link.active ?? false"
                   [href]="link.href"
+                  ngpNavigationMenuLink
                 >
                   <span class="link-title">{{ link.title }}</span>
                   @if (link.description) {
