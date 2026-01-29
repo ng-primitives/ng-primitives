@@ -449,11 +449,7 @@ describe('NgpNavigationMenu', () => {
     it('should support controlled value', fakeAsync(async () => {
       @Component({
         template: `
-          <nav
-            [ngpNavigationMenuValue]="value"
-            ngpNavigationMenu
-            ngpNavigationMenuShowDelay="0"
-          >
+          <nav [ngpNavigationMenuValue]="value" ngpNavigationMenu ngpNavigationMenuShowDelay="0">
             <ul ngpNavigationMenuList>
               <li ngpNavigationMenuItem ngpNavigationMenuItemValue="item1">
                 <button ngpNavigationMenuTrigger>Item 1</button>
