@@ -14,7 +14,6 @@ import {
   runInInjectionContext,
   signal,
 } from '@angular/core';
-import { CooldownOverlay, NgpOverlayCooldownManager } from './overlay-cooldown';
 import {
   Middleware,
   Placement,
@@ -32,6 +31,7 @@ import { injectDisposables, safeTakeUntilDestroyed, uniqueId } from 'ng-primitiv
 import { Subject, fromEvent } from 'rxjs';
 import { debounceTime } from 'rxjs/operators';
 import { NgpOffset } from './offset';
+import { CooldownOverlay, NgpOverlayCooldownManager } from './overlay-cooldown';
 import { provideOverlayContext } from './overlay-token';
 import { NgpPortal, createPortal } from './portal';
 import { NgpPosition } from './position';
@@ -515,11 +515,7 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
 
     // Register as active overlay for this type (will close any existing one if within cooldown)
     if (this.config.overlayType) {
-      this.cooldownManager.registerActive(
-        this.config.overlayType,
-        this,
-        this.config.cooldown ?? 0,
-      );
+      this.cooldownManager.registerActive(this.config.overlayType, this, this.config.cooldown ?? 0);
     }
 
     this.scrollStrategy =
