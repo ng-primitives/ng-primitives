@@ -154,6 +154,10 @@ export interface NgpMenuTriggerProps<T = unknown> {
    * Context to provide to the menu.
    */
   readonly context?: Signal<T>;
+  /**
+   * Cooldown duration in milliseconds.
+   */
+  readonly cooldown?: Signal<number>;
 }
 
 export const [
@@ -172,6 +176,7 @@ export const [
     context: _context = signal<T>(undefined as T),
     container,
     scrollBehavior,
+    cooldown,
   }: NgpMenuTriggerProps<T>) => {
     const element = injectElementRef();
     const injector = inject(Injector);
@@ -260,6 +265,8 @@ export const [
         closeOnEscape: true,
         restoreFocus: true,
         scrollBehaviour: scrollBehavior?.() ?? 'block',
+        overlayType: 'menu',
+        cooldown: cooldown?.(),
       };
 
       overlay.set(createOverlay(config));

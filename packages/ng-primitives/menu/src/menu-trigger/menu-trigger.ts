@@ -1,6 +1,6 @@
 import { FocusOrigin } from '@angular/cdk/a11y';
-import { BooleanInput } from '@angular/cdk/coercion';
-import { booleanAttribute, Directive, input, Signal } from '@angular/core';
+import { BooleanInput, NumberInput } from '@angular/cdk/coercion';
+import { booleanAttribute, Directive, input, numberAttribute, Signal } from '@angular/core';
 import {
   coerceOffset,
   coerceShift,
@@ -97,6 +97,17 @@ export class NgpMenuTrigger<T = unknown> {
   });
 
   /**
+   * Define the cooldown duration in milliseconds.
+   * When moving from one menu to another within this duration,
+   * the showDelay is skipped for the new menu.
+   * @default 0
+   */
+  readonly cooldown = input<number, NumberInput>(this.config.cooldown, {
+    alias: 'ngpMenuTriggerCooldown',
+    transform: numberAttribute,
+  });
+
+  /**
    * Provide context to the menu. This can be used to pass data to the menu content.
    */
   readonly context = input<T>(undefined, {
@@ -115,6 +126,7 @@ export class NgpMenuTrigger<T = unknown> {
     shift: this.shift(),
     container: this.container,
     scrollBehavior: this.scrollBehavior,
+    cooldown: this.cooldown,
     context: this.context as Signal<T>,
   });
 

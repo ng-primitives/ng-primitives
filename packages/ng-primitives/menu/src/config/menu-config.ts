@@ -46,6 +46,14 @@ export interface NgpMenuConfig {
    * @default true
    */
   wrap: boolean;
+
+  /**
+   * Cooldown duration in milliseconds.
+   * When moving from one menu to another within this duration,
+   * the showDelay is skipped for the new menu.
+   * @default 0
+   */
+  cooldown: number;
 }
 
 export const defaultMenuConfig: NgpMenuConfig = {
@@ -56,6 +64,7 @@ export const defaultMenuConfig: NgpMenuConfig = {
   scrollBehavior: 'block',
   shift: undefined,
   wrap: true,
+  cooldown: 0,
 };
 
 export const NgpMenuConfigToken = new InjectionToken<NgpMenuConfig>('NgpMenuConfigToken');

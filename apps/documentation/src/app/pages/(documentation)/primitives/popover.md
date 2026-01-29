@@ -200,6 +200,7 @@ bootstrapApplication(AppComponent, {
       container: document.body,
       closeOnOutsideClick: true,
       scrollBehavior: 'reposition',
+      cooldown: 0,
     }),
   ],
 });
@@ -265,4 +266,8 @@ bootstrapApplication(AppComponent, {
 
 <prop-details name="scrollBehavior" type="reposition | block">
 Defines how the popover behaves when the window is scrolled. If set to `reposition`, the popover will adjust its position automatically during scrolling. Make sure the popover uses `position: absolute` in this mode. If set to `block`, scrolling will be disabled while the popover is open. In this case, the popover should use `position: fixed`.
+</prop-details>
+
+<prop-details name="cooldown" type="number" default="0">
+  Define the cooldown duration in milliseconds. When moving from one popover to another within this duration, the showDelay is skipped for the new popover. This creates a smoother experience when navigating between multiple popovers.
 </prop-details>

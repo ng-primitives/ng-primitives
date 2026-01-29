@@ -65,6 +65,14 @@ export interface NgpTooltipConfig {
    * @default false
    */
   trackPosition: boolean;
+
+  /**
+   * Cooldown duration in milliseconds.
+   * When moving from one tooltip to another within this duration,
+   * the showDelay is skipped for the new tooltip.
+   * @default 300
+   */
+  cooldown: number;
 }
 
 export const defaultTooltipConfig: NgpTooltipConfig = {
@@ -78,6 +86,7 @@ export const defaultTooltipConfig: NgpTooltipConfig = {
   useTextContent: true,
   shift: undefined,
   trackPosition: false,
+  cooldown: 300,
 };
 
 export const NgpTooltipConfigToken = new InjectionToken<NgpTooltipConfig>('NgpTooltipConfigToken');

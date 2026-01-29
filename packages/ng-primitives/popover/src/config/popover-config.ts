@@ -71,6 +71,14 @@ export interface NgpPopoverConfig {
    * @default false
    */
   trackPosition: boolean;
+
+  /**
+   * Cooldown duration in milliseconds.
+   * When moving from one popover to another within this duration,
+   * the showDelay is skipped for the new popover.
+   * @default 0
+   */
+  cooldown: number;
 }
 
 export const defaultPopoverConfig: NgpPopoverConfig = {
@@ -85,6 +93,7 @@ export const defaultPopoverConfig: NgpPopoverConfig = {
   scrollBehavior: 'reposition',
   shift: undefined,
   trackPosition: false,
+  cooldown: 0,
 };
 
 export const NgpPopoverConfigToken = new InjectionToken<NgpPopoverConfig>('NgpPopoverConfigToken');

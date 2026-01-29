@@ -14,6 +14,7 @@ import {
   runInInjectionContext,
   signal,
 } from '@angular/core';
+import { CooldownOverlay, NgpOverlayCooldownManager } from './overlay-cooldown';
 import {
   Middleware,
   Placement,
@@ -106,6 +107,22 @@ export interface NgpOverlayConfig<T = unknown> {
    * Use with trackPosition for smooth cursor following.
    */
   position?: Signal<NgpPosition | null>;
+
+  /**
+   * Overlay type identifier for cooldown grouping.
+   * When set, overlays of the same type share a cooldown period.
+   * For example, 'tooltip' ensures quickly moving between tooltips shows
+   * the second one immediately without the showDelay.
+   */
+  overlayType?: string;
+
+  /**
+   * Cooldown duration in milliseconds.
+   * When moving from one overlay of the same type to another within this duration,
+   * the showDelay is skipped for the new overlay.
+   * @default 300
+   */
+  cooldown?: number;
 }
 
 /** Type for overlay content which can be either a template or component */
@@ -121,13 +138,14 @@ export type NgpOverlayTemplateContext<T> = {
  * It abstracts the common behavior shared by tooltips, popovers, menus, etc.
  * @internal
  */
-export class NgpOverlay<T = unknown> {
+export class NgpOverlay<T = unknown> implements CooldownOverlay {
   private readonly disposables = injectDisposables();
   private readonly document = inject(DOCUMENT);
   private readonly destroyRef = inject(DestroyRef);
   private readonly viewContainerRef: ViewContainerRef;
   private readonly viewportRuler = inject(ViewportRuler);
   private readonly focusMonitor = inject(FocusMonitor);
+  private readonly cooldownManager = inject(NgpOverlayCooldownManager);
   /** Access any parent overlays */
   private readonly parentOverlay = inject(NgpOverlay, { optional: true });
   /** Signal tracking the portal instance */
@@ -295,7 +313,15 @@ export class NgpOverlay<T = unknown> {
       }
 
       // Use the provided delay or fall back to config
-      const delay = this.config.showDelay ?? 0;
+      let delay = this.config.showDelay ?? 0;
+
+      // Skip delay if within cooldown period for this overlay type
+      if (this.config.overlayType && delay > 0) {
+        const cooldownDuration = this.config.cooldown ?? 300;
+        if (this.cooldownManager.isWithinCooldown(this.config.overlayType, cooldownDuration)) {
+          delay = 0;
+        }
+      }
 
       this.openTimeout = this.disposables.setTimeout(() => {
         this.openTimeout = undefined;
@@ -335,6 +361,20 @@ export class NgpOverlay<T = unknown> {
 
     this.closing.next();
 
+    // Check cooldown BEFORE recording, then record for the next overlay
+    let delay = this.config.hideDelay ?? 0;
+    if (this.config.overlayType) {
+      // Skip delay if within cooldown period for this overlay type
+      if (delay > 0) {
+        const cooldownDuration = this.config.cooldown ?? 300;
+        if (this.cooldownManager.isWithinCooldown(this.config.overlayType, cooldownDuration)) {
+          delay = 0;
+        }
+      }
+      // Record close timestamp so the next overlay of the same type can see it
+      this.cooldownManager.recordClose(this.config.overlayType);
+    }
+
     const dispose = async () => {
       this.closeTimeout = undefined;
 
@@ -351,7 +391,7 @@ export class NgpOverlay<T = unknown> {
       // If immediate, dispose right away
       dispose();
     } else {
-      this.closeTimeout = this.disposables.setTimeout(dispose, this.config.hideDelay ?? 0);
+      this.closeTimeout = this.disposables.setTimeout(dispose, delay);
     }
   }
 
@@ -472,6 +512,15 @@ export class NgpOverlay<T = unknown> {
 
     // Mark as open
     this.isOpen.set(true);
+
+    // Register as active overlay for this type (will close any existing one if within cooldown)
+    if (this.config.overlayType) {
+      this.cooldownManager.registerActive(
+        this.config.overlayType,
+        this,
+        this.config.cooldown ?? 0,
+      );
+    }
 
     this.scrollStrategy =
       this.config.scrollBehaviour === 'block'
@@ -594,6 +643,11 @@ export class NgpOverlay<T = unknown> {
 
     if (!portal) {
       return;
+    }
+
+    // Unregister from active overlays
+    if (this.config.overlayType) {
+      this.cooldownManager.unregisterActive(this.config.overlayType, this);
     }
 
     // Clear portal reference to prevent double destruction

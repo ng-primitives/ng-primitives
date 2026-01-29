@@ -251,6 +251,7 @@ bootstrapApplication(AppComponent, {
       container: document.body,
       showOnOverflow: false,
       useTextContent: true,
+      cooldown: 300,
     }),
   ],
 });
@@ -320,4 +321,8 @@ shift: {
 
 <prop-details name="useTextContent" type="boolean" default="true">
   Define whether to use the text content of the trigger element as the tooltip content. When enabled, the tooltip will automatically display the text content of the trigger element. Note that this requires global styles to work properly since the tooltip is rendered in a portal.
+</prop-details>
+
+<prop-details name="cooldown" type="number" default="300">
+  Define the cooldown duration in milliseconds. When moving from one tooltip to another within this duration, the showDelay is skipped for the new tooltip. This creates a smoother experience when hovering between multiple tooltips.
 </prop-details>

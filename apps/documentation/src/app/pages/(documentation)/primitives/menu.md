@@ -198,6 +198,7 @@ bootstrapApplication(AppComponent, {
       flip: true,
       container: document.body,
       scrollBehavior: 'reposition',
+      cooldown: 0,
     }),
   ],
 });
@@ -251,6 +252,10 @@ bootstrapApplication(AppComponent, {
 
 <prop-details name="scrollBehavior" type="reposition | block">
 Defines how the menu behaves when the window is scrolled. If set to `reposition`, the menu will adjust its position automatically during scrolling. Make sure the menu uses `position: absolute` in this mode. If set to `block`, scrolling will be disabled while the menu is open. In this case, the menu should use `position: fixed`.
+</prop-details>
+
+<prop-details name="cooldown" type="number" default="0">
+  Define the cooldown duration in milliseconds. When moving from one menu to another within this duration, the showDelay is skipped for the new menu. This creates a smoother experience when navigating between multiple menus.
 </prop-details>
 
 ## Accessibility
