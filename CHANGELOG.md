@@ -1,3 +1,13 @@
+## 0.106.1 (2026-01-29)
+
+### 🩹 Fixes
+
+- update Angular compatibility to support Angular 19+ ([#631](https://github.com/ng-primitives/ng-primitives/pull/631))
+
+### ❤️ Thank You
+
+- Shahar Kazaz @shaharkazaz
+
 ## 0.106.0 (2026-01-26)
 
 ### 🚀 Features
