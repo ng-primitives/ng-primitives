@@ -81,12 +81,13 @@ export function setupExitAnimation({
           Promise.all(animations.map(anim => anim.finished))
             .then(() => resolve())
             .catch(err => {
-              if (err instanceof Error && err.name !== 'AbortError') {
-                return reject(err);
+              // AbortError is expected when element is removed during animation
+              // e.g. when the user navigates away to another page
+              if (err instanceof Error && err.name === 'AbortError') {
+                resolve();
+              } else {
+                reject(err);
               }
-              // Ignore abort errors as they are expected when the animation is interrupted
-              // by the removal of the element - e.g. when the user navigates away to another page
-              resolve();
             });
         } else {
           resolve();

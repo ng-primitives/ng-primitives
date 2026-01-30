@@ -224,12 +224,6 @@ import {
       animation: contentClose 150ms ease forwards;
     }
 
-    /* Skip animations during instant transitions (cooldown) */
-    .navigation-menu-content[data-instant][data-enter],
-    .navigation-menu-content[data-instant][data-exit] {
-      animation: none;
-    }
-
     @keyframes contentOpen {
       from {
         opacity: 0;

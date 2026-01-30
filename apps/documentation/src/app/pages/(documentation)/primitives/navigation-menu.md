@@ -180,6 +180,28 @@ The content panel supports enter/exit animations using the `data-enter` and `dat
 }
 ```
 
+### Instant Transitions (Cooldown)
+
+When users quickly move between menu triggers, the `cooldown` feature provides instant transitions without animation delays. During the cooldown period (default 300ms), the previous menu is immediately removed and the new menu appears instantly.
+
+Use the `data-instant` attribute in CSS to handle these instant transitions:
+
+```css
+/* Skip animations during instant transitions */
+[ngpNavigationMenuContent][data-instant][data-enter],
+[ngpNavigationMenuContent][data-instant][data-exit] {
+  animation: none;
+}
+```
+
+To disable cooldown and always show animations, set `cooldown` to `0` on the trigger:
+
+```html
+<button [ngpNavigationMenuTrigger]="menu" [ngpNavigationMenuTriggerCooldown]="0">
+  Menu
+</button>
+```
+
 ## Global Configuration
 
 You can configure the default options for all navigation menus in your application using the `provideNavigationMenuConfig` function.
@@ -196,7 +218,9 @@ bootstrapApplication(AppComponent, {
       placement: 'bottom-start',
       offset: 4,
       flip: true,
+      shift: true,
       wrap: true,
+      cooldown: 300,
     }),
   ],
 });
@@ -230,4 +254,12 @@ Define if the content should flip when it reaches the edge of the viewport.
 
 <prop-details name="wrap" type="boolean" default="true">
 Define if focus should wrap around when navigating with arrow keys.
+</prop-details>
+
+<prop-details name="shift" type="boolean | NgpShiftOptions" default="undefined">
+Configure shift behavior to keep the content in view when it would overflow the viewport.
+</prop-details>
+
+<prop-details name="cooldown" type="number" default="300">
+Define the cooldown duration in milliseconds. When moving from one menu item to another within this duration, the showDelay is skipped and transitions are instant.
 </prop-details>

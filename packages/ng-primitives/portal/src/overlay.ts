@@ -771,6 +771,7 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
    */
   unregisterArrow(): void {
     this.arrowElement = null;
+    this.arrowPadding = undefined;
   }
 
   /**

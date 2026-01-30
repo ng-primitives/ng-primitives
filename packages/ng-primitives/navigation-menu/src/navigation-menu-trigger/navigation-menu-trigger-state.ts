@@ -300,10 +300,12 @@ export const [
       if (event.key === openKey) {
         event.preventDefault();
         if (!open()) {
-          show();
+          // Wait for overlay to show, then focus first item (has built-in retry)
+          show().then(() => focusFirstContentItem());
+        } else {
+          // Already open, just focus first item
+          focusFirstContentItem();
         }
-        // Focus first item in content
-        setTimeout(() => focusFirstContentItem(), 0);
       } else if (event.key === openLastKey && open()) {
         event.preventDefault();
         // Focus last item in content
@@ -313,9 +315,8 @@ export const [
         if (open()) {
           focusFirstContentItem();
         } else {
-          show();
-          // After opening, focus first item
-          setTimeout(() => focusFirstContentItem(), 0);
+          // Wait for overlay to show, then focus first item (has built-in retry)
+          show().then(() => focusFirstContentItem());
         }
       } else if (event.key === 'Escape' && open()) {
         event.preventDefault();
@@ -368,14 +369,14 @@ export const [
       }
     }
 
-    function show(): void {
+    function show(): Promise<void> {
       if (disabled()) {
-        return;
+        return Promise.resolve();
       }
       navigationMenuItemState().show();
 
       // Imperatively manage overlay - show it now
-      syncOverlayState(true);
+      return syncOverlayState(true);
     }
 
     function hide(origin: FocusOrigin = 'program'): void {
@@ -390,19 +391,20 @@ export const [
       }
     }
 
-    function syncOverlayState(shouldBeOpen: boolean): void {
+    function syncOverlayState(shouldBeOpen: boolean): Promise<void> {
       if (shouldBeOpen && !wasOpen) {
-        showOverlay();
         wasOpen = true;
+        return showOverlay();
       } else if (!shouldBeOpen && wasOpen) {
         hideOverlay();
         wasOpen = false;
       }
+      return Promise.resolve();
     }
 
-    function showOverlay(): void {
+    function showOverlay(): Promise<void> {
       if (!content()) {
-        return;
+        return Promise.resolve();
       }
 
       // Create overlay if needed
@@ -410,7 +412,7 @@ export const [
         createOverlayInstance();
       }
 
-      overlay()?.show();
+      return overlay()?.show() ?? Promise.resolve();
     }
 
     function hideOverlay(): void {
@@ -444,12 +446,22 @@ export const [
       overlay.set(createOverlay(config));
     }
 
-    function focusFirstContentItem(): void {
-      contentFocusFirstFn?.();
+    function focusFirstContentItem(retryCount = 0): void {
+      if (contentFocusFirstFn) {
+        contentFocusFirstFn();
+      } else if (retryCount < 3) {
+        // Focus function not registered yet, retry after a frame
+        requestAnimationFrame(() => focusFirstContentItem(retryCount + 1));
+      }
     }
 
-    function focusLastContentItem(): void {
-      contentFocusLastFn?.();
+    function focusLastContentItem(retryCount = 0): void {
+      if (contentFocusLastFn) {
+        contentFocusLastFn();
+      } else if (retryCount < 3) {
+        // Focus function not registered yet, retry after a frame
+        requestAnimationFrame(() => focusLastContentItem(retryCount + 1));
+      }
     }
 
     function setContentId(newId: string): void {
