@@ -6,8 +6,8 @@ import {
   NgpNavigationMenuConfig,
   provideNavigationMenuConfig,
 } from './config/navigation-menu-config';
-import { NgpNavigationMenuContent } from './navigation-menu-content/navigation-menu-content';
 import { NgpNavigationMenuContentItem } from './navigation-menu-content-item/navigation-menu-content-item';
+import { NgpNavigationMenuContent } from './navigation-menu-content/navigation-menu-content';
 import { NgpNavigationMenuItem } from './navigation-menu-item/navigation-menu-item';
 import { NgpNavigationMenuLink } from './navigation-menu-link/navigation-menu-link';
 import { NgpNavigationMenuList } from './navigation-menu-list/navigation-menu-list';
@@ -17,12 +17,12 @@ import { NgpNavigationMenu } from './navigation-menu/navigation-menu';
 @Component({
   template: `
     <nav
-      ngpNavigationMenu
       [ngpNavigationMenuOrientation]="orientation"
       [ngpNavigationMenuShowDelay]="showDelay"
       [ngpNavigationMenuHideDelay]="hideDelay"
       [ngpNavigationMenuValue]="value"
       (ngpNavigationMenuValueChange)="onValueChange($event)"
+      ngpNavigationMenu
       data-testid="navigation-menu"
     >
       <ul ngpNavigationMenuList data-testid="navigation-menu-list">
@@ -37,8 +37,8 @@ import { NgpNavigationMenu } from './navigation-menu/navigation-menu';
           <ng-template #productsContent>
             <div ngpNavigationMenuContent data-testid="content-products">
               <a
-                ngpNavigationMenuContentItem
                 [ngpNavigationMenuContentItemDisabled]="item1Disabled"
+                ngpNavigationMenuContentItem
                 href="#"
                 data-testid="content-item-1"
               >
@@ -49,7 +49,11 @@ import { NgpNavigationMenu } from './navigation-menu/navigation-menu';
             </div>
           </ng-template>
         </li>
-        <li ngpNavigationMenuItem ngpNavigationMenuItemValue="solutions" data-testid="item-solutions">
+        <li
+          ngpNavigationMenuItem
+          ngpNavigationMenuItemValue="solutions"
+          data-testid="item-solutions"
+        >
           <button
             [ngpNavigationMenuTrigger]="solutionsContent"
             [ngpNavigationMenuTriggerDisabled]="trigger2Disabled"
@@ -66,9 +70,9 @@ import { NgpNavigationMenu } from './navigation-menu/navigation-menu';
         </li>
         <li>
           <a
-            ngpNavigationMenuLink
             [ngpNavigationMenuLinkActive]="linkActive"
             [ngpNavigationMenuLinkDisabled]="linkDisabled"
+            ngpNavigationMenuLink
             href="#"
             data-testid="direct-link"
           >
@@ -113,14 +117,18 @@ describe('Navigation Menu', () => {
   describe('Basic Rendering & ARIA Attributes', () => {
     it('should render navigation menu with role="navigation"', async () => {
       const { fixture } = await render(TestNavigationMenuComponent);
-      const nav = fixture.debugElement.nativeElement.querySelector('[data-testid="navigation-menu"]');
+      const nav = fixture.debugElement.nativeElement.querySelector(
+        '[data-testid="navigation-menu"]',
+      );
 
       expect(nav).toHaveAttribute('role', 'navigation');
     });
 
     it('should have data-orientation attribute on root menu', async () => {
       const { fixture } = await render(TestNavigationMenuComponent);
-      const nav = fixture.debugElement.nativeElement.querySelector('[data-testid="navigation-menu"]');
+      const nav = fixture.debugElement.nativeElement.querySelector(
+        '[data-testid="navigation-menu"]',
+      );
 
       expect(nav).toHaveAttribute('data-orientation', 'horizontal');
 
@@ -132,7 +140,9 @@ describe('Navigation Menu', () => {
 
     it('should render list with role="menubar" and aria-orientation', async () => {
       const { fixture } = await render(TestNavigationMenuComponent);
-      const list = fixture.debugElement.nativeElement.querySelector('[data-testid="navigation-menu-list"]');
+      const list = fixture.debugElement.nativeElement.querySelector(
+        '[data-testid="navigation-menu-list"]',
+      );
 
       expect(list).toHaveAttribute('role', 'menubar');
       expect(list).toHaveAttribute('aria-orientation', 'horizontal');
@@ -141,7 +151,9 @@ describe('Navigation Menu', () => {
 
     it('should update list aria-orientation when menu orientation changes', async () => {
       const { fixture } = await render(TestNavigationMenuComponent);
-      const list = fixture.debugElement.nativeElement.querySelector('[data-testid="navigation-menu-list"]');
+      const list = fixture.debugElement.nativeElement.querySelector(
+        '[data-testid="navigation-menu-list"]',
+      );
 
       fixture.componentInstance.orientation = 'vertical';
       fixture.detectChanges();
@@ -152,7 +164,9 @@ describe('Navigation Menu', () => {
 
     it('should render trigger with proper ARIA attributes', async () => {
       const { fixture } = await render(TestNavigationMenuComponent);
-      const trigger = fixture.debugElement.nativeElement.querySelector('[data-testid="trigger-products"]');
+      const trigger = fixture.debugElement.nativeElement.querySelector(
+        '[data-testid="trigger-products"]',
+      );
 
       expect(trigger).toHaveAttribute('aria-haspopup', 'menu');
       expect(trigger).toHaveAttribute('aria-expanded', 'false');
@@ -161,7 +175,9 @@ describe('Navigation Menu', () => {
 
     it('should update trigger aria-expanded when open', fakeAsync(async () => {
       const { fixture } = await render(TestNavigationMenuComponent);
-      const trigger = fixture.debugElement.nativeElement.querySelector('[data-testid="trigger-products"]');
+      const trigger = fixture.debugElement.nativeElement.querySelector(
+        '[data-testid="trigger-products"]',
+      );
 
       // Click to open
       fireEvent.click(trigger);
@@ -203,7 +219,9 @@ describe('Navigation Menu', () => {
   describe('Trigger Interactions', () => {
     it('should open content on click', fakeAsync(async () => {
       const { fixture } = await render(TestNavigationMenuComponent);
-      const trigger = fixture.debugElement.nativeElement.querySelector('[data-testid="trigger-products"]');
+      const trigger = fixture.debugElement.nativeElement.querySelector(
+        '[data-testid="trigger-products"]',
+      );
 
       fireEvent.click(trigger);
       tick();
@@ -216,7 +234,9 @@ describe('Navigation Menu', () => {
 
     it('should close content on second click (toggle)', fakeAsync(async () => {
       const { fixture } = await render(TestNavigationMenuComponent);
-      const trigger = fixture.debugElement.nativeElement.querySelector('[data-testid="trigger-products"]');
+      const trigger = fixture.debugElement.nativeElement.querySelector(
+        '[data-testid="trigger-products"]',
+      );
 
       // Open
       fireEvent.click(trigger);
@@ -240,7 +260,9 @@ describe('Navigation Menu', () => {
       fixture.componentInstance.trigger1Disabled = true;
       fixture.detectChanges();
 
-      const trigger = fixture.debugElement.nativeElement.querySelector('[data-testid="trigger-products"]');
+      const trigger = fixture.debugElement.nativeElement.querySelector(
+        '[data-testid="trigger-products"]',
+      );
 
       fireEvent.click(trigger);
       tick();
@@ -253,7 +275,9 @@ describe('Navigation Menu', () => {
 
     it('should show data-open attribute when content is open', fakeAsync(async () => {
       const { fixture } = await render(TestNavigationMenuComponent);
-      const trigger = fixture.debugElement.nativeElement.querySelector('[data-testid="trigger-products"]');
+      const trigger = fixture.debugElement.nativeElement.querySelector(
+        '[data-testid="trigger-products"]',
+      );
 
       expect(trigger).not.toHaveAttribute('data-open');
 
@@ -270,7 +294,9 @@ describe('Navigation Menu', () => {
       fixture.componentInstance.showDelay = 100;
       fixture.detectChanges();
 
-      const trigger = fixture.debugElement.nativeElement.querySelector('[data-testid="trigger-products"]');
+      const trigger = fixture.debugElement.nativeElement.querySelector(
+        '[data-testid="trigger-products"]',
+      );
 
       fireEvent.pointerEnter(trigger, { pointerType: 'mouse' });
       fixture.detectChanges();
@@ -292,7 +318,9 @@ describe('Navigation Menu', () => {
       fixture.componentInstance.hideDelay = 100;
       fixture.detectChanges();
 
-      const trigger = fixture.debugElement.nativeElement.querySelector('[data-testid="trigger-products"]');
+      const trigger = fixture.debugElement.nativeElement.querySelector(
+        '[data-testid="trigger-products"]',
+      );
 
       // Open first
       fireEvent.pointerEnter(trigger, { pointerType: 'mouse' });
@@ -326,7 +354,9 @@ describe('Navigation Menu', () => {
       fixture.componentInstance.showDelay = 0;
       fixture.detectChanges();
 
-      const trigger = fixture.debugElement.nativeElement.querySelector('[data-testid="trigger-products"]');
+      const trigger = fixture.debugElement.nativeElement.querySelector(
+        '[data-testid="trigger-products"]',
+      );
 
       fireEvent.pointerEnter(trigger, { pointerType: 'mouse' });
       tick();
@@ -340,7 +370,9 @@ describe('Navigation Menu', () => {
   describe('Keyboard Navigation - Horizontal Menu', () => {
     it('should open content with ArrowDown and focus first item', fakeAsync(async () => {
       const { fixture } = await render(TestNavigationMenuComponent);
-      const trigger = fixture.debugElement.nativeElement.querySelector('[data-testid="trigger-products"]');
+      const trigger = fixture.debugElement.nativeElement.querySelector(
+        '[data-testid="trigger-products"]',
+      );
 
       trigger.focus();
       fireEvent.keyDown(trigger, { key: 'ArrowDown' });
@@ -353,7 +385,9 @@ describe('Navigation Menu', () => {
 
     it('should open content with Enter and focus first item', fakeAsync(async () => {
       const { fixture } = await render(TestNavigationMenuComponent);
-      const trigger = fixture.debugElement.nativeElement.querySelector('[data-testid="trigger-products"]');
+      const trigger = fixture.debugElement.nativeElement.querySelector(
+        '[data-testid="trigger-products"]',
+      );
 
       trigger.focus();
       fireEvent.keyDown(trigger, { key: 'Enter' });
@@ -366,7 +400,9 @@ describe('Navigation Menu', () => {
 
     it('should open content with Space and focus first item', fakeAsync(async () => {
       const { fixture } = await render(TestNavigationMenuComponent);
-      const trigger = fixture.debugElement.nativeElement.querySelector('[data-testid="trigger-products"]');
+      const trigger = fixture.debugElement.nativeElement.querySelector(
+        '[data-testid="trigger-products"]',
+      );
 
       trigger.focus();
       fireEvent.keyDown(trigger, { key: ' ' });
@@ -379,7 +415,9 @@ describe('Navigation Menu', () => {
 
     it('should close content with Escape', fakeAsync(async () => {
       const { fixture } = await render(TestNavigationMenuComponent);
-      const trigger = fixture.debugElement.nativeElement.querySelector('[data-testid="trigger-products"]');
+      const trigger = fixture.debugElement.nativeElement.querySelector(
+        '[data-testid="trigger-products"]',
+      );
 
       // Open first
       trigger.focus();
@@ -404,7 +442,9 @@ describe('Navigation Menu', () => {
       fixture.componentInstance.trigger1Disabled = true;
       fixture.detectChanges();
 
-      const trigger = fixture.debugElement.nativeElement.querySelector('[data-testid="trigger-products"]');
+      const trigger = fixture.debugElement.nativeElement.querySelector(
+        '[data-testid="trigger-products"]',
+      );
 
       trigger.focus();
       fireEvent.keyDown(trigger, { key: 'ArrowDown' });
@@ -422,7 +462,9 @@ describe('Navigation Menu', () => {
       fixture.componentInstance.orientation = 'vertical';
       fixture.detectChanges();
 
-      const trigger = fixture.debugElement.nativeElement.querySelector('[data-testid="trigger-products"]');
+      const trigger = fixture.debugElement.nativeElement.querySelector(
+        '[data-testid="trigger-products"]',
+      );
 
       trigger.focus();
       fireEvent.keyDown(trigger, { key: 'ArrowRight' });
@@ -438,7 +480,9 @@ describe('Navigation Menu', () => {
       fixture.componentInstance.orientation = 'vertical';
       fixture.detectChanges();
 
-      const trigger = fixture.debugElement.nativeElement.querySelector('[data-testid="trigger-products"]');
+      const trigger = fixture.debugElement.nativeElement.querySelector(
+        '[data-testid="trigger-products"]',
+      );
 
       trigger.focus();
       // In vertical menu, ArrowDown should navigate between triggers, not open content
@@ -455,8 +499,12 @@ describe('Navigation Menu', () => {
   describe('Navigation Menu Item State', () => {
     it('should track active item in parent menu', fakeAsync(async () => {
       const { fixture } = await render(TestNavigationMenuComponent);
-      const trigger1 = fixture.debugElement.nativeElement.querySelector('[data-testid="trigger-products"]');
-      const item1 = fixture.debugElement.nativeElement.querySelector('[data-testid="item-products"]');
+      const trigger1 = fixture.debugElement.nativeElement.querySelector(
+        '[data-testid="trigger-products"]',
+      );
+      const item1 = fixture.debugElement.nativeElement.querySelector(
+        '[data-testid="item-products"]',
+      );
 
       fireEvent.click(trigger1);
       tick();
@@ -469,10 +517,18 @@ describe('Navigation Menu', () => {
 
     it('should close previous item when opening new item', fakeAsync(async () => {
       const { fixture } = await render(TestNavigationMenuComponent);
-      const trigger1 = fixture.debugElement.nativeElement.querySelector('[data-testid="trigger-products"]');
-      const trigger2 = fixture.debugElement.nativeElement.querySelector('[data-testid="trigger-solutions"]');
-      const item1 = fixture.debugElement.nativeElement.querySelector('[data-testid="item-products"]');
-      const item2 = fixture.debugElement.nativeElement.querySelector('[data-testid="item-solutions"]');
+      const trigger1 = fixture.debugElement.nativeElement.querySelector(
+        '[data-testid="trigger-products"]',
+      );
+      const trigger2 = fixture.debugElement.nativeElement.querySelector(
+        '[data-testid="trigger-solutions"]',
+      );
+      const item1 = fixture.debugElement.nativeElement.querySelector(
+        '[data-testid="item-products"]',
+      );
+      const item2 = fixture.debugElement.nativeElement.querySelector(
+        '[data-testid="item-solutions"]',
+      );
 
       // Open first
       fireEvent.click(trigger1);
@@ -495,8 +551,12 @@ describe('Navigation Menu', () => {
 
     it('should emit valueChange when item changes', fakeAsync(async () => {
       const { fixture } = await render(TestNavigationMenuComponent);
-      const trigger1 = fixture.debugElement.nativeElement.querySelector('[data-testid="trigger-products"]');
-      const trigger2 = fixture.debugElement.nativeElement.querySelector('[data-testid="trigger-solutions"]');
+      const trigger1 = fixture.debugElement.nativeElement.querySelector(
+        '[data-testid="trigger-products"]',
+      );
+      const trigger2 = fixture.debugElement.nativeElement.querySelector(
+        '[data-testid="trigger-solutions"]',
+      );
 
       fireEvent.click(trigger1);
       tick();
@@ -572,7 +632,9 @@ describe('Navigation Menu', () => {
       fixture.componentInstance.trigger1Disabled = true;
       fixture.detectChanges();
 
-      const trigger = fixture.debugElement.nativeElement.querySelector('[data-testid="trigger-products"]');
+      const trigger = fixture.debugElement.nativeElement.querySelector(
+        '[data-testid="trigger-products"]',
+      );
 
       expect(trigger).toHaveAttribute('data-disabled');
     });
@@ -583,7 +645,9 @@ describe('Navigation Menu', () => {
       fixture.componentInstance.showDelay = 0;
       fixture.detectChanges();
 
-      const trigger = fixture.debugElement.nativeElement.querySelector('[data-testid="trigger-products"]');
+      const trigger = fixture.debugElement.nativeElement.querySelector(
+        '[data-testid="trigger-products"]',
+      );
 
       fireEvent.pointerEnter(trigger, { pointerType: 'mouse' });
       tick();
@@ -598,7 +662,9 @@ describe('Navigation Menu', () => {
       fixture.componentInstance.trigger1Disabled = true;
       fixture.detectChanges();
 
-      const trigger = fixture.debugElement.nativeElement.querySelector('[data-testid="trigger-products"]');
+      const trigger = fixture.debugElement.nativeElement.querySelector(
+        '[data-testid="trigger-products"]',
+      );
 
       trigger.focus();
       fireEvent.keyDown(trigger, { key: 'Enter' });
@@ -634,8 +700,12 @@ describe('Navigation Menu', () => {
         providers: [provideNavigationMenuConfig(customConfig)],
       });
 
-      const nav = fixture.debugElement.nativeElement.querySelector('[data-testid="navigation-menu"]');
-      const list = fixture.debugElement.nativeElement.querySelector('[data-testid="navigation-menu-list"]');
+      const nav = fixture.debugElement.nativeElement.querySelector(
+        '[data-testid="navigation-menu"]',
+      );
+      const list = fixture.debugElement.nativeElement.querySelector(
+        '[data-testid="navigation-menu-list"]',
+      );
 
       // Note: The component may override the default orientation if input is provided
       // This test verifies the config provider works
@@ -647,7 +717,9 @@ describe('Navigation Menu', () => {
   describe('Content Panel', () => {
     it('should have role="menu" on content', fakeAsync(async () => {
       const { fixture } = await render(TestNavigationMenuComponent);
-      const trigger = fixture.debugElement.nativeElement.querySelector('[data-testid="trigger-products"]');
+      const trigger = fixture.debugElement.nativeElement.querySelector(
+        '[data-testid="trigger-products"]',
+      );
 
       fireEvent.click(trigger);
       tick();
@@ -662,7 +734,9 @@ describe('Navigation Menu', () => {
 
     it('should have aria-labelledby pointing to trigger', fakeAsync(async () => {
       const { fixture } = await render(TestNavigationMenuComponent);
-      const trigger = fixture.debugElement.nativeElement.querySelector('[data-testid="trigger-products"]');
+      const trigger = fixture.debugElement.nativeElement.querySelector(
+        '[data-testid="trigger-products"]',
+      );
       const triggerId = trigger.getAttribute('id');
 
       fireEvent.click(trigger);
@@ -677,7 +751,9 @@ describe('Navigation Menu', () => {
 
     it('should update trigger aria-controls with content id', fakeAsync(async () => {
       const { fixture } = await render(TestNavigationMenuComponent);
-      const trigger = fixture.debugElement.nativeElement.querySelector('[data-testid="trigger-products"]');
+      const trigger = fixture.debugElement.nativeElement.querySelector(
+        '[data-testid="trigger-products"]',
+      );
 
       fireEvent.click(trigger);
       tick();
@@ -692,7 +768,9 @@ describe('Navigation Menu', () => {
 
     it('should have data-open attribute on content', fakeAsync(async () => {
       const { fixture } = await render(TestNavigationMenuComponent);
-      const trigger = fixture.debugElement.nativeElement.querySelector('[data-testid="trigger-products"]');
+      const trigger = fixture.debugElement.nativeElement.querySelector(
+        '[data-testid="trigger-products"]',
+      );
 
       fireEvent.click(trigger);
       tick();
@@ -708,7 +786,9 @@ describe('Navigation Menu', () => {
   describe('Content Item', () => {
     it('should have role="menuitem" on content items', fakeAsync(async () => {
       const { fixture } = await render(TestNavigationMenuComponent);
-      const trigger = fixture.debugElement.nativeElement.querySelector('[data-testid="trigger-products"]');
+      const trigger = fixture.debugElement.nativeElement.querySelector(
+        '[data-testid="trigger-products"]',
+      );
 
       fireEvent.click(trigger);
       tick();
@@ -725,7 +805,9 @@ describe('Navigation Menu', () => {
       fixture.componentInstance.item1Disabled = true;
       fixture.detectChanges();
 
-      const trigger = fixture.debugElement.nativeElement.querySelector('[data-testid="trigger-products"]');
+      const trigger = fixture.debugElement.nativeElement.querySelector(
+        '[data-testid="trigger-products"]',
+      );
 
       fireEvent.click(trigger);
       tick();
@@ -741,7 +823,9 @@ describe('Navigation Menu', () => {
   describe('Focus Management', () => {
     it('should close on Escape from content and restore focus to trigger', fakeAsync(async () => {
       const { fixture } = await render(TestNavigationMenuComponent);
-      const trigger = fixture.debugElement.nativeElement.querySelector('[data-testid="trigger-products"]');
+      const trigger = fixture.debugElement.nativeElement.querySelector(
+        '[data-testid="trigger-products"]',
+      );
 
       // Open
       trigger.focus();
@@ -768,7 +852,9 @@ describe('Navigation Menu', () => {
   describe('Content Positioning', () => {
     it('should have data-overlay attribute on content', fakeAsync(async () => {
       const { fixture } = await render(TestNavigationMenuComponent);
-      const trigger = fixture.debugElement.nativeElement.querySelector('[data-testid="trigger-products"]');
+      const trigger = fixture.debugElement.nativeElement.querySelector(
+        '[data-testid="trigger-products"]',
+      );
 
       fireEvent.click(trigger);
       tick();
@@ -788,7 +874,9 @@ describe('Navigation Menu', () => {
       fixture.componentInstance.hideDelay = 200;
       fixture.detectChanges();
 
-      const trigger = fixture.debugElement.nativeElement.querySelector('[data-testid="trigger-products"]');
+      const trigger = fixture.debugElement.nativeElement.querySelector(
+        '[data-testid="trigger-products"]',
+      );
 
       // Open
       fireEvent.pointerEnter(trigger, { pointerType: 'mouse' });
@@ -821,7 +909,9 @@ describe('Navigation Menu', () => {
       fixture.componentInstance.showDelay = 200;
       fixture.detectChanges();
 
-      const trigger = fixture.debugElement.nativeElement.querySelector('[data-testid="trigger-products"]');
+      const trigger = fixture.debugElement.nativeElement.querySelector(
+        '[data-testid="trigger-products"]',
+      );
 
       // Enter - starts show timeout
       fireEvent.pointerEnter(trigger, { pointerType: 'mouse' });
@@ -853,7 +943,9 @@ describe('Navigation Menu', () => {
       fixture.detectChanges();
       flush();
 
-      const item1 = fixture.debugElement.nativeElement.querySelector('[data-testid="item-products"]');
+      const item1 = fixture.debugElement.nativeElement.querySelector(
+        '[data-testid="item-products"]',
+      );
 
       // The item should be marked as active based on the value
       expect(item1).toHaveAttribute('data-active');
@@ -865,7 +957,7 @@ describe('Navigation Menu with Custom Wrap Config', () => {
   @Component({
     template: `
       <nav ngpNavigationMenu>
-        <ul ngpNavigationMenuList [ngpNavigationMenuListWrap]="wrap">
+        <ul [ngpNavigationMenuListWrap]="wrap" ngpNavigationMenuList>
           <li ngpNavigationMenuItem>
             <button [ngpNavigationMenuTrigger]="content1" data-testid="trigger-1">Item 1</button>
             <ng-template #content1>
@@ -912,8 +1004,8 @@ describe('Navigation Menu Content Orientation', () => {
             <button [ngpNavigationMenuTrigger]="content1" data-testid="trigger">Menu</button>
             <ng-template #content1>
               <div
-                ngpNavigationMenuContent
                 [ngpNavigationMenuContentOrientation]="contentOrientation"
+                ngpNavigationMenuContent
                 data-testid="content"
               >
                 <a ngpNavigationMenuContentItem href="#">Item 1</a>

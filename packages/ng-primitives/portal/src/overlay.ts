@@ -418,6 +418,11 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
       // If immediate, dispose right away
       dispose();
     } else {
+      // Reset instant transition for normal closes so exit animations can play.
+      // When being replaced by another overlay during cooldown, hideImmediate()
+      // is called instead (which doesn't come through here), and registerActive
+      // sets instantTransition to true before that call.
+      this.instantTransition.set(false);
       this.closeTimeout = this.disposables.setTimeout(dispose, delay);
     }
   }
