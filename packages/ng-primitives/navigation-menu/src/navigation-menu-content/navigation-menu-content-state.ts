@@ -1,8 +1,9 @@
 import { FocusOrigin } from '@angular/cdk/a11y';
-import { computed, signal, Signal } from '@angular/core';
+import { Directionality } from '@angular/cdk/bidi';
+import { computed, inject, signal, Signal } from '@angular/core';
 import { NgpOrientation } from 'ng-primitives/common';
 import { injectElementRef } from 'ng-primitives/internal';
-import { injectOverlay, NgpOverlay } from 'ng-primitives/portal';
+import { NgpOverlay } from 'ng-primitives/portal';
 import { injectRovingFocusGroupState } from 'ng-primitives/roving-focus';
 import {
   attrBinding,
@@ -81,6 +82,7 @@ export const [
   'NgpNavigationMenuContent',
   ({ orientation: _orientation = signal('vertical') }: NgpNavigationMenuContentProps) => {
     const element = injectElementRef();
+    const directionality = inject(Directionality);
     const navigationMenuState = injectNavigationMenuState({ hoisted: true });
     const navigationMenuItemState = injectNavigationMenuItemState({ hoisted: true });
     const triggerState = injectNavigationMenuTriggerState({ hoisted: true });
@@ -90,12 +92,7 @@ export const [
     const orientation = controlled(_orientation);
 
     // Try to get overlay - may not exist if content isn't in a portal
-    let overlay: NgpOverlay | null = null;
-    try {
-      overlay = injectOverlay();
-    } catch {
-      // Overlay not available
-    }
+    const overlay = inject(NgpOverlay, { optional: true });
 
     const id = uniqueId('navigation-menu-content');
     const open = computed(() => navigationMenuItemState?.()?.active() ?? false);
@@ -189,11 +186,13 @@ export const [
 
     function onKeydown(event: KeyboardEvent): void {
       const menuOrientation = navigationMenuState?.()?.orientation() ?? 'horizontal';
+      const isRtl = directionality.value === 'rtl';
 
       // Determine which arrow key closes content and returns to trigger
       // For horizontal menu: ArrowUp closes
       // For vertical menu: ArrowLeft closes (or ArrowRight in RTL)
-      const closeKey = menuOrientation === 'horizontal' ? 'ArrowUp' : 'ArrowLeft';
+      const closeKey =
+        menuOrientation === 'horizontal' ? 'ArrowUp' : isRtl ? 'ArrowRight' : 'ArrowLeft';
 
       if (event.key === 'Escape') {
         event.preventDefault();

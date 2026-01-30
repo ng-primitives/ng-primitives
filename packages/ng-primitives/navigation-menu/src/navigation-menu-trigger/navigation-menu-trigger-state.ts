@@ -233,6 +233,8 @@ export const [
       clearShowTimeout();
       clearHideTimeout();
       overlay()?.destroy();
+      contentFocusFirstFn = null;
+      contentFocusLastFn = null;
     });
 
     // Methods

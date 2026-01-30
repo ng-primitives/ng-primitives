@@ -1060,3 +1060,72 @@ describe('Navigation Menu Content Orientation', () => {
     expect(content).toHaveAttribute('data-orientation', 'horizontal');
   }));
 });
+
+describe('Navigation Menu Cooldown Behavior', () => {
+  @Component({
+    template: `
+      <nav [ngpNavigationMenuShowDelay]="200" ngpNavigationMenu>
+        <ul ngpNavigationMenuList>
+          <li ngpNavigationMenuItem ngpNavigationMenuItemValue="item1">
+            <button
+              [ngpNavigationMenuTriggerCooldown]="300"
+              [ngpNavigationMenuTrigger]="content1"
+              data-testid="trigger-1"
+            >
+              Item 1
+            </button>
+            <ng-template #content1>
+              <div ngpNavigationMenuContent data-testid="content-1">Content 1</div>
+            </ng-template>
+          </li>
+          <li ngpNavigationMenuItem ngpNavigationMenuItemValue="item2">
+            <button
+              [ngpNavigationMenuTriggerCooldown]="300"
+              [ngpNavigationMenuTrigger]="content2"
+              data-testid="trigger-2"
+            >
+              Item 2
+            </button>
+            <ng-template #content2>
+              <div ngpNavigationMenuContent data-testid="content-2">Content 2</div>
+            </ng-template>
+          </li>
+        </ul>
+      </nav>
+    `,
+    imports: [
+      NgpNavigationMenu,
+      NgpNavigationMenuList,
+      NgpNavigationMenuItem,
+      NgpNavigationMenuTrigger,
+      NgpNavigationMenuContent,
+    ],
+  })
+  class CooldownTestComponent {}
+
+  it('should set data-instant attribute when switching within cooldown period', fakeAsync(async () => {
+    const { fixture } = await render(CooldownTestComponent);
+    const trigger1 = fixture.debugElement.nativeElement.querySelector('[data-testid="trigger-1"]');
+    const trigger2 = fixture.debugElement.nativeElement.querySelector('[data-testid="trigger-2"]');
+
+    // Open first menu
+    fireEvent.click(trigger1);
+    tick();
+    fixture.detectChanges();
+    flush();
+
+    const content1 = document.querySelector('[data-testid="content-1"]');
+    expect(content1).toBeTruthy();
+
+    // Quickly switch to second trigger (within cooldown period)
+    fireEvent.pointerEnter(trigger2, { pointerType: 'mouse' });
+    tick();
+    fixture.detectChanges();
+    flush();
+
+    // The second content should have data-instant attribute due to cooldown
+    const content2 = document.querySelector('[data-testid="content-2"]');
+    expect(content2).toBeTruthy();
+    expect(content2).toHaveAttribute('data-instant');
+  }));
+});
