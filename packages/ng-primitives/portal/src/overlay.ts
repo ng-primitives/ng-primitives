@@ -323,12 +323,14 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
       let isInstantDueToCooldown = false;
 
       // Check cooldown regardless of delay value - we need to detect instant transitions
-      // even when showDelay is 0, so CSS can skip animations via data-instant attribute
+      // even when showDelay is 0, so CSS can skip animations via data-instant attribute.
+      // However, if cooldown is explicitly set to 0, disable cooldown behavior entirely.
       if (this.config.overlayType) {
         const cooldownDuration = this.config.cooldown ?? 300;
         if (
-          this.cooldownManager.isWithinCooldown(this.config.overlayType, cooldownDuration) ||
-          this.cooldownManager.hasActiveOverlay(this.config.overlayType)
+          cooldownDuration > 0 &&
+          (this.cooldownManager.isWithinCooldown(this.config.overlayType, cooldownDuration) ||
+            this.cooldownManager.hasActiveOverlay(this.config.overlayType))
         ) {
           delay = 0; // Skip delay (no-op if already 0)
           isInstantDueToCooldown = true;
@@ -423,6 +425,10 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
       // is called instead (which doesn't come through here), and registerActive
       // sets instantTransition to true before that call.
       this.instantTransition.set(false);
+      // Remove data-instant attribute so CSS exit animations can play
+      for (const element of this.getElements()) {
+        element.removeAttribute('data-instant');
+      }
       this.closeTimeout = this.disposables.setTimeout(dispose, delay);
     }
   }

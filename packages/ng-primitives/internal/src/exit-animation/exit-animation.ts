@@ -83,7 +83,8 @@ export function setupExitAnimation({
             .catch(err => {
               // AbortError is expected when element is removed during animation
               // e.g. when the user navigates away to another page
-              if (err instanceof Error && err.name === 'AbortError') {
+              // Note: Animation.finished can reject with DOMException which may not pass instanceof Error
+              if ((err as { name?: string })?.name === 'AbortError') {
                 resolve();
               } else {
                 reject(err);

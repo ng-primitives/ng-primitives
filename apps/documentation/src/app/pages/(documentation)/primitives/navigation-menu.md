@@ -20,6 +20,7 @@ import {
   NgpNavigationMenuItem,
   NgpNavigationMenuTrigger,
   NgpNavigationMenuContent,
+  NgpNavigationMenuContentItem,
   NgpNavigationMenuLink,
 } from 'ng-primitives/navigation-menu';
 ```
@@ -35,9 +36,9 @@ Assemble the navigation menu directives in your template.
       <button [ngpNavigationMenuTrigger]="productsMenu">Products</button>
       <ng-template #productsMenu>
         <div ngpNavigationMenuContent>
-          <a href="/analytics">Analytics</a>
-          <a href="/automation">Automation</a>
-          <a href="/insights">Insights</a>
+          <a ngpNavigationMenuContentItem href="/analytics">Analytics</a>
+          <a ngpNavigationMenuContentItem href="/automation">Automation</a>
+          <a ngpNavigationMenuContentItem href="/insights">Insights</a>
         </div>
       </ng-template>
     </li>
