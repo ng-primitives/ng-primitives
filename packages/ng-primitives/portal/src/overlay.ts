@@ -315,10 +315,13 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
       // Use the provided delay or fall back to config
       let delay = this.config.showDelay ?? 0;
 
-      // Skip delay if within cooldown period for this overlay type
+      // Skip delay if within cooldown period OR if there's an active overlay of the same type
       if (this.config.overlayType && delay > 0) {
         const cooldownDuration = this.config.cooldown ?? 300;
-        if (this.cooldownManager.isWithinCooldown(this.config.overlayType, cooldownDuration)) {
+        if (
+          this.cooldownManager.isWithinCooldown(this.config.overlayType, cooldownDuration) ||
+          this.cooldownManager.hasActiveOverlay(this.config.overlayType)
+        ) {
           delay = 0;
         }
       }
@@ -359,6 +362,13 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
       return;
     }
 
+    // If immediate and there's a pending close, cancel it first
+    // (we'll dispose immediately instead of waiting for the old timeout)
+    if (options?.immediate && this.closeTimeout) {
+      this.closeTimeout();
+      this.closeTimeout = undefined;
+    }
+
     this.closing.next();
 
     // Check cooldown BEFORE recording, then record for the next overlay
@@ -377,6 +387,11 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
 
     const dispose = async () => {
       this.closeTimeout = undefined;
+
+      // If show() was called while we were waiting, abort the close
+      if (this.openTimeout) {
+        return;
+      }
 
       if (this.config.restoreFocus) {
         this.focusMonitor.focusVia(this.config.triggerElement, options?.origin ?? 'program', {

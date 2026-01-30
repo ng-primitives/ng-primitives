@@ -56,7 +56,13 @@ export class NgpOverlayCooldownManager {
     if (existing && existing !== overlay && cooldown > 0) {
       if (this.isWithinCooldown(overlayType, cooldown)) {
         // Defer the close to next microtask to allow the new overlay to finish creating
-        queueMicrotask(() => existing.hideImmediate());
+        queueMicrotask(() => {
+          // Check if the overlay to close is still NOT the active one
+          // (it might have become active again if user moved back quickly)
+          if (this.activeOverlays.get(overlayType) !== existing) {
+            existing.hideImmediate();
+          }
+        });
       }
     }
   }
@@ -70,5 +76,14 @@ export class NgpOverlayCooldownManager {
     if (this.activeOverlays.get(overlayType) === overlay) {
       this.activeOverlays.delete(overlayType);
     }
+  }
+
+  /**
+   * Check if there's an active overlay of the given type.
+   * @param overlayType The type identifier for the overlay group
+   * @returns true if there's an active overlay, false otherwise
+   */
+  hasActiveOverlay(overlayType: string): boolean {
+    return this.activeOverlays.has(overlayType);
   }
 }
