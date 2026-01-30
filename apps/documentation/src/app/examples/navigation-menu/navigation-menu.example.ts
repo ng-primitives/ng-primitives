@@ -25,6 +25,7 @@ import {
           <button
             class="navigation-menu-trigger"
             [ngpNavigationMenuTrigger]="learnMenu"
+            ngpNavigationMenuTriggerPlacement="bottom"
             [ngpNavigationMenuTriggerOffset]="8"
             [ngpNavigationMenuTriggerCooldown]="0"
           >
@@ -71,6 +72,7 @@ import {
           <button
             class="navigation-menu-trigger"
             [ngpNavigationMenuTrigger]="componentsMenu"
+            ngpNavigationMenuTriggerPlacement="bottom"
             [ngpNavigationMenuTriggerOffset]="8"
             [ngpNavigationMenuTriggerCooldown]="0"
           >
@@ -128,6 +130,7 @@ import {
           <button
             class="navigation-menu-trigger"
             [ngpNavigationMenuTrigger]="resourcesMenu"
+            ngpNavigationMenuTriggerPlacement="bottom"
             [ngpNavigationMenuTriggerOffset]="8"
             [ngpNavigationMenuTriggerCooldown]="0"
           >
