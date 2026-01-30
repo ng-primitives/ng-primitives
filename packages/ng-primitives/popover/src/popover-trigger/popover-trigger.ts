@@ -197,6 +197,17 @@ export class NgpPopoverTrigger<T = null> implements OnDestroy {
   });
 
   /**
+   * Define the cooldown duration in milliseconds.
+   * When moving from one popover to another within this duration,
+   * the showDelay is skipped for the new popover.
+   * @default 0
+   */
+  readonly cooldown = input<number, NumberInput>(this.config.cooldown, {
+    alias: 'ngpPopoverTriggerCooldown',
+    transform: numberAttribute,
+  });
+
+  /**
    * The overlay that manages the popover
    * @internal
    */
@@ -311,6 +322,8 @@ export class NgpPopoverTrigger<T = null> implements OnDestroy {
       scrollBehaviour: this.state.scrollBehavior(),
       viewContainerRef: this.viewContainerRef,
       trackPosition: this.state.trackPosition(),
+      overlayType: 'popover',
+      cooldown: this.state.cooldown(),
     };
 
     this.overlay.set(createOverlay(config));

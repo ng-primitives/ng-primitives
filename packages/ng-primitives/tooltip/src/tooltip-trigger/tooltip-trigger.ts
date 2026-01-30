@@ -198,6 +198,17 @@ export class NgpTooltipTrigger<T = null> implements OnDestroy {
   });
 
   /**
+   * Define the cooldown duration in milliseconds.
+   * When moving from one tooltip to another within this duration,
+   * the showDelay is skipped for the new tooltip.
+   * @default 300
+   */
+  readonly cooldown = input<number, NumberInput>(this.config.cooldown, {
+    alias: 'ngpTooltipTriggerCooldown',
+    transform: numberAttribute,
+  });
+
+  /**
    * The overlay that manages the tooltip
    * @internal
    */
@@ -340,6 +351,8 @@ export class NgpTooltipTrigger<T = null> implements OnDestroy {
       viewContainerRef: this.viewContainerRef,
       trackPosition: this.state.trackPosition(),
       position: this.state.position,
+      overlayType: 'tooltip',
+      cooldown: this.state.cooldown(),
     };
 
     // Create the overlay instance

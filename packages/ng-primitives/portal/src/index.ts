@@ -7,6 +7,7 @@ export {
   NgpOverlayContent,
   NgpOverlayTemplateContext,
 } from './overlay';
+export { NgpOverlayCooldownManager } from './overlay-cooldown';
 export {
   injectOverlayArrowState,
   NgpOverlayArrowProps,
