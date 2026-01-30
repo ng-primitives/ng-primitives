@@ -197,9 +197,7 @@ Use the `data-instant` attribute in CSS to handle these instant transitions:
 To disable cooldown and always show animations, set `cooldown` to `0` on the trigger:
 
 ```html
-<button [ngpNavigationMenuTrigger]="menu" [ngpNavigationMenuTriggerCooldown]="0">
-  Menu
-</button>
+<button [ngpNavigationMenuTrigger]="menu" [ngpNavigationMenuTriggerCooldown]="0">Menu</button>
 ```
 
 ## Global Configuration
