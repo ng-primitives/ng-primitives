@@ -32,6 +32,8 @@ export class NgpExitAnimation implements OnDestroy {
 interface NgpExitAnimationOptions {
   /** The element to animate. */
   element: HTMLElement;
+  /** If true, skip requestAnimationFrame delay and set enter state immediately. */
+  immediate?: boolean;
 }
 
 export interface NgpExitAnimationRef {
@@ -39,7 +41,10 @@ export interface NgpExitAnimationRef {
   exit: () => Promise<void>;
 }
 
-export function setupExitAnimation({ element }: NgpExitAnimationOptions): NgpExitAnimationRef {
+export function setupExitAnimation({
+  element,
+  immediate,
+}: NgpExitAnimationOptions): NgpExitAnimationRef {
   let state: 'enter' | 'exit' = 'enter';
 
   function setState(newState: 'enter' | 'exit') {
@@ -57,8 +62,12 @@ export function setupExitAnimation({ element }: NgpExitAnimationOptions): NgpExi
     }
   }
 
-  // Set the initial state to 'enter'
-  requestAnimationFrame(() => setState('enter'));
+  // Set the initial state to 'enter' - immediately if instant, otherwise next frame
+  if (immediate) {
+    setState('enter');
+  } else {
+    requestAnimationFrame(() => setState('enter'));
+  }
 
   return {
     exit: () => {

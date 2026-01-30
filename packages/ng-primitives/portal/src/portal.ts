@@ -11,6 +11,11 @@ import {
 } from '@angular/core';
 import { NgpExitAnimationRef, setupExitAnimation } from 'ng-primitives/internal';
 
+export interface NgpPortalAttachOptions {
+  /** If true, skip enter animation delay and set enter state immediately. */
+  immediate?: boolean;
+}
+
 export abstract class NgpPortal {
   constructor(
     protected readonly viewContainerRef: ViewContainerRef | null,
@@ -35,13 +40,15 @@ export abstract class NgpPortal {
   /**
    * Attach the portal to a DOM element.
    * @param container The DOM element to attach the portal to.
+   * @param options Optional attach configuration
    */
-  abstract attach(container: HTMLElement): this;
+  abstract attach(container: HTMLElement, options?: NgpPortalAttachOptions): this;
 
   /**
    * Detach the portal from the DOM.
+   * @param immediate If true, skip exit animations and remove immediately
    */
-  abstract detach(): Promise<void>;
+  abstract detach(immediate?: boolean): Promise<void>;
 
   /**
    * Angular v20 removes `_unusedComponentFactoryResolver` and `_document` from DomPortalOutlet's
@@ -74,8 +81,9 @@ export class NgpComponentPortal<T> extends NgpPortal {
   /**
    * Attach the portal to a DOM element.
    * @param container The DOM element to attach the portal to.
+   * @param options Optional attach configuration
    */
-  attach(container: HTMLElement): this {
+  attach(container: HTMLElement, options?: NgpPortalAttachOptions): this {
     const appRef = this.injector.get(ApplicationRef);
     const domOutlet =
       Number(VERSION.major) >= 20
@@ -87,7 +95,7 @@ export class NgpComponentPortal<T> extends NgpPortal {
 
     const element = this.viewRef.location.nativeElement as HTMLElement;
 
-    this.exitAnimationRef = setupExitAnimation({ element });
+    this.exitAnimationRef = setupExitAnimation({ element, immediate: options?.immediate });
 
     return this;
   }
@@ -115,15 +123,18 @@ export class NgpComponentPortal<T> extends NgpPortal {
 
   /**
    * Detach the portal from the DOM.
+   * @param immediate If true, skip exit animations and remove immediately
    */
-  async detach(): Promise<void> {
+  async detach(immediate?: boolean): Promise<void> {
     if (this.isDestroying) {
       return;
     }
     this.isDestroying = true;
 
-    // if there is an exit animation manager, wait for it to finish
-    await this.exitAnimationRef?.exit();
+    // Only wait for exit animation if not immediate
+    if (!immediate) {
+      await this.exitAnimationRef?.exit();
+    }
 
     if (this.viewRef) {
       this.viewRef.destroy();
@@ -151,8 +162,9 @@ export class NgpTemplatePortal<T> extends NgpPortal {
   /**
    * Attach the portal to a DOM element.
    * @param container The DOM element to attach the portal to.
+   * @param options Optional attach configuration
    */
-  attach(container: HTMLElement): this {
+  attach(container: HTMLElement, options?: NgpPortalAttachOptions): this {
     const domOutlet = new DomPortalOutlet(
       container,
       undefined,
@@ -163,7 +175,10 @@ export class NgpTemplatePortal<T> extends NgpPortal {
     for (const rootNode of this.viewRef.rootNodes) {
       if (rootNode instanceof HTMLElement) {
         // Setup exit animation for each root node
-        const exitAnimationRef = setupExitAnimation({ element: rootNode });
+        const exitAnimationRef = setupExitAnimation({
+          element: rootNode,
+          immediate: options?.immediate,
+        });
         this.exitAnimationRefs.push(exitAnimationRef);
       }
     }
@@ -194,16 +209,19 @@ export class NgpTemplatePortal<T> extends NgpPortal {
 
   /**
    * Detach the portal from the DOM.
+   * @param immediate If true, skip exit animations and remove immediately
    */
-  async detach(): Promise<void> {
+  async detach(immediate?: boolean): Promise<void> {
     if (this.isDestroying) {
       return;
     }
 
     this.isDestroying = true;
 
-    // if there is an exit animation manager, wait for it to finish
-    await Promise.all(this.exitAnimationRefs.map(ref => ref.exit()));
+    // Only wait for exit animations if not immediate
+    if (!immediate) {
+      await Promise.all(this.exitAnimationRefs.map(ref => ref.exit()));
+    }
 
     if (this.viewRef) {
       this.viewRef.destroy();
