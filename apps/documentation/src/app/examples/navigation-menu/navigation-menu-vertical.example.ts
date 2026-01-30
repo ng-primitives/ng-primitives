@@ -54,8 +54,8 @@ import {
           <button
             class="sidebar-trigger"
             [ngpNavigationMenuTrigger]="searchMenu"
-            ngpNavigationMenuTriggerPlacement="right-start"
             [ngpNavigationMenuTriggerOffset]="16"
+            ngpNavigationMenuTriggerPlacement="right-start"
             aria-label="Search"
           >
             <ng-icon name="heroMagnifyingGlass" size="20" aria-hidden="true" />
@@ -64,9 +64,15 @@ import {
             <div class="sidebar-content" ngpNavigationMenuContent>
               <div class="content-header">Search</div>
               <ul class="content-list">
-                <li><a class="content-link" ngpNavigationMenuContentItem href="#">Quick Search</a></li>
-                <li><a class="content-link" ngpNavigationMenuContentItem href="#">Advanced Search</a></li>
-                <li><a class="content-link" ngpNavigationMenuContentItem href="#">Recent Searches</a></li>
+                <li>
+                  <a class="content-link" ngpNavigationMenuContentItem href="#">Quick Search</a>
+                </li>
+                <li>
+                  <a class="content-link" ngpNavigationMenuContentItem href="#">Advanced Search</a>
+                </li>
+                <li>
+                  <a class="content-link" ngpNavigationMenuContentItem href="#">Recent Searches</a>
+                </li>
               </ul>
             </div>
           </ng-template>
@@ -76,8 +82,8 @@ import {
           <button
             class="sidebar-trigger"
             [ngpNavigationMenuTrigger]="dashboardMenu"
-            ngpNavigationMenuTriggerPlacement="right-start"
             [ngpNavigationMenuTriggerOffset]="16"
+            ngpNavigationMenuTriggerPlacement="right-start"
             aria-label="Dashboard"
           >
             <ng-icon name="heroSquares2x2" size="20" aria-hidden="true" />
@@ -98,8 +104,8 @@ import {
           <button
             class="sidebar-trigger"
             [ngpNavigationMenuTrigger]="analyticsMenu"
-            ngpNavigationMenuTriggerPlacement="right-start"
             [ngpNavigationMenuTriggerOffset]="16"
+            ngpNavigationMenuTriggerPlacement="right-start"
             aria-label="Analytics"
           >
             <ng-icon name="heroChartBar" size="20" aria-hidden="true" />
@@ -109,9 +115,13 @@ import {
               <div class="content-header">Analytics</div>
               <ul class="content-list">
                 <li><a class="content-link" ngpNavigationMenuContentItem href="#">Traffic</a></li>
-                <li><a class="content-link" ngpNavigationMenuContentItem href="#">Conversions</a></li>
+                <li>
+                  <a class="content-link" ngpNavigationMenuContentItem href="#">Conversions</a>
+                </li>
                 <li><a class="content-link" ngpNavigationMenuContentItem href="#">Revenue</a></li>
-                <li><a class="content-link" ngpNavigationMenuContentItem href="#">Engagement</a></li>
+                <li>
+                  <a class="content-link" ngpNavigationMenuContentItem href="#">Engagement</a>
+                </li>
               </ul>
             </div>
           </ng-template>
@@ -121,8 +131,8 @@ import {
           <button
             class="sidebar-trigger"
             [ngpNavigationMenuTrigger]="documentsMenu"
-            ngpNavigationMenuTriggerPlacement="right-start"
             [ngpNavigationMenuTriggerOffset]="16"
+            ngpNavigationMenuTriggerPlacement="right-start"
             aria-label="Documents"
           >
             <ng-icon name="heroDocumentText" size="20" aria-hidden="true" />
@@ -131,8 +141,12 @@ import {
             <div class="sidebar-content" ngpNavigationMenuContent>
               <div class="content-header">Documents</div>
               <ul class="content-list">
-                <li><a class="content-link" ngpNavigationMenuContentItem href="#">All Documents</a></li>
-                <li><a class="content-link" ngpNavigationMenuContentItem href="#">Shared with Me</a></li>
+                <li>
+                  <a class="content-link" ngpNavigationMenuContentItem href="#">All Documents</a>
+                </li>
+                <li>
+                  <a class="content-link" ngpNavigationMenuContentItem href="#">Shared with Me</a>
+                </li>
                 <li><a class="content-link" ngpNavigationMenuContentItem href="#">Favorites</a></li>
               </ul>
             </div>
@@ -143,8 +157,8 @@ import {
           <button
             class="sidebar-trigger"
             [ngpNavigationMenuTrigger]="projectsMenu"
-            ngpNavigationMenuTriggerPlacement="right-start"
             [ngpNavigationMenuTriggerOffset]="16"
+            ngpNavigationMenuTriggerPlacement="right-start"
             aria-label="Projects"
           >
             <ng-icon name="heroFolder" size="20" aria-hidden="true" />
@@ -164,8 +178,8 @@ import {
           <button
             class="sidebar-trigger"
             [ngpNavigationMenuTrigger]="usersMenu"
-            ngpNavigationMenuTriggerPlacement="right-start"
             [ngpNavigationMenuTriggerOffset]="16"
+            ngpNavigationMenuTriggerPlacement="right-start"
             aria-label="Users"
           >
             <ng-icon name="heroUsers" size="20" aria-hidden="true" />
@@ -176,7 +190,9 @@ import {
               <ul class="content-list">
                 <li><a class="content-link" ngpNavigationMenuContentItem href="#">All Users</a></li>
                 <li><a class="content-link" ngpNavigationMenuContentItem href="#">Teams</a></li>
-                <li><a class="content-link" ngpNavigationMenuContentItem href="#">Permissions</a></li>
+                <li>
+                  <a class="content-link" ngpNavigationMenuContentItem href="#">Permissions</a>
+                </li>
               </ul>
             </div>
           </ng-template>
@@ -188,8 +204,8 @@ import {
           <button
             class="sidebar-trigger"
             [ngpNavigationMenuTrigger]="notificationsMenu"
-            ngpNavigationMenuTriggerPlacement="right-start"
             [ngpNavigationMenuTriggerOffset]="16"
+            ngpNavigationMenuTriggerPlacement="right-start"
             aria-label="Notifications"
           >
             <ng-icon name="heroBell" size="20" aria-hidden="true" />
@@ -210,8 +226,8 @@ import {
           <button
             class="sidebar-trigger"
             [ngpNavigationMenuTrigger]="settingsMenu"
-            ngpNavigationMenuTriggerPlacement="right-start"
             [ngpNavigationMenuTriggerOffset]="16"
+            ngpNavigationMenuTriggerPlacement="right-start"
             aria-label="Settings"
           >
             <ng-icon name="heroCog6Tooth" size="20" aria-hidden="true" />
@@ -221,8 +237,12 @@ import {
               <div class="content-header">Settings</div>
               <ul class="content-list">
                 <li><a class="content-link" ngpNavigationMenuContentItem href="#">General</a></li>
-                <li><a class="content-link" ngpNavigationMenuContentItem href="#">Appearance</a></li>
-                <li><a class="content-link" ngpNavigationMenuContentItem href="#">Notifications</a></li>
+                <li>
+                  <a class="content-link" ngpNavigationMenuContentItem href="#">Appearance</a>
+                </li>
+                <li>
+                  <a class="content-link" ngpNavigationMenuContentItem href="#">Notifications</a>
+                </li>
               </ul>
             </div>
           </ng-template>

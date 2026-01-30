@@ -15,13 +15,15 @@ import {
 @Directive({
   selector: '[ngpNavigationMenuContent]',
   exportAs: 'ngpNavigationMenuContent',
-  providers: [provideNavigationMenuContentState(), provideRovingFocusGroupState({ inherit: false })],
+  providers: [
+    provideNavigationMenuContentState(),
+    provideRovingFocusGroupState({ inherit: false }),
+  ],
   host: {
     'data-overlay': '',
   },
 })
 export class NgpNavigationMenuContent {
-
   /**
    * Access the global navigation menu configuration.
    */

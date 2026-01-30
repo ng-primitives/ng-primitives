@@ -15,10 +15,7 @@ import {
 @Directive({
   selector: '[ngpNavigationMenuList]',
   exportAs: 'ngpNavigationMenuList',
-  providers: [
-    provideNavigationMenuListState(),
-    provideRovingFocusGroupState({ inherit: false }),
-  ],
+  providers: [provideNavigationMenuListState(), provideRovingFocusGroupState({ inherit: false })],
 })
 export class NgpNavigationMenuList {
   /**

@@ -15,9 +15,9 @@ import {
   styleBinding,
 } from 'ng-primitives/state';
 import { uniqueId } from 'ng-primitives/utils';
-import { injectNavigationMenuState } from '../navigation-menu/navigation-menu-state';
 import { injectNavigationMenuItemState } from '../navigation-menu-item/navigation-menu-item-state';
 import { injectNavigationMenuTriggerState } from '../navigation-menu-trigger/navigation-menu-trigger-state';
+import { injectNavigationMenuState } from '../navigation-menu/navigation-menu-state';
 
 /**
  * The state for the NgpNavigationMenuContent directive.
@@ -114,8 +114,16 @@ export const [
     // Style bindings for positioning
     styleBinding(element, 'left.px', () => overlay?.position().x ?? null);
     styleBinding(element, 'top.px', () => overlay?.position().y ?? null);
-    styleBinding(element, '--ngp-navigation-menu-trigger-width.px', () => overlay?.triggerWidth() ?? null);
-    styleBinding(element, '--ngp-navigation-menu-transform-origin', () => overlay?.transformOrigin() ?? null);
+    styleBinding(
+      element,
+      '--ngp-navigation-menu-trigger-width.px',
+      () => overlay?.triggerWidth() ?? null,
+    );
+    styleBinding(
+      element,
+      '--ngp-navigation-menu-transform-origin',
+      () => overlay?.transformOrigin() ?? null,
+    );
 
     // Event listeners
     listener(element, 'pointerenter', onPointerEnter);

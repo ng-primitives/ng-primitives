@@ -95,9 +95,9 @@ A container for a menu trigger and its content. It manages the open/close state 
 
 #### Data Attributes
 
-| Attribute     | Description                              |
-| ------------- | ---------------------------------------- |
-| `data-active` | Applied when the menu item is open       |
+| Attribute     | Description                        |
+| ------------- | ---------------------------------- |
+| `data-active` | Applied when the menu item is open |
 
 ### NgpNavigationMenuTrigger
 
@@ -107,10 +107,10 @@ A button that opens navigation menu content on hover/focus.
 
 #### Data Attributes
 
-| Attribute       | Description                               |
-| --------------- | ----------------------------------------- |
-| `data-open`     | Applied when the content is open          |
-| `data-disabled` | Applied when the trigger is disabled      |
+| Attribute       | Description                          |
+| --------------- | ------------------------------------ |
+| `data-open`     | Applied when the content is open     |
+| `data-disabled` | Applied when the trigger is disabled |
 
 ### NgpNavigationMenuContent
 
@@ -120,9 +120,9 @@ The dropdown panel displayed when a trigger is activated.
 
 #### Data Attributes
 
-| Attribute        | Description                               |
-| ---------------- | ----------------------------------------- |
-| `data-open`      | Applied when the content is visible       |
+| Attribute        | Description                                 |
+| ---------------- | ------------------------------------------- |
+| `data-open`      | Applied when the content is visible         |
 | `data-placement` | The final rendered placement of the content |
 
 ### NgpNavigationMenuLink
@@ -133,23 +133,23 @@ A standalone navigation link within the menu list.
 
 #### Data Attributes
 
-| Attribute       | Description                               |
-| --------------- | ----------------------------------------- |
+| Attribute       | Description                                       |
+| --------------- | ------------------------------------------------- |
 | `data-active`   | Applied when the link represents the current page |
-| `data-disabled` | Applied when the link is disabled         |
+| `data-disabled` | Applied when the link is disabled                 |
 
 ## Keyboard Navigation
 
-| Key                        | Action                                                   |
-| -------------------------- | -------------------------------------------------------- |
-| `ArrowRight` / `ArrowLeft` | Navigate between triggers (horizontal orientation)       |
-| `ArrowUp` / `ArrowDown`    | Navigate between triggers (vertical orientation)         |
-| `ArrowDown` (horizontal)   | Open content and focus first item                        |
-| `ArrowRight` (vertical)    | Open content and focus first item                        |
-| `Enter` / `Space`          | Open content and focus first item, or activate link      |
-| `Escape`                   | Close content and return focus to trigger                |
-| `Home` / `End`             | Navigate to first/last trigger                           |
-| `Tab`                      | Move focus out of the navigation menu                    |
+| Key                        | Action                                              |
+| -------------------------- | --------------------------------------------------- |
+| `ArrowRight` / `ArrowLeft` | Navigate between triggers (horizontal orientation)  |
+| `ArrowUp` / `ArrowDown`    | Navigate between triggers (vertical orientation)    |
+| `ArrowDown` (horizontal)   | Open content and focus first item                   |
+| `ArrowRight` (vertical)    | Open content and focus first item                   |
+| `Enter` / `Space`          | Open content and focus first item, or activate link |
+| `Escape`                   | Close content and return focus to trigger           |
+| `Home` / `End`             | Navigate to first/last trigger                      |
+| `Tab`                      | Move focus out of the navigation menu               |
 
 ## Styling
 

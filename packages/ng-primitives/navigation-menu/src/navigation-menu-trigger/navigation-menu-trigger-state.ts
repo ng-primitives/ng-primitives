@@ -1,13 +1,6 @@
 import { FocusMonitor, FocusOrigin } from '@angular/cdk/a11y';
 import { Directionality } from '@angular/cdk/bidi';
-import {
-  computed,
-  inject,
-  Injector,
-  signal,
-  Signal,
-  ViewContainerRef,
-} from '@angular/core';
+import { computed, inject, Injector, signal, Signal, ViewContainerRef } from '@angular/core';
 import { Placement } from '@floating-ui/dom';
 import { injectElementRef } from 'ng-primitives/internal';
 import {
@@ -27,8 +20,8 @@ import {
   onDestroy,
 } from 'ng-primitives/state';
 import { uniqueId } from 'ng-primitives/utils';
-import { injectNavigationMenuState } from '../navigation-menu/navigation-menu-state';
 import { injectNavigationMenuItemState } from '../navigation-menu-item/navigation-menu-item-state';
+import { injectNavigationMenuState } from '../navigation-menu/navigation-menu-state';
 
 export interface NgpNavigationMenuTriggerState {
   /**
@@ -481,10 +474,7 @@ export const [
       }
     }
 
-    function registerContentFocusFunctions(
-      focusFirst: () => void,
-      focusLast: () => void,
-    ): void {
+    function registerContentFocusFunctions(focusFirst: () => void, focusLast: () => void): void {
       contentFocusFirstFn = focusFirst;
       contentFocusLastFn = focusLast;
     }
