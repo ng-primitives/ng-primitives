@@ -1,3 +1,14 @@
+## 0.107.0 (2026-02-01)
+
+### 🚀 Features
+
+- **navigation-menu:** navigation menu ([#635](https://github.com/ng-primitives/ng-primitives/pull/635))
+- **overlay:** adding cooldown support ([#633](https://github.com/ng-primitives/ng-primitives/pull/633))
+
+### ❤️ Thank You
+
+- Ashley Hunter
+
 ## 0.106.1 (2026-01-29)
 
 ### 🩹 Fixes
