@@ -53,6 +53,16 @@ export interface NgpRovingFocusGroupState {
    * @param orientation The orientation value
    */
   setOrientation(orientation: NgpOrientation): void;
+  /**
+   * Activate the first item in the roving focus group.
+   * @param origin The origin of the focus change
+   */
+  activateFirst(origin?: FocusOrigin): void;
+  /**
+   * Activate the last item in the roving focus group.
+   * @param origin The origin of the focus change
+   */
+  activateLast(origin?: FocusOrigin): void;
 }
 
 export interface NgpRovingFocusGroupProps {
@@ -340,6 +350,8 @@ export const [
       onKeydown,
       register,
       unregister,
+      activateFirst: activateFirstItem,
+      activateLast: activateLastItem,
     } satisfies NgpRovingFocusGroupState;
   },
 );

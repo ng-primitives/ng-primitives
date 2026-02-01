@@ -198,6 +198,12 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
   /** An observable that emits when the overlay is closing */
   readonly closing = new Subject<void>();
 
+  /**
+   * Signal tracking whether the current transition is instant due to cooldown.
+   * When true, CSS can skip animations using the data-instant attribute.
+   */
+  readonly instantTransition = signal(false);
+
   /** Store the arrow element */
   private arrowElement: HTMLElement | null = null;
 
@@ -314,17 +320,25 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
 
       // Use the provided delay or fall back to config
       let delay = this.config.showDelay ?? 0;
+      let isInstantDueToCooldown = false;
 
-      // Skip delay if within cooldown period OR if there's an active overlay of the same type
-      if (this.config.overlayType && delay > 0) {
+      // Check cooldown regardless of delay value - we need to detect instant transitions
+      // even when showDelay is 0, so CSS can skip animations via data-instant attribute.
+      // However, if cooldown is explicitly set to 0, disable cooldown behavior entirely.
+      if (this.config.overlayType) {
         const cooldownDuration = this.config.cooldown ?? 300;
         if (
-          this.cooldownManager.isWithinCooldown(this.config.overlayType, cooldownDuration) ||
-          this.cooldownManager.hasActiveOverlay(this.config.overlayType)
+          cooldownDuration > 0 &&
+          (this.cooldownManager.isWithinCooldown(this.config.overlayType, cooldownDuration) ||
+            this.cooldownManager.hasActiveOverlay(this.config.overlayType))
         ) {
-          delay = 0;
+          delay = 0; // Skip delay (no-op if already 0)
+          isInstantDueToCooldown = true;
         }
       }
+
+      // Set instant transition flag based on whether delay was skipped due to cooldown
+      this.instantTransition.set(isInstantDueToCooldown);
 
       this.openTimeout = this.disposables.setTimeout(() => {
         this.openTimeout = undefined;
@@ -406,6 +420,15 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
       // If immediate, dispose right away
       dispose();
     } else {
+      // Reset instant transition for normal closes so exit animations can play.
+      // When being replaced by another overlay during cooldown, hideImmediate()
+      // is called instead (which doesn't come through here), and registerActive
+      // sets instantTransition to true before that call.
+      this.instantTransition.set(false);
+      // Remove data-instant attribute so CSS exit animations can play
+      for (const element of this.getElements()) {
+        element.removeAttribute('data-instant');
+      }
       this.closeTimeout = this.disposables.setTimeout(dispose, delay);
     }
   }
@@ -424,10 +447,26 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
   }
 
   /**
-   * Immediately hide the overlay without any delay
+   * Immediately hide the overlay without any delay.
+   * When called during cooldown transitions, this destroys the overlay
+   * immediately without exit animations.
    */
   hideImmediate(): void {
-    this.hide({ immediate: true });
+    // Cancel any pending operations
+    if (this.openTimeout) {
+      this.openTimeout();
+      this.openTimeout = undefined;
+    }
+    if (this.closeTimeout) {
+      this.closeTimeout();
+      this.closeTimeout = undefined;
+    }
+
+    // Emit closing event
+    this.closing.next();
+
+    // Destroy immediately without animations
+    this.destroyOverlay(true);
   }
 
   /**
@@ -502,12 +541,21 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
       { $implicit: this.config.context } as NgpOverlayTemplateContext<T>,
     );
 
-    // Attach portal to container
+    // Attach portal to container (skip enter animation delay if instant transition)
     const container = this.resolveContainer();
-    portal.attach(container);
+    const isInstant = this.instantTransition();
+    portal.attach(container, { immediate: isInstant });
 
     // Update portal signal
     this.portal.set(portal);
+
+    // If instant transition is active, set data-instant attribute synchronously
+    // so CSS can use it for styling purposes
+    if (isInstant) {
+      for (const element of portal.getElements()) {
+        element.setAttribute('data-instant', '');
+      }
+    }
 
     // Ensure view is up to date
     portal.detectChanges();
@@ -648,8 +696,9 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
 
   /**
    * Internal method to destroy the overlay portal
+   * @param immediate If true, skip exit animations and remove immediately
    */
-  private async destroyOverlay(): Promise<void> {
+  private async destroyOverlay(immediate?: boolean): Promise<void> {
     const portal = this.portal();
 
     if (!portal) {
@@ -668,14 +717,17 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
     this.disposePositioning?.();
     this.disposePositioning = undefined;
 
-    // Detach the portal
-    await portal.detach();
+    // Detach the portal (skip animations if immediate)
+    await portal.detach(immediate);
 
     // Mark as closed
     this.isOpen.set(false);
 
     // Reset final placement
     this.finalPlacement.set(undefined);
+
+    // Reset instant transition flag
+    this.instantTransition.set(false);
 
     // disable scroll strategy
     this.scrollStrategy.disable();
@@ -730,6 +782,7 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
    */
   unregisterArrow(): void {
     this.arrowElement = null;
+    this.arrowPadding = undefined;
   }
 
   /**
