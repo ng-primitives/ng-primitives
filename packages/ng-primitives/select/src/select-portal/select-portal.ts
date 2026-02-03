@@ -74,6 +74,7 @@ export class NgpSelectPortal implements OnDestroy {
       triggerElement: this.state().elementRef.nativeElement,
       injector: this.injector,
       placement: this.state().placement,
+      flip: this.state().flip(),
       closeOnOutsideClick: true,
       closeOnEscape: true,
       restoreFocus: false,

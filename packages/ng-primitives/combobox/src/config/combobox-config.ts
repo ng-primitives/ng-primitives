@@ -14,11 +14,18 @@ export interface NgpComboboxConfig {
    * @default 'body'
    */
   container: HTMLElement | string | null;
+
+  /**
+   * Whether the combobox dropdown should flip when there is not enough space.
+   * @default true
+   */
+  flip: boolean;
 }
 
 export const defaultComboboxConfig: NgpComboboxConfig = {
   placement: 'bottom',
   container: 'body',
+  flip: true,
 };
 
 export const NgpComboboxConfigToken = new InjectionToken<NgpComboboxConfig>(
