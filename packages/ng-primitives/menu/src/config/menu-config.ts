@@ -2,7 +2,7 @@ import { InjectionToken, Provider, inject } from '@angular/core';
 import { NgpOffset, NgpShift } from 'ng-primitives/portal';
 import type { NgpMenuPlacement } from '../menu-trigger/menu-trigger';
 
-export type NgpMenuTriggerType = 'click' | 'hover' | 'focus';
+export type NgpMenuTriggerType = 'click' | 'hover' | 'focus' | 'enter' | 'arrowkey';
 
 export interface NgpMenuConfig {
   /**

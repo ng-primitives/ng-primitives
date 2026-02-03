@@ -1,4 +1,5 @@
 import { FocusOrigin } from '@angular/cdk/a11y';
+import { Directionality } from '@angular/cdk/bidi';
 import {
   computed,
   inject,
@@ -207,6 +208,7 @@ export const [
     const element = injectElementRef();
     const injector = inject(Injector);
     const viewContainerRef = inject(ViewContainerRef);
+    const directionality = inject(Directionality);
 
     // Controlled properties
     const menu = controlled(_menu);
@@ -237,6 +239,7 @@ export const [
     listener(element, 'pointerleave', onPointerLeave);
     listener(element, 'focus', onFocus);
     listener(element, 'blur', onBlur);
+    listener(element, 'keydown', onKeydown);
 
     // Methods
     function onClick(event: MouseEvent): void {
@@ -317,6 +320,67 @@ export const [
       }
 
       hide();
+    }
+
+    function onKeydown(event: KeyboardEvent): void {
+      if (disabled?.()) {
+        return;
+      }
+
+      const enabledTriggers = triggers();
+
+      // Handle Enter key - toggle behavior
+      if (event.key === 'Enter' && enabledTriggers.includes('enter')) {
+        event.preventDefault();
+        const origin: FocusOrigin = 'keyboard';
+        if (open()) {
+          hide(origin);
+        } else {
+          show();
+        }
+        return;
+      }
+
+      // Handle arrow keys - placement-aware
+      if (!enabledTriggers.includes('arrowkey')) {
+        return;
+      }
+
+      const isArrowKey =
+        event.key === 'ArrowUp' ||
+        event.key === 'ArrowDown' ||
+        event.key === 'ArrowLeft' ||
+        event.key === 'ArrowRight';
+
+      if (!isArrowKey) {
+        return;
+      }
+
+      // Get RTL direction
+      const isRtl = directionality.value === 'rtl';
+
+      // Check if arrow direction matches placement
+      const currentPlacement = placement();
+      let shouldOpen = false;
+
+      if (currentPlacement.startsWith('bottom') && event.key === 'ArrowDown') {
+        shouldOpen = true;
+      } else if (currentPlacement.startsWith('top') && event.key === 'ArrowUp') {
+        shouldOpen = true;
+      } else if (currentPlacement.startsWith('right')) {
+        const isRightArrow = event.key === 'ArrowRight';
+        const isLeftArrow = event.key === 'ArrowLeft';
+        shouldOpen = (isRightArrow && !isRtl) || (isLeftArrow && isRtl);
+      } else if (currentPlacement.startsWith('left')) {
+        const isRightArrow = event.key === 'ArrowRight';
+        const isLeftArrow = event.key === 'ArrowLeft';
+        shouldOpen = (isLeftArrow && !isRtl) || (isRightArrow && isRtl);
+      }
+
+      if (shouldOpen && !open()) {
+        event.preventDefault();
+        show();
+      }
     }
 
     function toggle(event: MouseEvent): void {
