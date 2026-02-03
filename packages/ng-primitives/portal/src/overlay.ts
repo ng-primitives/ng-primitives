@@ -95,6 +95,13 @@ export interface NgpOverlayConfig<T = unknown> {
    * Can be a boolean or a signal that returns a boolean.
    */
   restoreFocus?: boolean | Signal<boolean>;
+
+  /**
+   * Optional callback to update an external close origin signal.
+   * Called when the overlay is hidden with the focus origin.
+   * @internal
+   */
+  onClose?: (origin: FocusOrigin) => void;
   /** Additional middleware for floating UI positioning */
   additionalMiddleware?: Middleware[];
 
@@ -417,14 +424,19 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
         return;
       }
 
+      const origin = options?.origin ?? 'program';
+
       // Update the close origin signal so computed signals can react
-      this.closeOrigin.set(options?.origin ?? 'program');
+      this.closeOrigin.set(origin);
+
+      // Call the onClose callback if provided (for external signal updates)
+      this.config.onClose?.(origin);
 
       // Determine if focus should be restored
       const shouldRestoreFocus =
         typeof this.config.restoreFocus === 'function'
           ? this.config.restoreFocus()
-          : (this.config.restoreFocus ?? false);
+          : this.config.restoreFocus ?? false;
 
       if (shouldRestoreFocus) {
         this.focusMonitor.focusVia(this.config.triggerElement, options?.origin ?? 'program', {

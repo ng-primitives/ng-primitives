@@ -290,7 +290,7 @@ describe('NgpSlider', () => {
       height: 20,
       x: 0,
       y: 0,
-      // eslint-disable-next-line @typescript-eslint/no-empty-function
+       
       toJSON: () => {},
     });
 

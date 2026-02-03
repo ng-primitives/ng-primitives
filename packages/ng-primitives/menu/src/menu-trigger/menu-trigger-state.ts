@@ -229,11 +229,18 @@ export const [
     const overlay = signal<NgpOverlay<T> | null>(null);
     const open = computed(() => overlay()?.isOpen() ?? false);
     const openOrigin = signal<FocusOrigin>('program');
+    const closeOrigin = signal<FocusOrigin>('program');
 
     // Track whether pointer is over trigger or content (for hover triggers)
     const pointerOverTrigger = signal(false);
     const pointerOverContent = signal(false);
     const isPointerOverMenuArea = computed(() => pointerOverTrigger() || pointerOverContent());
+
+    // Computed signal to determine if focus should be restored
+    // Only restore if opened via keyboard OR closed via keyboard
+    const shouldRestoreFocus = computed(
+      () => openOrigin() === 'keyboard' || closeOrigin() === 'keyboard',
+    );
 
     // Host bindings
     attrBinding(element, 'aria-haspopup', 'true');
@@ -416,14 +423,14 @@ export const [
       overlay()?.show();
     }
 
-    function hide(closeOrigin: FocusOrigin = 'program'): void {
+    function hide(origin: FocusOrigin = 'program'): void {
       // If the trigger is disabled or the menu is not open, do nothing
       if (!open()) {
         return;
       }
 
-      // Hide the overlay
-      overlay()?.hide({ origin: closeOrigin });
+      // Hide the overlay (this will trigger onClose callback which updates closeOrigin)
+      overlay()?.hide({ origin });
     }
 
     function createOverlayInstance(): void {
@@ -446,14 +453,8 @@ export const [
         flip: flip(),
         closeOnOutsideClick: true,
         closeOnEscape: true,
-        restoreFocus: computed(() => {
-          // Only restore focus if opened via keyboard OR closed via keyboard
-          const currentOverlay = overlay();
-          return (
-            openOrigin() === 'keyboard' ||
-            (currentOverlay?.closeOrigin() ?? 'program') === 'keyboard'
-          );
-        }),
+        restoreFocus: shouldRestoreFocus,
+        onClose: (origin: FocusOrigin) => closeOrigin.set(origin),
         scrollBehaviour: scrollBehavior?.() ?? 'block',
         overlayType: 'menu',
         cooldown: cooldown?.(),
