@@ -7,11 +7,7 @@ import { NgpListbox } from './listbox';
   template: `
     <div ngpListbox data-testid="listbox">
       @for (item of items(); track item) {
-        <div
-          ngpListboxOption
-          [ngpListboxOptionValue]="item"
-          [attr.data-testid]="'option-' + item"
-        >
+        <div [ngpListboxOptionValue]="item" [attr.data-testid]="'option-' + item" ngpListboxOption>
           {{ item }}
         </div>
       }
