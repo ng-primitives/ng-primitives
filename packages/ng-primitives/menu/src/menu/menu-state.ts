@@ -1,4 +1,6 @@
 import { FocusOrigin } from '@angular/cdk/a11y';
+import { computed, Signal } from '@angular/core';
+import { ngpFocusTrap } from 'ng-primitives/focus-trap';
 import { injectElementRef } from 'ng-primitives/internal';
 import { injectOverlay } from 'ng-primitives/portal';
 import { attrBinding, createPrimitive, listener, styleBinding } from 'ng-primitives/state';
@@ -18,15 +20,23 @@ export interface NgpMenuState {
   readonly closeSubmenus: Subject<HTMLElement>;
 }
 
-export interface NgpMenuProps {}
+export interface NgpMenuProps {
+  /**
+   * Whether focus should wrap around when reaching the end of the menu.
+   */
+  readonly wrap?: Signal<boolean>;
+}
 
 export const [NgpMenuStateToken, ngpMenu, injectMenuState, provideMenuState] = createPrimitive(
   'NgpMenu',
-  ({}: NgpMenuProps) => {
+  ({ wrap }: NgpMenuProps) => {
     const element = injectElementRef();
     const overlay = injectOverlay();
     const menuTrigger = injectMenuTriggerState();
     const parentMenu = injectMenuState({ optional: true, skipSelf: true });
+
+    // Only trap focus when the menu was opened via keyboard
+    ngpFocusTrap({ disabled: computed(() => menuTrigger().openOrigin() !== 'keyboard') });
 
     // Host bindings
     attrBinding(element, 'role', 'menu');

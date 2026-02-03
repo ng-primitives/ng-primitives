@@ -131,7 +131,8 @@ export const [NgpFocusTrapStateToken, ngpFocusTrap, injectFocusTrapState, provid
       const previouslyFocusedElement = document.activeElement as HTMLElement | null;
       const hasFocusedCandidate = element.nativeElement.contains(previouslyFocusedElement);
 
-      if (!hasFocusedCandidate) {
+      // Only perform initial focusing if the focus trap is not disabled
+      if (!hasFocusedCandidate && !disabled?.()) {
         // we do this to ensure the content is rendered before we try to find the first focusable element
         // and focus it
         afterNextRender(

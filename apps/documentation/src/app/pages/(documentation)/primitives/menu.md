@@ -96,6 +96,52 @@ You can customize the shift behavior to control how the menu stays within the vi
 </button>
 ```
 
+### Keyboard Triggers
+
+Enable keyboard triggers to allow users to open menus using Enter or arrow keys:
+
+```html
+<!-- Enable Enter key to toggle menu -->
+<button [ngpMenuTrigger]="menu" [ngpMenuTriggerOpenTriggers]="['click', 'enter']">Menu</button>
+
+<!-- Enable arrow keys (placement-aware) -->
+<button
+  [ngpMenuTrigger]="menu"
+  [ngpMenuTriggerOpenTriggers]="['arrowkey']"
+  ngpMenuTriggerPlacement="right-start"
+>
+  Sidebar Menu
+</button>
+
+<!-- Combine triggers for best UX -->
+<button
+  [ngpMenuTrigger]="menu"
+  [ngpMenuTriggerOpenTriggers]="['hover', 'arrowkey', 'enter']"
+  ngpMenuTriggerPlacement="right-start"
+>
+  Navigation Item
+</button>
+```
+
+#### Keyboard Trigger Behavior
+
+**Enter Key:**
+
+- Toggles menu (opens if closed, closes if open)
+- Only works when trigger is focused
+- Useful for keyboard-only navigation
+
+**Arrow Keys:**
+
+- Placement-aware: Only responds to arrows matching menu direction
+  - `bottom-*` placement: ArrowDown opens
+  - `top-*` placement: ArrowUp opens
+  - `right-*` placement: ArrowRight opens (ArrowLeft in RTL)
+  - `left-*` placement: ArrowLeft opens (ArrowRight in RTL)
+- Automatically respects RTL text direction
+- Only works when trigger is focused
+- Perfect for sidebar/navigation menus
+
 ## API Reference
 
 The following directives are available to import from the `ng-primitives/menu` package:

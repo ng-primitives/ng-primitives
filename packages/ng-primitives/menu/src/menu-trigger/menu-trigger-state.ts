@@ -63,6 +63,12 @@ export interface NgpMenuTriggerState<T = unknown> {
   readonly context: WritableSignal<T>;
 
   /**
+   * The focus origin that was used to open the menu.
+   * @internal
+   */
+  readonly openOrigin: Signal<FocusOrigin>;
+
+  /**
    * Set whether the trigger is disabled.
    * @param isDisabled - Whether the trigger is disabled
    */
@@ -94,8 +100,9 @@ export interface NgpMenuTriggerState<T = unknown> {
 
   /**
    * Show the menu.
+   * @param origin - The focus origin
    */
-  show(): void;
+  show(origin?: FocusOrigin): void;
   /**
    * Hide the menu.
    * @param origin - The focus origin
@@ -221,6 +228,7 @@ export const [
     // Internal state
     const overlay = signal<NgpOverlay<T> | null>(null);
     const open = computed(() => overlay()?.isOpen() ?? false);
+    const openOrigin = signal<FocusOrigin>('program');
 
     // Track whether pointer is over trigger or content (for hover triggers)
     const pointerOverTrigger = signal(false);
@@ -267,7 +275,7 @@ export const [
         return;
       }
 
-      show();
+      show('mouse');
     }
 
     function onPointerLeave(event: PointerEvent): void {
@@ -306,7 +314,7 @@ export const [
         return;
       }
 
-      show();
+      show('keyboard');
     }
 
     function onBlur(): void {
@@ -336,7 +344,7 @@ export const [
         if (open()) {
           hide(origin);
         } else {
-          show();
+          show(origin);
         }
         return;
       }
@@ -379,7 +387,7 @@ export const [
 
       if (shouldOpen && !open()) {
         event.preventDefault();
-        show();
+        show('keyboard');
       }
     }
 
@@ -391,11 +399,14 @@ export const [
       if (open()) {
         hide(origin);
       } else {
-        show();
+        show(origin);
       }
     }
 
-    function show(): void {
+    function show(origin: FocusOrigin = 'program'): void {
+      // Store the origin used to open the menu
+      openOrigin.set(origin);
+
       // Create the overlay if it doesn't exist yet
       if (!overlay()) {
         createOverlayInstance();
@@ -405,14 +416,14 @@ export const [
       overlay()?.show();
     }
 
-    function hide(origin: FocusOrigin = 'program'): void {
+    function hide(closeOrigin: FocusOrigin = 'program'): void {
       // If the trigger is disabled or the menu is not open, do nothing
       if (!open()) {
         return;
       }
 
       // Hide the overlay
-      overlay()?.hide({ origin });
+      overlay()?.hide({ origin: closeOrigin });
     }
 
     function createOverlayInstance(): void {
@@ -435,7 +446,13 @@ export const [
         flip: flip(),
         closeOnOutsideClick: true,
         closeOnEscape: true,
-        restoreFocus: true,
+        restoreFocus: computed(() => {
+          // Only restore focus if opened via keyboard OR closed via keyboard
+          const currentOverlay = overlay();
+          return (
+            openOrigin() === 'keyboard' || (currentOverlay?.closeOrigin() ?? 'program') === 'keyboard'
+          );
+        }),
         scrollBehaviour: scrollBehavior?.() ?? 'block',
         overlayType: 'menu',
         cooldown: cooldown?.(),
@@ -494,6 +511,7 @@ export const [
       disabled: deprecatedSetter(disabled, 'setDisabled'),
       context: deprecatedSetter(context, 'setContext'),
       open,
+      openOrigin,
       show,
       hide,
       toggle,

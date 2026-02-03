@@ -90,8 +90,11 @@ export interface NgpOverlayConfig<T = unknown> {
   closeOnOutsideClick?: boolean;
   /** Whether to close the overlay when pressing escape */
   closeOnEscape?: boolean;
-  /** Whether to restore focus to the trigger element when hiding the overlay */
-  restoreFocus?: boolean;
+  /**
+   * Whether to restore focus to the trigger element when hiding the overlay.
+   * Can be a boolean or a signal that returns a boolean.
+   */
+  restoreFocus?: boolean | Signal<boolean>;
   /** Additional middleware for floating UI positioning */
   additionalMiddleware?: Middleware[];
 
@@ -188,6 +191,13 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
 
   /** A unique id for the overlay */
   readonly id = signal<string>(uniqueId('ngp-overlay'));
+
+  /**
+   * Signal tracking the focus origin used to close the overlay.
+   * Updated when hide() is called.
+   * @internal
+   */
+  readonly closeOrigin = signal<FocusOrigin>('program');
 
   /** The aria-describedby attribute for accessibility */
   readonly ariaDescribedBy = computed(() => (this.isOpen() ? this.id() : undefined));
@@ -407,7 +417,16 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
         return;
       }
 
-      if (this.config.restoreFocus) {
+      // Update the close origin signal so computed signals can react
+      this.closeOrigin.set(options?.origin ?? 'program');
+
+      // Determine if focus should be restored
+      const shouldRestoreFocus =
+        typeof this.config.restoreFocus === 'function'
+          ? this.config.restoreFocus()
+          : this.config.restoreFocus ?? false;
+
+      if (shouldRestoreFocus) {
         this.focusMonitor.focusVia(this.config.triggerElement, options?.origin ?? 'program', {
           preventScroll: true,
         });
