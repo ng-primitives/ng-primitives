@@ -1,8 +1,10 @@
-import { Injectable } from '@angular/core';
+import { Injectable, WritableSignal } from '@angular/core';
 
 /** Interface for overlays that can be closed immediately */
 export interface CooldownOverlay {
   hideImmediate(): void;
+  /** Optional signal to mark the transition as instant due to cooldown */
+  instantTransition?: WritableSignal<boolean>;
 }
 
 /**
@@ -44,7 +46,7 @@ export class NgpOverlayCooldownManager {
    * If another overlay of the same type is already active, it will be closed immediately.
    * @param overlayType The type identifier for the overlay group
    * @param overlay The overlay instance
-   * @param cooldown The cooldown duration - only close previous if within cooldown
+   * @param cooldown The cooldown duration - if > 0, enables instant transitions
    */
   registerActive(overlayType: string, overlay: CooldownOverlay, cooldown: number): void {
     const existing = this.activeOverlays.get(overlayType);
@@ -52,19 +54,23 @@ export class NgpOverlayCooldownManager {
     // Set the new overlay as active FIRST before closing the old one
     this.activeOverlays.set(overlayType, overlay);
 
-    // Then close the old one if within cooldown
+    // If there's an existing overlay and cooldown is enabled, close it immediately
+    // This ensures instant DOM swap when hovering between items of the same type
     if (existing && existing !== overlay && cooldown > 0) {
-      if (this.isWithinCooldown(overlayType, cooldown)) {
-        // Defer the close to next microtask to allow the new overlay to finish creating
-        queueMicrotask(() => {
-          // Check if the overlay to close is still NOT the active one
-          // (it might have become active again if user moved back quickly)
-          if (this.activeOverlays.get(overlayType) !== existing) {
-            existing.hideImmediate();
-          }
-        });
-      }
+      // Mark the outgoing overlay as instant before hiding so exit animation is skipped
+      existing.instantTransition?.set(true);
+      existing.hideImmediate();
     }
+  }
+
+  /**
+   * Check if a specific overlay is the active one for its type.
+   * @param overlayType The type identifier for the overlay group
+   * @param overlay The overlay instance to check
+   * @returns true if this overlay is the active one, false otherwise
+   */
+  isActiveOverlay(overlayType: string, overlay: CooldownOverlay): boolean {
+    return this.activeOverlays.get(overlayType) === overlay;
   }
 
   /**

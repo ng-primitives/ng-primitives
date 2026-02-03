@@ -32,6 +32,8 @@ export class NgpExitAnimation implements OnDestroy {
 interface NgpExitAnimationOptions {
   /** The element to animate. */
   element: HTMLElement;
+  /** If true, skip requestAnimationFrame delay and set enter state immediately. */
+  immediate?: boolean;
 }
 
 export interface NgpExitAnimationRef {
@@ -39,7 +41,10 @@ export interface NgpExitAnimationRef {
   exit: () => Promise<void>;
 }
 
-export function setupExitAnimation({ element }: NgpExitAnimationOptions): NgpExitAnimationRef {
+export function setupExitAnimation({
+  element,
+  immediate,
+}: NgpExitAnimationOptions): NgpExitAnimationRef {
   let state: 'enter' | 'exit' = 'enter';
 
   function setState(newState: 'enter' | 'exit') {
@@ -57,8 +62,12 @@ export function setupExitAnimation({ element }: NgpExitAnimationOptions): NgpExi
     }
   }
 
-  // Set the initial state to 'enter'
-  requestAnimationFrame(() => setState('enter'));
+  // Set the initial state to 'enter' - immediately if instant, otherwise next frame
+  if (immediate) {
+    setState('enter');
+  } else {
+    requestAnimationFrame(() => setState('enter'));
+  }
 
   return {
     exit: () => {
@@ -72,12 +81,14 @@ export function setupExitAnimation({ element }: NgpExitAnimationOptions): NgpExi
           Promise.all(animations.map(anim => anim.finished))
             .then(() => resolve())
             .catch(err => {
-              if (err instanceof Error && err.name !== 'AbortError') {
-                return reject(err);
+              // AbortError is expected when element is removed during animation
+              // e.g. when the user navigates away to another page
+              // Note: Animation.finished can reject with DOMException which may not pass instanceof Error
+              if ((err as { name?: string })?.name === 'AbortError') {
+                resolve();
+              } else {
+                reject(err);
               }
-              // Ignore abort errors as they are expected when the animation is interrupted
-              // by the removal of the element - e.g. when the user navigates away to another page
-              resolve();
             });
         } else {
           resolve();

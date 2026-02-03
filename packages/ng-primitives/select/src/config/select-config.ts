@@ -14,11 +14,18 @@ export interface NgpSelectConfig {
    * @default 'body'
    */
   container: HTMLElement | string | null;
+
+  /**
+   * Whether the select dropdown should flip when there is not enough space.
+   * @default true
+   */
+  flip: boolean;
 }
 
 export const defaultSelectConfig: NgpSelectConfig = {
   placement: 'bottom',
   container: 'body',
+  flip: true,
 };
 
 export const NgpSelectConfigToken = new InjectionToken<NgpSelectConfig>('NgpSelectConfigToken');
