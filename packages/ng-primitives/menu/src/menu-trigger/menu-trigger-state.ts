@@ -450,7 +450,8 @@ export const [
           // Only restore focus if opened via keyboard OR closed via keyboard
           const currentOverlay = overlay();
           return (
-            openOrigin() === 'keyboard' || (currentOverlay?.closeOrigin() ?? 'program') === 'keyboard'
+            openOrigin() === 'keyboard' ||
+            (currentOverlay?.closeOrigin() ?? 'program') === 'keyboard'
           );
         }),
         scrollBehaviour: scrollBehavior?.() ?? 'block',
