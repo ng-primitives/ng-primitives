@@ -10,7 +10,7 @@ import {
   NgpShift,
   NgpShiftInput,
 } from 'ng-primitives/portal';
-import { injectMenuConfig } from '../config/menu-config';
+import { injectMenuConfig, NgpMenuTriggerType } from '../config/menu-config';
 import { ngpMenuTrigger, provideMenuTriggerState } from './menu-trigger-state';
 
 /**
@@ -115,6 +115,32 @@ export class NgpMenuTrigger<T = unknown> {
   });
 
   /**
+   * Define which trigger types are enabled for the menu.
+   * @default ['click']
+   */
+  readonly triggers = input<NgpMenuTriggerType[]>(this.config.triggers, {
+    alias: 'ngpMenuTriggerOpenTriggers',
+  });
+
+  /**
+   * Define the delay before the menu is displayed (hover/focus triggers).
+   * @default 0
+   */
+  readonly showDelay = input<number, NumberInput>(this.config.showDelay, {
+    alias: 'ngpMenuTriggerShowDelay',
+    transform: numberAttribute,
+  });
+
+  /**
+   * Define the delay before the menu is hidden (hover/focus triggers).
+   * @default 0
+   */
+  readonly hideDelay = input<number, NumberInput>(this.config.hideDelay, {
+    alias: 'ngpMenuTriggerHideDelay',
+    transform: numberAttribute,
+  });
+
+  /**
    * The menu trigger state.
    */
   private readonly state = ngpMenuTrigger<T>({
@@ -128,6 +154,9 @@ export class NgpMenuTrigger<T = unknown> {
     scrollBehavior: this.scrollBehavior,
     cooldown: this.cooldown,
     context: this.context as Signal<T>,
+    triggers: this.triggers,
+    showDelay: this.showDelay,
+    hideDelay: this.hideDelay,
   });
 
   /**

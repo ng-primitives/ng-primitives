@@ -1,7 +1,7 @@
 import { FocusOrigin } from '@angular/cdk/a11y';
 import { injectElementRef } from 'ng-primitives/internal';
 import { injectOverlay } from 'ng-primitives/portal';
-import { attrBinding, createPrimitive, styleBinding } from 'ng-primitives/state';
+import { attrBinding, createPrimitive, listener, styleBinding } from 'ng-primitives/state';
 import { Subject } from 'rxjs';
 import { injectMenuTriggerState } from '../menu-trigger/menu-trigger-state';
 
@@ -37,10 +37,22 @@ export const [NgpMenuStateToken, ngpMenu, injectMenuState, provideMenuState] = c
     styleBinding(element, '--ngp-menu-trigger-width.px', overlay.triggerWidth);
     styleBinding(element, '--ngp-menu-transform-origin', overlay.transformOrigin);
 
+    // Event listeners for pointer tracking
+    listener(element, 'pointerenter', onPointerEnter);
+    listener(element, 'pointerleave', onPointerLeave);
+
     // Subject to notify children to close submenus
     const closeSubmenus = new Subject<HTMLElement>();
 
     // Methods
+    function onPointerEnter(): void {
+      menuTrigger()?.setPointerOverContent(true);
+    }
+
+    function onPointerLeave(): void {
+      menuTrigger()?.setPointerOverContent(false);
+    }
+
     function closeAllMenus(origin: FocusOrigin): void {
       menuTrigger().hide(origin);
       parentMenu()?.closeAllMenus(origin);

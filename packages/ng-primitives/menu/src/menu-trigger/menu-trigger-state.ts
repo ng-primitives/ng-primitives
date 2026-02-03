@@ -25,6 +25,7 @@ import {
   deprecatedSetter,
   listener,
 } from 'ng-primitives/state';
+import { NgpMenuTriggerType } from '../config/menu-config';
 import { NgpMenuPlacement } from './menu-trigger';
 
 export interface NgpMenuTriggerState<T = unknown> {
@@ -111,6 +112,13 @@ export interface NgpMenuTriggerState<T = unknown> {
    * @param menu - The new menu
    */
   setMenu(menu: NgpOverlayContent<any>): void;
+
+  /**
+   * Set whether the pointer is over the menu content.
+   * @param isOver - Whether the pointer is over the content
+   * @internal
+   */
+  setPointerOverContent(isOver: boolean): void;
 }
 
 export interface NgpMenuTriggerProps<T = unknown> {
@@ -158,6 +166,21 @@ export interface NgpMenuTriggerProps<T = unknown> {
    * Cooldown duration in milliseconds.
    */
   readonly cooldown?: Signal<number>;
+
+  /**
+   * Which trigger types are enabled.
+   */
+  readonly triggers?: Signal<NgpMenuTriggerType[]>;
+
+  /**
+   * The delay before showing the menu.
+   */
+  readonly showDelay?: Signal<number>;
+
+  /**
+   * The delay before hiding the menu.
+   */
+  readonly hideDelay?: Signal<number>;
 }
 
 export const [
@@ -177,6 +200,9 @@ export const [
     container,
     scrollBehavior,
     cooldown,
+    triggers = signal(['click'] as NgpMenuTriggerType[]),
+    showDelay = signal(0),
+    hideDelay = signal(0),
   }: NgpMenuTriggerProps<T>) => {
     const element = injectElementRef();
     const injector = inject(Injector);
@@ -194,21 +220,103 @@ export const [
     const overlay = signal<NgpOverlay<T> | null>(null);
     const open = computed(() => overlay()?.isOpen() ?? false);
 
+    // Track whether pointer is over trigger or content (for hover triggers)
+    const pointerOverTrigger = signal(false);
+    const pointerOverContent = signal(false);
+    const isPointerOverMenuArea = computed(() => pointerOverTrigger() || pointerOverContent());
+
     // Host bindings
     attrBinding(element, 'aria-haspopup', 'true');
     attrBinding(element, 'aria-expanded', open);
     dataBinding(element, 'data-open', open);
     dataBinding(element, 'data-placement', placement);
 
-    // Event listeners
+    // Event listeners - conditionally add based on enabled triggers
     listener(element, 'click', onClick);
+    listener(element, 'pointerenter', onPointerEnter);
+    listener(element, 'pointerleave', onPointerLeave);
+    listener(element, 'focus', onFocus);
+    listener(element, 'blur', onBlur);
 
     // Methods
     function onClick(event: MouseEvent): void {
-      if (disabled?.()) {
+      if (disabled?.() || !triggers().includes('click')) {
         return;
       }
       toggle(event);
+    }
+
+    function onPointerEnter(event: PointerEvent): void {
+      if (disabled?.() || !triggers().includes('hover')) {
+        return;
+      }
+
+      // Don't trigger on touch events
+      if (event.pointerType === 'touch') {
+        return;
+      }
+
+      pointerOverTrigger.set(true);
+
+      // If already open, cancel any pending hide
+      if (open()) {
+        overlay()?.cancelPendingClose();
+        return;
+      }
+
+      show();
+    }
+
+    function onPointerLeave(event: PointerEvent): void {
+      if (disabled?.() || !triggers().includes('hover')) {
+        return;
+      }
+
+      // Don't trigger on touch events
+      if (event.pointerType === 'touch') {
+        return;
+      }
+
+      pointerOverTrigger.set(false);
+
+      // If not open, do nothing
+      if (!open()) {
+        return;
+      }
+
+      // Use a small delay to allow moving to content
+      setTimeout(() => {
+        // Only hide if pointer is not over trigger or content
+        if (!isPointerOverMenuArea()) {
+          hide();
+        }
+      }, 50); // Small grace period for moving between trigger and content
+    }
+
+    function onFocus(): void {
+      if (disabled?.() || !triggers().includes('focus')) {
+        return;
+      }
+
+      // If already open, do nothing
+      if (open()) {
+        return;
+      }
+
+      show();
+    }
+
+    function onBlur(): void {
+      if (disabled?.() || !triggers().includes('focus')) {
+        return;
+      }
+
+      // If not open, do nothing
+      if (!open()) {
+        return;
+      }
+
+      hide();
     }
 
     function toggle(event: MouseEvent): void {
@@ -267,6 +375,8 @@ export const [
         scrollBehaviour: scrollBehavior?.() ?? 'block',
         overlayType: 'menu',
         cooldown: cooldown?.(),
+        showDelay: showDelay(),
+        hideDelay: hideDelay(),
       };
 
       overlay.set(createOverlay(config));
@@ -300,6 +410,19 @@ export const [
       context.set(newContext);
     }
 
+    /**
+     * Called by menu content when pointer enters/leaves
+     * @internal
+     */
+    function setPointerOverContent(isOver: boolean): void {
+      pointerOverContent.set(isOver);
+
+      if (!isOver && !pointerOverTrigger() && open() && triggers().includes('hover')) {
+        // Pointer left content and is not over trigger - hide the menu
+        hide();
+      }
+    }
+
     return {
       menu: deprecatedSetter(menu, 'setMenu'),
       placement: deprecatedSetter(placement, 'setPlacement'),
@@ -316,6 +439,7 @@ export const [
       setPlacement,
       setOffset,
       setContext,
+      setPointerOverContent,
       flip,
     } satisfies NgpMenuTriggerState<T>;
   },
