@@ -147,6 +147,11 @@ export class NgpListbox<T> implements AfterContentInit {
   }
 
   private updateActiveItem(): void {
+    const activeItem = this.keyManager.activeItem;
+    if (activeItem && this.options().includes(activeItem)) {
+      return;
+    }
+
     const selectedOption = this.options().find(o => o.selected());
 
     if (selectedOption) {
