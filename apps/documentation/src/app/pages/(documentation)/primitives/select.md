@@ -129,3 +129,29 @@ The following directives are available to import from the `ng-primitives/select`
 | `data-hover`         | Applied when the element is hovered.  |
 | `data-focus-visible` | Applied when the element is focused.  |
 | `data-disabled`      | Applied when the element is disabled. |
+
+## Global Configuration
+
+You can configure the default options for all selects in your application by using the `provideSelectConfig` function in a providers array.
+
+```ts
+import { provideSelectConfig } from 'ng-primitives/select';
+
+bootstrapApplication(AppComponent, {
+  providers: [provideSelectConfig({ placement: 'bottom', container: document.body, flip: true })],
+});
+```
+
+### NgpSelectConfig
+
+<prop-details name="placement" type="Placement" default="'bottom'">
+  Define the placement of the select dropdown.
+</prop-details>
+
+<prop-details name="container" type="HTMLElement" default="document.body">
+  Define the container element for the select dropdown. This is useful for rendering the dropdown in a specific part of the DOM.
+</prop-details>
+
+<prop-details name="flip" type="boolean" default="true">
+  Define whether the dropdown should flip to the opposite side when there is not enough space.
+</prop-details>
