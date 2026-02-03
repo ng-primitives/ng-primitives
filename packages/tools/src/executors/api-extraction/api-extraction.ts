@@ -59,7 +59,7 @@ const runExecutor: PromiseExecutor<ApiExtractionExecutorSchema> = async (options
   }
 
   // Ensure the output directory exists
-  const outputDir = resolvedOutputPath.substring(0, resolvedOutputPath.lastIndexOf('/'));
+  const outputDir = resolvedOutputPath.substring(0, resolvedOutputPath.lastIndexOf(path.sep));
   ensureDirSync(outputDir);
 
   writeFileSync(resolvedOutputPath, JSON.stringify(directives, null, 2));
