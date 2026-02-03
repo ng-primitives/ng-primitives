@@ -263,7 +263,7 @@ You can configure the default options for all comboboxes in your application by 
 import { provideComboboxConfig } from 'ng-primitives/combobox';
 
 bootstrapApplication(AppComponent, {
-  providers: [provideComboboxConfig({ placement: 'bottom', container: document.body })],
+  providers: [provideComboboxConfig({ placement: 'bottom', container: document.body, flip: true })],
 });
 ```
 
@@ -275,6 +275,10 @@ bootstrapApplication(AppComponent, {
 
 <prop-details name="container" type="HTMLElement" default="document.body">
   Define the container element for the combobox dropdown. This is useful for rendering the dropdown in a specific part of the DOM.
+</prop-details>
+
+<prop-details name="flip" type="boolean" default="true">
+  Define whether the dropdown should flip to the opposite side when there is not enough space.
 </prop-details>
 
 ## Accessibility
