@@ -436,7 +436,7 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
       const shouldRestoreFocus =
         typeof this.config.restoreFocus === 'function'
           ? this.config.restoreFocus()
-          : this.config.restoreFocus ?? false;
+          : (this.config.restoreFocus ?? false);
 
       if (shouldRestoreFocus) {
         this.focusMonitor.focusVia(this.config.triggerElement, options?.origin ?? 'program', {
