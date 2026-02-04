@@ -496,6 +496,10 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
     // Emit closing event
     this.closing.next();
 
+    // Update close origin and call callback (default to 'program' for immediate closes)
+    this.closeOrigin.set('program');
+    this.config.onClose?.('program');
+
     // Destroy immediately without animations
     this.destroyOverlay(true);
   }

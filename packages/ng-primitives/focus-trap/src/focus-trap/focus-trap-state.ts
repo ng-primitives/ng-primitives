@@ -1,4 +1,4 @@
-import { FocusMonitor, InteractivityChecker } from '@angular/cdk/a11y';
+import { FocusMonitor, FocusOrigin, InteractivityChecker } from '@angular/cdk/a11y';
 import { afterNextRender, inject, Injector, NgZone, signal, Signal } from '@angular/core';
 import { injectElementRef } from 'ng-primitives/internal';
 import { NgpOverlay } from 'ng-primitives/portal';
@@ -88,10 +88,18 @@ export interface NgpFocusTrapProps {
    * Whether the focus trap is disabled.
    */
   readonly disabled?: Signal<boolean>;
+
+  /**
+   * The focus origin to use when programmatically focusing elements.
+   * If not provided, falls back to the FocusMonitor's last known origin.
+   */
+  readonly focusOrigin?: Signal<FocusOrigin>;
 }
 
 export const [NgpFocusTrapStateToken, ngpFocusTrap, injectFocusTrapState, provideFocusTrapState] =
-  createPrimitive('NgpFocusTrap', ({ disabled = signal(false) }: NgpFocusTrapProps) => {
+  createPrimitive(
+    'NgpFocusTrap',
+    ({ disabled = signal(false), focusOrigin }: NgpFocusTrapProps) => {
     const element = injectElementRef();
     const overlay = inject(NgpOverlay, { optional: true });
     const injector = inject(Injector);
@@ -280,10 +288,10 @@ export const [NgpFocusTrapStateToken, ngpFocusTrap, injectFocusTrapState, provid
       if (!element) {
         return;
       }
-      // Its not great that we are relying on an internal API here, but we need to in order to
-      // try and best determine the focus origin when it is programmatically closed by the user.
+      // Use the provided focus origin if available, otherwise fall back to FocusMonitor's last origin
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      focusMonitor.focusVia(element, (focusMonitor as any)._lastFocusOrigin, {
+      const origin = focusOrigin?.() ?? (focusMonitor as any)._lastFocusOrigin ?? 'program';
+      focusMonitor.focusVia(element, origin, {
         preventScroll: true,
       });
     }
@@ -313,4 +321,5 @@ export const [NgpFocusTrapStateToken, ngpFocusTrap, injectFocusTrapState, provid
     overlay?.closing.pipe(safeTakeUntilDestroyed()).subscribe(() => focusTrap.deactivate());
 
     return {} satisfies NgpFocusTrapState;
-  });
+  },
+);

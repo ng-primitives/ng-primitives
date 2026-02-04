@@ -324,7 +324,7 @@ export const [
       show('keyboard');
     }
 
-    function onBlur(): void {
+    function onBlur(event: FocusEvent): void {
       if (disabled?.() || !triggers().includes('focus')) {
         return;
       }
@@ -332,6 +332,16 @@ export const [
       // If not open, do nothing
       if (!open()) {
         return;
+      }
+
+      // Check if focus is moving to an element inside the menu
+      const relatedTarget = event.relatedTarget as HTMLElement | null;
+      if (relatedTarget) {
+        const menuElements = overlay()?.getElements() ?? [];
+        const isFocusInMenu = menuElements.some(el => el.contains(relatedTarget));
+        if (isFocusInMenu) {
+          return;
+        }
       }
 
       hide();
@@ -500,9 +510,14 @@ export const [
     function setPointerOverContent(isOver: boolean): void {
       pointerOverContent.set(isOver);
 
-      if (!isOver && !pointerOverTrigger() && open() && triggers().includes('hover')) {
-        // Pointer left content and is not over trigger - hide the menu
-        hide();
+      if (!isOver && open() && triggers().includes('hover')) {
+        // Use a small delay to allow pointer to move back to trigger
+        setTimeout(() => {
+          // Only hide if pointer is not over trigger or content
+          if (!isPointerOverMenuArea()) {
+            hide();
+          }
+        }, 50);
       }
     }
 
