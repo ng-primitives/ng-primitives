@@ -1,5 +1,6 @@
 import { FocusOrigin } from '@angular/cdk/a11y';
-import { computed } from '@angular/core';
+import { Directionality } from '@angular/cdk/bidi';
+import { computed, inject } from '@angular/core';
 import { ngpFocusTrap } from 'ng-primitives/focus-trap';
 import { injectElementRef } from 'ng-primitives/internal';
 import { injectOverlay } from 'ng-primitives/portal';
@@ -27,6 +28,7 @@ export const [NgpMenuStateToken, ngpMenu, injectMenuState, provideMenuState] = c
   ({}: NgpMenuProps) => {
     const element = injectElementRef();
     const overlay = injectOverlay();
+    const directionality = inject(Directionality, { optional: true });
     const menuTrigger = injectMenuTriggerState();
     const parentMenu = injectMenuState({ optional: true, skipSelf: true });
 
@@ -47,9 +49,10 @@ export const [NgpMenuStateToken, ngpMenu, injectMenuState, provideMenuState] = c
     styleBinding(element, '--ngp-menu-trigger-width.px', overlay.triggerWidth);
     styleBinding(element, '--ngp-menu-transform-origin', overlay.transformOrigin);
 
-    // Event listeners for pointer tracking
+    // Event listeners for pointer tracking and keyboard
     listener(element, 'pointerenter', onPointerEnter);
     listener(element, 'pointerleave', onPointerLeave);
+    listener(element, 'keydown', onKeydown);
 
     // Subject to notify children to close submenus
     const closeSubmenus = new Subject<HTMLElement>();
@@ -61,6 +64,44 @@ export const [NgpMenuStateToken, ngpMenu, injectMenuState, provideMenuState] = c
 
     function onPointerLeave(): void {
       menuTrigger()?.setPointerOverContent(false);
+    }
+
+    function onKeydown(event: KeyboardEvent): void {
+      // Only handle close key for top-level menus (no parent submenu)
+      // Submenus are handled by menu-item-state via NgpSubmenuTrigger
+      if (parentMenu()) {
+        return;
+      }
+
+      const placement = overlay.finalPlacement();
+      if (!placement) {
+        return;
+      }
+
+      const isRtl = (directionality?.value ?? 'ltr') === 'rtl';
+
+      // Determine which arrow key should close based on placement
+      let shouldClose = false;
+
+      if (placement.startsWith('right')) {
+        // Right-placed menu: Left Arrow closes (or Right Arrow in RTL)
+        shouldClose = event.key === (isRtl ? 'ArrowRight' : 'ArrowLeft');
+      } else if (placement.startsWith('left')) {
+        // Left-placed menu: Right Arrow closes (or Left Arrow in RTL)
+        shouldClose = event.key === (isRtl ? 'ArrowLeft' : 'ArrowRight');
+      } else if (placement.startsWith('bottom')) {
+        // Bottom-placed menu: Up Arrow closes
+        shouldClose = event.key === 'ArrowUp';
+      } else if (placement.startsWith('top')) {
+        // Top-placed menu: Down Arrow closes
+        shouldClose = event.key === 'ArrowDown';
+      }
+
+      if (shouldClose) {
+        event.preventDefault();
+        event.stopPropagation();
+        menuTrigger()?.hide('keyboard');
+      }
     }
 
     function closeAllMenus(origin: FocusOrigin): void {
