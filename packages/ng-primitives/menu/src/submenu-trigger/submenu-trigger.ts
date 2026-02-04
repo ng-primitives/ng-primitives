@@ -86,4 +86,12 @@ export class NgpSubmenuTrigger<T = unknown> {
   toggle(event: MouseEvent): void {
     this.state.toggle(event);
   }
+
+  /**
+   * Focus the trigger element.
+   * @param origin - The focus origin
+   */
+  focus(origin: FocusOrigin = 'program'): void {
+    this.state.focus(origin);
+  }
 }

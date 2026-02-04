@@ -57,15 +57,26 @@ class FocusTrapStack {
     // remove the focus trap
     const index = this.stack.indexOf(focusTrap);
 
-    if (index >= 0) {
-      this.stack.splice(index, 1);
+    if (index < 0) {
+      return;
     }
 
-    // activate the previous focus trap
-    const previous = this.stack[this.stack.length - 1];
+    // Only reactivate the previous trap if we're removing from the top of the stack.
+    // This prevents reactivating a parent trap when closing all overlays (where the
+    // parent is removed first, leaving the child at the top).
+    const wasOnTop = index === this.stack.length - 1;
 
-    if (previous) {
-      previous.activate();
+    // Deactivate the removed focus trap so its event listeners don't interfere
+    focusTrap.deactivate();
+    this.stack.splice(index, 1);
+
+    // activate the previous focus trap only if removed from top
+    if (wasOnTop) {
+      const previous = this.stack[this.stack.length - 1];
+
+      if (previous) {
+        previous.activate();
+      }
     }
   }
 }
@@ -160,10 +171,10 @@ export const [NgpFocusTrapStateToken, ngpFocusTrap, injectFocusTrapState, provid
       }
 
       function teardownFocusTrap(): void {
+        // Remove from stack (this also deactivates the trap)
         focusTrapStack.remove(focusTrap);
         mutationObserver?.disconnect();
         mutationObserver = null;
-        focusTrap.deactivate();
 
         // Remove event listeners
         document.removeEventListener('focusin', handleFocusIn);
@@ -204,6 +215,11 @@ export const [NgpFocusTrapStateToken, ngpFocusTrap, injectFocusTrapState, provid
        * We move focus to the container to keep focus trapped correctly.
        */
       function handleMutations(mutations: MutationRecord[]): void {
+        // Don't handle mutations if the focus trap is not active (e.g., during overlay close)
+        if (!focusTrap.active || disabled?.()) {
+          return;
+        }
+
         const focusedElement = document.activeElement as HTMLElement | null;
 
         if (focusedElement !== document.body) {
@@ -317,8 +333,11 @@ export const [NgpFocusTrapStateToken, ngpFocusTrap, injectFocusTrapState, provid
       // Listen to keydown events
       listener(element, 'keydown', handleKeyDown);
 
-      // if this is used within an overlay we must disable the focus trap as soon as the overlay is closing
-      overlay?.closing.pipe(safeTakeUntilDestroyed()).subscribe(() => focusTrap.deactivate());
+      // if this is used within an overlay we must remove the focus trap from the stack as soon as the overlay is closing
+      // this prevents reactivation of parent focus traps during component destruction
+      overlay?.closing.pipe(safeTakeUntilDestroyed()).subscribe(() => {
+        focusTrapStack.remove(focusTrap);
+      });
 
       return {} satisfies NgpFocusTrapState;
     },

@@ -105,6 +105,12 @@ export interface NgpSubmenuTriggerState {
    * @param shouldFlip - Whether the menu should flip
    */
   setFlip(shouldFlip: boolean): void;
+
+  /**
+   * Focus the trigger element.
+   * @param origin - The focus origin
+   */
+  focus(origin: FocusOrigin): void;
 }
 
 export interface NgpSubmenuTriggerProps<T = unknown> {
@@ -241,6 +247,9 @@ export const [
       }
 
       // Create config for the overlay
+      // Note: restoreFocus is false because submenus should never auto-restore focus.
+      // When closeAllMenus is called, the ROOT menu's overlay handles focus restoration.
+      // When closing just the submenu (Left Arrow), the caller handles focus explicitly.
       const config: NgpOverlayConfig<T> = {
         content: menuContent,
         triggerElement: element.nativeElement,
@@ -250,7 +259,7 @@ export const [
         flip: flip(),
         closeOnOutsideClick: true,
         closeOnEscape: true,
-        restoreFocus: true,
+        restoreFocus: false,
         viewContainerRef,
       };
 
@@ -312,6 +321,10 @@ export const [
       flip.set(shouldFlip);
     }
 
+    function focus(origin: FocusOrigin): void {
+      focusMonitor.focusVia(element.nativeElement, origin, { preventScroll: true });
+    }
+
     return {
       placement: deprecatedSetter(placement, 'setPlacement'),
       offset: deprecatedSetter(offset, 'setOffset'),
@@ -327,6 +340,7 @@ export const [
       setFlip,
       setPlacement,
       setOffset,
+      focus,
     } satisfies NgpSubmenuTriggerState;
   },
 );

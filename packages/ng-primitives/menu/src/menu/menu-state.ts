@@ -81,6 +81,8 @@ export const [NgpMenuStateToken, ngpMenu, injectMenuState, provideMenuState] = c
       const isRtl = (directionality?.value ?? 'ltr') === 'rtl';
 
       // Determine which arrow key should close based on placement
+      // Note: Only Left/Right arrows close menus (for side-placed menus).
+      // Up/Down arrows are reserved for roving focus navigation within the menu.
       let shouldClose = false;
 
       if (placement.startsWith('right')) {
@@ -89,12 +91,6 @@ export const [NgpMenuStateToken, ngpMenu, injectMenuState, provideMenuState] = c
       } else if (placement.startsWith('left')) {
         // Left-placed menu: Right Arrow closes (or Left Arrow in RTL)
         shouldClose = event.key === (isRtl ? 'ArrowLeft' : 'ArrowRight');
-      } else if (placement.startsWith('bottom')) {
-        // Bottom-placed menu: Up Arrow closes
-        shouldClose = event.key === 'ArrowUp';
-      } else if (placement.startsWith('top')) {
-        // Top-placed menu: Down Arrow closes
-        shouldClose = event.key === 'ArrowDown';
       }
 
       if (shouldClose) {
