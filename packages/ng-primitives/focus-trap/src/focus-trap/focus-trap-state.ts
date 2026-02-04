@@ -100,226 +100,226 @@ export const [NgpFocusTrapStateToken, ngpFocusTrap, injectFocusTrapState, provid
   createPrimitive(
     'NgpFocusTrap',
     ({ disabled = signal(false), focusOrigin }: NgpFocusTrapProps) => {
-    const element = injectElementRef();
-    const overlay = inject(NgpOverlay, { optional: true });
-    const injector = inject(Injector);
-    const focusMonitor = inject(FocusMonitor);
-    const interactivityChecker = inject(InteractivityChecker);
-    const ngZone = inject(NgZone);
+      const element = injectElementRef();
+      const overlay = inject(NgpOverlay, { optional: true });
+      const injector = inject(Injector);
+      const focusMonitor = inject(FocusMonitor);
+      const interactivityChecker = inject(InteractivityChecker);
+      const ngZone = inject(NgZone);
 
-    // Create a new focus trap
-    const focusTrap = new FocusTrap();
+      // Create a new focus trap
+      const focusTrap = new FocusTrap();
 
-    // Store the mutation observer
-    let mutationObserver: MutationObserver | null = null;
+      // Store the mutation observer
+      let mutationObserver: MutationObserver | null = null;
 
-    // Store the last focused element
-    let lastFocusedElement: HTMLElement | null = null;
+      // Store the last focused element
+      let lastFocusedElement: HTMLElement | null = null;
 
-    // Host bindings
-    attrBinding(element, 'tabindex', '-1');
-    dataBinding(element, 'data-focus-trap', () => (disabled() ? null : ''));
+      // Host bindings
+      attrBinding(element, 'tabindex', '-1');
+      dataBinding(element, 'data-focus-trap', () => (disabled() ? null : ''));
 
-    // Setup the focus trap
-    function setupFocusTrap(): void {
-      focusTrapStack.add(focusTrap);
+      // Setup the focus trap
+      function setupFocusTrap(): void {
+        focusTrapStack.add(focusTrap);
 
-      mutationObserver = new MutationObserver(handleMutations);
+        mutationObserver = new MutationObserver(handleMutations);
 
-      // Setup event listeners
-      ngZone.runOutsideAngular(() => {
-        mutationObserver!.observe(element.nativeElement, {
-          childList: true,
-          subtree: true,
+        // Setup event listeners
+        ngZone.runOutsideAngular(() => {
+          mutationObserver!.observe(element.nativeElement, {
+            childList: true,
+            subtree: true,
+          });
+          document.addEventListener('focusin', handleFocusIn);
+          document.addEventListener('focusout', handleFocusOut);
         });
-        document.addEventListener('focusin', handleFocusIn);
-        document.addEventListener('focusout', handleFocusOut);
-      });
 
-      const previouslyFocusedElement = document.activeElement as HTMLElement | null;
-      const hasFocusedCandidate = element.nativeElement.contains(previouslyFocusedElement);
+        const previouslyFocusedElement = document.activeElement as HTMLElement | null;
+        const hasFocusedCandidate = element.nativeElement.contains(previouslyFocusedElement);
 
-      // Only perform initial focusing if the focus trap is not disabled
-      if (!hasFocusedCandidate && !disabled?.()) {
-        // we do this to ensure the content is rendered before we try to find the first focusable element
-        // and focus it
-        afterNextRender(
-          {
-            write: () => {
-              focusFirst();
+        // Only perform initial focusing if the focus trap is not disabled
+        if (!hasFocusedCandidate && !disabled?.()) {
+          // we do this to ensure the content is rendered before we try to find the first focusable element
+          // and focus it
+          afterNextRender(
+            {
+              write: () => {
+                focusFirst();
 
-              // if the focus didn't change, focus the container
-              if (document.activeElement === previouslyFocusedElement) {
-                focus(element.nativeElement);
-              }
+                // if the focus didn't change, focus the container
+                if (document.activeElement === previouslyFocusedElement) {
+                  focus(element.nativeElement);
+                }
+              },
             },
-          },
-          { injector },
-        );
-      }
-    }
-
-    function teardownFocusTrap(): void {
-      focusTrapStack.remove(focusTrap);
-      mutationObserver?.disconnect();
-      mutationObserver = null;
-      focusTrap.deactivate();
-
-      // Remove event listeners
-      document.removeEventListener('focusin', handleFocusIn);
-      document.removeEventListener('focusout', handleFocusOut);
-    }
-
-    function handleFocusIn(event: FocusEvent): void {
-      if (!focusTrap.active || disabled?.()) {
-        return;
-      }
-
-      const target = event.target as HTMLElement | null;
-
-      if (element.nativeElement.contains(target)) {
-        lastFocusedElement = target;
-      } else {
-        focus(lastFocusedElement);
-      }
-    }
-
-    /**
-     * Handles the `focusout` event.
-     */
-    function handleFocusOut(event: FocusEvent) {
-      if (!focusTrap.active || disabled?.() || event.relatedTarget === null) {
-        return;
-      }
-
-      const relatedTarget = event.relatedTarget as HTMLElement;
-
-      if (!element.nativeElement.contains(relatedTarget)) {
-        focus(lastFocusedElement);
-      }
-    }
-
-    /**
-     * If the focused element gets removed from the DOM, browsers move focus back to the document.body.
-     * We move focus to the container to keep focus trapped correctly.
-     */
-    function handleMutations(mutations: MutationRecord[]): void {
-      const focusedElement = document.activeElement as HTMLElement | null;
-
-      if (focusedElement !== document.body) {
-        return;
-      }
-
-      for (const mutation of mutations) {
-        if (mutation.removedNodes.length > 0) {
-          focus(element.nativeElement);
+            { injector },
+          );
         }
       }
-    }
 
-    /**
-     * Handles the `keydown` event.
-     */
-    function handleKeyDown(event: KeyboardEvent): void {
-      if (!focusTrap.active || disabled?.()) {
-        return;
+      function teardownFocusTrap(): void {
+        focusTrapStack.remove(focusTrap);
+        mutationObserver?.disconnect();
+        mutationObserver = null;
+        focusTrap.deactivate();
+
+        // Remove event listeners
+        document.removeEventListener('focusin', handleFocusIn);
+        document.removeEventListener('focusout', handleFocusOut);
       }
 
-      const isTabKey = event.key === 'Tab' && !event.altKey && !event.ctrlKey && !event.metaKey;
-      const focusedElement = document.activeElement as HTMLElement | null;
-
-      if (isTabKey && focusedElement) {
-        const container = event.currentTarget as HTMLElement;
-        const [first, last] = getTabbableEdges(container);
-        const hasTabbableElementsInside = first && last;
-
-        // we can only wrap focus if we have tabbable edges
-        if (!hasTabbableElementsInside) {
-          if (focusedElement === container) {
-            event.preventDefault();
-          }
-        } else {
-          if (!event.shiftKey && focusedElement === last) {
-            event.preventDefault();
-            focus(first);
-          } else if (event.shiftKey && focusedElement === first) {
-            event.preventDefault();
-            focus(last);
-          }
-        }
-      }
-    }
-
-    /**
-     * Returns the first and last tabbable elements inside a container.
-     */
-    function getTabbableEdges(container: HTMLElement) {
-      const candidates = getTabbableCandidates(container);
-      const first = findVisible(candidates);
-      const last = findVisible(candidates.reverse());
-      return [first, last] as const;
-    }
-
-    /**
-     * Returns a list of potential focusable elements inside a container.
-     */
-    function getTabbableCandidates(container: HTMLElement) {
-      const nodes: HTMLElement[] = [];
-      const walker = document.createTreeWalker(container, NodeFilter.SHOW_ELEMENT, {
-        acceptNode: (node: HTMLElement) =>
-          interactivityChecker.isFocusable(node)
-            ? NodeFilter.FILTER_ACCEPT
-            : NodeFilter.FILTER_SKIP,
-      });
-      while (walker.nextNode()) {
-        nodes.push(walker.currentNode as HTMLElement);
-      }
-      return nodes;
-    }
-
-    /**
-     * Returns the first visible element in a list..
-     */
-    function findVisible(elements: HTMLElement[]) {
-      return elements.find(element => interactivityChecker.isVisible(element)) ?? null;
-    }
-
-    function focus(element: HTMLElement | null): void {
-      if (!element) {
-        return;
-      }
-      // Use the provided focus origin if available, otherwise fall back to FocusMonitor's last origin
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const origin = focusOrigin?.() ?? (focusMonitor as any)._lastFocusOrigin ?? 'program';
-      focusMonitor.focusVia(element, origin, {
-        preventScroll: true,
-      });
-    }
-
-    function focusFirst(): void {
-      const previouslyFocusedElement = document.activeElement;
-
-      for (const candidate of getTabbableCandidates(element.nativeElement)) {
-        focus(candidate);
-
-        if (document.activeElement !== previouslyFocusedElement) {
+      function handleFocusIn(event: FocusEvent): void {
+        if (!focusTrap.active || disabled?.()) {
           return;
         }
+
+        const target = event.target as HTMLElement | null;
+
+        if (element.nativeElement.contains(target)) {
+          lastFocusedElement = target;
+        } else {
+          focus(lastFocusedElement);
+        }
       }
-    }
 
-    // Setup the focus trap
-    setupFocusTrap();
+      /**
+       * Handles the `focusout` event.
+       */
+      function handleFocusOut(event: FocusEvent) {
+        if (!focusTrap.active || disabled?.() || event.relatedTarget === null) {
+          return;
+        }
 
-    // Teardown the focus trap on destroy
-    onDestroy(teardownFocusTrap);
+        const relatedTarget = event.relatedTarget as HTMLElement;
 
-    // Listen to keydown events
-    listener(element, 'keydown', handleKeyDown);
+        if (!element.nativeElement.contains(relatedTarget)) {
+          focus(lastFocusedElement);
+        }
+      }
 
-    // if this is used within an overlay we must disable the focus trap as soon as the overlay is closing
-    overlay?.closing.pipe(safeTakeUntilDestroyed()).subscribe(() => focusTrap.deactivate());
+      /**
+       * If the focused element gets removed from the DOM, browsers move focus back to the document.body.
+       * We move focus to the container to keep focus trapped correctly.
+       */
+      function handleMutations(mutations: MutationRecord[]): void {
+        const focusedElement = document.activeElement as HTMLElement | null;
 
-    return {} satisfies NgpFocusTrapState;
-  },
-);
+        if (focusedElement !== document.body) {
+          return;
+        }
+
+        for (const mutation of mutations) {
+          if (mutation.removedNodes.length > 0) {
+            focus(element.nativeElement);
+          }
+        }
+      }
+
+      /**
+       * Handles the `keydown` event.
+       */
+      function handleKeyDown(event: KeyboardEvent): void {
+        if (!focusTrap.active || disabled?.()) {
+          return;
+        }
+
+        const isTabKey = event.key === 'Tab' && !event.altKey && !event.ctrlKey && !event.metaKey;
+        const focusedElement = document.activeElement as HTMLElement | null;
+
+        if (isTabKey && focusedElement) {
+          const container = event.currentTarget as HTMLElement;
+          const [first, last] = getTabbableEdges(container);
+          const hasTabbableElementsInside = first && last;
+
+          // we can only wrap focus if we have tabbable edges
+          if (!hasTabbableElementsInside) {
+            if (focusedElement === container) {
+              event.preventDefault();
+            }
+          } else {
+            if (!event.shiftKey && focusedElement === last) {
+              event.preventDefault();
+              focus(first);
+            } else if (event.shiftKey && focusedElement === first) {
+              event.preventDefault();
+              focus(last);
+            }
+          }
+        }
+      }
+
+      /**
+       * Returns the first and last tabbable elements inside a container.
+       */
+      function getTabbableEdges(container: HTMLElement) {
+        const candidates = getTabbableCandidates(container);
+        const first = findVisible(candidates);
+        const last = findVisible(candidates.reverse());
+        return [first, last] as const;
+      }
+
+      /**
+       * Returns a list of potential focusable elements inside a container.
+       */
+      function getTabbableCandidates(container: HTMLElement) {
+        const nodes: HTMLElement[] = [];
+        const walker = document.createTreeWalker(container, NodeFilter.SHOW_ELEMENT, {
+          acceptNode: (node: HTMLElement) =>
+            interactivityChecker.isFocusable(node)
+              ? NodeFilter.FILTER_ACCEPT
+              : NodeFilter.FILTER_SKIP,
+        });
+        while (walker.nextNode()) {
+          nodes.push(walker.currentNode as HTMLElement);
+        }
+        return nodes;
+      }
+
+      /**
+       * Returns the first visible element in a list..
+       */
+      function findVisible(elements: HTMLElement[]) {
+        return elements.find(element => interactivityChecker.isVisible(element)) ?? null;
+      }
+
+      function focus(element: HTMLElement | null): void {
+        if (!element) {
+          return;
+        }
+        // Use the provided focus origin if available, otherwise fall back to FocusMonitor's last origin
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const origin = focusOrigin?.() ?? (focusMonitor as any)._lastFocusOrigin ?? 'program';
+        focusMonitor.focusVia(element, origin, {
+          preventScroll: true,
+        });
+      }
+
+      function focusFirst(): void {
+        const previouslyFocusedElement = document.activeElement;
+
+        for (const candidate of getTabbableCandidates(element.nativeElement)) {
+          focus(candidate);
+
+          if (document.activeElement !== previouslyFocusedElement) {
+            return;
+          }
+        }
+      }
+
+      // Setup the focus trap
+      setupFocusTrap();
+
+      // Teardown the focus trap on destroy
+      onDestroy(teardownFocusTrap);
+
+      // Listen to keydown events
+      listener(element, 'keydown', handleKeyDown);
+
+      // if this is used within an overlay we must disable the focus trap as soon as the overlay is closing
+      overlay?.closing.pipe(safeTakeUntilDestroyed()).subscribe(() => focusTrap.deactivate());
+
+      return {} satisfies NgpFocusTrapState;
+    },
+  );
