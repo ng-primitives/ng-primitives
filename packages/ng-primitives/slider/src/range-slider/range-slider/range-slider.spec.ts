@@ -741,7 +741,7 @@ describe('NgpRangeSliderThumb Drag Events', () => {
       height: 20,
       x: 0,
       y: 0,
-      toJSON: () => {},
+      toJSON: () => ({}),
     });
 
     fixture.detectChanges();
@@ -908,8 +908,7 @@ describe('NgpRangeSlider Edge Cases', () => {
       height: 20,
       x: 0,
       y: 0,
-      // eslint-disable-next-line @typescript-eslint/no-empty-function
-      toJSON: () => {},
+      toJSON: () => ({}),
     });
 
     // Click at 33% of the track (closer to low thumb at 20%)
@@ -947,8 +946,7 @@ describe('NgpRangeSlider Edge Cases', () => {
       height: 20,
       x: 0,
       y: 0,
-      // eslint-disable-next-line @typescript-eslint/no-empty-function
-      toJSON: () => {},
+      toJSON: () => ({}),
     });
 
     // Click at 73% of the track (closer to high thumb at 80%)

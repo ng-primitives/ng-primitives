@@ -90,8 +90,18 @@ export interface NgpOverlayConfig<T = unknown> {
   closeOnOutsideClick?: boolean;
   /** Whether to close the overlay when pressing escape */
   closeOnEscape?: boolean;
-  /** Whether to restore focus to the trigger element when hiding the overlay */
-  restoreFocus?: boolean;
+  /**
+   * Whether to restore focus to the trigger element when hiding the overlay.
+   * Can be a boolean or a signal that returns a boolean.
+   */
+  restoreFocus?: boolean | Signal<boolean>;
+
+  /**
+   * Optional callback to update an external close origin signal.
+   * Called when the overlay is hidden with the focus origin.
+   * @internal
+   */
+  onClose?: (origin: FocusOrigin) => void;
   /** Additional middleware for floating UI positioning */
   additionalMiddleware?: Middleware[];
 
@@ -188,6 +198,13 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
 
   /** A unique id for the overlay */
   readonly id = signal<string>(uniqueId('ngp-overlay'));
+
+  /**
+   * Signal tracking the focus origin used to close the overlay.
+   * Updated when hide() is called.
+   * @internal
+   */
+  readonly closeOrigin = signal<FocusOrigin>('program');
 
   /** The aria-describedby attribute for accessibility */
   readonly ariaDescribedBy = computed(() => (this.isOpen() ? this.id() : undefined));
@@ -407,7 +424,21 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
         return;
       }
 
-      if (this.config.restoreFocus) {
+      const origin = options?.origin ?? 'program';
+
+      // Update the close origin signal so computed signals can react
+      this.closeOrigin.set(origin);
+
+      // Call the onClose callback if provided (for external signal updates)
+      this.config.onClose?.(origin);
+
+      // Determine if focus should be restored
+      const shouldRestoreFocus =
+        typeof this.config.restoreFocus === 'function'
+          ? this.config.restoreFocus()
+          : (this.config.restoreFocus ?? false);
+
+      if (shouldRestoreFocus) {
         this.focusMonitor.focusVia(this.config.triggerElement, options?.origin ?? 'program', {
           preventScroll: true,
         });
@@ -464,6 +495,10 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
 
     // Emit closing event
     this.closing.next();
+
+    // Update close origin and call callback (default to 'program' for immediate closes)
+    this.closeOrigin.set('program');
+    this.config.onClose?.('program');
 
     // Destroy immediately without animations
     this.destroyOverlay(true);
