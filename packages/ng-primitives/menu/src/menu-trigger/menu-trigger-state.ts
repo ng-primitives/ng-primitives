@@ -297,8 +297,8 @@ export const [
 
       pointerOverTrigger.set(false);
 
-      // If not open, do nothing
-      if (!open()) {
+      // If the overlay hasn't been created, there's nothing to cancel
+      if (!overlay()) {
         return;
       }
 
@@ -329,8 +329,8 @@ export const [
         return;
       }
 
-      // If not open, do nothing
-      if (!open()) {
+      // If the overlay hasn't been created, there's nothing to cancel
+      if (!overlay()) {
         return;
       }
 
@@ -434,13 +434,13 @@ export const [
     }
 
     function hide(origin: FocusOrigin = 'program'): void {
-      // If the trigger is disabled or the menu is not open, do nothing
-      if (!open()) {
+      const currentOverlay = overlay();
+      if (!currentOverlay) {
         return;
       }
 
       // Hide the overlay (this will trigger onClose callback which updates closeOrigin)
-      overlay()?.hide({ origin });
+      currentOverlay.hide({ origin });
     }
 
     function createOverlayInstance(): void {

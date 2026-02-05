@@ -294,7 +294,7 @@ export const [NgpFocusTrapStateToken, ngpFocusTrap, injectFocusTrapState, provid
       }
 
       /**
-       * Returns the first visible element in a list..
+       * Returns the first visible element in a list.
        */
       function findVisible(elements: HTMLElement[]) {
         return elements.find(element => interactivityChecker.isVisible(element)) ?? null;

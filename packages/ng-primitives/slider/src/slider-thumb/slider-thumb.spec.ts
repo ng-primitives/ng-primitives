@@ -133,7 +133,7 @@ describe('NgpSliderThumb', () => {
       height: 20,
       x: 0,
       y: 0,
-      toJSON: () => {},
+      toJSON: () => ({}),
     });
 
     fixture.detectChanges();
@@ -177,7 +177,7 @@ describe('NgpSliderThumb', () => {
       height: 20,
       x: 0,
       y: 0,
-      toJSON: () => {},
+      toJSON: () => ({}),
     });
 
     fixture.detectChanges();

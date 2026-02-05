@@ -291,7 +291,7 @@ describe('NgpSlider', () => {
       x: 0,
       y: 0,
 
-      toJSON: () => {},
+      toJSON: () => ({}),
     });
 
     // Wait for change detection to complete

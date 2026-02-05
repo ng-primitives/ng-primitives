@@ -741,7 +741,7 @@ describe('NgpRangeSliderThumb Drag Events', () => {
       height: 20,
       x: 0,
       y: 0,
-      toJSON: () => {},
+      toJSON: () => ({}),
     });
 
     fixture.detectChanges();
