@@ -1,3 +1,14 @@
+## 0.108.0 (2026-02-05)
+
+### 🚀 Features
+
+- **listbox:** enhance active item management in NgpListbox ([#639](https://github.com/ng-primitives/ng-primitives/pull/639))
+- **menu:** add menu triggers ([#640](https://github.com/ng-primitives/ng-primitives/pull/640))
+
+### ❤️ Thank You
+
+- Ashley Hunter
+
 ## 0.107.0 (2026-02-01)
 
 ### 🚀 Features
