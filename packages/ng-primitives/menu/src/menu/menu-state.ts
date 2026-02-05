@@ -32,11 +32,10 @@ export const [NgpMenuStateToken, ngpMenu, injectMenuState, provideMenuState] = c
     const menuTrigger = injectMenuTriggerState();
     const parentMenu = injectMenuState({ optional: true, skipSelf: true });
 
-    // Only trap focus when the menu was opened via keyboard
-    // Pass the open origin so focus trap uses the correct origin for focus-visible styling
+    // Always trap focus in menus per WAI-ARIA guidelines (Tab should not navigate within menus)
+    // Pass the open origin so focus trap uses the correct origin for :focus-visible styling
     const openOrigin = computed(() => menuTrigger()?.openOrigin() ?? 'program');
     ngpFocusTrap({
-      disabled: computed(() => openOrigin() !== 'keyboard'),
       focusOrigin: openOrigin,
     });
 

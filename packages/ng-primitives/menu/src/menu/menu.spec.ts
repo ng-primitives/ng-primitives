@@ -14,7 +14,7 @@ import { NgpMenu } from './menu';
       <div ngpMenu data-testid="root-menu">
         <button ngpMenuItem data-testid="item-1">Item 1</button>
         <button ngpMenuItem data-testid="item-2">Item 2</button>
-        <button ngpMenuItem [ngpSubmenuTrigger]="submenu" data-testid="submenu-trigger">
+        <button [ngpSubmenuTrigger]="submenu" ngpMenuItem data-testid="submenu-trigger">
           Open Submenu
         </button>
       </div>
@@ -36,11 +36,7 @@ class TestMenuWithSubmenuComponent {
 
 @Component({
   template: `
-    <button
-      [ngpMenuTriggerPlacement]="placement"
-      [ngpMenuTrigger]="menu"
-      data-testid="trigger"
-    >
+    <button [ngpMenuTriggerPlacement]="placement" [ngpMenuTrigger]="menu" data-testid="trigger">
       Open Menu
     </button>
 
@@ -65,8 +61,8 @@ class TestMenuPlacementComponent {
       <div ngpMenu data-testid="root-menu">
         <button
           [ngpSubmenuTriggerDisabled]="disabled"
-          ngpMenuItem
           [ngpSubmenuTrigger]="submenu"
+          ngpMenuItem
           data-testid="submenu-trigger"
         >
           Open Submenu
@@ -114,7 +110,7 @@ class TestMenuWithDisabledItemsComponent {
 
 @Component({
   template: `
-    <div data-testid="outside-element">Outside</div>
+    <div data-testid="outside-element" tabindex="0">Outside</div>
     <button [ngpMenuTrigger]="menu" data-testid="trigger">Open Menu</button>
 
     <ng-template #menu>
@@ -126,9 +122,61 @@ class TestMenuWithDisabledItemsComponent {
   `,
   imports: [NgpMenuTrigger, NgpMenu, NgpMenuItem],
 })
-class TestMenuWithOutsideElementComponent {}
+class TestMenuFocusTrapComponent {}
 
 describe('NgpMenu', () => {
+  describe('Focus Trap (WAI-ARIA compliance)', () => {
+    // Per WAI-ARIA guidelines, menus should always trap focus (Tab cannot leave menu).
+    // The focus trap is always enabled, regardless of how the menu was opened.
+
+    it('should have data-focus-trap attribute when opened via mouse click', fakeAsync(async () => {
+      const { fixture } = await render(TestMenuFocusTrapComponent);
+      const trigger = fixture.debugElement.nativeElement.querySelector('[data-testid="trigger"]');
+
+      // Open menu via mouse click (detail > 0 indicates mouse)
+      fireEvent.click(trigger, { detail: 1 });
+      tick();
+      fixture.detectChanges();
+      flush();
+
+      const menu = document.querySelector('[data-testid="menu"]');
+      expect(menu).toBeInTheDocument();
+      // Focus trap should be active (indicated by data-focus-trap attribute)
+      // This ensures Tab key is trapped within the menu per WAI-ARIA
+      expect(menu).toHaveAttribute('data-focus-trap');
+    }));
+
+    it('should have data-focus-trap attribute when opened via keyboard', fakeAsync(async () => {
+      const { fixture } = await render(TestMenuFocusTrapComponent);
+      const trigger = fixture.debugElement.nativeElement.querySelector('[data-testid="trigger"]');
+
+      // Open menu via keyboard (detail === 0 indicates keyboard)
+      fireEvent.click(trigger, { detail: 0 });
+      tick();
+      fixture.detectChanges();
+      flush();
+
+      const menu = document.querySelector('[data-testid="menu"]');
+      expect(menu).toBeInTheDocument();
+      // Focus trap should be active (indicated by data-focus-trap attribute)
+      expect(menu).toHaveAttribute('data-focus-trap');
+    }));
+
+    it('should have tabindex="-1" on menu for focus management', fakeAsync(async () => {
+      const { fixture } = await render(TestMenuFocusTrapComponent);
+      const trigger = fixture.debugElement.nativeElement.querySelector('[data-testid="trigger"]');
+
+      fireEvent.click(trigger);
+      tick();
+      fixture.detectChanges();
+      flush();
+
+      const menu = document.querySelector('[data-testid="menu"]');
+      // tabindex="-1" allows the focus trap to programmatically focus the container
+      expect(menu).toHaveAttribute('tabindex', '-1');
+    }));
+  });
+
   describe('Basic Rendering', () => {
     it('should render menu with role="menu"', fakeAsync(async () => {
       const { fixture } = await render(TestMenuWithSubmenuComponent);
