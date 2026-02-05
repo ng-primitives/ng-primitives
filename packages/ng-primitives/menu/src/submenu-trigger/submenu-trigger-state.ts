@@ -26,7 +26,6 @@ import {
 } from 'ng-primitives/state';
 import { safeTakeUntilDestroyed } from 'ng-primitives/utils';
 import { NgpMenuPlacement } from '../menu-trigger/menu-trigger';
-import { NgpMenuTriggerStateToken } from '../menu-trigger/menu-trigger-state';
 import { injectMenuState } from '../menu/menu-state';
 
 export interface NgpSubmenuTriggerState {
