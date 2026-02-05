@@ -320,16 +320,16 @@ Adheres to the [WAI-ARIA Menu Button Pattern](https://www.w3.org/WAI/ARIA/apg/pa
 
 ### Keyboard Interactions
 
-| Key                        | Description                                                                              |
-| -------------------------- | ---------------------------------------------------------------------------------------- |
-| <kbd>Enter</kbd>           | Activates the focused menu item and closes all menus.                                    |
-| <kbd>Escape</kbd>          | Closes all open menus and returns focus to the root menu trigger.                        |
-| <kbd>ArrowDown</kbd>       | Moves focus to the next menu item.                                                       |
-| <kbd>ArrowUp</kbd>         | Moves focus to the previous menu item.                                                   |
-| <kbd>ArrowRight</kbd>      | Opens a submenu when focused on a submenu trigger.                                       |
-| <kbd>ArrowLeft</kbd>       | Closes the current submenu and moves focus to the parent submenu trigger.                |
-| <kbd>Home</kbd>            | Moves focus to the first menu item.                                                      |
-| <kbd>End</kbd>             | Moves focus to the last menu item.                                                       |
+| Key                   | Description                                                               |
+| --------------------- | ------------------------------------------------------------------------- |
+| <kbd>Enter</kbd>      | Activates the focused menu item and closes all menus.                     |
+| <kbd>Escape</kbd>     | Closes all open menus and returns focus to the root menu trigger.         |
+| <kbd>ArrowDown</kbd>  | Moves focus to the next menu item.                                        |
+| <kbd>ArrowUp</kbd>    | Moves focus to the previous menu item.                                    |
+| <kbd>ArrowRight</kbd> | Opens a submenu when focused on a submenu trigger.                        |
+| <kbd>ArrowLeft</kbd>  | Closes the current submenu and moves focus to the parent submenu trigger. |
+| <kbd>Home</kbd>       | Moves focus to the first menu item.                                       |
+| <kbd>End</kbd>        | Moves focus to the last menu item.                                        |
 
 ### Focus Management
 
