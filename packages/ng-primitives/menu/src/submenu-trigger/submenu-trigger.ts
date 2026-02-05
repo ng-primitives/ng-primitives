@@ -3,12 +3,22 @@ import { BooleanInput } from '@angular/cdk/coercion';
 import { booleanAttribute, Directive, input } from '@angular/core';
 import { coerceOffset, NgpOffset, NgpOffsetInput, NgpOverlayContent } from 'ng-primitives/portal';
 import { NgpMenuPlacement } from '../menu-trigger/menu-trigger';
-import { ngpSubmenuTrigger, provideSubmenuTriggerState } from './submenu-trigger-state';
+import { NgpMenuTriggerStateToken } from '../menu-trigger/menu-trigger-state';
+import {
+  NgpSubmenuTriggerStateToken,
+  ngpSubmenuTrigger,
+  provideSubmenuTriggerState,
+} from './submenu-trigger-state';
 
 @Directive({
   selector: '[ngpSubmenuTrigger]',
   exportAs: 'ngpSubmenuTrigger',
-  providers: [provideSubmenuTriggerState()],
+  providers: [
+    provideSubmenuTriggerState(),
+    // Also provide as NgpMenuTriggerStateToken so the submenu's menu-state
+    // can find this trigger's openOrigin for :focus-visible styling
+    { provide: NgpMenuTriggerStateToken, useExisting: NgpSubmenuTriggerStateToken },
+  ],
 })
 export class NgpSubmenuTrigger<T = unknown> {
   /**

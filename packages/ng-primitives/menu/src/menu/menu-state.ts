@@ -66,7 +66,17 @@ export const [NgpMenuStateToken, ngpMenu, injectMenuState, provideMenuState] = c
     }
 
     function onKeydown(event: KeyboardEvent): void {
-      // Only handle close key for top-level menus (no parent submenu)
+      // Handle Escape key - close all menus and restore focus to root trigger
+      // We handle this here instead of using overlay's closeOnEscape to ensure
+      // proper focus restoration through the closeAllMenus chain
+      if (event.key === 'Escape') {
+        event.preventDefault();
+        event.stopPropagation();
+        closeAllMenus('keyboard');
+        return;
+      }
+
+      // Only handle arrow close keys for top-level menus (no parent submenu)
       // Submenus are handled by menu-item-state via NgpSubmenuTrigger
       if (parentMenu()) {
         return;

@@ -370,6 +370,88 @@ describe('NgpMenu', () => {
       // All menus should be closed
       expect(trigger).not.toHaveAttribute('data-open');
     }));
+
+    it('should restore focus to root trigger when Escape is pressed in submenu (keyboard opened)', fakeAsync(async () => {
+      const { fixture } = await render(TestMenuWithSubmenuComponent);
+      const trigger = fixture.debugElement.nativeElement.querySelector(
+        '[data-testid="root-trigger"]',
+      );
+
+      // Open root menu via keyboard (detail === 0)
+      fireEvent.click(trigger, { detail: 0 });
+      tick();
+      fixture.detectChanges();
+      flush();
+
+      // Navigate to submenu trigger and open via keyboard
+      const submenuTrigger = document.querySelector(
+        '[data-testid="submenu-trigger"]',
+      ) as HTMLElement;
+      submenuTrigger.focus();
+      fireEvent.keyDown(submenuTrigger, { key: 'ArrowRight' });
+      tick();
+      fixture.detectChanges();
+      flush();
+
+      // Verify submenu is open
+      expect(submenuTrigger).toHaveAttribute('data-open');
+
+      // Focus a submenu item
+      const submenuItem = document.querySelector('[data-testid="submenu-item-1"]') as HTMLElement;
+      submenuItem.focus();
+
+      // Press Escape
+      fireEvent.keyDown(submenuItem, { key: 'Escape' });
+      tick();
+      fixture.detectChanges();
+      flush();
+
+      // All menus should be closed
+      expect(trigger).not.toHaveAttribute('data-open');
+
+      // Focus should be restored to the root trigger
+      expect(document.activeElement).toBe(trigger);
+    }));
+
+    it('should restore focus to root trigger when Enter is pressed on submenu item (keyboard opened)', fakeAsync(async () => {
+      const { fixture } = await render(TestMenuWithSubmenuComponent);
+      const trigger = fixture.debugElement.nativeElement.querySelector(
+        '[data-testid="root-trigger"]',
+      );
+
+      // Open root menu via keyboard (detail === 0)
+      fireEvent.click(trigger, { detail: 0 });
+      tick();
+      fixture.detectChanges();
+      flush();
+
+      // Navigate to submenu trigger and open via keyboard
+      const submenuTrigger = document.querySelector(
+        '[data-testid="submenu-trigger"]',
+      ) as HTMLElement;
+      submenuTrigger.focus();
+      fireEvent.keyDown(submenuTrigger, { key: 'ArrowRight' });
+      tick();
+      fixture.detectChanges();
+      flush();
+
+      // Verify submenu is open
+      expect(submenuTrigger).toHaveAttribute('data-open');
+
+      // Click submenu item with keyboard (detail === 0)
+      const submenuItem = document.querySelector('[data-testid="submenu-item-1"]') as HTMLElement;
+      submenuItem.focus();
+      fireEvent.click(submenuItem, { detail: 0 });
+      tick();
+      fixture.detectChanges();
+      flush();
+
+      // All menus should be closed
+      expect(trigger).not.toHaveAttribute('data-open');
+
+      // Focus should be restored to the root trigger
+      expect(document.activeElement).toBe(trigger);
+    }));
   });
 });
 

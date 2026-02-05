@@ -26,6 +26,7 @@ import {
 } from 'ng-primitives/state';
 import { safeTakeUntilDestroyed } from 'ng-primitives/utils';
 import { NgpMenuPlacement } from '../menu-trigger/menu-trigger';
+import { NgpMenuTriggerStateToken } from '../menu-trigger/menu-trigger-state';
 import { injectMenuState } from '../menu/menu-state';
 
 export interface NgpSubmenuTriggerState {
@@ -60,9 +61,17 @@ export interface NgpSubmenuTriggerState {
   readonly flip: WritableSignal<boolean>;
 
   /**
-   * Show the menu.
+   * The focus origin used to open the submenu.
+   * Used by the submenu's focus trap for :focus-visible styling.
+   * @internal
    */
-  show(): void;
+  readonly openOrigin: Signal<FocusOrigin>;
+
+  /**
+   * Show the menu.
+   * @param origin - The focus origin (keyboard, mouse, touch, or program)
+   */
+  show(origin?: FocusOrigin): void;
 
   /**
    * Hide the menu.
@@ -111,6 +120,14 @@ export interface NgpSubmenuTriggerState {
    * @param origin - The focus origin
    */
   focus(origin: FocusOrigin): void;
+
+  /**
+   * Set whether the pointer is over the menu content.
+   * For submenus, this is a no-op as hover is handled via showSubmenuOnHover.
+   * @param isOver - Whether the pointer is over the content
+   * @internal
+   */
+  setPointerOverContent(isOver: boolean): void;
 }
 
 export interface NgpSubmenuTriggerProps<T = unknown> {
@@ -165,6 +182,7 @@ export const [
 
     const overlay = signal<NgpOverlay<T> | null>(null);
     const open = computed(() => overlay()?.isOpen() ?? false);
+    const openOrigin = signal<FocusOrigin>('program');
 
     // Subscribe to parent menu's closeSubmenus
     parentMenu()
@@ -204,21 +222,18 @@ export const [
       if (open()) {
         hide(origin);
       } else {
-        // if the origin was keyboard we must set this in the focus monitor manually - for some reason
-        // it doesn't pick it up automatically
-        if (origin === 'keyboard') {
-          (focusMonitor as any)._lastFocusOrigin = 'keyboard';
-        }
-
-        show();
+        show(origin);
       }
     }
 
-    function show(): void {
+    function show(origin: FocusOrigin = 'program'): void {
       // If the trigger is disabled, don't show the menu
       if (disabled?.()) {
         return;
       }
+
+      // Store the origin used to open the menu (for focus-visible styling in submenu)
+      openOrigin.set(origin);
 
       // Create the overlay if it doesn't exist yet
       if (!overlay()) {
@@ -250,6 +265,8 @@ export const [
       // Note: restoreFocus is false because submenus should never auto-restore focus.
       // When closeAllMenus is called, the ROOT menu's overlay handles focus restoration.
       // When closing just the submenu (Left Arrow), the caller handles focus explicitly.
+      // closeOnEscape is false because we handle Escape in menu-state.ts to ensure
+      // proper focus restoration through closeAllMenus.
       const config: NgpOverlayConfig<T> = {
         content: menuContent,
         triggerElement: element.nativeElement,
@@ -258,7 +275,7 @@ export const [
         offset: offset(),
         flip: flip(),
         closeOnOutsideClick: true,
-        closeOnEscape: true,
+        closeOnEscape: false,
         restoreFocus: false,
         viewContainerRef,
       };
@@ -279,7 +296,7 @@ export const [
 
       if ((isRightArrow && !isRtl) || (isLeftArrow && isRtl)) {
         event.preventDefault();
-        show();
+        show('keyboard');
       }
     }
 
@@ -294,7 +311,7 @@ export const [
         return;
       }
 
-      show();
+      show('mouse');
     }
 
     function setDisabled(isDisabled: boolean): void {
@@ -325,6 +342,14 @@ export const [
       focusMonitor.focusVia(element.nativeElement, origin, { preventScroll: true });
     }
 
+    // No-op for submenus - hover behavior is handled via showSubmenuOnHover on the trigger element
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    function setPointerOverContent(_isOver: boolean): void {
+      // Submenus don't need pointer tracking on content because:
+      // 1. The submenu trigger handles hover via showSubmenuOnHover
+      // 2. Closing on hover-out is handled by the parent menu's closeSubmenus mechanism
+    }
+
     return {
       placement: deprecatedSetter(placement, 'setPlacement'),
       offset: deprecatedSetter(offset, 'setOffset'),
@@ -332,6 +357,7 @@ export const [
       menu: deprecatedSetter(menu, 'setMenu'),
       flip: deprecatedSetter(flip, 'setFlip'),
       open,
+      openOrigin,
       show,
       hide,
       toggle,
@@ -341,6 +367,7 @@ export const [
       setPlacement,
       setOffset,
       focus,
+      setPointerOverContent,
     } satisfies NgpSubmenuTriggerState;
   },
 );
