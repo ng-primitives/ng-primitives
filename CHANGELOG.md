@@ -1,3 +1,13 @@
+## 0.108.1 (2026-02-06)
+
+### 🩹 Fixes
+
+- **tooltip:** add support for programmatic skip cooldown ([#641](https://github.com/ng-primitives/ng-primitives/pull/641))
+
+### ❤️ Thank You
+
+- Ashley Hunter
+
 ## 0.108.0 (2026-02-05)
 
 ### 🚀 Features
