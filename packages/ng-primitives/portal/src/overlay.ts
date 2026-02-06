@@ -615,11 +615,7 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
 
     // Register as active overlay for this type (skip when cooldown is bypassed)
     if (this.config.overlayType && !skipCooldown) {
-      this.cooldownManager.registerActive(
-        this.config.overlayType,
-        this,
-        this.config.cooldown ?? 0,
-      );
+      this.cooldownManager.registerActive(this.config.overlayType, this, this.config.cooldown ?? 0);
     }
 
     this.scrollStrategy =
