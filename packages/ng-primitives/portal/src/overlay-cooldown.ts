@@ -43,7 +43,7 @@ export class NgpOverlayCooldownManager {
 
   /**
    * Register an overlay as active for its type.
-   * If another overlay of the same type is already active, it will be closed immediately.
+   * Any existing overlay of the same type will be closed immediately.
    * @param overlayType The type identifier for the overlay group
    * @param overlay The overlay instance
    * @param cooldown The cooldown duration - if > 0, enables instant transitions
@@ -51,32 +51,20 @@ export class NgpOverlayCooldownManager {
   registerActive(overlayType: string, overlay: CooldownOverlay, cooldown: number): void {
     const existing = this.activeOverlays.get(overlayType);
 
-    // Set the new overlay as active FIRST before closing the old one
-    this.activeOverlays.set(overlayType, overlay);
-
-    // If there's an existing overlay and cooldown is enabled, close it immediately
-    // This ensures instant DOM swap when hovering between items of the same type
+    // If there's an existing overlay and cooldown is enabled, close it immediately.
+    // This ensures instant DOM swap when hovering between items of the same type.
     if (existing && existing !== overlay && cooldown > 0) {
-      // Mark the outgoing overlay as instant before hiding so exit animation is skipped
       existing.instantTransition?.set(true);
       existing.hideImmediate();
     }
-  }
 
-  /**
-   * Check if a specific overlay is the active one for its type.
-   * @param overlayType The type identifier for the overlay group
-   * @param overlay The overlay instance to check
-   * @returns true if this overlay is the active one, false otherwise
-   */
-  isActiveOverlay(overlayType: string, overlay: CooldownOverlay): boolean {
-    return this.activeOverlays.get(overlayType) === overlay;
+    this.activeOverlays.set(overlayType, overlay);
   }
 
   /**
    * Unregister an overlay when it closes.
    * @param overlayType The type identifier for the overlay group
-   * @param overlay The overlay instance (only unregisters if it matches)
+   * @param overlay The overlay instance to remove
    */
   unregisterActive(overlayType: string, overlay: CooldownOverlay): void {
     if (this.activeOverlays.get(overlayType) === overlay) {
