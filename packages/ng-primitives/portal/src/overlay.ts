@@ -320,9 +320,9 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
 
   /**
    * Show the overlay with the specified delay
-   * @param showDelay Optional delay to override the configured showDelay
+   * @param options Optional options for showing the overlay
    */
-  show(): Promise<void> {
+  show(options?: { skipCooldown?: boolean }): Promise<void> {
     return new Promise<void>(resolve => {
       // If closing is in progress, cancel it
       if (this.closeTimeout) {
@@ -342,7 +342,8 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
       // Check cooldown regardless of delay value - we need to detect instant transitions
       // even when showDelay is 0, so CSS can skip animations via data-instant attribute.
       // However, if cooldown is explicitly set to 0, disable cooldown behavior entirely.
-      if (this.config.overlayType) {
+      // Skip cooldown detection entirely when skipCooldown is true (e.g. programmatic show).
+      if (!options?.skipCooldown && this.config.overlayType) {
         const cooldownDuration = this.config.cooldown ?? 300;
         if (
           cooldownDuration > 0 &&
@@ -359,7 +360,7 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
 
       this.openTimeout = this.disposables.setTimeout(() => {
         this.openTimeout = undefined;
-        this.createOverlay();
+        this.createOverlay(options?.skipCooldown);
         resolve();
       }, delay);
     });
@@ -555,8 +556,9 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
 
   /**
    * Internal method to create the overlay
+   * @param skipCooldown If true, skip registering with the cooldown manager
    */
-  private createOverlay(): void {
+  private createOverlay(skipCooldown?: boolean): void {
     if (!this.config.content) {
       throw new Error('Overlay content must be provided');
     }
@@ -611,9 +613,13 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
     // Mark as open
     this.isOpen.set(true);
 
-    // Register as active overlay for this type (will close any existing one if within cooldown)
-    if (this.config.overlayType) {
-      this.cooldownManager.registerActive(this.config.overlayType, this, this.config.cooldown ?? 0);
+    // Register as active overlay for this type (skip when cooldown is bypassed)
+    if (this.config.overlayType && !skipCooldown) {
+      this.cooldownManager.registerActive(
+        this.config.overlayType,
+        this,
+        this.config.cooldown ?? 0,
+      );
     }
 
     this.scrollStrategy =
