@@ -107,6 +107,12 @@ export class NgpSelect {
     alias: 'ngpSelectDropdownContainer',
   });
 
+  /** Whether the dropdown should flip when there is not enough space. */
+  readonly flip = input<boolean, BooleanInput>(this.config.flip, {
+    alias: 'ngpSelectDropdownFlip',
+    transform: booleanAttribute,
+  });
+
   /**
    * A function that will scroll the active option into view. This can be overridden
    * for cases such as virtual scrolling where we cannot scroll the option directly because

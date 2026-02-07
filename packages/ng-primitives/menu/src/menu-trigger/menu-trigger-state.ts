@@ -1,4 +1,5 @@
 import { FocusOrigin } from '@angular/cdk/a11y';
+import { Directionality } from '@angular/cdk/bidi';
 import {
   computed,
   inject,
@@ -25,6 +26,7 @@ import {
   deprecatedSetter,
   listener,
 } from 'ng-primitives/state';
+import { NgpMenuTriggerType } from '../config/menu-config';
 import { NgpMenuPlacement } from './menu-trigger';
 
 export interface NgpMenuTriggerState<T = unknown> {
@@ -61,6 +63,12 @@ export interface NgpMenuTriggerState<T = unknown> {
   readonly context: WritableSignal<T>;
 
   /**
+   * The focus origin that was used to open the menu.
+   * @internal
+   */
+  readonly openOrigin: Signal<FocusOrigin>;
+
+  /**
    * Set whether the trigger is disabled.
    * @param isDisabled - Whether the trigger is disabled
    */
@@ -92,8 +100,9 @@ export interface NgpMenuTriggerState<T = unknown> {
 
   /**
    * Show the menu.
+   * @param origin - The focus origin
    */
-  show(): void;
+  show(origin?: FocusOrigin): void;
   /**
    * Hide the menu.
    * @param origin - The focus origin
@@ -111,6 +120,13 @@ export interface NgpMenuTriggerState<T = unknown> {
    * @param menu - The new menu
    */
   setMenu(menu: NgpOverlayContent<any>): void;
+
+  /**
+   * Set whether the pointer is over the menu content.
+   * @param isOver - Whether the pointer is over the content
+   * @internal
+   */
+  setPointerOverContent(isOver: boolean): void;
 }
 
 export interface NgpMenuTriggerProps<T = unknown> {
@@ -154,6 +170,25 @@ export interface NgpMenuTriggerProps<T = unknown> {
    * Context to provide to the menu.
    */
   readonly context?: Signal<T>;
+  /**
+   * Cooldown duration in milliseconds.
+   */
+  readonly cooldown?: Signal<number>;
+
+  /**
+   * Which trigger types are enabled.
+   */
+  readonly triggers?: Signal<NgpMenuTriggerType[]>;
+
+  /**
+   * The delay before showing the menu.
+   */
+  readonly showDelay?: Signal<number>;
+
+  /**
+   * The delay before hiding the menu.
+   */
+  readonly hideDelay?: Signal<number>;
 }
 
 export const [
@@ -172,10 +207,15 @@ export const [
     context: _context = signal<T>(undefined as T),
     container,
     scrollBehavior,
+    cooldown,
+    triggers = signal(['click'] as NgpMenuTriggerType[]),
+    showDelay = signal(0),
+    hideDelay = signal(0),
   }: NgpMenuTriggerProps<T>) => {
     const element = injectElementRef();
     const injector = inject(Injector);
     const viewContainerRef = inject(ViewContainerRef);
+    const directionality = inject(Directionality);
 
     // Controlled properties
     const menu = controlled(_menu);
@@ -188,6 +228,19 @@ export const [
     // Internal state
     const overlay = signal<NgpOverlay<T> | null>(null);
     const open = computed(() => overlay()?.isOpen() ?? false);
+    const openOrigin = signal<FocusOrigin>('program');
+    const closeOrigin = signal<FocusOrigin>('program');
+
+    // Track whether pointer is over trigger or content (for hover triggers)
+    const pointerOverTrigger = signal(false);
+    const pointerOverContent = signal(false);
+    const isPointerOverMenuArea = computed(() => pointerOverTrigger() || pointerOverContent());
+
+    // Computed signal to determine if focus should be restored
+    // Only restore if opened via keyboard OR closed via keyboard
+    const shouldRestoreFocus = computed(
+      () => openOrigin() === 'keyboard' || closeOrigin() === 'keyboard',
+    );
 
     // Host bindings
     attrBinding(element, 'aria-haspopup', 'true');
@@ -195,15 +248,164 @@ export const [
     dataBinding(element, 'data-open', open);
     dataBinding(element, 'data-placement', placement);
 
-    // Event listeners
+    // Event listeners - conditionally add based on enabled triggers
     listener(element, 'click', onClick);
+    listener(element, 'pointerenter', onPointerEnter);
+    listener(element, 'pointerleave', onPointerLeave);
+    listener(element, 'focus', onFocus);
+    listener(element, 'blur', onBlur);
+    listener(element, 'keydown', onKeydown);
 
     // Methods
     function onClick(event: MouseEvent): void {
-      if (disabled?.()) {
+      if (disabled?.() || !triggers().includes('click')) {
         return;
       }
       toggle(event);
+    }
+
+    function onPointerEnter(event: PointerEvent): void {
+      if (disabled?.() || !triggers().includes('hover')) {
+        return;
+      }
+
+      // Don't trigger on touch events
+      if (event.pointerType === 'touch') {
+        return;
+      }
+
+      pointerOverTrigger.set(true);
+
+      // If already open, cancel any pending hide
+      if (open()) {
+        overlay()?.cancelPendingClose();
+        return;
+      }
+
+      show('mouse');
+    }
+
+    function onPointerLeave(event: PointerEvent): void {
+      if (disabled?.() || !triggers().includes('hover')) {
+        return;
+      }
+
+      // Don't trigger on touch events
+      if (event.pointerType === 'touch') {
+        return;
+      }
+
+      pointerOverTrigger.set(false);
+
+      // If the overlay hasn't been created, there's nothing to cancel
+      if (!overlay()) {
+        return;
+      }
+
+      // Use a small delay to allow moving to content
+      setTimeout(() => {
+        // Only hide if pointer is not over trigger or content
+        if (!isPointerOverMenuArea()) {
+          hide();
+        }
+      }, 50); // Small grace period for moving between trigger and content
+    }
+
+    function onFocus(): void {
+      if (disabled?.() || !triggers().includes('focus')) {
+        return;
+      }
+
+      // If already open, do nothing
+      if (open()) {
+        return;
+      }
+
+      show('keyboard');
+    }
+
+    function onBlur(event: FocusEvent): void {
+      if (disabled?.() || !triggers().includes('focus')) {
+        return;
+      }
+
+      // If the overlay hasn't been created, there's nothing to cancel
+      if (!overlay()) {
+        return;
+      }
+
+      // Check if focus is moving to an element inside the menu
+      const relatedTarget = event.relatedTarget as HTMLElement | null;
+      if (relatedTarget) {
+        const menuElements = overlay()?.getElements() ?? [];
+        const isFocusInMenu = menuElements.some(el => el.contains(relatedTarget));
+        if (isFocusInMenu) {
+          return;
+        }
+      }
+
+      hide();
+    }
+
+    function onKeydown(event: KeyboardEvent): void {
+      if (disabled?.()) {
+        return;
+      }
+
+      const enabledTriggers = triggers();
+
+      // Handle Enter key - toggle behavior
+      if (event.key === 'Enter' && enabledTriggers.includes('enter')) {
+        event.preventDefault();
+        const origin: FocusOrigin = 'keyboard';
+        if (open()) {
+          hide(origin);
+        } else {
+          show(origin);
+        }
+        return;
+      }
+
+      // Handle arrow keys - placement-aware
+      if (!enabledTriggers.includes('arrowkey')) {
+        return;
+      }
+
+      const isArrowKey =
+        event.key === 'ArrowUp' ||
+        event.key === 'ArrowDown' ||
+        event.key === 'ArrowLeft' ||
+        event.key === 'ArrowRight';
+
+      if (!isArrowKey) {
+        return;
+      }
+
+      // Get RTL direction
+      const isRtl = directionality.value === 'rtl';
+
+      // Check if arrow direction matches placement
+      const currentPlacement = placement();
+      let shouldOpen = false;
+
+      if (currentPlacement.startsWith('bottom') && event.key === 'ArrowDown') {
+        shouldOpen = true;
+      } else if (currentPlacement.startsWith('top') && event.key === 'ArrowUp') {
+        shouldOpen = true;
+      } else if (currentPlacement.startsWith('right')) {
+        const isRightArrow = event.key === 'ArrowRight';
+        const isLeftArrow = event.key === 'ArrowLeft';
+        shouldOpen = (isRightArrow && !isRtl) || (isLeftArrow && isRtl);
+      } else if (currentPlacement.startsWith('left')) {
+        const isRightArrow = event.key === 'ArrowRight';
+        const isLeftArrow = event.key === 'ArrowLeft';
+        shouldOpen = (isLeftArrow && !isRtl) || (isRightArrow && isRtl);
+      }
+
+      if (shouldOpen && !open()) {
+        event.preventDefault();
+        show('keyboard');
+      }
     }
 
     function toggle(event: MouseEvent): void {
@@ -214,11 +416,14 @@ export const [
       if (open()) {
         hide(origin);
       } else {
-        show();
+        show(origin);
       }
     }
 
-    function show(): void {
+    function show(origin: FocusOrigin = 'program'): void {
+      // Store the origin used to open the menu
+      openOrigin.set(origin);
+
       // Create the overlay if it doesn't exist yet
       if (!overlay()) {
         createOverlayInstance();
@@ -229,13 +434,13 @@ export const [
     }
 
     function hide(origin: FocusOrigin = 'program'): void {
-      // If the trigger is disabled or the menu is not open, do nothing
-      if (!open()) {
+      const currentOverlay = overlay();
+      if (!currentOverlay) {
         return;
       }
 
-      // Hide the overlay
-      overlay()?.hide({ origin });
+      // Hide the overlay (this will trigger onClose callback which updates closeOrigin)
+      currentOverlay.hide({ origin });
     }
 
     function createOverlayInstance(): void {
@@ -258,8 +463,13 @@ export const [
         flip: flip(),
         closeOnOutsideClick: true,
         closeOnEscape: true,
-        restoreFocus: true,
+        restoreFocus: shouldRestoreFocus,
+        onClose: (origin: FocusOrigin) => closeOrigin.set(origin),
         scrollBehaviour: scrollBehavior?.() ?? 'block',
+        overlayType: 'menu',
+        cooldown: cooldown?.(),
+        showDelay: showDelay(),
+        hideDelay: hideDelay(),
       };
 
       overlay.set(createOverlay(config));
@@ -293,6 +503,24 @@ export const [
       context.set(newContext);
     }
 
+    /**
+     * Called by menu content when pointer enters/leaves
+     * @internal
+     */
+    function setPointerOverContent(isOver: boolean): void {
+      pointerOverContent.set(isOver);
+
+      if (!isOver && open() && triggers().includes('hover')) {
+        // Use a small delay to allow pointer to move back to trigger
+        setTimeout(() => {
+          // Only hide if pointer is not over trigger or content
+          if (!isPointerOverMenuArea()) {
+            hide();
+          }
+        }, 50);
+      }
+    }
+
     return {
       menu: deprecatedSetter(menu, 'setMenu'),
       placement: deprecatedSetter(placement, 'setPlacement'),
@@ -300,6 +528,7 @@ export const [
       disabled: deprecatedSetter(disabled, 'setDisabled'),
       context: deprecatedSetter(context, 'setContext'),
       open,
+      openOrigin,
       show,
       hide,
       toggle,
@@ -309,6 +538,7 @@ export const [
       setPlacement,
       setOffset,
       setContext,
+      setPointerOverContent,
       flip,
     } satisfies NgpMenuTriggerState<T>;
   },

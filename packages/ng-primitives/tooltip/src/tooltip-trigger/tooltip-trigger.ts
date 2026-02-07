@@ -198,6 +198,17 @@ export class NgpTooltipTrigger<T = null> implements OnDestroy {
   });
 
   /**
+   * Define the cooldown duration in milliseconds.
+   * When moving from one tooltip to another within this duration,
+   * the showDelay is skipped for the new tooltip.
+   * @default 300
+   */
+  readonly cooldown = input<number, NumberInput>(this.config.cooldown, {
+    alias: 'ngpTooltipTriggerCooldown',
+    transform: numberAttribute,
+  });
+
+  /**
    * The overlay that manages the tooltip
    * @internal
    */
@@ -236,27 +247,10 @@ export class NgpTooltipTrigger<T = null> implements OnDestroy {
   }
 
   /**
-   * Show the tooltip.
+   * Show the tooltip programmatically (skips cooldown so multiple tooltips can coexist).
    */
   show(): void {
-    // If already open, cancel any pending close
-    if (this.open()) {
-      this.overlay()?.cancelPendingClose();
-      return;
-    }
-
-    // if we should only show when there is overflow, check if the trigger has overflow
-    if (this.state.showOnOverflow() && !this.hasOverflow()) {
-      // If the trigger does not have overflow, do not show the tooltip
-      return;
-    }
-
-    // Create the overlay if it doesn't exist yet
-    if (!this.overlay()) {
-      this.createOverlay();
-    }
-
-    this.overlay()?.show();
+    this.performShow(true);
   }
 
   /**
@@ -267,14 +261,38 @@ export class NgpTooltipTrigger<T = null> implements OnDestroy {
   }
 
   /**
-   * Show the tooltip from an interaction (respects disabled state).
+   * Show the tooltip from an interaction (respects disabled state, uses cooldown).
    * @internal
    */
   protected showFromInteraction(): void {
     if (this.state.disabled()) {
       return;
     }
-    this.show();
+    this.performShow(false);
+  }
+
+  /**
+   * Shared show logic.
+   * @param skipCooldown When true, skip cooldown registration so multiple tooltips can coexist.
+   */
+  private performShow(skipCooldown: boolean): void {
+    // If already open, cancel any pending close
+    if (this.open()) {
+      this.overlay()?.cancelPendingClose();
+      return;
+    }
+
+    // if we should only show when there is overflow, check if the trigger has overflow
+    if (this.state.showOnOverflow() && !this.hasOverflow()) {
+      return;
+    }
+
+    // Create the overlay if it doesn't exist yet
+    if (!this.overlay()) {
+      this.createOverlay();
+    }
+
+    this.overlay()?.show({ skipCooldown });
   }
 
   /**
@@ -340,6 +358,8 @@ export class NgpTooltipTrigger<T = null> implements OnDestroy {
       viewContainerRef: this.viewContainerRef,
       trackPosition: this.state.trackPosition(),
       position: this.state.position,
+      overlayType: 'tooltip',
+      cooldown: this.state.cooldown(),
     };
 
     // Create the overlay instance

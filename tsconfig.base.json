@@ -65,7 +65,8 @@
       "ng-primitives/toolbar": ["packages/ng-primitives/toolbar/src/index.ts"],
       "ng-primitives/tooltip": ["packages/ng-primitives/tooltip/src/index.ts"],
       "ng-primitives/utils": ["packages/ng-primitives/utils/src/index.ts"],
-      "@ng-primitives/mcp": ["packages/mcp/src/index.ts"]
+      "@ng-primitives/mcp": ["packages/mcp/src/index.ts"],
+      "ng-primitives/navigation-menu": ["packages/ng-primitives/navigation-menu/src/index.ts"]
     }
   },
   "exclude": ["node_modules", "tmp"]

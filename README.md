@@ -27,11 +27,10 @@ npm install ng-primitives
 
 The following table shows the compatibility between Angular Primitives and Angular versions:
 
-| Angular Primitives | Angular           |
-| ------------------ | ----------------- |
-| 0.1.0 - 0.18.0     | 18.0.x            |
-| 0.19.0+            | 19.x.x or v20.x.x |
-| 0.90.0+            | 20.x.x or v21.x.x |
+| Angular Primitives | Angular  |
+| ------------------ | -------- |
+| 0.1.0 - 0.18.0     | 18.x.x   |
+| 0.19.0+            | >=19.x.x |
 
 ## Contributing
 

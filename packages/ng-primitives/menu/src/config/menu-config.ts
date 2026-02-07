@@ -2,6 +2,8 @@ import { InjectionToken, Provider, inject } from '@angular/core';
 import { NgpOffset, NgpShift } from 'ng-primitives/portal';
 import type { NgpMenuPlacement } from '../menu-trigger/menu-trigger';
 
+export type NgpMenuTriggerType = 'click' | 'hover' | 'focus' | 'enter' | 'arrowkey';
+
 export interface NgpMenuConfig {
   /**
    * Define the offset of the menu relative to the trigger.
@@ -46,6 +48,32 @@ export interface NgpMenuConfig {
    * @default true
    */
   wrap: boolean;
+
+  /**
+   * Cooldown duration in milliseconds.
+   * When moving from one menu to another within this duration,
+   * the showDelay is skipped for the new menu.
+   * @default 0
+   */
+  cooldown: number;
+
+  /**
+   * Define which trigger types are enabled for the menu.
+   * @default ['click']
+   */
+  triggers: NgpMenuTriggerType[];
+
+  /**
+   * Define the delay before the menu is displayed (hover/focus triggers).
+   * @default 0
+   */
+  showDelay: number;
+
+  /**
+   * Define the delay before the menu is hidden (hover/focus triggers).
+   * @default 0
+   */
+  hideDelay: number;
 }
 
 export const defaultMenuConfig: NgpMenuConfig = {
@@ -56,6 +84,10 @@ export const defaultMenuConfig: NgpMenuConfig = {
   scrollBehavior: 'block',
   shift: undefined,
   wrap: true,
+  cooldown: 0,
+  triggers: ['click'],
+  showDelay: 0,
+  hideDelay: 0,
 };
 
 export const NgpMenuConfigToken = new InjectionToken<NgpMenuConfig>('NgpMenuConfigToken');

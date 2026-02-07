@@ -64,6 +64,8 @@ export const [NgpMenuItemStateToken, ngpMenuItem, injectMenuItemState, provideMe
 
         if (trigger) {
           trigger.hide('keyboard');
+          // Explicitly focus the submenu trigger since submenus have restoreFocus: false
+          trigger.focus('keyboard');
         }
       }
     }

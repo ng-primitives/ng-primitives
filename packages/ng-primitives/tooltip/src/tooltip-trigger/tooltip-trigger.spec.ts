@@ -524,6 +524,52 @@ describe('NgpTooltipTrigger', () => {
     });
   });
 
+  describe('placements', () => {
+    const placements = [
+      'top',
+      'top-start',
+      'top-end',
+      'bottom',
+      'bottom-start',
+      'bottom-end',
+      'left',
+      'left-start',
+      'left-end',
+      'right',
+      'right-start',
+      'right-end',
+    ];
+
+    it('should support all 12 placements open simultaneously', async () => {
+      const template = placements
+        .map(
+          p =>
+            `<button ngpTooltipTrigger ngpTooltipTriggerPlacement="${p}" ngpTooltipTriggerDisabled="true">${p}</button>`,
+        )
+        .join('\n');
+
+      const { fixture } = await render(template, {
+        imports: [NgpTooltipTrigger, NgpTooltip],
+      });
+
+      // Programmatically show all tooltips
+      const triggers = fixture.debugElement.children
+        .filter(child => child.injector.get(NgpTooltipTrigger, null))
+        .map(child => child.injector.get(NgpTooltipTrigger));
+
+      expect(triggers).toHaveLength(12);
+
+      for (const trigger of triggers) {
+        trigger.show();
+      }
+
+      await waitFor(() => {
+        const tooltips = document.querySelectorAll('[role="tooltip"]');
+        expect(tooltips).toHaveLength(12);
+      });
+    });
+  });
+
   describe('position', () => {
     it('should accept position input for programmatic positioning', async () => {
       const { fixture } = await render(

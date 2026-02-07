@@ -96,6 +96,52 @@ You can customize the shift behavior to control how the menu stays within the vi
 </button>
 ```
 
+### Keyboard Triggers
+
+Enable keyboard triggers to allow users to open menus using Enter or arrow keys:
+
+```html
+<!-- Enable Enter key to toggle menu -->
+<button [ngpMenuTrigger]="menu" [ngpMenuTriggerOpenTriggers]="['click', 'enter']">Menu</button>
+
+<!-- Enable arrow keys (placement-aware) -->
+<button
+  [ngpMenuTrigger]="menu"
+  [ngpMenuTriggerOpenTriggers]="['arrowkey']"
+  ngpMenuTriggerPlacement="right-start"
+>
+  Sidebar Menu
+</button>
+
+<!-- Combine triggers for best UX -->
+<button
+  [ngpMenuTrigger]="menu"
+  [ngpMenuTriggerOpenTriggers]="['hover', 'arrowkey', 'enter']"
+  ngpMenuTriggerPlacement="right-start"
+>
+  Navigation Item
+</button>
+```
+
+#### Keyboard Trigger Behavior
+
+**Enter Key:**
+
+- Toggles menu (opens if closed, closes if open)
+- Only works when trigger is focused
+- Useful for keyboard-only navigation
+
+**Arrow Keys:**
+
+- Placement-aware: Only responds to arrows matching menu direction
+  - `bottom-*` placement: ArrowDown opens
+  - `top-*` placement: ArrowUp opens
+  - `right-*` placement: ArrowRight opens (ArrowLeft in RTL)
+  - `left-*` placement: ArrowLeft opens (ArrowRight in RTL)
+- Automatically respects RTL text direction
+- Only works when trigger is focused
+- Perfect for sidebar/navigation menus
+
 ## API Reference
 
 The following directives are available to import from the `ng-primitives/menu` package:
@@ -120,11 +166,12 @@ The following data attributes are available on the `NgpMenuTrigger` directive:
 
 The following data attributes are available on the `NgpMenu` directive:
 
-| Attribute        | Description                                                                                  |
-| ---------------- | -------------------------------------------------------------------------------------------- |
-| `data-enter`     | Applied when the menu is being added to the DOM. This can be used to trigger animations.     |
-| `data-exit`      | Applied when the menu is being removed from the DOM. This can be used to trigger animations. |
-| `data-placement` | The final rendered placement of the menu.                                                    |
+| Attribute        | Description                                                                                                                        |
+| ---------------- | ---------------------------------------------------------------------------------------------------------------------------------- |
+| `data-enter`     | Applied when the menu is being added to the DOM. This can be used to trigger animations.                                           |
+| `data-exit`      | Applied when the menu is being removed from the DOM. This can be used to trigger animations.                                       |
+| `data-placement` | The final rendered placement of the menu.                                                                                          |
+| `data-instant`   | Applied when switching menus within the cooldown period. Use this to skip animations for instant transitions between menu changes. |
 
 The following CSS custom properties are applied to the `ngpMenu` directive:
 
@@ -183,6 +230,15 @@ The `ngpMenu` will also add the `data-enter` and `data-exit` attributes to the e
 }
 ```
 
+When using the `cooldown` option to allow quick switching between menus, the `data-instant` attribute is applied. Use this to skip animations for instant transitions:
+
+```css
+:host[data-instant][data-enter],
+:host[data-instant][data-exit] {
+  animation: none;
+}
+```
+
 ## Global Configuration
 
 You can configure the default options for all menus in your application by using the `provideMenuConfig` function in a providers array.
@@ -198,6 +254,7 @@ bootstrapApplication(AppComponent, {
       flip: true,
       container: document.body,
       scrollBehavior: 'reposition',
+      cooldown: 0,
     }),
   ],
 });
@@ -253,6 +310,30 @@ bootstrapApplication(AppComponent, {
 Defines how the menu behaves when the window is scrolled. If set to `reposition`, the menu will adjust its position automatically during scrolling. Make sure the menu uses `position: absolute` in this mode. If set to `block`, scrolling will be disabled while the menu is open. In this case, the menu should use `position: fixed`.
 </prop-details>
 
+<prop-details name="cooldown" type="number" default="0">
+  Define the cooldown duration in milliseconds. When moving from one menu to another within this duration, the showDelay is skipped for the new menu. This creates a smoother experience when navigating between multiple menus.
+</prop-details>
+
 ## Accessibility
 
-Adhere to the [WAI-ARIA Authoring Practices](https://www.w3.org/WAI/ARIA/apg/patterns/menu-button/) for menus and submenus.
+Adheres to the [WAI-ARIA Menu Button Pattern](https://www.w3.org/WAI/ARIA/apg/patterns/menu-button/).
+
+### Keyboard Interactions
+
+| Key                   | Description                                                               |
+| --------------------- | ------------------------------------------------------------------------- |
+| <kbd>Enter</kbd>      | Activates the focused menu item and closes all menus.                     |
+| <kbd>Escape</kbd>     | Closes all open menus and returns focus to the root menu trigger.         |
+| <kbd>ArrowDown</kbd>  | Moves focus to the next menu item.                                        |
+| <kbd>ArrowUp</kbd>    | Moves focus to the previous menu item.                                    |
+| <kbd>ArrowRight</kbd> | Opens a submenu when focused on a submenu trigger.                        |
+| <kbd>ArrowLeft</kbd>  | Closes the current submenu and moves focus to the parent submenu trigger. |
+| <kbd>Home</kbd>       | Moves focus to the first menu item.                                       |
+| <kbd>End</kbd>        | Moves focus to the last menu item.                                        |
+
+### Focus Management
+
+- Focus is always trapped within the menu when open (Tab key does not leave the menu).
+- When a menu is opened via keyboard, the first menu item receives visible focus (`:focus-visible`).
+- When a menu is opened via mouse, focus moves into the menu but without the visible focus ring until arrow keys are used.
+- Closing all menus (via Escape or item selection) returns focus to the root menu trigger.

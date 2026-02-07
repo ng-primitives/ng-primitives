@@ -1,4 +1,5 @@
 import { Component, signal } from '@angular/core';
+import { fakeAsync, flush, tick } from '@angular/core/testing';
 import { fireEvent, render } from '@testing-library/angular';
 import { NgpFocusTrap } from './focus-trap';
 
@@ -30,6 +31,36 @@ class TestFocusTrapComponent {
 })
 class TestEmptyFocusTrapComponent {
   disabled = signal(false);
+}
+
+@Component({
+  selector: 'test-nested-focus-traps',
+  imports: [NgpFocusTrap],
+  template: `
+    <div data-testid="outside" tabindex="0">Outside</div>
+    @if (showFirst()) {
+      <div ngpFocusTrap data-testid="focus-trap-1">
+        <button data-testid="trap1-button1" tabindex="0">Trap 1 Button 1</button>
+        <button data-testid="trap1-button2" tabindex="0">Trap 1 Button 2</button>
+        @if (showSecond()) {
+          <div ngpFocusTrap data-testid="focus-trap-2">
+            <button data-testid="trap2-button1" tabindex="0">Trap 2 Button 1</button>
+            <button data-testid="trap2-button2" tabindex="0">Trap 2 Button 2</button>
+            @if (showThird()) {
+              <div ngpFocusTrap data-testid="focus-trap-3">
+                <button data-testid="trap3-button1" tabindex="0">Trap 3 Button 1</button>
+              </div>
+            }
+          </div>
+        }
+      </div>
+    }
+  `,
+})
+class TestNestedFocusTrapsComponent {
+  showFirst = signal(true);
+  showSecond = signal(false);
+  showThird = signal(false);
 }
 
 describe('NgpFocusTrap', () => {
@@ -278,4 +309,136 @@ describe('NgpFocusTrap', () => {
       expect(focusTrap).toBeInTheDocument();
     });
   });
+});
+
+describe('FocusTrapStack behavior', () => {
+  it('should activate new focus trap when added to stack', fakeAsync(async () => {
+    const { fixture } = await render(TestNestedFocusTrapsComponent);
+
+    // First trap should be active
+    const trap1 = fixture.debugElement.nativeElement.querySelector('[data-testid="focus-trap-1"]');
+    expect(trap1).toHaveAttribute('data-focus-trap');
+
+    // Show second trap
+    fixture.componentInstance.showSecond.set(true);
+    fixture.detectChanges();
+    tick();
+    flush();
+
+    // Second trap should now be active
+    const trap2 = fixture.debugElement.nativeElement.querySelector('[data-testid="focus-trap-2"]');
+    expect(trap2).toHaveAttribute('data-focus-trap');
+  }));
+
+  it('should reactivate previous trap when removing from top of stack', fakeAsync(async () => {
+    const { fixture } = await render(TestNestedFocusTrapsComponent);
+
+    // Show second trap
+    fixture.componentInstance.showSecond.set(true);
+    fixture.detectChanges();
+    tick();
+    flush();
+
+    const trap1 = fixture.debugElement.nativeElement.querySelector('[data-testid="focus-trap-1"]');
+    const trap2 = fixture.debugElement.nativeElement.querySelector('[data-testid="focus-trap-2"]');
+
+    expect(trap1).toHaveAttribute('data-focus-trap');
+    expect(trap2).toHaveAttribute('data-focus-trap');
+
+    // Hide second trap (remove from top of stack)
+    fixture.componentInstance.showSecond.set(false);
+    fixture.detectChanges();
+    tick();
+    flush();
+
+    // First trap should still be active (reactivated after removal)
+    expect(trap1).toHaveAttribute('data-focus-trap');
+  }));
+
+  it('should handle multiple nested focus traps', fakeAsync(async () => {
+    const { fixture } = await render(TestNestedFocusTrapsComponent);
+
+    // Show all three traps
+    fixture.componentInstance.showSecond.set(true);
+    fixture.detectChanges();
+    tick();
+    flush();
+
+    fixture.componentInstance.showThird.set(true);
+    fixture.detectChanges();
+    tick();
+    flush();
+
+    const trap1 = fixture.debugElement.nativeElement.querySelector('[data-testid="focus-trap-1"]');
+    const trap2 = fixture.debugElement.nativeElement.querySelector('[data-testid="focus-trap-2"]');
+    const trap3 = fixture.debugElement.nativeElement.querySelector('[data-testid="focus-trap-3"]');
+
+    expect(trap1).toHaveAttribute('data-focus-trap');
+    expect(trap2).toHaveAttribute('data-focus-trap');
+    expect(trap3).toHaveAttribute('data-focus-trap');
+
+    // Remove third trap
+    fixture.componentInstance.showThird.set(false);
+    fixture.detectChanges();
+    tick();
+    flush();
+
+    // Trap 1 and 2 should still exist and have data-focus-trap
+    expect(trap1).toHaveAttribute('data-focus-trap');
+    expect(trap2).toHaveAttribute('data-focus-trap');
+  }));
+
+  it('should handle removing all focus traps', fakeAsync(async () => {
+    const { fixture } = await render(TestNestedFocusTrapsComponent);
+
+    // Show second trap
+    fixture.componentInstance.showSecond.set(true);
+    fixture.detectChanges();
+    tick();
+    flush();
+
+    // Remove first trap (which contains second trap)
+    fixture.componentInstance.showFirst.set(false);
+    fixture.detectChanges();
+    tick();
+    flush();
+
+    // Both traps should be removed without errors
+    const trap1 = fixture.debugElement.nativeElement.querySelector('[data-testid="focus-trap-1"]');
+    const trap2 = fixture.debugElement.nativeElement.querySelector('[data-testid="focus-trap-2"]');
+
+    expect(trap1).toBeNull();
+    expect(trap2).toBeNull();
+  }));
+
+  it('should not interfere with other focus traps when deactivated', fakeAsync(async () => {
+    const { fixture } = await render(TestNestedFocusTrapsComponent);
+
+    // Show second trap
+    fixture.componentInstance.showSecond.set(true);
+    fixture.detectChanges();
+    tick();
+    flush();
+
+    const trap1Button = fixture.debugElement.nativeElement.querySelector(
+      '[data-testid="trap1-button1"]',
+    );
+    const trap2Button = fixture.debugElement.nativeElement.querySelector(
+      '[data-testid="trap2-button1"]',
+    );
+
+    // Focus should be trappable in both traps without errors
+    fireEvent.focus(trap2Button);
+    expect(document.activeElement).toBeTruthy();
+
+    // Hide second trap
+    fixture.componentInstance.showSecond.set(false);
+    fixture.detectChanges();
+    tick();
+    flush();
+
+    // First trap should still work
+    fireEvent.focus(trap1Button);
+    expect(document.activeElement).toBeTruthy();
+  }));
 });

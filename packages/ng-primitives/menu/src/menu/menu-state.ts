@@ -1,7 +1,10 @@
 import { FocusOrigin } from '@angular/cdk/a11y';
+import { Directionality } from '@angular/cdk/bidi';
+import { computed, inject } from '@angular/core';
+import { ngpFocusTrap } from 'ng-primitives/focus-trap';
 import { injectElementRef } from 'ng-primitives/internal';
 import { injectOverlay } from 'ng-primitives/portal';
-import { attrBinding, createPrimitive, styleBinding } from 'ng-primitives/state';
+import { attrBinding, createPrimitive, listener, styleBinding } from 'ng-primitives/state';
 import { Subject } from 'rxjs';
 import { injectMenuTriggerState } from '../menu-trigger/menu-trigger-state';
 
@@ -25,8 +28,16 @@ export const [NgpMenuStateToken, ngpMenu, injectMenuState, provideMenuState] = c
   ({}: NgpMenuProps) => {
     const element = injectElementRef();
     const overlay = injectOverlay();
+    const directionality = inject(Directionality, { optional: true });
     const menuTrigger = injectMenuTriggerState();
     const parentMenu = injectMenuState({ optional: true, skipSelf: true });
+
+    // Always trap focus in menus per WAI-ARIA guidelines (Tab should not navigate within menus)
+    // Pass the open origin so focus trap uses the correct origin for :focus-visible styling
+    const openOrigin = computed(() => menuTrigger()?.openOrigin() ?? 'program');
+    ngpFocusTrap({
+      focusOrigin: openOrigin,
+    });
 
     // Host bindings
     attrBinding(element, 'role', 'menu');
@@ -37,10 +48,67 @@ export const [NgpMenuStateToken, ngpMenu, injectMenuState, provideMenuState] = c
     styleBinding(element, '--ngp-menu-trigger-width.px', overlay.triggerWidth);
     styleBinding(element, '--ngp-menu-transform-origin', overlay.transformOrigin);
 
+    // Event listeners for pointer tracking and keyboard
+    listener(element, 'pointerenter', onPointerEnter);
+    listener(element, 'pointerleave', onPointerLeave);
+    listener(element, 'keydown', onKeydown);
+
     // Subject to notify children to close submenus
     const closeSubmenus = new Subject<HTMLElement>();
 
     // Methods
+    function onPointerEnter(): void {
+      menuTrigger()?.setPointerOverContent(true);
+    }
+
+    function onPointerLeave(): void {
+      menuTrigger()?.setPointerOverContent(false);
+    }
+
+    function onKeydown(event: KeyboardEvent): void {
+      // Handle Escape key - close all menus and restore focus to root trigger
+      // We handle this here instead of using overlay's closeOnEscape to ensure
+      // proper focus restoration through the closeAllMenus chain
+      if (event.key === 'Escape') {
+        event.preventDefault();
+        event.stopPropagation();
+        closeAllMenus('keyboard');
+        return;
+      }
+
+      // Only handle arrow close keys for top-level menus (no parent submenu)
+      // Submenus are handled by menu-item-state via NgpSubmenuTrigger
+      if (parentMenu()) {
+        return;
+      }
+
+      const placement = overlay.finalPlacement();
+      if (!placement) {
+        return;
+      }
+
+      const isRtl = (directionality?.value ?? 'ltr') === 'rtl';
+
+      // Determine which arrow key should close based on placement
+      // Note: Only Left/Right arrows close menus (for side-placed menus).
+      // Up/Down arrows are reserved for roving focus navigation within the menu.
+      let shouldClose = false;
+
+      if (placement.startsWith('right')) {
+        // Right-placed menu: Left Arrow closes (or Right Arrow in RTL)
+        shouldClose = event.key === (isRtl ? 'ArrowRight' : 'ArrowLeft');
+      } else if (placement.startsWith('left')) {
+        // Left-placed menu: Right Arrow closes (or Left Arrow in RTL)
+        shouldClose = event.key === (isRtl ? 'ArrowLeft' : 'ArrowRight');
+      }
+
+      if (shouldClose) {
+        event.preventDefault();
+        event.stopPropagation();
+        menuTrigger()?.hide('keyboard');
+      }
+    }
+
     function closeAllMenus(origin: FocusOrigin): void {
       menuTrigger().hide(origin);
       parentMenu()?.closeAllMenus(origin);

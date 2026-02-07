@@ -1,3 +1,45 @@
+## 0.108.1 (2026-02-06)
+
+### 🩹 Fixes
+
+- **tooltip:** add support for programmatic skip cooldown ([#641](https://github.com/ng-primitives/ng-primitives/pull/641))
+
+### ❤️ Thank You
+
+- Ashley Hunter
+
+## 0.108.0 (2026-02-05)
+
+### 🚀 Features
+
+- **listbox:** enhance active item management in NgpListbox ([#639](https://github.com/ng-primitives/ng-primitives/pull/639))
+- **menu:** add menu triggers ([#640](https://github.com/ng-primitives/ng-primitives/pull/640))
+
+### ❤️ Thank You
+
+- Ashley Hunter
+
+## 0.107.0 (2026-02-01)
+
+### 🚀 Features
+
+- **navigation-menu:** navigation menu ([#635](https://github.com/ng-primitives/ng-primitives/pull/635))
+- **overlay:** adding cooldown support ([#633](https://github.com/ng-primitives/ng-primitives/pull/633))
+
+### ❤️ Thank You
+
+- Ashley Hunter
+
+## 0.106.1 (2026-01-29)
+
+### 🩹 Fixes
+
+- update Angular compatibility to support Angular 19+ ([#631](https://github.com/ng-primitives/ng-primitives/pull/631))
+
+### ❤️ Thank You
+
+- Shahar Kazaz @shaharkazaz
+
 ## 0.106.0 (2026-01-26)
 
 ### 🚀 Features
