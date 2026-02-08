@@ -110,13 +110,10 @@ function processChangeDetection(
   // Add ChangeDetectionStrategy to the `@angular/core` import
   const importRegex = /import\s*\{([^}]*)\}\s*from\s*['"]@angular\/core['"];/;
   if (importRegex.test(contentStr) && !contentStr.includes('ChangeDetectionStrategy')) {
-    contentStr = contentStr.replace(
-      importRegex,
-      (_, imports) => {
-        const trimmed = imports.trim();
-        return `import { ${trimmed}, ChangeDetectionStrategy } from '@angular/core';`;
-      },
-    );
+    contentStr = contentStr.replace(importRegex, (_, imports) => {
+      const trimmed = imports.trim();
+      return `import { ${trimmed}, ChangeDetectionStrategy } from '@angular/core';`;
+    });
   }
 
   // Add changeDetection to the `@Component` decorator
