@@ -123,4 +123,49 @@ describe('Component Schematic', () => {
     const content = tree.readContent('/projects/bar/src/app/accordion/accordion.component.ts');
     expect(content).toMatchSnapshot();
   });
+
+  it('should use OnPush change detection by default', async () => {
+    const options: AngularPrimitivesComponentSchema = {
+      primitive: 'button',
+      path: 'projects/bar/src/app/button',
+    };
+
+    const tree = await schematicRunner.runSchematic('primitive', options, appTree);
+    const content = tree.readContent('/projects/bar/src/app/button/button.component.ts');
+    expect(content).toContain('ChangeDetectionStrategy');
+    expect(content).toContain('changeDetection: ChangeDetectionStrategy.OnPush');
+  });
+
+  it('should not use OnPush change detection when set to Default', async () => {
+    const options: AngularPrimitivesComponentSchema = {
+      primitive: 'button',
+      path: 'projects/bar/src/app/button',
+      changeDetection: 'Default',
+    };
+
+    const tree = await schematicRunner.runSchematic('primitive', options, appTree);
+    const content = tree.readContent('/projects/bar/src/app/button/button.component.ts');
+    expect(content).not.toContain('ChangeDetectionStrategy');
+    expect(content).not.toContain('changeDetection');
+  });
+
+  it('should respect changeDetection Default from @schematics/angular:component in angular.json', async () => {
+    const angularJson = JSON.parse(appTree.readContent('/angular.json'));
+    angularJson.schematics = {
+      '@schematics/angular:component': {
+        changeDetection: 'Default',
+      },
+    };
+    appTree.overwrite('/angular.json', JSON.stringify(angularJson));
+
+    const options: AngularPrimitivesComponentSchema = {
+      primitive: 'button',
+      path: 'projects/bar/src/app/button',
+    };
+
+    const tree = await schematicRunner.runSchematic('primitive', options, appTree);
+    const content = tree.readContent('/projects/bar/src/app/button/button.component.ts');
+    expect(content).not.toContain('ChangeDetectionStrategy');
+    expect(content).not.toContain('changeDetection');
+  });
 });

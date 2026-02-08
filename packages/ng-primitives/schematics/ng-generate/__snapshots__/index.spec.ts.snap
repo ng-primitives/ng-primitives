@@ -1,7 +1,7 @@
 // Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
 
 exports[`Component Schematic should create a button primitive 1`] = `
-"import { Component, input } from '@angular/core';
+"import { Component, input, ChangeDetectionStrategy } from '@angular/core';
 import { NgpButton } from 'ng-primitives/button';
 
 /**
@@ -15,6 +15,7 @@ export type ButtonSize = 'sm' | 'md' | 'lg' | 'xl';
 export type ButtonVariant = 'primary' | 'secondary' | 'destructive' | 'outline' | 'ghost' | 'link';
 
 @Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'button[app-button]',
   hostDirectives: [{ directive: NgpButton, inputs: ['disabled'] }],
   template: \`
@@ -205,10 +206,11 @@ export class ButtonComponent {
 `;
 
 exports[`Component Schematic should create an accordion primitive 1`] = `
-"import { Component } from '@angular/core';
+"import { Component, ChangeDetectionStrategy } from '@angular/core';
 import { NgpAccordion } from 'ng-primitives/accordion';
 
 @Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'app-accordion',
   hostDirectives: [
     {
@@ -244,10 +246,11 @@ export class AccordionComponent {}
 `;
 
 exports[`Component Schematic should create an input primitive 1`] = `
-"import { Component } from '@angular/core';
+"import { Component, ChangeDetectionStrategy } from '@angular/core';
 import { NgpInput } from 'ng-primitives/input';
 
 @Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'input[app-input]',
   hostDirectives: [{ directive: NgpInput, inputs: ['disabled'] }],
   template: '',
