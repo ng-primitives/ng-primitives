@@ -102,16 +102,24 @@ function processChangeDetection(
 
   let contentStr = content.toString();
 
-  // Add ChangeDetectionStrategy to the @angular/core import
-  contentStr = contentStr.replace(
-    /import\s*\{([^}]*)\}\s*from\s*'@angular\/core';/,
-    (_, imports) => {
-      const trimmed = imports.trim();
-      return `import { ${trimmed}, ChangeDetectionStrategy } from '@angular/core';`;
-    },
-  );
+  // Only process TypeScript files that contain `@Component`
+  if (!contentStr.includes('@Component')) {
+    return content;
+  }
 
-  // Add changeDetection to the @Component decorator
+  // Add ChangeDetectionStrategy to the `@angular/core` import
+  const importRegex = /import\s*\{([^}]*)\}\s*from\s*['"]@angular\/core['"];/;
+  if (importRegex.test(contentStr) && !contentStr.includes('ChangeDetectionStrategy')) {
+    contentStr = contentStr.replace(
+      importRegex,
+      (_, imports) => {
+        const trimmed = imports.trim();
+        return `import { ${trimmed}, ChangeDetectionStrategy } from '@angular/core';`;
+      },
+    );
+  }
+
+  // Add changeDetection to the `@Component` decorator
   contentStr = contentStr.replace(
     /@Component\(\{/,
     '@Component({\n  changeDetection: ChangeDetectionStrategy.OnPush,',
