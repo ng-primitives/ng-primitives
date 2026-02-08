@@ -65,11 +65,10 @@ export interface AngularPrimitivesComponentSchema {
    * Whether example styles should be included.
    */
   exampleStyles?: boolean;
-
   /**
    * The change detection strategy to use in the new component.
    *
-   * @default "Default"
+   * `@default` "OnPush"
    */
   changeDetection?: 'Default' | 'OnPush';
 }
