@@ -35,8 +35,15 @@ export function ngpPress({
    */
   const pressed = signal<boolean>(false);
 
+  /**
+   * Track which key started the press to prevent mismatched keyup from ending it.
+   */
+  let activeKey: string | null = null;
+
   // setup event listeners
   listener(elementRef, 'pointerdown', onPointerDown);
+  listener(elementRef, 'keydown', onKeyDown);
+  listener(elementRef, 'keyup', onKeyUp);
 
   // anytime the press state changes we want to update the attribute
   dataBinding(elementRef, 'data-press', () => pressed() && !disabled());
@@ -52,6 +59,7 @@ export function ngpPress({
 
     // clear any existing disposables
     disposableListeners.forEach(dispose => dispose());
+    activeKey = null;
     pressed.set(false);
     onPressEnd?.();
   }
@@ -99,6 +107,35 @@ export function ngpPress({
     });
 
     disposableListeners = [pointerUp, pointerMove, pointerCancel];
+  }
+
+  function onKeyDown(event: KeyboardEvent): void {
+    if (disabled() || pressed() || event.repeat) {
+      return;
+    }
+
+    if (event.key !== 'Enter' && event.key !== ' ') {
+      return;
+    }
+
+    // prevent default for Space to avoid page scroll
+    if (event.key === ' ') {
+      event.preventDefault();
+    }
+
+    activeKey = event.key;
+    pressed.set(true);
+    onPressStart?.();
+  }
+
+  function onKeyUp(event: KeyboardEvent): void {
+    if (!pressed() || event.key !== activeKey) {
+      return;
+    }
+
+    activeKey = null;
+    pressed.set(false);
+    onPressEnd?.();
   }
 
   function onPointerMove(event: PointerEvent): void {
