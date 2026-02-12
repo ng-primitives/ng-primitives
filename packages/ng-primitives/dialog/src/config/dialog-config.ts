@@ -24,8 +24,8 @@ export interface NgpDialogConfig<T = any> {
   scrollStrategy?: ScrollStrategy;
 
   /**
-   * Whether the dialog should close when the user navigates backwards or forwards through browser
-   * history.
+   * Whether the dialog should close when the user navigates. This includes both browser history
+   * navigation (back/forward) and programmatic route changes (e.g. router.navigate()).
    */
   closeOnNavigation?: boolean;
 

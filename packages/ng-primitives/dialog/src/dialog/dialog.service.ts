@@ -14,9 +14,10 @@ import {
   inject,
   isDevMode,
 } from '@angular/core';
+import { NavigationStart, Router } from '@angular/router';
 import { NgpExitAnimationManager } from 'ng-primitives/internal';
 import { uniqueId } from 'ng-primitives/utils';
-import { Observable, Subject, defer } from 'rxjs';
+import { Observable, Subject, Subscription, defer } from 'rxjs';
 import { startWith } from 'rxjs/operators';
 import { NgpDialogConfig, injectDialogConfig } from '../config/dialog-config';
 import { NgpDialogRef } from './dialog-ref';
@@ -40,6 +41,7 @@ export class NgpDialogManager implements OnDestroy {
     skipSelf: true,
   });
   private readonly overlayContainer = inject(OverlayContainer);
+  private readonly router = inject(Router, { optional: true });
   private readonly scrollStrategy: ScrollStrategy =
     this.defaultOptions.scrollStrategy ?? this.overlay.scrollStrategies.block();
 
@@ -47,6 +49,7 @@ export class NgpDialogManager implements OnDestroy {
   private readonly afterAllClosedAtThisLevel = new Subject<void>();
   private readonly afterOpenedAtThisLevel = new Subject<NgpDialogRef>();
   private ariaHiddenElements = new Map<Element, string | null>();
+  private routerSubscription: Subscription | undefined;
 
   /** Keeps track of the currently-open dialogs. */
   get openDialogs(): readonly NgpDialogRef[] {
@@ -142,6 +145,7 @@ export class NgpDialogManager implements OnDestroy {
 
     (this.openDialogs as NgpDialogRef[]).push(dialogRef as NgpDialogRef<any, any>);
     this.afterOpened.next(dialogRef as NgpDialogRef<any, any>);
+    this.subscribeToRouterEvents();
 
     dialogRef.closed.subscribe(closeResult => {
       this.removeOpenDialog(dialogRef as NgpDialogRef<any, any>, true);
@@ -174,6 +178,30 @@ export class NgpDialogManager implements OnDestroy {
     return this.openDialogs.find(dialog => dialog.id === id);
   }
 
+  /**
+   * Subscribe to router navigation events so that dialogs with `closeOnNavigation`
+   * are closed when the user navigates programmatically (e.g. router.navigate()).
+   * CDK's `disposeOnNavigation` only handles browser popstate events.
+   */
+  private subscribeToRouterEvents(): void {
+    if (this.routerSubscription || !this.router) {
+      return;
+    }
+
+    this.routerSubscription = this.router.events.subscribe(event => {
+      if (event instanceof NavigationStart && this.openDialogs.length) {
+        // Close dialogs that have closeOnNavigation enabled (iterate in reverse as closing modifies the array)
+        let i = this.openDialogs.length;
+        while (i--) {
+          const dialog = this.openDialogs[i];
+          if (dialog.config.closeOnNavigation !== false) {
+            dialog.close();
+          }
+        }
+      }
+    });
+  }
+
   ngOnDestroy(): void {
     // Make one pass over all the dialogs that need to be untracked, but should not be closed. We
     // want to stop tracking the open dialog even if it hasn't been closed, because the tracking
@@ -191,6 +219,7 @@ export class NgpDialogManager implements OnDestroy {
     this.afterAllClosedAtThisLevel.complete();
     this.afterOpenedAtThisLevel.complete();
     this.openDialogsAtThisLevel = [];
+    this.routerSubscription?.unsubscribe();
   }
 
   /**
