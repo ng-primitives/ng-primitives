@@ -1,6 +1,6 @@
 {
   "name": "@ng-primitives/mcp",
-  "version": "0.108.1",
+  "version": "0.109.0",
   "description": "MCP server for Angular Primitives - headless UI library",
   "type": "commonjs",
   "main": "./src/index.js",

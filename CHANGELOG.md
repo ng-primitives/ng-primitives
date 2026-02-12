@@ -1,3 +1,20 @@
+## 0.109.0 (2026-02-12)
+
+### 🚀 Features
+
+- reusable component change detection ([#651](https://github.com/ng-primitives/ng-primitives/pull/651))
+- **dialog:** add support for closing on route change ([#656](https://github.com/ng-primitives/ng-primitives/pull/656))
+- **dialog:** improve dialog type safety ([#657](https://github.com/ng-primitives/ng-primitives/pull/657))
+- **overlay:** expose available width and height ([#654](https://github.com/ng-primitives/ng-primitives/pull/654))
+
+### 🩹 Fixes
+
+- **press:** ensuring keyboard events are handled ([#655](https://github.com/ng-primitives/ng-primitives/pull/655))
+
+### ❤️ Thank You
+
+- Ashley Hunter
+
 ## 0.108.1 (2026-02-06)
 
 ### 🩹 Fixes
