@@ -134,11 +134,11 @@ The following directives are available to import from the `ng-primitives/select`
 
 The following CSS custom properties are applied to the `ngpSelectDropdown` directive:
 
-| Property                         | Description                                                            |
-| -------------------------------- | ---------------------------------------------------------------------- |
-| `--ngp-select-transform-origin`  | The transform origin of the select dropdown for animations.            |
-| `--ngp-select-available-width`   | The available width of the dropdown before it overflows the viewport.  |
-| `--ngp-select-available-height`  | The available height of the dropdown before it overflows the viewport. |
+| Property                        | Description                                                            |
+| ------------------------------- | ---------------------------------------------------------------------- |
+| `--ngp-select-transform-origin` | The transform origin of the select dropdown for animations.            |
+| `--ngp-select-available-width`  | The available width of the dropdown before it overflows the viewport.  |
+| `--ngp-select-available-height` | The available height of the dropdown before it overflows the viewport. |
 
 ## Global Configuration
 

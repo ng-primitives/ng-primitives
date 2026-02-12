@@ -116,10 +116,10 @@ The following directives are available to import from the `ng-primitives/tooltip
 
 The following CSS custom properties are applied to the `ngpTooltip` directive:
 
-| Property                         | Description                                         |
-| -------------------------------- | --------------------------------------------------- |
-| `--ngp-tooltip-transform-origin` | The transform origin of the tooltip for animations.                |
-| `--ngp-tooltip-trigger-width`    | The width of the trigger element.                                  |
+| Property                         | Description                                                           |
+| -------------------------------- | --------------------------------------------------------------------- |
+| `--ngp-tooltip-transform-origin` | The transform origin of the tooltip for animations.                   |
+| `--ngp-tooltip-trigger-width`    | The width of the trigger element.                                     |
 | `--ngp-tooltip-available-width`  | The available width of the tooltip before it overflows the viewport.  |
 | `--ngp-tooltip-available-height` | The available height of the tooltip before it overflows the viewport. |
 
