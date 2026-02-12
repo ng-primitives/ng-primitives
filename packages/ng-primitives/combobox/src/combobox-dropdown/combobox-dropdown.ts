@@ -12,6 +12,8 @@ import { injectComboboxState } from '../combobox/combobox-state';
     '[style.left.px]': 'state().overlay()?.position()?.x',
     '[style.top.px]': 'state().overlay()?.position()?.y',
     '[style.--ngp-combobox-transform-origin]': 'state().overlay()?.transformOrigin()',
+    '[style.--ngp-combobox-available-width.px]': 'state().overlay()?.availableWidth()',
+    '[style.--ngp-combobox-available-height.px]': 'state().overlay()?.availableHeight()',
     '[style.--ngp-combobox-width.px]': 'comboboxDimensions().width',
     '[style.--ngp-combobox-input-width.px]': 'inputDimensions().width',
     '[style.--ngp-combobox-button-width.px]': 'buttonDimensions().width',

@@ -116,10 +116,12 @@ The following directives are available to import from the `ng-primitives/popover
 
 The following CSS custom properties are applied to the `ngpPopover` directive:
 
-| Property                         | Description                                         |
-| -------------------------------- | --------------------------------------------------- |
-| `--ngp-popover-transform-origin` | The transform origin of the popover for animations. |
-| `--ngp-popover-trigger-width`    | The width of the trigger element.                   |
+| Property                         | Description                                                           |
+| -------------------------------- | --------------------------------------------------------------------- |
+| `--ngp-popover-transform-origin` | The transform origin of the popover for animations.                   |
+| `--ngp-popover-trigger-width`    | The width of the trigger element.                                     |
+| `--ngp-popover-available-width`  | The available width of the popover before it overflows the viewport.  |
+| `--ngp-popover-available-height` | The available height of the popover before it overflows the viewport. |
 
 ### NgpPopoverTrigger
 
