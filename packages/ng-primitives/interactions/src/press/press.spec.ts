@@ -108,10 +108,9 @@ describe('NgpPress', () => {
     });
 
     it('should prevent default on Space keydown to avoid page scroll', async () => {
-      const container = await render(
-        `<div data-testid="trigger" ngpPress></div>`,
-        { imports: [NgpPress] },
-      );
+      const container = await render(`<div data-testid="trigger" ngpPress></div>`, {
+        imports: [NgpPress],
+      });
 
       const trigger = container.getByTestId('trigger');
       const event = new KeyboardEvent('keydown', { key: ' ', bubbles: true, cancelable: true });
