@@ -26,7 +26,7 @@ export class NgpDialogRef<T = unknown, R = unknown> {
   readonly outsidePointerEvents: Observable<MouseEvent>;
 
   /** Data passed from the dialog opener. */
-  readonly data?: T;
+  readonly data: T;
 
   /** Unique ID for the dialog. */
   readonly id: string;
@@ -44,7 +44,7 @@ export class NgpDialogRef<T = unknown, R = unknown> {
     readonly overlayRef: OverlayRef,
     readonly config: NgpDialogConfig<T>,
   ) {
-    this.data = config.data;
+    this.data = config.data as T;
     this.keydownEvents = overlayRef.keydownEvents();
     this.outsidePointerEvents = overlayRef.outsidePointerEvents();
     this.id = config.id!; // By the time the dialog is created we are guaranteed to have an ID.

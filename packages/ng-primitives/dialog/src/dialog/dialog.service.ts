@@ -73,12 +73,25 @@ export class NgpDialogManager implements OnDestroy {
   );
 
   /**
-   * Opens a modal dialog containing the given template.
+   * Opens a modal dialog containing the given template or component.
    */
-  open<T, R>(
+  open(
+    templateRefOrComponentType: TemplateRef<NgpDialogContext> | Type<unknown>,
+    config?: NgpDialogConfig,
+  ): NgpDialogRef;
+
+  /**
+   * Opens a modal dialog containing the given template or component with typed data.
+   */
+  open<T, R = unknown>(
     templateRefOrComponentType: TemplateRef<NgpDialogContext<T, R>> | Type<unknown>,
-    config?: NgpDialogConfig<T>,
-  ): NgpDialogRef<T, R> {
+    config: NgpDialogConfig<T> & { data: T },
+  ): NgpDialogRef<T, R>;
+
+  open(
+    templateRefOrComponentType: TemplateRef<any> | Type<unknown>,
+    config?: NgpDialogConfig<any>,
+  ): NgpDialogRef<any, any> {
     // store the current active element so we can focus it after the dialog is closed
     const activeElement = this.document.activeElement;
 
@@ -101,13 +114,13 @@ export class NgpDialogManager implements OnDestroy {
 
     const overlayConfig = this.getOverlayConfig(config);
     const overlayRef = this.overlay.create(overlayConfig);
-    const dialogRef = new NgpDialogRef<T, R>(overlayRef, config);
+    const dialogRef = new NgpDialogRef(overlayRef, config);
     const injector = this.createInjector(config, dialogRef, undefined);
 
     // store the injector in the dialog ref - this is so we can access the exit animation manager
     dialogRef.injector = injector;
 
-    const context: NgpDialogContext<T, R> = {
+    const context: NgpDialogContext = {
       $implicit: dialogRef,
       close: dialogRef.close.bind(dialogRef),
     };
