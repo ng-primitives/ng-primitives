@@ -1,4 +1,4 @@
-import { Component, TemplateRef, ViewContainerRef, viewChild } from '@angular/core';
+import { Component, TemplateRef, ViewContainerRef, inject, viewChild } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { Router, provideRouter } from '@angular/router';
 import { NgpDialogContext, NgpDialogManager } from './dialog.service';
@@ -12,8 +12,7 @@ import { NgpDialogContext, NgpDialogManager } from './dialog.service';
 })
 class DialogTestComponent {
   readonly dialog = viewChild.required<TemplateRef<NgpDialogContext>>('dialog');
-
-  constructor(readonly viewContainerRef: ViewContainerRef) {}
+  readonly viewContainerRef = inject(ViewContainerRef);
 }
 
 describe('NgpDialogManager', () => {
