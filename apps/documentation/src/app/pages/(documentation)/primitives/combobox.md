@@ -189,10 +189,12 @@ The following CSS custom properties are applied to the `ngpComboboxDropdown` dir
 
 | Property                          | Description                                      |
 | --------------------------------- | ------------------------------------------------ |
-| `--ngp-combobox-transform-origin` | The transform origin for the dropdown animation. |
-| `--ngp-combobox-width`            | The width of the combobox dropdown.              |
-| `--ngp-combobox-input-width`      | The width of the combobox input field.           |
-| `--ngp-combobox-button-width`     | The width of the combobox button.                |
+| `--ngp-combobox-transform-origin`  | The transform origin for the dropdown animation.                      |
+| `--ngp-combobox-available-width`   | The available width of the dropdown before it overflows the viewport.  |
+| `--ngp-combobox-available-height`  | The available height of the dropdown before it overflows the viewport. |
+| `--ngp-combobox-width`             | The width of the combobox dropdown.                                   |
+| `--ngp-combobox-input-width`       | The width of the combobox input field.                                |
+| `--ngp-combobox-button-width`      | The width of the combobox button.                                     |
 
 ### NgpComboboxInput
 

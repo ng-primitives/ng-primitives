@@ -177,8 +177,10 @@ The following CSS custom properties are applied to the `ngpMenu` directive:
 
 | Property                      | Description                                      |
 | ----------------------------- | ------------------------------------------------ |
-| `--ngp-menu-transform-origin` | The transform origin of the menu for animations. |
-| `--ngp-menu-trigger-width`    | The width of the trigger element.                |
+| `--ngp-menu-transform-origin` | The transform origin of the menu for animations.                |
+| `--ngp-menu-trigger-width`    | The width of the trigger element.                               |
+| `--ngp-menu-available-width`  | The available width of the menu before it overflows the viewport.  |
+| `--ngp-menu-available-height` | The available height of the menu before it overflows the viewport. |
 
 ### NgpMenuItem
 

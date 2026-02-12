@@ -17,6 +17,8 @@ import { injectTooltipTriggerState } from '../tooltip-trigger/tooltip-trigger-st
     '[style.top.px]': 'overlay.position().y',
     '[style.--ngp-tooltip-trigger-width.px]': 'overlay.triggerWidth()',
     '[style.--ngp-tooltip-transform-origin]': 'overlay.transformOrigin()',
+    '[style.--ngp-tooltip-available-width.px]': 'overlay.availableWidth()',
+    '[style.--ngp-tooltip-available-height.px]': 'overlay.availableHeight()',
     '[attr.data-placement]': 'overlay.finalPlacement()',
     'data-overlay': '',
   },

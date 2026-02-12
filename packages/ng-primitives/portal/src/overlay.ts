@@ -25,6 +25,7 @@ import {
   flip,
   offset,
   shift,
+  size,
 } from '@floating-ui/dom';
 import { explicitEffect, fromResizeEvent } from 'ng-primitives/internal';
 import { injectDisposables, safeTakeUntilDestroyed, uniqueId } from 'ng-primitives/utils';
@@ -180,6 +181,12 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
 
   /** The transform origin for the overlay */
   readonly transformOrigin = signal<string>('center center');
+
+  /** Signal tracking the available width before the overlay overflows the viewport */
+  readonly availableWidth = signal<number | null>(null);
+
+  /** Signal tracking the available height before the overlay overflows the viewport */
+  readonly availableHeight = signal<number | null>(null);
 
   /** Signal tracking the final placement of the overlay */
   readonly finalPlacement = signal<Placement | undefined>(undefined);
@@ -671,6 +678,16 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
     if (this.config.flip !== false) {
       middleware.push(flip());
     }
+
+    // Add size middleware to expose available dimensions
+    middleware.push(
+      size({
+        apply: ({ availableWidth, availableHeight }) => {
+          this.availableWidth.set(availableWidth);
+          this.availableHeight.set(availableHeight);
+        },
+      }),
+    );
 
     // Add any additional middleware
     if (this.config.additionalMiddleware) {

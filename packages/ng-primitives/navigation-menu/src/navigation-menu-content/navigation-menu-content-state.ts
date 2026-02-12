@@ -121,6 +121,16 @@ export const [
       '--ngp-navigation-menu-transform-origin',
       () => overlay?.transformOrigin() ?? null,
     );
+    styleBinding(
+      element,
+      '--ngp-navigation-menu-available-width.px',
+      () => overlay?.availableWidth() ?? null,
+    );
+    styleBinding(
+      element,
+      '--ngp-navigation-menu-available-height.px',
+      () => overlay?.availableHeight() ?? null,
+    );
 
     // Event listeners
     listener(element, 'pointerenter', onPointerEnter);
