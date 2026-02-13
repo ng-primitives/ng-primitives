@@ -43,7 +43,6 @@ export function ngpPress({
   // setup event listeners
   listener(elementRef, 'pointerdown', onPointerDown);
   listener(elementRef, 'keydown', onKeyDown);
-  listener(elementRef, 'keyup', onKeyUp);
 
   // anytime the press state changes we want to update the attribute
   dataBinding(elementRef, 'data-press', () => pressed() && !disabled());
@@ -126,16 +125,26 @@ export function ngpPress({
     activeKey = event.key;
     pressed.set(true);
     onPressStart?.();
-  }
 
-  function onKeyUp(event: KeyboardEvent): void {
-    if (!pressed() || event.key !== activeKey) {
-      return;
-    }
+    const ownerDocument = elementRef.nativeElement.ownerDocument ?? document;
 
-    activeKey = null;
-    pressed.set(false);
-    onPressEnd?.();
+    const keyUp = listener(
+      ownerDocument,
+      'keyup',
+      (keyUpEvent: KeyboardEvent) => {
+        if (keyUpEvent.key === activeKey) {
+          reset();
+        }
+      },
+      { config: false, injector },
+    );
+
+    const blur = listener(elementRef, 'blur', () => reset(), {
+      config: false,
+      injector,
+    });
+
+    disposableListeners = [keyUp, blur];
   }
 
   function onPointerMove(event: PointerEvent): void {
