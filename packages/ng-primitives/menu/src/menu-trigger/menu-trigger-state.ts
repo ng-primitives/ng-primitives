@@ -2,6 +2,7 @@ import { FocusOrigin } from '@angular/cdk/a11y';
 import { Directionality } from '@angular/cdk/bidi';
 import {
   computed,
+  effect,
   inject,
   Injector,
   signal,
@@ -235,6 +236,17 @@ export const [
     const pointerOverTrigger = signal(false);
     const pointerOverContent = signal(false);
     const isPointerOverMenuArea = computed(() => pointerOverTrigger() || pointerOverContent());
+
+    // Reset pointer tracking when menu closes
+    effect(() => {
+      const isOpen = open();
+
+      // When menu closes, reset pointer tracking state
+      if (!isOpen) {
+        pointerOverTrigger.set(false);
+        pointerOverContent.set(false);
+      }
+    });
 
     // Computed signal to determine if focus should be restored
     // Only restore if opened via keyboard OR closed via keyboard
