@@ -92,12 +92,10 @@ export function ngpPress({
     // Instead of relying on the `pointerleave` event, which is not consistently called on iOS Safari,
     // we use the `pointermove` event to determine if we are still "pressing".
     // By checking if the target is still within the element, we can determine if the press is ongoing.
-    const pointerMove = listener(
-      ownerDocument,
-      'pointermove',
-      onPointerMove as EventListener,
-      { config: false, injector },
-    );
+    const pointerMove = listener(ownerDocument, 'pointermove', onPointerMove as EventListener, {
+      config: false,
+      injector,
+    });
 
     // if the pointer is cancelled, then we are no longer pressing on this element
     const pointerCancel = listener(ownerDocument, 'pointercancel', () => reset(), {
