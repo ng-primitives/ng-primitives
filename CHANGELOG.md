@@ -1,3 +1,13 @@
+## 0.109.2 (2026-02-13)
+
+### 🩹 Fixes
+
+- **press:** ensure press ends on document keyup for keyboard interactions ([#662](https://github.com/ng-primitives/ng-primitives/pull/662))
+
+### ❤️ Thank You
+
+- Ashley Hunter
+
 ## 0.109.1 (2026-02-13)
 
 ### 🩹 Fixes
