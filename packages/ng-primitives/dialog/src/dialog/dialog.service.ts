@@ -91,6 +91,14 @@ export class NgpDialogManager implements OnDestroy {
     config: NgpDialogConfig<T> & { data: T },
   ): NgpDialogRef<T, R>;
 
+  /**
+   * Opens a modal dialog with typed result but no data (explicit void for data type).
+   */
+  open<T extends void, R>(
+    templateRefOrComponentType: TemplateRef<NgpDialogContext<T, R>> | Type<unknown>,
+    config?: NgpDialogConfig,
+  ): NgpDialogRef<T, R>;
+
   open(
     templateRefOrComponentType: TemplateRef<any> | Type<unknown>,
     config?: NgpDialogConfig<any>,

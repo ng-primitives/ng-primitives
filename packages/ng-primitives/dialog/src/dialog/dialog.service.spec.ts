@@ -47,6 +47,24 @@ function typeTests(dialog: NgpDialogManager) {
 
   // With both type params
   const ref4 = dialog.open<string, number>(TestDialog, { data: 'hello' });
+
+  // Issue #659: Should be able to specify result type R without data using explicit void
+  const ref5 = dialog.open<void, number>(TestDialog);
+  ref5.closed.subscribe(({ result }) => {
+    const num: number | undefined = result;
+  });
+
+  // Should be able to specify result type R with config but no data
+  const ref6 = dialog.open<void, string>(TestDialog, { closeOnEscape: false });
+  ref6.closed.subscribe(({ result }) => {
+    const str: string | undefined = result;
+  });
+
+  // Result type should be properly inferred when using explicit void
+  const ref7 = dialog.open<void, boolean>(TestDialog);
+  ref7.close(true); // Should compile
+  // @ts-expect-error - wrong result type
+  ref7.close('wrong'); // Should error
 }
 
 describe('NgpDialogManager', () => {
@@ -93,6 +111,33 @@ describe('NgpDialogManager', () => {
     expect(dialog.openDialogs.length).toBe(2);
     ref1.close();
     ref2.close();
+  });
+
+  it('should open dialog with result type but no data', async () => {
+    const ref = dialog.open<void, number>(TestDialog);
+    expect(ref).toBeInstanceOf(NgpDialogRef);
+
+    const closedPromise = new Promise<{ result?: number }>(resolve => {
+      ref.closed.subscribe(resolve);
+    });
+
+    ref.close(42);
+    const result = await closedPromise;
+    expect(result.result).toBe(42);
+  });
+
+  it('should open dialog with result type and config but no data', async () => {
+    const ref = dialog.open<void, string>(TestDialog, { closeOnEscape: false });
+    expect(ref).toBeInstanceOf(NgpDialogRef);
+    expect(ref.closeOnEscape).toBe(false);
+
+    const closedPromise = new Promise<{ result?: string }>(resolve => {
+      ref.closed.subscribe(resolve);
+    });
+
+    ref.close('success');
+    const result = await closedPromise;
+    expect(result.result).toBe('success');
   });
 });
 

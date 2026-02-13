@@ -540,6 +540,71 @@ describe('NgpMenuTrigger', () => {
       expect(document.querySelector('[data-testid="menu"]')).not.toBeInTheDocument();
     }));
   });
+
+  describe('hover behavior with pointer tracking', () => {
+    it('should reset pointer tracking state when menu closes via item click', fakeAsync(async () => {
+      @Component({
+        template: `
+          <button
+            [ngpMenuTrigger]="menu"
+            [ngpMenuTriggerOpenTriggers]="['hover']"
+            data-testid="trigger">
+            Hover Menu
+          </button>
+
+          <ng-template #menu>
+            <div ngpMenu data-testid="menu">
+              <button ngpMenuItem data-testid="item-1">Item 1</button>
+            </div>
+          </ng-template>
+        `,
+        imports: [NgpMenuTrigger, NgpMenu, NgpMenuItem],
+      })
+      class TestHoverMenuComponent {}
+
+      const { fixture } = await render(TestHoverMenuComponent);
+      const trigger = fixture.debugElement.nativeElement.querySelector('[data-testid="trigger"]');
+
+      // Step 1: Open menu via hover
+      fireEvent.pointerEnter(trigger, { pointerType: 'mouse' });
+      tick();
+      fixture.detectChanges();
+      flush();
+      expect(trigger).toHaveAttribute('data-open');
+
+      // Step 2: Move pointer into menu content
+      const menu = document.querySelector('[data-testid="menu"]');
+      expect(menu).toBeInTheDocument();
+      fireEvent.pointerEnter(menu!);
+      tick();
+      fixture.detectChanges();
+
+      // Step 3: Click menu item (closes menu)
+      const menuItem = document.querySelector('[data-testid="item-1"]');
+      fireEvent.click(menuItem!);
+      tick();
+      fixture.detectChanges();
+      flush();
+      expect(trigger).not.toHaveAttribute('data-open');
+
+      // Step 4: Hover over trigger again
+      fireEvent.pointerEnter(trigger, { pointerType: 'mouse' });
+      tick();
+      fixture.detectChanges();
+      flush();
+      expect(trigger).toHaveAttribute('data-open');
+
+      // Step 5: Move pointer away from trigger
+      fireEvent.pointerLeave(trigger, { pointerType: 'mouse' });
+      tick(60); // Wait past 50ms grace period
+      fixture.detectChanges();
+      flush();
+
+      // Step 6: Menu should close (this will FAIL before fix)
+      expect(trigger).not.toHaveAttribute('data-open');
+      expect(document.querySelector('[data-testid="menu"]')).not.toBeInTheDocument();
+    }));
+  });
 });
 
 describe('NgpMenuItem disabled state', () => {
