@@ -548,7 +548,8 @@ describe('NgpMenuTrigger', () => {
           <button
             [ngpMenuTrigger]="menu"
             [ngpMenuTriggerOpenTriggers]="['hover']"
-            data-testid="trigger">
+            data-testid="trigger"
+          >
             Hover Menu
           </button>
 
