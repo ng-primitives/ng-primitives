@@ -288,8 +288,6 @@ export class NgpPopoverTrigger<T = null> implements OnDestroy {
 
     // Hide the overlay
     await this.overlay()?.hide({ origin });
-
-    this.openChange.emit(false);
   }
 
   /**
@@ -324,6 +322,7 @@ export class NgpPopoverTrigger<T = null> implements OnDestroy {
       trackPosition: this.state.trackPosition(),
       overlayType: 'popover',
       cooldown: this.state.cooldown(),
+      onClose: () => this.openChange.emit(false),
     };
 
     this.overlay.set(createOverlay(config));
