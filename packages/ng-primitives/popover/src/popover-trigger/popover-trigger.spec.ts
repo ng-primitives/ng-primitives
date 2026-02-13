@@ -73,6 +73,82 @@ describe('NgpPopoverTrigger', () => {
     });
   });
 
+  it('should emit openChange false when closing on outside click', async () => {
+    @Component({
+      template: `
+        <button [ngpPopoverTrigger]="content" (ngpPopoverTriggerOpenChange)="onOpenChange($event)">
+          Open Popover
+        </button>
+
+        <ng-template #content>
+          <div ngpPopover>Popover content</div>
+        </ng-template>
+      `,
+      imports: [NgpPopoverTrigger, NgpPopover],
+    })
+    class OutsideClickEventTestComponent {
+      onOpenChange = jest.fn();
+    }
+
+    const { fixture, getByRole } = await render(OutsideClickEventTestComponent);
+    const component = fixture.componentInstance;
+    const trigger = getByRole('button');
+
+    fireEvent.click(trigger);
+
+    await waitFor(() => {
+      expect(document.querySelector('[ngpPopover]')).toBeInTheDocument();
+      expect(component.onOpenChange).toHaveBeenCalledTimes(1);
+      expect(component.onOpenChange).toHaveBeenCalledWith(true);
+    });
+
+    fireEvent.mouseUp(document.body);
+
+    await waitFor(() => {
+      expect(document.querySelector('[ngpPopover]')).not.toBeInTheDocument();
+      expect(component.onOpenChange).toHaveBeenCalledTimes(2);
+      expect(component.onOpenChange).toHaveBeenLastCalledWith(false);
+    });
+  });
+
+  it('should emit openChange false when closing on Escape', async () => {
+    @Component({
+      template: `
+        <button [ngpPopoverTrigger]="content" (ngpPopoverTriggerOpenChange)="onOpenChange($event)">
+          Open Popover
+        </button>
+
+        <ng-template #content>
+          <div ngpPopover>Popover content</div>
+        </ng-template>
+      `,
+      imports: [NgpPopoverTrigger, NgpPopover],
+    })
+    class EscapeEventTestComponent {
+      onOpenChange = jest.fn();
+    }
+
+    const { fixture, getByRole } = await render(EscapeEventTestComponent);
+    const component = fixture.componentInstance;
+    const trigger = getByRole('button');
+
+    fireEvent.click(trigger);
+
+    await waitFor(() => {
+      expect(document.querySelector('[ngpPopover]')).toBeInTheDocument();
+      expect(component.onOpenChange).toHaveBeenCalledTimes(1);
+      expect(component.onOpenChange).toHaveBeenCalledWith(true);
+    });
+
+    fireEvent.keyDown(document, { key: 'Escape' });
+
+    await waitFor(() => {
+      expect(document.querySelector('[ngpPopover]')).not.toBeInTheDocument();
+      expect(component.onOpenChange).toHaveBeenCalledTimes(2);
+      expect(component.onOpenChange).toHaveBeenLastCalledWith(false);
+    });
+  });
+
   it('should position popover relative to anchor element when provided', async () => {
     @Component({
       template: `
