@@ -1,3 +1,13 @@
+## 0.109.1 (2026-02-13)
+
+### 🩹 Fixes
+
+- **menu:** resolve issue where over menu state is not reset ([#660](https://github.com/ng-primitives/ng-primitives/pull/660))
+
+### ❤️ Thank You
+
+- Ashley Hunter
+
 ## 0.109.0 (2026-02-12)
 
 ### 🚀 Features
