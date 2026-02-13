@@ -95,7 +95,7 @@ export function ngpPress({
     const pointerMove = listener(
       ownerDocument,
       'pointermove',
-      () => onPointerMove as EventListener,
+      onPointerMove as EventListener,
       { config: false, injector },
     );
 
