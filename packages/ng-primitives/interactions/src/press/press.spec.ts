@@ -180,6 +180,29 @@ describe('NgpPress', () => {
       expect(pressEnd).toHaveBeenCalled();
     });
 
+    it('should end press on document keyup when keydown started on the element', async () => {
+      const pressEnd = jest.fn();
+      const pressChange = jest.fn();
+
+      const container = await render(
+        `<div data-testid="trigger" ngpPress (ngpPressEnd)="pressEnd()" (ngpPress)="pressChange($event)"></div>`,
+        {
+          imports: [NgpPress],
+          componentProperties: { pressEnd, pressChange },
+        },
+      );
+
+      const trigger = container.getByTestId('trigger');
+
+      fireEvent.keyDown(trigger, { key: 'Enter' });
+      expect(pressChange).toHaveBeenCalledWith(true);
+
+      fireEvent.keyUp(document, { key: 'Enter' });
+
+      expect(pressEnd).toHaveBeenCalled();
+      expect(pressChange).toHaveBeenCalledWith(false);
+    });
+
     it('should ignore unrelated keys', async () => {
       const pressStart = jest.fn();
       const pressChange = jest.fn();
