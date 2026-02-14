@@ -1,8 +1,27 @@
 import { Component } from '@angular/core';
-import { fireEvent, render, waitFor } from '@testing-library/angular';
+import { fireEvent, render, screen, waitFor } from '@testing-library/angular';
 import { NgpPopover, NgpPopoverTrigger } from 'ng-primitives/popover';
 
 describe('NgpPopoverTrigger', () => {
+  @Component({
+    template: `
+      <button [ngpPopoverTrigger]="parentPopover" data-testid="parent-trigger">Open Parent</button>
+
+      <ng-template #parentPopover>
+        <div ngpPopover data-testid="parent-popover">
+          <button [ngpPopoverTrigger]="childPopover" data-testid="child-trigger">Open Child</button>
+          <div data-testid="parent-only-area">Parent only area</div>
+        </div>
+      </ng-template>
+
+      <ng-template #childPopover>
+        <div ngpPopover data-testid="child-popover">Child content</div>
+      </ng-template>
+    `,
+    imports: [NgpPopoverTrigger, NgpPopover],
+  })
+  class NestedPopoverTestComponent {}
+
   it('should destroy the overlay when the trigger is destroyed', async () => {
     const { fixture, getByRole } = await render(
       `
@@ -248,6 +267,82 @@ describe('NgpPopoverTrigger', () => {
 
     await waitFor(() => {
       expect(document.querySelector('[ngpPopover]')).toBeInTheDocument();
+    });
+  });
+
+  it('should keep parent and child popovers open when clicking inside child popover', async () => {
+    const { getByTestId } = await render(NestedPopoverTestComponent);
+
+    fireEvent.click(getByTestId('parent-trigger'));
+
+    await waitFor(() => {
+      expect(document.querySelector('[data-testid="parent-popover"]')).toBeInTheDocument();
+    });
+
+    fireEvent.click(screen.getByTestId('child-trigger'));
+
+    await waitFor(() => {
+      expect(document.querySelector('[data-testid="child-popover"]')).toBeInTheDocument();
+    });
+
+    const childPopover = document.querySelector('[data-testid="child-popover"]');
+    fireEvent.mouseUp(childPopover!);
+
+    await waitFor(() => {
+      expect(document.querySelector('[data-testid="child-popover"]')).toBeInTheDocument();
+      expect(document.querySelector('[data-testid="parent-popover"]')).toBeInTheDocument();
+    });
+  });
+
+  it('should close child popover only when clicking parent popover area', async () => {
+    const { getByTestId } = await render(NestedPopoverTestComponent);
+
+    fireEvent.click(getByTestId('parent-trigger'));
+
+    await waitFor(() => {
+      expect(document.querySelector('[data-testid="parent-popover"]')).toBeInTheDocument();
+    });
+
+    fireEvent.click(screen.getByTestId('child-trigger'));
+
+    await waitFor(() => {
+      expect(document.querySelector('[data-testid="child-popover"]')).toBeInTheDocument();
+    });
+
+    fireEvent.mouseUp(screen.getByTestId('parent-only-area'));
+
+    await waitFor(() => {
+      expect(document.querySelector('[data-testid="child-popover"]')).not.toBeInTheDocument();
+      expect(document.querySelector('[data-testid="parent-popover"]')).toBeInTheDocument();
+    });
+  });
+
+  it('should close only child on first Escape and parent on second Escape', async () => {
+    const { getByTestId } = await render(NestedPopoverTestComponent);
+
+    fireEvent.click(getByTestId('parent-trigger'));
+
+    await waitFor(() => {
+      expect(document.querySelector('[data-testid="parent-popover"]')).toBeInTheDocument();
+    });
+
+    fireEvent.click(screen.getByTestId('child-trigger'));
+
+    await waitFor(() => {
+      expect(document.querySelector('[data-testid="child-popover"]')).toBeInTheDocument();
+    });
+
+    fireEvent.keyDown(document, { key: 'Escape' });
+
+    await waitFor(() => {
+      expect(document.querySelector('[data-testid="child-popover"]')).not.toBeInTheDocument();
+      expect(document.querySelector('[data-testid="parent-popover"]')).toBeInTheDocument();
+    });
+
+    fireEvent.keyDown(document, { key: 'Escape' });
+
+    await waitFor(() => {
+      expect(document.querySelector('[data-testid="parent-popover"]')).not.toBeInTheDocument();
     });
   });
 });

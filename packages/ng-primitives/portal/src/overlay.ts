@@ -159,6 +159,8 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
   private readonly cooldownManager = inject(NgpOverlayCooldownManager);
   /** Access any parent overlays */
   private readonly parentOverlay = inject(NgpOverlay, { optional: true });
+  /** Track child overlays to prevent closing when clicking inside them */
+  private readonly children = new Set<NgpOverlay>();
   /** Signal tracking the portal instance */
   private readonly portal = signal<NgpPortal | null>(null);
 
@@ -249,6 +251,12 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
     // we cannot inject the viewContainerRef as this can throw an error during hydration in SSR
     this.viewContainerRef = config.viewContainerRef;
 
+    // Register this overlay as a child of the parent overlay
+    if (this.parentOverlay) {
+      this.parentOverlay.children.add(this);
+      this.destroyRef.onDestroy(() => this.parentOverlay?.children.delete(this));
+    }
+
     // Listen for placement signal changes to update position
     if (config.placement) {
       explicitEffect([config.placement], () => this.updatePosition());
@@ -305,8 +313,17 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
         const isInsideAnchor = this.config.anchorElement
           ? path.includes(this.config.anchorElement)
           : false;
+        const isInsideChild = this.isInsideChildOverlay(path);
 
-        if (!isInsideOverlay && !isInsideTrigger && !isInsideAnchor) {
+        // Close overlay only if click is outside:
+        // 1. This overlay's elements
+        // 2. This overlay's trigger
+        // 3. This overlay's anchor (if any)
+        // 4. Any child overlays (recursively checked)
+        //
+        // This prevents parent overlays from closing when clicking inside child overlays,
+        // which is essential for nested popovers and submenus.
+        if (!isInsideOverlay && !isInsideTrigger && !isInsideAnchor && !isInsideChild) {
           this.hide();
         }
       });
@@ -317,7 +334,23 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
       .subscribe(event => {
         if (!this.config.closeOnEscape) return;
         if (event.key === 'Escape' && this.isOpen()) {
-          this.hide({ origin: 'keyboard', immediate: true });
+          // Only close this overlay if no child overlays with closeOnEscape: true are open
+          // 
+          // ARIA-Compliant Behavior:
+          // 1. Nested Popovers (both have closeOnEscape: true):
+          //    - Child with closeOnEscape: true blocks parent
+          //    - Only the topmost (child) closes on Escape
+          //    - ✓ Correct per WAI-ARIA Disclosure pattern
+          // 
+          // 2. Menu/Submenu (root: true, submenus: false):
+          //    - Submenus with closeOnEscape: false don't block parent
+          //    - Root handles Escape and closes all menus (via closing cascade)
+          //    - ✓ Correct per WAI-ARIA Menu pattern (Escape closes entire menu system)
+          // 
+          // 3. Dialogs: Use CDK Overlay (not affected by this logic)
+          if (!this.hasOpenChildren()) {
+            this.hide({ origin: 'keyboard', immediate: true });
+          }
         }
       });
 
@@ -559,6 +592,86 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
    */
   getElements(): HTMLElement[] {
     return this.portal()?.getElements() ?? [];
+  }
+
+  /**
+   * Check if a click event path is inside any child overlay (recursively).
+   * This prevents parent overlays from closing when clicking inside nested child overlays.
+   * 
+   * @param path The composed event path from the click event
+   * @returns true if the click is inside any child overlay, trigger, or anchor
+   * 
+   * @internal
+   * 
+   * ARIA Compliance:
+   * - Nested Popovers: Parent remains open when interacting with child (correct)
+   * - Menu/Submenu: Child closes when clicking elsewhere in parent (correct)
+   */
+  private isInsideChildOverlay(path: EventTarget[]): boolean {
+    for (const child of this.children) {
+      // Check if the child overlay is open and has a portal
+      if (child.isOpen()) {
+        const childElements = child.getElements();
+        
+        // Check if the click is inside this child's overlay elements
+        if (childElements.some(el => path.includes(el))) {
+          return true;
+        }
+
+        // Check if the click is inside this child's trigger element
+        if (path.includes(child.config.triggerElement)) {
+          return true;
+        }
+
+        // Check if the click is inside this child's anchor element (if it exists)
+        if (child.config.anchorElement && path.includes(child.config.anchorElement)) {
+          return true;
+        }
+
+        // Recursively check this child's children
+        if (child.isInsideChildOverlay(path)) {
+          return true;
+        }
+      }
+    }
+    return false;
+  }
+
+  /**
+   * Check if any child overlays are currently open AND have closeOnEscape enabled (recursively).
+   * This prevents parent overlays from closing on Escape when child overlays should handle Escape.
+   * 
+   * KEY BEHAVIOR:
+   * - Child with closeOnEscape: true = "I handle Escape myself" → blocks parent
+   * - Child with closeOnEscape: false = "Parent handles Escape" → doesn't block parent
+   * 
+   * This enables different ARIA patterns:
+   * - Nested Popovers: Both have closeOnEscape: true → only topmost closes
+   * - Menu/Submenu: Root has true, submenus have false → root closes all
+   * 
+   * @returns true if any child overlay with closeOnEscape: true is currently open
+   * 
+   * @internal
+   * 
+   * ARIA Compliance:
+   * - Nested Popovers: Escape closes only the topmost overlay (correct per WAI-ARIA)
+   * - Menu/Submenu: Escape closes all menus (correct per WAI-ARIA Menu pattern)
+   *   Achieved by setting closeOnEscape: false on submenus
+   */
+  private hasOpenChildren(): boolean {
+    for (const child of this.children) {
+      if (child.isOpen()) {
+        // Only block parent close if child explicitly handles Escape
+        if (child.config.closeOnEscape) {
+          return true;
+        }
+        // Recursively check if any grandchildren handle Escape
+        if (child.hasOpenChildren()) {
+          return true;
+        }
+      }
+    }
+    return false;
   }
 
   /**
