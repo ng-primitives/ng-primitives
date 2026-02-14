@@ -335,18 +335,18 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
         if (!this.config.closeOnEscape) return;
         if (event.key === 'Escape' && this.isOpen()) {
           // Only close this overlay if no child overlays with closeOnEscape: true are open
-          // 
+          //
           // ARIA-Compliant Behavior:
           // 1. Nested Popovers (both have closeOnEscape: true):
           //    - Child with closeOnEscape: true blocks parent
           //    - Only the topmost (child) closes on Escape
           //    - ✓ Correct per WAI-ARIA Disclosure pattern
-          // 
+          //
           // 2. Menu/Submenu (root: true, submenus: false):
           //    - Submenus with closeOnEscape: false don't block parent
           //    - Root handles Escape and closes all menus (via closing cascade)
           //    - ✓ Correct per WAI-ARIA Menu pattern (Escape closes entire menu system)
-          // 
+          //
           // 3. Dialogs: Use CDK Overlay (not affected by this logic)
           if (!this.hasOpenChildren()) {
             this.hide({ origin: 'keyboard', immediate: true });
@@ -597,12 +597,12 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
   /**
    * Check if a click event path is inside any child overlay (recursively).
    * This prevents parent overlays from closing when clicking inside nested child overlays.
-   * 
+   *
    * @param path The composed event path from the click event
    * @returns true if the click is inside any child overlay, trigger, or anchor
-   * 
+   *
    * @internal
-   * 
+   *
    * ARIA Compliance:
    * - Nested Popovers: Parent remains open when interacting with child (correct)
    * - Menu/Submenu: Child closes when clicking elsewhere in parent (correct)
@@ -612,7 +612,7 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
       // Check if the child overlay is open and has a portal
       if (child.isOpen()) {
         const childElements = child.getElements();
-        
+
         // Check if the click is inside this child's overlay elements
         if (childElements.some(el => path.includes(el))) {
           return true;
@@ -640,19 +640,19 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
   /**
    * Check if any child overlays are currently open AND have closeOnEscape enabled (recursively).
    * This prevents parent overlays from closing on Escape when child overlays should handle Escape.
-   * 
+   *
    * KEY BEHAVIOR:
    * - Child with closeOnEscape: true = "I handle Escape myself" → blocks parent
    * - Child with closeOnEscape: false = "Parent handles Escape" → doesn't block parent
-   * 
+   *
    * This enables different ARIA patterns:
    * - Nested Popovers: Both have closeOnEscape: true → only topmost closes
    * - Menu/Submenu: Root has true, submenus have false → root closes all
-   * 
+   *
    * @returns true if any child overlay with closeOnEscape: true is currently open
-   * 
+   *
    * @internal
-   * 
+   *
    * ARIA Compliance:
    * - Nested Popovers: Escape closes only the topmost overlay (correct per WAI-ARIA)
    * - Menu/Submenu: Escape closes all menus (correct per WAI-ARIA Menu pattern)
