@@ -14,6 +14,7 @@ import { NgpMenu } from './menu';
       <div ngpMenu data-testid="root-menu">
         <button ngpMenuItem data-testid="item-1">Item 1</button>
         <button ngpMenuItem data-testid="item-2">Item 2</button>
+        <div data-testid="root-menu-content">Root menu content area</div>
         <button [ngpSubmenuTrigger]="submenu" ngpMenuItem data-testid="submenu-trigger">
           Open Submenu
         </button>
@@ -22,6 +23,7 @@ import { NgpMenu } from './menu';
 
     <ng-template #submenu>
       <div ngpMenu data-testid="submenu">
+        <div data-testid="submenu-content">Submenu content area</div>
         <button ngpMenuItem data-testid="submenu-item-1">Submenu Item 1</button>
         <button ngpMenuItem data-testid="submenu-item-2">Submenu Item 2</button>
       </div>
@@ -780,6 +782,75 @@ describe('NgpSubmenuTrigger', () => {
       flush();
 
       expect(submenuTrigger).not.toHaveAttribute('data-open');
+    }));
+
+    it('should keep submenu open when clicking inside submenu content', fakeAsync(async () => {
+      const { fixture } = await render(TestMenuWithSubmenuComponent);
+      const trigger = fixture.debugElement.nativeElement.querySelector(
+        '[data-testid="root-trigger"]',
+      );
+
+      // Open root menu
+      fireEvent.click(trigger);
+      tick();
+      fixture.detectChanges();
+      flush();
+
+      const submenuTrigger = document.querySelector('[data-testid="submenu-trigger"]');
+      fireEvent.click(submenuTrigger!);
+      tick();
+      fixture.detectChanges();
+      flush();
+
+      expect(submenuTrigger).toHaveAttribute('data-open');
+      expect(document.querySelector('[data-testid="submenu"]')).toBeInTheDocument();
+
+      // Click in submenu non-item area
+      const submenuContent = document.querySelector('[data-testid="submenu-content"]');
+      fireEvent.mouseUp(submenuContent!);
+      tick();
+      fixture.detectChanges();
+      flush();
+
+      // Root and submenu both stay open
+      expect(trigger).toHaveAttribute('data-open');
+      expect(submenuTrigger).toHaveAttribute('data-open');
+      expect(document.querySelector('[data-testid="submenu"]')).toBeInTheDocument();
+    }));
+
+    it('should close submenu but keep root open when clicking in root menu content', fakeAsync(async () => {
+      const { fixture } = await render(TestMenuWithSubmenuComponent);
+      const trigger = fixture.debugElement.nativeElement.querySelector(
+        '[data-testid="root-trigger"]',
+      );
+
+      // Open root menu
+      fireEvent.click(trigger);
+      tick();
+      fixture.detectChanges();
+      flush();
+
+      const submenuTrigger = document.querySelector('[data-testid="submenu-trigger"]');
+      fireEvent.click(submenuTrigger!);
+      tick();
+      fixture.detectChanges();
+      flush();
+
+      expect(submenuTrigger).toHaveAttribute('data-open');
+      expect(document.querySelector('[data-testid="submenu"]')).toBeInTheDocument();
+
+      // Click in root menu non-item area (outside submenu)
+      const rootContent = document.querySelector('[data-testid="root-menu-content"]');
+      fireEvent.mouseUp(rootContent!);
+      tick();
+      fixture.detectChanges();
+      flush();
+
+      // Root stays open, submenu closes
+      expect(trigger).toHaveAttribute('data-open');
+      expect(submenuTrigger).not.toHaveAttribute('data-open');
+      expect(document.querySelector('[data-testid="root-menu"]')).toBeInTheDocument();
+      expect(document.querySelector('[data-testid="submenu"]')).not.toBeInTheDocument();
     }));
   });
 });
