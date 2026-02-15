@@ -59,8 +59,36 @@ describe('NgpInput', () => {
 
     const input = getByTestId('input');
     fireEvent.focus(input);
-    userEvent.type(input, 'Hello World');
+    await userEvent.type(input, 'Hello World');
     expect(input).toHaveValue('');
+  });
+
+  it('should allow typing text into the input', async () => {
+    const { getByTestId } = await render(`<input ngpInput data-testid="input" />`, {
+      imports: [NgpInput],
+    });
+
+    const input = getByTestId('input');
+    await userEvent.click(input);
+    await userEvent.type(input, 'Hello World');
+
+    expect(input).toHaveValue('Hello World');
+  });
+
+  it('should support typing with the spacebar key', async () => {
+    const { getByTestId } = await render(`<input ngpInput data-testid="input" />`, {
+      imports: [NgpInput],
+    });
+
+    const input = getByTestId('input');
+    await userEvent.click(input);
+    await userEvent.type(input, 'Hello');
+    await userEvent.keyboard(' ');
+    await userEvent.type(input, 'Angular');
+    await userEvent.keyboard('  ');
+    await userEvent.type(input, 'Primitives');
+
+    expect(input).toHaveValue('Hello Angular  Primitives');
   });
 
   it('should set the id attribute', async () => {

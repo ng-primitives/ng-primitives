@@ -13,6 +13,18 @@ interface NgpPressProps {
   onPressEnd?: () => void;
 }
 
+const NON_TEXT_INPUT_TYPES = new Set([
+  'button',
+  'checkbox',
+  'color',
+  'file',
+  'image',
+  'radio',
+  'range',
+  'reset',
+  'submit',
+]);
+
 /**
  * @internal
  */
@@ -111,13 +123,12 @@ export function ngpPress({
       return;
     }
 
-    if (event.key !== 'Enter' && event.key !== ' ') {
+    if (isEditableTarget(event)) {
       return;
     }
 
-    // prevent default for Space to avoid page scroll
-    if (event.key === ' ') {
-      event.preventDefault();
+    if (event.key !== 'Enter' && event.key !== ' ') {
+      return;
     }
 
     activeKey = event.key;
@@ -152,6 +163,25 @@ export function ngpPress({
     ) {
       reset();
     }
+  }
+
+  function isEditableTarget(event: KeyboardEvent): boolean {
+    const target = event.target;
+
+    if (!(target instanceof HTMLElement)) {
+      return false;
+    }
+
+    if (target.isContentEditable || target instanceof HTMLTextAreaElement) {
+      return true;
+    }
+
+    if (!(target instanceof HTMLInputElement)) {
+      return false;
+    }
+
+    const inputType = target.type.toLowerCase();
+    return !NON_TEXT_INPUT_TYPES.has(inputType);
   }
 
   return { pressed };
