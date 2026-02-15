@@ -1,3 +1,14 @@
+## 0.109.3 (2026-02-15)
+
+### 🩹 Fixes
+
+- **popover:** emit openChange false on outside click and Escape key events ([#663](https://github.com/ng-primitives/ng-primitives/pull/663))
+- **press:** resolve issue where space keys were prevented ([#670](https://github.com/ng-primitives/ng-primitives/pull/670))
+
+### ❤️ Thank You
+
+- Ashley Hunter
+
 ## 0.109.2 (2026-02-13)
 
 ### 🩹 Fixes
