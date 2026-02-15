@@ -13,7 +13,12 @@ export type ButtonVariant = 'primary' | 'secondary' | 'destructive' | 'outline' 
 
 @Component({
   selector: 'button[app-button]',
-  hostDirectives: [{ directive: NgpButton, inputs: ['disabled'] }],
+  hostDirectives: [
+    {
+      directive: NgpButton,
+      inputs: ['disabled', 'focusableWhenDisabled'],
+    },
+  ],
   template: `
     <ng-content select="[slot=leading]" />
     <ng-content />
