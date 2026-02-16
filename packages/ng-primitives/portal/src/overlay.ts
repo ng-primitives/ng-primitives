@@ -1,7 +1,6 @@
 import { FocusMonitor, FocusOrigin } from '@angular/cdk/a11y';
 import { ViewportRuler } from '@angular/cdk/overlay';
 import { DOCUMENT } from '@angular/common';
-import { ControlContainer } from '@angular/forms';
 import {
   DestroyRef,
   Injector,
@@ -15,6 +14,7 @@ import {
   runInInjectionContext,
   signal,
 } from '@angular/core';
+import { ControlContainer } from '@angular/forms';
 import {
   Middleware,
   Placement,
