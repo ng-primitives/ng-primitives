@@ -14,6 +14,7 @@ import {
   runInInjectionContext,
   signal,
 } from '@angular/core';
+import { ControlContainer } from '@angular/forms';
 import {
   Middleware,
   Placement,
@@ -580,6 +581,7 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
           ...(this.config.providers || []),
           { provide: NgpOverlay, useValue: this },
           provideOverlayContext<T>(this.config.context),
+          { provide: ControlContainer, useValue: null },
         ],
       }),
       { $implicit: this.config.context } as NgpOverlayTemplateContext<T>,

@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import { FormsModule, ReactiveFormsModule, FormGroup } from '@angular/forms';
 import { fireEvent, render, waitFor } from '@testing-library/angular';
 import { NgpPopover, NgpPopoverTrigger } from 'ng-primitives/popover';
 
@@ -224,6 +225,38 @@ describe('NgpPopoverTrigger', () => {
     // Should position relative to trigger when anchor is null
     const popover = document.querySelector('[ngpPopover]') as HTMLElement;
     expect(popover).toBeInTheDocument();
+  });
+
+  it('should not leak ControlContainer into overlay content', async () => {
+    @Component({
+      template: `
+        <form [formGroup]="form">
+          <button [ngpPopoverTrigger]="content">Open</button>
+        </form>
+
+        <ng-template #content>
+          <div ngpPopover>
+            <input [(ngModel)]="value" />
+          </div>
+        </ng-template>
+      `,
+      imports: [NgpPopoverTrigger, NgpPopover, ReactiveFormsModule, FormsModule],
+    })
+    class FormLeakTestComponent {
+      form = new FormGroup({});
+      value = '';
+    }
+
+    const { getByRole } = await render(FormLeakTestComponent);
+    const trigger = getByRole('button');
+
+    // This would throw NG01350 if ControlContainer leaked into the overlay
+    fireEvent.click(trigger);
+
+    await waitFor(() => {
+      expect(document.querySelector('[ngpPopover]')).toBeInTheDocument();
+      expect(document.querySelector('input')).toBeInTheDocument();
+    });
   });
 
   it('should accept anchor element input', async () => {
