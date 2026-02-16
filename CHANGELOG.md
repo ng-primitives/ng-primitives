@@ -1,3 +1,15 @@
+## 0.109.4 (2026-02-16)
+
+### 🩹 Fixes
+
+- overlay control container leak ([#675](https://github.com/ng-primitives/ng-primitives/pull/675))
+- **date-picker:** ensure rows re-render when first day of the week changes ([#674](https://github.com/ng-primitives/ng-primitives/pull/674))
+
+### ❤️ Thank You
+
+- Ashley Hunter
+- gourlaouenp
+
 ## 0.109.3 (2026-02-15)
 
 ### 🩹 Fixes
