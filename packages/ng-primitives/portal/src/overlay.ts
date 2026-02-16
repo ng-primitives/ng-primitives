@@ -1,6 +1,7 @@
 import { FocusMonitor, FocusOrigin } from '@angular/cdk/a11y';
 import { ViewportRuler } from '@angular/cdk/overlay';
 import { DOCUMENT } from '@angular/common';
+import { ControlContainer } from '@angular/forms';
 import {
   DestroyRef,
   Injector,
@@ -580,6 +581,7 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
           ...(this.config.providers || []),
           { provide: NgpOverlay, useValue: this },
           provideOverlayContext<T>(this.config.context),
+          { provide: ControlContainer, useValue: null },
         ],
       }),
       { $implicit: this.config.context } as NgpOverlayTemplateContext<T>,
