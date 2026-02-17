@@ -5,24 +5,26 @@ sourceUrl: 'https://github.com/ng-primitives/ng-primitives/tree/next/packages/ng
 
 # Button
 
-A button is a clickable element that can be used to trigger an action. This primitive enhances the native button element with improved accessibility and interaction handling for hover, press and focus.
+Enhance any element with accessible button behavior, including keyboard support, interaction states, and proper ARIA semantics.
 
 <docs-example name="button"></docs-example>
 
-## Import
+## Why use this?
 
-Import the Button primitives from `ng-primitives/button`.
+The browser's native `&lt;button&gt;` element works great, but sometimes you need:
+
+- **Consistent interaction states** across hover, press, and focus for styling
+- **Anchors** with `href`/`routerLink` that need the accessibility and visual treatment of a button
+- **Custom button components** with button accessibility and custom styling
+- **Loading states** that keep focus on the button while it's temporarily disabled
+- **Disabled tooltips** that explain why a button is disabled
+
+This primitive handles all of that while following the [WAI-ARIA Button Pattern](https://www.w3.org/WAI/ARIA/apg/patterns/button/).
+
+## Import
 
 ```ts
 import { NgpButton } from 'ng-primitives/button';
-```
-
-## Usage
-
-Assemble the button directives in your template.
-
-```html
-<button ngpButton>Button</button>
 ```
 
 ## Reusable Component
@@ -31,25 +33,108 @@ Create a button component that uses the `NgpButton` directive.
 
 <docs-snippet name="button"></docs-snippet>
 
+## Accessibility Features
+
+NgpButton implements the [WAI-ARIA Button Pattern](https://www.w3.org/WAI/ARIA/apg/patterns/button/):
+
+| Feature           | Native `&lt;button&gt;` | Non-native elements                                           |
+| ----------------- | ----------------------- | ------------------------------------------------------------- |
+| **Role**          | Implicit                | Adds `role="button"` (in the absence of set or apparent role) |
+| **Keyboard**      | Browser handles         | Enter activates immediately, Space activates on release       |
+| **Disabled**      | `disabled` attr         | `aria-disabled="true"` + event blocking                       |
+| **Tab order**     | `disabled` removes      | `tabindex="-1"` when disabled                                 |
+| **Focus visible** | `:focus-visible`        | `data-focus-visible` attribute                                |
+
 ## Examples
 
 ### Button Sizes
 
-You can add size support to your reusable button component. This is implemented at the component level rather than in the primitive to provide more flexibility for different design systems.
+Add size support to your reusable button component. This is implemented at the component level rather than in the primitive to provide flexibility for different design systems.
 
 <docs-example name="button-sizes"></docs-example>
 
 ### Button Variants
 
-You can add variant support to your reusable button component to indicate different purposes or importance levels.
+Add variant support to indicate different purposes or importance levels.
 
 <docs-example name="button-variants"></docs-example>
 
 ### Button with Icons
 
-You can add icons to your buttons using any Angular icon library or simple SVG elements, but we recommend the [`@ng-icons`](https://github.com/ng-icons/ng-icons) library. This example shows how to create buttons with icons on the leading, trailing, or both sides using content projection slots.
+Add icons using any icon library (we recommend [`@ng-icons`](https://github.com/ng-icons/ng-icons)). This example shows leading, trailing, and icon-only buttons using content projection.
 
 <docs-example name="button-icon"></docs-example>
+
+### Button-Styled Links
+
+Apply `ngpButton` to anchors with `href` or `routerLink` for button-styled links with full accessibility and interaction states. The anchor retains its native link role and keyboard behavior.
+
+<docs-example name="button-link"></docs-example>
+
+### Custom Button Component
+
+Create reusable button components using `hostDirectives` to inherit all button behavior while adding your own styling and API.
+
+<docs-example name="button-custom-component"></docs-example>
+
+### Loading States
+
+Use `focusableWhenDisabled` for buttons that enter a loading state after being clicked.
+
+**Why?** When a button becomes disabled, it's removed from the tab order. Keyboard users lose their focus position and have to navigate back when loading completes. `focusableWhenDisabled` keeps focus on the button throughout the loading cycle.
+
+<docs-example name="button-loading"></docs-example>
+
+#### How it works
+
+| Property                             | Behavior                                                    |
+| ------------------------------------ | ----------------------------------------------------------- |
+| `disabled` only                      | Uses native `disabled` attr, removed from tab order         |
+| `disabled` + `focusableWhenDisabled` | Uses `aria-disabled`, stays in tab order, blocks activation |
+
+This follows the [APG guidance on focusability of disabled controls](https://www.w3.org/WAI/ARIA/apg/practices/keyboard-interface/#focusabilityofdisabledcontrols).
+
+#### Reusable Component with Loading State
+
+Create a reusable button component that supports both disabled and loading states.
+
+<docs-example name="button-loading-reusable"></docs-example>
+
+### Disabled with Tooltip
+
+When a button is disabled, users often need to know _why_. Using `focusableWhenDisabled` allows tooltips to appear on disabled buttons, helping users understand what's needed to enable the action.
+
+<docs-example name="button-disabled-tooltip"></docs-example>
+
+## Styling
+
+Use data attributes to style different interaction states:
+
+```css
+[ngpButton] {
+  /* Base styles */
+}
+
+[ngpButton][data-hover] {
+  /* Hovered */
+}
+
+[ngpButton][data-press] {
+  /* Being pressed */
+}
+
+[ngpButton][data-focus-visible] {
+  /* Keyboard focused */
+}
+
+[ngpButton][data-disabled] {
+  /* Disabled (focusable or not) */
+}
+
+[ngpButton][data-disabled-focusable] {
+  /* Disabled and focusable (loading state) */
+}
+```
 
 ## Schematics
 
@@ -77,9 +162,10 @@ The following directives are available to import from the `ng-primitives/button`
 
 #### Data Attributes
 
-| Attribute            | Description                        |
-| -------------------- | ---------------------------------- |
-| `data-hover`         | Added to the button when hovered.  |
-| `data-focus-visible` | Added to the button when focused.  |
-| `data-press`         | Added to the button when pressed.  |
-| `data-disabled`      | Added to the button when disabled. |
+| Attribute                 | Description                                                        |
+| ------------------------- | ------------------------------------------------------------------ |
+| `data-hover`              | Present when the button is hovered.                                |
+| `data-focus-visible`      | Present when the button has keyboard focus.                        |
+| `data-press`              | Present while the button is being pressed.                         |
+| `data-disabled`           | Present when the button is disabled.                               |
+| `data-disabled-focusable` | Present when disabled but still focusable (loading/tooltip state). |

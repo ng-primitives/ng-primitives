@@ -10,7 +10,7 @@ We welcome contributions from the community! Whether you're a seasoned developer
 
 ## Requesting a new feature
 
-While we draw inspiration from libraries like Radix UI, Headless UI, and React Aria, we are not looking to port their features as-is.
+While we draw inspiration from libraries like Radix UI, Headless UI, React Aria, and Base UI, we are not looking to port their features as-is.
 We want to develop a feature in whatever way is best for Angular.
 
 If you wish to develop a feature, please raise an issue or discussion first to discuss the feature and how it fits into the library.
