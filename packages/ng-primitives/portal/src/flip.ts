@@ -52,6 +52,11 @@ export function coerceFlip(value: NgpFlipInput | null | undefined): NgpFlip {
     return value;
   }
 
+  // Handle empty attribute values (Angular boolean attribute semantics)
+  if (value === '') {
+    return true;
+  }
+
   // Handle string boolean values
   if (value === 'true') {
     return true;
