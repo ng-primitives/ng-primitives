@@ -1,7 +1,15 @@
 import { FocusOrigin } from '@angular/cdk/a11y';
 import { BooleanInput } from '@angular/cdk/coercion';
 import { booleanAttribute, Directive, input } from '@angular/core';
-import { coerceOffset, NgpOffset, NgpOffsetInput, NgpOverlayContent } from 'ng-primitives/portal';
+import {
+  coerceFlip,
+  coerceOffset,
+  NgpFlip,
+  NgpFlipInput,
+  NgpOffset,
+  NgpOffsetInput,
+  NgpOverlayContent,
+} from 'ng-primitives/portal';
 import { NgpMenuPlacement } from '../menu-trigger/menu-trigger';
 import { NgpMenuTriggerStateToken } from '../menu-trigger/menu-trigger-state';
 import {
@@ -57,11 +65,12 @@ export class NgpSubmenuTrigger<T = unknown> {
 
   /**
    * Define whether the menu should flip when there is not enough space for the menu.
+   * Can be a boolean to enable/disable, or an object with padding and fallbackPlacements options.
    * @default true
    */
-  readonly flip = input<boolean, BooleanInput>(true, {
+  readonly flip = input<NgpFlip, NgpFlipInput>(true, {
     alias: 'ngpSubmenuTriggerFlip',
-    transform: booleanAttribute,
+    transform: coerceFlip,
   });
 
   /**

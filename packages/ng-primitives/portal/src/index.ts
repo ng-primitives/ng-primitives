@@ -1,3 +1,4 @@
+export { coerceFlip, NgpFlip, NgpFlipInput, NgpFlipOptions } from './flip';
 export { coerceOffset, NgpOffset, NgpOffsetInput, NgpOffsetOptions } from './offset';
 export {
   createOverlay,

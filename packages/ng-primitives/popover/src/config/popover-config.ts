@@ -1,6 +1,6 @@
 import { InjectionToken, Provider, inject } from '@angular/core';
 import { type Placement } from '@floating-ui/dom';
-import { NgpOffset, NgpShift } from 'ng-primitives/portal';
+import { NgpFlip, NgpOffset, NgpShift } from 'ng-primitives/portal';
 
 export interface NgpPopoverConfig {
   /**
@@ -30,9 +30,10 @@ export interface NgpPopoverConfig {
 
   /**
    * Define whether the popover should flip when there is not enough space for the popover.
+   * Can be a boolean to enable/disable, or an object with padding and fallbackPlacements options.
    * @default true
    */
-  flip: boolean;
+  flip: NgpFlip;
 
   /**
    * Define the container element or selector in to which the popover should be attached.

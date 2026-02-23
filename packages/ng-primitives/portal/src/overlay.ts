@@ -32,6 +32,7 @@ import { explicitEffect, fromResizeEvent } from 'ng-primitives/internal';
 import { injectDisposables, safeTakeUntilDestroyed, uniqueId } from 'ng-primitives/utils';
 import { Subject, fromEvent } from 'rxjs';
 import { debounceTime } from 'rxjs/operators';
+import { NgpFlip } from './flip';
 import { NgpOffset } from './offset';
 import { CooldownOverlay, NgpOverlayCooldownManager } from './overlay-cooldown';
 import { provideOverlayContext } from './overlay-token';
@@ -74,8 +75,8 @@ export interface NgpOverlayConfig<T = unknown> {
   /** Shift configuration to keep the overlay in view. Can be a boolean, an object with options, or undefined */
   shift?: NgpShift;
 
-  /** Whether to enable flip behavior when space is limited */
-  flip?: boolean;
+  /** Whether to enable flip behavior when space is limited, or an object with flip options */
+  flip?: NgpFlip;
 
   /** Delay before showing the overlay in milliseconds */
   showDelay?: number;
@@ -677,8 +678,10 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
     }
 
     // Add flip middleware if requested
-    if (this.config.flip !== false) {
-      middleware.push(flip());
+    const flipConfig = this.config.flip;
+    if (flipConfig !== false) {
+      const flipOptions = flipConfig === undefined || flipConfig === true ? {} : flipConfig;
+      middleware.push(flip(flipOptions));
     }
 
     // Add size middleware to expose available dimensions

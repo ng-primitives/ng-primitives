@@ -1,7 +1,7 @@
 import { InjectionToken, Provider, inject } from '@angular/core';
 import { type Placement } from '@floating-ui/dom';
 import { NgpOrientation } from 'ng-primitives/common';
-import { NgpOffset, NgpShift } from 'ng-primitives/portal';
+import { NgpFlip, NgpOffset, NgpShift } from 'ng-primitives/portal';
 
 export interface NgpNavigationMenuConfig {
   /**
@@ -37,9 +37,10 @@ export interface NgpNavigationMenuConfig {
 
   /**
    * Define whether the content should flip when there is not enough space.
+   * Can be a boolean to enable/disable, or an object with padding and fallbackPlacements options.
    * @default true
    */
-  flip: boolean;
+  flip: NgpFlip;
 
   /**
    * Configure shift behavior to keep the content in view.

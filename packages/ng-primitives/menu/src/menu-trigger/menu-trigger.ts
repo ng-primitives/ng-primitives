@@ -2,8 +2,11 @@ import { FocusOrigin } from '@angular/cdk/a11y';
 import { BooleanInput, NumberInput } from '@angular/cdk/coercion';
 import { booleanAttribute, Directive, input, numberAttribute, Signal } from '@angular/core';
 import {
+  coerceFlip,
   coerceOffset,
   coerceShift,
+  NgpFlip,
+  NgpFlipInput,
   NgpOffset,
   NgpOffsetInput,
   NgpOverlayContent,
@@ -63,11 +66,12 @@ export class NgpMenuTrigger<T = unknown> {
 
   /**
    * Define whether the menu should flip when there is not enough space for the menu.
+   * Can be a boolean to enable/disable, or an object with padding and fallbackPlacements options.
    * @default true
    */
-  readonly flip = input<boolean, BooleanInput>(this.config.flip, {
+  readonly flip = input<NgpFlip, NgpFlipInput>(this.config.flip, {
     alias: 'ngpMenuTriggerFlip',
-    transform: booleanAttribute,
+    transform: coerceFlip,
   });
 
   /**
