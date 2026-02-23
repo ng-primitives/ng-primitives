@@ -10,10 +10,10 @@ import {
   output,
   signal,
 } from '@angular/core';
-import { coerceFlip, NgpFlip, NgpFlipInput } from 'ng-primitives/portal';
 import { activeDescendantManager } from 'ng-primitives/a11y';
 import { ngpInteractions } from 'ng-primitives/interactions';
 import { domSort, injectElementRef } from 'ng-primitives/internal';
+import { coerceFlip, NgpFlip, NgpFlipInput } from 'ng-primitives/portal';
 import type { NgpComboboxButton } from '../combobox-button/combobox-button';
 import type { NgpComboboxDropdown } from '../combobox-dropdown/combobox-dropdown';
 import type { NgpComboboxInput } from '../combobox-input/combobox-input';

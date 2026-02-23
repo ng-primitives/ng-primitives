@@ -11,11 +11,11 @@ import {
   signal,
 } from '@angular/core';
 import type { Placement } from '@floating-ui/dom';
-import { coerceFlip, NgpFlip, NgpFlipInput } from 'ng-primitives/portal';
 import { activeDescendantManager } from 'ng-primitives/a11y';
 import { ngpFormControl } from 'ng-primitives/form-field';
 import { ngpInteractions } from 'ng-primitives/interactions';
 import { domSort, injectElementRef } from 'ng-primitives/internal';
+import { coerceFlip, NgpFlip, NgpFlipInput } from 'ng-primitives/portal';
 import { uniqueId } from 'ng-primitives/utils';
 import { injectSelectConfig } from '../config/select-config';
 import type { NgpSelectDropdown } from '../select-dropdown/select-dropdown';
