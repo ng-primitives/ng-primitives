@@ -2,8 +2,11 @@ import { BooleanInput, NumberInput } from '@angular/cdk/coercion';
 import { booleanAttribute, Directive, input, numberAttribute } from '@angular/core';
 import { Placement } from '@floating-ui/dom';
 import {
+  coerceFlip,
   coerceOffset,
   coerceShift,
+  NgpFlip,
+  NgpFlipInput,
   NgpOffset,
   NgpOffsetInput,
   NgpOverlayContent,
@@ -70,11 +73,12 @@ export class NgpNavigationMenuTrigger {
 
   /**
    * Whether the content should flip when there is not enough space.
+   * Can be a boolean to enable/disable, or an object with padding and fallbackPlacements options.
    * @default true
    */
-  readonly flip = input<boolean, BooleanInput>(this.config.flip, {
+  readonly flip = input<NgpFlip, NgpFlipInput>(this.config.flip, {
     alias: 'ngpNavigationMenuTriggerFlip',
-    transform: booleanAttribute,
+    transform: coerceFlip,
   });
 
   /**

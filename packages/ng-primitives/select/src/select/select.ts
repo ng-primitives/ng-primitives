@@ -11,6 +11,7 @@ import {
   signal,
 } from '@angular/core';
 import type { Placement } from '@floating-ui/dom';
+import { coerceFlip, NgpFlip, NgpFlipInput } from 'ng-primitives/portal';
 import { activeDescendantManager } from 'ng-primitives/a11y';
 import { ngpFormControl } from 'ng-primitives/form-field';
 import { ngpInteractions } from 'ng-primitives/interactions';
@@ -107,10 +108,10 @@ export class NgpSelect {
     alias: 'ngpSelectDropdownContainer',
   });
 
-  /** Whether the dropdown should flip when there is not enough space. */
-  readonly flip = input<boolean, BooleanInput>(this.config.flip, {
+  /** Whether the dropdown should flip when there is not enough space. Can be a boolean to enable/disable, or an object with padding and fallbackPlacements options. */
+  readonly flip = input<NgpFlip, NgpFlipInput>(this.config.flip, {
     alias: 'ngpSelectDropdownFlip',
-    transform: booleanAttribute,
+    transform: coerceFlip,
   });
 
   /**

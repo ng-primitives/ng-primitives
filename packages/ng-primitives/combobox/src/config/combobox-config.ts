@@ -1,4 +1,5 @@
 import { InjectionToken, Provider, inject } from '@angular/core';
+import { NgpFlip } from 'ng-primitives/portal';
 import { type NgpComboboxPlacement } from '../combobox/combobox';
 
 export interface NgpComboboxConfig {
@@ -17,9 +18,10 @@ export interface NgpComboboxConfig {
 
   /**
    * Whether the combobox dropdown should flip when there is not enough space.
+   * Can be a boolean to enable/disable, or an object with padding and fallbackPlacements options.
    * @default true
    */
-  flip: boolean;
+  flip: NgpFlip;
 }
 
 export const defaultComboboxConfig: NgpComboboxConfig = {

@@ -13,6 +13,7 @@ import {
 import { injectElementRef } from 'ng-primitives/internal';
 import {
   createOverlay,
+  NgpFlip,
   NgpOffset,
   NgpOverlay,
   NgpOverlayConfig,
@@ -56,7 +57,7 @@ export interface NgpMenuTriggerState<T = unknown> {
   /**
    * Whether the menu should flip when there is not enough space.
    */
-  readonly flip: WritableSignal<boolean>;
+  readonly flip: WritableSignal<NgpFlip>;
 
   /**
    * The context provided to the menu.
@@ -79,7 +80,7 @@ export interface NgpMenuTriggerState<T = unknown> {
    * Set whether the menu should flip when there is not enough space.
    * @param shouldFlip - Whether the menu should flip
    */
-  setFlip(shouldFlip: boolean): void;
+  setFlip(shouldFlip: NgpFlip): void;
 
   /**
    * Set the placement of the menu.
@@ -150,7 +151,7 @@ export interface NgpMenuTriggerProps<T = unknown> {
   /**
    * Whether the menu should flip when there is not enough space.
    */
-  readonly flip?: Signal<boolean>;
+  readonly flip?: Signal<NgpFlip>;
   /**
    * The container in which the menu should be attached.
    */
@@ -499,7 +500,7 @@ export const [
       }
     }
 
-    function setFlip(shouldFlip: boolean): void {
+    function setFlip(shouldFlip: NgpFlip): void {
       flip.set(shouldFlip);
     }
 

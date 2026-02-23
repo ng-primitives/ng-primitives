@@ -5,6 +5,7 @@ import { Placement } from '@floating-ui/dom';
 import { injectElementRef } from 'ng-primitives/internal';
 import {
   createOverlay,
+  NgpFlip,
   NgpOffset,
   NgpOverlay,
   NgpOverlayConfig,
@@ -47,7 +48,7 @@ export interface NgpNavigationMenuTriggerState {
   /**
    * Whether the content should flip when there is not enough space.
    */
-  readonly flip: Signal<boolean>;
+  readonly flip: Signal<NgpFlip>;
 
   /**
    * The shift configuration for the content.
@@ -145,7 +146,7 @@ export interface NgpNavigationMenuTriggerProps {
   /**
    * Whether the content should flip.
    */
-  readonly flip?: Signal<boolean>;
+  readonly flip?: Signal<NgpFlip>;
 
   /**
    * The shift configuration.
