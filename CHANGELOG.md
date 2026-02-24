@@ -1,3 +1,13 @@
+## 0.109.5 (2026-02-24)
+
+### 🚀 Features
+
+- **overlay:** add support for configurable flip options ([#680](https://github.com/ng-primitives/ng-primitives/pull/680))
+
+### ❤️ Thank You
+
+- Ashley Hunter
+
 ## 0.109.4 (2026-02-16)
 
 ### 🩹 Fixes
