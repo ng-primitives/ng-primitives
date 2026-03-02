@@ -739,7 +739,16 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
     strategy: Strategy = 'absolute',
   ): Promise<void> {
     // Create middleware array
+    // Order matters: offset → flip → shift → size → arrow (per Floating UI docs)
     const middleware: Middleware[] = [offset(this.config.offset ?? 0)];
+
+    // Add flip middleware if requested
+    // Flip must come before shift so that shift doesn't prevent flip from triggering
+    const flipConfig = this.config.flip;
+    if (flipConfig !== false) {
+      const flipOptions = flipConfig === undefined || flipConfig === true ? {} : flipConfig;
+      middleware.push(flip(flipOptions));
+    }
 
     // Add shift middleware (enabled by default for backward compatibility)
     // Shift keeps the overlay in view by shifting it along its axis when it would otherwise overflow the viewport
@@ -747,13 +756,6 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
     if (shiftConfig !== false) {
       const shiftOptions = shiftConfig === undefined || shiftConfig === true ? {} : shiftConfig;
       middleware.push(shift(shiftOptions));
-    }
-
-    // Add flip middleware if requested
-    const flipConfig = this.config.flip;
-    if (flipConfig !== false) {
-      const flipOptions = flipConfig === undefined || flipConfig === true ? {} : flipConfig;
-      middleware.push(flip(flipOptions));
     }
 
     // Add size middleware to expose available dimensions
