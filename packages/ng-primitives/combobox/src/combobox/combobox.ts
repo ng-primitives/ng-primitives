@@ -13,6 +13,7 @@ import {
 import { activeDescendantManager } from 'ng-primitives/a11y';
 import { ngpInteractions } from 'ng-primitives/interactions';
 import { domSort, injectElementRef } from 'ng-primitives/internal';
+import { coerceFlip, NgpFlip, NgpFlipInput } from 'ng-primitives/portal';
 import type { NgpComboboxButton } from '../combobox-button/combobox-button';
 import type { NgpComboboxDropdown } from '../combobox-dropdown/combobox-dropdown';
 import type { NgpComboboxInput } from '../combobox-input/combobox-input';
@@ -111,10 +112,10 @@ export class NgpCombobox {
     alias: 'ngpComboboxDropdownContainer',
   });
 
-  /** Whether the dropdown should flip when there is not enough space. */
-  readonly flip = input<boolean, BooleanInput>(this.config.flip, {
+  /** Whether the dropdown should flip when there is not enough space. Can be a boolean to enable/disable, or an object with padding and fallbackPlacements options. */
+  readonly flip = input<NgpFlip, NgpFlipInput>(this.config.flip, {
     alias: 'ngpComboboxDropdownFlip',
-    transform: booleanAttribute,
+    transform: coerceFlip,
   });
 
   /**

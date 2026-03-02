@@ -32,6 +32,7 @@ import { explicitEffect, fromResizeEvent } from 'ng-primitives/internal';
 import { injectDisposables, safeTakeUntilDestroyed, uniqueId } from 'ng-primitives/utils';
 import { Subject, fromEvent } from 'rxjs';
 import { debounceTime } from 'rxjs/operators';
+import { NgpFlip } from './flip';
 import { NgpOffset } from './offset';
 import { CooldownOverlay, NgpOverlayCooldownManager } from './overlay-cooldown';
 import { provideOverlayContext } from './overlay-token';
@@ -39,6 +40,73 @@ import { NgpPortal, createPortal } from './portal';
 import { NgpPosition } from './position';
 import { BlockScrollStrategy, NoopScrollStrategy } from './scroll-strategy';
 import { NgpShift } from './shift';
+
+/**
+ * Bit value of the internal `SkipSelf` inject flag used by Angular's DI system.
+ * This value is part of Angular's ABI and is stable across versions 19+.
+ * @see InjectFlags.SkipSelf / InternalInjectFlags.SkipSelf
+ */
+const SKIP_SELF_FLAG = 4;
+
+/** Check whether the given inject flags include `SkipSelf`. */
+function hasSkipSelfFlag(flags: unknown): boolean {
+  if (typeof flags === 'number') {
+    return (flags & SKIP_SELF_FLAG) !== 0;
+  }
+  if (flags != null && typeof flags === 'object' && 'skipSelf' in flags) {
+    return !!(flags as { skipSelf: unknown }).skipSelf;
+  }
+  return false;
+}
+
+/**
+ * An injector wrapper that intercepts `ControlContainer` lookups carrying the
+ * `SkipSelf` flag and short-circuits them to `notFoundValue`.
+ *
+ * ## Why this is needed
+ *
+ * Angular's `lookupTokenUsingEmbeddedInjector` passes the original inject flags
+ * to the embedded view injector's `.get()` call. For directives that use
+ * `@Host() @SkipSelf()` (e.g. `FormControlName`, `FormGroupName`):
+ *
+ * - **Without this wrapper**: `R3Injector.get()` honors `SkipSelf` by skipping
+ *   its own `ControlContainer: null` record and delegates to the parent injector
+ *   (the trigger element's injector), which may find the **outer** form's
+ *   `ControlContainer` — leaking the wrong form context into child components.
+ *
+ * - **If we stripped SkipSelf entirely**: `R3Injector` would find its own
+ *   `ControlContainer: null` and return `null`. But this `null` is returned
+ *   for ALL `ControlContainer` lookups within the portaled view, killing child
+ *   components' own `FormGroupDirective` resolution (NG01050).
+ *
+ * ## The fix
+ *
+ * For `ControlContainer` + `SkipSelf`, return `notFoundValue` directly. This
+ * causes `lookupTokenUsingEmbeddedInjector` to skip this boundary and eventually
+ * return `NOT_FOUND`, letting `lookupTokenUsingNodeInjector` run — which correctly
+ * finds the child component's own `FormGroupDirective` via the element injector chain.
+ *
+ * For `ControlContainer` without `SkipSelf` (e.g. `NgModel` uses `@Host()` only),
+ * delegation proceeds normally and finds `ControlContainer: null`, preventing the
+ * outer form from leaking.
+ *
+ * @see https://github.com/angular/angular/issues/57390
+ * @see https://github.com/ng-primitives/ng-primitives/issues/677
+ * @internal
+ */
+class EmbeddedViewInjector extends Injector {
+  constructor(private readonly delegate: Injector) {
+    super();
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  get(token: any, notFoundValue?: any, flags?: any): any {
+    if (token === ControlContainer && hasSkipSelfFlag(flags)) {
+      return notFoundValue;
+    }
+    return this.delegate.get(token, notFoundValue, flags);
+  }
+}
 
 /**
  * Configuration options for creating an overlay
@@ -74,8 +142,8 @@ export interface NgpOverlayConfig<T = unknown> {
   /** Shift configuration to keep the overlay in view. Can be a boolean, an object with options, or undefined */
   shift?: NgpShift;
 
-  /** Whether to enable flip behavior when space is limited */
-  flip?: boolean;
+  /** Whether to enable flip behavior when space is limited, or an object with flip options */
+  flip?: NgpFlip;
 
   /** Delay before showing the overlay in milliseconds */
   showDelay?: number;
@@ -571,19 +639,24 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
       throw new Error('Overlay content must be provided');
     }
 
-    // Create a new portal with context
+    // Create a new portal with context.
+    // The injector is wrapped in EmbeddedViewInjector to work around an Angular 19 bug
+    // where @SkipSelf() causes the embedded view injector's ControlContainer: null to be
+    // bypassed. See https://github.com/angular/angular/issues/57390
     const portal = createPortal(
       this.config.content,
       this.viewContainerRef,
-      Injector.create({
-        parent: this.config.injector,
-        providers: [
-          ...(this.config.providers || []),
-          { provide: NgpOverlay, useValue: this },
-          provideOverlayContext<T>(this.config.context),
-          { provide: ControlContainer, useValue: null },
-        ],
-      }),
+      new EmbeddedViewInjector(
+        Injector.create({
+          parent: this.config.injector,
+          providers: [
+            ...(this.config.providers || []),
+            { provide: NgpOverlay, useValue: this },
+            provideOverlayContext<T>(this.config.context),
+            { provide: ControlContainer, useValue: null },
+          ],
+        }),
+      ),
       { $implicit: this.config.context } as NgpOverlayTemplateContext<T>,
     );
 
@@ -666,7 +739,16 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
     strategy: Strategy = 'absolute',
   ): Promise<void> {
     // Create middleware array
+    // Order matters: offset → flip → shift → size → arrow (per Floating UI docs)
     const middleware: Middleware[] = [offset(this.config.offset ?? 0)];
+
+    // Add flip middleware if requested
+    // Flip must come before shift so that shift doesn't prevent flip from triggering
+    const flipConfig = this.config.flip;
+    if (flipConfig !== false) {
+      const flipOptions = flipConfig === undefined || flipConfig === true ? {} : flipConfig;
+      middleware.push(flip(flipOptions));
+    }
 
     // Add shift middleware (enabled by default for backward compatibility)
     // Shift keeps the overlay in view by shifting it along its axis when it would otherwise overflow the viewport
@@ -674,11 +756,6 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
     if (shiftConfig !== false) {
       const shiftOptions = shiftConfig === undefined || shiftConfig === true ? {} : shiftConfig;
       middleware.push(shift(shiftOptions));
-    }
-
-    // Add flip middleware if requested
-    if (this.config.flip !== false) {
-      middleware.push(flip());
     }
 
     // Add size middleware to expose available dimensions

@@ -1,5 +1,6 @@
 import { InjectionToken, Provider, inject } from '@angular/core';
 import type { Placement } from '@floating-ui/dom';
+import { NgpFlip } from 'ng-primitives/portal';
 
 export interface NgpSelectConfig {
   /**
@@ -17,9 +18,10 @@ export interface NgpSelectConfig {
 
   /**
    * Whether the select dropdown should flip when there is not enough space.
+   * Can be a boolean to enable/disable, or an object with padding and fallbackPlacements options.
    * @default true
    */
-  flip: boolean;
+  flip: NgpFlip;
 }
 
 export const defaultSelectConfig: NgpSelectConfig = {

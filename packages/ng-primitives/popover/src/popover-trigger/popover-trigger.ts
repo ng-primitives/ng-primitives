@@ -16,6 +16,9 @@ import {
 import { injectElementRef } from 'ng-primitives/internal';
 import {
   createOverlay,
+  coerceFlip,
+  NgpFlip,
+  NgpFlipInput,
   NgpOverlay,
   NgpOverlayConfig,
   NgpOverlayContent,
@@ -120,11 +123,12 @@ export class NgpPopoverTrigger<T = null> implements OnDestroy {
 
   /**
    * Define whether the popover should flip when there is not enough space for the popover.
+   * Can be a boolean to enable/disable, or an object with padding and fallbackPlacements options.
    * @default true
    */
-  readonly flip = input<boolean, BooleanInput>(this.config.flip, {
+  readonly flip = input<NgpFlip, NgpFlipInput>(this.config.flip, {
     alias: 'ngpPopoverTriggerFlip',
-    transform: booleanAttribute,
+    transform: coerceFlip,
   });
 
   /**
