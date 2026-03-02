@@ -1,10 +1,4 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  computed,
-  inject,
-  signal,
-} from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { NavigationEnd, Router, RouterLink } from '@angular/router';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { heroArrowLeft, heroArrowRight } from '@ng-icons/heroicons/outline';
@@ -112,11 +106,9 @@ export class PageNavigation {
         return a.order - b.order;
       });
 
-    this.router.events
-      .pipe(filter(event => event instanceof NavigationEnd))
-      .subscribe(event => {
-        this.currentUrl.set(event.urlAfterRedirects);
-      });
+    this.router.events.pipe(filter(event => event instanceof NavigationEnd)).subscribe(event => {
+      this.currentUrl.set(event.urlAfterRedirects);
+    });
   }
 
   private readonly currentIndex = computed(() => {

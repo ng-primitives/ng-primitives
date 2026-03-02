@@ -231,7 +231,9 @@ export class DocsNavbar implements OnInit {
     <section class="container mx-auto pb-20">
       <div class="grid grid-cols-1 lg:grid-cols-2 2xl:grid-cols-3">
         @for (feature of features; track feature) {
-          <div class="-m-[0.5px] flex flex-col items-center gap-y-3 p-10 transition-all duration-300 hover:-translate-y-1 hover:shadow-lg rounded-xl">
+          <div
+            class="-m-[0.5px] flex flex-col items-center gap-y-3 rounded-xl p-10 transition-all duration-300 hover:-translate-y-1 hover:shadow-lg"
+          >
             <div
               class="inline-flex size-12 items-center justify-center rounded-[10px] shadow-xs ring-1 ring-zinc-200 dark:ring-zinc-800"
             >
@@ -413,7 +415,8 @@ export class DocsNavbar implements OnInit {
     }
 
     @keyframes hero-glow {
-      0%, 100% {
+      0%,
+      100% {
         opacity: 0.7;
         transform: translate(0, 0) scale(1);
       }

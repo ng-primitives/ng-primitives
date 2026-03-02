@@ -152,7 +152,7 @@ The navigation menu uses `role="navigation"` on the container, `aria-haspopup="m
 | `ArrowDown` (horizontal)   | Open content and focus first item                   |
 | `ArrowRight` (vertical)    | Open content and focus first item                   |
 | `Enter` / `Space`          | Open content and focus first item, or activate link |
-| `Escape`                   | Close content and return focus to trigger            |
+| `Escape`                   | Close content and return focus to trigger           |
 | `Home` / `End`             | Navigate to first/last trigger                      |
 | `Tab`                      | Move focus out of the navigation menu               |
 

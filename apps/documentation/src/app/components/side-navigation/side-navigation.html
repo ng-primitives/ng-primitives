@@ -4,11 +4,15 @@
   >
     @for (section of sections; track section.title) {
     <div class="mb-2">
-      <h2 class="mb-4 flex items-center gap-2 text-sm font-semibold text-zinc-800 dark:text-zinc-100">
+      <h2
+        class="mb-4 flex items-center gap-2 text-sm font-semibold text-zinc-800 dark:text-zinc-100"
+      >
         @if (sectionIcons[section.title]) {
-          <ng-icon class="text-base text-zinc-500 dark:text-zinc-400" [name]="sectionIcons[section.title]" />
-        }
-        {{ section.title }}
+        <ng-icon
+          class="text-base text-zinc-500 dark:text-zinc-400"
+          [name]="sectionIcons[section.title]"
+        />
+        } {{ section.title }}
       </h2>
       <ul>
         @for (link of section.links; track link) {
