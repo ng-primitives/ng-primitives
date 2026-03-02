@@ -287,11 +287,14 @@ Define the shift behavior to keep the tooltip in view. When enabled (default), t
 
 ```ts
 shift: {
-  padding: 8,     // Minimum padding between tooltip and viewport edges
-  limiter: {      // Optional limiter to control shifting behavior
+  padding: 8,           // Minimum padding between tooltip and viewport edges
+  limiter: {            // Optional limiter to control shifting behavior
     fn: limitShift,
     options: { /* limiter options */ }
-  }
+  },
+  boundary: element,    // Clipping boundary area (default: 'clippingAncestors')
+  rootBoundary: 'viewport', // Root clipping area: 'viewport' or 'document' (default: 'viewport')
+  crossAxis: true,      // Whether to also shift along the cross axis (default: false)
 }
 ```
 
@@ -309,8 +312,23 @@ shift: {
   Define the delay before the tooltip hides.
 </prop-details>
 
-<prop-details name="flip" type="boolean" default="true">
-  Define if the tooltip should flip when it reaches the edge of the viewport.
+<prop-details name="flip" type="boolean | NgpFlipOptions" default="true">
+Define if the tooltip should flip when it reaches the edge of the viewport. Can be a boolean to enable/disable, or an object with detailed options.
+
+**Boolean format:** `flip: false` - Disables flip behavior
+
+**Object format:**
+
+```ts
+flip: {
+  padding: 8,                          // Minimum padding from viewport edges (default: 0)
+  fallbackPlacements: ['top', 'left'], // Placements to try if preferred doesn't fit
+  boundary: element,                   // Clipping boundary area (default: 'clippingAncestors')
+  rootBoundary: 'viewport',            // Root clipping area: 'viewport' or 'document' (default: 'viewport')
+  crossAxis: true,                     // Whether to check overflow on the cross axis (default: true)
+}
+```
+
 </prop-details>
 
 <prop-details name="container" type="HTMLElement" default="document.body">

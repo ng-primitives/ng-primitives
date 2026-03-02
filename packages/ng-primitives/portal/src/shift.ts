@@ -1,4 +1,5 @@
 import { coerceNumberProperty } from '@angular/cdk/coercion';
+import { type Boundary, type RootBoundary } from '@floating-ui/dom';
 import { isNil, isObject } from 'ng-primitives/utils';
 
 /**
@@ -24,6 +25,24 @@ export interface NgpShiftOptions {
     fn: (state: unknown) => { x: number; y: number };
     options?: unknown;
   };
+
+  /**
+   * The clipping boundary area of the floating element.
+   * @default 'clippingAncestors'
+   */
+  boundary?: Boundary;
+
+  /**
+   * The root clipping area of the floating element.
+   * @default 'viewport'
+   */
+  rootBoundary?: RootBoundary;
+
+  /**
+   * Whether to also shift along the cross axis to keep the floating element in view.
+   * @default false
+   */
+  crossAxis?: boolean;
 }
 
 /**

@@ -1,5 +1,5 @@
 import { coerceNumberProperty } from '@angular/cdk/coercion';
-import { type Placement } from '@floating-ui/dom';
+import { type Boundary, type Placement, type RootBoundary } from '@floating-ui/dom';
 import { isNil, isObject } from 'ng-primitives/utils';
 
 /**
@@ -20,6 +20,24 @@ export interface NgpFlipOptions {
    * @default [oppositePlacement] (computed)
    */
   fallbackPlacements?: Placement[];
+
+  /**
+   * The clipping boundary area of the floating element.
+   * @default 'clippingAncestors'
+   */
+  boundary?: Boundary;
+
+  /**
+   * The root clipping area of the floating element.
+   * @default 'viewport'
+   */
+  rootBoundary?: RootBoundary;
+
+  /**
+   * Whether to also check for overflow on the cross axis.
+   * @default true
+   */
+  crossAxis?: boolean;
 }
 
 /**
