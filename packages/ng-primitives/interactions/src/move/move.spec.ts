@@ -117,7 +117,12 @@ describe('NgpMove', () => {
 
       @Component({
         template: `
-          <div (ngpMove)="onMove($event)" data-testid="target" ngpMove [ngpMoveDisabled]="true"></div>
+          <div
+            [ngpMoveDisabled]="true"
+            (ngpMove)="onMove($event)"
+            data-testid="target"
+            ngpMove
+          ></div>
         `,
         imports: [NgpMove],
       })

@@ -107,9 +107,14 @@ export class PageNavigation {
         return a.order - b.order;
       });
 
-    this.router.events.pipe(filter(event => event instanceof NavigationEnd), takeUntilDestroyed()).subscribe(event => {
-      this.currentUrl.set(event.urlAfterRedirects);
-    });
+    this.router.events
+      .pipe(
+        filter(event => event instanceof NavigationEnd),
+        takeUntilDestroyed(),
+      )
+      .subscribe(event => {
+        this.currentUrl.set(event.urlAfterRedirects);
+      });
   }
 
   private readonly currentIndex = computed(() => {

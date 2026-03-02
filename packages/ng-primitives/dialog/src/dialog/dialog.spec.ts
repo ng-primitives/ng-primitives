@@ -1,10 +1,10 @@
 import { Component, TemplateRef, ViewContainerRef, inject, viewChild } from '@angular/core';
 import { TestBed, fakeAsync, flush } from '@angular/core/testing';
+import { NgpDialogConfig } from '../config/dialog-config';
 import { NgpDialogDescription } from '../dialog-description/dialog-description';
 import { NgpDialogOverlay } from '../dialog-overlay/dialog-overlay';
 import { NgpDialogTitle } from '../dialog-title/dialog-title';
 import { NgpDialog } from './dialog';
-import { NgpDialogConfig } from '../config/dialog-config';
 import { NgpDialogContext, NgpDialogManager } from './dialog.service';
 
 @Component({

@@ -57,18 +57,25 @@ export const appConfig: ApplicationConfig = {
         // Handle scroll-to-top manually since we disabled scrollPositionRestoration.
         // We delay the scroll so it runs after DOM mutations from heading-anchor,
         // source-link, and quick-links which use setTimeout(0) and afterNextRender.
-        router.events.pipe(filter((e): e is Scroll => e instanceof Scroll), takeUntilDestroyed(destroyRef)).subscribe(e => {
-          if (e.position) {
-            // Restore scroll position for back/forward navigation
-            setTimeout(() => requestAnimationFrame(() => window.scrollTo(e.position![0], e.position![1])));
-            return;
-          }
-          if (e.anchor) {
-            // Let anchorScrolling handle fragment navigation
-            return;
-          }
-          setTimeout(() => requestAnimationFrame(() => window.scrollTo(0, 0)));
-        });
+        router.events
+          .pipe(
+            filter((e): e is Scroll => e instanceof Scroll),
+            takeUntilDestroyed(destroyRef),
+          )
+          .subscribe(e => {
+            if (e.position) {
+              // Restore scroll position for back/forward navigation
+              setTimeout(() =>
+                requestAnimationFrame(() => window.scrollTo(e.position![0], e.position![1])),
+              );
+              return;
+            }
+            if (e.anchor) {
+              // Let anchorScrolling handle fragment navigation
+              return;
+            }
+            setTimeout(() => requestAnimationFrame(() => window.scrollTo(0, 0)));
+          });
       }
     }),
   ],
