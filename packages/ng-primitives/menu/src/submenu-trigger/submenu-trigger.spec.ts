@@ -1,5 +1,4 @@
 import { Component } from '@angular/core';
-import { fakeAsync, flush, tick } from '@angular/core/testing';
 import * as floatingUiDom from '@floating-ui/dom';
 import { fireEvent, render, waitFor } from '@testing-library/angular';
 import { NgpMenuItem } from '../menu-item/menu-item';
@@ -88,27 +87,30 @@ class TestSubmenuPlacementComponent {
 }
 
 /**
- * Helper to open the root menu and submenu in fakeAsync tests.
+ * Helper to open the root menu and submenu.
  */
-function openMenuAndSubmenu(fixture: {
-  detectChanges: () => void;
+async function openMenuAndSubmenu(fixture: {
+  autoDetectChanges: (autoDetect: boolean) => void;
   debugElement: { nativeElement: HTMLElement };
-}): void {
+}): Promise<void> {
+  fixture.autoDetectChanges(true);
+
   const trigger = fixture.debugElement.nativeElement.querySelector('[data-testid="root-trigger"]')!;
 
   // Open root menu
   fireEvent.click(trigger);
-  tick();
-  fixture.detectChanges();
-  flush();
+
+  await waitFor(() => {
+    expect(document.querySelector('[data-testid="submenu-trigger"]')).toBeInTheDocument();
+  });
 
   // Open submenu
   const submenuTrigger = document.querySelector('[data-testid="submenu-trigger"]')!;
   fireEvent.click(submenuTrigger);
-  tick();
-  fixture.detectChanges();
-  flush();
-  fixture.detectChanges();
+
+  await waitFor(() => {
+    expect(document.querySelector('[data-testid="submenu"]')).toBeInTheDocument();
+  });
 }
 
 describe('NgpSubmenuTrigger viewport awareness', () => {
@@ -151,9 +153,9 @@ describe('NgpSubmenuTrigger viewport awareness', () => {
       jest.restoreAllMocks();
     });
 
-    it('should include flip middleware when flip is enabled (default)', fakeAsync(async () => {
+    it('should include flip middleware when flip is enabled (default)', async () => {
       const { fixture } = await render(TestSubmenuComponent);
-      openMenuAndSubmenu(fixture);
+      await openMenuAndSubmenu(fixture);
 
       // Find the computePosition call for the submenu (placement: right-start)
       const submenuCall = computePositionSpy.mock.calls.find(call => {
@@ -167,11 +169,11 @@ describe('NgpSubmenuTrigger viewport awareness', () => {
       const middleware = submenuCall![2].middleware;
       const hasFlip = middleware.some((m: { name: string }) => m.name === 'flip');
       expect(hasFlip).toBe(true);
-    }));
+    });
 
-    it('should not include flip middleware when flip is disabled', fakeAsync(async () => {
+    it('should not include flip middleware when flip is disabled', async () => {
       const { fixture } = await render(TestSubmenuNoFlipComponent);
-      openMenuAndSubmenu(fixture);
+      await openMenuAndSubmenu(fixture);
 
       // Find the computePosition call for the submenu
       const submenuCall = computePositionSpy.mock.calls.find(call => {
@@ -185,11 +187,11 @@ describe('NgpSubmenuTrigger viewport awareness', () => {
       const middleware = submenuCall![2].middleware;
       const hasFlip = middleware.some((m: { name: string }) => m.name === 'flip');
       expect(hasFlip).toBe(false);
-    }));
+    });
 
-    it('should have flip middleware ordered before shift middleware', fakeAsync(async () => {
+    it('should have flip middleware ordered before shift middleware', async () => {
       const { fixture } = await render(TestSubmenuComponent);
-      openMenuAndSubmenu(fixture);
+      await openMenuAndSubmenu(fixture);
 
       // Find the computePosition call for the submenu
       const submenuCall = computePositionSpy.mock.calls.find(call => {
@@ -206,7 +208,7 @@ describe('NgpSubmenuTrigger viewport awareness', () => {
       expect(flipIndex).toBeGreaterThan(-1);
       expect(shiftIndex).toBeGreaterThan(-1);
       expect(flipIndex).toBeLessThan(shiftIndex);
-    }));
+    });
   });
 
   describe('viewport-aware flip behavior', () => {
@@ -219,12 +221,20 @@ describe('NgpSubmenuTrigger viewport awareness', () => {
       const originalInnerWidth = window.innerWidth;
       const originalInnerHeight = window.innerHeight;
 
+      // Save original document size descriptors
+      const docElement = document.documentElement;
+      const origDocClientWidth = Object.getOwnPropertyDescriptor(docElement, 'clientWidth');
+      const origDocClientHeight = Object.getOwnPropertyDescriptor(docElement, 'clientHeight');
+      const origDocScrollWidth = Object.getOwnPropertyDescriptor(docElement, 'scrollWidth');
+      const origDocScrollHeight = Object.getOwnPropertyDescriptor(docElement, 'scrollHeight');
+      const origBodyClientWidth = Object.getOwnPropertyDescriptor(document.body, 'clientWidth');
+      const origBodyClientHeight = Object.getOwnPropertyDescriptor(document.body, 'clientHeight');
+
       // Mock viewport dimensions
       Object.defineProperty(window, 'innerWidth', { value: 400, configurable: true });
       Object.defineProperty(window, 'innerHeight', { value: 600, configurable: true });
 
       // Mock document dimensions for Floating UI's getDocumentRect/getClippingRect
-      const docElement = document.documentElement;
       Object.defineProperty(docElement, 'clientWidth', { value: 400, configurable: true });
       Object.defineProperty(docElement, 'clientHeight', { value: 600, configurable: true });
       Object.defineProperty(docElement, 'scrollWidth', { value: 400, configurable: true });
@@ -310,6 +320,24 @@ describe('NgpSubmenuTrigger viewport awareness', () => {
             value: originalInnerHeight,
             configurable: true,
           });
+          if (origDocClientWidth) {
+            Object.defineProperty(docElement, 'clientWidth', origDocClientWidth);
+          }
+          if (origDocClientHeight) {
+            Object.defineProperty(docElement, 'clientHeight', origDocClientHeight);
+          }
+          if (origDocScrollWidth) {
+            Object.defineProperty(docElement, 'scrollWidth', origDocScrollWidth);
+          }
+          if (origDocScrollHeight) {
+            Object.defineProperty(docElement, 'scrollHeight', origDocScrollHeight);
+          }
+          if (origBodyClientWidth) {
+            Object.defineProperty(document.body, 'clientWidth', origBodyClientWidth);
+          }
+          if (origBodyClientHeight) {
+            Object.defineProperty(document.body, 'clientHeight', origBodyClientHeight);
+          }
           if (origOffsetWidthDesc) {
             Object.defineProperty(HTMLElement.prototype, 'offsetWidth', origOffsetWidthDesc);
           }
@@ -409,12 +437,12 @@ describe('NgpSubmenuTrigger viewport awareness', () => {
       jest.restoreAllMocks();
     });
 
-    it('should use left-start placement when specified', fakeAsync(async () => {
+    it('should use left-start placement when specified', async () => {
       const { fixture } = await render(TestSubmenuPlacementComponent);
       fixture.componentInstance.placement = 'left-start';
       fixture.detectChanges();
 
-      openMenuAndSubmenu(fixture);
+      await openMenuAndSubmenu(fixture);
 
       // Find the computePosition call with left-start placement
       const submenuCall = computePositionSpy.mock.calls.find(call => {
@@ -423,6 +451,6 @@ describe('NgpSubmenuTrigger viewport awareness', () => {
       });
 
       expect(submenuCall).toBeDefined();
-    }));
+    });
   });
 });
