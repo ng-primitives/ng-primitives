@@ -80,7 +80,7 @@ describe('NgpTextarea', () => {
     expect(textarea.getAttribute('data-focus')).toBeNull();
   });
 
-  it('should not set interaction attributes when disabled', async () => {
+  it('should not set data-hover when disabled', async () => {
     const { container, fixture } = await render(
       `<textarea ngpTextarea [disabled]="true"></textarea>`,
       {

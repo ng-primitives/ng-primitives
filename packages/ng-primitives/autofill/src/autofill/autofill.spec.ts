@@ -74,7 +74,7 @@ describe('NgpAutofill', () => {
     input.dispatchEvent(createAnimationEvent('ngp-autofill-start'));
     fixture.detectChanges();
 
-    expect(spy).toHaveBeenCalledWith(true);
+    expect(spy).toHaveBeenLastCalledWith(true);
   });
 
   it('should emit ngpAutofill output with false on autofill end', async () => {
@@ -102,7 +102,7 @@ describe('NgpAutofill', () => {
     input.dispatchEvent(createAnimationEvent('ngp-autofill-end'));
     fixture.detectChanges();
 
-    expect(spy).toHaveBeenCalledWith(false);
+    expect(spy).toHaveBeenLastCalledWith(false);
   });
 
   it('should expose autofilled signal reflecting current state', async () => {

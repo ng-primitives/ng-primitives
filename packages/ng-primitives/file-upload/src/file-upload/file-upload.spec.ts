@@ -102,6 +102,12 @@ describe('NgpFileUpload', () => {
     });
 
     expect(dragOver).toHaveBeenCalledWith(true);
+
+    fireEvent.dragLeave(upload, {
+      relatedTarget: document.body,
+    });
+
+    expect(dragOver).toHaveBeenCalledWith(false);
   });
 
   it('should remove data-dragover on drop', async () => {

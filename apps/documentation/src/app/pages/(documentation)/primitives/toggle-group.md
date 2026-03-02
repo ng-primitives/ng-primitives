@@ -125,7 +125,7 @@ The toggle group uses `role="group"` on the container and `role="radio"` with `a
 
 ### Keyboard Interactions
 
-- <kbd>Tab</kbd>: Move focus to the first toggle group item.
+- <kbd>Tab</kbd>: Move focus into the toggle group to the active or first item.
 - <kbd>ArrowDown</kbd>: Move focus to the next item (vertical orientation).
 - <kbd>ArrowUp</kbd>: Move focus to the previous item (vertical orientation).
 - <kbd>ArrowRight</kbd>: Move focus to the next item (horizontal orientation).

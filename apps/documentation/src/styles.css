@@ -245,12 +245,13 @@ html.dark .shiki span {
 }
 
 .example-preview {
-  background-image: radial-gradient(circle, var(--color-zinc-300) 0.5px, transparent 0.5px);
+  --example-preview-dot: var(--color-zinc-300);
+  background-image: radial-gradient(circle, var(--example-preview-dot) 0.5px, transparent 0.5px);
   background-size: 16px 16px;
 }
 
 .dark .example-preview {
-  background-image: radial-gradient(circle, var(--color-zinc-700) 0.5px, transparent 0.5px);
+  --example-preview-dot: var(--color-zinc-700);
 }
 
 .download-button {

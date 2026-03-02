@@ -6,6 +6,7 @@ describe('toastTimer', () => {
   });
 
   afterEach(() => {
+    jest.clearAllTimers();
     jest.useRealTimers();
   });
 
@@ -73,8 +74,9 @@ describe('toastTimer', () => {
     const timer = toastTimer(3000, callback);
 
     timer.start();
-    timer.start(); // Should be ignored
-    jest.advanceTimersByTime(3000);
+    jest.advanceTimersByTime(1000);
+    timer.start(); // Should be ignored since already running
+    jest.advanceTimersByTime(2000);
 
     expect(callback).toHaveBeenCalledTimes(1);
   });

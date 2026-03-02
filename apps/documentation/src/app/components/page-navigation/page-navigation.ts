@@ -1,4 +1,5 @@
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { NavigationEnd, Router, RouterLink } from '@angular/router';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { heroArrowLeft, heroArrowRight } from '@ng-icons/heroicons/outline';
@@ -106,7 +107,7 @@ export class PageNavigation {
         return a.order - b.order;
       });
 
-    this.router.events.pipe(filter(event => event instanceof NavigationEnd)).subscribe(event => {
+    this.router.events.pipe(filter(event => event instanceof NavigationEnd), takeUntilDestroyed()).subscribe(event => {
       this.currentUrl.set(event.urlAfterRedirects);
     });
   }

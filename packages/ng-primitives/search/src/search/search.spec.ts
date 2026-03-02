@@ -142,8 +142,8 @@ describe('NgpSearch', () => {
     detectChanges();
     expect(search).not.toHaveAttribute('data-empty');
 
-    // Clear via escape
-    search.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
+    // Clear via escape (dispatch on input to simulate real user flow)
+    input.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
     detectChanges();
     expect(input.value).toBe('');
     expect(search).toHaveAttribute('data-empty', '');

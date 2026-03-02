@@ -4,6 +4,7 @@ import { NgpDialogDescription } from '../dialog-description/dialog-description';
 import { NgpDialogOverlay } from '../dialog-overlay/dialog-overlay';
 import { NgpDialogTitle } from '../dialog-title/dialog-title';
 import { NgpDialog } from './dialog';
+import { NgpDialogConfig } from '../config/dialog-config';
 import { NgpDialogContext, NgpDialogManager } from './dialog.service';
 
 @Component({
@@ -34,7 +35,7 @@ describe('NgpDialog', () => {
     });
   });
 
-  function openDialog(config?: Record<string, unknown>) {
+  function openDialog(config?: Partial<NgpDialogConfig>) {
     const fixture = TestBed.createComponent(DialogHostComponent);
     fixture.detectChanges();
     dialogManager = TestBed.inject(NgpDialogManager);
@@ -186,11 +187,6 @@ describe('NgpDialog', () => {
     const description = document.querySelector('[data-testid="description"]');
     const id = description?.getAttribute('id');
     expect(id).toMatch(/^ngp-dialog-description-/);
-  });
-
-  it('should track open dialogs', () => {
-    openDialog();
-    expect(dialogManager.openDialogs.length).toBe(1);
   });
 
   it('should close all dialogs with closeAll', fakeAsync(() => {

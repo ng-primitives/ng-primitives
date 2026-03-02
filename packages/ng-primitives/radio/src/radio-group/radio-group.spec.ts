@@ -280,6 +280,10 @@ describe('RadioGroup', () => {
 
     const radioTwo = getByRole('radio', { name: 'Two' });
     expect(radioTwo).toHaveAttribute('data-disabled');
+
+    // Verify clicking disabled item doesn't emit valueChange
+    radioTwo.click();
+    expect(valueChange).not.toHaveBeenCalled();
   });
 
   it('should render radio-indicator with data-checked state', async () => {
