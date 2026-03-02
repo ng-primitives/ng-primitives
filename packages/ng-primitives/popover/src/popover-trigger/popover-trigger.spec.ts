@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { FormsModule, ReactiveFormsModule, FormGroup } from '@angular/forms';
+import { FormControl, FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { fireEvent, render, waitFor } from '@testing-library/angular';
 import { NgpPopover, NgpPopoverTrigger } from 'ng-primitives/popover';
 
@@ -251,6 +251,126 @@ describe('NgpPopoverTrigger', () => {
     const trigger = getByRole('button');
 
     // This would throw NG01350 if ControlContainer leaked into the overlay
+    fireEvent.click(trigger);
+
+    await waitFor(() => {
+      expect(document.querySelector('[ngpPopover]')).toBeInTheDocument();
+      expect(document.querySelector('input')).toBeInTheDocument();
+    });
+  });
+
+  it('should not leak ControlContainer into overlay content (template inside form, ngModel)', async () => {
+    @Component({
+      template: `
+        <form [formGroup]="form">
+          <button [ngpPopoverTrigger]="content">Open</button>
+
+          <ng-template #content>
+            <div ngpPopover>
+              <input [(ngModel)]="value" />
+            </div>
+          </ng-template>
+        </form>
+      `,
+      imports: [NgpPopoverTrigger, NgpPopover, ReactiveFormsModule, FormsModule],
+    })
+    class FormLeakInsideFormNgModelComponent {
+      form = new FormGroup({});
+      value = '';
+    }
+
+    const { getByRole } = await render(FormLeakInsideFormNgModelComponent);
+    const trigger = getByRole('button');
+
+    // NG01350 would be thrown if ControlContainer leaked from the parent form
+    // into the overlay when the template is declared inside the form.
+    fireEvent.click(trigger);
+
+    await waitFor(() => {
+      expect(document.querySelector('[ngpPopover]')).toBeInTheDocument();
+      expect(document.querySelector('input')).toBeInTheDocument();
+    });
+  });
+
+  it('should not leak ControlContainer into overlay content (template inside form, formControlName)', async () => {
+    @Component({
+      template: `
+        <form [formGroup]="outerForm">
+          <input formControlName="outerField" />
+          <button [ngpPopoverTrigger]="content">Open</button>
+
+          <ng-template #content>
+            <div ngpPopover>
+              <form [formGroup]="innerForm">
+                <input formControlName="innerField" />
+              </form>
+            </div>
+          </ng-template>
+        </form>
+      `,
+      imports: [NgpPopoverTrigger, NgpPopover, ReactiveFormsModule],
+    })
+    class FormLeakInsideFormControlNameComponent {
+      outerForm = new FormGroup({
+        outerField: new FormControl('outer'),
+      });
+      innerForm = new FormGroup({
+        innerField: new FormControl('inner'),
+      });
+    }
+
+    const { getByRole } = await render(FormLeakInsideFormControlNameComponent);
+    const trigger = getByRole('button');
+
+    // The inner formControlName should bind to innerForm, not the outer form
+    fireEvent.click(trigger);
+
+    await waitFor(() => {
+      expect(document.querySelector('[ngpPopover]')).toBeInTheDocument();
+      const inputs = document.querySelectorAll('[ngpPopover] input');
+      expect(inputs.length).toBe(1);
+    });
+  });
+
+  it('should not leak ControlContainer to child components with formControlName', async () => {
+    @Component({
+      selector: 'test-child-form',
+      template: `
+        <form [formGroup]="innerForm">
+          <input formControlName="name" />
+        </form>
+      `,
+      imports: [ReactiveFormsModule],
+    })
+    class TestChildFormComponent {
+      readonly innerForm = new FormGroup({
+        name: new FormControl('test-value'),
+      });
+    }
+
+    @Component({
+      template: `
+        <form [formGroup]="outerForm">
+          <button [ngpPopoverTrigger]="content">Open</button>
+
+          <ng-template #content>
+            <div ngpPopover>
+              <test-child-form />
+            </div>
+          </ng-template>
+        </form>
+      `,
+      imports: [NgpPopoverTrigger, NgpPopover, ReactiveFormsModule, TestChildFormComponent],
+    })
+    class FormControlNameLeakComponent {
+      outerForm = new FormGroup({});
+    }
+
+    const { getByRole } = await render(FormControlNameLeakComponent);
+    const trigger = getByRole('button');
+
+    // The child component's formControlName should resolve against its own form,
+    // not the outer form from the host component
     fireEvent.click(trigger);
 
     await waitFor(() => {
