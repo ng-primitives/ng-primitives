@@ -1,4 +1,4 @@
-import { render, RenderResult } from '@testing-library/angular';
+import { render } from '@testing-library/angular';
 import { NgpMeterIndicator } from '../meter-indicator/meter-indicator';
 import { NgpMeterLabel } from '../meter-label/meter-label';
 import { NgpMeterTrack } from '../meter-track/meter-track';

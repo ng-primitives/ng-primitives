@@ -1,4 +1,4 @@
-import { Component, ElementRef, inject } from '@angular/core';
+import { Component } from '@angular/core';
 import { render, screen } from '@testing-library/angular';
 import { NgpResize } from './resize';
 

@@ -264,7 +264,7 @@ describe('RadioGroup', () => {
 
   it('should handle disabled individual radio items', async () => {
     const valueChange = jest.fn();
-    const { getByRole, detectChanges } = await render(
+    const { getByRole } = await render(
       `
       <div ngpRadioGroup (ngpRadioGroupValueChange)="valueChange($event)">
         <div ngpRadioItem ngpRadioItemValue="1">One</div>
