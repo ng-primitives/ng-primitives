@@ -233,3 +233,7 @@ bootstrapApplication(AppComponent, {
 <prop-details name="sequential" type="boolean" default="false">
   When enabled, only the front toast's timer will run. When a toast is dismissed, the timer will start on the next toast. Useful for scenarios with multiple notifications where you want to prevent background toasts from auto-closing.
 </prop-details>
+
+## Accessibility
+
+For screen reader announcements, ensure your toast container includes `role="status"` or `role="alert"` with `aria-live="polite"` so that new toasts are announced to assistive technology users.

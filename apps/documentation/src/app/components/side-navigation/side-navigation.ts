@@ -34,6 +34,13 @@ import { getRouterLinks } from '../../utils/router';
 export class SideNavigation {
   readonly menuOpen = model(false);
 
+  readonly sectionIcons: Record<string, string> = {
+    'Getting Started': 'phosphorRocketLaunchDuotone',
+    Primitives: 'phosphorPaletteDuotone',
+    Interactions: 'phosphorLightbulbDuotone',
+    Utilities: 'phosphorPlugDuotone',
+  };
+
   readonly sections = Object.entries(getRouterLinks())
     .map(([path, data]) => {
       // the path as we get it starts with '../pages/', so we remove it, and it also ends with '.md', so we remove it

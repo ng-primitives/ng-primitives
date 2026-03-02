@@ -328,3 +328,12 @@ shift: {
 <prop-details name="cooldown" type="number" default="300">
   Define the cooldown duration in milliseconds. When moving from one tooltip to another within this duration, the showDelay is skipped for the new tooltip. This creates a smoother experience when hovering between multiple tooltips.
 </prop-details>
+
+## Accessibility
+
+The tooltip primitive follows the [WAI-ARIA Tooltip pattern](https://www.w3.org/WAI/ARIA/apg/patterns/tooltip/). The tooltip element is assigned `role="tooltip"` and the trigger element is linked to the tooltip via `aria-describedby`.
+
+### Keyboard Interactions
+
+- <kbd>Tab</kbd>: Focus the trigger element to show the tooltip.
+- <kbd>Esc</kbd>: Dismiss the tooltip.

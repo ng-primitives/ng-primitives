@@ -144,7 +144,3 @@ Adheres to the [WAI-ARIA design pattern](https://www.w3.org/WAI/ARIA/apg/pattern
 - <kbd>Esc</kbd>: Close the dialog.
 - <kbd>Tab</kbd>: Navigate through focusable elements within the dialog.
 - <kbd>Shift</kbd> + <kbd>Tab</kbd>: Navigate backwards through focusable elements within the dialog.
-
-```
-
-```

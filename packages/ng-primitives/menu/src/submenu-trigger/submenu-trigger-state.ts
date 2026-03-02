@@ -343,7 +343,7 @@ export const [
     }
 
     // No-op for submenus - hover behavior is handled via showSubmenuOnHover on the trigger element
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+
     function setPointerOverContent(_isOver: boolean): void {
       // Submenus don't need pointer tracking on content because:
       // 1. The submenu trigger handles hover via showSubmenuOnHover

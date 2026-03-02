@@ -83,3 +83,12 @@ The following directives are available to import from the `ng-primitives/button`
 | `data-focus-visible` | Added to the button when focused.  |
 | `data-press`         | Added to the button when pressed.  |
 | `data-disabled`      | Added to the button when disabled. |
+
+## Accessibility
+
+The button primitive should be applied to native `<button>` elements to inherit built-in browser accessibility. When disabled, the `disabled` attribute is automatically set on the host element.
+
+### Keyboard Interactions
+
+- <kbd>Enter</kbd>: Activate the button.
+- <kbd>Space</kbd>: Activate the button.

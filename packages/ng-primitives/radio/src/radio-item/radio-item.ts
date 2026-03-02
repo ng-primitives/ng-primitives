@@ -64,6 +64,9 @@ export class NgpRadioItem<T> implements OnInit {
    */
   @HostListener('focus')
   protected onFocus(): void {
+    if (this.state.disabled()) {
+      return;
+    }
     this.radioGroupState().select(this.state.value()!);
   }
 
@@ -73,6 +76,9 @@ export class NgpRadioItem<T> implements OnInit {
    */
   @HostListener('click')
   protected onClick(): void {
+    if (this.state.disabled()) {
+      return;
+    }
     this.radioGroupState().select(this.state.value()!);
   }
 }

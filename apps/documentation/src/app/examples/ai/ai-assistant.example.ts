@@ -466,6 +466,7 @@ interface Message {
       display: flex;
       height: 2rem;
       width: 2rem;
+      flex-shrink: 0;
       align-items: center;
       justify-content: center;
       border-radius: 50%;
@@ -516,11 +517,12 @@ interface Message {
     .ai-textarea {
       max-height: 10rem;
       min-height: 3rem;
-      grow: 1;
+      flex-grow: 1;
       resize: none;
       background-color: transparent;
-      padding: 0.75rem 0;
+      padding: 0.875rem 0;
       font-size: 0.875rem;
+      line-height: 1.25rem;
       outline: none;
       border: none;
       color: var(--ngp-text-primary);

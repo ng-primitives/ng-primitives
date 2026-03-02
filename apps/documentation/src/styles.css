@@ -128,6 +128,10 @@ pre.shiki {
   @apply rounded-xl border bg-transparent py-3.5;
 }
 
+.dark pre.shiki {
+  @apply bg-zinc-950/50;
+}
+
 pre.shiki:not(:has([data-line-numbers])) {
   @apply px-5;
 }
@@ -238,6 +242,16 @@ html.dark .shiki span {
 
 #docsearch-landing:has(.DocSearch) {
   opacity: 1;
+}
+
+.example-preview {
+  --example-preview-dot: var(--color-zinc-300);
+  background-image: radial-gradient(circle, var(--example-preview-dot) 0.5px, transparent 0.5px);
+  background-size: 16px 16px;
+}
+
+.dark .example-preview {
+  --example-preview-dot: var(--color-zinc-700);
 }
 
 .download-button {

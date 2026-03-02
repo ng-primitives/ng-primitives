@@ -273,3 +273,14 @@ Defines how the popover behaves when the window is scrolled. If set to `repositi
 <prop-details name="cooldown" type="number" default="0">
   Define the cooldown duration in milliseconds. When moving from one popover to another within this duration, the showDelay is skipped for the new popover. This creates a smoother experience when navigating between multiple popovers.
 </prop-details>
+
+## Accessibility
+
+The popover element is assigned `role="dialog"` and the trigger element uses `aria-expanded` to indicate the popover's open state. The trigger is linked to the popover via `aria-describedby`. Focus is trapped within the popover when open.
+
+### Keyboard Interactions
+
+- <kbd>Enter</kbd> / <kbd>Space</kbd>: Toggle the popover.
+- <kbd>Esc</kbd>: Close the popover.
+- <kbd>Tab</kbd>: Navigate through focusable elements within the popover.
+- <kbd>Shift</kbd> + <kbd>Tab</kbd>: Navigate backwards through focusable elements within the popover.

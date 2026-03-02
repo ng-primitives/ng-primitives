@@ -1,4 +1,5 @@
 import { render } from '@testing-library/angular';
+import { NgpProgressIndicator } from '../progress-indicator/progress-indicator';
 import { NgpProgressLabel } from '../progress-label/progress-label';
 import { NgpProgress } from './progress';
 
@@ -86,5 +87,71 @@ describe('NgpProgress', () => {
     const progress = container.getByTestId('progress');
     expect(progress).toHaveAttribute('id');
     expect(progress.id).toMatch(/^ngp-progress-\d+$/);
+  });
+
+  describe('NgpProgressIndicator', () => {
+    it('should set width based on progress percentage', async () => {
+      const container = await render(
+        `<div ngpProgress ngpProgressValue="50">
+          <div ngpProgressIndicator data-testid="indicator"></div>
+        </div>`,
+        { imports: [NgpProgress, NgpProgressIndicator] },
+      );
+
+      const indicator = container.getByTestId('indicator');
+      expect(indicator.style.width).toBe('50%');
+    });
+
+    it('should set width to 0% when value is 0', async () => {
+      const container = await render(
+        `<div ngpProgress ngpProgressValue="0">
+          <div ngpProgressIndicator data-testid="indicator"></div>
+        </div>`,
+        { imports: [NgpProgress, NgpProgressIndicator] },
+      );
+
+      expect(container.getByTestId('indicator').style.width).toBe('0%');
+    });
+
+    it('should set width to 100% when value equals max', async () => {
+      const container = await render(
+        `<div ngpProgress ngpProgressValue="100">
+          <div ngpProgressIndicator data-testid="indicator"></div>
+        </div>`,
+        { imports: [NgpProgress, NgpProgressIndicator] },
+      );
+
+      expect(container.getByTestId('indicator').style.width).toBe('100%');
+    });
+
+    it('should handle custom min/max values', async () => {
+      const container = await render(
+        `<div ngpProgress ngpProgressValue="75" ngpProgressMin="50" ngpProgressMax="100">
+          <div ngpProgressIndicator data-testid="indicator"></div>
+        </div>`,
+        { imports: [NgpProgress, NgpProgressIndicator] },
+      );
+
+      expect(container.getByTestId('indicator').style.width).toBe('50%');
+    });
+
+    it('should update width dynamically when value changes', async () => {
+      const container = await render(
+        `<div ngpProgress [ngpProgressValue]="value">
+          <div ngpProgressIndicator data-testid="indicator"></div>
+        </div>`,
+        {
+          imports: [NgpProgress, NgpProgressIndicator],
+          componentProperties: { value: 25 },
+        },
+      );
+
+      const indicator = container.getByTestId('indicator');
+      expect(indicator.style.width).toBe('25%');
+
+      await container.rerender({ componentProperties: { value: 80 } });
+      container.detectChanges();
+      expect(indicator.style.width).toBe('80%');
+    });
   });
 });

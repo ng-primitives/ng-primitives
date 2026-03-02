@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
+import { PageNavigation } from '../../components/page-navigation/page-navigation';
 import { QuickLinks } from '../../components/quick-links/quick-links';
 import { HeadingAnchor } from '../../directives/heading-anchor';
 
@@ -20,13 +21,14 @@ import { HeadingAnchor } from '../../directives/heading-anchor';
           </p>
           <div class="max-w-3xl">
             <router-outlet />
+            <docs-page-navigation />
           </div>
         </div>
       </div>
       <docs-quick-links />
     </div>
   `,
-  imports: [RouterOutlet, QuickLinks, HeadingAnchor],
+  imports: [RouterOutlet, PageNavigation, QuickLinks, HeadingAnchor],
   host: {
     class: 'flex-1 max-w-full',
   },

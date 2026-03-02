@@ -86,3 +86,7 @@ A directive that represents individual character slots. Automatically registers 
 | `data-filled`      | Added to slots that contain a character.          |
 | `data-caret`       | Added to slots that show the cursor.              |
 | `data-placeholder` | Added to slots that should show placeholder text. |
+
+## Accessibility
+
+The input OTP primitive uses a hidden `<input>` element with `autocomplete="one-time-code"` for browser autofill and screen reader compatibility. The visual slot elements use `role="presentation"` and are purely decorative — screen readers interact only with the underlying input element.
