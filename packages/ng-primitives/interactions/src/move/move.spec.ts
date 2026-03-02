@@ -18,13 +18,15 @@ describe('NgpMove', () => {
       const endSpy = jest.fn();
 
       @Component({
-        template: `<div
-          data-testid="target"
-          ngpMove
-          (ngpMoveStart)="onStart($event)"
-          (ngpMove)="onMove($event)"
-          (ngpMoveEnd)="onEnd($event)"
-        ></div>`,
+        template: `
+          <div
+            (ngpMoveStart)="onStart($event)"
+            (ngpMove)="onMove($event)"
+            (ngpMoveEnd)="onEnd($event)"
+            data-testid="target"
+            ngpMove
+          ></div>
+        `,
         imports: [NgpMove],
       })
       class TestComponent {
@@ -38,22 +40,20 @@ describe('NgpMove', () => {
 
       fireEvent.keyDown(target, { key: 'ArrowRight' });
 
-      expect(startSpy).toHaveBeenCalledWith(
-        expect.objectContaining({ pointerType: 'keyboard' }),
-      );
+      expect(startSpy).toHaveBeenCalledWith(expect.objectContaining({ pointerType: 'keyboard' }));
       expect(moveSpy).toHaveBeenCalledWith(
         expect.objectContaining({ deltaX: 1, deltaY: 0, pointerType: 'keyboard' }),
       );
-      expect(endSpy).toHaveBeenCalledWith(
-        expect.objectContaining({ pointerType: 'keyboard' }),
-      );
+      expect(endSpy).toHaveBeenCalledWith(expect.objectContaining({ pointerType: 'keyboard' }));
     });
 
     it('should emit deltaX: -1 on ArrowLeft', async () => {
       const moveSpy = jest.fn();
 
       @Component({
-        template: `<div data-testid="target" ngpMove (ngpMove)="onMove($event)"></div>`,
+        template: `
+          <div (ngpMove)="onMove($event)" data-testid="target" ngpMove></div>
+        `,
         imports: [NgpMove],
       })
       class TestComponent {
@@ -65,16 +65,16 @@ describe('NgpMove', () => {
 
       fireEvent.keyDown(target, { key: 'ArrowLeft' });
 
-      expect(moveSpy).toHaveBeenCalledWith(
-        expect.objectContaining({ deltaX: -1, deltaY: 0 }),
-      );
+      expect(moveSpy).toHaveBeenCalledWith(expect.objectContaining({ deltaX: -1, deltaY: 0 }));
     });
 
     it('should emit deltaY: -1 on ArrowUp', async () => {
       const moveSpy = jest.fn();
 
       @Component({
-        template: `<div data-testid="target" ngpMove (ngpMove)="onMove($event)"></div>`,
+        template: `
+          <div (ngpMove)="onMove($event)" data-testid="target" ngpMove></div>
+        `,
         imports: [NgpMove],
       })
       class TestComponent {
@@ -86,16 +86,16 @@ describe('NgpMove', () => {
 
       fireEvent.keyDown(target, { key: 'ArrowUp' });
 
-      expect(moveSpy).toHaveBeenCalledWith(
-        expect.objectContaining({ deltaX: 0, deltaY: -1 }),
-      );
+      expect(moveSpy).toHaveBeenCalledWith(expect.objectContaining({ deltaX: 0, deltaY: -1 }));
     });
 
     it('should emit deltaY: 1 on ArrowDown', async () => {
       const moveSpy = jest.fn();
 
       @Component({
-        template: `<div data-testid="target" ngpMove (ngpMove)="onMove($event)"></div>`,
+        template: `
+          <div (ngpMove)="onMove($event)" data-testid="target" ngpMove></div>
+        `,
         imports: [NgpMove],
       })
       class TestComponent {
@@ -107,9 +107,7 @@ describe('NgpMove', () => {
 
       fireEvent.keyDown(target, { key: 'ArrowDown' });
 
-      expect(moveSpy).toHaveBeenCalledWith(
-        expect.objectContaining({ deltaX: 0, deltaY: 1 }),
-      );
+      expect(moveSpy).toHaveBeenCalledWith(expect.objectContaining({ deltaX: 0, deltaY: 1 }));
     });
   });
 
@@ -118,12 +116,9 @@ describe('NgpMove', () => {
       const moveSpy = jest.fn();
 
       @Component({
-        template: `<div
-          data-testid="target"
-          ngpMove
-          ngpMoveDisabled="true"
-          (ngpMove)="onMove($event)"
-        ></div>`,
+        template: `
+          <div (ngpMove)="onMove($event)" data-testid="target" ngpMove ngpMoveDisabled="true"></div>
+        `,
         imports: [NgpMove],
       })
       class TestComponent {
@@ -144,11 +139,9 @@ describe('NgpMove', () => {
       const startSpy = jest.fn();
 
       @Component({
-        template: `<div
-          data-testid="target"
-          ngpMove
-          (ngpMoveStart)="onStart($event)"
-        ></div>`,
+        template: `
+          <div (ngpMoveStart)="onStart($event)" data-testid="target" ngpMove></div>
+        `,
         imports: [NgpMove],
       })
       class TestComponent {

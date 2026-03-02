@@ -201,3 +201,11 @@ The following data attributes are applied to the `ngpPaginationLast` directive:
 | `data-focus-visible` | Applied when the button is focused.             |
 | `data-press`         | Applied when the button is pressed.             |
 | `data-disabled`      | Applied when the button is disabled.            |
+
+## Accessibility
+
+The pagination container uses `role="navigation"`. The active page button uses `aria-current` to indicate the current page. It is recommended to add an `aria-label` to the navigation element (e.g., "Pagination") for screen reader context.
+
+### Keyboard Interactions
+
+- <kbd>Enter</kbd> / <kbd>Space</kbd>: Activate a pagination button.

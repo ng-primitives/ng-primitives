@@ -231,7 +231,7 @@ export class DocsNavbar implements OnInit {
     <section class="container mx-auto pb-20">
       <div class="grid grid-cols-1 lg:grid-cols-2 2xl:grid-cols-3">
         @for (feature of features; track feature) {
-          <div class="-m-[0.5px] flex flex-col items-center gap-y-3 p-10">
+          <div class="-m-[0.5px] flex flex-col items-center gap-y-3 p-10 transition-all duration-300 hover:-translate-y-1 hover:shadow-lg rounded-xl">
             <div
               class="inline-flex size-12 items-center justify-center rounded-[10px] shadow-xs ring-1 ring-zinc-200 dark:ring-zinc-800"
             >
@@ -323,7 +323,7 @@ export class DocsNavbar implements OnInit {
       <div class="grid grid-cols-1 gap-8 lg:grid-cols-3">
         @for (testimonial of testimonials; track testimonial) {
           <div
-            class="flex flex-col justify-between rounded-xl bg-white p-8 shadow-xs ring-1 ring-zinc-200 dark:bg-zinc-800 dark:ring-zinc-700"
+            class="flex flex-col justify-between rounded-xl bg-white p-8 shadow-xs ring-1 ring-zinc-200 transition-all duration-300 hover:-translate-y-1 hover:shadow-md dark:bg-zinc-800 dark:ring-zinc-700"
           >
             <p class="mb-6 text-sm leading-loose text-zinc-600 dark:text-zinc-300">
               "{{ testimonial.quote }}"
@@ -409,6 +409,18 @@ export class DocsNavbar implements OnInit {
       top: -92px;
       background: rgba(241, 139, 132, 0.45);
       filter: blur(100px);
+      animation: hero-glow 6s ease-in-out infinite;
+    }
+
+    @keyframes hero-glow {
+      0%, 100% {
+        opacity: 0.7;
+        transform: translate(0, 0) scale(1);
+      }
+      50% {
+        opacity: 1;
+        transform: translate(20px, 10px) scale(1.1);
+      }
     }
   `,
 })

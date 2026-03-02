@@ -59,7 +59,9 @@ describe('NgpAutofill', () => {
     const spy = jest.fn();
 
     @Component({
-      template: `<input ngpAutofill (ngpAutofill)="onAutofill($event)" data-testid="input" />`,
+      template: `
+        <input (ngpAutofill)="onAutofill($event)" ngpAutofill data-testid="input" />
+      `,
       imports: [NgpAutofill],
     })
     class TestComponent {
@@ -79,7 +81,9 @@ describe('NgpAutofill', () => {
     const spy = jest.fn();
 
     @Component({
-      template: `<input ngpAutofill (ngpAutofill)="onAutofill($event)" data-testid="input" />`,
+      template: `
+        <input (ngpAutofill)="onAutofill($event)" ngpAutofill data-testid="input" />
+      `,
       imports: [NgpAutofill],
     })
     class TestComponent {
@@ -103,7 +107,9 @@ describe('NgpAutofill', () => {
 
   it('should expose autofilled signal reflecting current state', async () => {
     @Component({
-      template: `<input ngpAutofill #ref="ngpAutofill" data-testid="input" />`,
+      template: `
+        <input #ref="ngpAutofill" ngpAutofill data-testid="input" />
+      `,
       imports: [NgpAutofill],
     })
     class TestComponent {

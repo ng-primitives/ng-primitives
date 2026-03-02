@@ -139,7 +139,11 @@ A standalone navigation link within the menu list.
 | `data-active`   | Applied when the link represents the current page |
 | `data-disabled` | Applied when the link is disabled                 |
 
-## Keyboard Navigation
+## Accessibility
+
+The navigation menu uses `role="navigation"` on the container, `aria-haspopup="menu"` and `aria-expanded` on triggers, and `role="menu"` with `aria-labelledby` on content panels. This follows the [WAI-ARIA Navigation Menu pattern](https://www.w3.org/WAI/ARIA/apg/patterns/menubar/).
+
+### Keyboard Interactions
 
 | Key                        | Action                                              |
 | -------------------------- | --------------------------------------------------- |
@@ -148,7 +152,7 @@ A standalone navigation link within the menu list.
 | `ArrowDown` (horizontal)   | Open content and focus first item                   |
 | `ArrowRight` (vertical)    | Open content and focus first item                   |
 | `Enter` / `Space`          | Open content and focus first item, or activate link |
-| `Escape`                   | Close content and return focus to trigger           |
+| `Escape`                   | Close content and return focus to trigger            |
 | `Home` / `End`             | Navigate to first/last trigger                      |
 | `Tab`                      | Move focus out of the navigation menu               |
 

@@ -1,10 +1,10 @@
 import { Component, TemplateRef, ViewContainerRef, inject, viewChild } from '@angular/core';
 import { TestBed, fakeAsync, flush } from '@angular/core/testing';
-import { NgpDialog } from './dialog';
-import { NgpDialogContext, NgpDialogManager } from './dialog.service';
+import { NgpDialogDescription } from '../dialog-description/dialog-description';
 import { NgpDialogOverlay } from '../dialog-overlay/dialog-overlay';
 import { NgpDialogTitle } from '../dialog-title/dialog-title';
-import { NgpDialogDescription } from '../dialog-description/dialog-description';
+import { NgpDialog } from './dialog';
+import { NgpDialogContext, NgpDialogManager } from './dialog.service';
 
 @Component({
   template: `
@@ -13,7 +13,7 @@ import { NgpDialogDescription } from '../dialog-description/dialog-description';
         <div ngpDialog data-testid="dialog">
           <h2 ngpDialogTitle data-testid="title">Dialog Title</h2>
           <p ngpDialogDescription data-testid="description">Dialog Description</p>
-          <button data-testid="close-btn" (click)="close('result')">Close</button>
+          <button (click)="close('result')" data-testid="close-btn">Close</button>
         </div>
       </div>
     </ng-template>
@@ -103,9 +103,7 @@ describe('NgpDialog', () => {
     ref.close('test-result');
     flush();
 
-    expect(closedSpy).toHaveBeenCalledWith(
-      expect.objectContaining({ result: 'test-result' }),
-    );
+    expect(closedSpy).toHaveBeenCalledWith(expect.objectContaining({ result: 'test-result' }));
   }));
 
   it('should close dialog when overlay is clicked', fakeAsync(() => {

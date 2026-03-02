@@ -1,9 +1,9 @@
 import { render, RenderResult } from '@testing-library/angular';
-import { NgpMeter } from './meter';
 import { NgpMeterIndicator } from '../meter-indicator/meter-indicator';
 import { NgpMeterLabel } from '../meter-label/meter-label';
 import { NgpMeterTrack } from '../meter-track/meter-track';
 import { NgpMeterValue } from '../meter-value/meter-value';
+import { NgpMeter } from './meter';
 
 describe('NgpMeter', () => {
   const imports = [NgpMeter, NgpMeterIndicator, NgpMeterLabel, NgpMeterTrack, NgpMeterValue];
@@ -54,18 +54,16 @@ describe('NgpMeter', () => {
     });
 
     it('should set custom aria-valuemin', async () => {
-      const container = await render(
-        `<div ngpMeter ngpMeterMin="10" data-testid="meter"></div>`,
-        { imports },
-      );
+      const container = await render(`<div ngpMeter ngpMeterMin="10" data-testid="meter"></div>`, {
+        imports,
+      });
       expect(container.getByTestId('meter')).toHaveAttribute('aria-valuemin', '10');
     });
 
     it('should set custom aria-valuemax', async () => {
-      const container = await render(
-        `<div ngpMeter ngpMeterMax="200" data-testid="meter"></div>`,
-        { imports },
-      );
+      const container = await render(`<div ngpMeter ngpMeterMax="200" data-testid="meter"></div>`, {
+        imports,
+      });
       expect(container.getByTestId('meter')).toHaveAttribute('aria-valuemax', '200');
     });
 

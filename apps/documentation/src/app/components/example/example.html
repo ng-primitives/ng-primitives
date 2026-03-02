@@ -70,6 +70,7 @@
 
       <button
         class="inline-flex size-8 items-center justify-center rounded-lg bg-white p-2 shadow-xs ring-1 ring-black/5 transition-colors hover:bg-zinc-50 active:bg-zinc-100 dark:bg-zinc-900 dark:ring-white/5 dark:hover:bg-zinc-950 dark:active:bg-zinc-800"
+        title="Open in StackBlitz"
         (click)="openStackBlitz()"
       >
         <ng-icon name="phosphorLightning" />
@@ -80,7 +81,7 @@
   <div class="relative mt-10 w-full flex-1">
     @if (mode() === 'preview') {
     <div
-      class="flex h-fit min-h-[280px] items-center justify-center rounded-xl border border-zinc-200 bg-zinc-50 p-8 dark:border-zinc-800 dark:bg-zinc-950"
+      class="example-preview flex h-fit min-h-[280px] items-center justify-center rounded-xl border border-zinc-200 bg-zinc-50 p-8 dark:border-zinc-800 dark:bg-zinc-950"
     >
       <ng-container [ngComponentOutlet]="component()" />
     </div>

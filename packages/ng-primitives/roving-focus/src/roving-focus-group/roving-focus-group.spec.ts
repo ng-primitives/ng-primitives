@@ -1,6 +1,6 @@
 import { fireEvent, render, waitFor } from '@testing-library/angular';
-import { NgpRovingFocusGroup } from './roving-focus-group';
 import { NgpRovingFocusItem } from '../roving-focus-item/roving-focus-item';
+import { NgpRovingFocusGroup } from './roving-focus-group';
 
 const imports = [NgpRovingFocusGroup, NgpRovingFocusItem];
 

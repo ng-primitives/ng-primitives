@@ -1,8 +1,8 @@
 import { Component, signal } from '@angular/core';
 import { fireEvent, render, waitFor } from '@testing-library/angular';
+import { NgpListboxHeader } from '../listbox-header/listbox-header';
 import { NgpListboxOption } from '../listbox-option/listbox-option';
 import { NgpListboxSection } from '../listbox-section/listbox-section';
-import { NgpListboxHeader } from '../listbox-header/listbox-header';
 import { NgpListbox } from './listbox';
 
 @Component({

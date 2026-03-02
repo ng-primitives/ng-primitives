@@ -165,3 +165,16 @@ bootstrapApplication(AppComponent, {
 <prop-details name="flip" type="boolean" default="true">
   Define whether the dropdown should flip to the opposite side when there is not enough space.
 </prop-details>
+
+## Accessibility
+
+The select primitive follows the [WAI-ARIA Combobox pattern](https://www.w3.org/WAI/ARIA/apg/patterns/combobox/). The trigger uses `role="combobox"` with `aria-expanded` and `aria-controls`. The dropdown uses `role="listbox"` and options use `role="option"` with `aria-selected`. Focus is managed using `aria-activedescendant`.
+
+### Keyboard Interactions
+
+- <kbd>Enter</kbd>: Open the dropdown or select the active option.
+- <kbd>Space</kbd>: Toggle the dropdown.
+- <kbd>ArrowDown</kbd>: Open the dropdown or move to the next option.
+- <kbd>ArrowUp</kbd>: Open the dropdown or move to the previous option.
+- <kbd>Home</kbd>: Move to the first option.
+- <kbd>End</kbd>: Move to the last option.

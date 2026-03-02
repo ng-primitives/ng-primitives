@@ -48,7 +48,9 @@ describe('NgpResize', () => {
     const spy = jest.fn();
 
     @Component({
-      template: `<div data-testid="target" (ngpResize)="onResize($event)">content</div>`,
+      template: `
+        <div (ngpResize)="onResize($event)" data-testid="target">content</div>
+      `,
       imports: [NgpResize],
     })
     class TestComponent {
@@ -77,7 +79,9 @@ describe('NgpResize', () => {
 
   it('should clean up observer on destroy', async () => {
     @Component({
-      template: `<div (ngpResize)="onResize($event)">content</div>`,
+      template: `
+        <div (ngpResize)="onResize($event)">content</div>
+      `,
       imports: [NgpResize],
     })
     class TestComponent {
@@ -98,7 +102,9 @@ describe('NgpResize', () => {
 
   it('should observe the host element', async () => {
     @Component({
-      template: `<div data-testid="target" (ngpResize)="onResize($event)">content</div>`,
+      template: `
+        <div (ngpResize)="onResize($event)" data-testid="target">content</div>
+      `,
       imports: [NgpResize],
     })
     class TestComponent {
