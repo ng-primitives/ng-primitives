@@ -190,6 +190,8 @@ export const [NgpFocusTrapStateToken, ngpFocusTrap, injectFocusTrapState, provid
 
         if (element.nativeElement.contains(target)) {
           lastFocusedElement = target;
+        } else if (isAllowedExternalTarget(target)) {
+          // Don't interfere — see `isAllowedExternalTarget` for details.
         } else {
           focus(lastFocusedElement);
         }
@@ -205,9 +207,29 @@ export const [NgpFocusTrapStateToken, ngpFocusTrap, injectFocusTrapState, provid
 
         const relatedTarget = event.relatedTarget as HTMLElement;
 
-        if (!element.nativeElement.contains(relatedTarget)) {
+        if (
+          !element.nativeElement.contains(relatedTarget) &&
+          !isAllowedExternalTarget(relatedTarget)
+        ) {
           focus(lastFocusedElement);
         }
+      }
+
+      /**
+       * Whether the given element belongs to another focus trap or a CDK overlay container.
+       *
+       * When focus moves to these elements we must not redirect it back, because they
+       * manage their own focus trapping. Without this check, opening a CDK overlay
+       * (e.g. a select dropdown) from inside a focus-trapped dialog would immediately
+       * yank focus back into the dialog, making the overlay unusable.
+       *
+       * See https://github.com/nicecod3r/ng-primitives/issues/682
+       * and https://github.com/nicecod3r/ng-primitives/issues/687
+       */
+      function isAllowedExternalTarget(target: HTMLElement | null): boolean {
+        return !!(
+          target?.closest?.('[data-focus-trap]') || target?.closest?.('.cdk-overlay-container')
+        );
       }
 
       /**
@@ -283,7 +305,7 @@ export const [NgpFocusTrapStateToken, ngpFocusTrap, injectFocusTrapState, provid
         const nodes: HTMLElement[] = [];
         const walker = document.createTreeWalker(container, NodeFilter.SHOW_ELEMENT, {
           acceptNode: (node: HTMLElement) =>
-            interactivityChecker.isFocusable(node)
+            interactivityChecker.isTabbable(node)
               ? NodeFilter.FILTER_ACCEPT
               : NodeFilter.FILTER_SKIP,
         });
