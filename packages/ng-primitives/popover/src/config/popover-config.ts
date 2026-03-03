@@ -57,7 +57,7 @@ export interface NgpPopoverConfig {
    * Defines how the popover behaves when the window is scrolled.
    * @default scroll
    */
-  scrollBehavior: 'reposition' | 'block';
+  scrollBehavior: 'reposition' | 'block' | 'close';
 
   /**
    * Configure shift behavior to keep the popover in view.

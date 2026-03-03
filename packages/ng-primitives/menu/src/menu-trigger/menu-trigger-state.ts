@@ -167,7 +167,7 @@ export interface NgpMenuTriggerProps<T = unknown> {
   /**
    * How the menu behaves when the window is scrolled.
    */
-  readonly scrollBehavior?: Signal<'reposition' | 'block'>;
+  readonly scrollBehavior?: Signal<'reposition' | 'block' | 'close'>;
   /**
    * Context to provide to the menu.
    */

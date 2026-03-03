@@ -4,6 +4,7 @@
  */
 import { coerceCssPixelValue } from '@angular/cdk/coercion';
 import { ViewportRuler } from '@angular/cdk/overlay';
+import { getOverflowAncestors } from '@floating-ui/dom';
 import { isFunction, isObject } from 'ng-primitives/utils';
 
 export interface ScrollStrategy {
@@ -152,6 +153,51 @@ export class BlockScrollStrategy implements ScrollStrategy {
 
     const viewport = this.viewportRuler.getViewportSize();
     return html.scrollHeight > viewport.height || html.scrollWidth > viewport.width;
+  }
+}
+
+export class CloseScrollStrategy implements ScrollStrategy {
+  private cleanups: (() => void)[] = [];
+
+  constructor(
+    private readonly triggerElement: HTMLElement,
+    private readonly onClose: () => void,
+    private readonly overlayElements: () => HTMLElement[],
+  ) {}
+
+  enable(): void {
+    // Guard against double-enable: remove any existing listeners first
+    this.disable();
+
+    const ancestors = getOverflowAncestors(this.triggerElement);
+
+    const handler = (event: Event) => {
+      const target = event.target;
+
+      // Don't close if the scroll happened inside the overlay
+      if (target instanceof Node) {
+        const elements = this.overlayElements();
+        if (elements.some(el => el.contains(target))) {
+          return;
+        }
+      }
+
+      // Stop listening immediately to prevent redundant close calls from rapid scroll events
+      this.disable();
+      this.onClose();
+    };
+
+    for (const ancestor of ancestors) {
+      ancestor.addEventListener('scroll', handler, { passive: true });
+      this.cleanups.push(() => ancestor.removeEventListener('scroll', handler));
+    }
+  }
+
+  disable(): void {
+    for (const cleanup of this.cleanups) {
+      cleanup();
+    }
+    this.cleanups = [];
   }
 }
 
