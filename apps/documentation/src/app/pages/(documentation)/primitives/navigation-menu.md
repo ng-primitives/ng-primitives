@@ -139,7 +139,11 @@ A standalone navigation link within the menu list.
 | `data-active`   | Applied when the link represents the current page |
 | `data-disabled` | Applied when the link is disabled                 |
 
-## Keyboard Navigation
+## Accessibility
+
+The navigation menu uses `role="navigation"` on the container, `aria-haspopup="menu"` and `aria-expanded` on triggers, and `role="menu"` with `aria-labelledby` on content panels. This follows the [WAI-ARIA Navigation Menu pattern](https://www.w3.org/WAI/ARIA/apg/patterns/menubar/).
+
+### Keyboard Interactions
 
 | Key                        | Action                                              |
 | -------------------------- | --------------------------------------------------- |

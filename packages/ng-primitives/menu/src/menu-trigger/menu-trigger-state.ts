@@ -2,6 +2,7 @@ import { FocusOrigin } from '@angular/cdk/a11y';
 import { Directionality } from '@angular/cdk/bidi';
 import {
   computed,
+  effect,
   inject,
   Injector,
   signal,
@@ -12,6 +13,7 @@ import {
 import { injectElementRef } from 'ng-primitives/internal';
 import {
   createOverlay,
+  NgpFlip,
   NgpOffset,
   NgpOverlay,
   NgpOverlayConfig,
@@ -55,7 +57,7 @@ export interface NgpMenuTriggerState<T = unknown> {
   /**
    * Whether the menu should flip when there is not enough space.
    */
-  readonly flip: WritableSignal<boolean>;
+  readonly flip: WritableSignal<NgpFlip>;
 
   /**
    * The context provided to the menu.
@@ -78,7 +80,7 @@ export interface NgpMenuTriggerState<T = unknown> {
    * Set whether the menu should flip when there is not enough space.
    * @param shouldFlip - Whether the menu should flip
    */
-  setFlip(shouldFlip: boolean): void;
+  setFlip(shouldFlip: NgpFlip): void;
 
   /**
    * Set the placement of the menu.
@@ -149,7 +151,7 @@ export interface NgpMenuTriggerProps<T = unknown> {
   /**
    * Whether the menu should flip when there is not enough space.
    */
-  readonly flip?: Signal<boolean>;
+  readonly flip?: Signal<NgpFlip>;
   /**
    * The container in which the menu should be attached.
    */
@@ -235,6 +237,17 @@ export const [
     const pointerOverTrigger = signal(false);
     const pointerOverContent = signal(false);
     const isPointerOverMenuArea = computed(() => pointerOverTrigger() || pointerOverContent());
+
+    // Reset pointer tracking when menu closes
+    effect(() => {
+      const isOpen = open();
+
+      // When menu closes, reset pointer tracking state
+      if (!isOpen) {
+        pointerOverTrigger.set(false);
+        pointerOverContent.set(false);
+      }
+    });
 
     // Computed signal to determine if focus should be restored
     // Only restore if opened via keyboard OR closed via keyboard
@@ -487,7 +500,7 @@ export const [
       }
     }
 
-    function setFlip(shouldFlip: boolean): void {
+    function setFlip(shouldFlip: NgpFlip): void {
       flip.set(shouldFlip);
     }
 

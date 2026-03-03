@@ -119,9 +119,9 @@ ng g ng-primitives:primitive combobox
 
 - `path`: The path at which to create the component file.
 - `prefix`: The prefix to apply to the generated component selector.
-- `componentSuffix`: The suffix to apply to the generated component class name.
-- `fileSuffix`: The suffix to apply to the generated component file name. Defaults to `component`.
-- `exampleStyles`: Whether to include example styles in the generated component file. Defaults to `true`.
+- `component-suffix`: The suffix to apply to the generated component class name.
+- `file-suffix`: The suffix to apply to the generated component file name. Defaults to `component`.
+- `example-styles`: Whether to include example styles in the generated component file. Defaults to `true`.
 
 ## API Reference
 
@@ -187,12 +187,14 @@ The dropdown that contains the combobox options.
 
 The following CSS custom properties are applied to the `ngpComboboxDropdown` directive:
 
-| Property                          | Description                                      |
-| --------------------------------- | ------------------------------------------------ |
-| `--ngp-combobox-transform-origin` | The transform origin for the dropdown animation. |
-| `--ngp-combobox-width`            | The width of the combobox dropdown.              |
-| `--ngp-combobox-input-width`      | The width of the combobox input field.           |
-| `--ngp-combobox-button-width`     | The width of the combobox button.                |
+| Property                          | Description                                                            |
+| --------------------------------- | ---------------------------------------------------------------------- |
+| `--ngp-combobox-transform-origin` | The transform origin for the dropdown animation.                       |
+| `--ngp-combobox-available-width`  | The available width of the dropdown before it overflows the viewport.  |
+| `--ngp-combobox-available-height` | The available height of the dropdown before it overflows the viewport. |
+| `--ngp-combobox-width`            | The width of the combobox dropdown.                                    |
+| `--ngp-combobox-input-width`      | The width of the combobox input field.                                 |
+| `--ngp-combobox-button-width`     | The width of the combobox button.                                      |
 
 ### NgpComboboxInput
 

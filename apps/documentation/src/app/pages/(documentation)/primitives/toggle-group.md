@@ -47,9 +47,9 @@ ng g ng-primitives:primitive toggle-group
 
 - `path`: The path at which to create the component file.
 - `prefix`: The prefix to apply to the generated component selector.
-- `componentSuffix`: The suffix to apply to the generated component class name.
-- `fileSuffix`: The suffix to apply to the generated component file name. Defaults to `component`.
-- `exampleStyles`: Whether to include example styles in the generated component file. Defaults to `true`.
+- `component-suffix`: The suffix to apply to the generated component class name.
+- `file-suffix`: The suffix to apply to the generated component file name. Defaults to `component`.
+- `example-styles`: Whether to include example styles in the generated component file. Defaults to `true`.
 
 ## Examples
 
@@ -119,12 +119,16 @@ bootstrapApplication(AppComponent, {
   The default type of the toggle group.
 </prop-details>
 
-### Keyboard Interaction
+## Accessibility
 
-- <kbd>Tab</kbd> - Moves focus to the first toggle group item in the toolbar.
-- <kbd>Arrow Down</kbd> - Moves focus to the next toggle group item (vertical orientation).
-- <kbd>Arrow Up</kbd> - Moves focus to the previous toggle group item (vertical orientation).
-- <kbd>Arrow Right</kbd> - Moves focus to the next toggle group item (horizontal orientation).
-- <kbd>Arrow Left</kbd> - Moves focus to the previous toggle group item (horizontal orientation).
-- <kbd>Home</kbd> - Moves focus to the first toggle group item.
-- <kbd>End</kbd> - Moves focus to the last toggle group item.
+The toggle group uses `role="group"` on the container and `role="radio"` with `aria-checked` on each item. Keyboard navigation follows the roving tabindex pattern.
+
+### Keyboard Interactions
+
+- <kbd>Tab</kbd>: Move focus into the toggle group to the active or first item.
+- <kbd>ArrowDown</kbd>: Move focus to the next item (vertical orientation).
+- <kbd>ArrowUp</kbd>: Move focus to the previous item (vertical orientation).
+- <kbd>ArrowRight</kbd>: Move focus to the next item (horizontal orientation).
+- <kbd>ArrowLeft</kbd>: Move focus to the previous item (horizontal orientation).
+- <kbd>Home</kbd>: Move focus to the first item.
+- <kbd>End</kbd>: Move focus to the last item.

@@ -90,6 +90,7 @@ We welcome contributions from the community. Please refer to our [contributing g
     </tr>
     <tr>
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/undsoft"><img src="https://avatars.githubusercontent.com/u/1481270?v=4?s=100" width="100px;" alt="Evgeny Stepanovych"/><br /><sub><b>Evgeny Stepanovych</b></sub></a><br /><a href="https://github.com/ng-primitives/ng-primitives/commits?author=undsoft" title="Code">💻</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/gourlaouenp"><img src="https://avatars.githubusercontent.com/u/233624243?v=4?s=100" width="100px;" alt="gourlaouenp"/><br /><sub><b>gourlaouenp</b></sub></a><br /><a href="https://github.com/ng-primitives/ng-primitives/commits?author=gourlaouenp" title="Code">💻</a></td>
     </tr>
   </tbody>
 </table>

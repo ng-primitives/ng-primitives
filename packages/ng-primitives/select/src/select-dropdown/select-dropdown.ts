@@ -12,6 +12,8 @@ import { injectSelectState } from '../select/select-state';
     '[style.left.px]': 'state().overlay()?.position()?.x',
     '[style.top.px]': 'state().overlay()?.position()?.y',
     '[style.--ngp-select-transform-origin]': 'state().overlay()?.transformOrigin()',
+    '[style.--ngp-select-available-width.px]': 'state().overlay()?.availableWidth()',
+    '[style.--ngp-select-available-height.px]': 'state().overlay()?.availableHeight()',
     '[style.--ngp-select-width.px]': 'selectDimensions().width',
   },
 })

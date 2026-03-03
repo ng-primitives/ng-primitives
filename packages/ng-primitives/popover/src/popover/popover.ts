@@ -17,6 +17,8 @@ import { injectOverlay } from 'ng-primitives/portal';
     '[style.top.px]': 'overlay.position().y',
     '[style.--ngp-popover-trigger-width.px]': 'overlay.triggerWidth()',
     '[style.--ngp-popover-transform-origin]': 'overlay.transformOrigin()',
+    '[style.--ngp-popover-available-width.px]': 'overlay.availableWidth()',
+    '[style.--ngp-popover-available-height.px]': 'overlay.availableHeight()',
     '[attr.data-placement]': 'overlay.finalPlacement()',
     'data-overlay': '',
   },

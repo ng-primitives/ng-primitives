@@ -1,3 +1,73 @@
+## 0.109.5 (2026-02-24)
+
+### 🚀 Features
+
+- **overlay:** add support for configurable flip options ([#680](https://github.com/ng-primitives/ng-primitives/pull/680))
+
+### ❤️ Thank You
+
+- Ashley Hunter
+
+## 0.109.4 (2026-02-16)
+
+### 🩹 Fixes
+
+- overlay control container leak ([#675](https://github.com/ng-primitives/ng-primitives/pull/675))
+- **date-picker:** ensure rows re-render when first day of the week changes ([#674](https://github.com/ng-primitives/ng-primitives/pull/674))
+
+### ❤️ Thank You
+
+- Ashley Hunter
+- gourlaouenp
+
+## 0.109.3 (2026-02-15)
+
+### 🩹 Fixes
+
+- **popover:** emit openChange false on outside click and Escape key events ([#663](https://github.com/ng-primitives/ng-primitives/pull/663))
+- **press:** resolve issue where space keys were prevented ([#670](https://github.com/ng-primitives/ng-primitives/pull/670))
+
+### ❤️ Thank You
+
+- Ashley Hunter
+
+## 0.109.2 (2026-02-13)
+
+### 🩹 Fixes
+
+- **press:** ensure press ends on document keyup for keyboard interactions ([#662](https://github.com/ng-primitives/ng-primitives/pull/662))
+
+### ❤️ Thank You
+
+- Ashley Hunter
+
+## 0.109.1 (2026-02-13)
+
+### 🩹 Fixes
+
+- **menu:** resolve issue where over menu state is not reset ([#660](https://github.com/ng-primitives/ng-primitives/pull/660))
+
+### ❤️ Thank You
+
+- Ashley Hunter
+
+## 0.109.0 (2026-02-12)
+
+### 🚀 Features
+
+- reusable component change detection ([#651](https://github.com/ng-primitives/ng-primitives/pull/651))
+- **dialog:** add support for closing on route change ([#656](https://github.com/ng-primitives/ng-primitives/pull/656))
+- **dialog:** improve dialog type safety ([#657](https://github.com/ng-primitives/ng-primitives/pull/657))
+- **overlay:** expose available width and height ([#654](https://github.com/ng-primitives/ng-primitives/pull/654))
+
+### 🩹 Fixes
+
+- **press:** ensuring keyboard events are handled ([#655](https://github.com/ng-primitives/ng-primitives/pull/655))
+
+### ❤️ Thank You
+
+- Ashley Hunter
+
 ## 0.108.1 (2026-02-06)
 
 ### 🩹 Fixes

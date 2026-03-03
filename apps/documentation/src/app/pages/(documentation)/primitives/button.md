@@ -148,9 +148,9 @@ ng g ng-primitives:primitive button
 
 - `path`: The path at which to create the component file.
 - `prefix`: The prefix to apply to the generated component selector.
-- `componentSuffix`: The suffix to apply to the generated component class name.
-- `fileSuffix`: The suffix to apply to the generated component file name. Defaults to `component`.
-- `exampleStyles`: Whether to include example styles in the generated component file. Defaults to `true`.
+- `component-suffix`: The suffix to apply to the generated component class name.
+- `file-suffix`: The suffix to apply to the generated component file name. Defaults to `component`.
+- `example-styles`: Whether to include example styles in the generated component file. Defaults to `true`.
 
 ## API Reference
 
@@ -169,3 +169,12 @@ The following directives are available to import from the `ng-primitives/button`
 | `data-press`              | Present while the button is being pressed.                         |
 | `data-disabled`           | Present when the button is disabled.                               |
 | `data-disabled-focusable` | Present when disabled but still focusable (loading/tooltip state). |
+
+## Accessibility
+
+The button primitive should be applied to native `<button>` elements to inherit built-in browser accessibility. When disabled, the `disabled` attribute is automatically set on the host element.
+
+### Keyboard Interactions
+
+- <kbd>Enter</kbd>: Activate the button.
+- <kbd>Space</kbd>: Activate the button.

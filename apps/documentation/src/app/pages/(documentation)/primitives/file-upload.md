@@ -55,9 +55,9 @@ ng g ng-primitives:primitive file-upload
 
 - `path`: The path at which to create the component file.
 - `prefix`: The prefix to apply to the generated component selector.
-- `componentSuffix`: The suffix to apply to the generated component class name.
-- `fileSuffix`: The suffix to apply to the generated component file name. Defaults to `component`.
-- `exampleStyles`: Whether to include example styles in the generated component file. Defaults to `true`.
+- `component-suffix`: The suffix to apply to the generated component class name.
+- `file-suffix`: The suffix to apply to the generated component file name. Defaults to `component`.
+- `example-styles`: Whether to include example styles in the generated component file. Defaults to `true`.
 
 ## API Reference
 
@@ -88,3 +88,11 @@ The following directives are available to import from the `ng-primitives/file-up
 | `data-hover`    | Applied when the element is hovered.             |
 | `data-dragover` | Applied when a file is dragged over the element. |
 | `data-disabled` | Applied when the element is disabled.            |
+
+## Accessibility
+
+The file upload primitive should be applied to a `<button>` element or another interactive element for keyboard accessibility. The file dropzone is a drag-and-drop target and is not keyboard accessible by default — ensure an alternative method (such as the file upload trigger) is always available.
+
+### Keyboard Interactions
+
+- <kbd>Enter</kbd> / <kbd>Space</kbd>: Open the file selection dialog (when applied to a button).

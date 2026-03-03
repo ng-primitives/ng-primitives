@@ -97,9 +97,9 @@ ng g ng-primitives:primitive pagination
 
 - `path`: The path at which to create the component file.
 - `prefix`: The prefix to apply to the generated component selector.
-- `componentSuffix`: The suffix to apply to the generated component class name.
-- `fileSuffix`: The suffix to apply to the generated component file name. Defaults to `component`.
-- `exampleStyles`: Whether to include example styles in the generated component file. Defaults to `true`.
+- `component-suffix`: The suffix to apply to the generated component class name.
+- `file-suffix`: The suffix to apply to the generated component file name. Defaults to `component`.
+- `example-styles`: Whether to include example styles in the generated component file. Defaults to `true`.
 
 ## API Reference
 
@@ -201,3 +201,11 @@ The following data attributes are applied to the `ngpPaginationLast` directive:
 | `data-focus-visible` | Applied when the button is focused.             |
 | `data-press`         | Applied when the button is pressed.             |
 | `data-disabled`      | Applied when the button is disabled.            |
+
+## Accessibility
+
+The pagination container uses `role="navigation"`. The active page button uses `aria-current` to indicate the current page. It is recommended to add an `aria-label` to the navigation element (e.g., "Pagination") for screen reader context.
+
+### Keyboard Interactions
+
+- <kbd>Enter</kbd> / <kbd>Space</kbd>: Activate a pagination button.

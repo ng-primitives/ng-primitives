@@ -13,6 +13,18 @@ interface NgpPressProps {
   onPressEnd?: () => void;
 }
 
+const NON_TEXT_INPUT_TYPES = new Set([
+  'button',
+  'checkbox',
+  'color',
+  'file',
+  'image',
+  'radio',
+  'range',
+  'reset',
+  'submit',
+]);
+
 /**
  * @internal
  */
@@ -35,8 +47,14 @@ export function ngpPress({
    */
   const pressed = signal<boolean>(false);
 
+  /**
+   * Track which key started the press to prevent mismatched keyup from ending it.
+   */
+  let activeKey: string | null = null;
+
   // setup event listeners
   listener(elementRef, 'pointerdown', onPointerDown);
+  listener(elementRef, 'keydown', onKeyDown);
 
   // anytime the press state changes we want to update the attribute
   dataBinding(elementRef, 'data-press', () => pressed() && !disabled());
@@ -52,6 +70,7 @@ export function ngpPress({
 
     // clear any existing disposables
     disposableListeners.forEach(dispose => dispose());
+    activeKey = null;
     pressed.set(false);
     onPressEnd?.();
   }
@@ -85,12 +104,10 @@ export function ngpPress({
     // Instead of relying on the `pointerleave` event, which is not consistently called on iOS Safari,
     // we use the `pointermove` event to determine if we are still "pressing".
     // By checking if the target is still within the element, we can determine if the press is ongoing.
-    const pointerMove = listener(
-      ownerDocument,
-      'pointermove',
-      () => onPointerMove as EventListener,
-      { config: false, injector },
-    );
+    const pointerMove = listener(ownerDocument, 'pointermove', onPointerMove as EventListener, {
+      config: false,
+      injector,
+    });
 
     // if the pointer is cancelled, then we are no longer pressing on this element
     const pointerCancel = listener(ownerDocument, 'pointercancel', () => reset(), {
@@ -101,6 +118,44 @@ export function ngpPress({
     disposableListeners = [pointerUp, pointerMove, pointerCancel];
   }
 
+  function onKeyDown(event: KeyboardEvent): void {
+    if (disabled() || pressed() || event.repeat) {
+      return;
+    }
+
+    if (isEditableTarget(event)) {
+      return;
+    }
+
+    if (event.key !== 'Enter' && event.key !== ' ') {
+      return;
+    }
+
+    activeKey = event.key;
+    pressed.set(true);
+    onPressStart?.();
+
+    const ownerDocument = elementRef.nativeElement.ownerDocument ?? document;
+
+    const keyUp = listener(
+      ownerDocument,
+      'keyup',
+      (keyUpEvent: KeyboardEvent) => {
+        if (keyUpEvent.key === activeKey) {
+          reset();
+        }
+      },
+      { config: false, injector },
+    );
+
+    const blur = listener(elementRef, 'blur', () => reset(), {
+      config: false,
+      injector,
+    });
+
+    disposableListeners = [keyUp, blur];
+  }
+
   function onPointerMove(event: PointerEvent): void {
     if (
       elementRef.nativeElement !== event.target &&
@@ -108,6 +163,25 @@ export function ngpPress({
     ) {
       reset();
     }
+  }
+
+  function isEditableTarget(event: KeyboardEvent): boolean {
+    const target = event.target;
+
+    if (!(target instanceof HTMLElement)) {
+      return false;
+    }
+
+    if (target.isContentEditable || target instanceof HTMLTextAreaElement) {
+      return true;
+    }
+
+    if (!(target instanceof HTMLInputElement)) {
+      return false;
+    }
+
+    const inputType = target.type.toLowerCase();
+    return !NON_TEXT_INPUT_TYPES.has(inputType);
   }
 
   return { pressed };

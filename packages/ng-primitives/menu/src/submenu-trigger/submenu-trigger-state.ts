@@ -11,6 +11,7 @@ import {
 import { injectElementRef } from 'ng-primitives/internal';
 import {
   createOverlay,
+  NgpFlip,
   NgpOffset,
   NgpOverlay,
   NgpOverlayConfig,
@@ -57,7 +58,7 @@ export interface NgpSubmenuTriggerState {
   /**
    * Whether the menu should flip when there is not enough space.
    */
-  readonly flip: WritableSignal<boolean>;
+  readonly flip: WritableSignal<NgpFlip>;
 
   /**
    * The focus origin used to open the submenu.
@@ -112,7 +113,7 @@ export interface NgpSubmenuTriggerState {
    * Set whether the menu should flip when there is not enough space.
    * @param shouldFlip - Whether the menu should flip
    */
-  setFlip(shouldFlip: boolean): void;
+  setFlip(shouldFlip: NgpFlip): void;
 
   /**
    * Focus the trigger element.
@@ -149,7 +150,7 @@ export interface NgpSubmenuTriggerProps<T = unknown> {
   /**
    * Whether the menu should flip when there is not enough space.
    */
-  readonly flip?: Signal<boolean>;
+  readonly flip?: Signal<NgpFlip>;
 }
 
 export const [
@@ -333,7 +334,7 @@ export const [
       offset.set(newOffset);
     }
 
-    function setFlip(shouldFlip: boolean): void {
+    function setFlip(shouldFlip: NgpFlip): void {
       flip.set(shouldFlip);
     }
 
@@ -342,7 +343,7 @@ export const [
     }
 
     // No-op for submenus - hover behavior is handled via showSubmenuOnHover on the trigger element
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+
     function setPointerOverContent(_isOver: boolean): void {
       // Submenus don't need pointer tracking on content because:
       // 1. The submenu trigger handles hover via showSubmenuOnHover

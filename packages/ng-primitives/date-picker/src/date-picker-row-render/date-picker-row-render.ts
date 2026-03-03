@@ -106,6 +106,11 @@ export class NgpDatePickerRowRender<T> implements OnDestroy {
    */
   private previousMonth: T | null = null;
 
+  /**
+   * Store the previously rendered first day of the week.
+   */
+  private previousFirstDayOfWeek: number | null = null;
+
   constructor() {
     // Wait for the inputs of the containing picker to be initialized.
     explicitEffect([this.state().focusedDate, this.state().firstDayOfWeek], () =>
@@ -121,16 +126,20 @@ export class NgpDatePickerRowRender<T> implements OnDestroy {
    * Render the row.
    */
   private renderRows(): void {
-    // If the focused date has not changed, do not re-render.
+    const currentFirstDayOfWeek = this.state().firstDayOfWeek();
+
+    // If neither the month nor the first day of the week has changed, do not re-render.
     if (
       this.previousMonth &&
-      this.dateAdapter.isSameMonth(this.previousMonth, this.state().focusedDate())
+      this.dateAdapter.isSameMonth(this.previousMonth, this.state().focusedDate()) &&
+      this.previousFirstDayOfWeek === currentFirstDayOfWeek
     ) {
       return;
     }
 
-    // Store the current focused month.
+    // Store the current focused month and first day of the week.
     this.previousMonth = this.state().focusedDate();
+    this.previousFirstDayOfWeek = currentFirstDayOfWeek;
 
     const weeks = this.weeks();
 

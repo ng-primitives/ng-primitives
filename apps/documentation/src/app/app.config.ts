@@ -4,14 +4,17 @@ import { provideFileRouter } from '@analogjs/router';
 import { isPlatformBrowser, ViewportScroller } from '@angular/common';
 import {
   ApplicationConfig,
+  DestroyRef,
   inject,
   Injector,
   PLATFORM_ID,
   provideAppInitializer,
   provideZonelessChangeDetection,
 } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { provideClientHydration } from '@angular/platform-browser';
-import { withInMemoryScrolling } from '@angular/router';
+import { Router, Scroll, withInMemoryScrolling } from '@angular/router';
+import { filter } from 'rxjs';
 import { ApiDocs } from './components/api-docs/api-docs';
 import { Example } from './components/example/example';
 import { PropDetails } from './components/prop-details/prop-details';
@@ -22,7 +25,7 @@ import { Tab } from './components/tab/tab';
 export const appConfig: ApplicationConfig = {
   providers: [
     provideFileRouter(
-      withInMemoryScrolling({ anchorScrolling: 'enabled', scrollPositionRestoration: 'top' }),
+      withInMemoryScrolling({ anchorScrolling: 'enabled', scrollPositionRestoration: 'disabled' }),
     ),
     provideClientHydration(),
     provideContent(
@@ -44,6 +47,36 @@ export const appConfig: ApplicationConfig = {
       const scroller = inject(ViewportScroller);
       // Set scroll offset for fixed header (64px header + 16px buffer)
       scroller.setOffset([0, 80]);
+    }),
+    provideAppInitializer(() => {
+      const router = inject(Router);
+      const platform = inject(PLATFORM_ID);
+      const destroyRef = inject(DestroyRef);
+
+      if (isPlatformBrowser(platform)) {
+        // Handle scroll-to-top manually since we disabled scrollPositionRestoration.
+        // We delay the scroll so it runs after DOM mutations from heading-anchor,
+        // source-link, and quick-links which use setTimeout(0) and afterNextRender.
+        router.events
+          .pipe(
+            filter((e): e is Scroll => e instanceof Scroll),
+            takeUntilDestroyed(destroyRef),
+          )
+          .subscribe(e => {
+            if (e.position) {
+              // Restore scroll position for back/forward navigation
+              setTimeout(() =>
+                requestAnimationFrame(() => window.scrollTo(e.position![0], e.position![1])),
+              );
+              return;
+            }
+            if (e.anchor) {
+              // Let anchorScrolling handle fragment navigation
+              return;
+            }
+            setTimeout(() => requestAnimationFrame(() => window.scrollTo(0, 0)));
+          });
+      }
     }),
   ],
 };

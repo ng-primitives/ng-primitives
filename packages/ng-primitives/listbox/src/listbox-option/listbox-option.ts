@@ -136,6 +136,10 @@ export class NgpListboxOption<T> implements OnDestroy {
    * Selects the option.
    */
   select(origin: FocusOrigin): void {
+    if (this._disabled()) {
+      return;
+    }
+
     this.listbox()?.selectOption(this.value(), origin);
   }
 

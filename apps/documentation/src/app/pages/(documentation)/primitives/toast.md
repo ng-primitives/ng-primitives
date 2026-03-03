@@ -62,9 +62,9 @@ ng g ng-primitives:primitive toast
 
 - `path`: The path at which to create the component file.
 - `prefix`: The prefix to apply to the generated component selector.
-- `componentSuffix`: The suffix to apply to the generated component class name.
-- `fileSuffix`: The suffix to apply to the generated component file name. Defaults to `component`.
-- `exampleStyles`: Whether to include example styles in the generated component file. Defaults to `true`.
+- `component-suffix`: The suffix to apply to the generated component class name.
+- `file-suffix`: The suffix to apply to the generated component file name. Defaults to `component`.
+- `example-styles`: Whether to include example styles in the generated component file. Defaults to `true`.
 
 ## Examples
 
@@ -233,3 +233,7 @@ bootstrapApplication(AppComponent, {
 <prop-details name="sequential" type="boolean" default="false">
   When enabled, only the front toast's timer will run. When a toast is dismissed, the timer will start on the next toast. Useful for scenarios with multiple notifications where you want to prevent background toasts from auto-closing.
 </prop-details>
+
+## Accessibility
+
+For screen reader announcements, ensure your toast container includes `role="status"` or `role="alert"` with `aria-live="polite"` so that new toasts are announced to assistive technology users.

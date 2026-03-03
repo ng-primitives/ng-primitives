@@ -47,6 +47,8 @@ export const [NgpMenuStateToken, ngpMenu, injectMenuState, provideMenuState] = c
     styleBinding(element, 'top.px', () => overlay.position().y ?? null);
     styleBinding(element, '--ngp-menu-trigger-width.px', overlay.triggerWidth);
     styleBinding(element, '--ngp-menu-transform-origin', overlay.transformOrigin);
+    styleBinding(element, '--ngp-menu-available-width.px', overlay.availableWidth);
+    styleBinding(element, '--ngp-menu-available-height.px', overlay.availableHeight);
 
     // Event listeners for pointer tracking and keyboard
     listener(element, 'pointerenter', onPointerEnter);

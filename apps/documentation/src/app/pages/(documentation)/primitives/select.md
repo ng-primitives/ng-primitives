@@ -54,9 +54,9 @@ ng g ng-primitives:primitive select
 
 - `path`: The path at which to create the component file.
 - `prefix`: The prefix to apply to the generated component selector.
-- `componentSuffix`: The suffix to apply to the generated component class name.
-- `fileSuffix`: The suffix to apply to the generated component file name. Defaults to `component`.
-- `exampleStyles`: Whether to include example styles in the generated component file. Defaults to `true`.
+- `component-suffix`: The suffix to apply to the generated component class name.
+- `file-suffix`: The suffix to apply to the generated component file name. Defaults to `component`.
+- `example-styles`: Whether to include example styles in the generated component file. Defaults to `true`.
 
 ## Examples
 
@@ -130,6 +130,16 @@ The following directives are available to import from the `ng-primitives/select`
 | `data-focus-visible` | Applied when the element is focused.  |
 | `data-disabled`      | Applied when the element is disabled. |
 
+#### CSS Custom Properties
+
+The following CSS custom properties are applied to the `ngpSelectDropdown` directive:
+
+| Property                        | Description                                                            |
+| ------------------------------- | ---------------------------------------------------------------------- |
+| `--ngp-select-transform-origin` | The transform origin of the select dropdown for animations.            |
+| `--ngp-select-available-width`  | The available width of the dropdown before it overflows the viewport.  |
+| `--ngp-select-available-height` | The available height of the dropdown before it overflows the viewport. |
+
 ## Global Configuration
 
 You can configure the default options for all selects in your application by using the `provideSelectConfig` function in a providers array.
@@ -155,3 +165,16 @@ bootstrapApplication(AppComponent, {
 <prop-details name="flip" type="boolean" default="true">
   Define whether the dropdown should flip to the opposite side when there is not enough space.
 </prop-details>
+
+## Accessibility
+
+The select primitive follows the [WAI-ARIA Combobox pattern](https://www.w3.org/WAI/ARIA/apg/patterns/combobox/). The trigger uses `role="combobox"` with `aria-expanded` and `aria-controls`. The dropdown uses `role="listbox"` and options use `role="option"` with `aria-selected`. Focus is managed using `aria-activedescendant`.
+
+### Keyboard Interactions
+
+- <kbd>Enter</kbd>: Open the dropdown or select the active option.
+- <kbd>Space</kbd>: Toggle the dropdown.
+- <kbd>ArrowDown</kbd>: Open the dropdown or move to the next option.
+- <kbd>ArrowUp</kbd>: Open the dropdown or move to the previous option.
+- <kbd>Home</kbd>: Move to the first option.
+- <kbd>End</kbd>: Move to the last option.

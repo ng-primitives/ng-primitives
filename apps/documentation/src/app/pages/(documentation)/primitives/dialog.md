@@ -64,9 +64,9 @@ ng g ng-primitives:primitive dialog
 
 - `path`: The path at which to create the component file.
 - `prefix`: The prefix to apply to the generated component selector.
-- `componentSuffix`: The suffix to apply to the generated component class name.
-- `fileSuffix`: The suffix to apply to the generated component file name. Defaults to `component`.
-- `exampleStyles`: Whether to include example styles in the generated component file. Defaults to `true`.
+- `component-suffix`: The suffix to apply to the generated component class name.
+- `file-suffix`: The suffix to apply to the generated component file name. Defaults to `component`.
+- `example-styles`: Whether to include example styles in the generated component file. Defaults to `true`.
 
 ## API Reference
 
@@ -144,7 +144,3 @@ Adheres to the [WAI-ARIA design pattern](https://www.w3.org/WAI/ARIA/apg/pattern
 - <kbd>Esc</kbd>: Close the dialog.
 - <kbd>Tab</kbd>: Navigate through focusable elements within the dialog.
 - <kbd>Shift</kbd> + <kbd>Tab</kbd>: Navigate backwards through focusable elements within the dialog.
-
-```
-
-```

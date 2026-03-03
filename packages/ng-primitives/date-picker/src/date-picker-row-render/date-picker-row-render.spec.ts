@@ -147,6 +147,25 @@ describe('NgpDatePickerRowRender', () => {
       ]),
     );
   });
+
+  it('should re-render rows in the DOM when firstDayOfWeek changes within the same month', () => {
+    const firstDayOfWeek = TestBed.runInInjectionContext(
+      () => injectDateControllerState()().firstDayOfWeek,
+    );
+
+    // Initial render with default firstDayOfWeek (7 = Sunday)
+    // August 2025 with Sunday start spans 6 weeks (Jul 27 - Sep 6)
+    const initialRows = fixture.nativeElement.querySelectorAll('div');
+    expect(initialRows.length).toBe(6);
+
+    // Change firstDayOfWeek to Monday (1)
+    firstDayOfWeek.set(1);
+    fixture.detectChanges();
+
+    // August 2025 with Monday start spans 5 weeks (Jul 28 - Aug 31)
+    const updatedRows = fixture.nativeElement.querySelectorAll('div');
+    expect(updatedRows.length).toBe(5);
+  });
 });
 
 @Component({

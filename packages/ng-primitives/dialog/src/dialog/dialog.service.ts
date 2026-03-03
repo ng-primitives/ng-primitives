@@ -14,9 +14,10 @@ import {
   inject,
   isDevMode,
 } from '@angular/core';
+import { NavigationStart, Router } from '@angular/router';
 import { NgpExitAnimationManager } from 'ng-primitives/internal';
 import { uniqueId } from 'ng-primitives/utils';
-import { Observable, Subject, defer } from 'rxjs';
+import { Observable, Subject, Subscription, defer } from 'rxjs';
 import { startWith } from 'rxjs/operators';
 import { NgpDialogConfig, injectDialogConfig } from '../config/dialog-config';
 import { NgpDialogRef } from './dialog-ref';
@@ -40,6 +41,7 @@ export class NgpDialogManager implements OnDestroy {
     skipSelf: true,
   });
   private readonly overlayContainer = inject(OverlayContainer);
+  private readonly router = inject(Router, { optional: true });
   private readonly scrollStrategy: ScrollStrategy =
     this.defaultOptions.scrollStrategy ?? this.overlay.scrollStrategies.block();
 
@@ -47,6 +49,7 @@ export class NgpDialogManager implements OnDestroy {
   private readonly afterAllClosedAtThisLevel = new Subject<void>();
   private readonly afterOpenedAtThisLevel = new Subject<NgpDialogRef>();
   private ariaHiddenElements = new Map<Element, string | null>();
+  private routerSubscription: Subscription | undefined;
 
   /** Keeps track of the currently-open dialogs. */
   get openDialogs(): readonly NgpDialogRef[] {
@@ -73,12 +76,33 @@ export class NgpDialogManager implements OnDestroy {
   );
 
   /**
-   * Opens a modal dialog containing the given template.
+   * Opens a modal dialog containing the given template or component.
    */
-  open<T, R>(
+  open(
+    templateRefOrComponentType: TemplateRef<NgpDialogContext> | Type<unknown>,
+    config?: NgpDialogConfig,
+  ): NgpDialogRef;
+
+  /**
+   * Opens a modal dialog containing the given template or component with typed data.
+   */
+  open<T, R = unknown>(
     templateRefOrComponentType: TemplateRef<NgpDialogContext<T, R>> | Type<unknown>,
-    config?: NgpDialogConfig<T>,
-  ): NgpDialogRef<T, R> {
+    config: NgpDialogConfig<T> & { data: T },
+  ): NgpDialogRef<T, R>;
+
+  /**
+   * Opens a modal dialog with typed result but no data (explicit void for data type).
+   */
+  open<T extends void, R>(
+    templateRefOrComponentType: TemplateRef<NgpDialogContext<T, R>> | Type<unknown>,
+    config?: NgpDialogConfig,
+  ): NgpDialogRef<T, R>;
+
+  open(
+    templateRefOrComponentType: TemplateRef<any> | Type<unknown>,
+    config?: NgpDialogConfig<any>,
+  ): NgpDialogRef<any, any> {
     // store the current active element so we can focus it after the dialog is closed
     const activeElement = this.document.activeElement;
 
@@ -101,13 +125,13 @@ export class NgpDialogManager implements OnDestroy {
 
     const overlayConfig = this.getOverlayConfig(config);
     const overlayRef = this.overlay.create(overlayConfig);
-    const dialogRef = new NgpDialogRef<T, R>(overlayRef, config);
+    const dialogRef = new NgpDialogRef(overlayRef, config);
     const injector = this.createInjector(config, dialogRef, undefined);
 
     // store the injector in the dialog ref - this is so we can access the exit animation manager
     dialogRef.injector = injector;
 
-    const context: NgpDialogContext<T, R> = {
+    const context: NgpDialogContext = {
       $implicit: dialogRef,
       close: dialogRef.close.bind(dialogRef),
     };
@@ -129,6 +153,7 @@ export class NgpDialogManager implements OnDestroy {
 
     (this.openDialogs as NgpDialogRef[]).push(dialogRef as NgpDialogRef<any, any>);
     this.afterOpened.next(dialogRef as NgpDialogRef<any, any>);
+    this.subscribeToRouterEvents();
 
     dialogRef.closed.subscribe(closeResult => {
       this.removeOpenDialog(dialogRef as NgpDialogRef<any, any>, true);
@@ -161,6 +186,30 @@ export class NgpDialogManager implements OnDestroy {
     return this.openDialogs.find(dialog => dialog.id === id);
   }
 
+  /**
+   * Subscribe to router navigation events so that dialogs with `closeOnNavigation`
+   * are closed when the user navigates programmatically (e.g. router.navigate()).
+   * CDK's `disposeOnNavigation` only handles browser popstate events.
+   */
+  private subscribeToRouterEvents(): void {
+    if (this.routerSubscription || !this.router) {
+      return;
+    }
+
+    this.routerSubscription = this.router.events.subscribe(event => {
+      if (event instanceof NavigationStart && this.openDialogs.length) {
+        // Close dialogs that have closeOnNavigation enabled (iterate in reverse as closing modifies the array)
+        let i = this.openDialogs.length;
+        while (i--) {
+          const dialog = this.openDialogs[i];
+          if (dialog.config.closeOnNavigation !== false) {
+            dialog.close();
+          }
+        }
+      }
+    });
+  }
+
   ngOnDestroy(): void {
     // Make one pass over all the dialogs that need to be untracked, but should not be closed. We
     // want to stop tracking the open dialog even if it hasn't been closed, because the tracking
@@ -178,6 +227,7 @@ export class NgpDialogManager implements OnDestroy {
     this.afterAllClosedAtThisLevel.complete();
     this.afterOpenedAtThisLevel.complete();
     this.openDialogsAtThisLevel = [];
+    this.routerSubscription?.unsubscribe();
   }
 
   /**

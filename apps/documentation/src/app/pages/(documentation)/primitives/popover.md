@@ -86,9 +86,9 @@ ng g ng-primitives:primitive popover
 
 - `path`: The path at which to create the component file.
 - `prefix`: The prefix to apply to the generated component selector.
-- `componentSuffix`: The suffix to apply to the generated component class name.
-- `fileSuffix`: The suffix to apply to the generated component file name. Defaults to `component`.
-- `exampleStyles`: Whether to include example styles in the generated component file. Defaults to `true`
+- `component-suffix`: The suffix to apply to the generated component class name.
+- `file-suffix`: The suffix to apply to the generated component file name. Defaults to `component`.
+- `example-styles`: Whether to include example styles in the generated component file. Defaults to `true`
 
 ## Examples
 
@@ -116,10 +116,12 @@ The following directives are available to import from the `ng-primitives/popover
 
 The following CSS custom properties are applied to the `ngpPopover` directive:
 
-| Property                         | Description                                         |
-| -------------------------------- | --------------------------------------------------- |
-| `--ngp-popover-transform-origin` | The transform origin of the popover for animations. |
-| `--ngp-popover-trigger-width`    | The width of the trigger element.                   |
+| Property                         | Description                                                           |
+| -------------------------------- | --------------------------------------------------------------------- |
+| `--ngp-popover-transform-origin` | The transform origin of the popover for animations.                   |
+| `--ngp-popover-trigger-width`    | The width of the trigger element.                                     |
+| `--ngp-popover-available-width`  | The available width of the popover before it overflows the viewport.  |
+| `--ngp-popover-available-height` | The available height of the popover before it overflows the viewport. |
 
 ### NgpPopoverTrigger
 
@@ -271,3 +273,14 @@ Defines how the popover behaves when the window is scrolled. If set to `repositi
 <prop-details name="cooldown" type="number" default="0">
   Define the cooldown duration in milliseconds. When moving from one popover to another within this duration, the showDelay is skipped for the new popover. This creates a smoother experience when navigating between multiple popovers.
 </prop-details>
+
+## Accessibility
+
+The popover element is assigned `role="dialog"` and the trigger element uses `aria-expanded` to indicate the popover's open state. The trigger is linked to the popover via `aria-describedby`. Focus is trapped within the popover when open.
+
+### Keyboard Interactions
+
+- <kbd>Enter</kbd> / <kbd>Space</kbd>: Toggle the popover.
+- <kbd>Esc</kbd>: Close the popover.
+- <kbd>Tab</kbd>: Navigate through focusable elements within the popover.
+- <kbd>Shift</kbd> + <kbd>Tab</kbd>: Navigate backwards through focusable elements within the popover.

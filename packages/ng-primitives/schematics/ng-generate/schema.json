@@ -82,6 +82,11 @@
       "type": "boolean",
       "description": "Whether example styles should be generated.",
       "default": true
+    },
+    "changeDetection": {
+      "description": "The change detection strategy to use in the new component. Defaults to OnPush.",
+      "enum": ["Default", "OnPush"],
+      "type": "string"
     }
   },
   "required": ["primitive", "path"]

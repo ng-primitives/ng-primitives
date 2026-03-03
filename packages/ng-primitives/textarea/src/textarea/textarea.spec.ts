@@ -40,4 +40,58 @@ describe('NgpTextarea', () => {
     expect(textarea.hasAttribute('disabled')).toBe(true);
     expect(textarea.getAttribute('data-disabled')).toBe('');
   });
+
+  it('should set data-hover on mouseenter and remove on mouseleave', async () => {
+    const { container, fixture } = await render(`<textarea ngpTextarea></textarea>`, {
+      imports: [NgpTextarea],
+    });
+
+    const textarea = container.querySelector('textarea')!;
+
+    expect(textarea.getAttribute('data-hover')).toBeNull();
+
+    textarea.dispatchEvent(new MouseEvent('mouseenter', { bubbles: true }));
+    fixture.detectChanges();
+    expect(textarea).toHaveAttribute('data-hover', '');
+
+    textarea.dispatchEvent(new MouseEvent('mouseleave', { bubbles: true }));
+    fixture.detectChanges();
+    expect(textarea.getAttribute('data-hover')).toBeNull();
+  });
+
+  it('should set data-focus on focus and remove on blur', async () => {
+    const { container, fixture } = await render(`<textarea ngpTextarea></textarea>`, {
+      imports: [NgpTextarea],
+    });
+
+    const textarea = container.querySelector('textarea')!;
+
+    expect(textarea.getAttribute('data-focus')).toBeNull();
+
+    // CDK FocusMonitor requires spoofing activeElement for jsdom
+    Object.defineProperty(document, 'activeElement', { value: textarea, writable: true });
+    textarea.dispatchEvent(new FocusEvent('focus', { bubbles: false }));
+    fixture.detectChanges();
+    expect(textarea).toHaveAttribute('data-focus', '');
+
+    Object.defineProperty(document, 'activeElement', { value: document.body, writable: true });
+    textarea.dispatchEvent(new FocusEvent('blur', { bubbles: false }));
+    fixture.detectChanges();
+    expect(textarea.getAttribute('data-focus')).toBeNull();
+  });
+
+  it('should not set data-hover when disabled', async () => {
+    const { container, fixture } = await render(
+      `<textarea ngpTextarea [disabled]="true"></textarea>`,
+      {
+        imports: [NgpTextarea],
+      },
+    );
+
+    const textarea = container.querySelector('textarea')!;
+
+    textarea.dispatchEvent(new MouseEvent('mouseenter', { bubbles: true }));
+    fixture.detectChanges();
+    expect(textarea.getAttribute('data-hover')).toBeNull();
+  });
 });

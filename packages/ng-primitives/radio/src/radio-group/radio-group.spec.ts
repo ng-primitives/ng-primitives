@@ -1,5 +1,5 @@
-import { render } from '@testing-library/angular';
-import { NgpRadioGroup, NgpRadioItem } from 'ng-primitives/radio';
+import { fireEvent, render } from '@testing-library/angular';
+import { NgpRadioGroup, NgpRadioIndicator, NgpRadioItem } from 'ng-primitives/radio';
 
 describe('RadioGroup', () => {
   it('should set to horizontal orientation by default', async () => {
@@ -131,5 +131,183 @@ describe('RadioGroup', () => {
     expect(radioOne).toHaveAttribute('data-checked', '');
     expect(radioTwo).not.toHaveAttribute('aria-checked', 'true');
     expect(radioTwo).not.toHaveAttribute('data-checked');
+  });
+
+  it('should set role="radiogroup" on the container', async () => {
+    const { getByRole } = await render(
+      `
+      <div ngpRadioGroup>
+        <div ngpRadioItem ngpRadioItemValue="1">One</div>
+      </div>
+    `,
+      { imports: [NgpRadioGroup, NgpRadioItem] },
+    );
+    expect(getByRole('radiogroup')).toBeTruthy();
+  });
+
+  it('should set role="radio" on each item', async () => {
+    const { getAllByRole } = await render(
+      `
+      <div ngpRadioGroup>
+        <div ngpRadioItem ngpRadioItemValue="1">One</div>
+        <div ngpRadioItem ngpRadioItemValue="2">Two</div>
+      </div>
+    `,
+      { imports: [NgpRadioGroup, NgpRadioItem] },
+    );
+    const radios = getAllByRole('radio');
+    expect(radios).toHaveLength(2);
+  });
+
+  it('should navigate with ArrowRight in horizontal orientation', async () => {
+    const valueChange = jest.fn();
+    const { getByRole, detectChanges } = await render(
+      `
+      <div ngpRadioGroup (ngpRadioGroupValueChange)="valueChange($event)">
+        <div ngpRadioItem ngpRadioItemValue="1">One</div>
+        <div ngpRadioItem ngpRadioItemValue="2">Two</div>
+        <div ngpRadioItem ngpRadioItemValue="3">Three</div>
+      </div>
+    `,
+      {
+        imports: [NgpRadioGroup, NgpRadioItem],
+        componentProperties: { valueChange },
+      },
+    );
+
+    const radioOne = getByRole('radio', { name: 'One' });
+    radioOne.focus();
+    detectChanges();
+
+    fireEvent.keyDown(radioOne, { key: 'ArrowRight' });
+    detectChanges();
+
+    expect(valueChange).toHaveBeenCalledWith('2');
+  });
+
+  it('should navigate with ArrowLeft in horizontal orientation', async () => {
+    const valueChange = jest.fn();
+    const { getByRole, detectChanges } = await render(
+      `
+      <div ngpRadioGroup (ngpRadioGroupValueChange)="valueChange($event)">
+        <div ngpRadioItem ngpRadioItemValue="1">One</div>
+        <div ngpRadioItem ngpRadioItemValue="2">Two</div>
+        <div ngpRadioItem ngpRadioItemValue="3">Three</div>
+      </div>
+    `,
+      {
+        imports: [NgpRadioGroup, NgpRadioItem],
+        componentProperties: { valueChange },
+      },
+    );
+
+    // Select "Two" first by clicking it
+    const radioTwo = getByRole('radio', { name: 'Two' });
+    radioTwo.click();
+    detectChanges();
+    valueChange.mockClear();
+
+    // Now ArrowLeft should go to "One"
+    fireEvent.keyDown(radioTwo, { key: 'ArrowLeft' });
+    detectChanges();
+
+    expect(valueChange).toHaveBeenCalledWith('1');
+  });
+
+  it('should navigate with ArrowDown in vertical orientation', async () => {
+    const valueChange = jest.fn();
+    const { getByRole, detectChanges } = await render(
+      `
+      <div ngpRadioGroup ngpRadioGroupOrientation="vertical" (ngpRadioGroupValueChange)="valueChange($event)">
+        <div ngpRadioItem ngpRadioItemValue="1">One</div>
+        <div ngpRadioItem ngpRadioItemValue="2">Two</div>
+        <div ngpRadioItem ngpRadioItemValue="3">Three</div>
+      </div>
+    `,
+      {
+        imports: [NgpRadioGroup, NgpRadioItem],
+        componentProperties: { valueChange },
+      },
+    );
+
+    const radioOne = getByRole('radio', { name: 'One' });
+    radioOne.focus();
+    detectChanges();
+
+    fireEvent.keyDown(radioOne, { key: 'ArrowDown' });
+    detectChanges();
+
+    expect(valueChange).toHaveBeenCalledWith('2');
+  });
+
+  it('should set tabindex="0" on selected item and "-1" on others', async () => {
+    const { getByRole, detectChanges } = await render(
+      `
+      <div ngpRadioGroup [(ngpRadioGroupValue)]="value">
+        <div ngpRadioItem ngpRadioItemValue="1">One</div>
+        <div ngpRadioItem ngpRadioItemValue="2">Two</div>
+      </div>
+    `,
+      {
+        imports: [NgpRadioGroup, NgpRadioItem],
+        componentProperties: { value: '1' },
+      },
+    );
+    detectChanges();
+
+    const radioOne = getByRole('radio', { name: 'One' });
+    const radioTwo = getByRole('radio', { name: 'Two' });
+
+    expect(radioOne).toHaveAttribute('tabindex', '0');
+    expect(radioTwo).toHaveAttribute('tabindex', '-1');
+  });
+
+  it('should handle disabled individual radio items', async () => {
+    const valueChange = jest.fn();
+    const { getByRole } = await render(
+      `
+      <div ngpRadioGroup (ngpRadioGroupValueChange)="valueChange($event)">
+        <div ngpRadioItem ngpRadioItemValue="1">One</div>
+        <div ngpRadioItem ngpRadioItemValue="2" ngpRadioItemDisabled>Two</div>
+        <div ngpRadioItem ngpRadioItemValue="3">Three</div>
+      </div>
+    `,
+      {
+        imports: [NgpRadioGroup, NgpRadioItem],
+        componentProperties: { valueChange },
+      },
+    );
+
+    const radioTwo = getByRole('radio', { name: 'Two' });
+    expect(radioTwo).toHaveAttribute('data-disabled');
+
+    // Verify clicking disabled item doesn't emit valueChange
+    radioTwo.click();
+    expect(valueChange).not.toHaveBeenCalled();
+  });
+
+  it('should render radio-indicator with data-checked state', async () => {
+    const { getByTestId, detectChanges } = await render(
+      `
+      <div ngpRadioGroup [(ngpRadioGroupValue)]="value">
+        <div ngpRadioItem ngpRadioItemValue="1">
+          <span ngpRadioIndicator data-testid="indicator-1"></span>
+          One
+        </div>
+        <div ngpRadioItem ngpRadioItemValue="2">
+          <span ngpRadioIndicator data-testid="indicator-2"></span>
+          Two
+        </div>
+      </div>
+    `,
+      {
+        imports: [NgpRadioGroup, NgpRadioItem, NgpRadioIndicator],
+        componentProperties: { value: '1' },
+      },
+    );
+    detectChanges();
+
+    expect(getByTestId('indicator-1')).toHaveAttribute('data-checked');
+    expect(getByTestId('indicator-2')).not.toHaveAttribute('data-checked');
   });
 });

@@ -76,4 +76,76 @@ describe('NgpSearch', () => {
     expect(search).not.toHaveAttribute('data-empty');
     expect(clearButton).not.toHaveAttribute('data-empty');
   });
+
+  it('should have data-empty attribute when initially empty', async () => {
+    const { getByTestId } = await render(
+      `
+      <div data-testid="search" ngpSearch>
+        <input data-testid="input" ngpInput type="search" />
+      </div>
+    `,
+      {
+        imports: [NgpSearch, NgpInput],
+      },
+    );
+
+    const search = getByTestId('search');
+    expect(search).toHaveAttribute('data-empty', '');
+  });
+
+  it('should track value changes from input events', async () => {
+    const { getByTestId, detectChanges } = await render(
+      `
+      <div data-testid="search" ngpSearch>
+        <input data-testid="input" ngpInput type="search" />
+      </div>
+    `,
+      {
+        imports: [NgpSearch, NgpInput],
+      },
+    );
+
+    const input = getByTestId('input') as HTMLInputElement;
+    const search = getByTestId('search');
+
+    // Type a value
+    input.value = 'hello';
+    input.dispatchEvent(new Event('input', { bubbles: true }));
+    detectChanges();
+    expect(search).not.toHaveAttribute('data-empty');
+
+    // Clear it
+    input.value = '';
+    input.dispatchEvent(new Event('input', { bubbles: true }));
+    detectChanges();
+    expect(search).toHaveAttribute('data-empty', '');
+  });
+
+  it('should restore data-empty after clearing a non-empty input via escape', async () => {
+    const { getByTestId, detectChanges } = await render(
+      `
+      <div data-testid="search" ngpSearch>
+        <input data-testid="input" ngpInput type="search" />
+      </div>
+    `,
+      {
+        imports: [NgpSearch, NgpInput],
+      },
+    );
+
+    const input = getByTestId('input') as HTMLInputElement;
+    const search = getByTestId('search');
+
+    // Type a value
+    input.value = 'test';
+    input.dispatchEvent(new Event('input', { bubbles: true }));
+    detectChanges();
+    expect(search).not.toHaveAttribute('data-empty');
+
+    // Clear via escape (dispatch on input to simulate real user flow)
+    input.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
+    detectChanges();
+    expect(input.value).toBe('');
+    expect(search).toHaveAttribute('data-empty', '');
+  });
 });

@@ -47,9 +47,9 @@ ng g ng-primitives:primitive tooltip
 
 - `path`: The path at which to create the component file.
 - `prefix`: The prefix to apply to the generated component selector.
-- `componentSuffix`: The suffix to apply to the generated component class name.
-- `fileSuffix`: The suffix to apply to the generated component file name. Defaults to `component`.
-- `exampleStyles`: Whether to include example styles in the generated component file. Defaults to `true`.
+- `component-suffix`: The suffix to apply to the generated component class name.
+- `file-suffix`: The suffix to apply to the generated component file name. Defaults to `component`.
+- `example-styles`: Whether to include example styles in the generated component file. Defaults to `true`.
 
 ## Examples
 
@@ -116,10 +116,12 @@ The following directives are available to import from the `ng-primitives/tooltip
 
 The following CSS custom properties are applied to the `ngpTooltip` directive:
 
-| Property                         | Description                                         |
-| -------------------------------- | --------------------------------------------------- |
-| `--ngp-tooltip-transform-origin` | The transform origin of the tooltip for animations. |
-| `--ngp-tooltip-trigger-width`    | The width of the trigger element.                   |
+| Property                         | Description                                                           |
+| -------------------------------- | --------------------------------------------------------------------- |
+| `--ngp-tooltip-transform-origin` | The transform origin of the tooltip for animations.                   |
+| `--ngp-tooltip-trigger-width`    | The width of the trigger element.                                     |
+| `--ngp-tooltip-available-width`  | The available width of the tooltip before it overflows the viewport.  |
+| `--ngp-tooltip-available-height` | The available height of the tooltip before it overflows the viewport. |
 
 ### NgpTooltipTrigger
 
@@ -326,3 +328,12 @@ shift: {
 <prop-details name="cooldown" type="number" default="300">
   Define the cooldown duration in milliseconds. When moving from one tooltip to another within this duration, the showDelay is skipped for the new tooltip. This creates a smoother experience when hovering between multiple tooltips.
 </prop-details>
+
+## Accessibility
+
+The tooltip primitive follows the [WAI-ARIA Tooltip pattern](https://www.w3.org/WAI/ARIA/apg/patterns/tooltip/). The tooltip element is assigned `role="tooltip"` and the trigger element is linked to the tooltip via `aria-describedby`.
+
+### Keyboard Interactions
+
+- <kbd>Tab</kbd>: Focus the trigger element to show the tooltip.
+- <kbd>Esc</kbd>: Dismiss the tooltip.

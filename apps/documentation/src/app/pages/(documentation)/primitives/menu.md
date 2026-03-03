@@ -51,9 +51,9 @@ ng g ng-primitives:primitive menu
 
 - `path`: The path at which to create the component file.
 - `prefix`: The prefix to apply to the generated component selector.
-- `componentSuffix`: The suffix to apply to the generated component class name.
-- `fileSuffix`: The suffix to apply to the generated component file name. Defaults to `component`.
-- `exampleStyles`: Whether to include example styles in the generated component file. Defaults to `true`.
+- `component-suffix`: The suffix to apply to the generated component class name.
+- `file-suffix`: The suffix to apply to the generated component file name. Defaults to `component`.
+- `example-styles`: Whether to include example styles in the generated component file. Defaults to `true`.
 
 ## Examples
 
@@ -175,10 +175,12 @@ The following data attributes are available on the `NgpMenu` directive:
 
 The following CSS custom properties are applied to the `ngpMenu` directive:
 
-| Property                      | Description                                      |
-| ----------------------------- | ------------------------------------------------ |
-| `--ngp-menu-transform-origin` | The transform origin of the menu for animations. |
-| `--ngp-menu-trigger-width`    | The width of the trigger element.                |
+| Property                      | Description                                                        |
+| ----------------------------- | ------------------------------------------------------------------ |
+| `--ngp-menu-transform-origin` | The transform origin of the menu for animations.                   |
+| `--ngp-menu-trigger-width`    | The width of the trigger element.                                  |
+| `--ngp-menu-available-width`  | The available width of the menu before it overflows the viewport.  |
+| `--ngp-menu-available-height` | The available height of the menu before it overflows the viewport. |
 
 ### NgpMenuItem
 
