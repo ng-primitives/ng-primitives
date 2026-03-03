@@ -725,9 +725,5 @@ export function isomorphicRender<E, W, M>(
     }
   }
 
-  return {
-    destroy: () => {
-      // noop
-    },
-  };
+  return { destroy: () => void 0 };
 }
