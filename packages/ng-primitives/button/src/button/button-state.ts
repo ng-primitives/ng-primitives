@@ -98,9 +98,8 @@ export const [NgpButtonStateToken, ngpButton, injectButtonState, provideButtonSt
         element.nativeElement.type = type;
       }
 
-      // Block click events from triggering actions.
-      // Only block events originating from this element, not bubbled from children.
-      // This allows interactive children (like inputs inside a disabled fieldset) to work.
+      // Block all click events when disabled, including those bubbled from children.
+      // A disabled button is fully non-interactive.
       listener(element, 'click', event => {
         if (disabled()) {
           event.preventDefault();
@@ -128,6 +127,7 @@ export const [NgpButtonStateToken, ngpButton, injectButtonState, provideButtonSt
         const shouldClick =
           event.target === event.currentTarget &&
           !isNativeButtonTag(element) &&
+          !isNativeInputTag(element, { types: ['button', 'submit', 'reset', 'image'] }) &&
           !isNativeAnchorTag(element, { validLink: true }) &&
           !disabled();
 
@@ -159,6 +159,8 @@ export const [NgpButtonStateToken, ngpButton, injectButtonState, provideButtonSt
         if (
           event.target === event.currentTarget &&
           !isNativeButtonTag(element) &&
+          !isNativeInputTag(element, { types: ['button', 'submit', 'reset', 'image'] }) &&
+          !isNativeAnchorTag(element, { validLink: true }) &&
           event.key === ' '
         ) {
           element.nativeElement.click();

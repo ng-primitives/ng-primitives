@@ -1054,18 +1054,8 @@ describe('NgpButton', () => {
   });
 
   describe('hover interaction edge cases', () => {
-    it('should not trigger hover on touch events', async () => {
-      await render(`<button ngpButton>Click me</button>`, { imports: [NgpButton] });
-
-      const button = screen.getByRole('button');
-
-      // Simulate touch by firing touchstart first
-      fireEvent.touchStart(button);
-      fireEvent.mouseEnter(button);
-
-      // The hover should be ignored after touch
-      // Note: This is hard to test without the full GlobalPointerEvents behavior
-    });
+    // Requires full GlobalPointerEvents behavior to test touch→mouse suppression
+    it.todo('should not trigger hover on touch events');
 
     it('should handle mouseenter/mouseleave sequence', async () => {
       await render(`<button ngpButton>Click me</button>`, { imports: [NgpButton] });
