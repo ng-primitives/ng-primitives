@@ -38,7 +38,12 @@ import { CooldownOverlay, NgpOverlayCooldownManager } from './overlay-cooldown';
 import { provideOverlayContext } from './overlay-token';
 import { NgpPortal, createPortal } from './portal';
 import { NgpPosition } from './position';
-import { BlockScrollStrategy, NoopScrollStrategy } from './scroll-strategy';
+import {
+  BlockScrollStrategy,
+  CloseScrollStrategy,
+  NoopScrollStrategy,
+  ScrollStrategy,
+} from './scroll-strategy';
 import { NgpShift } from './shift';
 
 /**
@@ -155,7 +160,7 @@ export interface NgpOverlayConfig<T = unknown> {
   strategy?: Strategy;
 
   /** The scroll strategy to use for the overlay */
-  scrollBehaviour?: 'reposition' | 'block';
+  scrollBehaviour?: 'reposition' | 'block' | 'close';
   /** Whether to close the overlay when clicking outside */
   closeOnOutsideClick?: boolean;
   /** Whether to close the overlay when pressing escape */
@@ -700,12 +705,26 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
       this.cooldownManager.registerActive(this.config.overlayType, this, this.config.cooldown ?? 0);
     }
 
-    this.scrollStrategy =
-      this.config.scrollBehaviour === 'block'
-        ? new BlockScrollStrategy(this.viewportRuler, this.document)
-        : new NoopScrollStrategy();
-
+    this.scrollStrategy = this.createScrollStrategy();
     this.scrollStrategy.enable();
+  }
+
+  /**
+   * Create the appropriate scroll strategy based on the configuration.
+   */
+  private createScrollStrategy(): ScrollStrategy {
+    switch (this.config.scrollBehaviour) {
+      case 'block':
+        return new BlockScrollStrategy(this.viewportRuler, this.document);
+      case 'close':
+        return new CloseScrollStrategy(
+          this.config.triggerElement,
+          () => this.hide(),
+          () => this.getElements(),
+        );
+      default:
+        return new NoopScrollStrategy();
+    }
   }
 
   /**

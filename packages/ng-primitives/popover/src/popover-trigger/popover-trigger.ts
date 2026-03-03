@@ -171,7 +171,7 @@ export class NgpPopoverTrigger<T = null> implements OnDestroy {
    * Defines how the popover behaves when the window is scrolled.
    * @default 'reposition'
    */
-  readonly scrollBehavior = input<'reposition' | 'block'>(this.config.scrollBehavior, {
+  readonly scrollBehavior = input<'reposition' | 'block' | 'close'>(this.config.scrollBehavior, {
     alias: 'ngpPopoverTriggerScrollBehavior',
   });
 
