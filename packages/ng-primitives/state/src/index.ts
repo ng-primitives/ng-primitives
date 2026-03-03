@@ -403,6 +403,24 @@ function setAttribute(
   }
 }
 
+export function attrBindingEffect(
+  element: ElementRef<HTMLElement>,
+  attr: string,
+  value:
+    | (() => string | number | boolean | null | undefined)
+    | string
+    | number
+    | boolean
+    | null
+    | undefined,
+): void {
+  effect(() => {
+    const valueResult = typeof value === 'function' ? value() : value;
+
+    setAttribute(element, attr, valueResult?.toString() ?? null);
+  });
+}
+
 export function attrBinding(
   element: ElementRef<HTMLElement>,
   attr: string,
