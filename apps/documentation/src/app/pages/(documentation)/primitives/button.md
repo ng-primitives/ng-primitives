@@ -172,9 +172,11 @@ The following directives are available to import from the `ng-primitives/button`
 
 ## Accessibility
 
-The button primitive should be applied to native `<button>` elements to inherit built-in browser accessibility. When disabled, the `disabled` attribute is automatically set on the host element.
+Prefer native `<button>` elements for built-in browser accessibility. When applied to non-native elements, `NgpButton` adds `role="button"` and keyboard activation automatically.
+
+When disabled, native buttons receive the `disabled` attribute (removing them from the tab order). When `focusableWhenDisabled` is enabled, `aria-disabled="true"` is used instead to keep the element focusable. Non-native elements always use `aria-disabled`.
 
 ### Keyboard Interactions
 
 - <kbd>Enter</kbd>: Activate the button.
-- <kbd>Space</kbd>: Activate the button.
+- <kbd>Space</kbd>: Activate the button (on key release).

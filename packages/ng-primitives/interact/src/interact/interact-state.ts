@@ -1,4 +1,4 @@
-import { booleanAttribute, computed, numberAttribute, Signal } from '@angular/core';
+import { booleanAttribute, computed, Signal } from '@angular/core';
 import { injectElementRef } from 'ng-primitives/internal';
 import {
   attrBinding,
@@ -18,7 +18,7 @@ import { supportsDisabledAttribute } from 'ng-primitives/utils';
 /**
  * State interface for disabled behavior with read-only access and programmatic setters.
  */
-export interface NgpDisableState {
+export interface NgpInteractState {
   /** Whether the element is disabled. */
   readonly disabled: Signal<boolean>;
 
@@ -45,9 +45,9 @@ export interface NgpDisableState {
 }
 
 /**
- * Configuration props for the disable primitive.
+ * Configuration props for the interact primitive.
  */
-export interface NgpDisableProps {
+export interface NgpInteractProps {
   /**
    * Whether the element is disabled.
    * @default false
@@ -82,28 +82,24 @@ export interface NgpDisableProps {
   readonly ariaDisabled?: boolean | Signal<boolean>;
 }
 
-export const [NgpDisableStateToken, ngpDisable, injectDisableState, provideDisableState] =
+export const [NgpInteractStateToken, ngpInteract, injectInteractState, provideInteractState] =
   createPrimitive(
-    'NgpDisable',
+    'NgpInteract',
     ({
       disabled: _disabled,
       dataDisabled: _dataDisabled,
       focusableWhenDisabled: _focusableWhenDisabled,
       tabIndex: _tabIndex,
       ariaDisabled: _ariaDisabled,
-    }: NgpDisableProps): NgpDisableState => {
+    }: NgpInteractProps): NgpInteractState => {
       const element = injectElementRef();
       const hasNativeDisable = supportsDisabledAttribute(element);
 
       const disabled = controlled(_disabled ?? false);
       const dataDisabled = controlled(_dataDisabled ?? false);
       const focusableWhenDisabled = controlled(_focusableWhenDisabled ?? false);
-      const tabIndex = controlled(
-        _tabIndex ?? numberAttribute(element.nativeElement.getAttribute('tabindex'), 0),
-      );
-      const ariaDisabled = controlled(
-        _ariaDisabled ?? booleanAttribute(element.nativeElement.getAttribute('aria-disabled')),
-      );
+      const tabIndex = controlled(_tabIndex ?? 0);
+      const ariaDisabled = controlled(_ariaDisabled ?? false);
 
       // Always set data-disabled when disabled, regardless of element type
       dataBinding(element, 'data-disabled', () => disabled() || dataDisabled());
@@ -112,7 +108,8 @@ export const [NgpDisableStateToken, ngpDisable, injectDisableState, provideDisab
       dataBinding(element, 'data-disabled-focusable', () => disabled() && focusableWhenDisabled());
 
       // Only native form elements (<button>, <input>) support the disabled attribute.
-      // Non-native elements rely on aria-disabled and event blocking instead.
+      // Non-native elements rely on aria-disabled and keyboard blocking from this primitive,
+      // plus click/pointer blocking from the implementor.
       if (hasNativeDisable) {
         attrBinding(element, 'disabled', () =>
           disabled() && !focusableWhenDisabled() ? '' : null,
@@ -161,65 +158,13 @@ export const [NgpDisableStateToken, ngpDisable, injectDisableState, provideDisab
         },
       });
 
-      // Disabled elements must not trigger actions. While native disabled blocks events,
-      // we need explicit blocking for:
-      // - Non-native elements (aria-disabled doesn't block events)
-      // - Native elements with focusableWhenDisabled (no native disabled attribute)
-
-      // Block click events from triggering actions.
-      // Only block events originating from this element, not bubbled from children.
-      // This allows interactive children (like inputs inside a disabled fieldset) to work.
-      listener(element, 'click', event => {
-        if (disabled() && event.target === event.currentTarget) {
-          event.preventDefault();
-          event.stopImmediatePropagation();
-        }
-      });
-
-      // Block keyboard activation (Enter, Space, etc.) but ALWAYS allow Tab.
       // Allowing Tab prevents focus traps - users must always be able to navigate away.
       listener(element, 'keydown', event => {
         if (disabled()) {
           // Tab must always work to prevent trapping keyboard users
-          if (event.key === 'Tab') {
-            return;
-          }
-
-          // Only block events originating from this element, not bubbled from children.
-          // This allows interactive children (like inputs inside a disabled fieldset) to work.
-          if (event.target === event.currentTarget) {
+          if (event.key !== 'Tab') {
             event.preventDefault();
-            event.stopImmediatePropagation();
           }
-        }
-      });
-
-      // Block keyup events (for Space key activation pattern)
-      listener(element, 'keyup', event => {
-        if (disabled() && event.target === event.currentTarget) {
-          event.preventDefault();
-          event.stopImmediatePropagation();
-        }
-      });
-
-      // Block pointer events to prevent:
-      // - Text selection within the element
-      // - Drag operations
-      // - Focus changes from clicks
-      // Only block events originating from this element, not bubbled from children.
-      listener(element, 'pointerdown', event => {
-        if (disabled() && event.target === event.currentTarget) {
-          event.preventDefault();
-          event.stopImmediatePropagation();
-        }
-      });
-
-      // Block mousedown separately for browsers/environments where pointerdown
-      // may not fully prevent mouse-specific behaviors.
-      // Only block events originating from this element, not bubbled from children.
-      listener(element, 'mousedown', event => {
-        if (disabled() && event.target === event.currentTarget) {
-          event.preventDefault();
           event.stopImmediatePropagation();
         }
       });
@@ -235,6 +180,6 @@ export const [NgpDisableStateToken, ngpDisable, injectDisableState, provideDisab
         setFocusableWhenDisabled: value => focusableWhenDisabled.set(value),
         setTabIndex: value => tabIndex.set(value),
         setAriaDisabled: value => ariaDisabled.set(value),
-      } satisfies NgpDisableState;
+      } satisfies NgpInteractState;
     },
   );

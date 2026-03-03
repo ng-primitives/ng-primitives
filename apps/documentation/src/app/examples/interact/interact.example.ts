@@ -1,16 +1,17 @@
 import { Component, signal } from '@angular/core';
-import { NgpDisable } from 'ng-primitives/disable';
+import { NgpInteract } from 'ng-primitives/interact';
 
 @Component({
-  selector: 'app-disable-example',
-  imports: [NgpDisable],
+  selector: 'app-interact-example',
+  imports: [NgpInteract],
   template: `
     <button
+      #interact="ngpInteract"
       [disabled]="disabled()"
       [focusableWhenDisabled]="focusable()"
-      (click)="clicks.set(clicks() + 1)"
+      (click)="!interact.disabled() && clicks.set(clicks() + 1)"
       type="button"
-      ngpDisable
+      ngpInteract
     >
       {{ disabled() ? (focusable() ? 'Disabled Focusable' : 'Disabled') : 'Fully Interactive' }}
     </button>
@@ -58,7 +59,7 @@ import { NgpDisable } from 'ng-primitives/disable';
       outline-offset: 2px;
     }
 
-    [ngpDisable] {
+    [ngpInteract] {
       padding-left: 1rem;
       padding-right: 1rem;
       border-radius: 0.5rem;
@@ -76,25 +77,25 @@ import { NgpDisable } from 'ng-primitives/disable';
       cursor: pointer;
     }
 
-    [ngpDisable]:focus-visible {
+    [ngpInteract]:focus-visible {
       outline: 2px solid var(--ngp-focus-ring);
     }
 
-    [ngpDisable]:hover:not([data-disabled]) {
+    [ngpInteract]:hover:not([data-disabled]) {
       background-color: var(--ngp-background-hover);
     }
 
-    [ngpDisable]:active:not([data-disabled]) {
+    [ngpInteract]:active:not([data-disabled]) {
       background-color: var(--ngp-background-active);
     }
 
-    [ngpDisable][data-disabled] {
+    [ngpInteract][data-disabled] {
       opacity: 0.5;
       cursor: not-allowed;
     }
   `,
 })
-export default class DisableExample {
+export default class InteractExample {
   readonly disabled = signal(false);
   readonly focusable = signal(true);
   readonly clicks = signal(0);

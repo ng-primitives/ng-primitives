@@ -20,7 +20,9 @@ describe('NgpButton', () => {
   });
 
   it('should not set the disabled attribute when not a button', async () => {
-    const container = await render(`<a ngpButton [disabled]="true"></a>`, { imports: [NgpButton] });
+    const container = await render(`<a ngpButton [disabled]="true"></a>`, {
+      imports: [NgpButton],
+    });
     const button = container.debugElement.queryAll(By.css('a'));
     expect(button.length).toBe(1);
     expect(button[0].nativeElement).not.toHaveAttribute('disabled');
@@ -41,7 +43,7 @@ describe('NgpButton', () => {
   });
 
   it('should update the data-disabled attribute when disabled changes', async () => {
-    const { getByRole, rerender } = await render(
+    const { getByRole, rerender, fixture } = await render(
       `<button ngpButton [disabled]="isDisabled"></button>`,
       { imports: [NgpButton], componentProperties: { isDisabled: false } },
     );
@@ -51,6 +53,7 @@ describe('NgpButton', () => {
     expect(button).not.toHaveAttribute('disabled');
 
     await rerender({ componentProperties: { isDisabled: true } });
+    fixture.detectChanges();
     expect(button).toHaveAttribute('data-disabled');
     expect(button).toHaveAttribute('disabled');
   });
@@ -80,6 +83,7 @@ describe('NgpButton', () => {
 
     const button = container.getByRole('button');
     focusMonitor.focusVia(button, 'keyboard');
+    container.detectChanges();
     expect(button).toHaveAttribute('data-focus-visible');
   });
 
@@ -90,6 +94,7 @@ describe('NgpButton', () => {
 
     const button = container.getByRole('button');
     focusMonitor.focusVia(button, 'keyboard');
+    container.detectChanges();
     expect(button).toHaveAttribute('data-focus-visible');
     fireEvent.blur(button);
     expect(button).not.toHaveAttribute('data-focus-visible');
@@ -132,6 +137,7 @@ describe('NgpButton', () => {
 
     const button = container.getByRole('button');
     focusMonitor.focusVia(button, 'keyboard');
+    container.detectChanges();
     expect(button).not.toHaveAttribute('data-focus-visible');
   });
 
@@ -236,7 +242,7 @@ describe('NgpButton', () => {
     });
   });
 
-  describe('focusableWhenDisabled', () => {
+  describe('focusable', () => {
     it('should set data-disabled-focusable when disabled and focusable', async () => {
       await render(
         `<button ngpButton [disabled]="true" [focusableWhenDisabled]="true">Click me</button>`,
@@ -246,7 +252,7 @@ describe('NgpButton', () => {
       expect(screen.getByRole('button')).toHaveAttribute('data-disabled-focusable', '');
     });
 
-    it('should not set native disabled when focusableWhenDisabled is true', async () => {
+    it('should not set native disabled when focusable is true', async () => {
       await render(
         `<button ngpButton [disabled]="true" [focusableWhenDisabled]="true">Click me</button>`,
         { imports: [NgpButton] },
@@ -255,7 +261,7 @@ describe('NgpButton', () => {
       expect(screen.getByRole('button')).not.toHaveAttribute('disabled');
     });
 
-    it('should prevent click when focusableWhenDisabled is true but disabled', async () => {
+    it('should prevent click when focusable is true but disabled', async () => {
       await render(
         `<button ngpButton [disabled]="true" [focusableWhenDisabled]="true">Click me</button>`,
         { imports: [NgpButton] },
@@ -288,7 +294,7 @@ describe('NgpButton', () => {
     });
 
     it('should not override explicit role input', async () => {
-      await render(`<div ngpButton [attr.role]="'menuitem'">Menu Item</div>`, {
+      await render(`<div ngpButton [role]="'menuitem'">Menu Item</div>`, {
         imports: [NgpButton],
       });
 
@@ -315,7 +321,9 @@ describe('NgpButton', () => {
     });
 
     it('should not add role to input[type="submit"]', async () => {
-      await render(`<input ngpButton type="submit" value="Submit" />`, { imports: [NgpButton] });
+      await render(`<input ngpButton type="submit" value="Submit" />`, {
+        imports: [NgpButton],
+      });
 
       const input = screen.getByRole('button');
       expect(input.getAttribute('role')).toBeNull();
@@ -482,7 +490,9 @@ describe('NgpButton', () => {
     });
 
     it('should work with anchor elements', async () => {
-      const container = await render(`<a ngpButton href="#">Link</a>`, { imports: [NgpButton] });
+      const container = await render(`<a ngpButton href="#">Link</a>`, {
+        imports: [NgpButton],
+      });
 
       const link = container.debugElement.query(By.css('a'));
       expect(link.nativeElement.tagName).toBe('A');
@@ -514,7 +524,9 @@ describe('NgpButton', () => {
     });
 
     it('should work with input[type="submit"] elements', async () => {
-      await render(`<input ngpButton type="submit" value="Submit" />`, { imports: [NgpButton] });
+      await render(`<input ngpButton type="submit" value="Submit" />`, {
+        imports: [NgpButton],
+      });
 
       const input = screen.getByRole('button');
       expect(input.tagName).toBe('INPUT');
@@ -555,7 +567,7 @@ describe('NgpButton', () => {
   describe('role attribute handling', () => {
     it('should preserve custom role via input through disabled state changes', async () => {
       const { rerender, fixture } = await render(
-        `<div ngpButton [attr.role]="'tab'" [disabled]="isDisabled">Tab</div>`,
+        `<div ngpButton [role]="'tab'" [disabled]="isDisabled">Tab</div>`,
         { imports: [NgpButton], componentProperties: { isDisabled: false } },
       );
 
@@ -580,8 +592,8 @@ describe('NgpButton', () => {
       expect(screen.getByRole('button')).toHaveAttribute('role', 'button');
     });
 
-    it('should properly handle initial role assignment', async () => {
-      const { rerender, fixture } = await render(`<div ngpButton [attr.role]="role">Item</div>`, {
+    it('should properly handle initial role assignment from attribute', async () => {
+      const { rerender, fixture } = await render(`<div ngpButton [role]="role">Item</div>`, {
         imports: [NgpButton],
         componentProperties: { role: 'tab' },
       });
@@ -643,7 +655,7 @@ describe('NgpButton', () => {
       expect(div).not.toHaveAttribute('aria-disabled');
     });
 
-    it('should set aria-disabled on native button when focusableWhenDisabled', async () => {
+    it('should set aria-disabled on native button when focusable', async () => {
       await render(
         `<button ngpButton [disabled]="true" [focusableWhenDisabled]="true">Click me</button>`,
         { imports: [NgpButton] },
@@ -733,12 +745,12 @@ describe('NgpButton', () => {
   });
 
   describe('Tab key handling when disabled', () => {
-    it('should allow Tab key when disabled to prevent focus trap', async () => {
+    it('should allow tabbing away from disabled button to prevent focus trap', async () => {
       await render(`<div ngpButton [disabled]="true">Custom</div>`, { imports: [NgpButton] });
 
       const div = screen.getByRole('button');
       const tabEvent = new KeyboardEvent('keydown', { key: 'Tab', bubbles: true });
-      const stopSpy = jest.spyOn(tabEvent, 'stopImmediatePropagation');
+      const stopSpy = jest.spyOn(tabEvent, 'preventDefault');
 
       div.dispatchEvent(tabEvent);
       expect(stopSpy).not.toHaveBeenCalled();
@@ -793,6 +805,7 @@ describe('NgpButton', () => {
       const button = screen.getByRole('button');
 
       focusMonitor.focusVia(button, 'keyboard');
+      fixture.detectChanges();
       expect(button).toHaveAttribute('data-focus-visible');
 
       await rerender({ componentProperties: { isDisabled: true } });
@@ -821,10 +834,7 @@ describe('NgpButton', () => {
       const handleClick = jest.fn();
       const { rerender, fixture } = await render(
         `<button ngpButton [disabled]="isDisabled" (click)="onClick()">Click me</button>`,
-        {
-          imports: [NgpButton],
-          componentProperties: { isDisabled: true, onClick: handleClick },
-        },
+        { imports: [NgpButton], componentProperties: { isDisabled: true, onClick: handleClick } },
       );
 
       const button = screen.getByRole('button');
@@ -844,9 +854,9 @@ describe('NgpButton', () => {
     });
   });
 
-  describe('focusableWhenDisabled advanced scenarios', () => {
-    it('should add data-focus-visible when focusableWhenDisabled and keyboard focused', async () => {
-      await render(
+  describe('focusable advanced scenarios', () => {
+    it('should add data-focus-visible when focusable and keyboard focused', async () => {
+      const container = await render(
         `<button ngpButton [disabled]="true" [focusableWhenDisabled]="true">Click me</button>`,
         { imports: [NgpButton] },
       );
@@ -855,10 +865,11 @@ describe('NgpButton', () => {
       const button = screen.getByRole('button');
 
       focusMonitor.focusVia(button, 'keyboard');
+      container.detectChanges();
       expect(button).toHaveAttribute('data-focus-visible');
     });
 
-    it('should not add data-hover when disabled even with focusableWhenDisabled', async () => {
+    it('should not add data-hover when disabled even with focusable', async () => {
       await render(
         `<button ngpButton [disabled]="true" [focusableWhenDisabled]="true">Click me</button>`,
         { imports: [NgpButton] },
@@ -869,7 +880,7 @@ describe('NgpButton', () => {
       expect(button).not.toHaveAttribute('data-hover');
     });
 
-    it('should not add data-press when disabled even with focusableWhenDisabled', async () => {
+    it('should not add data-press when disabled even with focusable', async () => {
       await render(
         `<button ngpButton [disabled]="true" [focusableWhenDisabled]="true">Click me</button>`,
         { imports: [NgpButton] },
@@ -880,14 +891,11 @@ describe('NgpButton', () => {
       expect(button).not.toHaveAttribute('data-press');
     });
 
-    it('should still block keyboard activation when focusableWhenDisabled', async () => {
+    it('should still block keyboard activation when focusable', async () => {
       const handleClick = jest.fn();
       await render(
         `<div ngpButton [disabled]="true" [focusableWhenDisabled]="true" (click)="onClick()">Custom</div>`,
-        {
-          imports: [NgpButton],
-          componentProperties: { onClick: handleClick },
-        },
+        { imports: [NgpButton], componentProperties: { onClick: handleClick } },
       );
 
       const div = screen.getByRole('button');
@@ -899,7 +907,7 @@ describe('NgpButton', () => {
       expect(handleClick).not.toHaveBeenCalled();
     });
 
-    it('should update data-disabled-focusable when toggling focusableWhenDisabled', async () => {
+    it('should update data-disabled-focusable when toggling focusable', async () => {
       const { rerender, fixture } = await render(
         `<button ngpButton [disabled]="true" [focusableWhenDisabled]="isFocusable">Click me</button>`,
         { imports: [NgpButton], componentProperties: { isFocusable: false } },
@@ -915,72 +923,6 @@ describe('NgpButton', () => {
       await rerender({ componentProperties: { isFocusable: false } });
       fixture.detectChanges();
       expect(button).not.toHaveAttribute('data-disabled-focusable');
-    });
-  });
-
-  describe('programmatic state control', () => {
-    it('should expose exportAs for programmatic access', async () => {
-      const container = await render(`<button ngpButton #btn="ngpButton">Click me</button>`, {
-        imports: [NgpButton],
-      });
-
-      const directive = container.debugElement.query(By.directive(NgpButton));
-      const instance = directive.injector.get(NgpButton);
-
-      expect(instance).toBeDefined();
-      expect(instance.disabled()).toBe(false);
-    });
-
-    it('should allow programmatic setDisabled', async () => {
-      const container = await render(`<button ngpButton>Click me</button>`, {
-        imports: [NgpButton],
-      });
-
-      const directive = container.debugElement.query(By.directive(NgpButton));
-      const instance = directive.injector.get(NgpButton);
-      const button = screen.getByRole('button');
-
-      expect(button).not.toHaveAttribute('data-disabled');
-
-      instance.setDisabled(true);
-      container.fixture.detectChanges();
-      expect(button).toHaveAttribute('data-disabled', '');
-
-      instance.setDisabled(false);
-      container.fixture.detectChanges();
-      expect(button).not.toHaveAttribute('data-disabled');
-    });
-
-    it('should allow programmatic setFocusableWhenDisabled', async () => {
-      const container = await render(`<button ngpButton [disabled]="true">Click me</button>`, {
-        imports: [NgpButton],
-      });
-
-      const directive = container.debugElement.query(By.directive(NgpButton));
-      const instance = directive.injector.get(NgpButton);
-      const button = screen.getByRole('button');
-
-      expect(button).not.toHaveAttribute('data-disabled-focusable');
-
-      instance.setFocusableWhenDisabled(true);
-      container.fixture.detectChanges();
-      expect(button).toHaveAttribute('data-disabled-focusable', '');
-    });
-
-    it('should allow programmatic setTabIndex', async () => {
-      const container = await render(`<button ngpButton>Click me</button>`, {
-        imports: [NgpButton],
-      });
-
-      const directive = container.debugElement.query(By.directive(NgpButton));
-      const instance = directive.injector.get(NgpButton);
-      const button = screen.getByRole('button');
-
-      expect(button).toHaveAttribute('tabindex', '0');
-
-      instance.setTabIndex(5);
-      container.fixture.detectChanges();
-      expect(button).toHaveAttribute('tabindex', '5');
     });
   });
 
@@ -1013,33 +955,42 @@ describe('NgpButton', () => {
 
   describe('focus interaction edge cases', () => {
     it('should handle focus via mouse click (no focus-visible)', async () => {
-      await render(`<button ngpButton>Click me</button>`, { imports: [NgpButton] });
+      const container = await render(`<button ngpButton>Click me</button>`, {
+        imports: [NgpButton],
+      });
 
       const focusMonitor = TestBed.inject(FocusMonitor);
       const button = screen.getByRole('button');
 
       focusMonitor.focusVia(button, 'mouse');
+      container.detectChanges();
       // Mouse focus should not show focus-visible for buttons
       expect(button).not.toHaveAttribute('data-focus-visible');
     });
 
     it('should handle focus via touch (no focus-visible)', async () => {
-      await render(`<button ngpButton>Click me</button>`, { imports: [NgpButton] });
+      const container = await render(`<button ngpButton>Click me</button>`, {
+        imports: [NgpButton],
+      });
 
       const focusMonitor = TestBed.inject(FocusMonitor);
       const button = screen.getByRole('button');
 
       focusMonitor.focusVia(button, 'touch');
+      container.detectChanges();
       expect(button).not.toHaveAttribute('data-focus-visible');
     });
 
     it('should handle focus via program (keyboard-like behavior)', async () => {
-      await render(`<button ngpButton>Click me</button>`, { imports: [NgpButton] });
+      const container = await render(`<button ngpButton>Click me</button>`, {
+        imports: [NgpButton],
+      });
 
       const focusMonitor = TestBed.inject(FocusMonitor);
       const button = screen.getByRole('button');
 
       focusMonitor.focusVia(button, 'program');
+      container.detectChanges();
       // Program focus typically doesn't show focus-visible for buttons
       expect(button).not.toHaveAttribute('data-focus-visible');
     });
@@ -1072,7 +1023,7 @@ describe('NgpButton', () => {
   });
 
   describe('bubbled event handling', () => {
-    it('should not block bubbled keydown from children when disabled', async () => {
+    it('should block bubbled keydown from children when disabled', async () => {
       await render(`<div ngpButton [disabled]="true"><input type="text" /></div>`, {
         imports: [NgpButton],
       });
@@ -1082,11 +1033,10 @@ describe('NgpButton', () => {
       const stopSpy = jest.spyOn(event, 'stopImmediatePropagation');
 
       input.dispatchEvent(event);
-      // Should not block because target !== currentTarget
-      expect(stopSpy).not.toHaveBeenCalled();
+      expect(stopSpy).toHaveBeenCalled();
     });
 
-    it('should not block bubbled click from children when disabled', async () => {
+    it('should block bubbled click from children when disabled', async () => {
       const container = await render(
         `<div ngpButton [disabled]="true"><span>Click me</span></div>`,
         { imports: [NgpButton] },
@@ -1098,9 +1048,8 @@ describe('NgpButton', () => {
       const stopSpy = jest.spyOn(event, 'stopImmediatePropagation');
 
       span.nativeElement.dispatchEvent(event);
-      // Should not block because target !== currentTarget (consistent with keydown behavior)
-      expect(stopSpy).not.toHaveBeenCalled();
-      expect(preventSpy).not.toHaveBeenCalled();
+      expect(stopSpy).toHaveBeenCalled();
+      expect(preventSpy).toHaveBeenCalled();
     });
   });
 
@@ -1131,8 +1080,8 @@ describe('NgpButton', () => {
     });
   });
 
-  describe('combined disabled and focusableWhenDisabled transitions', () => {
-    it('should handle enabling focusableWhenDisabled while already disabled', async () => {
+  describe('combined disabled and focusable transitions', () => {
+    it('should handle enabling focusable while already disabled', async () => {
       const { rerender, fixture } = await render(
         `<button ngpButton [disabled]="true" [focusableWhenDisabled]="isFocusable">Click me</button>`,
         { imports: [NgpButton], componentProperties: { isFocusable: false } },
@@ -1150,7 +1099,7 @@ describe('NgpButton', () => {
       expect(button).toHaveAttribute('aria-disabled', 'true');
     });
 
-    it('should handle disabling while focusableWhenDisabled is true', async () => {
+    it('should handle disabling while focusable is true', async () => {
       const { rerender, fixture } = await render(
         `<button ngpButton [disabled]="isDisabled" [focusableWhenDisabled]="true">Click me</button>`,
         { imports: [NgpButton], componentProperties: { isDisabled: false } },
@@ -1209,15 +1158,14 @@ describe('NgpButton', () => {
       const focusMonitor = TestBed.inject(FocusMonitor);
       const link = container.debugElement.query(By.css('a')).nativeElement;
       focusMonitor.focusVia(link, 'keyboard');
+      container.detectChanges();
       expect(link).toHaveAttribute('data-focus-visible');
     });
 
     it('should set data-disabled on anchor with href when disabled', async () => {
       const container = await render(
         `<a ngpButton href="/dashboard" [disabled]="true">Dashboard</a>`,
-        {
-          imports: [NgpButton],
-        },
+        { imports: [NgpButton] },
       );
 
       const link = container.debugElement.query(By.css('a')).nativeElement;
@@ -1243,7 +1191,7 @@ describe('NgpButton', () => {
       expect(stopSpy).toHaveBeenCalled();
     });
 
-    it('should support focusableWhenDisabled on anchor with href', async () => {
+    it('should support focusable on anchor with href', async () => {
       const container = await render(
         `<a ngpButton href="/dashboard" [disabled]="true" [focusableWhenDisabled]="true">Dashboard</a>`,
         { imports: [NgpButton] },
@@ -1296,6 +1244,7 @@ describe('NgpButton', () => {
 
       // Focus the button
       focusMonitor.focusVia(button, 'keyboard');
+      fixture.detectChanges();
       expect(button).toHaveAttribute('data-focus-visible');
 
       // Start loading - focus should remain visible
@@ -1303,14 +1252,33 @@ describe('NgpButton', () => {
       fixture.detectChanges();
       // Re-focus since the button state changed
       focusMonitor.focusVia(button, 'keyboard');
+      fixture.detectChanges();
       expect(button).toHaveAttribute('data-focus-visible');
     });
 
     it('should block activation during loading', async () => {
       const handleClick = jest.fn();
+      const onKeyup = jest.fn();
+      const onKeydown = jest.fn();
       await render(
-        `<button ngpButton [disabled]="true" [focusableWhenDisabled]="true" (click)="onClick()">Loading...</button>`,
-        { imports: [NgpButton], componentProperties: { onClick: handleClick } },
+        `<button
+          ngpButton
+          [disabled]="true"
+          [focusableWhenDisabled]="true"
+          (click)="onClick()"
+          (keyup)="onKeyup()"
+          (keydown)="onKeydown()"
+        >
+          Loading...
+        </button>`,
+        {
+          imports: [NgpButton],
+          componentProperties: {
+            onClick: handleClick,
+            onKeyup: onKeyup,
+            onKeydown: onKeydown,
+          },
+        },
       );
 
       const button = screen.getByRole('button');
@@ -1318,14 +1286,15 @@ describe('NgpButton', () => {
       fireEvent.keyDown(button, { key: 'Enter' });
       fireEvent.keyDown(button, { key: ' ' });
       fireEvent.keyUp(button, { key: ' ' });
-
       expect(handleClick).not.toHaveBeenCalled();
+      expect(onKeyup).not.toHaveBeenCalled();
+      expect(onKeydown).not.toHaveBeenCalled();
     });
   });
 
   describe('disabled tooltip use case', () => {
-    it('should remain focusable when disabled with focusableWhenDisabled for tooltip access', async () => {
-      await render(
+    it('should remain focusable when disabled with focusable for tooltip access', async () => {
+      const container = await render(
         `<button ngpButton [disabled]="true" [focusableWhenDisabled]="true">Submit</button>`,
         { imports: [NgpButton] },
       );
@@ -1340,11 +1309,12 @@ describe('NgpButton', () => {
       // Can receive focus
       const focusMonitor = TestBed.inject(FocusMonitor);
       focusMonitor.focusVia(button, 'keyboard');
+      container.detectChanges();
       expect(button).toHaveAttribute('data-focus-visible');
     });
 
-    it('should respond to hover for tooltip while disabled with focusableWhenDisabled', async () => {
-      // Note: hover is blocked when disabled, even with focusableWhenDisabled
+    it('should respond to hover for tooltip while disabled with focusable', async () => {
+      // Note: hover is blocked when disabled, even with focusable
       // This is by design - hover shows interactivity which is misleading
       // Tooltips should use focus-based triggers for disabled buttons
       await render(

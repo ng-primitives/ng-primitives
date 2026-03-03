@@ -1,20 +1,20 @@
 import { BooleanInput, NumberInput } from '@angular/cdk/coercion';
 import { booleanAttribute, Directive, input, numberAttribute } from '@angular/core';
-import { injectElementRef } from 'ng-primitives/internal';
-import { ngpDisable, provideDisableState } from './disable-state';
+import { ngpInteract, provideInteractState } from './interact-state';
 
 /**
- * Adds disabled behavior to any element with optional focusable-when-disabled support.
+ * Manages accessible disabled state for any element: ARIA attributes, focusability,
+ * and keyboard blocking. Click and pointer blocking is left to the implementor.
  *
  * @usageNotes
  * ### Basic usage
  * ```html
- * <button ngpDisable [disabled]="isLoading">Submit</button>
+ * <button ngpInteract [disabled]="isLoading">Submit</button>
  * ```
  *
  * ### Focusable when disabled (for loading states)
  * ```html
- * <button ngpDisable [disabled]="true" [focusableWhenDisabled]="true">
+ * <button ngpInteract [disabled]="true" [focusableWhenDisabled]="true">
  *   Loading...
  * </button>
  * ```
@@ -26,14 +26,15 @@ import { ngpDisable, provideDisableState } from './disable-state';
  * ```
  */
 @Directive({
-  selector: '[ngpDisable]',
-  exportAs: 'ngpDisable',
-  providers: [provideDisableState({ inherit: false })],
+  selector: '[ngpInteract]',
+  exportAs: 'ngpInteract',
+  providers: [provideInteractState({ inherit: false })],
 })
-export class NgpDisable {
+export class NgpInteract {
   /**
    * Whether the element is disabled. Applies native `disabled` on buttons/inputs,
-   * `aria-disabled` on other elements, and blocks click/keyboard events.
+   * `aria-disabled` on other elements, and blocks keyboard events (except Tab).
+   * Click and pointer blocking is the implementor's responsibility.
    * @default false
    */
   readonly disabled = input<boolean, BooleanInput>(false, {
@@ -49,18 +50,16 @@ export class NgpDisable {
     transform: booleanAttribute,
   });
 
-  private readonly initTabIndex = injectElementRef().nativeElement.tabIndex;
-
   /**
    * Tab index of the element.
    * Adjusted automatically when disabled based on `focusableWhenDisabled` setting.
    * @default 0
    */
-  readonly tabIndex = input<number, NumberInput>(this.initTabIndex, {
-    transform: value => numberAttribute(value, this.initTabIndex),
+  readonly tabIndex = input<number, NumberInput>(0, {
+    transform: value => numberAttribute(value, 0),
   });
 
-  protected readonly state = ngpDisable({
+  protected readonly state = ngpInteract({
     disabled: this.disabled,
     focusableWhenDisabled: this.focusableWhenDisabled,
     tabIndex: this.tabIndex,

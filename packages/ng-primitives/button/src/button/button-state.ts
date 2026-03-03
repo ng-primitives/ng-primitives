@@ -11,7 +11,7 @@
  * @see {@link https://www.w3.org/WAI/ARIA/apg/patterns/button/ WAI-ARIA Button Pattern}
  */
 import { computed } from '@angular/core';
-import { ngpDisable, NgpDisableProps, NgpDisableState } from 'ng-primitives/disable';
+import { ngpInteract, NgpInteractProps, NgpInteractState } from 'ng-primitives/interact';
 import { ngpInteractions } from 'ng-primitives/interactions';
 import { injectElementRef } from 'ng-primitives/internal';
 import { createPrimitive, isomorphicRender, listener } from 'ng-primitives/state';
@@ -25,12 +25,12 @@ import {
 /**
  * Represents the current state of a button primitive.
  */
-export interface NgpButtonState extends NgpDisableState {}
+export interface NgpButtonState extends NgpInteractState {}
 
 /**
  * Configuration options for creating a button primitive.
  */
-export interface NgpButtonProps extends NgpDisableProps {
+export interface NgpButtonProps extends NgpInteractProps {
   /** Initial role attribute value. Automatically assigned if not provided. */
   readonly role?: string;
 
@@ -44,9 +44,9 @@ export const [NgpButtonStateToken, ngpButton, injectButtonState, provideButtonSt
     ({ role, type, ...disableProps }: NgpButtonProps): NgpButtonState => {
       const element = injectElementRef();
 
-      // Delegate disabled state management to the a11y module.
-      // This handles: disabled/aria-disabled attributes, tabindex adjustment, and event blocking.
-      const disableState = ngpDisable(disableProps);
+      // Delegate disabled state management to the interact primitive.
+      // This handles: disabled/aria-disabled attributes, tabindex adjustment, and keyboard blocking.
+      const disableState = ngpInteract(disableProps);
       const { disabled, focusableWhenDisabled } = disableState;
 
       // Setup interaction states via data attributes (data-hover, data-press, data-focus-visible).
@@ -98,46 +98,78 @@ export const [NgpButtonStateToken, ngpButton, injectButtonState, provideButtonSt
         element.nativeElement.type = type;
       }
 
+      // Block click events from triggering actions.
+      // Only block events originating from this element, not bubbled from children.
+      // This allows interactive children (like inputs inside a disabled fieldset) to work.
+      listener(element, 'click', event => {
+        if (disabled()) {
+          event.preventDefault();
+          event.stopImmediatePropagation();
+        }
+      });
+
+      // Block mousedown separately for browsers/environments where pointerdown
+      // may not fully prevent mouse-specific behaviors.
+      listener(element, 'mousedown', event => {
+        if (disabled()) {
+          event.preventDefault();
+          event.stopImmediatePropagation();
+        }
+      });
+
       // Keyboard activation per WAI-ARIA Button Pattern:
       // - Enter: Activates immediately on keydown
       // - Space: Activates on keyup (allows cancellation by moving focus before releasing)
-      //
       // Native buttons handle this automatically; we only add it for non-native elements.
       // Anchors with href are excluded as browsers handle their keyboard behavior.
       listener(element, 'keydown', event => {
-        const isNonNativeButton =
+        // Note: stop immediate propagation handled by the interact primitive.
+
+        const shouldClick =
           event.target === event.currentTarget &&
           !isNativeButtonTag(element) &&
           !isNativeAnchorTag(element, { validLink: true }) &&
           !disabled();
 
-        if (!isNonNativeButton) return;
-
         const isSpaceKey = event.key === ' ';
         const isEnterKey = event.key === 'Enter';
 
-        // Prevent Space from scrolling the page, Enter from submitting forms
-        if (isSpaceKey || isEnterKey) {
-          event.preventDefault();
-        }
+        if (shouldClick) {
+          // Prevent default to stop Space from scrolling the page
+          if (isSpaceKey || isEnterKey) {
+            event.preventDefault();
+          }
 
-        // Enter fires immediately (consistent with native button behavior)
-        if (isEnterKey) {
-          element.nativeElement.click();
+          // Native button behavior: Enter fires immediately, Space waits for keyup
+          // (allowing users to cancel by moving focus before releasing)
+          if (isEnterKey) {
+            element.nativeElement.click();
+          }
         }
       });
 
       // Space key activates on keyup to match native button behavior
       listener(element, 'keyup', event => {
-        const isSpaceOnNonNativeButton =
+        if (disabled()) {
+          event.preventDefault();
+          event.stopImmediatePropagation();
+          return;
+        }
+
+        if (
           event.target === event.currentTarget &&
           !isNativeButtonTag(element) &&
-          !isNativeAnchorTag(element, { validLink: true }) &&
-          !disabled() &&
-          event.key === ' ';
-
-        if (isSpaceOnNonNativeButton) {
+          event.key === ' '
+        ) {
           element.nativeElement.click();
+        }
+      });
+
+      // Block pointerdown to prevent text selection and drag operations
+      listener(element, 'pointerdown', event => {
+        if (disabled()) {
+          event.preventDefault();
+          event.stopImmediatePropagation();
         }
       });
 
