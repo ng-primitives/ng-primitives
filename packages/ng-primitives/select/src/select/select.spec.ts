@@ -615,6 +615,8 @@ describe('NgpSelect', () => {
       const dropdown = screen.getByTestId('dropdown');
       const dropdownId = dropdown.getAttribute('id');
 
+      expect(dropdownId).toBeTruthy();
+
       await waitFor(() => {
         expect(select).toHaveAttribute('aria-controls', dropdownId);
       });
@@ -629,6 +631,7 @@ describe('NgpSelect', () => {
 
       const appleOption = screen.getByTestId('option-Apple');
       const optionId = appleOption.getAttribute('id');
+      expect(optionId).toBeTruthy();
 
       await waitFor(() => {
         expect(select).toHaveAttribute('aria-activedescendant', optionId);

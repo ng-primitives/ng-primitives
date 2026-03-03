@@ -1,14 +1,6 @@
-import {
-  Directive,
-  inject,
-  Injector,
-  OnDestroy,
-  signal,
-  TemplateRef,
-  ViewContainerRef,
-} from '@angular/core';
-import { createOverlay, NgpOverlay, NgpOverlayConfig } from 'ng-primitives/portal';
+import { computed, Directive, OnDestroy } from '@angular/core';
 import { injectSelectState } from '../select/select-state';
+import { ngpSelectPortal } from './select-portal-state';
 
 @Directive({
   selector: '[ngpSelectPortal]',
@@ -16,44 +8,40 @@ import { injectSelectState } from '../select/select-state';
 })
 export class NgpSelectPortal implements OnDestroy {
   /** Access the select state. */
-  private readonly state = injectSelectState();
-  /** Access the view container reference. */
-  private readonly viewContainerRef = inject(ViewContainerRef);
+  private readonly selectState = injectSelectState();
 
-  /** Access the template reference. */
-  private readonly templateRef = inject(TemplateRef);
+  /** Access the portal state. */
+  private readonly portalState = ngpSelectPortal({});
 
-  /** Access the injector. */
-  private readonly injector = inject(Injector);
+  constructor() {
+    this.selectState().registerPortal(this);
+  }
+
+  ngOnDestroy(): void {
+    this.portalState.overlay()?.destroy();
+  }
+
+  /**
+   * Show the portal.
+   * @internal
+   */
+  show(): Promise<void> {
+    return this.portalState.show();
+  }
+
+  /**
+   * Hide the portal.
+   * @internal
+   */
+  async hide(): Promise<void> {
+    return this.portalState.hide();
+  }
 
   /**
    * The overlay that manages the popover
    * @internal
    */
-  readonly overlay = signal<NgpOverlay<void> | null>(null);
-
-  constructor() {
-    this.state().registerPortal(this);
-  }
-
-  /** Cleanup the portal. */
-  ngOnDestroy(): void {
-    this.overlay()?.destroy();
-  }
-
-  /**
-   * Attach the portal.
-   * @internal
-   */
-  show(): Promise<void> {
-    // Create the overlay if it doesn't exist yet
-    if (!this.overlay()) {
-      this.createOverlay();
-    }
-
-    // Show the overlay
-    return this.overlay()!.show();
-  }
+  overlay = computed(() => this.portalState.overlay());
 
   /**
    * Detach the portal.
@@ -61,27 +49,5 @@ export class NgpSelectPortal implements OnDestroy {
    */
   async detach(): Promise<void> {
     this.overlay()?.hide();
-  }
-
-  /**
-   * Create the overlay that will contain the dropdown
-   */
-  private createOverlay(): void {
-    // Create config for the overlay
-    const config: NgpOverlayConfig<void> = {
-      content: this.templateRef,
-      viewContainerRef: this.viewContainerRef,
-      triggerElement: this.state().elementRef.nativeElement,
-      injector: this.injector,
-      placement: this.state().placement,
-      flip: this.state().flip(),
-      closeOnOutsideClick: true,
-      closeOnEscape: true,
-      restoreFocus: false,
-      scrollBehaviour: 'reposition',
-      container: this.state().container(),
-    };
-
-    this.overlay.set(createOverlay(config));
   }
 }
