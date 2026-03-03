@@ -718,8 +718,8 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
         return new BlockScrollStrategy(this.viewportRuler, this.document);
       case 'close':
         return new CloseScrollStrategy(
-          this.config.triggerElement,
-          () => this.hide(),
+          this.config.anchorElement || this.config.triggerElement,
+          () => this.hide({ immediate: true }),
           () => this.getElements(),
         );
       default:
