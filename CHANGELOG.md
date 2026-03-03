@@ -1,3 +1,19 @@
+## 0.110.0 (2026-03-03)
+
+### 🚀 Features
+
+- **overlay:** close scroll strategy ([#691](https://github.com/ng-primitives/ng-primitives/pull/691))
+
+### 🩹 Fixes
+
+- **menu:** ensuring submenu flips ([#685](https://github.com/ng-primitives/ng-primitives/pull/685))
+- **portal:** prevent ControlContainer leak for SkipSelf directives ([#678](https://github.com/ng-primitives/ng-primitives/pull/678))
+
+### ❤️ Thank You
+
+- Ashley Hunter
+- gourlaouenp
+
 ## 0.109.5 (2026-02-24)
 
 ### 🚀 Features
