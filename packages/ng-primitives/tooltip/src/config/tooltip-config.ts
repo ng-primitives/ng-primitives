@@ -68,6 +68,12 @@ export interface NgpTooltipConfig {
   trackPosition: boolean;
 
   /**
+   * Defines how the tooltip behaves when the window is scrolled.
+   * @default 'reposition'
+   */
+  scrollBehavior: 'reposition' | 'close';
+
+  /**
    * Cooldown duration in milliseconds.
    * When moving from one tooltip to another within this duration,
    * the showDelay is skipped for the new tooltip.
@@ -87,6 +93,7 @@ export const defaultTooltipConfig: NgpTooltipConfig = {
   useTextContent: true,
   shift: undefined,
   trackPosition: false,
+  scrollBehavior: 'reposition',
   cooldown: 300,
 };
 
