@@ -525,10 +525,23 @@ describe('NgpTooltipTrigger', () => {
   });
 
   describe('scrollBehavior', () => {
-    it('should accept scrollBehavior input', async () => {
-      const { getByRole } = await render(
+    let scrollableContainer: HTMLDivElement;
+
+    beforeEach(() => {
+      scrollableContainer = document.createElement('div');
+      scrollableContainer.style.overflow = 'auto';
+      scrollableContainer.style.height = '100px';
+      document.body.appendChild(scrollableContainer);
+    });
+
+    afterEach(() => {
+      scrollableContainer.remove();
+    });
+
+    it('should not close tooltip on scroll when scrollBehavior is reposition', async () => {
+      const { fixture } = await render(
         `
-          <button [ngpTooltipTrigger]="content" ngpTooltipTriggerScrollBehavior="reposition"></button>
+          <button [ngpTooltipTrigger]="content" ngpTooltipTriggerScrollBehavior="reposition" ngpTooltipTriggerDisabled="true" #trigger="ngpTooltipTrigger"></button>
 
           <ng-template #content>
             <div ngpTooltip>
@@ -541,19 +554,30 @@ describe('NgpTooltipTrigger', () => {
         },
       );
 
-      const trigger = getByRole('button');
-      fireEvent.mouseEnter(trigger);
+      const triggerDirective = fixture.debugElement.children[0].injector.get(NgpTooltipTrigger);
+
+      // Move the trigger into the scrollable container after getting the directive reference
+      const triggerEl = fixture.debugElement.children[0].nativeElement;
+      scrollableContainer.appendChild(triggerEl);
+
+      triggerDirective.show();
 
       await waitFor(() => {
-        const tooltip = document.querySelector('[ngpTooltip]');
-        expect(tooltip).toBeInTheDocument();
+        expect(document.querySelector('[ngpTooltip]')).toBeInTheDocument();
       });
+
+      // Scroll the container
+      scrollableContainer.dispatchEvent(new Event('scroll'));
+
+      // Tooltip should remain open
+      await new Promise(resolve => setTimeout(resolve, 100));
+      expect(document.querySelector('[ngpTooltip]')).toBeInTheDocument();
     });
 
-    it('should accept close scroll behavior', async () => {
-      const { getByRole } = await render(
+    it('should close tooltip on scroll when scrollBehavior is close', async () => {
+      const { fixture } = await render(
         `
-          <button [ngpTooltipTrigger]="content" ngpTooltipTriggerScrollBehavior="close"></button>
+          <button [ngpTooltipTrigger]="content" ngpTooltipTriggerScrollBehavior="close" ngpTooltipTriggerDisabled="true" #trigger="ngpTooltipTrigger"></button>
 
           <ng-template #content>
             <div ngpTooltip>
@@ -566,19 +590,30 @@ describe('NgpTooltipTrigger', () => {
         },
       );
 
-      const trigger = getByRole('button');
-      fireEvent.mouseEnter(trigger);
+      const triggerDirective = fixture.debugElement.children[0].injector.get(NgpTooltipTrigger);
+
+      // Move the trigger into the scrollable container after getting the directive reference
+      const triggerEl = fixture.debugElement.children[0].nativeElement;
+      scrollableContainer.appendChild(triggerEl);
+
+      triggerDirective.show();
 
       await waitFor(() => {
-        const tooltip = document.querySelector('[ngpTooltip]');
-        expect(tooltip).toBeInTheDocument();
+        expect(document.querySelector('[ngpTooltip]')).toBeInTheDocument();
+      });
+
+      // Scroll the container - should close the tooltip
+      scrollableContainer.dispatchEvent(new Event('scroll'));
+
+      await waitFor(() => {
+        expect(document.querySelector('[ngpTooltip]')).not.toBeInTheDocument();
       });
     });
 
-    it('should use global config for scrollBehavior when not specified on element', async () => {
-      const { getByRole } = await render(
+    it('should use global config for scrollBehavior', async () => {
+      const { fixture } = await render(
         `
-          <button [ngpTooltipTrigger]="content"></button>
+          <button [ngpTooltipTrigger]="content" ngpTooltipTriggerDisabled="true" #trigger="ngpTooltipTrigger"></button>
 
           <ng-template #content>
             <div ngpTooltip>
@@ -596,12 +631,23 @@ describe('NgpTooltipTrigger', () => {
         },
       );
 
-      const trigger = getByRole('button');
-      fireEvent.mouseEnter(trigger);
+      const triggerDirective = fixture.debugElement.children[0].injector.get(NgpTooltipTrigger);
+
+      // Move the trigger into the scrollable container after getting the directive reference
+      const triggerEl = fixture.debugElement.children[0].nativeElement;
+      scrollableContainer.appendChild(triggerEl);
+
+      triggerDirective.show();
 
       await waitFor(() => {
-        const tooltip = document.querySelector('[ngpTooltip]');
-        expect(tooltip).toBeInTheDocument();
+        expect(document.querySelector('[ngpTooltip]')).toBeInTheDocument();
+      });
+
+      // Scroll the container - should close via global config
+      scrollableContainer.dispatchEvent(new Event('scroll'));
+
+      await waitFor(() => {
+        expect(document.querySelector('[ngpTooltip]')).not.toBeInTheDocument();
       });
     });
   });
