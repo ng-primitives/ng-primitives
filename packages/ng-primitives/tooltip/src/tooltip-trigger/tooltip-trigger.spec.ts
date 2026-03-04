@@ -543,7 +543,8 @@ describe('NgpTooltipTrigger', () => {
         },
       );
 
-      const triggerDirective = fixture.debugElement.children[0].children[0].injector.get(NgpTooltipTrigger);
+      const triggerDirective =
+        fixture.debugElement.children[0].children[0].injector.get(NgpTooltipTrigger);
       triggerDirective.show();
 
       await waitFor(() => {
@@ -576,7 +577,8 @@ describe('NgpTooltipTrigger', () => {
         },
       );
 
-      const triggerDirective = fixture.debugElement.children[0].children[0].injector.get(NgpTooltipTrigger);
+      const triggerDirective =
+        fixture.debugElement.children[0].children[0].injector.get(NgpTooltipTrigger);
       triggerDirective.show();
 
       await waitFor(() => {
@@ -614,7 +616,8 @@ describe('NgpTooltipTrigger', () => {
         },
       );
 
-      const triggerDirective = fixture.debugElement.children[0].children[0].injector.get(NgpTooltipTrigger);
+      const triggerDirective =
+        fixture.debugElement.children[0].children[0].injector.get(NgpTooltipTrigger);
       triggerDirective.show();
 
       await waitFor(() => {
