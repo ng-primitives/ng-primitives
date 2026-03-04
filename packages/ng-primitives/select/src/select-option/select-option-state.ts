@@ -2,11 +2,10 @@ import { computed, ElementRef, Signal, signal } from '@angular/core';
 import { ngpInteractions } from 'ng-primitives/interactions';
 import { injectElementRef } from 'ng-primitives/internal';
 import {
-  attrBinding,
   attrBindingEffect,
   controlled,
   createPrimitive,
-  dataBinding,
+  dataBindingEffect,
   listener,
 } from 'ng-primitives/state';
 import { uniqueId } from 'ng-primitives/utils';
@@ -153,10 +152,10 @@ export const [
     attrBindingEffect(elementRef, 'role', 'option');
     attrBindingEffect(elementRef, 'tabindex', -1);
     attrBindingEffect(elementRef, 'id', id);
-    attrBinding(elementRef, 'aria-selected', () => (selected() ? 'true' : undefined));
-    dataBinding(elementRef, 'data-selected', () => (selected() ? '' : null));
-    dataBinding(elementRef, 'data-active', () => (active() ? '' : null));
-    dataBinding(elementRef, 'data-disabled', () => (disabled() ? '' : null));
+    attrBindingEffect(elementRef, 'aria-selected', () => (selected() ? 'true' : undefined));
+    dataBindingEffect(elementRef, 'data-selected', () => (selected() ? '' : null));
+    dataBindingEffect(elementRef, 'data-active', () => (active() ? '' : null));
+    dataBindingEffect(elementRef, 'data-disabled', () => (disabled() ? '' : null));
 
     // Event listeners
     listener(elementRef, 'click', () => select());
