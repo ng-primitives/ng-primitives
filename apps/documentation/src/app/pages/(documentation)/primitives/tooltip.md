@@ -253,6 +253,7 @@ bootstrapApplication(AppComponent, {
       container: document.body,
       showOnOverflow: false,
       useTextContent: true,
+      scrollBehavior: 'reposition',
       cooldown: 300,
     }),
   ],
@@ -323,6 +324,10 @@ shift: {
 
 <prop-details name="useTextContent" type="boolean" default="true">
   Define whether to use the text content of the trigger element as the tooltip content. When enabled, the tooltip will automatically display the text content of the trigger element. Note that this requires global styles to work properly since the tooltip is rendered in a portal.
+</prop-details>
+
+<prop-details name="scrollBehavior" type="'reposition' | 'close'" default="reposition">
+  Define how the tooltip behaves when the window is scrolled. When set to `reposition`, the tooltip will reposition itself to stay aligned with the trigger. When set to `close`, the tooltip will close when the user scrolls.
 </prop-details>
 
 <prop-details name="cooldown" type="number" default="300">

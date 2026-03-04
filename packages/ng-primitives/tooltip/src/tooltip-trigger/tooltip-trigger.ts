@@ -202,6 +202,14 @@ export class NgpTooltipTrigger<T = null> implements OnDestroy {
   });
 
   /**
+   * Defines how the tooltip behaves when the window is scrolled.
+   * @default 'reposition'
+   */
+  readonly scrollBehavior = input<'reposition' | 'close'>(this.config.scrollBehavior, {
+    alias: 'ngpTooltipTriggerScrollBehavior',
+  });
+
+  /**
    * Define the cooldown duration in milliseconds.
    * When moving from one tooltip to another within this duration,
    * the showDelay is skipped for the new tooltip.
@@ -362,6 +370,7 @@ export class NgpTooltipTrigger<T = null> implements OnDestroy {
       viewContainerRef: this.viewContainerRef,
       trackPosition: this.state.trackPosition(),
       position: this.state.position,
+      scrollBehaviour: this.state.scrollBehavior(),
       overlayType: 'tooltip',
       cooldown: this.state.cooldown(),
     };
