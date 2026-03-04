@@ -1,3 +1,14 @@
+## 0.110.1 (2026-03-04)
+
+### 🚀 Features
+
+- **tooltip:** add configurable scroll behavior ([#693](https://github.com/ng-primitives/ng-primitives/pull/693))
+
+### ❤️ Thank You
+
+- Ashley Hunter
+- Claude Opus 4.6
+
 ## 0.110.0 (2026-03-03)
 
 ### 🚀 Features
