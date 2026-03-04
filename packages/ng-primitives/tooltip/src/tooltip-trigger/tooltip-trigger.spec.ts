@@ -524,6 +524,88 @@ describe('NgpTooltipTrigger', () => {
     });
   });
 
+  describe('scrollBehavior', () => {
+    it('should accept scrollBehavior input', async () => {
+      const { getByRole } = await render(
+        `
+          <button [ngpTooltipTrigger]="content" ngpTooltipTriggerScrollBehavior="reposition"></button>
+
+          <ng-template #content>
+            <div ngpTooltip>
+              Tooltip content
+            </div>
+          </ng-template>
+        `,
+        {
+          imports: [NgpTooltipTrigger, NgpTooltip],
+        },
+      );
+
+      const trigger = getByRole('button');
+      fireEvent.mouseEnter(trigger);
+
+      await waitFor(() => {
+        const tooltip = document.querySelector('[ngpTooltip]');
+        expect(tooltip).toBeInTheDocument();
+      });
+    });
+
+    it('should accept close scroll behavior', async () => {
+      const { getByRole } = await render(
+        `
+          <button [ngpTooltipTrigger]="content" ngpTooltipTriggerScrollBehavior="close"></button>
+
+          <ng-template #content>
+            <div ngpTooltip>
+              Tooltip content
+            </div>
+          </ng-template>
+        `,
+        {
+          imports: [NgpTooltipTrigger, NgpTooltip],
+        },
+      );
+
+      const trigger = getByRole('button');
+      fireEvent.mouseEnter(trigger);
+
+      await waitFor(() => {
+        const tooltip = document.querySelector('[ngpTooltip]');
+        expect(tooltip).toBeInTheDocument();
+      });
+    });
+
+    it('should use global config for scrollBehavior when not specified on element', async () => {
+      const { getByRole } = await render(
+        `
+          <button [ngpTooltipTrigger]="content"></button>
+
+          <ng-template #content>
+            <div ngpTooltip>
+              Tooltip content
+            </div>
+          </ng-template>
+        `,
+        {
+          imports: [NgpTooltipTrigger, NgpTooltip],
+          providers: [
+            provideTooltipConfig({
+              scrollBehavior: 'close',
+            }),
+          ],
+        },
+      );
+
+      const trigger = getByRole('button');
+      fireEvent.mouseEnter(trigger);
+
+      await waitFor(() => {
+        const tooltip = document.querySelector('[ngpTooltip]');
+        expect(tooltip).toBeInTheDocument();
+      });
+    });
+  });
+
   describe('placements', () => {
     const placements = [
       'top',
