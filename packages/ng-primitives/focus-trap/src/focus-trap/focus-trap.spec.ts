@@ -1,5 +1,6 @@
+import { FocusMonitor, InteractivityChecker } from '@angular/cdk/a11y';
 import { Component, signal } from '@angular/core';
-import { fakeAsync, flush, tick } from '@angular/core/testing';
+import { fakeAsync, flush, TestBed, tick } from '@angular/core/testing';
 import { fireEvent, render } from '@testing-library/angular';
 import { NgpFocusTrap } from './focus-trap';
 
@@ -62,6 +63,49 @@ class TestNestedFocusTrapsComponent {
   showSecond = signal(false);
   showThird = signal(false);
 }
+
+@Component({
+  selector: 'test-focus-trap-negative-tabindex',
+  imports: [NgpFocusTrap],
+  template: `
+    <div ngpFocusTrap data-testid="focus-trap">
+      <button data-testid="btn1" tabindex="0">Button 1</button>
+      <div data-testid="negative-tabindex" tabindex="-1">Not tabbable</div>
+      <button data-testid="btn2" tabindex="0">Button 2</button>
+    </div>
+  `,
+})
+class TestFocusTrapWithNegativeTabIndexComponent {}
+
+@Component({
+  selector: 'test-focus-trap-cdk-overlay',
+  imports: [NgpFocusTrap],
+  template: `
+    <div ngpFocusTrap data-testid="focus-trap">
+      <button data-testid="trap-btn" tabindex="0">Trap Button</button>
+    </div>
+    <div class="cdk-overlay-container" data-testid="overlay-container">
+      <button data-testid="overlay-btn" tabindex="0">Overlay Button</button>
+    </div>
+    <button data-testid="outside-btn" tabindex="0">Outside Button</button>
+  `,
+})
+class TestFocusTrapWithCdkOverlayComponent {}
+
+@Component({
+  selector: 'test-focus-trap-external-trap',
+  imports: [NgpFocusTrap],
+  template: `
+    <div ngpFocusTrap data-testid="focus-trap">
+      <button data-testid="trap-btn" tabindex="0">Trap Button</button>
+    </div>
+    <div data-focus-trap data-testid="external-trap">
+      <button data-testid="external-trap-btn" tabindex="0">External Trap Button</button>
+    </div>
+    <button data-testid="outside-btn" tabindex="0">Outside Button</button>
+  `,
+})
+class TestFocusTrapWithExternalTrapComponent {}
 
 describe('NgpFocusTrap', () => {
   describe('Host Bindings', () => {
@@ -440,5 +484,180 @@ describe('FocusTrapStack behavior', () => {
     // First trap should still work
     fireEvent.focus(trap1Button);
     expect(document.activeElement).toBeTruthy();
+  }));
+});
+
+describe('Tabbable candidate filtering', () => {
+  it('should use isTabbable to exclude tabindex="-1" elements from tabbable candidates', fakeAsync(async () => {
+    const { getByTestId } = await render(TestFocusTrapWithNegativeTabIndexComponent);
+    tick();
+    flush();
+
+    const interactivityChecker = TestBed.inject(InteractivityChecker);
+    const isTabbableSpy = jest.spyOn(interactivityChecker, 'isTabbable');
+
+    const focusTrap = getByTestId('focus-trap');
+    const negativeTabIndexEl = getByTestId('negative-tabindex');
+    const btn1 = getByTestId('btn1');
+
+    // Focus an element inside the trap to set document.activeElement
+    btn1.focus();
+    isTabbableSpy.mockClear();
+
+    // Trigger Tab key which calls getTabbableCandidates -> isTabbable
+    fireEvent.keyDown(focusTrap, { key: 'Tab' });
+
+    // Verify isTabbable was called during Tab handling
+    expect(isTabbableSpy).toHaveBeenCalled();
+
+    // Verify isTabbable was called with and returned false for the tabindex="-1" element
+    const callIndex = isTabbableSpy.mock.calls.findIndex(call => call[0] === negativeTabIndexEl);
+    expect(callIndex).toBeGreaterThanOrEqual(0);
+    expect(isTabbableSpy.mock.results[callIndex].value).toBe(false);
+  }));
+
+  it('should call isTabbable for standard tabbable elements during Tab navigation', fakeAsync(async () => {
+    const { getByTestId } = await render(TestFocusTrapWithNegativeTabIndexComponent);
+    tick();
+    flush();
+
+    const interactivityChecker = TestBed.inject(InteractivityChecker);
+    const isTabbableSpy = jest.spyOn(interactivityChecker, 'isTabbable');
+
+    const focusTrap = getByTestId('focus-trap');
+    const btn1 = getByTestId('btn1');
+    const btn2 = getByTestId('btn2');
+
+    btn1.focus();
+    isTabbableSpy.mockClear();
+
+    fireEvent.keyDown(focusTrap, { key: 'Tab' });
+
+    // Verify isTabbable was called with both buttons
+    expect(isTabbableSpy.mock.calls.some(call => call[0] === btn1)).toBe(true);
+    expect(isTabbableSpy.mock.calls.some(call => call[0] === btn2)).toBe(true);
+  }));
+});
+
+describe('Focus-in with CDK overlays and external traps', () => {
+  it('should not redirect focus when it moves to a [data-focus-trap] element', fakeAsync(async () => {
+    const { getByTestId } = await render(TestFocusTrapWithExternalTrapComponent);
+    tick();
+    flush();
+
+    const focusMonitor = TestBed.inject(FocusMonitor);
+    const focusViaSpy = jest.spyOn(focusMonitor, 'focusVia');
+
+    // Establish lastFocusedElement by focusing inside the trap
+    fireEvent.focusIn(getByTestId('trap-btn'));
+    focusViaSpy.mockClear();
+
+    // Focus moves to an element inside an external [data-focus-trap]
+    fireEvent.focusIn(getByTestId('external-trap-btn'));
+
+    expect(focusViaSpy).not.toHaveBeenCalled();
+  }));
+
+  it('should not redirect focus when it moves to a .cdk-overlay-container element', fakeAsync(async () => {
+    const { getByTestId } = await render(TestFocusTrapWithCdkOverlayComponent);
+    tick();
+    flush();
+
+    const focusMonitor = TestBed.inject(FocusMonitor);
+    const focusViaSpy = jest.spyOn(focusMonitor, 'focusVia');
+
+    // Establish lastFocusedElement by focusing inside the trap
+    fireEvent.focusIn(getByTestId('trap-btn'));
+    focusViaSpy.mockClear();
+
+    // Focus moves to an element inside .cdk-overlay-container
+    fireEvent.focusIn(getByTestId('overlay-btn'));
+
+    expect(focusViaSpy).not.toHaveBeenCalled();
+  }));
+
+  it('should redirect focus back when it moves to a plain outside element', fakeAsync(async () => {
+    const { getByTestId } = await render(TestFocusTrapWithCdkOverlayComponent);
+    tick();
+    flush();
+
+    const focusMonitor = TestBed.inject(FocusMonitor);
+    const focusViaSpy = jest.spyOn(focusMonitor, 'focusVia');
+
+    const trapBtn = getByTestId('trap-btn');
+
+    // Establish lastFocusedElement by focusing inside the trap
+    fireEvent.focusIn(trapBtn);
+    focusViaSpy.mockClear();
+
+    // Focus moves to a plain outside element (not overlay or external trap)
+    fireEvent.focusIn(getByTestId('outside-btn'));
+
+    expect(focusViaSpy).toHaveBeenCalledWith(trapBtn, expect.anything(), expect.anything());
+  }));
+});
+
+describe('Focus-out with CDK overlays and external traps', () => {
+  it('should not redirect focus when it leaves to a [data-focus-trap] element', fakeAsync(async () => {
+    const { getByTestId } = await render(TestFocusTrapWithExternalTrapComponent);
+    tick();
+    flush();
+
+    const focusMonitor = TestBed.inject(FocusMonitor);
+    const focusViaSpy = jest.spyOn(focusMonitor, 'focusVia');
+
+    const trapBtn = getByTestId('trap-btn');
+    const externalTrapBtn = getByTestId('external-trap-btn');
+
+    // Establish lastFocusedElement by focusing inside the trap
+    fireEvent.focusIn(trapBtn);
+    focusViaSpy.mockClear();
+
+    // Focus leaves to an element inside an external [data-focus-trap]
+    fireEvent.focusOut(trapBtn, { relatedTarget: externalTrapBtn });
+
+    expect(focusViaSpy).not.toHaveBeenCalled();
+  }));
+
+  it('should not redirect focus when it leaves to a .cdk-overlay-container element', fakeAsync(async () => {
+    const { getByTestId } = await render(TestFocusTrapWithCdkOverlayComponent);
+    tick();
+    flush();
+
+    const focusMonitor = TestBed.inject(FocusMonitor);
+    const focusViaSpy = jest.spyOn(focusMonitor, 'focusVia');
+
+    const trapBtn = getByTestId('trap-btn');
+    const overlayBtn = getByTestId('overlay-btn');
+
+    // Establish lastFocusedElement by focusing inside the trap
+    fireEvent.focusIn(trapBtn);
+    focusViaSpy.mockClear();
+
+    // Focus leaves to an element inside .cdk-overlay-container
+    fireEvent.focusOut(trapBtn, { relatedTarget: overlayBtn });
+
+    expect(focusViaSpy).not.toHaveBeenCalled();
+  }));
+
+  it('should redirect focus back when it leaves to a plain outside element', fakeAsync(async () => {
+    const { getByTestId } = await render(TestFocusTrapWithCdkOverlayComponent);
+    tick();
+    flush();
+
+    const focusMonitor = TestBed.inject(FocusMonitor);
+    const focusViaSpy = jest.spyOn(focusMonitor, 'focusVia');
+
+    const trapBtn = getByTestId('trap-btn');
+    const outsideBtn = getByTestId('outside-btn');
+
+    // Establish lastFocusedElement by focusing inside the trap
+    fireEvent.focusIn(trapBtn);
+    focusViaSpy.mockClear();
+
+    // Focus leaves to a plain outside element
+    fireEvent.focusOut(trapBtn, { relatedTarget: outsideBtn });
+
+    expect(focusViaSpy).toHaveBeenCalledWith(trapBtn, expect.anything(), expect.anything());
   }));
 });
