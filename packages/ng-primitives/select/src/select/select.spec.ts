@@ -1208,10 +1208,8 @@ describe('NgpSelect', () => {
         const { fixture } = await render(VirtualScrollingTestComponent);
         const component = fixture.componentInstance;
 
-        // Spy on scrollIntoView to ensure it's not called
-        const scrollIntoViewSpy = jest
-          .spyOn(Element.prototype, 'scrollIntoView')
-          .mockImplementation();
+        const scrollIntoViewMock = Element.prototype.scrollIntoView as jest.Mock;
+        scrollIntoViewMock.mockClear();
 
         // Pre-select an option outside initially rendered range
         component.value.set('Option 10');
@@ -1229,9 +1227,7 @@ describe('NgpSelect', () => {
         });
 
         // Default scrollIntoView should not be called when custom function is provided
-        expect(scrollIntoViewSpy).not.toHaveBeenCalled();
-
-        scrollIntoViewSpy.mockRestore();
+        expect(scrollIntoViewMock).not.toHaveBeenCalled();
       });
 
       it('should handle Home and End keys with virtual scrolling', async () => {
