@@ -1,5 +1,5 @@
 import { BooleanInput } from '@angular/cdk/coercion';
-import { booleanAttribute, Directive, input, OnDestroy, output } from '@angular/core';
+import { booleanAttribute, Directive, input, output } from '@angular/core';
 import { uniqueId } from 'ng-primitives/utils';
 import { injectSelectState } from '../select/select-state';
 import { ngpSelectOption } from './select-option-state';
@@ -8,7 +8,7 @@ import { ngpSelectOption } from './select-option-state';
   selector: '[ngpSelectOption]',
   exportAs: 'ngpSelectOption',
 })
-export class NgpSelectOption implements OnDestroy {
+export class NgpSelectOption {
   /** Access the select state. */
   protected readonly selectState = injectSelectState();
 
@@ -39,60 +39,13 @@ export class NgpSelectOption implements OnDestroy {
     alias: 'ngpSelectOptionActivated',
   });
 
-  /** Access the option state. */
-  protected readonly optionState = ngpSelectOption({
-    id: this.id,
-    value: this.value,
-    disabled: this.disabled,
-    index: this.index,
-    onActivated: () => this.activated.emit(),
-  });
-
   constructor() {
-    this.selectState().registerOption(this);
-  }
-
-  ngOnDestroy(): void {
-    this.selectState().unregisterOption(this);
-  }
-
-  /**
-   * Select the option.
-   * @internal
-   */
-  select(): void {
-    this.optionState.select();
-  }
-
-  /**
-   * Scroll the option into view.
-   * @internal
-   */
-  scrollIntoView(): void {
-    this.optionState.scrollIntoView();
-  }
-
-  /**
-   * Whether this option is the active descendant.
-   * @internal
-   */
-  get active() {
-    return this.optionState.active;
-  }
-
-  /**
-   * Whether this option is selected.
-   * @internal
-   */
-  get selected() {
-    return this.optionState.selected;
-  }
-
-  /**
-   * Get the element reference.
-   * @internal
-   */
-  get elementRef() {
-    return this.optionState.elementRef;
+    ngpSelectOption({
+      id: this.id,
+      value: this.value,
+      disabled: this.disabled,
+      index: this.index,
+      onActivated: () => this.activated.emit(),
+    });
   }
 }

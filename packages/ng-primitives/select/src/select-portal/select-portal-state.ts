@@ -21,6 +21,12 @@ export interface NgpSelectPortalState {
    * @internal
    */
   hide(): Promise<void>;
+
+  /**
+   * Detach the portal.
+   * @internal
+   */
+  detach(): void;
 }
 
 export interface NgpSelectPortalProps {
@@ -75,11 +81,24 @@ export const [
     overlay.set(createOverlay(overlayConfig));
   }
 
-  return {
+  function detach() {
+    overlay()?.hide();
+  }
+
+  const state = {
     overlay,
     show,
     hide,
+    detach,
   } satisfies NgpSelectPortalState;
+
+  selectState().registerPortal(state);
+
+  onDestroy(() => {
+    overlay()?.destroy();
+  });
+
+  return state;
 });
 
 export function injectSelectPortalState(): Signal<NgpSelectPortalState> {

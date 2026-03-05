@@ -7,6 +7,7 @@ import {
   createPrimitive,
   dataBindingEffect,
   listener,
+  onDestroy,
 } from 'ng-primitives/state';
 import { uniqueId } from 'ng-primitives/utils';
 import { injectSelectState } from '../select/select-state';
@@ -199,7 +200,7 @@ export const [
       }
     }
 
-    return {
+    const state = {
       elementRef,
       id,
       value,
@@ -213,6 +214,14 @@ export const [
       deactivateOnPointerLeave,
       emitActivated: () => onActivated?.(),
     } satisfies NgpSelectOptionState;
+
+    selectState().registerOption(state);
+
+    onDestroy(() => {
+      selectState().unregisterOption(state);
+    });
+
+    return state;
   },
 );
 

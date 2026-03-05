@@ -13,9 +13,9 @@ import {
   listener,
 } from 'ng-primitives/state';
 import { uniqueId } from 'ng-primitives/utils';
-import type { NgpSelectDropdown } from '../select-dropdown/select-dropdown';
-import type { NgpSelectOption } from '../select-option/select-option';
-import type { NgpSelectPortal } from '../select-portal/select-portal';
+import type { NgpSelectDropdownState } from '../select-dropdown/select-dropdown-state';
+import type { NgpSelectOptionState } from '../select-option/select-option-state';
+import { NgpSelectPortalState } from '../select-portal/select-portal-state';
 
 export interface NgpSelectState<T> {
   /**
@@ -66,19 +66,19 @@ export interface NgpSelectState<T> {
    * Store the select portal.
    * @internal
    */
-  readonly portal: WritableSignal<NgpSelectPortal | undefined>;
+  readonly portal: WritableSignal<NgpSelectPortalState | undefined>;
 
   /**
    * Store the select dropdown.
    * @internal
    */
-  readonly dropdown: WritableSignal<NgpSelectDropdown | undefined>;
+  readonly dropdown: WritableSignal<NgpSelectDropdownState | undefined>;
 
   /**
    * Store the select options.
    * @internal
    */
-  readonly options: WritableSignal<NgpSelectOption[]>;
+  readonly options: WritableSignal<NgpSelectOptionState[]>;
 
   /**
    * Access the overlay
@@ -96,7 +96,7 @@ export interface NgpSelectState<T> {
    * The options sorted by their index or DOM position.
    * @internal
    */
-  readonly sortedOptions: Signal<NgpSelectOption[]>;
+  readonly sortedOptions: Signal<NgpSelectOptionState[]>;
 
   /**
    * The active key descendant manager.
@@ -134,7 +134,7 @@ export interface NgpSelectState<T> {
    * @param option The option to deselect.
    * @internal
    */
-  deselectOption(option: NgpSelectOption): void;
+  deselectOption(option: NgpSelectOptionState): void;
 
   /**
    * Toggle the selection of an option.
@@ -168,28 +168,28 @@ export interface NgpSelectState<T> {
    * @param portal The dropdown portal.
    * @internal
    */
-  registerPortal(portal: NgpSelectPortal): void;
+  registerPortal(portal: NgpSelectPortalState): void;
 
   /**
    * Register the dropdown with the select.
    * @param dropdown The dropdown to register.
    * @internal
    */
-  registerDropdown(dropdown: NgpSelectDropdown): void;
+  registerDropdown(dropdown: NgpSelectDropdownState): void;
 
   /**
    * Register an option with the select.
    * @param option The option to register.
    * @internal
    */
-  registerOption(option: NgpSelectOption): void;
+  registerOption(option: NgpSelectOptionState): void;
 
   /**
    * Unregister an option from the select.
    * @param option The option to unregister.
    * @internal
    */
-  unregisterOption(option: NgpSelectOption): void;
+  unregisterOption(option: NgpSelectOptionState): void;
 
   /**
    * Focus the select.
@@ -285,9 +285,9 @@ export const [NgpSelectStateToken, ngpSelect, _injectSelectState, provideSelectS
 
       ngpFormControl({ id, disabled });
 
-      const portal = signal<NgpSelectPortal | undefined>(undefined);
-      const dropdown = signal<NgpSelectDropdown | undefined>(undefined);
-      const options = signal<NgpSelectOption[]>([]);
+      const portal = signal<NgpSelectPortalState | undefined>(undefined);
+      const dropdown = signal<NgpSelectDropdownState | undefined>(undefined);
+      const options = signal<NgpSelectOptionState[]>([]);
 
       const overlay = computed(() => portal()?.overlay());
       const open = computed(() => overlay()?.isOpen() ?? false);
@@ -451,7 +451,7 @@ export const [NgpSelectStateToken, ngpSelect, _injectSelectState, provideSelectS
        * @param option The option to deselect.
        * @internal
        */
-      function deselectOption(option: NgpSelectOption): void {
+      function deselectOption(option: NgpSelectOptionState): void {
         const optionValue = option.value();
 
         // Options without values cannot be deselected (and should never be selected).
@@ -602,7 +602,7 @@ export const [NgpSelectStateToken, ngpSelect, _injectSelectState, provideSelectS
        * @param portal The dropdown portal.
        * @internal
        */
-      function registerPortal(portalInstance: NgpSelectPortal): void {
+      function registerPortal(portalInstance: NgpSelectPortalState): void {
         portal.set(portalInstance);
       }
 
@@ -611,7 +611,7 @@ export const [NgpSelectStateToken, ngpSelect, _injectSelectState, provideSelectS
        * @param dropdown The dropdown to register.
        * @internal
        */
-      function registerDropdown(dropdownInstance: NgpSelectDropdown): void {
+      function registerDropdown(dropdownInstance: NgpSelectDropdownState): void {
         dropdown.set(dropdownInstance);
       }
 
@@ -620,7 +620,7 @@ export const [NgpSelectStateToken, ngpSelect, _injectSelectState, provideSelectS
        * @param option The option to register.
        * @internal
        */
-      function registerOption(option: NgpSelectOption): void {
+      function registerOption(option: NgpSelectOptionState): void {
         options.update(current => [...current, option]);
       }
 
@@ -629,7 +629,7 @@ export const [NgpSelectStateToken, ngpSelect, _injectSelectState, provideSelectS
        * @param option The option to unregister.
        * @internal
        */
-      function unregisterOption(option: NgpSelectOption): void {
+      function unregisterOption(option: NgpSelectOptionState): void {
         options.update(current => current.filter(o => o !== option));
       }
 
@@ -712,14 +712,13 @@ export const [NgpSelectStateToken, ngpSelect, _injectSelectState, provideSelectS
           customScrollToOption(index);
           return;
         }
-
         const option = getOptionAtIndex(index);
         if (option) {
           option.scrollIntoView();
         }
       }
 
-      function getOptionAtIndex(index: number): NgpSelectOption | undefined {
+      function getOptionAtIndex(index: number): NgpSelectOptionState | undefined {
         // if the option has an index, use that to get the option because this is required for virtual scrolling scenarios
         const optionIndex = options().findIndex(opt => opt.index?.() === index);
 

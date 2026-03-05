@@ -56,10 +56,14 @@ export const [
     );
     styleBindingEffect(elementRef, '--ngp-select-width.px', () => selectDimensions().width ?? null);
 
-    return {
+    const state = {
       elementRef,
       id: _id,
     } satisfies NgpSelectDropdownState;
+
+    selectState().registerDropdown(state);
+
+    return state;
   },
 );
 
