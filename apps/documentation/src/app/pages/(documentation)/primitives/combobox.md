@@ -279,8 +279,21 @@ bootstrapApplication(AppComponent, {
   Define the container element for the combobox dropdown. This is useful for rendering the dropdown in a specific part of the DOM.
 </prop-details>
 
-<prop-details name="flip" type="boolean" default="true">
-  Define whether the dropdown should flip to the opposite side when there is not enough space.
+<prop-details name="flip" type="boolean | NgpFlipOptions" default="true">
+  Define whether the dropdown should flip to the opposite side when there is not enough space. Can be a boolean to enable/disable, or an object with detailed options.
+
+**Object format:**
+
+```ts
+flip: {
+  padding: 8,                          // Minimum padding from viewport edges (default: 0)
+  fallbackPlacements: ['top', 'left'], // Placements to try if preferred doesn't fit
+  boundary: element,                   // Clipping boundary area (default: 'clippingAncestors')
+  rootBoundary: 'viewport',            // Root clipping area: 'viewport' or 'document' (default: 'viewport')
+  crossAxis: true,                     // Whether to check overflow on the cross axis (default: true)
+}
+```
+
 </prop-details>
 
 ## Accessibility
