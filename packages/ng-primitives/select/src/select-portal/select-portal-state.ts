@@ -20,7 +20,7 @@ export interface NgpSelectPortalState {
    * Hide the portal.
    * @internal
    */
-  hide(): Promise<void>;
+  hide(): void;
 
   /**
    * Detach the portal.
@@ -45,21 +45,16 @@ export const [
   const selectState = injectSelectState();
   const overlay = signal<NgpOverlay<void> | null>(null);
 
-  // Cleanup on destroy
-  onDestroy(() => {
-    overlay()?.destroy();
-  });
-
   // Methods
   async function show(): Promise<void> {
     if (!overlay()) {
       createOverlayInstance();
     }
 
-    return overlay()?.show() ?? Promise.resolve();
+    return overlay()?.show();
   }
 
-  async function hide(): Promise<void> {
+  function hide(): void {
     overlay()?.hide();
   }
 
