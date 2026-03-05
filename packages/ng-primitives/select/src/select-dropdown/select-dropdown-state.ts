@@ -17,9 +17,6 @@ export interface NgpSelectDropdownState {
 export interface NgpSelectDropdownProps {
   /** The id of the dropdown. */
   readonly id?: Signal<string>;
-
-  /** The width of the select element. */
-  readonly selectWidth?: Signal<number | null>;
 }
 
 export const [
