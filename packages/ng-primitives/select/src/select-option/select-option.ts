@@ -39,13 +39,28 @@ export class NgpSelectOption {
     alias: 'ngpSelectOptionActivated',
   });
 
-  constructor() {
-    ngpSelectOption({
-      id: this.id,
-      value: this.value,
-      disabled: this.disabled,
-      index: this.index,
-      onActivated: () => this.activated.emit(),
-    });
+  /** Access the select option state */
+  protected readonly state = ngpSelectOption({
+    id: this.id,
+    value: this.value,
+    disabled: this.disabled,
+    index: this.index,
+    onActivated: () => this.activated.emit(),
+  });
+
+  /**
+   * Select the option.
+   * @internal
+   */
+  select(): void {
+    this.state.select();
+  }
+
+  /**
+   * Scroll the option into view.
+   * @internal
+   */
+  scrollIntoView(): void {
+    this.state.scrollIntoView();
   }
 }

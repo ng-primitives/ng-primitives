@@ -112,4 +112,116 @@ export class NgpSelect {
     onValueChange: value => this.valueChange.emit(value),
     onOpenChange: open => this.openChange.emit(open),
   });
+
+  /** @internal Access the select element. */
+  readonly elementRef = this.state.elementRef;
+
+  /**
+   * Store the select portal.
+   * @internal
+   */
+  readonly portal = this.state.portal;
+
+  /**
+   * Store the select dropdown.
+   * @internal
+   */
+  readonly dropdown = this.state.dropdown;
+
+  /**
+   * Store the select options.
+   * @internal
+   */
+  readonly options = this.state.options;
+
+  /**
+   * Access the overlay
+   * @internal
+   */
+  readonly overlay = this.state.overlay;
+
+  /**
+   * The open state of the select.
+   * @internal
+   */
+  readonly open = this.state.open;
+
+  /**
+   * The options sorted by their index or DOM position.
+   * @internal
+   */
+  readonly sortedOptions = this.state.sortedOptions;
+
+  /**
+   * The active key descendant manager.
+   * @internal
+   */
+  readonly activeDescendantManager = this.state.activeDescendantManager;
+
+  /**
+   * Open the dropdown.
+   * @internal
+   */
+  openDropdown(): Promise<void> {
+    return this.state.openDropdown();
+  }
+
+  /**
+   * Close the dropdown.
+   * @internal
+   */
+  closeDropdown(): void {
+    return this.state.closeDropdown();
+  }
+
+  /**
+   * Toggle the dropdown.
+   * @internal
+   */
+  toggleDropdown(): void {
+    this.state.toggleDropdown();
+  }
+
+  /**
+   * Select an option.
+   * @param index The id of the option to select.
+   * @internal
+   */
+  selectOption(id: string): void {
+    return this.state.selectOption(id);
+  }
+
+  /**
+   * Determine if an option is selected.
+   * @param option The option to check.
+   * @internal
+   */
+  isOptionSelected(option: T): boolean {
+    return this.state.isOptionSelected(option);
+  }
+
+  /**
+   * Activate the next option in the list if there is one.
+   * If there is no option currently active, activate the selected option or the first option.
+   * @internal
+   */
+  activateNextOption(): void {
+    this.state.activateNextOption();
+  }
+
+  /**
+   * Activate the previous option in the list if there is one.
+   * @internal
+   */
+  activatePreviousOption(): void {
+    this.state.activatePreviousOption();
+  }
+
+  /**
+   * Focus the select.
+   * @internal
+   */
+  focus(): void {
+    this.state.focus();
+  }
 }
