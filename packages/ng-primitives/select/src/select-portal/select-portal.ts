@@ -6,7 +6,21 @@ import { ngpSelectPortal } from './select-portal-state';
   exportAs: 'ngpSelectPortal',
 })
 export class NgpSelectPortal {
-  constructor() {
-    ngpSelectPortal({});
+  protected readonly state = ngpSelectPortal({});
+
+  /**
+   * Attach the portal.
+   * @internal
+   */
+  show(): void {
+    this.state.show();
+  }
+
+  /**
+   * Detach the portal.
+   * @internal
+   */
+  detach(): void {
+    this.state.hide();
   }
 }
