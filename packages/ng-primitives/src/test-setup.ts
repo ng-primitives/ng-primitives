@@ -19,3 +19,7 @@ global.ResizeObserver = class {
 
 // patch scrollIntoView
 Element.prototype.scrollIntoView = jest.fn();
+
+beforeEach(() => {
+  (Element.prototype.scrollIntoView as jest.Mock).mockClear();
+});

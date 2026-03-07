@@ -615,6 +615,8 @@ describe('NgpSelect', () => {
       const dropdown = screen.getByTestId('dropdown');
       const dropdownId = dropdown.getAttribute('id');
 
+      expect(dropdownId).toBeTruthy();
+
       await waitFor(() => {
         expect(select).toHaveAttribute('aria-controls', dropdownId);
       });
@@ -629,6 +631,7 @@ describe('NgpSelect', () => {
 
       const appleOption = screen.getByTestId('option-Apple');
       const optionId = appleOption.getAttribute('id');
+      expect(optionId).toBeTruthy();
 
       await waitFor(() => {
         expect(select).toHaveAttribute('aria-activedescendant', optionId);
@@ -1205,11 +1208,6 @@ describe('NgpSelect', () => {
         const { fixture } = await render(VirtualScrollingTestComponent);
         const component = fixture.componentInstance;
 
-        // Spy on scrollIntoView to ensure it's not called
-        const scrollIntoViewSpy = jest
-          .spyOn(Element.prototype, 'scrollIntoView')
-          .mockImplementation();
-
         // Pre-select an option outside initially rendered range
         component.value.set('Option 10');
         fixture.detectChanges();
@@ -1226,9 +1224,7 @@ describe('NgpSelect', () => {
         });
 
         // Default scrollIntoView should not be called when custom function is provided
-        expect(scrollIntoViewSpy).not.toHaveBeenCalled();
-
-        scrollIntoViewSpy.mockRestore();
+        expect(Element.prototype.scrollIntoView).not.toHaveBeenCalled();
       });
 
       it('should handle Home and End keys with virtual scrolling', async () => {
