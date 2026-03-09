@@ -43,7 +43,7 @@ type TooltipInput<T> = NgpOverlayContent<T> | string | null | undefined;
 @Directive({
   selector: '[ngpTooltipTrigger]',
   exportAs: 'ngpTooltipTrigger',
-  providers: [provideTooltipTriggerState()],
+  providers: [provideTooltipTriggerState({ inherit: false })],
   host: {
     '[attr.data-open]': 'open() ? "" : null',
     '[attr.data-disabled]': 'state.disabled() ? "" : null',
