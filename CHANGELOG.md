@@ -1,3 +1,15 @@
+## 0.110.2 (2026-03-09)
+
+### 🩹 Fixes
+
+- **focus-trap:** use isTabbable and allow focus to CDK overlays (#682, #687) ([#688](https://github.com/ng-primitives/ng-primitives/pull/688), [#682](https://github.com/ng-primitives/ng-primitives/issues/682), [#687](https://github.com/ng-primitives/ng-primitives/issues/687))
+- **tooltip:** prevent nested tooltip triggers from corrupting each other's state ([#696](https://github.com/ng-primitives/ng-primitives/pull/696))
+
+### ❤️ Thank You
+
+- Ashley Hunter
+- gourlaouenp
+
 ## 0.110.1 (2026-03-04)
 
 ### 🚀 Features
