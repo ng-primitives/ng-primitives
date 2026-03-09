@@ -1,5 +1,5 @@
 import { fakeAsync, flush } from '@angular/core/testing';
-import { fireEvent, render, screen } from '@testing-library/angular';
+import { fireEvent, render, screen, within } from '@testing-library/angular';
 import { NgpMenu, NgpMenuItem, NgpMenuTrigger } from '../index';
 
 describe('NgpMenuTrigger', () => {
@@ -25,5 +25,8 @@ describe('NgpMenuTrigger', () => {
 
     const menu = screen.getByTestId('ngp-menu');
     expect(menu).toBeInTheDocument();
+
+    const menuItems = within(menu).getAllByRole('menuitem');
+    expect(menuItems).toHaveLength(3);
   }));
 });

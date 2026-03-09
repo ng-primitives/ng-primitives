@@ -38,6 +38,7 @@
       "ng-primitives/form-field": ["packages/ng-primitives/form-field/src/index.ts"],
       "ng-primitives/input": ["packages/ng-primitives/input/src/index.ts"],
       "ng-primitives/input-otp": ["packages/ng-primitives/input-otp/src/index.ts"],
+      "ng-primitives/interact": ["packages/ng-primitives/interact/src/index.ts"],
       "ng-primitives/interactions": ["packages/ng-primitives/interactions/src/index.ts"],
       "ng-primitives/internal": ["packages/ng-primitives/internal/src/index.ts"],
       "ng-primitives/listbox": ["packages/ng-primitives/listbox/src/index.ts"],
