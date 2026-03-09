@@ -633,6 +633,81 @@ describe('NgpTooltipTrigger', () => {
     });
   });
 
+  describe('nested tooltips', () => {
+    it('should not error when tooltip triggers are nested', async () => {
+      const { fixture } = await render(
+        `
+          <div [ngpTooltipTrigger]="outerContent" ngpTooltipTriggerDisabled="true">
+            <button [ngpTooltipTrigger]="innerContent" ngpTooltipTriggerDisabled="true">Inner button</button>
+          </div>
+
+          <ng-template #outerContent>
+            <div ngpTooltip>Outer tooltip</div>
+          </ng-template>
+
+          <ng-template #innerContent>
+            <div ngpTooltip>Inner tooltip</div>
+          </ng-template>
+        `,
+        {
+          imports: [NgpTooltipTrigger, NgpTooltip],
+        },
+      );
+
+      // Show the inner tooltip - this should not throw
+      const innerTrigger =
+        fixture.debugElement.children[0].children[0].injector.get(NgpTooltipTrigger);
+      innerTrigger.show();
+
+      await waitFor(() => {
+        const tooltips = document.querySelectorAll('[ngpTooltip]');
+        expect(tooltips).toHaveLength(1);
+        expect(tooltips[0].textContent?.trim()).toBe('Inner tooltip');
+      });
+    });
+
+    it('should allow both nested tooltips to show independently', async () => {
+      const { fixture } = await render(
+        `
+          <div [ngpTooltipTrigger]="outerContent" ngpTooltipTriggerDisabled="true">
+            <button [ngpTooltipTrigger]="innerContent" ngpTooltipTriggerDisabled="true">Inner button</button>
+          </div>
+
+          <ng-template #outerContent>
+            <div ngpTooltip>Outer tooltip</div>
+          </ng-template>
+
+          <ng-template #innerContent>
+            <div ngpTooltip>Inner tooltip</div>
+          </ng-template>
+        `,
+        {
+          imports: [NgpTooltipTrigger, NgpTooltip],
+        },
+      );
+
+      // Show the outer tooltip
+      const outerTrigger = fixture.debugElement.children[0].injector.get(NgpTooltipTrigger);
+      outerTrigger.show();
+
+      await waitFor(() => {
+        const tooltips = document.querySelectorAll('[ngpTooltip]');
+        expect(tooltips).toHaveLength(1);
+        expect(tooltips[0].textContent?.trim()).toBe('Outer tooltip');
+      });
+
+      // Now also show the inner tooltip
+      const innerTrigger =
+        fixture.debugElement.children[0].children[0].injector.get(NgpTooltipTrigger);
+      innerTrigger.show();
+
+      await waitFor(() => {
+        const tooltips = document.querySelectorAll('[ngpTooltip]');
+        expect(tooltips).toHaveLength(2);
+      });
+    });
+  });
+
   describe('placements', () => {
     const placements = [
       'top',
