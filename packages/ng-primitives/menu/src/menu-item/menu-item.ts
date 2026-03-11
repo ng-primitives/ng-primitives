@@ -18,8 +18,14 @@ export class NgpMenuItem {
     transform: booleanAttribute,
   });
 
+  /** Whether the menu should close when this item is selected */
+  readonly closeOnSelect = input<boolean, BooleanInput>(true, {
+    alias: 'ngpMenuItemCloseOnSelect',
+    transform: booleanAttribute,
+  });
+
   constructor() {
-    ngpMenuItem({ disabled: this.disabled });
+    ngpMenuItem({ disabled: this.disabled, closeOnSelect: this.closeOnSelect });
     ngpRovingFocusItem({ disabled: this.disabled });
   }
 }

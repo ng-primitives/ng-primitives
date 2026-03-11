@@ -14,7 +14,16 @@ A menu is a list of options or commands presented to the user in a dropdown list
 Import the Menu primitives from `ng-primitives/menu`.
 
 ```ts
-import { NgpMenu, NgpMenuItem, NgpMenuTrigger, NgpSubmenuTrigger } from 'ng-primitives/menu';
+import {
+  NgpMenu,
+  NgpMenuItem,
+  NgpMenuTrigger,
+  NgpSubmenuTrigger,
+  NgpMenuItemCheckbox,
+  NgpMenuItemRadioGroup,
+  NgpMenuItemRadio,
+  NgpMenuItemIndicator,
+} from 'ng-primitives/menu';
 ```
 
 ## Usage
@@ -64,6 +73,18 @@ Here are some additional examples of how to use the Menu primitives.
 The menu can contain submenus, which are nested menus that can be opened by hovering on a menu item.
 
 <docs-example name="submenu"></docs-example>
+
+### Checkbox Items
+
+Menu items that can be toggled on and off. Clicking a checkbox item does not close the menu.
+
+<docs-example name="menu-checkbox"></docs-example>
+
+### Radio Items
+
+Menu items that allow selecting one option from a group. Clicking a radio item does not close the menu.
+
+<docs-example name="menu-radio"></docs-example>
 
 ### Custom Offset
 
@@ -206,6 +227,48 @@ The following data attributes are available on the `NgpSubmenuTrigger` directive
 | ----------- | --------------------------------- |
 | `data-open` | Applied when the submenu is open. |
 
+### NgpMenuItemCheckbox
+
+<api-docs name="NgpMenuItemCheckbox"></api-docs>
+
+#### Data Attributes
+
+The following data attributes are available on the `NgpMenuItemCheckbox` directive:
+
+| Attribute       | Description                                   |
+| --------------- | --------------------------------------------- |
+| `data-checked`  | Applied when the checkbox item is checked.    |
+| `data-disabled` | Applied when the checkbox item is disabled.   |
+
+### NgpMenuItemRadioGroup
+
+<api-docs name="NgpMenuItemRadioGroup"></api-docs>
+
+### NgpMenuItemRadio
+
+<api-docs name="NgpMenuItemRadio"></api-docs>
+
+#### Data Attributes
+
+The following data attributes are available on the `NgpMenuItemRadio` directive:
+
+| Attribute       | Description                                |
+| --------------- | ------------------------------------------ |
+| `data-checked`  | Applied when the radio item is checked.    |
+| `data-disabled` | Applied when the radio item is disabled.   |
+
+### NgpMenuItemIndicator
+
+<api-docs name="NgpMenuItemIndicator"></api-docs>
+
+#### Data Attributes
+
+The following data attributes are available on the `NgpMenuItemIndicator` directive:
+
+| Attribute      | Description                                         |
+| -------------- | --------------------------------------------------- |
+| `data-checked` | Applied when the parent checkbox or radio is checked. |
+
 ## Styling
 
 For the menu to be positioned correctly relative to the trigger element, it should use fixed positioning. For example, you can use the following CSS:
@@ -324,7 +387,7 @@ Adheres to the [WAI-ARIA Menu Button Pattern](https://www.w3.org/WAI/ARIA/apg/pa
 
 | Key                   | Description                                                               |
 | --------------------- | ------------------------------------------------------------------------- |
-| <kbd>Enter</kbd>      | Activates the focused menu item and closes all menus.                     |
+| <kbd>Enter</kbd>      | Activates the focused menu item. Closes all menus unless the item is a checkbox or radio item. |
 | <kbd>Escape</kbd>     | Closes all open menus and returns focus to the root menu trigger.         |
 | <kbd>ArrowDown</kbd>  | Moves focus to the next menu item.                                        |
 | <kbd>ArrowUp</kbd>    | Moves focus to the previous menu item.                                    |
