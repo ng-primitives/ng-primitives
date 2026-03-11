@@ -38,11 +38,11 @@ import {
       >
         <button
           class="flex min-w-[160px] cursor-pointer items-center gap-2 rounded-sm border-none bg-transparent px-3 py-1.5 text-left text-[14px] font-normal outline-hidden transition-colors hover:bg-gray-100 focus-visible:outline-2 focus-visible:outline-blue-500 active:bg-gray-200 dark:text-gray-100 dark:hover:bg-white/10 dark:active:bg-white/20"
-          ngpMenuItemCheckbox
           [(ngpMenuItemCheckboxChecked)]="showToolbar"
+          ngpMenuItemCheckbox
         >
           <span
-            class="flex h-4 w-4 items-center justify-center text-blue-500 invisible data-[checked]:visible dark:text-blue-400"
+            class="invisible flex h-4 w-4 items-center justify-center text-blue-500 data-[checked]:visible dark:text-blue-400"
             ngpMenuItemIndicator
           >
             <ng-icon name="heroCheckMini" aria-hidden="true" />
@@ -51,11 +51,11 @@ import {
         </button>
         <button
           class="flex min-w-[160px] cursor-pointer items-center gap-2 rounded-sm border-none bg-transparent px-3 py-1.5 text-left text-[14px] font-normal outline-hidden transition-colors hover:bg-gray-100 focus-visible:outline-2 focus-visible:outline-blue-500 active:bg-gray-200 dark:text-gray-100 dark:hover:bg-white/10 dark:active:bg-white/20"
-          ngpMenuItemCheckbox
           [(ngpMenuItemCheckboxChecked)]="showSidebar"
+          ngpMenuItemCheckbox
         >
           <span
-            class="flex h-4 w-4 items-center justify-center text-blue-500 invisible data-[checked]:visible dark:text-blue-400"
+            class="invisible flex h-4 w-4 items-center justify-center text-blue-500 data-[checked]:visible dark:text-blue-400"
             ngpMenuItemIndicator
           >
             <ng-icon name="heroCheckMini" aria-hidden="true" />
@@ -64,11 +64,11 @@ import {
         </button>
         <button
           class="flex min-w-[160px] cursor-pointer items-center gap-2 rounded-sm border-none bg-transparent px-3 py-1.5 text-left text-[14px] font-normal outline-hidden transition-colors hover:bg-gray-100 focus-visible:outline-2 focus-visible:outline-blue-500 active:bg-gray-200 dark:text-gray-100 dark:hover:bg-white/10 dark:active:bg-white/20"
-          ngpMenuItemCheckbox
           [(ngpMenuItemCheckboxChecked)]="showStatusBar"
+          ngpMenuItemCheckbox
         >
           <span
-            class="flex h-4 w-4 items-center justify-center text-blue-500 invisible data-[checked]:visible dark:text-blue-400"
+            class="invisible flex h-4 w-4 items-center justify-center text-blue-500 data-[checked]:visible dark:text-blue-400"
             ngpMenuItemIndicator
           >
             <ng-icon name="heroCheckMini" aria-hidden="true" />

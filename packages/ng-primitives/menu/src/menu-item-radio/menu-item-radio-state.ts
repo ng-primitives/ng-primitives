@@ -30,10 +30,7 @@ export const [
   provideMenuItemRadioState,
 ] = createPrimitive(
   'NgpMenuItemRadio',
-  ({
-    value,
-    disabled = signal(false),
-  }: NgpMenuItemRadioProps): NgpMenuItemRadioState => {
+  ({ value, disabled = signal(false) }: NgpMenuItemRadioProps): NgpMenuItemRadioState => {
     const element = injectElementRef();
     const radioGroup = injectMenuItemRadioGroupState();
 

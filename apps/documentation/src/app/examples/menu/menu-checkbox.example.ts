@@ -27,28 +27,19 @@ import {
 
     <ng-template #menu>
       <div ngpMenu>
-        <button
-          ngpMenuItemCheckbox
-          [(ngpMenuItemCheckboxChecked)]="showToolbar"
-        >
+        <button [(ngpMenuItemCheckboxChecked)]="showToolbar" ngpMenuItemCheckbox>
           <span class="indicator" ngpMenuItemIndicator>
             <ng-icon name="heroCheckMini" aria-hidden="true" />
           </span>
           Show Toolbar
         </button>
-        <button
-          ngpMenuItemCheckbox
-          [(ngpMenuItemCheckboxChecked)]="showSidebar"
-        >
+        <button [(ngpMenuItemCheckboxChecked)]="showSidebar" ngpMenuItemCheckbox>
           <span class="indicator" ngpMenuItemIndicator>
             <ng-icon name="heroCheckMini" aria-hidden="true" />
           </span>
           Show Sidebar
         </button>
-        <button
-          ngpMenuItemCheckbox
-          [(ngpMenuItemCheckboxChecked)]="showStatusBar"
-        >
+        <button [(ngpMenuItemCheckboxChecked)]="showStatusBar" ngpMenuItemCheckbox>
           <span class="indicator" ngpMenuItemIndicator>
             <ng-icon name="heroCheckMini" aria-hidden="true" />
           </span>

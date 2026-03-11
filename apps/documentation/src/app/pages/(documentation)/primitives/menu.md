@@ -235,10 +235,10 @@ The following data attributes are available on the `NgpSubmenuTrigger` directive
 
 The following data attributes are available on the `NgpMenuItemCheckbox` directive:
 
-| Attribute       | Description                                   |
-| --------------- | --------------------------------------------- |
-| `data-checked`  | Applied when the checkbox item is checked.    |
-| `data-disabled` | Applied when the checkbox item is disabled.   |
+| Attribute       | Description                                 |
+| --------------- | ------------------------------------------- |
+| `data-checked`  | Applied when the checkbox item is checked.  |
+| `data-disabled` | Applied when the checkbox item is disabled. |
 
 ### NgpMenuItemRadioGroup
 
@@ -252,10 +252,10 @@ The following data attributes are available on the `NgpMenuItemCheckbox` directi
 
 The following data attributes are available on the `NgpMenuItemRadio` directive:
 
-| Attribute       | Description                                |
-| --------------- | ------------------------------------------ |
-| `data-checked`  | Applied when the radio item is checked.    |
-| `data-disabled` | Applied when the radio item is disabled.   |
+| Attribute       | Description                              |
+| --------------- | ---------------------------------------- |
+| `data-checked`  | Applied when the radio item is checked.  |
+| `data-disabled` | Applied when the radio item is disabled. |
 
 ### NgpMenuItemIndicator
 
@@ -265,8 +265,8 @@ The following data attributes are available on the `NgpMenuItemRadio` directive:
 
 The following data attributes are available on the `NgpMenuItemIndicator` directive:
 
-| Attribute      | Description                                         |
-| -------------- | --------------------------------------------------- |
+| Attribute      | Description                                           |
+| -------------- | ----------------------------------------------------- |
 | `data-checked` | Applied when the parent checkbox or radio is checked. |
 
 ## Styling
@@ -385,16 +385,16 @@ Adheres to the [WAI-ARIA Menu Button Pattern](https://www.w3.org/WAI/ARIA/apg/pa
 
 ### Keyboard Interactions
 
-| Key                   | Description                                                               |
-| --------------------- | ------------------------------------------------------------------------- |
+| Key                   | Description                                                                                    |
+| --------------------- | ---------------------------------------------------------------------------------------------- |
 | <kbd>Enter</kbd>      | Activates the focused menu item. Closes all menus unless the item is a checkbox or radio item. |
-| <kbd>Escape</kbd>     | Closes all open menus and returns focus to the root menu trigger.         |
-| <kbd>ArrowDown</kbd>  | Moves focus to the next menu item.                                        |
-| <kbd>ArrowUp</kbd>    | Moves focus to the previous menu item.                                    |
-| <kbd>ArrowRight</kbd> | Opens a submenu when focused on a submenu trigger.                        |
-| <kbd>ArrowLeft</kbd>  | Closes the current submenu and moves focus to the parent submenu trigger. |
-| <kbd>Home</kbd>       | Moves focus to the first menu item.                                       |
-| <kbd>End</kbd>        | Moves focus to the last menu item.                                        |
+| <kbd>Escape</kbd>     | Closes all open menus and returns focus to the root menu trigger.                              |
+| <kbd>ArrowDown</kbd>  | Moves focus to the next menu item.                                                             |
+| <kbd>ArrowUp</kbd>    | Moves focus to the previous menu item.                                                         |
+| <kbd>ArrowRight</kbd> | Opens a submenu when focused on a submenu trigger.                                             |
+| <kbd>ArrowLeft</kbd>  | Closes the current submenu and moves focus to the parent submenu trigger.                      |
+| <kbd>Home</kbd>       | Moves focus to the first menu item.                                                            |
+| <kbd>End</kbd>        | Moves focus to the last menu item.                                                             |
 
 ### Focus Management
 

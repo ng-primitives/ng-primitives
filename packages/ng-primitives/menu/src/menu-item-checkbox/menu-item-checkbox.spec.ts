@@ -1,11 +1,11 @@
 import { Component } from '@angular/core';
 import { fakeAsync, flush, tick } from '@angular/core/testing';
 import { fireEvent, render } from '@testing-library/angular';
+import { NgpMenuItemIndicator } from '../menu-item-indicator/menu-item-indicator';
 import { NgpMenuItem } from '../menu-item/menu-item';
 import { NgpMenuTrigger } from '../menu-trigger/menu-trigger';
 import { NgpMenu } from '../menu/menu';
 import { NgpMenuItemCheckbox } from './menu-item-checkbox';
-import { NgpMenuItemIndicator } from '../menu-item-indicator/menu-item-indicator';
 
 @Component({
   template: `
@@ -14,9 +14,9 @@ import { NgpMenuItemIndicator } from '../menu-item-indicator/menu-item-indicator
     <ng-template #menu>
       <div ngpMenu data-testid="menu">
         <button
-          ngpMenuItemCheckbox
           [ngpMenuItemCheckboxChecked]="checked"
           (ngpMenuItemCheckboxCheckedChange)="checked = $event"
+          ngpMenuItemCheckbox
           data-testid="checkbox-item"
         >
           <span ngpMenuItemIndicator data-testid="indicator">✓</span>
@@ -39,8 +39,8 @@ class TestMenuCheckboxComponent {
     <ng-template #menu>
       <div ngpMenu data-testid="menu">
         <button
-          ngpMenuItemCheckbox
           [ngpMenuItemCheckboxDisabled]="true"
+          ngpMenuItemCheckbox
           data-testid="disabled-checkbox"
         >
           Disabled

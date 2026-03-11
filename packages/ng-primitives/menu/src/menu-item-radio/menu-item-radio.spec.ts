@@ -1,9 +1,9 @@
 import { Component } from '@angular/core';
 import { fakeAsync, flush, tick } from '@angular/core/testing';
 import { fireEvent, render } from '@testing-library/angular';
-import { NgpMenuItem } from '../menu-item/menu-item';
 import { NgpMenuItemIndicator } from '../menu-item-indicator/menu-item-indicator';
 import { NgpMenuItemRadioGroup } from '../menu-item-radio-group/menu-item-radio-group';
+import { NgpMenuItem } from '../menu-item/menu-item';
 import { NgpMenuTrigger } from '../menu-trigger/menu-trigger';
 import { NgpMenu } from '../menu/menu';
 import { NgpMenuItemRadio } from './menu-item-radio';
@@ -15,31 +15,19 @@ import { NgpMenuItemRadio } from './menu-item-radio';
     <ng-template #menu>
       <div ngpMenu data-testid="menu">
         <div
-          ngpMenuItemRadioGroup
           [ngpMenuItemRadioGroupValue]="theme"
           (ngpMenuItemRadioGroupValueChange)="theme = $event"
+          ngpMenuItemRadioGroup
         >
-          <button
-            ngpMenuItemRadio
-            ngpMenuItemRadioValue="light"
-            data-testid="radio-light"
-          >
+          <button ngpMenuItemRadio ngpMenuItemRadioValue="light" data-testid="radio-light">
             <span ngpMenuItemIndicator data-testid="indicator-light">●</span>
             Light
           </button>
-          <button
-            ngpMenuItemRadio
-            ngpMenuItemRadioValue="dark"
-            data-testid="radio-dark"
-          >
+          <button ngpMenuItemRadio ngpMenuItemRadioValue="dark" data-testid="radio-dark">
             <span ngpMenuItemIndicator data-testid="indicator-dark">●</span>
             Dark
           </button>
-          <button
-            ngpMenuItemRadio
-            ngpMenuItemRadioValue="system"
-            data-testid="radio-system"
-          >
+          <button ngpMenuItemRadio ngpMenuItemRadioValue="system" data-testid="radio-system">
             System
           </button>
         </div>
@@ -68,9 +56,9 @@ class TestMenuRadioComponent {
       <div ngpMenu data-testid="menu">
         <div ngpMenuItemRadioGroup ngpMenuItemRadioGroupValue="a">
           <button
+            [ngpMenuItemRadioDisabled]="true"
             ngpMenuItemRadio
             ngpMenuItemRadioValue="a"
-            [ngpMenuItemRadioDisabled]="true"
             data-testid="disabled-radio"
           >
             Disabled

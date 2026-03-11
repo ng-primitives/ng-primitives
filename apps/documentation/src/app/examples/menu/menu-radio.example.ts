@@ -25,10 +25,7 @@ import {
 
     <ng-template #menu>
       <div ngpMenu>
-        <div
-          ngpMenuItemRadioGroup
-          [(ngpMenuItemRadioGroupValue)]="theme"
-        >
+        <div [(ngpMenuItemRadioGroupValue)]="theme" ngpMenuItemRadioGroup>
           <button ngpMenuItemRadio ngpMenuItemRadioValue="light">
             <span class="indicator" ngpMenuItemIndicator></span>
             Light
@@ -132,7 +129,9 @@ import {
       border-radius: 50%;
       border: 1.5px solid var(--ngp-border);
       box-sizing: border-box;
-      transition: border-color 0.15s, background-color 0.15s;
+      transition:
+        border-color 0.15s,
+        background-color 0.15s;
     }
 
     .indicator::after {

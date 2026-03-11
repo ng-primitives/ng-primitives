@@ -34,14 +34,14 @@ import {
         class="animate-in fade-in-0 zoom-in-95 fixed flex w-max origin-(--ngp-menu-transform-origin) flex-col rounded-lg border border-gray-200 bg-white p-1 shadow-lg dark:border-gray-700 dark:bg-black"
         ngpMenu
       >
-        <div ngpMenuItemRadioGroup [(ngpMenuItemRadioGroupValue)]="theme">
+        <div [(ngpMenuItemRadioGroupValue)]="theme" ngpMenuItemRadioGroup>
           <button
             class="flex min-w-[160px] cursor-pointer items-center gap-2 rounded-sm border-none bg-transparent px-3 py-1.5 text-left text-[14px] font-normal outline-hidden transition-colors hover:bg-gray-100 focus-visible:outline-2 focus-visible:outline-blue-500 active:bg-gray-200 dark:text-gray-100 dark:hover:bg-white/10 dark:active:bg-white/20"
             ngpMenuItemRadio
             ngpMenuItemRadioValue="light"
           >
             <span
-              class="box-border flex h-3.5 w-3.5 items-center justify-center rounded-full border-[1.5px] border-gray-300 transition-colors data-[checked]:border-blue-500 dark:border-gray-600 dark:data-[checked]:border-blue-400 after:block after:h-1.5 after:w-1.5 after:scale-0 after:rounded-full after:bg-blue-500 after:transition-transform data-[checked]:after:scale-100 dark:after:bg-blue-400"
+              class="box-border flex h-3.5 w-3.5 items-center justify-center rounded-full border-[1.5px] border-gray-300 transition-colors after:block after:h-1.5 after:w-1.5 after:scale-0 after:rounded-full after:bg-blue-500 after:transition-transform data-[checked]:border-blue-500 data-[checked]:after:scale-100 dark:border-gray-600 dark:after:bg-blue-400 dark:data-[checked]:border-blue-400"
               ngpMenuItemIndicator
             ></span>
             Light
@@ -52,7 +52,7 @@ import {
             ngpMenuItemRadioValue="dark"
           >
             <span
-              class="box-border flex h-3.5 w-3.5 items-center justify-center rounded-full border-[1.5px] border-gray-300 transition-colors data-[checked]:border-blue-500 dark:border-gray-600 dark:data-[checked]:border-blue-400 after:block after:h-1.5 after:w-1.5 after:scale-0 after:rounded-full after:bg-blue-500 after:transition-transform data-[checked]:after:scale-100 dark:after:bg-blue-400"
+              class="box-border flex h-3.5 w-3.5 items-center justify-center rounded-full border-[1.5px] border-gray-300 transition-colors after:block after:h-1.5 after:w-1.5 after:scale-0 after:rounded-full after:bg-blue-500 after:transition-transform data-[checked]:border-blue-500 data-[checked]:after:scale-100 dark:border-gray-600 dark:after:bg-blue-400 dark:data-[checked]:border-blue-400"
               ngpMenuItemIndicator
             ></span>
             Dark
@@ -63,7 +63,7 @@ import {
             ngpMenuItemRadioValue="system"
           >
             <span
-              class="box-border flex h-3.5 w-3.5 items-center justify-center rounded-full border-[1.5px] border-gray-300 transition-colors data-[checked]:border-blue-500 dark:border-gray-600 dark:data-[checked]:border-blue-400 after:block after:h-1.5 after:w-1.5 after:scale-0 after:rounded-full after:bg-blue-500 after:transition-transform data-[checked]:after:scale-100 dark:after:bg-blue-400"
+              class="box-border flex h-3.5 w-3.5 items-center justify-center rounded-full border-[1.5px] border-gray-300 transition-colors after:block after:h-1.5 after:w-1.5 after:scale-0 after:rounded-full after:bg-blue-500 after:transition-transform data-[checked]:border-blue-500 data-[checked]:after:scale-100 dark:border-gray-600 dark:after:bg-blue-400 dark:data-[checked]:border-blue-400"
               ngpMenuItemIndicator
             ></span>
             System
