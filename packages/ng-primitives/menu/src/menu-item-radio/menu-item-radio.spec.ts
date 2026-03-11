@@ -54,7 +54,7 @@ class TestMenuRadioComponent {
 
     <ng-template #menu>
       <div ngpMenu data-testid="menu">
-        <div ngpMenuItemRadioGroup ngpMenuItemRadioGroupValue="a">
+        <div ngpMenuItemRadioGroup ngpMenuItemRadioGroupValue="b">
           <button
             [ngpMenuItemRadioDisabled]="true"
             ngpMenuItemRadio
@@ -62,6 +62,9 @@ class TestMenuRadioComponent {
             data-testid="disabled-radio"
           >
             Disabled
+          </button>
+          <button ngpMenuItemRadio ngpMenuItemRadioValue="b" data-testid="selected-radio">
+            Selected
           </button>
         </div>
       </div>
@@ -154,17 +157,21 @@ describe('NgpMenuItemRadio', () => {
     const { fixture } = await render(TestMenuRadioDisabledComponent);
     openMenu(fixture);
 
-    const radio = document.querySelector('[data-testid="disabled-radio"]');
-    expect(radio).toHaveAttribute('aria-checked', 'true');
+    const disabledRadio = document.querySelector('[data-testid="disabled-radio"]');
+    const selectedRadio = document.querySelector('[data-testid="selected-radio"]');
 
-    // Clicking disabled radio should not change anything
-    // (it's already selected, but the click handler should be blocked)
-    fireEvent.click(radio!);
+    // The disabled radio is not selected (group value is "b", this radio's value is "a")
+    expect(disabledRadio).toHaveAttribute('aria-checked', 'false');
+    expect(selectedRadio).toHaveAttribute('aria-checked', 'true');
+
+    // Clicking the disabled radio should not select it
+    fireEvent.click(disabledRadio!);
     tick();
     fixture.detectChanges();
     flush();
 
-    expect(radio).toHaveAttribute('aria-checked', 'true');
+    expect(disabledRadio).toHaveAttribute('aria-checked', 'false');
+    expect(selectedRadio).toHaveAttribute('aria-checked', 'true');
   }));
 
   it('should show indicator with data-checked for selected item', fakeAsync(async () => {
