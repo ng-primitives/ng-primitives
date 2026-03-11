@@ -1,3 +1,14 @@
+## 0.111.0 (2026-03-11)
+
+### 🚀 Features
+
+- **menu:** add menuitemcheckbox, menuitemradio, and closeOnSelect su… ([#698](https://github.com/ng-primitives/ng-primitives/pull/698), [#684](https://github.com/ng-primitives/ng-primitives/issues/684), [#531](https://github.com/ng-primitives/ng-primitives/issues/531))
+
+### ❤️ Thank You
+
+- Ashley Hunter
+- Claude Opus 4.6
+
 ## 0.110.2 (2026-03-09)
 
 ### 🩹 Fixes
