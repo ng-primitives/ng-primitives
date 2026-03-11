@@ -13,69 +13,89 @@ export interface NgpMenuItemProps {
    * Whether the menu item is disabled.
    */
   readonly disabled?: Signal<boolean>;
+
+  /**
+   * Whether the menu should close when this item is selected.
+   * @default signal(true)
+   */
+  readonly closeOnSelect?: Signal<boolean>;
+
+  /**
+   * The ARIA role for the menu item.
+   * @default 'menuitem'
+   */
+  readonly role?: string;
 }
 
 export const [NgpMenuItemStateToken, ngpMenuItem, injectMenuItemState, provideMenuItemState] =
-  createPrimitive('NgpMenuItem', ({ disabled = signal(false) }: NgpMenuItemProps) => {
-    const element = injectElementRef();
-    const injector = inject(Injector);
-    const parentMenu = injectMenuState({ optional: true });
+  createPrimitive(
+    'NgpMenuItem',
+    ({
+      disabled = signal(false),
+      closeOnSelect = signal(true),
+      role = 'menuitem',
+    }: NgpMenuItemProps) => {
+      const element = injectElementRef();
+      const injector = inject(Injector);
+      const parentMenu = injectMenuState({ optional: true });
 
-    ngpButton({ disabled });
+      ngpButton({ disabled });
 
-    // Host bindings
-    attrBinding(element, 'role', 'menuitem');
+      // Host bindings
+      attrBinding(element, 'role', role);
 
-    // Event listeners
-    listener(element, 'click', onClick);
-    listener(element, 'keydown', handleArrowKey);
-    listener(element, 'mouseenter', showSubmenuOnHover);
+      // Event listeners
+      listener(element, 'click', onClick);
+      listener(element, 'keydown', handleArrowKey);
+      listener(element, 'mouseenter', showSubmenuOnHover);
 
-    // Methods
-    function onClick(event: MouseEvent): void {
-      // we do this here to avoid circular dependency issues
-      const trigger = injector.get(NgpSubmenuTrigger, null, { self: true, optional: true });
+      // Methods
+      function onClick(event: MouseEvent): void {
+        // we do this here to avoid circular dependency issues
+        const trigger = injector.get(NgpSubmenuTrigger, null, { self: true, optional: true });
 
-      const origin: FocusOrigin = event.detail === 0 ? 'keyboard' : 'mouse';
+        const origin: FocusOrigin = event.detail === 0 ? 'keyboard' : 'mouse';
 
-      // if this is a submenu trigger, we don't want to close the menu, we want to open the submenu
-      if (!trigger) {
-        parentMenu()?.closeAllMenus(origin);
-      }
-    }
-
-    function handleArrowKey(event: Event): void {
-      if (event instanceof KeyboardEvent === false) {
-        return;
-      }
-
-      // if there is no parent menu, we don't want to do anything
-      const trigger = injector.get(NgpSubmenuTrigger, null, { optional: true, skipSelf: true });
-
-      if (!trigger) {
-        return;
-      }
-
-      const direction = getComputedStyle(element.nativeElement).direction;
-      const isRtl = direction === 'rtl';
-
-      const isLeftArrow = event.key === 'ArrowLeft';
-      const isRightArrow = event.key === 'ArrowRight';
-
-      if ((isLeftArrow && !isRtl) || (isRightArrow && isRtl)) {
-        event.preventDefault();
-
-        if (trigger) {
-          trigger.hide('keyboard');
-          // Explicitly focus the submenu trigger since submenus have restoreFocus: false
-          trigger.focus('keyboard');
+        // if this is a submenu trigger, we don't want to close the menu, we want to open the submenu
+        // if closeOnSelect is false, we don't want to close the menu (e.g., checkbox/radio items)
+        if (!trigger && closeOnSelect()) {
+          parentMenu()?.closeAllMenus(origin);
         }
       }
-    }
 
-    function showSubmenuOnHover(): void {
-      parentMenu()?.closeSubmenus.next(element.nativeElement);
-    }
+      function handleArrowKey(event: Event): void {
+        if (event instanceof KeyboardEvent === false) {
+          return;
+        }
 
-    return {} satisfies NgpMenuItemState;
-  });
+        // if there is no parent menu, we don't want to do anything
+        const trigger = injector.get(NgpSubmenuTrigger, null, { optional: true, skipSelf: true });
+
+        if (!trigger) {
+          return;
+        }
+
+        const direction = getComputedStyle(element.nativeElement).direction;
+        const isRtl = direction === 'rtl';
+
+        const isLeftArrow = event.key === 'ArrowLeft';
+        const isRightArrow = event.key === 'ArrowRight';
+
+        if ((isLeftArrow && !isRtl) || (isRightArrow && isRtl)) {
+          event.preventDefault();
+
+          if (trigger) {
+            trigger.hide('keyboard');
+            // Explicitly focus the submenu trigger since submenus have restoreFocus: false
+            trigger.focus('keyboard');
+          }
+        }
+      }
+
+      function showSubmenuOnHover(): void {
+        parentMenu()?.closeSubmenus.next(element.nativeElement);
+      }
+
+      return {} satisfies NgpMenuItemState;
+    },
+  );
