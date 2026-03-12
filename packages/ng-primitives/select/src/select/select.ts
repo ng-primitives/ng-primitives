@@ -188,7 +188,7 @@ export class NgpSelect {
    * @internal
    */
   selectOption(id: string): void {
-    return this.state.selectOption(id);
+    this.state.selectOption(id);
   }
 
   /**
