@@ -925,3 +925,123 @@ describe('NgpMenuItem', () => {
     }));
   });
 });
+
+@Component({
+  template: `
+    <button [ngpMenuTrigger]="menu" data-testid="root-trigger">Open Menu</button>
+
+    <ng-template #menu>
+      <div ngpMenu data-testid="root-menu">
+        <button ngpMenuItem data-testid="item-1">Item 1</button>
+        <button [ngpSubmenuTrigger]="submenu" ngpMenuItem data-testid="submenu-trigger">
+          Open Submenu
+        </button>
+      </div>
+    </ng-template>
+
+    <ng-template #submenu>
+      <div ngpMenu data-testid="submenu">
+        <button [ngpMenuItemCloseOnSelect]="false" ngpMenuItem data-testid="submenu-no-close-item">
+          Stay Open Item
+        </button>
+        <button ngpMenuItem data-testid="submenu-regular-item">Regular Item</button>
+      </div>
+    </ng-template>
+  `,
+  imports: [NgpMenuTrigger, NgpMenu, NgpMenuItem, NgpSubmenuTrigger],
+})
+class TestSubmenuCloseOnSelectComponent {
+  menu = viewChild<TemplateRef<unknown>>('menu');
+  submenu = viewChild<TemplateRef<unknown>>('submenu');
+}
+
+describe('NgpMenuItem closeOnSelect in submenu', () => {
+  function openSubmenu(fixture: any) {
+    const rootTrigger = fixture.debugElement.nativeElement.querySelector(
+      '[data-testid="root-trigger"]',
+    );
+    fireEvent.click(rootTrigger);
+    tick();
+    fixture.detectChanges();
+    flush();
+
+    const submenuTrigger = document.querySelector('[data-testid="submenu-trigger"]');
+    fireEvent.click(submenuTrigger!);
+    tick();
+    fixture.detectChanges();
+    flush();
+
+    return rootTrigger;
+  }
+
+  it('should NOT close menus when clicking item with closeOnSelect=false (mouse)', fakeAsync(async () => {
+    const { fixture } = await render(TestSubmenuCloseOnSelectComponent);
+    const rootTrigger = openSubmenu(fixture);
+
+    const submenuTrigger = document.querySelector('[data-testid="submenu-trigger"]');
+    const item = document.querySelector('[data-testid="submenu-no-close-item"]');
+
+    // Simulate real browser click: mouseup then click
+    fireEvent.mouseUp(item!);
+    fireEvent.click(item!);
+    tick();
+    fixture.detectChanges();
+    flush();
+
+    // Both menus should remain open
+    expect(rootTrigger).toHaveAttribute('data-open');
+    expect(submenuTrigger).toHaveAttribute('data-open');
+    expect(document.querySelector('[data-testid="submenu"]')).toBeInTheDocument();
+  }));
+
+  it('should NOT close menus when activating item with closeOnSelect=false via keyboard', fakeAsync(async () => {
+    const { fixture } = await render(TestSubmenuCloseOnSelectComponent);
+    const rootTrigger = openSubmenu(fixture);
+
+    const submenuTrigger = document.querySelector('[data-testid="submenu-trigger"]');
+    const item = document.querySelector('[data-testid="submenu-no-close-item"]') as HTMLElement;
+    item.focus();
+
+    // Enter key fires click with detail === 0
+    fireEvent.click(item, { detail: 0 });
+    tick();
+    fixture.detectChanges();
+    flush();
+
+    // Both menus should remain open
+    expect(rootTrigger).toHaveAttribute('data-open');
+    expect(submenuTrigger).toHaveAttribute('data-open');
+    expect(document.querySelector('[data-testid="submenu"]')).toBeInTheDocument();
+  }));
+
+  it('should close all menus when clicking regular item in same submenu', fakeAsync(async () => {
+    const { fixture } = await render(TestSubmenuCloseOnSelectComponent);
+    const rootTrigger = openSubmenu(fixture);
+
+    const regularItem = document.querySelector('[data-testid="submenu-regular-item"]');
+
+    fireEvent.mouseUp(regularItem!);
+    fireEvent.click(regularItem!);
+    tick();
+    fixture.detectChanges();
+    flush();
+
+    // All menus should be closed
+    expect(rootTrigger).not.toHaveAttribute('data-open');
+    expect(document.querySelector('[data-testid="submenu"]')).not.toBeInTheDocument();
+  }));
+
+  it('should still close all menus on Escape even with closeOnSelect=false items', fakeAsync(async () => {
+    const { fixture } = await render(TestSubmenuCloseOnSelectComponent);
+    const rootTrigger = openSubmenu(fixture);
+
+    const submenu = document.querySelector('[data-testid="submenu"]');
+    fireEvent.keyDown(submenu!, { key: 'Escape' });
+    tick();
+    fixture.detectChanges();
+    flush();
+
+    expect(rootTrigger).not.toHaveAttribute('data-open');
+    expect(document.querySelector('[data-testid="submenu"]')).not.toBeInTheDocument();
+  }));
+});
