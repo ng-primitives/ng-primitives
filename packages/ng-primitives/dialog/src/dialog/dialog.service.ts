@@ -152,7 +152,7 @@ export class NgpDialogManager implements OnDestroy {
     // If this is the first dialog that we're opening, hide all the non-overlay content
     // and enable scroll blocking.
     if (!this.openDialogs.length) {
-      this.hideNonDialogContentFromAssistiveTechnology(portal.getElements());
+      this.hideNonDialogContentFromAssistiveTechnology(portal.getElements(), container);
       this.enableScrollBlocking();
     }
 
@@ -353,16 +353,32 @@ export class NgpDialogManager implements OnDestroy {
 
   /**
    * Hides all of the content that isn't a dialog portal from assistive technology.
-   * Dialog portals are rendered directly to document.body.
+   * When the container is not document.body, the container's body-level ancestor
+   * is also excluded so the dialog remains visible to screen readers.
    */
-  private hideNonDialogContentFromAssistiveTechnology(portalElements: HTMLElement[]) {
-    const bodyChildren = this.document.body.children;
+  private hideNonDialogContentFromAssistiveTechnology(
+    portalElements: HTMLElement[],
+    container: HTMLElement,
+  ) {
+    const body = this.document.body;
+    const bodyChildren = body.children;
+
+    // Find the body-level ancestor of the container so we don't hide it.
+    let containerAncestor: Element | null = null;
+    if (container !== body) {
+      let current: Element | null = container;
+      while (current && current.parentElement !== body) {
+        current = current.parentElement;
+      }
+      containerAncestor = current;
+    }
 
     for (let i = bodyChildren.length - 1; i > -1; i--) {
       const sibling = bodyChildren[i];
 
       if (
         !portalElements.includes(sibling as HTMLElement) &&
+        sibling !== containerAncestor &&
         sibling.nodeName !== 'SCRIPT' &&
         sibling.nodeName !== 'STYLE' &&
         !sibling.hasAttribute('aria-live')
