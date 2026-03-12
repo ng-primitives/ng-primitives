@@ -283,6 +283,7 @@ You can configure the default options for all comboboxes in your application by 
 import { provideComboboxConfig } from 'ng-primitives/combobox';
 
 bootstrapApplication(AppComponent, {
+  providers: [
     provideComboboxConfig({
       placement: 'bottom',
       container: document.body,
@@ -290,6 +291,7 @@ bootstrapApplication(AppComponent, {
       closeOnOutsideClick: true,
       closeOnEscape: true,
     }),
+  ],
 });
 ```
 

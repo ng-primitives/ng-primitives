@@ -6,13 +6,26 @@ describe('BlockScrollStrategy', () => {
     document.querySelectorAll('[data-scrollblock]').forEach(el => {
       el.removeAttribute('data-scrollblock');
     });
+
+    // Reset document root styles that may leak if an assertion fails mid-test
+    const rootStyle = document.documentElement.style;
+    rootStyle.position = '';
+    rootStyle.top = '';
+    rootStyle.left = '';
+    rootStyle.width = '';
+    rootStyle.overflow = '';
+    rootStyle.overflowX = '';
+    rootStyle.overflowY = '';
+    rootStyle.scrollbarGutter = '';
   });
 
-  it('should block scroll on the document root', () => {
+  it('should block scroll on the document root using position:fixed', () => {
     const strategy = new BlockScrollStrategy(document);
     strategy.enable();
 
-    expect(document.documentElement.style.overflow).toBe('hidden');
+    expect(document.documentElement.style.position).toBe('fixed');
+    expect(document.documentElement.style.width).toBe('100%');
+    expect(document.documentElement.style.overflowY).toBe('scroll');
     expect(document.documentElement.hasAttribute('data-scrollblock')).toBe(true);
 
     strategy.disable();
@@ -22,20 +35,27 @@ describe('BlockScrollStrategy', () => {
 
   it('should restore original inline styles on disable', () => {
     const root = document.documentElement;
-    root.style.overflow = 'auto';
-    root.style.scrollbarGutter = '';
+    root.style.position = '';
+    root.style.overflowY = '';
+    root.style.width = '';
+    root.style.top = '';
+    root.style.left = '';
 
     const strategy = new BlockScrollStrategy(document);
     strategy.enable();
 
-    expect(root.style.overflow).toBe('hidden');
+    expect(root.style.position).toBe('fixed');
 
     strategy.disable();
 
-    expect(root.style.overflow).toBe('auto');
+    expect(root.style.position).toBe('');
+    expect(root.style.overflowY).toBe('');
+    expect(root.style.width).toBe('');
+    expect(root.style.top).toBe('');
+    expect(root.style.left).toBe('');
   });
 
-  it('should block scroll on ancestor scrollable containers', () => {
+  it('should block scroll on ancestor scrollable containers with overflow:hidden', () => {
     const scrollableContainer = document.createElement('div');
     scrollableContainer.style.overflow = 'auto';
     scrollableContainer.style.height = '100px';
@@ -63,7 +83,7 @@ describe('BlockScrollStrategy', () => {
     strategy.enable();
     strategy.enable();
 
-    expect(document.documentElement.style.overflow).toBe('hidden');
+    expect(document.documentElement.style.position).toBe('fixed');
 
     strategy.disable();
 
@@ -82,7 +102,7 @@ describe('BlockScrollStrategy', () => {
     strategy.disable();
     strategy.enable();
 
-    expect(document.documentElement.style.overflow).toBe('hidden');
+    expect(document.documentElement.style.position).toBe('fixed');
 
     strategy.disable();
 
@@ -93,7 +113,7 @@ describe('BlockScrollStrategy', () => {
     const strategy = new BlockScrollStrategy(document);
     strategy.enable();
 
-    expect(document.documentElement.style.overflow).toBe('hidden');
+    expect(document.documentElement.style.position).toBe('fixed');
 
     strategy.disable();
   });

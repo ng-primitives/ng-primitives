@@ -274,7 +274,10 @@ export default class PopoverDismissGuardExample {
   readonly confirmBeforeClose = (): Promise<boolean> => {
     return new Promise<boolean>(resolve => {
       this.resolveGuard = resolve;
-      this.dialogManager.open(this.confirmDialogRef());
+      this.dialogManager.open(this.confirmDialogRef(), {
+        closeOnEscape: false,
+        closeOnOutsideClick: false,
+      });
     });
   };
 

@@ -80,7 +80,7 @@ You can control the menu's open state externally using the `ngpMenuTriggerOpen` 
 
 ## Dismiss Guards
 
-The `closeOnOutsideClick` and `closeOnEscape` inputs accept either a boolean or a guard function. A guard function receives the event and returns a boolean (or `Promise<boolean>`) indicating whether the menu should close:
+The `closeOnOutsideClick` and `closeOnEscape` inputs accept either a boolean or a guard function. A guard function receives the relevant context (the clicked element for `closeOnOutsideClick`, or the keyboard event for `closeOnEscape`) and returns a boolean (or `Promise<boolean>`) indicating whether the menu should close:
 
 ```html
 <button [ngpMenuTrigger]="menu" [ngpMenuTriggerCloseOnOutsideClick]="shouldClose">

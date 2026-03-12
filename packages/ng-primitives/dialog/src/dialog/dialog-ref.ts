@@ -64,12 +64,23 @@ export class NgpDialogRef<T = unknown, R = unknown> implements NgpOverlayRef {
 
   /**
    * NgpOverlayRef implementation — called by the registry for descendant cascade.
+   * Skips exit animations and tears down immediately.
    */
-  hideImmediate(): void {
-    if (this.disableClose) {
+  async hideImmediate(): Promise<void> {
+    if (this.disableClose || this.closing) {
       return;
     }
-    this.close();
+
+    this.closing = true;
+
+    // Detach the portal immediately — no exit animation
+    if (this.portal) {
+      await this.portal.detach(true);
+      this.portal = null;
+    }
+
+    this.closed.next({});
+    this.closed.complete();
   }
 
   /**

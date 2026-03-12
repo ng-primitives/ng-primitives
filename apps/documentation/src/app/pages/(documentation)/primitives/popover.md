@@ -58,13 +58,31 @@ The `closeOnOutsideClick` and `closeOnEscape` inputs accept either a boolean or 
 This is useful for implementing confirmation dialogs before closing:
 
 ```ts
+private resolveGuard: ((value: boolean) => void) | null = null;
+
 readonly confirmBeforeClose = (): Promise<boolean> => {
   return new Promise<boolean>(resolve => {
-    // Open a confirmation dialog
-    this.dialogManager.open(this.confirmDialog());
-    // Resolve with true to close, false to keep open
+    this.resolveGuard = resolve;
+    this.dialogManager.open(this.confirmDialog(), {
+      closeOnEscape: false,
+      closeOnOutsideClick: false,
+    });
   });
 };
+
+// Called by dialog "Keep Editing" button
+onCancel(closeDialog: () => void): void {
+  closeDialog();
+  this.resolveGuard?.(false); // Don't close the popover
+  this.resolveGuard = null;
+}
+
+// Called by dialog "Discard" button
+onDiscard(closeDialog: () => void): void {
+  closeDialog();
+  this.resolveGuard?.(true); // Close the popover
+  this.resolveGuard = null;
+}
 ```
 
 ```html

@@ -166,6 +166,7 @@ You can configure the default options for all selects in your application by usi
 import { provideSelectConfig } from 'ng-primitives/select';
 
 bootstrapApplication(AppComponent, {
+  providers: [
     provideSelectConfig({
       placement: 'bottom',
       container: document.body,
@@ -173,6 +174,7 @@ bootstrapApplication(AppComponent, {
       closeOnOutsideClick: true,
       closeOnEscape: true,
     }),
+  ],
 });
 ```
 

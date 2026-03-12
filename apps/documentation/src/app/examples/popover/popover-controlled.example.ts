@@ -134,5 +134,5 @@ import { NgpPopover, NgpPopoverTrigger } from 'ng-primitives/popover';
   `,
 })
 export default class PopoverControlledExample {
-  readonly open = signal<boolean | undefined>(undefined);
+  readonly open = signal<boolean | undefined>(false);
 }

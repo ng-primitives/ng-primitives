@@ -259,9 +259,9 @@ export class NgpPopoverTrigger<T = null> implements OnDestroy {
 
       untracked(() => {
         if (shouldBeOpen && !this.isOpen()) {
-          this.show();
+          void this.show();
         } else if (!shouldBeOpen && this.isOpen()) {
-          this.hide();
+          void this.hide();
         }
       });
     });

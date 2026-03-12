@@ -77,5 +77,5 @@ import { NgpPopover, NgpPopoverTrigger } from 'ng-primitives/popover';
   `,
 })
 export default class PopoverControlledTailwindExample {
-  readonly open = signal<boolean | undefined>(undefined);
+  readonly open = signal<boolean | undefined>(false);
 }

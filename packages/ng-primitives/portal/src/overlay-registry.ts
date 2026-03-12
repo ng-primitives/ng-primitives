@@ -316,12 +316,15 @@ export class NgpOverlayRegistry {
     } else {
       // Promise — track as pending to prevent re-triggering
       this.pendingGuardIds.add(overlayId);
-      result.then(shouldDismiss => {
-        this.pendingGuardIds.delete(overlayId);
-        if (shouldDismiss) {
-          dismiss();
-        }
-      });
+      result
+        .then(shouldDismiss => {
+          if (shouldDismiss) {
+            dismiss();
+          }
+        })
+        .finally(() => {
+          this.pendingGuardIds.delete(overlayId);
+        });
     }
   }
 }
