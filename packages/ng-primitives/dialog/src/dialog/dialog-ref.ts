@@ -22,6 +22,9 @@ export class NgpDialogRef<T = unknown, R = unknown> implements NgpOverlayRef {
   /** Whether the escape key is allowed to close the dialog, or a guard function. */
   closeOnEscape: NgpDismissGuard<KeyboardEvent> | undefined;
 
+  /** Whether clicking outside (on the overlay) is allowed to close the dialog, or a guard function. */
+  closeOnOutsideClick: NgpDismissGuard<Element> | undefined;
+
   /** Emits when the dialog has been closed. */
   readonly closed = new Subject<{ focusOrigin?: FocusOrigin; result?: R }>();
 
@@ -50,6 +53,7 @@ export class NgpDialogRef<T = unknown, R = unknown> implements NgpOverlayRef {
     this.data = config.data as T;
     this.id = config.id!; // By the time the dialog is created we are guaranteed to have an ID.
     this.closeOnEscape = config.closeOnEscape ?? true;
+    this.closeOnOutsideClick = config.closeOnOutsideClick ?? config.closeOnClick ?? true;
   }
 
   /**

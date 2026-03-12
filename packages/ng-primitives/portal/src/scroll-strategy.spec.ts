@@ -1,7 +1,19 @@
 import { BlockScrollStrategy, CloseScrollStrategy } from './scroll-strategy';
 
 describe('BlockScrollStrategy', () => {
+  let scrollHeightSpy: jest.SpyInstance;
+
+  beforeEach(() => {
+    // jsdom has no real layout, so scrollHeight === clientHeight === 0.
+    // Mock scrollHeight to simulate scrollable overflow on the document root.
+    scrollHeightSpy = jest
+      .spyOn(document.documentElement, 'scrollHeight', 'get')
+      .mockReturnValue(2000);
+  });
+
   afterEach(() => {
+    scrollHeightSpy.mockRestore();
+
     // Clean up any leftover data-scrollblock attributes
     document.querySelectorAll('[data-scrollblock]').forEach(el => {
       el.removeAttribute('data-scrollblock');
@@ -31,6 +43,18 @@ describe('BlockScrollStrategy', () => {
     strategy.disable();
 
     expect(document.documentElement.hasAttribute('data-scrollblock')).toBe(false);
+  });
+
+  it('should not block root when there is no scrollable overflow', () => {
+    scrollHeightSpy.mockReturnValue(0);
+
+    const strategy = new BlockScrollStrategy(document);
+    strategy.enable();
+
+    expect(document.documentElement.style.position).not.toBe('fixed');
+    expect(document.documentElement.hasAttribute('data-scrollblock')).toBe(false);
+
+    strategy.disable();
   });
 
   it('should restore original inline styles on disable', () => {

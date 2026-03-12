@@ -29,7 +29,13 @@ export interface NgpDialogConfig<T = any> {
   /** Whether the dialog should close when the user presses the escape key, or a guard function. */
   closeOnEscape?: NgpDismissGuard<KeyboardEvent>;
 
-  /** Whether the dialog should close when the user click the overlay. */
+  /** Whether the dialog should close when clicking outside (on the overlay), or a guard function. */
+  closeOnOutsideClick?: NgpDismissGuard<Element>;
+
+  /**
+   * Whether the dialog should close when the user click the overlay.
+   * @deprecated Use `closeOnOutsideClick` instead.
+   */
   closeOnClick?: boolean;
 
   data?: T;
