@@ -1,4 +1,5 @@
 import { Directive, HostListener, inject, input, output, TemplateRef } from '@angular/core';
+import { NgpDismissGuard } from 'ng-primitives/portal';
 import { injectDialogConfig } from '../config/dialog-config';
 import { NgpDialogRef } from '../dialog/dialog-ref';
 import { NgpDialogContext, NgpDialogManager } from '../dialog/dialog.service';
@@ -31,6 +32,17 @@ export class NgpDialogTrigger<T = unknown> {
   });
 
   /**
+   * Whether the dialog should close when clicking outside (on the overlay), or a guard function.
+   * @default from global config
+   */
+  readonly closeOnOutsideClick = input<NgpDismissGuard<Element>>(
+    this.config.closeOnOutsideClick ?? this.config.closeOnClick ?? true,
+    {
+      alias: 'ngpDialogTriggerCloseOnOutsideClick',
+    },
+  );
+
+  /**
    * Store the dialog ref.
    * @internal
    */
@@ -40,6 +52,7 @@ export class NgpDialogTrigger<T = unknown> {
   protected launch(): void {
     this.dialogRef = this.dialogManager.open(this.template(), {
       closeOnEscape: this.closeOnEscape(),
+      closeOnOutsideClick: this.closeOnOutsideClick(),
     });
     this.dialogRef.closed.subscribe(({ result }) => {
       this.closed.emit(result as T);

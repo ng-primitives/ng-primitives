@@ -70,7 +70,7 @@ ng g ng-primitives:primitive dialog
 
 ## Dismiss Guards
 
-The `closeOnEscape` option in `NgpDialogConfig` accepts either a boolean or a guard function. A guard function receives the keyboard event and returns a boolean (or `Promise<boolean>`) indicating whether the dialog should close:
+The `closeOnEscape` and `closeOnOutsideClick` options accept either a boolean or a guard function. A guard function receives the event and returns a boolean (or `Promise<boolean>`) indicating whether the dialog should close:
 
 ```ts
 this.dialogManager.open(MyDialogComponent, {
@@ -78,7 +78,24 @@ this.dialogManager.open(MyDialogComponent, {
     // Custom logic to determine if the dialog should close
     return !this.hasUnsavedChanges();
   },
+  closeOnOutsideClick: (target: Element) => {
+    // Custom logic to determine if the dialog should close on outside click
+    return !this.hasUnsavedChanges();
+  },
 });
+```
+
+These options can also be set on the trigger directive:
+
+```html
+<button
+  [ngpDialogTrigger]="dialog"
+  [ngpDialogTriggerCloseOnEscape]="false"
+  [ngpDialogTriggerCloseOnOutsideClick]="false"
+  ngpButton
+>
+  Launch Dialog
+</button>
 ```
 
 ## API Reference
