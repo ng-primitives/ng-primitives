@@ -12,8 +12,8 @@ export class NgpSelectPortal {
    * Attach the portal.
    * @internal
    */
-  show(): void {
-    this.state.show();
+  show(): Promise<void> {
+    return this.state.show();
   }
 
   /**

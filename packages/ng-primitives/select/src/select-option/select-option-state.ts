@@ -2,10 +2,10 @@ import { computed, ElementRef, Signal, signal } from '@angular/core';
 import { ngpInteractions } from 'ng-primitives/interactions';
 import { injectElementRef } from 'ng-primitives/internal';
 import {
-  attrBindingEffect,
+  attrBinding,
   controlled,
   createPrimitive,
-  dataBindingEffect,
+  dataBinding,
   listener,
   onDestroy,
 } from 'ng-primitives/state';
@@ -150,13 +150,13 @@ export const [
     });
 
     // Host bindings
-    attrBindingEffect(elementRef, 'role', 'option');
-    attrBindingEffect(elementRef, 'tabindex', -1);
-    attrBindingEffect(elementRef, 'id', id);
-    attrBindingEffect(elementRef, 'aria-selected', () => (selected() ? 'true' : undefined));
-    dataBindingEffect(elementRef, 'data-selected', () => (selected() ? '' : null));
-    dataBindingEffect(elementRef, 'data-active', () => (active() ? '' : null));
-    dataBindingEffect(elementRef, 'data-disabled', () => (disabled() ? '' : null));
+    attrBinding(elementRef, 'role', 'option');
+    attrBinding(elementRef, 'tabindex', -1);
+    attrBinding(elementRef, 'id', id);
+    attrBinding(elementRef, 'aria-selected', () => (selected() ? 'true' : undefined));
+    dataBinding(elementRef, 'data-selected', () => (selected() ? '' : null));
+    dataBinding(elementRef, 'data-active', () => (active() ? '' : null));
+    dataBinding(elementRef, 'data-disabled', () => (disabled() ? '' : null));
 
     // Event listeners
     listener(elementRef, 'click', () => select());

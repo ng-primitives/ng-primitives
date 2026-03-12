@@ -184,7 +184,7 @@ export class NgpSelect {
 
   /**
    * Select an option.
-   * @param index The id of the option to select.
+   * @param id The id of the option to select.
    * @internal
    */
   selectOption(id: string): void {

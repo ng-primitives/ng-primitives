@@ -403,24 +403,6 @@ function setAttribute(
   }
 }
 
-export function attrBindingEffect(
-  element: ElementRef<HTMLElement>,
-  attr: string,
-  value:
-    | (() => string | number | boolean | null | undefined)
-    | string
-    | number
-    | boolean
-    | null
-    | undefined,
-): void {
-  effect(() => {
-    const valueResult = typeof value === 'function' ? value() : value;
-
-    setAttribute(element, attr, valueResult?.toString() ?? null);
-  });
-}
-
 export function attrBinding(
   element: ElementRef<HTMLElement>,
   attr: string,
@@ -469,25 +451,6 @@ function getStyleUnit(style: string): string {
   return '';
 }
 
-export function styleBindingEffect(
-  element: ElementRef<HTMLElement>,
-  style: string,
-  value: (() => string | number | null) | string | number | null,
-): void {
-  effect(() => {
-    const styleValue = typeof value === 'function' ? value() : value;
-    // we should look for units in the style name, just like Angular does e.g. width.px
-    const styleUnit = getStyleUnit(style);
-    const styleName = styleUnit ? style.replace(`.${styleUnit}`, '') : style;
-
-    if (styleValue !== null) {
-      element.nativeElement.style.setProperty(styleName, styleValue + styleUnit);
-    } else {
-      element.nativeElement.style.removeProperty(styleName);
-    }
-  });
-}
-
 export function styleBinding(
   element: ElementRef<HTMLElement>,
   style: string,
@@ -504,30 +467,6 @@ export function styleBinding(
     } else {
       element.nativeElement.style.removeProperty(styleName);
     }
-  });
-}
-
-export function dataBindingEffect(
-  element: ElementRef<HTMLElement>,
-  attr: string,
-  value: (() => string | boolean | null) | string | boolean | null,
-): void {
-  if (!attr.startsWith('data-')) {
-    throw new Error(`dataBinding: attribute "${attr}" must start with "data-"`);
-  }
-
-  effect(() => {
-    let valueResult = typeof value === 'function' ? value() : value;
-
-    if (valueResult === false) {
-      valueResult = null;
-    } else if (valueResult === true) {
-      valueResult = '';
-    } else if (valueResult !== null && typeof valueResult !== 'string') {
-      valueResult = String(valueResult);
-    }
-
-    setAttribute(element, attr, valueResult);
   });
 }
 

@@ -1,6 +1,6 @@
 import { ElementRef, Signal, signal } from '@angular/core';
 import { injectElementRef, observeResize } from 'ng-primitives/internal';
-import { attrBindingEffect, createPrimitive, styleBindingEffect } from 'ng-primitives/state';
+import { attrBinding, createPrimitive, styleBinding } from 'ng-primitives/state';
 import { uniqueId } from 'ng-primitives/utils';
 import { injectSelectState } from '../select/select-state';
 
@@ -32,26 +32,26 @@ export const [
 
     const selectDimensions = observeResize(() => selectState().elementRef.nativeElement);
     // Host bindings
-    attrBindingEffect(elementRef, 'role', 'listbox');
-    attrBindingEffect(elementRef, 'id', _id);
-    styleBindingEffect(elementRef, 'left.px', () => selectState().overlay()?.position()?.x ?? null);
-    styleBindingEffect(elementRef, 'top.px', () => selectState().overlay()?.position()?.y ?? null);
-    styleBindingEffect(
+    attrBinding(elementRef, 'role', 'listbox');
+    attrBinding(elementRef, 'id', _id);
+    styleBinding(elementRef, 'left.px', () => selectState().overlay()?.position()?.x ?? null);
+    styleBinding(elementRef, 'top.px', () => selectState().overlay()?.position()?.y ?? null);
+    styleBinding(
       elementRef,
       '--ngp-select-transform-origin',
       () => selectState().overlay()?.transformOrigin() ?? null,
     );
-    styleBindingEffect(
+    styleBinding(
       elementRef,
       '--ngp-select-available-width.px',
       () => selectState().overlay()?.availableWidth() ?? null,
     );
-    styleBindingEffect(
+    styleBinding(
       elementRef,
       '--ngp-select-available-height.px',
       () => selectState().overlay()?.availableHeight() ?? null,
     );
-    styleBindingEffect(elementRef, '--ngp-select-width.px', () => selectDimensions().width ?? null);
+    styleBinding(elementRef, '--ngp-select-width.px', () => selectDimensions().width ?? null);
 
     const state = {
       elementRef,
