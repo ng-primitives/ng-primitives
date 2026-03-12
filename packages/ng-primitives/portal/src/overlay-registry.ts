@@ -102,6 +102,7 @@ export class NgpOverlayRegistry {
     const index = this.entries.findIndex(e => e.id === id);
     if (index !== -1) {
       this.entries.splice(index, 1);
+      this.pendingGuardIds.delete(id);
     }
 
     // Detach listeners when the last overlay deregisters
@@ -259,8 +260,12 @@ export class NgpOverlayRegistry {
       return;
     }
 
-    // Evaluate guard and close if allowed
-    const target = event.target as Element;
+    // Derive a proper Element from the composed path — event.target may not be an Element
+    // (e.g. it could be a Text node or the Document). Pick the first Element in the path,
+    // falling back to documentElement so guard functions can safely use Element APIs.
+    const target =
+      (path.find((node): node is Element => node instanceof Element) as Element) ??
+      this.document.documentElement;
     this.evaluateGuardAndDismiss(topmost.id, topmost.dismissPolicy.outsidePress, target, () =>
       this.ngZone.run(() => topmost.overlay.hide()),
     );
@@ -308,7 +313,14 @@ export class NgpOverlayRegistry {
     }
 
     // Function guard → evaluate
-    const result = guard(target);
+    let result: boolean | Promise<boolean>;
+    try {
+      result = guard(target);
+    } catch (error) {
+      console.error('NgpOverlayRegistry: dismiss guard threw', error);
+      return;
+    }
+
     if (typeof result === 'boolean') {
       if (result) {
         dismiss();
