@@ -98,6 +98,42 @@ These options can also be set on the trigger directive:
 </button>
 ```
 
+## Custom Container
+
+By default, dialogs are attached to the document body. You can attach a dialog to a specific container element using the `container` option. This is useful when you want to render a dialog (e.g. a drawer) inside another dialog or modal.
+
+Using the trigger directive:
+
+```html
+<button
+  [ngpDialogTrigger]="drawer"
+  [ngpDialogTriggerContainer]="modalElement"
+  ngpButton
+>
+  Open Drawer
+</button>
+```
+
+Or with a CSS selector:
+
+```html
+<button
+  [ngpDialogTrigger]="drawer"
+  ngpDialogTriggerContainer="#my-modal"
+  ngpButton
+>
+  Open Drawer
+</button>
+```
+
+Using the `NgpDialogManager`:
+
+```ts
+this.dialogManager.open(MyDrawerComponent, {
+  container: '#my-modal',
+});
+```
+
 ## API Reference
 
 The following directives are available to import from the `ng-primitives/dialog` package:

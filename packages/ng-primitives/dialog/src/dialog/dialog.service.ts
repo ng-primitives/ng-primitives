@@ -142,8 +142,9 @@ export class NgpDialogManager implements OnDestroy {
       context,
     );
 
-    // Attach the portal to the document body
-    portal.attach(this.document.body);
+    // Attach the portal to the resolved container
+    const container = this.resolveContainer(config.container);
+    portal.attach(container);
 
     // Store the portal reference on the dialog ref for element access and cleanup
     dialogRef.portal = portal;
@@ -322,6 +323,32 @@ export class NgpDialogManager implements OnDestroy {
    */
   private disableScrollBlocking(): void {
     this.scrollStrategy?.disable();
+  }
+
+  /**
+   * Resolve the container element from the configuration.
+   */
+  private resolveContainer(container?: HTMLElement | string | null): HTMLElement {
+    if (!container) {
+      return this.document.body;
+    }
+
+    if (typeof container === 'string') {
+      const element = this.document.querySelector(container);
+
+      if (!element) {
+        if (isDevMode()) {
+          console.warn(
+            `NgPrimitives: Container element with selector "${container}" not found. Falling back to document.body.`,
+          );
+        }
+        return this.document.body;
+      }
+
+      return element as HTMLElement;
+    }
+
+    return container;
   }
 
   /**

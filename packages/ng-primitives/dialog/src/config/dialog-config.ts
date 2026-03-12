@@ -38,6 +38,12 @@ export interface NgpDialogConfig<T = any> {
    */
   closeOnClick?: boolean;
 
+  /**
+   * The container element or CSS selector to attach the dialog to.
+   * @default 'body'
+   */
+  container?: HTMLElement | string | null;
+
   data?: T;
 }
 

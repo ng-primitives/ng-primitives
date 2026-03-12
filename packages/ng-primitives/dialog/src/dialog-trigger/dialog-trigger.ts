@@ -43,6 +43,14 @@ export class NgpDialogTrigger<T = unknown> {
   );
 
   /**
+   * The container element or CSS selector to attach the dialog to.
+   * @default 'body'
+   */
+  readonly container = input<HTMLElement | string | null>(this.config.container ?? null, {
+    alias: 'ngpDialogTriggerContainer',
+  });
+
+  /**
    * Store the dialog ref.
    * @internal
    */
@@ -53,6 +61,7 @@ export class NgpDialogTrigger<T = unknown> {
     this.dialogRef = this.dialogManager.open(this.template(), {
       closeOnEscape: this.closeOnEscape(),
       closeOnOutsideClick: this.closeOnOutsideClick(),
+      container: this.container(),
     });
     this.dialogRef.closed.subscribe(({ result }) => {
       this.closed.emit(result as T);
