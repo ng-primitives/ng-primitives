@@ -1,3 +1,14 @@
+## 0.111.1 (2026-03-12)
+
+### 🩹 Fixes
+
+- **menu:** prevent submenu closeOnSelect=false items from closing parent menu ([#700](https://github.com/ng-primitives/ng-primitives/pull/700))
+
+### ❤️ Thank You
+
+- Ashley Hunter
+- Claude Opus 4.6
+
 ## 0.111.0 (2026-03-11)
 
 ### 🚀 Features
