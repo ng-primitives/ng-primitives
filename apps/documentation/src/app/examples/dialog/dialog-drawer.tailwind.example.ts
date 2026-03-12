@@ -29,7 +29,7 @@ import {
 
     <ng-template #drawer let-close="close">
       <div
-        class="animate-fade fixed inset-0 flex items-stretch justify-end bg-black/50 backdrop-blur-sm"
+        class="animate-fade fixed inset-0 z-1001 flex items-stretch justify-end bg-black/50 backdrop-blur-sm"
         ngpDialogOverlay
       >
         <div class="animate-drawer h-full w-80 max-w-full bg-white p-6 dark:bg-zinc-950" ngpDialog>

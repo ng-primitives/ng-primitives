@@ -67,19 +67,24 @@ export class NgpSelectPortal implements OnDestroy {
    * Create the overlay that will contain the dropdown
    */
   private createOverlay(): void {
+    const state = this.state();
+
     // Create config for the overlay
     const config: NgpOverlayConfig<void> = {
       content: this.templateRef,
       viewContainerRef: this.viewContainerRef,
-      triggerElement: this.state().elementRef.nativeElement,
+      triggerElement: state.elementRef.nativeElement,
       injector: this.injector,
-      placement: this.state().placement,
-      flip: this.state().flip(),
-      closeOnOutsideClick: true,
-      closeOnEscape: true,
+      placement: state.placement,
+      offset: state.offset(),
+      flip: state.flip(),
+      shift: state.shift(),
+      closeOnOutsideClick: state.closeOnOutsideClick(),
+      closeOnEscape: state.closeOnEscape(),
       restoreFocus: false,
-      scrollBehaviour: 'reposition',
-      container: this.state().container(),
+      scrollBehaviour: state.scrollBehavior(),
+      container: state.container(),
+      additionalMiddleware: state.middleware(),
     };
 
     this.overlay.set(createOverlay(config));

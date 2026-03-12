@@ -1,29 +1,35 @@
 import { FocusOrigin } from '@angular/cdk/a11y';
-import { hasModifierKey } from '@angular/cdk/keycodes';
-import { OverlayRef } from '@angular/cdk/overlay';
 import { inject, Injector } from '@angular/core';
 import { NgpExitAnimationManager } from 'ng-primitives/internal';
-import { Observable, Subject, Subscription } from 'rxjs';
+import { NgpDismissGuard, NgpOverlayRef } from 'ng-primitives/portal';
+import { Observable, Subject } from 'rxjs';
+import { map } from 'rxjs/operators';
 import { NgpDialogConfig } from '../config/dialog-config';
+
+/** Minimal portal interface needed by the dialog ref. */
+export interface NgpDialogPortalRef {
+  getElements(): HTMLElement[];
+  detach(immediate?: boolean): Promise<void>;
+}
 
 /**
  * Reference to a dialog opened via the Dialog service.
  */
-export class NgpDialogRef<T = unknown, R = unknown> {
+export class NgpDialogRef<T = unknown, R = unknown> implements NgpOverlayRef {
   /** Whether the user is allowed to close the dialog. */
   disableClose: boolean | undefined;
 
-  /** Whether the escape key is allowed to close the dialog. */
-  closeOnEscape: boolean | undefined;
+  /** Whether the escape key is allowed to close the dialog, or a guard function. */
+  closeOnEscape: NgpDismissGuard<KeyboardEvent> | undefined;
 
   /** Emits when the dialog has been closed. */
   readonly closed = new Subject<{ focusOrigin?: FocusOrigin; result?: R }>();
 
-  /** Emits when on keyboard events within the dialog. */
-  readonly keydownEvents: Observable<KeyboardEvent>;
-
-  /** Emits on pointer events that happen outside of the dialog. */
-  readonly outsidePointerEvents: Observable<MouseEvent>;
+  /**
+   * Observable that emits the dialog result when closed.
+   * This is a convenience wrapper around `closed` that extracts only the result value.
+   */
+  readonly afterClosed: Observable<R | undefined> = this.closed.pipe(map(event => event.result));
 
   /** Data passed from the dialog opener. */
   readonly data: T;
@@ -31,44 +37,45 @@ export class NgpDialogRef<T = unknown, R = unknown> {
   /** Unique ID for the dialog. */
   readonly id: string;
 
-  /** Subscription to external detachments of the dialog. */
-  private detachSubscription: Subscription;
-
   /** @internal Store the injector */
   injector: Injector | undefined;
 
   /** Whether the dialog is closing. */
   private closing = false;
 
-  constructor(
-    readonly overlayRef: OverlayRef,
-    readonly config: NgpDialogConfig<T>,
-  ) {
+  /** @internal Portal reference for element access and detach. */
+  portal: NgpDialogPortalRef | null = null;
+
+  constructor(readonly config: NgpDialogConfig<T>) {
     this.data = config.data as T;
-    this.keydownEvents = overlayRef.keydownEvents();
-    this.outsidePointerEvents = overlayRef.outsidePointerEvents();
     this.id = config.id!; // By the time the dialog is created we are guaranteed to have an ID.
     this.closeOnEscape = config.closeOnEscape ?? true;
+  }
 
-    this.keydownEvents.subscribe(event => {
-      if (
-        event.key === 'Escape' &&
-        !this.disableClose &&
-        this.closeOnEscape !== false &&
-        !hasModifierKey(event)
-      ) {
-        event.preventDefault();
-        this.close(undefined, 'keyboard');
-      }
-    });
+  /**
+   * NgpOverlayRef implementation — called by the registry for escape-key dismiss.
+   */
+  hide(options?: { immediate?: boolean; origin?: FocusOrigin }): void {
+    if (this.disableClose) {
+      return;
+    }
+    this.close(undefined, options?.origin);
+  }
 
-    this.detachSubscription = overlayRef.detachments().subscribe(() => this.close());
+  /**
+   * NgpOverlayRef implementation — called by the registry for descendant cascade.
+   */
+  hideImmediate(): void {
+    if (this.disableClose) {
+      return;
+    }
+    this.close();
   }
 
   /**
    * Close the dialog.
    * @param result Optional result to return to the dialog opener.
-   * @param options Additional options to customize the closing behavior.
+   * @param focusOrigin The origin of the focus event that triggered the close.
    */
   async close(result?: R, focusOrigin?: FocusOrigin): Promise<void> {
     // If the dialog is already closed, do nothing.
@@ -85,16 +92,22 @@ export class NgpDialogRef<T = unknown, R = unknown> {
       await exitAnimationManager.exit();
     }
 
-    this.overlayRef.dispose();
-    this.detachSubscription.unsubscribe();
+    // Detach the portal (immediate since exit animation already ran)
+    if (this.portal) {
+      await this.portal.detach(true);
+      this.portal = null;
+    }
+
     this.closed.next({ focusOrigin, result });
     this.closed.complete();
   }
 
-  /** Updates the position of the dialog based on the current position strategy. */
-  updatePosition(): this {
-    this.overlayRef.updatePosition();
-    return this;
+  /**
+   * Get the portal elements.
+   * @internal
+   */
+  getElements(): HTMLElement[] {
+    return this.portal?.getElements() ?? [];
   }
 }
 

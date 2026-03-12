@@ -34,6 +34,7 @@ import {
       justify-content: center;
       align-items: center;
       animation: fadeIn 300ms cubic-bezier(0.4, 0, 0.2, 1);
+      z-index: 1001;
     }
 
     :host[data-exit] {

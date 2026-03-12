@@ -102,6 +102,7 @@ import { ChangeFn, provideValueAccessor, TouchedFn } from 'ng-primitives/utils';
       max-height: 240px;
       overflow-y: auto;
       transform-origin: var(--ngp-select-transform-origin);
+      z-index: 1001;
     }
 
     [ngpSelectDropdown][data-enter] {

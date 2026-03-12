@@ -95,6 +95,15 @@ export class NgpListbox<T> implements AfterContentInit {
   });
 
   /**
+   * Whether to close the parent popover on selection in single-select mode.
+   * Set to false to keep the popover open after selection.
+   */
+  readonly closeOnSelect = input<boolean, BooleanInput>(true, {
+    alias: 'ngpListboxCloseOnSelect',
+    transform: booleanAttribute,
+  });
+
+  /**
    * The tabindex of the listbox.
    */
   protected readonly tabindex = computed(() => (this.state.disabled() ? -1 : 0));
@@ -210,8 +219,8 @@ export class NgpListbox<T> implements AfterContentInit {
       this.keyManager.setActiveItem(option);
     }
 
-    // If the listbox is within a popover, close the popover on selection if it is not in a multiple selection mode.
-    if (this.state.mode() !== 'multiple') {
+    // Close the parent popover on selection in single-select mode if closeOnSelect is true.
+    if (this.state.closeOnSelect() && this.state.mode() === 'single') {
       this.popoverTrigger()?.hide(origin);
     }
   }

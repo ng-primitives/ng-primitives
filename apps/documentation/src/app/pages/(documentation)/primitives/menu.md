@@ -64,6 +64,30 @@ ng g ng-primitives:primitive menu
 - `file-suffix`: The suffix to apply to the generated component file name. Defaults to `component`.
 - `example-styles`: Whether to include example styles in the generated component file. Defaults to `true`.
 
+## Controlled State
+
+You can control the menu's open state externally using the `ngpMenuTriggerOpen` input and `ngpMenuTriggerOpenChange` output:
+
+```html
+<button
+  [ngpMenuTrigger]="menu"
+  [ngpMenuTriggerOpen]="isOpen()"
+  (ngpMenuTriggerOpenChange)="isOpen.set($event)"
+>
+  Controlled Menu
+</button>
+```
+
+## Dismiss Guards
+
+The `closeOnOutsideClick` and `closeOnEscape` inputs accept either a boolean or a guard function. A guard function receives the event and returns a boolean (or `Promise<boolean>`) indicating whether the menu should close:
+
+```html
+<button [ngpMenuTrigger]="menu" [ngpMenuTriggerCloseOnOutsideClick]="shouldClose">
+  Menu with guard
+</button>
+```
+
 ## Examples
 
 Here are some additional examples of how to use the Menu primitives.
@@ -318,6 +342,8 @@ bootstrapApplication(AppComponent, {
       placement: 'top',
       flip: true,
       container: document.body,
+      closeOnOutsideClick: true,
+      closeOnEscape: true,
       scrollBehavior: 'reposition',
       cooldown: 0,
     }),
@@ -369,6 +395,14 @@ bootstrapApplication(AppComponent, {
 
 <prop-details name="container" type="HTMLElement">
   Define the container element for the menu. This is the document body by default.
+</prop-details>
+
+<prop-details name="closeOnOutsideClick" type="boolean | ((target: Element) => boolean | Promise<boolean>)">
+  Define whether the menu should close when clicking outside of it. Can be a boolean or a guard function.
+</prop-details>
+
+<prop-details name="closeOnEscape" type="boolean | ((event: KeyboardEvent) => boolean | Promise<boolean>)">
+  Define whether the menu should close when the escape key is pressed. Can be a boolean or a guard function.
 </prop-details>
 
 <prop-details name="scrollBehavior" type="reposition | block">

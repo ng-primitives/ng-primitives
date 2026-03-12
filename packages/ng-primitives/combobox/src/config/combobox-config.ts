@@ -1,5 +1,6 @@
 import { InjectionToken, Provider, inject } from '@angular/core';
-import { NgpFlip } from 'ng-primitives/portal';
+import type { Middleware } from '@floating-ui/dom';
+import { NgpDismissGuard, NgpFlip, NgpOffset, NgpShift } from 'ng-primitives/portal';
 import { type NgpComboboxPlacement } from '../combobox/combobox';
 
 export interface NgpComboboxConfig {
@@ -18,16 +19,56 @@ export interface NgpComboboxConfig {
 
   /**
    * Whether the combobox dropdown should flip when there is not enough space.
-   * Can be a boolean to enable/disable, or an object with padding and fallbackPlacements options.
    * @default true
    */
   flip: NgpFlip;
+
+  /**
+   * Define the offset from the trigger element.
+   * @default 0
+   */
+  offset: NgpOffset;
+
+  /**
+   * Configure shift behavior to keep the dropdown in view.
+   * @default undefined (enabled by default)
+   */
+  shift: NgpShift;
+
+  /**
+   * Defines how the dropdown behaves when the window is scrolled.
+   * @default 'reposition'
+   */
+  scrollBehavior: 'reposition' | 'block' | 'close';
+
+  /**
+   * Whether clicking outside the dropdown closes it.
+   * @default true
+   */
+  closeOnOutsideClick: NgpDismissGuard<Element>;
+
+  /**
+   * Whether pressing Escape closes the dropdown.
+   * @default true
+   */
+  closeOnEscape: NgpDismissGuard<KeyboardEvent>;
+
+  /**
+   * Additional Floating UI middleware for custom positioning.
+   */
+  middleware: Middleware[];
 }
 
 export const defaultComboboxConfig: NgpComboboxConfig = {
   placement: 'bottom',
   container: 'body',
   flip: true,
+  offset: 0,
+  shift: undefined,
+  scrollBehavior: 'reposition',
+  closeOnOutsideClick: true,
+  closeOnEscape: true,
+  middleware: [],
 };
 
 export const NgpComboboxConfigToken = new InjectionToken<NgpComboboxConfig>(

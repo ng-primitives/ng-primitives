@@ -1,5 +1,6 @@
 import { InjectionToken, Provider, inject } from '@angular/core';
-import { NgpFlip, NgpOffset, NgpShift } from 'ng-primitives/portal';
+import type { Middleware } from '@floating-ui/dom';
+import { NgpDismissGuard, NgpFlip, NgpOffset, NgpShift } from 'ng-primitives/portal';
 import type { NgpMenuPlacement } from '../menu-trigger/menu-trigger';
 
 export type NgpMenuTriggerType = 'click' | 'hover' | 'focus' | 'enter' | 'arrowkey';
@@ -75,6 +76,23 @@ export interface NgpMenuConfig {
    * @default 0
    */
   hideDelay: number;
+
+  /**
+   * Whether clicking outside the menu closes it.
+   * @default true
+   */
+  closeOnOutsideClick: NgpDismissGuard<Element>;
+
+  /**
+   * Whether pressing Escape closes the menu.
+   * @default true
+   */
+  closeOnEscape: NgpDismissGuard<KeyboardEvent>;
+
+  /**
+   * Additional Floating UI middleware for custom positioning.
+   */
+  middleware: Middleware[];
 }
 
 export const defaultMenuConfig: NgpMenuConfig = {
@@ -89,6 +107,9 @@ export const defaultMenuConfig: NgpMenuConfig = {
   triggers: ['click'],
   showDelay: 0,
   hideDelay: 0,
+  closeOnOutsideClick: true,
+  closeOnEscape: true,
+  middleware: [],
 };
 
 export const NgpMenuConfigToken = new InjectionToken<NgpMenuConfig>('NgpMenuConfigToken');

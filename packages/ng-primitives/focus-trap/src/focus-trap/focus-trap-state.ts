@@ -216,19 +216,22 @@ export const [NgpFocusTrapStateToken, ngpFocusTrap, injectFocusTrapState, provid
       }
 
       /**
-       * Whether the given element belongs to another focus trap or a CDK overlay container.
+       * Whether the given element belongs to another focus trap, a portaled overlay,
+       * or a CDK overlay container.
        *
        * When focus moves to these elements we must not redirect it back, because they
-       * manage their own focus trapping. Without this check, opening a CDK overlay
-       * (e.g. a select dropdown) from inside a focus-trapped dialog would immediately
-       * yank focus back into the dialog, making the overlay unusable.
+       * manage their own focus trapping. Without this check, opening a portaled overlay
+       * (e.g. a select dropdown or popover) from inside a focus-trapped dialog would
+       * immediately yank focus back into the dialog, making the overlay unusable.
        *
        * See https://github.com/nicecod3r/ng-primitives/issues/682
        * and https://github.com/nicecod3r/ng-primitives/issues/687
        */
       function isAllowedExternalTarget(target: HTMLElement | null): boolean {
         return !!(
-          target?.closest?.('[data-focus-trap]') || target?.closest?.('.cdk-overlay-container')
+          target?.closest?.('[data-focus-trap]') ||
+          target?.closest?.('[data-ngp-portal]') ||
+          target?.closest?.('.cdk-overlay-container')
         );
       }
 

@@ -116,6 +116,7 @@ import { ChangeFn, provideValueAccessor, TouchedFn } from 'ng-primitives/utils';
       max-height: 240px;
       overflow-y: auto;
       transform-origin: var(--ngp-combobox-transform-origin);
+      z-index: 1001;
     }
 
     [ngpComboboxDropdown][data-enter] {

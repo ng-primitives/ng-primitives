@@ -68,6 +68,19 @@ ng g ng-primitives:primitive dialog
 - `file-suffix`: The suffix to apply to the generated component file name. Defaults to `component`.
 - `example-styles`: Whether to include example styles in the generated component file. Defaults to `true`.
 
+## Dismiss Guards
+
+The `closeOnEscape` option in `NgpDialogConfig` accepts either a boolean or a guard function. A guard function receives the keyboard event and returns a boolean (or `Promise<boolean>`) indicating whether the dialog should close:
+
+```ts
+this.dialogManager.open(MyDialogComponent, {
+  closeOnEscape: (event: KeyboardEvent) => {
+    // Custom logic to determine if the dialog should close
+    return !this.hasUnsavedChanges();
+  },
+});
+```
+
 ## API Reference
 
 The following directives are available to import from the `ng-primitives/dialog` package:

@@ -1,30 +1,14 @@
 import { coerceNumberProperty } from '@angular/cdk/coercion';
+import { type ShiftOptions } from '@floating-ui/dom';
 import { isNil, isObject } from 'ng-primitives/utils';
 
 /**
- * Options for configuring shift behavior to keep the floating element in view.
- * The shift middleware ensures the floating element stays visible by shifting it
- * within the viewport when it would otherwise overflow.
+ * Options for configuring shift behavior.
+ * Re-exports Floating UI's ShiftOptions directly — includes all DetectOverflowOptions
+ * (boundary, rootBoundary, padding, elementContext, altBoundary) plus shift-specific
+ * options (mainAxis, crossAxis, limiter).
  */
-export interface NgpShiftOptions {
-  /**
-   * The minimum padding between the floating element and the viewport edges.
-   * Prevents the floating element from touching the edges of the viewport.
-   * @default 0
-   */
-  padding?: number;
-
-  /**
-   * The limiter function that determines how much the floating element can shift.
-   * Common limiters from @floating-ui/dom include:
-   * - limitShift: Limits shifting to prevent the reference element from being obscured
-   * @default undefined
-   */
-  limiter?: {
-    fn: (state: unknown) => { x: number; y: number };
-    options?: unknown;
-  };
-}
+export type NgpShiftOptions = ShiftOptions;
 
 /**
  * Type representing all valid shift values.

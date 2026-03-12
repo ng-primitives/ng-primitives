@@ -1,10 +1,21 @@
 import { FocusOrigin } from '@angular/cdk/a11y';
 import { BooleanInput, NumberInput } from '@angular/cdk/coercion';
-import { booleanAttribute, Directive, input, numberAttribute, Signal } from '@angular/core';
+import {
+  booleanAttribute,
+  Directive,
+  effect,
+  input,
+  numberAttribute,
+  output,
+  Signal,
+  untracked,
+} from '@angular/core';
+import type { Middleware } from '@floating-ui/dom';
 import {
   coerceFlip,
   coerceOffset,
   coerceShift,
+  NgpDismissGuard,
   NgpFlip,
   NgpFlipInput,
   NgpOffset,
@@ -144,6 +155,36 @@ export class NgpMenuTrigger<T = unknown> {
     transform: numberAttribute,
   });
 
+  /** Whether clicking outside the menu closes it. */
+  readonly closeOnOutsideClick = input<NgpDismissGuard<Element>>(this.config.closeOnOutsideClick, {
+    alias: 'ngpMenuTriggerCloseOnOutsideClick',
+  });
+
+  /** Whether pressing Escape closes the menu. */
+  readonly closeOnEscape = input<NgpDismissGuard<KeyboardEvent>>(this.config.closeOnEscape, {
+    alias: 'ngpMenuTriggerCloseOnEscape',
+  });
+
+  /** Additional Floating UI middleware for custom positioning. */
+  readonly middleware = input<Middleware[]>(this.config.middleware, {
+    alias: 'ngpMenuTriggerMiddleware',
+  });
+
+  /**
+   * Controlled open state. When provided, the menu open state is driven by this input.
+   * Use with the menu trigger state's `isOpen` signal to implement controlled menu behavior.
+   */
+  readonly open = input<boolean | undefined>(undefined, {
+    alias: 'ngpMenuTriggerOpen',
+  });
+
+  /**
+   * Emits when the menu open state changes.
+   */
+  readonly openChange = output<boolean>({
+    alias: 'ngpMenuTriggerOpenChange',
+  });
+
   /**
    * The menu trigger state.
    */
@@ -161,7 +202,26 @@ export class NgpMenuTrigger<T = unknown> {
     triggers: this.triggers,
     showDelay: this.showDelay,
     hideDelay: this.hideDelay,
+    closeOnOutsideClick: this.closeOnOutsideClick,
+    closeOnEscape: this.closeOnEscape,
+    middleware: this.middleware,
+    onOpenChange: (isOpen: boolean) => this.openChange.emit(isOpen),
   });
+
+  constructor() {
+    effect(() => {
+      const shouldBeOpen = this.open();
+      if (shouldBeOpen === undefined) return;
+
+      untracked(() => {
+        if (shouldBeOpen && !this.state.isOpen()) {
+          this.show();
+        } else if (!shouldBeOpen && this.state.isOpen()) {
+          this.hide();
+        }
+      });
+    });
+  }
 
   /**
    * Show the menu.

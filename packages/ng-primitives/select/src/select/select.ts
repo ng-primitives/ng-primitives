@@ -3,19 +3,32 @@ import {
   booleanAttribute,
   computed,
   Directive,
+  effect,
   HostListener,
   inject,
   Injector,
   input,
   output,
   signal,
+  untracked,
 } from '@angular/core';
-import type { Placement } from '@floating-ui/dom';
+import type { Middleware, Placement } from '@floating-ui/dom';
 import { activeDescendantManager } from 'ng-primitives/a11y';
 import { ngpFormControl } from 'ng-primitives/form-field';
 import { ngpInteractions } from 'ng-primitives/interactions';
 import { domSort, injectElementRef } from 'ng-primitives/internal';
-import { coerceFlip, NgpFlip, NgpFlipInput } from 'ng-primitives/portal';
+import {
+  coerceFlip,
+  NgpDismissGuard,
+  NgpFlip,
+  NgpFlipInput,
+  coerceOffset,
+  NgpOffset,
+  NgpOffsetInput,
+  coerceShift,
+  NgpShift,
+  NgpShiftInput,
+} from 'ng-primitives/portal';
 import { uniqueId } from 'ng-primitives/utils';
 import { injectSelectConfig } from '../config/select-config';
 import type { NgpSelectDropdown } from '../select-dropdown/select-dropdown';
@@ -44,11 +57,11 @@ type T = any;
   host: {
     role: 'combobox',
     '[id]': 'state.id()',
-    '[attr.aria-expanded]': 'open()',
-    '[attr.aria-controls]': 'open() ? dropdown()?.id() : undefined',
-    '[attr.aria-activedescendant]': 'open() ? activeDescendantManager.id() : undefined',
+    '[attr.aria-expanded]': 'isOpen()',
+    '[attr.aria-controls]': 'isOpen() ? dropdown()?.id() : undefined',
+    '[attr.aria-activedescendant]': 'isOpen() ? activeDescendantManager.id() : undefined',
     '[attr.tabindex]': 'state.disabled() ? -1 : 0',
-    '[attr.data-open]': 'open() ? "" : undefined',
+    '[attr.data-open]': 'isOpen() ? "" : undefined',
     '[attr.data-disabled]': 'state.disabled() ? "" : undefined',
     '[attr.data-multiple]': 'state.multiple() ? "" : undefined',
   },
@@ -108,10 +121,49 @@ export class NgpSelect {
     alias: 'ngpSelectDropdownContainer',
   });
 
-  /** Whether the dropdown should flip when there is not enough space. Can be a boolean to enable/disable, or an object with padding and fallbackPlacements options. */
+  /** Whether the dropdown should flip when there is not enough space. */
   readonly flip = input<NgpFlip, NgpFlipInput>(this.config.flip, {
     alias: 'ngpSelectDropdownFlip',
     transform: coerceFlip,
+  });
+
+  /** Define the offset from the trigger element. */
+  readonly offset = input<NgpOffset, NgpOffsetInput>(this.config.offset, {
+    alias: 'ngpSelectDropdownOffset',
+    transform: coerceOffset,
+  });
+
+  /** Configure shift behavior to keep the dropdown in view. */
+  readonly shift = input<NgpShift, NgpShiftInput>(this.config.shift, {
+    alias: 'ngpSelectDropdownShift',
+    transform: coerceShift,
+  });
+
+  /** Defines how the dropdown behaves when the window is scrolled. */
+  readonly scrollBehavior = input<'reposition' | 'block' | 'close'>(this.config.scrollBehavior, {
+    alias: 'ngpSelectDropdownScrollBehavior',
+  });
+
+  /** Whether clicking outside the dropdown closes it. */
+  readonly closeOnOutsideClick = input<NgpDismissGuard<Element>>(this.config.closeOnOutsideClick, {
+    alias: 'ngpSelectDropdownCloseOnOutsideClick',
+  });
+
+  /** Whether pressing Escape closes the dropdown. */
+  readonly closeOnEscape = input<NgpDismissGuard<KeyboardEvent>>(this.config.closeOnEscape, {
+    alias: 'ngpSelectDropdownCloseOnEscape',
+  });
+
+  /**
+   * Controlled open state. When provided, the dropdown open state is driven by this input.
+   */
+  readonly open = input<boolean | undefined>(undefined, {
+    alias: 'ngpSelectDropdownOpen',
+  });
+
+  /** Additional Floating UI middleware for custom positioning. */
+  readonly middleware = input<Middleware[]>(this.config.middleware, {
+    alias: 'ngpSelectDropdownMiddleware',
   });
 
   /**
@@ -159,7 +211,7 @@ export class NgpSelect {
    * The open state of the select.
    * @internal
    */
-  readonly open = computed(() => this.overlay()?.isOpen() ?? false);
+  readonly isOpen = computed(() => this.overlay()?.isOpen() ?? false);
 
   /**
    * The options sorted by their index or DOM position.
@@ -208,6 +260,19 @@ export class NgpSelect {
     });
 
     ngpFormControl({ id: this.state.id, disabled: this.state.disabled });
+
+    effect(() => {
+      const shouldBeOpen = this.state.open();
+      if (shouldBeOpen === undefined) return;
+
+      untracked(() => {
+        if (shouldBeOpen && !this.isOpen()) {
+          this.openDropdown();
+        } else if (!shouldBeOpen && this.isOpen()) {
+          this.closeDropdown();
+        }
+      });
+    });
   }
 
   /**
@@ -215,7 +280,7 @@ export class NgpSelect {
    * @internal
    */
   async openDropdown(): Promise<void> {
-    if (this.state.disabled() || this.open()) {
+    if (this.state.disabled() || this.isOpen()) {
       return;
     }
 
@@ -256,7 +321,7 @@ export class NgpSelect {
    * @internal
    */
   closeDropdown(): void {
-    if (!this.open()) {
+    if (!this.isOpen()) {
       return;
     }
 
@@ -273,7 +338,7 @@ export class NgpSelect {
    */
   @HostListener('click')
   async toggleDropdown(): Promise<void> {
-    if (this.open()) {
+    if (this.isOpen()) {
       this.closeDropdown();
     } else {
       await this.openDropdown();
@@ -521,7 +586,7 @@ export class NgpSelect {
   protected handleKeydown(event: KeyboardEvent): void {
     switch (event.key) {
       case 'ArrowDown':
-        if (this.open()) {
+        if (this.isOpen()) {
           this.activateNextOption();
         } else {
           this.openDropdown();
@@ -529,7 +594,7 @@ export class NgpSelect {
         event.preventDefault();
         break;
       case 'ArrowUp':
-        if (this.open()) {
+        if (this.isOpen()) {
           this.activatePreviousOption();
         } else {
           this.openDropdown();
@@ -538,19 +603,19 @@ export class NgpSelect {
         event.preventDefault();
         break;
       case 'Home':
-        if (this.open()) {
+        if (this.isOpen()) {
           this.activeDescendantManager.first({ origin: 'keyboard' });
         }
         event.preventDefault();
         break;
       case 'End':
-        if (this.open()) {
+        if (this.isOpen()) {
           this.activeDescendantManager.last({ origin: 'keyboard' });
         }
         event.preventDefault();
         break;
       case 'Enter':
-        if (this.open()) {
+        if (this.isOpen()) {
           const activeId = this.activeDescendantManager.id();
 
           if (activeId) {
