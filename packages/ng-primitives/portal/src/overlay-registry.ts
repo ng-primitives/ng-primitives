@@ -322,6 +322,9 @@ export class NgpOverlayRegistry {
             dismiss();
           }
         })
+        .catch(error => {
+          console.error('NgpOverlayRegistry: dismiss guard rejected', error);
+        })
         .finally(() => {
           this.pendingGuardIds.delete(overlayId);
         });

@@ -36,11 +36,15 @@ export class NgpDialogOverlay {
         this.dialogRef.close(undefined, 'mouse');
       }
     } else {
-      result.then(shouldClose => {
-        if (shouldClose) {
-          this.dialogRef.close(undefined, 'mouse');
-        }
-      });
+      result
+        .then(shouldClose => {
+          if (shouldClose) {
+            this.dialogRef.close(undefined, 'mouse');
+          }
+        })
+        .catch(error => {
+          console.error('NgpDialogOverlay: dismiss guard rejected', error);
+        });
     }
   }
 }
