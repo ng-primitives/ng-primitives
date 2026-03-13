@@ -1,5 +1,6 @@
 import { DOCUMENT } from '@angular/common';
 import { computed, inject, Signal, signal } from '@angular/core';
+import { ngpFormControl } from 'ng-primitives/form-field';
 import { ngpInteractions } from 'ng-primitives/interactions';
 import { explicitEffect, injectElementRef } from 'ng-primitives/internal';
 import { attrBinding, createPrimitive, dataBinding, listener } from 'ng-primitives/state';
@@ -37,6 +38,9 @@ export const [
     const numberField = injectNumberFieldState();
     const document = inject(DOCUMENT);
 
+    // Form control integration — sets id, aria-labelledby, aria-describedby on the input
+    ngpFormControl({ id: numberField().id, disabled: numberField().disabled });
+
     const tabindex = computed(() => (numberField().disabled() ? -1 : 0));
 
     // Host bindings
@@ -71,7 +75,6 @@ export const [
     attrBinding(elementRef, 'aria-valuenow', () => numberField().value()?.toString() ?? null);
     attrBinding(elementRef, 'tabindex', () => tabindex().toString());
     attrBinding(elementRef, 'readonly', () => (numberField().readonly() ? '' : null));
-    dataBinding(elementRef, 'data-disabled', () => numberField().disabled());
     dataBinding(elementRef, 'data-readonly', () => numberField().readonly());
 
     ngpInteractions({

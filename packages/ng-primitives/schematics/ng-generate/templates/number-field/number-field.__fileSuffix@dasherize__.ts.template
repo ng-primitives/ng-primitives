@@ -23,11 +23,7 @@ import {
       outputs: ['ngpNumberFieldValueChange:valueChange'],
     },
   ],
-  imports: [
-    NgpNumberFieldInput,
-    NgpNumberFieldIncrement,
-    NgpNumberFieldDecrement,
-  ],
+  imports: [NgpNumberFieldInput, NgpNumberFieldIncrement, NgpNumberFieldDecrement],
   template: `
     <button ngpNumberFieldDecrement>−</button>
     <input ngpNumberFieldInput />

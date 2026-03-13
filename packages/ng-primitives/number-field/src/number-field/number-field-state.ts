@@ -1,5 +1,4 @@
 import { computed, Signal, signal, WritableSignal } from '@angular/core';
-import { ngpFormControl } from 'ng-primitives/form-field';
 import { injectElementRef } from 'ng-primitives/internal';
 import {
   attrBinding,
@@ -151,25 +150,21 @@ export const [
 
     const valueChange = emitter<number | null>();
 
-    // Form control integration
-    const status = ngpFormControl({ id, disabled });
-
     const canIncrement = computed(() => {
-      if (status().disabled || readonly()) return false;
+      if (disabled() || readonly()) return false;
       if (value() === null) return true;
       return value()! < max();
     });
 
     const canDecrement = computed(() => {
-      if (status().disabled || readonly()) return false;
+      if (disabled() || readonly()) return false;
       if (value() === null) return true;
       return value()! > min();
     });
 
     // Host bindings
-    attrBinding(element, 'id', id);
     attrBinding(element, 'role', () => 'group');
-    dataBinding(element, 'data-disabled', () => status().disabled);
+    dataBinding(element, 'data-disabled', disabled);
     dataBinding(element, 'data-readonly', readonly);
 
     /**
@@ -206,7 +201,7 @@ export const [
     }
 
     function setValue(newValue: number | null): void {
-      if (status().disabled || readonly()) return;
+      if (disabled() || readonly()) return;
       if (newValue !== null && isNaN(newValue)) return;
       const finalValue = newValue !== null ? clampAndStep(newValue) : null;
       // Skip emit when value is unchanged

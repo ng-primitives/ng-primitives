@@ -26,14 +26,14 @@ describe('NgpNumberField', () => {
     `;
   }
 
-  it('should render with generated id', async () => {
+  it('should render with generated id on the input', async () => {
     await render(createTemplate(), {
       imports,
       componentProperties: { valueChange: jest.fn() },
     });
 
-    const numberField = screen.getByTestId('number-field');
-    expect(numberField.id).toMatch(/^ngp-number-field/);
+    const input = screen.getByTestId('input');
+    expect(input.id).toMatch(/^ngp-number-field/);
   });
 
   it('should set role="group" on the root element', async () => {
@@ -288,6 +288,7 @@ describe('NgpNumberField', () => {
 
     expect(numberField).toHaveAttribute('data-disabled', '');
     expect(input).toHaveAttribute('data-disabled', '');
+    expect(input).toHaveAttribute('disabled');
   });
 
   it('should not change value when disabled', async () => {
