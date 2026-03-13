@@ -105,11 +105,7 @@ By default, dialogs are attached to the document body. You can attach a dialog t
 Using the trigger directive:
 
 ```html
-<button
-  [ngpDialogTrigger]="drawer"
-  [ngpDialogTriggerContainer]="modalElement"
-  ngpButton
->
+<button [ngpDialogTrigger]="drawer" [ngpDialogTriggerContainer]="modalElement" ngpButton>
   Open Drawer
 </button>
 ```
@@ -117,11 +113,7 @@ Using the trigger directive:
 Or with a CSS selector:
 
 ```html
-<button
-  [ngpDialogTrigger]="drawer"
-  ngpDialogTriggerContainer="#my-modal"
-  ngpButton
->
+<button [ngpDialogTrigger]="drawer" ngpDialogTriggerContainer="#my-modal" ngpButton>
   Open Drawer
 </button>
 ```
