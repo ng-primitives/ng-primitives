@@ -1,5 +1,6 @@
 import { DOCUMENT } from '@angular/common';
 import { computed, inject, Signal, signal } from '@angular/core';
+import { ngpFormControl } from 'ng-primitives/form-field';
 import { ngpInteractions } from 'ng-primitives/interactions';
 import { explicitEffect, injectElementRef } from 'ng-primitives/internal';
 import { attrBinding, createPrimitive, dataBinding, listener } from 'ng-primitives/state';
@@ -37,6 +38,9 @@ export const [
     const numberField = injectNumberFieldState();
     const document = inject(DOCUMENT);
 
+    // Form control integration — sets id, aria-labelledby, aria-describedby on the input
+    ngpFormControl({ id: numberField().id, disabled: numberField().disabled });
+
     const tabindex = computed(() => (numberField().disabled() ? -1 : 0));
 
     // Host bindings
@@ -53,6 +57,7 @@ export const [
       return 'text';
     });
 
+    attrBinding(elementRef, 'role', 'spinbutton');
     attrBinding(elementRef, 'type', 'text');
     attrBinding(elementRef, 'inputmode', inputMode);
     attrBinding(elementRef, 'autocomplete', 'off');
@@ -70,7 +75,6 @@ export const [
     attrBinding(elementRef, 'aria-valuenow', () => numberField().value()?.toString() ?? null);
     attrBinding(elementRef, 'tabindex', () => tabindex().toString());
     attrBinding(elementRef, 'readonly', () => (numberField().readonly() ? '' : null));
-    dataBinding(elementRef, 'data-disabled', () => numberField().disabled());
     dataBinding(elementRef, 'data-readonly', () => numberField().readonly());
 
     ngpInteractions({
@@ -82,20 +86,27 @@ export const [
     let isFocused = false;
 
     /**
+     * Parse text and set the number field value accordingly.
+     */
+    function parseAndSetValue(text: string): void {
+      const trimmed = text.trim();
+      if (trimmed === '' || trimmed === '-') {
+        numberField().setValue(null);
+      } else {
+        const parsed = parseFloat(trimmed);
+        if (!isNaN(parsed)) {
+          numberField().setValue(parsed);
+        }
+      }
+    }
+
+    /**
      * Commit the current input text to the number field value.
      * Called before increment/decrement so they operate on the displayed value.
      */
     function commitInputValue(): void {
       if (!isFocused) return;
-      const text = elementRef.nativeElement.value.trim();
-      if (text === '' || text === '-') {
-        numberField().setValue(null);
-      } else {
-        const parsed = parseFloat(text);
-        if (!isNaN(parsed)) {
-          numberField().setValue(parsed);
-        }
-      }
+      parseAndSetValue(elementRef.nativeElement.value);
     }
 
     // Register the commit function with the number field so buttons can trigger it
@@ -118,16 +129,7 @@ export const [
 
     listener(elementRef, 'blur', () => {
       isFocused = false;
-      const text = elementRef.nativeElement.value.trim();
-
-      if (text === '' || text === '-') {
-        numberField().setValue(null);
-      } else {
-        const parsed = parseFloat(text);
-        if (!isNaN(parsed)) {
-          numberField().setValue(parsed);
-        }
-      }
+      parseAndSetValue(elementRef.nativeElement.value);
 
       // Always sync the display value on blur to show the clamped/stepped value
       elementRef.nativeElement.value = formatDisplayValue();
@@ -137,8 +139,9 @@ export const [
     listener(elementRef, 'beforeinput', (event: InputEvent) => {
       if (numberField().disabled() || numberField().readonly()) return;
 
-      // Only filter insertions (typing, paste of single chars, etc.)
-      if (event.inputType !== 'insertText' || !event.data) return;
+      // Only filter insertions (typing, paste, drop)
+      const insertTypes = ['insertText', 'insertFromPaste', 'insertFromDrop'];
+      if (!insertTypes.includes(event.inputType) || !event.data) return;
 
       const input = elementRef.nativeElement;
       const selStart = input.selectionStart ?? 0;
@@ -192,20 +195,10 @@ export const [
             elementRef.nativeElement.value = formatDisplayValue();
           }
           break;
-        case 'Enter': {
-          // Commit value on Enter
-          const text = elementRef.nativeElement.value.trim();
-          if (text === '' || text === '-') {
-            numberField().setValue(null);
-          } else {
-            const parsed = parseFloat(text);
-            if (!isNaN(parsed)) {
-              numberField().setValue(parsed);
-            }
-          }
+        case 'Enter':
+          parseAndSetValue(elementRef.nativeElement.value);
           elementRef.nativeElement.value = formatDisplayValue();
           break;
-        }
       }
     });
 

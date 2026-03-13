@@ -19,8 +19,6 @@ import {
   NgpNumberFieldInput,
   NgpNumberFieldIncrement,
   NgpNumberFieldDecrement,
-  NgpNumberFieldLabel,
-  NgpNumberFieldGroup,
 } from 'ng-primitives/number-field';
 ```
 
@@ -30,12 +28,9 @@ Assemble the number field directives in your template.
 
 ```html
 <div ngpNumberField>
-  <label ngpNumberFieldLabel>Quantity</label>
-  <div ngpNumberFieldGroup>
-    <button ngpNumberFieldDecrement>−</button>
-    <input ngpNumberFieldInput />
-    <button ngpNumberFieldIncrement>+</button>
-  </div>
+  <button ngpNumberFieldDecrement>−</button>
+  <input ngpNumberFieldInput />
+  <button ngpNumberFieldIncrement>+</button>
 </div>
 ```
 
@@ -75,18 +70,6 @@ The root directive that manages the number field state.
 | --------------- | ------------------------------------------ | ----- |
 | `data-disabled` | Applied when the number field is disabled. | `-`   |
 | `data-readonly` | Applied when the number field is readonly. | `-`   |
-
-### NgpNumberFieldLabel
-
-Apply to a label element for the number field.
-
-<api-docs name="NgpNumberFieldLabel"></api-docs>
-
-### NgpNumberFieldGroup
-
-A container for the input and buttons. Sets `role="group"`.
-
-<api-docs name="NgpNumberFieldGroup"></api-docs>
 
 ### NgpNumberFieldInput
 

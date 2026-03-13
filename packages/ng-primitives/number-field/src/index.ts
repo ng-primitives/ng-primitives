@@ -30,5 +30,3 @@ export {
   NgpNumberFieldDecrementState,
   provideNumberFieldDecrementState,
 } from './number-field-decrement/number-field-decrement-state';
-export { NgpNumberFieldLabel } from './number-field-label/number-field-label';
-export { NgpNumberFieldGroup } from './number-field-group/number-field-group';

@@ -1,12 +1,9 @@
-import { NumberInput } from '@angular/cdk/coercion';
-import { Component, input, numberAttribute, output } from '@angular/core';
+import { Component } from '@angular/core';
 import {
   NgpNumberField,
   NgpNumberFieldDecrement,
-  NgpNumberFieldGroup,
   NgpNumberFieldIncrement,
   NgpNumberFieldInput,
-  NgpNumberFieldLabel,
 } from 'ng-primitives/number-field';
 
 @Component({
@@ -26,37 +23,14 @@ import {
       outputs: ['ngpNumberFieldValueChange:valueChange'],
     },
   ],
-  imports: [
-    NgpNumberFieldInput,
-    NgpNumberFieldIncrement,
-    NgpNumberFieldDecrement,
-    NgpNumberFieldLabel,
-    NgpNumberFieldGroup,
-  ],
+  imports: [NgpNumberFieldInput, NgpNumberFieldIncrement, NgpNumberFieldDecrement],
   template: `
-    <label ngpNumberFieldLabel>{{ label() }}</label>
-    <div ngpNumberFieldGroup>
-      <button ngpNumberFieldDecrement>−</button>
-      <input ngpNumberFieldInput />
-      <button ngpNumberFieldIncrement>+</button>
-    </div>
+    <button ngpNumberFieldDecrement>−</button>
+    <input ngpNumberFieldInput />
+    <button ngpNumberFieldIncrement>+</button>
   `,
   styles: `
     :host {
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-    }
-
-    [ngpNumberFieldLabel] {
-      color: var(--ngp-text-primary);
-      font-size: 0.875rem;
-      line-height: 1.25rem;
-      font-weight: 500;
-      margin: 0;
-    }
-
-    [ngpNumberFieldGroup] {
       display: inline-flex;
       align-items: center;
       border-radius: 8px;
@@ -65,7 +39,7 @@ import {
       overflow: hidden;
     }
 
-    [ngpNumberFieldGroup]:focus-within {
+    :host:focus-within {
       outline: 2px solid var(--ngp-focus-ring);
       outline-offset: 2px;
     }
@@ -105,8 +79,8 @@ import {
         background-color 150ms ease;
     }
 
-    [ngpNumberFieldIncrement]:hover,
-    [ngpNumberFieldDecrement]:hover {
+    [ngpNumberFieldIncrement][data-hover],
+    [ngpNumberFieldDecrement][data-hover] {
       background-color: var(--ngp-background-hover);
       color: var(--ngp-text-primary);
     }
@@ -122,13 +96,11 @@ import {
       cursor: not-allowed;
     }
 
-    [ngpNumberFieldIncrement][data-disabled]:hover,
-    [ngpNumberFieldDecrement][data-disabled]:hover {
+    [ngpNumberFieldIncrement][data-disabled][data-hover],
+    [ngpNumberFieldDecrement][data-disabled][data-hover] {
       background: transparent;
       color: var(--ngp-text-secondary);
     }
   `,
 })
-export class NumberField {
-  readonly label = input.required<string>();
-}
+export class NumberField {}
