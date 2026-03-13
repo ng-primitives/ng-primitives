@@ -659,20 +659,20 @@ describe('NgpNumberField', () => {
 
   it('should not store NaN when setValue is called with NaN', async () => {
     const valueChange = jest.fn();
-    await render(createTemplate('[ngpNumberFieldValue]="5"'), {
+    const { fixture } = await render(createTemplate('[ngpNumberFieldValue]="5"'), {
       imports,
       componentProperties: { valueChange },
     });
 
-    const input = screen.getByTestId('input') as HTMLInputElement;
+    const numberField = fixture.debugElement.children[0].injector.get(NgpNumberField);
 
-    // Simulate typing NaN-producing text and blurring
-    fireEvent.focus(input);
-    input.value = 'abc';
-    fireEvent.blur(input);
+    // Directly call setValue with NaN — should be rejected by the NaN guard
+    numberField.setValue(NaN);
 
-    // Value should not have changed
     expect(valueChange).not.toHaveBeenCalled();
+
+    const input = screen.getByTestId('input') as HTMLInputElement;
+    await Promise.resolve();
     expect(input.value).toBe('5');
   });
 
