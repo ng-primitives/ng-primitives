@@ -79,8 +79,8 @@ import {
         background-color 150ms ease;
     }
 
-    [ngpNumberFieldIncrement]:hover,
-    [ngpNumberFieldDecrement]:hover {
+    [ngpNumberFieldIncrement][data-hover],
+    [ngpNumberFieldDecrement][data-hover] {
       background-color: var(--ngp-background-hover);
       color: var(--ngp-text-primary);
     }
@@ -96,8 +96,8 @@ import {
       cursor: not-allowed;
     }
 
-    [ngpNumberFieldIncrement][data-disabled]:hover,
-    [ngpNumberFieldDecrement][data-disabled]:hover {
+    [ngpNumberFieldIncrement][data-disabled][data-hover],
+    [ngpNumberFieldDecrement][data-disabled][data-hover] {
       background: transparent;
       color: var(--ngp-text-secondary);
     }
