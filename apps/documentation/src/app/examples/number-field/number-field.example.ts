@@ -8,12 +8,7 @@ import {
 
 @Component({
   selector: 'app-number-field',
-  imports: [
-    NgpNumberField,
-    NgpNumberFieldInput,
-    NgpNumberFieldIncrement,
-    NgpNumberFieldDecrement,
-  ],
+  imports: [NgpNumberField, NgpNumberFieldInput, NgpNumberFieldIncrement, NgpNumberFieldDecrement],
   styles: `
     :host {
       display: contents;
