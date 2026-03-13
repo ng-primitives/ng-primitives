@@ -58,10 +58,7 @@ describe('NgpNumberField', () => {
       componentProperties: { valueChange: jest.fn() },
     });
 
-    expect(screen.getByTestId('input')).toHaveAttribute(
-      'aria-roledescription',
-      'Number field',
-    );
+    expect(screen.getByTestId('input')).toHaveAttribute('aria-roledescription', 'Number field');
   });
 
   it('should set input type to text', async () => {
@@ -84,13 +81,10 @@ describe('NgpNumberField', () => {
   });
 
   it('should set inputmode to decimal when min >= 0 and step has decimals', async () => {
-    await render(
-      createTemplate('[ngpNumberFieldMin]="0" [ngpNumberFieldStep]="0.1"'),
-      {
-        imports,
-        componentProperties: { valueChange: jest.fn() },
-      },
-    );
+    await render(createTemplate('[ngpNumberFieldMin]="0" [ngpNumberFieldStep]="0.1"'), {
+      imports,
+      componentProperties: { valueChange: jest.fn() },
+    });
 
     expect(screen.getByTestId('input')).toHaveAttribute('inputmode', 'decimal');
   });
@@ -162,15 +156,10 @@ describe('NgpNumberField', () => {
 
   it('should use large step with Shift+ArrowUp', async () => {
     const valueChange = jest.fn();
-    await render(
-      createTemplate(
-        '[ngpNumberFieldValue]="5" [ngpNumberFieldLargeStep]="10"',
-      ),
-      {
-        imports,
-        componentProperties: { valueChange },
-      },
-    );
+    await render(createTemplate('[ngpNumberFieldValue]="5" [ngpNumberFieldLargeStep]="10"'), {
+      imports,
+      componentProperties: { valueChange },
+    });
 
     fireEvent.keyDown(screen.getByTestId('input'), {
       key: 'ArrowUp',
@@ -181,15 +170,10 @@ describe('NgpNumberField', () => {
 
   it('should use large step with Shift+ArrowDown', async () => {
     const valueChange = jest.fn();
-    await render(
-      createTemplate(
-        '[ngpNumberFieldValue]="50" [ngpNumberFieldLargeStep]="10"',
-      ),
-      {
-        imports,
-        componentProperties: { valueChange },
-      },
-    );
+    await render(createTemplate('[ngpNumberFieldValue]="50" [ngpNumberFieldLargeStep]="10"'), {
+      imports,
+      componentProperties: { valueChange },
+    });
 
     fireEvent.keyDown(screen.getByTestId('input'), {
       key: 'ArrowDown',
@@ -201,9 +185,7 @@ describe('NgpNumberField', () => {
   it('should clamp value to min', async () => {
     const valueChange = jest.fn();
     await render(
-      createTemplate(
-        '[ngpNumberFieldValue]="0" [ngpNumberFieldMin]="0" [ngpNumberFieldMax]="10"',
-      ),
+      createTemplate('[ngpNumberFieldValue]="0" [ngpNumberFieldMin]="0" [ngpNumberFieldMax]="10"'),
       {
         imports,
         componentProperties: { valueChange },
@@ -218,9 +200,7 @@ describe('NgpNumberField', () => {
   it('should clamp value to max', async () => {
     const valueChange = jest.fn();
     await render(
-      createTemplate(
-        '[ngpNumberFieldValue]="10" [ngpNumberFieldMin]="0" [ngpNumberFieldMax]="10"',
-      ),
+      createTemplate('[ngpNumberFieldValue]="10" [ngpNumberFieldMin]="0" [ngpNumberFieldMax]="10"'),
       {
         imports,
         componentProperties: { valueChange },
@@ -235,9 +215,7 @@ describe('NgpNumberField', () => {
   it('should set value to min on Home key', async () => {
     const valueChange = jest.fn();
     await render(
-      createTemplate(
-        '[ngpNumberFieldValue]="5" [ngpNumberFieldMin]="0" [ngpNumberFieldMax]="10"',
-      ),
+      createTemplate('[ngpNumberFieldValue]="5" [ngpNumberFieldMin]="0" [ngpNumberFieldMax]="10"'),
       {
         imports,
         componentProperties: { valueChange },
@@ -251,9 +229,7 @@ describe('NgpNumberField', () => {
   it('should set value to max on End key', async () => {
     const valueChange = jest.fn();
     await render(
-      createTemplate(
-        '[ngpNumberFieldValue]="5" [ngpNumberFieldMin]="0" [ngpNumberFieldMax]="10"',
-      ),
+      createTemplate('[ngpNumberFieldValue]="5" [ngpNumberFieldMin]="0" [ngpNumberFieldMax]="10"'),
       {
         imports,
         componentProperties: { valueChange },
@@ -266,13 +242,10 @@ describe('NgpNumberField', () => {
 
   it('should respect step value', async () => {
     const valueChange = jest.fn();
-    await render(
-      createTemplate('[ngpNumberFieldValue]="0" [ngpNumberFieldStep]="5"'),
-      {
-        imports,
-        componentProperties: { valueChange },
-      },
-    );
+    await render(createTemplate('[ngpNumberFieldValue]="0" [ngpNumberFieldStep]="5"'), {
+      imports,
+      componentProperties: { valueChange },
+    });
 
     fireEvent.keyDown(screen.getByTestId('input'), { key: 'ArrowUp' });
     expect(valueChange).toHaveBeenCalledWith(5);
@@ -280,9 +253,7 @@ describe('NgpNumberField', () => {
 
   it('should disable increment button when value equals max', async () => {
     await render(
-      createTemplate(
-        '[ngpNumberFieldValue]="10" [ngpNumberFieldMin]="0" [ngpNumberFieldMax]="10"',
-      ),
+      createTemplate('[ngpNumberFieldValue]="10" [ngpNumberFieldMin]="0" [ngpNumberFieldMax]="10"'),
       {
         imports,
         componentProperties: { valueChange: jest.fn() },
@@ -294,9 +265,7 @@ describe('NgpNumberField', () => {
 
   it('should disable decrement button when value equals min', async () => {
     await render(
-      createTemplate(
-        '[ngpNumberFieldValue]="0" [ngpNumberFieldMin]="0" [ngpNumberFieldMax]="10"',
-      ),
+      createTemplate('[ngpNumberFieldValue]="0" [ngpNumberFieldMin]="0" [ngpNumberFieldMax]="10"'),
       {
         imports,
         componentProperties: { valueChange: jest.fn() },
@@ -321,15 +290,10 @@ describe('NgpNumberField', () => {
 
   it('should not change value when disabled', async () => {
     const valueChange = jest.fn();
-    await render(
-      createTemplate(
-        '[ngpNumberFieldValue]="5" [ngpNumberFieldDisabled]="true"',
-      ),
-      {
-        imports,
-        componentProperties: { valueChange },
-      },
-    );
+    await render(createTemplate('[ngpNumberFieldValue]="5" [ngpNumberFieldDisabled]="true"'), {
+      imports,
+      componentProperties: { valueChange },
+    });
 
     fireEvent.keyDown(screen.getByTestId('input'), { key: 'ArrowUp' });
     expect(valueChange).not.toHaveBeenCalled();
@@ -354,15 +318,10 @@ describe('NgpNumberField', () => {
 
   it('should not change value when readonly', async () => {
     const valueChange = jest.fn();
-    await render(
-      createTemplate(
-        '[ngpNumberFieldValue]="5" [ngpNumberFieldReadonly]="true"',
-      ),
-      {
-        imports,
-        componentProperties: { valueChange },
-      },
-    );
+    await render(createTemplate('[ngpNumberFieldValue]="5" [ngpNumberFieldReadonly]="true"'), {
+      imports,
+      componentProperties: { valueChange },
+    });
 
     fireEvent.keyDown(screen.getByTestId('input'), { key: 'ArrowUp' });
     expect(valueChange).not.toHaveBeenCalled();
@@ -370,9 +329,7 @@ describe('NgpNumberField', () => {
 
   it('should set aria-valuemin and aria-valuemax on the input', async () => {
     await render(
-      createTemplate(
-        '[ngpNumberFieldValue]="5" [ngpNumberFieldMin]="0" [ngpNumberFieldMax]="100"',
-      ),
+      createTemplate('[ngpNumberFieldValue]="5" [ngpNumberFieldMin]="0" [ngpNumberFieldMax]="100"'),
       {
         imports,
         componentProperties: { valueChange: jest.fn() },
@@ -400,14 +357,8 @@ describe('NgpNumberField', () => {
       componentProperties: { valueChange: jest.fn() },
     });
 
-    expect(screen.getByTestId('increment')).toHaveAttribute(
-      'aria-label',
-      'Increment',
-    );
-    expect(screen.getByTestId('decrement')).toHaveAttribute(
-      'aria-label',
-      'Decrement',
-    );
+    expect(screen.getByTestId('increment')).toHaveAttribute('aria-label', 'Increment');
+    expect(screen.getByTestId('decrement')).toHaveAttribute('aria-label', 'Decrement');
   });
 
   it('should set tabindex=-1 on buttons', async () => {
@@ -448,13 +399,10 @@ describe('NgpNumberField', () => {
 
   it('should clamp value on blur when out of range', async () => {
     const valueChange = jest.fn();
-    await render(
-      createTemplate('[ngpNumberFieldMin]="0" [ngpNumberFieldMax]="10"'),
-      {
-        imports,
-        componentProperties: { valueChange },
-      },
-    );
+    await render(createTemplate('[ngpNumberFieldMin]="0" [ngpNumberFieldMax]="10"'), {
+      imports,
+      componentProperties: { valueChange },
+    });
 
     const input = screen.getByTestId('input') as HTMLInputElement;
 
@@ -511,13 +459,10 @@ describe('NgpNumberField', () => {
 
   it('should handle floating point precision with step=0.1', async () => {
     const valueChange = jest.fn();
-    await render(
-      createTemplate('[ngpNumberFieldValue]="0" [ngpNumberFieldStep]="0.1"'),
-      {
-        imports,
-        componentProperties: { valueChange },
-      },
-    );
+    await render(createTemplate('[ngpNumberFieldValue]="0" [ngpNumberFieldStep]="0.1"'), {
+      imports,
+      componentProperties: { valueChange },
+    });
 
     const input = screen.getByTestId('input');
 
@@ -641,9 +586,7 @@ describe('NgpNumberField', () => {
   it('should not emit when setting value to the same value', async () => {
     const valueChange = jest.fn();
     await render(
-      createTemplate(
-        '[ngpNumberFieldValue]="5" [ngpNumberFieldMin]="0" [ngpNumberFieldMax]="10"',
-      ),
+      createTemplate('[ngpNumberFieldValue]="5" [ngpNumberFieldMin]="0" [ngpNumberFieldMax]="10"'),
       {
         imports,
         componentProperties: { valueChange },
@@ -700,9 +643,7 @@ describe('NgpNumberField', () => {
   it('should not change value on Ctrl+wheel (browser zoom)', async () => {
     const valueChange = jest.fn();
     await render(
-      createTemplate(
-        '[ngpNumberFieldValue]="5" [ngpNumberFieldInputAllowWheelScrub]="true"',
-      ),
+      createTemplate('[ngpNumberFieldValue]="5" [ngpNumberFieldInputAllowWheelScrub]="true"'),
       {
         imports,
         componentProperties: { valueChange },
@@ -905,15 +846,10 @@ describe('NgpNumberField', () => {
   it('should stop auto-repeat when hitting max boundary', async () => {
     jest.useFakeTimers();
     const valueChange = jest.fn();
-    await render(
-      createTemplate(
-        '[ngpNumberFieldValue]="8" [ngpNumberFieldMax]="10"',
-      ),
-      {
-        imports,
-        componentProperties: { valueChange },
-      },
-    );
+    await render(createTemplate('[ngpNumberFieldValue]="8" [ngpNumberFieldMax]="10"'), {
+      imports,
+      componentProperties: { valueChange },
+    });
 
     fireEvent.pointerDown(screen.getByTestId('increment'));
     expect(valueChange).toHaveBeenCalledWith(9);

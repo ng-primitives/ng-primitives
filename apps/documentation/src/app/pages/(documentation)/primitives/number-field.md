@@ -71,10 +71,10 @@ The root directive that manages the number field state.
 
 #### Data Attributes
 
-| Attribute       | Description                                 | Value |
-| --------------- | ------------------------------------------- | ----- |
-| `data-disabled` | Applied when the number field is disabled.  | `-`   |
-| `data-readonly` | Applied when the number field is readonly.  | `-`   |
+| Attribute       | Description                                | Value |
+| --------------- | ------------------------------------------ | ----- |
+| `data-disabled` | Applied when the number field is disabled. | `-`   |
+| `data-readonly` | Applied when the number field is readonly. | `-`   |
 
 ### NgpNumberFieldLabel
 
@@ -96,12 +96,12 @@ Apply to an `input` element within the number field.
 
 #### Data Attributes
 
-| Attribute            | Description                                 | Value |
-| -------------------- | ------------------------------------------- | ----- |
-| `data-disabled`      | Applied when the number field is disabled.  | `-`   |
-| `data-readonly`      | Applied when the number field is readonly.  | `-`   |
-| `data-hover`         | Applied when the input is hovered.          | `-`   |
-| `data-focus-visible`  | Applied when the input is focused.          | `-`   |
+| Attribute            | Description                                | Value |
+| -------------------- | ------------------------------------------ | ----- |
+| `data-disabled`      | Applied when the number field is disabled. | `-`   |
+| `data-readonly`      | Applied when the number field is readonly. | `-`   |
+| `data-hover`         | Applied when the input is hovered.         | `-`   |
+| `data-focus-visible` | Applied when the input is focused.         | `-`   |
 
 ### NgpNumberFieldIncrement
 
@@ -111,12 +111,12 @@ Apply to a button that increments the value.
 
 #### Data Attributes
 
-| Attribute            | Description                                        | Value |
-| -------------------- | -------------------------------------------------- | ----- |
-| `data-disabled`      | Applied when incrementing is not possible.         | `-`   |
-| `data-hover`         | Applied when the button is hovered.                | `-`   |
-| `data-focus-visible`  | Applied when the button is focused.                | `-`   |
-| `data-press`         | Applied when the button is pressed.                | `-`   |
+| Attribute            | Description                                | Value |
+| -------------------- | ------------------------------------------ | ----- |
+| `data-disabled`      | Applied when incrementing is not possible. | `-`   |
+| `data-hover`         | Applied when the button is hovered.        | `-`   |
+| `data-focus-visible` | Applied when the button is focused.        | `-`   |
+| `data-press`         | Applied when the button is pressed.        | `-`   |
 
 ### NgpNumberFieldDecrement
 
@@ -126,12 +126,12 @@ Apply to a button that decrements the value.
 
 #### Data Attributes
 
-| Attribute            | Description                                        | Value |
-| -------------------- | -------------------------------------------------- | ----- |
-| `data-disabled`      | Applied when decrementing is not possible.         | `-`   |
-| `data-hover`         | Applied when the button is hovered.                | `-`   |
-| `data-focus-visible`  | Applied when the button is focused.                | `-`   |
-| `data-press`         | Applied when the button is pressed.                | `-`   |
+| Attribute            | Description                                | Value |
+| -------------------- | ------------------------------------------ | ----- |
+| `data-disabled`      | Applied when decrementing is not possible. | `-`   |
+| `data-hover`         | Applied when the button is hovered.        | `-`   |
+| `data-focus-visible` | Applied when the button is focused.        | `-`   |
+| `data-press`         | Applied when the button is pressed.        | `-`   |
 
 ## Features
 

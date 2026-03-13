@@ -81,7 +81,9 @@ import {
       cursor: pointer;
       font-size: 1rem;
       user-select: none;
-      transition: color 150ms ease, background-color 150ms ease;
+      transition:
+        color 150ms ease,
+        background-color 150ms ease;
     }
 
     [ngpNumberFieldIncrement]:hover,
@@ -108,7 +110,12 @@ import {
     }
   `,
   template: `
-    <div [(ngpNumberFieldValue)]="value" [ngpNumberFieldMin]="0" [ngpNumberFieldMax]="100" ngpNumberField>
+    <div
+      [(ngpNumberFieldValue)]="value"
+      [ngpNumberFieldMin]="0"
+      [ngpNumberFieldMax]="100"
+      ngpNumberField
+    >
       <label ngpNumberFieldLabel>Quantity</label>
       <div ngpNumberFieldGroup>
         <button ngpNumberFieldDecrement>−</button>

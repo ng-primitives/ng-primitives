@@ -195,8 +195,10 @@ export const [
       if (isFinite(step()) && step() > 0) {
         const base = isFinite(min()) ? min() : 0;
         const precision = getDecimalPlaces(step());
-        const stepped =
-          roundToPrecision(Math.round((clamped - base) / step()) * step() + base, precision);
+        const stepped = roundToPrecision(
+          Math.round((clamped - base) / step()) * step() + base,
+          precision,
+        );
         return Math.min(max(), Math.max(min(), stepped));
       }
       return clamped;

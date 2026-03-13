@@ -32,9 +32,7 @@ export const [
   provideNumberFieldInputState,
 ] = createPrimitive(
   'NgpNumberFieldInput',
-  ({
-    allowWheelScrub = signal(false),
-  }: NgpNumberFieldInputProps): NgpNumberFieldInputState => {
+  ({ allowWheelScrub = signal(false) }: NgpNumberFieldInputProps): NgpNumberFieldInputState => {
     const elementRef = injectElementRef<HTMLInputElement>();
     const numberField = injectNumberFieldState();
     const document = inject(DOCUMENT);

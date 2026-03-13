@@ -23,7 +23,8 @@ export class NgpNumberField {
    */
   readonly value = input<number | null, NumberInput>(null, {
     alias: 'ngpNumberFieldValue',
-    transform: (v: NumberInput) => (v === null || v === undefined || v === '' ? null : numberAttribute(v)),
+    transform: (v: NumberInput) =>
+      v === null || v === undefined || v === '' ? null : numberAttribute(v),
   });
 
   /**

@@ -1,5 +1,5 @@
-import { Component, input, numberAttribute, output } from '@angular/core';
 import { NumberInput } from '@angular/cdk/coercion';
+import { Component, input, numberAttribute, output } from '@angular/core';
 import {
   NgpNumberField,
   NgpNumberFieldDecrement,
@@ -100,7 +100,9 @@ import {
       cursor: pointer;
       font-size: 1rem;
       user-select: none;
-      transition: color 150ms ease, background-color 150ms ease;
+      transition:
+        color 150ms ease,
+        background-color 150ms ease;
     }
 
     [ngpNumberFieldIncrement]:hover,
