@@ -344,27 +344,47 @@ bootstrapApplication(AppComponent, {
 
 <prop-details name="shift" type="boolean | NgpShiftOptions" default="true">
   Define the shift behavior to keep the menu in view. When enabled (default), the menu will shift along its axis to stay visible when it would otherwise overflow the viewport. Set to `false` to disable.
-  
-  **Boolean format:** `shift: false` - Disables shift behavior
-  
-  **Object format:** 
-  ```ts
-  shift: {
-    padding: 8,     // Minimum padding between menu and viewport edges
-    limiter: {      // Optional limiter to control shifting behavior
-      fn: limitShift,
-      options: { /* limiter options */ }
-    }
-  }
-  ```
+
+**Boolean format:** `shift: false` - Disables shift behavior
+
+**Object format:**
+
+```ts
+shift: {
+  padding: 8,           // Minimum padding between menu and viewport edges
+  limiter: {            // Optional limiter to control shifting behavior
+    fn: limitShift,
+    options: { /* limiter options */ }
+  },
+  boundary: element,    // Clipping boundary area (default: 'clippingAncestors')
+  rootBoundary: 'viewport', // Root clipping area: 'viewport' or 'document' (default: 'viewport')
+  crossAxis: true,      // Whether to also shift along the cross axis (default: false)
+}
+```
+
 </prop-details>
 
 <prop-details name="placement" type="'top' | 'right' | 'bottom' | 'left'">
   Define the placement of the menu.
 </prop-details>
 
-<prop-details name="flip" type="boolean">
-  Define if the menu should flip when it reaches the edge of the viewport.
+<prop-details name="flip" type="boolean | NgpFlipOptions">
+  Define if the menu should flip when it reaches the edge of the viewport. Can be a boolean to enable/disable, or an object with detailed options.
+
+**Boolean format:** `flip: false` - Disables flip behavior
+
+**Object format:**
+
+```ts
+flip: {
+  padding: 8,                          // Minimum padding from viewport edges (default: 0)
+  fallbackPlacements: ['top', 'left'], // Placements to try if preferred doesn't fit
+  boundary: element,                   // Clipping boundary area (default: 'clippingAncestors')
+  rootBoundary: 'viewport',            // Root clipping area: 'viewport' or 'document' (default: 'viewport')
+  crossAxis: true,                     // Whether to check overflow on the cross axis (default: true)
+}
+```
+
 </prop-details>
 
 <prop-details name="container" type="HTMLElement">

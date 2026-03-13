@@ -1,4 +1,191 @@
-import { CloseScrollStrategy } from './scroll-strategy';
+import { BlockScrollStrategy, CloseScrollStrategy } from './scroll-strategy';
+
+describe('BlockScrollStrategy', () => {
+  let root: HTMLElement;
+
+  beforeEach(() => {
+    root = document.documentElement;
+    root.style.cssText = '';
+    root.removeAttribute('data-scrollblock');
+
+    // Make the document scrollable
+    Object.defineProperty(root, 'scrollHeight', { value: 2000, configurable: true });
+    Object.defineProperty(root, 'scrollWidth', { value: 1024, configurable: true });
+    Object.defineProperty(root, 'clientHeight', { value: 768, configurable: true });
+    Object.defineProperty(root, 'clientWidth', { value: 1024, configurable: true });
+  });
+
+  afterEach(() => {
+    root.style.cssText = '';
+    root.removeAttribute('data-scrollblock');
+  });
+
+  describe('document-level blocking', () => {
+    it('should block scrolling on the document when enabled', () => {
+      const strategy = new BlockScrollStrategy(document);
+      strategy.enable();
+
+      expect(root.style.overflow).toBe('hidden');
+      expect(root.style.scrollbarGutter).toBe('stable');
+      expect(root.hasAttribute('data-scrollblock')).toBe(true);
+
+      strategy.disable();
+    });
+
+    it('should restore original styles when disabled', () => {
+      root.style.overflow = 'visible';
+      root.style.scrollbarGutter = '';
+
+      const strategy = new BlockScrollStrategy(document);
+      strategy.enable();
+      strategy.disable();
+
+      expect(root.style.overflow).toBe('visible');
+      expect(root.style.scrollbarGutter).toBe('');
+      expect(root.hasAttribute('data-scrollblock')).toBe(false);
+    });
+
+    it('should not enable if already has data-scrollblock', () => {
+      root.setAttribute('data-scrollblock', '');
+
+      const strategy = new BlockScrollStrategy(document);
+      strategy.enable();
+      strategy.disable();
+
+      // Should still have the attribute since we didn't set didBlockDocument
+      expect(root.hasAttribute('data-scrollblock')).toBe(true);
+    });
+
+    it('should not block when the document is not scrollable', () => {
+      Object.defineProperty(root, 'scrollHeight', { value: 768, configurable: true });
+      Object.defineProperty(root, 'scrollWidth', { value: 1024, configurable: true });
+
+      const strategy = new BlockScrollStrategy(document);
+      strategy.enable();
+
+      expect(root.style.overflow).not.toBe('hidden');
+      expect(root.hasAttribute('data-scrollblock')).toBe(false);
+
+      strategy.disable();
+    });
+  });
+
+  describe('scrollable ancestor blocking', () => {
+    let scrollableContainer: HTMLDivElement;
+    let triggerElement: HTMLButtonElement;
+
+    beforeEach(() => {
+      scrollableContainer = document.createElement('div');
+      scrollableContainer.style.overflow = 'auto';
+      scrollableContainer.style.height = '200px';
+      Object.defineProperty(scrollableContainer, 'scrollHeight', {
+        value: 500,
+        configurable: true,
+      });
+      Object.defineProperty(scrollableContainer, 'clientHeight', {
+        value: 200,
+        configurable: true,
+      });
+
+      triggerElement = document.createElement('button');
+      triggerElement.textContent = 'Trigger';
+
+      scrollableContainer.appendChild(triggerElement);
+      document.body.appendChild(scrollableContainer);
+    });
+
+    afterEach(() => {
+      scrollableContainer.remove();
+    });
+
+    it('should block scroll on the scrollable ancestor when a trigger element is provided', () => {
+      const strategy = new BlockScrollStrategy(document, triggerElement);
+      strategy.enable();
+
+      expect(scrollableContainer.style.overflow).toBe('hidden');
+
+      strategy.disable();
+    });
+
+    it('should restore original overflow styles on the scrollable ancestor when disabled', () => {
+      scrollableContainer.style.overflow = 'auto';
+      scrollableContainer.style.overflowX = '';
+      scrollableContainer.style.overflowY = '';
+
+      const strategy = new BlockScrollStrategy(document, triggerElement);
+      strategy.enable();
+
+      expect(scrollableContainer.style.overflow).toBe('hidden');
+
+      strategy.disable();
+
+      expect(scrollableContainer.style.overflow).toBe('auto');
+    });
+
+    it('should set scrollbarGutter to stable when the ancestor has scroll content', () => {
+      const strategy = new BlockScrollStrategy(document, triggerElement);
+      strategy.enable();
+
+      expect(scrollableContainer.style.scrollbarGutter).toBe('stable');
+
+      strategy.disable();
+
+      expect(scrollableContainer.style.scrollbarGutter).toBe('');
+    });
+
+    it('should not set scrollbarGutter if ancestor has overflow auto but no scroll content', () => {
+      Object.defineProperty(scrollableContainer, 'scrollHeight', {
+        value: 200,
+        configurable: true,
+      });
+
+      const strategy = new BlockScrollStrategy(document, triggerElement);
+      strategy.enable();
+
+      expect(scrollableContainer.style.scrollbarGutter).not.toBe('stable');
+
+      strategy.disable();
+    });
+
+    it('should still block the document when a trigger element is provided', () => {
+      const strategy = new BlockScrollStrategy(document, triggerElement);
+      strategy.enable();
+
+      expect(root.style.overflow).toBe('hidden');
+      expect(root.hasAttribute('data-scrollblock')).toBe(true);
+
+      strategy.disable();
+    });
+
+    it('should work without a trigger element (backwards compatible)', () => {
+      const strategy = new BlockScrollStrategy(document);
+      strategy.enable();
+
+      expect(root.style.overflow).toBe('hidden');
+
+      strategy.disable();
+    });
+
+    it('should lock and unlock ancestor even when the document is not scrollable', () => {
+      Object.defineProperty(root, 'scrollHeight', { value: 768, configurable: true });
+      Object.defineProperty(root, 'scrollWidth', { value: 1024, configurable: true });
+
+      const strategy = new BlockScrollStrategy(document, triggerElement);
+      strategy.enable();
+
+      // Ancestor should still be locked
+      expect(scrollableContainer.style.overflow).toBe('hidden');
+      // Document should NOT be blocked
+      expect(root.style.overflow).not.toBe('hidden');
+      expect(root.hasAttribute('data-scrollblock')).toBe(false);
+
+      strategy.disable();
+
+      // Ancestor should be restored
+      expect(scrollableContainer.style.overflow).toBe('auto');
+    });
+  });
+});
 
 describe('CloseScrollStrategy', () => {
   let strategy: CloseScrollStrategy;
@@ -63,8 +250,6 @@ describe('CloseScrollStrategy', () => {
     overlayElement.appendChild(innerElement);
 
     // Simulate a scroll event on the inner element that is part of the overlay
-    // The ancestors listener won't fire for overlay-internal scrolls since the
-    // overlay is not an ancestor of the trigger. This test verifies the filter logic.
     const scrollEvent = new Event('scroll');
     Object.defineProperty(scrollEvent, 'target', { value: innerElement });
 

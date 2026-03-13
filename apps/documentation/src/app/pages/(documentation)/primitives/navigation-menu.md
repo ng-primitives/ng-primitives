@@ -251,8 +251,21 @@ Define the placement of the content relative to the trigger.
 Define the offset from the trigger element.
 </prop-details>
 
-<prop-details name="flip" type="boolean" default="true">
-Define if the content should flip when it reaches the edge of the viewport.
+<prop-details name="flip" type="boolean | NgpFlipOptions" default="true">
+Define if the content should flip when it reaches the edge of the viewport. Can be a boolean to enable/disable, or an object with detailed options.
+
+**Object format:**
+
+```ts
+flip: {
+  padding: 8,                          // Minimum padding from viewport edges (default: 0)
+  fallbackPlacements: ['top', 'left'], // Placements to try if preferred doesn't fit
+  boundary: element,                   // Clipping boundary area (default: 'clippingAncestors')
+  rootBoundary: 'viewport',            // Root clipping area: 'viewport' or 'document' (default: 'viewport')
+  crossAxis: true,                     // Whether to check overflow on the cross axis (default: true)
+}
+```
+
 </prop-details>
 
 <prop-details name="wrap" type="boolean" default="true">
@@ -261,6 +274,22 @@ Define if focus should wrap around when navigating with arrow keys.
 
 <prop-details name="shift" type="boolean | NgpShiftOptions" default="undefined">
 Configure shift behavior to keep the content in view when it would overflow the viewport.
+
+**Object format:**
+
+```ts
+shift: {
+  padding: 8,           // Minimum padding between content and viewport edges
+  limiter: {            // Optional limiter to control shifting behavior
+    fn: limitShift,
+    options: { /* limiter options */ }
+  },
+  boundary: element,    // Clipping boundary area (default: 'clippingAncestors')
+  rootBoundary: 'viewport', // Root clipping area: 'viewport' or 'document' (default: 'viewport')
+  crossAxis: true,      // Whether to also shift along the cross axis (default: false)
+}
+```
+
 </prop-details>
 
 <prop-details name="cooldown" type="number" default="300">
