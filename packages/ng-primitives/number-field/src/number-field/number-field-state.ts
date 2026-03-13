@@ -195,7 +195,7 @@ export const [
       // Round to nearest step
       if (isFinite(step()) && step() > 0) {
         const base = isFinite(min()) ? min() : 0;
-        const precision = getDecimalPlaces(step());
+        const precision = Math.max(getDecimalPlaces(step()), getDecimalPlaces(base));
         const stepped = roundToPrecision(
           Math.round((clamped - base) / step()) * step() + base,
           precision,
@@ -207,6 +207,7 @@ export const [
 
     function setValue(newValue: number | null): void {
       if (status().disabled || readonly()) return;
+      if (newValue !== null && isNaN(newValue)) return;
       const finalValue = newValue !== null ? clampAndStep(newValue) : null;
       // Skip emit when value is unchanged
       if (finalValue === value()) return;
@@ -225,11 +226,16 @@ export const [
       inputCommitFn?.();
     }
 
+    function getStepPrecision(): number {
+      const base = isFinite(min()) ? min() : 0;
+      return Math.max(getDecimalPlaces(step()), getDecimalPlaces(base));
+    }
+
     function increment(multiplier: number = 1): void {
       if (!canIncrement()) return;
       commitPendingInput();
       const current = value() ?? (isFinite(min()) ? min() : 0);
-      const precision = getDecimalPlaces(step());
+      const precision = getStepPrecision();
       setValue(roundToPrecision(current + step() * multiplier, precision));
     }
 
@@ -237,7 +243,7 @@ export const [
       if (!canDecrement()) return;
       commitPendingInput();
       const current = value() ?? (isFinite(max()) ? max() : 0);
-      const precision = getDecimalPlaces(step());
+      const precision = getStepPrecision();
       setValue(roundToPrecision(current - step() * multiplier, precision));
     }
 

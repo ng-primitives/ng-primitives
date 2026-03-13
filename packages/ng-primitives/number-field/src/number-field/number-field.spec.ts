@@ -45,6 +45,15 @@ describe('NgpNumberField', () => {
     expect(screen.getByTestId('number-field')).toHaveAttribute('role', 'group');
   });
 
+  it('should set role="spinbutton" on the input', async () => {
+    await render(createTemplate(), {
+      imports,
+      componentProperties: { valueChange: jest.fn() },
+    });
+
+    expect(screen.getByTestId('input')).toHaveAttribute('role', 'spinbutton');
+  });
+
   it('should set aria-roledescription on the input', async () => {
     await render(createTemplate(), {
       imports,
@@ -466,7 +475,7 @@ describe('NgpNumberField', () => {
     expect(valueChange).toHaveBeenLastCalledWith(0.3);
   });
 
-  it('should increment from null with no bounds to 0', async () => {
+  it('should increment from null with no bounds to step', async () => {
     const valueChange = jest.fn();
     await render(createTemplate(), {
       imports,
@@ -499,7 +508,7 @@ describe('NgpNumberField', () => {
     expect(valueChange).toHaveBeenCalledWith(9);
   });
 
-  it('should decrement from null with no bounds to 0', async () => {
+  it('should decrement from null with no bounds to negative step', async () => {
     const valueChange = jest.fn();
     await render(createTemplate(), {
       imports,
@@ -629,6 +638,41 @@ describe('NgpNumberField', () => {
 
     expect(valueChange).toHaveBeenCalledWith(42);
     expect(input.value).toBe('42');
+  });
+
+  it('should preserve precision when min has more decimal places than step', async () => {
+    const valueChange = jest.fn();
+    await render(
+      createTemplate(
+        '[ngpNumberFieldValue]="33.5" [ngpNumberFieldMin]="32.5" [ngpNumberFieldStep]="1"',
+      ),
+      {
+        imports,
+        componentProperties: { valueChange },
+      },
+    );
+
+    fireEvent.keyDown(screen.getByTestId('input'), { key: 'ArrowUp' });
+    expect(valueChange).toHaveBeenCalledWith(34.5);
+  });
+
+  it('should not store NaN when setValue is called with NaN', async () => {
+    const valueChange = jest.fn();
+    await render(createTemplate('[ngpNumberFieldValue]="5"'), {
+      imports,
+      componentProperties: { valueChange },
+    });
+
+    const input = screen.getByTestId('input') as HTMLInputElement;
+
+    // Simulate typing NaN-producing text and blurring
+    fireEvent.focus(input);
+    input.value = 'abc';
+    fireEvent.blur(input);
+
+    // Value should not have changed
+    expect(valueChange).not.toHaveBeenCalled();
+    expect(input.value).toBe('5');
   });
 
   // Phase 2: Ctrl+wheel guard
@@ -779,82 +823,79 @@ describe('NgpNumberField', () => {
 
   // Phase 3: Auto-repeat tests
 
-  it('should auto-repeat increment on long press', async () => {
-    jest.useFakeTimers();
-    const valueChange = jest.fn();
-    await render(createTemplate('[ngpNumberFieldValue]="0"'), {
-      imports,
-      componentProperties: { valueChange },
+  describe('auto-repeat', () => {
+    beforeEach(() => jest.useFakeTimers());
+    afterEach(() => jest.useRealTimers());
+
+    it('should auto-repeat increment on long press', async () => {
+      const valueChange = jest.fn();
+      await render(createTemplate('[ngpNumberFieldValue]="0"'), {
+        imports,
+        componentProperties: { valueChange },
+      });
+
+      fireEvent.pointerDown(screen.getByTestId('increment'));
+      expect(valueChange).toHaveBeenCalledTimes(1);
+      expect(valueChange).toHaveBeenLastCalledWith(1);
+
+      // Advance past initial delay (400ms) + first interval tick (60ms)
+      jest.advanceTimersByTime(460);
+      const callsAfterDelay = valueChange.mock.calls.length;
+      expect(callsAfterDelay).toBeGreaterThan(1);
+
+      // Advance a few more intervals (60ms each)
+      jest.advanceTimersByTime(180);
+      expect(valueChange.mock.calls.length).toBeGreaterThan(callsAfterDelay);
+
+      // Release pointer to stop repeat
+      fireEvent.pointerUp(document);
+
+      const callsAfterRelease = valueChange.mock.calls.length;
+      jest.advanceTimersByTime(200);
+      expect(valueChange.mock.calls.length).toBe(callsAfterRelease);
     });
 
-    fireEvent.pointerDown(screen.getByTestId('increment'));
-    expect(valueChange).toHaveBeenCalledTimes(1);
-    expect(valueChange).toHaveBeenLastCalledWith(1);
+    it('should auto-repeat decrement on long press', async () => {
+      const valueChange = jest.fn();
+      await render(createTemplate('[ngpNumberFieldValue]="100"'), {
+        imports,
+        componentProperties: { valueChange },
+      });
 
-    // Advance past initial delay (400ms) + first interval tick (60ms)
-    jest.advanceTimersByTime(460);
-    const callsAfterDelay = valueChange.mock.calls.length;
-    expect(callsAfterDelay).toBeGreaterThan(1);
+      fireEvent.pointerDown(screen.getByTestId('decrement'));
+      expect(valueChange).toHaveBeenCalledTimes(1);
+      expect(valueChange).toHaveBeenLastCalledWith(99);
 
-    // Advance a few more intervals (60ms each)
-    jest.advanceTimersByTime(180);
-    expect(valueChange.mock.calls.length).toBeGreaterThan(callsAfterDelay);
+      // Advance past initial delay (400ms) + first interval tick (60ms)
+      jest.advanceTimersByTime(460);
+      const callsAfterDelay = valueChange.mock.calls.length;
+      expect(callsAfterDelay).toBeGreaterThan(1);
 
-    // Release pointer to stop repeat
-    fireEvent.pointerUp(document);
+      fireEvent.pointerUp(document);
 
-    const callsAfterRelease = valueChange.mock.calls.length;
-    jest.advanceTimersByTime(200);
-    expect(valueChange.mock.calls.length).toBe(callsAfterRelease);
-
-    jest.useRealTimers();
-  });
-
-  it('should auto-repeat decrement on long press', async () => {
-    jest.useFakeTimers();
-    const valueChange = jest.fn();
-    await render(createTemplate('[ngpNumberFieldValue]="100"'), {
-      imports,
-      componentProperties: { valueChange },
+      const callsAfterRelease = valueChange.mock.calls.length;
+      jest.advanceTimersByTime(200);
+      expect(valueChange.mock.calls.length).toBe(callsAfterRelease);
     });
 
-    fireEvent.pointerDown(screen.getByTestId('decrement'));
-    expect(valueChange).toHaveBeenCalledTimes(1);
-    expect(valueChange).toHaveBeenLastCalledWith(99);
+    it('should stop auto-repeat when hitting max boundary', async () => {
+      const valueChange = jest.fn();
+      await render(createTemplate('[ngpNumberFieldValue]="8" [ngpNumberFieldMax]="10"'), {
+        imports,
+        componentProperties: { valueChange },
+      });
 
-    // Advance past initial delay (400ms) + first interval tick (60ms)
-    jest.advanceTimersByTime(460);
-    const callsAfterDelay = valueChange.mock.calls.length;
-    expect(callsAfterDelay).toBeGreaterThan(1);
+      fireEvent.pointerDown(screen.getByTestId('increment'));
+      expect(valueChange).toHaveBeenCalledWith(9);
 
-    fireEvent.pointerUp(document);
+      // Advance past delay + several intervals — should stop at max
+      jest.advanceTimersByTime(1000);
 
-    const callsAfterRelease = valueChange.mock.calls.length;
-    jest.advanceTimersByTime(200);
-    expect(valueChange.mock.calls.length).toBe(callsAfterRelease);
+      // Value should have reached 10 and stopped
+      const lastCall = valueChange.mock.calls[valueChange.mock.calls.length - 1][0];
+      expect(lastCall).toBe(10);
 
-    jest.useRealTimers();
-  });
-
-  it('should stop auto-repeat when hitting max boundary', async () => {
-    jest.useFakeTimers();
-    const valueChange = jest.fn();
-    await render(createTemplate('[ngpNumberFieldValue]="8" [ngpNumberFieldMax]="10"'), {
-      imports,
-      componentProperties: { valueChange },
+      fireEvent.pointerUp(document);
     });
-
-    fireEvent.pointerDown(screen.getByTestId('increment'));
-    expect(valueChange).toHaveBeenCalledWith(9);
-
-    // Advance past delay + several intervals — should stop at max
-    jest.advanceTimersByTime(1000);
-
-    // Value should have reached 10 and stopped
-    const lastCall = valueChange.mock.calls[valueChange.mock.calls.length - 1][0];
-    expect(lastCall).toBe(10);
-
-    fireEvent.pointerUp(document);
-    jest.useRealTimers();
   });
 });
