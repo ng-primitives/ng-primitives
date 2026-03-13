@@ -93,9 +93,9 @@ import {
       [ngpNumberFieldMax]="100"
       ngpNumberField
     >
-      <button ngpNumberFieldDecrement>−</button>
+      <button ngpNumberFieldDecrement aria-label="Decrement">−</button>
       <input ngpNumberFieldInput />
-      <button ngpNumberFieldIncrement>+</button>
+      <button ngpNumberFieldIncrement aria-label="Increment">+</button>
     </div>
   `,
 })

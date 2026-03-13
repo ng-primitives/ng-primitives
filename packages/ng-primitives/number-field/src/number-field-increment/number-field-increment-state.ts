@@ -33,7 +33,6 @@ export const [
     // Host bindings
     attrBinding(elementRef, 'type', 'button');
     attrBinding(elementRef, 'tabindex', '-1');
-    attrBinding(elementRef, 'aria-label', 'Increment');
     attrBinding(elementRef, 'disabled', () => (isDisabled() ? '' : null));
     dataBinding(elementRef, 'data-disabled', isDisabled);
 

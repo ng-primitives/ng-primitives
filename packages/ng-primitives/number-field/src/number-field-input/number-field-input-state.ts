@@ -63,7 +63,6 @@ export const [
     attrBinding(elementRef, 'autocomplete', 'off');
     attrBinding(elementRef, 'autocorrect', 'off');
     attrBinding(elementRef, 'spellcheck', 'false');
-    attrBinding(elementRef, 'aria-roledescription', 'Number field');
     attrBinding(elementRef, 'aria-valuemin', () => {
       const min = numberField().min();
       return isFinite(min) ? min.toString() : null;

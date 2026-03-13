@@ -54,15 +54,6 @@ describe('NgpNumberField', () => {
     expect(screen.getByTestId('input')).toHaveAttribute('role', 'spinbutton');
   });
 
-  it('should set aria-roledescription on the input', async () => {
-    await render(createTemplate(), {
-      imports,
-      componentProperties: { valueChange: jest.fn() },
-    });
-
-    expect(screen.getByTestId('input')).toHaveAttribute('aria-roledescription', 'Number field');
-  });
-
   it('should set input type to text', async () => {
     await render(createTemplate(), {
       imports,
@@ -352,16 +343,6 @@ describe('NgpNumberField', () => {
 
     const input = screen.getByTestId('input');
     expect(input).toHaveAttribute('aria-valuenow', '42');
-  });
-
-  it('should set aria-label on increment and decrement buttons', async () => {
-    await render(createTemplate(), {
-      imports,
-      componentProperties: { valueChange: jest.fn() },
-    });
-
-    expect(screen.getByTestId('increment')).toHaveAttribute('aria-label', 'Increment');
-    expect(screen.getByTestId('decrement')).toHaveAttribute('aria-label', 'Decrement');
   });
 
   it('should set tabindex=-1 on buttons', async () => {
