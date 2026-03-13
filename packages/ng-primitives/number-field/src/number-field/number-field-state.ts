@@ -200,6 +200,8 @@ export const [
       return clamped;
     }
 
+    let suppressEmit = false;
+
     function setValue(newValue: number | null): void {
       if (disabled() || readonly()) return;
       if (newValue !== null && isNaN(newValue)) return;
@@ -207,8 +209,10 @@ export const [
       // Skip emit when value is unchanged
       if (finalValue === value()) return;
       value.set(finalValue);
-      onValueChange?.(finalValue);
-      valueChange.emit(finalValue);
+      if (!suppressEmit) {
+        onValueChange?.(finalValue);
+        valueChange.emit(finalValue);
+      }
     }
 
     let inputCommitFn: (() => void) | null = null;
@@ -217,8 +221,19 @@ export const [
       inputCommitFn = commitFn;
     }
 
-    function commitPendingInput(): void {
-      inputCommitFn?.();
+    /**
+     * Commit any pending input value without emitting change events.
+     * This ensures increment/decrement operates on the displayed value
+     * while only emitting the final stepped result.
+     */
+    function commitPendingInputSilently(): void {
+      if (!inputCommitFn) return;
+      suppressEmit = true;
+      try {
+        inputCommitFn();
+      } finally {
+        suppressEmit = false;
+      }
     }
 
     function getStepPrecision(): number {
@@ -228,7 +243,7 @@ export const [
 
     function increment(multiplier: number = 1): void {
       if (!canIncrement()) return;
-      commitPendingInput();
+      commitPendingInputSilently();
       const current = value() ?? (isFinite(min()) ? min() : 0);
       const precision = getStepPrecision();
       setValue(roundToPrecision(current + step() * multiplier, precision));
@@ -236,7 +251,7 @@ export const [
 
     function decrement(multiplier: number = 1): void {
       if (!canDecrement()) return;
-      commitPendingInput();
+      commitPendingInputSilently();
       const current = value() ?? (isFinite(max()) ? max() : 0);
       const precision = getStepPrecision();
       setValue(roundToPrecision(current - step() * multiplier, precision));

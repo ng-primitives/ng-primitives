@@ -166,19 +166,21 @@ export const [
 
       const useLargeStep = event.shiftKey;
 
+      function getLargeStepMultiplier(): number {
+        const s = numberField().step();
+        if (!isFinite(s) || s <= 0) return 1;
+        return numberField().largeStep() / s;
+      }
+
       switch (event.key) {
         case 'ArrowUp':
           event.preventDefault();
-          numberField().increment(
-            useLargeStep ? numberField().largeStep() / numberField().step() : 1,
-          );
+          numberField().increment(useLargeStep ? getLargeStepMultiplier() : 1);
           elementRef.nativeElement.value = formatDisplayValue();
           break;
         case 'ArrowDown':
           event.preventDefault();
-          numberField().decrement(
-            useLargeStep ? numberField().largeStep() / numberField().step() : 1,
-          );
+          numberField().decrement(useLargeStep ? getLargeStepMultiplier() : 1);
           elementRef.nativeElement.value = formatDisplayValue();
           break;
         case 'Home':

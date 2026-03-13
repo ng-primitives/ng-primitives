@@ -714,7 +714,8 @@ describe('NgpNumberField', () => {
     // Press ArrowUp — should increment from 1, not from 10
     fireEvent.keyDown(input, { key: 'ArrowUp' });
 
-    expect(valueChange).toHaveBeenCalledWith(1);
+    // Only the final stepped value should be emitted (not the intermediate commit)
+    expect(valueChange).toHaveBeenCalledTimes(1);
     expect(valueChange).toHaveBeenCalledWith(2);
     expect(input.value).toBe('2');
   });
@@ -733,7 +734,8 @@ describe('NgpNumberField', () => {
 
     fireEvent.keyDown(input, { key: 'ArrowDown' });
 
-    expect(valueChange).toHaveBeenCalledWith(5);
+    // Only the final stepped value should be emitted (not the intermediate commit)
+    expect(valueChange).toHaveBeenCalledTimes(1);
     expect(valueChange).toHaveBeenCalledWith(4);
     expect(input.value).toBe('4');
   });
@@ -753,7 +755,8 @@ describe('NgpNumberField', () => {
 
     fireEvent.pointerDown(screen.getByTestId('increment'));
 
-    expect(valueChange).toHaveBeenCalledWith(1);
+    // Only the final stepped value should be emitted (not the intermediate commit)
+    expect(valueChange).toHaveBeenCalledTimes(1);
     expect(valueChange).toHaveBeenCalledWith(2);
   });
 
@@ -772,7 +775,8 @@ describe('NgpNumberField', () => {
 
     fireEvent.pointerDown(screen.getByTestId('decrement'));
 
-    expect(valueChange).toHaveBeenCalledWith(5);
+    // Only the final stepped value should be emitted (not the intermediate commit)
+    expect(valueChange).toHaveBeenCalledTimes(1);
     expect(valueChange).toHaveBeenCalledWith(4);
   });
 
