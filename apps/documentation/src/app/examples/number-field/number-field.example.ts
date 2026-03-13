@@ -1,0 +1,123 @@
+import { Component, signal } from '@angular/core';
+import {
+  NgpNumberField,
+  NgpNumberFieldDecrement,
+  NgpNumberFieldGroup,
+  NgpNumberFieldIncrement,
+  NgpNumberFieldInput,
+  NgpNumberFieldLabel,
+} from 'ng-primitives/number-field';
+
+@Component({
+  selector: 'app-number-field',
+  imports: [
+    NgpNumberField,
+    NgpNumberFieldInput,
+    NgpNumberFieldIncrement,
+    NgpNumberFieldDecrement,
+    NgpNumberFieldLabel,
+    NgpNumberFieldGroup,
+  ],
+  styles: `
+    :host {
+      display: contents;
+    }
+
+    [ngpNumberField] {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    [ngpNumberFieldLabel] {
+      color: var(--ngp-text-primary);
+      font-size: 0.875rem;
+      line-height: 1.25rem;
+      font-weight: 500;
+      margin: 0;
+    }
+
+    [ngpNumberFieldGroup] {
+      display: inline-flex;
+      align-items: center;
+      border-radius: 8px;
+      box-shadow: var(--ngp-input-shadow);
+      background-color: var(--ngp-background);
+      overflow: hidden;
+    }
+
+    [ngpNumberFieldGroup]:focus-within {
+      outline: 2px solid var(--ngp-focus-ring);
+      outline-offset: 2px;
+    }
+
+    [ngpNumberFieldInput] {
+      width: 64px;
+      height: 36px;
+      border: none;
+      outline: none;
+      text-align: center;
+      font-size: 0.875rem;
+      color: var(--ngp-text-primary);
+      background: transparent;
+      box-sizing: border-box;
+      padding: 0;
+    }
+
+    [ngpNumberFieldInput]::placeholder {
+      color: var(--ngp-text-placeholder);
+    }
+
+    [ngpNumberFieldIncrement],
+    [ngpNumberFieldDecrement] {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 36px;
+      height: 36px;
+      border: none;
+      background: transparent;
+      color: var(--ngp-text-secondary);
+      cursor: pointer;
+      font-size: 1rem;
+      user-select: none;
+      transition: color 150ms ease, background-color 150ms ease;
+    }
+
+    [ngpNumberFieldIncrement]:hover,
+    [ngpNumberFieldDecrement]:hover {
+      background-color: var(--ngp-background-hover);
+      color: var(--ngp-text-primary);
+    }
+
+    [ngpNumberFieldIncrement][data-press],
+    [ngpNumberFieldDecrement][data-press] {
+      background-color: var(--ngp-background-active);
+    }
+
+    [ngpNumberFieldIncrement][data-disabled],
+    [ngpNumberFieldDecrement][data-disabled] {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+
+    [ngpNumberFieldIncrement][data-disabled]:hover,
+    [ngpNumberFieldDecrement][data-disabled]:hover {
+      background: transparent;
+      color: var(--ngp-text-secondary);
+    }
+  `,
+  template: `
+    <div [(ngpNumberFieldValue)]="value" [ngpNumberFieldMin]="0" [ngpNumberFieldMax]="100" ngpNumberField>
+      <label ngpNumberFieldLabel>Quantity</label>
+      <div ngpNumberFieldGroup>
+        <button ngpNumberFieldDecrement>−</button>
+        <input ngpNumberFieldInput />
+        <button ngpNumberFieldIncrement>+</button>
+      </div>
+    </div>
+  `,
+})
+export default class NumberFieldExample {
+  value = signal(0);
+}
