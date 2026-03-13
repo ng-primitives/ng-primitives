@@ -27,6 +27,19 @@ Angular Primitives follow [Semantic Versioning](https://semver.org/). As a resul
 We release a new major version each time Angular releases a new major version.
 This ensures that Angular Primitives is always up-to-date with the latest Angular features and best practices.
 
+### What We Consider a Breaking Change
+
+With low-level primitive libraries, the line between a bug fix and a breaking change can sometimes be blurry as consumers may rely on specific implementation details. To help set expectations, we define a breaking change as any change that requires consumers to modify their application or library code in order to upgrade. This includes:
+
+- **Public API changes** — removed or renamed functions, directives, inputs, outputs, or other public members.
+- **Type changes** — changes that cause new compile errors in consuming code.
+- **Documented behavior changes** — changes to behavior that is explicitly documented.
+- **Default value changes** — changes to default values that alter how existing code behaves without modification.
+
+Changes to internal or undocumented behavior are **not** considered breaking changes. Implementation details that are not part of the public API may change as part of bug fixes or improvements. However, we recognize that users may unintentionally rely on undocumented behavior, so we will do our best to communicate significant internal changes in release notes.
+
+In short, the **documented public API and behavior** is the compatibility boundary. We classify breaking changes based on whether upgrading requires consumers to change their code or expected behavior.
+
 ## Compatibility
 
 Angular Primitives versions are compatible with the following Angular versions:
