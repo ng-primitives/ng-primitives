@@ -1,9 +1,7 @@
 import { fireEvent, render, screen } from '@testing-library/angular';
 import { NgpNumberFieldDecrement } from '../number-field-decrement/number-field-decrement';
-import { NgpNumberFieldGroup } from '../number-field-group/number-field-group';
 import { NgpNumberFieldIncrement } from '../number-field-increment/number-field-increment';
 import { NgpNumberFieldInput } from '../number-field-input/number-field-input';
-import { NgpNumberFieldLabel } from '../number-field-label/number-field-label';
 import { NgpNumberField } from './number-field';
 
 describe('NgpNumberField', () => {
@@ -12,8 +10,6 @@ describe('NgpNumberField', () => {
     NgpNumberFieldInput,
     NgpNumberFieldIncrement,
     NgpNumberFieldDecrement,
-    NgpNumberFieldLabel,
-    NgpNumberFieldGroup,
   ];
 
   function createTemplate(extraProps = ''): string {
@@ -23,12 +19,9 @@ describe('NgpNumberField', () => {
         data-testid="number-field"
         (ngpNumberFieldValueChange)="valueChange($event)"
         ${extraProps}>
-        <label ngpNumberFieldLabel data-testid="label">Quantity</label>
-        <div ngpNumberFieldGroup data-testid="group">
-          <button ngpNumberFieldDecrement data-testid="decrement">-</button>
-          <input ngpNumberFieldInput data-testid="input" />
-          <button ngpNumberFieldIncrement data-testid="increment">+</button>
-        </div>
+        <button ngpNumberFieldDecrement data-testid="decrement">-</button>
+        <input ngpNumberFieldInput data-testid="input" />
+        <button ngpNumberFieldIncrement data-testid="increment">+</button>
       </div>
     `;
   }
@@ -43,13 +36,13 @@ describe('NgpNumberField', () => {
     expect(numberField.id).toMatch(/^ngp-number-field/);
   });
 
-  it('should set role="group" on the group element', async () => {
+  it('should set role="group" on the root element', async () => {
     await render(createTemplate(), {
       imports,
       componentProperties: { valueChange: jest.fn() },
     });
 
-    expect(screen.getByTestId('group')).toHaveAttribute('role', 'group');
+    expect(screen.getByTestId('number-field')).toHaveAttribute('role', 'group');
   });
 
   it('should set aria-roledescription on the input', async () => {

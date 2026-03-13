@@ -168,6 +168,7 @@ export const [
 
     // Host bindings
     attrBinding(element, 'id', id);
+    attrBinding(element, 'role', () => 'group');
     dataBinding(element, 'data-disabled', () => status().disabled);
     dataBinding(element, 'data-readonly', readonly);
 
