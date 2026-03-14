@@ -372,20 +372,20 @@ describe('NgpMenu', () => {
       });
     });
 
-    // Skip: Focus restoration cannot be reliably tested in jsdom for the Escape key path.
-    // The overlay's capture-phase Escape listener (overlay.ts) fires before the menu's
-    // bubble-phase handler, racing over focus management. The overlay calls focusVia on
-    // the root trigger while the submenu's focus trap is still active, which redirects
-    // focus back into the submenu. Then destroyOverlay removes the submenu DOM, dropping
-    // focus to document.body. The root menu trigger sets closeOnEscape: true (unlike
-    // submenus which set it to false), creating this capture/bubble phase conflict.
-    // The sibling Enter-key test verifies focus restoration works correctly.
+    // Skip: The overlay's capture-phase Escape listener calls focusVia(rootTrigger),
+    // which triggers the submenu's focusout handler. Since the submenu's focus trap is
+    // still active (deactivated later in the bubble phase by closeAllMenus), it redirects
+    // focus back into the submenu. Then destroyOverlay removes the submenu DOM, and focus
+    // falls to document.body. With fakeAsync this worked because all microtasks resolved
+    // synchronously, but with real async the focusout handler fires while the trap is active.
+    // The sibling Enter-key test verifies focus restoration via a path without this race.
     it.skip('should restore focus to root trigger when Escape is pressed in submenu (keyboard opened)', async () => {
       const { fixture } = await render(TestMenuWithSubmenuComponent);
       const trigger = fixture.debugElement.nativeElement.querySelector(
         '[data-testid="root-trigger"]',
       );
 
+      // Open root menu via keyboard (detail === 0)
       fireEvent.click(trigger, { detail: 0 });
       fixture.detectChanges();
 
@@ -393,6 +393,7 @@ describe('NgpMenu', () => {
         expect(trigger).toHaveAttribute('data-open');
       });
 
+      // Navigate to submenu trigger and open via keyboard
       const submenuTrigger = document.querySelector(
         '[data-testid="submenu-trigger"]',
       ) as HTMLElement;
@@ -404,11 +405,11 @@ describe('NgpMenu', () => {
         expect(submenuTrigger).toHaveAttribute('data-open');
       });
 
+      // Focus a submenu item and press Escape
       const submenuItem = document.querySelector('[data-testid="submenu-item-1"]') as HTMLElement;
       submenuItem.focus();
-
-      const submenu = document.querySelector('[data-testid="submenu"]') as HTMLElement;
-      fireEvent.keyDown(submenu, { key: 'Escape' });
+      fireEvent.keyDown(submenuItem, { key: 'Escape' });
+      fixture.detectChanges();
 
       await waitFor(() => {
         expect(trigger).not.toHaveAttribute('data-open');
