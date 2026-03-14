@@ -48,8 +48,13 @@ describe('NgpPromptComposerDictation', () => {
 
   beforeEach(() => {
     mockSpeechRecognition = new MockSpeechRecognition();
-    (globalThis as any).SpeechRecognition = vi.fn(() => mockSpeechRecognition);
-    (globalThis as any).webkitSpeechRecognition = vi.fn(() => mockSpeechRecognition);
+    // Use a regular function (not arrow) so it can be called with `new`
+    (globalThis as any).SpeechRecognition = function () {
+      return mockSpeechRecognition;
+    };
+    (globalThis as any).webkitSpeechRecognition = function () {
+      return mockSpeechRecognition;
+    };
   });
 
   afterEach(() => {

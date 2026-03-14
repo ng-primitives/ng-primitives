@@ -1,6 +1,12 @@
 import { Component } from '@angular/core';
-import * as floatingUiDom from '@floating-ui/dom';
+import { computePosition } from '@floating-ui/dom';
+import { type MockInstance } from 'vitest';
 import { fireEvent, render, waitFor } from '@testing-library/angular';
+
+vi.mock('@floating-ui/dom', async () => {
+  const actual = await vi.importActual<typeof import('@floating-ui/dom')>('@floating-ui/dom');
+  return { ...actual, computePosition: vi.fn(actual.computePosition) };
+});
 import { NgpMenuItem } from '../menu-item/menu-item';
 import { NgpMenuTrigger } from '../menu-trigger/menu-trigger';
 import { NgpMenu } from '../menu/menu';
@@ -143,14 +149,10 @@ describe('NgpSubmenuTrigger viewport awareness', () => {
   });
 
   describe('flip middleware', () => {
-    let computePositionSpy: ReturnType<typeof vi.spyOn>;
+    const computePositionMock = computePosition as unknown as MockInstance;
 
     beforeEach(() => {
-      computePositionSpy = vi.spyOn(floatingUiDom, 'computePosition');
-    });
-
-    afterEach(() => {
-      vi.restoreAllMocks();
+      computePositionMock.mockClear();
     });
 
     it('should include flip middleware when flip is enabled (default)', async () => {
@@ -158,7 +160,7 @@ describe('NgpSubmenuTrigger viewport awareness', () => {
       await openMenuAndSubmenu(fixture);
 
       // Find the computePosition call for the submenu (placement: right-start)
-      const submenuCall = computePositionSpy.mock.calls.find(call => {
+      const submenuCall = computePositionMock.mock.calls.find(call => {
         const options = call[2];
         return options?.placement === 'right-start';
       });
@@ -176,7 +178,7 @@ describe('NgpSubmenuTrigger viewport awareness', () => {
       await openMenuAndSubmenu(fixture);
 
       // Find the computePosition call for the submenu
-      const submenuCall = computePositionSpy.mock.calls.find(call => {
+      const submenuCall = computePositionMock.mock.calls.find(call => {
         const options = call[2];
         return options?.placement === 'right-start';
       });
@@ -194,7 +196,7 @@ describe('NgpSubmenuTrigger viewport awareness', () => {
       await openMenuAndSubmenu(fixture);
 
       // Find the computePosition call for the submenu
-      const submenuCall = computePositionSpy.mock.calls.find(call => {
+      const submenuCall = computePositionMock.mock.calls.find(call => {
         const options = call[2];
         return options?.placement === 'right-start';
       });
@@ -383,7 +385,8 @@ describe('NgpSubmenuTrigger viewport awareness', () => {
     });
 
     it('should not flip when flip is disabled even near viewport edge', async () => {
-      const computePositionSpy = vi.spyOn(floatingUiDom, 'computePosition');
+      const computePositionMock = computePosition as unknown as MockInstance;
+      computePositionMock.mockClear();
       const { cleanup } = setupViewportMocks();
 
       try {
@@ -410,7 +413,7 @@ describe('NgpSubmenuTrigger viewport awareness', () => {
         });
 
         // Verify no flip middleware was included in the submenu's computePosition call
-        const submenuCall = computePositionSpy.mock.calls.find(call => {
+        const submenuCall = computePositionMock.mock.calls.find(call => {
           const options = call[2];
           return options?.placement === 'right-start';
         });
@@ -427,14 +430,10 @@ describe('NgpSubmenuTrigger viewport awareness', () => {
   });
 
   describe('custom placement', () => {
-    let computePositionSpy: ReturnType<typeof vi.spyOn>;
+    const computePositionMock = computePosition as unknown as MockInstance;
 
     beforeEach(() => {
-      computePositionSpy = vi.spyOn(floatingUiDom, 'computePosition');
-    });
-
-    afterEach(() => {
-      vi.restoreAllMocks();
+      computePositionMock.mockClear();
     });
 
     it('should use left-start placement when specified', async () => {
@@ -445,7 +444,7 @@ describe('NgpSubmenuTrigger viewport awareness', () => {
       await openMenuAndSubmenu(fixture);
 
       // Find the computePosition call with left-start placement
-      const submenuCall = computePositionSpy.mock.calls.find(call => {
+      const submenuCall = computePositionMock.mock.calls.find(call => {
         const options = call[2];
         return options?.placement === 'left-start';
       });

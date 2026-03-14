@@ -12,8 +12,12 @@ describe('NgpPromptComposer', () => {
 
   beforeEach(() => {
     mockSpeechRecognition = new MockSpeechRecognition();
-    (globalThis as any).SpeechRecognition = vi.fn(() => mockSpeechRecognition);
-    (globalThis as any).webkitSpeechRecognition = vi.fn(() => mockSpeechRecognition);
+    (globalThis as any).SpeechRecognition = function () {
+      return mockSpeechRecognition;
+    };
+    (globalThis as any).webkitSpeechRecognition = function () {
+      return mockSpeechRecognition;
+    };
   });
 
   afterEach(() => {
@@ -23,7 +27,7 @@ describe('NgpPromptComposer', () => {
 
   it('should set data attributes based on state', async () => {
     // Mock SpeechRecognition for dictation support
-    (globalThis as any).SpeechRecognition = vi.fn();
+    (globalThis as any).SpeechRecognition = function () {};
 
     const { fixture } = await render(
       `<div ngpThread>

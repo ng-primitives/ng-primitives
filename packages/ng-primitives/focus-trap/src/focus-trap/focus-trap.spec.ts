@@ -1,7 +1,7 @@
 import { FocusMonitor, InteractivityChecker } from '@angular/cdk/a11y';
 import { Component, signal } from '@angular/core';
-import { fakeAsync, flush, TestBed, tick } from '@angular/core/testing';
-import { fireEvent, render } from '@testing-library/angular';
+import { TestBed } from '@angular/core/testing';
+import { fireEvent, render, waitFor } from '@testing-library/angular';
 import { NgpFocusTrap } from './focus-trap';
 
 @Component({
@@ -356,7 +356,7 @@ describe('NgpFocusTrap', () => {
 });
 
 describe('FocusTrapStack behavior', () => {
-  it('should activate new focus trap when added to stack', fakeAsync(async () => {
+  it('should activate new focus trap when added to stack', async () => {
     const { fixture } = await render(TestNestedFocusTrapsComponent);
 
     // First trap should be active
@@ -366,132 +366,140 @@ describe('FocusTrapStack behavior', () => {
     // Show second trap
     fixture.componentInstance.showSecond.set(true);
     fixture.detectChanges();
-    tick();
-    flush();
 
-    // Second trap should now be active
-    const trap2 = fixture.debugElement.nativeElement.querySelector('[data-testid="focus-trap-2"]');
-    expect(trap2).toHaveAttribute('data-focus-trap');
-  }));
+    await waitFor(() => {
+      // Second trap should now be active
+      const trap2 = fixture.debugElement.nativeElement.querySelector('[data-testid="focus-trap-2"]');
+      expect(trap2).toHaveAttribute('data-focus-trap');
+    });
+  });
 
-  it('should reactivate previous trap when removing from top of stack', fakeAsync(async () => {
+  it('should reactivate previous trap when removing from top of stack', async () => {
     const { fixture } = await render(TestNestedFocusTrapsComponent);
 
     // Show second trap
     fixture.componentInstance.showSecond.set(true);
     fixture.detectChanges();
-    tick();
-    flush();
 
     const trap1 = fixture.debugElement.nativeElement.querySelector('[data-testid="focus-trap-1"]');
-    const trap2 = fixture.debugElement.nativeElement.querySelector('[data-testid="focus-trap-2"]');
 
-    expect(trap1).toHaveAttribute('data-focus-trap');
-    expect(trap2).toHaveAttribute('data-focus-trap');
+    await waitFor(() => {
+      const trap2 = fixture.debugElement.nativeElement.querySelector('[data-testid="focus-trap-2"]');
+      expect(trap1).toHaveAttribute('data-focus-trap');
+      expect(trap2).toHaveAttribute('data-focus-trap');
+    });
 
     // Hide second trap (remove from top of stack)
     fixture.componentInstance.showSecond.set(false);
     fixture.detectChanges();
-    tick();
-    flush();
 
-    // First trap should still be active (reactivated after removal)
-    expect(trap1).toHaveAttribute('data-focus-trap');
-  }));
+    await waitFor(() => {
+      // First trap should still be active (reactivated after removal)
+      expect(trap1).toHaveAttribute('data-focus-trap');
+    });
+  });
 
-  it('should handle multiple nested focus traps', fakeAsync(async () => {
+  it('should handle multiple nested focus traps', async () => {
     const { fixture } = await render(TestNestedFocusTrapsComponent);
 
     // Show all three traps
     fixture.componentInstance.showSecond.set(true);
     fixture.detectChanges();
-    tick();
-    flush();
+
+    await waitFor(() => {
+      const trap2 = fixture.debugElement.nativeElement.querySelector('[data-testid="focus-trap-2"]');
+      expect(trap2).toHaveAttribute('data-focus-trap');
+    });
 
     fixture.componentInstance.showThird.set(true);
     fixture.detectChanges();
-    tick();
-    flush();
 
-    const trap1 = fixture.debugElement.nativeElement.querySelector('[data-testid="focus-trap-1"]');
-    const trap2 = fixture.debugElement.nativeElement.querySelector('[data-testid="focus-trap-2"]');
-    const trap3 = fixture.debugElement.nativeElement.querySelector('[data-testid="focus-trap-3"]');
+    await waitFor(() => {
+      const trap1 = fixture.debugElement.nativeElement.querySelector('[data-testid="focus-trap-1"]');
+      const trap2 = fixture.debugElement.nativeElement.querySelector('[data-testid="focus-trap-2"]');
+      const trap3 = fixture.debugElement.nativeElement.querySelector('[data-testid="focus-trap-3"]');
 
-    expect(trap1).toHaveAttribute('data-focus-trap');
-    expect(trap2).toHaveAttribute('data-focus-trap');
-    expect(trap3).toHaveAttribute('data-focus-trap');
+      expect(trap1).toHaveAttribute('data-focus-trap');
+      expect(trap2).toHaveAttribute('data-focus-trap');
+      expect(trap3).toHaveAttribute('data-focus-trap');
+    });
 
     // Remove third trap
     fixture.componentInstance.showThird.set(false);
     fixture.detectChanges();
-    tick();
-    flush();
 
-    // Trap 1 and 2 should still exist and have data-focus-trap
-    expect(trap1).toHaveAttribute('data-focus-trap');
-    expect(trap2).toHaveAttribute('data-focus-trap');
-  }));
+    await waitFor(() => {
+      const trap1 = fixture.debugElement.nativeElement.querySelector('[data-testid="focus-trap-1"]');
+      const trap2 = fixture.debugElement.nativeElement.querySelector('[data-testid="focus-trap-2"]');
 
-  it('should handle removing all focus traps', fakeAsync(async () => {
+      // Trap 1 and 2 should still exist and have data-focus-trap
+      expect(trap1).toHaveAttribute('data-focus-trap');
+      expect(trap2).toHaveAttribute('data-focus-trap');
+    });
+  });
+
+  it('should handle removing all focus traps', async () => {
     const { fixture } = await render(TestNestedFocusTrapsComponent);
 
     // Show second trap
     fixture.componentInstance.showSecond.set(true);
     fixture.detectChanges();
-    tick();
-    flush();
+
+    await waitFor(() => {
+      const trap2 = fixture.debugElement.nativeElement.querySelector('[data-testid="focus-trap-2"]');
+      expect(trap2).toHaveAttribute('data-focus-trap');
+    });
 
     // Remove first trap (which contains second trap)
     fixture.componentInstance.showFirst.set(false);
     fixture.detectChanges();
-    tick();
-    flush();
 
-    // Both traps should be removed without errors
-    const trap1 = fixture.debugElement.nativeElement.querySelector('[data-testid="focus-trap-1"]');
-    const trap2 = fixture.debugElement.nativeElement.querySelector('[data-testid="focus-trap-2"]');
+    await waitFor(() => {
+      // Both traps should be removed without errors
+      const trap1 = fixture.debugElement.nativeElement.querySelector('[data-testid="focus-trap-1"]');
+      const trap2 = fixture.debugElement.nativeElement.querySelector('[data-testid="focus-trap-2"]');
 
-    expect(trap1).toBeNull();
-    expect(trap2).toBeNull();
-  }));
+      expect(trap1).toBeNull();
+      expect(trap2).toBeNull();
+    });
+  });
 
-  it('should not interfere with other focus traps when deactivated', fakeAsync(async () => {
+  it('should not interfere with other focus traps when deactivated', async () => {
     const { fixture } = await render(TestNestedFocusTrapsComponent);
 
     // Show second trap
     fixture.componentInstance.showSecond.set(true);
     fixture.detectChanges();
-    tick();
-    flush();
 
-    const trap1Button = fixture.debugElement.nativeElement.querySelector(
-      '[data-testid="trap1-button1"]',
-    );
-    const trap2Button = fixture.debugElement.nativeElement.querySelector(
-      '[data-testid="trap2-button1"]',
-    );
+    await waitFor(() => {
+      const trap2Button = fixture.debugElement.nativeElement.querySelector(
+        '[data-testid="trap2-button1"]',
+      );
 
-    // Focus should be trappable in both traps without errors
-    fireEvent.focus(trap2Button);
-    expect(document.activeElement).toBeTruthy();
+      // Focus should be trappable in both traps without errors
+      fireEvent.focus(trap2Button);
+      expect(document.activeElement).toBeTruthy();
+    });
 
     // Hide second trap
     fixture.componentInstance.showSecond.set(false);
     fixture.detectChanges();
-    tick();
-    flush();
 
-    // First trap should still work
-    fireEvent.focus(trap1Button);
-    expect(document.activeElement).toBeTruthy();
-  }));
+    await waitFor(() => {
+      const trap1Button = fixture.debugElement.nativeElement.querySelector(
+        '[data-testid="trap1-button1"]',
+      );
+
+      // First trap should still work
+      fireEvent.focus(trap1Button);
+      expect(document.activeElement).toBeTruthy();
+    });
+  });
 });
 
 describe('Tabbable candidate filtering', () => {
-  it('should use isTabbable to exclude tabindex="-1" elements from tabbable candidates', fakeAsync(async () => {
+  it('should use isTabbable to exclude tabindex="-1" elements from tabbable candidates', async () => {
     const { getByTestId } = await render(TestFocusTrapWithNegativeTabIndexComponent);
-    tick();
-    flush();
 
     const interactivityChecker = TestBed.inject(InteractivityChecker);
     const isTabbableSpy = vi.spyOn(interactivityChecker, 'isTabbable');
@@ -507,19 +515,19 @@ describe('Tabbable candidate filtering', () => {
     // Trigger Tab key which calls getTabbableCandidates -> isTabbable
     fireEvent.keyDown(focusTrap, { key: 'Tab' });
 
-    // Verify isTabbable was called during Tab handling
-    expect(isTabbableSpy).toHaveBeenCalled();
+    await waitFor(() => {
+      // Verify isTabbable was called during Tab handling
+      expect(isTabbableSpy).toHaveBeenCalled();
 
-    // Verify isTabbable was called with and returned false for the tabindex="-1" element
-    const callIndex = isTabbableSpy.mock.calls.findIndex(call => call[0] === negativeTabIndexEl);
-    expect(callIndex).toBeGreaterThanOrEqual(0);
-    expect(isTabbableSpy.mock.results[callIndex].value).toBe(false);
-  }));
+      // Verify isTabbable was called with and returned false for the tabindex="-1" element
+      const callIndex = isTabbableSpy.mock.calls.findIndex(call => call[0] === negativeTabIndexEl);
+      expect(callIndex).toBeGreaterThanOrEqual(0);
+      expect(isTabbableSpy.mock.results[callIndex].value).toBe(false);
+    });
+  });
 
-  it('should call isTabbable for standard tabbable elements during Tab navigation', fakeAsync(async () => {
+  it('should call isTabbable for standard tabbable elements during Tab navigation', async () => {
     const { getByTestId } = await render(TestFocusTrapWithNegativeTabIndexComponent);
-    tick();
-    flush();
 
     const interactivityChecker = TestBed.inject(InteractivityChecker);
     const isTabbableSpy = vi.spyOn(interactivityChecker, 'isTabbable');
@@ -533,17 +541,17 @@ describe('Tabbable candidate filtering', () => {
 
     fireEvent.keyDown(focusTrap, { key: 'Tab' });
 
-    // Verify isTabbable was called with both buttons
-    expect(isTabbableSpy.mock.calls.some(call => call[0] === btn1)).toBe(true);
-    expect(isTabbableSpy.mock.calls.some(call => call[0] === btn2)).toBe(true);
-  }));
+    await waitFor(() => {
+      // Verify isTabbable was called with both buttons
+      expect(isTabbableSpy.mock.calls.some(call => call[0] === btn1)).toBe(true);
+      expect(isTabbableSpy.mock.calls.some(call => call[0] === btn2)).toBe(true);
+    });
+  });
 });
 
 describe('Focus-in with CDK overlays and external traps', () => {
-  it('should not redirect focus when it moves to a [data-focus-trap] element', fakeAsync(async () => {
+  it('should not redirect focus when it moves to a [data-focus-trap] element', async () => {
     const { getByTestId } = await render(TestFocusTrapWithExternalTrapComponent);
-    tick();
-    flush();
 
     const focusMonitor = TestBed.inject(FocusMonitor);
     const focusViaSpy = vi.spyOn(focusMonitor, 'focusVia');
@@ -555,13 +563,13 @@ describe('Focus-in with CDK overlays and external traps', () => {
     // Focus moves to an element inside an external [data-focus-trap]
     fireEvent.focusIn(getByTestId('external-trap-btn'));
 
-    expect(focusViaSpy).not.toHaveBeenCalled();
-  }));
+    await waitFor(() => {
+      expect(focusViaSpy).not.toHaveBeenCalled();
+    });
+  });
 
-  it('should not redirect focus when it moves to a .cdk-overlay-container element', fakeAsync(async () => {
+  it('should not redirect focus when it moves to a .cdk-overlay-container element', async () => {
     const { getByTestId } = await render(TestFocusTrapWithCdkOverlayComponent);
-    tick();
-    flush();
 
     const focusMonitor = TestBed.inject(FocusMonitor);
     const focusViaSpy = vi.spyOn(focusMonitor, 'focusVia');
@@ -573,13 +581,13 @@ describe('Focus-in with CDK overlays and external traps', () => {
     // Focus moves to an element inside .cdk-overlay-container
     fireEvent.focusIn(getByTestId('overlay-btn'));
 
-    expect(focusViaSpy).not.toHaveBeenCalled();
-  }));
+    await waitFor(() => {
+      expect(focusViaSpy).not.toHaveBeenCalled();
+    });
+  });
 
-  it('should redirect focus back when it moves to a plain outside element', fakeAsync(async () => {
+  it('should redirect focus back when it moves to a plain outside element', async () => {
     const { getByTestId } = await render(TestFocusTrapWithCdkOverlayComponent);
-    tick();
-    flush();
 
     const focusMonitor = TestBed.inject(FocusMonitor);
     const focusViaSpy = vi.spyOn(focusMonitor, 'focusVia');
@@ -593,15 +601,15 @@ describe('Focus-in with CDK overlays and external traps', () => {
     // Focus moves to a plain outside element (not overlay or external trap)
     fireEvent.focusIn(getByTestId('outside-btn'));
 
-    expect(focusViaSpy).toHaveBeenCalledWith(trapBtn, expect.anything(), expect.anything());
-  }));
+    await waitFor(() => {
+      expect(focusViaSpy).toHaveBeenCalledWith(trapBtn, expect.anything(), expect.anything());
+    });
+  });
 });
 
 describe('Focus-out with CDK overlays and external traps', () => {
-  it('should not redirect focus when it leaves to a [data-focus-trap] element', fakeAsync(async () => {
+  it('should not redirect focus when it leaves to a [data-focus-trap] element', async () => {
     const { getByTestId } = await render(TestFocusTrapWithExternalTrapComponent);
-    tick();
-    flush();
 
     const focusMonitor = TestBed.inject(FocusMonitor);
     const focusViaSpy = vi.spyOn(focusMonitor, 'focusVia');
@@ -616,13 +624,13 @@ describe('Focus-out with CDK overlays and external traps', () => {
     // Focus leaves to an element inside an external [data-focus-trap]
     fireEvent.focusOut(trapBtn, { relatedTarget: externalTrapBtn });
 
-    expect(focusViaSpy).not.toHaveBeenCalled();
-  }));
+    await waitFor(() => {
+      expect(focusViaSpy).not.toHaveBeenCalled();
+    });
+  });
 
-  it('should not redirect focus when it leaves to a .cdk-overlay-container element', fakeAsync(async () => {
+  it('should not redirect focus when it leaves to a .cdk-overlay-container element', async () => {
     const { getByTestId } = await render(TestFocusTrapWithCdkOverlayComponent);
-    tick();
-    flush();
 
     const focusMonitor = TestBed.inject(FocusMonitor);
     const focusViaSpy = vi.spyOn(focusMonitor, 'focusVia');
@@ -637,13 +645,13 @@ describe('Focus-out with CDK overlays and external traps', () => {
     // Focus leaves to an element inside .cdk-overlay-container
     fireEvent.focusOut(trapBtn, { relatedTarget: overlayBtn });
 
-    expect(focusViaSpy).not.toHaveBeenCalled();
-  }));
+    await waitFor(() => {
+      expect(focusViaSpy).not.toHaveBeenCalled();
+    });
+  });
 
-  it('should redirect focus back when it leaves to a plain outside element', fakeAsync(async () => {
+  it('should redirect focus back when it leaves to a plain outside element', async () => {
     const { getByTestId } = await render(TestFocusTrapWithCdkOverlayComponent);
-    tick();
-    flush();
 
     const focusMonitor = TestBed.inject(FocusMonitor);
     const focusViaSpy = vi.spyOn(focusMonitor, 'focusVia');
@@ -658,6 +666,8 @@ describe('Focus-out with CDK overlays and external traps', () => {
     // Focus leaves to a plain outside element
     fireEvent.focusOut(trapBtn, { relatedTarget: outsideBtn });
 
-    expect(focusViaSpy).toHaveBeenCalledWith(trapBtn, expect.anything(), expect.anything());
-  }));
+    await waitFor(() => {
+      expect(focusViaSpy).toHaveBeenCalledWith(trapBtn, expect.anything(), expect.anything());
+    });
+  });
 });

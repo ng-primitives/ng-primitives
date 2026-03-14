@@ -1,10 +1,10 @@
-import '@analogjs/vitest-angular/setup-snapshots';
-import { setupTestBed } from '@analogjs/vitest-angular/setup-testbed';
 import '@angular/compiler';
+import '@analogjs/vitest-angular/setup-zone';
+import { setupTestBed } from '@analogjs/vitest-angular/setup-testbed';
 import '@testing-library/jest-dom';
 import { vi } from 'vitest';
 
-setupTestBed({ zoneless: true });
+setupTestBed({ zoneless: false });
 
 // patch the getAnimations function to return an empty array
 // as this doesn't work in jsdom environment - and we don't need animations for tests
