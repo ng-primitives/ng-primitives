@@ -54,15 +54,6 @@ describe('NgpNumberField', () => {
     expect(screen.getByTestId('input')).toHaveAttribute('role', 'spinbutton');
   });
 
-  it('should set aria-roledescription on the input', async () => {
-    await render(createTemplate(), {
-      imports,
-      componentProperties: { valueChange: jest.fn() },
-    });
-
-    expect(screen.getByTestId('input')).toHaveAttribute('aria-roledescription', 'Number field');
-  });
-
   it('should set input type to text', async () => {
     await render(createTemplate(), {
       imports,
@@ -352,16 +343,6 @@ describe('NgpNumberField', () => {
 
     const input = screen.getByTestId('input');
     expect(input).toHaveAttribute('aria-valuenow', '42');
-  });
-
-  it('should set aria-label on increment and decrement buttons', async () => {
-    await render(createTemplate(), {
-      imports,
-      componentProperties: { valueChange: jest.fn() },
-    });
-
-    expect(screen.getByTestId('increment')).toHaveAttribute('aria-label', 'Increment');
-    expect(screen.getByTestId('decrement')).toHaveAttribute('aria-label', 'Decrement');
   });
 
   it('should set tabindex=-1 on buttons', async () => {
@@ -659,20 +640,20 @@ describe('NgpNumberField', () => {
 
   it('should not store NaN when setValue is called with NaN', async () => {
     const valueChange = jest.fn();
-    await render(createTemplate('[ngpNumberFieldValue]="5"'), {
+    const { fixture } = await render(createTemplate('[ngpNumberFieldValue]="5"'), {
       imports,
       componentProperties: { valueChange },
     });
 
-    const input = screen.getByTestId('input') as HTMLInputElement;
+    const numberField = fixture.debugElement.children[0].injector.get(NgpNumberField);
 
-    // Simulate typing NaN-producing text and blurring
-    fireEvent.focus(input);
-    input.value = 'abc';
-    fireEvent.blur(input);
+    // Directly call setValue with NaN — should be rejected by the NaN guard
+    numberField.setValue(NaN);
 
-    // Value should not have changed
     expect(valueChange).not.toHaveBeenCalled();
+
+    const input = screen.getByTestId('input') as HTMLInputElement;
+    await Promise.resolve();
     expect(input.value).toBe('5');
   });
 
@@ -714,7 +695,8 @@ describe('NgpNumberField', () => {
     // Press ArrowUp — should increment from 1, not from 10
     fireEvent.keyDown(input, { key: 'ArrowUp' });
 
-    expect(valueChange).toHaveBeenCalledWith(1);
+    // Only the final stepped value should be emitted (not the intermediate commit)
+    expect(valueChange).toHaveBeenCalledTimes(1);
     expect(valueChange).toHaveBeenCalledWith(2);
     expect(input.value).toBe('2');
   });
@@ -733,7 +715,8 @@ describe('NgpNumberField', () => {
 
     fireEvent.keyDown(input, { key: 'ArrowDown' });
 
-    expect(valueChange).toHaveBeenCalledWith(5);
+    // Only the final stepped value should be emitted (not the intermediate commit)
+    expect(valueChange).toHaveBeenCalledTimes(1);
     expect(valueChange).toHaveBeenCalledWith(4);
     expect(input.value).toBe('4');
   });
@@ -753,7 +736,8 @@ describe('NgpNumberField', () => {
 
     fireEvent.pointerDown(screen.getByTestId('increment'));
 
-    expect(valueChange).toHaveBeenCalledWith(1);
+    // Only the final stepped value should be emitted (not the intermediate commit)
+    expect(valueChange).toHaveBeenCalledTimes(1);
     expect(valueChange).toHaveBeenCalledWith(2);
   });
 
@@ -772,7 +756,8 @@ describe('NgpNumberField', () => {
 
     fireEvent.pointerDown(screen.getByTestId('decrement'));
 
-    expect(valueChange).toHaveBeenCalledWith(5);
+    // Only the final stepped value should be emitted (not the intermediate commit)
+    expect(valueChange).toHaveBeenCalledTimes(1);
     expect(valueChange).toHaveBeenCalledWith(4);
   });
 

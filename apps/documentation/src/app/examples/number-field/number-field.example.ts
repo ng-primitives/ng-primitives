@@ -58,6 +58,7 @@ import {
       cursor: pointer;
       font-size: 1rem;
       user-select: none;
+      -webkit-touch-callout: none;
       transition:
         color 150ms ease,
         background-color 150ms ease;
@@ -93,9 +94,9 @@ import {
       [ngpNumberFieldMax]="100"
       ngpNumberField
     >
-      <button ngpNumberFieldDecrement>−</button>
+      <button ngpNumberFieldDecrement aria-label="Decrement">−</button>
       <input ngpNumberFieldInput />
-      <button ngpNumberFieldIncrement>+</button>
+      <button ngpNumberFieldIncrement aria-label="Increment">+</button>
     </div>
   `,
 })

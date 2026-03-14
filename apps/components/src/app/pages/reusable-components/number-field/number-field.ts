@@ -25,9 +25,9 @@ import {
   ],
   imports: [NgpNumberFieldInput, NgpNumberFieldIncrement, NgpNumberFieldDecrement],
   template: `
-    <button ngpNumberFieldDecrement>−</button>
+    <button ngpNumberFieldDecrement aria-label="Decrement">−</button>
     <input ngpNumberFieldInput />
-    <button ngpNumberFieldIncrement>+</button>
+    <button ngpNumberFieldIncrement aria-label="Increment">+</button>
   `,
   styles: `
     :host {
@@ -74,6 +74,7 @@ import {
       cursor: pointer;
       font-size: 1rem;
       user-select: none;
+      -webkit-touch-callout: none;
       transition:
         color 150ms ease,
         background-color 150ms ease;
