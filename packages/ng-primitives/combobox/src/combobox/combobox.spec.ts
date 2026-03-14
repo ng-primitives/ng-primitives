@@ -204,7 +204,7 @@ describe('NgpCombobox', () => {
     const component = fixture.componentInstance;
 
     component.disabled = true;
-    fixture.changeDetectorRef.detectChanges();
+    fixture.detectChanges();
 
     const input = screen.getByRole('combobox');
     expect(input).toBeDisabled();
@@ -365,10 +365,11 @@ describe('NgpCombobox', () => {
 
     // Set initial value
     component.value = 'Banana';
-    fixture.changeDetectorRef.detectChanges();
+    fixture.detectChanges();
 
     const button = screen.getByTestId('combobox-button');
     await userEvent.click(button);
+    fixture.detectChanges();
 
     // Banana option should have active state
     const bananaOption = screen.getByText('Banana');
@@ -406,7 +407,7 @@ describe('NgpCombobox Multi-select', () => {
     const component = fixture.componentInstance;
     // Start with pre-selected options
     component.value = ['Apple', 'Cherry'];
-    fixture.changeDetectorRef.detectChanges();
+    fixture.detectChanges();
     const button = screen.getByTestId('multi-combobox-button');
     await userEvent.click(button);
     // Apple should be marked as selected
@@ -673,7 +674,7 @@ describe('NgpCombobox Select All', () => {
 
     // Pre-select all options
     component.value = ['Apple', 'Banana', 'Cherry', 'Dragon Fruit', 'Elderberry'];
-    fixture.changeDetectorRef.detectChanges();
+    fixture.detectChanges();
 
     const button = screen.getByTestId('select-all-combobox-button');
     await userEvent.click(button);
@@ -757,7 +758,7 @@ describe('NgpCombobox Select All', () => {
     await userEvent.type(input, 'Berr');
 
     // Need to trigger change detection after filtering
-    await fixture.whenStable();
+    fixture.detectChanges();
     await waitFor(() => {
       // Only filtered options and Select All should be visible
       expect(screen.getByText('Select All')).toBeInTheDocument();
@@ -1071,7 +1072,7 @@ describe('NgpCombobox Virtual Scrolling', () => {
 
       // Set a value that's not in the initially rendered range
       component.value = 'Option 10';
-      fixture.changeDetectorRef.detectChanges();
+      fixture.detectChanges();
 
       const button = screen.getByTestId('virtual-combobox-button');
       await userEvent.click(button);
@@ -1140,7 +1141,6 @@ describe('NgpCombobox Virtual Scrolling', () => {
 
     it('should maintain virtual scroll position when filtering', async () => {
       const { fixture } = await render(VirtualScrollingTestComponent);
-      fixture.autoDetectChanges(true);
       const component = fixture.componentInstance;
 
       // Set initial scroll position
@@ -1152,7 +1152,7 @@ describe('NgpCombobox Virtual Scrolling', () => {
 
       // Filter options - this should reset the virtual scroll
       await userEvent.type(input, '1');
-      await fixture.whenStable();
+      fixture.detectChanges();
 
       // Check that filtering works
       const filteredOptions = component.filteredOptions;
@@ -1299,7 +1299,7 @@ describe('NgpCombobox Virtual Scrolling', () => {
 
       // Pre-select some options
       component.value = ['Multi Option 1', 'Multi Option 4'];
-      fixture.changeDetectorRef.detectChanges();
+      fixture.detectChanges();
 
       const button = screen.getByTestId('virtual-multi-button');
       await userEvent.click(button);
@@ -1779,7 +1779,7 @@ describe('NgpCombobox without input', () => {
 
     // Focus button - dropdown should stay open
     button.focus();
-    await fixture.whenStable();
+    fixture.detectChanges();
 
     // Give it a moment to process the blur/focus events
     await new Promise(resolve => setTimeout(resolve, 100));
@@ -1923,7 +1923,7 @@ describe('NgpComboboxOption activated output', () => {
 
     // First select a value
     component.value = 'Banana';
-    fixture.changeDetectorRef.detectChanges();
+    fixture.detectChanges();
 
     const button = screen.getByTestId('activated-combobox-button');
     await userEvent.click(button);
@@ -1963,7 +1963,7 @@ describe('NgpComboboxOption activated output', () => {
 
     // First select a value
     component.value = 'Cherry';
-    fixture.changeDetectorRef.detectChanges();
+    fixture.detectChanges();
 
     const input = screen.getByRole('combobox');
     input.focus();

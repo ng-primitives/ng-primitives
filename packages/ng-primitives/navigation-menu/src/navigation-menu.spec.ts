@@ -125,7 +125,6 @@ describe('Navigation Menu', () => {
 
     it('should have data-orientation attribute on root menu', async () => {
       const { fixture } = await render(TestNavigationMenuComponent);
-      fixture.autoDetectChanges(true);
       const nav = fixture.debugElement.nativeElement.querySelector(
         '[data-testid="navigation-menu"]',
       );
@@ -133,8 +132,7 @@ describe('Navigation Menu', () => {
       expect(nav).toHaveAttribute('data-orientation', 'horizontal');
 
       fixture.componentInstance.orientation = 'vertical';
-      fixture.changeDetectorRef.markForCheck();
-      await fixture.whenStable();
+      fixture.detectChanges();
 
       expect(nav).toHaveAttribute('data-orientation', 'vertical');
     });
@@ -152,14 +150,12 @@ describe('Navigation Menu', () => {
 
     it('should update list aria-orientation when menu orientation changes', async () => {
       const { fixture } = await render(TestNavigationMenuComponent);
-      fixture.autoDetectChanges(true);
       const list = fixture.debugElement.nativeElement.querySelector(
         '[data-testid="navigation-menu-list"]',
       );
 
       fixture.componentInstance.orientation = 'vertical';
-      fixture.changeDetectorRef.markForCheck();
-      await fixture.whenStable();
+      fixture.detectChanges();
 
       expect(list).toHaveAttribute('aria-orientation', 'vertical');
       expect(list).toHaveAttribute('data-orientation', 'vertical');
@@ -178,14 +174,13 @@ describe('Navigation Menu', () => {
 
     it('should update trigger aria-expanded when open', async () => {
       const { fixture } = await render(TestNavigationMenuComponent);
-      fixture.autoDetectChanges(true);
       const trigger = fixture.debugElement.nativeElement.querySelector(
         '[data-testid="trigger-products"]',
       );
 
       // Click to open
       fireEvent.click(trigger);
-      await fixture.whenStable();
+      fixture.detectChanges();
 
       await waitFor(() => {
         expect(trigger).toHaveAttribute('aria-expanded', 'true');
@@ -195,14 +190,12 @@ describe('Navigation Menu', () => {
 
     it('should render link with aria-current when active', async () => {
       const { fixture } = await render(TestNavigationMenuComponent);
-      fixture.autoDetectChanges(true);
       const link = fixture.debugElement.nativeElement.querySelector('[data-testid="direct-link"]');
 
       expect(link).not.toHaveAttribute('aria-current');
 
       fixture.componentInstance.linkActive = true;
-      fixture.changeDetectorRef.markForCheck();
-      await fixture.whenStable();
+      fixture.detectChanges();
 
       expect(link).toHaveAttribute('aria-current', 'page');
       expect(link).toHaveAttribute('data-active');
@@ -210,14 +203,12 @@ describe('Navigation Menu', () => {
 
     it('should render link with aria-disabled when disabled', async () => {
       const { fixture } = await render(TestNavigationMenuComponent);
-      fixture.autoDetectChanges(true);
       const link = fixture.debugElement.nativeElement.querySelector('[data-testid="direct-link"]');
 
       expect(link).not.toHaveAttribute('aria-disabled');
 
       fixture.componentInstance.linkDisabled = true;
-      fixture.changeDetectorRef.markForCheck();
-      await fixture.whenStable();
+      fixture.detectChanges();
 
       expect(link).toHaveAttribute('aria-disabled', 'true');
       expect(link).toHaveAttribute('data-disabled');
@@ -227,13 +218,12 @@ describe('Navigation Menu', () => {
   describe('Trigger Interactions', () => {
     it('should open content on click', async () => {
       const { fixture } = await render(TestNavigationMenuComponent);
-      fixture.autoDetectChanges(true);
       const trigger = fixture.debugElement.nativeElement.querySelector(
         '[data-testid="trigger-products"]',
       );
 
       fireEvent.click(trigger);
-      await fixture.whenStable();
+      fixture.detectChanges();
 
       await waitFor(() => {
         expect(trigger).toHaveAttribute('data-open');
@@ -243,14 +233,13 @@ describe('Navigation Menu', () => {
 
     it('should close content on second click (toggle)', async () => {
       const { fixture } = await render(TestNavigationMenuComponent);
-      fixture.autoDetectChanges(true);
       const trigger = fixture.debugElement.nativeElement.querySelector(
         '[data-testid="trigger-products"]',
       );
 
       // Open
       fireEvent.click(trigger);
-      await fixture.whenStable();
+      fixture.detectChanges();
 
       await waitFor(() => {
         expect(trigger).toHaveAttribute('data-open');
@@ -258,7 +247,7 @@ describe('Navigation Menu', () => {
 
       // Close
       fireEvent.click(trigger);
-      await fixture.whenStable();
+      fixture.detectChanges();
 
       await waitFor(() => {
         expect(trigger).not.toHaveAttribute('data-open');
@@ -267,17 +256,15 @@ describe('Navigation Menu', () => {
 
     it('should not open when trigger is disabled', async () => {
       const { fixture } = await render(TestNavigationMenuComponent);
-      fixture.autoDetectChanges(true);
       fixture.componentInstance.trigger1Disabled = true;
-      fixture.changeDetectorRef.markForCheck();
-      await fixture.whenStable();
+      fixture.detectChanges();
 
       const trigger = fixture.debugElement.nativeElement.querySelector(
         '[data-testid="trigger-products"]',
       );
 
       fireEvent.click(trigger);
-      await fixture.whenStable();
+      fixture.detectChanges();
 
       await waitFor(() => {
         expect(trigger).not.toHaveAttribute('data-open');
@@ -287,7 +274,6 @@ describe('Navigation Menu', () => {
 
     it('should show data-open attribute when content is open', async () => {
       const { fixture } = await render(TestNavigationMenuComponent);
-      fixture.autoDetectChanges(true);
       const trigger = fixture.debugElement.nativeElement.querySelector(
         '[data-testid="trigger-products"]',
       );
@@ -295,7 +281,7 @@ describe('Navigation Menu', () => {
       expect(trigger).not.toHaveAttribute('data-open');
 
       fireEvent.click(trigger);
-      await fixture.whenStable();
+      fixture.detectChanges();
 
       await waitFor(() => {
         expect(trigger).toHaveAttribute('data-open');
@@ -304,17 +290,15 @@ describe('Navigation Menu', () => {
 
     it('should open on hover after showDelay', async () => {
       const { fixture } = await render(TestNavigationMenuComponent);
-      fixture.autoDetectChanges(true);
       fixture.componentInstance.showDelay = 100;
-      fixture.changeDetectorRef.markForCheck();
-      await fixture.whenStable();
+      fixture.detectChanges();
 
       const trigger = fixture.debugElement.nativeElement.querySelector(
         '[data-testid="trigger-products"]',
       );
 
       fireEvent.pointerEnter(trigger, { pointerType: 'mouse' });
-      await fixture.whenStable();
+      fixture.detectChanges();
 
       // Not yet open
       expect(trigger).not.toHaveAttribute('data-open');
@@ -329,11 +313,9 @@ describe('Navigation Menu', () => {
 
     it('should close on pointer leave after hideDelay', async () => {
       const { fixture } = await render(TestNavigationMenuComponent);
-      fixture.autoDetectChanges(true);
       fixture.componentInstance.showDelay = 0;
       fixture.componentInstance.hideDelay = 100;
-      fixture.changeDetectorRef.markForCheck();
-      await fixture.whenStable();
+      fixture.detectChanges();
 
       const trigger = fixture.debugElement.nativeElement.querySelector(
         '[data-testid="trigger-products"]',
@@ -348,7 +330,7 @@ describe('Navigation Menu', () => {
 
       // Leave
       fireEvent.pointerLeave(trigger, { pointerType: 'mouse' });
-      await fixture.whenStable();
+      fixture.detectChanges();
 
       // Not yet closed
       expect(trigger).toHaveAttribute('data-open');
@@ -367,17 +349,15 @@ describe('Navigation Menu', () => {
 
     it('should open immediately when showDelay is 0', async () => {
       const { fixture } = await render(TestNavigationMenuComponent);
-      fixture.autoDetectChanges(true);
       fixture.componentInstance.showDelay = 0;
-      fixture.changeDetectorRef.markForCheck();
-      await fixture.whenStable();
+      fixture.detectChanges();
 
       const trigger = fixture.debugElement.nativeElement.querySelector(
         '[data-testid="trigger-products"]',
       );
 
       fireEvent.pointerEnter(trigger, { pointerType: 'mouse' });
-      await fixture.whenStable();
+      fixture.detectChanges();
 
       await waitFor(() => {
         expect(trigger).toHaveAttribute('data-open');
@@ -388,14 +368,13 @@ describe('Navigation Menu', () => {
   describe('Keyboard Navigation - Horizontal Menu', () => {
     it('should open content with ArrowDown and focus first item', async () => {
       const { fixture } = await render(TestNavigationMenuComponent);
-      fixture.autoDetectChanges(true);
       const trigger = fixture.debugElement.nativeElement.querySelector(
         '[data-testid="trigger-products"]',
       );
 
       trigger.focus();
       fireEvent.keyDown(trigger, { key: 'ArrowDown' });
-      await fixture.whenStable();
+      fixture.detectChanges();
 
       await waitFor(() => {
         expect(trigger).toHaveAttribute('data-open');
@@ -404,14 +383,13 @@ describe('Navigation Menu', () => {
 
     it('should open content with Enter and focus first item', async () => {
       const { fixture } = await render(TestNavigationMenuComponent);
-      fixture.autoDetectChanges(true);
       const trigger = fixture.debugElement.nativeElement.querySelector(
         '[data-testid="trigger-products"]',
       );
 
       trigger.focus();
       fireEvent.keyDown(trigger, { key: 'Enter' });
-      await fixture.whenStable();
+      fixture.detectChanges();
 
       await waitFor(() => {
         expect(trigger).toHaveAttribute('data-open');
@@ -420,14 +398,13 @@ describe('Navigation Menu', () => {
 
     it('should open content with Space and focus first item', async () => {
       const { fixture } = await render(TestNavigationMenuComponent);
-      fixture.autoDetectChanges(true);
       const trigger = fixture.debugElement.nativeElement.querySelector(
         '[data-testid="trigger-products"]',
       );
 
       trigger.focus();
       fireEvent.keyDown(trigger, { key: ' ' });
-      await fixture.whenStable();
+      fixture.detectChanges();
 
       await waitFor(() => {
         expect(trigger).toHaveAttribute('data-open');
@@ -436,7 +413,6 @@ describe('Navigation Menu', () => {
 
     it('should close content with Escape', async () => {
       const { fixture } = await render(TestNavigationMenuComponent);
-      fixture.autoDetectChanges(true);
       const trigger = fixture.debugElement.nativeElement.querySelector(
         '[data-testid="trigger-products"]',
       );
@@ -444,7 +420,7 @@ describe('Navigation Menu', () => {
       // Open first
       trigger.focus();
       fireEvent.keyDown(trigger, { key: 'Enter' });
-      await fixture.whenStable();
+      fixture.detectChanges();
 
       await waitFor(() => {
         expect(trigger).toHaveAttribute('data-open');
@@ -452,7 +428,7 @@ describe('Navigation Menu', () => {
 
       // Close with Escape
       fireEvent.keyDown(trigger, { key: 'Escape' });
-      await fixture.whenStable();
+      fixture.detectChanges();
 
       await waitFor(() => {
         expect(trigger).not.toHaveAttribute('data-open');
@@ -461,10 +437,8 @@ describe('Navigation Menu', () => {
 
     it('should not open content with ArrowDown when disabled', async () => {
       const { fixture } = await render(TestNavigationMenuComponent);
-      fixture.autoDetectChanges(true);
       fixture.componentInstance.trigger1Disabled = true;
-      fixture.changeDetectorRef.markForCheck();
-      await fixture.whenStable();
+      fixture.detectChanges();
 
       const trigger = fixture.debugElement.nativeElement.querySelector(
         '[data-testid="trigger-products"]',
@@ -472,7 +446,7 @@ describe('Navigation Menu', () => {
 
       trigger.focus();
       fireEvent.keyDown(trigger, { key: 'ArrowDown' });
-      await fixture.whenStable();
+      fixture.detectChanges();
 
       await waitFor(() => {
         expect(trigger).not.toHaveAttribute('data-open');
@@ -483,10 +457,8 @@ describe('Navigation Menu', () => {
   describe('Keyboard Navigation - Vertical Menu', () => {
     it('should open content with ArrowRight in vertical menu', async () => {
       const { fixture } = await render(TestNavigationMenuComponent);
-      fixture.autoDetectChanges(true);
       fixture.componentInstance.orientation = 'vertical';
-      fixture.changeDetectorRef.markForCheck();
-      await fixture.whenStable();
+      fixture.detectChanges();
 
       const trigger = fixture.debugElement.nativeElement.querySelector(
         '[data-testid="trigger-products"]',
@@ -494,7 +466,7 @@ describe('Navigation Menu', () => {
 
       trigger.focus();
       fireEvent.keyDown(trigger, { key: 'ArrowRight' });
-      await fixture.whenStable();
+      fixture.detectChanges();
 
       await waitFor(() => {
         expect(trigger).toHaveAttribute('data-open');
@@ -503,10 +475,8 @@ describe('Navigation Menu', () => {
 
     it('should not open with ArrowDown in vertical menu (ArrowDown navigates)', async () => {
       const { fixture } = await render(TestNavigationMenuComponent);
-      fixture.autoDetectChanges(true);
       fixture.componentInstance.orientation = 'vertical';
-      fixture.changeDetectorRef.markForCheck();
-      await fixture.whenStable();
+      fixture.detectChanges();
 
       const trigger = fixture.debugElement.nativeElement.querySelector(
         '[data-testid="trigger-products"]',
@@ -515,7 +485,7 @@ describe('Navigation Menu', () => {
       trigger.focus();
       // In vertical menu, ArrowDown should navigate between triggers, not open content
       fireEvent.keyDown(trigger, { key: 'ArrowDown' });
-      await fixture.whenStable();
+      fixture.detectChanges();
 
       await waitFor(() => {
         // The trigger should not be open because ArrowDown navigates in vertical mode
@@ -527,7 +497,6 @@ describe('Navigation Menu', () => {
   describe('Navigation Menu Item State', () => {
     it('should track active item in parent menu', async () => {
       const { fixture } = await render(TestNavigationMenuComponent);
-      fixture.autoDetectChanges(true);
       const trigger1 = fixture.debugElement.nativeElement.querySelector(
         '[data-testid="trigger-products"]',
       );
@@ -536,7 +505,7 @@ describe('Navigation Menu', () => {
       );
 
       fireEvent.click(trigger1);
-      await fixture.whenStable();
+      fixture.detectChanges();
 
       await waitFor(() => {
         expect(item1).toHaveAttribute('data-active');
@@ -546,7 +515,6 @@ describe('Navigation Menu', () => {
 
     it('should close previous item when opening new item', async () => {
       const { fixture } = await render(TestNavigationMenuComponent);
-      fixture.autoDetectChanges(true);
       const trigger1 = fixture.debugElement.nativeElement.querySelector(
         '[data-testid="trigger-products"]',
       );
@@ -562,7 +530,7 @@ describe('Navigation Menu', () => {
 
       // Open first
       fireEvent.click(trigger1);
-      await fixture.whenStable();
+      fixture.detectChanges();
 
       await waitFor(() => {
         expect(item1).toHaveAttribute('data-active');
@@ -571,7 +539,7 @@ describe('Navigation Menu', () => {
 
       // Open second
       fireEvent.click(trigger2);
-      await fixture.whenStable();
+      fixture.detectChanges();
 
       await waitFor(() => {
         expect(item1).not.toHaveAttribute('data-active');
@@ -581,7 +549,6 @@ describe('Navigation Menu', () => {
 
     it('should emit valueChange when item changes', async () => {
       const { fixture } = await render(TestNavigationMenuComponent);
-      fixture.autoDetectChanges(true);
       const trigger1 = fixture.debugElement.nativeElement.querySelector(
         '[data-testid="trigger-products"]',
       );
@@ -590,14 +557,14 @@ describe('Navigation Menu', () => {
       );
 
       fireEvent.click(trigger1);
-      await fixture.whenStable();
+      fixture.detectChanges();
 
       await waitFor(() => {
         expect(fixture.componentInstance.valueChanges).toEqual(['products']);
       });
 
       fireEvent.click(trigger2);
-      await fixture.whenStable();
+      fixture.detectChanges();
 
       await waitFor(() => {
         expect(fixture.componentInstance.valueChanges).toEqual(['products', 'solutions']);
@@ -608,38 +575,32 @@ describe('Navigation Menu', () => {
   describe('Link Behavior', () => {
     it('should have data-active when active', async () => {
       const { fixture } = await render(TestNavigationMenuComponent);
-      fixture.autoDetectChanges(true);
       const link = fixture.debugElement.nativeElement.querySelector('[data-testid="direct-link"]');
 
       expect(link).not.toHaveAttribute('data-active');
 
       fixture.componentInstance.linkActive = true;
-      fixture.changeDetectorRef.markForCheck();
-      await fixture.whenStable();
+      fixture.detectChanges();
 
       expect(link).toHaveAttribute('data-active');
     });
 
     it('should have data-disabled when disabled', async () => {
       const { fixture } = await render(TestNavigationMenuComponent);
-      fixture.autoDetectChanges(true);
       const link = fixture.debugElement.nativeElement.querySelector('[data-testid="direct-link"]');
 
       expect(link).not.toHaveAttribute('data-disabled');
 
       fixture.componentInstance.linkDisabled = true;
-      fixture.changeDetectorRef.markForCheck();
-      await fixture.whenStable();
+      fixture.detectChanges();
 
       expect(link).toHaveAttribute('data-disabled');
     });
 
     it('should prevent click when disabled', async () => {
       const { fixture } = await render(TestNavigationMenuComponent);
-      fixture.autoDetectChanges(true);
       fixture.componentInstance.linkDisabled = true;
-      fixture.changeDetectorRef.markForCheck();
-      await fixture.whenStable();
+      fixture.detectChanges();
 
       const link = fixture.debugElement.nativeElement.querySelector('[data-testid="direct-link"]');
       const clickEvent = new MouseEvent('click', { bubbles: true, cancelable: true });
@@ -666,10 +627,8 @@ describe('Navigation Menu', () => {
   describe('Disabled States', () => {
     it('should show disabled state on trigger', async () => {
       const { fixture } = await render(TestNavigationMenuComponent);
-      fixture.autoDetectChanges(true);
       fixture.componentInstance.trigger1Disabled = true;
-      fixture.changeDetectorRef.markForCheck();
-      await fixture.whenStable();
+      fixture.detectChanges();
 
       const trigger = fixture.debugElement.nativeElement.querySelector(
         '[data-testid="trigger-products"]',
@@ -680,18 +639,16 @@ describe('Navigation Menu', () => {
 
     it('should not respond to hover when disabled', async () => {
       const { fixture } = await render(TestNavigationMenuComponent);
-      fixture.autoDetectChanges(true);
       fixture.componentInstance.trigger1Disabled = true;
       fixture.componentInstance.showDelay = 0;
-      fixture.changeDetectorRef.markForCheck();
-      await fixture.whenStable();
+      fixture.detectChanges();
 
       const trigger = fixture.debugElement.nativeElement.querySelector(
         '[data-testid="trigger-products"]',
       );
 
       fireEvent.pointerEnter(trigger, { pointerType: 'mouse' });
-      await fixture.whenStable();
+      fixture.detectChanges();
 
       await waitFor(() => {
         expect(trigger).not.toHaveAttribute('data-open');
@@ -700,10 +657,8 @@ describe('Navigation Menu', () => {
 
     it('should not respond to keyboard when disabled', async () => {
       const { fixture } = await render(TestNavigationMenuComponent);
-      fixture.autoDetectChanges(true);
       fixture.componentInstance.trigger1Disabled = true;
-      fixture.changeDetectorRef.markForCheck();
-      await fixture.whenStable();
+      fixture.detectChanges();
 
       const trigger = fixture.debugElement.nativeElement.querySelector(
         '[data-testid="trigger-products"]',
@@ -711,7 +666,7 @@ describe('Navigation Menu', () => {
 
       trigger.focus();
       fireEvent.keyDown(trigger, { key: 'Enter' });
-      await fixture.whenStable();
+      fixture.detectChanges();
 
       await waitFor(() => {
         expect(trigger).not.toHaveAttribute('data-open');
@@ -760,13 +715,12 @@ describe('Navigation Menu', () => {
   describe('Content Panel', () => {
     it('should have role="menu" on content', async () => {
       const { fixture } = await render(TestNavigationMenuComponent);
-      fixture.autoDetectChanges(true);
       const trigger = fixture.debugElement.nativeElement.querySelector(
         '[data-testid="trigger-products"]',
       );
 
       fireEvent.click(trigger);
-      await fixture.whenStable();
+      fixture.detectChanges();
 
       await waitFor(() => {
         // Content is rendered via portal, query from document
@@ -777,14 +731,13 @@ describe('Navigation Menu', () => {
 
     it('should have aria-labelledby pointing to trigger', async () => {
       const { fixture } = await render(TestNavigationMenuComponent);
-      fixture.autoDetectChanges(true);
       const trigger = fixture.debugElement.nativeElement.querySelector(
         '[data-testid="trigger-products"]',
       );
       const triggerId = trigger.getAttribute('id');
 
       fireEvent.click(trigger);
-      await fixture.whenStable();
+      fixture.detectChanges();
 
       await waitFor(() => {
         const content = document.querySelector('[data-testid="content-products"]');
@@ -794,13 +747,12 @@ describe('Navigation Menu', () => {
 
     it('should update trigger aria-controls with content id', async () => {
       const { fixture } = await render(TestNavigationMenuComponent);
-      fixture.autoDetectChanges(true);
       const trigger = fixture.debugElement.nativeElement.querySelector(
         '[data-testid="trigger-products"]',
       );
 
       fireEvent.click(trigger);
-      await fixture.whenStable();
+      fixture.detectChanges();
 
       await waitFor(() => {
         const content = document.querySelector('[data-testid="content-products"]');
@@ -811,13 +763,12 @@ describe('Navigation Menu', () => {
 
     it('should have data-open attribute on content', async () => {
       const { fixture } = await render(TestNavigationMenuComponent);
-      fixture.autoDetectChanges(true);
       const trigger = fixture.debugElement.nativeElement.querySelector(
         '[data-testid="trigger-products"]',
       );
 
       fireEvent.click(trigger);
-      await fixture.whenStable();
+      fixture.detectChanges();
 
       await waitFor(() => {
         const content = document.querySelector('[data-testid="content-products"]');
@@ -829,13 +780,12 @@ describe('Navigation Menu', () => {
   describe('Content Item', () => {
     it('should have role="menuitem" on content items', async () => {
       const { fixture } = await render(TestNavigationMenuComponent);
-      fixture.autoDetectChanges(true);
       const trigger = fixture.debugElement.nativeElement.querySelector(
         '[data-testid="trigger-products"]',
       );
 
       fireEvent.click(trigger);
-      await fixture.whenStable();
+      fixture.detectChanges();
 
       await waitFor(() => {
         const contentItem = document.querySelector('[data-testid="content-item-1"]');
@@ -845,17 +795,15 @@ describe('Navigation Menu', () => {
 
     it('should have data-disabled when item is disabled', async () => {
       const { fixture } = await render(TestNavigationMenuComponent);
-      fixture.autoDetectChanges(true);
       fixture.componentInstance.item1Disabled = true;
-      fixture.changeDetectorRef.markForCheck();
-      await fixture.whenStable();
+      fixture.detectChanges();
 
       const trigger = fixture.debugElement.nativeElement.querySelector(
         '[data-testid="trigger-products"]',
       );
 
       fireEvent.click(trigger);
-      await fixture.whenStable();
+      fixture.detectChanges();
 
       await waitFor(() => {
         const contentItem = document.querySelector('[data-testid="content-item-1"]');
@@ -869,7 +817,6 @@ describe('Navigation Menu', () => {
   // propagation differences with synthetic events in a real browser context.
   it.skip('should close on Escape from content and restore focus to trigger', async () => {
     const { fixture } = await render(TestNavigationMenuComponent);
-    fixture.autoDetectChanges(true);
     const trigger = fixture.debugElement.nativeElement.querySelector(
       '[data-testid="trigger-products"]',
     );
@@ -877,7 +824,7 @@ describe('Navigation Menu', () => {
     // Open via keyboard
     trigger.focus();
     fireEvent.keyDown(trigger, { key: 'Enter' });
-    await fixture.whenStable();
+    fixture.detectChanges();
 
     await waitFor(() => {
       expect(trigger).toHaveAttribute('data-open');
@@ -892,7 +839,7 @@ describe('Navigation Menu', () => {
 
     contentItem!.focus();
     fireEvent.keyDown(contentItem!, { key: 'Escape' });
-    await fixture.whenStable();
+    fixture.detectChanges();
 
     await waitFor(() => {
       expect(trigger).not.toHaveAttribute('data-open');
@@ -902,13 +849,12 @@ describe('Navigation Menu', () => {
   describe('Content Positioning', () => {
     it('should have data-overlay attribute on content', async () => {
       const { fixture } = await render(TestNavigationMenuComponent);
-      fixture.autoDetectChanges(true);
       const trigger = fixture.debugElement.nativeElement.querySelector(
         '[data-testid="trigger-products"]',
       );
 
       fireEvent.click(trigger);
-      await fixture.whenStable();
+      fixture.detectChanges();
 
       await waitFor(() => {
         const content = document.querySelector('[data-testid="content-products"]');
@@ -920,11 +866,9 @@ describe('Navigation Menu', () => {
   describe('Hide Timeout Cancellation', () => {
     it('should cancel hide timeout when pointer enters trigger again', async () => {
       const { fixture } = await render(TestNavigationMenuComponent);
-      fixture.autoDetectChanges(true);
       fixture.componentInstance.showDelay = 0;
       fixture.componentInstance.hideDelay = 200;
-      fixture.changeDetectorRef.markForCheck();
-      await fixture.whenStable();
+      fixture.detectChanges();
 
       const trigger = fixture.debugElement.nativeElement.querySelector(
         '[data-testid="trigger-products"]',
@@ -939,12 +883,12 @@ describe('Navigation Menu', () => {
 
       // Leave trigger - starts hide timeout
       fireEvent.pointerLeave(trigger, { pointerType: 'mouse' });
-      await fixture.whenStable();
+      fixture.detectChanges();
 
       // Re-enter before timeout completes
       await new Promise(r => setTimeout(r, 100));
       fireEvent.pointerEnter(trigger, { pointerType: 'mouse' });
-      await fixture.whenStable();
+      fixture.detectChanges();
 
       // Wait past original timeout
       await new Promise(r => setTimeout(r, 200));
@@ -957,10 +901,8 @@ describe('Navigation Menu', () => {
 
     it('should cancel show timeout on pointer leave', async () => {
       const { fixture } = await render(TestNavigationMenuComponent);
-      fixture.autoDetectChanges(true);
       fixture.componentInstance.showDelay = 200;
-      fixture.changeDetectorRef.markForCheck();
-      await fixture.whenStable();
+      fixture.detectChanges();
 
       const trigger = fixture.debugElement.nativeElement.querySelector(
         '[data-testid="trigger-products"]',
@@ -968,12 +910,12 @@ describe('Navigation Menu', () => {
 
       // Enter - starts show timeout
       fireEvent.pointerEnter(trigger, { pointerType: 'mouse' });
-      await fixture.whenStable();
+      fixture.detectChanges();
 
       // Leave before timeout completes
       await new Promise(r => setTimeout(r, 100));
       fireEvent.pointerLeave(trigger, { pointerType: 'mouse' });
-      await fixture.whenStable();
+      fixture.detectChanges();
 
       // Wait past original timeout
       await new Promise(r => setTimeout(r, 200));
@@ -988,12 +930,10 @@ describe('Navigation Menu', () => {
   describe('Initial Value', () => {
     it('should respect initial value by setting it programmatically', async () => {
       const { fixture } = await render(TestNavigationMenuComponent);
-      fixture.autoDetectChanges(true);
 
       // Set initial value
       fixture.componentInstance.value = 'products';
-      fixture.changeDetectorRef.markForCheck();
-      await fixture.whenStable();
+      fixture.detectChanges();
 
       await waitFor(() => {
         const item1 = fixture.debugElement.nativeElement.querySelector(
@@ -1084,11 +1024,10 @@ describe('Navigation Menu Content Orientation', () => {
 
   it('should set content orientation', async () => {
     const { fixture } = await render(ContentOrientationTestComponent);
-    fixture.autoDetectChanges(true);
     const trigger = fixture.debugElement.nativeElement.querySelector('[data-testid="trigger"]');
 
     fireEvent.click(trigger);
-    await fixture.whenStable();
+    fixture.detectChanges();
 
     await waitFor(() => {
       const content = document.querySelector('[data-testid="content"]');
@@ -1098,11 +1037,10 @@ describe('Navigation Menu Content Orientation', () => {
 
   it('should update content orientation when changed', async () => {
     const { fixture } = await render(ContentOrientationTestComponent);
-    fixture.autoDetectChanges(true);
     const trigger = fixture.debugElement.nativeElement.querySelector('[data-testid="trigger"]');
 
     fireEvent.click(trigger);
-    await fixture.whenStable();
+    fixture.detectChanges();
 
     await waitFor(() => {
       const content = document.querySelector('[data-testid="content"]');
@@ -1110,8 +1048,7 @@ describe('Navigation Menu Content Orientation', () => {
     });
 
     fixture.componentInstance.contentOrientation = 'horizontal';
-    fixture.changeDetectorRef.markForCheck();
-    await fixture.whenStable();
+    fixture.detectChanges();
 
     await waitFor(() => {
       const content = document.querySelector('[data-testid="content"]');
@@ -1164,13 +1101,12 @@ describe('Navigation Menu Cooldown Behavior', () => {
 
   it('should set data-instant attribute when switching within cooldown period', async () => {
     const { fixture } = await render(CooldownTestComponent);
-    fixture.autoDetectChanges(true);
     const trigger1 = fixture.debugElement.nativeElement.querySelector('[data-testid="trigger-1"]');
     const trigger2 = fixture.debugElement.nativeElement.querySelector('[data-testid="trigger-2"]');
 
     // Open first menu
     fireEvent.click(trigger1);
-    await fixture.whenStable();
+    fixture.detectChanges();
 
     await waitFor(() => {
       const content1 = document.querySelector('[data-testid="content-1"]');
@@ -1179,7 +1115,7 @@ describe('Navigation Menu Cooldown Behavior', () => {
 
     // Quickly switch to second trigger (within cooldown period)
     fireEvent.pointerEnter(trigger2, { pointerType: 'mouse' });
-    await fixture.whenStable();
+    fixture.detectChanges();
 
     await waitFor(() => {
       // The second content should have data-instant attribute due to cooldown

@@ -48,15 +48,13 @@ describe('NgpDescription', () => {
     }
 
     const { fixture } = await render(TestComponent);
-    fixture.autoDetectChanges(true);
     const input = fixture.debugElement.nativeElement.querySelector('input');
 
     expect(input).toHaveAttribute('aria-describedby', 'test-desc');
 
     // Remove description
     fixture.componentInstance.showDescription = false;
-    fixture.changeDetectorRef.markForCheck();
-    await fixture.whenStable();
+    fixture.detectChanges();
 
     // Should be unregistered
     expect(input).not.toHaveAttribute('aria-describedby');
@@ -79,7 +77,6 @@ describe('NgpDescription', () => {
     }
 
     const { fixture } = await render(TestComponent);
-    fixture.autoDetectChanges(true);
     const description = fixture.debugElement.nativeElement.querySelector('[ngpDescription]');
 
     // Initially invalid
@@ -88,7 +85,7 @@ describe('NgpDescription', () => {
 
     // Mark as touched
     fixture.componentInstance.control.markAsTouched();
-    await fixture.whenStable();
+    fixture.detectChanges();
 
     expect(description).toHaveAttribute('data-touched');
 
@@ -96,7 +93,7 @@ describe('NgpDescription', () => {
     const inputEl = fixture.debugElement.nativeElement.querySelector('input');
     inputEl.value = 'test';
     inputEl.dispatchEvent(new Event('input'));
-    await fixture.whenStable();
+    fixture.detectChanges();
 
     expect(description).toHaveAttribute('data-valid');
     expect(description).toHaveAttribute('data-dirty');
@@ -119,7 +116,6 @@ describe('NgpDescription', () => {
     }
 
     const { fixture } = await render(TestComponent);
-    fixture.autoDetectChanges(true);
     const description = fixture.debugElement.nativeElement.querySelector('[ngpDescription]');
 
     expect(description).toHaveAttribute('data-disabled');
@@ -148,19 +144,18 @@ describe('NgpDescription', () => {
     }
 
     const { fixture } = await render(TestComponent);
-    fixture.autoDetectChanges(true);
     const description = fixture.debugElement.nativeElement.querySelector('[ngpDescription]');
 
     // Set value to trigger async validation
     fixture.componentInstance.control.setValue('test');
-    await fixture.whenStable();
+    fixture.detectChanges();
 
     // Should show pending status
     expect(description).toHaveAttribute('data-pending');
 
     // Wait for validation to complete
     await new Promise(resolve => setTimeout(resolve, 150));
-    await fixture.whenStable();
+    fixture.detectChanges();
 
     expect(description).not.toHaveAttribute('data-pending');
   });
@@ -194,7 +189,6 @@ describe('NgpDescription', () => {
     }
 
     const { fixture } = await render(TestComponent);
-    fixture.autoDetectChanges(true);
     const input = fixture.debugElement.nativeElement.querySelector('input');
 
     expect(input).toHaveAttribute('aria-describedby', 'desc-1 desc-2');
@@ -218,16 +212,14 @@ describe('NgpDescription', () => {
     }
 
     const { fixture } = await render(TestComponent);
-    fixture.autoDetectChanges(true);
     const input = fixture.debugElement.nativeElement.querySelector('input');
-    await fixture.whenStable();
+    fixture.detectChanges();
 
     expect(input).toHaveAttribute('aria-describedby', 'test-desc');
 
     // Destroy component
     fixture.componentInstance.showDescription = false;
-    fixture.changeDetectorRef.markForCheck();
-    await fixture.whenStable();
+    fixture.detectChanges();
 
     expect(input).not.toHaveAttribute('aria-describedby');
   });
@@ -249,7 +241,6 @@ describe('NgpDescription', () => {
     }
 
     const { fixture } = await render(TestComponent);
-    fixture.autoDetectChanges(true);
     const description = fixture.debugElement.nativeElement.querySelector('[ngpDescription]');
     const inputEl = fixture.debugElement.nativeElement.querySelector('input');
 
@@ -264,7 +255,7 @@ describe('NgpDescription', () => {
     inputEl.value = 'ab';
     inputEl.dispatchEvent(new Event('input'));
     fixture.componentInstance.control.markAsTouched();
-    await fixture.whenStable();
+    fixture.detectChanges();
 
     expect(description).toHaveAttribute('data-dirty');
     expect(description).toHaveAttribute('data-touched');
@@ -275,7 +266,7 @@ describe('NgpDescription', () => {
     // Set valid value via user-like input
     inputEl.value = 'valid';
     inputEl.dispatchEvent(new Event('input'));
-    await fixture.whenStable();
+    fixture.detectChanges();
 
     expect(description).toHaveAttribute('data-dirty');
     expect(description).toHaveAttribute('data-touched');

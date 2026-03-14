@@ -45,7 +45,6 @@ describe('NgpLabel', () => {
     }
 
     const { fixture } = await render(TestComponent);
-    fixture.autoDetectChanges(true);
     const input = fixture.debugElement.nativeElement.querySelector('input');
 
     // Initially should be registered - input should have aria-labelledby
@@ -53,8 +52,7 @@ describe('NgpLabel', () => {
 
     // Remove label
     fixture.componentInstance.showLabel = false;
-    fixture.changeDetectorRef.markForCheck();
-    await fixture.whenStable();
+    fixture.detectChanges();
 
     // Should be unregistered - input should not have aria-labelledby
     expect(input).not.toHaveAttribute('aria-labelledby');
@@ -77,7 +75,6 @@ describe('NgpLabel', () => {
     }
 
     const { fixture } = await render(TestComponent);
-    fixture.autoDetectChanges(true);
     const label = fixture.debugElement.nativeElement.querySelector('[ngpLabel]');
 
     // Initially invalid
@@ -86,7 +83,7 @@ describe('NgpLabel', () => {
 
     // Mark as touched
     fixture.componentInstance.control.markAsTouched();
-    await fixture.whenStable();
+    fixture.detectChanges();
 
     expect(label).toHaveAttribute('data-touched');
 
@@ -94,7 +91,7 @@ describe('NgpLabel', () => {
     const inputEl = fixture.debugElement.nativeElement.querySelector('input');
     inputEl.value = 'test';
     inputEl.dispatchEvent(new Event('input'));
-    await fixture.whenStable();
+    fixture.detectChanges();
 
     expect(label).toHaveAttribute('data-valid');
     expect(label).toHaveAttribute('data-dirty');

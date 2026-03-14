@@ -130,12 +130,11 @@ describe('NgpMenu', () => {
 
     it('should have data-focus-trap attribute when opened via mouse click', async () => {
       const { fixture } = await render(TestMenuFocusTrapComponent);
-      fixture.autoDetectChanges(true);
       const trigger = fixture.debugElement.nativeElement.querySelector('[data-testid="trigger"]');
 
       // Open menu via mouse click (detail > 0 indicates mouse)
       fireEvent.click(trigger, { detail: 1 });
-      await fixture.whenStable();
+      fixture.detectChanges();
 
       await waitFor(() => {
         const menu = document.querySelector('[data-testid="menu"]');
@@ -148,12 +147,11 @@ describe('NgpMenu', () => {
 
     it('should have data-focus-trap attribute when opened via keyboard', async () => {
       const { fixture } = await render(TestMenuFocusTrapComponent);
-      fixture.autoDetectChanges(true);
       const trigger = fixture.debugElement.nativeElement.querySelector('[data-testid="trigger"]');
 
       // Open menu via keyboard (detail === 0 indicates keyboard)
       fireEvent.click(trigger, { detail: 0 });
-      await fixture.whenStable();
+      fixture.detectChanges();
 
       await waitFor(() => {
         const menu = document.querySelector('[data-testid="menu"]');
@@ -165,11 +163,10 @@ describe('NgpMenu', () => {
 
     it('should have tabindex="-1" on menu for focus management', async () => {
       const { fixture } = await render(TestMenuFocusTrapComponent);
-      fixture.autoDetectChanges(true);
       const trigger = fixture.debugElement.nativeElement.querySelector('[data-testid="trigger"]');
 
       fireEvent.click(trigger);
-      await fixture.whenStable();
+      fixture.detectChanges();
 
       await waitFor(() => {
         const menu = document.querySelector('[data-testid="menu"]');
@@ -182,13 +179,12 @@ describe('NgpMenu', () => {
   describe('Basic Rendering', () => {
     it('should render menu with role="menu"', async () => {
       const { fixture } = await render(TestMenuWithSubmenuComponent);
-      fixture.autoDetectChanges(true);
       const trigger = fixture.debugElement.nativeElement.querySelector(
         '[data-testid="root-trigger"]',
       );
 
       fireEvent.click(trigger);
-      await fixture.whenStable();
+      fixture.detectChanges();
 
       await waitFor(() => {
         const menu = document.querySelector('[data-testid="root-menu"]');
@@ -198,13 +194,12 @@ describe('NgpMenu', () => {
 
     it('should have data-overlay attribute on menu', async () => {
       const { fixture } = await render(TestMenuWithSubmenuComponent);
-      fixture.autoDetectChanges(true);
       const trigger = fixture.debugElement.nativeElement.querySelector(
         '[data-testid="root-trigger"]',
       );
 
       fireEvent.click(trigger);
-      await fixture.whenStable();
+      fixture.detectChanges();
 
       await waitFor(() => {
         const menu = document.querySelector('[data-testid="root-menu"]');
@@ -217,14 +212,13 @@ describe('NgpMenu', () => {
     it('should NOT close menu on ArrowUp for bottom-placed menu', async () => {
       const { fixture } = await render(TestMenuPlacementComponent);
       fixture.componentInstance.placement = 'bottom-start';
-      fixture.changeDetectorRef.detectChanges();
-      fixture.autoDetectChanges(true);
+      fixture.detectChanges();
 
       const trigger = fixture.debugElement.nativeElement.querySelector('[data-testid="trigger"]');
 
       // Open menu via click
       fireEvent.click(trigger);
-      await fixture.whenStable();
+      fixture.detectChanges();
 
       await waitFor(() => {
         expect(trigger).toHaveAttribute('data-open');
@@ -235,7 +229,7 @@ describe('NgpMenu', () => {
       expect(menu).toBeInTheDocument();
 
       fireEvent.keyDown(menu!, { key: 'ArrowUp' });
-      await fixture.whenStable();
+      fixture.detectChanges();
 
       await waitFor(() => {
         // Menu should still be open (ArrowUp is for roving focus, not closing)
@@ -246,14 +240,13 @@ describe('NgpMenu', () => {
     it('should NOT close menu on ArrowDown for top-placed menu', async () => {
       const { fixture } = await render(TestMenuPlacementComponent);
       fixture.componentInstance.placement = 'top';
-      fixture.changeDetectorRef.detectChanges();
-      fixture.autoDetectChanges(true);
+      fixture.detectChanges();
 
       const trigger = fixture.debugElement.nativeElement.querySelector('[data-testid="trigger"]');
 
       // Open menu via click
       fireEvent.click(trigger);
-      await fixture.whenStable();
+      fixture.detectChanges();
 
       await waitFor(() => {
         expect(trigger).toHaveAttribute('data-open');
@@ -264,7 +257,7 @@ describe('NgpMenu', () => {
       expect(menu).toBeInTheDocument();
 
       fireEvent.keyDown(menu!, { key: 'ArrowDown' });
-      await fixture.whenStable();
+      fixture.detectChanges();
 
       await waitFor(() => {
         // Menu should still be open (ArrowDown is for roving focus, not closing)
@@ -274,12 +267,11 @@ describe('NgpMenu', () => {
 
     it('should close menu on Escape', async () => {
       const { fixture } = await render(TestMenuPlacementComponent);
-      fixture.autoDetectChanges(true);
       const trigger = fixture.debugElement.nativeElement.querySelector('[data-testid="trigger"]');
 
       // Open menu via click
       fireEvent.click(trigger);
-      await fixture.whenStable();
+      fixture.detectChanges();
 
       await waitFor(() => {
         expect(trigger).toHaveAttribute('data-open');
@@ -290,7 +282,7 @@ describe('NgpMenu', () => {
       expect(menu).toBeInTheDocument();
 
       fireEvent.keyDown(menu!, { key: 'Escape' });
-      await fixture.whenStable();
+      fixture.detectChanges();
 
       await waitFor(() => {
         // Menu should be closed
@@ -302,14 +294,13 @@ describe('NgpMenu', () => {
   describe('closeAllMenus', () => {
     it('should close all nested menus when submenu item is clicked', async () => {
       const { fixture } = await render(TestMenuWithSubmenuComponent);
-      fixture.autoDetectChanges(true);
       const trigger = fixture.debugElement.nativeElement.querySelector(
         '[data-testid="root-trigger"]',
       );
 
       // Open root menu via click
       fireEvent.click(trigger);
-      await fixture.whenStable();
+      fixture.detectChanges();
 
       await waitFor(() => {
         expect(trigger).toHaveAttribute('data-open');
@@ -320,7 +311,7 @@ describe('NgpMenu', () => {
       expect(submenuTrigger).toBeInTheDocument();
 
       fireEvent.click(submenuTrigger!);
-      await fixture.whenStable();
+      fixture.detectChanges();
 
       await waitFor(() => {
         // Verify submenu is open
@@ -333,7 +324,7 @@ describe('NgpMenu', () => {
       expect(submenuItem).toBeInTheDocument();
 
       fireEvent.click(submenuItem!);
-      await fixture.whenStable();
+      fixture.detectChanges();
 
       await waitFor(() => {
         // Root trigger should no longer have data-open attribute
@@ -346,14 +337,13 @@ describe('NgpMenu', () => {
 
     it('should close all menus when Escape is pressed in submenu', async () => {
       const { fixture } = await render(TestMenuWithSubmenuComponent);
-      fixture.autoDetectChanges(true);
       const trigger = fixture.debugElement.nativeElement.querySelector(
         '[data-testid="root-trigger"]',
       );
 
       // Open root menu via click
       fireEvent.click(trigger);
-      await fixture.whenStable();
+      fixture.detectChanges();
 
       await waitFor(() => {
         expect(trigger).toHaveAttribute('data-open');
@@ -362,7 +352,7 @@ describe('NgpMenu', () => {
       // Open submenu via click
       const submenuTrigger = document.querySelector('[data-testid="submenu-trigger"]');
       fireEvent.click(submenuTrigger!);
-      await fixture.whenStable();
+      fixture.detectChanges();
 
       await waitFor(() => {
         // Verify submenu is open
@@ -374,7 +364,7 @@ describe('NgpMenu', () => {
       expect(submenu).toBeInTheDocument();
 
       fireEvent.keyDown(submenu!, { key: 'Escape' });
-      await fixture.whenStable();
+      fixture.detectChanges();
 
       await waitFor(() => {
         // All menus should be closed
@@ -388,14 +378,13 @@ describe('NgpMenu', () => {
     // Enter-key test verifies focus restoration via a path without this race.
     it.skip('should restore focus to root trigger when Escape is pressed in submenu (keyboard opened)', async () => {
       const { fixture } = await render(TestMenuWithSubmenuComponent);
-      fixture.autoDetectChanges(true);
       const trigger = fixture.debugElement.nativeElement.querySelector(
         '[data-testid="root-trigger"]',
       );
 
       // Open root menu via keyboard (detail === 0)
       fireEvent.click(trigger, { detail: 0 });
-      await fixture.whenStable();
+      fixture.detectChanges();
 
       await waitFor(() => {
         expect(trigger).toHaveAttribute('data-open');
@@ -407,7 +396,7 @@ describe('NgpMenu', () => {
       ) as HTMLElement;
       submenuTrigger.focus();
       fireEvent.keyDown(submenuTrigger, { key: 'ArrowRight' });
-      await fixture.whenStable();
+      fixture.detectChanges();
 
       await waitFor(() => {
         expect(submenuTrigger).toHaveAttribute('data-open');
@@ -417,7 +406,7 @@ describe('NgpMenu', () => {
       const submenuItem = document.querySelector('[data-testid="submenu-item-1"]') as HTMLElement;
       submenuItem.focus();
       fireEvent.keyDown(submenuItem, { key: 'Escape' });
-      await fixture.whenStable();
+      fixture.detectChanges();
 
       await waitFor(() => {
         expect(trigger).not.toHaveAttribute('data-open');
@@ -427,14 +416,13 @@ describe('NgpMenu', () => {
 
     it('should restore focus to root trigger when Enter is pressed on submenu item (keyboard opened)', async () => {
       const { fixture } = await render(TestMenuWithSubmenuComponent);
-      fixture.autoDetectChanges(true);
       const trigger = fixture.debugElement.nativeElement.querySelector(
         '[data-testid="root-trigger"]',
       );
 
       // Open root menu via keyboard (detail === 0)
       fireEvent.click(trigger, { detail: 0 });
-      await fixture.whenStable();
+      fixture.detectChanges();
 
       await waitFor(() => {
         expect(trigger).toHaveAttribute('data-open');
@@ -446,7 +434,7 @@ describe('NgpMenu', () => {
       ) as HTMLElement;
       submenuTrigger.focus();
       fireEvent.keyDown(submenuTrigger, { key: 'ArrowRight' });
-      await fixture.whenStable();
+      fixture.detectChanges();
 
       await waitFor(() => {
         // Verify submenu is open
@@ -457,7 +445,7 @@ describe('NgpMenu', () => {
       const submenuItem = document.querySelector('[data-testid="submenu-item-1"]') as HTMLElement;
       submenuItem.focus();
       fireEvent.click(submenuItem, { detail: 0 });
-      await fixture.whenStable();
+      fixture.detectChanges();
 
       await waitFor(() => {
         // All menus should be closed
@@ -488,11 +476,10 @@ describe('NgpMenuTrigger', () => {
 
     it('should have aria-expanded="true" when menu is open', async () => {
       const { fixture } = await render(TestMenuWithDisabledItemsComponent);
-      fixture.autoDetectChanges(true);
       const trigger = fixture.debugElement.nativeElement.querySelector('[data-testid="trigger"]');
 
       fireEvent.click(trigger);
-      await fixture.whenStable();
+      fixture.detectChanges();
 
       await waitFor(() => {
         expect(trigger).toHaveAttribute('aria-expanded', 'true');
@@ -503,13 +490,12 @@ describe('NgpMenuTrigger', () => {
   describe('toggle behavior', () => {
     it('should open menu on first click', async () => {
       const { fixture } = await render(TestMenuWithDisabledItemsComponent);
-      fixture.autoDetectChanges(true);
       const trigger = fixture.debugElement.nativeElement.querySelector('[data-testid="trigger"]');
 
       expect(trigger).not.toHaveAttribute('data-open');
 
       fireEvent.click(trigger);
-      await fixture.whenStable();
+      fixture.detectChanges();
 
       await waitFor(() => {
         expect(trigger).toHaveAttribute('data-open');
@@ -519,12 +505,11 @@ describe('NgpMenuTrigger', () => {
 
     it('should close menu on second click', async () => {
       const { fixture } = await render(TestMenuWithDisabledItemsComponent);
-      fixture.autoDetectChanges(true);
       const trigger = fixture.debugElement.nativeElement.querySelector('[data-testid="trigger"]');
 
       // Open menu
       fireEvent.click(trigger);
-      await fixture.whenStable();
+      fixture.detectChanges();
 
       await waitFor(() => {
         expect(trigger).toHaveAttribute('data-open');
@@ -532,7 +517,7 @@ describe('NgpMenuTrigger', () => {
 
       // Close menu
       fireEvent.click(trigger);
-      await fixture.whenStable();
+      fixture.detectChanges();
 
       await waitFor(() => {
         expect(trigger).not.toHaveAttribute('data-open');
@@ -545,13 +530,12 @@ describe('NgpMenuTrigger', () => {
     it('should not open menu when trigger is disabled', async () => {
       const { fixture } = await render(TestMenuWithDisabledItemsComponent);
       fixture.componentInstance.triggerDisabled = true;
-      fixture.changeDetectorRef.detectChanges();
-      fixture.autoDetectChanges(true);
+      fixture.detectChanges();
 
       const trigger = fixture.debugElement.nativeElement.querySelector('[data-testid="trigger"]');
 
       fireEvent.click(trigger);
-      await fixture.whenStable();
+      fixture.detectChanges();
 
       await waitFor(() => {
         expect(trigger).not.toHaveAttribute('data-open');
@@ -583,12 +567,11 @@ describe('NgpMenuTrigger', () => {
       class TestHoverMenuComponent {}
 
       const { fixture } = await render(TestHoverMenuComponent);
-      fixture.autoDetectChanges(true);
       const trigger = fixture.debugElement.nativeElement.querySelector('[data-testid="trigger"]');
 
       // Step 1: Open menu via hover
       fireEvent.pointerEnter(trigger, { pointerType: 'mouse' });
-      await fixture.whenStable();
+      fixture.detectChanges();
       await waitFor(() => {
         expect(trigger).toHaveAttribute('data-open');
       });
@@ -597,19 +580,19 @@ describe('NgpMenuTrigger', () => {
       const menu = document.querySelector('[data-testid="menu"]');
       expect(menu).toBeInTheDocument();
       fireEvent.pointerEnter(menu!);
-      await fixture.whenStable();
+      fixture.detectChanges();
 
       // Step 3: Click menu item (closes menu)
       const menuItem = document.querySelector('[data-testid="item-1"]');
       fireEvent.click(menuItem!);
-      await fixture.whenStable();
+      fixture.detectChanges();
       await waitFor(() => {
         expect(trigger).not.toHaveAttribute('data-open');
       });
 
       // Step 4: Hover over trigger again
       fireEvent.pointerEnter(trigger, { pointerType: 'mouse' });
-      await fixture.whenStable();
+      fixture.detectChanges();
       await waitFor(() => {
         expect(trigger).toHaveAttribute('data-open');
       });
@@ -617,7 +600,7 @@ describe('NgpMenuTrigger', () => {
       // Step 5: Move pointer away from trigger
       fireEvent.pointerLeave(trigger, { pointerType: 'mouse' });
       await new Promise(r => setTimeout(r, 60)); // Wait past 50ms grace period
-      await fixture.whenStable();
+      fixture.detectChanges();
 
       // Step 6: Menu should close (this will FAIL before fix)
       await waitFor(() => {
@@ -631,11 +614,10 @@ describe('NgpMenuTrigger', () => {
 describe('NgpMenuItem disabled state', () => {
   it('should have data-disabled attribute when disabled', async () => {
     const { fixture } = await render(TestMenuWithDisabledItemsComponent);
-    fixture.autoDetectChanges(true);
     const trigger = fixture.debugElement.nativeElement.querySelector('[data-testid="trigger"]');
 
     fireEvent.click(trigger);
-    await fixture.whenStable();
+    fixture.detectChanges();
 
     await waitFor(() => {
       const disabledItem = document.querySelector('[data-testid="item-disabled"]');
@@ -648,14 +630,13 @@ describe('NgpSubmenuTrigger', () => {
   describe('ARIA attributes', () => {
     it('should have aria-haspopup attribute', async () => {
       const { fixture } = await render(TestMenuWithSubmenuComponent);
-      fixture.autoDetectChanges(true);
       const trigger = fixture.debugElement.nativeElement.querySelector(
         '[data-testid="root-trigger"]',
       );
 
       // Open root menu
       fireEvent.click(trigger);
-      await fixture.whenStable();
+      fixture.detectChanges();
 
       await waitFor(() => {
         const submenuTrigger = document.querySelector('[data-testid="submenu-trigger"]');
@@ -665,14 +646,13 @@ describe('NgpSubmenuTrigger', () => {
 
     it('should have aria-expanded="false" when closed', async () => {
       const { fixture } = await render(TestMenuWithSubmenuComponent);
-      fixture.autoDetectChanges(true);
       const trigger = fixture.debugElement.nativeElement.querySelector(
         '[data-testid="root-trigger"]',
       );
 
       // Open root menu
       fireEvent.click(trigger);
-      await fixture.whenStable();
+      fixture.detectChanges();
 
       await waitFor(() => {
         const submenuTrigger = document.querySelector('[data-testid="submenu-trigger"]');
@@ -682,14 +662,13 @@ describe('NgpSubmenuTrigger', () => {
 
     it('should have aria-expanded="true" when open', async () => {
       const { fixture } = await render(TestMenuWithSubmenuComponent);
-      fixture.autoDetectChanges(true);
       const trigger = fixture.debugElement.nativeElement.querySelector(
         '[data-testid="root-trigger"]',
       );
 
       // Open root menu
       fireEvent.click(trigger);
-      await fixture.whenStable();
+      fixture.detectChanges();
 
       await waitFor(() => {
         expect(trigger).toHaveAttribute('data-open');
@@ -698,7 +677,7 @@ describe('NgpSubmenuTrigger', () => {
       // Click submenu trigger to open submenu
       const submenuTrigger = document.querySelector('[data-testid="submenu-trigger"]');
       fireEvent.click(submenuTrigger!);
-      await fixture.whenStable();
+      fixture.detectChanges();
 
       await waitFor(() => {
         expect(submenuTrigger).toHaveAttribute('aria-expanded', 'true');
@@ -710,14 +689,13 @@ describe('NgpSubmenuTrigger', () => {
   describe('Left Arrow navigation', () => {
     it('should close submenu and focus the submenu trigger on Left Arrow', async () => {
       const { fixture } = await render(TestMenuWithSubmenuComponent);
-      fixture.autoDetectChanges(true);
       const trigger = fixture.debugElement.nativeElement.querySelector(
         '[data-testid="root-trigger"]',
       );
 
       // Open root menu via click
       fireEvent.click(trigger);
-      await fixture.whenStable();
+      fixture.detectChanges();
 
       await waitFor(() => {
         expect(trigger).toHaveAttribute('data-open');
@@ -727,7 +705,7 @@ describe('NgpSubmenuTrigger', () => {
       const submenuTrigger = document.querySelector('[data-testid="submenu-trigger"]');
       (submenuTrigger as HTMLElement).focus();
       fireEvent.keyDown(submenuTrigger!, { key: 'ArrowRight' });
-      await fixture.whenStable();
+      fixture.detectChanges();
 
       await waitFor(() => {
         // Verify submenu is open
@@ -740,7 +718,7 @@ describe('NgpSubmenuTrigger', () => {
 
       // Press Left Arrow - should close submenu and focus submenu trigger
       fireEvent.keyDown(submenuItem!, { key: 'ArrowLeft' });
-      await fixture.whenStable();
+      fixture.detectChanges();
 
       await waitFor(() => {
         // Submenu should be closed
@@ -756,8 +734,7 @@ describe('NgpSubmenuTrigger', () => {
     it('should not open submenu when disabled via click', async () => {
       const { fixture } = await render(TestDisabledSubmenuComponent);
       fixture.componentInstance.disabled = true;
-      fixture.changeDetectorRef.detectChanges();
-      fixture.autoDetectChanges(true);
+      fixture.detectChanges();
 
       const trigger = fixture.debugElement.nativeElement.querySelector(
         '[data-testid="root-trigger"]',
@@ -765,7 +742,7 @@ describe('NgpSubmenuTrigger', () => {
 
       // Open root menu
       fireEvent.click(trigger);
-      await fixture.whenStable();
+      fixture.detectChanges();
 
       await waitFor(() => {
         expect(trigger).toHaveAttribute('data-open');
@@ -774,7 +751,7 @@ describe('NgpSubmenuTrigger', () => {
       // Try to click disabled submenu trigger
       const submenuTrigger = document.querySelector('[data-testid="submenu-trigger"]');
       fireEvent.click(submenuTrigger!);
-      await fixture.whenStable();
+      fixture.detectChanges();
 
       await waitFor(() => {
         // Submenu should NOT be open
@@ -786,14 +763,13 @@ describe('NgpSubmenuTrigger', () => {
   describe('click behavior', () => {
     it('should toggle submenu on click', async () => {
       const { fixture } = await render(TestMenuWithSubmenuComponent);
-      fixture.autoDetectChanges(true);
       const trigger = fixture.debugElement.nativeElement.querySelector(
         '[data-testid="root-trigger"]',
       );
 
       // Open root menu
       fireEvent.click(trigger);
-      await fixture.whenStable();
+      fixture.detectChanges();
 
       await waitFor(() => {
         expect(trigger).toHaveAttribute('data-open');
@@ -802,7 +778,7 @@ describe('NgpSubmenuTrigger', () => {
       // Click submenu trigger to open
       const submenuTrigger = document.querySelector('[data-testid="submenu-trigger"]');
       fireEvent.click(submenuTrigger!);
-      await fixture.whenStable();
+      fixture.detectChanges();
 
       await waitFor(() => {
         expect(submenuTrigger).toHaveAttribute('data-open');
@@ -810,7 +786,7 @@ describe('NgpSubmenuTrigger', () => {
 
       // Click again to close
       fireEvent.click(submenuTrigger!);
-      await fixture.whenStable();
+      fixture.detectChanges();
 
       await waitFor(() => {
         expect(submenuTrigger).not.toHaveAttribute('data-open');
@@ -823,14 +799,13 @@ describe('NgpMenuItem', () => {
   describe('closeAllMenus on selection', () => {
     it('should call closeAllMenus when item is clicked', async () => {
       const { fixture } = await render(TestMenuWithSubmenuComponent);
-      fixture.autoDetectChanges(true);
       const trigger = fixture.debugElement.nativeElement.querySelector(
         '[data-testid="root-trigger"]',
       );
 
       // Open root menu
       fireEvent.click(trigger);
-      await fixture.whenStable();
+      fixture.detectChanges();
 
       await waitFor(() => {
         expect(trigger).toHaveAttribute('data-open');
@@ -839,7 +814,7 @@ describe('NgpMenuItem', () => {
       // Click a menu item
       const menuItem = document.querySelector('[data-testid="item-1"]');
       fireEvent.click(menuItem!);
-      await fixture.whenStable();
+      fixture.detectChanges();
 
       await waitFor(() => {
         // Menu should be closed
@@ -849,14 +824,13 @@ describe('NgpMenuItem', () => {
 
     it('should NOT call closeAllMenus when item is a submenu trigger', async () => {
       const { fixture } = await render(TestMenuWithSubmenuComponent);
-      fixture.autoDetectChanges(true);
       const trigger = fixture.debugElement.nativeElement.querySelector(
         '[data-testid="root-trigger"]',
       );
 
       // Open root menu
       fireEvent.click(trigger);
-      await fixture.whenStable();
+      fixture.detectChanges();
 
       await waitFor(() => {
         expect(trigger).toHaveAttribute('data-open');
@@ -865,7 +839,7 @@ describe('NgpMenuItem', () => {
       // Click submenu trigger (should open submenu, not close all menus)
       const submenuTrigger = document.querySelector('[data-testid="submenu-trigger"]');
       fireEvent.click(submenuTrigger!);
-      await fixture.whenStable();
+      fixture.detectChanges();
 
       await waitFor(() => {
         // Root menu should still be open
@@ -879,14 +853,13 @@ describe('NgpMenuItem', () => {
   describe('Left Arrow navigation in submenu', () => {
     it('should hide parent submenu trigger on Left Arrow', async () => {
       const { fixture } = await render(TestMenuWithSubmenuComponent);
-      fixture.autoDetectChanges(true);
       const trigger = fixture.debugElement.nativeElement.querySelector(
         '[data-testid="root-trigger"]',
       );
 
       // Open root menu via click
       fireEvent.click(trigger);
-      await fixture.whenStable();
+      fixture.detectChanges();
 
       await waitFor(() => {
         expect(trigger).toHaveAttribute('data-open');
@@ -896,7 +869,7 @@ describe('NgpMenuItem', () => {
       const submenuTrigger = document.querySelector('[data-testid="submenu-trigger"]');
       (submenuTrigger as HTMLElement).focus();
       fireEvent.keyDown(submenuTrigger!, { key: 'ArrowRight' });
-      await fixture.whenStable();
+      fixture.detectChanges();
 
       await waitFor(() => {
         expect(submenuTrigger).toHaveAttribute('data-open');
@@ -906,7 +879,7 @@ describe('NgpMenuItem', () => {
       const submenuItem = document.querySelector('[data-testid="submenu-item-1"]');
       (submenuItem as HTMLElement).focus();
       fireEvent.keyDown(submenuItem!, { key: 'ArrowLeft' });
-      await fixture.whenStable();
+      fixture.detectChanges();
 
       await waitFor(() => {
         // Submenu should be closed, but root menu should still be open
@@ -917,14 +890,13 @@ describe('NgpMenuItem', () => {
 
     it('should focus parent submenu trigger after hiding', async () => {
       const { fixture } = await render(TestMenuWithSubmenuComponent);
-      fixture.autoDetectChanges(true);
       const trigger = fixture.debugElement.nativeElement.querySelector(
         '[data-testid="root-trigger"]',
       );
 
       // Open root menu via click
       fireEvent.click(trigger);
-      await fixture.whenStable();
+      fixture.detectChanges();
 
       await waitFor(() => {
         expect(trigger).toHaveAttribute('data-open');
@@ -934,7 +906,7 @@ describe('NgpMenuItem', () => {
       const submenuTrigger = document.querySelector('[data-testid="submenu-trigger"]');
       (submenuTrigger as HTMLElement).focus();
       fireEvent.keyDown(submenuTrigger!, { key: 'ArrowRight' });
-      await fixture.whenStable();
+      fixture.detectChanges();
 
       await waitFor(() => {
         expect(submenuTrigger).toHaveAttribute('data-open');
@@ -944,7 +916,7 @@ describe('NgpMenuItem', () => {
       const submenuItem = document.querySelector('[data-testid="submenu-item-1"]');
       (submenuItem as HTMLElement).focus();
       fireEvent.keyDown(submenuItem!, { key: 'ArrowLeft' });
-      await fixture.whenStable();
+      fixture.detectChanges();
 
       await waitFor(() => {
         // Focus should be on the submenu trigger
@@ -956,13 +928,12 @@ describe('NgpMenuItem', () => {
   describe('role attribute', () => {
     it('should have role="menuitem"', async () => {
       const { fixture } = await render(TestMenuWithSubmenuComponent);
-      fixture.autoDetectChanges(true);
       const trigger = fixture.debugElement.nativeElement.querySelector(
         '[data-testid="root-trigger"]',
       );
 
       fireEvent.click(trigger);
-      await fixture.whenStable();
+      fixture.detectChanges();
 
       await waitFor(() => {
         const menuItem = document.querySelector('[data-testid="item-1"]');
@@ -1003,12 +974,11 @@ class TestSubmenuCloseOnSelectComponent {
 
 describe('NgpMenuItem closeOnSelect in submenu', () => {
   async function openSubmenu(fixture: any) {
-    fixture.autoDetectChanges(true);
     const rootTrigger = fixture.debugElement.nativeElement.querySelector(
       '[data-testid="root-trigger"]',
     );
     fireEvent.click(rootTrigger);
-    await fixture.whenStable();
+    fixture.detectChanges();
 
     await waitFor(() => {
       expect(rootTrigger).toHaveAttribute('data-open');
@@ -1016,7 +986,7 @@ describe('NgpMenuItem closeOnSelect in submenu', () => {
 
     const submenuTrigger = document.querySelector('[data-testid="submenu-trigger"]');
     fireEvent.click(submenuTrigger!);
-    await fixture.whenStable();
+    fixture.detectChanges();
 
     await waitFor(() => {
       expect(submenuTrigger).toHaveAttribute('data-open');
@@ -1035,7 +1005,7 @@ describe('NgpMenuItem closeOnSelect in submenu', () => {
     // Simulate real browser click: mouseup then click
     fireEvent.mouseUp(item!);
     fireEvent.click(item!);
-    await fixture.whenStable();
+    fixture.detectChanges();
 
     await waitFor(() => {
       // Both menus should remain open
@@ -1055,7 +1025,7 @@ describe('NgpMenuItem closeOnSelect in submenu', () => {
 
     // Enter key fires click with detail === 0
     fireEvent.click(item, { detail: 0 });
-    await fixture.whenStable();
+    fixture.detectChanges();
 
     await waitFor(() => {
       // Both menus should remain open
@@ -1073,7 +1043,7 @@ describe('NgpMenuItem closeOnSelect in submenu', () => {
 
     fireEvent.mouseUp(regularItem!);
     fireEvent.click(regularItem!);
-    await fixture.whenStable();
+    fixture.detectChanges();
 
     await waitFor(() => {
       // All menus should be closed
@@ -1088,7 +1058,7 @@ describe('NgpMenuItem closeOnSelect in submenu', () => {
 
     const submenu = document.querySelector('[data-testid="submenu"]');
     fireEvent.keyDown(submenu!, { key: 'Escape' });
-    await fixture.whenStable();
+    fixture.detectChanges();
 
     await waitFor(() => {
       expect(rootTrigger).not.toHaveAttribute('data-open');

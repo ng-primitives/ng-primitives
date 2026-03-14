@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
-import { fireEvent, render, waitFor } from '@testing-library/angular';
+import { fireEvent, render } from '@testing-library/angular';
 import { NgpDescription } from './description/description';
 import { NgpError } from './error/error';
 import { NgpFormControl } from './form-control/form-control';
@@ -88,7 +88,6 @@ describe('Form Field Integration Tests', () => {
     }
 
     const { fixture } = await render(TestComponent);
-    fixture.autoDetectChanges(true);
     const formField = fixture.debugElement.nativeElement.querySelector('[ngpFormField]');
     const input = fixture.debugElement.nativeElement.querySelector('input');
     const label = fixture.debugElement.nativeElement.querySelector('label');
@@ -104,7 +103,7 @@ describe('Form Field Integration Tests', () => {
     input.value = 'invalid-email';
     fireEvent.input(input);
     fireEvent.blur(input);
-    await fixture.whenStable();
+    fixture.detectChanges();
 
     // Should show email error now
     expect(formField).toHaveAttribute('data-invalid');
@@ -117,7 +116,7 @@ describe('Form Field Integration Tests', () => {
     // Set valid email using user-like input
     input.value = 'test@example.com';
     fireEvent.input(input);
-    await fixture.whenStable();
+    fixture.detectChanges();
 
     // All should be valid now
     expect(formField).toHaveAttribute('data-valid');
@@ -263,7 +262,6 @@ describe('Form Field Integration Tests', () => {
     }
 
     const { fixture } = await render(TestComponent);
-    fixture.autoDetectChanges(true);
     // Initially all should be registered (assert via DOM)
     expect(fixture.debugElement.nativeElement.querySelector('#main-label')).not.toBeNull();
     expect(fixture.debugElement.nativeElement.querySelector('#dynamic-input')).not.toBeNull();
@@ -275,16 +273,13 @@ describe('Form Field Integration Tests', () => {
     fixture.componentInstance.showInput = false;
     fixture.componentInstance.showDescription = false;
     fixture.componentInstance.showError = false;
-    fixture.changeDetectorRef.markForCheck();
-    await fixture.whenStable();
+    fixture.detectChanges();
 
     // All should be unregistered (assert via DOM)
-    await waitFor(() => {
-      expect(fixture.debugElement.nativeElement.querySelector('#main-label')).toBeNull();
-      expect(fixture.debugElement.nativeElement.querySelector('#dynamic-input')).toBeNull();
-      expect(fixture.debugElement.nativeElement.querySelector('#main-desc')).toBeNull();
-      expect(fixture.debugElement.nativeElement.querySelector('#main-error')).toBeNull();
-    });
+    expect(fixture.debugElement.nativeElement.querySelector('#main-label')).toBeNull();
+    expect(fixture.debugElement.nativeElement.querySelector('#dynamic-input')).toBeNull();
+    expect(fixture.debugElement.nativeElement.querySelector('#main-desc')).toBeNull();
+    expect(fixture.debugElement.nativeElement.querySelector('#main-error')).toBeNull();
   });
 
   it('should handle complex validation scenarios', async () => {
@@ -321,7 +316,6 @@ describe('Form Field Integration Tests', () => {
     }
 
     const { fixture } = await render(TestComponent);
-    fixture.autoDetectChanges(true);
     // Initially should show required error (assert via data-validator attribute)
     const reqEl = fixture.debugElement.nativeElement.querySelector('#pwd-required');
     const minEl = fixture.debugElement.nativeElement.querySelector('#pwd-minlength');
@@ -333,21 +327,21 @@ describe('Form Field Integration Tests', () => {
 
     // Set short password
     fixture.componentInstance.passwordControl.setValue('abc');
-    await fixture.whenStable();
+    fixture.detectChanges();
 
     expect(minEl).toHaveAttribute('data-validator', 'fail');
     expect(reqEl).toHaveAttribute('data-validator', 'pass');
 
     // Set long but invalid pattern
     fixture.componentInstance.passwordControl.setValue('abcdefgh');
-    await fixture.whenStable();
+    fixture.detectChanges();
 
     expect(patEl).toHaveAttribute('data-validator', 'fail');
     expect(minEl).toHaveAttribute('data-validator', 'pass');
 
     // Set valid password
     fixture.componentInstance.passwordControl.setValue('Password123');
-    await fixture.whenStable();
+    fixture.detectChanges();
 
     // After valid password, all error elements should be marked as pass
     expect(reqEl).toHaveAttribute('data-validator', 'pass');
@@ -387,13 +381,12 @@ describe('Form Field Integration Tests', () => {
     }
 
     const { fixture } = await render(TestComponent);
-    fixture.autoDetectChanges(true);
     const formField = fixture.debugElement.nativeElement.querySelector('[ngpFormField]');
     const input = fixture.debugElement.nativeElement.querySelector('input');
 
     // Set value to trigger async validation
     fixture.componentInstance.usernameControl.setValue('checking');
-    await fixture.whenStable();
+    fixture.detectChanges();
 
     // Should show pending status
     expect(formField).toHaveAttribute('data-pending');
@@ -401,7 +394,7 @@ describe('Form Field Integration Tests', () => {
 
     // Wait for validation
     await new Promise(resolve => setTimeout(resolve, 150));
-    await fixture.whenStable();
+    fixture.detectChanges();
 
     expect(formField).not.toHaveAttribute('data-pending');
     expect(formField).toHaveAttribute('data-valid');
@@ -424,7 +417,6 @@ describe('Form Field Integration Tests', () => {
     }
 
     const { fixture } = await render(TestComponent);
-    fixture.autoDetectChanges(true);
     const input = fixture.debugElement.nativeElement.querySelector('input');
 
     // Initially not disabled
@@ -433,24 +425,18 @@ describe('Form Field Integration Tests', () => {
 
     // Disable externally
     fixture.componentInstance.isDisabled = true;
-    fixture.changeDetectorRef.markForCheck();
-    await fixture.whenStable();
+    fixture.detectChanges();
 
-    await waitFor(() => {
-      expect(input).toHaveAttribute('data-disabled');
-      expect(input).toHaveAttribute('disabled');
-    });
+    expect(input).toHaveAttribute('data-disabled');
+    expect(input).toHaveAttribute('disabled');
 
     // Enable and disable via form control
     fixture.componentInstance.isDisabled = false;
     fixture.componentInstance.control.disable();
-    fixture.changeDetectorRef.markForCheck();
-    await fixture.whenStable();
+    fixture.detectChanges();
 
-    await waitFor(() => {
-      expect(input).toHaveAttribute('data-disabled');
-      expect(input).not.toHaveAttribute('disabled'); // Form control disable doesn't add HTML disabled
-    });
+    expect(input).toHaveAttribute('data-disabled');
+    expect(input).not.toHaveAttribute('disabled'); // Form control disable doesn't add HTML disabled
   });
 
   it('should clean up all registrations on component destroy', async () => {
@@ -480,7 +466,6 @@ describe('Form Field Integration Tests', () => {
     }
 
     const { fixture } = await render(TestComponent);
-    fixture.autoDetectChanges(true);
     // Initially all registered (assert via DOM)
     expect(fixture.debugElement.nativeElement.querySelector('#cleanup-label')).not.toBeNull();
     expect(fixture.debugElement.nativeElement.querySelector('#cleanup-input')).not.toBeNull();
@@ -489,15 +474,12 @@ describe('Form Field Integration Tests', () => {
 
     // Destroy all components
     fixture.componentInstance.showComponents = false;
-    fixture.changeDetectorRef.markForCheck();
-    await fixture.whenStable();
+    fixture.detectChanges();
 
     // All should be cleaned up (assert via DOM)
-    await waitFor(() => {
-      expect(fixture.debugElement.nativeElement.querySelector('#cleanup-label')).toBeNull();
-      expect(fixture.debugElement.nativeElement.querySelector('#cleanup-input')).toBeNull();
-      expect(fixture.debugElement.nativeElement.querySelector('#cleanup-desc')).toBeNull();
-      expect(fixture.debugElement.nativeElement.querySelector('#cleanup-error')).toBeNull();
-    });
+    expect(fixture.debugElement.nativeElement.querySelector('#cleanup-label')).toBeNull();
+    expect(fixture.debugElement.nativeElement.querySelector('#cleanup-input')).toBeNull();
+    expect(fixture.debugElement.nativeElement.querySelector('#cleanup-desc')).toBeNull();
+    expect(fixture.debugElement.nativeElement.querySelector('#cleanup-error')).toBeNull();
   });
 });

@@ -6,6 +6,21 @@ import { NgpRangeSliderThumb } from '../range-slider-thumb/range-slider-thumb';
 import { NgpRangeSliderTrack } from '../range-slider-track/range-slider-track';
 import { NgpRangeSlider } from './range-slider';
 
+// Polyfill PointerEvent for jsdom
+class MockPointerEvent extends MouseEvent {
+  readonly pointerId: number;
+
+  constructor(type: string, params: PointerEventInit = {}) {
+    super(type, params);
+    this.pointerId = params.pointerId ?? 0;
+  }
+}
+
+if (typeof globalThis.PointerEvent === 'undefined') {
+  (globalThis as unknown as { PointerEvent: typeof MockPointerEvent }).PointerEvent =
+    MockPointerEvent;
+}
+
 @Component({
   imports: [NgpRangeSlider, NgpRangeSliderThumb, NgpRangeSliderTrack, NgpRangeSliderRange],
   template: `
@@ -123,12 +138,10 @@ describe('NgpRangeSlider', () => {
 
   it('should respect disabled state', async () => {
     const { fixture } = await render(TestComponent);
-    fixture.autoDetectChanges(true);
     const component = fixture.componentInstance;
 
     component.disabled = true;
-    fixture.changeDetectorRef.markForCheck();
-    await fixture.whenStable();
+    fixture.detectChanges();
 
     const lowThumb = screen.getByTestId('low-thumb');
     const highThumb = screen.getByTestId('high-thumb');
@@ -168,14 +181,12 @@ describe('NgpRangeSlider', () => {
 
   it('should prevent low value from exceeding high value', async () => {
     const { fixture } = await render(TestComponent);
-    fixture.autoDetectChanges(true);
     const component = fixture.componentInstance;
 
     // Set values close to each other
     component.low = 75;
     component.high = 80;
-    fixture.changeDetectorRef.markForCheck();
-    await fixture.whenStable();
+    fixture.detectChanges();
 
     const lowThumb = screen.getByTestId('low-thumb');
     lowThumb.focus();
@@ -190,14 +201,12 @@ describe('NgpRangeSlider', () => {
 
   it('should prevent high value from going below low value', async () => {
     const { fixture } = await render(TestComponent);
-    fixture.autoDetectChanges(true);
     const component = fixture.componentInstance;
 
     // Set values close to each other
     component.low = 20;
     component.high = 25;
-    fixture.changeDetectorRef.markForCheck();
-    await fixture.whenStable();
+    fixture.detectChanges();
 
     const highThumb = screen.getByTestId('high-thumb');
     highThumb.focus();
@@ -258,12 +267,10 @@ describe('NgpRangeSlider', () => {
 
   it('should respect step value', async () => {
     const { fixture } = await render(TestComponent);
-    fixture.autoDetectChanges(true);
     const component = fixture.componentInstance;
 
     component.step = 5;
-    fixture.changeDetectorRef.markForCheck();
-    await fixture.whenStable();
+    fixture.detectChanges();
 
     const lowThumb = screen.getByTestId('low-thumb');
     lowThumb.focus();
@@ -274,15 +281,13 @@ describe('NgpRangeSlider', () => {
 
   it('should work with custom min/max values', async () => {
     const { fixture } = await render(TestComponent);
-    fixture.autoDetectChanges(true);
     const component = fixture.componentInstance;
 
     component.min = 10;
     component.max = 90;
     component.low = 30;
     component.high = 60;
-    fixture.changeDetectorRef.markForCheck();
-    await fixture.whenStable();
+    fixture.detectChanges();
 
     const lowThumb = screen.getByTestId('low-thumb');
     expect(lowThumb).toHaveAttribute('aria-valuemin', '10');
@@ -308,12 +313,10 @@ describe('NgpRangeSlider', () => {
 
   it('should not respond to interactions when disabled', async () => {
     const { fixture } = await render(TestComponent);
-    fixture.autoDetectChanges(true);
     const component = fixture.componentInstance;
 
     component.disabled = true;
-    fixture.changeDetectorRef.markForCheck();
-    await fixture.whenStable();
+    fixture.detectChanges();
 
     const initialLow = component.low;
     const lowThumb = screen.getByTestId('low-thumb');
@@ -337,7 +340,6 @@ describe('NgpRangeSlider', () => {
 
   it('should respect min and max value', async () => {
     const { fixture } = await render(TestComponent);
-    fixture.autoDetectChanges(true);
     const component = fixture.componentInstance;
 
     component.min = 10;
@@ -348,8 +350,7 @@ describe('NgpRangeSlider', () => {
 
     component.step = 10;
 
-    fixture.changeDetectorRef.markForCheck();
-    await fixture.whenStable();
+    fixture.detectChanges();
 
     const lowThumb = screen.getByTestId('low-thumb');
     const highThumb = screen.getByTestId('high-thumb');
@@ -419,7 +420,6 @@ describe('NgpRangeSlider Vertical Orientation', () => {
 
   it('should set higher value when clicking near top of vertical track', async () => {
     const { fixture } = await render(VerticalTestComponent);
-    fixture.autoDetectChanges(true);
     const component = fixture.componentInstance;
 
     const track = screen.getByTestId('vertical-slider-track');
@@ -436,6 +436,9 @@ describe('NgpRangeSlider Vertical Orientation', () => {
       y: 0,
       toJSON: () => ({}),
     });
+
+    fixture.detectChanges();
+    await fixture.whenStable();
 
     // Click near the top (y=10 out of 100 height = 10% from top = 90% value)
     // This is closer to high thumb (70%), so it should move high thumb
@@ -452,7 +455,6 @@ describe('NgpRangeSlider Vertical Orientation', () => {
 
   it('should set lower value when clicking near bottom of vertical track', async () => {
     const { fixture } = await render(VerticalTestComponent);
-    fixture.autoDetectChanges(true);
     const component = fixture.componentInstance;
 
     const track = screen.getByTestId('vertical-slider-track');
@@ -469,6 +471,9 @@ describe('NgpRangeSlider Vertical Orientation', () => {
       y: 0,
       toJSON: () => ({}),
     });
+
+    fixture.detectChanges();
+    await fixture.whenStable();
 
     // Click near the bottom (y=90 out of 100 height = 90% from top = 10% value)
     // This is closer to low thumb (30%), so it should move low thumb
@@ -634,12 +639,10 @@ describe('NgpRangeSliderThumb Drag Events', () => {
 
   it('should not emit drag events when slider is disabled', async () => {
     const { fixture } = await render(DragEventsTestComponent);
-    fixture.autoDetectChanges(true);
     const component = fixture.componentInstance;
 
     component.disabled = true;
-    fixture.changeDetectorRef.markForCheck();
-    await fixture.whenStable();
+    fixture.detectChanges();
 
     const lowThumb = screen.getByTestId('low-thumb');
 
@@ -723,7 +726,6 @@ describe('NgpRangeSliderThumb Drag Events', () => {
 
   it('should ignore pointermove from a different pointer during drag', async () => {
     const { fixture } = await render(TestComponent);
-    fixture.autoDetectChanges(true);
     const component = fixture.componentInstance;
 
     const lowThumb = screen.getByTestId('low-thumb');
@@ -741,6 +743,9 @@ describe('NgpRangeSliderThumb Drag Events', () => {
       y: 0,
       toJSON: () => ({}),
     });
+
+    fixture.detectChanges();
+    await fixture.whenStable();
 
     const initialLow = component.low;
 
@@ -820,7 +825,6 @@ describe('NgpRangeSliderRange', () => {
 
   it('should update visual representation when values change', async () => {
     const { fixture } = await render(TestComponent);
-    fixture.autoDetectChanges(true);
     const component = fixture.componentInstance;
 
     const range = screen.getByTestId('slider-range');
@@ -828,8 +832,7 @@ describe('NgpRangeSliderRange', () => {
     // Change values
     component.low = 10;
     component.high = 90;
-    fixture.changeDetectorRef.markForCheck();
-    await fixture.whenStable();
+    fixture.detectChanges();
 
     // Range should reflect the new values in its styling
     const computedStyle = getComputedStyle(range);
@@ -840,13 +843,11 @@ describe('NgpRangeSliderRange', () => {
 describe('NgpRangeSlider Edge Cases', () => {
   it('should handle equal low and high values', async () => {
     const { fixture } = await render(TestComponent);
-    fixture.autoDetectChanges(true);
     const component = fixture.componentInstance;
 
     component.low = 50;
     component.high = 50;
-    fixture.changeDetectorRef.markForCheck();
-    await fixture.whenStable();
+    fixture.detectChanges();
 
     const lowThumb = screen.getByTestId('low-thumb');
     const highThumb = screen.getByTestId('high-thumb');
@@ -857,15 +858,13 @@ describe('NgpRangeSlider Edge Cases', () => {
 
   it('should handle negative ranges', async () => {
     const { fixture } = await render(TestComponent);
-    fixture.autoDetectChanges(true);
     const component = fixture.componentInstance;
 
     component.min = -50;
     component.max = 50;
     component.low = -20;
     component.high = 30;
-    fixture.changeDetectorRef.markForCheck();
-    await fixture.whenStable();
+    fixture.detectChanges();
 
     const lowThumb = screen.getByTestId('low-thumb');
     expect(lowThumb).toHaveAttribute('aria-valuemin', '-50');
@@ -875,12 +874,10 @@ describe('NgpRangeSlider Edge Cases', () => {
 
   it('should handle decimal step values', async () => {
     const { fixture } = await render(TestComponent);
-    fixture.autoDetectChanges(true);
     const component = fixture.componentInstance;
 
     component.step = 0.5;
-    fixture.changeDetectorRef.markForCheck();
-    await fixture.whenStable();
+    fixture.detectChanges();
 
     const lowThumb = screen.getByTestId('low-thumb');
     lowThumb.focus();
@@ -891,13 +888,12 @@ describe('NgpRangeSlider Edge Cases', () => {
 
   it('should respect step value when setting low value via pointer', async () => {
     const { fixture } = await render(TestComponent);
-    fixture.autoDetectChanges(true);
     const component = fixture.componentInstance;
 
     component.low = 20;
     component.high = 80;
     component.step = 10;
-    fixture.changeDetectorRef.markForCheck();
+    fixture.detectChanges();
     await fixture.whenStable();
 
     const track = screen.getByTestId('slider-track');
@@ -930,13 +926,12 @@ describe('NgpRangeSlider Edge Cases', () => {
 
   it('should respect step value when setting high value via pointer', async () => {
     const { fixture } = await render(TestComponent);
-    fixture.autoDetectChanges(true);
     const component = fixture.componentInstance;
 
     component.low = 20;
     component.high = 80;
     component.step = 10;
-    fixture.changeDetectorRef.markForCheck();
+    fixture.detectChanges();
     await fixture.whenStable();
 
     const track = screen.getByTestId('slider-track');

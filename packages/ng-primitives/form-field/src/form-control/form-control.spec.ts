@@ -212,7 +212,6 @@ describe('NgpFormControl', () => {
       }
 
       const { fixture } = await render(TestComponent);
-      fixture.autoDetectChanges(true);
       const input = fixture.debugElement.nativeElement.querySelector('#test-control');
 
       // Initially the input should be present
@@ -220,8 +219,7 @@ describe('NgpFormControl', () => {
 
       // Remove input
       fixture.componentInstance.showInput = false;
-      fixture.changeDetectorRef.markForCheck();
-      await fixture.whenStable();
+      fixture.detectChanges();
 
       // Input should be removed from the DOM
       const removed = fixture.debugElement.nativeElement.querySelector('#test-control');
@@ -286,7 +284,6 @@ describe('NgpFormControl', () => {
       }
 
       const { fixture } = await render(TestComponent);
-      fixture.autoDetectChanges(true);
       const formControlRef = fixture.debugElement.children[0].children[0].references['formControl'];
 
       // Initial status
@@ -298,7 +295,7 @@ describe('NgpFormControl', () => {
       // Mark as touched and dirty
       fixture.componentInstance.control.markAsTouched();
       fixture.componentInstance.control.markAsDirty();
-      await fixture.whenStable();
+      fixture.detectChanges();
 
       status = formControlRef.status();
       expect(status.touched).toBe(true);
@@ -307,8 +304,7 @@ describe('NgpFormControl', () => {
 
       // Disable via parent
       fixture.componentInstance.disabled = true;
-      fixture.changeDetectorRef.markForCheck();
-      await fixture.whenStable();
+      fixture.detectChanges();
 
       status = formControlRef.status();
       expect(status.disabled).toBe(true);
@@ -339,19 +335,18 @@ describe('NgpFormControl', () => {
       }
 
       const { fixture } = await render(TestComponent);
-      fixture.autoDetectChanges(true);
       const input = fixture.debugElement.nativeElement.querySelector('input');
 
       // Set value to trigger async validation
       fixture.componentInstance.control.setValue('test');
-      await fixture.whenStable();
+      fixture.detectChanges();
 
       // Should show pending status
       expect(input).toHaveAttribute('data-pending');
 
       // Wait for validation to complete
       await new Promise(resolve => setTimeout(resolve, 150));
-      await fixture.whenStable();
+      fixture.detectChanges();
 
       expect(input).not.toHaveAttribute('data-pending');
       expect(input).toHaveAttribute('data-valid');
@@ -379,7 +374,6 @@ describe('NgpFormControl', () => {
       }
 
       const { fixture } = await render(TestComponent);
-      fixture.autoDetectChanges(true);
       const input = fixture.debugElement.nativeElement.querySelector('input');
 
       // Initially not disabled
@@ -387,8 +381,7 @@ describe('NgpFormControl', () => {
 
       // Disable via parent
       fixture.componentInstance.parentDisabled = true;
-      fixture.changeDetectorRef.markForCheck();
-      await fixture.whenStable();
+      fixture.detectChanges();
 
       expect(input).toHaveAttribute('data-disabled');
       expect(input).toHaveAttribute('disabled');
@@ -396,8 +389,7 @@ describe('NgpFormControl', () => {
       // Reset parent disabled and disable via form control
       fixture.componentInstance.parentDisabled = false;
       fixture.componentInstance.control.disable();
-      fixture.changeDetectorRef.markForCheck();
-      await fixture.whenStable();
+      fixture.detectChanges();
 
       expect(input).toHaveAttribute('data-disabled');
       expect(input).not.toHaveAttribute('disabled'); // Form control disabled doesn't add HTML disabled
