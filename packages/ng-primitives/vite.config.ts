@@ -6,10 +6,7 @@ import { defineConfig } from 'vite';
 
 export default defineConfig({
   root: __dirname,
-  plugins: [
-    angular({ tsconfig: resolve(__dirname, 'tsconfig.spec.json') }),
-    nxViteTsPaths(),
-  ],
+  plugins: [angular({ tsconfig: resolve(__dirname, 'tsconfig.spec.json') }), nxViteTsPaths()],
   test: {
     globals: true,
     environment: 'jsdom',
