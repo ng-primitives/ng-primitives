@@ -58,6 +58,7 @@ import {
       cursor: pointer;
       font-size: 1rem;
       user-select: none;
+      -webkit-touch-callout: none;
       transition:
         color 150ms ease,
         background-color 150ms ease;
