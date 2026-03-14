@@ -137,7 +137,8 @@ describe('NgpSubmenuTrigger viewport awareness', () => {
       await waitFor(() => {
         const submenu = document.querySelector('[data-testid="submenu"]');
         expect(submenu).toBeInTheDocument();
-        expect(submenu?.getAttribute('data-placement')).toBeTruthy();
+        const placement = submenu?.getAttribute('data-placement');
+        expect(placement).toMatch(/^(top|bottom|left|right)(-start|-end)?$/);
       });
     });
   });
@@ -162,9 +163,9 @@ describe('NgpSubmenuTrigger viewport awareness', () => {
       await waitFor(() => {
         const submenu = document.querySelector('[data-testid="submenu"]');
         expect(submenu).toBeInTheDocument();
-        // With flip disabled, placement should remain right-start regardless of viewport
+        // With flip disabled, placement should remain exactly right-start regardless of viewport
         const placement = submenu?.getAttribute('data-placement');
-        expect(placement).toContain('right');
+        expect(placement).toBe('right-start');
       });
     });
   });

@@ -812,10 +812,7 @@ describe('Navigation Menu', () => {
     });
   });
 
-  // Skip: In browser mode, fireEvent.keyDown with Escape on overlay content
-  // doesn't properly trigger the navigation menu's close handler due to event
-  // propagation differences with synthetic events in a real browser context.
-  it.skip('should close on Escape from content and restore focus to trigger', async () => {
+  it('should close on Escape from content and restore focus to trigger', async () => {
     const { fixture } = await render(TestNavigationMenuComponent);
     const trigger = fixture.debugElement.nativeElement.querySelector(
       '[data-testid="trigger-products"]',
@@ -838,7 +835,9 @@ describe('Navigation Menu', () => {
     });
 
     contentItem!.focus();
-    fireEvent.keyDown(contentItem!, { key: 'Escape' });
+    // Use native KeyboardEvent dispatch since fireEvent doesn't propagate
+    // correctly through overlay content in real browser mode
+    contentItem!.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
     fixture.detectChanges();
 
     await waitFor(() => {
