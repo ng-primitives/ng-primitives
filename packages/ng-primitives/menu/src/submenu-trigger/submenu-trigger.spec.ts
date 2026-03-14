@@ -184,8 +184,7 @@ describe('NgpSubmenuTrigger viewport awareness', () => {
       fireEvent.click(trigger);
 
       await waitFor(() => {
-        const st = document.querySelector('[data-testid="submenu-trigger"]');
-        expect(st).toBeInTheDocument();
+        expect(document.querySelector('[data-testid="submenu-trigger"]')).toBeInTheDocument();
       });
 
       // Open submenu
@@ -198,7 +197,7 @@ describe('NgpSubmenuTrigger viewport awareness', () => {
         const submenu = document.querySelector('[data-testid="submenu"]');
         expect(submenu).toBeInTheDocument();
         const placement = submenu?.getAttribute('data-placement');
-        expect(placement).toContain('left');
+        expect(placement).toBe('left-start');
       });
     });
   });

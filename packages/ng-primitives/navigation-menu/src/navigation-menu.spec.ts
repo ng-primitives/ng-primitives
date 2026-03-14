@@ -812,36 +812,38 @@ describe('Navigation Menu', () => {
     });
   });
 
-  it('should close on Escape from content and restore focus to trigger', async () => {
-    const { fixture } = await render(TestNavigationMenuComponent);
-    const trigger = fixture.debugElement.nativeElement.querySelector(
-      '[data-testid="trigger-products"]',
-    );
+  describe('Focus Management', () => {
+    it('should close on Escape from content and restore focus to trigger', async () => {
+      const { fixture } = await render(TestNavigationMenuComponent);
+      const trigger = fixture.debugElement.nativeElement.querySelector(
+        '[data-testid="trigger-products"]',
+      );
 
-    // Open via keyboard
-    trigger.focus();
-    fireEvent.keyDown(trigger, { key: 'Enter' });
-    fixture.detectChanges();
+      // Open via keyboard
+      trigger.focus();
+      fireEvent.keyDown(trigger, { key: 'Enter' });
+      fixture.detectChanges();
 
-    await waitFor(() => {
-      expect(trigger).toHaveAttribute('data-open');
-    });
+      await waitFor(() => {
+        expect(trigger).toHaveAttribute('data-open');
+      });
 
-    // Wait for content to be rendered, then press Escape on it
-    let contentItem: HTMLElement;
-    await waitFor(() => {
-      contentItem = document.querySelector('[data-testid="content-item-1"]') as HTMLElement;
-      expect(contentItem).toBeTruthy();
-    });
+      // Wait for content to be rendered, then press Escape on it
+      let contentItem: HTMLElement;
+      await waitFor(() => {
+        contentItem = document.querySelector('[data-testid="content-item-1"]') as HTMLElement;
+        expect(contentItem).toBeTruthy();
+      });
 
-    contentItem!.focus();
-    // Use native KeyboardEvent dispatch since fireEvent doesn't propagate
-    // correctly through overlay content in real browser mode
-    contentItem!.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
-    fixture.detectChanges();
+      contentItem!.focus();
+      // Use native KeyboardEvent dispatch since fireEvent doesn't propagate
+      // correctly through overlay content in real browser mode
+      contentItem!.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
+      fixture.detectChanges();
 
-    await waitFor(() => {
-      expect(trigger).not.toHaveAttribute('data-open');
+      await waitFor(() => {
+        expect(trigger).not.toHaveAttribute('data-open');
+      });
     });
   });
 
