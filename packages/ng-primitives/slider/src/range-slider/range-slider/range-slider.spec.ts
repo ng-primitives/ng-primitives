@@ -303,7 +303,7 @@ describe('NgpRangeSlider', () => {
 
     // Mock getBoundingClientRect for track
     const mockRect = { left: 0, top: 0, width: 100, height: 20 };
-    jest.spyOn(track, 'getBoundingClientRect').mockReturnValue(mockRect as DOMRect);
+    vi.spyOn(track, 'getBoundingClientRect').mockReturnValue(mockRect as DOMRect);
 
     // Click near the beginning (should move low thumb)
     await userEvent.pointer({ keys: '[MouseLeft>]', target: track, coords: { x: 10, y: 10 } });
@@ -324,7 +324,7 @@ describe('NgpRangeSlider', () => {
 
     // Mock getBoundingClientRect for track
     const mockRect = { left: 0, top: 0, width: 100, height: 20 };
-    jest.spyOn(track, 'getBoundingClientRect').mockReturnValue(mockRect as DOMRect);
+    vi.spyOn(track, 'getBoundingClientRect').mockReturnValue(mockRect as DOMRect);
 
     // Try to interact with track (should not work when disabled)
     await userEvent.pointer({ keys: '[MouseLeft]', target: track, coords: { x: 10, y: 10 } });
@@ -425,7 +425,7 @@ describe('NgpRangeSlider Vertical Orientation', () => {
     const track = screen.getByTestId('vertical-slider-track');
 
     // Mock getBoundingClientRect for vertical track
-    jest.spyOn(track, 'getBoundingClientRect').mockReturnValue({
+    vi.spyOn(track, 'getBoundingClientRect').mockReturnValue({
       left: 0,
       top: 0,
       right: 20,
@@ -460,7 +460,7 @@ describe('NgpRangeSlider Vertical Orientation', () => {
     const track = screen.getByTestId('vertical-slider-track');
 
     // Mock getBoundingClientRect for vertical track
-    jest.spyOn(track, 'getBoundingClientRect').mockReturnValue({
+    vi.spyOn(track, 'getBoundingClientRect').mockReturnValue({
       left: 0,
       top: 0,
       right: 20,
@@ -509,7 +509,7 @@ describe('NgpRangeSliderThumb', () => {
 
     // Mock getBoundingClientRect for track
     const mockRect = { left: 0, top: 0, width: 100, height: 20 };
-    jest.spyOn(track, 'getBoundingClientRect').mockReturnValue(mockRect as DOMRect);
+    vi.spyOn(track, 'getBoundingClientRect').mockReturnValue(mockRect as DOMRect);
 
     // Start drag
     await userEvent.pointer({ keys: '[MouseLeft>]', target: lowThumb });
@@ -732,7 +732,7 @@ describe('NgpRangeSliderThumb Drag Events', () => {
     const track = screen.getByTestId('slider-track');
 
     // Mock track dimensions
-    jest.spyOn(track, 'getBoundingClientRect').mockReturnValue({
+    vi.spyOn(track, 'getBoundingClientRect').mockReturnValue({
       left: 0,
       top: 0,
       right: 100,
@@ -802,7 +802,7 @@ describe('NgpRangeSliderTrack', () => {
 
     // Mock getBoundingClientRect
     const mockRect = { left: 0, top: 0, width: 100, height: 20 };
-    jest.spyOn(track, 'getBoundingClientRect').mockReturnValue(mockRect as DOMRect);
+    vi.spyOn(track, 'getBoundingClientRect').mockReturnValue(mockRect as DOMRect);
 
     const initialLow = component.low;
     const initialHigh = component.high;
@@ -899,7 +899,7 @@ describe('NgpRangeSlider Edge Cases', () => {
     const track = screen.getByTestId('slider-track');
 
     // Mock getBoundingClientRect to return realistic dimensions
-    jest.spyOn(track, 'getBoundingClientRect').mockReturnValue({
+    vi.spyOn(track, 'getBoundingClientRect').mockReturnValue({
       left: 0,
       top: 0,
       right: 100,
@@ -937,7 +937,7 @@ describe('NgpRangeSlider Edge Cases', () => {
     const track = screen.getByTestId('slider-track');
 
     // Mock getBoundingClientRect to return realistic dimensions
-    jest.spyOn(track, 'getBoundingClientRect').mockReturnValue({
+    vi.spyOn(track, 'getBoundingClientRect').mockReturnValue({
       left: 0,
       top: 0,
       right: 100,

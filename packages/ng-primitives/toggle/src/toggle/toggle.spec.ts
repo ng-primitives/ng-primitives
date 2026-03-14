@@ -41,7 +41,7 @@ describe('NgpToggle', () => {
   });
 
   it('should toggle the pressed state on click', async () => {
-    const spy = jest.fn();
+    const spy = vi.fn();
 
     await render(
       `<button ngpToggle [(ngpToggleSelected)]="selected" (ngpToggleSelectedChange)="onChange($event)">Toggle</button>`,
@@ -62,7 +62,7 @@ describe('NgpToggle', () => {
   });
 
   it('should not toggle the pressed state when disabled', async () => {
-    const spy = jest.fn();
+    const spy = vi.fn();
 
     await render(
       `<button ngpToggle [(ngpToggleSelected)]="selected" [ngpToggleDisabled]="true" (ngpToggleSelectedChange)="onChange($event)">Toggle</button>`,

@@ -34,7 +34,7 @@ describe('NgpSwitch', () => {
   });
 
   it('should toggle on click when enabled and emit changes', async () => {
-    const checkedChange = jest.fn();
+    const checkedChange = vi.fn();
     const { getByRole } = await render(
       `<button ngpSwitch (ngpSwitchCheckedChange)="checkedChange($event)"></button>`,
       {
@@ -52,7 +52,7 @@ describe('NgpSwitch', () => {
   });
 
   it('should not toggle or emit when disabled', async () => {
-    const checkedChange = jest.fn();
+    const checkedChange = vi.fn();
     const { getByRole, rerender } = await render(
       `<button ngpSwitch [ngpSwitchDisabled]="disabled" (ngpSwitchCheckedChange)="checkedChange($event)"></button>`,
       {
@@ -75,7 +75,7 @@ describe('NgpSwitch', () => {
   });
 
   it('should toggle on space key when element is not a button', async () => {
-    const checkedChange = jest.fn();
+    const checkedChange = vi.fn();
     const { getByRole } = await render(
       `<div ngpSwitch tabindex="0" (ngpSwitchCheckedChange)="checkedChange($event)"></div>`,
       {

@@ -48,7 +48,7 @@ describe('NgpPopoverTrigger', () => {
       imports: [NgpPopoverTrigger, NgpPopover],
     })
     class EventTestComponent {
-      onOpenChange = jest.fn();
+      onOpenChange = vi.fn();
     }
 
     const { fixture, getByRole } = await render(EventTestComponent);
@@ -88,7 +88,7 @@ describe('NgpPopoverTrigger', () => {
       imports: [NgpPopoverTrigger, NgpPopover],
     })
     class OutsideClickEventTestComponent {
-      onOpenChange = jest.fn();
+      onOpenChange = vi.fn();
     }
 
     const { fixture, getByRole } = await render(OutsideClickEventTestComponent);
@@ -126,7 +126,7 @@ describe('NgpPopoverTrigger', () => {
       imports: [NgpPopoverTrigger, NgpPopover],
     })
     class EscapeEventTestComponent {
-      onOpenChange = jest.fn();
+      onOpenChange = vi.fn();
     }
 
     const { fixture, getByRole } = await render(EscapeEventTestComponent);

@@ -4,7 +4,7 @@ import { NgpHover } from './hover';
 
 describe('NgpHover', () => {
   it('should trigger hover start event when pointerstart occurs', async () => {
-    const hoverStart = jest.fn();
+    const hoverStart = vi.fn();
     const container = await render(
       `<div data-testid="trigger" ngpHover (ngpHoverStart)="hoverStart()"></div>`,
       {
@@ -21,7 +21,7 @@ describe('NgpHover', () => {
   });
 
   it('should trigger hover end event when pointerend occurs', async () => {
-    const hoverEnd = jest.fn();
+    const hoverEnd = vi.fn();
     const container = await render(
       `<div data-testid="trigger" ngpHover (ngpHoverEnd)="hoverEnd()"></div>`,
       {
@@ -39,7 +39,7 @@ describe('NgpHover', () => {
   });
 
   it('should trigger hover start event when mouseenter occurs', async () => {
-    const hoverStart = jest.fn();
+    const hoverStart = vi.fn();
     const container = await render(
       `<div data-testid="trigger" ngpHover (ngpHoverStart)="hoverStart()"></div>`,
       {
@@ -56,7 +56,7 @@ describe('NgpHover', () => {
   });
 
   it('should trigger hover end event when mouseleave occurs', async () => {
-    const hoverEnd = jest.fn();
+    const hoverEnd = vi.fn();
     const container = await render(
       `<div data-testid="trigger" ngpHover (ngpHoverEnd)="hoverEnd()"></div>`,
       {
@@ -74,7 +74,7 @@ describe('NgpHover', () => {
   });
 
   it('should trigger the hover change event when hovering state changes', async () => {
-    const hoverChange = jest.fn();
+    const hoverChange = vi.fn();
     const container = await render(
       `<div data-testid="trigger" (ngpHover)="hoverChange($event)"></div>`,
       {
@@ -94,8 +94,8 @@ describe('NgpHover', () => {
   });
 
   it('should not trigger hover events when the directive is disabled', async () => {
-    const hoverStart = jest.fn();
-    const hoverEnd = jest.fn();
+    const hoverStart = vi.fn();
+    const hoverEnd = vi.fn();
     const container = await render(
       `<div data-testid="trigger" ngpHover (ngpHoverStart)="hoverStart()" (ngpHoverEnd)="hoverEnd()" [ngpHoverDisabled]="true"></div>`,
       {
@@ -116,8 +116,8 @@ describe('NgpHover', () => {
   });
 
   it('should not trigger hover events when a touchstart event occurs', async () => {
-    const hoverStart = jest.fn();
-    const hoverEnd = jest.fn();
+    const hoverStart = vi.fn();
+    const hoverEnd = vi.fn();
     const container = await render(
       `<div data-testid="trigger" ngpHover (ngpHoverStart)="hoverStart()" (ngpHoverEnd)="hoverEnd()"></div>`,
       {
@@ -140,9 +140,9 @@ describe('NgpHover', () => {
 
   describe('global configuration', () => {
     it('should not trigger hover events when all interactions are globally disabled', async () => {
-      const hoverStart = jest.fn();
-      const hoverEnd = jest.fn();
-      const hoverChange = jest.fn();
+      const hoverStart = vi.fn();
+      const hoverEnd = vi.fn();
+      const hoverChange = vi.fn();
 
       const container = await render(
         `<div data-testid="trigger" ngpHover (ngpHoverStart)="hoverStart()" (ngpHoverEnd)="hoverEnd()" (ngpHover)="hoverChange($event)"></div>`,
@@ -167,9 +167,9 @@ describe('NgpHover', () => {
     });
 
     it('should not trigger hover events when hover interactions are specifically disabled', async () => {
-      const hoverStart = jest.fn();
-      const hoverEnd = jest.fn();
-      const hoverChange = jest.fn();
+      const hoverStart = vi.fn();
+      const hoverEnd = vi.fn();
+      const hoverChange = vi.fn();
 
       const container = await render(
         `<div data-testid="trigger" ngpHover (ngpHoverStart)="hoverStart()" (ngpHoverEnd)="hoverEnd()" (ngpHover)="hoverChange($event)"></div>`,
@@ -194,9 +194,9 @@ describe('NgpHover', () => {
     });
 
     it('should trigger hover events when hover interactions are enabled', async () => {
-      const hoverStart = jest.fn();
-      const hoverEnd = jest.fn();
-      const hoverChange = jest.fn();
+      const hoverStart = vi.fn();
+      const hoverEnd = vi.fn();
+      const hoverChange = vi.fn();
 
       const container = await render(
         `<div data-testid="trigger" ngpHover (ngpHoverStart)="hoverStart()" (ngpHoverEnd)="hoverEnd()" (ngpHover)="hoverChange($event)"></div>`,

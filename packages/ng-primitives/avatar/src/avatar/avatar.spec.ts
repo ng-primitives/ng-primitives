@@ -1,6 +1,5 @@
 import { Component } from '@angular/core';
-import { fakeAsync, tick } from '@angular/core/testing';
-import { fireEvent, render, screen } from '@testing-library/angular';
+import { fireEvent, render, screen, waitFor } from '@testing-library/angular';
 import { NgpAvatarFallback } from '../avatar-fallback/avatar-fallback';
 import { NgpAvatarImage } from '../avatar-image/avatar-image';
 import { NgpAvatar } from './avatar';
@@ -103,7 +102,7 @@ describe('NgpAvatar', () => {
       expect(screen.getByRole('img')).toHaveAttribute('alt', 'User Avatar');
     });
 
-    it('should show fallback when image fails to load', fakeAsync(async () => {
+    it('should show fallback when image fails to load', async () => {
       await render(
         `
         <div ngpAvatar data-testid="avatar">
@@ -120,19 +119,20 @@ describe('NgpAvatar', () => {
       const image = screen.getByTestId('avatar-image');
       const fallback = screen.getByTestId('avatar-fallback');
 
-      tick(1);
-
-      expect(avatar).toHaveAttribute('data-status', NgpAvatarStatus.Loading);
-      expect(fallback).toBeVisible();
+      await waitFor(() => {
+        expect(avatar).toHaveAttribute('data-status', NgpAvatarStatus.Loading);
+        expect(fallback).toBeVisible();
+      });
 
       fireEvent.error(image);
-      tick(1);
 
-      expect(avatar).toHaveAttribute('data-status', NgpAvatarStatus.Error);
-      expect(fallback).toBeVisible();
-    }));
+      await waitFor(() => {
+        expect(avatar).toHaveAttribute('data-status', NgpAvatarStatus.Error);
+        expect(fallback).toBeVisible();
+      });
+    });
 
-    it('should hide fallback when image loads successfully', fakeAsync(async () => {
+    it('should hide fallback when image loads successfully', async () => {
       await render(
         `
         <div ngpAvatar data-testid="avatar">
@@ -149,19 +149,20 @@ describe('NgpAvatar', () => {
       const image = screen.getByTestId('avatar-image');
       const fallback = screen.getByTestId('avatar-fallback');
 
-      tick(1);
-
-      expect(avatar).toHaveAttribute('data-status', NgpAvatarStatus.Loading);
-      expect(fallback).toBeVisible();
+      await waitFor(() => {
+        expect(avatar).toHaveAttribute('data-status', NgpAvatarStatus.Loading);
+        expect(fallback).toBeVisible();
+      });
 
       fireEvent.load(image);
-      tick(1);
 
-      expect(avatar).toHaveAttribute('data-status', NgpAvatarStatus.Loaded);
-      expect(fallback).not.toBeVisible();
-    }));
+      await waitFor(() => {
+        expect(avatar).toHaveAttribute('data-status', NgpAvatarStatus.Loaded);
+        expect(fallback).not.toBeVisible();
+      });
+    });
 
-    it('should handle real-world avatar component pattern', fakeAsync(async () => {
+    it('should handle real-world avatar component pattern', async () => {
       @Component({
         template: `
           <div class="avatar" ngpAvatar data-testid="avatar">
@@ -216,9 +217,9 @@ describe('NgpAvatar', () => {
 
       expect(image).toHaveAttribute('src', 'https://example.com/new-avatar.jpg');
       expect(fallback).toHaveTextContent('XY');
-    }));
+    });
 
-    it('should handle edge case of image without src attribute', fakeAsync(async () => {
+    it('should handle edge case of image without src attribute', async () => {
       await render(
         `
         <div ngpAvatar data-testid="avatar">
@@ -236,16 +237,17 @@ describe('NgpAvatar', () => {
 
       // In test environment, images might be marked as complete even without src
       // The avatar status could be error (no src) or loaded (test environment behavior)
-      const status = avatar.getAttribute('data-status');
-      expect(['error', 'loaded']).toContain(status);
+      await waitFor(() => {
+        const status = avatar.getAttribute('data-status');
+        expect(['error', 'loaded']).toContain(status);
 
-      tick(1);
-      // Fallback visibility depends on the final status
-      if (status === NgpAvatarStatus.Error) {
-        expect(fallback).toBeVisible();
-      } else {
-        expect(fallback).not.toBeVisible();
-      }
-    }));
+        // Fallback visibility depends on the final status
+        if (status === NgpAvatarStatus.Error) {
+          expect(fallback).toBeVisible();
+        } else {
+          expect(fallback).not.toBeVisible();
+        }
+      });
+    });
   });
 });

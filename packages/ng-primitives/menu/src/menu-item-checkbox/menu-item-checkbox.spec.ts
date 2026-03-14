@@ -1,6 +1,5 @@
 import { Component, TemplateRef, viewChild } from '@angular/core';
-import { fakeAsync, flush, tick } from '@angular/core/testing';
-import { fireEvent, render } from '@testing-library/angular';
+import { fireEvent, render, waitFor } from '@testing-library/angular';
 import { NgpMenuItemIndicator } from '../menu-item-indicator/menu-item-indicator';
 import { NgpMenuItem } from '../menu-item/menu-item';
 import { NgpMenuTrigger } from '../menu-trigger/menu-trigger';
@@ -53,127 +52,122 @@ class TestMenuCheckboxComponent {
 })
 class TestMenuCheckboxDisabledComponent {}
 
-function openMenu(fixture: any) {
+async function openMenu(fixture: any) {
   const trigger = fixture.debugElement.nativeElement.querySelector('[data-testid="trigger"]');
   fireEvent.click(trigger);
-  tick();
+  await waitFor(() => {
+    expect(document.querySelector('[data-testid="menu"]')).toBeInTheDocument();
+  });
   fixture.detectChanges();
-  flush();
   return trigger;
 }
 
 describe('NgpMenuItemCheckbox', () => {
-  it('should have role="menuitemcheckbox"', fakeAsync(async () => {
+  it('should have role="menuitemcheckbox"', async () => {
     const { fixture } = await render(TestMenuCheckboxComponent);
-    openMenu(fixture);
+    await openMenu(fixture);
 
     const checkbox = document.querySelector('[data-testid="checkbox-item"]');
     expect(checkbox).toHaveAttribute('role', 'menuitemcheckbox');
-  }));
+  });
 
-  it('should have aria-checked="false" when unchecked', fakeAsync(async () => {
+  it('should have aria-checked="false" when unchecked', async () => {
     const { fixture } = await render(TestMenuCheckboxComponent);
-    openMenu(fixture);
+    await openMenu(fixture);
 
     const checkbox = document.querySelector('[data-testid="checkbox-item"]');
     expect(checkbox).toHaveAttribute('aria-checked', 'false');
-  }));
+  });
 
-  it('should toggle checked state on click', fakeAsync(async () => {
+  it('should toggle checked state on click', async () => {
     const { fixture } = await render(TestMenuCheckboxComponent);
-    openMenu(fixture);
+    await openMenu(fixture);
 
     const checkbox = document.querySelector('[data-testid="checkbox-item"]');
 
     // Click to check
     fireEvent.click(checkbox!);
-    tick();
-    fixture.detectChanges();
-    flush();
 
-    expect(checkbox).toHaveAttribute('aria-checked', 'true');
-    expect(checkbox).toHaveAttribute('data-checked');
-    expect(fixture.componentInstance.checked).toBe(true);
-  }));
+    await waitFor(() => {
+      expect(checkbox).toHaveAttribute('aria-checked', 'true');
+      expect(checkbox).toHaveAttribute('data-checked');
+      expect(fixture.componentInstance.checked).toBe(true);
+    });
+  });
 
-  it('should toggle back to unchecked on second click', fakeAsync(async () => {
+  it('should toggle back to unchecked on second click', async () => {
     const { fixture } = await render(TestMenuCheckboxComponent);
     fixture.componentInstance.checked = true;
     fixture.detectChanges();
-    openMenu(fixture);
+    await openMenu(fixture);
 
     const checkbox = document.querySelector('[data-testid="checkbox-item"]');
     expect(checkbox).toHaveAttribute('aria-checked', 'true');
 
     // Click to uncheck
     fireEvent.click(checkbox!);
-    tick();
-    fixture.detectChanges();
-    flush();
 
-    expect(checkbox).toHaveAttribute('aria-checked', 'false');
-    expect(fixture.componentInstance.checked).toBe(false);
-  }));
+    await waitFor(() => {
+      expect(checkbox).toHaveAttribute('aria-checked', 'false');
+      expect(fixture.componentInstance.checked).toBe(false);
+    });
+  });
 
-  it('should NOT close the menu on click', fakeAsync(async () => {
+  it('should NOT close the menu on click', async () => {
     const { fixture } = await render(TestMenuCheckboxComponent);
-    const trigger = openMenu(fixture);
+    const trigger = await openMenu(fixture);
 
     const checkbox = document.querySelector('[data-testid="checkbox-item"]');
     fireEvent.click(checkbox!);
-    tick();
-    fixture.detectChanges();
-    flush();
 
-    // Menu should still be open
-    expect(trigger).toHaveAttribute('data-open');
-    expect(document.querySelector('[data-testid="menu"]')).toBeInTheDocument();
-  }));
+    await waitFor(() => {
+      // Menu should still be open
+      expect(trigger).toHaveAttribute('data-open');
+      expect(document.querySelector('[data-testid="menu"]')).toBeInTheDocument();
+    });
+  });
 
-  it('should close the menu when regular item is clicked', fakeAsync(async () => {
+  it('should close the menu when regular item is clicked', async () => {
     const { fixture } = await render(TestMenuCheckboxComponent);
-    const trigger = openMenu(fixture);
+    const trigger = await openMenu(fixture);
 
     const regularItem = document.querySelector('[data-testid="regular-item"]');
     fireEvent.click(regularItem!);
-    tick();
-    fixture.detectChanges();
-    flush();
 
-    // Menu should be closed
-    expect(trigger).not.toHaveAttribute('data-open');
-  }));
+    await waitFor(() => {
+      // Menu should be closed
+      expect(trigger).not.toHaveAttribute('data-open');
+    });
+  });
 
-  it('should not toggle when disabled', fakeAsync(async () => {
+  it('should not toggle when disabled', async () => {
     const { fixture } = await render(TestMenuCheckboxDisabledComponent);
-    openMenu(fixture);
+    await openMenu(fixture);
 
     const checkbox = document.querySelector('[data-testid="disabled-checkbox"]');
     expect(checkbox).toHaveAttribute('aria-checked', 'false');
 
     fireEvent.click(checkbox!);
-    tick();
-    fixture.detectChanges();
-    flush();
 
-    expect(checkbox).toHaveAttribute('aria-checked', 'false');
-  }));
+    await waitFor(() => {
+      expect(checkbox).toHaveAttribute('aria-checked', 'false');
+    });
+  });
 
-  it('should show indicator with data-checked when checked', fakeAsync(async () => {
+  it('should show indicator with data-checked when checked', async () => {
     const { fixture } = await render(TestMenuCheckboxComponent);
-    openMenu(fixture);
+    await openMenu(fixture);
 
     const indicator = document.querySelector('[data-testid="indicator"]');
     expect(indicator).not.toHaveAttribute('data-checked');
 
     const checkbox = document.querySelector('[data-testid="checkbox-item"]');
     fireEvent.click(checkbox!);
-    tick();
-    fixture.detectChanges();
-    flush();
 
-    expect(indicator).toHaveAttribute('data-checked');
-  }));
+    await waitFor(() => {
+      expect(indicator).toHaveAttribute('data-checked');
+    });
+  });
 });
 
 @Component({
@@ -211,28 +205,30 @@ class TestSubmenuCheckboxComponent {
   checked = false;
 }
 
-function openSubmenu(fixture: any) {
+async function openSubmenu(fixture: any) {
   const rootTrigger = fixture.debugElement.nativeElement.querySelector(
     '[data-testid="root-trigger"]',
   );
   fireEvent.click(rootTrigger);
-  tick();
+  await waitFor(() => {
+    expect(document.querySelector('[data-testid="root-menu"]')).toBeInTheDocument();
+  });
   fixture.detectChanges();
-  flush();
 
   const submenuTrigger = document.querySelector('[data-testid="submenu-trigger"]');
   fireEvent.click(submenuTrigger!);
-  tick();
+  await waitFor(() => {
+    expect(document.querySelector('[data-testid="submenu"]')).toBeInTheDocument();
+  });
   fixture.detectChanges();
-  flush();
 
   return rootTrigger;
 }
 
 describe('NgpMenuItemCheckbox in submenu', () => {
-  it('should NOT close the menu when checkbox in submenu is clicked', fakeAsync(async () => {
+  it('should NOT close the menu when checkbox in submenu is clicked', async () => {
     const { fixture } = await render(TestSubmenuCheckboxComponent);
-    const rootTrigger = openSubmenu(fixture);
+    const rootTrigger = await openSubmenu(fixture);
 
     // Verify submenu is open
     const submenuTrigger = document.querySelector('[data-testid="submenu-trigger"]');
@@ -243,19 +239,18 @@ describe('NgpMenuItemCheckbox in submenu', () => {
     const checkbox = document.querySelector('[data-testid="submenu-checkbox"]');
     fireEvent.mouseUp(checkbox!);
     fireEvent.click(checkbox!);
-    tick();
-    fixture.detectChanges();
-    flush();
 
-    // Both the root menu and submenu should still be open
-    expect(rootTrigger).toHaveAttribute('data-open');
-    expect(submenuTrigger).toHaveAttribute('data-open');
-    expect(document.querySelector('[data-testid="submenu"]')).toBeInTheDocument();
-  }));
+    await waitFor(() => {
+      // Both the root menu and submenu should still be open
+      expect(rootTrigger).toHaveAttribute('data-open');
+      expect(submenuTrigger).toHaveAttribute('data-open');
+      expect(document.querySelector('[data-testid="submenu"]')).toBeInTheDocument();
+    });
+  });
 
-  it('should toggle checkbox state without closing submenu', fakeAsync(async () => {
+  it('should toggle checkbox state without closing submenu', async () => {
     const { fixture } = await render(TestSubmenuCheckboxComponent);
-    openSubmenu(fixture);
+    await openSubmenu(fixture);
 
     const checkbox = document.querySelector('[data-testid="submenu-checkbox"]');
     expect(checkbox).toHaveAttribute('aria-checked', 'false');
@@ -263,37 +258,35 @@ describe('NgpMenuItemCheckbox in submenu', () => {
     // Simulate a real click with mouseup + click
     fireEvent.mouseUp(checkbox!);
     fireEvent.click(checkbox!);
-    tick();
-    fixture.detectChanges();
-    flush();
 
-    expect(checkbox).toHaveAttribute('aria-checked', 'true');
-    expect(fixture.componentInstance.checked).toBe(true);
+    await waitFor(() => {
+      expect(checkbox).toHaveAttribute('aria-checked', 'true');
+      expect(fixture.componentInstance.checked).toBe(true);
 
-    // Menu should still be open
-    expect(document.querySelector('[data-testid="submenu"]')).toBeInTheDocument();
-  }));
+      // Menu should still be open
+      expect(document.querySelector('[data-testid="submenu"]')).toBeInTheDocument();
+    });
+  });
 
-  it('should close all menus when regular item in submenu is clicked', fakeAsync(async () => {
+  it('should close all menus when regular item in submenu is clicked', async () => {
     const { fixture } = await render(TestSubmenuCheckboxComponent);
-    const rootTrigger = openSubmenu(fixture);
+    const rootTrigger = await openSubmenu(fixture);
 
     // Simulate a real click with mouseup + click
     const regularItem = document.querySelector('[data-testid="submenu-regular-item"]');
     fireEvent.mouseUp(regularItem!);
     fireEvent.click(regularItem!);
-    tick();
-    fixture.detectChanges();
-    flush();
 
-    // All menus should be closed
-    expect(rootTrigger).not.toHaveAttribute('data-open');
-    expect(document.querySelector('[data-testid="submenu"]')).not.toBeInTheDocument();
-  }));
+    await waitFor(() => {
+      // All menus should be closed
+      expect(rootTrigger).not.toHaveAttribute('data-open');
+      expect(document.querySelector('[data-testid="submenu"]')).not.toBeInTheDocument();
+    });
+  });
 
-  it('should NOT close the menu when checkbox in submenu is activated via Enter key', fakeAsync(async () => {
+  it('should NOT close the menu when checkbox in submenu is activated via Enter key', async () => {
     const { fixture } = await render(TestSubmenuCheckboxComponent);
-    const rootTrigger = openSubmenu(fixture);
+    const rootTrigger = await openSubmenu(fixture);
 
     const submenuTrigger = document.querySelector('[data-testid="submenu-trigger"]');
     const checkbox = document.querySelector('[data-testid="submenu-checkbox"]') as HTMLElement;
@@ -301,22 +294,21 @@ describe('NgpMenuItemCheckbox in submenu', () => {
 
     // Enter key fires a click event with detail === 0 (keyboard origin)
     fireEvent.click(checkbox, { detail: 0 });
-    tick();
-    fixture.detectChanges();
-    flush();
 
-    // Checkbox should be toggled
-    expect(checkbox).toHaveAttribute('aria-checked', 'true');
+    await waitFor(() => {
+      // Checkbox should be toggled
+      expect(checkbox).toHaveAttribute('aria-checked', 'true');
 
-    // Both menus should still be open
-    expect(rootTrigger).toHaveAttribute('data-open');
-    expect(submenuTrigger).toHaveAttribute('data-open');
-    expect(document.querySelector('[data-testid="submenu"]')).toBeInTheDocument();
-  }));
+      // Both menus should still be open
+      expect(rootTrigger).toHaveAttribute('data-open');
+      expect(submenuTrigger).toHaveAttribute('data-open');
+      expect(document.querySelector('[data-testid="submenu"]')).toBeInTheDocument();
+    });
+  });
 
-  it('should close all menus when regular item in submenu is activated via Enter key', fakeAsync(async () => {
+  it('should close all menus when regular item in submenu is activated via Enter key', async () => {
     const { fixture } = await render(TestSubmenuCheckboxComponent);
-    const rootTrigger = openSubmenu(fixture);
+    const rootTrigger = await openSubmenu(fixture);
 
     const regularItem = document.querySelector(
       '[data-testid="submenu-regular-item"]',
@@ -325,18 +317,17 @@ describe('NgpMenuItemCheckbox in submenu', () => {
 
     // Enter key fires a click event with detail === 0 (keyboard origin)
     fireEvent.click(regularItem, { detail: 0 });
-    tick();
-    fixture.detectChanges();
-    flush();
 
-    // All menus should be closed
-    expect(rootTrigger).not.toHaveAttribute('data-open');
-    expect(document.querySelector('[data-testid="submenu"]')).not.toBeInTheDocument();
-  }));
+    await waitFor(() => {
+      // All menus should be closed
+      expect(rootTrigger).not.toHaveAttribute('data-open');
+      expect(document.querySelector('[data-testid="submenu"]')).not.toBeInTheDocument();
+    });
+  });
 
-  it('should close all menus when Escape is pressed on checkbox in submenu', fakeAsync(async () => {
+  it('should close all menus when Escape is pressed on checkbox in submenu', async () => {
     const { fixture } = await render(TestSubmenuCheckboxComponent);
-    const rootTrigger = openSubmenu(fixture);
+    const rootTrigger = await openSubmenu(fixture);
 
     const checkbox = document.querySelector('[data-testid="submenu-checkbox"]') as HTMLElement;
     checkbox.focus();
@@ -344,18 +335,17 @@ describe('NgpMenuItemCheckbox in submenu', () => {
     // Press Escape - should close all menus regardless of closeOnSelect
     const submenu = document.querySelector('[data-testid="submenu"]');
     fireEvent.keyDown(submenu!, { key: 'Escape' });
-    tick();
-    fixture.detectChanges();
-    flush();
 
-    // All menus should be closed
-    expect(rootTrigger).not.toHaveAttribute('data-open');
-    expect(document.querySelector('[data-testid="submenu"]')).not.toBeInTheDocument();
-  }));
+    await waitFor(() => {
+      // All menus should be closed
+      expect(rootTrigger).not.toHaveAttribute('data-open');
+      expect(document.querySelector('[data-testid="submenu"]')).not.toBeInTheDocument();
+    });
+  });
 
-  it('should close only the submenu on Left Arrow from checkbox item', fakeAsync(async () => {
+  it('should close only the submenu on Left Arrow from checkbox item', async () => {
     const { fixture } = await render(TestSubmenuCheckboxComponent);
-    const rootTrigger = openSubmenu(fixture);
+    const rootTrigger = await openSubmenu(fixture);
 
     const submenuTrigger = document.querySelector('[data-testid="submenu-trigger"]');
     const checkbox = document.querySelector('[data-testid="submenu-checkbox"]') as HTMLElement;
@@ -363,14 +353,13 @@ describe('NgpMenuItemCheckbox in submenu', () => {
 
     // Left Arrow should close only the submenu, not the root menu
     fireEvent.keyDown(checkbox, { key: 'ArrowLeft' });
-    tick();
-    fixture.detectChanges();
-    flush();
 
-    // Submenu should be closed
-    expect(submenuTrigger).not.toHaveAttribute('data-open');
+    await waitFor(() => {
+      // Submenu should be closed
+      expect(submenuTrigger).not.toHaveAttribute('data-open');
 
-    // Root menu should still be open
-    expect(rootTrigger).toHaveAttribute('data-open');
-  }));
+      // Root menu should still be open
+      expect(rootTrigger).toHaveAttribute('data-open');
+    });
+  });
 });
