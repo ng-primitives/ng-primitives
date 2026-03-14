@@ -101,7 +101,7 @@ export class NgpDialogRef<T = unknown, R = unknown> implements NgpOverlayRef {
    * Skips exit animations and tears down immediately.
    */
   async hideImmediate(): Promise<void> {
-    if (this.disableClose || this.closing) {
+    if (this.closing) {
       return;
     }
 
