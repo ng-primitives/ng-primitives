@@ -83,7 +83,7 @@ class TestSubmenuNoFlipComponent {}
   imports: [NgpMenuTrigger, NgpMenu, NgpMenuItem, NgpSubmenuTrigger],
 })
 class TestSubmenuPlacementComponent {
-  placement: string = 'left-start';
+  placement: string = 'right-start';
 }
 
 /**
@@ -170,8 +170,9 @@ describe('NgpSubmenuTrigger viewport awareness', () => {
   });
 
   describe('custom placement', () => {
-    it('should accept a custom placement and render submenu with data-placement', async () => {
+    it('should use left-start placement when specified', async () => {
       const { fixture } = await render(TestSubmenuPlacementComponent);
+      fixture.componentInstance.placement = 'left-start';
       fixture.autoDetectChanges(true);
 
       const trigger = fixture.debugElement.nativeElement.querySelector(
@@ -182,20 +183,21 @@ describe('NgpSubmenuTrigger viewport awareness', () => {
       fireEvent.click(trigger);
 
       await waitFor(() => {
-        const submenuTrigger = document.querySelector('[data-testid="submenu-trigger"]');
-        expect(submenuTrigger).toBeInTheDocument();
+        const st = document.querySelector('[data-testid="submenu-trigger"]');
+        expect(st).toBeInTheDocument();
       });
 
       // Open submenu
       const submenuTrigger = document.querySelector('[data-testid="submenu-trigger"]')!;
       fireEvent.click(submenuTrigger);
 
+      // With flip disabled on TestSubmenuPlacementComponent, the specified
+      // left-start placement should be honoured by floating-ui.
       await waitFor(() => {
         const submenu = document.querySelector('[data-testid="submenu"]');
         expect(submenu).toBeInTheDocument();
-        // In a real browser, floating-ui may adjust the placement based on available space.
-        // We just verify the submenu renders with some data-placement attribute.
-        expect(submenu?.getAttribute('data-placement')).toBeTruthy();
+        const placement = submenu?.getAttribute('data-placement');
+        expect(placement).toContain('left');
       });
     });
   });
