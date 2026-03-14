@@ -17,9 +17,9 @@ import { injectComboboxState } from '../combobox/combobox-state';
     'aria-haspopup': 'listbox',
     'aria-autocomplete': 'list',
     '[id]': 'id()',
-    '[attr.aria-controls]': 'state().open() ? dropdownId() : undefined',
-    '[attr.aria-expanded]': 'state().open()',
-    '[attr.data-open]': 'state().open() ? "" : undefined',
+    '[attr.aria-controls]': 'state().isOpen() ? dropdownId() : undefined',
+    '[attr.aria-expanded]': 'state().isOpen()',
+    '[attr.data-open]': 'state().isOpen() ? "" : undefined',
     '[attr.data-disabled]': 'state().disabled() ? "" : undefined',
     '[attr.data-multiple]': 'state().multiple() ? "" : undefined',
     '[attr.aria-activedescendant]': 'activeDescendant()',
@@ -70,7 +70,7 @@ export class NgpComboboxInput {
   protected handleKeydown(event: KeyboardEvent): void {
     switch (event.key) {
       case 'ArrowDown':
-        if (this.state().open()) {
+        if (this.state().isOpen()) {
           this.state().activateNextOption();
         } else {
           this.state().openDropdown();
@@ -78,7 +78,7 @@ export class NgpComboboxInput {
         event.preventDefault();
         break;
       case 'ArrowUp':
-        if (this.state().open()) {
+        if (this.state().isOpen()) {
           this.state().activatePreviousOption();
         } else {
           this.state().openDropdown();
@@ -87,19 +87,19 @@ export class NgpComboboxInput {
         event.preventDefault();
         break;
       case 'Home':
-        if (this.state().open()) {
+        if (this.state().isOpen()) {
           this.state().activeDescendantManager.first();
         }
         event.preventDefault();
         break;
       case 'End':
-        if (this.state().open()) {
+        if (this.state().isOpen()) {
           this.state().activeDescendantManager.last();
         }
         event.preventDefault();
         break;
       case 'Enter':
-        if (this.state().open()) {
+        if (this.state().isOpen()) {
           const activeId = this.state().activeDescendantManager.id();
 
           if (activeId) {

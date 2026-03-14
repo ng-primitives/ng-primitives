@@ -1,26 +1,14 @@
 import { coerceNumberProperty } from '@angular/cdk/coercion';
-import { type Placement } from '@floating-ui/dom';
+import { type FlipOptions } from '@floating-ui/dom';
 import { isNil, isObject } from 'ng-primitives/utils';
 
 /**
- * Options for configuring flip behavior to keep the floating element in view.
- * The flip middleware ensures the floating element flips to the opposite side
- * when it would otherwise overflow the viewport.
+ * Options for configuring flip behavior.
+ * Re-exports Floating UI's FlipOptions directly — includes all DetectOverflowOptions
+ * (boundary, rootBoundary, padding, elementContext, altBoundary) plus flip-specific
+ * options (mainAxis, crossAxis, fallbackPlacements, fallbackStrategy, fallbackAxisSideDirection, flipAlignment).
  */
-export interface NgpFlipOptions {
-  /**
-   * The minimum padding between the floating element and the viewport edges.
-   * Prevents the floating element from touching the edges of the viewport.
-   * @default 0
-   */
-  padding?: number;
-
-  /**
-   * Placements to try sequentially if the preferred placement does not fit.
-   * @default [oppositePlacement] (computed)
-   */
-  fallbackPlacements?: Placement[];
-}
+export type NgpFlipOptions = FlipOptions;
 
 /**
  * Type representing all valid flip values.

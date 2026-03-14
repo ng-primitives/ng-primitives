@@ -1,4 +1,147 @@
-import { CloseScrollStrategy } from './scroll-strategy';
+import { BlockScrollStrategy, CloseScrollStrategy } from './scroll-strategy';
+
+describe('BlockScrollStrategy', () => {
+  let scrollHeightSpy: jest.SpyInstance;
+
+  beforeEach(() => {
+    // jsdom has no real layout, so scrollHeight === clientHeight === 0.
+    // Mock scrollHeight to simulate scrollable overflow on the document root.
+    scrollHeightSpy = jest
+      .spyOn(document.documentElement, 'scrollHeight', 'get')
+      .mockReturnValue(2000);
+  });
+
+  afterEach(() => {
+    scrollHeightSpy.mockRestore();
+
+    // Clean up any leftover data-scrollblock attributes
+    document.querySelectorAll('[data-scrollblock]').forEach(el => {
+      el.removeAttribute('data-scrollblock');
+    });
+
+    // Reset document root styles that may leak if an assertion fails mid-test
+    const rootStyle = document.documentElement.style;
+    rootStyle.position = '';
+    rootStyle.top = '';
+    rootStyle.left = '';
+    rootStyle.width = '';
+    rootStyle.overflow = '';
+    rootStyle.overflowX = '';
+    rootStyle.overflowY = '';
+    rootStyle.scrollbarGutter = '';
+  });
+
+  it('should block scroll on the document root using position:fixed', () => {
+    const strategy = new BlockScrollStrategy(document);
+    strategy.enable();
+
+    expect(document.documentElement.style.position).toBe('fixed');
+    expect(document.documentElement.style.width).toBe('100%');
+    expect(document.documentElement.style.overflowY).toBe('scroll');
+    expect(document.documentElement.hasAttribute('data-scrollblock')).toBe(true);
+
+    strategy.disable();
+
+    expect(document.documentElement.hasAttribute('data-scrollblock')).toBe(false);
+  });
+
+  it('should not block root when there is no scrollable overflow', () => {
+    scrollHeightSpy.mockReturnValue(0);
+
+    const strategy = new BlockScrollStrategy(document);
+    strategy.enable();
+
+    expect(document.documentElement.style.position).not.toBe('fixed');
+    expect(document.documentElement.hasAttribute('data-scrollblock')).toBe(false);
+
+    strategy.disable();
+  });
+
+  it('should restore original inline styles on disable', () => {
+    const root = document.documentElement;
+    root.style.position = '';
+    root.style.overflowY = '';
+    root.style.width = '';
+    root.style.top = '';
+    root.style.left = '';
+
+    const strategy = new BlockScrollStrategy(document);
+    strategy.enable();
+
+    expect(root.style.position).toBe('fixed');
+
+    strategy.disable();
+
+    expect(root.style.position).toBe('');
+    expect(root.style.overflowY).toBe('');
+    expect(root.style.width).toBe('');
+    expect(root.style.top).toBe('');
+    expect(root.style.left).toBe('');
+  });
+
+  it('should block scroll on ancestor scrollable containers with overflow:hidden', () => {
+    const scrollableContainer = document.createElement('div');
+    scrollableContainer.style.overflow = 'auto';
+    scrollableContainer.style.height = '100px';
+    document.body.appendChild(scrollableContainer);
+
+    const trigger = document.createElement('div');
+    scrollableContainer.appendChild(trigger);
+
+    const strategy = new BlockScrollStrategy(document, trigger);
+    strategy.enable();
+
+    expect(scrollableContainer.style.overflow).toBe('hidden');
+    expect(scrollableContainer.hasAttribute('data-scrollblock')).toBe(true);
+
+    strategy.disable();
+
+    expect(scrollableContainer.style.overflow).toBe('auto');
+    expect(scrollableContainer.hasAttribute('data-scrollblock')).toBe(false);
+
+    scrollableContainer.remove();
+  });
+
+  it('should not double-enable', () => {
+    const strategy = new BlockScrollStrategy(document);
+    strategy.enable();
+    strategy.enable();
+
+    expect(document.documentElement.style.position).toBe('fixed');
+
+    strategy.disable();
+
+    expect(document.documentElement.hasAttribute('data-scrollblock')).toBe(false);
+  });
+
+  it('should be safe to call disable without enable', () => {
+    const strategy = new BlockScrollStrategy(document);
+    expect(() => strategy.disable()).not.toThrow();
+  });
+
+  it('should handle multiple enable/disable cycles', () => {
+    const strategy = new BlockScrollStrategy(document);
+
+    strategy.enable();
+    strategy.disable();
+    strategy.enable();
+
+    expect(document.documentElement.style.position).toBe('fixed');
+
+    strategy.disable();
+
+    expect(document.documentElement.hasAttribute('data-scrollblock')).toBe(false);
+  });
+
+  it('should work without a trigger element (document-only blocking)', () => {
+    const strategy = new BlockScrollStrategy(document);
+    strategy.enable();
+
+    expect(document.documentElement.style.position).toBe('fixed');
+
+    strategy.disable();
+  });
+});
 
 describe('CloseScrollStrategy', () => {
   let strategy: CloseScrollStrategy;

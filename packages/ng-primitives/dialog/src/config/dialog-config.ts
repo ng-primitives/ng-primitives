@@ -1,5 +1,5 @@
-import { ScrollStrategy } from '@angular/cdk/overlay';
 import { InjectionToken, Injector, Provider, ViewContainerRef, inject } from '@angular/core';
+import { NgpDismissGuard } from 'ng-primitives/portal';
 
 /** Valid ARIA roles for a dialog. */
 export type NgpDialogRole = 'dialog' | 'alertdialog';
@@ -20,20 +20,29 @@ export interface NgpDialogConfig<T = any> {
   /** Whether this is a modal dialog. Used to set the `aria-modal` attribute. */
   modal?: boolean;
 
-  /** Scroll strategy to be used for the dialog. This determines how the dialog responds to scrolling underneath the panel element. */
-  scrollStrategy?: ScrollStrategy;
-
   /**
    * Whether the dialog should close when the user navigates. This includes both browser history
    * navigation (back/forward) and programmatic route changes (e.g. router.navigate()).
    */
   closeOnNavigation?: boolean;
 
-  /** Whether the dialog should close when the user presses the escape key. */
-  closeOnEscape?: boolean;
+  /** Whether the dialog should close when the user presses the escape key, or a guard function. */
+  closeOnEscape?: NgpDismissGuard<KeyboardEvent>;
 
-  /** Whether the dialog should close when the user click the overlay. */
+  /** Whether the dialog should close when clicking outside (on the overlay), or a guard function. */
+  closeOnOutsideClick?: NgpDismissGuard<Element>;
+
+  /**
+   * Whether the dialog should close when the user click the overlay.
+   * @deprecated Use `closeOnOutsideClick` instead.
+   */
   closeOnClick?: boolean;
+
+  /**
+   * The container element or CSS selector to attach the dialog to.
+   * @default 'body'
+   */
+  container?: HTMLElement | string | null;
 
   data?: T;
 }

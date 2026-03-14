@@ -10,9 +10,11 @@ import {
   ViewContainerRef,
   WritableSignal,
 } from '@angular/core';
+import type { Middleware } from '@floating-ui/dom';
 import { injectElementRef } from 'ng-primitives/internal';
 import {
   createOverlay,
+  NgpDismissGuard,
   NgpFlip,
   NgpOffset,
   NgpOverlay,
@@ -43,7 +45,7 @@ export interface NgpMenuTriggerState<T = unknown> {
   /**
    * Whether the menu is open.
    */
-  readonly open: Signal<boolean>;
+  readonly isOpen: Signal<boolean>;
   /**
    * The offset of the menu.
    */
@@ -191,6 +193,26 @@ export interface NgpMenuTriggerProps<T = unknown> {
    * The delay before hiding the menu.
    */
   readonly hideDelay?: Signal<number>;
+
+  /**
+   * Whether clicking outside the menu closes it.
+   */
+  readonly closeOnOutsideClick?: Signal<NgpDismissGuard<Element>>;
+
+  /**
+   * Whether pressing Escape closes the menu.
+   */
+  readonly closeOnEscape?: Signal<NgpDismissGuard<KeyboardEvent>>;
+
+  /**
+   * Additional Floating UI middleware for custom positioning.
+   */
+  readonly middleware?: Signal<Middleware[]>;
+
+  /**
+   * Callback when the open state changes.
+   */
+  readonly onOpenChange?: (isOpen: boolean) => void;
 }
 
 export const [
@@ -213,6 +235,10 @@ export const [
     triggers = signal(['click'] as NgpMenuTriggerType[]),
     showDelay = signal(0),
     hideDelay = signal(0),
+    closeOnOutsideClick,
+    closeOnEscape,
+    middleware,
+    onOpenChange,
   }: NgpMenuTriggerProps<T>) => {
     const element = injectElementRef();
     const injector = inject(Injector);
@@ -229,7 +255,7 @@ export const [
 
     // Internal state
     const overlay = signal<NgpOverlay<T> | null>(null);
-    const open = computed(() => overlay()?.isOpen() ?? false);
+    const isOpen = computed(() => overlay()?.isOpen() ?? false);
     const openOrigin = signal<FocusOrigin>('program');
     const closeOrigin = signal<FocusOrigin>('program');
 
@@ -240,10 +266,10 @@ export const [
 
     // Reset pointer tracking when menu closes
     effect(() => {
-      const isOpen = open();
+      const menuIsOpen = isOpen();
 
       // When menu closes, reset pointer tracking state
-      if (!isOpen) {
+      if (!menuIsOpen) {
         pointerOverTrigger.set(false);
         pointerOverContent.set(false);
       }
@@ -257,8 +283,8 @@ export const [
 
     // Host bindings
     attrBinding(element, 'aria-haspopup', 'true');
-    attrBinding(element, 'aria-expanded', open);
-    dataBinding(element, 'data-open', open);
+    attrBinding(element, 'aria-expanded', isOpen);
+    dataBinding(element, 'data-open', isOpen);
     dataBinding(element, 'data-placement', placement);
 
     // Event listeners - conditionally add based on enabled triggers
@@ -290,7 +316,7 @@ export const [
       pointerOverTrigger.set(true);
 
       // If already open, cancel any pending hide
-      if (open()) {
+      if (isOpen()) {
         overlay()?.cancelPendingClose();
         return;
       }
@@ -330,7 +356,7 @@ export const [
       }
 
       // If already open, do nothing
-      if (open()) {
+      if (isOpen()) {
         return;
       }
 
@@ -371,7 +397,7 @@ export const [
       if (event.key === 'Enter' && enabledTriggers.includes('enter')) {
         event.preventDefault();
         const origin: FocusOrigin = 'keyboard';
-        if (open()) {
+        if (isOpen()) {
           hide(origin);
         } else {
           show(origin);
@@ -415,7 +441,7 @@ export const [
         shouldOpen = (isLeftArrow && !isRtl) || (isRightArrow && isRtl);
       }
 
-      if (shouldOpen && !open()) {
+      if (shouldOpen && !isOpen()) {
         event.preventDefault();
         show('keyboard');
       }
@@ -426,7 +452,7 @@ export const [
       const origin: FocusOrigin = event.detail === 0 ? 'keyboard' : 'mouse';
 
       // if the menu is open then hide it
-      if (open()) {
+      if (isOpen()) {
         hide(origin);
       } else {
         show(origin);
@@ -444,6 +470,7 @@ export const [
 
       // Show the overlay
       overlay()?.show();
+      onOpenChange?.(true);
     }
 
     function hide(origin: FocusOrigin = 'program'): void {
@@ -474,15 +501,19 @@ export const [
         placement: placement,
         offset: offset(),
         flip: flip(),
-        closeOnOutsideClick: true,
-        closeOnEscape: true,
+        closeOnOutsideClick: closeOnOutsideClick?.() ?? true,
+        closeOnEscape: closeOnEscape?.() ?? true,
         restoreFocus: shouldRestoreFocus,
-        onClose: (origin: FocusOrigin) => closeOrigin.set(origin),
+        onClose: (origin: FocusOrigin) => {
+          closeOrigin.set(origin);
+          onOpenChange?.(false);
+        },
         scrollBehaviour: scrollBehavior?.() ?? 'block',
         overlayType: 'menu',
         cooldown: cooldown?.(),
         showDelay: showDelay(),
         hideDelay: hideDelay(),
+        additionalMiddleware: middleware?.(),
       };
 
       overlay.set(createOverlay(config));
@@ -495,7 +526,7 @@ export const [
     function setDisabled(isDisabled: boolean): void {
       disabled.set(isDisabled);
 
-      if (isDisabled && open()) {
+      if (isDisabled && isOpen()) {
         hide();
       }
     }
@@ -523,7 +554,7 @@ export const [
     function setPointerOverContent(isOver: boolean): void {
       pointerOverContent.set(isOver);
 
-      if (!isOver && open() && triggers().includes('hover')) {
+      if (!isOver && isOpen() && triggers().includes('hover')) {
         // Use a small delay to allow pointer to move back to trigger
         setTimeout(() => {
           // Only hide if pointer is not over trigger or content
@@ -540,7 +571,7 @@ export const [
       offset: deprecatedSetter(offset, 'setOffset'),
       disabled: deprecatedSetter(disabled, 'setDisabled'),
       context: deprecatedSetter(context, 'setContext'),
-      open,
+      isOpen,
       openOrigin,
       show,
       hide,

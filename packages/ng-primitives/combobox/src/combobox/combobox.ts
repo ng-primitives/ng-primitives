@@ -3,17 +3,31 @@ import {
   booleanAttribute,
   computed,
   Directive,
+  effect,
   HostListener,
   inject,
   Injector,
   input,
   output,
   signal,
+  untracked,
 } from '@angular/core';
+import type { Middleware } from '@floating-ui/dom';
 import { activeDescendantManager } from 'ng-primitives/a11y';
 import { ngpInteractions } from 'ng-primitives/interactions';
 import { domSort, injectElementRef } from 'ng-primitives/internal';
-import { coerceFlip, NgpFlip, NgpFlipInput } from 'ng-primitives/portal';
+import {
+  coerceFlip,
+  NgpDismissGuard,
+  NgpFlip,
+  NgpFlipInput,
+  coerceOffset,
+  NgpOffset,
+  NgpOffsetInput,
+  coerceShift,
+  NgpShift,
+  NgpShiftInput,
+} from 'ng-primitives/portal';
 import type { NgpComboboxButton } from '../combobox-button/combobox-button';
 import type { NgpComboboxDropdown } from '../combobox-dropdown/combobox-dropdown';
 import type { NgpComboboxInput } from '../combobox-input/combobox-input';
@@ -43,7 +57,7 @@ type T = any;
   providers: [provideComboboxState()],
   host: {
     '[attr.tabindex]': 'input() ? -1 : (state.disabled() ? -1 : 0)',
-    '[attr.data-open]': 'open() ? "" : undefined',
+    '[attr.data-open]': 'isOpen() ? "" : undefined',
     '[attr.data-disabled]': 'state.disabled() ? "" : undefined',
     '[attr.data-multiple]': 'state.multiple() ? "" : undefined',
     '[attr.data-invalid]': 'controlStatus()?.invalid ? "" : undefined',
@@ -112,10 +126,49 @@ export class NgpCombobox {
     alias: 'ngpComboboxDropdownContainer',
   });
 
-  /** Whether the dropdown should flip when there is not enough space. Can be a boolean to enable/disable, or an object with padding and fallbackPlacements options. */
+  /** Whether the dropdown should flip when there is not enough space. */
   readonly flip = input<NgpFlip, NgpFlipInput>(this.config.flip, {
     alias: 'ngpComboboxDropdownFlip',
     transform: coerceFlip,
+  });
+
+  /** Define the offset from the trigger element. */
+  readonly offset = input<NgpOffset, NgpOffsetInput>(this.config.offset, {
+    alias: 'ngpComboboxDropdownOffset',
+    transform: coerceOffset,
+  });
+
+  /** Configure shift behavior to keep the dropdown in view. */
+  readonly shift = input<NgpShift, NgpShiftInput>(this.config.shift, {
+    alias: 'ngpComboboxDropdownShift',
+    transform: coerceShift,
+  });
+
+  /** Defines how the dropdown behaves when the window is scrolled. */
+  readonly scrollBehavior = input<'reposition' | 'block' | 'close'>(this.config.scrollBehavior, {
+    alias: 'ngpComboboxDropdownScrollBehavior',
+  });
+
+  /** Whether clicking outside the dropdown closes it. */
+  readonly closeOnOutsideClick = input<NgpDismissGuard<Element>>(this.config.closeOnOutsideClick, {
+    alias: 'ngpComboboxDropdownCloseOnOutsideClick',
+  });
+
+  /** Whether pressing Escape closes the dropdown. */
+  readonly closeOnEscape = input<NgpDismissGuard<KeyboardEvent>>(this.config.closeOnEscape, {
+    alias: 'ngpComboboxDropdownCloseOnEscape',
+  });
+
+  /**
+   * Controlled open state. When provided, the dropdown open state is driven by this input.
+   */
+  readonly open = input<boolean | undefined>(undefined, {
+    alias: 'ngpComboboxDropdownOpen',
+  });
+
+  /** Additional Floating UI middleware for custom positioning. */
+  readonly middleware = input<Middleware[]>(this.config.middleware, {
+    alias: 'ngpComboboxDropdownMiddleware',
   });
 
   /**
@@ -175,7 +228,7 @@ export class NgpCombobox {
    * The open state of the combobox.
    * @internal
    */
-  readonly open = computed(() => this.overlay()?.isOpen() ?? false);
+  readonly isOpen = computed(() => this.overlay()?.isOpen() ?? false);
 
   /**
    * The options sorted by their index or DOM position.
@@ -225,6 +278,19 @@ export class NgpCombobox {
       press: true,
       disabled: this.state.disabled,
     });
+
+    effect(() => {
+      const shouldBeOpen = this.state.open();
+      if (shouldBeOpen === undefined) return;
+
+      untracked(() => {
+        if (shouldBeOpen && !this.isOpen()) {
+          this.openDropdown();
+        } else if (!shouldBeOpen && this.isOpen()) {
+          this.closeDropdown();
+        }
+      });
+    });
   }
 
   /**
@@ -232,7 +298,7 @@ export class NgpCombobox {
    * @internal
    */
   async openDropdown(): Promise<void> {
-    if (this.state.disabled() || this.open()) {
+    if (this.state.disabled() || this.isOpen()) {
       return;
     }
 
@@ -273,7 +339,7 @@ export class NgpCombobox {
    * @internal
    */
   closeDropdown(): void {
-    if (!this.open()) {
+    if (!this.isOpen()) {
       return;
     }
 
@@ -289,7 +355,7 @@ export class NgpCombobox {
    * @internal
    */
   async toggleDropdown(): Promise<void> {
-    if (this.open()) {
+    if (this.isOpen()) {
       this.closeDropdown();
     } else {
       await this.openDropdown();
@@ -649,7 +715,7 @@ export class NgpCombobox {
 
     switch (event.key) {
       case 'ArrowDown':
-        if (this.open()) {
+        if (this.isOpen()) {
           this.activateNextOption();
         } else {
           this.openDropdown();
@@ -657,7 +723,7 @@ export class NgpCombobox {
         event.preventDefault();
         break;
       case 'ArrowUp':
-        if (this.open()) {
+        if (this.isOpen()) {
           this.activatePreviousOption();
         } else {
           this.openDropdown();
@@ -667,19 +733,19 @@ export class NgpCombobox {
         event.preventDefault();
         break;
       case 'Home':
-        if (this.open()) {
+        if (this.isOpen()) {
           this.activeDescendantManager.first({ origin: 'keyboard' });
         }
         event.preventDefault();
         break;
       case 'End':
-        if (this.open()) {
+        if (this.isOpen()) {
           this.activeDescendantManager.last({ origin: 'keyboard' });
         }
         event.preventDefault();
         break;
       case 'Enter':
-        if (this.open()) {
+        if (this.isOpen()) {
           const activeId = this.activeDescendantManager.id();
 
           if (activeId) {
@@ -690,7 +756,7 @@ export class NgpCombobox {
         event.preventDefault();
         break;
       case 'Escape':
-        if (this.open()) {
+        if (this.isOpen()) {
           this.closeDropdown();
         }
         event.preventDefault();

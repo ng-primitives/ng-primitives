@@ -1,158 +1,187 @@
-/**
- * This code is largely based on the CDK Overlay's scroll strategy implementation, however it
- * has been modified so that it does not rely on the CDK's global overlay styles.
- */
-import { coerceCssPixelValue } from '@angular/cdk/coercion';
-import { ViewportRuler } from '@angular/cdk/overlay';
 import { getOverflowAncestors } from '@floating-ui/dom';
-import { isFunction, isObject } from 'ng-primitives/utils';
 
 export interface ScrollStrategy {
   enable(): void;
   disable(): void;
 }
 
-/** Cached result of the check that indicates whether the browser supports scroll behaviors. */
-let scrollBehaviorSupported: boolean | undefined;
-
-export function supportsScrollBehavior(): boolean {
-  if (scrollBehaviorSupported != null) {
-    return scrollBehaviorSupported;
-  }
-
-  // If we're not in the browser, it can't be supported. Also check for `Element`, because
-  // some projects stub out the global `document` during SSR which can throw us off.
-  if (!isObject(document) || !document || !isFunction(Element) || !Element) {
-    return (scrollBehaviorSupported = false);
-  }
-
-  // If the element can have a `scrollBehavior` style, we can be sure that it's supported.
-  if ('scrollBehavior' in document.documentElement!.style) {
-    return (scrollBehaviorSupported = true);
-  }
-
-  // Check if scrollTo is supported and if it's been polyfilled
-  const scrollToFunction = Element.prototype.scrollTo;
-  if (!scrollToFunction) {
-    return (scrollBehaviorSupported = false);
-  }
-
-  // We can detect if the function has been polyfilled by calling `toString` on it. Native
-  // functions are obfuscated using `[native code]`, whereas if it was overwritten we'd get
-  // the actual function source. Via https://davidwalsh.name/detect-native-function. Consider
-  // polyfilled functions as supporting scroll behavior.
-  return (scrollBehaviorSupported = !/\{\s*\[native code\]\s*\}/.test(scrollToFunction.toString()));
+/** Saved inline styles for a single element that had its scroll blocked. */
+interface BlockedElementState {
+  element: Element;
+  overflow: string;
+  overflowX: string;
+  overflowY: string;
+  scrollbarGutter: string;
 }
 
-interface HTMLStyles {
+/** Saved state for the document root's position:fixed scroll block (iOS Safari workaround). */
+interface RootBlockState {
   top: string;
   left: string;
   position: string;
   overflowY: string;
   width: string;
+  scrollTop: number;
+  scrollLeft: number;
 }
 
+/**
+ * Blocks scroll on the document and all scrollable ancestor containers of the
+ * trigger element.
+ *
+ * For the document root (`<html>`), uses `position: fixed` + scroll-position
+ * restoration — this is required because `overflow: hidden` on the document
+ * root does not block viewport scrolling on iOS Safari.
+ *
+ * For intermediate ancestor containers, uses `overflow: hidden` +
+ * `scrollbar-gutter: stable` to prevent layout shift.
+ */
 export class BlockScrollStrategy implements ScrollStrategy {
-  private readonly previousHTMLStyles: HTMLStyles = {
-    top: '',
-    left: '',
-    position: '',
-    overflowY: '',
-    width: '',
-  };
-  private previousScrollPosition = { top: 0, left: 0 };
+  private blockedElements: BlockedElementState[] = [];
+  private rootState: RootBlockState | null = null;
   private isEnabled = false;
 
   constructor(
-    private readonly viewportRuler: ViewportRuler,
     private readonly document: Document,
+    private readonly triggerElement?: HTMLElement,
   ) {}
 
-  /** Blocks page-level scroll while the attached overlay is open. */
-  enable() {
-    if (this.canBeEnabled()) {
-      const root = this.document.documentElement!;
-
-      this.previousScrollPosition = this.viewportRuler.getViewportScrollPosition();
-
-      // Cache the previous inline styles in case the user had set them.
-      this.previousHTMLStyles.left = root.style.left || '';
-      this.previousHTMLStyles.top = root.style.top || '';
-      this.previousHTMLStyles.position = root.style.position || '';
-      this.previousHTMLStyles.overflowY = root.style.overflowY || '';
-      this.previousHTMLStyles.width = root.style.width || '';
-
-      // Set the styles to block scrolling.
-      root.style.position = 'fixed';
-
-      // Necessary for the content not to lose its width. Note that we're using 100%, instead of
-      // 100vw, because 100vw includes the width plus the scrollbar, whereas 100% is the width
-      // that the element had before we made it `fixed`.
-      root.style.width = '100%';
-
-      // Note: this will always add a scrollbar to whatever element it is on, which can
-      // potentially result in double scrollbars. It shouldn't be an issue, because we won't
-      // block scrolling on a page that doesn't have a scrollbar in the first place.
-      root.style.overflowY = 'scroll';
-
-      // Note: we're using the `html` node, instead of the `body`, because the `body` may
-      // have the user agent margin, whereas the `html` is guaranteed not to have one.
-      root.style.left = coerceCssPixelValue(-this.previousScrollPosition.left);
-      root.style.top = coerceCssPixelValue(-this.previousScrollPosition.top);
-      root.setAttribute('data-scrollblock', '');
-      this.isEnabled = true;
-    }
-  }
-
-  /** Unblocks page-level scroll while the attached overlay is open. */
-  disable(): void {
+  enable(): void {
     if (this.isEnabled) {
-      const html = this.document.documentElement!;
-      const body = this.document.body!;
-      const htmlStyle = html.style;
-      const bodyStyle = body.style;
-      const previousHtmlScrollBehavior = htmlStyle.scrollBehavior || '';
-      const previousBodyScrollBehavior = bodyStyle.scrollBehavior || '';
+      return;
+    }
 
-      this.isEnabled = false;
+    this.isEnabled = true;
 
-      htmlStyle.left = this.previousHTMLStyles.left;
-      htmlStyle.top = this.previousHTMLStyles.top;
-      htmlStyle.position = this.previousHTMLStyles.position;
-      htmlStyle.overflowY = this.previousHTMLStyles.overflowY;
-      htmlStyle.width = this.previousHTMLStyles.width;
-      html.removeAttribute('data-scrollblock');
+    // Block the document-level scroll using position:fixed (iOS Safari workaround)
+    // Only block if the page actually has scrollable overflow — otherwise we'd
+    // introduce a visible scrollbar on pages that don't need one.
+    const root = this.document.documentElement;
+    if (root && this.hasScrollableOverflow(root)) {
+      this.blockRoot(root);
+    }
 
-      // Disable user-defined smooth scrolling temporarily while we restore the scroll position.
-      // See https://developer.mozilla.org/en-US/docs/Web/CSS/scroll-behavior
-      // Note that we don't mutate the property if the browser doesn't support `scroll-behavior`,
-      // because it can throw off feature detections in `supportsScrollBehavior` which
-      // checks for `'scrollBehavior' in documentElement.style`.
-      if (scrollBehaviorSupported) {
-        htmlStyle.scrollBehavior = bodyStyle.scrollBehavior = 'auto';
-      }
-
-      window.scroll(this.previousScrollPosition.left, this.previousScrollPosition.top);
-
-      if (scrollBehaviorSupported) {
-        htmlStyle.scrollBehavior = previousHtmlScrollBehavior;
-        bodyStyle.scrollBehavior = previousBodyScrollBehavior;
+    // Block all scrollable ancestor containers of the trigger
+    if (this.triggerElement) {
+      const ancestors = getOverflowAncestors(this.triggerElement);
+      for (const ancestor of ancestors) {
+        // getOverflowAncestors returns Element | Window | VisualViewport
+        // We only need to block Element nodes (Window/document scroll is handled by the root block above)
+        if (ancestor instanceof Element && ancestor !== root) {
+          this.blockElement(ancestor);
+        }
       }
     }
   }
 
-  private canBeEnabled(): boolean {
-    // Since the scroll strategies can't be singletons, we have to use a global CSS class
-    // (`cdk-global-scrollblock`) to make sure that we don't try to disable global
-    // scrolling multiple times.
-    const html = this.document.documentElement!;
-
-    if (html.classList.contains('cdk-global-scrollblock') || this.isEnabled) {
-      return false;
+  disable(): void {
+    if (!this.isEnabled) {
+      return;
     }
 
-    const viewport = this.viewportRuler.getViewportSize();
-    return html.scrollHeight > viewport.height || html.scrollWidth > viewport.width;
+    this.isEnabled = false;
+
+    // Restore the document root
+    if (this.rootState) {
+      this.unblockRoot();
+    }
+
+    // Restore original inline styles for all blocked ancestor elements
+    for (const state of this.blockedElements) {
+      const style = (state.element as HTMLElement).style;
+      style.overflow = state.overflow;
+      style.overflowX = state.overflowX;
+      style.overflowY = state.overflowY;
+      style.scrollbarGutter = state.scrollbarGutter;
+      state.element.removeAttribute('data-scrollblock');
+    }
+
+    this.blockedElements = [];
+  }
+
+  /**
+   * Block scroll on the document root using position:fixed.
+   * This is the standard workaround for iOS Safari where overflow:hidden
+   * on the document root does not prevent viewport scrolling.
+   */
+  private blockRoot(root: HTMLElement): void {
+    const style = root.style;
+    const scrollTop = window.scrollY || this.document.documentElement.scrollTop;
+    const scrollLeft = window.scrollX || this.document.documentElement.scrollLeft;
+
+    // Cache the previous inline styles
+    this.rootState = {
+      top: style.top || '',
+      left: style.left || '',
+      position: style.position || '',
+      overflowY: style.overflowY || '',
+      width: style.width || '',
+      scrollTop,
+      scrollLeft,
+    };
+
+    // Apply position:fixed to block scrolling
+    style.position = 'fixed';
+    style.width = '100%';
+    style.overflowY = 'scroll';
+    style.top = `${-scrollTop}px`;
+    style.left = `${-scrollLeft}px`;
+    root.setAttribute('data-scrollblock', '');
+  }
+
+  /**
+   * Restore the document root to its original state and restore scroll position.
+   */
+  private unblockRoot(): void {
+    const root = this.document.documentElement;
+    const state = this.rootState!;
+    const style = root.style;
+
+    style.position = state.position;
+    style.top = state.top;
+    style.left = state.left;
+    style.overflowY = state.overflowY;
+    style.width = state.width;
+    root.removeAttribute('data-scrollblock');
+
+    // Restore scroll position
+    window.scroll(state.scrollLeft, state.scrollTop);
+
+    this.rootState = null;
+  }
+
+  /**
+   * Check whether an element has scrollable overflow (content exceeds visible area).
+   */
+  private hasScrollableOverflow(element: Element): boolean {
+    return element.scrollHeight > element.clientHeight || element.scrollWidth > element.clientWidth;
+  }
+
+  /**
+   * Block scroll on an intermediate ancestor container using overflow:hidden.
+   */
+  private blockElement(element: Element): void {
+    const style = (element as HTMLElement).style;
+
+    // Save current inline styles
+    this.blockedElements.push({
+      element,
+      overflow: style.overflow,
+      overflowX: style.overflowX,
+      overflowY: style.overflowY,
+      scrollbarGutter: style.scrollbarGutter,
+    });
+
+    // Block scroll
+    style.overflow = 'hidden';
+
+    // Only reserve scrollbar gutter space if the element actually has scrollable overflow,
+    // to avoid introducing a visible layout shift on platforms with classic scrollbars.
+    if (this.hasScrollableOverflow(element)) {
+      style.scrollbarGutter = 'stable';
+    }
+
+    element.setAttribute('data-scrollblock', '');
   }
 }
 

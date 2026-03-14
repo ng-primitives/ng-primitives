@@ -4,6 +4,7 @@ import {
   booleanAttribute,
   computed,
   Directive,
+  effect,
   inject,
   Injector,
   input,
@@ -11,12 +12,15 @@ import {
   OnDestroy,
   output,
   signal,
+  untracked,
   ViewContainerRef,
 } from '@angular/core';
+import type { Middleware } from '@floating-ui/dom';
 import { injectElementRef } from 'ng-primitives/internal';
 import {
   createOverlay,
   coerceFlip,
+  NgpDismissGuard,
   NgpFlip,
   NgpFlipInput,
   NgpOverlay,
@@ -40,8 +44,8 @@ import { popoverTriggerState, providePopoverTriggerState } from './popover-trigg
   exportAs: 'ngpPopoverTrigger',
   providers: [providePopoverTriggerState({ inherit: false })],
   host: {
-    '[attr.aria-expanded]': 'open() ? "true" : "false"',
-    '[attr.data-open]': 'open() ? "" : null',
+    '[attr.aria-expanded]': 'isOpen() ? "true" : "false"',
+    '[attr.data-open]': 'isOpen() ? "" : null',
     '[attr.data-placement]': 'state.placement()',
     '[attr.data-disabled]': 'state.disabled() ? "" : null',
     '[attr.aria-describedby]': 'overlay()?.ariaDescribedBy()',
@@ -153,18 +157,16 @@ export class NgpPopoverTrigger<T = null> implements OnDestroy {
    * Define whether the popover should close when clicking outside of it.
    * @default true
    */
-  readonly closeOnOutsideClick = input<boolean, BooleanInput>(this.config.closeOnOutsideClick, {
+  readonly closeOnOutsideClick = input<NgpDismissGuard<Element>>(this.config.closeOnOutsideClick, {
     alias: 'ngpPopoverTriggerCloseOnOutsideClick',
-    transform: booleanAttribute,
   });
 
   /**
    * Define whether the popover should close when the escape key is pressed.
    * @default true
    */
-  readonly closeOnEscape = input<boolean, BooleanInput>(this.config.closeOnEscape, {
+  readonly closeOnEscape = input<NgpDismissGuard<KeyboardEvent>>(this.config.closeOnEscape, {
     alias: 'ngpPopoverTriggerCloseOnEscape',
-    transform: booleanAttribute,
   });
 
   /**
@@ -212,16 +214,30 @@ export class NgpPopoverTrigger<T = null> implements OnDestroy {
   });
 
   /**
+   * Additional Floating UI middleware for custom positioning.
+   */
+  readonly middleware = input<Middleware[]>(this.config.middleware, {
+    alias: 'ngpPopoverTriggerMiddleware',
+  });
+
+  /**
+   * Controlled open state. When provided, the popover open state is driven by this input.
+   * Use with `openChange` to implement controlled popover behavior.
+   */
+  readonly open = input<boolean | undefined>(undefined, {
+    alias: 'ngpPopoverTriggerOpen',
+  });
+
+  /**
    * The overlay that manages the popover
    * @internal
    */
   readonly overlay = signal<NgpOverlay<T> | null>(null);
 
   /**
-   * The open state of the popover.
-   * @internal
+   * The internal open state of the popover, derived from the overlay.
    */
-  readonly open = computed(() => this.overlay()?.isOpen() ?? false);
+  readonly isOpen = computed(() => this.overlay()?.isOpen() ?? false);
 
   /**
    * Event emitted when the popover open state changes.
@@ -234,6 +250,22 @@ export class NgpPopoverTrigger<T = null> implements OnDestroy {
    * The popover trigger state.
    */
   readonly state = popoverTriggerState<NgpPopoverTrigger<T>>(this);
+
+  constructor() {
+    // Sync controlled open state to internal overlay
+    effect(() => {
+      const shouldBeOpen = this.state.open();
+      if (shouldBeOpen === undefined) return;
+
+      untracked(() => {
+        if (shouldBeOpen && !this.isOpen()) {
+          void this.show();
+        } else if (!shouldBeOpen && this.isOpen()) {
+          void this.hide();
+        }
+      });
+    });
+  }
 
   ngOnDestroy(): void {
     this.overlay()?.destroy();
@@ -249,7 +281,7 @@ export class NgpPopoverTrigger<T = null> implements OnDestroy {
     const origin: FocusOrigin = event.detail === 0 ? 'keyboard' : 'mouse';
 
     // if the popover is open then hide it
-    if (this.open()) {
+    if (this.isOpen()) {
       this.hide(origin);
     } else {
       this.show();
@@ -274,7 +306,7 @@ export class NgpPopoverTrigger<T = null> implements OnDestroy {
     // Show the overlay
     await this.overlay()?.show();
 
-    if (this.open()) {
+    if (this.isOpen()) {
       this.openChange.emit(true);
     }
   }
@@ -286,7 +318,7 @@ export class NgpPopoverTrigger<T = null> implements OnDestroy {
    */
   async hide(origin: FocusOrigin = 'program'): Promise<void> {
     // If the trigger is disabled or the popover is not open, do nothing
-    if (this.state.disabled() || !this.open()) {
+    if (this.state.disabled() || !this.isOpen()) {
       return;
     }
 
@@ -327,6 +359,7 @@ export class NgpPopoverTrigger<T = null> implements OnDestroy {
       overlayType: 'popover',
       cooldown: this.state.cooldown(),
       onClose: () => this.openChange.emit(false),
+      additionalMiddleware: this.state.middleware(),
     };
 
     this.overlay.set(createOverlay(config));

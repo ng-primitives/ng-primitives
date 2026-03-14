@@ -1,5 +1,4 @@
 import { FocusMonitor, FocusOrigin } from '@angular/cdk/a11y';
-import { ViewportRuler } from '@angular/cdk/overlay';
 import { DOCUMENT } from '@angular/common';
 import {
   DestroyRef,
@@ -24,17 +23,18 @@ import {
   autoUpdate,
   computePosition,
   flip,
+  getOverflowAncestors,
   offset,
   shift,
   size,
 } from '@floating-ui/dom';
 import { explicitEffect, fromResizeEvent } from 'ng-primitives/internal';
 import { injectDisposables, safeTakeUntilDestroyed, uniqueId } from 'ng-primitives/utils';
-import { Subject, fromEvent } from 'rxjs';
-import { debounceTime } from 'rxjs/operators';
+import { Subject } from 'rxjs';
 import { NgpFlip } from './flip';
 import { NgpOffset } from './offset';
 import { CooldownOverlay, NgpOverlayCooldownManager } from './overlay-cooldown';
+import { NgpDismissGuard, NgpOverlayRegistry } from './overlay-registry';
 import { provideOverlayContext } from './overlay-token';
 import { NgpPortal, createPortal } from './portal';
 import { NgpPosition } from './position';
@@ -161,10 +161,10 @@ export interface NgpOverlayConfig<T = unknown> {
 
   /** The scroll strategy to use for the overlay */
   scrollBehaviour?: 'reposition' | 'block' | 'close';
-  /** Whether to close the overlay when clicking outside */
-  closeOnOutsideClick?: boolean;
-  /** Whether to close the overlay when pressing escape */
-  closeOnEscape?: boolean;
+  /** Whether to close the overlay when clicking outside, or a guard function */
+  closeOnOutsideClick?: NgpDismissGuard<Element>;
+  /** Whether to close the overlay when pressing escape, or a guard function */
+  closeOnEscape?: NgpDismissGuard<KeyboardEvent>;
   /**
    * Whether to restore focus to the trigger element when hiding the overlay.
    * Can be a boolean or a signal that returns a boolean.
@@ -228,9 +228,9 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
   private readonly document = inject(DOCUMENT);
   private readonly destroyRef = inject(DestroyRef);
   private readonly viewContainerRef: ViewContainerRef;
-  private readonly viewportRuler = inject(ViewportRuler);
   private readonly focusMonitor = inject(FocusMonitor);
   private readonly cooldownManager = inject(NgpOverlayCooldownManager);
+  private readonly registry = inject(NgpOverlayRegistry);
   /** Access any parent overlays */
   private readonly parentOverlay = inject(NgpOverlay, { optional: true });
   /** Track child overlays for outside click detection */
@@ -278,6 +278,12 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
 
   /** Signal tracking whether the overlay is open */
   readonly isOpen = signal(false);
+
+  /** Whether the overlay is currently being destroyed (exit animation in progress) */
+  private isClosing = false;
+
+  /** Whether show() was called while the exit animation was in progress */
+  private closingAborted = false;
 
   /** A unique id for the overlay */
   readonly id = signal<string>(uniqueId('ngp-overlay'));
@@ -351,62 +357,6 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
         }
       });
 
-    // Register with parent overlay for outside click detection
-    if (this.parentOverlay) {
-      this.parentOverlay.registerChildOverlay(this);
-    }
-
-    // if there is a parent overlay and it is closed, close this overlay
-    this.parentOverlay?.closing
-      // we add a debounce here to ensure any dom events like clicks are processed first
-      .pipe(debounceTime(0), safeTakeUntilDestroyed(this.destroyRef))
-      .subscribe(() => {
-        if (this.isOpen()) {
-          this.hideImmediate();
-        }
-      });
-
-    // If closeOnOutsideClick is enabled, set up a click listener
-    fromEvent<MouseEvent>(this.document, 'mouseup', { capture: true })
-      .pipe(safeTakeUntilDestroyed(this.destroyRef))
-      .subscribe(event => {
-        if (!this.config.closeOnOutsideClick) {
-          return;
-        }
-
-        const overlay = this.portal();
-
-        if (!overlay || !this.isOpen()) {
-          return;
-        }
-
-        const path = event.composedPath();
-        const isInsideOverlay = overlay.getElements().some(el => path.includes(el));
-        const isInsideTrigger = path.includes(this.config.triggerElement);
-        const isInsideAnchor = this.config.anchorElement
-          ? path.includes(this.config.anchorElement)
-          : false;
-
-        if (
-          !isInsideOverlay &&
-          !isInsideTrigger &&
-          !isInsideAnchor &&
-          !this.isInsideChildOverlay(path)
-        ) {
-          this.hide();
-        }
-      });
-
-    // If closeOnEscape is enabled, set up a keydown listener
-    fromEvent<KeyboardEvent>(this.document, 'keydown', { capture: true })
-      .pipe(safeTakeUntilDestroyed(this.destroyRef))
-      .subscribe(event => {
-        if (!this.config.closeOnEscape) return;
-        if (event.key === 'Escape' && this.isOpen()) {
-          this.hide({ origin: 'keyboard', immediate: true });
-        }
-      });
-
     // Ensure cleanup on destroy
     this.destroyRef.onDestroy(() => {
       this.parentOverlay?.unregisterChildOverlay(this);
@@ -424,6 +374,12 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
       if (this.closeTimeout) {
         this.closeTimeout();
         this.closeTimeout = undefined;
+      }
+
+      // If exit animation is in progress, wait for it to complete then re-show
+      if (this.isClosing) {
+        this.closingAborted = true;
+        return;
       }
 
       // Don't proceed if already opening or open
@@ -472,6 +428,11 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
       this.closeTimeout();
       this.closeTimeout = undefined;
     }
+
+    // If exit animation is in progress, mark it as aborted so the overlay re-shows
+    if (this.isClosing) {
+      this.closingAborted = true;
+    }
   }
 
   /**
@@ -498,6 +459,9 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
     }
 
     this.closing.next();
+
+    // Close any descendant overlays (replaces the old per-instance parent closing subscription)
+    this.registry.closeDescendants(this.id());
 
     // Check cooldown BEFORE recording, then record for the next overlay
     let delay = this.config.hideDelay ?? 0;
@@ -592,6 +556,9 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
 
     // Emit closing event
     this.closing.next();
+
+    // Close any descendant overlays
+    this.registry.closeDescendants(this.id());
 
     // Update close origin and call callback (default to 'program' for immediate closes)
     this.closeOrigin.set('program');
@@ -721,10 +688,13 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
     // Update portal signal
     this.portal.set(portal);
 
-    // If instant transition is active, set data-instant attribute synchronously
-    // so CSS can use it for styling purposes
-    if (isInstant) {
-      for (const element of portal.getElements()) {
+    // Mark all portal elements so the focus-trap can identify them as allowed external targets
+    for (const element of portal.getElements()) {
+      element.setAttribute('data-ngp-portal', '');
+
+      // If instant transition is active, set data-instant attribute synchronously
+      // so CSS can use it for styling purposes
+      if (isInstant) {
         element.setAttribute('data-instant', '');
       }
     }
@@ -748,6 +718,20 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
     // Mark as open
     this.isOpen.set(true);
 
+    // Register with the overlay registry for centralized tracking
+    this.registry.register({
+      id: this.id(),
+      parentId: this.parentOverlay?.id() ?? null,
+      overlay: this,
+      getElements: () => this.getElements(),
+      triggerElement: this.config.triggerElement,
+      anchorElement: this.config.anchorElement,
+      dismissPolicy: {
+        outsidePress: this.config.closeOnOutsideClick ?? false,
+        escapeKey: this.config.closeOnEscape ?? false,
+      },
+    });
+
     // Register as active overlay for this type (skip when cooldown is bypassed)
     if (this.config.overlayType && !skipCooldown) {
       this.cooldownManager.registerActive(this.config.overlayType, this, this.config.cooldown ?? 0);
@@ -763,7 +747,7 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
   private createScrollStrategy(): ScrollStrategy {
     switch (this.config.scrollBehaviour) {
       case 'block':
-        return new BlockScrollStrategy(this.viewportRuler, this.document);
+        return new BlockScrollStrategy(this.document, this.config.triggerElement);
       case 'close':
         return new CloseScrollStrategy(
           this.config.anchorElement || this.config.triggerElement,
@@ -809,12 +793,22 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
     // Order matters: offset → flip → shift → size → arrow (per Floating UI docs)
     const middleware: Middleware[] = [offset(this.config.offset ?? 0)];
 
+    // Auto-detect overflow ancestors of the trigger element to use as boundary.
+    // This ensures flip/shift respect scroll containers, not just the viewport.
+    // Only Element ancestors are relevant (Window/VisualViewport are not valid boundaries).
+    const overflowAncestors = getOverflowAncestors(this.config.triggerElement).filter(
+      (a): a is Element => a instanceof Element,
+    );
+
     // Add flip middleware if requested
     // Flip must come before shift so that shift doesn't prevent flip from triggering
     const flipConfig = this.config.flip;
     if (flipConfig !== false) {
       const flipOptions = flipConfig === undefined || flipConfig === true ? {} : flipConfig;
-      middleware.push(flip(flipOptions));
+      // Inject overflow ancestors as boundary if the user hasn't provided an explicit one
+      const boundary =
+        flipOptions.boundary ?? (overflowAncestors.length ? overflowAncestors : undefined);
+      middleware.push(flip({ ...flipOptions, ...(boundary ? { boundary } : {}) }));
     }
 
     // Add shift middleware (enabled by default for backward compatibility)
@@ -822,7 +816,10 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
     const shiftConfig = this.config.shift;
     if (shiftConfig !== false) {
       const shiftOptions = shiftConfig === undefined || shiftConfig === true ? {} : shiftConfig;
-      middleware.push(shift(shiftOptions));
+      // Inject overflow ancestors as boundary if the user hasn't provided an explicit one
+      const boundary =
+        shiftOptions.boundary ?? (overflowAncestors.length ? overflowAncestors : undefined);
+      middleware.push(shift({ ...shiftOptions, ...(boundary ? { boundary } : {}) }));
     }
 
     // Add size middleware to expose available dimensions
@@ -905,6 +902,12 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
       return;
     }
 
+    this.isClosing = true;
+    this.closingAborted = false;
+
+    // Deregister from the overlay registry
+    this.registry.deregister(this.id());
+
     // Unregister from active overlays
     if (this.config.overlayType) {
       this.cooldownManager.unregisterActive(this.config.overlayType, this);
@@ -919,6 +922,21 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
 
     // Detach the portal (skip animations if immediate)
     await portal.detach(immediate);
+
+    this.isClosing = false;
+
+    // If show() was called while the exit animation was playing, re-show immediately
+    if (this.closingAborted) {
+      this.closingAborted = false;
+      this.isOpen.set(false);
+      this.finalPlacement.set(undefined);
+      this.instantTransition.set(false);
+      this.scrollStrategy.disable();
+      this.scrollStrategy = new NoopScrollStrategy();
+      // Re-create the overlay immediately
+      this.createOverlay();
+      return;
+    }
 
     // Mark as closed
     this.isOpen.set(false);

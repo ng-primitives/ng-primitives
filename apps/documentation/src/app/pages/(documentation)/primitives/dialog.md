@@ -68,6 +68,64 @@ ng g ng-primitives:primitive dialog
 - `file-suffix`: The suffix to apply to the generated component file name. Defaults to `component`.
 - `example-styles`: Whether to include example styles in the generated component file. Defaults to `true`.
 
+## Dismiss Guards
+
+The `closeOnEscape` and `closeOnOutsideClick` options accept either a boolean or a guard function. A guard function receives the event and returns a boolean (or `Promise<boolean>`) indicating whether the dialog should close:
+
+```ts
+this.dialogManager.open(MyDialogComponent, {
+  closeOnEscape: (event: KeyboardEvent) => {
+    // Custom logic to determine if the dialog should close
+    return !this.hasUnsavedChanges();
+  },
+  closeOnOutsideClick: (target: Element) => {
+    // Custom logic to determine if the dialog should close on outside click
+    return !this.hasUnsavedChanges();
+  },
+});
+```
+
+These options can also be set on the trigger directive:
+
+```html
+<button
+  [ngpDialogTrigger]="dialog"
+  [ngpDialogTriggerCloseOnEscape]="false"
+  [ngpDialogTriggerCloseOnOutsideClick]="false"
+  ngpButton
+>
+  Launch Dialog
+</button>
+```
+
+## Custom Container
+
+By default, dialogs are attached to the document body. You can attach a dialog to a specific container element using the `container` option. This is useful when you want to render a dialog (e.g. a drawer) inside another dialog or modal.
+
+Using the trigger directive:
+
+```html
+<button [ngpDialogTrigger]="drawer" [ngpDialogTriggerContainer]="modalElement" ngpButton>
+  Open Drawer
+</button>
+```
+
+Or with a CSS selector:
+
+```html
+<button [ngpDialogTrigger]="drawer" ngpDialogTriggerContainer="#my-modal" ngpButton>
+  Open Drawer
+</button>
+```
+
+Using the `NgpDialogManager`:
+
+```ts
+this.dialogManager.open(MyDrawerComponent, {
+  container: '#my-modal',
+});
+```
+
 ## API Reference
 
 The following directives are available to import from the `ng-primitives/dialog` package:

@@ -33,6 +33,66 @@ Assemble the popover directives in your template.
 
 You can listen to the `ngpPopoverTriggerOpenChange` event to perform actions when the popover state changes. The event emits a boolean value indicating whether the popover is open or closed:
 
+## Controlled State
+
+You can control the popover's open state externally using the `ngpPopoverTriggerOpen` input and `ngpPopoverTriggerOpenChange` output:
+
+```html
+<button
+  [ngpPopoverTrigger]="popover"
+  [ngpPopoverTriggerOpen]="isOpen()"
+  (ngpPopoverTriggerOpenChange)="isOpen.set($event)"
+>
+  Controlled Popover
+</button>
+```
+
+When `ngpPopoverTriggerOpen` is provided, the popover's open state is driven by this input. The popover will still emit `ngpPopoverTriggerOpenChange` when the user interacts with it (e.g., clicking outside), allowing you to update your state accordingly.
+
+<docs-example name="popover-controlled"></docs-example>
+
+## Dismiss Guards
+
+The `closeOnOutsideClick` and `closeOnEscape` inputs accept either a boolean or a guard function. A guard function receives the event target and returns a boolean (or a `Promise<boolean>`) indicating whether the popover should close.
+
+This is useful for implementing confirmation dialogs before closing:
+
+```ts
+private resolveGuard: ((value: boolean) => void) | null = null;
+
+readonly confirmBeforeClose = (): Promise<boolean> => {
+  return new Promise<boolean>(resolve => {
+    this.resolveGuard = resolve;
+    this.dialogManager.open(this.confirmDialog(), {
+      closeOnEscape: false,
+      closeOnOutsideClick: false,
+    });
+  });
+};
+
+// Called by dialog "Keep Editing" button
+onCancel(closeDialog: () => void): void {
+  closeDialog();
+  this.resolveGuard?.(false); // Don't close the popover
+  this.resolveGuard = null;
+}
+
+// Called by dialog "Discard" button
+onDiscard(closeDialog: () => void): void {
+  closeDialog();
+  this.resolveGuard?.(true); // Close the popover
+  this.resolveGuard = null;
+}
+```
+
+```html
+<button [ngpPopoverTrigger]="popover" [ngpPopoverTriggerCloseOnOutsideClick]="confirmBeforeClose">
+  Popover with guard
+</button>
+```
+
+<docs-example name="popover-dismiss-guard"></docs-example>
+
 ## Examples
 
 ### Custom Offset
@@ -91,6 +151,12 @@ ng g ng-primitives:primitive popover
 - `example-styles`: Whether to include example styles in the generated component file. Defaults to `true`
 
 ## Examples
+
+### Nested Overlays
+
+A popover can launch a confirmation dialog. When the dialog is open, clicking outside closes only the dialog — the popover stays open. This demonstrates correct layered dismiss behavior.
+
+<docs-example name="popover-confirmation"></docs-example>
 
 ### Popover with anchor
 
@@ -201,6 +267,7 @@ bootstrapApplication(AppComponent, {
       flip: true,
       container: document.body,
       closeOnOutsideClick: true,
+      closeOnEscape: true,
       scrollBehavior: 'reposition',
       cooldown: 0,
     }),
@@ -262,8 +329,12 @@ bootstrapApplication(AppComponent, {
   Define the container element for the popover. This is the document body by default.
 </prop-details>
 
-<prop-details name="closeOnOutsideClick" type="boolean">
-  Define whether the popover should close when clicking outside of it.
+<prop-details name="closeOnOutsideClick" type="boolean | ((target: Element) => boolean | Promise<boolean>)">
+  Define whether the popover should close when clicking outside of it. Can be a boolean or a guard function that receives the clicked element and returns whether the popover should close. The guard function can return a `Promise` for async confirmation flows.
+</prop-details>
+
+<prop-details name="closeOnEscape" type="boolean | ((event: KeyboardEvent) => boolean | Promise<boolean>)">
+  Define whether the popover should close when the escape key is pressed. Can be a boolean or a guard function that receives the keyboard event and returns whether the popover should close.
 </prop-details>
 
 <prop-details name="scrollBehavior" type="reposition | block">

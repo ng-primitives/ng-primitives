@@ -58,6 +58,24 @@ ng g ng-primitives:primitive select
 - `file-suffix`: The suffix to apply to the generated component file name. Defaults to `component`.
 - `example-styles`: Whether to include example styles in the generated component file. Defaults to `true`.
 
+## Controlled State
+
+You can control the select's open state externally using the `ngpSelectDropdownOpen` input and `ngpSelectOpenChange` output:
+
+```html
+<div ngpSelect [ngpSelectDropdownOpen]="isOpen()" (ngpSelectOpenChange)="isOpen.set($event)">
+  ...
+</div>
+```
+
+## Dismiss Guards
+
+The `closeOnOutsideClick` and `closeOnEscape` inputs accept either a boolean or a guard function:
+
+```html
+<div ngpSelect [ngpSelectDropdownCloseOnOutsideClick]="shouldClose">...</div>
+```
+
 ## Examples
 
 Here are some additional examples of how to use the Select primitives.
@@ -148,7 +166,15 @@ You can configure the default options for all selects in your application by usi
 import { provideSelectConfig } from 'ng-primitives/select';
 
 bootstrapApplication(AppComponent, {
-  providers: [provideSelectConfig({ placement: 'bottom', container: document.body, flip: true })],
+  providers: [
+    provideSelectConfig({
+      placement: 'bottom',
+      container: document.body,
+      flip: true,
+      closeOnOutsideClick: true,
+      closeOnEscape: true,
+    }),
+  ],
 });
 ```
 
@@ -164,6 +190,14 @@ bootstrapApplication(AppComponent, {
 
 <prop-details name="flip" type="boolean" default="true">
   Define whether the dropdown should flip to the opposite side when there is not enough space.
+</prop-details>
+
+<prop-details name="closeOnOutsideClick" type="boolean | ((target: Element) => boolean | Promise<boolean>)">
+  Define whether the dropdown should close when clicking outside of it. Can be a boolean or a guard function.
+</prop-details>
+
+<prop-details name="closeOnEscape" type="boolean | ((event: KeyboardEvent) => boolean | Promise<boolean>)">
+  Define whether the dropdown should close when the escape key is pressed. Can be a boolean or a guard function.
 </prop-details>
 
 ## Accessibility

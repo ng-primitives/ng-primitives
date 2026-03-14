@@ -63,6 +63,24 @@ Create a reusable component that uses the `NgpCombobox` directive.
 
 <docs-snippet name="combobox"></docs-snippet>
 
+## Controlled State
+
+You can control the combobox's open state externally using the `ngpComboboxDropdownOpen` input and `ngpComboboxOpenChange` output:
+
+```html
+<div ngpCombobox [ngpComboboxDropdownOpen]="isOpen()" (ngpComboboxOpenChange)="isOpen.set($event)">
+  ...
+</div>
+```
+
+## Dismiss Guards
+
+The `closeOnOutsideClick` and `closeOnEscape` inputs accept either a boolean or a guard function:
+
+```html
+<div ngpCombobox [ngpComboboxDropdownCloseOnOutsideClick]="shouldClose">...</div>
+```
+
 ## Examples
 
 ### Button-only Combobox
@@ -265,7 +283,15 @@ You can configure the default options for all comboboxes in your application by 
 import { provideComboboxConfig } from 'ng-primitives/combobox';
 
 bootstrapApplication(AppComponent, {
-  providers: [provideComboboxConfig({ placement: 'bottom', container: document.body, flip: true })],
+  providers: [
+    provideComboboxConfig({
+      placement: 'bottom',
+      container: document.body,
+      flip: true,
+      closeOnOutsideClick: true,
+      closeOnEscape: true,
+    }),
+  ],
 });
 ```
 
@@ -281,6 +307,14 @@ bootstrapApplication(AppComponent, {
 
 <prop-details name="flip" type="boolean" default="true">
   Define whether the dropdown should flip to the opposite side when there is not enough space.
+</prop-details>
+
+<prop-details name="closeOnOutsideClick" type="boolean | ((target: Element) => boolean | Promise<boolean>)">
+  Define whether the dropdown should close when clicking outside of it. Can be a boolean or a guard function.
+</prop-details>
+
+<prop-details name="closeOnEscape" type="boolean | ((event: KeyboardEvent) => boolean | Promise<boolean>)">
+  Define whether the dropdown should close when the escape key is pressed. Can be a boolean or a guard function.
 </prop-details>
 
 ## Accessibility
