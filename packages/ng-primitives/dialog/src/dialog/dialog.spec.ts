@@ -130,9 +130,8 @@ describe('NgpDialog', () => {
     const dialog = document.querySelector('[data-testid="dialog"]') as HTMLElement;
     dialog.click();
 
-    await waitFor(() => {
-      expect(closedSpy).not.toHaveBeenCalled();
-    });
+    await new Promise(r => setTimeout(r, 0));
+    expect(closedSpy).not.toHaveBeenCalled();
   });
 
   it('should close dialog on Escape key via overlay keydown events', async () => {
@@ -157,9 +156,8 @@ describe('NgpDialog', () => {
     const overlayHost = ref.overlayRef.overlayElement;
     overlayHost.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
 
-    await waitFor(() => {
-      expect(closedSpy).not.toHaveBeenCalled();
-    });
+    await new Promise(r => setTimeout(r, 0));
+    expect(closedSpy).not.toHaveBeenCalled();
   });
 
   it('should NOT close on overlay click when closeOnClick is false', async () => {
@@ -170,9 +168,8 @@ describe('NgpDialog', () => {
     const overlay = document.querySelector('[data-testid="overlay"]') as HTMLElement;
     overlay.click();
 
-    await waitFor(() => {
-      expect(closedSpy).not.toHaveBeenCalled();
-    });
+    await new Promise(r => setTimeout(r, 0));
+    expect(closedSpy).not.toHaveBeenCalled();
   });
 
   it('should generate unique dialog id', () => {

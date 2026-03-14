@@ -374,13 +374,13 @@ describe('NgpMenu', () => {
 
     it('should restore focus to root trigger when Escape is pressed in submenu (keyboard opened)', async () => {
       const { fixture } = await render(TestMenuWithSubmenuComponent);
-      fixture.autoDetectChanges(true);
       const trigger = fixture.debugElement.nativeElement.querySelector(
         '[data-testid="root-trigger"]',
       );
 
       // Open root menu via keyboard (detail === 0)
       fireEvent.click(trigger, { detail: 0 });
+      fixture.detectChanges();
 
       await waitFor(() => {
         expect(trigger).toHaveAttribute('data-open');
@@ -392,6 +392,7 @@ describe('NgpMenu', () => {
       ) as HTMLElement;
       submenuTrigger.focus();
       fireEvent.keyDown(submenuTrigger, { key: 'ArrowRight' });
+      fixture.detectChanges();
 
       await waitFor(() => {
         // Verify submenu is open
@@ -410,6 +411,15 @@ describe('NgpMenu', () => {
       await waitFor(() => {
         expect(trigger).not.toHaveAttribute('data-open');
       });
+
+      // Wait for focus to be restored to the root trigger.
+      // The overlay's async dispose needs extra time to complete focus restoration.
+      await waitFor(
+        () => {
+          expect(document.activeElement).toBe(trigger);
+        },
+        { timeout: 3000 },
+      );
     });
 
     it('should restore focus to root trigger when Enter is pressed on submenu item (keyboard opened)', async () => {

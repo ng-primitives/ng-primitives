@@ -237,10 +237,10 @@ describe('NgpAvatar', () => {
 
       // In test environment, images might be marked as complete even without src
       // The avatar status could be error (no src) or loaded (test environment behavior)
-      const status = avatar.getAttribute('data-status');
-      expect(['error', 'loaded']).toContain(status);
-
       await waitFor(() => {
+        const status = avatar.getAttribute('data-status');
+        expect(['error', 'loaded']).toContain(status);
+
         // Fallback visibility depends on the final status
         if (status === NgpAvatarStatus.Error) {
           expect(fallback).toBeVisible();

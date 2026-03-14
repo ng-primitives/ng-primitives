@@ -131,11 +131,14 @@ describe('NgpMenuItemRadio', () => {
     const darkRadio = document.querySelector('[data-testid="radio-dark"]');
     fireEvent.click(darkRadio!);
 
+    // Wait for the click to be processed by awaiting a positive side-effect
     await waitFor(() => {
-      // Menu should still be open
-      expect(trigger).toHaveAttribute('data-open');
-      expect(document.querySelector('[data-testid="menu"]')).toBeInTheDocument();
+      expect(darkRadio).toHaveAttribute('aria-checked', 'true');
     });
+
+    // Menu should still be open
+    expect(trigger).toHaveAttribute('data-open');
+    expect(document.querySelector('[data-testid="menu"]')).toBeInTheDocument();
   });
 
   it('should close the menu when regular item is clicked', async () => {
@@ -164,10 +167,11 @@ describe('NgpMenuItemRadio', () => {
     // Clicking the disabled radio should not select it
     fireEvent.click(disabledRadio!);
 
-    await waitFor(() => {
-      expect(disabledRadio).toHaveAttribute('aria-checked', 'false');
-      expect(selectedRadio).toHaveAttribute('aria-checked', 'true');
-    });
+    // No positive side-effect from clicking a disabled item, so use a small delay
+    await new Promise(r => setTimeout(r, 50));
+
+    expect(disabledRadio).toHaveAttribute('aria-checked', 'false');
+    expect(selectedRadio).toHaveAttribute('aria-checked', 'true');
   });
 
   it('should show indicator with data-checked for selected item', async () => {
@@ -212,9 +216,10 @@ describe('NgpMenuItemRadioGroup', () => {
     const lightRadio = document.querySelector('[data-testid="radio-light"]');
     fireEvent.click(lightRadio!);
 
-    await waitFor(() => {
-      // Theme should not have changed
-      expect(fixture.componentInstance.theme).toBe(originalTheme);
-    });
+    // No positive side-effect from clicking an already-selected item, so use a small delay
+    await new Promise(r => setTimeout(r, 50));
+
+    // Theme should not have changed
+    expect(fixture.componentInstance.theme).toBe(originalTheme);
   });
 });
