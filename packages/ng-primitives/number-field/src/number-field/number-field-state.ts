@@ -243,18 +243,36 @@ export const [
 
     function increment(multiplier: number = 1): void {
       if (!canIncrement()) return;
+      const valueBefore = value();
       commitPendingInputSilently();
-      const current = value() ?? (isFinite(min()) ? min() : 0);
+      const valueAfterCommit = value();
+      const current = valueAfterCommit ?? (isFinite(min()) ? min() : 0);
       const precision = getStepPrecision();
       setValue(roundToPrecision(current + step() * multiplier, precision));
+      // If the silent commit changed the value but setValue was a no-op
+      // (stepped result clamped back to the committed value), emit the change
+      // so the parent learns about the new value.
+      if (valueBefore !== value() && valueAfterCommit === value()) {
+        onValueChange?.(value());
+        valueChange.emit(value());
+      }
     }
 
     function decrement(multiplier: number = 1): void {
       if (!canDecrement()) return;
+      const valueBefore = value();
       commitPendingInputSilently();
-      const current = value() ?? (isFinite(max()) ? max() : 0);
+      const valueAfterCommit = value();
+      const current = valueAfterCommit ?? (isFinite(max()) ? max() : 0);
       const precision = getStepPrecision();
       setValue(roundToPrecision(current - step() * multiplier, precision));
+      // If the silent commit changed the value but setValue was a no-op
+      // (stepped result clamped back to the committed value), emit the change
+      // so the parent learns about the new value.
+      if (valueBefore !== value() && valueAfterCommit === value()) {
+        onValueChange?.(value());
+        valueChange.emit(value());
+      }
     }
 
     function setDisabled(isDisabled: boolean): void {
