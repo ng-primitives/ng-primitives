@@ -117,13 +117,15 @@ describe('NgpTooltipTrigger', () => {
 
     const trigger = getByRole('button');
 
-    fireEvent.mouseEnter(trigger);
-
+    // Wait for ResizeObserver to detect the overflow before hovering
     await new Promise(resolve => setTimeout(resolve, 100));
 
-    const tooltip = document.querySelector('[ngpTooltip]');
+    fireEvent.mouseEnter(trigger);
 
-    expect(tooltip).not.toBeInTheDocument();
+    await waitFor(() => {
+      const tooltip = document.querySelector('[ngpTooltip]');
+      expect(tooltip).toBeInTheDocument();
+    });
   });
 
   describe('useTextContent', () => {

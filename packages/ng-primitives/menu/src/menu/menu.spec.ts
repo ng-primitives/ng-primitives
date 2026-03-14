@@ -372,13 +372,10 @@ describe('NgpMenu', () => {
       });
     });
 
-    // Skip: The overlay's capture-phase Escape listener calls focusVia(rootTrigger),
-    // which triggers the submenu's focusout handler. Since the submenu's focus trap is
-    // still active (deactivated later in the bubble phase by closeAllMenus), it redirects
-    // focus back into the submenu. Then destroyOverlay removes the submenu DOM, and focus
-    // falls to document.body. With fakeAsync this worked because all microtasks resolved
-    // synchronously, but with real async the focusout handler fires while the trap is active.
-    // The sibling Enter-key test verifies focus restoration via a path without this race.
+    // Skip: Focus restoration race condition - the overlay's capture-phase Escape listener
+    // calls focusVia(rootTrigger), which triggers the submenu's focusout handler while the
+    // focus trap is still active, redirecting focus back into the submenu. The sibling
+    // Enter-key test verifies focus restoration via a path without this race.
     it.skip('should restore focus to root trigger when Escape is pressed in submenu (keyboard opened)', async () => {
       const { fixture } = await render(TestMenuWithSubmenuComponent);
       const trigger = fixture.debugElement.nativeElement.querySelector(

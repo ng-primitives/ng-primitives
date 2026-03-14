@@ -46,6 +46,10 @@ node-compile-cache
 
 vite.config.*.timestamp*
 vitest.config.*.timestamp*
+
+# Vitest browser mode artifacts
+.vitest-attachments/
+__screenshots__/
 apps/documentation/src/app/api/documentation.json
 apps/documentation/src/public/assets/llms/
 

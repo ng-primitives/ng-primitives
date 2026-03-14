@@ -21,8 +21,8 @@ describe('NgpVisuallyHidden', () => {
       expect(element.style.border).toBe('0px');
       expect(element.style.whiteSpace).toBe('nowrap');
       expect(element.style.wordWrap).toBe('normal');
-      expect(element.style.outline).toBe('0');
-      expect(element.style.insetInlineStart).toBe('0');
+      expect(element.style.outline).toBe('0px');
+      expect(element.style.insetInlineStart).toBe('0px');
     });
   });
 
@@ -44,8 +44,8 @@ describe('NgpVisuallyHidden', () => {
       expect(element.style.border).toBe('0px');
       expect(element.style.whiteSpace).toBe('nowrap');
       expect(element.style.wordWrap).toBe('normal');
-      expect(element.style.outline).toBe('0');
-      expect(element.style.insetInlineStart).toBe('0');
+      expect(element.style.outline).toBe('0px');
+      expect(element.style.insetInlineStart).toBe('0px');
       expect(element.style.color).toBe('red');
     });
   });

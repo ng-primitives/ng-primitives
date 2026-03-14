@@ -38,7 +38,7 @@ describe('NgpFileUpload', () => {
     const upload = container.getByTestId('upload');
 
     fireEvent.dragEnter(upload, {
-      dataTransfer: { files: [] },
+      dataTransfer: new DataTransfer(),
     });
 
     expect(upload).toHaveAttribute('data-dragover');
@@ -51,7 +51,7 @@ describe('NgpFileUpload', () => {
     const upload = container.getByTestId('upload');
 
     fireEvent.dragEnter(upload, {
-      dataTransfer: { files: [] },
+      dataTransfer: new DataTransfer(),
     });
     expect(upload).toHaveAttribute('data-dragover');
 
@@ -69,7 +69,7 @@ describe('NgpFileUpload', () => {
     const upload = container.getByTestId('upload');
 
     fireEvent.dragEnter(upload, {
-      dataTransfer: { files: [] },
+      dataTransfer: new DataTransfer(),
     });
 
     expect(upload).not.toHaveAttribute('data-dragover');
@@ -83,7 +83,7 @@ describe('NgpFileUpload', () => {
     const upload = container.getByTestId('upload');
 
     fireEvent.dragEnter(upload, {
-      dataTransfer: { files: [] },
+      dataTransfer: new DataTransfer(),
     });
 
     expect(upload).not.toHaveAttribute('data-dragover');
@@ -98,7 +98,7 @@ describe('NgpFileUpload', () => {
     const upload = container.getByTestId('upload');
 
     fireEvent.dragEnter(upload, {
-      dataTransfer: { files: [] },
+      dataTransfer: new DataTransfer(),
     });
 
     expect(dragOver).toHaveBeenCalledWith(true);
@@ -117,27 +117,13 @@ describe('NgpFileUpload', () => {
     const upload = container.getByTestId('upload');
 
     fireEvent.dragEnter(upload, {
-      dataTransfer: { files: [] },
+      dataTransfer: new DataTransfer(),
     });
     expect(upload).toHaveAttribute('data-dragover');
 
     fireEvent.drop(upload, {
-      dataTransfer: { files: createFileList([]) },
+      dataTransfer: new DataTransfer(),
     });
     expect(upload).not.toHaveAttribute('data-dragover');
   });
 });
-
-function createFileList(files: File[]): FileList {
-  const fileList = {
-    length: files.length,
-    item: (i: number) => files[i],
-    [Symbol.iterator]: function* () {
-      for (const file of files) yield file;
-    },
-  } as unknown as FileList;
-  files.forEach((file, i) => {
-    (fileList as any)[i] = file;
-  });
-  return fileList;
-}

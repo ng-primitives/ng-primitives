@@ -170,8 +170,7 @@ describe('NgpLabel', () => {
     const label = fixture.debugElement.nativeElement.querySelector('label');
     const input = fixture.debugElement.nativeElement.querySelector('input');
 
-    const focusSpy = vi.fn();
-    input.focus = focusSpy;
+    const focusSpy = vi.spyOn(input, 'focus');
 
     // Click label
     fireEvent.click(label);
@@ -195,10 +194,8 @@ describe('NgpLabel', () => {
     const label = fixture.debugElement.nativeElement.querySelector('label');
     const input = fixture.debugElement.nativeElement.querySelector('input');
 
-    const clickSpy = vi.fn();
-    const focusSpy = vi.fn();
-    input.click = clickSpy;
-    input.focus = focusSpy;
+    const clickSpy = vi.spyOn(input, 'click');
+    const focusSpy = vi.spyOn(input, 'focus');
 
     // Click label
     fireEvent.click(label);
@@ -223,10 +220,8 @@ describe('NgpLabel', () => {
     const label = fixture.debugElement.nativeElement.querySelector('label');
     const input = fixture.debugElement.nativeElement.querySelector('input');
 
-    const clickSpy = vi.fn();
-    const focusSpy = vi.fn();
-    input.click = clickSpy;
-    input.focus = focusSpy;
+    const clickSpy = vi.spyOn(input, 'click');
+    const focusSpy = vi.spyOn(input, 'focus');
 
     // Click label
     fireEvent.click(label);
@@ -251,10 +246,8 @@ describe('NgpLabel', () => {
     const label = fixture.debugElement.nativeElement.querySelector('label');
     const control = fixture.debugElement.nativeElement.querySelector('[role="checkbox"]');
 
-    const clickSpy = vi.fn();
-    const focusSpy = vi.fn();
-    control.click = clickSpy;
-    control.focus = focusSpy;
+    const clickSpy = vi.spyOn(control, 'click');
+    const focusSpy = vi.spyOn(control, 'focus');
 
     // Click label
     fireEvent.click(label);
@@ -279,10 +272,8 @@ describe('NgpLabel', () => {
     const label = fixture.debugElement.nativeElement.querySelector('label');
     const control = fixture.debugElement.nativeElement.querySelector('[aria-disabled]');
 
-    const clickSpy = vi.fn();
-    const focusSpy = vi.fn();
-    control.click = clickSpy;
-    control.focus = focusSpy;
+    const clickSpy = vi.spyOn(control, 'click');
+    const focusSpy = vi.spyOn(control, 'focus');
 
     // Click label
     fireEvent.click(label);

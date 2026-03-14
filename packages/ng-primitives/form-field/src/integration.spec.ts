@@ -176,10 +176,8 @@ describe('Form Field Integration Tests', () => {
     const label = fixture.debugElement.nativeElement.querySelector('label');
     const input = fixture.debugElement.nativeElement.querySelector('input');
 
-    const clickSpy = vi.fn();
-    const focusSpy = vi.fn();
-    input.click = clickSpy;
-    input.focus = focusSpy;
+    const clickSpy = vi.spyOn(input, 'click');
+    const focusSpy = vi.spyOn(input, 'focus');
 
     // Click label should trigger input click for checkbox
     fireEvent.click(label);
