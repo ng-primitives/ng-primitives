@@ -65,7 +65,8 @@
       "ng-primitives/tooltip": ["packages/ng-primitives/tooltip/src/index.ts"],
       "ng-primitives/utils": ["packages/ng-primitives/utils/src/index.ts"],
       "@ng-primitives/mcp": ["packages/mcp/src/index.ts"],
-      "ng-primitives/navigation-menu": ["packages/ng-primitives/navigation-menu/src/index.ts"]
+      "ng-primitives/navigation-menu": ["packages/ng-primitives/navigation-menu/src/index.ts"],
+      "ng-primitives/number-field": ["packages/ng-primitives/number-field/src/index.ts"]
     }
   },
   "exclude": ["node_modules", "tmp"]
