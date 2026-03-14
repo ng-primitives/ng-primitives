@@ -1,3 +1,14 @@
+## 0.112.0 (2026-03-14)
+
+### 🚀 Features
+
+- number input ([#701](https://github.com/ng-primitives/ng-primitives/pull/701), [#702](https://github.com/ng-primitives/ng-primitives/issues/702), [#703](https://github.com/ng-primitives/ng-primitives/issues/703))
+
+### ❤️ Thank You
+
+- Ashley Hunter
+- Claude
+
 ## 0.111.1 (2026-03-12)
 
 ### 🩹 Fixes
