@@ -1,9 +1,8 @@
 /**
- * This code is largely based on the CDK Overlay's scroll strategy implementation, however it
- * has been modified so that it does not rely on the CDK's global overlay styles.
+ * Originally based on Angular CDK's scroll strategy.
+ * Modified to be fully standalone with no CDK overlay dependency.
  */
 import { coerceCssPixelValue } from '@angular/cdk/coercion';
-import { ViewportRuler } from '@angular/cdk/overlay';
 import { getOverflowAncestors } from '@floating-ui/dom';
 import { isFunction, isObject } from 'ng-primitives/utils';
 
@@ -63,17 +62,14 @@ export class BlockScrollStrategy implements ScrollStrategy {
   private previousScrollPosition = { top: 0, left: 0 };
   private isEnabled = false;
 
-  constructor(
-    private readonly viewportRuler: ViewportRuler,
-    private readonly document: Document,
-  ) {}
+  constructor(private readonly document: Document) {}
 
   /** Blocks page-level scroll while the attached overlay is open. */
   enable() {
     if (this.canBeEnabled()) {
       const root = this.document.documentElement!;
 
-      this.previousScrollPosition = this.viewportRuler.getViewportScrollPosition();
+      this.previousScrollPosition = { top: window.scrollY ?? 0, left: window.scrollX ?? 0 };
 
       // Cache the previous inline styles in case the user had set them.
       this.previousHTMLStyles.left = root.style.left || '';
@@ -128,13 +124,13 @@ export class BlockScrollStrategy implements ScrollStrategy {
       // Note that we don't mutate the property if the browser doesn't support `scroll-behavior`,
       // because it can throw off feature detections in `supportsScrollBehavior` which
       // checks for `'scrollBehavior' in documentElement.style`.
-      if (scrollBehaviorSupported) {
+      if (supportsScrollBehavior()) {
         htmlStyle.scrollBehavior = bodyStyle.scrollBehavior = 'auto';
       }
 
       window.scroll(this.previousScrollPosition.left, this.previousScrollPosition.top);
 
-      if (scrollBehaviorSupported) {
+      if (supportsScrollBehavior()) {
         htmlStyle.scrollBehavior = previousHtmlScrollBehavior;
         bodyStyle.scrollBehavior = previousBodyScrollBehavior;
       }
@@ -142,17 +138,13 @@ export class BlockScrollStrategy implements ScrollStrategy {
   }
 
   private canBeEnabled(): boolean {
-    // Since the scroll strategies can't be singletons, we have to use a global CSS class
-    // (`cdk-global-scrollblock`) to make sure that we don't try to disable global
-    // scrolling multiple times.
     const html = this.document.documentElement!;
 
-    if (html.classList.contains('cdk-global-scrollblock') || this.isEnabled) {
+    if (html.hasAttribute('data-scrollblock') || this.isEnabled) {
       return false;
     }
 
-    const viewport = this.viewportRuler.getViewportSize();
-    return html.scrollHeight > viewport.height || html.scrollWidth > viewport.width;
+    return html.scrollHeight > html.clientHeight || html.scrollWidth > html.clientWidth;
   }
 }
 

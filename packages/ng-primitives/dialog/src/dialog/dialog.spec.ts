@@ -134,14 +134,14 @@ describe('NgpDialog', () => {
     expect(closedSpy).not.toHaveBeenCalled();
   });
 
-  it('should close dialog on Escape key via overlay keydown events', async () => {
+  it('should close dialog on Escape key via registry', fakeAsync(() => {
     const { ref } = openDialog();
     const closedSpy = vi.fn();
     ref.closed.subscribe(closedSpy);
 
-    // The CDK overlay captures keydown events on the overlay host element
-    const overlayHost = ref.overlayRef.overlayElement;
-    overlayHost.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
+    // The registry captures keydown events on the document
+    document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
+    flush();
 
     await waitFor(() => {
       expect(closedSpy).toHaveBeenCalled();
@@ -153,8 +153,8 @@ describe('NgpDialog', () => {
     const closedSpy = vi.fn();
     ref.closed.subscribe(closedSpy);
 
-    const overlayHost = ref.overlayRef.overlayElement;
-    overlayHost.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
+    document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
+    flush();
 
     await new Promise(r => setTimeout(r, 0));
     expect(closedSpy).not.toHaveBeenCalled();
