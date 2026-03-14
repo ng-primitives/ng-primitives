@@ -831,9 +831,7 @@ describe('Navigation Menu', () => {
       // Wait for content to be rendered, then press Escape on it
       let contentItem: HTMLElement;
       await waitFor(() => {
-        contentItem = document.querySelector(
-          '[data-testid="content-item-1"]',
-        ) as HTMLElement;
+        contentItem = document.querySelector('[data-testid="content-item-1"]') as HTMLElement;
         expect(contentItem).toBeTruthy();
       });
 

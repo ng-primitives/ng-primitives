@@ -1,16 +1,16 @@
 import { Component } from '@angular/core';
 import { computePosition } from '@floating-ui/dom';
-import { type MockInstance } from 'vitest';
 import { fireEvent, render, waitFor } from '@testing-library/angular';
+import { type MockInstance } from 'vitest';
+import { NgpMenuItem } from '../menu-item/menu-item';
+import { NgpMenuTrigger } from '../menu-trigger/menu-trigger';
+import { NgpMenu } from '../menu/menu';
+import { NgpSubmenuTrigger } from './submenu-trigger';
 
 vi.mock('@floating-ui/dom', async () => {
   const actual = await vi.importActual<typeof import('@floating-ui/dom')>('@floating-ui/dom');
   return { ...actual, computePosition: vi.fn(actual.computePosition) };
 });
-import { NgpMenuItem } from '../menu-item/menu-item';
-import { NgpMenuTrigger } from '../menu-trigger/menu-trigger';
-import { NgpMenu } from '../menu/menu';
-import { NgpSubmenuTrigger } from './submenu-trigger';
 
 @Component({
   template: `

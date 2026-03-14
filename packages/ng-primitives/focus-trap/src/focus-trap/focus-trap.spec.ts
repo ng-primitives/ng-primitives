@@ -369,7 +369,9 @@ describe('FocusTrapStack behavior', () => {
 
     await waitFor(() => {
       // Second trap should now be active
-      const trap2 = fixture.debugElement.nativeElement.querySelector('[data-testid="focus-trap-2"]');
+      const trap2 = fixture.debugElement.nativeElement.querySelector(
+        '[data-testid="focus-trap-2"]',
+      );
       expect(trap2).toHaveAttribute('data-focus-trap');
     });
   });
@@ -384,7 +386,9 @@ describe('FocusTrapStack behavior', () => {
     const trap1 = fixture.debugElement.nativeElement.querySelector('[data-testid="focus-trap-1"]');
 
     await waitFor(() => {
-      const trap2 = fixture.debugElement.nativeElement.querySelector('[data-testid="focus-trap-2"]');
+      const trap2 = fixture.debugElement.nativeElement.querySelector(
+        '[data-testid="focus-trap-2"]',
+      );
       expect(trap1).toHaveAttribute('data-focus-trap');
       expect(trap2).toHaveAttribute('data-focus-trap');
     });
@@ -407,7 +411,9 @@ describe('FocusTrapStack behavior', () => {
     fixture.detectChanges();
 
     await waitFor(() => {
-      const trap2 = fixture.debugElement.nativeElement.querySelector('[data-testid="focus-trap-2"]');
+      const trap2 = fixture.debugElement.nativeElement.querySelector(
+        '[data-testid="focus-trap-2"]',
+      );
       expect(trap2).toHaveAttribute('data-focus-trap');
     });
 
@@ -415,9 +421,15 @@ describe('FocusTrapStack behavior', () => {
     fixture.detectChanges();
 
     await waitFor(() => {
-      const trap1 = fixture.debugElement.nativeElement.querySelector('[data-testid="focus-trap-1"]');
-      const trap2 = fixture.debugElement.nativeElement.querySelector('[data-testid="focus-trap-2"]');
-      const trap3 = fixture.debugElement.nativeElement.querySelector('[data-testid="focus-trap-3"]');
+      const trap1 = fixture.debugElement.nativeElement.querySelector(
+        '[data-testid="focus-trap-1"]',
+      );
+      const trap2 = fixture.debugElement.nativeElement.querySelector(
+        '[data-testid="focus-trap-2"]',
+      );
+      const trap3 = fixture.debugElement.nativeElement.querySelector(
+        '[data-testid="focus-trap-3"]',
+      );
 
       expect(trap1).toHaveAttribute('data-focus-trap');
       expect(trap2).toHaveAttribute('data-focus-trap');
@@ -429,8 +441,12 @@ describe('FocusTrapStack behavior', () => {
     fixture.detectChanges();
 
     await waitFor(() => {
-      const trap1 = fixture.debugElement.nativeElement.querySelector('[data-testid="focus-trap-1"]');
-      const trap2 = fixture.debugElement.nativeElement.querySelector('[data-testid="focus-trap-2"]');
+      const trap1 = fixture.debugElement.nativeElement.querySelector(
+        '[data-testid="focus-trap-1"]',
+      );
+      const trap2 = fixture.debugElement.nativeElement.querySelector(
+        '[data-testid="focus-trap-2"]',
+      );
 
       // Trap 1 and 2 should still exist and have data-focus-trap
       expect(trap1).toHaveAttribute('data-focus-trap');
@@ -446,7 +462,9 @@ describe('FocusTrapStack behavior', () => {
     fixture.detectChanges();
 
     await waitFor(() => {
-      const trap2 = fixture.debugElement.nativeElement.querySelector('[data-testid="focus-trap-2"]');
+      const trap2 = fixture.debugElement.nativeElement.querySelector(
+        '[data-testid="focus-trap-2"]',
+      );
       expect(trap2).toHaveAttribute('data-focus-trap');
     });
 
@@ -456,8 +474,12 @@ describe('FocusTrapStack behavior', () => {
 
     await waitFor(() => {
       // Both traps should be removed without errors
-      const trap1 = fixture.debugElement.nativeElement.querySelector('[data-testid="focus-trap-1"]');
-      const trap2 = fixture.debugElement.nativeElement.querySelector('[data-testid="focus-trap-2"]');
+      const trap1 = fixture.debugElement.nativeElement.querySelector(
+        '[data-testid="focus-trap-1"]',
+      );
+      const trap2 = fixture.debugElement.nativeElement.querySelector(
+        '[data-testid="focus-trap-2"]',
+      );
 
       expect(trap1).toBeNull();
       expect(trap2).toBeNull();
