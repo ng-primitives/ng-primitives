@@ -110,7 +110,7 @@ describe('NgpToggleGroup', () => {
     });
 
     it('should emit valueChange on selection', async () => {
-      const onValueChange = jest.fn();
+      const onValueChange = vi.fn();
       const { getByTestId } = await render(
         `
         <div ngpToggleGroup (ngpToggleGroupValueChange)="onValueChange($event)">
@@ -213,7 +213,7 @@ describe('NgpToggleGroup', () => {
     });
 
     it('should emit valueChange on selection', async () => {
-      const onValueChange = jest.fn();
+      const onValueChange = vi.fn();
       const { getByTestId } = await render(
         `
         <div ngpToggleGroup ngpToggleGroupType="multiple" (ngpToggleGroupValueChange)="onValueChange($event)">

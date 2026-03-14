@@ -48,8 +48,13 @@ describe('NgpPromptComposerDictation', () => {
 
   beforeEach(() => {
     mockSpeechRecognition = new MockSpeechRecognition();
-    (globalThis as any).SpeechRecognition = jest.fn(() => mockSpeechRecognition);
-    (globalThis as any).webkitSpeechRecognition = jest.fn(() => mockSpeechRecognition);
+    // Use a regular function (not arrow) so it can be called with `new`
+    (globalThis as any).SpeechRecognition = function () {
+      return mockSpeechRecognition;
+    };
+    (globalThis as any).webkitSpeechRecognition = function () {
+      return mockSpeechRecognition;
+    };
   });
 
   afterEach(() => {
@@ -293,7 +298,7 @@ describe('NgpPromptComposerDictation', () => {
   });
 
   it('should handle speech recognition errors', async () => {
-    const consoleSpy = jest.spyOn(console, 'error').mockImplementation();
+    const consoleSpy = vi.spyOn(console, 'error').mockImplementation();
 
     const { fixture } = await render(
       `<div ngpThread>
@@ -345,7 +350,7 @@ describe('NgpPromptComposerDictation', () => {
     delete (globalThis as any).SpeechRecognition;
     delete (globalThis as any).webkitSpeechRecognition;
 
-    const consoleSpy = jest.spyOn(console, 'warn').mockImplementation();
+    const consoleSpy = vi.spyOn(console, 'warn').mockImplementation();
 
     await render(
       `<div ngpThread>

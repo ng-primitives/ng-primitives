@@ -4,12 +4,12 @@ import { NgpCheckbox } from './checkbox';
 describe('NgpCheckbox', () => {
   let container: RenderResult<unknown, unknown>;
   let checkbox: HTMLElement;
-  let checkedChange: jest.Mock;
-  let indeterminateChange: jest.Mock;
+  let checkedChange: ReturnType<typeof vi.fn>;
+  let indeterminateChange: ReturnType<typeof vi.fn>;
 
   beforeEach(async () => {
-    checkedChange = jest.fn();
-    indeterminateChange = jest.fn();
+    checkedChange = vi.fn();
+    indeterminateChange = vi.fn();
 
     container = await render(
       `<div
