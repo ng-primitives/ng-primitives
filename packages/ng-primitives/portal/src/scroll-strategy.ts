@@ -144,9 +144,7 @@ export class BlockScrollStrategy implements ScrollStrategy {
       return false;
     }
 
-    return (
-      html.scrollHeight > html.clientHeight || html.scrollWidth > html.clientWidth
-    );
+    return html.scrollHeight > html.clientHeight || html.scrollWidth > html.clientWidth;
   }
 }
 
