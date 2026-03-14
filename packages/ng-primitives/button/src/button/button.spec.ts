@@ -1,7 +1,7 @@
 import { FocusMonitor } from '@angular/cdk/a11y';
 import { TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
-import { fireEvent, render } from '@testing-library/angular';
+import { fireEvent, render, waitFor } from '@testing-library/angular';
 import { NgpButton } from './button';
 
 describe('NgpButton', () => {
@@ -60,8 +60,10 @@ describe('NgpButton', () => {
     expect(button).not.toHaveAttribute('disabled');
 
     await rerender({ componentProperties: { isDisabled: true } });
-    expect(button).toHaveAttribute('data-disabled');
-    expect(button).toHaveAttribute('disabled');
+    await waitFor(() => {
+      expect(button).toHaveAttribute('data-disabled');
+      expect(button).toHaveAttribute('disabled');
+    });
   });
 
   it('should add the data-hover attribute when hovered', async () => {

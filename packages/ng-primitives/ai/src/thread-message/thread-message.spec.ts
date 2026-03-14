@@ -21,12 +21,13 @@ describe('NgpThreadMessage', () => {
     const { fixture } = await render(TestComponent, {
       imports: [NgpThread, NgpThreadMessage],
     });
+    fixture.autoDetectChanges(true);
 
     const component = fixture.componentInstance;
 
     // Change content to trigger mutation observer
     component.content = 'Updated content with more text that should trigger scroll behavior';
-    fixture.detectChanges();
+    await fixture.whenStable();
 
     // Wait for mutation observer to potentially trigger
     await new Promise(resolve => setTimeout(resolve, 10));
@@ -52,20 +53,21 @@ describe('NgpThreadMessage', () => {
     const { fixture } = await render(TestComponent, {
       imports: [NgpThread, NgpThreadMessage],
     });
+    fixture.autoDetectChanges(true);
 
     const component = fixture.componentInstance;
 
     // Simulate streaming by gradually updating text content
     component.content = 'Hello w';
-    fixture.detectChanges();
+    await fixture.whenStable();
     await new Promise(resolve => setTimeout(resolve, 5));
 
     component.content = 'Hello wo';
-    fixture.detectChanges();
+    await fixture.whenStable();
     await new Promise(resolve => setTimeout(resolve, 5));
 
     component.content = 'Hello world';
-    fixture.detectChanges();
+    await fixture.whenStable();
     await new Promise(resolve => setTimeout(resolve, 5));
 
     // Test passes if no errors thrown during streaming simulation
@@ -92,12 +94,13 @@ describe('NgpThreadMessage', () => {
     const { fixture } = await render(TestComponent, {
       imports: [NgpThread, NgpThreadMessage],
     });
+    fixture.autoDetectChanges(true);
 
     const component = fixture.componentInstance;
 
     // Add new element
     component.showExtra = true;
-    fixture.detectChanges();
+    await fixture.whenStable();
 
     // Wait for mutation observer
     await new Promise(resolve => setTimeout(resolve, 10));
@@ -127,12 +130,13 @@ describe('NgpThreadMessage', () => {
     const { fixture } = await render(TestComponent, {
       imports: [NgpThread, NgpThreadMessage],
     });
+    fixture.autoDetectChanges(true);
 
     const component = fixture.componentInstance;
 
     // Change nested content
     component.nestedContent = 'Changed deeply nested content that should trigger mutation observer';
-    fixture.detectChanges();
+    await fixture.whenStable();
 
     // Wait for mutation observer
     await new Promise(resolve => setTimeout(resolve, 10));
@@ -158,6 +162,7 @@ describe('NgpThreadMessage', () => {
     const { fixture } = await render(TestComponent, {
       imports: [NgpThread, NgpThreadMessage],
     });
+    fixture.autoDetectChanges(true);
 
     const component = fixture.componentInstance;
 
@@ -166,7 +171,7 @@ describe('NgpThreadMessage', () => {
 
     // Destroy the message component
     component.showMessage = false;
-    fixture.detectChanges();
+    await fixture.whenStable();
 
     // Wait for destroy
     await new Promise(resolve => setTimeout(resolve, 10));
@@ -196,6 +201,7 @@ describe('NgpThreadMessage', () => {
     const { fixture } = await render(TestComponent, {
       imports: [NgpThread, NgpThreadMessage],
     });
+    fixture.autoDetectChanges(true);
 
     const component = fixture.componentInstance;
 
@@ -203,7 +209,7 @@ describe('NgpThreadMessage', () => {
     component.content1 = 'Updated A with more content';
     component.content2 = 'Updated B with more content';
     component.content3 = 'Updated C with more content';
-    fixture.detectChanges();
+    await fixture.whenStable();
 
     // Wait for mutation observer
     await new Promise(resolve => setTimeout(resolve, 10));
@@ -231,12 +237,13 @@ describe('NgpThreadMessage', () => {
     const { fixture } = await render(TestComponent, {
       imports: [NgpThread, NgpThreadMessage],
     });
+    fixture.autoDetectChanges(true);
 
     const component = fixture.componentInstance;
 
     // Change only attributes, not content
     component.cssClass = 'updated-class';
-    fixture.detectChanges();
+    await fixture.whenStable();
 
     // Wait to ensure no mutation observer triggers
     await new Promise(resolve => setTimeout(resolve, 10));

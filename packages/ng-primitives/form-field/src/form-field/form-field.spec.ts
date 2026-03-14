@@ -1,4 +1,3 @@
-import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { render } from '@testing-library/angular';
@@ -58,12 +57,13 @@ describe('NgpFormField', () => {
     }
 
     const { fixture } = await render(TestComponent);
+    fixture.autoDetectChanges(true);
     const formField = fixture.debugElement.nativeElement.querySelector('[ngpFormField]');
 
     // Mark as touched and dirty
     fixture.componentInstance.control.markAsTouched();
     fixture.componentInstance.control.markAsDirty();
-    fixture.detectChanges();
+    await fixture.whenStable();
 
     expect(formField).toHaveAttribute('data-touched');
     expect(formField).toHaveAttribute('data-dirty');
@@ -87,6 +87,7 @@ describe('NgpFormField', () => {
     }
 
     const { fixture } = await render(TestComponent);
+    fixture.autoDetectChanges(true);
     const formField = fixture.debugElement.nativeElement.querySelector('[ngpFormField]');
 
     // Control should be invalid due to required validator
@@ -95,7 +96,7 @@ describe('NgpFormField', () => {
 
     // Set a value to make it valid
     fixture.componentInstance.control.setValue('test');
-    fixture.detectChanges();
+    await fixture.whenStable();
 
     expect(formField).toHaveAttribute('data-valid');
     expect(formField).not.toHaveAttribute('data-invalid');
@@ -125,13 +126,17 @@ describe('NgpFormField', () => {
     @Component({
       template: `
         <div ngpFormField>
-          <label id="label-1" *ngIf="showLabel1" ngpLabel>Label 1</label>
-          <label id="label-2" *ngIf="showLabel2" ngpLabel>Label 2</label>
+          @if (showLabel1) {
+            <label id="label-1" ngpLabel>Label 1</label>
+          }
+          @if (showLabel2) {
+            <label id="label-2" ngpLabel>Label 2</label>
+          }
           <input ngpFormControl />
         </div>
       `,
       standalone: true,
-      imports: [NgpFormField, NgpLabel, NgpFormControl, CommonModule],
+      imports: [NgpFormField, NgpLabel, NgpFormControl],
     })
     class TestComponent {
       showLabel1 = true;
@@ -139,6 +144,7 @@ describe('NgpFormField', () => {
     }
 
     const { fixture } = await render(TestComponent);
+    fixture.autoDetectChanges(true);
     const input = fixture.debugElement.nativeElement.querySelector('input');
 
     // Initially should have label-1
@@ -146,19 +152,22 @@ describe('NgpFormField', () => {
 
     // Add second label
     fixture.componentInstance.showLabel2 = true;
-    fixture.detectChanges();
+    fixture.changeDetectorRef.markForCheck();
+    await fixture.whenStable();
 
     expect(input).toHaveAttribute('aria-labelledby', 'label-1 label-2');
 
     // Remove first label
     fixture.componentInstance.showLabel1 = false;
-    fixture.detectChanges();
+    fixture.changeDetectorRef.markForCheck();
+    await fixture.whenStable();
 
     expect(input).toHaveAttribute('aria-labelledby', 'label-2');
 
     // Remove second label
     fixture.componentInstance.showLabel2 = false;
-    fixture.detectChanges();
+    fixture.changeDetectorRef.markForCheck();
+    await fixture.whenStable();
 
     expect(input).not.toHaveAttribute('aria-labelledby');
   });
@@ -167,13 +176,17 @@ describe('NgpFormField', () => {
     @Component({
       template: `
         <div ngpFormField>
-          <div id="desc-1" *ngIf="showDesc1" ngpDescription>Description 1</div>
-          <div id="desc-2" *ngIf="showDesc2" ngpDescription>Description 2</div>
+          @if (showDesc1) {
+            <div id="desc-1" ngpDescription>Description 1</div>
+          }
+          @if (showDesc2) {
+            <div id="desc-2" ngpDescription>Description 2</div>
+          }
           <input ngpFormControl />
         </div>
       `,
       standalone: true,
-      imports: [NgpFormField, NgpDescription, NgpFormControl, CommonModule],
+      imports: [NgpFormField, NgpDescription, NgpFormControl],
     })
     class TestComponent {
       showDesc1 = true;
@@ -181,6 +194,7 @@ describe('NgpFormField', () => {
     }
 
     const { fixture } = await render(TestComponent);
+    fixture.autoDetectChanges(true);
     const input = fixture.debugElement.nativeElement.querySelector('input');
 
     // Initially should have desc-1
@@ -188,19 +202,22 @@ describe('NgpFormField', () => {
 
     // Add second description
     fixture.componentInstance.showDesc2 = true;
-    fixture.detectChanges();
+    fixture.changeDetectorRef.markForCheck();
+    await fixture.whenStable();
 
     expect(input).toHaveAttribute('aria-describedby', 'desc-1 desc-2');
 
     // Remove first description
     fixture.componentInstance.showDesc1 = false;
-    fixture.detectChanges();
+    fixture.changeDetectorRef.markForCheck();
+    await fixture.whenStable();
 
     expect(input).toHaveAttribute('aria-describedby', 'desc-2');
 
     // Remove second description
     fixture.componentInstance.showDesc2 = false;
-    fixture.detectChanges();
+    fixture.changeDetectorRef.markForCheck();
+    await fixture.whenStable();
 
     expect(input).not.toHaveAttribute('aria-describedby');
   });
@@ -210,17 +227,20 @@ describe('NgpFormField', () => {
       template: `
         <div ngpFormField>
           <label id="test-label" ngpLabel>Test Label</label>
-          <input id="test-control" *ngIf="showControl" ngpFormControl />
+          @if (showControl) {
+            <input id="test-control" ngpFormControl />
+          }
         </div>
       `,
       standalone: true,
-      imports: [NgpFormField, NgpLabel, NgpFormControl, CommonModule],
+      imports: [NgpFormField, NgpLabel, NgpFormControl],
     })
     class TestComponent {
       showControl = false;
     }
 
     const { fixture } = await render(TestComponent);
+    fixture.autoDetectChanges(true);
     const label = fixture.debugElement.nativeElement.querySelector('label');
 
     // Initially no form control, so no "for" attribute
@@ -228,13 +248,15 @@ describe('NgpFormField', () => {
 
     // Add form control
     fixture.componentInstance.showControl = true;
-    fixture.detectChanges();
+    fixture.changeDetectorRef.markForCheck();
+    await fixture.whenStable();
 
     expect(label).toHaveAttribute('for', 'test-control');
 
     // Remove form control
     fixture.componentInstance.showControl = false;
-    fixture.detectChanges();
+    fixture.changeDetectorRef.markForCheck();
+    await fixture.whenStable();
 
     expect(label).not.toHaveAttribute('for');
   });
@@ -284,6 +306,7 @@ describe('NgpFormField', () => {
     }
 
     const { fixture } = await render(TestComponent);
+    fixture.autoDetectChanges(true);
     const requiredError = fixture.debugElement.nativeElement.querySelector('#req-error');
     const minError = fixture.debugElement.nativeElement.querySelector('#min-error');
 
@@ -293,14 +316,14 @@ describe('NgpFormField', () => {
 
     // Set short value
     fixture.componentInstance.control.setValue('ab');
-    fixture.detectChanges();
+    await fixture.whenStable();
 
     expect(requiredError).toHaveAttribute('data-validator', 'pass');
     expect(minError).toHaveAttribute('data-validator', 'fail');
 
     // Set valid value
     fixture.componentInstance.control.setValue('valid');
-    fixture.detectChanges();
+    await fixture.whenStable();
 
     expect(requiredError).toHaveAttribute('data-validator', 'pass');
     expect(minError).toHaveAttribute('data-validator', 'pass');
@@ -329,18 +352,19 @@ describe('NgpFormField', () => {
     }
 
     const { fixture } = await render(TestComponent);
+    fixture.autoDetectChanges(true);
     const formField = fixture.debugElement.nativeElement.querySelector('[ngpFormField]');
 
     // Set a value to trigger async validation
     fixture.componentInstance.control.setValue('test');
-    fixture.detectChanges();
+    await fixture.whenStable();
 
     // Should show pending status during async validation
     expect(formField).toHaveAttribute('data-pending');
 
     // Wait for async validation to complete
     await new Promise(resolve => setTimeout(resolve, 150));
-    fixture.detectChanges();
+    await fixture.whenStable();
 
     expect(formField).not.toHaveAttribute('data-pending');
   });

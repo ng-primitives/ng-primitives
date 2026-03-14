@@ -1,4 +1,4 @@
-import { fireEvent, render } from '@testing-library/angular';
+import { fireEvent, render, waitFor } from '@testing-library/angular';
 import { NgpSliderRange } from '../slider-range/slider-range';
 import { NgpSliderThumb } from '../slider-thumb/slider-thumb';
 import { NgpSliderTrack } from '../slider-track/slider-track';
@@ -51,7 +51,9 @@ describe('NgpSlider', () => {
     expect(valueChange).not.toHaveBeenCalled();
 
     await rerender({ componentProperties: { disabled: false, valueChange } });
-    expect(thumb).toHaveAttribute('tabindex', '0');
+    await waitFor(() => {
+      expect(thumb).toHaveAttribute('tabindex', '0');
+    });
   });
 
   it('should adjust value with keyboard on thumb', async () => {

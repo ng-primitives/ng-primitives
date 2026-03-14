@@ -1,4 +1,4 @@
-import { render } from '@testing-library/angular';
+import { render, waitFor } from '@testing-library/angular';
 import { NgpTextarea } from './textarea';
 
 describe('NgpTextarea', () => {
@@ -37,8 +37,10 @@ describe('NgpTextarea', () => {
 
     await rerender({ componentProperties: { disabled: true } });
 
-    expect(textarea.hasAttribute('disabled')).toBe(true);
-    expect(textarea.getAttribute('data-disabled')).toBe('');
+    await waitFor(() => {
+      expect(textarea.hasAttribute('disabled')).toBe(true);
+      expect(textarea.getAttribute('data-disabled')).toBe('');
+    });
   });
 
   it('should set data-hover on mouseenter and remove on mouseleave', async () => {

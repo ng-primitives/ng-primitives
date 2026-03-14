@@ -44,6 +44,7 @@ describe('NgpError', () => {
     }
 
     const { fixture } = await render(TestComponent);
+    fixture.autoDetectChanges(true);
     const input = fixture.debugElement.nativeElement.querySelector('input');
 
     // Initially should be registered because control is invalid
@@ -51,14 +52,14 @@ describe('NgpError', () => {
 
     // Make control valid
     fixture.componentInstance.control.setValue('valid');
-    fixture.detectChanges();
+    await fixture.whenStable();
 
     // Should be unregistered because no error
     expect(input).not.toHaveAttribute('aria-describedby');
 
     // Make control invalid again
     fixture.componentInstance.control.setValue('');
-    fixture.detectChanges();
+    await fixture.whenStable();
 
     // Should be registered again
     expect(input).toHaveAttribute('aria-describedby', 'test-error');
@@ -80,6 +81,7 @@ describe('NgpError', () => {
     }
 
     const { fixture } = await render(TestComponent);
+    fixture.autoDetectChanges(true);
     const input = fixture.debugElement.nativeElement.querySelector('input');
 
     // Initially should show required error
@@ -87,13 +89,13 @@ describe('NgpError', () => {
 
     // Set short value (only minlength error)
     fixture.componentInstance.control.setValue('ab');
-    fixture.detectChanges();
+    await fixture.whenStable();
 
     expect(input).toHaveAttribute('aria-describedby', 'minlength-error');
 
     // Set valid value (no errors)
     fixture.componentInstance.control.setValue('valid');
-    fixture.detectChanges();
+    await fixture.whenStable();
 
     expect(input).not.toHaveAttribute('aria-describedby');
   });
@@ -113,6 +115,7 @@ describe('NgpError', () => {
     }
 
     const { fixture } = await render(TestComponent);
+    fixture.autoDetectChanges(true);
     const input = fixture.debugElement.nativeElement.querySelector('input');
 
     // Should be registered when any error exists
@@ -120,13 +123,13 @@ describe('NgpError', () => {
 
     // Set short value (still has error)
     fixture.componentInstance.control.setValue('ab');
-    fixture.detectChanges();
+    await fixture.whenStable();
 
     expect(input).toHaveAttribute('aria-describedby', 'any-error');
 
     // Set valid value (no errors)
     fixture.componentInstance.control.setValue('valid');
-    fixture.detectChanges();
+    await fixture.whenStable();
 
     expect(input).not.toHaveAttribute('aria-describedby');
   });
@@ -146,6 +149,7 @@ describe('NgpError', () => {
     }
 
     const { fixture } = await render(TestComponent);
+    fixture.autoDetectChanges(true);
     const error = fixture.debugElement.nativeElement.querySelector('[ngpError]');
 
     // Initially invalid
@@ -154,7 +158,7 @@ describe('NgpError', () => {
 
     // Set valid value
     fixture.componentInstance.control.setValue('test');
-    fixture.detectChanges();
+    await fixture.whenStable();
 
     expect(error).toHaveAttribute('data-valid');
     expect(error).not.toHaveAttribute('data-invalid');
@@ -175,6 +179,7 @@ describe('NgpError', () => {
     }
 
     const { fixture } = await render(TestComponent);
+    fixture.autoDetectChanges(true);
     const error = fixture.debugElement.nativeElement.querySelector('[ngpError]');
 
     // Initially should fail
@@ -182,7 +187,7 @@ describe('NgpError', () => {
 
     // Set valid value
     fixture.componentInstance.control.setValue('test');
-    fixture.detectChanges();
+    await fixture.whenStable();
 
     expect(error).toHaveAttribute('data-validator', 'pass');
   });
@@ -203,6 +208,7 @@ describe('NgpError', () => {
     }
 
     const { fixture } = await render(TestComponent);
+    fixture.autoDetectChanges(true);
     const input = fixture.debugElement.nativeElement.querySelector('input');
 
     // Initially should be registered with initial ID
@@ -210,7 +216,8 @@ describe('NgpError', () => {
 
     // Change ID
     fixture.componentInstance.errorId = 'new-id';
-    fixture.detectChanges();
+    fixture.changeDetectorRef.markForCheck();
+    await fixture.whenStable();
 
     expect(input).toHaveAttribute('aria-describedby', 'new-id');
   });
@@ -268,6 +275,7 @@ describe('NgpError', () => {
     }
 
     const { fixture } = await render(TestComponent);
+    fixture.autoDetectChanges(true);
     const input = fixture.debugElement.nativeElement.querySelector('input');
 
     // Initially should show required error only
@@ -275,7 +283,7 @@ describe('NgpError', () => {
 
     // Set short value (minlength + email errors may both be present)
     fixture.componentInstance.control.setValue('abc');
-    fixture.detectChanges();
+    await fixture.whenStable();
 
     // The implementation exposes all matching validator errors, so both
     // `min-error` and `email-error` will be present in aria-describedby.
@@ -283,13 +291,13 @@ describe('NgpError', () => {
 
     // Set long but invalid email
     fixture.componentInstance.control.setValue('invalid-email');
-    fixture.detectChanges();
+    await fixture.whenStable();
 
     expect(input).toHaveAttribute('aria-describedby', 'email-error');
 
     // Set valid email
     fixture.componentInstance.control.setValue('test@example.com');
-    fixture.detectChanges();
+    await fixture.whenStable();
 
     expect(input).not.toHaveAttribute('aria-describedby');
   });
@@ -312,13 +320,15 @@ describe('NgpError', () => {
     }
 
     const { fixture } = await render(TestComponent);
+    fixture.autoDetectChanges(true);
     const input = fixture.debugElement.nativeElement.querySelector('input');
 
     expect(input).toHaveAttribute('aria-describedby', 'test-error');
 
     // Destroy component
     fixture.componentInstance.showError = false;
-    fixture.detectChanges();
+    fixture.changeDetectorRef.markForCheck();
+    await fixture.whenStable();
 
     expect(input).not.toHaveAttribute('aria-describedby');
   });
@@ -346,16 +356,17 @@ describe('NgpError', () => {
     }
 
     const { fixture } = await render(TestComponent);
+    fixture.autoDetectChanges(true);
     const input = fixture.debugElement.nativeElement.querySelector('input');
     const asyncError = fixture.debugElement.nativeElement.querySelector('#async-error');
 
     // Set invalid value
     fixture.componentInstance.control.setValue('invalid');
-    fixture.detectChanges();
+    await fixture.whenStable();
 
     // Wait for async validation to complete
     await new Promise(resolve => setTimeout(resolve, 150));
-    fixture.detectChanges();
+    await fixture.whenStable();
 
     // Error should be active and included in aria-describedby
     expect(asyncError).toHaveAttribute('data-validator', 'fail');
@@ -363,10 +374,10 @@ describe('NgpError', () => {
 
     // Set valid value
     fixture.componentInstance.control.setValue('valid');
-    fixture.detectChanges();
+    await fixture.whenStable();
 
     await new Promise(resolve => setTimeout(resolve, 150));
-    fixture.detectChanges();
+    await fixture.whenStable();
 
     // Error should not be active
     expect(asyncError).toHaveAttribute('data-validator', 'pass');
