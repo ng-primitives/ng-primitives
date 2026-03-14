@@ -98,7 +98,7 @@ describe('NgpDialog', () => {
 
   it('should close dialog programmatically', fakeAsync(() => {
     const { ref } = openDialog();
-    const closedSpy = jest.fn();
+    const closedSpy = vi.fn();
     ref.closed.subscribe(closedSpy);
 
     ref.close('test-result');
@@ -109,7 +109,7 @@ describe('NgpDialog', () => {
 
   it('should close dialog when overlay is clicked', fakeAsync(() => {
     const { ref } = openDialog();
-    const closedSpy = jest.fn();
+    const closedSpy = vi.fn();
     ref.closed.subscribe(closedSpy);
 
     const overlay = document.querySelector('[data-testid="overlay"]') as HTMLElement;
@@ -121,7 +121,7 @@ describe('NgpDialog', () => {
 
   it('should NOT close on overlay click when dialog is clicked', fakeAsync(() => {
     const { ref } = openDialog();
-    const closedSpy = jest.fn();
+    const closedSpy = vi.fn();
     ref.closed.subscribe(closedSpy);
 
     const dialog = document.querySelector('[data-testid="dialog"]') as HTMLElement;
@@ -133,7 +133,7 @@ describe('NgpDialog', () => {
 
   it('should close dialog on Escape key via overlay keydown events', fakeAsync(() => {
     const { ref } = openDialog();
-    const closedSpy = jest.fn();
+    const closedSpy = vi.fn();
     ref.closed.subscribe(closedSpy);
 
     // The CDK overlay captures keydown events on the overlay host element
@@ -146,7 +146,7 @@ describe('NgpDialog', () => {
 
   it('should NOT close on Escape when closeOnEscape is false', fakeAsync(() => {
     const { ref } = openDialog({ closeOnEscape: false });
-    const closedSpy = jest.fn();
+    const closedSpy = vi.fn();
     ref.closed.subscribe(closedSpy);
 
     const overlayHost = ref.overlayRef.overlayElement;
@@ -158,7 +158,7 @@ describe('NgpDialog', () => {
 
   it('should NOT close on overlay click when closeOnClick is false', fakeAsync(() => {
     const { ref } = openDialog({ closeOnClick: false });
-    const closedSpy = jest.fn();
+    const closedSpy = vi.fn();
     ref.closed.subscribe(closedSpy);
 
     const overlay = document.querySelector('[data-testid="overlay"]') as HTMLElement;

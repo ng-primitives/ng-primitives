@@ -170,7 +170,7 @@ describe('NgpLabel', () => {
     const label = fixture.debugElement.nativeElement.querySelector('label');
     const input = fixture.debugElement.nativeElement.querySelector('input');
 
-    const focusSpy = jest.fn();
+    const focusSpy = vi.fn();
     input.focus = focusSpy;
 
     // Click label
@@ -195,8 +195,8 @@ describe('NgpLabel', () => {
     const label = fixture.debugElement.nativeElement.querySelector('label');
     const input = fixture.debugElement.nativeElement.querySelector('input');
 
-    const clickSpy = jest.fn();
-    const focusSpy = jest.fn();
+    const clickSpy = vi.fn();
+    const focusSpy = vi.fn();
     input.click = clickSpy;
     input.focus = focusSpy;
 
@@ -223,8 +223,8 @@ describe('NgpLabel', () => {
     const label = fixture.debugElement.nativeElement.querySelector('label');
     const input = fixture.debugElement.nativeElement.querySelector('input');
 
-    const clickSpy = jest.fn();
-    const focusSpy = jest.fn();
+    const clickSpy = vi.fn();
+    const focusSpy = vi.fn();
     input.click = clickSpy;
     input.focus = focusSpy;
 
@@ -251,8 +251,8 @@ describe('NgpLabel', () => {
     const label = fixture.debugElement.nativeElement.querySelector('label');
     const control = fixture.debugElement.nativeElement.querySelector('[role="checkbox"]');
 
-    const clickSpy = jest.fn();
-    const focusSpy = jest.fn();
+    const clickSpy = vi.fn();
+    const focusSpy = vi.fn();
     control.click = clickSpy;
     control.focus = focusSpy;
 
@@ -279,8 +279,8 @@ describe('NgpLabel', () => {
     const label = fixture.debugElement.nativeElement.querySelector('label');
     const control = fixture.debugElement.nativeElement.querySelector('[aria-disabled]');
 
-    const clickSpy = jest.fn();
-    const focusSpy = jest.fn();
+    const clickSpy = vi.fn();
+    const focusSpy = vi.fn();
     control.click = clickSpy;
     control.focus = focusSpy;
 

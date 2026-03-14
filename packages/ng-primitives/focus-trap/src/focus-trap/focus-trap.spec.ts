@@ -494,7 +494,7 @@ describe('Tabbable candidate filtering', () => {
     flush();
 
     const interactivityChecker = TestBed.inject(InteractivityChecker);
-    const isTabbableSpy = jest.spyOn(interactivityChecker, 'isTabbable');
+    const isTabbableSpy = vi.spyOn(interactivityChecker, 'isTabbable');
 
     const focusTrap = getByTestId('focus-trap');
     const negativeTabIndexEl = getByTestId('negative-tabindex');
@@ -522,7 +522,7 @@ describe('Tabbable candidate filtering', () => {
     flush();
 
     const interactivityChecker = TestBed.inject(InteractivityChecker);
-    const isTabbableSpy = jest.spyOn(interactivityChecker, 'isTabbable');
+    const isTabbableSpy = vi.spyOn(interactivityChecker, 'isTabbable');
 
     const focusTrap = getByTestId('focus-trap');
     const btn1 = getByTestId('btn1');
@@ -546,7 +546,7 @@ describe('Focus-in with CDK overlays and external traps', () => {
     flush();
 
     const focusMonitor = TestBed.inject(FocusMonitor);
-    const focusViaSpy = jest.spyOn(focusMonitor, 'focusVia');
+    const focusViaSpy = vi.spyOn(focusMonitor, 'focusVia');
 
     // Establish lastFocusedElement by focusing inside the trap
     fireEvent.focusIn(getByTestId('trap-btn'));
@@ -564,7 +564,7 @@ describe('Focus-in with CDK overlays and external traps', () => {
     flush();
 
     const focusMonitor = TestBed.inject(FocusMonitor);
-    const focusViaSpy = jest.spyOn(focusMonitor, 'focusVia');
+    const focusViaSpy = vi.spyOn(focusMonitor, 'focusVia');
 
     // Establish lastFocusedElement by focusing inside the trap
     fireEvent.focusIn(getByTestId('trap-btn'));
@@ -582,7 +582,7 @@ describe('Focus-in with CDK overlays and external traps', () => {
     flush();
 
     const focusMonitor = TestBed.inject(FocusMonitor);
-    const focusViaSpy = jest.spyOn(focusMonitor, 'focusVia');
+    const focusViaSpy = vi.spyOn(focusMonitor, 'focusVia');
 
     const trapBtn = getByTestId('trap-btn');
 
@@ -604,7 +604,7 @@ describe('Focus-out with CDK overlays and external traps', () => {
     flush();
 
     const focusMonitor = TestBed.inject(FocusMonitor);
-    const focusViaSpy = jest.spyOn(focusMonitor, 'focusVia');
+    const focusViaSpy = vi.spyOn(focusMonitor, 'focusVia');
 
     const trapBtn = getByTestId('trap-btn');
     const externalTrapBtn = getByTestId('external-trap-btn');
@@ -625,7 +625,7 @@ describe('Focus-out with CDK overlays and external traps', () => {
     flush();
 
     const focusMonitor = TestBed.inject(FocusMonitor);
-    const focusViaSpy = jest.spyOn(focusMonitor, 'focusVia');
+    const focusViaSpy = vi.spyOn(focusMonitor, 'focusVia');
 
     const trapBtn = getByTestId('trap-btn');
     const overlayBtn = getByTestId('overlay-btn');
@@ -646,7 +646,7 @@ describe('Focus-out with CDK overlays and external traps', () => {
     flush();
 
     const focusMonitor = TestBed.inject(FocusMonitor);
-    const focusViaSpy = jest.spyOn(focusMonitor, 'focusVia');
+    const focusViaSpy = vi.spyOn(focusMonitor, 'focusVia');
 
     const trapBtn = getByTestId('trap-btn');
     const outsideBtn = getByTestId('outside-btn');
