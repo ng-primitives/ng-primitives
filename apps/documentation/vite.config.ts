@@ -98,6 +98,7 @@ export default defineConfig(({ mode }) => {
       setupFiles: ['src/test-setup.ts'],
       include: ['**/*.spec.ts'],
       reporters: ['default'],
+      passWithNoTests: true,
     },
     define: {
       'import.meta.vitest': mode !== 'production',
