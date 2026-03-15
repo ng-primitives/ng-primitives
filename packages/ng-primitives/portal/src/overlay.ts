@@ -509,8 +509,7 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
 
     // Re-setup positioning
     const elements = portal.getElements();
-    const outletElement =
-      elements.find(el => el.hasAttribute('data-overlay')) ?? elements[0];
+    const outletElement = elements.find(el => el.hasAttribute('data-overlay')) ?? elements[0];
     if (outletElement) {
       this.setupPositioning(outletElement);
     }
@@ -521,11 +520,7 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
 
     // Re-register with cooldown if needed
     if (this.config.overlayType) {
-      this.cooldownManager.registerActive(
-        this.config.overlayType,
-        this,
-        this.config.cooldown ?? 0,
-      );
+      this.cooldownManager.registerActive(this.config.overlayType, this, this.config.cooldown ?? 0);
     }
   }
 
