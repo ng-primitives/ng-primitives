@@ -755,22 +755,29 @@ describe('NgpTooltipTrigger', () => {
   });
 
   describe('exit animation re-entry (issue #681)', () => {
-    it('should re-show tooltip when hovering back during exit animation', async () => {
+    it('should cancel exit animation and reuse tooltip when hovering back during exit', async () => {
       // Override getAnimations to simulate a long-running exit animation.
-      // The test-setup patches getAnimations to return [], but we need to
-      // return a fake animation with a pending `finished` promise when
-      // the element has data-exit, to simulate an in-progress CSS exit animation.
+      // Returns a fake Animation object with a pending `finished` promise
+      // and a `cancel()` method, simulating an in-progress CSS exit animation.
       let resolveAnimation: (() => void) | null = null;
-      let animationPromise: Promise<void> | null = null;
       let simulateExitAnimation = false;
 
       const originalGetAnimations = Element.prototype.getAnimations;
       Element.prototype.getAnimations = function () {
         if (simulateExitAnimation && this.hasAttribute('data-exit')) {
-          animationPromise = new Promise<void>(resolve => {
+          const animPromise = new Promise<void>(resolve => {
             resolveAnimation = resolve;
           });
-          return [{ finished: animationPromise }] as unknown as Animation[];
+          return [
+            {
+              finished: animPromise,
+              cancel: () => {
+                // In real browsers, cancelling an animation rejects its finished promise
+                // with an AbortError. Our mock doesn't need to do this since the
+                // cancel() in exit-animation.ts resolves the exit promise separately.
+              },
+            },
+          ] as unknown as Animation[];
         }
         return [];
       };
@@ -796,6 +803,9 @@ describe('NgpTooltipTrigger', () => {
           expect(document.querySelector('[ngpTooltip]')).toBeInTheDocument();
         });
 
+        // Capture the original tooltip element
+        const originalTooltip = document.querySelector('[ngpTooltip]');
+
         // Step 2: Enable exit animation simulation, then trigger hide
         simulateExitAnimation = true;
         fireEvent.mouseLeave(trigger);
@@ -806,21 +816,21 @@ describe('NgpTooltipTrigger', () => {
         // The exit animation should now be in progress
         expect(resolveAnimation).not.toBeNull();
 
-        // Step 3: Re-enter while exit animation is still playing
+        // Step 3: Re-enter while exit animation is still playing.
+        // This should cancel the exit animation and reuse the same overlay.
+        simulateExitAnimation = false;
         fireEvent.mouseEnter(trigger);
 
-        // Step 4: Complete the exit animation
-        simulateExitAnimation = false;
-        resolveAnimation!();
-        await animationPromise;
-
-        // Give Angular time to process
+        // Give Angular time to process the cancellation
         await new Promise(resolve => setTimeout(resolve, 100));
 
-        // Step 5: The tooltip should be visible again
+        // Step 4: The tooltip should still be visible (same element, not recreated)
         await waitFor(
           () => {
-            expect(document.querySelector('[ngpTooltip]')).toBeInTheDocument();
+            const tooltip = document.querySelector('[ngpTooltip]');
+            expect(tooltip).toBeInTheDocument();
+            // Verify it's the same DOM element (reused, not recreated)
+            expect(tooltip).toBe(originalTooltip);
           },
           { timeout: 2000 },
         );

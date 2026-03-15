@@ -51,6 +51,12 @@ export abstract class NgpPortal {
   abstract detach(immediate?: boolean): Promise<void>;
 
   /**
+   * Cancel an in-progress detach operation. If exit animations are running,
+   * they are cancelled and the portal transitions back to the enter state.
+   */
+  abstract cancelDetach(): void;
+
+  /**
    * Angular v20 removes `_unusedComponentFactoryResolver` and `_document` from DomPortalOutlet's
    * constructor signature as they have been deprecated since v18, and replaced with optional
    * `_appRef` and `_defaultInjector` params.
@@ -71,6 +77,7 @@ export class NgpComponentPortal<T> extends NgpPortal {
   private readonly componentPortal: ComponentPortal<T>;
   private viewRef: ComponentRef<T> | null = null;
   private isDestroying = false;
+  private detachCancelled = false;
   private exitAnimationRef: NgpExitAnimationRef | null = null;
 
   constructor(component: Type<T>, viewContainerRef: ViewContainerRef | null, injector: Injector) {
@@ -122,6 +129,17 @@ export class NgpComponentPortal<T> extends NgpPortal {
   }
 
   /**
+   * Cancel an in-progress detach operation.
+   */
+  cancelDetach(): void {
+    if (this.isDestroying) {
+      this.detachCancelled = true;
+      this.exitAnimationRef?.cancel();
+      this.isDestroying = false;
+    }
+  }
+
+  /**
    * Detach the portal from the DOM.
    * @param immediate If true, skip exit animations and remove immediately
    */
@@ -130,10 +148,17 @@ export class NgpComponentPortal<T> extends NgpPortal {
       return;
     }
     this.isDestroying = true;
+    this.detachCancelled = false;
 
     // Only wait for exit animation if not immediate
     if (!immediate) {
       await this.exitAnimationRef?.exit();
+    }
+
+    // If cancelled during exit animation, don't destroy
+    if (this.detachCancelled) {
+      this.detachCancelled = false;
+      return;
     }
 
     if (this.viewRef) {
@@ -148,6 +173,7 @@ export class NgpTemplatePortal<T> extends NgpPortal {
   private viewRef: EmbeddedViewRef<T> | null = null;
   private exitAnimationRefs: NgpExitAnimationRef[] = [];
   private isDestroying = false;
+  private detachCancelled = false;
 
   constructor(
     template: TemplateRef<T>,
@@ -208,6 +234,19 @@ export class NgpTemplatePortal<T> extends NgpPortal {
   }
 
   /**
+   * Cancel an in-progress detach operation.
+   */
+  cancelDetach(): void {
+    if (this.isDestroying) {
+      this.detachCancelled = true;
+      for (const ref of this.exitAnimationRefs) {
+        ref.cancel();
+      }
+      this.isDestroying = false;
+    }
+  }
+
+  /**
    * Detach the portal from the DOM.
    * @param immediate If true, skip exit animations and remove immediately
    */
@@ -217,10 +256,17 @@ export class NgpTemplatePortal<T> extends NgpPortal {
     }
 
     this.isDestroying = true;
+    this.detachCancelled = false;
 
     // Only wait for exit animations if not immediate
     if (!immediate) {
       await Promise.all(this.exitAnimationRefs.map(ref => ref.exit()));
+    }
+
+    // If cancelled during exit animation, don't destroy
+    if (this.detachCancelled) {
+      this.detachCancelled = false;
+      return;
     }
 
     if (this.viewRef) {

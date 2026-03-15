@@ -39,6 +39,8 @@ interface NgpExitAnimationOptions {
 export interface NgpExitAnimationRef {
   /** Mark the element as exiting and wait for the animation to finish. */
   exit: () => Promise<void>;
+  /** Cancel an in-progress exit animation and transition back to enter state. */
+  cancel: () => void;
 }
 
 export function setupExitAnimation({
@@ -46,6 +48,7 @@ export function setupExitAnimation({
   immediate,
 }: NgpExitAnimationOptions): NgpExitAnimationRef {
   let state: 'enter' | 'exit' = 'enter';
+  let exitResolve: (() => void) | null = null;
 
   function setState(newState: 'enter' | 'exit') {
     state = newState;
@@ -72,6 +75,7 @@ export function setupExitAnimation({
   return {
     exit: () => {
       return new Promise((resolve, reject) => {
+        exitResolve = resolve;
         setState('exit');
 
         const animations = element.getAnimations();
@@ -79,8 +83,12 @@ export function setupExitAnimation({
         // Wait for the exit animations to finish
         if (animations.length > 0) {
           Promise.all(animations.map(anim => anim.finished))
-            .then(() => resolve())
+            .then(() => {
+              exitResolve = null;
+              resolve();
+            })
             .catch(err => {
+              exitResolve = null;
               // AbortError is expected when element is removed during animation
               // e.g. when the user navigates away to another page
               // Note: Animation.finished can reject with DOMException which may not pass instanceof Error
@@ -91,9 +99,26 @@ export function setupExitAnimation({
               }
             });
         } else {
+          exitResolve = null;
           resolve();
         }
       });
+    },
+    cancel: () => {
+      if (state === 'exit') {
+        // Cancel any running animations
+        const animations = element.getAnimations();
+        for (const anim of animations) {
+          anim.cancel();
+        }
+        // Transition back to enter state
+        setState('enter');
+        // Resolve the pending exit promise so detach() completes
+        if (exitResolve) {
+          exitResolve();
+          exitResolve = null;
+        }
+      }
     },
   };
 }

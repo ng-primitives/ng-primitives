@@ -276,6 +276,9 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
   /** Timeout handle for hiding the overlay */
   private closeTimeout?: () => void;
 
+  /** Portal currently being destroyed (for cancel support during exit animations) */
+  private destroyingPortal: NgpPortal | null = null;
+
   /** Signal tracking whether the overlay is open */
   readonly isOpen = signal(false);
 
@@ -426,6 +429,14 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
         this.closeTimeout = undefined;
       }
 
+      // If destruction is in progress (exit animation running), cancel it
+      // and reuse the existing overlay instead of creating a new one.
+      if (this.destroyingPortal) {
+        this.cancelDestruction();
+        resolve();
+        return;
+      }
+
       // Don't proceed if already opening or open
       if (this.openTimeout || this.isOpen()) {
         return;
@@ -471,6 +482,50 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
     if (this.closeTimeout) {
       this.closeTimeout();
       this.closeTimeout = undefined;
+    }
+
+    // Also cancel in-progress destruction (exit animation running)
+    if (this.destroyingPortal) {
+      this.cancelDestruction();
+    }
+  }
+
+  /**
+   * Cancel an in-progress overlay destruction. This cancels exit animations,
+   * restores the portal, and re-enables positioning and scroll strategy.
+   * Used when show() or cancelPendingClose() is called during exit animation.
+   */
+  private cancelDestruction(): void {
+    const portal = this.destroyingPortal;
+    if (!portal) {
+      return;
+    }
+
+    this.destroyingPortal = null;
+    portal.cancelDetach();
+
+    // Restore the portal
+    this.portal.set(portal);
+
+    // Re-setup positioning
+    const elements = portal.getElements();
+    const outletElement =
+      elements.find(el => el.hasAttribute('data-overlay')) ?? elements[0];
+    if (outletElement) {
+      this.setupPositioning(outletElement);
+    }
+
+    // Re-enable scroll strategy
+    this.scrollStrategy = this.createScrollStrategy();
+    this.scrollStrategy.enable();
+
+    // Re-register with cooldown if needed
+    if (this.config.overlayType) {
+      this.cooldownManager.registerActive(
+        this.config.overlayType,
+        this,
+        this.config.cooldown ?? 0,
+      );
     }
   }
 
@@ -917,11 +972,9 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
     this.disposePositioning?.();
     this.disposePositioning = undefined;
 
-    // Mark as closed BEFORE waiting for exit animations. This allows show()
-    // to create a new overlay while the old one animates out, fixing the issue
-    // where re-hovering during an exit animation would be ignored because
-    // isOpen was still true. (See: https://github.com/ng-primitives/ng-primitives/issues/681)
-    this.isOpen.set(false);
+    // Track the destroying portal so cancelDestruction() can restore it
+    // if show() is called during the exit animation.
+    this.destroyingPortal = portal;
 
     // Reset final placement
     this.finalPlacement.set(undefined);
@@ -933,10 +986,16 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
     this.scrollStrategy.disable();
     this.scrollStrategy = new NoopScrollStrategy();
 
-    // Detach the portal (skip animations if immediate). This runs after
-    // state cleanup so that a concurrent show() call sees the overlay as
-    // closed and can create a new one while the exit animation completes.
+    // Detach the portal (waits for exit animations unless immediate).
+    // During this await, cancelDestruction() may be called if the user
+    // re-hovers the trigger. (See: https://github.com/ng-primitives/ng-primitives/issues/681)
     await portal.detach(immediate);
+
+    // Only mark as closed if destruction was not cancelled
+    if (this.destroyingPortal === portal) {
+      this.destroyingPortal = null;
+      this.isOpen.set(false);
+    }
   }
 
   /**
