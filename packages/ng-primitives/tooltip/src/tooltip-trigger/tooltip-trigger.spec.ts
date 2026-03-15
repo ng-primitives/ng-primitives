@@ -849,9 +849,7 @@ describe('NgpTooltipTrigger', () => {
           const animPromise = new Promise<void>(resolve => {
             resolveAnimation = resolve;
           });
-          return [
-            { finished: animPromise, cancel: () => {} },
-          ] as unknown as Animation[];
+          return [{ finished: animPromise, cancel: () => {} }] as unknown as Animation[];
         }
         return [];
       };
@@ -913,9 +911,7 @@ describe('NgpTooltipTrigger', () => {
           const animPromise = new Promise<void>(resolve => {
             resolveAnimation = resolve;
           });
-          return [
-            { finished: animPromise, cancel: () => {} },
-          ] as unknown as Animation[];
+          return [{ finished: animPromise, cancel: () => {} }] as unknown as Animation[];
         }
         return [];
       };
@@ -978,9 +974,7 @@ describe('NgpTooltipTrigger', () => {
           const animPromise = new Promise<void>(resolve => {
             resolveAnimation = resolve;
           });
-          return [
-            { finished: animPromise, cancel: () => {} },
-          ] as unknown as Animation[];
+          return [{ finished: animPromise, cancel: () => {} }] as unknown as Animation[];
         }
         return [];
       };
