@@ -838,6 +838,198 @@ describe('NgpTooltipTrigger', () => {
         Element.prototype.getAnimations = originalGetAnimations;
       }
     });
+
+    it('should still hide normally after a cancelled exit animation', async () => {
+      let resolveAnimation: (() => void) | null = null;
+      let simulateExitAnimation = false;
+
+      const originalGetAnimations = Element.prototype.getAnimations;
+      Element.prototype.getAnimations = function () {
+        if (simulateExitAnimation && this.hasAttribute('data-exit')) {
+          const animPromise = new Promise<void>(resolve => {
+            resolveAnimation = resolve;
+          });
+          return [
+            { finished: animPromise, cancel: () => {} },
+          ] as unknown as Animation[];
+        }
+        return [];
+      };
+
+      try {
+        const { getByRole } = await render(
+          `
+            <button [ngpTooltipTrigger]="content" ngpTooltipTriggerHideDelay="0"></button>
+            <ng-template #content>
+              <div ngpTooltip>Tooltip content</div>
+            </ng-template>
+          `,
+          {
+            imports: [NgpTooltipTrigger, NgpTooltip],
+          },
+        );
+
+        const trigger = getByRole('button');
+
+        // Show tooltip
+        fireEvent.mouseEnter(trigger);
+        await waitFor(() => {
+          expect(document.querySelector('[ngpTooltip]')).toBeInTheDocument();
+        });
+
+        // Start exit animation, then cancel by re-entering
+        simulateExitAnimation = true;
+        fireEvent.mouseLeave(trigger);
+        await new Promise(resolve => setTimeout(resolve, 50));
+        expect(resolveAnimation).not.toBeNull();
+
+        simulateExitAnimation = false;
+        fireEvent.mouseEnter(trigger);
+        await new Promise(resolve => setTimeout(resolve, 100));
+
+        // Tooltip should be visible after cancel
+        expect(document.querySelector('[ngpTooltip]')).toBeInTheDocument();
+
+        // Now hide normally (no exit animation)
+        fireEvent.mouseLeave(trigger);
+        await waitFor(
+          () => {
+            expect(document.querySelector('[ngpTooltip]')).not.toBeInTheDocument();
+          },
+          { timeout: 2000 },
+        );
+      } finally {
+        Element.prototype.getAnimations = originalGetAnimations;
+      }
+    });
+
+    it('should preserve data-open on trigger during exit animation', async () => {
+      let resolveAnimation: (() => void) | null = null;
+      let simulateExitAnimation = false;
+
+      const originalGetAnimations = Element.prototype.getAnimations;
+      Element.prototype.getAnimations = function () {
+        if (simulateExitAnimation && this.hasAttribute('data-exit')) {
+          const animPromise = new Promise<void>(resolve => {
+            resolveAnimation = resolve;
+          });
+          return [
+            { finished: animPromise, cancel: () => {} },
+          ] as unknown as Animation[];
+        }
+        return [];
+      };
+
+      try {
+        const { getByRole } = await render(
+          `
+            <button [ngpTooltipTrigger]="content" ngpTooltipTriggerHideDelay="0"></button>
+            <ng-template #content>
+              <div ngpTooltip>Tooltip content</div>
+            </ng-template>
+          `,
+          {
+            imports: [NgpTooltipTrigger, NgpTooltip],
+          },
+        );
+
+        const trigger = getByRole('button');
+
+        // Show tooltip
+        fireEvent.mouseEnter(trigger);
+        await waitFor(() => {
+          expect(document.querySelector('[ngpTooltip]')).toBeInTheDocument();
+          expect(trigger.getAttribute('data-open')).toBe('');
+        });
+
+        // Start exit animation
+        simulateExitAnimation = true;
+        fireEvent.mouseLeave(trigger);
+        await new Promise(resolve => setTimeout(resolve, 50));
+        expect(resolveAnimation).not.toBeNull();
+
+        // data-open should remain on trigger during exit animation
+        // (the tooltip is still visible, just animating out)
+        expect(trigger.getAttribute('data-open')).toBe('');
+
+        // Complete the exit animation
+        simulateExitAnimation = false;
+        resolveAnimation!();
+
+        // Now data-open should be removed after exit animation completes
+        await waitFor(
+          () => {
+            expect(trigger.getAttribute('data-open')).toBeNull();
+          },
+          { timeout: 2000 },
+        );
+      } finally {
+        Element.prototype.getAnimations = originalGetAnimations;
+      }
+    });
+
+    it('should show tooltip again after normal hide completes', async () => {
+      let resolveAnimation: (() => void) | null = null;
+      let simulateExitAnimation = false;
+
+      const originalGetAnimations = Element.prototype.getAnimations;
+      Element.prototype.getAnimations = function () {
+        if (simulateExitAnimation && this.hasAttribute('data-exit')) {
+          const animPromise = new Promise<void>(resolve => {
+            resolveAnimation = resolve;
+          });
+          return [
+            { finished: animPromise, cancel: () => {} },
+          ] as unknown as Animation[];
+        }
+        return [];
+      };
+
+      try {
+        const { getByRole } = await render(
+          `
+            <button [ngpTooltipTrigger]="content" ngpTooltipTriggerHideDelay="0"></button>
+            <ng-template #content>
+              <div ngpTooltip>Tooltip content</div>
+            </ng-template>
+          `,
+          {
+            imports: [NgpTooltipTrigger, NgpTooltip],
+          },
+        );
+
+        const trigger = getByRole('button');
+
+        // Show tooltip
+        fireEvent.mouseEnter(trigger);
+        await waitFor(() => {
+          expect(document.querySelector('[ngpTooltip]')).toBeInTheDocument();
+        });
+
+        // Hide with exit animation (let it complete)
+        simulateExitAnimation = true;
+        fireEvent.mouseLeave(trigger);
+        await new Promise(resolve => setTimeout(resolve, 50));
+        expect(resolveAnimation).not.toBeNull();
+
+        simulateExitAnimation = false;
+        resolveAnimation!();
+        await waitFor(
+          () => {
+            expect(document.querySelector('[ngpTooltip]')).not.toBeInTheDocument();
+          },
+          { timeout: 2000 },
+        );
+
+        // Show again — should work normally
+        fireEvent.mouseEnter(trigger);
+        await waitFor(() => {
+          expect(document.querySelector('[ngpTooltip]')).toBeInTheDocument();
+        });
+      } finally {
+        Element.prototype.getAnimations = originalGetAnimations;
+      }
+    });
   });
 
   describe('position', () => {

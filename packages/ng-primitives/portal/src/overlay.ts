@@ -971,12 +971,6 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
     // if show() is called during the exit animation.
     this.destroyingPortal = portal;
 
-    // Reset final placement
-    this.finalPlacement.set(undefined);
-
-    // Reset instant transition flag
-    this.instantTransition.set(false);
-
     // disable scroll strategy
     this.scrollStrategy.disable();
     this.scrollStrategy = new NoopScrollStrategy();
@@ -986,10 +980,14 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
     // re-hovers the trigger. (See: https://github.com/ng-primitives/ng-primitives/issues/681)
     await portal.detach(immediate);
 
-    // Only mark as closed if destruction was not cancelled
+    // Only complete destruction if it was not cancelled during exit animation.
+    // finalPlacement and instantTransition are intentionally cleared here
+    // (not before the await) so they remain valid if destruction is cancelled.
     if (this.destroyingPortal === portal) {
       this.destroyingPortal = null;
       this.isOpen.set(false);
+      this.finalPlacement.set(undefined);
+      this.instantTransition.set(false);
     }
   }
 
