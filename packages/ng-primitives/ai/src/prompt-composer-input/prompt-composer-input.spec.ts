@@ -82,7 +82,7 @@ describe('NgpPromptComposerInput', () => {
   });
 
   it('should submit on Enter key without Shift', async () => {
-    const submitSpy = vi.fn();
+    const submitSpy = jest.fn();
 
     await render(
       `<div ngpThread>
@@ -105,7 +105,7 @@ describe('NgpPromptComposerInput', () => {
   });
 
   it('should not submit on Enter key with Shift (multiline)', async () => {
-    const submitSpy = vi.fn();
+    const submitSpy = jest.fn();
 
     await render(
       `<div ngpThread>
@@ -130,7 +130,7 @@ describe('NgpPromptComposerInput', () => {
   });
 
   it('should not submit when input is empty', async () => {
-    const submitSpy = vi.fn();
+    const submitSpy = jest.fn();
 
     await render(
       `<div ngpThread>
@@ -150,7 +150,7 @@ describe('NgpPromptComposerInput', () => {
   });
 
   it('should not submit when input contains only whitespace', async () => {
-    const submitSpy = vi.fn();
+    const submitSpy = jest.fn();
 
     await render(
       `<div ngpThread>

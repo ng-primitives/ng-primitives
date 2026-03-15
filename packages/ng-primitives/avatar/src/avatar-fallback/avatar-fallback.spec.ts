@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
-import { fireEvent, render, screen, waitFor } from '@testing-library/angular';
+import { fakeAsync, tick } from '@angular/core/testing';
+import { fireEvent, render, screen } from '@testing-library/angular';
 import { NgpAvatarImage } from '../avatar-image/avatar-image';
 import { NgpAvatar } from '../avatar/avatar';
 import { NgpAvatarFallback } from './avatar-fallback';
@@ -20,7 +21,7 @@ describe('NgpAvatarFallback', () => {
     expect(screen.getByTestId('avatar-fallback')).toBeInTheDocument();
   });
 
-  it('should be visible when avatar status is not loaded', async () => {
+  it('should be visible when avatar status is not loaded', fakeAsync(async () => {
     await render(
       `
       <div ngpAvatar>
@@ -34,12 +35,13 @@ describe('NgpAvatarFallback', () => {
 
     const fallback = screen.getByTestId('avatar-fallback');
 
-    await waitFor(() => {
-      expect(fallback).toBeVisible();
-    });
-  });
+    // Wait for delay to elapse
+    tick(1);
 
-  it('should be hidden when avatar image is loaded', async () => {
+    expect(fallback).toBeVisible();
+  }));
+
+  it('should be hidden when avatar image is loaded', fakeAsync(async () => {
     await render(
       `
       <div ngpAvatar data-testid="avatar">
@@ -55,18 +57,18 @@ describe('NgpAvatarFallback', () => {
     const image = screen.getByTestId('avatar-image');
     const fallback = screen.getByTestId('avatar-fallback');
 
+    // Wait for delay to elapse
+    tick(1);
+
     // Initially fallback should be visible (image is loading)
-    await waitFor(() => {
-      expect(fallback).toBeVisible();
-    });
+    expect(fallback).toBeVisible();
 
     // Simulate image load
     fireEvent.load(image);
+    tick(1);
 
-    await waitFor(() => {
-      expect(fallback).not.toBeVisible();
-    });
-  });
+    expect(fallback).not.toBeVisible();
+  }));
 
   it('should accept custom delay input', async () => {
     await render(
@@ -88,7 +90,7 @@ describe('NgpAvatarFallback', () => {
     expect(fallback).toHaveTextContent('JD');
   });
 
-  it('should use default delay of 0', async () => {
+  it('should use default delay of 0', fakeAsync(async () => {
     await render(
       `
       <div ngpAvatar>
@@ -103,10 +105,9 @@ describe('NgpAvatarFallback', () => {
     const fallback = screen.getByTestId('avatar-fallback');
 
     // Should be visible immediately after next tick
-    await waitFor(() => {
-      expect(fallback).toBeVisible();
-    });
-  });
+    tick(1);
+    expect(fallback).toBeVisible();
+  }));
 
   it('should be exportable as template reference', async () => {
     await render(
@@ -123,7 +124,7 @@ describe('NgpAvatarFallback', () => {
     expect(screen.getByTestId('avatar-fallback')).toBeInTheDocument();
   });
 
-  it('should handle status changes correctly', async () => {
+  it('should handle status changes correctly', fakeAsync(async () => {
     await render(
       `
       <div ngpAvatar data-testid="avatar">
@@ -139,25 +140,22 @@ describe('NgpAvatarFallback', () => {
     const image = screen.getByTestId('avatar-image');
     const fallback = screen.getByTestId('avatar-fallback');
 
+    // Wait for delay
+    tick(1);
+
     // Initially visible (loading state)
-    await waitFor(() => {
-      expect(fallback).toBeVisible();
-    });
+    expect(fallback).toBeVisible();
 
     // Load image - fallback should hide
     fireEvent.load(image);
-
-    await waitFor(() => {
-      expect(fallback).not.toBeVisible();
-    });
+    tick(1);
+    expect(fallback).not.toBeVisible();
 
     // Error on image - fallback should show again
     fireEvent.error(image);
-
-    await waitFor(() => {
-      expect(fallback).toBeVisible();
-    });
-  });
+    tick(1);
+    expect(fallback).toBeVisible();
+  }));
 
   it('should work with number attribute transform', async () => {
     await render(
@@ -174,7 +172,7 @@ describe('NgpAvatarFallback', () => {
     expect(screen.getByTestId('avatar-fallback')).toBeInTheDocument();
   });
 
-  it('should handle component with signal input', async () => {
+  it('should handle component with signal input', fakeAsync(async () => {
     @Component({
       template: `
         <div ngpAvatar>
@@ -199,12 +197,9 @@ describe('NgpAvatarFallback', () => {
     expect(fallback).not.toBeVisible();
 
     // Should be visible after delay
-    await new Promise(r => setTimeout(r, 100));
-
-    await waitFor(() => {
-      expect(fallback).toBeVisible();
-    });
-  });
+    tick(100);
+    expect(fallback).toBeVisible();
+  }));
 
   it('should require avatar container', async () => {
     // This test verifies the directive doesn't work without NgpAvatar provider

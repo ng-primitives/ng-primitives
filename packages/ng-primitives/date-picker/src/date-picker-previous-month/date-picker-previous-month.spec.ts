@@ -181,7 +181,7 @@ function provideMockDatePickerState(
       disabled: disabled as unknown as InputSignalWithTransform<boolean, BooleanInput>,
       min: min as unknown as InputSignal<Date | undefined>,
       max: signal(undefined) as unknown as InputSignal<Date | undefined>,
-      setFocusedDate: vi.fn((date: Date) => {
+      setFocusedDate: jest.fn((date: Date) => {
         focusedDate.set(date);
       }),
     } satisfies Partial<NgpDatePicker<Date>>),

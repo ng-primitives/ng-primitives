@@ -2,13 +2,13 @@ import { CloseScrollStrategy } from './scroll-strategy';
 
 describe('CloseScrollStrategy', () => {
   let strategy: CloseScrollStrategy;
-  let onClose: ReturnType<typeof vi.fn>;
+  let onClose: jest.Mock;
   let overlayElement: HTMLDivElement;
   let triggerElement: HTMLDivElement;
   let scrollableContainer: HTMLDivElement;
 
   beforeEach(() => {
-    onClose = vi.fn();
+    onClose = jest.fn();
 
     // Create a scrollable container with the trigger inside
     scrollableContainer = document.createElement('div');

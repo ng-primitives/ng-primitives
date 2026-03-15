@@ -12,12 +12,8 @@ describe('NgpPromptComposer', () => {
 
   beforeEach(() => {
     mockSpeechRecognition = new MockSpeechRecognition();
-    (globalThis as any).SpeechRecognition = function () {
-      return mockSpeechRecognition;
-    };
-    (globalThis as any).webkitSpeechRecognition = function () {
-      return mockSpeechRecognition;
-    };
+    (globalThis as any).SpeechRecognition = jest.fn(() => mockSpeechRecognition);
+    (globalThis as any).webkitSpeechRecognition = jest.fn(() => mockSpeechRecognition);
   });
 
   afterEach(() => {
@@ -27,7 +23,7 @@ describe('NgpPromptComposer', () => {
 
   it('should set data attributes based on state', async () => {
     // Mock SpeechRecognition for dictation support
-    (globalThis as any).SpeechRecognition = function () {};
+    (globalThis as any).SpeechRecognition = jest.fn();
 
     const { fixture } = await render(
       `<div ngpThread>
@@ -59,7 +55,7 @@ describe('NgpPromptComposer', () => {
   });
 
   it('should emit submit event with correct prompt content', async () => {
-    const submitSpy = vi.fn();
+    const submitSpy = jest.fn();
 
     await render(
       `<div ngpThread>
@@ -86,7 +82,7 @@ describe('NgpPromptComposer', () => {
   });
 
   it('should not emit when prompt is empty', async () => {
-    const submitSpy = vi.fn();
+    const submitSpy = jest.fn();
 
     await render(
       `<div ngpThread>
@@ -109,7 +105,7 @@ describe('NgpPromptComposer', () => {
   });
 
   it('should not emit when prompt contains only whitespace', async () => {
-    const submitSpy = vi.fn();
+    const submitSpy = jest.fn();
 
     await render(
       `<div ngpThread>

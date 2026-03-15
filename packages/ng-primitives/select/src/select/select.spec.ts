@@ -1206,7 +1206,7 @@ describe('NgpSelect', () => {
         const component = fixture.componentInstance;
 
         // Spy on scrollIntoView to ensure it's not called
-        const scrollIntoViewSpy = vi
+        const scrollIntoViewSpy = jest
           .spyOn(Element.prototype, 'scrollIntoView')
           .mockImplementation();
 

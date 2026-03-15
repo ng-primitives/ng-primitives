@@ -57,7 +57,7 @@ describe('NgpAccordion', () => {
   });
 
   it('should toggle the item when a trigger is clicked', async () => {
-    const valueChange = vi.fn();
+    const valueChange = jest.fn();
     const fixture = await render(
       `
     <div data-testid="accordion" ngpAccordion [(ngpAccordionValue)]="value" (ngpAccordionValueChange)="valueChange($event)">
@@ -90,7 +90,7 @@ describe('NgpAccordion', () => {
   });
 
   it('should not toggle the item when the item is disabled', async () => {
-    const valueChange = vi.fn();
+    const valueChange = jest.fn();
     const fixture = await renderTemplate({ itemDisabled: true, valueChange });
     const triggers = fixture.getAllByTestId('accordion-trigger');
 
@@ -102,7 +102,7 @@ describe('NgpAccordion', () => {
   });
 
   it('should not toggle the item when the accordion is disabled', async () => {
-    const valueChange = vi.fn();
+    const valueChange = jest.fn();
     const fixture = await renderTemplate({ accordionDisabled: true, valueChange });
     const triggers = fixture.getAllByTestId('accordion-trigger');
 
@@ -267,7 +267,7 @@ describe('NgpAccordion', () => {
           type: 'single',
           collapsible: true,
           orientation: 'vertical',
-          valueChange: vi.fn(),
+          valueChange: jest.fn(),
           ...componentProperties,
         },
       },

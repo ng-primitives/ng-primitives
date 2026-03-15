@@ -1343,7 +1343,9 @@ describe('NgpCombobox Virtual Scrolling', () => {
       const component = fixture.componentInstance;
 
       // Spy on scrollIntoView to ensure it's not called
-      const scrollIntoViewSpy = vi.spyOn(Element.prototype, 'scrollIntoView').mockImplementation();
+      const scrollIntoViewSpy = jest
+        .spyOn(Element.prototype, 'scrollIntoView')
+        .mockImplementation();
 
       const input = screen.getByRole('combobox');
       input.focus();

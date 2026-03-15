@@ -13,9 +13,8 @@ function sourceQueryPlugin(): Plugin {
     transform(code: string, id: string) {
       // Check if the import has a ?source query
       if (id.includes('?source')) {
-        // Strip all query parameters to get the source file path
-        const filePath = id.replace(/\?.*$/, '');
-        const source = readFileSync(filePath).toString();
+        // Get the source file path
+        const source = readFileSync(id.replace('?source', '')).toString();
 
         // Replace the import statement with a string literal
         code = `export default \`${source.replace(/`/g, '\\`').replace(/\${/g, '\\${')}\`;`;
@@ -99,7 +98,6 @@ export default defineConfig(({ mode }) => {
       setupFiles: ['src/test-setup.ts'],
       include: ['**/*.spec.ts'],
       reporters: ['default'],
-      passWithNoTests: true,
     },
     define: {
       'import.meta.vitest': mode !== 'production',

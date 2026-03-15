@@ -90,7 +90,7 @@ describe('NgpFileUpload', () => {
   });
 
   it('should emit dragOver events', async () => {
-    const dragOver = vi.fn();
+    const dragOver = jest.fn();
     const container = await render(
       `<div ngpFileUpload (ngpFileUploadDragOver)="dragOver($event)" data-testid="upload">Upload</div>`,
       { imports: [NgpFileUpload], componentProperties: { dragOver } },

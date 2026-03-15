@@ -1,6 +1,5 @@
 import { Component, TemplateRef, ViewContainerRef, inject, viewChild } from '@angular/core';
-import { TestBed } from '@angular/core/testing';
-import { waitFor } from '@testing-library/angular';
+import { TestBed, fakeAsync, flush } from '@angular/core/testing';
 import { NgpDialogConfig } from '../config/dialog-config';
 import { NgpDialogDescription } from '../dialog-description/dialog-description';
 import { NgpDialogOverlay } from '../dialog-overlay/dialog-overlay';
@@ -49,10 +48,10 @@ describe('NgpDialog', () => {
     return { fixture, ref };
   }
 
-  afterEach(async () => {
+  afterEach(fakeAsync(() => {
     dialogManager?.closeAll();
-    await new Promise(r => setTimeout(r, 0));
-  });
+    flush();
+  }));
 
   it('should open a dialog', () => {
     const { ref } = openDialog();
@@ -97,80 +96,77 @@ describe('NgpDialog', () => {
     expect(dialog?.getAttribute('aria-describedby')).toContain(descriptionId!);
   });
 
-  it('should close dialog programmatically', async () => {
+  it('should close dialog programmatically', fakeAsync(() => {
     const { ref } = openDialog();
-    const closedSpy = vi.fn();
+    const closedSpy = jest.fn();
     ref.closed.subscribe(closedSpy);
 
     ref.close('test-result');
+    flush();
 
-    await waitFor(() => {
-      expect(closedSpy).toHaveBeenCalledWith(expect.objectContaining({ result: 'test-result' }));
-    });
-  });
+    expect(closedSpy).toHaveBeenCalledWith(expect.objectContaining({ result: 'test-result' }));
+  }));
 
-  it('should close dialog when overlay is clicked', async () => {
+  it('should close dialog when overlay is clicked', fakeAsync(() => {
     const { ref } = openDialog();
-    const closedSpy = vi.fn();
+    const closedSpy = jest.fn();
     ref.closed.subscribe(closedSpy);
 
     const overlay = document.querySelector('[data-testid="overlay"]') as HTMLElement;
     overlay.click();
+    flush();
 
-    await waitFor(() => {
-      expect(closedSpy).toHaveBeenCalled();
-    });
-  });
+    expect(closedSpy).toHaveBeenCalled();
+  }));
 
-  it('should NOT close on overlay click when dialog is clicked', async () => {
+  it('should NOT close on overlay click when dialog is clicked', fakeAsync(() => {
     const { ref } = openDialog();
-    const closedSpy = vi.fn();
+    const closedSpy = jest.fn();
     ref.closed.subscribe(closedSpy);
 
     const dialog = document.querySelector('[data-testid="dialog"]') as HTMLElement;
     dialog.click();
+    flush();
 
-    await new Promise(r => setTimeout(r, 0));
     expect(closedSpy).not.toHaveBeenCalled();
-  });
+  }));
 
-  it('should close dialog on Escape key via overlay keydown events', async () => {
+  it('should close dialog on Escape key via overlay keydown events', fakeAsync(() => {
     const { ref } = openDialog();
-    const closedSpy = vi.fn();
+    const closedSpy = jest.fn();
     ref.closed.subscribe(closedSpy);
 
     // The CDK overlay captures keydown events on the overlay host element
     const overlayHost = ref.overlayRef.overlayElement;
     overlayHost.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
+    flush();
 
-    await waitFor(() => {
-      expect(closedSpy).toHaveBeenCalled();
-    });
-  });
+    expect(closedSpy).toHaveBeenCalled();
+  }));
 
-  it('should NOT close on Escape when closeOnEscape is false', async () => {
+  it('should NOT close on Escape when closeOnEscape is false', fakeAsync(() => {
     const { ref } = openDialog({ closeOnEscape: false });
-    const closedSpy = vi.fn();
+    const closedSpy = jest.fn();
     ref.closed.subscribe(closedSpy);
 
     const overlayHost = ref.overlayRef.overlayElement;
     overlayHost.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
+    flush();
 
-    await new Promise(r => setTimeout(r, 0));
     expect(closedSpy).not.toHaveBeenCalled();
-  });
+  }));
 
-  it('should NOT close on overlay click when closeOnClick is false', async () => {
+  it('should NOT close on overlay click when closeOnClick is false', fakeAsync(() => {
     const { ref } = openDialog({ closeOnClick: false });
-    const closedSpy = vi.fn();
+    const closedSpy = jest.fn();
     ref.closed.subscribe(closedSpy);
 
     const overlay = document.querySelector('[data-testid="overlay"]') as HTMLElement;
     overlay.click();
+    flush();
 
-    await new Promise(r => setTimeout(r, 0));
     expect(closedSpy).not.toHaveBeenCalled();
-  });
+  }));
 
   it('should generate unique dialog id', () => {
     openDialog();
@@ -193,14 +189,13 @@ describe('NgpDialog', () => {
     expect(id).toMatch(/^ngp-dialog-description-/);
   });
 
-  it('should close all dialogs with closeAll', async () => {
+  it('should close all dialogs with closeAll', fakeAsync(() => {
     openDialog();
     expect(dialogManager.openDialogs.length).toBe(1);
 
     dialogManager.closeAll();
+    flush();
 
-    await waitFor(() => {
-      expect(dialogManager.openDialogs.length).toBe(0);
-    });
-  });
+    expect(dialogManager.openDialogs.length).toBe(0);
+  }));
 });
