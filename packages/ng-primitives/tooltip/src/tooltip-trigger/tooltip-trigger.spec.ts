@@ -754,6 +754,82 @@ describe('NgpTooltipTrigger', () => {
     });
   });
 
+  describe('exit animation re-entry (issue #681)', () => {
+    it('should re-show tooltip when hovering back during exit animation', async () => {
+      // Override getAnimations to simulate a long-running exit animation.
+      // The test-setup patches getAnimations to return [], but we need to
+      // return a fake animation with a pending `finished` promise when
+      // the element has data-exit, to simulate an in-progress CSS exit animation.
+      let resolveAnimation: (() => void) | null = null;
+      let animationPromise: Promise<void> | null = null;
+      let simulateExitAnimation = false;
+
+      const originalGetAnimations = Element.prototype.getAnimations;
+      Element.prototype.getAnimations = function () {
+        if (simulateExitAnimation && this.hasAttribute('data-exit')) {
+          animationPromise = new Promise<void>(resolve => {
+            resolveAnimation = resolve;
+          });
+          return [{ finished: animationPromise }] as unknown as Animation[];
+        }
+        return [];
+      };
+
+      try {
+        const { getByRole } = await render(
+          `
+            <button [ngpTooltipTrigger]="content" ngpTooltipTriggerHideDelay="0"></button>
+            <ng-template #content>
+              <div ngpTooltip>Tooltip content</div>
+            </ng-template>
+          `,
+          {
+            imports: [NgpTooltipTrigger, NgpTooltip],
+          },
+        );
+
+        const trigger = getByRole('button');
+
+        // Step 1: Show the tooltip
+        fireEvent.mouseEnter(trigger);
+        await waitFor(() => {
+          expect(document.querySelector('[ngpTooltip]')).toBeInTheDocument();
+        });
+
+        // Step 2: Enable exit animation simulation, then trigger hide
+        simulateExitAnimation = true;
+        fireEvent.mouseLeave(trigger);
+
+        // Wait for hide to initiate (hideDelay is 0, so dispose runs on next tick)
+        await new Promise(resolve => setTimeout(resolve, 50));
+
+        // The exit animation should now be in progress
+        expect(resolveAnimation).not.toBeNull();
+
+        // Step 3: Re-enter while exit animation is still playing
+        fireEvent.mouseEnter(trigger);
+
+        // Step 4: Complete the exit animation
+        simulateExitAnimation = false;
+        resolveAnimation!();
+        await animationPromise;
+
+        // Give Angular time to process
+        await new Promise(resolve => setTimeout(resolve, 100));
+
+        // Step 5: The tooltip should be visible again
+        await waitFor(
+          () => {
+            expect(document.querySelector('[ngpTooltip]')).toBeInTheDocument();
+          },
+          { timeout: 2000 },
+        );
+      } finally {
+        Element.prototype.getAnimations = originalGetAnimations;
+      }
+    });
+  });
+
   describe('position', () => {
     it('should accept position input for programmatic positioning', async () => {
       const { fixture } = await render(

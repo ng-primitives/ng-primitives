@@ -917,10 +917,10 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
     this.disposePositioning?.();
     this.disposePositioning = undefined;
 
-    // Detach the portal (skip animations if immediate)
-    await portal.detach(immediate);
-
-    // Mark as closed
+    // Mark as closed BEFORE waiting for exit animations. This allows show()
+    // to create a new overlay while the old one animates out, fixing the issue
+    // where re-hovering during an exit animation would be ignored because
+    // isOpen was still true. (See: https://github.com/ng-primitives/ng-primitives/issues/681)
     this.isOpen.set(false);
 
     // Reset final placement
@@ -932,6 +932,11 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
     // disable scroll strategy
     this.scrollStrategy.disable();
     this.scrollStrategy = new NoopScrollStrategy();
+
+    // Detach the portal (skip animations if immediate). This runs after
+    // state cleanup so that a concurrent show() call sees the overlay as
+    // closed and can create a new one while the exit animation completes.
+    await portal.detach(immediate);
   }
 
   /**
