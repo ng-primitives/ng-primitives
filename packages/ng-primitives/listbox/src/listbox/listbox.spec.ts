@@ -192,7 +192,7 @@ describe('NgpListbox', () => {
 
   describe('selection', () => {
     it('should select option on Enter key', async () => {
-      const valueChange = vi.fn();
+      const valueChange = jest.fn();
       const container = await render(
         `<div ngpListbox (ngpListboxValueChange)="valueChange($event)" data-testid="listbox">
           <div ngpListboxOption ngpListboxOptionValue="a" data-testid="opt-a">A</div>
@@ -209,7 +209,7 @@ describe('NgpListbox', () => {
     });
 
     it('should select option on Space key', async () => {
-      const valueChange = vi.fn();
+      const valueChange = jest.fn();
       const container = await render(
         `<div ngpListbox (ngpListboxValueChange)="valueChange($event)" data-testid="listbox">
           <div ngpListboxOption ngpListboxOptionValue="a" data-testid="opt-a">A</div>
@@ -225,7 +225,7 @@ describe('NgpListbox', () => {
     });
 
     it('should select option on click', async () => {
-      const valueChange = vi.fn();
+      const valueChange = jest.fn();
       const container = await render(
         `<div ngpListbox (ngpListboxValueChange)="valueChange($event)" data-testid="listbox">
           <div ngpListboxOption ngpListboxOptionValue="a" data-testid="opt-a">A</div>
@@ -250,7 +250,7 @@ describe('NgpListbox', () => {
     });
 
     it('should support multiple selection mode', async () => {
-      const valueChange = vi.fn();
+      const valueChange = jest.fn();
       const container = await render(
         `<div ngpListbox ngpListboxMode="multiple" (ngpListboxValueChange)="valueChange($event)" data-testid="listbox">
           <div ngpListboxOption ngpListboxOptionValue="a" data-testid="opt-a">A</div>
@@ -291,7 +291,7 @@ describe('NgpListbox', () => {
     });
 
     it('should not select disabled options on click', async () => {
-      const valueChange = vi.fn();
+      const valueChange = jest.fn();
       const container = await render(
         `<div ngpListbox (ngpListboxValueChange)="valueChange($event)" data-testid="listbox">
           <div ngpListboxOption ngpListboxOptionValue="a" ngpListboxOptionDisabled data-testid="opt-a">A</div>

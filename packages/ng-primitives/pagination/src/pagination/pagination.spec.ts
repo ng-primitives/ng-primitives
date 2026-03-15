@@ -65,7 +65,7 @@ describe('NgpPagination', () => {
   });
 
   it('should emit pageChange when goToPage is called', async () => {
-    const onPageChange = vi.fn();
+    const onPageChange = jest.fn();
 
     const { getByRole, getByTestId } = await render(
       `

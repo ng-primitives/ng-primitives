@@ -13,9 +13,9 @@ describe('NgpMove', () => {
 
   describe('keyboard navigation', () => {
     it('should emit start, move, and end events on ArrowRight', async () => {
-      const startSpy = vi.fn();
-      const moveSpy = vi.fn();
-      const endSpy = vi.fn();
+      const startSpy = jest.fn();
+      const moveSpy = jest.fn();
+      const endSpy = jest.fn();
 
       @Component({
         template: `
@@ -48,7 +48,7 @@ describe('NgpMove', () => {
     });
 
     it('should emit deltaX: -1 on ArrowLeft', async () => {
-      const moveSpy = vi.fn();
+      const moveSpy = jest.fn();
 
       @Component({
         template: `
@@ -69,7 +69,7 @@ describe('NgpMove', () => {
     });
 
     it('should emit deltaY: -1 on ArrowUp', async () => {
-      const moveSpy = vi.fn();
+      const moveSpy = jest.fn();
 
       @Component({
         template: `
@@ -90,7 +90,7 @@ describe('NgpMove', () => {
     });
 
     it('should emit deltaY: 1 on ArrowDown', async () => {
-      const moveSpy = vi.fn();
+      const moveSpy = jest.fn();
 
       @Component({
         template: `
@@ -113,7 +113,7 @@ describe('NgpMove', () => {
 
   describe('disabled state', () => {
     it('should not emit keyboard events when disabled', async () => {
-      const moveSpy = vi.fn();
+      const moveSpy = jest.fn();
 
       @Component({
         template: `
@@ -141,7 +141,7 @@ describe('NgpMove', () => {
 
   describe('pointer interaction', () => {
     it('should ignore right-click', async () => {
-      const startSpy = vi.fn();
+      const startSpy = jest.fn();
 
       @Component({
         template: `

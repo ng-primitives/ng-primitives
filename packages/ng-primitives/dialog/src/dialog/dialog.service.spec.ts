@@ -2,7 +2,6 @@
 import { Component, TemplateRef, ViewContainerRef, inject, viewChild } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { Router, provideRouter } from '@angular/router';
-import { waitFor } from '@testing-library/angular';
 import { NgpDialogRef } from './dialog-ref';
 import { NgpDialogContext, NgpDialogManager } from './dialog.service';
 
@@ -172,9 +171,7 @@ describe('NgpDialogManager router integration', () => {
     const router = TestBed.inject(Router);
     await router.navigateByUrl('/other');
 
-    await waitFor(() => {
-      expect(dialogManager.openDialogs.length).toBe(0);
-    });
+    expect(dialogManager.openDialogs.length).toBe(0);
   });
 
   it('should not close dialog with closeOnNavigation set to false', async () => {
@@ -187,9 +184,7 @@ describe('NgpDialogManager router integration', () => {
     const router = TestBed.inject(Router);
     await router.navigateByUrl('/other');
 
-    await waitFor(() => {
-      expect(dialogManager.openDialogs.length).toBe(1);
-    });
+    expect(dialogManager.openDialogs.length).toBe(1);
   });
 
   it('should only close dialogs with closeOnNavigation enabled', async () => {
@@ -203,9 +198,7 @@ describe('NgpDialogManager router integration', () => {
     const router = TestBed.inject(Router);
     await router.navigateByUrl('/other');
 
-    await waitFor(() => {
-      expect(dialogManager.openDialogs.length).toBe(1);
-      expect(dialogManager.openDialogs[0].config.closeOnNavigation).toBe(false);
-    });
+    expect(dialogManager.openDialogs.length).toBe(1);
+    expect(dialogManager.openDialogs[0].config.closeOnNavigation).toBe(false);
   });
 });

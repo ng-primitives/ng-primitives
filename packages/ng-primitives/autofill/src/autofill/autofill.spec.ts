@@ -56,7 +56,7 @@ describe('NgpAutofill', () => {
   });
 
   it('should emit ngpAutofill output with true on autofill start', async () => {
-    const spy = vi.fn();
+    const spy = jest.fn();
 
     @Component({
       template: `
@@ -78,7 +78,7 @@ describe('NgpAutofill', () => {
   });
 
   it('should emit ngpAutofill output with false on autofill end', async () => {
-    const spy = vi.fn();
+    const spy = jest.fn();
 
     @Component({
       template: `

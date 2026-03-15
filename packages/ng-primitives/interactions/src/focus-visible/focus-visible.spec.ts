@@ -5,10 +5,10 @@ import { provideInteractionsConfig } from '../config/interactions-config';
 import { NgpFocusVisible } from './focus-visible';
 
 describe('NgpFocusVisible', () => {
-  let focusChange: ReturnType<typeof vi.fn>;
+  let focusChange: jest.Mock;
 
   beforeEach(() => {
-    focusChange = vi.fn();
+    focusChange = jest.fn();
   });
 
   it('should not set data-focus-visible to true when mouse focused', async () => {

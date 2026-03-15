@@ -45,7 +45,7 @@ describe('NgpResize', () => {
   });
 
   it('should emit ngpResize with dimensions when element resizes', async () => {
-    const spy = vi.fn();
+    const spy = jest.fn();
 
     @Component({
       template: `
@@ -85,7 +85,7 @@ describe('NgpResize', () => {
       imports: [NgpResize],
     })
     class TestComponent {
-      onResize = vi.fn();
+      onResize = jest.fn();
     }
 
     const { fixture } = await render(TestComponent);
@@ -93,7 +93,7 @@ describe('NgpResize', () => {
     const observer = MockResizeObserver.instances[0];
     expect(observer).toBeDefined();
 
-    const disconnectSpy = vi.spyOn(observer, 'disconnect');
+    const disconnectSpy = jest.spyOn(observer, 'disconnect');
 
     fixture.destroy();
 
@@ -108,7 +108,7 @@ describe('NgpResize', () => {
       imports: [NgpResize],
     })
     class TestComponent {
-      onResize = vi.fn();
+      onResize = jest.fn();
     }
 
     await render(TestComponent);

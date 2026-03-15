@@ -2,8 +2,10 @@
   "extends": "./tsconfig.json",
   "compilerOptions": {
     "outDir": "../../dist/out-tsc",
-    "types": ["vitest/globals", "node", "@testing-library/jest-dom"]
+    "module": "commonjs",
+    "target": "es2016",
+    "types": ["jest", "node", "@testing-library/jest-dom"]
   },
   "files": ["src/test-setup.ts"],
-  "include": ["**/*.test.ts", "**/*.spec.ts", "**/*.d.ts"]
+  "include": ["jest.config.ts", "**/*.test.ts", "**/*.spec.ts", "**/*.d.ts"]
 }

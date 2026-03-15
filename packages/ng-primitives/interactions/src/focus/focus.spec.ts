@@ -18,7 +18,7 @@ describe('NgpFocus', () => {
   });
 
   it('should emit the ngpFocus output', async () => {
-    const stateChange = vi.fn();
+    const stateChange = jest.fn();
 
     const container = await render(
       `<div data-testid="trigger" (ngpFocus)="stateChange($event)"></div>`,
@@ -42,7 +42,7 @@ describe('NgpFocus', () => {
   });
 
   it('should not emit the ngpFocus output when disabled', async () => {
-    const stateChange = vi.fn();
+    const stateChange = jest.fn();
 
     const container = await render(
       `<div data-testid="trigger" [ngpFocusDisabled]="true" (ngpFocus)="stateChange($event)"></div>`,
@@ -64,7 +64,7 @@ describe('NgpFocus', () => {
 
   describe('global configuration', () => {
     it('should not emit focus events when all interactions are globally disabled', async () => {
-      const stateChange = vi.fn();
+      const stateChange = jest.fn();
 
       const container = await render(
         `<div data-testid="trigger" (ngpFocus)="stateChange($event)"></div>`,
@@ -87,7 +87,7 @@ describe('NgpFocus', () => {
     });
 
     it('should not emit focus events when focus interactions are specifically disabled', async () => {
-      const stateChange = vi.fn();
+      const stateChange = jest.fn();
 
       const container = await render(
         `<div data-testid="trigger" (ngpFocus)="stateChange($event)"></div>`,
@@ -110,7 +110,7 @@ describe('NgpFocus', () => {
     });
 
     it('should emit focus events when focus interactions are enabled', async () => {
-      const stateChange = vi.fn();
+      const stateChange = jest.fn();
 
       const container = await render(
         `<div data-testid="trigger" (ngpFocus)="stateChange($event)"></div>`,

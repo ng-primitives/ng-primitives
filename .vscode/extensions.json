@@ -2,7 +2,7 @@
   "recommendations": [
     "nrwl.angular-console",
     "esbenp.prettier-vscode",
-    "vitest.explorer",
+    "firsttris.vscode-jest-runner",
     "ms-playwright.playwright"
   ]
 }

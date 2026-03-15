@@ -176,8 +176,8 @@ describe('Form Field Integration Tests', () => {
     const label = fixture.debugElement.nativeElement.querySelector('label');
     const input = fixture.debugElement.nativeElement.querySelector('input');
 
-    const clickSpy = vi.fn();
-    const focusSpy = vi.fn();
+    const clickSpy = jest.fn();
+    const focusSpy = jest.fn();
     input.click = clickSpy;
     input.focus = focusSpy;
 
