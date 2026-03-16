@@ -1,7 +1,7 @@
+import { setupTestBed } from '@analogjs/vitest-angular/setup-testbed';
+import '@analogjs/vitest-angular/setup-zone';
 import '@angular/compiler';
 import '@testing-library/jest-dom/vitest';
-import '@analogjs/vitest-angular/setup-zone';
-import { setupTestBed } from '@analogjs/vitest-angular/setup-testbed';
 
 setupTestBed({ zoneless: false });
 

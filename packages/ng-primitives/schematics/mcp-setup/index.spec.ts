@@ -1,5 +1,5 @@
-import { createRequire } from 'node:module';
 import { SchematicTestRunner, UnitTestTree } from '@angular-devkit/schematics/testing';
+import { createRequire } from 'node:module';
 import { join } from 'path';
 
 const _require = createRequire(import.meta.url);

@@ -20,12 +20,9 @@ describe('NgpVisuallyHidden', () => {
   });
 
   it('should merge the styles with the host element', async () => {
-    const container = await render(
-      `<div ngpVisuallyHidden style="color: red;">Hidden</div>`,
-      {
-        imports: [NgpVisuallyHidden],
-      },
-    );
+    const container = await render(`<div ngpVisuallyHidden style="color: red;">Hidden</div>`, {
+      imports: [NgpVisuallyHidden],
+    });
 
     const element = container.getByText('Hidden') as HTMLElement;
 
