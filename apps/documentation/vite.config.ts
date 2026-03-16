@@ -18,6 +18,8 @@ function sourceQueryPlugin(): Plugin {
 
         // Replace the import statement with a string literal
         code = `export default \`${source.replace(/`/g, '\\`').replace(/\${/g, '\\${')}\`;`;
+
+        return { code, moduleType: 'js' };
       }
       return code;
     },
