@@ -1,7 +1,7 @@
 import { FocusOrigin } from '@angular/cdk/a11y';
 import { inject, Injector } from '@angular/core';
 import { NgpExitAnimationManager } from 'ng-primitives/internal';
-import { NgpOverlayRef } from 'ng-primitives/portal';
+import { NgpDismissGuard, NgpOverlayRef } from 'ng-primitives/portal';
 import { defer, EMPTY, fromEvent, Observable, Subject } from 'rxjs';
 import { filter, map, takeUntil } from 'rxjs/operators';
 import { NgpDialogConfig } from '../config/dialog-config';
@@ -19,8 +19,11 @@ export class NgpDialogRef<T = unknown, R = unknown> implements NgpOverlayRef {
   /** Whether the user is allowed to close the dialog. */
   disableClose: boolean | undefined;
 
-  /** Whether the escape key is allowed to close the dialog. */
-  closeOnEscape: boolean | undefined;
+  /** Whether the escape key is allowed to close the dialog, or a guard function. */
+  closeOnEscape: NgpDismissGuard<KeyboardEvent> | undefined;
+
+  /** Whether clicking outside (on the overlay) is allowed to close the dialog, or a guard function. */
+  closeOnOutsideClick: NgpDismissGuard<Element> | undefined;
 
   /** Emits when the dialog has been closed. */
   readonly closed = new Subject<{ focusOrigin?: FocusOrigin; result?: R }>();
@@ -65,6 +68,7 @@ export class NgpDialogRef<T = unknown, R = unknown> implements NgpOverlayRef {
     this.data = config.data as T;
     this.id = config.id!; // By the time the dialog is created we are guaranteed to have an ID.
     this.closeOnEscape = config.closeOnEscape ?? true;
+    this.closeOnOutsideClick = config.closeOnOutsideClick;
 
     // Use defer() so the observable is created on subscribe — by then the portal will be set.
     this.keydownEvents = defer(() => {

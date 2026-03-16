@@ -136,18 +136,53 @@ The manager provides methods to open, close, and query dialogs, and accepts a co
 
 Reference returned by `NgpDialogManager.open()`. Provides methods to interact with the opened dialog.
 
-<api-reference-config>
-  <api-config-prop name="close" type="(result?: R, focusOrigin?: FocusOrigin) => Promise<void>" description="Closes the dialog, optionally returning a result value." />
-  <api-config-prop name="afterClosed" type="Observable<R | undefined>" description="Observable that emits the dialog result when the dialog is closed." />
-  <api-config-prop name="data" type="T" description="The data passed to the dialog via NgpDialogConfig.data." />
-  <api-config-prop name="id" type="string" description="The unique ID for the dialog." />
-  <api-config-prop name="disableClose" type="boolean | undefined" description="Whether the user is allowed to close the dialog." />
-  <api-config-prop name="keydownEvents" type="Observable<KeyboardEvent>" description="Observable that emits keyboard events dispatched within the dialog." />
-  <api-config-prop name="outsidePointerEvents" type="Observable<MouseEvent>" description="Observable that emits pointer events dispatched outside of the dialog." />
-  <api-config-prop name="updatePosition" type="() => NgpDialogRef" description="Updates the position of the dialog. Currently a no-op as dialogs are CSS-centered." />
-</api-reference-config>
+<prop-details name="close" type="(result?: R, focusOrigin?: FocusOrigin) => Promise<void>">
+  Closes the dialog, optionally returning a result value.
+</prop-details>
+
+<prop-details name="afterClosed" type="Observable<R | undefined>">
+  Observable that emits the dialog result when the dialog is closed.
+</prop-details>
+
+<prop-details name="data" type="T">
+  The data passed to the dialog via `NgpDialogConfig.data`.
+</prop-details>
+
+<prop-details name="id" type="string">
+  The unique ID for the dialog.
+</prop-details>
+
+<prop-details name="disableClose" type="boolean | undefined">
+  Whether the user is allowed to close the dialog.
+</prop-details>
+
+<prop-details name="closeOnEscape" type="NgpDismissGuard<KeyboardEvent> | undefined">
+  Whether the escape key is allowed to close the dialog, or a guard function. When a function is provided, it receives the keyboard event and should return a boolean or `Promise<boolean>`.
+</prop-details>
+
+<prop-details name="closeOnOutsideClick" type="NgpDismissGuard<Element> | undefined">
+  Whether clicking outside (on the overlay) is allowed to close the dialog, or a guard function. When a function is provided, it receives the target element and should return a boolean or `Promise<boolean>`.
+</prop-details>
+
+<prop-details name="keydownEvents" type="Observable<KeyboardEvent>">
+  Observable that emits keyboard events dispatched within the dialog.
+</prop-details>
+
+<prop-details name="outsidePointerEvents" type="Observable<MouseEvent>">
+  Observable that emits pointer events dispatched outside of the dialog.
+</prop-details>
+
+<prop-details name="updatePosition" type="() => NgpDialogRef">
+  Updates the position of the dialog. Currently a no-op as dialogs are CSS-centered.
+</prop-details>
 
 ## Examples
+
+### Dismiss Guard
+
+Use dismiss guards to prevent a dialog from closing when there are unsaved changes. The `closeOnEscape` and `closeOnOutsideClick` options accept a guard function that returns a boolean or a `Promise<boolean>`.
+
+<docs-example name="dialog-dismiss-guard"></docs-example>
 
 ### Dialog with external data
 

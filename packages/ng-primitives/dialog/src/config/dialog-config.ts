@@ -1,5 +1,5 @@
 import { InjectionToken, Injector, Provider, ViewContainerRef, inject } from '@angular/core';
-import { ScrollStrategy } from 'ng-primitives/portal';
+import { NgpDismissGuard, ScrollStrategy } from 'ng-primitives/portal';
 
 /** Valid ARIA roles for a dialog. */
 export type NgpDialogRole = 'dialog' | 'alertdialog';
@@ -26,10 +26,18 @@ export interface NgpDialogConfig<T = any> {
    */
   closeOnNavigation?: boolean;
 
-  /** Whether the dialog should close when the user presses the escape key. */
-  closeOnEscape?: boolean;
+  /** Whether the dialog should close when the user presses the escape key, or a guard function. */
+  closeOnEscape?: NgpDismissGuard<KeyboardEvent>;
 
-  /** Whether the dialog should close when the user clicks the overlay. */
+  /**
+   * Whether the dialog should close when clicking outside (on the overlay), or a guard function.
+   */
+  closeOnOutsideClick?: NgpDismissGuard<Element>;
+
+  /**
+   * Whether the dialog should close when the user clicks the overlay.
+   * @deprecated Use `closeOnOutsideClick` instead.
+   */
   closeOnClick?: boolean;
 
   /** Scroll strategy to be used for the dialog. */

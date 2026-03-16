@@ -208,6 +208,74 @@ describe('NgpDialog', () => {
     expect(closedSpy).not.toHaveBeenCalled();
   }));
 
+  it('should NOT close on overlay click when closeOnOutsideClick is false', async () => {
+    const { ref } = openDialog({ closeOnOutsideClick: false });
+    const closedSpy = vi.fn();
+    ref.closed.subscribe(closedSpy);
+
+    const overlay = document.querySelector('[data-testid="overlay"]') as HTMLElement;
+    overlay.click();
+
+    await new Promise(r => setTimeout(r, 0));
+    expect(closedSpy).not.toHaveBeenCalled();
+  });
+
+  it('should support async dismiss guard on closeOnOutsideClick', async () => {
+    const { ref } = openDialog({
+      closeOnOutsideClick: () => Promise.resolve(false),
+    });
+    const closedSpy = vi.fn();
+    ref.closed.subscribe(closedSpy);
+
+    const overlay = document.querySelector('[data-testid="overlay"]') as HTMLElement;
+    overlay.click();
+
+    await new Promise(r => setTimeout(r, 0));
+    expect(closedSpy).not.toHaveBeenCalled();
+  });
+
+  it('should close when async dismiss guard resolves true', async () => {
+    const { ref } = openDialog({
+      closeOnOutsideClick: () => Promise.resolve(true),
+    });
+    const closedSpy = vi.fn();
+    ref.closed.subscribe(closedSpy);
+
+    const overlay = document.querySelector('[data-testid="overlay"]') as HTMLElement;
+    overlay.click();
+
+    await waitFor(() => {
+      expect(closedSpy).toHaveBeenCalled();
+    });
+  });
+
+  it('should support sync dismiss guard function on closeOnOutsideClick', async () => {
+    const { ref } = openDialog({
+      closeOnOutsideClick: () => false,
+    });
+    const closedSpy = vi.fn();
+    ref.closed.subscribe(closedSpy);
+
+    const overlay = document.querySelector('[data-testid="overlay"]') as HTMLElement;
+    overlay.click();
+
+    await new Promise(r => setTimeout(r, 0));
+    expect(closedSpy).not.toHaveBeenCalled();
+  });
+
+  it('should support dismiss guard on closeOnEscape', async () => {
+    const { ref } = openDialog({
+      closeOnEscape: () => false,
+    });
+    const closedSpy = vi.fn();
+    ref.closed.subscribe(closedSpy);
+
+    document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
+
+    await new Promise(r => setTimeout(r, 0));
+    expect(closedSpy).not.toHaveBeenCalled();
+  });
+
   it('should generate unique dialog id', () => {
     openDialog();
     const dialog = document.querySelector('[data-testid="dialog"]');
