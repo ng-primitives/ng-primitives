@@ -144,7 +144,11 @@ export class BlockScrollStrategy implements ScrollStrategy {
   private canBeEnabled(): boolean {
     const html = this.document.documentElement!;
 
-    if (html.classList.contains('cdk-global-scrollblock') || html.hasAttribute('data-scrollblock') || this.isEnabled) {
+    if (
+      html.classList.contains('cdk-global-scrollblock') ||
+      html.hasAttribute('data-scrollblock') ||
+      this.isEnabled
+    ) {
       return false;
     }
 

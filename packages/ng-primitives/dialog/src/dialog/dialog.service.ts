@@ -319,7 +319,8 @@ export class NgpDialogManager implements OnDestroy {
    */
   private enableScrollBlocking(config?: NgpDialogConfig): void {
     if (!this.scrollStrategy) {
-      this.scrollStrategy = config?.scrollStrategy ?? new BlockScrollStrategy(this.viewportRuler, this.document);
+      this.scrollStrategy =
+        config?.scrollStrategy ?? new BlockScrollStrategy(this.viewportRuler, this.document);
     }
     this.scrollStrategy.enable();
   }
