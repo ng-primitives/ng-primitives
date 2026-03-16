@@ -1,4 +1,5 @@
 import { FocusMonitor, FocusOrigin } from '@angular/cdk/a11y';
+import { ViewportRuler } from '@angular/cdk/scrolling';
 import { DOCUMENT } from '@angular/common';
 import {
   DestroyRef,
@@ -225,6 +226,7 @@ export type NgpOverlayTemplateContext<T> = {
 export class NgpOverlay<T = unknown> implements CooldownOverlay {
   private readonly disposables = injectDisposables();
   private readonly document = inject(DOCUMENT);
+  private readonly viewportRuler = inject(ViewportRuler);
   private readonly destroyRef = inject(DestroyRef);
   private readonly viewContainerRef: ViewContainerRef;
   private readonly focusMonitor = inject(FocusMonitor);
@@ -769,7 +771,7 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
   private createScrollStrategy(): ScrollStrategy {
     switch (this.config.scrollBehaviour) {
       case 'block':
-        return new BlockScrollStrategy(this.document);
+        return new BlockScrollStrategy(this.viewportRuler, this.document);
       case 'close':
         return new CloseScrollStrategy(
           this.config.anchorElement || this.config.triggerElement,

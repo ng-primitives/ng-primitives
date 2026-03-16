@@ -3,6 +3,7 @@
  * Modified to be fully standalone with no CDK overlay dependency.
  */
 import { coerceCssPixelValue } from '@angular/cdk/coercion';
+import { ViewportRuler } from '@angular/cdk/scrolling';
 import { getOverflowAncestors } from '@floating-ui/dom';
 import { isFunction, isObject } from 'ng-primitives/utils';
 
@@ -62,14 +63,17 @@ export class BlockScrollStrategy implements ScrollStrategy {
   private previousScrollPosition = { top: 0, left: 0 };
   private isEnabled = false;
 
-  constructor(private readonly document: Document) {}
+  constructor(
+    private readonly viewportRuler: ViewportRuler,
+    private readonly document: Document,
+  ) {}
 
   /** Blocks page-level scroll while the attached overlay is open. */
   enable() {
     if (this.canBeEnabled()) {
       const root = this.document.documentElement!;
 
-      this.previousScrollPosition = { top: window.scrollY ?? 0, left: window.scrollX ?? 0 };
+      this.previousScrollPosition = this.viewportRuler.getViewportScrollPosition();
 
       // Cache the previous inline styles in case the user had set them.
       this.previousHTMLStyles.left = root.style.left || '';
@@ -140,11 +144,12 @@ export class BlockScrollStrategy implements ScrollStrategy {
   private canBeEnabled(): boolean {
     const html = this.document.documentElement!;
 
-    if (html.hasAttribute('data-scrollblock') || this.isEnabled) {
+    if (html.classList.contains('cdk-global-scrollblock') || html.hasAttribute('data-scrollblock') || this.isEnabled) {
       return false;
     }
 
-    return html.scrollHeight > html.clientHeight || html.scrollWidth > html.clientWidth;
+    const viewport = this.viewportRuler.getViewportSize();
+    return html.scrollHeight > viewport.height || html.scrollWidth > viewport.width;
   }
 }
 

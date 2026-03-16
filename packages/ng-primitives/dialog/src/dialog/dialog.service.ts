@@ -1,4 +1,5 @@
 import { FocusMonitor } from '@angular/cdk/a11y';
+import { ViewportRuler } from '@angular/cdk/scrolling';
 import { DOCUMENT } from '@angular/common';
 import {
   ApplicationRef,
@@ -39,6 +40,7 @@ export class NgpDialogManager implements OnDestroy {
   private readonly injector = inject(Injector);
   private readonly document = inject<Document>(DOCUMENT);
   private readonly focusMonitor = inject(FocusMonitor);
+  private readonly viewportRuler = inject(ViewportRuler);
   private readonly registry = inject(NgpOverlayRegistry);
   private readonly defaultOptions = injectDialogConfig();
   private readonly parentDialogManager = inject(NgpDialogManager, {
@@ -317,7 +319,7 @@ export class NgpDialogManager implements OnDestroy {
    */
   private enableScrollBlocking(config?: NgpDialogConfig): void {
     if (!this.scrollStrategy) {
-      this.scrollStrategy = config?.scrollStrategy ?? new BlockScrollStrategy(this.document);
+      this.scrollStrategy = config?.scrollStrategy ?? new BlockScrollStrategy(this.viewportRuler, this.document);
     }
     this.scrollStrategy.enable();
   }
