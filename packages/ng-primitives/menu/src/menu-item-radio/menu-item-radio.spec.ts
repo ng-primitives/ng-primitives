@@ -1,6 +1,5 @@
 import { Component } from '@angular/core';
-import { fakeAsync, flush, tick } from '@angular/core/testing';
-import { fireEvent, render } from '@testing-library/angular';
+import { fireEvent, render, waitFor } from '@testing-library/angular';
 import { NgpMenuItemIndicator } from '../menu-item-indicator/menu-item-indicator';
 import { NgpMenuItemRadioGroup } from '../menu-item-radio-group/menu-item-radio-group';
 import { NgpMenuItem } from '../menu-item/menu-item';
@@ -74,153 +73,165 @@ class TestMenuRadioComponent {
 })
 class TestMenuRadioDisabledComponent {}
 
-function openMenu(fixture: any) {
+async function openMenu(fixture: any) {
   const trigger = fixture.debugElement.nativeElement.querySelector('[data-testid="trigger"]');
   fireEvent.click(trigger);
-  tick();
   fixture.detectChanges();
-  flush();
+  await waitFor(() => {
+    expect(document.querySelector('[data-testid="menu"]')).toBeInTheDocument();
+  });
   return trigger;
 }
 
 describe('NgpMenuItemRadio', () => {
-  it('should have role="menuitemradio"', fakeAsync(async () => {
+  it('should have role="menuitemradio"', async () => {
     const { fixture } = await render(TestMenuRadioComponent);
-    openMenu(fixture);
+    await openMenu(fixture);
 
-    const radio = document.querySelector('[data-testid="radio-light"]');
-    expect(radio).toHaveAttribute('role', 'menuitemradio');
-  }));
+    await waitFor(() => {
+      const radio = document.querySelector('[data-testid="radio-light"]');
+      expect(radio).toHaveAttribute('role', 'menuitemradio');
+    });
+  });
 
-  it('should have aria-checked="true" for the selected item', fakeAsync(async () => {
+  it('should have aria-checked="true" for the selected item', async () => {
     const { fixture } = await render(TestMenuRadioComponent);
-    openMenu(fixture);
+    await openMenu(fixture);
 
-    const lightRadio = document.querySelector('[data-testid="radio-light"]');
-    const darkRadio = document.querySelector('[data-testid="radio-dark"]');
+    await waitFor(() => {
+      const lightRadio = document.querySelector('[data-testid="radio-light"]');
+      const darkRadio = document.querySelector('[data-testid="radio-dark"]');
 
-    expect(lightRadio).toHaveAttribute('aria-checked', 'true');
-    expect(lightRadio).toHaveAttribute('data-checked');
-    expect(darkRadio).toHaveAttribute('aria-checked', 'false');
-    expect(darkRadio).not.toHaveAttribute('data-checked');
-  }));
+      expect(lightRadio).toHaveAttribute('aria-checked', 'true');
+      expect(lightRadio).toHaveAttribute('data-checked');
+      expect(darkRadio).toHaveAttribute('aria-checked', 'false');
+      expect(darkRadio).not.toHaveAttribute('data-checked');
+    });
+  });
 
-  it('should select radio item on click', fakeAsync(async () => {
+  it('should select radio item on click', async () => {
     const { fixture } = await render(TestMenuRadioComponent);
-    openMenu(fixture);
-
-    const darkRadio = document.querySelector('[data-testid="radio-dark"]');
-    fireEvent.click(darkRadio!);
-    tick();
-    fixture.detectChanges();
-    flush();
-
-    expect(darkRadio).toHaveAttribute('aria-checked', 'true');
-    expect(darkRadio).toHaveAttribute('data-checked');
-    expect(fixture.componentInstance.theme).toBe('dark');
-
-    // Previous selection should be unchecked
-    const lightRadio = document.querySelector('[data-testid="radio-light"]');
-    expect(lightRadio).toHaveAttribute('aria-checked', 'false');
-    expect(lightRadio).not.toHaveAttribute('data-checked');
-  }));
-
-  it('should NOT close the menu on click', fakeAsync(async () => {
-    const { fixture } = await render(TestMenuRadioComponent);
-    const trigger = openMenu(fixture);
+    await openMenu(fixture);
 
     const darkRadio = document.querySelector('[data-testid="radio-dark"]');
     fireEvent.click(darkRadio!);
-    tick();
     fixture.detectChanges();
-    flush();
 
-    // Menu should still be open
-    expect(trigger).toHaveAttribute('data-open');
-    expect(document.querySelector('[data-testid="menu"]')).toBeInTheDocument();
-  }));
+    await waitFor(() => {
+      expect(darkRadio).toHaveAttribute('aria-checked', 'true');
+      expect(darkRadio).toHaveAttribute('data-checked');
+      expect(fixture.componentInstance.theme).toBe('dark');
 
-  it('should close the menu when regular item is clicked', fakeAsync(async () => {
+      // Previous selection should be unchecked
+      const lightRadio = document.querySelector('[data-testid="radio-light"]');
+      expect(lightRadio).toHaveAttribute('aria-checked', 'false');
+      expect(lightRadio).not.toHaveAttribute('data-checked');
+    });
+  });
+
+  it('should NOT close the menu on click', async () => {
     const { fixture } = await render(TestMenuRadioComponent);
-    const trigger = openMenu(fixture);
+    const trigger = await openMenu(fixture);
+
+    const darkRadio = document.querySelector('[data-testid="radio-dark"]');
+    fireEvent.click(darkRadio!);
+    fixture.detectChanges();
+
+    await waitFor(() => {
+      // Menu should still be open
+      expect(trigger).toHaveAttribute('data-open');
+      expect(document.querySelector('[data-testid="menu"]')).toBeInTheDocument();
+    });
+  });
+
+  it('should close the menu when regular item is clicked', async () => {
+    const { fixture } = await render(TestMenuRadioComponent);
+    const trigger = await openMenu(fixture);
 
     const regularItem = document.querySelector('[data-testid="regular-item"]');
     fireEvent.click(regularItem!);
-    tick();
     fixture.detectChanges();
-    flush();
 
-    expect(trigger).not.toHaveAttribute('data-open');
-  }));
+    await waitFor(() => {
+      expect(trigger).not.toHaveAttribute('data-open');
+    });
+  });
 
-  it('should not select when disabled', fakeAsync(async () => {
+  it('should not select when disabled', async () => {
     const { fixture } = await render(TestMenuRadioDisabledComponent);
-    openMenu(fixture);
+    await openMenu(fixture);
 
     const disabledRadio = document.querySelector('[data-testid="disabled-radio"]');
     const selectedRadio = document.querySelector('[data-testid="selected-radio"]');
 
     // The disabled radio is not selected (group value is "b", this radio's value is "a")
-    expect(disabledRadio).toHaveAttribute('aria-checked', 'false');
-    expect(selectedRadio).toHaveAttribute('aria-checked', 'true');
+    await waitFor(() => {
+      expect(disabledRadio).toHaveAttribute('aria-checked', 'false');
+      expect(selectedRadio).toHaveAttribute('aria-checked', 'true');
+    });
 
     // Clicking the disabled radio should not select it
     fireEvent.click(disabledRadio!);
-    tick();
     fixture.detectChanges();
-    flush();
 
-    expect(disabledRadio).toHaveAttribute('aria-checked', 'false');
-    expect(selectedRadio).toHaveAttribute('aria-checked', 'true');
-  }));
+    await waitFor(() => {
+      expect(disabledRadio).toHaveAttribute('aria-checked', 'false');
+      expect(selectedRadio).toHaveAttribute('aria-checked', 'true');
+    });
+  });
 
-  it('should show indicator with data-checked for selected item', fakeAsync(async () => {
+  it('should show indicator with data-checked for selected item', async () => {
     const { fixture } = await render(TestMenuRadioComponent);
-    openMenu(fixture);
+    await openMenu(fixture);
 
-    const lightIndicator = document.querySelector('[data-testid="indicator-light"]');
-    const darkIndicator = document.querySelector('[data-testid="indicator-dark"]');
-
-    expect(lightIndicator).toHaveAttribute('data-checked');
-    expect(darkIndicator).not.toHaveAttribute('data-checked');
+    let lightIndicator: Element | null;
+    let darkIndicator: Element | null;
+    await waitFor(() => {
+      lightIndicator = document.querySelector('[data-testid="indicator-light"]');
+      darkIndicator = document.querySelector('[data-testid="indicator-dark"]');
+      expect(lightIndicator).toHaveAttribute('data-checked');
+      expect(darkIndicator).not.toHaveAttribute('data-checked');
+    });
 
     // Click dark radio
     const darkRadio = document.querySelector('[data-testid="radio-dark"]');
     fireEvent.click(darkRadio!);
-    tick();
     fixture.detectChanges();
-    flush();
 
-    expect(lightIndicator).not.toHaveAttribute('data-checked');
-    expect(darkIndicator).toHaveAttribute('data-checked');
-  }));
+    await waitFor(() => {
+      expect(lightIndicator).not.toHaveAttribute('data-checked');
+      expect(darkIndicator).toHaveAttribute('data-checked');
+    });
+  });
 });
 
 describe('NgpMenuItemRadioGroup', () => {
-  it('should have role="group"', fakeAsync(async () => {
+  it('should have role="group"', async () => {
     const { fixture } = await render(TestMenuRadioComponent);
-    openMenu(fixture);
+    await openMenu(fixture);
 
-    const radioLight = document.querySelector('[data-testid="radio-light"]');
-    const group = radioLight?.parentElement;
-    expect(group).toHaveAttribute('role', 'group');
-  }));
+    await waitFor(() => {
+      const radioLight = document.querySelector('[data-testid="radio-light"]');
+      const group = radioLight?.parentElement;
+      expect(group).toHaveAttribute('role', 'group');
+    });
+  });
 
-  it('should not re-emit when selecting already selected value', fakeAsync(async () => {
+  it('should not re-emit when selecting already selected value', async () => {
     const { fixture } = await render(TestMenuRadioComponent);
     fixture.componentInstance.theme = 'light';
     fixture.detectChanges();
-    openMenu(fixture);
+    await openMenu(fixture);
 
     const originalTheme = fixture.componentInstance.theme;
 
     const lightRadio = document.querySelector('[data-testid="radio-light"]');
     fireEvent.click(lightRadio!);
-    tick();
     fixture.detectChanges();
-    flush();
 
-    // Theme should not have changed
-    expect(fixture.componentInstance.theme).toBe(originalTheme);
-  }));
+    await waitFor(() => {
+      // Theme should not have changed
+      expect(fixture.componentInstance.theme).toBe(originalTheme);
+    });
+  });
 });

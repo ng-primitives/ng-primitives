@@ -38,7 +38,7 @@ This is an Nx monorepo for Angular Primitives, a headless UI library focused on 
 
 - Angular 19+, Nx 21+, pnpm package manager
 - AnalogJS for documentation site (Vite-based SSG/SSR)
-- Jest for unit testing, Playwright for E2E testing
+- Vitest for unit testing, Playwright for E2E testing
 - ESLint for linting, Prettier for formatting
 
 ## Nx Generators

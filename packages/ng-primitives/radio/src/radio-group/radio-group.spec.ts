@@ -72,7 +72,7 @@ describe('RadioGroup', () => {
   });
 
   it('should select an item when clicked', async () => {
-    const valueChange = jest.fn();
+    const valueChange = vi.fn();
 
     const { getByRole, detectChanges } = await render(
       `
@@ -160,7 +160,7 @@ describe('RadioGroup', () => {
   });
 
   it('should navigate with ArrowRight in horizontal orientation', async () => {
-    const valueChange = jest.fn();
+    const valueChange = vi.fn();
     const { getByRole, detectChanges } = await render(
       `
       <div ngpRadioGroup (ngpRadioGroupValueChange)="valueChange($event)">
@@ -186,7 +186,7 @@ describe('RadioGroup', () => {
   });
 
   it('should navigate with ArrowLeft in horizontal orientation', async () => {
-    const valueChange = jest.fn();
+    const valueChange = vi.fn();
     const { getByRole, detectChanges } = await render(
       `
       <div ngpRadioGroup (ngpRadioGroupValueChange)="valueChange($event)">
@@ -215,7 +215,7 @@ describe('RadioGroup', () => {
   });
 
   it('should navigate with ArrowDown in vertical orientation', async () => {
-    const valueChange = jest.fn();
+    const valueChange = vi.fn();
     const { getByRole, detectChanges } = await render(
       `
       <div ngpRadioGroup ngpRadioGroupOrientation="vertical" (ngpRadioGroupValueChange)="valueChange($event)">
@@ -263,7 +263,7 @@ describe('RadioGroup', () => {
   });
 
   it('should handle disabled individual radio items', async () => {
-    const valueChange = jest.fn();
+    const valueChange = vi.fn();
     const { getByRole } = await render(
       `
       <div ngpRadioGroup (ngpRadioGroupValueChange)="valueChange($event)">

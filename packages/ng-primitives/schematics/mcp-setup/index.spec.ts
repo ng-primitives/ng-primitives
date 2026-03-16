@@ -1,9 +1,12 @@
+import { createRequire } from 'node:module';
 import { SchematicTestRunner, UnitTestTree } from '@angular-devkit/schematics/testing';
 import { join } from 'path';
 
+const _require = createRequire(import.meta.url);
+
 const collectionPath = join(__dirname, '../../collection.json');
 
-const { version: PACKAGE_VERSION } = require('../../package.json');
+const { version: PACKAGE_VERSION } = _require('../../package.json');
 
 describe('mcp-setup schematic', () => {
   let runner: SchematicTestRunner;

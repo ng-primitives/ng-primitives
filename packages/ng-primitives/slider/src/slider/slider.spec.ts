@@ -22,7 +22,7 @@ describe('NgpSlider', () => {
   it('should render with generated id and orientation', async () => {
     const { getByTestId } = await render(createTemplate(), {
       imports: [NgpSlider, NgpSliderTrack, NgpSliderRange, NgpSliderThumb],
-      componentProperties: { valueChange: jest.fn() },
+      componentProperties: { valueChange: vi.fn() },
     });
 
     const slider = getByTestId('slider');
@@ -31,7 +31,7 @@ describe('NgpSlider', () => {
   });
 
   it('should respect disabled state (attributes and interactions)', async () => {
-    const valueChange = jest.fn();
+    const valueChange = vi.fn();
     const { getByTestId, rerender } = await render(
       createTemplate(`[ngpSliderDisabled]="disabled"`),
       {
@@ -55,7 +55,7 @@ describe('NgpSlider', () => {
   });
 
   it('should adjust value with keyboard on thumb', async () => {
-    const valueChange = jest.fn();
+    const valueChange = vi.fn();
     const { getByTestId } = await render(
       createTemplate(`[ngpSliderValue]="value" [ngpSliderMin]="0" [ngpSliderMax]="10"`),
       {
@@ -76,7 +76,7 @@ describe('NgpSlider', () => {
       createTemplate(`[ngpSliderOrientation]="'vertical'" [ngpSliderValue]="25"`),
       {
         imports: [NgpSlider, NgpSliderTrack, NgpSliderRange, NgpSliderThumb],
-        componentProperties: { valueChange: jest.fn() },
+        componentProperties: { valueChange: vi.fn() },
       },
     );
 
@@ -98,7 +98,7 @@ describe('NgpSlider', () => {
       ),
       {
         imports: [NgpSlider, NgpSliderTrack, NgpSliderRange, NgpSliderThumb],
-        componentProperties: { valueChange: jest.fn() },
+        componentProperties: { valueChange: vi.fn() },
       },
     );
 
@@ -116,7 +116,7 @@ describe('NgpSlider', () => {
       ),
       {
         imports: [NgpSlider, NgpSliderTrack, NgpSliderRange, NgpSliderThumb],
-        componentProperties: { valueChange: jest.fn() },
+        componentProperties: { valueChange: vi.fn() },
       },
     );
 
@@ -133,7 +133,7 @@ describe('NgpSlider', () => {
       ),
       {
         imports: [NgpSlider, NgpSliderTrack, NgpSliderRange, NgpSliderThumb],
-        componentProperties: { valueChange: jest.fn() },
+        componentProperties: { valueChange: vi.fn() },
       },
     );
 
@@ -148,7 +148,7 @@ describe('NgpSlider', () => {
       createTemplate(`[ngpSliderOrientation]="'vertical'" [ngpSliderValue]="50"`),
       {
         imports: [NgpSlider, NgpSliderTrack, NgpSliderRange, NgpSliderThumb],
-        componentProperties: { valueChange: jest.fn() },
+        componentProperties: { valueChange: vi.fn() },
       },
     );
 
@@ -160,7 +160,7 @@ describe('NgpSlider', () => {
   });
 
   it('should set higher value when clicking near top of vertical track', async () => {
-    const valueChange = jest.fn();
+    const valueChange = vi.fn();
     const { getByTestId, fixture } = await render(
       createTemplate(
         `[ngpSliderOrientation]="'vertical'" [ngpSliderValue]="50" [ngpSliderMin]="0" [ngpSliderMax]="100"`,
@@ -174,7 +174,7 @@ describe('NgpSlider', () => {
     const track = getByTestId('track');
 
     // Mock getBoundingClientRect for vertical track
-    jest.spyOn(track, 'getBoundingClientRect').mockReturnValue({
+    vi.spyOn(track, 'getBoundingClientRect').mockReturnValue({
       left: 0,
       top: 0,
       right: 20,
@@ -202,7 +202,7 @@ describe('NgpSlider', () => {
   });
 
   it('should set lower value when clicking near bottom of vertical track', async () => {
-    const valueChange = jest.fn();
+    const valueChange = vi.fn();
     const { getByTestId, fixture } = await render(
       createTemplate(
         `[ngpSliderOrientation]="'vertical'" [ngpSliderValue]="50" [ngpSliderMin]="0" [ngpSliderMax]="100"`,
@@ -216,7 +216,7 @@ describe('NgpSlider', () => {
     const track = getByTestId('track');
 
     // Mock getBoundingClientRect for vertical track
-    jest.spyOn(track, 'getBoundingClientRect').mockReturnValue({
+    vi.spyOn(track, 'getBoundingClientRect').mockReturnValue({
       left: 0,
       top: 0,
       right: 20,
@@ -244,7 +244,7 @@ describe('NgpSlider', () => {
   });
 
   it('should respect step value when adjusting with keyboard', async () => {
-    const valueChange = jest.fn();
+    const valueChange = vi.fn();
     const { getByTestId } = await render(
       createTemplate(
         `[ngpSliderValue]="value" [ngpSliderMin]="0" [ngpSliderMax]="10" [ngpSliderStep]="2"`,
@@ -267,7 +267,7 @@ describe('NgpSlider', () => {
   });
 
   it('should respect step value when setting value via pointer', async () => {
-    const valueChange = jest.fn();
+    const valueChange = vi.fn();
     const { getByTestId, fixture } = await render(
       createTemplate(
         `[ngpSliderValue]="value" [ngpSliderMin]="0" [ngpSliderMax]="100" [ngpSliderStep]="10"`,
@@ -281,7 +281,7 @@ describe('NgpSlider', () => {
     const track = getByTestId('track');
 
     // Mock getBoundingClientRect to return realistic dimensions
-    jest.spyOn(track, 'getBoundingClientRect').mockReturnValue({
+    vi.spyOn(track, 'getBoundingClientRect').mockReturnValue({
       left: 0,
       top: 0,
       right: 100,

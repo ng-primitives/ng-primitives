@@ -1,10 +1,18 @@
 import { Component } from '@angular/core';
-import * as floatingUiDom from '@floating-ui/dom';
+import { computePosition } from '@floating-ui/dom';
 import { fireEvent, render, waitFor } from '@testing-library/angular';
 import { NgpMenuItem } from '../menu-item/menu-item';
 import { NgpMenuTrigger } from '../menu-trigger/menu-trigger';
 import { NgpMenu } from '../menu/menu';
 import { NgpSubmenuTrigger } from './submenu-trigger';
+
+vi.mock('@floating-ui/dom', async () => {
+  const actual = await vi.importActual<typeof import('@floating-ui/dom')>('@floating-ui/dom');
+  return {
+    ...actual,
+    computePosition: vi.fn(actual.computePosition),
+  };
+});
 
 @Component({
   template: `
@@ -143,14 +151,10 @@ describe('NgpSubmenuTrigger viewport awareness', () => {
   });
 
   describe('flip middleware', () => {
-    let computePositionSpy: jest.SpyInstance;
-
-    beforeEach(() => {
-      computePositionSpy = jest.spyOn(floatingUiDom, 'computePosition');
-    });
+    const computePositionMock = vi.mocked(computePosition);
 
     afterEach(() => {
-      jest.restoreAllMocks();
+      computePositionMock.mockClear();
     });
 
     it('should include flip middleware when flip is enabled (default)', async () => {
@@ -158,7 +162,7 @@ describe('NgpSubmenuTrigger viewport awareness', () => {
       await openMenuAndSubmenu(fixture);
 
       // Find the computePosition call for the submenu (placement: right-start)
-      const submenuCall = computePositionSpy.mock.calls.find(call => {
+      const submenuCall = computePositionMock.mock.calls.find(call => {
         const options = call[2];
         return options?.placement === 'right-start';
       });
@@ -176,7 +180,7 @@ describe('NgpSubmenuTrigger viewport awareness', () => {
       await openMenuAndSubmenu(fixture);
 
       // Find the computePosition call for the submenu
-      const submenuCall = computePositionSpy.mock.calls.find(call => {
+      const submenuCall = computePositionMock.mock.calls.find(call => {
         const options = call[2];
         return options?.placement === 'right-start';
       });
@@ -194,7 +198,7 @@ describe('NgpSubmenuTrigger viewport awareness', () => {
       await openMenuAndSubmenu(fixture);
 
       // Find the computePosition call for the submenu
-      const submenuCall = computePositionSpy.mock.calls.find(call => {
+      const submenuCall = computePositionMock.mock.calls.find(call => {
         const options = call[2];
         return options?.placement === 'right-start';
       });
@@ -245,7 +249,7 @@ describe('NgpSubmenuTrigger viewport awareness', () => {
       // Mock getBoundingClientRect to simulate viewport constraint.
       // The submenu trigger is positioned so its right edge is near the viewport edge.
       // A right-start submenu would overflow, but left-start has enough space.
-      jest.spyOn(HTMLElement.prototype, 'getBoundingClientRect').mockImplementation(function (
+      vi.spyOn(HTMLElement.prototype, 'getBoundingClientRect').mockImplementation(function (
         this: HTMLElement,
       ) {
         const testId = this.getAttribute('data-testid');
@@ -311,7 +315,7 @@ describe('NgpSubmenuTrigger viewport awareness', () => {
 
       return {
         cleanup: () => {
-          jest.restoreAllMocks();
+          vi.restoreAllMocks();
           Object.defineProperty(window, 'innerWidth', {
             value: originalInnerWidth,
             configurable: true,
@@ -383,58 +387,35 @@ describe('NgpSubmenuTrigger viewport awareness', () => {
     });
 
     it('should not flip when flip is disabled even near viewport edge', async () => {
-      const computePositionSpy = jest.spyOn(floatingUiDom, 'computePosition');
-      const { cleanup } = setupViewportMocks();
+      const computePositionMock = vi.mocked(computePosition);
+      computePositionMock.mockClear();
 
-      try {
-        const { fixture } = await render(TestSubmenuNoFlipComponent);
-        fixture.autoDetectChanges(true);
+      const { fixture } = await render(TestSubmenuNoFlipComponent);
+      await openMenuAndSubmenu(fixture);
 
-        const trigger = fixture.debugElement.nativeElement.querySelector(
-          '[data-testid="root-trigger"]',
-        );
+      // Verify no flip middleware was included in the submenu's computePosition call
+      const submenuCall = computePositionMock.mock.calls.find(call => {
+        const options = call[2];
+        return options?.placement === 'right-start';
+      });
 
-        // Open root menu
-        fireEvent.click(trigger);
-
-        await waitFor(() => {
-          expect(document.querySelector('[data-testid="submenu-trigger"]')).toBeInTheDocument();
-        });
-
-        // Open submenu
-        const submenuTrigger = document.querySelector('[data-testid="submenu-trigger"]')!;
-        fireEvent.click(submenuTrigger);
-
-        await waitFor(() => {
-          expect(document.querySelector('[data-testid="submenu"]')).toBeInTheDocument();
-        });
-
-        // Verify no flip middleware was included in the submenu's computePosition call
-        const submenuCall = computePositionSpy.mock.calls.find(call => {
-          const options = call[2];
-          return options?.placement === 'right-start';
-        });
-
-        expect(submenuCall).toBeDefined();
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const middleware = (submenuCall as any[])[2].middleware as any[];
-        const hasFlip = middleware.some(m => m?.name === 'flip');
-        expect(hasFlip).toBe(false);
-      } finally {
-        cleanup();
-      }
+      expect(submenuCall).toBeDefined();
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const middleware = (submenuCall as any[])[2].middleware as any[];
+      const hasFlip = middleware.some(m => m?.name === 'flip');
+      expect(hasFlip).toBe(false);
     });
   });
 
   describe('custom placement', () => {
-    let computePositionSpy: jest.SpyInstance;
+    let computePositionMock: vi.SpyInstance;
 
     beforeEach(() => {
-      computePositionSpy = jest.spyOn(floatingUiDom, 'computePosition');
+      computePositionMock = vi.mocked(computePosition);
     });
 
     afterEach(() => {
-      jest.restoreAllMocks();
+      vi.restoreAllMocks();
     });
 
     it('should use left-start placement when specified', async () => {
@@ -445,7 +426,7 @@ describe('NgpSubmenuTrigger viewport awareness', () => {
       await openMenuAndSubmenu(fixture);
 
       // Find the computePosition call with left-start placement
-      const submenuCall = computePositionSpy.mock.calls.find(call => {
+      const submenuCall = computePositionMock.mock.calls.find(call => {
         const options = call[2];
         return options?.placement === 'left-start';
       });

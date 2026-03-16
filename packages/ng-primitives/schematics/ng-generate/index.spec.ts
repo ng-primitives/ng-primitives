@@ -1,7 +1,10 @@
+import { createRequire } from 'node:module';
 import { SchematicTestRunner, UnitTestTree } from '@angular-devkit/schematics/testing';
 import { Schema as ApplicationOptions } from '@schematics/angular/application/schema';
 import { Schema as WorkspaceOptions } from '@schematics/angular/workspace/schema';
 import { AngularPrimitivesComponentSchema } from './schema';
+
+const require = createRequire(import.meta.url);
 
 describe('Component Schematic', () => {
   const schematicRunner = new SchematicTestRunner(

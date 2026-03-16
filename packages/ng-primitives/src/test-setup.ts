@@ -1,10 +1,12 @@
-import '@testing-library/jest-dom';
-import { setupZoneTestEnv } from 'jest-preset-angular/setup-env/zone';
+import '@angular/compiler';
+import '@testing-library/jest-dom/vitest';
+import '@analogjs/vitest-angular/setup-zone';
+import { setupTestBed } from '@analogjs/vitest-angular/setup-testbed';
 
-setupZoneTestEnv();
+setupTestBed({ zoneless: false });
 
 // patch the getAnimations function to return an empty array
-// as this doesn't work in Jest environment - and we don't need animations for tests
+// as this doesn't work in the test environment - and we don't need animations for tests
 Element.prototype.getAnimations = () => [];
 
 // patch ResizeObserver to avoid errors in tests
@@ -18,4 +20,4 @@ global.ResizeObserver = class {
 };
 
 // patch scrollIntoView
-Element.prototype.scrollIntoView = jest.fn();
+Element.prototype.scrollIntoView = vi.fn();

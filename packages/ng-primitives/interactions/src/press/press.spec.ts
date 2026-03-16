@@ -11,9 +11,9 @@ describe('NgpPress', () => {
   });
 
   it('should emit press events on mouse interaction', async () => {
-    const pressStart = jest.fn();
-    const pressEnd = jest.fn();
-    const pressChange = jest.fn();
+    const pressStart = vi.fn();
+    const pressEnd = vi.fn();
+    const pressChange = vi.fn();
 
     const container = await render(
       `<div data-testid="trigger" ngpPress (ngpPressStart)="pressStart()" (ngpPressEnd)="pressEnd()" (ngpPress)="pressChange($event)"></div>`,
@@ -38,9 +38,9 @@ describe('NgpPress', () => {
   });
 
   it('should not emit press events when disabled', async () => {
-    const pressStart = jest.fn();
-    const pressEnd = jest.fn();
-    const pressChange = jest.fn();
+    const pressStart = vi.fn();
+    const pressEnd = vi.fn();
+    const pressChange = vi.fn();
 
     const container = await render(
       `<div data-testid="trigger" ngpPress [ngpPressDisabled]="true" (ngpPressStart)="pressStart()" (ngpPressEnd)="pressEnd()" (ngpPress)="pressChange($event)"></div>`,
@@ -61,8 +61,8 @@ describe('NgpPress', () => {
   });
 
   it('should end press on document pointerup when pointerdown started on the element', async () => {
-    const pressEnd = jest.fn();
-    const pressChange = jest.fn();
+    const pressEnd = vi.fn();
+    const pressChange = vi.fn();
 
     const container = await render(
       `<div data-testid="trigger" ngpPress (ngpPressEnd)="pressEnd()" (ngpPress)="pressChange($event)"></div>`,
@@ -82,8 +82,8 @@ describe('NgpPress', () => {
   });
 
   it('should end press when pointer moves outside the element', async () => {
-    const pressEnd = jest.fn();
-    const pressChange = jest.fn();
+    const pressEnd = vi.fn();
+    const pressChange = vi.fn();
 
     const container = await render(
       `<div data-testid="trigger" ngpPress (ngpPressEnd)="pressEnd()" (ngpPress)="pressChange($event)"></div>`,
@@ -110,8 +110,8 @@ describe('NgpPress', () => {
   });
 
   it('should end press on pointer cancel', async () => {
-    const pressEnd = jest.fn();
-    const pressChange = jest.fn();
+    const pressEnd = vi.fn();
+    const pressChange = vi.fn();
 
     const container = await render(
       `<div data-testid="trigger" ngpPress (ngpPressEnd)="pressEnd()" (ngpPress)="pressChange($event)"></div>`,
@@ -132,9 +132,9 @@ describe('NgpPress', () => {
 
   describe('keyboard interactions', () => {
     it('should emit press events on Enter key', async () => {
-      const pressStart = jest.fn();
-      const pressEnd = jest.fn();
-      const pressChange = jest.fn();
+      const pressStart = vi.fn();
+      const pressEnd = vi.fn();
+      const pressChange = vi.fn();
 
       const container = await render(
         `<div data-testid="trigger" ngpPress (ngpPressStart)="pressStart()" (ngpPressEnd)="pressEnd()" (ngpPress)="pressChange($event)"></div>`,
@@ -155,9 +155,9 @@ describe('NgpPress', () => {
     });
 
     it('should emit press events on Space key', async () => {
-      const pressStart = jest.fn();
-      const pressEnd = jest.fn();
-      const pressChange = jest.fn();
+      const pressStart = vi.fn();
+      const pressEnd = vi.fn();
+      const pressChange = vi.fn();
 
       const container = await render(
         `<div data-testid="trigger" ngpPress (ngpPressStart)="pressStart()" (ngpPressEnd)="pressEnd()" (ngpPress)="pressChange($event)"></div>`,
@@ -184,13 +184,13 @@ describe('NgpPress', () => {
 
       const trigger = container.getByTestId('trigger');
       const event = new KeyboardEvent('keydown', { key: ' ', bubbles: true, cancelable: true });
-      const preventDefaultSpy = jest.spyOn(event, 'preventDefault');
+      const preventDefaultSpy = vi.spyOn(event, 'preventDefault');
       trigger.dispatchEvent(event);
       expect(preventDefaultSpy).not.toHaveBeenCalled();
     });
 
     it('should ignore repeated key events', async () => {
-      const pressStart = jest.fn();
+      const pressStart = vi.fn();
 
       const container = await render(
         `<div data-testid="trigger" ngpPress (ngpPressStart)="pressStart()"></div>`,
@@ -209,8 +209,8 @@ describe('NgpPress', () => {
     });
 
     it('should not emit press events when disabled', async () => {
-      const pressStart = jest.fn();
-      const pressChange = jest.fn();
+      const pressStart = vi.fn();
+      const pressChange = vi.fn();
 
       const container = await render(
         `<div data-testid="trigger" ngpPress [ngpPressDisabled]="true" (ngpPressStart)="pressStart()" (ngpPress)="pressChange($event)"></div>`,
@@ -227,8 +227,8 @@ describe('NgpPress', () => {
     });
 
     it('should not end press on mismatched keyup', async () => {
-      const pressEnd = jest.fn();
-      const pressChange = jest.fn();
+      const pressEnd = vi.fn();
+      const pressChange = vi.fn();
 
       const container = await render(
         `<div data-testid="trigger" ngpPress (ngpPressEnd)="pressEnd()" (ngpPress)="pressChange($event)"></div>`,
@@ -251,8 +251,8 @@ describe('NgpPress', () => {
     });
 
     it('should end press on document keyup when keydown started on the element', async () => {
-      const pressEnd = jest.fn();
-      const pressChange = jest.fn();
+      const pressEnd = vi.fn();
+      const pressChange = vi.fn();
 
       const container = await render(
         `<div data-testid="trigger" ngpPress (ngpPressEnd)="pressEnd()" (ngpPress)="pressChange($event)"></div>`,
@@ -274,8 +274,8 @@ describe('NgpPress', () => {
     });
 
     it('should end keyboard press on blur', async () => {
-      const pressEnd = jest.fn();
-      const pressChange = jest.fn();
+      const pressEnd = vi.fn();
+      const pressChange = vi.fn();
 
       const container = await render(
         `<button data-testid="trigger" ngpPress (ngpPressEnd)="pressEnd()" (ngpPress)="pressChange($event)"></button>`,
@@ -295,8 +295,8 @@ describe('NgpPress', () => {
     });
 
     it('should ignore unrelated keys', async () => {
-      const pressStart = jest.fn();
-      const pressChange = jest.fn();
+      const pressStart = vi.fn();
+      const pressChange = vi.fn();
 
       const container = await render(
         `<div data-testid="trigger" ngpPress (ngpPressStart)="pressStart()" (ngpPress)="pressChange($event)"></div>`,
@@ -315,8 +315,8 @@ describe('NgpPress', () => {
     });
 
     it('should ignore keyboard press events on text inputs', async () => {
-      const pressStart = jest.fn();
-      const pressChange = jest.fn();
+      const pressStart = vi.fn();
+      const pressChange = vi.fn();
 
       const container = await render(
         `<input data-testid="trigger" ngpPress (ngpPressStart)="pressStart()" (ngpPress)="pressChange($event)" />`,
@@ -335,8 +335,8 @@ describe('NgpPress', () => {
     });
 
     it('should ignore keyboard press events on textarea', async () => {
-      const pressStart = jest.fn();
-      const pressChange = jest.fn();
+      const pressStart = vi.fn();
+      const pressChange = vi.fn();
 
       const container = await render(
         `<textarea data-testid="trigger" ngpPress (ngpPressStart)="pressStart()" (ngpPress)="pressChange($event)"></textarea>`,
@@ -355,8 +355,8 @@ describe('NgpPress', () => {
     });
 
     it('should ignore keyboard press events on contenteditable elements', async () => {
-      const pressStart = jest.fn();
-      const pressChange = jest.fn();
+      const pressStart = vi.fn();
+      const pressChange = vi.fn();
 
       const container = await render(
         `<div data-testid="trigger" ngpPress contenteditable="true" (ngpPressStart)="pressStart()" (ngpPress)="pressChange($event)"></div>`,
@@ -379,9 +379,9 @@ describe('NgpPress', () => {
     });
 
     it('should handle keyboard press events on non-text input types', async () => {
-      const pressStart = jest.fn();
-      const pressEnd = jest.fn();
-      const pressChange = jest.fn();
+      const pressStart = vi.fn();
+      const pressEnd = vi.fn();
+      const pressChange = vi.fn();
 
       const container = await render(
         `<input data-testid="trigger" type="checkbox" ngpPress (ngpPressStart)="pressStart()" (ngpPressEnd)="pressEnd()" (ngpPress)="pressChange($event)" />`,
@@ -404,9 +404,9 @@ describe('NgpPress', () => {
 
   describe('global configuration', () => {
     it('should not emit press events when all interactions are globally disabled', async () => {
-      const pressStart = jest.fn();
-      const pressEnd = jest.fn();
-      const pressChange = jest.fn();
+      const pressStart = vi.fn();
+      const pressEnd = vi.fn();
+      const pressChange = vi.fn();
 
       const container = await render(
         `<div data-testid="trigger" ngpPress (ngpPressStart)="pressStart()" (ngpPressEnd)="pressEnd()" (ngpPress)="pressChange($event)"></div>`,
@@ -428,9 +428,9 @@ describe('NgpPress', () => {
     });
 
     it('should not emit press events when press interactions are specifically disabled', async () => {
-      const pressStart = jest.fn();
-      const pressEnd = jest.fn();
-      const pressChange = jest.fn();
+      const pressStart = vi.fn();
+      const pressEnd = vi.fn();
+      const pressChange = vi.fn();
 
       const container = await render(
         `<div data-testid="trigger" ngpPress (ngpPressStart)="pressStart()" (ngpPressEnd)="pressEnd()" (ngpPress)="pressChange($event)"></div>`,
@@ -452,9 +452,9 @@ describe('NgpPress', () => {
     });
 
     it('should emit press events when press interactions are enabled', async () => {
-      const pressStart = jest.fn();
-      const pressEnd = jest.fn();
-      const pressChange = jest.fn();
+      const pressStart = vi.fn();
+      const pressEnd = vi.fn();
+      const pressChange = vi.fn();
 
       const container = await render(
         `<div data-testid="trigger" ngpPress (ngpPressStart)="pressStart()" (ngpPressEnd)="pressEnd()" (ngpPress)="pressChange($event)"></div>`,

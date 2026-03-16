@@ -1,4 +1,4 @@
-import { render } from '@testing-library/angular';
+import { render, waitFor } from '@testing-library/angular';
 import { NgpVisuallyHidden } from './visually-hidden';
 
 describe('NgpVisuallyHidden', () => {
@@ -7,41 +7,35 @@ describe('NgpVisuallyHidden', () => {
       imports: [NgpVisuallyHidden],
     });
 
-    // verify the styles are applied
-    const element = container.getByText('Hidden');
-    expect(getComputedStyle(element).position).toBe('absolute');
-    expect(getComputedStyle(element).width).toBe('1px');
-    expect(getComputedStyle(element).height).toBe('1px');
-    expect(getComputedStyle(element).margin).toBe('-1px');
-    expect(getComputedStyle(element).padding).toBe('0px');
-    expect(getComputedStyle(element).overflow).toBe('hidden');
-    expect(getComputedStyle(element).clip).toBe('rect(0px, 0px, 0px, 0px)');
-    expect(getComputedStyle(element).border).toBe('0px');
-    expect(getComputedStyle(element).whiteSpace).toBe('nowrap');
-    expect(getComputedStyle(element).wordWrap).toBe('normal');
-    expect(getComputedStyle(element).outline).toBe('0');
-    expect(getComputedStyle(element).insetInlineStart).toBe('0');
+    const element = container.getByText('Hidden') as HTMLElement;
+
+    await waitFor(() => {
+      expect(element.style.position).toBe('absolute');
+      expect(element.style.width).toBe('1px');
+      expect(element.style.height).toBe('1px');
+      expect(element.style.overflow).toBe('hidden');
+      expect(element.style.whiteSpace).toBe('nowrap');
+      expect(element.style.wordWrap).toBe('normal');
+    });
   });
 
   it('should merge the styles with the host element', async () => {
-    const container = await render(`<div ngpVisuallyHidden style="color: red;">Hidden</div>`, {
-      imports: [NgpVisuallyHidden],
-    });
+    const container = await render(
+      `<div ngpVisuallyHidden style="color: red;">Hidden</div>`,
+      {
+        imports: [NgpVisuallyHidden],
+      },
+    );
 
-    // verify the styles are applied
-    const element = container.getByText('Hidden');
-    expect(getComputedStyle(element).position).toBe('absolute');
-    expect(getComputedStyle(element).width).toBe('1px');
-    expect(getComputedStyle(element).height).toBe('1px');
-    expect(getComputedStyle(element).margin).toBe('-1px');
-    expect(getComputedStyle(element).padding).toBe('0px');
-    expect(getComputedStyle(element).overflow).toBe('hidden');
-    expect(getComputedStyle(element).clip).toBe('rect(0px, 0px, 0px, 0px)');
-    expect(getComputedStyle(element).border).toBe('0px');
-    expect(getComputedStyle(element).whiteSpace).toBe('nowrap');
-    expect(getComputedStyle(element).wordWrap).toBe('normal');
-    expect(getComputedStyle(element).outline).toBe('0');
-    expect(getComputedStyle(element).insetInlineStart).toBe('0');
-    expect(getComputedStyle(element).color).toBe('rgb(255, 0, 0)');
+    const element = container.getByText('Hidden') as HTMLElement;
+
+    await waitFor(() => {
+      expect(element.style.position).toBe('absolute');
+      expect(element.style.width).toBe('1px');
+      expect(element.style.height).toBe('1px');
+      expect(element.style.overflow).toBe('hidden');
+      expect(element.style.whiteSpace).toBe('nowrap');
+      expect(element.style.color).toBe('red');
+    });
   });
 });

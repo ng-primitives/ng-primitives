@@ -143,7 +143,7 @@ describe('NgpTooltipTrigger', () => {
     });
 
     it('should not show tooltip when useTextContent is enabled but trigger has no text content', async () => {
-      const consoleSpy = jest.spyOn(console, 'warn').mockImplementation();
+      const consoleSpy = vi.spyOn(console, 'warn').mockImplementation();
 
       const { getByRole } = await render(
         `<button ngpTooltipTrigger ngpTooltipTriggerUseTextContent="true"></button>`,
@@ -262,7 +262,7 @@ describe('NgpTooltipTrigger', () => {
     });
 
     it('should log error when no tooltip content provided and useTextContent is false', async () => {
-      const consoleSpy = jest.spyOn(console, 'error').mockImplementation();
+      const consoleSpy = vi.spyOn(console, 'error').mockImplementation();
 
       const { getByRole } = await render(
         `<button ngpTooltipTrigger ngpTooltipTriggerUseTextContent="false">Button text</button>`,
