@@ -27,9 +27,12 @@ export class NgpDialogTrigger<T = unknown> {
    * Whether the dialog should close on escape, or a guard function.
    * @default `true`
    */
-  readonly closeOnEscape = input<NgpDismissGuard<KeyboardEvent>>(this.config.closeOnEscape ?? true, {
-    alias: 'ngpDialogTriggerCloseOnEscape',
-  });
+  readonly closeOnEscape = input<NgpDismissGuard<KeyboardEvent>>(
+    this.config.closeOnEscape ?? true,
+    {
+      alias: 'ngpDialogTriggerCloseOnEscape',
+    },
+  );
 
   /**
    * Store the dialog ref.

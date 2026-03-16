@@ -27,11 +27,7 @@ import { NgpPopover, NgpPopoverTrigger } from 'ng-primitives/popover';
     <ng-template #popover>
       <div ngpPopover>
         <h3>Quick Note</h3>
-        <textarea
-          rows="3"
-          placeholder="Type something..."
-          (input)="dirty.set(true)"
-        ></textarea>
+        <textarea (input)="dirty.set(true)" rows="3" placeholder="Type something..."></textarea>
         <div class="popover-footer">
           <button (click)="dirty.set(false)" ngpButton type="button">Save</button>
         </div>

@@ -52,9 +52,9 @@ import {
             <input
               class="h-9 rounded-md border border-zinc-300 bg-white px-3 text-sm text-zinc-900 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 dark:border-zinc-700 dark:bg-zinc-950 dark:text-zinc-100"
               id="name"
+              (input)="dirty.set(true)"
               type="text"
               value="John Doe"
-              (input)="dirty.set(true)"
               placeholder="Enter your name"
             />
           </div>

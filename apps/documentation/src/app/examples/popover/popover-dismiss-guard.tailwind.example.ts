@@ -33,9 +33,9 @@ import { NgpPopover, NgpPopoverTrigger } from 'ng-primitives/popover';
         <h3 class="m-0 text-[13px] font-medium text-gray-900 dark:text-gray-100">Quick Note</h3>
         <textarea
           class="resize-none rounded-md border border-gray-300 bg-white p-2 font-[inherit] text-[13px] text-gray-900 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 dark:border-zinc-700 dark:bg-black dark:text-gray-100"
+          (input)="dirty.set(true)"
           rows="3"
           placeholder="Type something..."
-          (input)="dirty.set(true)"
         ></textarea>
         <div class="flex justify-end">
           <button

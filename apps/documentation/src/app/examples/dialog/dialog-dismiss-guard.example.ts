@@ -38,9 +38,9 @@ import {
             <label for="name">Name</label>
             <input
               id="name"
+              (input)="dirty.set(true)"
               type="text"
               value="John Doe"
-              (input)="dirty.set(true)"
               placeholder="Enter your name"
             />
           </div>
