@@ -1,3 +1,14 @@
+## 0.112.1 (2026-03-16)
+
+### 🩹 Fixes
+
+- **tooltip:** prevent tooltip from getting stuck when re-hovering dur… ([#708](https://github.com/ng-primitives/ng-primitives/pull/708), [#681](https://github.com/ng-primitives/ng-primitives/issues/681))
+
+### ❤️ Thank You
+
+- Ashley Hunter
+- Claude
+
 ## 0.112.0 (2026-03-14)
 
 ### 🚀 Features
