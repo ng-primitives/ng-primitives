@@ -1,4 +1,4 @@
-export default {
+module.exports = {
   displayName: 'eslint-rules',
   preset: '../../jest.preset.js',
   transform: {
