@@ -1,4 +1,14 @@
-import { computed, ElementRef, Signal, signal, WritableSignal } from '@angular/core';
+import {
+  afterRenderEffect,
+  computed,
+  ElementRef,
+  inject,
+  Injector,
+  runInInjectionContext,
+  Signal,
+  signal,
+  WritableSignal,
+} from '@angular/core';
 import type { Placement } from '@floating-ui/dom';
 import { activeDescendantManager } from 'ng-primitives/a11y';
 import { ngpFormControl } from 'ng-primitives/form-field';
@@ -265,6 +275,7 @@ export const [NgpSelectStateToken, ngpSelect, _injectSelectState, provideSelectS
       onOpenChange,
     }: NgpSelectProps<T>): NgpSelectState<T> => {
       const elementRef = injectElementRef<HTMLElement>();
+      const injector = inject(Injector);
       const value = controlled(_value);
       const multiple = controlled(_multiple);
       const disabled = controlled(_disabled);
@@ -347,6 +358,13 @@ export const [NgpSelectStateToken, ngpSelect, _injectSelectState, provideSelectS
 
         onOpenChange?.(true);
         await portal()?.show();
+
+        // Wait the next render to ensure dropdown style binding is done
+        await new Promise<void>(resolve => {
+          runInInjectionContext(injector, () => {
+            afterRenderEffect(() => resolve());
+          });
+        });
 
         let selectedOptionIdx = -1;
 
