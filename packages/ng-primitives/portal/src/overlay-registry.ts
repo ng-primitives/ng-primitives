@@ -1,6 +1,7 @@
 import { FocusOrigin } from '@angular/cdk/a11y';
 import { DOCUMENT } from '@angular/common';
 import { inject, Injectable, NgZone } from '@angular/core';
+import { Subject } from 'rxjs';
 
 /**
  * A dismiss guard can be a boolean or a callback that returns a boolean (sync or async).
@@ -41,6 +42,8 @@ export interface NgpOverlayEntry {
   anchorElement?: HTMLElement | null;
   /** Per-instance dismiss configuration */
   dismissPolicy: NgpDismissPolicy;
+  /** Optional subject that receives pointer events that occur outside the overlay */
+  outsidePointerEvents$?: Subject<MouseEvent>;
 }
 
 /**
@@ -75,6 +78,10 @@ export class NgpOverlayRegistry {
   /** Cleanup functions for the centralized document listeners */
   private removeOutsideClickListener?: () => void;
   private removeEscapeKeyListener?: () => void;
+  private removeOutsidePointerListeners?: () => void;
+
+  /** Tracks the pointerdown target for CDK-compatible outside pointer event dispatch */
+  private pointerDownTarget: EventTarget | null = null;
 
   /**
    * Register an overlay as visible. The entry is appended to the end of the list
@@ -211,6 +218,28 @@ export class NgpOverlayRegistry {
         this.document.removeEventListener('mouseup', onMouseUp, true);
       this.removeEscapeKeyListener = () =>
         this.document.removeEventListener('keydown', onKeyDown, true);
+
+      // CDK-compatible outside pointer event dispatch:
+      // Track pointerdown origin, then emit click/auxclick/contextmenu events
+      // to entries that have an outsidePointerEvents$ subject.
+      const onPointerDown = (event: PointerEvent) => {
+        this.pointerDownTarget = this.getComposedTarget(event);
+      };
+
+      const onPointerEvent = (event: MouseEvent) =>
+        this.handleOutsidePointerEvent(event);
+
+      this.document.addEventListener('pointerdown', onPointerDown, true);
+      this.document.addEventListener('click', onPointerEvent, true);
+      this.document.addEventListener('auxclick', onPointerEvent, true);
+      this.document.addEventListener('contextmenu', onPointerEvent, true);
+
+      this.removeOutsidePointerListeners = () => {
+        this.document.removeEventListener('pointerdown', onPointerDown, true);
+        this.document.removeEventListener('click', onPointerEvent, true);
+        this.document.removeEventListener('auxclick', onPointerEvent, true);
+        this.document.removeEventListener('contextmenu', onPointerEvent, true);
+      };
     });
   }
 
@@ -222,6 +251,9 @@ export class NgpOverlayRegistry {
     this.removeOutsideClickListener = undefined;
     this.removeEscapeKeyListener?.();
     this.removeEscapeKeyListener = undefined;
+    this.removeOutsidePointerListeners?.();
+    this.removeOutsidePointerListeners = undefined;
+    this.pointerDownTarget = null;
   }
 
   /**
@@ -278,6 +310,70 @@ export class NgpOverlayRegistry {
     this.evaluateGuardAndDismiss(topmost.id, topmost.dismissPolicy.escapeKey, event, () =>
       this.ngZone.run(() => topmost.overlay.hide({ origin: 'keyboard', immediate: true })),
     );
+  }
+
+  /**
+   * CDK-compatible outside pointer event dispatch.
+   * Iterates overlays from topmost to oldest (like CDK's OverlayOutsideClickDispatcher).
+   * For each overlay with an outsidePointerEvents$ subject, emits the event if the
+   * click was outside its elements. Stops iterating when an overlay contains the click.
+   */
+  private handleOutsidePointerEvent(event: MouseEvent): void {
+    const target = this.getComposedTarget(event);
+    // For click events, use the pointerdown origin to handle drag scenarios
+    const origin =
+      event.type === 'click' && this.pointerDownTarget ? this.pointerDownTarget : target;
+    this.pointerDownTarget = null;
+
+    // Iterate from topmost to oldest (like CDK)
+    const overlays = this.entries.slice();
+    for (let i = overlays.length - 1; i >= 0; i--) {
+      const entry = overlays[i];
+
+      if (!entry.outsidePointerEvents$?.observers.length) {
+        continue;
+      }
+
+      const elements = entry.getElements();
+      if (
+        this.containsElement(elements, target) ||
+        this.containsElement(elements, origin)
+      ) {
+        break;
+      }
+
+      this.ngZone.run(() => entry.outsidePointerEvents$!.next(event));
+    }
+  }
+
+  /**
+   * Get the composed event target, piercing shadow DOM boundaries.
+   */
+  private getComposedTarget(event: Event): EventTarget | null {
+    return event.composedPath?.()?.[0] ?? event.target;
+  }
+
+  /**
+   * Check whether any of the given elements contain the target, piercing shadow DOM.
+   */
+  private containsElement(
+    elements: HTMLElement[],
+    target: EventTarget | null,
+  ): boolean {
+    if (!target || !(target instanceof Node)) {
+      return false;
+    }
+    return elements.some(el => {
+      let current: Node | null = target;
+      while (current) {
+        if (current === el) return true;
+        current =
+          typeof ShadowRoot !== 'undefined' && current instanceof ShadowRoot
+            ? current.host
+            : current.parentNode;
+      }
+      return false;
+    });
   }
 
   /**

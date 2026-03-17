@@ -48,8 +48,15 @@ export class NgpDialogRef<T = unknown, R = unknown> implements NgpOverlayRef {
   /** Emits on keyboard events within the dialog. */
   readonly keydownEvents: Observable<KeyboardEvent>;
 
+  /**
+   * Emits pointer events (click, auxclick, contextmenu) that happen outside of the dialog.
+   * Fed by the NgpOverlayRegistry with CDK-compatible stacking awareness.
+   * @internal
+   */
+  readonly outsidePointerEvents$ = new Subject<MouseEvent>();
+
   /** Emits on pointer events that happen outside of the dialog. */
-  readonly outsidePointerEvents: Observable<MouseEvent>;
+  readonly outsidePointerEvents: Observable<MouseEvent> = this.outsidePointerEvents$.asObservable();
 
   constructor(
     readonly config: NgpDialogConfig<T>,
@@ -69,14 +76,6 @@ export class NgpDialogRef<T = unknown, R = unknown> implements NgpOverlayRef {
       );
     });
 
-    this.outsidePointerEvents = defer(() => {
-      const elements = this.getElements();
-      if (!elements.length) return EMPTY;
-      return fromEvent<MouseEvent>(this.document, 'mouseup').pipe(
-        filter(event => !elements.some(el => el.contains(event.target as Node))),
-        takeUntil(this.closed),
-      );
-    });
   }
 
   /**

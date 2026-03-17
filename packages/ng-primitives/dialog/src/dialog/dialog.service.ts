@@ -182,6 +182,7 @@ export class NgpDialogManager implements OnDestroy {
         outsidePress: false,
         escapeKey: config.closeOnEscape ?? true,
       },
+      outsidePointerEvents$: dialogRef.outsidePointerEvents$,
     });
 
     (this.openDialogs as NgpDialogRef[]).push(dialogRef as NgpDialogRef<any, any>);
