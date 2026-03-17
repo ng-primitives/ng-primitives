@@ -75,7 +75,6 @@ export class NgpDialogRef<T = unknown, R = unknown> implements NgpOverlayRef {
         takeUntil(this.closed),
       );
     });
-
   }
 
   /**

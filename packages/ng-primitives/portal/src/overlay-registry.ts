@@ -226,8 +226,7 @@ export class NgpOverlayRegistry {
         this.pointerDownTarget = this.getComposedTarget(event);
       };
 
-      const onPointerEvent = (event: MouseEvent) =>
-        this.handleOutsidePointerEvent(event);
+      const onPointerEvent = (event: MouseEvent) => this.handleOutsidePointerEvent(event);
 
       this.document.addEventListener('pointerdown', onPointerDown, true);
       this.document.addEventListener('click', onPointerEvent, true);
@@ -335,10 +334,7 @@ export class NgpOverlayRegistry {
       }
 
       const elements = entry.getElements();
-      if (
-        this.containsElement(elements, target) ||
-        this.containsElement(elements, origin)
-      ) {
+      if (this.containsElement(elements, target) || this.containsElement(elements, origin)) {
         break;
       }
 
@@ -356,10 +352,7 @@ export class NgpOverlayRegistry {
   /**
    * Check whether any of the given elements contain the target, piercing shadow DOM.
    */
-  private containsElement(
-    elements: HTMLElement[],
-    target: EventTarget | null,
-  ): boolean {
+  private containsElement(elements: HTMLElement[], target: EventTarget | null): boolean {
     if (!target || !(target instanceof Node)) {
       return false;
     }
