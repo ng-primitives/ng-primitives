@@ -356,6 +356,8 @@ export const [NgpSelectStateToken, ngpSelect, _injectSelectState, provideSelectS
           return;
         }
 
+        const activeIndexOnOpen = activeDescendantManagerInstance.index();
+
         onOpenChange?.(true);
         await portal()?.show();
 
@@ -365,6 +367,12 @@ export const [NgpSelectStateToken, ngpSelect, _injectSelectState, provideSelectS
             afterRenderEffect(() => resolve());
           });
         });
+
+        // If navigation occurred while opening (e.g. rapid keyboard input),
+        // preserve the user's active option instead of resetting it.
+        if (activeDescendantManagerInstance.index() !== activeIndexOnOpen) {
+          return;
+        }
 
         let selectedOptionIdx = -1;
 
