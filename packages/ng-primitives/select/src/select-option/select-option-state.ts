@@ -1,6 +1,6 @@
 import { computed, ElementRef, Signal, signal } from '@angular/core';
 import { ngpInteractions } from 'ng-primitives/interactions';
-import { injectElementRef } from 'ng-primitives/internal';
+import { injectElementRef, scrollIntoViewIfNeeded } from 'ng-primitives/internal';
 import {
   attrBinding,
   controlled,
@@ -174,7 +174,7 @@ export const [
     }
 
     function scrollIntoView(): void {
-      elementRef.nativeElement.scrollIntoView({ block: 'nearest' });
+      scrollIntoViewIfNeeded(elementRef.nativeElement);
     }
 
     function activateOnPointerEnter(): void {
