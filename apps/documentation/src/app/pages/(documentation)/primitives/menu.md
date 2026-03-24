@@ -86,12 +86,6 @@ Menu items that allow selecting one option from a group. Clicking a radio item d
 
 <docs-example name="menu-radio"></docs-example>
 
-### Wrapper Component
-
-You can pass a component class directly to `[ngpMenuTrigger]` instead of using an `ng-template`. The `NgpMenu` directive will correctly register its element for positioning, even when nested inside the wrapper component.
-
-<docs-example name="menu-wrapper"></docs-example>
-
 ### Custom Offset
 
 You can customize the offset using either a simple number or an object for more precise control:
