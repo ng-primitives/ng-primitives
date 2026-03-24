@@ -88,14 +88,13 @@ export class CustomMenu {}
 
 @Component({
   selector: 'app-menu-wrapper',
-  imports: [NgpButton, NgpMenuTrigger, CustomMenu],
+  imports: [NgpButton, NgpMenuTrigger],
   template: `
     <button [ngpMenuTrigger]="menu" ngpButton>Open Menu</button>
-
-    <ng-template #menu>
-      <app-custom-menu />
-    </ng-template>
   `,
+  host: {
+    class: 'contents',
+  },
   styles: `
     [ngpButton] {
       padding-left: 1rem;
@@ -124,4 +123,6 @@ export class CustomMenu {}
     }
   `,
 })
-export default class MenuWrapperExample {}
+export default class MenuWrapperExample {
+  readonly menu = CustomMenu;
+}

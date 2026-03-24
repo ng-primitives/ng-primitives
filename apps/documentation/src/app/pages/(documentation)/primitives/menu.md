@@ -88,7 +88,7 @@ Menu items that allow selecting one option from a group. Clicking a radio item d
 
 ### Wrapper Component
 
-You can wrap the menu in a custom component. The `NgpMenu` directive will correctly register its element for positioning, even when nested inside a wrapper component.
+You can pass a component class directly to `[ngpMenuTrigger]` instead of using an `ng-template`. The `NgpMenu` directive will correctly register its element for positioning, even when nested inside the wrapper component.
 
 <docs-example name="menu-wrapper"></docs-example>
 

@@ -82,6 +82,32 @@ class WrappedMenuComponent {}
 class WrappedMenuTestComponent {}
 
 /**
+ * Component class passed directly to [ngpMenuTrigger] — no ng-template involved.
+ * The trigger receives a Type<unknown> instead of a TemplateRef.
+ */
+@Component({
+  selector: 'app-direct-menu',
+  template: `
+    <div ngpMenu data-testid="menu">
+      <button ngpMenuItem>Direct Item 1</button>
+      <button ngpMenuItem>Direct Item 2</button>
+    </div>
+  `,
+  imports: [NgpMenu, NgpMenuItem],
+})
+class DirectMenuComponent {}
+
+@Component({
+  template: `
+    <button [ngpMenuTrigger]="menu" data-testid="trigger">Open Menu</button>
+  `,
+  imports: [NgpMenuTrigger],
+})
+class DirectComponentClassMenuComponent {
+  readonly menu = DirectMenuComponent;
+}
+
+/**
  * Helper to open a menu and return the computePosition spy.
  */
 async function openMenu(fixture: {
@@ -152,6 +178,20 @@ describe('Menu outlet element positioning', () => {
     // Verify it's not the wrapper element
     const wrapper = document.querySelector('[data-testid="wrapper"]');
     expect(floatingElement).not.toBe(wrapper);
+  });
+
+  it('should position the inner [ngpMenu] element when a component class is passed directly', async () => {
+    const { fixture } = await render(DirectComponentClassMenuComponent);
+    await openMenu(fixture);
+
+    expect(computePositionSpy).toHaveBeenCalled();
+
+    const lastCall = computePositionSpy.mock.calls[computePositionSpy.mock.calls.length - 1];
+    const floatingElement = lastCall[1] as HTMLElement;
+
+    // The floating element should be the inner [ngpMenu] div
+    expect(floatingElement.getAttribute('data-testid')).toBe('menu');
+    expect(floatingElement.getAttribute('role')).toBe('menu');
   });
 
   it('should set data-placement on the [ngpMenu] element for wrapped menus', async () => {
