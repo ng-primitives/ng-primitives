@@ -39,6 +39,10 @@ export const [NgpMenuStateToken, ngpMenu, injectMenuState, provideMenuState] = c
       focusOrigin: openOrigin,
     });
 
+    // Register this element as the overlay outlet so floating-ui positions it correctly,
+    // even when this directive is on a nested child component rather than the portal root.
+    overlay.registerOutletElement(element.nativeElement);
+
     // Host bindings
     attrBinding(element, 'role', 'menu');
     attrBinding(element, 'data-placement', overlay.finalPlacement);
