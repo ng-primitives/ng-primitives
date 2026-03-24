@@ -84,19 +84,9 @@ class WrappedMenuTestComponent {}
 /**
  * Component class passed directly to [ngpMenuTrigger] — no ng-template involved.
  * The trigger receives a Type<unknown> instead of a TemplateRef.
+ * Reuses WrappedMenuComponent since the component definition is the same;
+ * what differs is how it's provided to the trigger (class vs ng-template).
  */
-@Component({
-  selector: 'app-direct-menu',
-  template: `
-    <div ngpMenu data-testid="menu">
-      <button ngpMenuItem>Direct Item 1</button>
-      <button ngpMenuItem>Direct Item 2</button>
-    </div>
-  `,
-  imports: [NgpMenu, NgpMenuItem],
-})
-class DirectMenuComponent {}
-
 @Component({
   template: `
     <button [ngpMenuTrigger]="menu" data-testid="trigger">Open Menu</button>
@@ -104,11 +94,11 @@ class DirectMenuComponent {}
   imports: [NgpMenuTrigger],
 })
 class DirectComponentClassMenuComponent {
-  readonly menu = DirectMenuComponent;
+  readonly menu = WrappedMenuComponent;
 }
 
 /**
- * Helper to open a menu and return the computePosition spy.
+ * Helper to open a menu by clicking the trigger.
  */
 async function openMenu(fixture: {
   autoDetectChanges: (autoDetect: boolean) => void;
@@ -122,6 +112,14 @@ async function openMenu(fixture: {
   await waitFor(() => {
     expect(document.querySelector('[data-testid="menu"]')).toBeInTheDocument();
   });
+}
+
+/**
+ * Get the floating element (second arg) from the last computePosition call.
+ */
+function getLastFloatingElement(spy: jest.SpyInstance): HTMLElement {
+  const lastCall = spy.mock.calls[spy.mock.calls.length - 1];
+  return lastCall[1] as HTMLElement;
 }
 
 describe('Menu outlet element positioning', () => {
@@ -139,12 +137,7 @@ describe('Menu outlet element positioning', () => {
     const { fixture } = await render(TemplateMenuComponent);
     await openMenu(fixture);
 
-    expect(computePositionSpy).toHaveBeenCalled();
-
-    // The second argument to computePosition is the floating element
-    const lastCall = computePositionSpy.mock.calls[computePositionSpy.mock.calls.length - 1];
-    const floatingElement = lastCall[1] as HTMLElement;
-
+    const floatingElement = getLastFloatingElement(computePositionSpy);
     expect(floatingElement.getAttribute('data-testid')).toBe('menu');
     expect(floatingElement.getAttribute('role')).toBe('menu');
   });
@@ -153,11 +146,7 @@ describe('Menu outlet element positioning', () => {
     const { fixture } = await render(HostDirectiveMenuComponent);
     await openMenu(fixture);
 
-    expect(computePositionSpy).toHaveBeenCalled();
-
-    const lastCall = computePositionSpy.mock.calls[computePositionSpy.mock.calls.length - 1];
-    const floatingElement = lastCall[1] as HTMLElement;
-
+    const floatingElement = getLastFloatingElement(computePositionSpy);
     expect(floatingElement.getAttribute('data-testid')).toBe('menu');
     expect(floatingElement.getAttribute('role')).toBe('menu');
   });
@@ -166,12 +155,7 @@ describe('Menu outlet element positioning', () => {
     const { fixture } = await render(WrappedMenuTestComponent);
     await openMenu(fixture);
 
-    expect(computePositionSpy).toHaveBeenCalled();
-
-    const lastCall = computePositionSpy.mock.calls[computePositionSpy.mock.calls.length - 1];
-    const floatingElement = lastCall[1] as HTMLElement;
-
-    // The floating element should be the inner [ngpMenu] div, NOT the wrapper host
+    const floatingElement = getLastFloatingElement(computePositionSpy);
     expect(floatingElement.getAttribute('data-testid')).toBe('menu');
     expect(floatingElement.getAttribute('role')).toBe('menu');
 
@@ -184,12 +168,7 @@ describe('Menu outlet element positioning', () => {
     const { fixture } = await render(DirectComponentClassMenuComponent);
     await openMenu(fixture);
 
-    expect(computePositionSpy).toHaveBeenCalled();
-
-    const lastCall = computePositionSpy.mock.calls[computePositionSpy.mock.calls.length - 1];
-    const floatingElement = lastCall[1] as HTMLElement;
-
-    // The floating element should be the inner [ngpMenu] div
+    const floatingElement = getLastFloatingElement(computePositionSpy);
     expect(floatingElement.getAttribute('data-testid')).toBe('menu');
     expect(floatingElement.getAttribute('role')).toBe('menu');
   });

@@ -1020,6 +1020,7 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
     // (not before the await) so they remain valid if destruction is cancelled.
     if (this.destroyingPortal === portal) {
       this.destroyingPortal = null;
+      this.registeredOutletElement = null;
       this.isOpen.set(false);
       this.finalPlacement.set(undefined);
       this.instantTransition.set(false);
