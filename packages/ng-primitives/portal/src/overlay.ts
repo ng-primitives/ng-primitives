@@ -346,7 +346,7 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
         this.triggerWidth.set(width);
 
         // if the element has been hidden, hide immediately
-        if ((width === 0 || height === 0) && this.isOpen()) {
+        if (width === 0 || height === 0) {
           this.hideImmediate();
         }
       });
