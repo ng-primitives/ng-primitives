@@ -401,8 +401,14 @@ export function attrBinding(
     | null
     | undefined,
 ): void {
+  // If the value is static (not a function), set it immediately without an effect
+  if (typeof value !== 'function') {
+    setAttribute(element, attr, value?.toString() ?? null);
+    return;
+  }
+
   isomorphicEffect(() => {
-    const valueResult = typeof value === 'function' ? value() : value;
+    const valueResult = value();
     setAttribute(element, attr, valueResult?.toString() ?? null);
   });
 }
