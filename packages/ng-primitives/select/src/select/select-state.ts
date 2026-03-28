@@ -10,6 +10,7 @@ import {
   controlled,
   createPrimitive,
   dataBinding,
+  deprecatedSetter,
   listener,
 } from 'ng-primitives/state';
 import { uniqueId } from 'ng-primitives/utils';
@@ -383,7 +384,7 @@ export const [NgpSelectStateToken, ngpSelect, _injectSelectState, provideSelectS
         }
 
         onOpenChange?.(false);
-        portal()?.detach();
+        portal()?.hide();
 
         // clear the active descendant
         activeDescendantManagerInstance.reset();
@@ -732,7 +733,7 @@ export const [NgpSelectStateToken, ngpSelect, _injectSelectState, provideSelectS
       return {
         elementRef,
         id,
-        value,
+        value: deprecatedSetter(value, 'selectOption'),
         multiple: multiple.asReadonly(),
         disabled: disabled.asReadonly(),
         compareWith: compareWith.asReadonly(),

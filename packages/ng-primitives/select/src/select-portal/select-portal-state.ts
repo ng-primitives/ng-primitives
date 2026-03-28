@@ -21,12 +21,6 @@ export interface NgpSelectPortalState {
    * @internal
    */
   hide(): void;
-
-  /**
-   * Detach the portal.
-   * @internal
-   */
-  detach(): void;
 }
 
 export interface NgpSelectPortalProps {
@@ -76,15 +70,10 @@ export const [
     overlay.set(createOverlay(overlayConfig));
   }
 
-  function detach() {
-    overlay()?.hide();
-  }
-
   const state = {
     overlay,
     show,
     hide,
-    detach,
   } satisfies NgpSelectPortalState;
 
   selectState().registerPortal(state);
