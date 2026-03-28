@@ -238,6 +238,8 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
   private readonly childOverlays = new Set<NgpOverlay>();
   /** Signal tracking the portal instance */
   private readonly portal = signal<NgpPortal | null>(null);
+  /** The dedicated outlet element registered by the overlay directive (e.g. NgpMenu) */
+  private registeredOutletElement: HTMLElement | null = null;
 
   /** Signal tracking the overlay position */
   readonly position = signal<{ x: number | undefined; y: number | undefined }>({
@@ -452,8 +454,7 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
     this.portal.set(portal);
 
     // Re-setup positioning
-    const elements = portal.getElements();
-    const outletElement = elements.find(el => el.hasAttribute('data-overlay')) ?? elements[0];
+    const outletElement = this.findOutletElement(portal);
     if (outletElement) {
       this.setupPositioning(outletElement);
     }
@@ -616,16 +617,14 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
       return;
     }
 
-    const elements = portal.getElements();
+    const outletElement = this.findOutletElement(portal);
 
-    if (elements.length === 0) {
+    if (!outletElement) {
       return;
     }
 
-    const overlayElement = elements[0] as HTMLElement;
-
     // Compute new position
-    this.computePosition(overlayElement);
+    this.computePosition(outletElement);
   }
 
   /**
@@ -642,6 +641,43 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
    */
   getElements(): HTMLElement[] {
     return this.portal()?.getElements() ?? [];
+  }
+
+  /**
+   * Register the dedicated outlet element for positioning.
+   * Called by overlay directives (e.g. NgpMenu) during construction to ensure
+   * the correct element is used for floating-ui positioning, even when the
+   * directive is on a nested child component rather than the portal root.
+   * @internal
+   */
+  registerOutletElement(element: HTMLElement): void {
+    this.registeredOutletElement = element;
+
+    // If positioning is already set up with the wrong element, re-setup with the correct one
+    if (this.isOpen() && this.disposePositioning) {
+      this.disposePositioning();
+      this.setupPositioning(element);
+    }
+  }
+
+  /**
+   * Find the dedicated outlet element within the portal.
+   * Uses the registered outlet element if available, otherwise looks for an element
+   * with `data-overlay` attribute on the portal root elements.
+   * Falls back to the first portal element if no dedicated outlet is found.
+   */
+  private findOutletElement(portal: NgpPortal): HTMLElement | null {
+    if (this.registeredOutletElement) {
+      return this.registeredOutletElement;
+    }
+
+    const elements = portal.getElements();
+
+    if (elements.length === 0) {
+      return null;
+    }
+
+    return elements.find(el => el.hasAttribute('data-overlay')) ?? elements[0];
   }
 
   /**
@@ -729,8 +765,7 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
     // find a dedicated outlet element
     // this is the element that has the `data-overlay` attribute
     // if no such element exists, we use the first element in the portal
-    const outletElement =
-      portal.getElements().find(el => el.hasAttribute('data-overlay')) ?? portal.getElements()[0];
+    const outletElement = this.findOutletElement(portal);
 
     if (!outletElement) {
       throw new Error('Overlay element is not available.');
@@ -949,6 +984,7 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
     // (not before the await) so they remain valid if destruction is cancelled.
     if (this.destroyingPortal === portal) {
       this.destroyingPortal = null;
+      this.registeredOutletElement = null;
       this.isOpen.set(false);
       this.finalPlacement.set(undefined);
       this.instantTransition.set(false);

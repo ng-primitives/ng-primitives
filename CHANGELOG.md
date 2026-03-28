@@ -1,3 +1,25 @@
+## 0.113.0 (2026-03-28)
+
+### 🩹 Fixes
+
+- reproduce menu flip positioning bug with wrapped component ([#712](https://github.com/ng-primitives/ng-primitives/pull/712))
+- **tools:** resolve union type aliases in API documentation extraction ([#715](https://github.com/ng-primitives/ng-primitives/pull/715), [#716](https://github.com/ng-primitives/ng-primitives/pull/716), [#626](https://github.com/ng-primitives/ng-primitives/issues/626))
+
+### ❤️ Thank You
+
+- Ashley Hunter
+- Claude
+
+## 0.112.2 (2026-03-26)
+
+### 🩹 Fixes
+
+- **primitives:** export missing ngp initialization functions ([#713](https://github.com/ng-primitives/ng-primitives/pull/713))
+
+### ❤️ Thank You
+
+- Robin Ferrari @zecka
+
 ## 0.112.1 (2026-03-16)
 
 ### 🩹 Fixes
