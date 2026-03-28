@@ -48,6 +48,15 @@ describe('NgpDialog', () => {
     return { fixture, ref };
   }
 
+  function dispatchPointerDown(element: HTMLElement): void {
+    element.dispatchEvent(new Event('pointerdown', { bubbles: true }));
+  }
+
+  function dispatchOverlayClick(overlay: HTMLElement): void {
+    dispatchPointerDown(overlay);
+    overlay.click();
+  }
+
   afterEach(fakeAsync(() => {
     dialogManager?.closeAll();
     flush();
@@ -107,13 +116,13 @@ describe('NgpDialog', () => {
     expect(closedSpy).toHaveBeenCalledWith(expect.objectContaining({ result: 'test-result' }));
   }));
 
-  it('should close dialog when overlay is clicked', fakeAsync(() => {
+  it('should close dialog when pointerdown and click both occur on the overlay', fakeAsync(() => {
     const { ref } = openDialog();
     const closedSpy = jest.fn();
     ref.closed.subscribe(closedSpy);
 
     const overlay = document.querySelector('[data-testid="overlay"]') as HTMLElement;
-    overlay.click();
+    dispatchOverlayClick(overlay);
     flush();
 
     expect(closedSpy).toHaveBeenCalled();
@@ -126,6 +135,21 @@ describe('NgpDialog', () => {
 
     const dialog = document.querySelector('[data-testid="dialog"]') as HTMLElement;
     dialog.click();
+    flush();
+
+    expect(closedSpy).not.toHaveBeenCalled();
+  }));
+
+  it('should NOT close when pointerdown starts inside the dialog and click ends on the overlay', fakeAsync(() => {
+    const { ref } = openDialog();
+    const closedSpy = jest.fn();
+    ref.closed.subscribe(closedSpy);
+
+    const dialog = document.querySelector('[data-testid="dialog"]') as HTMLElement;
+    const overlay = document.querySelector('[data-testid="overlay"]') as HTMLElement;
+
+    dispatchPointerDown(dialog);
+    overlay.click();
     flush();
 
     expect(closedSpy).not.toHaveBeenCalled();
@@ -162,7 +186,21 @@ describe('NgpDialog', () => {
     ref.closed.subscribe(closedSpy);
 
     const overlay = document.querySelector('[data-testid="overlay"]') as HTMLElement;
-    overlay.click();
+    dispatchOverlayClick(overlay);
+    flush();
+
+    expect(closedSpy).not.toHaveBeenCalled();
+  }));
+
+  it('should NOT close on overlay click when disableClose is true', fakeAsync(() => {
+    const { ref } = openDialog();
+    ref.disableClose = true;
+
+    const closedSpy = jest.fn();
+    ref.closed.subscribe(closedSpy);
+
+    const overlay = document.querySelector('[data-testid="overlay"]') as HTMLElement;
+    dispatchOverlayClick(overlay);
     flush();
 
     expect(closedSpy).not.toHaveBeenCalled();
