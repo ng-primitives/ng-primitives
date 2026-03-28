@@ -2,12 +2,14 @@ import {
   createCompilerHost,
   DirectiveEntry,
   DocEntry,
+  EntryType,
   MemberEntry,
   MemberTags,
   NgtscProgram,
   performCompilation,
   PropertyEntry,
   readConfiguration,
+  TypeAliasEntry,
 } from '@angular/compiler-cli';
 import { logger, PromiseExecutor } from '@nx/devkit';
 import { writeFileSync } from 'fs';
@@ -33,6 +35,21 @@ const runExecutor: PromiseExecutor<ApiExtractionExecutorSchema> = async (options
   const program = compilation.program as NgtscProgram;
 
   const directives: Record<string, DirectiveDefinition> = {};
+  const typeAliases: Record<string, string> = {};
+
+  for (const entrypoint of rootNames) {
+    try {
+      const api = program.getApiDocumentation(entrypoint, new Set<string>());
+
+      for (const entry of api.entries) {
+        if (isTypeAlias(entry)) {
+          typeAliases[entry.name] = entry.type;
+        }
+      }
+    } catch (e) {
+      continue;
+    }
+  }
 
   for (const entrypoint of rootNames) {
     try {
@@ -48,7 +65,9 @@ const runExecutor: PromiseExecutor<ApiExtractionExecutorSchema> = async (options
           description: directive.description,
           selector: directive.selector,
           exportAs: directive.exportAs,
-          inputs: directive.members.filter(isInput).map(mapToInputDefinition),
+          inputs: directive.members
+            .filter(isInput)
+            .map(entry => mapToInputDefinition(entry, typeAliases)),
           outputs: directive.members?.filter(isOutput).map(mapToOutputDefinition),
         };
       }
@@ -97,7 +116,63 @@ interface OutputDefinition {
 }
 
 function isDirective(entry: DocEntry): entry is DirectiveEntry {
-  return entry.entryType === 'directive';
+  return entry.entryType === EntryType.Directive;
+}
+
+function isTypeAlias(entry: DocEntry): entry is TypeAliasEntry {
+  return entry.entryType === EntryType.TypeAlias;
+}
+
+/**
+ * Check if a resolved type is a simple union of literals (string literals,
+ * number literals, booleans, null, undefined). These are safe to inline
+ * in the docs as they provide immediate value to the reader.
+ */
+function isSimpleLiteralUnion(resolvedType: string): boolean {
+  const parts = resolvedType
+    .split('|')
+    .map(p => p.trim())
+    .filter(p => p.length > 0);
+  return (
+    parts.length > 0 &&
+    parts.every(part => /^('[^']*'|"[^"]*"|\d+|true|false|null|undefined)$/.test(part))
+  );
+}
+
+/**
+ * Normalize a multiline type string into a single-line representation.
+ */
+function normalizeTypeString(type: string): string {
+  return type
+    .split('\n')
+    .map(line => line.trim())
+    .join(' ')
+    .replace(/^\|\s*/, '');
+}
+
+/**
+ * Resolve a type name against collected type aliases. Only resolves
+ * simple literal unions to avoid displaying complex object types inline.
+ */
+function resolveType(typeName: string, typeAliases: Record<string, string>): string {
+  // Handle array types like NgpMenuTriggerType[]
+  const arrayMatch = typeName.match(/^(.+)\[\]$/);
+  if (arrayMatch) {
+    const inner = resolveType(arrayMatch[1], typeAliases);
+    if (inner !== arrayMatch[1]) {
+      return `(${inner})[]`;
+    }
+    return typeName;
+  }
+
+  const resolved = typeAliases[typeName];
+  if (resolved) {
+    const normalized = normalizeTypeString(resolved);
+    if (isSimpleLiteralUnion(normalized)) {
+      return normalized;
+    }
+  }
+  return typeName;
 }
 
 function isProperty(entry: MemberEntry): entry is PropertyEntry {
@@ -119,7 +194,10 @@ function isOutput(entry: MemberEntry): entry is PropertyEntry {
   return isProperty(entry) && entry.memberTags.includes(MemberTags.Output);
 }
 
-function mapToInputDefinition(entry: PropertyEntry): InputDefinition {
+function mapToInputDefinition(
+  entry: PropertyEntry,
+  typeAliases: Record<string, string>,
+): InputDefinition {
   return {
     name: entry.inputAlias,
     // Extract the type parameter, handling nested generics and function types with commas
@@ -134,10 +212,10 @@ function mapToInputDefinition(entry: PropertyEntry): InputDefinition {
         if (typeParam[i] === '(') depth++;
         else if (typeParam[i] === ')') depth--;
         else if (typeParam[i] === ',' && depth === 0) {
-          return typeParam.slice(0, i).trim();
+          return resolveType(typeParam.slice(0, i).trim(), typeAliases);
         }
       }
-      return typeParam.trim();
+      return resolveType(typeParam.trim(), typeAliases);
     })(),
     description: entry.description,
     isRequired: entry.isRequiredInput || entry.jsdocTags.some(tag => tag.name === 'required'),
