@@ -3,7 +3,6 @@ import {
   booleanAttribute,
   computed,
   Directive,
-  effect,
   ElementRef,
   inject,
   Injector,
@@ -12,10 +11,9 @@ import {
   OnDestroy,
   Signal,
   signal,
-  untracked,
   ViewContainerRef,
 } from '@angular/core';
-import { setupOverflowListener } from 'ng-primitives/internal';
+import { explicitEffect, setupOverflowListener } from 'ng-primitives/internal';
 import {
   coerceFlip,
   coerceOffset,
@@ -255,24 +253,17 @@ export class NgpTooltipTrigger<T = null> implements OnDestroy {
       disabled: computed(() => !this.state.showOnOverflow()),
     });
 
-    // Watch for tooltip content changes and update the overlay (#711)
-    let previousTooltip = this.state.tooltip();
-    effect(() => {
-      const currentTooltip = this.state.tooltip();
-      if (currentTooltip === previousTooltip) return;
-      previousTooltip = currentTooltip;
+    // When the tooltip content changes, update or destroy the overlay (#711)
+    explicitEffect([this.state.tooltip], ([currentTooltip]) => {
+      const overlay = this.overlay();
+      if (!overlay) return;
 
-      untracked(() => {
-        const overlay = this.overlay();
-        if (overlay) {
-          if (currentTooltip && !isString(currentTooltip)) {
-            overlay.updateContent(currentTooltip, this.state.context);
-          } else {
-            overlay.destroy();
-            this.overlay.set(null);
-          }
-        }
-      });
+      if (currentTooltip && !isString(currentTooltip)) {
+        overlay.updateContent(currentTooltip, this.state.context);
+      } else {
+        overlay.destroy();
+        this.overlay.set(null);
+      }
     });
   }
 
