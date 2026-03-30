@@ -65,6 +65,12 @@ You can position a tooltip at specific coordinates using the `ngpTooltipTriggerP
 
 <docs-example name="tooltip-cursor"></docs-example>
 
+### Dynamic Template Switching
+
+This example demonstrates dynamically switching tooltip templates at runtime — switching while closed, switching while open, and toggling between a template and null.
+
+<docs-example name="tooltip-dynamic"></docs-example>
+
 ### Custom Offset
 
 You can customize the offset using either a simple number or an object for more precise control:

@@ -10,7 +10,7 @@ import { NgpTooltip, NgpTooltipTrigger } from 'ng-primitives/tooltip';
       #tooltipTrigger="ngpTooltipTrigger"
       [ngpTooltipTrigger]="cursorTooltip"
       [ngpTooltipTriggerPosition]="cursorPosition()"
-      (pointerenter)="onPointerEnter()"
+      (pointerenter)="onPointerEnter($event)"
       (pointermove)="onPointerMove($event)"
       (pointerleave)="onPointerLeave()"
       ngpTooltipTriggerTrackPosition="true"
@@ -87,7 +87,10 @@ export default class TooltipCursorExample {
   readonly cursorPosition = signal<{ x: number; y: number } | null>(null);
   readonly tooltipTrigger = viewChild.required<NgpTooltipTrigger>('tooltipTrigger');
 
-  onPointerEnter(): void {
+  onPointerEnter(event: PointerEvent): void {
+    this.mouseX.set(Math.round(event.clientX));
+    this.mouseY.set(Math.round(event.clientY));
+    this.cursorPosition.set({ x: event.clientX, y: event.clientY });
     this.tooltipTrigger().show();
   }
 
