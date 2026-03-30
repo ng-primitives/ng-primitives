@@ -35,6 +35,17 @@ export class NgpDialogTrigger<T = unknown> {
   );
 
   /**
+   * Whether the dialog should close on outside click, or a guard function.
+   * @default `true`
+   */
+  readonly closeOnOutsideClick = input<NgpDismissGuard<Element>>(
+    this.config.closeOnOutsideClick ?? true,
+    {
+      alias: 'ngpDialogTriggerCloseOnOutsideClick',
+    },
+  );
+
+  /**
    * Store the dialog ref.
    * @internal
    */
@@ -44,6 +55,7 @@ export class NgpDialogTrigger<T = unknown> {
   protected launch(): void {
     this.dialogRef = this.dialogManager.open(this.template(), {
       closeOnEscape: this.closeOnEscape(),
+      closeOnOutsideClick: this.closeOnOutsideClick(),
     });
     this.dialogRef.closed.subscribe(({ result }) => {
       this.closed.emit(result as T);

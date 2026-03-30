@@ -3,7 +3,7 @@ import { inject, Injector } from '@angular/core';
 import { NgpExitAnimationManager } from 'ng-primitives/internal';
 import { NgpDismissGuard, NgpOverlayRef } from 'ng-primitives/portal';
 import { defer, EMPTY, fromEvent, Observable, Subject } from 'rxjs';
-import { filter, map, takeUntil } from 'rxjs/operators';
+import { filter, takeUntil } from 'rxjs/operators';
 import { NgpDialogConfig } from '../config/dialog-config';
 
 /** Minimal portal interface needed by the dialog ref. */
@@ -28,10 +28,14 @@ export class NgpDialogRef<T = unknown, R = unknown> implements NgpOverlayRef {
   /** Emits when the dialog has been closed. */
   readonly closed = new Subject<{ focusOrigin?: FocusOrigin; result?: R }>();
 
+  /** @internal */
+  private readonly afterClosed$ = new Subject<{ focusOrigin?: FocusOrigin; result?: R }>();
+
   /**
-   * Observable that emits the dialog result when closed.
+   * Observable that emits the dialog result after exit animations have completed.
    */
-  readonly afterClosed: Observable<R | undefined> = this.closed.pipe(map(event => event.result));
+  readonly afterClosed: Observable<{ focusOrigin?: FocusOrigin; result?: R }> =
+    this.afterClosed$.asObservable();
 
   /** Data passed from the dialog opener. */
   readonly data: T;
@@ -109,14 +113,17 @@ export class NgpDialogRef<T = unknown, R = unknown> implements NgpOverlayRef {
 
     this.closing = true;
 
+    this.closed.next({});
+    this.closed.complete();
+
     // Detach the portal immediately — no exit animation
     if (this.portal) {
       await this.portal.detach(true);
       this.portal = null;
     }
 
-    this.closed.next({});
-    this.closed.complete();
+    this.afterClosed$.next({});
+    this.afterClosed$.complete();
   }
 
   /**
@@ -132,6 +139,10 @@ export class NgpDialogRef<T = unknown, R = unknown> implements NgpOverlayRef {
 
     this.closing = true;
 
+    // Emit immediately so consumers can react before exit animations run.
+    this.closed.next({ focusOrigin, result });
+    this.closed.complete();
+
     const exitAnimationManager = this.injector?.get(NgpExitAnimationManager, undefined, {
       optional: true,
     });
@@ -145,8 +156,8 @@ export class NgpDialogRef<T = unknown, R = unknown> implements NgpOverlayRef {
       this.portal = null;
     }
 
-    this.closed.next({ focusOrigin, result });
-    this.closed.complete();
+    this.afterClosed$.next({ focusOrigin, result });
+    this.afterClosed$.complete();
   }
 
   /**

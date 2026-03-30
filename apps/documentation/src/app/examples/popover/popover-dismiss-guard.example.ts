@@ -155,7 +155,7 @@ export default class PopoverDismissGuardExample {
         closeOnEscape: false,
         closeOnOutsideClick: false,
       });
-      ref.afterClosed.subscribe(result => resolve(result === true));
+      ref.closed.subscribe(({ result }) => resolve(result === true));
     });
   };
 }
