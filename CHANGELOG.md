@@ -1,3 +1,19 @@
+## 0.114.0 (2026-03-30)
+
+### 🚀 Features
+
+- ⚠️  **dialog:** replace CDK overlay with standalone portal ([#704](https://github.com/ng-primitives/ng-primitives/pull/704))
+
+### ⚠️  Breaking Changes
+
+- **dialog:** replace CDK overlay with standalone portal  ([#704](https://github.com/ng-primitives/ng-primitives/pull/704))
+
+### ❤️ Thank You
+
+- Ashley Hunter
+- Claude Opus 4.6 (1M context)
+- Clément Loridan
+
 ## 0.113.0 (2026-03-28)
 
 ### 🩹 Fixes
