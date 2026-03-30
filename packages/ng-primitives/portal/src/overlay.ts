@@ -632,7 +632,10 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
    * destroyed and recreated with the new content. If closed, the config is
    * updated so the next show() uses the new content.
    */
-  updateContent(content: NgpOverlayContent<T>, context?: Signal<T | undefined>): void {
+  async updateContent(
+    content: NgpOverlayContent<T>,
+    context?: Signal<T | undefined>,
+  ): Promise<void> {
     this.config = {
       ...this.config,
       content,
@@ -642,11 +645,7 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
     // If the overlay is currently showing, recreate it with the new content
     if (this.portal()) {
       const wasOpen = this.isOpen();
-      this.hideImmediate();
-
-      // Prevent the async destroyOverlay cleanup from clobbering state
-      // set by the subsequent createOverlay call.
-      this.destroyingPortal = null;
+      await this.destroyOverlay(true);
 
       if (wasOpen) {
         this.createOverlay(true);
