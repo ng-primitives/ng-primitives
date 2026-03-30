@@ -8,48 +8,43 @@ import { NgpTooltip, NgpTooltipTrigger } from 'ng-primitives/tooltip';
   template: `
     <div class="scenarios">
       <h3>Scenario 1: Switch template while closed</h3>
-      <p>Hover the button, move away, click "Switch", hover again — should show the other tooltip.</p>
+      <p>
+        Hover the button, move away, click "Switch", hover again — should show the other tooltip.
+      </p>
       <div class="row">
-        <button
-          [ngpTooltipTrigger]="useSecond() ? tooltipB : tooltipA"
-          ngpButton
-          type="button"
-        >
+        <button [ngpTooltipTrigger]="useSecond() ? tooltipB : tooltipA" ngpButton type="button">
           Hover me
         </button>
-        <button ngpButton type="button" (click)="useSecond.set(!useSecond())">
+        <button (click)="useSecond.set(!useSecond())" ngpButton type="button">
           Switch to {{ useSecond() ? 'A' : 'B' }}
         </button>
         <span class="badge">Active: Tooltip {{ useSecond() ? 'B' : 'A' }}</span>
       </div>
 
       <h3>Scenario 2: Switch template while open</h3>
-      <p>Hover the button, then click "Switch" while tooltip is visible — content should update live.</p>
+      <p>
+        Hover the button, then click "Switch" while tooltip is visible — content should update live.
+      </p>
       <div class="row">
-        <button
-          [ngpTooltipTrigger]="useLiveSecond() ? tooltipD : tooltipC"
-          ngpButton
-          type="button"
-        >
+        <button [ngpTooltipTrigger]="useLiveSecond() ? tooltipD : tooltipC" ngpButton type="button">
           Hover me (keep hovering)
         </button>
-        <button ngpButton type="button" (click)="useLiveSecond.set(!useLiveSecond())">
+        <button (click)="useLiveSecond.set(!useLiveSecond())" ngpButton type="button">
           Switch to {{ useLiveSecond() ? 'C' : 'D' }}
         </button>
         <span class="badge">Active: Tooltip {{ useLiveSecond() ? 'D' : 'C' }}</span>
       </div>
 
       <h3>Scenario 3: Toggle between template and null</h3>
-      <p>Hover the button, then click "Disable" — tooltip stays until you leave. Click "Enable" and hover again.</p>
+      <p>
+        Hover the button, then click "Disable" — tooltip stays until you leave. Click "Enable" and
+        hover again.
+      </p>
       <div class="row">
-        <button
-          [ngpTooltipTrigger]="showTooltip() ? tooltipE : null"
-          ngpButton
-          type="button"
-        >
+        <button [ngpTooltipTrigger]="showTooltip() ? tooltipE : null" ngpButton type="button">
           Hover me
         </button>
-        <button ngpButton type="button" (click)="showTooltip.set(!showTooltip())">
+        <button (click)="showTooltip.set(!showTooltip())" ngpButton type="button">
           {{ showTooltip() ? 'Set to null' : 'Set template' }}
         </button>
         <span class="badge">Input: {{ showTooltip() ? 'TemplateRef' : 'null' }}</span>
