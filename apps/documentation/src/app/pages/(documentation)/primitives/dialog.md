@@ -140,8 +140,12 @@ Reference returned by `NgpDialogManager.open()`. Provides methods to interact wi
   Closes the dialog, optionally returning a result value.
 </prop-details>
 
-<prop-details name="afterClosed" type="Observable<R | undefined>">
-  Observable that emits the dialog result when the dialog is closed.
+<prop-details name="closed" type="Observable<{ focusOrigin?: FocusOrigin; result?: R }>">
+  Observable that emits immediately when `close()` is called, before exit animations run.
+</prop-details>
+
+<prop-details name="afterClosed" type="Observable<{ focusOrigin?: FocusOrigin; result?: R }>">
+  Observable that emits after exit animations have completed.
 </prop-details>
 
 <prop-details name="data" type="T">

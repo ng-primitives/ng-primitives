@@ -201,12 +201,15 @@ export class NgpDialogManager implements OnDestroy {
       this.removeOpenDialog(dialogRef as NgpDialogRef<any, any>, true);
     });
 
-    dialogRef.afterClosed.subscribe(() => {
+    dialogRef.afterClosed.subscribe(({ focusOrigin }) => {
       // Focus the trigger element after exit animations complete.
       if (activeElement instanceof HTMLElement && this.document.body.contains(activeElement)) {
         // Its not great that we are relying on an internal API here, but we need to in order to
         // try and best determine the focus origin when it is programmatically closed by the user.
-        this.focusMonitor.focusVia(activeElement, (this.focusMonitor as any)._lastFocusOrigin);
+        this.focusMonitor.focusVia(
+          activeElement,
+          focusOrigin ?? (this.focusMonitor as any)._lastFocusOrigin,
+        );
       }
     });
 
