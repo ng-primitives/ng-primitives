@@ -1173,4 +1173,171 @@ describe('NgpTooltipTrigger', () => {
       });
     });
   });
+
+  describe('dynamic tooltip changes (issue #711)', () => {
+    it('should update tooltip content when template reference changes while closed', async () => {
+      const { fixture } = await render(
+        `
+          <button [ngpTooltipTrigger]="useSecond ? tooltipB : tooltipA" ngpTooltipTriggerDisabled="true"></button>
+
+          <ng-template #tooltipA>
+            <div ngpTooltip>Tooltip A</div>
+          </ng-template>
+
+          <ng-template #tooltipB>
+            <div ngpTooltip>Tooltip B</div>
+          </ng-template>
+        `,
+        {
+          imports: [NgpTooltipTrigger, NgpTooltip],
+          componentProperties: {
+            useSecond: false,
+          },
+        },
+      );
+
+      const triggerDirective = fixture.debugElement.children[0].injector.get(NgpTooltipTrigger);
+
+      // Show tooltip A
+      triggerDirective.show();
+      await waitFor(() => {
+        const tooltip = document.querySelector('[ngpTooltip]');
+        expect(tooltip).toBeInTheDocument();
+        expect(tooltip?.textContent?.trim()).toBe('Tooltip A');
+      });
+
+      // Hide tooltip
+      triggerDirective.hide();
+      await waitFor(() => {
+        expect(document.querySelector('[ngpTooltip]')).not.toBeInTheDocument();
+      });
+
+      // Switch to tooltip B
+      (fixture.componentInstance as any).useSecond = true;
+      fixture.detectChanges();
+
+      // Show tooltip again - should display Tooltip B
+      triggerDirective.show();
+      await waitFor(() => {
+        const tooltip = document.querySelector('[ngpTooltip]');
+        expect(tooltip).toBeInTheDocument();
+        expect(tooltip?.textContent?.trim()).toBe('Tooltip B');
+      });
+    });
+
+    it('should update tooltip content when template reference changes while open', async () => {
+      const { fixture } = await render(
+        `
+          <button [ngpTooltipTrigger]="useSecond ? tooltipB : tooltipA" ngpTooltipTriggerDisabled="true"></button>
+
+          <ng-template #tooltipA>
+            <div ngpTooltip>Tooltip A</div>
+          </ng-template>
+
+          <ng-template #tooltipB>
+            <div ngpTooltip>Tooltip B</div>
+          </ng-template>
+        `,
+        {
+          imports: [NgpTooltipTrigger, NgpTooltip],
+          componentProperties: {
+            useSecond: false,
+          },
+        },
+      );
+
+      const triggerDirective = fixture.debugElement.children[0].injector.get(NgpTooltipTrigger);
+
+      // Show tooltip A
+      triggerDirective.show();
+      await waitFor(() => {
+        const tooltip = document.querySelector('[ngpTooltip]');
+        expect(tooltip).toBeInTheDocument();
+        expect(tooltip?.textContent?.trim()).toBe('Tooltip A');
+      });
+
+      // Switch to tooltip B while open
+      (fixture.componentInstance as any).useSecond = true;
+      fixture.detectChanges();
+
+      // Should now display Tooltip B
+      await waitFor(() => {
+        const tooltip = document.querySelector('[ngpTooltip]');
+        expect(tooltip).toBeInTheDocument();
+        expect(tooltip?.textContent?.trim()).toBe('Tooltip B');
+      });
+    });
+
+    it('should hide tooltip when template reference changes to null', async () => {
+      const { fixture } = await render(
+        `
+          <button [ngpTooltipTrigger]="showTooltip ? content : null" ngpTooltipTriggerDisabled="true" ngpTooltipTriggerUseTextContent="false"></button>
+
+          <ng-template #content>
+            <div ngpTooltip>Tooltip content</div>
+          </ng-template>
+        `,
+        {
+          imports: [NgpTooltipTrigger, NgpTooltip],
+          componentProperties: {
+            showTooltip: true,
+          },
+        },
+      );
+
+      const triggerDirective = fixture.debugElement.children[0].injector.get(NgpTooltipTrigger);
+
+      // Show tooltip
+      triggerDirective.show();
+      await waitFor(() => {
+        expect(document.querySelector('[ngpTooltip]')).toBeInTheDocument();
+      });
+
+      // Set tooltip to null
+      (fixture.componentInstance as any).showTooltip = false;
+      fixture.detectChanges();
+
+      // Tooltip should be hidden
+      await waitFor(() => {
+        expect(document.querySelector('[ngpTooltip]')).not.toBeInTheDocument();
+      });
+    });
+
+    it('should show tooltip after switching from null to a template reference', async () => {
+      const { fixture } = await render(
+        `
+          <button [ngpTooltipTrigger]="showTooltip ? content : null" ngpTooltipTriggerDisabled="true" ngpTooltipTriggerUseTextContent="false"></button>
+
+          <ng-template #content>
+            <div ngpTooltip>Tooltip content</div>
+          </ng-template>
+        `,
+        {
+          imports: [NgpTooltipTrigger, NgpTooltip],
+          componentProperties: {
+            showTooltip: false,
+          },
+        },
+      );
+
+      const triggerDirective = fixture.debugElement.children[0].injector.get(NgpTooltipTrigger);
+
+      // Try to show - should not show since tooltip is null
+      triggerDirective.show();
+      await new Promise(resolve => setTimeout(resolve, 100));
+      expect(document.querySelector('[ngpTooltip]')).not.toBeInTheDocument();
+
+      // Switch to a template
+      (fixture.componentInstance as any).showTooltip = true;
+      fixture.detectChanges();
+
+      // Now show should work
+      triggerDirective.show();
+      await waitFor(() => {
+        const tooltip = document.querySelector('[ngpTooltip]');
+        expect(tooltip).toBeInTheDocument();
+        expect(tooltip?.textContent?.trim()).toBe('Tooltip content');
+      });
+    });
+  });
 });
