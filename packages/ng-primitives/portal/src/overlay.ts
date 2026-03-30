@@ -644,6 +644,10 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
       const wasOpen = this.isOpen();
       this.hideImmediate();
 
+      // Prevent the async destroyOverlay cleanup from clobbering state
+      // set by the subsequent createOverlay call.
+      this.destroyingPortal = null;
+
       if (wasOpen) {
         this.createOverlay(true);
       }

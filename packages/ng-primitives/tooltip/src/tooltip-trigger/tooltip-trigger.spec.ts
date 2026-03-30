@@ -1268,6 +1268,47 @@ describe('NgpTooltipTrigger', () => {
       });
     });
 
+    it('should preserve data-open on trigger after switching content while open', async () => {
+      const { fixture, getByRole } = await render(
+        `
+          <button [ngpTooltipTrigger]="useSecond ? tooltipB : tooltipA" ngpTooltipTriggerDisabled="true"></button>
+
+          <ng-template #tooltipA>
+            <div ngpTooltip>Tooltip A</div>
+          </ng-template>
+
+          <ng-template #tooltipB>
+            <div ngpTooltip>Tooltip B</div>
+          </ng-template>
+        `,
+        {
+          imports: [NgpTooltipTrigger, NgpTooltip],
+          componentProperties: {
+            useSecond: false,
+          },
+        },
+      );
+
+      const trigger = getByRole('button');
+      const triggerDirective = fixture.debugElement.children[0].injector.get(NgpTooltipTrigger);
+
+      // Show tooltip A
+      triggerDirective.show();
+      await waitFor(() => {
+        expect(trigger.getAttribute('data-open')).toBe('');
+      });
+
+      // Switch to tooltip B while open
+      (fixture.componentInstance as any).useSecond = true;
+      fixture.detectChanges();
+
+      // data-open should still be present after content switch
+      await waitFor(() => {
+        expect(trigger.getAttribute('data-open')).toBe('');
+        expect(document.querySelector('[ngpTooltip]')?.textContent?.trim()).toBe('Tooltip B');
+      });
+    });
+
     it('should show tooltip after switching from null to a template reference', async () => {
       const { fixture } = await render(
         `
