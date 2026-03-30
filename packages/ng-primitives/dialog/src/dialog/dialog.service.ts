@@ -1,6 +1,5 @@
 import { FocusMonitor } from '@angular/cdk/a11y';
-import { Overlay, OverlayConfig, OverlayContainer, ScrollStrategy } from '@angular/cdk/overlay';
-import { ComponentPortal, TemplatePortal } from '@angular/cdk/portal';
+import { ViewportRuler } from '@angular/cdk/scrolling';
 import { DOCUMENT } from '@angular/common';
 import {
   ApplicationRef,
@@ -16,6 +15,12 @@ import {
 } from '@angular/core';
 import { NavigationStart, Router } from '@angular/router';
 import { NgpExitAnimationManager } from 'ng-primitives/internal';
+import {
+  BlockScrollStrategy,
+  NgpOverlayRegistry,
+  ScrollStrategy,
+  createPortal,
+} from 'ng-primitives/portal';
 import { uniqueId } from 'ng-primitives/utils';
 import { Observable, Subject, Subscription, defer } from 'rxjs';
 import { startWith } from 'rxjs/operators';
@@ -23,8 +28,8 @@ import { NgpDialogConfig, injectDialogConfig } from '../config/dialog-config';
 import { NgpDialogRef } from './dialog-ref';
 
 /**
- * This is based on the Angular CDK Dialog service.
- * https://github.com/angular/components/blob/main/src/cdk/dialog/dialog.ts
+ * Originally based on Angular CDK Dialog service.
+ * Re-implemented to use ng-primitives/portal instead of @angular/cdk/overlay.
  */
 
 @Injectable({
@@ -32,24 +37,26 @@ import { NgpDialogRef } from './dialog-ref';
 })
 export class NgpDialogManager implements OnDestroy {
   private readonly applicationRef = inject(ApplicationRef);
+  private readonly injector = inject(Injector);
   private readonly document = inject<Document>(DOCUMENT);
-  private readonly overlay = inject(Overlay);
   private readonly focusMonitor = inject(FocusMonitor);
+  private readonly viewportRuler = inject(ViewportRuler);
+  private readonly registry = inject(NgpOverlayRegistry);
   private readonly defaultOptions = injectDialogConfig();
   private readonly parentDialogManager = inject(NgpDialogManager, {
     optional: true,
     skipSelf: true,
   });
-  private readonly overlayContainer = inject(OverlayContainer);
   private readonly router = inject(Router, { optional: true });
-  private readonly scrollStrategy: ScrollStrategy =
-    this.defaultOptions.scrollStrategy ?? this.overlay.scrollStrategies.block();
 
   private openDialogsAtThisLevel: NgpDialogRef[] = [];
   private readonly afterAllClosedAtThisLevel = new Subject<void>();
   private readonly afterOpenedAtThisLevel = new Subject<NgpDialogRef>();
   private ariaHiddenElements = new Map<Element, string | null>();
   private routerSubscription: Subscription | undefined;
+
+  /** Scroll blocking strategy — shared across all dialogs. */
+  private scrollStrategy: ScrollStrategy | null = null;
 
   /** Keeps track of the currently-open dialogs. */
   get openDialogs(): readonly NgpDialogRef[] {
@@ -123,10 +130,8 @@ export class NgpDialogManager implements OnDestroy {
       throw Error(`Dialog with id "${config.id}" exists already. The dialog id must be unique.`);
     }
 
-    const overlayConfig = this.getOverlayConfig(config);
-    const overlayRef = this.overlay.create(overlayConfig);
-    const dialogRef = new NgpDialogRef(overlayRef, config);
-    const injector = this.createInjector(config, dialogRef, undefined);
+    const dialogRef = new NgpDialogRef(config, this.document);
+    const injector = this.createInjector(config, dialogRef);
 
     // store the injector in the dialog ref - this is so we can access the exit animation manager
     dialogRef.injector = injector;
@@ -136,26 +141,57 @@ export class NgpDialogManager implements OnDestroy {
       close: dialogRef.close.bind(dialogRef),
     };
 
-    if (templateRefOrComponentType instanceof TemplateRef) {
-      overlayRef.attach(
-        new TemplatePortal(templateRefOrComponentType, config.viewContainerRef!, context, injector),
-      );
-    } else {
-      overlayRef.attach(
-        new ComponentPortal(templateRefOrComponentType, config.viewContainerRef!, injector),
-      );
+    // Create the portal using our portal system
+    const portal = createPortal(
+      templateRefOrComponentType,
+      config.viewContainerRef!,
+      injector,
+      context,
+    );
+
+    // Attach the portal to document.body
+    portal.attach(this.document.body);
+
+    // Store the portal reference on the dialog ref for element access and cleanup
+    dialogRef.portal = portal;
+
+    // If this is the first dialog that we're opening, hide all the non-overlay content
+    // and enable scroll blocking.
+    if (!this.openDialogs.length) {
+      this.hideNonDialogContentFromAssistiveTechnology(portal.getElements());
+      this.enableScrollBlocking(config);
     }
 
-    // If this is the first dialog that we're opening, hide all the non-overlay content.
-    if (!this.openDialogs.length) {
-      this.hideNonDialogContentFromAssistiveTechnology();
-    }
+    // Auto-detect parent overlay: if the trigger element lives inside an existing overlay
+    // (e.g. a dialog opened from a popover), register as its child so that clicks inside
+    // the dialog don't dismiss the parent overlay.
+    const parentId =
+      activeElement instanceof HTMLElement
+        ? this.registry.findContainingOverlay(activeElement)
+        : null;
+
+    // Register with the overlay registry for centralized escape-key routing.
+    // outsidePress is false because the NgpDialogOverlay directive handles its own backdrop clicks.
+    this.registry.register({
+      id: dialogRef.id,
+      parentId,
+      overlay: dialogRef,
+      getElements: () => dialogRef.getElements(),
+      triggerElement: (activeElement as HTMLElement) ?? this.document.body,
+      dismissPolicy: {
+        outsidePress: false,
+        escapeKey: config.closeOnEscape ?? true,
+      },
+      outsidePointerEvents$: dialogRef.outsidePointerEvents$,
+    });
 
     (this.openDialogs as NgpDialogRef[]).push(dialogRef as NgpDialogRef<any, any>);
     this.afterOpened.next(dialogRef as NgpDialogRef<any, any>);
     this.subscribeToRouterEvents();
 
     dialogRef.closed.subscribe(closeResult => {
+      // Deregister from the overlay registry
+      this.registry.deregister(dialogRef.id);
       this.removeOpenDialog(dialogRef as NgpDialogRef<any, any>, true);
       // Focus the trigger element after the dialog closes.
       if (activeElement instanceof HTMLElement && this.document.body.contains(activeElement)) {
@@ -188,8 +224,8 @@ export class NgpDialogManager implements OnDestroy {
 
   /**
    * Subscribe to router navigation events so that dialogs with `closeOnNavigation`
-   * are closed when the user navigates programmatically (e.g. router.navigate()).
-   * CDK's `disposeOnNavigation` only handles browser popstate events.
+   * are closed when the user navigates. This handles both browser popstate events
+   * and programmatic route changes (e.g. router.navigate()).
    */
   private subscribeToRouterEvents(): void {
     if (this.routerSubscription || !this.router) {
@@ -231,31 +267,12 @@ export class NgpDialogManager implements OnDestroy {
   }
 
   /**
-   * Creates an overlay config from a dialog config.
-   */
-  private getOverlayConfig(config: NgpDialogConfig): OverlayConfig {
-    const state = new OverlayConfig({
-      positionStrategy: this.overlay.position().global().centerHorizontally().centerVertically(),
-      scrollStrategy: config.scrollStrategy || this.scrollStrategy,
-      hasBackdrop: false,
-      disposeOnNavigation: config.closeOnNavigation,
-      // required for v21 - the CDK launches overlays using the popover api which means any other overlays
-      // such as select dropdowns, or tooltips will appear behind the dialog, regardless of z-index
-      // this disables the use of popovers
-      usePopover: false,
-    } as any);
-
-    return state;
-  }
-
-  /**
    * Creates a custom injector to be used inside the dialog. This allows a component loaded inside
    * of a dialog to close itself and, optionally, to return a value.
    */
   private createInjector<T, R>(
     config: NgpDialogConfig<T>,
     dialogRef: NgpDialogRef<T, R>,
-    fallbackInjector: Injector | undefined,
   ): Injector {
     const userInjector = config.injector || config.viewContainerRef?.injector;
     const providers: StaticProvider[] = [
@@ -263,7 +280,9 @@ export class NgpDialogManager implements OnDestroy {
       { provide: NgpExitAnimationManager, useClass: NgpExitAnimationManager },
     ];
 
-    return Injector.create({ parent: userInjector || fallbackInjector, providers });
+    // Fall back to the service's own injector (root injector) to ensure
+    // ApplicationRef and other platform providers are available.
+    return Injector.create({ parent: userInjector || this.injector, providers });
   }
 
   /**
@@ -287,6 +306,7 @@ export class NgpDialogManager implements OnDestroy {
         });
 
         this.ariaHiddenElements.clear();
+        this.disableScrollBlocking();
 
         if (emitEvent) {
           this.getAfterAllClosed().next();
@@ -295,26 +315,43 @@ export class NgpDialogManager implements OnDestroy {
     }
   }
 
-  /** Hides all of the content that isn't an overlay from assistive technology. */
-  private hideNonDialogContentFromAssistiveTechnology() {
-    const overlayContainer = this.overlayContainer.getContainerElement();
+  /**
+   * Enable scroll blocking when the first dialog opens.
+   */
+  private enableScrollBlocking(config?: NgpDialogConfig): void {
+    if (!this.scrollStrategy) {
+      this.scrollStrategy =
+        config?.scrollStrategy ?? new BlockScrollStrategy(this.viewportRuler, this.document);
+    }
+    this.scrollStrategy.enable();
+  }
 
-    // Ensure that the overlay container is attached to the DOM.
-    if (overlayContainer.parentElement) {
-      const siblings = overlayContainer.parentElement.children;
+  /**
+   * Disable scroll blocking when the last dialog closes.
+   */
+  private disableScrollBlocking(): void {
+    this.scrollStrategy?.disable();
+    this.scrollStrategy = null;
+  }
 
-      for (let i = siblings.length - 1; i > -1; i--) {
-        const sibling = siblings[i];
+  /**
+   * Hides all of the content that isn't a dialog portal from assistive technology.
+   */
+  private hideNonDialogContentFromAssistiveTechnology(portalElements: HTMLElement[]) {
+    const body = this.document.body;
+    const bodyChildren = body.children;
 
-        if (
-          sibling !== overlayContainer &&
-          sibling.nodeName !== 'SCRIPT' &&
-          sibling.nodeName !== 'STYLE' &&
-          !sibling.hasAttribute('aria-live')
-        ) {
-          this.ariaHiddenElements.set(sibling, sibling.getAttribute('aria-hidden'));
-          sibling.setAttribute('aria-hidden', 'true');
-        }
+    for (let i = bodyChildren.length - 1; i > -1; i--) {
+      const sibling = bodyChildren[i];
+
+      if (
+        !portalElements.includes(sibling as HTMLElement) &&
+        sibling.nodeName !== 'SCRIPT' &&
+        sibling.nodeName !== 'STYLE' &&
+        !sibling.hasAttribute('aria-live')
+      ) {
+        this.ariaHiddenElements.set(sibling, sibling.getAttribute('aria-hidden'));
+        sibling.setAttribute('aria-hidden', 'true');
       }
     }
   }
