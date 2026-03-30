@@ -1352,6 +1352,50 @@ describe('NgpTooltipTrigger', () => {
       });
     });
 
+    it('should not play enter animation when switching content while open', async () => {
+      const { fixture } = await render(
+        `
+          <button [ngpTooltipTrigger]="useSecond ? tooltipB : tooltipA" ngpTooltipTriggerDisabled="true"></button>
+
+          <ng-template #tooltipA>
+            <div ngpTooltip>Tooltip A</div>
+          </ng-template>
+
+          <ng-template #tooltipB>
+            <div ngpTooltip>Tooltip B</div>
+          </ng-template>
+        `,
+        {
+          imports: [NgpTooltipTrigger, NgpTooltip],
+          componentProperties: {
+            useSecond: false,
+          },
+        },
+      );
+
+      const triggerDirective = fixture.debugElement.children[0].injector.get(NgpTooltipTrigger);
+
+      // Show tooltip A
+      triggerDirective.show();
+      await waitFor(() => {
+        const tooltip = document.querySelector('[ngpTooltip]');
+        expect(tooltip).toBeInTheDocument();
+        expect(tooltip?.textContent?.trim()).toBe('Tooltip A');
+      });
+
+      // Switch to tooltip B while open
+      (fixture.componentInstance as any).useSecond = true;
+      fixture.detectChanges();
+
+      // The new tooltip should have data-instant (skip animation) instead of animating in
+      await waitFor(() => {
+        const tooltip = document.querySelector('[ngpTooltip]');
+        expect(tooltip).toBeInTheDocument();
+        expect(tooltip?.textContent?.trim()).toBe('Tooltip B');
+        expect(tooltip?.hasAttribute('data-instant')).toBe(true);
+      });
+    });
+
     it('should show tooltip after switching from null to a template reference', async () => {
       const { fixture } = await render(
         `
