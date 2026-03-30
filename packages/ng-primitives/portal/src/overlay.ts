@@ -632,20 +632,23 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
    * destroyed and recreated with the new content. If closed, the config is
    * updated so the next show() uses the new content.
    */
-  async updateContent(
-    content: NgpOverlayContent<T>,
-    context?: Signal<T | undefined>,
-  ): Promise<void> {
+  updateContent(content: NgpOverlayContent<T>, context?: Signal<T | undefined>): void {
     this.config = {
       ...this.config,
       content,
       ...(context !== undefined ? { context } : {}),
     };
 
-    // If the overlay is currently showing, recreate it with the new content
+    // If the overlay is currently showing, recreate it with the new content.
+    // We call hideImmediate() to synchronously tear down the portal, then
+    // null out destroyingPortal so the deferred cleanup inside destroyOverlay
+    // (which sets isOpen=false) is skipped — createOverlay will set isOpen=true.
+    // This avoids a microtask gap where isOpen would briefly become false,
+    // which could cause data-open / aria-describedby to flicker.
     if (this.portal()) {
       const wasOpen = this.isOpen();
-      await this.destroyOverlay(true);
+      this.hideImmediate();
+      this.destroyingPortal = null;
 
       if (wasOpen) {
         this.createOverlay(true);
