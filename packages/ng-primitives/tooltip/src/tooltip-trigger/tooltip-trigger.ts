@@ -255,7 +255,7 @@ export class NgpTooltipTrigger<T = null> implements OnDestroy {
       disabled: computed(() => !this.state.showOnOverflow()),
     });
 
-    // Watch for tooltip content changes and invalidate the overlay (#711)
+    // Watch for tooltip content changes and update the overlay (#711)
     let previousTooltip = this.state.tooltip();
     effect(() => {
       const currentTooltip = this.state.tooltip();
@@ -265,12 +265,11 @@ export class NgpTooltipTrigger<T = null> implements OnDestroy {
       untracked(() => {
         const overlay = this.overlay();
         if (overlay) {
-          const wasOpen = this.open();
-          overlay.destroy();
-          this.overlay.set(null);
-
-          if (wasOpen && currentTooltip) {
-            this.performShow(true);
+          if (currentTooltip && !isString(currentTooltip)) {
+            overlay.updateContent(currentTooltip, this.state.context);
+          } else {
+            overlay.destroy();
+            this.overlay.set(null);
           }
         }
       });

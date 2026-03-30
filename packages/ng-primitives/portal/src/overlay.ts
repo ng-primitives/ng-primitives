@@ -628,6 +628,29 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
   }
 
   /**
+   * Update the overlay content. If the overlay is currently open, it will be
+   * destroyed and recreated with the new content. If closed, the config is
+   * updated so the next show() uses the new content.
+   */
+  updateContent(content: NgpOverlayContent<T>, context?: Signal<T | undefined>): void {
+    this.config = {
+      ...this.config,
+      content,
+      ...(context !== undefined ? { context } : {}),
+    };
+
+    // If the overlay is currently showing, recreate it with the new content
+    if (this.portal()) {
+      const wasOpen = this.isOpen();
+      this.hideImmediate();
+
+      if (wasOpen) {
+        this.createOverlay(true);
+      }
+    }
+  }
+
+  /**
    * Completely destroy this overlay instance
    */
   destroy(): void {
