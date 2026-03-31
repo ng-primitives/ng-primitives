@@ -169,7 +169,8 @@ describe('NgpHover', () => {
       expect(hoverStart).not.toHaveBeenCalled();
     });
 
-    it('should allow real mouse hover after touch followed by mouse movement', async () => {
+    it('should allow real mouse hover after touch once timeout expires', async () => {
+      jest.useFakeTimers();
       const hoverStart = jest.fn();
       const container = await render(
         `<div data-testid="trigger" ngpHover (ngpHoverStart)="hoverStart()"></div>`,
@@ -193,12 +194,14 @@ describe('NgpHover', () => {
       dispatchPointerEvent(trigger, 'pointerleave', 'mouse');
       fireEvent.mouseLeave(trigger);
 
-      // A real mouse pointermove on the document clears the global ignore flag
-      dispatchPointerEvent(document, 'pointermove', 'mouse');
+      // After the 500ms timeout, the global ignore flag clears
+      jest.advanceTimersByTime(500);
 
       // Now a real mouse hover should work
       dispatchPointerEvent(trigger, 'pointerenter', 'mouse');
       expect(hoverStart).toHaveBeenCalled();
+
+      jest.useRealTimers();
     });
 
     it('should reset hover state when touch starts while hovered', async () => {
