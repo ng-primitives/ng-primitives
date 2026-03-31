@@ -29,7 +29,7 @@ import {
 
     <ng-template #dialog let-close="close">
       <div
-        class="animate-fade fixed inset-0 z-40 flex items-center justify-center bg-black/50 backdrop-blur-xs"
+        class="animate-fade fixed inset-0 z-[1000] flex items-center justify-center bg-black/50 backdrop-blur-xs"
         ngpDialogOverlay
       >
         <div

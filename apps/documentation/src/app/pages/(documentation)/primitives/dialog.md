@@ -111,7 +111,7 @@ The following directives are available to import from the `ng-primitives/dialog`
 
 The `NgpDialogManager` can be used as an alternative to the `NgpDialogTrigger` directive for programmatically opening dialogs.
 
-The manager provides a method to open or close all dialogs and accepts a component or template reference to display.
+The manager provides methods to open, close, and query dialogs, and accepts a component or template reference to display.
 
 <prop-details name="open" type="(component: Type | TemplateRef, options?: NgpDialogConfig) => NgpDialogRef">
   Opens a dialog with the specified component or template reference.
@@ -119,6 +119,58 @@ The manager provides a method to open or close all dialogs and accepts a compone
 
 <prop-details name="closeAll" type="() => void">
   Closes all open dialogs.
+</prop-details>
+
+<prop-details name="getDialogById" type="(id: string) => NgpDialogRef | undefined">
+  Finds an open dialog by its ID.
+</prop-details>
+
+<prop-details name="openDialogs" type="readonly NgpDialogRef[]">
+  The list of currently open dialogs.
+</prop-details>
+
+<prop-details name="afterOpened" type="Subject<NgpDialogRef>">
+  Stream that emits when a dialog has been opened.
+</prop-details>
+
+<prop-details name="afterAllClosed" type="Observable<void>">
+  Stream that emits when all open dialogs have finished closing. Emits on subscribe if there are no open dialogs.
+</prop-details>
+
+### NgpDialogRef
+
+Reference returned by `NgpDialogManager.open()`. Provides methods to interact with the opened dialog.
+
+<prop-details name="close" type="(result?: R, focusOrigin?: FocusOrigin) => Promise<void>">
+  Closes the dialog, optionally returning a result value.
+</prop-details>
+
+<prop-details name="afterClosed" type="Observable<R | undefined>">
+  Observable that emits the dialog result when the dialog is closed.
+</prop-details>
+
+<prop-details name="data" type="T">
+  The data passed to the dialog via `NgpDialogConfig.data`.
+</prop-details>
+
+<prop-details name="id" type="string">
+  The unique ID for the dialog.
+</prop-details>
+
+<prop-details name="disableClose" type="boolean | undefined">
+  Whether the user is allowed to close the dialog.
+</prop-details>
+
+<prop-details name="keydownEvents" type="Observable<KeyboardEvent>">
+  Observable that emits keyboard events dispatched within the dialog.
+</prop-details>
+
+<prop-details name="outsidePointerEvents" type="Observable<MouseEvent>">
+  Observable that emits pointer events dispatched outside of the dialog.
+</prop-details>
+
+<prop-details name="updatePosition" type="() => NgpDialogRef">
+  Updates the position of the dialog. Currently a no-op as dialogs are CSS-centered.
 </prop-details>
 
 ## Examples

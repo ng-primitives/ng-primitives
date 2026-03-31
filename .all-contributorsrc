@@ -350,6 +350,15 @@
       "contributions": [
         "code"
       ]
+    },
+    {
+      "login": "clementloridan",
+      "name": "Clément Loridan",
+      "avatar_url": "https://avatars.githubusercontent.com/u/15263596?v=4",
+      "profile": "https://github.com/clementloridan",
+      "contributions": [
+        "code"
+      ]
     }
   ],
   "contributorsPerLine": 7,

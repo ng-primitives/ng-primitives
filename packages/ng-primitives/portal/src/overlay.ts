@@ -1,5 +1,5 @@
 import { FocusMonitor, FocusOrigin } from '@angular/cdk/a11y';
-import { ViewportRuler } from '@angular/cdk/overlay';
+import { ViewportRuler } from '@angular/cdk/scrolling';
 import { DOCUMENT } from '@angular/common';
 import {
   DestroyRef,
@@ -30,11 +30,11 @@ import {
 } from '@floating-ui/dom';
 import { explicitEffect, fromResizeEvent } from 'ng-primitives/internal';
 import { injectDisposables, safeTakeUntilDestroyed, uniqueId } from 'ng-primitives/utils';
-import { Subject, fromEvent } from 'rxjs';
-import { debounceTime } from 'rxjs/operators';
+import { Subject } from 'rxjs';
 import { NgpFlip } from './flip';
 import { NgpOffset } from './offset';
 import { CooldownOverlay, NgpOverlayCooldownManager } from './overlay-cooldown';
+import { NgpOverlayRegistry } from './overlay-registry';
 import { provideOverlayContext } from './overlay-token';
 import { NgpPortal, createPortal } from './portal';
 import { NgpPosition } from './position';
@@ -226,11 +226,12 @@ export type NgpOverlayTemplateContext<T> = {
 export class NgpOverlay<T = unknown> implements CooldownOverlay {
   private readonly disposables = injectDisposables();
   private readonly document = inject(DOCUMENT);
+  private readonly viewportRuler = inject(ViewportRuler);
   private readonly destroyRef = inject(DestroyRef);
   private readonly viewContainerRef: ViewContainerRef;
-  private readonly viewportRuler = inject(ViewportRuler);
   private readonly focusMonitor = inject(FocusMonitor);
   private readonly cooldownManager = inject(NgpOverlayCooldownManager);
+  private readonly registry = inject(NgpOverlayRegistry);
   /** Access any parent overlays */
   private readonly parentOverlay = inject(NgpOverlay, { optional: true });
   /** Track child overlays for outside click detection */
@@ -356,65 +357,8 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
         }
       });
 
-    // Register with parent overlay for outside click detection
-    if (this.parentOverlay) {
-      this.parentOverlay.registerChildOverlay(this);
-    }
-
-    // if there is a parent overlay and it is closed, close this overlay
-    this.parentOverlay?.closing
-      // we add a debounce here to ensure any dom events like clicks are processed first
-      .pipe(debounceTime(0), safeTakeUntilDestroyed(this.destroyRef))
-      .subscribe(() => {
-        if (this.isOpen()) {
-          this.hideImmediate();
-        }
-      });
-
-    // If closeOnOutsideClick is enabled, set up a click listener
-    fromEvent<MouseEvent>(this.document, 'mouseup', { capture: true })
-      .pipe(safeTakeUntilDestroyed(this.destroyRef))
-      .subscribe(event => {
-        if (!this.config.closeOnOutsideClick) {
-          return;
-        }
-
-        const overlay = this.portal();
-
-        if (!overlay || !this.isOpen()) {
-          return;
-        }
-
-        const path = event.composedPath();
-        const isInsideOverlay = overlay.getElements().some(el => path.includes(el));
-        const isInsideTrigger = path.includes(this.config.triggerElement);
-        const isInsideAnchor = this.config.anchorElement
-          ? path.includes(this.config.anchorElement)
-          : false;
-
-        if (
-          !isInsideOverlay &&
-          !isInsideTrigger &&
-          !isInsideAnchor &&
-          !this.isInsideChildOverlay(path)
-        ) {
-          this.hide();
-        }
-      });
-
-    // If closeOnEscape is enabled, set up a keydown listener
-    fromEvent<KeyboardEvent>(this.document, 'keydown', { capture: true })
-      .pipe(safeTakeUntilDestroyed(this.destroyRef))
-      .subscribe(event => {
-        if (!this.config.closeOnEscape) return;
-        if (event.key === 'Escape' && this.isOpen()) {
-          this.hide({ origin: 'keyboard', immediate: true });
-        }
-      });
-
     // Ensure cleanup on destroy
     this.destroyRef.onDestroy(() => {
-      this.parentOverlay?.unregisterChildOverlay(this);
       this.destroy();
     });
   }
@@ -833,6 +777,20 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
     // Mark as open
     this.isOpen.set(true);
 
+    // Register with the overlay registry for centralized dismiss routing
+    this.registry.register({
+      id: this.id(),
+      parentId: this.parentOverlay?.id() ?? null,
+      overlay: this,
+      getElements: () => this.getElements(),
+      triggerElement: this.config.triggerElement,
+      anchorElement: this.config.anchorElement,
+      dismissPolicy: {
+        outsidePress: this.config.closeOnOutsideClick ?? false,
+        escapeKey: this.config.closeOnEscape ?? false,
+      },
+    });
+
     // Register as active overlay for this type (skip when cooldown is bypassed)
     if (this.config.overlayType && !skipCooldown) {
       this.cooldownManager.registerActive(this.config.overlayType, this, this.config.cooldown ?? 0);
@@ -989,6 +947,12 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
     if (!portal) {
       return;
     }
+
+    // Close any descendant overlays before destroying this one
+    this.registry.closeDescendants(this.id());
+
+    // Deregister from the overlay registry
+    this.registry.deregister(this.id());
 
     // Unregister from active overlays
     if (this.config.overlayType) {
