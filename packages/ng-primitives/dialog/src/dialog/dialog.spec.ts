@@ -1,6 +1,6 @@
 import { Component, TemplateRef, ViewContainerRef, inject, viewChild } from '@angular/core';
 import { TestBed, fakeAsync, flush, tick } from '@angular/core/testing';
-import { fireEvent } from '@testing-library/angular';
+import { fireEvent, waitFor } from '@testing-library/angular';
 import { NgpMenu, NgpMenuItem, NgpMenuTrigger } from 'ng-primitives/menu';
 import { NgpPopover, NgpPopoverTrigger } from 'ng-primitives/popover';
 import { NgpOverlayRegistry } from 'ng-primitives/portal';
