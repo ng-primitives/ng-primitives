@@ -1396,6 +1396,43 @@ describe('NgpTooltipTrigger', () => {
       });
     });
 
+    it('should hide tooltip when template is switched to null while open', async () => {
+      const { fixture } = await render(
+        `
+          <button [ngpTooltipTrigger]="showTooltip ? content : null" ngpTooltipTriggerDisabled="true" ngpTooltipTriggerUseTextContent="false"></button>
+
+          <ng-template #content>
+            <div ngpTooltip>Tooltip content</div>
+          </ng-template>
+        `,
+        {
+          imports: [NgpTooltipTrigger, NgpTooltip],
+          componentProperties: {
+            showTooltip: true,
+          },
+        },
+      );
+
+      const triggerDirective = fixture.debugElement.children[0].injector.get(NgpTooltipTrigger);
+
+      // Show tooltip
+      triggerDirective.show();
+      await waitFor(() => {
+        const tooltip = document.querySelector('[ngpTooltip]');
+        expect(tooltip).toBeInTheDocument();
+        expect(tooltip?.textContent?.trim()).toBe('Tooltip content');
+      });
+
+      // Switch to null while open
+      (fixture.componentInstance as any).showTooltip = false;
+      fixture.detectChanges();
+
+      // Tooltip should be hidden
+      await waitFor(() => {
+        expect(document.querySelector('[ngpTooltip]')).not.toBeInTheDocument();
+      });
+    });
+
     it('should show tooltip after switching from null to a template reference', async () => {
       const { fixture } = await render(
         `

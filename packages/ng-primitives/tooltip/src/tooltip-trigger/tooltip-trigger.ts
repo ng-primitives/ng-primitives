@@ -258,9 +258,14 @@ export class NgpTooltipTrigger<T = null> implements OnDestroy {
     // transformed to null by the input and handled via useTextContent).
     explicitEffect([this.state.tooltip], ([currentTooltip]) => {
       const overlay = this.overlay();
-      if (!overlay || !currentTooltip || isString(currentTooltip)) return;
+      if (!overlay || isString(currentTooltip)) return;
 
-      overlay.updateContent(currentTooltip, this.state.context);
+      if (currentTooltip) {
+        overlay.updateContent(currentTooltip, this.state.context);
+      } else {
+        // Template was removed — hide the overlay so it doesn't show stale content.
+        overlay.hide();
+      }
     });
   }
 

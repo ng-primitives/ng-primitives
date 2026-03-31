@@ -649,6 +649,7 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
       const wasOpen = this.isOpen();
       this.hideImmediate();
       this.destroyingPortal = null;
+      this.registeredOutletElement = null;
 
       if (wasOpen) {
         // Skip the enter animation — this is a content swap, not a fresh show.
