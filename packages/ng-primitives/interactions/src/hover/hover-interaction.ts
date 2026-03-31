@@ -20,6 +20,12 @@ class GlobalPointerEvents {
   ignoreEmulatedMouseEvents: boolean = false;
 
   /**
+   * Handle to the current ignore timeout, so rapid touches don't clear
+   * the guard prematurely.
+   */
+  private ignoreTimeout: ReturnType<typeof setTimeout> | null = null;
+
+  /**
    * Access the document.
    */
   private readonly document = inject(DOCUMENT);
@@ -43,11 +49,21 @@ class GlobalPointerEvents {
 
   private setGlobalIgnoreEmulatedMouseEvents(): void {
     this.ignoreEmulatedMouseEvents = true;
+
+    // Cancel any pending timeout so rapid successive touches don't
+    // clear the guard prematurely.
+    if (this.ignoreTimeout != null) {
+      clearTimeout(this.ignoreTimeout);
+    }
+
     // Clear globalIgnoreEmulatedMouseEvents after a short timeout. iOS fires onPointerEnter
     // with pointerType="mouse" immediately after onPointerUp and before onFocus. On other
     // devices that don't have this quirk, we don't want to ignore a mouse hover sometime in
     // the distant future because a user previously touched the element.
-    setTimeout(() => (this.ignoreEmulatedMouseEvents = false), 500);
+    this.ignoreTimeout = setTimeout(() => {
+      this.ignoreEmulatedMouseEvents = false;
+      this.ignoreTimeout = null;
+    }, 500);
   }
 
   private handleGlobalPointerEvent(event: PointerEvent): void {
