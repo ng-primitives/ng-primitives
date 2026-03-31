@@ -39,20 +39,24 @@ class GlobalPointerEvents {
   private setupGlobalTouchEvents(): void {
     this.document.addEventListener('pointerup', this.handleGlobalPointerEvent.bind(this));
     this.document.addEventListener('touchend', this.setGlobalIgnoreEmulatedMouseEvents.bind(this));
+    this.document.addEventListener('pointermove', this.handlePointerMove.bind(this));
   }
 
   private setGlobalIgnoreEmulatedMouseEvents(): void {
     this.ignoreEmulatedMouseEvents = true;
-    // Clear globalIgnoreEmulatedMouseEvents after a short timeout. iOS fires onPointerEnter
-    // with pointerType="mouse" immediately after onPointerUp and before onFocus. On other
-    // devices that don't have this quirk, we don't want to ignore a mouse hover sometime in
-    // the distant future because a user previously touched the element.
-    setTimeout(() => (this.ignoreEmulatedMouseEvents = false), 50);
   }
 
   private handleGlobalPointerEvent(event: PointerEvent): void {
     if (event.pointerType === 'touch') {
       this.setGlobalIgnoreEmulatedMouseEvents();
+    }
+  }
+
+  private handlePointerMove(event: PointerEvent): void {
+    // A real mouse movement proves the user switched to a mouse — emulated events
+    // from touch never produce pointermove with pointerType="mouse".
+    if (event.pointerType === 'mouse') {
+      this.ignoreEmulatedMouseEvents = false;
     }
   }
 }
@@ -164,7 +168,10 @@ export function ngpHover({
   }
 
   function onPointerEnter(event: PointerEvent): void {
-    if (globalPointerEvents.ignoreEmulatedMouseEvents && event.pointerType === 'mouse') {
+    if (
+      (globalPointerEvents.ignoreEmulatedMouseEvents && event.pointerType === 'mouse') ||
+      (ignoreEmulatedMouseEvents && event.pointerType === 'mouse')
+    ) {
       return;
     }
 
@@ -179,6 +186,9 @@ export function ngpHover({
 
   function onTouchStart(): void {
     ignoreEmulatedMouseEvents = true;
+    if (hovered()) {
+      onHoverFinished('mouse');
+    }
   }
 
   function onMouseEnter(event: MouseEvent): void {

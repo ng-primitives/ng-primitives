@@ -138,6 +138,110 @@ describe('NgpHover', () => {
     expect(hoverEnd).not.toHaveBeenCalled();
   });
 
+  describe('iOS Safari touch emulation', () => {
+    function dispatchPointerEvent(
+      target: Element | Document,
+      type: string,
+      pointerType: string,
+    ): void {
+      const event = new Event(type, {
+        bubbles: type !== 'pointerenter' && type !== 'pointerleave',
+      });
+      (event as any).pointerType = pointerType;
+      target.dispatchEvent(event);
+    }
+
+    it('should not activate hover when emulated pointerenter(mouse) fires after touch', async () => {
+      const hoverStart = jest.fn();
+      const container = await render(
+        `<div data-testid="trigger" ngpHover (ngpHoverStart)="hoverStart()"></div>`,
+        {
+          imports: [NgpHover],
+          componentProperties: {
+            hoverStart,
+          },
+        },
+      );
+
+      const trigger = container.getByTestId('trigger');
+      fireEvent.touchStart(trigger);
+      dispatchPointerEvent(trigger, 'pointerenter', 'mouse');
+      expect(hoverStart).not.toHaveBeenCalled();
+    });
+
+    it('should allow real mouse hover after touch followed by mouse movement', async () => {
+      const hoverStart = jest.fn();
+      const container = await render(
+        `<div data-testid="trigger" ngpHover (ngpHoverStart)="hoverStart()"></div>`,
+        {
+          imports: [NgpHover],
+          componentProperties: {
+            hoverStart,
+          },
+        },
+      );
+
+      const trigger = container.getByTestId('trigger');
+      // Simulate a full touch + emulated event sequence
+      fireEvent.touchStart(trigger);
+      fireEvent.touchEnd(trigger);
+      dispatchPointerEvent(trigger, 'pointerenter', 'mouse'); // emulated, should be blocked
+      fireEvent.mouseEnter(trigger); // emulated, clears local flag
+      expect(hoverStart).not.toHaveBeenCalled();
+
+      // Leave the element
+      dispatchPointerEvent(trigger, 'pointerleave', 'mouse');
+      fireEvent.mouseLeave(trigger);
+
+      // A real mouse pointermove on the document clears the global ignore flag
+      dispatchPointerEvent(document, 'pointermove', 'mouse');
+
+      // Now a real mouse hover should work
+      dispatchPointerEvent(trigger, 'pointerenter', 'mouse');
+      expect(hoverStart).toHaveBeenCalled();
+    });
+
+    it('should reset hover state when touch starts while hovered', async () => {
+      const hoverEnd = jest.fn();
+      const container = await render(
+        `<div data-testid="trigger" ngpHover (ngpHoverEnd)="hoverEnd()"></div>`,
+        {
+          imports: [NgpHover],
+          componentProperties: {
+            hoverEnd,
+          },
+        },
+      );
+
+      const trigger = container.getByTestId('trigger');
+      // Activate hover via pointerenter
+      dispatchPointerEvent(trigger, 'pointerenter', 'mouse');
+      // Touch starts while hovered - should reset
+      fireEvent.touchStart(trigger);
+      expect(hoverEnd).toHaveBeenCalled();
+    });
+
+    it('should block both emulated pointerenter and mouseenter after touchstart', async () => {
+      const hoverStart = jest.fn();
+      const container = await render(
+        `<div data-testid="trigger" ngpHover (ngpHoverStart)="hoverStart()"></div>`,
+        {
+          imports: [NgpHover],
+          componentProperties: {
+            hoverStart,
+          },
+        },
+      );
+
+      const trigger = container.getByTestId('trigger');
+      fireEvent.touchStart(trigger);
+      dispatchPointerEvent(trigger, 'pointerenter', 'mouse');
+      expect(hoverStart).not.toHaveBeenCalled();
+      fireEvent.mouseEnter(trigger);
+      expect(hoverStart).not.toHaveBeenCalled();
+    });
+  });
+
   describe('global configuration', () => {
     it('should not trigger hover events when all interactions are globally disabled', async () => {
       const hoverStart = jest.fn();
