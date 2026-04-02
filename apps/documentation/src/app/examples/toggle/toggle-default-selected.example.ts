@@ -42,4 +42,4 @@ import { NgpToggle } from 'ng-primitives/toggle';
     }
   `,
 })
-export default class ToggleDefaultSelectedExample { }
+export default class ToggleDefaultSelectedExample {}

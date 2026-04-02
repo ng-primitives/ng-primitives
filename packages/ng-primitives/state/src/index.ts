@@ -413,12 +413,17 @@ export interface ControlledStateResult<T> {
 }
 
 export function controlledState<T>(options: ControlledStateOptions<T>): ControlledStateResult<T> {
-  const internal = linkedSignal(() => options.defaultValue?.() ?? options.fallback);
+  const UNSET = Symbol('UNSET');
+  const userValue = signal<T | typeof UNSET>(UNSET);
+  const internal = linkedSignal(() => {
+    const uv = userValue();
+    return uv !== UNSET ? (uv as T) : (options.defaultValue?.() ?? options.fallback);
+  });
   const value = linkedSignal(() => options.value?.() ?? internal());
   const change = emitter<T>();
 
   function set(v: T): void {
-    internal.set(v);
+    userValue.set(v);
     options.onChange?.(v);
     change.emit(v);
   }
