@@ -214,7 +214,7 @@ describe('NgpDialog', () => {
     ref.closed.subscribe(closedSpy);
 
     const overlay = document.querySelector('[data-testid="overlay"]') as HTMLElement;
-    overlay.click();
+    dispatchOverlayClick(overlay);
 
     await new Promise(r => setTimeout(r, 0));
     expect(closedSpy).not.toHaveBeenCalled();
@@ -228,7 +228,7 @@ describe('NgpDialog', () => {
     ref.closed.subscribe(closedSpy);
 
     const overlay = document.querySelector('[data-testid="overlay"]') as HTMLElement;
-    overlay.click();
+    dispatchOverlayClick(overlay);
 
     await new Promise(r => setTimeout(r, 0));
     expect(closedSpy).not.toHaveBeenCalled();
@@ -242,7 +242,7 @@ describe('NgpDialog', () => {
     ref.closed.subscribe(closedSpy);
 
     const overlay = document.querySelector('[data-testid="overlay"]') as HTMLElement;
-    overlay.click();
+    dispatchOverlayClick(overlay);
 
     await waitFor(() => {
       expect(closedSpy).toHaveBeenCalled();
@@ -257,7 +257,7 @@ describe('NgpDialog', () => {
     ref.closed.subscribe(closedSpy);
 
     const overlay = document.querySelector('[data-testid="overlay"]') as HTMLElement;
-    overlay.click();
+    dispatchOverlayClick(overlay);
 
     await new Promise(r => setTimeout(r, 0));
     expect(closedSpy).not.toHaveBeenCalled();
