@@ -282,13 +282,10 @@ describe('NgpToggle', () => {
 
   describe('controlled mode', () => {
     it('should update the DOM when controlled value changes via two-way binding on click', async () => {
-      await render(
-        `<button ngpToggle [(ngpToggleSelected)]="selected">Toggle</button>`,
-        {
-          imports: [NgpToggle],
-          componentProperties: { selected: false },
-        },
-      );
+      await render(`<button ngpToggle [(ngpToggleSelected)]="selected">Toggle</button>`, {
+        imports: [NgpToggle],
+        componentProperties: { selected: false },
+      });
 
       const button = screen.getByRole('button');
       expect(button).toHaveAttribute('aria-pressed', 'false');
