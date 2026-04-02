@@ -3,7 +3,7 @@ import { inject, Injector } from '@angular/core';
 import { NgpExitAnimationManager } from 'ng-primitives/internal';
 import { NgpDismissGuard, NgpOverlayRef } from 'ng-primitives/portal';
 import { defer, EMPTY, fromEvent, Observable, Subject } from 'rxjs';
-import { filter, takeUntil } from 'rxjs/operators';
+import { filter, map, takeUntil } from 'rxjs/operators';
 import { NgpDialogConfig } from '../config/dialog-config';
 
 /** Minimal portal interface needed by the dialog ref. */
@@ -29,13 +29,14 @@ export class NgpDialogRef<T = unknown, R = unknown> implements NgpOverlayRef {
   readonly closed = new Subject<{ focusOrigin?: FocusOrigin; result?: R }>();
 
   /** @internal */
-  private readonly afterClosed$ = new Subject<{ focusOrigin?: FocusOrigin; result?: R }>();
+  readonly afterClosed$ = new Subject<{ focusOrigin?: FocusOrigin; result?: R }>();
 
   /**
    * Observable that emits the dialog result after exit animations have completed.
    */
-  readonly afterClosed: Observable<{ focusOrigin?: FocusOrigin; result?: R }> =
-    this.afterClosed$.asObservable();
+  readonly afterClosed: Observable<R | undefined> = this.afterClosed$.pipe(
+    map(event => event.result),
+  );
 
   /** Data passed from the dialog opener. */
   readonly data: T;

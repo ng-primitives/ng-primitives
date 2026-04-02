@@ -211,7 +211,11 @@ export default class DialogDismissGuardExample {
     if (!this.dirty()) {
       return true;
     }
-    return confirm('You have unsaved changes. Discard them?');
+    const confirmed = confirm('You have unsaved changes. Discard them?');
+    if (confirmed) {
+      this.dirty.set(false);
+    }
+    return confirmed;
   };
 
   discard(close: () => void) {

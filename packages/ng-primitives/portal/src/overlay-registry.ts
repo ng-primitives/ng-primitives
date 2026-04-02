@@ -12,6 +12,27 @@ import { Subject } from 'rxjs';
 export type NgpDismissGuard<T = Element> = boolean | ((target: T) => boolean | Promise<boolean>);
 
 /**
+ * Input type for dismiss guard inputs, accepting booleans, string booleans, or guard functions.
+ */
+export type NgpDismissGuardInput<T = Element> = NgpDismissGuard<T> | string;
+
+/**
+ * Transform function for dismiss guard inputs.
+ * Coerces string boolean values ('', 'true', 'false') while passing through
+ * actual booleans and guard functions unchanged.
+ */
+export function dismissGuardAttribute<T>(value: NgpDismissGuardInput<T>): NgpDismissGuard<T> {
+  if (typeof value === 'function') {
+    return value;
+  }
+  if (typeof value === 'boolean') {
+    return value;
+  }
+  // String coercion: '' (attribute present) and 'true' → true, 'false' → false
+  return value !== 'false';
+}
+
+/**
  * Dismiss policy for an overlay entry.
  * Determines how the overlay responds to outside clicks and escape key presses.
  * @internal

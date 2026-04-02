@@ -17,7 +17,9 @@ import { injectElementRef } from 'ng-primitives/internal';
 import {
   createOverlay,
   coerceFlip,
+  dismissGuardAttribute,
   NgpDismissGuard,
+  NgpDismissGuardInput,
   NgpFlip,
   NgpFlipInput,
   NgpOverlay,
@@ -154,17 +156,25 @@ export class NgpPopoverTrigger<T = null> implements OnDestroy {
    * Define whether the popover should close when clicking outside of it, or a guard function.
    * @default true
    */
-  readonly closeOnOutsideClick = input<NgpDismissGuard<Element>>(this.config.closeOnOutsideClick, {
-    alias: 'ngpPopoverTriggerCloseOnOutsideClick',
-  });
+  readonly closeOnOutsideClick = input<NgpDismissGuard<Element>, NgpDismissGuardInput<Element>>(
+    this.config.closeOnOutsideClick,
+    {
+      alias: 'ngpPopoverTriggerCloseOnOutsideClick',
+      transform: dismissGuardAttribute,
+    },
+  );
 
   /**
    * Define whether the popover should close when the escape key is pressed, or a guard function.
    * @default true
    */
-  readonly closeOnEscape = input<NgpDismissGuard<KeyboardEvent>>(this.config.closeOnEscape, {
-    alias: 'ngpPopoverTriggerCloseOnEscape',
-  });
+  readonly closeOnEscape = input<NgpDismissGuard<KeyboardEvent>, NgpDismissGuardInput<KeyboardEvent>>(
+    this.config.closeOnEscape,
+    {
+      alias: 'ngpPopoverTriggerCloseOnEscape',
+      transform: dismissGuardAttribute,
+    },
+  );
 
   /**
    * Defines how the popover behaves when the window is scrolled.
