@@ -1,9 +1,5 @@
 import { Directive, HostListener, inject, input, output, TemplateRef } from '@angular/core';
-import {
-  dismissGuardAttribute,
-  NgpDismissGuard,
-  NgpDismissGuardInput,
-} from 'ng-primitives/portal';
+import { dismissGuardAttribute, NgpDismissGuard, NgpDismissGuardInput } from 'ng-primitives/portal';
 import { injectDialogConfig } from '../config/dialog-config';
 import { NgpDialogRef } from '../dialog/dialog-ref';
 import { NgpDialogContext, NgpDialogManager } from '../dialog/dialog.service';
@@ -31,13 +27,13 @@ export class NgpDialogTrigger<T = unknown> {
    * Whether the dialog should close on escape, or a guard function.
    * @default `true`
    */
-  readonly closeOnEscape = input<NgpDismissGuard<KeyboardEvent>, NgpDismissGuardInput<KeyboardEvent>>(
-    this.config.closeOnEscape ?? true,
-    {
-      alias: 'ngpDialogTriggerCloseOnEscape',
-      transform: dismissGuardAttribute,
-    },
-  );
+  readonly closeOnEscape = input<
+    NgpDismissGuard<KeyboardEvent>,
+    NgpDismissGuardInput<KeyboardEvent>
+  >(this.config.closeOnEscape ?? true, {
+    alias: 'ngpDialogTriggerCloseOnEscape',
+    transform: dismissGuardAttribute,
+  });
 
   /**
    * Whether the dialog should close on outside click, or a guard function.

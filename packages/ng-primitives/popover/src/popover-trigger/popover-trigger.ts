@@ -168,13 +168,13 @@ export class NgpPopoverTrigger<T = null> implements OnDestroy {
    * Define whether the popover should close when the escape key is pressed, or a guard function.
    * @default true
    */
-  readonly closeOnEscape = input<NgpDismissGuard<KeyboardEvent>, NgpDismissGuardInput<KeyboardEvent>>(
-    this.config.closeOnEscape,
-    {
-      alias: 'ngpPopoverTriggerCloseOnEscape',
-      transform: dismissGuardAttribute,
-    },
-  );
+  readonly closeOnEscape = input<
+    NgpDismissGuard<KeyboardEvent>,
+    NgpDismissGuardInput<KeyboardEvent>
+  >(this.config.closeOnEscape, {
+    alias: 'ngpPopoverTriggerCloseOnEscape',
+    transform: dismissGuardAttribute,
+  });
 
   /**
    * Defines how the popover behaves when the window is scrolled.
