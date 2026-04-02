@@ -49,7 +49,7 @@ export interface NgpToggleProps {
   /**
    * Whether the toggle is selected.
    */
-  readonly selected?: Signal<boolean | undefined>;
+  readonly selected: Signal<boolean | undefined>;
   /**
    * The default selected state for uncontrolled usage.
    */
@@ -82,7 +82,6 @@ export const [NgpToggleStateToken, ngpToggle, injectToggleState, provideToggleSt
       } = controlledState({
         value: _selected,
         defaultValue: _defaultSelected,
-        fallback: false,
         onChange: onSelectedChange,
       });
 
@@ -131,7 +130,7 @@ export const [NgpToggleStateToken, ngpToggle, injectToggleState, provideToggleSt
       }
 
       return {
-        selected: deprecatedSetter(selected, 'setSelected'),
+        selected: deprecatedSetter(selected, 'setSelected', setSelected),
         disabled: deprecatedSetter(disabled, 'setDisabled'),
         selectedChange,
         toggle,

@@ -377,15 +377,11 @@ export interface ControlledStateOptions<T> {
    * The controlled value signal. When defined (not `undefined`), the component
    * is in controlled mode and this value always wins.
    */
-  readonly value?: Signal<T | undefined>;
+  readonly value: Signal<T | undefined>;
   /**
    * The default value signal for uncontrolled mode.
    */
   readonly defaultValue?: Signal<T>;
-  /**
-   * Fallback value when neither value nor defaultValue is provided.
-   */
-  readonly fallback: T;
   /**
    * Callback fired when the value changes.
    */
@@ -394,14 +390,10 @@ export interface ControlledStateOptions<T> {
 
 export interface ControlledStateResult<T> {
   /**
-   * The internal writable signal (for uncontrolled mode).
-   */
-  readonly internal: WritableSignal<T>;
-  /**
-   * The resolved value. Always returns the controlled value when defined,
+   * The resolved value. Returns the controlled value when defined,
    * otherwise falls back to the internal value.
    */
-  readonly value: WritableSignal<T>;
+  readonly value: Signal<T>;
   /**
    * Update the internal state and emit the change.
    */
@@ -412,23 +404,38 @@ export interface ControlledStateResult<T> {
   readonly change: Observable<T>;
 }
 
-export function controlledState<T>(options: ControlledStateOptions<T>): ControlledStateResult<T> {
+export function controlledState<T>({
+  value,
+  onChange,
+  defaultValue,
+}: ControlledStateOptions<T>): ControlledStateResult<T> {
+  const change = emitter<T>();
+  let isControlled = value() !== undefined;
   const UNSET = Symbol('UNSET');
   const userValue = signal<T | typeof UNSET>(UNSET);
-  const internal = linkedSignal(() => {
-    const uv = userValue();
-    return uv !== UNSET ? (uv as T) : (options.defaultValue?.() ?? options.fallback);
-  });
-  const value = linkedSignal(() => options.value?.() ?? internal());
-  const change = emitter<T>();
 
-  function set(v: T): void {
-    userValue.set(v);
-    options.onChange?.(v);
-    change.emit(v);
+  const resolved = linkedSignal(() => {
+    const v = value();
+    if (v !== undefined) {
+      isControlled = true;
+      return v;
+    }
+    const uv = userValue();
+    return uv !== UNSET ? (uv as T) : defaultValue?.();
+  });
+
+  function set(newValue: T) {
+    if (resolved() === newValue) {
+      return;
+    }
+    if (!isControlled) {
+      userValue.set(newValue);
+    }
+    onChange?.(newValue);
+    change.emit(newValue);
   }
 
-  return { internal, value, set, change: change.asObservable() };
+  return { value: resolved.asReadonly() as Signal<T>, set, change: change.asObservable() };
 }
 
 function setAttribute(
@@ -598,15 +605,29 @@ export function onDestroy(callback: () => void): void {
 export function deprecatedSetter<T>(
   signal: WritableSignal<T>,
   methodName: string,
+): WritableSignal<T>;
+export function deprecatedSetter<T>(
+  signal: Signal<T>,
+  methodName: string,
+  setter: (value: T) => void,
+): WritableSignal<T>;
+export function deprecatedSetter<T>(
+  signal: Signal<T>,
+  methodName: string,
+  setter?: (value: T) => void,
 ): WritableSignal<T> {
-  return new Proxy(signal, {
+  return new Proxy(signal as WritableSignal<T>, {
     get(target, prop) {
       if (prop === 'set') {
         return (value: T) => {
           console.warn(
             `Deprecation warning: Use ${methodName}() instead of setting the value directly.`,
           );
-          target.set(value);
+          if (setter) {
+            setter(value);
+          } else {
+            (target as WritableSignal<T>).set(value);
+          }
         };
       }
       return target[prop as keyof WritableSignal<T>];
