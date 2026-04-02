@@ -13,10 +13,18 @@ import { ngpToggle, provideToggleState } from './toggle-state';
 export class NgpToggle {
   /**
    * Whether the toggle is selected.
+   */
+  readonly selected = input<boolean | undefined, BooleanInput>(undefined, {
+    alias: 'ngpToggleSelected',
+    transform: booleanAttribute,
+  });
+
+  /**
+   * The default selected state for uncontrolled usage.
    * @default false
    */
-  readonly selected = input<boolean, BooleanInput>(false, {
-    alias: 'ngpToggleSelected',
+  readonly defaultSelected = input<boolean, BooleanInput>(false, {
+    alias: 'ngpToggleDefaultSelected',
     transform: booleanAttribute,
   });
 
@@ -42,6 +50,7 @@ export class NgpToggle {
    */
   protected readonly state = ngpToggle({
     selected: this.selected,
+    defaultSelected: this.defaultSelected,
     disabled: this.disabled,
     onSelectedChange: value => this.selectedChange.emit(value),
   });

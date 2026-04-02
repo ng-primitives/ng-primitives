@@ -4,10 +4,10 @@ import { injectElementRef } from 'ng-primitives/internal';
 import {
   attrBinding,
   controlled,
+  controlledState,
   createPrimitive,
   dataBinding,
   deprecatedSetter,
-  emitter,
   listener,
 } from 'ng-primitives/state';
 import { Observable } from 'rxjs';
@@ -49,7 +49,11 @@ export interface NgpToggleProps {
   /**
    * Whether the toggle is selected.
    */
-  readonly selected?: Signal<boolean>;
+  readonly selected?: Signal<boolean | undefined>;
+  /**
+   * The default selected state for uncontrolled usage.
+   */
+  readonly defaultSelected?: Signal<boolean>;
   /**
    * Whether the toggle is disabled.
    */
@@ -64,16 +68,26 @@ export const [NgpToggleStateToken, ngpToggle, injectToggleState, provideToggleSt
   createPrimitive(
     'NgpToggle',
     ({
-      selected: _selected = signal(false),
+      selected: _selected,
+      defaultSelected: _defaultSelected,
       disabled: _disabled = signal(false),
       onSelectedChange,
     }: NgpToggleProps): NgpToggleState => {
       const element = injectElementRef<HTMLElement>();
-      const selected = controlled(_selected);
+
+      const {
+        value: selected,
+        set: setSelected,
+        change: selectedChange,
+      } = controlledState({
+        value: _selected,
+        defaultValue: _defaultSelected,
+        fallback: false,
+        onChange: onSelectedChange,
+      });
+
       const disabled = controlled(_disabled);
       const isButton = element.nativeElement.tagName.toLowerCase() === 'button';
-
-      const selectedChange = emitter<boolean>();
 
       ngpInteractions({
         hover: true,
@@ -112,12 +126,6 @@ export const [NgpToggleStateToken, ngpToggle, injectToggleState, provideToggleSt
         setSelected(!selected());
       }
 
-      function setSelected(value: boolean): void {
-        selected.set(value);
-        onSelectedChange?.(value);
-        selectedChange.emit(value);
-      }
-
       function setDisabled(value: boolean): void {
         disabled.set(value);
       }
@@ -125,7 +133,7 @@ export const [NgpToggleStateToken, ngpToggle, injectToggleState, provideToggleSt
       return {
         selected: deprecatedSetter(selected, 'setSelected'),
         disabled: deprecatedSetter(disabled, 'setDisabled'),
-        selectedChange: selectedChange.asObservable(),
+        selectedChange,
         toggle,
         setSelected,
         setDisabled,

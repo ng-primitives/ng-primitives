@@ -47,6 +47,14 @@ ng g ng-primitives:primitive toggle
 - `file-suffix`: The suffix to apply to the generated component file name. Defaults to `component`.
 - `example-styles`: Whether to include example styles in the generated component file. Defaults to `true`.
 
+## Examples
+
+### Default Selected
+
+Use `ngpToggleDefaultSelected` to set the initial selected state in uncontrolled mode.
+
+<docs-example name="toggle-default-selected"></docs-example>
+
 ## API Reference
 
 The following directives are available to import from the `ng-primitives/toggle` package:

@@ -372,6 +372,60 @@ export function controlled<T>(value: Signal<T>): WritableSignal<T> {
   return linkedSignal(() => value());
 }
 
+export interface ControlledStateOptions<T> {
+  /**
+   * The controlled value signal. When defined (not `undefined`), the component
+   * is in controlled mode and this value always wins.
+   */
+  readonly value?: Signal<T | undefined>;
+  /**
+   * The default value signal for uncontrolled mode.
+   */
+  readonly defaultValue?: Signal<T>;
+  /**
+   * Fallback value when neither value nor defaultValue is provided.
+   */
+  readonly fallback: T;
+  /**
+   * Callback fired when the value changes.
+   */
+  readonly onChange?: (value: T) => void;
+}
+
+export interface ControlledStateResult<T> {
+  /**
+   * The internal writable signal (for uncontrolled mode).
+   */
+  readonly internal: WritableSignal<T>;
+  /**
+   * The resolved value. Always returns the controlled value when defined,
+   * otherwise falls back to the internal value.
+   */
+  readonly value: WritableSignal<T>;
+  /**
+   * Update the internal state and emit the change.
+   */
+  set(value: T): void;
+  /**
+   * Observable of value changes.
+   */
+  readonly change: Observable<T>;
+}
+
+export function controlledState<T>(options: ControlledStateOptions<T>): ControlledStateResult<T> {
+  const internal = linkedSignal(() => options.defaultValue?.() ?? options.fallback);
+  const value = linkedSignal(() => options.value?.() ?? internal());
+  const change = emitter<T>();
+
+  function set(v: T): void {
+    internal.set(v);
+    options.onChange?.(v);
+    change.emit(v);
+  }
+
+  return { internal, value, set, change: change.asObservable() };
+}
+
 function setAttribute(
   element: ElementRef<HTMLElement>,
   attr: string,
