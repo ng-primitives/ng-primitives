@@ -31,8 +31,7 @@ export class NgpDialogOverlay {
   }
 
   protected onClick(event: Event): void {
-    const isOverlayClick =
-      this.startedPointerDownOnOverlay && event.target === event.currentTarget;
+    const isOverlayClick = this.startedPointerDownOnOverlay && event.target === event.currentTarget;
 
     this.resetPointerOrigin();
 
