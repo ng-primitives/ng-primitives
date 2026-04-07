@@ -1,6 +1,6 @@
 import { Component, runInInjectionContext, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { controlledState, ControlledStateResult } from 'ng-primitives/state';
+import { controlledState, ControlledState } from 'ng-primitives/state';
 import { firstValueFrom } from 'rxjs';
 import { take, toArray } from 'rxjs/operators';
 
@@ -9,7 +9,7 @@ class NoopComponent {}
 
 function createControlledState<T>(
   ...args: Parameters<typeof controlledState<T>>
-): ControlledStateResult<T> {
+): ControlledState<T> {
   const fixture = TestBed.createComponent(NoopComponent);
   const injector = fixture.componentRef.injector;
   return runInInjectionContext(injector, () => controlledState<T>(...args));
@@ -517,6 +517,105 @@ describe('controlledState', () => {
       expect(result.value()).toBe(false);
       value.set(true);
       expect(result.value()).toBe(true);
+    });
+
+    describe('set with emit: false', () => {
+      it('should update internal state but not call onChange', () => {
+        const onChange = jest.fn();
+        const result = createControlledState<boolean>({
+          value: signal(undefined),
+          defaultValue: signal(false),
+          onChange,
+        });
+
+        result.set(true, { emit: false });
+
+        expect(result.value()).toBe(true);
+        expect(onChange).not.toHaveBeenCalled();
+      });
+
+      it('should update internal state but not emit on the change observable', () => {
+        const spy = jest.fn();
+        const result = createControlledState<boolean>({
+          value: signal(undefined),
+          defaultValue: signal(false),
+        });
+
+        result.change.subscribe(spy);
+        result.set(true, { emit: false });
+
+        expect(result.value()).toBe(true);
+        expect(spy).not.toHaveBeenCalled();
+      });
+
+      it('should default to emit: true when options are omitted', () => {
+        const onChange = jest.fn();
+        const result = createControlledState<boolean>({
+          value: signal(undefined),
+          defaultValue: signal(false),
+          onChange,
+        });
+
+        result.set(true);
+        expect(onChange).toHaveBeenCalledWith(true);
+      });
+
+      it('should respect emit: true explicitly', () => {
+        const onChange = jest.fn();
+        const result = createControlledState<boolean>({
+          value: signal(undefined),
+          defaultValue: signal(false),
+          onChange,
+        });
+
+        result.set(true, { emit: true });
+        expect(onChange).toHaveBeenCalledWith(true);
+      });
+
+      it('should not update internal state in controlled mode even with emit: false', () => {
+        const onChange = jest.fn();
+        const value = signal<boolean | undefined>(false);
+        const result = createControlledState<boolean>({
+          value,
+          defaultValue: signal(false),
+          onChange,
+        });
+
+        result.set(true, { emit: false });
+
+        expect(result.value()).toBe(false); // controlled value still wins
+        expect(onChange).not.toHaveBeenCalled();
+      });
+
+      it('should still skip when called with the same value and emit: false', () => {
+        const onChange = jest.fn();
+        const result = createControlledState<boolean>({
+          value: signal(undefined),
+          defaultValue: signal(false),
+          onChange,
+        });
+
+        result.set(false, { emit: false });
+        expect(onChange).not.toHaveBeenCalled();
+        expect(result.value()).toBe(false);
+      });
+
+      it('should allow subsequent set with emit:true to fire after emit:false', () => {
+        const onChange = jest.fn();
+        const result = createControlledState<string>({
+          value: signal(undefined),
+          defaultValue: signal('a'),
+          onChange,
+        });
+
+        result.set('b', { emit: false });
+        expect(onChange).not.toHaveBeenCalled();
+        expect(result.value()).toBe('b');
+
+        result.set('c');
+        expect(onChange).toHaveBeenCalledWith('c');
+        expect(result.value()).toBe('c');
+      });
     });
 
     it('should stay controlled once value becomes defined', () => {

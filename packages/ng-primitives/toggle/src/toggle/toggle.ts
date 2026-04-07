@@ -1,5 +1,6 @@
 import { BooleanInput } from '@angular/cdk/coercion';
 import { booleanAttribute, Directive, input, output } from '@angular/core';
+import { SetterOptions } from 'ng-primitives/state';
 import { ngpToggle, provideToggleState } from './toggle-state';
 
 /**
@@ -65,8 +66,8 @@ export class NgpToggle {
   /**
    * Set the selected state.
    */
-  setSelected(value: boolean): void {
-    this.state.setSelected(value);
+  setSelected(value: boolean, options?: SetterOptions): void {
+    this.state.setSelected(value, options);
   }
 
   /*

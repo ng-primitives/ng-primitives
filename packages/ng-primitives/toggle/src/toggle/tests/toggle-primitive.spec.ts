@@ -1,5 +1,5 @@
 import { fireEvent, render, screen } from '@testing-library/angular';
-import { NgpToggle } from './toggle';
+import { NgpToggle } from '../toggle';
 
 describe('NgpToggle', () => {
   it('should initialize with default values', async () => {

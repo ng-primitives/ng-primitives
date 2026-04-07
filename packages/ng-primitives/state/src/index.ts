@@ -388,7 +388,16 @@ export interface ControlledStateOptions<T> {
   readonly onChange?: (value: T) => void;
 }
 
-export interface ControlledStateResult<T> {
+export interface SetterOptions {
+  /**
+   * Whether to fire `onChange` and emit on the `change` observable.
+   * Defaults to `true`. Set to `false` for cases like form `writeValue`
+   * where the internal state should sync without notifying listeners.
+   */
+  readonly emit?: boolean;
+}
+
+export interface ControlledState<T> {
   /**
    * The resolved value. Returns the controlled value when defined,
    * otherwise falls back to the internal value.
@@ -397,7 +406,7 @@ export interface ControlledStateResult<T> {
   /**
    * Update the internal state and emit the change.
    */
-  set(value: T): void;
+  set(value: T, options?: SetterOptions): void;
   /**
    * Observable of value changes.
    */
@@ -408,7 +417,7 @@ export function controlledState<T>({
   value,
   onChange,
   defaultValue,
-}: ControlledStateOptions<T>): ControlledStateResult<T> {
+}: ControlledStateOptions<T>): ControlledState<T> {
   const change = emitter<T>();
   let isControlled = value() !== undefined;
   const UNSET = Symbol('UNSET');
@@ -424,15 +433,17 @@ export function controlledState<T>({
     return uv !== UNSET ? (uv as T) : defaultValue?.();
   });
 
-  function set(newValue: T) {
+  function set(newValue: T, options?: SetterOptions) {
     if (resolved() === newValue) {
       return;
     }
     if (!isControlled) {
       userValue.set(newValue);
     }
-    onChange?.(newValue);
-    change.emit(newValue);
+    if (options?.emit !== false) {
+      onChange?.(newValue);
+      change.emit(newValue);
+    }
   }
 
   return { value: resolved.asReadonly() as Signal<T>, set, change: change.asObservable() };

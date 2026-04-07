@@ -4,6 +4,7 @@ import { injectElementRef } from 'ng-primitives/internal';
 import {
   attrBinding,
   controlled,
+  SetterOptions,
   controlledState,
   createPrimitive,
   dataBinding,
@@ -35,7 +36,7 @@ export interface NgpToggleState {
   /**
    * Set the selected state.
    */
-  setSelected(value: boolean): void;
+  setSelected(value: boolean, options?: SetterOptions): void;
   /**
    * Set the disabled state.
    */

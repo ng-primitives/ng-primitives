@@ -2,9 +2,14 @@ import { Component } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ControlValueAccessor } from '@angular/forms';
 import { NgpButton } from 'ng-primitives/button';
-import { injectToggleState, NgpToggle } from 'ng-primitives/toggle';
 import { ChangeFn, provideValueAccessor, TouchedFn } from 'ng-primitives/utils';
+import { injectToggleState } from '../toggle-state';
+import { NgpToggle } from '../toggle';
 
+/**
+ * Inline fixture mirroring `apps/components/.../reusable-components/toggle/toggle.ts`.
+ * Used by the reusable-component test suites.
+ */
 @Component({
   selector: 'button[app-toggle]',
   hostDirectives: [
@@ -15,80 +20,35 @@ import { ChangeFn, provideValueAccessor, TouchedFn } from 'ng-primitives/utils';
     },
     { directive: NgpButton, inputs: ['disabled'] },
   ],
-  template: `
-    <ng-content />
-  `,
-  styles: `
-    :host {
-      padding-left: 1rem;
-      padding-right: 1rem;
-      border-radius: 0.5rem;
-      color: var(--ngp-text-primary);
-      border: none;
-      outline: none;
-      height: 2.5rem;
-      font-weight: 500;
-      background-color: var(--ngp-background);
-      transition: background-color 300ms cubic-bezier(0.4, 0, 0.2, 1);
-      box-shadow: var(--ngp-button-shadow);
-    }
-
-    :host[data-hover] {
-      background-color: var(--ngp-background-hover);
-    }
-
-    :host[data-focus-visible] {
-      outline: 2px solid var(--ngp-focus-ring);
-      outline-offset: 2px;
-    }
-
-    :host[data-press] {
-      background-color: var(--ngp-background-active);
-    }
-
-    :host[data-selected] {
-      background-color: var(--ngp-background-inverse);
-      color: var(--ngp-text-inverse);
-    }
-  `,
+  template: `<ng-content />`,
   providers: [provideValueAccessor(Toggle)],
   host: {
     '(focusout)': 'onTouched?.()',
   },
 })
 export class Toggle implements ControlValueAccessor {
-  /** Access the toggle state. */
   private readonly toggle = injectToggleState();
-
-  /** The on change callback */
   private onChange?: ChangeFn<boolean>;
-
-  /** The on touched callback */
   protected onTouched?: TouchedFn;
 
   constructor() {
-    // Any time the toggle changes, update the form value.
     this.toggle()
       .selectedChange.pipe(takeUntilDestroyed())
       .subscribe(value => this.onChange?.(value));
   }
 
-  /** Write a new value to the toggle. */
   writeValue(value: boolean): void {
     this.toggle().setSelected(value, { emit: false });
   }
 
-  /** Register a callback function to be called when the value changes. */
   registerOnChange(fn: ChangeFn<boolean>): void {
     this.onChange = fn;
   }
 
-  /** Register a callback function to be called when the toggle is touched. */
   registerOnTouched(fn: TouchedFn): void {
     this.onTouched = fn;
   }
 
-  /** Set the disabled state of the toggle. */
   setDisabledState(isDisabled: boolean): void {
     this.toggle().setDisabled(isDisabled);
   }
