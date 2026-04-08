@@ -399,6 +399,11 @@ export interface ControlledStateResult<T> {
    */
   set(value: T): void;
   /**
+   * Update the internal state without emitting onChange or change.
+   * Designed for ControlValueAccessor.writeValue to avoid infinite loops.
+   */
+  writeValue(value: T): void;
+  /**
    * Observable of value changes.
    */
   readonly change: Observable<T>;
@@ -435,7 +440,11 @@ export function controlledState<T>({
     change.emit(newValue);
   }
 
-  return { value: resolved.asReadonly() as Signal<T>, set, change: change.asObservable() };
+  function writeValue(newValue: T) {
+    userValue.set(newValue);
+  }
+
+  return { value: resolved.asReadonly() as Signal<T>, set, writeValue, change: change.asObservable() };
 }
 
 function setAttribute(

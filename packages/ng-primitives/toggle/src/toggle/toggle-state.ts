@@ -37,6 +37,11 @@ export interface NgpToggleState {
    */
   setSelected(value: boolean): void;
   /**
+   * Set the selected state without emitting a change event.
+   * Designed for ControlValueAccessor.writeValue integration.
+   */
+  writeSelected(value: boolean): void;
+  /**
    * Set the disabled state.
    */
   setDisabled(value: boolean): void;
@@ -78,6 +83,7 @@ export const [NgpToggleStateToken, ngpToggle, injectToggleState, provideToggleSt
       const {
         value: selected,
         set: setSelected,
+        writeValue: writeSelected,
         change: selectedChange,
       } = controlledState({
         value: _selected,
@@ -135,6 +141,7 @@ export const [NgpToggleStateToken, ngpToggle, injectToggleState, provideToggleSt
         selectedChange,
         toggle,
         setSelected,
+        writeSelected,
         setDisabled,
       } satisfies NgpToggleState;
     },
