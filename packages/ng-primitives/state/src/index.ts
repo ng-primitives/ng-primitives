@@ -444,7 +444,12 @@ export function controlledState<T>({
     userValue.set(newValue);
   }
 
-  return { value: resolved.asReadonly() as Signal<T>, set, writeValue, change: change.asObservable() };
+  return {
+    value: resolved.asReadonly() as Signal<T>,
+    set,
+    writeValue,
+    change: change.asObservable(),
+  };
 }
 
 function setAttribute(
