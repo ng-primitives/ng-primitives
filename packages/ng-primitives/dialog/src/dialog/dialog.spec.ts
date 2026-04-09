@@ -314,7 +314,16 @@ describe('NgpDialog', () => {
       fixture.detectChanges();
       flush();
 
+      // Dialog should not be registered as a descendant of the popover.
+      // Unlike the menu test (where closeOnSelect auto-closes the menu), the popover
+      // stays open here. Verify the dialog's parentId is null (not the popover's ID),
+      // so if the popover closes later it won't cascade-close the dialog.
+      const registry = TestBed.inject(NgpOverlayRegistry);
       expect(document.querySelector('[data-testid="dialog-from-popover"]')).toBeTruthy();
+      const dialogId = dialogManager.openDialogs[0].id;
+      const dialogEntry = registry.getEntries().find(e => e.id === dialogId);
+      expect(dialogEntry).toBeTruthy();
+      expect(dialogEntry!.parentId).toBeNull();
     }));
   });
 });
