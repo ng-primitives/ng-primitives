@@ -35,11 +35,7 @@ describe('NgpDialog', () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      imports: [
-        DialogHostComponent,
-        MenuDialogTestComponent,
-        PopoverDialogTestComponent,
-      ],
+      imports: [DialogHostComponent, MenuDialogTestComponent, PopoverDialogTestComponent],
     });
   });
 
@@ -320,7 +316,6 @@ describe('NgpDialog', () => {
 
       expect(document.querySelector('[data-testid="dialog-from-popover"]')).toBeTruthy();
     }));
-
   });
 });
 
@@ -330,7 +325,7 @@ describe('NgpDialog', () => {
 
     <ng-template #menu>
       <div ngpMenu data-testid="menu">
-        <button ngpMenuItem data-testid="dialog-item" (click)="openDialog()">Open Dialog</button>
+        <button (click)="openDialog()" ngpMenuItem data-testid="dialog-item">Open Dialog</button>
       </div>
     </ng-template>
 
@@ -343,14 +338,7 @@ describe('NgpDialog', () => {
       </div>
     </ng-template>
   `,
-  imports: [
-    NgpMenuTrigger,
-    NgpMenu,
-    NgpMenuItem,
-    NgpDialog,
-    NgpDialogOverlay,
-    NgpDialogTitle,
-  ],
+  imports: [NgpMenuTrigger, NgpMenu, NgpMenuItem, NgpDialog, NgpDialogOverlay, NgpDialogTitle],
 })
 class MenuDialogTestComponent {
   readonly dialogTemplate = viewChild.required<TemplateRef<NgpDialogContext>>('dialogTemplate');
@@ -383,13 +371,7 @@ class MenuDialogTestComponent {
       </div>
     </ng-template>
   `,
-  imports: [
-    NgpPopoverTrigger,
-    NgpPopover,
-    NgpDialog,
-    NgpDialogOverlay,
-    NgpDialogTitle,
-  ],
+  imports: [NgpPopoverTrigger, NgpPopover, NgpDialog, NgpDialogOverlay, NgpDialogTitle],
 })
 class PopoverDialogTestComponent {
   readonly dialogTemplate = viewChild.required<TemplateRef<NgpDialogContext>>('dialogTemplate');
@@ -402,4 +384,3 @@ class PopoverDialogTestComponent {
     });
   }
 }
-
