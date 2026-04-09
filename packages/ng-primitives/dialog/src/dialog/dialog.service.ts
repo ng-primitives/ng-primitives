@@ -165,10 +165,16 @@ export class NgpDialogManager implements OnDestroy {
     // Auto-detect parent overlay: if the trigger element lives inside an existing overlay
     // (e.g. a dialog opened from a popover), register as its child so that clicks inside
     // the dialog don't dismiss the parent overlay.
-    const parentId =
+    // Only inherit parentId from other dialogs — non-dialog overlays (menus, popovers)
+    // may close after triggering the dialog open, which would cascade-close the dialog.
+    let parentId =
       activeElement instanceof HTMLElement
         ? this.registry.findContainingOverlay(activeElement)
         : null;
+
+    if (parentId !== null && !this.openDialogs.some(d => d.id === parentId)) {
+      parentId = null;
+    }
 
     // Register with the overlay registry for centralized escape-key routing.
     // outsidePress is false because the NgpDialogOverlay directive handles its own backdrop clicks.
