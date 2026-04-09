@@ -1,3 +1,17 @@
+## 0.114.1 (2026-04-09)
+
+### 🩹 Fixes
+
+- **dialog:** guard overlay close against drag selections ([#717](https://github.com/ng-primitives/ng-primitives/pull/717))
+- **dialog:** prevent cascade close when opened from menu or popover ([#725](https://github.com/ng-primitives/ng-primitives/pull/725), [#724](https://github.com/ng-primitives/ng-primitives/issues/724))
+
+### ❤️ Thank You
+
+- Ashley Hunter
+- Claude Opus 4.6 (1M context)
+- Clément Loridan
+- Lukas Heddendorp @heddendorp
+
 ## 0.114.0 (2026-03-30)
 
 ### 🚀 Features
