@@ -642,4 +642,86 @@ describe('controlledState', () => {
       expect(result.value()).toBe('controlled'); // controlled value still wins
     });
   });
+
+  describe('form control integration (set with emit: false)', () => {
+    it('should update the resolved value without calling onChange', () => {
+      const onChange = jest.fn();
+      const result = createControlledState<boolean>({
+        value: signal(undefined),
+        defaultValue: signal(false),
+        onChange,
+      });
+
+      // Simulate ControlValueAccessor.writeValue — must not trigger onChange
+      result.set(true, { emit: false });
+
+      expect(result.value()).toBe(true);
+      expect(onChange).not.toHaveBeenCalled();
+    });
+
+    it('should not emit on the change observable', () => {
+      const spy = jest.fn();
+      const result = createControlledState<boolean>({
+        value: signal(undefined),
+        defaultValue: signal(false),
+      });
+
+      result.change.subscribe(spy);
+      result.set(true, { emit: false });
+
+      expect(result.value()).toBe(true);
+      expect(spy).not.toHaveBeenCalled();
+    });
+
+    it('should allow user interaction (set) after set with emit: false', () => {
+      const onChange = jest.fn();
+      const result = createControlledState<boolean>({
+        value: signal(undefined),
+        defaultValue: signal(false),
+        onChange,
+      });
+
+      // Form control writes a value
+      result.set(true, { emit: false });
+      expect(result.value()).toBe(true);
+      expect(onChange).not.toHaveBeenCalled();
+
+      // User toggles — should call onChange
+      result.set(false);
+      expect(result.value()).toBe(false);
+      expect(onChange).toHaveBeenCalledWith(false);
+    });
+
+    it('should reflect form control disabled via set with emit: false after user interaction', () => {
+      const onChange = jest.fn();
+      const result = createControlledState<boolean>({
+        value: signal(undefined),
+        defaultValue: signal(false),
+        onChange,
+      });
+
+      // User interacts
+      result.set(true);
+      expect(onChange).toHaveBeenCalledWith(true);
+
+      // Form control resets via set with emit: false — should not call onChange
+      onChange.mockClear();
+      result.set(false, { emit: false });
+      expect(result.value()).toBe(false);
+      expect(onChange).not.toHaveBeenCalled();
+    });
+
+    it('should handle set with emit: false with the same current value', () => {
+      const onChange = jest.fn();
+      const result = createControlledState<boolean>({
+        value: signal(undefined),
+        defaultValue: signal(true),
+        onChange,
+      });
+
+      result.set(true, { emit: false });
+      expect(result.value()).toBe(true);
+      expect(onChange).not.toHaveBeenCalled();
+    });
+  });
 });
