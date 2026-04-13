@@ -1,7 +1,12 @@
 import { Component } from '@angular/core';
 import { ControlValueAccessor } from '@angular/forms';
 import { NgpButton } from 'ng-primitives/button';
-import { ChangeFn, provideValueAccessor, safeTakeUntilDestroyed, TouchedFn } from 'ng-primitives/utils';
+import {
+  ChangeFn,
+  provideValueAccessor,
+  safeTakeUntilDestroyed,
+  TouchedFn,
+} from 'ng-primitives/utils';
 import { NgpToggle } from '../toggle';
 import { injectToggleState } from '../toggle-state';
 
