@@ -256,7 +256,9 @@ export class NgpOverlayRegistry {
   }
 
   /**
-   * Outside-click dismiss: only the topmost overlay responds.
+   * Outside-click dismiss: walks up the parent chain from the topmost overlay
+   * to find the highest ancestor where the click is also outside, then hides
+   * that ancestor (descendants close automatically via closeDescendants).
    */
   private handleOutsideClick(event: MouseEvent): void {
     const topmost = this.getTopmost();
@@ -274,23 +276,50 @@ export class NgpOverlayRegistry {
       return;
     }
 
-    // Check if the click is inside the topmost overlay
     const path = event.composedPath();
-    const isInsideElements = topmost.getElements().some(el => path.includes(el));
-    const isInsideTrigger = path.includes(topmost.triggerElement);
-    const isInsideAnchor = topmost.anchorElement ? path.includes(topmost.anchorElement) : false;
 
-    if (isInsideElements || isInsideTrigger || isInsideAnchor) {
+    // Check if the click is inside the topmost overlay
+    if (!this.isClickOutsideEntry(topmost, path)) {
       return;
+    }
+
+    // Walk up the parentId chain to find the highest ancestor where the click
+    // is also outside. Stop if a parent contains the click or has outsidePress disabled.
+    let highestOutside = topmost;
+    let currentId = topmost.parentId;
+
+    while (currentId !== null) {
+      const parent = this.entries.find(e => e.id === currentId);
+      if (!parent) break;
+      if (!this.isClickOutsideEntry(parent, path)) break;
+      if (parent.dismissPolicy.outsidePress === false) break;
+      if (this.pendingGuardIds.has(parent.id)) break;
+
+      highestOutside = parent;
+      currentId = parent.parentId;
     }
 
     // Derive a proper Element from the composed path
     const target =
       (path.find((node): node is Element => node instanceof Element) as Element) ??
       this.document.documentElement;
-    this.evaluateGuardAndDismiss(topmost.id, topmost.dismissPolicy.outsidePress, target, () =>
-      this.ngZone.run(() => topmost.overlay.hide()),
+    this.evaluateGuardAndDismiss(
+      highestOutside.id,
+      highestOutside.dismissPolicy.outsidePress,
+      target,
+      () => this.ngZone.run(() => highestOutside.overlay.hide()),
     );
+  }
+
+  /**
+   * Check if a click (represented by its composedPath) is outside an entry's
+   * elements, trigger, and anchor.
+   */
+  private isClickOutsideEntry(entry: NgpOverlayEntry, path: EventTarget[]): boolean {
+    const isInsideElements = entry.getElements().some(el => path.includes(el));
+    const isInsideTrigger = path.includes(entry.triggerElement);
+    const isInsideAnchor = entry.anchorElement ? path.includes(entry.anchorElement) : false;
+    return !(isInsideElements || isInsideTrigger || isInsideAnchor);
   }
 
   /**
