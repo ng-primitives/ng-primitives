@@ -723,5 +723,24 @@ describe('controlledState', () => {
       expect(result.value()).toBe(true);
       expect(onChange).not.toHaveBeenCalled();
     });
+
+    it('should pin userValue when set with emit: false matches defaultValue', () => {
+      const onChange = jest.fn();
+      const defaultValue = signal(true);
+      const result = createControlledState<boolean>({
+        value: signal(undefined),
+        defaultValue,
+        onChange,
+      });
+
+      // writeValue sets same value as default — must pin internal state
+      result.set(true, { emit: false });
+      expect(result.value()).toBe(true);
+
+      // defaultValue changes — resolved should NOT follow it
+      defaultValue.set(false);
+      expect(result.value()).toBe(true);
+      expect(onChange).not.toHaveBeenCalled();
+    });
   });
 });

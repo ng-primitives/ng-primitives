@@ -419,9 +419,16 @@ export function controlledState<T>({
   defaultValue,
 }: ControlledStateOptions<T>): ControlledState<T> {
   const change = emitter<T>();
-  let isControlled = value() !== undefined;
   const UNSET = Symbol('UNSET');
   const userValue = signal<T | typeof UNSET>(UNSET);
+
+  // Latching flag: once the controlled value has been defined, the component
+  // is permanently controlled and set() must not update internal state.
+  // This is intentionally mutated inside `resolved` — it must latch
+  // synchronously during signal evaluation so that set() sees the correct
+  // state. A pure computation cannot express "once true, always true" without
+  // external state.
+  let isControlled = value() !== undefined;
 
   const resolved = linkedSignal(() => {
     const v = value();
@@ -434,7 +441,7 @@ export function controlledState<T>({
   });
 
   function set(newValue: T, options?: SetterOptions) {
-    if (resolved() === newValue) {
+    if (resolved() === newValue && options?.emit !== false) {
       return;
     }
     if (!isControlled) {

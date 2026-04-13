@@ -3,8 +3,8 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ControlValueAccessor } from '@angular/forms';
 import { NgpButton } from 'ng-primitives/button';
 import { ChangeFn, provideValueAccessor, TouchedFn } from 'ng-primitives/utils';
-import { injectToggleState } from '../toggle-state';
 import { NgpToggle } from '../toggle';
+import { injectToggleState } from '../toggle-state';
 
 /**
  * Inline fixture mirroring `apps/components/.../reusable-components/toggle/toggle.ts`.
@@ -20,7 +20,9 @@ import { NgpToggle } from '../toggle';
     },
     { directive: NgpButton, inputs: ['disabled'] },
   ],
-  template: `<ng-content />`,
+  template: `
+    <ng-content />
+  `,
   providers: [provideValueAccessor(Toggle)],
   host: {
     '(focusout)': 'onTouched?.()',
