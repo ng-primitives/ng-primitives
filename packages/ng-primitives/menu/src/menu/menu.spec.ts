@@ -336,6 +336,45 @@ describe('NgpMenu', () => {
       expect(document.querySelector('[data-testid="submenu"]')).not.toBeInTheDocument();
     }));
 
+    it('should close both menu and submenu when clicking outside with submenu open', fakeAsync(async () => {
+      const { fixture } = await render(TestMenuWithSubmenuComponent);
+      const trigger = fixture.debugElement.nativeElement.querySelector(
+        '[data-testid="root-trigger"]',
+      );
+
+      // Open root menu via click
+      fireEvent.click(trigger);
+      tick();
+      fixture.detectChanges();
+      flush();
+
+      expect(trigger).toHaveAttribute('data-open');
+
+      // Open submenu via click on the submenu trigger
+      const submenuTrigger = document.querySelector('[data-testid="submenu-trigger"]');
+      expect(submenuTrigger).toBeInTheDocument();
+
+      fireEvent.click(submenuTrigger!);
+      tick();
+      fixture.detectChanges();
+      flush();
+
+      // Verify submenu is open
+      expect(submenuTrigger).toHaveAttribute('data-open');
+      expect(document.querySelector('[data-testid="submenu"]')).toBeInTheDocument();
+
+      // Click outside the entire menu tree (on document body)
+      fireEvent.mouseUp(document.body);
+      tick();
+      fixture.detectChanges();
+      flush();
+
+      // Both root menu and submenu should be closed
+      expect(trigger).not.toHaveAttribute('data-open');
+      expect(document.querySelector('[data-testid="root-menu"]')).not.toBeInTheDocument();
+      expect(document.querySelector('[data-testid="submenu"]')).not.toBeInTheDocument();
+    }));
+
     it('should close all menus when Escape is pressed in submenu', fakeAsync(async () => {
       const { fixture } = await render(TestMenuWithSubmenuComponent);
       const trigger = fixture.debugElement.nativeElement.querySelector(
