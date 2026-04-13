@@ -1,8 +1,7 @@
 import { Component } from '@angular/core';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ControlValueAccessor } from '@angular/forms';
 import { NgpButton } from 'ng-primitives/button';
-import { ChangeFn, provideValueAccessor, TouchedFn } from 'ng-primitives/utils';
+import { ChangeFn, provideValueAccessor, safeTakeUntilDestroyed, TouchedFn } from 'ng-primitives/utils';
 import { NgpToggle } from '../toggle';
 import { injectToggleState } from '../toggle-state';
 
@@ -35,7 +34,7 @@ export class Toggle implements ControlValueAccessor {
 
   constructor() {
     this.toggle()
-      .selectedChange.pipe(takeUntilDestroyed())
+      .selectedChange.pipe(safeTakeUntilDestroyed())
       .subscribe(value => this.onChange?.(value));
   }
 
