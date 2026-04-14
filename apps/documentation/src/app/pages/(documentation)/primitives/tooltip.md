@@ -152,7 +152,7 @@ The arrow can be styled conditionally based on the tooltip's final placement usi
 
 <api-docs name="NgpTooltipArrow"></api-docs>
 
-### Data Attributes
+#### Data Attributes
 
 | Attribute        | Description                                  |
 | ---------------- | -------------------------------------------- |
@@ -209,6 +209,26 @@ The `showOnOverflow` input allows you to show tooltips only when the trigger ele
 </div>
 ```
 
+## Hoverable Tooltip Content
+
+Tooltips keep strict tooltip semantics (`role="tooltip"`) while supporting pointer movement from trigger to tooltip content.
+
+<docs-example name="tooltip-hoverable-content"></docs-example>
+
+Use `ngpTooltipTriggerHoverableContent` to control whether hovering tooltip content keeps it open:
+
+```html
+<!-- Default: closes when pointer leaves trigger -->
+<button [ngpTooltipTrigger]="tooltip">Default behavior</button>
+
+<!-- Opt in: stays open while pointer moves into tooltip content -->
+<button [ngpTooltipTrigger]="tooltip" ngpTooltipTriggerHoverableContent="true">
+  Hover bridge enabled
+</button>
+```
+
+If tooltip content needs to be interactive or focusable, use [`Popover`](/primitives/popover) instead.
+
 ## Styling
 
 For the tooltip to be positioned correctly relative to the trigger element, it must use absolute or fixed positioning. For example, you can use the following CSS:
@@ -255,6 +275,7 @@ bootstrapApplication(AppComponent, {
       useTextContent: true,
       scrollBehavior: 'reposition',
       cooldown: 300,
+      hoverableContent: false,
     }),
   ],
 });
@@ -332,6 +353,10 @@ shift: {
 
 <prop-details name="cooldown" type="number" default="300">
   Define the cooldown duration in milliseconds. When moving from one tooltip to another within this duration, the showDelay is skipped for the new tooltip. This creates a smoother experience when hovering between multiple tooltips.
+</prop-details>
+
+<prop-details name="hoverableContent" type="boolean" default="false">
+  Define whether hovering the tooltip content keeps it open while moving the pointer from the trigger. When enabled, a pointer grace polygon bridges the trigger and tooltip so users can move their cursor into the tooltip without it closing.
 </prop-details>
 
 ## Accessibility

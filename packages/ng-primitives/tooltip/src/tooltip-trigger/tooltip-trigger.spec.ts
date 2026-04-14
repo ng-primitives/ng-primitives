@@ -785,7 +785,11 @@ describe('NgpTooltipTrigger', () => {
       try {
         const { getByRole } = await render(
           `
-            <button [ngpTooltipTrigger]="content" ngpTooltipTriggerHideDelay="0"></button>
+            <button
+              [ngpTooltipTrigger]="content"
+              ngpTooltipTriggerHideDelay="0"
+              ngpTooltipTriggerHoverableContent="false"
+            ></button>
             <ng-template #content>
               <div ngpTooltip>Tooltip content</div>
             </ng-template>
@@ -857,7 +861,11 @@ describe('NgpTooltipTrigger', () => {
       try {
         const { getByRole } = await render(
           `
-            <button [ngpTooltipTrigger]="content" ngpTooltipTriggerHideDelay="0"></button>
+            <button
+              [ngpTooltipTrigger]="content"
+              ngpTooltipTriggerHideDelay="0"
+              ngpTooltipTriggerHoverableContent="false"
+            ></button>
             <ng-template #content>
               <div ngpTooltip>Tooltip content</div>
             </ng-template>
@@ -919,7 +927,11 @@ describe('NgpTooltipTrigger', () => {
       try {
         const { getByRole } = await render(
           `
-            <button [ngpTooltipTrigger]="content" ngpTooltipTriggerHideDelay="0"></button>
+            <button
+              [ngpTooltipTrigger]="content"
+              ngpTooltipTriggerHideDelay="0"
+              ngpTooltipTriggerHoverableContent="false"
+            ></button>
             <ng-template #content>
               <div ngpTooltip>Tooltip content</div>
             </ng-template>
@@ -982,7 +994,11 @@ describe('NgpTooltipTrigger', () => {
       try {
         const { getByRole } = await render(
           `
-            <button [ngpTooltipTrigger]="content" ngpTooltipTriggerHideDelay="0"></button>
+            <button
+              [ngpTooltipTrigger]="content"
+              ngpTooltipTriggerHideDelay="0"
+              ngpTooltipTriggerHoverableContent="false"
+            ></button>
             <ng-template #content>
               <div ngpTooltip>Tooltip content</div>
             </ng-template>

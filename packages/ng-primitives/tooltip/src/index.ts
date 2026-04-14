@@ -1,5 +1,8 @@
 export { injectOverlayContext as injectTooltipContext } from 'ng-primitives/portal';
-export { NgpTooltipConfig, provideTooltipConfig } from './config/tooltip-config';
+export {
+  NgpTooltipConfig,
+  provideTooltipConfig,
+} from './config/tooltip-config';
 export { NgpTooltipArrow } from './tooltip-arrow/tooltip-arrow';
 export {
   injectTooltipArrowState,
