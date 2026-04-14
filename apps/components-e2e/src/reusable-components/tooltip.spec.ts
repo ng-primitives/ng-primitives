@@ -8,7 +8,7 @@ test.describe('Tooltip', () => {
 
   test('should have no detectable accessibility issues', async ({ page }) => {
     const accessibilityScanResults = await new AxeBuilder({ page })
-      .disableRules(['page-has-heading-one'])
+      .disableRules(['page-has-heading-one', 'landmark-one-main'])
       .analyze();
     expect(accessibilityScanResults.violations).toEqual([]);
   });

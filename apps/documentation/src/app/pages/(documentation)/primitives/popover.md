@@ -152,7 +152,7 @@ The arrow can be styled conditionally based on the popover's final placement usi
 
 <api-docs name="NgpPopoverArrow"></api-docs>
 
-### Data Attributes
+#### Data Attributes
 
 | Attribute        | Description                                  |
 | ---------------- | -------------------------------------------- |

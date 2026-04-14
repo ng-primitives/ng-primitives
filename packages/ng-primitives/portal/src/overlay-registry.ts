@@ -256,13 +256,14 @@ export class NgpOverlayRegistry {
   }
 
   /**
-   * Outside-click dismiss: walks up the parent chain from the topmost overlay
-   * to find the highest ancestor where the click is also outside, then hides
-   * that ancestor (descendants close automatically via closeDescendants).
+   * Outside-click dismiss: checks all overlays (not just the topmost) and
+   * dismisses every overlay tree where the click landed outside.
+   *
+   * This handles the case where a non-dismissable overlay (e.g. a tooltip) is
+   * topmost but other overlays (e.g. a popover) should still be dismissed.
    */
   private handleOutsideClick(event: MouseEvent): void {
-    const topmost = this.getTopmost();
-    if (!topmost || this.pendingGuardIds.has(topmost.id)) {
+    if (this.entries.length === 0) {
       return;
     }
 
@@ -278,37 +279,75 @@ export class NgpOverlayRegistry {
 
     const path = event.composedPath();
 
-    // Check if the click is inside the topmost overlay
-    if (!this.isClickOutsideEntry(topmost, path)) {
-      return;
+    // Step 1: Build a set of overlay IDs where the click is "inside"
+    const insideIds = new Set<string>();
+    for (const entry of this.entries) {
+      if (!this.isClickOutsideEntry(entry, path)) {
+        insideIds.add(entry.id);
+      }
     }
 
-    // Walk up the parentId chain to find the highest ancestor where the click
-    // is also outside. Stop if a parent contains the click or has outsidePress disabled.
-    let highestOutside = topmost;
-    let currentId = topmost.parentId;
-
-    while (currentId !== null) {
-      const parent = this.entries.find(e => e.id === currentId);
-      if (!parent) break;
-      if (!this.isClickOutsideEntry(parent, path)) break;
-      if (parent.dismissPolicy.outsidePress === false) break;
-      if (this.pendingGuardIds.has(parent.id)) break;
-
-      highestOutside = parent;
-      currentId = parent.parentId;
+    // Step 2: Expand insideIds to include all ancestors of inside entries.
+    // If a child contains the click, its entire parent chain is protected.
+    for (const id of insideIds) {
+      let currentId = this.entries.find(e => e.id === id)?.parentId ?? null;
+      while (currentId !== null) {
+        if (insideIds.has(currentId)) break; // already protected
+        insideIds.add(currentId);
+        currentId = this.entries.find(e => e.id === currentId)?.parentId ?? null;
+      }
     }
 
-    // Derive a proper Element from the composed path
+    // Step 3: For each entry that is outside, find the highest dismissable ancestor
+    // and collect unique roots to dismiss.
+    const toDismiss = new Map<string, NgpOverlayEntry>();
+    const coveredIds = new Set<string>(); // entries covered by an ancestor we'll dismiss
+
+    // Walk from topmost to oldest
+    for (let i = this.entries.length - 1; i >= 0; i--) {
+      const entry = this.entries[i];
+
+      // Skip entries where the click was inside
+      if (insideIds.has(entry.id)) continue;
+      // Skip entries with pending guards
+      if (this.pendingGuardIds.has(entry.id)) continue;
+      // Skip entries already covered by an ancestor we're about to dismiss
+      if (coveredIds.has(entry.id)) continue;
+
+      // Walk up parent chain to find the highest dismissable ancestor
+      let highest = entry;
+      let currentId = entry.parentId;
+
+      while (currentId !== null) {
+        const parent = this.entries.find(e => e.id === currentId);
+        if (!parent) break;
+        if (insideIds.has(parent.id)) break;
+        if (parent.dismissPolicy.outsidePress === false) break;
+        if (this.pendingGuardIds.has(parent.id)) break;
+
+        highest = parent;
+        currentId = parent.parentId;
+      }
+
+      toDismiss.set(highest.id, highest);
+
+      // Mark all descendants as covered
+      for (const desc of this.getDescendants(highest.id)) {
+        coveredIds.add(desc.id);
+      }
+    }
+
+    // Derive a proper Element from the composed path for guard evaluation
     const target =
       (path.find((node): node is Element => node instanceof Element) as Element) ??
       this.document.documentElement;
-    this.evaluateGuardAndDismiss(
-      highestOutside.id,
-      highestOutside.dismissPolicy.outsidePress,
-      target,
-      () => this.ngZone.run(() => highestOutside.overlay.hide()),
-    );
+
+    // Step 4: Dismiss each root
+    for (const [id, entry] of toDismiss) {
+      this.evaluateGuardAndDismiss(id, entry.dismissPolicy.outsidePress, target, () =>
+        this.ngZone.run(() => entry.overlay.hide()),
+      );
+    }
   }
 
   /**

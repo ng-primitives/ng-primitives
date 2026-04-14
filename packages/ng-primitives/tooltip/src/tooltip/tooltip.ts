@@ -44,14 +44,8 @@ export class NgpTooltip {
 
     // if the mouse moves over the tooltip, we want to keep it open
     ngpHover({
-      onHoverStart: () => this.overlay.cancelPendingClose(),
-      onHoverEnd: () => {
-        if (this.tooltipTrigger().disabled()) {
-          return;
-        }
-
-        this.tooltipTrigger().hide();
-      },
+      onHoverStart: () => this.tooltipTrigger().onTooltipHoverStart(),
+      onHoverEnd: () => this.tooltipTrigger().onTooltipHoverEnd(),
     });
   }
 }
