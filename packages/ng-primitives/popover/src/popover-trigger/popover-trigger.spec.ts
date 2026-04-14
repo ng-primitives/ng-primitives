@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 import { FormControl, FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { fireEvent, render, waitFor } from '@testing-library/angular';
 import { NgpPopover, NgpPopoverTrigger } from 'ng-primitives/popover';
-import { NgpTooltip, NgpTooltipTrigger } from 'ng-primitives/tooltip';
+import { NgpTooltip, NgpTooltipTrigger, provideTooltipConfig } from 'ng-primitives/tooltip';
 
 describe('NgpPopoverTrigger', () => {
   it('should destroy the overlay when the trigger is destroyed', async () => {
@@ -461,6 +461,96 @@ describe('NgpPopoverTrigger', () => {
       expect(document.querySelector('[data-testid="popover-a"]')).not.toBeInTheDocument();
       // Only Popover B should be open
       expect(document.querySelector('[data-testid="popover-b"]')).toBeInTheDocument();
+    });
+  });
+
+  it('should close popover A when clicking button B (no tooltips)', async () => {
+    @Component({
+      template: `
+        <button [ngpPopoverTrigger]="contentA">Button A</button>
+        <button [ngpPopoverTrigger]="contentB">Button B</button>
+
+        <ng-template #contentA>
+          <div ngpPopover>Popover A</div>
+        </ng-template>
+        <ng-template #contentB>
+          <div ngpPopover>Popover B</div>
+        </ng-template>
+      `,
+      imports: [NgpPopoverTrigger, NgpPopover],
+    })
+    class TwoPopoversComponent {}
+
+    const { getAllByRole } = await render(TwoPopoversComponent);
+    const [buttonA, buttonB] = getAllByRole('button');
+
+    // Open popover A
+    fireEvent.click(buttonA);
+    await waitFor(() => {
+      expect(document.querySelectorAll('[ngpPopover]').length).toBe(1);
+      expect(document.querySelector('[ngpPopover]')!.textContent).toContain('Popover A');
+    });
+
+    // Click button B — fire mouseUp first (overlay registry listens for mouseup),
+    // then click (popover trigger listens for click)
+    fireEvent.mouseUp(buttonB);
+    fireEvent.click(buttonB);
+    await waitFor(() => {
+      const popovers = document.querySelectorAll('[ngpPopover]');
+      expect(popovers.length).toBe(1);
+      expect(popovers[0].textContent).toContain('Popover B');
+    });
+  });
+
+  it('should close popover A when clicking button B that has a tooltip open', async () => {
+    @Component({
+      template: `
+        <button [ngpPopoverTrigger]="contentA" [ngpTooltipTrigger]="tooltipA">Button A</button>
+        <button [ngpPopoverTrigger]="contentB" [ngpTooltipTrigger]="tooltipB">Button B</button>
+
+        <ng-template #contentA>
+          <div ngpPopover>Popover A</div>
+        </ng-template>
+        <ng-template #contentB>
+          <div ngpPopover>Popover B</div>
+        </ng-template>
+        <ng-template #tooltipA>
+          <div ngpTooltip>Tooltip A</div>
+        </ng-template>
+        <ng-template #tooltipB>
+          <div ngpTooltip>Tooltip B</div>
+        </ng-template>
+      `,
+      imports: [NgpPopoverTrigger, NgpPopover, NgpTooltipTrigger, NgpTooltip],
+    })
+    class TwoPopoversWithTooltipsComponent {}
+
+    const { getAllByRole } = await render(TwoPopoversWithTooltipsComponent, {
+      providers: [provideTooltipConfig({ showDelay: 0, hideDelay: 0 })],
+    });
+    const [buttonA, buttonB] = getAllByRole('button');
+
+    // Open popover A
+    fireEvent.click(buttonA);
+    await waitFor(() => {
+      expect(document.querySelectorAll('[ngpPopover]').length).toBe(1);
+      expect(document.querySelector('[ngpPopover]')!.textContent).toContain('Popover A');
+    });
+
+    // Hover button B to show its tooltip
+    fireEvent.mouseEnter(buttonB);
+    await waitFor(() => {
+      expect(document.querySelector('[ngpTooltip]')).toBeInTheDocument();
+    });
+
+    // Click button B — fire mouseUp first (overlay registry listens for mouseup),
+    // then click (popover trigger listens for click)
+    fireEvent.mouseUp(buttonB);
+    fireEvent.click(buttonB);
+    await waitFor(() => {
+      const popovers = document.querySelectorAll('[ngpPopover]');
+      expect(popovers.length).toBe(1);
+      expect(popovers[0].textContent).toContain('Popover B');
     });
   });
 });
