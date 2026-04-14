@@ -51,10 +51,13 @@ export class NgpOverlayCooldownManager {
   registerActive(overlayType: string, overlay: CooldownOverlay, cooldown: number): void {
     const existing = this.activeOverlays.get(overlayType);
 
-    // If there's an existing overlay and cooldown is enabled, close it immediately.
-    // This ensures instant DOM swap when hovering between items of the same type.
-    if (existing && existing !== overlay && cooldown > 0) {
-      existing.instantTransition?.set(true);
+    // If there's an existing overlay of the same type, close it immediately.
+    // This ensures only one overlay of each type is open at a time.
+    if (existing && existing !== overlay) {
+      // Enable instant transition only if cooldown is active
+      if (cooldown > 0) {
+        existing.instantTransition?.set(true);
+      }
       existing.hideImmediate();
     }
 

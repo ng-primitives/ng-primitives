@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 import { FormControl, FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { fireEvent, render, waitFor } from '@testing-library/angular';
 import { NgpPopover, NgpPopoverTrigger } from 'ng-primitives/popover';
+import { NgpTooltip, NgpTooltipTrigger } from 'ng-primitives/tooltip';
 
 describe('NgpPopoverTrigger', () => {
   it('should destroy the overlay when the trigger is destroyed', async () => {
@@ -401,6 +402,65 @@ describe('NgpPopoverTrigger', () => {
 
     await waitFor(() => {
       expect(document.querySelector('[ngpPopover]')).toBeInTheDocument();
+    });
+  });
+
+  it('should close previous popover when combining tooltip with popover on buttons (fixes #728)', async () => {
+    @Component({
+      template: `
+        <!-- Button A with tooltip + popover -->
+        <button
+          [ngpTooltipTrigger]="tooltipA"
+          [ngpPopoverTrigger]="popoverA"
+          data-testid="button-a"
+        >
+          Button A
+        </button>
+        <ng-template #tooltipA>
+          <div ngpTooltip>Tooltip A</div>
+        </ng-template>
+        <ng-template #popoverA>
+          <div ngpPopover data-testid="popover-a">Popover A</div>
+        </ng-template>
+
+        <!-- Button B with tooltip + popover -->
+        <button
+          [ngpTooltipTrigger]="tooltipB"
+          [ngpPopoverTrigger]="popoverB"
+          data-testid="button-b"
+        >
+          Button B
+        </button>
+        <ng-template #tooltipB>
+          <div ngpTooltip>Tooltip B</div>
+        </ng-template>
+        <ng-template #popoverB>
+          <div ngpPopover data-testid="popover-b">Popover B</div>
+        </ng-template>
+      `,
+      imports: [NgpPopoverTrigger, NgpPopover, NgpTooltipTrigger, NgpTooltip],
+    })
+    class TooltipWithPopoverComponent {}
+
+    const { getByTestId } = await render(TooltipWithPopoverComponent);
+    const buttonA = getByTestId('button-a');
+    const buttonB = getByTestId('button-b');
+
+    // Click Button A → opens Popover A
+    fireEvent.click(buttonA);
+
+    await waitFor(() => {
+      expect(document.querySelector('[data-testid="popover-a"]')).toBeInTheDocument();
+    });
+
+    // Click Button B → should close Popover A and open Popover B
+    fireEvent.click(buttonB);
+
+    await waitFor(() => {
+      // Popover A should be closed
+      expect(document.querySelector('[data-testid="popover-a"]')).not.toBeInTheDocument();
+      // Only Popover B should be open
+      expect(document.querySelector('[data-testid="popover-b"]')).toBeInTheDocument();
     });
   });
 });
