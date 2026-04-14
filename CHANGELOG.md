@@ -1,3 +1,20 @@
+## 0.115.0 (2026-04-14)
+
+### 🚀 Features
+
+- **tooltip:** add support for hoverable content ([#730](https://github.com/ng-primitives/ng-primitives/pull/730))
+
+### 🩹 Fixes
+
+- close previous overlay of same type regardless of cooldown ([#728](https://github.com/ng-primitives/ng-primitives/pull/728), [#729](https://github.com/ng-primitives/ng-primitives/pull/729))
+- **overlay:** close entire overlay tree on outside click when nested overlays are open ([#726](https://github.com/ng-primitives/ng-primitives/pull/726), [#727](https://github.com/ng-primitives/ng-primitives/pull/727))
+
+### ❤️ Thank You
+
+- Ashley Hunter
+- Claude Opus 4.6 (1M context)
+- Robin Ferrari @zecka
+
 ## 0.114.1 (2026-04-09)
 
 ### 🩹 Fixes
