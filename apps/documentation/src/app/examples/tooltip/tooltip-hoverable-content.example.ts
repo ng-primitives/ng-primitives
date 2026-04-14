@@ -7,7 +7,9 @@ import { NgpTooltip, NgpTooltipArrow, NgpTooltipTrigger } from 'ng-primitives/to
   imports: [NgpTooltipTrigger, NgpTooltip, NgpTooltipArrow, NgpButton],
   template: `
     <div class="examples">
-      <button [ngpTooltipTrigger]="defaultTooltip" ngpButton type="button">Default (Close on Leave)</button>
+      <button [ngpTooltipTrigger]="defaultTooltip" ngpButton type="button">
+        Default (Close on Leave)
+      </button>
 
       <button
         [ngpTooltipTrigger]="hoverableTooltip"
