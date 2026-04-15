@@ -1,3 +1,14 @@
+## 0.115.2 (2026-04-15)
+
+### 🩹 Fixes
+
+- **slider:** focus thumb on pointerdown for slider and range slider ([#732](https://github.com/ng-primitives/ng-primitives/pull/732))
+
+### ❤️ Thank You
+
+- Ashley Hunter
+- Claude Opus 4.6 (1M context)
+
 ## 0.115.1 (2026-04-15)
 
 ### 🩹 Fixes
