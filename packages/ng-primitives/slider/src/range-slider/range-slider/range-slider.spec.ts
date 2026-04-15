@@ -11,10 +11,12 @@ import { NgpRangeSlider } from './range-slider';
 // Polyfill PointerEvent for jsdom
 class MockPointerEvent extends MouseEvent {
   readonly pointerId: number;
+  readonly pointerType: string;
 
   constructor(type: string, params: PointerEventInit = {}) {
     super(type, params);
     this.pointerId = params.pointerId ?? 0;
+    this.pointerType = params.pointerType ?? '';
   }
 }
 
@@ -337,6 +339,9 @@ describe('NgpRangeSlider', () => {
     fixture.detectChanges();
     await fixture.whenStable();
 
+    const lowThumbEl = screen.getByTestId('low-thumb');
+    const highThumbEl = screen.getByTestId('high-thumb');
+
     // Click near 10% (closer to low thumb at 20%)
     track.dispatchEvent(
       new MouseEvent('pointerdown', {
@@ -347,9 +352,11 @@ describe('NgpRangeSlider', () => {
       }),
     );
 
-    expect(focusViaSpy).toHaveBeenCalledWith(expect.anything(), 'mouse', {
-      preventScroll: true,
-    });
+    expect(focusViaSpy).toHaveBeenCalledWith(
+      expect.objectContaining({ nativeElement: lowThumbEl }),
+      'mouse',
+      { preventScroll: true },
+    );
 
     focusViaSpy.mockClear();
 
@@ -363,9 +370,72 @@ describe('NgpRangeSlider', () => {
       }),
     );
 
-    expect(focusViaSpy).toHaveBeenCalledWith(expect.anything(), 'mouse', {
-      preventScroll: true,
+    expect(focusViaSpy).toHaveBeenCalledWith(
+      expect.objectContaining({ nativeElement: highThumbEl }),
+      'mouse',
+      { preventScroll: true },
+    );
+  });
+
+  it('should use touch focus origin when track is tapped', async () => {
+    const { fixture } = await render(TestComponent);
+
+    const focusMonitor = TestBed.inject(FocusMonitor);
+    const focusViaSpy = jest.spyOn(focusMonitor, 'focusVia');
+
+    const track = screen.getByTestId('slider-track');
+    const lowThumbEl = screen.getByTestId('low-thumb');
+
+    jest.spyOn(track, 'getBoundingClientRect').mockReturnValue({
+      left: 0,
+      top: 0,
+      right: 100,
+      bottom: 20,
+      width: 100,
+      height: 20,
+      x: 0,
+      y: 0,
+      toJSON: () => ({}),
     });
+
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    // Tap near 10% (closer to low thumb at 20%)
+    track.dispatchEvent(
+      new PointerEvent('pointerdown', {
+        bubbles: true,
+        cancelable: true,
+        clientX: 10,
+        clientY: 10,
+        pointerType: 'touch',
+      }),
+    );
+
+    expect(focusViaSpy).toHaveBeenCalledWith(
+      expect.objectContaining({ nativeElement: lowThumbEl }),
+      'touch',
+      { preventScroll: true },
+    );
+  });
+
+  it('should prevent mousedown default to preserve thumb focus after track click', async () => {
+    const { fixture } = await render(TestComponent);
+
+    const track = screen.getByTestId('slider-track');
+
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    // In real browsers, mousedown fires after pointerdown and its default
+    // action steals focus from the thumb. The track must prevent it.
+    const mousedownEvent = new MouseEvent('mousedown', {
+      bubbles: true,
+      cancelable: true,
+    });
+    track.dispatchEvent(mousedownEvent);
+
+    expect(mousedownEvent.defaultPrevented).toBe(true);
   });
 
   it('should not focus thumb when clicking the track while disabled', async () => {
