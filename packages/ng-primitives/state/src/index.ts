@@ -640,6 +640,19 @@ export function deprecatedSetter<T>(
           }
         };
       }
+      if (prop === 'update') {
+        return (updateFn: (value: T) => T) => {
+          console.warn(
+            `Deprecation warning: Use ${methodName}() instead of setting the value directly.`,
+          );
+          const newValue = updateFn(target());
+          if (setter) {
+            setter(newValue);
+          } else {
+            (target as WritableSignal<T>).set(newValue);
+          }
+        };
+      }
       return target[prop as keyof WritableSignal<T>];
     },
   });
