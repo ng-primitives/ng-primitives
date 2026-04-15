@@ -1,3 +1,14 @@
+## 0.115.1 (2026-04-15)
+
+### 🩹 Fixes
+
+- **slider:** focus thumb on track click ([#731](https://github.com/ng-primitives/ng-primitives/pull/731))
+
+### ❤️ Thank You
+
+- Ashley Hunter
+- Claude Opus 4.6 (1M context)
+
 ## 0.115.0 (2026-04-14)
 
 ### 🚀 Features
