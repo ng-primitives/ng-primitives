@@ -1,4 +1,6 @@
+import { FocusMonitor } from '@angular/cdk/a11y';
 import { Component } from '@angular/core';
+import { TestBed } from '@angular/core/testing';
 import { fireEvent, render, screen } from '@testing-library/angular';
 import { userEvent } from '@testing-library/user-event';
 import { NgpRangeSliderRange } from '../range-slider-range/range-slider-range';
@@ -309,6 +311,97 @@ describe('NgpRangeSlider', () => {
     await userEvent.pointer({ keys: '[MouseLeft>]', target: track, coords: { x: 10, y: 10 } });
 
     expect(component.low).toBeLessThan(20);
+  });
+
+  it('should focus the closest thumb with mouse origin when clicking the track', async () => {
+    const { fixture } = await render(TestComponent);
+
+    const focusMonitor = TestBed.inject(FocusMonitor);
+    const focusViaSpy = jest.spyOn(focusMonitor, 'focusVia');
+
+    const track = screen.getByTestId('slider-track');
+
+    // Mock getBoundingClientRect for track
+    jest.spyOn(track, 'getBoundingClientRect').mockReturnValue({
+      left: 0,
+      top: 0,
+      right: 100,
+      bottom: 20,
+      width: 100,
+      height: 20,
+      x: 0,
+      y: 0,
+      toJSON: () => ({}),
+    });
+
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    // Click near 10% (closer to low thumb at 20%)
+    track.dispatchEvent(
+      new MouseEvent('pointerdown', {
+        bubbles: true,
+        cancelable: true,
+        clientX: 10,
+        clientY: 10,
+      }),
+    );
+
+    expect(focusViaSpy).toHaveBeenCalledWith(expect.anything(), 'mouse', {
+      preventScroll: true,
+    });
+
+    focusViaSpy.mockClear();
+
+    // Click near 90% (closer to high thumb at 80%)
+    track.dispatchEvent(
+      new MouseEvent('pointerdown', {
+        bubbles: true,
+        cancelable: true,
+        clientX: 90,
+        clientY: 10,
+      }),
+    );
+
+    expect(focusViaSpy).toHaveBeenCalledWith(expect.anything(), 'mouse', {
+      preventScroll: true,
+    });
+  });
+
+  it('should not focus thumb when clicking the track while disabled', async () => {
+    const { fixture } = await render(TestComponent);
+    const component = fixture.componentInstance;
+
+    component.disabled = true;
+    fixture.detectChanges();
+
+    const focusMonitor = TestBed.inject(FocusMonitor);
+    const focusViaSpy = jest.spyOn(focusMonitor, 'focusVia');
+
+    const track = screen.getByTestId('slider-track');
+
+    jest.spyOn(track, 'getBoundingClientRect').mockReturnValue({
+      left: 0,
+      top: 0,
+      right: 100,
+      bottom: 20,
+      width: 100,
+      height: 20,
+      x: 0,
+      y: 0,
+      toJSON: () => ({}),
+    });
+
+    track.dispatchEvent(
+      new MouseEvent('pointerdown', {
+        bubbles: true,
+        cancelable: true,
+        clientX: 10,
+        clientY: 10,
+      }),
+    );
+
+    expect(focusViaSpy).not.toHaveBeenCalled();
   });
 
   it('should not respond to interactions when disabled', async () => {

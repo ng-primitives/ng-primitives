@@ -48,6 +48,7 @@ export const [
       slider().min() + (slider().max() - slider().min()) * Math.max(0, Math.min(1, percentage));
 
     slider().setValue(value);
+    slider().focusThumb('mouse');
   });
 
   return {} satisfies NgpSliderTrackState;

@@ -61,6 +61,8 @@ export const [
     } else {
       rangeSlider().setHighValue(value);
     }
+
+    rangeSlider().focusThumb(closestThumb, 'mouse');
   }
 
   // Event listener

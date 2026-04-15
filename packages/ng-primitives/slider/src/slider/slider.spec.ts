@@ -1,3 +1,5 @@
+import { FocusMonitor } from '@angular/cdk/a11y';
+import { TestBed } from '@angular/core/testing';
 import { fireEvent, render } from '@testing-library/angular';
 import { NgpSliderRange } from '../slider-range/slider-range';
 import { NgpSliderThumb } from '../slider-thumb/slider-thumb';
@@ -264,6 +266,91 @@ describe('NgpSlider', () => {
     fireEvent.keyDown(thumb, { key: 'ArrowLeft' });
     expect(valueChange).toHaveBeenCalledWith(4);
     expect(thumb).toHaveAttribute('aria-valuenow', '4');
+  });
+
+  it('should focus the thumb with mouse origin when clicking the track', async () => {
+    const valueChange = jest.fn();
+    const { getByTestId, fixture } = await render(
+      createTemplate(`[ngpSliderValue]="value" [ngpSliderMin]="0" [ngpSliderMax]="100"`),
+      {
+        imports: [NgpSlider, NgpSliderTrack, NgpSliderRange, NgpSliderThumb],
+        componentProperties: { value: 50, valueChange },
+      },
+    );
+
+    const focusMonitor = TestBed.inject(FocusMonitor);
+    const focusViaSpy = jest.spyOn(focusMonitor, 'focusVia');
+
+    const track = getByTestId('track');
+
+    jest.spyOn(track, 'getBoundingClientRect').mockReturnValue({
+      left: 0,
+      top: 0,
+      right: 100,
+      bottom: 20,
+      width: 100,
+      height: 20,
+      x: 0,
+      y: 0,
+      toJSON: () => ({}),
+    });
+
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    // Click the track
+    const pointerEvent = new MouseEvent('pointerdown', {
+      bubbles: true,
+      cancelable: true,
+      clientX: 30,
+      clientY: 10,
+    });
+    track.dispatchEvent(pointerEvent);
+
+    expect(focusViaSpy).toHaveBeenCalledWith(expect.anything(), 'mouse', { preventScroll: true });
+  });
+
+  it('should not focus the thumb when clicking the track while disabled', async () => {
+    const valueChange = jest.fn();
+    const { getByTestId, fixture } = await render(
+      createTemplate(
+        `[ngpSliderValue]="value" [ngpSliderMin]="0" [ngpSliderMax]="100" [ngpSliderDisabled]="true"`,
+      ),
+      {
+        imports: [NgpSlider, NgpSliderTrack, NgpSliderRange, NgpSliderThumb],
+        componentProperties: { value: 50, valueChange },
+      },
+    );
+
+    const focusMonitor = TestBed.inject(FocusMonitor);
+    const focusViaSpy = jest.spyOn(focusMonitor, 'focusVia');
+
+    const track = getByTestId('track');
+
+    jest.spyOn(track, 'getBoundingClientRect').mockReturnValue({
+      left: 0,
+      top: 0,
+      right: 100,
+      bottom: 20,
+      width: 100,
+      height: 20,
+      x: 0,
+      y: 0,
+      toJSON: () => ({}),
+    });
+
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    const pointerEvent = new MouseEvent('pointerdown', {
+      bubbles: true,
+      cancelable: true,
+      clientX: 30,
+      clientY: 10,
+    });
+    track.dispatchEvent(pointerEvent);
+
+    expect(focusViaSpy).not.toHaveBeenCalled();
   });
 
   it('should respect step value when setting value via pointer', async () => {
