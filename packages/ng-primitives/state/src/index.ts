@@ -368,6 +368,19 @@ export function createPrimitive<TFactory extends (...args: any[]) => unknown>(
   return [token, factory as TFactory, injectFn as PrimitiveInjectionFn<TFactory>, provideFn];
 }
 
+/**
+ * Creates a writable signal that stays synchronized with an external signal.
+ *
+ * This utility serves two purposes:
+ * 1. **Synchronization**: Keeps internal state synced when external signal changes
+ * 2. **API Safety**: When returned with `.asReadonly()`, guarantees immutability in public API
+ *
+ * Use `controlled()` for all props to ensure consistent readonly API surface,
+ * even if the prop isn't modified internally.
+ *
+ * @param value - The external signal to synchronize with
+ * @returns A writable signal linked to the external signal
+ */
 export function controlled<T>(value: Signal<T>): WritableSignal<T> {
   return linkedSignal(() => value());
 }

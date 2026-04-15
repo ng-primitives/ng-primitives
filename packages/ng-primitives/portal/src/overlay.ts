@@ -585,6 +585,11 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
       this.closeTimeout = undefined;
     }
 
+    // If the overlay is not open, there is nothing to close and no close event to emit.
+    if (!this.isOpen()) {
+      return;
+    }
+
     // Emit closing event
     this.closing.next();
 

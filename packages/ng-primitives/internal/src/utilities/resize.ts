@@ -67,36 +67,14 @@ export function fromResizeEvent(
 
           // otherwise, take the first entry and emit the dimensions
           const entry = entries[0];
-
-          let width: number, height: number;
-
-          if ('borderBoxSize' in entry) {
-            const borderSizeEntry = entry['borderBoxSize'];
-            // this may be different across browsers so normalize it
-            const borderSize = Array.isArray(borderSizeEntry)
-              ? borderSizeEntry[0]
-              : borderSizeEntry;
-
-            width = borderSize['inlineSize'];
-            height = borderSize['blockSize'];
-          } else {
-            // fallback for browsers that don't support borderBoxSize
-            width = element.offsetWidth;
-            height = element.offsetHeight;
-          }
-
-          // For inline elements, ResizeObserver may report 0,0 dimensions
-          // Use getBoundingClientRect as fallback for inline elements with zero dimensions
-          if ((width === 0 || height === 0) && getComputedStyle(element).display === 'inline') {
-            const rect = element.getBoundingClientRect();
-            width = rect.width;
-            height = rect.height;
-          }
-
-          observable.next({ width, height });
+          observable.next(getElementDimensions(element, entry));
         });
 
         observer.observe(element);
+
+        // Emit an initial measurement immediately to avoid one-frame stale layout
+        // while waiting for the first ResizeObserver callback.
+        observable.next(getElementDimensions(element));
       }
     }
 
@@ -138,6 +116,32 @@ export function observeResize(elementFn: () => HTMLElement | undefined): Signal<
   });
 
   return dimensions;
+}
+
+function getElementDimensions(element: HTMLElement, entry?: ResizeObserverEntry): Dimensions {
+  let width: number, height: number;
+  if (entry && 'borderBoxSize' in entry) {
+    const borderSizeEntry = entry.borderBoxSize;
+    // this may be different across browsers so normalize it
+    const borderSize = Array.isArray(borderSizeEntry) ? borderSizeEntry[0] : borderSizeEntry;
+
+    width = borderSize.inlineSize;
+    height = borderSize.blockSize;
+  } else {
+    // fallback for browsers that don't support borderBoxSize
+    width = element.offsetWidth;
+    height = element.offsetHeight;
+  }
+
+  // For inline elements, ResizeObserver may report 0,0 dimensions
+  // Use getBoundingClientRect as fallback for inline elements with zero dimensions
+  if ((width === 0 || height === 0) && getComputedStyle(element).display === 'inline') {
+    const rect = element.getBoundingClientRect();
+    width = rect.width;
+    height = rect.height;
+  }
+
+  return { width, height };
 }
 
 export interface Dimensions {
