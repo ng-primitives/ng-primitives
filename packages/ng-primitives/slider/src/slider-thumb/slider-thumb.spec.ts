@@ -1,3 +1,5 @@
+import { FocusMonitor } from '@angular/cdk/a11y';
+import { TestBed } from '@angular/core/testing';
 import { fireEvent, render } from '@testing-library/angular';
 import { NgpSliderRange } from '../slider-range/slider-range';
 import { NgpSliderTrack } from '../slider-track/slider-track';
@@ -7,10 +9,12 @@ import { NgpSliderThumb } from './slider-thumb';
 // Polyfill PointerEvent for jsdom
 class MockPointerEvent extends MouseEvent {
   readonly pointerId: number;
+  readonly pointerType: string;
 
   constructor(type: string, params: PointerEventInit = {}) {
     super(type, params);
     this.pointerId = params.pointerId ?? 0;
+    this.pointerType = params.pointerType ?? '';
   }
 }
 
@@ -276,5 +280,83 @@ describe('NgpSliderThumb', () => {
       new PointerEvent('pointercancel', { bubbles: true, cancelable: true, pointerId: 1 }),
     );
     expect(onDragEnd).toHaveBeenCalledTimes(1);
+  });
+
+  it('should focus the thumb with mouse origin on pointerdown', async () => {
+    const { getByTestId } = await render(createTemplate(), {
+      imports: [NgpSlider, NgpSliderTrack, NgpSliderRange, NgpSliderThumb],
+      componentProperties: { value: 50, onDragStart: jest.fn(), onDragEnd: jest.fn() },
+    });
+
+    const focusMonitor = TestBed.inject(FocusMonitor);
+    const focusViaSpy = jest.spyOn(focusMonitor, 'focusVia');
+
+    const thumb = getByTestId('thumb');
+
+    thumb.dispatchEvent(
+      new MouseEvent('pointerdown', {
+        bubbles: true,
+        cancelable: true,
+      }),
+    );
+
+    expect(focusViaSpy).toHaveBeenCalledWith(
+      expect.objectContaining({ nativeElement: thumb }),
+      'mouse',
+      { preventScroll: true },
+    );
+
+    // Clean up drag
+    document.dispatchEvent(new PointerEvent('pointerup', { bubbles: true }));
+  });
+
+  it('should focus the thumb with touch origin on touch pointerdown', async () => {
+    const { getByTestId } = await render(createTemplate(), {
+      imports: [NgpSlider, NgpSliderTrack, NgpSliderRange, NgpSliderThumb],
+      componentProperties: { value: 50, onDragStart: jest.fn(), onDragEnd: jest.fn() },
+    });
+
+    const focusMonitor = TestBed.inject(FocusMonitor);
+    const focusViaSpy = jest.spyOn(focusMonitor, 'focusVia');
+
+    const thumb = getByTestId('thumb');
+
+    thumb.dispatchEvent(
+      new PointerEvent('pointerdown', {
+        bubbles: true,
+        cancelable: true,
+        pointerType: 'touch',
+      }),
+    );
+
+    expect(focusViaSpy).toHaveBeenCalledWith(
+      expect.objectContaining({ nativeElement: thumb }),
+      'touch',
+      { preventScroll: true },
+    );
+
+    // Clean up drag
+    document.dispatchEvent(new PointerEvent('pointerup', { bubbles: true }));
+  });
+
+  it('should not focus the thumb on pointerdown when disabled', async () => {
+    const { getByTestId } = await render(createTemplate(`[ngpSliderDisabled]="true"`), {
+      imports: [NgpSlider, NgpSliderTrack, NgpSliderRange, NgpSliderThumb],
+      componentProperties: { value: 50, onDragStart: jest.fn(), onDragEnd: jest.fn() },
+    });
+
+    const focusMonitor = TestBed.inject(FocusMonitor);
+    const focusViaSpy = jest.spyOn(focusMonitor, 'focusVia');
+
+    const thumb = getByTestId('thumb');
+
+    thumb.dispatchEvent(
+      new MouseEvent('pointerdown', {
+        bubbles: true,
+        cancelable: true,
+      }),
+    );
+
+    expect(focusViaSpy).not.toHaveBeenCalled();
   });
 });
