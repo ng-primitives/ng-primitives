@@ -1,4 +1,4 @@
-import { signal, Signal, WritableSignal } from '@angular/core';
+import { Signal, WritableSignal } from '@angular/core';
 import { NgpOrientation } from 'ng-primitives/common';
 import { injectElementRef } from 'ng-primitives/internal';
 import { NgpRovingFocusGroupState } from 'ng-primitives/roving-focus';
@@ -101,7 +101,7 @@ export interface NgpToggleGroupProps {
   /**
    * The value(s) of the toggle-group.
    */
-  readonly value?: Signal<string[] | undefined>;
+  readonly value: Signal<string[] | undefined>;
   /**
    * The default value(s) of the toggle-group for uncontrolled usage.
    */
@@ -142,7 +142,7 @@ export const [
     const defaultValue = controlled(_defaultValue, []);
 
     const [value, setValueInternal, valueChange] = controlledState<string[]>({
-      value: _value ?? signal(undefined),
+      value: _value,
       defaultValue,
       onChange: onValueChange,
     });
