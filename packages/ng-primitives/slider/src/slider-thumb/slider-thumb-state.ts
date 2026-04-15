@@ -103,6 +103,9 @@ export const [
       activePointerId = event.pointerId;
       onDragStart?.();
 
+      // Focus the thumb when clicked/dragged
+      focus(event.pointerType === 'touch' ? 'touch' : 'mouse');
+
       // Clean up any existing listeners
       cleanupDocumentListeners.forEach(cleanup => cleanup());
 

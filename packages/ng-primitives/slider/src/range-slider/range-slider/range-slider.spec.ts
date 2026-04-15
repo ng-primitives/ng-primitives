@@ -887,6 +887,78 @@ describe('NgpRangeSliderThumb Drag Events', () => {
     expect(component.highDragEndCount).toBe(1);
   });
 
+  it('should focus the low thumb with mouse origin on pointerdown', async () => {
+    await render(DragEventsTestComponent);
+
+    const focusMonitor = TestBed.inject(FocusMonitor);
+    const focusViaSpy = jest.spyOn(focusMonitor, 'focusVia');
+
+    const lowThumb = screen.getByTestId('low-thumb');
+
+    lowThumb.dispatchEvent(
+      new MouseEvent('pointerdown', {
+        bubbles: true,
+        cancelable: true,
+      }),
+    );
+
+    expect(focusViaSpy).toHaveBeenCalledWith(
+      expect.objectContaining({ nativeElement: lowThumb }),
+      'mouse',
+      { preventScroll: true },
+    );
+
+    // Clean up drag
+    document.dispatchEvent(new PointerEvent('pointerup', { bubbles: true }));
+  });
+
+  it('should focus the high thumb with mouse origin on pointerdown', async () => {
+    await render(DragEventsTestComponent);
+
+    const focusMonitor = TestBed.inject(FocusMonitor);
+    const focusViaSpy = jest.spyOn(focusMonitor, 'focusVia');
+
+    const highThumb = screen.getByTestId('high-thumb');
+
+    highThumb.dispatchEvent(
+      new MouseEvent('pointerdown', {
+        bubbles: true,
+        cancelable: true,
+      }),
+    );
+
+    expect(focusViaSpy).toHaveBeenCalledWith(
+      expect.objectContaining({ nativeElement: highThumb }),
+      'mouse',
+      { preventScroll: true },
+    );
+
+    // Clean up drag
+    document.dispatchEvent(new PointerEvent('pointerup', { bubbles: true }));
+  });
+
+  it('should not focus the thumb on pointerdown when disabled', async () => {
+    const { fixture } = await render(DragEventsTestComponent);
+    const component = fixture.componentInstance;
+
+    component.disabled = true;
+    fixture.detectChanges();
+
+    const focusMonitor = TestBed.inject(FocusMonitor);
+    const focusViaSpy = jest.spyOn(focusMonitor, 'focusVia');
+
+    const lowThumb = screen.getByTestId('low-thumb');
+
+    lowThumb.dispatchEvent(
+      new MouseEvent('pointerdown', {
+        bubbles: true,
+        cancelable: true,
+      }),
+    );
+
+    expect(focusViaSpy).not.toHaveBeenCalled();
+  });
+
   it('should ignore pointermove from a different pointer during drag', async () => {
     const { fixture } = await render(TestComponent);
     const component = fixture.componentInstance;
