@@ -10,9 +10,7 @@ class NoopComponent {}
 function createControlledState<T>(...args: Parameters<typeof controlledState<T>>) {
   const fixture = TestBed.createComponent(NoopComponent);
   const injector = fixture.componentRef.injector;
-  const [value, set, change] = runInInjectionContext(injector, () =>
-    controlledState<T>(...args),
-  );
+  const [value, set, change] = runInInjectionContext(injector, () => controlledState<T>(...args));
   return { value, set, change };
 }
 

@@ -30,7 +30,9 @@ import {
       outputs: ['ngpToggleGroupValueChange:valueChange'],
     },
   ],
-  template: `<ng-content />`,
+  template: `
+    <ng-content />
+  `,
   providers: [provideValueAccessor(ToggleGroup)],
   host: {
     '(focusout)': 'onTouched?.()',
@@ -72,6 +74,8 @@ export class ToggleGroup implements ControlValueAccessor {
       inputs: ['ngpToggleGroupItemValue:value', 'ngpToggleGroupItemDisabled:disabled'],
     },
   ],
-  template: `<ng-content />`,
+  template: `
+    <ng-content />
+  `,
 })
 export class ToggleGroupItemFixture {}
