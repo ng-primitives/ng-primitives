@@ -368,8 +368,10 @@ export function createPrimitive<TFactory extends (...args: any[]) => unknown>(
   return [token, factory as TFactory, injectFn as PrimitiveInjectionFn<TFactory>, provideFn];
 }
 
-export function controlled<T>(value: Signal<T>): WritableSignal<T> {
-  return linkedSignal(() => value());
+export function controlled<T>(value: Signal<T>): WritableSignal<T>;
+export function controlled<T>(value: Signal<T> | undefined, defaultValue: T): WritableSignal<T>;
+export function controlled<T>(value: Signal<T> | undefined, defaultValue?: T): WritableSignal<T> {
+  return value ? linkedSignal(() => value()) : signal(defaultValue as T);
 }
 
 export interface ControlledStateOptions<T> {
@@ -397,21 +399,11 @@ export interface SetterOptions {
   readonly emit?: boolean;
 }
 
-export interface ControlledState<T> {
-  /**
-   * The resolved value. Returns the controlled value when defined,
-   * otherwise falls back to the internal value.
-   */
-  readonly value: Signal<T>;
-  /**
-   * Update the internal state and emit the change.
-   */
-  set(value: T, options?: SetterOptions): void;
-  /**
-   * Observable of value changes.
-   */
-  readonly change: Observable<T>;
-}
+export type ControlledState<T> = [
+  value: Signal<T>,
+  set: (value: T, options?: SetterOptions) => void,
+  change: Observable<T>,
+];
 
 export function controlledState<T>({
   value,
@@ -453,7 +445,7 @@ export function controlledState<T>({
     }
   }
 
-  return { value: resolved.asReadonly() as Signal<T>, set, change: change.asObservable() };
+  return [resolved.asReadonly() as Signal<T>, set, change.asObservable()];
 }
 
 function setAttribute(

@@ -1,18 +1,19 @@
 import { Component, runInInjectionContext, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { controlledState, ControlledState } from 'ng-primitives/state';
+import { controlledState } from 'ng-primitives/state';
 import { firstValueFrom } from 'rxjs';
 import { take, toArray } from 'rxjs/operators';
 
 @Component({ template: '', standalone: true })
 class NoopComponent {}
 
-function createControlledState<T>(
-  ...args: Parameters<typeof controlledState<T>>
-): ControlledState<T> {
+function createControlledState<T>(...args: Parameters<typeof controlledState<T>>) {
   const fixture = TestBed.createComponent(NoopComponent);
   const injector = fixture.componentRef.injector;
-  return runInInjectionContext(injector, () => controlledState<T>(...args));
+  const [value, set, change] = runInInjectionContext(injector, () =>
+    controlledState<T>(...args),
+  );
+  return { value, set, change };
 }
 
 describe('controlledState', () => {

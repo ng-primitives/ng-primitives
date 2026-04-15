@@ -70,6 +70,13 @@ export class NgpToggle {
     this.state.setSelected(value, options);
   }
 
+  /**
+   * Set the default selected state.
+   */
+  setDefaultSelected(value: boolean): void {
+    this.state.setDefaultSelected(value);
+  }
+
   /*
    * Set the disabled state.
    */

@@ -1,9 +1,21 @@
 import { Component } from '@angular/core';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ControlValueAccessor } from '@angular/forms';
-import { injectToggleGroupState, NgpToggleGroup } from 'ng-primitives/toggle-group';
-import { ChangeFn, provideValueAccessor, TouchedFn } from 'ng-primitives/utils';
+import {
+  injectToggleGroupState,
+  NgpToggleGroup,
+  NgpToggleGroupItem,
+} from 'ng-primitives/toggle-group';
+import {
+  ChangeFn,
+  provideValueAccessor,
+  safeTakeUntilDestroyed,
+  TouchedFn,
+} from 'ng-primitives/utils';
 
+/**
+ * Inline fixture mirroring `apps/components/.../reusable-components/toggle-group/toggle-group.ts`.
+ * Used by the reusable-component test suites.
+ */
 @Component({
   selector: 'app-toggle-group',
   hostDirectives: [
@@ -18,59 +30,48 @@ import { ChangeFn, provideValueAccessor, TouchedFn } from 'ng-primitives/utils';
       outputs: ['ngpToggleGroupValueChange:valueChange'],
     },
   ],
-  template: `
-    <ng-content />
-  `,
-  styles: `
-    :host {
-      display: inline-flex;
-      column-gap: 0.25rem;
-      align-items: center;
-      border-radius: 0.375rem;
-      background-color: var(--ngp-background);
-      box-shadow: var(--ngp-button-shadow);
-      padding: 0.25rem;
-    }
-  `,
+  template: `<ng-content />`,
   providers: [provideValueAccessor(ToggleGroup)],
   host: {
     '(focusout)': 'onTouched?.()',
   },
 })
 export class ToggleGroup implements ControlValueAccessor {
-  /** Access the toggle state. */
   private readonly toggleGroup = injectToggleGroupState();
-
-  /** The on change callback */
   private onChange?: ChangeFn<string[]>;
-
-  /** The on touched callback */
   protected onTouched?: TouchedFn;
 
   constructor() {
-    // Any time the toggle group changes, update the form value.
     this.toggleGroup()
-      .valueChange.pipe(takeUntilDestroyed())
+      .valueChange.pipe(safeTakeUntilDestroyed())
       .subscribe(value => this.onChange?.(value));
   }
 
-  /** Write a new value to the toggle group. */
   writeValue(value: string[]): void {
     this.toggleGroup().setValue(value, { emit: false });
   }
 
-  /** Register a callback function to be called when the value changes. */
   registerOnChange(fn: ChangeFn<string[]>): void {
     this.onChange = fn;
   }
 
-  /** Register a callback function to be called when the toggle group is touched. */
   registerOnTouched(fn: TouchedFn): void {
     this.onTouched = fn;
   }
 
-  /** Set the disabled state of the toggle group. */
   setDisabledState(isDisabled: boolean): void {
     this.toggleGroup().setDisabled(isDisabled);
   }
 }
+
+@Component({
+  selector: 'button[app-toggle-group-item]',
+  hostDirectives: [
+    {
+      directive: NgpToggleGroupItem,
+      inputs: ['ngpToggleGroupItemValue:value', 'ngpToggleGroupItemDisabled:disabled'],
+    },
+  ],
+  template: `<ng-content />`,
+})
+export class ToggleGroupItemFixture {}

@@ -2,6 +2,7 @@ import { BooleanInput } from '@angular/cdk/coercion';
 import { booleanAttribute, Directive, input, output } from '@angular/core';
 import { NgpOrientation } from 'ng-primitives/common';
 import { ngpRovingFocusGroup, provideRovingFocusGroupState } from 'ng-primitives/roving-focus';
+import { SetterOptions } from 'ng-primitives/state';
 import { injectToggleGroupConfig } from '../config/toggle-group-config';
 import { ngpToggleGroup, provideToggleGroupState } from './toggle-group-state';
 
@@ -49,7 +50,13 @@ export class NgpToggleGroup {
   /**
    * The selected value(s) of the toggle group.
    */
-  readonly value = input<string[]>([], { alias: 'ngpToggleGroupValue' });
+  readonly value = input<string[] | undefined>(undefined, { alias: 'ngpToggleGroupValue' });
+
+  /**
+   * The default selected value(s) for uncontrolled usage.
+   * @default []
+   */
+  readonly defaultValue = input<string[]>([], { alias: 'ngpToggleGroupDefaultValue' });
 
   /**
    * Emits when the value of the toggle group changes.
@@ -77,6 +84,7 @@ export class NgpToggleGroup {
     allowDeselection: this.allowDeselection,
     type: this.type,
     value: this.value,
+    defaultValue: this.defaultValue,
     disabled: this.disabled,
     onValueChange: (value: string[]) => this.valueChange.emit(value),
   });
@@ -91,8 +99,15 @@ export class NgpToggleGroup {
   /**
    * Set the value(s) of the toggle group.
    */
-  setValue(newValue: string[]): void {
-    this.state.setValue(newValue);
+  setValue(newValue: string[], options?: SetterOptions): void {
+    this.state.setValue(newValue, options);
+  }
+
+  /**
+   * Set the default value(s) of the toggle group.
+   */
+  setDefaultValue(defaultValue: string[]): void {
+    this.state.setDefaultValue(defaultValue);
   }
 
   /**

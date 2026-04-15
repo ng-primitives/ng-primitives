@@ -1,15 +1,15 @@
-import { computed, Signal, signal, WritableSignal } from '@angular/core';
+import { computed, Signal, WritableSignal } from '@angular/core';
 import { ngpInteractions } from 'ng-primitives/interactions';
 import { injectElementRef } from 'ng-primitives/internal';
 import {
   attrBinding,
   controlled,
-  SetterOptions,
   controlledState,
   createPrimitive,
   dataBinding,
   deprecatedSetter,
   listener,
+  SetterOptions,
 } from 'ng-primitives/state';
 import { Observable } from 'rxjs';
 
@@ -37,6 +37,10 @@ export interface NgpToggleState {
    * Set the selected state.
    */
   setSelected(value: boolean, options?: SetterOptions): void;
+  /**
+   * Set the default selected state.
+   */
+  setDefaultSelected(value: boolean): void;
   /**
    * Set the disabled state.
    */
@@ -71,23 +75,21 @@ export const [NgpToggleStateToken, ngpToggle, injectToggleState, provideToggleSt
     ({
       selected: _selected,
       defaultSelected: _defaultSelected,
-      disabled: _disabled = signal(false),
+      disabled: _disabled,
       onSelectedChange,
     }: NgpToggleProps): NgpToggleState => {
       const element = injectElementRef<HTMLElement>();
 
-      const {
-        value: selected,
-        set: setSelected,
-        change: selectedChange,
-      } = controlledState({
+      const isButton = element.nativeElement.tagName.toLowerCase() === 'button';
+      const defaultSelected = controlled(_defaultSelected, false);
+      const disabled = controlled(_disabled, false);
+      const tabindex = computed(() => (disabled() ? -1 : 0));
+
+      const [selected, setSelected, selectedChange] = controlledState({
         value: _selected,
-        defaultValue: _defaultSelected,
+        defaultValue: defaultSelected,
         onChange: onSelectedChange,
       });
-
-      const disabled = controlled(_disabled);
-      const isButton = element.nativeElement.tagName.toLowerCase() === 'button';
 
       ngpInteractions({
         hover: true,
@@ -95,8 +97,6 @@ export const [NgpToggleStateToken, ngpToggle, injectToggleState, provideToggleSt
         focusVisible: true,
         disabled,
       });
-
-      const tabindex = computed(() => (disabled() ? -1 : 0));
 
       // Host bindings
       attrBinding(element, 'type', () => (isButton ? 'button' : null));
@@ -132,10 +132,11 @@ export const [NgpToggleStateToken, ngpToggle, injectToggleState, provideToggleSt
 
       return {
         selected: deprecatedSetter(selected, 'setSelected', setSelected),
-        disabled: deprecatedSetter(disabled, 'setDisabled'),
+        disabled: deprecatedSetter(disabled, 'setDisabled', setDisabled),
         selectedChange,
         toggle,
         setSelected,
+        setDefaultSelected: defaultSelected.set,
         setDisabled,
       } satisfies NgpToggleState;
     },
