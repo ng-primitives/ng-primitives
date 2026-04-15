@@ -426,9 +426,7 @@ describe('NgpSlider', () => {
     expect(document.activeElement).toBe(thumbEl);
 
     // Press ArrowRight — should increase value by 1
-    thumbEl.dispatchEvent(
-      new KeyboardEvent('keydown', { key: 'ArrowRight', bubbles: true }),
-    );
+    thumbEl.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowRight', bubbles: true }));
 
     fixture.detectChanges();
 
