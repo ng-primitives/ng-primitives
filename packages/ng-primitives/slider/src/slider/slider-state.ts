@@ -1,4 +1,5 @@
-import { computed, ElementRef, Signal, signal, WritableSignal } from '@angular/core';
+import { FocusMonitor, FocusOrigin } from '@angular/cdk/a11y';
+import { computed, ElementRef, inject, Signal, signal, WritableSignal } from '@angular/core';
 import { NgpOrientation } from 'ng-primitives/common';
 import { ngpFormControl } from 'ng-primitives/form-field';
 import { injectElementRef } from 'ng-primitives/internal';
@@ -54,6 +55,10 @@ export interface NgpSliderState {
    */
   readonly track: Signal<ElementRef<HTMLElement> | undefined>;
   /**
+   * @internal The thumb element reference.
+   */
+  readonly thumb: Signal<ElementRef<HTMLElement> | undefined>;
+  /**
    * Emit when the value changes.
    */
   readonly valueChange: Observable<number>;
@@ -65,6 +70,14 @@ export interface NgpSliderState {
    * Register the track element.
    */
   setTrack(track: ElementRef<HTMLElement> | undefined): void;
+  /**
+   * Register the thumb element.
+   */
+  setThumb(thumb: ElementRef<HTMLElement> | undefined): void;
+  /**
+   * Focus the thumb element.
+   */
+  focusThumb(origin: FocusOrigin): void;
   /**
    * Set the disabled state.
    */
@@ -127,12 +140,14 @@ export const [NgpSliderStateToken, ngpSlider, injectSliderState, provideSliderSt
       onValueChange,
     }: NgpSliderProps): NgpSliderState => {
       const element = injectElementRef();
+      const focusMonitor = inject(FocusMonitor);
       const value = controlled(_value);
       const disabled = controlled(_disabled);
       const orientation = controlled(_orientation);
 
       const valueChange = emitter<number>();
       const track = signal<ElementRef<HTMLElement> | undefined>(undefined);
+      const thumb = signal<ElementRef<HTMLElement> | undefined>(undefined);
 
       // Form control integration
       const status = ngpFormControl({ id, disabled });
@@ -153,6 +168,17 @@ export const [NgpSliderStateToken, ngpSlider, injectSliderState, provideSliderSt
 
       function setTrack(newTrack: ElementRef<HTMLElement> | undefined): void {
         track.set(newTrack);
+      }
+
+      function setThumb(newThumb: ElementRef<HTMLElement> | undefined): void {
+        thumb.set(newThumb);
+      }
+
+      function focusThumb(origin: FocusOrigin): void {
+        const el = thumb();
+        if (el) {
+          focusMonitor.focusVia(el, origin, { preventScroll: true });
+        }
       }
 
       function setValue(newValue: number): void {
@@ -183,8 +209,11 @@ export const [NgpSliderStateToken, ngpSlider, injectSliderState, provideSliderSt
         valueChange: valueChange.asObservable(),
         percentage,
         track,
+        thumb,
         setValue,
         setTrack,
+        setThumb,
+        focusThumb,
         setDisabled,
         setOrientation,
       } satisfies NgpSliderState;

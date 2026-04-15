@@ -17,6 +17,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
+          filter: tree:0
 
       # Connect your workspace on nx.app and uncomment this to enable task distribution.
       # The "--stop-agents-after" is optional, but allows idle agents to shut down once the "build" targets have been requested
@@ -26,7 +27,7 @@ jobs:
         with:
           version: 10
       # Cache node_modules
-      - uses: actions/setup-node@v3
+      - uses: actions/setup-node@v4
         with:
           node-version: 22
           cache: 'pnpm'
@@ -34,7 +35,7 @@ jobs:
       - uses: nrwl/nx-set-shas@v4
 
       - run: pnpm exec nx format:check
-      - run: pnpm exec nx run-many -t lint,build,test,e2e --all --parallel
+      - run: pnpm exec nx affected -t lint,build,test,e2e
         env:
           NODE_OPTIONS: '--max-old-space-size=8192' # Increase memory to 8GB
       - run: pnpx pkg-pr-new publish ./dist/packages/*

@@ -70,13 +70,6 @@
       "unitTestRunner": "none"
     }
   },
-  "tasksRunnerOptions": {
-    "default": {
-      "options": {
-        "cacheableOperations": []
-      }
-    }
-  },
   "release": {
     "projects": ["ng-primitives", "state", "mcp"],
     "changelog": {

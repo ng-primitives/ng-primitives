@@ -1,8 +1,27 @@
+import { FocusMonitor } from '@angular/cdk/a11y';
+import { TestBed } from '@angular/core/testing';
 import { fireEvent, render } from '@testing-library/angular';
 import { NgpSliderRange } from '../slider-range/slider-range';
 import { NgpSliderThumb } from '../slider-thumb/slider-thumb';
 import { NgpSliderTrack } from '../slider-track/slider-track';
 import { NgpSlider } from './slider';
+
+// Polyfill PointerEvent for jsdom
+class MockPointerEvent extends MouseEvent {
+  readonly pointerId: number;
+  readonly pointerType: string;
+
+  constructor(type: string, params: PointerEventInit = {}) {
+    super(type, params);
+    this.pointerId = params.pointerId ?? 0;
+    this.pointerType = params.pointerType ?? '';
+  }
+}
+
+if (typeof globalThis.PointerEvent === 'undefined') {
+  (globalThis as unknown as { PointerEvent: typeof MockPointerEvent }).PointerEvent =
+    MockPointerEvent;
+}
 
 describe('NgpSlider', () => {
   function createTemplate(extraProps = ''): string {
@@ -264,6 +283,223 @@ describe('NgpSlider', () => {
     fireEvent.keyDown(thumb, { key: 'ArrowLeft' });
     expect(valueChange).toHaveBeenCalledWith(4);
     expect(thumb).toHaveAttribute('aria-valuenow', '4');
+  });
+
+  it('should focus the thumb with mouse origin when clicking the track', async () => {
+    const valueChange = jest.fn();
+    const { getByTestId, fixture } = await render(
+      createTemplate(`[ngpSliderValue]="value" [ngpSliderMin]="0" [ngpSliderMax]="100"`),
+      {
+        imports: [NgpSlider, NgpSliderTrack, NgpSliderRange, NgpSliderThumb],
+        componentProperties: { value: 50, valueChange },
+      },
+    );
+
+    const focusMonitor = TestBed.inject(FocusMonitor);
+    const focusViaSpy = jest.spyOn(focusMonitor, 'focusVia');
+
+    const track = getByTestId('track');
+    const thumbEl = getByTestId('thumb');
+
+    jest.spyOn(track, 'getBoundingClientRect').mockReturnValue({
+      left: 0,
+      top: 0,
+      right: 100,
+      bottom: 20,
+      width: 100,
+      height: 20,
+      x: 0,
+      y: 0,
+      toJSON: () => ({}),
+    });
+
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    // Click the track
+    const pointerEvent = new MouseEvent('pointerdown', {
+      bubbles: true,
+      cancelable: true,
+      clientX: 30,
+      clientY: 10,
+    });
+    track.dispatchEvent(pointerEvent);
+
+    expect(focusViaSpy).toHaveBeenCalledWith(
+      expect.objectContaining({ nativeElement: thumbEl }),
+      'mouse',
+      { preventScroll: true },
+    );
+  });
+
+  it('should use touch focus origin when track is tapped', async () => {
+    const valueChange = jest.fn();
+    const { getByTestId, fixture } = await render(
+      createTemplate(`[ngpSliderValue]="value" [ngpSliderMin]="0" [ngpSliderMax]="100"`),
+      {
+        imports: [NgpSlider, NgpSliderTrack, NgpSliderRange, NgpSliderThumb],
+        componentProperties: { value: 50, valueChange },
+      },
+    );
+
+    const focusMonitor = TestBed.inject(FocusMonitor);
+    const focusViaSpy = jest.spyOn(focusMonitor, 'focusVia');
+
+    const track = getByTestId('track');
+    const thumbEl = getByTestId('thumb');
+
+    jest.spyOn(track, 'getBoundingClientRect').mockReturnValue({
+      left: 0,
+      top: 0,
+      right: 100,
+      bottom: 20,
+      width: 100,
+      height: 20,
+      x: 0,
+      y: 0,
+      toJSON: () => ({}),
+    });
+
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    track.dispatchEvent(
+      new PointerEvent('pointerdown', {
+        bubbles: true,
+        cancelable: true,
+        clientX: 30,
+        clientY: 10,
+        pointerType: 'touch',
+      }),
+    );
+
+    expect(focusViaSpy).toHaveBeenCalledWith(
+      expect.objectContaining({ nativeElement: thumbEl }),
+      'touch',
+      { preventScroll: true },
+    );
+  });
+
+  it('should allow arrow key interaction after clicking the track', async () => {
+    const valueChange = jest.fn();
+    const { getByTestId, fixture } = await render(
+      createTemplate(
+        `[ngpSliderValue]="value" [ngpSliderMin]="0" [ngpSliderMax]="100" [ngpSliderStep]="1"`,
+      ),
+      {
+        imports: [NgpSlider, NgpSliderTrack, NgpSliderRange, NgpSliderThumb],
+        componentProperties: { value: 50, valueChange },
+      },
+    );
+
+    const track = getByTestId('track');
+    const thumbEl = getByTestId('thumb');
+
+    jest.spyOn(track, 'getBoundingClientRect').mockReturnValue({
+      left: 0,
+      top: 0,
+      right: 100,
+      bottom: 20,
+      width: 100,
+      height: 20,
+      x: 0,
+      y: 0,
+      toJSON: () => ({}),
+    });
+
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    // Click the track at 30%
+    track.dispatchEvent(
+      new MouseEvent('pointerdown', {
+        bubbles: true,
+        cancelable: true,
+        clientX: 30,
+        clientY: 10,
+      }),
+    );
+
+    fixture.detectChanges();
+
+    // Verify focus landed on the thumb
+    expect(document.activeElement).toBe(thumbEl);
+
+    // Press ArrowRight — should increase value by 1
+    thumbEl.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowRight', bubbles: true }));
+
+    fixture.detectChanges();
+
+    expect(thumbEl).toHaveAttribute('aria-valuenow', '31');
+  });
+
+  it('should prevent mousedown default to preserve thumb focus after track click', async () => {
+    const valueChange = jest.fn();
+    const { getByTestId, fixture } = await render(
+      createTemplate(`[ngpSliderValue]="value" [ngpSliderMin]="0" [ngpSliderMax]="100"`),
+      {
+        imports: [NgpSlider, NgpSliderTrack, NgpSliderRange, NgpSliderThumb],
+        componentProperties: { value: 50, valueChange },
+      },
+    );
+
+    const track = getByTestId('track');
+
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    // In real browsers, mousedown fires after pointerdown and its default
+    // action steals focus from the thumb. The track must prevent it.
+    const mousedownEvent = new MouseEvent('mousedown', {
+      bubbles: true,
+      cancelable: true,
+    });
+    track.dispatchEvent(mousedownEvent);
+
+    expect(mousedownEvent.defaultPrevented).toBe(true);
+  });
+
+  it('should not focus the thumb when clicking the track while disabled', async () => {
+    const valueChange = jest.fn();
+    const { getByTestId, fixture } = await render(
+      createTemplate(
+        `[ngpSliderValue]="value" [ngpSliderMin]="0" [ngpSliderMax]="100" [ngpSliderDisabled]="true"`,
+      ),
+      {
+        imports: [NgpSlider, NgpSliderTrack, NgpSliderRange, NgpSliderThumb],
+        componentProperties: { value: 50, valueChange },
+      },
+    );
+
+    const focusMonitor = TestBed.inject(FocusMonitor);
+    const focusViaSpy = jest.spyOn(focusMonitor, 'focusVia');
+
+    const track = getByTestId('track');
+
+    jest.spyOn(track, 'getBoundingClientRect').mockReturnValue({
+      left: 0,
+      top: 0,
+      right: 100,
+      bottom: 20,
+      width: 100,
+      height: 20,
+      x: 0,
+      y: 0,
+      toJSON: () => ({}),
+    });
+
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    const pointerEvent = new MouseEvent('pointerdown', {
+      bubbles: true,
+      cancelable: true,
+      clientX: 30,
+      clientY: 10,
+    });
+    track.dispatchEvent(pointerEvent);
+
+    expect(focusViaSpy).not.toHaveBeenCalled();
   });
 
   it('should respect step value when setting value via pointer', async () => {

@@ -1,4 +1,6 @@
+import { FocusMonitor } from '@angular/cdk/a11y';
 import { Component } from '@angular/core';
+import { TestBed } from '@angular/core/testing';
 import { fireEvent, render, screen } from '@testing-library/angular';
 import { userEvent } from '@testing-library/user-event';
 import { NgpRangeSliderRange } from '../range-slider-range/range-slider-range';
@@ -9,10 +11,12 @@ import { NgpRangeSlider } from './range-slider';
 // Polyfill PointerEvent for jsdom
 class MockPointerEvent extends MouseEvent {
   readonly pointerId: number;
+  readonly pointerType: string;
 
   constructor(type: string, params: PointerEventInit = {}) {
     super(type, params);
     this.pointerId = params.pointerId ?? 0;
+    this.pointerType = params.pointerType ?? '';
   }
 }
 
@@ -309,6 +313,165 @@ describe('NgpRangeSlider', () => {
     await userEvent.pointer({ keys: '[MouseLeft>]', target: track, coords: { x: 10, y: 10 } });
 
     expect(component.low).toBeLessThan(20);
+  });
+
+  it('should focus the closest thumb with mouse origin when clicking the track', async () => {
+    const { fixture } = await render(TestComponent);
+
+    const focusMonitor = TestBed.inject(FocusMonitor);
+    const focusViaSpy = jest.spyOn(focusMonitor, 'focusVia');
+
+    const track = screen.getByTestId('slider-track');
+
+    // Mock getBoundingClientRect for track
+    jest.spyOn(track, 'getBoundingClientRect').mockReturnValue({
+      left: 0,
+      top: 0,
+      right: 100,
+      bottom: 20,
+      width: 100,
+      height: 20,
+      x: 0,
+      y: 0,
+      toJSON: () => ({}),
+    });
+
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    const lowThumbEl = screen.getByTestId('low-thumb');
+    const highThumbEl = screen.getByTestId('high-thumb');
+
+    // Click near 10% (closer to low thumb at 20%)
+    track.dispatchEvent(
+      new MouseEvent('pointerdown', {
+        bubbles: true,
+        cancelable: true,
+        clientX: 10,
+        clientY: 10,
+      }),
+    );
+
+    expect(focusViaSpy).toHaveBeenCalledWith(
+      expect.objectContaining({ nativeElement: lowThumbEl }),
+      'mouse',
+      { preventScroll: true },
+    );
+
+    focusViaSpy.mockClear();
+
+    // Click near 90% (closer to high thumb at 80%)
+    track.dispatchEvent(
+      new MouseEvent('pointerdown', {
+        bubbles: true,
+        cancelable: true,
+        clientX: 90,
+        clientY: 10,
+      }),
+    );
+
+    expect(focusViaSpy).toHaveBeenCalledWith(
+      expect.objectContaining({ nativeElement: highThumbEl }),
+      'mouse',
+      { preventScroll: true },
+    );
+  });
+
+  it('should use touch focus origin when track is tapped', async () => {
+    const { fixture } = await render(TestComponent);
+
+    const focusMonitor = TestBed.inject(FocusMonitor);
+    const focusViaSpy = jest.spyOn(focusMonitor, 'focusVia');
+
+    const track = screen.getByTestId('slider-track');
+    const lowThumbEl = screen.getByTestId('low-thumb');
+
+    jest.spyOn(track, 'getBoundingClientRect').mockReturnValue({
+      left: 0,
+      top: 0,
+      right: 100,
+      bottom: 20,
+      width: 100,
+      height: 20,
+      x: 0,
+      y: 0,
+      toJSON: () => ({}),
+    });
+
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    // Tap near 10% (closer to low thumb at 20%)
+    track.dispatchEvent(
+      new PointerEvent('pointerdown', {
+        bubbles: true,
+        cancelable: true,
+        clientX: 10,
+        clientY: 10,
+        pointerType: 'touch',
+      }),
+    );
+
+    expect(focusViaSpy).toHaveBeenCalledWith(
+      expect.objectContaining({ nativeElement: lowThumbEl }),
+      'touch',
+      { preventScroll: true },
+    );
+  });
+
+  it('should prevent mousedown default to preserve thumb focus after track click', async () => {
+    const { fixture } = await render(TestComponent);
+
+    const track = screen.getByTestId('slider-track');
+
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    // In real browsers, mousedown fires after pointerdown and its default
+    // action steals focus from the thumb. The track must prevent it.
+    const mousedownEvent = new MouseEvent('mousedown', {
+      bubbles: true,
+      cancelable: true,
+    });
+    track.dispatchEvent(mousedownEvent);
+
+    expect(mousedownEvent.defaultPrevented).toBe(true);
+  });
+
+  it('should not focus thumb when clicking the track while disabled', async () => {
+    const { fixture } = await render(TestComponent);
+    const component = fixture.componentInstance;
+
+    component.disabled = true;
+    fixture.detectChanges();
+
+    const focusMonitor = TestBed.inject(FocusMonitor);
+    const focusViaSpy = jest.spyOn(focusMonitor, 'focusVia');
+
+    const track = screen.getByTestId('slider-track');
+
+    jest.spyOn(track, 'getBoundingClientRect').mockReturnValue({
+      left: 0,
+      top: 0,
+      right: 100,
+      bottom: 20,
+      width: 100,
+      height: 20,
+      x: 0,
+      y: 0,
+      toJSON: () => ({}),
+    });
+
+    track.dispatchEvent(
+      new MouseEvent('pointerdown', {
+        bubbles: true,
+        cancelable: true,
+        clientX: 10,
+        clientY: 10,
+      }),
+    );
+
+    expect(focusViaSpy).not.toHaveBeenCalled();
   });
 
   it('should not respond to interactions when disabled', async () => {

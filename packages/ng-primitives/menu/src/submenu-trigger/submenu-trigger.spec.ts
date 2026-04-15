@@ -416,7 +416,7 @@ describe('NgpSubmenuTrigger viewport awareness', () => {
         });
 
         expect(submenuCall).toBeDefined();
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
         const middleware = (submenuCall as any[])[2].middleware as any[];
         const hasFlip = middleware.some(m => m?.name === 'flip');
         expect(hasFlip).toBe(false);
