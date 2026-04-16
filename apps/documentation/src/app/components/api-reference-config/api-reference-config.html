@@ -23,7 +23,7 @@
     </span>
     <span class="api-cell pr-3">
       <code class="font-mono text-indigo-600 dark:text-indigo-400">{{ item.type }}</code>
-      @if (item.default) {
+      @if (item.default !== undefined) {
       <span class="ml-1 text-zinc-400 dark:text-zinc-500">= {{ item.default }}</span>
       }
     </span>

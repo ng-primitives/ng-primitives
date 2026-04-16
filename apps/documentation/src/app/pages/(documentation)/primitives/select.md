@@ -114,6 +114,12 @@ The following directives are available to import from the `ng-primitives/select`
 
 <api-reference-props name="NgpSelectDropdown"></api-reference-props>
 
+<api-reference-css-vars>
+  <api-css-var name="--ngp-select-transform-origin" description="The transform origin of the select dropdown for animations." />
+  <api-css-var name="--ngp-select-available-width" description="The available width of the dropdown before it overflows the viewport." />
+  <api-css-var name="--ngp-select-available-height" description="The available height of the dropdown before it overflows the viewport." />
+</api-reference-css-vars>
+
 ### NgpSelectPortal
 
 <api-docs name="NgpSelectPortal"></api-docs>
@@ -137,12 +143,6 @@ The following directives are available to import from the `ng-primitives/select`
   <api-attribute name="data-focus-visible" description="Applied when the element is focused." />
   <api-attribute name="data-disabled" description="Applied when the element is disabled." />
 </api-reference-attributes>
-
-<api-reference-css-vars>
-  <api-css-var name="--ngp-select-transform-origin" description="The transform origin of the select dropdown for animations." />
-  <api-css-var name="--ngp-select-available-width" description="The available width of the dropdown before it overflows the viewport." />
-  <api-css-var name="--ngp-select-available-height" description="The available height of the dropdown before it overflows the viewport." />
-</api-reference-css-vars>
 
 ## Global Configuration
 

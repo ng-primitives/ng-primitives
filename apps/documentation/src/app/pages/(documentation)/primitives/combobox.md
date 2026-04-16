@@ -148,7 +148,6 @@ The main container for the combobox.
   <api-attribute name="data-pristine" description="Applied when the combobox is pristine (not modified)." />
   <api-attribute name="data-dirty" description="Applied when the combobox has been modified." />
   <api-attribute name="data-pending" description="Applied when the combobox is pending (e.g., async validation)." />
-  <api-attribute name="data-disabled" description="Applied when the combobox is disabled." />
 </api-reference-attributes>
 
 #### Focus Management
@@ -208,7 +207,6 @@ The input field for the combobox.
   <api-attribute name="data-pristine" description="Applied when the input is pristine (not modified)." />
   <api-attribute name="data-dirty" description="Applied when the input has been modified." />
   <api-attribute name="data-pending" description="Applied when the input is pending (e.g., async validation)." />
-  <api-attribute name="data-disabled" description="Applied when the input is disabled." />
 </api-reference-attributes>
 
 ### NgpComboboxOption

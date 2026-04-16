@@ -1,6 +1,7 @@
 import {
   ChangeDetectionStrategy,
   Component,
+  computed,
   ElementRef,
   inject,
   OnInit,
@@ -16,6 +17,7 @@ export class ApiReferenceAttributes implements OnInit {
   private readonly el = inject(ElementRef);
 
   readonly resolvedData = signal<AttributeDefinition[]>([]);
+  readonly hasValues = computed(() => this.resolvedData().some(item => item.value));
 
   ngOnInit() {
     const children = this.el.nativeElement.querySelectorAll('api-attribute');
