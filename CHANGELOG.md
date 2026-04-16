@@ -1,3 +1,14 @@
+## 0.117.0 (2026-04-16)
+
+### 🚀 Features
+
+- context menu ([#734](https://github.com/ng-primitives/ng-primitives/pull/734))
+
+### ❤️ Thank You
+
+- Ashley Hunter
+- Claude Opus 4.6 (1M context)
+
 ## 0.116.0 (2026-04-16)
 
 ### 🚀 Features
