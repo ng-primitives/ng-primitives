@@ -256,6 +256,17 @@ html.dark .shiki span {
   display: none;
 }
 
+/* Responsive API props table — hide Default column on small screens */
+.api-props-grid {
+  grid-template-columns: 5fr 7fr 2rem;
+}
+
+@media (min-width: 768px) {
+  .api-props-grid {
+    grid-template-columns: 5fr 7fr 4.5fr 2rem;
+  }
+}
+
 .download-button {
   @apply inline-flex h-10 items-center justify-center rounded-lg border-none bg-white px-4 font-medium text-gray-900 no-underline shadow-sm ring-1 ring-black/5 transition-colors duration-300 ease-in-out hover:bg-gray-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500 data-press:bg-gray-100 dark:bg-gray-950 dark:text-gray-100 dark:ring-white/10 dark:hover:bg-gray-900 dark:data-press:bg-gray-800;
 }
