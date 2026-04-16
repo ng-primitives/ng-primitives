@@ -18,6 +18,7 @@ import { NgpContextMenu } from 'ng-primitives/context-menu';
       box-shadow: var(--ngp-shadow);
       border-radius: 8px;
       padding: 4px;
+      transform-origin: var(--ngp-menu-transform-origin);
       animation: menu-show 300ms ease-out;
     }
 

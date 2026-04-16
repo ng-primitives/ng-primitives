@@ -13,7 +13,14 @@ import {
   NgpPosition,
   NgpShift,
 } from 'ng-primitives/portal';
-import { controlled, createPrimitive, dataBinding, listener, onDestroy } from 'ng-primitives/state';
+import {
+  controlled,
+  createPrimitive,
+  dataBinding,
+  listener,
+  onDestroy,
+  styleBinding,
+} from 'ng-primitives/state';
 
 export interface NgpContextMenuTriggerState {
   /**
@@ -130,9 +137,9 @@ export const [
     // Host bindings
     dataBinding(element, 'data-open', open);
 
-    // Prevent iOS text selection and callout on long-press
-    const el = element.nativeElement as HTMLElement;
-    el.style.setProperty('-webkit-touch-callout', 'none');
+    // Prevent iOS text selection and callout on long-press.
+    // Only apply when the trigger is enabled so disabled triggers retain native behavior.
+    styleBinding(element, '-webkit-touch-callout', () => (disabled?.() ? null : 'none'));
 
     // Long-press state
     let longPressTimer: ReturnType<typeof setTimeout> | null = null;
