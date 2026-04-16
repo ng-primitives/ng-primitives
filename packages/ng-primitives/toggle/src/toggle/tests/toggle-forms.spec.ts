@@ -99,6 +99,9 @@ describe('Toggle (reusable component) — reactive forms', () => {
 
   it('does not loop writeValue back through onChange (regression)', async () => {
     const formControl = new FormControl(false);
+    const spy = jest.fn();
+    formControl.valueChanges.subscribe(spy);
+
     const { fixture } = await render(
       `<button app-toggle [formControl]="formControl">Toggle</button>`,
       {
@@ -107,8 +110,8 @@ describe('Toggle (reusable component) — reactive forms', () => {
       },
     );
 
-    const spy = jest.fn();
-    formControl.valueChanges.subscribe(spy);
+    // Initial writeValue during form hookup must NOT emit on valueChanges.
+    expect(spy).not.toHaveBeenCalled();
 
     formControl.setValue(true);
     fixture.detectChanges();
