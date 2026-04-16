@@ -66,102 +66,88 @@ The following directives are available to import from the `ng-primitives/context
 
 <api-docs name="NgpContextMenuTrigger"></api-docs>
 
-#### Data Attributes
+<api-reference-props name="NgpContextMenuTrigger"></api-reference-props>
 
-The following data attributes are available on the `NgpContextMenuTrigger` directive:
-
-| Attribute   | Description                            |
-| ----------- | -------------------------------------- |
-| `data-open` | Applied when the context menu is open. |
+<api-reference-attributes>
+  <api-attribute name="data-open" description="Applied when the context menu is open." />
+</api-reference-attributes>
 
 ### NgpContextMenu
 
 <api-docs name="NgpContextMenu"></api-docs>
 
-#### Data Attributes
+<api-reference-props name="NgpContextMenu"></api-reference-props>
 
-The following data attributes are available on the `NgpContextMenu` directive:
+<api-reference-attributes>
+  <api-attribute name="data-enter" description="Applied when the menu is being added to the DOM. This can be used to trigger animations." />
+  <api-attribute name="data-exit" description="Applied when the menu is being removed from the DOM. This can be used to trigger animations." />
+  <api-attribute name="data-placement" description="The final rendered placement of the menu." />
+</api-reference-attributes>
 
-| Attribute        | Description                                                                                  |
-| ---------------- | -------------------------------------------------------------------------------------------- |
-| `data-enter`     | Applied when the menu is being added to the DOM. This can be used to trigger animations.     |
-| `data-exit`      | Applied when the menu is being removed from the DOM. This can be used to trigger animations. |
-| `data-placement` | The final rendered placement of the menu.                                                    |
-
-The following CSS custom properties are applied to the `ngpContextMenu` directive:
-
-| Property                      | Description                                                        |
-| ----------------------------- | ------------------------------------------------------------------ |
-| `--ngp-menu-transform-origin` | The transform origin of the menu for animations.                   |
-| `--ngp-menu-trigger-width`    | The width of the trigger element.                                  |
-| `--ngp-menu-available-width`  | The available width of the menu before it overflows the viewport.  |
-| `--ngp-menu-available-height` | The available height of the menu before it overflows the viewport. |
+<api-reference-css-vars>
+  <api-css-var name="--ngp-menu-transform-origin" description="The transform origin of the menu for animations." />
+  <api-css-var name="--ngp-menu-trigger-width" description="The width of the trigger element." />
+  <api-css-var name="--ngp-menu-available-width" description="The available width of the menu before it overflows the viewport." />
+  <api-css-var name="--ngp-menu-available-height" description="The available height of the menu before it overflows the viewport." />
+</api-reference-css-vars>
 
 ### NgpContextMenuItem
 
 <api-docs name="NgpContextMenuItem"></api-docs>
 
-#### Data Attributes
+<api-reference-props name="NgpContextMenuItem"></api-reference-props>
 
-The following data attributes are available on the `NgpContextMenuItem` directive:
-
-| Attribute       | Description                        |
-| --------------- | ---------------------------------- |
-| `data-disabled` | Applied when the item is disabled. |
+<api-reference-attributes>
+  <api-attribute name="data-disabled" description="Applied when the item is disabled." />
+</api-reference-attributes>
 
 ### NgpContextMenuSubmenuTrigger
 
 <api-docs name="NgpContextMenuSubmenuTrigger"></api-docs>
 
-#### Data Attributes
+<api-reference-props name="NgpContextMenuSubmenuTrigger"></api-reference-props>
 
-The following data attributes are available on the `NgpContextMenuSubmenuTrigger` directive:
-
-| Attribute   | Description                       |
-| ----------- | --------------------------------- |
-| `data-open` | Applied when the submenu is open. |
+<api-reference-attributes>
+  <api-attribute name="data-open" description="Applied when the submenu is open." />
+</api-reference-attributes>
 
 ### NgpContextMenuItemCheckbox
 
 <api-docs name="NgpContextMenuItemCheckbox"></api-docs>
 
-#### Data Attributes
+<api-reference-props name="NgpContextMenuItemCheckbox"></api-reference-props>
 
-The following data attributes are available on the `NgpContextMenuItemCheckbox` directive:
-
-| Attribute       | Description                                 |
-| --------------- | ------------------------------------------- |
-| `data-checked`  | Applied when the checkbox item is checked.  |
-| `data-disabled` | Applied when the checkbox item is disabled. |
+<api-reference-attributes>
+  <api-attribute name="data-checked" description="Applied when the checkbox item is checked." />
+  <api-attribute name="data-disabled" description="Applied when the checkbox item is disabled." />
+</api-reference-attributes>
 
 ### NgpContextMenuItemRadioGroup
 
 <api-docs name="NgpContextMenuItemRadioGroup"></api-docs>
 
+<api-reference-props name="NgpContextMenuItemRadioGroup"></api-reference-props>
+
 ### NgpContextMenuItemRadio
 
 <api-docs name="NgpContextMenuItemRadio"></api-docs>
 
-#### Data Attributes
+<api-reference-props name="NgpContextMenuItemRadio"></api-reference-props>
 
-The following data attributes are available on the `NgpContextMenuItemRadio` directive:
-
-| Attribute       | Description                              |
-| --------------- | ---------------------------------------- |
-| `data-checked`  | Applied when the radio item is checked.  |
-| `data-disabled` | Applied when the radio item is disabled. |
+<api-reference-attributes>
+  <api-attribute name="data-checked" description="Applied when the radio item is checked." />
+  <api-attribute name="data-disabled" description="Applied when the radio item is disabled." />
+</api-reference-attributes>
 
 ### NgpContextMenuItemIndicator
 
 <api-docs name="NgpContextMenuItemIndicator"></api-docs>
 
-#### Data Attributes
+<api-reference-props name="NgpContextMenuItemIndicator"></api-reference-props>
 
-The following data attributes are available on the `NgpContextMenuItemIndicator` directive:
-
-| Attribute      | Description                                           |
-| -------------- | ----------------------------------------------------- |
-| `data-checked` | Applied when the parent checkbox or radio is checked. |
+<api-reference-attributes>
+  <api-attribute name="data-checked" description="Applied when the parent checkbox or radio is checked." />
+</api-reference-attributes>
 
 ## Styling
 
@@ -210,25 +196,7 @@ bootstrapApplication(AppComponent, {
 
 ### NgpContextMenuConfig
 
-<prop-details name="offset" type="number | NgpOffsetOptions">
-  Define the offset from the cursor position. Can be a number (applies to mainAxis) or an object with mainAxis, crossAxis, and alignmentAxis properties.
-</prop-details>
-
-<prop-details name="flip" type="boolean">
-  Define if the context menu should flip when it reaches the edge of the viewport.
-</prop-details>
-
-<prop-details name="container" type="HTMLElement | string | null" default="'body'">
-  Define the container element for the context menu. This is the document body by default.
-</prop-details>
-
-<prop-details name="scrollBehavior" type="'reposition' | 'block' | 'close'" default="'close'">
-  Defines how the context menu behaves when the window is scrolled. If set to `close`, the context menu will close when the window is scrolled. If set to `reposition`, the menu will adjust its position. If set to `block`, scrolling will be disabled.
-</prop-details>
-
-<prop-details name="shift" type="boolean | NgpShiftOptions">
-  Configure shift behavior to keep the context menu in view.
-</prop-details>
+<api-reference-config name="NgpContextMenuConfig"></api-reference-config>
 
 ## Accessibility
 
