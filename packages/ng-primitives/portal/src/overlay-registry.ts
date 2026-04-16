@@ -42,6 +42,8 @@ export interface NgpOverlayEntry {
   anchorElement?: HTMLElement | null;
   /** Per-instance dismiss configuration */
   dismissPolicy: NgpDismissPolicy;
+  /** If true, clicks on the trigger element are treated as outside clicks */
+  treatTriggerClickAsOutside?: boolean;
   /** Optional subject that receives pointer events that occur outside the overlay */
   outsidePointerEvents$?: Subject<MouseEvent>;
 }
@@ -267,6 +269,14 @@ export class NgpOverlayRegistry {
       return;
     }
 
+    // Ignore right-click mouseup — right-clicks open context menus via the
+    // `contextmenu` event, and the corresponding mouseup should never dismiss
+    // an overlay. If the user right-clicks elsewhere, the new `contextmenu`
+    // event on that target will handle repositioning or reopening.
+    if (event.button === 2) {
+      return;
+    }
+
     // Ignore scrollbar clicks — the click lands outside the viewport's client area.
     const { clientWidth, clientHeight } = this.document.documentElement;
     if (
@@ -356,7 +366,8 @@ export class NgpOverlayRegistry {
    */
   private isClickOutsideEntry(entry: NgpOverlayEntry, path: EventTarget[]): boolean {
     const isInsideElements = entry.getElements().some(el => path.includes(el));
-    const isInsideTrigger = path.includes(entry.triggerElement);
+    const isInsideTrigger =
+      !entry.treatTriggerClickAsOutside && path.includes(entry.triggerElement);
     const isInsideAnchor = entry.anchorElement ? path.includes(entry.anchorElement) : false;
     return !(isInsideElements || isInsideTrigger || isInsideAnchor);
   }

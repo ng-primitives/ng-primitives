@@ -35,6 +35,7 @@ export {
 } from './menu-item-radio/menu-item-radio-state';
 export { NgpMenuTrigger, type NgpMenuPlacement } from './menu-trigger/menu-trigger';
 export {
+  NgpMenuTriggerStateToken,
   ngpMenuTrigger,
   injectMenuTriggerState,
   NgpMenuTriggerProps,
@@ -51,6 +52,7 @@ export {
 } from './menu/menu-state';
 export { NgpSubmenuTrigger } from './submenu-trigger/submenu-trigger';
 export {
+  NgpSubmenuTriggerStateToken,
   ngpSubmenuTrigger,
   injectSubmenuTriggerState,
   NgpSubmenuTriggerProps,

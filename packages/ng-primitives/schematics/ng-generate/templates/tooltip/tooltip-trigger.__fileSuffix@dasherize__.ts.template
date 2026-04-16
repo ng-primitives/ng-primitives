@@ -16,6 +16,7 @@ import { Tooltip } from './tooltip';
         'ngpTooltipTriggerFlip:appTooltipTriggerFlip',
         'ngpTooltipTriggerContainer:appTooltipTriggerContainer',
         'ngpTooltipTriggerShowOnOverflow:appTooltipTriggerShowOnOverflow',
+        'ngpTooltipTriggerHoverableContent:appTooltipTriggerHoverableContent',
         'ngpTooltipTriggerContext:appTooltipTrigger',
       ],
     },
