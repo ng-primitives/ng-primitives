@@ -1,3 +1,15 @@
+## 0.116.0 (2026-04-16)
+
+### 🚀 Features
+
+- **toggle:** support defaultSelected for uncontrolled usage ([#723](https://github.com/ng-primitives/ng-primitives/pull/723), [#722](https://github.com/ng-primitives/ng-primitives/issues/722))
+
+### ❤️ Thank You
+
+- Ashley Hunter
+- Claude Opus 4.6 (1M context)
+- Clément Loridan
+
 ## 0.115.2 (2026-04-15)
 
 ### 🩹 Fixes
