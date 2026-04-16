@@ -256,12 +256,18 @@ html.dark .shiki span {
   display: none;
 }
 
-/* Responsive API props table — hide Default column on small screens */
+/* Responsive API props table — progressively show columns at wider breakpoints */
 .api-props-grid {
-  grid-template-columns: 5fr 7fr 2rem;
+  grid-template-columns: 1fr 2rem;
 }
 
-@media (min-width: 768px) {
+@media (min-width: 40rem) {
+  .api-props-grid {
+    grid-template-columns: 5fr 7fr 2rem;
+  }
+}
+
+@media (min-width: 48rem) {
   .api-props-grid {
     grid-template-columns: 5fr 7fr 4.5fr 2rem;
   }

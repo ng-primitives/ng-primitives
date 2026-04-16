@@ -8,7 +8,7 @@
     aria-hidden="true"
   >
     <span>Prop</span>
-    <span>Type</span>
+    <span class="hidden sm:block">Type</span>
     <span class="hidden md:block">Default</span>
     <span></span>
   </div>
@@ -25,7 +25,7 @@
       <span class="api-cell pr-3">
         <code class="font-mono text-zinc-900 dark:text-white">{{ prop.name }}</code>
       </span>
-      <span class="api-cell pr-3">
+      <span class="api-cell hidden pr-3 sm:block">
         <code class="font-mono text-indigo-600 dark:text-indigo-400">{{ prop.type }}</code>
       </span>
       <span class="api-cell hidden pr-3 md:block">
@@ -88,7 +88,7 @@
       <span class="api-cell pr-3">
         <code class="font-mono text-zinc-900 dark:text-white">{{ prop.name }}</code>
       </span>
-      <span class="api-cell pr-3">
+      <span class="api-cell hidden pr-3 sm:block">
         <code class="font-mono text-indigo-600 dark:text-indigo-400">
           {{ outputType(prop.type) }}
         </code>
