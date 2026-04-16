@@ -148,11 +148,11 @@ export const [
     listener(element, 'pointercancel', onPointerCancel);
 
     function onContextMenu(event: MouseEvent): void {
-      event.preventDefault();
-
       if (disabled?.()) {
         return;
       }
+
+      event.preventDefault();
 
       // If long-press already triggered, don't re-open
       if (longPressTriggered) {

@@ -166,11 +166,11 @@ The `ngpContextMenu` primitive adds a CSS custom property `--ngp-menu-transform-
 The `ngpContextMenu` will also add the `data-enter` and `data-exit` attributes to the element when it is being added or removed from the DOM. This can be used to trigger animations.
 
 ```css
-:host[data-enter] {
+[ngpContextMenu][data-enter] {
   animation: fade-in 0.2s ease-in-out;
 }
 
-:host[data-exit] {
+[ngpContextMenu][data-exit] {
   animation: fade-out 0.2s ease-in-out;
 }
 ```
