@@ -106,39 +106,43 @@ The following directives are available to import from the `ng-primitives/select`
 
 <api-docs name="NgpSelect"></api-docs>
 
+<api-reference-props name="NgpSelect"></api-reference-props>
+
 ### NgpSelectDropdown
 
 <api-docs name="NgpSelectDropdown"></api-docs>
+
+<api-reference-props name="NgpSelectDropdown"></api-reference-props>
 
 ### NgpSelectPortal
 
 <api-docs name="NgpSelectPortal"></api-docs>
 
+<api-reference-props name="NgpSelectPortal"></api-reference-props>
+
 ### NgpSelectOption
 
 <api-docs name="NgpSelectOption"></api-docs>
+
+<api-reference-props name="NgpSelectOption"></api-reference-props>
 
 ### NgpNativeSelect
 
 <api-docs name="NgpNativeSelect"></api-docs>
 
-#### Data Attributes
+<api-reference-props name="NgpNativeSelect"></api-reference-props>
 
-| Attribute            | Description                           |
-| -------------------- | ------------------------------------- |
-| `data-hover`         | Applied when the element is hovered.  |
-| `data-focus-visible` | Applied when the element is focused.  |
-| `data-disabled`      | Applied when the element is disabled. |
+<api-reference-attributes>
+  <api-attribute name="data-hover" description="Applied when the element is hovered." />
+  <api-attribute name="data-focus-visible" description="Applied when the element is focused." />
+  <api-attribute name="data-disabled" description="Applied when the element is disabled." />
+</api-reference-attributes>
 
-#### CSS Custom Properties
-
-The following CSS custom properties are applied to the `ngpSelectDropdown` directive:
-
-| Property                        | Description                                                            |
-| ------------------------------- | ---------------------------------------------------------------------- |
-| `--ngp-select-transform-origin` | The transform origin of the select dropdown for animations.            |
-| `--ngp-select-available-width`  | The available width of the dropdown before it overflows the viewport.  |
-| `--ngp-select-available-height` | The available height of the dropdown before it overflows the viewport. |
+<api-reference-css-vars>
+  <api-css-var name="--ngp-select-transform-origin" description="The transform origin of the select dropdown for animations." />
+  <api-css-var name="--ngp-select-available-width" description="The available width of the dropdown before it overflows the viewport." />
+  <api-css-var name="--ngp-select-available-height" description="The available height of the dropdown before it overflows the viewport." />
+</api-reference-css-vars>
 
 ## Global Configuration
 
@@ -154,17 +158,7 @@ bootstrapApplication(AppComponent, {
 
 ### NgpSelectConfig
 
-<prop-details name="placement" type="Placement" default="'bottom'">
-  Define the placement of the select dropdown.
-</prop-details>
-
-<prop-details name="container" type="HTMLElement" default="document.body">
-  Define the container element for the select dropdown. This is useful for rendering the dropdown in a specific part of the DOM.
-</prop-details>
-
-<prop-details name="flip" type="boolean" default="true">
-  Define whether the dropdown should flip to the opposite side when there is not enough space.
-</prop-details>
+<api-reference-config name="NgpSelectConfig"></api-reference-config>
 
 ## Accessibility
 

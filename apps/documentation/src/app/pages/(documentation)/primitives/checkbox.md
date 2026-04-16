@@ -67,14 +67,16 @@ The following directives are available to import from the `ng-primitives/checkbo
 
 <api-docs name="NgpCheckbox"></api-docs>
 
-| Attribute            | Description                                 |
-| -------------------- | ------------------------------------------- |
-| `data-checked`       | Applied when the checkbox is checked.       |
-| `data-indeterminate` | Applied when the checkbox is indeterminate. |
-| `data-disabled`      | Applied when the checkbox is disabled.      |
-| `data-hover`         | Applied when the checkbox is hovered.       |
-| `data-focus-visible` | Applied when the checkbox is focused.       |
-| `data-press`         | Applied when the checkbox is pressed.       |
+<api-reference-props name="NgpCheckbox"></api-reference-props>
+
+<api-reference-attributes>
+  <api-attribute name="data-checked" description="Applied when the checkbox is checked." />
+  <api-attribute name="data-indeterminate" description="Applied when the checkbox is indeterminate." />
+  <api-attribute name="data-disabled" description="Applied when the checkbox is disabled." />
+  <api-attribute name="data-hover" description="Applied when the checkbox is hovered." />
+  <api-attribute name="data-focus-visible" description="Applied when the checkbox is focused." />
+  <api-attribute name="data-press" description="Applied when the checkbox is pressed." />
+</api-reference-attributes>
 
 ## Accessibility
 

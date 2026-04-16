@@ -106,33 +106,31 @@ The following directives are available to import from the `ng-primitives/tooltip
 
 <api-docs name="NgpTooltip"></api-docs>
 
-#### Data Attributes
+<api-reference-props name="NgpTooltip"></api-reference-props>
 
-| Attribute        | Description                                                                                     |
-| ---------------- | ----------------------------------------------------------------------------------------------- |
-| `data-enter`     | Applied when the tooltip is being added to the DOM. This can be used to trigger animations.     |
-| `data-exit`      | Applied when the tooltip is being removed from the DOM. This can be used to trigger animations. |
-| `data-placement` | The final rendered placement of the tooltip.                                                    |
+<api-reference-attributes>
+  <api-attribute name="data-enter" description="Applied when the tooltip is being added to the DOM. This can be used to trigger animations." />
+  <api-attribute name="data-exit" description="Applied when the tooltip is being removed from the DOM. This can be used to trigger animations." />
+  <api-attribute name="data-placement" description="The final rendered placement of the tooltip." />
+</api-reference-attributes>
 
-The following CSS custom properties are applied to the `ngpTooltip` directive:
-
-| Property                         | Description                                                           |
-| -------------------------------- | --------------------------------------------------------------------- |
-| `--ngp-tooltip-transform-origin` | The transform origin of the tooltip for animations.                   |
-| `--ngp-tooltip-trigger-width`    | The width of the trigger element.                                     |
-| `--ngp-tooltip-available-width`  | The available width of the tooltip before it overflows the viewport.  |
-| `--ngp-tooltip-available-height` | The available height of the tooltip before it overflows the viewport. |
+<api-reference-css-vars>
+  <api-css-var name="--ngp-tooltip-transform-origin" description="The transform origin of the tooltip for animations." />
+  <api-css-var name="--ngp-tooltip-trigger-width" description="The width of the trigger element." />
+  <api-css-var name="--ngp-tooltip-available-width" description="The available width of the tooltip before it overflows the viewport." />
+  <api-css-var name="--ngp-tooltip-available-height" description="The available height of the tooltip before it overflows the viewport." />
+</api-reference-css-vars>
 
 ### NgpTooltipTrigger
 
 <api-docs name="NgpTooltipTrigger"></api-docs>
 
-#### Data Attributes
+<api-reference-props name="NgpTooltipTrigger"></api-reference-props>
 
-| Attribute       | Description                           |
-| --------------- | ------------------------------------- |
-| `data-open`     | Applied when the tooltip is open.     |
-| `data-disabled` | Applied when the tooltip is disabled. |
+<api-reference-attributes>
+  <api-attribute name="data-open" description="Applied when the tooltip is open." />
+  <api-attribute name="data-disabled" description="Applied when the tooltip is disabled." />
+</api-reference-attributes>
 
 ### NgpTooltipArrow
 
@@ -152,11 +150,11 @@ The arrow can be styled conditionally based on the tooltip's final placement usi
 
 <api-docs name="NgpTooltipArrow"></api-docs>
 
-#### Data Attributes
+<api-reference-props name="NgpTooltipArrow"></api-reference-props>
 
-| Attribute        | Description                                  |
-| ---------------- | -------------------------------------------- |
-| `data-placement` | The final rendered placement of the tooltip. |
+<api-reference-attributes>
+  <api-attribute name="data-placement" description="The final rendered placement of the tooltip." />
+</api-reference-attributes>
 
 ## Using Text Content as Tooltip
 
@@ -283,81 +281,7 @@ bootstrapApplication(AppComponent, {
 
 ### NgpTooltipConfig
 
-<prop-details name="offset" type="number | NgpOffsetOptions" default="4">
-Define the offset from the trigger element. Can be a number (applies to mainAxis) or an object with mainAxis, crossAxis, and alignmentAxis properties.
-
-**Number format:** `offset: 8` - Applies to mainAxis (distance from trigger)
-
-**Object format:**
-
-```ts
-offset: {
-  mainAxis: 8,     // Distance between tooltip and trigger element
-  crossAxis: 4,    // Skidding along the alignment axis
-  alignmentAxis: 2 // Same as crossAxis but for aligned placements
-}
-```
-
-</prop-details>
-
-<prop-details name="shift" type="boolean | NgpShiftOptions" default="true">
-Define the shift behavior to keep the tooltip in view. When enabled (default), the tooltip will shift along its axis to stay visible when it would otherwise overflow the viewport. Set to `false` to disable.
-
-**Boolean format:** `shift: false` - Disables shift behavior
-
-**Object format:**
-
-```ts
-shift: {
-  padding: 8,     // Minimum padding between tooltip and viewport edges
-  limiter: {      // Optional limiter to control shifting behavior
-    fn: limitShift,
-    options: { /* limiter options */ }
-  }
-}
-```
-
-</prop-details>
-
-<prop-details name="placement" type="'top' | 'right' | 'bottom' | 'left'" default="top">
-  Define the placement of the tooltip.
-</prop-details>
-
-<prop-details name="showDelay" type="number" default="0">
-  Define the delay before the tooltip shows.
-</prop-details>
-
-<prop-details name="hideDelay" type="number" default="500">
-  Define the delay before the tooltip hides.
-</prop-details>
-
-<prop-details name="flip" type="boolean" default="true">
-  Define if the tooltip should flip when it reaches the edge of the viewport.
-</prop-details>
-
-<prop-details name="container" type="HTMLElement" default="document.body">
-  Define the container element for the tooltip. This is the document body by default.
-</prop-details>
-
-<prop-details name="showOnOverflow" type="boolean" default="false">
-  Define if the tooltip should only show when the trigger element has overflowing content. This is useful for showing tooltips only when content is truncated.
-</prop-details>
-
-<prop-details name="useTextContent" type="boolean" default="true">
-  Define whether to use the text content of the trigger element as the tooltip content. When enabled, the tooltip will automatically display the text content of the trigger element. Note that this requires global styles to work properly since the tooltip is rendered in a portal.
-</prop-details>
-
-<prop-details name="scrollBehavior" type="'reposition' | 'close'" default="reposition">
-  Define how the tooltip behaves when the window is scrolled. When set to `reposition`, the tooltip will reposition itself to stay aligned with the trigger. When set to `close`, the tooltip will close when the user scrolls.
-</prop-details>
-
-<prop-details name="cooldown" type="number" default="300">
-  Define the cooldown duration in milliseconds. When moving from one tooltip to another within this duration, the showDelay is skipped for the new tooltip. This creates a smoother experience when hovering between multiple tooltips.
-</prop-details>
-
-<prop-details name="hoverableContent" type="boolean" default="false">
-  Define whether hovering the tooltip content keeps it open while moving the pointer from the trigger. When enabled, a pointer grace polygon bridges the trigger and tooltip so users can move their cursor into the tooltip without it closing.
-</prop-details>
+<api-reference-config name="NgpTooltipConfig"></api-reference-config>
 
 ## Accessibility
 

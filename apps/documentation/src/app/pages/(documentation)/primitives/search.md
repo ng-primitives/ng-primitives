@@ -61,19 +61,21 @@ The following directives are available to import from the `ng-primitives/search`
 
 <api-docs name="NgpSearch"></api-docs>
 
-#### Data Attributes
+<api-reference-props name="NgpSearch"></api-reference-props>
 
-| Attribute    | Description                      |
-| ------------ | -------------------------------- |
-| `data-empty` | Applied when the input is empty. |
+<api-reference-attributes>
+  <api-attribute name="data-empty" description="Applied when the input is empty." />
+</api-reference-attributes>
 
 ### NgpSearchClear
 
 <api-docs name="NgpSearchClear"></api-docs>
 
-| Attribute    | Description                             |
-| ------------ | --------------------------------------- |
-| `data-empty` | Applied when the search field is empty. |
+<api-reference-props name="NgpSearchClear"></api-reference-props>
+
+<api-reference-attributes>
+  <api-attribute name="data-empty" description="Applied when the search field is empty." />
+</api-reference-attributes>
 
 ## Accessibility
 

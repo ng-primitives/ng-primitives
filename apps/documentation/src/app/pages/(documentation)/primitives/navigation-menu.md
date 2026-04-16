@@ -70,11 +70,11 @@ The root container for the navigation menu. Apply this to a `<nav>` element for 
 
 <api-docs name="NgpNavigationMenu"></api-docs>
 
-#### Data Attributes
+<api-reference-props name="NgpNavigationMenu"></api-reference-props>
 
-| Attribute          | Description                                                  |
-| ------------------ | ------------------------------------------------------------ |
-| `data-orientation` | The orientation of the navigation menu (horizontal/vertical) |
+<api-reference-attributes>
+  <api-attribute name="data-orientation" description="The orientation of the navigation menu (horizontal/vertical)" />
+</api-reference-attributes>
 
 ### NgpNavigationMenuList
 
@@ -82,11 +82,11 @@ A container for navigation menu items. It manages roving focus between menu trig
 
 <api-docs name="NgpNavigationMenuList"></api-docs>
 
-#### Data Attributes
+<api-reference-props name="NgpNavigationMenuList"></api-reference-props>
 
-| Attribute          | Description                                                  |
-| ------------------ | ------------------------------------------------------------ |
-| `data-orientation` | The orientation of the navigation menu (horizontal/vertical) |
+<api-reference-attributes>
+  <api-attribute name="data-orientation" description="The orientation of the navigation menu (horizontal/vertical)" />
+</api-reference-attributes>
 
 ### NgpNavigationMenuItem
 
@@ -94,11 +94,11 @@ A container for a menu trigger and its content. It manages the open/close state 
 
 <api-docs name="NgpNavigationMenuItem"></api-docs>
 
-#### Data Attributes
+<api-reference-props name="NgpNavigationMenuItem"></api-reference-props>
 
-| Attribute     | Description                        |
-| ------------- | ---------------------------------- |
-| `data-active` | Applied when the menu item is open |
+<api-reference-attributes>
+  <api-attribute name="data-active" description="Applied when the menu item is open" />
+</api-reference-attributes>
 
 ### NgpNavigationMenuTrigger
 
@@ -106,12 +106,12 @@ A button that opens navigation menu content on hover/focus.
 
 <api-docs name="NgpNavigationMenuTrigger"></api-docs>
 
-#### Data Attributes
+<api-reference-props name="NgpNavigationMenuTrigger"></api-reference-props>
 
-| Attribute       | Description                          |
-| --------------- | ------------------------------------ |
-| `data-open`     | Applied when the content is open     |
-| `data-disabled` | Applied when the trigger is disabled |
+<api-reference-attributes>
+  <api-attribute name="data-open" description="Applied when the content is open" />
+  <api-attribute name="data-disabled" description="Applied when the trigger is disabled" />
+</api-reference-attributes>
 
 ### NgpNavigationMenuContent
 
@@ -119,12 +119,12 @@ The dropdown panel displayed when a trigger is activated.
 
 <api-docs name="NgpNavigationMenuContent"></api-docs>
 
-#### Data Attributes
+<api-reference-props name="NgpNavigationMenuContent"></api-reference-props>
 
-| Attribute        | Description                                 |
-| ---------------- | ------------------------------------------- |
-| `data-open`      | Applied when the content is visible         |
-| `data-placement` | The final rendered placement of the content |
+<api-reference-attributes>
+  <api-attribute name="data-open" description="Applied when the content is visible" />
+  <api-attribute name="data-placement" description="The final rendered placement of the content" />
+</api-reference-attributes>
 
 ### NgpNavigationMenuLink
 
@@ -132,12 +132,12 @@ A standalone navigation link within the menu list.
 
 <api-docs name="NgpNavigationMenuLink"></api-docs>
 
-#### Data Attributes
+<api-reference-props name="NgpNavigationMenuLink"></api-reference-props>
 
-| Attribute       | Description                                       |
-| --------------- | ------------------------------------------------- |
-| `data-active`   | Applied when the link represents the current page |
-| `data-disabled` | Applied when the link is disabled                 |
+<api-reference-attributes>
+  <api-attribute name="data-active" description="Applied when the link represents the current page" />
+  <api-attribute name="data-disabled" description="Applied when the link is disabled" />
+</api-reference-attributes>
 
 ## Accessibility
 
@@ -231,38 +231,4 @@ bootstrapApplication(AppComponent, {
 
 ### NgpNavigationMenuConfig
 
-<prop-details name="orientation" type="'horizontal' | 'vertical'" default="horizontal">
-Define the orientation of the navigation menu.
-</prop-details>
-
-<prop-details name="showDelay" type="number" default="200">
-Define the delay in milliseconds before showing content on hover.
-</prop-details>
-
-<prop-details name="hideDelay" type="number" default="150">
-Define the delay in milliseconds before hiding content.
-</prop-details>
-
-<prop-details name="placement" type="Placement" default="bottom-start">
-Define the placement of the content relative to the trigger.
-</prop-details>
-
-<prop-details name="offset" type="number | NgpOffsetOptions" default="4">
-Define the offset from the trigger element.
-</prop-details>
-
-<prop-details name="flip" type="boolean" default="true">
-Define if the content should flip when it reaches the edge of the viewport.
-</prop-details>
-
-<prop-details name="wrap" type="boolean" default="true">
-Define if focus should wrap around when navigating with arrow keys.
-</prop-details>
-
-<prop-details name="shift" type="boolean | NgpShiftOptions" default="undefined">
-Configure shift behavior to keep the content in view when it would overflow the viewport.
-</prop-details>
-
-<prop-details name="cooldown" type="number" default="300">
-Define the cooldown duration in milliseconds. When moving from one menu item to another within this duration, the showDelay is skipped and transitions are instant.
-</prop-details>
+<api-reference-config name="NgpNavigationMenuConfig"></api-reference-config>

@@ -70,45 +70,39 @@ The following directives are available to import from the `ng-primitives/radio` 
 
 <api-docs name="NgpRadioGroup"></api-docs>
 
-#### Data Attributes
+<api-reference-props name="NgpRadioGroup"></api-reference-props>
 
-The following data attributes are applied to the `ngpRadioGroup` directive:
-
-| Attribute          | Description                               | Value                      |
-| ------------------ | ----------------------------------------- | -------------------------- |
-| `data-orientation` | The orientation of the radio group.       | `vertical` \| `horizontal` |
-| `data-disabled`    | Applied when the radio group is disabled. | `-`                        |
+<api-reference-attributes>
+  <api-attribute name="data-orientation" description="The orientation of the radio group." value="vertical | horizontal" />
+  <api-attribute name="data-disabled" description="Applied when the radio group is disabled." />
+</api-reference-attributes>
 
 ### NgpRadioItem
 
 <api-docs name="NgpRadioItem"></api-docs>
 
-#### Data Attributes
+<api-reference-props name="NgpRadioItem"></api-reference-props>
 
-The following data attributes are applied to the `ngpRadioItem` directive:
-
-| Attribute            | Description                              |
-| -------------------- | ---------------------------------------- |
-| `data-checked`       | Applied when the radio item is checked.  |
-| `data-disabled`      | Applied when the radio item is disabled. |
-| `data-hover`         | Applied when the radio item is hovered.  |
-| `data-focus-visible` | Applied when the radio item is focused.  |
-| `data-press`         | Applied when the radio item is pressed.  |
+<api-reference-attributes>
+  <api-attribute name="data-checked" description="Applied when the radio item is checked." />
+  <api-attribute name="data-disabled" description="Applied when the radio item is disabled." />
+  <api-attribute name="data-hover" description="Applied when the radio item is hovered." />
+  <api-attribute name="data-focus-visible" description="Applied when the radio item is focused." />
+  <api-attribute name="data-press" description="Applied when the radio item is pressed." />
+</api-reference-attributes>
 
 ### NgpRadioIndicator
 
 <api-docs name="NgpRadioIndicator"></api-docs>
 
-#### Data Attributes
+<api-reference-props name="NgpRadioIndicator"></api-reference-props>
 
-The following data attributes are applied to the `ngpRadioItem` directive:
-
-| Attribute       | Description                              |
-| --------------- | ---------------------------------------- |
-| `data-checked`  | Applied when the radio item is checked.  |
-| `data-disabled` | Applied when the radio item is disabled. |
-| `data-hover`    | Applied when the radio item is hovered.  |
-| `data-press`    | Applied when the radio item is pressed.  |
+<api-reference-attributes>
+  <api-attribute name="data-checked" description="Applied when the radio item is checked." />
+  <api-attribute name="data-disabled" description="Applied when the radio item is disabled." />
+  <api-attribute name="data-hover" description="Applied when the radio item is hovered." />
+  <api-attribute name="data-press" description="Applied when the radio item is pressed." />
+</api-reference-attributes>
 
 ## Accessibility
 

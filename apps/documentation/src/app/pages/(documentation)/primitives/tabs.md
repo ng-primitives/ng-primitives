@@ -64,55 +64,47 @@ The following directives are available to import from the `ng-primitives/tabs` p
 
 <api-docs name="NgpTabset"></api-docs>
 
-#### Data Attributes
+<api-reference-props name="NgpTabset"></api-reference-props>
 
-The following data attributes are applied to the `ngpTabset` directive:
-
-| Attribute          | Description                  | Value                      |
-| ------------------ | ---------------------------- | -------------------------- |
-| `data-orientation` | The orientation of the tabs. | `horizontal` \| `vertical` |
+<api-reference-attributes>
+  <api-attribute name="data-orientation" description="The orientation of the tabs." value="horizontal | vertical" />
+</api-reference-attributes>
 
 ### NgpTabList
 
 <api-docs name="NgpTabList"></api-docs>
 
-#### Data Attributes
+<api-reference-props name="NgpTabList"></api-reference-props>
 
-The following data attributes are applied to the `ngpTabList` directive:
-
-| Attribute          | Description                  | Value                      |
-| ------------------ | ---------------------------- | -------------------------- |
-| `data-orientation` | The orientation of the tabs. | `horizontal` \| `vertical` |
+<api-reference-attributes>
+  <api-attribute name="data-orientation" description="The orientation of the tabs." value="horizontal | vertical" />
+</api-reference-attributes>
 
 ### NgpTabButton
 
 <api-docs name="NgpTabButton"></api-docs>
 
-#### Data Attributes
+<api-reference-props name="NgpTabButton"></api-reference-props>
 
-The following data attributes are applied to the `ngpTabButton` directive:
-
-| Attribute            | Description                       | Value                      |
-| -------------------- | --------------------------------- | -------------------------- |
-| `data-orientation`   | The orientation of the tabs.      | `horizontal` \| `vertical` |
-| `data-active`        | Applied when the tab is active.   | `-`                        |
-| `data-disabled`      | Applied when the tab is disabled. | `-`                        |
-| `data-hover`         | Applied when the tab is hovered.  | `-`                        |
-| `data-focus-visible` | Applied when the tab is focused.  | `-`                        |
-| `data-press`         | Applied when the tab is pressed.  | `-`                        |
+<api-reference-attributes>
+  <api-attribute name="data-orientation" description="The orientation of the tabs." value="horizontal | vertical" />
+  <api-attribute name="data-active" description="Applied when the tab is active." />
+  <api-attribute name="data-disabled" description="Applied when the tab is disabled." />
+  <api-attribute name="data-hover" description="Applied when the tab is hovered." />
+  <api-attribute name="data-focus-visible" description="Applied when the tab is focused." />
+  <api-attribute name="data-press" description="Applied when the tab is pressed." />
+</api-reference-attributes>
 
 ### NgpTabPanel
 
 <api-docs name="NgpTabPanel"></api-docs>
 
-#### Data Attributes
+<api-reference-props name="NgpTabPanel"></api-reference-props>
 
-The following data attributes are applied to the `ngpTabPanel` directive:
-
-| Attribute          | Description                     | Value                      |
-| ------------------ | ------------------------------- | -------------------------- |
-| `data-active`      | Applied when the tab is active. | `-`                        |
-| `data-orientation` | The orientation of the tabs.    | `horizontal` \| `vertical` |
+<api-reference-attributes>
+  <api-attribute name="data-active" description="Applied when the tab is active." />
+  <api-attribute name="data-orientation" description="The orientation of the tabs." value="horizontal | vertical" />
+</api-reference-attributes>
 
 ## Global Configuration
 
@@ -136,17 +128,7 @@ bootstrapApplication(AppComponent, {
 
 The following options are available to configure the default tab options:
 
-<prop-details name="orientation" type="'horizontal' | 'vertical'" default="horizontal">
-  Define the default orientation of the tabs.
-</prop-details>
-
-<prop-details name="activateOnFocus" type="boolean" default="false">
-  Define whether the tab should activate on focus.
-</prop-details>
-
-<prop-details name="wrap" type="boolean" default="false">
-  Define whether the tabs should wrap around the tab list.
-</prop-details>
+<api-reference-config name="NgpTabsConfig"></api-reference-config>
 
 ## Accessibility
 

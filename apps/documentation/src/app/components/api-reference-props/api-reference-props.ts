@@ -1,16 +1,19 @@
 import { ChangeDetectionStrategy, Component, input, OnInit, signal } from '@angular/core';
+import { NgIcon, provideIcons } from '@ng-icons/core';
+import { phosphorCaretDown } from '@ng-icons/phosphor-icons/regular';
 
 @Component({
-  selector: 'docs-api-docs',
-  templateUrl: './api-docs.html',
+  selector: 'docs-api-reference-props',
+  templateUrl: './api-reference-props.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [NgIcon],
+  providers: [provideIcons({ phosphorCaretDown })],
 })
-export class ApiDocs implements OnInit {
-  /** The name of the directive to document. */
+export class ApiReferenceProps implements OnInit {
   readonly name = input.required<string>();
 
-  /** The found directive definition. */
   readonly directive = signal<DirectiveDefinition | null>(null);
+  readonly expandedRows = signal<Set<string>>(new Set());
 
   async ngOnInit() {
     const definitions = (await import('../../api/documentation.json')) as unknown as Record<
@@ -25,6 +28,31 @@ export class ApiDocs implements OnInit {
     }
 
     this.directive.set(directive);
+  }
+
+  toggleRow(name: string): void {
+    const current = this.expandedRows();
+    const next = new Set(current);
+    if (next.has(name)) {
+      next.delete(name);
+    } else {
+      next.add(name);
+    }
+    this.expandedRows.set(next);
+  }
+
+  isExpanded(name: string): boolean {
+    return this.expandedRows().has(name);
+  }
+
+  expandRow(name: string): void {
+    const next = new Set(this.expandedRows());
+    next.add(name);
+    this.expandedRows.set(next);
+  }
+
+  outputType(type: string): string {
+    return `OutputEmitterRef<${type}>`;
   }
 }
 

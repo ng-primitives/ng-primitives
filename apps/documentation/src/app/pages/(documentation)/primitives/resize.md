@@ -32,3 +32,5 @@ The following directives are available to import from the `ng-primitives/resize`
 ### NgpResize
 
 <api-docs name="NgpResize"></api-docs>
+
+<api-reference-props name="NgpResize"></api-reference-props>
