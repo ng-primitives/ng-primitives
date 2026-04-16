@@ -4,6 +4,7 @@ import { NgpContextMenuItem } from 'ng-primitives/context-menu';
 @Component({
   selector: 'button[app-context-menu-item]',
   hostDirectives: [NgpContextMenuItem],
+  host: { type: 'button' },
   template: `
     <ng-content />
   `,

@@ -130,6 +130,10 @@ export const [
     // Host bindings
     dataBinding(element, 'data-open', open);
 
+    // Prevent iOS text selection and callout on long-press
+    const el = element.nativeElement as HTMLElement;
+    el.style.setProperty('-webkit-touch-callout', 'none');
+
     // Long-press state
     let longPressTimer: ReturnType<typeof setTimeout> | null = null;
     let longPressStartX = 0;
@@ -215,6 +219,7 @@ export const [
         clearTimeout(longPressTimer);
         longPressTimer = null;
       }
+      longPressTriggered = false;
     }
 
     onDestroy(() => cancelLongPress());
