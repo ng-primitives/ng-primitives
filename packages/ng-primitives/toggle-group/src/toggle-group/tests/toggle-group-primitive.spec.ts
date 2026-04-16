@@ -1,6 +1,6 @@
 import { fireEvent, render } from '@testing-library/angular';
-import { NgpToggleGroupItem } from '../toggle-group-item/toggle-group-item';
-import { NgpToggleGroup } from './toggle-group';
+import { NgpToggleGroupItem } from '../../toggle-group-item/toggle-group-item';
+import { NgpToggleGroup } from '../toggle-group';
 
 describe('NgpToggleGroup', () => {
   it('should set the default orientation', async () => {
@@ -52,25 +52,6 @@ describe('NgpToggleGroup', () => {
       const group = getByRole('group');
       expect(group.getAttribute('data-type')).toBe('single');
       expect(group.getAttribute('data-orientation')).toBe('horizontal');
-    });
-
-    it('should allow an initial value', async () => {
-      const { getByTestId } = await render(
-        `
-        <div ngpToggleGroup ngpToggleGroupValue="option-1">
-          <div data-testid="toggle-item-1" ngpToggleGroupItem ngpToggleGroupItemValue="option-1"></div>
-          <div data-testid="toggle-item-2" ngpToggleGroupItem ngpToggleGroupItemValue="option-2"></div>
-        </div>
-        `,
-        {
-          imports: [NgpToggleGroup, NgpToggleGroupItem],
-        },
-      );
-
-      const item1 = getByTestId('toggle-item-1');
-      const item2 = getByTestId('toggle-item-2');
-      expect(item1).toHaveAttribute('data-selected');
-      expect(item2).not.toHaveAttribute('data-selected');
     });
 
     it('should allow deselection', async () => {
@@ -255,6 +236,206 @@ describe('NgpToggleGroup', () => {
     });
   });
 
+  describe('defaultValue (uncontrolled)', () => {
+    it('should initialize with empty array when no defaultValue is provided', async () => {
+      const { getByTestId } = await render(
+        `
+        <div ngpToggleGroup>
+          <div data-testid="toggle-item-1" ngpToggleGroupItem ngpToggleGroupItemValue="option-1"></div>
+          <div data-testid="toggle-item-2" ngpToggleGroupItem ngpToggleGroupItemValue="option-2"></div>
+        </div>
+        `,
+        {
+          imports: [NgpToggleGroup, NgpToggleGroupItem],
+        },
+      );
+
+      expect(getByTestId('toggle-item-1')).not.toHaveAttribute('data-selected');
+      expect(getByTestId('toggle-item-2')).not.toHaveAttribute('data-selected');
+    });
+
+    it('should initialize with defaultValue when provided', async () => {
+      const { getByTestId } = await render(
+        `
+        <div ngpToggleGroup [ngpToggleGroupDefaultValue]="['option-1']">
+          <div data-testid="toggle-item-1" ngpToggleGroupItem ngpToggleGroupItemValue="option-1"></div>
+          <div data-testid="toggle-item-2" ngpToggleGroupItem ngpToggleGroupItemValue="option-2"></div>
+        </div>
+        `,
+        {
+          imports: [NgpToggleGroup, NgpToggleGroupItem],
+        },
+      );
+
+      expect(getByTestId('toggle-item-1')).toHaveAttribute('data-selected');
+      expect(getByTestId('toggle-item-2')).not.toHaveAttribute('data-selected');
+    });
+
+    it('should toggle from defaultValue state on click', async () => {
+      const spy = jest.fn();
+      const { getByTestId } = await render(
+        `
+        <div ngpToggleGroup [ngpToggleGroupDefaultValue]="['option-1']" (ngpToggleGroupValueChange)="onValueChange($event)">
+          <div data-testid="toggle-item-1" ngpToggleGroupItem ngpToggleGroupItemValue="option-1"></div>
+          <div data-testid="toggle-item-2" ngpToggleGroupItem ngpToggleGroupItemValue="option-2"></div>
+        </div>
+        `,
+        {
+          imports: [NgpToggleGroup, NgpToggleGroupItem],
+          componentProperties: { onValueChange: spy },
+        },
+      );
+
+      const item1 = getByTestId('toggle-item-1');
+      const item2 = getByTestId('toggle-item-2');
+      expect(item1).toHaveAttribute('data-selected');
+
+      // Click item2 to select it (single mode replaces)
+      fireEvent.click(item2);
+      expect(spy).toHaveBeenCalledWith(['option-2']);
+      expect(item1).not.toHaveAttribute('data-selected');
+      expect(item2).toHaveAttribute('data-selected');
+    });
+
+    it('should not reset internal state when defaultValue changes after user interaction', async () => {
+      const { getByTestId, rerender } = await render(
+        `
+        <div ngpToggleGroup [ngpToggleGroupDefaultValue]="defaultValue">
+          <div data-testid="toggle-item-1" ngpToggleGroupItem ngpToggleGroupItemValue="option-1"></div>
+          <div data-testid="toggle-item-2" ngpToggleGroupItem ngpToggleGroupItemValue="option-2"></div>
+        </div>
+        `,
+        {
+          imports: [NgpToggleGroup, NgpToggleGroupItem],
+          componentProperties: { defaultValue: ['option-1'] },
+        },
+      );
+
+      const item1 = getByTestId('toggle-item-1');
+      const item2 = getByTestId('toggle-item-2');
+      expect(item1).toHaveAttribute('data-selected');
+
+      // User clicks item2
+      fireEvent.click(item2);
+      expect(item2).toHaveAttribute('data-selected');
+      expect(item1).not.toHaveAttribute('data-selected');
+
+      // Parent changes defaultValue — should NOT reset user's state
+      await rerender({
+        componentProperties: { defaultValue: ['option-1'] },
+      });
+      expect(item2).toHaveAttribute('data-selected');
+      expect(item1).not.toHaveAttribute('data-selected');
+    });
+
+    it('should use controlled value over defaultValue when both provided', async () => {
+      const { getByTestId } = await render(
+        `
+        <div ngpToggleGroup [ngpToggleGroupValue]="['option-2']" [ngpToggleGroupDefaultValue]="['option-1']">
+          <div data-testid="toggle-item-1" ngpToggleGroupItem ngpToggleGroupItemValue="option-1"></div>
+          <div data-testid="toggle-item-2" ngpToggleGroupItem ngpToggleGroupItemValue="option-2"></div>
+        </div>
+        `,
+        {
+          imports: [NgpToggleGroup, NgpToggleGroupItem],
+        },
+      );
+
+      expect(getByTestId('toggle-item-1')).not.toHaveAttribute('data-selected');
+      expect(getByTestId('toggle-item-2')).toHaveAttribute('data-selected');
+    });
+
+    it('should toggle on click with no defaultValue and no value binding', async () => {
+      const spy = jest.fn();
+      const { getByTestId } = await render(
+        `
+        <div ngpToggleGroup (ngpToggleGroupValueChange)="onValueChange($event)">
+          <div data-testid="toggle-item-1" ngpToggleGroupItem ngpToggleGroupItemValue="option-1"></div>
+          <div data-testid="toggle-item-2" ngpToggleGroupItem ngpToggleGroupItemValue="option-2"></div>
+        </div>
+        `,
+        {
+          imports: [NgpToggleGroup, NgpToggleGroupItem],
+          componentProperties: { onValueChange: spy },
+        },
+      );
+
+      const item1 = getByTestId('toggle-item-1');
+      fireEvent.click(item1);
+      expect(spy).toHaveBeenCalledWith(['option-1']);
+      expect(item1).toHaveAttribute('data-selected');
+
+      fireEvent.click(item1);
+      expect(spy).toHaveBeenCalledWith([]);
+      expect(item1).not.toHaveAttribute('data-selected');
+    });
+  });
+
+  describe('controlled mode', () => {
+    it('should reflect controlled value binding', async () => {
+      const { getByTestId } = await render(
+        `
+        <div ngpToggleGroup [ngpToggleGroupValue]="['option-1']">
+          <div data-testid="toggle-item-1" ngpToggleGroupItem ngpToggleGroupItemValue="option-1"></div>
+          <div data-testid="toggle-item-2" ngpToggleGroupItem ngpToggleGroupItemValue="option-2"></div>
+        </div>
+        `,
+        {
+          imports: [NgpToggleGroup, NgpToggleGroupItem],
+        },
+      );
+
+      expect(getByTestId('toggle-item-1')).toHaveAttribute('data-selected');
+      expect(getByTestId('toggle-item-2')).not.toHaveAttribute('data-selected');
+    });
+
+    it('should update the DOM when controlled value changes via two-way binding on click', async () => {
+      const { getByTestId } = await render(
+        `
+        <div ngpToggleGroup [(ngpToggleGroupValue)]="value">
+          <div data-testid="toggle-item-1" ngpToggleGroupItem ngpToggleGroupItemValue="option-1"></div>
+          <div data-testid="toggle-item-2" ngpToggleGroupItem ngpToggleGroupItemValue="option-2"></div>
+        </div>
+        `,
+        {
+          imports: [NgpToggleGroup, NgpToggleGroupItem],
+          componentProperties: { value: [] as string[] },
+        },
+      );
+
+      const item1 = getByTestId('toggle-item-1');
+      fireEvent.click(item1);
+      expect(item1).toHaveAttribute('data-selected');
+
+      fireEvent.click(item1);
+      expect(item1).not.toHaveAttribute('data-selected');
+    });
+
+    it('should emit valueChange on click but not update DOM without parent updating binding', async () => {
+      const spy = jest.fn();
+      const { getByTestId } = await render(
+        `
+        <div ngpToggleGroup [ngpToggleGroupValue]="value" (ngpToggleGroupValueChange)="onValueChange($event)">
+          <div data-testid="toggle-item-1" ngpToggleGroupItem ngpToggleGroupItemValue="option-1"></div>
+          <div data-testid="toggle-item-2" ngpToggleGroupItem ngpToggleGroupItemValue="option-2"></div>
+        </div>
+        `,
+        {
+          imports: [NgpToggleGroup, NgpToggleGroupItem],
+          componentProperties: { value: [] as string[], onValueChange: spy },
+        },
+      );
+
+      const item1 = getByTestId('toggle-item-1');
+      fireEvent.click(item1);
+
+      // onChange fires so the parent can respond
+      expect(spy).toHaveBeenCalledWith(['option-1']);
+      // But DOM stays as the controlled value since parent hasn't updated
+      expect(item1).not.toHaveAttribute('data-selected');
+    });
+  });
+
   describe('Focus Management', () => {
     it('should allow focus wrapping by default', async () => {
       const { getByTestId } = await render(
@@ -274,19 +455,15 @@ describe('NgpToggleGroup', () => {
       const item2 = getByTestId('toggle-item-2');
       const item3 = getByTestId('toggle-item-3');
 
-      // Focus the first item
       item1.focus();
       expect(document.activeElement).toBe(item1);
 
-      // Navigate to the second item with arrow right
       fireEvent.keyDown(item1, { key: 'ArrowRight', code: 'ArrowRight' });
       expect(document.activeElement).toBe(item2);
 
-      // Navigate to the third item with arrow right
       fireEvent.keyDown(item2, { key: 'ArrowRight', code: 'ArrowRight' });
       expect(document.activeElement).toBe(item3);
 
-      // Navigate past the last item should wrap to the first
       fireEvent.keyDown(item3, { key: 'ArrowRight', code: 'ArrowRight' });
       expect(document.activeElement).toBe(item1);
     });
@@ -309,19 +486,15 @@ describe('NgpToggleGroup', () => {
       const item2 = getByTestId('toggle-item-2');
       const item3 = getByTestId('toggle-item-3');
 
-      // Focus the first item
       item1.focus();
       expect(document.activeElement).toBe(item1);
 
-      // Navigate backwards past the first item should wrap to the last
       fireEvent.keyDown(item1, { key: 'ArrowLeft', code: 'ArrowLeft' });
       expect(document.activeElement).toBe(item3);
 
-      // Navigate backwards to the second item
       fireEvent.keyDown(item3, { key: 'ArrowLeft', code: 'ArrowLeft' });
       expect(document.activeElement).toBe(item2);
 
-      // Navigate backwards to the first item
       fireEvent.keyDown(item2, { key: 'ArrowLeft', code: 'ArrowLeft' });
       expect(document.activeElement).toBe(item1);
     });
@@ -344,26 +517,22 @@ describe('NgpToggleGroup', () => {
       const item2 = getByTestId('toggle-item-2');
       const item3 = getByTestId('toggle-item-3');
 
-      // Focus the first item
       item1.focus();
       expect(document.activeElement).toBe(item1);
 
-      // Navigate to the last item
       fireEvent.keyDown(item1, { key: 'ArrowRight', code: 'ArrowRight' });
       fireEvent.keyDown(item2, { key: 'ArrowRight', code: 'ArrowRight' });
       expect(document.activeElement).toBe(item3);
 
-      // Navigate past the last item should NOT wrap to the first
       fireEvent.keyDown(item3, { key: 'ArrowRight', code: 'ArrowRight' });
-      expect(document.activeElement).toBe(item3); // Should stay on the last item
+      expect(document.activeElement).toBe(item3);
 
-      // Navigate backwards past the first item should NOT wrap to the last
       fireEvent.keyDown(item3, { key: 'ArrowLeft', code: 'ArrowLeft' });
       fireEvent.keyDown(item2, { key: 'ArrowLeft', code: 'ArrowLeft' });
       expect(document.activeElement).toBe(item1);
 
       fireEvent.keyDown(item1, { key: 'ArrowLeft', code: 'ArrowLeft' });
-      expect(document.activeElement).toBe(item1); // Should stay on the first item
+      expect(document.activeElement).toBe(item1);
     });
 
     it('should handle focus wrapping in vertical orientation', async () => {
@@ -384,20 +553,16 @@ describe('NgpToggleGroup', () => {
       const item2 = getByTestId('toggle-item-2');
       const item3 = getByTestId('toggle-item-3');
 
-      // Focus the first item
       item1.focus();
       expect(document.activeElement).toBe(item1);
 
-      // Navigate to the last item using arrow down
       fireEvent.keyDown(item1, { key: 'ArrowDown', code: 'ArrowDown' });
       fireEvent.keyDown(item2, { key: 'ArrowDown', code: 'ArrowDown' });
       expect(document.activeElement).toBe(item3);
 
-      // Navigate past the last item should wrap to the first (vertical orientation uses ArrowDown/Up)
       fireEvent.keyDown(item3, { key: 'ArrowDown', code: 'ArrowDown' });
       expect(document.activeElement).toBe(item1);
 
-      // Navigate backwards past the first item should wrap to the last
       fireEvent.keyDown(item1, { key: 'ArrowUp', code: 'ArrowUp' });
       expect(document.activeElement).toBe(item3);
     });
@@ -420,20 +585,16 @@ describe('NgpToggleGroup', () => {
       const item2 = getByTestId('toggle-item-2');
       const item3 = getByTestId('toggle-item-3');
 
-      // Focus the first item
       item1.focus();
       expect(document.activeElement).toBe(item1);
 
-      // Navigate to the last item using arrow down
       fireEvent.keyDown(item1, { key: 'ArrowDown', code: 'ArrowDown' });
       fireEvent.keyDown(item2, { key: 'ArrowDown', code: 'ArrowDown' });
       expect(document.activeElement).toBe(item3);
 
-      // Navigate past the last item should NOT wrap
       fireEvent.keyDown(item3, { key: 'ArrowDown', code: 'ArrowDown' });
       expect(document.activeElement).toBe(item3);
 
-      // Navigate backwards past the first item should NOT wrap
       fireEvent.keyDown(item3, { key: 'ArrowUp', code: 'ArrowUp' });
       fireEvent.keyDown(item2, { key: 'ArrowUp', code: 'ArrowUp' });
       expect(document.activeElement).toBe(item1);
@@ -460,16 +621,13 @@ describe('NgpToggleGroup', () => {
       const item2 = getByTestId('toggle-item-2');
       const item3 = getByTestId('toggle-item-3');
 
-      // Focus the first item
       item1.focus();
       expect(document.activeElement).toBe(item1);
 
-      // Navigate to the last item
       fireEvent.keyDown(item1, { key: 'ArrowRight', code: 'ArrowRight' });
       fireEvent.keyDown(item2, { key: 'ArrowRight', code: 'ArrowRight' });
       expect(document.activeElement).toBe(item3);
 
-      // Navigate past the last item should NOT wrap in multiple type
       fireEvent.keyDown(item3, { key: 'ArrowRight', code: 'ArrowRight' });
       expect(document.activeElement).toBe(item3);
     });
@@ -490,16 +648,14 @@ describe('NgpToggleGroup', () => {
 
       const item1 = getByTestId('toggle-item-1');
 
-      // Focus the first item
       item1.focus();
       expect(document.activeElement).toBe(item1);
 
-      // When disabled, keyboard navigation should not work
       fireEvent.keyDown(item1, { key: 'ArrowRight', code: 'ArrowRight' });
-      expect(document.activeElement).toBe(item1); // Should stay on the first item
+      expect(document.activeElement).toBe(item1);
 
       fireEvent.keyDown(item1, { key: 'ArrowLeft', code: 'ArrowLeft' });
-      expect(document.activeElement).toBe(item1); // Should still stay on the first item
+      expect(document.activeElement).toBe(item1);
     });
   });
 });

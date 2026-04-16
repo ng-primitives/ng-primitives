@@ -1,5 +1,6 @@
 import { BooleanInput } from '@angular/cdk/coercion';
 import { booleanAttribute, Directive, input, output } from '@angular/core';
+import { SetterOptions } from 'ng-primitives/state';
 import { ngpToggle, provideToggleState } from './toggle-state';
 
 /**
@@ -13,10 +14,18 @@ import { ngpToggle, provideToggleState } from './toggle-state';
 export class NgpToggle {
   /**
    * Whether the toggle is selected.
+   */
+  readonly selected = input<boolean | undefined, BooleanInput>(undefined, {
+    alias: 'ngpToggleSelected',
+    transform: booleanAttribute,
+  });
+
+  /**
+   * The default selected state for uncontrolled usage.
    * @default false
    */
-  readonly selected = input<boolean, BooleanInput>(false, {
-    alias: 'ngpToggleSelected',
+  readonly defaultSelected = input<boolean, BooleanInput>(false, {
+    alias: 'ngpToggleDefaultSelected',
     transform: booleanAttribute,
   });
 
@@ -42,6 +51,7 @@ export class NgpToggle {
    */
   protected readonly state = ngpToggle({
     selected: this.selected,
+    defaultSelected: this.defaultSelected,
     disabled: this.disabled,
     onSelectedChange: value => this.selectedChange.emit(value),
   });
@@ -56,8 +66,15 @@ export class NgpToggle {
   /**
    * Set the selected state.
    */
-  setSelected(value: boolean): void {
-    this.state.setSelected(value);
+  setSelected(value: boolean, options?: SetterOptions): void {
+    this.state.setSelected(value, options);
+  }
+
+  /**
+   * Set the default selected state.
+   */
+  setDefaultSelected(value: boolean): void {
+    this.state.setDefaultSelected(value);
   }
 
   /*

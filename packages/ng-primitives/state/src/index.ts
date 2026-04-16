@@ -368,8 +368,84 @@ export function createPrimitive<TFactory extends (...args: any[]) => unknown>(
   return [token, factory as TFactory, injectFn as PrimitiveInjectionFn<TFactory>, provideFn];
 }
 
-export function controlled<T>(value: Signal<T>): WritableSignal<T> {
-  return linkedSignal(() => value());
+export function controlled<T>(value: Signal<T>): WritableSignal<T>;
+export function controlled<T>(value: Signal<T> | undefined, defaultValue: T): WritableSignal<T>;
+export function controlled<T>(value: Signal<T> | undefined, defaultValue?: T): WritableSignal<T> {
+  return value ? linkedSignal(() => value()) : signal(defaultValue as T);
+}
+
+export interface ControlledStateOptions<T> {
+  /**
+   * The controlled value signal. When defined (not `undefined`), the component
+   * is in controlled mode and this value always wins.
+   */
+  readonly value: Signal<T | undefined>;
+  /**
+   * The default value signal for uncontrolled mode.
+   */
+  readonly defaultValue?: Signal<T>;
+  /**
+   * Callback fired when the value changes.
+   */
+  readonly onChange?: (value: T) => void;
+}
+
+export interface SetterOptions {
+  /**
+   * Whether to fire `onChange` and emit on the `change` observable.
+   * Defaults to `true`. Set to `false` for cases like form `writeValue`
+   * where the internal state should sync without notifying listeners.
+   */
+  readonly emit?: boolean;
+}
+
+export type ControlledState<T> = [
+  value: Signal<T>,
+  set: (value: T, options?: SetterOptions) => void,
+  change: Observable<T>,
+];
+
+export function controlledState<T>({
+  value,
+  onChange,
+  defaultValue,
+}: ControlledStateOptions<T>): ControlledState<T> {
+  const change = emitter<T>();
+  const UNSET = Symbol('UNSET');
+  const userValue = signal<T | typeof UNSET>(UNSET);
+
+  // Latching flag: once the controlled value has been defined, the component
+  // is permanently controlled and set() must not update internal state.
+  // This is intentionally mutated inside `resolved` — it must latch
+  // synchronously during signal evaluation so that set() sees the correct
+  // state. A pure computation cannot express "once true, always true" without
+  // external state.
+  let isControlled = value() !== undefined;
+
+  const resolved = linkedSignal(() => {
+    const v = value();
+    if (v !== undefined) {
+      isControlled = true;
+      return v;
+    }
+    const uv = userValue();
+    return uv !== UNSET ? (uv as T) : defaultValue?.();
+  });
+
+  function set(newValue: T, options?: SetterOptions) {
+    if (resolved() === newValue && options?.emit !== false) {
+      return;
+    }
+    if (!isControlled) {
+      userValue.set(newValue);
+    }
+    if (options?.emit !== false) {
+      onChange?.(newValue);
+      change.emit(newValue);
+    }
+  }
+
+  return [resolved.asReadonly() as Signal<T>, set, change.asObservable()];
 }
 
 function setAttribute(
@@ -539,15 +615,42 @@ export function onDestroy(callback: () => void): void {
 export function deprecatedSetter<T>(
   signal: WritableSignal<T>,
   methodName: string,
+): WritableSignal<T>;
+export function deprecatedSetter<T>(
+  signal: Signal<T>,
+  methodName: string,
+  setter: (value: T) => void,
+): WritableSignal<T>;
+export function deprecatedSetter<T>(
+  signal: Signal<T>,
+  methodName: string,
+  setter?: (value: T) => void,
 ): WritableSignal<T> {
-  return new Proxy(signal, {
+  return new Proxy(signal as WritableSignal<T>, {
     get(target, prop) {
       if (prop === 'set') {
         return (value: T) => {
           console.warn(
             `Deprecation warning: Use ${methodName}() instead of setting the value directly.`,
           );
-          target.set(value);
+          if (setter) {
+            setter(value);
+          } else {
+            (target as WritableSignal<T>).set(value);
+          }
+        };
+      }
+      if (prop === 'update') {
+        return (updateFn: (value: T) => T) => {
+          console.warn(
+            `Deprecation warning: Use ${methodName}() instead of setting the value directly.`,
+          );
+          const newValue = updateFn(target());
+          if (setter) {
+            setter(newValue);
+          } else {
+            (target as WritableSignal<T>).set(newValue);
+          }
         };
       }
       return target[prop as keyof WritableSignal<T>];

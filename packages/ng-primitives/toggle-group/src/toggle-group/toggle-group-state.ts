@@ -1,14 +1,15 @@
-import { signal, Signal, WritableSignal } from '@angular/core';
+import { Signal, WritableSignal } from '@angular/core';
 import { NgpOrientation } from 'ng-primitives/common';
 import { injectElementRef } from 'ng-primitives/internal';
 import { NgpRovingFocusGroupState } from 'ng-primitives/roving-focus';
 import {
   attrBinding,
   controlled,
+  controlledState,
   createPrimitive,
   dataBinding,
   deprecatedSetter,
-  emitter,
+  SetterOptions,
 } from 'ng-primitives/state';
 import { Observable } from 'rxjs';
 
@@ -58,7 +59,12 @@ export interface NgpToggleGroupState {
   /**
    * Set the value(s) of the toggle group.
    */
-  setValue(newValue: string[]): void;
+  setValue(newValue: string[], options?: SetterOptions): void;
+
+  /**
+   * Set the default value(s) of the toggle group.
+   */
+  setDefaultValue(defaultValue: string[]): void;
 
   /**
    * Set the disabled state of the toggle group.
@@ -95,7 +101,11 @@ export interface NgpToggleGroupProps {
   /**
    * The value(s) of the toggle-group.
    */
-  readonly value?: Signal<string[] | undefined>;
+  readonly value: Signal<string[] | undefined>;
+  /**
+   * The default value(s) of the toggle-group for uncontrolled usage.
+   */
+  readonly defaultValue?: Signal<string[]>;
   /**
    * Whether the toggle-group is disabled.
    */
@@ -115,18 +125,27 @@ export const [
   'NgpToggleGroup',
   ({
     rovingFocusGroup,
-    orientation: _orientation = signal('vertical'),
-    allowDeselection = signal(true),
-    type = signal<'single' | 'multiple'>('single'),
-    value: _value = signal<string[]>([]),
-    disabled: _disabled = signal(false),
+    orientation: _orientation,
+    allowDeselection: _allowDeselection,
+    type: _type,
+    value: _value,
+    defaultValue: _defaultValue,
+    disabled: _disabled,
     onValueChange,
   }: NgpToggleGroupProps): NgpToggleGroupState => {
     const element = injectElementRef();
-    const disabled = controlled(_disabled);
-    const value = controlled(_value);
-    const orientation = controlled(_orientation);
-    const valueChange = emitter<string[]>();
+
+    const allowDeselection = controlled(_allowDeselection, true);
+    const type = controlled(_type, 'single');
+    const disabled = controlled(_disabled, false);
+    const orientation = controlled(_orientation, 'horizontal');
+    const defaultValue = controlled(_defaultValue, []);
+
+    const [value, setValueInternal, valueChange] = controlledState<string[]>({
+      value: _value,
+      defaultValue,
+      onChange: onValueChange,
+    });
 
     // Host bindings
     attrBinding(element, 'role', 'group');
@@ -137,7 +156,7 @@ export const [
     /**
      * Select a value in the toggle group.
      */
-    const select = (selection: string): void => {
+    function select(selection: string): void {
       if (disabled()) {
         return;
       }
@@ -147,53 +166,51 @@ export const [
       if (type() === 'single') {
         newValue = [selection];
       } else {
-        newValue = [...(value() as string[]), selection];
+        newValue = [...value(), selection];
       }
 
       setValue(newValue);
-    };
+    }
 
     /**
      * De-select a value in the toggle group.
      */
-    const deselect = (selection: string): void => {
+    function deselect(selection: string): void {
       if (disabled() || !allowDeselection()) {
         return;
       }
 
-      const newValue = value()?.filter(v => v !== selection) || [];
+      const newValue = value().filter(v => v !== selection);
       setValue(newValue);
-    };
+    }
 
     /**
      * Check if a value is selected in the toggle group.
      * @internal
      */
-    const isSelected = (itemValue: string): boolean => {
-      return value()?.includes(itemValue) ?? false;
-    };
+    function isSelected(itemValue: string): boolean {
+      return value().includes(itemValue);
+    }
 
     /**
      * Toggle a value in the toggle group.
      * @internal
      */
-    const toggle = (itemValue: string): void => {
+    function toggle(itemValue: string): void {
       if (isSelected(itemValue)) {
         deselect(itemValue);
       } else {
         select(itemValue);
       }
-    };
+    }
 
-    const setValue = (newValue: string[]): void => {
-      value.set(newValue);
-      onValueChange?.(newValue);
-      valueChange.emit(newValue);
-    };
+    function setValue(newValue: string[], options?: SetterOptions): void {
+      setValueInternal(newValue, options);
+    }
 
-    const setDisabled = (isDisabled: boolean): void => {
+    function setDisabled(isDisabled: boolean): void {
       disabled.set(isDisabled);
-    };
+    }
 
     function setOrientation(newOrientation: NgpOrientation): void {
       orientation.set(newOrientation);
@@ -206,12 +223,13 @@ export const [
       disabled: deprecatedSetter(disabled, 'setDisabled'),
       isSelected,
       toggle,
-      value: deprecatedSetter(value, 'setValue') as WritableSignal<string[]>,
-      orientation: deprecatedSetter(orientation, 'setOrientation'),
+      value: deprecatedSetter(value, 'setValue', setValue),
+      orientation: deprecatedSetter(orientation, 'setOrientation', setOrientation),
       setValue,
+      setDefaultValue: defaultValue.set,
       setDisabled,
       setOrientation,
-      valueChange: valueChange.asObservable(),
+      valueChange,
     } satisfies NgpToggleGroupState;
   },
 );
