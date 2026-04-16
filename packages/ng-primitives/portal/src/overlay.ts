@@ -194,6 +194,12 @@ export interface NgpOverlayConfig<T = unknown> {
   position?: Signal<NgpPosition | null>;
 
   /**
+   * If true, clicks on the trigger element count as outside clicks for dismiss purposes.
+   * Useful for context menus where the trigger area is large and clicks on it should dismiss the menu.
+   */
+  treatTriggerClickAsOutside?: boolean;
+
+  /**
    * Overlay type identifier for cooldown grouping.
    * When set, overlays of the same type share a cooldown period.
    * For example, 'tooltip' ensures quickly moving between tooltips shows
@@ -789,6 +795,7 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
         outsidePress: this.config.closeOnOutsideClick ?? false,
         escapeKey: this.config.closeOnEscape ?? false,
       },
+      treatTriggerClickAsOutside: this.config.treatTriggerClickAsOutside,
     });
 
     // Register as active overlay for this type (skip when cooldown is bypassed)
