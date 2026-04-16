@@ -1,135 +1,139 @@
-@if (directive(); as dir) {
-  @if (dir.inputs?.length || dir.outputs?.length) {
-    <div class="not-prose my-5 overflow-hidden rounded-lg border border-zinc-200 text-[13px] leading-normal dark:border-zinc-800">
-      <!-- Header row -->
-      <div
-        class="grid bg-zinc-50 py-2 pr-2 pl-3 text-zinc-500 dark:bg-zinc-900 dark:text-zinc-400"
-        style="grid-template-columns: 5fr 7fr 4.5fr 2rem"
-        aria-hidden="true"
+@if (directive(); as dir) { @if (dir.inputs?.length || dir.outputs?.length) {
+<div
+  class="not-prose my-5 overflow-hidden rounded-lg border border-zinc-200 text-[13px] leading-normal dark:border-zinc-800"
+>
+  <!-- Header row -->
+  <div
+    class="grid bg-zinc-50 py-2 pr-2 pl-3 text-zinc-500 dark:bg-zinc-900 dark:text-zinc-400"
+    style="grid-template-columns: 5fr 7fr 4.5fr 2rem"
+    aria-hidden="true"
+  >
+    <span>Prop</span>
+    <span>Type</span>
+    <span>Default</span>
+    <span></span>
+  </div>
+
+  <!-- Input rows -->
+  @for (prop of dir.inputs; track prop.name) {
+  <div class="border-t border-zinc-200 dark:border-zinc-800">
+    <button
+      class="grid w-full cursor-pointer items-center py-2 pr-2 pl-3 text-left transition-colors hover:bg-zinc-50/80 focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none focus-visible:ring-inset dark:hover:bg-white/[0.02]"
+      style="grid-template-columns: 5fr 7fr 4.5fr 2rem"
+      [attr.aria-expanded]="isExpanded(prop.name)"
+      [attr.aria-label]="prop.name + ', ' + prop.type + (prop.defaultValue ? ', default ' + prop.defaultValue : '') + (prop.isRequired ? ', required' : '')"
+      (click)="toggleRow(prop.name)"
+    >
+      <span class="api-cell pr-3">
+        <code class="font-mono text-zinc-900 dark:text-white">{{ prop.name }}</code>
+      </span>
+      <span class="api-cell pr-3">
+        <code class="font-mono text-indigo-600 dark:text-indigo-400">{{ prop.type }}</code>
+      </span>
+      <span class="api-cell pr-3">
+        @if (prop.defaultValue) {
+        <code class="font-mono text-zinc-600 dark:text-zinc-400">{{ prop.defaultValue }}</code>
+        } @else {
+        <span class="text-zinc-300 dark:text-zinc-600">&mdash;</span>
+        }
+      </span>
+      <span
+        class="flex items-center justify-center text-zinc-400 transition-transform duration-200 dark:text-zinc-500"
+        [class.rotate-180]="isExpanded(prop.name)"
       >
-        <span>Prop</span>
-        <span>Type</span>
-        <span>Default</span>
-        <span></span>
+        <ng-icon name="phosphorCaretDown" size="12" />
+      </span>
+    </button>
+
+    <!-- Expanded content -->
+    <div
+      [attr.hidden]="isExpanded(prop.name) ? null : 'until-found'"
+      (beforematch)="expandRow(prop.name)"
+    >
+      <div
+        class="bg-zinc-50/60 py-3 pr-2 pl-3 shadow-[inset_0_1px_0_0_var(--color-zinc-200)] dark:bg-white/[0.02] dark:shadow-[inset_0_1px_0_0_var(--color-zinc-800)]"
+      >
+        <dl class="grid gap-y-2.5" style="grid-template-columns: 5fr 11.5fr 2rem">
+          <dt class="text-zinc-500 dark:text-zinc-400">Name</dt>
+          <dd class="col-span-2">
+            <code class="font-mono text-indigo-700 dark:text-indigo-400">{{ prop.name }}</code>
+          </dd>
+          @if (prop.description) {
+          <dt class="text-zinc-500 dark:text-zinc-400">Description</dt>
+          <dd class="col-span-2 text-zinc-700 dark:text-zinc-300">{{ prop.description }}</dd>
+          }
+          <dt class="text-zinc-500 dark:text-zinc-400">Type</dt>
+          <dd class="col-span-2">
+            <code class="font-mono text-zinc-700 dark:text-zinc-300">{{ prop.type }}</code>
+          </dd>
+          @if (prop.defaultValue) {
+          <dt class="text-zinc-500 dark:text-zinc-400">Default</dt>
+          <dd class="col-span-2">
+            <code class="font-mono text-zinc-600 dark:text-zinc-400">{{ prop.defaultValue }}</code>
+          </dd>
+          }
+        </dl>
       </div>
-
-      <!-- Input rows -->
-      @for (prop of dir.inputs; track prop.name) {
-        <div class="border-t border-zinc-200 dark:border-zinc-800">
-          <button
-            class="grid w-full cursor-pointer items-center py-2 pr-2 pl-3 text-left transition-colors hover:bg-zinc-50/80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-indigo-500 dark:hover:bg-white/[0.02]"
-            style="grid-template-columns: 5fr 7fr 4.5fr 2rem"
-            [attr.aria-expanded]="isExpanded(prop.name)"
-            [attr.aria-label]="prop.name + ', ' + prop.type + (prop.defaultValue ? ', default ' + prop.defaultValue : '') + (prop.isRequired ? ', required' : '')"
-            (click)="toggleRow(prop.name)"
-          >
-            <span class="api-cell pr-3">
-              <code class="font-mono text-zinc-900 dark:text-white">{{ prop.name }}</code>
-            </span>
-            <span class="api-cell pr-3">
-              <code class="font-mono text-indigo-600 dark:text-indigo-400">{{ prop.type }}</code>
-            </span>
-            <span class="api-cell pr-3">
-              @if (prop.defaultValue) {
-                <code class="font-mono text-zinc-600 dark:text-zinc-400">{{ prop.defaultValue }}</code>
-              } @else {
-                <span class="text-zinc-300 dark:text-zinc-600">&mdash;</span>
-              }
-            </span>
-            <span class="flex items-center justify-center text-zinc-400 transition-transform duration-200 dark:text-zinc-500"
-              [class.rotate-180]="isExpanded(prop.name)"
-            >
-              <ng-icon name="phosphorCaretDown" size="12" />
-            </span>
-          </button>
-
-          <!-- Expanded content -->
-          <div
-            [attr.hidden]="isExpanded(prop.name) ? null : 'until-found'"
-            (beforematch)="expandRow(prop.name)"
-          >
-            <div class="bg-zinc-50/60 py-3 pr-2 pl-3 shadow-[inset_0_1px_0_0_var(--color-zinc-200)] dark:bg-white/[0.02] dark:shadow-[inset_0_1px_0_0_var(--color-zinc-800)]">
-              <dl
-                class="grid gap-y-2.5"
-                style="grid-template-columns: 5fr 11.5fr 2rem"
-              >
-                <dt class="text-zinc-500 dark:text-zinc-400">Name</dt>
-                <dd class="col-span-2">
-                  <code class="font-mono text-indigo-700 dark:text-indigo-400">{{ prop.name }}</code>
-                </dd>
-                @if (prop.description) {
-                  <dt class="text-zinc-500 dark:text-zinc-400">Description</dt>
-                  <dd class="col-span-2 text-zinc-700 dark:text-zinc-300">{{ prop.description }}</dd>
-                }
-                <dt class="text-zinc-500 dark:text-zinc-400">Type</dt>
-                <dd class="col-span-2">
-                  <code class="font-mono text-zinc-700 dark:text-zinc-300">{{ prop.type }}</code>
-                </dd>
-                @if (prop.defaultValue) {
-                  <dt class="text-zinc-500 dark:text-zinc-400">Default</dt>
-                  <dd class="col-span-2">
-                    <code class="font-mono text-zinc-600 dark:text-zinc-400">{{ prop.defaultValue }}</code>
-                  </dd>
-                }
-              </dl>
-            </div>
-          </div>
-        </div>
-      }
-
-      <!-- Output rows -->
-      @for (prop of dir.outputs; track prop.name) {
-        <div class="border-t border-zinc-200 dark:border-zinc-800">
-          <button
-            class="grid w-full cursor-pointer items-center py-2 pr-2 pl-3 text-left transition-colors hover:bg-zinc-50/80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-indigo-500 dark:hover:bg-white/[0.02]"
-            style="grid-template-columns: 5fr 7fr 4.5fr 2rem"
-            [attr.aria-expanded]="isExpanded(prop.name)"
-            [attr.aria-label]="prop.name + ', ' + prop.type + ', output'"
-            (click)="toggleRow(prop.name)"
-          >
-            <span class="api-cell pr-3">
-              <code class="font-mono text-zinc-900 dark:text-white">{{ prop.name }}</code>
-            </span>
-            <span class="api-cell pr-3">
-              <code class="font-mono text-indigo-600 dark:text-indigo-400">{{ outputType(prop.type) }}</code>
-            </span>
-            <span class="api-cell pr-3">
-              <span class="text-zinc-300 dark:text-zinc-600">&mdash;</span>
-            </span>
-            <span class="flex items-center justify-center text-zinc-400 transition-transform duration-200 dark:text-zinc-500"
-              [class.rotate-180]="isExpanded(prop.name)"
-            >
-              <ng-icon name="phosphorCaretDown" size="12" />
-            </span>
-          </button>
-
-          <!-- Expanded content -->
-          <div
-            [attr.hidden]="isExpanded(prop.name) ? null : 'until-found'"
-            (beforematch)="expandRow(prop.name)"
-          >
-            <div class="bg-zinc-50/60 py-3 pr-2 pl-3 shadow-[inset_0_1px_0_0_var(--color-zinc-200)] dark:bg-white/[0.02] dark:shadow-[inset_0_1px_0_0_var(--color-zinc-800)]">
-              <dl
-                class="grid gap-y-2.5"
-                style="grid-template-columns: 5fr 11.5fr 2rem"
-              >
-                <dt class="text-zinc-500 dark:text-zinc-400">Name</dt>
-                <dd class="col-span-2">
-                  <code class="font-mono text-indigo-700 dark:text-indigo-400">{{ prop.name }}</code>
-                </dd>
-                @if (prop.description) {
-                  <dt class="text-zinc-500 dark:text-zinc-400">Description</dt>
-                  <dd class="col-span-2 text-zinc-700 dark:text-zinc-300">{{ prop.description }}</dd>
-                }
-                <dt class="text-zinc-500 dark:text-zinc-400">Type</dt>
-                <dd class="col-span-2">
-                  <code class="font-mono text-zinc-700 dark:text-zinc-300">{{ outputType(prop.type) }}</code>
-                </dd>
-              </dl>
-            </div>
-          </div>
-        </div>
-      }
     </div>
+  </div>
   }
-}
+
+  <!-- Output rows -->
+  @for (prop of dir.outputs; track prop.name) {
+  <div class="border-t border-zinc-200 dark:border-zinc-800">
+    <button
+      class="grid w-full cursor-pointer items-center py-2 pr-2 pl-3 text-left transition-colors hover:bg-zinc-50/80 focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none focus-visible:ring-inset dark:hover:bg-white/[0.02]"
+      style="grid-template-columns: 5fr 7fr 4.5fr 2rem"
+      [attr.aria-expanded]="isExpanded(prop.name)"
+      [attr.aria-label]="prop.name + ', ' + prop.type + ', output'"
+      (click)="toggleRow(prop.name)"
+    >
+      <span class="api-cell pr-3">
+        <code class="font-mono text-zinc-900 dark:text-white">{{ prop.name }}</code>
+      </span>
+      <span class="api-cell pr-3">
+        <code class="font-mono text-indigo-600 dark:text-indigo-400">
+          {{ outputType(prop.type) }}
+        </code>
+      </span>
+      <span class="api-cell pr-3">
+        <span class="text-zinc-300 dark:text-zinc-600">&mdash;</span>
+      </span>
+      <span
+        class="flex items-center justify-center text-zinc-400 transition-transform duration-200 dark:text-zinc-500"
+        [class.rotate-180]="isExpanded(prop.name)"
+      >
+        <ng-icon name="phosphorCaretDown" size="12" />
+      </span>
+    </button>
+
+    <!-- Expanded content -->
+    <div
+      [attr.hidden]="isExpanded(prop.name) ? null : 'until-found'"
+      (beforematch)="expandRow(prop.name)"
+    >
+      <div
+        class="bg-zinc-50/60 py-3 pr-2 pl-3 shadow-[inset_0_1px_0_0_var(--color-zinc-200)] dark:bg-white/[0.02] dark:shadow-[inset_0_1px_0_0_var(--color-zinc-800)]"
+      >
+        <dl class="grid gap-y-2.5" style="grid-template-columns: 5fr 11.5fr 2rem">
+          <dt class="text-zinc-500 dark:text-zinc-400">Name</dt>
+          <dd class="col-span-2">
+            <code class="font-mono text-indigo-700 dark:text-indigo-400">{{ prop.name }}</code>
+          </dd>
+          @if (prop.description) {
+          <dt class="text-zinc-500 dark:text-zinc-400">Description</dt>
+          <dd class="col-span-2 text-zinc-700 dark:text-zinc-300">{{ prop.description }}</dd>
+          }
+          <dt class="text-zinc-500 dark:text-zinc-400">Type</dt>
+          <dd class="col-span-2">
+            <code class="font-mono text-zinc-700 dark:text-zinc-300">
+              {{ outputType(prop.type) }}
+            </code>
+          </dd>
+        </dl>
+      </div>
+    </div>
+  </div>
+  }
+</div>
+} }
