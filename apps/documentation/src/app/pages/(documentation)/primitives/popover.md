@@ -106,33 +106,31 @@ The following directives are available to import from the `ng-primitives/popover
 
 <api-docs name="NgpPopover"></api-docs>
 
-#### Data Attributes
+<api-reference-props name="NgpPopover"></api-reference-props>
 
-| Attribute        | Description                                                                                     |
-| ---------------- | ----------------------------------------------------------------------------------------------- |
-| `data-enter`     | Applied when the popover is being added to the DOM. This can be used to trigger animations.     |
-| `data-exit`      | Applied when the popover is being removed from the DOM. This can be used to trigger animations. |
-| `data-placement` | The final rendered placement of the popover.                                                    |
+<api-reference-attributes>
+  <api-attribute name="data-enter" description="Applied when the popover is being added to the DOM. This can be used to trigger animations." />
+  <api-attribute name="data-exit" description="Applied when the popover is being removed from the DOM. This can be used to trigger animations." />
+  <api-attribute name="data-placement" description="The final rendered placement of the popover." />
+</api-reference-attributes>
 
-The following CSS custom properties are applied to the `ngpPopover` directive:
-
-| Property                         | Description                                                           |
-| -------------------------------- | --------------------------------------------------------------------- |
-| `--ngp-popover-transform-origin` | The transform origin of the popover for animations.                   |
-| `--ngp-popover-trigger-width`    | The width of the trigger element.                                     |
-| `--ngp-popover-available-width`  | The available width of the popover before it overflows the viewport.  |
-| `--ngp-popover-available-height` | The available height of the popover before it overflows the viewport. |
+<api-reference-css-vars>
+  <api-css-var name="--ngp-popover-transform-origin" description="The transform origin of the popover for animations." />
+  <api-css-var name="--ngp-popover-trigger-width" description="The width of the trigger element." />
+  <api-css-var name="--ngp-popover-available-width" description="The available width of the popover before it overflows the viewport." />
+  <api-css-var name="--ngp-popover-available-height" description="The available height of the popover before it overflows the viewport." />
+</api-reference-css-vars>
 
 ### NgpPopoverTrigger
 
 <api-docs name="NgpPopoverTrigger"></api-docs>
 
-#### Data Attributes
+<api-reference-props name="NgpPopoverTrigger"></api-reference-props>
 
-| Attribute       | Description                           |
-| --------------- | ------------------------------------- |
-| `data-open`     | Applied when the popover is open.     |
-| `data-disabled` | Applied when the popover is disabled. |
+<api-reference-attributes>
+  <api-attribute name="data-open" description="Applied when the popover is open." />
+  <api-attribute name="data-disabled" description="Applied when the popover is disabled." />
+</api-reference-attributes>
 
 ### NgpPopoverArrow
 
@@ -152,11 +150,11 @@ The arrow can be styled conditionally based on the popover's final placement usi
 
 <api-docs name="NgpPopoverArrow"></api-docs>
 
-#### Data Attributes
+<api-reference-props name="NgpPopoverArrow"></api-reference-props>
 
-| Attribute        | Description                                  |
-| ---------------- | -------------------------------------------- |
-| `data-placement` | The final rendered placement of the popover. |
+<api-reference-attributes>
+  <api-attribute name="data-placement" description="The final rendered placement of the popover." />
+</api-reference-attributes>
 
 ## Styling
 
@@ -210,69 +208,7 @@ bootstrapApplication(AppComponent, {
 
 ### NgpPopoverConfig
 
-<prop-details name="offset" type="number | NgpOffsetOptions">
-  Define the offset from the trigger element. Can be a number (applies to mainAxis) or an object with mainAxis, crossAxis, and alignmentAxis properties.
-  
-  **Number format:** `offset: 8` - Applies to mainAxis (distance from trigger)
-  
-  **Object format:** 
-  ```ts
-  offset: {
-    mainAxis: 8,     // Distance between popover and trigger element
-    crossAxis: 4,    // Skidding along the alignment axis  
-    alignmentAxis: 2 // Same as crossAxis but for aligned placements
-  }
-  ```
-</prop-details>
-
-<prop-details name="shift" type="boolean | NgpShiftOptions" default="true">
-  Define the shift behavior to keep the popover in view. When enabled (default), the popover will shift along its axis to stay visible when it would otherwise overflow the viewport. Set to `false` to disable.
-  
-  **Boolean format:** `shift: false` - Disables shift behavior
-  
-  **Object format:** 
-  ```ts
-  shift: {
-    padding: 8,     // Minimum padding between popover and viewport edges
-    limiter: {      // Optional limiter to control shifting behavior
-      fn: limitShift,
-      options: { /* limiter options */ }
-    }
-  }
-  ```
-</prop-details>
-
-<prop-details name="placement" type="'top' | 'right' | 'bottom' | 'left'">
-  Define the placement of the popover.
-</prop-details>
-
-<prop-details name="showDelay" type="number">
-  Define the delay before the popover shows.
-</prop-details>
-
-<prop-details name="hideDelay" type="number">
-  Define the delay before the popover hides.
-</prop-details>
-
-<prop-details name="flip" type="boolean">
-  Define if the popover should flip when it reaches the edge of the viewport.
-</prop-details>
-
-<prop-details name="container" type="HTMLElement">
-  Define the container element for the popover. This is the document body by default.
-</prop-details>
-
-<prop-details name="closeOnOutsideClick" type="boolean">
-  Define whether the popover should close when clicking outside of it.
-</prop-details>
-
-<prop-details name="scrollBehavior" type="reposition | block">
-Defines how the popover behaves when the window is scrolled. If set to `reposition`, the popover will adjust its position automatically during scrolling. Make sure the popover uses `position: absolute` in this mode. If set to `block`, scrolling will be disabled while the popover is open. In this case, the popover should use `position: fixed`.
-</prop-details>
-
-<prop-details name="cooldown" type="number" default="0">
-  Define the cooldown duration in milliseconds. When moving from one popover to another within this duration, the showDelay is skipped for the new popover. This creates a smoother experience when navigating between multiple popovers.
-</prop-details>
+<api-reference-config name="NgpPopoverConfig"></api-reference-config>
 
 ## Accessibility
 

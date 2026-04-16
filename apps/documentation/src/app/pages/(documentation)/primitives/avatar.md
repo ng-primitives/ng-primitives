@@ -58,19 +58,23 @@ The following directives are available to import from the `ng-primitives/avatar`
 
 <api-docs name="NgpAvatar"></api-docs>
 
-#### Data Attributes
+<api-reference-props name="NgpAvatar"></api-reference-props>
 
-| Attribute     | Description                             | Value                                      |
-| ------------- | --------------------------------------- | ------------------------------------------ |
-| `data-status` | The loading status of the avatar image. | `idle` \| `loading` \| `loaded` \| `error` |
+<api-reference-attributes>
+  <api-attribute name="data-status" description="The loading status of the avatar image." value="idle | loading | loaded | error" />
+</api-reference-attributes>
 
 ### NgpAvatarImage
 
 <api-docs name="NgpAvatarImage"></api-docs>
 
+<api-reference-props name="NgpAvatarImage"></api-reference-props>
+
 ### NgpAvatarFallback
 
 <api-docs name="NgpAvatarFallback"></api-docs>
+
+<api-reference-props name="NgpAvatarFallback"></api-reference-props>
 
 ## Global Configuration
 
@@ -86,7 +90,4 @@ bootstrapApplication(AppComponent, {
 
 ### NgpAvatarConfig
 
-<prop-details name="delay" type="number">
-  Define a delay before the fallback is shown. This is useful to only show the fallback for those
-  with slower connections.
-</prop-details>
+<api-reference-config name="NgpAvatarConfig"></api-reference-config>

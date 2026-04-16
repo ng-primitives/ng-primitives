@@ -75,14 +75,14 @@ The following directives are available to import from the `ng-primitives/button`
 
 <api-docs name="NgpButton"></api-docs>
 
-#### Data Attributes
+<api-reference-props name="NgpButton"></api-reference-props>
 
-| Attribute            | Description                        |
-| -------------------- | ---------------------------------- |
-| `data-hover`         | Added to the button when hovered.  |
-| `data-focus-visible` | Added to the button when focused.  |
-| `data-press`         | Added to the button when pressed.  |
-| `data-disabled`      | Added to the button when disabled. |
+<api-reference-attributes>
+  <api-attribute name="data-hover" description="Added to the button when hovered." />
+  <api-attribute name="data-focus-visible" description="Added to the button when focused." />
+  <api-attribute name="data-press" description="Added to the button when pressed." />
+  <api-attribute name="data-disabled" description="Added to the button when disabled." />
+</api-reference-attributes>
 
 ## Accessibility
 

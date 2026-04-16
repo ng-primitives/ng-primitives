@@ -55,11 +55,11 @@ The following directives are available to import from the `ng-primitives/separat
 
 <api-docs name="NgpSeparator"></api-docs>
 
-#### Data Attributes
+<api-reference-props name="NgpSeparator"></api-reference-props>
 
-| Attribute          | Description                       |
-| ------------------ | --------------------------------- |
-| `data-orientation` | The orientation of the separator. |
+<api-reference-attributes>
+  <api-attribute name="data-orientation" description="The orientation of the separator." />
+</api-reference-attributes>
 
 ## Global Configuration
 
@@ -81,9 +81,7 @@ bootstrapApplication(AppComponent, {
 
 The following options are available to configure the default tab options:
 
-<prop-details name="orientation" type="'horizontal' | 'vertical'" default="horizontal">
-  Define the default orientation of the separator.
-</prop-details
+<api-reference-config name="NgpSeparatorConfig"></api-reference-config>
 
 ## Accessibility
 

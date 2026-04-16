@@ -69,28 +69,24 @@ The following directives are available to import from the `ng-primitives/toggle-
 
 <api-docs name="NgpToggleGroup"></api-docs>
 
-#### Data Attributes
+<api-reference-props name="NgpToggleGroup"></api-reference-props>
 
-The following data attributes are available to style the toggle group:
-
-| Attribute          | Description                                | Value                      |
-| ------------------ | ------------------------------------------ | -------------------------- |
-| `data-disabled`    | Applied when the toggle group is disabled. | `-`                        |
-| `data-orientation` | The orientation of the toggle group.       | `horizontal` \| `vertical` |
-| `data-type`        | The type of the toggle group.              | `single` \| `multiple`     |
+<api-reference-attributes>
+  <api-attribute name="data-disabled" description="Applied when the toggle group is disabled." />
+  <api-attribute name="data-orientation" description="The orientation of the toggle group." value="horizontal | vertical" />
+  <api-attribute name="data-type" description="The type of the toggle group." value="single | multiple" />
+</api-reference-attributes>
 
 ### NgpToggleGroupItem
 
 <api-docs name="NgpToggleGroupItem"></api-docs>
 
-#### Data Attributes
+<api-reference-props name="NgpToggleGroupItem"></api-reference-props>
 
-The following data attributes are available to style the toggle group item:
-
-| Attribute       | Description                                     | Value |
-| --------------- | ----------------------------------------------- | ----- |
-| `data-disabled` | Applied when the toggle group item is disabled. | `-`   |
-| `data-selected` | Applied when the toggle group item is selected. | `-`   |
+<api-reference-attributes>
+  <api-attribute name="data-disabled" description="Applied when the toggle group item is disabled." />
+  <api-attribute name="data-selected" description="Applied when the toggle group item is selected." />
+</api-reference-attributes>
 
 ## Global Configuration
 
@@ -111,13 +107,7 @@ bootstrapApplication(AppComponent, {
 
 ### NgpToggleGroupConfig
 
-<prop-details name="orientation" type="'horizontal' | 'vertical'" default="horizontal">
-  The default orientation of the toggle group.
-</prop-details>
-
-<prop-details name="type" type="'single' | 'multiple'" default="single">
-  The default type of the toggle group.
-</prop-details>
+<api-reference-config name="NgpToggleGroupConfig"></api-reference-config>
 
 ## Accessibility
 

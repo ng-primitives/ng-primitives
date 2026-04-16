@@ -63,14 +63,12 @@ The following directives are available to import from the `ng-primitives/toggle`
 
 <api-docs name="NgpToggle"></api-docs>
 
-#### Data Attributes
+<api-reference-props name="NgpToggle"></api-reference-props>
 
-The following data attributes are applied to the `ngpToggle` directive:
-
-| Attribute       | Description                          |
-| --------------- | ------------------------------------ |
-| `data-selected` | Applied when the toggle is selected. |
-| `data-disabled` | Applied when the toggle is disabled. |
+<api-reference-attributes>
+  <api-attribute name="data-selected" description="Applied when the toggle is selected." />
+  <api-attribute name="data-disabled" description="Applied when the toggle is disabled." />
+</api-reference-attributes>
 
 ## Accessibility
 

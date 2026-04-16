@@ -65,11 +65,15 @@ The root container for the OTP input component.
 
 <api-docs name="NgpInputOtp"></api-docs>
 
+<api-reference-props name="NgpInputOtp"></api-reference-props>
+
 ### NgpInputOtpInput
 
 The hidden input element that captures user input.
 
 <api-docs name="NgpInputOtpInput"></api-docs>
+
+<api-reference-props name="NgpInputOtpInput"></api-reference-props>
 
 ### NgpInputOtpSlot
 
@@ -77,15 +81,15 @@ A directive that represents individual character slots. Automatically registers 
 
 <api-docs name="NgpInputOtpSlot"></api-docs>
 
-#### Data Attributes
+<api-reference-props name="NgpInputOtpSlot"></api-reference-props>
 
-| Attribute          | Description                                       |
-| ------------------ | ------------------------------------------------- |
-| `data-slot-index`  | The index of this slot.                           |
-| `data-active`      | Added to the active (focused) slot.               |
-| `data-filled`      | Added to slots that contain a character.          |
-| `data-caret`       | Added to slots that show the cursor.              |
-| `data-placeholder` | Added to slots that should show placeholder text. |
+<api-reference-attributes>
+  <api-attribute name="data-slot-index" description="The index of this slot." />
+  <api-attribute name="data-active" description="Added to the active (focused) slot." />
+  <api-attribute name="data-filled" description="Added to slots that contain a character." />
+  <api-attribute name="data-caret" description="Added to slots that show the cursor." />
+  <api-attribute name="data-placeholder" description="Added to slots that should show placeholder text." />
+</api-reference-attributes>
 
 ## Accessibility
 

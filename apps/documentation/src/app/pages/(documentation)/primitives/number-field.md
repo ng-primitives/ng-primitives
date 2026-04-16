@@ -64,12 +64,12 @@ The root directive that manages the number field state.
 
 <api-docs name="NgpNumberField"></api-docs>
 
-#### Data Attributes
+<api-reference-props name="NgpNumberField"></api-reference-props>
 
-| Attribute       | Description                                | Value |
-| --------------- | ------------------------------------------ | ----- |
-| `data-disabled` | Applied when the number field is disabled. | `-`   |
-| `data-readonly` | Applied when the number field is readonly. | `-`   |
+<api-reference-attributes>
+  <api-attribute name="data-disabled" description="Applied when the number field is disabled." />
+  <api-attribute name="data-readonly" description="Applied when the number field is readonly." />
+</api-reference-attributes>
 
 ### NgpNumberFieldInput
 
@@ -77,14 +77,14 @@ Apply to an `input` element within the number field.
 
 <api-docs name="NgpNumberFieldInput"></api-docs>
 
-#### Data Attributes
+<api-reference-props name="NgpNumberFieldInput"></api-reference-props>
 
-| Attribute            | Description                                | Value |
-| -------------------- | ------------------------------------------ | ----- |
-| `data-disabled`      | Applied when the number field is disabled. | `-`   |
-| `data-readonly`      | Applied when the number field is readonly. | `-`   |
-| `data-hover`         | Applied when the input is hovered.         | `-`   |
-| `data-focus-visible` | Applied when the input is focused.         | `-`   |
+<api-reference-attributes>
+  <api-attribute name="data-disabled" description="Applied when the number field is disabled." />
+  <api-attribute name="data-readonly" description="Applied when the number field is readonly." />
+  <api-attribute name="data-hover" description="Applied when the input is hovered." />
+  <api-attribute name="data-focus-visible" description="Applied when the input is focused." />
+</api-reference-attributes>
 
 ### NgpNumberFieldIncrement
 
@@ -92,14 +92,14 @@ Apply to a button that increments the value.
 
 <api-docs name="NgpNumberFieldIncrement"></api-docs>
 
-#### Data Attributes
+<api-reference-props name="NgpNumberFieldIncrement"></api-reference-props>
 
-| Attribute            | Description                                | Value |
-| -------------------- | ------------------------------------------ | ----- |
-| `data-disabled`      | Applied when incrementing is not possible. | `-`   |
-| `data-hover`         | Applied when the button is hovered.        | `-`   |
-| `data-focus-visible` | Applied when the button is focused.        | `-`   |
-| `data-press`         | Applied when the button is pressed.        | `-`   |
+<api-reference-attributes>
+  <api-attribute name="data-disabled" description="Applied when incrementing is not possible." />
+  <api-attribute name="data-hover" description="Applied when the button is hovered." />
+  <api-attribute name="data-focus-visible" description="Applied when the button is focused." />
+  <api-attribute name="data-press" description="Applied when the button is pressed." />
+</api-reference-attributes>
 
 ### NgpNumberFieldDecrement
 
@@ -107,14 +107,14 @@ Apply to a button that decrements the value.
 
 <api-docs name="NgpNumberFieldDecrement"></api-docs>
 
-#### Data Attributes
+<api-reference-props name="NgpNumberFieldDecrement"></api-reference-props>
 
-| Attribute            | Description                                | Value |
-| -------------------- | ------------------------------------------ | ----- |
-| `data-disabled`      | Applied when decrementing is not possible. | `-`   |
-| `data-hover`         | Applied when the button is hovered.        | `-`   |
-| `data-focus-visible` | Applied when the button is focused.        | `-`   |
-| `data-press`         | Applied when the button is pressed.        | `-`   |
+<api-reference-attributes>
+  <api-attribute name="data-disabled" description="Applied when decrementing is not possible." />
+  <api-attribute name="data-hover" description="Applied when the button is hovered." />
+  <api-attribute name="data-focus-visible" description="Applied when the button is focused." />
+  <api-attribute name="data-press" description="Applied when the button is pressed." />
+</api-reference-attributes>
 
 ## Features
 

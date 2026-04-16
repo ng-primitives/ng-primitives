@@ -67,33 +67,29 @@ The following directives are available to import from the `ng-primitives/switch`
 
 <api-docs name="NgpSwitch"></api-docs>
 
-#### Data Attributes
+<api-reference-props name="NgpSwitch"></api-reference-props>
 
-The following data attributes are applied to the `ngpSwitch` directive:
-
-| Attribute            | Description                          |
-| -------------------- | ------------------------------------ |
-| `data-checked`       | Applied when the switch is checked.  |
-| `data-disabled`      | Applied when the switch is disabled. |
-| `data-hover`         | Applied when the switch is hovered.  |
-| `data-focus-visible` | Applied when the switch is focused.  |
-| `data-press`         | Applied when the switch is pressed.  |
+<api-reference-attributes>
+  <api-attribute name="data-checked" description="Applied when the switch is checked." />
+  <api-attribute name="data-disabled" description="Applied when the switch is disabled." />
+  <api-attribute name="data-hover" description="Applied when the switch is hovered." />
+  <api-attribute name="data-focus-visible" description="Applied when the switch is focused." />
+  <api-attribute name="data-press" description="Applied when the switch is pressed." />
+</api-reference-attributes>
 
 ### NgpSwitchThumb
 
 <api-docs name="NgpSwitchThumb"></api-docs>
 
-#### Data Attributes
+<api-reference-props name="NgpSwitchThumb"></api-reference-props>
 
-The following data attributes are available to style the thumb:
-
-| Attribute            | Description                               |
-| -------------------- | ----------------------------------------- |
-| `data-checked`       | Applied when the switch is checked.       |
-| `data-disabled`      | Applied when the switch is disabled.      |
-| `data-hover`         | Applied when the switch thumb is hovered. |
-| `data-focus-visible` | Applied when the switch thumb is focused. |
-| `data-press`         | Applied when the switch thumb is pressed. |
+<api-reference-attributes>
+  <api-attribute name="data-checked" description="Applied when the switch is checked." />
+  <api-attribute name="data-disabled" description="Applied when the switch is disabled." />
+  <api-attribute name="data-hover" description="Applied when the switch thumb is hovered." />
+  <api-attribute name="data-focus-visible" description="Applied when the switch thumb is focused." />
+  <api-attribute name="data-press" description="Applied when the switch thumb is pressed." />
+</api-reference-attributes>
 
 ## Accessibility
 

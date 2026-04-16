@@ -133,25 +133,22 @@ The main container for the combobox.
 
 <api-docs name="NgpCombobox"></api-docs>
 
-#### Data Attributes
+<api-reference-props name="NgpCombobox"></api-reference-props>
 
-The following data attributes are applied to the `ngpCombobox` directive:
-
-| Attribute       | Description                                                    |
-| --------------- | -------------------------------------------------------------- |
-| `data-open`     | Applied when the combobox is open.                             |
-| `data-disabled` | Applied when the combobox is disabled.                         |
-| `data-multiple` | Applied when the combobox is in multiple mode.                 |
-| `data-hover`    | Applied when the combobox is hovered.                          |
-| `data-press`    | Applied when the combobox is pressed.                          |
-| `data-focus`    | Applied when the combobox has focus within it.                 |
-| `data-invalid`  | Applied when the combobox is invalid.                          |
-| `data-valid`    | Applied when the combobox is valid.                            |
-| `data-touched`  | Applied when the combobox has been touched.                    |
-| `data-pristine` | Applied when the combobox is pristine (not modified).          |
-| `data-dirty`    | Applied when the combobox has been modified.                   |
-| `data-pending`  | Applied when the combobox is pending (e.g., async validation). |
-| `data-disabled` | Applied when the combobox is disabled.                         |
+<api-reference-attributes>
+  <api-attribute name="data-open" description="Applied when the combobox is open." />
+  <api-attribute name="data-disabled" description="Applied when the combobox is disabled." />
+  <api-attribute name="data-multiple" description="Applied when the combobox is in multiple mode." />
+  <api-attribute name="data-hover" description="Applied when the combobox is hovered." />
+  <api-attribute name="data-press" description="Applied when the combobox is pressed." />
+  <api-attribute name="data-focus" description="Applied when the combobox has focus within it." />
+  <api-attribute name="data-invalid" description="Applied when the combobox is invalid." />
+  <api-attribute name="data-valid" description="Applied when the combobox is valid." />
+  <api-attribute name="data-touched" description="Applied when the combobox has been touched." />
+  <api-attribute name="data-pristine" description="Applied when the combobox is pristine (not modified)." />
+  <api-attribute name="data-dirty" description="Applied when the combobox has been modified." />
+  <api-attribute name="data-pending" description="Applied when the combobox is pending (e.g., async validation)." />
+</api-reference-attributes>
 
 #### Focus Management
 
@@ -167,15 +164,13 @@ The button that toggles the combobox dropdown.
 
 <api-docs name="NgpComboboxButton"></api-docs>
 
-#### Data Attributes
+<api-reference-props name="NgpComboboxButton"></api-reference-props>
 
-The following data attributes are applied to the `ngpComboboxButton` directive:
-
-| Attribute       | Description                                    |
-| --------------- | ---------------------------------------------- |
-| `data-open`     | Applied when the combobox is open.             |
-| `data-disabled` | Applied when the combobox is disabled.         |
-| `data-multiple` | Applied when the combobox is in multiple mode. |
+<api-reference-attributes>
+  <api-attribute name="data-open" description="Applied when the combobox is open." />
+  <api-attribute name="data-disabled" description="Applied when the combobox is disabled." />
+  <api-attribute name="data-multiple" description="Applied when the combobox is in multiple mode." />
+</api-reference-attributes>
 
 ### NgpComboboxDropdown
 
@@ -183,18 +178,16 @@ The dropdown that contains the combobox options.
 
 <api-docs name="NgpComboboxDropdown"></api-docs>
 
-#### CSS Custom Properties
+<api-reference-props name="NgpComboboxDropdown"></api-reference-props>
 
-The following CSS custom properties are applied to the `ngpComboboxDropdown` directive:
-
-| Property                          | Description                                                            |
-| --------------------------------- | ---------------------------------------------------------------------- |
-| `--ngp-combobox-transform-origin` | The transform origin for the dropdown animation.                       |
-| `--ngp-combobox-available-width`  | The available width of the dropdown before it overflows the viewport.  |
-| `--ngp-combobox-available-height` | The available height of the dropdown before it overflows the viewport. |
-| `--ngp-combobox-width`            | The width of the combobox dropdown.                                    |
-| `--ngp-combobox-input-width`      | The width of the combobox input field.                                 |
-| `--ngp-combobox-button-width`     | The width of the combobox button.                                      |
+<api-reference-css-vars>
+  <api-css-var name="--ngp-combobox-transform-origin" description="The transform origin for the dropdown animation." />
+  <api-css-var name="--ngp-combobox-available-width" description="The available width of the dropdown before it overflows the viewport." />
+  <api-css-var name="--ngp-combobox-available-height" description="The available height of the dropdown before it overflows the viewport." />
+  <api-css-var name="--ngp-combobox-width" description="The width of the combobox dropdown." />
+  <api-css-var name="--ngp-combobox-input-width" description="The width of the combobox input field." />
+  <api-css-var name="--ngp-combobox-button-width" description="The width of the combobox button." />
+</api-reference-css-vars>
 
 ### NgpComboboxInput
 
@@ -202,22 +195,19 @@ The input field for the combobox.
 
 <api-docs name="NgpComboboxInput"></api-docs>
 
-#### Data Attributes
+<api-reference-props name="NgpComboboxInput"></api-reference-props>
 
-The following data attributes are applied to the `ngpComboboxInput` directive:
-
-| Attribute       | Description                                                 |
-| --------------- | ----------------------------------------------------------- |
-| `data-open`     | Applied when the combobox is open.                          |
-| `data-disabled` | Applied when the combobox is disabled.                      |
-| `data-multiple` | Applied when the combobox is in multiple mode.              |
-| `data-invalid`  | Applied when the input is invalid.                          |
-| `data-valid`    | Applied when the input is valid.                            |
-| `data-touched`  | Applied when the input has been touched.                    |
-| `data-pristine` | Applied when the input is pristine (not modified).          |
-| `data-dirty`    | Applied when the input has been modified.                   |
-| `data-pending`  | Applied when the input is pending (e.g., async validation). |
-| `data-disabled` | Applied when the input is disabled.                         |
+<api-reference-attributes>
+  <api-attribute name="data-open" description="Applied when the combobox is open." />
+  <api-attribute name="data-disabled" description="Applied when the combobox is disabled." />
+  <api-attribute name="data-multiple" description="Applied when the combobox is in multiple mode." />
+  <api-attribute name="data-invalid" description="Applied when the input is invalid." />
+  <api-attribute name="data-valid" description="Applied when the input is valid." />
+  <api-attribute name="data-touched" description="Applied when the input has been touched." />
+  <api-attribute name="data-pristine" description="Applied when the input is pristine (not modified)." />
+  <api-attribute name="data-dirty" description="Applied when the input has been modified." />
+  <api-attribute name="data-pending" description="Applied when the input is pending (e.g., async validation)." />
+</api-reference-attributes>
 
 ### NgpComboboxOption
 
@@ -225,21 +215,21 @@ The individual options within the combobox dropdown.
 
 <api-docs name="NgpComboboxOption"></api-docs>
 
-#### Data Attributes
+<api-reference-props name="NgpComboboxOption"></api-reference-props>
 
-The following data attributes are applied to the `ngpComboboxOption` directive:
-
-| Attribute       | Description                          |
-| --------------- | ------------------------------------ |
-| `data-selected` | Applied when the option is selected. |
-| `data-active`   | Applied when the option is active.   |
-| `data-disabled` | Applied when the option is disabled. |
+<api-reference-attributes>
+  <api-attribute name="data-selected" description="Applied when the option is selected." />
+  <api-attribute name="data-active" description="Applied when the option is active." />
+  <api-attribute name="data-disabled" description="Applied when the option is disabled." />
+</api-reference-attributes>
 
 ### NgpComboboxPortal
 
 The portal for rendering the combobox dropdown in an overlay.
 
 <api-docs name="NgpComboboxPortal"></api-docs>
+
+<api-reference-props name="NgpComboboxPortal"></api-reference-props>
 
 ## Animations
 
@@ -271,17 +261,7 @@ bootstrapApplication(AppComponent, {
 
 ### NgpComboboxConfig
 
-<prop-details name="placement" type="'top' | 'right' | 'bottom' | 'left'">
-  Define the placement of the combobox dropdown.
-</prop-details>
-
-<prop-details name="container" type="HTMLElement" default="document.body">
-  Define the container element for the combobox dropdown. This is useful for rendering the dropdown in a specific part of the DOM.
-</prop-details>
-
-<prop-details name="flip" type="boolean" default="true">
-  Define whether the dropdown should flip to the opposite side when there is not enough space.
-</prop-details>
+<api-reference-config name="NgpComboboxConfig"></api-reference-config>
 
 ## Accessibility
 

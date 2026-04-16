@@ -109,98 +109,86 @@ The following directives are available to import from the `ng-primitives/paginat
 
 <api-docs name="NgpPagination"></api-docs>
 
-#### Data Attributes
+<api-reference-props name="NgpPagination"></api-reference-props>
 
-The following data attributes are applied to the `ngpPagination` directive:
-
-| Attribute         | Description                                 | Value     |
-| ----------------- | ------------------------------------------- | --------- |
-| `data-page`       | The current page number.                    | `number`  |
-| `data-page-count` | The total number of pages.                  | `number`  |
-| `data-disabled`   | Disables the pagination control.            | `boolean` |
-| `data-first-page` | Whether the current page is the first page. | `boolean` |
-| `data-last-page`  | Whether the current page is the last page.  | `boolean` |
+<api-reference-attributes>
+  <api-attribute name="data-page" description="The current page number." value="number" />
+  <api-attribute name="data-page-count" description="The total number of pages." value="number" />
+  <api-attribute name="data-disabled" description="Disables the pagination control." value="boolean" />
+  <api-attribute name="data-first-page" description="Whether the current page is the first page." value="boolean" />
+  <api-attribute name="data-last-page" description="Whether the current page is the last page." value="boolean" />
+</api-reference-attributes>
 
 ### NgpPaginationButton
 
 <api-docs name="NgpPaginationButton"></api-docs>
 
-#### Data Attributes
+<api-reference-props name="NgpPaginationButton"></api-reference-props>
 
-The following data attributes are applied to the `ngpPaginationButton` directive:
-
-| Attribute            | Description                                   | Value    |
-| -------------------- | --------------------------------------------- | -------- |
-| `data-page`          | The page number that the button navigates to. | `number` |
-| `data-selected`      | Applied when the button is selected.          | `-`      |
-| `data-hover`         | Applied when the button is hovered.           | `-`      |
-| `data-focus-visible` | Applied when the button is focused.           | `-`      |
-| `data-press`         | Applied when the button is pressed.           | `-`      |
-| `data-disabled`      | Disables the pagination button.               | `-`      |
+<api-reference-attributes>
+  <api-attribute name="data-page" description="The page number that the button navigates to." value="number" />
+  <api-attribute name="data-selected" description="Applied when the button is selected." />
+  <api-attribute name="data-hover" description="Applied when the button is hovered." />
+  <api-attribute name="data-focus-visible" description="Applied when the button is focused." />
+  <api-attribute name="data-press" description="Applied when the button is pressed." />
+  <api-attribute name="data-disabled" description="Disables the pagination button." />
+</api-reference-attributes>
 
 ### NgpPaginationFirst
 
 <api-docs name="NgpPaginationFirst"></api-docs>
 
-#### Data Attributes
+<api-reference-props name="NgpPaginationFirst"></api-reference-props>
 
-The following data attributes are applied to the `ngpPaginationFirst` directive:
-
-| Attribute            | Description                                      |
-| -------------------- | ------------------------------------------------ |
-| `data-first-page`    | Applied when the current page is the first page. |
-| `data-hover`         | Applied when the button is hovered.              |
-| `data-focus-visible` | Applied when the button is focused.              |
-| `data-press`         | Applied when the button is pressed.              |
-| `data-disabled`      | Applied when the button is disabled.             |
+<api-reference-attributes>
+  <api-attribute name="data-first-page" description="Applied when the current page is the first page." />
+  <api-attribute name="data-hover" description="Applied when the button is hovered." />
+  <api-attribute name="data-focus-visible" description="Applied when the button is focused." />
+  <api-attribute name="data-press" description="Applied when the button is pressed." />
+  <api-attribute name="data-disabled" description="Applied when the button is disabled." />
+</api-reference-attributes>
 
 ### NgpPaginationPrevious
 
 <api-docs name="NgpPaginationPrevious"></api-docs>
 
-#### Data Attributes
+<api-reference-props name="NgpPaginationPrevious"></api-reference-props>
 
-The following data attributes are applied to the `ngpPaginationPrevious` directive:
-
-| Attribute            | Description                                      |
-| -------------------- | ------------------------------------------------ |
-| `data-first-page`    | Applied when the current page is the first page. |
-| `data-hover`         | Applied when the button is hovered.              |
-| `data-focus-visible` | Applied when the button is focused.              |
-| `data-press`         | Applied when the button is pressed.              |
-| `data-disabled`      | Applied when the button is disabled.             |
+<api-reference-attributes>
+  <api-attribute name="data-first-page" description="Applied when the current page is the first page." />
+  <api-attribute name="data-hover" description="Applied when the button is hovered." />
+  <api-attribute name="data-focus-visible" description="Applied when the button is focused." />
+  <api-attribute name="data-press" description="Applied when the button is pressed." />
+  <api-attribute name="data-disabled" description="Applied when the button is disabled." />
+</api-reference-attributes>
 
 ### NgpPaginationNext
 
 <api-docs name="NgpPaginationNext"></api-docs>
 
-#### Data Attributes
+<api-reference-props name="NgpPaginationNext"></api-reference-props>
 
-The following data attributes are applied to the `ngpPaginationNext` directive:
-
-| Attribute            | Description                                     |
-| -------------------- | ----------------------------------------------- |
-| `data-last-page`     | Applied when the current page is the last page. |
-| `data-hover`         | Applied when the button is hovered.             |
-| `data-focus-visible` | Applied when the button is focused.             |
-| `data-press`         | Applied when the button is pressed.             |
-| `data-disabled`      | Applied when the button is disabled.            |
+<api-reference-attributes>
+  <api-attribute name="data-last-page" description="Applied when the current page is the last page." />
+  <api-attribute name="data-hover" description="Applied when the button is hovered." />
+  <api-attribute name="data-focus-visible" description="Applied when the button is focused." />
+  <api-attribute name="data-press" description="Applied when the button is pressed." />
+  <api-attribute name="data-disabled" description="Applied when the button is disabled." />
+</api-reference-attributes>
 
 ### NgpPaginationLast
 
 <api-docs name="NgpPaginationLast"></api-docs>
 
-#### Data Attributes
+<api-reference-props name="NgpPaginationLast"></api-reference-props>
 
-The following data attributes are applied to the `ngpPaginationLast` directive:
-
-| Attribute            | Description                                     |
-| -------------------- | ----------------------------------------------- |
-| `data-last-page`     | Applied when the current page is the last page. |
-| `data-hover`         | Applied when the button is hovered.             |
-| `data-focus-visible` | Applied when the button is focused.             |
-| `data-press`         | Applied when the button is pressed.             |
-| `data-disabled`      | Applied when the button is disabled.            |
+<api-reference-attributes>
+  <api-attribute name="data-last-page" description="Applied when the current page is the last page." />
+  <api-attribute name="data-hover" description="Applied when the button is hovered." />
+  <api-attribute name="data-focus-visible" description="Applied when the button is focused." />
+  <api-attribute name="data-press" description="Applied when the button is pressed." />
+  <api-attribute name="data-disabled" description="Applied when the button is disabled." />
+</api-reference-attributes>
 
 ## Accessibility
 

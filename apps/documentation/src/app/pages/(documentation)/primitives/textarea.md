@@ -65,12 +65,10 @@ The following directives are available to import from the `ng-primitives/textare
 
 <api-docs name="NgpTextarea"></api-docs>
 
-#### Data Attributes
+<api-reference-props name="NgpTextarea"></api-reference-props>
 
-The following data attributes are applied to the `ngpTextarea` directive:
-
-| Attribute       | Description                           |
-| --------------- | ------------------------------------- |
-| `data-hover`    | Applied when the element is hovered.  |
-| `data-focus`    | Applied when the element is focused.  |
-| `data-disabled` | Applied when the element is disabled. |
+<api-reference-attributes>
+  <api-attribute name="data-hover" description="Applied when the element is hovered." />
+  <api-attribute name="data-focus" description="Applied when the element is focused." />
+  <api-attribute name="data-disabled" description="Applied when the element is disabled." />
+</api-reference-attributes>
