@@ -12,8 +12,12 @@ describe('NgpPromptComposerSubmit', () => {
 
   beforeEach(() => {
     mockSpeechRecognition = new MockSpeechRecognition();
-    (globalThis as any).SpeechRecognition = vi.fn(function () { return mockSpeechRecognition; });
-    (globalThis as any).webkitSpeechRecognition = vi.fn(function () { return mockSpeechRecognition; });
+    (globalThis as any).SpeechRecognition = vi.fn(function () {
+      return mockSpeechRecognition;
+    });
+    (globalThis as any).webkitSpeechRecognition = vi.fn(function () {
+      return mockSpeechRecognition;
+    });
   });
 
   afterEach(() => {
