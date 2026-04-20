@@ -1,10 +1,7 @@
 import { FactoryProvider, Signal, WritableSignal } from '@angular/core';
 import { NgpOrientation } from 'ng-primitives/common';
 import { injectElementRef } from 'ng-primitives/internal';
-import {
-  NgpRovingFocusGroupState,
-  provideRovingFocusGroupState,
-} from 'ng-primitives/roving-focus';
+import { NgpRovingFocusGroupState, provideRovingFocusGroupState } from 'ng-primitives/roving-focus';
 import {
   attrBinding,
   controlled,
