@@ -1,6 +1,6 @@
 import { Component, TemplateRef, ViewContainerRef, inject, viewChild } from '@angular/core';
 import { TestBed, fakeAsync, flush, tick } from '@angular/core/testing';
-import { fireEvent } from '@testing-library/angular';
+import { fireEvent, waitFor } from '@testing-library/angular';
 import { NgpMenu, NgpMenuItem, NgpMenuTrigger } from 'ng-primitives/menu';
 import { NgpPopover, NgpPopoverTrigger } from 'ng-primitives/popover';
 import { NgpOverlayRegistry } from 'ng-primitives/portal';
@@ -207,6 +207,74 @@ describe('NgpDialog', () => {
 
     expect(closedSpy).not.toHaveBeenCalled();
   }));
+
+  it('should NOT close on overlay click when closeOnOutsideClick is false', async () => {
+    const { ref } = openDialog({ closeOnOutsideClick: false });
+    const closedSpy = jest.fn();
+    ref.closed.subscribe(closedSpy);
+
+    const overlay = document.querySelector('[data-testid="overlay"]') as HTMLElement;
+    dispatchOverlayClick(overlay);
+
+    await new Promise(r => setTimeout(r, 0));
+    expect(closedSpy).not.toHaveBeenCalled();
+  });
+
+  it('should support async dismiss guard on closeOnOutsideClick', async () => {
+    const { ref } = openDialog({
+      closeOnOutsideClick: () => Promise.resolve(false),
+    });
+    const closedSpy = jest.fn();
+    ref.closed.subscribe(closedSpy);
+
+    const overlay = document.querySelector('[data-testid="overlay"]') as HTMLElement;
+    dispatchOverlayClick(overlay);
+
+    await new Promise(r => setTimeout(r, 0));
+    expect(closedSpy).not.toHaveBeenCalled();
+  });
+
+  it('should close when async dismiss guard resolves true', async () => {
+    const { ref } = openDialog({
+      closeOnOutsideClick: () => Promise.resolve(true),
+    });
+    const closedSpy = jest.fn();
+    ref.closed.subscribe(closedSpy);
+
+    const overlay = document.querySelector('[data-testid="overlay"]') as HTMLElement;
+    dispatchOverlayClick(overlay);
+
+    await waitFor(() => {
+      expect(closedSpy).toHaveBeenCalled();
+    });
+  });
+
+  it('should support sync dismiss guard function on closeOnOutsideClick', async () => {
+    const { ref } = openDialog({
+      closeOnOutsideClick: () => false,
+    });
+    const closedSpy = jest.fn();
+    ref.closed.subscribe(closedSpy);
+
+    const overlay = document.querySelector('[data-testid="overlay"]') as HTMLElement;
+    dispatchOverlayClick(overlay);
+
+    await new Promise(r => setTimeout(r, 0));
+    expect(closedSpy).not.toHaveBeenCalled();
+  });
+
+  it('should support dismiss guard on closeOnEscape', async () => {
+    const { ref } = openDialog({
+      closeOnEscape: () => false,
+    });
+    const closedSpy = jest.fn();
+    ref.closed.subscribe(closedSpy);
+
+    document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
+
+    await new Promise(r => setTimeout(r, 0));
+    expect(closedSpy).not.toHaveBeenCalled();
+  });
 
   it('should generate unique dialog id', () => {
     openDialog();

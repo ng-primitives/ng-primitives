@@ -34,7 +34,7 @@ import { Subject } from 'rxjs';
 import { NgpFlip } from './flip';
 import { NgpOffset } from './offset';
 import { CooldownOverlay, NgpOverlayCooldownManager } from './overlay-cooldown';
-import { NgpOverlayRegistry } from './overlay-registry';
+import { NgpDismissGuard, NgpOverlayRegistry } from './overlay-registry';
 import { provideOverlayContext } from './overlay-token';
 import { NgpPortal, createPortal } from './portal';
 import { NgpPosition } from './position';
@@ -161,10 +161,10 @@ export interface NgpOverlayConfig<T = unknown> {
 
   /** The scroll strategy to use for the overlay */
   scrollBehaviour?: 'reposition' | 'block' | 'close';
-  /** Whether to close the overlay when clicking outside */
-  closeOnOutsideClick?: boolean;
-  /** Whether to close the overlay when pressing escape */
-  closeOnEscape?: boolean;
+  /** Whether to close the overlay when clicking outside, or a guard function */
+  closeOnOutsideClick?: NgpDismissGuard<Element>;
+  /** Whether to close the overlay when pressing escape, or a guard function */
+  closeOnEscape?: NgpDismissGuard<KeyboardEvent>;
   /**
    * Whether to restore focus to the trigger element when hiding the overlay.
    * Can be a boolean or a signal that returns a boolean.

@@ -98,6 +98,12 @@ The popover can be anchored to a different element than the trigger.
 
 <docs-example name="popover-anchor"></docs-example>
 
+### Dismiss Guard
+
+Use dismiss guards to prevent a popover from closing when there are unsaved changes. The `closeOnOutsideClick` and `closeOnEscape` options accept a guard function that returns a boolean or a `Promise<boolean>`.
+
+<docs-example name="popover-dismiss-guard"></docs-example>
+
 ## API Reference
 
 The following directives are available to import from the `ng-primitives/popover` package:
