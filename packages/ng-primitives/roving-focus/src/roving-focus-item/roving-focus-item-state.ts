@@ -1,12 +1,9 @@
 import { FocusMonitor, FocusOrigin } from '@angular/cdk/a11y';
 import { computed, effect, ElementRef, inject, signal, Signal } from '@angular/core';
 import { injectElementRef } from 'ng-primitives/internal';
-import { attrBinding, createPrimitive, listener, onDestroy } from 'ng-primitives/state';
+import { attrBinding, createPrimitive, listener } from 'ng-primitives/state';
 import { uniqueId } from 'ng-primitives/utils';
-import {
-  injectRovingFocusGroupState,
-  NgpRovingFocusGroupState,
-} from '../roving-focus-group/roving-focus-group-state';
+import { injectRovingFocusGroupState } from '../roving-focus-group/roving-focus-group-state';
 
 /**
  * The state interface for the RovingFocusItem pattern.
@@ -98,22 +95,15 @@ export const [
       element,
     };
 
-    // Register the item when the group state becomes available. Projected items (via
-    // `<ng-content>`) may be constructed before the parent directive has populated the
-    // shared state signal — in that case we register lazily via an effect.
+    // Projected items may construct before the parent populates the shared group signal,
+    // so register reactively once it becomes available.
     // See https://github.com/ng-primitives/ng-primitives/issues/735
-    let registeredGroup: NgpRovingFocusGroupState | null = null;
-    effect(() => {
+    effect(onCleanup => {
       const groupState = group();
-      if (groupState && registeredGroup !== groupState) {
-        registeredGroup?.unregister(state);
-        groupState.register(state);
-        registeredGroup = groupState;
-      }
+      if (!groupState) return;
+      groupState.register(state);
+      onCleanup(() => groupState.unregister(state));
     });
-
-    // Unregister the item when destroyed
-    onDestroy(() => registeredGroup?.unregister(state));
 
     return state satisfies NgpRovingFocusItemState;
   },
