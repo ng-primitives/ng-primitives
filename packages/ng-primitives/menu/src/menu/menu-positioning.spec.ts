@@ -6,6 +6,11 @@ import { NgpMenuItem } from '../menu-item/menu-item';
 import { NgpMenuTrigger } from '../menu-trigger/menu-trigger';
 import { NgpMenu } from './menu';
 
+// Vitest cannot `vi.spyOn` an ESM namespace export directly — the module
+// record is non-configurable. Mocking the module with `{ spy: true }` makes
+// every export a spy that forwards to the real implementation.
+vi.mock('@floating-ui/dom', { spy: true });
+
 /**
  * Standard template-based menu — the `ngpMenu` directive is placed directly
  * on the root element of the ng-template.
@@ -127,11 +132,12 @@ describe('Menu outlet element positioning', () => {
   let computePositionSpy: MockInstance;
 
   beforeEach(() => {
-    computePositionSpy = vi.spyOn(floatingUiDom, 'computePosition');
+    computePositionSpy = vi.mocked(floatingUiDom.computePosition);
+    computePositionSpy.mockClear();
   });
 
   afterEach(() => {
-    vi.restoreAllMocks();
+    computePositionSpy.mockClear();
   });
 
   it('should position the [ngpMenu] element for template-based menus', async () => {

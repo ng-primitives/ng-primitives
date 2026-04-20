@@ -16,9 +16,9 @@
     "release:publish": "nx release publish && git push origin HEAD:main --no-verify"
   },
   "devDependencies": {
-    "@analogjs/platform": "2.3.1",
-    "@analogjs/vite-plugin-angular": "2.3.1",
-    "@analogjs/vitest-angular": "2.3.1",
+    "@analogjs/platform": "2.4.9",
+    "@analogjs/vite-plugin-angular": "2.4.9",
+    "@analogjs/vitest-angular": "2.4.9",
     "@angular-devkit/build-angular": "20.3.9",
     "@angular-devkit/core": "20.3.9",
     "@angular-devkit/schematics": "20.3.9",
@@ -95,8 +95,8 @@
     "vitest": "4.1.0"
   },
   "dependencies": {
-    "@analogjs/content": "2.3.1",
-    "@analogjs/router": "2.3.1",
+    "@analogjs/content": "2.4.9",
+    "@analogjs/router": "2.4.9",
     "@angular/animations": "20.3.9",
     "@angular/cdk": "20.2.9",
     "@angular/common": "20.3.9",

@@ -48,8 +48,14 @@ describe('NgpPromptComposerDictation', () => {
 
   beforeEach(() => {
     mockSpeechRecognition = new MockSpeechRecognition();
-    (globalThis as any).SpeechRecognition = vi.fn(() => mockSpeechRecognition);
-    (globalThis as any).webkitSpeechRecognition = vi.fn(() => mockSpeechRecognition);
+    // `vi.fn()` wraps arrow implementations, which cannot be called with `new`.
+    // Use a regular function so `new SpeechRecognition()` in the directive works.
+    (globalThis as any).SpeechRecognition = vi.fn(function () {
+      return mockSpeechRecognition;
+    });
+    (globalThis as any).webkitSpeechRecognition = vi.fn(function () {
+      return mockSpeechRecognition;
+    });
   });
 
   afterEach(() => {

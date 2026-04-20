@@ -7,6 +7,10 @@ import { NgpMenuTrigger } from '../menu-trigger/menu-trigger';
 import { NgpMenu } from '../menu/menu';
 import { NgpSubmenuTrigger } from './submenu-trigger';
 
+// `vi.spyOn` cannot rebind ESM namespace exports, so mock the module with
+// `{ spy: true }` and reach the spy via `vi.mocked()` in each test block.
+vi.mock('@floating-ui/dom', { spy: true });
+
 @Component({
   template: `
     <button [ngpMenuTrigger]="menu" data-testid="root-trigger">Open Menu</button>
@@ -147,11 +151,12 @@ describe('NgpSubmenuTrigger viewport awareness', () => {
     let computePositionSpy: MockInstance;
 
     beforeEach(() => {
-      computePositionSpy = vi.spyOn(floatingUiDom, 'computePosition');
+      computePositionSpy = vi.mocked(floatingUiDom.computePosition);
+      computePositionSpy.mockClear();
     });
 
     afterEach(() => {
-      vi.restoreAllMocks();
+      vi.clearAllMocks();
     });
 
     it('should include flip middleware when flip is enabled (default)', async () => {
@@ -312,7 +317,7 @@ describe('NgpSubmenuTrigger viewport awareness', () => {
 
       return {
         cleanup: () => {
-          vi.restoreAllMocks();
+          vi.clearAllMocks();
           Object.defineProperty(window, 'innerWidth', {
             value: originalInnerWidth,
             configurable: true,
@@ -384,7 +389,8 @@ describe('NgpSubmenuTrigger viewport awareness', () => {
     });
 
     it('should not flip when flip is disabled even near viewport edge', async () => {
-      const computePositionSpy = vi.spyOn(floatingUiDom, 'computePosition');
+      const computePositionSpy = vi.mocked(floatingUiDom.computePosition);
+      computePositionSpy.mockClear();
       const { cleanup } = setupViewportMocks();
 
       try {
@@ -431,11 +437,12 @@ describe('NgpSubmenuTrigger viewport awareness', () => {
     let computePositionSpy: MockInstance;
 
     beforeEach(() => {
-      computePositionSpy = vi.spyOn(floatingUiDom, 'computePosition');
+      computePositionSpy = vi.mocked(floatingUiDom.computePosition);
+      computePositionSpy.mockClear();
     });
 
     afterEach(() => {
-      vi.restoreAllMocks();
+      vi.clearAllMocks();
     });
 
     it('should use left-start placement when specified', async () => {
