@@ -1,3 +1,20 @@
+## 0.117.1 (2026-04-20)
+
+### 🚀 Features
+
+- **dialog,popover:** dismiss guards for closeOnEscape and closeOnOutsideClick ([#719](https://github.com/ng-primitives/ng-primitives/pull/719))
+
+### 🩹 Fixes
+
+- **toggle-group:** make state hoisting with projected content work ([#736](https://github.com/ng-primitives/ng-primitives/pull/736), [#735](https://github.com/ng-primitives/ng-primitives/issues/735))
+
+### ❤️ Thank You
+
+- Ashley Hunter
+- Claude
+- Claude Opus 4.6 (1M context)
+- Clément Loridan
+
 ## 0.117.0 (2026-04-16)
 
 ### 🚀 Features
