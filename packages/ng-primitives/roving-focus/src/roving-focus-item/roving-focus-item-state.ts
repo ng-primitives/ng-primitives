@@ -1,5 +1,5 @@
 import { FocusMonitor, FocusOrigin } from '@angular/cdk/a11y';
-import { computed, effect, ElementRef, inject, signal, Signal } from '@angular/core';
+import { computed, effect, ElementRef, inject, signal, Signal, untracked } from '@angular/core';
 import { injectElementRef } from 'ng-primitives/internal';
 import { attrBinding, createPrimitive, listener } from 'ng-primitives/state';
 import { uniqueId } from 'ng-primitives/utils';
@@ -101,7 +101,7 @@ export const [
     effect(onCleanup => {
       const groupState = group();
       if (!groupState) return;
-      groupState.register(state);
+      untracked(() => groupState.register(state));
       onCleanup(() => groupState.unregister(state));
     });
 
