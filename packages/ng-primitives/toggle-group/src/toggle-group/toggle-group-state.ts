@@ -1,7 +1,10 @@
-import { Signal, WritableSignal } from '@angular/core';
+import { FactoryProvider, Signal, WritableSignal } from '@angular/core';
 import { NgpOrientation } from 'ng-primitives/common';
 import { injectElementRef } from 'ng-primitives/internal';
-import { NgpRovingFocusGroupState } from 'ng-primitives/roving-focus';
+import {
+  NgpRovingFocusGroupState,
+  provideRovingFocusGroupState,
+} from 'ng-primitives/roving-focus';
 import {
   attrBinding,
   controlled,
@@ -120,7 +123,7 @@ export const [
   NgpToggleGroupStateToken,
   ngpToggleGroup,
   injectToggleGroupState,
-  provideToggleGroupState,
+  provideToggleGroupStateOnly,
 ] = createPrimitive(
   'NgpToggleGroup',
   ({
@@ -233,3 +236,17 @@ export const [
     } satisfies NgpToggleGroupState;
   },
 );
+
+/**
+ * Provide the toggle group state along with its companion roving focus group state.
+ *
+ * Consumers that hoist the toggle group via `<div ngpToggleGroup><ng-content/></div>` need
+ * both tokens to be visible at the reusable component level — otherwise items projected
+ * through `<ng-content>` cannot resolve `NgpRovingFocusGroupState` from their element
+ * injector (they only walk through the reusable component, not through the inner `<div>`).
+ */
+export function provideToggleGroupState(opts?: {
+  inherit?: boolean;
+}): [FactoryProvider, FactoryProvider] {
+  return [provideToggleGroupStateOnly(opts), provideRovingFocusGroupState(opts)];
+}
