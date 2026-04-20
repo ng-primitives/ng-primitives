@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import * as floatingUiDom from '@floating-ui/dom';
 import { fireEvent, render, waitFor } from '@testing-library/angular';
+import type { MockInstance } from 'vitest';
 import { NgpMenuItem } from '../menu-item/menu-item';
 import { NgpMenuTrigger } from '../menu-trigger/menu-trigger';
 import { NgpMenu } from './menu';
@@ -117,20 +118,20 @@ async function openMenu(fixture: {
 /**
  * Get the floating element (second arg) from the last computePosition call.
  */
-function getLastFloatingElement(spy: jest.SpyInstance): HTMLElement {
+function getLastFloatingElement(spy: MockInstance): HTMLElement {
   const lastCall = spy.mock.calls[spy.mock.calls.length - 1];
   return lastCall[1] as HTMLElement;
 }
 
 describe('Menu outlet element positioning', () => {
-  let computePositionSpy: jest.SpyInstance;
+  let computePositionSpy: MockInstance;
 
   beforeEach(() => {
-    computePositionSpy = jest.spyOn(floatingUiDom, 'computePosition');
+    computePositionSpy = vi.spyOn(floatingUiDom, 'computePosition');
   });
 
   afterEach(() => {
-    jest.restoreAllMocks();
+    vi.restoreAllMocks();
   });
 
   it('should position the [ngpMenu] element for template-based menus', async () => {

@@ -4,7 +4,7 @@ import { Toggle } from './toggle-forms.fixture';
 
 describe('Toggle (reusable component) — template-driven forms', () => {
   it('binds with [(ngModel)] two-way', async () => {
-    const ngModelChange = jest.fn();
+    const ngModelChange = vi.fn();
     const { getByRole, fixture, rerender } = await render(
       `<button app-toggle [(ngModel)]="value" (ngModelChange)="ngModelChange($event)">Toggle</button>`,
       {
@@ -99,7 +99,7 @@ describe('Toggle (reusable component) — reactive forms', () => {
 
   it('does not loop writeValue back through onChange (regression)', async () => {
     const formControl = new FormControl(false);
-    const spy = jest.fn();
+    const spy = vi.fn();
     formControl.valueChanges.subscribe(spy);
 
     const { fixture } = await render(

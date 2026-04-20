@@ -46,8 +46,8 @@ describe('NgpSliderThumb', () => {
   }
 
   it('should emit dragStart when pointer down on thumb', async () => {
-    const onDragStart = jest.fn();
-    const onDragEnd = jest.fn();
+    const onDragStart = vi.fn();
+    const onDragEnd = vi.fn();
 
     const { getByTestId } = await render(createTemplate(), {
       imports: [NgpSlider, NgpSliderTrack, NgpSliderRange, NgpSliderThumb],
@@ -63,8 +63,8 @@ describe('NgpSliderThumb', () => {
   });
 
   it('should emit dragEnd when pointer up after pointer down', async () => {
-    const onDragStart = jest.fn();
-    const onDragEnd = jest.fn();
+    const onDragStart = vi.fn();
+    const onDragEnd = vi.fn();
 
     const { getByTestId } = await render(createTemplate(), {
       imports: [NgpSlider, NgpSliderTrack, NgpSliderRange, NgpSliderThumb],
@@ -81,8 +81,8 @@ describe('NgpSliderThumb', () => {
   });
 
   it('should emit dragEnd when pointer cancel after pointer down', async () => {
-    const onDragStart = jest.fn();
-    const onDragEnd = jest.fn();
+    const onDragStart = vi.fn();
+    const onDragEnd = vi.fn();
 
     const { getByTestId } = await render(createTemplate(), {
       imports: [NgpSlider, NgpSliderTrack, NgpSliderRange, NgpSliderThumb],
@@ -99,8 +99,8 @@ describe('NgpSliderThumb', () => {
   });
 
   it('should not emit dragStart when slider is disabled', async () => {
-    const onDragStart = jest.fn();
-    const onDragEnd = jest.fn();
+    const onDragStart = vi.fn();
+    const onDragEnd = vi.fn();
 
     const { getByTestId } = await render(createTemplate(`[ngpSliderDisabled]="true"`), {
       imports: [NgpSlider, NgpSliderTrack, NgpSliderRange, NgpSliderThumb],
@@ -116,8 +116,8 @@ describe('NgpSliderThumb', () => {
   });
 
   it('should emit both events during a complete drag operation', async () => {
-    const onDragStart = jest.fn();
-    const onDragEnd = jest.fn();
+    const onDragStart = vi.fn();
+    const onDragEnd = vi.fn();
 
     const { getByTestId, fixture } = await render(createTemplate(), {
       imports: [NgpSlider, NgpSliderTrack, NgpSliderRange, NgpSliderThumb],
@@ -128,7 +128,7 @@ describe('NgpSliderThumb', () => {
     const track = getByTestId('track');
 
     // Mock track dimensions
-    jest.spyOn(track, 'getBoundingClientRect').mockReturnValue({
+    vi.spyOn(track, 'getBoundingClientRect').mockReturnValue({
       left: 0,
       top: 0,
       right: 100,
@@ -160,8 +160,8 @@ describe('NgpSliderThumb', () => {
   });
 
   it('should ignore pointermove from a different pointer during drag', async () => {
-    const onDragStart = jest.fn();
-    const onDragEnd = jest.fn();
+    const onDragStart = vi.fn();
+    const onDragEnd = vi.fn();
 
     const { getByTestId, fixture } = await render(createTemplate(), {
       imports: [NgpSlider, NgpSliderTrack, NgpSliderRange, NgpSliderThumb],
@@ -172,7 +172,7 @@ describe('NgpSliderThumb', () => {
     const track = getByTestId('track');
 
     // Mock track dimensions
-    jest.spyOn(track, 'getBoundingClientRect').mockReturnValue({
+    vi.spyOn(track, 'getBoundingClientRect').mockReturnValue({
       left: 0,
       top: 0,
       right: 100,
@@ -223,8 +223,8 @@ describe('NgpSliderThumb', () => {
   });
 
   it('should ignore pointerup from a different pointer during drag', async () => {
-    const onDragStart = jest.fn();
-    const onDragEnd = jest.fn();
+    const onDragStart = vi.fn();
+    const onDragEnd = vi.fn();
 
     const { getByTestId } = await render(createTemplate(), {
       imports: [NgpSlider, NgpSliderTrack, NgpSliderRange, NgpSliderThumb],
@@ -253,8 +253,8 @@ describe('NgpSliderThumb', () => {
   });
 
   it('should ignore pointercancel from a different pointer during drag', async () => {
-    const onDragStart = jest.fn();
-    const onDragEnd = jest.fn();
+    const onDragStart = vi.fn();
+    const onDragEnd = vi.fn();
 
     const { getByTestId } = await render(createTemplate(), {
       imports: [NgpSlider, NgpSliderTrack, NgpSliderRange, NgpSliderThumb],
@@ -285,11 +285,11 @@ describe('NgpSliderThumb', () => {
   it('should focus the thumb with mouse origin on pointerdown', async () => {
     const { getByTestId } = await render(createTemplate(), {
       imports: [NgpSlider, NgpSliderTrack, NgpSliderRange, NgpSliderThumb],
-      componentProperties: { value: 50, onDragStart: jest.fn(), onDragEnd: jest.fn() },
+      componentProperties: { value: 50, onDragStart: vi.fn(), onDragEnd: vi.fn() },
     });
 
     const focusMonitor = TestBed.inject(FocusMonitor);
-    const focusViaSpy = jest.spyOn(focusMonitor, 'focusVia');
+    const focusViaSpy = vi.spyOn(focusMonitor, 'focusVia');
 
     const thumb = getByTestId('thumb');
 
@@ -313,11 +313,11 @@ describe('NgpSliderThumb', () => {
   it('should focus the thumb with touch origin on touch pointerdown', async () => {
     const { getByTestId } = await render(createTemplate(), {
       imports: [NgpSlider, NgpSliderTrack, NgpSliderRange, NgpSliderThumb],
-      componentProperties: { value: 50, onDragStart: jest.fn(), onDragEnd: jest.fn() },
+      componentProperties: { value: 50, onDragStart: vi.fn(), onDragEnd: vi.fn() },
     });
 
     const focusMonitor = TestBed.inject(FocusMonitor);
-    const focusViaSpy = jest.spyOn(focusMonitor, 'focusVia');
+    const focusViaSpy = vi.spyOn(focusMonitor, 'focusVia');
 
     const thumb = getByTestId('thumb');
 
@@ -342,11 +342,11 @@ describe('NgpSliderThumb', () => {
   it('should not focus the thumb on pointerdown when disabled', async () => {
     const { getByTestId } = await render(createTemplate(`[ngpSliderDisabled]="true"`), {
       imports: [NgpSlider, NgpSliderTrack, NgpSliderRange, NgpSliderThumb],
-      componentProperties: { value: 50, onDragStart: jest.fn(), onDragEnd: jest.fn() },
+      componentProperties: { value: 50, onDragStart: vi.fn(), onDragEnd: vi.fn() },
     });
 
     const focusMonitor = TestBed.inject(FocusMonitor);
-    const focusViaSpy = jest.spyOn(focusMonitor, 'focusVia');
+    const focusViaSpy = vi.spyOn(focusMonitor, 'focusVia');
 
     const thumb = getByTestId('thumb');
 

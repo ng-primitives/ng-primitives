@@ -4,11 +4,11 @@ import { NgpTooltip, NgpTooltipTrigger, provideTooltipConfig } from 'ng-primitiv
 describe('NgpTooltipTrigger interactive hover behavior', () => {
   afterEach(() => {
     document.querySelectorAll('[ngpTooltip]').forEach(el => el.remove());
-    jest.useRealTimers();
+    vi.useRealTimers();
   });
 
   it('should keep tooltip open when moving from trigger to content when hoverableContent=true', async () => {
-    jest.useFakeTimers();
+    vi.useFakeTimers();
 
     const { getByRole } = await render(
       `
@@ -37,12 +37,12 @@ describe('NgpTooltipTrigger interactive hover behavior', () => {
     fireEvent.mouseLeave(trigger);
     const tooltip = document.querySelector('[ngpTooltip]') as HTMLElement;
     fireEvent.mouseEnter(tooltip);
-    jest.advanceTimersByTime(100);
+    vi.advanceTimersByTime(100);
 
     expect(document.querySelector('[ngpTooltip]')).toBeInTheDocument();
 
     fireEvent.mouseLeave(tooltip);
-    jest.advanceTimersByTime(100);
+    vi.advanceTimersByTime(100);
 
     await waitFor(() => {
       expect(document.querySelector('[ngpTooltip]')).not.toBeInTheDocument();
@@ -50,7 +50,7 @@ describe('NgpTooltipTrigger interactive hover behavior', () => {
   });
 
   it('should close when hoverableContent=false even if pointer enters tooltip content', async () => {
-    jest.useFakeTimers();
+    vi.useFakeTimers();
 
     const { getByRole } = await render(
       `
@@ -79,7 +79,7 @@ describe('NgpTooltipTrigger interactive hover behavior', () => {
     fireEvent.mouseLeave(trigger);
     const tooltip = document.querySelector('[ngpTooltip]') as HTMLElement;
     fireEvent.mouseEnter(tooltip);
-    jest.advanceTimersByTime(1);
+    vi.advanceTimersByTime(1);
 
     await waitFor(() => {
       expect(document.querySelector('[ngpTooltip]')).not.toBeInTheDocument();
@@ -87,7 +87,7 @@ describe('NgpTooltipTrigger interactive hover behavior', () => {
   });
 
   it('should keep open while pointer stays in polygon bridge and close when leaving it', async () => {
-    jest.useFakeTimers();
+    vi.useFakeTimers();
 
     const { getByRole } = await render(
       `
@@ -114,16 +114,16 @@ describe('NgpTooltipTrigger interactive hover behavior', () => {
     });
 
     const tooltip = document.querySelector('[ngpTooltip]') as HTMLElement;
-    jest.spyOn(trigger, 'getBoundingClientRect').mockReturnValue(new DOMRect(0, 0, 40, 20));
-    jest.spyOn(tooltip, 'getBoundingClientRect').mockReturnValue(new DOMRect(120, 0, 80, 40));
+    vi.spyOn(trigger, 'getBoundingClientRect').mockReturnValue(new DOMRect(0, 0, 40, 20));
+    vi.spyOn(tooltip, 'getBoundingClientRect').mockReturnValue(new DOMRect(120, 0, 80, 40));
 
     fireEvent.mouseLeave(trigger, { clientX: 40, clientY: 10 });
     fireEvent.pointerMove(document, { clientX: 80, clientY: 10 });
-    jest.advanceTimersByTime(1);
+    vi.advanceTimersByTime(1);
     expect(document.querySelector('[ngpTooltip]')).toBeInTheDocument();
 
     fireEvent.pointerMove(document, { clientX: 80, clientY: 90 });
-    jest.advanceTimersByTime(1);
+    vi.advanceTimersByTime(1);
 
     await waitFor(() => {
       expect(document.querySelector('[ngpTooltip]')).not.toBeInTheDocument();
@@ -131,7 +131,7 @@ describe('NgpTooltipTrigger interactive hover behavior', () => {
   });
 
   it('should close if pointer leaves trigger and does not move', async () => {
-    jest.useFakeTimers();
+    vi.useFakeTimers();
 
     const { getByRole } = await render(
       `
@@ -158,11 +158,11 @@ describe('NgpTooltipTrigger interactive hover behavior', () => {
     });
 
     const tooltip = document.querySelector('[ngpTooltip]') as HTMLElement;
-    jest.spyOn(trigger, 'getBoundingClientRect').mockReturnValue(new DOMRect(0, 0, 40, 20));
-    jest.spyOn(tooltip, 'getBoundingClientRect').mockReturnValue(new DOMRect(120, 0, 80, 40));
+    vi.spyOn(trigger, 'getBoundingClientRect').mockReturnValue(new DOMRect(0, 0, 40, 20));
+    vi.spyOn(tooltip, 'getBoundingClientRect').mockReturnValue(new DOMRect(120, 0, 80, 40));
 
     fireEvent.mouseLeave(trigger, { clientX: 40, clientY: 10 });
-    jest.advanceTimersByTime(200);
+    vi.advanceTimersByTime(200);
 
     await waitFor(() => {
       expect(document.querySelector('[ngpTooltip]')).not.toBeInTheDocument();
@@ -170,7 +170,7 @@ describe('NgpTooltipTrigger interactive hover behavior', () => {
   });
 
   it('should close on blur even while hovering tooltip content', async () => {
-    jest.useFakeTimers();
+    vi.useFakeTimers();
 
     const { getByRole } = await render(
       `
@@ -199,7 +199,7 @@ describe('NgpTooltipTrigger interactive hover behavior', () => {
     const tooltip = document.querySelector('[ngpTooltip]') as HTMLElement;
     fireEvent.mouseEnter(tooltip);
     fireEvent.blur(trigger);
-    jest.advanceTimersByTime(1);
+    vi.advanceTimersByTime(1);
 
     await waitFor(() => {
       expect(document.querySelector('[ngpTooltip]')).not.toBeInTheDocument();
@@ -207,7 +207,7 @@ describe('NgpTooltipTrigger interactive hover behavior', () => {
   });
 
   it('should use provider defaults and allow input override for hoverableContent', async () => {
-    jest.useFakeTimers();
+    vi.useFakeTimers();
 
     const { getByRole } = await render(
       `
@@ -239,7 +239,7 @@ describe('NgpTooltipTrigger interactive hover behavior', () => {
     fireEvent.mouseLeave(trigger);
     const tooltip = document.querySelector('[ngpTooltip]') as HTMLElement;
     fireEvent.mouseEnter(tooltip);
-    jest.advanceTimersByTime(1);
+    vi.advanceTimersByTime(1);
 
     expect(document.querySelector('[ngpTooltip]')).toBeInTheDocument();
   });

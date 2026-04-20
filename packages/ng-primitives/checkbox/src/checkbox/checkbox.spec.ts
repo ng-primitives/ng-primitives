@@ -1,15 +1,16 @@
 import { RenderResult, fireEvent, render } from '@testing-library/angular';
+import type { Mock } from 'vitest';
 import { NgpCheckbox } from './checkbox';
 
 describe('NgpCheckbox', () => {
   let container: RenderResult<unknown, unknown>;
   let checkbox: HTMLElement;
-  let checkedChange: jest.Mock;
-  let indeterminateChange: jest.Mock;
+  let checkedChange: Mock;
+  let indeterminateChange: Mock;
 
   beforeEach(async () => {
-    checkedChange = jest.fn();
-    indeterminateChange = jest.fn();
+    checkedChange = vi.fn();
+    indeterminateChange = vi.fn();
 
     container = await render(
       `<div

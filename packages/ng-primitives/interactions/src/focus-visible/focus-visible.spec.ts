@@ -1,14 +1,15 @@
 import { FocusMonitor } from '@angular/cdk/a11y';
 import { TestBed } from '@angular/core/testing';
 import { fireEvent, render } from '@testing-library/angular';
+import type { Mock } from 'vitest';
 import { provideInteractionsConfig } from '../config/interactions-config';
 import { NgpFocusVisible } from './focus-visible';
 
 describe('NgpFocusVisible', () => {
-  let focusChange: jest.Mock;
+  let focusChange: Mock;
 
   beforeEach(() => {
-    focusChange = jest.fn();
+    focusChange = vi.fn();
   });
 
   it('should not set data-focus-visible to true when mouse focused', async () => {

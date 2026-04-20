@@ -4,7 +4,7 @@ import { deprecatedSetter } from 'ng-primitives/state';
 describe('deprecatedSetter', () => {
   describe('with a WritableSignal (no custom setter)', () => {
     it('should proxy .set with a deprecation warning', () => {
-      const warnSpy = jest.spyOn(console, 'warn').mockImplementation();
+      const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
       const s = signal(0);
       const proxy = deprecatedSetter(s, 'setValue');
 
@@ -17,7 +17,7 @@ describe('deprecatedSetter', () => {
     });
 
     it('should proxy .update with a deprecation warning', () => {
-      const warnSpy = jest.spyOn(console, 'warn').mockImplementation();
+      const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
       const s = signal(10);
       const proxy = deprecatedSetter(s, 'setValue');
 
@@ -38,9 +38,9 @@ describe('deprecatedSetter', () => {
 
   describe('with a read-only Signal and custom setter', () => {
     it('should proxy .set using the custom setter', () => {
-      const warnSpy = jest.spyOn(console, 'warn').mockImplementation();
+      const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
       const s = signal(0);
-      const setter = jest.fn((v: number) => s.set(v));
+      const setter = vi.fn((v: number) => s.set(v));
       const proxy = deprecatedSetter(s.asReadonly(), 'setValue', setter);
 
       proxy.set(42);
@@ -50,9 +50,9 @@ describe('deprecatedSetter', () => {
     });
 
     it('should proxy .update using the custom setter with current value', () => {
-      const warnSpy = jest.spyOn(console, 'warn').mockImplementation();
+      const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
       const s = signal(10);
-      const setter = jest.fn((v: number) => s.set(v));
+      const setter = vi.fn((v: number) => s.set(v));
       const proxy = deprecatedSetter(s.asReadonly(), 'setValue', setter);
 
       proxy.update(v => v + 5);
@@ -65,9 +65,9 @@ describe('deprecatedSetter', () => {
     });
 
     it('should not throw when .update is called on a read-only signal proxy', () => {
-      const warnSpy = jest.spyOn(console, 'warn').mockImplementation();
+      const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
       const s = signal('a');
-      const setter = jest.fn((v: string) => s.set(v));
+      const setter = vi.fn((v: string) => s.set(v));
       const proxy = deprecatedSetter(s.asReadonly(), 'setValue', setter);
 
       expect(() => proxy.update(v => v + 'b')).not.toThrow();
@@ -77,7 +77,7 @@ describe('deprecatedSetter', () => {
 
     it('should read the value via the proxy', () => {
       const s = signal('hello');
-      const proxy = deprecatedSetter(s.asReadonly(), 'setValue', jest.fn());
+      const proxy = deprecatedSetter(s.asReadonly(), 'setValue', vi.fn());
       expect(proxy()).toBe('hello');
     });
   });

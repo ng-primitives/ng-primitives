@@ -41,7 +41,7 @@ describe('NgpToggle', () => {
   });
 
   it('should toggle the pressed state on click', async () => {
-    const spy = jest.fn();
+    const spy = vi.fn();
 
     await render(
       `<button ngpToggle [(ngpToggleSelected)]="selected" (ngpToggleSelectedChange)="onChange($event)">Toggle</button>`,
@@ -62,7 +62,7 @@ describe('NgpToggle', () => {
   });
 
   it('should not toggle the pressed state when disabled', async () => {
-    const spy = jest.fn();
+    const spy = vi.fn();
 
     await render(
       `<button ngpToggle [(ngpToggleSelected)]="selected" [ngpToggleDisabled]="true" (ngpToggleSelectedChange)="onChange($event)">Toggle</button>`,
@@ -105,7 +105,7 @@ describe('NgpToggle', () => {
     });
 
     it('should toggle from defaultSelected state on click', async () => {
-      const spy = jest.fn();
+      const spy = vi.fn();
 
       await render(
         `<button ngpToggle ngpToggleDefaultSelected (ngpToggleSelectedChange)="onChange($event)">Toggle</button>`,
@@ -128,7 +128,7 @@ describe('NgpToggle', () => {
     });
 
     it('should not reset internal state when parent re-renders with same defaultSelected', async () => {
-      const spy = jest.fn();
+      const spy = vi.fn();
 
       const { rerender } = await render(
         `<button ngpToggle [ngpToggleDefaultSelected]="defaultSelected" (ngpToggleSelectedChange)="onChange($event)">Toggle</button>`,
@@ -153,7 +153,7 @@ describe('NgpToggle', () => {
     });
 
     it('should not reset internal state when defaultSelected changes after user interaction', async () => {
-      const spy = jest.fn();
+      const spy = vi.fn();
 
       const { rerender } = await render(
         `<button ngpToggle [ngpToggleDefaultSelected]="defaultSelected" (ngpToggleSelectedChange)="onChange($event)">Toggle</button>`,
@@ -188,7 +188,7 @@ describe('NgpToggle', () => {
     });
 
     it('should not toggle when disabled in uncontrolled mode', async () => {
-      const spy = jest.fn();
+      const spy = vi.fn();
 
       await render(
         `<button ngpToggle ngpToggleDefaultSelected [ngpToggleDisabled]="true" (ngpToggleSelectedChange)="onChange($event)">Toggle</button>`,
@@ -219,7 +219,7 @@ describe('NgpToggle', () => {
     });
 
     it('should toggle on click with no defaultSelected and no selected binding', async () => {
-      const spy = jest.fn();
+      const spy = vi.fn();
 
       await render(
         `<button ngpToggle (ngpToggleSelectedChange)="onChange($event)">Toggle</button>`,
@@ -300,7 +300,7 @@ describe('NgpToggle', () => {
     });
 
     it('should emit selectedChange on click but not update DOM without parent updating binding', async () => {
-      const spy = jest.fn();
+      const spy = vi.fn();
 
       await render(
         `<button ngpToggle [ngpToggleSelected]="false" (ngpToggleSelectedChange)="onChange($event)">Toggle</button>`,
@@ -331,7 +331,7 @@ describe('NgpToggle', () => {
     });
 
     it('should toggle on click for a non-button element', async () => {
-      const spy = jest.fn();
+      const spy = vi.fn();
 
       await render(
         `<div ngpToggle role="button" (ngpToggleSelectedChange)="onChange($event)">Toggle</div>`,
@@ -347,7 +347,7 @@ describe('NgpToggle', () => {
     });
 
     it('should toggle on Space keydown for a non-button element', async () => {
-      const spy = jest.fn();
+      const spy = vi.fn();
 
       await render(
         `<div ngpToggle role="button" (ngpToggleSelectedChange)="onChange($event)">Toggle</div>`,
@@ -363,7 +363,7 @@ describe('NgpToggle', () => {
     });
 
     it('should not toggle on Space keydown when disabled on a non-button element', async () => {
-      const spy = jest.fn();
+      const spy = vi.fn();
 
       await render(
         `<div ngpToggle role="button" [ngpToggleDisabled]="true" (ngpToggleSelectedChange)="onChange($event)">Toggle</div>`,

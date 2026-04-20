@@ -227,7 +227,7 @@ describe('controlledState', () => {
 
     it('should become permanently controlled when value transitions from undefined to defined', () => {
       const value = signal<string | undefined>(undefined);
-      const onChange = jest.fn();
+      const onChange = vi.fn();
       const result = createControlledState<string>({
         value,
         defaultValue: signal('default'),
@@ -253,7 +253,7 @@ describe('controlledState', () => {
 
   describe('onChange callback', () => {
     it('should call onChange when set is called', () => {
-      const onChange = jest.fn();
+      const onChange = vi.fn();
       const result = createControlledState<boolean>({
         value: signal(undefined),
         defaultValue: signal(false),
@@ -266,7 +266,7 @@ describe('controlledState', () => {
     });
 
     it('should call onChange with the new value each time set is called', () => {
-      const onChange = jest.fn();
+      const onChange = vi.fn();
       const result = createControlledState<boolean>({
         value: signal(undefined),
         defaultValue: signal(false),
@@ -284,7 +284,7 @@ describe('controlledState', () => {
     });
 
     it('should call onChange in controlled mode so the parent can respond', () => {
-      const onChange = jest.fn();
+      const onChange = vi.fn();
       const value = signal<boolean | undefined>(false);
       const result = createControlledState<boolean>({
         value,
@@ -296,7 +296,7 @@ describe('controlledState', () => {
     });
 
     it('should not call onChange when controlled value changes externally', () => {
-      const onChange = jest.fn();
+      const onChange = vi.fn();
       const value = signal<boolean | undefined>(false);
       createControlledState<boolean>({
         value,
@@ -308,7 +308,7 @@ describe('controlledState', () => {
     });
 
     it('should not call onChange when defaultValue changes', () => {
-      const onChange = jest.fn();
+      const onChange = vi.fn();
       const defaultValue = signal(false);
       createControlledState<boolean>({
         value: signal(undefined),
@@ -329,7 +329,7 @@ describe('controlledState', () => {
     });
 
     it('should call onChange with complex types', () => {
-      const onChange = jest.fn();
+      const onChange = vi.fn();
       const result = createControlledState<{ id: number }>({
         value: signal(undefined),
         defaultValue: signal({ id: 0 }),
@@ -380,7 +380,7 @@ describe('controlledState', () => {
     });
 
     it('should not emit when controlled value changes externally', () => {
-      const spy = jest.fn();
+      const spy = vi.fn();
       const value = signal<boolean | undefined>(false);
       const result = createControlledState<boolean>({ value });
 
@@ -390,7 +390,7 @@ describe('controlledState', () => {
     });
 
     it('should not emit when defaultValue changes', () => {
-      const spy = jest.fn();
+      const spy = vi.fn();
       const defaultValue = signal(false);
       const result = createControlledState<boolean>({
         value: signal(undefined),
@@ -463,7 +463,7 @@ describe('controlledState', () => {
 
   describe('edge cases', () => {
     it('should not fire onChange when set is called with the same value', () => {
-      const onChange = jest.fn();
+      const onChange = vi.fn();
       const result = createControlledState<boolean>({
         value: signal(undefined),
         defaultValue: signal(false),
@@ -477,7 +477,7 @@ describe('controlledState', () => {
     });
 
     it('should handle rapid successive set calls', () => {
-      const onChange = jest.fn();
+      const onChange = vi.fn();
       const result = createControlledState<number>({
         value: signal(undefined),
         defaultValue: signal(0),
@@ -493,7 +493,7 @@ describe('controlledState', () => {
     });
 
     it('should handle set being called with undefined in a nullable type', () => {
-      const onChange = jest.fn();
+      const onChange = vi.fn();
       const result = createControlledState<string | undefined>({
         value: signal<string | undefined | undefined>(undefined),
         defaultValue: signal<string | undefined>('default'),
@@ -520,7 +520,7 @@ describe('controlledState', () => {
 
     describe('set with emit: false', () => {
       it('should update internal state but not call onChange', () => {
-        const onChange = jest.fn();
+        const onChange = vi.fn();
         const result = createControlledState<boolean>({
           value: signal(undefined),
           defaultValue: signal(false),
@@ -534,7 +534,7 @@ describe('controlledState', () => {
       });
 
       it('should update internal state but not emit on the change observable', () => {
-        const spy = jest.fn();
+        const spy = vi.fn();
         const result = createControlledState<boolean>({
           value: signal(undefined),
           defaultValue: signal(false),
@@ -548,7 +548,7 @@ describe('controlledState', () => {
       });
 
       it('should default to emit: true when options are omitted', () => {
-        const onChange = jest.fn();
+        const onChange = vi.fn();
         const result = createControlledState<boolean>({
           value: signal(undefined),
           defaultValue: signal(false),
@@ -560,7 +560,7 @@ describe('controlledState', () => {
       });
 
       it('should respect emit: true explicitly', () => {
-        const onChange = jest.fn();
+        const onChange = vi.fn();
         const result = createControlledState<boolean>({
           value: signal(undefined),
           defaultValue: signal(false),
@@ -572,7 +572,7 @@ describe('controlledState', () => {
       });
 
       it('should not update internal state in controlled mode even with emit: false', () => {
-        const onChange = jest.fn();
+        const onChange = vi.fn();
         const value = signal<boolean | undefined>(false);
         const result = createControlledState<boolean>({
           value,
@@ -587,7 +587,7 @@ describe('controlledState', () => {
       });
 
       it('should still skip when called with the same value and emit: false', () => {
-        const onChange = jest.fn();
+        const onChange = vi.fn();
         const result = createControlledState<boolean>({
           value: signal(undefined),
           defaultValue: signal(false),
@@ -600,7 +600,7 @@ describe('controlledState', () => {
       });
 
       it('should allow subsequent set with emit:true to fire after emit:false', () => {
-        const onChange = jest.fn();
+        const onChange = vi.fn();
         const result = createControlledState<string>({
           value: signal(undefined),
           defaultValue: signal('a'),
@@ -619,7 +619,7 @@ describe('controlledState', () => {
 
     it('should stay controlled once value becomes defined', () => {
       const value = signal<string | undefined>(undefined);
-      const onChange = jest.fn();
+      const onChange = vi.fn();
       const result = createControlledState<string>({
         value,
         defaultValue: signal('default'),
@@ -644,7 +644,7 @@ describe('controlledState', () => {
 
   describe('form control integration (set with emit: false)', () => {
     it('should update the resolved value without calling onChange', () => {
-      const onChange = jest.fn();
+      const onChange = vi.fn();
       const result = createControlledState<boolean>({
         value: signal(undefined),
         defaultValue: signal(false),
@@ -659,7 +659,7 @@ describe('controlledState', () => {
     });
 
     it('should not emit on the change observable', () => {
-      const spy = jest.fn();
+      const spy = vi.fn();
       const result = createControlledState<boolean>({
         value: signal(undefined),
         defaultValue: signal(false),
@@ -673,7 +673,7 @@ describe('controlledState', () => {
     });
 
     it('should allow user interaction (set) after set with emit: false', () => {
-      const onChange = jest.fn();
+      const onChange = vi.fn();
       const result = createControlledState<boolean>({
         value: signal(undefined),
         defaultValue: signal(false),
@@ -692,7 +692,7 @@ describe('controlledState', () => {
     });
 
     it('should reflect form control disabled via set with emit: false after user interaction', () => {
-      const onChange = jest.fn();
+      const onChange = vi.fn();
       const result = createControlledState<boolean>({
         value: signal(undefined),
         defaultValue: signal(false),
@@ -711,7 +711,7 @@ describe('controlledState', () => {
     });
 
     it('should handle set with emit: false with the same current value', () => {
-      const onChange = jest.fn();
+      const onChange = vi.fn();
       const result = createControlledState<boolean>({
         value: signal(undefined),
         defaultValue: signal(true),
@@ -724,7 +724,7 @@ describe('controlledState', () => {
     });
 
     it('should pin userValue when set with emit: false matches defaultValue', () => {
-      const onChange = jest.fn();
+      const onChange = vi.fn();
       const defaultValue = signal(true);
       const result = createControlledState<boolean>({
         value: signal(undefined),

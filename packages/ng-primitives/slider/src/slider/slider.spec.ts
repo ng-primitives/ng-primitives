@@ -41,7 +41,7 @@ describe('NgpSlider', () => {
   it('should render with generated id and orientation', async () => {
     const { getByTestId } = await render(createTemplate(), {
       imports: [NgpSlider, NgpSliderTrack, NgpSliderRange, NgpSliderThumb],
-      componentProperties: { valueChange: jest.fn() },
+      componentProperties: { valueChange: vi.fn() },
     });
 
     const slider = getByTestId('slider');
@@ -50,7 +50,7 @@ describe('NgpSlider', () => {
   });
 
   it('should respect disabled state (attributes and interactions)', async () => {
-    const valueChange = jest.fn();
+    const valueChange = vi.fn();
     const { getByTestId, rerender } = await render(
       createTemplate(`[ngpSliderDisabled]="disabled"`),
       {
@@ -74,7 +74,7 @@ describe('NgpSlider', () => {
   });
 
   it('should adjust value with keyboard on thumb', async () => {
-    const valueChange = jest.fn();
+    const valueChange = vi.fn();
     const { getByTestId } = await render(
       createTemplate(`[ngpSliderValue]="value" [ngpSliderMin]="0" [ngpSliderMax]="10"`),
       {
@@ -95,7 +95,7 @@ describe('NgpSlider', () => {
       createTemplate(`[ngpSliderOrientation]="'vertical'" [ngpSliderValue]="25"`),
       {
         imports: [NgpSlider, NgpSliderTrack, NgpSliderRange, NgpSliderThumb],
-        componentProperties: { valueChange: jest.fn() },
+        componentProperties: { valueChange: vi.fn() },
       },
     );
 
@@ -117,7 +117,7 @@ describe('NgpSlider', () => {
       ),
       {
         imports: [NgpSlider, NgpSliderTrack, NgpSliderRange, NgpSliderThumb],
-        componentProperties: { valueChange: jest.fn() },
+        componentProperties: { valueChange: vi.fn() },
       },
     );
 
@@ -135,7 +135,7 @@ describe('NgpSlider', () => {
       ),
       {
         imports: [NgpSlider, NgpSliderTrack, NgpSliderRange, NgpSliderThumb],
-        componentProperties: { valueChange: jest.fn() },
+        componentProperties: { valueChange: vi.fn() },
       },
     );
 
@@ -152,7 +152,7 @@ describe('NgpSlider', () => {
       ),
       {
         imports: [NgpSlider, NgpSliderTrack, NgpSliderRange, NgpSliderThumb],
-        componentProperties: { valueChange: jest.fn() },
+        componentProperties: { valueChange: vi.fn() },
       },
     );
 
@@ -167,7 +167,7 @@ describe('NgpSlider', () => {
       createTemplate(`[ngpSliderOrientation]="'vertical'" [ngpSliderValue]="50"`),
       {
         imports: [NgpSlider, NgpSliderTrack, NgpSliderRange, NgpSliderThumb],
-        componentProperties: { valueChange: jest.fn() },
+        componentProperties: { valueChange: vi.fn() },
       },
     );
 
@@ -179,7 +179,7 @@ describe('NgpSlider', () => {
   });
 
   it('should set higher value when clicking near top of vertical track', async () => {
-    const valueChange = jest.fn();
+    const valueChange = vi.fn();
     const { getByTestId, fixture } = await render(
       createTemplate(
         `[ngpSliderOrientation]="'vertical'" [ngpSliderValue]="50" [ngpSliderMin]="0" [ngpSliderMax]="100"`,
@@ -193,7 +193,7 @@ describe('NgpSlider', () => {
     const track = getByTestId('track');
 
     // Mock getBoundingClientRect for vertical track
-    jest.spyOn(track, 'getBoundingClientRect').mockReturnValue({
+    vi.spyOn(track, 'getBoundingClientRect').mockReturnValue({
       left: 0,
       top: 0,
       right: 20,
@@ -221,7 +221,7 @@ describe('NgpSlider', () => {
   });
 
   it('should set lower value when clicking near bottom of vertical track', async () => {
-    const valueChange = jest.fn();
+    const valueChange = vi.fn();
     const { getByTestId, fixture } = await render(
       createTemplate(
         `[ngpSliderOrientation]="'vertical'" [ngpSliderValue]="50" [ngpSliderMin]="0" [ngpSliderMax]="100"`,
@@ -235,7 +235,7 @@ describe('NgpSlider', () => {
     const track = getByTestId('track');
 
     // Mock getBoundingClientRect for vertical track
-    jest.spyOn(track, 'getBoundingClientRect').mockReturnValue({
+    vi.spyOn(track, 'getBoundingClientRect').mockReturnValue({
       left: 0,
       top: 0,
       right: 20,
@@ -263,7 +263,7 @@ describe('NgpSlider', () => {
   });
 
   it('should respect step value when adjusting with keyboard', async () => {
-    const valueChange = jest.fn();
+    const valueChange = vi.fn();
     const { getByTestId } = await render(
       createTemplate(
         `[ngpSliderValue]="value" [ngpSliderMin]="0" [ngpSliderMax]="10" [ngpSliderStep]="2"`,
@@ -286,7 +286,7 @@ describe('NgpSlider', () => {
   });
 
   it('should focus the thumb with mouse origin when clicking the track', async () => {
-    const valueChange = jest.fn();
+    const valueChange = vi.fn();
     const { getByTestId, fixture } = await render(
       createTemplate(`[ngpSliderValue]="value" [ngpSliderMin]="0" [ngpSliderMax]="100"`),
       {
@@ -296,12 +296,12 @@ describe('NgpSlider', () => {
     );
 
     const focusMonitor = TestBed.inject(FocusMonitor);
-    const focusViaSpy = jest.spyOn(focusMonitor, 'focusVia');
+    const focusViaSpy = vi.spyOn(focusMonitor, 'focusVia');
 
     const track = getByTestId('track');
     const thumbEl = getByTestId('thumb');
 
-    jest.spyOn(track, 'getBoundingClientRect').mockReturnValue({
+    vi.spyOn(track, 'getBoundingClientRect').mockReturnValue({
       left: 0,
       top: 0,
       right: 100,
@@ -333,7 +333,7 @@ describe('NgpSlider', () => {
   });
 
   it('should use touch focus origin when track is tapped', async () => {
-    const valueChange = jest.fn();
+    const valueChange = vi.fn();
     const { getByTestId, fixture } = await render(
       createTemplate(`[ngpSliderValue]="value" [ngpSliderMin]="0" [ngpSliderMax]="100"`),
       {
@@ -343,12 +343,12 @@ describe('NgpSlider', () => {
     );
 
     const focusMonitor = TestBed.inject(FocusMonitor);
-    const focusViaSpy = jest.spyOn(focusMonitor, 'focusVia');
+    const focusViaSpy = vi.spyOn(focusMonitor, 'focusVia');
 
     const track = getByTestId('track');
     const thumbEl = getByTestId('thumb');
 
-    jest.spyOn(track, 'getBoundingClientRect').mockReturnValue({
+    vi.spyOn(track, 'getBoundingClientRect').mockReturnValue({
       left: 0,
       top: 0,
       right: 100,
@@ -381,7 +381,7 @@ describe('NgpSlider', () => {
   });
 
   it('should allow arrow key interaction after clicking the track', async () => {
-    const valueChange = jest.fn();
+    const valueChange = vi.fn();
     const { getByTestId, fixture } = await render(
       createTemplate(
         `[ngpSliderValue]="value" [ngpSliderMin]="0" [ngpSliderMax]="100" [ngpSliderStep]="1"`,
@@ -395,7 +395,7 @@ describe('NgpSlider', () => {
     const track = getByTestId('track');
     const thumbEl = getByTestId('thumb');
 
-    jest.spyOn(track, 'getBoundingClientRect').mockReturnValue({
+    vi.spyOn(track, 'getBoundingClientRect').mockReturnValue({
       left: 0,
       top: 0,
       right: 100,
@@ -434,7 +434,7 @@ describe('NgpSlider', () => {
   });
 
   it('should prevent mousedown default to preserve thumb focus after track click', async () => {
-    const valueChange = jest.fn();
+    const valueChange = vi.fn();
     const { getByTestId, fixture } = await render(
       createTemplate(`[ngpSliderValue]="value" [ngpSliderMin]="0" [ngpSliderMax]="100"`),
       {
@@ -460,7 +460,7 @@ describe('NgpSlider', () => {
   });
 
   it('should not focus the thumb when clicking the track while disabled', async () => {
-    const valueChange = jest.fn();
+    const valueChange = vi.fn();
     const { getByTestId, fixture } = await render(
       createTemplate(
         `[ngpSliderValue]="value" [ngpSliderMin]="0" [ngpSliderMax]="100" [ngpSliderDisabled]="true"`,
@@ -472,11 +472,11 @@ describe('NgpSlider', () => {
     );
 
     const focusMonitor = TestBed.inject(FocusMonitor);
-    const focusViaSpy = jest.spyOn(focusMonitor, 'focusVia');
+    const focusViaSpy = vi.spyOn(focusMonitor, 'focusVia');
 
     const track = getByTestId('track');
 
-    jest.spyOn(track, 'getBoundingClientRect').mockReturnValue({
+    vi.spyOn(track, 'getBoundingClientRect').mockReturnValue({
       left: 0,
       top: 0,
       right: 100,
@@ -503,7 +503,7 @@ describe('NgpSlider', () => {
   });
 
   it('should respect step value when setting value via pointer', async () => {
-    const valueChange = jest.fn();
+    const valueChange = vi.fn();
     const { getByTestId, fixture } = await render(
       createTemplate(
         `[ngpSliderValue]="value" [ngpSliderMin]="0" [ngpSliderMax]="100" [ngpSliderStep]="10"`,
@@ -517,7 +517,7 @@ describe('NgpSlider', () => {
     const track = getByTestId('track');
 
     // Mock getBoundingClientRect to return realistic dimensions
-    jest.spyOn(track, 'getBoundingClientRect').mockReturnValue({
+    vi.spyOn(track, 'getBoundingClientRect').mockReturnValue({
       left: 0,
       top: 0,
       right: 100,

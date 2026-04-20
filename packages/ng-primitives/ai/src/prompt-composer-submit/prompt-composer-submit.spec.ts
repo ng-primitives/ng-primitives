@@ -12,8 +12,8 @@ describe('NgpPromptComposerSubmit', () => {
 
   beforeEach(() => {
     mockSpeechRecognition = new MockSpeechRecognition();
-    (globalThis as any).SpeechRecognition = jest.fn(() => mockSpeechRecognition);
-    (globalThis as any).webkitSpeechRecognition = jest.fn(() => mockSpeechRecognition);
+    (globalThis as any).SpeechRecognition = vi.fn(() => mockSpeechRecognition);
+    (globalThis as any).webkitSpeechRecognition = vi.fn(() => mockSpeechRecognition);
   });
 
   afterEach(() => {
@@ -78,7 +78,7 @@ describe('NgpPromptComposerSubmit', () => {
   });
 
   it('should set data attributes correctly', async () => {
-    (globalThis as any).SpeechRecognition = jest.fn();
+    (globalThis as any).SpeechRecognition = vi.fn();
 
     const { fixture } = await render(
       `<div ngpThread>
@@ -107,7 +107,7 @@ describe('NgpPromptComposerSubmit', () => {
   });
 
   it('should trigger submit on click', async () => {
-    const submitSpy = jest.fn();
+    const submitSpy = vi.fn();
 
     await render(
       `<div ngpThread>
@@ -132,7 +132,7 @@ describe('NgpPromptComposerSubmit', () => {
   });
 
   it('should not submit when disabled', async () => {
-    const submitSpy = jest.fn();
+    const submitSpy = vi.fn();
 
     await render(
       `<div ngpThread>

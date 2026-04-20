@@ -606,7 +606,7 @@ describe('Navigation Menu', () => {
 
       const link = fixture.debugElement.nativeElement.querySelector('[data-testid="direct-link"]');
       const clickEvent = new MouseEvent('click', { bubbles: true, cancelable: true });
-      const preventDefaultSpy = jest.spyOn(clickEvent, 'preventDefault');
+      const preventDefaultSpy = vi.spyOn(clickEvent, 'preventDefault');
 
       link.dispatchEvent(clickEvent);
 
@@ -618,7 +618,7 @@ describe('Navigation Menu', () => {
       const link = fixture.debugElement.nativeElement.querySelector('[data-testid="direct-link"]');
 
       const clickEvent = new MouseEvent('click', { bubbles: true, cancelable: true });
-      const preventDefaultSpy = jest.spyOn(clickEvent, 'preventDefault');
+      const preventDefaultSpy = vi.spyOn(clickEvent, 'preventDefault');
 
       link.dispatchEvent(clickEvent);
 

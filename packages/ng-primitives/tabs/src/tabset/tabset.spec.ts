@@ -87,7 +87,7 @@ describe('NgpTabset', () => {
   });
 
   it('should emit the valueChange event when the selected tab changes', async () => {
-    const valueChange = jest.fn();
+    const valueChange = vi.fn();
     const { getByRole } = await render(
       `
       <div ngpTabset (ngpTabsetValueChange)="valueChange($event)">
@@ -134,7 +134,7 @@ describe('NgpTabset', () => {
   });
 
   it('should not emit valueChange if the selected tab is clicked again', async () => {
-    const valueChange = jest.fn();
+    const valueChange = vi.fn();
     const { getByRole } = await render(
       `
       <div ngpTabset ngpTabsetValue="overview" (ngpTabsetValueChange)="valueChange($event)">
@@ -727,7 +727,7 @@ describe('NgpTabset', () => {
     });
 
     it('should handle duplicate tab values', async () => {
-      const valueChange = jest.fn();
+      const valueChange = vi.fn();
       const { getAllByRole } = await render(
         `
         <div ngpTabset (ngpTabsetValueChange)="valueChange($event)">
@@ -757,7 +757,7 @@ describe('NgpTabset', () => {
 
   describe('Public API Methods', () => {
     it('should allow programmatic tab selection via click simulation', async () => {
-      const valueChange = jest.fn();
+      const valueChange = vi.fn();
       const { getByRole } = await render(
         `
         <div ngpTabset (ngpTabsetValueChange)="valueChange($event)">

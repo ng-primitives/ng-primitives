@@ -5,7 +5,7 @@ import { ToggleGroup, ToggleGroupItemFixture } from './toggle-group-forms.fixtur
 
 describe('ToggleGroup (reusable component) — template-driven forms', () => {
   it('binds with [(ngModel)] two-way', async () => {
-    const ngModelChange = jest.fn();
+    const ngModelChange = vi.fn();
     const { getByTestId, fixture, rerender } = await render(
       `
       <app-toggle-group [(ngModel)]="value" (ngModelChange)="ngModelChange($event)">
@@ -119,7 +119,7 @@ describe('ToggleGroup (reusable component) — reactive forms', () => {
       },
     );
 
-    const spy = jest.fn();
+    const spy = vi.fn();
     formControl.valueChanges.subscribe(spy);
 
     formControl.setValue(['option-1']);

@@ -111,7 +111,7 @@ describe('NgpDialog', () => {
 
   it('should close dialog programmatically', fakeAsync(() => {
     const { ref } = openDialog();
-    const closedSpy = jest.fn();
+    const closedSpy = vi.fn();
     ref.closed.subscribe(closedSpy);
 
     ref.close('test-result');
@@ -122,7 +122,7 @@ describe('NgpDialog', () => {
 
   it('should close dialog when pointerdown and click both occur on the overlay', fakeAsync(() => {
     const { ref } = openDialog();
-    const closedSpy = jest.fn();
+    const closedSpy = vi.fn();
     ref.closed.subscribe(closedSpy);
 
     const overlay = document.querySelector('[data-testid="overlay"]') as HTMLElement;
@@ -134,7 +134,7 @@ describe('NgpDialog', () => {
 
   it('should NOT close on overlay click when dialog is clicked', fakeAsync(() => {
     const { ref } = openDialog();
-    const closedSpy = jest.fn();
+    const closedSpy = vi.fn();
     ref.closed.subscribe(closedSpy);
 
     const dialog = document.querySelector('[data-testid="dialog"]') as HTMLElement;
@@ -146,7 +146,7 @@ describe('NgpDialog', () => {
 
   it('should NOT close when pointerdown starts inside the dialog and click ends on the overlay', fakeAsync(() => {
     const { ref } = openDialog();
-    const closedSpy = jest.fn();
+    const closedSpy = vi.fn();
     ref.closed.subscribe(closedSpy);
 
     const dialog = document.querySelector('[data-testid="dialog"]') as HTMLElement;
@@ -161,7 +161,7 @@ describe('NgpDialog', () => {
 
   it('should close dialog on Escape key via registry', fakeAsync(() => {
     const { ref } = openDialog();
-    const closedSpy = jest.fn();
+    const closedSpy = vi.fn();
     ref.closed.subscribe(closedSpy);
 
     // The registry captures keydown events on the document
@@ -173,7 +173,7 @@ describe('NgpDialog', () => {
 
   it('should NOT close on Escape when closeOnEscape is false', fakeAsync(() => {
     const { ref } = openDialog({ closeOnEscape: false });
-    const closedSpy = jest.fn();
+    const closedSpy = vi.fn();
     ref.closed.subscribe(closedSpy);
 
     document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
@@ -184,7 +184,7 @@ describe('NgpDialog', () => {
 
   it('should NOT close on overlay click when closeOnClick is false', fakeAsync(() => {
     const { ref } = openDialog({ closeOnClick: false });
-    const closedSpy = jest.fn();
+    const closedSpy = vi.fn();
     ref.closed.subscribe(closedSpy);
 
     const overlay = document.querySelector('[data-testid="overlay"]') as HTMLElement;
@@ -198,7 +198,7 @@ describe('NgpDialog', () => {
     const { ref } = openDialog();
     ref.disableClose = true;
 
-    const closedSpy = jest.fn();
+    const closedSpy = vi.fn();
     ref.closed.subscribe(closedSpy);
 
     const overlay = document.querySelector('[data-testid="overlay"]') as HTMLElement;
@@ -210,7 +210,7 @@ describe('NgpDialog', () => {
 
   it('should NOT close on overlay click when closeOnOutsideClick is false', async () => {
     const { ref } = openDialog({ closeOnOutsideClick: false });
-    const closedSpy = jest.fn();
+    const closedSpy = vi.fn();
     ref.closed.subscribe(closedSpy);
 
     const overlay = document.querySelector('[data-testid="overlay"]') as HTMLElement;
@@ -224,7 +224,7 @@ describe('NgpDialog', () => {
     const { ref } = openDialog({
       closeOnOutsideClick: () => Promise.resolve(false),
     });
-    const closedSpy = jest.fn();
+    const closedSpy = vi.fn();
     ref.closed.subscribe(closedSpy);
 
     const overlay = document.querySelector('[data-testid="overlay"]') as HTMLElement;
@@ -238,7 +238,7 @@ describe('NgpDialog', () => {
     const { ref } = openDialog({
       closeOnOutsideClick: () => Promise.resolve(true),
     });
-    const closedSpy = jest.fn();
+    const closedSpy = vi.fn();
     ref.closed.subscribe(closedSpy);
 
     const overlay = document.querySelector('[data-testid="overlay"]') as HTMLElement;
@@ -253,7 +253,7 @@ describe('NgpDialog', () => {
     const { ref } = openDialog({
       closeOnOutsideClick: () => false,
     });
-    const closedSpy = jest.fn();
+    const closedSpy = vi.fn();
     ref.closed.subscribe(closedSpy);
 
     const overlay = document.querySelector('[data-testid="overlay"]') as HTMLElement;
@@ -267,7 +267,7 @@ describe('NgpDialog', () => {
     const { ref } = openDialog({
       closeOnEscape: () => false,
     });
-    const closedSpy = jest.fn();
+    const closedSpy = vi.fn();
     ref.closed.subscribe(closedSpy);
 
     document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));

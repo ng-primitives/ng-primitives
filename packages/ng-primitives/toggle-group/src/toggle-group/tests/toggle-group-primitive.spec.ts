@@ -94,7 +94,7 @@ describe('NgpToggleGroup', () => {
     });
 
     it('should emit valueChange on selection', async () => {
-      const onValueChange = jest.fn();
+      const onValueChange = vi.fn();
       const { getByTestId } = await render(
         `
         <div ngpToggleGroup (ngpToggleGroupValueChange)="onValueChange($event)">
@@ -197,7 +197,7 @@ describe('NgpToggleGroup', () => {
     });
 
     it('should emit valueChange on selection', async () => {
-      const onValueChange = jest.fn();
+      const onValueChange = vi.fn();
       const { getByTestId } = await render(
         `
         <div ngpToggleGroup ngpToggleGroupType="multiple" (ngpToggleGroupValueChange)="onValueChange($event)">
@@ -275,7 +275,7 @@ describe('NgpToggleGroup', () => {
     });
 
     it('should toggle from defaultValue state on click', async () => {
-      const spy = jest.fn();
+      const spy = vi.fn();
       const { getByTestId } = await render(
         `
         <div ngpToggleGroup [ngpToggleGroupDefaultValue]="['option-1']" (ngpToggleGroupValueChange)="onValueChange($event)">
@@ -349,7 +349,7 @@ describe('NgpToggleGroup', () => {
     });
 
     it('should toggle on click with no defaultValue and no value binding', async () => {
-      const spy = jest.fn();
+      const spy = vi.fn();
       const { getByTestId } = await render(
         `
         <div ngpToggleGroup (ngpToggleGroupValueChange)="onValueChange($event)">
@@ -415,7 +415,7 @@ describe('NgpToggleGroup', () => {
     });
 
     it('should emit valueChange on click but not update DOM without parent updating binding', async () => {
-      const spy = jest.fn();
+      const spy = vi.fn();
       const { getByTestId } = await render(
         `
         <div ngpToggleGroup [ngpToggleGroupValue]="value" (ngpToggleGroupValueChange)="onValueChange($event)">
