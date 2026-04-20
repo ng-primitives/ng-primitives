@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
 import { fireEvent, render } from '@testing-library/angular';
+import { provideRovingFocusGroupState } from 'ng-primitives/roving-focus';
 import { NgpToggleGroupItem } from '../../toggle-group-item/toggle-group-item';
 import { NgpToggleGroup } from '../toggle-group';
 import { provideToggleGroupState } from '../toggle-group-state';
@@ -670,7 +671,7 @@ describe('NgpToggleGroup', () => {
           <ng-content />
         </div>
       `,
-      providers: [provideToggleGroupState()],
+      providers: [provideToggleGroupState(), provideRovingFocusGroupState()],
       imports: [NgpToggleGroup],
     })
     class HoistedToggleGroup {}
