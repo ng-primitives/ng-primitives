@@ -1,7 +1,7 @@
 import { FocusMonitor, FocusOrigin } from '@angular/cdk/a11y';
-import { computed, ElementRef, inject, signal, Signal } from '@angular/core';
+import { computed, effect, ElementRef, inject, signal, Signal, untracked } from '@angular/core';
 import { injectElementRef } from 'ng-primitives/internal';
-import { attrBinding, createPrimitive, listener, onDestroy } from 'ng-primitives/state';
+import { attrBinding, createPrimitive, listener } from 'ng-primitives/state';
 import { uniqueId } from 'ng-primitives/utils';
 import { injectRovingFocusGroupState } from '../roving-focus-group/roving-focus-group-state';
 
@@ -95,11 +95,15 @@ export const [
       element,
     };
 
-    // Register the item when created
-    group()?.register(state);
-
-    // Unregister the item when destroyed
-    onDestroy(() => group()?.unregister(state));
+    // Projected items may construct before the parent populates the shared group signal,
+    // so register reactively once it becomes available.
+    // See https://github.com/ng-primitives/ng-primitives/issues/735
+    effect(onCleanup => {
+      const groupState = group();
+      if (!groupState) return;
+      untracked(() => groupState.register(state));
+      onCleanup(() => groupState.unregister(state));
+    });
 
     return state satisfies NgpRovingFocusItemState;
   },

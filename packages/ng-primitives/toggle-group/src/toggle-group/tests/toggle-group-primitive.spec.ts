@@ -1,6 +1,9 @@
+import { Component } from '@angular/core';
 import { fireEvent, render } from '@testing-library/angular';
+import { provideRovingFocusGroupState } from 'ng-primitives/roving-focus';
 import { NgpToggleGroupItem } from '../../toggle-group-item/toggle-group-item';
 import { NgpToggleGroup } from '../toggle-group';
+import { provideToggleGroupState } from '../toggle-group-state';
 
 describe('NgpToggleGroup', () => {
   it('should set the default orientation', async () => {
@@ -656,6 +659,86 @@ describe('NgpToggleGroup', () => {
 
       fireEvent.keyDown(item1, { key: 'ArrowLeft', code: 'ArrowLeft' });
       expect(document.activeElement).toBe(item1);
+    });
+  });
+
+  // Regression coverage for https://github.com/ng-primitives/ng-primitives/issues/735
+  describe('state hoisting with projected content', () => {
+    @Component({
+      selector: 'app-hoisted-toggle-group',
+      template: `
+        <div ngpToggleGroup>
+          <ng-content />
+        </div>
+      `,
+      providers: [provideToggleGroupState(), provideRovingFocusGroupState()],
+      imports: [NgpToggleGroup],
+    })
+    class HoistedToggleGroup {}
+
+    it('should not throw when items are projected into a hoisted toggle group', async () => {
+      await expect(
+        render(
+          `
+          <app-hoisted-toggle-group>
+            <div data-testid="item-1" ngpToggleGroupItem ngpToggleGroupItemValue="option-1" tabindex="0"></div>
+            <div data-testid="item-2" ngpToggleGroupItem ngpToggleGroupItemValue="option-2" tabindex="-1"></div>
+          </app-hoisted-toggle-group>
+          `,
+          {
+            imports: [HoistedToggleGroup, NgpToggleGroupItem],
+          },
+        ),
+      ).resolves.toBeDefined();
+    });
+
+    it('should navigate with arrow keys when items are projected into a hoisted toggle group', async () => {
+      const { getByTestId } = await render(
+        `
+        <app-hoisted-toggle-group>
+          <div data-testid="item-1" ngpToggleGroupItem ngpToggleGroupItemValue="option-1" tabindex="0"></div>
+          <div data-testid="item-2" ngpToggleGroupItem ngpToggleGroupItemValue="option-2" tabindex="-1"></div>
+          <div data-testid="item-3" ngpToggleGroupItem ngpToggleGroupItemValue="option-3" tabindex="-1"></div>
+        </app-hoisted-toggle-group>
+        `,
+        {
+          imports: [HoistedToggleGroup, NgpToggleGroupItem],
+        },
+      );
+
+      const item1 = getByTestId('item-1');
+      const item2 = getByTestId('item-2');
+      const item3 = getByTestId('item-3');
+
+      item1.focus();
+      expect(document.activeElement).toBe(item1);
+
+      fireEvent.keyDown(item1, { key: 'ArrowRight', code: 'ArrowRight' });
+      expect(document.activeElement).toBe(item2);
+
+      fireEvent.keyDown(item2, { key: 'ArrowRight', code: 'ArrowRight' });
+      expect(document.activeElement).toBe(item3);
+
+      fireEvent.keyDown(item3, { key: 'ArrowRight', code: 'ArrowRight' });
+      expect(document.activeElement).toBe(item1);
+    });
+
+    it('should toggle selection when clicking projected items', async () => {
+      const { getByTestId } = await render(
+        `
+        <app-hoisted-toggle-group>
+          <div data-testid="item-1" ngpToggleGroupItem ngpToggleGroupItemValue="option-1"></div>
+          <div data-testid="item-2" ngpToggleGroupItem ngpToggleGroupItemValue="option-2"></div>
+        </app-hoisted-toggle-group>
+        `,
+        {
+          imports: [HoistedToggleGroup, NgpToggleGroupItem],
+        },
+      );
+
+      const item1 = getByTestId('item-1');
+      fireEvent.click(item1);
+      expect(item1).toHaveAttribute('data-selected');
     });
   });
 });
