@@ -173,6 +173,71 @@ describe('NgpCheckbox', () => {
       expect(checkbox).toHaveAttribute('aria-checked', 'false');
     });
 
+    it('should not reset internal state when defaultChecked changes after user interaction', async () => {
+      const spy = jest.fn();
+      const { rerender } = await render(
+        `<div ngpCheckbox [ngpCheckboxDefaultChecked]="defaultChecked" (ngpCheckboxCheckedChange)="onChange($event)"></div>`,
+        { imports: [NgpCheckbox], componentProperties: { defaultChecked: true, onChange: spy } },
+      );
+      const checkbox = screen.getByRole('checkbox');
+      expect(checkbox).toHaveAttribute('aria-checked', 'true');
+
+      fireEvent.click(checkbox);
+      expect(checkbox).toHaveAttribute('aria-checked', 'false');
+
+      // Parent changes defaultChecked to false — should NOT reset user's state
+      await rerender({ componentProperties: { defaultChecked: false, onChange: spy } });
+      expect(checkbox).toHaveAttribute('aria-checked', 'false');
+
+      fireEvent.click(checkbox);
+      expect(checkbox).toHaveAttribute('aria-checked', 'true');
+
+      // Parent changes defaultChecked back to true — should NOT reset
+      await rerender({ componentProperties: { defaultChecked: true, onChange: spy } });
+      expect(checkbox).toHaveAttribute('aria-checked', 'true');
+    });
+
+    it('should not toggle when disabled in uncontrolled mode', async () => {
+      const spy = jest.fn();
+      await render(
+        `<div ngpCheckbox ngpCheckboxDefaultChecked [ngpCheckboxDisabled]="true" (ngpCheckboxCheckedChange)="onChange($event)"></div>`,
+        { imports: [NgpCheckbox], componentProperties: { onChange: spy } },
+      );
+      const checkbox = screen.getByRole('checkbox');
+      expect(checkbox).toHaveAttribute('aria-checked', 'true');
+
+      fireEvent.click(checkbox);
+      expect(spy).not.toHaveBeenCalled();
+      expect(checkbox).toHaveAttribute('aria-checked', 'true');
+    });
+
+    it('should use controlled checked over defaultChecked when both provided', async () => {
+      await render(
+        `<div ngpCheckbox [ngpCheckboxChecked]="false" ngpCheckboxDefaultChecked></div>`,
+        { imports: [NgpCheckbox] },
+      );
+      const checkbox = screen.getByRole('checkbox');
+      expect(checkbox).toHaveAttribute('aria-checked', 'false');
+    });
+
+    it('should toggle on click with no defaultChecked and no checked binding', async () => {
+      const spy = jest.fn();
+      await render(`<div ngpCheckbox (ngpCheckboxCheckedChange)="onChange($event)"></div>`, {
+        imports: [NgpCheckbox],
+        componentProperties: { onChange: spy },
+      });
+      const checkbox = screen.getByRole('checkbox');
+      expect(checkbox).toHaveAttribute('aria-checked', 'false');
+
+      fireEvent.click(checkbox);
+      expect(spy).toHaveBeenCalledWith(true);
+      expect(checkbox).toHaveAttribute('aria-checked', 'true');
+
+      fireEvent.click(checkbox);
+      expect(spy).toHaveBeenCalledWith(false);
+      expect(checkbox).toHaveAttribute('aria-checked', 'false');
+    });
+
     it('should resolve indeterminate to checked then unchecked uncontrolled', async () => {
       const checkedSpy = jest.fn();
       const indeterminateSpy = jest.fn();
