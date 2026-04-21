@@ -1,3 +1,4 @@
+import { By } from '@angular/platform-browser';
 import { RenderResult, fireEvent, render, screen } from '@testing-library/angular';
 import { NgpCheckbox } from './checkbox';
 
@@ -121,6 +122,62 @@ describe('NgpCheckbox', () => {
       fireEvent.click(container.getByRole('checkbox'));
       expect(checkedChange).toHaveBeenCalledWith(true);
       expect(indeterminateChange).toHaveBeenCalledWith(false);
+    });
+  });
+
+  describe('controlled mode', () => {
+    it('should update the DOM when controlled value changes via two-way binding on click', async () => {
+      await render(`<div ngpCheckbox [(ngpCheckboxChecked)]="checked"></div>`, {
+        imports: [NgpCheckbox],
+        componentProperties: { checked: false },
+      });
+
+      const checkbox = screen.getByRole('checkbox');
+      expect(checkbox).toHaveAttribute('aria-checked', 'false');
+
+      fireEvent.click(checkbox);
+      expect(checkbox).toHaveAttribute('aria-checked', 'true');
+      expect(checkbox).toHaveAttribute('data-checked', '');
+
+      fireEvent.click(checkbox);
+      expect(checkbox).toHaveAttribute('aria-checked', 'false');
+      expect(checkbox).not.toHaveAttribute('data-checked');
+    });
+
+    it('should emit checkedChange on click but not update DOM without parent updating binding', async () => {
+      const spy = jest.fn();
+
+      await render(
+        `<div ngpCheckbox [ngpCheckboxChecked]="false" (ngpCheckboxCheckedChange)="onChange($event)"></div>`,
+        { imports: [NgpCheckbox], componentProperties: { onChange: spy } },
+      );
+
+      const checkbox = screen.getByRole('checkbox');
+      fireEvent.click(checkbox);
+
+      expect(spy).toHaveBeenCalledWith(true);
+      // DOM must stay at the controlled value — no internal divergence
+      expect(checkbox).toHaveAttribute('aria-checked', 'false');
+    });
+
+    it('should update state silently without emitting checkedChange when emit: false', async () => {
+      const spy = jest.fn();
+      const { fixture } = await render(
+        `<div ngpCheckbox (ngpCheckboxCheckedChange)="onChange($event)"></div>`,
+        { imports: [NgpCheckbox], componentProperties: { onChange: spy } },
+      );
+
+      const checkbox = screen.getByRole('checkbox');
+      expect(checkbox).toHaveAttribute('aria-checked', 'false');
+
+      const directive = fixture.debugElement
+        .query(By.directive(NgpCheckbox))
+        .injector.get(NgpCheckbox);
+      directive.setChecked(true, { emit: false });
+      fixture.detectChanges();
+
+      expect(checkbox).toHaveAttribute('aria-checked', 'true');
+      expect(spy).not.toHaveBeenCalled();
     });
   });
 
