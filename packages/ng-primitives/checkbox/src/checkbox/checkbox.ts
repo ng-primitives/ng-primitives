@@ -1,5 +1,6 @@
 import { BooleanInput } from '@angular/cdk/coercion';
 import { Directive, booleanAttribute, input, output } from '@angular/core';
+import { SetterOptions } from 'ng-primitives/state';
 import { uniqueId } from 'ng-primitives/utils';
 import { ngpCheckbox, provideCheckboxState } from './checkbox-state';
 
@@ -20,8 +21,17 @@ export class NgpCheckbox {
   /**
    * Defines whether the checkbox is checked.
    */
-  readonly checked = input<boolean, BooleanInput>(false, {
+  readonly checked = input<boolean | undefined, BooleanInput>(undefined, {
     alias: 'ngpCheckboxChecked',
+    transform: booleanAttribute,
+  });
+
+  /**
+   * The default checked state for uncontrolled usage.
+   * @default false
+   */
+  readonly defaultChecked = input<boolean, BooleanInput>(false, {
+    alias: 'ngpCheckboxDefaultChecked',
     transform: booleanAttribute,
   });
 
@@ -69,6 +79,7 @@ export class NgpCheckbox {
   protected readonly state = ngpCheckbox({
     id: this.id,
     checked: this.checked,
+    defaultChecked: this.defaultChecked,
     indeterminate: this.indeterminate,
     disabled: this.disabled,
     onCheckedChange: value => this.checkedChange.emit(value),
@@ -82,8 +93,15 @@ export class NgpCheckbox {
   /**
    * Update the checked value.
    */
-  setChecked(value: boolean): void {
-    this.state.setChecked(value);
+  setChecked(value: boolean, options?: SetterOptions): void {
+    this.state.setChecked(value, options);
+  }
+
+  /**
+   * Set the default checked state.
+   */
+  setDefaultChecked(value: boolean): void {
+    this.state.setDefaultChecked(value);
   }
 
   /**
