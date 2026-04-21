@@ -57,6 +57,8 @@ Here are some additional examples of how to use the Checkbox primitives.
 
 Use `ngpCheckboxDefaultChecked` to set the initial checked state in uncontrolled mode.
 
+Binding `[ngpCheckboxChecked]` makes it controlled; if omitted (`undefined`), it stays uncontrolled.
+
 <docs-example name="checkbox-default-checked"></docs-example>
 
 ### Checkbox Form Field

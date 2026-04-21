@@ -159,26 +159,6 @@ describe('NgpCheckbox', () => {
       // DOM must stay at the controlled value — no internal divergence
       expect(checkbox).toHaveAttribute('aria-checked', 'false');
     });
-
-    it('should update state silently without emitting checkedChange when emit: false', async () => {
-      const spy = jest.fn();
-      const { fixture } = await render(
-        `<div ngpCheckbox (ngpCheckboxCheckedChange)="onChange($event)"></div>`,
-        { imports: [NgpCheckbox], componentProperties: { onChange: spy } },
-      );
-
-      const checkbox = screen.getByRole('checkbox');
-      expect(checkbox).toHaveAttribute('aria-checked', 'false');
-
-      const directive = fixture.debugElement
-        .query(By.directive(NgpCheckbox))
-        .injector.get(NgpCheckbox);
-      directive.setChecked(true, { emit: false });
-      fixture.detectChanges();
-
-      expect(checkbox).toHaveAttribute('aria-checked', 'true');
-      expect(spy).not.toHaveBeenCalled();
-    });
   });
 
   describe('defaultChecked (uncontrolled)', () => {
@@ -295,6 +275,26 @@ describe('NgpCheckbox', () => {
       expect(checkbox).toHaveAttribute('aria-checked', 'false');
     });
 
+    it('should update state silently without emitting checkedChange when emit: false', async () => {
+      const spy = jest.fn();
+      const { fixture } = await render(
+        `<div ngpCheckbox (ngpCheckboxCheckedChange)="onChange($event)"></div>`,
+        { imports: [NgpCheckbox], componentProperties: { onChange: spy } },
+      );
+
+      const checkbox = screen.getByRole('checkbox');
+      expect(checkbox).toHaveAttribute('aria-checked', 'false');
+
+      const directive = fixture.debugElement
+        .query(By.directive(NgpCheckbox))
+        .injector.get(NgpCheckbox);
+      directive.setChecked(true, { emit: false });
+      fixture.detectChanges();
+
+      expect(checkbox).toHaveAttribute('aria-checked', 'true');
+      expect(spy).not.toHaveBeenCalled();
+    });
+
     it('should resolve indeterminate to checked then unchecked uncontrolled', async () => {
       const checkedSpy = jest.fn();
       const indeterminateSpy = jest.fn();
@@ -316,6 +316,10 @@ describe('NgpCheckbox', () => {
       expect(checkedSpy).toHaveBeenCalledWith(true);
       expect(indeterminateSpy).toHaveBeenCalledWith(false);
       expect(checkbox).toHaveAttribute('aria-checked', 'true');
+
+      fireEvent.click(checkbox);
+      expect(checkedSpy).toHaveBeenCalledWith(false);
+      expect(checkbox).toHaveAttribute('aria-checked', 'false');
     });
   });
 });
