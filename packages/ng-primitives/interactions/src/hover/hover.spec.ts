@@ -1,8 +1,29 @@
+import { TestBed } from '@angular/core/testing';
 import { fireEvent, render } from '@testing-library/angular';
 import { provideInteractionsConfig } from '../config/interactions-config';
 import { NgpHover } from './hover';
 
 describe('NgpHover', () => {
+  function dispatchPointerEvent(
+    target: Element | Document,
+    type: string,
+    pointerType: string,
+  ): void {
+    const event = new Event(type, {
+      bubbles: type !== 'pointerenter' && type !== 'pointerleave',
+    });
+    (event as any).pointerType = pointerType;
+    target.dispatchEvent(event);
+  }
+
+  // The hover primitive tracks a module-level `hadRecentTouch` flag so that
+  // iOS emulated mouse events stay blocked across navigations. A real
+  // pointermove(mouse) clears it, so we dispatch one before each test to
+  // avoid leaked state between tests.
+  beforeEach(() => {
+    dispatchPointerEvent(document, 'pointermove', 'mouse');
+  });
+
   it('should trigger hover start event when pointerstart occurs', async () => {
     const hoverStart = jest.fn();
     const container = await render(
@@ -139,18 +160,6 @@ describe('NgpHover', () => {
   });
 
   describe('iOS Safari touch emulation', () => {
-    function dispatchPointerEvent(
-      target: Element | Document,
-      type: string,
-      pointerType: string,
-    ): void {
-      const event = new Event(type, {
-        bubbles: type !== 'pointerenter' && type !== 'pointerleave',
-      });
-      (event as any).pointerType = pointerType;
-      target.dispatchEvent(event);
-    }
-
     it('should not activate hover when emulated pointerenter(mouse) fires after touch', async () => {
       const hoverStart = jest.fn();
       const container = await render(
@@ -169,8 +178,7 @@ describe('NgpHover', () => {
       expect(hoverStart).not.toHaveBeenCalled();
     });
 
-    it('should allow real mouse hover after touch once timeout expires', async () => {
-      jest.useFakeTimers();
+    it('should allow real mouse hover after touch once a real pointermove(mouse) occurs', async () => {
       const hoverStart = jest.fn();
       const container = await render(
         `<div data-testid="trigger" ngpHover (ngpHoverStart)="hoverStart()"></div>`,
@@ -194,14 +202,98 @@ describe('NgpHover', () => {
       dispatchPointerEvent(trigger, 'pointerleave', 'mouse');
       fireEvent.mouseLeave(trigger);
 
-      // After the 500ms timeout, the global ignore flag clears
-      jest.advanceTimersByTime(500);
+      // A real mouse produces a pointermove; iOS emulation never does.
+      dispatchPointerEvent(document, 'pointermove', 'mouse');
 
       // Now a real mouse hover should work
       dispatchPointerEvent(trigger, 'pointerenter', 'mouse');
       expect(hoverStart).toHaveBeenCalled();
+    });
+
+    it('blocks emulated pointerenter(mouse) indefinitely until a real pointermove occurs', async () => {
+      jest.useFakeTimers();
+      const hoverStart = jest.fn();
+      const container = await render(
+        `<div data-testid="trigger" ngpHover (ngpHoverStart)="hoverStart()"></div>`,
+        {
+          imports: [NgpHover],
+          componentProperties: {
+            hoverStart,
+          },
+        },
+      );
+
+      // Fire the touch on the document (not the trigger) so only the
+      // module-level flag is set — the per-element local flag stays false.
+      // Simulates a touch on some other part of the page before hovering
+      // this element with an emulated mouse event.
+      fireEvent.touchEnd(document.body);
+
+      // Well past any plausible timeout window — the flag must persist.
+      jest.advanceTimersByTime(10_000);
+
+      const trigger = container.getByTestId('trigger');
+      dispatchPointerEvent(trigger, 'pointerenter', 'mouse');
+      expect(hoverStart).not.toHaveBeenCalled();
 
       jest.useRealTimers();
+    });
+
+    it('does not clear the touch flag on pointermove(touch)', async () => {
+      const hoverStart = jest.fn();
+      const container = await render(
+        `<div data-testid="trigger" ngpHover (ngpHoverStart)="hoverStart()"></div>`,
+        {
+          imports: [NgpHover],
+          componentProperties: {
+            hoverStart,
+          },
+        },
+      );
+
+      const trigger = container.getByTestId('trigger');
+      fireEvent.touchStart(trigger);
+      fireEvent.touchEnd(trigger);
+
+      // A touch pointermove must not be treated as a real mouse signal.
+      dispatchPointerEvent(document, 'pointermove', 'touch');
+
+      dispatchPointerEvent(trigger, 'pointerenter', 'mouse');
+      expect(hoverStart).not.toHaveBeenCalled();
+    });
+
+    it('blocks emulated hover on a freshly mounted directive after a prior touch', async () => {
+      // First directive lifecycle: user touches, then navigates away.
+      const firstHoverStart = jest.fn();
+      const first = await render(
+        `<div data-testid="trigger" ngpHover (ngpHoverStart)="hoverStart()"></div>`,
+        {
+          imports: [NgpHover],
+          componentProperties: { hoverStart: firstHoverStart },
+        },
+      );
+      fireEvent.touchStart(first.getByTestId('trigger'));
+      fireEvent.touchEnd(first.getByTestId('trigger'));
+      first.fixture.destroy();
+
+      // Reset the testing module so the second render can reconfigure
+      // TestBed — this also re-creates any `providedIn: 'root'` services,
+      // which is exactly the scenario we want to prove resilient.
+      TestBed.resetTestingModule();
+
+      // Second directive lifecycle: simulates a fresh mount after navigation.
+      // Any emulated pointerenter iOS fires must still be blocked, even though
+      // Angular may have recreated its services in between.
+      const secondHoverStart = jest.fn();
+      const second = await render(
+        `<div data-testid="trigger" ngpHover (ngpHoverStart)="hoverStart()"></div>`,
+        {
+          imports: [NgpHover],
+          componentProperties: { hoverStart: secondHoverStart },
+        },
+      );
+      dispatchPointerEvent(second.getByTestId('trigger'), 'pointerenter', 'mouse');
+      expect(secondHoverStart).not.toHaveBeenCalled();
     });
 
     it('should reset hover state when touch starts while hovered', async () => {
