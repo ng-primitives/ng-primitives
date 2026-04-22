@@ -1,3 +1,15 @@
+## 0.117.2 (2026-04-22)
+
+### 🩹 Fixes
+
+- **interactions:** prevent stuck hover state on iOS Safari ([#721](https://github.com/ng-primitives/ng-primitives/pull/721))
+
+### ❤️ Thank You
+
+- Ashley Hunter
+- Claude Opus 4.6 (1M context)
+- Claude Opus 4.7 (1M context)
+
 ## 0.117.1 (2026-04-20)
 
 ### 🚀 Features
