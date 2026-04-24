@@ -158,6 +158,7 @@ describe('NgpCheckbox', () => {
       expect(spy).toHaveBeenCalledWith(true);
       // DOM must stay at the controlled value — no internal divergence
       expect(checkbox).toHaveAttribute('aria-checked', 'false');
+      expect(checkbox).not.toHaveAttribute('data-checked');
     });
   });
 
