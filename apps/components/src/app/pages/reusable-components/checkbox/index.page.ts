@@ -5,7 +5,7 @@ import { Checkbox } from './checkbox';
   selector: 'app-checkbox-example',
   imports: [Checkbox],
   template: `
-    <app-checkbox [(checked)]="checked" />
+    <app-checkbox [(checked)]="checked" aria-label="Checkbox example" />
   `,
 })
 export default class App {

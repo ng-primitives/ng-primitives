@@ -63,13 +63,69 @@
         ]
       }
     },
-    "test": {
-      "executor": "@nx/jest:jest",
-      "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
+    "build:schematics:test": {
+      "executor": "@nx/js:tsc",
+      "outputs": ["{options.outputPath}"],
       "options": {
-        "jestConfig": "packages/ng-primitives/jest.config.ts",
-        "passWithNoTests": true,
-        "tsConfig": "packages/ng-primitives/tsconfig.spec.json"
+        "clean": false,
+        "outputPath": "dist/packages/ng-primitives",
+        "main": "packages/ng-primitives/src/index.ts",
+        "tsConfig": "packages/ng-primitives/tsconfig.schematics.json",
+        "generateExportsField": false,
+        "assets": [
+          {
+            "input": "./packages/ng-primitives/schematics",
+            "glob": "**/!(*.ts)",
+            "output": "./schematics"
+          },
+          {
+            "input": "./packages/ng-primitives/schematics",
+            "glob": "**/*.d.ts",
+            "output": "./schematics"
+          },
+          {
+            "input": "./packages/ng-primitives",
+            "glob": "collection.json",
+            "output": "."
+          },
+          {
+            "input": "./packages/ng-primitives",
+            "glob": "executors.json",
+            "output": "."
+          },
+          {
+            "input": "./packages/ng-primitives",
+            "glob": "migrations.json",
+            "output": "."
+          }
+        ]
+      }
+    },
+    "test": {
+      "executor": "nx:noop",
+      "dependsOn": ["test-browser", "test-node"]
+    },
+    "test-browser": {
+      "executor": "@analogjs/vitest-angular:test",
+      "options": {
+        "configFile": "vite.config.ts"
+      }
+    },
+    "test-node": {
+      "executor": "@nx/vitest:test",
+      "dependsOn": ["build:schematics:test"],
+      "outputs": ["{workspaceRoot}/coverage/{projectRoot}-node"],
+      "options": {
+        "configFile": "packages/ng-primitives/vitest.node.config.ts",
+        "passWithNoTests": true
+      }
+    },
+    "test-browser-watch": {
+      "executor": "nx:run-commands",
+      "continuous": true,
+      "options": {
+        "command": "vitest --config vite.config.ts",
+        "cwd": "{projectRoot}"
       }
     },
     "nx-release-publish": {

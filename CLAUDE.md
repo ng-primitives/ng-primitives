@@ -10,7 +10,6 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - **Build all packages/apps:** `pnpm build`
 - **Run all tests:** `pnpm test`
 - **Lint all projects:** `pnpm lint`
-- **E2E tests:** `pnpm e2e` (runs Playwright tests)
 - **Run single test:** `nx test <project-name>`
 - **Build specific project:** `nx build <project-name>`
 
@@ -25,7 +24,6 @@ This is an Nx monorepo for Angular Primitives, a headless UI library focused on 
 - `packages/tools/` - Custom Nx generators and build tools
 - `apps/documentation/` - Documentation site built with AnalogJS
 - `apps/components/` - Preview site for reusable components
-- `apps/components-e2e/` - Playwright E2E tests
 
 ### Project Structure
 
@@ -38,7 +36,7 @@ This is an Nx monorepo for Angular Primitives, a headless UI library focused on 
 
 - Angular 19+, Nx 21+, pnpm package manager
 - AnalogJS for documentation site (Vite-based SSG/SSR)
-- Jest for unit testing, Playwright for E2E testing
+- Vitest for browser and node testing
 - ESLint for linting, Prettier for formatting
 
 ## Nx Generators

@@ -4,6 +4,6 @@ import { InputOtp } from './input-otp';
 @Component({
   selector: 'app-input-otp-example',
   imports: [InputOtp],
-  template: '<app-input-otp />',
+  template: '<app-input-otp ariaLabel="One-time password" />',
 })
 export default class App {}

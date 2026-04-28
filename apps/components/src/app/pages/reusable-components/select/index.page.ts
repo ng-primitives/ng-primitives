@@ -5,7 +5,11 @@ import { Select } from './select';
   selector: 'app-select-example',
   imports: [Select],
   template: `
-    <app-select [options]="options" placeholder="Select a character" />
+    <app-select
+      [options]="options"
+      placeholder="Select a character"
+      ariaLabel="Select a character"
+    />
   `,
 })
 export default class App {

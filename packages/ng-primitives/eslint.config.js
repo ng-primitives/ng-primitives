@@ -57,7 +57,7 @@ module.exports = [
     },
   },
   {
-    files: ['**/*.spec.ts', '**/*.fixture.ts'],
+    files: ['**/*.spec.ts', '**/*.test.ts', '**/*.fixture.ts'],
     rules: {
       '@angular-eslint/component-selector': 'off',
       '@angular-eslint/directive-selector': 'off',
