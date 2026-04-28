@@ -71,14 +71,15 @@ import { NgpButton } from 'ng-primitives/button';
       font-size: 0.875rem;
       color: var(--ngp-text-secondary);
       overflow: hidden;
+      height: 0;
+    }
+
+    [ngpAccordionContent][data-animated] {
+      transition: height 0.2s ease-in-out;
     }
 
     [ngpAccordionContent][data-open] {
-      animation: slideDown 0.2s ease-in-out forwards;
-    }
-
-    [ngpAccordionContent][data-closed] {
-      animation: slideUp 0.2s ease-in-out forwards;
+      height: var(--ngp-accordion-content-height, 0px);
     }
 
     .accordion-content {
@@ -93,27 +94,9 @@ import { NgpButton } from 'ng-primitives/button';
     [ngpAccordionTrigger][data-open] ng-icon {
       transform: rotate(180deg);
     }
-
-    @keyframes slideDown {
-      from {
-        height: 0;
-      }
-      to {
-        height: var(--ngp-accordion-content-height);
-      }
-    }
-
-    @keyframes slideUp {
-      from {
-        height: var(--ngp-accordion-content-height);
-      }
-      to {
-        height: 0;
-      }
-    }
   `,
   template: `
-    <div ngpAccordion ngpAccordionType="single" ngpAccordionCollapsible>
+    <div ngpAccordion ngpAccordionType="single" ngpAccordionCollapsible ngpAccordionValue="item-1">
       <div #panel1="ngpAccordionItem" ngpAccordionItem ngpAccordionItemValue="item-1">
         <h3>
           <button ngpAccordionTrigger ngpButton>

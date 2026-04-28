@@ -20,37 +20,17 @@ import { NgpButton } from 'ng-primitives/button';
     NgpAccordionTrigger,
   ],
   providers: [provideIcons({ heroChevronDownMini })],
-  styles: `
-    @keyframes slideDown {
-      from {
-        height: 0;
-      }
-      to {
-        height: var(--ngp-accordion-content-height);
-      }
-    }
-
-    @keyframes slideUp {
-      from {
-        height: var(--ngp-accordion-content-height);
-      }
-      to {
-        height: 0;
-      }
-    }
-    [ngpAccordionContent][data-open] {
-      animation: slideDown 0.2s ease-in-out forwards;
-    }
-    [ngpAccordionContent][data-closed] {
-      animation: slideUp 0.2s ease-in-out forwards;
-    }
-  `,
+  styles: ``,
+  host: {
+    class: 'w-full flex justify-center',
+  },
   template: `
     <div
       class="w-full max-w-sm divide-y divide-gray-200 rounded-xl border border-gray-200 bg-white ring-1 ring-black/5 dark:divide-gray-800 dark:border-gray-800 dark:bg-black dark:ring-white/10"
       ngpAccordion
       ngpAccordionType="single"
       ngpAccordionCollapsible
+      ngpAccordionValue="item-1"
     >
       <div #panel1="ngpAccordionItem" ngpAccordionItem ngpAccordionItemValue="item-1">
         <h3 class="m-0">
@@ -68,7 +48,7 @@ import { NgpButton } from 'ng-primitives/button';
           </button>
         </h3>
         <div
-          class="overflow-hidden text-sm text-gray-500 data-closed:animate-[slideUp] data-open:animate-[slideDown] dark:text-gray-400"
+          class="h-0 overflow-hidden text-sm text-gray-500 data-animated:transition-[height] data-animated:duration-200 data-animated:ease-in-out data-open:h-(--ngp-accordion-content-height) dark:text-gray-400"
           ngpAccordionContent
         >
           <div class="px-4 pt-0 pb-4">
@@ -93,7 +73,7 @@ import { NgpButton } from 'ng-primitives/button';
           </button>
         </h3>
         <div
-          class="overflow-hidden text-sm text-gray-500 data-closed:animate-[slideUp] data-open:animate-[slideDown] dark:text-gray-400"
+          class="h-0 overflow-hidden text-sm text-gray-500 data-animated:transition-[height] data-animated:duration-200 data-animated:ease-in-out data-open:h-(--ngp-accordion-content-height) dark:text-gray-400"
           ngpAccordionContent
         >
           <div class="px-4 pt-0 pb-4">
