@@ -5,7 +5,10 @@
     "declaration": true,
     "declarationMap": true,
     "inlineSources": true,
-    "types": ["node"]
+    "types": ["node"],
+    "paths": {
+      "ng-primitives/state": ["dist/packages/ng-primitives/state"]
+    }
   },
   "exclude": [
     "**/*.spec.ts",
