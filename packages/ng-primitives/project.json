@@ -67,7 +67,7 @@
       "executor": "@nx/js:tsc",
       "outputs": ["{options.outputPath}"],
       "options": {
-        "clean": true,
+        "clean": false,
         "outputPath": "dist/packages/ng-primitives",
         "main": "packages/ng-primitives/src/index.ts",
         "tsConfig": "packages/ng-primitives/tsconfig.schematics.json",
