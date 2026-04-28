@@ -3,5 +3,5 @@
   "projectTitle": "Angular Primitives",
   "description": "Headless, composable primitives for building accessible UI components in Angular.",
   "folders": ["packages", "apps"],
-  "excludeFolders": ["apps/components-e2e", "node_modules", "patches", "tools"]
+  "excludeFolders": ["node_modules", "patches", "tools"]
 }

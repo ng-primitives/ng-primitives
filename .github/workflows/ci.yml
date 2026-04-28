@@ -32,10 +32,11 @@ jobs:
           node-version: 22
           cache: 'pnpm'
       - run: pnpm install --frozen-lockfile
+      - run: pnpm exec playwright install --with-deps chromium
       - uses: nrwl/nx-set-shas@v4
 
       - run: pnpm exec nx format:check
-      - run: pnpm exec nx affected -t lint,build,test,e2e
+      - run: pnpm exec nx affected -t lint,build,test
         env:
           NODE_OPTIONS: '--max-old-space-size=8192' # Increase memory to 8GB
       - run: pnpx pkg-pr-new publish ./dist/packages/*

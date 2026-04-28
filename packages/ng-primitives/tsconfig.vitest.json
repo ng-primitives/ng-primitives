@@ -1,0 +1,10 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "outDir": "../../dist/out-tsc",
+    "target": "es2022",
+    "types": ["vitest/globals", "node", "@testing-library/jest-dom"]
+  },
+  "files": ["src/test-setup.vitest.ts"],
+  "include": ["vite.config.ts", "**/*.test.ts", "**/*.d.ts"]
+}

@@ -698,7 +698,7 @@ export function emitter<T>({
     return {
       emit(value: T): void {
         eventEmitter.next(value);
-        changeDetector.markForCheck();
+        queueMicrotask(() => changeDetector.markForCheck());
       },
       asObservable(): Observable<T> {
         return eventEmitter.asObservable();

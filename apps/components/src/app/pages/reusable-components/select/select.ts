@@ -19,6 +19,7 @@ import { ChangeFn, provideValueAccessor, TouchedFn } from 'ng-primitives/utils';
     <div
       [(ngpSelectValue)]="value"
       [ngpSelectDisabled]="disabled() || formDisabled()"
+      [attr.aria-label]="ariaLabel() || null"
       (ngpSelectValueChange)="onValueChange($event)"
       ngpSelect
     >
@@ -181,6 +182,9 @@ export class Select implements ControlValueAccessor {
 
   /** The placeholder for the input. */
   readonly placeholder = input<string>('');
+
+  /** The accessible label for the select trigger. */
+  readonly ariaLabel = input<string>('');
 
   /** The disabled state of the select. */
   readonly disabled = input<boolean, BooleanInput>(false, {

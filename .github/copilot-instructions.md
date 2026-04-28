@@ -14,7 +14,6 @@
 - **Lint all projects:** `pnpm lint`
 - **Start documentation site:** `pnpm start` (serves docs at http://localhost:4200)
 - **Preview reusable components:** `nx serve components`
-- **E2E tests:** `pnpm e2e` (runs Playwright tests for `components-e2e`)
 
 ## Nx Usage
 
@@ -29,7 +28,7 @@
 - **Class names:** Prefix with `Ngp` (e.g., `NgpButton`). Avoid suffixes like `Directive`.
 - **File names:** Use kebab-case. For directives, omit `.directive` (e.g., `button.ts`).
 - **Inputs/Outputs:** Use signal inputs and the `output` function for outputs. Avoid `model` patterns; prefer explicit input/output pairs.
-- **Tests:** Use Jest for unit tests, Playwright for E2E.
+- **Tests:** Use Vitest for unit and browser tests.
 
 ## Integration & Structure
 
@@ -40,7 +39,7 @@
 
 ## External Dependencies
 
-- Uses Angular 19+, Nx 21+, pnpm, AnalogJS, Vite, Jest, Playwright, TailwindCSS.
+- Uses Angular 19+, Nx 21+, pnpm, AnalogJS, Vite, Vitest, TailwindCSS.
 - See `package.json` for full dependency list.
 
 ## Contribution & Standards
