@@ -71,13 +71,19 @@ import { NgpButton } from 'ng-primitives/button';
       font-size: 0.875rem;
       color: var(--ngp-text-secondary);
       overflow: hidden;
+      height: 0;
     }
 
     [ngpAccordionContent][data-open] {
+      height: var(--ngp-accordion-content-height, 0px);
+    }
+
+    [ngpAccordionContent][data-enter] {
       animation: slideDown 0.2s ease-in-out forwards;
     }
 
-    [ngpAccordionContent][data-closed] {
+    [ngpAccordionContent][data-exit] {
+      height: var(--ngp-accordion-content-height, 0px);
       animation: slideUp 0.2s ease-in-out forwards;
     }
 

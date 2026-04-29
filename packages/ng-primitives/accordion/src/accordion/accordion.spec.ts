@@ -230,6 +230,87 @@ describe('NgpAccordion', () => {
     expect(triggers[1].getAttribute('aria-expanded')).toBe('false');
   });
 
+  describe('data-enter and data-exit attributes', () => {
+    it('should not set data-enter or data-exit on initial render', async () => {
+      const fixture = await renderTemplate({ value: 'item-1' });
+      const content = fixture.getAllByTestId('accordion-content');
+
+      expect(content[0]).not.toHaveAttribute('data-enter');
+      expect(content[0]).not.toHaveAttribute('data-exit');
+      expect(content[1]).not.toHaveAttribute('data-enter');
+      expect(content[1]).not.toHaveAttribute('data-exit');
+    });
+
+    it('should set data-enter when item opens via user interaction', async () => {
+      const fixture = await renderTemplate();
+      const triggers = fixture.getAllByTestId('accordion-trigger');
+      const content = fixture.getAllByTestId('accordion-content');
+
+      fireEvent.click(triggers[0]);
+      fixture.detectChanges();
+
+      expect(content[0]).toHaveAttribute('data-enter');
+      expect(content[0]).not.toHaveAttribute('data-exit');
+    });
+
+    it('should set data-exit when item closes via user interaction', async () => {
+      const fixture = await renderTemplate({ value: 'item-1' });
+      const triggers = fixture.getAllByTestId('accordion-trigger');
+      const content = fixture.getAllByTestId('accordion-content');
+
+      fireEvent.click(triggers[0]);
+      fixture.detectChanges();
+
+      expect(content[0]).toHaveAttribute('data-exit');
+      expect(content[0]).not.toHaveAttribute('data-enter');
+    });
+  });
+
+  describe('content height CSS variable in hidden container', () => {
+    it('should not set --ngp-accordion-content-height to 0px when scrollHeight is 0', async () => {
+      // In JSDOM, scrollHeight is always 0, which mimics an element inside a display:none
+      // container. The fix skips setting the CSS variable so the accordion can recover
+      // via ResizeObserver once the container becomes visible.
+      const fixture = await renderTemplate({ value: 'item-1' });
+      const content = fixture.getAllByTestId('accordion-content');
+
+      expect(content[0].style.getPropertyValue('--ngp-accordion-content-height')).not.toBe('0px');
+    });
+
+    it('should set --ngp-accordion-content-height when scrollHeight is non-zero', async () => {
+      const restore = mockScrollDimensions(200, 300);
+
+      try {
+        const fixture = await renderTemplate({ value: 'item-1' });
+        const content = fixture.getAllByTestId('accordion-content');
+
+        expect(content[0].style.getPropertyValue('--ngp-accordion-content-height')).toBe('200px');
+        expect(content[0].style.getPropertyValue('--ngp-accordion-content-width')).toBe('300px');
+        // closed item should not have dimensions set
+        expect(content[1].style.getPropertyValue('--ngp-accordion-content-height')).toBe('');
+      } finally {
+        restore();
+      }
+    });
+  });
+
+  function mockScrollDimensions(height: number, width: number): () => void {
+    const origHeight = Object.getOwnPropertyDescriptor(HTMLElement.prototype, 'scrollHeight');
+    const origWidth = Object.getOwnPropertyDescriptor(HTMLElement.prototype, 'scrollWidth');
+    Object.defineProperty(HTMLElement.prototype, 'scrollHeight', {
+      get: () => height,
+      configurable: true,
+    });
+    Object.defineProperty(HTMLElement.prototype, 'scrollWidth', {
+      get: () => width,
+      configurable: true,
+    });
+    return () => {
+      if (origHeight) Object.defineProperty(HTMLElement.prototype, 'scrollHeight', origHeight);
+      if (origWidth) Object.defineProperty(HTMLElement.prototype, 'scrollWidth', origWidth);
+    };
+  }
+
   /**
    *
    */

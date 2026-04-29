@@ -1,5 +1,10 @@
 import { afterRenderEffect, computed, signal, Signal } from '@angular/core';
-import { fromMutationObserver, injectDimensions, injectElementRef } from 'ng-primitives/internal';
+import {
+  explicitEffect,
+  fromMutationObserver,
+  injectDimensions,
+  injectElementRef,
+} from 'ng-primitives/internal';
 import { attrBinding, createPrimitive, dataBinding, listener } from 'ng-primitives/state';
 import { safeTakeUntilDestroyed, uniqueId } from 'ng-primitives/utils';
 import { debounceTime } from 'rxjs/operators';
@@ -47,7 +52,22 @@ export const [
     dataBinding(element, 'data-open', accordionItem().open);
     dataBinding(element, 'data-closed', () => !accordionItem().open());
 
+    // data-enter is set when the item opens (user interaction), data-exit when it closes.
+    // Neither is set on initial render, preventing animation on page load.
+    const enter = signal(false);
+    const exit = signal(false);
+    dataBinding(element, 'data-enter', enter);
+    dataBinding(element, 'data-exit', exit);
+
     listener(element, 'beforematch', onBeforeMatch);
+    const clearAnimation = (event: AnimationEvent) => {
+      if (event.target === element.nativeElement) {
+        enter.set(false);
+        exit.set(false);
+      }
+    };
+    listener(element, 'animationend', clearAnimation);
+    listener(element, 'animationcancel', clearAnimation);
 
     // Register the content with the accordion item state
     accordionItem().setContent(id());
@@ -66,23 +86,57 @@ export const [
 
     function updateDimensions(): void {
       if (accordionItem().open()) {
+        const scrollHeight = element.nativeElement.scrollHeight;
+
+        // Element is inside a hidden container (e.g. inactive tab with display:none).
+        // All three dimensions are 0 only when the element has no layout at all.
+        // Checking dimensions() (from ResizeObserver) prevents misidentifying
+        // legitimately empty content (e.g. all children removed) as a hidden container.
+        const { width, height } = dimensions();
+        if (scrollHeight === 0 && width === 0 && height === 0) {
+          return;
+        }
+
+        const scrollWidth = element.nativeElement.scrollWidth;
+
         // remove the inline styles to reset them
         element.nativeElement.style.removeProperty('--ngp-accordion-content-width');
         element.nativeElement.style.removeProperty('--ngp-accordion-content-height');
         // set the dimensions based on the content
         element.nativeElement.style.setProperty(
           '--ngp-accordion-content-width',
-          `${element.nativeElement.scrollWidth}px`,
+          `${scrollWidth}px`,
         );
         element.nativeElement.style.setProperty(
           '--ngp-accordion-content-height',
-          `${element.nativeElement.scrollHeight}px`,
+          `${scrollHeight}px`,
         );
       }
     }
 
-    // any time the open state of the accordion item changes, update the dimensions
-    afterRenderEffect(() => updateDimensions());
+    // Track dimensions() so this effect re-runs when the element becomes visible.
+    // Handles the case where the accordion is initialized inside a hidden container.
+    afterRenderEffect(() => {
+      dimensions(); // reactive dep — re-runs when element resizes (e.g. container becomes visible)
+      updateDimensions();
+    });
+
+    // Drive enter/exit attributes based on open state changes.
+    // Skips the initial run so no animation plays on page load.
+    let initialized = false;
+    explicitEffect([accordionItem().open], ([isOpen]) => {
+      if (!initialized) {
+        initialized = true;
+        return;
+      }
+      if (isOpen) {
+        exit.set(false);
+        enter.set(true);
+      } else {
+        enter.set(false);
+        exit.set(true);
+      }
+    });
 
     // update dimensions when the content changes
     fromMutationObserver(element.nativeElement, {
