@@ -20,7 +20,43 @@ import { NgpButton } from 'ng-primitives/button';
     NgpAccordionTrigger,
   ],
   providers: [provideIcons({ heroChevronDownMini })],
-  styles: ``,
+  styles: `
+    [ngpAccordionContent] {
+      overflow: hidden;
+      height: 0;
+    }
+
+    [ngpAccordionContent][data-open] {
+      height: var(--ngp-accordion-content-height, 0px);
+    }
+
+    [ngpAccordionContent][data-enter] {
+      animation: slideDown 0.2s ease-in-out forwards;
+    }
+
+    [ngpAccordionContent][data-exit] {
+      height: var(--ngp-accordion-content-height, 0px);
+      animation: slideUp 0.2s ease-in-out forwards;
+    }
+
+    @keyframes slideDown {
+      from {
+        height: 0;
+      }
+      to {
+        height: var(--ngp-accordion-content-height);
+      }
+    }
+
+    @keyframes slideUp {
+      from {
+        height: var(--ngp-accordion-content-height);
+      }
+      to {
+        height: 0;
+      }
+    }
+  `,
   host: {
     class: 'w-full flex justify-center',
   },
@@ -30,10 +66,9 @@ import { NgpButton } from 'ng-primitives/button';
       ngpAccordion
       ngpAccordionType="single"
       ngpAccordionCollapsible
-      ngpAccordionValue="item-1"
     >
       <div #panel1="ngpAccordionItem" ngpAccordionItem ngpAccordionItemValue="item-1">
-        <h3 class="m-0">
+        <h3 class="m-0!">
           <button
             class="flex h-11 w-full items-center justify-between rounded-xl bg-white px-4 text-sm font-medium text-gray-900 outline-hidden data-focus-visible:ring-2 data-focus-visible:ring-blue-500 dark:bg-black dark:text-gray-100"
             ngpAccordionTrigger
@@ -47,10 +82,7 @@ import { NgpButton } from 'ng-primitives/button';
             />
           </button>
         </h3>
-        <div
-          class="h-0 overflow-hidden text-sm text-gray-500 data-animated:transition-[height] data-animated:duration-200 data-animated:ease-in-out data-open:h-(--ngp-accordion-content-height) dark:text-gray-400"
-          ngpAccordionContent
-        >
+        <div class="text-sm text-gray-500 dark:text-gray-400" ngpAccordionContent>
           <div class="px-4 pt-0 pb-4">
             If you would like to learn more please reach out to us on GitHub.
           </div>
@@ -58,7 +90,7 @@ import { NgpButton } from 'ng-primitives/button';
       </div>
 
       <div #panel2="ngpAccordionItem" ngpAccordionItem ngpAccordionItemValue="item-2">
-        <h3 class="m-0">
+        <h3 class="m-0!">
           <button
             class="flex h-11 w-full items-center justify-between rounded-xl bg-white px-4 text-sm font-medium text-gray-900 outline-hidden data-focus-visible:ring-2 data-focus-visible:ring-blue-500 dark:bg-black dark:text-gray-100"
             ngpAccordionTrigger
@@ -72,10 +104,7 @@ import { NgpButton } from 'ng-primitives/button';
             />
           </button>
         </h3>
-        <div
-          class="h-0 overflow-hidden text-sm text-gray-500 data-animated:transition-[height] data-animated:duration-200 data-animated:ease-in-out data-open:h-(--ngp-accordion-content-height) dark:text-gray-400"
-          ngpAccordionContent
-        >
+        <div class="text-sm text-gray-500 dark:text-gray-400" ngpAccordionContent>
           <div class="px-4 pt-0 pb-4">
             Yes, this is open source and you can use it in your project.
           </div>
