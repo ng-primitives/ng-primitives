@@ -60,10 +60,14 @@ export const [
     dataBinding(element, 'data-exit', exit);
 
     listener(element, 'beforematch', onBeforeMatch);
-    listener(element, 'animationend', () => {
-      enter.set(false);
-      exit.set(false);
-    });
+    const clearAnimation = (event: AnimationEvent) => {
+      if (event.target === element.nativeElement) {
+        enter.set(false);
+        exit.set(false);
+      }
+    };
+    listener(element, 'animationend', clearAnimation);
+    listener(element, 'animationcancel', clearAnimation);
 
     // Register the content with the accordion item state
     accordionItem().setContent(id());
@@ -85,9 +89,11 @@ export const [
         const scrollHeight = element.nativeElement.scrollHeight;
 
         // Element is inside a hidden container (e.g. inactive tab with display:none).
-        // Skip to avoid setting 0 — afterRenderEffect tracks dimensions() and will
-        // re-run via ResizeObserver when the container becomes visible.
-        if (scrollHeight === 0) {
+        // All three dimensions are 0 only when the element has no layout at all.
+        // Checking dimensions() (from ResizeObserver) prevents misidentifying
+        // legitimately empty content (e.g. all children removed) as a hidden container.
+        const { width, height } = dimensions();
+        if (scrollHeight === 0 && width === 0 && height === 0) {
           return;
         }
 
