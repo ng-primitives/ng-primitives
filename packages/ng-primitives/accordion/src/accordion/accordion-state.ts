@@ -1,7 +1,7 @@
 import { signal, Signal, WritableSignal } from '@angular/core';
 import { NgpOrientation } from 'ng-primitives/common';
 import { injectElementRef } from 'ng-primitives/internal';
-import { attrBinding, controlled, createPrimitive, deprecatedSetter } from 'ng-primitives/state';
+import { controlled, createPrimitive, dataBinding, deprecatedSetter } from 'ng-primitives/state';
 
 /**
  * The state interface for the Accordion pattern.
@@ -95,8 +95,8 @@ export const [NgpAccordionStateToken, ngpAccordion, _injectAccordionState, provi
       const orientation = controlled(_orientation);
 
       // Host bindings extracted from directive
-      attrBinding(element, 'data-orientation', orientation);
-      attrBinding(element, 'data-disabled', disabled);
+      dataBinding(element, 'data-orientation', orientation);
+      dataBinding(element, 'data-disabled', disabled);
 
       // Setter methods
       function setDisabled(value: boolean): void {

@@ -1,0 +1,26 @@
+import axe from 'axe-core';
+import { render } from '@testing-library/angular';
+import { describe, expect, it } from 'vitest';
+import { appConfig } from '../../../app.config';
+import App from './index.page';
+
+describe('<%= className %> Accessibility', () => {
+  it('should have no detectable accessibility issues', async () => {
+    const test = await render(App, {
+      providers: appConfig.providers,
+    });
+
+    test.fixture.detectChanges();
+    await Promise.resolve();
+    await Promise.resolve();
+    test.fixture.detectChanges();
+
+    const results = await axe.run(test.container, {
+      rules: {
+        'page-has-heading-one': { enabled: false },
+      },
+    });
+
+    expect(results.violations).toEqual([]);
+  });
+});
