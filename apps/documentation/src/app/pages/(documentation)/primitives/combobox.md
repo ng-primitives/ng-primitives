@@ -65,6 +65,20 @@ Create a reusable component that uses the `NgpCombobox` directive.
 
 ## Examples
 
+### Custom Offset
+
+You can customize the offset using either a simple number or an object for more precise control:
+
+```html
+<!-- Simple number offset -->
+<div ngpCombobox [ngpComboboxDropdownOffset]="12">Dropdown with 12px offset</div>
+
+<!-- Object offset for precise control -->
+<div ngpCombobox [ngpComboboxDropdownOffset]="{mainAxis: 8, crossAxis: 4, alignmentAxis: 2}">
+  Dropdown with custom offset
+</div>
+```
+
 ### Button-only Combobox
 
 This example demonstrates a combobox without an input field. The combobox element itself becomes focusable.
@@ -255,7 +269,14 @@ You can configure the default options for all comboboxes in your application by 
 import { provideComboboxConfig } from 'ng-primitives/combobox';
 
 bootstrapApplication(AppComponent, {
-  providers: [provideComboboxConfig({ placement: 'bottom', container: document.body, flip: true })],
+  providers: [
+    provideComboboxConfig({
+      placement: 'bottom',
+      container: document.body,
+      flip: true,
+      offset: 4,
+    }),
+  ],
 });
 ```
 

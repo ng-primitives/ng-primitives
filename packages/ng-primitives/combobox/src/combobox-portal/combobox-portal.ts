@@ -74,6 +74,7 @@ export class NgpComboboxPortal implements OnDestroy {
       triggerElement: this.state().elementRef.nativeElement,
       injector: this.injector,
       placement: this.state().placement,
+      offset: this.state().offset(),
       flip: this.state().flip(),
       closeOnOutsideClick: true,
       closeOnEscape: true,
