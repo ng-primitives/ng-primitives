@@ -92,6 +92,7 @@ We welcome contributions from the community. Please refer to our [contributing g
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/undsoft"><img src="https://avatars.githubusercontent.com/u/1481270?v=4?s=100" width="100px;" alt="Evgeny Stepanovych"/><br /><sub><b>Evgeny Stepanovych</b></sub></a><br /><a href="https://github.com/ng-primitives/ng-primitives/commits?author=undsoft" title="Code">💻</a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/gourlaouenp"><img src="https://avatars.githubusercontent.com/u/233624243?v=4?s=100" width="100px;" alt="gourlaouenp"/><br /><sub><b>gourlaouenp</b></sub></a><br /><a href="https://github.com/ng-primitives/ng-primitives/commits?author=gourlaouenp" title="Code">💻</a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/clementloridan"><img src="https://avatars.githubusercontent.com/u/15263596?v=4?s=100" width="100px;" alt="Clément Loridan"/><br /><sub><b>Clément Loridan</b></sub></a><br /><a href="https://github.com/ng-primitives/ng-primitives/commits?author=clementloridan" title="Code">💻</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/mumenthalers"><img src="https://avatars.githubusercontent.com/u/3604424?v=4?s=100" width="100px;" alt="Simon Mumenthaler"/><br /><sub><b>Simon Mumenthaler</b></sub></a><br /><a href="https://github.com/ng-primitives/ng-primitives/commits?author=mumenthalers" title="Code">💻</a></td>
     </tr>
   </tbody>
 </table>
