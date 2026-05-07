@@ -60,7 +60,19 @@ ng g ng-primitives:primitive select
 
 ## Examples
 
-Here are some additional examples of how to use the Select primitives.
+### Custom Offset
+
+You can customize the offset using either a simple number or an object for more precise control:
+
+```html
+<!-- Simple number offset -->
+<div ngpSelect [ngpSelectDropdownOffset]="12">Dropdown with 12px offset</div>
+
+<!-- Object offset for precise control -->
+<div ngpSelect [ngpSelectDropdownOffset]="{mainAxis: 8, crossAxis: 4, alignmentAxis: 2}">
+  Dropdown with custom offset
+</div>
+```
 
 ### Select Form Field
 
@@ -152,7 +164,14 @@ You can configure the default options for all selects in your application by usi
 import { provideSelectConfig } from 'ng-primitives/select';
 
 bootstrapApplication(AppComponent, {
-  providers: [provideSelectConfig({ placement: 'bottom', container: document.body, flip: true })],
+  providers: [
+    provideSelectConfig({
+      placement: 'bottom',
+      container: document.body,
+      flip: true,
+      offset: 4,
+    }),
+  ],
 });
 ```
 

@@ -1,6 +1,6 @@
 import { InjectionToken, Provider, inject } from '@angular/core';
 import type { Placement } from '@floating-ui/dom';
-import { NgpFlip } from 'ng-primitives/portal';
+import { NgpFlip, NgpOffset } from 'ng-primitives/portal';
 
 export interface NgpSelectConfig {
   /**
@@ -22,12 +22,20 @@ export interface NgpSelectConfig {
    * @default true
    */
   flip: NgpFlip;
+
+  /**
+   * Define the offset of the select dropdown relative to the trigger.
+   * Can be a number (applies to mainAxis) or an object with mainAxis, crossAxis, and alignmentAxis.
+   * @default 0
+   */
+  offset: NgpOffset;
 }
 
 export const defaultSelectConfig: NgpSelectConfig = {
   placement: 'bottom',
   container: 'body',
   flip: true,
+  offset: 0,
 };
 
 export const NgpSelectConfigToken = new InjectionToken<NgpSelectConfig>('NgpSelectConfigToken');
