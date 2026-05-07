@@ -1,4 +1,4 @@
-import { fireEvent, render } from '@testing-library/angular';
+import { fireEvent, render, waitFor } from '@testing-library/angular';
 import {
   NgpAccordion,
   NgpAccordionContent,
@@ -263,5 +263,81 @@ describe('NgpAccordion', () => {
 
     expect(triggers[0]).toHaveAttribute('aria-expanded', 'true');
     expect(triggers[1]).toHaveAttribute('aria-expanded', 'false');
+  });
+
+  describe('data-enter and data-exit attributes', () => {
+    it('should not set data-enter or data-exit on initial render', async () => {
+      const fixture = await renderTemplate({ value: 'item-1' });
+      const content = fixture.getAllByTestId('accordion-content');
+
+      expect(content[0]).not.toHaveAttribute('data-enter');
+      expect(content[0]).not.toHaveAttribute('data-exit');
+      expect(content[1]).not.toHaveAttribute('data-enter');
+      expect(content[1]).not.toHaveAttribute('data-exit');
+    });
+
+    it('should set data-enter when item opens via user interaction', async () => {
+      const fixture = await renderTemplate();
+      const triggers = fixture.getAllByTestId('accordion-trigger');
+      const content = fixture.getAllByTestId('accordion-content');
+
+      fireEvent.click(triggers[0]);
+      fixture.detectChanges();
+      fixture.detectChanges();
+
+      await waitFor(() => expect(content[0]).toHaveAttribute('data-enter'));
+      expect(content[0]).not.toHaveAttribute('data-exit');
+    });
+
+    it('should set data-exit when item closes via user interaction', async () => {
+      const fixture = await renderTemplate({ value: 'item-1' });
+      const triggers = fixture.getAllByTestId('accordion-trigger');
+      const content = fixture.getAllByTestId('accordion-content');
+
+      fireEvent.click(triggers[0]);
+      fixture.detectChanges();
+      fixture.detectChanges();
+
+      await waitFor(() => expect(content[0]).toHaveAttribute('data-exit'));
+      expect(content[0]).not.toHaveAttribute('data-enter');
+    });
+  });
+
+  describe('content height CSS variable', () => {
+    it('should set --ngp-accordion-content-height when item is open', async () => {
+      const fixture = await renderTemplate({ value: 'item-1' });
+      const content = fixture.getAllByTestId('accordion-content');
+
+      await waitFor(() => {
+        expect(content[0].style.getPropertyValue('--ngp-accordion-content-height')).not.toBe('');
+        expect(content[0].style.getPropertyValue('--ngp-accordion-content-height')).not.toBe('0px');
+      });
+    });
+
+    it('should not set --ngp-accordion-content-height for closed items', async () => {
+      const fixture = await renderTemplate({ value: 'item-1' });
+      const content = fixture.getAllByTestId('accordion-content');
+
+      expect(content[1].style.getPropertyValue('--ngp-accordion-content-height')).toBe('');
+    });
+
+    it('should not set --ngp-accordion-content-height when item is in a hidden container', async () => {
+      const fixture = await render(
+        `
+        <div data-testid="hidden-container" style="display:none">
+          <div ngpAccordion ngpAccordionType="single" ngpAccordionCollapsible ngpAccordionValue="item-1">
+            <div ngpAccordionItem ngpAccordionItemValue="item-1">
+              <button ngpAccordionTrigger>Header 1</button>
+              <div data-testid="accordion-content" ngpAccordionContent>Content 1</div>
+            </div>
+          </div>
+        </div>
+        `,
+        { imports },
+      );
+      const content = fixture.getAllByTestId('accordion-content');
+
+      expect(content[0].style.getPropertyValue('--ngp-accordion-content-height')).toBe('');
+    });
   });
 });

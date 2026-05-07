@@ -114,6 +114,8 @@ The following directives are available to import from the `ng-primitives/accordi
 <api-reference-attributes>
   <api-attribute name="data-orientation" description="The orientation of the accordion." value="horizontal | vertical" />
   <api-attribute name="data-open" description="Applied when the accordion item is open." />
+  <api-attribute name="data-enter" description="Applied when the accordion item is opening (user interaction). Removed on the content element's animationend event." />
+  <api-attribute name="data-exit" description="Applied when the accordion item is closing (user interaction). Removed on the content element's animationend event." />
 </api-reference-attributes>
 
 <api-reference-css-vars>
@@ -123,7 +125,7 @@ The following directives are available to import from the `ng-primitives/accordi
 
 ## Animations
 
-The `ngpAccordionContent` primitive adds several CSS custom properties `--ngp-accordion-content-width` and `--ngp-accordion-content-height` to the element that can be used to animate the accordion content on open and close.
+The `ngpAccordionContent` primitive sets `--ngp-accordion-content-width` and `--ngp-accordion-content-height` CSS custom properties on the element. Use these with the `data-enter` and `data-exit` attributes to animate open and close. These attributes are only set on user interaction — not on initial render — so no animation plays on page load.
 
 ## Global Configuration
 
