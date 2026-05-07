@@ -1,3 +1,18 @@
+## 0.118.0 (2026-05-07)
+
+### 🚀 Features
+
+- **checkbox:** support defaultChecked for uncontrolled usage ([#737](https://github.com/ng-primitives/ng-primitives/pull/737))
+
+### 🩹 Fixes
+
+- **accordion:** use dataBinding instead of attrBinding for data attributes ([#742](https://github.com/ng-primitives/ng-primitives/pull/742))
+- **accordion:** height and init animation in hidden containers ([#741](https://github.com/ng-primitives/ng-primitives/pull/741), [#739](https://github.com/ng-primitives/ng-primitives/issues/739))
+
+### ❤️ Thank You
+
+- Robin Ferrari @zecka
+
 ## 0.117.2 (2026-04-22)
 
 ### 🩹 Fixes
