@@ -30,9 +30,14 @@ import {
   NgpShift,
   NgpShiftInput,
 } from 'ng-primitives/portal';
-import { isString } from 'ng-primitives/utils';
+import { injectDisposables, isString } from 'ng-primitives/utils';
 import { injectTooltipConfig } from '../config/tooltip-config';
 import { NgpTooltipTextContentComponent } from '../tooltip-text-content/tooltip-text-content.component';
+import {
+  createTooltipHoverBridgePolygon,
+  isPointInHoverBridgePolygon,
+  TooltipHoverBridgePoint,
+} from './tooltip-hover-bridge';
 import { provideTooltipTriggerState, tooltipTriggerState } from './tooltip-trigger-state';
 
 type TooltipInput<T> = NgpOverlayContent<T> | string | null | undefined;
@@ -43,18 +48,23 @@ type TooltipInput<T> = NgpOverlayContent<T> | string | null | undefined;
 @Directive({
   selector: '[ngpTooltipTrigger]',
   exportAs: 'ngpTooltipTrigger',
-  providers: [provideTooltipTriggerState()],
+  providers: [provideTooltipTriggerState({ inherit: false })],
   host: {
     '[attr.data-open]': 'open() ? "" : null',
     '[attr.data-disabled]': 'state.disabled() ? "" : null',
     '[attr.aria-describedby]': 'overlay()?.ariaDescribedBy()',
     '(mouseenter)': 'showFromInteraction()',
-    '(mouseleave)': 'hideFromInteraction()',
+    '(mouseleave)': 'hideFromInteraction($event)',
     '(focus)': 'showFromInteraction()',
     '(blur)': 'hideFromInteraction()',
   },
 })
 export class NgpTooltipTrigger<T = null> implements OnDestroy {
+  /**
+   * Maximum time allowed to cross from trigger to tooltip without pointer movement.
+   */
+  private static readonly HOVER_BRIDGE_TIMEOUT_MS = 150;
+
   /**
    * Access the trigger element
    */
@@ -74,6 +84,11 @@ export class NgpTooltipTrigger<T = null> implements OnDestroy {
    * Access the global tooltip configuration.
    */
   private readonly config = injectTooltipConfig();
+
+  /**
+   * Disposables for managing event listeners and timers with automatic teardown.
+   */
+  private readonly disposables = injectDisposables();
 
   /**
    * Access the tooltip template ref.
@@ -202,6 +217,14 @@ export class NgpTooltipTrigger<T = null> implements OnDestroy {
   });
 
   /**
+   * Defines how the tooltip behaves when the window is scrolled.
+   * @default 'reposition'
+   */
+  readonly scrollBehavior = input<'reposition' | 'close'>(this.config.scrollBehavior, {
+    alias: 'ngpTooltipTriggerScrollBehavior',
+  });
+
+  /**
    * Define the cooldown duration in milliseconds.
    * When moving from one tooltip to another within this duration,
    * the showDelay is skipped for the new tooltip.
@@ -210,6 +233,15 @@ export class NgpTooltipTrigger<T = null> implements OnDestroy {
   readonly cooldown = input<number, NumberInput>(this.config.cooldown, {
     alias: 'ngpTooltipTriggerCooldown',
     transform: numberAttribute,
+  });
+
+  /**
+   * Whether hovering tooltip content keeps the tooltip open.
+   * @default false
+   */
+  readonly hoverableContent = input<boolean, BooleanInput>(this.config.hoverableContent, {
+    alias: 'ngpTooltipTriggerHoverableContent',
+    transform: booleanAttribute,
   });
 
   /**
@@ -235,6 +267,31 @@ export class NgpTooltipTrigger<T = null> implements OnDestroy {
   private readonly hasOverflow: Signal<boolean>;
 
   /**
+   * Tracks whether pointer is currently over trigger.
+   */
+  private triggerHovered = false;
+
+  /**
+   * Tracks whether pointer is currently over tooltip content.
+   */
+  private contentHovered = false;
+
+  /**
+   * Current pointer grace polygon used while crossing trigger -> tooltip.
+   */
+  private hoverBridgePolygon: TooltipHoverBridgePoint[] | null = null;
+
+  /**
+   * Cleanup callback for the document pointermove listener.
+   */
+  private removePointerMoveListener?: () => void;
+
+  /**
+   * Cleanup callback for the hover bridge timeout.
+   */
+  private clearHoverBridgeTimeout?: () => void;
+
+  /**
    * Store the state of the tooltip.
    * @internal
    */
@@ -247,6 +304,7 @@ export class NgpTooltipTrigger<T = null> implements OnDestroy {
   }
 
   ngOnDestroy(): void {
+    this.clearHoverBridge();
     this.overlay()?.destroy();
   }
 
@@ -261,6 +319,7 @@ export class NgpTooltipTrigger<T = null> implements OnDestroy {
    * Hide the tooltip.
    */
   hide(): void {
+    this.clearHoverBridge();
     this.overlay()?.hide();
   }
 
@@ -272,6 +331,8 @@ export class NgpTooltipTrigger<T = null> implements OnDestroy {
     if (this.state.disabled()) {
       return;
     }
+    this.triggerHovered = true;
+    this.clearHoverBridge();
     this.performShow(false);
   }
 
@@ -303,11 +364,77 @@ export class NgpTooltipTrigger<T = null> implements OnDestroy {
    * Hide the tooltip from an interaction (respects disabled state).
    * @internal
    */
-  protected hideFromInteraction(): void {
+  protected hideFromInteraction(event?: MouseEvent): void {
     if (this.state.disabled()) {
       return;
     }
-    this.hide();
+
+    this.triggerHovered = false;
+
+    // Blur should close regardless of hover bridge or tooltip hover state.
+    if (!event) {
+      this.contentHovered = false;
+      this.clearHoverBridge();
+      this.hide();
+      return;
+    }
+
+    if (!this.state.hoverableContent()) {
+      this.hide();
+      return;
+    }
+
+    const tooltipElement = this.overlay()?.getElements()[0];
+    if (!tooltipElement) {
+      this.hide();
+      return;
+    }
+
+    const polygon = createTooltipHoverBridgePolygon({
+      triggerRect: this.trigger.nativeElement.getBoundingClientRect(),
+      tooltipRect: tooltipElement.getBoundingClientRect(),
+      exitPoint: { x: event.clientX, y: event.clientY },
+    });
+
+    if (!polygon) {
+      this.hide();
+      return;
+    }
+
+    this.hoverBridgePolygon = polygon;
+    this.overlay()?.cancelPendingClose();
+    this.registerPointerMoveListener();
+    this.scheduleHoverBridgeCloseFallback();
+  }
+
+  /**
+   * Called by tooltip content when pointer enters the tooltip.
+   * @internal
+   */
+  onTooltipHoverStart(): void {
+    if (this.state.disabled() || !this.state.hoverableContent()) {
+      return;
+    }
+
+    this.contentHovered = true;
+    this.clearHoverBridge();
+    this.overlay()?.cancelPendingClose();
+  }
+
+  /**
+   * Called by tooltip content when pointer leaves the tooltip.
+   * @internal
+   */
+  onTooltipHoverEnd(): void {
+    if (this.state.disabled() || !this.state.hoverableContent()) {
+      return;
+    }
+
+    this.contentHovered = false;
+
+    if (!this.triggerHovered) {
+      this.hide();
+    }
   }
 
   /**
@@ -362,6 +489,7 @@ export class NgpTooltipTrigger<T = null> implements OnDestroy {
       viewContainerRef: this.viewContainerRef,
       trackPosition: this.state.trackPosition(),
       position: this.state.position,
+      scrollBehaviour: this.state.scrollBehavior(),
       overlayType: 'tooltip',
       cooldown: this.state.cooldown(),
     };
@@ -375,6 +503,68 @@ export class NgpTooltipTrigger<T = null> implements OnDestroy {
    */
   setTooltipId(id: string): void {
     this.tooltipId.set(id);
+  }
+
+  /**
+   * Register document-level pointer tracking while crossing trigger -> tooltip.
+   */
+  private registerPointerMoveListener(): void {
+    if (this.removePointerMoveListener) {
+      return;
+    }
+
+    const cleanup = this.disposables.addEventListener(
+      document,
+      'pointermove' as keyof HTMLElementEventMap,
+      ((event: PointerEvent): void => {
+        if (this.triggerHovered || this.contentHovered || !this.hoverBridgePolygon) {
+          this.clearHoverBridge();
+          return;
+        }
+
+        const inBridge = isPointInHoverBridgePolygon(
+          { x: event.clientX, y: event.clientY },
+          this.hoverBridgePolygon,
+        );
+
+        if (!inBridge) {
+          this.clearHoverBridge();
+          this.hide();
+        }
+      }) as EventListener,
+      true,
+    );
+
+    this.removePointerMoveListener = () => {
+      cleanup();
+      this.removePointerMoveListener = undefined;
+    };
+  }
+
+  /**
+   * Clear hover bridge state and global listeners.
+   */
+  private clearHoverBridge(): void {
+    this.hoverBridgePolygon = null;
+    this.clearHoverBridgeTimeout?.();
+    this.clearHoverBridgeTimeout = undefined;
+    this.removePointerMoveListener?.();
+  }
+
+  /**
+   * Close if pointer leaves trigger and does not move into tooltip soon enough.
+   */
+  private scheduleHoverBridgeCloseFallback(): void {
+    this.clearHoverBridgeTimeout?.();
+
+    this.clearHoverBridgeTimeout = this.disposables.setTimeout(() => {
+      this.clearHoverBridgeTimeout = undefined;
+
+      if (!this.triggerHovered && !this.contentHovered && this.hoverBridgePolygon) {
+        this.clearHoverBridge();
+        this.hide();
+      }
+    }, NgpTooltipTrigger.HOVER_BRIDGE_TIMEOUT_MS);
   }
 }
 

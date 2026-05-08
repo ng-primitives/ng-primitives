@@ -37,9 +37,13 @@ The following directives are available to import from the `ng-primitives/roving-
 
 <api-docs name="NgpRovingFocusGroup"></api-docs>
 
+<api-reference-props name="NgpRovingFocusGroup"></api-reference-props>
+
 ### NgpRovingFocusItem
 
 <api-docs name="NgpRovingFocusItem"></api-docs>
+
+<api-reference-props name="NgpRovingFocusItem"></api-reference-props>
 
 ## Accessibility
 

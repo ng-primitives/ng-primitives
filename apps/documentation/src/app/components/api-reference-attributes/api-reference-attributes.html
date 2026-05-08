@@ -1,0 +1,37 @@
+@if (resolvedData().length) {
+<div
+  class="not-prose my-5 overflow-hidden rounded-lg border border-zinc-200 text-[13px] leading-normal dark:border-zinc-800"
+>
+  <!-- Header -->
+  <div
+    class="grid bg-zinc-50 py-2 pr-2 pl-3 text-zinc-500 dark:bg-zinc-900 dark:text-zinc-400"
+    [style.grid-template-columns]="hasValues() ? '2fr 3fr 2fr' : '2fr 3fr'"
+  >
+    <span>Attribute</span>
+    <span>Description</span>
+    @if (hasValues()) {
+    <span>Value</span>
+    }
+  </div>
+
+  <!-- Rows -->
+  @for (item of resolvedData(); track item.attribute) {
+  <div
+    class="grid items-baseline border-t border-zinc-200 py-2 pr-2 pl-3 dark:border-zinc-800"
+    [style.grid-template-columns]="hasValues() ? '2fr 3fr 2fr' : '2fr 3fr'"
+  >
+    <span>
+      <code class="font-mono text-indigo-600 dark:text-indigo-400">{{ item.attribute }}</code>
+    </span>
+    <span class="text-zinc-600 dark:text-zinc-400">{{ item.description }}</span>
+    @if (hasValues()) {
+    <span>
+      @if (item.value) {
+      <code class="font-mono text-zinc-600 dark:text-zinc-400">{{ item.value }}</code>
+      }
+    </span>
+    }
+  </div>
+  }
+</div>
+}

@@ -119,35 +119,31 @@ The following directives are available to import from the `ng-primitives/toast` 
 
 <api-docs name="NgpToast"></api-docs>
 
-#### Data Attributes
+<api-reference-props name="NgpToast"></api-reference-props>
 
-The following data attributes are applied to the first child of the `ngpToast` ng-template:
+<api-reference-attributes>
+  <api-attribute name="data-position-x" description="The horizontal position of the toast" value="start, center, end" />
+  <api-attribute name="data-position-y" description="The vertical position of the toast" value="top, bottom" />
+  <api-attribute name="data-visible" description="Whether the toast is currently visible. This is based on how many toasts are shown compared to the `maxToasts` set in the global config." value="true, false" />
+  <api-attribute name="data-front" description="Whether the toast is the front-most toast in the stack." value="true, false" />
+  <api-attribute name="data-swiping" description="Whether the toast is currently being swiped." value="true, false" />
+  <api-attribute name="data-swipe-direction" description="The direction of the swipe gesture." value="left, right, up, down" />
+  <api-attribute name="data-expanded" description="Whether the toast is currently expanded. This can be used to collapse or expand stacked toasts." value="true, false" />
+</api-reference-attributes>
 
-| Attribute              | Description                                                                                                                              | Value                         |
-| ---------------------- | ---------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------- |
-| `data-position-x`      | The horizontal position of the toast                                                                                                     | `start`, `center`, `end`      |
-| `data-position-y`      | The vertical position of the toast                                                                                                       | `top`, `bottom`               |
-| `data-visible`         | Whether the toast is currently visible. This is based on how many toasts are shown compared to the `maxToasts` set in the global config. | `true`, `false`               |
-| `data-front`           | Whether the toast is the front-most toast in the stack.                                                                                  | `true`, `false`               |
-| `data-swiping`         | Whether the toast is currently being swiped.                                                                                             | `true`, `false`               |
-| `data-swipe-direction` | The direction of the swipe gesture.                                                                                                      | `left`, `right`, `up`, `down` |
-| `data-expanded`        | Whether the toast is currently expanded. This can be used to collapse or expand stacked toasts.                                          | `true`, `false`               |
-
-The following CSS custom properties are available to the `ngpToast` directive:
-
-| Property                     | Description                                   |
-| ---------------------------- | --------------------------------------------- |
-| `--ngp-toast-gap`            | The gap between each toast.                   |
-| `--ngp-toast-z-index`        | The z-index of the toast.                     |
-| `--ngp-toasts-before`        | The number of toasts before this one.         |
-| `--ngp-toast-index`          | The index of the toast (1-based).             |
-| `--ngp-toast-height`         | The height of the toast in pixels.            |
-| `--ngp-toast-offset`         | The vertical offset position of the toast.    |
-| `--ngp-toast-front-height`   | The height of the front-most toast.           |
-| `--ngp-toast-swipe-amount-x` | The swipe amount on the X axis (pixel value). |
-| `--ngp-toast-swipe-amount-y` | The swipe amount on the Y axis (pixel value). |
-| `--ngp-toast-swipe-x`        | The swipe value on the X axis.                |
-| `--ngp-toast-swipe-y`        | The swipe value on the Y axis.                |
+<api-reference-css-vars>
+  <api-css-var name="--ngp-toast-gap" description="The gap between each toast." />
+  <api-css-var name="--ngp-toast-z-index" description="The z-index of the toast." />
+  <api-css-var name="--ngp-toasts-before" description="The number of toasts before this one." />
+  <api-css-var name="--ngp-toast-index" description="The index of the toast (1-based)." />
+  <api-css-var name="--ngp-toast-height" description="The height of the toast in pixels." />
+  <api-css-var name="--ngp-toast-offset" description="The vertical offset position of the toast." />
+  <api-css-var name="--ngp-toast-front-height" description="The height of the front-most toast." />
+  <api-css-var name="--ngp-toast-swipe-amount-x" description="The swipe amount on the X axis (pixel value)." />
+  <api-css-var name="--ngp-toast-swipe-amount-y" description="The swipe amount on the Y axis (pixel value)." />
+  <api-css-var name="--ngp-toast-swipe-x" description="The swipe value on the X axis." />
+  <api-css-var name="--ngp-toast-swipe-y" description="The swipe value on the Y axis." />
+</api-reference-css-vars>
 
 ## Global Configuration
 
@@ -178,61 +174,7 @@ bootstrapApplication(AppComponent, {
 
 ### NgpToastConfig
 
-<prop-details name="placement" type="NgpToastPlacement" default="top-end">
-  The default placement of the toast. Can be one of `top-start`, `top-end`, `top-center`, `bottom-start`, `bottom-end`, or `bottom-center`.
-</prop-details>
-
-<prop-details name="duration" type="number" default="3000">
-  The duration in milliseconds that the toast will be visible.
-</prop-details>
-
-<prop-details name="offsetTop" type="number" default="24">
-  The offset from the top of the viewport in pixels.
-</prop-details>
-
-<prop-details name="offsetBottom" type="number" default="24">
-  The offset from the bottom of the viewport in pixels.
-</prop-details>
-
-<prop-details name="offsetLeft" type="number" default="24">
-  The offset from the left of the viewport in pixels.
-</prop-details>
-
-<prop-details name="offsetRight" type="number" default="24">
-  The offset from the right of the viewport in pixels.
-</prop-details>
-
-<prop-details name="dismissible" type="boolean" default="true">
-  Whether a toast can be dismissed by swiping.
-</prop-details>
-
-<prop-details name="swipeThreshold" type="number" default="45">
-  The amount a toast must be swiped before it is considered dismissed.
-</prop-details>
-
-<prop-details name="swipeDirections" type="NgpToastSwipeDirection[]" default="['left', 'right', 'top', 'bottom']">
-  The default swipe directions supported by the toast.
-</prop-details>
-
-<prop-details name="maxToasts" type="number" default="3">
-  The maximum number of toasts that can be displayed at once.
-</prop-details>
-
-<prop-details name="ariaLive" type="string" default="'polite'">
-  The aria live setting.
-</prop-details>
-
-<prop-details name="gap" type="number" default="14">
-  The gap between each toast.
-</prop-details>
-
-<prop-details name="zIndex" type="number" default="9999999">
-  The z-index of the toast container.
-</prop-details>
-
-<prop-details name="sequential" type="boolean" default="false">
-  When enabled, only the front toast's timer will run. When a toast is dismissed, the timer will start on the next toast. Useful for scenarios with multiple notifications where you want to prevent background toasts from auto-closing.
-</prop-details>
+<api-reference-config name="NgpToastConfig"></api-reference-config>
 
 ## Accessibility
 

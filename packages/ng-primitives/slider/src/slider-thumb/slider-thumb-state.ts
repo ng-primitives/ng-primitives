@@ -1,3 +1,4 @@
+import { FocusMonitor, FocusOrigin } from '@angular/cdk/a11y';
 import { DOCUMENT } from '@angular/common';
 import { computed, inject, Injector, Signal } from '@angular/core';
 import { ngpInteractions } from 'ng-primitives/interactions';
@@ -7,6 +8,7 @@ import {
   createPrimitive,
   dataBinding,
   listener,
+  onDestroy,
   styleBinding,
 } from 'ng-primitives/state';
 import { injectSliderState } from '../slider/slider-state';
@@ -24,7 +26,7 @@ export interface NgpSliderThumbState {
   /**
    * Focus the thumb element.
    */
-  focus(): void;
+  focus(origin?: FocusOrigin): void;
 }
 
 /**
@@ -51,6 +53,7 @@ export const [
   ({ onDragStart, onDragEnd }: NgpSliderThumbProps): NgpSliderThumbState => {
     const elementRef = injectElementRef<HTMLElement>();
     const slider = injectSliderState();
+    const focusMonitor = inject(FocusMonitor);
     const injector = inject(Injector);
     const document = inject(DOCUMENT);
 
@@ -84,6 +87,10 @@ export const [
       disabled: slider().disabled,
     });
 
+    // Register thumb with parent slider
+    slider().setThumb(elementRef);
+    onDestroy(() => slider().setThumb(undefined));
+
     // Pointer interactions
     listener(elementRef, 'pointerdown', (event: PointerEvent) => {
       event.preventDefault();
@@ -95,6 +102,9 @@ export const [
       dragging = true;
       activePointerId = event.pointerId;
       onDragStart?.();
+
+      // Focus the thumb when clicked/dragged
+      focus(event.pointerType === 'touch' ? 'touch' : 'mouse');
 
       // Clean up any existing listeners
       cleanupDocumentListeners.forEach(cleanup => cleanup());
@@ -203,8 +213,8 @@ export const [
     /**
      * Moves keyboard focus to the host element without scrolling the page.
      */
-    function focus(): void {
-      elementRef.nativeElement.focus({ preventScroll: true });
+    function focus(origin: FocusOrigin = 'program'): void {
+      focusMonitor.focusVia(elementRef, origin, { preventScroll: true });
     }
 
     return {

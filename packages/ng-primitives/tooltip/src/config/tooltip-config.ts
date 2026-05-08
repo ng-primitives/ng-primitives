@@ -36,7 +36,7 @@ export interface NgpTooltipConfig {
   flip: NgpFlip;
 
   /**
-   * Define the container element or selector in to which the tooltip should be attached.
+   * Define the container element or selector into which the tooltip should be attached.
    * @default 'body'
    */
   container: HTMLElement | string | null;
@@ -68,12 +68,24 @@ export interface NgpTooltipConfig {
   trackPosition: boolean;
 
   /**
+   * Defines how the tooltip behaves when the window is scrolled.
+   * @default 'reposition'
+   */
+  scrollBehavior: 'reposition' | 'close';
+
+  /**
    * Cooldown duration in milliseconds.
    * When moving from one tooltip to another within this duration,
    * the showDelay is skipped for the new tooltip.
    * @default 300
    */
   cooldown: number;
+
+  /**
+   * Whether hovering the tooltip content keeps it open while moving from the trigger.
+   * @default false
+   */
+  hoverableContent: boolean;
 }
 
 export const defaultTooltipConfig: NgpTooltipConfig = {
@@ -87,7 +99,9 @@ export const defaultTooltipConfig: NgpTooltipConfig = {
   useTextContent: true,
   shift: undefined,
   trackPosition: false,
+  scrollBehavior: 'reposition',
   cooldown: 300,
+  hoverableContent: false,
 };
 
 export const NgpTooltipConfigToken = new InjectionToken<NgpTooltipConfig>('NgpTooltipConfigToken');

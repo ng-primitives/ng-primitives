@@ -11,6 +11,7 @@ import { RouterLink, RouterOutlet } from '@angular/router';
       <a routerLink="/reusable-components/button">Button</a>
       <a routerLink="/reusable-components/checkbox">Checkbox</a>
       <a routerLink="/reusable-components/combobox">Combobox</a>
+      <a routerLink="/reusable-components/context-menu">Context Menu</a>
       <a routerLink="/reusable-components/date-picker">Date Picker</a>
       <a routerLink="/reusable-components/dialog">Dialog</a>
       <a routerLink="/reusable-components/file-upload">File Upload</a>

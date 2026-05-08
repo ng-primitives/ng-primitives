@@ -15,7 +15,14 @@ import { activeDescendantManager } from 'ng-primitives/a11y';
 import { ngpFormControl } from 'ng-primitives/form-field';
 import { ngpInteractions } from 'ng-primitives/interactions';
 import { domSort, injectElementRef } from 'ng-primitives/internal';
-import { coerceFlip, NgpFlip, NgpFlipInput } from 'ng-primitives/portal';
+import {
+  coerceFlip,
+  coerceOffset,
+  NgpFlip,
+  NgpFlipInput,
+  NgpOffset,
+  NgpOffsetInput,
+} from 'ng-primitives/portal';
 import { uniqueId } from 'ng-primitives/utils';
 import { injectSelectConfig } from '../config/select-config';
 import type { NgpSelectDropdown } from '../select-dropdown/select-dropdown';
@@ -112,6 +119,16 @@ export class NgpSelect {
   readonly flip = input<NgpFlip, NgpFlipInput>(this.config.flip, {
     alias: 'ngpSelectDropdownFlip',
     transform: coerceFlip,
+  });
+
+  /**
+   * Define the offset of the select dropdown relative to the trigger.
+   * Can be a number (applies to mainAxis) or an object with mainAxis, crossAxis, and alignmentAxis.
+   * @default 0
+   */
+  readonly offset = input<NgpOffset, NgpOffsetInput>(this.config.offset, {
+    alias: 'ngpSelectDropdownOffset',
+    transform: coerceOffset,
   });
 
   /**

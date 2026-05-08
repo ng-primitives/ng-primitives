@@ -96,7 +96,7 @@ export class NgpMenuTrigger<T = unknown> {
    * Defines how the menu behaves when the window is scrolled.
    * @default 'block'
    */
-  readonly scrollBehavior = input<'reposition' | 'block'>(this.config.scrollBehavior, {
+  readonly scrollBehavior = input<'reposition' | 'block' | 'close'>(this.config.scrollBehavior, {
     alias: 'ngpMenuTriggerScrollBehavior',
   });
 

@@ -65,13 +65,11 @@ The following directives are available to import from the `ng-primitives/input` 
 
 <api-docs name="NgpInput"></api-docs>
 
-#### Data Attributes
+<api-reference-props name="NgpInput"></api-reference-props>
 
-The following data attributes are applied to the `ngpInput` directive:
-
-| Attribute       | Description                           |
-| --------------- | ------------------------------------- |
-| `data-hover`    | Applied to the input when hovered.    |
-| `data-focus`    | Applied to the input when focused.    |
-| `data-disabled` | Applied to the input when disabled.   |
-| `data-autofill` | Applied to the input when autofilled. |
+<api-reference-attributes>
+  <api-attribute name="data-hover" description="Applied to the input when hovered." />
+  <api-attribute name="data-focus" description="Applied to the input when focused." />
+  <api-attribute name="data-disabled" description="Applied to the input when disabled." />
+  <api-attribute name="data-autofill" description="Applied to the input when autofilled." />
+</api-reference-attributes>

@@ -77,7 +77,7 @@ export class Toggle<%= componentSuffix %> implements ControlValueAccessor {
 
   /** Write a new value to the toggle. */
   writeValue(value: boolean): void {
-    this.toggle().setSelected(value);
+    this.toggle().setSelected(value, { emit: false });
   }
 
   /** Register a callback function to be called when the value changes. */

@@ -60,11 +60,15 @@ The `NgpThread` directive is wrapper around the thread viewport, messages and co
 
 <api-docs name="NgpThread"></api-docs>
 
+<api-reference-props name="NgpThread"></api-reference-props>
+
 ### NgpThreadViewport
 
 The `NgpThreadViewport` directive creates a scrollable container for displaying the messages in the AI assistant chat thread.
 
 <api-docs name="NgpThreadViewport"></api-docs>
+
+<api-reference-props name="NgpThreadViewport"></api-reference-props>
 
 ### NgpThreadMessage
 
@@ -72,11 +76,15 @@ The `NgpThreadMessage` directive represents an individual message within a threa
 
 <api-docs name="NgpThreadMessage"></api-docs>
 
+<api-reference-props name="NgpThreadMessage"></api-reference-props>
+
 ### NgpThreadSuggestion
 
 The `NgpThreadSuggestion` directive displays suggested text that the user can click to populate the prompt input field.
 
 <api-docs name="NgpThreadSuggestion"></api-docs>
+
+<api-reference-props name="NgpThreadSuggestion"></api-reference-props>
 
 ### NgpPromptComposer
 
@@ -84,13 +92,13 @@ The `NgpPromptComposer` directive creates a container for composing and submitti
 
 <api-docs name="NgpPromptComposer"></api-docs>
 
-#### Data Attributes
+<api-reference-props name="NgpPromptComposer"></api-reference-props>
 
-| Attribute                  | Description                                              |
-| -------------------------- | -------------------------------------------------------- |
-| `data-prompt`              | Added when there is text content in the prompt.          |
-| `data-dictating`           | Added when speech dictation is active.                   |
-| `data-dictation-supported` | Added when speech dictation is supported by the browser. |
+<api-reference-attributes>
+  <api-attribute name="data-prompt" description="Added when there is text content in the prompt." />
+  <api-attribute name="data-dictating" description="Added when speech dictation is active." />
+  <api-attribute name="data-dictation-supported" description="Added when speech dictation is supported by the browser." />
+</api-reference-attributes>
 
 ### NgpPromptComposerInput
 
@@ -98,19 +106,21 @@ The `NgpPromptComposerInput` directive is used for the text input field where us
 
 <api-docs name="NgpPromptComposerInput"></api-docs>
 
+<api-reference-props name="NgpPromptComposerInput"></api-reference-props>
+
 ### NgpPromptComposerSubmit
 
 The `NgpPromptComposerSubmit` directive handles the submission of composed prompts to the AI assistant.
 
 <api-docs name="NgpPromptComposerSubmit"></api-docs>
 
-#### Data Attributes
+<api-reference-props name="NgpPromptComposerSubmit"></api-reference-props>
 
-| Attribute                  | Description                                              |
-| -------------------------- | -------------------------------------------------------- |
-| `data-prompt`              | Added when there is text content in the prompt.          |
-| `data-dictating`           | Added when speech dictation is active.                   |
-| `data-dictation-supported` | Added when speech dictation is supported by the browser. |
+<api-reference-attributes>
+  <api-attribute name="data-prompt" description="Added when there is text content in the prompt." />
+  <api-attribute name="data-dictating" description="Added when speech dictation is active." />
+  <api-attribute name="data-dictation-supported" description="Added when speech dictation is supported by the browser." />
+</api-reference-attributes>
 
 ### NgpPromptComposerDictation
 
@@ -118,13 +128,13 @@ The `NgpPromptComposerDictation` directive enables voice input functionality for
 
 <api-docs name="NgpPromptComposerDictation"></api-docs>
 
-#### Data Attributes
+<api-reference-props name="NgpPromptComposerDictation"></api-reference-props>
 
-| Attribute                  | Description                                              |
-| -------------------------- | -------------------------------------------------------- |
-| `data-dictating`           | Added when speech dictation is active.                   |
-| `data-dictation-supported` | Added when speech dictation is supported by the browser. |
-| `data-prompt`              | Added when there is text content in the prompt.          |
+<api-reference-attributes>
+  <api-attribute name="data-dictating" description="Added when speech dictation is active." />
+  <api-attribute name="data-dictation-supported" description="Added when speech dictation is supported by the browser." />
+  <api-attribute name="data-prompt" description="Added when there is text content in the prompt." />
+</api-reference-attributes>
 
 ## Accessibility
 

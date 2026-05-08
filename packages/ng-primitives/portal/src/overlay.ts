@@ -1,5 +1,5 @@
 import { FocusMonitor, FocusOrigin } from '@angular/cdk/a11y';
-import { ViewportRuler } from '@angular/cdk/overlay';
+import { ViewportRuler } from '@angular/cdk/scrolling';
 import { DOCUMENT } from '@angular/common';
 import {
   DestroyRef,
@@ -30,15 +30,20 @@ import {
 } from '@floating-ui/dom';
 import { explicitEffect, fromResizeEvent } from 'ng-primitives/internal';
 import { injectDisposables, safeTakeUntilDestroyed, uniqueId } from 'ng-primitives/utils';
-import { Subject, fromEvent } from 'rxjs';
-import { debounceTime } from 'rxjs/operators';
+import { Subject } from 'rxjs';
 import { NgpFlip } from './flip';
 import { NgpOffset } from './offset';
 import { CooldownOverlay, NgpOverlayCooldownManager } from './overlay-cooldown';
+import { NgpDismissGuard, NgpOverlayRegistry } from './overlay-registry';
 import { provideOverlayContext } from './overlay-token';
 import { NgpPortal, createPortal } from './portal';
 import { NgpPosition } from './position';
-import { BlockScrollStrategy, NoopScrollStrategy } from './scroll-strategy';
+import {
+  BlockScrollStrategy,
+  CloseScrollStrategy,
+  NoopScrollStrategy,
+  ScrollStrategy,
+} from './scroll-strategy';
 import { NgpShift } from './shift';
 
 /**
@@ -155,11 +160,11 @@ export interface NgpOverlayConfig<T = unknown> {
   strategy?: Strategy;
 
   /** The scroll strategy to use for the overlay */
-  scrollBehaviour?: 'reposition' | 'block';
-  /** Whether to close the overlay when clicking outside */
-  closeOnOutsideClick?: boolean;
-  /** Whether to close the overlay when pressing escape */
-  closeOnEscape?: boolean;
+  scrollBehaviour?: 'reposition' | 'block' | 'close';
+  /** Whether to close the overlay when clicking outside, or a guard function */
+  closeOnOutsideClick?: NgpDismissGuard<Element>;
+  /** Whether to close the overlay when pressing escape, or a guard function */
+  closeOnEscape?: NgpDismissGuard<KeyboardEvent>;
   /**
    * Whether to restore focus to the trigger element when hiding the overlay.
    * Can be a boolean or a signal that returns a boolean.
@@ -187,6 +192,12 @@ export interface NgpOverlayConfig<T = unknown> {
    * Use with trackPosition for smooth cursor following.
    */
   position?: Signal<NgpPosition | null>;
+
+  /**
+   * If true, clicks on the trigger element count as outside clicks for dismiss purposes.
+   * Useful for context menus where the trigger area is large and clicks on it should dismiss the menu.
+   */
+  treatTriggerClickAsOutside?: boolean;
 
   /**
    * Overlay type identifier for cooldown grouping.
@@ -221,15 +232,20 @@ export type NgpOverlayTemplateContext<T> = {
 export class NgpOverlay<T = unknown> implements CooldownOverlay {
   private readonly disposables = injectDisposables();
   private readonly document = inject(DOCUMENT);
+  private readonly viewportRuler = inject(ViewportRuler);
   private readonly destroyRef = inject(DestroyRef);
   private readonly viewContainerRef: ViewContainerRef;
-  private readonly viewportRuler = inject(ViewportRuler);
   private readonly focusMonitor = inject(FocusMonitor);
   private readonly cooldownManager = inject(NgpOverlayCooldownManager);
+  private readonly registry = inject(NgpOverlayRegistry);
   /** Access any parent overlays */
   private readonly parentOverlay = inject(NgpOverlay, { optional: true });
+  /** Track child overlays for outside click detection */
+  private readonly childOverlays = new Set<NgpOverlay>();
   /** Signal tracking the portal instance */
   private readonly portal = signal<NgpPortal | null>(null);
+  /** The dedicated outlet element registered by the overlay directive (e.g. NgpMenu) */
+  private registeredOutletElement: HTMLElement | null = null;
 
   /** Signal tracking the overlay position */
   readonly position = signal<{ x: number | undefined; y: number | undefined }>({
@@ -268,6 +284,9 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
 
   /** Timeout handle for hiding the overlay */
   private closeTimeout?: () => void;
+
+  /** Portal currently being destroyed (for cancel support during exit animations) */
+  private destroyingPortal: NgpPortal | null = null;
 
   /** Signal tracking whether the overlay is open */
   readonly isOpen = signal(false);
@@ -344,54 +363,10 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
         }
       });
 
-    // if there is a parent overlay and it is closed, close this overlay
-    this.parentOverlay?.closing
-      // we add a debounce here to ensure any dom events like clicks are processed first
-      .pipe(debounceTime(0), safeTakeUntilDestroyed(this.destroyRef))
-      .subscribe(() => {
-        if (this.isOpen()) {
-          this.hideImmediate();
-        }
-      });
-
-    // If closeOnOutsideClick is enabled, set up a click listener
-    fromEvent<MouseEvent>(this.document, 'mouseup', { capture: true })
-      .pipe(safeTakeUntilDestroyed(this.destroyRef))
-      .subscribe(event => {
-        if (!this.config.closeOnOutsideClick) {
-          return;
-        }
-
-        const overlay = this.portal();
-
-        if (!overlay || !this.isOpen()) {
-          return;
-        }
-
-        const path = event.composedPath();
-        const isInsideOverlay = overlay.getElements().some(el => path.includes(el));
-        const isInsideTrigger = path.includes(this.config.triggerElement);
-        const isInsideAnchor = this.config.anchorElement
-          ? path.includes(this.config.anchorElement)
-          : false;
-
-        if (!isInsideOverlay && !isInsideTrigger && !isInsideAnchor) {
-          this.hide();
-        }
-      });
-
-    // If closeOnEscape is enabled, set up a keydown listener
-    fromEvent<KeyboardEvent>(this.document, 'keydown', { capture: true })
-      .pipe(safeTakeUntilDestroyed(this.destroyRef))
-      .subscribe(event => {
-        if (!this.config.closeOnEscape) return;
-        if (event.key === 'Escape' && this.isOpen()) {
-          this.hide({ origin: 'keyboard', immediate: true });
-        }
-      });
-
     // Ensure cleanup on destroy
-    this.destroyRef.onDestroy(() => this.destroy());
+    this.destroyRef.onDestroy(() => {
+      this.destroy();
+    });
   }
 
   /**
@@ -404,6 +379,14 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
       if (this.closeTimeout) {
         this.closeTimeout();
         this.closeTimeout = undefined;
+      }
+
+      // If destruction is in progress (exit animation running), cancel it
+      // and reuse the existing overlay instead of creating a new one.
+      if (this.destroyingPortal) {
+        this.cancelDestruction();
+        resolve();
+        return;
       }
 
       // Don't proceed if already opening or open
@@ -451,6 +434,44 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
     if (this.closeTimeout) {
       this.closeTimeout();
       this.closeTimeout = undefined;
+    }
+
+    // Also cancel in-progress destruction (exit animation running)
+    if (this.destroyingPortal) {
+      this.cancelDestruction();
+    }
+  }
+
+  /**
+   * Cancel an in-progress overlay destruction. This cancels exit animations,
+   * restores the portal, and re-enables positioning and scroll strategy.
+   * Used when show() or cancelPendingClose() is called during exit animation.
+   */
+  private cancelDestruction(): void {
+    const portal = this.destroyingPortal;
+    if (!portal) {
+      return;
+    }
+
+    this.destroyingPortal = null;
+    portal.cancelDetach();
+
+    // Restore the portal
+    this.portal.set(portal);
+
+    // Re-setup positioning
+    const outletElement = this.findOutletElement(portal);
+    if (outletElement) {
+      this.setupPositioning(outletElement);
+    }
+
+    // Re-enable scroll strategy
+    this.scrollStrategy = this.createScrollStrategy();
+    this.scrollStrategy.enable();
+
+    // Re-register with cooldown if needed
+    if (this.config.overlayType) {
+      this.cooldownManager.registerActive(this.config.overlayType, this, this.config.cooldown ?? 0);
     }
   }
 
@@ -602,16 +623,14 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
       return;
     }
 
-    const elements = portal.getElements();
+    const outletElement = this.findOutletElement(portal);
 
-    if (elements.length === 0) {
+    if (!outletElement) {
       return;
     }
 
-    const overlayElement = elements[0] as HTMLElement;
-
     // Compute new position
-    this.computePosition(overlayElement);
+    this.computePosition(outletElement);
   }
 
   /**
@@ -628,6 +647,76 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
    */
   getElements(): HTMLElement[] {
     return this.portal()?.getElements() ?? [];
+  }
+
+  /**
+   * Register the dedicated outlet element for positioning.
+   * Called by overlay directives (e.g. NgpMenu) during construction to ensure
+   * the correct element is used for floating-ui positioning, even when the
+   * directive is on a nested child component rather than the portal root.
+   * @internal
+   */
+  registerOutletElement(element: HTMLElement): void {
+    this.registeredOutletElement = element;
+
+    // If positioning is already set up with the wrong element, re-setup with the correct one
+    if (this.isOpen() && this.disposePositioning) {
+      this.disposePositioning();
+      this.setupPositioning(element);
+    }
+  }
+
+  /**
+   * Find the dedicated outlet element within the portal.
+   * Uses the registered outlet element if available, otherwise looks for an element
+   * with `data-overlay` attribute on the portal root elements.
+   * Falls back to the first portal element if no dedicated outlet is found.
+   */
+  private findOutletElement(portal: NgpPortal): HTMLElement | null {
+    if (this.registeredOutletElement) {
+      return this.registeredOutletElement;
+    }
+
+    const elements = portal.getElements();
+
+    if (elements.length === 0) {
+      return null;
+    }
+
+    return elements.find(el => el.hasAttribute('data-overlay')) ?? elements[0];
+  }
+
+  /**
+   * Register a child overlay for outside click detection.
+   * @internal
+   */
+  registerChildOverlay(child: NgpOverlay): void {
+    this.childOverlays.add(child);
+  }
+
+  /**
+   * Unregister a child overlay.
+   * @internal
+   */
+  unregisterChildOverlay(child: NgpOverlay): void {
+    this.childOverlays.delete(child);
+  }
+
+  /**
+   * Check if the event path includes any child overlay elements (recursively).
+   * @internal
+   */
+  isInsideChildOverlay(path: EventTarget[]): boolean {
+    for (const child of this.childOverlays) {
+      const childElements = child.getElements();
+      if (childElements.some(el => path.includes(el))) {
+        return true;
+      }
+      if (child.isInsideChildOverlay(path)) {
+        return true;
+      }
+    }
+    return false;
   }
 
   /**
@@ -682,8 +771,7 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
     // find a dedicated outlet element
     // this is the element that has the `data-overlay` attribute
     // if no such element exists, we use the first element in the portal
-    const outletElement =
-      portal.getElements().find(el => el.hasAttribute('data-overlay')) ?? portal.getElements()[0];
+    const outletElement = this.findOutletElement(portal);
 
     if (!outletElement) {
       throw new Error('Overlay element is not available.');
@@ -695,17 +783,46 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
     // Mark as open
     this.isOpen.set(true);
 
+    // Register with the overlay registry for centralized dismiss routing
+    this.registry.register({
+      id: this.id(),
+      parentId: this.parentOverlay?.id() ?? null,
+      overlay: this,
+      getElements: () => this.getElements(),
+      triggerElement: this.config.triggerElement,
+      anchorElement: this.config.anchorElement,
+      dismissPolicy: {
+        outsidePress: this.config.closeOnOutsideClick ?? false,
+        escapeKey: this.config.closeOnEscape ?? false,
+      },
+      treatTriggerClickAsOutside: this.config.treatTriggerClickAsOutside,
+    });
+
     // Register as active overlay for this type (skip when cooldown is bypassed)
     if (this.config.overlayType && !skipCooldown) {
       this.cooldownManager.registerActive(this.config.overlayType, this, this.config.cooldown ?? 0);
     }
 
-    this.scrollStrategy =
-      this.config.scrollBehaviour === 'block'
-        ? new BlockScrollStrategy(this.viewportRuler, this.document)
-        : new NoopScrollStrategy();
-
+    this.scrollStrategy = this.createScrollStrategy();
     this.scrollStrategy.enable();
+  }
+
+  /**
+   * Create the appropriate scroll strategy based on the configuration.
+   */
+  private createScrollStrategy(): ScrollStrategy {
+    switch (this.config.scrollBehaviour) {
+      case 'block':
+        return new BlockScrollStrategy(this.viewportRuler, this.document);
+      case 'close':
+        return new CloseScrollStrategy(
+          this.config.anchorElement || this.config.triggerElement,
+          () => this.hide({ immediate: true }),
+          () => this.getElements(),
+        );
+      default:
+        return new NoopScrollStrategy();
+    }
   }
 
   /**
@@ -838,6 +955,12 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
       return;
     }
 
+    // Close any descendant overlays before destroying this one
+    this.registry.closeDescendants(this.id());
+
+    // Deregister from the overlay registry
+    this.registry.deregister(this.id());
+
     // Unregister from active overlays
     if (this.config.overlayType) {
       this.cooldownManager.unregisterActive(this.config.overlayType, this);
@@ -850,21 +973,29 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
     this.disposePositioning?.();
     this.disposePositioning = undefined;
 
-    // Detach the portal (skip animations if immediate)
-    await portal.detach(immediate);
-
-    // Mark as closed
-    this.isOpen.set(false);
-
-    // Reset final placement
-    this.finalPlacement.set(undefined);
-
-    // Reset instant transition flag
-    this.instantTransition.set(false);
+    // Track the destroying portal so cancelDestruction() can restore it
+    // if show() is called during the exit animation.
+    this.destroyingPortal = portal;
 
     // disable scroll strategy
     this.scrollStrategy.disable();
     this.scrollStrategy = new NoopScrollStrategy();
+
+    // Detach the portal (waits for exit animations unless immediate).
+    // During this await, cancelDestruction() may be called if the user
+    // re-hovers the trigger. (See: https://github.com/ng-primitives/ng-primitives/issues/681)
+    await portal.detach(immediate);
+
+    // Only complete destruction if it was not cancelled during exit animation.
+    // finalPlacement and instantTransition are intentionally cleared here
+    // (not before the await) so they remain valid if destruction is cancelled.
+    if (this.destroyingPortal === portal) {
+      this.destroyingPortal = null;
+      this.registeredOutletElement = null;
+      this.isOpen.set(false);
+      this.finalPlacement.set(undefined);
+      this.instantTransition.set(false);
+    }
   }
 
   /**

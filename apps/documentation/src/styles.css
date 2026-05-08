@@ -244,14 +244,33 @@ html.dark .shiki span {
   opacity: 1;
 }
 
-.example-preview {
-  --example-preview-dot: var(--color-zinc-300);
-  background-image: radial-gradient(circle, var(--example-preview-dot) 0.5px, transparent 0.5px);
-  background-size: 16px 16px;
+/* Scrollable table cells with gradient fade — matches Base UI pattern */
+.api-cell {
+  overflow-x: auto;
+  scrollbar-width: none;
+  white-space: nowrap;
+  mask-image: linear-gradient(to right, black calc(100% - 1rem), transparent);
 }
 
-.dark .example-preview {
-  --example-preview-dot: var(--color-zinc-700);
+.api-cell::-webkit-scrollbar {
+  display: none;
+}
+
+/* Responsive API props table — progressively show columns at wider breakpoints */
+.api-props-grid {
+  grid-template-columns: 1fr 2rem;
+}
+
+@media (min-width: 40rem) {
+  .api-props-grid {
+    grid-template-columns: 5fr 7fr 2rem;
+  }
+}
+
+@media (min-width: 48rem) {
+  .api-props-grid {
+    grid-template-columns: 5fr 7fr 4.5fr 2rem;
+  }
 }
 
 .download-button {

@@ -61,10 +61,20 @@ export const [
     } else {
       rangeSlider().setHighValue(value);
     }
+
+    rangeSlider().focusThumb(closestThumb, event.pointerType === 'touch' ? 'touch' : 'mouse');
   }
 
   // Event listener
   listener(element, 'pointerdown', handlePointerDown);
+
+  // Prevent mousedown default to stop the browser from stealing focus
+  // from the thumb after a pointerdown-initiated focusVia call.
+  listener(element, 'mousedown', (event: MouseEvent) => {
+    if (!rangeSlider().disabled()) {
+      event.preventDefault();
+    }
+  });
 
   // Register track with parent
   rangeSlider().setTrack(element);

@@ -65,82 +65,82 @@ The following directives are available to import from the `ng-primitives/form-fi
 
 <api-docs name="NgpFormField"></api-docs>
 
-#### Data Attributes
+<api-reference-props name="NgpFormField"></api-reference-props>
 
-| Attribute       | Description                                |
-| --------------- | ------------------------------------------ |
-| `data-invalid`  | Applied when the form control is invalid.  |
-| `data-valid`    | Applied when the form control is valid.    |
-| `data-touched`  | Applied when the form control is touched.  |
-| `data-pristine` | Applied when the form control is pristine. |
-| `data-dirty`    | Applied when the form control is dirty.    |
-| `data-pending`  | Applied when the form control is pending.  |
-| `data-disabled` | Applied when the form control is disabled. |
+<api-reference-attributes>
+  <api-attribute name="data-invalid" description="Applied when the form control is invalid." />
+  <api-attribute name="data-valid" description="Applied when the form control is valid." />
+  <api-attribute name="data-touched" description="Applied when the form control is touched." />
+  <api-attribute name="data-pristine" description="Applied when the form control is pristine." />
+  <api-attribute name="data-dirty" description="Applied when the form control is dirty." />
+  <api-attribute name="data-pending" description="Applied when the form control is pending." />
+  <api-attribute name="data-disabled" description="Applied when the form control is disabled." />
+</api-reference-attributes>
 
 ### NgpLabel
 
 <api-docs name="NgpLabel"></api-docs>
 
-#### Data Attributes
+<api-reference-props name="NgpLabel"></api-reference-props>
 
-| Attribute       | Description                                | Value |
-| --------------- | ------------------------------------------ | ----- |
-| `data-invalid`  | Applied when the form control is invalid.  |
-| `data-valid`    | Applied when the form control is valid.    |
-| `data-touched`  | Applied when the form control is touched.  |
-| `data-pristine` | Applied when the form control is pristine. |
-| `data-dirty`    | Applied when the form control is dirty.    |
-| `data-pending`  | Applied when the form control is pending.  |
-| `data-disabled` | Applied when the form control is disabled. |
+<api-reference-attributes>
+  <api-attribute name="data-invalid" description="Applied when the form control is invalid." />
+  <api-attribute name="data-valid" description="Applied when the form control is valid." />
+  <api-attribute name="data-touched" description="Applied when the form control is touched." />
+  <api-attribute name="data-pristine" description="Applied when the form control is pristine." />
+  <api-attribute name="data-dirty" description="Applied when the form control is dirty." />
+  <api-attribute name="data-pending" description="Applied when the form control is pending." />
+  <api-attribute name="data-disabled" description="Applied when the form control is disabled." />
+</api-reference-attributes>
 
 ### NgpDescription
 
 <api-docs name="NgpDescription"></api-docs>
 
-#### Data Attributes
+<api-reference-props name="NgpDescription"></api-reference-props>
 
-| Attribute       | Description                                | Value |
-| --------------- | ------------------------------------------ | ----- |
-| `data-invalid`  | Applied when the form control is invalid.  |
-| `data-valid`    | Applied when the form control is valid.    |
-| `data-touched`  | Applied when the form control is touched.  |
-| `data-pristine` | Applied when the form control is pristine. |
-| `data-dirty`    | Applied when the form control is dirty.    |
-| `data-pending`  | Applied when the form control is pending.  |
-| `data-disabled` | Applied when the form control is disabled. |
+<api-reference-attributes>
+  <api-attribute name="data-invalid" description="Applied when the form control is invalid." />
+  <api-attribute name="data-valid" description="Applied when the form control is valid." />
+  <api-attribute name="data-touched" description="Applied when the form control is touched." />
+  <api-attribute name="data-pristine" description="Applied when the form control is pristine." />
+  <api-attribute name="data-dirty" description="Applied when the form control is dirty." />
+  <api-attribute name="data-pending" description="Applied when the form control is pending." />
+  <api-attribute name="data-disabled" description="Applied when the form control is disabled." />
+</api-reference-attributes>
 
 ### NgpError
 
 <api-docs name="NgpError"></api-docs>
 
-#### Data Attributes
+<api-reference-props name="NgpError"></api-reference-props>
 
-| Attribute        | Description                                                        | Value            |
-| ---------------- | ------------------------------------------------------------------ | ---------------- |
-| `data-validator` | Whether the validator specified in `ngpErrorValidator` is failing. | `fail` \| `pass` |
-| `data-invalid`   | Applied when the form control is invalid.                          | `-`              |
-| `data-valid`     | Applied when the form control is valid.                            | `-`              |
-| `data-touched`   | Applied when the form control is touched.                          | `-`              |
-| `data-pristine`  | Applied when the form control is pristine.                         | `-`              |
-| `data-dirty`     | Applied when the form control is dirty.                            | `-`              |
-| `data-pending`   | Applied when the form control is pending.                          | `-`              |
-| `data-disabled`  | Applied when the form control is disabled.                         | `-`              |
+<api-reference-attributes>
+  <api-attribute name="data-validator" description="Whether the validator specified in `ngpErrorValidator` is failing." value="fail | pass" />
+  <api-attribute name="data-invalid" description="Applied when the form control is invalid." />
+  <api-attribute name="data-valid" description="Applied when the form control is valid." />
+  <api-attribute name="data-touched" description="Applied when the form control is touched." />
+  <api-attribute name="data-pristine" description="Applied when the form control is pristine." />
+  <api-attribute name="data-dirty" description="Applied when the form control is dirty." />
+  <api-attribute name="data-pending" description="Applied when the form control is pending." />
+  <api-attribute name="data-disabled" description="Applied when the form control is disabled." />
+</api-reference-attributes>
 
 ### NgpFormControl
 
 <api-docs name="NgpFormControl"></api-docs>
 
-#### Data Attributes
+<api-reference-props name="NgpFormControl"></api-reference-props>
 
-| Attribute       | Description                                | Value |
-| --------------- | ------------------------------------------ | ----- |
-| `data-invalid`  | Applied when the form control is invalid.  |
-| `data-valid`    | Applied when the form control is valid.    |
-| `data-touched`  | Applied when the form control is touched.  |
-| `data-pristine` | Applied when the form control is pristine. |
-| `data-dirty`    | Applied when the form control is dirty.    |
-| `data-pending`  | Applied when the form control is pending.  |
-| `data-disabled` | Applied when the form control is disabled. |
+<api-reference-attributes>
+  <api-attribute name="data-invalid" description="Applied when the form control is invalid." />
+  <api-attribute name="data-valid" description="Applied when the form control is valid." />
+  <api-attribute name="data-touched" description="Applied when the form control is touched." />
+  <api-attribute name="data-pristine" description="Applied when the form control is pristine." />
+  <api-attribute name="data-dirty" description="Applied when the form control is dirty." />
+  <api-attribute name="data-pending" description="Applied when the form control is pending." />
+  <api-attribute name="data-disabled" description="Applied when the form control is disabled." />
+</api-reference-attributes>
 
 ## Accessibility
 

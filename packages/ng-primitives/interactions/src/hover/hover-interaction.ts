@@ -1,60 +1,37 @@
-import { isPlatformBrowser } from '@angular/common';
-import { DOCUMENT } from '@angular/common';
-import { ElementRef, inject, Injectable, PLATFORM_ID, Signal, signal } from '@angular/core';
+import { ElementRef, inject, Signal, signal } from '@angular/core';
 import { onDomRemoval } from 'ng-primitives/internal';
 import { dataBinding, listener } from 'ng-primitives/state';
 import { onBooleanChange } from 'ng-primitives/utils';
 import { isHoverEnabled } from '../config/interactions-config';
 
-/**
- * We use a service here as this value is a singleton
- * and allows us to register the dom events once.
- */
-@Injectable({
-  providedIn: 'root',
-})
-class GlobalPointerEvents {
-  /**
-   * Whether global mouse events should be ignored.
-   */
-  ignoreEmulatedMouseEvents: boolean = false;
+// Module-level flag that tracks whether the user's last input was a touch.
+// Kept outside Angular DI so it survives service destruction during SSR
+// hydration, micro-frontend re-bootstrap, or any scenario that re-creates
+// the root injector. A timeout can't cover delayed emulated events — iOS
+// may fire an emulated pointerenter long after the originating touch
+// (e.g. after the user navigates away and then taps browser-back).
+//
+// iOS emulated mouse events never dispatch `pointermove`; only a real
+// pointing device does. So a non-touch pointermove is a reliable signal
+// that the user has returned to a real mouse.
+let hadRecentTouch = false;
 
-  /**
-   * Access the document.
-   */
-  private readonly document = inject(DOCUMENT);
-
-  /**
-   * Determine the platform id.
-   */
-  private readonly platformId = inject(PLATFORM_ID);
-
-  constructor() {
-    // we only want to setup events on the client
-    if (isPlatformBrowser(this.platformId)) {
-      this.setupGlobalTouchEvents();
-    }
-  }
-
-  private setupGlobalTouchEvents(): void {
-    this.document.addEventListener('pointerup', this.handleGlobalPointerEvent.bind(this));
-    this.document.addEventListener('touchend', this.setGlobalIgnoreEmulatedMouseEvents.bind(this));
-  }
-
-  private setGlobalIgnoreEmulatedMouseEvents(): void {
-    this.ignoreEmulatedMouseEvents = true;
-    // Clear globalIgnoreEmulatedMouseEvents after a short timeout. iOS fires onPointerEnter
-    // with pointerType="mouse" immediately after onPointerUp and before onFocus. On other
-    // devices that don't have this quirk, we don't want to ignore a mouse hover sometime in
-    // the distant future because a user previously touched the element.
-    setTimeout(() => (this.ignoreEmulatedMouseEvents = false), 50);
-  }
-
-  private handleGlobalPointerEvent(event: PointerEvent): void {
-    if (event.pointerType === 'touch') {
-      this.setGlobalIgnoreEmulatedMouseEvents();
-    }
-  }
+if (typeof document !== 'undefined') {
+  document.addEventListener('touchend', () => (hadRecentTouch = true), true);
+  document.addEventListener(
+    'pointerup',
+    event => {
+      if ((event as PointerEvent).pointerType === 'touch') hadRecentTouch = true;
+    },
+    true,
+  );
+  document.addEventListener(
+    'pointermove',
+    event => {
+      if ((event as PointerEvent).pointerType !== 'touch') hadRecentTouch = false;
+    },
+    true,
+  );
 }
 
 interface NgpHoverProps {
@@ -88,11 +65,6 @@ export function ngpHover({
    * Access the element.
    */
   const elementRef = inject<ElementRef<HTMLElement>>(ElementRef);
-
-  /**
-   * Access the global pointer events handler.
-   */
-  const globalPointerEvents = inject(GlobalPointerEvents);
 
   /**
    * Store the current hover state.
@@ -164,7 +136,7 @@ export function ngpHover({
   }
 
   function onPointerEnter(event: PointerEvent): void {
-    if (globalPointerEvents.ignoreEmulatedMouseEvents && event.pointerType === 'mouse') {
+    if (event.pointerType === 'mouse' && (ignoreEmulatedMouseEvents || hadRecentTouch)) {
       return;
     }
 
@@ -179,10 +151,13 @@ export function ngpHover({
 
   function onTouchStart(): void {
     ignoreEmulatedMouseEvents = true;
+    if (hovered()) {
+      onHoverFinished('mouse');
+    }
   }
 
   function onMouseEnter(event: MouseEvent): void {
-    if (!ignoreEmulatedMouseEvents && !globalPointerEvents.ignoreEmulatedMouseEvents) {
+    if (!ignoreEmulatedMouseEvents && !hadRecentTouch) {
       onHoverBegin(event, 'mouse');
     }
 

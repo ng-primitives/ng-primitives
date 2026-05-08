@@ -54,57 +54,49 @@ The following directives are available to import from the `ng-primitives/slider`
 
 <api-docs name="NgpRangeSlider"></api-docs>
 
-#### Data Attributes
+<api-reference-props name="NgpRangeSlider"></api-reference-props>
 
-The following data attributes are available to style the range slider:
-
-| Attribute          | Description                                | Value                      |
-| ------------------ | ------------------------------------------ | -------------------------- |
-| `data-disabled`    | Applied when the range slider is disabled. | `-`                        |
-| `data-orientation` | The orientation of the range slider.       | `horizontal` \| `vertical` |
+<api-reference-attributes>
+  <api-attribute name="data-disabled" description="Applied when the range slider is disabled." />
+  <api-attribute name="data-orientation" description="The orientation of the range slider." value="horizontal | vertical" />
+</api-reference-attributes>
 
 ### NgpRangeSliderTrack
 
 <api-docs name="NgpRangeSliderTrack"></api-docs>
 
-#### Data Attributes
+<api-reference-props name="NgpRangeSliderTrack"></api-reference-props>
 
-The following data attributes are available to style the slider track:
-
-| Attribute          | Description                                | Value                      |
-| ------------------ | ------------------------------------------ | -------------------------- |
-| `data-disabled`    | Applied when the range slider is disabled. | `-`                        |
-| `data-orientation` | The orientation of the range slider.       | `horizontal` \| `vertical` |
+<api-reference-attributes>
+  <api-attribute name="data-disabled" description="Applied when the range slider is disabled." />
+  <api-attribute name="data-orientation" description="The orientation of the range slider." value="horizontal | vertical" />
+</api-reference-attributes>
 
 ### NgpRangeSliderRange
 
 <api-docs name="NgpRangeSliderRange"></api-docs>
 
-#### Data Attributes
+<api-reference-props name="NgpRangeSliderRange"></api-reference-props>
 
-The following data attributes are available to style the slider range:
-
-| Attribute          | Description                                | Value                      |
-| ------------------ | ------------------------------------------ | -------------------------- |
-| `data-disabled`    | Applied when the range slider is disabled. | `-`                        |
-| `data-orientation` | The orientation of the range slider.       | `horizontal` \| `vertical` |
+<api-reference-attributes>
+  <api-attribute name="data-disabled" description="Applied when the range slider is disabled." />
+  <api-attribute name="data-orientation" description="The orientation of the range slider." value="horizontal | vertical" />
+</api-reference-attributes>
 
 ### NgpRangeSliderThumb
 
 <api-docs name="NgpRangeSliderThumb"></api-docs>
 
-#### Data Attributes
+<api-reference-props name="NgpRangeSliderThumb"></api-reference-props>
 
-The following data attributes are available to style the thumb:
-
-| Attribute            | Description                                | Value                      |
-| -------------------- | ------------------------------------------ | -------------------------- |
-| `data-orientation`   | The orientation of the range slider.       | `horizontal` \| `vertical` |
-| `data-disabled`      | Applied when the range slider is disabled. | `-`                        |
-| `data-hover`         | Applied when the slider thumb is hovered.  | `-`                        |
-| `data-focus-visible` | Applied when the slider thumb is focused.  | `-`                        |
-| `data-press`         | Applied when the slider thumb is pressed.  | `-`                        |
-| `data-thumb`         | Indicates which value this thumb controls. | `low` \| `high`            |
+<api-reference-attributes>
+  <api-attribute name="data-orientation" description="The orientation of the range slider." value="horizontal | vertical" />
+  <api-attribute name="data-disabled" description="Applied when the range slider is disabled." />
+  <api-attribute name="data-hover" description="Applied when the slider thumb is hovered." />
+  <api-attribute name="data-focus-visible" description="Applied when the slider thumb is focused." />
+  <api-attribute name="data-press" description="Applied when the slider thumb is pressed." />
+  <api-attribute name="data-thumb" description="Indicates which value this thumb controls." value="low | high" />
+</api-reference-attributes>
 
 ## Accessibility
 

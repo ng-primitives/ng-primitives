@@ -88,56 +88,48 @@ The following directives are available to import from the `ng-primitives/slider`
 
 <api-docs name="NgpSlider"></api-docs>
 
-#### Data Attributes
+<api-reference-props name="NgpSlider"></api-reference-props>
 
-The following data attributes are available to style the slider:
-
-| Attribute          | Description                          | Value                      |
-| ------------------ | ------------------------------------ | -------------------------- |
-| `data-disabled`    | Applied when the slider is disabled. | `-`                        |
-| `data-orientation` | The orientation of the slider.       | `horizontal` \| `vertical` |
+<api-reference-attributes>
+  <api-attribute name="data-disabled" description="Applied when the slider is disabled." />
+  <api-attribute name="data-orientation" description="The orientation of the slider." value="horizontal | vertical" />
+</api-reference-attributes>
 
 ### NgpSliderTrack
 
 <api-docs name="NgpSliderTrack"></api-docs>
 
-#### Data Attributes
+<api-reference-props name="NgpSliderTrack"></api-reference-props>
 
-The following data attributes are available to style the slider track:
-
-| Attribute          | Description                          | Value                      |
-| ------------------ | ------------------------------------ | -------------------------- |
-| `data-disabled`    | Applied when the slider is disabled. | `-`                        |
-| `data-orientation` | The orientation of the slider.       | `horizontal` \| `vertical` |
+<api-reference-attributes>
+  <api-attribute name="data-disabled" description="Applied when the slider is disabled." />
+  <api-attribute name="data-orientation" description="The orientation of the slider." value="horizontal | vertical" />
+</api-reference-attributes>
 
 ### NgpSliderRange
 
 <api-docs name="NgpSliderRange"></api-docs>
 
-#### Data Attributes
+<api-reference-props name="NgpSliderRange"></api-reference-props>
 
-The following data attributes are available to style the slider range:
-
-| Attribute          | Description                          | Value                      |
-| ------------------ | ------------------------------------ | -------------------------- |
-| `data-disabled`    | Applied when the slider is disabled. | `-`                        |
-| `data-orientation` | The orientation of the slider.       | `horizontal` \| `vertical` |
+<api-reference-attributes>
+  <api-attribute name="data-disabled" description="Applied when the slider is disabled." />
+  <api-attribute name="data-orientation" description="The orientation of the slider." value="horizontal | vertical" />
+</api-reference-attributes>
 
 ### NgpSliderThumb
 
 <api-docs name="NgpSliderThumb"></api-docs>
 
-#### Data Attributes
+<api-reference-props name="NgpSliderThumb"></api-reference-props>
 
-The following data attributes are available to style the thumb:
-
-| Attribute            | Description                               | Value                      |
-| -------------------- | ----------------------------------------- | -------------------------- |
-| `data-orientation`   | The orientation of the slider.            | `horizontal` \| `vertical` |
-| `data-disabled`      | Applied when the slider is disabled.      | `-`                        |
-| `data-hover`         | Applied when the slider thumb is hovered. | `-`                        |
-| `data-focus-visible` | Applied when the slider thumb is focused. | `-`                        |
-| `data-press`         | Applied when the slider thumb is pressed. | `-`                        |
+<api-reference-attributes>
+  <api-attribute name="data-orientation" description="The orientation of the slider." value="horizontal | vertical" />
+  <api-attribute name="data-disabled" description="Applied when the slider is disabled." />
+  <api-attribute name="data-hover" description="Applied when the slider thumb is hovered." />
+  <api-attribute name="data-focus-visible" description="Applied when the slider thumb is focused." />
+  <api-attribute name="data-press" description="Applied when the slider thumb is pressed." />
+</api-reference-attributes>
 
 ## Accessibility
 

@@ -57,13 +57,11 @@ The following directives are available to import from the `ng-primitives/toolbar
 
 <api-docs name="NgpToolbar"></api-docs>
 
-#### Data Attributes
+<api-reference-props name="NgpToolbar"></api-reference-props>
 
-The following data attributes are applied to the `ngpToolbar` directive:
-
-| Attribute          | Description                     | Value                      |
-| ------------------ | ------------------------------- | -------------------------- |
-| `data-orientation` | The orientation of the toolbar. | `horizontal` \| `vertical` |
+<api-reference-attributes>
+  <api-attribute name="data-orientation" description="The orientation of the toolbar." value="horizontal | vertical" />
+</api-reference-attributes>
 
 ## Accessibility
 

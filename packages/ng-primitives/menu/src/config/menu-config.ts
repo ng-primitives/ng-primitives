@@ -35,7 +35,7 @@ export interface NgpMenuConfig {
    * Defines how the menu behaves when the window is scrolled.
    * @default scroll
    */
-  scrollBehavior: 'reposition' | 'block';
+  scrollBehavior: 'reposition' | 'block' | 'close';
 
   /**
    * Configure shift behavior to keep the menu in view.

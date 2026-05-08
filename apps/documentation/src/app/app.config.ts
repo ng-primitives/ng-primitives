@@ -16,8 +16,11 @@ import { provideClientHydration } from '@angular/platform-browser';
 import { Router, Scroll, withInMemoryScrolling } from '@angular/router';
 import { filter } from 'rxjs';
 import { ApiDocs } from './components/api-docs/api-docs';
+import { ApiReferenceAttributes } from './components/api-reference-attributes/api-reference-attributes';
+import { ApiReferenceConfig } from './components/api-reference-config/api-reference-config';
+import { ApiReferenceCssVars } from './components/api-reference-css-vars/api-reference-css-vars';
+import { ApiReferenceProps } from './components/api-reference-props/api-reference-props';
 import { Example } from './components/example/example';
-import { PropDetails } from './components/prop-details/prop-details';
 import { Snippet } from './components/snippet/snippet';
 import { TabGroup } from './components/tab-group/tab-group';
 import { Tab } from './components/tab/tab';
@@ -92,11 +95,25 @@ export function initializeCustomElements(
       customElements.define('docs-example', createCustomElement(Example, { injector }));
       customElements.define('docs-snippet', createCustomElement(Snippet, { injector }));
 
-      customElements.define('prop-details', createCustomElement(PropDetails, { injector }));
-
       customElements.define('tab-group', createCustomElement(TabGroup, { injector }));
       customElements.define('tab-item', createCustomElement(Tab, { injector }));
       customElements.define('api-docs', createCustomElement(ApiDocs, { injector }));
+      customElements.define(
+        'api-reference-props',
+        createCustomElement(ApiReferenceProps, { injector }),
+      );
+      customElements.define(
+        'api-reference-attributes',
+        createCustomElement(ApiReferenceAttributes, { injector }),
+      );
+      customElements.define(
+        'api-reference-css-vars',
+        createCustomElement(ApiReferenceCssVars, { injector }),
+      );
+      customElements.define(
+        'api-reference-config',
+        createCustomElement(ApiReferenceConfig, { injector }),
+      );
     }
   };
 }

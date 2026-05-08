@@ -67,44 +67,54 @@ The following directives are available to import from the `ng-primitives/breadcr
 
 <api-docs name="NgpBreadcrumbs"></api-docs>
 
+<api-reference-props name="NgpBreadcrumbs"></api-reference-props>
+
 ### NgpBreadcrumbList
 
 <api-docs name="NgpBreadcrumbList"></api-docs>
+
+<api-reference-props name="NgpBreadcrumbList"></api-reference-props>
 
 ### NgpBreadcrumbItem
 
 <api-docs name="NgpBreadcrumbItem"></api-docs>
 
+<api-reference-props name="NgpBreadcrumbItem"></api-reference-props>
+
 ### NgpBreadcrumbLink
 
 <api-docs name="NgpBreadcrumbLink"></api-docs>
 
-#### Data Attributes
+<api-reference-props name="NgpBreadcrumbLink"></api-reference-props>
 
-| Attribute            | Description                                   |
-| -------------------- | --------------------------------------------- |
-| `data-hover`         | Applied when the breadcrumb link is hovered.  |
-| `data-press`         | Applied when the breadcrumb link is pressed.  |
-| `data-focus-visible` | Applied when the link receives focus visibly. |
-| `data-current`       | Applied when the link represents the page.    |
+<api-reference-attributes>
+  <api-attribute name="data-hover" description="Applied when the breadcrumb link is hovered." />
+  <api-attribute name="data-press" description="Applied when the breadcrumb link is pressed." />
+  <api-attribute name="data-focus-visible" description="Applied when the link receives focus visibly." />
+  <api-attribute name="data-current" description="Applied when the link represents the page." />
+</api-reference-attributes>
 
 ### NgpBreadcrumbPage
 
 <api-docs name="NgpBreadcrumbPage"></api-docs>
 
-#### Data Attributes
+<api-reference-props name="NgpBreadcrumbPage"></api-reference-props>
 
-| Attribute      | Description                               |
-| -------------- | ----------------------------------------- |
-| `data-current` | Applied to indicate the current location. |
+<api-reference-attributes>
+  <api-attribute name="data-current" description="Applied to indicate the current location." />
+</api-reference-attributes>
 
 ### NgpBreadcrumbSeparator
 
 <api-docs name="NgpBreadcrumbSeparator"></api-docs>
 
+<api-reference-props name="NgpBreadcrumbSeparator"></api-reference-props>
+
 ### NgpBreadcrumbEllipsis
 
 <api-docs name="NgpBreadcrumbEllipsis"></api-docs>
+
+<api-reference-props name="NgpBreadcrumbEllipsis"></api-reference-props>
 
 ## Accessibility
 

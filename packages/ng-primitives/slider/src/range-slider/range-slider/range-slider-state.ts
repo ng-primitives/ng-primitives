@@ -1,4 +1,5 @@
-import { computed, ElementRef, Signal, signal, WritableSignal } from '@angular/core';
+import { FocusMonitor, FocusOrigin } from '@angular/cdk/a11y';
+import { computed, ElementRef, inject, Signal, signal, WritableSignal } from '@angular/core';
 import { NgpOrientation } from 'ng-primitives/common';
 import { ngpFormControl } from 'ng-primitives/form-field';
 import { injectElementRef } from 'ng-primitives/internal';
@@ -147,6 +148,10 @@ export interface NgpRangeSliderState {
    */
   removeThumb(thumb: ElementRef<HTMLElement>): void;
   /**
+   * Focus the specified thumb element.
+   */
+  focusThumb(thumb: 'low' | 'high', origin: FocusOrigin): void;
+  /**
    * Set the track element reference.
    */
   setTrack(track: ElementRef<HTMLElement>): void;
@@ -180,6 +185,7 @@ export const [
     onHighChange,
   }: NgpRangeSliderProps): NgpRangeSliderState => {
     const element = injectElementRef();
+    const focusMonitor = inject(FocusMonitor);
     const low = controlled(_low);
     const high = controlled(_high);
     const disabled = controlled(_disabled);
@@ -243,6 +249,14 @@ export const [
       thumbs.update(t => t.filter(existing => existing !== thumb));
     }
 
+    function focusThumb(thumb: 'low' | 'high', origin: FocusOrigin): void {
+      const index = thumb === 'low' ? 0 : 1;
+      const el = thumbs()[index];
+      if (el) {
+        focusMonitor.focusVia(el, origin, { preventScroll: true });
+      }
+    }
+
     function setDisabled(isDisabled: boolean): void {
       disabled.set(isDisabled);
     }
@@ -276,6 +290,7 @@ export const [
       getClosestThumb,
       addThumb,
       removeThumb,
+      focusThumb,
       setDisabled,
       setOrientation,
       setTrack,

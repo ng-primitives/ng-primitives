@@ -79,38 +79,38 @@ The following directives are available to import from the `ng-primitives/listbox
 
 <api-docs name="NgpListbox"></api-docs>
 
-#### Data Attributes
+<api-reference-props name="NgpListbox"></api-reference-props>
 
-The following data attributes are applied to the `ngpListbox` directive:
-
-| Attribute            | Description                                           |
-| -------------------- | ----------------------------------------------------- |
-| `data-focus-visible` | Applied to the listbox when focused via the keyboard. |
+<api-reference-attributes>
+  <api-attribute name="data-focus-visible" description="Applied to the listbox when focused via the keyboard." />
+</api-reference-attributes>
 
 ### NgpListboxOption
 
 <api-docs name="NgpListboxOption"></api-docs>
 
-#### Data Attributes
+<api-reference-props name="NgpListboxOption"></api-reference-props>
 
-The following data attributes are applied to the `ngpListboxOption` directive:
-
-| Attribute            | Description                                                     |
-| -------------------- | --------------------------------------------------------------- |
-| `data-hover`         | Applied to the listbox option when hovered.                     |
-| `data-focus`         | Applied to the listbox option when focused.                     |
-| `data-focus-visible` | Applied to the listbox option when focused via the keyboard.    |
-| `data-active`        | Applied to the listbox option when it is the active descendant. |
-| `data-disabled`      | Applied to the listbox option when it is disabled.              |
-| `data-selected`      | Applied to the listbox option when it is selected.              |
+<api-reference-attributes>
+  <api-attribute name="data-hover" description="Applied to the listbox option when hovered." />
+  <api-attribute name="data-focus" description="Applied to the listbox option when focused." />
+  <api-attribute name="data-focus-visible" description="Applied to the listbox option when focused via the keyboard." />
+  <api-attribute name="data-active" description="Applied to the listbox option when it is the active descendant." />
+  <api-attribute name="data-disabled" description="Applied to the listbox option when it is disabled." />
+  <api-attribute name="data-selected" description="Applied to the listbox option when it is selected." />
+</api-reference-attributes>
 
 ### NgpListboxSection
 
 <api-docs name="NgpListboxSection"></api-docs>
 
+<api-reference-props name="NgpListboxSection"></api-reference-props>
+
 ### NgpListboxTrigger
 
 <api-docs name="NgpListboxTrigger"></api-docs>
+
+<api-reference-props name="NgpListboxTrigger"></api-reference-props>
 
 Augments the popover trigger with listbox-specific behavior, such as opening the listbox when the arrow keys are pressed.
 

@@ -76,52 +76,117 @@ The following directives are available to import from the `ng-primitives/dialog`
 
 <api-docs name="NgpDialog"></api-docs>
 
-| Attribute   | Description                         |
-| ----------- | ----------------------------------- |
-| `data-exit` | Applied when the dialog is closing. |
+<api-reference-props name="NgpDialog"></api-reference-props>
+
+<api-reference-attributes>
+  <api-attribute name="data-exit" description="Applied when the dialog is closing." />
+</api-reference-attributes>
 
 ### NgpDialogTitle
 
 <api-docs name="NgpDialogTitle"></api-docs>
 
+<api-reference-props name="NgpDialogTitle"></api-reference-props>
+
 ### NgpDialogDescription
 
 <api-docs name="NgpDialogDescription"></api-docs>
+
+<api-reference-props name="NgpDialogDescription"></api-reference-props>
 
 ### NgpDialogTrigger
 
 <api-docs name="NgpDialogTrigger"></api-docs>
 
-| Attribute            | Description                           |
-| -------------------- | ------------------------------------- |
-| `data-hover`         | Applied when the trigger is hovered.  |
-| `data-focus-visible` | Applied when the trigger is focused.  |
-| `data-press`         | Applied when the trigger is pressed.  |
-| `data-disabled`      | Applied when the trigger is disabled. |
+<api-reference-props name="NgpDialogTrigger"></api-reference-props>
+
+<api-reference-attributes>
+  <api-attribute name="data-hover" description="Applied when the trigger is hovered." />
+  <api-attribute name="data-focus-visible" description="Applied when the trigger is focused." />
+  <api-attribute name="data-press" description="Applied when the trigger is pressed." />
+  <api-attribute name="data-disabled" description="Applied when the trigger is disabled." />
+</api-reference-attributes>
 
 ### NgpDialogOverlay
 
 <api-docs name="NgpDialogOverlay"></api-docs>
 
-| Attribute   | Description                         |
-| ----------- | ----------------------------------- |
-| `data-exit` | Applied when the dialog is closing. |
+<api-reference-props name="NgpDialogOverlay"></api-reference-props>
+
+<api-reference-attributes>
+  <api-attribute name="data-exit" description="Applied when the dialog is closing." />
+</api-reference-attributes>
 
 ### NgpDialogManager
 
 The `NgpDialogManager` can be used as an alternative to the `NgpDialogTrigger` directive for programmatically opening dialogs.
 
-The manager provides a method to open or close all dialogs and accepts a component or template reference to display.
+The manager provides methods to open, close, and query dialogs, and accepts a component or template reference to display.
 
-<prop-details name="open" type="(component: Type | TemplateRef, options?: NgpDialogConfig) => NgpDialogRef">
-  Opens a dialog with the specified component or template reference.
+<api-reference-config>
+  <api-config-prop name="open" type="(component: Type | TemplateRef, options?: NgpDialogConfig) => NgpDialogRef" description="Opens a dialog with the specified component or template reference." />
+  <api-config-prop name="closeAll" type="() => void" description="Closes all open dialogs." />
+  <api-config-prop name="getDialogById" type="(id: string) => NgpDialogRef | undefined" description="Finds an open dialog by its ID." />
+  <api-config-prop name="openDialogs" type="readonly NgpDialogRef[]" description="The list of currently open dialogs." />
+  <api-config-prop name="afterOpened" type="Subject<NgpDialogRef>" description="Stream that emits when a dialog has been opened." />
+  <api-config-prop name="afterAllClosed" type="Observable<void>" description="Stream that emits when all open dialogs have finished closing. Emits on subscribe if there are no open dialogs." />
+</api-reference-config>
+
+### NgpDialogRef
+
+Reference returned by `NgpDialogManager.open()`. Provides methods to interact with the opened dialog.
+
+<prop-details name="close" type="(result?: R, focusOrigin?: FocusOrigin) => Promise<void>">
+  Closes the dialog, optionally returning a result value.
 </prop-details>
 
-<prop-details name="closeAll" type="() => void">
-  Closes all open dialogs.
+<prop-details name="closed" type="Observable<{ focusOrigin?: FocusOrigin; result?: R }>">
+  Observable that emits immediately when `close()` is called, before exit animations run.
+</prop-details>
+
+<prop-details name="afterClosed" type="Observable<{ focusOrigin?: FocusOrigin; result?: R }>">
+  Observable that emits after exit animations have completed.
+</prop-details>
+
+<prop-details name="data" type="T">
+  The data passed to the dialog via `NgpDialogConfig.data`.
+</prop-details>
+
+<prop-details name="id" type="string">
+  The unique ID for the dialog.
+</prop-details>
+
+<prop-details name="disableClose" type="boolean | undefined">
+  Whether the user is allowed to close the dialog.
+</prop-details>
+
+<prop-details name="closeOnEscape" type="NgpDismissGuard<KeyboardEvent> | undefined">
+  Whether the escape key is allowed to close the dialog, or a guard function. When a function is provided, it receives the keyboard event and should return a boolean or `Promise<boolean>`.
+</prop-details>
+
+<prop-details name="closeOnOutsideClick" type="NgpDismissGuard<Element> | undefined">
+  Whether clicking outside (on the overlay) is allowed to close the dialog, or a guard function. When a function is provided, it receives the target element and should return a boolean or `Promise<boolean>`.
+</prop-details>
+
+<prop-details name="keydownEvents" type="Observable<KeyboardEvent>">
+  Observable that emits keyboard events dispatched within the dialog.
+</prop-details>
+
+<prop-details name="outsidePointerEvents" type="Observable<MouseEvent>">
+  Observable that emits pointer events dispatched outside of the dialog.
+</prop-details>
+
+<prop-details name="updatePosition" type="() => NgpDialogRef">
+  Updates the position of the dialog. Currently a no-op as dialogs are CSS-centered.
 </prop-details>
 
 ## Examples
+
+### Dismiss Guard
+
+Use dismiss guards to prevent a dialog from closing when there are unsaved changes. The `closeOnEscape` and `closeOnOutsideClick` options accept a guard function that returns a boolean or a `Promise<boolean>`.
+
+<docs-example name="dialog-dismiss-guard"></docs-example>
 
 ### Dialog with external data
 
