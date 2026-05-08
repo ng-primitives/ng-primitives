@@ -12,9 +12,8 @@ import { NgpButton } from 'ng-primitives/button';
 
     <button
       [aria-label]="isLoading() ? 'Submitting, please wait' : null"
-      [disabled]="isLoading()"
-      [focusableWhenDisabled]="isLoading()"
-      (click)="startLoading()"
+      [disabled]="isLoading() ? 'soft' : false"
+      (click)="isLoading() ? void 0 : onClick()"
       ngpButton
       type="button"
     >
@@ -25,6 +24,8 @@ import { NgpButton } from 'ng-primitives/button';
         Submit
       }
     </button>
+
+    <p class="description">Clicks: {{ clicks() }}</p>
   `,
   styles: `
     :host {
@@ -98,10 +99,12 @@ import { NgpButton } from 'ng-primitives/button';
 })
 export default class ButtonLoadingExample {
   readonly isLoading = signal(false);
+  readonly clicks = signal(0);
 
-  async startLoading() {
+  async onClick() {
+    this.clicks.update(v => v + 1);
     this.isLoading.set(true);
-    await new Promise(res => setTimeout(res, 3000)); // Simulate loading
+    await new Promise(res => setTimeout(res, 3000));
     this.isLoading.set(false);
   }
 }
