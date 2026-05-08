@@ -1,14 +1,6 @@
 import { FocusMonitor, FocusOrigin } from '@angular/cdk/a11y';
-import {
-  afterRenderEffect,
-  ElementRef,
-  inject,
-  Renderer2,
-  Signal,
-  signal,
-  untracked,
-} from '@angular/core';
-import { onBooleanChange } from 'ng-primitives/utils';
+import { ElementRef, inject, Renderer2, Signal, signal } from '@angular/core';
+import { onBooleanChange, safeTakeUntilDestroyed } from 'ng-primitives/utils';
 import { isFocusVisibleEnabled } from '../config/interactions-config';
 
 export interface NgpFocusVisibleProps {
@@ -40,24 +32,14 @@ export function ngpFocusVisible({
   // Whether the element is currently focused.
   const isFocused = signal<boolean>(false);
 
-  afterRenderEffect(onCleanup => {
-    // Read disabled to track changes (triggers re-setup when disabled changes)
-    disabled();
-    untracked(() => {
-      const subscription = focusMonitor.monitor(elementRef, false).subscribe(origin => {
-        if (origin === null) {
-          onBlur();
-        } else {
-          onFocus(origin);
-        }
-      });
-
-      onCleanup(() => {
-        subscription.unsubscribe();
-        focusMonitor.stopMonitoring(elementRef);
-      });
-    });
-  });
+  // handle focus state
+  focusMonitor
+    .monitor(elementRef.nativeElement)
+    .pipe(safeTakeUntilDestroyed())
+    .subscribe(origin =>
+      // null indicates the element was blurred
+      origin === null ? onBlur() : onFocus(origin),
+    );
 
   // if the component becomes disabled and it is focused, hide the focus
   onBooleanChange(disabled, () => focus(false));

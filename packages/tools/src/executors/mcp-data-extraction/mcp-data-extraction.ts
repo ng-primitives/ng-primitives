@@ -211,15 +211,7 @@ function inferCategory(primitiveName: string): string {
     feedback: ['dialog', 'tooltip', 'popover', 'toast', 'progress', 'meter'],
     layout: ['accordion', 'separator', 'portal'],
     data: ['avatar'],
-    utility: [
-      'a11y',
-      'autofill',
-      'focus-trap',
-      'interact',
-      'interactions',
-      'resize',
-      'roving-focus',
-    ],
+    utility: ['focus-trap', 'roving-focus', 'resize', 'autofill', 'interactions', 'a11y'],
     'date-time': ['date-picker', 'date-time', 'date-time-luxon'],
   };
 
