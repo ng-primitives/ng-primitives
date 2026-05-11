@@ -9,10 +9,11 @@ import { ngpButton, provideButtonState } from './button-state';
 })
 export class NgpButton {
   /**
-   * Whether the button is disabled.
+   * Whether the button is disabled. Use `'soft'` for an aria-disabled
+   * button that stays focusable; events still fire, so guard your handlers.
    */
-  readonly disabled = input<boolean, BooleanInput>(false, {
-    transform: booleanAttribute,
+  readonly disabled = input<boolean | 'soft', BooleanInput>(false, {
+    transform: v => (v === 'soft' ? 'soft' : booleanAttribute(v)),
   });
 
   /**
@@ -24,7 +25,7 @@ export class NgpButton {
    * Set the disabled state of the button.
    * @param value The disabled state.
    */
-  setDisabled(value: boolean): void {
+  setDisabled(value: boolean | 'soft'): void {
     this.state.setDisabled(value);
   }
 }

@@ -40,12 +40,72 @@ describe('NgpButton', () => {
     expect(anchor).not.toHaveAttribute('disabled');
   });
 
+  it('should set aria-disabled but not the native disabled attribute when soft disabled', async () => {
+    const container = await render(`<button ngpButton [disabled]="'soft'"></button>`, {
+      imports: [NgpButton],
+    });
+
+    const button = container.getByRole('button');
+    expect(button).toHaveAttribute('aria-disabled', 'true');
+    expect(button).not.toHaveAttribute('disabled');
+  });
+
+  it('should not set aria-disabled when not disabled', async () => {
+    const container = await render(`<button ngpButton></button>`, {
+      imports: [NgpButton],
+    });
+
+    expect(container.getByRole('button')).not.toHaveAttribute('aria-disabled');
+  });
+
+  it('should not set aria-disabled when fully disabled on a native button', async () => {
+    const container = await render(`<button ngpButton [disabled]="true"></button>`, {
+      imports: [NgpButton],
+    });
+
+    expect(container.getByRole('button')).not.toHaveAttribute('aria-disabled');
+  });
+
+  it('should set aria-disabled when fully disabled on a non-native host', async () => {
+    const container = await render(`<a data-testid="button" ngpButton [disabled]="true"></a>`, {
+      imports: [NgpButton],
+    });
+
+    expect(container.getByTestId('button')).toHaveAttribute('aria-disabled', 'true');
+  });
+
+  it('should set aria-disabled when soft disabled on a non-native host', async () => {
+    const container = await render(`<a data-testid="button" ngpButton [disabled]="'soft'"></a>`, {
+      imports: [NgpButton],
+    });
+
+    expect(container.getByTestId('button')).toHaveAttribute('aria-disabled', 'true');
+  });
+
+  it('should keep a soft-disabled button in the tab order', async () => {
+    const container = await render(`<button ngpButton [disabled]="'soft'"></button>`, {
+      imports: [NgpButton],
+    });
+
+    const button = container.getByRole('button');
+    button.focus();
+    expect(button).toHaveFocus();
+  });
+
   it('should set the data-disabled attribute when disabled', async () => {
     const container = await render(`<button ngpButton [disabled]="true"></button>`, {
       imports: [NgpButton],
     });
 
     expect(container.getByRole('button')).toHaveAttribute('data-disabled', '');
+  });
+
+  it('should set data-disabled="soft" when soft disabled', async () => {
+    const container = await render(`<button ngpButton [disabled]="'soft'"></button>`, {
+      imports: [NgpButton],
+    });
+
+    expect(container.getByRole('button')).toHaveAttribute('data-disabled', 'soft');
   });
 
   it('should not set the data-disabled attribute when not disabled', async () => {
@@ -177,5 +237,38 @@ describe('NgpButton', () => {
     const button = container.getByRole('button');
     fireEvent.mouseEnter(button);
     expect(button).not.toHaveAttribute('data-hover');
+  });
+
+  it('should not add the data-hover attribute when soft disabled', async () => {
+    const container = await render(`<button ngpButton [disabled]="'soft'"></button>`, {
+      imports: [NgpButton],
+    });
+
+    const button = container.getByRole('button');
+    fireEvent.mouseEnter(button);
+    expect(button).not.toHaveAttribute('data-hover');
+  });
+
+  it('should not add the data-press attribute when soft disabled', async () => {
+    const container = await render(`<button ngpButton [disabled]="'soft'"></button>`, {
+      imports: [NgpButton],
+    });
+
+    const button = container.getByRole('button');
+    fireEvent.pointerDown(button);
+    expect(button).not.toHaveAttribute('data-press');
+  });
+
+  it('should still add the data-focus-visible attribute when soft disabled', async () => {
+    const container = await render(`<button ngpButton [disabled]="'soft'"></button>`, {
+      imports: [NgpButton],
+    });
+
+    const focusMonitor = container.fixture.debugElement.injector.get(FocusMonitor);
+
+    const button = container.getByRole('button');
+    focusMonitor.focusVia(button, 'keyboard');
+    container.detectChanges();
+    expect(button).toHaveAttribute('data-focus-visible');
   });
 });

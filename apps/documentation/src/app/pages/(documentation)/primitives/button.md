@@ -51,6 +51,12 @@ You can add icons to your buttons using any Angular icon library or simple SVG e
 
 <docs-example name="button-icon"></docs-example>
 
+### Loading States
+
+Use `disabled="soft"` for buttons that enter a loading state after being clicked.
+
+<docs-example name="button-loading"></docs-example>
+
 ## Schematics
 
 Generate a reusable button component using the Angular CLI.
@@ -67,6 +73,14 @@ ng g ng-primitives:primitive button
 - `file-suffix`: The suffix to apply to the generated component file name. Defaults to `component`.
 - `example-styles`: Whether to include example styles in the generated component file. Defaults to `true`.
 
+## Disabled States
+
+The `disabled` input accepts:
+
+- `false` — enabled.
+- `true` — native `disabled` applied; focus and events blocked by the browser.
+- `'soft'` — `aria-disabled="true"` and `data-disabled="soft"`; stays focusable. Events still fire — guard your handlers (see the [Loading States](#loading-states) example). Follows the [WAI-ARIA pattern for focusable disabled controls](https://www.w3.org/WAI/ARIA/apg/practices/keyboard-interface/#kbd_disabled_controls).
+
 ## API Reference
 
 The following directives are available to import from the `ng-primitives/button` package:
@@ -81,12 +95,12 @@ The following directives are available to import from the `ng-primitives/button`
   <api-attribute name="data-hover" description="Added to the button when hovered." />
   <api-attribute name="data-focus-visible" description="Added to the button when focused." />
   <api-attribute name="data-press" description="Added to the button when pressed." />
-  <api-attribute name="data-disabled" description="Added to the button when disabled." />
+  <api-attribute name="data-disabled" description="Added to the button when disabled. Empty string when fully disabled, or `soft` when soft-disabled." />
 </api-reference-attributes>
 
 ## Accessibility
 
-The button primitive should be applied to native `<button>` elements to inherit built-in browser accessibility. When disabled, the `disabled` attribute is automatically set on the host element.
+Apply the primitive to native `&lt;button&gt;` elements to inherit built-in browser accessibility. With `disabled="'soft'"`, `aria-disabled` is used in place of the native `disabled` attribute so the element remains focusable.
 
 ### Keyboard Interactions
 
