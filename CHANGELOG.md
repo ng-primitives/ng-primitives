@@ -1,3 +1,19 @@
+## 0.119.0 (2026-05-11)
+
+### 🚀 Features
+
+- **disable:** introduce NgpDisable directive for enhanced accessibility and focus management ([#630](https://github.com/ng-primitives/ng-primitives/pull/630))
+
+### 🩹 Fixes
+
+- **combobox,select:** emit openChange false on outside click and Escape key events ([#746](https://github.com/ng-primitives/ng-primitives/pull/746), [#747](https://github.com/ng-primitives/ng-primitives/pull/747))
+
+### ❤️ Thank You
+
+- Ashley Hunter
+- Jeremy Zacharia @jczacharia
+- Simon Mumenthaler
+
 ## 0.118.0 (2026-05-07)
 
 ### 🚀 Features
