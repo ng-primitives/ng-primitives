@@ -13,7 +13,7 @@ import { NgpButton } from 'ng-primitives/button';
     <button
       [aria-label]="isLoading() ? 'Submitting, please wait' : null"
       [disabled]="isLoading() ? 'soft' : false"
-      (click)="isLoading() ? void 0 : onClick()"
+      (click)="onClick()"
       ngpButton
       type="button"
     >
@@ -102,6 +102,9 @@ export default class ButtonLoadingExample {
   readonly clicks = signal(0);
 
   async onClick() {
+    if (this.isLoading()) {
+      return;
+    }
     this.clicks.update(v => v + 1);
     this.isLoading.set(true);
     await new Promise(res => setTimeout(res, 3000));
