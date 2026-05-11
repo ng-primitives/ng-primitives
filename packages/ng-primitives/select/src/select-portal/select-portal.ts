@@ -81,6 +81,7 @@ export class NgpSelectPortal implements OnDestroy {
       restoreFocus: false,
       scrollBehaviour: 'reposition',
       container: this.state().container(),
+      onClose: () => this.state().onOverlayClosed(),
     };
 
     this.overlay.set(createOverlay(config));

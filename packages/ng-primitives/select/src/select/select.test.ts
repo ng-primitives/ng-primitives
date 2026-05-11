@@ -6,7 +6,12 @@ import { NgpSelect, NgpSelectDropdown, NgpSelectOption, NgpSelectPortal } from '
 
 @Component({
   template: `
-    <div [(ngpSelectValue)]="value" ngpSelect data-testid="select">
+    <div
+      [(ngpSelectValue)]="value"
+      (ngpSelectOpenChange)="onOpenChange($event)"
+      ngpSelect
+      data-testid="select"
+    >
       @if (value(); as value) {
         <span data-testid="selected-value">{{ value }}</span>
       } @else {
@@ -31,11 +36,19 @@ import { NgpSelect, NgpSelectDropdown, NgpSelectOption, NgpSelectPortal } from '
 class TestSelectComponent {
   readonly options = ['Apple', 'Banana', 'Cherry'];
   readonly value = signal<string | undefined>(undefined);
+
+  onOpenChange(_event: boolean) {}
 }
 
 @Component({
   template: `
-    <div [(ngpSelectValue)]="value" ngpSelect ngpSelectMultiple data-testid="multi-select">
+    <div
+      [(ngpSelectValue)]="value"
+      (ngpSelectOpenChange)="onOpenChange($event)"
+      ngpSelect
+      ngpSelectMultiple
+      data-testid="multi-select"
+    >
       @if (value().length > 0) {
         <span data-testid="selected-values">{{ value().join(', ') }}</span>
       } @else {
@@ -60,6 +73,8 @@ class TestSelectComponent {
 class TestMultiSelectComponent {
   readonly options = ['Apple', 'Banana', 'Cherry'];
   readonly value = signal<string[]>([]);
+
+  onOpenChange(_event: boolean) {}
 }
 
 @Component({
@@ -1573,6 +1588,74 @@ describe('NgpSelect', () => {
           expect(fixture.componentInstance.value()).toBe('Only Option');
         });
       });
+    });
+  });
+
+  describe('openChange events', () => {
+    it('should emit when clicking outside', async () => {
+      const user = userEvent.setup();
+      const { fixture } = await render(TestSelectComponent);
+      const spy = vi.spyOn(fixture.componentInstance, 'onOpenChange');
+
+      const select = screen.getByTestId('select');
+      await user.click(select);
+      expect(spy).toHaveBeenCalledWith(true);
+
+      // Click outside to close
+      await user.click(document.body);
+      expect(spy).toHaveBeenCalledWith(false);
+    });
+
+    it('should emit when pressing Escape key', async () => {
+      const user = userEvent.setup();
+      const { fixture } = await render(TestSelectComponent);
+      const spy = vi.spyOn(fixture.componentInstance, 'onOpenChange');
+
+      const select = screen.getByTestId('select');
+      await user.click(select);
+      expect(spy).toHaveBeenCalledWith(true);
+
+      // Press Escape to close
+      await user.keyboard('{Escape}');
+      expect(spy).toHaveBeenCalledWith(false);
+    });
+
+    it('should emit on outside click after selecting an option in multi-select', async () => {
+      const user = userEvent.setup();
+      const { fixture } = await render(TestMultiSelectComponent);
+      const component = fixture.componentInstance;
+      const spy = vi.spyOn(component, 'onOpenChange');
+
+      const select = screen.getByTestId('multi-select');
+      await user.click(select);
+      expect(spy).toHaveBeenCalledWith(true);
+
+      // Select an option (multi-select stays open)
+      await user.click(screen.getByRole('option', { name: /apple/i }));
+      expect(component.value()).toContain('Apple');
+
+      // Click outside to close
+      await user.click(document.body);
+      expect(spy).toHaveBeenCalledWith(false);
+    });
+
+    it('should emit on Escape key after selecting an option in multi-select', async () => {
+      const user = userEvent.setup();
+      const { fixture } = await render(TestMultiSelectComponent);
+      const component = fixture.componentInstance;
+      const spy = vi.spyOn(component, 'onOpenChange');
+
+      const select = screen.getByTestId('multi-select');
+      await user.click(select);
+      expect(spy).toHaveBeenCalledWith(true);
+
+      // Select an option (multi-select stays open)
+      await user.click(screen.getByRole('option', { name: /apple/i }));
+      expect(component.value()).toContain('Apple');
+
+      // Press Escape to close
+      await user.keyboard('{Escape}');
+      expect(spy).toHaveBeenCalledWith(false);
     });
   });
 });

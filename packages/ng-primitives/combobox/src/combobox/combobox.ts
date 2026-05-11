@@ -293,10 +293,16 @@ export class NgpCombobox {
     if (!this.open()) {
       return;
     }
-
-    this.openChange.emit(false);
     this.portal()?.detach();
+  }
 
+  /**
+   * Handles the dropdown being closed.
+   * Emits the openChange event and resets the active descendant.
+   * @internal
+   */
+  onOverlayClosed(): void {
+    this.openChange.emit(false);
     // clear the active descendant
     this.activeDescendantManager.reset();
   }

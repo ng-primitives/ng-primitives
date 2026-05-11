@@ -88,6 +88,7 @@ class TestComponent {
       [ngpComboboxValue]="value"
       [ngpComboboxMultiple]="true"
       (ngpComboboxValueChange)="onValueChange($event)"
+      (ngpComboboxOpenChange)="onOpenChange($event)"
       ngpCombobox
     >
       <input
@@ -127,6 +128,8 @@ class MultiSelectTestComponent {
   onFilterChange(event: Event) {
     this.filter = (event.target as HTMLInputElement).value;
   }
+
+  onOpenChange(_event: boolean) {}
 }
 
 describe('NgpCombobox', () => {
@@ -2004,5 +2007,76 @@ describe('NgpComboboxOption activated output', () => {
     await userEvent.click(screen.getByTestId('option-Apple'));
 
     expect(component.activatedOptions.filter(o => o === 'Apple').length).toBe(3);
+  });
+});
+
+describe('openChange events', () => {
+  afterEach(() => {
+    const dropdown = screen.queryByRole('listbox');
+    if (dropdown) {
+      dropdown.remove();
+    }
+  });
+
+  it('should emit when clicking outside', async () => {
+    const { fixture } = await render(TestComponent);
+    const spy = vi.spyOn(fixture.componentInstance, 'onOpenChange');
+
+    const button = screen.getByTestId('combobox-button');
+    await userEvent.click(button);
+    expect(spy).toHaveBeenCalledWith(true);
+
+    // Click outside to close
+    await userEvent.click(document.body);
+    expect(spy).toHaveBeenCalledWith(false);
+  });
+
+  it('should emit when pressing Escape key', async () => {
+    const { fixture } = await render(TestComponent);
+    const spy = vi.spyOn(fixture.componentInstance, 'onOpenChange');
+
+    const button = screen.getByTestId('combobox-button');
+    await userEvent.click(button);
+    expect(spy).toHaveBeenCalledWith(true);
+
+    // Press Escape to close
+    await userEvent.keyboard('{escape}');
+    expect(spy).toHaveBeenCalledWith(false);
+  });
+
+  it('should emit on outside click after selecting an option in multi-select', async () => {
+    const { fixture } = await render(MultiSelectTestComponent);
+    const component = fixture.componentInstance;
+    const spy = vi.spyOn(component, 'onOpenChange');
+
+    const button = screen.getByTestId('multi-combobox-button');
+    await userEvent.click(button);
+    expect(spy).toHaveBeenCalledWith(true);
+
+    // Select an option (multi-select stays open)
+    await userEvent.click(screen.getByRole('option', { name: /apple/i }));
+    expect(component.value).toContain('Apple');
+
+    // Click outside to close
+    await userEvent.click(document.body);
+    expect(spy).toHaveBeenCalledWith(false);
+  });
+
+  it('should emit on Escape key after selecting an option in multi-select', async () => {
+    const { fixture } = await render(MultiSelectTestComponent);
+    const component = fixture.componentInstance;
+    const spy = vi.spyOn(component, 'onOpenChange');
+
+    const button = screen.getByTestId('multi-combobox-button');
+    await userEvent.click(button);
+    expect(spy).toHaveBeenCalledWith(true);
+
+    // Select an option (multi-select stays open)
+    await userEvent.click(screen.getByRole('option', { name: /apple/i }));
+    expect(component.value).toContain('Apple');
+
+    // Press Escape to close
+    await userEvent.keyboard('{escape}');
+    expect(spy).toHaveBeenCalledWith(false);
   });
 });
