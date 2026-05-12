@@ -1,3 +1,15 @@
+## 0.120.0 (2026-05-12)
+
+### 🚀 Features
+
+- **tooltip:** allow to provide anchor element ([#748](https://github.com/ng-primitives/ng-primitives/pull/748))
+
+### ❤️ Thank You
+
+- Ashley Hunter
+- Claude Opus 4.7 (1M context)
+- Simon Mumenthaler
+
 ## 0.119.0 (2026-05-11)
 
 ### 🚀 Features
