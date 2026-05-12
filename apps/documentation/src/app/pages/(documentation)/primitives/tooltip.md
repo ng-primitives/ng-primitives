@@ -82,6 +82,12 @@ You can customize the offset using either a simple number or an object for more 
 </button>
 ```
 
+### Custom Anchor
+
+You can provide a separate anchor element using `ngpTooltipTriggerAnchor` to control where the tooltip appears while keeping the full trigger area interactive.
+
+<docs-example name="tooltip-custom-anchor"></docs-example>
+
 ### Custom Shift
 
 You can customize the shift behavior to control how the tooltip stays within the viewport:

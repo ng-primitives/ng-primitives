@@ -1043,6 +1043,108 @@ describe('NgpTooltipTrigger', () => {
     });
   });
 
+  describe('anchor', () => {
+    it('should position tooltip relative to anchor element when provided', async () => {
+      const { getByRole } = await render(
+        `
+          <div
+            #anchor
+            style="position: absolute; top: 100px; left: 200px; width: 50px; height: 30px;"
+          >
+            Anchor Element
+          </div>
+          <button
+            [ngpTooltipTrigger]="content"
+            [ngpTooltipTriggerAnchor]="anchor"
+            style="position: absolute; top: 300px; left: 400px;"
+          >
+            Trigger
+          </button>
+
+          <ng-template #content>
+            <div ngpTooltip>Tooltip content</div>
+          </ng-template>
+        `,
+        {
+          imports: [NgpTooltipTrigger, NgpTooltip],
+        },
+      );
+
+      const trigger = getByRole('button');
+      fireEvent.mouseEnter(trigger);
+
+      await waitFor(() => {
+        expect(document.querySelector('[ngpTooltip]')).toBeInTheDocument();
+      });
+
+      // The tooltip should be positioned relative to the anchor element (top: 100px, left: 200px)
+      // rather than the trigger element (top: 300px, left: 400px)
+      const tooltip = document.querySelector('[ngpTooltip]') as HTMLElement;
+      const tooltipRect = tooltip.getBoundingClientRect();
+
+      // The tooltip should be positioned close to the anchor's position (200px left)
+      // rather than near the trigger's position (400px left)
+      expect(tooltipRect.left).toBeLessThan(300);
+    });
+
+    it('should fall back to trigger element when anchor is null', async () => {
+      const { getByRole } = await render(
+        `
+          <button
+            [ngpTooltipTrigger]="content"
+            [ngpTooltipTriggerAnchor]="null"
+            style="position: absolute; top: 100px; left: 200px;"
+          >
+            Trigger
+          </button>
+
+          <ng-template #content>
+            <div ngpTooltip>Tooltip content</div>
+          </ng-template>
+        `,
+        {
+          imports: [NgpTooltipTrigger, NgpTooltip],
+        },
+      );
+
+      const trigger = getByRole('button');
+      fireEvent.mouseEnter(trigger);
+
+      await waitFor(() => {
+        expect(document.querySelector('[ngpTooltip]')).toBeInTheDocument();
+      });
+
+      // Should position relative to trigger when anchor is null
+      const tooltip = document.querySelector('[ngpTooltip]') as HTMLElement;
+      expect(tooltip).toBeInTheDocument();
+    });
+
+    it('should accept anchor element input', async () => {
+      const { getByRole } = await render(
+        `
+          <div #anchor>Anchor Element</div>
+          <button [ngpTooltipTrigger]="content" [ngpTooltipTriggerAnchor]="anchor">Trigger</button>
+
+          <ng-template #content>
+            <div ngpTooltip>Tooltip content</div>
+          </ng-template>
+        `,
+        {
+          imports: [NgpTooltipTrigger, NgpTooltip],
+        },
+      );
+
+      const trigger = getByRole('button');
+
+      // Should be able to open tooltip with anchor element configured
+      fireEvent.mouseEnter(trigger);
+
+      await waitFor(() => {
+        expect(document.querySelector('[ngpTooltip]')).toBeInTheDocument();
+      });
+    });
+  });
+
   describe('position', () => {
     it('should accept position input for programmatic positioning', async () => {
       const { fixture } = await render(

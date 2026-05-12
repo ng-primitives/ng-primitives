@@ -181,6 +181,12 @@ export class NgpTooltipTrigger<T = null> implements OnDestroy {
   });
 
   /**
+   * Define an anchor element for positioning the tooltip.
+   * If provided, the tooltip will be positioned relative to this element instead of the trigger.
+   */
+  readonly anchor = input<HTMLElement | null>(null, { alias: 'ngpTooltipTriggerAnchor' });
+
+  /**
    * Provide context to the tooltip. This can be used to pass data to the tooltip content.
    */
   readonly context = input<T>(undefined, {
@@ -475,6 +481,7 @@ export class NgpTooltipTrigger<T = null> implements OnDestroy {
     const config: NgpOverlayConfig<T | string> = {
       content,
       triggerElement: this.trigger.nativeElement,
+      anchorElement: this.state.anchor(),
       injector: this.injector,
       context,
       container: this.state.container(),
