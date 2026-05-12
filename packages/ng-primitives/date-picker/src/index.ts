@@ -1,7 +1,7 @@
-export {  
-  injectDatePickerConfig,  
-  provideDatePickerConfig,  
-  type NgpDatePickerConfig,  
+export {
+  injectDatePickerConfig,
+  provideDatePickerConfig,
+  type NgpDatePickerConfig,
 } from './config/date-picker-config';
 export { NgpDatePickerCellRender } from './date-picker-cell-render/date-picker-cell-render';
 export {
