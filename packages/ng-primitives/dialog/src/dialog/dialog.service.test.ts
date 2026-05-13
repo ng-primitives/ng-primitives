@@ -2,8 +2,8 @@
 import { Component, TemplateRef, Type, ViewContainerRef, inject, viewChild } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { Router, provideRouter } from '@angular/router';
-import { describe, expect, it, beforeEach, afterEach } from 'vitest';
 import type { NgpDialogContext } from 'ng-primitives/dialog';
+import { describe, expect, it, beforeEach, afterEach } from 'vitest';
 import { NgpDialogRef } from './dialog-ref';
 import { NgpDialogManager } from './dialog.service';
 
