@@ -1,10 +1,11 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { Component, TemplateRef, ViewContainerRef, inject, viewChild } from '@angular/core';
+import { Component, TemplateRef, Type, ViewContainerRef, inject, viewChild } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { Router, provideRouter } from '@angular/router';
+import type { NgpDialogContext } from 'ng-primitives/dialog';
 import { describe, expect, it, beforeEach, afterEach } from 'vitest';
 import { NgpDialogRef } from './dialog-ref';
-import { NgpDialogContext, NgpDialogManager } from './dialog.service';
+import { NgpDialogManager } from './dialog.service';
 
 @Component({ selector: 'ngp-test-dialog', template: '<p>Test</p>' })
 class TestDialog {}
@@ -26,6 +27,10 @@ class DialogTestComponent {
  * The function is never called at runtime — it only needs to compile.
  */
 function typeTests(dialog: NgpDialogManager) {
+  const templateContext: TemplateRef<NgpDialogContext> | Type<unknown> = TestDialog;
+  const ref0 = dialog.open(templateContext);
+  ref0.close();
+
   // Issue #1: Should be able to specify just T without R
   const ref1 = dialog.open<string>(TestDialog, { data: 'hello' });
 

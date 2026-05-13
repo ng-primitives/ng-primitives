@@ -6,4 +6,4 @@ export { NgpDialogTrigger } from './dialog-trigger/dialog-trigger';
 export { NgpDialog } from './dialog/dialog';
 export { injectDialogRef, NgpDialogRef } from './dialog/dialog-ref';
 export { injectDialogState, provideDialogState } from './dialog/dialog-state';
-export { NgpDialogManager } from './dialog/dialog.service';
+export { NgpDialogContext, NgpDialogManager } from './dialog/dialog.service';
