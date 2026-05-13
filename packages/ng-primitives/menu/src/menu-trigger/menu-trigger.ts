@@ -153,7 +153,7 @@ export class NgpMenuTrigger<T = unknown> {
     placement: this.placement,
     offset: this.offset,
     flip: this.flip,
-    shift: this.shift(),
+    shift: this.shift,
     container: this.container,
     scrollBehavior: this.scrollBehavior,
     cooldown: this.cooldown,
