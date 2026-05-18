@@ -2079,4 +2079,45 @@ describe('openChange events', () => {
     await userEvent.keyboard('{escape}');
     expect(spy).toHaveBeenCalledWith(false);
   });
+
+  it('should emit openChange false when destroyed while open', async () => {
+    const { fixture } = await render(TestComponent);
+    const component = fixture.componentInstance;
+    const spy = vi.spyOn(component, 'onOpenChange');
+
+    // Open the combobox
+    const button = screen.getByTestId('combobox-button');
+    await userEvent.click(button);
+    expect(spy).toHaveBeenCalledWith(true);
+    spy.mockClear();
+
+    // Destroy while open — should emit false
+    fixture.destroy();
+    expect(spy).toHaveBeenCalledWith(false);
+    expect(spy).toHaveBeenCalledTimes(1);
+  });
+
+  it('should not emit when destroyed when already closed', async () => {
+    const { fixture } = await render(TestComponent);
+    const component = fixture.componentInstance;
+    const spy = vi.spyOn(component, 'onOpenChange');
+
+    // Open the combobox
+    const button = screen.getByTestId('combobox-button');
+    await userEvent.click(button);
+    expect(spy).toHaveBeenCalledWith(true);
+
+    // Close the combobox
+    await userEvent.click(document.body);
+    await waitFor(() => {
+      expect(spy).toHaveBeenCalledWith(false);
+    });
+
+    expect(spy).toHaveBeenCalledTimes(2);
+    spy.mockClear();
+
+    // Destroy the component — should NOT emit openChange
+    fixture.destroy();
+    expect(spy).not.toHaveBeenCalled();
+  });
 });

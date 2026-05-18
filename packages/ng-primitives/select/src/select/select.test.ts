@@ -1657,5 +1657,42 @@ describe('NgpSelect', () => {
       await user.keyboard('{Escape}');
       expect(spy).toHaveBeenCalledWith(false);
     });
+
+    it('should emit openChange false when destroyed while open', async () => {
+      const user = userEvent.setup();
+      const { fixture } = await render(TestSelectComponent);
+      const spy = vi.spyOn(fixture.componentInstance, 'onOpenChange');
+
+      const select = screen.getByTestId('select');
+      await user.click(select);
+      expect(spy).toHaveBeenCalledWith(true);
+      spy.mockClear();
+
+      // Destroy while open — should emit false
+      fixture.destroy();
+      expect(spy).toHaveBeenCalledWith(false);
+      expect(spy).toHaveBeenCalledTimes(1);
+    });
+
+    it('should not emit openChange on destroy when already closed', async () => {
+      const user = userEvent.setup();
+      const { fixture } = await render(TestSelectComponent);
+      const spy = vi.spyOn(fixture.componentInstance, 'onOpenChange');
+
+      const select = screen.getByTestId('select');
+      await user.click(select);
+      expect(spy).toHaveBeenCalledWith(true);
+
+      // Close the select
+      await user.click(document.body);
+      expect(spy).toHaveBeenCalledWith(false);
+
+      expect(spy).toHaveBeenCalledTimes(2);
+      spy.mockClear();
+
+      // Destroy the component — should NOT emit openChange
+      fixture.destroy();
+      expect(spy).not.toHaveBeenCalled();
+    });
   });
 });
