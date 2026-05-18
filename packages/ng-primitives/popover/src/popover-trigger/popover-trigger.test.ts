@@ -5,22 +5,25 @@ import { NgpPopover, NgpPopoverTrigger } from 'ng-primitives/popover';
 import { NgpTooltip, NgpTooltipTrigger, provideTooltipConfig } from 'ng-primitives/tooltip';
 import { describe, expect, it, vi } from 'vitest';
 
+@Component({
+  template: `
+    <button [ngpPopoverTrigger]="content" (ngpPopoverTriggerOpenChange)="onOpenChange($event)">
+      Open Popover
+    </button>
+
+    <ng-template #content>
+      <div ngpPopover>Popover content</div>
+    </ng-template>
+  `,
+  imports: [NgpPopoverTrigger, NgpPopover],
+})
+class OpenChangeTestComponent {
+  onOpenChange = vi.fn();
+}
+
 describe('NgpPopoverTrigger', () => {
   it('should destroy the overlay when the trigger is destroyed', async () => {
-    const { fixture, getByRole } = await render(
-      `
-        <button [ngpPopoverTrigger]="content"></button>
-
-        <ng-template #content>
-          <div ngpPopover>
-            Popover content
-          </div>
-        </ng-template>
-      `,
-      {
-        imports: [NgpPopoverTrigger, NgpPopover],
-      },
-    );
+    const { fixture, getByRole } = await render(OpenChangeTestComponent);
 
     const trigger = getByRole('button');
     fireEvent.click(trigger);
@@ -37,23 +40,7 @@ describe('NgpPopoverTrigger', () => {
   });
 
   it('should emit openChange event with correct state', async () => {
-    @Component({
-      template: `
-        <button [ngpPopoverTrigger]="content" (ngpPopoverTriggerOpenChange)="onOpenChange($event)">
-          Open Popover
-        </button>
-
-        <ng-template #content>
-          <div ngpPopover>Popover content</div>
-        </ng-template>
-      `,
-      imports: [NgpPopoverTrigger, NgpPopover],
-    })
-    class EventTestComponent {
-      onOpenChange = vi.fn();
-    }
-
-    const { fixture, getByRole } = await render(EventTestComponent);
+    const { fixture, getByRole } = await render(OpenChangeTestComponent);
     const component = fixture.componentInstance;
     const trigger = getByRole('button');
 
@@ -77,23 +64,7 @@ describe('NgpPopoverTrigger', () => {
   });
 
   it('should emit openChange false when closing on outside click', async () => {
-    @Component({
-      template: `
-        <button [ngpPopoverTrigger]="content" (ngpPopoverTriggerOpenChange)="onOpenChange($event)">
-          Open Popover
-        </button>
-
-        <ng-template #content>
-          <div ngpPopover>Popover content</div>
-        </ng-template>
-      `,
-      imports: [NgpPopoverTrigger, NgpPopover],
-    })
-    class OutsideClickEventTestComponent {
-      onOpenChange = vi.fn();
-    }
-
-    const { fixture, getByRole } = await render(OutsideClickEventTestComponent);
+    const { fixture, getByRole } = await render(OpenChangeTestComponent);
     const component = fixture.componentInstance;
     const trigger = getByRole('button');
 
@@ -115,23 +86,7 @@ describe('NgpPopoverTrigger', () => {
   });
 
   it('should emit openChange false when closing on Escape', async () => {
-    @Component({
-      template: `
-        <button [ngpPopoverTrigger]="content" (ngpPopoverTriggerOpenChange)="onOpenChange($event)">
-          Open Popover
-        </button>
-
-        <ng-template #content>
-          <div ngpPopover>Popover content</div>
-        </ng-template>
-      `,
-      imports: [NgpPopoverTrigger, NgpPopover],
-    })
-    class EscapeEventTestComponent {
-      onOpenChange = vi.fn();
-    }
-
-    const { fixture, getByRole } = await render(EscapeEventTestComponent);
+    const { fixture, getByRole } = await render(OpenChangeTestComponent);
     const component = fixture.componentInstance;
     const trigger = getByRole('button');
 
@@ -150,6 +105,53 @@ describe('NgpPopoverTrigger', () => {
       expect(component.onOpenChange).toHaveBeenCalledTimes(2);
       expect(component.onOpenChange).toHaveBeenLastCalledWith(false);
     });
+  });
+
+  it('should emit openChange false when destroyed while open', async () => {
+    const { fixture, getByRole } = await render(OpenChangeTestComponent);
+    const component = fixture.componentInstance;
+    const trigger = getByRole('button');
+
+    fireEvent.click(trigger);
+
+    await waitFor(() => {
+      expect(document.querySelector('[ngpPopover]')).toBeInTheDocument();
+      expect(component.onOpenChange).toHaveBeenCalledWith(true);
+    });
+
+    component.onOpenChange.mockClear();
+
+    // Destroy while open — should emit false
+    fixture.destroy();
+    expect(component.onOpenChange).toHaveBeenCalledWith(false);
+    expect(component.onOpenChange).toHaveBeenCalledTimes(1);
+  });
+
+  it('should not emit openChange on destroy when already closed', async () => {
+    const { fixture, getByRole } = await render(OpenChangeTestComponent);
+    const component = fixture.componentInstance;
+    const trigger = getByRole('button');
+
+    fireEvent.click(trigger);
+
+    await waitFor(() => {
+      expect(document.querySelector('[ngpPopover]')).toBeInTheDocument();
+      expect(component.onOpenChange).toHaveBeenCalledWith(true);
+    });
+
+    fireEvent.click(trigger);
+
+    await waitFor(() => {
+      expect(document.querySelector('[ngpPopover]')).not.toBeInTheDocument();
+      expect(component.onOpenChange).toHaveBeenCalledWith(false);
+    });
+
+    expect(component.onOpenChange).toHaveBeenCalledTimes(2);
+    component.onOpenChange.mockClear();
+
+    // Destroy the component — should NOT emit openChange
+    fixture.destroy();
+    expect(component.onOpenChange).not.toHaveBeenCalled();
   });
 
   it('should position popover relative to anchor element when provided', async () => {
