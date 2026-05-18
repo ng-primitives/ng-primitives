@@ -1,3 +1,13 @@
+## 0.120.3 (2026-05-18)
+
+### 🩹 Fixes
+
+- **overlay:** only call `onClose` when previously open  #754 ([#755](https://github.com/ng-primitives/ng-primitives/pull/755), [#754](https://github.com/ng-primitives/ng-primitives/issues/754))
+
+### ❤️ Thank You
+
+- Simon Mumenthaler
+
 ## 0.120.2 (2026-05-13)
 
 This was a version bump only, there were no code changes.
