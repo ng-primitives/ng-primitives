@@ -1,3 +1,14 @@
+## 0.120.4 (2026-05-19)
+
+### 🩹 Fixes
+
+- **focus-trap:** allow focus to ng-primitives portal overlays ([#756](https://github.com/ng-primitives/ng-primitives/pull/756))
+
+### ❤️ Thank You
+
+- Ashley Hunter
+- Claude Opus 4.7 (1M context)
+
 ## 0.120.3 (2026-05-18)
 
 ### 🩹 Fixes
