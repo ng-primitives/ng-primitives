@@ -59,17 +59,17 @@ Flag new primitives that don't follow this quadruple. Specific rule violations (
 
 The following live under `tools/eslint-rules/rules/` and run automatically via `pnpm lint`. This table is the single source of truth for rule names — call them out by name in the review so the user knows why something is flagged.
 
-| Rule | What to flag |
-|---|---|
-| `prefer-state` | Direct `this.input()` access in stateful directives — use `this.state.*`. |
-| `avoid-model` | Any `model()` usage — use an explicit input/output pair. |
-| `avoid-state-emit` | Outputs that emit `this.state.X` — emit the local controlled value so parent bindings round-trip. |
-| `avoid-early-state` | State registration not at the end of the class property block. |
-| `require-state-generic` | `createStateInjector()` missing `<T>`. |
-| `take-until-destroyed` | `takeUntilDestroyed` from `@angular/core/rxjs-interop` — use `safeTakeUntilDestroyed` from `ng-primitives/utils`. |
-| `rxjs-compat` | Operators imported from `rxjs` — import from `rxjs/operators`. |
-| `prefer-entrypoint-imports` | Cross-package relative imports — use package aliases (`ng-primitives/foo`). |
-| `prefer-document-from-common` | `DOCUMENT` imported from `@angular/core` — import from `@angular/common`. |
+| Rule                          | What to flag                                                                                                      |
+| ----------------------------- | ----------------------------------------------------------------------------------------------------------------- |
+| `prefer-state`                | Direct `this.input()` access in stateful directives — use `this.state.*`.                                         |
+| `avoid-model`                 | Any `model()` usage — use an explicit input/output pair.                                                          |
+| `avoid-state-emit`            | Outputs that emit `this.state.X` — emit the local controlled value so parent bindings round-trip.                 |
+| `avoid-early-state`           | State registration not at the end of the class property block.                                                    |
+| `require-state-generic`       | `createStateInjector()` missing `<T>`.                                                                            |
+| `take-until-destroyed`        | `takeUntilDestroyed` from `@angular/core/rxjs-interop` — use `safeTakeUntilDestroyed` from `ng-primitives/utils`. |
+| `rxjs-compat`                 | Operators imported from `rxjs` — import from `rxjs/operators`.                                                    |
+| `prefer-entrypoint-imports`   | Cross-package relative imports — use package aliases (`ng-primitives/foo`).                                       |
+| `prefer-document-from-common` | `DOCUMENT` imported from `@angular/core` — import from `@angular/common`.                                         |
 
 ### 5. Tests
 
