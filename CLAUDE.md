@@ -56,12 +56,18 @@ See `.claude/rules/` for detailed coding standards:
 - `angular-patterns.md` - Signal-based APIs, readonly signals, computed/effects
 - `naming-conventions.md` - Selector prefixes, class names, file names
 
+For code review, use the `ngp-code-review` skill — it consolidates these rules with the custom workspace lint rules, test conventions, and PR checklist.
+
 ## Package Management
 
 - Uses pnpm with workspace configuration
 - Volta specifies Node 22.15.0
 - Build targets are configured in individual `project.json` files
 - Dependencies are managed at the root level
+
+## Pull Requests
+
+When creating a pull request, follow the template at `.github/PULL_REQUEST_TEMPLATE.md`. Fill in the PR Checklist, PR Type, linked issue (`Closes #...`), description of what the PR does, and the breaking-change disclosure. Don't omit sections.
 
 ## Release Process
 
