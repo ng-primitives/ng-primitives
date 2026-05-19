@@ -1,6 +1,8 @@
-import { Component } from '@angular/core';
-import { render, screen, waitFor } from '@testing-library/angular';
+import { Component, TemplateRef, ViewContainerRef, inject, viewChild } from '@angular/core';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { fireEvent, render, screen, waitFor } from '@testing-library/angular';
 import { userEvent } from '@testing-library/user-event';
+import { NgpDialog, NgpDialogContext, NgpDialogManager } from 'ng-primitives/dialog';
 import { describe, expect, it, vi, afterEach } from 'vitest';
 import { NgpComboboxButton } from '../combobox-button/combobox-button';
 import { NgpComboboxDropdown } from '../combobox-dropdown/combobox-dropdown';
@@ -2119,5 +2121,137 @@ describe('openChange events', () => {
     // Destroy the component — should NOT emit openChange
     fixture.destroy();
     expect(spy).not.toHaveBeenCalled();
+  });
+});
+
+@Component({
+  imports: [
+    NgpCombobox,
+    NgpComboboxButton,
+    NgpComboboxDropdown,
+    NgpComboboxInput,
+    NgpComboboxOption,
+    NgpComboboxPortal,
+    NgpDialog,
+  ],
+  template: `
+    <ng-template #dialogTemplate>
+      <div ngpDialog data-testid="dialog">
+        <div
+          [ngpComboboxValue]="value"
+          (ngpComboboxValueChange)="onValueChange($event)"
+          ngpCombobox
+        >
+          <button data-testid="dialog-combobox-button" ngpComboboxButton>
+            {{ value || 'Select' }}
+          </button>
+
+          <div *ngpComboboxPortal ngpComboboxDropdown>
+            <input
+              [value]="filter"
+              (input)="onFilterChange($event)"
+              data-testid="dialog-combobox-input"
+              ngpComboboxInput
+            />
+            @for (option of filteredOptions(); track option) {
+              <div [ngpComboboxOptionValue]="option" ngpComboboxOption>
+                {{ option }}
+              </div>
+            }
+          </div>
+        </div>
+      </div>
+    </ng-template>
+  `,
+})
+class ComboboxInsideDialogComponent {
+  readonly dialogTemplate = viewChild.required<TemplateRef<NgpDialogContext>>('dialogTemplate');
+  readonly viewContainerRef = inject(ViewContainerRef);
+  value: string | undefined = undefined;
+  filter = '';
+  options = ['Apple', 'Banana', 'Cherry', 'Dragon Fruit', 'Elderberry'];
+
+  filteredOptions() {
+    return this.filter
+      ? this.options.filter(option => option.toLowerCase().includes(this.filter.toLowerCase()))
+      : this.options;
+  }
+
+  onValueChange(value: string) {
+    this.value = value;
+  }
+
+  onFilterChange(event: Event) {
+    this.filter = (event.target as HTMLInputElement).value;
+  }
+}
+
+describe('NgpCombobox inside NgpDialog', () => {
+  let dialogManager: NgpDialogManager | undefined;
+  let activeFixture: ComponentFixture<ComboboxInsideDialogComponent> | undefined;
+
+  afterEach(async () => {
+    // Close any open dialogs and wait until their elements are actually
+    // removed from the DOM. The dialog manager attaches portals to the root
+    // ApplicationRef view container (not the test fixture), so destroying the
+    // fixture alone does not detach the dialog DOM.
+    dialogManager?.closeAll();
+    await waitFor(() => expect(document.querySelector('[ngpdialog]')).toBeNull());
+    activeFixture?.destroy();
+    activeFixture = undefined;
+  });
+
+  async function openDialogWithCombobox() {
+    const { fixture } = await render(ComboboxInsideDialogComponent);
+    activeFixture = fixture;
+    dialogManager = TestBed.inject(NgpDialogManager);
+    const component = fixture.componentInstance;
+    dialogManager.open(component.dialogTemplate(), {
+      viewContainerRef: component.viewContainerRef,
+    });
+    fixture.detectChanges();
+    return { fixture, component };
+  }
+
+  it("should not yank focus from the combobox input inside the dialog's dropdown", async () => {
+    await openDialogWithCombobox();
+
+    // Open the combobox dropdown inside the dialog
+    const trigger = screen.getByTestId('dialog-combobox-button');
+    await userEvent.click(trigger);
+
+    await waitFor(() => expect(screen.getByRole('listbox')).toBeInTheDocument());
+
+    // Focus the search input inside the portaled dropdown.
+    // Before the fix, the dialog's focus trap treats the portal as "outside"
+    // and immediately yanks focus back, so this assertion fails.
+    const input = screen.getByTestId('dialog-combobox-input') as HTMLInputElement;
+    input.focus();
+
+    expect(document.activeElement).toBe(input);
+  });
+
+  it('should let the user type into the combobox input inside the dialog', async () => {
+    await openDialogWithCombobox();
+
+    const trigger = screen.getByTestId('dialog-combobox-button');
+    await userEvent.click(trigger);
+
+    await waitFor(() => expect(screen.getByRole('listbox')).toBeInTheDocument());
+
+    const input = screen.getByTestId('dialog-combobox-input') as HTMLInputElement;
+    input.focus();
+
+    // The focus must land on the input — i.e. the dialog's focus trap is not
+    // yanking it back. Without the fix, document.activeElement is the trigger.
+    expect(document.activeElement).toBe(input);
+
+    // Drive the value change directly so the dropdown filters. We don't go
+    // through userEvent.type here because user-event's document-level wrapper
+    // re-enters Angular change detection from inside an event dispatch, which
+    // races with the dialog's ApplicationRef-rooted view and trips NG0101.
+    fireEvent.input(input, { target: { value: 'App' } });
+
+    expect(input.value).toBe('App');
   });
 });
