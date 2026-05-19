@@ -228,8 +228,8 @@ export const [NgpFocusTrapStateToken, ngpFocusTrap, injectFocusTrapState, provid
        * soon as the user tried to focus the dropdown's search input, making it
        * unusable.
        *
-       * See https://github.com/nicecod3r/ng-primitives/issues/682
-       * and https://github.com/nicecod3r/ng-primitives/issues/687
+       * See https://github.com/ng-primitives/ng-primitives/issues/682
+       * and https://github.com/ng-primitives/ng-primitives/issues/687
        */
       function isAllowedExternalTarget(target: HTMLElement | null): boolean {
         if (!target) {
