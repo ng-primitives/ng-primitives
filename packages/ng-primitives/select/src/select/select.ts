@@ -178,8 +178,8 @@ export class NgpSelect {
    * Toggle the dropdown.
    * @internal
    */
-  toggleDropdown(): void {
-    this.state.toggleDropdown();
+  toggleDropdown(): Promise<void> {
+    return this.state.toggleDropdown();
   }
 
   /**
