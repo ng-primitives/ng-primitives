@@ -252,29 +252,19 @@ export const [NgpSelectStateToken, ngpSelect, _injectSelectState, provideSelectS
     <T>({
       id = signal(uniqueId('ngp-select')),
       value: _value = signal<T | undefined>(undefined),
-      multiple: _multiple = signal(false),
-      disabled: _disabled = signal(false),
-      compareWith: _compareWith = signal<(a: T | undefined, b: T | undefined) => boolean>(
-        Object.is,
-      ),
-      placement: _placement = signal<Placement>('bottom'),
-      container: _container = signal<HTMLElement | string | null>('body'),
-      flip: _flip = signal<NgpFlip>(true),
-      scrollToOption: _scrollToOption = signal<((index: number) => void) | undefined>(undefined),
-      allOptions: _allOptions = signal<T[] | undefined>(undefined),
+      multiple = signal(false),
+      disabled = signal(false),
+      compareWith = signal<(a: T | undefined, b: T | undefined) => boolean>(Object.is),
+      placement = signal<Placement>('bottom'),
+      container = signal<HTMLElement | string | null>('body'),
+      flip = signal<NgpFlip>(true),
+      scrollToOption = signal<((index: number) => void) | undefined>(undefined),
+      allOptions = signal<T[] | undefined>(undefined),
       onValueChange,
       onOpenChange,
     }: NgpSelectProps<T>): NgpSelectState<T> => {
       const elementRef = injectElementRef<HTMLElement>();
       const value = controlled(_value);
-      const multiple = controlled(_multiple);
-      const disabled = controlled(_disabled);
-      const compareWith = controlled(_compareWith);
-      const placement = controlled(_placement);
-      const container = controlled(_container);
-      const flip = controlled(_flip);
-      const scrollToOption = controlled(_scrollToOption);
-      const allOptions = controlled(_allOptions);
 
       ngpInteractions({
         focus: true,
@@ -734,14 +724,14 @@ export const [NgpSelectStateToken, ngpSelect, _injectSelectState, provideSelectS
         elementRef,
         id,
         value: deprecatedSetter(value, 'selectOption'),
-        multiple: multiple.asReadonly(),
-        disabled: disabled.asReadonly(),
-        compareWith: compareWith.asReadonly(),
-        placement: placement.asReadonly(),
-        container: container.asReadonly(),
-        flip: flip.asReadonly(),
-        scrollToOption: scrollToOption.asReadonly(),
-        allOptions: allOptions.asReadonly(),
+        multiple,
+        disabled,
+        compareWith,
+        placement,
+        container,
+        flip,
+        scrollToOption,
+        allOptions,
         portal,
         dropdown,
         options,

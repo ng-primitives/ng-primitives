@@ -3,7 +3,6 @@ import { ngpInteractions } from 'ng-primitives/interactions';
 import { injectElementRef, scrollIntoViewIfNeeded } from 'ng-primitives/internal';
 import {
   attrBinding,
-  controlled,
   createPrimitive,
   dataBinding,
   listener,
@@ -98,19 +97,14 @@ export const [
 ] = createPrimitive(
   'NgpSelectOption',
   ({
-    id: _id = signal(uniqueId('ngp-select-option')),
-    value: _value = signal<any>(undefined),
-    disabled: _disabled = signal<boolean>(false),
-    index: _index = signal<number | undefined>(undefined),
+    id = signal(uniqueId('ngp-select-option')),
+    value = signal<any>(undefined),
+    disabled = signal(false),
+    index = signal<number | undefined>(undefined),
     onActivated,
   }: NgpSelectOptionProps) => {
     const elementRef = injectElementRef<HTMLElement>();
     const selectState = injectSelectState();
-
-    const id = controlled(_id);
-    const value = controlled(_value);
-    const disabled = controlled(_disabled);
-    const index = controlled(_index);
 
     ngpInteractions({
       hover: true,

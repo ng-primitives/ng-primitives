@@ -369,14 +369,13 @@ export function createPrimitive<TFactory extends (...args: any[]) => unknown>(
 }
 
 /**
- * Creates a writable signal that stays synchronized with an external signal.
+ * Wraps an external signal in a `linkedSignal` so it can be written to internally
+ * while still re-syncing whenever the source input changes.
  *
- * This utility serves two purposes:
- * 1. **Synchronization**: Keeps internal state synced when external signal changes
- * 2. **API Safety**: When returned with `.asReadonly()`, guarantees immutability in public API
- *
- * Use `controlled()` for all props to ensure consistent readonly API surface,
- * even if the prop isn't modified internally.
+ * Only use this when the primitive needs to mutate the value internally (e.g. a
+ * setter, toggle, or other internal update) but must also remain in sync with the
+ * input. If the value is read-only — passed straight through to bindings or exposed
+ * to consumers without internal mutation — use the input signal directly instead.
  *
  * @param value - The external signal to synchronize with
  * @returns A writable signal linked to the external signal
