@@ -26,5 +26,10 @@ export {
   provideSelectPortalState,
 } from './select-portal/select-portal-state';
 export { NgpSelect } from './select/select';
-export { injectSelectState, ngpSelect, NgpSelectStateToken, provideSelectState } from './select/select-state';
+export {
+  injectSelectState,
+  ngpSelect,
+  NgpSelectStateToken,
+  provideSelectState,
+} from './select/select-state';
 export { NgpSelectConfig, provideSelectConfig, injectSelectConfig } from './config/select-config';
