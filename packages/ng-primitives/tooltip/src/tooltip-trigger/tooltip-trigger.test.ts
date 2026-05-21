@@ -124,7 +124,7 @@ describe('NgpTooltipTrigger', () => {
 
     const tooltip = document.querySelector('[ngpTooltip]');
 
-    expect(tooltip).not.toBeInTheDocument();
+    expect(tooltip).toBeInTheDocument();
   });
 
   describe('useTextContent', () => {
