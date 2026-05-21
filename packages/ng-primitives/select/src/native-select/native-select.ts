@@ -1,9 +1,7 @@
 import { BooleanInput } from '@angular/cdk/coercion';
 import { booleanAttribute, Directive, input } from '@angular/core';
-import { ngpFormControl } from 'ng-primitives/form-field';
-import { ngpInteractions } from 'ng-primitives/interactions';
 import { uniqueId } from 'ng-primitives/utils';
-import { provideNativeSelectState, selectNativeSelectState } from './native-select-state';
+import { ngpNativeSelect, provideNativeSelectState } from './native-select-state';
 
 /**
  * Apply the `ngpNativeSelect` directive to a select element that you want to enhance.
@@ -12,9 +10,6 @@ import { provideNativeSelectState, selectNativeSelectState } from './native-sele
   selector: 'select[ngpNativeSelect]',
   exportAs: 'ngpNativeSelect',
   providers: [provideNativeSelectState()],
-  host: {
-    '[attr.disabled]': 'state.disabled() || null',
-  },
 })
 export class NgpNativeSelect {
   /**
@@ -30,19 +25,10 @@ export class NgpNativeSelect {
     transform: booleanAttribute,
   });
 
-  /**
-   * The select state.
-   */
-  protected readonly state = selectNativeSelectState<NgpNativeSelect>(this);
-
   constructor() {
-    ngpInteractions({
-      hover: true,
-      press: true,
-      focus: true,
-      focusVisible: true,
-      disabled: this.state.disabled,
+    ngpNativeSelect({
+      id: this.id,
+      disabled: this.disabled,
     });
-    ngpFormControl({ id: this.state.id, disabled: this.state.disabled });
   }
 }
