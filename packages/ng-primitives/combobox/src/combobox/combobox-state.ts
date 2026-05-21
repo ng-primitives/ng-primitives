@@ -334,7 +334,7 @@ export const [NgpComboboxStateToken, ngpCombobox, injectComboboxState, provideCo
       // Host binding
       attrBinding(elementRef, 'tabindex', () => (input() ? -1 : _disabled() ? -1 : 0));
       dataBinding(elementRef, 'data-open', () => (open() ? '' : null));
-      dataBinding(elementRef, 'data-binding', () => (_disabled() ? '' : null));
+      dataBinding(elementRef, 'data-disabled', () => (_disabled() ? '' : null));
       dataBinding(elementRef, 'data-multiple', () => (_multiple() ? '' : null));
       dataBinding(elementRef, 'data-invalid', () => (controlStatus()?.invalid ? '' : null));
       dataBinding(elementRef, 'data-valid', () => (controlStatus()?.valid ? '' : null));

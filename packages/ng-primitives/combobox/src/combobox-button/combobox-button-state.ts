@@ -36,7 +36,10 @@ export const [
     ngpInteractions({ hover: true, press: true, disabled: comboboxState().disabled });
 
     // Host binding
+    attrBinding(elementRef, 'type', 'button');
+    attrBinding(elementRef, 'tabindex', '-1');
     attrBinding(elementRef, 'id', () => _id());
+    attrBinding(elementRef, 'aria-haspopup', 'listbox');
     attrBinding(elementRef, 'aria-controls', () => dropdownId());
     attrBinding(elementRef, 'aria-expanded', () => comboboxState().open());
     attrBinding(elementRef, 'disabled', () => comboboxState().disabled());
