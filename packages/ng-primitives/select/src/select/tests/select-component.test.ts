@@ -51,7 +51,7 @@ describe('Select (reusable component) — standalone', () => {
     await user.click(screen.getByTestId('select'));
     await user.click(screen.getByTestId('option-Apple'));
 
-    expect(screen.queryByTestId('select-dropdown')).not.toBeInTheDocument();
+    await waitFor(() => expect(screen.queryByTestId('select-dropdown')).not.toBeInTheDocument());
   });
 
   it('does not open the dropdown when disabled', async () => {
