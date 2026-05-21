@@ -1,26 +1,19 @@
-import { signal, Signal } from '@angular/core';
-import { ngpInteractions } from 'ng-primitives/interactions';
+import { computed, HOST_TAG_NAME, inject, signal, Signal } from '@angular/core';
+import { ngpFocusVisible, ngpInteractions } from 'ng-primitives/interactions';
 import { injectElementRef } from 'ng-primitives/internal';
 import { attrBinding, controlled, createPrimitive, dataBinding } from 'ng-primitives/state';
 
 export interface NgpButtonState {
-  /**
-   * Whether the button is disabled.
-   */
-  readonly disabled: Signal<boolean>;
+  /** Disabled state. `'soft'` means aria-disabled but still focusable. */
+  readonly disabled: Signal<boolean | 'soft'>;
 
-  /**
-   * Set the disabled state of the button.
-   * @param value The disabled state.
-   */
-  setDisabled(value: boolean): void;
+  /** Set the disabled state. `'soft'` keeps the button focusable. */
+  setDisabled(value: boolean | 'soft'): void;
 }
 
 export interface NgpButtonProps {
-  /**
-   * Whether the button is disabled.
-   */
-  readonly disabled?: Signal<boolean>;
+  /** Disabled state. `'soft'` means aria-disabled but still focusable. */
+  readonly disabled?: Signal<boolean | 'soft'>;
 }
 
 export const [NgpButtonStateToken, ngpButton, injectButtonState, provideButtonState] =
@@ -28,21 +21,28 @@ export const [NgpButtonStateToken, ngpButton, injectButtonState, provideButtonSt
     'NgpButton',
     ({ disabled: _disabled = signal(false) }: NgpButtonProps): NgpButtonState => {
       const element = injectElementRef();
-      const isButton = element.nativeElement.tagName.toLowerCase() === 'button';
+      const isButton = inject(HOST_TAG_NAME) === 'button';
       const disabled = controlled(_disabled);
 
-      // Setup interactions (hover, press, focus-visible)
-      ngpInteractions({ hover: true, press: true, focusVisible: true, disabled });
+      const anyDisabled = computed(() => !!disabled());
+      const softDisabled = computed(() => disabled() === 'soft');
+      const hardDisabled = computed(() => disabled() === true);
 
-      // Setup host attribute bindings
-      dataBinding(element, 'data-disabled', disabled);
+      ngpInteractions({ hover: true, press: true, disabled: anyDisabled });
 
-      // Add the disabled attribute if it's a button element
+      // Soft-disabled stays focusable, so only suppress focus-visible when fully disabled.
+      ngpFocusVisible({ disabled: hardDisabled });
+
+      dataBinding(element, 'data-disabled', () => (softDisabled() ? 'soft' : hardDisabled()));
+
       if (isButton) {
-        attrBinding(element, 'disabled', () => (disabled() ? '' : null));
+        attrBinding(element, 'disabled', () => (hardDisabled() ? '' : null));
+        attrBinding(element, 'aria-disabled', () => (softDisabled() ? 'true' : null));
+      } else {
+        attrBinding(element, 'aria-disabled', () => (anyDisabled() ? 'true' : null));
       }
 
-      function setDisabled(value: boolean): void {
+      function setDisabled(value: boolean | 'soft'): void {
         disabled.set(value);
       }
 

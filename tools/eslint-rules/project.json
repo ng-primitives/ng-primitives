@@ -5,7 +5,12 @@
   "// targets": "to see all targets run: nx show project eslint-rules --web",
   "targets": {
     "test": {
-      "executor": "nx:noop"
+      "executor": "@nx/vitest:test",
+      "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
+      "options": {
+        "configFile": "tools/eslint-rules/vitest.config.ts",
+        "passWithNoTests": true
+      }
     }
   }
 }

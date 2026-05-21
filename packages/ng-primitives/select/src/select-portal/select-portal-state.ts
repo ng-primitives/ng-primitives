@@ -1,6 +1,6 @@
 import { inject, Injector, Signal, signal, TemplateRef, ViewContainerRef } from '@angular/core';
 import { createOverlay, NgpOverlay, NgpOverlayConfig } from 'ng-primitives/portal';
-import { createPrimitive, onDestroy } from 'ng-primitives/state';
+import { createPrimitive } from 'ng-primitives/state';
 import { injectSelectState } from '../select/select-state';
 
 export interface NgpSelectPortalState {
@@ -21,6 +21,16 @@ export interface NgpSelectPortalState {
    * @internal
    */
   hide(): void;
+
+  /**
+   * Destroy the overlay. The directive class calls this from ngOnDestroy so
+   * the overlay's onClose callback fires while the parent NgpSelect's output
+   * bindings are still attached — destroyRef.onDestroy callbacks fire after
+   * Angular has already torn those bindings down, which would prevent
+   * openChange(false) from reaching the consumer on fixture.destroy().
+   * @internal
+   */
+  destroy(): void;
 }
 
 export interface NgpSelectPortalProps {
@@ -52,6 +62,10 @@ export const [
     overlay()?.hide();
   }
 
+  function destroy(): void {
+    overlay()?.destroy();
+  }
+
   function createOverlayInstance(): void {
     const overlayConfig: NgpOverlayConfig<void> = {
       content: templateRef,
@@ -59,12 +73,14 @@ export const [
       triggerElement: selectState().elementRef.nativeElement,
       injector,
       placement: selectState().placement,
+      offset: selectState().offset(),
       flip: selectState().flip(),
       container: selectState().container(),
       closeOnOutsideClick: true,
       closeOnEscape: true,
       restoreFocus: false,
       scrollBehaviour: 'reposition',
+      onClose: () => selectState().onOverlayClose(),
     };
 
     overlay.set(createOverlay(overlayConfig));
@@ -74,13 +90,10 @@ export const [
     overlay,
     show,
     hide,
+    destroy,
   } satisfies NgpSelectPortalState;
 
   selectState().registerPortal(state);
-
-  onDestroy(() => {
-    overlay()?.destroy();
-  });
 
   return state;
 });

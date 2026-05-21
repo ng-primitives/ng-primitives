@@ -47,6 +47,14 @@ ng g ng-primitives:primitive toggle
 - `file-suffix`: The suffix to apply to the generated component file name. Defaults to `component`.
 - `example-styles`: Whether to include example styles in the generated component file. Defaults to `true`.
 
+## Examples
+
+### Default Selected
+
+Use `ngpToggleDefaultSelected` to set the initial selected state in uncontrolled mode.
+
+<docs-example name="toggle-default-selected"></docs-example>
+
 ## API Reference
 
 The following directives are available to import from the `ng-primitives/toggle` package:
@@ -55,14 +63,12 @@ The following directives are available to import from the `ng-primitives/toggle`
 
 <api-docs name="NgpToggle"></api-docs>
 
-#### Data Attributes
+<api-reference-props name="NgpToggle"></api-reference-props>
 
-The following data attributes are applied to the `ngpToggle` directive:
-
-| Attribute       | Description                          |
-| --------------- | ------------------------------------ |
-| `data-selected` | Applied when the toggle is selected. |
-| `data-disabled` | Applied when the toggle is disabled. |
+<api-reference-attributes>
+  <api-attribute name="data-selected" description="Applied when the toggle is selected." />
+  <api-attribute name="data-disabled" description="Applied when the toggle is disabled." />
+</api-reference-attributes>
 
 ## Accessibility
 

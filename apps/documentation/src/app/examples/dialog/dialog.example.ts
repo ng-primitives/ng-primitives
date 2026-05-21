@@ -69,6 +69,7 @@ import {
       backdrop-filter: blur(4px);
       position: fixed;
       inset: 0;
+      z-index: 1000;
       display: flex;
       justify-content: center;
       align-items: center;

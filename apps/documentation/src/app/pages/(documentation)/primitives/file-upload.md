@@ -67,27 +67,27 @@ The following directives are available to import from the `ng-primitives/file-up
 
 <api-docs name="NgpFileUpload"></api-docs>
 
-#### Data Attributes
+<api-reference-props name="NgpFileUpload"></api-reference-props>
 
-| Attribute            | Description                                      |
-| -------------------- | ------------------------------------------------ |
-| `data-hover`         | Applied when the element is hovered.             |
-| `data-focus-visible` | Applied when the element is focus visible.       |
-| `data-press`         | Applied when the element is pressed.             |
-| `data-dragover`      | Applied when a file is dragged over the element. |
-| `data-disabled`      | Applied when the element is disabled.            |
+<api-reference-attributes>
+  <api-attribute name="data-hover" description="Applied when the element is hovered." />
+  <api-attribute name="data-focus-visible" description="Applied when the element is focus visible." />
+  <api-attribute name="data-press" description="Applied when the element is pressed." />
+  <api-attribute name="data-dragover" description="Applied when a file is dragged over the element." />
+  <api-attribute name="data-disabled" description="Applied when the element is disabled." />
+</api-reference-attributes>
 
 ### NgpFileDropzone
 
 <api-docs name="NgpFileDropzone"></api-docs>
 
-#### Data Attributes
+<api-reference-props name="NgpFileDropzone"></api-reference-props>
 
-| Attribute       | Description                                      |
-| --------------- | ------------------------------------------------ |
-| `data-hover`    | Applied when the element is hovered.             |
-| `data-dragover` | Applied when a file is dragged over the element. |
-| `data-disabled` | Applied when the element is disabled.            |
+<api-reference-attributes>
+  <api-attribute name="data-hover" description="Applied when the element is hovered." />
+  <api-attribute name="data-dragover" description="Applied when a file is dragged over the element." />
+  <api-attribute name="data-disabled" description="Applied when the element is disabled." />
+</api-reference-attributes>
 
 ## Accessibility
 

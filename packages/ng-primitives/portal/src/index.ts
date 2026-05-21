@@ -10,6 +10,15 @@ export {
 } from './overlay';
 export { NgpOverlayCooldownManager } from './overlay-cooldown';
 export {
+  dismissGuardAttribute,
+  NgpDismissGuard,
+  NgpDismissGuardInput,
+  NgpDismissPolicy,
+  NgpOverlayEntry,
+  NgpOverlayRef,
+  NgpOverlayRegistry,
+} from './overlay-registry';
+export {
   injectOverlayArrowState,
   NgpOverlayArrowProps,
   NgpOverlayArrowState,

@@ -1,5 +1,5 @@
 import { InjectionToken, Provider, inject } from '@angular/core';
-import { NgpFlip } from 'ng-primitives/portal';
+import { NgpFlip, NgpOffset } from 'ng-primitives/portal';
 import { type NgpComboboxPlacement } from '../combobox/combobox';
 
 export interface NgpComboboxConfig {
@@ -22,12 +22,20 @@ export interface NgpComboboxConfig {
    * @default true
    */
   flip: NgpFlip;
+
+  /**
+   * Define the offset of the combobox dropdown relative to the trigger.
+   * Can be a number (applies to mainAxis) or an object with mainAxis, crossAxis, and alignmentAxis.
+   * @default 0
+   */
+  offset: NgpOffset;
 }
 
 export const defaultComboboxConfig: NgpComboboxConfig = {
   placement: 'bottom',
   container: 'body',
   flip: true,
+  offset: 0,
 };
 
 export const NgpComboboxConfigToken = new InjectionToken<NgpComboboxConfig>(

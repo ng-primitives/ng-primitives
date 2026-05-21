@@ -13,7 +13,14 @@ import {
 import { activeDescendantManager } from 'ng-primitives/a11y';
 import { ngpInteractions } from 'ng-primitives/interactions';
 import { domSort, injectElementRef } from 'ng-primitives/internal';
-import { coerceFlip, NgpFlip, NgpFlipInput } from 'ng-primitives/portal';
+import {
+  coerceFlip,
+  coerceOffset,
+  NgpFlip,
+  NgpFlipInput,
+  NgpOffset,
+  NgpOffsetInput,
+} from 'ng-primitives/portal';
 import type { NgpComboboxButton } from '../combobox-button/combobox-button';
 import type { NgpComboboxDropdown } from '../combobox-dropdown/combobox-dropdown';
 import type { NgpComboboxInput } from '../combobox-input/combobox-input';
@@ -116,6 +123,16 @@ export class NgpCombobox {
   readonly flip = input<NgpFlip, NgpFlipInput>(this.config.flip, {
     alias: 'ngpComboboxDropdownFlip',
     transform: coerceFlip,
+  });
+
+  /**
+   * Define the offset of the combobox dropdown relative to the trigger.
+   * Can be a number (applies to mainAxis) or an object with mainAxis, crossAxis, and alignmentAxis.
+   * @default 0
+   */
+  readonly offset = input<NgpOffset, NgpOffsetInput>(this.config.offset, {
+    alias: 'ngpComboboxDropdownOffset',
+    transform: coerceOffset,
   });
 
   /**
@@ -276,10 +293,16 @@ export class NgpCombobox {
     if (!this.open()) {
       return;
     }
-
-    this.openChange.emit(false);
     this.portal()?.detach();
+  }
 
+  /**
+   * Handles the dropdown being closed.
+   * Emits the openChange event and resets the active descendant.
+   * @internal
+   */
+  onOverlayClosed(): void {
+    this.openChange.emit(false);
     // clear the active descendant
     this.activeDescendantManager.reset();
   }

@@ -5,11 +5,13 @@ import { injectElementRef } from 'ng-primitives/internal';
 import {
   attrBinding,
   controlled,
+  controlledState,
   createPrimitive,
   dataBinding,
   deprecatedSetter,
   emitter,
   listener,
+  SetterOptions,
 } from 'ng-primitives/state';
 import { uniqueId } from 'ng-primitives/utils';
 import { Observable } from 'rxjs';
@@ -49,7 +51,11 @@ export interface NgpCheckboxState {
   /**
    * Update the checked value.
    */
-  setChecked(value: boolean): void;
+  setChecked(value: boolean, options?: SetterOptions): void;
+  /**
+   * Set the default checked state.
+   */
+  setDefaultChecked(value: boolean): void;
   /**
    * Update the indeterminate value.
    */
@@ -71,7 +77,11 @@ export interface NgpCheckboxProps {
   /**
    * Whether the checkbox is checked.
    */
-  readonly checked?: Signal<boolean>;
+  readonly checked?: Signal<boolean | undefined>;
+  /**
+   * The default checked state for uncontrolled usage.
+   */
+  readonly defaultChecked?: Signal<boolean>;
   /**
    * Whether the checkbox is indeterminate.
    */
@@ -95,17 +105,22 @@ export const [NgpCheckboxStateToken, ngpCheckbox, injectCheckboxState, provideCh
     'NgpCheckbox',
     ({
       id = signal(uniqueId('ngp-checkbox')),
-      checked: _checked = signal(false),
+      checked: _checked = signal<boolean | undefined>(undefined),
+      defaultChecked: _defaultChecked,
       indeterminate: _indeterminate = signal(false),
       disabled: _disabled = signal(false),
       onCheckedChange,
       onIndeterminateChange,
     }: NgpCheckboxProps): NgpCheckboxState => {
       const element = injectElementRef();
-      const checked = controlled(_checked);
+      const defaultChecked = controlled(_defaultChecked, false);
+      const [checked, setChecked, checkedChange] = controlledState({
+        value: _checked,
+        defaultValue: defaultChecked,
+        onChange: onCheckedChange,
+      });
       const indeterminate = controlled(_indeterminate);
       const disabled = controlled(_disabled);
-      const checkedChange = emitter<boolean>();
       const indeterminateChange = emitter<boolean>();
       const tabindex = computed(() => (disabled() ? -1 : 0));
 
@@ -152,12 +167,6 @@ export const [NgpCheckboxStateToken, ngpCheckbox, injectCheckboxState, provideCh
         }
       }
 
-      function setChecked(value: boolean): void {
-        checked.set(value);
-        onCheckedChange?.(value);
-        checkedChange.emit(value);
-      }
-
       function setIndeterminate(value: boolean): void {
         indeterminate.set(value);
         onIndeterminateChange?.(value);
@@ -170,13 +179,14 @@ export const [NgpCheckboxStateToken, ngpCheckbox, injectCheckboxState, provideCh
 
       return {
         id,
-        checked: deprecatedSetter(checked, 'setChecked'),
+        checked: deprecatedSetter(checked, 'setChecked', setChecked),
         indeterminate: deprecatedSetter(indeterminate, 'setIndeterminate'),
         disabled: deprecatedSetter(disabled, 'setDisabled'),
-        checkedChange: checkedChange.asObservable(),
+        checkedChange,
         indeterminateChange: indeterminateChange.asObservable(),
         toggle,
         setChecked,
+        setDefaultChecked: defaultChecked.set,
         setIndeterminate,
         setDisabled,
       } satisfies NgpCheckboxState;

@@ -99,83 +99,73 @@ The following directives are available to import from the `ng-primitives/date-pi
 
 <api-docs name="NgpDatePicker"></api-docs>
 
-#### Data Attributes
+<api-reference-props name="NgpDatePicker"></api-reference-props>
 
-The following data attributes are available on the `ngpDatePicker` directive:
-
-| Attribute       | Description                               |
-| --------------- | ----------------------------------------- |
-| `data-disabled` | Applied when the date picker is disabled. |
+<api-reference-attributes>
+  <api-attribute name="data-disabled" description="Applied when the date picker is disabled." />
+</api-reference-attributes>
 
 ### NgpDateRangePicker
 
 <api-docs name="NgpDateRangePicker"></api-docs>
 
-#### Data Attributes
+<api-reference-props name="NgpDateRangePicker"></api-reference-props>
 
-The following data attributes are available on the `ngpDateRangePicker` directive:
-
-| Attribute       | Description                                     |
-| --------------- | ----------------------------------------------- |
-| `data-disabled` | Applied when the date range picker is disabled. |
+<api-reference-attributes>
+  <api-attribute name="data-disabled" description="Applied when the date range picker is disabled." />
+</api-reference-attributes>
 
 ### NgpDatePickerLabel
 
 <api-docs name="NgpDatePickerLabel"></api-docs>
 
-#### Data Attributes
+<api-reference-props name="NgpDatePickerLabel"></api-reference-props>
 
-The following data attributes are available on the `ngpDatePickerLabel` directive:
-
-| Attribute       | Description                               |
-| --------------- | ----------------------------------------- |
-| `data-disabled` | Applied when the date picker is disabled. |
+<api-reference-attributes>
+  <api-attribute name="data-disabled" description="Applied when the date picker is disabled." />
+</api-reference-attributes>
 
 ### NgpDatePickerPreviousMonth
 
 <api-docs name="NgpDatePickerPreviousMonth"></api-docs>
 
-#### Data Attributes
+<api-reference-props name="NgpDatePickerPreviousMonth"></api-reference-props>
 
-The following data attributes are available on the `ngpDatePickerPreviousMonth` directive:
-
-| Attribute            | Description                          |
-| -------------------- | ------------------------------------ |
-| `data-hover`         | Applied when the button is hovered.  |
-| `data-focus-visible` | Applied when the button is focused.  |
-| `data-press`         | Applied when the button is pressed.  |
-| `data-disabled`      | Applied when the button is disabled. |
+<api-reference-attributes>
+  <api-attribute name="data-hover" description="Applied when the button is hovered." />
+  <api-attribute name="data-focus-visible" description="Applied when the button is focused." />
+  <api-attribute name="data-press" description="Applied when the button is pressed." />
+  <api-attribute name="data-disabled" description="Applied when the button is disabled." />
+</api-reference-attributes>
 
 ### NgpDatePickerNextMonth
 
 <api-docs name="NgpDatePickerNextMonth"></api-docs>
 
-#### Data Attributes
+<api-reference-props name="NgpDatePickerNextMonth"></api-reference-props>
 
-The following data attributes are available on the `ngpDatePickerNextMonth` directive:
-
-| Attribute            | Description                          |
-| -------------------- | ------------------------------------ |
-| `data-hover`         | Applied when the button is hovered.  |
-| `data-focus-visible` | Applied when the button is focused.  |
-| `data-press`         | Applied when the button is pressed.  |
-| `data-disabled`      | Applied when the button is disabled. |
+<api-reference-attributes>
+  <api-attribute name="data-hover" description="Applied when the button is hovered." />
+  <api-attribute name="data-focus-visible" description="Applied when the button is focused." />
+  <api-attribute name="data-press" description="Applied when the button is pressed." />
+  <api-attribute name="data-disabled" description="Applied when the button is disabled." />
+</api-reference-attributes>
 
 ### NgpDatePickerGrid
 
 <api-docs name="NgpDatePickerGrid"></api-docs>
 
-#### Data Attributes
+<api-reference-props name="NgpDatePickerGrid"></api-reference-props>
 
-The following data attributes are available on the `ngpDatePickerGrid` directive:
-
-| Attribute       | Description                               |
-| --------------- | ----------------------------------------- |
-| `data-disabled` | Applied when the date picker is disabled. |
+<api-reference-attributes>
+  <api-attribute name="data-disabled" description="Applied when the date picker is disabled." />
+</api-reference-attributes>
 
 ### NgpDatePickerRowRender
 
 <api-docs name="NgpDatePickerRowRender"></api-docs>
+
+<api-reference-props name="NgpDatePickerRowRender"></api-reference-props>
 
 ### NgpDatePickerCellRender
 
@@ -186,43 +176,39 @@ A structural directive that renders a cell in the date picker grid.
 
 The following context fields are available on the `ngpDatePickerCellRender` directive:
 
-<prop-details name="$implicit" type="T">
-  The date value for the cell.
-</prop-details>
+<api-reference-config>
+  <api-config-prop name="$implicit" type="T" description="The date value for the cell." />
+</api-reference-config>
 
 ### NgpDatePickerCell
 
 <api-docs name="NgpDatePickerCell"></api-docs>
 
-#### Data Attributes
+<api-reference-props name="NgpDatePickerCell"></api-reference-props>
 
-The following data attributes are available on the `ngpDatePickerCell` directive:
-
-| Attribute       | Description                        |
-| --------------- | ---------------------------------- |
-| `data-disabled` | Applied when the cell is disabled. |
-| `data-selected` | Applied when the cell is selected. |
+<api-reference-attributes>
+  <api-attribute name="data-disabled" description="Applied when the cell is disabled." />
+  <api-attribute name="data-selected" description="Applied when the cell is selected." />
+</api-reference-attributes>
 
 ### NgpDatePickerDateButton
 
 <api-docs name="NgpDatePickerDateButton"></api-docs>
 
-#### Data Attributes
+<api-reference-props name="NgpDatePickerDateButton"></api-reference-props>
 
-The following data attributes are available on the `ngpDatePickerDateButton` directive:
-
-| Attribute            | Description                                                           |
-| -------------------- | --------------------------------------------------------------------- |
-| `data-selected`      | Applied when the button is selected.                                  |
-| `data-outside-month` | Applied when the button is outside the current month.                 |
-| `data-today`         | Applied when the button represents the current date.                  |
-| `data-hover`         | Applied when the button is hovered.                                   |
-| `data-focus-visible` | Applied when the button is focused.                                   |
-| `data-press`         | Applied when the button is pressed.                                   |
-| `data-disabled`      | Applied when the button is disabled.                                  |
-| `data-range-start`   | Applied when the button is the start of a date range.                 |
-| `data-range-end`     | Applied when the button is the end of a date range.                   |
-| `data-range-between` | Applied when the button is between the start and end of a date range. |
+<api-reference-attributes>
+  <api-attribute name="data-selected" description="Applied when the button is selected." />
+  <api-attribute name="data-outside-month" description="Applied when the button is outside the current month." />
+  <api-attribute name="data-today" description="Applied when the button represents the current date." />
+  <api-attribute name="data-hover" description="Applied when the button is hovered." />
+  <api-attribute name="data-focus-visible" description="Applied when the button is focused." />
+  <api-attribute name="data-press" description="Applied when the button is pressed." />
+  <api-attribute name="data-disabled" description="Applied when the button is disabled." />
+  <api-attribute name="data-range-start" description="Applied when the button is the start of a date range." />
+  <api-attribute name="data-range-end" description="Applied when the button is the end of a date range." />
+  <api-attribute name="data-range-between" description="Applied when the button is between the start and end of a date range." />
+</api-reference-attributes>
 
 ## Accessibility
 
@@ -259,21 +245,4 @@ bootstrapApplication(AppComponent, {
 
 ### NgpDatePickerConfig
 
-<prop-details name="firstDayOfWeek" type="NgpDatePickerFirstDayOfWeekNumber (1-7)">
-  Sets which day starts the week in date picker and date range picker calendars.
-  Accepts <code>1-7</code> where:
-  <ul>
-    <li><code>1</code>=Monday,</li>
-    <li><code>2</code>=Tuesday,</li>
-    <li><code>3</code>=Wednesday,</li>
-    <li><code>4</code>=Thursday,</li>
-    <li><code>5</code>=Friday,</li>
-    <li><code>6</code>=Saturday,</li>
-    <li><code>7</code>=Sunday (<code>default</code>).</li>
-  </ul>
-  Choose based on your users' cultural expectations - most international
-  applications use <code>1</code> (Monday), while US applications typically use
-  <code>7</code> (Sunday).
-  <br />
-  Note: When using a non-Sunday start day, update your calendar header column order accordingly.
-</prop-details>
+<api-reference-config name="NgpDatePickerConfig"></api-reference-config>

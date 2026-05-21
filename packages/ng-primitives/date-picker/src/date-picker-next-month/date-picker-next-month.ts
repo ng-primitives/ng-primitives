@@ -10,7 +10,7 @@ import { injectDateControllerState } from '../date-picker/date-picker-state';
   selector: '[ngpDatePickerNextMonth]',
   exportAs: 'ngpDatePickerNextMonth',
   host: {
-    '[attr.aria-disabled]': 'disabled()',
+    '[attr.aria-disabled]': 'disabled() ? "true" : null',
     '[attr.type]': 'isButton ? "button" : null',
   },
 })

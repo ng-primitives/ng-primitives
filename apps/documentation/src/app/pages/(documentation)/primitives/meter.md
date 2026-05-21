@@ -67,21 +67,31 @@ The following directives are available to import from the `ng-primitives/meter` 
 
 <api-docs name="NgpMeter"></api-docs>
 
+<api-reference-props name="NgpMeter"></api-reference-props>
+
 ### NgpMeterLabel
 
 <api-docs name="NgpMeterLabel"></api-docs>
+
+<api-reference-props name="NgpMeterLabel"></api-reference-props>
 
 ### NgpMeterValue
 
 <api-docs name="NgpMeterValue"></api-docs>
 
+<api-reference-props name="NgpMeterValue"></api-reference-props>
+
 ### NgpMeterTrack
 
 <api-docs name="NgpMeterTrack"></api-docs>
 
+<api-reference-props name="NgpMeterTrack"></api-reference-props>
+
 ### NgpMeterIndicator
 
 <api-docs name="NgpMeterIndicator"></api-docs>
+
+<api-reference-props name="NgpMeterIndicator"></api-reference-props>
 
 ## Accessibility
 

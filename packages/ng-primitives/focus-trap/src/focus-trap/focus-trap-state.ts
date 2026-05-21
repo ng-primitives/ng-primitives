@@ -1,7 +1,7 @@
 import { FocusMonitor, FocusOrigin, InteractivityChecker } from '@angular/cdk/a11y';
 import { afterNextRender, inject, Injector, NgZone, signal, Signal } from '@angular/core';
 import { injectElementRef } from 'ng-primitives/internal';
-import { NgpOverlay } from 'ng-primitives/portal';
+import { NgpOverlay, NgpOverlayRegistry } from 'ng-primitives/portal';
 import {
   attrBinding,
   createPrimitive,
@@ -117,6 +117,7 @@ export const [NgpFocusTrapStateToken, ngpFocusTrap, injectFocusTrapState, provid
       const focusMonitor = inject(FocusMonitor);
       const interactivityChecker = inject(InteractivityChecker);
       const ngZone = inject(NgZone);
+      const overlayRegistry = inject(NgpOverlayRegistry);
 
       // Create a new focus trap
       const focusTrap = new FocusTrap();
@@ -216,20 +217,28 @@ export const [NgpFocusTrapStateToken, ngpFocusTrap, injectFocusTrapState, provid
       }
 
       /**
-       * Whether the given element belongs to another focus trap or a CDK overlay container.
+       * Whether the given element belongs to another focus trap, a CDK overlay
+       * container, or an open ng-primitives overlay (e.g. a combobox/menu/popover
+       * dropdown rendered into a portal).
        *
-       * When focus moves to these elements we must not redirect it back, because they
-       * manage their own focus trapping. Without this check, opening a CDK overlay
-       * (e.g. a select dropdown) from inside a focus-trapped dialog would immediately
-       * yank focus back into the dialog, making the overlay unusable.
+       * When focus moves to these elements we must not redirect it back, because
+       * they manage their own focus or are an intentional escape hatch from the
+       * trapped region. Without this check, opening a combobox dropdown from
+       * inside a focus-trapped dialog would yank focus back into the dialog as
+       * soon as the user tried to focus the dropdown's search input, making it
+       * unusable.
        *
-       * See https://github.com/nicecod3r/ng-primitives/issues/682
-       * and https://github.com/nicecod3r/ng-primitives/issues/687
+       * See https://github.com/ng-primitives/ng-primitives/issues/682
+       * and https://github.com/ng-primitives/ng-primitives/issues/687
        */
       function isAllowedExternalTarget(target: HTMLElement | null): boolean {
-        return !!(
-          target?.closest?.('[data-focus-trap]') || target?.closest?.('.cdk-overlay-container')
-        );
+        if (!target) {
+          return false;
+        }
+        if (target.closest?.('[data-focus-trap]') || target.closest?.('.cdk-overlay-container')) {
+          return true;
+        }
+        return overlayRegistry.findContainingOverlay(target) !== null;
       }
 
       /**

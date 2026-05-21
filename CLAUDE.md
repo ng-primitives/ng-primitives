@@ -10,7 +10,6 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - **Build all packages/apps:** `pnpm build`
 - **Run all tests:** `pnpm test`
 - **Lint all projects:** `pnpm lint`
-- **E2E tests:** `pnpm e2e` (runs Playwright tests)
 - **Run single test:** `nx test <project-name>`
 - **Build specific project:** `nx build <project-name>`
 
@@ -25,7 +24,6 @@ This is an Nx monorepo for Angular Primitives, a headless UI library focused on 
 - `packages/tools/` - Custom Nx generators and build tools
 - `apps/documentation/` - Documentation site built with AnalogJS
 - `apps/components/` - Preview site for reusable components
-- `apps/components-e2e/` - Playwright E2E tests
 
 ### Project Structure
 
@@ -38,7 +36,7 @@ This is an Nx monorepo for Angular Primitives, a headless UI library focused on 
 
 - Angular 19+, Nx 21+, pnpm package manager
 - AnalogJS for documentation site (Vite-based SSG/SSR)
-- Jest for unit testing, Playwright for E2E testing
+- Vitest for browser and node testing
 - ESLint for linting, Prettier for formatting
 
 ## Nx Generators
@@ -58,12 +56,18 @@ See `.claude/rules/` for detailed coding standards:
 - `angular-patterns.md` - Signal-based APIs, readonly signals, computed/effects
 - `naming-conventions.md` - Selector prefixes, class names, file names
 
+For code review, use the `ngp-code-review` skill — it consolidates these rules with the custom workspace lint rules, test conventions, and PR checklist.
+
 ## Package Management
 
 - Uses pnpm with workspace configuration
 - Volta specifies Node 22.15.0
 - Build targets are configured in individual `project.json` files
 - Dependencies are managed at the root level
+
+## Pull Requests
+
+When creating a pull request, follow the template at `.github/PULL_REQUEST_TEMPLATE.md`. Fill in the PR Checklist, PR Type, linked issue (`Closes #...`), description of what the PR does, and the breaking-change disclosure. Don't omit sections.
 
 ## Release Process
 

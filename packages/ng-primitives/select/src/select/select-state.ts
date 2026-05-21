@@ -4,7 +4,7 @@ import { activeDescendantManager } from 'ng-primitives/a11y';
 import { ngpFormControl } from 'ng-primitives/form-field';
 import { ngpInteractions } from 'ng-primitives/interactions';
 import { domSort, injectElementRef } from 'ng-primitives/internal';
-import type { NgpFlip, NgpOverlay } from 'ng-primitives/portal';
+import type { NgpFlip, NgpOffset, NgpOverlay } from 'ng-primitives/portal';
 import {
   attrBinding,
   controlled,
@@ -47,6 +47,12 @@ export interface NgpSelectState<T> {
 
   /** Whether the dropdown should flip when there is not enough space. Can be a boolean to enable/disable, or an object with padding and fallbackPlacements options. */
   readonly flip: Signal<NgpFlip>;
+
+  /**
+   * Define the offset of the select dropdown relative to the trigger.
+   * Can be a number (applies to mainAxis) or an object with mainAxis, crossAxis, and alignmentAxis.
+   */
+  readonly offset: Signal<NgpOffset>;
 
   /**
    * A function that will scroll the active option into view. This can be overridden
@@ -116,6 +122,13 @@ export interface NgpSelectState<T> {
    * @internal
    */
   closeDropdown(): void;
+
+  /**
+   * Handle the overlay being closed (e.g. via outside click or Escape).
+   * Emits the openChange event and resets the active descendant.
+   * @internal
+   */
+  onOverlayClose(): void;
 
   /**
    * Toggle the dropdown.
@@ -231,6 +244,12 @@ export interface NgpSelectProps<T> {
   readonly flip?: Signal<NgpFlip>;
 
   /**
+   * Define the offset of the select dropdown relative to the trigger.
+   * Can be a number (applies to mainAxis) or an object with mainAxis, crossAxis, and alignmentAxis.
+   */
+  readonly offset?: Signal<NgpOffset>;
+
+  /**
    * A function that will scroll the active option into view. This can be overridden
    * for cases such as virtual scrolling where we cannot scroll the option directly because
    * it may not be rendered.
@@ -258,6 +277,7 @@ export const [NgpSelectStateToken, ngpSelect, _injectSelectState, provideSelectS
       placement = signal<Placement>('bottom'),
       container = signal<HTMLElement | string | null>('body'),
       flip = signal<NgpFlip>(true),
+      offset = signal<NgpOffset>(0),
       scrollToOption = signal<((index: number) => void) | undefined>(undefined),
       allOptions = signal<T[] | undefined>(undefined),
       onValueChange,
@@ -373,10 +393,19 @@ export const [NgpSelectStateToken, ngpSelect, _injectSelectState, provideSelectS
           return;
         }
 
-        onOpenChange?.(false);
         portal()?.hide();
+      }
 
-        // clear the active descendant
+      /**
+       * Handle the overlay being closed (whether via imperative closeDropdown(),
+       * outside click, or Escape). Emits openChange(false) and resets the active
+       * descendant. Wired in from select-portal-state.ts via the overlay onClose
+       * config — this is the single source of truth for the close-side emit so
+       * external close paths (outside click, Escape) also fire openChange.
+       * @internal
+       */
+      function onOverlayClose(): void {
+        onOpenChange?.(false);
         activeDescendantManagerInstance.reset();
       }
 
@@ -730,6 +759,7 @@ export const [NgpSelectStateToken, ngpSelect, _injectSelectState, provideSelectS
         placement,
         container,
         flip,
+        offset,
         scrollToOption,
         allOptions,
         portal,
@@ -741,6 +771,7 @@ export const [NgpSelectStateToken, ngpSelect, _injectSelectState, provideSelectS
         activeDescendantManager: activeDescendantManagerInstance,
         openDropdown,
         closeDropdown,
+        onOverlayClose,
         toggleDropdown,
         selectOption,
         deselectOption,

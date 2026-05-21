@@ -159,10 +159,8 @@ export interface NgpMenuTriggerProps<T = unknown> {
 
   /**
    * Configure shift behavior to keep the menu in view.
-   * Can be a boolean to enable/disable, or an object with padding and limiter options.
-   * @default undefined (enabled by default in overlay)
    */
-  shift: NgpShift;
+  readonly shift?: Signal<NgpShift>;
 
   /**
    * How the menu behaves when the window is scrolled.
@@ -206,6 +204,7 @@ export const [
     placement: _placement = signal('bottom-start' as NgpMenuPlacement),
     offset: _offset = signal(4),
     flip: _flip = signal(true),
+    shift: _shift = signal(undefined),
     context: _context = signal<T>(undefined as T),
     container,
     scrollBehavior,
@@ -224,6 +223,7 @@ export const [
     const disabled = controlled(_disabled);
     const placement = controlled(_placement);
     const flip = controlled(_flip);
+    const shift = controlled(_shift);
     const offset = controlled(_offset);
     const context = controlled(_context);
 
@@ -474,6 +474,7 @@ export const [
         placement: placement,
         offset: offset(),
         flip: flip(),
+        shift: shift(),
         closeOnOutsideClick: true,
         closeOnEscape: true,
         restoreFocus: shouldRestoreFocus,

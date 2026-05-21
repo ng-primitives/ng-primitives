@@ -48,6 +48,15 @@ export const [
       slider().min() + (slider().max() - slider().min()) * Math.max(0, Math.min(1, percentage));
 
     slider().setValue(value);
+    slider().focusThumb(event.pointerType === 'touch' ? 'touch' : 'mouse');
+  });
+
+  // Prevent mousedown default to stop the browser from stealing focus
+  // from the thumb after a pointerdown-initiated focusVia call.
+  listener(element, 'mousedown', (event: MouseEvent) => {
+    if (!slider().disabled()) {
+      event.preventDefault();
+    }
   });
 
   return {} satisfies NgpSliderTrackState;

@@ -1,6 +1,6 @@
 import { InjectionToken, Provider, inject } from '@angular/core';
 import { type Placement } from '@floating-ui/dom';
-import { NgpFlip, NgpOffset, NgpShift } from 'ng-primitives/portal';
+import { NgpDismissGuard, NgpFlip, NgpOffset, NgpShift } from 'ng-primitives/portal';
 
 export interface NgpPopoverConfig {
   /**
@@ -42,16 +42,16 @@ export interface NgpPopoverConfig {
   container: HTMLElement | string | null;
 
   /**
-   * Define whether the popover should close when clicking outside of it.
+   * Define whether the popover should close when clicking outside of it, or a guard function.
    * @default true
    */
-  closeOnOutsideClick: boolean;
+  closeOnOutsideClick: NgpDismissGuard<Element>;
 
   /**
-   * Define whether the popover should close when the escape key is pressed.
+   * Define whether the popover should close when the escape key is pressed, or a guard function.
    * @default true
    */
-  closeOnEscape: boolean;
+  closeOnEscape: NgpDismissGuard<KeyboardEvent>;
 
   /**
    * Defines how the popover behaves when the window is scrolled.

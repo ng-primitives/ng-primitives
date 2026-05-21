@@ -171,103 +171,89 @@ The following directives are available to import from the `ng-primitives/menu` p
 
 <api-docs name="NgpMenuTrigger"></api-docs>
 
-#### Data Attributes
+<api-reference-props name="NgpMenuTrigger"></api-reference-props>
 
-The following data attributes are available on the `NgpMenuTrigger` directive:
-
-| Attribute   | Description                    |
-| ----------- | ------------------------------ |
-| `data-open` | Applied when the menu is open. |
+<api-reference-attributes>
+  <api-attribute name="data-open" description="Applied when the menu is open." />
+</api-reference-attributes>
 
 ### NgpMenu
 
 <api-docs name="NgpMenu"></api-docs>
 
-#### Data Attributes
+<api-reference-props name="NgpMenu"></api-reference-props>
 
-The following data attributes are available on the `NgpMenu` directive:
+<api-reference-attributes>
+  <api-attribute name="data-enter" description="Applied when the menu is being added to the DOM. This can be used to trigger animations." />
+  <api-attribute name="data-exit" description="Applied when the menu is being removed from the DOM. This can be used to trigger animations." />
+  <api-attribute name="data-placement" description="The final rendered placement of the menu." />
+  <api-attribute name="data-instant" description="Applied when switching menus within the cooldown period. Use this to skip animations for instant transitions between menu changes." />
+</api-reference-attributes>
 
-| Attribute        | Description                                                                                                                        |
-| ---------------- | ---------------------------------------------------------------------------------------------------------------------------------- |
-| `data-enter`     | Applied when the menu is being added to the DOM. This can be used to trigger animations.                                           |
-| `data-exit`      | Applied when the menu is being removed from the DOM. This can be used to trigger animations.                                       |
-| `data-placement` | The final rendered placement of the menu.                                                                                          |
-| `data-instant`   | Applied when switching menus within the cooldown period. Use this to skip animations for instant transitions between menu changes. |
-
-The following CSS custom properties are applied to the `ngpMenu` directive:
-
-| Property                      | Description                                                        |
-| ----------------------------- | ------------------------------------------------------------------ |
-| `--ngp-menu-transform-origin` | The transform origin of the menu for animations.                   |
-| `--ngp-menu-trigger-width`    | The width of the trigger element.                                  |
-| `--ngp-menu-available-width`  | The available width of the menu before it overflows the viewport.  |
-| `--ngp-menu-available-height` | The available height of the menu before it overflows the viewport. |
+<api-reference-css-vars>
+  <api-css-var name="--ngp-menu-transform-origin" description="The transform origin of the menu for animations." />
+  <api-css-var name="--ngp-menu-trigger-width" description="The width of the trigger element." />
+  <api-css-var name="--ngp-menu-available-width" description="The available width of the menu before it overflows the viewport." />
+  <api-css-var name="--ngp-menu-available-height" description="The available height of the menu before it overflows the viewport." />
+</api-reference-css-vars>
 
 ### NgpMenuItem
 
 <api-docs name="NgpMenuItem"></api-docs>
 
-#### Data Attributes
+<api-reference-props name="NgpMenuItem"></api-reference-props>
 
-The following data attributes are available on the `NgpMenuItem` directive:
-
-| Attribute       | Description                        |
-| --------------- | ---------------------------------- |
-| `data-disabled` | Applied when the item is disabled. |
+<api-reference-attributes>
+  <api-attribute name="data-disabled" description="Applied when the item is disabled." />
+</api-reference-attributes>
 
 ### NgpSubmenuTrigger
 
 <api-docs name="NgpSubmenuTrigger"></api-docs>
 
-#### Data Attributes
+<api-reference-props name="NgpSubmenuTrigger"></api-reference-props>
 
-The following data attributes are available on the `NgpSubmenuTrigger` directive:
-
-| Attribute   | Description                       |
-| ----------- | --------------------------------- |
-| `data-open` | Applied when the submenu is open. |
+<api-reference-attributes>
+  <api-attribute name="data-open" description="Applied when the submenu is open." />
+</api-reference-attributes>
 
 ### NgpMenuItemCheckbox
 
 <api-docs name="NgpMenuItemCheckbox"></api-docs>
 
-#### Data Attributes
+<api-reference-props name="NgpMenuItemCheckbox"></api-reference-props>
 
-The following data attributes are available on the `NgpMenuItemCheckbox` directive:
-
-| Attribute       | Description                                 |
-| --------------- | ------------------------------------------- |
-| `data-checked`  | Applied when the checkbox item is checked.  |
-| `data-disabled` | Applied when the checkbox item is disabled. |
+<api-reference-attributes>
+  <api-attribute name="data-checked" description="Applied when the checkbox item is checked." />
+  <api-attribute name="data-disabled" description="Applied when the checkbox item is disabled." />
+</api-reference-attributes>
 
 ### NgpMenuItemRadioGroup
 
 <api-docs name="NgpMenuItemRadioGroup"></api-docs>
 
+<api-reference-props name="NgpMenuItemRadioGroup"></api-reference-props>
+
 ### NgpMenuItemRadio
 
 <api-docs name="NgpMenuItemRadio"></api-docs>
 
-#### Data Attributes
+<api-reference-props name="NgpMenuItemRadio"></api-reference-props>
 
-The following data attributes are available on the `NgpMenuItemRadio` directive:
-
-| Attribute       | Description                              |
-| --------------- | ---------------------------------------- |
-| `data-checked`  | Applied when the radio item is checked.  |
-| `data-disabled` | Applied when the radio item is disabled. |
+<api-reference-attributes>
+  <api-attribute name="data-checked" description="Applied when the radio item is checked." />
+  <api-attribute name="data-disabled" description="Applied when the radio item is disabled." />
+</api-reference-attributes>
 
 ### NgpMenuItemIndicator
 
 <api-docs name="NgpMenuItemIndicator"></api-docs>
 
-#### Data Attributes
+<api-reference-props name="NgpMenuItemIndicator"></api-reference-props>
 
-The following data attributes are available on the `NgpMenuItemIndicator` directive:
-
-| Attribute      | Description                                           |
-| -------------- | ----------------------------------------------------- |
-| `data-checked` | Applied when the parent checkbox or radio is checked. |
+<api-reference-attributes>
+  <api-attribute name="data-checked" description="Applied when the parent checkbox or radio is checked." />
+</api-reference-attributes>
 
 ## Styling
 
@@ -327,57 +313,7 @@ bootstrapApplication(AppComponent, {
 
 ### NgpMenuConfig
 
-<prop-details name="offset" type="number | NgpOffsetOptions">
-  Define the offset from the trigger element. Can be a number (applies to mainAxis) or an object with mainAxis, crossAxis, and alignmentAxis properties.
-  
-  **Number format:** `offset: 8` - Applies to mainAxis (distance from trigger)
-  
-  **Object format:** 
-  ```ts
-  offset: {
-    mainAxis: 8,     // Distance between menu and trigger element
-    crossAxis: 4,    // Skidding along the alignment axis  
-    alignmentAxis: 2 // Same as crossAxis but for aligned placements
-  }
-  ```
-</prop-details>
-
-<prop-details name="shift" type="boolean | NgpShiftOptions" default="true">
-  Define the shift behavior to keep the menu in view. When enabled (default), the menu will shift along its axis to stay visible when it would otherwise overflow the viewport. Set to `false` to disable.
-  
-  **Boolean format:** `shift: false` - Disables shift behavior
-  
-  **Object format:** 
-  ```ts
-  shift: {
-    padding: 8,     // Minimum padding between menu and viewport edges
-    limiter: {      // Optional limiter to control shifting behavior
-      fn: limitShift,
-      options: { /* limiter options */ }
-    }
-  }
-  ```
-</prop-details>
-
-<prop-details name="placement" type="'top' | 'right' | 'bottom' | 'left'">
-  Define the placement of the menu.
-</prop-details>
-
-<prop-details name="flip" type="boolean">
-  Define if the menu should flip when it reaches the edge of the viewport.
-</prop-details>
-
-<prop-details name="container" type="HTMLElement">
-  Define the container element for the menu. This is the document body by default.
-</prop-details>
-
-<prop-details name="scrollBehavior" type="reposition | block">
-Defines how the menu behaves when the window is scrolled. If set to `reposition`, the menu will adjust its position automatically during scrolling. Make sure the menu uses `position: absolute` in this mode. If set to `block`, scrolling will be disabled while the menu is open. In this case, the menu should use `position: fixed`.
-</prop-details>
-
-<prop-details name="cooldown" type="number" default="0">
-  Define the cooldown duration in milliseconds. When moving from one menu to another within this duration, the showDelay is skipped for the new menu. This creates a smoother experience when navigating between multiple menus.
-</prop-details>
+<api-reference-config name="NgpMenuConfig"></api-reference-config>
 
 ## Accessibility
 

@@ -1,3 +1,240 @@
+## 0.120.4 (2026-05-19)
+
+### 🩹 Fixes
+
+- **focus-trap:** allow focus to ng-primitives portal overlays ([#756](https://github.com/ng-primitives/ng-primitives/pull/756))
+
+### ❤️ Thank You
+
+- Ashley Hunter
+- Claude Opus 4.7 (1M context)
+
+## 0.120.3 (2026-05-18)
+
+### 🩹 Fixes
+
+- **overlay:** only call `onClose` when previously open  #754 ([#755](https://github.com/ng-primitives/ng-primitives/pull/755), [#754](https://github.com/ng-primitives/ng-primitives/issues/754))
+
+### ❤️ Thank You
+
+- Simon Mumenthaler
+
+## 0.120.2 (2026-05-13)
+
+This was a version bump only, there were no code changes.
+
+## 0.120.1 (2026-05-13)
+
+This was a version bump only, there were no code changes.
+
+## 0.120.0 (2026-05-12)
+
+### 🚀 Features
+
+- **tooltip:** allow to provide anchor element ([#748](https://github.com/ng-primitives/ng-primitives/pull/748))
+
+### ❤️ Thank You
+
+- Ashley Hunter
+- Claude Opus 4.7 (1M context)
+- Simon Mumenthaler
+
+## 0.119.0 (2026-05-11)
+
+### 🚀 Features
+
+- **disable:** introduce NgpDisable directive for enhanced accessibility and focus management ([#630](https://github.com/ng-primitives/ng-primitives/pull/630))
+
+### 🩹 Fixes
+
+- **combobox,select:** emit openChange false on outside click and Escape key events ([#746](https://github.com/ng-primitives/ng-primitives/pull/746), [#747](https://github.com/ng-primitives/ng-primitives/pull/747))
+
+### ❤️ Thank You
+
+- Ashley Hunter
+- Jeremy Zacharia @jczacharia
+- Simon Mumenthaler
+
+## 0.118.0 (2026-05-07)
+
+### 🚀 Features
+
+- **checkbox:** support defaultChecked for uncontrolled usage ([#737](https://github.com/ng-primitives/ng-primitives/pull/737))
+
+### 🩹 Fixes
+
+- **accordion:** use dataBinding instead of attrBinding for data attributes ([#742](https://github.com/ng-primitives/ng-primitives/pull/742))
+- **accordion:** height and init animation in hidden containers ([#741](https://github.com/ng-primitives/ng-primitives/pull/741), [#739](https://github.com/ng-primitives/ng-primitives/issues/739))
+
+### ❤️ Thank You
+
+- Robin Ferrari @zecka
+
+## 0.117.2 (2026-04-22)
+
+### 🩹 Fixes
+
+- **interactions:** prevent stuck hover state on iOS Safari ([#721](https://github.com/ng-primitives/ng-primitives/pull/721))
+
+### ❤️ Thank You
+
+- Ashley Hunter
+- Claude Opus 4.6 (1M context)
+- Claude Opus 4.7 (1M context)
+
+## 0.117.1 (2026-04-20)
+
+### 🚀 Features
+
+- **dialog,popover:** dismiss guards for closeOnEscape and closeOnOutsideClick ([#719](https://github.com/ng-primitives/ng-primitives/pull/719))
+
+### 🩹 Fixes
+
+- **toggle-group:** make state hoisting with projected content work ([#736](https://github.com/ng-primitives/ng-primitives/pull/736), [#735](https://github.com/ng-primitives/ng-primitives/issues/735))
+
+### ❤️ Thank You
+
+- Ashley Hunter
+- Claude
+- Claude Opus 4.6 (1M context)
+- Clément Loridan
+
+## 0.117.0 (2026-04-16)
+
+### 🚀 Features
+
+- context menu ([#734](https://github.com/ng-primitives/ng-primitives/pull/734))
+
+### ❤️ Thank You
+
+- Ashley Hunter
+- Claude Opus 4.6 (1M context)
+
+## 0.116.0 (2026-04-16)
+
+### 🚀 Features
+
+- **toggle:** support defaultSelected for uncontrolled usage ([#723](https://github.com/ng-primitives/ng-primitives/pull/723), [#722](https://github.com/ng-primitives/ng-primitives/issues/722))
+
+### ❤️ Thank You
+
+- Ashley Hunter
+- Claude Opus 4.6 (1M context)
+- Clément Loridan
+
+## 0.115.2 (2026-04-15)
+
+### 🩹 Fixes
+
+- **slider:** focus thumb on pointerdown for slider and range slider ([#732](https://github.com/ng-primitives/ng-primitives/pull/732))
+
+### ❤️ Thank You
+
+- Ashley Hunter
+- Claude Opus 4.6 (1M context)
+
+## 0.115.1 (2026-04-15)
+
+### 🩹 Fixes
+
+- **slider:** focus thumb on track click ([#731](https://github.com/ng-primitives/ng-primitives/pull/731))
+
+### ❤️ Thank You
+
+- Ashley Hunter
+- Claude Opus 4.6 (1M context)
+
+## 0.115.0 (2026-04-14)
+
+### 🚀 Features
+
+- **tooltip:** add support for hoverable content ([#730](https://github.com/ng-primitives/ng-primitives/pull/730))
+
+### 🩹 Fixes
+
+- close previous overlay of same type regardless of cooldown ([#728](https://github.com/ng-primitives/ng-primitives/pull/728), [#729](https://github.com/ng-primitives/ng-primitives/pull/729))
+- **overlay:** close entire overlay tree on outside click when nested overlays are open ([#726](https://github.com/ng-primitives/ng-primitives/pull/726), [#727](https://github.com/ng-primitives/ng-primitives/pull/727))
+
+### ❤️ Thank You
+
+- Ashley Hunter
+- Claude Opus 4.6 (1M context)
+- Robin Ferrari @zecka
+
+## 0.114.1 (2026-04-09)
+
+### 🩹 Fixes
+
+- **dialog:** guard overlay close against drag selections ([#717](https://github.com/ng-primitives/ng-primitives/pull/717))
+- **dialog:** prevent cascade close when opened from menu or popover ([#725](https://github.com/ng-primitives/ng-primitives/pull/725), [#724](https://github.com/ng-primitives/ng-primitives/issues/724))
+
+### ❤️ Thank You
+
+- Ashley Hunter
+- Claude Opus 4.6 (1M context)
+- Clément Loridan
+- Lukas Heddendorp @heddendorp
+
+## 0.114.0 (2026-03-30)
+
+### 🚀 Features
+
+- ⚠️  **dialog:** replace CDK overlay with standalone portal ([#704](https://github.com/ng-primitives/ng-primitives/pull/704))
+
+### ⚠️  Breaking Changes
+
+- **dialog:** replace CDK overlay with standalone portal  ([#704](https://github.com/ng-primitives/ng-primitives/pull/704))
+
+### ❤️ Thank You
+
+- Ashley Hunter
+- Claude Opus 4.6 (1M context)
+- Clément Loridan
+
+## 0.113.0 (2026-03-28)
+
+### 🩹 Fixes
+
+- reproduce menu flip positioning bug with wrapped component ([#712](https://github.com/ng-primitives/ng-primitives/pull/712))
+- **tools:** resolve union type aliases in API documentation extraction ([#715](https://github.com/ng-primitives/ng-primitives/pull/715), [#716](https://github.com/ng-primitives/ng-primitives/pull/716), [#626](https://github.com/ng-primitives/ng-primitives/issues/626))
+
+### ❤️ Thank You
+
+- Ashley Hunter
+- Claude
+
+## 0.112.2 (2026-03-26)
+
+### 🩹 Fixes
+
+- **primitives:** export missing ngp initialization functions ([#713](https://github.com/ng-primitives/ng-primitives/pull/713))
+
+### ❤️ Thank You
+
+- Robin Ferrari @zecka
+
+## 0.112.1 (2026-03-16)
+
+### 🩹 Fixes
+
+- **tooltip:** prevent tooltip from getting stuck when re-hovering dur… ([#708](https://github.com/ng-primitives/ng-primitives/pull/708), [#681](https://github.com/ng-primitives/ng-primitives/issues/681))
+
+### ❤️ Thank You
+
+- Ashley Hunter
+- Claude
+
+## 0.112.0 (2026-03-14)
+
+### 🚀 Features
+
+- number input ([#701](https://github.com/ng-primitives/ng-primitives/pull/701), [#702](https://github.com/ng-primitives/ng-primitives/issues/702), [#703](https://github.com/ng-primitives/ng-primitives/issues/703))
+
+### ❤️ Thank You
+
+- Ashley Hunter
+- Claude
+
 ## 0.111.1 (2026-03-12)
 
 ### 🩹 Fixes

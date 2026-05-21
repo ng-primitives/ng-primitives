@@ -74,66 +74,58 @@ The following directives are available to import from the `ng-primitives/accordi
 
 <api-docs name="NgpAccordion"></api-docs>
 
-#### Data Attributes
+<api-reference-props name="NgpAccordion"></api-reference-props>
 
-The following data attributes are applied to the `ngpAccordion` directive:
-
-| Attribute          | Description                           | Value                      |
-| ------------------ | ------------------------------------- | -------------------------- |
-| `data-orientation` | The orientation of the accordion.     | `horizontal` \| `vertical` |
-| `data-disabled`    | Applied when the element is disabled. | `-`                        |
+<api-reference-attributes>
+  <api-attribute name="data-orientation" description="The orientation of the accordion." value="horizontal | vertical" />
+  <api-attribute name="data-disabled" description="Applied when the element is disabled." />
+</api-reference-attributes>
 
 ### NgpAccordionItem
 
 <api-docs name="NgpAccordionItem"></api-docs>
 
-#### Data Attributes
+<api-reference-props name="NgpAccordionItem"></api-reference-props>
 
-The following data attributes are applied to the `ngpAccordionItem` directive:
-
-| Attribute          | Description                                  | Value                      |
-| ------------------ | -------------------------------------------- | -------------------------- |
-| `data-orientation` | The orientation of the accordion.            | `horizontal` \| `vertical` |
-| `data-open`        | Applied when the accordion item is open.     | `-`                        |
-| `data-disabled`    | Applied when the accordion item is disabled. | `-`                        |
+<api-reference-attributes>
+  <api-attribute name="data-orientation" description="The orientation of the accordion." value="horizontal | vertical" />
+  <api-attribute name="data-open" description="Applied when the accordion item is open." />
+  <api-attribute name="data-disabled" description="Applied when the accordion item is disabled." />
+</api-reference-attributes>
 
 ### NgpAccordionTrigger
 
 <api-docs name="NgpAccordionTrigger"></api-docs>
 
-#### Data Attributes
+<api-reference-props name="NgpAccordionTrigger"></api-reference-props>
 
-The following data attributes are applied to the `ngpAccordionTrigger` directive:
-
-| Attribute          | Description                                  | Value                      |
-| ------------------ | -------------------------------------------- | -------------------------- |
-| `data-orientation` | The orientation of the accordion.            | `horizontal` \| `vertical` |
-| `data-open`        | Applied when the accordion item is open.     | `-`                        |
-| `data-disabled`    | Applied when the accordion item is disabled. | `-`                        |
+<api-reference-attributes>
+  <api-attribute name="data-orientation" description="The orientation of the accordion." value="horizontal | vertical" />
+  <api-attribute name="data-open" description="Applied when the accordion item is open." />
+  <api-attribute name="data-disabled" description="Applied when the accordion item is disabled." />
+</api-reference-attributes>
 
 ### NgpAccordionContent
 
 <api-docs name="NgpAccordionContent"></api-docs>
 
-#### Data Attributes
+<api-reference-props name="NgpAccordionContent"></api-reference-props>
 
-The following data attributes are applied to the `ngpAccordionContent` directive:
+<api-reference-attributes>
+  <api-attribute name="data-orientation" description="The orientation of the accordion." value="horizontal | vertical" />
+  <api-attribute name="data-open" description="Applied when the accordion item is open." />
+  <api-attribute name="data-enter" description="Applied when the accordion item is opening (user interaction). Removed on the content element's animationend event." />
+  <api-attribute name="data-exit" description="Applied when the accordion item is closing (user interaction). Removed on the content element's animationend event." />
+</api-reference-attributes>
 
-| Attribute          | Description                              | Value                      |
-| ------------------ | ---------------------------------------- | -------------------------- |
-| `data-orientation` | The orientation of the accordion.        | `horizontal` \| `vertical` |
-| `data-open`        | Applied when the accordion item is open. | `-`                        |
-
-The following CSS custom properties are applied to the `ngpAccordionContent` directive:
-
-| Property                         | Description                          |
-| -------------------------------- | ------------------------------------ |
-| `--ngp-accordion-content-width`  | The width of the accordion content.  |
-| `--ngp-accordion-content-height` | The height of the accordion content. |
+<api-reference-css-vars>
+  <api-css-var name="--ngp-accordion-content-width" description="The width of the accordion content." />
+  <api-css-var name="--ngp-accordion-content-height" description="The height of the accordion content." />
+</api-reference-css-vars>
 
 ## Animations
 
-The `ngpAccordionContent` primitive adds several CSS custom properties `--ngp-accordion-content-width` and `--ngp-accordion-content-height` to the element that can be used to animate the accordion content on open and close.
+The `ngpAccordionContent` primitive sets `--ngp-accordion-content-width` and `--ngp-accordion-content-height` CSS custom properties on the element. Use these with the `data-enter` and `data-exit` attributes to animate open and close. These attributes are only set on user interaction — not on initial render — so no animation plays on page load.
 
 ## Global Configuration
 
@@ -155,17 +147,7 @@ bootstrapApplication(AppComponent, {
 
 ### NgpAccordionConfig
 
-<prop-details name="type" type="single | multiple">
-  Define whether only one or multiple accordion items can be open at a time.
-</prop-details>
-
-<prop-details name="collapsible" type="boolean">
-  Define an accordion can be collapsed. This is only applicable when `type` is set to `single`.
-</prop-details>
-
-<prop-details name="orientation" type="horizontal | vertical">
-  Define the orientation of the accordion.
-</prop-details>
+<api-reference-config name="NgpAccordionConfig"></api-reference-config>
 
 ## Accessibility
 

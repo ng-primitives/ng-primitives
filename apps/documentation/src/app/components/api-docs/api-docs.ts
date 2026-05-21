@@ -1,10 +1,9 @@
-import { Component, input, OnInit, signal } from '@angular/core';
-import { PropDetails } from '../prop-details/prop-details';
+import { ChangeDetectionStrategy, Component, input, OnInit, signal } from '@angular/core';
 
 @Component({
   selector: 'docs-api-docs',
   templateUrl: './api-docs.html',
-  imports: [PropDetails],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ApiDocs implements OnInit {
   /** The name of the directive to document. */
@@ -14,12 +13,12 @@ export class ApiDocs implements OnInit {
   readonly directive = signal<DirectiveDefinition | null>(null);
 
   async ngOnInit() {
-    const defintions = (await import('../../api/documentation.json')) as unknown as Record<
+    const definitions = (await import('../../api/documentation.json')) as unknown as Record<
       string,
       DirectiveDefinition
     >;
 
-    const directive = defintions[this.name()];
+    const directive = definitions[this.name()];
 
     if (!directive) {
       throw new Error(`Directive "${this.name()}" not found in documentation.json`);

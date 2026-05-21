@@ -1,3 +1,4 @@
+import { FocusMonitor, FocusOrigin } from '@angular/cdk/a11y';
 import { DOCUMENT } from '@angular/common';
 import { computed, inject, Injector, Signal } from '@angular/core';
 import { ngpInteractions } from 'ng-primitives/interactions';
@@ -54,6 +55,7 @@ export const [
   ({ onDragStart, onDragEnd }: NgpRangeSliderThumbProps) => {
     const element = injectElementRef();
     const rangeSlider = injectRangeSliderState();
+    const focusMonitor = inject(FocusMonitor);
     const injector = inject(Injector);
     const document = inject(DOCUMENT);
 
@@ -113,6 +115,9 @@ export const [
       dragging = true;
       activePointerId = event.pointerId;
       onDragStart?.();
+
+      // Focus the thumb when clicked/dragged
+      focus(event.pointerType === 'touch' ? 'touch' : 'mouse');
 
       // Clean up any existing listeners
       cleanupDocumentListeners.forEach(cleanup => cleanup());
@@ -236,6 +241,10 @@ export const [
       }
 
       event.preventDefault();
+    }
+
+    function focus(origin: FocusOrigin = 'program'): void {
+      focusMonitor.focusVia(element, origin, { preventScroll: true });
     }
 
     // Event listeners

@@ -1,7 +1,14 @@
 import { BooleanInput } from '@angular/cdk/coercion';
 import { booleanAttribute, Directive, input, output } from '@angular/core';
 import type { Placement } from '@floating-ui/dom';
-import { coerceFlip, NgpFlip, NgpFlipInput } from 'ng-primitives/portal';
+import {
+  coerceFlip,
+  coerceOffset,
+  NgpFlip,
+  NgpFlipInput,
+  NgpOffset,
+  NgpOffsetInput,
+} from 'ng-primitives/portal';
 import { uniqueId } from 'ng-primitives/utils';
 import { injectSelectConfig } from '../config/select-config';
 import { ngpSelect, provideSelectState } from './select-state';
@@ -81,6 +88,16 @@ export class NgpSelect {
   });
 
   /**
+   * Define the offset of the select dropdown relative to the trigger.
+   * Can be a number (applies to mainAxis) or an object with mainAxis, crossAxis, and alignmentAxis.
+   * @default 0
+   */
+  readonly offset = input<NgpOffset, NgpOffsetInput>(this.config.offset, {
+    alias: 'ngpSelectDropdownOffset',
+    transform: coerceOffset,
+  });
+
+  /**
    * A function that will scroll the active option into view. This can be overridden
    * for cases such as virtual scrolling where we cannot scroll the option directly because
    * it may not be rendered.
@@ -107,6 +124,7 @@ export class NgpSelect {
     placement: this.placement,
     container: this.container,
     flip: this.flip,
+    offset: this.offset,
     scrollToOption: this.scrollToOption,
     allOptions: this.allOptions,
     onValueChange: value => this.valueChange.emit(value),

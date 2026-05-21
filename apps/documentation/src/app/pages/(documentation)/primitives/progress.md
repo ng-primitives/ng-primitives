@@ -68,71 +68,61 @@ The following directives are available to import from the `ng-primitives/progres
 
 <api-docs name="NgpProgress"></api-docs>
 
-#### Data Attributes
+<api-reference-props name="NgpProgress"></api-reference-props>
 
-The following data attributes are applied to the `ngpProgress` directive:
-
-| Attribute            | Description                                   |
-| -------------------- | --------------------------------------------- |
-| `data-progressing`   | Indicates that the progress is in progress.   |
-| `data-indeterminate` | Indicates that the progress is indeterminate. |
-| `data-complete`      | Indicates that the progress is complete.      |
+<api-reference-attributes>
+  <api-attribute name="data-progressing" description="Indicates that the progress is in progress." />
+  <api-attribute name="data-indeterminate" description="Indicates that the progress is indeterminate." />
+  <api-attribute name="data-complete" description="Indicates that the progress is complete." />
+</api-reference-attributes>
 
 ### NgpProgressIndicator
 
 <api-docs name="NgpProgressIndicator"></api-docs>
 
-#### Data Attributes
+<api-reference-props name="NgpProgressIndicator"></api-reference-props>
 
-The following data attributes are applied to the `ngpProgress` directive:
-
-| Attribute            | Description                                   |
-| -------------------- | --------------------------------------------- |
-| `data-progressing`   | Indicates that the progress is in progress.   |
-| `data-indeterminate` | Indicates that the progress is indeterminate. |
-| `data-complete`      | Indicates that the progress is complete.      |
+<api-reference-attributes>
+  <api-attribute name="data-progressing" description="Indicates that the progress is in progress." />
+  <api-attribute name="data-indeterminate" description="Indicates that the progress is indeterminate." />
+  <api-attribute name="data-complete" description="Indicates that the progress is complete." />
+</api-reference-attributes>
 
 ### NgpProgressTrack
 
 <api-docs name="NgpProgressTrack"></api-docs>
 
-#### Data Attributes
+<api-reference-props name="NgpProgressTrack"></api-reference-props>
 
-The following data attributes are applied to the `ngpProgressTrack` directive:
-
-| Attribute            | Description                                   |
-| -------------------- | --------------------------------------------- |
-| `data-progressing`   | Indicates that the progress is in progress.   |
-| `data-indeterminate` | Indicates that the progress is indeterminate. |
-| `data-complete`      | Indicates that the progress is complete.      |
+<api-reference-attributes>
+  <api-attribute name="data-progressing" description="Indicates that the progress is in progress." />
+  <api-attribute name="data-indeterminate" description="Indicates that the progress is indeterminate." />
+  <api-attribute name="data-complete" description="Indicates that the progress is complete." />
+</api-reference-attributes>
 
 ### NgpProgressLabel
 
 <api-docs name="NgpProgressLabel"></api-docs>
 
-#### Data Attributes
+<api-reference-props name="NgpProgressLabel"></api-reference-props>
 
-The following data attributes are applied to the `ngpProgressLabel` directive:
-
-| Attribute            | Description                                   |
-| -------------------- | --------------------------------------------- |
-| `data-progressing`   | Indicates that the progress is in progress.   |
-| `data-indeterminate` | Indicates that the progress is indeterminate. |
-| `data-complete`      | Indicates that the progress is complete.      |
+<api-reference-attributes>
+  <api-attribute name="data-progressing" description="Indicates that the progress is in progress." />
+  <api-attribute name="data-indeterminate" description="Indicates that the progress is indeterminate." />
+  <api-attribute name="data-complete" description="Indicates that the progress is complete." />
+</api-reference-attributes>
 
 ### NgpProgressValue
 
 <api-docs name="NgpProgressValue"></api-docs>
 
-#### Data Attributes
+<api-reference-props name="NgpProgressValue"></api-reference-props>
 
-The following data attributes are applied to the `ngpProgressValue` directive:
-
-| Attribute            | Description                                   |
-| -------------------- | --------------------------------------------- |
-| `data-progressing`   | Indicates that the progress is in progress.   |
-| `data-indeterminate` | Indicates that the progress is indeterminate. |
-| `data-complete`      | Indicates that the progress is complete.      |
+<api-reference-attributes>
+  <api-attribute name="data-progressing" description="Indicates that the progress is in progress." />
+  <api-attribute name="data-indeterminate" description="Indicates that the progress is indeterminate." />
+  <api-attribute name="data-complete" description="Indicates that the progress is complete." />
+</api-reference-attributes>
 
 ## Accessibility
 

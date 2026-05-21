@@ -1,9 +1,9 @@
 /**
- * This code is largely based on the CDK Overlay's scroll strategy implementation, however it
- * has been modified so that it does not rely on the CDK's global overlay styles.
+ * Originally based on Angular CDK's scroll strategy.
+ * Modified to be fully standalone with no CDK overlay dependency.
  */
 import { coerceCssPixelValue } from '@angular/cdk/coercion';
-import { ViewportRuler } from '@angular/cdk/overlay';
+import { ViewportRuler } from '@angular/cdk/scrolling';
 import { getOverflowAncestors } from '@floating-ui/dom';
 import { isFunction, isObject } from 'ng-primitives/utils';
 
@@ -128,13 +128,13 @@ export class BlockScrollStrategy implements ScrollStrategy {
       // Note that we don't mutate the property if the browser doesn't support `scroll-behavior`,
       // because it can throw off feature detections in `supportsScrollBehavior` which
       // checks for `'scrollBehavior' in documentElement.style`.
-      if (scrollBehaviorSupported) {
+      if (supportsScrollBehavior()) {
         htmlStyle.scrollBehavior = bodyStyle.scrollBehavior = 'auto';
       }
 
       window.scroll(this.previousScrollPosition.left, this.previousScrollPosition.top);
 
-      if (scrollBehaviorSupported) {
+      if (supportsScrollBehavior()) {
         htmlStyle.scrollBehavior = previousHtmlScrollBehavior;
         bodyStyle.scrollBehavior = previousBodyScrollBehavior;
       }
@@ -142,12 +142,13 @@ export class BlockScrollStrategy implements ScrollStrategy {
   }
 
   private canBeEnabled(): boolean {
-    // Since the scroll strategies can't be singletons, we have to use a global CSS class
-    // (`cdk-global-scrollblock`) to make sure that we don't try to disable global
-    // scrolling multiple times.
     const html = this.document.documentElement!;
 
-    if (html.classList.contains('cdk-global-scrollblock') || this.isEnabled) {
+    if (
+      html.classList.contains('cdk-global-scrollblock') ||
+      html.hasAttribute('data-scrollblock') ||
+      this.isEnabled
+    ) {
       return false;
     }
 
