@@ -14,3 +14,43 @@ export {
   type NgpComboboxState,
   type NgpComboboxProps,
 } from './combobox/combobox-state';
+export {
+  NgpComboboxButtonStateToken,
+  ngpComboboxButton,
+  injectComboboxButtonState,
+  provideComboboxButtonState,
+  type NgpComboboxButtonState,
+  type NgpComboboxButtonProps,
+} from './combobox-button/combobox-button-state';
+export {
+  NgpComboboxDropdownStateToken,
+  ngpComboboxDropdown,
+  injectComboboxDropdownState,
+  provideComboboxDropdownState,
+  type NgpComboboxDropdownState,
+  type NgpComboboxDropdownProps,
+} from './combobox-dropdown/combobox-dropdown-state';
+export {
+  NgpComboboxInputStateToken,
+  ngpComboboxInput,
+  injectComboboxInputState,
+  provideComboboxInputState,
+  type NgpComboboxInputState,
+  type NgpComboboxInputProps,
+} from './combobox-input/combobox-input-state';
+export {
+  NgpComboboxOptionStateToken,
+  ngpComboboxOption,
+  injectComboboxOptionState,
+  provideComboboxOptionState,
+  type NgpComboboxOptionState,
+  type NgpComboboxOptionProps,
+} from './combobox-option/combobox-option-state';
+export {
+  NgpComboboxPortalStateToken,
+  ngpComboboxPortal,
+  injectComboboxPortalState,
+  provideComboboxPortalState,
+  type NgpComboboxPortalState,
+  type NgpComboboxPortalProps,
+} from './combobox-portal/combobox-portal-state';

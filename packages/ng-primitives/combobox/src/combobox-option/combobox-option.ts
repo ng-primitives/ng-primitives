@@ -1,46 +1,15 @@
 import { BooleanInput, NumberInput } from '@angular/cdk/coercion';
-import {
-  booleanAttribute,
-  computed,
-  Directive,
-  HostListener,
-  input,
-  numberAttribute,
-  OnDestroy,
-  output,
-} from '@angular/core';
-import { ngpInteractions } from 'ng-primitives/interactions';
-import { injectElementRef, scrollIntoViewIfNeeded } from 'ng-primitives/internal';
+import { booleanAttribute, Directive, input, numberAttribute, output } from '@angular/core';
 import { uniqueId } from 'ng-primitives/utils';
-import { injectComboboxState } from '../combobox/combobox-state';
-import { areAllOptionsSelected } from '../utils';
+import { ngpComboboxOption } from './combobox-option-state';
 
 type T = any;
 
 @Directive({
   selector: '[ngpComboboxOption]',
   exportAs: 'ngpComboboxOption',
-  host: {
-    role: 'option',
-    '[id]': 'id()',
-    '[attr.tabindex]': '-1',
-    '[attr.aria-selected]': 'selected() ? "true" : undefined',
-    '[attr.data-selected]': 'selected() ? "" : undefined',
-    '[attr.data-active]': 'active() ? "" : undefined',
-    '[attr.data-disabled]': 'disabled() ? "" : undefined',
-    '(click)': 'select()',
-  },
 })
-export class NgpComboboxOption implements OnDestroy {
-  /** Access the combobox state. */
-  protected readonly state = injectComboboxState();
-
-  /**
-   * The element reference of the option.
-   * @internal
-   */
-  readonly elementRef = injectElementRef();
-
+export class NgpComboboxOption {
   /** The id of the option. */
   readonly id = input<string>(uniqueId('ngp-combobox-option'));
 
@@ -72,85 +41,20 @@ export class NgpComboboxOption implements OnDestroy {
     alias: 'ngpComboboxOptionActivated',
   });
 
-  /**
-   * Whether this option is the active descendant.
-   * @internal
-   */
-  protected readonly active = computed(() => {
-    // if the option has an index, use that to determine if it's active because this
-    // is required for virtual scrolling scenarios
-    const index = this.index();
-
-    if (index !== undefined) {
-      return this.state().activeDescendantManager.index() === index;
-    }
-
-    return this.state().activeDescendantManager.id() === this.id();
+  protected readonly state = ngpComboboxOption({
+    id: this.id,
+    value: this.value,
+    disabled: this.disabled,
+    index: this.index,
+    onActivatedChange: value => this.activated.emit(value),
   });
-
-  /** Whether this option is selected. */
-  protected readonly selected = computed(() => {
-    const value = this.value();
-    const stateValue = this.state().value();
-
-    // Only treat `undefined` as "no value" (allow '', 0, false).
-    if (value === undefined) {
-      return false;
-    }
-
-    // Handle select all functionality - only works in multiple selection mode
-    if (value === 'all') {
-      if (!this.state().multiple()) {
-        return false; // Never selected in single selection mode
-      }
-
-      const selectedValues = Array.isArray(stateValue) ? stateValue : [];
-      return areAllOptionsSelected(
-        this.state().options(),
-        selectedValues,
-        this.state().compareWith(),
-      );
-    }
-
-    // Only treat `undefined` as "no selection" (allow '', 0, false).
-    if (stateValue === undefined) {
-      return false;
-    }
-
-    if (this.state().multiple()) {
-      return (
-        Array.isArray(stateValue) && stateValue.some(v => this.state().compareWith()(value, v))
-      );
-    }
-
-    return this.state().compareWith()(value, stateValue);
-  });
-
-  constructor() {
-    this.state().registerOption(this);
-
-    ngpInteractions({
-      hover: true,
-      press: true,
-      disabled: this.disabled,
-    });
-  }
-
-  ngOnDestroy(): void {
-    this.state().unregisterOption(this);
-  }
 
   /**
    * Select the option.
    * @internal
    */
   select(): void {
-    if (this.disabled()) {
-      return;
-    }
-
-    this.activated.emit();
-    this.state().toggleOption(this.id());
+    this.state.select();
   }
 
   /**
@@ -158,41 +62,6 @@ export class NgpComboboxOption implements OnDestroy {
    * @internal
    */
   scrollIntoView(): void {
-    scrollIntoViewIfNeeded(this.elementRef.nativeElement);
-  }
-
-  /**
-   * Whenever the pointer enters the option, activate it.
-   * @internal
-   */
-  @HostListener('pointerenter')
-  protected onPointerEnter(): void {
-    // if we have a known index, use that to activate the option (required for virtual scrolling)
-    const index = this.index();
-
-    if (index !== undefined) {
-      this.state().activeDescendantManager.activateByIndex(index, {
-        scroll: false,
-        origin: 'pointer',
-      });
-      return;
-    }
-
-    // otherwise, activate by id
-    this.state().activeDescendantManager.activateById(this.id(), {
-      scroll: false,
-      origin: 'pointer',
-    });
-  }
-
-  /**
-   * Whenever the pointer leaves the option, deactivate it.
-   * @internal
-   */
-  @HostListener('pointerleave')
-  protected onPointerLeave(): void {
-    if (this.state().activeDescendantManager.id() === this.id()) {
-      this.state().activeDescendantManager.reset({ origin: 'pointer' });
-    }
+    this.state.scrollIntoView();
   }
 }

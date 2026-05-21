@@ -1,4 +1,4 @@
-import type { NgpComboboxOption } from './combobox-option/combobox-option';
+import type { NgpComboboxOptionState } from './combobox-option/combobox-option-state';
 
 /**
  * Check if all regular options (excluding 'all' and undefined) are selected.
@@ -8,7 +8,7 @@ import type { NgpComboboxOption } from './combobox-option/combobox-option';
  * @returns true if all regular options are selected
  */
 export function areAllOptionsSelected(
-  options: NgpComboboxOption[],
+  options: NgpComboboxOptionState[],
   selectedValues: any[],
   compareWith: (a: any, b: any) => boolean,
 ): boolean {
