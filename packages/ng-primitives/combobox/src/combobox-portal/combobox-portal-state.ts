@@ -7,7 +7,7 @@ import {
   TemplateRef,
 } from '@angular/core';
 import { createOverlay, NgpOverlay, NgpOverlayConfig } from 'ng-primitives/portal';
-import { createPrimitive } from 'ng-primitives/state';
+import { createPrimitive, onDestroy } from 'ng-primitives/state';
 import { injectComboboxState } from '../combobox/combobox-state';
 
 export interface NgpComboboxPortalState {
@@ -15,8 +15,6 @@ export interface NgpComboboxPortalState {
   readonly overlay: WritableSignal<NgpOverlay<void> | null>;
   /** @internal Attach the portal. */
   show(): Promise<void>;
-  /** @internal Cleanup the portal. */
-  destroy(): void;
   /** @internal Detach the portal. */
   detach(): Promise<void>;
 }
@@ -50,10 +48,6 @@ export const [
     overlay()?.hide();
   }
 
-  function destroy(): void {
-    overlay()?.destroy();
-  }
-
   /**
    * Create the overlay that will contain the dropdown
    */
@@ -80,12 +74,15 @@ export const [
 
   const state = {
     overlay,
-    destroy,
     show,
     detach,
   } satisfies NgpComboboxPortalState;
 
   comboboxState().registerPortal(state);
+
+  onDestroy(() => {
+    overlay()?.destroy();
+  });
 
   return state;
 });

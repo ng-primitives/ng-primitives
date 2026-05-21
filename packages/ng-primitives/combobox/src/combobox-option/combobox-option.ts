@@ -49,12 +49,15 @@ export class NgpComboboxOption {
     onActivatedChange: value => this.activated.emit(value),
   });
 
+  /** @internal Access the element reference. */
+  readonly elementRef = this.state.elementRef;
+
   /**
    * Select the option.
    * @internal
    */
   select(): void {
-    this.state.select();
+    return this.state.select();
   }
 
   /**
@@ -62,6 +65,6 @@ export class NgpComboboxOption {
    * @internal
    */
   scrollIntoView(): void {
-    this.state.scrollIntoView();
+    return this.state.scrollIntoView();
   }
 }

@@ -1,17 +1,18 @@
-import { Directive, OnDestroy } from '@angular/core';
+import { Directive } from '@angular/core';
 import { ngpComboboxPortal } from './combobox-portal-state';
 
 @Directive({
   selector: '[ngpComboboxPortal]',
   exportAs: 'ngpComboboxPortal',
 })
-export class NgpComboboxPortal implements OnDestroy {
+export class NgpComboboxPortal {
   private readonly state = ngpComboboxPortal({});
 
-  /** Cleanup the portal. */
-  ngOnDestroy(): void {
-    this.state.destroy();
-  }
+  /**
+   * The overlay that manages the popover
+   * @internal
+   */
+  readonly overlay = this.state.overlay;
 
   /**
    * Attach the portal.
@@ -25,7 +26,7 @@ export class NgpComboboxPortal implements OnDestroy {
    * Detach the portal.
    * @internal
    */
-  async detach(): Promise<void> {
-    this.state.detach();
+  detach(): Promise<void> {
+    return this.state.detach();
   }
 }

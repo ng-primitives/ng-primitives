@@ -13,4 +13,7 @@ export class NgpComboboxDropdown {
   private readonly state = ngpComboboxDropdown({
     id: this.id,
   });
+
+  /** @internal Access the element reference. */
+  readonly elementRef = this.state.elementRef;
 }

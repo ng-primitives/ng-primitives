@@ -1,6 +1,5 @@
 import { BooleanInput } from '@angular/cdk/coercion';
 import { booleanAttribute, Directive, input, output } from '@angular/core';
-import { injectElementRef } from 'ng-primitives/internal';
 import {
   coerceFlip,
   coerceOffset,
@@ -39,9 +38,6 @@ type T = any;
 export class NgpCombobox {
   /** Access the combobox configuration. */
   protected readonly config = injectComboboxConfig();
-
-  /** @internal Access the combobox element. */
-  readonly elementRef = injectElementRef();
 
   /** The value of the combobox. */
   readonly value = input<T>(undefined, {
@@ -140,12 +136,69 @@ export class NgpCombobox {
     onOpenChange: value => this.openChange.emit(value),
   });
 
+  /** @internal Access the element reference. */
+  readonly elementRef = this.state.elementRef;
+
+  /**
+   * Store the combobox input
+   * @internal
+   */
+  readonly input = this.state.input;
+
+  /**
+   * Store the combobox button.
+   * @internal
+   */
+  readonly button = this.state.button;
+
+  /**
+   * Store the combobox portal.
+   * @internal
+   */
+  readonly portal = this.state.portal;
+
+  /**
+   * Store the combobox dropdown.
+   * @internal
+   */
+  readonly dropdown = this.state.dropdown;
+
+  /**
+   * Store the combobox options.
+   * @internal
+   */
+  readonly options = this.state.options;
+
+  /**
+   * Access the overlay
+   * @internal
+   */
+  readonly overlay = this.state.overlay;
+
+  /**
+   * The open state of the combobox.
+   * @internal
+   */
+  readonly open = this.state.open;
+
+  /**
+   * The options sorted by their index or DOM position.
+   * @internal
+   */
+  readonly sortedOptions = this.state.sortedOptions;
+
+  /**
+   * The active key descendant manager.
+   * @internal
+   */
+  readonly activeDescendantManager = this.state.activeDescendantManager;
+
   /**
    * Open the dropdown.
    * @internal
    */
-  async openDropdown(): Promise<void> {
-    await this.state.openDropdown();
+  openDropdown(): Promise<void> {
+    return this.state.openDropdown();
   }
 
   /**
@@ -153,7 +206,7 @@ export class NgpCombobox {
    * @internal
    */
   closeDropdown(): void {
-    this.state.closeDropdown();
+    return this.state.closeDropdown();
   }
 
   /**
@@ -162,15 +215,15 @@ export class NgpCombobox {
    * @internal
    */
   onOverlayClosed(): void {
-    this.state.onOverlayClosed();
+    return this.state.onOverlayClosed();
   }
 
   /**
    * Toggle the dropdown.
    * @internal
    */
-  async toggleDropdown(): Promise<void> {
-    await this.state.toggleDropdown();
+  toggleDropdown(): Promise<void> {
+    return this.state.toggleDropdown();
   }
 
   /**
@@ -179,7 +232,7 @@ export class NgpCombobox {
    * @internal
    */
   selectOption(option: NgpComboboxOptionState | undefined): void {
-    this.state.selectOption(option);
+    return this.state.selectOption(option);
   }
 
   /**
@@ -188,7 +241,7 @@ export class NgpCombobox {
    * @internal
    */
   deselectOption(option: NgpComboboxOptionState): void {
-    this.state.deselectOption(option);
+    return this.state.deselectOption(option);
   }
 
   /**
@@ -197,7 +250,7 @@ export class NgpCombobox {
    * @internal
    */
   toggleOption(id: string): void {
-    this.state.toggleOption(id);
+    return this.state.toggleOption(id);
   }
 
   /**
@@ -215,7 +268,7 @@ export class NgpCombobox {
    * @internal
    */
   activateNextOption(): void {
-    this.state.activateNextOption();
+    return this.state.activateNextOption();
   }
 
   /**
@@ -223,7 +276,7 @@ export class NgpCombobox {
    * @internal
    */
   activatePreviousOption(): void {
-    this.state.activatePreviousOption();
+    return this.state.activatePreviousOption();
   }
 
   /**
@@ -232,7 +285,7 @@ export class NgpCombobox {
    * @internal
    */
   registerPortal(portal: NgpComboboxPortalState): void {
-    this.state.registerPortal(portal);
+    return this.state.registerPortal(portal);
   }
 
   /**
@@ -241,7 +294,7 @@ export class NgpCombobox {
    * @internal
    */
   registerInput(input: NgpComboboxInputState): void {
-    this.state.registerInput(input);
+    return this.state.registerInput(input);
   }
 
   /**
@@ -250,7 +303,7 @@ export class NgpCombobox {
    * @internal
    */
   registerButton(button: NgpComboboxButtonState): void {
-    this.state.registerButton(button);
+    return this.state.registerButton(button);
   }
 
   /**
@@ -259,7 +312,7 @@ export class NgpCombobox {
    * @internal
    */
   registerDropdown(dropdown: NgpComboboxDropdownState): void {
-    this.state.registerDropdown(dropdown);
+    return this.state.registerDropdown(dropdown);
   }
 
   /**
@@ -268,7 +321,7 @@ export class NgpCombobox {
    * @internal
    */
   registerOption(option: NgpComboboxOptionState): void {
-    this.state.registerOption(option);
+    return this.state.registerOption(option);
   }
 
   /**
@@ -277,7 +330,7 @@ export class NgpCombobox {
    * @internal
    */
   unregisterOption(option: NgpComboboxOptionState): void {
-    this.state.unregisterOption(option);
+    return this.state.unregisterOption(option);
   }
 
   /**
@@ -288,6 +341,6 @@ export class NgpCombobox {
    * @internal
    */
   focus(): void {
-    this.state.focus();
+    return this.state.focus();
   }
 }
