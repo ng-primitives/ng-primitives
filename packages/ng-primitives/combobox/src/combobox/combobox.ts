@@ -68,9 +68,6 @@ export class NgpCombobox {
   /** @internal Access the combobox element. */
   readonly elementRef = injectElementRef();
 
-  /** Access the injector. */
-  protected readonly injector = inject(Injector);
-
   /** The value of the combobox. */
   readonly value = input<T>(undefined, {
     alias: 'ngpComboboxValue',

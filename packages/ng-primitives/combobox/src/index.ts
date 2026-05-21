@@ -6,3 +6,11 @@ export { NgpComboboxPortal } from './combobox-portal/combobox-portal';
 export { NgpCombobox, type NgpComboboxPlacement } from './combobox/combobox';
 export { injectComboboxState, provideComboboxState } from './combobox/combobox-state';
 export { NgpComboboxConfig, provideComboboxConfig } from './config/combobox-config';
+export {
+  NgpComboboxStateToken,
+  ngpCombobox,
+  injectComboboxState,
+  provideComboboxState,
+  type NgpComboboxState,
+  type NgpComboboxProps,
+} from './combobox/combobox-state';
