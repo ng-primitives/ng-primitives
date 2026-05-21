@@ -511,7 +511,7 @@ export const [NgpComboboxStateToken, ngpCombobox, injectComboboxState, provideCo
           );
           const allValues = regularOptions.map(opt => opt.value());
 
-          setValue(allValues as T);
+          setValue(allValues as T, { emit: true });
           return;
         }
 
@@ -524,9 +524,9 @@ export const [NgpComboboxStateToken, ngpCombobox, injectComboboxState, provideCo
           const newValue = [...(value() as T[]), optionValue as T];
 
           // add the option to the value
-          setValue(newValue as T);
+          setValue(newValue as T, { emit: true });
         } else {
-          setValue(optionValue as T);
+          setValue(optionValue as T, { emit: true });
 
           // close the dropdown on single selection
           closeDropdown();
@@ -557,7 +557,7 @@ export const [NgpComboboxStateToken, ngpCombobox, injectComboboxState, provideCo
             return; // Do nothing in single selection mode
           }
 
-          setValue([] as T);
+          setValue([] as T, { emit: true });
           return;
         }
 
@@ -566,10 +566,10 @@ export const [NgpComboboxStateToken, ngpCombobox, injectComboboxState, provideCo
           const newValue = values.filter(v => !_compareWith()(v, optionValue as T));
 
           // remove the option from the value
-          setValue(newValue as T);
+          setValue(newValue as T, { emit: true });
         } else {
           // in single selection mode with allowDeselect enabled, set value to undefined
-          setValue(undefined);
+          setValue(undefined, { emit: true });
         }
       }
 

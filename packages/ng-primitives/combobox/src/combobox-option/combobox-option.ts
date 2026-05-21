@@ -46,7 +46,7 @@ export class NgpComboboxOption {
     value: this.value,
     disabled: this.disabled,
     index: this.index,
-    onActivatedChange: value => this.activated.emit(value),
+    onActivatedChange: () => this.activated.emit(),
   });
 
   /** @internal Access the element reference. */
