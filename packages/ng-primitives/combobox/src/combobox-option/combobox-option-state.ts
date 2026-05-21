@@ -1,4 +1,4 @@
-import { computed, ElementRef, signal, Signal, WritableSignal } from '@angular/core';
+import { computed, ElementRef, signal, Signal } from '@angular/core';
 import { ngpInteractions } from 'ng-primitives/interactions';
 import { injectElementRef, scrollIntoViewIfNeeded } from 'ng-primitives/internal';
 import {

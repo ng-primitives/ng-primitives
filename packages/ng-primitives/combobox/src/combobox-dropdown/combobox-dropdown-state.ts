@@ -2,7 +2,6 @@ import { ElementRef, Signal, signal } from '@angular/core';
 import { injectElementRef, observeResize } from 'ng-primitives/internal';
 import { attrBinding, createPrimitive, styleBinding } from 'ng-primitives/state';
 import { uniqueId } from 'ng-primitives/utils';
-import { injectComboboxInputState } from '../combobox-input/combobox-input-state';
 import { injectComboboxState } from '../combobox/combobox-state';
 
 export interface NgpComboboxDropdownState {
