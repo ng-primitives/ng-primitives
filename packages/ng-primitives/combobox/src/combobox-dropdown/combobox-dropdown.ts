@@ -1,10 +1,11 @@
 import { Directive, input } from '@angular/core';
 import { uniqueId } from 'ng-primitives/utils';
-import { ngpComboboxDropdown } from './combobox-dropdown-state';
+import { ngpComboboxDropdown, provideComboboxDropdownState } from './combobox-dropdown-state';
 
 @Directive({
   selector: '[ngpComboboxDropdown]',
   exportAs: 'ngpComboboxDropdown',
+  providers: [provideComboboxDropdownState()],
 })
 export class NgpComboboxDropdown {
   /** The id of the dropdown. */

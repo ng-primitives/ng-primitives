@@ -1,9 +1,10 @@
 import { Directive } from '@angular/core';
-import { ngpComboboxPortal } from './combobox-portal-state';
+import { ngpComboboxPortal, provideComboboxPortalState } from './combobox-portal-state';
 
 @Directive({
   selector: '[ngpComboboxPortal]',
   exportAs: 'ngpComboboxPortal',
+  providers: [provideComboboxPortalState()],
 })
 export class NgpComboboxPortal {
   protected readonly state = ngpComboboxPortal({});

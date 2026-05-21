@@ -1,13 +1,14 @@
 import { BooleanInput, NumberInput } from '@angular/cdk/coercion';
 import { booleanAttribute, Directive, input, numberAttribute, output } from '@angular/core';
 import { uniqueId } from 'ng-primitives/utils';
-import { ngpComboboxOption } from './combobox-option-state';
+import { ngpComboboxOption, provideComboboxOptionState } from './combobox-option-state';
 
 type T = any;
 
 @Directive({
   selector: '[ngpComboboxOption]',
   exportAs: 'ngpComboboxOption',
+  providers: [provideComboboxOptionState()],
 })
 export class NgpComboboxOption {
   /** The id of the option. */
