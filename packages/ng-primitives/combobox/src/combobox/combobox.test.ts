@@ -377,9 +377,11 @@ describe('NgpCombobox', () => {
     await userEvent.click(button);
     fixture.detectChanges();
 
-    // Banana option should have active state
-    const bananaOption = screen.getByText('Banana');
-    expect(bananaOption).toHaveAttribute('data-active');
+    await waitFor(() => {
+      // Banana option should have active state
+      const bananaOption = screen.getByText('Banana');
+      expect(bananaOption).toHaveAttribute('data-active');
+    });
   });
 });
 
@@ -417,14 +419,20 @@ describe('NgpCombobox Multi-select', () => {
     const button = screen.getByTestId('multi-combobox-button');
     await userEvent.click(button);
     // Apple should be marked as selected
-    const appleOption = screen.getByText('Apple').closest('[ngpcomboboxoption]');
-    expect(appleOption).toHaveAttribute('data-active');
+    await waitFor(() => {
+      const appleOption = screen.getByText('Apple').closest('[ngpcomboboxoption]');
+      expect(appleOption).toHaveAttribute('data-active');
+    });
     // Toggle off Apple
     await userEvent.click(screen.getByText('Apple'));
-    expect(component.value).toEqual(['Cherry']);
+    await waitFor(() => {
+      expect(component.value).toEqual(['Cherry']);
+    });
     // Toggle on Banana
     await userEvent.click(screen.getByText('Banana'));
-    expect(component.value).toEqual(['Cherry', 'Banana']);
+    await waitFor(() => {
+      expect(component.value).toEqual(['Cherry', 'Banana']);
+    });
   });
 
   it('should support keyboard navigation with multi-select', async () => {
@@ -686,11 +694,15 @@ describe('NgpCombobox Select All', () => {
     await userEvent.click(button);
 
     const selectAllOption = screen.getByText('Select All');
-    expect(selectAllOption).toHaveAttribute('data-selected');
+    await waitFor(() => {
+      expect(selectAllOption).toHaveAttribute('data-selected');
+    });
 
     await userEvent.click(selectAllOption);
 
-    expect(component.value).toEqual([]);
+    await waitFor(() => {
+      expect(component.value).toEqual([]);
+    });
   });
 
   it('should show "Select All" as selected when all individual options are selected', async () => {
@@ -744,11 +756,15 @@ describe('NgpCombobox Select All', () => {
 
     // First option should be "Select All"
     const selectAllOption = screen.getByText('Select All');
-    expect(selectAllOption).toHaveAttribute('data-active');
+    await waitFor(() => {
+      expect(selectAllOption).toHaveAttribute('data-active');
+    });
 
     // Select with Enter
     await userEvent.keyboard('{enter}');
-    expect(component.value).toEqual(['Apple', 'Banana', 'Cherry', 'Dragon Fruit', 'Elderberry']);
+    await waitFor(() => {
+      expect(component.value).toEqual(['Apple', 'Banana', 'Cherry', 'Dragon Fruit', 'Elderberry']);
+    });
   });
 
   it('should handle filtering correctly with "Select All"', async () => {
@@ -1101,12 +1117,16 @@ describe('NgpCombobox Virtual Scrolling', () => {
 
       // First rendered option (index 0) should be active
       const firstOption = screen.getByTestId('virtual-option-0');
-      expect(firstOption).toHaveAttribute('data-active');
+      await waitFor(() => {
+        expect(firstOption).toHaveAttribute('data-active');
+      });
 
       // Navigate down should go to index 1
       await userEvent.keyboard('{arrowdown}');
       const secondOption = screen.getByTestId('virtual-option-1');
-      expect(secondOption).toHaveAttribute('data-active');
+      await waitFor(() => {
+        expect(secondOption).toHaveAttribute('data-active');
+      });
     });
 
     it('should select options by index when virtual scrolling is used', async () => {
@@ -1310,9 +1330,11 @@ describe('NgpCombobox Virtual Scrolling', () => {
       const button = screen.getByTestId('virtual-multi-button');
       await userEvent.click(button);
 
-      // Check that selected option is marked
-      const selectedOption = screen.getByTestId('virtual-multi-option-1');
-      expect(selectedOption).toHaveAttribute('data-selected');
+      await waitFor(() => {
+        // Check that selected option is marked
+        const selectedOption = screen.getByTestId('virtual-multi-option-1');
+        expect(selectedOption).toHaveAttribute('data-selected');
+      });
 
       // Non-selected option should not be marked
       const unselectedOption = screen.getByTestId('virtual-multi-option-0');
