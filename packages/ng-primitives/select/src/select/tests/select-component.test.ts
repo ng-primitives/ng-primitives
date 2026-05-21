@@ -72,13 +72,10 @@ describe('Select (reusable component) — standalone', () => {
     const user = userEvent.setup();
     const valueChange = vi.fn();
 
-    await render(
-      `<app-select [options]="options" (valueChange)="valueChange($event)" />`,
-      {
-        imports: [SelectFixture],
-        componentProperties: { options: ['Apple', 'Banana'], valueChange },
-      },
-    );
+    await render(`<app-select [options]="options" (valueChange)="valueChange($event)" />`, {
+      imports: [SelectFixture],
+      componentProperties: { options: ['Apple', 'Banana'], valueChange },
+    });
 
     await user.click(screen.getByTestId('select'));
     await user.click(screen.getByTestId('option-Apple'));
@@ -159,9 +156,7 @@ describe('Select (reusable component) — standalone', () => {
     expect(screen.getByTestId('select-dropdown')).toBeInTheDocument();
 
     await user.click(document.body);
-    await waitFor(() =>
-      expect(screen.queryByTestId('select-dropdown')).not.toBeInTheDocument(),
-    );
+    await waitFor(() => expect(screen.queryByTestId('select-dropdown')).not.toBeInTheDocument());
 
     await user.click(screen.getByTestId('select'));
     expect(screen.getByTestId('select-dropdown')).toBeInTheDocument();

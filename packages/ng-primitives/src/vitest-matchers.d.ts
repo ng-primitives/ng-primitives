@@ -1,5 +1,4 @@
 /// <reference types="@testing-library/jest-dom" />
-
 // Re-augment vitest's Assertion interface with @testing-library/jest-dom
 // matchers (toBeInTheDocument, toHaveAttribute, toHaveTextContent, etc.).
 //
@@ -9,13 +8,11 @@
 // type-checking individual test files. This ambient declaration is included
 // by `tsconfig.vitest.json` (via the `**/*.d.ts` glob) so the matcher types
 // are visible to every `*.test.ts` regardless of which file the IDE has open.
-
-import 'vitest';
 import type { TestingLibraryMatchers } from '@testing-library/jest-dom/matchers';
+import 'vitest';
 
 declare module 'vitest' {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   interface Assertion<T = any> extends TestingLibraryMatchers<unknown, T> {}
-  interface AsymmetricMatchersContaining
-    extends TestingLibraryMatchers<unknown, unknown> {}
+  interface AsymmetricMatchersContaining extends TestingLibraryMatchers<unknown, unknown> {}
 }

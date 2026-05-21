@@ -1,6 +1,5 @@
 import { computed, ElementRef, Signal, signal, WritableSignal } from '@angular/core';
 import type { Placement } from '@floating-ui/dom';
-import { Observable } from 'rxjs';
 import { activeDescendantManager } from 'ng-primitives/a11y';
 import { ngpFormControl } from 'ng-primitives/form-field';
 import { ngpInteractions } from 'ng-primitives/interactions';
@@ -17,6 +16,7 @@ import {
   SetterOptions,
 } from 'ng-primitives/state';
 import { uniqueId } from 'ng-primitives/utils';
+import { Observable } from 'rxjs';
 import type { NgpSelectDropdownState } from '../select-dropdown/select-dropdown-state';
 import type { NgpSelectOptionState } from '../select-option/select-option-state';
 import { NgpSelectPortalState } from '../select-portal/select-portal-state';
