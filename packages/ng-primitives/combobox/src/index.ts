@@ -3,8 +3,7 @@ export { NgpComboboxDropdown } from './combobox-dropdown/combobox-dropdown';
 export { NgpComboboxInput } from './combobox-input/combobox-input';
 export { NgpComboboxOption } from './combobox-option/combobox-option';
 export { NgpComboboxPortal } from './combobox-portal/combobox-portal';
-export { NgpCombobox, type NgpComboboxPlacement } from './combobox/combobox';
-export { injectComboboxState, provideComboboxState } from './combobox/combobox-state';
+export { NgpCombobox } from './combobox/combobox';
 export { NgpComboboxConfig, provideComboboxConfig } from './config/combobox-config';
 export {
   NgpComboboxStateToken,
@@ -13,6 +12,7 @@ export {
   provideComboboxState,
   type NgpComboboxState,
   type NgpComboboxProps,
+  type NgpComboboxPlacement,
 } from './combobox/combobox-state';
 export {
   NgpComboboxButtonStateToken,
