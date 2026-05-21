@@ -35,27 +35,35 @@ export const [
     );
 
     // Host binding
-    attrBinding(elementRef, 'id', _id);
-    styleBinding(elementRef, 'left.px', comboboxState().overlay()?.position()?.x);
-    styleBinding(elementRef, 'top.px', comboboxState().overlay()?.position()?.y);
+    attrBinding(elementRef, 'id', () => _id());
+    styleBinding(elementRef, 'left.px', () => comboboxState().overlay()?.position()?.x ?? null);
+    styleBinding(elementRef, 'top.px', () => comboboxState().overlay()?.position()?.y ?? null);
     styleBinding(
       elementRef,
       '--ngp-combobox-transform-origin',
-      comboboxState().overlay()?.transformOrigin(),
+      () => comboboxState().overlay()?.transformOrigin() ?? null,
     );
     styleBinding(
       elementRef,
       '--ngp-combobox-available-width.px',
-      comboboxState().overlay()?.availableWidth(),
+      () => comboboxState().overlay()?.availableWidth() ?? null,
     );
     styleBinding(
       elementRef,
       '--ngp-combobox-available-height.px',
-      comboboxState().overlay()?.availableHeight(),
+      () => comboboxState().overlay()?.availableHeight() ?? null,
     );
-    styleBinding(elementRef, '--ngp-combobox-width.px', comboboxDimensions().width);
-    styleBinding(elementRef, '--ngp-combobox-input-width.px', inputDimensions().width);
-    styleBinding(elementRef, '--ngp-combobox-button-width.px', buttonDimensions().width);
+    styleBinding(elementRef, '--ngp-combobox-width.px', () => comboboxDimensions().width ?? null);
+    styleBinding(
+      elementRef,
+      '--ngp-combobox-input-width.px',
+      () => inputDimensions().width ?? null,
+    );
+    styleBinding(
+      elementRef,
+      '--ngp-combobox-button-width.px',
+      () => buttonDimensions().width ?? null,
+    );
 
     const state = {
       elementRef,

@@ -34,14 +34,16 @@ export const [
 
     // Setup interactions
     ngpInteractions({ hover: true, press: true, disabled: comboboxState().disabled });
+
     // Host binding
-    attrBinding(elementRef, 'id', _id);
-    attrBinding(elementRef, 'aria-controls', dropdownId);
-    attrBinding(elementRef, 'aria-expanded', comboboxState().open);
-    attrBinding(elementRef, 'disabled', comboboxState().disabled);
-    dataBinding(elementRef, 'data-open', comboboxState().open);
-    dataBinding(elementRef, 'data-disabled', comboboxState().disabled);
-    dataBinding(elementRef, 'data-multiple', comboboxState().multiple);
+    attrBinding(elementRef, 'id', () => _id());
+    attrBinding(elementRef, 'aria-controls', () => dropdownId());
+    attrBinding(elementRef, 'aria-expanded', () => comboboxState().open());
+    attrBinding(elementRef, 'disabled', () => comboboxState().disabled());
+    dataBinding(elementRef, 'data-open', () => (comboboxState().open() ? '' : null));
+    dataBinding(elementRef, 'data-disabled', () => (comboboxState().disabled() ? '' : null));
+    dataBinding(elementRef, 'data-multiple', () => (comboboxState().multiple() ? '' : null));
+
     // Event listener
     listener(elementRef, 'click', async () => {
       await comboboxState().toggleDropdown();

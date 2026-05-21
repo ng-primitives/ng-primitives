@@ -49,14 +49,18 @@ export const [
     attrBinding(elementRef, 'spellcheck', 'false');
     attrBinding(elementRef, 'aria-haspopup', 'listbox');
     attrBinding(elementRef, 'aria-autocomplete', 'list');
-    attrBinding(elementRef, 'id', _id);
-    attrBinding(elementRef, 'disabled', comboboxState().disabled);
-    attrBinding(elementRef, 'aria-controls', comboboxState().open() ? dropdownId : undefined);
-    attrBinding(elementRef, 'aria-expanded', comboboxState().open);
-    attrBinding(elementRef, 'aria-activedescendant', comboboxState().activeDescendant);
-    dataBinding(elementRef, 'data-open', comboboxState().open);
-    dataBinding(elementRef, 'data-disabled', comboboxState().disabled);
-    dataBinding(elementRef, 'data-multiple', comboboxState().multiple);
+    attrBinding(elementRef, 'id', () => _id());
+    attrBinding(elementRef, 'disabled', () => comboboxState().disabled());
+    attrBinding(elementRef, 'aria-controls', () =>
+      comboboxState().open() ? dropdownId() : undefined,
+    );
+    attrBinding(elementRef, 'aria-expanded', () => comboboxState().open());
+    attrBinding(elementRef, 'aria-activedescendant', () =>
+      comboboxState().activeDescendantManager.id(),
+    );
+    dataBinding(elementRef, 'data-open', () => (comboboxState().open() ? '' : null));
+    dataBinding(elementRef, 'data-disabled', () => (comboboxState().disabled() ? '' : null));
+    dataBinding(elementRef, 'data-multiple', () => (comboboxState().multiple() ? '' : null));
 
     // Event listener
     listener(elementRef, 'keydown', (event: KeyboardEvent) => {
@@ -109,7 +113,7 @@ export const [
           break;
         case 'Backspace':
           // if the input is not empty then open the dropdown
-          if (this.elementRef.nativeElement.value.length > 0) {
+          if (elementRef.nativeElement.value.length > 0) {
             comboboxState().openDropdown();
           }
           break;

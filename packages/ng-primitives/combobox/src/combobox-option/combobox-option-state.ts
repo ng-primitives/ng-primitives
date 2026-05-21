@@ -1,4 +1,4 @@
-import { computed, signal, Signal, WritableSignal } from '@angular/core';
+import { computed, ElementRef, signal, Signal, WritableSignal } from '@angular/core';
 import { ngpInteractions } from 'ng-primitives/interactions';
 import { injectElementRef, scrollIntoViewIfNeeded } from 'ng-primitives/internal';
 import {
@@ -17,6 +17,8 @@ import { areAllOptionsSelected } from '../utils';
 type T = any;
 
 export interface NgpComboboxOptionState {
+  /** @internal Access the element refenerence. */
+  readonly elementRef: ElementRef<HTMLElement>;
   /** The id of the option. */
   readonly id: Signal<string>;
   /** The value of the options. */
@@ -126,12 +128,12 @@ export const [
 
     // Host binding
     attrBinding(elementRef, 'role', 'option');
-    attrBinding(elementRef, 'id', _id);
+    attrBinding(elementRef, 'id', () => _id());
     attrBinding(elementRef, 'tabindex', -1);
-    attrBinding(elementRef, 'aria-selected', selected() ? 'true' : undefined);
-    dataBinding(elementRef, 'data-selected', selected);
-    dataBinding(elementRef, 'data-active', active);
-    dataBinding(elementRef, 'data-disabled', comboboxState().disabled);
+    attrBinding(elementRef, 'aria-selected', () => selected());
+    dataBinding(elementRef, 'data-selected', () => (selected() ? '' : null));
+    dataBinding(elementRef, 'data-active', () => (active() ? '' : null));
+    dataBinding(elementRef, 'data-disabled', () => (comboboxState().disabled() ? '' : null));
 
     // Event listener
     listener(elementRef, 'click', select);
@@ -174,6 +176,7 @@ export const [
     }
 
     const state = {
+      elementRef,
       id: _id,
       value: _value,
       disabled: _disabled,
