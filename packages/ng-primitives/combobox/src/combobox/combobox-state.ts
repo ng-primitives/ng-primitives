@@ -9,7 +9,6 @@ import {
   createPrimitive,
   dataBinding,
   deprecatedSetter,
-  emitter,
   listener,
   SetterOptions,
 } from 'ng-primitives/state';
@@ -66,8 +65,6 @@ export interface NgpComboboxState {
   readonly allOptions: Signal<T[] | undefined>;
   /** Event emitted when the value changes. */
   readonly valueChange: Observable<T | undefined>;
-  /** Emit when the dropdown open state changes. */
-  readonly openChange: Observable<boolean>;
   /**
    * Store the combobox input
    * @internal
@@ -290,8 +287,6 @@ export const [NgpComboboxStateToken, ngpCombobox, injectComboboxState, provideCo
         onChange: onValueChange,
       });
 
-      const openChange = emitter<boolean>();
-
       const input = signal<NgpComboboxInputState | undefined>(undefined);
       const button = signal<NgpComboboxButtonState | undefined>(undefined);
       const portal = signal<NgpComboboxPortalState | undefined>(undefined);
@@ -437,7 +432,6 @@ export const [NgpComboboxStateToken, ngpCombobox, injectComboboxState, provideCo
           return;
         }
 
-        openChange.emit(true);
         onOpenChange?.(true);
         await portal()?.show();
 
@@ -474,7 +468,6 @@ export const [NgpComboboxStateToken, ngpCombobox, injectComboboxState, provideCo
       }
 
       function onOverlayClosed(): void {
-        openChange.emit(false);
         onOpenChange?.(false);
         // clear the active descendant
         activeDescendantManagerInstance.reset();
@@ -789,7 +782,6 @@ export const [NgpComboboxStateToken, ngpCombobox, injectComboboxState, provideCo
         offset: _offset,
         scrollToOption: _scrollToOption,
         allOptions: _allOptions,
-        openChange: openChange.asObservable(),
         input,
         button,
         portal,

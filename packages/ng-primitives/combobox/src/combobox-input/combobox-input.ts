@@ -10,7 +10,7 @@ export class NgpComboboxInput {
   /** The id of the input. */
   readonly id = input<string>(uniqueId('ngp-combobox-input'));
 
-  private readonly state = ngpComboboxInput({ id: this.id });
+  protected readonly state = ngpComboboxInput({ id: this.id });
 
   /** @internal Access the element reference. */
   readonly elementRef = this.state.elementRef;

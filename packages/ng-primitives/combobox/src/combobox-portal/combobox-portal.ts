@@ -6,7 +6,7 @@ import { ngpComboboxPortal } from './combobox-portal-state';
   exportAs: 'ngpComboboxPortal',
 })
 export class NgpComboboxPortal {
-  private readonly state = ngpComboboxPortal({});
+  protected readonly state = ngpComboboxPortal({});
 
   /**
    * The overlay that manages the popover

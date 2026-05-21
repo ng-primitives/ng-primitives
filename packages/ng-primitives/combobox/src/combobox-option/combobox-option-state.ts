@@ -5,12 +5,10 @@ import {
   attrBinding,
   createPrimitive,
   dataBinding,
-  emitter,
   listener,
   onDestroy,
 } from 'ng-primitives/state';
 import { uniqueId } from 'ng-primitives/utils';
-import { Observable } from 'rxjs';
 import { injectComboboxState } from '../combobox/combobox-state';
 import { areAllOptionsSelected } from '../utils';
 
@@ -30,11 +28,6 @@ export interface NgpComboboxOptionState {
    * when virtual scrolling is used or when the order is not determined by DOM order.
    */
   readonly index: Signal<number | undefined>;
-  /**
-   * Event emitted when the option is activated via click or keyboard.
-   * This is useful for options without values that need custom behavior.
-   */
-  readonly activatedChange: Observable<void>;
   /** @internal Select the option. */
   select(): void;
   /** @internal Scroll the option into view. */
@@ -74,7 +67,6 @@ export const [
     const elementRef = injectElementRef<HTMLElement>();
     const comboboxState = injectComboboxState();
 
-    const activatedChange = emitter<void>();
     const selected = computed(() => {
       const value = _value();
       const stateValue = comboboxState().value();
@@ -166,7 +158,6 @@ export const [
         return;
       }
 
-      activatedChange.emit();
       onActivatedChange?.();
       comboboxState().toggleOption(_id());
     }
@@ -181,7 +172,6 @@ export const [
       value: _value,
       disabled: _disabled,
       index: _index,
-      activatedChange: activatedChange.asObservable(),
       select,
       scrollIntoView,
     } satisfies NgpComboboxOptionState;

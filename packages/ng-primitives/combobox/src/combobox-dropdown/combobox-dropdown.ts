@@ -10,7 +10,7 @@ export class NgpComboboxDropdown {
   /** The id of the dropdown. */
   readonly id = input<string>(uniqueId('ngp-combobox-dropdown'));
 
-  private readonly state = ngpComboboxDropdown({
+  protected readonly state = ngpComboboxDropdown({
     id: this.id,
   });
 
