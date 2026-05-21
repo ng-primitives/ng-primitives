@@ -2,7 +2,7 @@ import { Component, signal } from '@angular/core';
 import { fireEvent, render, screen, waitFor } from '@testing-library/angular';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it, vi, afterEach } from 'vitest';
-import { NgpSelect, NgpSelectDropdown, NgpSelectOption, NgpSelectPortal } from '../index';
+import { NgpSelect, NgpSelectDropdown, NgpSelectOption, NgpSelectPortal } from '../../index';
 
 @Component({
   template: `

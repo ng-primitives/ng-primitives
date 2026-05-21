@@ -1,9 +1,10 @@
-import { BooleanInput } from '@angular/cdk/coercion';
-import { booleanAttribute, Component, input, model, signal } from '@angular/core';
+import { Component, input } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ControlValueAccessor } from '@angular/forms';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { heroChevronDown } from '@ng-icons/heroicons/outline';
 import {
+  injectSelectState,
   NgpSelect,
   NgpSelectDropdown,
   NgpSelectOption,
@@ -13,37 +14,40 @@ import { ChangeFn, provideValueAccessor, TouchedFn } from 'ng-primitives/utils';
 
 @Component({
   selector: 'app-select',
-  imports: [NgpSelect, NgpSelectDropdown, NgpSelectOption, NgpSelectPortal, NgIcon],
+  hostDirectives: [
+    {
+      directive: NgpSelect,
+      inputs: [
+        'ngpSelectValue:value',
+        'ngpSelectMultiple:multiple',
+        'ngpSelectDisabled:disabled',
+      ],
+      outputs: ['ngpSelectValueChange:valueChange'],
+    },
+  ],
   providers: [provideIcons({ heroChevronDown }), provideValueAccessor(Select)],
+  imports: [NgpSelectDropdown, NgpSelectOption, NgpSelectPortal, NgIcon],
   template: `
-    <div
-      [(ngpSelectValue)]="value"
-      [ngpSelectDisabled]="disabled() || formDisabled()"
-      [attr.aria-label]="ariaLabel() || null"
-      (ngpSelectValueChange)="onValueChange($event)"
-      ngpSelect
-    >
-      @if (value(); as value) {
-        <span class="select-value">{{ value }}</span>
-      } @else {
-        <span class="select-placeholder">{{ placeholder() }}</span>
+    @if (state().value(); as value) {
+      <span class="select-value">{{ value }}</span>
+    } @else {
+      <span class="select-placeholder">{{ placeholder() }}</span>
+    }
+
+    <ng-icon name="heroChevronDown" />
+
+    <div *ngpSelectPortal ngpSelectDropdown>
+      @for (option of options(); track option) {
+        <div [ngpSelectOptionValue]="option" ngpSelectOption>
+          {{ option }}
+        </div>
+      } @empty {
+        <div class="empty-message">No options found</div>
       }
-
-      <ng-icon name="heroChevronDown" />
-
-      <div *ngpSelectPortal ngpSelectDropdown>
-        @for (option of options(); track option) {
-          <div [ngpSelectOptionValue]="option" ngpSelectOption>
-            {{ option }}
-          </div>
-        } @empty {
-          <div class="empty-message">No options found</div>
-        }
-      </div>
     </div>
   `,
   styles: `
-    [ngpSelect] {
+    :host {
       display: flex;
       justify-content: space-between;
       align-items: center;
@@ -56,7 +60,7 @@ import { ChangeFn, provideValueAccessor, TouchedFn } from 'ng-primitives/utils';
       box-sizing: border-box;
     }
 
-    [ngpSelect][data-focus] {
+    :host[data-focus] {
       outline: 2px solid var(--ngp-focus-ring);
       outline-offset: 2px;
     }
@@ -172,13 +176,17 @@ import { ChangeFn, provideValueAccessor, TouchedFn } from 'ng-primitives/utils';
       }
     }
   `,
+  host: {
+    '[attr.aria-label]': 'ariaLabel() || null',
+    '(focusout)': 'onTouched?.()',
+  },
 })
 export class Select implements ControlValueAccessor {
+  /** Access the underlying select primitive state. */
+  protected readonly state = injectSelectState<string>();
+
   /** The options for the select. */
   readonly options = input<string[]>([]);
-
-  /** The selected value. */
-  readonly value = model<string | undefined>();
 
   /** The placeholder for the input. */
   readonly placeholder = input<string>('');
@@ -186,22 +194,22 @@ export class Select implements ControlValueAccessor {
   /** The accessible label for the select trigger. */
   readonly ariaLabel = input<string>('');
 
-  /** The disabled state of the select. */
-  readonly disabled = input<boolean, BooleanInput>(false, {
-    transform: booleanAttribute,
-  });
+  /** Form change callback. */
+  private onChange?: ChangeFn<string | undefined>;
 
-  /** Store the form disabled state */
-  protected readonly formDisabled = signal(false);
-
-  /** The on change callback */
-  private onChange?: ChangeFn<string>;
-
-  /** The on touch callback */
+  /** Form touched callback. */
   protected onTouched?: TouchedFn;
 
+  constructor() {
+    // Forward primitive value changes (user-driven selections) to the form.
+    this.state()
+      .valueChange.pipe(takeUntilDestroyed())
+      .subscribe(value => this.onChange?.(value as string | undefined));
+  }
+
   writeValue(value: string | undefined): void {
-    this.value.set(value);
+    // Pass { emit: false } so writeValue doesn't bounce back through onChange.
+    this.state().setValue(value, { emit: false });
   }
 
   registerOnChange(fn: ChangeFn<string | undefined>): void {
@@ -213,10 +221,6 @@ export class Select implements ControlValueAccessor {
   }
 
   setDisabledState(isDisabled: boolean): void {
-    this.formDisabled.set(isDisabled);
-  }
-
-  protected onValueChange(value: string): void {
-    this.onChange?.(value);
+    this.state().setDisabled(isDisabled);
   }
 }

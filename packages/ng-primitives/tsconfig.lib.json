@@ -12,6 +12,7 @@
     "**/*.test.ts",
     "**/*.fixture.ts",
     "src/test-setup.vitest.ts",
+    "src/vitest-matchers.d.ts",
     "vite.config.ts",
     "vitest.node.config.ts",
     "**/*.stories.ts",

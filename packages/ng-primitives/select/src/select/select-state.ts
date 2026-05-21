@@ -1,5 +1,6 @@
 import { computed, ElementRef, Signal, signal, WritableSignal } from '@angular/core';
 import type { Placement } from '@floating-ui/dom';
+import { Observable } from 'rxjs';
 import { activeDescendantManager } from 'ng-primitives/a11y';
 import { ngpFormControl } from 'ng-primitives/form-field';
 import { ngpInteractions } from 'ng-primitives/interactions';
@@ -11,7 +12,9 @@ import {
   createPrimitive,
   dataBinding,
   deprecatedSetter,
+  emitter,
   listener,
+  SetterOptions,
 } from 'ng-primitives/state';
 import { uniqueId } from 'ng-primitives/utils';
 import type { NgpSelectDropdownState } from '../select-dropdown/select-dropdown-state';
@@ -34,7 +37,7 @@ export interface NgpSelectState<T> {
   readonly multiple: Signal<boolean>;
 
   /** Whether the select is disabled. */
-  readonly disabled: Signal<boolean>;
+  readonly disabled: WritableSignal<boolean>;
 
   /** The comparator function used to compare options. */
   readonly compareWith: Signal<(a: T | undefined, b: T | undefined) => boolean>;
@@ -210,6 +213,24 @@ export interface NgpSelectState<T> {
    * @internal
    */
   focus(): void;
+
+  /**
+   * Programmatically set the value of the select. Fires `onValueChange` and
+   * emits on `valueChange` by default. Pass `{ emit: false }` for cases like
+   * form `writeValue` where the internal state should sync without notifying.
+   */
+  setValue(value: T | undefined, options?: SetterOptions): void;
+
+  /**
+   * Programmatically set the disabled state of the select. Used by the form
+   * `setDisabledState` integration.
+   */
+  setDisabled(disabled: boolean): void;
+
+  /**
+   * Observable that emits whenever the value changes.
+   */
+  readonly valueChange: Observable<T | undefined>;
 }
 
 export interface NgpSelectProps<T> {
@@ -272,7 +293,7 @@ export const [NgpSelectStateToken, ngpSelect, _injectSelectState, provideSelectS
       id = signal(uniqueId('ngp-select')),
       value: _value = signal<T | undefined>(undefined),
       multiple = signal(false),
-      disabled = signal(false),
+      disabled: _disabled = signal(false),
       compareWith = signal<(a: T | undefined, b: T | undefined) => boolean>(Object.is),
       placement = signal<Placement>('bottom'),
       container = signal<HTMLElement | string | null>('body'),
@@ -285,6 +306,20 @@ export const [NgpSelectStateToken, ngpSelect, _injectSelectState, provideSelectS
     }: NgpSelectProps<T>): NgpSelectState<T> => {
       const elementRef = injectElementRef<HTMLElement>();
       const value = controlled(_value);
+      const disabled = controlled(_disabled, false);
+      const valueChangeEmitter = emitter<T | undefined>();
+
+      function setValue(newValue: T | undefined, options?: SetterOptions): void {
+        value.set(newValue);
+        if (options?.emit !== false) {
+          onValueChange?.(newValue as T);
+          valueChangeEmitter.emit(newValue);
+        }
+      }
+
+      function setDisabled(isDisabled: boolean): void {
+        disabled.set(isDisabled);
+      }
 
       ngpInteractions({
         focus: true,
@@ -434,7 +469,7 @@ export const [NgpSelectStateToken, ngpSelect, _injectSelectState, provideSelectS
         const option = sortedOptions().find(opt => opt.id() === id);
 
         if (!option) {
-          value.set(undefined);
+          setValue(undefined, { emit: false });
           closeDropdown();
           return;
         }
@@ -455,11 +490,9 @@ export const [NgpSelectStateToken, ngpSelect, _injectSelectState, provideSelectS
           const newValue = [...((value() ?? []) as T[]), optionValue as T];
 
           // add the option to the value
-          value.set(newValue as T | undefined);
-          onValueChange?.(newValue as T);
+          setValue(newValue as T | undefined);
         } else {
-          value.set(optionValue as T | undefined);
-          onValueChange?.(optionValue as T);
+          setValue(optionValue as T | undefined);
 
           // close the dropdown on single selection
           closeDropdown();
@@ -490,8 +523,7 @@ export const [NgpSelectStateToken, ngpSelect, _injectSelectState, provideSelectS
         const newValue = values.filter(v => !compareWith()(v, optionValue as T));
 
         // remove the option from the value
-        value.set(newValue as T | undefined);
-        onValueChange?.(newValue as T);
+        setValue(newValue as T | undefined);
       }
 
       /**
@@ -752,9 +784,9 @@ export const [NgpSelectStateToken, ngpSelect, _injectSelectState, provideSelectS
       return {
         elementRef,
         id,
-        value: deprecatedSetter(value, 'selectOption'),
+        value: deprecatedSetter(value, 'setValue', v => setValue(v)),
         multiple,
-        disabled,
+        disabled: deprecatedSetter(disabled, 'setDisabled', setDisabled),
         compareWith,
         placement,
         container,
@@ -779,6 +811,9 @@ export const [NgpSelectStateToken, ngpSelect, _injectSelectState, provideSelectS
         isOptionSelected,
         activateNextOption,
         activatePreviousOption,
+        setValue,
+        setDisabled,
+        valueChange: valueChangeEmitter.asObservable(),
         registerPortal,
         registerDropdown,
         registerOption,
