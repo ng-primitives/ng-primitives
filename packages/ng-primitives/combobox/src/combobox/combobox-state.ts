@@ -519,7 +519,7 @@ export const [NgpComboboxStateToken, ngpCombobox, _injectComboboxState, provideC
             return;
           }
 
-          const newValue = [...(value() as T[]), optionValue as T];
+          const newValue = [...(value() as T[] | undefined) ?? [], optionValue as T];
 
           // add the option to the value
           setValue(newValue as T, { emit: true });
