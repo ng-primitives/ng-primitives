@@ -2,7 +2,7 @@ import { Component, signal } from '@angular/core';
 import { fireEvent, render, screen, waitFor } from '@testing-library/angular';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it, vi, afterEach } from 'vitest';
-import { NgpSelect, NgpSelectDropdown, NgpSelectOption, NgpSelectPortal } from '../index';
+import { NgpSelect, NgpSelectDropdown, NgpSelectOption, NgpSelectPortal } from '../../index';
 
 @Component({
   template: `
@@ -629,10 +629,10 @@ describe('NgpSelect', () => {
       await user.click(select);
 
       const dropdown = screen.getByTestId('dropdown');
-      const dropdownId = dropdown.getAttribute('id');
 
       await waitFor(() => {
-        expect(select).toHaveAttribute('aria-controls', dropdownId);
+        expect(dropdown.getAttribute('id')).toBeTruthy();
+        expect(select).toHaveAttribute('aria-controls', dropdown.getAttribute('id'));
       });
     });
 
@@ -643,12 +643,14 @@ describe('NgpSelect', () => {
       const select = screen.getByTestId('select');
       await user.click(select);
 
+      await waitFor(() => {
+        expect(screen.getByTestId('option-Apple')).toHaveAttribute('data-active', '');
+      });
+
       const appleOption = screen.getByTestId('option-Apple');
       const optionId = appleOption.getAttribute('id');
-
-      await waitFor(() => {
-        expect(select).toHaveAttribute('aria-activedescendant', optionId);
-      });
+      expect(optionId).toBeTruthy();
+      expect(select).toHaveAttribute('aria-activedescendant', optionId);
     });
 
     it('should set aria-selected on selected options', async () => {
@@ -672,8 +674,9 @@ describe('NgpSelect', () => {
 
       await user.click(screen.getByTestId('select'));
       const dropdown = screen.getByTestId('dropdown');
-
-      expect(dropdown).toHaveAttribute('role', 'listbox');
+      await waitFor(() => {
+        expect(dropdown).toHaveAttribute('role', 'listbox');
+      });
     });
 
     it('should have option role on options', async () => {
@@ -682,9 +685,11 @@ describe('NgpSelect', () => {
 
       await user.click(screen.getByTestId('select'));
 
-      expect(screen.getByTestId('option-Apple')).toHaveAttribute('role', 'option');
-      expect(screen.getByTestId('option-Banana')).toHaveAttribute('role', 'option');
-      expect(screen.getByTestId('option-Cherry')).toHaveAttribute('role', 'option');
+      await waitFor(() => {
+        expect(screen.getByTestId('option-Apple')).toHaveAttribute('role', 'option');
+        expect(screen.getByTestId('option-Banana')).toHaveAttribute('role', 'option');
+        expect(screen.getByTestId('option-Cherry')).toHaveAttribute('role', 'option');
+      });
     });
   });
 
@@ -902,8 +907,9 @@ describe('NgpSelect', () => {
 
         // First rendered option (index 0) should be active
         const firstOption = screen.getByTestId('virtual-option-0');
-        expect(firstOption).toHaveAttribute('data-active');
-
+        await waitFor(() => {
+          expect(firstOption).toHaveAttribute('data-active');
+        });
         // Navigate down should go to index 1
         fireEvent.keyDown(select, { key: 'ArrowDown' });
         const secondOption = screen.getByTestId('virtual-option-1');

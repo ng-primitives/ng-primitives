@@ -51,3 +51,10 @@ apps/documentation/src/public/assets/llms/
 
 .cursor/rules/nx-rules.mdc
 .github/instructions/nx.instructions.md
+
+# Vitest browser-mode artifacts (failure screenshots / attachments)
+**/__screenshots__/
+**/.vitest-attachments/
+
+# Stray AnalogJS build output (real output goes to dist/, not packages/)
+packages/apps/
