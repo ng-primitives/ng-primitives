@@ -9,17 +9,22 @@ export {
   ngpPopoverArrow,
   providePopoverArrowState,
 } from './popover-arrow/popover-arrow-state';
-export { NgpPopoverTrigger, type NgpPopoverPlacement } from './popover-trigger/popover-trigger';
-export {
-  injectPopoverTriggerState,
-  providePopoverTriggerState,
-} from './popover-trigger/popover-trigger-state';
+export { NgpPopoverTrigger } from './popover-trigger/popover-trigger';
 export { NgpPopover } from './popover/popover';
 export {
-  NgpPopoverProps,
-  NgpPopoverState,
+  type NgpPopoverProps,
+  type NgpPopoverState,
   NgpPopoverStateToken,
   ngpPopover,
   injectPopoverState,
   providePopoverState,
 } from './popover/popover-state';
+export {
+  NgpPopoverTriggerStateToken,
+  ngpPopoverTrigger,
+  injectPopoverTriggerState,
+  providePopoverTriggerState,
+  type NgpPopoverTriggerState,
+  type NgpPopoverTriggerProps,
+  type NgpPopoverPlacement,
+} from './popover-trigger/popover-trigger-state';
