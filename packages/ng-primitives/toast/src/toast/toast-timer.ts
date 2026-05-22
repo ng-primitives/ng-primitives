@@ -7,11 +7,13 @@ class NgpToastTimer {
   constructor(
     private duration: number,
     private callback: () => void,
+    private readonly persistent = false,
   ) {
     this.remaining = duration;
   }
 
   start(): void {
+    if (this.persistent) return;
     if (this.isRunning) return;
 
     this.isRunning = true;
@@ -44,6 +46,18 @@ class NgpToastTimer {
   }
 }
 
-export function toastTimer(duration: number, callback: () => void): NgpToastTimer {
-  return new NgpToastTimer(duration, callback);
+export interface NgpToastTimerOptions {
+  /**
+   * When true, the timer never fires. `start()`, `pause()`, and `stop()` are safe
+   * to call but have no effect on the callback.
+   */
+  persistent?: boolean;
+}
+
+export function toastTimer(
+  duration: number,
+  callback: () => void,
+  options: NgpToastTimerOptions = {},
+): NgpToastTimer {
+  return new NgpToastTimer(duration, callback, options.persistent);
 }

@@ -76,40 +76,17 @@ The sequential mode prevents background toasts from auto-closing. Only the front
 
 This is useful when you have multiple notifications in quick succession (e.g., health monitoring of external services) where you want to ensure users can see all notifications before they auto-close.
 
+Pass `sequential: true` when calling `show`, or set it globally via `provideToastConfig` to make it the default for every toast.
+
 <docs-example name="toast-sequential"></docs-example>
 
-You can enable sequential mode in two ways:
+### Persistent Toasts
 
-**1. Globally via configuration:**
+Persistent toasts do not auto-dismiss. They remain visible until the user dismisses them (by swiping when `dismissible` is enabled) or until they are dismissed programmatically — either via the returned `NgpToastRef` or via the manager (`toastManager.toasts()` + `toastManager.dismiss()`). This is useful for notification centers and other surfaces where messages must stay until acknowledged.
 
-```ts
-import { provideToastConfig } from 'ng-primitives/toast';
+Pass `persistent: true` when calling `show`, or set it globally via `provideToastConfig` to make it the default for every toast.
 
-bootstrapApplication(AppComponent, {
-  providers: [
-    provideToastConfig({
-      sequential: true,
-      // ... other config options
-    }),
-  ],
-});
-```
-
-**2. Per-toast via the show method:**
-
-```ts
-import { NgpToastManager } from 'ng-primitives/toast';
-
-export class MyComponent {
-  private readonly toastManager = inject(NgpToastManager);
-
-  showToast(): void {
-    this.toastManager.show(ToastComponent, {
-      sequential: true,
-    });
-  }
-}
-```
+<docs-example name="toast-persistent"></docs-example>
 
 ## API Reference
 
@@ -167,6 +144,7 @@ bootstrapApplication(AppComponent, {
       swipeDirections: ['left', 'right'],
       ariaLive: 'assertive',
       gap: 16,
+      persistent: false,
     }),
   ],
 });
