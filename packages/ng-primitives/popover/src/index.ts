@@ -15,3 +15,11 @@ export {
   providePopoverTriggerState,
 } from './popover-trigger/popover-trigger-state';
 export { NgpPopover } from './popover/popover';
+export {
+  NgpPopoverProps,
+  NgpPopoverState,
+  NgpPopoverStateToken,
+  ngpPopover,
+  injectPopoverState,
+  providePopoverState,
+} from './popover/popover-state';
