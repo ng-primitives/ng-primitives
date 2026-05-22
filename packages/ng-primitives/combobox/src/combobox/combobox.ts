@@ -120,7 +120,7 @@ export class NgpCombobox {
    */
   readonly allOptions = input<T[]>(undefined, { alias: 'ngpComboboxOptions' });
 
-  protected readonly state = ngpCombobox({
+  protected readonly state = ngpCombobox<T>({
     value: this.value,
     multiple: this.multiple,
     disabled: this.disabled,
@@ -231,7 +231,7 @@ export class NgpCombobox {
    * @param option The option to select.
    * @internal
    */
-  selectOption(option: NgpComboboxOptionState | undefined): void {
+  selectOption(option: NgpComboboxOptionState<T> | undefined): void {
     return this.state.selectOption(option);
   }
 
@@ -240,7 +240,7 @@ export class NgpCombobox {
    * @param option The option to deselect.
    * @internal
    */
-  deselectOption(option: NgpComboboxOptionState): void {
+  deselectOption(option: NgpComboboxOptionState<T>): void {
     return this.state.deselectOption(option);
   }
 
@@ -320,7 +320,7 @@ export class NgpCombobox {
    * @param option The option to register.
    * @internal
    */
-  registerOption(option: NgpComboboxOptionState): void {
+  registerOption(option: NgpComboboxOptionState<T>): void {
     return this.state.registerOption(option);
   }
 
@@ -329,7 +329,7 @@ export class NgpCombobox {
    * @param option The option to unregister.
    * @internal
    */
-  unregisterOption(option: NgpComboboxOptionState): void {
+  unregisterOption(option: NgpComboboxOptionState<T>): void {
     return this.state.unregisterOption(option);
   }
 

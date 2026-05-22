@@ -1,20 +1,12 @@
 import { computed, ElementRef, signal, Signal } from '@angular/core';
 import { ngpInteractions } from 'ng-primitives/interactions';
 import { injectElementRef, scrollIntoViewIfNeeded } from 'ng-primitives/internal';
-import {
-  attrBinding,
-  createPrimitive,
-  dataBinding,
-  listener,
-  onDestroy,
-} from 'ng-primitives/state';
+import { attrBinding, createPrimitive, dataBinding, listener } from 'ng-primitives/state';
 import { uniqueId } from 'ng-primitives/utils';
 import { injectComboboxState } from '../combobox/combobox-state';
 import { areAllOptionsSelected } from '../utils';
 
-type T = any;
-
-export interface NgpComboboxOptionState {
+export interface NgpComboboxOptionState<T> {
   /** @internal Access the element refenerence. */
   readonly elementRef: ElementRef<HTMLElement>;
   /** The id of the option. */
@@ -32,9 +24,11 @@ export interface NgpComboboxOptionState {
   select(): void;
   /** @internal Scroll the option into view. */
   scrollIntoView(): void;
+  /** @internal onDestroy callback */
+  destroy(): void;
 }
 
-export interface NgpComboboxOptionProps {
+export interface NgpComboboxOptionProps<T> {
   /** The id of the option. */
   readonly id?: Signal<string>;
   /** The value of the option. */
@@ -53,17 +47,17 @@ export interface NgpComboboxOptionProps {
 export const [
   NgpComboboxOptionStateToken,
   ngpComboboxOption,
-  injectComboboxOptionState,
+  _injectComboboxOptionState,
   provideComboboxOptionState,
 ] = createPrimitive(
   'NgpComboboxOption',
-  ({
+  <T>({
     id: _id = signal<string>(uniqueId('ngp-combobox-option')),
     value: _value = signal<T | undefined>(undefined),
     disabled: _disabled = signal<boolean>(false),
     index: _index = signal<number | undefined>(undefined),
     onActivatedChange,
-  }: NgpComboboxOptionProps) => {
+  }: NgpComboboxOptionProps<T>): NgpComboboxOptionState<T> => {
     const elementRef = injectElementRef<HTMLElement>();
     const comboboxState = injectComboboxState();
 
@@ -166,6 +160,10 @@ export const [
       scrollIntoViewIfNeeded(elementRef.nativeElement);
     }
 
+    function destroy(): void {
+      comboboxState().unregisterOption(state);
+    }
+
     const state = {
       elementRef,
       id: _id,
@@ -174,14 +172,15 @@ export const [
       index: _index,
       select,
       scrollIntoView,
-    } satisfies NgpComboboxOptionState;
+      destroy,
+    } satisfies NgpComboboxOptionState<T>;
 
     comboboxState().registerOption(state);
-
-    onDestroy(() => {
-      comboboxState().unregisterOption(state);
-    });
 
     return state;
   },
 );
+
+export function injectComboboxOptionState<T>(): Signal<NgpComboboxOptionState<T>> {
+  return _injectComboboxOptionState() as Signal<NgpComboboxOptionState<T>>;
+}

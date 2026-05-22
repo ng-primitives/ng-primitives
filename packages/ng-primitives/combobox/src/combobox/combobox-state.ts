@@ -20,12 +20,10 @@ import { NgpComboboxOptionState } from '../combobox-option/combobox-option-state
 import { NgpComboboxPortalState } from '../combobox-portal/combobox-portal-state';
 import { areAllOptionsSelected } from '../utils';
 
-type T = any;
-
 /**
  * Public state surface for the Combobox primitive.
  */
-export interface NgpComboboxState {
+export interface NgpComboboxState<T> {
   /** @internal Access the combobox reference. */
   readonly elementRef: ElementRef<HTMLElement>;
   /** The value of the combobox. */
@@ -89,7 +87,7 @@ export interface NgpComboboxState {
    * Store the combobox options.
    * @internal
    */
-  readonly options: Signal<NgpComboboxOptionState[]>;
+  readonly options: Signal<NgpComboboxOptionState<T>[]>;
   /**
    * Access the overlay
    * @internal
@@ -104,7 +102,7 @@ export interface NgpComboboxState {
    * The options sorted by their index or DOM position.
    * @internal
    */
-  readonly sortedOptions: Signal<NgpComboboxOptionState[]>;
+  readonly sortedOptions: Signal<NgpComboboxOptionState<T>[]>;
   /**
    * The active key descendant manager.
    * @internal
@@ -138,13 +136,13 @@ export interface NgpComboboxState {
    * @param option The option to select.
    * @internal
    */
-  selectOption(option: NgpComboboxOptionState | undefined): void;
+  selectOption(option: NgpComboboxOptionState<T> | undefined): void;
   /**
    * Deselect an option.
    * @param option The option to deselect.
    * @internal
    */
-  deselectOption(option: NgpComboboxOptionState): void;
+  deselectOption(option: NgpComboboxOptionState<T>): void;
   /**
    * Toggle the selection of an option.
    * @param id The id of the option to toggle.
@@ -197,13 +195,13 @@ export interface NgpComboboxState {
    * @param value The option to register.
    * @internal
    */
-  registerOption(value: NgpComboboxOptionState): void;
+  registerOption(value: NgpComboboxOptionState<T>): void;
   /**
    * Unregister an option from the combobox.
    * @param value The option to unregister.
    * @internal
    */
-  unregisterOption(value: NgpComboboxOptionState): void;
+  unregisterOption(value: NgpComboboxOptionState<T>): void;
   /**
    * Focus the combobox.
    * When an input element is present, it will be focused.
@@ -217,7 +215,7 @@ export interface NgpComboboxState {
 /**
  * Inputs for configuring the Combobox primitive.
  */
-export interface NgpComboboxProps {
+export interface NgpComboboxProps<T> {
   /** The value of the combobox. */
   readonly value?: Signal<T | undefined>;
   /** Whether the combobox is multiple selection. */
@@ -259,10 +257,10 @@ export interface NgpComboboxProps {
   readonly onValueChange?: (value: T | undefined) => void;
 }
 
-export const [NgpComboboxStateToken, ngpCombobox, injectComboboxState, provideComboboxState] =
+export const [NgpComboboxStateToken, ngpCombobox, _injectComboboxState, provideComboboxState] =
   createPrimitive(
     'NgpCombobox',
-    ({
+    <T>({
       value: _value = signal<T | undefined>(undefined),
       multiple: _multiple = signal<boolean>(false),
       disabled: _disabled = signal<boolean>(false),
@@ -278,10 +276,10 @@ export const [NgpComboboxStateToken, ngpCombobox, injectComboboxState, provideCo
       allOptions: _allOptions = signal<T[] | undefined>(undefined),
       onOpenChange,
       onValueChange,
-    }: NgpComboboxProps) => {
+    }: NgpComboboxProps<T>): NgpComboboxState<T> => {
       const elementRef = injectElementRef<HTMLElement>();
 
-      const [value, setValue, valueChange] = controlledState({
+      const [value, setValue, valueChange] = controlledState<T | undefined>({
         value: _value,
         defaultValue: undefined,
         onChange: onValueChange,
@@ -291,7 +289,7 @@ export const [NgpComboboxStateToken, ngpCombobox, injectComboboxState, provideCo
       const button = signal<NgpComboboxButtonState | undefined>(undefined);
       const portal = signal<NgpComboboxPortalState | undefined>(undefined);
       const dropdown = signal<NgpComboboxDropdownState | undefined>(undefined);
-      const options = signal<NgpComboboxOptionState[]>([]);
+      const options = signal<NgpComboboxOptionState<T>[]>([]);
 
       const overlay = computed(() => portal()?.overlay());
       const open = computed(() => overlay()?.isOpen() ?? false);
@@ -481,7 +479,7 @@ export const [NgpComboboxStateToken, ngpCombobox, injectComboboxState, provideCo
         }
       }
 
-      function selectOption(option: NgpComboboxOptionState | undefined): void {
+      function selectOption(option: NgpComboboxOptionState<T> | undefined): void {
         if (_disabled()) {
           return;
         }
@@ -533,7 +531,7 @@ export const [NgpComboboxStateToken, ngpCombobox, injectComboboxState, provideCo
         }
       }
 
-      function deselectOption(option: NgpComboboxOptionState): void {
+      function deselectOption(option: NgpComboboxOptionState<T>): void {
         const optionValue = option.value();
 
         // Options without values cannot be deselected (and should never be selected).
@@ -624,7 +622,7 @@ export const [NgpComboboxStateToken, ngpCombobox, injectComboboxState, provideCo
         }
       }
 
-      function isOptionSelected(option: T): boolean {
+      function isOptionSelected(option: T | undefined): boolean {
         if (_disabled()) {
           return false;
         }
@@ -659,7 +657,7 @@ export const [NgpComboboxStateToken, ngpCombobox, injectComboboxState, provideCo
           );
         }
 
-        return _compareWith()(optionValue, value);
+        return _compareWith()(optionValue, currentValue);
       }
 
       function activateNextOption(): void {
@@ -726,11 +724,11 @@ export const [NgpComboboxStateToken, ngpCombobox, injectComboboxState, provideCo
         dropdown.set(value);
       }
 
-      function registerOption(value: NgpComboboxOptionState): void {
+      function registerOption(value: NgpComboboxOptionState<T>): void {
         options.update(options => [...options, value]);
       }
 
-      function unregisterOption(value: NgpComboboxOptionState): void {
+      function unregisterOption(value: NgpComboboxOptionState<T>): void {
         options.update(options => options.filter(o => o !== value));
       }
 
@@ -756,7 +754,7 @@ export const [NgpComboboxStateToken, ngpCombobox, injectComboboxState, provideCo
         }
       }
 
-      function getOptionAtIndex(index: number): NgpComboboxOptionState | undefined {
+      function getOptionAtIndex(index: number): NgpComboboxOptionState<T> | undefined {
         // if the option has an index, use that to get the option because this is required for virtual scrolling scenarios
         const optionIndex = options().findIndex(opt => opt.index() === index);
 
@@ -765,6 +763,15 @@ export const [NgpComboboxStateToken, ngpCombobox, injectComboboxState, provideCo
         }
 
         return sortedOptions()[index];
+      }
+
+      function isOption(value: any): value is NgpComboboxOptionState<T> {
+        return (
+          value &&
+          typeof value === 'object' &&
+          'value' in value &&
+          typeof value.value === 'function'
+        );
       }
 
       return {
@@ -808,9 +815,13 @@ export const [NgpComboboxStateToken, ngpCombobox, injectComboboxState, provideCo
         registerOption,
         unregisterOption,
         focus,
-      } satisfies NgpComboboxState;
+      } satisfies NgpComboboxState<T>;
     },
   );
+
+export function injectComboboxState<T>(): Signal<NgpComboboxState<T>> {
+  return _injectComboboxState() as Signal<NgpComboboxState<T>>;
+}
 
 export type NgpComboboxPlacement =
   | 'top'
@@ -825,9 +836,3 @@ export type NgpComboboxPlacement =
   | 'bottom-end'
   | 'left-start'
   | 'left-end';
-
-function isOption(value: any): value is NgpComboboxOptionState {
-  return (
-    value && typeof value === 'object' && 'value' in value && typeof value.value === 'function'
-  );
-}

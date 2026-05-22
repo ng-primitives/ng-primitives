@@ -1,16 +1,22 @@
 import { BooleanInput, NumberInput } from '@angular/cdk/coercion';
-import { booleanAttribute, Directive, input, numberAttribute, output } from '@angular/core';
+import {
+  booleanAttribute,
+  Directive,
+  input,
+  numberAttribute,
+  OnDestroy,
+  output,
+} from '@angular/core';
 import { uniqueId } from 'ng-primitives/utils';
-import { ngpComboboxOption, provideComboboxOptionState } from './combobox-option-state';
+import { ngpComboboxOption } from './combobox-option-state';
 
 type T = any;
 
 @Directive({
   selector: '[ngpComboboxOption]',
   exportAs: 'ngpComboboxOption',
-  providers: [provideComboboxOptionState()],
 })
-export class NgpComboboxOption {
+export class NgpComboboxOption implements OnDestroy {
   /** The id of the option. */
   readonly id = input<string>(uniqueId('ngp-combobox-option'));
 
@@ -49,6 +55,10 @@ export class NgpComboboxOption {
     index: this.index,
     onActivatedChange: () => this.activated.emit(),
   });
+
+  ngOnDestroy(): void {
+    return this.state.destroy();
+  }
 
   /** @internal Access the element reference. */
   readonly elementRef = this.state.elementRef;

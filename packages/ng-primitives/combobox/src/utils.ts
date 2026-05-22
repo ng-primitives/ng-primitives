@@ -7,8 +7,8 @@ import type { NgpComboboxOptionState } from './combobox-option/combobox-option-s
  * @param compareWith Comparison function
  * @returns true if all regular options are selected
  */
-export function areAllOptionsSelected(
-  options: NgpComboboxOptionState[],
+export function areAllOptionsSelected<T>(
+  options: NgpComboboxOptionState<T>[],
   selectedValues: any[],
   compareWith: (a: any, b: any) => boolean,
 ): boolean {

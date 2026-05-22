@@ -7,7 +7,7 @@ import {
   TemplateRef,
 } from '@angular/core';
 import { createOverlay, NgpOverlay, NgpOverlayConfig } from 'ng-primitives/portal';
-import { createPrimitive, onDestroy } from 'ng-primitives/state';
+import { createPrimitive } from 'ng-primitives/state';
 import { injectComboboxState } from '../combobox/combobox-state';
 
 export interface NgpComboboxPortalState {
@@ -17,6 +17,8 @@ export interface NgpComboboxPortalState {
   show(): Promise<void>;
   /** @internal Detach the portal. */
   detach(): Promise<void>;
+  /** @internal onDestroy callback */
+  destroy(): void;
 }
 
 export interface NgpComboboxPortalProps {}
@@ -72,17 +74,18 @@ export const [
     overlay.set(createOverlay(config));
   }
 
+  function destroy(): void {
+    overlay()?.destroy();
+  }
+
   const state = {
     overlay,
     show,
     detach,
+    destroy,
   } satisfies NgpComboboxPortalState;
 
   comboboxState().registerPortal(state);
-
-  onDestroy(() => {
-    overlay()?.destroy();
-  });
 
   return state;
 });

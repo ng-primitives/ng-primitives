@@ -1,12 +1,11 @@
-import { Directive } from '@angular/core';
-import { ngpComboboxPortal, provideComboboxPortalState } from './combobox-portal-state';
+import { Directive, OnDestroy } from '@angular/core';
+import { ngpComboboxPortal } from './combobox-portal-state';
 
 @Directive({
   selector: '[ngpComboboxPortal]',
   exportAs: 'ngpComboboxPortal',
-  providers: [provideComboboxPortalState()],
 })
-export class NgpComboboxPortal {
+export class NgpComboboxPortal implements OnDestroy {
   protected readonly state = ngpComboboxPortal({});
 
   /**
@@ -14,6 +13,10 @@ export class NgpComboboxPortal {
    * @internal
    */
   readonly overlay = this.state.overlay;
+
+  ngOnDestroy(): void {
+    return this.state.destroy();
+  }
 
   /**
    * Attach the portal.

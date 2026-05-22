@@ -1,11 +1,10 @@
 import { Directive, input } from '@angular/core';
 import { uniqueId } from 'ng-primitives/utils';
-import { ngpComboboxButton, provideComboboxButtonState } from './combobox-button-state';
+import { ngpComboboxButton } from './combobox-button-state';
 
 @Directive({
   selector: 'button[ngpComboboxButton]',
   exportAs: 'ngpComboboxButton',
-  providers: [provideComboboxButtonState()],
 })
 export class NgpComboboxButton {
   /** The id of the button. */
