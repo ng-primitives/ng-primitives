@@ -35,7 +35,7 @@ export const [
     const comboboxState = injectComboboxState();
 
     const dropdownId = computed(() => comboboxState().dropdown()?.id());
-    const pointerFocused = signal(false);
+    var pointerFocused = false;
 
     // Setup interactions and form controls hooks
     ngpInteractions({ focus: true, hover: true, press: true, disabled: comboboxState().disabled });
@@ -149,21 +149,21 @@ export const [
       ) {
         return;
       }
-      listener(elementRef, 'focus', () => {
-        if (pointerFocused()) {
-          pointerFocused.set(false);
-          return;
-        }
-
-        // highlight the text in the input
-        elementRef.nativeElement.setSelectionRange(0, elementRef.nativeElement.value.length);
-      });
 
       comboboxState().closeDropdown();
       event.preventDefault();
     });
+    listener(elementRef, 'focus', () => {
+      if (pointerFocused) {
+        pointerFocused = false;
+        return;
+      }
+
+      // highlight the text in the input
+      elementRef.nativeElement.setSelectionRange(0, elementRef.nativeElement.value.length);
+    });
     listener(elementRef, 'pointerdown', () => {
-      pointerFocused.set(true);
+      pointerFocused = true;
     });
 
     function focus(): void {
