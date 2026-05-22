@@ -117,9 +117,9 @@ export const [
     attrBinding(elementRef, 'id', () => _id());
     attrBinding(elementRef, 'tabindex', -1);
     attrBinding(elementRef, 'aria-selected', () => (selected() ? 'true' : null));
-    dataBinding(elementRef, 'data-selected', () => (selected() ? '' : null));
-    dataBinding(elementRef, 'data-active', () => (active() ? '' : null));
-    dataBinding(elementRef, 'data-disabled', () => (comboboxState().disabled() ? '' : null));
+    dataBinding(elementRef, 'data-selected', selected);
+    dataBinding(elementRef, 'data-active', active);
+    dataBinding(elementRef, 'data-disabled', comboboxState().disabled);
 
     // Event listener
     listener(elementRef, 'click', select);

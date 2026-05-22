@@ -35,7 +35,7 @@ export const [
     const comboboxState = injectComboboxState();
 
     const dropdownId = computed(() => comboboxState().dropdown()?.id());
-    var pointerFocused = false;
+    let pointerFocused = false;
 
     // Setup interactions and form controls hooks
     ngpInteractions({ focus: true, hover: true, press: true, disabled: comboboxState().disabled });

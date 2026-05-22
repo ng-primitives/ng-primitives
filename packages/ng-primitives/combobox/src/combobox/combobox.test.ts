@@ -234,11 +234,15 @@ describe('NgpCombobox', () => {
 
     // First option should be highlighted
     const options = screen.getAllByRole('option');
-    expect(options[0]).toHaveAttribute('data-active');
+    await waitFor(() => {
+      expect(options[0]).toHaveAttribute('data-active');
+    });
 
     // Move to second option
     await userEvent.keyboard('{arrowdown}');
-    expect(options[1]).toHaveAttribute('data-active');
+    await waitFor(() => {
+      expect(options[1]).toHaveAttribute('data-active');
+    });
 
     // Select with Enter
     await userEvent.keyboard('{enter}');
@@ -1279,9 +1283,11 @@ describe('NgpCombobox Virtual Scrolling', () => {
       const button = screen.getByTestId('preselected-button');
       await userEvent.click(button);
 
-      // The selected option should be active even though it comes from allOptions
-      const selectedOption = screen.getByTestId('preselected-option-5');
-      expect(selectedOption).toHaveAttribute('data-active');
+      await waitFor(() => {
+        // The selected option should be active even though it comes from allOptions
+        const selectedOption = screen.getByTestId('preselected-option-5');
+        expect(selectedOption).toHaveAttribute('data-active');
+      });
     });
   });
 
@@ -1598,10 +1604,12 @@ describe('NgpCombobox Virtual Scrolling', () => {
       // Re-open dropdown
       await userEvent.click(button);
 
-      // The selected option should be marked as selected
-      const selectedOption = screen.getByTestId('selection-option-1');
-      expect(selectedOption).toHaveAttribute('data-selected');
-      expect(selectedOption).toHaveAttribute('data-active'); // Should also be active when opening
+      await waitFor(() => {
+        // The selected option should be marked as selected
+        const selectedOption = screen.getByTestId('selection-option-1');
+        expect(selectedOption).toHaveAttribute('data-selected');
+        expect(selectedOption).toHaveAttribute('data-active'); // Should also be active when opening
+      });
 
       // Other options should not be selected
       expect(screen.getByTestId('selection-option-0')).not.toHaveAttribute('data-selected');
