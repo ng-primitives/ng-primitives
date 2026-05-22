@@ -28,8 +28,8 @@ import { NgpToast, NgpToastManager } from 'ng-primitives/toast';
       </button>
       <button
         class="toast-trigger"
-        (click)="dismissLatest()"
         [disabled]="!hasOpenToasts()"
+        (click)="dismissLatest()"
         ngpButton
       >
         Dismiss latest
