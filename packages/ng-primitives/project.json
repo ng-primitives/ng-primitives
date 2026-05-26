@@ -67,8 +67,8 @@
       "executor": "@nx/js:tsc",
       "outputs": ["{options.outputPath}"],
       "options": {
-        "clean": false,
-        "outputPath": "dist/packages/ng-primitives",
+        "clean": true,
+        "outputPath": "dist/packages/ng-primitives-schematics-test",
         "main": "packages/ng-primitives/src/index.ts",
         "tsConfig": "packages/ng-primitives/tsconfig.schematics.json",
         "generateExportsField": false,
