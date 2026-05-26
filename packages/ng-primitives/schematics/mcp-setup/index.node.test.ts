@@ -7,7 +7,7 @@ import { beforeEach, describe, expect, it } from 'vitest';
 const workspaceRoot = resolve(fileURLToPath(new URL('../../../../', import.meta.url)));
 const collectionPath = resolve(
   workspaceRoot,
-  'dist/packages/ng-primitives-schematics-test/collection.json',
+  'dist/ng-primitives-schematics-test/collection.json',
 );
 const packageJsonPath = fileURLToPath(new URL('../../package.json', import.meta.url));
 const { version: packageVersion } = JSON.parse(readFileSync(packageJsonPath, 'utf8')) as {

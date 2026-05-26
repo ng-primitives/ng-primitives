@@ -68,7 +68,7 @@
       "outputs": ["{options.outputPath}"],
       "options": {
         "clean": true,
-        "outputPath": "dist/packages/ng-primitives-schematics-test",
+        "outputPath": "dist/ng-primitives-schematics-test",
         "main": "packages/ng-primitives/src/index.ts",
         "tsConfig": "packages/ng-primitives/tsconfig.schematics.json",
         "generateExportsField": false,
