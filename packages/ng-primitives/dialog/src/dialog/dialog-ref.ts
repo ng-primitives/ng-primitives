@@ -1,5 +1,5 @@
 import { FocusOrigin } from '@angular/cdk/a11y';
-import { inject, Injector } from '@angular/core';
+import { inject, InjectOptions, Injector } from '@angular/core';
 import { NgpExitAnimationManager } from 'ng-primitives/internal';
 import { NgpDismissGuard, NgpOverlayRef } from 'ng-primitives/portal';
 import { defer, EMPTY, fromEvent, Observable, Subject } from 'rxjs';
@@ -192,6 +192,14 @@ export class NgpDialogRef<T = unknown, R = unknown> implements NgpOverlayRef {
   }
 }
 
-export function injectDialogRef<T = unknown, R = unknown>(): NgpDialogRef<T, R> {
-  return inject<NgpDialogRef<T, R>>(NgpDialogRef);
+export function injectDialogRef<T = unknown, R = unknown>(
+  options?: InjectOptions & { optional?: false },
+): NgpDialogRef<T, R>;
+export function injectDialogRef<T = unknown, R = unknown>(
+  options: InjectOptions & { optional: true },
+): NgpDialogRef<T, R> | null;
+export function injectDialogRef<T = unknown, R = unknown>(
+  options?: InjectOptions,
+): NgpDialogRef<T, R> | null {
+  return inject<NgpDialogRef<T, R>>(NgpDialogRef, options ?? {});
 }
