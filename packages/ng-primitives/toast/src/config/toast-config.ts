@@ -73,6 +73,11 @@ export interface NgpToastConfig {
    * When a toast is dismissed, the timer will start on the next toast.
    */
   sequential: boolean;
+
+  /**
+   * When true, toasts will not auto-dismiss and must be dismissed explicitly.
+   */
+  persistent: boolean;
 }
 
 export const defaultToastConfig: NgpToastConfig = {
@@ -90,6 +95,7 @@ export const defaultToastConfig: NgpToastConfig = {
   zIndex: 9999999,
   ariaLive: 'polite',
   sequential: false,
+  persistent: false,
 };
 
 export const NgpToastConfigToken = new InjectionToken<NgpToastConfig>('NgpToastConfigToken');

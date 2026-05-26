@@ -1,39 +1,55 @@
-import { Component, inject, TemplateRef } from '@angular/core';
+import { Component, computed, inject, TemplateRef } from '@angular/core';
 import { NgpButton } from 'ng-primitives/button';
-import { NgpToastManager, NgpToast } from 'ng-primitives/toast';
+import { NgpToast, NgpToastManager } from 'ng-primitives/toast';
 
 /**
- * This example demonstrates the sequential toast feature.
- * When sequential mode is enabled, only the front-most toast's timer runs.
- * When that toast is dismissed, the timer starts on the next toast.
+ * This example demonstrates a persistent toast.
+ * When `persistent` is true, the toast does not auto-dismiss and must be
+ * dismissed explicitly — either by the user (swipe / dismiss button) or
+ * programmatically via the returned `NgpToastRef`.
  *
- * To enable sequential mode globally:
+ * To make all toasts persistent globally:
  *
  * bootstrapApplication(AppComponent, {
  *   providers: [
  *     provideToastConfig({
- *       sequential: true,
+ *       persistent: true,
  *     }),
  *   ],
  * });
  */
 @Component({
-  selector: 'app-toast-sequential',
+  selector: 'app-toast-persistent',
   imports: [NgpToast, NgpButton],
   template: `
-    <button class="toast-trigger" (click)="showMultipleToasts(toast)" ngpButton>
-      Show 3 Toasts
-    </button>
+    <div class="buttons">
+      <button class="toast-trigger" (click)="showPersistentToast(toast)" ngpButton>
+        Show toast
+      </button>
+      <button
+        class="toast-trigger"
+        [disabled]="!hasOpenToasts()"
+        (click)="dismissLatest()"
+        ngpButton
+      >
+        Dismiss latest
+      </button>
+    </div>
 
     <ng-template #toast let-dismiss="dismiss">
       <div ngpToast animate.enter="toast-enter" animate.leave="toast-leave">
-        <p class="toast-title">Sequential Toast</p>
-        <p class="toast-description">Only front toast timer runs in sequential mode.</p>
+        <p class="toast-title">Persistent Toast</p>
+        <p class="toast-description">This toast will not auto-dismiss.</p>
         <button class="toast-dismiss" (click)="dismiss()" ngpButton>Dismiss</button>
       </div>
     </ng-template>
   `,
   styles: `
+    .buttons {
+      display: flex;
+      gap: 0.5rem;
+    }
+
     .toast-trigger {
       padding-left: 1rem;
       padding-right: 1rem;
@@ -59,6 +75,11 @@ import { NgpToastManager, NgpToast } from 'ng-primitives/toast';
 
     .toast-trigger[data-press] {
       background-color: var(--ngp-background-active);
+    }
+
+    .toast-trigger[disabled] {
+      opacity: 0.5;
+      cursor: not-allowed;
     }
 
     [ngpToast] {
@@ -185,26 +206,21 @@ import { NgpToastManager, NgpToast } from 'ng-primitives/toast';
     }
 
     [ngpToast][data-swiping='true'][data-swipe-direction='left'] {
-      /* Fade out from -45px to -100px swipe */
       opacity: calc(1 - clamp(0, ((-1 * var(--ngp-toast-swipe-x, 0px)) - 45) / 55, 1));
     }
 
     [ngpToast][data-swiping='true'][data-swipe-direction='right'] {
-      /* Fade out from 45px to 100px swipe */
       opacity: calc(1 - clamp(0, (var(--ngp-toast-swipe-x, 0px) - 45) / 55, 1));
     }
 
     [ngpToast][data-swiping='true'][data-swipe-direction='top'] {
-      /* Fade out from -45px to -100px swipe */
       opacity: calc(1 - clamp(0, ((-1 * var(--ngp-toast-swipe-y, 0px)) - 45) / 55, 1));
     }
 
     [ngpToast][data-swiping='true'][data-swipe-direction='bottom'] {
-      /* Fade out from 45px to 100px swipe */
       opacity: calc(1 - clamp(0, (var(--ngp-toast-swipe-y, 0px) - 45) / 55, 1));
     }
 
-    /* Truncate text only when toast is not front AND not expanded */
     [ngpToast][data-front='false'][data-expanded='false'] .toast-title {
       overflow: hidden;
       text-overflow: ellipsis;
@@ -217,7 +233,6 @@ import { NgpToastManager, NgpToast } from 'ng-primitives/toast';
       white-space: nowrap;
     }
 
-    /* Angular animations using animate.enter and animate.leave */
     .toast-enter {
       animation: toast-slide-in 400ms cubic-bezier(0.215, 0.61, 0.355, 1);
     }
@@ -242,19 +257,21 @@ import { NgpToastManager, NgpToast } from 'ng-primitives/toast';
     }
   `,
 })
-export default class ToastSequentialExample {
+export default class ToastPersistentExample {
   private readonly toastManager = inject(NgpToastManager);
+  protected readonly hasOpenToasts = computed(() => this.toastManager.toasts().length > 0);
 
-  showMultipleToasts(toast: TemplateRef<void>): void {
-    // Show 3 toasts with a small delay between each
-    // Each toast has sequential mode enabled
-    for (let i = 0; i < 3; i++) {
-      setTimeout(() => {
-        this.toastManager.show(toast, {
-          placement: 'bottom-end',
-          sequential: true,
-        });
-      }, i * 300);
+  showPersistentToast(toast: TemplateRef<void>): void {
+    this.toastManager.show(toast, {
+      placement: 'bottom-end',
+      persistent: true,
+    });
+  }
+
+  async dismissLatest(): Promise<void> {
+    const [latest] = this.toastManager.toasts();
+    if (latest) {
+      await this.toastManager.dismiss(latest.instance);
     }
   }
 }
