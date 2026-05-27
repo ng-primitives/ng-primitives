@@ -591,7 +591,13 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
       this.closeTimeout = undefined;
     }
 
-    if (this.isOpen()) {
+    // Only fire close events if the overlay is still mounted. `portal()` is
+    // nulled synchronously at the start of destroyOverlay, so on a second
+    // hideImmediate() (e.g. when both a caller's destroy and the overlay's
+    // own destroyRef.onDestroy both fire) we skip re-emitting — `isOpen()`
+    // alone is not enough because it's only flipped after destroyOverlay's
+    // `await portal.detach()`, leaving a window where it lies.
+    if (this.isOpen() && this.portal() !== null) {
       // Emit closing event
       this.closing.next();
 
@@ -599,7 +605,6 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
       this.closeOrigin.set('program');
       this.config.onClose?.('program');
     }
-    // Destroy immediately without animations
     this.destroyOverlay(true);
   }
 

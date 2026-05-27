@@ -59,6 +59,7 @@ export class NgpToastManager {
             dismissible: options.dismissible ?? this.config.dismissible,
             swipeDirections: options.swipeDirections ?? this.config.swipeDirections,
             sequential: options.sequential ?? this.config.sequential,
+            persistent: options.persistent ?? this.config.persistent,
           }),
         ],
       }),
@@ -196,6 +197,9 @@ export interface NgpToastOptions<T = unknown> {
 
   /** When enabled, only the front toast's timer will run */
   sequential?: boolean;
+
+  /** When true, the toast will not auto-dismiss and must be dismissed explicitly */
+  persistent?: boolean;
 }
 
 interface NgpToastRecord {

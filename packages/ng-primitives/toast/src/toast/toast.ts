@@ -139,7 +139,9 @@ export class NgpToast {
   /**
    * The toast timer instance.
    */
-  private readonly timer = toastTimer(this.options.duration, () => this.manager.dismiss(this));
+  private readonly timer = toastTimer(this.options.duration, () => this.manager.dismiss(this), {
+    persistent: this.options.persistent,
+  });
 
   constructor() {
     this.options.register(this);

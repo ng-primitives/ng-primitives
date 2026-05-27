@@ -113,4 +113,39 @@ describe('toastTimer', () => {
     vi.advanceTimersByTime(1);
     expect(callback).toHaveBeenCalledTimes(1);
   });
+
+  it('should not call callback when persistent', () => {
+    const callback = vi.fn();
+    const timer = toastTimer(3000, callback, { persistent: true });
+
+    timer.start();
+    vi.advanceTimersByTime(10_000);
+
+    expect(callback).not.toHaveBeenCalled();
+  });
+
+  it('should remain inert across pause/start cycles when persistent', () => {
+    const callback = vi.fn();
+    const timer = toastTimer(3000, callback, { persistent: true });
+
+    timer.start();
+    vi.advanceTimersByTime(1000);
+    timer.pause();
+    vi.advanceTimersByTime(1000);
+    timer.start();
+    vi.advanceTimersByTime(10_000);
+
+    expect(callback).not.toHaveBeenCalled();
+  });
+
+  it('should not call callback after stop when persistent', () => {
+    const callback = vi.fn();
+    const timer = toastTimer(3000, callback, { persistent: true });
+
+    timer.start();
+    timer.stop();
+    vi.advanceTimersByTime(10_000);
+
+    expect(callback).not.toHaveBeenCalled();
+  });
 });
