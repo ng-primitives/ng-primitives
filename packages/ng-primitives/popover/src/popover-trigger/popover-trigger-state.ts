@@ -352,7 +352,7 @@ export const [
       }
 
       // Hide the overlay
-      overlay()?.hide({ origin });
+      await overlay()?.hide({ origin });
     }
 
     return {

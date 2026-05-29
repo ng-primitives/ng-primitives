@@ -29,20 +29,21 @@ export const [NgpPopoverStateToken, ngpPopover, injectPopoverState, providePopov
     id.set(overlay.id());
 
     // Host binding
-    attrBinding(elementRef, 'id', _id);
+    attrBinding(elementRef, 'role', 'dialog');
+    attrBinding(elementRef, 'id', id);
     styleBinding(elementRef, 'left.px', () => overlay.position().x ?? null);
     styleBinding(elementRef, 'top.px', () => overlay.position().y ?? null);
-    styleBinding(elementRef, '--ngp-popover-trigger-width.px', overlay.triggerWidth());
-    styleBinding(elementRef, '--ngp-popover-transform-origin', overlay.transformOrigin());
-    styleBinding(elementRef, '--ngp-popover-available-width.px', overlay.availableWidth());
-    styleBinding(elementRef, '--ngp-popover-available-height.px', overlay.availableHeight());
-    dataBinding(elementRef, 'data-placement', () => (overlay.finalPlacement() ? '' : null));
+    styleBinding(elementRef, '--ngp-popover-trigger-width.px', () => overlay.triggerWidth());
+    styleBinding(elementRef, '--ngp-popover-transform-origin', () => overlay.transformOrigin());
+    styleBinding(elementRef, '--ngp-popover-available-width.px', () => overlay.availableWidth());
+    styleBinding(elementRef, '--ngp-popover-available-height.px', () => overlay.availableHeight());
+    dataBinding(elementRef, 'data-placement', () => overlay.finalPlacement() ?? null);
     dataBinding(elementRef, 'data-overlay', '');
 
     // Effect handle
-    explicitEffect([_id], ([id]) => overlay.id.set(id));
+    explicitEffect([id], ([id]) => overlay.id.set(id));
 
     return {
-      id: _id,
+      id,
     } satisfies NgpPopoverState;
   });
