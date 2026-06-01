@@ -26,6 +26,7 @@ import {
   createPrimitive,
   dataBinding,
   listener,
+  PrimitiveInjectionOptions,
 } from 'ng-primitives/state';
 
 export interface NgpPopoverTriggerState<T> {
@@ -382,20 +383,8 @@ export const [
   },
 );
 
-export function injectPopoverTriggerState<T>(): Signal<NgpPopoverTriggerState<T>>;
-export function injectPopoverTriggerState<T>(options?: {
-  hoisted?: boolean;
-  optional?: boolean;
-  skipSelf?: boolean;
-}): Signal<NgpPopoverTriggerState<T>>;
 export function injectPopoverTriggerState<T>(
-  options?:
-    | {
-        hoisted?: boolean;
-        optional?: boolean;
-        skipSelf?: boolean;
-      }
-    | undefined,
+  options?: PrimitiveInjectionOptions,
 ): Signal<NgpPopoverTriggerState<T>> {
   return _injectPopoverTriggerState(options) as Signal<NgpPopoverTriggerState<T>>;
 }
