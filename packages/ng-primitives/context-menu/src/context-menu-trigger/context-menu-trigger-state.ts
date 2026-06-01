@@ -19,7 +19,7 @@ import {
   dataBinding,
   listener,
   onDestroy,
-  PrimitiveStateInjectionOptions,
+  StateInjectionOptions,
   styleBinding,
 } from 'ng-primitives/state';
 
@@ -326,7 +326,7 @@ export const [
 );
 
 export function injectContextMenuTriggerState(
-  options?: PrimitiveStateInjectionOptions,
+  options?: StateInjectionOptions,
 ): Signal<NgpContextMenuTriggerState> {
   return _injectContextMenuTriggerState(options) as Signal<NgpContextMenuTriggerState>;
 }

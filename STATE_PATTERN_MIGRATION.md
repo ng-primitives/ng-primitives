@@ -390,7 +390,7 @@ export const [
   }
 );
 
-export function injectSelectState<T>(options?: PrimitiveStateInjectionOptions): NgpSelectState<T> {
+export function injectSelectState<T>(options?: StateInjectionOptions): NgpSelectState<T> {
   return _injectSelectState<T>(options);
 }
 ```

@@ -5,7 +5,7 @@ import {
   createPrimitive,
   dataBinding,
   deprecatedSetter,
-  PrimitiveStateInjectionOptions,
+  StateInjectionOptions,
 } from 'ng-primitives/state';
 import { injectAccordionState } from '../accordion/accordion-state';
 
@@ -106,7 +106,7 @@ export const [
 );
 
 export function injectAccordionItemState<T>(
-  options?: PrimitiveStateInjectionOptions,
+  options?: StateInjectionOptions,
 ): Signal<NgpAccordionItemState<T>> {
   return _injectAccordionItemState(options) as Signal<NgpAccordionItemState<T>>;
 }

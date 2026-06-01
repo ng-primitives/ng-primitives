@@ -26,7 +26,7 @@ import {
   createPrimitive,
   dataBinding,
   listener,
-  PrimitiveStateInjectionOptions,
+  StateInjectionOptions,
 } from 'ng-primitives/state';
 
 export interface NgpPopoverTriggerState<T> {
@@ -384,7 +384,7 @@ export const [
 );
 
 export function injectPopoverTriggerState<T>(
-  options?: PrimitiveStateInjectionOptions,
+  options?: StateInjectionOptions,
 ): Signal<NgpPopoverTriggerState<T>> {
   return _injectPopoverTriggerState(options) as Signal<NgpPopoverTriggerState<T>>;
 }
