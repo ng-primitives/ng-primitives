@@ -10,7 +10,7 @@ describe('Component Schematic', () => {
   const workspaceRoot = resolve(fileURLToPath(new URL('../../../../', import.meta.url)));
   const schematicRunner = new SchematicTestRunner(
     'ng-primitives',
-    resolve(workspaceRoot, 'dist/packages/ng-primitives/collection.json'),
+    resolve(workspaceRoot, 'dist/ng-primitives-schematics-test/collection.json'),
   );
 
   const workspaceOptions: WorkspaceOptions = {

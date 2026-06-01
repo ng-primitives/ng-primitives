@@ -2,28 +2,19 @@ import { FocusOrigin } from '@angular/cdk/a11y';
 import { BooleanInput, NumberInput } from '@angular/cdk/coercion';
 import {
   booleanAttribute,
-  computed,
   Directive,
-  inject,
-  Injector,
   input,
   numberAttribute,
   OnDestroy,
   output,
-  signal,
-  ViewContainerRef,
 } from '@angular/core';
-import { injectElementRef } from 'ng-primitives/internal';
 import {
-  createOverlay,
   coerceFlip,
   dismissGuardAttribute,
   NgpDismissGuard,
   NgpDismissGuardInput,
   NgpFlip,
   NgpFlipInput,
-  NgpOverlay,
-  NgpOverlayConfig,
   NgpOverlayContent,
   coerceOffset,
   NgpOffset,
@@ -33,7 +24,11 @@ import {
   NgpShiftInput,
 } from 'ng-primitives/portal';
 import { injectPopoverConfig } from '../config/popover-config';
-import { popoverTriggerState, providePopoverTriggerState } from './popover-trigger-state';
+import {
+  NgpPopoverPlacement,
+  ngpPopoverTrigger,
+  providePopoverTriggerState,
+} from './popover-trigger-state';
 
 /**
  * Apply the `ngpPopoverTrigger` directive to an element that triggers the popover to show.
@@ -42,31 +37,8 @@ import { popoverTriggerState, providePopoverTriggerState } from './popover-trigg
   selector: '[ngpPopoverTrigger]',
   exportAs: 'ngpPopoverTrigger',
   providers: [providePopoverTriggerState({ inherit: false })],
-  host: {
-    '[attr.aria-expanded]': 'open() ? "true" : "false"',
-    '[attr.data-open]': 'open() ? "" : null',
-    '[attr.data-placement]': 'state.placement()',
-    '[attr.data-disabled]': 'state.disabled() ? "" : null',
-    '[attr.aria-describedby]': 'overlay()?.ariaDescribedBy()',
-    '(click)': 'toggle($event)',
-  },
 })
 export class NgpPopoverTrigger<T = null> implements OnDestroy {
-  /**
-   * Access the trigger element
-   */
-  private readonly trigger = injectElementRef();
-
-  /**
-   * Access the injector.
-   */
-  private readonly injector = inject(Injector);
-
-  /**
-   * Access the view container reference.
-   */
-  private readonly viewContainerRef = inject(ViewContainerRef);
-
   /**
    * Access the global popover configuration.
    */
@@ -221,18 +193,6 @@ export class NgpPopoverTrigger<T = null> implements OnDestroy {
   });
 
   /**
-   * The overlay that manages the popover
-   * @internal
-   */
-  readonly overlay = signal<NgpOverlay<T> | null>(null);
-
-  /**
-   * The open state of the popover.
-   * @internal
-   */
-  readonly open = computed(() => this.overlay()?.isOpen() ?? false);
-
-  /**
    * Event emitted when the popover open state changes.
    */
   readonly openChange = output<boolean>({
@@ -242,50 +202,36 @@ export class NgpPopoverTrigger<T = null> implements OnDestroy {
   /**
    * The popover trigger state.
    */
-  readonly state = popoverTriggerState<NgpPopoverTrigger<T>>(this);
+  protected readonly state = ngpPopoverTrigger({
+    popover: this.popover,
+    disabled: this.disabled,
+    placement: this.placement,
+    offset: this.offset,
+    showDelay: this.showDelay,
+    hideDelay: this.hideDelay,
+    flip: this.flip,
+    shift: this.shift,
+    container: this.container,
+    closeOnOutsideClick: this.closeOnOutsideClick,
+    closeOnEscape: this.closeOnEscape,
+    scrollBehavior: this.scrollBehavior,
+    context: this.context,
+    anchor: this.anchor,
+    trackPosition: this.trackPosition,
+    cooldown: this.cooldown,
+    onOpenChange: (value: boolean) => this.openChange.emit(value),
+  });
 
   ngOnDestroy(): void {
-    this.overlay()?.destroy();
-  }
-
-  protected toggle(event: MouseEvent): void {
-    // if the trigger is disabled then do not toggle the popover
-    if (this.state.disabled()) {
-      return;
-    }
-
-    // determine the origin of the event, 0 is keyboard, 1 is mouse
-    const origin: FocusOrigin = event.detail === 0 ? 'keyboard' : 'mouse';
-
-    // if the popover is open then hide it
-    if (this.open()) {
-      this.hide(origin);
-    } else {
-      this.show();
-    }
+    this.state.destroy();
   }
 
   /**
    * Show the popover.
    * @returns A promise that resolves when the popover has been shown
    */
-  async show(): Promise<void> {
-    // If the trigger is disabled, don't show the popover
-    if (this.state.disabled()) {
-      return;
-    }
-
-    // Create the overlay if it doesn't exist yet
-    if (!this.overlay()) {
-      this.createOverlay();
-    }
-
-    // Show the overlay
-    await this.overlay()?.show();
-
-    if (this.open()) {
-      this.openChange.emit(true);
-    }
+  show(): Promise<void> {
+    return this.state.show();
   }
 
   /**
@@ -293,65 +239,7 @@ export class NgpPopoverTrigger<T = null> implements OnDestroy {
    * Hide the popover.
    * @returns A promise that resolves when the popover has been hidden
    */
-  async hide(origin: FocusOrigin = 'program'): Promise<void> {
-    // If the trigger is disabled or the popover is not open, do nothing
-    if (this.state.disabled() || !this.open()) {
-      return;
-    }
-
-    // Hide the overlay
-    await this.overlay()?.hide({ origin });
-  }
-
-  /**
-   * Create the overlay that will contain the popover
-   */
-  private createOverlay(): void {
-    const popover = this.state.popover();
-
-    if (!popover) {
-      throw new Error('Popover must be either a TemplateRef or a ComponentType');
-    }
-
-    // Create config for the overlay
-    const config: NgpOverlayConfig<T> = {
-      content: popover,
-      triggerElement: this.trigger.nativeElement,
-      anchorElement: this.state.anchor(),
-      injector: this.injector,
-      context: this.state.context,
-      container: this.state.container(),
-      placement: this.state.placement,
-      offset: this.state.offset(),
-      flip: this.state.flip(),
-      shift: this.state.shift(),
-      showDelay: this.state.showDelay(),
-      hideDelay: this.state.hideDelay(),
-      closeOnOutsideClick: this.state.closeOnOutsideClick(),
-      closeOnEscape: this.state.closeOnEscape(),
-      restoreFocus: true,
-      scrollBehaviour: this.state.scrollBehavior(),
-      viewContainerRef: this.viewContainerRef,
-      trackPosition: this.state.trackPosition(),
-      overlayType: 'popover',
-      cooldown: this.state.cooldown(),
-      onClose: () => this.openChange.emit(false),
-    };
-
-    this.overlay.set(createOverlay(config));
+  hide(origin: FocusOrigin = 'program'): Promise<void> {
+    return this.state.hide(origin);
   }
 }
-
-export type NgpPopoverPlacement =
-  | 'top'
-  | 'right'
-  | 'bottom'
-  | 'left'
-  | 'top-start'
-  | 'top-end'
-  | 'right-start'
-  | 'right-end'
-  | 'bottom-start'
-  | 'bottom-end'
-  | 'left-start'
-  | 'left-end';

@@ -24,6 +24,8 @@ export default defineConfig(({ mode }) => ({
       headless: true,
       provider: playwright(),
       instances: [{ browser: 'chromium' }],
+      // Don't write failure screenshots or attachments to disk.
+      screenshotFailures: false,
     },
   },
   optimizeDeps: {

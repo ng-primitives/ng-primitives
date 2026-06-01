@@ -366,6 +366,22 @@ export function createPrimitive<TFactory extends (...args: any[]) => unknown>(
   return [token, factory as TFactory, injectFn as PrimitiveInjectionFn<TFactory>, provideFn];
 }
 
+/**
+ * Wraps an external signal in a `linkedSignal` so it can be written to internally
+ * while still re-syncing whenever the source input changes.
+ *
+ * Only use this when the primitive needs to mutate the value internally (e.g. a
+ * setter, toggle, or other internal update) but must also remain in sync with the
+ * input. If the value is read-only — passed straight through to bindings or exposed
+ * to consumers without internal mutation — use the input signal directly instead.
+ *
+ * When `value` is `undefined`, falls back to a plain writable signal seeded with
+ * `defaultValue`, supporting uncontrolled usage.
+ *
+ * @param value - The external signal to synchronize with
+ * @param defaultValue - The default value to use when `value` is `undefined`
+ * @returns A writable signal linked to the external signal
+ */
 export function controlled<T>(value: Signal<T>): WritableSignal<T>;
 export function controlled<T>(value: Signal<T> | undefined, defaultValue: T): WritableSignal<T>;
 export function controlled<T>(value: Signal<T> | undefined, defaultValue?: T): WritableSignal<T> {
