@@ -7,6 +7,7 @@ import {
   dataBinding,
   listener,
   onDestroy,
+  PrimitiveInjectionOptions,
 } from 'ng-primitives/state';
 import { uniqueId } from 'ng-primitives/utils';
 import { injectSelectState } from '../select/select-state';
@@ -219,6 +220,8 @@ export const [
   },
 );
 
-export function injectSelectOptionState(): Signal<NgpSelectOptionState> {
-  return _injectSelectOptionState() as Signal<NgpSelectOptionState>;
+export function injectSelectOptionState(
+  options?: PrimitiveInjectionOptions,
+): Signal<NgpSelectOptionState> {
+  return _injectSelectOptionState(options) as Signal<NgpSelectOptionState>;
 }
