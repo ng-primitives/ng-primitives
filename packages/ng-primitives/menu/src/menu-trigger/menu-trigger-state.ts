@@ -27,6 +27,7 @@ import {
   dataBinding,
   deprecatedSetter,
   listener,
+  StateInjectionOptions,
 } from 'ng-primitives/state';
 import { NgpMenuTriggerType } from '../config/menu-config';
 import { NgpMenuPlacement } from './menu-trigger';
@@ -558,6 +559,8 @@ export const [
   },
 );
 
-export function injectMenuTriggerState<T>(): Signal<NgpMenuTriggerState<T>> {
-  return _injectMenuTriggerState() as Signal<NgpMenuTriggerState<T>>;
+export function injectMenuTriggerState<T>(
+  options?: StateInjectionOptions,
+): Signal<NgpMenuTriggerState<T>> {
+  return _injectMenuTriggerState(options) as Signal<NgpMenuTriggerState<T>>;
 }
