@@ -3,7 +3,7 @@ import { injectElementRef, observeResize } from 'ng-primitives/internal';
 import {
   attrBinding,
   createPrimitive,
-  PrimitiveInjectionOptions,
+  PrimitiveStateInjectionOptions,
   styleBinding,
 } from 'ng-primitives/state';
 import { uniqueId } from 'ng-primitives/utils';
@@ -70,7 +70,7 @@ export const [
 );
 
 export function injectSelectDropdownState(
-  options?: PrimitiveInjectionOptions,
+  options?: PrimitiveStateInjectionOptions,
 ): Signal<NgpSelectDropdownState> {
   return _injectSelectDropdownState(options) as Signal<NgpSelectDropdownState>;
 }

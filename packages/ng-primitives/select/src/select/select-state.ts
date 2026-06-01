@@ -13,7 +13,7 @@ import {
   deprecatedSetter,
   emitter,
   listener,
-  PrimitiveInjectionOptions,
+  PrimitiveStateInjectionOptions,
   SetterOptions,
 } from 'ng-primitives/state';
 import { uniqueId } from 'ng-primitives/utils';
@@ -825,7 +825,7 @@ export const [NgpSelectStateToken, ngpSelect, _injectSelectState, provideSelectS
   );
 
 export function injectSelectState<T>(
-  options?: PrimitiveInjectionOptions,
+  options?: PrimitiveStateInjectionOptions,
 ): Signal<NgpSelectState<T>> {
   return _injectSelectState(options) as Signal<NgpSelectState<T>>;
 }

@@ -1,6 +1,6 @@
 import { inject, Injector, Signal, signal, TemplateRef, ViewContainerRef } from '@angular/core';
 import { createOverlay, NgpOverlay, NgpOverlayConfig } from 'ng-primitives/portal';
-import { createPrimitive, PrimitiveInjectionOptions } from 'ng-primitives/state';
+import { createPrimitive, PrimitiveStateInjectionOptions } from 'ng-primitives/state';
 import { injectSelectState } from '../select/select-state';
 
 export interface NgpSelectPortalState {
@@ -99,7 +99,7 @@ export const [
 });
 
 export function injectSelectPortalState(
-  options?: PrimitiveInjectionOptions,
+  options?: PrimitiveStateInjectionOptions,
 ): Signal<NgpSelectPortalState> {
   return _injectSelectPortalState(options) as Signal<NgpSelectPortalState>;
 }
