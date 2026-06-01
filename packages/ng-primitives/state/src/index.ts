@@ -71,6 +71,14 @@ export interface CreateStateProviderOptions {
   inherit?: boolean;
 }
 
+export type PrimitiveInjectionOptions =
+  | {
+      hoisted?: boolean;
+      optional?: boolean;
+      skipSelf?: boolean;
+    }
+  | undefined;
+
 /**
  * Create a new provider for the state. It first tries to inject the state from the parent injector,
  * as this allows for the state to be hoisted to a higher level in the component tree. This can
@@ -262,12 +270,8 @@ type PrimitiveState<TFactory extends (...args: any[]) => unknown> = TFactory ext
 
 type BasePrimitiveInjectionFn<TState> = {
   (): Signal<TState>;
-  (options: { hoisted: true; optional?: boolean; skipSelf?: boolean }): Signal<TState | null>;
-  (options?: {
-    hoisted?: boolean;
-    optional?: boolean;
-    skipSelf?: boolean;
-  }): Signal<TState | null> | Signal<TState>;
+  (options: PrimitiveInjectionOptions): Signal<TState | null>;
+  (options?: PrimitiveInjectionOptions): Signal<TState | null> | Signal<TState>;
 };
 
 type PrimitiveInjectionFn<TFactory extends (...args: any[]) => unknown> = TFactory extends (
@@ -275,12 +279,8 @@ type PrimitiveInjectionFn<TFactory extends (...args: any[]) => unknown> = TFacto
 ) => infer R
   ? {
       (): Signal<R>;
-      (options: { hoisted: true; optional?: boolean; skipSelf?: boolean }): Signal<R | null>;
-      (options?: {
-        hoisted?: boolean;
-        optional?: boolean;
-        skipSelf?: boolean;
-      }): Signal<R | null> | Signal<R>;
+      (options: PrimitiveInjectionOptions): Signal<R | null>;
+      (options?: PrimitiveInjectionOptions): Signal<R | null> | Signal<R>;
     }
   : BasePrimitiveInjectionFn<PrimitiveState<TFactory>>;
 
@@ -333,11 +333,9 @@ export function createPrimitive<TFactory extends (...args: any[]) => unknown>(
   function injectFn<T = PrimitiveState<TFactory>>(
     options: { hoisted: true } & InjectOptions,
   ): Signal<T | null>;
-  function injectFn<T = PrimitiveState<TFactory>>(options?: {
-    hoisted?: boolean;
-    optional?: boolean;
-    skipSelf?: boolean;
-  }): Signal<T | null> | Signal<T> {
+  function injectFn<T = PrimitiveState<TFactory>>(
+    options?: PrimitiveInjectionOptions,
+  ): Signal<T | null> | Signal<T> {
     const hoisted = options?.hoisted ?? false;
     const optional = options?.optional ?? false;
     const skipSelf = options?.skipSelf ?? false;

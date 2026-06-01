@@ -1,7 +1,13 @@
 import { signal, Signal, WritableSignal } from '@angular/core';
 import { NgpOrientation } from 'ng-primitives/common';
 import { injectElementRef } from 'ng-primitives/internal';
-import { controlled, createPrimitive, dataBinding, deprecatedSetter } from 'ng-primitives/state';
+import {
+  controlled,
+  createPrimitive,
+  dataBinding,
+  deprecatedSetter,
+  PrimitiveInjectionOptions,
+} from 'ng-primitives/state';
 
 /**
  * The state interface for the Accordion pattern.
@@ -166,6 +172,8 @@ export const [NgpAccordionStateToken, ngpAccordion, _injectAccordionState, provi
 
 export type NgpAccordionType = 'single' | 'multiple';
 
-export function injectAccordionState<T>(): Signal<NgpAccordionState<T>> {
-  return _injectAccordionState() as Signal<NgpAccordionState<T>>;
+export function injectAccordionState<T>(
+  options?: PrimitiveInjectionOptions,
+): Signal<NgpAccordionState<T>> {
+  return _injectAccordionState(options) as Signal<NgpAccordionState<T>>;
 }
