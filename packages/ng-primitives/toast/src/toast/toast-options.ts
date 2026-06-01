@@ -51,4 +51,10 @@ export interface NgpToastOptions {
    * @internal
    */
   sequential: boolean;
+
+  /**
+   * When true, the toast will not auto-dismiss and must be dismissed explicitly.
+   * @internal
+   */
+  persistent: boolean;
 }

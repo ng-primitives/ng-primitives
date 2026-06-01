@@ -390,8 +390,8 @@ export const [
   }
 );
 
-export function injectSelectState<T>(): NgpSelectState<T> {
-  return _injectSelectState<T>();
+export function injectSelectState<T>(options?: StateInjectionOptions): NgpSelectState<T> {
+  return _injectSelectState<T>(options);
 }
 ```
 

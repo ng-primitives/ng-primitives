@@ -14,6 +14,7 @@ import {
   emitter,
   listener,
   SetterOptions,
+  StateInjectionOptions,
 } from 'ng-primitives/state';
 import { uniqueId } from 'ng-primitives/utils';
 import { Observable } from 'rxjs';
@@ -823,6 +824,6 @@ export const [NgpSelectStateToken, ngpSelect, _injectSelectState, provideSelectS
     },
   );
 
-export function injectSelectState<T>(): Signal<NgpSelectState<T>> {
-  return _injectSelectState() as Signal<NgpSelectState<T>>;
+export function injectSelectState<T>(options?: StateInjectionOptions): Signal<NgpSelectState<T>> {
+  return _injectSelectState(options) as Signal<NgpSelectState<T>>;
 }

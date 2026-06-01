@@ -1,6 +1,12 @@
 import { computed, Signal, signal } from '@angular/core';
 import { injectElementRef } from 'ng-primitives/internal';
-import { controlled, createPrimitive, dataBinding, deprecatedSetter } from 'ng-primitives/state';
+import {
+  controlled,
+  createPrimitive,
+  dataBinding,
+  deprecatedSetter,
+  StateInjectionOptions,
+} from 'ng-primitives/state';
 import { injectAccordionState } from '../accordion/accordion-state';
 
 export interface NgpAccordionItemState<T> {
@@ -99,6 +105,8 @@ export const [
   },
 );
 
-export function injectAccordionItemState<T>(): Signal<NgpAccordionItemState<T>> {
-  return _injectAccordionItemState() as Signal<NgpAccordionItemState<T>>;
+export function injectAccordionItemState<T>(
+  options?: StateInjectionOptions,
+): Signal<NgpAccordionItemState<T>> {
+  return _injectAccordionItemState(options) as Signal<NgpAccordionItemState<T>>;
 }
