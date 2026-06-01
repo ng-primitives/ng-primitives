@@ -559,6 +559,8 @@ export const [
   },
 );
 
-export function injectMenuTriggerState<T>(options?: PrimitiveStateInjectionOptions): Signal<NgpMenuTriggerState<T>> {
+export function injectMenuTriggerState<T>(
+  options?: PrimitiveStateInjectionOptions,
+): Signal<NgpMenuTriggerState<T>> {
   return _injectMenuTriggerState(options) as Signal<NgpMenuTriggerState<T>>;
 }
