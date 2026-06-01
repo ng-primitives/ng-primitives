@@ -11,6 +11,7 @@ import {
   deprecatedSetter,
   listener,
   SetterOptions,
+  StateInjectionOptions,
 } from 'ng-primitives/state';
 import { Observable } from 'rxjs';
 import { NgpComboboxButtonState } from '../combobox-button/combobox-button-state';
@@ -819,8 +820,10 @@ export const [NgpComboboxStateToken, ngpCombobox, _injectComboboxState, provideC
     },
   );
 
-export function injectComboboxState<T>(): Signal<NgpComboboxState<T>> {
-  return _injectComboboxState() as Signal<NgpComboboxState<T>>;
+export function injectComboboxState<T>(
+  options?: StateInjectionOptions,
+): Signal<NgpComboboxState<T>> {
+  return _injectComboboxState(options) as Signal<NgpComboboxState<T>>;
 }
 
 export type NgpComboboxPlacement =

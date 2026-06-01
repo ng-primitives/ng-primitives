@@ -1,7 +1,13 @@
 import { computed, ElementRef, signal, Signal } from '@angular/core';
 import { ngpInteractions } from 'ng-primitives/interactions';
 import { injectElementRef, scrollIntoViewIfNeeded } from 'ng-primitives/internal';
-import { attrBinding, createPrimitive, dataBinding, listener } from 'ng-primitives/state';
+import {
+  attrBinding,
+  createPrimitive,
+  dataBinding,
+  listener,
+  StateInjectionOptions,
+} from 'ng-primitives/state';
 import { uniqueId } from 'ng-primitives/utils';
 import { injectComboboxState } from '../combobox/combobox-state';
 import { areAllOptionsSelected } from '../utils';
@@ -181,6 +187,8 @@ export const [
   },
 );
 
-export function injectComboboxOptionState<T>(): Signal<NgpComboboxOptionState<T>> {
-  return _injectComboboxOptionState() as Signal<NgpComboboxOptionState<T>>;
+export function injectComboboxOptionState<T>(
+  options?: StateInjectionOptions,
+): Signal<NgpComboboxOptionState<T>> {
+  return _injectComboboxOptionState(options) as Signal<NgpComboboxOptionState<T>>;
 }
