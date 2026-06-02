@@ -73,9 +73,10 @@ export class NgpDatePickerNextMonth<T> {
       return;
     }
 
-    // move focus to the first day of the next month.
+    // move focus to the first day of the next month. Set the day to the first of
+    // the month before adding, otherwise a focused date such as the 31st can
+    // overflow into the month after next when the next month has fewer days.
     let date = this.state().focusedDate();
-    date = this.dateAdapter.add(date, { months: 1 });
     date = this.dateAdapter.set(date, {
       day: 1,
       hour: 0,
@@ -83,6 +84,7 @@ export class NgpDatePickerNextMonth<T> {
       second: 0,
       millisecond: 0,
     });
+    date = this.dateAdapter.add(date, { months: 1 });
 
     this.state().setFocusedDate(date, 'mouse', 'forward');
   }
