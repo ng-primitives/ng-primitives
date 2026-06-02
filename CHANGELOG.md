@@ -1,3 +1,22 @@
+## 0.120.5 (2026-06-02)
+
+### 🚀 Features
+
+- **dialog:** support InjectOptions in injectDialogRef ([#763](https://github.com/ng-primitives/ng-primitives/pull/763))
+- **docs:** refresh the documentation site and all examples ([#769](https://github.com/ng-primitives/ng-primitives/pull/769))
+- **popover:** migrate popover state ([#761](https://github.com/ng-primitives/ng-primitives/pull/761))
+- **toasts:** persistent toasts ([#764](https://github.com/ng-primitives/ng-primitives/pull/764), [#760](https://github.com/ng-primitives/ng-primitives/issues/760))
+
+### 🩹 Fixes
+
+- **date-picker:** prevent next-month skip from day 31 ([#768](https://github.com/ng-primitives/ng-primitives/pull/768), [#767](https://github.com/ng-primitives/ng-primitives/issues/767))
+
+### ❤️ Thank You
+
+- Ashley Hunter
+- MGREMY @MGREMY
+- Robin Ferrari @zecka
+
 ## 0.120.4 (2026-05-19)
 
 ### 🩹 Fixes
