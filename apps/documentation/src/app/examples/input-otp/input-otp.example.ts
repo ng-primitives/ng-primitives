@@ -37,7 +37,7 @@ import { NgpInputOtp, NgpInputOtpInput, NgpInputOtpSlot } from 'ng-primitives/in
       position: relative;
       width: 3rem;
       height: 3rem;
-      border: 2px solid var(--ngp-border);
+      border: 1.5px solid var(--ngp-border);
       border-radius: 0.5rem;
       display: flex;
       align-items: center;
@@ -47,7 +47,7 @@ import { NgpInputOtp, NgpInputOtpInput, NgpInputOtpSlot } from 'ng-primitives/in
       transition: all 0.2s ease;
       overflow: hidden;
       font-size: 1.25rem;
-      font-weight: 600;
+      font-weight: 590;
       color: var(--ngp-text-primary);
     }
 

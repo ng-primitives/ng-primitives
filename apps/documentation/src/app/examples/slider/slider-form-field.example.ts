@@ -28,7 +28,7 @@ import { NgpSlider, NgpSliderRange, NgpSliderThumb, NgpSliderTrack } from 'ng-pr
       color: var(--ngp-text-primary);
       font-size: 0.875rem;
       line-height: 1.25rem;
-      font-weight: 500;
+      font-weight: 510;
       margin: 0;
     }
 
@@ -72,7 +72,7 @@ import { NgpSlider, NgpSliderRange, NgpSliderThumb, NgpSliderTrack } from 'ng-pr
       position: absolute;
       height: 100%;
       border-radius: 999px;
-      background-color: var(--ngp-background-inverse);
+      background-color: var(--ngp-primary);
     }
 
     [ngpSliderThumb] {
@@ -89,7 +89,7 @@ import { NgpSlider, NgpSliderRange, NgpSliderThumb, NgpSliderTrack } from 'ng-pr
 
     [ngpSliderThumb][data-focus-visible] {
       outline: 2px solid var(--ngp-focus-ring);
-      outline-offset: 0;
+      outline-offset: 2px;
     }
   `,
   template: `

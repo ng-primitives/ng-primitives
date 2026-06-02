@@ -1,30 +1,26 @@
-import { NgTemplateOutlet } from '@angular/common';
-import { ChangeDetectionStrategy, Component, model } from '@angular/core';
+import { FocusTrap, FocusTrapFactory } from '@angular/cdk/a11y';
+import { isPlatformBrowser, NgTemplateOutlet } from '@angular/common';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  effect,
+  ElementRef,
+  HostListener,
+  inject,
+  model,
+  PLATFORM_ID,
+  untracked,
+  viewChild,
+} from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 import { NgIcon, provideIcons } from '@ng-icons/core';
-import {
-  phosphorBookOpenDuotone,
-  phosphorLightbulbDuotone,
-  phosphorPaletteDuotone,
-  phosphorPlugDuotone,
-  phosphorRobotDuotone,
-  phosphorRocketLaunchDuotone,
-} from '@ng-icons/phosphor-icons/duotone';
+import { lucideX } from '@ng-icons/lucide';
 import { getRouterLinks } from '../../utils/router';
 
 @Component({
   selector: 'docs-side-navigation',
   imports: [RouterLink, RouterLinkActive, NgTemplateOutlet, NgIcon],
-  providers: [
-    provideIcons({
-      phosphorBookOpenDuotone,
-      phosphorRocketLaunchDuotone,
-      phosphorPaletteDuotone,
-      phosphorLightbulbDuotone,
-      phosphorRobotDuotone,
-      phosphorPlugDuotone,
-    }),
-  ],
+  providers: [provideIcons({ lucideX })],
   templateUrl: './side-navigation.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
@@ -34,12 +30,45 @@ import { getRouterLinks } from '../../utils/router';
 export class SideNavigation {
   readonly menuOpen = model(false);
 
-  readonly sectionIcons: Record<string, string> = {
-    'Getting Started': 'phosphorRocketLaunchDuotone',
-    Primitives: 'phosphorPaletteDuotone',
-    Interactions: 'phosphorLightbulbDuotone',
-    Utilities: 'phosphorPlugDuotone',
-  };
+  private readonly platformId = inject(PLATFORM_ID);
+  private readonly focusTrapFactory = inject(FocusTrapFactory);
+
+  /** The mobile drawer panel, used to trap focus while the menu is open. */
+  private readonly panel = viewChild<ElementRef<HTMLElement>>('panel');
+
+  private focusTrap: FocusTrap | null = null;
+  private previouslyFocused: HTMLElement | null = null;
+
+  constructor() {
+    if (isPlatformBrowser(this.platformId)) {
+      // Move focus into the drawer when it opens and restore it to the trigger
+      // when it closes, keeping keyboard users inside the modal navigation.
+      effect(() => {
+        const open = this.menuOpen();
+        const panel = this.panel();
+        untracked(() => {
+          if (open && panel) {
+            this.previouslyFocused = document.activeElement as HTMLElement | null;
+            this.focusTrap?.destroy();
+            this.focusTrap = this.focusTrapFactory.create(panel.nativeElement);
+            this.focusTrap.focusInitialElementWhenReady();
+          } else {
+            this.focusTrap?.destroy();
+            this.focusTrap = null;
+            this.previouslyFocused?.focus();
+            this.previouslyFocused = null;
+          }
+        });
+      });
+    }
+  }
+
+  @HostListener('document:keydown.escape')
+  protected onEscape(): void {
+    if (this.menuOpen()) {
+      this.menuOpen.set(false);
+    }
+  }
 
   readonly sections = Object.entries(getRouterLinks())
     .map(([path, data]) => {

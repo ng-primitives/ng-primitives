@@ -355,7 +355,7 @@ import {
 
     .content-header {
       font-size: 0.6875rem;
-      font-weight: 600;
+      font-weight: 590;
       line-height: 1;
       color: var(--ngp-text-tertiary);
       text-transform: uppercase;

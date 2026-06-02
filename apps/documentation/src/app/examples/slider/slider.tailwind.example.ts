@@ -14,7 +14,10 @@ import { NgpSlider, NgpSliderRange, NgpSliderThumb, NgpSliderTrack } from 'ng-pr
         class="relative h-[5px] w-full rounded-full bg-gray-300 before:absolute before:top-1/2 before:right-0 before:left-0 before:h-5 before:-translate-y-1/2 before:content-[''] dark:bg-gray-700"
         ngpSliderTrack
       >
-        <div class="absolute h-full rounded-full bg-gray-900 dark:bg-gray-50" ngpSliderRange></div>
+        <div
+          class="absolute h-full rounded-full bg-[#f01e2b] dark:bg-[#ff4651]"
+          ngpSliderRange
+        ></div>
       </div>
       <div
         class="absolute block h-5 w-5 -translate-x-1/2 transform rounded-full bg-white shadow-xs ring-1 ring-black/5 outline-hidden data-focus-visible:ring-2 data-focus-visible:ring-blue-500 dark:bg-white dark:ring-white/10 dark:data-focus-visible:ring-blue-400"

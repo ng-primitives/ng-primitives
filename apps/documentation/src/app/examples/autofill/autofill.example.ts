@@ -34,30 +34,35 @@ import { NgpLabel } from 'ng-primitives/form-field';
       display: flex;
       flex-direction: column;
       gap: 6px;
-      width: 90%;
+      width: 300px;
     }
 
     [ngpLabel] {
       color: var(--ngp-text-primary);
       font-size: 0.875rem;
       line-height: 1.25rem;
-      font-weight: 500;
+      font-weight: 510;
+      letter-spacing: -0.014em;
       margin: 0;
     }
 
     input {
-      height: 36px;
-      width: 90%;
-      border-radius: 8px;
+      height: 2.125rem;
+      width: 300px;
+      border-radius: 0.5rem;
       padding: 0 16px;
       border: 1px solid var(--ngp-border);
       box-shadow: var(--ngp-shadow);
       background-color: var(--ngp-background);
+      color: var(--ngp-text-primary);
+      font-size: 0.875rem;
+      letter-spacing: -0.006em;
       outline: none;
     }
 
     input:focus {
-      box-shadow: 0 0 0 2px rgb(59, 130, 246);
+      border-color: var(--ngp-focus-ring);
+      box-shadow: 0 0 0 2px var(--ngp-focus-ring);
     }
 
     input::placeholder {

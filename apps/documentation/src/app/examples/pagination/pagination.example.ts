@@ -122,6 +122,7 @@ import {
 
       &[data-focus-visible]:not([data-disabled]) {
         outline: 2px solid var(--ngp-focus-ring);
+        outline-offset: 2px;
       }
 
       &[data-press]:not([data-disabled]):not([data-selected]) {
@@ -129,15 +130,15 @@ import {
       }
 
       &[data-disabled] {
-        color: rgb(210 210 210);
+        color: var(--ngp-text-disabled);
         background-color: var(--ngp-background-disabled);
         cursor: not-allowed;
         box-shadow: none;
       }
 
       &[data-selected] {
-        background-color: var(--ngp-background-inverse);
-        color: var(--ngp-text-inverse);
+        background-color: var(--ngp-primary);
+        color: var(--ngp-primary-text);
       }
     }
   `,

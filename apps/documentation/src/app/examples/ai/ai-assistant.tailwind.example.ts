@@ -50,7 +50,7 @@ interface Message {
   template: `
     <div class="h-[700px] w-full" ngpThread>
       <div
-        class="flex h-full flex-col items-stretch rounded-2xl bg-white px-4 ring-1 ring-black/10 dark:bg-black"
+        class="flex h-full flex-col items-stretch rounded-2xl bg-white px-4 ring-1 ring-black/10 dark:bg-zinc-950"
       >
         <div class="flex grow flex-col gap-4 overflow-hidden pt-4">
           <div class="flex grow flex-col gap-4 overflow-y-auto px-2 pb-4" ngpThreadViewport>
@@ -58,10 +58,12 @@ interface Message {
               <!-- Welcome Message and Suggestions -->
               <div class="flex grow flex-col items-center justify-center gap-8 text-center">
                 <div class="max-w-md">
-                  <h1 class="mb-2 text-2xl font-semibold text-black dark:text-white">
+                  <h1
+                    class="mb-2 text-2xl leading-tight font-[590] tracking-[-0.021em] text-black dark:text-white"
+                  >
                     {{ welcomeMessage }}
                   </h1>
-                  <p class="text-sm text-zinc-600 dark:text-zinc-400">
+                  <p class="text-sm tracking-[-0.011em] text-zinc-600 dark:text-zinc-400">
                     Choose a suggestion below or type your own message to get started.
                   </p>
                 </div>
@@ -70,7 +72,7 @@ interface Message {
                 <div class="grid w-full max-w-lg grid-cols-1 gap-3 md:grid-cols-2">
                   @for (suggestion of suggestions; track suggestion) {
                     <button
-                      class="rounded-lg border border-zinc-200 p-3 text-left text-sm transition-colors data-hover:border-zinc-300 data-hover:bg-zinc-50 dark:border-zinc-800 dark:data-hover:border-zinc-600 dark:data-hover:bg-zinc-800"
+                      class="rounded-[0.625rem] border border-zinc-200 p-2.5 text-left text-sm font-[510] tracking-[-0.006em] text-zinc-600 transition data-focus-visible:-translate-y-px data-focus-visible:ring-2 data-focus-visible:ring-blue-500/40 data-focus-visible:ring-offset-2 data-focus-visible:outline-none data-hover:-translate-y-px data-hover:border-zinc-300 data-hover:bg-zinc-50 data-hover:text-zinc-900 data-hover:shadow-sm dark:border-zinc-800 dark:text-zinc-400 dark:data-focus-visible:ring-blue-400/45 dark:data-focus-visible:ring-offset-zinc-950 dark:data-hover:border-zinc-600 dark:data-hover:bg-zinc-800 dark:data-hover:text-zinc-100"
                       (click)="sendMessage(suggestion)"
                       ngpThreadSuggestion
                       ngpButton
@@ -86,7 +88,7 @@ interface Message {
               @for (message of messages(); track message.id) {
                 @if (message.role !== 'system') {
                   <div
-                    class="flex flex-col gap-2"
+                    class="message-in flex flex-col gap-2"
                     [class.items-end]="message.role === 'user'"
                     [class.items-start]="message.role !== 'user'"
                     ngpThreadMessage
@@ -113,11 +115,11 @@ interface Message {
                     }
 
                     <div
-                      class="max-w-[80%] rounded-2xl px-4 py-3 text-sm"
+                      class="max-w-[80%] rounded-[1.125rem] px-[0.9375rem] py-2.5 text-sm leading-relaxed tracking-[-0.006em]"
                       [ngClass]="{
-                        'bg-black text-white dark:bg-white dark:text-black':
+                        'rounded-br-[0.3125rem] bg-black text-white dark:bg-white dark:text-black':
                           message.role === 'user',
-                        'bg-zinc-100 text-black dark:bg-zinc-800 dark:text-white':
+                        'rounded-bl-[0.3125rem] bg-zinc-100 text-black dark:bg-zinc-800 dark:text-white':
                           message.role !== 'user',
                       }"
                     >
@@ -127,7 +129,7 @@ interface Message {
                         @if (message.isStreaming) {
                           <span class="ml-1 inline-flex">
                             <div
-                              class="streaming-indicator h-2 w-2 rounded-full bg-black dark:bg-white"
+                              class="streaming-indicator h-1.5 w-1.5 rounded-full bg-zinc-400 dark:bg-zinc-500"
                             ></div>
                           </span>
                         }
@@ -162,7 +164,7 @@ interface Message {
                     </div>
                   }
                   <button
-                    class="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-white opacity-0 transition-opacity group-hover:opacity-100"
+                    class="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-[#f01e2b] text-white opacity-0 transition-opacity group-hover:opacity-100 dark:bg-[#ff4651]"
                     (click)="removeAttachment(attachment.id)"
                     type="button"
                   >
@@ -175,7 +177,7 @@ interface Message {
         }
 
         <div
-          class="mx-auto flex w-full max-w-(--breakpoint-md) items-end rounded-3xl bg-white/5 shadow-xs ring-1 ring-black/10 dark:bg-black/20 dark:ring-white/10"
+          class="mx-auto flex w-full max-w-(--breakpoint-md) items-end rounded-3xl bg-zinc-50 shadow-xs ring-1 ring-black/10 transition-shadow focus-within:ring-2 focus-within:ring-blue-500 dark:bg-zinc-900 dark:ring-white/10 dark:focus-within:ring-blue-400"
           (ngpPromptComposerSubmit)="sendMessage($event)"
           ngpPromptComposer
         >
@@ -212,12 +214,12 @@ interface Message {
           </button>
 
           <button
-            class="m-2 hidden size-8 items-center justify-center rounded-full bg-black text-white transition-colors hover:bg-black/90 data-prompt:flex dark:bg-white dark:text-black dark:hover:bg-white/90"
+            class="m-2 hidden size-8 items-center justify-center rounded-full bg-[#f01e2b] text-white transition-colors hover:bg-[#d81825] data-prompt:flex dark:bg-[#ff4651] dark:hover:bg-[#ff5d67]"
             type="button"
             ngpPromptComposerSubmit
             aria-label="Send Message"
           >
-            <ng-icon class="font-base" name="lucideArrowUp" />
+            <ng-icon class="font-base text-white" name="lucideArrowUp" />
           </button>
         </div>
 
@@ -233,18 +235,29 @@ interface Message {
     }
 
     .streaming-indicator {
-      animation: pulse 1.5s ease-in-out infinite;
+      animation: pulse 1.2s ease-in-out infinite;
     }
 
     @keyframes pulse {
       0%,
       100% {
-        opacity: 0.4;
-        transform: scale(1);
+        opacity: 0.3;
       }
       50% {
         opacity: 1;
-        transform: scale(1.1);
+      }
+    }
+
+    .message-in {
+      animation: message-in 0.18s ease-out;
+    }
+
+    @keyframes message-in {
+      from {
+        opacity: 0;
+      }
+      to {
+        opacity: 1;
       }
     }
   `,

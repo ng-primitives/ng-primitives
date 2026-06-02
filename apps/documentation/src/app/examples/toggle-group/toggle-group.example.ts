@@ -39,9 +39,11 @@ import { NgpToggleGroup, NgpToggleGroupItem } from 'ng-primitives/toggle-group';
       display: flex;
       column-gap: 0.25rem;
       align-items: center;
-      border-radius: 0.375rem;
+      border-radius: 0.625rem;
       background-color: var(--ngp-background);
-      box-shadow: var(--ngp-button-shadow);
+      box-shadow:
+        inset 0 0 0 1px var(--ngp-border),
+        0 1px 2px 0 rgba(0, 0, 0, 0.04);
       padding: 0.25rem;
     }
 
@@ -51,22 +53,25 @@ import { NgpToggleGroup, NgpToggleGroupItem } from 'ng-primitives/toggle-group';
       height: 2rem;
       align-items: center;
       justify-content: center;
-      border-radius: 0.25rem;
+      border-radius: 0.375rem;
       border: 1px solid transparent;
       background: transparent;
       outline: none;
-      transition: background-color 150ms cubic-bezier(0.4, 0, 0.2, 1);
+      transition:
+        background-color 150ms cubic-bezier(0.4, 0, 0.2, 1),
+        color 150ms cubic-bezier(0.4, 0, 0.2, 1);
       box-sizing: border-box;
-      color: var(--ngp-text-primary);
+      color: var(--ngp-text-secondary);
     }
 
     [ngpToggleGroupItem][data-hover] {
       background-color: var(--ngp-background-hover);
-      border-color: var(--ngp-border);
+      color: var(--ngp-text-primary);
     }
 
     [ngpToggleGroupItem][data-focus-visible] {
       outline: 2px solid var(--ngp-focus-ring);
+      outline-offset: 1px;
     }
 
     [ngpToggleGroupItem][data-press] {
@@ -74,9 +79,14 @@ import { NgpToggleGroup, NgpToggleGroupItem } from 'ng-primitives/toggle-group';
     }
 
     [ngpToggleGroupItem][data-selected] {
-      background-color: var(--ngp-background-inverse);
-      color: var(--ngp-text-inverse);
+      background-color: var(--ngp-primary);
+      color: var(--ngp-primary-text);
       border-color: transparent;
+    }
+
+    [ngpToggleGroupItem][data-selected][data-hover] {
+      background-color: var(--ngp-primary-hover);
+      color: var(--ngp-primary-text);
     }
 
     ng-icon {

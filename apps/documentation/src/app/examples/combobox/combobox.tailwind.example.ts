@@ -24,7 +24,7 @@ import {
   providers: [provideIcons({ heroChevronDown })],
   template: `
     <div
-      class="relative box-border flex h-[36px] w-[300px] items-center justify-between rounded-[8px] border border-gray-200 bg-white transition-colors focus-within:outline-2 focus-within:outline-offset-2 focus-within:outline-blue-500 dark:border-gray-700 dark:bg-black dark:focus-within:outline-blue-400"
+      class="relative box-border flex h-[2.125rem] w-[300px] items-center justify-between rounded-lg border border-gray-200 bg-white transition-colors focus-within:outline-2 focus-within:outline-offset-2 focus-within:outline-blue-500 dark:border-gray-700 dark:bg-transparent dark:focus-within:outline-blue-400"
       [(ngpComboboxValue)]="value"
       (ngpComboboxValueChange)="filter.set($event)"
       (ngpComboboxOpenChange)="resetOnClose($event)"
@@ -47,13 +47,13 @@ import {
       </button>
 
       <div
-        class="absolute left-0 z-1001 mt-1 box-border max-h-[240px] w-[300px] overflow-y-auto rounded-[12px] border border-gray-200 bg-white p-1 shadow-lg outline-hidden dark:border-gray-700 dark:bg-black dark:ring-white/10"
+        class="absolute left-0 z-1001 mt-1 box-border max-h-[240px] w-[300px] overflow-y-auto rounded-[12px] border border-gray-200 bg-white p-1 shadow-lg outline-hidden dark:border-zinc-800 dark:bg-zinc-950"
         *ngpComboboxPortal
         ngpComboboxDropdown
       >
         @for (option of filteredOptions(); track option) {
           <div
-            class="box-border flex h-[36px] w-full cursor-pointer items-center gap-2 rounded-[8px] px-3 text-[14px] text-gray-900 transition-colors hover:bg-gray-100 data-active:bg-gray-100 data-press:bg-gray-100 dark:text-gray-100 dark:hover:bg-white/10 dark:data-active:bg-white/10 dark:data-press:bg-white/20"
+            class="box-border flex h-[2.125rem] w-full cursor-pointer items-center gap-2 rounded-lg px-3 text-sm tracking-[-0.006em] text-gray-900 transition-colors hover:bg-gray-100 data-active:bg-gray-100 data-press:bg-gray-100 data-selected:font-[510] data-selected:text-[#f01e2b] dark:text-gray-100 dark:hover:bg-white/10 dark:data-active:bg-white/10 dark:data-press:bg-white/20 dark:data-selected:text-[#ff4651]"
             [ngpComboboxOptionValue]="option"
             ngpComboboxOption
           >
@@ -61,7 +61,7 @@ import {
           </div>
         } @empty {
           <div
-            class="flex items-center justify-center p-2 text-center text-sm font-medium text-gray-400 dark:text-gray-600"
+            class="flex items-center justify-center p-2 text-center text-sm font-[510] text-gray-400 dark:text-gray-600"
           >
             No options found
           </div>

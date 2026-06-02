@@ -263,15 +263,17 @@ interface Message {
     .ai-welcome-title {
       margin-bottom: 0.5rem;
       font-size: 1.5rem;
-      font-weight: 600;
+      font-weight: 590;
+      letter-spacing: -0.021em;
       color: var(--ngp-text-emphasis);
-      line-height: 32px;
+      line-height: 1.25;
     }
 
     .ai-welcome-subtitle {
       font-size: 0.875rem;
+      letter-spacing: -0.011em;
       color: var(--ngp-text-secondary);
-      line-height: 24px;
+      line-height: 1.5;
     }
 
     .ai-suggestions-grid {
@@ -289,21 +291,38 @@ interface Message {
     }
 
     .ai-suggestion-button {
-      border-radius: 0.5rem;
+      border-radius: 0.625rem;
       box-shadow: var(--ngp-shadow-border);
-      padding: 10px 0.75rem;
+      padding: 0.625rem 0.875rem;
       text-align: left;
       font-size: 0.875rem;
+      font-weight: 510;
+      letter-spacing: -0.006em;
       background-color: var(--ngp-background);
       color: var(--ngp-text-secondary);
-      transition: all 0.2s ease;
+      transition:
+        background-color 0.16s cubic-bezier(0.4, 0, 0.2, 1),
+        box-shadow 0.16s cubic-bezier(0.4, 0, 0.2, 1),
+        transform 0.16s cubic-bezier(0.4, 0, 0.2, 1);
       cursor: pointer;
     }
 
     .ai-suggestion-button:hover,
     .ai-suggestion-button[data-hover] {
-      border-color: var(--ngp-border);
       background-color: var(--ngp-background-hover);
+      color: var(--ngp-text-primary);
+      box-shadow:
+        var(--ngp-shadow-border),
+        0 1px 2px 0 rgba(0, 0, 0, 0.05);
+      transform: translateY(-1px);
+    }
+
+    .ai-suggestion-button[data-focus-visible] {
+      outline: none;
+      box-shadow:
+        var(--ngp-shadow-border),
+        0 0 0 2px var(--ngp-background),
+        0 0 0 4px var(--ngp-focus-ring);
     }
 
     /* Messages */
@@ -311,6 +330,16 @@ interface Message {
       display: flex;
       flex-direction: column;
       gap: 0.5rem;
+      animation: message-in 0.18s ease-out;
+    }
+
+    @keyframes message-in {
+      from {
+        opacity: 0;
+      }
+      to {
+        opacity: 1;
+      }
     }
 
     .ai-message-user {
@@ -350,17 +379,21 @@ interface Message {
 
     .ai-message-bubble {
       max-width: 80%;
-      border-radius: 1rem;
-      padding: 0.75rem 1rem;
+      border-radius: 1.125rem;
+      padding: 0.625rem 0.9375rem;
       font-size: 0.875rem;
+      line-height: 1.5;
+      letter-spacing: -0.006em;
     }
 
     .ai-message-bubble-user {
+      border-bottom-right-radius: 0.3125rem;
       background-color: var(--ngp-background-inverse);
       color: var(--ngp-text-inverse);
     }
 
     .ai-message-bubble-assistant {
+      border-bottom-left-radius: 0.3125rem;
       background-color: var(--ngp-background-active);
       color: var(--ngp-text-primary);
     }
@@ -371,11 +404,11 @@ interface Message {
     }
 
     .streaming-indicator {
-      height: 0.5rem;
-      width: 0.5rem;
+      height: 0.375rem;
+      width: 0.375rem;
       border-radius: 50%;
       background-color: var(--ngp-text-tertiary);
-      animation: pulse 1.5s ease-in-out infinite;
+      animation: pulse 1.2s ease-in-out infinite;
     }
 
     /* Attachment Previews */
@@ -440,8 +473,8 @@ interface Message {
       align-items: center;
       justify-content: center;
       border-radius: 50%;
-      background-color: var(--ngp-text-red);
-      color: var(--ngp-text-inverse);
+      background-color: var(--ngp-primary);
+      color: var(--ngp-primary-text);
       opacity: 0;
       transition: opacity 0.2s ease;
       border: none;
@@ -457,8 +490,15 @@ interface Message {
       max-width: 768px;
       align-items: flex-end;
       border-radius: 1.5rem;
-      background-color: rgba(255, 255, 255, 0.05);
+      background-color: var(--ngp-background-hover);
       box-shadow: var(--ngp-shadow-border);
+      transition: box-shadow 0.16s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .ai-composer:focus-within {
+      box-shadow:
+        inset 0 0 0 1px var(--ngp-focus-ring),
+        0 0 0 3px var(--ngp-focus-ring);
     }
 
     .ai-composer-button {
@@ -470,14 +510,14 @@ interface Message {
       align-items: center;
       justify-content: center;
       border-radius: 50%;
-      transition: background-color 0.2s ease;
+      transition: background-color 0.16s cubic-bezier(0.4, 0, 0.2, 1);
       border: none;
       cursor: pointer;
       background-color: transparent;
     }
 
     .ai-file-button:hover {
-      background-color: rgba(0, 0, 0, 0.05);
+      background-color: var(--ngp-background-active);
     }
 
     .ai-dictation-button {
@@ -493,21 +533,26 @@ interface Message {
     }
 
     .ai-dictation-button:hover {
-      background-color: rgba(0, 0, 0, 0.05);
+      background-color: var(--ngp-background-active);
     }
 
     .ai-dictation-button[data-dictating] {
-      background-color: rgba(0, 0, 0, 0.05);
+      background-color: var(--ngp-background-active);
     }
 
     .ai-dictation-button[data-dictating]:hover {
-      background-color: rgba(0, 0, 0, 0.1);
+      background-color: var(--ngp-background-secondary);
     }
 
     .ai-send-button {
       display: none;
-      background-color: var(--ngp-background-inverse);
-      color: var(--ngp-text-inverse);
+      background-color: var(--ngp-primary);
+      color: var(--ngp-primary-text);
+      transition: background-color 0.16s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .ai-send-button:hover {
+      background-color: var(--ngp-primary-hover);
     }
 
     .ai-send-button[data-prompt] {
@@ -538,7 +583,7 @@ interface Message {
     }
 
     .ai-send-button .ai-icon {
-      color: var(--ngp-text-inverse);
+      color: var(--ngp-primary-text);
     }
 
     /* Disclaimer */
@@ -554,12 +599,10 @@ interface Message {
     @keyframes pulse {
       0%,
       100% {
-        opacity: 0.4;
-        transform: scale(1);
+        opacity: 0.3;
       }
       50% {
         opacity: 1;
-        transform: scale(1.1);
       }
     }
   `,

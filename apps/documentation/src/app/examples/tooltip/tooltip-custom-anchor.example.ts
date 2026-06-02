@@ -59,7 +59,7 @@ import { NgpTooltip, NgpTooltipArrow, NgpTooltipTrigger } from 'ng-primitives/to
       padding: 0.5rem 0.75rem;
       border: none;
       font-size: 0.75rem;
-      font-weight: 500;
+      font-weight: 510;
       color: var(--ngp-text-inverse);
       animation: tooltip-show 200ms ease-in-out;
       transform-origin: var(--ngp-tooltip-transform-origin);

@@ -192,7 +192,7 @@ import {
       background: none;
       border-radius: 6px;
       font-size: 0.8125rem;
-      font-weight: 500;
+      font-weight: 510;
       cursor: pointer;
       color: var(--ngp-text-primary);
       transition:
@@ -298,7 +298,7 @@ import {
 
     .link-title {
       font-size: 0.8125rem;
-      font-weight: 500;
+      font-weight: 510;
       color: var(--ngp-text-primary);
       line-height: 1.2;
       margin-bottom: 4px;
@@ -331,7 +331,7 @@ import {
 
     .callout-title {
       font-size: 1rem;
-      font-weight: 600;
+      font-weight: 590;
       color: var(--ngp-text-primary);
       margin-bottom: 0.5rem;
     }

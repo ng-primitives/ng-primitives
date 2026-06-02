@@ -1,17 +1,19 @@
 <header
-  class="fixed top-0 z-20 h-16 w-full border-b border-black/10 bg-white dark:border-zinc-800 dark:bg-zinc-900"
+  class="border-border-subtle bg-surface/70 fixed top-0 z-20 w-full border-b pt-[env(safe-area-inset-top,0px)] pr-[env(safe-area-inset-right,0px)] pl-[env(safe-area-inset-left,0px)] backdrop-blur-xl"
 >
-  <div class="from-primary to-accent absolute inset-x-0 top-0 h-0.5 bg-linear-to-r"></div>
-  <nav class="relative mx-auto flex h-full w-full items-center gap-x-4 px-8">
+  <nav class="relative mx-auto flex h-16 w-full max-w-[90rem] items-center gap-x-4 px-8">
     <button
-      class="inline-flex size-8 shrink-0 items-center justify-center rounded-lg transition-colors data-hover:bg-zinc-50 data-press:bg-zinc-100 lg:hidden dark:data-hover:bg-zinc-700 dark:data-press:bg-zinc-800"
+      class="text-fg-tertiary data-hover:bg-surface-raised data-hover:text-fg data-press:bg-surface-sunken data-focus-visible:ring-primary inline-flex size-8 shrink-0 items-center justify-center rounded-md outline-hidden transition-colors data-focus-visible:ring-2 lg:hidden"
       (click)="toggle()"
+      [attr.aria-expanded]="menuOpen()"
+      aria-controls="mobile-navigation"
+      aria-label="Open navigation menu"
       ngpButton
     >
-      <ng-icon class="text-lg text-zinc-800 dark:text-zinc-100" name="lucideMenu" />
+      <ng-icon class="text-base" name="lucideMenu" />
     </button>
 
-    <a routerLink="/" aria-label="Angular Primitives Homepage">
+    <a class="shrink-0" routerLink="/" aria-label="Angular Primitives Homepage">
       <img
         class="hidden h-10 lg:block dark:hidden"
         src="assets/logo.svg"
@@ -25,53 +27,53 @@
       />
     </a>
 
-    <div class="ml-auto flex gap-x-1 sm:gap-x-2 md:ml-0 md:w-full">
+    <div class="ml-auto flex items-center gap-x-1 sm:gap-x-1.5 md:ml-0 md:w-full">
       <div class="md:ml-auto">
         <div id="docsearch"></div>
       </div>
 
-      <div class="inline-flex gap-x-1 sm:gap-x-2 md:ml-auto">
-        <button
-          class="inline-flex items-center justify-center gap-x-2 rounded-lg px-3 py-2 text-lg text-zinc-500 outline-hidden transition-colors data-focus-visible:text-zinc-800 data-focus-visible:ring-2 data-focus-visible:ring-blue-500 data-hover:bg-zinc-50 data-hover:text-zinc-800 data-press:bg-zinc-100 dark:text-zinc-400 dark:data-focus-visible:text-zinc-100 dark:data-focus-visible:ring-blue-800 dark:data-hover:bg-zinc-700 dark:data-hover:text-zinc-100 dark:data-press:bg-zinc-700"
-          docs-theme-toggler
-        >
-          <span class="sr-only">Toggle theme</span>
-        </button>
-
+      <div class="inline-flex items-center gap-x-0.5 md:ml-auto">
         <a
-          class="inline-flex items-center justify-center gap-x-2 rounded-lg px-3 py-2 text-zinc-500 outline-hidden transition-colors data-focus-visible:text-zinc-800 data-focus-visible:ring-2 data-focus-visible:ring-blue-500 data-hover:bg-zinc-50 data-hover:text-zinc-800 data-press:bg-zinc-100 dark:text-zinc-400 dark:data-focus-visible:text-zinc-100 dark:data-focus-visible:ring-blue-800 dark:data-hover:bg-zinc-700 dark:data-hover:text-zinc-100 dark:data-press:bg-zinc-700"
+          class="text-fg-tertiary data-hover:bg-surface-raised data-hover:text-fg data-press:bg-surface-sunken data-focus-visible:text-fg data-focus-visible:ring-primary inline-flex h-8 items-center gap-x-1.5 rounded-md px-2.5 text-[13px] font-medium outline-hidden transition-colors data-focus-visible:ring-2"
           target="_blank"
           rel="noopener noreferrer"
           href="https://github.com/sponsors/ng-primitives"
           aria-label="Sponsor us on GitHub"
           ngpButton
         >
-          <ng-icon class="text-lg text-zinc-500 dark:text-zinc-400" name="lucideHeart" />
-          <span class="hidden font-medium md:inline">Sponsor</span>
+          <ng-icon class="text-[15px]" name="lucideHeart" />
+          <span class="hidden md:inline">Sponsor</span>
         </a>
 
+        <div class="bg-border-strong mx-1.5 h-5 w-px"></div>
+
+        <button
+          class="text-fg-tertiary data-hover:bg-surface-raised data-hover:text-fg data-press:bg-surface-sunken data-focus-visible:text-fg data-focus-visible:ring-primary inline-flex size-8 items-center justify-center rounded-md outline-hidden transition-colors data-focus-visible:ring-2"
+          docs-theme-toggler
+        >
+          <span class="sr-only">Toggle theme</span>
+        </button>
+
         <a
-          class="inline-flex items-center justify-center gap-x-2 rounded-lg px-3 py-2 text-zinc-500 outline-hidden transition-colors data-focus-visible:text-zinc-800 data-focus-visible:ring-2 data-focus-visible:ring-blue-500 data-hover:bg-zinc-50 data-hover:text-zinc-800 data-press:bg-zinc-100 dark:text-zinc-400 dark:data-focus-visible:text-zinc-100 dark:data-focus-visible:ring-blue-800 dark:data-hover:bg-zinc-700 dark:data-hover:text-zinc-100 dark:data-press:bg-zinc-700"
+          class="text-fg-tertiary data-hover:bg-surface-raised data-hover:text-fg data-press:bg-surface-sunken data-focus-visible:text-fg data-focus-visible:ring-primary inline-flex size-8 items-center justify-center rounded-md outline-hidden transition-colors data-focus-visible:ring-2"
           target="_blank"
           rel="noopener noreferrer"
           href="https://discord.gg/NTdjc5r3gC"
           aria-label="Join our Discord community"
           ngpButton
         >
-          <ng-icon class="text-lg text-zinc-500 dark:text-zinc-400" name="bootstrapDiscord" />
-          <span class="hidden font-medium md:inline">Discord</span>
+          <ng-icon class="text-base" name="bootstrapDiscord" />
         </a>
 
         <a
-          class="inline-flex items-center justify-center gap-x-2 rounded-lg px-3 py-2 text-zinc-500 outline-hidden transition-colors data-focus-visible:text-zinc-800 data-focus-visible:ring-2 data-focus-visible:ring-blue-500 data-hover:bg-zinc-50 data-hover:text-zinc-800 data-press:bg-zinc-100 dark:text-zinc-400 dark:data-focus-visible:text-zinc-100 dark:data-focus-visible:ring-blue-800 dark:data-hover:bg-zinc-700 dark:data-hover:text-zinc-100 dark:data-press:bg-zinc-700"
+          class="text-fg-tertiary data-hover:bg-surface-raised data-hover:text-fg data-press:bg-surface-sunken data-focus-visible:text-fg data-focus-visible:ring-primary inline-flex size-8 items-center justify-center rounded-md outline-hidden transition-colors data-focus-visible:ring-2"
           target="_blank"
           rel="noopener noreferrer"
           href="https://github.com/ng-primitives/ng-primitives/"
           aria-label="View source code on GitHub"
           ngpButton
         >
-          <ng-icon class="text-lg text-zinc-500 dark:text-zinc-400" name="bootstrapGithub" />
-          <span class="hidden font-medium md:inline">GitHub</span>
+          <ng-icon class="text-base" name="bootstrapGithub" />
         </a>
       </div>
     </div>

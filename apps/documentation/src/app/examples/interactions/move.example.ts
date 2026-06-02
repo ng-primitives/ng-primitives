@@ -15,7 +15,7 @@ import { NgpMove, NgpMoveEvent } from 'ng-primitives/interactions';
       border-radius: 0.5rem;
       color: var(--ngp-text-primary);
       border: 1px solid var(--ngp-border);
-      font-weight: 500;
+      font-weight: 510;
       background-color: var(--ngp-background);
       box-shadow: none;
       cursor: move;

@@ -13,13 +13,16 @@ import { NgpInput } from 'ng-primitives/input';
     }
 
     [ngpInput] {
-      height: 36px;
-      width: 100%;
-      border-radius: 8px;
+      height: 2.125rem;
+      width: 300px;
+      border-radius: 0.5rem;
       padding: 0 16px;
       border: none;
       box-shadow: var(--ngp-input-shadow);
       background-color: var(--ngp-background);
+      color: var(--ngp-text-primary);
+      font-size: 0.875rem;
+      letter-spacing: -0.006em;
       outline: none;
     }
 

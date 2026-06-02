@@ -21,19 +21,22 @@ interface NavLink {
   template: `
     @if (previous() || next()) {
       <nav
-        class="not-prose mt-12 flex items-stretch gap-4 border-t border-zinc-200 pt-6 dark:border-zinc-800"
+        class="not-prose border-border-subtle mt-16 flex items-stretch gap-4 border-t pt-8"
         aria-label="Page navigation"
       >
         @if (previous(); as prev) {
           <a
-            class="group flex flex-1 flex-col items-start gap-1 rounded-lg border border-zinc-200 px-4 py-3 transition-colors hover:border-zinc-300 hover:bg-zinc-50 dark:border-zinc-800 dark:hover:border-zinc-700 dark:hover:bg-zinc-900"
+            class="group border-border-default bg-surface hover:border-border-strong hover:bg-surface-raised flex flex-1 flex-col items-start gap-1 rounded-xl border px-4 py-3.5 transition-all"
             [routerLink]="'/' + prev.path"
           >
-            <span class="flex items-center gap-1.5 text-xs text-zinc-500 dark:text-zinc-400">
-              <ng-icon class="text-sm" name="heroArrowLeft" />
+            <span class="text-fg-tertiary flex items-center gap-1.5 text-xs">
+              <ng-icon
+                class="text-sm transition-transform group-hover:-translate-x-0.5"
+                name="heroArrowLeft"
+              />
               Previous
             </span>
-            <span class="text-sm font-medium text-zinc-900 dark:text-zinc-100">
+            <span class="text-fg group-hover:text-primary text-sm font-medium transition-colors">
               {{ prev.name }}
             </span>
           </a>
@@ -43,14 +46,17 @@ interface NavLink {
 
         @if (next(); as nxt) {
           <a
-            class="group flex flex-1 flex-col items-end gap-1 rounded-lg border border-zinc-200 px-4 py-3 transition-colors hover:border-zinc-300 hover:bg-zinc-50 dark:border-zinc-800 dark:hover:border-zinc-700 dark:hover:bg-zinc-900"
+            class="group border-border-default bg-surface hover:border-border-strong hover:bg-surface-raised flex flex-1 flex-col items-end gap-1 rounded-xl border px-4 py-3.5 transition-all"
             [routerLink]="'/' + nxt.path"
           >
-            <span class="flex items-center gap-1.5 text-xs text-zinc-500 dark:text-zinc-400">
+            <span class="text-fg-tertiary flex items-center gap-1.5 text-xs">
               Next
-              <ng-icon class="text-sm" name="heroArrowRight" />
+              <ng-icon
+                class="text-sm transition-transform group-hover:translate-x-0.5"
+                name="heroArrowRight"
+              />
             </span>
-            <span class="text-sm font-medium text-zinc-900 dark:text-zinc-100">
+            <span class="text-fg group-hover:text-primary text-sm font-medium transition-colors">
               {{ nxt.name }}
             </span>
           </a>

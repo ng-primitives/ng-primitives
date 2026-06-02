@@ -62,7 +62,7 @@ import { NgpButton } from 'ng-primitives/button';
   },
   template: `
     <div
-      class="w-full max-w-sm divide-y divide-gray-200 rounded-xl border border-gray-200 bg-white ring-1 ring-black/5 dark:divide-gray-800 dark:border-gray-800 dark:bg-black dark:ring-white/10"
+      class="w-full max-w-sm divide-y divide-gray-200 overflow-hidden rounded-xl border border-gray-200 bg-white ring-1 ring-black/5 dark:divide-zinc-800 dark:border-zinc-800 dark:bg-zinc-950 dark:ring-white/10"
       ngpAccordion
       ngpAccordionType="single"
       ngpAccordionCollapsible
@@ -70,19 +70,19 @@ import { NgpButton } from 'ng-primitives/button';
       <div #panel1="ngpAccordionItem" ngpAccordionItem ngpAccordionItemValue="item-1">
         <h3 class="m-0!">
           <button
-            class="flex h-11 w-full items-center justify-between rounded-xl bg-white px-4 text-sm font-medium text-gray-900 outline-hidden data-focus-visible:ring-2 data-focus-visible:ring-blue-500 dark:bg-black dark:text-gray-100"
+            class="flex h-12 w-full cursor-pointer items-center justify-between gap-3 bg-transparent px-4 text-left text-sm font-medium tracking-[-0.006em] text-gray-900 outline-hidden transition-colors data-focus-visible:ring-2 data-focus-visible:ring-blue-500 data-focus-visible:ring-inset data-hover:bg-gray-50 dark:text-gray-100 dark:data-focus-visible:ring-blue-400 dark:data-hover:bg-zinc-900"
             ngpAccordionTrigger
             ngpButton
           >
             Would you like to learn more?
             <ng-icon
-              class="text-xl text-gray-500 transition-transform duration-200 ease-in-out data-[open=true]:rotate-180 dark:text-gray-400"
+              class="shrink-0 text-lg text-gray-400 transition-transform duration-200 ease-in-out data-[open=true]:rotate-180 dark:text-gray-500"
               [attr.data-open]="panel1.open()"
               name="heroChevronDownMini"
             />
           </button>
         </h3>
-        <div class="text-sm text-gray-500 dark:text-gray-400" ngpAccordionContent>
+        <div class="text-sm leading-relaxed text-gray-500 dark:text-gray-400" ngpAccordionContent>
           <div class="px-4 pt-0 pb-4">
             If you would like to learn more please reach out to us on GitHub.
           </div>
@@ -92,19 +92,19 @@ import { NgpButton } from 'ng-primitives/button';
       <div #panel2="ngpAccordionItem" ngpAccordionItem ngpAccordionItemValue="item-2">
         <h3 class="m-0!">
           <button
-            class="flex h-11 w-full items-center justify-between rounded-xl bg-white px-4 text-sm font-medium text-gray-900 outline-hidden data-focus-visible:ring-2 data-focus-visible:ring-blue-500 dark:bg-black dark:text-gray-100"
+            class="flex h-12 w-full cursor-pointer items-center justify-between gap-3 bg-transparent px-4 text-left text-sm font-medium tracking-[-0.006em] text-gray-900 outline-hidden transition-colors data-focus-visible:ring-2 data-focus-visible:ring-blue-500 data-focus-visible:ring-inset data-hover:bg-gray-50 dark:text-gray-100 dark:data-focus-visible:ring-blue-400 dark:data-hover:bg-zinc-900"
             ngpAccordionTrigger
             ngpButton
           >
             Can I use this in my project?
             <ng-icon
-              class="text-xl text-gray-500 transition-transform duration-200 ease-in-out data-[open=true]:rotate-180 dark:text-gray-400"
+              class="shrink-0 text-lg text-gray-400 transition-transform duration-200 ease-in-out data-[open=true]:rotate-180 dark:text-gray-500"
               [attr.data-open]="panel2.open()"
               name="heroChevronDownMini"
             />
           </button>
         </h3>
-        <div class="text-sm text-gray-500 dark:text-gray-400" ngpAccordionContent>
+        <div class="text-sm leading-relaxed text-gray-500 dark:text-gray-400" ngpAccordionContent>
           <div class="px-4 pt-0 pb-4">
             Yes, this is open source and you can use it in your project.
           </div>

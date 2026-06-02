@@ -150,7 +150,7 @@ import {
     }
 
     [ngpDatePickerDateButton][data-today] {
-      color: var(--ngp-text-blue);
+      color: var(--ngp-primary);
     }
 
     [ngpDatePickerDateButton][data-hover] {
@@ -171,8 +171,8 @@ import {
     }
 
     [ngpDatePickerDateButton][data-selected] {
-      background: var(--ngp-background-inverse);
-      color: var(--ngp-text-inverse);
+      background: var(--ngp-primary);
+      color: var(--ngp-primary-text);
     }
 
     [ngpDatePickerDateButton][data-selected]:not([data-range-end]) {
@@ -188,7 +188,7 @@ import {
     }
 
     [ngpDatePickerDateButton][data-range-between] {
-      background: color-mix(in srgb, var(--ngp-background-inverse) 5%, transparent);
+      background: color-mix(in srgb, var(--ngp-primary) 5%, transparent);
       border-radius: 0;
     }
 

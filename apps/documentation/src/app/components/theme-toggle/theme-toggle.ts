@@ -55,6 +55,11 @@ export class ThemeToggle {
         document.documentElement.classList.add('dark');
         break;
     }
+
+    // Keep the iOS browser chrome (address bar / safe areas) in sync.
+    document
+      .querySelector('meta[name="theme-color"]')
+      ?.setAttribute('content', this.isDark() ? '#08090a' : '#ffffff');
   }
 
   protected toggleTheme(): void {

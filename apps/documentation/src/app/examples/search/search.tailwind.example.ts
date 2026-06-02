@@ -21,8 +21,8 @@ import { NgpSearch, NgpSearchClear } from 'ng-primitives/search';
   ],
   providers: [provideIcons({ heroMagnifyingGlass })],
   template: `
-    <div class="flex w-[90%] flex-col gap-1.5" ngpFormField>
-      <label class="text-sm font-medium text-gray-900 dark:text-gray-100" ngpLabel>
+    <div class="flex w-[300px] flex-col gap-1.5" ngpFormField>
+      <label class="text-sm font-[510] text-gray-900 dark:text-gray-100" ngpLabel>
         Find a customer
       </label>
       <div class="relative" ngpSearch>
@@ -31,14 +31,14 @@ import { NgpSearch, NgpSearchClear } from 'ng-primitives/search';
           name="heroMagnifyingGlass"
         />
         <input
-          class="h-9 w-full min-w-0 rounded-lg border-none bg-white py-0 pr-4 pl-10 text-gray-900 shadow-xs ring-1 ring-black/10 outline-hidden placeholder:text-gray-400 focus:outline-2 focus:outline-offset-2 focus:outline-blue-500 dark:bg-transparent dark:text-gray-100 dark:ring-white/10 dark:placeholder:text-gray-400"
+          class="h-[2.125rem] w-full min-w-0 rounded-lg border-none bg-white py-0 pr-4 pl-10 text-sm tracking-[-0.006em] text-gray-900 shadow-xs ring-1 ring-black/10 outline-hidden placeholder:text-gray-400 focus:outline-2 focus:outline-offset-2 focus:outline-blue-500 dark:bg-transparent dark:text-gray-100 dark:ring-white/10 dark:placeholder:text-gray-400 dark:focus:outline-blue-400"
           [(ngModel)]="query"
           ngpInput
           type="search"
           placeholder="Search for a customer"
         />
         <button
-          class="absolute top-0 right-0 block h-9 cursor-pointer rounded-r-lg border-none bg-transparent px-4 text-sm text-blue-500 outline-hidden data-empty:hidden"
+          class="absolute top-0 right-0 block h-[2.125rem] cursor-pointer rounded-r-[0.625rem] border-none bg-transparent px-4 text-sm text-[#f01e2b] outline-hidden data-empty:hidden dark:text-[#ff4651]"
           ngpSearchClear
           ngpButton
           aria-label="Clear search"
@@ -51,7 +51,7 @@ import { NgpSearch, NgpSearchClear } from 'ng-primitives/search';
   styles: `
     :host {
       display: contents;
-      width: 90%;
+      width: 300px;
     }
 
     /* clears the 'X' from Chrome */

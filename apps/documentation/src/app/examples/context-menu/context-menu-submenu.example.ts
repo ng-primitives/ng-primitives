@@ -48,9 +48,10 @@ import {
       width: 300px;
       height: 150px;
       border: 2px dashed var(--ngp-border);
-      border-radius: 8px;
+      border-radius: 0.75rem;
       color: var(--ngp-text-secondary);
       font-size: 14px;
+      letter-spacing: -0.006em;
       user-select: none;
     }
 
@@ -62,8 +63,9 @@ import {
       background: var(--ngp-background);
       border: 1px solid var(--ngp-border);
       box-shadow: var(--ngp-shadow-lg);
-      border-radius: 8px;
-      padding: 4px;
+      border-radius: 0.625rem;
+      padding: 0.25rem;
+      outline: none;
       transform-origin: var(--ngp-menu-transform-origin);
     }
 
@@ -79,20 +81,23 @@ import {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 6px 8px 6px 14px;
+      padding: 0.4375rem 0.5rem 0.4375rem 0.75rem;
       border: none;
       background: none;
       cursor: pointer;
-      transition: background-color 0.2s;
-      border-radius: 4px;
-      min-width: 120px;
+      transition: background-color 0.15s ease;
+      border-radius: 0.375rem;
+      min-width: 140px;
       text-align: start;
       outline: none;
-      font-size: 14px;
-      font-weight: 400;
+      font-size: 0.875rem;
+      font-weight: 500;
+      letter-spacing: -0.006em;
+      color: var(--ngp-text-primary);
     }
 
-    [ngpContextMenuItem][data-hover] {
+    [ngpContextMenuItem][data-hover],
+    [ngpContextMenuItem][data-focus-visible] {
       background-color: var(--ngp-background-hover);
     }
 
@@ -100,9 +105,10 @@ import {
       background-color: var(--ngp-background-active);
     }
 
-    [ngpContextMenuItem][data-focus-visible] {
-      outline: 2px solid var(--ngp-focus-ring);
-      z-index: 1;
+    [ngpContextMenuItem] ng-icon {
+      margin-left: 0.75rem;
+      color: var(--ngp-text-tertiary);
+      --ng-icon__size: 1rem;
     }
 
     @keyframes menu-show {

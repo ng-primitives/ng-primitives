@@ -2,24 +2,26 @@
   <div class="absolute inset-x-0 top-0 flex items-center justify-between gap-x-2">
     <div class="flex items-center gap-x-2">
       <!-- Preview/Source Toggle -->
-      <div class="rounded-lg bg-zinc-100 p-0.5 leading-6 ring-1 ring-black/5 dark:bg-zinc-800">
+      <div
+        class="ring-border-subtle flex rounded-lg bg-black/[0.04] p-0.5 ring-1 dark:bg-white/[0.04]"
+      >
         <button
-          class="w-16 rounded-md px-2 py-1.5 text-xs font-medium outline-hidden focus-visible:z-10 focus-visible:ring-2 focus-visible:ring-blue-500"
+          class="focus-visible:ring-primary w-16 rounded-md px-2 py-1.5 text-xs font-medium outline-hidden transition-colors focus-visible:z-10 focus-visible:ring-2"
           [ngClass]="{
-            'bg-white text-zinc-950 shadow-xs ring-1 ring-black/5 dark:bg-zinc-900 dark:text-white dark:ring-white/5':
+            'bg-surface text-fg ring-border-subtle shadow-sm ring-1 dark:bg-white/[0.08]':
               mode() === 'preview',
-            'text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-200': mode() !== 'preview',
+            'text-fg-tertiary hover:text-fg': mode() !== 'preview',
           }"
           (click)="mode.set('preview')"
         >
           Preview
         </button>
         <button
-          class="w-16 rounded-md px-2 py-1.5 text-xs font-medium outline-hidden focus-visible:z-10 focus-visible:ring-2 focus-visible:ring-blue-500"
+          class="focus-visible:ring-primary w-16 rounded-md px-2 py-1.5 text-xs font-medium outline-hidden transition-colors focus-visible:z-10 focus-visible:ring-2"
           [ngClass]="{
-            'bg-white text-zinc-950 shadow-xs ring-1 ring-black/5 dark:bg-zinc-900 dark:text-white dark:ring-white/5':
+            'bg-surface text-fg ring-border-subtle shadow-sm ring-1 dark:bg-white/[0.08]':
               mode() === 'source',
-            'text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-200': mode() !== 'source',
+            'text-fg-tertiary hover:text-fg': mode() !== 'source',
           }"
           (click)="mode.set('source')"
         >
@@ -33,22 +35,19 @@
       @if (availableStyles().length > 1) {
       <div class="relative hidden sm:block">
         <select
-          class="appearance-none rounded-md bg-white px-3 py-2 pr-8 text-xs font-medium text-zinc-950 shadow-xs ring-1 ring-black/5 outline-hidden focus-visible:z-10 focus-visible:ring-2 focus-visible:ring-blue-500 dark:bg-zinc-900 dark:text-white dark:ring-white/5"
+          class="bg-surface-raised text-fg ring-border-subtle focus-visible:ring-primary appearance-none rounded-lg px-3 py-2 pr-8 text-xs font-medium ring-1 outline-hidden transition-colors focus-visible:z-10 focus-visible:ring-2"
           aria-label="Select example style"
           [ngModel]="selectedStyle()"
           (ngModelChange)="selectStyle($event)"
         >
           @for (style of availableStyles(); track style) {
-          <option
-            class="bg-white font-medium text-zinc-950 dark:bg-zinc-900 dark:text-white"
-            [value]="style"
-          >
+          <option class="bg-surface-overlay text-fg font-medium" [value]="style">
             {{ getStyleName(style) }}
           </option>
           }
         </select>
         <div
-          class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2 text-zinc-700 dark:text-zinc-200"
+          class="text-fg-tertiary pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2"
         >
           <svg class="size-4 fill-current" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
             <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z" />
@@ -58,7 +57,7 @@
       }
 
       <button
-        class="inline-flex size-8 items-center justify-center rounded-lg bg-white p-2 shadow-xs ring-1 ring-black/5 transition-colors hover:bg-zinc-50 active:bg-zinc-100 dark:bg-zinc-900 dark:ring-white/5 dark:hover:bg-zinc-950 dark:active:bg-zinc-800"
+        class="bg-surface-raised ring-border-subtle text-fg-tertiary hover:bg-surface-sunken hover:text-fg focus-visible:ring-primary inline-flex size-8 items-center justify-center rounded-lg p-2 ring-1 outline-hidden transition-colors focus-visible:ring-2"
         (click)="copyCode()"
       >
         @if (isCopied()) {
@@ -69,7 +68,7 @@
       </button>
 
       <button
-        class="inline-flex size-8 items-center justify-center rounded-lg bg-white p-2 shadow-xs ring-1 ring-black/5 transition-colors hover:bg-zinc-50 active:bg-zinc-100 dark:bg-zinc-900 dark:ring-white/5 dark:hover:bg-zinc-950 dark:active:bg-zinc-800"
+        class="bg-surface-raised ring-border-subtle text-fg-tertiary hover:bg-surface-sunken hover:text-fg focus-visible:ring-primary inline-flex size-8 items-center justify-center rounded-lg p-2 ring-1 outline-hidden transition-colors focus-visible:ring-2"
         title="Open in StackBlitz"
         aria-label="Open in StackBlitz"
         (click)="openStackBlitz()"
@@ -79,16 +78,19 @@
     </div>
   </div>
 
-  <div class="relative mt-10 w-full flex-1">
+  <div class="relative mt-12 w-full flex-1">
     @if (mode() === 'preview') {
     <div
-      class="example-preview flex h-fit min-h-[280px] items-center justify-center rounded-xl border border-zinc-200 bg-zinc-50 p-8 dark:border-zinc-800 dark:bg-zinc-950"
+      class="example-preview border-border-default bg-surface-raised flex h-fit min-h-[280px] items-center justify-center rounded-xl border p-8"
     >
       <ng-container [ngComponentOutlet]="component()" />
     </div>
     }
 
-    <div class="rounded-xl bg-transparent" [hidden]="mode() !== 'source'">
+    <div
+      class="border-border-subtle bg-code overflow-hidden rounded-xl border"
+      [hidden]="mode() !== 'source'"
+    >
       <div class="h-fit" [innerHTML]="code()"></div>
     </div>
   </div>

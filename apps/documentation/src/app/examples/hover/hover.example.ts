@@ -20,8 +20,8 @@ import { NgpHover } from 'ng-primitives/interactions';
     }
 
     div[data-hover] {
-      background-color: var(--ngp-background-blue);
-      border-color: var(--ngp-border-blue);
+      background-color: color-mix(in srgb, var(--ngp-primary) 8%, var(--ngp-background));
+      border-color: var(--ngp-primary);
     }
   `,
   template: `

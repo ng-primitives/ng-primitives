@@ -141,7 +141,7 @@ import {
     }
 
     [ngpDatePickerDateButton][data-today] {
-      color: var(--ngp-text-blue);
+      color: var(--ngp-primary);
     }
 
     [ngpDatePickerDateButton][data-hover] {
@@ -162,8 +162,8 @@ import {
     }
 
     [ngpDatePickerDateButton][data-selected] {
-      background-color: var(--ngp-background-inverse);
-      color: var(--ngp-text-inverse);
+      background-color: var(--ngp-primary);
+      color: var(--ngp-primary-text);
     }
 
     [ngpDatePickerDateButton][data-selected][data-outside-month] {

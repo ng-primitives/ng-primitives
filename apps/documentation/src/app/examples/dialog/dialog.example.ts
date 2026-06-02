@@ -38,17 +38,20 @@ import {
   `,
   styles: `
     button {
-      padding-left: 1rem;
-      padding-right: 1rem;
+      padding-inline: 0.875rem;
       border-radius: 0.5rem;
       color: var(--ngp-text-primary);
       border: none;
       outline: none;
-      height: 2.5rem;
-      font-weight: 500;
+      height: 2.125rem;
+      font-size: 0.875rem;
+      font-weight: 510;
+      letter-spacing: -0.006em;
       background-color: var(--ngp-background);
-      transition: background-color 300ms cubic-bezier(0.4, 0, 0.2, 1);
-      box-shadow: var(--ngp-button-shadow);
+      transition: background-color 200ms cubic-bezier(0.4, 0, 0.2, 1);
+      box-shadow:
+        inset 0 0 0 1px var(--ngp-border),
+        0 1px 2px 0 rgba(0, 0, 0, 0.04);
     }
 
     button[data-hover] {
@@ -83,8 +86,9 @@ import {
     [ngpDialog] {
       background-color: var(--ngp-background);
       padding: 24px;
-      border-radius: 8px;
-      box-shadow: var(--ngp-shadow);
+      border-radius: 0.875rem;
+      border: 1px solid var(--ngp-border);
+      box-shadow: var(--ngp-shadow-lg);
       animation: slideIn 300ms cubic-bezier(0.4, 0, 0.2, 1);
     }
 
@@ -95,7 +99,8 @@ import {
     [ngpDialogTitle] {
       font-size: 18px;
       line-height: 28px;
-      font-weight: 600;
+      font-weight: 590;
+      letter-spacing: -0.014em;
       color: var(--ngp-text-primary);
       margin: 0 0 4px;
     }
@@ -115,7 +120,15 @@ import {
     }
 
     .dialog-footer [ngpButton]:last-of-type {
-      color: var(--ngp-text-blue);
+      background-color: var(--ngp-primary);
+      color: var(--ngp-primary-text);
+      box-shadow:
+        inset 0 1px 0 0 rgba(255, 255, 255, 0.2),
+        0 1px 2px 0 rgba(0, 0, 0, 0.08);
+    }
+
+    .dialog-footer [ngpButton]:last-of-type[data-hover] {
+      background-color: var(--ngp-primary-hover);
     }
 
     @keyframes fadeIn {

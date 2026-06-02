@@ -15,7 +15,7 @@ import {
   providers: [provideIcons({ heroChevronDown })],
   template: `
     <div
-      class="flex h-9 w-[300px] items-center justify-between rounded-lg border border-gray-200 bg-white text-sm text-gray-900 outline-hidden data-focus:ring-2 data-focus:ring-blue-500 dark:border-gray-800 dark:bg-transparent dark:text-gray-50 dark:data-focus:ring-blue-400"
+      class="flex h-[2.125rem] w-[300px] items-center justify-between rounded-lg border border-gray-200 bg-white text-sm tracking-[-0.006em] text-gray-900 outline-hidden data-focus:ring-2 data-focus:ring-blue-500 dark:border-gray-800 dark:bg-transparent dark:text-gray-50 dark:data-focus:ring-blue-400"
       [(ngpSelectValue)]="value"
       ngpSelect
     >
@@ -27,13 +27,13 @@ import {
       <ng-icon class="mx-2 h-full text-gray-500" name="heroChevronDown" />
 
       <div
-        class="absolute z-1001 mt-1 max-h-[240px] w-[300px] overflow-y-auto rounded-xl border border-gray-200 bg-white p-1 shadow-lg outline-hidden dark:border-gray-800 dark:bg-black"
+        class="absolute z-1001 mt-1 max-h-[240px] w-[300px] overflow-y-auto rounded-xl border border-gray-200 bg-white p-1 shadow-lg outline-hidden dark:border-gray-800 dark:bg-zinc-950"
         *ngpSelectPortal
         ngpSelectDropdown
       >
         @for (option of options; track option) {
           <div
-            class="flex h-9 w-full cursor-pointer items-center gap-2 rounded-lg px-3 text-sm text-gray-800 data-active:bg-gray-100 data-hover:bg-gray-50 data-press:bg-gray-100 dark:text-gray-300 dark:data-active:bg-white/10 dark:data-hover:bg-white/5 dark:data-press:bg-white/10"
+            class="flex h-[2.125rem] w-full cursor-pointer items-center gap-2 rounded-lg px-3 text-sm tracking-[-0.006em] text-gray-800 data-active:bg-gray-100 data-hover:bg-gray-50 data-press:bg-gray-100 data-selected:font-[510] data-selected:text-[#f01e2b] dark:text-gray-300 dark:data-active:bg-white/10 dark:data-hover:bg-white/5 dark:data-press:bg-white/10 dark:data-selected:text-[#ff4651]"
             [ngpSelectOptionValue]="option"
             ngpSelectOption
           >
@@ -41,7 +41,7 @@ import {
           </div>
         } @empty {
           <div
-            class="flex items-center justify-center p-2 text-center text-sm font-medium text-gray-500"
+            class="flex items-center justify-center p-2 text-center text-sm font-[510] text-gray-500"
           >
             No options found
           </div>

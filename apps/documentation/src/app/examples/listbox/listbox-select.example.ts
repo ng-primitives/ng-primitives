@@ -70,13 +70,16 @@ import { NgpPopover, NgpPopoverTrigger } from 'ng-primitives/popover';
       display: flex;
       justify-content: space-between;
       align-items: center;
-      height: 36px;
+      height: 2.125rem;
       width: 300px;
-      border-radius: 8px;
+      border-radius: 0.5rem;
       padding: 0 16px;
       border: none;
       background-color: var(--ngp-background);
       text-align: left;
+      font-size: 0.875rem;
+      letter-spacing: -0.006em;
+      color: var(--ngp-text-primary);
       box-shadow: var(--ngp-input-shadow);
       outline: none;
     }
@@ -106,8 +109,11 @@ import { NgpPopover, NgpPopoverTrigger } from 'ng-primitives/popover';
       cursor: pointer;
       border-radius: 0.5rem;
       width: 100%;
-      height: 36px;
+      height: 2.125rem;
       box-sizing: border-box;
+      font-size: 0.875rem;
+      letter-spacing: -0.006em;
+      color: var(--ngp-text-primary);
     }
 
     [ngpListboxOption][data-hover] {
@@ -122,8 +128,13 @@ import { NgpPopover, NgpPopoverTrigger } from 'ng-primitives/popover';
       background-color: var(--ngp-background-active);
     }
 
+    [ngpListboxOption][data-selected] {
+      font-weight: 510;
+    }
+
     [ngpListboxOption] ng-icon {
       visibility: hidden;
+      color: var(--ngp-primary);
     }
 
     [ngpListboxOption][data-selected] ng-icon {

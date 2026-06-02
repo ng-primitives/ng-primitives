@@ -33,11 +33,11 @@ import { injectDisposables } from 'ng-primitives/utils';
         {{ value() }}%
       </span>
       <div
-        class="relative col-span-2 h-3 w-full max-w-[320px] overflow-hidden rounded-lg border border-gray-200 bg-white dark:border-zinc-800 dark:bg-gray-900"
+        class="relative col-span-2 h-3 w-full max-w-[320px] overflow-hidden rounded-lg border border-gray-200 bg-white dark:border-zinc-800 dark:bg-zinc-950"
         ngpProgressTrack
       >
         <div
-          class="h-full rounded-lg bg-gray-900 transition-all dark:bg-gray-100"
+          class="h-full rounded-lg bg-[#f01e2b] transition-all dark:bg-[#ff4651]"
           ngpProgressIndicator
         ></div>
       </div>

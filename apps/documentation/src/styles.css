@@ -10,38 +10,90 @@
   --font-sans: InterVariable, sans-serif;
   --font-jakarta: 'Plus Jakarta Sans', sans-serif;
 
-  /* colors */
+  /* Linear-style signature weights: 510 emphasis, 590 strong (max). */
+  --font-weight-medium: 510;
+  --font-weight-semibold: 590;
+
+  /* brand */
   --color-primary: var(--primary-color);
   --color-accent: var(--accent-color);
+
+  /* semantic surfaces (luminance stacking) */
+  --color-surface: var(--surface-page);
+  --color-surface-raised: var(--surface-raised);
+  --color-surface-sunken: var(--surface-sunken);
+  --color-surface-hover: var(--surface-hover);
+  --color-surface-overlay: var(--surface-overlay);
+  --color-code: var(--code-bg);
+
+  /* semantic borders (translucent hairlines) */
+  --color-border-subtle: var(--border-subtle);
+  --color-border-default: var(--border-default);
+  --color-border-strong: var(--border-strong);
+
+  /* semantic foreground tiers */
+  --color-fg: var(--fg-primary);
+  --color-fg-secondary: var(--fg-secondary);
+  --color-fg-tertiary: var(--fg-tertiary);
+  --color-fg-quaternary: var(--fg-quaternary);
 }
 
 /* `prose prose-zinc` variant */
 @utility prose-zinc {
-  --tw-prose-headings: var(--color-zinc-950);
-  --tw-prose-body: var(--color-zinc-600);
+  --tw-prose-headings: var(--fg-primary);
+  --tw-prose-body: var(--fg-secondary);
+  --tw-prose-bold: var(--fg-primary);
+  --tw-prose-links: var(--primary-color);
+  --tw-prose-quotes: var(--fg-secondary);
+  --tw-prose-quote-borders: var(--border-strong);
+  --tw-prose-hr: var(--border-default);
+  --tw-prose-captions: var(--fg-tertiary);
+  --tw-prose-counters: var(--fg-tertiary);
+  --tw-prose-bullets: var(--border-strong);
+  --tw-prose-th-borders: var(--border-default);
+  --tw-prose-td-borders: var(--border-subtle);
   max-width: none;
 
   h1 {
-    font-size: 1.5rem;
-    font-weight: 600;
-    margin-bottom: 8px;
-    line-height: 1.11111;
+    font-size: 1.875rem;
+    font-weight: var(--font-weight-semibold);
+    margin-bottom: 10px;
+    line-height: 1.15;
+    letter-spacing: -0.022em;
   }
 
   h2 {
-    font-size: var(--text-lg);
+    font-size: var(--text-xl);
     font-weight: var(--font-weight-semibold);
     margin-bottom: 8px;
+    letter-spacing: -0.018em;
   }
 
   h3 {
     font-size: var(--text-base);
     font-weight: var(--font-weight-semibold);
     margin-bottom: 8px;
+    letter-spacing: -0.012em;
   }
 
   p {
-    line-height: 32px;
+    line-height: 1.75;
+  }
+
+  a {
+    font-weight: var(--font-weight-medium);
+    text-decoration-color: color-mix(in srgb, var(--primary-color) 35%, transparent);
+    text-underline-offset: 3px;
+    transition: text-decoration-color 150ms ease;
+  }
+
+  a:hover {
+    text-decoration-color: var(--primary-color);
+  }
+
+  blockquote {
+    font-style: normal;
+    font-weight: 400;
   }
 }
 
@@ -50,6 +102,45 @@
   code {
     background-color: var(--color-zinc-950);
     color: var(--color-white);
+  }
+}
+
+/* Hide scrollbars while keeping content scrollable. */
+@utility no-scrollbar {
+  scrollbar-width: none;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+/* Thin scrollbar whose thumb only reveals on hover (Mac overlay feel). */
+@utility scrollbar-hover {
+  scrollbar-width: thin;
+  scrollbar-color: transparent transparent;
+
+  &:hover {
+    scrollbar-color: var(--border-strong) transparent;
+  }
+
+  &::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    border-radius: 9999px;
+    border: 2px solid transparent;
+    background-color: transparent;
+    background-clip: padding-box;
+  }
+
+  &:hover::-webkit-scrollbar-thumb {
+    background-color: var(--border-strong);
+  }
+
+  &::-webkit-scrollbar-thumb:hover {
+    background-color: var(--fg-quaternary);
   }
 }
 
@@ -80,9 +171,33 @@
 :root {
   color-scheme: light;
 
-  --primary-color: #e90364;
+  --primary-color: #f01e2b;
   --accent-color: #fa2c05;
   --dark-shadow: 0 0 0 1px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.2);
+
+  /* surfaces */
+  --surface-page: #ffffff;
+  --surface-raised: #f7f8f8;
+  --surface-sunken: #f3f4f5;
+  --surface-hover: #f0f1f3;
+  --surface-overlay: #ffffff;
+  --code-bg: #f9f9fb;
+
+  /* borders */
+  --border-subtle: rgba(9, 9, 11, 0.06);
+  --border-default: rgba(9, 9, 11, 0.09);
+  --border-strong: rgba(9, 9, 11, 0.14);
+
+  /* foreground */
+  --fg-primary: #18181b;
+  --fg-secondary: #52525b;
+  --fg-tertiary: #71717a;
+  --fg-quaternary: #a1a1aa;
+
+  /* elevation */
+  --elevation-low: 0 1px 2px rgba(9, 9, 11, 0.04), 0 0 0 1px rgba(9, 9, 11, 0.04);
+  --elevation-medium: 0 4px 12px rgba(9, 9, 11, 0.08), 0 0 0 1px rgba(9, 9, 11, 0.05);
+  --elevation-high: 0 12px 32px rgba(9, 9, 11, 0.12), 0 0 0 1px rgba(9, 9, 11, 0.06);
 
   --docsearch-primary-color: var(--primary-color);
 }
@@ -90,8 +205,33 @@
 .dark {
   color-scheme: dark;
 
-  --primary-color: #fc2781;
+  --primary-color: #ff4651;
   --accent-color: #fb5637;
+
+  /* surfaces — near-black canvas with luminance stacking */
+  --surface-page: #08090a;
+  --surface-raised: rgba(255, 255, 255, 0.03);
+  --surface-sunken: rgba(0, 0, 0, 0.22);
+  /* Hover lifts toward lighter on dark, the opposite of sunken. */
+  --surface-hover: rgba(255, 255, 255, 0.07);
+  --surface-overlay: #1a1b1d;
+  --code-bg: #0d0e10;
+
+  /* borders — whisper-thin translucent white */
+  --border-subtle: rgba(255, 255, 255, 0.06);
+  --border-default: rgba(255, 255, 255, 0.09);
+  --border-strong: rgba(255, 255, 255, 0.14);
+
+  /* foreground — near-white primary, cool silver body */
+  --fg-primary: #f7f8f8;
+  --fg-secondary: #d0d6e0;
+  --fg-tertiary: #8a8f98;
+  --fg-quaternary: #62666d;
+
+  /* elevation — layered, low-contrast on dark */
+  --elevation-low: 0 1px 2px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.04);
+  --elevation-medium: 0 4px 16px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.06);
+  --elevation-high: 0 16px 40px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(255, 255, 255, 0.08);
 
   --docsearch-modal-background: var(--color-zinc-900);
   --docsearch-modal-shadow: var(--dark-shadow);
@@ -117,19 +257,55 @@
   }
 }
 
+html {
+  scroll-behavior: smooth;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+}
+
 html,
 body {
   display: block;
   height: 100%;
-  font-feature-settings: 'liga', 'calt', 'ss01', 'cv11';
+  /* Adaptive root background so iOS safe areas / overscroll match the theme. */
+  background-color: var(--surface-page);
+  /* Linear-leaning Inter: ligatures + geometric alternates (cv01) and ss03 */
+  font-feature-settings:
+    'liga' 1,
+    'calt' 1,
+    'cv01' 1,
+    'ss03' 1;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  /* Disable iOS double-tap-to-zoom (pinch zoom and scrolling are kept). */
+  touch-action: manipulation;
+}
+
+::selection {
+  background-color: color-mix(in srgb, var(--primary-color) 22%, transparent);
+}
+
+/* Enabled buttons should always signal interactivity. */
+button:not(:disabled),
+[role='button']:not([aria-disabled='true']) {
+  cursor: pointer;
 }
 
 pre.shiki {
-  @apply rounded-xl border bg-transparent py-3.5;
+  @apply border-border-subtle rounded-xl border py-3.5;
+  background-color: var(--code-bg);
 }
 
-.dark pre.shiki {
-  @apply bg-zinc-950/50;
+/* Inside the snippet/example components the surrounding container owns the
+   frame (border + radius + background), so the code itself sits flush. */
+docs-snippet pre.shiki,
+docs-example pre.shiki {
+  @apply rounded-none border-0;
 }
 
 pre.shiki:not(:has([data-line-numbers])) {
@@ -141,7 +317,19 @@ pre.shiki code {
 }
 
 .prose :where(code):not(:where([class~='not-prose'], [class~='not-prose'] *, pre code)) {
-  @apply rounded-sm px-1.5 py-1 text-[13px] font-medium whitespace-nowrap text-zinc-900 ring-1 ring-black/5 before:hidden after:hidden dark:text-zinc-100! dark:ring-white/10!;
+  @apply rounded-md px-1.5 py-0.5 text-[0.85em] font-normal whitespace-nowrap before:hidden after:hidden;
+  background-color: color-mix(in srgb, var(--fg-primary) 6%, transparent);
+  color: var(--fg-secondary);
+}
+
+/* Keyboard keys rendered as small, tactile key caps. */
+.prose :where(kbd):not(:where([class~='not-prose'], [class~='not-prose'] *)) {
+  @apply border-border-default bg-surface-raised text-fg-secondary inline-flex items-center justify-center rounded-[0.3125rem] border px-1.5 align-middle text-[0.6875rem] font-medium whitespace-nowrap;
+  min-width: 1.375rem;
+  height: 1.375rem;
+  line-height: 1;
+  font-family: inherit;
+  box-shadow: 0 1px 0 0 var(--border-default);
 }
 
 .dark .shiki,
@@ -183,14 +371,11 @@ pre.shiki code {
 }
 
 [data-line-numbers] [data-line]:before {
-  @apply sticky left-0 inline-block w-16 bg-white pe-6 text-right text-zinc-400;
+  @apply text-fg-quaternary sticky left-0 inline-block w-16 pe-6 text-right;
+  background-color: var(--code-bg);
   font-size: var(--text-sm);
   counter-increment: line;
   content: counter(line);
-}
-
-.dark [data-line-numbers] [data-line]:before {
-  @apply bg-zinc-900 text-zinc-400;
 }
 
 .shiki,
@@ -204,19 +389,29 @@ html.dark .shiki span {
 }
 
 .DocSearch-Button {
-  --docsearch-searchbox-shadow: 0 0 0 1px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.2);
-  @apply inline-flex flex-none items-center gap-x-3 overflow-hidden rounded-lg bg-white px-3 py-2 ring-1 shadow-black/5 ring-transparent focus-within:ring-2 focus-within:ring-blue-500 md:left-[calc(50%-104px)] md:w-52 md:shadow-sm md:ring-black/10 lg:left-[calc(50%-160px)] lg:w-80 dark:bg-zinc-800;
+  /* Neutralise DocSearch's own background/shadow; we control the chrome below. */
+  --docsearch-searchbox-shadow: none;
+  /* Mobile: a compact ghost icon button matching the other nav controls. */
+  @apply text-fg-tertiary focus-within:ring-primary inline-flex size-8 flex-none items-center justify-center gap-x-3 overflow-hidden rounded-md bg-transparent transition-colors focus-within:ring-2;
+  /* md+: expand into a full search box with surface, border and labels. */
+  @apply md:bg-surface-raised md:ring-border-subtle md:h-auto md:w-52 md:justify-start md:rounded-lg md:px-3 md:py-2 md:ring-1 lg:w-80;
+}
+
+.DocSearch-Button:hover {
+  @apply bg-surface-raised md:bg-surface-hover;
 }
 
 .DocSearch-Button-Placeholder {
-  @apply text-sm font-normal text-zinc-500;
+  @apply text-fg-tertiary hidden text-sm font-normal md:block;
 }
 
 .DocSearch-Button .DocSearch-Search-Icon {
-  @apply h-4 w-4 text-zinc-500 md:text-zinc-400 dark:text-zinc-400 md:dark:text-zinc-500;
+  @apply text-fg-tertiary h-4 w-4;
 }
 
 .DocSearch-Button-Keys {
+  /* Dock the ⌘K hint to the right edge of the search field. */
+  @apply hidden md:ml-auto md:flex;
   min-width: unset;
 }
 

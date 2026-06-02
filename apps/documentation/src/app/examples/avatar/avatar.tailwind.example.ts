@@ -5,18 +5,79 @@ import { NgpAvatar, NgpAvatarFallback, NgpAvatarImage } from 'ng-primitives/avat
   selector: 'app-avatar',
   imports: [NgpAvatar, NgpAvatarImage, NgpAvatarFallback],
   template: `
-    <span
-      class="relative inline-flex size-12 items-center justify-center overflow-hidden rounded-full border-2 border-white bg-sky-200 before:absolute before:inset-0 before:rounded-full before:border before:border-black/10 dark:border-zinc-700 dark:bg-sky-900"
-      ngpAvatar
-    >
-      <img
-        class="h-full w-full object-cover"
-        ngpAvatarImage
-        src="https://angularprimitives.com/assets/avatar.png"
-        alt="Profile Image"
-      />
-      <span class="font-medium text-sky-900 dark:text-sky-200" ngpAvatarFallback>NG</span>
-    </span>
+    <div class="flex items-center">
+      <span
+        class="relative inline-flex size-11 items-center justify-center rounded-full bg-[#dbeafe] ring-2 ring-white before:absolute before:inset-0 before:rounded-full before:ring-1 before:ring-black/10 before:ring-inset dark:ring-zinc-950 dark:before:ring-white/10"
+        ngpAvatar
+      >
+        <img
+          class="size-full rounded-full object-cover object-[center_bottom]"
+          ngpAvatarImage
+          src="https://cdn.jsdelivr.net/gh/alohe/memojis/png/memo_5.png"
+          alt="Sofia Chen"
+        />
+        <span
+          class="flex size-full items-center justify-center rounded-full text-[0.8125rem] font-[510] tracking-[-0.01em] text-zinc-700"
+          ngpAvatarFallback
+        >
+          SC
+        </span>
+      </span>
+
+      <span
+        class="relative -ml-3 inline-flex size-11 items-center justify-center rounded-full bg-[#fef3c7] ring-2 ring-white before:absolute before:inset-0 before:rounded-full before:ring-1 before:ring-black/10 before:ring-inset dark:ring-zinc-950 dark:before:ring-white/10"
+        ngpAvatar
+      >
+        <img
+          class="size-full rounded-full object-cover object-[center_bottom]"
+          ngpAvatarImage
+          src="https://cdn.jsdelivr.net/gh/alohe/memojis/png/memo_2.png"
+          alt="Aria Rossi"
+        />
+        <span
+          class="flex size-full items-center justify-center rounded-full text-[0.8125rem] font-[510] tracking-[-0.01em] text-zinc-700"
+          ngpAvatarFallback
+        >
+          AR
+        </span>
+      </span>
+
+      <span
+        class="relative -ml-3 inline-flex size-11 items-center justify-center rounded-full bg-[#ede9fe] ring-2 ring-white before:absolute before:inset-0 before:rounded-full before:ring-1 before:ring-black/10 before:ring-inset dark:ring-zinc-950 dark:before:ring-white/10"
+        ngpAvatar
+      >
+        <img
+          class="size-full rounded-full object-cover object-[center_bottom]"
+          ngpAvatarImage
+          src="https://cdn.jsdelivr.net/gh/alohe/memojis/png/memo_7.png"
+          alt="Marco Kim"
+        />
+        <span
+          class="flex size-full items-center justify-center rounded-full text-[0.8125rem] font-[510] tracking-[-0.01em] text-zinc-700"
+          ngpAvatarFallback
+        >
+          MK
+        </span>
+      </span>
+
+      <span
+        class="relative -ml-3 inline-flex size-11 items-center justify-center rounded-full bg-[#cffafe] ring-2 ring-white before:absolute before:inset-0 before:rounded-full before:ring-1 before:ring-black/10 before:ring-inset dark:ring-zinc-950 dark:before:ring-white/10"
+        ngpAvatar
+      >
+        <img
+          class="size-full rounded-full object-cover object-[center_bottom]"
+          ngpAvatarImage
+          src="https://cdn.jsdelivr.net/gh/alohe/memojis/png/memo_10.png"
+          alt="Kai Larsson"
+        />
+        <span
+          class="flex size-full items-center justify-center rounded-full text-[0.8125rem] font-[510] tracking-[-0.01em] text-zinc-700"
+          ngpAvatarFallback
+        >
+          KL
+        </span>
+      </span>
+    </div>
   `,
 })
 export default class AvatarExample {}
