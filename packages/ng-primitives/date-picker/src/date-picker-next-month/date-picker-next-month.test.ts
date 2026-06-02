@@ -13,25 +13,25 @@ import { NgpNativeDateAdapter } from 'ng-primitives/date-time';
 import { describe, beforeEach, it, expect, vi } from 'vitest';
 import { NgpDatePicker } from '../date-picker/date-picker';
 import { NgpDatePickerStateToken } from '../date-picker/date-picker-state';
-import { NgpDatePickerPreviousMonth } from './date-picker-previous-month';
+import { NgpDatePickerNextMonth } from './date-picker-next-month';
 
-describe('NgpDatePickerPreviousMonth', () => {
+describe('NgpDatePickerNextMonth', () => {
   let fixture: ComponentFixture<TestHost>;
   let host: TestHost;
   let focusedDateSignal: WritableSignal<Date>;
   let disabledSignal: WritableSignal<boolean>;
-  let minSignal: WritableSignal<Date | undefined>;
+  let maxSignal: WritableSignal<Date | undefined>;
   let dateAdapter: NgpNativeDateAdapter;
 
   beforeEach(() => {
     dateAdapter = new NgpNativeDateAdapter();
     focusedDateSignal = signal(new Date());
     disabledSignal = signal(false);
-    minSignal = signal(undefined);
+    maxSignal = signal(undefined);
 
     TestBed.configureTestingModule({
       imports: [TestHost],
-      providers: [provideMockDatePickerState(focusedDateSignal, disabledSignal, minSignal)],
+      providers: [provideMockDatePickerState(focusedDateSignal, disabledSignal, maxSignal)],
     });
     fixture = TestBed.createComponent(TestHost);
     fixture.detectChanges();
@@ -39,10 +39,10 @@ describe('NgpDatePickerPreviousMonth', () => {
   });
 
   it('should create', () => {
-    expect(host.previousMonth()).toBeTruthy();
+    expect(host.nextMonth()).toBeTruthy();
   });
 
-  it('should navigate to previous month when clicked', () => {
+  it('should navigate to next month when clicked', () => {
     const currentDate = new Date(2025, 2, 15); // March 15, 2025
     focusedDateSignal.set(currentDate);
 
@@ -51,13 +51,13 @@ describe('NgpDatePickerPreviousMonth', () => {
     fixture.detectChanges();
 
     const newDate = focusedDateSignal();
-    expect(dateAdapter.getMonth(newDate)).toBe(1); // February
+    expect(dateAdapter.getMonth(newDate)).toBe(3); // April
     expect(dateAdapter.getYear(newDate)).toBe(2025);
     expect(dateAdapter.getDate(newDate)).toBe(15); // Focused day is preserved
   });
 
-  it('should handle navigation from 31st of month to previous month without 31 days', () => {
-    const currentDate = new Date(2025, 2, 31); // March 31, 2025
+  it('should advance exactly one month from the 31st of a month into a shorter month', () => {
+    const currentDate = new Date(2026, 4, 31); // May 31, 2026 (June has 30 days)
     focusedDateSignal.set(currentDate);
 
     const button = fixture.nativeElement.querySelector('button');
@@ -65,15 +65,14 @@ describe('NgpDatePickerPreviousMonth', () => {
     fixture.detectChanges();
 
     const newDate = focusedDateSignal();
-    // Should navigate to February 28, 2025 (February only has 28 days in 2025),
-    // clamping the focused day to the last day of the month.
-    expect(dateAdapter.getMonth(newDate)).toBe(1); // February
-    expect(dateAdapter.getYear(newDate)).toBe(2025);
-    expect(dateAdapter.getDate(newDate)).toBe(28); // Clamped to the last day of February
+    // Should navigate to June 30, 2026 - clamped to the last day, not skip to July.
+    expect(dateAdapter.getMonth(newDate)).toBe(5); // June
+    expect(dateAdapter.getYear(newDate)).toBe(2026);
+    expect(dateAdapter.getDate(newDate)).toBe(30); // Clamped to the last day of June
   });
 
-  it('should handle navigation from January to December of previous year', () => {
-    const currentDate = new Date(2025, 0, 15); // January 15, 2025
+  it('should handle navigation from December to January of next year', () => {
+    const currentDate = new Date(2025, 11, 15); // December 15, 2025
     focusedDateSignal.set(currentDate);
 
     const button = fixture.nativeElement.querySelector('button');
@@ -81,8 +80,8 @@ describe('NgpDatePickerPreviousMonth', () => {
     fixture.detectChanges();
 
     const newDate = focusedDateSignal();
-    expect(dateAdapter.getMonth(newDate)).toBe(11); // December
-    expect(dateAdapter.getYear(newDate)).toBe(2024);
+    expect(dateAdapter.getMonth(newDate)).toBe(0); // January
+    expect(dateAdapter.getYear(newDate)).toBe(2026);
     expect(dateAdapter.getDate(newDate)).toBe(15); // Focused day is preserved
   });
 
@@ -100,26 +99,26 @@ describe('NgpDatePickerPreviousMonth', () => {
     expect(dateAdapter.getDate(newDate)).toBe(15);
   });
 
-  it('should be disabled when min date is in current month', () => {
+  it('should be disabled when max date is in current month', () => {
     const currentDate = new Date(2025, 2, 15); // March 15, 2025
-    const minDate = new Date(2025, 2, 1); // March 1, 2025
+    const maxDate = new Date(2025, 2, 31); // March 31, 2025
     focusedDateSignal.set(currentDate);
-    minSignal.set(minDate);
+    maxSignal.set(maxDate);
 
     fixture.detectChanges();
 
-    expect(host.previousMonth().disabled()).toBe(true);
+    expect(host.nextMonth().disabled()).toBe(true);
   });
 
-  it('should not be disabled when min date is in previous month', () => {
+  it('should not be disabled when max date is in next month', () => {
     const currentDate = new Date(2025, 2, 15); // March 15, 2025
-    const minDate = new Date(2025, 1, 1); // February 1, 2025
+    const maxDate = new Date(2025, 3, 1); // April 1, 2025
     focusedDateSignal.set(currentDate);
-    minSignal.set(minDate);
+    maxSignal.set(maxDate);
 
     fixture.detectChanges();
 
-    expect(host.previousMonth().disabled()).toBe(false);
+    expect(host.nextMonth().disabled()).toBe(false);
   });
 
   it('should set time to midnight when navigating', () => {
@@ -161,28 +160,26 @@ describe('NgpDatePickerPreviousMonth', () => {
 
 @Component({
   template: `
-    <button ngpDatePickerPreviousMonth>Go to Previous Month</button>
+    <button ngpDatePickerNextMonth>Go to Next Month</button>
   `,
-  imports: [NgpDatePickerPreviousMonth],
+  imports: [NgpDatePickerNextMonth],
 })
 class TestHost {
-  public previousMonth = viewChild.required<NgpDatePickerPreviousMonth<Date>>(
-    NgpDatePickerPreviousMonth,
-  );
+  public nextMonth = viewChild.required<NgpDatePickerNextMonth<Date>>(NgpDatePickerNextMonth);
 }
 
 function provideMockDatePickerState(
   focusedDate: WritableSignal<Date>,
   disabled: WritableSignal<boolean>,
-  min: WritableSignal<Date | undefined>,
+  max: WritableSignal<Date | undefined>,
 ): Provider {
   return {
     provide: NgpDatePickerStateToken,
     useValue: signal({
       focusedDate: focusedDate as unknown as InputSignal<Date>,
       disabled: disabled as unknown as InputSignalWithTransform<boolean, BooleanInput>,
-      min: min as unknown as InputSignal<Date | undefined>,
-      max: signal(undefined) as unknown as InputSignal<Date | undefined>,
+      min: signal(undefined) as unknown as InputSignal<Date | undefined>,
+      max: max as unknown as InputSignal<Date | undefined>,
       setFocusedDate: vi.fn((date: Date) => {
         focusedDate.set(date);
       }),
