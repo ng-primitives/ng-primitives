@@ -31,7 +31,7 @@ import {
         ngpMeterTrack
       >
         <div
-          class="h-full rounded-sm bg-lime-400 transition-[width] duration-200 ease-in-out"
+          class="h-full rounded-sm bg-[#f01e2b] transition-[width] duration-200 ease-in-out dark:bg-[#ff4651]"
           ngpMeterIndicator
         ></div>
       </div>

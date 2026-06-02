@@ -24,12 +24,11 @@ import { NgpPopover, NgpPopoverArrow, NgpPopoverTrigger } from 'ng-primitives/po
   `,
   styles: `
     button {
-      padding-left: 1rem;
-      padding-right: 1rem;
+      padding-inline: 0.875rem;
       border-radius: 0.5rem;
       color: var(--ngp-text-primary);
       outline: none;
-      height: 2.5rem;
+      height: 2.125rem;
       font-weight: 500;
       background-color: var(--ngp-background);
       transition: background-color 300ms cubic-bezier(0.4, 0, 0.2, 1);
@@ -120,7 +119,7 @@ import { NgpPopover, NgpPopoverArrow, NgpPopoverTrigger } from 'ng-primitives/po
 
     [ngpPopover] a {
       font-size: 13px;
-      color: var(--ngp-text-blue);
+      color: var(--ngp-primary);
       text-decoration: none;
     }
 

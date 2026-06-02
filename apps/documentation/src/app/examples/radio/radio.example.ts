@@ -18,11 +18,12 @@ import { NgpRadioGroup, NgpRadioIndicator, NgpRadioItem } from 'ng-primitives/ra
       grid-template-rows: repeat(2, auto);
       column-gap: 0.625rem;
       row-gap: 0.125rem;
-      border-radius: 0.5rem;
+      border-radius: 0.625rem;
       background-color: var(--ngp-background);
       padding: 0.75rem 1rem;
       box-shadow: var(--ngp-button-shadow);
       outline: none;
+      transition: box-shadow 0.16s ease;
     }
 
     [ngpRadioItem][data-hover] {
@@ -39,7 +40,9 @@ import { NgpRadioGroup, NgpRadioIndicator, NgpRadioItem } from 'ng-primitives/ra
     }
 
     [ngpRadioItem][data-checked] {
-      background-color: var(--ngp-background-inverse);
+      box-shadow:
+        var(--ngp-button-shadow),
+        inset 0 0 0 1.5px var(--ngp-primary);
     }
 
     [ngpRadioIndicator] {
@@ -59,23 +62,26 @@ import { NgpRadioGroup, NgpRadioIndicator, NgpRadioItem } from 'ng-primitives/ra
       width: 0.5rem;
       height: 0.5rem;
       border-radius: 9999px;
-      background-color: transparent;
+      background-color: var(--ngp-primary);
+      transform: scale(0);
+      transition: transform 0.16s cubic-bezier(0.2, 0.8, 0.3, 1.2);
+    }
+
+    [ngpRadioItem][data-checked] [ngpRadioIndicator] {
+      border-color: var(--ngp-primary);
     }
 
     [ngpRadioItem][data-checked] .indicator-dot {
-      background-color: var(--ngp-background);
+      transform: scale(1);
     }
 
     .title {
       grid-column-start: 2;
       grid-row-start: 1;
-      font-weight: 500;
+      font-weight: 510;
+      letter-spacing: -0.006em;
       color: var(--ngp-text-primary);
       margin: 0;
-    }
-
-    [ngpRadioItem][data-checked] .title {
-      color: var(--ngp-text-inverse);
     }
 
     .description {
@@ -84,11 +90,8 @@ import { NgpRadioGroup, NgpRadioIndicator, NgpRadioItem } from 'ng-primitives/ra
       font-size: 0.75rem;
       color: var(--ngp-text-secondary);
       line-height: 1rem;
+      letter-spacing: -0.006em;
       margin: 0;
-    }
-
-    [ngpRadioItem][data-checked] .description {
-      color: var(--ngp-text-inverse);
     }
   `,
   template: `

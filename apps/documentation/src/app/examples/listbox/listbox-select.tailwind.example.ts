@@ -29,7 +29,7 @@ import { NgpPopover, NgpPopoverTrigger } from 'ng-primitives/popover';
       </p>
 
       <button
-        class="flex h-9 w-full items-center justify-between rounded-lg border border-gray-200 bg-white px-4 text-left text-sm text-gray-600 transition-colors focus:ring-0 dark:border-gray-700 dark:bg-transparent dark:text-gray-300"
+        class="flex h-[2.125rem] w-full items-center justify-between rounded-lg border border-gray-200 bg-white px-4 text-left text-sm tracking-[-0.006em] text-gray-600 transition-colors outline-none focus:ring-0 data-focus-visible:ring-2 data-focus-visible:ring-blue-500/40 data-focus-visible:ring-offset-2 dark:border-zinc-800 dark:bg-transparent dark:text-gray-300 dark:data-focus-visible:ring-blue-400/45 dark:data-focus-visible:ring-offset-zinc-950"
         [ngpPopoverTrigger]="dropdown"
         ngpButton
         ngpListboxTrigger
@@ -40,7 +40,7 @@ import { NgpPopover, NgpPopoverTrigger } from 'ng-primitives/popover';
 
       <ng-template #dropdown>
         <div
-          class="absolute z-1001 mt-1 w-[300px] rounded-xl border border-gray-200 bg-white p-1 outline-hidden dark:border-gray-700 dark:bg-black"
+          class="absolute z-1001 mt-1 w-[300px] rounded-xl border border-gray-200 bg-white p-1 outline-hidden dark:border-gray-800 dark:bg-zinc-950"
           [(ngpListboxValue)]="selection"
           ngpPopover
           ngpListbox
@@ -48,13 +48,13 @@ import { NgpPopover, NgpPopoverTrigger } from 'ng-primitives/popover';
         >
           @for (option of options; track option.id) {
             <div
-              class="flex h-9 w-full cursor-pointer items-center gap-2 rounded-lg px-3 text-[14px] text-gray-600 transition-colors hover:bg-gray-50 data-active:bg-gray-100 data-press:bg-gray-100 dark:text-gray-100 dark:text-gray-300 dark:hover:bg-white/5 dark:data-active:bg-white/10 dark:data-press:bg-white/10"
+              class="flex h-[2.125rem] w-full cursor-pointer items-center gap-2 rounded-lg px-3 text-sm tracking-[-0.006em] text-gray-600 transition-colors hover:bg-gray-50 data-active:bg-gray-100 data-press:bg-gray-100 data-selected:font-[510] data-selected:text-gray-900 dark:text-gray-300 dark:hover:bg-white/5 dark:data-active:bg-white/10 dark:data-press:bg-white/10 dark:data-selected:text-gray-100"
               #listboxOption="ngpListboxOption"
               [ngpListboxOptionValue]="option"
               ngpListboxOption
             >
               <ng-icon
-                class="opacity-0 transition-opacity"
+                class="text-[#f01e2b] opacity-0 transition-opacity dark:text-[#ff4651]"
                 [class.opacity-100]="listboxOption.selected()"
                 name="heroCheckSolid"
                 size="16px"

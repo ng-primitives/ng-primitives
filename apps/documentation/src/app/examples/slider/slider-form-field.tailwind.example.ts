@@ -30,7 +30,7 @@ import { NgpSlider, NgpSliderRange, NgpSliderThumb, NgpSliderTrack } from 'ng-pr
           ngpSliderTrack
         >
           <div
-            class="absolute h-full rounded-full bg-gray-900 dark:bg-gray-50"
+            class="absolute h-full rounded-full bg-[#f01e2b] dark:bg-[#ff4651]"
             ngpSliderRange
           ></div>
         </div>

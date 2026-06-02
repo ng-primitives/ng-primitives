@@ -9,13 +9,12 @@ import { NgpFocusVisible } from 'ng-primitives/interactions';
   `,
   styles: `
     button {
-      padding-left: 1rem;
-      padding-right: 1rem;
+      padding-inline: 0.875rem;
       border-radius: 0.5rem;
       color: var(--ngp-text-primary);
       outline: none;
-      height: 2.5rem;
-      font-weight: 500;
+      height: 2.125rem;
+      font-weight: 510;
       background-color: var(--ngp-background);
       border: 1px solid var(--ngp-border);
       transition: background-color 300ms cubic-bezier(0.4, 0, 0.2, 1);

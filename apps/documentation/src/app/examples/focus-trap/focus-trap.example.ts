@@ -38,14 +38,13 @@ import { NgpFocusTrap } from 'ng-primitives/focus-trap';
     }
 
     [ngpButton] {
-      padding-left: 1rem;
-      padding-right: 1rem;
+      padding-inline: 0.875rem;
       border-radius: 0.5rem;
       color: var(--ngp-text-primary);
       border: 1px solid var(--ngp-border);
       outline: none;
-      height: 2.5rem;
-      font-weight: 500;
+      height: 2.125rem;
+      font-weight: 510;
       background-color: var(--ngp-background);
       transition: background-color 300ms cubic-bezier(0.4, 0, 0.2, 1);
       box-shadow: var(--ngp-shadow);

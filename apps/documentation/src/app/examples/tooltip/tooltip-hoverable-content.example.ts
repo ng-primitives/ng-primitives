@@ -51,8 +51,8 @@ import { NgpTooltip, NgpTooltipArrow, NgpTooltipTrigger } from 'ng-primitives/to
         border-radius: 0.5rem;
         color: var(--ngp-text-primary);
         outline: none;
-        height: 2.5rem;
-        font-weight: 500;
+        height: 2.125rem;
+        font-weight: 510;
         background-color: var(--ngp-background);
         transition: background-color 300ms cubic-bezier(0.4, 0, 0.2, 1);
         box-shadow: var(--ngp-button-shadow);
@@ -79,7 +79,7 @@ import { NgpTooltip, NgpTooltipArrow, NgpTooltipTrigger } from 'ng-primitives/to
       padding: 0.5rem 0.75rem;
       border: none;
       font-size: 0.75rem;
-      font-weight: 500;
+      font-weight: 510;
       color: var(--ngp-text-inverse);
       animation: tooltip-show 200ms ease-in-out;
       transform-origin: var(--ngp-tooltip-transform-origin);

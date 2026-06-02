@@ -44,14 +44,14 @@ import {
   `,
   styles: `
     [ngpButton] {
-      padding-left: 1rem;
-      padding-right: 1rem;
-      border-radius: 0.5rem;
+      padding-inline: 0.875rem;
+      border-radius: 0.625rem;
       color: var(--ngp-text-primary);
       border: none;
       outline: none;
-      height: 2.5rem;
-      font-weight: 500;
+      height: 2.125rem;
+      font-weight: 510;
+      letter-spacing: -0.006em;
       background-color: var(--ngp-background);
       transition: background-color 300ms cubic-bezier(0.4, 0, 0.2, 1);
       box-shadow: var(--ngp-button-shadow);
@@ -63,6 +63,7 @@ import {
 
     [ngpButton][data-focus-visible] {
       outline: 2px solid var(--ngp-focus-ring);
+      outline-offset: 1px;
     }
 
     [ngpButton][data-press] {
@@ -77,8 +78,9 @@ import {
       background: var(--ngp-background);
       border: 1px solid var(--ngp-border);
       box-shadow: var(--ngp-shadow-lg);
-      border-radius: 8px;
-      padding: 4px;
+      border-radius: 0.625rem;
+      padding: 0.25rem;
+      outline: none;
       transform-origin: var(--ngp-menu-transform-origin);
     }
 
@@ -94,30 +96,28 @@ import {
       display: flex;
       align-items: center;
       gap: 8px;
-      padding: 6px 14px;
+      padding: 0.4375rem 0.75rem;
       border: none;
       background: none;
       cursor: pointer;
-      transition: background-color 0.2s;
-      border-radius: 4px;
+      transition: background-color 0.15s ease;
+      border-radius: 0.375rem;
       min-width: 160px;
       text-align: start;
       outline: none;
-      font-size: 14px;
-      font-weight: 400;
+      font-size: 0.875rem;
+      font-weight: 510;
+      letter-spacing: -0.006em;
+      color: var(--ngp-text-primary);
     }
 
-    [ngpMenuItemRadio][data-hover] {
+    [ngpMenuItemRadio][data-hover],
+    [ngpMenuItemRadio][data-focus-visible] {
       background-color: var(--ngp-background-hover);
     }
 
     [ngpMenuItemRadio][data-press] {
       background-color: var(--ngp-background-active);
-    }
-
-    [ngpMenuItemRadio][data-focus-visible] {
-      outline: 2px solid var(--ngp-focus-ring);
-      z-index: 1;
     }
 
     .indicator {
@@ -140,13 +140,13 @@ import {
       width: 6px;
       height: 6px;
       border-radius: 50%;
-      background-color: var(--ngp-text-blue);
+      background-color: var(--ngp-primary);
       transform: scale(0);
       transition: transform 0.15s ease;
     }
 
     .indicator[data-checked] {
-      border-color: var(--ngp-border-blue);
+      border-color: var(--ngp-primary);
     }
 
     .indicator[data-checked]::after {

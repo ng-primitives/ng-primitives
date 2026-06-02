@@ -10,16 +10,18 @@ import { NgpToggle } from 'ng-primitives/toggle';
   `,
   styles: `
     [ngpButton] {
-      padding-left: 1rem;
-      padding-right: 1rem;
-      border-radius: 0.5rem;
+      padding-inline: 0.875rem;
+      border-radius: 0.625rem;
       color: var(--ngp-text-primary);
       border: none;
       outline: none;
-      height: 2.5rem;
-      font-weight: 500;
+      height: 2.125rem;
+      font-weight: 510;
+      letter-spacing: -0.006em;
       background-color: var(--ngp-background);
-      transition: background-color 300ms cubic-bezier(0.4, 0, 0.2, 1);
+      transition:
+        background-color 200ms cubic-bezier(0.4, 0, 0.2, 1),
+        color 200ms cubic-bezier(0.4, 0, 0.2, 1);
       box-shadow: var(--ngp-button-shadow);
     }
 
@@ -37,8 +39,12 @@ import { NgpToggle } from 'ng-primitives/toggle';
     }
 
     [ngpButton][data-selected] {
-      background-color: var(--ngp-background-inverse);
-      color: var(--ngp-text-inverse);
+      background-color: var(--ngp-primary);
+      color: var(--ngp-primary-text);
+    }
+
+    [ngpButton][data-selected][data-hover] {
+      background-color: var(--ngp-primary-hover);
     }
   `,
 })

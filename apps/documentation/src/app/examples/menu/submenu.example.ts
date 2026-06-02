@@ -32,14 +32,14 @@ import { NgpMenu, NgpMenuItem, NgpMenuTrigger, NgpSubmenuTrigger } from 'ng-prim
   `,
   styles: `
     [ngpButton] {
-      padding-left: 1rem;
-      padding-right: 1rem;
-      border-radius: 0.5rem;
+      padding-inline: 0.875rem;
+      border-radius: 0.625rem;
       color: var(--ngp-text-primary);
       border: none;
       outline: none;
-      height: 2.5rem;
-      font-weight: 500;
+      height: 2.125rem;
+      font-weight: 510;
+      letter-spacing: -0.006em;
       background-color: var(--ngp-background);
       transition: background-color 300ms cubic-bezier(0.4, 0, 0.2, 1);
       box-shadow: var(--ngp-button-shadow);
@@ -51,6 +51,7 @@ import { NgpMenu, NgpMenuItem, NgpMenuTrigger, NgpSubmenuTrigger } from 'ng-prim
 
     [ngpButton][data-focus-visible] {
       outline: 2px solid var(--ngp-focus-ring);
+      outline-offset: 1px;
     }
 
     [ngpButton][data-press] {
@@ -65,8 +66,9 @@ import { NgpMenu, NgpMenuItem, NgpMenuTrigger, NgpSubmenuTrigger } from 'ng-prim
       background: var(--ngp-background);
       border: 1px solid var(--ngp-border);
       box-shadow: var(--ngp-shadow-lg);
-      border-radius: 8px;
-      padding: 4px;
+      border-radius: 0.625rem;
+      padding: 0.25rem;
+      outline: none;
       animation: menu-show 0.2s ease-out;
       transform-origin: var(--ngp-popover-transform-origin);
     }
@@ -79,20 +81,23 @@ import { NgpMenu, NgpMenuItem, NgpMenuTrigger, NgpSubmenuTrigger } from 'ng-prim
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 6px 8px 6px 14px;
+      padding: 0.4375rem 0.5rem 0.4375rem 0.75rem;
       border: none;
       background: none;
       cursor: pointer;
-      transition: background-color 0.2s;
-      border-radius: 4px;
-      min-width: 120px;
+      transition: background-color 0.15s ease;
+      border-radius: 0.375rem;
+      min-width: 140px;
       text-align: start;
       outline: none;
-      font-size: 14px;
-      font-weight: 400;
+      font-size: 0.875rem;
+      font-weight: 510;
+      letter-spacing: -0.006em;
+      color: var(--ngp-text-primary);
     }
 
-    [ngpMenuItem][data-hover] {
+    [ngpMenuItem][data-hover],
+    [ngpMenuItem][data-focus-visible] {
       background-color: var(--ngp-background-hover);
     }
 
@@ -100,9 +105,10 @@ import { NgpMenu, NgpMenuItem, NgpMenuTrigger, NgpSubmenuTrigger } from 'ng-prim
       background-color: var(--ngp-background-active);
     }
 
-    [ngpMenuItem][data-focus-visible] {
-      outline: 2px solid var(--ngp-focus-ring);
-      z-index: 1;
+    [ngpMenuItem] ng-icon {
+      margin-left: 0.75rem;
+      color: var(--ngp-text-tertiary);
+      --ng-icon__size: 1rem;
     }
 
     @keyframes menu-show {

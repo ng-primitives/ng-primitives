@@ -45,7 +45,7 @@ import {
     [ngpCombobox]:focus-within {
       outline: 2px solid var(--ngp-focus-ring);
       outline-offset: 2px;
-      border-radius: 8px;
+      border-radius: 0.5rem;
     }
 
     [ngpComboboxButton] {
@@ -53,13 +53,13 @@ import {
       justify-content: space-between;
       align-items: center;
       width: 100%;
-      height: 36px;
+      height: 2.125rem;
       padding: 0 16px;
-      border-radius: 8px;
+      border-radius: 0.5rem;
       border: none;
       background-color: var(--ngp-background);
       box-shadow: var(--ngp-input-shadow);
-      color: var(--ngp-text);
+      color: var(--ngp-text-primary);
       font-family: inherit;
       font-size: 14px;
       cursor: pointer;
@@ -118,7 +118,7 @@ import {
       cursor: pointer;
       border-radius: 0.5rem;
       width: 100%;
-      height: 36px;
+      height: 2.125rem;
       font-size: 14px;
       color: var(--ngp-text-primary);
       box-sizing: border-box;
@@ -137,8 +137,8 @@ import {
     }
 
     [ngpComboboxOption][data-selected] {
-      background-color: var(--ngp-background-blue);
-      color: var(--ngp-text-emphasis);
+      color: var(--ngp-primary);
+      font-weight: 510;
     }
 
     @keyframes dropdown-show {

@@ -41,9 +41,9 @@ import {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      height: 36px;
+      height: 2.125rem;
       width: 300px;
-      border-radius: 8px;
+      border-radius: 0.5rem;
       border: none;
       background-color: var(--ngp-background);
       box-shadow: var(--ngp-input-shadow);
@@ -115,7 +115,7 @@ import {
       cursor: pointer;
       border-radius: 0.5rem;
       width: 100%;
-      height: 36px;
+      height: 2.125rem;
       font-size: 14px;
       color: var(--ngp-text-primary);
       box-sizing: border-box;
@@ -131,6 +131,11 @@ import {
 
     [ngpSelectOption][data-active] {
       background-color: var(--ngp-background-active);
+    }
+
+    [ngpSelectOption][data-selected] {
+      color: var(--ngp-primary);
+      font-weight: 510;
     }
 
     .clear-option {
@@ -151,7 +156,7 @@ import {
       padding: 0.5rem;
       color: var(--ngp-text-secondary);
       font-size: 14px;
-      font-weight: 500;
+      font-weight: 510;
       text-align: center;
     }
 

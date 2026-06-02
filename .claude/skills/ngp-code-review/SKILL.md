@@ -99,6 +99,14 @@ PR template requires docs updates for features and bug fixes. For new public beh
 - Look for a docs page under `apps/documentation/src/app/pages/primitives/<primitive>/`.
 - Generators: `nx g @ng-primitives/tools:example <name> --primitive <primitive>` and `nx g @ng-primitives/tools:documentation`.
 
+If the diff touches files under `apps/documentation/src/app/examples/`, check them against `.claude/rules/docs-example-styling.md`. Common violations to flag by `file:line`:
+
+- **Off-brand colour.** Brand red (`--ngp-primary` / `#f01e2b` / `#ff4651`) on a focus ring (`:focus`, `[data-focus]`, `[data-focus-visible]`, `:focus-within`) - focus must be blue (`--ngp-focus-ring` / `blue-500` / `blue-400`). Conversely, blue / `--ngp-background-inverse` / off-palette tokens (`--ngp-text-blue`, `--ngp-background-blue`, `--ngp-background-success`) used for a _state_ (checked, selected, active, fill, primary button) - those must be brand red.
+- **Menu/option focus as an outline** instead of a background highlight, or a missing `outline: none` on the dropdown panel.
+- **CSS ↔ Tailwind drift.** A change to `<name>.example.ts` without the matching change to `<name>.tailwind.example.ts` (or vice-versa), so the two variants no longer match.
+- **Typography/radii off-scale** (500/600 weights instead of 510/590, no negative tracking, dark panels using `bg-black` / `gray-700` instead of `zinc-950` / `zinc-800`).
+- **Dialog overlay** missing `z-index: 1000` / `z-[1000]` (backdrop renders under the navbar).
+
 ### 8. Commits & PR template
 
 - Conventional Commits required: `feat(scope): …`, `fix(scope): …`, `docs(scope): …`, `chore(scope): …`. Scope is usually the primitive name (`combobox`, `focus-trap`, `tooltip`).

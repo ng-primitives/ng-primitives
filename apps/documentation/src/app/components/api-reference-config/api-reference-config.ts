@@ -32,7 +32,10 @@ export class ApiReferenceConfig implements OnInit {
       const config = definitions[name];
 
       if (!config) {
-        throw new Error(`Config "${name}" not found in documentation.json`);
+        // Degrade gracefully if the generated API data is missing or stale
+        // rather than surfacing an unhandled rejection on the page.
+        console.warn(`Config "${name}" not found in documentation.json`);
+        return;
       }
 
       this.resolvedData.set(config.properties);

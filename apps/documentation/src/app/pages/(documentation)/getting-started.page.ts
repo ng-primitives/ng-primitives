@@ -14,9 +14,7 @@ import { HeadingAnchor } from '../../directives/heading-anchor';
         docsHeadingAnchor
       >
         <div class="mx-auto w-fit max-w-full">
-          <p
-            class="from-primary to-accent mb-2 inline-block bg-linear-to-r bg-clip-text text-sm font-medium text-transparent"
-          >
+          <p class="text-primary mb-3 text-xs font-semibold tracking-[0.08em] uppercase">
             Getting Started
           </p>
           <div class="max-w-3xl">

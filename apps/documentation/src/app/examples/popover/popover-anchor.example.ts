@@ -53,11 +53,15 @@ import { NgpPopover, NgpPopoverArrow, NgpPopoverTrigger } from 'ng-primitives/po
     }
 
     [ngpInput] {
-      height: 36px;
+      height: 2.125rem;
       flex: 1;
-      border-radius: 8px;
+      border-radius: 0.5rem;
       padding: 0 16px;
       border: none;
+      background-color: var(--ngp-background);
+      color: var(--ngp-text-primary);
+      font-size: 0.875rem;
+      letter-spacing: -0.006em;
       box-shadow: var(--ngp-input-shadow);
       outline: none;
     }
@@ -72,8 +76,8 @@ import { NgpPopover, NgpPopoverArrow, NgpPopoverTrigger } from 'ng-primitives/po
     }
 
     .help-button {
-      width: 36px;
-      height: 36px;
+      width: 2.125rem;
+      height: 2.125rem;
       padding: 0;
       border-radius: 50%;
       color: var(--ngp-text-primary);

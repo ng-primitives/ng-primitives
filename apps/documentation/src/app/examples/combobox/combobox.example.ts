@@ -56,9 +56,9 @@ import {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      height: 36px;
+      height: 2.125rem;
       width: 300px;
-      border-radius: 8px;
+      border-radius: 0.5rem;
       border: none;
       background-color: var(--ngp-background);
       box-shadow: var(--ngp-input-shadow);
@@ -75,7 +75,7 @@ import {
       padding: 0 16px;
       border: none;
       background-color: transparent;
-      color: var(--ngp-text);
+      color: var(--ngp-text-primary);
       font-family: inherit;
       font-size: 14px;
       padding: 0 16px;
@@ -91,7 +91,7 @@ import {
       width: 36px;
       background-color: transparent;
       border: none;
-      color: var(--ngp-text);
+      color: var(--ngp-text-primary);
       cursor: pointer;
       box-sizing: border-box;
     }
@@ -129,7 +129,7 @@ import {
       cursor: pointer;
       border-radius: 0.5rem;
       width: 100%;
-      height: 36px;
+      height: 2.125rem;
       font-size: 14px;
       color: var(--ngp-text-primary);
       box-sizing: border-box;
@@ -147,6 +147,11 @@ import {
       background-color: var(--ngp-background-active);
     }
 
+    [ngpComboboxOption][data-selected] {
+      color: var(--ngp-primary);
+      font-weight: 510;
+    }
+
     .empty-message {
       display: flex;
       justify-content: center;
@@ -154,7 +159,7 @@ import {
       padding: 0.5rem;
       color: var(--ngp-text-secondary);
       font-size: 14px;
-      font-weight: 500;
+      font-weight: 510;
       text-align: center;
     }
 

@@ -31,16 +31,28 @@ import { NgpTabButton, NgpTabList, NgpTabPanel, NgpTabset } from 'ng-primitives/
       border-bottom: 2px solid transparent;
       padding: 0.5rem 0;
       outline: none;
-      transition: background-color 150ms cubic-bezier(0.4, 0, 0.2, 1);
+      cursor: pointer;
+      font-size: 0.875rem;
+      font-weight: 510;
+      letter-spacing: -0.006em;
+      color: var(--ngp-text-secondary);
+      transition:
+        color 150ms cubic-bezier(0.4, 0, 0.2, 1),
+        border-color 150ms cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    [ngpTabButton][data-hover] {
+      color: var(--ngp-text-primary);
     }
 
     [ngpTabButton][data-focus-visible] {
       outline: 2px solid var(--ngp-focus-ring);
       outline-offset: 2px;
+      border-radius: 0.25rem;
     }
 
     [ngpTabButton][data-active] {
-      border-color: var(--ngp-background-inverse);
+      border-color: var(--ngp-primary);
       color: var(--ngp-text-primary);
     }
 

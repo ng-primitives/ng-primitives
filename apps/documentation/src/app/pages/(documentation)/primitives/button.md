@@ -31,32 +31,6 @@ Create a button component that uses the `NgpButton` directive.
 
 <docs-snippet name="button"></docs-snippet>
 
-## Examples
-
-### Button Sizes
-
-You can add size support to your reusable button component. This is implemented at the component level rather than in the primitive to provide more flexibility for different design systems.
-
-<docs-example name="button-sizes"></docs-example>
-
-### Button Variants
-
-You can add variant support to your reusable button component to indicate different purposes or importance levels.
-
-<docs-example name="button-variants"></docs-example>
-
-### Button with Icons
-
-You can add icons to your buttons using any Angular icon library or simple SVG elements, but we recommend the [`@ng-icons`](https://github.com/ng-icons/ng-icons) library. This example shows how to create buttons with icons on the leading, trailing, or both sides using content projection slots.
-
-<docs-example name="button-icon"></docs-example>
-
-### Loading States
-
-Use `disabled="soft"` for buttons that enter a loading state after being clicked.
-
-<docs-example name="button-loading"></docs-example>
-
 ## Schematics
 
 Generate a reusable button component using the Angular CLI.
@@ -72,14 +46,6 @@ ng g ng-primitives:primitive button
 - `component-suffix`: The suffix to apply to the generated component class name.
 - `file-suffix`: The suffix to apply to the generated component file name. Defaults to `component`.
 - `example-styles`: Whether to include example styles in the generated component file. Defaults to `true`.
-
-## Disabled States
-
-The `disabled` input accepts:
-
-- `false` — enabled.
-- `true` — native `disabled` applied; focus and events blocked by the browser.
-- `'soft'` — `aria-disabled="true"` and `data-disabled="soft"`; stays focusable. Events still fire — guard your handlers (see the [Loading States](#loading-states) example). Follows the [WAI-ARIA pattern for focusable disabled controls](https://www.w3.org/WAI/ARIA/apg/practices/keyboard-interface/#kbd_disabled_controls).
 
 ## API Reference
 

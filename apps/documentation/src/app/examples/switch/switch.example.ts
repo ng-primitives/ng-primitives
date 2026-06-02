@@ -22,11 +22,12 @@ import { NgpSwitch, NgpSwitchThumb } from 'ng-primitives/switch';
 
     [ngpSwitch][data-focus-visible] {
       outline: 2px solid var(--ngp-focus-ring);
+      outline-offset: 2px;
     }
 
     [ngpSwitch][data-checked] {
-      background-color: var(--ngp-background-blue);
-      border-color: var(--ngp-border-blue);
+      background-color: var(--ngp-primary);
+      border-color: var(--ngp-primary);
     }
 
     [ngpSwitchThumb] {

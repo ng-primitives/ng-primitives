@@ -33,13 +33,13 @@ import {
     [ngpMeterLabel] {
       color: var(--ngp-text-emphasis);
       font-size: 14px;
-      font-weight: 600;
+      font-weight: 590;
     }
 
     [ngpMeterValue] {
       color: var(--ngp-text-secondary);
       font-size: 14px;
-      font-weight: 500;
+      font-weight: 510;
       text-align: right;
       grid-column-start: 2;
       text-align: end;
@@ -55,7 +55,7 @@ import {
     }
 
     [ngpMeterIndicator] {
-      background-color: var(--ngp-background-success);
+      background-color: var(--ngp-primary);
       height: 100%;
       transition: width 0.2s ease-in-out;
       inset-inline-start: 0px;

@@ -1,11 +1,17 @@
 <div class="w-40 flex-none xl:w-64">
-  <h2 class="text-md mb-2 font-semibold text-zinc-800 dark:text-zinc-100">On this page</h2>
-  <ul class="">
+  <h2 class="text-fg-tertiary mb-3 px-3 text-[11px] font-semibold tracking-[0.08em] uppercase">
+    On this page
+  </h2>
+  <ul class="flex flex-col gap-y-0.5">
     @for (link of links(); track link.id) {
     <li>
       <a
-        class="block h-8 cursor-pointer items-center truncate rounded-lg py-1.5 text-zinc-600 hover:text-zinc-950 dark:text-zinc-300 dark:hover:text-white"
-        [class.pl-4]="link.level === 3"
+        class="hover:text-fg block cursor-pointer truncate rounded-md py-1.5 pr-2 text-[13px] leading-5 transition-colors"
+        [class.pl-6]="link.level === 3"
+        [class.pl-3]="link.level !== 3"
+        [class.text-primary]="activeId() === link.id"
+        [class.font-medium]="activeId() === link.id"
+        [class.text-fg-tertiary]="activeId() !== link.id"
         (click)="scrollTo(link.id)"
       >
         {{ link.text }}

@@ -6,8 +6,10 @@
     <base href="/" />
     <meta
       name="viewport"
-      content="width=device-width, initial-scale=1, maximum-scale=1.0, user-scalable=no"
+      content="width=device-width, initial-scale=1, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"
     />
+    <!-- Tints the iOS Safari address bar / safe areas; kept in sync below. -->
+    <meta name="theme-color" content="#ffffff" />
     <!-- Primary Meta Tags -->
     <meta name="title" content="Angular Primitives" />
     <meta
@@ -71,10 +73,17 @@
         } else {
           document.documentElement.classList.remove('dark');
         }
+
+        // Match the iOS browser chrome to the resolved theme before first paint.
+        const isDark = document.documentElement.classList.contains('dark');
+        const themeColor = document.querySelector('meta[name="theme-color"]');
+        if (themeColor) {
+          themeColor.setAttribute('content', isDark ? '#08090a' : '#ffffff');
+        }
       }
     </script>
   </head>
-  <body class="font-sans text-sm text-zinc-800 antialiased dark:bg-zinc-900 dark:text-zinc-100">
+  <body class="text-fg bg-surface font-sans text-sm antialiased">
     <docs-root></docs-root>
     <script type="module" src="/src/main.ts"></script>
   </body>

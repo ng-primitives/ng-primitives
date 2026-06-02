@@ -24,14 +24,14 @@ import { NgpNativeSelect } from 'ng-primitives/select';
       display: flex;
       flex-direction: column;
       gap: 6px;
-      width: 90%;
+      width: 300px;
     }
 
     [ngpLabel] {
       color: var(--ngp-text-primary);
       font-size: 0.875rem;
       line-height: 1.25rem;
-      font-weight: 500;
+      font-weight: 510;
       margin: 0;
     }
 
@@ -46,9 +46,9 @@ import { NgpNativeSelect } from 'ng-primitives/select';
       all: unset;
       appearance: none;
       display: flex;
-      width: 90%;
+      width: 300px;
       align-items: center;
-      height: 2.5rem;
+      height: 2.125rem;
       padding: 0 1rem;
       border-radius: 0.5rem;
       background-color: var(--ngp-background);

@@ -1,44 +1,53 @@
 <div class="not-prose relative flex flex-col items-center justify-center">
   <div class="relative w-full flex-1">
-    <div class="rounded-xl bg-transparent">
-      <div class="flex items-center border-b border-white/20 pe-1.5">
-        @for (file of files(); track file.label) {
-        <button
-          class="group relative -mb-px flex items-center px-2 py-2 font-medium whitespace-nowrap text-zinc-700 outline-hidden dark:text-zinc-300"
-          [attr.aria-selected]="selectedFile() === file.label"
-          (click)="selectedFile.set(file.label)"
-          role="tab"
-          type="button"
-          tabindex="0"
+    <div class="border-border-subtle bg-code overflow-hidden rounded-xl border">
+      <div class="border-border-subtle flex items-stretch border-b">
+        <!-- Tabs scroll horizontally so they never push the copy button. -->
+        <div
+          class="no-scrollbar flex min-w-0 flex-1 items-stretch overflow-x-auto overflow-y-hidden"
         >
-          <div
-            class="inline-flex h-5 items-center rounded-md px-2 text-xs group-hover:bg-zinc-900/5 group-hover:text-zinc-900 dark:group-hover:bg-zinc-100/5 dark:group-hover:text-zinc-100"
+          @for (file of files(); track file.label) {
+          <button
+            class="group text-fg-tertiary relative flex shrink-0 items-center px-2 py-2 font-medium whitespace-nowrap outline-hidden"
+            [attr.aria-selected]="selectedFile() === file.label"
+            (click)="selectedFile.set(file.label)"
+            role="tab"
+            type="button"
           >
-            {{ file.label }}
-          </div>
+            <div
+              class="group-hover:bg-surface-raised group-hover:text-fg inline-flex h-6 items-center rounded-md px-2 text-xs transition-colors"
+              [class.bg-surface-raised]="selectedFile() === file.label"
+              [class.text-fg]="selectedFile() === file.label"
+            >
+              {{ file.label }}
+            </div>
 
-          @if (selectedFile() === file.label) {
-          <div
-            class="pointer-events-none absolute inset-0 border-b border-zinc-900 dark:border-white"
-          ></div>
+            @if (selectedFile() === file.label) {
+            <div
+              class="bg-primary pointer-events-none absolute inset-x-2 bottom-0 h-0.5 rounded-full"
+            ></div>
+            }
+          </button>
           }
-        </button>
-        }
+        </div>
 
+        <!-- Fixed-size icon button: swaps to a check on copy, no reflow. -->
         <button
-          class="relative -mb-px ml-auto flex items-center justify-center rounded-md px-2 py-1 text-base font-medium whitespace-nowrap text-zinc-600 outline-hidden hover:bg-zinc-900/5 hover:text-zinc-900 dark:text-zinc-400 dark:hover:bg-zinc-100/5 dark:hover:text-zinc-100"
-          [class.min-w-[80px]]="isCopied()"
+          class="text-fg-tertiary hover:bg-surface-raised hover:text-fg focus-visible:ring-primary me-1.5 flex size-8 shrink-0 items-center justify-center self-center rounded-md text-base outline-hidden transition-colors focus-visible:ring-2"
+          [attr.aria-label]="isCopied() ? 'Copied' : 'Copy code'"
           (click)="copyToClipboard()"
           type="button"
-          tabindex="0"
         >
           @if (isCopied()) {
-          <ng-icon class="mr-1" name="heroCheck" />
-          <span class="text-xs">Copied</span>
+          <ng-icon class="text-primary" name="heroCheck" />
           } @else {
           <ng-icon name="heroSquare2Stack" />
           }
         </button>
+
+        <span class="sr-only" role="status" aria-live="polite">
+          {{ isCopied() ? 'Copied to clipboard' : '' }}
+        </span>
       </div>
 
       <div class="h-fit" [innerHTML]="code()"></div>

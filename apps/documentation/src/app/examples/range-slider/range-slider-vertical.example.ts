@@ -43,7 +43,7 @@ import {
       position: absolute;
       width: 100%;
       border-radius: 999px;
-      background-color: var(--ngp-background-inverse);
+      background-color: var(--ngp-primary);
     }
 
     [ngpRangeSliderThumb] {
@@ -61,7 +61,7 @@ import {
 
     [ngpRangeSliderThumb][data-focus-visible] {
       outline: 2px solid var(--ngp-focus-ring);
-      outline-offset: 0;
+      outline-offset: 2px;
     }
 
     [ngpRangeSliderThumb][data-thumb='high'] {

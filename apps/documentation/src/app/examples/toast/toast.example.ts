@@ -17,14 +17,13 @@ import { NgpToast, NgpToastManager } from 'ng-primitives/toast';
   `,
   styles: `
     .toast-trigger {
-      padding-left: 1rem;
-      padding-right: 1rem;
+      padding-inline: 0.875rem;
       border-radius: 0.5rem;
       color: var(--ngp-text-primary);
       border: none;
       outline: none;
-      height: 2.5rem;
-      font-weight: 500;
+      height: 2.125rem;
+      font-weight: 510;
       background-color: var(--ngp-background);
       transition: background-color 300ms cubic-bezier(0.4, 0, 0.2, 1);
       box-shadow: var(--ngp-button-shadow);
@@ -70,7 +69,7 @@ import { NgpToast, NgpToastManager } from 'ng-primitives/toast';
     .toast-title {
       color: var(--ngp-text-primary);
       font-size: 0.75rem;
-      font-weight: 600;
+      font-weight: 590;
       margin: 0;
       grid-column: 1 / 2;
       grid-row: 1;
@@ -89,12 +88,12 @@ import { NgpToast, NgpToastManager } from 'ng-primitives/toast';
     }
 
     .toast-dismiss {
-      background: var(--ngp-background-inverse);
-      color: var(--ngp-text-inverse);
+      background: var(--ngp-primary);
+      color: var(--ngp-primary-text);
       border: none;
       border-radius: 8px;
       padding: 4px 8px;
-      font-weight: 600;
+      font-weight: 590;
       font-size: 12px;
       cursor: pointer;
       grid-column: 2 / 3;

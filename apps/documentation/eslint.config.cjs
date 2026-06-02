@@ -41,4 +41,9 @@ module.exports = [
       '@angular-eslint/prefer-standalone': 'off',
     },
   },
+  {
+    // AnalogJS/Nitro build output lands in dist/ during dev and build. It is
+    // gitignored but eslint would otherwise lint the generated .d.ts files.
+    ignores: ['dist/**', '**/.nitro/**', '**/.analog/**'],
+  },
 ];

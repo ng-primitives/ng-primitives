@@ -9,7 +9,7 @@ import { NgpFileUpload } from 'ng-primitives/file-upload';
   providers: [provideIcons({ heroCloudArrowUp })],
   template: `
     <div
-      class="flex cursor-pointer flex-col items-center justify-center gap-1 rounded-lg border border-dashed border-gray-300 bg-white px-12 py-8 transition-colors data-dragover:border-gray-400 data-dragover:bg-gray-50 dark:border-gray-700 dark:bg-zinc-950 dark:data-dragover:border-gray-500 dark:data-dragover:bg-zinc-900"
+      class="group flex cursor-pointer flex-col items-center justify-center gap-1 rounded-lg border-[1.5px] border-dashed border-gray-300 bg-white px-12 py-8 transition-colors data-dragover:border-[#f01e2b] data-dragover:bg-[#f01e2b]/[0.06] dark:border-zinc-800 dark:bg-zinc-950 dark:data-dragover:border-[#ff4651] dark:data-dragover:bg-[#ff4651]/[0.06]"
       (ngpFileUploadSelected)="onFilesSelected($event)"
       (ngpFileUploadRejected)="onFilesRejected()"
       ngpFileUploadFileTypes=".svg, .pdf"
@@ -17,11 +17,11 @@ import { NgpFileUpload } from 'ng-primitives/file-upload';
       ngpFileUploadMultiple
     >
       <ng-icon
-        class="mb-1 text-xl text-gray-900 dark:text-gray-100"
+        class="mb-1 text-xl text-gray-900 group-data-dragover:text-[#f01e2b] dark:text-gray-100 dark:group-data-dragover:text-[#ff4651]"
         name="heroCloudArrowUp"
         aria-hidden="true"
       />
-      <p class="m-0 text-center text-sm leading-5 font-medium text-gray-900 dark:text-gray-100">
+      <p class="m-0 text-center text-sm leading-5 font-[510] text-gray-900 dark:text-gray-100">
         Select or drag and drop files here.
       </p>
       <p class="m-0 text-center text-xs leading-4 text-gray-600 dark:text-gray-300">

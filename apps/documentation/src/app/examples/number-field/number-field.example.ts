@@ -17,7 +17,7 @@ import {
     [ngpNumberField] {
       display: inline-flex;
       align-items: center;
-      border-radius: 8px;
+      border-radius: 0.5rem;
       box-shadow: var(--ngp-input-shadow);
       background-color: var(--ngp-background);
       overflow: hidden;
@@ -30,7 +30,7 @@ import {
 
     [ngpNumberFieldInput] {
       width: 64px;
-      height: 36px;
+      height: 2.125rem;
       border: none;
       outline: none;
       text-align: center;
@@ -50,8 +50,8 @@ import {
       display: flex;
       align-items: center;
       justify-content: center;
-      width: 36px;
-      height: 36px;
+      width: 2.125rem;
+      height: 2.125rem;
       border: none;
       background: transparent;
       color: var(--ngp-text-secondary);

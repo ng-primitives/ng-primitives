@@ -41,8 +41,12 @@ import {
     }
 
     .listbox-header {
-      padding: 0.25rem 0.75rem;
-      font-weight: 600;
+      padding: 0.375rem 0.75rem 0.25rem;
+      font-size: 0.6875rem;
+      font-weight: 590;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      color: var(--ngp-text-tertiary);
     }
 
     [ngpListboxOption] {
@@ -53,8 +57,11 @@ import {
       cursor: pointer;
       border-radius: 0.5rem;
       width: 200px;
-      height: 36px;
+      height: 2.125rem;
       box-sizing: border-box;
+      font-size: 0.875rem;
+      letter-spacing: -0.006em;
+      color: var(--ngp-text-primary);
     }
 
     [ngpListboxOption][data-hover] {
@@ -69,8 +76,13 @@ import {
       background-color: var(--ngp-background-active);
     }
 
+    [ngpListboxOption][data-selected] {
+      font-weight: 510;
+    }
+
     [ngpListboxOption] ng-icon {
       visibility: hidden;
+      color: var(--ngp-primary);
     }
 
     [ngpListboxOption][data-selected] ng-icon {

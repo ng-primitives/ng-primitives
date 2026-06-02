@@ -26,6 +26,11 @@
   --ngp-background-blue: #dbeafe;
   --ngp-background-success: oklch(84.1% 0.238 128.85);
 
+  --ngp-primary: #f01e2b;
+  --ngp-primary-hover: #d81825;
+  --ngp-primary-active: #c1141f;
+  --ngp-primary-text: var(--ngp-white);
+
   --ngp-border: rgba(0, 0, 0, 0.1);
   --ngp-border-secondary: var(--ngp-gray-300);
   --ngp-border-blue: #3b82f6;
@@ -64,6 +69,10 @@
   --ngp-background-inverse: var(--ngp-white);
   --ngp-background-disabled: var(--ngp-gray-900);
   --ngp-background-blue: rgba(95, 160, 246, 0.274);
+
+  --ngp-primary: #ff4651;
+  --ngp-primary-hover: #ff5d67;
+  --ngp-primary-active: #f0303c;
 
   --ngp-border: var(--ngp-gray-800);
   --ngp-border-secondary: var(--ngp-gray-700);

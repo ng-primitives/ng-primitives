@@ -34,8 +34,11 @@ import { NgpListbox, NgpListboxOption } from 'ng-primitives/listbox';
       cursor: pointer;
       border-radius: 0.5rem;
       width: 200px;
-      height: 36px;
+      height: 2.125rem;
       box-sizing: border-box;
+      font-size: 0.875rem;
+      letter-spacing: -0.006em;
+      color: var(--ngp-text-primary);
     }
 
     [ngpListboxOption][data-hover] {
@@ -50,8 +53,13 @@ import { NgpListbox, NgpListboxOption } from 'ng-primitives/listbox';
       background-color: var(--ngp-background-active);
     }
 
+    [ngpListboxOption][data-selected] {
+      font-weight: 510;
+    }
+
     [ngpListboxOption] ng-icon {
       visibility: hidden;
+      color: var(--ngp-primary);
     }
 
     [ngpListboxOption][data-selected] ng-icon {
