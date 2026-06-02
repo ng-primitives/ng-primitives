@@ -53,7 +53,7 @@ describe('NgpDatePickerNextMonth', () => {
     const newDate = focusedDateSignal();
     expect(dateAdapter.getMonth(newDate)).toBe(3); // April
     expect(dateAdapter.getYear(newDate)).toBe(2025);
-    expect(dateAdapter.getDate(newDate)).toBe(1); // First day of the month
+    expect(dateAdapter.getDate(newDate)).toBe(15); // Focused day is preserved
   });
 
   it('should advance exactly one month from the 31st of a month into a shorter month', () => {
@@ -65,10 +65,10 @@ describe('NgpDatePickerNextMonth', () => {
     fixture.detectChanges();
 
     const newDate = focusedDateSignal();
-    // Should navigate to June 1, 2026 - not skip ahead to July.
+    // Should navigate to June 30, 2026 - clamped to the last day, not skip to July.
     expect(dateAdapter.getMonth(newDate)).toBe(5); // June
     expect(dateAdapter.getYear(newDate)).toBe(2026);
-    expect(dateAdapter.getDate(newDate)).toBe(1); // First day of June
+    expect(dateAdapter.getDate(newDate)).toBe(30); // Clamped to the last day of June
   });
 
   it('should handle navigation from December to January of next year', () => {
@@ -82,7 +82,7 @@ describe('NgpDatePickerNextMonth', () => {
     const newDate = focusedDateSignal();
     expect(dateAdapter.getMonth(newDate)).toBe(0); // January
     expect(dateAdapter.getYear(newDate)).toBe(2026);
-    expect(dateAdapter.getDate(newDate)).toBe(1);
+    expect(dateAdapter.getDate(newDate)).toBe(15); // Focused day is preserved
   });
 
   it('should not navigate when disabled', () => {
