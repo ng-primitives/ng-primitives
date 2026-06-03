@@ -1,7 +1,6 @@
 import { BooleanInput } from '@angular/cdk/coercion';
-import { booleanAttribute, computed, Directive, HostListener, input } from '@angular/core';
-import { ngpButton } from 'ng-primitives/button';
-import { injectPaginationState } from '../pagination/pagination-state';
+import { booleanAttribute, Directive, input } from '@angular/core';
+import { ngpPaginationFirst } from './pagination-first-state';
 
 /**
  * The `NgpPaginationFirst` directive is used to create a pagination button that navigates to the first page.
@@ -9,17 +8,8 @@ import { injectPaginationState } from '../pagination/pagination-state';
 @Directive({
   selector: '[ngpPaginationFirst]',
   exportAs: 'ngpPaginationFirst',
-  host: {
-    '[tabindex]': 'disabled() ? -1 : 0',
-    '[attr.data-first-page]': 'paginationState().firstPage() ? "" : null',
-  },
 })
 export class NgpPaginationFirst {
-  /**
-   * Access the pagination state.
-   */
-  protected readonly paginationState = injectPaginationState();
-
   /**
    * Whether the button is disabled.
    */
@@ -28,37 +18,14 @@ export class NgpPaginationFirst {
     transform: booleanAttribute,
   });
 
-  readonly disabled = computed(
-    () =>
-      this.buttonDisabled() ||
-      this.paginationState().disabled() ||
-      this.paginationState().firstPage(),
-  );
+  protected readonly state = ngpPaginationFirst({
+    buttonDisabled: this.buttonDisabled,
+  });
 
-  constructor() {
-    ngpButton({ disabled: this.disabled });
-  }
   /**
    * Go to the first page.
    */
-  @HostListener('click')
   goToFirstPage() {
-    if (this.disabled()) {
-      return;
-    }
-
-    this.paginationState().goToPage(1);
-  }
-
-  /**
-   * A click event may not be fired if this is on an anchor tag and the href is empty.
-   * This is a workaround to ensure the click event is fired.
-   */
-  @HostListener('keydown.enter', ['$event'])
-  @HostListener('keydown.space', ['$event'])
-  protected onEnter(event: Event): void {
-    event.preventDefault();
-    event.stopPropagation();
-    this.goToFirstPage();
+    return this.state.goToFirstPage();
   }
 }

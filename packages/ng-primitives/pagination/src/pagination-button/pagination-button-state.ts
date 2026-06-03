@@ -1,14 +1,12 @@
-import { computed, ElementRef, signal, Signal, WritableSignal } from '@angular/core';
+import { computed, ElementRef, signal, Signal } from '@angular/core';
 import { ngpButton } from 'ng-primitives/button';
 import { injectElementRef } from 'ng-primitives/internal';
 import {
   attrBinding,
-  controlledState,
   createPrimitive,
   dataBinding,
   listener,
 } from 'ng-primitives/state';
-import { Observable } from 'rxjs';
 import { injectPaginationState } from '../pagination/pagination-state';
 
 export interface NgpPaginationButtonState {
@@ -71,8 +69,8 @@ export const [
 
     // Listeners
     listener(elementRef, 'click', goToPage);
-    listener(elementRef, 'keydown.space', handleKeydownEvent);
-    listener(elementRef, 'keydown.enter', handleKeydownEvent);
+    listener(elementRef, 'keydown.space', handleOnEnter);
+    listener(elementRef, 'keydown.enter', handleOnEnter);
 
     function goToPage(): void {
       if (disabled()) {
@@ -82,7 +80,7 @@ export const [
       paginationState().goToPage(page());
     }
 
-    function handleKeydownEvent(event: Event): void {
+    function handleOnEnter(event: Event): void {
       event.preventDefault();
       event.stopPropagation();
       goToPage();

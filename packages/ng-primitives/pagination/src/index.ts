@@ -20,3 +20,11 @@ export {
   type NgpPaginationButtonState,
   type NgpPaginationButtonProps,
 } from './pagination-button/pagination-button-state';
+export {
+  NgpPaginationFirstStateToken,
+  ngpPaginationFirst,
+  injectPaginationFirstState,
+  providePaginationFirstState,
+  type NgpPaginationFirstState,
+  type NgpPaginationFirstProps,
+} from './pagination-first/pagination-first-state';

@@ -1,14 +1,10 @@
 import { BooleanInput, NumberInput } from '@angular/cdk/coercion';
 import {
   booleanAttribute,
-  computed,
   Directive,
-  HostListener,
   input,
   numberAttribute,
 } from '@angular/core';
-import { ngpButton } from 'ng-primitives/button';
-import { injectPaginationState } from '../pagination/pagination-state';
 import { ngpPaginationButton } from './pagination-button-state';
 
 /**
