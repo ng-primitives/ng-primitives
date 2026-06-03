@@ -47,7 +47,7 @@ export const [
     ngpButton({ disabled: disabled });
 
     // Host binding
-    attrBinding(elementRef, 'tabindex', disabled() ? -1 : 0);
+    attrBinding(elementRef, 'tabindex', () => (disabled() ? -1 : 0));
     dataBinding(elementRef, 'data-first-page', () => (paginationState().firstPage() ? '' : null));
 
     // Listener
