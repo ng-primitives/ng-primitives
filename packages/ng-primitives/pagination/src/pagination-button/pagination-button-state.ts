@@ -10,7 +10,7 @@ import {
 import { injectPaginationState } from '../pagination/pagination-state';
 
 export interface NgpPaginationButtonState {
-  /** Access te element's reference. */
+  /** Access the element's reference. */
   readonly elementRef: ElementRef;
   /**
    * Define the page this button represents.

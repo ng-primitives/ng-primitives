@@ -28,3 +28,11 @@ export {
   type NgpPaginationFirstState,
   type NgpPaginationFirstProps,
 } from './pagination-first/pagination-first-state';
+export {
+  NgpPaginationLastStateToken,
+  ngpPaginationLast,
+  injectPaginationLastState,
+  providePaginationLastState,
+  type NgpPaginationLastState,
+  type NgpPaginationLastProps,
+} from './pagination-last/pagination-last-state';
