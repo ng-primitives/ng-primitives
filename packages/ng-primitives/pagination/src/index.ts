@@ -36,3 +36,11 @@ export {
   type NgpPaginationLastState,
   type NgpPaginationLastProps,
 } from './pagination-last/pagination-last-state';
+export {
+  NgpPaginationNextStateToken,
+  ngpPaginationNext,
+  injectPaginationNextState,
+  providePaginationNextState,
+  type NgpPaginationNextState,
+  type NgpPaginationNextProps,
+} from './pagination-next/pagination-next-state';

@@ -1,33 +1,33 @@
-import { computed, ElementRef, signal, Signal } from '@angular/core';
+import { computed, ElementRef, Signal, signal } from '@angular/core';
 import { ngpButton } from 'ng-primitives/button';
 import { injectElementRef } from 'ng-primitives/internal';
 import { attrBinding, createPrimitive, dataBinding, listener } from 'ng-primitives/state';
 import { injectPaginationState } from '../pagination/pagination-state';
 
-export interface NgpPaginationLastState {
+export interface NgpPaginationNextState {
   /** Access the element's reference. */
   readonly elementRef: ElementRef;
   /** Whether the button is disabled. */
   readonly buttonDisabled: Signal<boolean>;
   /** Whether the button is disabled. */
   readonly disabled: Signal<boolean>;
-  /** Go to the last page. */
-  goToLastPage(): void;
+  /** Go to the next page. */
+  goToNextPage(): void;
 }
 
-export interface NgpPaginationLastProps {
-  /** Whether the button is disabled. */
+export interface NgpPaginationNextProps {
+  /** Whether the button is disabled */
   readonly buttonDisabled: Signal<boolean>;
 }
 
 export const [
-  NgpPaginationLastStateToken,
-  ngpPaginationLast,
-  injectPaginationLastState,
-  providePaginationLastState,
+  NgpPaginationNextStateToken,
+  ngpPaginationNext,
+  injectPaginationNextState,
+  providePaginationNextState,
 ] = createPrimitive(
-  'NgpPaginationLast',
-  ({ buttonDisabled = signal<boolean>(false) }: NgpPaginationLastProps) => {
+  'NgpPaginationNext',
+  ({ buttonDisabled = signal<boolean>(false) }: NgpPaginationNextProps) => {
     const elementRef = injectElementRef();
     const paginationState = injectPaginationState();
 
@@ -43,29 +43,29 @@ export const [
     dataBinding(elementRef, 'data-last-page', () => (paginationState().lastPage() ? '' : null));
 
     // Listener
-    listener(elementRef, 'click', goToLastPage);
+    listener(elementRef, 'click', goToNextPage);
     listener(elementRef, 'keydown.enter', handleOnEnter);
     listener(elementRef, 'keydown.space', handleOnEnter);
 
-    function goToLastPage(): void {
+    function goToNextPage(): void {
       if (disabled()) {
         return;
       }
 
-      paginationState().goToPage(paginationState().pageCount());
+      paginationState().goToPage(paginationState().page() + 1);
     }
 
     function handleOnEnter(event: Event): void {
       event.preventDefault();
       event.stopPropagation();
-      goToLastPage();
+      goToNextPage();
     }
 
     return {
       elementRef,
       buttonDisabled,
       disabled,
-      goToLastPage,
-    } satisfies NgpPaginationLastState;
+      goToNextPage,
+    } satisfies NgpPaginationNextState;
   },
 );

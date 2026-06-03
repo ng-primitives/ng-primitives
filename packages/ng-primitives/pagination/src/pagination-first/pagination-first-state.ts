@@ -25,7 +25,7 @@ export interface NgpPaginationFirstProps {
   /**
    * Whether the button is disabled.
    */
-  buttonDisabled: Signal<boolean>;
+  readonly buttonDisabled: Signal<boolean>;
 }
 
 export const [
