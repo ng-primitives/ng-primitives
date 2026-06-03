@@ -44,3 +44,11 @@ export {
   type NgpPaginationNextState,
   type NgpPaginationNextProps,
 } from './pagination-next/pagination-next-state';
+export {
+  NgpPaginationPreviousStateToken,
+  ngpPaginationPrevious,
+  injectPaginationPreviousState,
+  providePaginationPreviousState,
+  type NgpPaginationPreviousState,
+  type NgpPaginationPreviousProps,
+} from './pagination-previous/pagination-previous-state';
