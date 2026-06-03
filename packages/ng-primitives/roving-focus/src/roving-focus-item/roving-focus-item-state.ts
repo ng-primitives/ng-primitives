@@ -1,7 +1,7 @@
 import { FocusMonitor, FocusOrigin } from '@angular/cdk/a11y';
 import { computed, effect, ElementRef, inject, signal, Signal, untracked } from '@angular/core';
 import { injectElementRef } from 'ng-primitives/internal';
-import { attrBinding, createPrimitive, listener } from 'ng-primitives/state';
+import { attrBinding, createPrimitive, listener, onDestroy } from 'ng-primitives/state';
 import { uniqueId } from 'ng-primitives/utils';
 import { injectRovingFocusGroupState } from '../roving-focus-group/roving-focus-group-state';
 
@@ -95,15 +95,23 @@ export const [
       element,
     };
 
-    // Projected items may construct before the parent populates the shared group signal,
-    // so register reactively once it becomes available.
-    // See https://github.com/ng-primitives/ng-primitives/issues/735
-    effect(onCleanup => {
-      const groupState = group();
-      if (!groupState) return;
-      untracked(() => groupState.register(state));
-      onCleanup(() => groupState.unregister(state));
-    });
+    // Register synchronously when the group is available so its activeItem (and
+    // thus this item's tabindex) is set before the host bindings flush - this
+    // keeps the active item tabbable when a focus trap focuses it on open.
+    // Projected items can construct before the group signal is populated, so
+    // fall back to reactive registration. See #735.
+    const groupState = group();
+    if (groupState) {
+      groupState.register(state);
+      onDestroy(() => groupState.unregister(state));
+    } else {
+      effect(onCleanup => {
+        const deferred = group();
+        if (!deferred) return;
+        untracked(() => deferred.register(state));
+        onCleanup(() => deferred.unregister(state));
+      });
+    }
 
     return state satisfies NgpRovingFocusItemState;
   },

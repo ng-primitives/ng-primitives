@@ -1,6 +1,5 @@
 /* eslint-disable @angular-eslint/no-uncalled-signals */
 import { coerceElement } from '@angular/cdk/coercion';
-import { isPlatformBrowser } from '@angular/common';
 import {
   afterRenderEffect,
   ChangeDetectorRef,
@@ -19,11 +18,11 @@ import {
   isSignal,
   linkedSignal,
   NgZone,
-  PLATFORM_ID,
   ProviderToken,
   runInInjectionContext,
   signal,
   Signal,
+  untracked,
   WritableSignal,
 } from '@angular/core';
 import { Observable, Subject } from 'rxjs';
@@ -497,7 +496,7 @@ export function attrBinding(
     return;
   }
 
-  isomorphicEffect(() => {
+  bindingEffect(() => {
     const valueResult = value();
     setAttribute(element, attr, valueResult?.toString() ?? null);
   });
@@ -539,7 +538,7 @@ export function styleBinding(
   style: string,
   value: (() => string | number | null) | string | number | null,
 ): void {
-  isomorphicEffect(() => {
+  bindingEffect(() => {
     const styleValue = typeof value === 'function' ? value() : value;
     // we should look for units in the style name, just like Angular does e.g. width.px
     const styleUnit = getStyleUnit(style);
@@ -562,7 +561,7 @@ export function dataBinding(
     throw new Error(`dataBinding: attribute "${attr}" must start with "data-"`);
   }
 
-  isomorphicEffect(() => {
+  bindingEffect(() => {
     let valueResult = typeof value === 'function' ? value() : value;
 
     if (valueResult === false) {
@@ -721,14 +720,21 @@ export function emitter<T>({
   });
 }
 
-function isomorphicEffect(callback: () => void): void {
-  const injector = inject(Injector);
-  const platformId = injector.get(PLATFORM_ID);
-
-  if (isPlatformBrowser(platformId)) {
-    afterRenderEffect(() => callback());
-  } else {
-    // On the server, we just run the effect immediately
-    effect(() => callback());
-  }
+/**
+ * Reflects state onto the host element (attribute/data-attribute/style).
+ *
+ * Written twice: a one-shot `untracked` effect applies the initial value during
+ * change detection so the first paint isn't stale (without it `afterRenderEffect`
+ * defers it a frame, and a zoneless client-nav paints e.g. a disabled button
+ * enabled for one frame); `afterRenderEffect` applies later updates in the
+ * post-render phase overlays/portals/roving-focus rely on. On the server
+ * `afterRenderEffect` is a no-op, so the one-shot is what ships the value in SSR.
+ *
+ * Bindings thus land during CD, so anything ordering-sensitive must cope - e.g.
+ * roving focus registers items synchronously so the active item is tabbable
+ * before a focus trap focuses it.
+ */
+function bindingEffect(callback: () => void): void {
+  afterRenderEffect(() => callback());
+  effect(() => untracked(() => callback()));
 }

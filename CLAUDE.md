@@ -59,6 +59,10 @@ See `.claude/rules/` for detailed coding standards:
 
 For code review, use the `ngp-code-review` skill — it consolidates these rules with the custom workspace lint rules, test conventions, and PR checklist.
 
+### Comments
+
+Keep comments short and dense. Explain _why_ (the non-obvious reason, edge case, or constraint), never _what_ the code already says. Prefer one line; only go longer when the rationale genuinely needs it, and stay terse. Don't restate the code, narrate steps, or recap history ("previously we…"). Cut a comment if the code is self-explanatory.
+
 ## Package Management
 
 - Uses pnpm with workspace configuration

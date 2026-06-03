@@ -1,7 +1,8 @@
 import { FocusMonitor, InteractivityChecker } from '@angular/cdk/a11y';
 import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { fireEvent, render } from '@testing-library/angular';
+import { fireEvent, render, waitFor } from '@testing-library/angular';
+import { NgpRovingFocusGroup, NgpRovingFocusItem } from 'ng-primitives/roving-focus';
 import { describe, expect, it, vi } from 'vitest';
 import { NgpFocusTrap } from './focus-trap';
 
@@ -77,6 +78,20 @@ class TestNestedFocusTrapsComponent {
   `,
 })
 class TestFocusTrapWithNegativeTabIndexComponent {}
+
+@Component({
+  selector: 'test-focus-trap-roving',
+  imports: [NgpFocusTrap, NgpRovingFocusGroup, NgpRovingFocusItem],
+  template: `
+    <div ngpFocusTrap data-testid="focus-trap">
+      <div ngpRovingFocusGroup>
+        <button ngpRovingFocusItem data-testid="roving-1">One</button>
+        <button ngpRovingFocusItem data-testid="roving-2">Two</button>
+      </div>
+    </div>
+  `,
+})
+class TestFocusTrapWithRovingComponent {}
 
 @Component({
   selector: 'test-focus-trap-cdk-overlay',
@@ -206,6 +221,16 @@ describe('NgpFocusTrap', () => {
 
       // Test passes if no errors are thrown
       expect(focusTrap).toBeInTheDocument();
+    });
+
+    it('should focus the active item of a roving-focus group on open', async () => {
+      // Roving focus marks only the active (first) item tabindex="0"; the rest
+      // are -1. The trap must still focus the active item on open. Guards the
+      // trap against assuming every item is tabbable.
+      const container = await render(TestFocusTrapWithRovingComponent);
+
+      await waitFor(() => expect(container.getByTestId('roving-1')).toHaveFocus());
+      expect(container.getByTestId('roving-2')).toHaveAttribute('tabindex', '-1');
     });
 
     it('should not interfere when disabled', async () => {

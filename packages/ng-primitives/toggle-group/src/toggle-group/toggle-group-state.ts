@@ -205,7 +205,8 @@ export const [
     }
 
     function setValue(newValue: string[], options?: SetterOptions): void {
-      setValueInternal(newValue, options);
+      // Forms write null on reset; coerce to [] so array reads stay safe.
+      setValueInternal(newValue ?? [], options);
     }
 
     function setDisabled(isDisabled: boolean): void {

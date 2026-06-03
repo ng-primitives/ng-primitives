@@ -1,5 +1,6 @@
 import { FocusMonitor } from '@angular/cdk/a11y';
 import { Component, Input } from '@angular/core';
+import { TestBed } from '@angular/core/testing';
 import { fireEvent, render } from '@testing-library/angular';
 import { NgpButton } from 'ng-primitives/button';
 import { describe, expect, it } from 'vitest';
@@ -14,7 +15,29 @@ class ButtonHost {
   @Input() isDisabled = false;
 }
 
+@Component({
+  imports: [NgpButton],
+  template: `
+    <button [disabled]="true" ngpButton>Test</button>
+  `,
+})
+class InitiallyDisabledButtonHost {}
+
 describe('NgpButton', () => {
+  it('should set the disabled state during the initial change detection (no flash on navigation)', () => {
+    // Flash regression: an initially-disabled button must reflect disabled
+    // during the CD that creates it, not in the deferred afterRender phase
+    // (which paints it enabled for a frame on zoneless client-nav). We use the
+    // CDRef directly (not the fixture, which also flushes afterRender) so the
+    // assertion fails if the binding only lands after a render frame.
+    const fixture = TestBed.createComponent(InitiallyDisabledButtonHost);
+    fixture.changeDetectorRef.detectChanges();
+
+    const button = fixture.nativeElement.querySelector('button') as HTMLButtonElement;
+    expect(button.hasAttribute('disabled')).toBe(true);
+    expect(button.hasAttribute('data-disabled')).toBe(true);
+  });
+
   it('should set the disabled attribute when disabled', async () => {
     const container = await render(`<button ngpButton [disabled]="true"></button>`, {
       imports: [NgpButton],

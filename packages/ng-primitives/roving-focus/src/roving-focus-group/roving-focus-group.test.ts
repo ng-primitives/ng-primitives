@@ -1,10 +1,37 @@
+import { Component } from '@angular/core';
+import { TestBed } from '@angular/core/testing';
 import { fireEvent, render, waitFor } from '@testing-library/angular';
 import { NgpRovingFocusGroup, NgpRovingFocusItem } from 'ng-primitives/roving-focus';
 import { describe, expect, it } from 'vitest';
 
 const imports = [NgpRovingFocusGroup, NgpRovingFocusItem];
 
+@Component({
+  imports,
+  template: `
+    <div ngpRovingFocusGroup>
+      <button ngpRovingFocusItem data-testid="item-1">One</button>
+      <button ngpRovingFocusItem data-testid="item-2">Two</button>
+    </div>
+  `,
+})
+class RovingFocusHost {}
+
 describe('NgpRovingFocusGroup', () => {
+  it('should make the active item tabbable during the initial change detection', () => {
+    // The active (first) item must be tabindex="0" during CD - not deferred to
+    // the post-render phase - so a focus trap focusing the group on open finds
+    // it tabbable. Drive CD directly (the fixture also flushes afterRender), so
+    // this fails if the active item only becomes tabbable a frame later.
+    const fixture = TestBed.createComponent(RovingFocusHost);
+    fixture.changeDetectorRef.detectChanges();
+
+    const item = (id: string): HTMLElement =>
+      fixture.nativeElement.querySelector(`[data-testid="${id}"]`);
+    expect(item('item-1').getAttribute('tabindex')).toBe('0');
+    expect(item('item-2').getAttribute('tabindex')).toBe('-1');
+  });
+
   it('should initialise correctly', async () => {
     const container = await render(`<div ngpRovingFocusGroup></div>`, {
       imports: [NgpRovingFocusGroup],

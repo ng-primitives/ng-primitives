@@ -650,7 +650,8 @@ describe('NgpSelect', () => {
       const appleOption = screen.getByTestId('option-Apple');
       const optionId = appleOption.getAttribute('id');
       expect(optionId).toBeTruthy();
-      expect(select).toHaveAttribute('aria-activedescendant', optionId);
+      // aria-activedescendant lands in the post-render phase, a tick after data-active.
+      await waitFor(() => expect(select).toHaveAttribute('aria-activedescendant', optionId));
     });
 
     it('should set aria-selected on selected options', async () => {

@@ -207,6 +207,9 @@ async function openContextMenu() {
     const menu = screen.getByTestId('context-menu');
     expect(menu).toBeInTheDocument();
     expect(menu).toHaveAttribute('data-focus-trap');
+    // data-focus-trap lands synchronously now, before the trap moves focus
+    // (a post-render hook), so also wait for focus to land in the menu.
+    expect(menu.contains(document.activeElement)).toBe(true);
   });
 }
 
