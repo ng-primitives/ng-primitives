@@ -1,4 +1,4 @@
-import { fireEvent, render } from '@testing-library/angular';
+import { fireEvent, render, waitFor } from '@testing-library/angular';
 import {
   NgpPagination,
   NgpPaginationButton,
@@ -44,14 +44,18 @@ describe('NgpPagination', () => {
         componentProperties: { page: 1, pageCount: 2 },
       },
     );
-    let pagination = getByRole('navigation');
-    expect(pagination).toHaveAttribute('data-first-page');
-    expect(pagination).not.toHaveAttribute('data-last-page');
+    await waitFor(() => {
+      const pagination = getByRole('navigation');
+      expect(pagination).toHaveAttribute('data-first-page');
+      expect(pagination).not.toHaveAttribute('data-last-page');
+    });
 
     await rerender({ componentProperties: { page: 2, pageCount: 2 } });
-    pagination = getByRole('navigation');
-    expect(pagination).not.toHaveAttribute('data-first-page');
-    expect(pagination).toHaveAttribute('data-last-page');
+    await waitFor(() => {
+      const pagination = getByRole('navigation');
+      expect(pagination).not.toHaveAttribute('data-first-page');
+      expect(pagination).toHaveAttribute('data-last-page');
+    });
   });
 
   it('should emit pageChange when goToPage is called', async () => {
@@ -111,16 +115,21 @@ describe('NgpPagination', () => {
         componentProperties: { page: 1, pageCount: 2, disabled: false },
       },
     );
-    let pagination = getByRole('navigation');
-    expect(pagination).toHaveAttribute('data-page', '1');
-    expect(pagination).toHaveAttribute('data-page-count', '2');
-    expect(pagination).not.toHaveAttribute('data-disabled');
+    await waitFor(() => {
+      const pagination = getByRole('navigation');
+      expect(pagination).toHaveAttribute('data-page', '1');
+      expect(pagination).toHaveAttribute('data-page-count', '2');
+      expect(pagination).not.toHaveAttribute('data-disabled');
+    });
 
     await rerender({ componentProperties: { page: 2, pageCount: 2, disabled: true } });
-    pagination = getByRole('navigation');
-    expect(pagination).toHaveAttribute('data-page', '2');
-    expect(pagination).toHaveAttribute('data-page-count', '2');
-    expect(pagination).toHaveAttribute('data-disabled');
+
+    await waitFor(() => {
+      const pagination = getByRole('navigation');
+      expect(pagination).toHaveAttribute('data-page', '2');
+      expect(pagination).toHaveAttribute('data-page-count', '2');
+      expect(pagination).toHaveAttribute('data-disabled');
+    });
   });
 
   it('should navigate to the first page when first button is clicked', async () => {
