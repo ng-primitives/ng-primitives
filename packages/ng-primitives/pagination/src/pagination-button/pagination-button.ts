@@ -1,10 +1,5 @@
 import { BooleanInput, NumberInput } from '@angular/cdk/coercion';
-import {
-  booleanAttribute,
-  Directive,
-  input,
-  numberAttribute,
-} from '@angular/core';
+import { booleanAttribute, Directive, input, numberAttribute } from '@angular/core';
 import { ngpPaginationButton } from './pagination-button-state';
 
 /**

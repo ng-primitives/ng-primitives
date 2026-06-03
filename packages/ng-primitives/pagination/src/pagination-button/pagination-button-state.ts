@@ -1,12 +1,7 @@
 import { computed, ElementRef, signal, Signal } from '@angular/core';
 import { ngpButton } from 'ng-primitives/button';
 import { injectElementRef } from 'ng-primitives/internal';
-import {
-  attrBinding,
-  createPrimitive,
-  dataBinding,
-  listener,
-} from 'ng-primitives/state';
+import { attrBinding, createPrimitive, dataBinding, listener } from 'ng-primitives/state';
 import { injectPaginationState } from '../pagination/pagination-state';
 
 export interface NgpPaginationButtonState {
