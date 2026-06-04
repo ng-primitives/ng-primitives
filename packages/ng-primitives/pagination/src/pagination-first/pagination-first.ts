@@ -13,13 +13,13 @@ export class NgpPaginationFirst {
   /**
    * Whether the button is disabled.
    */
-  readonly buttonDisabled = input<boolean, BooleanInput>(false, {
+  readonly disabled = input<boolean, BooleanInput>(false, {
     alias: 'ngpPaginationFirstDisabled',
     transform: booleanAttribute,
   });
 
   protected readonly state = ngpPaginationFirst({
-    buttonDisabled: this.buttonDisabled,
+    disabled: this.disabled,
   });
 
   /**

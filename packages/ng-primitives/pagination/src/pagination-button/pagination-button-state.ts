@@ -12,11 +12,7 @@ export interface NgpPaginationButtonState {
    */
   readonly page: Signal<number>;
   /**
-   * Whether the button is disabled.
-   */
-  readonly buttonDisabled: Signal<boolean>;
-  /**
-   * Whether the button is disabled.
+   * Whether the button is disabled, accounting for the parent pagination state.
    */
   readonly disabled: Signal<boolean>;
   /**
@@ -33,7 +29,7 @@ export interface NgpPaginationButtonProps {
   /**
    * Whether the button is disabled.
    */
-  readonly buttonDisabled?: Signal<boolean>;
+  readonly disabled?: Signal<boolean>;
 }
 
 export const [
@@ -45,13 +41,13 @@ export const [
   'NgpPaginationButton',
   ({
     page = signal<number>(-1),
-    buttonDisabled = signal<boolean>(false),
+    disabled: _disabled = signal<boolean>(false),
   }: NgpPaginationButtonProps) => {
     const elementRef = injectElementRef();
     const paginationState = injectPaginationState();
 
-    const selected = computed(() => page() == paginationState().page());
-    const disabled = computed(() => buttonDisabled() || paginationState().disabled());
+    const selected = computed(() => page() === paginationState().page());
+    const disabled = computed(() => _disabled() || paginationState().disabled());
 
     // Setup interactions
     ngpButton({ disabled: disabled });
@@ -84,7 +80,6 @@ export const [
     return {
       elementRef,
       page,
-      buttonDisabled,
       disabled,
       goToPage,
     } satisfies NgpPaginationButtonState;

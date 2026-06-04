@@ -8,15 +8,11 @@ export interface NgpPaginationPreviousState {
   /** Access the element's reference. */
   readonly elementRef: ElementRef;
   /**
-   * Whether the button is disabled.
-   */
-  readonly buttonDisabled: Signal<boolean>;
-  /**
-   * Whether the button is disabled.
+   * Whether the button is disabled, accounting for the parent pagination state.
    */
   readonly disabled: Signal<boolean>;
   /**
-   * Go to the first page.
+   * Go to the previous page.
    */
   goToPreviousPage(): void;
 }
@@ -25,7 +21,7 @@ export interface NgpPaginationPreviousProps {
   /**
    * Whether the button is disabled.
    */
-  readonly buttonDisabled: Signal<boolean>;
+  readonly disabled?: Signal<boolean>;
 }
 
 export const [
@@ -35,12 +31,12 @@ export const [
   providePaginationPreviousState,
 ] = createPrimitive(
   'NgpPaginationPrevious',
-  ({ buttonDisabled = signal<boolean>(false) }: NgpPaginationPreviousProps) => {
+  ({ disabled: _disabled = signal<boolean>(false) }: NgpPaginationPreviousProps) => {
     const elementRef = injectElementRef();
     const paginationState = injectPaginationState();
 
     const disabled = computed(
-      () => buttonDisabled() || paginationState().disabled() || paginationState().firstPage(),
+      () => _disabled() || paginationState().disabled() || paginationState().firstPage(),
     );
 
     // Setup interactions
@@ -71,7 +67,6 @@ export const [
 
     return {
       elementRef,
-      buttonDisabled,
       disabled,
       goToPreviousPage,
     } satisfies NgpPaginationPreviousState;

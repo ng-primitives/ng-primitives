@@ -7,9 +7,7 @@ import { injectPaginationState } from '../pagination/pagination-state';
 export interface NgpPaginationLastState {
   /** Access the element's reference. */
   readonly elementRef: ElementRef;
-  /** Whether the button is disabled. */
-  readonly buttonDisabled: Signal<boolean>;
-  /** Whether the button is disabled. */
+  /** Whether the button is disabled, accounting for the parent pagination state. */
   readonly disabled: Signal<boolean>;
   /** Go to the last page. */
   goToLastPage(): void;
@@ -17,7 +15,7 @@ export interface NgpPaginationLastState {
 
 export interface NgpPaginationLastProps {
   /** Whether the button is disabled. */
-  readonly buttonDisabled: Signal<boolean>;
+  readonly disabled?: Signal<boolean>;
 }
 
 export const [
@@ -27,12 +25,12 @@ export const [
   providePaginationLastState,
 ] = createPrimitive(
   'NgpPaginationLast',
-  ({ buttonDisabled = signal<boolean>(false) }: NgpPaginationLastProps) => {
+  ({ disabled: _disabled = signal<boolean>(false) }: NgpPaginationLastProps) => {
     const elementRef = injectElementRef();
     const paginationState = injectPaginationState();
 
     const disabled = computed(
-      () => buttonDisabled() || paginationState().disabled() || paginationState().lastPage(),
+      () => _disabled() || paginationState().disabled() || paginationState().lastPage(),
     );
 
     // Setup interactions
@@ -63,7 +61,6 @@ export const [
 
     return {
       elementRef,
-      buttonDisabled,
       disabled,
       goToLastPage,
     } satisfies NgpPaginationLastState;

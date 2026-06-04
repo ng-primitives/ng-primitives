@@ -2,6 +2,7 @@ import { computed, ElementRef, signal, Signal, WritableSignal } from '@angular/c
 import { injectElementRef } from 'ng-primitives/internal';
 import {
   attrBinding,
+  controlled,
   controlledState,
   createPrimitive,
   dataBinding,
@@ -47,9 +48,14 @@ export interface NgpPaginationState {
 
 export interface NgpPaginationProps {
   /**
-   * The currently selected page.
+   * The currently selected page. When `undefined`, the pagination is uncontrolled
+   * and seeds from `defaultPage`.
    */
-  readonly page?: Signal<number>;
+  readonly page?: Signal<number | undefined>;
+  /**
+   * The default page for uncontrolled usage.
+   */
+  readonly defaultPage?: Signal<number>;
   /**
    * The total number of pages.
    */
@@ -70,20 +76,23 @@ export const [
 ] = createPrimitive(
   'NgpPagination',
   ({
-    page: _page = signal<number>(1),
+    page: _page = signal<number | undefined>(undefined),
+    defaultPage: _defaultPage = signal<number>(1),
     pageCount: _pageCount = signal<number>(0),
     disabled: _disabled = signal<boolean>(false),
     onPageChange,
   }: NgpPaginationProps) => {
     const elementRef = injectElementRef();
 
+    const defaultPage = controlled(_defaultPage, 1);
     const [page, setPage, pageChange] = controlledState({
       value: _page,
+      defaultValue: defaultPage,
       onChange: onPageChange,
     });
 
-    const firstPage = computed(() => page() == 1);
-    const lastPage = computed(() => page() == _pageCount());
+    const firstPage = computed(() => page() === 1);
+    const lastPage = computed(() => page() === _pageCount());
 
     // Host bindings
     attrBinding(elementRef, 'role', 'navigation');

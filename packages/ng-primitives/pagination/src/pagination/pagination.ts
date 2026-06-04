@@ -12,10 +12,20 @@ import { ngpPagination, providePaginationState } from './pagination-state';
 })
 export class NgpPagination {
   /**
-   * The currently selected page.
+   * The currently selected page. Leave unset for uncontrolled usage, where the
+   * internal state is seeded from `defaultPage`.
    */
-  readonly page = input<number, NumberInput>(1, {
+  readonly page = input<number | undefined, NumberInput>(undefined, {
     alias: 'ngpPaginationPage',
+    transform: numberAttribute,
+  });
+
+  /**
+   * The default page for uncontrolled usage.
+   * @default 1
+   */
+  readonly defaultPage = input<number, NumberInput>(1, {
+    alias: 'ngpPaginationDefaultPage',
     transform: numberAttribute,
   });
 
@@ -48,6 +58,7 @@ export class NgpPagination {
    */
   protected readonly state = ngpPagination({
     page: this.page,
+    defaultPage: this.defaultPage,
     pageCount: this.pageCount,
     disabled: this.disabled,
     onPageChange: (value: number) => this.pageChange.emit(value),
