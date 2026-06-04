@@ -1,4 +1,4 @@
-import { computed, ElementRef, signal, Signal, WritableSignal } from '@angular/core';
+import { computed, signal, Signal, WritableSignal } from '@angular/core';
 import { injectElementRef } from 'ng-primitives/internal';
 import {
   attrBinding,
@@ -11,8 +11,6 @@ import {
 import { Observable } from 'rxjs';
 
 export interface NgpPaginationState {
-  /** Access the element's reference. */
-  readonly elementRef: ElementRef;
   /**
    * The currently selected page.
    */
@@ -112,7 +110,6 @@ export const [
     }
 
     return {
-      elementRef,
       page: deprecatedSetter(page, 'setPage', setPage),
       pageCount: _pageCount,
       pageChange: pageChange,

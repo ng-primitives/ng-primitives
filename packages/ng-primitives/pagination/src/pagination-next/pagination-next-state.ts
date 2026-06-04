@@ -1,12 +1,10 @@
-import { computed, ElementRef, Signal, signal } from '@angular/core';
+import { computed, Signal, signal } from '@angular/core';
 import { ngpButton } from 'ng-primitives/button';
 import { injectElementRef } from 'ng-primitives/internal';
 import { attrBinding, createPrimitive, dataBinding, listener } from 'ng-primitives/state';
 import { injectPaginationState } from '../pagination/pagination-state';
 
 export interface NgpPaginationNextState {
-  /** Access the element's reference. */
-  readonly elementRef: ElementRef;
   /** Whether the button is disabled, accounting for the parent pagination state. */
   readonly disabled: Signal<boolean>;
   /** Go to the next page. */
@@ -60,7 +58,6 @@ export const [
     }
 
     return {
-      elementRef,
       disabled,
       goToNextPage,
     } satisfies NgpPaginationNextState;

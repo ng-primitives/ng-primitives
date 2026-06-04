@@ -1,12 +1,10 @@
-import { computed, ElementRef, signal, Signal } from '@angular/core';
+import { computed, signal, Signal } from '@angular/core';
 import { ngpButton } from 'ng-primitives/button';
 import { injectElementRef } from 'ng-primitives/internal';
 import { attrBinding, createPrimitive, dataBinding, listener } from 'ng-primitives/state';
 import { injectPaginationState } from '../pagination/pagination-state';
 
 export interface NgpPaginationLastState {
-  /** Access the element's reference. */
-  readonly elementRef: ElementRef;
   /** Whether the button is disabled, accounting for the parent pagination state. */
   readonly disabled: Signal<boolean>;
   /** Go to the last page. */
@@ -60,7 +58,6 @@ export const [
     }
 
     return {
-      elementRef,
       disabled,
       goToLastPage,
     } satisfies NgpPaginationLastState;
