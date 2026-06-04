@@ -2,7 +2,6 @@ import { computed, signal, Signal, WritableSignal } from '@angular/core';
 import { injectElementRef } from 'ng-primitives/internal';
 import {
   attrBinding,
-  controlled,
   controlledState,
   createPrimitive,
   dataBinding,
@@ -82,10 +81,9 @@ export const [
   }: NgpPaginationProps) => {
     const elementRef = injectElementRef();
 
-    const defaultPage = controlled(_defaultPage, 1);
     const [page, setPage, pageChange] = controlledState({
       value: _page,
-      defaultValue: defaultPage,
+      defaultValue: _defaultPage,
       onChange: onPageChange,
     });
 
@@ -112,7 +110,7 @@ export const [
     return {
       page: deprecatedSetter(page, 'setPage', setPage),
       pageCount: _pageCount,
-      pageChange: pageChange,
+      pageChange,
       disabled: _disabled,
       firstPage,
       lastPage,
