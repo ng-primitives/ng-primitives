@@ -1,13 +1,6 @@
 import { BooleanInput, NumberInput } from '@angular/cdk/coercion';
-import {
-  booleanAttribute,
-  computed,
-  Directive,
-  input,
-  numberAttribute,
-  output,
-} from '@angular/core';
-import { paginationState, providePaginationState } from './pagination-state';
+import { booleanAttribute, Directive, input, numberAttribute, output } from '@angular/core';
+import { ngpPagination, providePaginationState } from './pagination-state';
 
 /**
  * The `NgpPagination` directive is used to create a pagination control.
@@ -16,21 +9,23 @@ import { paginationState, providePaginationState } from './pagination-state';
   selector: '[ngpPagination]',
   exportAs: 'ngpPagination',
   providers: [providePaginationState()],
-  host: {
-    role: 'navigation',
-    '[attr.data-page]': 'state.page()',
-    '[attr.data-page-count]': 'state.pageCount()',
-    '[attr.data-first-page]': 'firstPage() ? "" : null',
-    '[attr.data-last-page]': 'lastPage() ? "" : null',
-    '[attr.data-disabled]': 'state.disabled() ? "" : null',
-  },
 })
 export class NgpPagination {
   /**
-   * The currently selected page.
+   * The currently selected page. Leave unset for uncontrolled usage, where the
+   * internal state is seeded from `defaultPage`.
    */
-  readonly page = input<number, NumberInput>(1, {
+  readonly page = input<number | undefined, NumberInput>(undefined, {
     alias: 'ngpPaginationPage',
+    transform: numberAttribute,
+  });
+
+  /**
+   * The default page for uncontrolled usage.
+   * @default 1
+   */
+  readonly defaultPage = input<number, NumberInput>(1, {
+    alias: 'ngpPaginationDefaultPage',
     transform: numberAttribute,
   });
 
@@ -58,34 +53,22 @@ export class NgpPagination {
   });
 
   /**
-   * Determine if we are on the first page.
-   * @internal
-   */
-  readonly firstPage = computed(() => this.state.page() === 1);
-
-  /**
-   * Determine if we are on the last page.
-   * @internal
-   */
-  readonly lastPage = computed(() => this.state.page() === this.state.pageCount());
-
-  /**
    * The control state for the pagination.
    * @internal
    */
-  protected readonly state = paginationState<NgpPagination>(this);
+  protected readonly state = ngpPagination({
+    page: this.page,
+    defaultPage: this.defaultPage,
+    pageCount: this.pageCount,
+    disabled: this.disabled,
+    onPageChange: (value: number) => this.pageChange.emit(value),
+  });
 
   /**
    * Go to the specified page.
    * @param page The page to go to.
    */
   goToPage(page: number) {
-    // check if the page is within the bounds of the pagination
-    if (page < 1 || page > this.state.pageCount()) {
-      return;
-    }
-
-    this.state.page.set(page);
-    this.pageChange.emit(page);
+    return this.state.goToPage(page);
   }
 }
