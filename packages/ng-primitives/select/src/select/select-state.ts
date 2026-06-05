@@ -27,6 +27,7 @@ import {
 import { uniqueId } from 'ng-primitives/utils';
 import { Observable } from 'rxjs';
 import type { NgpSelectDropdownState } from '../select-dropdown/select-dropdown-state';
+import type { NgpSelectInputState } from '../select-input/select-input-state';
 import type { NgpSelectOptionState } from '../select-option/select-option-state';
 import { NgpSelectPortalState } from '../select-portal/select-portal-state';
 
@@ -92,6 +93,12 @@ export interface NgpSelectState<T> {
    * @internal
    */
   readonly dropdown: WritableSignal<NgpSelectDropdownState | undefined>;
+
+  /**
+   * Store the select input, when one is used to filter the options.
+   * @internal
+   */
+  readonly input: WritableSignal<NgpSelectInputState | undefined>;
 
   /**
    * Store the select options.
@@ -202,6 +209,20 @@ export interface NgpSelectState<T> {
    * @internal
    */
   registerDropdown(dropdown: NgpSelectDropdownState): void;
+
+  /**
+   * Register the input with the select.
+   * @param input The input to register.
+   * @internal
+   */
+  registerInput(input: NgpSelectInputState): void;
+
+  /**
+   * Unregister the input from the select.
+   * @param input The input to unregister.
+   * @internal
+   */
+  unregisterInput(input: NgpSelectInputState): void;
 
   /**
    * Register an option with the select.
@@ -355,6 +376,7 @@ export const [NgpSelectStateToken, ngpSelect, _injectSelectState, provideSelectS
 
       const portal = signal<NgpSelectPortalState | undefined>(undefined);
       const dropdown = signal<NgpSelectDropdownState | undefined>(undefined);
+      const input = signal<NgpSelectInputState | undefined>(undefined);
       const options = signal<NgpSelectOptionState[]>([]);
 
       const overlay = computed(() => portal()?.overlay());
@@ -400,20 +422,34 @@ export const [NgpSelectStateToken, ngpSelect, _injectSelectState, provideSelectS
       // Host bindings
       attrBinding(elementRef, 'role', 'combobox');
       attrBinding(elementRef, 'id', id);
-      attrBinding(elementRef, 'aria-expanded', open);
+      attrBinding(elementRef, 'aria-expanded', () => open());
       attrBinding(elementRef, 'aria-controls', () => (open() ? dropdown()?.id() : undefined));
       attrBinding(elementRef, 'aria-activedescendant', () =>
         open() ? activeDescendantManagerInstance.id() : undefined,
       );
-      attrBinding(elementRef, 'tabindex', () => (disabled() ? -1 : 0));
+      attrBinding(elementRef, 'tabindex', () => {
+        if (input() || disabled()) return -1;
+        return 0;
+      });
       dataBinding(elementRef, 'data-open', () => (open() ? '' : null));
       dataBinding(elementRef, 'data-disabled', () => (disabled() ? '' : null));
       dataBinding(elementRef, 'data-multiple', () => (multiple() ? '' : null));
 
       // Event listeners
-      listener(elementRef, 'click', () => void toggleDropdown());
+      listener(elementRef, 'click', onClick);
       listener(elementRef, 'keydown', handleKeydown);
       listener(elementRef, 'blur', onBlur);
+
+      function onClick(event: MouseEvent): void {
+        // if the click originated from the input, let the input keep focus
+        // (clicking it should not toggle the dropdown closed when it is placed
+        // inside the select element)
+        if (event.target === input()?.elementRef.nativeElement) {
+          return;
+        }
+
+        toggleDropdown();
+      }
 
       /**
        * Open the dropdown.
@@ -426,6 +462,8 @@ export const [NgpSelectStateToken, ngpSelect, _injectSelectState, provideSelectS
 
         onOpenChange?.(true);
         await portal()?.show();
+
+        input()?.focus();
 
         let selectedOptionIdx = -1;
 
@@ -701,6 +739,26 @@ export const [NgpSelectStateToken, ngpSelect, _injectSelectState, provideSelectS
       }
 
       /**
+       * Register the input with the select.
+       * @param inputInstance The input to register.
+       * @internal
+       */
+      function registerInput(inputInstance: NgpSelectInputState): void {
+        input.set(inputInstance);
+      }
+
+      /**
+       * Unregister the input from the select.
+       * @param inputInstance The input to unregister.
+       * @internal
+       */
+      function unregisterInput(inputInstance: NgpSelectInputState): void {
+        if (input() === inputInstance) {
+          input.set(undefined);
+        }
+      }
+
+      /**
        * Register an option with the select.
        * @param option The option to register.
        * @internal
@@ -728,12 +786,18 @@ export const [NgpSelectStateToken, ngpSelect, _injectSelectState, provideSelectS
 
       /** Handle keydown events for accessibility. */
       function handleKeydown(event: KeyboardEvent): void {
+        // if the event originated from the input element, let the input handle it
+        // (the event bubbles up when the input is placed inside the select element)
+        if (event.target === input()?.elementRef.nativeElement) {
+          return;
+        }
+
         switch (event.key) {
           case 'ArrowDown':
             if (open()) {
               activateNextOption();
             } else {
-              void openDropdown();
+              openDropdown();
             }
             event.preventDefault();
             break;
@@ -741,7 +805,7 @@ export const [NgpSelectStateToken, ngpSelect, _injectSelectState, provideSelectS
             if (open()) {
               activatePreviousOption();
             } else {
-              void openDropdown();
+              openDropdown();
               activeDescendantManagerInstance.last();
             }
             event.preventDefault();
@@ -767,12 +831,12 @@ export const [NgpSelectStateToken, ngpSelect, _injectSelectState, provideSelectS
                 option?.select();
               }
             } else {
-              void openDropdown();
+              openDropdown();
             }
             event.preventDefault();
             break;
           case ' ':
-            void toggleDropdown();
+            toggleDropdown();
             event.preventDefault();
             break;
         }
@@ -783,6 +847,12 @@ export const [NgpSelectStateToken, ngpSelect, _injectSelectState, provideSelectS
 
         // if the blur was caused by focus moving to the dropdown, don't close
         if (relatedTarget && dropdown()?.elementRef.nativeElement.contains(relatedTarget)) {
+          return;
+        }
+
+        // if the blur was caused by focus moving to the input, don't close
+        // (the input may be placed inside the select element)
+        if (relatedTarget === input()?.elementRef.nativeElement) {
           return;
         }
 
@@ -829,6 +899,7 @@ export const [NgpSelectStateToken, ngpSelect, _injectSelectState, provideSelectS
         allOptions,
         portal,
         dropdown,
+        input,
         options,
         overlay,
         open,
@@ -850,6 +921,8 @@ export const [NgpSelectStateToken, ngpSelect, _injectSelectState, provideSelectS
         valueChange: valueChangeEmitter.asObservable(),
         registerPortal,
         registerDropdown,
+        registerInput,
+        unregisterInput,
         registerOption,
         unregisterOption,
         focus,
