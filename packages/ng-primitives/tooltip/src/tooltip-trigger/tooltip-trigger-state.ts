@@ -25,7 +25,6 @@ import {
   createPrimitive,
   dataBinding,
   listener,
-  onDestroy,
   StateInjectionOptions,
 } from 'ng-primitives/state';
 import { injectDisposables, isString } from 'ng-primitives/utils';
@@ -184,99 +183,99 @@ export interface NgpTooltipTriggerState<T> {
 
 export interface NgpTooltipTriggerProps<T> {
   /** Access the tooltip template ref. */
-  readonly tooltip: Signal<NgpOverlayContent<T> | string | null>;
+  readonly tooltip?: Signal<NgpOverlayContent<T> | string | null>;
   /**
    * Define if the trigger should be disabled. This will prevent the tooltip from being shown or hidden from interactions.
    * @default false
    */
-  readonly disabled: Signal<boolean>;
+  readonly disabled?: Signal<boolean>;
   /**
    * Define the placement of the tooltip relative to the trigger.
    * @default 'top'
    */
-  readonly placement: Signal<NgpTooltipPlacement>;
+  readonly placement?: Signal<NgpTooltipPlacement>;
   /**
    * Define the offset of the tooltip relative to the trigger.
    * Can be a number (applies to mainAxis) or an object with mainAxis, crossAxis, and alignmentAxis.
    * @default 0
    */
-  readonly offset: Signal<NgpOffset>;
+  readonly offset?: Signal<NgpOffset>;
   /**
    * Define the delay before the tooltip is displayed.
    * @default 500
    */
-  readonly showDelay: Signal<number>;
+  readonly showDelay?: Signal<number>;
   /**
    * Define the delay before the tooltip is hidden.
    * @default 0
    */
-  readonly hideDelay: Signal<number>;
+  readonly hideDelay?: Signal<number>;
   /**
    * Define whether the tooltip should flip when there is not enough space for the tooltip.
    * Can be a boolean to enable/disable, or an object with padding and fallbackPlacements options.
    * @default true
    */
-  readonly flip: Signal<NgpFlip>;
+  readonly flip?: Signal<NgpFlip>;
   /**
    * Configure shift behavior to keep the tooltip in view.
    * Can be a boolean to enable/disable, or an object with padding and limiter options.
    * @default undefined (enabled by default in overlay)
    */
-  readonly shift: Signal<NgpShift>;
+  readonly shift?: Signal<NgpShift>;
   /**
    * Define the container in which the tooltip should be attached.
    * @default document.body
    */
-  readonly container: Signal<HTMLElement | string | null>;
+  readonly container?: Signal<HTMLElement | string | null>;
   /**
    * Define whether the tooltip should only show when the trigger element overflows.
    * @default false
    */
-  readonly showOnOverflow: Signal<boolean>;
+  readonly showOnOverflow?: Signal<boolean>;
   /**
    * Define an anchor element for positioning the tooltip.
    * If provided, the tooltip will be positioned relative to this element instead of the trigger.
    */
-  readonly anchor: Signal<HTMLElement | null>;
+  readonly anchor?: Signal<HTMLElement | null>;
   /**
    * Provide context to the tooltip. This can be used to pass data to the tooltip content.
    */
-  readonly context: Signal<T | undefined>;
+  readonly context?: Signal<T | undefined>;
   /**
    * Define whether to use the text content of the trigger element as the tooltip content.
    * When enabled, the tooltip will display the text content of the trigger element.
    * @default true
    */
-  readonly useTextContent: Signal<boolean>;
+  readonly useTextContent?: Signal<boolean>;
   /**
    * Define whether to track the trigger element position on every animation frame.
    * Useful for moving elements like slider thumbs.
    * @default false
    */
-  readonly trackPosition: Signal<boolean>;
+  readonly trackPosition?: Signal<boolean>;
   /**
    * Programmatic position for the tooltip. When provided, the tooltip
    * will be positioned at these coordinates instead of the trigger element.
    * Use with trackPosition="true" for smooth cursor following.
    */
-  readonly position: Signal<NgpPosition | null>;
+  readonly position?: Signal<NgpPosition | null>;
   /**
    * Defines how the tooltip behaves when the window is scrolled.
    * @default 'reposition'
    */
-  readonly scrollBehavior: Signal<'reposition' | 'close'>;
+  readonly scrollBehavior?: Signal<'reposition' | 'close'>;
   /**
    * Define the cooldown duration in milliseconds.
    * When moving from one tooltip to another within this duration,
    * the showDelay is skipped for the new tooltip.
    * @default 300
    */
-  readonly cooldown: Signal<number>;
+  readonly cooldown?: Signal<number>;
   /**
    * Whether hovering tooltip content keeps the tooltip open.
    * @default false
    */
-  readonly hoverableContent: Signal<boolean>;
+  readonly hoverableContent?: Signal<boolean>;
 }
 
 export const [
@@ -632,8 +631,6 @@ export const [
       onTooltipHoverEnd,
       destroy,
     } satisfies NgpTooltipTriggerState<T>;
-
-    onDestroy(destroy);
 
     return state;
   },

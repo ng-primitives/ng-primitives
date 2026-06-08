@@ -20,7 +20,7 @@ export interface NgpTooltipState {
 
 export interface NgpTooltipProps {
   /** The unique id of the tooltip. */
-  readonly id: Signal<string>;
+  readonly id?: Signal<string>;
 }
 
 export const [NgpTooltipStateToken, ngpTooltip, injectTooltipState, provideTooltipState] =
@@ -29,7 +29,13 @@ export const [NgpTooltipStateToken, ngpTooltip, injectTooltipState, provideToolt
     const tooltipTriggerState = injectTooltipTriggerState();
     const overlay = injectOverlay();
 
-    const id = controlled(_id, overlay.id());
+    const id = controlled(_id);
+
+    // Seed the id with the overlay's generated unique id so the tooltip has a
+    // valid id (and the trigger a valid aria-describedby) when none is provided.
+    // `controlled` returns a linkedSignal, so this is only a transient default:
+    // if a consumer binds `id`, that source change supersedes this seed.
+    id.set(overlay.id());
 
     // Setup interactions
     ngpHover({
