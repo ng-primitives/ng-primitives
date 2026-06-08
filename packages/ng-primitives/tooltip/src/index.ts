@@ -9,11 +9,7 @@ export {
   ngpTooltipArrow,
   provideTooltipArrowState,
 } from './tooltip-arrow/tooltip-arrow-state';
-export { NgpTooltipTrigger, type NgpTooltipPlacement } from './tooltip-trigger/tooltip-trigger';
-export {
-  injectTooltipTriggerState,
-  provideTooltipTriggerState,
-} from './tooltip-trigger/tooltip-trigger-state';
+export { NgpTooltipTrigger } from './tooltip-trigger/tooltip-trigger';
 export { NgpTooltip } from './tooltip/tooltip';
 export {
   NgpTooltipStateToken,
@@ -31,3 +27,12 @@ export {
   type NgpTooltipTextContentState,
   type NgpTooltipTextContentProps,
 } from './tooltip-text-content/tooltip-text-content-state';
+export {
+  NgpTooltipTriggerStateToken,
+  ngpTooltipTrigger,
+  injectTooltipTriggerState,
+  provideTooltipTriggerState,
+  type NgpTooltipTriggerState,
+  type NgpTooltipTriggerProps,
+  type NgpTooltipPlacement,
+} from './tooltip-trigger/tooltip-trigger-state';
