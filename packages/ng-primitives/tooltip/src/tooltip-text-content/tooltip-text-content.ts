@@ -1,13 +1,13 @@
 import { Component } from '@angular/core';
-import { injectOverlayContext } from 'ng-primitives/portal';
 import { NgpTooltip } from '../tooltip/tooltip';
+import { ngpTooltipTextContent } from './tooltip-text-content-state';
 
 /**
  * Internal component for wrapping string content in tooltip portals
  * @internal
  */
 @Component({
-  template: '{{ content() }}',
+  template: '{{ state.content() }}',
   hostDirectives: [NgpTooltip],
   host: {
     // Used only for styling, since the host directive isn’t added to the DOM.
@@ -16,8 +16,5 @@ import { NgpTooltip } from '../tooltip/tooltip';
   },
 })
 export class NgpTooltipTextContentComponent {
-  /**
-   * The string content to display
-   */
-  readonly content = injectOverlayContext();
+  protected readonly state = ngpTooltipTextContent({});
 }

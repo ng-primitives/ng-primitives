@@ -17,7 +17,7 @@ export class NgpTooltipArrow {
     transform: numberAttribute,
   });
 
-  private readonly state = ngpTooltipArrow({ padding: this.padding });
+  protected readonly state = ngpTooltipArrow({ padding: this.padding });
 
   /**
    * Set the padding between the arrow and the edges of the tooltip.

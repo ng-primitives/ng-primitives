@@ -23,3 +23,11 @@ export {
   type NgpTooltipState,
   type NgpTooltipProps,
 } from './tooltip/tooltip-state';
+export {
+  NgpTooltipTextContentStateToken,
+  ngpTooltipTextContent,
+  injectTooltipTextContentState,
+  provideTooltipTextContentState,
+  type NgpTooltipTextContentState,
+  type NgpTooltipTextContentProps,
+} from './tooltip-text-content/tooltip-text-content-state';

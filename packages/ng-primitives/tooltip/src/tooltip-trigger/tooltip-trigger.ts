@@ -32,7 +32,7 @@ import {
 } from 'ng-primitives/portal';
 import { injectDisposables, isString } from 'ng-primitives/utils';
 import { injectTooltipConfig } from '../config/tooltip-config';
-import { NgpTooltipTextContentComponent } from '../tooltip-text-content/tooltip-text-content.component';
+import { NgpTooltipTextContentComponent } from '../tooltip-text-content/tooltip-text-content';
 import {
   createTooltipHoverBridgePolygon,
   isPointInHoverBridgePolygon,
