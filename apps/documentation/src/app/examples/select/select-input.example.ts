@@ -15,7 +15,7 @@ import {
   providers: [provideIcons({ heroChevronDown })],
   template: `
     <div class="select-field">
-      <span class="select-label">Searchable select</span>
+      <span class="select-label" id="select-search-label">Searchable select</span>
 
       <div [(ngpSelectValue)]="value" (ngpSelectOpenChange)="onOpen($event)" ngpSelect>
         @if (value(); as selected) {
@@ -31,6 +31,7 @@ import {
             (input)="onSearch($event)"
             ngpSelectInput
             placeholder="Search…"
+            aria-labelledby="select-search-label"
           />
           <div class="select-scrollable">
             @for (option of filteredOptions(); track option) {
