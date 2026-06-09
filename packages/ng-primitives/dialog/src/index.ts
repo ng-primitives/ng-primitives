@@ -39,3 +39,11 @@ export {
   type NgpDialogTitleState,
   type NgpDialogTitleProps,
 } from './dialog-title/dialog-title-state';
+export {
+  NgpDialogTriggerStateToken,
+  ngpDialogTrigger,
+  injectDialogTriggerState,
+  provideDialogTriggerState,
+  type NgpDialogTriggerState,
+  type NgpDialogTriggerProps,
+} from './dialog-trigger/dialog-trigger-state';
