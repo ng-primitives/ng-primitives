@@ -48,6 +48,6 @@ export class NgpDialogTrigger<T = unknown> {
     template: this.template,
     closeOnEscape: this.closeOnEscape,
     closeOnOutsideClick: this.closeOnOutsideClick,
-    onClosedChange: this.closed.emit,
+    onClosedChange: (value: T) => this.closed.emit(value),
   });
 }
