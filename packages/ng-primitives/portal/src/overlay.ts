@@ -47,53 +47,57 @@ import {
 import { NgpShift } from './shift';
 
 /**
- * Bit value of the internal `SkipSelf` inject flag used by Angular's DI system.
- * This value is part of Angular's ABI and is stable across versions 19+.
- * @see InjectFlags.SkipSelf / InternalInjectFlags.SkipSelf
+ * Bit values of the internal inject flags used by Angular's DI system. These are
+ * part of Angular's ABI and are stable across versions 19+.
+ * @see InjectFlags / InternalInjectFlags
  */
+const HOST_FLAG = 1;
 const SKIP_SELF_FLAG = 4;
 
-/** Check whether the given inject flags include `SkipSelf`. */
-function hasSkipSelfFlag(flags: unknown): boolean {
+/**
+ * Check whether the given inject flags include `Host` or `SkipSelf` - the flags a
+ * form directive uses when resolving its parent `ControlContainer`. Angular 20 and
+ * earlier tagged `FormControlName`/`FormGroupName` lookups with `SkipSelf`; Angular
+ * 21 tags them with `Host` instead (the flag `NgModel` has always used). Either flag
+ * means "resolve the ancestor control container", the lookup the overlay intercepts.
+ */
+function hasHostOrSkipSelfFlag(flags: unknown): boolean {
   if (typeof flags === 'number') {
-    return (flags & SKIP_SELF_FLAG) !== 0;
+    return (flags & (HOST_FLAG | SKIP_SELF_FLAG)) !== 0;
   }
-  if (flags != null && typeof flags === 'object' && 'skipSelf' in flags) {
-    return !!(flags as { skipSelf: unknown }).skipSelf;
+  if (flags != null && typeof flags === 'object') {
+    return !!(flags as { host?: unknown }).host || !!(flags as { skipSelf?: unknown }).skipSelf;
   }
   return false;
 }
 
 /**
  * An injector wrapper that intercepts `ControlContainer` lookups carrying the
- * `SkipSelf` flag and short-circuits them to `notFoundValue`.
+ * `Host` or `SkipSelf` flag and short-circuits them to `notFoundValue`.
  *
  * ## Why this is needed
  *
- * Angular's `lookupTokenUsingEmbeddedInjector` passes the original inject flags
- * to the embedded view injector's `.get()` call. For directives that use
- * `@Host() @SkipSelf()` (e.g. `FormControlName`, `FormGroupName`):
+ * Angular's `lookupTokenUsingEmbeddedInjector` consults the embedded view's injector
+ * before the element-injector walk for these lookups. A form directive resolving its
+ * parent `ControlContainer` (`FormControlName`, `FormGroupName`, `NgModel`) reaches
+ * this injector; if it returns the delegate's `ControlContainer: null` record, that
+ * `null` short-circuits the lookup and the element-injector walk never runs, so a
+ * `formControlName` declared inside an inner form within the overlay can no longer
+ * find that inner form and throws NG01050.
  *
- * - **Without this wrapper**: `R3Injector.get()` honors `SkipSelf` by skipping
- *   its own `ControlContainer: null` record and delegates to the parent injector
- *   (the trigger element's injector), which may find the **outer** form's
- *   `ControlContainer` — leaking the wrong form context into child components.
- *
- * - **If we stripped SkipSelf entirely**: `R3Injector` would find its own
- *   `ControlContainer: null` and return `null`. But this `null` is returned
- *   for ALL `ControlContainer` lookups within the portaled view, killing child
- *   components' own `FormGroupDirective` resolution (NG01050).
+ * Angular 20 and earlier tagged `FormControlName`/`FormGroupName` lookups with
+ * `SkipSelf`; Angular 21 tags them with `Host` (the flag `NgModel` has always used),
+ * so the intercept must cover both flags.
  *
  * ## The fix
  *
- * For `ControlContainer` + `SkipSelf`, return `notFoundValue` directly. This
- * causes `lookupTokenUsingEmbeddedInjector` to skip this boundary and eventually
- * return `NOT_FOUND`, letting `lookupTokenUsingNodeInjector` run — which correctly
- * finds the child component's own `FormGroupDirective` via the element injector chain.
- *
- * For `ControlContainer` without `SkipSelf` (e.g. `NgModel` uses `@Host()` only),
- * delegation proceeds normally and finds `ControlContainer: null`, preventing the
- * outer form from leaking.
+ * For `ControlContainer` + `Host`/`SkipSelf`, return `notFoundValue` so the
+ * element-injector walk runs and finds an inner form's `ControlContainer` when one
+ * exists. To stop a control with **no** inner form from escaping to the *outer*
+ * form, each overlay-content root directive (`NgpPopover`, `NgpTooltip`, `NgpMenu`,
+ * …) applies `provideControlContainerIsolation()` (a `ControlContainer: null` at
+ * element level): an inner form sits closer in the injector chain and still wins,
+ * while a bare control resolves to `null` there instead of leaking the outer form.
  *
  * @see https://github.com/angular/angular/issues/57390
  * @see https://github.com/ng-primitives/ng-primitives/issues/677
@@ -106,7 +110,7 @@ class EmbeddedViewInjector extends Injector {
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   get(token: any, notFoundValue?: any, flags?: any): any {
-    if (token === ControlContainer && hasSkipSelfFlag(flags)) {
+    if (token === ControlContainer && hasHostOrSkipSelfFlag(flags)) {
       return notFoundValue;
     }
     return this.delegate.get(token, notFoundValue, flags);
@@ -338,12 +342,14 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
     this.viewContainerRef = config.viewContainerRef;
 
     // Listen for placement signal changes to update position
-    if (config.placement) {
+    // eslint-disable-next-line @angular-eslint/no-uncalled-signals -- checking whether the optional signal was provided, not its value
+    if (config.placement !== undefined) {
       explicitEffect([config.placement], () => this.updatePosition());
     }
 
     // Listen for position signal changes to update position
-    if (config.position) {
+    // eslint-disable-next-line @angular-eslint/no-uncalled-signals -- checking whether the optional signal was provided, not its value
+    if (config.position !== undefined) {
       explicitEffect([config.position], () => this.updatePosition());
     }
 

@@ -1,4 +1,5 @@
 import { Directive, input } from '@angular/core';
+import { provideControlContainerIsolation } from 'ng-primitives/portal';
 import { ngpTooltip } from './tooltip-state';
 
 /**
@@ -7,6 +8,7 @@ import { ngpTooltip } from './tooltip-state';
 @Directive({
   selector: '[ngpTooltip]',
   exportAs: 'ngpTooltip',
+  providers: [provideControlContainerIsolation()],
 })
 export class NgpTooltip {
   /**

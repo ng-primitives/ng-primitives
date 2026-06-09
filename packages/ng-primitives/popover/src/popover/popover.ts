@@ -1,5 +1,6 @@
 import { Directive, input } from '@angular/core';
 import { NgpFocusTrap } from 'ng-primitives/focus-trap';
+import { provideControlContainerIsolation } from 'ng-primitives/portal';
 import { ngpPopover, providePopoverState } from './popover-state';
 
 /**
@@ -9,7 +10,7 @@ import { ngpPopover, providePopoverState } from './popover-state';
   selector: '[ngpPopover]',
   exportAs: 'ngpPopover',
   hostDirectives: [NgpFocusTrap],
-  providers: [providePopoverState()],
+  providers: [providePopoverState(), provideControlContainerIsolation()],
 })
 export class NgpPopover {
   /**

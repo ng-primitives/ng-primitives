@@ -58,3 +58,7 @@ apps/documentation/src/public/assets/llms/
 
 # Stray AnalogJS build output (real output goes to dist/, not packages/)
 packages/apps/
+
+.claude/worktrees
+.nx/polygraph
+.nx/self-healing

@@ -1,11 +1,13 @@
 import { Directive, input } from '@angular/core';
 import { injectElementRef, observeResize } from 'ng-primitives/internal';
+import { provideControlContainerIsolation } from 'ng-primitives/portal';
 import { uniqueId } from 'ng-primitives/utils';
 import { injectComboboxState } from '../combobox/combobox-state';
 
 @Directive({
   selector: '[ngpComboboxDropdown]',
   exportAs: 'ngpComboboxDropdown',
+  providers: [provideControlContainerIsolation()],
   host: {
     role: 'listbox',
     '[id]': 'id()',

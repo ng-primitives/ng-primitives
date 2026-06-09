@@ -3,6 +3,7 @@ import { BooleanInput } from '@angular/cdk/coercion';
 import { booleanAttribute, Directive, input } from '@angular/core';
 import { provideFocusTrapState } from 'ng-primitives/focus-trap';
 import { ngpMenu, provideMenuState } from 'ng-primitives/menu';
+import { provideControlContainerIsolation } from 'ng-primitives/portal';
 import { ngpRovingFocusGroup, provideRovingFocusGroupState } from 'ng-primitives/roving-focus';
 
 /**
@@ -15,6 +16,7 @@ import { ngpRovingFocusGroup, provideRovingFocusGroupState } from 'ng-primitives
     provideRovingFocusGroupState({ inherit: false }),
     provideMenuState({ inherit: false }),
     provideFocusTrapState(),
+    provideControlContainerIsolation(),
   ],
 })
 export class NgpContextMenu {
