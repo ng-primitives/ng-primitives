@@ -388,12 +388,16 @@ export const [NgpSelectStateToken, ngpSelect, _injectSelectState, provideSelectS
       });
 
       // Host bindings
-      attrBinding(elementRef, 'role', 'combobox');
+      // When no input is registered, select is the combobox; when input exists, input is the combobox.
+      attrBinding(elementRef, 'role', () => (input() ? null : 'combobox'));
+      attrBinding(elementRef, 'aria-haspopup', 'dialog');
       attrBinding(elementRef, 'id', id);
-      attrBinding(elementRef, 'aria-expanded', () => open());
-      attrBinding(elementRef, 'aria-controls', () => (open() ? dropdown()?.id() : undefined));
+      attrBinding(elementRef, 'aria-expanded', () => (input() ? undefined : open()));
+      attrBinding(elementRef, 'aria-controls', () =>
+        input() ? undefined : open() ? dropdown()?.id() : undefined,
+      );
       attrBinding(elementRef, 'aria-activedescendant', () =>
-        open() ? activeDescendantManagerInstance.id() : undefined,
+        input() ? undefined : open() ? activeDescendantManagerInstance.id() : undefined,
       );
       attrBinding(elementRef, 'tabindex', () => {
         if (input() || disabled()) return -1;

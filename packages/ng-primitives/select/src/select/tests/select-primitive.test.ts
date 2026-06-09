@@ -1,8 +1,14 @@
-import { Component, signal } from '@angular/core';
+import { Component, computed, signal } from '@angular/core';
 import { fireEvent, render, screen, waitFor } from '@testing-library/angular';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it, vi, afterEach } from 'vitest';
-import { NgpSelect, NgpSelectDropdown, NgpSelectOption, NgpSelectPortal } from '../../index';
+import {
+  NgpSelect,
+  NgpSelectDropdown,
+  NgpSelectInput,
+  NgpSelectOption,
+  NgpSelectPortal,
+} from '../../index';
 
 @Component({
   template: `
@@ -1699,6 +1705,177 @@ describe('NgpSelect', () => {
       // Destroy the component — should NOT emit openChange
       fixture.destroy();
       expect(spy).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('NgpSelectInput', () => {
+    @Component({
+      template: `
+        <div
+          [(ngpSelectValue)]="value"
+          (ngpSelectOpenChange)="onOpenChange($event)"
+          ngpSelect
+          data-testid="select-with-input"
+        >
+          @if (value(); as val) {
+            <span data-testid="selected-value">{{ val }}</span>
+          } @else {
+            <span data-testid="placeholder">Select an option</span>
+          }
+
+          <div *ngpSelectPortal ngpSelectDropdown data-testid="dropdown">
+            <input
+              [value]="search()"
+              (input)="onSearch($event)"
+              ngpSelectInput
+              placeholder="Search..."
+              data-testid="select-input"
+            />
+            <div class="options-container">
+              @for (option of filteredOptions(); track option) {
+                <div
+                  [ngpSelectOptionValue]="option"
+                  [attr.data-testid]="'option-' + option"
+                  ngpSelectOption
+                >
+                  {{ option }}
+                </div>
+              } @empty {
+                <div data-testid="empty">No options found</div>
+              }
+            </div>
+          </div>
+        </div>
+      `,
+      imports: [NgpSelect, NgpSelectDropdown, NgpSelectInput, NgpSelectOption, NgpSelectPortal],
+      styles: `
+        .options-container {
+          max-height: 200px;
+          overflow-y: auto;
+        }
+      `,
+    })
+    class TestSelectInputComponent {
+      readonly options = ['Apple', 'Banana', 'Cherry', 'Dragon Fruit'];
+      readonly value = signal<string | undefined>(undefined);
+      readonly search = signal<string>('');
+
+      protected readonly filteredOptions = computed(() =>
+        this.options.filter(option => option.toLowerCase().includes(this.search().toLowerCase())),
+      );
+
+      protected onSearch(event: Event): void {
+        this.search.set((event.target as HTMLInputElement).value);
+      }
+
+      protected onOpenChange(open: boolean): void {
+        if (!open) {
+          this.search.set('');
+        }
+      }
+    }
+
+    it('should render input inside dropdown', async () => {
+      await render(TestSelectInputComponent);
+      const select = screen.getByTestId('select-with-input');
+
+      fireEvent.click(select);
+
+      await waitFor(() => {
+        expect(screen.getByTestId('select-input')).toBeInTheDocument();
+      });
+    });
+
+    it('should focus input on dropdown open', async () => {
+      await render(TestSelectInputComponent);
+      const select = screen.getByTestId('select-with-input');
+
+      fireEvent.click(select);
+
+      await waitFor(() => {
+        expect(screen.getByTestId('select-input')).toHaveFocus();
+      });
+    });
+
+    it('should click option to select', async () => {
+      const { fixture } = await render(TestSelectInputComponent);
+      const component = fixture.componentInstance;
+      const select = screen.getByTestId('select-with-input');
+      const user = userEvent.setup();
+
+      fireEvent.click(select);
+
+      const option = await screen.findByTestId('option-Banana');
+      await user.click(option);
+
+      await waitFor(() => {
+        expect(component.value()).toBe('Banana');
+      });
+    });
+
+    it('should reset search when dropdown closes', async () => {
+      const { fixture } = await render(TestSelectInputComponent);
+      const component = fixture.componentInstance;
+      const select = screen.getByTestId('select-with-input');
+      const user = userEvent.setup();
+
+      fireEvent.click(select);
+
+      const input = await screen.findByTestId('select-input');
+      await user.type(input, 'test');
+
+      expect(component.search()).toBe('test');
+
+      // Click outside to close
+      await user.click(document.body);
+
+      await waitFor(() => {
+        expect(component.search()).toBe('');
+      });
+    });
+
+    it('should have combobox role on select trigger when closed', async () => {
+      await render(TestSelectInputComponent);
+      const select = screen.getByTestId('select-with-input');
+
+      expect(select).toHaveAttribute('role', 'combobox');
+      expect(select).toHaveAttribute('aria-expanded', 'false');
+    });
+
+    it('should transfer combobox role to input when opened', async () => {
+      await render(TestSelectInputComponent);
+      const select = screen.getByTestId('select-with-input');
+
+      fireEvent.click(select);
+
+      const input = await screen.findByTestId('select-input');
+
+      await waitFor(() => {
+        expect(input).toHaveAttribute('role', 'combobox');
+        expect(input).toHaveAttribute('aria-expanded', 'true');
+        expect(input).toHaveAttribute('aria-autocomplete', 'list');
+        expect(input).toHaveAttribute('aria-controls');
+      });
+    });
+
+    it('should restore combobox role to select when input closes', async () => {
+      await render(TestSelectInputComponent);
+      const select = screen.getByTestId('select-with-input');
+      const user = userEvent.setup();
+
+      fireEvent.click(select);
+
+      const input = await screen.findByTestId('select-input');
+
+      await waitFor(() => {
+        expect(input).toHaveAttribute('role', 'combobox');
+      });
+
+      await user.click(document.body);
+
+      await waitFor(() => {
+        expect(select).toHaveAttribute('role', 'combobox');
+      });
     });
   });
 });

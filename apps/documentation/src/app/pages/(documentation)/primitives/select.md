@@ -76,7 +76,7 @@ You can customize the offset using either a simple number or an object for more 
 
 ### Searchable Select
 
-Add an `input[ngpSelectInput]` to let the user filter the options by typing. The input can live inside the dropdown or replace the trigger value while the dropdown is open. Filtering itself is left to you — bind the input's `(input)` event to a signal and filter the rendered options.
+Add an `input[ngpSelectInput]` to let the user filter the options by typing. Filtering is left to the consumer — bind the input's (input) event to a signal and filter the rendered options.
 
 <docs-example name="select-input"></docs-example>
 
