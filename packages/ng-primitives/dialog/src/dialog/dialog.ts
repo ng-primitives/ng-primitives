@@ -1,39 +1,19 @@
 import { BooleanInput } from '@angular/cdk/coercion';
-import {
-  booleanAttribute,
-  computed,
-  Directive,
-  HostListener,
-  input,
-  OnDestroy,
-  signal,
-} from '@angular/core';
+import { booleanAttribute, Directive, HostListener, input, OnDestroy, signal } from '@angular/core';
 import { NgpFocusTrap } from 'ng-primitives/focus-trap';
 import { NgpExitAnimation } from 'ng-primitives/internal';
 import { uniqueId } from 'ng-primitives/utils';
 import { injectDialogConfig } from '../config/dialog-config';
-import { injectDialogRef } from './dialog-ref';
-import { dialogState, provideDialogState } from './dialog-state';
+import { ngpDialog, provideDialogState } from './dialog-state';
 
 @Directive({
   selector: '[ngpDialog]',
   exportAs: 'ngpDialog',
   providers: [provideDialogState()],
   hostDirectives: [NgpFocusTrap, NgpExitAnimation],
-  host: {
-    tabindex: '-1',
-    '[id]': 'state.id()',
-    '[attr.role]': 'state.role()',
-    '[attr.aria-modal]': 'state.modal()',
-    '[attr.aria-labelledby]': 'ariaLabelledBy()',
-    '[attr.aria-describedby]': 'ariaDescribedBy()',
-  },
 })
 export class NgpDialog<T = unknown, R = unknown> implements OnDestroy {
   private readonly config = injectDialogConfig();
-
-  /** Access the dialog ref */
-  private readonly dialogRef = injectDialogRef<T, R>();
 
   /** The id of the dialog */
   readonly id = input<string>(uniqueId('ngp-dialog'));
@@ -49,57 +29,39 @@ export class NgpDialog<T = unknown, R = unknown> implements OnDestroy {
     transform: booleanAttribute,
   });
 
-  /** The labelledby ids */
-  protected readonly labelledBy = signal<string[]>([]);
-
-  /** The describedby ids */
-  protected readonly describedBy = signal<string[]>([]);
-
-  /** The aria-labelledby value, omitted when there are no ids to reference. */
-  protected readonly ariaLabelledBy = computed(() =>
-    this.labelledBy().length ? this.labelledBy().join(' ') : null,
-  );
-
-  /** The aria-describedby value, omitted when there are no ids to reference. */
-  protected readonly ariaDescribedBy = computed(() =>
-    this.describedBy().length ? this.describedBy().join(' ') : null,
-  );
-
   /** The dialog state */
-  protected readonly state = dialogState<NgpDialog<T, R>>(this);
+  protected readonly state = ngpDialog<T, R>({
+    id: this.id,
+    role: this.role,
+    modal: this.modal,
+  });
 
   ngOnDestroy(): void {
-    this.close();
+    return this.state.close();
   }
 
   /** Close the dialog. */
   close(result?: R): void {
-    this.dialogRef.close(result);
-  }
-
-  /** Stop click events from propagating to the overlay */
-  @HostListener('click', ['$event'])
-  protected onClick(event: Event): void {
-    event.stopPropagation();
+    return this.state.close(result);
   }
 
   /** @internal register a labelledby id */
   setLabelledBy(id: string): void {
-    this.labelledBy.update(ids => [...ids, id]);
+    return this.state.setLabelledBy(id);
   }
 
   /** @internal register a describedby id */
   setDescribedBy(id: string): void {
-    this.describedBy.update(ids => [...ids, id]);
+    return this.state.setDescribedBy(id);
   }
 
   /** @internal remove a labelledby id */
   removeLabelledBy(id: string): void {
-    this.labelledBy.update(ids => ids.filter(i => i !== id));
+    return this.state.removeLabelledBy(id);
   }
 
   /** @internal remove a describedby id */
   removeDescribedBy(id: string): void {
-    this.describedBy.update(ids => ids.filter(i => i !== id));
+    return this.state.removeDescribedBy(id);
   }
 }
