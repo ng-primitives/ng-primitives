@@ -1,8 +1,5 @@
 import { Directive, input } from '@angular/core';
-import { ngpHover } from 'ng-primitives/interactions';
-import { explicitEffect } from 'ng-primitives/internal';
-import { injectOverlay } from 'ng-primitives/portal';
-import { injectTooltipTriggerState } from '../tooltip-trigger/tooltip-trigger-state';
+import { ngpTooltip } from './tooltip-state';
 
 /**
  * Apply the `ngpTooltip` directive to an element that represents the tooltip. This typically would be a `div` inside an `ng-template`.
@@ -10,42 +7,14 @@ import { injectTooltipTriggerState } from '../tooltip-trigger/tooltip-trigger-st
 @Directive({
   selector: '[ngpTooltip]',
   exportAs: 'ngpTooltip',
-  host: {
-    role: 'tooltip',
-    '[id]': 'id()',
-    '[style.left.px]': 'overlay.position().x',
-    '[style.top.px]': 'overlay.position().y',
-    '[style.--ngp-tooltip-trigger-width.px]': 'overlay.triggerWidth()',
-    '[style.--ngp-tooltip-transform-origin]': 'overlay.transformOrigin()',
-    '[style.--ngp-tooltip-available-width.px]': 'overlay.availableWidth()',
-    '[style.--ngp-tooltip-available-height.px]': 'overlay.availableHeight()',
-    '[attr.data-placement]': 'overlay.finalPlacement()',
-    'data-overlay': '',
-  },
 })
 export class NgpTooltip {
   /**
-   * Access the overlay.
-   */
-  protected readonly overlay = injectOverlay();
-
-  /**
-   * Access the tooltip trigger state.
-   */
-  private readonly tooltipTrigger = injectTooltipTriggerState();
-
-  /**
    * The unique id of the tooltip.
    */
-  readonly id = input(this.overlay.id());
+  readonly id = input('');
 
-  constructor() {
-    explicitEffect([this.id], ([id]) => this.overlay.id.set(id));
-
-    // if the mouse moves over the tooltip, we want to keep it open
-    ngpHover({
-      onHoverStart: () => this.tooltipTrigger().onTooltipHoverStart(),
-      onHoverEnd: () => this.tooltipTrigger().onTooltipHoverEnd(),
-    });
-  }
+  protected readonly state = ngpTooltip({
+    id: this.id,
+  });
 }
