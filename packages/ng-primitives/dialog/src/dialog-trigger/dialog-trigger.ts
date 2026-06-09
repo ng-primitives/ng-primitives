@@ -1,8 +1,8 @@
-import { Directive, HostListener, inject, input, output, TemplateRef } from '@angular/core';
+import { Directive, input, output, TemplateRef } from '@angular/core';
 import { dismissGuardAttribute, NgpDismissGuard, NgpDismissGuardInput } from 'ng-primitives/portal';
 import { injectDialogConfig } from '../config/dialog-config';
-import { NgpDialogRef } from '../dialog/dialog-ref';
-import { NgpDialogContext, NgpDialogManager } from '../dialog/dialog.service';
+import { NgpDialogContext } from '../dialog/dialog.service';
+import { ngpDialogTrigger } from './dialog-trigger-state';
 
 @Directive({
   selector: '[ngpDialogTrigger]',
@@ -12,16 +12,10 @@ export class NgpDialogTrigger<T = unknown> {
   /** Access the global configuration */
   private readonly config = injectDialogConfig();
 
-  /** Access the dialog manager. */
-  private readonly dialogManager = inject(NgpDialogManager);
-
   /** The template to launch. */
   readonly template = input.required<TemplateRef<NgpDialogContext>>({
     alias: 'ngpDialogTrigger',
   });
-
-  /** Emits whenever the dialog is closed with the given result. */
-  readonly closed = output<T>({ alias: 'ngpDialogTriggerClosed' });
 
   /**
    * Whether the dialog should close on escape, or a guard function.
@@ -47,21 +41,13 @@ export class NgpDialogTrigger<T = unknown> {
     },
   );
 
-  /**
-   * Store the dialog ref.
-   * @internal
-   */
-  private dialogRef: NgpDialogRef | null = null;
+  /** Emits whenever the dialog is closed with the given result. */
+  readonly closed = output<T>({ alias: 'ngpDialogTriggerClosed' });
 
-  @HostListener('click')
-  protected launch(): void {
-    this.dialogRef = this.dialogManager.open(this.template(), {
-      closeOnEscape: this.closeOnEscape(),
-      closeOnOutsideClick: this.closeOnOutsideClick(),
-    });
-    this.dialogRef.closed.subscribe(({ result }) => {
-      this.closed.emit(result as T);
-      return (this.dialogRef = null);
-    });
-  }
+  protected readonly state = ngpDialogTrigger({
+    template: this.template,
+    closeOnEscape: this.closeOnEscape,
+    closeOnOutsideClick: this.closeOnOutsideClick,
+    onClosedChange: this.closed.emit,
+  });
 }
