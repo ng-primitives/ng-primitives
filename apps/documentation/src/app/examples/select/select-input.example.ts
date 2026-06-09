@@ -14,68 +14,32 @@ import {
   imports: [NgpSelect, NgpSelectDropdown, NgpSelectInput, NgpSelectOption, NgpSelectPortal, NgIcon],
   providers: [provideIcons({ heroChevronDown })],
   template: `
-    <div class="select-examples">
-      <!-- Layout A: the input lives inside the dropdown, above a scrollable list -->
-      <div class="select-field">
-        <span class="select-label">Search inside the dropdown</span>
+    <div class="select-field">
+      <span class="select-label">Searchable select</span>
 
-        <div [(ngpSelectValue)]="valueA" (ngpSelectOpenChange)="onOpenA($event)" ngpSelect>
-          @if (valueA(); as value) {
-            <span class="select-value">{{ value }}</span>
-          } @else {
-            <span class="select-placeholder">Select an option</span>
-          }
-          <ng-icon name="heroChevronDown" />
+      <div [(ngpSelectValue)]="value" (ngpSelectOpenChange)="onOpen($event)" ngpSelect>
+        @if (value(); as selected) {
+          <span class="select-value">{{ selected }}</span>
+        } @else {
+          <span class="select-placeholder">Select an option</span>
+        }
+        <ng-icon name="heroChevronDown" />
 
-          <div *ngpSelectPortal ngpSelectDropdown>
-            <input
-              [value]="searchA()"
-              (input)="onSearchA($event)"
-              ngpSelectInput
-              placeholder="Search…"
-            />
-            <div class="select-scrollable">
-              @for (option of filteredOptionsA(); track option) {
-                <div [ngpSelectOptionValue]="option" ngpSelectOption>
-                  {{ option }}
-                </div>
-              } @empty {
-                <div class="empty-message">No options found</div>
-              }
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Layout B: the input replaces the trigger value while the dropdown is open -->
-      <div class="select-field">
-        <span class="select-label">Search in the trigger</span>
-
-        <div [(ngpSelectValue)]="valueB" (ngpSelectOpenChange)="onOpenB($event)" ngpSelect>
-          @if (openB()) {
-            <input
-              [value]="searchB()"
-              (input)="onSearchB($event)"
-              ngpSelectInput
-              placeholder="Search…"
-            />
-          } @else if (valueB(); as value) {
-            <span class="select-value">{{ value }}</span>
-          } @else {
-            <span class="select-placeholder">Select an option</span>
-          }
-          <ng-icon name="heroChevronDown" />
-
-          <div *ngpSelectPortal ngpSelectDropdown>
-            <div class="select-scrollable">
-              @for (option of filteredOptionsB(); track option) {
-                <div [ngpSelectOptionValue]="option" ngpSelectOption>
-                  {{ option }}
-                </div>
-              } @empty {
-                <div class="empty-message">No options found</div>
-              }
-            </div>
+        <div *ngpSelectPortal ngpSelectDropdown>
+          <input
+            [value]="search()"
+            (input)="onSearch($event)"
+            ngpSelectInput
+            placeholder="Search…"
+          />
+          <div class="select-scrollable">
+            @for (option of filteredOptions(); track option) {
+              <div [ngpSelectOptionValue]="option" ngpSelectOption>
+                {{ option }}
+              </div>
+            } @empty {
+              <div class="empty-message">No options found</div>
+            }
           </div>
         </div>
       </div>
@@ -286,42 +250,19 @@ export default class SelectInputExample {
     'Strickland',
   ];
 
-  // Layout A — search inside the dropdown
-  readonly valueA = signal<string | undefined>(undefined);
-  readonly searchA = signal<string>('');
-  protected readonly filteredOptionsA = computed(() =>
-    this.options.filter(option => option.toLowerCase().includes(this.searchA().toLowerCase())),
+  readonly value = signal<string | undefined>(undefined);
+  readonly search = signal<string>('');
+  protected readonly filteredOptions = computed(() =>
+    this.options.filter(option => option.toLowerCase().includes(this.search().toLowerCase())),
   );
 
-  // Layout B — search replaces the trigger when open
-  readonly valueB = signal<string | undefined>(undefined);
-  readonly searchB = signal<string>('');
-  readonly openB = signal<boolean>(false);
-  protected readonly filteredOptionsB = computed(() =>
-    this.options.filter(option => option.toLowerCase().includes(this.searchB().toLowerCase())),
-  );
-
-  protected onSearchA(event: Event): void {
-    this.searchA.set((event.target as HTMLInputElement).value);
+  protected onSearch(event: Event): void {
+    this.search.set((event.target as HTMLInputElement).value);
   }
 
-  protected onOpenA(open: boolean): void {
-    // reset the filter once the dropdown closes
+  protected onOpen(open: boolean): void {
     if (!open) {
-      this.searchA.set('');
-    }
-  }
-
-  protected onSearchB(event: Event): void {
-    this.searchB.set((event.target as HTMLInputElement).value);
-  }
-
-  protected onOpenB(open: boolean): void {
-    this.openB.set(open);
-
-    // reset the filter once the dropdown closes
-    if (!open) {
-      this.searchB.set('');
+      this.search.set('');
     }
   }
 }

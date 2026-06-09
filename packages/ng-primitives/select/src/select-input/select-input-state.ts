@@ -53,14 +53,22 @@ export const [
     });
 
     // Static host bindings
-    attrBinding(elementRef, 'role', 'searchbox');
+    attrBinding(elementRef, 'role', 'combobox');
     attrBinding(elementRef, 'type', 'text');
     attrBinding(elementRef, 'autocomplete', 'off');
     attrBinding(elementRef, 'autocorrect', 'off');
     attrBinding(elementRef, 'spellcheck', 'false');
+    attrBinding(elementRef, 'aria-autocomplete', 'list');
     attrBinding(elementRef, 'id', id);
 
     // Dynamic host bindings
+    attrBinding(elementRef, 'aria-expanded', () => selectState().open());
+    attrBinding(elementRef, 'aria-controls', () =>
+      selectState().open() ? selectState().dropdown()?.id() : undefined,
+    );
+    attrBinding(elementRef, 'aria-activedescendant', () =>
+      selectState().activeDescendantManager.id(),
+    );
     attrBinding(elementRef, 'disabled', () => (selectState().disabled() ? '' : null));
     dataBinding(elementRef, 'data-open', () => (selectState().open() ? '' : null));
     dataBinding(elementRef, 'data-disabled', () => (selectState().disabled() ? '' : null));
