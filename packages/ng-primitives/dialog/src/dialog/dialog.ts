@@ -1,5 +1,5 @@
 import { BooleanInput } from '@angular/cdk/coercion';
-import { booleanAttribute, Directive, HostListener, input, OnDestroy, signal } from '@angular/core';
+import { booleanAttribute, Directive, input, OnDestroy } from '@angular/core';
 import { NgpFocusTrap } from 'ng-primitives/focus-trap';
 import { NgpExitAnimation } from 'ng-primitives/internal';
 import { uniqueId } from 'ng-primitives/utils';

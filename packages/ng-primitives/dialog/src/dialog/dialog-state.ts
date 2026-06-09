@@ -4,7 +4,7 @@ import { attrBinding, createPrimitive, listener, StateInjectionOptions } from 'n
 import { NgpDialogRole } from '../config/dialog-config';
 import { injectDialogRef } from './dialog-ref';
 
-export interface NgpDialogState<T, R> {
+export interface NgpDialogState<R> {
   /** Access the dialog ref */
   readonly elementRef: ElementRef;
   /** The id of the dialog */
@@ -26,7 +26,7 @@ export interface NgpDialogState<T, R> {
   removeDescribedBy: (id: string) => void;
 }
 
-export interface NgpDialogProps<T, R> {
+export interface NgpDialogProps {
   /** The id of the dialog */
   readonly id?: Signal<string>;
   /** The dialog role. */
@@ -42,7 +42,7 @@ export const [NgpDialogStateToken, ngpDialog, _injectDialogState, provideDialogS
       id = signal<string>(''),
       role = signal<NgpDialogRole | undefined>(undefined),
       modal = signal<boolean>(true),
-    }: NgpDialogProps<T, R>) => {
+    }: NgpDialogProps) => {
       const elementRef = injectElementRef();
       const dialogRef = injectDialogRef<T, R>();
 
@@ -99,12 +99,10 @@ export const [NgpDialogStateToken, ngpDialog, _injectDialogState, provideDialogS
         setDescribedBy,
         removeLabelledBy,
         removeDescribedBy,
-      } satisfies NgpDialogState<T, R>;
+      } satisfies NgpDialogState<R>;
     },
   );
 
-export function injectDialogState<T, R>(
-  options?: StateInjectionOptions,
-): Signal<NgpDialogState<T, R>> {
-  return _injectDialogState(options) as Signal<NgpDialogState<T, R>>;
+export function injectDialogState<R>(options?: StateInjectionOptions): Signal<NgpDialogState<R>> {
+  return _injectDialogState(options) as Signal<NgpDialogState<R>>;
 }
