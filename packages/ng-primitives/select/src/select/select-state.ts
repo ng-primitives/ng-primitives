@@ -388,9 +388,7 @@ export const [NgpSelectStateToken, ngpSelect, _injectSelectState, provideSelectS
       });
 
       // Host bindings
-      // When no input is registered, select is the combobox; when input exists, input is the combobox.
       attrBinding(elementRef, 'role', () => (input() ? null : 'combobox'));
-      attrBinding(elementRef, 'aria-haspopup', 'dialog');
       attrBinding(elementRef, 'id', id);
       attrBinding(elementRef, 'aria-expanded', () => (input() ? undefined : open()));
       attrBinding(elementRef, 'aria-controls', () =>
