@@ -23,3 +23,11 @@ export {
   type NgpDialogOverlayState,
   type NgpDialogOverlayProps,
 } from './dialog-overlay/dialog-overlay-state';
+export {
+  NgpDialogPanelStateToken,
+  ngpDialogPanel,
+  injectDialogPanelState,
+  provideDialogPanelState,
+  type NgpDialogPanelState,
+  type NgpDialogPanelProps,
+} from './dialog-panel/dialog-panel-state';
