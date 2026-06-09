@@ -5,7 +5,6 @@ export { NgpDialogTitle } from './dialog-title/dialog-title';
 export { NgpDialogTrigger } from './dialog-trigger/dialog-trigger';
 export { NgpDialog } from './dialog/dialog';
 export { injectDialogRef, NgpDialogRef } from './dialog/dialog-ref';
-export { injectDialogState, provideDialogState } from './dialog/dialog-state';
 export { NgpDialogContext, NgpDialogManager } from './dialog/dialog.service';
 export {
   NgpDialogDescriptionStateToken,
@@ -47,3 +46,11 @@ export {
   type NgpDialogTriggerState,
   type NgpDialogTriggerProps,
 } from './dialog-trigger/dialog-trigger-state';
+export {
+  NgpDialogStateToken,
+  ngpDialog,
+  injectDialogState,
+  provideDialogState,
+  type NgpDialogState,
+  type NgpDialogProps,
+} from './dialog/dialog-state';

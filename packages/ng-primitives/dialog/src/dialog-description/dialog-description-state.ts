@@ -29,7 +29,7 @@ export const [
     const dialogState = injectDialogState();
 
     // Host binding
-    attrBinding(elementRef, 'id', id);
+    attrBinding(elementRef, 'id', () => id());
 
     // Effects
     onChange(id, (id, prevId) => {
