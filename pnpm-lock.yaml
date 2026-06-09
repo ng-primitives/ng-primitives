@@ -235,8 +235,8 @@ importers:
         specifier: ^4.1.17
         version: 4.1.17(vite@8.0.0(@types/node@22.19.1)(esbuild@0.27.4)(jiti@2.4.2)(less@4.4.2)(sass-embedded@1.89.2)(sass@1.97.1)(terser@5.46.0)(yaml@2.9.0))
       '@testing-library/angular':
-        specifier: 17.3.6
-        version: 17.3.6(01bf4edaf34c1719e25fde87d811dd9d)
+        specifier: 19.4.1
+        version: 19.4.1(01bf4edaf34c1719e25fde87d811dd9d)
       '@testing-library/dom':
         specifier: 10.4.0
         version: 10.4.0
@@ -5433,13 +5433,13 @@ packages:
   '@tanstack/virtual-core@3.13.12':
     resolution: {integrity: sha512-1YBOJfRHV4sXUmWsFSf5rQor4Ss82G8dQWLRbnk3GA4jeP8hQt1hxXh0tmflpC0dz3VgEv/1+qwPyLeWkQuPFA==}
 
-  '@testing-library/angular@17.3.6':
-    resolution: {integrity: sha512-8LxEfNtjhd6iguWus8TQngMwXfw8Y4qPMXeeCqtxbIf7gbhnPA52R8ofiqCMy+p9cD/kMOY9KZAxj18P+5vNHw==}
+  '@testing-library/angular@19.4.1':
+    resolution: {integrity: sha512-C9gIfKf3cpkLqNoUy0pbz8/YpmxyFQTZP6Qzo9HrolQPyVSMdc0+ev3vewCouZDyQQwfRkJNlpgjaHHyhL9oqw==}
     peerDependencies:
-      '@angular/common': '>= 17.0.0'
-      '@angular/core': '>= 17.0.0'
-      '@angular/platform-browser': '>= 17.0.0'
-      '@angular/router': '>= 17.0.0'
+      '@angular/common': '>= 21.0.0'
+      '@angular/core': '>= 21.0.0'
+      '@angular/platform-browser': '>= 21.0.0'
+      '@angular/router': '>= 21.0.0'
       '@testing-library/dom': ^10.0.0
 
   '@testing-library/dom@10.4.0':
@@ -18832,7 +18832,7 @@ snapshots:
 
   '@tanstack/virtual-core@3.13.12': {}
 
-  '@testing-library/angular@17.3.6(01bf4edaf34c1719e25fde87d811dd9d)':
+  '@testing-library/angular@19.4.1(01bf4edaf34c1719e25fde87d811dd9d)':
     dependencies:
       '@angular/common': 21.2.14(@angular/core@21.2.14(@angular/compiler@21.2.14)(rxjs@7.8.2)(zone.js@0.15.0))(rxjs@7.8.2)
       '@angular/core': 21.2.14(@angular/compiler@21.2.14)(rxjs@7.8.2)(zone.js@0.15.0)
@@ -19553,7 +19553,7 @@ snapshots:
 
   '@vue/compiler-core@3.5.17':
     dependencies:
-      '@babel/parser': 7.29.0
+      '@babel/parser': 7.29.7
       '@vue/shared': 3.5.17
       entities: 4.5.0
       estree-walker: 2.0.2
@@ -19568,14 +19568,14 @@ snapshots:
 
   '@vue/compiler-sfc@3.5.17':
     dependencies:
-      '@babel/parser': 7.29.0
+      '@babel/parser': 7.29.7
       '@vue/compiler-core': 3.5.17
       '@vue/compiler-dom': 3.5.17
       '@vue/compiler-ssr': 3.5.17
       '@vue/shared': 3.5.17
       estree-walker: 2.0.2
       magic-string: 0.30.21
-      postcss: 8.5.8
+      postcss: 8.5.12
       source-map-js: 1.2.1
     optional: true
 
