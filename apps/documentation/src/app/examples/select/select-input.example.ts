@@ -5,13 +5,22 @@ import {
   NgpSelect,
   NgpSelectDropdown,
   NgpSelectInput,
+  NgpSelectList,
   NgpSelectOption,
   NgpSelectPortal,
 } from 'ng-primitives/select';
 
 @Component({
   selector: 'app-select-input',
-  imports: [NgpSelect, NgpSelectDropdown, NgpSelectInput, NgpSelectOption, NgpSelectPortal, NgIcon],
+  imports: [
+    NgpSelect,
+    NgpSelectDropdown,
+    NgpSelectInput,
+    NgpSelectList,
+    NgpSelectOption,
+    NgpSelectPortal,
+    NgIcon,
+  ],
   providers: [provideIcons({ heroChevronDown })],
   template: `
     <div class="select-field">
@@ -25,7 +34,7 @@ import {
         }
         <ng-icon name="heroChevronDown" />
 
-        <div *ngpSelectPortal ngpSelectDropdown>
+        <div *ngpSelectPortal ngpSelectDropdown aria-label="Searchable select">
           <input
             [value]="search()"
             (input)="onSearch($event)"
@@ -33,7 +42,7 @@ import {
             placeholder="Search…"
             aria-labelledby="select-search-label"
           />
-          <div class="select-scrollable">
+          <div class="select-scrollable" ngpSelectList>
             @for (option of filteredOptions(); track option) {
               <div [ngpSelectOptionValue]="option" ngpSelectOption>
                 {{ option }}

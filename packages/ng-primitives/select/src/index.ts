@@ -18,6 +18,13 @@ export {
   NgpSelectInputStateToken,
   provideSelectInputState,
 } from './select-input/select-input-state';
+export { NgpSelectList } from './select-list/select-list';
+export {
+  injectSelectListState,
+  ngpSelectList,
+  NgpSelectListStateToken,
+  provideSelectListState,
+} from './select-list/select-list-state';
 export { NgpSelectOption } from './select-option/select-option';
 export {
   injectSelectOptionState,
