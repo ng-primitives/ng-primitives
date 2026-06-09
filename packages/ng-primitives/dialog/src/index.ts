@@ -15,3 +15,11 @@ export {
   type NgpDialogDescriptionState,
   type NgpDialogDescriptionProps,
 } from './dialog-description/dialog-description-state';
+export {
+  NgpDialogOverlayStateToken,
+  ngpDialogOverlay,
+  injectDialogOverlayState,
+  provideDialogOverlayState,
+  type NgpDialogOverlayState,
+  type NgpDialogOverlayProps,
+} from './dialog-overlay/dialog-overlay-state';
