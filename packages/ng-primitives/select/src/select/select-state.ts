@@ -28,6 +28,7 @@ import { uniqueId } from 'ng-primitives/utils';
 import { Observable } from 'rxjs';
 import type { NgpSelectDropdownState } from '../select-dropdown/select-dropdown-state';
 import type { NgpSelectInputState } from '../select-input/select-input-state';
+import type { NgpSelectListState } from '../select-list/select-list-state';
 import type { NgpSelectOptionState } from '../select-option/select-option-state';
 import { NgpSelectPortalState } from '../select-portal/select-portal-state';
 
@@ -99,6 +100,13 @@ export interface NgpSelectState<T> {
    * @internal
    */
   readonly input: WritableSignal<NgpSelectInputState | undefined>;
+
+  /**
+   * Store the select list, when a dedicated listbox wraps the options
+   * (e.g. when the popup also contains a filter input).
+   * @internal
+   */
+  readonly list: WritableSignal<NgpSelectListState | undefined>;
 
   /**
    * Store the select options.
@@ -223,6 +231,20 @@ export interface NgpSelectState<T> {
    * @internal
    */
   unregisterInput(input: NgpSelectInputState): void;
+
+  /**
+   * Register the list with the select.
+   * @param list The list to register.
+   * @internal
+   */
+  registerList(list: NgpSelectListState): void;
+
+  /**
+   * Unregister the list from the select.
+   * @param list The list to unregister.
+   * @internal
+   */
+  unregisterList(list: NgpSelectListState): void;
 
   /**
    * Register an option with the select.
@@ -377,6 +399,7 @@ export const [NgpSelectStateToken, ngpSelect, _injectSelectState, provideSelectS
       const portal = signal<NgpSelectPortalState | undefined>(undefined);
       const dropdown = signal<NgpSelectDropdownState | undefined>(undefined);
       const input = signal<NgpSelectInputState | undefined>(undefined);
+      const list = signal<NgpSelectListState | undefined>(undefined);
       const options = signal<NgpSelectOptionState[]>([]);
 
       const overlay = computed(() => portal()?.overlay());
@@ -761,6 +784,26 @@ export const [NgpSelectStateToken, ngpSelect, _injectSelectState, provideSelectS
       }
 
       /**
+       * Register the list with the select.
+       * @param listInstance The list to register.
+       * @internal
+       */
+      function registerList(listInstance: NgpSelectListState): void {
+        list.set(listInstance);
+      }
+
+      /**
+       * Unregister the list from the select.
+       * @param listInstance The list to unregister.
+       * @internal
+       */
+      function unregisterList(listInstance: NgpSelectListState): void {
+        if (list() === listInstance) {
+          list.set(undefined);
+        }
+      }
+
+      /**
        * Register an option with the select.
        * @param option The option to register.
        * @internal
@@ -902,6 +945,7 @@ export const [NgpSelectStateToken, ngpSelect, _injectSelectState, provideSelectS
         portal,
         dropdown,
         input,
+        list,
         options,
         overlay,
         open,
@@ -925,6 +969,8 @@ export const [NgpSelectStateToken, ngpSelect, _injectSelectState, provideSelectS
         registerDropdown,
         registerInput,
         unregisterInput,
+        registerList,
+        unregisterList,
         registerOption,
         unregisterOption,
         focus,

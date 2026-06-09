@@ -63,9 +63,12 @@ export const [
 
     // Dynamic host bindings
     attrBinding(elementRef, 'aria-expanded', () => selectState().open());
-    attrBinding(elementRef, 'aria-controls', () =>
-      selectState().open() ? selectState().dropdown()?.id() : undefined,
-    );
+    attrBinding(elementRef, 'aria-controls', () => {
+      if (!selectState().open()) {
+        return undefined;
+      }
+      return selectState().list()?.id() ?? selectState().dropdown()?.id();
+    });
     attrBinding(elementRef, 'aria-activedescendant', () =>
       selectState().activeDescendantManager.id(),
     );
@@ -121,8 +124,7 @@ export const [
               option?.select();
             }
 
-            // if a single selection closed the dropdown, return focus to the trigger
-            if (!selectState().open()) {
+            if (!selectState().multiple()) {
               selectState().focus();
             }
           }
@@ -189,8 +191,19 @@ export const [
 
     selectState().registerInput(state);
 
-    // when the input is rendered (e.g. the dropdown opened), move focus to it
-    afterNextRender(() => focus(), { injector });
+    // when the input is rendered (e.g. the dropdown opened), move focus to it.
+    afterNextRender(
+      () => {
+        focus();
+
+        if (ngDevMode && !selectState().list()) {
+          console.error(
+            '[ngpSelectInput]: When using ngpSelectInput, the options must be wrapped in an element with the ngpSelectList directive (role="listbox"). Without it the input (role="combobox") is nested inside the listbox, which is invalid.',
+          );
+        }
+      },
+      { injector },
+    );
 
     onDestroy(() => selectState().unregisterInput(state));
 
