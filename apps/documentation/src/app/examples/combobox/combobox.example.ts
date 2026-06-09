@@ -25,12 +25,12 @@ import {
   template: `
     <div
       [(ngpComboboxValue)]="value"
-      (ngpComboboxValueChange)="filter.set($event)"
+      (ngpComboboxValueChange)="onValueChange($event)"
       (ngpComboboxOpenChange)="resetOnClose($event)"
       ngpCombobox
     >
       <input
-        [value]="filter()"
+        [value]="inputValue()"
         (input)="onFilterChange($event)"
         placeholder="Select an option"
         ngpComboboxInput
@@ -207,6 +207,9 @@ export default class ComboboxExample {
   /** The selected value. */
   readonly value = signal<string | undefined>(undefined);
 
+  /** The input value. */
+  readonly inputValue = signal<string>('');
+
   /** The filter value. */
   readonly filter = signal<string>('');
 
@@ -217,7 +220,13 @@ export default class ComboboxExample {
 
   protected onFilterChange(event: Event): void {
     const input = event.target as HTMLInputElement;
+    this.inputValue.set(input.value);
     this.filter.set(input.value);
+  }
+
+  protected onValueChange(value: string | undefined): void {
+    this.inputValue.set(value ?? '');
+    this.filter.set('');
   }
 
   protected resetOnClose(open: boolean): void {
@@ -226,12 +235,14 @@ export default class ComboboxExample {
       return;
     }
 
-    // if the filter value is empty, set the value to undefined
-    if (this.filter() === '') {
+    // if the input value is empty, set the value to undefined
+    if (this.inputValue() === '') {
       this.value.set(undefined);
     } else {
-      // otherwise set the filter value to the selected value
-      this.filter.set(this.value() ?? '');
+      // otherwise set the input value to the selected value
+      this.inputValue.set(this.value() ?? '');
     }
+
+    this.filter.set('');
   }
 }
