@@ -2,8 +2,8 @@
   "extends": "./tsconfig.json",
   "compilerOptions": {
     "outDir": "../../dist/out-tsc",
-    "module": "commonjs",
-    "moduleResolution": "node10",
+    "module": "node16",
+    "moduleResolution": "node16",
     "types": ["vitest/globals", "node"]
   },
   "include": ["vitest.config.ts", "**/*.test.ts", "**/*.d.ts"]

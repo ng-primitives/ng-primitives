@@ -4,7 +4,8 @@
     "outDir": "../../dist/out-tsc",
     "declaration": true,
     "types": ["node"],
-    "module": "CommonJS"
+    "module": "nodenext",
+    "moduleResolution": "nodenext"
   },
   "include": ["./schematics/**/*.ts"],
   "exclude": ["**/*.spec.ts", "**/*.test.ts"]

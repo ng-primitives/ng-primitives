@@ -39,8 +39,15 @@ document.head.appendChild(style);
 
 // With destroyAfterEach: false (browser mode), portal content appended to document.body
 // is not cleaned up between tests. Flush microtasks so async portal.detach() completes,
-// then forcefully remove any leftover overlay elements.
+// then forcefully remove any leftover overlay content. Overlay content is portaled to
+// document.body and is not always wrapped in a [data-overlay] outlet (test templates use
+// bare content directives), so also target the overlay-content selectors directly to stop
+// a popover/tooltip/menu from leaking into the next test.
 afterEach(async () => {
   await Promise.resolve();
-  document.querySelectorAll('[data-overlay]').forEach(el => el.remove());
+  document
+    .querySelectorAll(
+      '[data-overlay], [ngpPopover], [ngpTooltip], [ngpMenu], [ngpSelectDropdown], [ngpComboboxDropdown]',
+    )
+    .forEach(el => el.remove());
 });

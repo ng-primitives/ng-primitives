@@ -47,12 +47,13 @@ Angular Primitives versions are compatible with the following Angular versions:
 | Angular Primitives | Angular        |
 | ------------------ | -------------- |
 | 0.1.0 - 0.18.0     | 18.x.x         |
-| 0.19.0+            | 19.x.x, 20.x.x |
-| 0.90.0+            | 20.x.x, 21.x.x |
+| 0.19.0 - 0.89.x    | 19.x.x, 20.x.x |
+| 0.90.0 - 0.120.x   | 20.x.x, 21.x.x |
+| 0.121.0+           | 21.x.x, 22.x.x |
 
 ### Version Support Policy
 
-Starting from v1.0.0, Angular Primitives will support the two latest major Angular versions. For example, when Angular 21 is released, Angular Primitives will support Angular 20 and 21. New major versions will be supported upon release (typically every six months), ensuring compatibility with the latest Angular features while allowing you to upgrade independently.
+Starting from v1.0.0, Angular Primitives will support the two latest major Angular versions. For example, with Angular 22 released, Angular Primitives supports Angular 21 and 22. New major versions will be supported upon release (typically every six months), ensuring compatibility with the latest Angular features while allowing you to upgrade independently.
 
 ## Community
 

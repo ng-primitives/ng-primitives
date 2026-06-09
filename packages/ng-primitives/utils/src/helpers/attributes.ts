@@ -5,7 +5,8 @@ export function booleanAttributeBinding(
   attribute: string,
   value: Signal<boolean> | undefined,
 ): void {
-  if (!value) {
+  // eslint-disable-next-line @angular-eslint/no-uncalled-signals -- checking whether the optional signal was provided, not its value
+  if (value === undefined) {
     return;
   }
 

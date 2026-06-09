@@ -22,6 +22,12 @@ describe('mcp-setup schematic', () => {
       version: '19.0.0',
       newProjectRoot: 'projects',
     });
+
+    // Angular 21's workspace schematic scaffolds a default .vscode/mcp.json. Remove it so
+    // these tests start from a clean slate and only assert on what mcp-setup itself writes.
+    if (appTree.exists('/.vscode/mcp.json')) {
+      appTree.delete('/.vscode/mcp.json');
+    }
   });
 
   it('should create Claude Code config when selected', async () => {

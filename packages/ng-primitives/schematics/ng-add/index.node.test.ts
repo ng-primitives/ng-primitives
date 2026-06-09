@@ -41,6 +41,12 @@ describe('Ng Add Schematic', () => {
       appOptions,
       appTree,
     );
+
+    // Angular 21's workspace schematic scaffolds a default .vscode/mcp.json. Remove it so
+    // these tests start from a clean slate and only assert on what ng-add itself writes.
+    if (appTree.exists('/.vscode/mcp.json')) {
+      appTree.delete('/.vscode/mcp.json');
+    }
   });
 
   it('should add dependencies to package.json', async () => {

@@ -1,6 +1,7 @@
 import { BooleanInput } from '@angular/cdk/coercion';
 import { booleanAttribute, Directive, input } from '@angular/core';
 import { NgpOrientation } from 'ng-primitives/common';
+import { provideControlContainerIsolation } from 'ng-primitives/portal';
 import { ngpRovingFocusGroup, provideRovingFocusGroupState } from 'ng-primitives/roving-focus';
 import { injectNavigationMenuConfig } from '../config/navigation-menu-config';
 import {
@@ -18,6 +19,7 @@ import {
   providers: [
     provideNavigationMenuContentState(),
     provideRovingFocusGroupState({ inherit: false }),
+    provideControlContainerIsolation(),
   ],
   host: {
     'data-overlay': '',
