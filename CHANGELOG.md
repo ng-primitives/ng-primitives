@@ -1,3 +1,20 @@
+## 0.121.0 (2026-06-09)
+
+### 🚀 Features
+
+- **pagination:** migrate state pattern ([#770](https://github.com/ng-primitives/ng-primitives/pull/770))
+- **tooltip:** migrate tooltip state ([#773](https://github.com/ng-primitives/ng-primitives/pull/773))
+
+### 🩹 Fixes
+
+- **docs:** #774 reset combobox demo filter ([#777](https://github.com/ng-primitives/ng-primitives/pull/777), [#774](https://github.com/ng-primitives/ng-primitives/issues/774))
+
+### ❤️ Thank You
+
+- Ashley Hunter
+- MGREMY @MGREMY
+- Robin Ferrari @zecka
+
 ## 0.120.5 (2026-06-02)
 
 ### 🚀 Features
