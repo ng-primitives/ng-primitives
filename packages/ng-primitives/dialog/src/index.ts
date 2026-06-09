@@ -31,3 +31,11 @@ export {
   type NgpDialogPanelState,
   type NgpDialogPanelProps,
 } from './dialog-panel/dialog-panel-state';
+export {
+  NgpDialogTitleStateToken,
+  ngpDialogTitle,
+  injectDialogTitleState,
+  provideDialogTitleState,
+  type NgpDialogTitleState,
+  type NgpDialogTitleProps,
+} from './dialog-title/dialog-title-state';
