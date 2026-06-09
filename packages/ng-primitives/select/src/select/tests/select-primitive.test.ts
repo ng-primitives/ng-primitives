@@ -6,6 +6,7 @@ import {
   NgpSelect,
   NgpSelectDropdown,
   NgpSelectInput,
+  NgpSelectList,
   NgpSelectOption,
   NgpSelectPortal,
 } from '../../index';
@@ -150,10 +151,7 @@ describe('NgpSelect', () => {
   afterEach(() => {
     // the dropdown should be removed from the DOM after each test
     // to avoid interference with other tests - it may linger due to waiting for animations
-    const dropdown = screen.queryByRole('listbox');
-    if (dropdown) {
-      dropdown.remove();
-    }
+    document.querySelectorAll('[ngpselectdropdown]').forEach(dropdown => dropdown.remove());
   });
 
   describe('Basic functionality', () => {
@@ -1731,7 +1729,7 @@ describe('NgpSelect', () => {
               placeholder="Search..."
               data-testid="select-input"
             />
-            <div class="options-container">
+            <div class="options-container" ngpSelectList data-testid="options-list">
               @for (option of filteredOptions(); track option) {
                 <div
                   [ngpSelectOptionValue]="option"
@@ -1747,7 +1745,14 @@ describe('NgpSelect', () => {
           </div>
         </div>
       `,
-      imports: [NgpSelect, NgpSelectDropdown, NgpSelectInput, NgpSelectOption, NgpSelectPortal],
+      imports: [
+        NgpSelect,
+        NgpSelectDropdown,
+        NgpSelectInput,
+        NgpSelectList,
+        NgpSelectOption,
+        NgpSelectPortal,
+      ],
       styles: `
         .options-container {
           max-height: 200px;
@@ -1875,6 +1880,30 @@ describe('NgpSelect', () => {
 
       await waitFor(() => {
         expect(select).toHaveAttribute('role', 'combobox');
+      });
+    });
+
+    describe('ARIA roles with ngpSelectList', () => {
+      it('should give dropdown role=dialog when ngpSelectList is present', async () => {
+        await render(TestSelectInputComponent);
+        const select = screen.getByTestId('select-with-input');
+
+        fireEvent.click(select);
+
+        await waitFor(() => {
+          expect(screen.getByTestId('dropdown')).toHaveAttribute('role', 'dialog');
+        });
+      });
+
+      it('should give ngpSelectList element role=listbox', async () => {
+        await render(TestSelectInputComponent);
+        const select = screen.getByTestId('select-with-input');
+
+        fireEvent.click(select);
+
+        await waitFor(() => {
+          expect(screen.getByTestId('options-list')).toHaveAttribute('role', 'listbox');
+        });
       });
     });
   });
