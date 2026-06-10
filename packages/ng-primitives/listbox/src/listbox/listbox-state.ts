@@ -21,7 +21,6 @@ import {
   deprecatedSetter,
   emitter,
   listener,
-  SetterOptions,
   StateInjectionOptions,
 } from 'ng-primitives/state';
 import { safeTakeUntilDestroyed } from 'ng-primitives/utils';
