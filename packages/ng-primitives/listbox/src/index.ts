@@ -4,3 +4,11 @@ export { NgpListboxSection } from './listbox-section/listbox-section';
 export { NgpListboxTrigger } from './listbox-trigger/listbox-trigger';
 export { NgpListbox } from './listbox/listbox';
 export { injectListboxState, provideListboxState } from './listbox/listbox-state';
+export {
+  NgpListboxTriggerStateToken,
+  ngpListboxTrigger,
+  injectListboxTriggerState,
+  provideListboxTriggerState,
+  type NgpListboxTriggerState,
+  type NgpListboxTriggerProps,
+} from './listbox-trigger/listbox-trigger-state';
