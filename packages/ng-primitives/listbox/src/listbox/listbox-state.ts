@@ -15,10 +15,13 @@ import { explicitEffect, injectElementRef } from 'ng-primitives/internal';
 import { injectPopoverTriggerState } from 'ng-primitives/popover';
 import {
   attrBinding,
+  controlled,
   controlledState,
   createPrimitive,
   deprecatedSetter,
+  emitter,
   listener,
+  SetterOptions,
   StateInjectionOptions,
 } from 'ng-primitives/state';
 import { safeTakeUntilDestroyed } from 'ng-primitives/utils';
@@ -84,7 +87,6 @@ export interface NgpListboxState<T> {
    */
   removeOption: (option: NgpListboxOptionState<T>) => void;
   onAfterContentInit: () => void;
-  setValue: (value: T[]) => void;
   setDisabled: (value: boolean) => void;
 }
 
@@ -137,15 +139,11 @@ export const [NgpListboxStateToken, ngpListbox, _injectListboxState, provideList
       const isFocused = signal<boolean>(false);
       const tabIndex = computed(() => (disabled() ? -1 : 0));
 
-      const [value, setValue, valueChange] = controlledState({
-        value: _value,
-        defaultValue: signal<T[]>([]),
-        onChange: onValueChange,
-      });
+      const value = controlled(_value);
+      const valueChange = emitter<T[]>();
 
-      const [disabled, setDisabled] = controlledState({
+      const [disabled, setDisabled] = controlledState<boolean>({
         value: _disabled,
-        defaultValue: signal<boolean>(false),
       });
 
       // Setup interactions
@@ -220,15 +218,21 @@ export const [NgpListboxStateToken, ngpListbox, _injectListboxState, provideList
       function selectOption(val: T, origin: FocusOrigin): void {
         if (mode() === 'single') {
           const newValue = [val];
-          setValue(newValue);
+          value.set(newValue);
+          valueChange.emit(newValue);
+          onValueChange?.(newValue);
         } else {
           // if the value is already selected, remove it, otherwise add it
           if (isSelected(val)) {
             const newValue = value().filter(v => !compareWith()(v, val));
-            setValue(newValue);
+            value.set(newValue);
+            valueChange.emit(newValue);
+            onValueChange?.(newValue);
           } else {
             const newValue = [...value(), val];
-            setValue(newValue);
+            value.set(newValue);
+            valueChange.emit(newValue);
+            onValueChange?.(newValue);
           }
         }
 
@@ -272,18 +276,17 @@ export const [NgpListboxStateToken, ngpListbox, _injectListboxState, provideList
         elementRef,
         id,
         mode,
-        value: deprecatedSetter(value, 'setValue', setValue),
+        value,
         disabled: deprecatedSetter(disabled, 'setDisabled', setDisabled),
         compareWith,
         isFocused,
-        valueChange,
+        valueChange: valueChange.asObservable(),
         selectOption,
         isSelected,
         activateOption,
         addOption,
         removeOption,
         onAfterContentInit,
-        setValue,
         setDisabled,
       } satisfies NgpListboxState<T>;
     },

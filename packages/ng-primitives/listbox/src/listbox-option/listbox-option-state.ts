@@ -165,7 +165,9 @@ export const [
       optionDisabled,
       active,
       selected,
-      disabled: _disabled(),
+      get disabled(): boolean {
+        return _disabled();
+      },
       _disabled,
       setActiveStyles,
       setInactiveStyles,
