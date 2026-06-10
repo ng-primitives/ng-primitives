@@ -178,7 +178,7 @@ export const [NgpListboxStateToken, ngpListbox, _injectListboxState, provideList
 
         // if the options change, update the active item, for example the item that was previously active may have been removed
         // any time the value changes we should make sure that the active item is updated
-        explicitEffect([options], () => updateActiveItem(), {
+        explicitEffect([options, value], () => updateActiveItem(), {
           injector: injector,
         });
       }
