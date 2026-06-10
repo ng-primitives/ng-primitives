@@ -1,5 +1,14 @@
 import { ActiveDescendantKeyManager, FocusOrigin } from '@angular/cdk/a11y';
-import { computed, DestroyRef, ElementRef, inject, Injector, Signal, signal } from '@angular/core';
+import {
+  computed,
+  DestroyRef,
+  ElementRef,
+  inject,
+  Injector,
+  Signal,
+  signal,
+  WritableSignal,
+} from '@angular/core';
 import { NgpSelectionMode } from 'ng-primitives/common';
 import { ngpFocusVisible } from 'ng-primitives/interactions';
 import { explicitEffect, injectElementRef } from 'ng-primitives/internal';
@@ -30,7 +39,7 @@ export interface NgpListboxState<T> {
   /**
    * The listbox selection.
    */
-  readonly value: Signal<T[]>;
+  readonly value: WritableSignal<T[]>;
   /**
    * The listbox disabled state.
    */
