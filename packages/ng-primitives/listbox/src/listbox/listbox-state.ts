@@ -43,7 +43,7 @@ export interface NgpListboxState<T> {
   /**
    * The listbox disabled state.
    */
-  readonly disabled: Signal<boolean>;
+  readonly disabled: WritableSignal<boolean>;
   /**
    * The comparator function to use when comparing values.
    * If not provided, strict equality (===) is used.
@@ -85,6 +85,7 @@ export interface NgpListboxState<T> {
   removeOption: (option: NgpListboxOptionState<T>) => void;
   onAfterContentInit: () => void;
   setValue: (value: T[]) => void;
+  setDisabled: (value: boolean) => void;
 }
 
 export interface NgpListboxProps<T> {
@@ -122,7 +123,7 @@ export const [NgpListboxStateToken, ngpListbox, _injectListboxState, provideList
       id = signal<string>(''),
       mode = signal<NgpSelectionMode>('single'),
       value: _value = signal<T[]>([]),
-      disabled = signal<boolean>(false),
+      disabled: _disabled = signal<boolean>(false),
       compareWith = signal<(a: T, b: T) => boolean>((a, b) => a === b),
       onValueChange,
     }: NgpListboxProps<T>) => {
@@ -140,6 +141,11 @@ export const [NgpListboxStateToken, ngpListbox, _injectListboxState, provideList
         value: _value,
         defaultValue: signal<T[]>([]),
         onChange: onValueChange,
+      });
+
+      const [disabled, setDisabled] = controlledState({
+        value: _disabled,
+        defaultValue: signal<boolean>(false),
       });
 
       // Setup interactions
@@ -267,7 +273,7 @@ export const [NgpListboxStateToken, ngpListbox, _injectListboxState, provideList
         id,
         mode,
         value: deprecatedSetter(value, 'setValue', setValue),
-        disabled,
+        disabled: deprecatedSetter(disabled, 'setDisabled', setDisabled),
         compareWith,
         isFocused,
         valueChange,
@@ -278,6 +284,7 @@ export const [NgpListboxStateToken, ngpListbox, _injectListboxState, provideList
         removeOption,
         onAfterContentInit,
         setValue,
+        setDisabled,
       } satisfies NgpListboxState<T>;
     },
   );
