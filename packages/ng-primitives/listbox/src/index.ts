@@ -12,3 +12,11 @@ export {
   type NgpListboxTriggerState,
   type NgpListboxTriggerProps,
 } from './listbox-trigger/listbox-trigger-state';
+export {
+  NgpListboxSectionStateToken,
+  ngpListboxSection,
+  injectListboxSectionState,
+  provideListboxSectionState,
+  type NgpListboxSectionState,
+  type NgpListboxSectionProps,
+} from './listbox-section/listbox-section-state';
