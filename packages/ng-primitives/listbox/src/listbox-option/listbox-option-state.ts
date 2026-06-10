@@ -8,7 +8,6 @@ import {
   dataBinding,
   listener,
   onDestroy,
-  StateInjectionOptions,
 } from 'ng-primitives/state';
 import { injectListboxState } from '../listbox/listbox-state';
 
