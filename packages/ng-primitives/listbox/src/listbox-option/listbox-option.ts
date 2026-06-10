@@ -37,6 +37,12 @@ export class NgpListboxOption<T> implements OnDestroy {
 
   /**
    * @internal
+   * Whether the option is selected.
+   */
+  readonly selected = this.state.selected;
+
+  /**
+   * @internal
    * Whether the option is disabled - this is used by the `Highlightable` interface.
    */
   get disabled(): boolean {
