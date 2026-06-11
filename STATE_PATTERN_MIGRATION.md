@@ -432,7 +432,7 @@ export const [NgpComponentStateToken, ngpComponent, injectComponentState, provid
 We can also pass in a `setHandler` in order to customize the setter behavior, like closing a tooltip if the trigger become disabled.
 This can be achived by adding the `setHandler` parameter in `StateOptions<T>`.
 
-**The handler is always called after the value change and the new value emission.**
+**The handler is always called after the value change. If `emit` is not `false`, emission occures before the handler is called**
 
 ```typescript
 export const [NgpComponentStateToken, ngpComponent, injectComponentState, provideComponentState] =
