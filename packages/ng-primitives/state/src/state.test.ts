@@ -1,7 +1,8 @@
 import { Component, runInInjectionContext, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { state } from 'ng-primitives/state';
-import { firstValueFrom, take, toArray } from 'rxjs/operators';
+import { firstValueFrom } from 'rxjs';
+import { take, toArray } from 'rxjs/operators';
 
 @Component({ template: '', standalone: true })
 class NoopComponent {}

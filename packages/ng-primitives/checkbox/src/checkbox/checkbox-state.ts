@@ -9,9 +9,9 @@ import {
   createPrimitive,
   dataBinding,
   deprecatedSetter,
-  emitter,
   listener,
   SetterOptions,
+  state,
 } from 'ng-primitives/state';
 import { uniqueId } from 'ng-primitives/utils';
 import { Observable } from 'rxjs';
@@ -29,6 +29,10 @@ export interface NgpCheckboxState {
    */
   readonly checked: WritableSignal<boolean>;
   /**
+   * The default value of the checked state.
+   */
+  readonly defaultChecked: Signal<boolean>;
+  /**
    * Whether the checkbox is indeterminate.
    */
   readonly indeterminate: WritableSignal<boolean>;
@@ -45,25 +49,25 @@ export interface NgpCheckboxState {
    */
   readonly indeterminateChange: Observable<boolean>;
   /**
-   * Toggle the checkbox value.
-   */
-  toggle(event?: Event): void;
-  /**
    * Update the checked value.
    */
   setChecked(value: boolean, options?: SetterOptions): void;
   /**
    * Set the default checked state.
    */
-  setDefaultChecked(value: boolean): void;
+  setDefaultChecked(value: boolean, options?: SetterOptions): void;
   /**
    * Update the indeterminate value.
    */
-  setIndeterminate(value: boolean): void;
+  setIndeterminate(value: boolean, options?: SetterOptions): void;
   /**
    * Set the disabled value.
    */
-  setDisabled(value: boolean): void;
+  setDisabled(value: boolean, options?: SetterOptions): void;
+  /**
+   * Toggle the checkbox value.
+   */
+  toggle(event?: Event): void;
 }
 
 /**
@@ -104,24 +108,33 @@ export const [NgpCheckboxStateToken, ngpCheckbox, injectCheckboxState, provideCh
   createPrimitive(
     'NgpCheckbox',
     ({
-      id = signal(uniqueId('ngp-checkbox')),
+      id: _id = signal(uniqueId('ngp-checkbox')),
       checked: _checked = signal<boolean | undefined>(undefined),
-      defaultChecked: _defaultChecked,
+      defaultChecked: _defaultChecked = signal<boolean>(false),
       indeterminate: _indeterminate = signal(false),
       disabled: _disabled = signal(false),
       onCheckedChange,
       onIndeterminateChange,
     }: NgpCheckboxProps): NgpCheckboxState => {
       const element = injectElementRef();
-      const defaultChecked = controlled(_defaultChecked, false);
+
+      const id = controlled(_id);
+      const [defaultChecked, setDefaultChecked] = state({
+        value: _defaultChecked,
+      });
       const [checked, setChecked, checkedChange] = controlledState({
         value: _checked,
         defaultValue: defaultChecked,
         onChange: onCheckedChange,
       });
-      const indeterminate = controlled(_indeterminate);
-      const disabled = controlled(_disabled);
-      const indeterminateChange = emitter<boolean>();
+      const [indeterminate, setIndeterminate, indeterminateChange] = state({
+        value: _indeterminate,
+        onChange: onIndeterminateChange,
+      });
+      const [disabled, setDisabled] = state({
+        value: _disabled,
+      });
+
       const tabindex = computed(() => (disabled() ? -1 : 0));
 
       // Setup interactions and form control hooks
@@ -130,11 +143,11 @@ export const [NgpCheckboxStateToken, ngpCheckbox, injectCheckboxState, provideCh
 
       // Host bindings
       attrBinding(element, 'role', 'checkbox');
-      attrBinding(element, 'aria-checked', () => (indeterminate() ? 'mixed' : checked()));
-      dataBinding(element, 'data-checked', checked);
-      dataBinding(element, 'data-indeterminate', indeterminate);
-      attrBinding(element, 'aria-disabled', disabled);
       attrBinding(element, 'tabindex', () => tabindex().toString());
+      attrBinding(element, 'aria-checked', () => (indeterminate() ? 'mixed' : checked()));
+      attrBinding(element, 'aria-disabled', () => disabled());
+      dataBinding(element, 'data-checked', () => checked());
+      dataBinding(element, 'data-indeterminate', () => indeterminate());
 
       // Event listeners
       listener(element, 'click', event => toggle(event));
@@ -167,28 +180,19 @@ export const [NgpCheckboxStateToken, ngpCheckbox, injectCheckboxState, provideCh
         }
       }
 
-      function setIndeterminate(value: boolean): void {
-        indeterminate.set(value);
-        onIndeterminateChange?.(value);
-        indeterminateChange.emit(value);
-      }
-
-      function setDisabled(value: boolean): void {
-        disabled.set(value);
-      }
-
       return {
         id,
+        defaultChecked,
         checked: deprecatedSetter(checked, 'setChecked', setChecked),
-        indeterminate: deprecatedSetter(indeterminate, 'setIndeterminate'),
-        disabled: deprecatedSetter(disabled, 'setDisabled'),
+        indeterminate: deprecatedSetter(indeterminate, 'setIndeterminate', setIndeterminate),
+        disabled: deprecatedSetter(disabled, 'setDisabled', setDisabled),
         checkedChange,
-        indeterminateChange: indeterminateChange.asObservable(),
-        toggle,
+        indeterminateChange,
         setChecked,
-        setDefaultChecked: defaultChecked.set,
+        setDefaultChecked,
         setIndeterminate,
         setDisabled,
+        toggle,
       } satisfies NgpCheckboxState;
     },
   );
