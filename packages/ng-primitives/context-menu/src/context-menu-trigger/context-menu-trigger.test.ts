@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, Directive, OnInit } from '@angular/core';
 import { fireEvent, render, screen, waitFor } from '@testing-library/angular';
 import { describe, expect, it } from 'vitest';
 import {
@@ -11,6 +11,7 @@ import {
   NgpContextMenuSubmenuTrigger,
   NgpContextMenuTrigger,
 } from '../index';
+import { injectContextMenuTriggerState } from './context-menu-trigger-state';
 
 @Component({
   template: `
@@ -841,6 +842,53 @@ describe('NgpContextMenuTrigger', () => {
         expect(document.querySelector('[data-testid="context-menu"]')).not.toBeInTheDocument(),
       );
       expect(document.activeElement).not.toBe(triggerArea);
+    });
+  });
+
+  describe('container', () => {
+    it('should expose container on the injected state so it can be set programmatically', async () => {
+      @Directive({
+        selector: '[setMenuContainer]',
+      })
+      class SetMenuContainerDirective implements OnInit {
+        private readonly trigger = injectContextMenuTriggerState();
+
+        ngOnInit(): void {
+          const host = document.querySelector('#menu-host') as HTMLElement;
+          this.trigger().setContainer(host);
+        }
+      }
+
+      await render(
+        `
+          <div id="menu-host"></div>
+
+          <div [ngpContextMenuTrigger]="menu" setMenuContainer data-testid="trigger-area">
+            Right-click me
+          </div>
+
+          <ng-template #menu>
+            <div ngpContextMenu data-testid="context-menu">
+              <button ngpContextMenuItem>Cut</button>
+            </div>
+          </ng-template>
+        `,
+        {
+          imports: [
+            NgpContextMenuTrigger,
+            NgpContextMenu,
+            NgpContextMenuItem,
+            SetMenuContainerDirective,
+          ],
+        },
+      );
+
+      fireEvent.contextMenu(screen.getByTestId('trigger-area'));
+
+      await waitFor(() => {
+        const container = document.querySelector('#menu-host');
+        expect(container?.querySelector('[ngpContextMenu]')).toBeInTheDocument();
+      });
     });
   });
 });

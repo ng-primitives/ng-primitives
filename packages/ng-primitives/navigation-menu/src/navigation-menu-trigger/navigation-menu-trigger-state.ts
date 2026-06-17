@@ -1,6 +1,14 @@
 import { FocusMonitor, FocusOrigin } from '@angular/cdk/a11y';
 import { Directionality } from '@angular/cdk/bidi';
-import { computed, inject, Injector, signal, Signal, ViewContainerRef } from '@angular/core';
+import {
+  computed,
+  inject,
+  Injector,
+  signal,
+  Signal,
+  ViewContainerRef,
+  WritableSignal,
+} from '@angular/core';
 import { Placement } from '@floating-ui/dom';
 import { injectElementRef } from 'ng-primitives/internal';
 import {
@@ -17,6 +25,7 @@ import {
   controlled,
   createPrimitive,
   dataBinding,
+  deprecatedSetter,
   listener,
   onDestroy,
 } from 'ng-primitives/state';
@@ -58,7 +67,7 @@ export interface NgpNavigationMenuTriggerState {
   /**
    * The container for the content.
    */
-  readonly container: Signal<HTMLElement | string | null>;
+  readonly container: WritableSignal<HTMLElement | string | null>;
 
   /**
    * Whether the content is currently open.
@@ -101,6 +110,12 @@ export interface NgpNavigationMenuTriggerState {
    * @param id The content ID
    */
   setContentId(id: string): void;
+
+  /**
+   * Set the container in which the content should be attached.
+   * @param container The new container
+   */
+  setContainer(container: HTMLElement | string | null): void;
 
   /**
    * Update pointer over content state.
@@ -471,6 +486,10 @@ export const [
       contentId.set(newId);
     }
 
+    function setContainer(newContainer: HTMLElement | string | null): void {
+      container.set(newContainer);
+    }
+
     function setPointerOverContent(isOver: boolean): void {
       isPointerOverContent = isOver;
       if (isOver) {
@@ -501,7 +520,7 @@ export const [
       offset: offset.asReadonly(),
       flip: flip.asReadonly(),
       shift: shift.asReadonly(),
-      container: container.asReadonly(),
+      container: deprecatedSetter(container, 'setContainer', setContainer),
       open,
       id,
       contentId: computed(() => contentId()),
@@ -510,6 +529,7 @@ export const [
       focusFirstContentItem,
       focusLastContentItem,
       setContentId,
+      setContainer,
       setPointerOverContent,
       setFocusInsideContent,
       registerContentFocusFunctions,

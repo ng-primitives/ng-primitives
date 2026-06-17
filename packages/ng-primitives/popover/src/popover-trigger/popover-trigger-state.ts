@@ -25,6 +25,7 @@ import {
   controlled,
   createPrimitive,
   dataBinding,
+  deprecatedSetter,
   listener,
   StateInjectionOptions,
 } from 'ng-primitives/state';
@@ -76,7 +77,7 @@ export interface NgpPopoverTriggerState<T> {
    * Define the container in which the popover should be attached.
    * @default document.body
    */
-  readonly container: Signal<HTMLElement | string | null>;
+  readonly container: WritableSignal<HTMLElement | string | null>;
   /**
    * Define whether the popover should close when clicking outside of it, or a guard function.
    * @default true
@@ -126,6 +127,11 @@ export interface NgpPopoverTriggerState<T> {
   readonly open: Signal<boolean>;
   /** @internal onDestroy callback */
   destroy: () => void;
+  /**
+   * Set the container in which the popover should be attached.
+   * @param container - The new container
+   */
+  setContainer: (container: HTMLElement | string | null) => void;
   /**
    * Show the popover.
    * @returns A promise that resolves when the popover has been shown
@@ -242,7 +248,7 @@ export const [
     hideDelay = signal<number>(0),
     flip = signal<NgpFlip>(true),
     shift = signal<NgpShift>(undefined),
-    container = signal<HTMLElement | string | null>('body'),
+    container: _container,
     closeOnOutsideClick = signal<NgpDismissGuard<Element>>(true),
     closeOnEscape = signal<NgpDismissGuard<KeyboardEvent>>(true),
     scrollBehavior = signal<'reposition' | 'block' | 'close'>('reposition'),
@@ -257,6 +263,7 @@ export const [
     const injector = inject(Injector);
 
     const popover = controlled(_popover);
+    const container = controlled(_container, 'body');
 
     const overlay = signal<NgpOverlay<T> | null>(null);
     const open = computed(() => overlay()?.isOpen() ?? false);
@@ -356,6 +363,10 @@ export const [
       await overlay()?.hide({ origin });
     }
 
+    function setContainer(newContainer: HTMLElement | string | null): void {
+      container.set(newContainer);
+    }
+
     return {
       elementRef,
       popover,
@@ -366,7 +377,7 @@ export const [
       hideDelay,
       flip,
       shift,
-      container,
+      container: deprecatedSetter(container, 'setContainer', setContainer),
       closeOnOutsideClick,
       closeOnEscape,
       scrollBehavior,
@@ -377,6 +388,7 @@ export const [
       overlay,
       open,
       destroy,
+      setContainer,
       show,
       hide,
     } satisfies NgpPopoverTriggerState<T>;

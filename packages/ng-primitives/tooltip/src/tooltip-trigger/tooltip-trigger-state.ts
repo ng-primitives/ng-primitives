@@ -24,6 +24,7 @@ import {
   controlled,
   createPrimitive,
   dataBinding,
+  deprecatedSetter,
   listener,
   StateInjectionOptions,
 } from 'ng-primitives/state';
@@ -80,7 +81,7 @@ export interface NgpTooltipTriggerState<T> {
    * Define the container in which the tooltip should be attached.
    * @default document.body
    */
-  readonly container: Signal<HTMLElement | string | null>;
+  readonly container: WritableSignal<HTMLElement | string | null>;
   /**
    * Define whether the tooltip should only show when the trigger element overflows.
    * @default false
@@ -168,6 +169,11 @@ export interface NgpTooltipTriggerState<T> {
    * Set the tooltip id.
    */
   setTooltipId: (id: string) => void;
+  /**
+   * Set the container in which the tooltip should be attached.
+   * @param container - The new container
+   */
+  setContainer: (container: HTMLElement | string | null) => void;
   /**
    * Called by tooltip content when pointer enters the tooltip.
    * @internal
@@ -294,7 +300,7 @@ export const [
     hideDelay = signal<number>(0),
     flip = signal<NgpFlip>(true),
     shift = signal<NgpShift | undefined>(undefined),
-    container = signal<HTMLElement | string | null>('body'),
+    container: _container,
     showOnOverflow = signal<boolean>(false),
     anchor = signal<HTMLElement | null>(null),
     context = signal<T | undefined>(undefined),
@@ -314,6 +320,7 @@ export const [
     const disposables = injectDisposables();
 
     const tooltip = controlled(_tooltip);
+    const container = controlled(_container, 'body');
 
     const tooltipId = signal<string | undefined>(undefined);
     const triggerHovered = signal<boolean>(false);
@@ -393,6 +400,10 @@ export const [
 
     function setTooltipId(id: string): void {
       tooltipId.set(id);
+    }
+
+    function setContainer(newContainer: HTMLElement | string | null): void {
+      container.set(newContainer);
     }
 
     /**
@@ -608,7 +619,7 @@ export const [
       hideDelay,
       flip,
       shift,
-      container,
+      container: deprecatedSetter(container, 'setContainer', setContainer),
       showOnOverflow,
       anchor,
       context,
@@ -627,6 +638,7 @@ export const [
       show,
       hide,
       setTooltipId,
+      setContainer,
       onTooltipHoverStart,
       onTooltipHoverEnd,
       destroy,

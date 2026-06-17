@@ -1,9 +1,10 @@
-import { Component } from '@angular/core';
+import { Component, Directive, OnInit } from '@angular/core';
 import { FormControl, FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { fireEvent, render, waitFor } from '@testing-library/angular';
 import { NgpPopover, NgpPopoverTrigger } from 'ng-primitives/popover';
 import { NgpTooltip, NgpTooltipTrigger, provideTooltipConfig } from 'ng-primitives/tooltip';
 import { describe, expect, it, vi } from 'vitest';
+import { injectPopoverTriggerState } from './popover-trigger-state';
 
 @Component({
   template: `
@@ -554,6 +555,44 @@ describe('NgpPopoverTrigger', () => {
       const popovers = document.querySelectorAll('[ngpPopover]');
       expect(popovers.length).toBe(1);
       expect(popovers[0].textContent).toContain('Popover B');
+    });
+  });
+
+  describe('container', () => {
+    it('should expose container on the injected state so it can be set programmatically', async () => {
+      @Directive({
+        selector: '[setPopoverContainer]',
+      })
+      class SetPopoverContainerDirective implements OnInit {
+        private readonly trigger = injectPopoverTriggerState();
+
+        ngOnInit(): void {
+          const host = document.querySelector('#popover-host') as HTMLElement;
+          this.trigger().setContainer(host);
+        }
+      }
+
+      const { getByRole } = await render(
+        `
+          <div id="popover-host"></div>
+
+          <button [ngpPopoverTrigger]="content" setPopoverContainer>Open Popover</button>
+
+          <ng-template #content>
+            <div ngpPopover>Popover content</div>
+          </ng-template>
+        `,
+        {
+          imports: [NgpPopoverTrigger, NgpPopover, SetPopoverContainerDirective],
+        },
+      );
+
+      fireEvent.click(getByRole('button'));
+
+      await waitFor(() => {
+        const container = document.querySelector('#popover-host');
+        expect(container?.querySelector('[ngpPopover]')).toBeInTheDocument();
+      });
     });
   });
 });

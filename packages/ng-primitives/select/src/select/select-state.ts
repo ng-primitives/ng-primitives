@@ -47,7 +47,7 @@ export interface NgpSelectState<T> {
   readonly placement: Signal<Placement>;
 
   /** The container for the dropdown. */
-  readonly container: Signal<HTMLElement | string | null>;
+  readonly container: WritableSignal<HTMLElement | string | null>;
 
   /** Whether the dropdown should flip when there is not enough space. Can be a boolean to enable/disable, or an object with padding and fallbackPlacements options. */
   readonly flip: Signal<NgpFlip>;
@@ -229,6 +229,12 @@ export interface NgpSelectState<T> {
   setDisabled(disabled: boolean): void;
 
   /**
+   * Set the container in which the dropdown should be attached.
+   * @param container - The new container
+   */
+  setContainer(container: HTMLElement | string | null): void;
+
+  /**
    * Observable that emits whenever the value changes.
    */
   readonly valueChange: Observable<T | undefined>;
@@ -297,7 +303,7 @@ export const [NgpSelectStateToken, ngpSelect, _injectSelectState, provideSelectS
       disabled: _disabled = signal(false),
       compareWith = signal<(a: T | undefined, b: T | undefined) => boolean>(Object.is),
       placement = signal<Placement>('bottom'),
-      container = signal<HTMLElement | string | null>('body'),
+      container: _container,
       flip = signal<NgpFlip>(true),
       offset = signal<NgpOffset>(0),
       scrollToOption = signal<((index: number) => void) | undefined>(undefined),
@@ -308,6 +314,7 @@ export const [NgpSelectStateToken, ngpSelect, _injectSelectState, provideSelectS
       const elementRef = injectElementRef<HTMLElement>();
       const value = controlled(_value);
       const disabled = controlled(_disabled, false);
+      const container = controlled(_container, 'body');
       const valueChangeEmitter = emitter<T | undefined>();
 
       function setValue(newValue: T | undefined, options?: SetterOptions): void {
@@ -320,6 +327,10 @@ export const [NgpSelectStateToken, ngpSelect, _injectSelectState, provideSelectS
 
       function setDisabled(isDisabled: boolean): void {
         disabled.set(isDisabled);
+      }
+
+      function setContainer(newContainer: HTMLElement | string | null): void {
+        container.set(newContainer);
       }
 
       ngpInteractions({
@@ -790,7 +801,7 @@ export const [NgpSelectStateToken, ngpSelect, _injectSelectState, provideSelectS
         disabled: deprecatedSetter(disabled, 'setDisabled', setDisabled),
         compareWith,
         placement,
-        container,
+        container: deprecatedSetter(container, 'setContainer', setContainer),
         flip,
         offset,
         scrollToOption,
@@ -814,6 +825,7 @@ export const [NgpSelectStateToken, ngpSelect, _injectSelectState, provideSelectS
         activatePreviousOption,
         setValue,
         setDisabled,
+        setContainer,
         valueChange: valueChangeEmitter.asObservable(),
         registerPortal,
         registerDropdown,

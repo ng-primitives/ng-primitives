@@ -61,6 +61,12 @@ export interface NgpMenuTriggerState<T = unknown> {
   readonly flip: WritableSignal<NgpFlip>;
 
   /**
+   * The container in which the menu should be attached.
+   * @default document.body
+   */
+  readonly container: WritableSignal<HTMLElement | string | null>;
+
+  /**
    * The context provided to the menu.
    */
   readonly context: WritableSignal<T>;
@@ -100,6 +106,12 @@ export interface NgpMenuTriggerState<T = unknown> {
    * @param context - The new context
    */
   setContext(context: T): void;
+
+  /**
+   * Set the container in which the menu should be attached.
+   * @param container - The new container
+   */
+  setContainer(container: HTMLElement | string | null): void;
 
   /**
    * Show the menu.
@@ -207,7 +219,7 @@ export const [
     flip: _flip = signal(true),
     shift: _shift = signal(undefined),
     context: _context = signal<T>(undefined as T),
-    container,
+    container: _container,
     scrollBehavior,
     cooldown,
     triggers = signal(['click'] as NgpMenuTriggerType[]),
@@ -227,6 +239,7 @@ export const [
     const shift = controlled(_shift);
     const offset = controlled(_offset);
     const context = controlled(_context);
+    const container = controlled(_container, 'body');
 
     // Internal state
     const overlay = signal<NgpOverlay<T> | null>(null);
@@ -471,7 +484,7 @@ export const [
         viewContainerRef,
         injector,
         context,
-        container: container?.(),
+        container: container(),
         placement: placement,
         offset: offset(),
         flip: flip(),
@@ -518,6 +531,10 @@ export const [
       context.set(newContext);
     }
 
+    function setContainer(newContainer: HTMLElement | string | null): void {
+      container.set(newContainer);
+    }
+
     /**
      * Called by menu content when pointer enters/leaves
      * @internal
@@ -553,8 +570,10 @@ export const [
       setPlacement,
       setOffset,
       setContext,
+      setContainer,
       setPointerOverContent,
       flip,
+      container: deprecatedSetter(container, 'setContainer', setContainer),
     } satisfies NgpMenuTriggerState<T>;
   },
 );
