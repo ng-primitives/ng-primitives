@@ -128,7 +128,9 @@ export interface NgpPopoverTriggerState<T> {
   /** @internal onDestroy callback */
   destroy: () => void;
   /**
-   * Set the container in which the popover should be attached.
+   * Set the container in which the popover should be attached. Takes effect the
+   * next time the popover is opened; it does not move a popover that is already
+   * open.
    * @param container - The new container
    */
   setContainer: (container: HTMLElement | string | null) => void;

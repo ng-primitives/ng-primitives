@@ -112,7 +112,9 @@ export interface NgpNavigationMenuTriggerState {
   setContentId(id: string): void;
 
   /**
-   * Set the container in which the content should be attached.
+   * Set the container in which the content should be attached. Takes effect the
+   * next time the content is opened; it does not move content that is already
+   * open.
    * @param container The new container
    */
   setContainer(container: HTMLElement | string | null): void;

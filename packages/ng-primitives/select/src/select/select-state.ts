@@ -229,7 +229,9 @@ export interface NgpSelectState<T> {
   setDisabled(disabled: boolean): void;
 
   /**
-   * Set the container in which the dropdown should be attached.
+   * Set the container in which the dropdown should be attached. Takes effect the
+   * next time the dropdown is opened; it does not move a dropdown that is already
+   * open.
    * @param container - The new container
    */
   setContainer(container: HTMLElement | string | null): void;

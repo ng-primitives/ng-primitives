@@ -108,7 +108,8 @@ export interface NgpMenuTriggerState<T = unknown> {
   setContext(context: T): void;
 
   /**
-   * Set the container in which the menu should be attached.
+   * Set the container in which the menu should be attached. Takes effect the
+   * next time the menu is opened; it does not move a menu that is already open.
    * @param container - The new container
    */
   setContainer(container: HTMLElement | string | null): void;

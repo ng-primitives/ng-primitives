@@ -170,7 +170,9 @@ export interface NgpTooltipTriggerState<T> {
    */
   setTooltipId: (id: string) => void;
   /**
-   * Set the container in which the tooltip should be attached.
+   * Set the container in which the tooltip should be attached. Takes effect the
+   * next time the tooltip is shown; it does not move a tooltip that is already
+   * visible.
    * @param container - The new container
    */
   setContainer: (container: HTMLElement | string | null) => void;
