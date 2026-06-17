@@ -1,6 +1,8 @@
+import { Directive, OnInit } from '@angular/core';
 import { fireEvent, render, waitFor } from '@testing-library/angular';
 import { NgpTooltip, NgpTooltipTrigger, provideTooltipConfig } from 'ng-primitives/tooltip';
 import { describe, expect, it, vi, afterEach } from 'vitest';
+import { injectTooltipTriggerState } from './tooltip-trigger-state';
 
 describe('NgpTooltipTrigger', () => {
   afterEach(() => {
@@ -819,6 +821,46 @@ describe('NgpTooltipTrigger', () => {
         `,
         {
           imports: [NgpTooltipTrigger, NgpTooltip],
+        },
+      );
+
+      fireEvent.mouseEnter(getByRole('button'));
+
+      await waitFor(() => {
+        const container = document.querySelector('#tooltip-host');
+        expect(container?.querySelector('[ngpTooltip]')).toBeInTheDocument();
+      });
+    });
+
+    it('should expose container on the injected state so it can be set programmatically', async () => {
+      @Directive({
+        selector: '[setTooltipContainer]',
+      })
+      class SetTooltipContainerDirective implements OnInit {
+        private readonly trigger = injectTooltipTriggerState();
+
+        ngOnInit(): void {
+          const host = document.querySelector('#tooltip-host') as HTMLElement;
+          this.trigger().setContainer(host);
+        }
+      }
+
+      const { getByRole } = await render(
+        `
+          <div id="tooltip-host"></div>
+
+          <button
+            [ngpTooltipTrigger]="content"
+            ngpTooltipTriggerShowDelay="0"
+            setTooltipContainer
+          ></button>
+
+          <ng-template #content>
+            <div ngpTooltip>Tooltip content</div>
+          </ng-template>
+        `,
+        {
+          imports: [NgpTooltipTrigger, NgpTooltip, SetTooltipContainerDirective],
         },
       );
 

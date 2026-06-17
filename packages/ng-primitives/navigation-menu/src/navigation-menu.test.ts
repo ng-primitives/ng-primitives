@@ -1,4 +1,4 @@
-import { Component, TemplateRef, viewChild } from '@angular/core';
+import { Component, Directive, OnInit, TemplateRef, viewChild } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { fireEvent, render, waitFor } from '@testing-library/angular';
 import { afterEach, describe, expect, it, vi } from 'vitest';
@@ -13,6 +13,7 @@ import { NgpNavigationMenuItem } from './navigation-menu-item/navigation-menu-it
 import { NgpNavigationMenuLink } from './navigation-menu-link/navigation-menu-link';
 import { NgpNavigationMenuList } from './navigation-menu-list/navigation-menu-list';
 import { NgpNavigationMenuTrigger } from './navigation-menu-trigger/navigation-menu-trigger';
+import { injectNavigationMenuTriggerState } from './navigation-menu-trigger/navigation-menu-trigger-state';
 import { NgpNavigationMenu } from './navigation-menu/navigation-menu';
 
 @Component({
@@ -1102,6 +1103,70 @@ describe('Navigation Menu Cooldown Behavior', () => {
     await waitFor(() => {
       expect(document.querySelector('[data-testid="content-2"]')).toBeInTheDocument();
       expect(document.querySelector('[data-testid="content-2"]')).toHaveAttribute('data-instant');
+    });
+  });
+});
+
+@Directive({
+  selector: '[setNavMenuContainer]',
+})
+class SetNavMenuContainerDirective implements OnInit {
+  private readonly trigger = injectNavigationMenuTriggerState();
+
+  ngOnInit(): void {
+    const host = document.querySelector('#nav-menu-host') as HTMLElement;
+    this.trigger().setContainer(host);
+  }
+}
+
+@Component({
+  template: `
+    <div id="nav-menu-host"></div>
+
+    <nav ngpNavigationMenu>
+      <ul ngpNavigationMenuList>
+        <li ngpNavigationMenuItem ngpNavigationMenuItemValue="products">
+          <button
+            [ngpNavigationMenuTrigger]="productsContent"
+            setNavMenuContainer
+            data-testid="trigger-products"
+          >
+            Products
+          </button>
+          <ng-template #productsContent>
+            <div ngpNavigationMenuContent data-testid="content-products">
+              <a ngpNavigationMenuContentItem href="#">Product 1</a>
+            </div>
+          </ng-template>
+        </li>
+      </ul>
+    </nav>
+  `,
+  imports: [
+    NgpNavigationMenu,
+    NgpNavigationMenuList,
+    NgpNavigationMenuItem,
+    NgpNavigationMenuTrigger,
+    NgpNavigationMenuContent,
+    NgpNavigationMenuContentItem,
+    SetNavMenuContainerDirective,
+  ],
+})
+class NavMenuContainerComponent {}
+
+describe('Navigation Menu Container', () => {
+  it('should expose container on the injected state so it can be set programmatically', async () => {
+    const { fixture } = await render(NavMenuContainerComponent);
+    const trigger = fixture.debugElement.nativeElement.querySelector(
+      '[data-testid="trigger-products"]',
+    );
+
+    fireEvent.click(trigger);
+    fixture.detectChanges();
+
+    await waitFor(() => {
+      const container = document.querySelector('#nav-menu-host');
+      expect(container?.querySelector('[ngpNavigationMenuContent]')).toBeInTheDocument();
     });
   });
 });

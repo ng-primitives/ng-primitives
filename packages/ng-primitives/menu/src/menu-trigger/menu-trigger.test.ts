@@ -1,8 +1,9 @@
-import { Component } from '@angular/core';
+import { Component, Directive, OnInit } from '@angular/core';
 import { fireEvent, render, screen, waitFor } from '@testing-library/angular';
 import { NgpTooltip, NgpTooltipTrigger } from 'ng-primitives/tooltip';
 import { describe, expect, it } from 'vitest';
 import { NgpMenu, NgpMenuItem, NgpMenuTrigger } from '../index';
+import { injectMenuTriggerState } from './menu-trigger-state';
 
 describe('NgpMenuTrigger', () => {
   it('should open a menu on click', async () => {
@@ -80,6 +81,73 @@ describe('NgpMenuTrigger', () => {
       expect(screen.getByTestId('menu-b')).toBeInTheDocument();
       // Menu A should be closed
       expect(screen.queryByTestId('menu-a')).not.toBeInTheDocument();
+    });
+  });
+
+  describe('container', () => {
+    it('should attach the menu to a custom container when provided via the input', async () => {
+      await render(
+        `
+          <div id="menu-host"></div>
+
+          <button [ngpMenuTrigger]="menu" ngpMenuTriggerContainer="#menu-host">Open Menu</button>
+
+          <ng-template #menu>
+            <div ngpMenu data-testid="ngp-menu">
+              <button ngpMenuItem>Item 1</button>
+            </div>
+          </ng-template>
+        `,
+        {
+          imports: [NgpMenuTrigger, NgpMenu, NgpMenuItem],
+        },
+      );
+
+      fireEvent.click(screen.getByText('Open Menu'));
+
+      await waitFor(() => {
+        const container = document.querySelector('#menu-host');
+        expect(container?.querySelector('[ngpMenu]')).toBeInTheDocument();
+      });
+    });
+
+    it('should expose container on the injected state so it can be set programmatically (fixes #782)', async () => {
+      @Directive({
+        selector: '[setMenuContainer]',
+      })
+      class SetMenuContainerDirective implements OnInit {
+        private readonly menuTrigger = injectMenuTriggerState();
+
+        ngOnInit(): void {
+          const host = document.querySelector('#menu-host') as HTMLElement;
+          // container should be settable via the state setter method
+          this.menuTrigger().setContainer(host);
+        }
+      }
+
+      await render(
+        `
+          <div id="menu-host"></div>
+
+          <button [ngpMenuTrigger]="menu" setMenuContainer>Open Menu</button>
+
+          <ng-template #menu>
+            <div ngpMenu data-testid="ngp-menu">
+              <button ngpMenuItem>Item 1</button>
+            </div>
+          </ng-template>
+        `,
+        {
+          imports: [NgpMenuTrigger, NgpMenu, NgpMenuItem, SetMenuContainerDirective],
+        },
+      );
+
+      fireEvent.click(screen.getByText('Open Menu'));
+
+      await waitFor(() => {
+        const container = document.querySelector('#menu-host');
+        expect(container?.querySelector('[ngpMenu]')).toBeInTheDocument();
+      });
     });
   });
 });

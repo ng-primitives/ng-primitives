@@ -1,5 +1,13 @@
 import { FocusOrigin } from '@angular/cdk/a11y';
-import { computed, inject, Injector, signal, Signal, ViewContainerRef } from '@angular/core';
+import {
+  computed,
+  inject,
+  Injector,
+  signal,
+  Signal,
+  ViewContainerRef,
+  WritableSignal,
+} from '@angular/core';
 import { Placement } from '@floating-ui/dom';
 import { injectElementRef } from 'ng-primitives/internal';
 import { NgpMenuTriggerStateToken } from 'ng-primitives/menu';
@@ -17,6 +25,7 @@ import {
   controlled,
   createPrimitive,
   dataBinding,
+  deprecatedSetter,
   listener,
   onDestroy,
   StateInjectionOptions,
@@ -35,6 +44,12 @@ export interface NgpContextMenuTriggerState {
   readonly openOrigin: Signal<FocusOrigin>;
 
   /**
+   * The container in which the menu should be attached.
+   * @default document.body
+   */
+  readonly container: WritableSignal<HTMLElement | string | null>;
+
+  /**
    * Show the context menu.
    */
   show(origin?: FocusOrigin): void;
@@ -43,6 +58,13 @@ export interface NgpContextMenuTriggerState {
    * Hide the context menu.
    */
   hide(origin?: FocusOrigin): void;
+
+  /**
+   * Set the container in which the menu should be attached. Takes effect the
+   * next time the menu is opened; it does not move a menu that is already open.
+   * @param container - The new container
+   */
+  setContainer(container: HTMLElement | string | null): void;
 
   /**
    * Set whether the pointer is over the menu content.
@@ -114,7 +136,7 @@ export const [
     offset: _offset = signal(2),
     flip: _flip = signal(true),
     context: _context = signal<T>(undefined as T),
-    container,
+    container: _container,
     scrollBehavior,
     shift,
   }: NgpContextMenuTriggerProps<T>) => {
@@ -128,6 +150,7 @@ export const [
     const flip = controlled(_flip);
     const offset = controlled(_offset);
     const context = controlled(_context);
+    const container = controlled(_container, 'body');
 
     // Internal state
     const overlay = signal<NgpOverlay<T> | null>(null);
@@ -265,7 +288,7 @@ export const [
         viewContainerRef,
         injector,
         context,
-        container: container?.(),
+        container: container(),
         offset: offset(),
         flip: flip(),
         shift,
@@ -281,6 +304,10 @@ export const [
       };
 
       overlay.set(createOverlay(config));
+    }
+
+    function setContainer(newContainer: HTMLElement | string | null): void {
+      container.set(newContainer);
     }
 
     function setPointerOverContent(_isOver: boolean): void {
@@ -318,8 +345,10 @@ export const [
     return {
       open,
       openOrigin,
+      container: deprecatedSetter(container, 'setContainer', setContainer),
       show,
       hide,
+      setContainer,
       setPointerOverContent,
     } satisfies NgpContextMenuTriggerState;
   },
