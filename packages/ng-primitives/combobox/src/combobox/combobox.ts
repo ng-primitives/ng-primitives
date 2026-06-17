@@ -21,6 +21,7 @@ import {
   NgpOffset,
   NgpOffsetInput,
 } from 'ng-primitives/portal';
+import { controlStatus } from 'ng-primitives/utils';
 import type { NgpComboboxButton } from '../combobox-button/combobox-button';
 import type { NgpComboboxDropdown } from '../combobox-dropdown/combobox-dropdown';
 import type { NgpComboboxInput } from '../combobox-input/combobox-input';
@@ -228,8 +229,21 @@ export class NgpCombobox {
     },
   });
 
-  /** The control status */
-  protected readonly controlStatus = computed(() => this.input()?.controlStatus());
+  /**
+   * The form control status of the combobox host element itself. When the combobox is used as a
+   * form control (e.g. via a `ControlValueAccessor` wrapper) the `NgControl` lives on an ancestor
+   * element, so this resolves it even when there is no `ngpComboboxInput`.
+   */
+  private readonly hostControlStatus = controlStatus();
+
+  /**
+   * The control status. When an input is present it can resolve the associated `NgControl` (whether
+   * the control is on the input itself or an ancestor), so we use its status. Otherwise we fall back
+   * to the combobox host's own control status so an input-less combobox still reflects validity.
+   */
+  protected readonly controlStatus = computed(() =>
+    this.input() ? this.input()?.controlStatus() : this.hostControlStatus(),
+  );
 
   /** The state of the combobox. */
   protected readonly state = comboboxState<NgpCombobox>(this);
