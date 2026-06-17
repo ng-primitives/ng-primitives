@@ -3,12 +3,13 @@ import {
   afterNextRender,
   computed,
   Directive,
-  HostListener,
+  ElementRef,
   inject,
   Injector,
   signal,
 } from '@angular/core';
 import { explicitEffect, injectDimensions } from 'ng-primitives/internal';
+import { listener } from 'ng-primitives/state';
 import { injectToastConfig } from '../config/toast-config';
 import { NgpToastManager } from './toast-manager';
 import { injectToastOptions } from './toast-options';
@@ -41,6 +42,7 @@ import { toastTimer } from './toast-timer';
 export class NgpToast {
   private readonly manager = inject(NgpToastManager);
   private readonly injector = inject(Injector);
+  private readonly elementRef = inject<ElementRef<HTMLElement>>(ElementRef);
   protected readonly config = injectToastConfig();
   /** @internal */
   readonly options = injectToastOptions();
@@ -146,6 +148,17 @@ export class NgpToast {
   constructor() {
     this.options.register(this);
 
+    // Bind the pointer listeners outside the Angular zone via the `listener()`
+    // helper. Using `@HostListener` would run every `pointermove` inside the
+    // zone, triggering an application-wide change detection pass on each mouse
+    // move while merely hovering a toast (#762). Registering them out-of-zone
+    // means only the signal writes that occur during an actual swipe schedule
+    // change detection.
+    const element = this.elementRef.nativeElement;
+    listener(element, 'pointerdown', event => this.onPointerDown(event));
+    listener(element, 'pointermove', event => this.onPointerMove(event));
+    listener(element, 'pointerup', () => this.onPointerUp());
+
     // Start the timer when the toast is created
     this.timer.start();
 
@@ -165,8 +178,7 @@ export class NgpToast {
     );
   }
 
-  @HostListener('pointerdown', ['$event'])
-  protected onPointerDown(event: PointerEvent): void {
+  private onPointerDown(event: PointerEvent): void {
     // right click should not trigger swipe and we check if the toast is dismissible
     if (event.button === 2 || !this.options.dismissible) {
       return;
@@ -186,8 +198,7 @@ export class NgpToast {
     this.pointerStartRef = { x: event.clientX, y: event.clientY };
   }
 
-  @HostListener('pointermove', ['$event'])
-  protected onPointerMove(event: PointerEvent): void {
+  private onPointerMove(event: PointerEvent): void {
     if (!this.pointerStartRef || !this.options.dismissible) {
       return;
     }
@@ -256,8 +267,7 @@ export class NgpToast {
     }
   }
 
-  @HostListener('pointerup')
-  protected onPointerUp(): void {
+  private onPointerUp(): void {
     this.isInteracting.set(false);
 
     if (
