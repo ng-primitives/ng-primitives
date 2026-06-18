@@ -3,12 +3,14 @@ import {
   booleanAttribute,
   computed,
   Directive,
+  effect,
   HostListener,
   inject,
   Injector,
   input,
   output,
   signal,
+  untracked,
 } from '@angular/core';
 import { activeDescendantManager } from 'ng-primitives/a11y';
 import { ngpInteractions } from 'ng-primitives/interactions';
@@ -249,6 +251,17 @@ export class NgpCombobox {
   protected readonly state = comboboxState<NgpCombobox>(this);
 
   constructor() {
+    // When the visible (or virtual) options change while open, revalidate so the
+    // active index can't point at a removed option and leave a stale aria-activedescendant.
+    effect(() => {
+      this.sortedOptions();
+      this.state.allOptions();
+
+      if (this.open()) {
+        untracked(() => this.activeDescendantManager.validate());
+      }
+    });
+
     ngpInteractions({
       focus: true,
       focusWithin: true,

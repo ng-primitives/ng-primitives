@@ -1,4 +1,12 @@
-import { computed, ElementRef, Signal, signal, WritableSignal } from '@angular/core';
+import {
+  computed,
+  effect,
+  ElementRef,
+  Signal,
+  signal,
+  untracked,
+  WritableSignal,
+} from '@angular/core';
 import type { Placement } from '@floating-ui/dom';
 import { activeDescendantManager } from 'ng-primitives/a11y';
 import { ngpFormControl } from 'ng-primitives/form-field';
@@ -376,6 +384,17 @@ export const [NgpSelectStateToken, ngpSelect, _injectSelectState, provideSelectS
 
           scrollTo(index);
         },
+      });
+
+      // When the visible (or virtual) options change while open, revalidate so the
+      // active index can't point at a removed option and leave a stale aria-activedescendant.
+      effect(() => {
+        sortedOptions();
+        allOptions();
+
+        if (open()) {
+          untracked(() => activeDescendantManagerInstance.validate());
+        }
       });
 
       // Host bindings
