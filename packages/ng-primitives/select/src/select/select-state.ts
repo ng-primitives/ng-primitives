@@ -386,8 +386,11 @@ export const [NgpSelectStateToken, ngpSelect, _injectSelectState, provideSelectS
         },
       });
 
+      // When the visible (or virtual) options change while open, revalidate so the
+      // active index can't point at a removed option and leave a stale aria-activedescendant.
       effect(() => {
         sortedOptions();
+        allOptions();
 
         if (open()) {
           untracked(() => activeDescendantManagerInstance.validate());
