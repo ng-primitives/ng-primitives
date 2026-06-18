@@ -715,6 +715,28 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
   }
 
   /**
+   * Determine whether this overlay is a descendant of the given overlay - i.e.
+   * its trigger is rendered within the other overlay's content. Walks the parent
+   * overlay chain established through dependency injection.
+   *
+   * Used by the cooldown manager to avoid evicting an ancestor overlay when a
+   * nested overlay of the same type is activated.
+   * @internal
+   */
+  isDescendantOf(other: CooldownOverlay): boolean {
+    let current: NgpOverlay | null = this.parentOverlay;
+
+    while (current) {
+      if (current === other) {
+        return true;
+      }
+      current = current.parentOverlay;
+    }
+
+    return false;
+  }
+
+  /**
    * Check if the event path includes any child overlay elements (recursively).
    * @internal
    */
