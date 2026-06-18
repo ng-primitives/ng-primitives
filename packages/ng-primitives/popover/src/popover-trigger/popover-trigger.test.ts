@@ -590,9 +590,7 @@ describe('NgpPopoverTrigger', () => {
       // Click the trigger that lives inside the outer popover content. The inner popover
       // shares the same overlay type ('popover'), but as a descendant it must not evict
       // its ancestor.
-      const innerTrigger = document.querySelector(
-        '[data-testid="inner-trigger"]',
-      ) as HTMLElement;
+      const innerTrigger = document.querySelector('[data-testid="inner-trigger"]') as HTMLElement;
       fireEvent.click(innerTrigger);
 
       await waitFor(() => {
@@ -636,9 +634,7 @@ describe('NgpPopoverTrigger', () => {
         expect(document.querySelector('[data-testid="outer-popover"]')).toBeInTheDocument();
       });
 
-      const innerTrigger = document.querySelector(
-        '[data-testid="inner-trigger"]',
-      ) as HTMLElement;
+      const innerTrigger = document.querySelector('[data-testid="inner-trigger"]') as HTMLElement;
       fireEvent.click(innerTrigger);
       await waitFor(() => {
         expect(document.querySelector('[data-testid="inner-popover"]')).toBeInTheDocument();
