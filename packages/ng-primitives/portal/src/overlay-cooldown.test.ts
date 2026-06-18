@@ -148,4 +148,53 @@ describe('NgpOverlayCooldownManager', () => {
     expect(a.hideImmediate).not.toHaveBeenCalled();
     expect(manager.hasActiveOverlay('popover')).toBe(true);
   });
+
+  it('does not evict an active descendant when its ancestor re-registers', () => {
+    const manager = new NgpOverlayCooldownManager();
+    const outer = new FakeOverlay();
+    const inner = new FakeOverlay(outer);
+    const sibling = new FakeOverlay();
+
+    manager.registerActive('popover', outer, 0);
+    manager.registerActive('popover', inner, 0);
+
+    // The ancestor starts closing and is removed from the stack while its portal
+    // content is still available for the exit animation.
+    manager.unregisterActive('popover', outer);
+
+    // If that ancestor's destruction is cancelled, it re-registers while the
+    // descendant is still active and must not evict the descendant.
+    manager.registerActive('popover', outer, 0);
+
+    expect(inner.hideImmediate).not.toHaveBeenCalled();
+    expect(outer.hideImmediate).not.toHaveBeenCalled();
+    expect(manager.hasActiveOverlay('popover')).toBe(true);
+
+    // Sibling replacement should still evict the active descendant and ancestor.
+    manager.registerActive('popover', sibling, 0);
+
+    expect(inner.hideImmediate).toHaveBeenCalledTimes(1);
+    expect(outer.hideImmediate).toHaveBeenCalledTimes(1);
+    expect(sibling.hideImmediate).not.toHaveBeenCalled();
+  });
+
+  it('treats re-registering an ancestor with an active descendant as a no-op', () => {
+    const manager = new NgpOverlayCooldownManager();
+    const outer = new FakeOverlay();
+    const inner = new FakeOverlay(outer);
+    const sibling = new FakeOverlay();
+
+    manager.registerActive('popover', outer, 0);
+    manager.registerActive('popover', inner, 0);
+    manager.registerActive('popover', outer, 0);
+
+    expect(inner.hideImmediate).not.toHaveBeenCalled();
+    expect(outer.hideImmediate).not.toHaveBeenCalled();
+
+    manager.registerActive('popover', sibling, 0);
+
+    expect(inner.hideImmediate).toHaveBeenCalledTimes(1);
+    expect(outer.hideImmediate).toHaveBeenCalledTimes(1);
+    expect(sibling.hideImmediate).not.toHaveBeenCalled();
+  });
 });

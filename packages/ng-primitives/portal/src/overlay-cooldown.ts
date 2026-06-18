@@ -71,13 +71,23 @@ export class NgpOverlayCooldownManager {
   registerActive(overlayType: string, overlay: CooldownOverlay, cooldown: number): void {
     const stack = this.activeOverlays.get(overlayType) ?? [];
 
+    if (stack.includes(overlay)) {
+      return;
+    }
+
     // Evict overlays from the top of the stack until we reach the overlay itself
     // or one of its ancestors (or the stack empties). Ancestors are preserved so
     // nested same-type overlays can coexist; peers are closed immediately.
     while (stack.length > 0) {
       const top = stack[stack.length - 1];
-      if (top === overlay || overlay.isDescendantOf?.(top)) {
+      if (overlay.isDescendantOf?.(top)) {
         break;
+      }
+      if (top.isDescendantOf?.(overlay)) {
+        const firstDescendantIndex = stack.findIndex(entry => entry.isDescendantOf?.(overlay));
+        stack.splice(firstDescendantIndex, 0, overlay);
+        this.activeOverlays.set(overlayType, stack);
+        return;
       }
       stack.pop();
       // Enable instant transition only if cooldown is active
