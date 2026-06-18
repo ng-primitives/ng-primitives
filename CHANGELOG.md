@@ -1,3 +1,20 @@
+## 0.122.0 (2026-06-18)
+
+### 🚀 Features
+
+- **menu:** expose container on overlay trigger state ([#783](https://github.com/ng-primitives/ng-primitives/pull/783), [#782](https://github.com/ng-primitives/ng-primitives/issues/782))
+
+### 🩹 Fixes
+
+- **combobox:** reflect form control status without an input ([#784](https://github.com/ng-primitives/ng-primitives/pull/784), [#781](https://github.com/ng-primitives/ng-primitives/issues/781))
+- **toast:** bind pointer listeners outside the Angular zone ([#785](https://github.com/ng-primitives/ng-primitives/pull/785), [#762](https://github.com/ng-primitives/ng-primitives/issues/762))
+- **tooltip:** remove data-disabled binding from tooltip trigger ([#786](https://github.com/ng-primitives/ng-primitives/pull/786))
+
+### ❤️ Thank You
+
+- Ashley Hunter
+- Robin Ferrari @zecka
+
 ## 0.121.0 (2026-06-09)
 
 ### 🚀 Features
