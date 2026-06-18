@@ -558,6 +558,110 @@ describe('NgpPopoverTrigger', () => {
     });
   });
 
+  describe('nested popovers', () => {
+    @Component({
+      template: `
+        <button [ngpPopoverTrigger]="outer" data-testid="outer-trigger">Open panel</button>
+
+        <ng-template #outer>
+          <div ngpPopover data-testid="outer-popover">
+            <button [ngpPopoverTrigger]="inner" data-testid="inner-trigger">Open calendar</button>
+          </div>
+        </ng-template>
+
+        <ng-template #inner>
+          <div ngpPopover data-testid="inner-popover">Inner content</div>
+        </ng-template>
+      `,
+      imports: [NgpPopoverTrigger, NgpPopover],
+    })
+    class NestedPopoverComponent {}
+
+    it('should keep the outer popover open when opening a popover nested inside it', async () => {
+      const { getByTestId } = await render(NestedPopoverComponent);
+
+      // Open the outer popover
+      fireEvent.click(getByTestId('outer-trigger'));
+
+      await waitFor(() => {
+        expect(document.querySelector('[data-testid="outer-popover"]')).toBeInTheDocument();
+      });
+
+      // Click the trigger that lives inside the outer popover content. The inner popover
+      // shares the same overlay type ('popover'), but as a descendant it must not evict
+      // its ancestor.
+      const innerTrigger = document.querySelector(
+        '[data-testid="inner-trigger"]',
+      ) as HTMLElement;
+      fireEvent.click(innerTrigger);
+
+      await waitFor(() => {
+        // The inner popover should open
+        expect(document.querySelector('[data-testid="inner-popover"]')).toBeInTheDocument();
+      });
+
+      // The outer popover must remain open — it is an ancestor and must not be evicted.
+      expect(document.querySelector('[data-testid="outer-popover"]')).toBeInTheDocument();
+    });
+
+    it('should restore the outer popover as the active overlay after the nested popover closes', async () => {
+      @Component({
+        template: `
+          <button [ngpPopoverTrigger]="outer" data-testid="outer-trigger">Open panel</button>
+          <button [ngpPopoverTrigger]="sibling" data-testid="sibling-trigger">Open sibling</button>
+
+          <ng-template #outer>
+            <div ngpPopover data-testid="outer-popover">
+              <button [ngpPopoverTrigger]="inner" data-testid="inner-trigger">Open nested</button>
+            </div>
+          </ng-template>
+
+          <ng-template #inner>
+            <div ngpPopover data-testid="inner-popover">Inner content</div>
+          </ng-template>
+
+          <ng-template #sibling>
+            <div ngpPopover data-testid="sibling-popover">Sibling content</div>
+          </ng-template>
+        `,
+        imports: [NgpPopoverTrigger, NgpPopover],
+      })
+      class NestedThenSiblingComponent {}
+
+      const { getByTestId } = await render(NestedThenSiblingComponent);
+
+      // Open outer, then the nested popover inside it.
+      fireEvent.click(getByTestId('outer-trigger'));
+      await waitFor(() => {
+        expect(document.querySelector('[data-testid="outer-popover"]')).toBeInTheDocument();
+      });
+
+      const innerTrigger = document.querySelector(
+        '[data-testid="inner-trigger"]',
+      ) as HTMLElement;
+      fireEvent.click(innerTrigger);
+      await waitFor(() => {
+        expect(document.querySelector('[data-testid="inner-popover"]')).toBeInTheDocument();
+      });
+
+      // Close just the nested popover by clicking its trigger again.
+      fireEvent.click(innerTrigger);
+      await waitFor(() => {
+        expect(document.querySelector('[data-testid="inner-popover"]')).not.toBeInTheDocument();
+        expect(document.querySelector('[data-testid="outer-popover"]')).toBeInTheDocument();
+      });
+
+      // Opening an unrelated sibling popover should still evict the outer popover
+      // (the one-popover-at-a-time rule for siblings is preserved).
+      fireEvent.mouseUp(getByTestId('sibling-trigger'));
+      fireEvent.click(getByTestId('sibling-trigger'));
+      await waitFor(() => {
+        expect(document.querySelector('[data-testid="sibling-popover"]')).toBeInTheDocument();
+        expect(document.querySelector('[data-testid="outer-popover"]')).not.toBeInTheDocument();
+      });
+    });
+  });
+
   describe('container', () => {
     it('should expose container on the injected state so it can be set programmatically', async () => {
       @Directive({
