@@ -97,6 +97,7 @@ We welcome contributions from the community. Please refer to our [contributing g
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/mumenthalers"><img src="https://avatars.githubusercontent.com/u/3604424?v=4?s=100" width="100px;" alt="Simon Mumenthaler"/><br /><sub><b>Simon Mumenthaler</b></sub></a><br /><a href="https://github.com/ng-primitives/ng-primitives/commits?author=mumenthalers" title="Code">💻</a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/antoine-delahaye"><img src="https://avatars.githubusercontent.com/u/46669439?v=4?s=100" width="100px;" alt="Antoine Delahaye"/><br /><sub><b>Antoine Delahaye</b></sub></a><br /><a href="https://github.com/ng-primitives/ng-primitives/commits?author=antoine-delahaye" title="Code">💻</a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/mvanhorn"><img src="https://avatars.githubusercontent.com/u/455140?v=4?s=100" width="100px;" alt="Matt Van Horn"/><br /><sub><b>Matt Van Horn</b></sub></a><br /><a href="https://github.com/ng-primitives/ng-primitives/commits?author=mvanhorn" title="Code">💻</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/Kokkinis99"><img src="https://avatars.githubusercontent.com/u/77012231?v=4?s=100" width="100px;" alt="Kokkinis99"/><br /><sub><b>Kokkinis99</b></sub></a><br /><a href="https://github.com/ng-primitives/ng-primitives/commits?author=Kokkinis99" title="Code">💻</a></td>
     </tr>
   </tbody>
 </table>
