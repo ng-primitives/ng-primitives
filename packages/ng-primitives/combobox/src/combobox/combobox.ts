@@ -3,12 +3,14 @@ import {
   booleanAttribute,
   computed,
   Directive,
+  effect,
   HostListener,
   inject,
   Injector,
   input,
   output,
   signal,
+  untracked,
 } from '@angular/core';
 import { activeDescendantManager } from 'ng-primitives/a11y';
 import { ngpInteractions } from 'ng-primitives/interactions';
@@ -249,6 +251,14 @@ export class NgpCombobox {
   protected readonly state = comboboxState<NgpCombobox>(this);
 
   constructor() {
+    effect(() => {
+      this.sortedOptions();
+
+      if (this.open()) {
+        untracked(() => this.activeDescendantManager.validate());
+      }
+    });
+
     ngpInteractions({
       focus: true,
       focusWithin: true,

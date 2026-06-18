@@ -1,5 +1,6 @@
 import {
   Component,
+  Directive,
   TemplateRef,
   ViewContainerRef,
   forwardRef,
@@ -25,6 +26,14 @@ import { NgpComboboxInput } from '../combobox-input/combobox-input';
 import { NgpComboboxOption } from '../combobox-option/combobox-option';
 import { NgpComboboxPortal } from '../combobox-portal/combobox-portal';
 import { NgpCombobox } from './combobox';
+import { injectComboboxState } from './combobox-state';
+
+@Directive({
+  selector: '[captureComboboxState]',
+})
+class CaptureComboboxStateDirective {
+  readonly state = injectComboboxState();
+}
 
 @Component({
   imports: [
@@ -88,6 +97,44 @@ class TestComponent {
 
   onOpenChange(event: boolean) {
     this.open = event;
+  }
+}
+
+@Component({
+  imports: [
+    NgpCombobox,
+    NgpComboboxDropdown,
+    NgpComboboxInput,
+    NgpComboboxOption,
+    CaptureComboboxStateDirective,
+  ],
+  template: `
+    <div captureComboboxState ngpCombobox>
+      <input ngpComboboxInput />
+
+      <div ngpComboboxDropdown>
+        @for (option of filteredOptions(); track option) {
+          <div
+            [ngpComboboxOptionValue]="option"
+            [attr.data-testid]="'closed-option-' + option"
+            ngpComboboxOption
+          >
+            {{ option }}
+          </div>
+        }
+      </div>
+    </div>
+  `,
+})
+class ClosedOptionsComboboxComponent {
+  readonly comboboxState = viewChild.required(CaptureComboboxStateDirective);
+  filter = '';
+  options = ['Apple', 'Banana', 'Cherry'];
+
+  filteredOptions() {
+    return this.filter
+      ? this.options.filter(option => option.toLowerCase().includes(this.filter.toLowerCase()))
+      : this.options;
   }
 }
 
@@ -209,6 +256,79 @@ describe('NgpCombobox', () => {
     // Only Elderberry should be visible
     expect(screen.getByText('Elderberry')).toBeInTheDocument();
     expect(screen.queryByText('Apple')).not.toBeInTheDocument();
+  });
+
+  it('should validate aria-activedescendant when the active option is filtered out while open', async () => {
+    const { fixture } = await render(TestComponent);
+
+    const input = screen.getByRole('combobox');
+    input.focus();
+
+    await userEvent.keyboard('{arrowdown}');
+    await waitFor(() => {
+      expect(screen.getByText('Apple')).toHaveAttribute('data-active');
+    });
+
+    await userEvent.keyboard('{arrowdown}{arrowdown}');
+    await waitFor(() => {
+      expect(screen.getByText('Cherry')).toHaveAttribute('data-active');
+    });
+
+    const staleId = screen.getByText('Cherry').id;
+
+    fireEvent.input(input, { target: { value: 'App' } });
+    fixture.detectChanges();
+
+    await waitFor(() => {
+      expect(screen.queryByText('Cherry')).not.toBeInTheDocument();
+
+      const appleOption = screen.getByText('Apple');
+      const activeId = input.getAttribute('aria-activedescendant');
+      expect(activeId).toBe(appleOption.id);
+      expect(document.getElementById(activeId as string)).toBe(appleOption);
+    });
+    expect(document.getElementById(staleId)).toBeNull();
+  });
+
+  it('should clear aria-activedescendant when filtering to no options while open', async () => {
+    const { fixture } = await render(TestComponent);
+
+    const input = screen.getByRole('combobox');
+    input.focus();
+
+    await userEvent.keyboard('{arrowdown}{arrowdown}');
+    await waitFor(() => {
+      expect(screen.getByText('Banana')).toHaveAttribute('data-active');
+    });
+
+    const staleId = screen.getByText('Banana').id;
+
+    fireEvent.input(input, { target: { value: 'zzz' } });
+    fixture.detectChanges();
+
+    await waitFor(() => {
+      expect(screen.getByTestId('empty-message')).toBeInTheDocument();
+      expect(input).not.toHaveAttribute('aria-activedescendant');
+    });
+    expect(document.getElementById(staleId)).toBeNull();
+  });
+
+  it('should not validate changed options while closed', async () => {
+    const { fixture } = await render(ClosedOptionsComboboxComponent);
+    const component = fixture.componentInstance;
+    const state = component.comboboxState().state();
+
+    expect(state.open()).toBe(false);
+    state.activeDescendantManager.activateByIndex(2);
+    expect(state.activeDescendantManager.index()).toBe(2);
+
+    component.filter = 'App';
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    expect(screen.queryByTestId('closed-option-Cherry')).not.toBeInTheDocument();
+    expect(state.open()).toBe(false);
+    expect(state.activeDescendantManager.index()).toBe(2);
   });
 
   it('should display "No options found" when filter has no matches', async () => {

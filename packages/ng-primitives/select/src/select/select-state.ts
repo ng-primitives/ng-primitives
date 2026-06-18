@@ -1,4 +1,12 @@
-import { computed, ElementRef, Signal, signal, WritableSignal } from '@angular/core';
+import {
+  computed,
+  effect,
+  ElementRef,
+  Signal,
+  signal,
+  untracked,
+  WritableSignal,
+} from '@angular/core';
 import type { Placement } from '@floating-ui/dom';
 import { activeDescendantManager } from 'ng-primitives/a11y';
 import { ngpFormControl } from 'ng-primitives/form-field';
@@ -376,6 +384,14 @@ export const [NgpSelectStateToken, ngpSelect, _injectSelectState, provideSelectS
 
           scrollTo(index);
         },
+      });
+
+      effect(() => {
+        sortedOptions();
+
+        if (open()) {
+          untracked(() => activeDescendantManagerInstance.validate());
+        }
       });
 
       // Host bindings
