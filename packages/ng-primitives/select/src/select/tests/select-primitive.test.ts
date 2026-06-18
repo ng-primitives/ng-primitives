@@ -1,4 +1,4 @@
-import { Component, Directive, OnInit, signal } from '@angular/core';
+import { Component, Directive, OnInit, signal, viewChild } from '@angular/core';
 import { fireEvent, render, screen, waitFor } from '@testing-library/angular';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it, vi, afterEach } from 'vitest';
@@ -138,6 +138,89 @@ class TestActivatedOutputComponent {
   onClearActivated(): void {
     this.clearActivatedCount++;
     this.value.set(undefined);
+  }
+}
+
+@Directive({
+  selector: '[captureFilteredSelectState]',
+})
+class CaptureFilteredSelectStateDirective {
+  readonly state = injectSelectState<string>();
+}
+
+@Component({
+  template: `
+    <div
+      [(ngpSelectValue)]="value"
+      captureFilteredSelectState
+      ngpSelect
+      data-testid="filtered-select"
+    >
+      <span>{{ value() || 'Select an option' }}</span>
+
+      <div *ngpSelectPortal ngpSelectDropdown data-testid="filtered-dropdown">
+        @for (option of filteredOptions(); track option) {
+          <div
+            [ngpSelectOptionValue]="option"
+            [attr.data-testid]="'filtered-option-' + option"
+            ngpSelectOption
+          >
+            {{ option }}
+          </div>
+        } @empty {
+          <div data-testid="filtered-empty">No options found</div>
+        }
+      </div>
+    </div>
+  `,
+  imports: [
+    NgpSelect,
+    NgpSelectDropdown,
+    NgpSelectOption,
+    NgpSelectPortal,
+    CaptureFilteredSelectStateDirective,
+  ],
+})
+class FilteredSelectComponent {
+  readonly value = signal<string | undefined>(undefined);
+  readonly selectState = viewChild.required(CaptureFilteredSelectStateDirective);
+  filter = '';
+  options = ['Apple', 'Banana', 'Cherry', 'Dragon Fruit'];
+
+  filteredOptions() {
+    return this.filter
+      ? this.options.filter(option => option.toLowerCase().includes(this.filter.toLowerCase()))
+      : this.options;
+  }
+}
+
+@Component({
+  template: `
+    <div captureFilteredSelectState ngpSelect data-testid="closed-filtered-select">
+      <div ngpSelectDropdown>
+        @for (option of filteredOptions(); track option) {
+          <div
+            [ngpSelectOptionValue]="option"
+            [attr.data-testid]="'closed-option-' + option"
+            ngpSelectOption
+          >
+            {{ option }}
+          </div>
+        }
+      </div>
+    </div>
+  `,
+  imports: [NgpSelect, NgpSelectDropdown, NgpSelectOption, CaptureFilteredSelectStateDirective],
+})
+class ClosedOptionsSelectComponent {
+  readonly selectState = viewChild.required(CaptureFilteredSelectStateDirective);
+  filter = '';
+  options = ['Apple', 'Banana', 'Cherry'];
+
+  filteredOptions() {
+    return this.filter
+      ? this.options.filter(option => option.toLowerCase().includes(this.filter.toLowerCase()))
+      : this.options;
   }
 }
 
@@ -652,6 +735,84 @@ describe('NgpSelect', () => {
       const optionId = appleOption.getAttribute('id');
       expect(optionId).toBeTruthy();
       expect(select).toHaveAttribute('aria-activedescendant', optionId);
+    });
+
+    it('should validate aria-activedescendant when the active option is filtered out while open', async () => {
+      const user = userEvent.setup();
+      const { fixture } = await render(FilteredSelectComponent);
+      const component = fixture.componentInstance;
+
+      const select = screen.getByTestId('filtered-select');
+      await user.click(select);
+
+      await waitFor(() => {
+        expect(screen.getByTestId('filtered-option-Apple')).toHaveAttribute('data-active', '');
+      });
+
+      fireEvent.keyDown(select, { key: 'ArrowDown' });
+      fireEvent.keyDown(select, { key: 'ArrowDown' });
+
+      await waitFor(() => {
+        expect(screen.getByTestId('filtered-option-Cherry')).toHaveAttribute('data-active', '');
+      });
+
+      const staleId = screen.getByTestId('filtered-option-Cherry').id;
+
+      component.filter = 'App';
+      fixture.detectChanges();
+
+      await waitFor(() => {
+        expect(screen.queryByTestId('filtered-option-Cherry')).not.toBeInTheDocument();
+
+        const appleOption = screen.getByTestId('filtered-option-Apple');
+        const activeId = select.getAttribute('aria-activedescendant');
+        expect(activeId).toBe(appleOption.id);
+        expect(document.getElementById(activeId as string)).toBe(appleOption);
+      });
+      expect(document.getElementById(staleId)).toBeNull();
+    });
+
+    it('should clear aria-activedescendant when filtering to no options while open', async () => {
+      const user = userEvent.setup();
+      const { fixture } = await render(FilteredSelectComponent);
+      const component = fixture.componentInstance;
+
+      const select = screen.getByTestId('filtered-select');
+      await user.click(select);
+
+      fireEvent.keyDown(select, { key: 'ArrowDown' });
+      await waitFor(() => {
+        expect(screen.getByTestId('filtered-option-Banana')).toHaveAttribute('data-active', '');
+      });
+
+      const staleId = screen.getByTestId('filtered-option-Banana').id;
+
+      component.filter = 'zzz';
+      fixture.detectChanges();
+
+      await waitFor(() => {
+        expect(screen.getByTestId('filtered-empty')).toBeInTheDocument();
+        expect(select).not.toHaveAttribute('aria-activedescendant');
+      });
+      expect(document.getElementById(staleId)).toBeNull();
+    });
+
+    it('should not validate changed options while closed', async () => {
+      const { fixture } = await render(ClosedOptionsSelectComponent);
+      const component = fixture.componentInstance;
+      const state = component.selectState().state();
+
+      expect(state.open()).toBe(false);
+      state.activeDescendantManager.activateByIndex(2);
+      expect(state.activeDescendantManager.index()).toBe(2);
+
+      component.filter = 'App';
+      fixture.detectChanges();
+      await fixture.whenStable();
+
+      expect(screen.queryByTestId('closed-option-Cherry')).not.toBeInTheDocument();
+      expect(state.open()).toBe(false);
+      expect(state.activeDescendantManager.index()).toBe(2);
     });
 
     it('should set aria-selected on selected options', async () => {

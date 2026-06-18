@@ -1,4 +1,12 @@
-import { computed, ElementRef, signal, Signal, WritableSignal } from '@angular/core';
+import {
+  computed,
+  effect,
+  ElementRef,
+  signal,
+  Signal,
+  untracked,
+  WritableSignal,
+} from '@angular/core';
 import { activeDescendantManager } from 'ng-primitives/a11y';
 import { ngpInteractions } from 'ng-primitives/interactions';
 import { domSort, injectElementRef } from 'ng-primitives/internal';
@@ -323,6 +331,18 @@ export const [NgpComboboxStateToken, ngpCombobox, _injectComboboxState, provideC
 
           scrollTo(index);
         },
+      });
+
+      // Setup effect
+      // When the visible (or virtual) options change while open, revalidate so the
+      // active index can't point at a removed option and leave a stale aria-activedescendant.
+      effect(() => {
+        sortedOptions();
+        _allOptions();
+
+        if (open()) {
+          untracked(() => activeDescendantManagerInstance.validate());
+        }
       });
 
       // Setup interaction
