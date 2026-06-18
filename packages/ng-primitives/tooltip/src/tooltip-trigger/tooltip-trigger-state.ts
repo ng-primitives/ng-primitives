@@ -40,7 +40,7 @@ export interface NgpTooltipTriggerState<T> {
   /** Access the tooltip template ref. */
   readonly tooltip: WritableSignal<NgpOverlayContent<T> | string | null>;
   /**
-   * Define if the trigger should be disabled. This will prevent the tooltip from being shown or hidden from interactions.
+   * Whether the tooltip is disabled. This allows the tooltip to be enabled or disabled dynamically.
    * @default false
    */
   readonly disabled: Signal<boolean>;
@@ -193,7 +193,7 @@ export interface NgpTooltipTriggerProps<T> {
   /** Access the tooltip template ref. */
   readonly tooltip?: Signal<NgpOverlayContent<T> | string | null>;
   /**
-   * Define if the trigger should be disabled. This will prevent the tooltip from being shown or hidden from interactions.
+   * Whether the tooltip is disabled. This allows the tooltip to be enabled or disabled dynamically.
    * @default false
    */
   readonly disabled?: Signal<boolean>;
@@ -341,7 +341,6 @@ export const [
     // Host binding
     attrBinding(elementRef, 'aria-describedby', () => overlay()?.ariaDescribedBy());
     dataBinding(elementRef, 'data-open', () => (open() ? '' : null));
-    dataBinding(elementRef, 'data-disabled', () => (disabled() ? '' : null));
 
     // Listeners
     listener(elementRef, 'mouseenter', showFromInteraction);

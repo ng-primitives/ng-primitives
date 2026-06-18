@@ -46,7 +46,7 @@ export class NgpTooltipTrigger<T = null> implements OnDestroy {
   });
 
   /**
-   * Define if the trigger should be disabled. This will prevent the tooltip from being shown or hidden from interactions.
+   * Whether the tooltip is disabled. This allows the tooltip to be enabled or disabled dynamically.
    * @default false
    */
   readonly disabled = input<boolean, BooleanInput>(false, {
