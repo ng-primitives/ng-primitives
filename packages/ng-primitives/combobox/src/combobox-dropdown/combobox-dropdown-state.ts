@@ -34,8 +34,8 @@ export const [
     );
 
     // Host binding
-    attrBinding(elementRef, 'id', () => _id());
     attrBinding(elementRef, 'role', 'listbox');
+    attrBinding(elementRef, 'id', () => _id());
     styleBinding(elementRef, 'left.px', () => comboboxState().overlay()?.position()?.x ?? null);
     styleBinding(elementRef, 'top.px', () => comboboxState().overlay()?.position()?.y ?? null);
     styleBinding(

@@ -86,9 +86,7 @@ export function ngpHover({
   listener(elementRef.nativeElement, 'mouseleave', onMouseLeave);
 
   // anytime the disabled state changes to true, we must reset the hover state
-  if (disabled) {
-    onBooleanChange(disabled, reset);
-  }
+  onBooleanChange(disabled, reset);
 
   // if the element is removed from the dom, we want to reset the hover state
   onDomRemoval(elementRef.nativeElement, reset);

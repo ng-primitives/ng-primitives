@@ -40,9 +40,11 @@ import { NgpToolbar } from 'ng-primitives/toolbar';
       display: flex;
       column-gap: 0.25rem;
       align-items: center;
-      border-radius: 0.375rem;
+      border-radius: 0.625rem;
       background-color: var(--ngp-background);
-      box-shadow: var(--ngp-button-shadow);
+      box-shadow:
+        inset 0 0 0 1px var(--ngp-border),
+        0 1px 2px 0 rgba(0, 0, 0, 0.04);
       padding: 0.25rem;
     }
 
@@ -52,7 +54,7 @@ import { NgpToolbar } from 'ng-primitives/toolbar';
       height: 2rem;
       align-items: center;
       justify-content: center;
-      border-radius: 0.25rem;
+      border-radius: 0.375rem;
       border: 1px solid transparent;
       background: transparent;
       outline: none;
@@ -68,6 +70,7 @@ import { NgpToolbar } from 'ng-primitives/toolbar';
 
     [ngpButton][data-focus-visible] {
       outline: 2px solid var(--ngp-focus-ring);
+      outline-offset: 1px;
     }
 
     [ngpButton][data-press] {
@@ -75,8 +78,8 @@ import { NgpToolbar } from 'ng-primitives/toolbar';
     }
 
     [ngpButton][data-selected] {
-      background-color: var(--ngp-background-inverse);
-      color: var(--ngp-text-inverse);
+      background-color: var(--ngp-primary);
+      color: var(--ngp-primary-text);
     }
 
     [ngpToggleGroup] {

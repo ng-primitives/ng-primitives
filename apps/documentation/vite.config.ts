@@ -105,7 +105,20 @@ export default defineConfig(({ mode }) => {
       'import.meta.vitest': mode !== 'production',
     },
     optimizeDeps: {
-      include: ['@ng-icons/core'],
+      // Pre-bundle the runtime-discovered deps so the dev server doesn't
+      // re-optimize and trigger a full reload when a page first imports them.
+      include: [
+        '@ng-icons/core',
+        '@ng-icons/heroicons',
+        '@ng-icons/heroicons/mini',
+        '@ng-icons/heroicons/outline',
+        '@ng-icons/heroicons/solid',
+        '@ng-icons/lucide',
+        '@ng-icons/bootstrap-icons',
+        '@ng-icons/iconsax/outline',
+        '@ng-icons/phosphor-icons/regular',
+        '@docsearch/js',
+      ],
     },
     ssr: {
       noExternal: ['@ng-icons/core'],

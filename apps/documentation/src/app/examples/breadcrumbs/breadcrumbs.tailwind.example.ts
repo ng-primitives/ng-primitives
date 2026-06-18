@@ -31,12 +31,12 @@ import { NgpMenu, NgpMenuItem, NgpMenuTrigger } from 'ng-primitives/menu';
   template: `
     <nav aria-label="Breadcrumb" ngpBreadcrumbs>
       <ol
-        class="flex flex-wrap items-center gap-1.5 text-sm text-zinc-500 sm:gap-2.5 dark:text-zinc-400"
+        class="flex flex-wrap items-center gap-1.5 text-sm tracking-[-0.006em] text-zinc-500 dark:text-zinc-400"
         ngpBreadcrumbList
       >
         <li class="inline-flex items-center gap-1.5" ngpBreadcrumbItem>
           <a
-            class="transition-colors duration-150 hover:text-zinc-900 dark:hover:text-zinc-50"
+            class="inline-flex items-center rounded-sm transition-colors duration-150 outline-none hover:text-zinc-900 data-focus-visible:outline-2 data-focus-visible:outline-offset-[3px] data-focus-visible:outline-blue-500 dark:hover:text-zinc-50 dark:data-focus-visible:outline-blue-400"
             href="#"
             ngpBreadcrumbLink
           >
@@ -52,7 +52,7 @@ import { NgpMenu, NgpMenuItem, NgpMenuTrigger } from 'ng-primitives/menu';
         </li>
         <li class="inline-flex items-center gap-1.5" ngpBreadcrumbItem>
           <button
-            class="inline-flex h-9 w-9 items-center justify-center text-zinc-500 transition-colors duration-150 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-50"
+            class="inline-flex size-7 items-center justify-center rounded-lg text-zinc-400 transition-colors duration-150 outline-none hover:bg-zinc-100 hover:text-zinc-900 data-focus-visible:outline-2 data-focus-visible:outline-offset-2 data-focus-visible:outline-blue-500 dark:text-zinc-500 dark:hover:bg-zinc-800 dark:hover:text-zinc-50 dark:data-focus-visible:outline-blue-400"
             [ngpMenuTrigger]="menu"
             type="button"
             aria-label="Toggle breadcrumb menu"
@@ -60,7 +60,7 @@ import { NgpMenu, NgpMenuItem, NgpMenuTrigger } from 'ng-primitives/menu';
             <span class="flex h-full w-full items-center justify-center" ngpBreadcrumbEllipsis>
               <ng-icon
                 class="text-current"
-                style="--ng-icon__size: 1.1rem"
+                style="--ng-icon__size: 1rem"
                 name="lucideMoreHorizontal"
               />
             </span>
@@ -68,23 +68,23 @@ import { NgpMenu, NgpMenuItem, NgpMenuTrigger } from 'ng-primitives/menu';
 
           <ng-template #menu>
             <div
-              class="fixed z-50 flex min-w-[140px] flex-col rounded-lg border border-zinc-200 bg-white p-1 text-left text-sm shadow-lg ring-1 ring-black/5 dark:border-zinc-800 dark:bg-zinc-900"
+              class="fixed z-50 flex min-w-[140px] flex-col rounded-lg border border-zinc-200 bg-white p-1 text-left text-sm shadow-lg ring-1 ring-black/5 outline-none dark:border-zinc-800 dark:bg-zinc-950"
               ngpMenu
             >
               <button
-                class="rounded-md px-3 py-2 text-left text-zinc-700 transition-colors duration-150 hover:bg-zinc-100 dark:text-zinc-200 dark:hover:bg-zinc-800/80"
+                class="rounded-md px-2.5 py-1.5 text-left font-[510] tracking-[-0.006em] text-zinc-700 transition-colors duration-150 outline-none hover:bg-zinc-100 data-focus-visible:bg-zinc-100 data-press:bg-zinc-200 dark:text-zinc-200 dark:hover:bg-zinc-800/80 dark:data-focus-visible:bg-zinc-800/80 dark:data-press:bg-zinc-700"
                 ngpMenuItem
               >
                 Documentation
               </button>
               <button
-                class="rounded-md px-3 py-2 text-left text-zinc-700 transition-colors duration-150 hover:bg-zinc-100 dark:text-zinc-200 dark:hover:bg-zinc-800/80"
+                class="rounded-md px-2.5 py-1.5 text-left font-[510] tracking-[-0.006em] text-zinc-700 transition-colors duration-150 outline-none hover:bg-zinc-100 data-focus-visible:bg-zinc-100 data-press:bg-zinc-200 dark:text-zinc-200 dark:hover:bg-zinc-800/80 dark:data-focus-visible:bg-zinc-800/80 dark:data-press:bg-zinc-700"
                 ngpMenuItem
               >
                 Themes
               </button>
               <button
-                class="rounded-md px-3 py-2 text-left text-zinc-700 transition-colors duration-150 hover:bg-zinc-100 dark:text-zinc-200 dark:hover:bg-zinc-800/80"
+                class="rounded-md px-2.5 py-1.5 text-left font-[510] tracking-[-0.006em] text-zinc-700 transition-colors duration-150 outline-none hover:bg-zinc-100 data-focus-visible:bg-zinc-100 data-press:bg-zinc-200 dark:text-zinc-200 dark:hover:bg-zinc-800/80 dark:data-focus-visible:bg-zinc-800/80 dark:data-press:bg-zinc-700"
                 ngpMenuItem
               >
                 GitHub
@@ -101,7 +101,7 @@ import { NgpMenu, NgpMenuItem, NgpMenuTrigger } from 'ng-primitives/menu';
         </li>
         <li class="inline-flex items-center gap-1.5" ngpBreadcrumbItem>
           <a
-            class="transition-colors duration-150 hover:text-zinc-900 dark:hover:text-zinc-50"
+            class="inline-flex items-center rounded-sm transition-colors duration-150 outline-none hover:text-zinc-900 data-focus-visible:outline-2 data-focus-visible:outline-offset-[3px] data-focus-visible:outline-blue-500 dark:hover:text-zinc-50 dark:data-focus-visible:outline-blue-400"
             href="#"
             ngpBreadcrumbLink
           >
@@ -116,7 +116,7 @@ import { NgpMenu, NgpMenuItem, NgpMenuTrigger } from 'ng-primitives/menu';
           />
         </li>
         <li class="inline-flex items-center gap-1.5" ngpBreadcrumbItem>
-          <span class="font-medium text-zinc-900 dark:text-zinc-50" ngpBreadcrumbPage>
+          <span class="font-[510] text-zinc-900 dark:text-zinc-50" ngpBreadcrumbPage>
             Breadcrumbs
           </span>
         </li>

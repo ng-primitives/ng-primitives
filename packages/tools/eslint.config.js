@@ -1,3 +1,4 @@
+// eslint-disable-next-line @nx/enforce-module-boundaries -- importing the workspace-root ESLint config, which has no npm entry point
 const baseConfig = require('../../eslint.config.cjs');
 
 module.exports = [

@@ -1,4 +1,4 @@
-import { fireEvent, render } from '@testing-library/angular';
+import { fireEvent, render, waitFor } from '@testing-library/angular';
 import {
   NgpPagination,
   NgpPaginationButton,
@@ -44,14 +44,18 @@ describe('NgpPagination', () => {
         componentProperties: { page: 1, pageCount: 2 },
       },
     );
-    let pagination = getByRole('navigation');
-    expect(pagination).toHaveAttribute('data-first-page');
-    expect(pagination).not.toHaveAttribute('data-last-page');
+    await waitFor(() => {
+      const pagination = getByRole('navigation');
+      expect(pagination).toHaveAttribute('data-first-page');
+      expect(pagination).not.toHaveAttribute('data-last-page');
+    });
 
     await rerender({ componentProperties: { page: 2, pageCount: 2 } });
-    pagination = getByRole('navigation');
-    expect(pagination).not.toHaveAttribute('data-first-page');
-    expect(pagination).toHaveAttribute('data-last-page');
+    await waitFor(() => {
+      const pagination = getByRole('navigation');
+      expect(pagination).not.toHaveAttribute('data-first-page');
+      expect(pagination).toHaveAttribute('data-last-page');
+    });
   });
 
   it('should emit pageChange when goToPage is called', async () => {
@@ -111,16 +115,21 @@ describe('NgpPagination', () => {
         componentProperties: { page: 1, pageCount: 2, disabled: false },
       },
     );
-    let pagination = getByRole('navigation');
-    expect(pagination).toHaveAttribute('data-page', '1');
-    expect(pagination).toHaveAttribute('data-page-count', '2');
-    expect(pagination).not.toHaveAttribute('data-disabled');
+    await waitFor(() => {
+      const pagination = getByRole('navigation');
+      expect(pagination).toHaveAttribute('data-page', '1');
+      expect(pagination).toHaveAttribute('data-page-count', '2');
+      expect(pagination).not.toHaveAttribute('data-disabled');
+    });
 
     await rerender({ componentProperties: { page: 2, pageCount: 2, disabled: true } });
-    pagination = getByRole('navigation');
-    expect(pagination).toHaveAttribute('data-page', '2');
-    expect(pagination).toHaveAttribute('data-page-count', '2');
-    expect(pagination).toHaveAttribute('data-disabled');
+
+    await waitFor(() => {
+      const pagination = getByRole('navigation');
+      expect(pagination).toHaveAttribute('data-page', '2');
+      expect(pagination).toHaveAttribute('data-page-count', '2');
+      expect(pagination).toHaveAttribute('data-disabled');
+    });
   });
 
   it('should navigate to the first page when first button is clicked', async () => {
@@ -241,5 +250,41 @@ describe('NgpPagination', () => {
     expect(getByTestId('next-page-button')).not.toHaveAttribute('disabled');
     expect(getByTestId('last-page-button')).not.toHaveAttribute('data-disabled');
     expect(getByTestId('last-page-button')).not.toHaveAttribute('disabled');
+  });
+
+  it('should navigate in uncontrolled mode seeded from defaultPage', async () => {
+    const { getByRole, getByTestId } = await render(
+      `<div ngpPagination ngpPaginationDefaultPage="1" ngpPaginationPageCount="5">
+        <button data-testid="next-page-button" ngpPaginationNext>Next</button>
+      </div>`,
+      { imports: [NgpPagination, NgpPaginationNext] },
+    );
+    const pagination = getByRole('navigation');
+    await waitFor(() => expect(pagination).toHaveAttribute('data-page', '1'));
+
+    fireEvent.click(getByTestId('next-page-button'));
+    await waitFor(() => expect(pagination).toHaveAttribute('data-page', '2'));
+  });
+
+  it('should re-evaluate button tabindex when pagination disabled changes', async () => {
+    const { getByTestId, rerender } = await render(
+      `<div
+        ngpPagination
+        [ngpPaginationPage]="page"
+        [ngpPaginationPageCount]="5"
+        [ngpPaginationDisabled]="disabled"
+      >
+        <button data-testid="next-page-button" ngpPaginationNext>Next</button>
+      </div>`,
+      {
+        imports: [NgpPagination, NgpPaginationNext],
+        componentProperties: { page: 2, disabled: false },
+      },
+    );
+    const next = getByTestId('next-page-button');
+    await waitFor(() => expect(next).toHaveAttribute('tabindex', '0'));
+
+    await rerender({ componentProperties: { page: 2, disabled: true } });
+    await waitFor(() => expect(next).toHaveAttribute('tabindex', '-1'));
   });
 });

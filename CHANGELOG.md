@@ -1,3 +1,56 @@
+## 0.122.0 (2026-06-18)
+
+### 🚀 Features
+
+- **menu:** expose container on overlay trigger state ([#783](https://github.com/ng-primitives/ng-primitives/pull/783), [#782](https://github.com/ng-primitives/ng-primitives/issues/782))
+
+### 🩹 Fixes
+
+- **combobox:** reflect form control status without an input ([#784](https://github.com/ng-primitives/ng-primitives/pull/784), [#781](https://github.com/ng-primitives/ng-primitives/issues/781))
+- **toast:** bind pointer listeners outside the Angular zone ([#785](https://github.com/ng-primitives/ng-primitives/pull/785), [#762](https://github.com/ng-primitives/ng-primitives/issues/762))
+- **tooltip:** remove data-disabled binding from tooltip trigger ([#786](https://github.com/ng-primitives/ng-primitives/pull/786))
+
+### ❤️ Thank You
+
+- Ashley Hunter
+- Robin Ferrari @zecka
+
+## 0.121.0 (2026-06-09)
+
+### 🚀 Features
+
+- **pagination:** migrate state pattern ([#770](https://github.com/ng-primitives/ng-primitives/pull/770))
+- **tooltip:** migrate tooltip state ([#773](https://github.com/ng-primitives/ng-primitives/pull/773))
+
+### 🩹 Fixes
+
+- **docs:** #774 reset combobox demo filter ([#777](https://github.com/ng-primitives/ng-primitives/pull/777), [#774](https://github.com/ng-primitives/ng-primitives/issues/774))
+
+### ❤️ Thank You
+
+- Ashley Hunter
+- MGREMY @MGREMY
+- Robin Ferrari @zecka
+
+## 0.120.5 (2026-06-02)
+
+### 🚀 Features
+
+- **dialog:** support InjectOptions in injectDialogRef ([#763](https://github.com/ng-primitives/ng-primitives/pull/763))
+- **docs:** refresh the documentation site and all examples ([#769](https://github.com/ng-primitives/ng-primitives/pull/769))
+- **popover:** migrate popover state ([#761](https://github.com/ng-primitives/ng-primitives/pull/761))
+- **toasts:** persistent toasts ([#764](https://github.com/ng-primitives/ng-primitives/pull/764), [#760](https://github.com/ng-primitives/ng-primitives/issues/760))
+
+### 🩹 Fixes
+
+- **date-picker:** prevent next-month skip from day 31 ([#768](https://github.com/ng-primitives/ng-primitives/pull/768), [#767](https://github.com/ng-primitives/ng-primitives/issues/767))
+
+### ❤️ Thank You
+
+- Ashley Hunter
+- MGREMY @MGREMY
+- Robin Ferrari @zecka
+
 ## 0.120.4 (2026-05-19)
 
 ### 🩹 Fixes

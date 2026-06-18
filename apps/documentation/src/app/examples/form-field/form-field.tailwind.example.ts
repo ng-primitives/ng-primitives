@@ -12,22 +12,22 @@ import {
   selector: 'app-form-field-tailwind',
   imports: [NgpFormField, NgpLabel, NgpError, NgpDescription, NgpFormControl, ReactiveFormsModule],
   template: `
-    <div class="flex w-[90%] flex-col gap-1.5" [formGroup]="formGroup" ngpFormField>
-      <label class="m-0 text-sm leading-5 font-medium text-gray-900 dark:text-gray-100" ngpLabel>
+    <div class="flex w-[300px] flex-col gap-1.5" [formGroup]="formGroup" ngpFormField>
+      <label class="m-0 text-sm leading-5 font-[510] text-gray-900 dark:text-gray-100" ngpLabel>
         Full Name
       </label>
       <p class="m-0 mb-1 text-xs leading-4 text-gray-500 dark:text-gray-400" ngpDescription>
         Please include any middle names, no matter how ridiculous.
       </p>
       <input
-        class="h-9 w-full min-w-0 rounded-lg border-none px-4 shadow-xs ring-1 ring-black/10 outline-hidden placeholder:text-gray-400 focus:outline-2 focus:outline-offset-2 focus:outline-blue-500 dark:bg-zinc-900 dark:text-gray-100 dark:placeholder:text-gray-500"
+        class="h-[2.125rem] w-full min-w-0 rounded-lg border-none px-4 text-sm tracking-[-0.006em] shadow-xs ring-1 ring-black/10 outline-hidden placeholder:text-gray-400 focus:outline-2 focus:outline-offset-2 focus:outline-blue-500 dark:bg-zinc-900 dark:text-gray-100 dark:placeholder:text-gray-500 dark:focus:outline-blue-400"
         ngpFormControl
         type="text"
         placeholder="Enter your full name"
         formControlName="fullName"
       />
       <p
-        class="data-[validator=fail][data-dirty]:block m-0 hidden text-xs leading-4 text-red-600"
+        class="data-[validator=fail][data-dirty]:block m-0 hidden text-xs leading-4 text-[#f01e2b] dark:text-[#ff4651]"
         ngpError
         ngpErrorValidator="required"
       >

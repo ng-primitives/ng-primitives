@@ -55,6 +55,7 @@ See `.claude/rules/` for detailed coding standards:
 
 - `angular-patterns.md` - Signal-based APIs, readonly signals, computed/effects
 - `naming-conventions.md` - Selector prefixes, class names, file names
+- `docs-example-styling.md` - Styling the documentation examples: brand red reserved for state, blue for focus, typography/radii scale, CSS + Tailwind parity
 
 For code review, use the `ngp-code-review` skill — it consolidates these rules with the custom workspace lint rules, test conventions, and PR checklist.
 

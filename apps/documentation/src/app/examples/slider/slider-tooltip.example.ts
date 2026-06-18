@@ -50,7 +50,7 @@ import { NgpTooltip, NgpTooltipTrigger } from 'ng-primitives/tooltip';
       position: absolute;
       height: 100%;
       border-radius: 999px;
-      background-color: var(--ngp-background-inverse);
+      background-color: var(--ngp-primary);
     }
 
     [ngpSliderThumb] {

@@ -33,17 +33,20 @@ import {
       display: flex;
       flex-direction: column;
       gap: 6px;
-      width: 90%;
+      width: 300px;
     }
 
     [ngpFormControl] {
-      height: 36px;
+      height: 2.125rem;
       width: 100%;
-      border-radius: 8px;
+      border-radius: 0.5rem;
       padding: 0 16px;
       border: none;
       box-shadow: var(--ngp-input-shadow);
       background-color: var(--ngp-background);
+      color: var(--ngp-text-primary);
+      font-size: 0.875rem;
+      letter-spacing: -0.006em;
       outline: none;
     }
 
@@ -60,7 +63,7 @@ import {
       color: var(--ngp-text-primary);
       font-size: 0.875rem;
       line-height: 1.25rem;
-      font-weight: 500;
+      font-weight: 510;
       margin: 0;
     }
 
@@ -73,7 +76,7 @@ import {
 
     [ngpError] {
       display: none;
-      color: var(--ngp-text-red);
+      color: var(--ngp-primary);
       font-size: 0.75rem;
       line-height: 1rem;
       margin: 0;

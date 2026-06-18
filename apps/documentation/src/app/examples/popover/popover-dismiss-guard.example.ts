@@ -36,12 +36,11 @@ import { NgpPopover, NgpPopoverTrigger } from 'ng-primitives/popover';
   `,
   styles: `
     button {
-      padding-left: 1rem;
-      padding-right: 1rem;
+      padding-inline: 0.875rem;
       border-radius: 0.5rem;
       color: var(--ngp-text-primary);
       outline: none;
-      height: 2.5rem;
+      height: 2.125rem;
       font-weight: 500;
       background-color: var(--ngp-background);
       transition: background-color 300ms cubic-bezier(0.4, 0, 0.2, 1);
@@ -114,7 +113,7 @@ import { NgpPopover, NgpPopoverTrigger } from 'ng-primitives/popover';
       font-size: 12px;
       padding-left: 0.75rem;
       padding-right: 0.75rem;
-      color: var(--ngp-text-blue);
+      color: var(--ngp-primary);
     }
 
     @keyframes popover-show {
@@ -181,13 +180,12 @@ export default class PopoverDismissGuardExample {
   `,
   styles: `
     button {
-      padding-left: 1rem;
-      padding-right: 1rem;
+      padding-inline: 0.875rem;
       border-radius: 0.5rem;
       color: var(--ngp-text-primary);
       border: none;
       outline: none;
-      height: 2.5rem;
+      height: 2.125rem;
       font-weight: 500;
       background-color: var(--ngp-background);
       transition: background-color 300ms cubic-bezier(0.4, 0, 0.2, 1);
@@ -212,6 +210,7 @@ export default class PopoverDismissGuardExample {
       backdrop-filter: blur(4px);
       position: fixed;
       inset: 0;
+      z-index: 1000;
       display: flex;
       justify-content: center;
       align-items: center;
@@ -225,7 +224,7 @@ export default class PopoverDismissGuardExample {
     [ngpDialog] {
       background-color: var(--ngp-background);
       padding: 24px;
-      border-radius: 8px;
+      border-radius: 0.5rem;
       box-shadow: var(--ngp-shadow);
       animation: slideIn 300ms cubic-bezier(0.4, 0, 0.2, 1);
     }
@@ -257,7 +256,7 @@ export default class PopoverDismissGuardExample {
     }
 
     .dialog-footer [ngpButton]:last-of-type {
-      color: var(--ngp-text-red, #dc2626);
+      color: var(--ngp-primary);
     }
 
     @keyframes fadeIn {

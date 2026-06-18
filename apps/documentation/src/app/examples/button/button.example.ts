@@ -5,32 +5,46 @@ import { NgpButton } from 'ng-primitives/button';
   selector: 'app-button',
   imports: [NgpButton],
   template: `
-    <button ngpButton>Button</button>
+    <button ngpButton>Get Started</button>
   `,
   styles: `
     [ngpButton] {
-      padding-left: 1rem;
-      padding-right: 1rem;
-      border-radius: 0.5rem;
-      color: var(--ngp-text-primary);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      height: 2.125rem;
+      padding-inline: 0.625rem;
       border: none;
-      height: 2.5rem;
-      font-weight: 500;
-      background-color: var(--ngp-background);
-      transition: background-color 300ms cubic-bezier(0.4, 0, 0.2, 1);
-      box-shadow: var(--ngp-button-shadow);
+      border-radius: 0.5rem;
+      font-size: 0.875rem;
+      font-weight: 510;
+      letter-spacing: -0.006em;
+      color: var(--ngp-primary-text);
+      background-color: var(--ngp-primary);
+      box-shadow:
+        inset 0 1px 0 0 rgba(255, 255, 255, 0.3),
+        0 1px 1px 0 rgba(0, 0, 0, 0.06);
+      cursor: pointer;
+      transition:
+        background-color 180ms cubic-bezier(0.4, 0, 0.2, 1),
+        transform 120ms cubic-bezier(0.4, 0, 0.2, 1);
     }
 
     [ngpButton][data-hover] {
-      background-color: var(--ngp-background-hover);
-    }
-
-    [ngpButton][data-focus-visible] {
-      outline: 2px solid var(--ngp-focus-ring);
+      background-color: var(--ngp-primary-hover);
     }
 
     [ngpButton][data-press] {
-      background-color: var(--ngp-background-active);
+      background-color: var(--ngp-primary-active);
+      transform: scale(0.98);
+    }
+
+    [ngpButton][data-focus-visible] {
+      outline: none;
+      box-shadow:
+        inset 0 1px 0 0 rgba(255, 255, 255, 0.3),
+        0 0 0 2px var(--ngp-background),
+        0 0 0 4px var(--ngp-focus-ring);
     }
   `,
 })

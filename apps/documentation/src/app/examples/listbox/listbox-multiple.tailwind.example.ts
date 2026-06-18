@@ -17,13 +17,13 @@ import { NgpListbox, NgpListboxOption } from 'ng-primitives/listbox';
     >
       @for (option of options; track option.id) {
         <div
-          class="flex h-9 w-[200px] cursor-pointer items-center gap-2 rounded-lg px-3 text-[14px] text-gray-600 transition-colors hover:bg-gray-50 data-active:bg-gray-100 data-press:bg-gray-100 dark:text-gray-300 dark:hover:bg-white/5 dark:data-active:bg-white/10 dark:data-press:bg-white/10"
+          class="flex h-[2.125rem] w-[200px] cursor-pointer items-center gap-2 rounded-lg px-3 text-sm tracking-[-0.006em] text-gray-600 transition-colors hover:bg-gray-50 data-active:bg-gray-100 data-press:bg-gray-100 data-selected:font-[510] data-selected:text-gray-900 dark:text-gray-300 dark:hover:bg-white/5 dark:data-active:bg-white/10 dark:data-press:bg-white/10 dark:data-selected:text-gray-100"
           #listboxOption="ngpListboxOption"
           [ngpListboxOptionValue]="option"
           ngpListboxOption
         >
           <ng-icon
-            class="opacity-0 transition-opacity"
+            class="text-[#f01e2b] opacity-0 transition-opacity dark:text-[#ff4651]"
             [class.opacity-100]="listboxOption.selected()"
             name="heroCheckSolid"
             size="16px"

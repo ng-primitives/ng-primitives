@@ -21,7 +21,10 @@ export class ApiDocs implements OnInit {
     const directive = definitions[this.name()];
 
     if (!directive) {
-      throw new Error(`Directive "${this.name()}" not found in documentation.json`);
+      // Degrade gracefully if the generated API data is missing or stale
+      // rather than surfacing an unhandled rejection on the page.
+      console.warn(`Directive "${this.name()}" not found in documentation.json`);
+      return;
     }
 
     this.directive.set(directive);

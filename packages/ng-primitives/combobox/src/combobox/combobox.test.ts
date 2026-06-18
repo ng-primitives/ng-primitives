@@ -1,5 +1,20 @@
-import { Component, TemplateRef, ViewContainerRef, inject, viewChild } from '@angular/core';
+import {
+  Component,
+  TemplateRef,
+  ViewContainerRef,
+  forwardRef,
+  inject,
+  signal,
+  viewChild,
+} from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import {
+  ControlValueAccessor,
+  FormControl,
+  NG_VALUE_ACCESSOR,
+  ReactiveFormsModule,
+  Validators,
+} from '@angular/forms';
 import { fireEvent, render, screen, waitFor } from '@testing-library/angular';
 import { userEvent } from '@testing-library/user-event';
 import { NgpDialog, NgpDialogContext, NgpDialogManager } from 'ng-primitives/dialog';
@@ -2283,5 +2298,131 @@ describe('NgpCombobox inside NgpDialog', () => {
     fireEvent.input(input, { target: { value: 'App' } });
 
     expect(input.value).toBe('App');
+  });
+});
+
+/**
+ * A reusable component that wraps the combobox and exposes it as a form control via a
+ * ControlValueAccessor. This mirrors how consumers integrate the combobox with Angular forms -
+ * the NgControl lives on the wrapper element, not on the inner combobox primitives.
+ */
+@Component({
+  selector: 'app-combobox-with-input',
+  imports: [
+    NgpCombobox,
+    NgpComboboxButton,
+    NgpComboboxDropdown,
+    NgpComboboxInput,
+    NgpComboboxPortal,
+  ],
+  providers: [
+    {
+      provide: NG_VALUE_ACCESSOR,
+      useExisting: forwardRef(() => ComboboxWithInputWrapper),
+      multi: true,
+    },
+  ],
+  template: `
+    <div
+      [ngpComboboxValue]="value()"
+      (ngpComboboxValueChange)="value.set($event)"
+      ngpCombobox
+      data-testid="combobox"
+    >
+      <input ngpComboboxInput data-testid="combobox-input" />
+      <button ngpComboboxButton>▼</button>
+      <div *ngpComboboxPortal ngpComboboxDropdown></div>
+    </div>
+  `,
+})
+class ComboboxWithInputWrapper implements ControlValueAccessor {
+  readonly value = signal<string | undefined>(undefined);
+  writeValue(value: string | undefined): void {
+    this.value.set(value);
+  }
+  registerOnChange(): void {}
+  registerOnTouched(): void {}
+}
+
+/**
+ * The same as above, but without an `ngpComboboxInput`. The combobox host itself is the focusable
+ * element. The control status must still be reflected on the combobox element.
+ */
+@Component({
+  selector: 'app-combobox-without-input',
+  imports: [NgpCombobox, NgpComboboxButton, NgpComboboxDropdown, NgpComboboxPortal],
+  providers: [
+    {
+      provide: NG_VALUE_ACCESSOR,
+      useExisting: forwardRef(() => ComboboxWithoutInputWrapper),
+      multi: true,
+    },
+  ],
+  template: `
+    <div
+      [ngpComboboxValue]="value()"
+      (ngpComboboxValueChange)="value.set($event)"
+      ngpCombobox
+      data-testid="combobox"
+    >
+      <button ngpComboboxButton>▼</button>
+      <div *ngpComboboxPortal ngpComboboxDropdown></div>
+    </div>
+  `,
+})
+class ComboboxWithoutInputWrapper implements ControlValueAccessor {
+  readonly value = signal<string | undefined>(undefined);
+  writeValue(value: string | undefined): void {
+    this.value.set(value);
+  }
+  registerOnChange(): void {}
+  registerOnTouched(): void {}
+}
+
+describe('NgpCombobox form control status', () => {
+  @Component({
+    imports: [ComboboxWithInputWrapper, ReactiveFormsModule],
+    template: `
+      <app-combobox-with-input [formControl]="control" />
+    `,
+  })
+  class WithInputHost {
+    readonly control = new FormControl('', Validators.required);
+  }
+
+  @Component({
+    imports: [ComboboxWithoutInputWrapper, ReactiveFormsModule],
+    template: `
+      <app-combobox-without-input [formControl]="control" />
+    `,
+  })
+  class WithoutInputHost {
+    readonly control = new FormControl('', Validators.required);
+  }
+
+  it('should apply data-invalid to the combobox when the form control is invalid', async () => {
+    await render(WithInputHost);
+
+    const combobox = screen.getByTestId('combobox');
+    expect(combobox).toHaveAttribute('data-invalid');
+    expect(combobox).not.toHaveAttribute('data-valid');
+  });
+
+  it('should apply data-invalid to the combobox without an input when the form control is invalid', async () => {
+    await render(WithoutInputHost);
+
+    const combobox = screen.getByTestId('combobox');
+    expect(combobox).toHaveAttribute('data-invalid');
+    expect(combobox).not.toHaveAttribute('data-valid');
+  });
+
+  it('should apply data-valid to the combobox without an input when the form control is valid', async () => {
+    const { fixture } = await render(WithoutInputHost);
+    fixture.componentInstance.control.setValue('a value');
+    fixture.detectChanges();
+
+    const combobox = screen.getByTestId('combobox');
+    expect(combobox).toHaveAttribute('data-valid');
+    expect(combobox).not.toHaveAttribute('data-invalid');
   });
 });

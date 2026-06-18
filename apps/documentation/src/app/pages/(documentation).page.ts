@@ -14,18 +14,20 @@ import { SideNavigation } from '../components/side-navigation/side-navigation';
   template: `
     <docs-navbar [(menuOpen)]="menuOpen" />
 
-    <div class="px-8 pt-24">
+    <div class="mx-auto w-full max-w-[90rem] px-8 pt-[calc(6rem+env(safe-area-inset-top,0px))]">
       <div class="flex">
         <docs-side-navigation [(menuOpen)]="menuOpen" />
 
         <router-outlet />
       </div>
-      <div class="flex flex-col items-center gap-y-2 px-8 py-8 text-xs text-zinc-500">
+      <div
+        class="border-border-subtle text-fg-tertiary mt-16 flex flex-col items-center gap-y-2 border-t px-8 pt-10 pb-[calc(2.5rem+env(safe-area-inset-bottom,0px))] text-xs"
+      >
         <p class="text-center">Copyright © {{ year }} Angular Primitives</p>
         <p class="text-center">
           This site is powered by
           <a
-            class="underline transition-colors hover:text-zinc-900 dark:hover:text-zinc-100"
+            class="hover:text-fg underline underline-offset-2 transition-colors"
             href="https://www.netlify.com"
             target="_blank"
           >
@@ -35,6 +37,9 @@ import { SideNavigation } from '../components/side-navigation/side-navigation';
       </div>
     </div>
   `,
+  host: {
+    class: 'block min-h-screen bg-surface text-fg',
+  },
 })
 export default class DocumentationLayoutPage {
   private readonly router = inject(Router);

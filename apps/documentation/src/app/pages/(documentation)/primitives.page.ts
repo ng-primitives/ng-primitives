@@ -16,9 +16,7 @@ import { SourceLink } from '../../directives/source-link';
         docsSourceLink
       >
         <div class="mx-auto w-fit max-w-full">
-          <p
-            class="from-primary to-accent mt-0 mb-2 inline-block bg-linear-to-r bg-clip-text text-sm font-medium text-transparent"
-          >
+          <p class="text-primary mt-0 mb-3 text-xs font-semibold tracking-[0.08em] uppercase">
             Primitives
           </p>
           <div class="max-w-3xl">

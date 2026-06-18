@@ -13,6 +13,7 @@ import {
   SetterOptions,
   StateInjectionOptions,
 } from 'ng-primitives/state';
+import { controlStatus as getControlStatus } from 'ng-primitives/utils';
 import { Observable } from 'rxjs';
 import { NgpComboboxButtonState } from '../combobox-button/combobox-button-state';
 import { NgpComboboxDropdownState } from '../combobox-dropdown/combobox-dropdown-state';
@@ -291,6 +292,7 @@ export const [NgpComboboxStateToken, ngpCombobox, _injectComboboxState, provideC
       const portal = signal<NgpComboboxPortalState | undefined>(undefined);
       const dropdown = signal<NgpComboboxDropdownState | undefined>(undefined);
       const options = signal<NgpComboboxOptionState<T>[]>([]);
+      const hostControlStatus = getControlStatus();
 
       const overlay = computed(() => portal()?.overlay());
       const open = computed(() => overlay()?.isOpen() ?? false);
@@ -301,7 +303,9 @@ export const [NgpComboboxStateToken, ngpCombobox, _injectComboboxState, provideC
           option => option.index(),
         ),
       );
-      const controlStatus = computed(() => input()?.controlStatus());
+      const constrolStatus = computed(() =>
+        input() ? input()?.controlStatus() : hostControlStatus(),
+      );
 
       const activeDescendantManagerInstance = activeDescendantManager({
         // we must wrap the signal in a computed to ensure it is not used before it is defined
@@ -335,12 +339,12 @@ export const [NgpComboboxStateToken, ngpCombobox, _injectComboboxState, provideC
       dataBinding(elementRef, 'data-open', () => (open() ? '' : null));
       dataBinding(elementRef, 'data-disabled', () => (_disabled() ? '' : null));
       dataBinding(elementRef, 'data-multiple', () => (_multiple() ? '' : null));
-      dataBinding(elementRef, 'data-invalid', () => (controlStatus()?.invalid ? '' : null));
-      dataBinding(elementRef, 'data-valid', () => (controlStatus()?.valid ? '' : null));
-      dataBinding(elementRef, 'data-touched', () => (controlStatus()?.touched ? '' : null));
-      dataBinding(elementRef, 'data-pristine', () => (controlStatus()?.pristine ? '' : null));
-      dataBinding(elementRef, 'data-dirty', () => (controlStatus()?.dirty ? '' : null));
-      dataBinding(elementRef, 'data-pending', () => (controlStatus()?.pending ? '' : null));
+      dataBinding(elementRef, 'data-invalid', () => (constrolStatus()?.invalid ? '' : null));
+      dataBinding(elementRef, 'data-valid', () => (constrolStatus()?.valid ? '' : null));
+      dataBinding(elementRef, 'data-touched', () => (constrolStatus()?.touched ? '' : null));
+      dataBinding(elementRef, 'data-pristine', () => (constrolStatus()?.pristine ? '' : null));
+      dataBinding(elementRef, 'data-dirty', () => (constrolStatus()?.dirty ? '' : null));
+      dataBinding(elementRef, 'data-pending', () => (constrolStatus()?.pending ? '' : null));
 
       // Event listener
       listener(elementRef, 'keydown', (event: KeyboardEvent) => {

@@ -34,6 +34,7 @@ import { NgpButton } from 'ng-primitives/button';
       border: 1px solid var(--ngp-border);
       background-color: var(--ngp-background);
       box-shadow: var(--ngp-shadow);
+      overflow: hidden;
     }
 
     [ngpAccordionItem]:has(+ [ngpAccordionItem]) {
@@ -47,28 +48,38 @@ import { NgpButton } from 'ng-primitives/button';
 
     [ngpAccordionTrigger] {
       display: flex;
+      gap: 0.75rem;
       padding-left: 1rem;
       padding-right: 1rem;
       font-size: 0.875rem;
       line-height: 1.25rem;
-      font-weight: 500;
+      font-weight: 510;
+      letter-spacing: -0.006em;
+      text-align: left;
       justify-content: space-between;
       align-items: center;
       width: 100%;
-      height: 2.75rem;
-      border-radius: 0.75rem;
+      height: 3rem;
       outline: none;
+      cursor: pointer;
       color: var(--ngp-text-primary);
-      background-color: var(--ngp-background);
+      background-color: transparent;
       border: none;
+      transition: background-color 150ms cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    [ngpAccordionTrigger][data-hover] {
+      background-color: var(--ngp-background-hover);
     }
 
     [ngpAccordionTrigger][data-focus-visible] {
       outline: 2px solid var(--ngp-focus-ring);
+      outline-offset: -2px;
     }
 
     [ngpAccordionContent] {
       font-size: 0.875rem;
+      line-height: 1.5;
       color: var(--ngp-text-secondary);
       overflow: hidden;
       height: 0;
@@ -92,12 +103,21 @@ import { NgpButton } from 'ng-primitives/button';
     }
 
     ng-icon {
-      font-size: 1.25rem;
+      flex: none;
+      font-size: 1.125rem;
+      color: var(--ngp-text-tertiary);
+      transition:
+        transform 200ms cubic-bezier(0.4, 0, 0.2, 1),
+        color 150ms ease;
+    }
+
+    [ngpAccordionTrigger][data-hover] ng-icon {
       color: var(--ngp-text-secondary);
     }
 
     [ngpAccordionTrigger][data-open] ng-icon {
       transform: rotate(180deg);
+      color: var(--ngp-text-secondary);
     }
 
     @keyframes slideDown {

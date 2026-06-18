@@ -1,8 +1,9 @@
-import { Component, signal } from '@angular/core';
+import { Component, Directive, OnInit, signal } from '@angular/core';
 import { fireEvent, render, screen, waitFor } from '@testing-library/angular';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it, vi, afterEach } from 'vitest';
 import { NgpSelect, NgpSelectDropdown, NgpSelectOption, NgpSelectPortal } from '../../index';
+import { injectSelectState } from '../select-state';
 
 @Component({
   template: `
@@ -1699,6 +1700,59 @@ describe('NgpSelect', () => {
       // Destroy the component — should NOT emit openChange
       fixture.destroy();
       expect(spy).not.toHaveBeenCalled();
+    });
+  });
+});
+
+@Directive({
+  selector: '[setSelectContainer]',
+})
+class SetSelectContainerDirective implements OnInit {
+  private readonly select = injectSelectState();
+
+  ngOnInit(): void {
+    const host = document.querySelector('#select-host') as HTMLElement;
+    this.select().setContainer(host);
+  }
+}
+
+@Component({
+  template: `
+    <div id="select-host"></div>
+
+    <div [(ngpSelectValue)]="value" ngpSelect setSelectContainer data-testid="select">
+      <span data-testid="placeholder">Select an option</span>
+
+      <div *ngpSelectPortal ngpSelectDropdown data-testid="dropdown">
+        @for (option of options; track option) {
+          <div [ngpSelectOptionValue]="option" ngpSelectOption>{{ option }}</div>
+        }
+      </div>
+    </div>
+  `,
+  imports: [
+    NgpSelect,
+    NgpSelectDropdown,
+    NgpSelectOption,
+    NgpSelectPortal,
+    SetSelectContainerDirective,
+  ],
+})
+class SelectContainerComponent {
+  readonly options = ['Apple', 'Banana', 'Cherry'];
+  readonly value = signal<string | undefined>(undefined);
+}
+
+describe('NgpSelect container', () => {
+  it('should expose container on the injected state so it can be set programmatically', async () => {
+    const user = userEvent.setup();
+    await render(SelectContainerComponent);
+
+    await user.click(screen.getByTestId('select'));
+
+    await waitFor(() => {
+      const container = document.querySelector('#select-host');
+      expect(container?.querySelector('[ngpSelectDropdown]')).toBeInTheDocument();
     });
   });
 });

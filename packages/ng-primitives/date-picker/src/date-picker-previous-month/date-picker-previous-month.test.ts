@@ -53,7 +53,7 @@ describe('NgpDatePickerPreviousMonth', () => {
     const newDate = focusedDateSignal();
     expect(dateAdapter.getMonth(newDate)).toBe(1); // February
     expect(dateAdapter.getYear(newDate)).toBe(2025);
-    expect(dateAdapter.getDate(newDate)).toBe(1); // First day of the month
+    expect(dateAdapter.getDate(newDate)).toBe(15); // Focused day is preserved
   });
 
   it('should handle navigation from 31st of month to previous month without 31 days', () => {
@@ -65,10 +65,11 @@ describe('NgpDatePickerPreviousMonth', () => {
     fixture.detectChanges();
 
     const newDate = focusedDateSignal();
-    // Should navigate to February 1, 2025 (February only has 28 days in 2025)
+    // Should navigate to February 28, 2025 (February only has 28 days in 2025),
+    // clamping the focused day to the last day of the month.
     expect(dateAdapter.getMonth(newDate)).toBe(1); // February
     expect(dateAdapter.getYear(newDate)).toBe(2025);
-    expect(dateAdapter.getDate(newDate)).toBe(1); // First day of February
+    expect(dateAdapter.getDate(newDate)).toBe(28); // Clamped to the last day of February
   });
 
   it('should handle navigation from January to December of previous year', () => {
@@ -82,7 +83,7 @@ describe('NgpDatePickerPreviousMonth', () => {
     const newDate = focusedDateSignal();
     expect(dateAdapter.getMonth(newDate)).toBe(11); // December
     expect(dateAdapter.getYear(newDate)).toBe(2024);
-    expect(dateAdapter.getDate(newDate)).toBe(1);
+    expect(dateAdapter.getDate(newDate)).toBe(15); // Focused day is preserved
   });
 
   it('should not navigate when disabled', () => {

@@ -38,7 +38,7 @@ import { NgpSlider, NgpSliderRange, NgpSliderThumb, NgpSliderTrack } from 'ng-pr
       position: absolute;
       height: 100%;
       border-radius: 999px;
-      background-color: var(--ngp-background-inverse);
+      background-color: var(--ngp-primary);
     }
 
     [ngpSliderThumb] {
@@ -55,7 +55,7 @@ import { NgpSlider, NgpSliderRange, NgpSliderThumb, NgpSliderTrack } from 'ng-pr
 
     [ngpSliderThumb][data-focus-visible] {
       outline: 2px solid var(--ngp-focus-ring);
-      outline-offset: 0;
+      outline-offset: 2px;
     }
   `,
   template: `

@@ -6,10 +6,10 @@ import { NgpButton } from 'ng-primitives/button';
   imports: [NgpButton],
   template: `
     <button
-      class="h-10 rounded-lg border-none bg-white px-4 font-medium text-gray-900 shadow-sm ring-1 ring-black/5 transition-colors duration-300 ease-in-out data-focus-visible:outline-2 data-focus-visible:outline-offset-2 data-focus-visible:outline-blue-500 data-hover:bg-gray-50 data-press:bg-gray-100 dark:bg-gray-950 dark:text-gray-100 dark:ring-white/10 dark:data-hover:bg-gray-900 dark:data-press:bg-gray-800"
+      class="inline-flex h-[2.125rem] items-center justify-center rounded-lg border-none bg-[#f01e2b] px-2.5 text-sm font-[510] tracking-[-0.006em] text-white shadow-[inset_0_1px_0_0_rgba(255,255,255,0.3),0_1px_1px_0_rgba(0,0,0,0.06)] transition-colors duration-200 outline-none data-focus-visible:ring-2 data-focus-visible:ring-blue-500/40 data-focus-visible:ring-offset-2 data-hover:bg-[#d81825] data-press:bg-[#c1141f] dark:bg-[#ff4651] dark:data-focus-visible:ring-blue-400/45 dark:data-focus-visible:ring-offset-zinc-950 dark:data-hover:bg-[#ff5d67] dark:data-press:bg-[#f0303c]"
       ngpButton
     >
-      Button
+      Get Started
     </button>
   `,
 })

@@ -30,13 +30,15 @@ import { injectDisposables } from 'ng-primitives/utils';
     [ngpProgressLabel] {
       color: var(--ngp-text-emphasis);
       font-size: 14px;
-      font-weight: 600;
+      font-weight: 590;
+      letter-spacing: -0.006em;
     }
 
     [ngpProgressValue] {
       color: var(--ngp-text-secondary);
       font-size: 14px;
-      font-weight: 500;
+      font-weight: 510;
+      letter-spacing: -0.006em;
       text-align: right;
       grid-column-start: 2;
       text-align: end;
@@ -57,7 +59,7 @@ import { injectDisposables } from 'ng-primitives/utils';
     [ngpProgressIndicator] {
       height: 100%;
       border-radius: 0.5rem;
-      background-color: var(--ngp-background-inverse);
+      background-color: var(--ngp-primary);
       transition: width 150ms cubic-bezier(0.4, 0, 0.2, 1);
     }
   `,

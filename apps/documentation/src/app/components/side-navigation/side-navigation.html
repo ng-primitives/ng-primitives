@@ -1,50 +1,78 @@
-<ng-template #content>
-  <div
-    class="sticky top-24 flex h-[calc(100dvh-140px)] w-full flex-col gap-y-4 overflow-auto overscroll-contain md:h-max md:overflow-visible"
-  >
-    @for (section of sections; track section.title) {
-    <div class="mb-2">
-      <h2
-        class="mb-4 flex items-center gap-2 text-sm font-semibold text-zinc-800 dark:text-zinc-100"
-      >
-        @if (sectionIcons[section.title]) {
-        <ng-icon
-          class="text-base text-zinc-500 dark:text-zinc-400"
-          [name]="sectionIcons[section.title]"
-        />
-        } {{ section.title }}
-      </h2>
-      <ul>
-        @for (link of section.links; track link) {
-        <li class="text-zinc-600 hover:text-zinc-950 dark:text-zinc-300 dark:hover:text-white">
-          <a
-            class="relative flex h-10 items-center border-l border-zinc-200 px-4 outline-hidden transition-colors focus-visible:ring-2 focus-visible:ring-blue-500 dark:border-zinc-800"
-            [routerLink]="link.link"
-            routerLinkActive="text-black dark:text-white font-medium before:w-0.5 before:bg-zinc-950 before:rounded-lg before:h-6 before:absolute before:left-0 before:-translate-x-1/2 dark:before:bg-white"
-          >
-            @if (link.icon) {
-            <ng-icon class="mr-2 text-base text-zinc-600 dark:text-zinc-300" [name]="link.icon" />
-            } {{ link.name }}
-          </a>
-        </li>
-        }
-      </ul>
-    </div>
-    }
+<ng-template #navList>
+  @for (section of sections; track section.title) {
+  <div>
+    <h2 class="text-fg-tertiary mb-2 px-3 text-[11px] font-semibold tracking-[0.08em] uppercase">
+      {{ section.title }}
+    </h2>
+    <ul class="flex flex-col gap-y-0.5">
+      @for (link of section.links; track link) {
+      <li>
+        <a
+          class="group text-fg-secondary hover:bg-surface-raised hover:text-fg focus-visible:ring-primary relative flex h-8 items-center rounded-md px-3 text-sm outline-hidden transition-colors focus-visible:ring-2"
+          [routerLink]="link.link"
+          routerLinkActive="bg-surface-raised !text-fg !font-medium before:absolute before:left-0 before:top-1/2 before:h-3.5 before:w-0.5 before:-translate-y-1/2 before:rounded-full before:bg-primary"
+        >
+          {{ link.name }}
+        </a>
+      </li>
+      }
+    </ul>
   </div>
+  }
 </ng-template>
 
-@if (menuOpen()) {
-<div class="fixed inset-0 z-10 bg-black/50" (click)="menuOpen.set(false)">
+<!-- Desktop sidebar -->
+<nav
+  class="scrollbar-hover sticky top-24 hidden h-[calc(100dvh-140px)] w-48 flex-col gap-y-7 overflow-auto overscroll-contain pb-10 lg:flex xl:w-56"
+  aria-label="Documentation"
+>
+  <ng-container [ngTemplateOutlet]="navList" />
+</nav>
+
+<!-- Mobile drawer -->
+<div
+  class="fixed inset-0 z-40 lg:hidden"
+  [class.pointer-events-none]="!menuOpen()"
+  [attr.inert]="menuOpen() ? null : ''"
+>
+  <!-- Backdrop -->
   <div
-    class="h-full w-72 max-w-full bg-white px-10 shadow-xl dark:bg-zinc-900"
-    (click)="$event.stopPropagation()"
+    class="absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity duration-300 ease-out motion-reduce:transition-none"
+    [class.opacity-0]="!menuOpen()"
+    (click)="menuOpen.set(false)"
+  ></div>
+
+  <!-- Panel -->
+  <div
+    class="border-border-subtle bg-surface absolute inset-y-0 left-0 flex w-72 max-w-[85%] flex-col border-r pt-[env(safe-area-inset-top,0px)] pl-[env(safe-area-inset-left,0px)] shadow-2xl transition-transform duration-300 ease-out will-change-transform motion-reduce:transition-none"
+    id="mobile-navigation"
+    #panel
+    [class.-translate-x-full]="!menuOpen()"
+    role="dialog"
+    aria-modal="true"
+    aria-label="Documentation navigation"
   >
-    <ng-container [ngTemplateOutlet]="content" />
+    <div class="border-border-subtle flex h-16 shrink-0 items-center justify-between border-b px-5">
+      <a routerLink="/" aria-label="Angular Primitives homepage" (click)="menuOpen.set(false)">
+        <img class="h-8 dark:hidden" src="assets/logo.svg" alt="Angular Primitives" />
+        <img class="hidden h-8 dark:block" src="assets/logo-dark.svg" alt="Angular Primitives" />
+      </a>
+      <button
+        class="text-fg-tertiary hover:bg-surface-raised hover:text-fg focus-visible:ring-primary inline-flex size-8 items-center justify-center rounded-md outline-hidden transition-colors focus-visible:ring-2"
+        type="button"
+        cdkFocusInitial
+        aria-label="Close navigation menu"
+        (click)="menuOpen.set(false)"
+      >
+        <ng-icon class="text-base" name="lucideX" />
+      </button>
+    </div>
+
+    <nav
+      class="flex flex-1 flex-col gap-y-7 overflow-auto overscroll-contain px-5 pt-6 pb-[calc(1.5rem+env(safe-area-inset-bottom,0px))]"
+      aria-label="Documentation"
+    >
+      <ng-container [ngTemplateOutlet]="navList" />
+    </nav>
   </div>
 </div>
-} @else {
-<div class="hidden w-48 lg:block xl:w-52">
-  <ng-container [ngTemplateOutlet]="content" />
-</div>
-}

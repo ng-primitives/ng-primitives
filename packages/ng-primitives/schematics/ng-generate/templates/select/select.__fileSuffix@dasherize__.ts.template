@@ -17,7 +17,7 @@ import { ChangeFn, provideValueAccessor, TouchedFn } from 'ng-primitives/utils';
   hostDirectives: [
     {
       directive: NgpSelect,
-      inputs: ['ngpSelectDisabled:disabled', 'ngpSelectMultiple:multiple'],
+      inputs: ['ngpSelectValue:value', 'ngpSelectMultiple:multiple', 'ngpSelectDisabled:disabled'],
       outputs: ['ngpSelectValueChange:valueChange'],
     },
   ],

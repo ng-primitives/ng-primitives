@@ -1,11 +1,14 @@
+import { Directive, OnInit } from '@angular/core';
 import { fireEvent, render, waitFor } from '@testing-library/angular';
 import { NgpTooltip, NgpTooltipTrigger, provideTooltipConfig } from 'ng-primitives/tooltip';
 import { describe, expect, it, vi, afterEach } from 'vitest';
+import { injectTooltipTriggerState } from './tooltip-trigger-state';
 
 describe('NgpTooltipTrigger', () => {
   afterEach(() => {
     // Clean up any remaining tooltips from DOM between tests
     document.querySelectorAll('[ngpTooltip]').forEach(el => el.remove());
+    vi.useRealTimers();
   });
 
   it('should destroy the overlay when the trigger is destroyed', async () => {
@@ -60,6 +63,61 @@ describe('NgpTooltipTrigger', () => {
       const tooltip = document.querySelector('[ngpTooltip]');
       expect(tooltip).toBeInTheDocument();
       expect(tooltip?.getAttribute('data-placement')).toBeTruthy();
+    });
+  });
+
+  describe('id / aria-describedby', () => {
+    it('should give the tooltip a generated id and link the trigger via aria-describedby', async () => {
+      const { getByRole } = await render(
+        `
+          <button [ngpTooltipTrigger]="content"></button>
+
+          <ng-template #content>
+            <div ngpTooltip>Tooltip content</div>
+          </ng-template>
+        `,
+        {
+          imports: [NgpTooltipTrigger, NgpTooltip],
+        },
+      );
+
+      const trigger = getByRole('button');
+      fireEvent.mouseEnter(trigger);
+
+      // The tooltip must have a real, generated id (not empty) and the trigger
+      // must describe it for assistive technology.
+      await waitFor(() => {
+        const tooltip = document.querySelector('[ngpTooltip]') as HTMLElement | null;
+        const id = tooltip?.getAttribute('id');
+        expect(id).toBeTruthy();
+        expect(trigger.getAttribute('aria-describedby')).toBe(id);
+      });
+    });
+
+    it('should use a consumer-provided id over the generated one', async () => {
+      const { getByRole } = await render(
+        `
+          <button [ngpTooltipTrigger]="content"></button>
+
+          <ng-template #content>
+            <div ngpTooltip id="custom-tooltip-id">Tooltip content</div>
+          </ng-template>
+        `,
+        {
+          imports: [NgpTooltipTrigger, NgpTooltip],
+        },
+      );
+
+      const trigger = getByRole('button');
+      fireEvent.mouseEnter(trigger);
+
+      // A bound id must win over the seeded generated id, and aria-describedby
+      // must follow it.
+      await waitFor(() => {
+        const tooltip = document.querySelector('[ngpTooltip]') as HTMLElement | null;
+        expect(tooltip?.getAttribute('id')).toBe('custom-tooltip-id');
+        expect(trigger.getAttribute('aria-describedby')).toBe('custom-tooltip-id');
+      });
     });
   });
 
@@ -630,6 +688,282 @@ describe('NgpTooltipTrigger', () => {
 
       await waitFor(() => {
         expect(document.querySelector('[ngpTooltip]')).not.toBeInTheDocument();
+      });
+    });
+  });
+
+  describe('showDelay / hideDelay', () => {
+    it('should wait for showDelay before showing the tooltip', async () => {
+      vi.useFakeTimers({ shouldAdvanceTime: true });
+
+      const { getByRole } = await render(
+        `
+          <button [ngpTooltipTrigger]="content" ngpTooltipTriggerShowDelay="200"></button>
+
+          <ng-template #content>
+            <div ngpTooltip>Tooltip content</div>
+          </ng-template>
+        `,
+        {
+          imports: [NgpTooltipTrigger, NgpTooltip],
+        },
+      );
+
+      fireEvent.mouseEnter(getByRole('button'));
+
+      // Before the delay elapses the tooltip must not be present.
+      vi.advanceTimersByTime(150);
+      expect(document.querySelector('[ngpTooltip]')).not.toBeInTheDocument();
+
+      // Once the delay passes it appears.
+      vi.advanceTimersByTime(100);
+      await waitFor(() => {
+        expect(document.querySelector('[ngpTooltip]')).toBeInTheDocument();
+      });
+    });
+
+    it('should wait for hideDelay before hiding the tooltip', async () => {
+      vi.useFakeTimers({ shouldAdvanceTime: true });
+
+      const { getByRole } = await render(
+        `
+          <button
+            [ngpTooltipTrigger]="content"
+            ngpTooltipTriggerShowDelay="0"
+            ngpTooltipTriggerHideDelay="200"
+          ></button>
+
+          <ng-template #content>
+            <div ngpTooltip>Tooltip content</div>
+          </ng-template>
+        `,
+        {
+          imports: [NgpTooltipTrigger, NgpTooltip],
+        },
+      );
+
+      const trigger = getByRole('button');
+      fireEvent.mouseEnter(trigger);
+
+      await waitFor(() => {
+        expect(document.querySelector('[ngpTooltip]')).toBeInTheDocument();
+      });
+
+      fireEvent.mouseLeave(trigger);
+
+      // Before the hide delay elapses the tooltip is still present.
+      vi.advanceTimersByTime(150);
+      expect(document.querySelector('[ngpTooltip]')).toBeInTheDocument();
+
+      // Once the delay passes it is removed.
+      vi.advanceTimersByTime(100);
+      await waitFor(() => {
+        expect(document.querySelector('[ngpTooltip]')).not.toBeInTheDocument();
+      });
+    });
+  });
+
+  describe('cooldown', () => {
+    it('should show a second tooltip instantly (data-instant) while another tooltip is active', async () => {
+      vi.useFakeTimers({ shouldAdvanceTime: true });
+
+      const { getByTestId } = await render(
+        `
+          <button data-testid="trigger-a" [ngpTooltipTrigger]="contentA" ngpTooltipTriggerShowDelay="300"></button>
+          <button data-testid="trigger-b" [ngpTooltipTrigger]="contentB" ngpTooltipTriggerShowDelay="300"></button>
+
+          <ng-template #contentA>
+            <div ngpTooltip data-testid="tooltip-a">Tooltip A</div>
+          </ng-template>
+          <ng-template #contentB>
+            <div ngpTooltip data-testid="tooltip-b">Tooltip B</div>
+          </ng-template>
+        `,
+        {
+          imports: [NgpTooltipTrigger, NgpTooltip],
+        },
+      );
+
+      // Show the first tooltip, which respects its own 300ms show delay.
+      fireEvent.mouseEnter(getByTestId('trigger-a'));
+      vi.advanceTimersByTime(300);
+      await waitFor(() => {
+        expect(document.querySelector('[data-testid="tooltip-a"]')).toBeInTheDocument();
+      });
+
+      // With a tooltip already active, hovering the second trigger shows it
+      // instantly - the 300ms delay is skipped and data-instant is applied.
+      fireEvent.mouseEnter(getByTestId('trigger-b'));
+      vi.advanceTimersByTime(1);
+      await waitFor(() => {
+        const tooltipB = document.querySelector('[data-testid="tooltip-b"]');
+        expect(tooltipB).toBeInTheDocument();
+        expect(tooltipB).toHaveAttribute('data-instant');
+      });
+    });
+  });
+
+  describe('container', () => {
+    it('should attach the tooltip to a custom container when provided', async () => {
+      const { getByRole } = await render(
+        `
+          <div id="tooltip-host"></div>
+
+          <button
+            [ngpTooltipTrigger]="content"
+            ngpTooltipTriggerShowDelay="0"
+            ngpTooltipTriggerContainer="#tooltip-host"
+          ></button>
+
+          <ng-template #content>
+            <div ngpTooltip>Tooltip content</div>
+          </ng-template>
+        `,
+        {
+          imports: [NgpTooltipTrigger, NgpTooltip],
+        },
+      );
+
+      fireEvent.mouseEnter(getByRole('button'));
+
+      await waitFor(() => {
+        const container = document.querySelector('#tooltip-host');
+        expect(container?.querySelector('[ngpTooltip]')).toBeInTheDocument();
+      });
+    });
+
+    it('should expose container on the injected state so it can be set programmatically', async () => {
+      @Directive({
+        selector: '[setTooltipContainer]',
+      })
+      class SetTooltipContainerDirective implements OnInit {
+        private readonly trigger = injectTooltipTriggerState();
+
+        ngOnInit(): void {
+          const host = document.querySelector('#tooltip-host') as HTMLElement;
+          this.trigger().setContainer(host);
+        }
+      }
+
+      const { getByRole } = await render(
+        `
+          <div id="tooltip-host"></div>
+
+          <button
+            [ngpTooltipTrigger]="content"
+            ngpTooltipTriggerShowDelay="0"
+            setTooltipContainer
+          ></button>
+
+          <ng-template #content>
+            <div ngpTooltip>Tooltip content</div>
+          </ng-template>
+        `,
+        {
+          imports: [NgpTooltipTrigger, NgpTooltip, SetTooltipContainerDirective],
+        },
+      );
+
+      fireEvent.mouseEnter(getByRole('button'));
+
+      await waitFor(() => {
+        const container = document.querySelector('#tooltip-host');
+        expect(container?.querySelector('[ngpTooltip]')).toBeInTheDocument();
+      });
+    });
+  });
+
+  describe('offset / flip / shift config', () => {
+    it('should accept the offset input', async () => {
+      const { getByRole } = await render(
+        `
+          <button
+            [ngpTooltipTrigger]="content"
+            ngpTooltipTriggerShowDelay="0"
+            ngpTooltipTriggerOffset="8"
+          ></button>
+
+          <ng-template #content>
+            <div ngpTooltip>Tooltip content</div>
+          </ng-template>
+        `,
+        {
+          imports: [NgpTooltipTrigger, NgpTooltip],
+        },
+      );
+
+      fireEvent.mouseEnter(getByRole('button'));
+
+      await waitFor(() => {
+        expect(document.querySelector('[ngpTooltip]')).toBeInTheDocument();
+      });
+    });
+
+    it('should accept the flip input', async () => {
+      const { getByRole } = await render(
+        `
+          <button
+            [ngpTooltipTrigger]="content"
+            ngpTooltipTriggerShowDelay="0"
+            ngpTooltipTriggerFlip="false"
+          ></button>
+
+          <ng-template #content>
+            <div ngpTooltip>Tooltip content</div>
+          </ng-template>
+        `,
+        {
+          imports: [NgpTooltipTrigger, NgpTooltip],
+        },
+      );
+
+      fireEvent.mouseEnter(getByRole('button'));
+
+      await waitFor(() => {
+        expect(document.querySelector('[ngpTooltip]')).toBeInTheDocument();
+      });
+    });
+
+    it('should accept the shift input', async () => {
+      const { getByRole } = await render(
+        `
+          <button
+            [ngpTooltipTrigger]="content"
+            ngpTooltipTriggerShowDelay="0"
+            ngpTooltipTriggerShift="true"
+          ></button>
+
+          <ng-template #content>
+            <div ngpTooltip>Tooltip content</div>
+          </ng-template>
+        `,
+        {
+          imports: [NgpTooltipTrigger, NgpTooltip],
+        },
+      );
+
+      fireEvent.mouseEnter(getByRole('button'));
+
+      await waitFor(() => {
+        expect(document.querySelector('[ngpTooltip]')).toBeInTheDocument();
+      });
+    });
+  });
+
+  describe('text content styling', () => {
+    it('should apply the ngpTooltip styling attribute to string-content tooltips', async () => {
+      const { getByRole } = await render(`<button ngpTooltipTrigger>Button text</button>`, {
+        imports: [NgpTooltipTrigger, NgpTooltip],
+      });
+
+      fireEvent.mouseEnter(getByRole('button'));
+
+      // String content is wrapped in an internal component whose host carries the
+      // ngpTooltip styling attribute (the consumer's copy-paste styling hook).
+      await waitFor(() => {
+        const tooltip = document.querySelector('[role="tooltip"]');
+        expect(tooltip).toBeInTheDocument();
+        expect(tooltip).toHaveAttribute('ngpTooltip');
       });
     });
   });
