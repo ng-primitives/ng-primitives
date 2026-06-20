@@ -946,6 +946,7 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
 
     // Update final placement signal
     this.finalPlacement.set(position.placement);
+    this.transformOrigin.set(this.getTransformOrigin(position.placement));
 
     // Update arrow position if available
     if (this.arrowElement) {
@@ -1035,8 +1036,7 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
   /**
    * Get the transform origin for the overlay
    */
-  private getTransformOrigin(): string {
-    const placement = this.config.placement?.() ?? 'top';
+  private getTransformOrigin(placement = this.config.placement?.() ?? 'top'): string {
     const basePlacement = placement.split('-')[0]; // Extract "top", "bottom", etc.
     const alignment = placement.split('-')[1]; // Extract "start" or "end"
 
