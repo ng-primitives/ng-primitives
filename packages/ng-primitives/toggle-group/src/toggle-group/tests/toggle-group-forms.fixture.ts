@@ -49,8 +49,8 @@ export class ToggleGroup implements ControlValueAccessor {
       .subscribe(value => this.onChange?.(value));
   }
 
-  writeValue(value: string[]): void {
-    this.toggleGroup().setValue(value, { emit: false });
+  writeValue(value: string[] | null): void {
+    this.toggleGroup().setValue(value ?? [], { emit: false });
   }
 
   registerOnChange(fn: ChangeFn<string[]>): void {

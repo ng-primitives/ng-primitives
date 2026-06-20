@@ -55,8 +55,8 @@ export class ToggleGroup implements ControlValueAccessor {
   }
 
   /** Write a new value to the toggle group. */
-  writeValue(value: string[]): void {
-    this.toggleGroup().setValue(value, { emit: false });
+  writeValue(value: string[] | null): void {
+    this.toggleGroup().setValue(value ?? [], { emit: false });
   }
 
   /** Register a callback function to be called when the value changes. */

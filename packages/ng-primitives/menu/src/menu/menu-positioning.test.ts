@@ -98,6 +98,28 @@ class DirectComponentClassMenuComponent {
   readonly menu = WrappedMenuComponent;
 }
 
+@Component({
+  template: `
+    <button
+      [ngpMenuTrigger]="menu"
+      ngpMenuTriggerPlacement="bottom-start"
+      data-testid="flip-trigger"
+      style="position: fixed; top: calc(100vh - 32px); left: 20px; width: 120px; height: 24px"
+    >
+      Open Menu
+    </button>
+
+    <ng-template #menu>
+      <div ngpMenu data-testid="flip-menu" style="width: 160px; height: 96px">
+        <button ngpMenuItem>Item 1</button>
+        <button ngpMenuItem>Item 2</button>
+      </div>
+    </ng-template>
+  `,
+  imports: [NgpMenuTrigger, NgpMenu, NgpMenuItem],
+})
+class FlippedMenuComponent {}
+
 /**
  * Helper to open a menu by clicking the trigger.
  * Waits until the menu element has data-placement set, which proves
@@ -170,6 +192,24 @@ describe('Menu outlet element positioning', () => {
       const menuElement = document.querySelector('[data-testid="menu"]');
       expect(menuElement).toBeInTheDocument();
       expect(menuElement?.getAttribute('data-placement')).toBeTruthy();
+    });
+  });
+
+  it('should update transform origin from the flipped placement', async () => {
+    const { fixture } = await render(FlippedMenuComponent);
+    fixture.autoDetectChanges(true);
+
+    const trigger = fixture.debugElement.nativeElement.querySelector(
+      '[data-testid="flip-trigger"]',
+    )!;
+    fireEvent.click(trigger);
+
+    await waitFor(() => {
+      TestBed.flushEffects();
+      const menu = document.querySelector('[data-testid="flip-menu"]') as HTMLElement | null;
+      expect(menu).toBeInTheDocument();
+      expect(menu?.getAttribute('data-placement')).toBe('top-start');
+      expect(menu?.style.getPropertyValue('--ngp-menu-transform-origin')).toBe('bottom left');
     });
   });
 });
