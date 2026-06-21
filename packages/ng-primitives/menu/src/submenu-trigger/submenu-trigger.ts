@@ -74,6 +74,14 @@ export class NgpSubmenuTrigger<T = unknown> {
   });
 
   /**
+   * Define the container in which the menu should be attached.
+   * @default document.body
+   */
+  readonly container = input<HTMLElement | string | null>(null, {
+    alias: 'ngpSubmenuTriggerContainer',
+  });
+
+  /**
    * Access the menu trigger state.
    */
   private readonly state = ngpSubmenuTrigger<T>({
@@ -82,6 +90,7 @@ export class NgpSubmenuTrigger<T = unknown> {
     placement: this.placement,
     offset: this.offset,
     flip: this.flip,
+    container: this.container,
   });
 
   /**

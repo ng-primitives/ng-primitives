@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, Directive, OnInit } from '@angular/core';
 import { fireEvent, render, waitFor } from '@testing-library/angular';
 import { NgpOverlay } from 'ng-primitives/portal';
 import { describe, expect, it, vi } from 'vitest';
@@ -6,6 +6,7 @@ import { NgpMenuItem } from '../menu-item/menu-item';
 import { NgpMenuTrigger } from '../menu-trigger/menu-trigger';
 import { NgpMenu } from '../menu/menu';
 import { NgpSubmenuTrigger } from './submenu-trigger';
+import { injectSubmenuTriggerState } from './submenu-trigger-state';
 
 @Component({
   template: `
@@ -86,6 +87,77 @@ class TestSubmenuNoFlipComponent {}
 class TestSubmenuPlacementComponent {
   placement: string = 'right-start';
 }
+
+@Component({
+  template: `
+    <div id="submenu-host"></div>
+
+    <button [ngpMenuTrigger]="menu" data-testid="root-trigger">Open Menu</button>
+
+    <ng-template #menu>
+      <div ngpMenu data-testid="root-menu">
+        <button
+          [ngpSubmenuTrigger]="submenu"
+          ngpSubmenuTriggerContainer="#submenu-host"
+          ngpMenuItem
+          data-testid="submenu-trigger"
+        >
+          Open Submenu
+        </button>
+      </div>
+    </ng-template>
+
+    <ng-template #submenu>
+      <div ngpMenu data-testid="submenu">
+        <button ngpMenuItem data-testid="submenu-item-1">Submenu Item 1</button>
+      </div>
+    </ng-template>
+  `,
+  imports: [NgpMenuTrigger, NgpMenu, NgpMenuItem, NgpSubmenuTrigger],
+})
+class TestSubmenuContainerComponent {}
+
+@Directive({
+  selector: '[setSubmenuContainer]',
+})
+class SetSubmenuContainerDirective implements OnInit {
+  private readonly submenuTrigger = injectSubmenuTriggerState();
+
+  ngOnInit(): void {
+    const host = document.querySelector('#submenu-host') as HTMLElement;
+    // container should be settable via the state setter method
+    this.submenuTrigger().setContainer(host);
+  }
+}
+
+@Component({
+  template: `
+    <div id="submenu-host"></div>
+
+    <button [ngpMenuTrigger]="menu" data-testid="root-trigger">Open Menu</button>
+
+    <ng-template #menu>
+      <div ngpMenu data-testid="root-menu">
+        <button
+          [ngpSubmenuTrigger]="submenu"
+          setSubmenuContainer
+          ngpMenuItem
+          data-testid="submenu-trigger"
+        >
+          Open Submenu
+        </button>
+      </div>
+    </ng-template>
+
+    <ng-template #submenu>
+      <div ngpMenu data-testid="submenu">
+        <button ngpMenuItem data-testid="submenu-item-1">Submenu Item 1</button>
+      </div>
+    </ng-template>
+  `,
+  imports: [NgpMenuTrigger, NgpMenu, NgpMenuItem, NgpSubmenuTrigger, SetSubmenuContainerDirective],
+})
+class TestSubmenuSetContainerComponent {}
 
 /**
  * Helper to open the root menu and submenu.
@@ -444,6 +516,28 @@ describe('NgpSubmenuTrigger viewport awareness', () => {
         const submenu = document.querySelector('[data-testid="submenu"]');
         expect(submenu).toBeInTheDocument();
         expect(submenu?.getAttribute('data-placement')).toBeTruthy();
+      });
+    });
+  });
+
+  describe('container', () => {
+    it('should attach the submenu to a custom container when provided via the input (fixes #792)', async () => {
+      const { fixture } = await render(TestSubmenuContainerComponent);
+      await openMenuAndSubmenu(fixture);
+
+      await waitFor(() => {
+        const container = document.querySelector('#submenu-host');
+        expect(container?.querySelector('[ngpMenu]')).toBeInTheDocument();
+      });
+    });
+
+    it('should expose container on the injected state so it can be set programmatically (fixes #792)', async () => {
+      const { fixture } = await render(TestSubmenuSetContainerComponent);
+      await openMenuAndSubmenu(fixture);
+
+      await waitFor(() => {
+        const container = document.querySelector('#submenu-host');
+        expect(container?.querySelector('[ngpMenu]')).toBeInTheDocument();
       });
     });
   });
