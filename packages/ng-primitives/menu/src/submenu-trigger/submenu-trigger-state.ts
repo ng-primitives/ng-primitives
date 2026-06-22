@@ -61,6 +61,12 @@ export interface NgpSubmenuTriggerState {
   readonly flip: WritableSignal<NgpFlip>;
 
   /**
+   * The container in which the menu should be attached.
+   * @default document.body
+   */
+  readonly container: WritableSignal<HTMLElement | string | null>;
+
+  /**
    * The focus origin used to open the submenu.
    * Used by the submenu's focus trap for :focus-visible styling.
    * @internal
@@ -116,6 +122,13 @@ export interface NgpSubmenuTriggerState {
   setFlip(shouldFlip: NgpFlip): void;
 
   /**
+   * Set the container in which the menu should be attached. Takes effect the
+   * next time the menu is opened; it does not move a menu that is already open.
+   * @param container - The new container
+   */
+  setContainer(container: HTMLElement | string | null): void;
+
+  /**
    * Focus the trigger element.
    * @param origin - The focus origin
    */
@@ -151,6 +164,10 @@ export interface NgpSubmenuTriggerProps<T = unknown> {
    * Whether the menu should flip when there is not enough space.
    */
   readonly flip?: Signal<NgpFlip>;
+  /**
+   * The container in which the menu should be attached.
+   */
+  readonly container?: Signal<HTMLElement | string | null>;
 }
 
 export const [
@@ -166,6 +183,7 @@ export const [
     placement: _placement = signal('right-start'),
     offset: _offset = signal(0),
     flip: _flip = signal(true),
+    container: _container,
   }: NgpSubmenuTriggerProps<T>) => {
     const element = injectElementRef();
     const injector = inject(Injector);
@@ -179,6 +197,7 @@ export const [
     const placement = controlled(_placement);
     const flip = controlled(_flip);
     const offset = controlled(_offset);
+    const container = controlled(_container, 'body');
 
     const overlay = signal<NgpOverlay<T> | null>(null);
     const open = computed(() => overlay()?.isOpen() ?? false);
@@ -271,6 +290,7 @@ export const [
         content: menuContent,
         triggerElement: element.nativeElement,
         injector,
+        container: container(),
         placement,
         offset: offset(),
         flip: flip(),
@@ -338,6 +358,10 @@ export const [
       flip.set(shouldFlip);
     }
 
+    function setContainer(newContainer: HTMLElement | string | null): void {
+      container.set(newContainer);
+    }
+
     function focus(origin: FocusOrigin): void {
       focusMonitor.focusVia(element.nativeElement, origin, { preventScroll: true });
     }
@@ -366,8 +390,10 @@ export const [
       setFlip,
       setPlacement,
       setOffset,
+      setContainer,
       focus,
       setPointerOverContent,
+      container: deprecatedSetter(container, 'setContainer', setContainer),
     } satisfies NgpSubmenuTriggerState;
   },
 );
