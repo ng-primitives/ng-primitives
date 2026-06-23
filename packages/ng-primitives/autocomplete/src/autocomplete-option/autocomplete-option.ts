@@ -13,7 +13,6 @@ import { ngpInteractions } from 'ng-primitives/interactions';
 import { injectElementRef, scrollIntoViewIfNeeded } from 'ng-primitives/internal';
 import { uniqueId } from 'ng-primitives/utils';
 import { injectAutocompleteState } from '../autocomplete/autocomplete-state';
-import { areAllOptionsSelected } from '../utils';
 
 type T = any;
 
@@ -93,34 +92,8 @@ export class NgpAutocompleteOption implements OnDestroy {
     const value = this.value();
     const stateValue = this.state().value();
 
-    // Only treat `undefined` as "no value" (allow '', 0, false).
-    if (value === undefined) {
+    if (value === undefined || stateValue === undefined) {
       return false;
-    }
-
-    // Handle select all functionality - only works in multiple selection mode
-    if (value === 'all') {
-      if (!this.state().multiple()) {
-        return false; // Never selected in single selection mode
-      }
-
-      const selectedValues = Array.isArray(stateValue) ? stateValue : [];
-      return areAllOptionsSelected(
-        this.state().options(),
-        selectedValues,
-        this.state().compareWith(),
-      );
-    }
-
-    // Only treat `undefined` as "no selection" (allow '', 0, false).
-    if (stateValue === undefined) {
-      return false;
-    }
-
-    if (this.state().multiple()) {
-      return (
-        Array.isArray(stateValue) && stateValue.some(v => this.state().compareWith()(value, v))
-      );
     }
 
     return this.state().compareWith()(value, stateValue);

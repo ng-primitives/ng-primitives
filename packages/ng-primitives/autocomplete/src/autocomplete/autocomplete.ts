@@ -23,14 +23,12 @@ import {
   NgpOffset,
   NgpOffsetInput,
 } from 'ng-primitives/portal';
-import { controlStatus } from 'ng-primitives/utils';
 import type { NgpAutocompleteButton } from '../autocomplete-button/autocomplete-button';
 import type { NgpAutocompleteDropdown } from '../autocomplete-dropdown/autocomplete-dropdown';
 import type { NgpAutocompleteInput } from '../autocomplete-input/autocomplete-input';
 import { NgpAutocompleteOption } from '../autocomplete-option/autocomplete-option';
 import type { NgpAutocompletePortal } from '../autocomplete-portal/autocomplete-portal';
 import { injectAutocompleteConfig } from '../config/autocomplete-config';
-import { areAllOptionsSelected } from '../utils';
 import { autocompleteState, provideAutocompleteState } from './autocomplete-state';
 
 /**
@@ -52,10 +50,9 @@ type T = any;
   exportAs: 'ngpAutocomplete',
   providers: [provideAutocompleteState()],
   host: {
-    '[attr.tabindex]': 'input() ? -1 : (state.disabled() ? -1 : 0)',
+    '[attr.tabindex]': '-1',
     '[attr.data-open]': 'open() ? "" : undefined',
     '[attr.data-disabled]': 'state.disabled() ? "" : undefined',
-    '[attr.data-multiple]': 'state.multiple() ? "" : undefined',
     '[attr.data-invalid]': 'controlStatus()?.invalid ? "" : undefined',
     '[attr.data-valid]': 'controlStatus()?.valid ? "" : undefined',
     '[attr.data-touched]': 'controlStatus()?.touched ? "" : undefined',
@@ -84,21 +81,9 @@ export class NgpAutocomplete {
     alias: 'ngpAutocompleteValueChange',
   });
 
-  /** Whether the autocomplete is multiple selection. */
-  readonly multiple = input<boolean, BooleanInput>(false, {
-    alias: 'ngpAutocompleteMultiple',
-    transform: booleanAttribute,
-  });
-
   /** Whether the autocomplete is disabled. */
   readonly disabled = input<boolean, BooleanInput>(false, {
     alias: 'ngpAutocompleteDisabled',
-    transform: booleanAttribute,
-  });
-
-  /** Whether the autocomplete allows deselection in single selection mode. */
-  readonly allowDeselect = input<boolean, BooleanInput>(false, {
-    alias: 'ngpAutocompleteAllowDeselect',
     transform: booleanAttribute,
   });
 
@@ -231,26 +216,23 @@ export class NgpAutocomplete {
     },
   });
 
-  /**
-   * The form control status of the autocomplete host element itself. When the autocomplete is used as a
-   * form control (e.g. via a `ControlValueAccessor` wrapper) the `NgControl` lives on an ancestor
-   * element, so this resolves it even when there is no `ngpAutocompleteInput`.
-   */
-  private readonly hostControlStatus = controlStatus();
-
-  /**
-   * The control status. When an input is present it can resolve the associated `NgControl` (whether
-   * the control is on the input itself or an ancestor), so we use its status. Otherwise we fall back
-   * to the autocomplete host's own control status so an input-less autocomplete still reflects validity.
-   */
-  protected readonly controlStatus = computed(() =>
-    this.input() ? this.input()?.controlStatus() : this.hostControlStatus(),
-  );
+  /** The control status, resolved via the input which can walk up to ancestor NgControl instances. */
+  protected readonly controlStatus = computed(() => this.input()?.controlStatus());
 
   /** The state of the autocomplete. */
   protected readonly state = autocompleteState<NgpAutocomplete>(this);
 
   constructor() {
+    if (ngDevMode) {
+      effect(() => {
+        if (!this.input()) {
+          console.warn(
+            'NgpAutocomplete: ngpAutocompleteInput is required. Add an <input ngpAutocompleteInput> inside the autocomplete container.',
+          );
+        }
+      });
+    }
+
     // When the visible (or virtual) options change while open, revalidate so the
     // active index can't point at a removed option and leave a stale aria-activedescendant.
     effect(() => {
@@ -369,89 +351,9 @@ export class NgpAutocomplete {
       return;
     }
 
-    // Handle select all functionality - only works in multiple selection mode
-    if (optionValue === 'all') {
-      if (!this.state.multiple()) {
-        return; // Do nothing in single selection mode
-      }
-
-      // Get currently visible regular options (respects filtering)
-      const regularOptions = this.sortedOptions().filter(
-        opt => opt.value() !== 'all' && opt.value() !== undefined,
-      );
-      const allValues = regularOptions.map(opt => opt.value());
-
-      this.state.value.set(allValues as T);
-      this.valueChange.emit(allValues as T);
-      return;
-    }
-
-    if (this.state.multiple()) {
-      // if the option is already selected, do nothing
-      if (this.isOptionSelected(optionValue)) {
-        return;
-      }
-
-      const value = [...(this.state.value() as T[]), optionValue as T];
-
-      // add the option to the value
-      this.state.value.set(value as T);
-      this.valueChange.emit(value as T);
-    } else {
-      this.state.value.set(optionValue as T);
-      this.valueChange.emit(optionValue as T);
-
-      // close the dropdown on single selection
-      this.closeDropdown();
-    }
-  }
-
-  /**
-   * Deselect an option.
-   * @param option The option to deselect.
-   * @internal
-   */
-  deselectOption(option: NgpAutocompleteOption): void {
-    const optionValue = option.value();
-
-    // Options without values cannot be deselected (and should never be selected).
-    if (optionValue === undefined) {
-      return;
-    }
-
-    // if the autocomplete is disabled or the option is not selected, do nothing
-    if (this.state.disabled() || !this.isOptionSelected(optionValue)) {
-      return;
-    }
-
-    // in single selection mode, only allow deselecting if allowDeselect is true
-    if (!this.state.multiple() && !this.state.allowDeselect()) {
-      return;
-    }
-
-    // Handle select all for deselect all functionality - only works in multiple selection mode
-    if (optionValue === 'all') {
-      if (!this.state.multiple()) {
-        return; // Do nothing in single selection mode
-      }
-
-      this.state.value.set([] as T);
-      this.valueChange.emit([] as T);
-      return;
-    }
-
-    if (this.state.multiple()) {
-      const values = (this.state.value() as T[]) ?? [];
-      const newValue = values.filter(v => !this.state.compareWith()(v, optionValue as T));
-
-      // remove the option from the value
-      this.state.value.set(newValue as T);
-      this.valueChange.emit(newValue as T);
-    } else {
-      // in single selection mode with allowDeselect enabled, set value to undefined
-      this.state.value.set(undefined);
-      this.valueChange.emit(undefined);
-    }
+    this.state.value.set(optionValue as T);
+    this.valueChange.emit(optionValue as T);
+    this.closeDropdown();
   }
 
   /**
@@ -466,49 +368,11 @@ export class NgpAutocomplete {
 
     const option = this.sortedOptions().find(opt => opt.id() === id);
 
-    if (!option) {
+    if (!option || option.value() === undefined) {
       return;
     }
 
-    const optionValue = option.value();
-
-    // Options without values cannot be toggled.
-    if (optionValue === undefined) {
-      return;
-    }
-
-    // Handle select all for select/deselect all functionality - only works in multiple selection mode
-    if (optionValue === 'all') {
-      if (!this.state.multiple()) {
-        return; // Do nothing in single selection mode
-      }
-
-      if (this.isOptionSelected(optionValue)) {
-        this.deselectOption(option);
-      } else {
-        this.selectOption(option);
-      }
-      return;
-    }
-
-    if (this.state.multiple()) {
-      // In multiple selection mode, always allow toggling
-      if (this.isOptionSelected(optionValue)) {
-        this.deselectOption(option);
-      } else {
-        this.selectOption(option);
-      }
-    } else {
-      // In single selection mode, check if deselection is allowed
-      if (this.isOptionSelected(optionValue) && this.state.allowDeselect()) {
-        // Deselect the option by setting value to undefined
-        this.state.value.set(undefined);
-        this.valueChange.emit(undefined);
-      } else {
-        // Select the option (works even if already selected to update the input)
-        this.selectOption(option);
-      }
-    }
+    this.selectOption(option);
   }
 
   /**
@@ -521,32 +385,11 @@ export class NgpAutocomplete {
       return false;
     }
 
-    // Handle both NgpAutocompleteOption and T types
     const optionValue = isOption(option) ? option.value() : (option as T);
     const value = this.state.value();
 
-    // Only treat `undefined` as "no value" (allow '', 0, false).
-    if (optionValue === undefined) {
+    if (optionValue === undefined || value === undefined) {
       return false;
-    }
-
-    // Handle select all functionality - only works in multiple selection mode
-    if (optionValue === 'all') {
-      if (!this.state.multiple()) {
-        return false; // Never selected in single selection mode
-      }
-
-      const selectedValues = Array.isArray(value) ? value : [];
-      return areAllOptionsSelected(this.sortedOptions(), selectedValues, this.state.compareWith());
-    }
-
-    // Only treat `undefined` as "no selection" (allow '', 0, false).
-    if (value === undefined) {
-      return false;
-    }
-
-    if (this.state.multiple()) {
-      return Array.isArray(value) && value.some(v => this.state.compareWith()(optionValue, v));
     }
 
     return this.state.compareWith()(optionValue, value);
@@ -664,36 +507,23 @@ export class NgpAutocomplete {
   }
 
   /**
-   * Focus the autocomplete.
-   * When an input element is present, it will be focused.
-   * Otherwise, the autocomplete element itself will be focused.
-   * This enables keyboard navigation for autocompletes without input elements.
+   * Focus the autocomplete input.
    * @internal
    */
   focus(): void {
-    if (this.input()) {
-      this.input()?.focus();
-    } else {
-      this.elementRef.nativeElement.focus();
-    }
+    this.input()?.focus();
   }
 
   /**
-   * Handle keydown events for keyboard navigation and accessibility.
-   * Supports:
-   * - Arrow Down: Open dropdown or navigate to next option
-   * - Arrow Up: Open dropdown or navigate to previous option
-   * - Home: Navigate to first option
-   * - End: Navigate to last option
-   * - Enter: Select the currently active option
-   * - Escape: Close the dropdown
+   * Handle keydown events on the container for cases where the input is not the event target
+   * (e.g., the button or the container itself receives focus briefly).
+   * Input-originated keydown events are handled by NgpAutocompleteInput instead.
    * @param event - The keyboard event
    * @internal
    */
   @HostListener('keydown', ['$event'])
   protected handleKeydown(event: KeyboardEvent): void {
-    // If the event originated from the input element, let the input handle it
-    if (this.input() && event.target === this.input()?.elementRef.nativeElement) {
+    if (event.target === this.input()?.elementRef.nativeElement) {
       return;
     }
 
@@ -744,12 +574,6 @@ export class NgpAutocomplete {
           this.closeDropdown();
         }
         event.preventDefault();
-        break;
-      case ' ':
-        if (!this.input()) {
-          this.toggleDropdown();
-          event.preventDefault();
-        }
         break;
     }
   }
