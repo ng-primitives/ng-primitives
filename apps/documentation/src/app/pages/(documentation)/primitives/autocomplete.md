@@ -40,23 +40,6 @@ Assemble the autocomplete directives in your template.
 </div>
 ```
 
-### Without Input Field
-
-You can also create an autocomplete without an input field, which is useful for select-like behavior with keyboard navigation:
-
-```html
-<div ngpAutocomplete>
-  <button ngpAutocompleteButton>{{ selectedOption || 'Select an option' }} ▼</button>
-  <div *ngpAutocompletePortal ngpAutocompleteDropdown>
-    @for (option of options; track option) {
-    <div ngpAutocompleteOption [ngpAutocompleteOptionValue]="option">{{ option }}</div>
-    }
-  </div>
-</div>
-```
-
-When no input is present, the autocomplete element itself becomes focusable and supports full keyboard navigation.
-
 ## API Reference
 
 The following directives are available to import from the `ng-primitives/autocomplete` package:
@@ -72,7 +55,6 @@ The main container for the autocomplete.
 <api-reference-attributes>
   <api-attribute name="data-open" description="Applied when the autocomplete is open." />
   <api-attribute name="data-disabled" description="Applied when the autocomplete is disabled." />
-  <api-attribute name="data-multiple" description="Applied when the autocomplete is in multiple mode." />
   <api-attribute name="data-hover" description="Applied when the autocomplete is hovered." />
   <api-attribute name="data-press" description="Applied when the autocomplete is pressed." />
   <api-attribute name="data-focus" description="Applied when the autocomplete has focus within it." />
@@ -83,14 +65,6 @@ The main container for the autocomplete.
   <api-attribute name="data-dirty" description="Applied when the autocomplete has been modified." />
   <api-attribute name="data-pending" description="Applied when the autocomplete is pending (e.g., async validation)." />
 </api-reference-attributes>
-
-#### Focus Management
-
-When no `ngpAutocompleteInput` is present, the autocomplete element itself receives:
-
-- `tabindex="0"` to make it focusable via keyboard navigation
-- `tabindex="-1"` when disabled or when an input is present
-- Full keyboard navigation support
 
 ### NgpAutocompleteButton
 
@@ -103,7 +77,6 @@ The button that toggles the autocomplete dropdown.
 <api-reference-attributes>
   <api-attribute name="data-open" description="Applied when the autocomplete is open." />
   <api-attribute name="data-disabled" description="Applied when the autocomplete is disabled." />
-  <api-attribute name="data-multiple" description="Applied when the autocomplete is in multiple mode." />
 </api-reference-attributes>
 
 ### NgpAutocompleteDropdown
@@ -134,7 +107,6 @@ The input field for the autocomplete.
 <api-reference-attributes>
   <api-attribute name="data-open" description="Applied when the autocomplete is open." />
   <api-attribute name="data-disabled" description="Applied when the autocomplete is disabled." />
-  <api-attribute name="data-multiple" description="Applied when the autocomplete is in multiple mode." />
   <api-attribute name="data-invalid" description="Applied when the input is invalid." />
   <api-attribute name="data-valid" description="Applied when the input is valid." />
   <api-attribute name="data-touched" description="Applied when the input has been touched." />
@@ -210,24 +182,10 @@ Adheres to the [WAI-ARIA](https://www.w3.org/WAI/ARIA/apg/patterns/combobox/) gu
 
 ### Keyboard Interactions
 
-#### With Input Field
-
 - <kbd>ArrowDown</kbd>: Open the dropdown and focus the first option. If the dropdown is already open, move focus to the next option.
 - <kbd>ArrowUp</kbd>: Open the dropdown and focus the last option. If the dropdown is already open, move focus to the previous option.
 - <kbd>Home</kbd>: Move focus to the first option (when dropdown is open).
 - <kbd>End</kbd>: Move focus to the last option (when dropdown is open).
-- <kbd>Enter</kbd>: Toggle the selection state of the focused option.
-- <kbd>Escape</kbd>: Close the dropdown without selecting an option.
-- <kbd>Any character key</kbd>: Open the dropdown and filter options based on typed text.
-
-#### Without Input Field
-
-When no `ngpAutocompleteInput` is present, the autocomplete container becomes focusable and supports:
-
-- <kbd>Tab</kbd>: Focus the autocomplete container.
-- <kbd>ArrowDown</kbd>: Open the dropdown and focus the first option. If already open, move to the next option.
-- <kbd>ArrowUp</kbd>: Open the dropdown and focus the last option. If already open, move to the previous option.
-- <kbd>Home</kbd>: Move focus to the first option (when dropdown is open).
-- <kbd>End</kbd>: Move focus to the last option (when dropdown is open).
 - <kbd>Enter</kbd>: Select the focused option and close the dropdown.
 - <kbd>Escape</kbd>: Close the dropdown without selecting an option.
+- <kbd>Any character key</kbd>: Open the dropdown and filter options based on typed text.

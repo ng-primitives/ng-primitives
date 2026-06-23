@@ -21,7 +21,6 @@ import { injectAutocompleteState } from '../autocomplete/autocomplete-state';
     '[attr.aria-expanded]': 'state().open()',
     '[attr.data-open]': 'state().open() ? "" : undefined',
     '[attr.data-disabled]': 'state().disabled() ? "" : undefined',
-    '[attr.data-multiple]': 'state().multiple() ? "" : undefined',
     '[attr.aria-activedescendant]': 'activeDescendant()',
     '[disabled]': 'state().disabled()',
   },
