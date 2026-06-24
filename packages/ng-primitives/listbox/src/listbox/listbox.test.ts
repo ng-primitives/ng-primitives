@@ -261,10 +261,10 @@ describe('NgpListbox', () => {
         { imports, componentProperties: { valueChange } },
       );
       fireEvent.click(container.getByTestId('opt-a'));
-      expect(valueChange).toHaveBeenCalledWith(['a']);
+      await waitFor(() => expect(valueChange).toHaveBeenCalledWith(['a']));
 
       fireEvent.click(container.getByTestId('opt-c'));
-      expect(valueChange).toHaveBeenCalledWith(['a', 'c']);
+      await waitFor(() => expect(valueChange).toHaveBeenCalledWith(['a', 'c']));
     });
   });
 

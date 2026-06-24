@@ -47,7 +47,7 @@ export class Listbox implements ControlValueAccessor {
   /**
    * Access the listbox state
    */
-  protected readonly state = injectListboxState<NgpListbox<string>>();
+  protected readonly state = injectListboxState<string>();
 
   /**
    * The listbox mode.
