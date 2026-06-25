@@ -672,7 +672,7 @@ export const [NgpComboboxStateToken, ngpCombobox, _injectComboboxState, provideC
         }
 
         // Only treat `undefined` as "no selection" (allow '', 0, false).
-        if (value === undefined) {
+        if (value() === undefined) {
           return false;
         }
 
