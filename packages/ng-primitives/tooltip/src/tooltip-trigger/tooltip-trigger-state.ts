@@ -8,7 +8,14 @@ import {
   computed,
   ElementRef,
 } from '@angular/core';
-import { injectElementRef, setupOverflowListener } from 'ng-primitives/internal';
+import {
+  createHoverBridgePolygon,
+  HOVER_BRIDGE_TIMEOUT_MS,
+  HoverBridgePoint,
+  injectElementRef,
+  isPointInHoverBridgePolygon,
+  setupOverflowListener,
+} from 'ng-primitives/internal';
 import {
   createOverlay,
   NgpFlip,
@@ -30,11 +37,6 @@ import {
 } from 'ng-primitives/state';
 import { injectDisposables, isString } from 'ng-primitives/utils';
 import { NgpTooltipTextContentComponent } from '../tooltip-text-content/tooltip-text-content';
-import {
-  createTooltipHoverBridgePolygon,
-  isPointInHoverBridgePolygon,
-  TooltipHoverBridgePoint,
-} from './tooltip-hover-bridge';
 
 export interface NgpTooltipTriggerState<T> {
   /** Access the tooltip template ref. */
@@ -156,7 +158,7 @@ export interface NgpTooltipTriggerState<T> {
   /**
    * Current pointer grace polygon used while crossing trigger -> tooltip.
    */
-  readonly hoverBridgePolygon: Signal<TooltipHoverBridgePoint[] | null>;
+  readonly hoverBridgePolygon: Signal<HoverBridgePoint[] | null>;
   /**
    * Show the tooltip programmatically (skips cooldown so multiple tooltips can coexist).
    */
@@ -313,7 +315,6 @@ export const [
     cooldown = signal<number>(300),
     hoverableContent = signal<boolean>(false),
   }: NgpTooltipTriggerProps<T>) => {
-    const HOVER_BRIDGE_TIMEOUT_MS = 150;
     const elementRef = injectElementRef();
     const injector = inject(Injector);
     const viewContainerRef = inject(ViewContainerRef);
@@ -327,7 +328,7 @@ export const [
     const tooltipId = signal<string | undefined>(undefined);
     const triggerHovered = signal<boolean>(false);
     const contentHovered = signal<boolean>(false);
-    const hoverBridgePolygon = signal<TooltipHoverBridgePoint[] | null>(null);
+    const hoverBridgePolygon = signal<HoverBridgePoint[] | null>(null);
     const overlay = signal<NgpOverlay<T | string> | null>(null);
     const hasOverflow = setupOverflowListener(trigger.nativeElement, {
       disabled: computed(() => !showOnOverflow()),
@@ -437,9 +438,9 @@ export const [
         return;
       }
 
-      const polygon = createTooltipHoverBridgePolygon({
+      const polygon = createHoverBridgePolygon({
         triggerRect: trigger.nativeElement.getBoundingClientRect(),
-        tooltipRect: tooltipElement.getBoundingClientRect(),
+        targetRect: tooltipElement.getBoundingClientRect(),
         exitPoint: { x: event.clientX, y: event.clientY },
       });
 

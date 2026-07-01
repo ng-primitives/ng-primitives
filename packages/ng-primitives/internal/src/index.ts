@@ -8,6 +8,12 @@ export {
   NgpExitAnimationManager,
   provideExitAnimationManager,
 } from './exit-animation/exit-animation-manager';
+export {
+  createHoverBridgePolygon,
+  HOVER_BRIDGE_TIMEOUT_MS,
+  HoverBridgePoint,
+  isPointInHoverBridgePolygon,
+} from './hover-bridge/hover-bridge';
 export * from './signals/explicit-effect';
 export * from './style-injector/style-injector';
 export * from './utilities/dom-removal';
