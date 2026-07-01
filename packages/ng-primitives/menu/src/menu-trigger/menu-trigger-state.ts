@@ -10,16 +10,7 @@ import {
   ViewContainerRef,
   WritableSignal,
 } from '@angular/core';
-import {
-  createHoverBridgePolygon,
-  getHoverBridgeDirection,
-  HOVER_BRIDGE_DIRECTION_TOLERANCE_PX,
-  HOVER_BRIDGE_TIMEOUT_MS,
-  HoverBridgeDirection,
-  HoverBridgePoint,
-  injectElementRef,
-  isPointInHoverBridgePolygon,
-} from 'ng-primitives/internal';
+import { createHoverBridge, injectElementRef } from 'ng-primitives/internal';
 import {
   createOverlay,
   NgpFlip,
@@ -264,13 +255,14 @@ export const [
     const pointerOverContent = signal(false);
     const isPointerOverMenuArea = computed(() => pointerOverTrigger() || pointerOverContent());
 
-    // Safe-polygon hover intent: while the pointer travels inside this corridor
-    // from the trigger exit point toward the open menu, the menu stays open.
-    const hoverBridgePolygon = signal<HoverBridgePoint[] | null>(null);
-    let bridgeDirection: HoverBridgeDirection | null = null;
-    let lastPointer: HoverBridgePoint | null = null;
-    let removePointerMoveListener: (() => void) | undefined = undefined;
-    let clearHoverBridgeTimeout: (() => void) | undefined = undefined;
+    // Safe-polygon hover intent: while the pointer travels inside a corridor from
+    // the trigger exit point toward the open menu, the menu stays open. Reversing
+    // away closes it (requireForwardMovement).
+    const hoverBridge = createHoverBridge({
+      isPointerInAnchor: isPointerOverMenuArea,
+      close: () => hide(),
+      requireForwardMovement: true,
+    });
 
     // Reset pointer tracking when menu closes
     effect(() => {
@@ -279,7 +271,7 @@ export const [
       // When menu closes, reset pointer tracking state and tear down any
       // in-progress hover bridge (and its global listener).
       if (!isOpen) {
-        clearHoverBridge();
+        hoverBridge.clear();
         pointerOverTrigger.set(false);
         pointerOverContent.set(false);
       }
@@ -328,7 +320,7 @@ export const [
       // If already open, cancel any pending hide - the pointer is back on the
       // trigger, so any in-progress hover bridge is no longer needed.
       if (open()) {
-        clearHoverBridge();
+        hoverBridge.clear();
         overlay()?.cancelPendingClose();
         return;
       }
@@ -359,27 +351,25 @@ export const [
       // open menu. While the pointer stays inside it the menu stays open, so
       // diagonal travel across the offset gap doesn't collapse the menu.
       const menuElement = open() ? currentOverlay.getElements()[0] : undefined;
-      const triggerRect = menuElement ? element.nativeElement.getBoundingClientRect() : null;
-      const targetRect = menuElement ? menuElement.getBoundingClientRect() : null;
-      const exitPoint: HoverBridgePoint = { x: event.clientX, y: event.clientY };
-      const polygon = createHoverBridgePolygon({ triggerRect, targetRect, exitPoint });
+      const started =
+        !!menuElement &&
+        hoverBridge.track({
+          triggerRect: element.nativeElement.getBoundingClientRect(),
+          targetRect: menuElement.getBoundingClientRect(),
+          exitPoint: { x: event.clientX, y: event.clientY },
+        });
 
-      if (!polygon) {
-        // Fall back to a small grace period when we can't build the corridor.
-        disposables.setTimeout(() => {
-          if (!isPointerOverMenuArea()) {
-            hide();
-          }
-        }, 50);
+      if (started) {
+        currentOverlay.cancelPendingClose();
         return;
       }
 
-      hoverBridgePolygon.set(polygon);
-      bridgeDirection = getHoverBridgeDirection(triggerRect, targetRect);
-      lastPointer = exitPoint;
-      currentOverlay.cancelPendingClose();
-      registerPointerMoveListener();
-      scheduleHoverBridgeCloseFallback();
+      // Fall back to a small grace period when we can't build the corridor.
+      disposables.setTimeout(() => {
+        if (!isPointerOverMenuArea()) {
+          hide();
+        }
+      }, 50);
     }
 
     function onFocus(): void {
@@ -514,83 +504,6 @@ export const [
       currentOverlay.hide({ origin });
     }
 
-    /**
-     * Track the pointer while it crosses from the trigger toward the menu. Closes
-     * the menu as soon as the pointer leaves the safe-polygon corridor.
-     */
-    function registerPointerMoveListener(): void {
-      if (removePointerMoveListener) {
-        return;
-      }
-
-      const cleanup = disposables.addEventListener(
-        document,
-        'pointermove' as keyof HTMLElementEventMap,
-        ((event: PointerEvent): void => {
-          if (isPointerOverMenuArea() || !hoverBridgePolygon()) {
-            clearHoverBridge();
-            return;
-          }
-
-          const point: HoverBridgePoint = { x: event.clientX, y: event.clientY };
-          const inBridge = isPointInHoverBridgePolygon(point, hoverBridgePolygon()!);
-          const movingAway = isMovingAwayFromMenu(point);
-          lastPointer = point;
-
-          // Close when the pointer leaves the corridor OR reverses away from the
-          // menu (heading back toward the trigger / off toward a sibling).
-          if (!inBridge || movingAway) {
-            clearHoverBridge();
-            hide();
-          }
-        }) as EventListener,
-        true,
-      );
-
-      removePointerMoveListener = () => {
-        cleanup();
-        removePointerMoveListener = undefined;
-      };
-    }
-
-    /**
-     * True when the pointer's latest movement heads away from the menu along the
-     * corridor's dominant axis (beyond a small jitter tolerance).
-     */
-    function isMovingAwayFromMenu(point: HoverBridgePoint): boolean {
-      if (!bridgeDirection || !lastPointer) {
-        return false;
-      }
-
-      const delta =
-        bridgeDirection.axis === 'x' ? point.x - lastPointer.x : point.y - lastPointer.y;
-      return delta * bridgeDirection.sign < -HOVER_BRIDGE_DIRECTION_TOLERANCE_PX;
-    }
-
-    /** Tear down the hover bridge state and its global listeners. */
-    function clearHoverBridge(): void {
-      hoverBridgePolygon.set(null);
-      bridgeDirection = null;
-      lastPointer = null;
-      clearHoverBridgeTimeout?.();
-      clearHoverBridgeTimeout = undefined;
-      removePointerMoveListener?.();
-    }
-
-    /** Close the menu if the pointer leaves the trigger but never reaches the menu. */
-    function scheduleHoverBridgeCloseFallback(): void {
-      clearHoverBridgeTimeout?.();
-
-      clearHoverBridgeTimeout = disposables.setTimeout(() => {
-        clearHoverBridgeTimeout = undefined;
-
-        if (!isPointerOverMenuArea() && hoverBridgePolygon()) {
-          clearHoverBridge();
-          hide();
-        }
-      }, HOVER_BRIDGE_TIMEOUT_MS);
-    }
-
     function createOverlayInstance(): void {
       const menuContent = menu?.();
 
@@ -665,7 +578,7 @@ export const [
 
       if (isOver) {
         // The pointer reached the menu - the hover bridge has served its purpose.
-        clearHoverBridge();
+        hoverBridge.clear();
         return;
       }
 

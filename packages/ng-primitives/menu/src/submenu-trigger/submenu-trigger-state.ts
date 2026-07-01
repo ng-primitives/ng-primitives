@@ -9,16 +9,7 @@ import {
   ViewContainerRef,
   WritableSignal,
 } from '@angular/core';
-import {
-  createHoverBridgePolygon,
-  getHoverBridgeDirection,
-  HOVER_BRIDGE_DIRECTION_TOLERANCE_PX,
-  HOVER_BRIDGE_TIMEOUT_MS,
-  HoverBridgeDirection,
-  HoverBridgePoint,
-  injectElementRef,
-  isPointInHoverBridgePolygon,
-} from 'ng-primitives/internal';
+import { createHoverBridge, injectElementRef } from 'ng-primitives/internal';
 import {
   createOverlay,
   NgpFlip,
@@ -219,21 +210,21 @@ export const [
     const pointerOverContent = signal(false);
     const isPointerOverSubmenu = computed(() => pointerOverTrigger() || pointerOverContent());
 
-    // Safe-polygon hover intent: while the pointer travels inside this corridor
-    // from the submenu trigger toward the open submenu, sibling hover events are
+    // Safe-polygon hover intent: while the pointer travels inside a corridor from
+    // the submenu trigger toward the open submenu, sibling hover events are
     // ignored so the submenu doesn't collapse mid-traversal.
-    const hoverBridgePolygon = signal<HoverBridgePoint[] | null>(null);
-    let bridgeDirection: HoverBridgeDirection | null = null;
-    let lastPointer: HoverBridgePoint | null = null;
-    let removePointerMoveListener: (() => void) | undefined = undefined;
-    let clearHoverBridgeTimeout: (() => void) | undefined = undefined;
+    const hoverBridge = createHoverBridge({
+      isPointerInAnchor: isPointerOverSubmenu,
+      close: () => hide('mouse'),
+      requireForwardMovement: true,
+    });
 
     // Tear down any hover bridge whenever the submenu closes - including close
     // paths that bypass hide() (e.g. an outside click on the overlay), so a
     // stale corridor can't linger or wrongly suppress the next sibling hover.
     effect(() => {
       if (!open()) {
-        clearHoverBridge();
+        hoverBridge.clear();
       }
     });
 
@@ -249,7 +240,7 @@ export const [
         // While the pointer is still inside the safe-polygon corridor toward this
         // submenu, ignore sibling hover-driven closes. The pointer-move listener
         // closes the submenu itself once the pointer actually leaves the corridor.
-        if (hoverBridgePolygon()) {
+        if (hoverBridge.isActive()) {
           return;
         }
 
@@ -312,7 +303,7 @@ export const [
       }
 
       // The submenu is closing - any active hover bridge is no longer relevant.
-      clearHoverBridge();
+      hoverBridge.clear();
 
       // Hide the overlay
       overlay()?.hide({ origin });
@@ -378,7 +369,7 @@ export const [
 
       pointerOverTrigger.set(true);
       // The pointer is back on the trigger - drop any in-progress hover bridge.
-      clearHoverBridge();
+      hoverBridge.clear();
 
       show('mouse');
     }
@@ -398,97 +389,23 @@ export const [
       }
 
       const submenuElement = currentOverlay.getElements()[0];
-      const triggerRect = submenuElement ? element.nativeElement.getBoundingClientRect() : null;
-      const targetRect = submenuElement ? submenuElement.getBoundingClientRect() : null;
-      const exitPoint: HoverBridgePoint = { x: event.clientX, y: event.clientY };
-      const polygon = createHoverBridgePolygon({ triggerRect, targetRect, exitPoint });
+      const started =
+        !!submenuElement &&
+        hoverBridge.track({
+          triggerRect: element.nativeElement.getBoundingClientRect(),
+          targetRect: submenuElement.getBoundingClientRect(),
+          exitPoint: { x: event.clientX, y: event.clientY },
+        });
 
-      if (!polygon) {
-        return;
-      }
-
-      hoverBridgePolygon.set(polygon);
-      bridgeDirection = getHoverBridgeDirection(triggerRect, targetRect);
-      lastPointer = exitPoint;
-      registerPointerMoveListener();
-      scheduleHoverBridgeCloseFallback();
-    }
-
-    /**
-     * Track the pointer while it crosses from the submenu trigger toward the
-     * submenu. Closes the submenu once the pointer leaves the safe corridor.
-     */
-    function registerPointerMoveListener(): void {
-      if (removePointerMoveListener) {
-        return;
-      }
-
-      const cleanup = disposables.addEventListener(
-        document,
-        'pointermove' as keyof HTMLElementEventMap,
-        ((moveEvent: PointerEvent): void => {
-          if (isPointerOverSubmenu() || !hoverBridgePolygon()) {
-            clearHoverBridge();
-            return;
-          }
-
-          const point: HoverBridgePoint = { x: moveEvent.clientX, y: moveEvent.clientY };
-          const inBridge = isPointInHoverBridgePolygon(point, hoverBridgePolygon()!);
-          const movingAway = isMovingAwayFromSubmenu(point);
-          lastPointer = point;
-
-          // Close when the pointer leaves the corridor OR reverses away from the
-          // submenu (heading back toward the trigger / off toward a sibling).
-          if (!inBridge || movingAway) {
-            clearHoverBridge();
+      if (!started) {
+        // Defensive fallback: if the corridor can't be built, close after a short
+        // grace period rather than leaving the submenu stuck open.
+        disposables.setTimeout(() => {
+          if (!isPointerOverSubmenu()) {
             hide('mouse');
           }
-        }) as EventListener,
-        true,
-      );
-
-      removePointerMoveListener = () => {
-        cleanup();
-        removePointerMoveListener = undefined;
-      };
-    }
-
-    /**
-     * True when the pointer's latest movement heads away from the submenu along
-     * the corridor's dominant axis (beyond a small jitter tolerance).
-     */
-    function isMovingAwayFromSubmenu(point: HoverBridgePoint): boolean {
-      if (!bridgeDirection || !lastPointer) {
-        return false;
+        }, 50);
       }
-
-      const delta =
-        bridgeDirection.axis === 'x' ? point.x - lastPointer.x : point.y - lastPointer.y;
-      return delta * bridgeDirection.sign < -HOVER_BRIDGE_DIRECTION_TOLERANCE_PX;
-    }
-
-    /** Tear down the hover bridge state and its global listeners. */
-    function clearHoverBridge(): void {
-      hoverBridgePolygon.set(null);
-      bridgeDirection = null;
-      lastPointer = null;
-      clearHoverBridgeTimeout?.();
-      clearHoverBridgeTimeout = undefined;
-      removePointerMoveListener?.();
-    }
-
-    /** Close the submenu if the pointer leaves the trigger but never reaches it. */
-    function scheduleHoverBridgeCloseFallback(): void {
-      clearHoverBridgeTimeout?.();
-
-      clearHoverBridgeTimeout = disposables.setTimeout(() => {
-        clearHoverBridgeTimeout = undefined;
-
-        if (!isPointerOverSubmenu() && hoverBridgePolygon()) {
-          clearHoverBridge();
-          hide('mouse');
-        }
-      }, HOVER_BRIDGE_TIMEOUT_MS);
     }
 
     function setDisabled(isDisabled: boolean): void {
@@ -529,7 +446,7 @@ export const [
       // Reaching the submenu content means the pointer arrived safely, so the
       // hover bridge corridor is no longer needed.
       if (isOver) {
-        clearHoverBridge();
+        hoverBridge.clear();
       }
     }
 

@@ -17,6 +17,12 @@ export {
   HoverBridgePoint,
   isPointInHoverBridgePolygon,
 } from './hover-bridge/hover-bridge';
+export {
+  createHoverBridge,
+  HoverBridgeController,
+  HoverBridgeOptions,
+  HoverBridgeTrackOptions,
+} from './hover-bridge/hover-bridge-controller';
 export * from './signals/explicit-effect';
 export * from './style-injector/style-injector';
 export * from './utilities/dom-removal';

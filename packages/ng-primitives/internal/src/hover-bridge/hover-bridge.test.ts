@@ -1,6 +1,8 @@
 import {
   createHoverBridgePolygon,
   getHoverBridgeDirection,
+  HOVER_BRIDGE_DIRECTION_TOLERANCE_PX,
+  HOVER_BRIDGE_TIMEOUT_MS,
   isPointInHoverBridgePolygon,
 } from './hover-bridge';
 
@@ -97,6 +99,16 @@ describe('hover-bridge', () => {
         new DOMRect(0, 0, 120, 90),
       );
       expect(direction).toEqual({ axis: 'y', sign: -1 });
+    });
+  });
+
+  describe('constants', () => {
+    it('pins the idle-fallback timeout', () => {
+      expect(HOVER_BRIDGE_TIMEOUT_MS).toBe(150);
+    });
+
+    it('pins the direction jitter tolerance', () => {
+      expect(HOVER_BRIDGE_DIRECTION_TOLERANCE_PX).toBe(2);
     });
   });
 });

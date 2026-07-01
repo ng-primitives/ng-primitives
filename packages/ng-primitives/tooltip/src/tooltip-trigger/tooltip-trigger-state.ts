@@ -9,11 +9,9 @@ import {
   ElementRef,
 } from '@angular/core';
 import {
-  createHoverBridgePolygon,
-  HOVER_BRIDGE_TIMEOUT_MS,
+  createHoverBridge,
   HoverBridgePoint,
   injectElementRef,
-  isPointInHoverBridgePolygon,
   setupOverflowListener,
 } from 'ng-primitives/internal';
 import {
@@ -35,7 +33,7 @@ import {
   listener,
   StateInjectionOptions,
 } from 'ng-primitives/state';
-import { injectDisposables, isString } from 'ng-primitives/utils';
+import { isString } from 'ng-primitives/utils';
 import { NgpTooltipTextContentComponent } from '../tooltip-text-content/tooltip-text-content';
 
 export interface NgpTooltipTriggerState<T> {
@@ -320,7 +318,6 @@ export const [
     const viewContainerRef = inject(ViewContainerRef);
     const trigger = inject(ElementRef<HTMLElement>);
     const tooltipTriggerState = injectTooltipTriggerState<T>();
-    const disposables = injectDisposables();
 
     const tooltip = controlled(_tooltip);
     const container = controlled(_container, 'body');
@@ -328,16 +325,20 @@ export const [
     const tooltipId = signal<string | undefined>(undefined);
     const triggerHovered = signal<boolean>(false);
     const contentHovered = signal<boolean>(false);
-    const hoverBridgePolygon = signal<HoverBridgePoint[] | null>(null);
     const overlay = signal<NgpOverlay<T | string> | null>(null);
     const hasOverflow = setupOverflowListener(trigger.nativeElement, {
       disabled: computed(() => !showOnOverflow()),
     });
 
-    let removePointerMoveListener: (() => void) | undefined = undefined;
-    let clearHoverBridgeTimeout: (() => void) | undefined = undefined;
-
     const open = computed(() => overlay()?.isOpen() ?? false);
+
+    // Safe-polygon hover intent for hoverable tooltip content. Tooltips keep the
+    // direction gate off (requireForwardMovement defaults to false) to preserve
+    // their existing behaviour.
+    const hoverBridge = createHoverBridge({
+      isPointerInAnchor: () => triggerHovered() || contentHovered(),
+      close: () => hide(),
+    });
 
     // Host binding
     attrBinding(elementRef, 'aria-describedby', () => overlay()?.ariaDescribedBy());
@@ -350,7 +351,7 @@ export const [
     listener(elementRef, 'blur', () => hideFromInteraction());
 
     function destroy(): void {
-      clearHoverBridge();
+      hoverBridge.clear();
       overlay()?.destroy();
     }
 
@@ -359,7 +360,7 @@ export const [
     }
 
     function hide(): void {
-      clearHoverBridge();
+      hoverBridge.clear();
       overlay()?.hide();
     }
 
@@ -372,7 +373,7 @@ export const [
         return;
       }
       triggerHovered.set(true);
-      clearHoverBridge();
+      hoverBridge.clear();
       performShow(false);
     }
 
@@ -422,7 +423,7 @@ export const [
       // Blur should close regardless of hover bridge or tooltip hover state.
       if (!event) {
         contentHovered.set(false);
-        clearHoverBridge();
+        hoverBridge.clear();
         hide();
         return;
       }
@@ -438,21 +439,18 @@ export const [
         return;
       }
 
-      const polygon = createHoverBridgePolygon({
+      const started = hoverBridge.track({
         triggerRect: trigger.nativeElement.getBoundingClientRect(),
         targetRect: tooltipElement.getBoundingClientRect(),
         exitPoint: { x: event.clientX, y: event.clientY },
       });
 
-      if (!polygon) {
+      if (!started) {
         hide();
         return;
       }
 
-      hoverBridgePolygon.set(polygon);
       overlay()?.cancelPendingClose();
-      registerPointerMoveListener();
-      scheduleHoverBridgeCloseFallback();
     }
 
     /**
@@ -465,7 +463,7 @@ export const [
       }
 
       contentHovered.set(true);
-      clearHoverBridge();
+      hoverBridge.clear();
       overlay()?.cancelPendingClose();
     }
 
@@ -547,71 +545,6 @@ export const [
       overlay.set(createOverlay(config));
     }
 
-    /**
-     * Register document-level pointer tracking while crossing trigger -> tooltip.
-     * @internal
-     */
-    function registerPointerMoveListener(): void {
-      if (removePointerMoveListener) {
-        return;
-      }
-
-      const cleanup = disposables.addEventListener(
-        document,
-        'pointermove' as keyof HTMLElementEventMap,
-        ((event: PointerEvent): void => {
-          if (triggerHovered() || contentHovered() || !hoverBridgePolygon()) {
-            clearHoverBridge();
-            return;
-          }
-
-          const inBridge = isPointInHoverBridgePolygon(
-            { x: event.clientX, y: event.clientY },
-            hoverBridgePolygon()!,
-          );
-
-          if (!inBridge) {
-            clearHoverBridge();
-            hide();
-          }
-        }) as EventListener,
-        true,
-      );
-
-      removePointerMoveListener = () => {
-        cleanup();
-        removePointerMoveListener = undefined;
-      };
-    }
-
-    /**
-     * Clear hover bridge state and global listeners.
-     * @internal
-     */
-    function clearHoverBridge(): void {
-      hoverBridgePolygon.set(null);
-      clearHoverBridgeTimeout?.();
-      clearHoverBridgeTimeout = undefined;
-      removePointerMoveListener?.();
-    }
-
-    /**
-     * Close if pointer leaves trigger and does not move into tooltip soon enough.
-     * @internal
-     */
-    function scheduleHoverBridgeCloseFallback(): void {
-      clearHoverBridgeTimeout?.();
-
-      clearHoverBridgeTimeout = disposables.setTimeout(() => {
-        clearHoverBridgeTimeout = undefined;
-
-        if (!triggerHovered() && !contentHovered() && hoverBridgePolygon()) {
-          clearHoverBridge();
-          hide();
-        }
-      }, HOVER_BRIDGE_TIMEOUT_MS);
-    }
-
     const state = {
       tooltip,
       disabled,
@@ -636,7 +569,7 @@ export const [
       open,
       hasOverflow,
       contentHovered,
-      hoverBridgePolygon,
+      hoverBridgePolygon: hoverBridge.polygon,
       show,
       hide,
       setTooltipId,
