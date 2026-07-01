@@ -10,7 +10,7 @@ import {
   ViewContainerRef,
   WritableSignal,
 } from '@angular/core';
-import { injectElementRef } from 'ng-primitives/internal';
+import { createHoverBridge, injectElementRef } from 'ng-primitives/internal';
 import {
   createOverlay,
   NgpFlip,
@@ -29,6 +29,7 @@ import {
   listener,
   StateInjectionOptions,
 } from 'ng-primitives/state';
+import { injectDisposables } from 'ng-primitives/utils';
 import { NgpMenuTriggerType } from '../config/menu-config';
 import { NgpMenuPlacement } from './menu-trigger';
 
@@ -231,6 +232,7 @@ export const [
     const injector = inject(Injector);
     const viewContainerRef = inject(ViewContainerRef);
     const directionality = inject(Directionality);
+    const disposables = injectDisposables();
 
     // Controlled properties
     const menu = controlled(_menu);
@@ -253,12 +255,23 @@ export const [
     const pointerOverContent = signal(false);
     const isPointerOverMenuArea = computed(() => pointerOverTrigger() || pointerOverContent());
 
+    // Safe-polygon hover intent: while the pointer travels inside a corridor from
+    // the trigger exit point toward the open menu, the menu stays open. Reversing
+    // away closes it (requireForwardMovement).
+    const hoverBridge = createHoverBridge({
+      isPointerInAnchor: isPointerOverMenuArea,
+      close: () => hide(),
+      requireForwardMovement: true,
+    });
+
     // Reset pointer tracking when menu closes
     effect(() => {
       const isOpen = open();
 
-      // When menu closes, reset pointer tracking state
+      // When menu closes, reset pointer tracking state and tear down any
+      // in-progress hover bridge (and its global listener).
       if (!isOpen) {
+        hoverBridge.clear();
         pointerOverTrigger.set(false);
         pointerOverContent.set(false);
       }
@@ -304,8 +317,10 @@ export const [
 
       pointerOverTrigger.set(true);
 
-      // If already open, cancel any pending hide
+      // If already open, cancel any pending hide - the pointer is back on the
+      // trigger, so any in-progress hover bridge is no longer needed.
       if (open()) {
+        hoverBridge.clear();
         overlay()?.cancelPendingClose();
         return;
       }
@@ -325,18 +340,36 @@ export const [
 
       pointerOverTrigger.set(false);
 
+      const currentOverlay = overlay();
+
       // If the overlay hasn't been created, there's nothing to cancel
-      if (!overlay()) {
+      if (!currentOverlay) {
         return;
       }
 
-      // Use a small delay to allow moving to content
-      setTimeout(() => {
-        // Only hide if pointer is not over trigger or content
+      // Build a safe-polygon corridor from the pointer exit point toward the
+      // open menu. While the pointer stays inside it the menu stays open, so
+      // diagonal travel across the offset gap doesn't collapse the menu.
+      const menuElement = open() ? currentOverlay.getElements()[0] : undefined;
+      const started =
+        !!menuElement &&
+        hoverBridge.track({
+          triggerRect: element.nativeElement.getBoundingClientRect(),
+          targetRect: menuElement.getBoundingClientRect(),
+          exitPoint: { x: event.clientX, y: event.clientY },
+        });
+
+      if (started) {
+        currentOverlay.cancelPendingClose();
+        return;
+      }
+
+      // Fall back to a small grace period when we can't build the corridor.
+      disposables.setTimeout(() => {
         if (!isPointerOverMenuArea()) {
           hide();
         }
-      }, 50); // Small grace period for moving between trigger and content
+      }, 50);
     }
 
     function onFocus(): void {
@@ -543,9 +576,15 @@ export const [
     function setPointerOverContent(isOver: boolean): void {
       pointerOverContent.set(isOver);
 
-      if (!isOver && open() && triggers().includes('hover')) {
+      if (isOver) {
+        // The pointer reached the menu - the hover bridge has served its purpose.
+        hoverBridge.clear();
+        return;
+      }
+
+      if (open() && triggers().includes('hover')) {
         // Use a small delay to allow pointer to move back to trigger
-        setTimeout(() => {
+        disposables.setTimeout(() => {
           // Only hide if pointer is not over trigger or content
           if (!isPointerOverMenuArea()) {
             hide();
