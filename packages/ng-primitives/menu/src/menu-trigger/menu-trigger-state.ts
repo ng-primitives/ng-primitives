@@ -543,15 +543,27 @@ export const [
     function setPointerOverContent(isOver: boolean): void {
       pointerOverContent.set(isOver);
 
-      if (!isOver && open() && triggers().includes('hover')) {
-        // Use a small delay to allow pointer to move back to trigger
-        setTimeout(() => {
-          // Only hide if pointer is not over trigger or content
-          if (!isPointerOverMenuArea()) {
-            hide();
-          }
-        }, 50);
+      if (isOver) {
+        // Cancel any pending close when the pointer enters the menu content,
+        // mirroring the onPointerEnter behaviour for the trigger element.
+        // Without this, a pending hideDelay timer started after onPointerLeave
+        // fires would still close the menu even though the pointer has arrived
+        // in the menu content (e.g. after diagonal cursor movement).
+        overlay()?.cancelPendingClose();
+        return;
       }
+
+      if (!open() || !triggers().includes('hover')) {
+        return;
+      }
+
+      // Use a small delay to allow pointer to move back to trigger
+      setTimeout(() => {
+        // Only hide if pointer is not over trigger or content
+        if (!isPointerOverMenuArea()) {
+          hide();
+        }
+      }, 50);
     }
 
     return {

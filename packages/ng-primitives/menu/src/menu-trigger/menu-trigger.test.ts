@@ -1,7 +1,7 @@
 import { Component, Directive, OnInit } from '@angular/core';
 import { fireEvent, render, screen, waitFor } from '@testing-library/angular';
 import { NgpTooltip, NgpTooltipTrigger } from 'ng-primitives/tooltip';
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import { NgpMenu, NgpMenuItem, NgpMenuTrigger } from '../index';
 import { injectMenuTriggerState } from './menu-trigger-state';
 
@@ -81,6 +81,46 @@ describe('NgpMenuTrigger', () => {
       expect(screen.getByTestId('menu-b')).toBeInTheDocument();
       // Menu A should be closed
       expect(screen.queryByTestId('menu-a')).not.toBeInTheDocument();
+    });
+  });
+
+  describe('hover trigger', () => {
+    it('should keep the menu open when the pointer moves from the trigger to the menu content', async () => {
+      vi.useFakeTimers();
+
+      await render(
+        `<button [ngpMenuTrigger]="menu" [ngpMenuTriggerOpenTriggers]="['hover']">Open Menu</button>
+
+        <ng-template #menu>
+          <div ngpMenu data-testid="ngp-menu">
+            <button ngpMenuItem>Item 1</button>
+          </div>
+        </ng-template>`,
+        { imports: [NgpMenuTrigger, NgpMenu, NgpMenuItem] },
+      );
+
+      const trigger = screen.getByText('Open Menu');
+
+      // Hover the trigger to open the menu
+      fireEvent.pointerEnter(trigger);
+      await vi.runAllTimersAsync();
+
+      const menu = screen.getByTestId('ngp-menu');
+      expect(menu).toBeInTheDocument();
+
+      // Leave the trigger — starts the 50ms grace-period timer
+      fireEvent.pointerLeave(trigger);
+
+      // Enter the menu content before the grace period expires
+      fireEvent.pointerEnter(menu);
+
+      // Advance well past the grace period and any hideDelay
+      await vi.advanceTimersByTimeAsync(500);
+
+      // Menu must still be open: entering the content should have cancelled the pending close
+      expect(screen.getByTestId('ngp-menu')).toBeInTheDocument();
+
+      vi.useRealTimers();
     });
   });
 
