@@ -47,6 +47,21 @@ export function getHoverBridgeDirection(
   const dx = targetRect.left + targetRect.width / 2 - (triggerRect.left + triggerRect.width / 2);
   const dy = targetRect.top + targetRect.height / 2 - (triggerRect.top + triggerRect.height / 2);
 
+  // Prefer the axis on which the rects are separated: a bottom-placed panel that
+  // is wider than its trigger still overlaps it horizontally, so travel must be
+  // vertical even when the centers are further apart horizontally. Being
+  // rect-based (rather than reading the configured placement) keeps this correct
+  // after the overlay flips.
+  const overlapsX = triggerRect.left < targetRect.right && targetRect.left < triggerRect.right;
+  const overlapsY = triggerRect.top < targetRect.bottom && targetRect.top < triggerRect.bottom;
+
+  if (overlapsX !== overlapsY) {
+    return overlapsX
+      ? { axis: 'y', sign: dy >= 0 ? 1 : -1 }
+      : { axis: 'x', sign: dx >= 0 ? 1 : -1 };
+  }
+
+  // Fully separated (diagonal travel) or fully overlapping: fall back to centers.
   if (Math.abs(dx) >= Math.abs(dy)) {
     return { axis: 'x', sign: dx >= 0 ? 1 : -1 };
   }

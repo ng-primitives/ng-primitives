@@ -281,6 +281,55 @@ describe('NgpMenuTrigger safe-polygon hover bridge', () => {
     );
   });
 
+  it('closes the submenu on the next hover cycle after being closed with the pointer inside it', async () => {
+    vi.useFakeTimers({ shouldAdvanceTime: true });
+    const { fixture } = await render(SubmenuComponent);
+    const rootTrigger = fixture.debugElement.nativeElement.querySelector(
+      '[data-testid="root-trigger"]',
+    ) as HTMLElement;
+
+    fireEvent.click(rootTrigger);
+    await waitFor(() =>
+      expect(document.querySelector('[data-testid="submenu-trigger"]')).toBeInTheDocument(),
+    );
+
+    const submenuTrigger = document.querySelector('[data-testid="submenu-trigger"]') as HTMLElement;
+    fireEvent.pointerEnter(submenuTrigger, { pointerType: 'mouse' });
+    await waitFor(() =>
+      expect(document.querySelector('[data-testid="submenu"]')).toBeInTheDocument(),
+    );
+
+    // The pointer reaches the submenu content...
+    fireEvent.pointerEnter(document.querySelector('[data-testid="submenu"]') as HTMLElement);
+
+    // ...then a sibling hover closes the submenu. The panel is destroyed with the
+    // pointer still flagged inside it, so its pointerleave never fires and the
+    // trigger state must reset the flags itself.
+    const sibling = document.querySelector('[data-testid="item-1"]') as HTMLElement;
+    fireEvent.mouseEnter(sibling);
+    await waitFor(() =>
+      expect(document.querySelector('[data-testid="submenu"]')).not.toBeInTheDocument(),
+    );
+
+    // Reopen the submenu, then leave the trigger and idle without ever reaching
+    // the panel - the idle fallback must still close it.
+    fireEvent.pointerEnter(submenuTrigger, { pointerType: 'mouse' });
+    await waitFor(() =>
+      expect(document.querySelector('[data-testid="submenu"]')).toBeInTheDocument(),
+    );
+
+    const submenu = document.querySelector('[data-testid="submenu"]') as HTMLElement;
+    vi.spyOn(submenuTrigger, 'getBoundingClientRect').mockReturnValue(new DOMRect(0, 0, 120, 30));
+    vi.spyOn(submenu, 'getBoundingClientRect').mockReturnValue(new DOMRect(200, 0, 120, 90));
+
+    fireEvent.pointerLeave(submenuTrigger, { pointerType: 'mouse', clientX: 120, clientY: 15 });
+    vi.advanceTimersByTime(200);
+
+    await waitFor(() =>
+      expect(document.querySelector('[data-testid="submenu"]')).not.toBeInTheDocument(),
+    );
+  });
+
   it('closes the menu when the pointer reverses away while still inside the corridor', async () => {
     vi.useFakeTimers({ shouldAdvanceTime: true });
     const { fixture } = await render(HoverMenuComponent);

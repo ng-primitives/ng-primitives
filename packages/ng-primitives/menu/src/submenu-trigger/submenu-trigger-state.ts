@@ -222,9 +222,14 @@ export const [
     // Tear down any hover bridge whenever the submenu closes - including close
     // paths that bypass hide() (e.g. an outside click on the overlay), so a
     // stale corridor can't linger or wrongly suppress the next sibling hover.
+    // Also reset the pointer flags: destroying the panel under the pointer never
+    // fires its pointerleave, and a stuck pointerOverContent would make every
+    // future corridor treat the pointer as anchored and never close.
     effect(() => {
       if (!open()) {
         hoverBridge.clear();
+        pointerOverTrigger.set(false);
+        pointerOverContent.set(false);
       }
     });
 

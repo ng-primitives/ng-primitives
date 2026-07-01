@@ -1,4 +1,4 @@
-import { signal, Signal } from '@angular/core';
+import { DestroyRef, inject, signal, Signal } from '@angular/core';
 import { injectDisposables } from 'ng-primitives/utils';
 import {
   createHoverBridgePolygon,
@@ -67,11 +67,17 @@ export function createHoverBridge({
   timeoutMs = HOVER_BRIDGE_TIMEOUT_MS,
 }: HoverBridgeOptions): HoverBridgeController {
   const disposables = injectDisposables();
+  const destroyRef = inject(DestroyRef);
   const polygon = signal<HoverBridgePoint[] | null>(null);
   let direction: HoverBridgeDirection | null = null;
   let lastPointer: HoverBridgePoint | null = null;
   let removePointerMoveListener: (() => void) | undefined = undefined;
-  let clearFallbackTimeout: (() => void) | undefined = undefined;
+  let fallbackTimeoutId: ReturnType<typeof setTimeout> | undefined = undefined;
+
+  // One reusable timer with a single destroy hook. The fallback reschedules on
+  // every in-corridor pointermove, and going through disposables.setTimeout would
+  // register a new DestroyRef cleanup per move that is never released.
+  destroyRef.onDestroy(() => clearTimeout(fallbackTimeoutId));
 
   function isMovingAway(point: HoverBridgePoint): boolean {
     if (!requireForwardMovement || !direction || !lastPointer) {
@@ -84,10 +90,10 @@ export function createHoverBridge({
 
   /** (Re)start the idle timer - reset on valid movement so it only fires when idle. */
   function scheduleFallback(): void {
-    clearFallbackTimeout?.();
+    clearTimeout(fallbackTimeoutId);
 
-    clearFallbackTimeout = disposables.setTimeout(() => {
-      clearFallbackTimeout = undefined;
+    fallbackTimeoutId = setTimeout(() => {
+      fallbackTimeoutId = undefined;
 
       if (!isPointerInAnchor() && polygon()) {
         clear();
@@ -155,8 +161,8 @@ export function createHoverBridge({
     polygon.set(null);
     direction = null;
     lastPointer = null;
-    clearFallbackTimeout?.();
-    clearFallbackTimeout = undefined;
+    clearTimeout(fallbackTimeoutId);
+    fallbackTimeoutId = undefined;
     removePointerMoveListener?.();
   }
 

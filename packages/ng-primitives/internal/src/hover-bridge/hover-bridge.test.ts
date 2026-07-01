@@ -100,6 +100,26 @@ describe('hover-bridge', () => {
       );
       expect(direction).toEqual({ axis: 'y', sign: -1 });
     });
+
+    it('resolves the y axis for a bottom panel wider than its trigger', () => {
+      // The centers are further apart horizontally (dx 80 > dy 56), but the rects
+      // overlap on x, so travel into the panel is vertical.
+      const direction = getHoverBridgeDirection(
+        new DOMRect(50, 0, 80, 34),
+        new DOMRect(50, 46, 240, 70),
+      );
+      expect(direction).toEqual({ axis: 'y', sign: 1 });
+    });
+
+    it('resolves the x axis for a side panel taller than its trigger', () => {
+      // The centers are further apart vertically (dy 185 > dx 130), but the rects
+      // overlap on y, so travel into the panel is horizontal.
+      const direction = getHoverBridgeDirection(
+        new DOMRect(0, 0, 120, 30),
+        new DOMRect(130, 0, 120, 400),
+      );
+      expect(direction).toEqual({ axis: 'x', sign: 1 });
+    });
   });
 
   describe('constants', () => {
