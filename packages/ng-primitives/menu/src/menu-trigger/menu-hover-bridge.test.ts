@@ -280,4 +280,32 @@ describe('NgpMenuTrigger safe-polygon hover bridge', () => {
       expect(document.querySelector('[data-testid="submenu"]')).not.toBeInTheDocument(),
     );
   });
+
+  it('closes the menu when the pointer reverses away while still inside the corridor', async () => {
+    vi.useFakeTimers({ shouldAdvanceTime: true });
+    const { fixture } = await render(HoverMenuComponent);
+    const trigger = fixture.debugElement.nativeElement.querySelector(
+      '[data-testid="trigger"]',
+    ) as HTMLElement;
+
+    fireEvent.pointerEnter(trigger, { pointerType: 'mouse' });
+    await waitFor(() => expect(document.querySelector('[data-testid="menu"]')).toBeInTheDocument());
+
+    const menu = document.querySelector('[data-testid="menu"]') as HTMLElement;
+    vi.spyOn(trigger, 'getBoundingClientRect').mockReturnValue(new DOMRect(0, 0, 40, 20));
+    vi.spyOn(menu, 'getBoundingClientRect').mockReturnValue(new DOMRect(200, 0, 120, 90));
+
+    fireEvent.pointerLeave(trigger, { pointerType: 'mouse', clientX: 40, clientY: 10 });
+    // Advance toward the panel (stays open)...
+    fireEvent.pointerMove(document, { clientX: 160, clientY: 15 });
+    vi.advanceTimersByTime(1);
+    expect(document.querySelector('[data-testid="menu"]')).toBeInTheDocument();
+
+    // ...then reverse back toward the trigger while still geometrically inside
+    // the corridor. The direction gate should close it despite being in-polygon.
+    fireEvent.pointerMove(document, { clientX: 120, clientY: 15 });
+    await waitFor(() =>
+      expect(document.querySelector('[data-testid="menu"]')).not.toBeInTheDocument(),
+    );
+  });
 });

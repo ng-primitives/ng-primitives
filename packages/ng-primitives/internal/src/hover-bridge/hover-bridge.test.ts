@@ -1,4 +1,8 @@
-import { createHoverBridgePolygon, isPointInHoverBridgePolygon } from './hover-bridge';
+import {
+  createHoverBridgePolygon,
+  getHoverBridgeDirection,
+  isPointInHoverBridgePolygon,
+} from './hover-bridge';
 
 describe('hover-bridge', () => {
   it('should return null when trigger rect is missing', () => {
@@ -55,5 +59,44 @@ describe('hover-bridge', () => {
     expect(polygon).not.toBeNull();
     expect(isPointInHoverBridgePolygon({ x: 70, y: 80 }, polygon!)).toBe(true);
     expect(isPointInHoverBridgePolygon({ x: 20, y: 80 }, polygon!)).toBe(false);
+  });
+
+  describe('getHoverBridgeDirection', () => {
+    it('returns null when a rect is missing', () => {
+      expect(getHoverBridgeDirection(null, new DOMRect(0, 0, 10, 10))).toBeNull();
+      expect(getHoverBridgeDirection(new DOMRect(0, 0, 10, 10), null)).toBeNull();
+    });
+
+    it('resolves the x axis when the target is to the right', () => {
+      const direction = getHoverBridgeDirection(
+        new DOMRect(0, 0, 40, 20),
+        new DOMRect(200, 0, 120, 90),
+      );
+      expect(direction).toEqual({ axis: 'x', sign: 1 });
+    });
+
+    it('resolves the x axis when the target is to the left', () => {
+      const direction = getHoverBridgeDirection(
+        new DOMRect(200, 0, 40, 20),
+        new DOMRect(0, 0, 120, 90),
+      );
+      expect(direction).toEqual({ axis: 'x', sign: -1 });
+    });
+
+    it('resolves the y axis when the target is below', () => {
+      const direction = getHoverBridgeDirection(
+        new DOMRect(0, 0, 40, 20),
+        new DOMRect(0, 200, 120, 90),
+      );
+      expect(direction).toEqual({ axis: 'y', sign: 1 });
+    });
+
+    it('resolves the y axis when the target is above', () => {
+      const direction = getHoverBridgeDirection(
+        new DOMRect(0, 200, 40, 20),
+        new DOMRect(0, 0, 120, 90),
+      );
+      expect(direction).toEqual({ axis: 'y', sign: -1 });
+    });
   });
 });

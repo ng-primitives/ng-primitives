@@ -10,7 +10,10 @@ export {
 } from './exit-animation/exit-animation-manager';
 export {
   createHoverBridgePolygon,
+  getHoverBridgeDirection,
+  HOVER_BRIDGE_DIRECTION_TOLERANCE_PX,
   HOVER_BRIDGE_TIMEOUT_MS,
+  HoverBridgeDirection,
   HoverBridgePoint,
   isPointInHoverBridgePolygon,
 } from './hover-bridge/hover-bridge';

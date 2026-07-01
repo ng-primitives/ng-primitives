@@ -12,7 +12,10 @@ import {
 } from '@angular/core';
 import {
   createHoverBridgePolygon,
+  getHoverBridgeDirection,
+  HOVER_BRIDGE_DIRECTION_TOLERANCE_PX,
   HOVER_BRIDGE_TIMEOUT_MS,
+  HoverBridgeDirection,
   HoverBridgePoint,
   injectElementRef,
   isPointInHoverBridgePolygon,
@@ -264,6 +267,8 @@ export const [
     // Safe-polygon hover intent: while the pointer travels inside this corridor
     // from the trigger exit point toward the open menu, the menu stays open.
     const hoverBridgePolygon = signal<HoverBridgePoint[] | null>(null);
+    let bridgeDirection: HoverBridgeDirection | null = null;
+    let lastPointer: HoverBridgePoint | null = null;
     let removePointerMoveListener: (() => void) | undefined = undefined;
     let clearHoverBridgeTimeout: (() => void) | undefined = undefined;
 
@@ -354,13 +359,10 @@ export const [
       // open menu. While the pointer stays inside it the menu stays open, so
       // diagonal travel across the offset gap doesn't collapse the menu.
       const menuElement = open() ? currentOverlay.getElements()[0] : undefined;
-      const polygon = menuElement
-        ? createHoverBridgePolygon({
-            triggerRect: element.nativeElement.getBoundingClientRect(),
-            targetRect: menuElement.getBoundingClientRect(),
-            exitPoint: { x: event.clientX, y: event.clientY },
-          })
-        : null;
+      const triggerRect = menuElement ? element.nativeElement.getBoundingClientRect() : null;
+      const targetRect = menuElement ? menuElement.getBoundingClientRect() : null;
+      const exitPoint: HoverBridgePoint = { x: event.clientX, y: event.clientY };
+      const polygon = createHoverBridgePolygon({ triggerRect, targetRect, exitPoint });
 
       if (!polygon) {
         // Fall back to a small grace period when we can't build the corridor.
@@ -373,6 +375,8 @@ export const [
       }
 
       hoverBridgePolygon.set(polygon);
+      bridgeDirection = getHoverBridgeDirection(triggerRect, targetRect);
+      lastPointer = exitPoint;
       currentOverlay.cancelPendingClose();
       registerPointerMoveListener();
       scheduleHoverBridgeCloseFallback();
@@ -528,12 +532,14 @@ export const [
             return;
           }
 
-          const inBridge = isPointInHoverBridgePolygon(
-            { x: event.clientX, y: event.clientY },
-            hoverBridgePolygon()!,
-          );
+          const point: HoverBridgePoint = { x: event.clientX, y: event.clientY };
+          const inBridge = isPointInHoverBridgePolygon(point, hoverBridgePolygon()!);
+          const movingAway = isMovingAwayFromMenu(point);
+          lastPointer = point;
 
-          if (!inBridge) {
+          // Close when the pointer leaves the corridor OR reverses away from the
+          // menu (heading back toward the trigger / off toward a sibling).
+          if (!inBridge || movingAway) {
             clearHoverBridge();
             hide();
           }
@@ -547,9 +553,25 @@ export const [
       };
     }
 
+    /**
+     * True when the pointer's latest movement heads away from the menu along the
+     * corridor's dominant axis (beyond a small jitter tolerance).
+     */
+    function isMovingAwayFromMenu(point: HoverBridgePoint): boolean {
+      if (!bridgeDirection || !lastPointer) {
+        return false;
+      }
+
+      const delta =
+        bridgeDirection.axis === 'x' ? point.x - lastPointer.x : point.y - lastPointer.y;
+      return delta * bridgeDirection.sign < -HOVER_BRIDGE_DIRECTION_TOLERANCE_PX;
+    }
+
     /** Tear down the hover bridge state and its global listeners. */
     function clearHoverBridge(): void {
       hoverBridgePolygon.set(null);
+      bridgeDirection = null;
+      lastPointer = null;
       clearHoverBridgeTimeout?.();
       clearHoverBridgeTimeout = undefined;
       removePointerMoveListener?.();

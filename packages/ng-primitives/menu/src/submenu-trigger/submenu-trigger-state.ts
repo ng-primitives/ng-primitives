@@ -11,7 +11,10 @@ import {
 } from '@angular/core';
 import {
   createHoverBridgePolygon,
+  getHoverBridgeDirection,
+  HOVER_BRIDGE_DIRECTION_TOLERANCE_PX,
   HOVER_BRIDGE_TIMEOUT_MS,
+  HoverBridgeDirection,
   HoverBridgePoint,
   injectElementRef,
   isPointInHoverBridgePolygon,
@@ -220,6 +223,8 @@ export const [
     // from the submenu trigger toward the open submenu, sibling hover events are
     // ignored so the submenu doesn't collapse mid-traversal.
     const hoverBridgePolygon = signal<HoverBridgePoint[] | null>(null);
+    let bridgeDirection: HoverBridgeDirection | null = null;
+    let lastPointer: HoverBridgePoint | null = null;
     let removePointerMoveListener: (() => void) | undefined = undefined;
     let clearHoverBridgeTimeout: (() => void) | undefined = undefined;
 
@@ -393,19 +398,18 @@ export const [
       }
 
       const submenuElement = currentOverlay.getElements()[0];
-      const polygon = submenuElement
-        ? createHoverBridgePolygon({
-            triggerRect: element.nativeElement.getBoundingClientRect(),
-            targetRect: submenuElement.getBoundingClientRect(),
-            exitPoint: { x: event.clientX, y: event.clientY },
-          })
-        : null;
+      const triggerRect = submenuElement ? element.nativeElement.getBoundingClientRect() : null;
+      const targetRect = submenuElement ? submenuElement.getBoundingClientRect() : null;
+      const exitPoint: HoverBridgePoint = { x: event.clientX, y: event.clientY };
+      const polygon = createHoverBridgePolygon({ triggerRect, targetRect, exitPoint });
 
       if (!polygon) {
         return;
       }
 
       hoverBridgePolygon.set(polygon);
+      bridgeDirection = getHoverBridgeDirection(triggerRect, targetRect);
+      lastPointer = exitPoint;
       registerPointerMoveListener();
       scheduleHoverBridgeCloseFallback();
     }
@@ -428,12 +432,14 @@ export const [
             return;
           }
 
-          const inBridge = isPointInHoverBridgePolygon(
-            { x: moveEvent.clientX, y: moveEvent.clientY },
-            hoverBridgePolygon()!,
-          );
+          const point: HoverBridgePoint = { x: moveEvent.clientX, y: moveEvent.clientY };
+          const inBridge = isPointInHoverBridgePolygon(point, hoverBridgePolygon()!);
+          const movingAway = isMovingAwayFromSubmenu(point);
+          lastPointer = point;
 
-          if (!inBridge) {
+          // Close when the pointer leaves the corridor OR reverses away from the
+          // submenu (heading back toward the trigger / off toward a sibling).
+          if (!inBridge || movingAway) {
             clearHoverBridge();
             hide('mouse');
           }
@@ -447,9 +453,25 @@ export const [
       };
     }
 
+    /**
+     * True when the pointer's latest movement heads away from the submenu along
+     * the corridor's dominant axis (beyond a small jitter tolerance).
+     */
+    function isMovingAwayFromSubmenu(point: HoverBridgePoint): boolean {
+      if (!bridgeDirection || !lastPointer) {
+        return false;
+      }
+
+      const delta =
+        bridgeDirection.axis === 'x' ? point.x - lastPointer.x : point.y - lastPointer.y;
+      return delta * bridgeDirection.sign < -HOVER_BRIDGE_DIRECTION_TOLERANCE_PX;
+    }
+
     /** Tear down the hover bridge state and its global listeners. */
     function clearHoverBridge(): void {
       hoverBridgePolygon.set(null);
+      bridgeDirection = null;
+      lastPointer = null;
       clearHoverBridgeTimeout?.();
       clearHoverBridgeTimeout = undefined;
       removePointerMoveListener?.();

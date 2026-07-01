@@ -4,9 +4,24 @@
  */
 export const HOVER_BRIDGE_TIMEOUT_MS = 150;
 
+/**
+ * Pointer movement below this magnitude (px) on the intent axis is treated as
+ * jitter, not a reversal, so a tiny backward twitch doesn't collapse the bridge.
+ */
+export const HOVER_BRIDGE_DIRECTION_TOLERANCE_PX = 2;
+
 export interface HoverBridgePoint {
   x: number;
   y: number;
+}
+
+/**
+ * The dominant axis and sign pointing from the trigger toward the target. Used
+ * to reject pointer movement heading away from the target while inside the corridor.
+ */
+export interface HoverBridgeDirection {
+  axis: 'x' | 'y';
+  sign: 1 | -1;
 }
 
 interface CreateHoverBridgePolygonOptions {
@@ -14,6 +29,29 @@ interface CreateHoverBridgePolygonOptions {
   targetRect: DOMRect | null;
   exitPoint: HoverBridgePoint;
   corridorHalfSize?: number;
+}
+
+/**
+ * Computes the dominant axis and sign from the trigger toward the target - i.e.
+ * which way the pointer must travel to reach the panel. Returns null if either
+ * rect is missing.
+ */
+export function getHoverBridgeDirection(
+  triggerRect: DOMRect | null,
+  targetRect: DOMRect | null,
+): HoverBridgeDirection | null {
+  if (!triggerRect || !targetRect) {
+    return null;
+  }
+
+  const dx = targetRect.left + targetRect.width / 2 - (triggerRect.left + triggerRect.width / 2);
+  const dy = targetRect.top + targetRect.height / 2 - (triggerRect.top + triggerRect.height / 2);
+
+  if (Math.abs(dx) >= Math.abs(dy)) {
+    return { axis: 'x', sign: dx >= 0 ? 1 : -1 };
+  }
+
+  return { axis: 'y', sign: dy >= 0 ? 1 : -1 };
 }
 
 /**
@@ -30,17 +68,13 @@ export function createHoverBridgePolygon({
     return null;
   }
 
-  const triggerCenterX = triggerRect.left + triggerRect.width / 2;
-  const triggerCenterY = triggerRect.top + triggerRect.height / 2;
-  const targetCenterX = targetRect.left + targetRect.width / 2;
-  const targetCenterY = targetRect.top + targetRect.height / 2;
+  const direction = getHoverBridgeDirection(triggerRect, targetRect);
+  if (!direction) {
+    return null;
+  }
 
-  const dx = targetCenterX - triggerCenterX;
-  const dy = targetCenterY - triggerCenterY;
-  const horizontalDominant = Math.abs(dx) >= Math.abs(dy);
-
-  if (horizontalDominant) {
-    const targetX = dx >= 0 ? targetRect.left : targetRect.right;
+  if (direction.axis === 'x') {
+    const targetX = direction.sign >= 0 ? targetRect.left : targetRect.right;
     return [
       { x: exitPoint.x, y: exitPoint.y - corridorHalfSize },
       { x: exitPoint.x, y: exitPoint.y + corridorHalfSize },
@@ -49,7 +83,7 @@ export function createHoverBridgePolygon({
     ];
   }
 
-  const targetY = dy >= 0 ? targetRect.top : targetRect.bottom;
+  const targetY = direction.sign >= 0 ? targetRect.top : targetRect.bottom;
   return [
     { x: exitPoint.x - corridorHalfSize, y: exitPoint.y },
     { x: exitPoint.x + corridorHalfSize, y: exitPoint.y },
