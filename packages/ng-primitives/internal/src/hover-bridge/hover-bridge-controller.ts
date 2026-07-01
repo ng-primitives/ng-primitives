@@ -21,6 +21,13 @@ export interface HoverBridgeOptions {
    * Tooltips leave this off. Defaults to false.
    */
   requireForwardMovement?: boolean;
+  /**
+   * Reset the idle-fallback timer on valid in-corridor movement, so it only
+   * fires after the pointer genuinely stops. When false the timer is a fixed cap
+   * from the moment the corridor is built (tooltip's original semantics).
+   * Defaults to true.
+   */
+  resetFallbackOnMove?: boolean;
   /** Idle-fallback timeout in ms. Defaults to HOVER_BRIDGE_TIMEOUT_MS. */
   timeoutMs?: number;
 }
@@ -56,6 +63,7 @@ export function createHoverBridge({
   isPointerInAnchor,
   close,
   requireForwardMovement = false,
+  resetFallbackOnMove = true,
   timeoutMs = HOVER_BRIDGE_TIMEOUT_MS,
 }: HoverBridgeOptions): HoverBridgeController {
   const disposables = injectDisposables();
@@ -114,8 +122,11 @@ export function createHoverBridge({
         }
 
         // Valid movement toward the panel - reset the idle fallback so a slow
-        // but continuous traversal isn't cut off mid-corridor.
-        scheduleFallback();
+        // but continuous traversal isn't cut off mid-corridor. Callers that want
+        // a fixed cap (tooltip) opt out via resetFallbackOnMove: false.
+        if (resetFallbackOnMove) {
+          scheduleFallback();
+        }
       },
       true,
     );

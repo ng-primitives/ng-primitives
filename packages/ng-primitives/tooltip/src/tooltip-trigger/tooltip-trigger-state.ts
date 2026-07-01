@@ -332,12 +332,13 @@ export const [
 
     const open = computed(() => overlay()?.isOpen() ?? false);
 
-    // Safe-polygon hover intent for hoverable tooltip content. Tooltips keep the
-    // direction gate off (requireForwardMovement defaults to false) to preserve
-    // their existing behaviour.
+    // Safe-polygon hover intent for hoverable tooltip content. Tooltips preserve
+    // their original behaviour: no direction gate (requireForwardMovement off)
+    // and a fixed crossing grace rather than an idle timer that resets on move.
     const hoverBridge = createHoverBridge({
       isPointerInAnchor: () => triggerHovered() || contentHovered(),
       close: () => hide(),
+      resetFallbackOnMove: false,
     });
 
     // Host binding
