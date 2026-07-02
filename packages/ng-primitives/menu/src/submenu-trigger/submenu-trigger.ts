@@ -22,7 +22,11 @@ import {
   selector: '[ngpSubmenuTrigger]',
   exportAs: 'ngpSubmenuTrigger',
   providers: [
-    provideSubmenuTriggerState(),
+    // inherit: false - a nested submenu trigger lives inside the DI scope of its
+    // parent submenu trigger (via the overlay's injector). Inheriting would reuse
+    // the parent trigger's state signal and overwrite it with this trigger's
+    // state, so the parent's menu would start talking to the wrong trigger.
+    provideSubmenuTriggerState({ inherit: false }),
     // Also provide as NgpMenuTriggerStateToken so the submenu's menu-state
     // can find this trigger's openOrigin for :focus-visible styling
     { provide: NgpMenuTriggerStateToken, useExisting: NgpSubmenuTriggerStateToken },
