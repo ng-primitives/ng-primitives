@@ -152,6 +152,59 @@ describe('NgpSubmenuTrigger nested submenus (#805)', () => {
     expect(document.querySelector('[data-testid="level1-menu"]')).toBeInTheDocument();
   });
 
+  it('closes the whole chain when the root menu closes', async () => {
+    vi.useFakeTimers({ shouldAdvanceTime: true });
+    await render(NestedSubmenuComponent);
+
+    await openLevelOneSubmenu();
+    await openLevelTwoSubmenu();
+
+    // Toggle the root menu closed - both submenus must cascade closed with it.
+    const rootTrigger = document.querySelector('[data-testid="root-trigger"]') as HTMLElement;
+    fireEvent.click(rootTrigger);
+
+    await waitFor(() => {
+      expect(document.querySelector('[data-testid="root-menu"]')).not.toBeInTheDocument();
+      expect(document.querySelector('[data-testid="level1-menu"]')).not.toBeInTheDocument();
+      expect(document.querySelector('[data-testid="level2-menu"]')).not.toBeInTheDocument();
+    });
+  });
+
+  it('closes the whole chain when an item in the nested submenu is selected', async () => {
+    vi.useFakeTimers({ shouldAdvanceTime: true });
+    await render(NestedSubmenuComponent);
+
+    await openLevelOneSubmenu();
+    await openLevelTwoSubmenu();
+
+    // Selecting a regular item closes all menus via closeAllMenus.
+    const nestedItem = document.querySelector('[data-testid="nested-item"]') as HTMLElement;
+    fireEvent.click(nestedItem);
+
+    await waitFor(() => {
+      expect(document.querySelector('[data-testid="root-menu"]')).not.toBeInTheDocument();
+      expect(document.querySelector('[data-testid="level1-menu"]')).not.toBeInTheDocument();
+      expect(document.querySelector('[data-testid="level2-menu"]')).not.toBeInTheDocument();
+    });
+  });
+
+  it('closes the whole chain when Escape is pressed inside the nested submenu', async () => {
+    vi.useFakeTimers({ shouldAdvanceTime: true });
+    await render(NestedSubmenuComponent);
+
+    await openLevelOneSubmenu();
+    await openLevelTwoSubmenu();
+
+    const level2Menu = document.querySelector('[data-testid="level2-menu"]') as HTMLElement;
+    fireEvent.keyDown(level2Menu, { key: 'Escape' });
+
+    await waitFor(() => {
+      expect(document.querySelector('[data-testid="root-menu"]')).not.toBeInTheDocument();
+      expect(document.querySelector('[data-testid="level1-menu"]')).not.toBeInTheDocument();
+      expect(document.querySelector('[data-testid="level2-menu"]')).not.toBeInTheDocument();
+    });
+  });
+
   it('closes the nested submenu when a sibling item in the level-1 panel is hovered', async () => {
     vi.useFakeTimers({ shouldAdvanceTime: true });
     await render(NestedSubmenuComponent);
