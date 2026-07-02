@@ -1,3 +1,24 @@
+## 0.123.0 (2026-07-02)
+
+### 🚀 Features
+
+- **menu:** add safe-polygon hover intent for menu and submenus ([#802](https://github.com/ng-primitives/ng-primitives/pull/802))
+- **submenu:** support setContainer/container on submenu trigger ([#799](https://github.com/ng-primitives/ng-primitives/pull/799))
+
+### 🩹 Fixes
+
+- **datepicker:** correct comparison logic ([#797](https://github.com/ng-primitives/ng-primitives/pull/797))
+- **portal:** don't evict ancestor overlays when registering a nested overlay ([#790](https://github.com/ng-primitives/ng-primitives/pull/790), [#789](https://github.com/ng-primitives/ng-primitives/issues/789))
+- **select,combobox:** validate active descendant when options change while open ([#787](https://github.com/ng-primitives/ng-primitives/pull/787), [#775](https://github.com/ng-primitives/ng-primitives/issues/775))
+- **utils:** release DestroyRef registrations when disposables are cleaned up ([#803](https://github.com/ng-primitives/ng-primitives/pull/803))
+
+### ❤️ Thank You
+
+- Ashley Hunter
+- Kokkinis99 @Kokkinis99
+- Marco Rinaldi @MRinaldi9
+- Matt Van Horn @mvanhorn
+
 ## 0.122.0 (2026-06-18)
 
 ### 🚀 Features
