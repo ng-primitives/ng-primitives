@@ -1,3 +1,15 @@
+## 0.123.1 (2026-07-03)
+
+### 🩹 Fixes
+
+- **menu:** stop nested submenu triggers hijacking the parent trigger state ([#806](https://github.com/ng-primitives/ng-primitives/pull/806), [#805](https://github.com/ng-primitives/ng-primitives/issues/805))
+
+### ❤️ Thank You
+
+- Ashley Hunter
+- Claude
+- Claude Fable 5
+
 ## 0.123.0 (2026-07-02)
 
 ### 🚀 Features
