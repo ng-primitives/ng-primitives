@@ -6,10 +6,10 @@ import { NgpRovingFocusGroupState } from 'ng-primitives/roving-focus';
 import {
   attrBinding,
   controlled,
+  controlledState,
   createPrimitive,
   dataBinding,
   deprecatedSetter,
-  emitter,
   SetterOptions,
   StateInjectionOptions,
 } from 'ng-primitives/state';
@@ -55,6 +55,10 @@ export interface NgpRadioGroupState<T> {
    */
   setValue(value: T | null, options?: SetterOptions): void;
   /**
+   * Set the default value used for uncontrolled usage.
+   */
+  setDefaultValue(value: T | null): void;
+  /**
    * Set the disabled value.
    */
   setDisabled(value: boolean): void;
@@ -77,9 +81,14 @@ export interface NgpRadioGroupProps<T> {
    */
   readonly id?: Signal<string>;
   /**
-   * The selected value of the radio group.
+   * The selected value of the radio group. Leave `undefined` for uncontrolled
+   * usage (the group manages its own value from `defaultValue`).
    */
-  readonly value?: Signal<T | null>;
+  readonly value?: Signal<T | null | undefined>;
+  /**
+   * The default value for uncontrolled usage.
+   */
+  readonly defaultValue?: Signal<T | null>;
   /**
    * Whether the radio group is disabled.
    */
@@ -108,17 +117,22 @@ export const [
   <T>({
     rovingFocusGroup,
     id = signal(uniqueId('ngp-radio-group')),
-    value: _value = signal<T | null>(null),
+    value: _value = signal<T | null | undefined>(undefined),
+    defaultValue: _defaultValue,
     disabled: _disabled = signal(false),
     orientation: _orientation = signal<NgpOrientation>('horizontal'),
     compareWith = signal<(a: T | null, b: T | null) => boolean>((a, b) => a === b),
     onValueChange,
   }: NgpRadioGroupProps<T>): NgpRadioGroupState<T> => {
     const element = injectElementRef();
-    const value = controlled(_value, null);
     const disabled = controlled(_disabled, false);
     const orientation = controlled(_orientation, 'horizontal');
-    const valueChange = emitter<T | null>();
+    const defaultValue = controlled(_defaultValue, null);
+    const [value, setValueInternal, valueChange] = controlledState<T | null>({
+      value: _value,
+      defaultValue,
+      onChange: onValueChange,
+    });
 
     ngpFormControl({ id, disabled });
 
@@ -130,22 +144,13 @@ export const [
     dataBinding(element, 'data-disabled', disabled);
 
     function setValue(newValue: T | null, options?: SetterOptions): void {
-      // Skip redundant updates and emits when the value is unchanged, while
-      // still allowing a silent sync (`emit: false`, e.g. form `writeValue`).
-      if (compareWith()(value(), newValue) && options?.emit !== false) {
-        return;
-      }
-
-      value.set(newValue);
-
-      if (options?.emit !== false) {
-        onValueChange?.(newValue);
-        valueChange.emit(newValue);
-      }
+      setValueInternal(newValue, options);
     }
 
     function select(newValue: T): void {
-      if (disabled()) {
+      // Guard on disabled and dedupe by the comparator so that re-selecting an
+      // equal value (by `compareWith`, not just reference) is a no-op.
+      if (disabled() || compareWith()(value(), newValue)) {
         return;
       }
 
@@ -167,9 +172,10 @@ export const [
       disabled: deprecatedSetter(disabled, 'setDisabled'),
       orientation: deprecatedSetter(orientation, 'setOrientation', setOrientation),
       compareWith,
-      valueChange: valueChange.asObservable(),
+      valueChange,
       select,
       setValue,
+      setDefaultValue: defaultValue.set,
       setDisabled,
       setOrientation,
     } satisfies NgpRadioGroupState<T>;

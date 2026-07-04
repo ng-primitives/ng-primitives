@@ -19,9 +19,14 @@ export class NgpRadioGroup<T> {
   readonly id = input<string>(uniqueId('ngp-radio-group'));
 
   /**
-   * The value of the radio group.
+   * The value of the radio group. Leave unset for uncontrolled usage.
    */
-  readonly value = input<T | null>(null, { alias: 'ngpRadioGroupValue' });
+  readonly value = input<T | null | undefined>(undefined, { alias: 'ngpRadioGroupValue' });
+
+  /**
+   * The default value of the radio group for uncontrolled usage.
+   */
+  readonly defaultValue = input<T | null>(null, { alias: 'ngpRadioGroupDefaultValue' });
 
   /**
    * Event emitted when the radio group value changes.
@@ -64,6 +69,7 @@ export class NgpRadioGroup<T> {
     }),
     id: this.id,
     value: this.value,
+    defaultValue: this.defaultValue,
     disabled: this.disabled,
     orientation: this.orientation,
     compareWith: this.compareWith,
@@ -76,6 +82,13 @@ export class NgpRadioGroup<T> {
    */
   select(value: T): void {
     this.state.select(value);
+  }
+
+  /**
+   * Set the default value of the radio group.
+   */
+  setDefaultValue(value: T | null): void {
+    this.state.setDefaultValue(value);
   }
 
   /**

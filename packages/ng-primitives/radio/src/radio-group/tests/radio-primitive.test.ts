@@ -203,6 +203,55 @@ describe('NgpRadioGroup', () => {
       expect(getByRole('radio', { name: 'Two' })).not.toHaveAttribute('data-checked');
     });
 
+    it('should start selected from defaultValue in uncontrolled mode', async () => {
+      const valueChange = vi.fn();
+      const { getByRole, detectChanges } = await render(
+        `<div ngpRadioGroup ngpRadioGroupDefaultValue="2" (ngpRadioGroupValueChange)="valueChange($event)">
+          <div ngpRadioItem ngpRadioItemValue="1">One</div>
+          <div ngpRadioItem ngpRadioItemValue="2">Two</div>
+        </div>`,
+        {
+          imports: [NgpRadioGroup, NgpRadioItem],
+          componentProperties: { valueChange },
+        },
+      );
+      detectChanges();
+
+      expect(getByRole('radio', { name: 'Two' })).toHaveAttribute('data-checked', '');
+
+      // still uncontrolled — clicking updates the internal value
+      getByRole('radio', { name: 'One' }).click();
+      detectChanges();
+
+      expect(getByRole('radio', { name: 'One' })).toHaveAttribute('data-checked', '');
+      expect(getByRole('radio', { name: 'Two' })).not.toHaveAttribute('data-checked');
+      expect(valueChange).toHaveBeenCalledWith('1');
+    });
+
+    it('should not drift a controlled value on interaction', async () => {
+      const valueChange = vi.fn();
+      const { getByRole, detectChanges } = await render(
+        `<div ngpRadioGroup [ngpRadioGroupValue]="value" (ngpRadioGroupValueChange)="valueChange($event)">
+          <div ngpRadioItem ngpRadioItemValue="1">One</div>
+          <div ngpRadioItem ngpRadioItemValue="2">Two</div>
+        </div>`,
+        {
+          imports: [NgpRadioGroup, NgpRadioItem],
+          componentProperties: { value: '1', valueChange },
+        },
+      );
+      detectChanges();
+
+      getByRole('radio', { name: 'Two' }).click();
+      detectChanges();
+
+      // the change is reported, but the controlled value stays put until the
+      // parent updates the binding
+      expect(valueChange).toHaveBeenCalledWith('2');
+      expect(getByRole('radio', { name: 'One' })).toHaveAttribute('data-checked', '');
+      expect(getByRole('radio', { name: 'Two' })).not.toHaveAttribute('data-checked');
+    });
+
     it('should compare object values with a custom compareWith', async () => {
       const options = [
         { id: 1, name: 'One' },
