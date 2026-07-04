@@ -1,3 +1,16 @@
+## 0.124.0 (2026-07-04)
+
+### 🩹 Fixes
+
+- **pagination:** restore keyboard activation ([#807](https://github.com/ng-primitives/ng-primitives/pull/807))
+- **radio:** expose radio group and item state publicly ([#811](https://github.com/ng-primitives/ng-primitives/pull/811))
+
+### ❤️ Thank You
+
+- Ashley Hunter
+- Claude
+- Zonaib Bokhari @xonaib
+
 ## 0.123.1 (2026-07-03)
 
 ### 🩹 Fixes
