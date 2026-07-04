@@ -8,12 +8,12 @@ import { ngpToggleGroupItem, provideToggleGroupItemState } from './toggle-group-
   exportAs: 'ngpToggleGroupItem',
   providers: [provideToggleGroupItemState(), provideRovingFocusItemState()],
 })
-export class NgpToggleGroupItem implements OnInit {
+export class NgpToggleGroupItem<T = string> implements OnInit {
   /**
    * The value of the item.
    * @required
    */
-  readonly value = input<string>(undefined, {
+  readonly value = input<T>(undefined, {
     alias: 'ngpToggleGroupItemValue',
   });
 
@@ -26,8 +26,8 @@ export class NgpToggleGroupItem implements OnInit {
   });
 
   constructor() {
-    ngpToggleGroupItem({
-      value: this.value as Signal<string>,
+    ngpToggleGroupItem<T>({
+      value: this.value as Signal<T>,
       disabled: this.disabled,
     });
     // Initialize the roving focus item state

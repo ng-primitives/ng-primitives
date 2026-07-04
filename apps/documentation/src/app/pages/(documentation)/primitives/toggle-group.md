@@ -5,7 +5,7 @@ sourceUrl: 'https://github.com/ng-primitives/ng-primitives/tree/next/packages/ng
 
 # Toggle Group
 
-The toggle group primitive is a collection of toggle buttons that can be used to select one or more options.
+The toggle group primitive is a collection of toggle buttons that can be used to select one or more options. Values are generic and can be any type — strings, numbers, or objects.
 
 <docs-example name="toggle-group"></docs-example>
 
@@ -22,10 +22,20 @@ import { NgpToggleGroup, NgpToggleGroupItem } from 'ng-primitives/toggle-group';
 Assemble the toggle-group directives in your template.
 
 ```html
-<div ngpToggleGroup>
-  <button ngpToggleGroupItem ngpToggleGroupItemValue="1">Option 1</button>
-  <button ngpToggleGroupItem ngpToggleGroupItemValue="2">Option 2</button>
-  <button ngpToggleGroupItem ngpToggleGroupItemValue="3">Option 3</button>
+<div ngpToggleGroup [(ngpToggleGroupValue)]="selected">
+  <button ngpToggleGroupItem ngpToggleGroupItemValue="option-1">Option 1</button>
+  <button ngpToggleGroupItem ngpToggleGroupItemValue="option-2">Option 2</button>
+  <button ngpToggleGroupItem ngpToggleGroupItemValue="option-3">Option 3</button>
+</div>
+```
+
+To use non-string values such as numbers or objects, use property binding:
+
+```html
+<div ngpToggleGroup [(ngpToggleGroupValue)]="selected">
+  <button ngpToggleGroupItem [ngpToggleGroupItemValue]="1">Option 1</button>
+  <button ngpToggleGroupItem [ngpToggleGroupItemValue]="2">Option 2</button>
+  <button ngpToggleGroupItem [ngpToggleGroupItemValue]="3">Option 3</button>
 </div>
 ```
 

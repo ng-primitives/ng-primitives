@@ -1,4 +1,4 @@
-import { Signal, WritableSignal } from '@angular/core';
+import { FactoryProvider, InjectionToken, Signal, WritableSignal } from '@angular/core';
 import { NgpOrientation } from 'ng-primitives/common';
 import { injectElementRef } from 'ng-primitives/internal';
 import { NgpRovingFocusGroupState } from 'ng-primitives/roving-focus';
@@ -10,22 +10,23 @@ import {
   dataBinding,
   deprecatedSetter,
   SetterOptions,
+  StateInjectionOptions,
 } from 'ng-primitives/state';
 import { Observable } from 'rxjs';
 
 /**
  * The state interface for the ToggleGroup pattern.
  */
-export interface NgpToggleGroupState {
+export interface NgpToggleGroupState<T = string> {
   /**
    * The current value(s) of the toggle group.
    */
-  readonly value: WritableSignal<string[]>;
+  readonly value: WritableSignal<T[]>;
 
   /**
    * Emit when the value changes.
    */
-  readonly valueChange: Observable<string[]>;
+  readonly valueChange: Observable<T[]>;
 
   /**
    * Whether the toggle group is disabled.
@@ -39,32 +40,32 @@ export interface NgpToggleGroupState {
   /**
    * Select a value in the toggle group.
    */
-  select(selection: string): void;
+  select(selection: T): void;
 
   /**
    * De-select a value in the toggle group.
    */
-  deselect(selection: string): void;
+  deselect(selection: T): void;
 
   /**
    * Check if a value is selected in the toggle group.
    */
-  isSelected(selection: string): boolean;
+  isSelected(selection: T): boolean;
 
   /**
    * Toggle a value in the toggle group.
    */
-  toggle(selection: string): void;
+  toggle(selection: T): void;
 
   /**
    * Set the value(s) of the toggle group.
    */
-  setValue(newValue: string[], options?: SetterOptions): void;
+  setValue(newValue: T[], options?: SetterOptions): void;
 
   /**
    * Set the default value(s) of the toggle group.
    */
-  setDefaultValue(defaultValue: string[]): void;
+  setDefaultValue(defaultValue: T[]): void;
 
   /**
    * Set the disabled state of the toggle group.
@@ -80,7 +81,7 @@ export interface NgpToggleGroupState {
 /**
  * The props interface for the ToggleGroup pattern.
  */
-export interface NgpToggleGroupProps {
+export interface NgpToggleGroupProps<T = string> {
   /**
    * The roving focus group state for the toggle-group.
    */
@@ -101,11 +102,11 @@ export interface NgpToggleGroupProps {
   /**
    * The value(s) of the toggle-group.
    */
-  readonly value: Signal<string[] | undefined>;
+  readonly value: Signal<T[] | undefined>;
   /**
    * The default value(s) of the toggle-group for uncontrolled usage.
    */
-  readonly defaultValue?: Signal<string[]>;
+  readonly defaultValue?: Signal<T[]>;
   /**
    * Whether the toggle-group is disabled.
    */
@@ -113,26 +114,22 @@ export interface NgpToggleGroupProps {
   /**
    * Emit when the value changes.
    */
-  readonly onValueChange?: (value: string[]) => void;
+  readonly onValueChange?: (value: T[]) => void;
 }
 
-export const [
-  NgpToggleGroupStateToken,
-  ngpToggleGroup,
-  injectToggleGroupState,
-  provideToggleGroupState,
-] = createPrimitive(
-  'NgpToggleGroup',
-  ({
-    rovingFocusGroup,
-    orientation: _orientation,
-    allowDeselection: _allowDeselection,
-    type: _type,
-    value: _value,
-    defaultValue: _defaultValue,
-    disabled: _disabled,
-    onValueChange,
-  }: NgpToggleGroupProps): NgpToggleGroupState => {
+const [_NgpToggleGroupStateToken, _ngpToggleGroup, _injectToggleGroupState, _provideToggleGroupState] =
+  createPrimitive(
+    'NgpToggleGroup',
+    ({
+      rovingFocusGroup,
+      orientation: _orientation,
+      allowDeselection: _allowDeselection,
+      type: _type,
+      value: _value,
+      defaultValue: _defaultValue,
+      disabled: _disabled,
+      onValueChange,
+    }: NgpToggleGroupProps<unknown>): NgpToggleGroupState<unknown> => {
     const element = injectElementRef();
 
     const allowDeselection = controlled(_allowDeselection, true);
@@ -230,6 +227,23 @@ export const [
       setDisabled,
       setOrientation,
       valueChange,
-    } satisfies NgpToggleGroupState;
+    } satisfies NgpToggleGroupState<unknown>;
   },
 );
+
+export const NgpToggleGroupStateToken = _NgpToggleGroupStateToken as InjectionToken<
+  WritableSignal<NgpToggleGroupState<unknown>>
+>;
+
+export const ngpToggleGroup = _ngpToggleGroup as <T = string>(
+  props: NgpToggleGroupProps<T>,
+) => NgpToggleGroupState<T>;
+
+export const injectToggleGroupState = _injectToggleGroupState as {
+  <T = string>(): Signal<NgpToggleGroupState<T>>;
+  <T = string>(options: StateInjectionOptions): Signal<NgpToggleGroupState<T> | null>;
+};
+
+export const provideToggleGroupState = _provideToggleGroupState as (opts?: {
+  inherit?: boolean;
+}) => FactoryProvider;

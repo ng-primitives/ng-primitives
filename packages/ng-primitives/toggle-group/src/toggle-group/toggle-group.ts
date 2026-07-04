@@ -11,7 +11,7 @@ import { ngpToggleGroup, provideToggleGroupState } from './toggle-group-state';
   exportAs: 'ngpToggleGroup',
   providers: [provideToggleGroupState(), provideRovingFocusGroupState({ inherit: true })],
 })
-export class NgpToggleGroup {
+export class NgpToggleGroup<T = string> {
   /**
    * Access the global toggle group configuration.
    */
@@ -50,18 +50,18 @@ export class NgpToggleGroup {
   /**
    * The selected value(s) of the toggle group.
    */
-  readonly value = input<string[] | undefined>(undefined, { alias: 'ngpToggleGroupValue' });
+  readonly value = input<T[] | undefined>(undefined, { alias: 'ngpToggleGroupValue' });
 
   /**
    * The default selected value(s) for uncontrolled usage.
    * @default []
    */
-  readonly defaultValue = input<string[]>([], { alias: 'ngpToggleGroupDefaultValue' });
+  readonly defaultValue = input<T[]>([], { alias: 'ngpToggleGroupDefaultValue' });
 
   /**
    * Emits when the value of the toggle group changes.
    */
-  readonly valueChange = output<string[]>({ alias: 'ngpToggleGroupValueChange' });
+  readonly valueChange = output<T[]>({ alias: 'ngpToggleGroupValueChange' });
 
   /**
    * Whether the toggle group is disabled.
@@ -74,7 +74,7 @@ export class NgpToggleGroup {
   /**
    * The state of the toggle group.
    */
-  protected readonly state = ngpToggleGroup({
+  protected readonly state = ngpToggleGroup<T>({
     rovingFocusGroup: ngpRovingFocusGroup({
       orientation: this.orientation,
       disabled: this.disabled,
@@ -86,27 +86,27 @@ export class NgpToggleGroup {
     value: this.value,
     defaultValue: this.defaultValue,
     disabled: this.disabled,
-    onValueChange: (value: string[]) => this.valueChange.emit(value),
+    onValueChange: (value: T[]) => this.valueChange.emit(value),
   });
 
   /**
    * Toggle a value in the toggle group.
    */
-  toggle(value: string): void {
+  toggle(value: T): void {
     this.state.toggle(value);
   }
 
   /**
    * Set the value(s) of the toggle group.
    */
-  setValue(newValue: string[], options?: SetterOptions): void {
+  setValue(newValue: T[], options?: SetterOptions): void {
     this.state.setValue(newValue, options);
   }
 
   /**
    * Set the default value(s) of the toggle group.
    */
-  setDefaultValue(defaultValue: string[]): void {
+  setDefaultValue(defaultValue: T[]): void {
     this.state.setDefaultValue(defaultValue);
   }
 
