@@ -1,3 +1,4 @@
+import { Dir } from '@angular/cdk/bidi';
 import { By } from '@angular/platform-browser';
 import { fireEvent, render } from '@testing-library/angular';
 import { describe, expect, it, vi } from 'vitest';
@@ -466,6 +467,214 @@ describe('NgpRadioGroup', () => {
       detectChanges();
 
       expect(valueChange).not.toHaveBeenCalled();
+    });
+
+    it('should not wrap past the last item (ArrowRight)', async () => {
+      const valueChange = vi.fn();
+      const { getByRole, detectChanges } = await render(
+        `<div ngpRadioGroup (ngpRadioGroupValueChange)="valueChange($event)">
+          <div ngpRadioItem ngpRadioItemValue="1">One</div>
+          <div ngpRadioItem ngpRadioItemValue="2">Two</div>
+          <div ngpRadioItem ngpRadioItemValue="3">Three</div>
+        </div>`,
+        {
+          imports: [NgpRadioGroup, NgpRadioItem],
+          componentProperties: { valueChange },
+        },
+      );
+
+      // click activates the last item in the roving focus group (a bare
+      // programmatic focus() would not move the active item)
+      const radioThree = getByRole('radio', { name: 'Three' });
+      radioThree.click();
+      detectChanges();
+      valueChange.mockClear();
+
+      fireEvent.keyDown(radioThree, { key: 'ArrowRight' });
+      detectChanges();
+
+      expect(valueChange).not.toHaveBeenCalled();
+      expect(radioThree).toHaveAttribute('data-checked', '');
+    });
+
+    it('should not wrap before the first item (ArrowLeft)', async () => {
+      const valueChange = vi.fn();
+      const { getByRole, detectChanges } = await render(
+        `<div ngpRadioGroup (ngpRadioGroupValueChange)="valueChange($event)">
+          <div ngpRadioItem ngpRadioItemValue="1">One</div>
+          <div ngpRadioItem ngpRadioItemValue="2">Two</div>
+        </div>`,
+        {
+          imports: [NgpRadioGroup, NgpRadioItem],
+          componentProperties: { valueChange },
+        },
+      );
+
+      const radioOne = getByRole('radio', { name: 'One' });
+      radioOne.focus();
+      detectChanges();
+      valueChange.mockClear();
+
+      fireEvent.keyDown(radioOne, { key: 'ArrowLeft' });
+      detectChanges();
+
+      expect(valueChange).not.toHaveBeenCalled();
+      expect(radioOne).toHaveAttribute('data-checked', '');
+    });
+
+    it('should ignore vertical keys in horizontal orientation', async () => {
+      const valueChange = vi.fn();
+      const { getByRole, detectChanges } = await render(
+        `<div ngpRadioGroup (ngpRadioGroupValueChange)="valueChange($event)">
+          <div ngpRadioItem ngpRadioItemValue="1">One</div>
+          <div ngpRadioItem ngpRadioItemValue="2">Two</div>
+        </div>`,
+        {
+          imports: [NgpRadioGroup, NgpRadioItem],
+          componentProperties: { valueChange },
+        },
+      );
+
+      const radioOne = getByRole('radio', { name: 'One' });
+      radioOne.focus();
+      detectChanges();
+      valueChange.mockClear();
+
+      fireEvent.keyDown(radioOne, { key: 'ArrowDown' });
+      fireEvent.keyDown(radioOne, { key: 'ArrowUp' });
+      detectChanges();
+
+      expect(valueChange).not.toHaveBeenCalled();
+    });
+
+    it('should ignore horizontal keys in vertical orientation', async () => {
+      const valueChange = vi.fn();
+      const { getByRole, detectChanges } = await render(
+        `<div ngpRadioGroup ngpRadioGroupOrientation="vertical" (ngpRadioGroupValueChange)="valueChange($event)">
+          <div ngpRadioItem ngpRadioItemValue="1">One</div>
+          <div ngpRadioItem ngpRadioItemValue="2">Two</div>
+        </div>`,
+        {
+          imports: [NgpRadioGroup, NgpRadioItem],
+          componentProperties: { valueChange },
+        },
+      );
+
+      const radioOne = getByRole('radio', { name: 'One' });
+      radioOne.focus();
+      detectChanges();
+      valueChange.mockClear();
+
+      fireEvent.keyDown(radioOne, { key: 'ArrowLeft' });
+      fireEvent.keyDown(radioOne, { key: 'ArrowRight' });
+      detectChanges();
+
+      expect(valueChange).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('direction (RTL)', () => {
+    it('should move to the next item on ArrowLeft in horizontal RTL', async () => {
+      const valueChange = vi.fn();
+      const { getByRole, detectChanges } = await render(
+        `<div dir="rtl">
+          <div ngpRadioGroup (ngpRadioGroupValueChange)="valueChange($event)">
+            <div ngpRadioItem ngpRadioItemValue="1">One</div>
+            <div ngpRadioItem ngpRadioItemValue="2">Two</div>
+            <div ngpRadioItem ngpRadioItemValue="3">Three</div>
+          </div>
+        </div>`,
+        {
+          imports: [NgpRadioGroup, NgpRadioItem, Dir],
+          componentProperties: { valueChange },
+        },
+      );
+
+      const radioOne = getByRole('radio', { name: 'One' });
+      radioOne.focus();
+      detectChanges();
+      valueChange.mockClear();
+
+      fireEvent.keyDown(radioOne, { key: 'ArrowLeft' });
+      detectChanges();
+
+      expect(valueChange).toHaveBeenCalledWith('2');
+    });
+
+    it('should move to the previous item on ArrowRight in horizontal RTL', async () => {
+      const valueChange = vi.fn();
+      const { getByRole, detectChanges } = await render(
+        `<div dir="rtl">
+          <div ngpRadioGroup (ngpRadioGroupValueChange)="valueChange($event)">
+            <div ngpRadioItem ngpRadioItemValue="1">One</div>
+            <div ngpRadioItem ngpRadioItemValue="2">Two</div>
+            <div ngpRadioItem ngpRadioItemValue="3">Three</div>
+          </div>
+        </div>`,
+        {
+          imports: [NgpRadioGroup, NgpRadioItem, Dir],
+          componentProperties: { valueChange },
+        },
+      );
+
+      const radioTwo = getByRole('radio', { name: 'Two' });
+      radioTwo.click();
+      detectChanges();
+      valueChange.mockClear();
+
+      fireEvent.keyDown(radioTwo, { key: 'ArrowRight' });
+      detectChanges();
+
+      expect(valueChange).toHaveBeenCalledWith('1');
+    });
+  });
+
+  describe('multiple groups', () => {
+    it('should keep selection isolated between independent groups', async () => {
+      const { getByRole, detectChanges } = await render(
+        `<div ngpRadioGroup>
+          <div ngpRadioItem ngpRadioItemValue="a1">Group1 One</div>
+          <div ngpRadioItem ngpRadioItemValue="a2">Group1 Two</div>
+        </div>
+        <div ngpRadioGroup>
+          <div ngpRadioItem ngpRadioItemValue="b1">Group2 One</div>
+          <div ngpRadioItem ngpRadioItemValue="b2">Group2 Two</div>
+        </div>`,
+        { imports: [NgpRadioGroup, NgpRadioItem] },
+      );
+
+      getByRole('radio', { name: 'Group1 One' }).click();
+      detectChanges();
+
+      expect(getByRole('radio', { name: 'Group1 One' })).toHaveAttribute('data-checked', '');
+      expect(getByRole('radio', { name: 'Group2 One' })).not.toHaveAttribute('data-checked');
+      expect(getByRole('radio', { name: 'Group2 Two' })).not.toHaveAttribute('data-checked');
+    });
+  });
+
+  describe('directive API', () => {
+    it('should select and emit via the select() method', async () => {
+      const valueChange = vi.fn();
+      const { fixture, getByRole, detectChanges } = await render(
+        `<div ngpRadioGroup (ngpRadioGroupValueChange)="valueChange($event)">
+          <div ngpRadioItem ngpRadioItemValue="1">One</div>
+          <div ngpRadioItem ngpRadioItemValue="2">Two</div>
+        </div>`,
+        {
+          imports: [NgpRadioGroup, NgpRadioItem],
+          componentProperties: { valueChange },
+        },
+      );
+
+      const radioGroup = fixture.debugElement
+        .query(By.directive(NgpRadioGroup))
+        .injector.get(NgpRadioGroup);
+
+      radioGroup.select('2');
+      detectChanges();
+
+      expect(valueChange).toHaveBeenCalledWith('2');
+      expect(getByRole('radio', { name: 'Two' })).toHaveAttribute('data-checked', '');
     });
   });
 

@@ -166,6 +166,53 @@ describe('RadioGroup (reusable component) — reactive forms', () => {
     expect(one).toHaveAttribute('data-checked', '');
   });
 
+  it('marks the control as touched on focusout', async () => {
+    const formControl = new FormControl<string | null>(null);
+    const { getByRole, fixture } = await render(
+      `
+      <app-radio-group [formControl]="formControl">
+        <app-radio-item value="1">One</app-radio-item>
+        <app-radio-item value="2">Two</app-radio-item>
+      </app-radio-group>
+      `,
+      {
+        imports: [RadioGroup, RadioItemFixture, ReactiveFormsModule],
+        componentProperties: { formControl },
+      },
+    );
+
+    expect(formControl.touched).toBe(false);
+
+    fireEvent.focusOut(getByRole('radiogroup'));
+    fixture.detectChanges();
+
+    expect(formControl.touched).toBe(true);
+  });
+
+  it('clears the selection when the control is reset', async () => {
+    const formControl = new FormControl<string | null>('1');
+    const { getByRole, fixture } = await render(
+      `
+      <app-radio-group [formControl]="formControl">
+        <app-radio-item value="1">One</app-radio-item>
+        <app-radio-item value="2">Two</app-radio-item>
+      </app-radio-group>
+      `,
+      {
+        imports: [RadioGroup, RadioItemFixture, ReactiveFormsModule],
+        componentProperties: { formControl },
+      },
+    );
+
+    expect(getByRole('radio', { name: 'One' })).toHaveAttribute('data-checked', '');
+
+    formControl.reset();
+    fixture.detectChanges();
+
+    expect(formControl.value).toBeNull();
+    expect(getByRole('radio', { name: 'One' })).not.toHaveAttribute('data-checked');
+  });
+
   it('does not loop writeValue back through onChange (regression)', async () => {
     const formControl = new FormControl<string | null>(null);
     const { fixture } = await render(
