@@ -124,6 +124,21 @@ class TestMenuWithDisabledItemsComponent {
 })
 class TestMenuFocusTrapComponent {}
 
+@Component({
+  template: `
+    <button [ngpMenuTrigger]="menu" data-testid="trigger">Open Menu</button>
+
+    <ng-template #menu>
+      <div ngpMenu data-testid="menu">
+        <div ngpMenuItem data-testid="item-1">Item 1</div>
+        <div ngpMenuItem data-testid="item-2">Item 2</div>
+      </div>
+    </ng-template>
+  `,
+  imports: [NgpMenuTrigger, NgpMenu, NgpMenuItem],
+})
+class TestMenuWithDivItemsComponent {}
+
 describe('NgpMenu', () => {
   describe('Focus Trap (WAI-ARIA compliance)', () => {
     // Per WAI-ARIA guidelines, menus should always trap focus (Tab cannot leave menu).
@@ -809,6 +824,25 @@ describe('NgpSubmenuTrigger', () => {
 });
 
 describe('NgpMenuItem', () => {
+  describe('focus management', () => {
+    it('should focus the first item when menu items are not natively focusable', async () => {
+      const { fixture } = await render(TestMenuWithDivItemsComponent);
+      const trigger = fixture.debugElement.nativeElement.querySelector('[data-testid="trigger"]');
+
+      fireEvent.click(trigger);
+      fixture.detectChanges();
+
+      await waitFor(() => {
+        expect(document.querySelector('[data-testid="item-1"]')).toBe(document.activeElement);
+      });
+
+      fireEvent.keyDown(document.activeElement!, { key: 'ArrowDown' });
+      fixture.detectChanges();
+
+      expect(document.querySelector('[data-testid="item-2"]')).toBe(document.activeElement);
+    });
+  });
+
   describe('closeAllMenus on selection', () => {
     it('should call closeAllMenus when item is clicked', async () => {
       const { fixture } = await render(TestMenuWithSubmenuComponent);

@@ -5,7 +5,7 @@ import { provideFocusTrapState } from 'ng-primitives/focus-trap';
 import { provideControlContainerIsolation } from 'ng-primitives/portal';
 import { ngpRovingFocusGroup, provideRovingFocusGroupState } from 'ng-primitives/roving-focus';
 import { injectMenuConfig } from '../config/menu-config';
-import { ngpMenu, provideMenuState } from './menu-state';
+import { ngpMenu, NgpMenuState, provideMenuState } from './menu-state';
 
 /**
  * The `NgpMenu` is a container for menu items.
@@ -33,10 +33,11 @@ export class NgpMenu {
     transform: booleanAttribute,
   });
 
-  private readonly state = ngpMenu({ wrap: this.wrap });
+  private readonly state: NgpMenuState;
 
   constructor() {
     ngpRovingFocusGroup({ inherit: false, wrap: this.wrap });
+    this.state = ngpMenu({});
   }
 
   /** @internal Close the menu and any parent menus */
