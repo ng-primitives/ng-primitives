@@ -133,7 +133,8 @@ export const [
     // `orientation` signals directly. This keeps keyboard navigation in sync
     // with programmatic/form-driven changes (e.g. `setDisabled`, `setOrientation`)
     // without needing to re-push each value across a directive boundary.
-    ngpRovingFocusGroup({ orientation, disabled });
+    // `wrap` is always on to match the ARIA radio pattern (arrow keys cycle).
+    ngpRovingFocusGroup({ orientation, disabled, wrap: signal(true) });
 
     ngpFormControl({ id, disabled });
 

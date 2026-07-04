@@ -57,6 +57,7 @@ export const [NgpRadioItemStateToken, ngpRadioItem, _injectRadioItemState, provi
       // Host bindings
       attrBinding(element, 'role', 'radio');
       attrBinding(element, 'aria-checked', () => (checked() ? 'true' : 'false'));
+      attrBinding(element, 'aria-disabled', disabled);
       dataBinding(element, 'data-disabled', disabled);
       dataBinding(element, 'data-checked', checked);
 

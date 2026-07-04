@@ -519,7 +519,7 @@ describe('NgpRadioGroup', () => {
       expect(valueChange).not.toHaveBeenCalled();
     });
 
-    it('should not wrap past the last item (ArrowRight)', async () => {
+    it('should wrap to the first item past the last (ArrowRight)', async () => {
       const valueChange = vi.fn();
       const { getByRole, detectChanges } = await render(
         `<div ngpRadioGroup (ngpRadioGroupValueChange)="valueChange($event)">
@@ -540,14 +540,15 @@ describe('NgpRadioGroup', () => {
       detectChanges();
       valueChange.mockClear();
 
+      // radio groups wrap per the ARIA radio pattern
       fireEvent.keyDown(radioThree, { key: 'ArrowRight' });
       detectChanges();
 
-      expect(valueChange).not.toHaveBeenCalled();
-      expect(radioThree).toHaveAttribute('data-checked', '');
+      expect(valueChange).toHaveBeenCalledWith('1');
+      expect(getByRole('radio', { name: 'One' })).toHaveAttribute('data-checked', '');
     });
 
-    it('should not wrap before the first item (ArrowLeft)', async () => {
+    it('should wrap to the last item before the first (ArrowLeft)', async () => {
       const valueChange = vi.fn();
       const { getByRole, detectChanges } = await render(
         `<div ngpRadioGroup (ngpRadioGroupValueChange)="valueChange($event)">
@@ -565,11 +566,12 @@ describe('NgpRadioGroup', () => {
       detectChanges();
       valueChange.mockClear();
 
+      // radio groups wrap per the ARIA radio pattern
       fireEvent.keyDown(radioOne, { key: 'ArrowLeft' });
       detectChanges();
 
-      expect(valueChange).not.toHaveBeenCalled();
-      expect(radioOne).toHaveAttribute('data-checked', '');
+      expect(valueChange).toHaveBeenCalledWith('2');
+      expect(getByRole('radio', { name: 'Two' })).toHaveAttribute('data-checked', '');
     });
 
     it('should ignore vertical keys in horizontal orientation', async () => {
@@ -862,6 +864,19 @@ describe('NgpRadioGroup', () => {
 
       radioTwo.click();
       expect(valueChange).not.toHaveBeenCalled();
+    });
+
+    it('should expose aria-disabled reflecting the item disabled state', async () => {
+      const { getByRole } = await render(
+        `<div ngpRadioGroup>
+          <div ngpRadioItem ngpRadioItemValue="1">One</div>
+          <div ngpRadioItem ngpRadioItemValue="2" ngpRadioItemDisabled>Two</div>
+        </div>`,
+        { imports: [NgpRadioGroup, NgpRadioItem] },
+      );
+
+      expect(getByRole('radio', { name: 'One' })).toHaveAttribute('aria-disabled', 'false');
+      expect(getByRole('radio', { name: 'Two' })).toHaveAttribute('aria-disabled', 'true');
     });
 
     it('should throw when a radio item has no value', async () => {
