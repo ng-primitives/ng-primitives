@@ -39,11 +39,6 @@ export interface NgpToggleGroupState<T = string> {
   readonly orientation: WritableSignal<NgpOrientation>;
 
   /**
-   * The comparator used to determine whether two values are equal.
-   */
-  readonly compareWith: WritableSignal<(a: T, b: T) => boolean>;
-
-  /**
    * Select a value in the toggle group.
    */
   select(selection: T): void;
@@ -242,7 +237,6 @@ export const [
     return {
       select,
       deselect,
-      compareWith,
       disabled: deprecatedSetter(disabled, 'setDisabled'),
       isSelected,
       toggle,
