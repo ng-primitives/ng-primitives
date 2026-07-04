@@ -37,6 +37,12 @@ export interface NgpToggleGroupState<T = string> {
    * The orientation of the toggle group.
    */
   readonly orientation: WritableSignal<NgpOrientation>;
+
+  /**
+   * The comparator used to determine whether two values are equal.
+   */
+  readonly compareWith: WritableSignal<(a: T, b: T) => boolean>;
+
   /**
    * Select a value in the toggle group.
    */
@@ -112,6 +118,11 @@ export interface NgpToggleGroupProps<T = string> {
    */
   readonly disabled?: Signal<boolean>;
   /**
+   * The comparator used to determine whether two values are equal.
+   * @default (a, b) => a === b
+   */
+  readonly compareWith?: Signal<(a: T, b: T) => boolean>;
+  /**
    * Emit when the value changes.
    */
   readonly onValueChange?: (value: T[]) => void;
@@ -132,6 +143,7 @@ const [
     value: _value,
     defaultValue: _defaultValue,
     disabled: _disabled,
+    compareWith: _compareWith,
     onValueChange,
   }: NgpToggleGroupProps<unknown>): NgpToggleGroupState<unknown> => {
     const element = injectElementRef();
@@ -141,8 +153,9 @@ const [
     const disabled = controlled(_disabled, false);
     const orientation = controlled(_orientation, 'horizontal');
     const defaultValue = controlled(_defaultValue, []);
+    const compareWith = controlled(_compareWith, (a: unknown, b: unknown) => a === b);
 
-    const [value, setValueInternal, valueChange] = controlledState<string[]>({
+    const [value, setValueInternal, valueChange] = controlledState<unknown[]>({
       value: _value,
       defaultValue,
       onChange: onValueChange,
@@ -157,12 +170,12 @@ const [
     /**
      * Select a value in the toggle group.
      */
-    function select(selection: string): void {
+    function select(selection: unknown): void {
       if (disabled()) {
         return;
       }
 
-      let newValue: string[] = [];
+      let newValue: unknown[] = [];
 
       if (type() === 'single') {
         newValue = [selection];
@@ -176,12 +189,13 @@ const [
     /**
      * De-select a value in the toggle group.
      */
-    function deselect(selection: string): void {
+    function deselect(selection: unknown): void {
       if (disabled() || !allowDeselection()) {
         return;
       }
 
-      const newValue = value().filter(v => v !== selection);
+      const cmp = compareWith();
+      const newValue = value().filter(v => !cmp(v, selection));
       setValue(newValue);
     }
 
@@ -189,15 +203,16 @@ const [
      * Check if a value is selected in the toggle group.
      * @internal
      */
-    function isSelected(itemValue: string): boolean {
-      return value().includes(itemValue);
+    function isSelected(itemValue: unknown): boolean {
+      const cmp = compareWith();
+      return value().some(v => cmp(v, itemValue));
     }
 
     /**
      * Toggle a value in the toggle group.
      * @internal
      */
-    function toggle(itemValue: string): void {
+    function toggle(itemValue: unknown): void {
       if (isSelected(itemValue)) {
         deselect(itemValue);
       } else {
@@ -205,7 +220,7 @@ const [
       }
     }
 
-    function setValue(newValue: string[], options?: SetterOptions): void {
+    function setValue(newValue: unknown[], options?: SetterOptions): void {
       setValueInternal(newValue, options);
     }
 
@@ -221,6 +236,7 @@ const [
     return {
       select,
       deselect,
+      compareWith,
       disabled: deprecatedSetter(disabled, 'setDisabled'),
       isSelected,
       toggle,

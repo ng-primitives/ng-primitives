@@ -64,6 +64,15 @@ export class NgpToggleGroup<T = string> {
   readonly valueChange = output<T[]>({ alias: 'ngpToggleGroupValueChange' });
 
   /**
+   * The comparator used to determine whether two values are equal.
+   * Useful when values are objects and equality should be checked by value rather than by reference.
+   * @default (a, b) => a === b
+   */
+  readonly compareWith = input<(a: T, b: T) => boolean>((a, b) => a === b, {
+    alias: 'ngpToggleGroupCompareWith',
+  });
+
+  /**
    * Whether the toggle group is disabled.
    */
   readonly disabled = input<boolean, BooleanInput>(false, {
@@ -86,6 +95,7 @@ export class NgpToggleGroup<T = string> {
     value: this.value,
     defaultValue: this.defaultValue,
     disabled: this.disabled,
+    compareWith: this.compareWith,
     onValueChange: (value: T[]) => this.valueChange.emit(value),
   });
 
