@@ -46,8 +46,7 @@ export const [
 
     // Listener
     listener(elementRef, 'click', goToFirstPage);
-    listener(elementRef, 'keydown.enter', handleOnEnter);
-    listener(elementRef, 'keydown.space', handleOnEnter);
+    listener(elementRef, 'keydown', handleKeydown);
 
     function goToFirstPage(): void {
       if (disabled()) {
@@ -57,7 +56,11 @@ export const [
       paginationState().goToPage(1);
     }
 
-    function handleOnEnter(event: Event): void {
+    function handleKeydown(event: KeyboardEvent): void {
+      if (event.repeat || (event.key !== 'Enter' && event.key !== ' ')) {
+        return;
+      }
+
       event.preventDefault();
       event.stopPropagation();
       goToFirstPage();

@@ -91,6 +91,65 @@ describe('NgpPagination', () => {
     expect(pagination).not.toHaveAttribute('data-last-page');
   });
 
+  it('should navigate with Enter and Space keydown events on non-button controls', async () => {
+    const { getByRole, getByTestId } = await render(
+      `<div ngpPagination [(ngpPaginationPage)]="page" [ngpPaginationPageCount]="5">
+        <a data-testid="first-page-button" ngpPaginationFirst>First</a>
+        <a data-testid="previous-page-button" ngpPaginationPrevious>Previous</a>
+        <a data-testid="go-to-page-4" ngpPaginationButton ngpPaginationButtonPage="4">Go to Page 4</a>
+        <a data-testid="next-page-button" ngpPaginationNext>Next</a>
+        <a data-testid="last-page-button" ngpPaginationLast>Last</a>
+      </div>`,
+      {
+        imports: [
+          NgpPagination,
+          NgpPaginationButton,
+          NgpPaginationFirst,
+          NgpPaginationLast,
+          NgpPaginationNext,
+          NgpPaginationPrevious,
+        ],
+        componentProperties: { page: 3 },
+      },
+    );
+    const pagination = getByRole('navigation');
+    expect(pagination).toHaveAttribute('data-page', '3');
+
+    fireEvent.keyDown(getByTestId('first-page-button'), { key: 'Enter' });
+    expect(pagination).toHaveAttribute('data-page', '1');
+
+    fireEvent.keyDown(getByTestId('next-page-button'), { key: 'Enter' });
+    expect(pagination).toHaveAttribute('data-page', '2');
+
+    fireEvent.keyDown(getByTestId('go-to-page-4'), { key: ' ' });
+    expect(pagination).toHaveAttribute('data-page', '4');
+
+    fireEvent.keyDown(getByTestId('previous-page-button'), { key: ' ' });
+    expect(pagination).toHaveAttribute('data-page', '3');
+
+    fireEvent.keyDown(getByTestId('last-page-button'), { key: 'Enter' });
+    expect(pagination).toHaveAttribute('data-page', '5');
+  });
+
+  it('should ignore repeated keydown events', async () => {
+    const { getByRole, getByTestId } = await render(
+      `<div ngpPagination [(ngpPaginationPage)]="page" [ngpPaginationPageCount]="5">
+        <a data-testid="previous-page-button" ngpPaginationPrevious>Previous</a>
+      </div>`,
+      {
+        imports: [NgpPagination, NgpPaginationPrevious],
+        componentProperties: { page: 3 },
+      },
+    );
+    const pagination = getByRole('navigation');
+    const previous = getByTestId('previous-page-button');
+    expect(pagination).toHaveAttribute('data-page', '3');
+
+    fireEvent.keyDown(previous, { key: 'Enter' });
+    fireEvent.keyDown(previous, { key: 'Enter', repeat: true });
+    expect(pagination).toHaveAttribute('data-page', '2');
+  });
+
   it('should not emit pageChange or update page if goToPage is called with out-of-bounds value', async () => {
     const { getByRole, getByTestId } = await render(
       `<div ngpPagination [(ngpPaginationPage)]="page" [ngpPaginationPageCount]="2">
