@@ -402,12 +402,54 @@ Sometimes a state file may need to change the value of a prop internally. In the
 ```typescript
 export const [NgpComponentStateToken, ngpComponent, injectComponentState, provideComponentState] =
   createPrimitive('NgpComponent', ({ value: _value = signal<string>('') }: NgpComponentProps) => {
-    const value = controlled(value);
+    const value = controlled(_value);
     function setValue(newValue: string): void {
       value.set(newValue);
     }
     return { value, setValue };
   });
+```
+
+If we need to have an emitter and a setter, we can use `state` utility to create a writable signal from a prop signal, an emitter and a setter function.
+
+It also can takes in an argument of type `(value: T) => void`, useful when a callback is needed in the directive itself.
+
+```typescript
+export const [NgpComponentStateToken, ngpComponent, injectComponentState, provideComponentState] =
+  createPrimitive(
+    'NgpComponent',
+    ({ value: _value = signal<string>(''), onValueChange }: NgpComponentProps) => {
+      const [value, setValue, valueChanged] = state({
+        value: _value,
+        onChange: onValueChange,
+      });
+
+      return { value, setValue, valueChanged };
+    },
+  );
+```
+
+We can also pass in a `setHandler` in order to customize the setter behavior, like closing a tooltip if the trigger become disabled.
+This can be achived by adding the `setHandler` parameter in `StateOptions<T>`.
+
+**The handler is always called after the value change. If `emit` is not `false`, emission occures before the handler is called**
+
+```typescript
+export const [NgpComponentStateToken, ngpComponent, injectComponentState, provideComponentState] =
+  createPrimitive(
+    'NgpComponent',
+    ({ value: _value = signal<string>(''), onValueChange }: NgpComponentProps) => {
+      const [value, setValue, valueChanged] = state({
+        value: _value,
+        onChange: onValueChange,
+        setHandler: (value: string) => {
+          console.log(value);
+        },
+      });
+
+      return { value, setValue, valueChanged };
+    },
+  );
 ```
 
 ## Composing states

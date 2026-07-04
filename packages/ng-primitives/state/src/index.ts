@@ -462,6 +462,33 @@ export function controlledState<T>({
   return [resolved.asReadonly() as Signal<T>, set, change.asObservable()];
 }
 
+export interface StateOptions<T> {
+  readonly value: Signal<T | undefined>;
+  readonly onChange?: (value: T) => void;
+  readonly setHandler?: (newValue: T) => void;
+}
+
+export function state<T>({ value, onChange, setHandler }: StateOptions<T>): ControlledState<T> {
+  const change = emitter<T>();
+
+  const internalValue = linkedSignal(() => value());
+
+  function set(newValue: T, options?: SetterOptions): void {
+    if (internalValue() === newValue && options?.emit !== false) return;
+
+    internalValue.set(newValue);
+
+    if (options?.emit !== false) {
+      onChange?.(newValue);
+      change.emit(newValue);
+    }
+
+    setHandler?.(newValue);
+  }
+
+  return [internalValue.asReadonly() as Signal<T>, set, change.asObservable()];
+}
+
 function setAttribute(
   element: ElementRef<HTMLElement>,
   attr: string,
