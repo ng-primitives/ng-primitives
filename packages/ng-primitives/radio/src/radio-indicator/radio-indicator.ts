@@ -1,5 +1,4 @@
 import { Directive, computed } from '@angular/core';
-import { NgpHover, NgpPress } from 'ng-primitives/interactions';
 import { injectRadioGroupState } from '../radio-group/radio-group-state';
 import { injectRadioItemState } from '../radio-item/radio-item-state';
 
@@ -12,7 +11,6 @@ import { injectRadioItemState } from '../radio-item/radio-item-state';
     '[attr.data-checked]': 'checked() ? "" : null',
     '[attr.data-disabled]': 'radioItemState().disabled() ? "" : null',
   },
-  hostDirectives: [NgpHover, NgpPress],
 })
 export class NgpRadioIndicator<T> {
   /**
