@@ -2,6 +2,7 @@ import { Signal, signal, WritableSignal } from '@angular/core';
 import { NgpOrientation } from 'ng-primitives/common';
 import { ngpFormControl } from 'ng-primitives/form-field';
 import { injectElementRef } from 'ng-primitives/internal';
+import { NgpRovingFocusGroupState } from 'ng-primitives/roving-focus';
 import {
   attrBinding,
   controlled,
@@ -33,7 +34,7 @@ export interface NgpRadioGroupState<T> {
   /**
    * The orientation of the radio group.
    */
-  readonly orientation: Signal<NgpOrientation>;
+  readonly orientation: WritableSignal<NgpOrientation>;
   /**
    * The comparator function used to compare values.
    */
@@ -50,12 +51,20 @@ export interface NgpRadioGroupState<T> {
    * Set the disabled value.
    */
   setDisabled(value: boolean): void;
+  /**
+   * Set the orientation of the radio group.
+   */
+  setOrientation(value: NgpOrientation): void;
 }
 
 /**
  * Inputs for configuring the RadioGroup primitive.
  */
 export interface NgpRadioGroupProps<T> {
+  /**
+   * The roving focus group state for the radio group.
+   */
+  readonly rovingFocusGroup: NgpRovingFocusGroupState;
   /**
    * The id of the radio group.
    */
@@ -90,16 +99,18 @@ export const [
 ] = createPrimitive(
   'NgpRadioGroup',
   <T>({
+    rovingFocusGroup,
     id = signal(uniqueId('ngp-radio-group')),
     value: _value = signal<T | null>(null),
     disabled: _disabled = signal(false),
-    orientation = signal<NgpOrientation>('horizontal'),
+    orientation: _orientation = signal<NgpOrientation>('horizontal'),
     compareWith = signal<(a: T | null, b: T | null) => boolean>((a, b) => a === b),
     onValueChange,
   }: NgpRadioGroupProps<T>): NgpRadioGroupState<T> => {
     const element = injectElementRef();
     const value = controlled(_value, null);
     const disabled = controlled(_disabled, false);
+    const orientation = controlled(_orientation, 'horizontal');
     const valueChange = emitter<T | null>();
 
     ngpFormControl({ id, disabled });
@@ -125,6 +136,11 @@ export const [
       disabled.set(isDisabled);
     }
 
+    function setOrientation(newOrientation: NgpOrientation): void {
+      orientation.set(newOrientation);
+      rovingFocusGroup.setOrientation(newOrientation);
+    }
+
     return {
       id,
       value: deprecatedSetter(value, 'select', newValue => {
@@ -133,11 +149,12 @@ export const [
         }
       }),
       disabled: deprecatedSetter(disabled, 'setDisabled'),
-      orientation,
+      orientation: deprecatedSetter(orientation, 'setOrientation', setOrientation),
       compareWith,
       valueChange: valueChange.asObservable(),
       select,
       setDisabled,
+      setOrientation,
     } satisfies NgpRadioGroupState<T>;
   },
 );

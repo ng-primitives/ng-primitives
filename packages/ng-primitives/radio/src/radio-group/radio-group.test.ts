@@ -1,3 +1,4 @@
+import { By } from '@angular/platform-browser';
 import { fireEvent, render } from '@testing-library/angular';
 import { NgpRadioGroup, NgpRadioIndicator, NgpRadioItem } from 'ng-primitives/radio';
 import { describe, expect, it, vi } from 'vitest';
@@ -191,6 +192,42 @@ describe('RadioGroup', () => {
       },
     );
 
+    const radioOne = getByRole('radio', { name: 'One' });
+    radioOne.focus();
+    detectChanges();
+
+    fireEvent.keyDown(radioOne, { key: 'ArrowDown' });
+    detectChanges();
+
+    expect(valueChange).toHaveBeenCalledWith('2');
+  });
+
+  it('should update orientation and sync roving focus when setOrientation is called', async () => {
+    const valueChange = vi.fn();
+    const { fixture, getByRole, detectChanges } = await render(
+      `<div ngpRadioGroup (ngpRadioGroupValueChange)="valueChange($event)">
+        <div ngpRadioItem ngpRadioItemValue="1">One</div>
+        <div ngpRadioItem ngpRadioItemValue="2">Two</div>
+        <div ngpRadioItem ngpRadioItemValue="3">Three</div>
+      </div>`,
+      {
+        imports: [NgpRadioGroup, NgpRadioItem],
+        componentProperties: { valueChange },
+      },
+    );
+
+    const group = getByRole('radiogroup');
+    const radioGroup = fixture.debugElement
+      .query(By.directive(NgpRadioGroup))
+      .injector.get(NgpRadioGroup);
+
+    radioGroup.setOrientation('vertical');
+    detectChanges();
+
+    expect(group).toHaveAttribute('aria-orientation', 'vertical');
+    expect(group).toHaveAttribute('data-orientation', 'vertical');
+
+    // the roving focus group should now navigate on the vertical axis
     const radioOne = getByRole('radio', { name: 'One' });
     radioOne.focus();
     detectChanges();

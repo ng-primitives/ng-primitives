@@ -58,6 +58,10 @@ export class NgpRadioGroup<T> {
    * The state of the radio group.
    */
   protected readonly state = ngpRadioGroup({
+    rovingFocusGroup: ngpRovingFocusGroup({
+      orientation: this.orientation,
+      disabled: this.disabled,
+    }),
     id: this.id,
     value: this.value,
     disabled: this.disabled,
@@ -66,18 +70,18 @@ export class NgpRadioGroup<T> {
     onValueChange: value => this.valueChange.emit(value),
   });
 
-  constructor() {
-    ngpRovingFocusGroup({
-      orientation: this.orientation,
-      disabled: this.disabled,
-    });
-  }
-
   /**
    * Select a radio item.
    * @param value The value of the radio item to select.
    */
   select(value: T): void {
     this.state.select(value);
+  }
+
+  /**
+   * Set the orientation of the radio group.
+   */
+  setOrientation(orientation: NgpOrientation): void {
+    this.state.setOrientation(orientation);
   }
 }
