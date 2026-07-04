@@ -5,6 +5,7 @@ import { describe, expect, it, vi } from 'vitest';
 import { NgpRadioIndicator } from '../../radio-indicator/radio-indicator';
 import { NgpRadioItem } from '../../radio-item/radio-item';
 import { NgpRadioGroup } from '../radio-group';
+import { NgpRadioGroupStateToken } from '../radio-group-state';
 
 describe('NgpRadioGroup', () => {
   describe('roles & attributes', () => {
@@ -675,6 +676,31 @@ describe('NgpRadioGroup', () => {
 
       expect(valueChange).toHaveBeenCalledWith('2');
       expect(getByRole('radio', { name: 'Two' })).toHaveAttribute('data-checked', '');
+    });
+
+    it('should dedupe repeated setValue calls but emit on change', async () => {
+      const { fixture } = await render(
+        `<div ngpRadioGroup>
+          <div ngpRadioItem ngpRadioItemValue="1">One</div>
+          <div ngpRadioItem ngpRadioItemValue="2">Two</div>
+        </div>`,
+        { imports: [NgpRadioGroup, NgpRadioItem] },
+      );
+
+      const state = fixture.debugElement
+        .query(By.directive(NgpRadioGroup))
+        .injector.get(NgpRadioGroupStateToken)();
+      const spy = vi.fn();
+      state.valueChange.subscribe(spy);
+
+      state.setValue('1');
+      state.setValue('1'); // repeat — must not emit again
+      expect(spy).toHaveBeenCalledTimes(1);
+      expect(spy).toHaveBeenCalledWith('1');
+
+      state.setValue('2');
+      expect(spy).toHaveBeenCalledTimes(2);
+      expect(spy).toHaveBeenLastCalledWith('2');
     });
   });
 

@@ -130,6 +130,12 @@ export const [
     dataBinding(element, 'data-disabled', disabled);
 
     function setValue(newValue: T | null, options?: SetterOptions): void {
+      // Skip redundant updates and emits when the value is unchanged, while
+      // still allowing a silent sync (`emit: false`, e.g. form `writeValue`).
+      if (compareWith()(value(), newValue) && options?.emit !== false) {
+        return;
+      }
+
       value.set(newValue);
 
       if (options?.emit !== false) {
@@ -139,7 +145,7 @@ export const [
     }
 
     function select(newValue: T): void {
-      if (disabled() || compareWith()(value(), newValue)) {
+      if (disabled()) {
         return;
       }
 
