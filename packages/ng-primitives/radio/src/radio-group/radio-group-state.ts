@@ -10,6 +10,7 @@ import {
   dataBinding,
   deprecatedSetter,
   emitter,
+  SetterOptions,
   StateInjectionOptions,
 } from 'ng-primitives/state';
 import { uniqueId } from 'ng-primitives/utils';
@@ -47,6 +48,12 @@ export interface NgpRadioGroupState<T> {
    * Select a value in the radio group.
    */
   select(value: T): void;
+  /**
+   * Set the value of the radio group. Fires `onValueChange` and emits on the
+   * `valueChange` observable by default. Pass `{ emit: false }` for cases like
+   * form `writeValue` where the internal state should sync without notifying.
+   */
+  setValue(value: T | null, options?: SetterOptions): void;
   /**
    * Set the disabled value.
    */
@@ -122,14 +129,21 @@ export const [
     dataBinding(element, 'data-orientation', orientation);
     dataBinding(element, 'data-disabled', disabled);
 
+    function setValue(newValue: T | null, options?: SetterOptions): void {
+      value.set(newValue);
+
+      if (options?.emit !== false) {
+        onValueChange?.(newValue);
+        valueChange.emit(newValue);
+      }
+    }
+
     function select(newValue: T): void {
       if (compareWith()(value(), newValue)) {
         return;
       }
 
-      value.set(newValue);
-      onValueChange?.(newValue);
-      valueChange.emit(newValue);
+      setValue(newValue);
     }
 
     function setDisabled(isDisabled: boolean): void {
@@ -143,16 +157,13 @@ export const [
 
     return {
       id,
-      value: deprecatedSetter(value, 'select', newValue => {
-        if (newValue !== null) {
-          select(newValue);
-        }
-      }),
+      value: deprecatedSetter(value, 'setValue', newValue => setValue(newValue)),
       disabled: deprecatedSetter(disabled, 'setDisabled'),
       orientation: deprecatedSetter(orientation, 'setOrientation', setOrientation),
       compareWith,
       valueChange: valueChange.asObservable(),
       select,
+      setValue,
       setDisabled,
       setOrientation,
     } satisfies NgpRadioGroupState<T>;
