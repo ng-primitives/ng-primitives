@@ -2,7 +2,7 @@ import { Signal, signal, WritableSignal } from '@angular/core';
 import { NgpOrientation } from 'ng-primitives/common';
 import { ngpFormControl } from 'ng-primitives/form-field';
 import { injectElementRef } from 'ng-primitives/internal';
-import { NgpRovingFocusGroupState } from 'ng-primitives/roving-focus';
+import { ngpRovingFocusGroup } from 'ng-primitives/roving-focus';
 import {
   attrBinding,
   controlled,
@@ -73,10 +73,6 @@ export interface NgpRadioGroupState<T> {
  */
 export interface NgpRadioGroupProps<T> {
   /**
-   * The roving focus group state for the radio group.
-   */
-  readonly rovingFocusGroup: NgpRovingFocusGroupState;
-  /**
    * The id of the radio group.
    */
   readonly id?: Signal<string>;
@@ -115,7 +111,6 @@ export const [
 ] = createPrimitive(
   'NgpRadioGroup',
   <T>({
-    rovingFocusGroup,
     id = signal(uniqueId('ngp-radio-group')),
     value: _value = signal<T | null | undefined>(undefined),
     defaultValue: _defaultValue,
@@ -133,6 +128,12 @@ export const [
       defaultValue,
       onChange: onValueChange,
     });
+
+    // Own the roving focus group so it shares the group's `disabled` and
+    // `orientation` signals directly. This keeps keyboard navigation in sync
+    // with programmatic/form-driven changes (e.g. `setDisabled`, `setOrientation`)
+    // without needing to re-push each value across a directive boundary.
+    ngpRovingFocusGroup({ orientation, disabled });
 
     ngpFormControl({ id, disabled });
 
@@ -162,8 +163,8 @@ export const [
     }
 
     function setOrientation(newOrientation: NgpOrientation): void {
+      // The roving focus group shares this signal, so it stays in sync.
       orientation.set(newOrientation);
-      rovingFocusGroup.setOrientation(newOrientation);
     }
 
     return {

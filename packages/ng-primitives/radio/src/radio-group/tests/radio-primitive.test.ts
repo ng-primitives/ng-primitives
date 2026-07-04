@@ -806,6 +806,40 @@ describe('NgpRadioGroup', () => {
 
       expect(valueChange).toHaveBeenCalledWith('2');
     });
+
+    it('should stop roving focus navigation when setDisabled is called', async () => {
+      const valueChange = vi.fn();
+      const { fixture, getByRole, detectChanges } = await render(
+        `<div ngpRadioGroup (ngpRadioGroupValueChange)="valueChange($event)">
+          <div ngpRadioItem ngpRadioItemValue="1">One</div>
+          <div ngpRadioItem ngpRadioItemValue="2">Two</div>
+        </div>`,
+        {
+          imports: [NgpRadioGroup, NgpRadioItem],
+          componentProperties: { valueChange },
+        },
+      );
+
+      const state = fixture.debugElement
+        .query(By.directive(NgpRadioGroup))
+        .injector.get(NgpRadioGroupStateToken)();
+
+      const one = getByRole('radio', { name: 'One' });
+      const two = getByRole('radio', { name: 'Two' });
+      one.click();
+      detectChanges();
+      valueChange.mockClear();
+
+      // disabling via the state must also disable the shared roving focus group
+      state.setDisabled(true);
+      detectChanges();
+
+      fireEvent.keyDown(one, { key: 'ArrowRight' });
+      detectChanges();
+
+      expect(two).not.toHaveFocus();
+      expect(valueChange).not.toHaveBeenCalled();
+    });
   });
 
   describe('disabled items', () => {

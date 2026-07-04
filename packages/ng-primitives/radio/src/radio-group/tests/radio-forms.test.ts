@@ -166,6 +166,42 @@ describe('RadioGroup (reusable component) — reactive forms', () => {
     expect(one).toHaveAttribute('data-checked', '');
   });
 
+  it('does not roam focus with the keyboard while the form control is disabled', async () => {
+    const formControl = new FormControl<string | null>(null);
+    const { getByRole, fixture } = await render(
+      `
+      <app-radio-group [formControl]="formControl">
+        <app-radio-item value="1">One</app-radio-item>
+        <app-radio-item value="2">Two</app-radio-item>
+      </app-radio-group>
+      `,
+      {
+        imports: [RadioGroup, RadioItemFixture, ReactiveFormsModule],
+        componentProperties: { formControl },
+      },
+    );
+
+    await fixture.whenStable();
+    const one = getByRole('radio', { name: 'One' });
+    const two = getByRole('radio', { name: 'Two' });
+
+    // activate the first item so the roving focus group has an active item
+    fireEvent.click(one);
+    fixture.detectChanges();
+
+    formControl.disable();
+    fixture.detectChanges();
+
+    // arrow navigation must be inert while the group is disabled: focus stays
+    // put and no value is selected
+    fireEvent.keyDown(one, { key: 'ArrowRight' });
+    fixture.detectChanges();
+
+    expect(two).not.toHaveFocus();
+    expect(two).not.toHaveAttribute('data-checked');
+    expect(formControl.value).toBe('1');
+  });
+
   it('marks the control as touched on focusout', async () => {
     const formControl = new FormControl<string | null>(null);
     const { getByRole, fixture } = await render(

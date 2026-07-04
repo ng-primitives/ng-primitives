@@ -1,7 +1,7 @@
 import { BooleanInput } from '@angular/cdk/coercion';
 import { booleanAttribute, Directive, input, output } from '@angular/core';
 import { NgpOrientation } from 'ng-primitives/common';
-import { ngpRovingFocusGroup, provideRovingFocusGroupState } from 'ng-primitives/roving-focus';
+import { provideRovingFocusGroupState } from 'ng-primitives/roving-focus';
 import { uniqueId } from 'ng-primitives/utils';
 import { ngpRadioGroup, provideRadioGroupState } from './radio-group-state';
 
@@ -63,10 +63,6 @@ export class NgpRadioGroup<T> {
    * The state of the radio group.
    */
   protected readonly state = ngpRadioGroup({
-    rovingFocusGroup: ngpRovingFocusGroup({
-      orientation: this.orientation,
-      disabled: this.disabled,
-    }),
     id: this.id,
     value: this.value,
     defaultValue: this.defaultValue,
