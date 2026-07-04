@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { ControlValueAccessor } from '@angular/forms';
-import { injectRadioGroupState, NgpRadioGroup } from 'ng-primitives/radio';
+import { injectRadioGroupState, NgpRadioGroup, NgpRadioItem } from 'ng-primitives/radio';
 import {
   ChangeFn,
   provideValueAccessor,
@@ -8,8 +8,13 @@ import {
   TouchedFn,
 } from 'ng-primitives/utils';
 
+/**
+ * Inline fixtures mirroring
+ * `apps/components/.../reusable-components/radio/radio-group.ts` and
+ * `radio-item.ts`. Used by the reusable-component test suites.
+ */
 @Component({
-  selector: '<%= prefix %>-radio-group',
+  selector: 'app-radio-group',
   hostDirectives: [
     {
       directive: NgpRadioGroup,
@@ -21,31 +26,17 @@ import {
       outputs: ['ngpRadioGroupValueChange:valueChange'],
     },
   ],
-  providers: [provideValueAccessor(RadioGroup<%= componentSuffix %>)],
+  providers: [provideValueAccessor(RadioGroup)],
   template: `
     <ng-content />
-  `,
-  styles: `
-/* These styles rely on CSS variables that can be imported from ng-primitives/example-theme/index.css in your global styles */
-
-    :host {
-      display: flex;
-      flex-direction: column;
-      row-gap: 1rem;
-    }
   `,
   host: {
     '(focusout)': 'onTouched?.()',
   },
 })
-export class RadioGroup<%= componentSuffix %> implements ControlValueAccessor {
-  /** Access the radio group state */
-  protected readonly state = injectRadioGroupState<string>();
-
-  /** The on change callback */
+export class RadioGroup implements ControlValueAccessor {
+  private readonly state = injectRadioGroupState<string>();
   private onChange?: ChangeFn<string | null>;
-
-  /** The on touched callback */
   protected onTouched?: TouchedFn;
 
   constructor() {
@@ -54,23 +45,33 @@ export class RadioGroup<%= componentSuffix %> implements ControlValueAccessor {
       .subscribe(value => this.onChange?.(value));
   }
 
-  /** Write a new value to the radio group */
   writeValue(value: string | null): void {
     this.state().setValue(value, { emit: false });
   }
 
-  /** Register the on change callback */
   registerOnChange(onChange: ChangeFn<string | null>): void {
     this.onChange = onChange;
   }
 
-  /** Register the on touched callback */
   registerOnTouched(onTouched: TouchedFn): void {
     this.onTouched = onTouched;
   }
 
-  /** Set the disabled state of the radio group */
   setDisabledState(isDisabled: boolean): void {
     this.state().setDisabled(isDisabled);
   }
 }
+
+@Component({
+  selector: 'app-radio-item',
+  hostDirectives: [
+    {
+      directive: NgpRadioItem,
+      inputs: ['ngpRadioItemValue:value', 'ngpRadioItemDisabled:disabled'],
+    },
+  ],
+  template: `
+    <ng-content />
+  `,
+})
+export class RadioItemFixture {}

@@ -1,6 +1,4 @@
 import { Directive, computed } from '@angular/core';
-import { NgpHover, NgpPress } from 'ng-primitives/interactions';
-import { injectRadioGroupState } from '../radio-group/radio-group-state';
 import { injectRadioItemState } from '../radio-item/radio-item-state';
 
 /**
@@ -12,23 +10,16 @@ import { injectRadioItemState } from '../radio-item/radio-item-state';
     '[attr.data-checked]': 'checked() ? "" : null',
     '[attr.data-disabled]': 'radioItemState().disabled() ? "" : null',
   },
-  hostDirectives: [NgpHover, NgpPress],
 })
 export class NgpRadioIndicator<T> {
-  /**
-   * Access the radio group state.
-   */
-  protected readonly radioGroupState = injectRadioGroupState<T>();
-
   /**
    * Access the radio group item state
    */
   protected readonly radioItemState = injectRadioItemState<T>();
 
   /**
-   * Determine if the radio indicator is checked.
+   * Determine if the radio indicator is checked. Delegates to the item's
+   * checked state so it honours the group's `compareWith` comparator.
    */
-  protected readonly checked = computed(
-    () => this.radioGroupState().value() === this.radioItemState().value(),
-  );
+  protected readonly checked = computed(() => this.radioItemState().checked());
 }
