@@ -57,8 +57,13 @@ export const [
     }
 
     function handleKeydown(event: KeyboardEvent): void {
+      if (event.repeat) {
+        return;
+      }
+
       if (event.key !== 'Enter' && event.key !== ' ') {
         return;
+      }
       }
 
       event.preventDefault();
