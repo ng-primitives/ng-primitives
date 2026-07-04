@@ -1,30 +1,152 @@
+import { Signal, signal, WritableSignal } from '@angular/core';
+import { NgpOrientation } from 'ng-primitives/common';
+import { ngpFormControl } from 'ng-primitives/form-field';
+import { injectElementRef } from 'ng-primitives/internal';
 import {
-  createState,
-  createStateInjector,
-  createStateProvider,
-  createStateToken,
-  InjectedState,
+  attrBinding,
+  controlled,
+  createPrimitive,
+  dataBinding,
+  deprecatedSetter,
+  emitter,
+  StateInjectionOptions,
 } from 'ng-primitives/state';
-import type { NgpRadioGroup } from './radio-group';
+import { uniqueId } from 'ng-primitives/utils';
+import { Observable } from 'rxjs';
 
 /**
- * The state token  for the RadioGroup primitive.
+ * Public state surface for the RadioGroup primitive.
  */
-export const NgpRadioGroupStateToken = createStateToken<NgpRadioGroup<unknown>>('RadioGroup');
+export interface NgpRadioGroupState<T> {
+  /**
+   * The id of the radio group.
+   */
+  readonly id: Signal<string>;
+  /**
+   * The selected value of the radio group.
+   */
+  readonly value: WritableSignal<T | null>;
+  /**
+   * Whether the radio group is disabled.
+   */
+  readonly disabled: WritableSignal<boolean>;
+  /**
+   * The orientation of the radio group.
+   */
+  readonly orientation: Signal<NgpOrientation>;
+  /**
+   * The comparator function used to compare values.
+   */
+  readonly compareWith: Signal<(a: T | null, b: T | null) => boolean>;
+  /**
+   * Emits when the selected value changes.
+   */
+  readonly valueChange: Observable<T | null>;
+  /**
+   * Select a value in the radio group.
+   */
+  select(value: T): void;
+  /**
+   * Set the disabled value.
+   */
+  setDisabled(value: boolean): void;
+}
 
 /**
- * Provides the RadioGroup state.
+ * Inputs for configuring the RadioGroup primitive.
  */
-export const provideRadioGroupState = createStateProvider(NgpRadioGroupStateToken);
+export interface NgpRadioGroupProps<T> {
+  /**
+   * The id of the radio group.
+   */
+  readonly id?: Signal<string>;
+  /**
+   * The selected value of the radio group.
+   */
+  readonly value?: Signal<T | null>;
+  /**
+   * Whether the radio group is disabled.
+   */
+  readonly disabled?: Signal<boolean>;
+  /**
+   * The orientation of the radio group.
+   */
+  readonly orientation?: Signal<NgpOrientation>;
+  /**
+   * The comparator function used to compare values.
+   */
+  readonly compareWith?: Signal<(a: T | null, b: T | null) => boolean>;
+  /**
+   * Callback fired when the selected value changes.
+   */
+  readonly onValueChange?: (value: T | null) => void;
+}
+
+export const [
+  NgpRadioGroupStateToken,
+  ngpRadioGroup,
+  _injectRadioGroupState,
+  provideRadioGroupState,
+] = createPrimitive(
+  'NgpRadioGroup',
+  <T>({
+    id = signal(uniqueId('ngp-radio-group')),
+    value: _value = signal<T | null>(null),
+    disabled: _disabled = signal(false),
+    orientation = signal<NgpOrientation>('horizontal'),
+    compareWith = signal<(a: T | null, b: T | null) => boolean>((a, b) => a === b),
+    onValueChange,
+  }: NgpRadioGroupProps<T>): NgpRadioGroupState<T> => {
+    const element = injectElementRef();
+    const value = controlled(_value, null);
+    const disabled = controlled(_disabled, false);
+    const valueChange = emitter<T | null>();
+
+    ngpFormControl({ id, disabled });
+
+    // Host bindings
+    attrBinding(element, 'role', 'radiogroup');
+    attrBinding(element, 'id', id);
+    attrBinding(element, 'aria-orientation', orientation);
+    dataBinding(element, 'data-orientation', orientation);
+    dataBinding(element, 'data-disabled', disabled);
+
+    function select(newValue: T): void {
+      if (compareWith()(value(), newValue)) {
+        return;
+      }
+
+      value.set(newValue);
+      onValueChange?.(newValue);
+      valueChange.emit(newValue);
+    }
+
+    function setDisabled(isDisabled: boolean): void {
+      disabled.set(isDisabled);
+    }
+
+    return {
+      id,
+      value: deprecatedSetter(value, 'select', newValue => {
+        if (newValue !== null) {
+          select(newValue);
+        }
+      }),
+      disabled: deprecatedSetter(disabled, 'setDisabled'),
+      orientation,
+      compareWith,
+      valueChange: valueChange.asObservable(),
+      select,
+      setDisabled,
+    } satisfies NgpRadioGroupState<T>;
+  },
+);
 
 /**
  * Injects the RadioGroup state.
  */
-export const injectRadioGroupState = createStateInjector<NgpRadioGroup<unknown>>(
-  NgpRadioGroupStateToken,
-) as <T>() => InjectedState<NgpRadioGroup<T>>;
-
-/**
- * The RadioGroup state registration function.
- */
-export const radioGroupState = createState(NgpRadioGroupStateToken);
+export function injectRadioGroupState<T>(
+  options?: StateInjectionOptions,
+): Signal<NgpRadioGroupState<T>> {
+  return _injectRadioGroupState(options) as Signal<NgpRadioGroupState<T>>;
+}

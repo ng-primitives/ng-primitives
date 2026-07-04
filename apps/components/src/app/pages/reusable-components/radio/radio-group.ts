@@ -47,7 +47,7 @@ export class RadioGroup implements ControlValueAccessor {
 
   /** Write a new value to the radio group */
   writeValue(value: string): void {
-    this.state().value.set(value);
+    this.state().select(value);
   }
 
   /** Register the on change callback */
