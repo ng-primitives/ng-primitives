@@ -1,20 +1,5 @@
 import { BooleanInput } from '@angular/cdk/coercion';
-import {
-  booleanAttribute,
-  computed,
-  Directive,
-  effect,
-  HostListener,
-  inject,
-  Injector,
-  input,
-  output,
-  signal,
-  untracked,
-} from '@angular/core';
-import { activeDescendantManager } from 'ng-primitives/a11y';
-import { ngpInteractions } from 'ng-primitives/interactions';
-import { domSort, injectElementRef } from 'ng-primitives/internal';
+import { booleanAttribute, Directive, input, output } from '@angular/core';
 import {
   coerceFlip,
   coerceOffset,
@@ -23,15 +8,13 @@ import {
   NgpOffset,
   NgpOffsetInput,
 } from 'ng-primitives/portal';
-import { controlStatus } from 'ng-primitives/utils';
-import type { NgpComboboxButton } from '../combobox-button/combobox-button';
-import type { NgpComboboxDropdown } from '../combobox-dropdown/combobox-dropdown';
-import type { NgpComboboxInput } from '../combobox-input/combobox-input';
-import { NgpComboboxOption } from '../combobox-option/combobox-option';
-import type { NgpComboboxPortal } from '../combobox-portal/combobox-portal';
+import { NgpComboboxButtonState } from '../combobox-button/combobox-button-state';
+import { NgpComboboxDropdownState } from '../combobox-dropdown/combobox-dropdown-state';
+import { NgpComboboxInputState } from '../combobox-input/combobox-input-state';
+import { NgpComboboxOptionState } from '../combobox-option/combobox-option-state';
+import { NgpComboboxPortalState } from '../combobox-portal/combobox-portal-state';
 import { injectComboboxConfig } from '../config/combobox-config';
-import { areAllOptionsSelected } from '../utils';
-import { comboboxState, provideComboboxState } from './combobox-state';
+import { ngpCombobox, NgpComboboxPlacement, provideComboboxState } from './combobox-state';
 
 /**
  * Ideally we would use a generic type here, unfortunately, unlike in React,
@@ -51,28 +34,10 @@ type T = any;
   selector: '[ngpCombobox]',
   exportAs: 'ngpCombobox',
   providers: [provideComboboxState()],
-  host: {
-    '[attr.tabindex]': 'input() ? -1 : (state.disabled() ? -1 : 0)',
-    '[attr.data-open]': 'open() ? "" : undefined',
-    '[attr.data-disabled]': 'state.disabled() ? "" : undefined',
-    '[attr.data-multiple]': 'state.multiple() ? "" : undefined',
-    '[attr.data-invalid]': 'controlStatus()?.invalid ? "" : undefined',
-    '[attr.data-valid]': 'controlStatus()?.valid ? "" : undefined',
-    '[attr.data-touched]': 'controlStatus()?.touched ? "" : undefined',
-    '[attr.data-pristine]': 'controlStatus()?.pristine ? "" : undefined',
-    '[attr.data-dirty]': 'controlStatus()?.dirty ? "" : undefined',
-    '[attr.data-pending]': 'controlStatus()?.pending ? "" : undefined',
-  },
 })
 export class NgpCombobox {
   /** Access the combobox configuration. */
   protected readonly config = injectComboboxConfig();
-
-  /** @internal Access the combobox element. */
-  readonly elementRef = injectElementRef();
-
-  /** Access the injector. */
-  protected readonly injector = inject(Injector);
 
   /** The value of the combobox. */
   readonly value = input<T>(undefined, {
@@ -155,161 +120,85 @@ export class NgpCombobox {
    */
   readonly allOptions = input<T[]>(undefined, { alias: 'ngpComboboxOptions' });
 
+  protected readonly state = ngpCombobox<T>({
+    value: this.value,
+    multiple: this.multiple,
+    disabled: this.disabled,
+    allowDeselect: this.allowDeselect,
+    compareWith: this.compareWith,
+    placement: this.placement,
+    container: this.container,
+    flip: this.flip,
+    offset: this.offset,
+    scrollToOption: this.scrollToOption,
+    allOptions: this.allOptions,
+    onValueChange: value => this.valueChange.emit(value),
+    onOpenChange: value => this.openChange.emit(value),
+  });
+
+  /** @internal Access the element reference. */
+  readonly elementRef = this.state.elementRef;
+
   /**
    * Store the combobox input
    * @internal
    */
-  readonly input = signal<NgpComboboxInput | undefined>(undefined);
+  readonly input = this.state.input;
 
   /**
    * Store the combobox button.
    * @internal
    */
-  readonly button = signal<NgpComboboxButton | undefined>(undefined);
+  readonly button = this.state.button;
 
   /**
    * Store the combobox portal.
    * @internal
    */
-  readonly portal = signal<NgpComboboxPortal | undefined>(undefined);
+  readonly portal = this.state.portal;
 
   /**
    * Store the combobox dropdown.
    * @internal
    */
-  readonly dropdown = signal<NgpComboboxDropdown | undefined>(undefined);
+  readonly dropdown = this.state.dropdown;
 
   /**
    * Store the combobox options.
    * @internal
    */
-  readonly options = signal<NgpComboboxOption[]>([]);
+  readonly options = this.state.options;
 
   /**
    * Access the overlay
    * @internal
    */
-  readonly overlay = computed(() => this.portal()?.overlay());
+  readonly overlay = this.state.overlay;
 
   /**
    * The open state of the combobox.
    * @internal
    */
-  readonly open = computed(() => this.overlay()?.isOpen() ?? false);
+  readonly open = this.state.open;
 
   /**
    * The options sorted by their index or DOM position.
    * @internal
    */
-  readonly sortedOptions = computed(() =>
-    domSort(
-      this.options(),
-      option => option.elementRef.nativeElement,
-      option => option.index(),
-    ),
-  );
+  readonly sortedOptions = this.state.sortedOptions;
 
   /**
    * The active key descendant manager.
    * @internal
    */
-  readonly activeDescendantManager = activeDescendantManager({
-    // we must wrap the signal in a computed to ensure it is not used before it is defined
-    disabled: computed(() => this.state.disabled()),
-    wrap: signal(true),
-    count: computed(() => this.state.allOptions()?.length ?? this.options().length),
-    getItemId: index => this.getOptionAtIndex(index)?.id(),
-    isItemDisabled: index => this.getOptionAtIndex(index)?.disabled() ?? false,
-    scrollIntoView: index => {
-      const isPositioned = this.portal()?.overlay()?.isPositioned() ?? false;
-
-      if (!isPositioned || index === -1) {
-        return;
-      }
-
-      this.scrollTo(index);
-    },
-  });
-
-  /**
-   * The form control status of the combobox host element itself. When the combobox is used as a
-   * form control (e.g. via a `ControlValueAccessor` wrapper) the `NgControl` lives on an ancestor
-   * element, so this resolves it even when there is no `ngpComboboxInput`.
-   */
-  private readonly hostControlStatus = controlStatus();
-
-  /**
-   * The control status. When an input is present it can resolve the associated `NgControl` (whether
-   * the control is on the input itself or an ancestor), so we use its status. Otherwise we fall back
-   * to the combobox host's own control status so an input-less combobox still reflects validity.
-   */
-  protected readonly controlStatus = computed(() =>
-    this.input() ? this.input()?.controlStatus() : this.hostControlStatus(),
-  );
-
-  /** The state of the combobox. */
-  protected readonly state = comboboxState<NgpCombobox>(this);
-
-  constructor() {
-    // When the visible (or virtual) options change while open, revalidate so the
-    // active index can't point at a removed option and leave a stale aria-activedescendant.
-    effect(() => {
-      this.sortedOptions();
-      this.state.allOptions();
-
-      if (this.open()) {
-        untracked(() => this.activeDescendantManager.validate());
-      }
-    });
-
-    ngpInteractions({
-      focus: true,
-      focusWithin: true,
-      hover: true,
-      press: true,
-      disabled: this.state.disabled,
-    });
-  }
+  readonly activeDescendantManager = this.state.activeDescendantManager;
 
   /**
    * Open the dropdown.
    * @internal
    */
-  async openDropdown(): Promise<void> {
-    if (this.state.disabled() || this.open()) {
-      return;
-    }
-
-    this.openChange.emit(true);
-    await this.portal()?.show();
-
-    let selectedOptionIdx = -1;
-
-    // if we have been provided with allOptions, we need to find the selected option(s) from that list
-    if (this.state.allOptions()) {
-      selectedOptionIdx = this.state
-        .allOptions()!
-        .findIndex(option => this.isOptionSelected(option));
-    }
-
-    // if we don't have allOptions, find the selected option(s) from the registered options
-    if (selectedOptionIdx === -1) {
-      // if there is a selected option(s), set the active descendant to the first selected option
-      selectedOptionIdx = this.sortedOptions().findIndex(option =>
-        this.isOptionSelected(option.value()),
-      );
-    }
-
-    // if after checking there is a selected option, set the active descendant to the first option
-    if (selectedOptionIdx !== -1) {
-      // scroll to and activate the selected option
-      this.scrollTo(selectedOptionIdx);
-      this.activeDescendantManager.activateByIndex(selectedOptionIdx);
-      return;
-    }
-
-    // activate the selected option or the first option
-    this.activeDescendantManager.first();
+  openDropdown(): Promise<void> {
+    return this.state.openDropdown();
   }
 
   /**
@@ -317,10 +206,7 @@ export class NgpCombobox {
    * @internal
    */
   closeDropdown(): void {
-    if (!this.open()) {
-      return;
-    }
-    this.portal()?.detach();
+    return this.state.closeDropdown();
   }
 
   /**
@@ -329,21 +215,15 @@ export class NgpCombobox {
    * @internal
    */
   onOverlayClosed(): void {
-    this.openChange.emit(false);
-    // clear the active descendant
-    this.activeDescendantManager.reset();
+    return this.state.onOverlayClosed();
   }
 
   /**
    * Toggle the dropdown.
    * @internal
    */
-  async toggleDropdown(): Promise<void> {
-    if (this.open()) {
-      this.closeDropdown();
-    } else {
-      await this.openDropdown();
-    }
+  toggleDropdown(): Promise<void> {
+    return this.state.toggleDropdown();
   }
 
   /**
@@ -351,59 +231,8 @@ export class NgpCombobox {
    * @param option The option to select.
    * @internal
    */
-  selectOption(option: NgpComboboxOption | undefined): void {
-    if (this.state.disabled()) {
-      return;
-    }
-
-    if (!option) {
-      this.state.value.set(undefined);
-      this.closeDropdown();
-      return;
-    }
-
-    const optionValue = option.value();
-
-    // if the option has no associated value, do nothing
-    if (optionValue === undefined) {
-      return;
-    }
-
-    // Handle select all functionality - only works in multiple selection mode
-    if (optionValue === 'all') {
-      if (!this.state.multiple()) {
-        return; // Do nothing in single selection mode
-      }
-
-      // Get currently visible regular options (respects filtering)
-      const regularOptions = this.sortedOptions().filter(
-        opt => opt.value() !== 'all' && opt.value() !== undefined,
-      );
-      const allValues = regularOptions.map(opt => opt.value());
-
-      this.state.value.set(allValues as T);
-      this.valueChange.emit(allValues as T);
-      return;
-    }
-
-    if (this.state.multiple()) {
-      // if the option is already selected, do nothing
-      if (this.isOptionSelected(optionValue)) {
-        return;
-      }
-
-      const value = [...(this.state.value() as T[]), optionValue as T];
-
-      // add the option to the value
-      this.state.value.set(value as T);
-      this.valueChange.emit(value as T);
-    } else {
-      this.state.value.set(optionValue as T);
-      this.valueChange.emit(optionValue as T);
-
-      // close the dropdown on single selection
-      this.closeDropdown();
-    }
+  selectOption(option: NgpComboboxOptionState<T> | undefined): void {
+    return this.state.selectOption(option);
   }
 
   /**
@@ -411,47 +240,8 @@ export class NgpCombobox {
    * @param option The option to deselect.
    * @internal
    */
-  deselectOption(option: NgpComboboxOption): void {
-    const optionValue = option.value();
-
-    // Options without values cannot be deselected (and should never be selected).
-    if (optionValue === undefined) {
-      return;
-    }
-
-    // if the combobox is disabled or the option is not selected, do nothing
-    if (this.state.disabled() || !this.isOptionSelected(optionValue)) {
-      return;
-    }
-
-    // in single selection mode, only allow deselecting if allowDeselect is true
-    if (!this.state.multiple() && !this.state.allowDeselect()) {
-      return;
-    }
-
-    // Handle select all for deselect all functionality - only works in multiple selection mode
-    if (optionValue === 'all') {
-      if (!this.state.multiple()) {
-        return; // Do nothing in single selection mode
-      }
-
-      this.state.value.set([] as T);
-      this.valueChange.emit([] as T);
-      return;
-    }
-
-    if (this.state.multiple()) {
-      const values = (this.state.value() as T[]) ?? [];
-      const newValue = values.filter(v => !this.state.compareWith()(v, optionValue as T));
-
-      // remove the option from the value
-      this.state.value.set(newValue as T);
-      this.valueChange.emit(newValue as T);
-    } else {
-      // in single selection mode with allowDeselect enabled, set value to undefined
-      this.state.value.set(undefined);
-      this.valueChange.emit(undefined);
-    }
+  deselectOption(option: NgpComboboxOptionState<T>): void {
+    return this.state.deselectOption(option);
   }
 
   /**
@@ -460,55 +250,7 @@ export class NgpCombobox {
    * @internal
    */
   toggleOption(id: string): void {
-    if (this.state.disabled()) {
-      return;
-    }
-
-    const option = this.sortedOptions().find(opt => opt.id() === id);
-
-    if (!option) {
-      return;
-    }
-
-    const optionValue = option.value();
-
-    // Options without values cannot be toggled.
-    if (optionValue === undefined) {
-      return;
-    }
-
-    // Handle select all for select/deselect all functionality - only works in multiple selection mode
-    if (optionValue === 'all') {
-      if (!this.state.multiple()) {
-        return; // Do nothing in single selection mode
-      }
-
-      if (this.isOptionSelected(optionValue)) {
-        this.deselectOption(option);
-      } else {
-        this.selectOption(option);
-      }
-      return;
-    }
-
-    if (this.state.multiple()) {
-      // In multiple selection mode, always allow toggling
-      if (this.isOptionSelected(optionValue)) {
-        this.deselectOption(option);
-      } else {
-        this.selectOption(option);
-      }
-    } else {
-      // In single selection mode, check if deselection is allowed
-      if (this.isOptionSelected(optionValue) && this.state.allowDeselect()) {
-        // Deselect the option by setting value to undefined
-        this.state.value.set(undefined);
-        this.valueChange.emit(undefined);
-      } else {
-        // Select the option (works even if already selected to update the input)
-        this.selectOption(option);
-      }
-    }
+    return this.state.toggleOption(id);
   }
 
   /**
@@ -517,39 +259,7 @@ export class NgpCombobox {
    * @internal
    */
   isOptionSelected(option: T): boolean {
-    if (this.state.disabled()) {
-      return false;
-    }
-
-    // Handle both NgpComboboxOption and T types
-    const optionValue = isOption(option) ? option.value() : (option as T);
-    const value = this.state.value();
-
-    // Only treat `undefined` as "no value" (allow '', 0, false).
-    if (optionValue === undefined) {
-      return false;
-    }
-
-    // Handle select all functionality - only works in multiple selection mode
-    if (optionValue === 'all') {
-      if (!this.state.multiple()) {
-        return false; // Never selected in single selection mode
-      }
-
-      const selectedValues = Array.isArray(value) ? value : [];
-      return areAllOptionsSelected(this.sortedOptions(), selectedValues, this.state.compareWith());
-    }
-
-    // Only treat `undefined` as "no selection" (allow '', 0, false).
-    if (value === undefined) {
-      return false;
-    }
-
-    if (this.state.multiple()) {
-      return Array.isArray(value) && value.some(v => this.state.compareWith()(optionValue, v));
-    }
-
-    return this.state.compareWith()(optionValue, value);
+    return this.state.isOptionSelected(option);
   }
 
   /**
@@ -558,30 +268,7 @@ export class NgpCombobox {
    * @internal
    */
   activateNextOption(): void {
-    if (this.state.disabled()) {
-      return;
-    }
-
-    const options = this.sortedOptions();
-
-    // if there are no options, do nothing
-    if (options.length === 0) {
-      return;
-    }
-
-    // if there is no active option, activate the first option
-    if (this.activeDescendantManager.index() === -1) {
-      const selectedOption = options.findIndex(option => this.isOptionSelected(option.value()));
-
-      // if there is a selected option(s), set the active descendant to the first selected option
-      const targetOption = selectedOption !== -1 ? selectedOption : 0;
-
-      this.activeDescendantManager.activateByIndex(targetOption, { origin: 'keyboard' });
-      return;
-    }
-
-    // otherwise activate the next option
-    this.activeDescendantManager.next({ origin: 'keyboard' });
+    return this.state.activateNextOption();
   }
 
   /**
@@ -589,24 +276,7 @@ export class NgpCombobox {
    * @internal
    */
   activatePreviousOption(): void {
-    if (this.state.disabled()) {
-      return;
-    }
-    const options = this.sortedOptions();
-    // if there are no options, do nothing
-    if (options.length === 0) {
-      return;
-    }
-    // if there is no active option, activate the last option
-    if (this.activeDescendantManager.index() === -1) {
-      const selectedOption = options.findIndex(option => this.isOptionSelected(option.value()));
-      // if there is a selected option(s), set the active descendant to the first selected option
-      const targetOption = selectedOption !== -1 ? selectedOption : options.length - 1;
-      this.activeDescendantManager.activateByIndex(targetOption, { origin: 'keyboard' });
-      return;
-    }
-    // otherwise activate the previous option
-    this.activeDescendantManager.previous({ origin: 'keyboard' });
+    return this.state.activatePreviousOption();
   }
 
   /**
@@ -614,8 +284,8 @@ export class NgpCombobox {
    * @param portal The dropdown portal.
    * @internal
    */
-  registerPortal(portal: NgpComboboxPortal): void {
-    this.portal.set(portal);
+  registerPortal(portal: NgpComboboxPortalState): void {
+    return this.state.registerPortal(portal);
   }
 
   /**
@@ -623,8 +293,8 @@ export class NgpCombobox {
    * @param input The combobox input.
    * @internal
    */
-  registerInput(input: NgpComboboxInput): void {
-    this.input.set(input);
+  registerInput(input: NgpComboboxInputState): void {
+    return this.state.registerInput(input);
   }
 
   /**
@@ -632,8 +302,8 @@ export class NgpCombobox {
    * @param button The combobox button.
    * @internal
    */
-  registerButton(button: NgpComboboxButton): void {
-    this.button.set(button);
+  registerButton(button: NgpComboboxButtonState): void {
+    return this.state.registerButton(button);
   }
 
   /**
@@ -641,8 +311,8 @@ export class NgpCombobox {
    * @param dropdown The dropdown to register.
    * @internal
    */
-  registerDropdown(dropdown: NgpComboboxDropdown): void {
-    this.dropdown.set(dropdown);
+  registerDropdown(dropdown: NgpComboboxDropdownState): void {
+    return this.state.registerDropdown(dropdown);
   }
 
   /**
@@ -650,8 +320,8 @@ export class NgpCombobox {
    * @param option The option to register.
    * @internal
    */
-  registerOption(option: NgpComboboxOption): void {
-    this.options.update(options => [...options, option]);
+  registerOption(option: NgpComboboxOptionState<T>): void {
+    return this.state.registerOption(option);
   }
 
   /**
@@ -659,8 +329,8 @@ export class NgpCombobox {
    * @param option The option to unregister.
    * @internal
    */
-  unregisterOption(option: NgpComboboxOption): void {
-    this.options.update(options => options.filter(o => o !== option));
+  unregisterOption(option: NgpComboboxOptionState<T>): void {
+    return this.state.unregisterOption(option);
   }
 
   /**
@@ -671,163 +341,6 @@ export class NgpCombobox {
    * @internal
    */
   focus(): void {
-    if (this.input()) {
-      this.input()?.focus();
-    } else {
-      this.elementRef.nativeElement.focus();
-    }
+    return this.state.focus();
   }
-
-  /**
-   * Handle keydown events for keyboard navigation and accessibility.
-   * Supports:
-   * - Arrow Down: Open dropdown or navigate to next option
-   * - Arrow Up: Open dropdown or navigate to previous option
-   * - Home: Navigate to first option
-   * - End: Navigate to last option
-   * - Enter: Select the currently active option
-   * - Escape: Close the dropdown
-   * @param event - The keyboard event
-   * @internal
-   */
-  @HostListener('keydown', ['$event'])
-  protected handleKeydown(event: KeyboardEvent): void {
-    // If the event originated from the input element, let the input handle it
-    if (this.input() && event.target === this.input()?.elementRef.nativeElement) {
-      return;
-    }
-
-    switch (event.key) {
-      case 'ArrowDown':
-        if (this.open()) {
-          this.activateNextOption();
-        } else {
-          this.openDropdown();
-        }
-        event.preventDefault();
-        break;
-      case 'ArrowUp':
-        if (this.open()) {
-          this.activatePreviousOption();
-        } else {
-          this.openDropdown();
-          // Use setTimeout to ensure dropdown is rendered before selecting last item
-          setTimeout(() => this.activeDescendantManager.last());
-        }
-        event.preventDefault();
-        break;
-      case 'Home':
-        if (this.open()) {
-          this.activeDescendantManager.first({ origin: 'keyboard' });
-        }
-        event.preventDefault();
-        break;
-      case 'End':
-        if (this.open()) {
-          this.activeDescendantManager.last({ origin: 'keyboard' });
-        }
-        event.preventDefault();
-        break;
-      case 'Enter':
-        if (this.open()) {
-          const activeId = this.activeDescendantManager.id();
-
-          if (activeId) {
-            const option = this.sortedOptions().find(opt => opt.id() === activeId);
-            option?.select();
-          }
-        }
-        event.preventDefault();
-        break;
-      case 'Escape':
-        if (this.open()) {
-          this.closeDropdown();
-        }
-        event.preventDefault();
-        break;
-      case ' ':
-        if (!this.input()) {
-          this.toggleDropdown();
-          event.preventDefault();
-        }
-        break;
-    }
-  }
-
-  /**
-   * Handle blur events to manage dropdown closing behavior.
-   * The dropdown will remain open if focus moves to:
-   * - The dropdown itself
-   * - The combobox button
-   * - The combobox input
-   * Otherwise, the dropdown will be closed.
-   * @param event - The focus event
-   * @internal
-   */
-  @HostListener('blur', ['$event'])
-  protected onBlur(event: FocusEvent): void {
-    const relatedTarget = event.relatedTarget as HTMLElement;
-
-    // if the blur was caused by focus moving to the dropdown, don't close
-    if (relatedTarget && this.dropdown()?.elementRef.nativeElement.contains(relatedTarget)) {
-      return;
-    }
-
-    // if the blur was caused by focus moving to the button, don't close
-    if (relatedTarget && this.button()?.elementRef.nativeElement.contains(relatedTarget)) {
-      return;
-    }
-
-    // if the blur was caused by focus moving to the input, don't close
-    if (relatedTarget && this.input()?.elementRef.nativeElement === relatedTarget) {
-      return;
-    }
-
-    this.closeDropdown();
-  }
-
-  private scrollTo(index: number): void {
-    const scrollToOption = this.state.scrollToOption();
-
-    if (scrollToOption) {
-      scrollToOption(index);
-      return;
-    }
-
-    const option = this.getOptionAtIndex(index);
-    if (option) {
-      option.scrollIntoView();
-    }
-  }
-
-  private getOptionAtIndex(index: number): NgpComboboxOption | undefined {
-    // if the option has an index, use that to get the option because this is required for virtual scrolling scenarios
-    const optionIndex = this.options().findIndex(opt => opt.index() === index);
-
-    if (optionIndex !== -1) {
-      return this.options()[optionIndex];
-    }
-
-    return this.sortedOptions()[index];
-  }
-}
-
-export type NgpComboboxPlacement =
-  | 'top'
-  | 'right'
-  | 'bottom'
-  | 'left'
-  | 'top-start'
-  | 'top-end'
-  | 'right-start'
-  | 'right-end'
-  | 'bottom-start'
-  | 'bottom-end'
-  | 'left-start'
-  | 'left-end';
-
-function isOption(value: any): value is NgpComboboxOption {
-  return (
-    value && typeof value === 'object' && 'value' in value && typeof value.value === 'function'
-  );
 }

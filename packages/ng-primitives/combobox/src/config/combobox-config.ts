@@ -1,6 +1,6 @@
 import { InjectionToken, Provider, inject } from '@angular/core';
 import { NgpFlip, NgpOffset } from 'ng-primitives/portal';
-import { type NgpComboboxPlacement } from '../combobox/combobox';
+import { NgpComboboxPlacement } from '../combobox/combobox-state';
 
 export interface NgpComboboxConfig {
   /**
