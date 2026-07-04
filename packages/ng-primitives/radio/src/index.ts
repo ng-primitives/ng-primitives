@@ -1,5 +1,17 @@
 export { NgpRadioGroup } from './radio-group/radio-group';
-export { injectRadioGroupState, provideRadioGroupState } from './radio-group/radio-group-state';
+export {
+  injectRadioGroupState,
+  ngpRadioGroup,
+  NgpRadioGroupProps,
+  NgpRadioGroupState,
+  provideRadioGroupState,
+} from './radio-group/radio-group-state';
 export { NgpRadioIndicator } from './radio-indicator/radio-indicator';
 export { NgpRadioItem } from './radio-item/radio-item';
-export { injectRadioItemState, provideRadioItemState } from './radio-item/radio-item-state';
+export {
+  injectRadioItemState,
+  ngpRadioItem,
+  NgpRadioItemProps,
+  NgpRadioItemState,
+  provideRadioItemState,
+} from './radio-item/radio-item-state';
