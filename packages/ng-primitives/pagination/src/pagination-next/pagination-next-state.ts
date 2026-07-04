@@ -40,8 +40,7 @@ export const [
 
     // Listener
     listener(elementRef, 'click', goToNextPage);
-    listener(elementRef, 'keydown.enter', handleOnEnter);
-    listener(elementRef, 'keydown.space', handleOnEnter);
+    listener(elementRef, 'keydown', handleKeydown);
 
     function goToNextPage(): void {
       if (disabled()) {
@@ -51,7 +50,11 @@ export const [
       paginationState().goToPage(paginationState().page() + 1);
     }
 
-    function handleOnEnter(event: Event): void {
+    function handleKeydown(event: KeyboardEvent): void {
+      if (event.key !== 'Enter' && event.key !== ' ') {
+        return;
+      }
+
       event.preventDefault();
       event.stopPropagation();
       goToNextPage();
