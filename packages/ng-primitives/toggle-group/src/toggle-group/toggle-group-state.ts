@@ -117,19 +117,23 @@ export interface NgpToggleGroupProps<T = string> {
   readonly onValueChange?: (value: T[]) => void;
 }
 
-const [_NgpToggleGroupStateToken, _ngpToggleGroup, _injectToggleGroupState, _provideToggleGroupState] =
-  createPrimitive(
-    'NgpToggleGroup',
-    ({
-      rovingFocusGroup,
-      orientation: _orientation,
-      allowDeselection: _allowDeselection,
-      type: _type,
-      value: _value,
-      defaultValue: _defaultValue,
-      disabled: _disabled,
-      onValueChange,
-    }: NgpToggleGroupProps<unknown>): NgpToggleGroupState<unknown> => {
+const [
+  _NgpToggleGroupStateToken,
+  _ngpToggleGroup,
+  _injectToggleGroupState,
+  _provideToggleGroupState,
+] = createPrimitive(
+  'NgpToggleGroup',
+  ({
+    rovingFocusGroup,
+    orientation: _orientation,
+    allowDeselection: _allowDeselection,
+    type: _type,
+    value: _value,
+    defaultValue: _defaultValue,
+    disabled: _disabled,
+    onValueChange,
+  }: NgpToggleGroupProps<unknown>): NgpToggleGroupState<unknown> => {
     const element = injectElementRef();
 
     const allowDeselection = controlled(_allowDeselection, true);

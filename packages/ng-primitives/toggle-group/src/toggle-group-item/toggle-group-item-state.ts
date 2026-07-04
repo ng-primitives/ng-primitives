@@ -33,7 +33,10 @@ const [
   provideToggleGroupItemState,
 ] = createPrimitive(
   'NgpToggleGroupItem',
-  ({ value, disabled = signal(false) }: NgpToggleGroupItemProps<unknown>): NgpToggleGroupItemState => {
+  ({
+    value,
+    disabled = signal(false),
+  }: NgpToggleGroupItemProps<unknown>): NgpToggleGroupItemState => {
     const element = injectElementRef();
     const toggleGroup = injectToggleGroupState<unknown>();
 
