@@ -91,6 +91,38 @@ describe('ToggleGroup (reusable component) — reactive forms', () => {
     expect(item1).not.toHaveAttribute('data-selected');
   });
 
+  it('handles a null value from form control reset', async () => {
+    const consoleError = vi.spyOn(console, 'error').mockImplementation(() => undefined);
+    const formControl = new FormControl<string[]>(['option-1']);
+
+    try {
+      const { getByTestId, fixture } = await render(
+        `
+        <app-toggle-group [formControl]="formControl">
+          <button app-toggle-group-item data-testid="item-1" value="option-1">1</button>
+          <button app-toggle-group-item data-testid="item-2" value="option-2">2</button>
+        </app-toggle-group>
+        `,
+        {
+          imports: [ToggleGroup, ToggleGroupItemFixture, NgpToggleGroupItem, ReactiveFormsModule],
+          componentProperties: { formControl },
+        },
+      );
+
+      const item1 = getByTestId('item-1');
+      expect(item1).toHaveAttribute('data-selected');
+
+      // reset() writes `null` into writeValue — the group should clear, not throw.
+      formControl.reset();
+      fixture.detectChanges();
+
+      expect(item1).not.toHaveAttribute('data-selected');
+      expect(consoleError).not.toHaveBeenCalled();
+    } finally {
+      consoleError.mockRestore();
+    }
+  });
+
   it('reflects disabled state from form control', async () => {
     const formControl = new FormControl<string[]>([]);
     const { getByRole, fixture } = await render(

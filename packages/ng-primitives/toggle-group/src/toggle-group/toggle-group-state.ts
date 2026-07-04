@@ -1,4 +1,4 @@
-import { FactoryProvider, InjectionToken, Signal, WritableSignal } from '@angular/core';
+import { Signal, WritableSignal } from '@angular/core';
 import { NgpOrientation } from 'ng-primitives/common';
 import { injectElementRef } from 'ng-primitives/internal';
 import { NgpRovingFocusGroupState } from 'ng-primitives/roving-focus';
@@ -128,14 +128,14 @@ export interface NgpToggleGroupProps<T = string> {
   readonly onValueChange?: (value: T[]) => void;
 }
 
-const [
-  _NgpToggleGroupStateToken,
-  _ngpToggleGroup,
+export const [
+  NgpToggleGroupStateToken,
+  ngpToggleGroup,
   _injectToggleGroupState,
-  _provideToggleGroupState,
+  provideToggleGroupState,
 ] = createPrimitive(
   'NgpToggleGroup',
-  ({
+  <T = string>({
     rovingFocusGroup,
     orientation: _orientation,
     allowDeselection: _allowDeselection,
@@ -145,7 +145,7 @@ const [
     disabled: _disabled,
     compareWith: _compareWith,
     onValueChange,
-  }: NgpToggleGroupProps<unknown>): NgpToggleGroupState<unknown> => {
+  }: NgpToggleGroupProps<T>): NgpToggleGroupState<T> => {
     const element = injectElementRef();
 
     const allowDeselection = controlled(_allowDeselection, true);
@@ -153,9 +153,9 @@ const [
     const disabled = controlled(_disabled, false);
     const orientation = controlled(_orientation, 'horizontal');
     const defaultValue = controlled(_defaultValue, []);
-    const compareWith = controlled(_compareWith, (a: unknown, b: unknown) => a === b);
+    const compareWith = controlled(_compareWith, (a: T, b: T) => a === b);
 
-    const [value, setValueInternal, valueChange] = controlledState<unknown[]>({
+    const [value, setValueInternal, valueChange] = controlledState<T[]>({
       value: _value,
       defaultValue,
       onChange: onValueChange,
@@ -170,12 +170,12 @@ const [
     /**
      * Select a value in the toggle group.
      */
-    function select(selection: unknown): void {
+    function select(selection: T): void {
       if (disabled()) {
         return;
       }
 
-      let newValue: unknown[] = [];
+      let newValue: T[] = [];
 
       if (type() === 'single') {
         newValue = [selection];
@@ -189,7 +189,7 @@ const [
     /**
      * De-select a value in the toggle group.
      */
-    function deselect(selection: unknown): void {
+    function deselect(selection: T): void {
       if (disabled() || !allowDeselection()) {
         return;
       }
@@ -203,7 +203,7 @@ const [
      * Check if a value is selected in the toggle group.
      * @internal
      */
-    function isSelected(itemValue: unknown): boolean {
+    function isSelected(itemValue: T): boolean {
       const cmp = compareWith();
       return value().some(v => cmp(v, itemValue));
     }
@@ -212,7 +212,7 @@ const [
      * Toggle a value in the toggle group.
      * @internal
      */
-    function toggle(itemValue: unknown): void {
+    function toggle(itemValue: T): void {
       if (isSelected(itemValue)) {
         deselect(itemValue);
       } else {
@@ -220,7 +220,7 @@ const [
       }
     }
 
-    function setValue(newValue: unknown[], options?: SetterOptions): void {
+    function setValue(newValue: T[], options?: SetterOptions): void {
       setValueInternal(newValue, options);
     }
 
@@ -247,23 +247,15 @@ const [
       setDisabled,
       setOrientation,
       valueChange,
-    } satisfies NgpToggleGroupState<unknown>;
+    } satisfies NgpToggleGroupState<T>;
   },
 );
 
-export const NgpToggleGroupStateToken = _NgpToggleGroupStateToken as InjectionToken<
-  WritableSignal<NgpToggleGroupState<unknown>>
->;
-
-export const ngpToggleGroup = _ngpToggleGroup as <T = string>(
-  props: NgpToggleGroupProps<T>,
-) => NgpToggleGroupState<T>;
-
-export const injectToggleGroupState = _injectToggleGroupState as {
-  <T = string>(): Signal<NgpToggleGroupState<T>>;
-  <T = string>(options: StateInjectionOptions): Signal<NgpToggleGroupState<T> | null>;
-};
-
-export const provideToggleGroupState = _provideToggleGroupState as (opts?: {
-  inherit?: boolean;
-}) => FactoryProvider;
+/**
+ * Injects the ToggleGroup state, typed to the value type `T`.
+ */
+export function injectToggleGroupState<T = string>(
+  options?: StateInjectionOptions,
+): Signal<NgpToggleGroupState<T>> {
+  return _injectToggleGroupState(options) as Signal<NgpToggleGroupState<T>>;
+}

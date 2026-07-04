@@ -708,4 +708,85 @@ describe('NgpToggleGroup', () => {
       expect(item1).toHaveAttribute('data-selected');
     });
   });
+
+  describe('compareWith (non-string values)', () => {
+    it('supports numeric values', async () => {
+      const spy = vi.fn();
+      const { getByTestId } = await render(
+        `
+        <div ngpToggleGroup (ngpToggleGroupValueChange)="onValueChange($event)">
+          <div data-testid="item-1" ngpToggleGroupItem [ngpToggleGroupItemValue]="1"></div>
+          <div data-testid="item-2" ngpToggleGroupItem [ngpToggleGroupItemValue]="2"></div>
+        </div>
+        `,
+        {
+          imports: [NgpToggleGroup, NgpToggleGroupItem],
+          componentProperties: { onValueChange: spy },
+        },
+      );
+
+      fireEvent.click(getByTestId('item-1'));
+      // The emitted value is the number 1, not the string "1".
+      expect(spy).toHaveBeenCalledWith([1]);
+      expect(getByTestId('item-1')).toHaveAttribute('data-selected');
+    });
+
+    it('selects by value equality when the default value is a different object instance', async () => {
+      // The default value is a distinct object instance from item-1's value but
+      // equal by id. With the default reference comparator this would not match;
+      // compareWith(id) makes it select.
+      const { getByTestId } = await render(
+        `
+        <div
+          ngpToggleGroup
+          [ngpToggleGroupCompareWith]="compareById"
+          [ngpToggleGroupDefaultValue]="[{ id: 1 }]"
+        >
+          <div data-testid="item-1" ngpToggleGroupItem [ngpToggleGroupItemValue]="{ id: 1 }"></div>
+          <div data-testid="item-2" ngpToggleGroupItem [ngpToggleGroupItemValue]="{ id: 2 }"></div>
+        </div>
+        `,
+        {
+          imports: [NgpToggleGroup, NgpToggleGroupItem],
+          componentProperties: {
+            compareById: (a: { id: number }, b: { id: number }) => a.id === b.id,
+          },
+        },
+      );
+
+      expect(getByTestId('item-1')).toHaveAttribute('data-selected');
+      expect(getByTestId('item-2')).not.toHaveAttribute('data-selected');
+    });
+
+    it('toggles recreated object instances off via compareWith', async () => {
+      // Template object literals are recreated on each change detection, so the
+      // instance stored on select differs from the one checked on the second
+      // click. Deselection only works because it goes through compareWith.
+      const { getByTestId } = await render(
+        `
+        <div
+          ngpToggleGroup
+          ngpToggleGroupType="multiple"
+          ngpToggleGroupAllowDeselection="true"
+          [ngpToggleGroupCompareWith]="compareById"
+        >
+          <div data-testid="item-1" ngpToggleGroupItem [ngpToggleGroupItemValue]="{ id: 1 }"></div>
+        </div>
+        `,
+        {
+          imports: [NgpToggleGroup, NgpToggleGroupItem],
+          componentProperties: {
+            compareById: (a: { id: number }, b: { id: number }) => a.id === b.id,
+          },
+        },
+      );
+
+      const item1 = getByTestId('item-1');
+      fireEvent.click(item1);
+      expect(item1).toHaveAttribute('data-selected');
+
+      fireEvent.click(item1);
+      expect(item1).not.toHaveAttribute('data-selected');
+    });
+  });
 });
