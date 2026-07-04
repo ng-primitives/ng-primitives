@@ -40,26 +40,6 @@ Assemble the radio directives in your template.
 </div>
 ```
 
-## Controlled and Uncontrolled
-
-The radio group can be used in a controlled or uncontrolled manner.
-
-- **Controlled**: bind `ngpRadioGroupValue` and update it yourself when
-  `ngpRadioGroupValueChange` fires (or use the two-way `[(ngpRadioGroupValue)]`).
-  The group renders exactly the value you pass, so interaction does not change
-  the selection until you write the new value back.
-- **Uncontrolled**: leave `ngpRadioGroupValue` unset and optionally provide an
-  initial selection with `ngpRadioGroupDefaultValue`. The group tracks its own
-  value and emits `ngpRadioGroupValueChange` as it changes.
-
-```html
-<!-- uncontrolled with an initial selection -->
-<div ngpRadioGroup ngpRadioGroupDefaultValue="Option 1">
-  <button ngpRadioItem ngpRadioItemValue="Option 1">Option 1</button>
-  <button ngpRadioItem ngpRadioItemValue="Option 2">Option 2</button>
-</div>
-```
-
 ## Reusable Component
 
 Create a reusable component that uses the radio directives.
