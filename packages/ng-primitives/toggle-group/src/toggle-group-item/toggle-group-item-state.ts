@@ -14,11 +14,11 @@ export interface NgpToggleGroupItemState {
 /**
  * The props interface for the ToggleGroupItem pattern.
  */
-export interface NgpToggleGroupItemProps {
+export interface NgpToggleGroupItemProps<T = string> {
   /**
    * The value of the toggle group item.
    */
-  value: Signal<string>;
+  value: Signal<T>;
 
   /**
    * Whether the toggle group item is disabled.
@@ -33,9 +33,12 @@ export const [
   provideToggleGroupItemState,
 ] = createPrimitive(
   'NgpToggleGroupItem',
-  ({ value, disabled = signal(false) }: NgpToggleGroupItemProps): NgpToggleGroupItemState => {
+  <T = string>({
+    value,
+    disabled = signal(false),
+  }: NgpToggleGroupItemProps<T>): NgpToggleGroupItemState => {
     const element = injectElementRef();
-    const toggleGroup = injectToggleGroupState();
+    const toggleGroup = injectToggleGroupState<T>();
 
     // Whether the item is selected.
     const selected = computed(() => toggleGroup()?.isSelected(value()!) ?? false);
