@@ -139,7 +139,7 @@ export const [
     }
 
     function select(newValue: T): void {
-      if (compareWith()(value(), newValue)) {
+      if (disabled() || compareWith()(value(), newValue)) {
         return;
       }
 

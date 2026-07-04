@@ -1,5 +1,4 @@
 import { Directive, computed } from '@angular/core';
-import { injectRadioGroupState } from '../radio-group/radio-group-state';
 import { injectRadioItemState } from '../radio-item/radio-item-state';
 
 /**
@@ -14,19 +13,13 @@ import { injectRadioItemState } from '../radio-item/radio-item-state';
 })
 export class NgpRadioIndicator<T> {
   /**
-   * Access the radio group state.
-   */
-  protected readonly radioGroupState = injectRadioGroupState<T>();
-
-  /**
    * Access the radio group item state
    */
   protected readonly radioItemState = injectRadioItemState<T>();
 
   /**
-   * Determine if the radio indicator is checked.
+   * Determine if the radio indicator is checked. Delegates to the item's
+   * checked state so it honours the group's `compareWith` comparator.
    */
-  protected readonly checked = computed(
-    () => this.radioGroupState().value() === this.radioItemState().value(),
-  );
+  protected readonly checked = computed(() => this.radioItemState().checked());
 }

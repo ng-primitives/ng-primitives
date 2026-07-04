@@ -128,9 +128,42 @@ describe('RadioGroup (reusable component) — reactive forms', () => {
       },
     );
 
+    expect(getByRole('radiogroup')).not.toHaveAttribute('data-disabled');
+
     formControl.disable();
     fixture.detectChanges();
     expect(getByRole('radiogroup')).toHaveAttribute('data-disabled', '');
+  });
+
+  it('does not allow selection while the form control is disabled', async () => {
+    const formControl = new FormControl<string | null>({ value: null, disabled: true });
+    const { getByRole, fixture } = await render(
+      `
+      <app-radio-group [formControl]="formControl">
+        <app-radio-item value="1">One</app-radio-item>
+        <app-radio-item value="2">Two</app-radio-item>
+      </app-radio-group>
+      `,
+      {
+        imports: [RadioGroup, RadioItemFixture, ReactiveFormsModule],
+        componentProperties: { formControl },
+      },
+    );
+
+    await fixture.whenStable();
+    const one = getByRole('radio', { name: 'One' });
+
+    fireEvent.click(one);
+    expect(formControl.value).toBeNull();
+    expect(one).not.toHaveAttribute('data-checked');
+
+    // re-enabling the control restores interaction
+    formControl.enable();
+    fixture.detectChanges();
+
+    fireEvent.click(one);
+    expect(formControl.value).toBe('1');
+    expect(one).toHaveAttribute('data-checked', '');
   });
 
   it('does not loop writeValue back through onChange (regression)', async () => {

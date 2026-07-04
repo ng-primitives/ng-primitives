@@ -62,6 +62,28 @@ describe('NgpRadioGroup', () => {
 
       expect(getByRole('radiogroup')).toHaveAttribute('data-disabled', '');
     });
+
+    it('should apply a generated id by default', async () => {
+      const { getByRole } = await render(
+        `<div ngpRadioGroup>
+          <div ngpRadioItem ngpRadioItemValue="1">One</div>
+        </div>`,
+        { imports: [NgpRadioGroup, NgpRadioItem] },
+      );
+
+      expect(getByRole('radiogroup').id).toMatch(/^ngp-radio-group-/);
+    });
+
+    it('should reflect a custom id', async () => {
+      const { getByRole } = await render(
+        `<div ngpRadioGroup id="my-radios">
+          <div ngpRadioItem ngpRadioItemValue="1">One</div>
+        </div>`,
+        { imports: [NgpRadioGroup, NgpRadioItem] },
+      );
+
+      expect(getByRole('radiogroup')).toHaveAttribute('id', 'my-radios');
+    });
   });
 
   describe('selection', () => {
@@ -208,6 +230,50 @@ describe('NgpRadioGroup', () => {
 
       expect(getByRole('radio', { name: 'Two' })).toHaveAttribute('data-checked', '');
       expect(getByRole('radio', { name: 'One' })).not.toHaveAttribute('data-checked');
+    });
+  });
+
+  describe('focus behaviour', () => {
+    it('should select an item when it receives focus', async () => {
+      const valueChange = vi.fn();
+      const { getByRole, detectChanges } = await render(
+        `<div ngpRadioGroup (ngpRadioGroupValueChange)="valueChange($event)">
+          <div ngpRadioItem ngpRadioItemValue="1">One</div>
+          <div ngpRadioItem ngpRadioItemValue="2">Two</div>
+        </div>`,
+        {
+          imports: [NgpRadioGroup, NgpRadioItem],
+          componentProperties: { valueChange },
+        },
+      );
+
+      const radioTwo = getByRole('radio', { name: 'Two' });
+      radioTwo.focus();
+      detectChanges();
+
+      expect(valueChange).toHaveBeenCalledWith('2');
+      expect(radioTwo).toHaveAttribute('data-checked', '');
+    });
+
+    it('should not select a disabled item when it receives focus', async () => {
+      const valueChange = vi.fn();
+      const { getByRole, detectChanges } = await render(
+        `<div ngpRadioGroup (ngpRadioGroupValueChange)="valueChange($event)">
+          <div ngpRadioItem ngpRadioItemValue="1">One</div>
+          <div ngpRadioItem ngpRadioItemValue="2" ngpRadioItemDisabled>Two</div>
+        </div>`,
+        {
+          imports: [NgpRadioGroup, NgpRadioItem],
+          componentProperties: { valueChange },
+        },
+      );
+
+      const radioTwo = getByRole('radio', { name: 'Two' });
+      radioTwo.focus();
+      detectChanges();
+
+      expect(valueChange).not.toHaveBeenCalled();
+      expect(radioTwo).not.toHaveAttribute('data-checked');
     });
   });
 
@@ -362,6 +428,26 @@ describe('NgpRadioGroup', () => {
       expect(valueChange).not.toHaveBeenCalledWith('2');
     });
 
+    it('should not select via click when the group is disabled', async () => {
+      const valueChange = vi.fn();
+      const { getByRole } = await render(
+        `<div ngpRadioGroup ngpRadioGroupDisabled (ngpRadioGroupValueChange)="valueChange($event)">
+          <div ngpRadioItem ngpRadioItemValue="1">One</div>
+          <div ngpRadioItem ngpRadioItemValue="2">Two</div>
+        </div>`,
+        {
+          imports: [NgpRadioGroup, NgpRadioItem],
+          componentProperties: { valueChange },
+        },
+      );
+
+      const radioOne = getByRole('radio', { name: 'One' });
+      radioOne.click();
+
+      expect(valueChange).not.toHaveBeenCalled();
+      expect(radioOne).not.toHaveAttribute('data-checked');
+    });
+
     it('should not navigate when the group is disabled', async () => {
       const valueChange = vi.fn();
       const { getByRole, detectChanges } = await render(
@@ -495,6 +581,42 @@ describe('NgpRadioGroup', () => {
       expect(getByTestId('indicator-1')).toHaveAttribute('data-checked', '');
       expect(getByTestId('indicator-2')).not.toHaveAttribute('data-checked');
       expect(getByTestId('indicator-2')).toHaveAttribute('data-disabled', '');
+    });
+
+    it('should honour a custom compareWith when computing checked', async () => {
+      const options = [
+        { id: 1, name: 'One' },
+        { id: 2, name: 'Two' },
+      ];
+      const { getByTestId, detectChanges } = await render(
+        `<div
+          ngpRadioGroup
+          [ngpRadioGroupValue]="value"
+          [ngpRadioGroupCompareWith]="compareWith"
+        >
+          <div ngpRadioItem [ngpRadioItemValue]="options[0]">
+            <span ngpRadioIndicator data-testid="indicator-1"></span>
+            One
+          </div>
+          <div ngpRadioItem [ngpRadioItemValue]="options[1]">
+            <span ngpRadioIndicator data-testid="indicator-2"></span>
+            Two
+          </div>
+        </div>`,
+        {
+          imports: [NgpRadioGroup, NgpRadioItem, NgpRadioIndicator],
+          componentProperties: {
+            options,
+            // a fresh object with the same id must still match by compareWith
+            value: { id: 2, name: 'Two' },
+            compareWith: (a: { id: number } | null, b: { id: number } | null) => a?.id === b?.id,
+          },
+        },
+      );
+      detectChanges();
+
+      expect(getByTestId('indicator-2')).toHaveAttribute('data-checked', '');
+      expect(getByTestId('indicator-1')).not.toHaveAttribute('data-checked');
     });
   });
 });

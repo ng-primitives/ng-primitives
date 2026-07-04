@@ -66,4 +66,9 @@ export class RadioGroup implements ControlValueAccessor {
   registerOnTouched(onTouched: TouchedFn): void {
     this.onTouched = onTouched;
   }
+
+  /** Set the disabled state of the radio group */
+  setDisabledState(isDisabled: boolean): void {
+    this.state().setDisabled(isDisabled);
+  }
 }
