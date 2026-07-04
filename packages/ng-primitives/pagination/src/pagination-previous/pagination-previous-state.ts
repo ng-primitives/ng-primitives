@@ -57,13 +57,8 @@ export const [
     }
 
     function handleKeydown(event: KeyboardEvent): void {
-      if (event.repeat) {
+      if (event.repeat || (event.key !== 'Enter' && event.key !== ' ')) {
         return;
-      }
-
-      if (event.key !== 'Enter' && event.key !== ' ') {
-        return;
-      }
       }
 
       event.preventDefault();

@@ -131,6 +131,25 @@ describe('NgpPagination', () => {
     expect(pagination).toHaveAttribute('data-page', '5');
   });
 
+  it('should ignore repeated keydown events', async () => {
+    const { getByRole, getByTestId } = await render(
+      `<div ngpPagination [(ngpPaginationPage)]="page" [ngpPaginationPageCount]="5">
+        <a data-testid="previous-page-button" ngpPaginationPrevious>Previous</a>
+      </div>`,
+      {
+        imports: [NgpPagination, NgpPaginationPrevious],
+        componentProperties: { page: 3 },
+      },
+    );
+    const pagination = getByRole('navigation');
+    const previous = getByTestId('previous-page-button');
+    expect(pagination).toHaveAttribute('data-page', '3');
+
+    fireEvent.keyDown(previous, { key: 'Enter' });
+    fireEvent.keyDown(previous, { key: 'Enter', repeat: true });
+    expect(pagination).toHaveAttribute('data-page', '2');
+  });
+
   it('should not emit pageChange or update page if goToPage is called with out-of-bounds value', async () => {
     const { getByRole, getByTestId } = await render(
       `<div ngpPagination [(ngpPaginationPage)]="page" [ngpPaginationPageCount]="2">

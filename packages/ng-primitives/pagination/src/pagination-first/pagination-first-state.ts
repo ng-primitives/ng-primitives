@@ -57,7 +57,7 @@ export const [
     }
 
     function handleKeydown(event: KeyboardEvent): void {
-      if (event.key !== 'Enter' && event.key !== ' ') {
+      if (event.repeat || (event.key !== 'Enter' && event.key !== ' ')) {
         return;
       }
 
