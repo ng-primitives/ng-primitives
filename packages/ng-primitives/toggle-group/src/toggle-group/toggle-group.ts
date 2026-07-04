@@ -1,7 +1,7 @@
 import { BooleanInput } from '@angular/cdk/coercion';
 import { booleanAttribute, Directive, input, output } from '@angular/core';
 import { NgpOrientation } from 'ng-primitives/common';
-import { ngpRovingFocusGroup, provideRovingFocusGroupState } from 'ng-primitives/roving-focus';
+import { provideRovingFocusGroupState } from 'ng-primitives/roving-focus';
 import { SetterOptions } from 'ng-primitives/state';
 import { injectToggleGroupConfig } from '../config/toggle-group-config';
 import { ngpToggleGroup, provideToggleGroupState } from './toggle-group-state';
@@ -75,12 +75,8 @@ export class NgpToggleGroup {
    * The state of the toggle group.
    */
   protected readonly state = ngpToggleGroup({
-    rovingFocusGroup: ngpRovingFocusGroup({
-      orientation: this.orientation,
-      disabled: this.disabled,
-      wrap: this.wrap,
-    }),
     orientation: this.orientation,
+    wrap: this.wrap,
     allowDeselection: this.allowDeselection,
     type: this.type,
     value: this.value,

@@ -1,7 +1,7 @@
 import { Signal, WritableSignal } from '@angular/core';
 import { NgpOrientation } from 'ng-primitives/common';
 import { injectElementRef } from 'ng-primitives/internal';
-import { NgpRovingFocusGroupState } from 'ng-primitives/roving-focus';
+import { ngpRovingFocusGroup } from 'ng-primitives/roving-focus';
 import {
   attrBinding,
   controlled,
@@ -82,14 +82,13 @@ export interface NgpToggleGroupState {
  */
 export interface NgpToggleGroupProps {
   /**
-   * The roving focus group state for the toggle-group.
-   */
-  readonly rovingFocusGroup: NgpRovingFocusGroupState;
-
-  /**
    * The orientation of the toggle-group.
    */
   readonly orientation?: Signal<NgpOrientation>;
+  /**
+   * Whether focus should wrap around when reaching the end of the toggle-group.
+   */
+  readonly wrap?: Signal<boolean>;
   /**
    * Whether deselection is allowed in the toggle-group.
    */
@@ -124,8 +123,8 @@ export const [
 ] = createPrimitive(
   'NgpToggleGroup',
   ({
-    rovingFocusGroup,
     orientation: _orientation,
+    wrap: _wrap,
     allowDeselection: _allowDeselection,
     type: _type,
     value: _value,
@@ -139,6 +138,7 @@ export const [
     const type = controlled(_type, 'single');
     const disabled = controlled(_disabled, false);
     const orientation = controlled(_orientation, 'horizontal');
+    const wrap = controlled(_wrap, true);
     const defaultValue = controlled(_defaultValue, []);
 
     const [value, setValueInternal, valueChange] = controlledState<string[]>({
@@ -146,6 +146,12 @@ export const [
       defaultValue,
       onChange: onValueChange,
     });
+
+    // Own the roving focus group so it shares the group's `disabled` and
+    // `orientation` signals directly. This keeps keyboard navigation in sync
+    // with programmatic/form-driven changes (e.g. `setDisabled`, `setOrientation`)
+    // without needing to re-push each value across a directive boundary.
+    ngpRovingFocusGroup({ orientation, disabled, wrap });
 
     // Host bindings
     attrBinding(element, 'role', 'group');
@@ -213,8 +219,8 @@ export const [
     }
 
     function setOrientation(newOrientation: NgpOrientation): void {
+      // The roving focus group shares this signal, so it stays in sync.
       orientation.set(newOrientation);
-      rovingFocusGroup.setOrientation(newOrientation);
     }
 
     return {

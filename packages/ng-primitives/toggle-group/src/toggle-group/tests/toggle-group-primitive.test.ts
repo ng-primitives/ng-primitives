@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import { By } from '@angular/platform-browser';
 import { fireEvent, render } from '@testing-library/angular';
 import { provideRovingFocusGroupState } from 'ng-primitives/roving-focus';
 import { describe, expect, it, vi } from 'vitest';
@@ -627,6 +628,36 @@ describe('NgpToggleGroup', () => {
 
       fireEvent.keyDown(item1, { key: 'ArrowLeft', code: 'ArrowLeft' });
       expect(document.activeElement).toBe(item1);
+    });
+
+    it('should disable keyboard navigation when disabled programmatically via setDisabled', async () => {
+      const { getByTestId, fixture } = await render(
+        `
+        <div ngpToggleGroup>
+          <div data-testid="toggle-item-1" ngpToggleGroupItem ngpToggleGroupItemValue="option-1" tabindex="0"></div>
+          <div data-testid="toggle-item-2" ngpToggleGroupItem ngpToggleGroupItemValue="option-2" tabindex="-1"></div>
+        </div>
+        `,
+        { imports: [NgpToggleGroup, NgpToggleGroupItem] },
+      );
+
+      const item1 = getByTestId('toggle-item-1');
+      const item2 = getByTestId('toggle-item-2');
+      const toggleGroup = fixture.debugElement
+        .query(By.directive(NgpToggleGroup))
+        .injector.get(NgpToggleGroup);
+
+      item1.focus();
+      expect(document.activeElement).toBe(item1);
+
+      // disabling programmatically (e.g. from a form control) must also stop
+      // the shared roving focus group from roaming
+      toggleGroup.setDisabled(true);
+      fixture.detectChanges();
+
+      fireEvent.keyDown(item1, { key: 'ArrowRight', code: 'ArrowRight' });
+      expect(document.activeElement).toBe(item1);
+      expect(item2).not.toHaveFocus();
     });
   });
 
