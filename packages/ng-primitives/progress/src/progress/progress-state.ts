@@ -66,7 +66,8 @@ export interface NgpProgressState {
   readonly max: WritableSignal<number>;
 
   /**
-   * Get the progress value text. `null` while the progress is indeterminate.
+   * Get the progress value text. An empty string while the progress is
+   * indeterminate (the `aria-valuetext` attribute is omitted in that case).
    */
   readonly valueText: Signal<string>;
 
@@ -174,7 +175,8 @@ export const [NgpProgressStateToken, ngpProgress, injectProgressState, providePr
       });
 
       /**
-       * Get the progress value text. Omitted (null) while indeterminate.
+       * Get the progress value text. Empty while indeterminate; the
+       * aria-valuetext binding omits the attribute in that case.
        */
       const valueText = computed(() => {
         const currentValue = valueNow();
