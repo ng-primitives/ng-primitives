@@ -118,6 +118,16 @@ describe('NgpProgress', () => {
       expect((getByTestId('indicator') as HTMLElement).style.width).toBe('100%');
     });
 
+    it('should not produce a NaN width for a zero-length range (min === max)', async () => {
+      const { getByTestId } = await render(
+        `<div ngpProgress ngpProgressValue="100" ngpProgressMin="100" ngpProgressMax="100">
+          <div ngpProgressIndicator data-testid="indicator"></div>
+        </div>`,
+        { imports },
+      );
+      expect((getByTestId('indicator') as HTMLElement).style.width).toBe('100%');
+    });
+
     it('should clamp the indicator width to 0% when value is below min', async () => {
       const { getByTestId } = await render(
         `<div ngpProgress ngpProgressValue="-10" ngpProgressMin="0" ngpProgressMax="100">
