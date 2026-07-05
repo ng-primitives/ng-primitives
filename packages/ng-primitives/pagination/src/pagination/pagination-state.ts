@@ -2,6 +2,7 @@ import { computed, signal, Signal, WritableSignal } from '@angular/core';
 import { injectElementRef } from 'ng-primitives/internal';
 import {
   attrBinding,
+  controlled,
   controlledState,
   createPrimitive,
   dataBinding,
@@ -23,6 +24,11 @@ export interface NgpPaginationState {
    * Whether the pagination is disabled.
    */
   readonly disabled: Signal<boolean>;
+  /**
+   * Set the disabled state (e.g. from a form control).
+   * @param disabled The disabled state.
+   */
+  setDisabled: (disabled: boolean) => void;
   /**
    * Determine if we are on the first page.
    * @internal
@@ -88,6 +94,10 @@ export const [
   }: NgpPaginationProps) => {
     const elementRef = injectElementRef();
 
+    // controlled so a form control can set the disabled state via setDisabled,
+    // while still following the `disabled` input when it is bound
+    const disabled = controlled(_disabled);
+
     const [page, setPage, pageChange] = controlledState({
       value: _page,
       defaultValue: _defaultPage,
@@ -105,7 +115,11 @@ export const [
     dataBinding(elementRef, 'data-page-count', () => _pageCount().toString());
     dataBinding(elementRef, 'data-first-page', () => (firstPage() ? '' : null));
     dataBinding(elementRef, 'data-last-page', () => (lastPage() ? '' : null));
-    dataBinding(elementRef, 'data-disabled', () => (_disabled() ? '' : null));
+    dataBinding(elementRef, 'data-disabled', () => (disabled() ? '' : null));
+
+    function setDisabled(value: boolean): void {
+      disabled.set(value);
+    }
 
     function goToPage(page: number) {
       // check if the page is within the bounds of the pagination
@@ -120,7 +134,8 @@ export const [
       page: deprecatedSetter(page, 'setPage', setPage),
       pageCount: _pageCount,
       pageChange,
-      disabled: _disabled,
+      disabled,
+      setDisabled,
       firstPage,
       lastPage,
       setPage,

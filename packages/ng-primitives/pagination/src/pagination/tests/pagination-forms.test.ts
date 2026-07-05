@@ -89,15 +89,21 @@ describe('Pagination (reusable component) — reactive forms', () => {
     await fixture.whenStable();
 
     expect(getByRole('navigation')).not.toHaveAttribute('data-disabled');
+    const nextButton = getByRole('button', { name: 'Next Page' });
+    expect(nextButton).toHaveAttribute('tabindex', '0');
 
-    // SUSPECTED BUG: the reusable pagination component does not implement
-    // ControlValueAccessor.setDisabledState, so a disabled reactive form control
-    // never propagates to the pagination (no data-disabled, controls stay
-    // interactive). Compare with the radio/checkbox/slider fixtures which forward
-    // setDisabledState to the primitive state.
     formControl.disable();
     await fixture.whenStable();
+
+    // the disabled form control propagates to the pagination and its controls
+    expect(getByRole('navigation')).toHaveAttribute('data-disabled', '');
+    expect(nextButton).toHaveAttribute('tabindex', '-1');
+
+    // re-enabling the control restores interaction
+    formControl.enable();
+    await fixture.whenStable();
     expect(getByRole('navigation')).not.toHaveAttribute('data-disabled');
+    expect(getByRole('button', { name: 'Next Page' })).toHaveAttribute('tabindex', '0');
   });
 
   it('does not loop writeValue back through onChange (regression)', async () => {

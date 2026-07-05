@@ -179,4 +179,9 @@ export class Pagination implements ControlValueAccessor {
   registerOnTouched(fn: TouchedFn): void {
     this.onTouched = fn;
   }
+
+  /** Reflect the form control's disabled state onto the pagination. */
+  setDisabledState(isDisabled: boolean): void {
+    this.state().setDisabled(isDisabled);
+  }
 }
