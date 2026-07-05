@@ -203,12 +203,15 @@ export class NgpDatePicker<T> {
    * Select a date.
    * @param date The date to select.
    * @param preserveTime Whether to preserve time components from existing selected date.
+   * @param options Options for the selection. Set `emit` to false to update the state without
+   * emitting `dateChange` (e.g. when writing a value from a form model).
    * @internal
    */
-  select(date: T, preserveTime = false): void {
+  select(date: T, preserveTime = false, options: { emit?: boolean } = {}): void {
+    const emit = options.emit ?? true;
     let selectedDate = date;
 
-    if (preserveTime) {
+    if (preserveTime && date != null) {
       const existingDate = this.state.date();
       if (existingDate) {
         selectedDate = this.dateAdapter.set(existingDate, {
@@ -220,7 +223,10 @@ export class NgpDatePicker<T> {
     }
 
     this.state.date.set(selectedDate);
-    this.dateChange.emit(selectedDate);
+
+    if (emit) {
+      this.dateChange.emit(selectedDate);
+    }
   }
 
   /**

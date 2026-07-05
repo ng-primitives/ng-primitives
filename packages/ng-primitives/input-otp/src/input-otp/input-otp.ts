@@ -33,10 +33,12 @@ export class NgpInputOtp {
   readonly id = input(uniqueId('ngp-input-otp'));
 
   /**
-   * The current value of the OTP.
+   * The current value of the OTP. A null/undefined value (e.g. from a form
+   * `writeValue(null)` or `reset()`) is coerced to an empty string.
    */
-  readonly value = input<string>('', {
+  readonly value = input<string, string | null | undefined>('', {
     alias: 'ngpInputOtpValue',
+    transform: value => value ?? '',
   });
 
   /**

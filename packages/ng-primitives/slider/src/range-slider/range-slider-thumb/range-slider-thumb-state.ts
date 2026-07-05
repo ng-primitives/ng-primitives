@@ -197,6 +197,10 @@ export const [
     }
 
     function handleKeydown(event: KeyboardEvent): void {
+      if (rangeSlider().disabled()) {
+        return;
+      }
+
       const multiplier = event.shiftKey ? 10 : 1;
       const currentValue = value();
       const step = rangeSlider().step() * multiplier;
@@ -208,26 +212,30 @@ export const [
 
       switch (event.key) {
         case 'ArrowLeft':
+          // in RTL the max end is on the left, so ArrowLeft increases the value
           newValue = isRTL
-            ? Math.min(currentValue - step, rangeSlider().max())
+            ? Math.min(currentValue + step, rangeSlider().max())
             : Math.max(currentValue - step, rangeSlider().min());
           break;
         case 'ArrowDown':
           newValue = Math.max(currentValue - step, rangeSlider().min());
           break;
         case 'ArrowRight':
+          // in RTL the min end is on the right, so ArrowRight decreases the value
           newValue = isRTL
-            ? Math.max(currentValue + step, rangeSlider().min())
+            ? Math.max(currentValue - step, rangeSlider().min())
             : Math.min(currentValue + step, rangeSlider().max());
           break;
         case 'ArrowUp':
           newValue = Math.min(currentValue + step, rangeSlider().max());
           break;
         case 'Home':
-          newValue = isRTL ? rangeSlider().max() : rangeSlider().min();
+          // Home is value-based (first allowed value = minimum), not visual
+          newValue = rangeSlider().min();
           break;
         case 'End':
-          newValue = isRTL ? rangeSlider().min() : rangeSlider().max();
+          // End is value-based (last allowed value = maximum), not visual
+          newValue = rangeSlider().max();
           break;
         default:
           return;

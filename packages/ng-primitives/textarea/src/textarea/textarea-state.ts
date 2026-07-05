@@ -1,8 +1,8 @@
-import { Signal, signal, WritableSignal } from '@angular/core';
+import { computed, Signal, signal, WritableSignal } from '@angular/core';
 import { ngpFormControl } from 'ng-primitives/form-field';
 import { ngpInteractions } from 'ng-primitives/interactions';
 import { injectElementRef } from 'ng-primitives/internal';
-import { attrBinding, controlled, createPrimitive, dataBinding } from 'ng-primitives/state';
+import { attrBinding, controlled, createPrimitive } from 'ng-primitives/state';
 import { uniqueId } from 'ng-primitives/utils';
 
 /**
@@ -48,14 +48,17 @@ export const [NgpTextareaStateToken, ngpTextarea, injectTextareaState, provideTe
       const element = injectElementRef();
       const disabled = controlled(_disabled);
 
-      // Setup interactions and form control bindings
-      ngpInteractions({ hover: true, press: true, focus: true, disabled });
-      ngpFormControl({ id, disabled });
+      // Setup form control bindings first so we can incorporate the form
+      // control's disabled status (e.g. a disabled ReactiveForms control).
+      const status = ngpFormControl({ id, disabled });
+      const isDisabled = computed(() => status().disabled ?? disabled());
 
-      // Host bindings
+      ngpInteractions({ hover: true, press: true, focus: true, disabled: isDisabled });
+
+      // Host bindings. `data-disabled` is bound by `ngpFormControl` using the
+      // combined disabled state, so it is not duplicated here.
       attrBinding(element, 'id', id);
-      attrBinding(element, 'disabled', () => (disabled() ? '' : null));
-      dataBinding(element, 'data-disabled', disabled);
+      attrBinding(element, 'disabled', () => (isDisabled() ? '' : null));
 
       function setDisabled(value: boolean) {
         disabled.set(value);

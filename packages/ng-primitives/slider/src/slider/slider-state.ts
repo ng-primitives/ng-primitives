@@ -10,6 +10,7 @@ import {
   dataBinding,
   deprecatedSetter,
   emitter,
+  SetterOptions,
 } from 'ng-primitives/state';
 import { uniqueId } from 'ng-primitives/utils';
 import { Observable } from 'rxjs';
@@ -65,7 +66,7 @@ export interface NgpSliderState {
   /**
    * Set the current value (clamped).
    */
-  setValue(value: number): void;
+  setValue(value: number, options?: SetterOptions): void;
   /**
    * Register the track element.
    */
@@ -181,13 +182,15 @@ export const [NgpSliderStateToken, ngpSlider, injectSliderState, provideSliderSt
         }
       }
 
-      function setValue(newValue: number): void {
+      function setValue(newValue: number, options?: SetterOptions): void {
         const clamped = Math.min(max(), Math.max(min(), newValue));
         const stepped = Math.round((clamped - min()) / step()) * step() + min();
         const finalValue = Math.min(max(), Math.max(min(), stepped));
         value.set(finalValue);
-        onValueChange?.(finalValue);
-        valueChange.emit(finalValue);
+        if (options?.emit !== false) {
+          onValueChange?.(finalValue);
+          valueChange.emit(finalValue);
+        }
       }
 
       function setDisabled(isDisabled: boolean): void {

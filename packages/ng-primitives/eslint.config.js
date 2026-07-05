@@ -66,6 +66,9 @@ module.exports = [
       '@typescript-eslint/no-explicit-any': 'off',
       '@typescript-eslint/no-empty-function': 'off',
       '@nx/workspace-take-until-destroyed': 'off',
+      // model() is banned in primitives, but test fixtures mirror the reusable
+      // components (which may use it), so allow it here
+      '@nx/workspace-avoid-model': 'off',
     },
   },
   {

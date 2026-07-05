@@ -82,6 +82,7 @@ export class NgpCheckbox {
     defaultChecked: this.defaultChecked,
     indeterminate: this.indeterminate,
     disabled: this.disabled,
+    required: this.required,
     onCheckedChange: value => this.checkedChange.emit(value),
     onIndeterminateChange: value => this.indeterminateChange.emit(value),
   });

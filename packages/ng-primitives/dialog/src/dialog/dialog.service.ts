@@ -24,7 +24,7 @@ import {
 import { uniqueId } from 'ng-primitives/utils';
 import { Observable, Subject, Subscription, defer } from 'rxjs';
 import { startWith } from 'rxjs/operators';
-import { NgpDialogConfig, injectDialogConfig } from '../config/dialog-config';
+import { NgpDialogConfig, NgpDialogConfigToken, injectDialogConfig } from '../config/dialog-config';
 import { NgpDialogRef } from './dialog-ref';
 
 /**
@@ -286,6 +286,9 @@ export class NgpDialogManager implements OnDestroy {
     const userInjector = config.injector || config.viewContainerRef?.injector;
     const providers: StaticProvider[] = [
       { provide: NgpDialogRef, useValue: dialogRef },
+      // expose the merged per-dialog config so NgpDialog honours role/modal/closeOn*
+      // passed to open(), not just the global config
+      { provide: NgpDialogConfigToken, useValue: config },
       { provide: NgpExitAnimationManager, useClass: NgpExitAnimationManager },
     ];
 

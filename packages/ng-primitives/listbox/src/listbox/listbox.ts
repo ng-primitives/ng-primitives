@@ -221,7 +221,8 @@ export class NgpListbox<T> implements AfterContentInit {
    * Determine if an option is selected using the compareWith function.
    */
   isSelected(value: T): boolean {
-    return this.state.value().some(v => this.state.compareWith()(v, value));
+    // a form may write null/undefined (writeValue(null) / reset); treat as empty
+    return (this.state.value() ?? []).some(v => this.state.compareWith()(v, value));
   }
 
   /**

@@ -10,6 +10,7 @@ import {
   dataBinding,
   deprecatedSetter,
   emitter,
+  SetterOptions,
 } from 'ng-primitives/state';
 import { uniqueId } from 'ng-primitives/utils';
 import { Observable } from 'rxjs';
@@ -130,11 +131,11 @@ export interface NgpRangeSliderState {
   /**
    * Updates the low value, ensuring it doesn't exceed the high value.
    */
-  setLowValue(value: number): void;
+  setLowValue(value: number, options?: SetterOptions): void;
   /**
    * Updates the high value, ensuring it doesn't go below the low value.
    */
-  setHighValue(value: number): void;
+  setHighValue(value: number, options?: SetterOptions): void;
   /**
    * Determines which thumb should be moved based on the position clicked.
    */
@@ -218,20 +219,24 @@ export const [
     dataBinding(element, 'data-orientation', orientation);
     dataBinding(element, 'data-disabled', status().disabled);
 
-    function setLowValue(value: number): void {
+    function setLowValue(value: number, options?: SetterOptions): void {
       const clampedValue = Math.max(min(), Math.min(value, high()));
       const steppedValue = Math.round((clampedValue - min()) / step()) * step() + min();
       low.set(steppedValue);
-      onLowChange?.(steppedValue);
-      lowChange.emit(steppedValue);
+      if (options?.emit !== false) {
+        onLowChange?.(steppedValue);
+        lowChange.emit(steppedValue);
+      }
     }
 
-    function setHighValue(value: number): void {
+    function setHighValue(value: number, options?: SetterOptions): void {
       const clampedValue = Math.min(max(), Math.max(value, low()));
       const steppedValue = Math.round((clampedValue - min()) / step()) * step() + min();
       high.set(steppedValue);
-      onHighChange?.(steppedValue);
-      highChange.emit(steppedValue);
+      if (options?.emit !== false) {
+        onHighChange?.(steppedValue);
+        highChange.emit(steppedValue);
+      }
     }
 
     function getClosestThumb(percentage: number): 'low' | 'high' {

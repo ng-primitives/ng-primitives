@@ -1,4 +1,4 @@
-import { AfterViewInit, Directive, HostListener } from '@angular/core';
+import { afterRenderEffect, Directive, HostListener } from '@angular/core';
 import { NgpVisuallyHidden } from 'ng-primitives/a11y';
 import { injectElementRef } from 'ng-primitives/internal';
 import { injectInputOtpState } from '../input-otp/input-otp-state';
@@ -15,7 +15,7 @@ import { injectInputOtpState } from '../input-otp/input-otp-state';
     '[attr.disabled]': 'state().disabled() ? "" : null',
   },
 })
-export class NgpInputOtpInput implements AfterViewInit {
+export class NgpInputOtpInput {
   /**
    * Access the element reference.
    */
@@ -29,11 +29,17 @@ export class NgpInputOtpInput implements AfterViewInit {
   constructor() {
     // Register this input with the parent
     this.state().registerInput(this);
-  }
 
-  ngAfterViewInit(): void {
-    // Set initial value
-    this.elementRef.nativeElement.value = this.state().value();
+    // Keep the hidden input's value in sync with the state, including
+    // programmatic changes (e.g. a form writeValue) which don't fire `input`.
+    // Guarded so it never rewrites the value the user is actively typing (which
+    // would reset the caret) — during typing state and element already agree.
+    afterRenderEffect(() => {
+      const value = this.state().value();
+      if (this.elementRef.nativeElement.value !== value) {
+        this.elementRef.nativeElement.value = value;
+      }
+    });
   }
 
   /**

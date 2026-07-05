@@ -148,6 +148,8 @@ Adheres to the [Spinbutton WAI-ARIA design pattern](https://www.w3.org/WAI/ARIA/
 - <kbd>Arrow Down</kbd>: Decrease the value by the step.
 - <kbd>Shift</kbd> + <kbd>Arrow Up</kbd>: Increase the value by the large step.
 - <kbd>Shift</kbd> + <kbd>Arrow Down</kbd>: Decrease the value by the large step.
+- <kbd>Page Up</kbd>: Increase the value by the large step.
+- <kbd>Page Down</kbd>: Decrease the value by the large step.
 - <kbd>Home</kbd>: Set the value to the minimum (if finite).
 - <kbd>End</kbd>: Set the value to the maximum (if finite).
 - <kbd>Enter</kbd>: Commit the typed value.

@@ -182,6 +182,16 @@ export const [
           numberField().decrement(useLargeStep ? getLargeStepMultiplier() : 1);
           elementRef.nativeElement.value = formatDisplayValue();
           break;
+        case 'PageUp':
+          event.preventDefault();
+          numberField().increment(getLargeStepMultiplier());
+          elementRef.nativeElement.value = formatDisplayValue();
+          break;
+        case 'PageDown':
+          event.preventDefault();
+          numberField().decrement(getLargeStepMultiplier());
+          elementRef.nativeElement.value = formatDisplayValue();
+          break;
         case 'Home':
           if (isFinite(numberField().min())) {
             event.preventDefault();

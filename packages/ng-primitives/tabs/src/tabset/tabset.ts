@@ -58,6 +58,15 @@ export class NgpTabset {
     transform: booleanAttribute,
   });
 
+  /**
+   * Whether keyboard focus should wrap around the tab list.
+   * @default true (from the global tabs config)
+   */
+  readonly wrap = input<boolean, BooleanInput>(this.config.wrap, {
+    alias: 'ngpTabsetWrap',
+    transform: booleanAttribute,
+  });
+
   private readonly state = ngpTabset({
     id: this.id,
     value: this.value,
@@ -76,7 +85,7 @@ export class NgpTabset {
     ngpRovingFocusGroup({
       orientation: this.orientation,
       disabled: signal(false),
-      wrap: signal(false),
+      wrap: this.wrap,
       homeEnd: signal(true),
     });
   }

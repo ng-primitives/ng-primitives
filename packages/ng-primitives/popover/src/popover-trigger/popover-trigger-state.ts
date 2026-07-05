@@ -272,7 +272,11 @@ export const [
 
     // Host binding
     attrBinding(elementRef, 'aria-expanded', () => (open() ? 'true' : 'false'));
+    // the popover is a focus-trapped, dialog-like overlay, so advertise the popup type
+    attrBinding(elementRef, 'aria-haspopup', 'dialog');
     attrBinding(elementRef, 'aria-describedby', () => overlay()?.ariaDescribedBy());
+    // reference the controlled popover by id while it is open (it does not exist when closed)
+    attrBinding(elementRef, 'aria-controls', () => (open() ? (overlay()?.id() ?? null) : null));
     dataBinding(elementRef, 'data-open', open);
     dataBinding(elementRef, 'data-placement', placement);
     dataBinding(elementRef, 'data-disabled', disabled);

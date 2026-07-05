@@ -1,5 +1,13 @@
 import { BooleanInput } from '@angular/cdk/coercion';
-import { booleanAttribute, Directive, HostListener, input, OnDestroy, signal } from '@angular/core';
+import {
+  booleanAttribute,
+  computed,
+  Directive,
+  HostListener,
+  input,
+  OnDestroy,
+  signal,
+} from '@angular/core';
 import { NgpFocusTrap } from 'ng-primitives/focus-trap';
 import { NgpExitAnimation } from 'ng-primitives/internal';
 import { uniqueId } from 'ng-primitives/utils';
@@ -17,8 +25,8 @@ import { dialogState, provideDialogState } from './dialog-state';
     '[id]': 'state.id()',
     '[attr.role]': 'state.role()',
     '[attr.aria-modal]': 'state.modal()',
-    '[attr.aria-labelledby]': 'labelledBy().join(" ")',
-    '[attr.aria-describedby]': 'describedBy().join(" ")',
+    '[attr.aria-labelledby]': 'ariaLabelledBy()',
+    '[attr.aria-describedby]': 'ariaDescribedBy()',
   },
 })
 export class NgpDialog<T = unknown, R = unknown> implements OnDestroy {
@@ -46,6 +54,16 @@ export class NgpDialog<T = unknown, R = unknown> implements OnDestroy {
 
   /** The describedby ids */
   protected readonly describedBy = signal<string[]>([]);
+
+  /** The aria-labelledby value, omitted when there are no ids to reference. */
+  protected readonly ariaLabelledBy = computed(() =>
+    this.labelledBy().length ? this.labelledBy().join(' ') : null,
+  );
+
+  /** The aria-describedby value, omitted when there are no ids to reference. */
+  protected readonly ariaDescribedBy = computed(() =>
+    this.describedBy().length ? this.describedBy().join(' ') : null,
+  );
 
   /** The dialog state */
   protected readonly state = dialogState<NgpDialog<T, R>>(this);

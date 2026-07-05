@@ -45,7 +45,8 @@ export class NgpSearch {
   clear(): void {
     const input = this.input();
 
-    if (!input) {
+    // a disabled input must not be clearable (via Escape or the clear button)
+    if (!input || input.disabled) {
       return;
     }
 

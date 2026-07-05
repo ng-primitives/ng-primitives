@@ -120,6 +120,13 @@ export class NgpToastManager {
   private createContainer(placement: string): HTMLElement {
     const container = this.renderer.createElement('section') as HTMLElement;
     this.renderer.setAttribute(container, 'aria-live', this.config.ariaLive);
+    // pair the live region with the role matching its politeness so assistive tech
+    // reliably announces additions (status = polite, alert = assertive)
+    this.renderer.setAttribute(
+      container,
+      'role',
+      this.config.ariaLive === 'assertive' ? 'alert' : 'status',
+    );
     this.renderer.setAttribute(container, 'aria-atomic', 'false');
     this.renderer.setAttribute(container, 'tabindex', '-1');
     this.renderer.setAttribute(container, 'data-ngp-toast-container', placement);

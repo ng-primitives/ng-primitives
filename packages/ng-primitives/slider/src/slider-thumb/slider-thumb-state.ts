@@ -61,7 +61,11 @@ export const [
     let activePointerId: number | null = null;
     let cleanupDocumentListeners: (() => void)[] = [];
 
-    const ariaValueNow = computed(() => slider().value());
+    // aria-valuenow must stay within [min, max] even if the bound value is out of
+    // range, so it never disagrees with the thumb position (ARIA slider pattern)
+    const ariaValueNow = computed(() =>
+      Math.min(slider().max(), Math.max(slider().min(), slider().value())),
+    );
     const tabindex = computed(() => (slider().disabled() ? -1 : 0));
 
     // Host bindings
@@ -164,6 +168,10 @@ export const [
 
     // Keyboard interactions
     listener(elementRef, 'keydown', (event: KeyboardEvent) => {
+      if (slider().disabled()) {
+        return;
+      }
+
       const multiplier = event.shiftKey ? 10 : 1;
       const step = slider().step() * multiplier;
       const currentValue = slider().value();
@@ -191,10 +199,12 @@ export const [
           newValue = Math.min(currentValue + step, slider().max());
           break;
         case 'Home':
-          newValue = isRTL ? slider().max() : slider().min();
+          // Home is value-based (first allowed value = minimum), not visual
+          newValue = slider().min();
           break;
         case 'End':
-          newValue = isRTL ? slider().min() : slider().max();
+          // End is value-based (last allowed value = maximum), not visual
+          newValue = slider().max();
           break;
         default:
           return;

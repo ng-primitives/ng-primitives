@@ -1,6 +1,5 @@
-import { computed, contentChild, Directive } from '@angular/core';
+import { contentChild, Directive } from '@angular/core';
 import { NgpDatePickerDateButtonToken } from '../date-picker-date-button/date-picker-date-button-token';
-import { injectDateControllerState } from '../date-picker/date-picker-state';
 
 /**
  * A cell in the date picker grid.
@@ -14,24 +13,15 @@ import { injectDateControllerState } from '../date-picker/date-picker-state';
     '[attr.aria-selected]': 'datePickerButton()?.selected()',
     '[attr.aria-disabled]': 'datePickerButton()?.disabled()',
     '[attr.data-disabled]': 'datePickerButton()?.disabled() ? "" : null',
-    '[attr.aria-labelledby]': 'labelId()',
   },
 })
 export class NgpDatePickerCell {
   /**
-   * Access the date picker.
-   */
-  private readonly state = injectDateControllerState();
-
-  /**
    * Access the child date picker date button.
+   * The cell's accessible name comes from this button's day content, not the
+   * shared month/year label (which would make every cell announce the month).
    */
   protected readonly datePickerButton = contentChild(NgpDatePickerDateButtonToken, {
     descendants: true,
   });
-
-  /**
-   * Access the label id.
-   */
-  protected readonly labelId = computed(() => this.state().label()?.id());
 }

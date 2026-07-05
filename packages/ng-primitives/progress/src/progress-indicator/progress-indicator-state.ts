@@ -18,7 +18,15 @@ export const [NgpProgressIndicatorStateToken, ngpProgressIndicator] = createPrim
       const min = state().min();
       const max = state().max();
       const value = state().value();
-      return value === null ? null : ((value - min) / (max - min)) * 100;
+      if (value === null) {
+        return null;
+      }
+      // guard the zero-length range so we never divide by zero (NaN width)
+      if (max <= min) {
+        return value >= max ? 100 : 0;
+      }
+      // clamp so an out-of-range value can't push the bar past its track or negative
+      return Math.min(100, Math.max(0, ((value - min) / (max - min)) * 100));
     });
 
     styleBinding(element, 'width.%', percentage);
