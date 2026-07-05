@@ -8,7 +8,7 @@ import {
   NgpThread,
 } from 'ng-primitives/ai';
 import { describe, beforeEach, afterEach, it, expect, vi } from 'vitest';
-import { MockSpeechRecognition } from '../../prompt-composer-dictation/tests/prompt-composer-dictation-primitive.test';
+import { MockSpeechRecognition } from '../../prompt-composer-dictation/tests/mock-speech-recognition';
 
 describe('NgpPromptComposer', () => {
   let mockSpeechRecognition: MockSpeechRecognition;

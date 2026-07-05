@@ -311,7 +311,11 @@ export const [
       items.update(items => [...items, item]);
 
       // seed the tabbable item: an item that declares itself active (e.g. the
-      // selected tab) becomes the tab stop; otherwise the first registered item does
+      // selected tab) becomes the tab stop; otherwise the first registered item does.
+      // a disabled item must never become the tab stop.
+      if (item.disabled()) {
+        return;
+      }
       if (!activeItem() || item.active()) {
         activeItem.set(item.id());
       }

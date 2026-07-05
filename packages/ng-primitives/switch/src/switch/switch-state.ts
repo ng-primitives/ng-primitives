@@ -89,7 +89,6 @@ export const [NgpSwitchStateToken, ngpSwitch, injectSwitchState, provideSwitchSt
       const isButton = element.nativeElement.tagName.toLowerCase() === 'button';
       const checked = controlled(_checked);
       const disabledInput = controlled(_disabled);
-      const required = controlled(_required);
 
       // Form control and interactions
       const status = ngpFormControl({ id, disabled: disabledInput });
@@ -107,7 +106,7 @@ export const [NgpSwitchStateToken, ngpSwitch, injectSwitchState, provideSwitchSt
       dataBinding(element, 'data-checked', checked);
       attrBinding(element, 'aria-disabled', disabled);
       dataBinding(element, 'data-disabled', disabled);
-      attrBinding(element, 'aria-required', () => (required() ? 'true' : null));
+      attrBinding(element, 'aria-required', () => (_required() ? 'true' : null));
       attrBinding(element, 'disabled', () => (isButton && disabled() ? '' : null));
       attrBinding(element, 'tabindex', tabindex);
 

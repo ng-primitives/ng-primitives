@@ -126,7 +126,6 @@ export const [NgpCheckboxStateToken, ngpCheckbox, injectCheckboxState, provideCh
       });
       const indeterminate = controlled(_indeterminate);
       const disabled = controlled(_disabled);
-      const required = controlled(_required);
       const indeterminateChange = emitter<boolean>();
       const tabindex = computed(() => (disabled() ? -1 : 0));
 
@@ -142,7 +141,7 @@ export const [NgpCheckboxStateToken, ngpCheckbox, injectCheckboxState, provideCh
       dataBinding(element, 'data-checked', checked);
       dataBinding(element, 'data-indeterminate', indeterminate);
       attrBinding(element, 'aria-disabled', disabled);
-      attrBinding(element, 'aria-required', () => (required() ? 'true' : null));
+      attrBinding(element, 'aria-required', () => (_required() ? 'true' : null));
       attrBinding(element, 'tabindex', () => tabindex().toString());
 
       // Event listeners

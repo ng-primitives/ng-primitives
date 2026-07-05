@@ -175,12 +175,13 @@ export const [NgpProgressStateToken, ngpProgress, injectProgressState, providePr
        * Get the progress value text. Omitted (null) while indeterminate.
        */
       const valueText = computed(() => {
-        const currentValue = value();
+        const currentValue = valueNow();
 
         if (currentValue == null) {
           return null;
         }
 
+        // use the clamped value so aria-valuetext stays consistent with aria-valuenow
         return valueLabel()(currentValue, max(), min());
       });
 

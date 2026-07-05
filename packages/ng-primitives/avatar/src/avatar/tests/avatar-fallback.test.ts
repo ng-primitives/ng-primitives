@@ -27,7 +27,7 @@ describe('NgpAvatarFallback', () => {
       expect(screen.getByTestId('fallback')).toBeInTheDocument();
     });
 
-    it('should accept the delay as a number attribute (string coercion)', async () => {
+    it('should render with a numeric delay attribute', async () => {
       await render(
         `<div ngpAvatar><div ngpAvatarFallback ngpAvatarFallbackDelay="1000" data-testid="fallback">JD</div></div>`,
         { imports: [NgpAvatar, NgpAvatarFallback] },

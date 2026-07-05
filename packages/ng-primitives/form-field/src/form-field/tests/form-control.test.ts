@@ -409,10 +409,12 @@ describe('NgpFormControl', () => {
       expect(control).toHaveAttribute('aria-invalid', 'true');
 
       fixture.componentInstance.formControl.setValue('now valid');
+      fixture.detectChanges();
       await fixture.whenStable();
       expect(control).not.toHaveAttribute('aria-invalid');
 
       fixture.componentInstance.formControl.setValue('');
+      fixture.detectChanges();
       await fixture.whenStable();
       expect(control).toHaveAttribute('aria-invalid', 'true');
     });

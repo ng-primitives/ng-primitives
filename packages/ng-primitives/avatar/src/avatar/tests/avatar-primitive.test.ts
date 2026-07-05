@@ -22,7 +22,7 @@ describe('NgpAvatar', () => {
       expect(screen.getByTestId('avatar')).toBeInTheDocument();
     });
 
-    it('should provide avatar state to projected children', async () => {
+    it('should render projected children', async () => {
       await render(`<div ngpAvatar><div data-testid="child"></div></div>`, {
         imports: [NgpAvatar],
       });

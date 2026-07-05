@@ -32,7 +32,7 @@ describe('Avatar (reusable component) — standalone', () => {
     expect(screen.getByTestId('fallback')).toHaveTextContent('JD');
   });
 
-  it('shows the fallback and reports error status when no image is provided', async () => {
+  it('shows the fallback when no image is provided', async () => {
     const { container } = await render(`<app-avatar fallback="JD"></app-avatar>`, {
       imports: [AvatarFixture],
     });

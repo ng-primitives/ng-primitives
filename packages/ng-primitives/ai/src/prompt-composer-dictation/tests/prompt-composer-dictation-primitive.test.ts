@@ -7,44 +7,7 @@ import {
   NgpThread,
 } from 'ng-primitives/ai';
 import { describe, beforeEach, afterEach, it, expect, vi } from 'vitest';
-
-// Mock SpeechRecognition
-export class MockSpeechRecognition {
-  continuous = false;
-  interimResults = false;
-  lang = '';
-  onstart: ((event: unknown) => void) | null = null;
-  onend: ((event: unknown) => void) | null = null;
-  onresult: ((event: unknown) => void) | null = null;
-  onerror: ((event: unknown) => void) | null = null;
-
-  start() {
-    this.onstart?.({});
-  }
-
-  stop() {
-    this.onend?.({});
-  }
-
-  mockResult(transcript: string, isFinal: boolean = true) {
-    const event = {
-      results: [
-        {
-          0: { transcript },
-          isFinal,
-          length: 1,
-        },
-      ],
-      resultIndex: 0,
-    };
-    setTimeout(() => this.onresult?.(event), 0);
-  }
-
-  mockError(error: string) {
-    const event = { error };
-    setTimeout(() => this.onerror?.(event), 0);
-  }
-}
+import { MockSpeechRecognition } from './mock-speech-recognition';
 
 describe('NgpPromptComposerDictation', () => {
   let mockSpeechRecognition: MockSpeechRecognition;

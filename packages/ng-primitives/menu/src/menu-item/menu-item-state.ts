@@ -69,6 +69,11 @@ export const [NgpMenuItemStateToken, ngpMenuItem, injectMenuItemState, provideMe
       }
 
       function handleArrowKey(event: Event): void {
+        // disabled items are inert - they must not respond to keyboard navigation
+        if (disabled()) {
+          return;
+        }
+
         if (event instanceof KeyboardEvent === false) {
           return;
         }
