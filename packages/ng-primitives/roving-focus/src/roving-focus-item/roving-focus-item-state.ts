@@ -26,12 +26,6 @@ export interface NgpRovingFocusItemState {
    */
   readonly element: ElementRef<HTMLElement>;
   /**
-   * Whether this item should be the initial tab stop (e.g. the selected tab).
-   * When an item registers with this set, it becomes the group's active item.
-   * Optional so existing consumers of this state interface stay source-compatible.
-   */
-  readonly active?: Signal<boolean>;
-  /**
    * Focus the roving focus item.
    * @param origin The focus origin
    */
@@ -101,11 +95,20 @@ export const [
     const state: NgpRovingFocusItemState = {
       id: signal(id),
       disabled,
-      active,
       tabindex,
       focus,
       element,
     };
+
+    // When this item declares itself active (e.g. the selected tab), claim the
+    // group's tab stop via setTabStop - which sets the single `activeItem` source
+    // of truth WITHOUT moving focus. Deterministic (last writer wins), no polling
+    // or find ambiguity. Only fires on active changes, so it never disrupts
+    // in-progress roving (which changes focus, not selection).
+    effect(() => {
+      if (!active() || disabled()) return;
+      untracked(() => group()?.setTabStop(id));
+    });
 
     // Projected items may construct before the parent populates the shared group signal,
     // so register reactively once it becomes available.

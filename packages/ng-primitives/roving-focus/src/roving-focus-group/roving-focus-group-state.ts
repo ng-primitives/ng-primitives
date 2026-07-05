@@ -1,7 +1,6 @@
 import { FocusOrigin } from '@angular/cdk/a11y';
 import { Directionality } from '@angular/cdk/bidi';
-import { DOCUMENT } from '@angular/common';
-import { effect, inject, signal, Signal, untracked } from '@angular/core';
+import { inject, signal, Signal } from '@angular/core';
 import { NgpOrientation } from 'ng-primitives/common';
 import { controlled, createPrimitive, injectInheritedState } from 'ng-primitives/state';
 import type { NgpRovingFocusItemState } from '../roving-focus-item/roving-focus-item-state';
@@ -38,6 +37,13 @@ export interface NgpRovingFocusGroupState {
    * @param origin The origin of the focus change
    */
   setActiveItem(id: string | null, origin?: FocusOrigin): void;
+  /**
+   * Set which item holds the tab stop without moving focus. Used by items that
+   * declare themselves active (e.g. the selected tab) to claim the tab stop
+   * without stealing focus.
+   * @param id The id of the item that should hold the tab stop.
+   */
+  setTabStop(id: string | null): void;
   /**
    * Register an item with the roving focus group.
    * @param item The item to register
@@ -112,7 +118,6 @@ export const [
     }
 
     const directionality = inject(Directionality);
-    const document = inject(DOCUMENT);
     const items = signal<NgpRovingFocusItemState[]>([]);
     const orientation = controlled(_orientation);
 
@@ -130,37 +135,11 @@ export const [
     }
 
     /**
-     * Store the active item in the roving focus group.
+     * Store the active item in the roving focus group. This is the single source
+     * of truth for the tab stop; items push to it via setActiveItem when they
+     * become active (e.g. the selected tab), and roving navigation updates it too.
      */
     const activeItem = signal<string | null>(null);
-
-    /**
-     * Keep the tab stop in sync with an item that declares itself active (e.g. the
-     * selected tab) when it changes after registration - but only while focus is
-     * outside the group, so an in-progress keyboard/pointer interaction is never
-     * disrupted. This is a no-op for consumers that don't pass `active` (their
-     * items are never active), so only opt-in consumers like tabs are affected.
-     */
-    effect(() => {
-      const declaredActive = items().find(item => item.active?.());
-      if (!declaredActive) {
-        return;
-      }
-
-      untracked(() => {
-        if (activeItem() === declaredActive.id() || declaredActive.disabled()) {
-          return;
-        }
-
-        const focusWithin = items().some(item =>
-          item.element.nativeElement.contains(document.activeElement),
-        );
-
-        if (!focusWithin) {
-          activeItem.set(declaredActive.id());
-        }
-      });
-    });
 
     /**
      * Activate an item in the roving focus group.
@@ -174,6 +153,11 @@ export const [
       if (item) {
         item.focus(origin);
       }
+    }
+
+    // set the tab stop without moving focus (see interface docs)
+    function setTabStop(id: string | null): void {
+      activeItem.set(id);
     }
 
     /**
@@ -340,13 +324,12 @@ export const [
     function register(item: NgpRovingFocusItemState): void {
       items.update(items => [...items, item]);
 
-      // seed the tabbable item: an item that declares itself active (e.g. the
-      // selected tab) becomes the tab stop; otherwise the first registered item does.
-      // a disabled item must never become the tab stop.
+      // seed the first non-disabled item as the tab stop; an active item (e.g. the
+      // selected tab) overrides this by pushing to setActiveItem once it registers.
       if (item.disabled()) {
         return;
       }
-      if (!activeItem() || item.active?.()) {
+      if (!activeItem()) {
         activeItem.set(item.id());
       }
     }
@@ -381,6 +364,7 @@ export const [
       disabled,
       activeItem,
       setActiveItem,
+      setTabStop,
       setOrientation,
       onKeydown,
       register,
