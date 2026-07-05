@@ -241,10 +241,10 @@ describe('NgpTabset (primitive)', () => {
     });
 
     it('should move the tab stop when the selection changes programmatically (focus outside)', async () => {
-      const { getByRole, rerender, fixture } = await render(
-        threeTabs('[ngpTabsetValue]="value"'),
-        { imports, componentProperties: { value: 'overview' } },
-      );
+      const { getByRole, rerender, fixture } = await render(threeTabs('[ngpTabsetValue]="value"'), {
+        imports,
+        componentProperties: { value: 'overview' },
+      });
 
       const overview = getByRole('tab', { name: 'Overview' });
       const features = getByRole('tab', { name: 'Features' });

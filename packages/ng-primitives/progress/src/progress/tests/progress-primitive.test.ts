@@ -87,6 +87,46 @@ describe('NgpProgress', () => {
       );
       expect(container.getByTestId('progress')).not.toHaveAttribute('data-complete');
     });
+
+    it('should not be progressing at a non-zero min start value', async () => {
+      const container = await render(
+        `<div ngpProgress ngpProgressValue="50" ngpProgressMin="50" ngpProgressMax="100" data-testid="progress"></div>`,
+        { imports },
+      );
+      // at the start of the range the progress has not started, regardless of min
+      expect(container.getByTestId('progress')).not.toHaveAttribute('data-progressing');
+    });
+
+    it('should be complete (consistent with aria) for a value above max', async () => {
+      const container = await render(
+        `<div ngpProgress ngpProgressValue="150" ngpProgressMax="100" data-testid="progress"></div>`,
+        { imports },
+      );
+      const progress = container.getByTestId('progress');
+      expect(progress).toHaveAttribute('data-complete');
+      expect(progress).not.toHaveAttribute('data-progressing');
+      expect(progress).toHaveAttribute('aria-valuenow', '100');
+    });
+
+    it('should clamp the indicator width to 100% when value is above max', async () => {
+      const { getByTestId } = await render(
+        `<div ngpProgress ngpProgressValue="150" ngpProgressMax="100">
+          <div ngpProgressIndicator data-testid="indicator"></div>
+        </div>`,
+        { imports },
+      );
+      expect((getByTestId('indicator') as HTMLElement).style.width).toBe('100%');
+    });
+
+    it('should clamp the indicator width to 0% when value is below min', async () => {
+      const { getByTestId } = await render(
+        `<div ngpProgress ngpProgressValue="-10" ngpProgressMin="0" ngpProgressMax="100">
+          <div ngpProgressIndicator data-testid="indicator"></div>
+        </div>`,
+        { imports },
+      );
+      expect((getByTestId('indicator') as HTMLElement).style.width).toBe('0%');
+    });
   });
 
   describe('ARIA value attributes', () => {

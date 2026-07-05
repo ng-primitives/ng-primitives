@@ -148,12 +148,14 @@ export const [NgpProgressStateToken, ngpProgress, injectProgressState, providePr
       /**
        * Determine if the progress is in a progressing state.
        */
-      const progressing = computed(() => value() != null && value()! > 0 && value()! < max());
+      const progressing = computed(
+        () => !indeterminate() && valueNow()! > min() && valueNow()! < max(),
+      );
 
       /**
        * Determine if the progress is complete.
        */
-      const complete = computed(() => !!(value() && max() && value() === max()));
+      const complete = computed(() => !indeterminate() && valueNow()! >= max() && max() > min());
 
       /**
        * The raw value exposed via `aria-valuenow`, clamped to the [min, max] range.
