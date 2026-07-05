@@ -401,29 +401,57 @@ describe('NgpNumberField', () => {
       expect(input.value).toBe('4');
     });
 
-    // SUSPECTED BUG: The WAI-ARIA spinbutton pattern recommends PageUp/PageDown
-    // for a larger step change, but the input keydown handler only implements
-    // ArrowUp/ArrowDown (with Shift for the large step), Home, End and Enter.
-    // PageUp/PageDown are unhandled today, so these assert the current no-op
-    // behaviour. Reported so the large-step keys can be wired up as a feature.
-    it('should currently NOT change the value on PageUp (unimplemented)', async () => {
+    // WAI-ARIA spinbutton pattern: PageUp/PageDown change the value by the large step.
+    it('should increment by the large step on PageUp', async () => {
       const valueChange = vi.fn();
       await renderNumberField(
         '[ngpNumberFieldValue]="5" [ngpNumberFieldLargeStep]="10"',
         valueChange,
       );
-      fireEvent.keyDown(screen.getByTestId('input'), { key: 'PageUp' });
-      expect(valueChange).not.toHaveBeenCalled();
+      const input = screen.getByTestId('input') as HTMLInputElement;
+      fireEvent.keyDown(input, { key: 'PageUp' });
+      expect(valueChange).toHaveBeenCalledWith(15);
+      expect(input.value).toBe('15');
     });
 
-    it('should currently NOT change the value on PageDown (unimplemented)', async () => {
+    it('should decrement by the large step on PageDown', async () => {
       const valueChange = vi.fn();
       await renderNumberField(
         '[ngpNumberFieldValue]="50" [ngpNumberFieldLargeStep]="10"',
         valueChange,
       );
+      const input = screen.getByTestId('input') as HTMLInputElement;
+      fireEvent.keyDown(input, { key: 'PageDown' });
+      expect(valueChange).toHaveBeenCalledWith(40);
+      expect(input.value).toBe('40');
+    });
+
+    it('should use the default large step (10) on PageUp when not specified', async () => {
+      const valueChange = vi.fn();
+      await renderNumberField('[ngpNumberFieldValue]="0"', valueChange);
+      fireEvent.keyDown(screen.getByTestId('input'), { key: 'PageUp' });
+      expect(valueChange).toHaveBeenCalledWith(10);
+    });
+
+    it('should not change the value on PageUp/PageDown when disabled', async () => {
+      const valueChange = vi.fn();
+      await renderNumberField(
+        '[ngpNumberFieldValue]="5" [ngpNumberFieldDisabled]="true"',
+        valueChange,
+      );
+      fireEvent.keyDown(screen.getByTestId('input'), { key: 'PageUp' });
       fireEvent.keyDown(screen.getByTestId('input'), { key: 'PageDown' });
       expect(valueChange).not.toHaveBeenCalled();
+    });
+
+    it('should clamp to max on PageUp near the maximum', async () => {
+      const valueChange = vi.fn();
+      await renderNumberField(
+        '[ngpNumberFieldValue]="95" [ngpNumberFieldMax]="100" [ngpNumberFieldLargeStep]="10"',
+        valueChange,
+      );
+      fireEvent.keyDown(screen.getByTestId('input'), { key: 'PageUp' });
+      expect(valueChange).toHaveBeenCalledWith(100);
     });
   });
 
