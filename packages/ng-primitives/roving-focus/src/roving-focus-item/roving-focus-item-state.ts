@@ -28,8 +28,9 @@ export interface NgpRovingFocusItemState {
   /**
    * Whether this item should be the initial tab stop (e.g. the selected tab).
    * When an item registers with this set, it becomes the group's active item.
+   * Optional so existing consumers of this state interface stay source-compatible.
    */
-  readonly active: Signal<boolean>;
+  readonly active?: Signal<boolean>;
   /**
    * Focus the roving focus item.
    * @param origin The focus origin

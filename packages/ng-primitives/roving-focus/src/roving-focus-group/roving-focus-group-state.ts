@@ -142,7 +142,7 @@ export const [
      * items are never active), so only opt-in consumers like tabs are affected.
      */
     effect(() => {
-      const declaredActive = items().find(item => item.active());
+      const declaredActive = items().find(item => item.active?.());
       if (!declaredActive) {
         return;
       }
@@ -346,7 +346,7 @@ export const [
       if (item.disabled()) {
         return;
       }
-      if (!activeItem() || item.active()) {
+      if (!activeItem() || item.active?.()) {
         activeItem.set(item.id());
       }
     }

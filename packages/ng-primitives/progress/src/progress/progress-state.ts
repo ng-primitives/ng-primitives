@@ -68,7 +68,7 @@ export interface NgpProgressState {
   /**
    * Get the progress value text. `null` while the progress is indeterminate.
    */
-  readonly valueText: Signal<string | null>;
+  readonly valueText: Signal<string>;
 
   /**
    * The id of label associated with the progress bar.
@@ -180,7 +180,7 @@ export const [NgpProgressStateToken, ngpProgress, injectProgressState, providePr
         const currentValue = valueNow();
 
         if (currentValue == null) {
-          return null;
+          return '';
         }
 
         // use the clamped value so aria-valuetext stays consistent with aria-valuenow
@@ -199,7 +199,8 @@ export const [NgpProgressStateToken, ngpProgress, injectProgressState, providePr
       attrBinding(element, 'aria-valuemax', max);
       attrBinding(element, 'aria-valuemin', min);
       attrBinding(element, 'aria-valuenow', valueNow);
-      attrBinding(element, 'aria-valuetext', valueText);
+      // omit the attribute entirely while indeterminate rather than binding an empty string
+      attrBinding(element, 'aria-valuetext', () => (indeterminate() ? null : valueText()));
       attrBinding(element, 'aria-labelledby', () => (labelId() ? labelId() : null));
       dataBinding(element, 'data-progressing', () => progressing());
       dataBinding(element, 'data-indeterminate', () => indeterminate());
