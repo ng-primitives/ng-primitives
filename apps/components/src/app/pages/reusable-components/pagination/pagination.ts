@@ -166,7 +166,8 @@ export class Pagination implements ControlValueAccessor {
 
   /** Write a new value to the control */
   writeValue(value: number): void {
-    this.state().page.set(value);
+    // writing a value from the model must not re-emit through onChange
+    this.state().setPage(value, { emit: false });
   }
 
   /** Register a callback to be called when the value changes */

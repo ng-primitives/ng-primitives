@@ -106,7 +106,8 @@ export class Slider implements ControlValueAccessor {
   }
 
   writeValue(value: number): void {
-    this.state().setValue(value);
+    // writing a value from the model must not re-emit through onChange
+    this.state().setValue(value, { emit: false });
   }
 
   registerOnChange(fn: ChangeFn<number>): void {

@@ -9,10 +9,10 @@ import { meterState, provideMeterState } from './meter-state';
   providers: [provideMeterState()],
   host: {
     role: 'meter',
-    '[attr.aria-valuenow]': 'percentage()',
+    '[attr.aria-valuenow]': 'valueNow()',
     '[attr.aria-valuemin]': 'min()',
     '[attr.aria-valuemax]': 'max()',
-    '[attr.aria-valuetext]': 'valueLabel()(value(), max())',
+    '[attr.aria-valuetext]': 'valueLabel()(value(), max(), min())',
     '[attr.aria-labelledby]': 'label()?.id()',
   },
 })
@@ -39,10 +39,11 @@ export class NgpMeter {
    * Define a function that returns the meter value label.
    * @param value The current value
    * @param max The maximum value
+   * @param min The minimum value
    * @returns The value label
    */
   readonly valueLabel = input<NgpMeterValueTextFn>(
-    (value, max) => `${Math.round((value / max) * 100)}%`,
+    (value, max, min) => `${max === min ? 0 : Math.round(((value - min) / (max - min)) * 100)}%`,
     {
       alias: 'ngpMeterValueLabel',
     },
@@ -51,7 +52,7 @@ export class NgpMeter {
   /** @internal Store the label instance */
   readonly label = signal<NgpMeterLabel | null>(null);
 
-  /** @internal The percentage of the meter. */
+  /** @internal The percentage of the meter, used for the visual indicator width. */
   readonly percentage = computed(() => {
     const value = this.state.value();
     const min = this.state.min();
@@ -72,8 +73,25 @@ export class NgpMeter {
     return ((value - min) / (max - min)) * 100;
   });
 
+  /**
+   * @internal
+   * The raw value exposed via `aria-valuenow`, clamped to the [min, max] range.
+   * Per the ARIA meter pattern, `aria-valuenow` is the actual value, not a percentage.
+   */
+  readonly valueNow = computed(() => {
+    const value = this.state.value();
+    const min = this.state.min();
+    const max = this.state.max();
+
+    if (value == null) {
+      return min;
+    }
+
+    return Math.min(Math.max(value, min), max);
+  });
+
   /** The state of the meter. */
   private readonly state = meterState<NgpMeter>(this);
 }
 
-export type NgpMeterValueTextFn = (value: number, max: number) => string;
+export type NgpMeterValueTextFn = (value: number, max: number, min: number) => string;

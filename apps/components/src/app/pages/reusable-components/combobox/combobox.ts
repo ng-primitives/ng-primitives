@@ -213,7 +213,7 @@ export class Combobox implements ControlValueAccessor {
   protected readonly formDisabled = signal(false);
 
   /** The on change callback */
-  private onChange?: ChangeFn<string>;
+  private onChange?: ChangeFn<string | undefined>;
 
   /** The on touch callback */
   protected onTouched?: TouchedFn;
@@ -252,9 +252,10 @@ export class Combobox implements ControlValueAccessor {
       return;
     }
 
-    // if the filter value is empty, set the value to undefined
+    // if the filter value is empty, clear the value and notify the form control
     if (this.filter() === '') {
       this.value.set(undefined);
+      this.onChange?.(undefined);
     } else {
       // otherwise set the filter value to the selected value
       this.filter.set(this.value() ?? '');

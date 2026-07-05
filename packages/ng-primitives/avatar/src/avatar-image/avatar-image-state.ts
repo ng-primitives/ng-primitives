@@ -25,8 +25,10 @@ export const [
     setStatus(NgpAvatarStatus.Error);
   }
 
-  // if the image has already loaded, we can report this to the avatar
-  if (element.nativeElement.complete) {
+  // if the image has already loaded, we can report this to the avatar. `complete` is also true
+  // for an image with no src or one that failed to load, so we additionally require a decoded
+  // image (naturalWidth > 0) to distinguish a genuine load from an error state.
+  if (element.nativeElement.complete && element.nativeElement.naturalWidth > 0) {
     setStatus(NgpAvatarStatus.Loaded);
   }
 

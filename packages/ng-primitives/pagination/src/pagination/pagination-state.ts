@@ -6,6 +6,7 @@ import {
   createPrimitive,
   dataBinding,
   deprecatedSetter,
+  SetterOptions,
 } from 'ng-primitives/state';
 import { Observable } from 'rxjs';
 
@@ -36,6 +37,12 @@ export interface NgpPaginationState {
    * The event that is fired when the page changes.
    */
   readonly pageChange: Observable<number>;
+  /**
+   * Set the current page directly (no bounds navigation logic).
+   * @param page The page to set.
+   * @param options Setter options, e.g. `{ emit: false }` to suppress change emission.
+   */
+  setPage: (page: number, options?: SetterOptions) => void;
   /**
    * Go to the specified page.
    * @param page The page to go to.
@@ -87,8 +94,10 @@ export const [
       onChange: onPageChange,
     });
 
-    const firstPage = computed(() => page() === 1);
-    const lastPage = computed(() => page() === _pageCount());
+    // use <= / >= so the boundary flags stay correct even if the bound page is
+    // out of range (otherwise a Next/Previous button can stay enabled past the end)
+    const firstPage = computed(() => page() <= 1);
+    const lastPage = computed(() => _pageCount() > 0 && page() >= _pageCount());
 
     // Host bindings
     attrBinding(elementRef, 'role', 'navigation');
@@ -114,6 +123,7 @@ export const [
       disabled: _disabled,
       firstPage,
       lastPage,
+      setPage,
       goToPage,
     } satisfies NgpPaginationState;
   },

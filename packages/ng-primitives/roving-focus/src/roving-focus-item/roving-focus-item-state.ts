@@ -26,6 +26,11 @@ export interface NgpRovingFocusItemState {
    */
   readonly element: ElementRef<HTMLElement>;
   /**
+   * Whether this item should be the initial tab stop (e.g. the selected tab).
+   * When an item registers with this set, it becomes the group's active item.
+   */
+  readonly active: Signal<boolean>;
+  /**
    * Focus the roving focus item.
    * @param origin The focus origin
    */
@@ -40,6 +45,11 @@ export interface NgpRovingFocusItemProps {
    * Whether the item is disabled.
    */
   readonly disabled: Signal<boolean>;
+  /**
+   * Whether this item should be the initial tab stop (e.g. the selected tab in a
+   * tablist). Optional; defaults to false, so the first registered item wins.
+   */
+  readonly active?: Signal<boolean>;
 }
 
 export const [
@@ -49,7 +59,7 @@ export const [
   provideRovingFocusItemState,
 ] = createPrimitive(
   'NgpRovingFocusItem',
-  ({ disabled = signal(false) }: NgpRovingFocusItemProps) => {
+  ({ disabled = signal(false), active = signal(false) }: NgpRovingFocusItemProps) => {
     const element = injectElementRef();
     const group = injectRovingFocusGroupState();
     const focusMonitor = inject(FocusMonitor);
@@ -90,6 +100,7 @@ export const [
     const state: NgpRovingFocusItemState = {
       id: signal(id),
       disabled,
+      active,
       tabindex,
       focus,
       element,

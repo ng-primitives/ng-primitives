@@ -51,6 +51,11 @@ export const [NgpMenuItemStateToken, ngpMenuItem, injectMenuItemState, provideMe
 
       // Methods
       function onClick(event: MouseEvent): void {
+        // Disabled items are inert - they must not activate or close the menu.
+        if (disabled()) {
+          return;
+        }
+
         // we do this here to avoid circular dependency issues
         const trigger = injector.get(NgpSubmenuTrigger, null, { self: true, optional: true });
 

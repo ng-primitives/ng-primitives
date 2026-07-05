@@ -10,6 +10,7 @@ import {
   deprecatedSetter,
   emitter,
   listener,
+  SetterOptions,
 } from 'ng-primitives/state';
 import { uniqueId } from 'ng-primitives/utils';
 import { Observable } from 'rxjs';
@@ -41,7 +42,7 @@ export interface NgpSwitchState {
   /**
    * Update the checked value.
    */
-  setChecked(value: boolean): void;
+  setChecked(value: boolean, options?: SetterOptions): void;
   /**
    * Update the disabled value.
    */
@@ -65,6 +66,10 @@ export interface NgpSwitchProps {
    */
   readonly disabled?: Signal<boolean>;
   /**
+   * Whether the switch is required.
+   */
+  readonly required?: Signal<boolean>;
+  /**
    * Callback fired when the checked state changes.
    */
   readonly onCheckedChange?: (checked: boolean) => void;
@@ -77,12 +82,14 @@ export const [NgpSwitchStateToken, ngpSwitch, injectSwitchState, provideSwitchSt
       id = signal(uniqueId('ngp-switch')),
       checked: _checked = signal(false),
       disabled: _disabled = signal(false),
+      required: _required = signal(false),
       onCheckedChange,
     }: NgpSwitchProps): NgpSwitchState => {
       const element = injectElementRef<HTMLElement>();
       const isButton = element.nativeElement.tagName.toLowerCase() === 'button';
       const checked = controlled(_checked);
       const disabledInput = controlled(_disabled);
+      const required = controlled(_required);
 
       // Form control and interactions
       const status = ngpFormControl({ id, disabled: disabledInput });
@@ -100,6 +107,7 @@ export const [NgpSwitchStateToken, ngpSwitch, injectSwitchState, provideSwitchSt
       dataBinding(element, 'data-checked', checked);
       attrBinding(element, 'aria-disabled', disabled);
       dataBinding(element, 'data-disabled', disabled);
+      attrBinding(element, 'aria-required', () => (required() ? 'true' : null));
       attrBinding(element, 'disabled', () => (isButton && disabled() ? '' : null));
       attrBinding(element, 'tabindex', tabindex);
 
@@ -123,10 +131,12 @@ export const [NgpSwitchStateToken, ngpSwitch, injectSwitchState, provideSwitchSt
         setChecked(!checked());
       }
 
-      function setChecked(value: boolean): void {
+      function setChecked(value: boolean, options?: SetterOptions): void {
         checked.set(value);
-        onCheckedChange?.(value);
-        checkedChange.emit(value);
+        if (options?.emit !== false) {
+          onCheckedChange?.(value);
+          checkedChange.emit(value);
+        }
       }
 
       function setDisabled(value: boolean): void {

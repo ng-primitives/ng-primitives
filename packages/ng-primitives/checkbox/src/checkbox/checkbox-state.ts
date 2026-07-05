@@ -91,6 +91,10 @@ export interface NgpCheckboxProps {
    */
   readonly disabled?: Signal<boolean>;
   /**
+   * Whether the checkbox is required.
+   */
+  readonly required?: Signal<boolean>;
+  /**
    * Callback fired when the checked state changes.
    */
   readonly onCheckedChange?: (checked: boolean) => void;
@@ -109,6 +113,7 @@ export const [NgpCheckboxStateToken, ngpCheckbox, injectCheckboxState, provideCh
       defaultChecked: _defaultChecked,
       indeterminate: _indeterminate = signal(false),
       disabled: _disabled = signal(false),
+      required: _required = signal(false),
       onCheckedChange,
       onIndeterminateChange,
     }: NgpCheckboxProps): NgpCheckboxState => {
@@ -121,6 +126,7 @@ export const [NgpCheckboxStateToken, ngpCheckbox, injectCheckboxState, provideCh
       });
       const indeterminate = controlled(_indeterminate);
       const disabled = controlled(_disabled);
+      const required = controlled(_required);
       const indeterminateChange = emitter<boolean>();
       const tabindex = computed(() => (disabled() ? -1 : 0));
 
@@ -130,10 +136,13 @@ export const [NgpCheckboxStateToken, ngpCheckbox, injectCheckboxState, provideCh
 
       // Host bindings
       attrBinding(element, 'role', 'checkbox');
-      attrBinding(element, 'aria-checked', () => (indeterminate() ? 'mixed' : checked()));
+      attrBinding(element, 'aria-checked', () =>
+        indeterminate() ? 'mixed' : checked() ? 'true' : 'false',
+      );
       dataBinding(element, 'data-checked', checked);
       dataBinding(element, 'data-indeterminate', indeterminate);
       attrBinding(element, 'aria-disabled', disabled);
+      attrBinding(element, 'aria-required', () => (required() ? 'true' : null));
       attrBinding(element, 'tabindex', () => tabindex().toString());
 
       // Event listeners

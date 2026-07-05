@@ -45,7 +45,8 @@ export class NgpTabButton {
   readonly active = this.state.active;
 
   constructor() {
-    ngpRovingFocusItem({ disabled: this.disabled });
+    // the selected tab is the initial tab stop (roving focus takes over after)
+    ngpRovingFocusItem({ disabled: this.disabled, active: this.active });
   }
 
   /**

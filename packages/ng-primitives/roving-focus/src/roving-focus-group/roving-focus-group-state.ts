@@ -310,8 +310,9 @@ export const [
     function register(item: NgpRovingFocusItemState): void {
       items.update(items => [...items, item]);
 
-      // if there is no active item, make the first item the tabbable item
-      if (!activeItem()) {
+      // seed the tabbable item: an item that declares itself active (e.g. the
+      // selected tab) becomes the tab stop; otherwise the first registered item does
+      if (!activeItem() || item.active()) {
         activeItem.set(item.id());
       }
     }

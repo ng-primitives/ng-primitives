@@ -21,10 +21,10 @@ import { injectListboxState } from '../listbox/listbox-state';
   host: {
     role: 'option',
     '[attr.id]': 'id()',
-    '[attr.aria-disabled]': 'optionDisabled()',
+    '[attr.aria-disabled]': '_disabled()',
     '[attr.data-active]': 'listbox()?.isFocused() && active() ? "" : undefined',
     '[attr.data-selected]': 'selected() ? "" : undefined',
-    '[attr.data-disabled]': 'optionDisabled() ? "" : undefined',
+    '[attr.data-disabled]': '_disabled() ? "" : undefined',
     '(click)': 'select("mouse")',
     '(mouseenter)': 'activate()',
     '(keydown.enter)': 'select("keyboard")',

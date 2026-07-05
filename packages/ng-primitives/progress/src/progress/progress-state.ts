@@ -66,9 +66,9 @@ export interface NgpProgressState {
   readonly max: WritableSignal<number>;
 
   /**
-   * Get the progress value text.
+   * Get the progress value text. `null` while the progress is indeterminate.
    */
-  readonly valueText: Signal<string>;
+  readonly valueText: Signal<string | null>;
 
   /**
    * The id of label associated with the progress bar.
@@ -122,7 +122,10 @@ export const [NgpProgressStateToken, ngpProgress, injectProgressState, providePr
   createPrimitive(
     'NgpProgress',
     ({
-      valueLabel: _valueLabel = signal((value, max) => `${Math.round((value / max) * 100)}%`),
+      valueLabel: _valueLabel = signal(
+        (value, max, min) =>
+          `${max === min ? 0 : Math.round(((value - min) / (max - min)) * 100)}%`,
+      ),
       value: _value = signal(null),
       min: _min = signal(0),
       max: _max = signal(100),
@@ -153,16 +156,32 @@ export const [NgpProgressStateToken, ngpProgress, injectProgressState, providePr
       const complete = computed(() => !!(value() && max() && value() === max()));
 
       /**
-       * Get the progress value text.
+       * The raw value exposed via `aria-valuenow`, clamped to the [min, max] range.
+       * Per the ARIA progressbar pattern, `aria-valuenow` is the actual value on the
+       * same scale as `aria-valuemin`/`aria-valuemax`, not a 0-100 percentage. It is
+       * omitted entirely (null) while the progress is indeterminate.
+       */
+      const valueNow = computed(() => {
+        const currentValue = value();
+
+        if (currentValue == null) {
+          return null;
+        }
+
+        return Math.min(Math.max(currentValue, min()), max());
+      });
+
+      /**
+       * Get the progress value text. Omitted (null) while indeterminate.
        */
       const valueText = computed(() => {
         const currentValue = value();
 
         if (currentValue == null) {
-          return '';
+          return null;
         }
 
-        return valueLabel()(currentValue, max());
+        return valueLabel()(currentValue, max(), min());
       });
 
       const labelId = signal<string | undefined>(undefined);
@@ -175,8 +194,8 @@ export const [NgpProgressStateToken, ngpProgress, injectProgressState, providePr
       attrBinding(element, 'role', 'progressbar');
       attrBinding(element, 'id', id);
       attrBinding(element, 'aria-valuemax', max);
-      attrBinding(element, 'aria-valuemin', 0);
-      attrBinding(element, 'aria-valuenow', value);
+      attrBinding(element, 'aria-valuemin', min);
+      attrBinding(element, 'aria-valuenow', valueNow);
       attrBinding(element, 'aria-valuetext', valueText);
       attrBinding(element, 'aria-labelledby', () => (labelId() ? labelId() : null));
       dataBinding(element, 'data-progressing', () => progressing());

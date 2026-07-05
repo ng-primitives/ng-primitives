@@ -41,10 +41,11 @@ export class NgpProgress {
    * Define a function that returns the progress value label.
    * @param value The current value
    * @param max The maximum value
+   * @param min The minimum value
    * @returns The value label
    */
   readonly valueLabel = input<NgpProgressValueTextFn>(
-    (value, max) => `${Math.round((value / max) * 100)}%`,
+    (value, max, min) => `${max === min ? 0 : Math.round(((value - min) / (max - min)) * 100)}%`,
     {
       alias: 'ngpProgressValueLabel',
     },
@@ -73,4 +74,4 @@ export class NgpProgress {
   protected readonly valueText = this.state.valueText;
 }
 
-export type NgpProgressValueTextFn = (value: number, max: number) => string;
+export type NgpProgressValueTextFn = (value: number, max: number, min: number) => string;

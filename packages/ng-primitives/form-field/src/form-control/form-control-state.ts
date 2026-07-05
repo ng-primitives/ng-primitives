@@ -49,6 +49,9 @@ export function ngpFormControl({
   attrBinding(elementRef, 'id', id);
   attrBinding(elementRef, 'aria-labelledby', ariaLabelledBy);
   attrBinding(elementRef, 'aria-describedby', ariaDescribedBy);
+  // Expose the validity to assistive technology. `aria-invalid="true"` is only
+  // present while the control is invalid; a valid or untracked control omits it.
+  attrBinding(elementRef, 'aria-invalid', () => (status().invalid ? 'true' : null));
   dataBinding(elementRef, 'data-invalid', () => status().invalid);
   dataBinding(elementRef, 'data-valid', () => status().valid);
   dataBinding(elementRef, 'data-touched', () => status().touched);

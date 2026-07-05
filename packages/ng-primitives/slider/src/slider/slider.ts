@@ -1,6 +1,7 @@
 import { BooleanInput, NumberInput } from '@angular/cdk/coercion';
 import { Directive, booleanAttribute, input, numberAttribute, output } from '@angular/core';
 import { NgpOrientation } from 'ng-primitives/common';
+import { SetterOptions } from 'ng-primitives/state';
 import { uniqueId } from 'ng-primitives/utils';
 import { ngpSlider, provideSliderState } from './slider-state';
 
@@ -90,8 +91,8 @@ export class NgpSlider {
   /**
    * Set the value of the slider.
    */
-  setValue(value: number): void {
-    this.state.setValue(value);
+  setValue(value: number, options?: SetterOptions): void {
+    this.state.setValue(value, options);
   }
   /**
    * Set the disabled state.
