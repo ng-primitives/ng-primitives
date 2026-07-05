@@ -239,6 +239,25 @@ describe('NgpTabset (primitive)', () => {
       const { getByRole } = await render(threeTabs(), { imports });
       expect(getByRole('tab', { name: 'Overview' })).toHaveAttribute('tabindex', '0');
     });
+
+    it('should move the tab stop when the selection changes programmatically (focus outside)', async () => {
+      const { getByRole, rerender, fixture } = await render(
+        threeTabs('[ngpTabsetValue]="value"'),
+        { imports, componentProperties: { value: 'overview' } },
+      );
+
+      const overview = getByRole('tab', { name: 'Overview' });
+      const features = getByRole('tab', { name: 'Features' });
+      expect(overview).toHaveAttribute('tabindex', '0');
+
+      // change the selected tab from outside the tablist (nothing focused here)
+      await rerender({ componentProperties: { value: 'features' } });
+      await fixture.whenStable();
+
+      // the tab stop follows the selection
+      expect(features).toHaveAttribute('tabindex', '0');
+      expect(overview).toHaveAttribute('tabindex', '-1');
+    });
   });
 
   describe('keyboard navigation', () => {

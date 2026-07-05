@@ -1,6 +1,7 @@
 import { FocusOrigin } from '@angular/cdk/a11y';
 import { Directionality } from '@angular/cdk/bidi';
-import { inject, signal, Signal } from '@angular/core';
+import { DOCUMENT } from '@angular/common';
+import { effect, inject, signal, Signal, untracked } from '@angular/core';
 import { NgpOrientation } from 'ng-primitives/common';
 import { controlled, createPrimitive, injectInheritedState } from 'ng-primitives/state';
 import type { NgpRovingFocusItemState } from '../roving-focus-item/roving-focus-item-state';
@@ -111,6 +112,7 @@ export const [
     }
 
     const directionality = inject(Directionality);
+    const document = inject(DOCUMENT);
     const items = signal<NgpRovingFocusItemState[]>([]);
     const orientation = controlled(_orientation);
 
@@ -131,6 +133,34 @@ export const [
      * Store the active item in the roving focus group.
      */
     const activeItem = signal<string | null>(null);
+
+    /**
+     * Keep the tab stop in sync with an item that declares itself active (e.g. the
+     * selected tab) when it changes after registration - but only while focus is
+     * outside the group, so an in-progress keyboard/pointer interaction is never
+     * disrupted. This is a no-op for consumers that don't pass `active` (their
+     * items are never active), so only opt-in consumers like tabs are affected.
+     */
+    effect(() => {
+      const declaredActive = items().find(item => item.active());
+      if (!declaredActive) {
+        return;
+      }
+
+      untracked(() => {
+        if (activeItem() === declaredActive.id() || declaredActive.disabled()) {
+          return;
+        }
+
+        const focusWithin = items().some(
+          item => item.element.nativeElement === document.activeElement,
+        );
+
+        if (!focusWithin) {
+          activeItem.set(declaredActive.id());
+        }
+      });
+    });
 
     /**
      * Activate an item in the roving focus group.
