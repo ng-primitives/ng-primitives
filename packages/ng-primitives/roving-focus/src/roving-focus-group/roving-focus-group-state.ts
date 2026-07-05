@@ -152,8 +152,8 @@ export const [
           return;
         }
 
-        const focusWithin = items().some(
-          item => item.element.nativeElement === document.activeElement,
+        const focusWithin = items().some(item =>
+          item.element.nativeElement.contains(document.activeElement),
         );
 
         if (!focusWithin) {
