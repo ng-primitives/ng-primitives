@@ -43,9 +43,16 @@ export const [
     // Whether the item is selected.
     const selected = computed(() => toggleGroup()?.isSelected(value()!) ?? false);
 
+    // Whether the item belongs to a multiple-select toggle group.
+    const multiple = computed(() => toggleGroup()?.type() === 'multiple');
+
     // Host bindings
-    attrBinding(element, 'role', 'radio');
-    attrBinding(element, 'aria-checked', selected);
+    // In a single-select group the items behave like radio buttons, while in a
+    // multiple-select group they are independent toggle buttons exposing
+    // aria-pressed, matching the standalone toggle primitive.
+    attrBinding(element, 'role', () => (multiple() ? null : 'radio'));
+    attrBinding(element, 'aria-checked', () => (multiple() ? null : selected()));
+    attrBinding(element, 'aria-pressed', () => (multiple() ? selected() : null));
     dataBinding(element, 'data-selected', selected);
     attrBinding(element, 'aria-disabled', disabled);
     dataBinding(element, 'data-disabled', disabled);

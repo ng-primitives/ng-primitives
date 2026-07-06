@@ -57,6 +57,32 @@ describe('NgpToggleGroup', () => {
       expect(group).toHaveAttribute('data-orientation', 'horizontal');
     });
 
+    it('should expose radio semantics on items', async () => {
+      const { getByTestId } = await render(
+        `
+        <div ngpToggleGroup>
+          <div data-testid="toggle-item-1" ngpToggleGroupItem ngpToggleGroupItemValue="option-1"></div>
+          <div data-testid="toggle-item-2" ngpToggleGroupItem ngpToggleGroupItemValue="option-2"></div>
+        </div>
+        `,
+        {
+          imports: [NgpToggleGroup, NgpToggleGroupItem],
+        },
+      );
+
+      const item1 = getByTestId('toggle-item-1');
+      const item2 = getByTestId('toggle-item-2');
+      expect(item1).toHaveAttribute('role', 'radio');
+      expect(item1).toHaveAttribute('aria-checked', 'false');
+      expect(item1).not.toHaveAttribute('aria-pressed');
+
+      fireEvent.click(item1);
+
+      expect(item1).toHaveAttribute('aria-checked', 'true');
+      expect(item1).not.toHaveAttribute('aria-pressed');
+      expect(item2).toHaveAttribute('aria-checked', 'false');
+    });
+
     it('should allow deselection', async () => {
       const { getByTestId } = await render(
         `
@@ -151,6 +177,34 @@ describe('NgpToggleGroup', () => {
       const group = getByRole('group');
       expect(group).toHaveAttribute('data-type', 'multiple');
       expect(group).toHaveAttribute('data-orientation', 'horizontal');
+    });
+
+    it('should expose toggle button semantics on items', async () => {
+      const { getByTestId } = await render(
+        `
+        <div ngpToggleGroup ngpToggleGroupType="multiple">
+          <div data-testid="toggle-item-1" ngpToggleGroupItem ngpToggleGroupItemValue="option-1"></div>
+          <div data-testid="toggle-item-2" ngpToggleGroupItem ngpToggleGroupItemValue="option-2"></div>
+        </div>
+        `,
+        {
+          imports: [NgpToggleGroup, NgpToggleGroupItem],
+        },
+      );
+
+      const item1 = getByTestId('toggle-item-1');
+      const item2 = getByTestId('toggle-item-2');
+      expect(item1).not.toHaveAttribute('role');
+      expect(item1).not.toHaveAttribute('aria-checked');
+      expect(item1).toHaveAttribute('aria-pressed', 'false');
+
+      fireEvent.click(item1);
+      fireEvent.click(item2);
+
+      expect(item1).toHaveAttribute('aria-pressed', 'true');
+      expect(item2).toHaveAttribute('aria-pressed', 'true');
+      expect(item1).not.toHaveAttribute('role');
+      expect(item1).not.toHaveAttribute('aria-checked');
     });
 
     it('should allow multiple selections', async () => {

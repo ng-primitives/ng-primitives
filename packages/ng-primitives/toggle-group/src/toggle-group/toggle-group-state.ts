@@ -39,6 +39,11 @@ export interface NgpToggleGroupState<T = string> {
   readonly orientation: WritableSignal<NgpOrientation>;
 
   /**
+   * The type of the toggle group, whether only one item can be selected or multiple.
+   */
+  readonly type: Signal<'single' | 'multiple'>;
+
+  /**
    * Select a value in the toggle group.
    */
   select(selection: T): void;
@@ -242,6 +247,7 @@ export const [
       toggle,
       value: deprecatedSetter(value, 'setValue', setValue),
       orientation: deprecatedSetter(orientation, 'setOrientation', setOrientation),
+      type,
       setValue,
       setDefaultValue: defaultValue.set,
       setDisabled,
