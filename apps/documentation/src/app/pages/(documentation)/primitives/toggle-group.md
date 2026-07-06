@@ -111,7 +111,7 @@ bootstrapApplication(AppComponent, {
 
 ## Accessibility
 
-The toggle group uses `role="group"` on the container and `role="radio"` with `aria-checked` on each item. Keyboard navigation follows the roving tabindex pattern.
+The toggle group uses `role="group"` on the container. In a single-select group each item uses `role="radio"` with `aria-checked`; in a multiple-select group the items are toggle buttons exposing `aria-pressed` instead. Keyboard navigation follows the roving tabindex pattern.
 
 ### Keyboard Interactions
 
