@@ -12,14 +12,15 @@ The Date Adapter is an abstraction layer that allows components to use date obje
 Import the DateAdapter from `ng-primitives/date-time`.
 
 ```ts
-import { NgpLuxonDateAdapter } from 'ng-primitives/date-time-lucon';
-import { NgpDateAdapter, NgpNativeDateAdapter } from 'ng-primitives/date-time-luxon';
+import { NgpDateAdapter, NgpNativeDateAdapter } from 'ng-primitives/date-time';
+import { NgpDateFnsDateAdapter } from 'ng-primitives/date-time-date-fns';
+import { NgpLuxonDateAdapter } from 'ng-primitives/date-time-luxon';
 ```
 
 ## Usage
 
-Angular Primitives ships with two date adapters out of the box: `NgpNativeDateAdapter` and `NgpLuxonDateAdapter`.
-The `NgpNativeDateAdapter` uses the native JavaScript `Date` object, while the `NgpLuxonDateAdapter` uses the Luxon date library.
+Angular Primitives ships with three date adapters out of the box: `NgpNativeDateAdapter`, `NgpLuxonDateAdapter`, and `NgpDateFnsDateAdapter`.
+The `NgpNativeDateAdapter` uses the native JavaScript `Date` object, the `NgpLuxonDateAdapter` uses the Luxon date library, and the `NgpDateFnsDateAdapter` uses the date-fns date library.
 
 To use a date adapter, you need to provide it to Angular's dependency injection system. This can be done once at the root of your application or at a component/module level.
 

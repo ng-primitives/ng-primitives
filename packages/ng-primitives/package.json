@@ -44,6 +44,9 @@
   "peerDependenciesMeta": {
     "luxon": {
       "optional": true
+    },
+    "date-fns": {
+      "optional": true
     }
   },
   "ng-add": {
