@@ -7,7 +7,9 @@ export class NgpLuxonDateAdapter implements NgpDateAdapter<DateTime> {
   }
 
   set(date: DateTime, values: NgpDateUnits) {
-    return date.set(values);
+    // The adapter uses a 0-11 month (matching the native adapter), but Luxon is 1-12.
+    const { month, ...rest } = values;
+    return date.set(month !== undefined ? { ...rest, month: month + 1 } : rest);
   }
 
   add(date: DateTime, duration: NgpDuration) {
@@ -57,7 +59,8 @@ export class NgpLuxonDateAdapter implements NgpDateAdapter<DateTime> {
   }
 
   getMonth(date: DateTime): number {
-    return date.month;
+    // Luxon is 1-12; the adapter contract uses a 0-11 month (matching the native adapter).
+    return date.month - 1;
   }
 
   getDate(date: DateTime): number {
@@ -101,6 +104,22 @@ export class NgpLuxonDateAdapter implements NgpDateAdapter<DateTime> {
   }
 
   create(values: NgpDateUnits) {
-    return DateTime.fromObject(values);
+    // Match the native adapter: unspecified units default to the current date/time
+    // (month uses a truthy check, so 0 falls back to now like `new Date(...)`).
+    const now = DateTime.now();
+    const month = values.month || now.month;
+    const day = values.day ?? now.day;
+
+    // Build from a valid anchor and apply the units as durations so out-of-range
+    // values roll over like the native Date constructor (e.g. month 13 -> next
+    // January, day 0 -> last day of the previous month).
+    return DateTime.fromObject({ year: values.year ?? now.year, month: 1, day: 1 }).plus({
+      months: month - 1,
+      days: day - 1,
+      hours: values.hour ?? now.hour,
+      minutes: values.minute ?? now.minute,
+      seconds: values.second ?? now.second,
+      milliseconds: values.millisecond ?? now.millisecond,
+    });
   }
 }
