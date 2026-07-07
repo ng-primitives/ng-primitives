@@ -1,3 +1,32 @@
+## 0.125.0 (2026-07-07)
+
+### 🚀 Features
+
+- **date-time:** add date-fns date adapter ([#816](https://github.com/ng-primitives/ng-primitives/pull/816))
+- **toggle-group:** make value type generic ([#810](https://github.com/ng-primitives/ng-primitives/pull/810))
+
+### 🩹 Fixes
+
+- ⚠️  **date-time:** align date adapters and expand contract coverage ([#817](https://github.com/ng-primitives/ng-primitives/pull/817))
+- **toggle-group:** expose aria-pressed toggle buttons in multiple-select groups ([#814](https://github.com/ng-primitives/ng-primitives/pull/814), [#813](https://github.com/ng-primitives/ng-primitives/issues/813))
+
+### ⚠️  Breaking Changes
+
+- **date-time:** align date adapters and expand contract coverage  ([#817](https://github.com/ng-primitives/ng-primitives/pull/817))
+  the native adapter's `endOfMonth` now returns the end of
+  the day rather than midnight, and its `add`/`subtract` clamp month/year
+  arithmetic instead of overflowing. The Luxon adapter's `getMonth` now
+  returns a zero-based month (0-11) to match the native adapter.
+  * docs(date-time): clarify one-based create vs zero-based set month
+
+### ❤️ Thank You
+
+- Antoine Delahaye
+- Anton Pieper @AntonPieper
+- Ashley Hunter
+- Claude Sonnet 4.6
+- DELAHAYE Antoine
+
 ## 0.124.0 (2026-07-04)
 
 ### 🩹 Fixes
