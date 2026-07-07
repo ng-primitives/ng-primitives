@@ -4,7 +4,9 @@
  */
 export interface NgpDateAdapter<T> {
   /**
-   * Create a new date time object.
+   * Create a new date time object. Here `month` is one-based (1-12), matching
+   * the `NgpDateUnits` documentation. Note this differs from `set` and
+   * `getMonth`, which use a zero-based month (0-11).
    */
   create(values: NgpDateUnits): T;
 
@@ -14,7 +16,10 @@ export interface NgpDateAdapter<T> {
   now(): T;
 
   /**
-   * Set the year of the date time object based on a duration.
+   * Set the specified units on the date time object, leaving the rest
+   * unchanged. Here `month` is zero-based (0-11), matching `getMonth` so
+   * `set(date, { month: getMonth(other) })` round-trips. Note this differs from
+   * `create`, which takes a one-based month (1-12).
    */
   set(date: T, values: NgpDateUnits): T;
 
