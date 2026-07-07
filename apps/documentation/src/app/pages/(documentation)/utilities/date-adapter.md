@@ -13,8 +13,8 @@ Import the DateAdapter from `ng-primitives/date-time`.
 
 ```ts
 import { NgpDateAdapter, NgpNativeDateAdapter } from 'ng-primitives/date-time';
-import { NgpLuxonDateAdapter } from 'ng-primitives/date-time-luxon';
 import { NgpDateFnsDateAdapter } from 'ng-primitives/date-time-date-fns';
+import { NgpLuxonDateAdapter } from 'ng-primitives/date-time-luxon';
 ```
 
 ## Usage

@@ -30,7 +30,9 @@
       "ng-primitives/common": ["packages/ng-primitives/common/src/index.ts"],
       "ng-primitives/date-picker": ["packages/ng-primitives/date-picker/src/index.ts"],
       "ng-primitives/date-time": ["packages/ng-primitives/date-time/src/index.ts"],
-      "ng-primitives/date-time-date-fns": ["packages/ng-primitives/date-time-date-fns/src/index.ts"],
+      "ng-primitives/date-time-date-fns": [
+        "packages/ng-primitives/date-time-date-fns/src/index.ts"
+      ],
       "ng-primitives/date-time-luxon": ["packages/ng-primitives/date-time-luxon/src/index.ts"],
       "ng-primitives/date-time/testing": ["packages/ng-primitives/date-time/testing/index.ts"],
       "ng-primitives/dialog": ["packages/ng-primitives/dialog/src/index.ts"],
