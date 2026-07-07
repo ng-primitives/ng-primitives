@@ -69,7 +69,8 @@ export interface NgpDateAdapter<T> {
   getYear(date: T): number;
 
   /**
-   * Get the month.
+   * Get the month as a zero-based number (0-11, January = 0). This matches the
+   * range accepted by `set`, so `set(date, { month: getMonth(other) })` round-trips.
    */
   getMonth(date: T): number;
 

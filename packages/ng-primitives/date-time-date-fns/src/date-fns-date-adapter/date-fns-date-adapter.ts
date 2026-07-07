@@ -47,7 +47,8 @@ export class NgpDateFnsDateAdapter implements NgpDateAdapter<Date> {
   set(date: Date, values: NgpDateUnits): Date {
     return setOnDate(date, {
       year: values.year,
-      month: values.month !== undefined ? values.month - 1 : undefined,
+      // `getMonth` and the native adapter use a 0-11 month, so `set` takes the same range.
+      month: values.month,
       date: values.day,
       hours: values.hour,
       minutes: values.minute,

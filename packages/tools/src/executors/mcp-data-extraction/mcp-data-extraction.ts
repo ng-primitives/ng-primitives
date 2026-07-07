@@ -212,7 +212,7 @@ function inferCategory(primitiveName: string): string {
     layout: ['accordion', 'separator', 'portal'],
     data: ['avatar'],
     utility: ['focus-trap', 'roving-focus', 'resize', 'autofill', 'interactions', 'a11y'],
-    'date-time': ['date-picker', 'date-time', 'date-time-luxon'],
+    'date-time': ['date-picker', 'date-time', 'date-time-luxon', 'date-time-date-fns'],
   };
 
   for (const [category, primitives] of Object.entries(categories)) {
