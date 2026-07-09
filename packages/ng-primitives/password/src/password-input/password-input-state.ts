@@ -48,8 +48,8 @@ export const [
     // Register with the container for aria-controls.
     password().registerInput(element.nativeElement, input.id);
 
-    // Consumers keep type="password" in the markup so the field is masked without
-    // JS; this drives the toggle to text and back.
+    // Consumers keep type="password" in the markup so the field renders masked
+    // from the start; this drives the toggle to text and back.
     attrBinding(element, 'type', () => (password().visible() ? 'text' : 'password'));
     dataBinding(element, 'data-visible', () => password().visible());
 

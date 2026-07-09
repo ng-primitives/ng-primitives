@@ -19,7 +19,7 @@ import { NgpPassword, NgpPasswordInput, NgpPasswordToggle } from 'ng-primitives/
 
 ## Usage
 
-Assemble the password directives in your template. `ngpPasswordInput` is a complete input (it composes `ngpInput` internally), so you do not add `ngpInput` separately. Keep `type="password"` on the field so it stays masked when JavaScript is unavailable.
+Assemble the password directives in your template. `ngpPasswordInput` is a complete input (it composes `ngpInput` internally), so you do not add `ngpInput` separately. Keep `type="password"` on the field so it renders masked from the start; the toggle switches it to `text` and back.
 
 ```html
 <div ngpFormField>
@@ -111,6 +111,6 @@ The following directives are available to import from the `ng-primitives/passwor
 
 ## Accessibility
 
-The toggle button is a real `<button type="button">` with `aria-controls` pointing at the input. Its accessible label swaps between "Show password" and "Hide password", and visibility changes are announced to screen readers via a live region rather than exposing the password itself.
+The toggle button is a real `button` element with `type="button"` and `aria-controls` pointing at the input. Its accessible label swaps between "Show password" and "Hide password", and visibility changes are announced to screen readers via a live region rather than exposing the password itself.
 
 For security, the input reverts to `type="password"` when its form is submitted, so browsers never cache a revealed password as an autocomplete suggestion.
