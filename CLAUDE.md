@@ -41,13 +41,47 @@ This is an Nx monorepo for Angular Primitives, a headless UI library focused on 
 
 ## Nx Generators
 
-Use these generators to scaffold new code:
+**Always scaffold with the generators below before writing code by hand.** They
+are deterministic and produce the correct file layout, the `createPrimitive`
+state pattern, barrel exports, entry-point wiring, and naming. Hand-writing a
+directive or a `-state.ts` from scratch is how conventions drift (e.g. inlining
+host bindings in the directive instead of the state factory). Generate first,
+then fill in the behaviour.
 
-- `nx g @ng-primitives/tools:primitive <name>` - New primitive secondary entry point
-- `nx g @ng-primitives/tools:reusable-component <name>` - New reusable component
-- `nx g @ng-primitives/tools:example <name> --primitive <primitive>` - New example
+Collection: `@ng-primitives/tools`. Run with `nx g @ng-primitives/tools:<gen>`
+(or the Nx Console UI). Pass `--dry-run` first to preview the file list.
 
-Prefer using Nx Console UI in your IDE for running generators.
+| Generator            | Command                                                                  | Produces                                                                                  |
+| -------------------- | ------------------------------------------------------------------------ | ----------------------------------------------------------------------------------------- |
+| `primitive`          | `nx g ...:primitive <name>`                                              | New secondary entry point (`packages/ng-primitives/<name>/`), `index.ts`, tsconfig wiring |
+| `directive`          | `nx g ...:directive <name> <primitive>`                                  | A directive **and its `-state.ts`** (`addState` defaults **true**); flags below           |
+| `state`              | `nx g ...:state <directive> <primitive>`                                 | A `-state.ts` (`createPrimitive` factory) for an existing directive                       |
+| `config`             | `nx g ...:config <primitive>`                                            | A global config provider (`provideXConfig`/`injectXConfig`)                               |
+| `token`              | `nx g ...:token <directive> <primitive>`                                 | An injection token for a directive                                                        |
+| `example`            | `nx g ...:example <directive> <primitive>`                               | A docs example (`.example.ts` + `.tailwind.example.ts`)                                   |
+| `documentation`      | `nx g ...:documentation <name> --primitive <p> --section Primitives ...` | A docs page under `apps/documentation`                                                    |
+| `reusable-component` | `nx g ...:reusable-component <name>`                                     | A reusable component under `apps/components` (drives the `docs-snippet`)                  |
+
+`directive` is the workhorse - it composes the others via flags:
+`--addState` (default true), `--addToken`, `--addConfig`, `--addExample`,
+`--reusableComponent`, `--documentation <section>`.
+
+**Workflow for a new primitive** with a root directive and extra parts (the
+second arg to `directive` is the entry point / `--primitive`):
+
+```bash
+# 1. create the secondary entry point
+nx g @ng-primitives/tools:primitive <name>
+# 2. scaffold each part directive — each gets its -state.ts automatically
+nx g @ng-primitives/tools:directive <name> <name> --addConfig --addExample --documentation Primitives
+nx g @ng-primitives/tools:directive <name>-trigger <name>
+# 3. optional reusable component (drives the docs snippet)
+nx g @ng-primitives/tools:reusable-component <name>
+```
+
+Each part directive gets its `-state.ts` automatically - never scaffold those by
+hand. See `.claude/rules/state-management.md` for what the generated state should
+contain.
 
 ## Coding Conventions
 
@@ -55,6 +89,7 @@ See `.claude/rules/` for detailed coding standards:
 
 - `angular-patterns.md` - Signal-based APIs, readonly signals, computed/effects
 - `naming-conventions.md` - Selector prefixes, class names, file names
+- `state-management.md` - The `createPrimitive` state pattern: one `-state.ts` per part, host bindings inside the factory, thin directives, controlled state, state composition
 - `docs-example-styling.md` - Styling the documentation examples: brand red reserved for state, blue for focus, typography/radii scale, CSS + Tailwind parity
 
 For code review, use the `ngp-code-review` skill — it consolidates these rules with the custom workspace lint rules, test conventions, and PR checklist.
