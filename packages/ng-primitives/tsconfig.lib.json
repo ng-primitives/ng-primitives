@@ -16,7 +16,12 @@
     "vite.config.ts",
     "vitest.node.config.ts",
     "**/*.stories.ts",
-    "**/*.stories.js"
+    "**/*.stories.js",
+    "password/**/*.spec.ts",
+    "password/**/*.test.ts",
+    "password/**/*.fixture.ts",
+    "password/**/*.stories.ts",
+    "password/**/*.stories.js"
   ],
-  "include": ["**/*.ts"]
+  "include": ["**/*.ts", "password/**/*.ts"]
 }
