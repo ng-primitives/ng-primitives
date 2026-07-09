@@ -46,14 +46,27 @@ Read `.claude/rules/naming-conventions.md` and flag any violation. Common ones: 
 
 ### 3. State pattern
 
-Every primitive uses the same four exports from `packages/ng-primitives/state/src/`:
+Read `.claude/rules/state-management.md`. Every primitive **and every part** (container, input, toggle, item, option, trigger, …) uses the `createPrimitive` pattern — a `<name>-state.ts` that returns the 4-tuple and holds all host bindings inside the factory, with a thin directive that provides the state and delegates to it:
 
-- `NgpXStateToken = createStateToken<NgpX>('X')`
-- `provideXState = createStateProvider(NgpXStateToken)`
-- `injectXState = createStateInjector<NgpX>(NgpXStateToken)`
-- `xState = createState(NgpXStateToken)`
+```ts
+export const [NgpXStateToken, ngpX, injectXState, provideXState] = createPrimitive(
+  'NgpX',
+  (props: NgpXProps): NgpXState => {
+    const element = injectElementRef();
+    // attrBinding / dataBinding / listener all live HERE
+    return {
+      /* ... */
+    } satisfies NgpXState;
+  },
+);
+```
 
-Flag new primitives that don't follow this quadruple. Specific rule violations (early state, missing generic, emitting state, reading raw input) are owned by §4.
+Flag as HIGH:
+
+- **New use of the legacy state pattern.** Any added file — or any changed line in the diff — that calls `createStateToken`, `createStateProvider`, `createStateInjector`, or `createState` (from `ng-primitives/state`). These are the pre-`createPrimitive` primitives (`search`-era) and are deprecated for new code. Grep the diff: `git diff next...HEAD | grep -nE '^\+.*\bcreateState(Token|Provider|Injector)?\b'`. A hit on an added (`+`) line is a finding — the part must be rewritten with `createPrimitive`. Editing an existing legacy primitive in place does **not** require migrating it (don't force-migrate untouched primitives), but a **new** primitive or part using the quadruple is a HIGH finding.
+- **A part directive that inlines host bindings / listeners** in the directive constructor instead of a `-state.ts` factory, or that omits `provideXState()` from its `providers`.
+
+Specific rule violations (early state, missing generic, emitting state, reading raw input) are owned by §4.
 
 ### 4. Custom workspace lint rules
 
