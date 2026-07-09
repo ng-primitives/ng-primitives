@@ -45,12 +45,11 @@ export const [
     // Compose ngpInput for form control, interactions, autofill and the id.
     const input = ngpInput({ id, disabled });
 
-    // Mask synchronously so the field is never briefly plaintext before the binding runs.
-    element.nativeElement.type = password().visible() ? 'text' : 'password';
-
     // Register with the container for aria-controls.
     password().registerInput(element.nativeElement, input.id);
 
+    // Consumers keep type="password" in the markup so the field is masked without
+    // JS; this drives the toggle to text and back.
     attrBinding(element, 'type', () => (password().visible() ? 'text' : 'password'));
     dataBinding(element, 'data-visible', () => password().visible());
 

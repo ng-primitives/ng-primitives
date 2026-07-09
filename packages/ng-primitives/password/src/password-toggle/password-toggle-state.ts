@@ -72,10 +72,12 @@ export const [
 
     function toggle(): void {
       const state = password();
+      // Announce the intended state: in controlled mode state.visible() may not
+      // reflect the new value until the parent propagates it back.
+      const willBeVisible = !state.visible();
       state.toggle();
 
-      const visible = state.visible();
-      announcer.announce(visible ? shownAnnouncement() : hiddenAnnouncement());
+      announcer.announce(willBeVisible ? shownAnnouncement() : hiddenAnnouncement());
 
       if (pointerActivated()) {
         state.focusInput();

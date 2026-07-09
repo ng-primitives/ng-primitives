@@ -149,7 +149,7 @@ describe('NgpPassword', () => {
     });
 
     it('should allow overriding the labels', async () => {
-      const { getByTestId } = await render(
+      const { getByTestId, fixture } = await render(
         `
         <div ngpPassword>
           <input ngpPasswordInput />
@@ -164,7 +164,13 @@ describe('NgpPassword', () => {
         { imports },
       );
 
-      expect(getByTestId('toggle')).toHaveAttribute('aria-label', 'Reveal');
+      const toggle = getByTestId('toggle');
+      expect(toggle).toHaveAttribute('aria-label', 'Reveal');
+
+      fireEvent.click(toggle);
+      await fixture.whenStable();
+
+      expect(toggle).toHaveAttribute('aria-label', 'Conceal');
     });
   });
 
@@ -226,6 +232,26 @@ describe('NgpPassword', () => {
       await fixture.whenStable();
 
       expect(getByTestId('input')).toHaveAttribute('type', 'password');
+    });
+
+    it('should reflect a parent-controlled visible change on the input', async () => {
+      const { getByTestId, fixture } = await render(
+        `
+        <div ngpPassword [ngpPasswordVisible]="visible">
+          <input data-testid="input" ngpPasswordInput />
+        </div>
+        `,
+        { imports, componentProperties: { visible: false } },
+      );
+
+      expect(getByTestId('input')).toHaveAttribute('type', 'password');
+
+      // flipping the parent-controlled value should drive the input
+      (fixture.componentInstance as unknown as { visible: boolean }).visible = true;
+      fixture.detectChanges();
+      await fixture.whenStable();
+
+      expect(getByTestId('input')).toHaveAttribute('type', 'text');
     });
   });
 
