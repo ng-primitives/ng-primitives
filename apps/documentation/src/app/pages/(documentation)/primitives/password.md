@@ -111,6 +111,6 @@ The following directives are available to import from the `ng-primitives/passwor
 
 ## Accessibility
 
-The toggle button is a real `button` element with `type="button"` and `aria-controls` pointing at the input. Its accessible label swaps between "Show password" and "Hide password", and visibility changes are announced to screen readers via a live region rather than exposing the password itself.
+The toggle button is a real `<button>` element with `type="button"` and `aria-controls` pointing at the input. Its accessible label swaps between "Show password" and "Hide password", and visibility changes are announced to screen readers via a live region rather than exposing the password itself.
 
 For security, the input reverts to `type="password"` when its form is submitted, so browsers never cache a revealed password as an autocomplete suggestion.
