@@ -1,3 +1,13 @@
+## 0.126.0 (2026-07-09)
+
+### 🚀 Features
+
+- **password:** add password primitive with show/hide toggle ([#818](https://github.com/ng-primitives/ng-primitives/pull/818), [#642](https://github.com/ng-primitives/ng-primitives/issues/642))
+
+### ❤️ Thank You
+
+- Ashley Hunter
+
 ## 0.125.0 (2026-07-07)
 
 ### 🚀 Features
