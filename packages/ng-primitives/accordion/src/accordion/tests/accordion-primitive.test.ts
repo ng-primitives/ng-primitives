@@ -1,4 +1,5 @@
 import { fireEvent, render, waitFor } from '@testing-library/angular';
+import { userEvent } from '@testing-library/user-event';
 import {
   NgpAccordion,
   NgpAccordionContent,
@@ -338,6 +339,169 @@ describe('NgpAccordion', () => {
       const content = fixture.getAllByTestId('accordion-content');
 
       expect(content[0].style.getPropertyValue('--ngp-accordion-content-height')).toBe('');
+    });
+  });
+
+  describe('content width CSS variable', () => {
+    it('should set --ngp-accordion-content-width when item is open', async () => {
+      const fixture = await renderTemplate({ orientation: 'horizontal', value: 'item-1' });
+      const content = fixture.getAllByTestId('accordion-content');
+
+      await waitFor(() => {
+        expect(content[0].style.getPropertyValue('--ngp-accordion-content-width')).not.toBe('');
+        expect(content[0].style.getPropertyValue('--ngp-accordion-content-width')).not.toBe('0px');
+      });
+    });
+
+    it('should not set --ngp-accordion-content-width for closed items', async () => {
+      const fixture = await renderTemplate({ orientation: 'horizontal', value: 'item-1' });
+      const content = fixture.getAllByTestId('accordion-content');
+
+      expect(content[1].style.getPropertyValue('--ngp-accordion-content-width')).toBe('');
+    });
+  });
+
+  describe('keyboard interaction', () => {
+    it('should toggle the item when Enter is pressed on a focused trigger', async () => {
+      const valueChange = vi.fn();
+      const fixture = await renderTemplate({ valueChange });
+      const triggers = fixture.getAllByTestId('accordion-trigger');
+
+      triggers[0].focus();
+      await userEvent.keyboard('{Enter}');
+
+      expect(valueChange).toHaveBeenCalledWith('item-1');
+      expect(triggers[0]).toHaveAttribute('data-open');
+    });
+
+    it('should toggle the item when Space is pressed on a focused trigger', async () => {
+      const valueChange = vi.fn();
+      const fixture = await renderTemplate({ valueChange });
+      const triggers = fixture.getAllByTestId('accordion-trigger');
+
+      triggers[0].focus();
+      await userEvent.keyboard(' ');
+
+      expect(valueChange).toHaveBeenCalledWith('item-1');
+      expect(triggers[0]).toHaveAttribute('data-open');
+    });
+  });
+
+  describe('find-in-page (hidden until-found + beforematch)', () => {
+    it('should mark a collapsed panel as hidden="until-found"', async () => {
+      const fixture = await render(
+        `
+        <style>[ngpAccordionContent]:not([data-open]) { height: 0; padding: 0; border: 0; overflow: hidden; }</style>
+        <div ngpAccordion ngpAccordionType="single" ngpAccordionValue="item-1">
+          <div ngpAccordionItem ngpAccordionItemValue="item-1">
+            <button ngpAccordionTrigger>Header 1</button>
+            <div data-testid="content-1" ngpAccordionContent>Content 1</div>
+          </div>
+          <div ngpAccordionItem ngpAccordionItemValue="item-2">
+            <button ngpAccordionTrigger>Header 2</button>
+            <div data-testid="content-2" ngpAccordionContent>Content 2</div>
+          </div>
+        </div>
+        `,
+        { imports },
+      );
+
+      // The closed panel collapses to zero height and becomes discoverable by find-in-page.
+      await waitFor(() =>
+        expect(fixture.getByTestId('content-2')).toHaveAttribute('hidden', 'until-found'),
+      );
+      // The open panel is not hidden.
+      expect(fixture.getByTestId('content-1')).not.toHaveAttribute('hidden');
+    });
+
+    it('should open the item when the browser fires beforematch on its content', async () => {
+      const valueChange = vi.fn();
+      const fixture = await renderTemplate({ valueChange });
+      const content = fixture.getAllByTestId('accordion-content');
+      const triggers = fixture.getAllByTestId('accordion-trigger');
+
+      content[0].dispatchEvent(new Event('beforematch'));
+      fixture.detectChanges();
+
+      expect(valueChange).toHaveBeenCalledWith('item-1');
+      expect(triggers[0]).toHaveAttribute('data-open');
+    });
+
+    it('should not open a disabled item on beforematch', async () => {
+      const valueChange = vi.fn();
+      const fixture = await renderTemplate({ itemDisabled: true, valueChange });
+      const content = fixture.getAllByTestId('accordion-content');
+
+      content[0].dispatchEvent(new Event('beforematch'));
+      fixture.detectChanges();
+
+      expect(valueChange).not.toHaveBeenCalled();
+    });
+
+    it('should not open an item on beforematch when the accordion is disabled', async () => {
+      const valueChange = vi.fn();
+      const fixture = await renderTemplate({ accordionDisabled: true, valueChange });
+      const content = fixture.getAllByTestId('accordion-content');
+
+      content[0].dispatchEvent(new Event('beforematch'));
+      fixture.detectChanges();
+
+      expect(valueChange).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('content role', () => {
+    it('should set role="region" on the content elements', async () => {
+      const fixture = await renderTemplate();
+      const content = fixture.getAllByTestId('accordion-content');
+
+      for (const c of content) {
+        expect(c).toHaveAttribute('role', 'region');
+      }
+    });
+  });
+
+  describe('controlled and uncontrolled value', () => {
+    it('should round-trip a two-way [(ngpAccordionValue)] binding on click', async () => {
+      const fixture = await render(
+        `<div ngpAccordion ngpAccordionType="single" ngpAccordionCollapsible [(ngpAccordionValue)]="value">
+          <div ngpAccordionItem ngpAccordionItemValue="item-1">
+            <button data-testid="trigger-1" ngpAccordionTrigger>Header 1</button>
+            <div ngpAccordionContent>Content 1</div>
+          </div>
+        </div>`,
+        { imports, componentProperties: { value: null } },
+      );
+
+      const trigger = fixture.getByTestId('trigger-1');
+
+      fireEvent.click(trigger);
+      fixture.detectChanges();
+      expect(fixture.fixture.componentInstance.value).toBe('item-1');
+
+      fireEvent.click(trigger);
+      fixture.detectChanges();
+      expect(fixture.fixture.componentInstance.value).toBeNull();
+    });
+
+    it('should open and close on click when value is uncontrolled', async () => {
+      const fixture = await render(
+        `<div ngpAccordion ngpAccordionType="single" ngpAccordionCollapsible>
+          <div ngpAccordionItem ngpAccordionItemValue="item-1">
+            <button data-testid="trigger-1" ngpAccordionTrigger>Header 1</button>
+            <div ngpAccordionContent>Content 1</div>
+          </div>
+        </div>`,
+        { imports },
+      );
+
+      const trigger = fixture.getByTestId('trigger-1');
+
+      fireEvent.click(trigger);
+      expect(trigger).toHaveAttribute('data-open');
+
+      fireEvent.click(trigger);
+      expect(trigger).not.toHaveAttribute('data-open');
     });
   });
 });
