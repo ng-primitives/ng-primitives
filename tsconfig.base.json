@@ -72,7 +72,8 @@
       "ng-primitives/navigation-menu": ["packages/ng-primitives/navigation-menu/src/index.ts"],
       "ng-primitives/number-field": ["packages/ng-primitives/number-field/src/index.ts"],
       "ng-primitives/context-menu": ["packages/ng-primitives/context-menu/src/index.ts"],
-      "ng-primitives/password": ["./packages/ng-primitives/password/src/index.ts"]
+      "ng-primitives/password": ["./packages/ng-primitives/password/src/index.ts"],
+      "ng-primitives/color": ["./packages/ng-primitives/color/src/index.ts"]
     }
   },
   "exclude": ["node_modules", "tmp"]
