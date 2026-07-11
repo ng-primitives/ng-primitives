@@ -1,6 +1,12 @@
 import { signal, Signal } from '@angular/core';
 import { injectElementRef } from 'ng-primitives/internal';
-import { attrBinding, createPrimitive, listener, StateInjectionOptions } from 'ng-primitives/state';
+import {
+  attrBinding,
+  createPrimitive,
+  listener,
+  onDestroy,
+  StateInjectionOptions,
+} from 'ng-primitives/state';
 import { NgpDialogRole } from '../config/dialog-config';
 import { injectDialogRef } from './dialog-ref';
 
@@ -56,6 +62,9 @@ export const [NgpDialogStateToken, ngpDialog, _injectDialogState, provideDialogS
 
       // Listener
       listener(elementRef, 'click', handleOnClick);
+
+      // Close the dialog when the directive is destroyed.
+      onDestroy(() => close());
 
       function close(result?: R): void {
         dialogRef.close(result);

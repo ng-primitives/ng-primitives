@@ -1,5 +1,5 @@
 import { BooleanInput } from '@angular/cdk/coercion';
-import { booleanAttribute, Directive, input, OnDestroy } from '@angular/core';
+import { booleanAttribute, Directive, input } from '@angular/core';
 import { NgpFocusTrap } from 'ng-primitives/focus-trap';
 import { NgpExitAnimation } from 'ng-primitives/internal';
 import { uniqueId } from 'ng-primitives/utils';
@@ -12,7 +12,7 @@ import { ngpDialog, provideDialogState } from './dialog-state';
   providers: [provideDialogState()],
   hostDirectives: [NgpFocusTrap, NgpExitAnimation],
 })
-export class NgpDialog<T = unknown, R = unknown> implements OnDestroy {
+export class NgpDialog<T = unknown, R = unknown> {
   private readonly config = injectDialogConfig();
 
   /** The id of the dialog */
@@ -35,10 +35,6 @@ export class NgpDialog<T = unknown, R = unknown> implements OnDestroy {
     role: this.role,
     modal: this.modal,
   });
-
-  ngOnDestroy(): void {
-    return this.state.close();
-  }
 
   /** Close the dialog. */
   close(result?: R): void {
