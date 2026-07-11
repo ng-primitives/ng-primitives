@@ -90,6 +90,7 @@ The following directives are available to import from the `ng-primitives/accordi
 <api-reference-attributes>
   <api-attribute name="data-orientation" description="The orientation of the accordion." value="horizontal | vertical" />
   <api-attribute name="data-open" description="Applied when the accordion item is open." />
+  <api-attribute name="data-closed" description="Applied when the accordion item is closed." />
   <api-attribute name="data-disabled" description="Applied when the accordion item is disabled." />
 </api-reference-attributes>
 
@@ -102,6 +103,7 @@ The following directives are available to import from the `ng-primitives/accordi
 <api-reference-attributes>
   <api-attribute name="data-orientation" description="The orientation of the accordion." value="horizontal | vertical" />
   <api-attribute name="data-open" description="Applied when the accordion item is open." />
+  <api-attribute name="data-closed" description="Applied when the accordion item is closed." />
   <api-attribute name="data-disabled" description="Applied when the accordion item is disabled." />
 </api-reference-attributes>
 
@@ -114,6 +116,8 @@ The following directives are available to import from the `ng-primitives/accordi
 <api-reference-attributes>
   <api-attribute name="data-orientation" description="The orientation of the accordion." value="horizontal | vertical" />
   <api-attribute name="data-open" description="Applied when the accordion item is open." />
+  <api-attribute name="data-closed" description="Applied when the accordion item is closed." />
+  <api-attribute name="data-disabled" description="Applied when the accordion item is disabled." />
   <api-attribute name="data-enter" description="Applied when the accordion item is opening (user interaction). Removed on the content element's animationend event." />
   <api-attribute name="data-exit" description="Applied when the accordion item is closing (user interaction). Removed on the content element's animationend event." />
 </api-reference-attributes>

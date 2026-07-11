@@ -9,13 +9,13 @@ import { ngpAccordionTrigger } from './accordion-trigger-state';
   selector: '[ngpAccordionTrigger]',
   exportAs: 'ngpAccordionTrigger',
 })
-export class NgpAccordionTrigger<T> {
+export class NgpAccordionTrigger {
   /**
    * The id of the trigger.
    */
   readonly id = input<string>(uniqueId('ngp-accordion-trigger'));
 
-  private readonly state = ngpAccordionTrigger<T>({ id: this.id });
+  private readonly state = ngpAccordionTrigger({ id: this.id });
 
   /**
    * Toggle the accordion item.

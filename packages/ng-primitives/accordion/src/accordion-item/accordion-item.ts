@@ -1,5 +1,6 @@
 import { BooleanInput } from '@angular/cdk/coercion';
 import { Directive, booleanAttribute, input } from '@angular/core';
+import { provideCollapsibleState } from 'ng-primitives/collapsible';
 import { uniqueId } from 'ng-primitives/utils';
 import { injectAccordionState } from '../accordion/accordion-state';
 import { ngpAccordionItem, provideAccordionItemState } from './accordion-item-state';
@@ -10,7 +11,8 @@ import { ngpAccordionItem, provideAccordionItemState } from './accordion-item-st
 @Directive({
   selector: '[ngpAccordionItem]',
   exportAs: 'ngpAccordionItem',
-  providers: [provideAccordionItemState()],
+  // The item owns the shared collapsible state that its trigger and content compose.
+  providers: [provideAccordionItemState(), provideCollapsibleState({ inherit: false })],
 })
 export class NgpAccordionItem<T> {
   /**
