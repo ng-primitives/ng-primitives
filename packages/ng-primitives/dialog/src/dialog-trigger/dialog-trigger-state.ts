@@ -1,9 +1,9 @@
-import { Signal, TemplateRef, inject, signal } from '@angular/core';
+import { DestroyRef, Signal, TemplateRef, inject, signal } from '@angular/core';
 import { injectElementRef } from 'ng-primitives/internal';
 import { NgpDismissGuard } from 'ng-primitives/portal';
 import { createPrimitive, emitter, listener, StateInjectionOptions } from 'ng-primitives/state';
+import { safeTakeUntilDestroyed } from 'ng-primitives/utils';
 import { Observable } from 'rxjs';
-import { NgpDialogRef } from '../dialog/dialog-ref';
 import { NgpDialogContext, NgpDialogManager } from '../dialog/dialog.service';
 
 export interface NgpDialogTriggerState<T> {
@@ -54,8 +54,7 @@ export const [
   }: NgpDialogTriggerProps<T>) => {
     const elementRef = injectElementRef();
     const dialogManager = inject(NgpDialogManager);
-
-    const dialogRef = signal<NgpDialogRef | null>(null);
+    const destroyRef = inject(DestroyRef);
 
     const closed = emitter<T>();
 
@@ -63,17 +62,14 @@ export const [
     listener(elementRef, 'click', handleClick);
 
     function handleClick(): void {
-      dialogRef.set(
-        dialogManager.open(template(), {
-          closeOnEscape: closeOnEscape(),
-          closeOnOutsideClick: closeOnOutsideClick(),
-        }),
-      );
+      const dialogRef = dialogManager.open(template(), {
+        closeOnEscape: closeOnEscape(),
+        closeOnOutsideClick: closeOnOutsideClick(),
+      });
 
-      dialogRef()!.closed.subscribe(({ result }) => {
+      dialogRef.closed.pipe(safeTakeUntilDestroyed(destroyRef)).subscribe(({ result }) => {
         onClosedChange?.(result as T);
         closed.emit(result as T);
-        return dialogRef.set(null);
       });
     }
 
