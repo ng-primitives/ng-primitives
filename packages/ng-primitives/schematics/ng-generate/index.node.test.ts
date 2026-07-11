@@ -172,4 +172,22 @@ describe('Component Schematic', () => {
     expect(content).not.toContain('ChangeDetectionStrategy');
     expect(content).not.toContain('changeDetection');
   });
+
+  it('should generate a rating reusable component', async () => {
+    const options: AngularPrimitivesComponentSchema = {
+      primitive: 'rating',
+      path: 'projects/bar/src/app/rating',
+      fileSuffix: '',
+    };
+
+    const tree = await schematicRunner.runSchematic('primitive', options, appTree);
+    expect(tree.files).toContain('/projects/bar/src/app/rating/rating.ts');
+
+    const content = tree.readContent('/projects/bar/src/app/rating/rating.ts');
+    expect(content).toContain("selector: 'app-rating'");
+    expect(content).toContain('directive: NgpRating');
+    expect(content).toContain('ngpRatingItem');
+    expect(content).toContain('implements ControlValueAccessor');
+    expect(content).toContain('provideValueAccessor(RatingComponent)');
+  });
 });

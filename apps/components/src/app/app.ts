@@ -24,6 +24,7 @@ import { RouterLink, RouterOutlet } from '@angular/router';
       <a routerLink="/reusable-components/popover">Popover</a>
       <a routerLink="/reusable-components/progress">Progress</a>
       <a routerLink="/reusable-components/radio">Radio</a>
+      <a routerLink="/reusable-components/rating">Rating</a>
       <a routerLink="/reusable-components/search">Search</a>
       <a routerLink="/reusable-components/separator">Separator</a>
       <a routerLink="/reusable-components/range-slider">Range Slider</a>

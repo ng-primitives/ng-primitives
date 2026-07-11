@@ -12,6 +12,7 @@ export interface AngularPrimitivesComponentSchema {
     | 'pagination'
     | 'progress'
     | 'radio'
+    | 'rating'
     | 'switch'
     | 'toggle'
     | 'toggle-group'
