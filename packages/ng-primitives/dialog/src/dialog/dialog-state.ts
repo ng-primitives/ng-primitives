@@ -54,8 +54,8 @@ export const [NgpDialogStateToken, ngpDialog, _injectDialogState, provideDialogS
       attrBinding(elementRef, 'id', () => id());
       attrBinding(elementRef, 'role', () => role());
       attrBinding(elementRef, 'aria-modal', () => modal());
-      attrBinding(elementRef, 'aria-labelledby', () => labelledBy().join(' '));
-      attrBinding(elementRef, 'aria-describedby', () => describedBy().join(' '));
+      attrBinding(elementRef, 'aria-labelledby', () => labelledBy().join(' ') || null);
+      attrBinding(elementRef, 'aria-describedby', () => describedBy().join(' ') || null);
 
       // Listener
       listener(elementRef, 'click', handleOnClick);
