@@ -1,19 +1,16 @@
-import { ElementRef, signal, Signal } from '@angular/core';
+import { signal, Signal } from '@angular/core';
 import { injectElementRef } from 'ng-primitives/internal';
 import { attrBinding, createPrimitive, listener, StateInjectionOptions } from 'ng-primitives/state';
 import { NgpDialogRole } from '../config/dialog-config';
 import { injectDialogRef } from './dialog-ref';
 
 export interface NgpDialogState<R> {
-  /** Access the dialog ref */
-  readonly elementRef: ElementRef;
   /** The id of the dialog */
   readonly id?: Signal<string>;
   /** The dialog role. */
   readonly role?: Signal<NgpDialogRole | undefined>;
   /** Whether the dialog is a modal. */
   readonly modal?: Signal<boolean>;
-  destroy: () => void;
   /** Close the dialog. */
   close: (result?: R) => void;
   /** @internal register a labelledby id */
@@ -60,10 +57,6 @@ export const [NgpDialogStateToken, ngpDialog, _injectDialogState, provideDialogS
       // Listener
       listener(elementRef, 'click', handleOnClick);
 
-      function destroy(): void {
-        close();
-      }
-
       function close(result?: R): void {
         dialogRef.close(result);
       }
@@ -89,11 +82,9 @@ export const [NgpDialogStateToken, ngpDialog, _injectDialogState, provideDialogS
       }
 
       return {
-        elementRef,
         id,
         role,
         modal,
-        destroy,
         close,
         setLabelledBy,
         setDescribedBy,

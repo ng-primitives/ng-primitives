@@ -1,15 +1,12 @@
-import { Signal, ElementRef, signal } from '@angular/core';
+import { Signal, signal } from '@angular/core';
 import { injectElementRef } from 'ng-primitives/internal';
 import { attrBinding, createPrimitive, onDestroy } from 'ng-primitives/state';
 import { onChange } from 'ng-primitives/utils';
 import { injectDialogState } from '../dialog/dialog-state';
 
 export interface NgpDialogTitleState {
-  /** Access the component's reference. */
-  readonly elementRef: ElementRef;
   /** The id of the title. */
   readonly id: Signal<string>;
-  destroy: () => void;
 }
 
 export interface NgpDialogTitleProps {
@@ -40,19 +37,7 @@ export const [
     }
   });
 
-  function destroy(): void {
-    dialogState().removeLabelledBy(id());
-  }
+  onDestroy(() => dialogState().removeLabelledBy(id()));
 
-  const state = {
-    elementRef,
-    id,
-    destroy,
-  } satisfies NgpDialogTitleState;
-
-  onDestroy(() => {
-    destroy();
-  });
-
-  return state;
+  return { id } satisfies NgpDialogTitleState;
 });

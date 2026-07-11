@@ -1,12 +1,10 @@
-import { ElementRef, signal, Signal } from '@angular/core';
+import { signal, Signal } from '@angular/core';
 import { injectElementRef } from 'ng-primitives/internal';
 import { NgpDismissGuard } from 'ng-primitives/portal';
 import { createPrimitive, listener } from 'ng-primitives/state';
 import { injectDialogRef } from '../dialog/dialog-ref';
 
 export interface NgpDialogOverlayState {
-  /** Access component's reference. */
-  readonly elementRef: ElementRef;
   /**
    * Whether the dialog should close on backdrop click.
    * @default `true`
@@ -101,7 +99,6 @@ export const [
     }
 
     return {
-      elementRef,
       closeOnClick,
     } satisfies NgpDialogOverlayState;
   },

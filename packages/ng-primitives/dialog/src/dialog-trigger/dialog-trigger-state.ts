@@ -1,4 +1,4 @@
-import { ElementRef, Signal, TemplateRef, inject, signal } from '@angular/core';
+import { Signal, TemplateRef, inject, signal } from '@angular/core';
 import { injectElementRef } from 'ng-primitives/internal';
 import { NgpDismissGuard } from 'ng-primitives/portal';
 import { createPrimitive, emitter, listener, StateInjectionOptions } from 'ng-primitives/state';
@@ -7,8 +7,6 @@ import { NgpDialogRef } from '../dialog/dialog-ref';
 import { NgpDialogContext, NgpDialogManager } from '../dialog/dialog.service';
 
 export interface NgpDialogTriggerState<T> {
-  /** Access the component's reference. */
-  readonly elementRef: ElementRef;
   /** The template to launch. */
   readonly template?: Signal<TemplateRef<NgpDialogContext>>;
   /**
@@ -80,7 +78,6 @@ export const [
     }
 
     return {
-      elementRef,
       template,
       closeOnEscape,
       closeOnOutsideClick,
