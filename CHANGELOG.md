@@ -1,3 +1,17 @@
+## 0.127.0 (2026-07-11)
+
+### 🚀 Features
+
+- **collapsible:** add collapsible primitive and share its core with accordion ([#820](https://github.com/ng-primitives/ng-primitives/pull/820))
+- **color:** add color primitives ([#819](https://github.com/ng-primitives/ng-primitives/pull/819))
+- **dialog:** migrate dialog state ([#776](https://github.com/ng-primitives/ng-primitives/pull/776))
+- **rating:** add rating primitive ([#821](https://github.com/ng-primitives/ng-primitives/pull/821))
+
+### ❤️ Thank You
+
+- Ashley Hunter
+- Miguel Gremy @MGREMY
+
 ## 0.126.0 (2026-07-09)
 
 ### 🚀 Features
