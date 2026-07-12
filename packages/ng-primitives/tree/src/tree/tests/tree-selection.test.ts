@@ -23,7 +23,7 @@ const nodes: Node[] = [
 async function renderTree(props: Record<string, unknown> = {}) {
   const template = `
     <ul ngpTree #t="ngpTree" data-testid="tree"
-        [ngpTreeNodes]="nodes" [ngpTreeChildren]="children" [ngpTreeItemValue]="itemValue"
+        [ngpTreeNodes]="nodes" [ngpTreeItemChildren]="children" [ngpTreeItemValue]="itemValue"
         [ngpTreeSelectionMode]="mode"
         [ngpTreeSelectionBehavior]="behavior"
         [ngpTreeDefaultExpandedKeys]="expanded"

@@ -22,7 +22,7 @@ const nodes: Node[] = [
 
 const template = `
   <ul ngpTree #t="ngpTree" data-testid="tree"
-      [ngpTreeNodes]="nodes" [ngpTreeChildren]="children"
+      [ngpTreeNodes]="nodes" [ngpTreeItemChildren]="children"
       [ngpTreeItemValue]="itemValue" [ngpTreeItemLabel]="itemLabel">
     @for (node of t.visibleNodes(); track itemValue(node)) {
       <li ngpTreeNode #n="ngpTreeNode" class="node" [ngpTreeNode]="node" [attr.data-value]="n.value()">

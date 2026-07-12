@@ -123,7 +123,7 @@ function generate(): Node[] {
     <cdk-virtual-scroll-viewport
       #tree="ngpTree"
       [ngpTreeNodes]="nodes"
-      [ngpTreeChildren]="children"
+      [ngpTreeItemChildren]="children"
       [ngpTreeItemValue]="itemValue"
       [ngpTreeItemLabel]="itemLabel"
       ngpTree

@@ -28,9 +28,9 @@ const nodes: Node[] = [
 async function renderTree(props: Record<string, unknown> = {}) {
   const view = await render(
     `
-    <ul ngpTree #t="ngpTree" [ngpTreeNodes]="nodes" [ngpTreeChildren]="children"
+    <ul ngpTree #t="ngpTree" [ngpTreeNodes]="nodes" [ngpTreeItemChildren]="children"
         [ngpTreeItemValue]="itemValue" [ngpTreeItemLabel]="itemLabel"
-        [ngpTreeSearch]="search" [ngpTreeItemMatch]="itemMatch">
+        [ngpTreeQuery]="search" [ngpTreeItemMatch]="itemMatch">
       @for (node of t.visibleNodes(); track itemValue(node)) {
         <li ngpTreeNode #n="ngpTreeNode" class="node" [ngpTreeNode]="node"
             [attr.data-value]="n.value()" [attr.data-match]="n.matched() ? '' : null"

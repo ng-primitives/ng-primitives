@@ -9,9 +9,9 @@ interface Node {
 }
 
 const template = `
-  <ul ngpTree #t="ngpTree" [ngpTreeNodes]="nodes" [ngpTreeChildren]="children"
+  <ul ngpTree #t="ngpTree" [ngpTreeNodes]="nodes" [ngpTreeItemChildren]="children"
       [ngpTreeItemValue]="itemValue" [ngpTreeItemLabel]="itemLabel"
-      [ngpTreeCanRename]="canRename" [ngpTreeOnRename]="onRename">
+      [ngpTreeItemRenamable]="canRename" [ngpTreeOnRename]="onRename">
     @for (node of t.visibleNodes(); track itemValue(node)) {
       <li ngpTreeNode #n="ngpTreeNode" class="node" [ngpTreeNode]="node" [attr.data-value]="n.value()">
         @if (n.renaming()) {

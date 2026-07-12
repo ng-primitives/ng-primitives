@@ -22,7 +22,7 @@ const nodes: Node[] = [
 
 async function renderTree(props: Record<string, unknown> = {}) {
   const template = `
-    <ul ngpTree #t="ngpTree" [ngpTreeNodes]="nodes" [ngpTreeChildren]="children"
+    <ul ngpTree #t="ngpTree" [ngpTreeNodes]="nodes" [ngpTreeItemChildren]="children"
         [ngpTreeItemValue]="itemValue" [ngpTreeDefaultExpandedKeys]="expanded"
         [ngpTreeCheckedKeys]="checked" (ngpTreeCheckedKeysChange)="checked = $event">
       @for (node of t.visibleNodes(); track itemValue(node)) {

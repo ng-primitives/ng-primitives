@@ -129,7 +129,7 @@ interface FileNode {
     <ul
       #tree="ngpTree"
       [ngpTreeNodes]="nodes"
-      [ngpTreeChildren]="children"
+      [ngpTreeItemChildren]="children"
       [ngpTreeItemValue]="itemValue"
       [ngpTreeItemLabel]="itemLabel"
       [ngpTreeDefaultExpandedKeys]="expanded"

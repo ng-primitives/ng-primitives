@@ -28,7 +28,7 @@ export class NgpTree<T = unknown> {
 
   /** How to read the children of a node. */
   readonly childrenAccessor = input.required<(node: T) => readonly T[] | undefined>({
-    alias: 'ngpTreeChildren',
+    alias: 'ngpTreeItemChildren',
   });
 
   /** How to read the stable string identity of a node. */
@@ -56,7 +56,7 @@ export class NgpTree<T = unknown> {
 
   /** Whether a node may be dragged. */
   readonly canDrag = input<((node: T) => boolean) | undefined>(undefined, {
-    alias: 'ngpTreeCanDrag',
+    alias: 'ngpTreeItemDraggable',
   });
 
   /** Whether a drop is allowed (drops onto a node's own subtree are always blocked). */
@@ -71,7 +71,7 @@ export class NgpTree<T = unknown> {
 
   /** Whether a node may be renamed (ignored unless `ngpTreeOnRename` is set). */
   readonly canRename = input<((node: T) => boolean) | undefined>(undefined, {
-    alias: 'ngpTreeCanRename',
+    alias: 'ngpTreeItemRenamable',
   });
 
   /** Called when a rename is committed - update the node's label in your data here. */
@@ -80,7 +80,7 @@ export class NgpTree<T = unknown> {
   });
 
   /** A search query. When non-empty, filters the tree to matches and their ancestors. */
-  readonly search = input<string | undefined>(undefined, { alias: 'ngpTreeSearch' });
+  readonly search = input<string | undefined>(undefined, { alias: 'ngpTreeQuery' });
 
   /** How to match a node against the query. Defaults to a case-insensitive label match. */
   readonly itemMatch = input<((node: T, query: string) => boolean) | undefined>(undefined, {

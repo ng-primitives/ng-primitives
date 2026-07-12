@@ -126,7 +126,7 @@ interface Item {
       #tree="ngpTree"
       [(ngpTreeSelectedKeys)]="selected"
       [ngpTreeNodes]="nodes"
-      [ngpTreeChildren]="children"
+      [ngpTreeItemChildren]="children"
       [ngpTreeItemValue]="itemValue"
       [ngpTreeItemLabel]="itemLabel"
       [ngpTreeDefaultExpandedKeys]="expanded"

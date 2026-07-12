@@ -28,7 +28,7 @@ interface FileNode {
       class="m-0 w-full max-w-80 list-none rounded-xl border border-gray-200 bg-white p-1.5 shadow-sm outline-none [--guide:#e5e7eb] [--indent:1.25rem] [--toggle-half:0.5625rem] dark:border-zinc-800 dark:bg-zinc-950 dark:[--guide:#27272a]"
       #tree="ngpTree"
       [ngpTreeNodes]="nodes"
-      [ngpTreeChildren]="children"
+      [ngpTreeItemChildren]="children"
       [ngpTreeItemValue]="itemValue"
       [ngpTreeItemLabel]="itemLabel"
       [ngpTreeDefaultExpandedKeys]="expanded"

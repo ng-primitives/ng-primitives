@@ -25,10 +25,10 @@ const ROW_H = 20;
 
 async function renderTree(props: Record<string, unknown> = {}) {
   const template = `
-    <ul ngpTree #t="ngpTree" [ngpTreeNodes]="nodes" [ngpTreeChildren]="children"
+    <ul ngpTree #t="ngpTree" [ngpTreeNodes]="nodes" [ngpTreeItemChildren]="children"
         [ngpTreeItemValue]="itemValue" [ngpTreeDefaultExpandedKeys]="expanded"
         [ngpTreeSelectionMode]="selectionMode" [ngpTreeDefaultSelectedKeys]="selectedKeys"
-        [ngpTreeCanDrag]="canDrag" [ngpTreeCanDrop]="canDrop" [ngpTreeOnDrop]="onDrop">
+        [ngpTreeItemDraggable]="canDrag" [ngpTreeCanDrop]="canDrop" [ngpTreeOnDrop]="onDrop">
       @for (node of t.visibleNodes(); track itemValue(node)) {
         <li ngpTreeNode #n="ngpTreeNode" class="node" [ngpTreeNode]="node"
             [attr.data-value]="n.value()" [attr.data-dragging]="n.dragging() ? '' : null"
@@ -147,7 +147,7 @@ describe('NgpTree drag & drop', () => {
   it('renders a custom ngpTreeDragPreview template when provided', async () => {
     const view = await render(
       `
-      <ul ngpTree #t="ngpTree" [ngpTreeNodes]="nodes" [ngpTreeChildren]="children"
+      <ul ngpTree #t="ngpTree" [ngpTreeNodes]="nodes" [ngpTreeItemChildren]="children"
           [ngpTreeItemValue]="itemValue" [ngpTreeDefaultExpandedKeys]="expanded" [ngpTreeOnDrop]="onDrop">
         @for (node of t.visibleNodes(); track itemValue(node)) {
           <li ngpTreeNode class="node" [ngpTreeNode]="node" [attr.data-value]="itemValue(node)">

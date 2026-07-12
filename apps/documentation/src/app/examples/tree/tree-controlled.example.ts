@@ -173,7 +173,7 @@ function allFolderIds(nodes: FileNode[], acc: string[] = []): string[] {
     <ul
       #tree="ngpTree"
       [ngpTreeNodes]="nodes"
-      [ngpTreeChildren]="children"
+      [ngpTreeItemChildren]="children"
       [ngpTreeItemValue]="itemValue"
       [ngpTreeItemLabel]="itemLabel"
       [ngpTreeExpandedKeys]="expanded()"

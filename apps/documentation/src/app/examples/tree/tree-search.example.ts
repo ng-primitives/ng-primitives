@@ -183,11 +183,11 @@ interface FileNode {
       <ul
         #tree="ngpTree"
         [ngpTreeNodes]="nodes"
-        [ngpTreeChildren]="children"
+        [ngpTreeItemChildren]="children"
         [ngpTreeItemValue]="itemValue"
         [ngpTreeItemLabel]="itemLabel"
         [ngpTreeDefaultExpandedKeys]="expanded"
-        [ngpTreeSearch]="query()"
+        [ngpTreeQuery]="query()"
         ngpTree
       >
         @for (node of tree.visibleNodes(); track itemValue(node)) {

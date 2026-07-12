@@ -36,7 +36,7 @@ trees) and place an `ngpTreeNode` on each row.
   ngpTree
   #tree="ngpTree"
   [ngpTreeNodes]="nodes"
-  [ngpTreeChildren]="children"
+  [ngpTreeItemChildren]="children"
   [ngpTreeItemValue]="itemValue"
 >
   @for (node of tree.visibleNodes(); track itemValue(node)) {
@@ -94,7 +94,7 @@ are checked. Bind `[(ngpTreeCheckedKeys)]` to read the checked leaves.
 Provide `ngpTreeOnDrop` to reorder nodes by dragging. The tree computes a
 `before` / `inside` / `after` drop position from the pointer, blocks dropping a node into its
 own subtree, and exposes `n.dragging()` and `n.dropPosition()` (plus `data-dragging` /
-`data-drop-position`) so you can render a drop indicator. Use `ngpTreeCanDrag` / `ngpTreeCanDrop`
+`data-drop-position`) so you can render a drop indicator. Use `ngpTreeItemDraggable` / `ngpTreeCanDrop`
 to constrain it, and move the node(s) in your own data inside the drop handler - `onDrop` receives
 `sources` (an array), so the same handler covers single and multi-node moves.
 
@@ -120,7 +120,7 @@ it receives the dragged node as its implicit context.
 Provide `ngpTreeOnRename` to enable inline renaming. Press <kbd>F2</kbd> on the focused node or
 double-click a row to start editing; render an `<input ngpTreeNodeRename>` while `n.renaming()` is
 true. The field auto-focuses and selects its text, commits on <kbd>Enter</kbd> or blur, and cancels
-on <kbd>Escape</kbd> (an empty or unchanged value is treated as a cancel). Use `ngpTreeCanRename` to
+on <kbd>Escape</kbd> (an empty or unchanged value is treated as a cancel). Use `ngpTreeItemRenamable` to
 restrict which nodes may be renamed.
 
 <docs-example name="tree-rename"></docs-example>
@@ -165,7 +165,7 @@ The `--ngp-tree-node-level` variable is enough to draw connecting guide lines pu
 
 ### Search
 
-Bind `ngpTreeSearch` to a query string to filter the tree: non-matching nodes are hidden, but every
+Bind `ngpTreeQuery` to a query string to filter the tree: non-matching nodes are hidden, but every
 match keeps its ancestors visible (and auto-expanded) so it stays in context. Each node exposes
 `n.matched()` (and `data-match`) so you can highlight the hits. Provide `ngpTreeItemMatch` to
 customise matching (it defaults to a case-insensitive `ngpTreeItemLabel` match).

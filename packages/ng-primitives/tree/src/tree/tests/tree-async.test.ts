@@ -11,7 +11,7 @@ interface Node {
 const nodes: Node[] = [{ id: 'a', name: 'A' }];
 
 const template = `
-  <ul ngpTree #t="ngpTree" [ngpTreeNodes]="nodes" [ngpTreeChildren]="children"
+  <ul ngpTree #t="ngpTree" [ngpTreeNodes]="nodes" [ngpTreeItemChildren]="children"
       [ngpTreeItemValue]="itemValue" [ngpTreeItemExpandable]="isExpandable"
       [ngpTreeItemLoadChildren]="loadChildren">
     @for (node of t.visibleNodes(); track itemValue(node)) {
