@@ -27,11 +27,12 @@ async function renderTree(props: Record<string, unknown> = {}) {
   const template = `
     <ul ngpTree #t="ngpTree" [ngpTreeNodes]="nodes" [ngpTreeChildren]="children"
         [ngpTreeItemValue]="itemValue" [ngpTreeDefaultExpandedKeys]="expanded"
+        [ngpTreeSelectionMode]="selectionMode" [ngpTreeDefaultSelectedKeys]="selectedKeys"
         [ngpTreeCanDrag]="canDrag" [ngpTreeCanDrop]="canDrop" [ngpTreeOnDrop]="onDrop">
       @for (node of t.visibleNodes(); track itemValue(node)) {
         <li ngpTreeNode #n="ngpTreeNode" class="node" [ngpTreeNode]="node"
             [attr.data-value]="n.value()" [attr.data-dragging]="n.dragging() ? '' : null"
-            [attr.data-drop]="n.dropPosition()">
+            [attr.data-drop]="n.dropPosition()" [attr.data-cut]="n.cut() ? '' : null">
           <span>{{ node.name }}</span>
         </li>
       }
@@ -44,6 +45,8 @@ async function renderTree(props: Record<string, unknown> = {}) {
       children: (n: Node) => n.children,
       itemValue: (n: Node) => n.id,
       expanded: new Set(['a']),
+      selectionMode: 'none',
+      selectedKeys: new Set<string>(),
       canDrag: undefined,
       canDrop: undefined,
       onDrop: () => {},
@@ -102,7 +105,7 @@ async function renderTree(props: Record<string, unknown> = {}) {
 afterEach(() => vi.restoreAllMocks());
 
 describe('NgpTree drag & drop', () => {
-  it('drops a node onto another (inside) and reports source/target/position', async () => {
+  it('drops a node onto another (inside) and reports sources/target/position', async () => {
     const onDrop = vi.fn();
     const { drag } = await renderTree({ onDrop });
 
@@ -110,7 +113,7 @@ describe('NgpTree drag & drop', () => {
 
     expect(onDrop).toHaveBeenCalledTimes(1);
     expect(onDrop.mock.calls[0][0]).toMatchObject({
-      source: { id: 'b' },
+      sources: [{ id: 'b' }],
       target: { id: 'a' },
       position: 'inside',
     });
@@ -267,6 +270,66 @@ describe('NgpTree drag & drop', () => {
     const drop = nodeEl('b').getAttribute('data-drop');
     expect(drop).not.toBeNull();
     expect(drop).not.toBe('inside');
+  });
+
+  it('drags the whole selection when a selected node is grabbed', async () => {
+    const onDrop = vi.fn();
+    const { drag } = await renderTree({
+      onDrop,
+      selectionMode: 'multiple',
+      selectedKeys: new Set(['a1', 'a2']),
+    });
+
+    drag('a1', 'b', 'after').drop();
+
+    expect(onDrop).toHaveBeenCalledTimes(1);
+    const ids = onDrop.mock.calls[0][0].sources.map((n: Node) => n.id);
+    expect(ids).toEqual(['a1', 'a2']); // visible order, both moved
+  });
+
+  it('drags only the grabbed node when it is not part of the selection', async () => {
+    const onDrop = vi.fn();
+    const { drag } = await renderTree({
+      onDrop,
+      selectionMode: 'multiple',
+      selectedKeys: new Set(['a1', 'a2']),
+    });
+
+    drag('b', 'a', 'inside').drop(); // b isn't selected
+
+    expect(onDrop.mock.calls[0][0].sources.map((n: Node) => n.id)).toEqual(['b']);
+  });
+
+  it('moves a node with keyboard cut / paste', async () => {
+    const onDrop = vi.fn();
+    const { nodeEl, detectChanges } = await renderTree({ onDrop });
+
+    // Cut 'b' (send both modifiers to be platform-independent).
+    fireEvent.keyDown(nodeEl('b'), { key: 'x', ctrlKey: true, metaKey: true });
+    detectChanges();
+    expect(nodeEl('b')).toHaveAttribute('data-cut');
+
+    // Paste onto folder 'a' -> dropped inside.
+    fireEvent.keyDown(nodeEl('a'), { key: 'v', ctrlKey: true, metaKey: true });
+    expect(onDrop).toHaveBeenCalledTimes(1);
+    expect(onDrop.mock.calls[0][0]).toMatchObject({
+      sources: [{ id: 'b' }],
+      target: { id: 'a' },
+      position: 'inside',
+    });
+  });
+
+  it('clears a pending cut on Escape', async () => {
+    const onDrop = vi.fn();
+    const { nodeEl, detectChanges } = await renderTree({ onDrop });
+
+    fireEvent.keyDown(nodeEl('b'), { key: 'x', ctrlKey: true, metaKey: true });
+    detectChanges();
+    expect(nodeEl('b')).toHaveAttribute('data-cut');
+
+    fireEvent.keyDown(nodeEl('b'), { key: 'Escape' });
+    detectChanges();
+    expect(nodeEl('b')).not.toHaveAttribute('data-cut');
   });
 
   it('respects a custom canDrop', async () => {

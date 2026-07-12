@@ -74,6 +74,8 @@ export interface NgpTreeNodeState {
   readonly renaming: Signal<boolean>;
   /** Whether this node can be renamed (renaming enabled, allowed, and not disabled). */
   readonly renamable: Signal<boolean>;
+  /** Whether this node is marked for a cut/paste move. */
+  readonly cut: Signal<boolean>;
 
   /** Expand this node. */
   expand(): void;
@@ -127,6 +129,7 @@ export const [NgpTreeNodeStateToken, ngpTreeNode, _injectTreeNodeState, provideT
     const dropPosition = computed(() => tree().dropPositionOf(value()));
     const renaming = computed(() => tree().isRenaming(value()));
     const renamable = computed(() => tree().canRenameValue(value()));
+    const cut = computed(() => tree().isCut(value()));
     const level = computed(() => tree().level(value()));
     const setsize = computed(() => tree().setsize(value()));
     const posinset = computed(() => tree().posinset(value()));
@@ -158,6 +161,7 @@ export const [NgpTreeNodeStateToken, ngpTreeNode, _injectTreeNodeState, provideT
     dataBinding(element, 'data-drop-target', () => dropPosition() !== null);
     dataBinding(element, 'data-drop-position', () => dropPosition());
     dataBinding(element, 'data-renaming', renaming);
+    dataBinding(element, 'data-cut', cut);
     dataBinding(element, 'data-level', () => String(level()));
     // Expose the depth as a CSS variable so consumers can indent without binding
     // it by hand, e.g. `padding-left: calc(var(--ngp-tree-node-level) * 1rem)`.
@@ -258,14 +262,30 @@ export const [NgpTreeNodeStateToken, ngpTreeNode, _injectTreeNodeState, provideT
             tree().startRename(value());
           }
           break;
+        case 'Escape':
+          // Clear a pending cut, if any.
+          tree().clearCut();
+          break;
         default:
-          // Cmd/Ctrl+A selects all in multiple mode (platform modifier).
-          if ((event.key === 'a' || event.key === 'A') && hasToggleModifier(event)) {
-            if (tree().selectionMode() === 'multiple') {
+          // Platform-modifier shortcuts (Cmd on macOS, Ctrl elsewhere).
+          if (hasToggleModifier(event)) {
+            const key = event.key.toLowerCase();
+            if (key === 'a' && tree().selectionMode() === 'multiple') {
               event.preventDefault();
               tree().selectAll();
+              break;
             }
-            break;
+            // Cut / paste move.
+            if (key === 'x') {
+              event.preventDefault();
+              tree().cut(value());
+              break;
+            }
+            if (key === 'v') {
+              event.preventDefault();
+              tree().paste(value());
+              break;
+            }
           }
           // Printable single characters drive type-ahead (Space is reserved for
           // selection, and modified keys are shortcuts).
@@ -309,6 +329,7 @@ export const [NgpTreeNodeStateToken, ngpTreeNode, _injectTreeNodeState, provideT
       dropPosition,
       renaming,
       renamable,
+      cut,
       expand: () => tree().expand(value()),
       collapse: () => tree().collapse(value()),
       toggle: () => tree().toggle(value()),

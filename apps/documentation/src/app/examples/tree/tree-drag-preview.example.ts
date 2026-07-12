@@ -276,22 +276,24 @@ export default class TreeDragPreviewExample {
   readonly canDrop = ({ target, position }: NgpTreeDropEvent<FileNode>): boolean =>
     position !== 'inside' || !!target.folder;
 
-  readonly onDrop = ({ source, target, position }: NgpTreeDropEvent<FileNode>): void => {
+  readonly onDrop = ({ sources, target, position }: NgpTreeDropEvent<FileNode>): void => {
     const data = structuredClone(this.nodes());
-    const moved = extract(data, source.id);
-    if (!moved) {
+    const moved = sources
+      .map(source => extract(data, source.id))
+      .filter((node): node is FileNode => node !== null);
+    if (moved.length === 0) {
       return;
     }
 
     if (position === 'inside') {
       const parent = find(data, target.id);
       if (parent) {
-        parent.children = [moved, ...(parent.children ?? [])];
+        parent.children = [...moved, ...(parent.children ?? [])];
       }
     } else {
       const at = locate(data, target.id);
       if (at) {
-        at.list.splice(position === 'before' ? at.index : at.index + 1, 0, moved);
+        at.list.splice(position === 'before' ? at.index : at.index + 1, 0, ...moved);
       }
     }
 

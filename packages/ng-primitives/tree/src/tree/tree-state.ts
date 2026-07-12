@@ -91,8 +91,12 @@ export interface NgpTreeRenameEvent<T> {
 
 /** The payload for `canDrop` / `onDrop`. */
 export interface NgpTreeDropEvent<T> {
-  /** The node being dragged. */
-  readonly source: T;
+  /**
+   * The node(s) being moved, in visible order. A single-node drag has one
+   * entry; dragging a node that's part of the selection moves the whole
+   * selection (top-most nodes only). Also used for a keyboard cut/paste move.
+   */
+  readonly sources: readonly T[];
   /** The node it is being dropped on. */
   readonly target: T;
   /** Where relative to the target it would land. */
@@ -163,6 +167,14 @@ export interface NgpTreeState<T> {
   isDragging(value: string): boolean;
   /** The drop position for a node if it is the current drop target, else `null`. */
   dropPositionOf(value: string): NgpTreeDropPosition | null;
+  /** Whether a node is currently marked for a cut/paste move. */
+  isCut(value: string): boolean;
+  /** @internal Mark a node (or the selection) for a cut/paste move. */
+  cut(value: string): void;
+  /** @internal Paste the cut node(s) onto a node (inside a folder, else after). */
+  paste(value: string): void;
+  /** @internal Clear any pending cut. */
+  clearCut(): void;
 
   /** Whether a node value is currently being renamed. */
   isRenaming(value: string): boolean;
@@ -613,19 +625,27 @@ export const [NgpTreeStateToken, ngpTree, _injectTreeState, provideTreeState] = 
 
     // --- Drag & drop -------------------------------------------------------
     // `dragState` drives the drop indicators; `pending` holds the not-yet-past-
-    // threshold press so a plain click never registers as a drag.
+    // threshold press so a plain click never registers as a drag. `sources` are
+    // all dragged values in visible order; `primary` is the grabbed row (drives
+    // the preview position).
     const dragState = signal<{
-      source: string;
+      primary: string;
+      sources: string[];
       over: string | null;
       position: NgpTreeDropPosition | null;
     } | null>(null);
-    // Live pointer position, for a floating drag preview.
-    let pending: { source: string; x: number; y: number; touch: boolean } | null = null;
+    let pending: {
+      primary: string;
+      sources: string[];
+      x: number;
+      y: number;
+      touch: boolean;
+    } | null = null;
     // A floating preview that mirrors the dragged row (a DOM clone by default,
     // or a consumer template registered via `ngpTreeDragPreview`).
-    let dragPreviewTemplate: TemplateRef<{ $implicit: T }> | null = null;
+    let dragPreviewTemplate: TemplateRef<{ $implicit: T; count: number }> | null = null;
     let previewEl: HTMLElement | null = null;
-    let previewView: EmbeddedViewRef<{ $implicit: T }> | null = null;
+    let previewView: EmbeddedViewRef<{ $implicit: T; count: number }> | null = null;
     let grabOffset = { x: 0, y: 0 };
     // A drag is `armed` once it's allowed to start moving: immediately for a
     // mouse/pen, but only after a long-press for touch - so a normal touch-drag
@@ -676,15 +696,18 @@ export const [NgpTreeStateToken, ngpTree, _injectTreeState, provideTreeState] = 
       }
     }
 
-    function registerDragPreview(template: TemplateRef<{ $implicit: T }> | null): void {
+    function registerDragPreview(
+      template: TemplateRef<{ $implicit: T; count: number }> | null,
+    ): void {
       dragPreviewTemplate = template;
     }
 
     // Build the floating preview when a drag starts, positioned so the pointer
-    // holds it at the same spot it was grabbed.
-    function createPreview(source: string, x: number, y: number): void {
-      const entry = registry.get(source);
-      const node = metaByValue().get(source)?.data;
+    // holds it at the same spot the primary row was grabbed. `count` is the
+    // number of dragged nodes.
+    function createPreview(primary: string, count: number, x: number, y: number): void {
+      const entry = registry.get(primary);
+      const node = metaByValue().get(primary)?.data;
       if (!entry || node === undefined) {
         return;
       }
@@ -704,7 +727,10 @@ export const [NgpTreeStateToken, ngpTree, _injectTreeState, provideTreeState] = 
       } satisfies Partial<CSSStyleDeclaration>);
 
       if (dragPreviewTemplate) {
-        previewView = viewContainerRef.createEmbeddedView(dragPreviewTemplate, { $implicit: node });
+        previewView = viewContainerRef.createEmbeddedView(dragPreviewTemplate, {
+          $implicit: node,
+          count,
+        });
         previewView.detectChanges();
         for (const child of previewView.rootNodes) {
           container.appendChild(child);
@@ -718,11 +744,38 @@ export const [NgpTreeStateToken, ngpTree, _injectTreeState, provideTreeState] = 
         clone.style.width = '100%';
         clone.style.boxSizing = 'border-box';
         container.appendChild(clone);
+        // When moving several nodes, badge the preview with the count.
+        if (count > 1) {
+          container.appendChild(createCountBadge(count));
+        }
       }
 
       movePreview(container, x, y);
       document.body.appendChild(container);
       previewEl = container;
+    }
+
+    function createCountBadge(count: number): HTMLElement {
+      const badge = document.createElement('div');
+      badge.textContent = String(count);
+      Object.assign(badge.style, {
+        position: 'absolute',
+        top: '-0.5rem',
+        right: '-0.5rem',
+        minWidth: '1.25rem',
+        height: '1.25rem',
+        padding: '0 0.25rem',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        boxSizing: 'border-box',
+        borderRadius: '9999px',
+        fontSize: '0.75rem',
+        fontWeight: '600',
+        color: '#fff',
+        backgroundColor: '#f01e2b',
+      } satisfies Partial<CSSStyleDeclaration>);
+      return badge;
     }
 
     function movePreview(el: HTMLElement, x: number, y: number): void {
@@ -755,25 +808,33 @@ export const [NgpTreeStateToken, ngpTree, _injectTreeState, provideTreeState] = 
       return ratio < 0.25 ? 'before' : ratio > 0.75 ? 'after' : 'inside';
     }
 
-    function canDropAt(source: string, target: string, position: NgpTreeDropPosition): boolean {
-      // Never drop onto itself or into its own subtree.
-      if (target === source || isDescendantOf(target, source)) {
-        return false;
+    function canDropAt(
+      sources: readonly string[],
+      target: string,
+      position: NgpTreeDropPosition,
+    ): boolean {
+      // Never drop onto a dragged node or into its own subtree.
+      for (const source of sources) {
+        if (target === source || isDescendantOf(target, source)) {
+          return false;
+        }
       }
       const fn = canDrop();
       if (!fn) {
         return true;
       }
-      const sourceNode = metaByValue().get(source)?.data;
       const targetNode = metaByValue().get(target)?.data;
-      if (sourceNode === undefined || targetNode === undefined) {
+      const sourceNodes = sources
+        .map(source => metaByValue().get(source)?.data)
+        .filter((node): node is T => node !== undefined);
+      if (targetNode === undefined || sourceNodes.length !== sources.length) {
         return false;
       }
-      return fn({ source: sourceNode, target: targetNode, position });
+      return fn({ sources: sourceNodes, target: targetNode, position });
     }
 
     function isDragging(value: string): boolean {
-      return dragState()?.source === value;
+      return dragState()?.sources.includes(value) ?? false;
     }
 
     function dropPositionOf(value: string): NgpTreeDropPosition | null {
@@ -828,19 +889,53 @@ export const [NgpTreeStateToken, ngpTree, _injectTreeState, provideTreeState] = 
       renamingValue.set(null);
     }
 
+    function canDragValue(value: string): boolean {
+      const node = metaByValue().get(value)?.data;
+      if (node === undefined) {
+        return false;
+      }
+      const fn = canDrag();
+      return !fn || fn(node);
+    }
+
+    function hasAncestorIn(value: string, set: ReadonlySet<string>): boolean {
+      let parent = parentValueOf(value);
+      while (parent !== undefined) {
+        if (set.has(parent)) {
+          return true;
+        }
+        parent = parentValueOf(parent);
+      }
+      return false;
+    }
+
+    // The set of nodes a drag/move from `grabbed` should affect: the whole
+    // selection (in visible order, top-most only) when `grabbed` is part of a
+    // multi-selection, otherwise just `grabbed`. Undraggable nodes are dropped.
+    function moveSetFor(grabbed: string): string[] {
+      const selected = selectedKeys();
+      if (selectionMode() === 'none' || !selected.has(grabbed) || selected.size <= 1) {
+        return canDragValue(grabbed) ? [grabbed] : [];
+      }
+      return visibleNodes()
+        .map(valueOf)
+        .filter(
+          value => selected.has(value) && canDragValue(value) && !hasAncestorIn(value, selected),
+        );
+    }
+
     function beginDrag(value: string, event: PointerEvent): void {
       // Drag & drop is opt-in: without an `onDrop` handler there is nothing to
       // drag to, so don't start a drag at all.
       if (!onDrop()) {
         return;
       }
-      const fn = canDrag();
-      const node = metaByValue().get(value)?.data;
-      if (node === undefined || (fn && !fn(node))) {
+      const sources = moveSetFor(value);
+      if (sources.length === 0) {
         return;
       }
       const touch = event.pointerType === 'touch';
-      pending = { source: value, x: event.clientX, y: event.clientY, touch };
+      pending = { primary: value, sources, x: event.clientX, y: event.clientY, touch };
       // Mouse/pen arm immediately; touch waits for a long-press so the list can
       // still be scrolled with a finger.
       armed = !touch;
@@ -853,8 +948,13 @@ export const [NgpTreeStateToken, ngpTree, _injectTreeState, provideTreeState] = 
           }
           armed = true;
           navigator.vibrate?.(10);
-          dragState.set({ source: pending.source, over: null, position: null });
-          createPreview(pending.source, pending.x, pending.y);
+          dragState.set({
+            primary: pending.primary,
+            sources: pending.sources,
+            over: null,
+            position: null,
+          });
+          createPreview(pending.primary, pending.sources.length, pending.x, pending.y);
         }, TOUCH_LONG_PRESS_MS);
       }
     }
@@ -879,8 +979,13 @@ export const [NgpTreeStateToken, ngpTree, _injectTreeState, provideTreeState] = 
         if (moved < DRAG_THRESHOLD) {
           return;
         }
-        dragState.set({ source: pending.source, over: null, position: null });
-        createPreview(pending.source, event.clientX, event.clientY);
+        dragState.set({
+          primary: pending.primary,
+          sources: pending.sources,
+          over: null,
+          position: null,
+        });
+        createPreview(pending.primary, pending.sources.length, event.clientX, event.clientY);
       }
       event.preventDefault();
       if (previewEl) {
@@ -889,22 +994,32 @@ export const [NgpTreeStateToken, ngpTree, _injectTreeState, provideTreeState] = 
       const target = nodeAt(event.clientX, event.clientY);
       if (!target) {
         updateSpring(null);
-        dragState.set({ source: pending.source, over: null, position: null });
+        dragState.set({
+          primary: pending.primary,
+          sources: pending.sources,
+          over: null,
+          position: null,
+        });
         return;
       }
       let position = positionIn(target.element, event.clientY);
       // If the target won't accept an "inside" drop (e.g. a file), fall back to
       // reordering before/after by the pointer's half, so the indicator never
       // blinks out mid-row.
-      if (position === 'inside' && !canDropAt(pending.source, target.value, 'inside')) {
+      if (position === 'inside' && !canDropAt(pending.sources, target.value, 'inside')) {
         const rect = target.element.getBoundingClientRect();
         const ratio = rect.height ? (event.clientY - rect.top) / rect.height : 0.5;
         position = ratio < 0.5 ? 'before' : 'after';
       }
-      const over = canDropAt(pending.source, target.value, position) ? target.value : null;
+      const over = canDropAt(pending.sources, target.value, position) ? target.value : null;
       // Spring-load only when hovering over a folder to drop inside it.
       updateSpring(over && position === 'inside' ? over : null);
-      dragState.set({ source: pending.source, over, position: over ? position : null });
+      dragState.set({
+        primary: pending.primary,
+        sources: pending.sources,
+        over,
+        position: over ? position : null,
+      });
     }
 
     function resetDrag(): void {
@@ -919,13 +1034,68 @@ export const [NgpTreeStateToken, ngpTree, _injectTreeState, provideTreeState] = 
     function onPointerUp(): void {
       const state = dragState();
       if (state && state.over && state.position) {
-        const sourceNode = metaByValue().get(state.source)?.data;
-        const targetNode = metaByValue().get(state.over)?.data;
-        if (sourceNode !== undefined && targetNode !== undefined) {
-          onDrop()?.({ source: sourceNode, target: targetNode, position: state.position });
-        }
+        applyMove(state.sources, state.over, state.position);
       }
       resetDrag();
+    }
+
+    // Resolve source/target values to nodes and invoke the consumer's `onDrop`.
+    function applyMove(
+      sources: readonly string[],
+      target: string,
+      position: NgpTreeDropPosition,
+    ): void {
+      const targetNode = metaByValue().get(target)?.data;
+      const sourceNodes = sources
+        .map(source => metaByValue().get(source)?.data)
+        .filter((node): node is T => node !== undefined);
+      if (targetNode !== undefined && sourceNodes.length > 0) {
+        onDrop()?.({ sources: sourceNodes, target: targetNode, position });
+      }
+    }
+
+    // --- Cut / paste move (keyboard-accessible) ----------------------------
+    // The same move as drag & drop, driven by the keyboard: cut marks node(s),
+    // paste drops them onto the focused node.
+    const cutKeys = signal<ReadonlySet<string>>(new Set());
+
+    function isCut(value: string): boolean {
+      return cutKeys().has(value);
+    }
+
+    function cut(value: string): void {
+      if (!onDrop()) {
+        return;
+      }
+      const sources = moveSetFor(value);
+      cutKeys.set(new Set(sources));
+    }
+
+    function clearCut(): void {
+      if (cutKeys().size > 0) {
+        cutKeys.set(new Set());
+      }
+    }
+
+    function paste(target: string): void {
+      const sources = [...cutKeys()];
+      if (sources.length === 0) {
+        return;
+      }
+      const targetNode = metaByValue().get(target)?.data;
+      if (targetNode === undefined) {
+        return;
+      }
+      // Paste inside an expandable folder, otherwise after the focused node.
+      const position: NgpTreeDropPosition = isExpandable(targetNode) ? 'inside' : 'after';
+      if (!canDropAt(sources, target, position)) {
+        return;
+      }
+      if (position === 'inside') {
+        setExpanded(target, true);
+      }
+      applyMove(sources, target, position);
+      clearCut();
     }
 
     listener(document, 'pointermove', onPointerMove as (e: Event) => void);
@@ -1036,6 +1206,10 @@ export const [NgpTreeStateToken, ngpTree, _injectTreeState, provideTreeState] = 
       registerDragPreview,
       isDragging,
       dropPositionOf,
+      isCut,
+      cut,
+      paste,
+      clearCut,
       isRenaming,
       canRenameValue,
       startRename,

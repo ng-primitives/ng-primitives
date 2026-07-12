@@ -94,11 +94,16 @@ are checked. Bind `[(ngpTreeCheckedKeys)]` to read the checked leaves.
 Provide `ngpTreeOnDrop` to reorder nodes by dragging. The tree computes a
 `before` / `inside` / `after` drop position from the pointer, blocks dropping a node into its
 own subtree, and exposes `n.dragging()` and `n.dropPosition()` (plus `data-dragging` /
-`data-drop-position`) so you can render a drop indicator. `tree.dragPreview()` gives the dragged
-node and live pointer coordinates for a floating preview. Use `ngpTreeCanDrag` / `ngpTreeCanDrop`
-to constrain it, and move the node in your own data inside the drop handler. Hovering a collapsed
-folder while dragging springs it open after a moment. On touch, a drag starts after a short
-long-press, so a normal swipe still scrolls the list.
+`data-drop-position`) so you can render a drop indicator. Use `ngpTreeCanDrag` / `ngpTreeCanDrop`
+to constrain it, and move the node(s) in your own data inside the drop handler - `onDrop` receives
+`sources` (an array), so the same handler covers single and multi-node moves.
+
+When a selection is active, grabbing a selected node drags the whole selection (the preview shows a
+count). The move is also keyboard-accessible: <kbd>⌘</kbd>/<kbd>Ctrl</kbd>+<kbd>X</kbd> cuts the
+focused node(s) (`n.cut()` / `data-cut`), then <kbd>⌘</kbd>/<kbd>Ctrl</kbd>+<kbd>V</kbd> pastes them
+onto the focused node (inside a folder, otherwise after it); <kbd>Escape</kbd> clears the cut.
+Hovering a collapsed folder while dragging springs it open after a moment. On touch, a drag starts
+after a short long-press, so a normal swipe still scrolls the list.
 
 <docs-example name="tree-dnd"></docs-example>
 
@@ -191,6 +196,7 @@ The following directives are available to import from the `ng-primitives/tree` p
   <api-attribute name="data-dragging" description="Applied while the node is being dragged." />
   <api-attribute name="data-drop-position" description="The drop position when the node is the drop target." value="before | inside | after" />
   <api-attribute name="data-renaming" description="Applied while the node is being renamed." />
+  <api-attribute name="data-cut" description="Applied while the node is marked for a cut/paste move." />
   <api-attribute name="data-level" description="The 1-based depth of the node." />
 </api-reference-attributes>
 
@@ -234,6 +240,8 @@ with roving tabindex.
   letter cycles through matches.
 - <kbd>F2</kbd> - rename the focused node (when `ngpTreeOnRename` is set); <kbd>Enter</kbd> commits,
   <kbd>Escape</kbd> cancels.
+- <kbd>⌘</kbd>/<kbd>Ctrl</kbd>+<kbd>X</kbd> / <kbd>V</kbd> - cut the focused node(s), then paste them
+  onto the focused node (when `ngpTreeOnDrop` is set); <kbd>Escape</kbd> clears the cut.
 
 When a selection mode is active:
 

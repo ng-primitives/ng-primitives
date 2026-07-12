@@ -63,8 +63,18 @@ function find(list: FileNode[], id: string): FileNode | null {
   styles: `
     :host {
       display: flex;
-      justify-content: center;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.75rem;
       width: 100%;
+    }
+
+    .hint {
+      max-width: 24rem;
+      text-align: center;
+      font-size: 0.75rem;
+      letter-spacing: -0.011em;
+      color: var(--ngp-text-tertiary);
     }
 
     [ngpTree] {
@@ -105,8 +115,21 @@ function find(list: FileNode[], id: string): FileNode | null {
       box-shadow: 0 0 0 2px var(--ngp-focus-ring);
     }
 
+    /* Selected rows (click, Ctrl/Cmd-click, Shift-click). */
+    [ngpTreeNode][data-selected] {
+      background-color: color-mix(in srgb, var(--ngp-primary) 10%, transparent);
+      color: var(--ngp-text-primary);
+    }
+
     [ngpTreeNode][data-dragging] {
       opacity: 0.35;
+    }
+
+    /* Nodes marked for a cut/paste move: dimmed with a dashed outline. */
+    [ngpTreeNode][data-cut] {
+      opacity: 0.55;
+      outline: 1px dashed var(--ngp-border);
+      outline-offset: -1px;
     }
 
     /* Drop "into" a folder: soft accent fill + ring, matching the row radius. */
@@ -184,6 +207,7 @@ function find(list: FileNode[], id: string): FileNode | null {
       [ngpTreeDefaultExpandedKeys]="expanded"
       [ngpTreeCanDrop]="canDrop"
       [ngpTreeOnDrop]="onDrop"
+      ngpTreeSelectionMode="multiple"
       ngpTree
     >
       @for (node of tree.visibleNodes(); track itemValue(node)) {
@@ -209,6 +233,10 @@ function find(list: FileNode[], id: string): FileNode | null {
         </li>
       }
     </ul>
+
+    <p class="hint">
+      Click to select, ⌘/Ctrl-click for multiple. Drag to move, or cut & paste with ⌘/Ctrl+X then V.
+    </p>
   `,
 })
 export default class TreeDndExample {
@@ -244,22 +272,24 @@ export default class TreeDndExample {
   readonly canDrop = ({ target, position }: NgpTreeDropEvent<FileNode>): boolean =>
     position !== 'inside' || !!target.folder;
 
-  readonly onDrop = ({ source, target, position }: NgpTreeDropEvent<FileNode>): void => {
+  readonly onDrop = ({ sources, target, position }: NgpTreeDropEvent<FileNode>): void => {
     const data = structuredClone(this.nodes());
-    const moved = extract(data, source.id);
-    if (!moved) {
+    const moved = sources
+      .map(source => extract(data, source.id))
+      .filter((node): node is FileNode => node !== null);
+    if (moved.length === 0) {
       return;
     }
 
     if (position === 'inside') {
       const parent = find(data, target.id);
       if (parent) {
-        parent.children = [moved, ...(parent.children ?? [])];
+        parent.children = [...moved, ...(parent.children ?? [])];
       }
     } else {
       const at = locate(data, target.id);
       if (at) {
-        at.list.splice(position === 'before' ? at.index : at.index + 1, 0, moved);
+        at.list.splice(position === 'before' ? at.index : at.index + 1, 0, ...moved);
       }
     }
 

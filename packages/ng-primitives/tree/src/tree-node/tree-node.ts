@@ -99,6 +99,11 @@ export class NgpTreeNode {
     return this.state.renamable;
   }
 
+  /** Whether this node is marked for a cut/paste move. */
+  get cut(): Signal<boolean> {
+    return this.state.cut;
+  }
+
   /** Expand this node. */
   expand(): void {
     this.state.expand();
