@@ -829,6 +829,11 @@ export const [NgpTreeStateToken, ngpTree, _injectTreeState, provideTreeState] = 
     }
 
     function beginDrag(value: string, event: PointerEvent): void {
+      // Drag & drop is opt-in: without an `onDrop` handler there is nothing to
+      // drag to, so don't start a drag at all.
+      if (!onDrop()) {
+        return;
+      }
       const fn = canDrag();
       const node = metaByValue().get(value)?.data;
       if (node === undefined || (fn && !fn(node))) {

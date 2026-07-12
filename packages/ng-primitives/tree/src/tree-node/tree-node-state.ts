@@ -1,4 +1,4 @@
-import { computed, effect, signal, Signal, untracked } from '@angular/core';
+import { ApplicationRef, computed, effect, inject, signal, Signal, untracked } from '@angular/core';
 import { injectElementRef } from 'ng-primitives/internal';
 import { ngpRovingFocusItem } from 'ng-primitives/roving-focus';
 import {
@@ -109,6 +109,7 @@ export const [NgpTreeNodeStateToken, ngpTreeNode, _injectTreeNodeState, provideT
   createPrimitive('NgpTreeNode', ({ data }: NgpTreeNodeProps): NgpTreeNodeState => {
     const element = injectElementRef<HTMLElement>();
     const tree = injectTreeState();
+    const appRef = inject(ApplicationRef);
     const id = signal(uniqueId('ngp-tree-node'));
 
     const value = computed(() => tree().valueOf(data()));
@@ -180,10 +181,32 @@ export const [NgpTreeNodeStateToken, ngpTreeNode, _injectTreeNodeState, provideT
       });
     });
 
-    // Double-click a row to start renaming it.
+    // Double-click a row to start renaming it (mouse/pen).
     listener(element, 'dblclick', () => {
       if (tree().canRenameValue(value())) {
         tree().startRename(value());
+      }
+    });
+
+    // `dblclick` is unreliable on touch (and suppressed by `touch-action:
+    // manipulation`), so detect a double-tap manually from consecutive taps.
+    let lastTapTime: number | null = null;
+    listener(element, 'pointerup', (event: PointerEvent) => {
+      if (event.pointerType !== 'touch') {
+        return;
+      }
+      if (lastTapTime !== null && event.timeStamp - lastTapTime < 300) {
+        lastTapTime = null;
+        if (tree().canRenameValue(value())) {
+          tree().startRename(value());
+          // iOS only opens the soft keyboard when focus happens inside the
+          // gesture task. `afterNextRender` is too late (it runs after the
+          // async CD), so render the field synchronously and focus it now.
+          appRef.tick();
+          element.nativeElement.querySelector<HTMLElement>('[ngpTreeNodeRename]')?.focus();
+        }
+      } else {
+        lastTapTime = event.timeStamp;
       }
     });
 

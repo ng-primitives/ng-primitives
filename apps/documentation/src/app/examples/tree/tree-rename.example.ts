@@ -76,6 +76,8 @@ function find(list: FileNode[], id: string): FileNode | null {
       letter-spacing: -0.006em;
       color: var(--ngp-text-primary);
       user-select: none;
+      /* Let a double-tap rename on mobile instead of zooming the page. */
+      touch-action: manipulation;
       outline: none;
     }
 
@@ -133,11 +135,13 @@ function find(list: FileNode[], id: string): FileNode | null {
       white-space: nowrap;
     }
 
-    /* The inline edit field, sized to sit in the row seamlessly. */
+    /* The inline edit field, sized to sit in the row seamlessly. The negative
+       left margin cancels the field's border + padding so the text lines up
+       exactly with the label it replaces. */
     [ngpTreeNodeRename] {
       flex: 1 1 auto;
       min-width: 0;
-      margin: 0;
+      margin: 0 0 0 calc(-0.25rem - 1px);
       padding: 0 0.25rem;
       font: inherit;
       letter-spacing: inherit;

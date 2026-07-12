@@ -189,6 +189,13 @@ describe('NgpTree drag & drop', () => {
     expect(nodeEl('a1')).not.toHaveAttribute('data-drop');
   });
 
+  it('does not drag when drag & drop is not enabled (no onDrop)', async () => {
+    const { nodeEl, drag } = await renderTree({ onDrop: undefined });
+    drag('b', 'a', 'inside');
+    expect(nodeEl('b')).not.toHaveAttribute('data-dragging');
+    expect(document.body.querySelector(':scope > [aria-hidden="true"]')).toBeNull();
+  });
+
   it('respects canDrag', async () => {
     const onDrop = vi.fn();
     const { nodeEl, drag } = await renderTree({ onDrop, canDrag: (n: Node) => n.id !== 'b' });

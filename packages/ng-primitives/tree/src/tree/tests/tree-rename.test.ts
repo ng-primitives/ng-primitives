@@ -69,6 +69,22 @@ describe('NgpTree rename', () => {
     expect(input()).not.toBeNull();
   });
 
+  it('starts renaming on a double-tap (touch)', async () => {
+    const { row, input, detectChanges } = await renderTree();
+    // Two quick taps on the same row.
+    fireEvent.pointerUp(row('b'), { pointerType: 'touch' });
+    fireEvent.pointerUp(row('b'), { pointerType: 'touch' });
+    detectChanges();
+    expect(input()).not.toBeNull();
+  });
+
+  it('does not start renaming on a single tap', async () => {
+    const { row, input, detectChanges } = await renderTree();
+    fireEvent.pointerUp(row('b'), { pointerType: 'touch' });
+    detectChanges();
+    expect(input()).toBeNull();
+  });
+
   it('cancels on Escape without calling onRename', async () => {
     const onRename = vi.fn();
     const { row, input, detectChanges } = await renderTree({ onRename });
