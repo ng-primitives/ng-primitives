@@ -70,6 +70,10 @@ export interface NgpTreeNodeState {
   readonly dragging: Signal<boolean>;
   /** The drop position if this node is the current drop target, else `null`. */
   readonly dropPosition: Signal<'before' | 'inside' | 'after' | null>;
+  /** Whether this node is currently being renamed. */
+  readonly renaming: Signal<boolean>;
+  /** Whether this node can be renamed (renaming enabled, allowed, and not disabled). */
+  readonly renamable: Signal<boolean>;
 
   /** Expand this node. */
   expand(): void;
@@ -83,6 +87,14 @@ export interface NgpTreeNodeState {
   toggleSelected(): void;
   /** Toggle this node's checkbox, propagating to descendants. */
   toggleChecked(): void;
+  /** Begin renaming this node (no-op unless renaming is enabled for it). */
+  startRename(): void;
+  /** Commit the in-progress rename with the entered label. */
+  commitRename(label: string): void;
+  /** Cancel the in-progress rename. */
+  cancelRename(): void;
+  /** Move roving focus to this node's row. */
+  focus(): void;
 }
 
 /**
@@ -112,6 +124,8 @@ export const [NgpTreeNodeStateToken, ngpTreeNode, _injectTreeNodeState, provideT
     const loading = computed(() => tree().isLoading(value()));
     const dragging = computed(() => tree().isDragging(value()));
     const dropPosition = computed(() => tree().dropPositionOf(value()));
+    const renaming = computed(() => tree().isRenaming(value()));
+    const renamable = computed(() => tree().canRenameValue(value()));
     const level = computed(() => tree().level(value()));
     const setsize = computed(() => tree().setsize(value()));
     const posinset = computed(() => tree().posinset(value()));
@@ -142,6 +156,7 @@ export const [NgpTreeNodeStateToken, ngpTreeNode, _injectTreeNodeState, provideT
     dataBinding(element, 'data-dragging', dragging);
     dataBinding(element, 'data-drop-target', () => dropPosition() !== null);
     dataBinding(element, 'data-drop-position', () => dropPosition());
+    dataBinding(element, 'data-renaming', renaming);
     dataBinding(element, 'data-level', () => String(level()));
     // Expose the depth as a CSS variable so consumers can indent without binding
     // it by hand, e.g. `padding-left: calc(var(--ngp-tree-node-level) * 1rem)`.
@@ -163,6 +178,13 @@ export const [NgpTreeNodeStateToken, ngpTreeNode, _injectTreeNodeState, provideT
         toggle: hasToggleModifier(event),
         range: event.shiftKey,
       });
+    });
+
+    // Double-click a row to start renaming it.
+    listener(element, 'dblclick', () => {
+      if (tree().canRenameValue(value())) {
+        tree().startRename(value());
+      }
     });
 
     // Tree-specific keys (Up/Down/Home/End are handled by the roving item).
@@ -205,6 +227,12 @@ export const [NgpTreeNodeStateToken, ngpTreeNode, _injectTreeNodeState, provideT
           if (tree().selectionMode() !== 'none') {
             event.preventDefault();
             tree().selectNode(value(), { toggle: true });
+          }
+          break;
+        case 'F2':
+          if (tree().canRenameValue(value())) {
+            event.preventDefault();
+            tree().startRename(value());
           }
           break;
         default:
@@ -256,12 +284,18 @@ export const [NgpTreeNodeStateToken, ngpTreeNode, _injectTreeNodeState, provideT
       loading,
       dragging,
       dropPosition,
+      renaming,
+      renamable,
       expand: () => tree().expand(value()),
       collapse: () => tree().collapse(value()),
       toggle: () => tree().toggle(value()),
       select: () => tree().selectNode(value()),
       toggleSelected: () => tree().selectNode(value(), { toggle: true }),
       toggleChecked: () => tree().toggleChecked(value()),
+      startRename: () => tree().startRename(value()),
+      commitRename: (label: string) => tree().commitRename(value(), label),
+      cancelRename: () => tree().cancelRename(),
+      focus: () => tree().focusValue(value()),
     } satisfies NgpTreeNodeState;
   });
 

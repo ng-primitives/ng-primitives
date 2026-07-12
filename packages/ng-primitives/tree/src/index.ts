@@ -13,8 +13,18 @@ export {
   type NgpTreeSelectOptions,
   type NgpTreeDropPosition,
   type NgpTreeDropEvent,
+  type NgpTreeRenameEvent,
 } from './tree/tree-state';
 export { NgpTreeDragPreview } from './tree-drag-preview/tree-drag-preview';
+export { NgpTreeNodeRename } from './tree-node-rename/tree-node-rename';
+export {
+  NgpTreeNodeRenameStateToken,
+  ngpTreeNodeRename,
+  injectTreeNodeRenameState,
+  provideTreeNodeRenameState,
+  type NgpTreeNodeRenameState,
+  type NgpTreeNodeRenameProps,
+} from './tree-node-rename/tree-node-rename-state';
 export { NgpTreeNode } from './tree-node/tree-node';
 export {
   NgpTreeNodeStateToken,

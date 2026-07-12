@@ -81,6 +81,14 @@ export type NgpTreeSelectionBehavior = 'toggle' | 'replace';
 /** Where a dragged node would land relative to the drop target. */
 export type NgpTreeDropPosition = 'before' | 'inside' | 'after';
 
+/** The payload for `onRename` - a node and the new label the user entered. */
+export interface NgpTreeRenameEvent<T> {
+  /** The node being renamed. */
+  readonly node: T;
+  /** The new (trimmed, non-empty) label the user committed. */
+  readonly value: string;
+}
+
 /** The payload for `canDrop` / `onDrop`. */
 export interface NgpTreeDropEvent<T> {
   /** The node being dragged. */
@@ -156,6 +164,17 @@ export interface NgpTreeState<T> {
   /** The drop position for a node if it is the current drop target, else `null`. */
   dropPositionOf(value: string): NgpTreeDropPosition | null;
 
+  /** Whether a node value is currently being renamed. */
+  isRenaming(value: string): boolean;
+  /** @internal Whether renaming is enabled for a node (needs `onRename` + `canRename`). */
+  canRenameValue(value: string): boolean;
+  /** @internal Begin renaming a node (no-op if renaming isn't enabled for it). */
+  startRename(value: string): void;
+  /** @internal Commit a rename with the entered label (empty/unchanged = cancel). */
+  commitRename(value: string, label: string): void;
+  /** @internal Cancel the in-progress rename. */
+  cancelRename(): void;
+
   /** @internal Apply a selection interaction (click / keyboard) for a node value. */
   selectNode(value: string, options?: NgpTreeSelectOptions): void;
   /** @internal Begin a pointer drag from a node (called on pointerdown). */
@@ -229,6 +248,11 @@ export interface NgpTreeProps<T> {
   readonly canDrop?: Signal<((event: NgpTreeDropEvent<T>) => boolean) | undefined>;
   /** Called when a node is dropped. Move the node in your data here. */
   readonly onDrop?: Signal<((event: NgpTreeDropEvent<T>) => void) | undefined>;
+
+  /** Whether a node may be renamed. Ignored unless `onRename` is provided. */
+  readonly canRename?: Signal<((node: T) => boolean) | undefined>;
+  /** Called when a rename is committed. Update the node's label in your data here. */
+  readonly onRename?: Signal<((event: NgpTreeRenameEvent<T>) => void) | undefined>;
 }
 
 export const [NgpTreeStateToken, ngpTree, _injectTreeState, provideTreeState] = createPrimitive(
@@ -251,6 +275,8 @@ export const [NgpTreeStateToken, ngpTree, _injectTreeState, provideTreeState] = 
     canDrag = signal(undefined),
     canDrop = signal(undefined),
     onDrop = signal(undefined),
+    canRename = signal(undefined),
+    onRename = signal(undefined),
   }: NgpTreeProps<T>): NgpTreeState<T> => {
     const element = injectElementRef<HTMLElement>();
     const document = inject(DOCUMENT);
@@ -755,6 +781,53 @@ export const [NgpTreeStateToken, ngpTree, _injectTreeState, provideTreeState] = 
       return state && state.over === value ? state.position : null;
     }
 
+    // --- Rename ------------------------------------------------------------
+    const renamingValue = signal<string | null>(null);
+    // The label at the moment editing started, to detect an unchanged commit.
+    let renameOriginal = '';
+
+    function isRenaming(value: string): boolean {
+      return renamingValue() === value;
+    }
+
+    function canRenameValue(value: string): boolean {
+      if (!onRename()) {
+        return false;
+      }
+      const node = metaByValue().get(value)?.data;
+      if (node === undefined || isDisabled(node)) {
+        return false;
+      }
+      const fn = canRename();
+      return fn ? fn(node) : true;
+    }
+
+    function startRename(value: string): void {
+      if (!canRenameValue(value)) {
+        return;
+      }
+      const node = metaByValue().get(value)?.data;
+      renameOriginal = node === undefined ? '' : labelOf(node);
+      renamingValue.set(value);
+    }
+
+    function commitRename(value: string, label: string): void {
+      if (renamingValue() !== value) {
+        return; // already committed/cancelled (e.g. a trailing blur after Enter)
+      }
+      renamingValue.set(null);
+      const node = metaByValue().get(value)?.data;
+      const trimmed = label.trim();
+      // Empty or unchanged is treated as a cancel.
+      if (node !== undefined && trimmed && trimmed !== renameOriginal) {
+        onRename()?.({ node, value: trimmed });
+      }
+    }
+
+    function cancelRename(): void {
+      renamingValue.set(null);
+    }
+
     function beginDrag(value: string, event: PointerEvent): void {
       const fn = canDrag();
       const node = metaByValue().get(value)?.data;
@@ -958,6 +1031,11 @@ export const [NgpTreeStateToken, ngpTree, _injectTreeState, provideTreeState] = 
       registerDragPreview,
       isDragging,
       dropPositionOf,
+      isRenaming,
+      canRenameValue,
+      startRename,
+      commitRename,
+      cancelRename,
       beginDrag,
       level,
       setsize,

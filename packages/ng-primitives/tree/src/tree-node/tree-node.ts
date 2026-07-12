@@ -89,6 +89,16 @@ export class NgpTreeNode {
     return this.state.dropPosition;
   }
 
+  /** Whether this node is currently being renamed. */
+  get renaming(): Signal<boolean> {
+    return this.state.renaming;
+  }
+
+  /** Whether this node can be renamed. */
+  get renamable(): Signal<boolean> {
+    return this.state.renamable;
+  }
+
   /** Expand this node. */
   expand(): void {
     this.state.expand();
@@ -117,5 +127,20 @@ export class NgpTreeNode {
   /** Toggle this node's checkbox. */
   toggleChecked(): void {
     this.state.toggleChecked();
+  }
+
+  /** Begin renaming this node. */
+  startRename(): void {
+    this.state.startRename();
+  }
+
+  /** Commit the in-progress rename with the entered label. */
+  commitRename(label: string): void {
+    this.state.commitRename(label);
+  }
+
+  /** Cancel the in-progress rename. */
+  cancelRename(): void {
+    this.state.cancelRename();
   }
 }

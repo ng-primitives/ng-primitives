@@ -1,0 +1,126 @@
+import { fireEvent, render } from '@testing-library/angular';
+import { NgpTree, NgpTreeNode, NgpTreeNodeRename } from 'ng-primitives/tree';
+import { describe, expect, it, vi } from 'vitest';
+
+interface Node {
+  id: string;
+  name: string;
+  children?: Node[];
+}
+
+const template = `
+  <ul ngpTree #t="ngpTree" [ngpTreeNodes]="nodes" [ngpTreeChildren]="children"
+      [ngpTreeItemValue]="itemValue" [ngpTreeItemLabel]="itemLabel"
+      [ngpTreeCanRename]="canRename" [ngpTreeOnRename]="onRename">
+    @for (node of t.visibleNodes(); track itemValue(node)) {
+      <li ngpTreeNode #n="ngpTreeNode" class="node" [ngpTreeNode]="node" [attr.data-value]="n.value()">
+        @if (n.renaming()) {
+          <input ngpTreeNodeRename class="rename" [value]="node.name" />
+        } @else {
+          <span>{{ node.name }}</span>
+        }
+      </li>
+    }
+  </ul>
+`;
+
+async function renderTree(props: Record<string, unknown> = {}) {
+  const view = await render(template, {
+    imports: [NgpTree, NgpTreeNode, NgpTreeNodeRename],
+    componentProperties: {
+      nodes: [
+        { id: 'a', name: 'A' },
+        { id: 'b', name: 'B' },
+      ] as Node[],
+      children: (n: Node) => n.children,
+      itemValue: (n: Node) => n.id,
+      itemLabel: (n: Node) => n.name,
+      canRename: undefined,
+      onRename: () => {},
+      ...props,
+    },
+  });
+  const row = (v: string) => view.container.querySelector<HTMLElement>(`.node[data-value="${v}"]`)!;
+  const input = () => view.container.querySelector<HTMLInputElement>('.rename');
+  return { ...view, row, input };
+}
+
+describe('NgpTree rename', () => {
+  it('starts renaming on F2 and commits the new label on Enter', async () => {
+    const onRename = vi.fn();
+    const { row, input, detectChanges } = await renderTree({ onRename });
+
+    fireEvent.keyDown(row('a'), { key: 'F2' });
+    detectChanges();
+    const field = input()!;
+    expect(field).not.toBeNull();
+
+    field.value = 'Renamed';
+    fireEvent.keyDown(field, { key: 'Enter' });
+
+    expect(onRename).toHaveBeenCalledTimes(1);
+    expect(onRename.mock.calls[0][0]).toMatchObject({ node: { id: 'a' }, value: 'Renamed' });
+  });
+
+  it('starts renaming on double-click', async () => {
+    const { row, input, detectChanges } = await renderTree();
+    fireEvent.dblClick(row('b'));
+    detectChanges();
+    expect(input()).not.toBeNull();
+  });
+
+  it('cancels on Escape without calling onRename', async () => {
+    const onRename = vi.fn();
+    const { row, input, detectChanges } = await renderTree({ onRename });
+
+    fireEvent.keyDown(row('a'), { key: 'F2' });
+    detectChanges();
+    const field = input()!;
+    field.value = 'Nope';
+    fireEvent.keyDown(field, { key: 'Escape' });
+    detectChanges();
+
+    expect(onRename).not.toHaveBeenCalled();
+    expect(input()).toBeNull(); // editing ended
+  });
+
+  it('treats an empty or unchanged label as a cancel', async () => {
+    const onRename = vi.fn();
+    const { row, input, detectChanges } = await renderTree({ onRename });
+
+    // Unchanged.
+    fireEvent.keyDown(row('a'), { key: 'F2' });
+    detectChanges();
+    fireEvent.keyDown(input()!, { key: 'Enter' });
+    expect(onRename).not.toHaveBeenCalled();
+
+    // Empty.
+    fireEvent.keyDown(row('a'), { key: 'F2' });
+    detectChanges();
+    const field = input()!;
+    field.value = '   ';
+    fireEvent.keyDown(field, { key: 'Enter' });
+    expect(onRename).not.toHaveBeenCalled();
+  });
+
+  it('does not start renaming without an onRename handler', async () => {
+    const { row, input, detectChanges } = await renderTree({ onRename: undefined });
+    fireEvent.keyDown(row('a'), { key: 'F2' });
+    detectChanges();
+    expect(input()).toBeNull();
+  });
+
+  it('respects canRename', async () => {
+    const onRename = vi.fn();
+    const { row, input, detectChanges } = await renderTree({
+      onRename,
+      canRename: (n: Node) => n.id !== 'a',
+    });
+    fireEvent.keyDown(row('a'), { key: 'F2' });
+    detectChanges();
+    expect(input()).toBeNull(); // 'a' rejected
+    fireEvent.keyDown(row('b'), { key: 'F2' });
+    detectChanges();
+    expect(input()).not.toBeNull(); // 'b' allowed
+  });
+});

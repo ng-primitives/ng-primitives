@@ -5,6 +5,7 @@ import {
   ngpTree,
   NgpTreeDisabledBehavior,
   NgpTreeDropEvent,
+  NgpTreeRenameEvent,
   NgpTreeSelectionBehavior,
   NgpTreeSelectionMode,
   provideTreeState,
@@ -66,6 +67,16 @@ export class NgpTree<T = unknown> {
   /** Called when a node is dropped - move the node in your data here. */
   readonly onDrop = input<((event: NgpTreeDropEvent<T>) => void) | undefined>(undefined, {
     alias: 'ngpTreeOnDrop',
+  });
+
+  /** Whether a node may be renamed (ignored unless `ngpTreeOnRename` is set). */
+  readonly canRename = input<((node: T) => boolean) | undefined>(undefined, {
+    alias: 'ngpTreeCanRename',
+  });
+
+  /** Called when a rename is committed - update the node's label in your data here. */
+  readonly onRename = input<((event: NgpTreeRenameEvent<T>) => void) | undefined>(undefined, {
+    alias: 'ngpTreeOnRename',
   });
 
   /** The set of expanded node values (two-way bindable). */
@@ -155,6 +166,8 @@ export class NgpTree<T = unknown> {
     canDrag: this.canDrag,
     canDrop: this.canDrop,
     onDrop: this.onDrop,
+    canRename: this.canRename,
+    onRename: this.onRename,
   });
 
   /**

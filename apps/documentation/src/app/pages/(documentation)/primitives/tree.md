@@ -20,6 +20,7 @@ import {
   NgpTreeNodeToggle,
   NgpTreeNodeCheckbox,
   NgpTreeDragPreview,
+  NgpTreeNodeRename,
 } from 'ng-primitives/tree';
 ```
 
@@ -109,6 +110,16 @@ it receives the dragged node as its implicit context.
 
 <docs-example name="tree-drag-preview"></docs-example>
 
+### Rename
+
+Provide `ngpTreeOnRename` to enable inline renaming. Press <kbd>F2</kbd> on the focused node or
+double-click a row to start editing; render an `<input ngpTreeNodeRename>` while `n.renaming()` is
+true. The field auto-focuses and selects its text, commits on <kbd>Enter</kbd> or blur, and cancels
+on <kbd>Escape</kbd> (an empty or unchanged value is treated as a cancel). Use `ngpTreeCanRename` to
+restrict which nodes may be renamed.
+
+<docs-example name="tree-rename"></docs-example>
+
 ### Lazy Loading
 
 Provide `ngpTreeItemLoadChildren` to fetch a node's children the first time it is expanded, and
@@ -179,6 +190,7 @@ The following directives are available to import from the `ng-primitives/tree` p
   <api-attribute name="data-loading" description="Applied while the node's children are lazily loading." />
   <api-attribute name="data-dragging" description="Applied while the node is being dragged." />
   <api-attribute name="data-drop-position" description="The drop position when the node is the drop target." value="before | inside | after" />
+  <api-attribute name="data-renaming" description="Applied while the node is being renamed." />
   <api-attribute name="data-level" description="The 1-based depth of the node." />
 </api-reference-attributes>
 
@@ -205,6 +217,10 @@ The following directives are available to import from the `ng-primitives/tree` p
 
 <api-docs name="NgpTreeDragPreview"></api-docs>
 
+### NgpTreeNodeRename
+
+<api-docs name="NgpTreeNodeRename"></api-docs>
+
 ## Keyboard Interaction
 
 The tree follows the [WAI-ARIA tree pattern](https://www.w3.org/WAI/ARIA/apg/patterns/treeview/)
@@ -216,6 +232,8 @@ with roving tabindex.
 - <kbd>Home</kbd> / <kbd>End</kbd> - move to the first / last visible node.
 - **Type a letter** - move to the next node whose label starts with it; repeating the same
   letter cycles through matches.
+- <kbd>F2</kbd> - rename the focused node (when `ngpTreeOnRename` is set); <kbd>Enter</kbd> commits,
+  <kbd>Escape</kbd> cancels.
 
 When a selection mode is active:
 
