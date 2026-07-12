@@ -58,6 +58,14 @@ let counter = 0;
                 name="heroArrowPathMini"
               />
             </span>
+          } @else if (n.loadError()) {
+            <button
+              class="inline-flex h-[1.125rem] w-[1.125rem] flex-none cursor-pointer items-center justify-center rounded border-none bg-transparent p-0 text-gray-400 dark:text-zinc-500"
+              (click)="n.reload()"
+              aria-label="Retry loading"
+            >
+              <ng-icon class="text-base" name="heroArrowPathMini" />
+            </button>
           } @else if (n.expandable()) {
             <button
               class="inline-flex h-[1.125rem] w-[1.125rem] flex-none cursor-pointer items-center justify-center rounded border-none bg-transparent p-0 text-gray-400 transition-transform duration-150 ease-[cubic-bezier(0.4,0,0.2,1)] data-expanded:rotate-90 dark:text-zinc-500"
@@ -80,6 +88,11 @@ let counter = 0;
             "
           />
           <span>{{ node.name }}</span>
+          @if (n.loadError()) {
+            <span class="ml-auto text-xs tracking-[-0.011em] text-gray-400 dark:text-zinc-500">
+              Couldn't load
+            </span>
+          }
         </li>
       }
     </ul>
@@ -97,10 +110,19 @@ export default class TreeAsyncExample {
   readonly itemLabel = (node: RemoteNode) => node.name;
   readonly isExpandable = (node: RemoteNode) => node.folder === true;
 
-  // Simulate a network request that resolves after a short delay.
+  // Tracks which folders have already failed once, so the retry can succeed.
+  private readonly failedOnce = new Set<string>();
+
+  // Simulate a network request that resolves after a short delay - and fails the
+  // first time "Photos" is opened to show the error/retry state.
   readonly loadChildren = (node: RemoteNode): Promise<RemoteNode[]> =>
-    new Promise(resolve =>
+    new Promise((resolve, reject) =>
       setTimeout(() => {
+        if (node.id === 'photos' && !this.failedOnce.has(node.id)) {
+          this.failedOnce.add(node.id);
+          reject(new Error('Network error'));
+          return;
+        }
         const folder = counter++ % 2 === 0;
         resolve([
           { id: `${node.id}-a`, name: folder ? 'Subfolder' : 'file-a.txt', folder },

@@ -125,6 +125,32 @@ let counter = 0;
       color: var(--ngp-text-tertiary);
     }
 
+    .retry {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      flex: none;
+      width: 1.125rem;
+      height: 1.125rem;
+      padding: 0;
+      border: none;
+      border-radius: 0.25rem;
+      background: transparent;
+      color: var(--ngp-text-tertiary);
+      cursor: pointer;
+    }
+
+    .retry ng-icon {
+      font-size: 1rem;
+    }
+
+    .error-text {
+      margin-left: auto;
+      font-size: 0.75rem;
+      letter-spacing: -0.011em;
+      color: var(--ngp-text-tertiary);
+    }
+
     @keyframes spin {
       to {
         transform: rotate(360deg);
@@ -146,6 +172,10 @@ let counter = 0;
         <li #n="ngpTreeNode" [ngpTreeNode]="node" ngpTreeNode>
           @if (n.loading()) {
             <span class="spinner"><ng-icon name="heroArrowPathMini" /></span>
+          } @else if (n.loadError()) {
+            <button class="retry" (click)="n.reload()" aria-label="Retry loading">
+              <ng-icon name="heroArrowPathMini" />
+            </button>
           } @else if (n.expandable()) {
             <button [attr.data-expanded]="n.expanded() ? '' : null" ngpTreeNodeToggle>
               <ng-icon name="heroChevronRightMini" />
@@ -164,6 +194,9 @@ let counter = 0;
             "
           />
           <span>{{ node.name }}</span>
+          @if (n.loadError()) {
+            <span class="error-text">Couldn't load</span>
+          }
         </li>
       }
     </ul>
@@ -181,10 +214,19 @@ export default class TreeAsyncExample {
   readonly itemLabel = (node: RemoteNode) => node.name;
   readonly isExpandable = (node: RemoteNode) => node.folder === true;
 
-  // Simulate a network request that resolves after a short delay.
+  // Tracks which folders have already failed once, so the retry can succeed.
+  private readonly failedOnce = new Set<string>();
+
+  // Simulate a network request that resolves after a short delay - and fails the
+  // first time "Photos" is opened to show the error/retry state.
   readonly loadChildren = (node: RemoteNode): Promise<RemoteNode[]> =>
-    new Promise(resolve =>
+    new Promise((resolve, reject) =>
       setTimeout(() => {
+        if (node.id === 'photos' && !this.failedOnce.has(node.id)) {
+          this.failedOnce.add(node.id);
+          reject(new Error('Network error'));
+          return;
+        }
         const folder = counter++ % 2 === 0;
         resolve([
           { id: `${node.id}-a`, name: folder ? 'Subfolder' : 'file-a.txt', folder },

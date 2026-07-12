@@ -1,5 +1,10 @@
 import { fireEvent, render } from '@testing-library/angular';
-import { NgpTree, NgpTreeDragPreview, NgpTreeNode } from 'ng-primitives/tree';
+import {
+  NgpTree,
+  NgpTreeDragPreview,
+  NgpTreeNode,
+  NgpTreeNodeDragHandle,
+} from 'ng-primitives/tree';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
 interface Node {
@@ -95,11 +100,12 @@ async function renderTree(props: Record<string, unknown> = {}) {
     fireEvent.pointerDown(nodeEl(from), { clientX: 5, clientY: yOf(from), button: 0 });
     fireEvent.pointerMove(document.body, { clientX: 5, clientY: yOf(to, where) });
     return {
-      drop: () => fireEvent.pointerUp(document.body, { clientX: 5, clientY: yOf(to, where) }),
+      drop: (init: Record<string, unknown> = {}) =>
+        fireEvent.pointerUp(document.body, { clientX: 5, clientY: yOf(to, where), ...init }),
     };
   };
 
-  return { ...view, nodeEl, drag };
+  return { ...view, nodeEl, drag, yOf };
 }
 
 afterEach(() => vi.restoreAllMocks());
@@ -341,5 +347,91 @@ describe('NgpTree drag & drop', () => {
     drag('b', 'a', 'inside').drop();
     expect(canDrop).toHaveBeenCalled();
     expect(onDrop).not.toHaveBeenCalled();
+  });
+
+  it('with a drag handle, a drag only starts from the handle, not the row body', async () => {
+    const view = await render(
+      `
+      <ul ngpTree #t="ngpTree" [ngpTreeNodes]="nodes" [ngpTreeItemChildren]="children"
+          [ngpTreeItemValue]="itemValue" [ngpTreeDefaultExpandedKeys]="expanded"
+          [ngpTreeItemDraggable]="true" (ngpTreeDrop)="onDrop($event)">
+        @for (node of t.visibleNodes(); track itemValue(node)) {
+          <li ngpTreeNode #n="ngpTreeNode" class="node" [ngpTreeNode]="node"
+              [attr.data-value]="n.value()" [attr.data-dragging]="n.dragging() ? '' : null">
+            <button class="handle" ngpTreeNodeDragHandle>::</button>
+            <span class="label">{{ node.name }}</span>
+          </li>
+        }
+      </ul>
+    `,
+      {
+        imports: [NgpTree, NgpTreeNode, NgpTreeNodeDragHandle],
+        componentProperties: {
+          nodes,
+          children: (n: Node) => n.children,
+          itemValue: (n: Node) => n.id,
+          expanded: new Set(['a']),
+          onDrop: () => {},
+        },
+      },
+    );
+    const row = (v: string) =>
+      view.container.querySelector<HTMLElement>(`.node[data-value="${v}"]`)!;
+    const handle = (v: string) => row(v).querySelector<HTMLElement>('.handle')!;
+
+    // Dragging from the row body (the label) does not start a drag.
+    fireEvent.pointerDown(row('b').querySelector('.label')!, {
+      clientX: 5,
+      clientY: 65,
+      button: 0,
+    });
+    fireEvent.pointerMove(document.body, { clientX: 5, clientY: 20 });
+    expect(row('b')).not.toHaveAttribute('data-dragging');
+
+    // Dragging from the handle starts a drag.
+    fireEvent.pointerDown(handle('b'), { clientX: 5, clientY: 65, button: 0 });
+    fireEvent.pointerMove(document.body, { clientX: 5, clientY: 20 });
+    expect(row('b')).toHaveAttribute('data-dragging');
+  });
+
+  it('reports a move effect by default and a copy effect when the modifier is held', async () => {
+    const onDrop = vi.fn();
+    const { drag } = await renderTree({ onDrop });
+
+    drag('b', 'a', 'inside').drop();
+    expect(onDrop.mock.calls[0][0].effect).toBe('move');
+
+    drag('b', 'a', 'inside').drop({ altKey: true });
+    expect(onDrop.mock.calls[1][0].effect).toBe('copy');
+  });
+
+  it('drops into the tree root when released over empty space below the rows', async () => {
+    const onDrop = vi.fn();
+    const { nodeEl, yOf, container } = await renderTree({ onDrop });
+
+    // Give the tree container a tall box so a point below the rows is still inside it.
+    const ul = container.querySelector('[ngptree]')!;
+    vi.spyOn(ul, 'getBoundingClientRect').mockReturnValue({
+      top: 0,
+      bottom: 200,
+      left: 0,
+      right: 100,
+      width: 100,
+      height: 200,
+      x: 0,
+      y: 0,
+      toJSON: () => ({}),
+    } as DOMRect);
+
+    fireEvent.pointerDown(nodeEl('a1'), { clientX: 5, clientY: yOf('a1'), button: 0 });
+    fireEvent.pointerMove(document.body, { clientX: 5, clientY: 120 }); // below all rows
+    fireEvent.pointerUp(document.body, { clientX: 5, clientY: 120 });
+
+    expect(onDrop).toHaveBeenCalledTimes(1);
+    expect(onDrop.mock.calls[0][0]).toMatchObject({
+      sources: [{ id: 'a1' }],
+      target: null,
+      position: 'inside',
+    });
   });
 });

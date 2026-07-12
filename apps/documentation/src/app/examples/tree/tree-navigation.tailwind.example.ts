@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, signal } from '@angular/core';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { heroChevronRightMini } from '@ng-icons/heroicons/mini';
 import { NgpTree, NgpTreeNode, NgpTreeNodeToggle } from 'ng-primitives/tree';
@@ -23,13 +23,15 @@ interface Category {
       [ngpTreeItemValue]="itemValue"
       [ngpTreeItemLabel]="itemLabel"
       [ngpTreeDefaultExpandedKeys]="expanded"
+      (ngpTreeActivate)="active.set(itemValue($event))"
       ngpTree
     >
       @for (node of tree.visibleNodes(); track itemValue(node)) {
         <li
-          class="flex h-8 cursor-pointer items-center gap-2 rounded-lg pr-2.5 pl-[calc((var(--ngp-tree-node-level)-1)*1rem+0.5rem)] text-sm font-[510] tracking-[-0.006em] text-gray-900 outline-none select-none hover:bg-gray-100 focus-visible:ring-2 focus-visible:ring-blue-500 dark:text-zinc-100 dark:hover:bg-zinc-900 dark:focus-visible:ring-blue-400"
+          class="flex h-8 cursor-pointer items-center gap-2 rounded-lg pr-2.5 pl-[calc((var(--ngp-tree-node-level)-1)*1rem+0.5rem)] text-sm font-[510] tracking-[-0.006em] text-gray-900 outline-none select-none hover:bg-gray-100 focus-visible:ring-2 focus-visible:ring-blue-500 data-active:text-[#f01e2b] dark:text-zinc-100 dark:hover:bg-zinc-900 dark:focus-visible:ring-blue-400 dark:data-active:text-[#ff4651]"
           #n="ngpTreeNode"
           [ngpTreeNode]="node"
+          [attr.data-active]="active() === node.id ? '' : null"
           ngpTreeNode
         >
           @if (n.expandable()) {
@@ -95,6 +97,9 @@ export default class TreeNavigationExample {
   ];
 
   readonly expanded = new Set(['clothing', 'mens']);
+
+  /** The activated ("current") item - double-click or press Enter to change it. */
+  readonly active = signal('shirts');
 
   readonly children = (node: Category) => node.children;
   readonly itemValue = (node: Category) => node.id;

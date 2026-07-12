@@ -41,7 +41,8 @@
         "toggle",
         "toggle-group",
         "toolbar",
-        "tooltip"
+        "tooltip",
+        "tree"
       ],
       "x-prompt": "What primitive would you like to generate?",
       "$default": {

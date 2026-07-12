@@ -35,17 +35,6 @@ const DATA: FileNode[] = [
   { id: 'package.json', name: 'package.json' },
 ];
 
-/** Collect every expandable (folder) id so "Expand all" can open the whole tree. */
-function allFolderIds(nodes: FileNode[], acc: string[] = []): string[] {
-  for (const node of nodes) {
-    if (node.children?.length) {
-      acc.push(node.id);
-      allFolderIds(node.children, acc);
-    }
-  }
-  return acc;
-}
-
 @Component({
   selector: 'app-tree-controlled',
   imports: [NgpTree, NgpTreeNode, NgpTreeNodeToggle, NgpButton, NgIcon],
@@ -166,8 +155,8 @@ function allFolderIds(nodes: FileNode[], acc: string[] = []): string[] {
   `,
   template: `
     <div class="toolbar">
-      <button (click)="expandAll()" ngpButton>Expand all</button>
-      <button (click)="collapseAll()" ngpButton>Collapse all</button>
+      <button (click)="tree.expandAll()" ngpButton>Expand all</button>
+      <button (click)="tree.collapseAll()" ngpButton>Collapse all</button>
     </div>
 
     <ul
@@ -212,12 +201,4 @@ export default class TreeControlledExample {
   readonly children = (node: FileNode) => node.children;
   readonly itemValue = (node: FileNode) => node.id;
   readonly itemLabel = (node: FileNode) => node.name;
-
-  expandAll(): void {
-    this.expanded.set(new Set(allFolderIds(this.nodes)));
-  }
-
-  collapseAll(): void {
-    this.expanded.set(new Set());
-  }
 }

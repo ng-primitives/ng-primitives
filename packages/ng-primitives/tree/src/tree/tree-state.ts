@@ -16,6 +16,7 @@ import {
   attrBinding,
   controlledState,
   createPrimitive,
+  dataBinding,
   listener,
   onDestroy,
   StateInjectionOptions,
@@ -78,8 +79,21 @@ export type NgpTreeDisabledBehavior = 'all' | 'selection';
  */
 export type NgpTreeSelectionBehavior = 'toggle' | 'replace';
 
+/**
+ * How checkboxes propagate: `cascade` (default) checks a node's leaf descendants
+ * and rolls parents up to checked/indeterminate; `independent` checks only the
+ * node itself, with no cascade and no indeterminate state (`checkStrictly`).
+ */
+export type NgpTreeCheckboxBehavior = 'cascade' | 'independent';
+
 /** Where a dragged node would land relative to the drop target. */
 export type NgpTreeDropPosition = 'before' | 'inside' | 'after';
+
+/**
+ * Whether a drop moves the node(s) or copies them. `copy` when the platform
+ * copy modifier (Alt/Option) is held at drop time, otherwise `move`.
+ */
+export type NgpTreeDropEffect = 'move' | 'copy';
 
 /** The payload for `(ngpTreeRename)` - a node and the new label the user entered. */
 export interface NgpTreeRenameEvent<T> {
@@ -97,10 +111,12 @@ export interface NgpTreeDropEvent<T> {
    * selection (top-most nodes only). Also used for a keyboard cut/paste move.
    */
   readonly sources: readonly T[];
-  /** The node it is being dropped on. */
-  readonly target: T;
-  /** Where relative to the target it would land. */
+  /** The node it is being dropped on, or `null` when dropped onto the tree root. */
+  readonly target: T | null;
+  /** Where relative to the target it would land (`inside` for a root drop). */
   readonly position: NgpTreeDropPosition;
+  /** Whether the drop is a move (default) or a copy (Alt/Option held). */
+  readonly effect: NgpTreeDropEffect;
 }
 
 /** Modifiers describing how a selection interaction should behave. */
@@ -141,12 +157,22 @@ export interface NgpTreeState<T> {
   isExpanded(value: string): boolean;
   /** Whether a node's children are currently being lazily loaded. */
   isLoading(value: string): boolean;
+  /** Whether a node's last lazy load failed (cleared on retry/success). */
+  isLoadError(value: string): boolean;
+  /** @internal Retry a failed (or refresh a) lazy load for a node. */
+  reload(value: string): void;
   /** Expand a node. */
   expand(value: string): void;
   /** Collapse a node. */
   collapse(value: string): void;
   /** Toggle a node's expansion. */
   toggle(value: string): void;
+  /** @internal Expand every expandable sibling at a node's level (the `*` key). */
+  expandSiblings(value: string): void;
+  /** Expand every expandable node in the tree. */
+  expandAll(): void;
+  /** Collapse every node in the tree. */
+  collapseAll(): void;
   /** Whether a node value is currently selected. */
   isSelected(value: string): boolean;
   /** Select all (non-disabled) nodes. */
@@ -190,6 +216,8 @@ export interface NgpTreeState<T> {
   /** @internal Cancel the in-progress rename. */
   cancelRename(): void;
 
+  /** @internal Activate a node (Enter, or double-click when not renaming). */
+  activate(value: string): void;
   /** @internal Apply a selection interaction (click / keyboard) for a node value. */
   selectNode(value: string, options?: NgpTreeSelectOptions): void;
   /** @internal Begin a pointer drag from a node (called on pointerdown). */
@@ -256,6 +284,8 @@ export interface NgpTreeProps<T> {
   readonly defaultCheckedKeys?: Signal<ReadonlySet<string>>;
   /** Callback when the checked set changes. */
   readonly onCheckedChange?: (keys: ReadonlySet<string>) => void;
+  /** How checkboxes propagate (`cascade` default, or `independent`). */
+  readonly checkboxBehavior?: Signal<NgpTreeCheckboxBehavior>;
 
   /** Enables drag & drop: `true`/predicate marks nodes draggable, `undefined` = off. */
   readonly itemDraggable?: Signal<boolean | ((node: T) => boolean) | undefined>;
@@ -273,6 +303,9 @@ export interface NgpTreeProps<T> {
   readonly search?: Signal<string | undefined>;
   /** How to test a node against the query. Defaults to a case-insensitive label match. */
   readonly itemMatch?: Signal<((node: T, query: string) => boolean) | undefined>;
+
+  /** Called when a node is activated (Enter, or double-click when not renaming). */
+  readonly onActivate?: (node: T) => void;
 }
 
 export const [NgpTreeStateToken, ngpTree, _injectTreeState, provideTreeState] = createPrimitive(
@@ -292,6 +325,7 @@ export const [NgpTreeStateToken, ngpTree, _injectTreeState, provideTreeState] = 
     checkedKeys: _checkedKeys = signal<ReadonlySet<string> | undefined>(undefined),
     defaultCheckedKeys = signal<ReadonlySet<string>>(new Set()),
     onCheckedChange,
+    checkboxBehavior = signal<NgpTreeCheckboxBehavior>('cascade'),
     itemDraggable = signal<boolean | ((node: T) => boolean) | undefined>(undefined),
     canDrop = signal(undefined),
     onDrop,
@@ -299,6 +333,7 @@ export const [NgpTreeStateToken, ngpTree, _injectTreeState, provideTreeState] = 
     onRename,
     search = signal<string | undefined>(undefined),
     itemMatch = signal(undefined),
+    onActivate,
   }: NgpTreeProps<T>): NgpTreeState<T> => {
     const element = injectElementRef<HTMLElement>();
     const document = inject(DOCUMENT);
@@ -339,6 +374,8 @@ export const [NgpTreeStateToken, ngpTree, _injectTreeState, provideTreeState] = 
     // Lazily-loaded children keyed by node value, and the in-flight load set.
     const loadedChildren = signal(new Map<string, readonly T[]>());
     const loadingKeys = signal<ReadonlySet<string>>(new Set());
+    // Nodes whose most recent lazy load rejected (cleared on retry/success).
+    const errorKeys = signal<ReadonlySet<string>>(new Set());
 
     // Anchor for range (Shift) selection.
     let selectionAnchor: string | undefined;
@@ -349,6 +386,8 @@ export const [NgpTreeStateToken, ngpTree, _injectTreeState, provideTreeState] = 
     attrBinding(element, 'aria-multiselectable', () =>
       selectionMode() === 'multiple' ? 'true' : null,
     );
+    // Applied while a drag would drop at the tree root (over empty space).
+    dataBinding(element, 'data-root-drop', () => dragState()?.root ?? false);
 
     function valueOf(node: T): string {
       return accessors().itemValue(node);
@@ -367,6 +406,18 @@ export const [NgpTreeStateToken, ngpTree, _injectTreeState, provideTreeState] = 
       return loadingKeys().has(value);
     }
 
+    function isLoadError(value: string): boolean {
+      return errorKeys().has(value);
+    }
+
+    function clearError(value: string): void {
+      if (errorKeys().has(value)) {
+        const next = new Set(errorKeys());
+        next.delete(value);
+        errorKeys.set(next);
+      }
+    }
+
     async function loadNodeChildren(value: string): Promise<void> {
       const load = accessors().loadChildren;
       const node = metaByValue().get(value)?.data;
@@ -377,14 +428,17 @@ export const [NgpTreeStateToken, ngpTree, _injectTreeState, provideTreeState] = 
       if (loadedChildren().has(value) || loadingKeys().has(value)) {
         return;
       }
+      // Starting a (re)load clears any prior error for this node.
+      clearError(value);
       loadingKeys.set(new Set(loadingKeys()).add(value));
       try {
         const children = await load(node);
         loadedChildren.set(new Map(loadedChildren()).set(value, children));
       } catch (error) {
-        // Don't swallow, but don't require an error input either - the consumer
-        // should handle expected failures inside `loadChildren`. Leaving the node
-        // un-loaded means re-expanding retries.
+        // Surface the failure as an error state the consumer can render (with a
+        // retry via `reload`), and log for dev visibility. Leaving the node
+        // un-loaded means expanding again also retries.
+        errorKeys.set(new Set(errorKeys()).add(value));
         // eslint-disable-next-line no-console
         console.error('[ngpTree] loadChildren failed', error);
       } finally {
@@ -392,6 +446,12 @@ export const [NgpTreeStateToken, ngpTree, _injectTreeState, provideTreeState] = 
         next.delete(value);
         loadingKeys.set(next);
       }
+    }
+
+    // Retry a failed load in place (e.g. from a "retry" button in the row).
+    function reload(value: string): void {
+      clearError(value);
+      void loadNodeChildren(value);
     }
 
     function isExpandable(node: T): boolean {
@@ -576,11 +636,78 @@ export const [NgpTreeStateToken, ngpTree, _injectTreeState, provideTreeState] = 
       }
     }
 
+    // Expand every expandable sibling at a node's level (the APG `*` key). Roots
+    // when the node has no parent, otherwise the parent's children.
+    function expandSiblings(value: string): void {
+      const parent = parentValueOf(value);
+      const parentNode = parent === undefined ? undefined : metaByValue().get(parent)?.data;
+      const siblings = parent === undefined ? nodes() : parentNode ? childrenOf(parentNode) : [];
+      const current = expandedKeys();
+      const next = new Set(current);
+      const toLoad: string[] = [];
+      for (const sibling of siblings) {
+        if (isExpandable(sibling)) {
+          const siblingValue = valueOf(sibling);
+          if (!current.has(siblingValue)) {
+            next.add(siblingValue);
+            toLoad.push(siblingValue);
+          }
+        }
+      }
+      if (toLoad.length === 0) {
+        return;
+      }
+      setExpandedKeys(next);
+      for (const siblingValue of toLoad) {
+        void loadNodeChildren(siblingValue);
+      }
+    }
+
     function focusValue(value: string): void {
       const entry = registry.get(value);
       if (entry) {
         roving.setActiveItem(entry.rovingId, 'keyboard');
+        // Keep the focused row on screen (matters for long/scrollable trees).
+        entry.element.scrollIntoView({ block: 'nearest' });
       }
+    }
+
+    // Expand every expandable node, kicking off any lazy loads for newly-opened
+    // ones (mirrors `expandSiblings` but across the whole tree).
+    function expandAll(): void {
+      const current = expandedKeys();
+      const next = new Set<string>();
+      const toLoad: string[] = [];
+      for (const [value, meta] of metaByValue()) {
+        if (isExpandable(meta.data)) {
+          next.add(value);
+          if (!current.has(value)) {
+            toLoad.push(value);
+          }
+        }
+      }
+      setExpandedKeys(next);
+      for (const value of toLoad) {
+        void loadNodeChildren(value);
+      }
+    }
+
+    // Collapse everything. Keep focus on a still-visible row by moving it to the
+    // active node's top-level ancestor first.
+    function collapseAll(): void {
+      const active = activeValue();
+      if (active !== undefined) {
+        let root = active;
+        let parent = parentValueOf(root);
+        while (parent !== undefined) {
+          root = parent;
+          parent = parentValueOf(root);
+        }
+        if (root !== active) {
+          focusValue(root);
+        }
+      }
+      setExpandedKeys(new Set());
     }
 
     function isSelectable(value: string): boolean {
@@ -601,6 +728,13 @@ export const [NgpTreeStateToken, ngpTree, _injectTreeState, provideTreeState] = 
       }
       const [lo, hi] = i <= j ? [i, j] : [j, i];
       setSelectedKeys(new Set(values.slice(lo, hi + 1).filter(isSelectable)));
+    }
+
+    function activate(value: string): void {
+      const node = metaByValue().get(value)?.data;
+      if (node !== undefined) {
+        onActivate?.(node);
+      }
     }
 
     function selectNode(value: string, options: NgpTreeSelectOptions = {}): void {
@@ -661,12 +795,20 @@ export const [NgpTreeStateToken, ngpTree, _injectTreeState, provideTreeState] = 
     }
 
     function isChecked(value: string): boolean {
+      // Independent checkboxes store each node directly; no leaf roll-up.
+      if (checkboxBehavior() === 'independent') {
+        return checkedKeys().has(value);
+      }
       const leaves = leafValuesOf(value);
       const checked = checkedKeys();
       return leaves.length > 0 && leaves.every(leaf => checked.has(leaf));
     }
 
     function isIndeterminate(value: string): boolean {
+      // Independent checkboxes are never partial.
+      if (checkboxBehavior() === 'independent') {
+        return false;
+      }
       const leaves = leafValuesOf(value);
       const checked = checkedKeys();
       const some = leaves.some(leaf => checked.has(leaf));
@@ -674,6 +816,17 @@ export const [NgpTreeStateToken, ngpTree, _injectTreeState, provideTreeState] = 
     }
 
     function toggleChecked(value: string): void {
+      // Independent: toggle only this node, no cascade.
+      if (checkboxBehavior() === 'independent') {
+        const next = new Set(checkedKeys());
+        if (next.has(value)) {
+          next.delete(value);
+        } else {
+          next.add(value);
+        }
+        setCheckedKeys(next);
+        return;
+      }
       const leaves = leafValuesOf(value);
       if (leaves.length === 0) {
         return;
@@ -701,6 +854,11 @@ export const [NgpTreeStateToken, ngpTree, _injectTreeState, provideTreeState] = 
       sources: string[];
       over: string | null;
       position: NgpTreeDropPosition | null;
+      // `root` is true when the drop would land at the tree root (over empty
+      // space); `over` is null in that case too, so `root` disambiguates it from
+      // "no valid target".
+      root: boolean;
+      effect: NgpTreeDropEffect;
     } | null>(null);
     let pending: {
       primary: string;
@@ -870,6 +1028,11 @@ export const [NgpTreeStateToken, ngpTree, _injectTreeState, provideTreeState] = 
       return null;
     }
 
+    function pointInElement(el: HTMLElement, x: number, y: number): boolean {
+      const rect = el.getBoundingClientRect();
+      return x >= rect.left && x <= rect.right && y >= rect.top && y <= rect.bottom;
+    }
+
     function positionIn(element: HTMLElement, y: number): NgpTreeDropPosition {
       const rect = element.getBoundingClientRect();
       const ratio = rect.height ? (y - rect.top) / rect.height : 0.5;
@@ -878,27 +1041,31 @@ export const [NgpTreeStateToken, ngpTree, _injectTreeState, provideTreeState] = 
 
     function canDropAt(
       sources: readonly string[],
-      target: string,
+      target: string | null,
       position: NgpTreeDropPosition,
+      effect: NgpTreeDropEffect = 'move',
     ): boolean {
-      // Never drop onto a dragged node or into its own subtree.
-      for (const source of sources) {
-        if (target === source || isDescendantOf(target, source)) {
-          return false;
+      // Never drop onto a dragged node or into its own subtree (a root drop has
+      // no target node, so it can't be a descendant).
+      if (target !== null) {
+        for (const source of sources) {
+          if (target === source || isDescendantOf(target, source)) {
+            return false;
+          }
         }
       }
       const fn = canDrop();
       if (!fn) {
         return true;
       }
-      const targetNode = metaByValue().get(target)?.data;
+      const targetNode = target === null ? null : metaByValue().get(target)?.data;
       const sourceNodes = sources
         .map(source => metaByValue().get(source)?.data)
         .filter((node): node is T => node !== undefined);
-      if (targetNode === undefined || sourceNodes.length !== sources.length) {
+      if ((target !== null && targetNode == null) || sourceNodes.length !== sources.length) {
         return false;
       }
-      return fn({ sources: sourceNodes, target: targetNode, position });
+      return fn({ sources: sourceNodes, target: targetNode ?? null, position, effect });
     }
 
     function isDragging(value: string): boolean {
@@ -1018,6 +1185,8 @@ export const [NgpTreeStateToken, ngpTree, _injectTreeState, provideTreeState] = 
             sources: pending.sources,
             over: null,
             position: null,
+            root: false,
+            effect: 'move',
           });
           createPreview(pending.primary, pending.sources.length, pending.x, pending.y);
         }, TOUCH_LONG_PRESS_MS);
@@ -1038,6 +1207,7 @@ export const [NgpTreeStateToken, ngpTree, _injectTreeState, provideTreeState] = 
         }
         return;
       }
+      const effect: NgpTreeDropEffect = event.altKey ? 'copy' : 'move';
       // Wait for the drag threshold before it counts as a drag.
       if (!dragState()) {
         const moved = Math.hypot(event.clientX - pending.x, event.clientY - pending.y);
@@ -1049,6 +1219,8 @@ export const [NgpTreeStateToken, ngpTree, _injectTreeState, provideTreeState] = 
           sources: pending.sources,
           over: null,
           position: null,
+          root: false,
+          effect,
         });
         createPreview(pending.primary, pending.sources.length, event.clientX, event.clientY);
       }
@@ -1059,11 +1231,18 @@ export const [NgpTreeStateToken, ngpTree, _injectTreeState, provideTreeState] = 
       const target = nodeAt(event.clientX, event.clientY);
       if (!target) {
         updateSpring(null);
+        // Not over a row: offer a root drop if the pointer is still inside the
+        // tree's own box (e.g. the empty space below the last row).
+        const root =
+          pointInElement(element.nativeElement, event.clientX, event.clientY) &&
+          canDropAt(pending.sources, null, 'inside', effect);
         dragState.set({
           primary: pending.primary,
           sources: pending.sources,
           over: null,
-          position: null,
+          position: root ? 'inside' : null,
+          root,
+          effect,
         });
         return;
       }
@@ -1071,12 +1250,12 @@ export const [NgpTreeStateToken, ngpTree, _injectTreeState, provideTreeState] = 
       // If the target won't accept an "inside" drop (e.g. a file), fall back to
       // reordering before/after by the pointer's half, so the indicator never
       // blinks out mid-row.
-      if (position === 'inside' && !canDropAt(pending.sources, target.value, 'inside')) {
+      if (position === 'inside' && !canDropAt(pending.sources, target.value, 'inside', effect)) {
         const rect = target.element.getBoundingClientRect();
         const ratio = rect.height ? (event.clientY - rect.top) / rect.height : 0.5;
         position = ratio < 0.5 ? 'before' : 'after';
       }
-      const over = canDropAt(pending.sources, target.value, position) ? target.value : null;
+      const over = canDropAt(pending.sources, target.value, position, effect) ? target.value : null;
       // Spring-load only when hovering over a folder to drop inside it.
       updateSpring(over && position === 'inside' ? over : null);
       dragState.set({
@@ -1084,6 +1263,8 @@ export const [NgpTreeStateToken, ngpTree, _injectTreeState, provideTreeState] = 
         sources: pending.sources,
         over,
         position: over ? position : null,
+        root: false,
+        effect,
       });
     }
 
@@ -1096,26 +1277,30 @@ export const [NgpTreeStateToken, ngpTree, _injectTreeState, provideTreeState] = 
       dragState.set(null);
     }
 
-    function onPointerUp(): void {
+    function onPointerUp(event: PointerEvent): void {
       const state = dragState();
-      if (state && state.over && state.position) {
-        applyMove(state.sources, state.over, state.position);
+      if (state && state.position && (state.over || state.root)) {
+        // The effect reflects the modifier at the moment of the drop.
+        const effect: NgpTreeDropEffect = event.altKey ? 'copy' : 'move';
+        applyMove(state.sources, state.root ? null : state.over, state.position, effect);
       }
       resetDrag();
     }
 
     // Resolve source/target values to nodes and invoke the consumer's `onDrop`.
+    // A `null` target is a root drop.
     function applyMove(
       sources: readonly string[],
-      target: string,
+      target: string | null,
       position: NgpTreeDropPosition,
+      effect: NgpTreeDropEffect = 'move',
     ): void {
-      const targetNode = metaByValue().get(target)?.data;
+      const targetNode = target === null ? null : metaByValue().get(target)?.data;
       const sourceNodes = sources
         .map(source => metaByValue().get(source)?.data)
         .filter((node): node is T => node !== undefined);
-      if (targetNode !== undefined && sourceNodes.length > 0) {
-        onDrop?.({ sources: sourceNodes, target: targetNode, position });
+      if ((target === null || targetNode != null) && sourceNodes.length > 0) {
+        onDrop?.({ sources: sourceNodes, target: targetNode ?? null, position, effect });
       }
     }
 
@@ -1162,7 +1347,7 @@ export const [NgpTreeStateToken, ngpTree, _injectTreeState, provideTreeState] = 
     }
 
     listener(document, 'pointermove', onPointerMove as (e: Event) => void);
-    listener(document, 'pointerup', onPointerUp);
+    listener(document, 'pointerup', onPointerUp as (e: Event) => void);
     listener(document, 'pointercancel', resetDrag);
     // Stop the pointer from selecting text while a drag is in progress.
     listener(document, 'selectstart', (event: Event) => {
@@ -1259,9 +1444,12 @@ export const [NgpTreeStateToken, ngpTree, _injectTreeState, provideTreeState] = 
       isDisabled,
       isExpanded,
       isLoading,
+      isLoadError,
+      reload,
       isSelected,
       selectAll,
       clearSelection,
+      activate,
       selectNode,
       isChecked,
       isIndeterminate,
@@ -1288,6 +1476,9 @@ export const [NgpTreeStateToken, ngpTree, _injectTreeState, provideTreeState] = 
       expand: value => setExpanded(value, true),
       collapse: value => setExpanded(value, false),
       toggle: value => setExpanded(value, !isExpanded(value)),
+      expandSiblings,
+      expandAll,
+      collapseAll,
       focusValue,
       onTypeahead,
       registerNode: (value, rovingItemId, element) =>

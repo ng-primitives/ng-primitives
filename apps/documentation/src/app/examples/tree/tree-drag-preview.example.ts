@@ -275,7 +275,7 @@ export default class TreeDragPreviewExample {
   readonly itemLabel = (node: FileNode) => node.name;
 
   readonly canDrop = ({ target, position }: NgpTreeDropEvent<FileNode>): boolean =>
-    position !== 'inside' || !!target.folder;
+    target === null || position !== 'inside' || !!target.folder;
 
   readonly onDrop = ({ sources, target, position }: NgpTreeDropEvent<FileNode>): void => {
     const data = structuredClone(this.nodes());
@@ -286,7 +286,9 @@ export default class TreeDragPreviewExample {
       return;
     }
 
-    if (position === 'inside') {
+    if (target === null) {
+      data.push(...moved); // dropped over empty space -> root
+    } else if (position === 'inside') {
       const parent = find(data, target.id);
       if (parent) {
         parent.children = [...moved, ...(parent.children ?? [])];

@@ -54,6 +54,19 @@ function find(list: FileNode[], id: string): FileNode | null {
   return locate(list, id)?.list[locate(list, id)!.index] ?? null;
 }
 
+let copySeq = 0;
+
+/** Deep-copy a node, giving it (and its descendants) fresh ids. */
+function copyOf(node: FileNode): FileNode {
+  const clone = structuredClone(node);
+  const renumber = (n: FileNode) => {
+    n.id = `${n.id}-copy-${copySeq++}`;
+    n.children?.forEach(renumber);
+  };
+  renumber(clone);
+  return clone;
+}
+
 @Component({
   selector: 'app-tree-dnd',
   imports: [NgpTree, NgpTreeNode, NgpTreeNodeToggle, NgIcon],
@@ -63,7 +76,7 @@ function find(list: FileNode[], id: string): FileNode | null {
   template: `
     <div class="flex w-full flex-col items-center gap-3">
       <ul
-        class="m-0 w-full max-w-80 list-none rounded-xl border border-gray-200 bg-white p-1.5 shadow-sm outline-none dark:border-zinc-800 dark:bg-zinc-950"
+        class="m-0 min-h-56 w-full max-w-80 list-none rounded-xl border border-gray-200 bg-white p-1.5 shadow-sm outline-none data-root-drop:ring-[1.5px] data-root-drop:ring-[#f01e2b] dark:border-zinc-800 dark:bg-zinc-950 dark:data-root-drop:ring-[#ff4651]"
         #tree="ngpTree"
         [ngpTreeNodes]="nodes()"
         [ngpTreeItemChildren]="children"
@@ -113,8 +126,8 @@ function find(list: FileNode[], id: string): FileNode | null {
       </ul>
 
       <p class="max-w-96 text-center text-xs tracking-[-0.011em] text-gray-400 dark:text-zinc-500">
-        Click to select, ⌘/Ctrl-click for multiple. Drag to move, or cut & paste with ⌘/Ctrl+X then
-        V.
+        Click to select, ⌘/Ctrl-click for multiple. Drag to move (hold Alt to copy, or drop below
+        the list to move to the root), or cut & paste with ⌘/Ctrl+X then V.
       </p>
     </div>
   `,
@@ -148,20 +161,27 @@ export default class TreeDndExample {
   readonly itemLabel = (node: FileNode) => node.name;
 
   // Only folders can receive a node dropped "inside" them; files can only be
-  // reordered before/after.
+  // reordered before/after. A null target is a drop onto the tree root.
   readonly canDrop = ({ target, position }: NgpTreeDropEvent<FileNode>): boolean =>
-    position !== 'inside' || !!target.folder;
+    target === null || position !== 'inside' || !!target.folder;
 
-  readonly onDrop = ({ sources, target, position }: NgpTreeDropEvent<FileNode>): void => {
+  readonly onDrop = ({ sources, target, position, effect }: NgpTreeDropEvent<FileNode>): void => {
     const data = structuredClone(this.nodes());
-    const moved = sources
-      .map(source => extract(data, source.id))
-      .filter((node): node is FileNode => node !== null);
+    // A copy (Alt/Option held) duplicates the nodes; a move relocates them.
+    const moved =
+      effect === 'copy'
+        ? sources.map(source => copyOf(source))
+        : sources
+            .map(source => extract(data, source.id))
+            .filter((node): node is FileNode => node !== null);
     if (moved.length === 0) {
       return;
     }
 
-    if (position === 'inside') {
+    if (target === null) {
+      // Dropped over empty space -> move to the root.
+      data.push(...moved);
+    } else if (position === 'inside') {
       const parent = find(data, target.id);
       if (parent) {
         parent.children = [...moved, ...(parent.children ?? [])];

@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, signal } from '@angular/core';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { heroChevronRightMini } from '@ng-icons/heroicons/mini';
 import { NgpTree, NgpTreeNode, NgpTreeNodeToggle } from 'ng-primitives/tree';
@@ -59,6 +59,11 @@ interface Category {
       box-shadow: 0 0 0 2px var(--ngp-focus-ring);
     }
 
+    /* The activated ("current") item, set from (ngpTreeActivate). */
+    [ngpTreeNode][data-active] {
+      color: var(--ngp-primary);
+    }
+
     [ngpTreeNodeToggle] {
       display: inline-flex;
       align-items: center;
@@ -112,10 +117,16 @@ interface Category {
       [ngpTreeItemValue]="itemValue"
       [ngpTreeItemLabel]="itemLabel"
       [ngpTreeDefaultExpandedKeys]="expanded"
+      (ngpTreeActivate)="active.set(itemValue($event))"
       ngpTree
     >
       @for (node of tree.visibleNodes(); track itemValue(node)) {
-        <li #n="ngpTreeNode" [ngpTreeNode]="node" ngpTreeNode>
+        <li
+          #n="ngpTreeNode"
+          [ngpTreeNode]="node"
+          [attr.data-active]="active() === node.id ? '' : null"
+          ngpTreeNode
+        >
           @if (n.expandable()) {
             <button [attr.data-expanded]="n.expanded() ? '' : null" ngpTreeNodeToggle>
               <ng-icon name="heroChevronRightMini" />
@@ -168,6 +179,9 @@ export default class TreeNavigationExample {
   ];
 
   readonly expanded = new Set(['clothing', 'mens']);
+
+  /** The activated ("current") item - double-click or press Enter to change it. */
+  readonly active = signal('shirts');
 
   readonly children = (node: Category) => node.children;
   readonly itemValue = (node: Category) => node.id;

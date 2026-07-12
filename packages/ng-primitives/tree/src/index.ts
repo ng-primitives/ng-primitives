@@ -9,9 +9,11 @@ export {
   type NgpTreeAccessors,
   type NgpTreeSelectionMode,
   type NgpTreeSelectionBehavior,
+  type NgpTreeCheckboxBehavior,
   type NgpTreeDisabledBehavior,
   type NgpTreeSelectOptions,
   type NgpTreeDropPosition,
+  type NgpTreeDropEffect,
   type NgpTreeDropEvent,
   type NgpTreeRenameEvent,
 } from './tree/tree-state';
@@ -43,6 +45,15 @@ export {
   type NgpTreeNodeCheckboxState,
   type NgpTreeNodeCheckboxProps,
 } from './tree-node-checkbox/tree-node-checkbox-state';
+export { NgpTreeNodeDragHandle } from './tree-node-drag-handle/tree-node-drag-handle';
+export {
+  NgpTreeNodeDragHandleStateToken,
+  ngpTreeNodeDragHandle,
+  injectTreeNodeDragHandleState,
+  provideTreeNodeDragHandleState,
+  type NgpTreeNodeDragHandleState,
+  type NgpTreeNodeDragHandleProps,
+} from './tree-node-drag-handle/tree-node-drag-handle-state';
 export { NgpTreeNodeToggle } from './tree-node-toggle/tree-node-toggle';
 export {
   NgpTreeNodeToggleStateToken,

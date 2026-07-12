@@ -79,6 +79,11 @@ export class NgpTreeNode {
     return this.state.loading;
   }
 
+  /** Whether this node's last lazy load failed (cleared on retry/success). */
+  get loadError(): Signal<boolean> {
+    return this.state.loadError;
+  }
+
   /** Whether this node is currently being dragged. */
   get dragging(): Signal<boolean> {
     return this.state.dragging;
@@ -152,5 +157,10 @@ export class NgpTreeNode {
   /** Cancel the in-progress rename. */
   cancelRename(): void {
     this.state.cancelRename();
+  }
+
+  /** Retry this node's failed lazy load in place. */
+  reload(): void {
+    this.state.reload();
   }
 }

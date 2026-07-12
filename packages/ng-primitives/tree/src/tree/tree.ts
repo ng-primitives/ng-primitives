@@ -3,6 +3,7 @@ import { provideRovingFocusGroupState } from 'ng-primitives/roving-focus';
 import {
   NgpTreeAccessors,
   ngpTree,
+  NgpTreeCheckboxBehavior,
   NgpTreeDisabledBehavior,
   NgpTreeDropEvent,
   NgpTreeRenameEvent,
@@ -83,6 +84,9 @@ export class NgpTree<T = unknown> {
     alias: 'ngpTreeItemMatch',
   });
 
+  /** Emits when a node is activated - Enter, or a double-click when it isn't renamable. */
+  readonly activate = output<T>({ alias: 'ngpTreeActivate' });
+
   /** The set of expanded node values (two-way bindable). */
   readonly expandedKeys = input<ReadonlySet<string> | undefined>(undefined, {
     alias: 'ngpTreeExpandedKeys',
@@ -128,6 +132,11 @@ export class NgpTree<T = unknown> {
     alias: 'ngpTreeSelectedKeysChange',
   });
 
+  /** How checkboxes propagate: `cascade` (default) or `independent` (`checkStrictly`). */
+  readonly checkboxBehavior = input<NgpTreeCheckboxBehavior>('cascade', {
+    alias: 'ngpTreeCheckboxBehavior',
+  });
+
   /** The set of checked leaf values (two-way bindable). */
   readonly checkedKeys = input<ReadonlySet<string> | undefined>(undefined, {
     alias: 'ngpTreeCheckedKeys',
@@ -167,6 +176,7 @@ export class NgpTree<T = unknown> {
     checkedKeys: this.checkedKeys,
     defaultCheckedKeys: this.defaultCheckedKeys,
     onCheckedChange: keys => this.checkedKeysChange.emit(keys),
+    checkboxBehavior: this.checkboxBehavior,
     itemDraggable: this.itemDraggable,
     canDrop: this.canDrop,
     onDrop: event => this.drop.emit(event),
@@ -174,6 +184,7 @@ export class NgpTree<T = unknown> {
     onRename: event => this.rename.emit(event),
     search: this.search,
     itemMatch: this.itemMatch,
+    onActivate: node => this.activate.emit(node),
   });
 
   /**
@@ -187,5 +198,15 @@ export class NgpTree<T = unknown> {
   /** The stable string identity of a node (for `@for` `track`). */
   valueOf(node: T): string {
     return this.state.valueOf(node);
+  }
+
+  /** Expand every expandable node in the tree. */
+  expandAll(): void {
+    this.state.expandAll();
+  }
+
+  /** Collapse every node in the tree. */
+  collapseAll(): void {
+    this.state.collapseAll();
   }
 }

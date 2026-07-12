@@ -19,6 +19,9 @@ const template = `
           [attr.data-value]="n.value()" [attr.data-loading]="n.loading() ? '' : null">
         <button ngpTreeNodeToggle class="toggle">t</button>
         <span>{{ node.name }}</span>
+        @if (n.loadError()) {
+          <button class="retry" (click)="n.reload()">retry</button>
+        }
       </li>
     }
   </ul>
@@ -43,7 +46,8 @@ async function renderTree(props: Record<string, unknown> = {}) {
   const nodeEl = (value: string) =>
     view.container.querySelector<HTMLElement>(`.node[data-value="${value}"]`);
   const toggle = (value: string) => nodeEl(value)!.querySelector<HTMLElement>(':scope > .toggle')!;
-  return { ...view, nodeEl, toggle };
+  const retry = (value: string) => nodeEl(value)!.querySelector<HTMLElement>(':scope > .retry')!;
+  return { ...view, nodeEl, toggle, retry };
 }
 
 describe('NgpTree async children', () => {
@@ -112,6 +116,42 @@ describe('NgpTree async children', () => {
     fireEvent.click(toggle('a')); // collapse
     fireEvent.click(toggle('a')); // expand again -> retry succeeds
     await waitFor(() => expect(nodeEl('a1')).not.toBeNull());
+    expect(loadChildren).toHaveBeenCalledTimes(2);
+
+    consoleError.mockRestore();
+  });
+
+  it('exposes a load error via loadError()/data-load-error when a load fails', async () => {
+    const consoleError = vi.spyOn(console, 'error').mockImplementation(() => {});
+    const loadChildren = vi.fn(() => Promise.reject(new Error('boom')));
+
+    const { nodeEl, toggle } = await renderTree({ loadChildren });
+
+    fireEvent.click(toggle('a'));
+    await waitFor(() => expect(nodeEl('a')).toHaveAttribute('data-load-error'));
+    expect(nodeEl('a')).not.toHaveAttribute('data-loading');
+
+    consoleError.mockRestore();
+  });
+
+  it('reload() retries a failed node and clears the error', async () => {
+    const consoleError = vi.spyOn(console, 'error').mockImplementation(() => {});
+    let attempt = 0;
+    const loadChildren = vi.fn(() => {
+      attempt++;
+      return attempt === 1
+        ? Promise.reject(new Error('boom'))
+        : Promise.resolve([{ id: 'a1', name: 'A1' }]);
+    });
+
+    const { nodeEl, toggle, retry } = await renderTree({ loadChildren });
+
+    fireEvent.click(toggle('a')); // expand -> load rejects
+    await waitFor(() => expect(nodeEl('a')).toHaveAttribute('data-load-error'));
+
+    fireEvent.click(retry('a')); // reload() retries in place
+    await waitFor(() => expect(nodeEl('a1')).not.toBeNull());
+    expect(nodeEl('a')).not.toHaveAttribute('data-load-error');
     expect(loadChildren).toHaveBeenCalledTimes(2);
 
     consoleError.mockRestore();

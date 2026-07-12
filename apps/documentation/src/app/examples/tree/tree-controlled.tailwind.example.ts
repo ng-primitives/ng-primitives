@@ -35,17 +35,6 @@ const DATA: FileNode[] = [
   { id: 'package.json', name: 'package.json' },
 ];
 
-/** Collect every expandable (folder) id so "Expand all" can open the whole tree. */
-function allFolderIds(nodes: FileNode[], acc: string[] = []): string[] {
-  for (const node of nodes) {
-    if (node.children?.length) {
-      acc.push(node.id);
-      allFolderIds(node.children, acc);
-    }
-  }
-  return acc;
-}
-
 @Component({
   selector: 'app-tree-controlled',
   imports: [NgpTree, NgpTreeNode, NgpTreeNodeToggle, NgpButton, NgIcon],
@@ -56,14 +45,14 @@ function allFolderIds(nodes: FileNode[], acc: string[] = []): string[] {
     <div class="mb-3 flex justify-center gap-2">
       <button
         class="h-8 cursor-pointer rounded-lg px-3 text-[0.8125rem] font-[510] tracking-[-0.006em] text-gray-900 shadow-[inset_0_0_0_1px_#e5e7eb,0_1px_2px_0_rgba(0,0,0,0.04)] outline-none data-focus-visible:shadow-[inset_0_0_0_1px_#e5e7eb,0_0_0_2px_#3b82f6] data-hover:bg-gray-100 dark:text-zinc-100 dark:shadow-[inset_0_0_0_1px_#27272a,0_1px_2px_0_rgba(0,0,0,0.04)] dark:data-focus-visible:shadow-[inset_0_0_0_1px_#27272a,0_0_0_2px_#60a5fa] dark:data-hover:bg-zinc-900"
-        (click)="expandAll()"
+        (click)="tree.expandAll()"
         ngpButton
       >
         Expand all
       </button>
       <button
         class="h-8 cursor-pointer rounded-lg px-3 text-[0.8125rem] font-[510] tracking-[-0.006em] text-gray-900 shadow-[inset_0_0_0_1px_#e5e7eb,0_1px_2px_0_rgba(0,0,0,0.04)] outline-none data-focus-visible:shadow-[inset_0_0_0_1px_#e5e7eb,0_0_0_2px_#3b82f6] data-hover:bg-gray-100 dark:text-zinc-100 dark:shadow-[inset_0_0_0_1px_#27272a,0_1px_2px_0_rgba(0,0,0,0.04)] dark:data-focus-visible:shadow-[inset_0_0_0_1px_#27272a,0_0_0_2px_#60a5fa] dark:data-hover:bg-zinc-900"
-        (click)="collapseAll()"
+        (click)="tree.collapseAll()"
         ngpButton
       >
         Collapse all
@@ -125,12 +114,4 @@ export default class TreeControlledExample {
   readonly children = (node: FileNode) => node.children;
   readonly itemValue = (node: FileNode) => node.id;
   readonly itemLabel = (node: FileNode) => node.name;
-
-  expandAll(): void {
-    this.expanded.set(new Set(allFolderIds(this.nodes)));
-  }
-
-  collapseAll(): void {
-    this.expanded.set(new Set());
-  }
 }

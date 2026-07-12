@@ -1,6 +1,12 @@
 import { HOST_TAG_NAME, inject } from '@angular/core';
 import { injectElementRef } from 'ng-primitives/internal';
-import { attrBinding, createPrimitive, dataBinding, listener } from 'ng-primitives/state';
+import {
+  attrBinding,
+  createPrimitive,
+  dataBinding,
+  listener,
+  onDestroy,
+} from 'ng-primitives/state';
 import { injectTreeNodeState } from '../tree-node/tree-node-state';
 
 /**
@@ -21,6 +27,10 @@ export const [
   const element = injectElementRef<HTMLElement>();
   const tagName = inject(HOST_TAG_NAME);
   const node = injectTreeNodeState();
+
+  // Tell the row a checkbox is present so Space toggles it (keyboard operability
+  // for selection-less checkbox trees).
+  onDestroy(node().registerCheckbox());
 
   const ariaChecked = () =>
     node().indeterminate() ? 'mixed' : node().checked() ? 'true' : 'false';

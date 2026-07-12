@@ -19,6 +19,7 @@ import {
   NgpTreeNode,
   NgpTreeNodeToggle,
   NgpTreeNodeCheckbox,
+  NgpTreeNodeDragHandle,
   NgpTreeDragPreview,
   NgpTreeNodeRename,
 } from 'ng-primitives/tree';
@@ -59,6 +60,12 @@ tree by its value, and exposes them as signals so you can branch on them. It als
 }
 ```
 
+## Reusable Component
+
+Create a reusable component that uses the `NgpTree` directives.
+
+<docs-snippet name="tree"></docs-snippet>
+
 ## Schematics
 
 Generate a reusable tree component using the Angular CLI.
@@ -66,6 +73,14 @@ Generate a reusable tree component using the Angular CLI.
 ```bash npm
 ng g ng-primitives:primitive tree
 ```
+
+### Options
+
+- `path`: The path at which to create the component file.
+- `prefix`: The prefix to apply to the generated component selector.
+- `component-suffix`: The suffix to apply to the generated component class name.
+- `file-suffix`: The suffix to apply to the generated component file name. Defaults to `component`.
+- `example-styles`: Whether to include example styles in the generated component file. Defaults to `true`.
 
 ## Examples
 
@@ -81,11 +96,32 @@ behavior toggles each item on plain click (checkbox/touch style).
 
 <docs-example name="tree-selection"></docs-example>
 
+### Activating Nodes
+
+Selecting a node and _activating_ it (opening a file, navigating to a route) are separate
+intents. Handle the `(ngpTreeActivate)` output to react to activation: it emits the node on
+<kbd>Enter</kbd>, and on a double-click when that node isn't renamable (so rename and
+activate never collide). Activation is independent of selection, so it works even with no
+`ngpTreeSelectionMode` set.
+
+```html
+<ul ngpTree ... (ngpTreeActivate)="open($event)">
+  ...
+</ul>
+```
+
 ### Checkboxes
 
 Add an `ngpTreeNodeCheckbox` to each row for a tri-state checkbox. Checking a parent
 checks all of its leaf descendants; a parent shows `mixed` (indeterminate) when only some
-are checked. Bind `[(ngpTreeCheckedKeys)]` to read the checked leaves.
+are checked. Bind `[(ngpTreeCheckedKeys)]` to read the checked leaves. Pressing
+<kbd>Space</kbd> on a row toggles its checkbox, so a checkbox tree stays fully
+keyboard-operable even without a selection mode.
+
+By default (`ngpTreeCheckboxBehavior="cascade"`) checking cascades to leaf descendants and
+parents roll up to checked / indeterminate. Set `ngpTreeCheckboxBehavior="independent"`
+(the `checkStrictly` model) to make every checkbox stand alone - no cascade, no
+indeterminate state, and `checkedKeys` holds exactly the nodes you toggled.
 
 <docs-example name="tree-checkbox"></docs-example>
 
@@ -105,6 +141,23 @@ focused node(s) (`n.cut()` / `data-cut`), then <kbd>⌘</kbd>/<kbd>Ctrl</kbd>+<k
 onto the focused node (inside a folder, otherwise after it); <kbd>Escape</kbd> clears the cut.
 Hovering a collapsed folder while dragging springs it open after a moment. On touch, a drag starts
 after a short long-press, so a normal swipe still scrolls the list.
+
+The `(ngpTreeDrop)` payload also reports `effect` and supports root drops. Holding
+<kbd>Alt</kbd>/<kbd>Option</kbd> while dropping sets `effect` to `copy` (otherwise `move`) so you
+can duplicate instead of relocate. Releasing over the tree's empty space drops onto the root - then
+`target` is `null` (and the tree gets `data-root-drop` while hovering) - so you can move a nested
+node back out to the top level.
+
+By default a drag starts from anywhere on the row. Add an `ngpTreeNodeDragHandle` to a child
+element to restrict the drag origin to that handle, leaving the rest of the row free for clicks,
+links or inline controls:
+
+```html
+<li ngpTreeNode [ngpTreeNode]="node">
+  <button ngpTreeNodeDragHandle aria-label="Drag">⠿</button>
+  <span>{{ node.name }}</span>
+</li>
+```
 
 <docs-example name="tree-dnd"></docs-example>
 
@@ -130,14 +183,17 @@ on <kbd>Escape</kbd> (an empty or unchanged value is treated as a cancel).
 
 Provide `ngpTreeItemLoadChildren` to fetch a node's children the first time it is expanded, and
 `ngpTreeItemExpandable` so folders show a chevron before their contents exist. While loading, the
-node reports `loading()` (and sets `aria-busy`); handle failures inside your load function.
+node reports `loading()` (and sets `aria-busy`). If the load rejects, the node reports
+`loadError()` (and `data-load-error`) so you can show an error affordance; call `n.reload()` to
+retry it in place.
 
 <docs-example name="tree-async"></docs-example>
 
 ### Controlled Expansion
 
 Bind the expanded set with `[(ngpTreeExpandedKeys)]` to drive expansion from your
-component - here with "Expand all" / "Collapse all" buttons.
+component. The tree also exposes `expandAll()` / `collapseAll()` off its `ngpTree` template
+reference - the "Expand all" / "Collapse all" buttons below call them directly.
 
 <docs-example name="tree-controlled"></docs-example>
 
@@ -145,7 +201,10 @@ component - here with "Expand all" / "Collapse all" buttons.
 
 Because the tree renders a flat `visibleNodes()` list, you can swap `@for` for
 `*cdkVirtualFor` inside a `cdk-virtual-scroll-viewport` to render only the visible rows -
-this example scrolls thousands of nodes smoothly.
+this example scrolls thousands of nodes smoothly. Keyboard navigation scrolls the focused
+row into view as you move. Note that programmatic focus (type-ahead, arrow-to-parent) can
+only target rows the virtualizer has currently rendered - a node scrolled far out of view
+is not in the DOM to receive focus.
 
 <docs-example name="tree-virtualized"></docs-example>
 
@@ -176,7 +235,8 @@ customise matching (it defaults to a case-insensitive `ngpTreeItemLabel` match).
 ### Custom Content
 
 The tree is data-agnostic - it works with any node shape and arbitrary row content, such as
-this nested navigation with item counts.
+this nested navigation with item counts. Double-click a leaf (or press <kbd>Enter</kbd>) to
+activate it - `(ngpTreeActivate)` drives the highlighted "current" item.
 
 <docs-example name="tree-navigation"></docs-example>
 
@@ -203,6 +263,7 @@ The following directives are available to import from the `ng-primitives/tree` p
   <api-attribute name="data-disabled" description="Applied when the node is disabled." />
   <api-attribute name="data-selected" description="Applied when the node is selected." />
   <api-attribute name="data-loading" description="Applied while the node's children are lazily loading." />
+  <api-attribute name="data-load-error" description="Applied when the node's last lazy load failed." />
   <api-attribute name="data-dragging" description="Applied while the node is being dragged." />
   <api-attribute name="data-drop-position" description="The drop position when the node is the drop target." value="before | inside | after" />
   <api-attribute name="data-renaming" description="Applied while the node is being renamed." />
@@ -230,6 +291,10 @@ The following directives are available to import from the `ng-primitives/tree` p
   <api-attribute name="data-disabled" description="Applied when the node is disabled." />
 </api-reference-attributes>
 
+### NgpTreeNodeDragHandle
+
+<api-docs name="NgpTreeNodeDragHandle"></api-docs>
+
 ### NgpTreeDragPreview
 
 <api-docs name="NgpTreeDragPreview"></api-docs>
@@ -246,18 +311,23 @@ with roving tabindex.
 - <kbd>Down</kbd> / <kbd>Up</kbd> - move to the next / previous visible node.
 - <kbd>Right</kbd> - expand a collapsed parent, or move to its first child if already expanded.
 - <kbd>Left</kbd> - collapse an expanded parent, or move to its parent.
+- Under `dir="rtl"` the horizontal arrows invert - <kbd>Left</kbd> expands and <kbd>Right</kbd> collapses.
 - <kbd>Home</kbd> / <kbd>End</kbd> - move to the first / last visible node.
+- <kbd>\*</kbd> - expand every expandable sibling at the focused node's level.
 - **Type a letter** - move to the next node whose label starts with it; repeating the same
   letter cycles through matches.
 - <kbd>F2</kbd> - rename the focused node (when `ngpTreeItemRenamable` is set); <kbd>Enter</kbd>
   commits, <kbd>Escape</kbd> cancels.
 - <kbd>⌘</kbd>/<kbd>Ctrl</kbd>+<kbd>X</kbd> / <kbd>V</kbd> - cut the focused node(s), then paste them
   onto the focused node (when `ngpTreeItemDraggable` is set); <kbd>Escape</kbd> clears the cut.
+- <kbd>Space</kbd> - toggle the focused node's checkbox, when it has an `ngpTreeNodeCheckbox`.
+
+- <kbd>Enter</kbd> - activate the focused node (emits `(ngpTreeActivate)`).
 
 When a selection mode is active:
 
 - <kbd>Space</kbd> - toggle selection of the focused node.
-- <kbd>Enter</kbd> - select the focused node.
+- <kbd>Enter</kbd> - also selects the focused node.
 - <kbd>⌘</kbd>/<kbd>Ctrl</kbd>+<kbd>A</kbd> - select all nodes (multiple mode).
 
 Type-ahead matches the row's text content by default. If your rows contain chrome (icons,

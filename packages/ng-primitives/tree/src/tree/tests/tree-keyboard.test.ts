@@ -1,6 +1,6 @@
 import { fireEvent, render, waitFor } from '@testing-library/angular';
 import { NgpTree, NgpTreeNode, NgpTreeNodeToggle } from 'ng-primitives/tree';
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 
 interface Node {
   id: string;
@@ -109,6 +109,21 @@ describe('NgpTree keyboard', () => {
     await active('b');
   });
 
+  it('Asterisk expands every expandable sibling at the focused level', async () => {
+    const { press, nodeEl } = await renderTree();
+    // Root level: * on the leaf 'b' expands its sibling folder 'a'.
+    press('b', '*');
+    await waitFor(() => expect(nodeEl('a')).toHaveAttribute('aria-expanded', 'true'));
+  });
+
+  it('Asterisk only expands siblings at the same level', async () => {
+    const { press, active, nodeEl } = await renderTree();
+    press('a', 'ArrowRight'); // expand a -> a1 (leaf), a2 (folder) visible
+    await active('a');
+    press('a1', '*'); // expands the expandable sibling a2
+    await waitFor(() => expect(nodeEl('a2')).toHaveAttribute('aria-expanded', 'true'));
+  });
+
   it('Home and End jump to first and last visible nodes', async () => {
     const { press, active } = await renderTree();
     press('a', 'ArrowRight'); // expand a -> visible: a, a1, a2, b
@@ -117,5 +132,46 @@ describe('NgpTree keyboard', () => {
     await active('b');
     press('b', 'Home');
     await active('a');
+  });
+
+  it('scrolls a node into view when focus moves to it programmatically', async () => {
+    const { press, active, nodeEl } = await renderTree();
+    press('a', 'ArrowRight'); // expand a
+    await active('a');
+    const scrollSpy = vi.spyOn(nodeEl('a1'), 'scrollIntoView');
+    press('a', 'ArrowRight'); // focus first child via focusValue()
+    await active('a1');
+    expect(scrollSpy).toHaveBeenCalled();
+    scrollSpy.mockRestore();
+  });
+
+  it('inverts the horizontal arrows under dir="rtl"', async () => {
+    const view = await render(
+      `
+      <ul ngpTree dir="rtl" #t="ngpTree" [ngpTreeNodes]="nodes" [ngpTreeItemChildren]="children" [ngpTreeItemValue]="itemValue">
+        @for (node of t.visibleNodes(); track itemValue(node)) {
+          <li ngpTreeNode #n="ngpTreeNode" class="node" [ngpTreeNode]="node" [attr.data-value]="n.value()">
+            <span>{{ node.name }}</span>
+          </li>
+        }
+      </ul>
+    `,
+      {
+        imports,
+        componentProperties: {
+          nodes,
+          children: (n: Node) => n.children,
+          itemValue: (n: Node) => n.id,
+        },
+      },
+    );
+    const el = (value: string) =>
+      view.container.querySelector<HTMLElement>(`.node[data-value="${value}"]`)!;
+
+    el('a').focus();
+    fireEvent.keyDown(el('a'), { key: 'ArrowLeft' }); // RTL: expand
+    await waitFor(() => expect(el('a')).toHaveAttribute('aria-expanded', 'true'));
+    fireEvent.keyDown(el('a'), { key: 'ArrowRight' }); // RTL: collapse
+    await waitFor(() => expect(el('a')).toHaveAttribute('aria-expanded', 'false'));
   });
 });

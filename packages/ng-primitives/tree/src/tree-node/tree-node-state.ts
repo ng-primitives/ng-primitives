@@ -66,6 +66,8 @@ export interface NgpTreeNodeState {
   readonly indeterminate: Signal<boolean>;
   /** Whether this node's children are currently being lazily loaded. */
   readonly loading: Signal<boolean>;
+  /** Whether this node's last lazy load failed (cleared on retry/success). */
+  readonly loadError: Signal<boolean>;
   /** Whether this node is currently being dragged. */
   readonly dragging: Signal<boolean>;
   /** The drop position if this node is the current drop target, else `null`. */
@@ -97,8 +99,22 @@ export interface NgpTreeNodeState {
   commitRename(label: string): void;
   /** Cancel the in-progress rename. */
   cancelRename(): void;
+  /** Retry this node's failed lazy load in place. */
+  reload(): void;
   /** Move roving focus to this node's row. */
   focus(): void;
+  /**
+   * @internal Register that this node renders a checkbox, so Space toggles it
+   * from the row. Returns a cleanup to call when the checkbox is destroyed.
+   */
+  registerCheckbox(): () => void;
+  /**
+   * @internal Register that this node has a dedicated drag handle, so the row
+   * body no longer starts a drag. Returns a cleanup for when it's destroyed.
+   */
+  registerDragHandle(): () => void;
+  /** @internal Begin a pointer drag from this node (called by the drag handle). */
+  startDrag(event: PointerEvent): void;
 }
 
 /**
@@ -116,6 +132,13 @@ export const [NgpTreeNodeStateToken, ngpTreeNode, _injectTreeNodeState, provideT
     const appRef = inject(ApplicationRef);
     const id = signal(uniqueId('ngp-tree-node'));
 
+    // Whether this row renders a checkbox (registered by NgpTreeNodeCheckbox), so
+    // Space toggles the checkbox instead of (or as well as) the selection.
+    const hasCheckbox = signal(false);
+    // Whether this row has a dedicated drag handle (registered by
+    // NgpTreeNodeDragHandle); when it does, the row body no longer starts drags.
+    const hasDragHandle = signal(false);
+
     const value = computed(() => tree().valueOf(data()));
     const expandable = computed(() => tree().isExpandable(data()));
     const expanded = computed(() => tree().isExpanded(value()));
@@ -127,6 +150,7 @@ export const [NgpTreeNodeStateToken, ngpTreeNode, _injectTreeNodeState, provideT
     const checked = computed(() => tree().isChecked(value()));
     const indeterminate = computed(() => tree().isIndeterminate(value()));
     const loading = computed(() => tree().isLoading(value()));
+    const loadError = computed(() => tree().isLoadError(value()));
     const dragging = computed(() => tree().isDragging(value()));
     const dropPosition = computed(() => tree().dropPositionOf(value()));
     const renaming = computed(() => tree().isRenaming(value()));
@@ -152,6 +176,7 @@ export const [NgpTreeNodeStateToken, ngpTreeNode, _injectTreeNodeState, provideT
     attrBinding(element, 'aria-disabled', () => (disabled() ? 'true' : null));
     attrBinding(element, 'aria-busy', () => (loading() ? 'true' : null));
     dataBinding(element, 'data-loading', loading);
+    dataBinding(element, 'data-load-error', loadError);
     // aria-selected only on selectable nodes while a selection mode is active.
     attrBinding(element, 'aria-selected', () =>
       tree().selectionMode() === 'none' || disabled() ? null : selected() ? 'true' : 'false',
@@ -171,9 +196,10 @@ export const [NgpTreeNodeStateToken, ngpTreeNode, _injectTreeNodeState, provideT
     // it by hand, e.g. `padding-left: calc(var(--ngp-tree-node-level) * 1rem)`.
     styleBinding(element, '--ngp-tree-node-level', level);
 
-    // Start a pointer drag (a plain click never passes the drag threshold).
+    // Start a pointer drag from the row (a plain click never passes the drag
+    // threshold). When a drag handle is present, only it starts drags.
     listener(element, 'pointerdown', (event: PointerEvent) => {
-      if (event.button === 0) {
+      if (event.button === 0 && !hasDragHandle()) {
         tree().beginDrag(value(), event);
       }
     });
@@ -189,10 +215,13 @@ export const [NgpTreeNodeStateToken, ngpTreeNode, _injectTreeNodeState, provideT
       });
     });
 
-    // Double-click a row to start renaming it (mouse/pen).
+    // Double-click a row to rename it (mouse/pen); if it isn't renamable, a
+    // double-click activates ("opens") it instead.
     listener(element, 'dblclick', () => {
       if (tree().canRenameValue(value())) {
         tree().startRename(value());
+      } else {
+        tree().activate(value());
       }
     });
 
@@ -212,6 +241,8 @@ export const [NgpTreeNodeStateToken, ngpTreeNode, _injectTreeNodeState, provideT
           // async CD), so render the field synchronously and focus it now.
           appRef.tick();
           element.nativeElement.querySelector<HTMLElement>('[ngpTreeNodeRename]')?.focus();
+        } else {
+          tree().activate(value());
         }
       } else {
         lastTapTime = event.timeStamp;
@@ -227,35 +258,50 @@ export const [NgpTreeNodeStateToken, ngpTreeNode, _injectTreeNodeState, provideT
       }
       switch (event.key) {
         case 'ArrowRight':
+        case 'ArrowLeft': {
           event.preventDefault();
-          if (expandable() && !expanded()) {
-            tree().expand(value());
-          } else if (expanded()) {
-            const child = tree().firstChildValueOf(value());
-            if (child) {
-              tree().focusValue(child);
+          // In RTL the horizontal arrows swap: ArrowLeft expands, ArrowRight
+          // collapses. Read the computed direction so `dir="rtl"` (or CSS) works.
+          const rtl = getComputedStyle(element.nativeElement).direction === 'rtl';
+          const expandArrow = rtl ? 'ArrowLeft' : 'ArrowRight';
+          if (event.key === expandArrow) {
+            if (expandable() && !expanded()) {
+              tree().expand(value());
+            } else if (expanded()) {
+              const child = tree().firstChildValueOf(value());
+              if (child) {
+                tree().focusValue(child);
+              }
             }
-          }
-          break;
-        case 'ArrowLeft':
-          event.preventDefault();
-          if (expanded()) {
-            tree().collapse(value());
           } else {
-            const parent = tree().parentValueOf(value());
-            if (parent) {
-              tree().focusValue(parent);
+            if (expanded()) {
+              tree().collapse(value());
+            } else {
+              const parent = tree().parentValueOf(value());
+              if (parent) {
+                tree().focusValue(parent);
+              }
             }
           }
           break;
+        }
         case 'Enter':
+          event.preventDefault();
+          // Enter activates ("opens") the node, and also selects it when a
+          // selection mode is active.
+          tree().activate(value());
           if (tree().selectionMode() !== 'none') {
-            event.preventDefault();
             tree().selectNode(value());
           }
           break;
         case ' ':
-          if (tree().selectionMode() !== 'none') {
+          // A checkbox tree is often selection-less, so Space must still be able
+          // to check the row. When a checkbox is present it takes precedence;
+          // otherwise Space toggles the selection.
+          if (hasCheckbox() && !disabled()) {
+            event.preventDefault();
+            tree().toggleChecked(value());
+          } else if (tree().selectionMode() !== 'none') {
             event.preventDefault();
             tree().selectNode(value(), { toggle: true });
           }
@@ -265,6 +311,11 @@ export const [NgpTreeNodeStateToken, ngpTreeNode, _injectTreeNodeState, provideT
             event.preventDefault();
             tree().startRename(value());
           }
+          break;
+        case '*':
+          // APG: expand all sibling nodes at the focused node's level.
+          event.preventDefault();
+          tree().expandSiblings(value());
           break;
         case 'Escape':
           // Clear a pending cut, if any.
@@ -329,6 +380,7 @@ export const [NgpTreeNodeStateToken, ngpTreeNode, _injectTreeNodeState, provideT
       checked,
       indeterminate,
       loading,
+      loadError,
       dragging,
       dropPosition,
       renaming,
@@ -344,7 +396,21 @@ export const [NgpTreeNodeStateToken, ngpTreeNode, _injectTreeNodeState, provideT
       startRename: () => tree().startRename(value()),
       commitRename: (label: string) => tree().commitRename(value(), label),
       cancelRename: () => tree().cancelRename(),
+      reload: () => tree().reload(value()),
       focus: () => tree().focusValue(value()),
+      registerCheckbox: () => {
+        hasCheckbox.set(true);
+        return () => hasCheckbox.set(false);
+      },
+      registerDragHandle: () => {
+        hasDragHandle.set(true);
+        return () => hasDragHandle.set(false);
+      },
+      startDrag: (event: PointerEvent) => {
+        if (event.button === 0) {
+          tree().beginDrag(value(), event);
+        }
+      },
     } satisfies NgpTreeNodeState;
   });
 
