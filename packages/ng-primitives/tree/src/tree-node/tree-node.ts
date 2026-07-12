@@ -104,6 +104,11 @@ export class NgpTreeNode {
     return this.state.cut;
   }
 
+  /** Whether this node matches the current search query. */
+  get matched(): Signal<boolean> {
+    return this.state.matched;
+  }
+
   /** Expand this node. */
   expand(): void {
     this.state.expand();

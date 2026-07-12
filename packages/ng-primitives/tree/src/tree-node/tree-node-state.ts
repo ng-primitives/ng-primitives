@@ -76,6 +76,8 @@ export interface NgpTreeNodeState {
   readonly renamable: Signal<boolean>;
   /** Whether this node is marked for a cut/paste move. */
   readonly cut: Signal<boolean>;
+  /** Whether this node matches the current search query. */
+  readonly matched: Signal<boolean>;
 
   /** Expand this node. */
   expand(): void;
@@ -130,6 +132,7 @@ export const [NgpTreeNodeStateToken, ngpTreeNode, _injectTreeNodeState, provideT
     const renaming = computed(() => tree().isRenaming(value()));
     const renamable = computed(() => tree().canRenameValue(value()));
     const cut = computed(() => tree().isCut(value()));
+    const matched = computed(() => tree().isMatched(value()));
     const level = computed(() => tree().level(value()));
     const setsize = computed(() => tree().setsize(value()));
     const posinset = computed(() => tree().posinset(value()));
@@ -162,6 +165,7 @@ export const [NgpTreeNodeStateToken, ngpTreeNode, _injectTreeNodeState, provideT
     dataBinding(element, 'data-drop-position', () => dropPosition());
     dataBinding(element, 'data-renaming', renaming);
     dataBinding(element, 'data-cut', cut);
+    dataBinding(element, 'data-match', matched);
     dataBinding(element, 'data-level', () => String(level()));
     // Expose the depth as a CSS variable so consumers can indent without binding
     // it by hand, e.g. `padding-left: calc(var(--ngp-tree-node-level) * 1rem)`.
@@ -330,6 +334,7 @@ export const [NgpTreeNodeStateToken, ngpTreeNode, _injectTreeNodeState, provideT
       renaming,
       renamable,
       cut,
+      matched,
       expand: () => tree().expand(value()),
       collapse: () => tree().collapse(value()),
       toggle: () => tree().toggle(value()),

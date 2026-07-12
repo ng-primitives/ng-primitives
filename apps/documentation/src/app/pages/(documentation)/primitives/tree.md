@@ -163,6 +163,15 @@ The `--ngp-tree-node-level` variable is enough to draw connecting guide lines pu
 
 <docs-example name="tree-indent-guides"></docs-example>
 
+### Search
+
+Bind `ngpTreeSearch` to a query string to filter the tree: non-matching nodes are hidden, but every
+match keeps its ancestors visible (and auto-expanded) so it stays in context. Each node exposes
+`n.matched()` (and `data-match`) so you can highlight the hits. Provide `ngpTreeItemMatch` to
+customise matching (it defaults to a case-insensitive `ngpTreeItemLabel` match).
+
+<docs-example name="tree-search"></docs-example>
+
 ### Custom Content
 
 The tree is data-agnostic - it works with any node shape and arbitrary row content, such as
@@ -197,6 +206,7 @@ The following directives are available to import from the `ng-primitives/tree` p
   <api-attribute name="data-drop-position" description="The drop position when the node is the drop target." value="before | inside | after" />
   <api-attribute name="data-renaming" description="Applied while the node is being renamed." />
   <api-attribute name="data-cut" description="Applied while the node is marked for a cut/paste move." />
+  <api-attribute name="data-match" description="Applied when the node matches the current search query." />
   <api-attribute name="data-level" description="The 1-based depth of the node." />
 </api-reference-attributes>
 

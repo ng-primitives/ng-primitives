@@ -176,6 +176,9 @@ export interface NgpTreeState<T> {
   /** @internal Clear any pending cut. */
   clearCut(): void;
 
+  /** Whether a node matches the current search query. */
+  isMatched(value: string): boolean;
+
   /** Whether a node value is currently being renamed. */
   isRenaming(value: string): boolean;
   /** @internal Whether renaming is enabled for a node (needs `onRename` + `canRename`). */
@@ -265,6 +268,11 @@ export interface NgpTreeProps<T> {
   readonly canRename?: Signal<((node: T) => boolean) | undefined>;
   /** Called when a rename is committed. Update the node's label in your data here. */
   readonly onRename?: Signal<((event: NgpTreeRenameEvent<T>) => void) | undefined>;
+
+  /** A search query. When non-empty, filters the tree to matches + their ancestors. */
+  readonly search?: Signal<string | undefined>;
+  /** How to test a node against the query. Defaults to a case-insensitive label match. */
+  readonly itemMatch?: Signal<((node: T, query: string) => boolean) | undefined>;
 }
 
 export const [NgpTreeStateToken, ngpTree, _injectTreeState, provideTreeState] = createPrimitive(
@@ -289,6 +297,8 @@ export const [NgpTreeStateToken, ngpTree, _injectTreeState, provideTreeState] = 
     onDrop = signal(undefined),
     canRename = signal(undefined),
     onRename = signal(undefined),
+    search = signal<string | undefined>(undefined),
+    itemMatch = signal(undefined),
   }: NgpTreeProps<T>): NgpTreeState<T> => {
     const element = injectElementRef<HTMLElement>();
     const document = inject(DOCUMENT);
@@ -394,6 +404,15 @@ export const [NgpTreeStateToken, ngpTree, _injectTreeState, provideTreeState] = 
     }
 
     function isExpanded(value: string): boolean {
+      const searching = searchState();
+      // While searching, a folder that reveals matching descendants reads as
+      // expanded (its children are shown regardless of the expanded set).
+      if (searching) {
+        const node = metaByValue().get(value)?.data;
+        if (node && childrenOf(node).some(child => searching.visible.has(valueOf(child)))) {
+          return true;
+        }
+      }
       return expandedKeys().has(value);
     }
 
@@ -417,13 +436,58 @@ export const [NgpTreeStateToken, ngpTree, _injectTreeState, provideTreeState] = 
     });
 
     // The flattened list of visible nodes (DFS pre-order, gated by expansion).
+    // When a search query is active, the set of nodes that match plus every
+    // ancestor of a match (so matches stay in their hierarchy). `null` when the
+    // query is empty.
+    const searchState = computed<{ matched: Set<string>; visible: Set<string> } | null>(() => {
+      const query = (search() ?? '').trim();
+      if (!query) {
+        return null;
+      }
+      const fn = itemMatch();
+      const test = fn
+        ? (node: T) => fn(node, query)
+        : (node: T) => labelOf(node).toLowerCase().includes(query.toLowerCase());
+
+      const matched = new Set<string>();
+      const visible = new Set<string>();
+      const walk = (siblings: readonly T[], ancestors: string[]): boolean => {
+        let anyMatch = false;
+        for (const node of siblings) {
+          const value = valueOf(node);
+          const selfMatch = test(node);
+          const childMatch = walk(childrenOf(node), [...ancestors, value]);
+          if (selfMatch) {
+            matched.add(value);
+          }
+          if (selfMatch || childMatch) {
+            visible.add(value);
+            for (const ancestor of ancestors) {
+              visible.add(ancestor);
+            }
+            anyMatch = true;
+          }
+        }
+        return anyMatch;
+      };
+      walk(nodes(), []);
+      return { matched, visible };
+    });
+
     const visibleNodes = computed<readonly T[]>(() => {
+      const searching = searchState();
       const expanded = expandedKeys();
       const result: T[] = [];
       const walk = (siblings: readonly T[]) => {
         for (const node of siblings) {
+          const value = valueOf(node);
+          // While searching, show only matches + ancestors, and reveal them all
+          // regardless of the expanded set.
+          if (searching && !searching.visible.has(value)) {
+            continue;
+          }
           result.push(node);
-          if (expanded.has(valueOf(node))) {
+          if (searching || expanded.has(value)) {
             walk(childrenOf(node));
           }
         }
@@ -431,6 +495,10 @@ export const [NgpTreeStateToken, ngpTree, _injectTreeState, provideTreeState] = 
       walk(nodes());
       return result;
     });
+
+    function isMatched(value: string): boolean {
+      return searchState()?.matched.has(value) ?? false;
+    }
 
     function level(value: string): number {
       return metaByValue().get(value)?.level ?? 1;
@@ -1210,6 +1278,7 @@ export const [NgpTreeStateToken, ngpTree, _injectTreeState, provideTreeState] = 
       cut,
       paste,
       clearCut,
+      isMatched,
       isRenaming,
       canRenameValue,
       startRename,

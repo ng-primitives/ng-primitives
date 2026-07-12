@@ -79,6 +79,14 @@ export class NgpTree<T = unknown> {
     alias: 'ngpTreeOnRename',
   });
 
+  /** A search query. When non-empty, filters the tree to matches and their ancestors. */
+  readonly search = input<string | undefined>(undefined, { alias: 'ngpTreeSearch' });
+
+  /** How to match a node against the query. Defaults to a case-insensitive label match. */
+  readonly itemMatch = input<((node: T, query: string) => boolean) | undefined>(undefined, {
+    alias: 'ngpTreeItemMatch',
+  });
+
   /** The set of expanded node values (two-way bindable). */
   readonly expandedKeys = input<ReadonlySet<string> | undefined>(undefined, {
     alias: 'ngpTreeExpandedKeys',
@@ -168,6 +176,8 @@ export class NgpTree<T = unknown> {
     onDrop: this.onDrop,
     canRename: this.canRename,
     onRename: this.onRename,
+    search: this.search,
+    itemMatch: this.itemMatch,
   });
 
   /**
