@@ -11,7 +11,7 @@ interface Node {
 const template = `
   <ul ngpTree #t="ngpTree" [ngpTreeNodes]="nodes" [ngpTreeItemChildren]="children"
       [ngpTreeItemValue]="itemValue" [ngpTreeItemLabel]="itemLabel"
-      [ngpTreeItemRenamable]="canRename" [ngpTreeOnRename]="onRename">
+      [ngpTreeItemRenamable]="canRename" (ngpTreeRename)="onRename($event)">
     @for (node of t.visibleNodes(); track itemValue(node)) {
       <li ngpTreeNode #n="ngpTreeNode" class="node" [ngpTreeNode]="node" [attr.data-value]="n.value()">
         @if (n.renaming()) {
@@ -35,7 +35,7 @@ async function renderTree(props: Record<string, unknown> = {}) {
       children: (n: Node) => n.children,
       itemValue: (n: Node) => n.id,
       itemLabel: (n: Node) => n.name,
-      canRename: undefined,
+      canRename: true,
       onRename: () => {},
       ...props,
     },
@@ -119,14 +119,14 @@ describe('NgpTree rename', () => {
     expect(onRename).not.toHaveBeenCalled();
   });
 
-  it('does not start renaming without an onRename handler', async () => {
-    const { row, input, detectChanges } = await renderTree({ onRename: undefined });
+  it('does not start renaming when itemRenamable is not set', async () => {
+    const { row, input, detectChanges } = await renderTree({ canRename: undefined });
     fireEvent.keyDown(row('a'), { key: 'F2' });
     detectChanges();
     expect(input()).toBeNull();
   });
 
-  it('respects canRename', async () => {
+  it('respects the itemRenamable predicate', async () => {
     const onRename = vi.fn();
     const { row, input, detectChanges } = await renderTree({
       onRename,

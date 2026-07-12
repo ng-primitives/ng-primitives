@@ -166,7 +166,8 @@ function find(list: FileNode[], id: string): FileNode | null {
       [ngpTreeItemValue]="itemValue"
       [ngpTreeItemLabel]="itemLabel"
       [ngpTreeDefaultExpandedKeys]="expanded"
-      [ngpTreeOnRename]="onRename"
+      [ngpTreeItemRenamable]="true"
+      (ngpTreeRename)="onRename($event)"
       ngpTree
     >
       @for (node of tree.visibleNodes(); track itemValue(node)) {

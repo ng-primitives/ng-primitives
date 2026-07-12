@@ -54,8 +54,8 @@ export class NgpTree<T = unknown> {
     alias: 'ngpTreeItemLoadChildren',
   });
 
-  /** Whether a node may be dragged. */
-  readonly canDrag = input<((node: T) => boolean) | undefined>(undefined, {
+  /** Enables drag & drop: `true` (all draggable) or a per-node predicate. */
+  readonly itemDraggable = input<boolean | ((node: T) => boolean) | undefined>(undefined, {
     alias: 'ngpTreeItemDraggable',
   });
 
@@ -64,20 +64,16 @@ export class NgpTree<T = unknown> {
     alias: 'ngpTreeCanDrop',
   });
 
-  /** Called when a node is dropped - move the node in your data here. */
-  readonly onDrop = input<((event: NgpTreeDropEvent<T>) => void) | undefined>(undefined, {
-    alias: 'ngpTreeOnDrop',
-  });
+  /** Emits when a node is dropped - move the node(s) in your data here. */
+  readonly drop = output<NgpTreeDropEvent<T>>({ alias: 'ngpTreeDrop' });
 
-  /** Whether a node may be renamed (ignored unless `ngpTreeOnRename` is set). */
-  readonly canRename = input<((node: T) => boolean) | undefined>(undefined, {
+  /** Enables inline rename: `true` (all renamable) or a per-node predicate. */
+  readonly itemRenamable = input<boolean | ((node: T) => boolean) | undefined>(undefined, {
     alias: 'ngpTreeItemRenamable',
   });
 
-  /** Called when a rename is committed - update the node's label in your data here. */
-  readonly onRename = input<((event: NgpTreeRenameEvent<T>) => void) | undefined>(undefined, {
-    alias: 'ngpTreeOnRename',
-  });
+  /** Emits when a rename is committed - update the node's label in your data here. */
+  readonly rename = output<NgpTreeRenameEvent<T>>({ alias: 'ngpTreeRename' });
 
   /** A search query. When non-empty, filters the tree to matches and their ancestors. */
   readonly search = input<string | undefined>(undefined, { alias: 'ngpTreeQuery' });
@@ -171,11 +167,11 @@ export class NgpTree<T = unknown> {
     checkedKeys: this.checkedKeys,
     defaultCheckedKeys: this.defaultCheckedKeys,
     onCheckedChange: keys => this.checkedKeysChange.emit(keys),
-    canDrag: this.canDrag,
+    itemDraggable: this.itemDraggable,
     canDrop: this.canDrop,
-    onDrop: this.onDrop,
-    canRename: this.canRename,
-    onRename: this.onRename,
+    onDrop: event => this.drop.emit(event),
+    itemRenamable: this.itemRenamable,
+    onRename: event => this.rename.emit(event),
     search: this.search,
     itemMatch: this.itemMatch,
   });

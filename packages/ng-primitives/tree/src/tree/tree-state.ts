@@ -81,7 +81,7 @@ export type NgpTreeSelectionBehavior = 'toggle' | 'replace';
 /** Where a dragged node would land relative to the drop target. */
 export type NgpTreeDropPosition = 'before' | 'inside' | 'after';
 
-/** The payload for `onRename` - a node and the new label the user entered. */
+/** The payload for `(ngpTreeRename)` - a node and the new label the user entered. */
 export interface NgpTreeRenameEvent<T> {
   /** The node being renamed. */
   readonly node: T;
@@ -89,7 +89,7 @@ export interface NgpTreeRenameEvent<T> {
   readonly value: string;
 }
 
-/** The payload for `canDrop` / `onDrop`. */
+/** The payload for `ngpTreeCanDrop` / `(ngpTreeDrop)`. */
 export interface NgpTreeDropEvent<T> {
   /**
    * The node(s) being moved, in visible order. A single-node drag has one
@@ -181,7 +181,7 @@ export interface NgpTreeState<T> {
 
   /** Whether a node value is currently being renamed. */
   isRenaming(value: string): boolean;
-  /** @internal Whether renaming is enabled for a node (needs `onRename` + `canRename`). */
+  /** @internal Whether renaming is enabled for a node (via `itemRenamable`). */
   canRenameValue(value: string): boolean;
   /** @internal Begin renaming a node (no-op if renaming isn't enabled for it). */
   startRename(value: string): void;
@@ -257,17 +257,17 @@ export interface NgpTreeProps<T> {
   /** Callback when the checked set changes. */
   readonly onCheckedChange?: (keys: ReadonlySet<string>) => void;
 
-  /** Whether a node may be dragged. */
-  readonly canDrag?: Signal<((node: T) => boolean) | undefined>;
+  /** Enables drag & drop: `true`/predicate marks nodes draggable, `undefined` = off. */
+  readonly itemDraggable?: Signal<boolean | ((node: T) => boolean) | undefined>;
   /** Whether a drop is allowed. Defaults to blocking drops onto a node's own subtree. */
   readonly canDrop?: Signal<((event: NgpTreeDropEvent<T>) => boolean) | undefined>;
   /** Called when a node is dropped. Move the node in your data here. */
-  readonly onDrop?: Signal<((event: NgpTreeDropEvent<T>) => void) | undefined>;
+  readonly onDrop?: (event: NgpTreeDropEvent<T>) => void;
 
-  /** Whether a node may be renamed. Ignored unless `onRename` is provided. */
-  readonly canRename?: Signal<((node: T) => boolean) | undefined>;
+  /** Enables rename: `true`/predicate marks nodes renamable, `undefined` = off. */
+  readonly itemRenamable?: Signal<boolean | ((node: T) => boolean) | undefined>;
   /** Called when a rename is committed. Update the node's label in your data here. */
-  readonly onRename?: Signal<((event: NgpTreeRenameEvent<T>) => void) | undefined>;
+  readonly onRename?: (event: NgpTreeRenameEvent<T>) => void;
 
   /** A search query. When non-empty, filters the tree to matches + their ancestors. */
   readonly search?: Signal<string | undefined>;
@@ -292,11 +292,11 @@ export const [NgpTreeStateToken, ngpTree, _injectTreeState, provideTreeState] = 
     checkedKeys: _checkedKeys = signal<ReadonlySet<string> | undefined>(undefined),
     defaultCheckedKeys = signal<ReadonlySet<string>>(new Set()),
     onCheckedChange,
-    canDrag = signal(undefined),
+    itemDraggable = signal<boolean | ((node: T) => boolean) | undefined>(undefined),
     canDrop = signal(undefined),
-    onDrop = signal(undefined),
-    canRename = signal(undefined),
-    onRename = signal(undefined),
+    onDrop,
+    itemRenamable = signal<boolean | ((node: T) => boolean) | undefined>(undefined),
+    onRename,
     search = signal<string | undefined>(undefined),
     itemMatch = signal(undefined),
   }: NgpTreeProps<T>): NgpTreeState<T> => {
@@ -919,16 +919,17 @@ export const [NgpTreeStateToken, ngpTree, _injectTreeState, provideTreeState] = 
       return renamingValue() === value;
     }
 
+    // Resolve a `boolean | predicate | undefined` enable flag for a node.
+    function resolveItemFlag(flag: boolean | ((node: T) => boolean) | undefined, node: T): boolean {
+      return typeof flag === 'function' ? flag(node) : flag === true;
+    }
+
     function canRenameValue(value: string): boolean {
-      if (!onRename()) {
-        return false;
-      }
       const node = metaByValue().get(value)?.data;
       if (node === undefined || isDisabled(node)) {
         return false;
       }
-      const fn = canRename();
-      return fn ? fn(node) : true;
+      return resolveItemFlag(itemRenamable(), node);
     }
 
     function startRename(value: string): void {
@@ -949,7 +950,7 @@ export const [NgpTreeStateToken, ngpTree, _injectTreeState, provideTreeState] = 
       const trimmed = label.trim();
       // Empty or unchanged is treated as a cancel.
       if (node !== undefined && trimmed && trimmed !== renameOriginal) {
-        onRename()?.({ node, value: trimmed });
+        onRename?.({ node, value: trimmed });
       }
     }
 
@@ -962,8 +963,7 @@ export const [NgpTreeStateToken, ngpTree, _injectTreeState, provideTreeState] = 
       if (node === undefined) {
         return false;
       }
-      const fn = canDrag();
-      return !fn || fn(node);
+      return resolveItemFlag(itemDraggable(), node);
     }
 
     function hasAncestorIn(value: string, set: ReadonlySet<string>): boolean {
@@ -993,11 +993,8 @@ export const [NgpTreeStateToken, ngpTree, _injectTreeState, provideTreeState] = 
     }
 
     function beginDrag(value: string, event: PointerEvent): void {
-      // Drag & drop is opt-in: without an `onDrop` handler there is nothing to
-      // drag to, so don't start a drag at all.
-      if (!onDrop()) {
-        return;
-      }
+      // Drag & drop is opt-in via `itemDraggable`; `moveSetFor` returns an empty
+      // set (so we bail) when nothing is draggable.
       const sources = moveSetFor(value);
       if (sources.length === 0) {
         return;
@@ -1118,7 +1115,7 @@ export const [NgpTreeStateToken, ngpTree, _injectTreeState, provideTreeState] = 
         .map(source => metaByValue().get(source)?.data)
         .filter((node): node is T => node !== undefined);
       if (targetNode !== undefined && sourceNodes.length > 0) {
-        onDrop()?.({ sources: sourceNodes, target: targetNode, position });
+        onDrop?.({ sources: sourceNodes, target: targetNode, position });
       }
     }
 
@@ -1132,9 +1129,7 @@ export const [NgpTreeStateToken, ngpTree, _injectTreeState, provideTreeState] = 
     }
 
     function cut(value: string): void {
-      if (!onDrop()) {
-        return;
-      }
+      // Cut/paste is a move, gated by `itemDraggable` like a pointer drag.
       const sources = moveSetFor(value);
       cutKeys.set(new Set(sources));
     }

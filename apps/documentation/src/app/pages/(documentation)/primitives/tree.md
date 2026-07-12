@@ -91,12 +91,13 @@ are checked. Bind `[(ngpTreeCheckedKeys)]` to read the checked leaves.
 
 ### Drag & Drop
 
-Provide `ngpTreeOnDrop` to reorder nodes by dragging. The tree computes a
+Set `ngpTreeItemDraggable` (to `true`, or a per-node predicate) to enable drag-and-drop reordering,
+and handle the `(ngpTreeDrop)` event to move the node(s) in your own data. The tree computes a
 `before` / `inside` / `after` drop position from the pointer, blocks dropping a node into its
 own subtree, and exposes `n.dragging()` and `n.dropPosition()` (plus `data-dragging` /
-`data-drop-position`) so you can render a drop indicator. Use `ngpTreeItemDraggable` / `ngpTreeCanDrop`
-to constrain it, and move the node(s) in your own data inside the drop handler - `onDrop` receives
-`sources` (an array), so the same handler covers single and multi-node moves.
+`data-drop-position`) so you can render a drop indicator. Use `ngpTreeCanDrop` to validate a target;
+the `(ngpTreeDrop)` payload carries `sources` (an array), so the same handler covers single and
+multi-node moves.
 
 When a selection is active, grabbing a selected node drags the whole selection (the preview shows a
 count). The move is also keyboard-accessible: <kbd>⌘</kbd>/<kbd>Ctrl</kbd>+<kbd>X</kbd> cuts the
@@ -117,11 +118,11 @@ it receives the dragged node as its implicit context.
 
 ### Rename
 
-Provide `ngpTreeOnRename` to enable inline renaming. Press <kbd>F2</kbd> on the focused node or
-double-click a row to start editing; render an `<input ngpTreeNodeRename>` while `n.renaming()` is
+Set `ngpTreeItemRenamable` (to `true`, or a per-node predicate) to enable inline renaming, and handle
+the `(ngpTreeRename)` event to update the label in your data. Press <kbd>F2</kbd> on the focused node
+or double-click a row to start editing; render an `<input ngpTreeNodeRename>` while `n.renaming()` is
 true. The field auto-focuses and selects its text, commits on <kbd>Enter</kbd> or blur, and cancels
-on <kbd>Escape</kbd> (an empty or unchanged value is treated as a cancel). Use `ngpTreeItemRenamable` to
-restrict which nodes may be renamed.
+on <kbd>Escape</kbd> (an empty or unchanged value is treated as a cancel).
 
 <docs-example name="tree-rename"></docs-example>
 
@@ -248,10 +249,10 @@ with roving tabindex.
 - <kbd>Home</kbd> / <kbd>End</kbd> - move to the first / last visible node.
 - **Type a letter** - move to the next node whose label starts with it; repeating the same
   letter cycles through matches.
-- <kbd>F2</kbd> - rename the focused node (when `ngpTreeOnRename` is set); <kbd>Enter</kbd> commits,
-  <kbd>Escape</kbd> cancels.
+- <kbd>F2</kbd> - rename the focused node (when `ngpTreeItemRenamable` is set); <kbd>Enter</kbd>
+  commits, <kbd>Escape</kbd> cancels.
 - <kbd>⌘</kbd>/<kbd>Ctrl</kbd>+<kbd>X</kbd> / <kbd>V</kbd> - cut the focused node(s), then paste them
-  onto the focused node (when `ngpTreeOnDrop` is set); <kbd>Escape</kbd> clears the cut.
+  onto the focused node (when `ngpTreeItemDraggable` is set); <kbd>Escape</kbd> clears the cut.
 
 When a selection mode is active:
 

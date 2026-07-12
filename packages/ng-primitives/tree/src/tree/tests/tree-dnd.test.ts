@@ -28,7 +28,7 @@ async function renderTree(props: Record<string, unknown> = {}) {
     <ul ngpTree #t="ngpTree" [ngpTreeNodes]="nodes" [ngpTreeItemChildren]="children"
         [ngpTreeItemValue]="itemValue" [ngpTreeDefaultExpandedKeys]="expanded"
         [ngpTreeSelectionMode]="selectionMode" [ngpTreeDefaultSelectedKeys]="selectedKeys"
-        [ngpTreeItemDraggable]="canDrag" [ngpTreeCanDrop]="canDrop" [ngpTreeOnDrop]="onDrop">
+        [ngpTreeItemDraggable]="canDrag" [ngpTreeCanDrop]="canDrop" (ngpTreeDrop)="onDrop($event)">
       @for (node of t.visibleNodes(); track itemValue(node)) {
         <li ngpTreeNode #n="ngpTreeNode" class="node" [ngpTreeNode]="node"
             [attr.data-value]="n.value()" [attr.data-dragging]="n.dragging() ? '' : null"
@@ -47,7 +47,7 @@ async function renderTree(props: Record<string, unknown> = {}) {
       expanded: new Set(['a']),
       selectionMode: 'none',
       selectedKeys: new Set<string>(),
-      canDrag: undefined,
+      canDrag: true,
       canDrop: undefined,
       onDrop: () => {},
       ...props,
@@ -148,7 +148,8 @@ describe('NgpTree drag & drop', () => {
     const view = await render(
       `
       <ul ngpTree #t="ngpTree" [ngpTreeNodes]="nodes" [ngpTreeItemChildren]="children"
-          [ngpTreeItemValue]="itemValue" [ngpTreeDefaultExpandedKeys]="expanded" [ngpTreeOnDrop]="onDrop">
+          [ngpTreeItemValue]="itemValue" [ngpTreeDefaultExpandedKeys]="expanded"
+          [ngpTreeItemDraggable]="true" (ngpTreeDrop)="onDrop($event)">
         @for (node of t.visibleNodes(); track itemValue(node)) {
           <li ngpTreeNode class="node" [ngpTreeNode]="node" [attr.data-value]="itemValue(node)">
             {{ node.name }}
@@ -192,14 +193,14 @@ describe('NgpTree drag & drop', () => {
     expect(nodeEl('a1')).not.toHaveAttribute('data-drop');
   });
 
-  it('does not drag when drag & drop is not enabled (no onDrop)', async () => {
-    const { nodeEl, drag } = await renderTree({ onDrop: undefined });
+  it('does not drag when drag & drop is not enabled (no itemDraggable)', async () => {
+    const { nodeEl, drag } = await renderTree({ canDrag: undefined });
     drag('b', 'a', 'inside');
     expect(nodeEl('b')).not.toHaveAttribute('data-dragging');
     expect(document.body.querySelector(':scope > [aria-hidden="true"]')).toBeNull();
   });
 
-  it('respects canDrag', async () => {
+  it('respects the itemDraggable predicate', async () => {
     const onDrop = vi.fn();
     const { nodeEl, drag } = await renderTree({ onDrop, canDrag: (n: Node) => n.id !== 'b' });
 

@@ -210,7 +210,8 @@ function find(list: FileNode[], id: string): FileNode | null {
       [ngpTreeItemLabel]="itemLabel"
       [ngpTreeDefaultExpandedKeys]="expanded"
       [ngpTreeCanDrop]="canDrop"
-      [ngpTreeOnDrop]="onDrop"
+      [ngpTreeItemDraggable]="true"
+      (ngpTreeDrop)="onDrop($event)"
       ngpTree
     >
       @for (node of tree.visibleNodes(); track itemValue(node)) {
