@@ -1,6 +1,12 @@
 import { HOST_TAG_NAME, inject } from '@angular/core';
 import { injectElementRef } from 'ng-primitives/internal';
-import { attrBinding, createPrimitive, dataBinding, listener, onDestroy } from 'ng-primitives/state';
+import {
+  attrBinding,
+  createPrimitive,
+  dataBinding,
+  listener,
+  onDestroy,
+} from 'ng-primitives/state';
 import { injectTreeNodeState } from '../tree-node/tree-node-state';
 import { injectTreeState } from '../tree/tree-state';
 
