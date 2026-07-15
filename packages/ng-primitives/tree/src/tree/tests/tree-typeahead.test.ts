@@ -1,6 +1,6 @@
 import { fireEvent, render, waitFor } from '@testing-library/angular';
 import { NgpTree, NgpTreeNode, NgpTreeNodeToggle } from 'ng-primitives/tree';
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 
 interface Node {
   id: string;
@@ -73,6 +73,28 @@ describe('NgpTree typeahead', () => {
     await active('a1');
     type('a1', 'a'); // -> Avocado
     await active('a2');
+  });
+
+  it('resets the buffer after a pause', async () => {
+    vi.useFakeTimers();
+    try {
+      const { type, nodeEl, detectChanges } = await renderTree();
+
+      // Type "b" -> Banana.
+      type('a', 'b');
+      detectChanges();
+      expect(nodeEl('b')).toHaveAttribute('tabindex', '0');
+
+      // After the buffer timeout, "a" starts a fresh search -> Apple. Without the
+      // reset the buffer would be "ba", which prefix-matches Banana instead.
+      vi.advanceTimersByTime(600);
+      type('b', 'a');
+      detectChanges();
+      expect(nodeEl('a')).toHaveAttribute('tabindex', '0');
+      expect(nodeEl('b')).toHaveAttribute('tabindex', '-1');
+    } finally {
+      vi.useRealTimers();
+    }
   });
 
   it('matches multi-character sequences', async () => {

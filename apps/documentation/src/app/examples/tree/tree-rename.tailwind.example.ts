@@ -59,7 +59,7 @@ function find(list: FileNode[], id: string): FileNode | null {
     >
       @for (node of tree.visibleNodes(); track itemValue(node)) {
         <li
-          class="relative flex h-8 touch-manipulation items-center gap-1.5 rounded-lg pr-2 pl-[calc((var(--ngp-tree-node-level)_-_1)_*_1.125rem_+_0.375rem)] text-sm tracking-[-0.006em] text-gray-900 outline-none select-none hover:bg-gray-100 focus-visible:ring-2 focus-visible:ring-blue-500 data-renaming:bg-transparent dark:text-zinc-100 dark:hover:bg-zinc-900 dark:focus-visible:ring-blue-400"
+          class="relative flex h-8 touch-manipulation items-center gap-1.5 rounded-lg pr-2 pl-[calc((var(--ngp-tree-node-level)_-_1)_*_1.125rem_+_0.375rem)] text-sm tracking-[-0.006em] text-gray-900 outline-none select-none data-focus-visible:ring-2 data-focus-visible:ring-blue-500 data-hover:bg-gray-100 data-renaming:bg-transparent dark:text-zinc-100 dark:data-focus-visible:ring-blue-400 dark:data-hover:bg-zinc-900"
           #n="ngpTreeNode"
           [ngpTreeNode]="node"
           ngpTreeNode
@@ -67,7 +67,6 @@ function find(list: FileNode[], id: string): FileNode | null {
           @if (n.expandable()) {
             <button
               class="group/toggle inline-flex h-[1.125rem] w-[1.125rem] flex-none cursor-pointer items-center justify-center rounded border-none bg-transparent p-0 text-gray-400 dark:text-zinc-500"
-              [attr.data-expanded]="n.expanded() ? '' : null"
               ngpTreeNodeToggle
             >
               <ng-icon

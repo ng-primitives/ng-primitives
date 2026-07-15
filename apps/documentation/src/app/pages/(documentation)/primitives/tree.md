@@ -92,7 +92,10 @@ Set `ngpTreeSelectionMode` to `single` or `multiple` and bind `[(ngpTreeSelected
 With `ngpTreeSelectionBehavior="replace"` you get the desktop file-explorer model: a plain
 click replaces the selection, the platform modifier (<kbd>⌘</kbd> on macOS, <kbd>Ctrl</kbd>
 on Windows/Linux) toggles, and <kbd>Shift</kbd>-click selects a range. The default `toggle`
-behavior toggles each item on plain click (checkbox/touch style).
+behavior toggles each item on plain click (checkbox/touch style). `ngpTreeSelectionBehavior`
+applies to `multiple` mode - in `single` mode a plain click always replaces the selection,
+while <kbd>⌘</kbd>/<kbd>Ctrl</kbd>-click or <kbd>Space</kbd> deselects the selected node.
+<kbd>⌘</kbd>/<kbd>Ctrl</kbd>+<kbd>A</kbd> selects the currently **visible** nodes.
 
 <docs-example name="tree-selection"></docs-example>
 
@@ -116,7 +119,8 @@ Add an `ngpTreeNodeCheckbox` to each row for a tri-state checkbox. Checking a pa
 checks all of its leaf descendants; a parent shows `mixed` (indeterminate) when only some
 are checked. Bind `[(ngpTreeCheckedKeys)]` to read the checked leaves. Pressing
 <kbd>Space</kbd> on a row toggles its checkbox, so a checkbox tree stays fully
-keyboard-operable even without a selection mode.
+keyboard-operable even without a selection mode. The `treeitem` row itself carries
+`aria-checked` (the APG checkbox-tree pattern); the checkbox element is decorative.
 
 By default (`ngpTreeCheckboxBehavior="cascade"`) checking cascades to leaf descendants and
 parents roll up to checked / indeterminate. Set `ngpTreeCheckboxBehavior="independent"`
@@ -136,11 +140,13 @@ the `(ngpTreeDrop)` payload carries `sources` (an array), so the same handler co
 multi-node moves.
 
 When a selection is active, grabbing a selected node drags the whole selection (the preview shows a
-count). The move is also keyboard-accessible: <kbd>⌘</kbd>/<kbd>Ctrl</kbd>+<kbd>X</kbd> cuts the
+count badge - restyle it via `[data-ngp-tree-drag-badge]`, or replace preview and badge entirely
+with `ngpTreeDragPreview`). The move is also keyboard-accessible: <kbd>⌘</kbd>/<kbd>Ctrl</kbd>+<kbd>X</kbd> cuts the
 focused node(s) (`n.cut()` / `data-cut`), then <kbd>⌘</kbd>/<kbd>Ctrl</kbd>+<kbd>V</kbd> pastes them
 onto the focused node (inside a folder, otherwise after it); <kbd>Escape</kbd> clears the cut.
-Hovering a collapsed folder while dragging springs it open after a moment. On touch, a drag starts
-after a short long-press, so a normal swipe still scrolls the list.
+<kbd>Escape</kbd> also cancels an in-flight pointer drag. Hovering a collapsed folder while
+dragging springs it open after a moment. On touch, a drag starts after a short long-press, so a
+normal swipe still scrolls the list.
 
 The `(ngpTreeDrop)` payload also reports `effect` and supports root drops. Holding
 <kbd>Alt</kbd>/<kbd>Option</kbd> while dropping sets `effect` to `copy` (otherwise `move`) so you
@@ -202,9 +208,9 @@ reference - the "Expand all" / "Collapse all" buttons below call them directly.
 Because the tree renders a flat `visibleNodes()` list, you can swap `@for` for
 `*cdkVirtualFor` inside a `cdk-virtual-scroll-viewport` to render only the visible rows -
 this example scrolls thousands of nodes smoothly. Keyboard navigation scrolls the focused
-row into view as you move. Note that programmatic focus (type-ahead, arrow-to-parent) can
-only target rows the virtualizer has currently rendered - a node scrolled far out of view
-is not in the DOM to receive focus.
+row into view as you move. Note that <kbd>Home</kbd>/<kbd>End</kbd> and programmatic focus
+(type-ahead, arrow-to-parent) can only reach rows the virtualizer has currently rendered - a
+node scrolled far out of view is not in the DOM to receive focus.
 
 <docs-example name="tree-virtualized"></docs-example>
 
@@ -227,7 +233,7 @@ The `--ngp-tree-node-level` variable is enough to draw connecting guide lines pu
 
 Bind `ngpTreeQuery` to a query string to filter the tree: non-matching nodes are hidden, but every
 match keeps its ancestors visible (and auto-expanded) so it stays in context. Each node exposes
-`n.matched()` (and `data-match`) so you can highlight the hits. Provide `ngpTreeItemMatch` to
+`n.matched()` (and `data-matched`) so you can highlight the hits. Provide `ngpTreeItemMatch` to
 customise matching (it defaults to a case-insensitive `ngpTreeItemLabel` match).
 
 <docs-example name="tree-search"></docs-example>
@@ -262,13 +268,18 @@ The following directives are available to import from the `ng-primitives/tree` p
   <api-attribute name="data-expandable" description="Applied when the node can be expanded." />
   <api-attribute name="data-disabled" description="Applied when the node is disabled." />
   <api-attribute name="data-selected" description="Applied when the node is selected." />
+  <api-attribute name="data-hover" description="Applied while the node is hovered." />
+  <api-attribute name="data-press" description="Applied while the node is pressed." />
+  <api-attribute name="data-focus" description="Applied while the node has focus." />
+  <api-attribute name="data-focus-visible" description="Applied while the node has visible focus (keyboard focus)." />
   <api-attribute name="data-loading" description="Applied while the node's children are lazily loading." />
   <api-attribute name="data-load-error" description="Applied when the node's last lazy load failed." />
   <api-attribute name="data-dragging" description="Applied while the node is being dragged." />
+  <api-attribute name="data-drop-target" description="Applied while this node is the current drop target." />
   <api-attribute name="data-drop-position" description="The drop position when the node is the drop target." value="before | inside | after" />
   <api-attribute name="data-renaming" description="Applied while the node is being renamed." />
   <api-attribute name="data-cut" description="Applied while the node is marked for a cut/paste move." />
-  <api-attribute name="data-match" description="Applied when the node matches the current search query." />
+  <api-attribute name="data-matched" description="Applied when the node matches the current search query." />
   <api-attribute name="data-level" description="The 1-based depth of the node." />
 </api-reference-attributes>
 
@@ -321,14 +332,13 @@ with roving tabindex.
 - <kbd>⌘</kbd>/<kbd>Ctrl</kbd>+<kbd>X</kbd> / <kbd>V</kbd> - cut the focused node(s), then paste them
   onto the focused node (when `ngpTreeItemDraggable` is set); <kbd>Escape</kbd> clears the cut.
 - <kbd>Space</kbd> - toggle the focused node's checkbox, when it has an `ngpTreeNodeCheckbox`.
-
 - <kbd>Enter</kbd> - activate the focused node (emits `(ngpTreeActivate)`).
 
 When a selection mode is active:
 
 - <kbd>Space</kbd> - toggle selection of the focused node.
 - <kbd>Enter</kbd> - also selects the focused node.
-- <kbd>⌘</kbd>/<kbd>Ctrl</kbd>+<kbd>A</kbd> - select all nodes (multiple mode).
+- <kbd>⌘</kbd>/<kbd>Ctrl</kbd>+<kbd>A</kbd> - select all currently visible nodes (multiple mode).
 
 Type-ahead matches the row's text content by default. If your rows contain chrome (icons,
 badges) that would pollute the match, provide an `ngpTreeItemLabel` accessor. Focus is also

@@ -58,11 +58,11 @@ interface FileNode {
       transition: background-color 150ms cubic-bezier(0.4, 0, 0.2, 1);
     }
 
-    [ngpTreeNode]:hover {
+    [ngpTreeNode][data-hover] {
       background-color: var(--ngp-background-hover);
     }
 
-    [ngpTreeNode]:focus-visible {
+    [ngpTreeNode][data-focus-visible] {
       box-shadow: 0 0 0 2px var(--ngp-focus-ring);
     }
 
@@ -121,7 +121,7 @@ interface FileNode {
       @for (node of tree.visibleNodes(); track itemValue(node)) {
         <li #n="ngpTreeNode" [ngpTreeNode]="node" ngpTreeNode>
           @if (n.expandable()) {
-            <button [attr.data-expanded]="n.expanded() ? '' : null" ngpTreeNodeToggle>
+            <button ngpTreeNodeToggle>
               <ng-icon name="heroChevronRightMini" />
             </button>
           } @else {

@@ -64,11 +64,11 @@ interface FileNode {
       outline: none;
     }
 
-    [ngpTreeNode]:hover {
+    [ngpTreeNode][data-hover] {
       background-color: var(--ngp-background-hover);
     }
 
-    [ngpTreeNode]:focus-visible {
+    [ngpTreeNode][data-focus-visible] {
       box-shadow: 0 0 0 2px var(--ngp-focus-ring);
     }
 
@@ -77,7 +77,7 @@ interface FileNode {
       cursor: not-allowed;
     }
 
-    [ngpTreeNode][data-disabled]:hover {
+    [ngpTreeNode][data-disabled][data-hover] {
       background-color: transparent;
     }
 
@@ -137,7 +137,7 @@ interface FileNode {
       @for (node of tree.visibleNodes(); track itemValue(node)) {
         <li #n="ngpTreeNode" [ngpTreeNode]="node" ngpTreeNode>
           @if (n.expandable()) {
-            <button [attr.data-expanded]="n.expanded() ? '' : null" ngpTreeNodeToggle>
+            <button ngpTreeNodeToggle>
               <ng-icon name="heroChevronRightMini" />
             </button>
           } @else {

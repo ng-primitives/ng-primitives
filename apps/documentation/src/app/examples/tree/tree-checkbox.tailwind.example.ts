@@ -27,7 +27,7 @@ interface Item {
     >
       @for (node of tree.visibleNodes(); track itemValue(node)) {
         <li
-          class="flex h-8 items-center gap-2 rounded-lg pr-2 pl-[calc((var(--ngp-tree-node-level)-1)*1.25rem+0.375rem)] text-sm tracking-[-0.006em] text-gray-900 outline-none select-none focus-visible:ring-2 focus-visible:ring-blue-500 dark:text-zinc-100 dark:focus-visible:ring-blue-400"
+          class="flex h-8 items-center gap-2 rounded-lg pr-2 pl-[calc((var(--ngp-tree-node-level)-1)*1.25rem+0.375rem)] text-sm tracking-[-0.006em] text-gray-900 outline-none select-none data-focus-visible:ring-2 data-focus-visible:ring-blue-500 dark:text-zinc-100 dark:data-focus-visible:ring-blue-400"
           #n="ngpTreeNode"
           [ngpTreeNode]="node"
           ngpTreeNode
@@ -35,7 +35,6 @@ interface Item {
           @if (n.expandable()) {
             <button
               class="group inline-flex h-[1.125rem] w-[1.125rem] flex-none items-center justify-center rounded border-none bg-transparent p-0 text-gray-400 dark:text-zinc-500"
-              [attr.data-expanded]="n.expanded() ? '' : null"
               ngpTreeNodeToggle
             >
               <ng-icon

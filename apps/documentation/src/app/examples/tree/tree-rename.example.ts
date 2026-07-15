@@ -81,11 +81,11 @@ function find(list: FileNode[], id: string): FileNode | null {
       outline: none;
     }
 
-    [ngpTreeNode]:hover {
+    [ngpTreeNode][data-hover] {
       background-color: var(--ngp-background-hover);
     }
 
-    [ngpTreeNode]:focus-visible {
+    [ngpTreeNode][data-focus-visible] {
       box-shadow: 0 0 0 2px var(--ngp-focus-ring);
     }
 
@@ -173,7 +173,7 @@ function find(list: FileNode[], id: string): FileNode | null {
       @for (node of tree.visibleNodes(); track itemValue(node)) {
         <li #n="ngpTreeNode" [ngpTreeNode]="node" ngpTreeNode>
           @if (n.expandable()) {
-            <button [attr.data-expanded]="n.expanded() ? '' : null" ngpTreeNodeToggle>
+            <button ngpTreeNodeToggle>
               <ng-icon name="heroChevronRightMini" />
             </button>
           } @else {

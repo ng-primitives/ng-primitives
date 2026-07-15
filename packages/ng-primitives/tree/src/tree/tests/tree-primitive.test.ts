@@ -126,4 +126,33 @@ describe('NgpTree', () => {
     clickToggle('a');
     expect(nodeEls().map(el => el.dataset['value'])).toEqual(['a', 'b']);
   });
+
+  it('exposes interaction state on rows (data-hover / data-press / data-focus)', async () => {
+    const { nodeEl } = await renderTree();
+    const row = nodeEl('a')!;
+
+    fireEvent.mouseEnter(row);
+    expect(row).toHaveAttribute('data-hover');
+    fireEvent.mouseLeave(row);
+    expect(row).not.toHaveAttribute('data-hover');
+
+    fireEvent.pointerDown(row);
+    expect(row).toHaveAttribute('data-press');
+    fireEvent.pointerUp(row);
+    expect(row).not.toHaveAttribute('data-press');
+
+    fireEvent.focus(row);
+    expect(row).toHaveAttribute('data-focus');
+    fireEvent.blur(row);
+    expect(row).not.toHaveAttribute('data-focus');
+  });
+
+  it('prevents the pointer-press default on the toggle so it never takes focus', async () => {
+    const { toggle } = await renderTree();
+    // The decorative toggle is aria-hidden and out of the tab order; preventing
+    // the press default keeps a native <button> host from focusing on click.
+    const press = new MouseEvent('mousedown', { bubbles: true, cancelable: true });
+    toggle('a').dispatchEvent(press);
+    expect(press.defaultPrevented).toBe(true);
+  });
 });

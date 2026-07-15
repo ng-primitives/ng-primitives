@@ -56,66 +56,87 @@ async function renderTree(props: Record<string, unknown> = {}) {
 }
 
 describe('NgpTree checkbox', () => {
-  it('exposes tri-state via aria-checked', async () => {
+  it('exposes tri-state via aria-checked on the treeitem row', async () => {
+    const { row } = await renderTree();
+    expect(row('a')).toHaveAttribute('aria-checked', 'false');
+    expect(row('a1')).toHaveAttribute('aria-checked', 'false');
+  });
+
+  it('renders the checkbox itself as decorative (hidden from AT, state via data attributes)', async () => {
+    const { cb } = await renderTree({ checked: new Set(['a1']) });
+    expect(cb('a1')).toHaveAttribute('aria-hidden', 'true');
+    expect(cb('a1')).not.toHaveAttribute('role');
+    expect(cb('a1')).not.toHaveAttribute('aria-checked');
+    expect(cb('a1')).toHaveAttribute('data-checked');
+    expect(cb('a2')).not.toHaveAttribute('data-checked');
+  });
+
+  it('prevents the pointer-press default so the aria-hidden control never takes focus', async () => {
     const { cb } = await renderTree();
-    expect(cb('a')).toHaveAttribute('aria-checked', 'false');
-    expect(cb('a1')).toHaveAttribute('aria-checked', 'false');
+    // The press default is prevented (this is what stops a native <button> from
+    // focusing on click - a browser only focuses on mousedown it can default).
+    const press = new MouseEvent('mousedown', { bubbles: true, cancelable: true });
+    cb('a1').dispatchEvent(press);
+    expect(press.defaultPrevented).toBe(true);
+    // ...while the click still toggles the checkbox.
+    fireEvent.click(cb('a1'));
+    expect(cb('a1')).toHaveAttribute('data-checked');
   });
 
   it('checking a leaf makes the parent indeterminate, checking all makes it checked', async () => {
-    const { cb } = await renderTree();
+    const { cb, row } = await renderTree();
 
     fireEvent.click(cb('a1'));
-    expect(cb('a1')).toHaveAttribute('aria-checked', 'true');
-    expect(cb('a')).toHaveAttribute('aria-checked', 'mixed');
+    expect(row('a1')).toHaveAttribute('aria-checked', 'true');
+    expect(row('a')).toHaveAttribute('aria-checked', 'mixed');
     expect(cb('a')).toHaveAttribute('data-indeterminate');
 
     fireEvent.click(cb('a2'));
-    expect(cb('a')).toHaveAttribute('aria-checked', 'true');
+    expect(row('a')).toHaveAttribute('aria-checked', 'true');
     expect(cb('a')).not.toHaveAttribute('data-indeterminate');
   });
 
   it('checking a parent checks all its descendants', async () => {
-    const { cb } = await renderTree();
+    const { cb, row } = await renderTree();
 
     fireEvent.click(cb('a'));
-    expect(cb('a')).toHaveAttribute('aria-checked', 'true');
-    expect(cb('a1')).toHaveAttribute('aria-checked', 'true');
-    expect(cb('a2')).toHaveAttribute('aria-checked', 'true');
+    expect(row('a')).toHaveAttribute('aria-checked', 'true');
+    expect(row('a1')).toHaveAttribute('aria-checked', 'true');
+    expect(row('a2')).toHaveAttribute('aria-checked', 'true');
   });
 
   it('unchecking a parent unchecks all its descendants', async () => {
-    const { cb } = await renderTree({ checked: new Set(['a1', 'a2']) });
-    expect(cb('a')).toHaveAttribute('aria-checked', 'true');
+    const { cb, row } = await renderTree({ checked: new Set(['a1', 'a2']) });
+    expect(row('a')).toHaveAttribute('aria-checked', 'true');
 
     fireEvent.click(cb('a'));
-    expect(cb('a')).toHaveAttribute('aria-checked', 'false');
-    expect(cb('a1')).toHaveAttribute('aria-checked', 'false');
+    expect(row('a')).toHaveAttribute('aria-checked', 'false');
+    expect(row('a1')).toHaveAttribute('aria-checked', 'false');
   });
 
   it('reflects a controlled checkedKeys binding', async () => {
-    const { cb } = await renderTree({ checked: new Set(['a1']) });
-    expect(cb('a1')).toHaveAttribute('aria-checked', 'true');
-    expect(cb('a')).toHaveAttribute('aria-checked', 'mixed');
+    const { row } = await renderTree({ checked: new Set(['a1']) });
+    expect(row('a1')).toHaveAttribute('aria-checked', 'true');
+    expect(row('a')).toHaveAttribute('aria-checked', 'mixed');
   });
 
   it('toggles the checkbox when Space is pressed on the row', async () => {
-    const { cb, row } = await renderTree();
+    const { row } = await renderTree();
 
     fireEvent.keyDown(row('a1'), { key: ' ' });
-    expect(cb('a1')).toHaveAttribute('aria-checked', 'true');
+    expect(row('a1')).toHaveAttribute('aria-checked', 'true');
 
     fireEvent.keyDown(row('a1'), { key: ' ' });
-    expect(cb('a1')).toHaveAttribute('aria-checked', 'false');
+    expect(row('a1')).toHaveAttribute('aria-checked', 'false');
   });
 
   it('checks a whole subtree when Space is pressed on a parent row', async () => {
-    const { cb, row } = await renderTree();
+    const { row } = await renderTree();
 
     fireEvent.keyDown(row('a'), { key: ' ' });
-    expect(cb('a')).toHaveAttribute('aria-checked', 'true');
-    expect(cb('a1')).toHaveAttribute('aria-checked', 'true');
-    expect(cb('a2')).toHaveAttribute('aria-checked', 'true');
+    expect(row('a')).toHaveAttribute('aria-checked', 'true');
+    expect(row('a1')).toHaveAttribute('aria-checked', 'true');
+    expect(row('a2')).toHaveAttribute('aria-checked', 'true');
   });
 
   it('does not toggle a disabled node checkbox via Space', async () => {
@@ -124,37 +145,40 @@ describe('NgpTree checkbox', () => {
     });
 
     fireEvent.keyDown(row('a1'), { key: ' ' });
-    expect(cb('a1')).toHaveAttribute('aria-checked', 'false');
+    expect(row('a1')).toHaveAttribute('aria-checked', 'false');
+    // The decorative checkbox reflects the disabled state as data only.
+    expect(cb('a1')).toHaveAttribute('data-disabled');
+    expect(cb('a1')).not.toHaveAttribute('aria-disabled');
   });
 
   describe('independent behavior', () => {
     it('checking a parent does not cascade to descendants', async () => {
-      const { cb } = await renderTree({ checkboxBehavior: 'independent' });
+      const { cb, row } = await renderTree({ checkboxBehavior: 'independent' });
 
       fireEvent.click(cb('a'));
-      expect(cb('a')).toHaveAttribute('aria-checked', 'true');
-      expect(cb('a1')).toHaveAttribute('aria-checked', 'false');
-      expect(cb('a2')).toHaveAttribute('aria-checked', 'false');
+      expect(row('a')).toHaveAttribute('aria-checked', 'true');
+      expect(row('a1')).toHaveAttribute('aria-checked', 'false');
+      expect(row('a2')).toHaveAttribute('aria-checked', 'false');
     });
 
     it('a parent never becomes indeterminate from its children', async () => {
-      const { cb } = await renderTree({
+      const { cb, row } = await renderTree({
         checkboxBehavior: 'independent',
         checked: new Set(['a1']),
       });
 
-      expect(cb('a1')).toHaveAttribute('aria-checked', 'true');
-      expect(cb('a')).toHaveAttribute('aria-checked', 'false');
+      expect(row('a1')).toHaveAttribute('aria-checked', 'true');
+      expect(row('a')).toHaveAttribute('aria-checked', 'false');
       expect(cb('a')).not.toHaveAttribute('data-indeterminate');
     });
 
     it('toggles a single node on and off', async () => {
-      const { cb } = await renderTree({ checkboxBehavior: 'independent' });
+      const { cb, row } = await renderTree({ checkboxBehavior: 'independent' });
 
       fireEvent.click(cb('a'));
-      expect(cb('a')).toHaveAttribute('aria-checked', 'true');
+      expect(row('a')).toHaveAttribute('aria-checked', 'true');
       fireEvent.click(cb('a'));
-      expect(cb('a')).toHaveAttribute('aria-checked', 'false');
+      expect(row('a')).toHaveAttribute('aria-checked', 'false');
     });
   });
 });

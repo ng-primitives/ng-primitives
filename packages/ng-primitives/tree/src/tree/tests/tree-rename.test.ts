@@ -1,5 +1,11 @@
 import { fireEvent, render } from '@testing-library/angular';
-import { NgpTree, NgpTreeNode, NgpTreeNodeRename } from 'ng-primitives/tree';
+import {
+  NgpTree,
+  NgpTreeNode,
+  NgpTreeNodeCheckbox,
+  NgpTreeNodeRename,
+  NgpTreeNodeToggle,
+} from 'ng-primitives/tree';
 import { describe, expect, it, vi } from 'vitest';
 
 interface Node {
@@ -14,6 +20,8 @@ const template = `
       [ngpTreeItemRenamable]="canRename" (ngpTreeRename)="onRename($event)">
     @for (node of t.visibleNodes(); track itemValue(node)) {
       <li ngpTreeNode #n="ngpTreeNode" class="node" [ngpTreeNode]="node" [attr.data-value]="n.value()">
+        <button ngpTreeNodeToggle class="toggle">t</button>
+        <button ngpTreeNodeCheckbox class="cb">c</button>
         @if (n.renaming()) {
           <input ngpTreeNodeRename class="rename" [value]="node.name" />
         } @else {
@@ -26,7 +34,7 @@ const template = `
 
 async function renderTree(props: Record<string, unknown> = {}) {
   const view = await render(template, {
-    imports: [NgpTree, NgpTreeNode, NgpTreeNodeRename],
+    imports: [NgpTree, NgpTreeNode, NgpTreeNodeCheckbox, NgpTreeNodeRename, NgpTreeNodeToggle],
     componentProperties: {
       nodes: [
         { id: 'a', name: 'A' },
@@ -67,6 +75,61 @@ describe('NgpTree rename', () => {
     fireEvent.dblClick(row('b'));
     detectChanges();
     expect(input()).not.toBeNull();
+  });
+
+  it('does not start renaming on a double-click of an interactive part (the toggle)', async () => {
+    const { row, input, detectChanges } = await renderTree({
+      nodes: [{ id: 'a', name: 'A', children: [{ id: 'a1', name: 'A1' }] }] as Node[],
+    });
+
+    // Rapidly toggling the folder must not open the rename field.
+    fireEvent.dblClick(row('a').querySelector('.toggle')!);
+    detectChanges();
+    expect(input()).toBeNull();
+
+    // A double-click on the row body still starts a rename.
+    fireEvent.dblClick(row('a'));
+    detectChanges();
+    expect(input()).not.toBeNull();
+  });
+
+  it('does not start renaming on a double-click of the checkbox', async () => {
+    const { row, input, detectChanges } = await renderTree();
+
+    // The checkbox registers itself as an interactive part, so a double-click on
+    // it (e.g. checking twice) must not open the rename field.
+    fireEvent.dblClick(row('a').querySelector('.cb')!);
+    detectChanges();
+    expect(input()).toBeNull();
+  });
+
+  it('commits the new label when the field is blurred', async () => {
+    const onRename = vi.fn();
+    const { row, input, detectChanges } = await renderTree({ onRename });
+
+    fireEvent.keyDown(row('a'), { key: 'F2' });
+    detectChanges();
+    const field = input()!;
+    field.value = 'Blurred';
+    fireEvent.blur(field);
+
+    expect(onRename).toHaveBeenCalledTimes(1);
+    expect(onRename.mock.calls[0][0]).toMatchObject({ node: { id: 'a' }, value: 'Blurred' });
+  });
+
+  it('does not commit twice when blur follows an Enter commit', async () => {
+    const onRename = vi.fn();
+    const { row, input, detectChanges } = await renderTree({ onRename });
+
+    fireEvent.keyDown(row('a'), { key: 'F2' });
+    detectChanges();
+    const field = input()!;
+    field.value = 'Once';
+    fireEvent.keyDown(field, { key: 'Enter' });
+    fireEvent.blur(field); // the trailing blur after Enter must be a no-op
+
+    expect(onRename).toHaveBeenCalledTimes(1);
+    expect(onRename.mock.calls[0][0]).toMatchObject({ node: { id: 'a' }, value: 'Once' });
   });
 
   it('starts renaming on a double-tap (touch)', async () => {

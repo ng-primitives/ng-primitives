@@ -1,6 +1,6 @@
 import { afterNextRender } from '@angular/core';
 import { injectElementRef } from 'ng-primitives/internal';
-import { createPrimitive, listener } from 'ng-primitives/state';
+import { createPrimitive, listener, onDestroy } from 'ng-primitives/state';
 import { injectTreeNodeState } from '../tree-node/tree-node-state';
 
 /**
@@ -22,6 +22,10 @@ export const [
 ] = createPrimitive('NgpTreeNodeRename', (): NgpTreeNodeRenameState => {
   const element = injectElementRef<HTMLInputElement>();
   const node = injectTreeNodeState();
+
+  // Register the field so the row can focus it inside the touch gesture (iOS
+  // keyboard) without a DOM query, and treat it as an interactive part.
+  onDestroy(node().registerRenameElement(element.nativeElement));
 
   // Focus + select the field once it renders so the user can type immediately.
   afterNextRender(() => {

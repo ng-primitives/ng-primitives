@@ -75,11 +75,11 @@ function generate(): Node[] {
       outline: none;
     }
 
-    [ngpTreeNode]:hover {
+    [ngpTreeNode][data-hover] {
       background-color: var(--ngp-background-hover);
     }
 
-    [ngpTreeNode]:focus-visible {
+    [ngpTreeNode][data-focus-visible] {
       box-shadow: 0 0 0 2px var(--ngp-focus-ring);
     }
 
@@ -136,16 +136,20 @@ function generate(): Node[] {
         ngpTreeNode
       >
         @if (n.expandable()) {
-          <button [attr.data-expanded]="n.expanded() ? '' : null" ngpTreeNodeToggle>
+          <button ngpTreeNodeToggle>
             <ng-icon name="heroChevronRightMini" />
           </button>
         } @else {
           <span class="spacer"></span>
         }
-        <ng-icon
-          class="node-icon"
-          [name]="n.expandable() ? (n.expanded() ? 'heroFolderOpenMini' : 'heroFolderMini') : ''"
-        />
+        @if (n.expandable()) {
+          <ng-icon
+            class="node-icon"
+            [name]="n.expanded() ? 'heroFolderOpenMini' : 'heroFolderMini'"
+          />
+        } @else {
+          <span class="spacer"></span>
+        }
         <span>{{ node.name }}</span>
       </li>
     </cdk-virtual-scroll-viewport>

@@ -20,6 +20,9 @@ interface Item {
   providers: [
     provideIcons({ heroChevronRightMini, heroFolderMini, heroFolderOpenMini, heroHashtagMini }),
   ],
+  host: {
+    class: 'flex w-full flex-col items-center gap-3',
+  },
   template: `
     <ul
       class="m-0 w-full max-w-80 list-none rounded-xl border border-gray-200 bg-white p-1.5 shadow-sm outline-none dark:border-zinc-800 dark:bg-zinc-950"
@@ -35,7 +38,7 @@ interface Item {
     >
       @for (node of tree.visibleNodes(); track itemValue(node)) {
         <li
-          class="group flex h-8 cursor-pointer items-center gap-1.5 rounded-lg pr-2 pl-[calc((var(--ngp-tree-node-level)-1)*1.125rem+0.375rem)] text-sm tracking-[-0.006em] text-gray-900 transition-colors duration-150 ease-in-out outline-none select-none hover:bg-gray-100 focus-visible:ring-2 focus-visible:ring-blue-500 data-selected:bg-[#f01e2b]/[0.14] data-selected:hover:bg-[#f01e2b]/[0.2] dark:text-zinc-100 dark:hover:bg-zinc-900 dark:focus-visible:ring-blue-400 dark:data-selected:bg-[#ff4651]/[0.14] dark:data-selected:hover:bg-[#ff4651]/[0.2]"
+          class="group flex h-8 cursor-pointer items-center gap-1.5 rounded-lg pr-2 pl-[calc((var(--ngp-tree-node-level)-1)*1.125rem+0.375rem)] text-sm tracking-[-0.006em] text-gray-900 transition-colors duration-150 ease-in-out outline-none select-none data-focus-visible:ring-2 data-focus-visible:ring-blue-500 data-hover:bg-gray-100 data-selected:bg-[#f01e2b]/[0.14] data-selected:data-hover:bg-[#f01e2b]/[0.2] dark:text-zinc-100 dark:data-focus-visible:ring-blue-400 dark:data-hover:bg-zinc-900 dark:data-selected:bg-[#ff4651]/[0.14] dark:data-selected:data-hover:bg-[#ff4651]/[0.2]"
           #n="ngpTreeNode"
           [ngpTreeNode]="node"
           ngpTreeNode
@@ -43,7 +46,6 @@ interface Item {
           @if (n.expandable()) {
             <button
               class="group/toggle inline-flex h-[1.125rem] w-[1.125rem] flex-none cursor-pointer items-center justify-center rounded border-none bg-transparent p-0 text-gray-400 dark:text-zinc-500"
-              [attr.data-expanded]="n.expanded() ? '' : null"
               ngpTreeNodeToggle
             >
               <ng-icon

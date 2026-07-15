@@ -28,7 +28,7 @@ interface Category {
     >
       @for (node of tree.visibleNodes(); track itemValue(node)) {
         <li
-          class="flex h-8 cursor-pointer items-center gap-2 rounded-lg pr-2.5 pl-[calc((var(--ngp-tree-node-level)-1)*1rem+0.5rem)] text-sm font-[510] tracking-[-0.006em] text-gray-900 outline-none select-none hover:bg-gray-100 focus-visible:ring-2 focus-visible:ring-blue-500 data-active:text-[#f01e2b] dark:text-zinc-100 dark:hover:bg-zinc-900 dark:focus-visible:ring-blue-400 dark:data-active:text-[#ff4651]"
+          class="flex h-8 cursor-pointer items-center gap-2 rounded-lg pr-2.5 pl-[calc((var(--ngp-tree-node-level)-1)*1rem+0.5rem)] text-sm font-[510] tracking-[-0.006em] text-gray-900 outline-none select-none data-active:text-[#f01e2b] data-focus-visible:ring-2 data-focus-visible:ring-blue-500 data-hover:bg-gray-100 dark:text-zinc-100 dark:data-active:text-[#ff4651] dark:data-focus-visible:ring-blue-400 dark:data-hover:bg-zinc-900"
           #n="ngpTreeNode"
           [ngpTreeNode]="node"
           [attr.data-active]="active() === node.id ? '' : null"
@@ -37,7 +37,6 @@ interface Category {
           @if (n.expandable()) {
             <button
               class="group inline-flex h-4 w-4 flex-none cursor-pointer items-center justify-center rounded border-none bg-transparent p-0 text-gray-400 dark:text-zinc-500"
-              [attr.data-expanded]="n.expanded() ? '' : null"
               ngpTreeNodeToggle
             >
               <ng-icon
