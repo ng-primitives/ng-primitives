@@ -44,7 +44,6 @@ interface FileNode {
           @if (n.expandable()) {
             <button
               class="group/toggle inline-flex h-[1.125rem] w-[1.125rem] flex-none cursor-pointer items-center justify-center rounded border-none bg-transparent p-0 text-gray-400 dark:text-zinc-500"
-              [attr.data-expanded]="n.expanded() ? '' : null"
               ngpTreeNodeToggle
             >
               <ng-icon

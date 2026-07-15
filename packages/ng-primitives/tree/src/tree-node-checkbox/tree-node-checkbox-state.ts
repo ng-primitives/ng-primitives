@@ -12,7 +12,10 @@ import { injectTreeNodeState } from '../tree-node/tree-node-state';
 /**
  * The state for the NgpTreeNodeCheckbox directive - a tri-state checkbox for a
  * tree node. Checking a parent checks all its leaf descendants; a parent is
- * `mixed` (indeterminate) when only some descendants are checked.
+ * `mixed` (indeterminate) when only some descendants are checked. The `treeitem`
+ * row carries `aria-checked` (per the APG checkbox-tree pattern), so this element
+ * is decorative for assistive tech - it is removed from the tab order and hidden
+ * from AT, and exposes its state via `data-checked` / `data-indeterminate`.
  */
 export interface NgpTreeNodeCheckboxState {}
 
@@ -32,16 +35,12 @@ export const [
   // for selection-less checkbox trees).
   onDestroy(node().registerCheckbox());
 
-  const ariaChecked = () =>
-    node().indeterminate() ? 'mixed' : node().checked() ? 'true' : 'false';
-
-  // Host bindings.
-  attrBinding(element, 'role', () => (tagName === 'input' ? null : 'checkbox'));
+  // Host bindings. The row (`treeitem`) announces the checked state, so this
+  // element is hidden from AT like the toggle.
   attrBinding(element, 'type', () => (tagName === 'button' ? 'button' : null));
   attrBinding(element, 'tabindex', '-1');
-  attrBinding(element, 'aria-checked', ariaChecked);
+  attrBinding(element, 'aria-hidden', 'true');
   attrBinding(element, 'disabled', () => (tagName === 'button' && node().disabled() ? '' : null));
-  attrBinding(element, 'aria-disabled', () => (node().disabled() ? 'true' : null));
   dataBinding(element, 'data-checked', () => node().checked());
   dataBinding(element, 'data-indeterminate', () => node().indeterminate());
   dataBinding(element, 'data-disabled', () => node().disabled());

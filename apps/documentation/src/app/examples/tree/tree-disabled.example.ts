@@ -137,7 +137,7 @@ interface FileNode {
       @for (node of tree.visibleNodes(); track itemValue(node)) {
         <li #n="ngpTreeNode" [ngpTreeNode]="node" ngpTreeNode>
           @if (n.expandable()) {
-            <button [attr.data-expanded]="n.expanded() ? '' : null" ngpTreeNodeToggle>
+            <button ngpTreeNodeToggle>
               <ng-icon name="heroChevronRightMini" />
             </button>
           } @else {

@@ -139,8 +139,11 @@ function copyOf(node: FileNode): FileNode {
 
     /* Selected rows (click, Ctrl/Cmd-click, Shift-click). */
     [ngpTreeNode][data-selected] {
-      background-color: color-mix(in srgb, var(--ngp-primary) 10%, transparent);
-      color: var(--ngp-text-primary);
+      background-color: color-mix(in srgb, var(--ngp-primary) 14%, transparent);
+    }
+
+    [ngpTreeNode][data-selected]:hover {
+      background-color: color-mix(in srgb, var(--ngp-primary) 20%, transparent);
     }
 
     [ngpTreeNode][data-dragging] {
@@ -236,7 +239,7 @@ function copyOf(node: FileNode): FileNode {
       @for (node of tree.visibleNodes(); track itemValue(node)) {
         <li #n="ngpTreeNode" [ngpTreeNode]="node" ngpTreeNode>
           @if (n.expandable()) {
-            <button [attr.data-expanded]="n.expanded() ? '' : null" ngpTreeNodeToggle>
+            <button ngpTreeNodeToggle>
               <ng-icon name="heroChevronRightMini" />
             </button>
           } @else {

@@ -131,6 +131,10 @@ describe('NgpTree drag & drop', () => {
 
     drag('b', 'a', 'before').drop();
     expect(onDrop.mock.calls[0][0].position).toBe('before');
+
+    // The bottom quarter of a row drops after it.
+    drag('b', 'a', 'after').drop();
+    expect(onDrop.mock.calls[1][0].position).toBe('after');
   });
 
   it('marks the dragged node while dragging', async () => {
@@ -324,6 +328,47 @@ describe('NgpTree drag & drop', () => {
       target: { id: 'a' },
       position: 'inside',
     });
+  });
+
+  it('cancels an in-flight drag on Escape without dropping', async () => {
+    const onDrop = vi.fn();
+    const { nodeEl, drag, yOf } = await renderTree({ onDrop });
+
+    drag('b', 'a', 'inside');
+    expect(nodeEl('b')).toHaveAttribute('data-dragging');
+    expect(nodeEl('a')).toHaveAttribute('data-drop', 'inside');
+
+    fireEvent.keyDown(document, { key: 'Escape' });
+    expect(nodeEl('b')).not.toHaveAttribute('data-dragging');
+    expect(nodeEl('a')).not.toHaveAttribute('data-drop');
+
+    // Releasing over a valid target after the cancel must not drop.
+    fireEvent.pointerUp(document.body, { clientX: 5, clientY: yOf('a') });
+    expect(onDrop).not.toHaveBeenCalled();
+  });
+
+  it('moves the whole selection with keyboard cut / paste', async () => {
+    const onDrop = vi.fn();
+    const { nodeEl, detectChanges } = await renderTree({
+      onDrop,
+      selectionMode: 'multiple',
+      selectedKeys: new Set(['a2', 'a1']),
+    });
+
+    // Cut from one of the selected nodes marks the whole selection.
+    fireEvent.keyDown(nodeEl('a2'), { key: 'x', ctrlKey: true, metaKey: true });
+    detectChanges();
+    expect(nodeEl('a1')).toHaveAttribute('data-cut');
+    expect(nodeEl('a2')).toHaveAttribute('data-cut');
+
+    // Paste onto folder 'a' -> both dropped inside, in visible order.
+    fireEvent.keyDown(nodeEl('a'), { key: 'v', ctrlKey: true, metaKey: true });
+    expect(onDrop).toHaveBeenCalledTimes(1);
+    expect(onDrop.mock.calls[0][0]).toMatchObject({
+      target: { id: 'a' },
+      position: 'inside',
+    });
+    expect(onDrop.mock.calls[0][0].sources.map((n: Node) => n.id)).toEqual(['a1', 'a2']);
   });
 
   it('clears a pending cut on Escape', async () => {

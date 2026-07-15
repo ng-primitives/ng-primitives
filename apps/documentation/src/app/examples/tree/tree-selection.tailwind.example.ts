@@ -20,6 +20,9 @@ interface Item {
   providers: [
     provideIcons({ heroChevronRightMini, heroFolderMini, heroFolderOpenMini, heroHashtagMini }),
   ],
+  host: {
+    class: 'flex w-full flex-col items-center gap-3',
+  },
   template: `
     <ul
       class="m-0 w-full max-w-80 list-none rounded-xl border border-gray-200 bg-white p-1.5 shadow-sm outline-none dark:border-zinc-800 dark:bg-zinc-950"
@@ -43,7 +46,6 @@ interface Item {
           @if (n.expandable()) {
             <button
               class="group/toggle inline-flex h-[1.125rem] w-[1.125rem] flex-none cursor-pointer items-center justify-center rounded border-none bg-transparent p-0 text-gray-400 dark:text-zinc-500"
-              [attr.data-expanded]="n.expanded() ? '' : null"
               ngpTreeNodeToggle
             >
               <ng-icon

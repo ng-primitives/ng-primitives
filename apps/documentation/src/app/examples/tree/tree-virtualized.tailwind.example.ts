@@ -60,7 +60,6 @@ function generate(): Node[] {
         @if (n.expandable()) {
           <button
             class="inline-flex h-[1.125rem] w-[1.125rem] flex-none cursor-pointer items-center justify-center rounded border-none bg-transparent p-0 text-gray-400 transition-transform duration-150 ease-[cubic-bezier(0.4,0,0.2,1)] data-expanded:rotate-90 dark:text-zinc-500"
-            [attr.data-expanded]="n.expanded() ? '' : null"
             ngpTreeNodeToggle
           >
             <ng-icon class="text-base" name="heroChevronRightMini" />
@@ -68,10 +67,14 @@ function generate(): Node[] {
         } @else {
           <span class="h-[1.125rem] w-[1.125rem] flex-none"></span>
         }
-        <ng-icon
-          class="flex-none text-[1.125rem] text-gray-400 dark:text-zinc-500"
-          [name]="n.expandable() ? (n.expanded() ? 'heroFolderOpenMini' : 'heroFolderMini') : ''"
-        />
+        @if (n.expandable()) {
+          <ng-icon
+            class="flex-none text-[1.125rem] text-gray-400 dark:text-zinc-500"
+            [name]="n.expanded() ? 'heroFolderOpenMini' : 'heroFolderMini'"
+          />
+        } @else {
+          <span class="h-[1.125rem] w-[1.125rem] flex-none"></span>
+        }
         <span>{{ node.name }}</span>
       </li>
     </cdk-virtual-scroll-viewport>

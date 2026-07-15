@@ -93,6 +93,6 @@ describe('NgpTree disabledBehavior="selection"', () => {
     // A non-selectable node omits aria-selected and never enters the selection.
     fireEvent.click(nodeEl('a')!);
     expect(nodeEl('a')).not.toHaveAttribute('data-selected');
-    expect(nodeEl('a')!.getAttribute('aria-selected')).not.toBe('true');
+    expect(nodeEl('a')).not.toHaveAttribute('aria-selected');
   });
 });

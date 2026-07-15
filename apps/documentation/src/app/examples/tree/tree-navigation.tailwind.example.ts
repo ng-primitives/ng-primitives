@@ -37,7 +37,6 @@ interface Category {
           @if (n.expandable()) {
             <button
               class="group inline-flex h-4 w-4 flex-none cursor-pointer items-center justify-center rounded border-none bg-transparent p-0 text-gray-400 dark:text-zinc-500"
-              [attr.data-expanded]="n.expanded() ? '' : null"
               ngpTreeNodeToggle
             >
               <ng-icon

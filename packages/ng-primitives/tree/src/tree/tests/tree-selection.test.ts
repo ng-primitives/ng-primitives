@@ -121,13 +121,63 @@ describe('NgpTree selection', () => {
     expect(nodeEl('b')).toHaveAttribute('aria-selected', 'true');
   });
 
-  it('Ctrl/Cmd+A selects all nodes in multiple mode', async () => {
+  it('Ctrl/Cmd+A selects all visible nodes in multiple mode', async () => {
     const { nodeEl, press } = await renderTree({ mode: 'multiple' });
     // Send both modifiers so the test is platform-independent.
     press('a', 'a', { ctrlKey: true, metaKey: true });
     for (const v of ['a', 'a1', 'a2', 'b']) {
       expect(nodeEl(v)).toHaveAttribute('aria-selected', 'true');
     }
+  });
+
+  it('Ctrl/Cmd+A does not select nodes hidden inside collapsed folders', async () => {
+    const { nodeEl, press, fixture } = await renderTree({
+      mode: 'multiple',
+      expanded: new Set<string>(),
+    });
+    press('a', 'a', { ctrlKey: true, metaKey: true });
+
+    expect(nodeEl('a')).toHaveAttribute('aria-selected', 'true');
+    expect(nodeEl('b')).toHaveAttribute('aria-selected', 'true');
+    // a1/a2 are hidden in the collapsed 'a' folder, so they never enter the selection.
+    expect([...fixture.componentInstance.selected].sort()).toEqual(['a', 'b']);
+  });
+
+  it('multiple: Shift-click selects the contiguous visible range from the anchor', async () => {
+    const { nodeEl, click } = await renderTree({ mode: 'multiple' });
+
+    click('a1'); // anchor
+    click('b', { shiftKey: true });
+
+    expect(nodeEl('a')).toHaveAttribute('aria-selected', 'false');
+    for (const v of ['a1', 'a2', 'b']) {
+      expect(nodeEl(v)).toHaveAttribute('aria-selected', 'true');
+    }
+  });
+
+  it('single: a modifier-click on the selected node deselects it', async () => {
+    const { nodeEl, click } = await renderTree({ mode: 'single' });
+
+    click('a');
+    expect(nodeEl('a')).toHaveAttribute('aria-selected', 'true');
+
+    // A plain click on the selected node keeps it selected (replace).
+    click('a');
+    expect(nodeEl('a')).toHaveAttribute('aria-selected', 'true');
+
+    // An explicit toggle (Ctrl/Cmd-click) deselects it.
+    click('a', { ctrlKey: true, metaKey: true });
+    expect(nodeEl('a')).toHaveAttribute('aria-selected', 'false');
+  });
+
+  it('single: Space on the selected node deselects it', async () => {
+    const { nodeEl, press } = await renderTree({ mode: 'single' });
+
+    press('a', ' ');
+    expect(nodeEl('a')).toHaveAttribute('aria-selected', 'true');
+
+    press('a', ' ');
+    expect(nodeEl('a')).toHaveAttribute('aria-selected', 'false');
   });
 
   it('reflects a controlled selectedKeys binding', async () => {

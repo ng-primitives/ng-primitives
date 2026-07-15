@@ -69,7 +69,6 @@ let counter = 0;
           } @else if (n.expandable()) {
             <button
               class="inline-flex h-[1.125rem] w-[1.125rem] flex-none cursor-pointer items-center justify-center rounded border-none bg-transparent p-0 text-gray-400 transition-transform duration-150 ease-[cubic-bezier(0.4,0,0.2,1)] data-expanded:rotate-90 dark:text-zinc-500"
-              [attr.data-expanded]="n.expanded() ? '' : null"
               ngpTreeNodeToggle
             >
               <ng-icon class="text-base" name="heroChevronRightMini" />

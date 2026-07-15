@@ -1,5 +1,5 @@
 import { fireEvent, render } from '@testing-library/angular';
-import { NgpTree, NgpTreeNode } from 'ng-primitives/tree';
+import { NgpTree, NgpTreeNode, NgpTreeNodeToggle } from 'ng-primitives/tree';
 import { describe, expect, it } from 'vitest';
 
 interface Node {
@@ -62,5 +62,43 @@ describe('NgpTree expandAll / collapseAll', () => {
     expect(rows()).toHaveLength(5);
     collapseAll();
     expect(rows()).toHaveLength(2);
+  });
+});
+
+describe('NgpTree controlled expandedKeys', () => {
+  it('round-trips a [(ngpTreeExpandedKeys)] binding through a toggle click', async () => {
+    const view = await render(
+      `
+      <ul ngpTree #t="ngpTree" [ngpTreeNodes]="nodes" [ngpTreeItemChildren]="children"
+          [ngpTreeItemValue]="itemValue"
+          [ngpTreeExpandedKeys]="expanded" (ngpTreeExpandedKeysChange)="expanded = $event">
+        @for (node of t.visibleNodes(); track itemValue(node)) {
+          <li ngpTreeNode #n="ngpTreeNode" class="node" [ngpTreeNode]="node" [attr.data-value]="n.value()">
+            <button ngpTreeNodeToggle class="toggle">t</button>
+            <span>{{ node.name }}</span>
+          </li>
+        }
+      </ul>
+    `,
+      {
+        imports: [NgpTree, NgpTreeNode, NgpTreeNodeToggle],
+        componentProperties: {
+          nodes,
+          children: (n: Node) => n.children,
+          itemValue: (n: Node) => n.id,
+          expanded: new Set<string>() as ReadonlySet<string>,
+        },
+      },
+    );
+    const nodeEl = (value: string) =>
+      view.container.querySelector<HTMLElement>(`.node[data-value="${value}"]`);
+
+    fireEvent.click(nodeEl('a')!.querySelector<HTMLElement>(':scope > .toggle')!);
+
+    // The change emitted back into the component property...
+    expect([...view.fixture.componentInstance.expanded]).toEqual(['a']);
+    // ...and the controlled value round-tripped into the rendered tree.
+    expect(nodeEl('a')).toHaveAttribute('aria-expanded', 'true');
+    expect(nodeEl('a1')).not.toBeNull();
   });
 });

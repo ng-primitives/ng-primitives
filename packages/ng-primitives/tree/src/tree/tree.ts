@@ -1,4 +1,4 @@
-import { computed, Directive, input, output, Signal } from '@angular/core';
+import { booleanAttribute, computed, Directive, input, output } from '@angular/core';
 import { provideRovingFocusGroupState } from 'ng-primitives/roving-focus';
 import {
   NgpTreeAccessors,
@@ -28,7 +28,7 @@ export class NgpTree<T = unknown> {
   readonly nodes = input.required<readonly T[]>({ alias: 'ngpTreeNodes' });
 
   /** How to read the children of a node. */
-  readonly childrenAccessor = input.required<(node: T) => readonly T[] | undefined>({
+  readonly itemChildren = input.required<(node: T) => readonly T[] | undefined>({
     alias: 'ngpTreeItemChildren',
   });
 
@@ -36,7 +36,7 @@ export class NgpTree<T = unknown> {
   readonly itemValue = input.required<(node: T) => string>({ alias: 'ngpTreeItemValue' });
 
   /** Whether a node can be expanded. Defaults to "has children". */
-  readonly isExpandable = input<((node: T) => boolean) | undefined>(undefined, {
+  readonly itemExpandable = input<((node: T) => boolean) | undefined>(undefined, {
     alias: 'ngpTreeItemExpandable',
   });
 
@@ -51,13 +51,22 @@ export class NgpTree<T = unknown> {
   });
 
   /** Lazily load a node's children the first time it is expanded. */
-  readonly loadChildren = input<((node: T) => Promise<readonly T[]>) | undefined>(undefined, {
+  readonly itemLoadChildren = input<((node: T) => Promise<readonly T[]>) | undefined>(undefined, {
     alias: 'ngpTreeItemLoadChildren',
   });
 
   /** Enables drag & drop: `true` (all draggable) or a per-node predicate. */
-  readonly itemDraggable = input<boolean | ((node: T) => boolean) | undefined>(undefined, {
+  readonly itemDraggable = input<
+    boolean | ((node: T) => boolean) | undefined,
+    boolean | string | ((node: T) => boolean) | null | undefined
+  >(undefined, {
     alias: 'ngpTreeItemDraggable',
+    transform: value =>
+      typeof value === 'function'
+        ? value
+        : value === undefined
+          ? undefined
+          : booleanAttribute(value),
   });
 
   /** Whether a drop is allowed (drops onto a node's own subtree are always blocked). */
@@ -69,15 +78,24 @@ export class NgpTree<T = unknown> {
   readonly drop = output<NgpTreeDropEvent<T>>({ alias: 'ngpTreeDrop' });
 
   /** Enables inline rename: `true` (all renamable) or a per-node predicate. */
-  readonly itemRenamable = input<boolean | ((node: T) => boolean) | undefined>(undefined, {
+  readonly itemRenamable = input<
+    boolean | ((node: T) => boolean) | undefined,
+    boolean | string | ((node: T) => boolean) | null | undefined
+  >(undefined, {
     alias: 'ngpTreeItemRenamable',
+    transform: value =>
+      typeof value === 'function'
+        ? value
+        : value === undefined
+          ? undefined
+          : booleanAttribute(value),
   });
 
   /** Emits when a rename is committed - update the node's label in your data here. */
   readonly rename = output<NgpTreeRenameEvent<T>>({ alias: 'ngpTreeRename' });
 
   /** A search query. When non-empty, filters the tree to matches and their ancestors. */
-  readonly search = input<string | undefined>(undefined, { alias: 'ngpTreeQuery' });
+  readonly query = input<string | undefined>(undefined, { alias: 'ngpTreeQuery' });
 
   /** How to match a node against the query. Defaults to a case-insensitive label match. */
   readonly itemMatch = input<((node: T, query: string) => boolean) | undefined>(undefined, {
@@ -107,7 +125,11 @@ export class NgpTree<T = unknown> {
     alias: 'ngpTreeSelectionMode',
   });
 
-  /** Whether interactions toggle or replace the selection. */
+  /**
+   * Whether plain interactions toggle or replace the selection in `multiple` mode.
+   * In `single` mode a plain interaction always replaces; an explicit toggle
+   * (Ctrl/Cmd-click, Space) can still deselect the selected node.
+   */
   readonly selectionBehavior = input<NgpTreeSelectionBehavior>('toggle', {
     alias: 'ngpTreeSelectionBehavior',
   });
@@ -154,11 +176,11 @@ export class NgpTree<T = unknown> {
 
   private readonly accessors = computed<NgpTreeAccessors<T>>(() => ({
     itemValue: this.itemValue(),
-    childrenAccessor: this.childrenAccessor(),
-    isExpandable: this.isExpandable(),
+    itemChildren: this.itemChildren(),
+    itemExpandable: this.itemExpandable(),
     itemDisabled: this.itemDisabled(),
     itemLabel: this.itemLabel(),
-    loadChildren: this.loadChildren(),
+    itemLoadChildren: this.itemLoadChildren(),
   }));
 
   protected readonly state = ngpTree<T>({
@@ -182,7 +204,7 @@ export class NgpTree<T = unknown> {
     onDrop: event => this.drop.emit(event),
     itemRenamable: this.itemRenamable,
     onRename: event => this.rename.emit(event),
-    search: this.search,
+    query: this.query,
     itemMatch: this.itemMatch,
     onActivate: node => this.activate.emit(node),
   });
@@ -191,13 +213,11 @@ export class NgpTree<T = unknown> {
    * The flattened list of currently-visible nodes. Iterate with `@for` (or
    * `*cdkVirtualFor`) and place an `ngpTreeNode` on each row.
    */
-  get visibleNodes(): Signal<readonly T[]> {
-    return this.state.visibleNodes;
-  }
+  readonly visibleNodes = this.state.visibleNodes;
 
   /** The stable string identity of a node (for `@for` `track`). */
-  valueOf(node: T): string {
-    return this.state.valueOf(node);
+  keyOf(node: T): string {
+    return this.state.keyOf(node);
   }
 
   /** Expand every expandable node in the tree. */

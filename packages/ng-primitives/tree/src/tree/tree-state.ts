@@ -4,6 +4,7 @@ import {
   effect,
   EmbeddedViewRef,
   inject,
+  NgZone,
   signal,
   Signal,
   TemplateRef,
@@ -17,7 +18,6 @@ import {
   controlledState,
   createPrimitive,
   dataBinding,
-  listener,
   onDestroy,
   StateInjectionOptions,
 } from 'ng-primitives/state';
@@ -32,13 +32,13 @@ export interface NgpTreeAccessors<T> {
   /** The stable string identity of a node. Keys expansion/selection/checked state. */
   readonly itemValue: (node: T) => string;
   /** The children of a node, or `undefined`/`[]` for a leaf. */
-  readonly childrenAccessor: (node: T) => readonly T[] | undefined;
+  readonly itemChildren: (node: T) => readonly T[] | undefined;
   /**
    * Whether a node can be expanded. Defaults to "has children". Override to show a
-   * chevron before children are loaded (async), i.e. `isExpandable` is `true` while
-   * `childrenAccessor` still returns `undefined`.
+   * chevron before children are loaded (async), i.e. `itemExpandable` is `true` while
+   * `itemChildren` still returns `undefined`.
    */
-  readonly isExpandable?: (node: T) => boolean;
+  readonly itemExpandable?: (node: T) => boolean;
   /** Whether a node is disabled. */
   readonly itemDisabled?: (node: T) => boolean;
   /**
@@ -49,9 +49,9 @@ export interface NgpTreeAccessors<T> {
   readonly itemLabel?: (node: T) => string;
   /**
    * Lazily load a node's children the first time it is expanded. Pair with
-   * `isExpandable` returning `true` so the chevron shows before children exist.
+   * `itemExpandable` returning `true` so the chevron shows before children exist.
    */
-  readonly loadChildren?: (node: T) => Promise<readonly T[]>;
+  readonly itemLoadChildren?: (node: T) => Promise<readonly T[]>;
 }
 
 /** Per-node hierarchy metadata, derived from the full node tree. */
@@ -152,7 +152,7 @@ export interface NgpTreeState<T> {
   readonly checkedKeys: Signal<ReadonlySet<string>>;
 
   /** The stable identity of a node. */
-  valueOf(node: T): string;
+  keyOf(node: T): string;
   /** Whether a node value is currently expanded. */
   isExpanded(value: string): boolean;
   /** Whether a node's children are currently being lazily loaded. */
@@ -175,7 +175,7 @@ export interface NgpTreeState<T> {
   collapseAll(): void;
   /** Whether a node value is currently selected. */
   isSelected(value: string): boolean;
-  /** Select all (non-disabled) nodes. */
+  /** Select all currently-visible (non-disabled) nodes. */
   selectAll(): void;
   /** Clear the selection. */
   clearSelection(): void;
@@ -300,7 +300,7 @@ export interface NgpTreeProps<T> {
   readonly onRename?: (event: NgpTreeRenameEvent<T>) => void;
 
   /** A search query. When non-empty, filters the tree to matches + their ancestors. */
-  readonly search?: Signal<string | undefined>;
+  readonly query?: Signal<string | undefined>;
   /** How to test a node against the query. Defaults to a case-insensitive label match. */
   readonly itemMatch?: Signal<((node: T, query: string) => boolean) | undefined>;
 
@@ -331,13 +331,14 @@ export const [NgpTreeStateToken, ngpTree, _injectTreeState, provideTreeState] = 
     onDrop,
     itemRenamable = signal<boolean | ((node: T) => boolean) | undefined>(undefined),
     onRename,
-    search = signal<string | undefined>(undefined),
+    query = signal<string | undefined>(undefined),
     itemMatch = signal(undefined),
     onActivate,
   }: NgpTreeProps<T>): NgpTreeState<T> => {
     const element = injectElementRef<HTMLElement>();
     const document = inject(DOCUMENT);
     const viewContainerRef = inject(ViewContainerRef);
+    const ngZone = inject(NgZone);
     const id = signal(uniqueId('ngp-tree'));
 
     // Vertical roving focus over the flat visible rows; wrap off per APG.
@@ -389,17 +390,17 @@ export const [NgpTreeStateToken, ngpTree, _injectTreeState, provideTreeState] = 
     // Applied while a drag would drop at the tree root (over empty space).
     dataBinding(element, 'data-root-drop', () => dragState()?.root ?? false);
 
-    function valueOf(node: T): string {
+    function keyOf(node: T): string {
       return accessors().itemValue(node);
     }
 
     function childrenOf(node: T): readonly T[] {
-      const explicit = accessors().childrenAccessor(node);
+      const explicit = accessors().itemChildren(node);
       if (explicit && explicit.length > 0) {
         return explicit;
       }
       // Fall back to lazily-loaded children.
-      return loadedChildren().get(valueOf(node)) ?? explicit ?? [];
+      return loadedChildren().get(keyOf(node)) ?? explicit ?? [];
     }
 
     function isLoading(value: string): boolean {
@@ -419,7 +420,7 @@ export const [NgpTreeStateToken, ngpTree, _injectTreeState, provideTreeState] = 
     }
 
     async function loadNodeChildren(value: string): Promise<void> {
-      const load = accessors().loadChildren;
+      const load = accessors().itemLoadChildren;
       const node = metaByValue().get(value)?.data;
       if (!load || !node) {
         return;
@@ -439,7 +440,6 @@ export const [NgpTreeStateToken, ngpTree, _injectTreeState, provideTreeState] = 
         // retry via `reload`), and log for dev visibility. Leaving the node
         // un-loaded means expanding again also retries.
         errorKeys.set(new Set(errorKeys()).add(value));
-        // eslint-disable-next-line no-console
         console.error('[ngpTree] loadChildren failed', error);
       } finally {
         const next = new Set(loadingKeys());
@@ -455,7 +455,7 @@ export const [NgpTreeStateToken, ngpTree, _injectTreeState, provideTreeState] = 
     }
 
     function isExpandable(node: T): boolean {
-      const { isExpandable: fn } = accessors();
+      const { itemExpandable: fn } = accessors();
       return fn ? fn(node) : childrenOf(node).length > 0;
     }
 
@@ -469,7 +469,7 @@ export const [NgpTreeStateToken, ngpTree, _injectTreeState, provideTreeState] = 
       // expanded (its children are shown regardless of the expanded set).
       if (searching) {
         const node = metaByValue().get(value)?.data;
-        if (node && childrenOf(node).some(child => searching.visible.has(valueOf(child)))) {
+        if (node && childrenOf(node).some(child => searching.visible.has(keyOf(child)))) {
           return true;
         }
       }
@@ -481,14 +481,14 @@ export const [NgpTreeStateToken, ngpTree, _injectTreeState, provideTreeState] = 
       const map = new Map<string, NgpTreeNodeMeta<T>>();
       const walk = (siblings: readonly T[], level: number, parent: string | null) => {
         siblings.forEach((node, index) => {
-          map.set(valueOf(node), {
+          map.set(keyOf(node), {
             data: node,
             level,
             parent,
             posinset: index + 1,
             setsize: siblings.length,
           });
-          walk(childrenOf(node), level + 1, valueOf(node));
+          walk(childrenOf(node), level + 1, keyOf(node));
         });
       };
       walk(nodes(), 1, null);
@@ -500,21 +500,21 @@ export const [NgpTreeStateToken, ngpTree, _injectTreeState, provideTreeState] = 
     // ancestor of a match (so matches stay in their hierarchy). `null` when the
     // query is empty.
     const searchState = computed<{ matched: Set<string>; visible: Set<string> } | null>(() => {
-      const query = (search() ?? '').trim();
-      if (!query) {
+      const currentQuery = (query() ?? '').trim();
+      if (!currentQuery) {
         return null;
       }
       const fn = itemMatch();
       const test = fn
-        ? (node: T) => fn(node, query)
-        : (node: T) => labelOf(node).toLowerCase().includes(query.toLowerCase());
+        ? (node: T) => fn(node, currentQuery)
+        : (node: T) => labelOf(node).toLowerCase().includes(currentQuery.toLowerCase());
 
       const matched = new Set<string>();
       const visible = new Set<string>();
       const walk = (siblings: readonly T[], ancestors: string[]): boolean => {
         let anyMatch = false;
         for (const node of siblings) {
-          const value = valueOf(node);
+          const value = keyOf(node);
           const selfMatch = test(node);
           const childMatch = walk(childrenOf(node), [...ancestors, value]);
           if (selfMatch) {
@@ -540,7 +540,7 @@ export const [NgpTreeStateToken, ngpTree, _injectTreeState, provideTreeState] = 
       const result: T[] = [];
       const walk = (siblings: readonly T[]) => {
         for (const node of siblings) {
-          const value = valueOf(node);
+          const value = keyOf(node);
           // While searching, show only matches + ancestors, and reveal them all
           // regardless of the expanded set.
           if (searching && !searching.visible.has(value)) {
@@ -582,7 +582,7 @@ export const [NgpTreeStateToken, ngpTree, _injectTreeState, provideTreeState] = 
         return undefined;
       }
       const first = childrenOf(node)[0];
-      return first ? valueOf(first) : undefined;
+      return first ? keyOf(first) : undefined;
     }
 
     /** The value of the currently roving-focused node, if any. */
@@ -647,7 +647,7 @@ export const [NgpTreeStateToken, ngpTree, _injectTreeState, provideTreeState] = 
       const toLoad: string[] = [];
       for (const sibling of siblings) {
         if (isExpandable(sibling)) {
-          const siblingValue = valueOf(sibling);
+          const siblingValue = keyOf(sibling);
           if (!current.has(siblingValue)) {
             next.add(siblingValue);
             toLoad.push(siblingValue);
@@ -720,7 +720,7 @@ export const [NgpTreeStateToken, ngpTree, _injectTreeState, provideTreeState] = 
     }
 
     function selectRange(from: string, to: string): void {
-      const values = visibleNodes().map(node => valueOf(node));
+      const values = visibleNodes().map(node => keyOf(node));
       const i = values.indexOf(from);
       const j = values.indexOf(to);
       if (i < 0 || j < 0) {
@@ -744,7 +744,13 @@ export const [NgpTreeStateToken, ngpTree, _injectTreeState, provideTreeState] = 
       }
 
       if (mode === 'single') {
-        setSelectedKeys(new Set([value]));
+        // A plain interaction always replaces; an explicit toggle (Ctrl/Cmd-click,
+        // Space) can deselect the selected node.
+        if (options.toggle && isSelected(value)) {
+          setSelectedKeys(new Set());
+        } else {
+          setSelectedKeys(new Set([value]));
+        }
         selectionAnchor = value;
         return;
       }
@@ -770,11 +776,14 @@ export const [NgpTreeStateToken, ngpTree, _injectTreeState, provideTreeState] = 
       selectionAnchor = value;
     }
 
+    // Select every visible node - not nodes hidden inside collapsed folders, so the
+    // selection never contains rows the user can't see (and a subsequent drag,
+    // which moves visible nodes, matches what Ctrl/Cmd+A selected).
     function selectAll(): void {
       if (selectionMode() === 'none') {
         return;
       }
-      setSelectedKeys(new Set([...metaByValue().keys()].filter(isSelectable)));
+      setSelectedKeys(new Set(visibleNodes().map(keyOf).filter(isSelectable)));
     }
 
     function clearSelection(): void {
@@ -791,7 +800,7 @@ export const [NgpTreeStateToken, ngpTree, _injectTreeState, provideTreeState] = 
       if (children.length === 0) {
         return [value];
       }
-      return children.flatMap(child => leafValuesOf(valueOf(child)));
+      return children.flatMap(child => leafValuesOf(keyOf(child)));
     }
 
     function isChecked(value: string): boolean {
@@ -981,9 +990,13 @@ export const [NgpTreeStateToken, ngpTree, _injectTreeState, provideTreeState] = 
       previewEl = container;
     }
 
+    // The badge gets a data attribute so consumers can restyle it; the inline
+    // styles are a neutral, theme-agnostic default (register an `ngpTreeDragPreview`
+    // template to take over the preview - and the badge - entirely).
     function createCountBadge(count: number): HTMLElement {
       const badge = document.createElement('div');
       badge.textContent = String(count);
+      badge.setAttribute('data-ngp-tree-drag-badge', '');
       Object.assign(badge.style, {
         position: 'absolute',
         top: '-0.5rem',
@@ -999,7 +1012,7 @@ export const [NgpTreeStateToken, ngpTree, _injectTreeState, provideTreeState] = 
         fontSize: '0.75rem',
         fontWeight: '600',
         color: '#fff',
-        backgroundColor: '#f01e2b',
+        backgroundColor: 'rgba(24, 24, 27, 0.9)',
       } satisfies Partial<CSSStyleDeclaration>);
       return badge;
     }
@@ -1153,7 +1166,7 @@ export const [NgpTreeStateToken, ngpTree, _injectTreeState, provideTreeState] = 
         return canDragValue(grabbed) ? [grabbed] : [];
       }
       return visibleNodes()
-        .map(valueOf)
+        .map(keyOf)
         .filter(
           value => selected.has(value) && canDragValue(value) && !hasAncestorIn(value, selected),
         );
@@ -1168,6 +1181,7 @@ export const [NgpTreeStateToken, ngpTree, _injectTreeState, provideTreeState] = 
       }
       const touch = event.pointerType === 'touch';
       pending = { primary: value, sources, x: event.clientX, y: event.clientY, touch };
+      attachDragListeners();
       // Mouse/pen arm immediately; touch waits for a long-press so the list can
       // still be scrolled with a finger.
       armed = !touch;
@@ -1275,6 +1289,7 @@ export const [NgpTreeStateToken, ngpTree, _injectTreeState, provideTreeState] = 
       pending = null;
       armed = false;
       dragState.set(null);
+      detachDragListeners();
     }
 
     function onPointerUp(event: PointerEvent): void {
@@ -1346,28 +1361,66 @@ export const [NgpTreeStateToken, ngpTree, _injectTreeState, provideTreeState] = 
       clearCut();
     }
 
-    listener(document, 'pointermove', onPointerMove as (e: Event) => void);
-    listener(document, 'pointerup', onPointerUp as (e: Event) => void);
-    listener(document, 'pointercancel', resetDrag);
+    // The document-level drag listeners exist only while a drag interaction is in
+    // flight (from pointerdown on a draggable row until pointerup/cancel/Escape) -
+    // an idle tree adds no global listeners, and the non-passive `touchmove`
+    // (which would otherwise stall every page scroll) is only registered mid-drag.
+
     // Stop the pointer from selecting text while a drag is in progress.
-    listener(document, 'selectstart', (event: Event) => {
+    function onSelectStart(event: Event): void {
       if (pending || dragState()) {
         event.preventDefault();
       }
-    });
+    }
+
     // Block the page from scrolling once a touch drag is active. This must be a
     // non-passive listener; the long-press held the finger still, so the first
     // move after activation is still cancellable.
-    listener(
-      document,
-      'touchmove',
-      (event: Event) => {
-        if (armed && dragState()) {
-          event.preventDefault();
+    function onTouchMove(event: Event): void {
+      if (armed && dragState()) {
+        event.preventDefault();
+      }
+    }
+
+    // Escape cancels the in-flight drag without dropping.
+    function onDragKeydown(event: KeyboardEvent): void {
+      if (event.key === 'Escape') {
+        event.preventDefault();
+        resetDrag();
+      }
+    }
+
+    const dragListeners: [string, EventListener, AddEventListenerOptions?][] = [
+      ['pointermove', onPointerMove as EventListener],
+      ['pointerup', onPointerUp as EventListener],
+      ['pointercancel', resetDrag as EventListener],
+      ['selectstart', onSelectStart],
+      ['touchmove', onTouchMove, { passive: false }],
+      ['keydown', onDragKeydown as EventListener],
+    ];
+    let dragListenersAttached = false;
+
+    function attachDragListeners(): void {
+      if (dragListenersAttached) {
+        return;
+      }
+      dragListenersAttached = true;
+      ngZone.runOutsideAngular(() => {
+        for (const [event, handler, options] of dragListeners) {
+          document.addEventListener(event, handler, options);
         }
-      },
-      { config: { passive: false } },
-    );
+      });
+    }
+
+    function detachDragListeners(): void {
+      if (!dragListenersAttached) {
+        return;
+      }
+      dragListenersAttached = false;
+      for (const [event, handler, options] of dragListeners) {
+        document.removeEventListener(event, handler, options);
+      }
+    }
 
     // Selection-follows-focus: in single/replace mode, moving focus selects. Skip
     // the initial tab-stop assignment so nothing is selected until the user acts.
@@ -1393,7 +1446,7 @@ export const [NgpTreeStateToken, ngpTree, _injectTreeState, provideTreeState] = 
       if (label !== undefined) {
         return label;
       }
-      return registry.get(valueOf(node))?.element.textContent?.trim() ?? '';
+      return registry.get(keyOf(node))?.element.textContent?.trim() ?? '';
     }
 
     // Type-ahead: accumulate typed characters (reset after a pause) and move focus
@@ -1408,7 +1461,7 @@ export const [NgpTreeStateToken, ngpTree, _injectTreeState, provideTreeState] = 
 
       const visible = visibleNodes();
       const active = activeValue();
-      const currentIndex = active ? visible.findIndex(node => valueOf(node) === active) : -1;
+      const currentIndex = active ? visible.findIndex(node => keyOf(node) === active) : -1;
 
       // A repeated single character cycles through matches (search that one letter,
       // starting after the current node); a distinct sequence refines the match
@@ -1420,13 +1473,14 @@ export const [NgpTreeStateToken, ngpTree, _injectTreeState, provideTreeState] = 
       const order = [...visible.slice(start), ...visible.slice(0, start)];
       const match = order.find(node => labelOf(node).toLowerCase().startsWith(search));
       if (match) {
-        focusValue(valueOf(match));
+        focusValue(keyOf(match));
       }
     }
 
     onDestroy(() => {
       clearTimeout(typeaheadTimer);
       destroyPreview();
+      detachDragListeners();
     });
 
     return {
@@ -1438,7 +1492,7 @@ export const [NgpTreeStateToken, ngpTree, _injectTreeState, provideTreeState] = 
       disabledBehavior,
       selectedKeys,
       checkedKeys,
-      valueOf,
+      keyOf,
       childrenOf,
       isExpandable,
       isDisabled,

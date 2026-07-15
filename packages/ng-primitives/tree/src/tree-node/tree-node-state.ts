@@ -139,7 +139,7 @@ export const [NgpTreeNodeStateToken, ngpTreeNode, _injectTreeNodeState, provideT
     // NgpTreeNodeDragHandle); when it does, the row body no longer starts drags.
     const hasDragHandle = signal(false);
 
-    const value = computed(() => tree().valueOf(data()));
+    const value = computed(() => tree().keyOf(data()));
     const expandable = computed(() => tree().isExpandable(data()));
     const expanded = computed(() => tree().isExpanded(value()));
     const disabled = computed(() => tree().isDisabled(data()));
@@ -181,6 +181,11 @@ export const [NgpTreeNodeStateToken, ngpTreeNode, _injectTreeNodeState, provideT
     attrBinding(element, 'aria-selected', () =>
       tree().selectionMode() === 'none' || disabled() ? null : selected() ? 'true' : 'false',
     );
+    // Per the APG checkbox-tree pattern the treeitem itself carries aria-checked
+    // (the rendered checkbox part is decorative for AT).
+    attrBinding(element, 'aria-checked', () =>
+      hasCheckbox() ? (indeterminate() ? 'mixed' : checked() ? 'true' : 'false') : null,
+    );
     dataBinding(element, 'data-expanded', expanded);
     dataBinding(element, 'data-expandable', expandable);
     dataBinding(element, 'data-disabled', disabled);
@@ -190,7 +195,7 @@ export const [NgpTreeNodeStateToken, ngpTreeNode, _injectTreeNodeState, provideT
     dataBinding(element, 'data-drop-position', () => dropPosition());
     dataBinding(element, 'data-renaming', renaming);
     dataBinding(element, 'data-cut', cut);
-    dataBinding(element, 'data-match', matched);
+    dataBinding(element, 'data-matched', matched);
     dataBinding(element, 'data-level', () => String(level()));
     // Expose the depth as a CSS variable so consumers can indent without binding
     // it by hand, e.g. `padding-left: calc(var(--ngp-tree-node-level) * 1rem)`.
@@ -215,9 +220,24 @@ export const [NgpTreeNodeStateToken, ngpTreeNode, _injectTreeNodeState, provideT
       });
     });
 
+    // Rapid clicks/taps on the row's interactive parts (chevron, checkbox, drag
+    // handle, rename field) must not read as a row double-click - e.g. quickly
+    // toggling a folder twice should not start a rename.
+    function isInteractivePart(target: EventTarget | null): boolean {
+      return (
+        target instanceof Element &&
+        target.closest(
+          '[ngpTreeNodeToggle], [ngpTreeNodeCheckbox], [ngpTreeNodeDragHandle], [ngpTreeNodeRename]',
+        ) !== null
+      );
+    }
+
     // Double-click a row to rename it (mouse/pen); if it isn't renamable, a
     // double-click activates ("opens") it instead.
-    listener(element, 'dblclick', () => {
+    listener(element, 'dblclick', (event: MouseEvent) => {
+      if (isInteractivePart(event.target)) {
+        return;
+      }
       if (tree().canRenameValue(value())) {
         tree().startRename(value());
       } else {
@@ -229,7 +249,7 @@ export const [NgpTreeNodeStateToken, ngpTreeNode, _injectTreeNodeState, provideT
     // manipulation`), so detect a double-tap manually from consecutive taps.
     let lastTapTime: number | null = null;
     listener(element, 'pointerup', (event: PointerEvent) => {
-      if (event.pointerType !== 'touch') {
+      if (event.pointerType !== 'touch' || isInteractivePart(event.target)) {
         return;
       }
       if (lastTapTime !== null && event.timeStamp - lastTapTime < 300) {

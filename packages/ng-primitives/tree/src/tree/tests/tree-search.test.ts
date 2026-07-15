@@ -33,8 +33,7 @@ async function renderTree(props: Record<string, unknown> = {}) {
         [ngpTreeQuery]="search" [ngpTreeItemMatch]="itemMatch">
       @for (node of t.visibleNodes(); track itemValue(node)) {
         <li ngpTreeNode #n="ngpTreeNode" class="node" [ngpTreeNode]="node"
-            [attr.data-value]="n.value()" [attr.data-match]="n.matched() ? '' : null"
-            [attr.data-expanded]="n.expanded() ? '' : null">
+            [attr.data-value]="n.value()">
           {{ node.name }}
         </li>
       }
@@ -70,8 +69,8 @@ describe('NgpTree search', () => {
     const { rows, row } = await renderTree({ search: 'button' });
     // 'button.ts' matches; 'src' is its ancestor and is revealed + expanded.
     expect(rows()).toEqual(['src', 'button.ts']);
-    expect(row('button.ts')).toHaveAttribute('data-match');
-    expect(row('src')).not.toHaveAttribute('data-match'); // ancestor, not a match
+    expect(row('button.ts')).toHaveAttribute('data-matched');
+    expect(row('src')).not.toHaveAttribute('data-matched'); // ancestor, not a match
     expect(row('src')).toHaveAttribute('data-expanded'); // revealed as open
     // Unrelated branches are hidden.
     expect(row('assets')).toBeNull();
@@ -82,7 +81,7 @@ describe('NgpTree search', () => {
   it('matches a folder by name and shows it (without unmatched children)', async () => {
     const { rows, row } = await renderTree({ search: 'assets' });
     expect(rows()).toEqual(['assets']);
-    expect(row('assets')).toHaveAttribute('data-match');
+    expect(row('assets')).toHaveAttribute('data-matched');
     expect(row('logo.svg')).toBeNull(); // child doesn't match
   });
 

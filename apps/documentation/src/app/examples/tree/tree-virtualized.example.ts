@@ -136,16 +136,20 @@ function generate(): Node[] {
         ngpTreeNode
       >
         @if (n.expandable()) {
-          <button [attr.data-expanded]="n.expanded() ? '' : null" ngpTreeNodeToggle>
+          <button ngpTreeNodeToggle>
             <ng-icon name="heroChevronRightMini" />
           </button>
         } @else {
           <span class="spacer"></span>
         }
-        <ng-icon
-          class="node-icon"
-          [name]="n.expandable() ? (n.expanded() ? 'heroFolderOpenMini' : 'heroFolderMini') : ''"
-        />
+        @if (n.expandable()) {
+          <ng-icon
+            class="node-icon"
+            [name]="n.expanded() ? 'heroFolderOpenMini' : 'heroFolderMini'"
+          />
+        } @else {
+          <span class="spacer"></span>
+        }
         <span>{{ node.name }}</span>
       </li>
     </cdk-virtual-scroll-viewport>
