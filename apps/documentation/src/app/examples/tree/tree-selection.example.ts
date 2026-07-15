@@ -59,11 +59,11 @@ interface Item {
       transition: background-color 150ms cubic-bezier(0.4, 0, 0.2, 1);
     }
 
-    [ngpTreeNode]:hover {
+    [ngpTreeNode][data-hover] {
       background-color: var(--ngp-background-hover);
     }
 
-    [ngpTreeNode]:focus-visible {
+    [ngpTreeNode][data-focus-visible] {
       box-shadow: 0 0 0 2px var(--ngp-focus-ring);
     }
 
@@ -72,7 +72,7 @@ interface Item {
       background-color: color-mix(in srgb, var(--ngp-primary) 14%, transparent);
     }
 
-    [ngpTreeNode][data-selected]:hover {
+    [ngpTreeNode][data-selected][data-hover] {
       background-color: color-mix(in srgb, var(--ngp-primary) 20%, transparent);
     }
 

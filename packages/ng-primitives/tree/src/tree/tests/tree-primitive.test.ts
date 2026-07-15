@@ -126,4 +126,24 @@ describe('NgpTree', () => {
     clickToggle('a');
     expect(nodeEls().map(el => el.dataset['value'])).toEqual(['a', 'b']);
   });
+
+  it('exposes interaction state on rows (data-hover / data-press / data-focus)', async () => {
+    const { nodeEl } = await renderTree();
+    const row = nodeEl('a')!;
+
+    fireEvent.mouseEnter(row);
+    expect(row).toHaveAttribute('data-hover');
+    fireEvent.mouseLeave(row);
+    expect(row).not.toHaveAttribute('data-hover');
+
+    fireEvent.pointerDown(row);
+    expect(row).toHaveAttribute('data-press');
+    fireEvent.pointerUp(row);
+    expect(row).not.toHaveAttribute('data-press');
+
+    fireEvent.focus(row);
+    expect(row).toHaveAttribute('data-focus');
+    fireEvent.blur(row);
+    expect(row).not.toHaveAttribute('data-focus');
+  });
 });

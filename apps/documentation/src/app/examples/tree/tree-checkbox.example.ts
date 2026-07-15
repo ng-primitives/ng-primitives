@@ -48,7 +48,7 @@ interface Item {
       outline: none;
     }
 
-    [ngpTreeNode]:focus-visible {
+    [ngpTreeNode][data-focus-visible] {
       box-shadow: 0 0 0 2px var(--ngp-focus-ring);
     }
 

@@ -1,4 +1,5 @@
 import { ApplicationRef, computed, effect, inject, signal, Signal, untracked } from '@angular/core';
+import { ngpInteractions } from 'ng-primitives/interactions';
 import { injectElementRef } from 'ng-primitives/internal';
 import { ngpRovingFocusItem } from 'ng-primitives/roving-focus';
 import {
@@ -6,6 +7,7 @@ import {
   createPrimitive,
   dataBinding,
   listener,
+  onMount,
   StateInjectionOptions,
   styleBinding,
 } from 'ng-primitives/state';
@@ -105,14 +107,29 @@ export interface NgpTreeNodeState {
   focus(): void;
   /**
    * @internal Register that this node renders a checkbox, so Space toggles it
-   * from the row. Returns a cleanup to call when the checkbox is destroyed.
+   * from the row. Pass the checkbox element so the row can tell interactions with
+   * it apart from interactions with the row. Returns a cleanup for destroy.
    */
-  registerCheckbox(): () => void;
+  registerCheckbox(element: HTMLElement): () => void;
   /**
    * @internal Register that this node has a dedicated drag handle, so the row
-   * body no longer starts a drag. Returns a cleanup for when it's destroyed.
+   * body no longer starts a drag. Pass the handle element so the row can tell
+   * interactions with it apart from its own. Returns a cleanup for destroy.
    */
-  registerDragHandle(): () => void;
+  registerDragHandle(element: HTMLElement): () => void;
+  /**
+   * @internal Register a part element (e.g. the expand toggle) so the row can
+   * tell interactions with it apart from interactions with the row itself - a
+   * double-click/tap on a part must not rename or activate the row. Returns a
+   * cleanup for destroy. Robust to the part being used as a host directive.
+   */
+  registerInteractive(element: HTMLElement): () => void;
+  /**
+   * @internal Register the inline rename field so the row can focus it inside the
+   * originating gesture (needed for the iOS soft keyboard) without a DOM query.
+   * Also treated as an interactive part. Returns a cleanup for destroy.
+   */
+  registerRenameElement(element: HTMLElement): () => void;
   /** @internal Begin a pointer drag from this node (called by the drag handle). */
   startDrag(event: PointerEvent): void;
 }
@@ -139,6 +156,34 @@ export const [NgpTreeNodeStateToken, ngpTreeNode, _injectTreeNodeState, provideT
     // NgpTreeNodeDragHandle); when it does, the row body no longer starts drags.
     const hasDragHandle = signal(false);
 
+    // The host elements of the row's interactive parts (toggle, checkbox, drag
+    // handle, rename field), registered by those parts. Used to tell an
+    // interaction with a part apart from one with the row itself - we match on the
+    // registered element, not a selector, so it works whether a part is applied as
+    // a directive, a host directive, or via its state function directly.
+    const interactiveElements = new Set<HTMLElement>();
+    // The inline rename field, registered while it is rendered, so the row can
+    // focus it synchronously on iOS (see the touch double-tap handler).
+    let renameElement: HTMLElement | null = null;
+
+    function registerInteractive(el: HTMLElement): () => void {
+      interactiveElements.add(el);
+      return () => interactiveElements.delete(el);
+    }
+
+    // Whether an event originated inside one of the row's interactive parts.
+    function isWithinInteractive(target: EventTarget | null): boolean {
+      if (!(target instanceof Node)) {
+        return false;
+      }
+      for (const el of interactiveElements) {
+        if (el.contains(target)) {
+          return true;
+        }
+      }
+      return false;
+    }
+
     const value = computed(() => tree().keyOf(data()));
     const expandable = computed(() => tree().isExpandable(data()));
     const expanded = computed(() => tree().isExpanded(value()));
@@ -163,6 +208,24 @@ export const [NgpTreeNodeStateToken, ngpTreeNode, _injectTreeNodeState, provideT
 
     // Roving tabindex + Up/Down/Home/End + focus, shared with the tree's group.
     const rovingItem = ngpRovingFocusItem({ disabled: focusExpandDisabled });
+
+    // Hover / press / focus / focus-visible interaction state (`data-hover`,
+    // `data-press`, `data-focus`, `data-focus-visible`), like other option rows.
+    // Gate on the fully-inert disabled state - in `selection` behavior a disabled
+    // node is still focusable, so it keeps its hover/focus feedback.
+    //
+    // The interactions read `disabled` eagerly during construction, but our
+    // disabled state derives from the required `ngpTreeNode` input, which has no
+    // value yet at that point - so hold the signal at `false` until first render.
+    const inputsReady = signal(false);
+    onMount(() => inputsReady.set(true));
+    ngpInteractions({
+      hover: true,
+      press: true,
+      focus: true,
+      focusVisible: true,
+      disabled: computed(() => inputsReady() && focusExpandDisabled()),
+    });
 
     // Host bindings.
     attrBinding(element, 'role', 'treeitem');
@@ -222,20 +285,14 @@ export const [NgpTreeNodeStateToken, ngpTreeNode, _injectTreeNodeState, provideT
 
     // Rapid clicks/taps on the row's interactive parts (chevron, checkbox, drag
     // handle, rename field) must not read as a row double-click - e.g. quickly
-    // toggling a folder twice should not start a rename.
-    function isInteractivePart(target: EventTarget | null): boolean {
-      return (
-        target instanceof Element &&
-        target.closest(
-          '[ngpTreeNodeToggle], [ngpTreeNodeCheckbox], [ngpTreeNodeDragHandle], [ngpTreeNodeRename]',
-        ) !== null
-      );
-    }
+    // toggling a folder twice should not start a rename. We ignore the event here
+    // (rather than have the parts stop propagation) so the drag system's
+    // document-level pointer listeners still see it.
 
     // Double-click a row to rename it (mouse/pen); if it isn't renamable, a
     // double-click activates ("opens") it instead.
     listener(element, 'dblclick', (event: MouseEvent) => {
-      if (isInteractivePart(event.target)) {
+      if (isWithinInteractive(event.target)) {
         return;
       }
       if (tree().canRenameValue(value())) {
@@ -249,7 +306,7 @@ export const [NgpTreeNodeStateToken, ngpTreeNode, _injectTreeNodeState, provideT
     // manipulation`), so detect a double-tap manually from consecutive taps.
     let lastTapTime: number | null = null;
     listener(element, 'pointerup', (event: PointerEvent) => {
-      if (event.pointerType !== 'touch' || isInteractivePart(event.target)) {
+      if (event.pointerType !== 'touch' || isWithinInteractive(event.target)) {
         return;
       }
       if (lastTapTime !== null && event.timeStamp - lastTapTime < 300) {
@@ -258,9 +315,10 @@ export const [NgpTreeNodeStateToken, ngpTreeNode, _injectTreeNodeState, provideT
           tree().startRename(value());
           // iOS only opens the soft keyboard when focus happens inside the
           // gesture task. `afterNextRender` is too late (it runs after the
-          // async CD), so render the field synchronously and focus it now.
+          // async CD), so render the field synchronously and focus the field the
+          // rename part registered.
           appRef.tick();
-          element.nativeElement.querySelector<HTMLElement>('[ngpTreeNodeRename]')?.focus();
+          renameElement?.focus();
         } else {
           tree().activate(value());
         }
@@ -418,13 +476,32 @@ export const [NgpTreeNodeStateToken, ngpTreeNode, _injectTreeNodeState, provideT
       cancelRename: () => tree().cancelRename(),
       reload: () => tree().reload(value()),
       focus: () => tree().focusValue(value()),
-      registerCheckbox: () => {
+      registerCheckbox: (el: HTMLElement) => {
         hasCheckbox.set(true);
-        return () => hasCheckbox.set(false);
+        const removeInteractive = registerInteractive(el);
+        return () => {
+          hasCheckbox.set(false);
+          removeInteractive();
+        };
       },
-      registerDragHandle: () => {
+      registerDragHandle: (el: HTMLElement) => {
         hasDragHandle.set(true);
-        return () => hasDragHandle.set(false);
+        const removeInteractive = registerInteractive(el);
+        return () => {
+          hasDragHandle.set(false);
+          removeInteractive();
+        };
+      },
+      registerInteractive,
+      registerRenameElement: (el: HTMLElement) => {
+        renameElement = el;
+        const removeInteractive = registerInteractive(el);
+        return () => {
+          if (renameElement === el) {
+            renameElement = null;
+          }
+          removeInteractive();
+        };
       },
       startDrag: (event: PointerEvent) => {
         if (event.button === 0) {

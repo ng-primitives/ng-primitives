@@ -268,6 +268,10 @@ The following directives are available to import from the `ng-primitives/tree` p
   <api-attribute name="data-expandable" description="Applied when the node can be expanded." />
   <api-attribute name="data-disabled" description="Applied when the node is disabled." />
   <api-attribute name="data-selected" description="Applied when the node is selected." />
+  <api-attribute name="data-hover" description="Applied while the node is hovered." />
+  <api-attribute name="data-press" description="Applied while the node is pressed." />
+  <api-attribute name="data-focus" description="Applied while the node has focus." />
+  <api-attribute name="data-focus-visible" description="Applied while the node has visible focus (keyboard focus)." />
   <api-attribute name="data-loading" description="Applied while the node's children are lazily loading." />
   <api-attribute name="data-load-error" description="Applied when the node's last lazy load failed." />
   <api-attribute name="data-dragging" description="Applied while the node is being dragged." />

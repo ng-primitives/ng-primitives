@@ -51,7 +51,7 @@ function generate(): Node[] {
       itemSize="32"
     >
       <li
-        class="box-border flex h-8 cursor-pointer items-center gap-1.5 rounded-lg pr-2 pl-[calc((var(--ngp-tree-node-level)-1)*1.125rem+0.375rem)] text-sm tracking-[-0.006em] text-gray-900 outline-none select-none hover:bg-gray-100 focus-visible:ring-2 focus-visible:ring-blue-500 dark:text-zinc-100 dark:hover:bg-zinc-900 dark:focus-visible:ring-blue-400"
+        class="box-border flex h-8 cursor-pointer items-center gap-1.5 rounded-lg pr-2 pl-[calc((var(--ngp-tree-node-level)-1)*1.125rem+0.375rem)] text-sm tracking-[-0.006em] text-gray-900 outline-none select-none data-focus-visible:ring-2 data-focus-visible:ring-blue-500 data-hover:bg-gray-100 dark:text-zinc-100 dark:data-focus-visible:ring-blue-400 dark:data-hover:bg-zinc-900"
         #n="ngpTreeNode"
         *cdkVirtualFor="let node of tree.visibleNodes()"
         [ngpTreeNode]="node"

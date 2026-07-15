@@ -108,11 +108,11 @@ interface FileNode {
       outline: none;
     }
 
-    [ngpTreeNode]:hover {
+    [ngpTreeNode][data-hover] {
       background-color: var(--ngp-background-hover);
     }
 
-    [ngpTreeNode]:focus-visible {
+    [ngpTreeNode][data-focus-visible] {
       box-shadow: 0 0 0 2px var(--ngp-focus-ring);
     }
 

@@ -32,8 +32,9 @@ export const [
   const node = injectTreeNodeState();
 
   // Tell the row a checkbox is present so Space toggles it (keyboard operability
-  // for selection-less checkbox trees).
-  onDestroy(node().registerCheckbox());
+  // for selection-less checkbox trees), and register this element so the row can
+  // tell interactions with the checkbox apart from interactions with the row.
+  onDestroy(node().registerCheckbox(element.nativeElement));
 
   // Host bindings. The row (`treeitem`) announces the checked state, so this
   // element is hidden from AT like the toggle.

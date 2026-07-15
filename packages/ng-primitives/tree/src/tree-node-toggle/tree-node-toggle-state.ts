@@ -1,6 +1,6 @@
 import { HOST_TAG_NAME, inject } from '@angular/core';
 import { injectElementRef } from 'ng-primitives/internal';
-import { attrBinding, createPrimitive, dataBinding, listener } from 'ng-primitives/state';
+import { attrBinding, createPrimitive, dataBinding, listener, onDestroy } from 'ng-primitives/state';
 import { injectTreeNodeState } from '../tree-node/tree-node-state';
 import { injectTreeState } from '../tree/tree-state';
 
@@ -26,6 +26,10 @@ export const [
   const tagName = inject(HOST_TAG_NAME);
   const node = injectTreeNodeState();
   const tree = injectTreeState();
+
+  // Register this element so the row can tell a click/tap on the toggle apart
+  // from one on the row (a double-click on the chevron must not rename the row).
+  onDestroy(node().registerInteractive(element.nativeElement));
 
   // Expansion is blocked only when the node is fully inert (`all` behavior); in
   // `selection` behavior a disabled node can still be expanded.

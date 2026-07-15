@@ -33,7 +33,7 @@ interface FileNode {
     >
       @for (node of tree.visibleNodes(); track itemValue(node)) {
         <li
-          class="flex h-8 cursor-pointer items-center gap-1.5 rounded-lg pr-2 pl-[calc((var(--ngp-tree-node-level)-1)*1.125rem+0.375rem)] text-sm tracking-[-0.006em] text-gray-900 transition-colors duration-150 ease-[cubic-bezier(0.4,0,0.2,1)] outline-none select-none hover:bg-gray-100 focus-visible:ring-2 focus-visible:ring-blue-500 dark:text-zinc-100 dark:hover:bg-zinc-900 dark:focus-visible:ring-blue-400"
+          class="flex h-8 cursor-pointer items-center gap-1.5 rounded-lg pr-2 pl-[calc((var(--ngp-tree-node-level)-1)*1.125rem+0.375rem)] text-sm tracking-[-0.006em] text-gray-900 transition-colors duration-150 ease-[cubic-bezier(0.4,0,0.2,1)] outline-none select-none data-focus-visible:ring-2 data-focus-visible:ring-blue-500 data-hover:bg-gray-100 dark:text-zinc-100 dark:data-focus-visible:ring-blue-400 dark:data-hover:bg-zinc-900"
           #n="ngpTreeNode"
           [ngpTreeNode]="node"
           ngpTreeNode

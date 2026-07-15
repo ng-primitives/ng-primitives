@@ -129,11 +129,11 @@ function copyOf(node: FileNode): FileNode {
       outline: none;
     }
 
-    [ngpTreeNode]:hover {
+    [ngpTreeNode][data-hover] {
       background-color: var(--ngp-background-hover);
     }
 
-    [ngpTreeNode]:focus-visible {
+    [ngpTreeNode][data-focus-visible] {
       box-shadow: 0 0 0 2px var(--ngp-focus-ring);
     }
 
@@ -142,7 +142,7 @@ function copyOf(node: FileNode): FileNode {
       background-color: color-mix(in srgb, var(--ngp-primary) 14%, transparent);
     }
 
-    [ngpTreeNode][data-selected]:hover {
+    [ngpTreeNode][data-selected][data-hover] {
       background-color: color-mix(in srgb, var(--ngp-primary) 20%, transparent);
     }
 

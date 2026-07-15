@@ -58,11 +58,11 @@ interface FileNode {
       transition: background-color 150ms cubic-bezier(0.4, 0, 0.2, 1);
     }
 
-    [ngpTreeNode]:hover {
+    [ngpTreeNode][data-hover] {
       background-color: var(--ngp-background-hover);
     }
 
-    [ngpTreeNode]:focus-visible {
+    [ngpTreeNode][data-focus-visible] {
       box-shadow: 0 0 0 2px var(--ngp-focus-ring);
     }
 

@@ -20,8 +20,10 @@ export const [
   const element = injectElementRef<HTMLElement>();
   const node = injectTreeNodeState();
 
-  // Tell the row a handle is present so its body no longer starts drags.
-  onDestroy(node().registerDragHandle());
+  // Tell the row a handle is present so its body no longer starts drags, and
+  // register this element so the row can tell interactions with the handle apart
+  // from interactions with the row.
+  onDestroy(node().registerDragHandle(element.nativeElement));
 
   // Begin the drag from the handle. A click on the handle shouldn't select the
   // row, so stop it from bubbling.
