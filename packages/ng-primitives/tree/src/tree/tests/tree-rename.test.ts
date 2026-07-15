@@ -1,5 +1,11 @@
 import { fireEvent, render } from '@testing-library/angular';
-import { NgpTree, NgpTreeNode, NgpTreeNodeRename, NgpTreeNodeToggle } from 'ng-primitives/tree';
+import {
+  NgpTree,
+  NgpTreeNode,
+  NgpTreeNodeCheckbox,
+  NgpTreeNodeRename,
+  NgpTreeNodeToggle,
+} from 'ng-primitives/tree';
 import { describe, expect, it, vi } from 'vitest';
 
 interface Node {
@@ -15,6 +21,7 @@ const template = `
     @for (node of t.visibleNodes(); track itemValue(node)) {
       <li ngpTreeNode #n="ngpTreeNode" class="node" [ngpTreeNode]="node" [attr.data-value]="n.value()">
         <button ngpTreeNodeToggle class="toggle">t</button>
+        <button ngpTreeNodeCheckbox class="cb">c</button>
         @if (n.renaming()) {
           <input ngpTreeNodeRename class="rename" [value]="node.name" />
         } @else {
@@ -27,7 +34,7 @@ const template = `
 
 async function renderTree(props: Record<string, unknown> = {}) {
   const view = await render(template, {
-    imports: [NgpTree, NgpTreeNode, NgpTreeNodeRename, NgpTreeNodeToggle],
+    imports: [NgpTree, NgpTreeNode, NgpTreeNodeCheckbox, NgpTreeNodeRename, NgpTreeNodeToggle],
     componentProperties: {
       nodes: [
         { id: 'a', name: 'A' },
@@ -84,6 +91,16 @@ describe('NgpTree rename', () => {
     fireEvent.dblClick(row('a'));
     detectChanges();
     expect(input()).not.toBeNull();
+  });
+
+  it('does not start renaming on a double-click of the checkbox', async () => {
+    const { row, input, detectChanges } = await renderTree();
+
+    // The checkbox registers itself as an interactive part, so a double-click on
+    // it (e.g. checking twice) must not open the rename field.
+    fireEvent.dblClick(row('a').querySelector('.cb')!);
+    detectChanges();
+    expect(input()).toBeNull();
   });
 
   it('commits the new label when the field is blurred', async () => {

@@ -146,4 +146,13 @@ describe('NgpTree', () => {
     fireEvent.blur(row);
     expect(row).not.toHaveAttribute('data-focus');
   });
+
+  it('prevents the pointer-press default on the toggle so it never takes focus', async () => {
+    const { toggle } = await renderTree();
+    // The decorative toggle is aria-hidden and out of the tab order; preventing
+    // the press default keeps a native <button> host from focusing on click.
+    const press = new MouseEvent('mousedown', { bubbles: true, cancelable: true });
+    toggle('a').dispatchEvent(press);
+    expect(press.defaultPrevented).toBe(true);
+  });
 });

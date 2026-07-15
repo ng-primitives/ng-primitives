@@ -298,6 +298,38 @@ describe('NgpTree drag & drop', () => {
     expect(ids).toEqual(['a1', 'a2']); // visible order, both moved
   });
 
+  it('coerces a bare/"true" string ngpTreeItemDraggable to enabled', async () => {
+    // A bare attribute reaches the input as an empty string; coercion enables it.
+    const onDrop = vi.fn();
+    const { drag } = await renderTree({ canDrag: '', onDrop });
+    drag('b', 'a', 'inside').drop();
+    expect(onDrop).toHaveBeenCalledTimes(1);
+  });
+
+  it('coerces a "false" string ngpTreeItemDraggable to disabled', async () => {
+    const onDrop = vi.fn();
+    const { drag } = await renderTree({ canDrag: 'false', onDrop });
+    drag('b', 'a', 'inside').drop();
+    expect(onDrop).not.toHaveBeenCalled();
+  });
+
+  it('badges the drag preview with the count when moving several nodes', async () => {
+    const { drag } = await renderTree({
+      selectionMode: 'multiple',
+      selectedKeys: new Set(['a1', 'a2']),
+    });
+
+    // Grab a selected node - the whole selection is dragged, so the default
+    // preview is badged with the count.
+    drag('a1', 'b', 'after');
+
+    const preview = document.body.querySelector<HTMLElement>(':scope > [aria-hidden="true"]');
+    expect(preview).not.toBeNull();
+    const badge = preview!.querySelector<HTMLElement>('[data-ngp-tree-drag-badge]');
+    expect(badge).not.toBeNull();
+    expect(badge!.textContent).toBe('2');
+  });
+
   it('drags only the grabbed node when it is not part of the selection', async () => {
     const onDrop = vi.fn();
     const { drag } = await renderTree({
