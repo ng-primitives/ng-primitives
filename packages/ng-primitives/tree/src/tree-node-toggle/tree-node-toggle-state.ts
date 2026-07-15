@@ -52,6 +52,12 @@ export const [
   dataBinding(element, 'data-disabled', () => node().disabled());
 
   // Event listeners.
+  // The toggle is decorative (`aria-hidden`, tab order excluded), so a pointer
+  // press must not move focus onto it - an `aria-hidden` element that can hold
+  // focus strands assistive tech on an undiscoverable control. Preventing the
+  // press default keeps focus on the row while leaving the click working, so this
+  // holds even when the consumer renders the toggle as a native `<button>`.
+  listener(element, 'mousedown', (event: MouseEvent) => event.preventDefault());
   listener(element, 'click', onClick);
 
   function onClick(event: MouseEvent): void {

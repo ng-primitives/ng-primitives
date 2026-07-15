@@ -175,7 +175,7 @@ export interface NgpTreeState<T> {
   collapseAll(): void;
   /** Whether a node value is currently selected. */
   isSelected(value: string): boolean;
-  /** Select all currently-visible (non-disabled) nodes. */
+  /** Select all currently-visible (non-disabled) nodes (multiple-selection mode only). */
   selectAll(): void;
   /** Clear the selection. */
   clearSelection(): void;
@@ -778,9 +778,10 @@ export const [NgpTreeStateToken, ngpTree, _injectTreeState, provideTreeState] = 
 
     // Select every visible node - not nodes hidden inside collapsed folders, so the
     // selection never contains rows the user can't see (and a subsequent drag,
-    // which moves visible nodes, matches what Ctrl/Cmd+A selected).
+    // which moves visible nodes, matches what Ctrl/Cmd+A selected). "Select all"
+    // only makes sense in `multiple` mode; in `single`/`none` it is a no-op.
     function selectAll(): void {
-      if (selectionMode() === 'none') {
+      if (selectionMode() !== 'multiple') {
         return;
       }
       setSelectedKeys(new Set(visibleNodes().map(keyOf).filter(isSelectable)));

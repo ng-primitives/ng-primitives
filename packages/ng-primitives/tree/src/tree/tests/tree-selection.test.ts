@@ -155,6 +155,19 @@ describe('NgpTree selection', () => {
     }
   });
 
+  it('single: Ctrl/Cmd+A does not select all (select-all is multiple-mode only)', async () => {
+    const { nodeEl, click, press } = await renderTree({ mode: 'single' });
+
+    click('a');
+    press('a', 'a', { ctrlKey: true, metaKey: true });
+
+    // Only the single selected node stays selected - select-all is a no-op here.
+    expect(nodeEl('a')).toHaveAttribute('aria-selected', 'true');
+    for (const v of ['a1', 'a2', 'b']) {
+      expect(nodeEl(v)).toHaveAttribute('aria-selected', 'false');
+    }
+  });
+
   it('single: a modifier-click on the selected node deselects it', async () => {
     const { nodeEl, click } = await renderTree({ mode: 'single' });
 

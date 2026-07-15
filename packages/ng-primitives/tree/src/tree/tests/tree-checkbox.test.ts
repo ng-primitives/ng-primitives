@@ -71,6 +71,18 @@ describe('NgpTree checkbox', () => {
     expect(cb('a2')).not.toHaveAttribute('data-checked');
   });
 
+  it('prevents the pointer-press default so the aria-hidden control never takes focus', async () => {
+    const { cb } = await renderTree();
+    // The press default is prevented (this is what stops a native <button> from
+    // focusing on click - a browser only focuses on mousedown it can default).
+    const press = new MouseEvent('mousedown', { bubbles: true, cancelable: true });
+    cb('a1').dispatchEvent(press);
+    expect(press.defaultPrevented).toBe(true);
+    // ...while the click still toggles the checkbox.
+    fireEvent.click(cb('a1'));
+    expect(cb('a1')).toHaveAttribute('data-checked');
+  });
+
   it('checking a leaf makes the parent indeterminate, checking all makes it checked', async () => {
     const { cb, row } = await renderTree();
 
