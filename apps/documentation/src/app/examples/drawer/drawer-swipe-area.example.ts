@@ -29,7 +29,7 @@ import {
     NgpDrawerViewport,
   ],
   template: `
-    <div #portalContainer class="stage">
+    <div class="stage" #portalContainer>
       <ng-container [modal]="false" ngpDrawerRoot swipeDirection="right">
         <div class="swipe-area" ngpDrawerSwipeArea>
           <span>Swipe here</span>

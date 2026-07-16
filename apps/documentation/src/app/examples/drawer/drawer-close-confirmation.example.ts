@@ -65,11 +65,11 @@ import {
 
           @if (confirmationOpen()) {
             <section
+              class="confirmation"
               [cdkTrapFocusAutoCapture]="true"
               aria-describedby="discard-description"
               aria-labelledby="discard-title"
               cdkTrapFocus
-              class="confirmation"
               role="alertdialog"
             >
               <div>
@@ -77,15 +77,10 @@ import {
                 <p id="discard-description">Your changes will be lost.</p>
               </div>
               <div class="actions">
-                <button
-                  ngpButton
-                  (click)="goBack(postTextarea)"
-                  cdkFocusInitial
-                  type="button"
-                >
+                <button (click)="goBack(postTextarea)" ngpButton cdkFocusInitial type="button">
                   Keep editing
                 </button>
-                <button ngpButton (click)="discard()" type="button">Discard</button>
+                <button (click)="discard()" ngpButton type="button">Discard</button>
               </div>
             </section>
           }

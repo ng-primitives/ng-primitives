@@ -36,7 +36,7 @@ import {
   ],
   template: `
     <ng-container ngpDrawerProvider>
-      <div #portalContainer class="stage">
+      <div class="stage" #portalContainer>
         <div class="indent-background" ngpDrawerIndentBackground></div>
         <div class="page" ngpDrawerIndent>
           <ng-container [modal]="false" ngpDrawerRoot>

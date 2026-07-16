@@ -172,10 +172,7 @@ import {
       box-shadow: var(--ngp-shadow);
       outline: none;
       transform: translateY(
-          calc(
-            var(--ngp-drawer-swipe-movement-y) -
-              (var(--ngp-drawer-nested-drawers, 0) * 0.75rem)
-          )
+          calc(var(--ngp-drawer-swipe-movement-y) - (var(--ngp-drawer-nested-drawers, 0) * 0.75rem))
         )
         scale(var(--stack-scale));
       transform-origin: center bottom;
