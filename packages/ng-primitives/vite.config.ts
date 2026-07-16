@@ -17,7 +17,7 @@ export default defineConfig(({ mode }) => ({
     globals: true,
     setupFiles: ['src/test-setup.vitest.ts'],
     include: ['**/*.test.ts'],
-    exclude: ['schematics/**/*.node.test.ts'],
+    exclude: ['schematics/**/*.node.test.ts', '**/*.browser.test.ts'],
     reporters: ['default'],
     browser: {
       enabled: true,
