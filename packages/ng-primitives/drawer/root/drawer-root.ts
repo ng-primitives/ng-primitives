@@ -42,17 +42,17 @@ import { injectDrawerProviderState } from '../internal/provider-state';
   providers: [provideDrawerState({ inherit: false })],
 })
 export class NgpDrawerRoot {
-  protected readonly openInput = input(false, { alias: 'open' });
+  readonly openInput = input(false, { alias: 'open' });
   readonly open = linkedSignal(() => this.openInput());
   readonly openChange = output<boolean>();
 
-  protected readonly snapPointInput = input<NgpDrawerSnapPoint | null | undefined>(undefined, {
+  readonly snapPointInput = input<NgpDrawerSnapPoint | null | undefined>(undefined, {
     alias: 'snapPoint',
   });
   readonly snapPoint = linkedSignal(() => this.snapPointInput());
   readonly snapPointChange = output<NgpDrawerSnapPoint | null | undefined>();
 
-  protected readonly triggerIdInput = input<string | null>(null, { alias: 'triggerId' });
+  readonly triggerIdInput = input<string | null>(null, { alias: 'triggerId' });
   readonly triggerId = linkedSignal(() => this.triggerIdInput());
   readonly triggerIdChange = output<string | null>();
   readonly modal = input<NgpDrawerModal>(true);
