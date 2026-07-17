@@ -152,16 +152,31 @@ import {
     }
 
     .sheet {
+      --bleed: 3rem;
+      --peek: 1rem;
+      --stack-step: 0.05;
       --stack-progress: clamp(0, var(--ngp-drawer-swipe-progress), 1);
-      --stack-step: 0.04;
-      --stack-scale: calc(
-        1 - (var(--ngp-drawer-nested-drawers, 0) * var(--stack-step)) +
-          (var(--stack-progress) * var(--stack-step))
+      --stack-scale-base: max(0, calc(1 - (var(--ngp-drawer-nested-drawers, 0) * var(--stack-step))));
+      --stack-scale: clamp(
+        0,
+        calc(var(--stack-scale-base) + (var(--stack-step) * var(--stack-progress))),
+        1
       );
-      width: 100%;
-      height: var(--ngp-drawer-height, auto);
-      max-height: 80dvh;
-      padding: 0.875rem 1.5rem max(1.5rem, env(safe-area-inset-bottom));
+      --stack-shrink: calc(1 - var(--stack-scale));
+      --stack-height: max(
+        0px,
+        calc(var(--ngp-drawer-frontmost-height, var(--ngp-drawer-height, 0px)) - var(--bleed))
+      );
+      --stack-peek-offset: max(
+        0px,
+        calc((var(--ngp-drawer-nested-drawers, 0) - var(--stack-progress)) * var(--peek))
+      );
+      width: calc(100% + 2px);
+      margin-inline: -1px;
+      margin-block-end: calc(-1 * var(--bleed));
+      height: var(--ngp-drawer-frontmost-height, var(--ngp-drawer-height, auto));
+      max-height: calc(80dvh + var(--bleed));
+      padding: 0.875rem 1.5rem calc(max(1.5rem, env(safe-area-inset-bottom)) + var(--bleed));
       overflow-y: auto;
       touch-action: auto;
       color: var(--ngp-text-primary);
@@ -172,10 +187,13 @@ import {
       box-shadow: var(--ngp-shadow);
       outline: none;
       transform: translateY(
-          calc(var(--ngp-drawer-swipe-movement-y) - (var(--ngp-drawer-nested-drawers, 0) * 0.75rem))
+          calc(
+            var(--ngp-drawer-swipe-movement-y) - var(--stack-peek-offset) -
+              (var(--stack-shrink) * var(--stack-height))
+          )
         )
         scale(var(--stack-scale));
-      transform-origin: center bottom;
+      transform-origin: center calc(100% - var(--bleed));
       transition:
         transform 400ms cubic-bezier(0.32, 0.72, 0, 1),
         height 400ms cubic-bezier(0.32, 0.72, 0, 1),
@@ -184,10 +202,11 @@ import {
 
     .sheet[data-starting-style],
     .sheet[data-ending-style] {
-      transform: translateY(calc(100% + 2px));
+      transform: translateY(calc(100% - var(--bleed) + 2px));
     }
 
     .sheet[data-nested-drawer-open] {
+      height: calc(var(--stack-height) + var(--bleed));
       overflow: hidden;
       opacity: 0.92;
     }
