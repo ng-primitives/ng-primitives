@@ -3,10 +3,10 @@ import { Component, signal, viewChild } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { NgpDrawerBackdrop } from './backdrop/drawer-backdrop';
 import { NgpDrawerDescription } from './description/drawer-description';
+import { NgpDrawer } from './drawer/drawer';
 import { createDrawerHandle } from './handle/drawer-handle';
 import { NgpDrawerPopup } from './popup/drawer-popup';
 import { NgpDrawerPortal } from './portal/drawer-portal';
-import { NgpDrawer } from './drawer/drawer';
 import { NgpDrawerTitle } from './title/drawer-title';
 import { NgpDrawerViewport } from './viewport/drawer-viewport';
 

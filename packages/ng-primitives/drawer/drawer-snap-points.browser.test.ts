@@ -6,9 +6,9 @@ import {
   NgpDrawerSnapPointChangeEvent,
   NgpDrawerSwipeDirection,
 } from './drawer.types';
+import { NgpDrawer } from './drawer/drawer';
 import { NgpDrawerPopup } from './popup/drawer-popup';
 import { NgpDrawerPortal } from './portal/drawer-portal';
-import { NgpDrawer } from './drawer/drawer';
 import { NgpDrawerViewport } from './viewport/drawer-viewport';
 
 @Component({

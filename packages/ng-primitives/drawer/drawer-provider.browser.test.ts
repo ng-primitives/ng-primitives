@@ -1,12 +1,12 @@
 import { OverlayContainer, OverlayModule } from '@angular/cdk/overlay';
 import { Component, viewChild, viewChildren } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { NgpDrawer } from './drawer/drawer';
 import { NgpDrawerIndentBackground } from './indent-background/drawer-indent-background';
 import { NgpDrawerIndent } from './indent/drawer-indent';
 import { NgpDrawerPopup } from './popup/drawer-popup';
 import { NgpDrawerPortal } from './portal/drawer-portal';
 import { NgpDrawerProvider } from './provider/drawer-provider';
-import { NgpDrawer } from './drawer/drawer';
 import { NgpDrawerViewport } from './viewport/drawer-viewport';
 
 @Component({

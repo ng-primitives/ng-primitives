@@ -1,8 +1,8 @@
 import { Component, input, signal, viewChildren } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { NgpDrawerPopup } from './popup/drawer-popup';
 import { NgpDrawer } from './drawer/drawer';
+import { NgpDrawerPopup } from './popup/drawer-popup';
 import { NgpDrawerSwipeArea } from './swipe-area/drawer-swipe-area';
 import { NgpDrawerViewport } from './viewport/drawer-viewport';
 

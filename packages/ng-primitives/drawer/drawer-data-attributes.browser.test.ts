@@ -7,9 +7,9 @@ import {
   NgpDrawerSnapPoint,
   NgpDrawerSnapPointChangeEvent,
 } from './drawer.types';
+import { NgpDrawer } from './drawer/drawer';
 import { NgpDrawerPopup } from './popup/drawer-popup';
 import { NgpDrawerPortal } from './portal/drawer-portal';
-import { NgpDrawer } from './drawer/drawer';
 import { NgpDrawerSwipeArea } from './swipe-area/drawer-swipe-area';
 import { NgpDrawerTrigger } from './trigger/drawer-trigger';
 import { NgpDrawerViewport } from './viewport/drawer-viewport';

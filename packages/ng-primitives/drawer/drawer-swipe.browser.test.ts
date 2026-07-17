@@ -4,9 +4,9 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { NgpDrawerBackdrop } from './backdrop/drawer-backdrop';
 import { NgpDrawerContent } from './content/drawer-content';
 import { NgpDrawerOpenChangeEvent, NgpDrawerSwipeDirection } from './drawer.types';
+import { NgpDrawer } from './drawer/drawer';
 import { NgpDrawerPopup } from './popup/drawer-popup';
 import { NgpDrawerPortal } from './portal/drawer-portal';
-import { NgpDrawer } from './drawer/drawer';
 import { NgpDrawerSwipeIgnore } from './swipe-ignore/drawer-swipe-ignore';
 import { NgpDrawerViewport } from './viewport/drawer-viewport';
 

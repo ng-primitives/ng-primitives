@@ -1,9 +1,9 @@
 import { OverlayContainer, OverlayModule } from '@angular/cdk/overlay';
 import { Component, viewChildren } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { NgpDrawer } from './drawer/drawer';
 import { NgpDrawerPopup } from './popup/drawer-popup';
 import { NgpDrawerPortal } from './portal/drawer-portal';
-import { NgpDrawer } from './drawer/drawer';
 import { NgpDrawerSwipeArea } from './swipe-area/drawer-swipe-area';
 import { NgpDrawerViewport } from './viewport/drawer-viewport';
 

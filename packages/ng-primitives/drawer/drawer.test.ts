@@ -1,9 +1,9 @@
 import { Component, signal, viewChild, viewChildren } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { NgpDrawer } from './drawer/drawer';
 import { createDrawerHandle, NgpDrawerHandle } from './handle/drawer-handle';
 import { DrawerState } from './internal/drawer-state';
 import { NgpDrawerProvider } from './provider/drawer-provider';
-import { NgpDrawer } from './drawer/drawer';
 
 @Component({
   imports: [NgpDrawerProvider, NgpDrawer],
