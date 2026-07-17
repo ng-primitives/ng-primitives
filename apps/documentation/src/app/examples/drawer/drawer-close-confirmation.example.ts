@@ -111,6 +111,10 @@ import {
       background: var(--ngp-background-hover);
     }
 
+    [ngpButton][data-press] {
+      background: var(--ngp-background-active);
+    }
+
     [ngpButton][data-focus-visible] {
       outline: 2px solid var(--ngp-focus-ring);
       outline-offset: 2px;
@@ -200,8 +204,9 @@ import {
       resize: vertical;
       color: var(--ngp-text-primary);
       background: var(--ngp-background);
-      border: 1px solid var(--ngp-border);
+      border: none;
       border-radius: 0.5rem;
+      box-shadow: var(--ngp-input-shadow);
       font: inherit;
       font-size: 0.875rem;
       outline: none;

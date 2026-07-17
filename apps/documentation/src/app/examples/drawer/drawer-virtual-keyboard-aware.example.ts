@@ -88,6 +88,10 @@ import {
       background: var(--ngp-background-hover);
     }
 
+    [ngpButton][data-press] {
+      background: var(--ngp-background-active);
+    }
+
     [ngpButton][data-focus-visible] {
       outline: 2px solid var(--ngp-focus-ring);
       outline-offset: 2px;
@@ -155,6 +159,10 @@ import {
       border-block-end: 1px solid var(--ngp-border);
     }
 
+    header [ngpButton]:first-child {
+      justify-self: start;
+    }
+
     header [ngpButton]:last-child {
       justify-self: end;
     }
@@ -167,6 +175,7 @@ import {
 
     .content {
       display: grid;
+      align-content: start;
       width: min(100%, 32rem);
       min-height: 0;
       flex: 1;
@@ -179,6 +188,7 @@ import {
 
     label {
       display: grid;
+      align-content: start;
       gap: 0.375rem;
       color: var(--ngp-text-secondary);
       font-size: 0.8125rem;
@@ -188,16 +198,21 @@ import {
     input,
     textarea {
       width: 100%;
-      padding: 0.625rem 0.75rem;
+      padding: 0.5rem 0.75rem;
       resize: vertical;
       color: var(--ngp-text-primary);
       background: var(--ngp-background);
-      border: 1px solid var(--ngp-border);
+      border: none;
       border-radius: 0.5rem;
+      box-shadow: var(--ngp-input-shadow);
       font: inherit;
-      font-size: max(1rem, 16px);
+      font-size: max(0.875rem, 16px);
       font-weight: 400;
       outline: none;
+    }
+
+    input {
+      height: 2.375rem;
     }
 
     input:focus-visible,

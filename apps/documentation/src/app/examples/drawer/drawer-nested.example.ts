@@ -122,6 +122,10 @@ import {
       background: var(--ngp-background-hover);
     }
 
+    [ngpButton][data-press] {
+      background: var(--ngp-background-active);
+    }
+
     [ngpButton][data-focus-visible] {
       outline: 2px solid var(--ngp-focus-ring);
       outline-offset: 2px;
@@ -288,10 +292,18 @@ import {
       padding: 0.625rem;
       color: var(--ngp-text-primary);
       background: var(--ngp-background);
-      border: 1px solid var(--ngp-border);
+      border: none;
       border-radius: 0.5rem;
+      box-shadow: var(--ngp-input-shadow);
       font: inherit;
       font-weight: 400;
+      outline: none;
+    }
+
+    input:focus-visible,
+    textarea:focus-visible {
+      outline: 2px solid var(--ngp-focus-ring);
+      outline-offset: 2px;
     }
   `,
 })

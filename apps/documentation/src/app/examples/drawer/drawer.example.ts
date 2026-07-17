@@ -80,6 +80,10 @@ import {
       background: var(--ngp-background-hover);
     }
 
+    [ngpButton][data-press] {
+      background: var(--ngp-background-active);
+    }
+
     [ngpButton][data-focus-visible] {
       outline: 2px solid var(--ngp-focus-ring);
       outline-offset: 2px;

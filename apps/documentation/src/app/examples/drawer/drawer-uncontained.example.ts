@@ -1,4 +1,5 @@
 import { Component, signal } from '@angular/core';
+import { NgpButton } from 'ng-primitives/button';
 import {
   NgpDrawerBackdrop,
   NgpDrawerClose,
@@ -15,6 +16,7 @@ import {
 @Component({
   selector: 'app-drawer-uncontained',
   imports: [
+    NgpButton,
     NgpDrawerBackdrop,
     NgpDrawerClose,
     NgpDrawerContent,
@@ -28,7 +30,7 @@ import {
   ],
   template: `
     <ng-container [open]="open()" (openChange)="open.set($event)" ngpDrawer>
-      <button class="trigger" ngpDrawerTrigger>Open action sheet</button>
+      <button class="trigger" ngpButton ngpDrawerTrigger>Open action sheet</button>
       <ng-template ngpDrawerPortal>
         <div class="backdrop" ngpDrawerBackdrop></div>
         <div class="viewport" ngpDrawerViewport>
@@ -80,6 +82,19 @@ import {
       min-height: 2.125rem;
       border-radius: 0.5rem;
       box-shadow: inset 0 0 0 1px var(--ngp-border);
+    }
+
+    .trigger[data-hover] {
+      background: var(--ngp-background-hover);
+    }
+
+    .trigger[data-press] {
+      background: var(--ngp-background-active);
+    }
+
+    .trigger[data-focus-visible] {
+      outline: 2px solid var(--ngp-focus-ring);
+      outline-offset: 2px;
     }
 
     .backdrop {
@@ -139,10 +154,6 @@ import {
 
     .action-group button + button {
       border-block-start: 1px solid var(--ngp-border);
-    }
-
-    .danger-group button {
-      color: var(--ngp-danger, #b42318);
     }
 
     .visually-hidden {
