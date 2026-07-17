@@ -156,7 +156,10 @@ import {
       --peek: 1rem;
       --stack-step: 0.05;
       --stack-progress: clamp(0, var(--ngp-drawer-swipe-progress), 1);
-      --stack-scale-base: max(0, calc(1 - (var(--ngp-drawer-nested-drawers, 0) * var(--stack-step))));
+      --stack-scale-base: max(
+        0,
+        calc(1 - (var(--ngp-drawer-nested-drawers, 0) * var(--stack-step)))
+      );
       --stack-scale: clamp(
         0,
         calc(var(--stack-scale-base) + (var(--stack-step) * var(--stack-progress))),
