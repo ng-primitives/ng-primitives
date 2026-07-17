@@ -3,37 +3,37 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { createDrawerHandle, NgpDrawerHandle } from './handle/drawer-handle';
 import { DrawerState } from './internal/drawer-state';
 import { NgpDrawerProvider } from './provider/drawer-provider';
-import { NgpDrawerRoot } from './root/drawer-root';
+import { NgpDrawer } from './drawer/drawer';
 
 @Component({
-  imports: [NgpDrawerProvider, NgpDrawerRoot],
+  imports: [NgpDrawerProvider, NgpDrawer],
   template: `
     <ng-container ngpDrawerProvider>
       <ng-container
         [defaultSnapPoint]="'120px'"
         [handle]="handle"
         [snapPoints]="['120px', 1]"
-        ngpDrawerRoot
+        ngpDrawer
       >
-        <ng-container ngpDrawerRoot />
+        <ng-container ngpDrawer />
       </ng-container>
     </ng-container>
   `,
 })
 class RootHost {
   handle: NgpDrawerHandle<{ id: number }> = createDrawerHandle<{ id: number }>();
-  readonly roots = viewChildren(NgpDrawerRoot);
+  readonly roots = viewChildren(NgpDrawer);
   readonly provider = viewChild.required(NgpDrawerProvider);
 }
 
 @Component({
-  imports: [NgpDrawerRoot],
+  imports: [NgpDrawer],
   template: `
     @if (showOlder()) {
-      <ng-container [handle]="olderHandle()" ngpDrawerRoot />
+      <ng-container [handle]="olderHandle()" ngpDrawer />
     }
     @if (showNewer()) {
-      <ng-container [handle]="newerHandle()" ngpDrawerRoot />
+      <ng-container [handle]="newerHandle()" ngpDrawer />
     }
   `,
 })
@@ -44,12 +44,12 @@ class HandleRootHost {
   readonly newerHandle = signal<NgpDrawerHandle<{ id: number }>>(this.sharedHandle);
   readonly showOlder = signal(true);
   readonly showNewer = signal(true);
-  readonly roots = viewChildren(NgpDrawerRoot);
+  readonly roots = viewChildren(NgpDrawer);
 }
 
-describe('NgpDrawerRoot', () => {
+describe('NgpDrawer', () => {
   let fixture: ComponentFixture<RootHost>;
-  let roots: NgpDrawerRoot[];
+  let roots: NgpDrawer[];
   let provider: NgpDrawerProvider;
 
   beforeEach(async () => {

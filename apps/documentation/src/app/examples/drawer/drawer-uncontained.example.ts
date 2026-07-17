@@ -6,7 +6,7 @@ import {
   NgpDrawerDescription,
   NgpDrawerPopup,
   NgpDrawerPortal,
-  NgpDrawerRoot,
+  NgpDrawer,
   NgpDrawerTitle,
   NgpDrawerTrigger,
   NgpDrawerViewport,
@@ -21,13 +21,13 @@ import {
     NgpDrawerDescription,
     NgpDrawerPopup,
     NgpDrawerPortal,
-    NgpDrawerRoot,
+    NgpDrawer,
     NgpDrawerTitle,
     NgpDrawerTrigger,
     NgpDrawerViewport,
   ],
   template: `
-    <ng-container [open]="open()" (openChange)="open.set($event)" ngpDrawerRoot>
+    <ng-container [open]="open()" (openChange)="open.set($event)" ngpDrawer>
       <button class="trigger" ngpDrawerTrigger>Open action sheet</button>
       <ng-template ngpDrawerPortal>
         <div class="backdrop" ngpDrawerBackdrop></div>

@@ -14,7 +14,7 @@ export { NgpDrawerIndent } from './indent/drawer-indent';
 export { NgpDrawerPopup } from './popup/drawer-popup';
 export { NgpDrawerPortal } from './portal/drawer-portal';
 export { NgpDrawerProvider } from './provider/drawer-provider';
-export { NgpDrawerRoot } from './root/drawer-root';
+export { NgpDrawer } from './drawer/drawer';
 export { NgpDrawerSwipeArea } from './swipe-area/drawer-swipe-area';
 export { NgpDrawerSwipeIgnore } from './swipe-ignore/drawer-swipe-ignore';
 export { NgpDrawerTitle } from './title/drawer-title';

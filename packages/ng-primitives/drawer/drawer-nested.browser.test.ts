@@ -6,7 +6,7 @@ import { NgpDrawerClose } from './close/drawer-close';
 import { NgpDrawerPopup } from './popup/drawer-popup';
 import { NgpDrawerPortal } from './portal/drawer-portal';
 import { NgpDrawerProvider } from './provider/drawer-provider';
-import { NgpDrawerRoot } from './root/drawer-root';
+import { NgpDrawer } from './drawer/drawer';
 import { NgpDrawerTrigger } from './trigger/drawer-trigger';
 import { NgpDrawerViewport } from './viewport/drawer-viewport';
 
@@ -18,20 +18,20 @@ import { NgpDrawerViewport } from './viewport/drawer-viewport';
     NgpDrawerPopup,
     NgpDrawerPortal,
     NgpDrawerProvider,
-    NgpDrawerRoot,
+    NgpDrawer,
     NgpDrawerTrigger,
     NgpDrawerViewport,
   ],
   template: `
     <ng-container ngpDrawerProvider>
-      <ng-container ngpDrawerRoot>
+      <ng-container ngpDrawer>
         <button data-test-parent-trigger ngpDrawerTrigger>Open parent</button>
         <ng-template [keepMounted]="keepParentMounted()" ngpDrawerPortal>
           <div data-test-parent-backdrop ngpDrawerBackdrop></div>
           <div data-test-parent-viewport ngpDrawerViewport>
             <section data-test-parent-popup ngpDrawerPopup style="height: 200px">
               <div data-test-regular-dialog role="dialog"></div>
-              <ng-container ngpDrawerRoot>
+              <ng-container ngpDrawer>
                 <button data-test-child-trigger ngpDrawerTrigger>Open child</button>
                 <ng-template ngpDrawerPortal>
                   <div data-test-child-backdrop ngpDrawerBackdrop></div>
@@ -42,7 +42,7 @@ import { NgpDrawerViewport } from './viewport/drawer-viewport';
                       ngpDrawerPopup
                       style="height: 300px"
                     >
-                      <ng-container ngpDrawerRoot>
+                      <ng-container ngpDrawer>
                         <button data-test-grandchild-trigger ngpDrawerTrigger>
                           Open grandchild
                         </button>
@@ -89,7 +89,7 @@ import { NgpDrawerViewport } from './viewport/drawer-viewport';
 class NestedHost {
   readonly keepParentMounted = signal(false);
   readonly animateChildExit = signal(false);
-  readonly roots = viewChildren(NgpDrawerRoot);
+  readonly roots = viewChildren(NgpDrawer);
 }
 
 describe('nested Drawer roots', () => {

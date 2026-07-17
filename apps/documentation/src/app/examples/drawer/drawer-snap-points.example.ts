@@ -7,7 +7,7 @@ import {
   NgpDrawerDescription,
   NgpDrawerPopup,
   NgpDrawerPortal,
-  NgpDrawerRoot,
+  NgpDrawer,
   NgpDrawerSnapPoint,
   NgpDrawerTitle,
   NgpDrawerTrigger,
@@ -24,13 +24,13 @@ import {
     NgpDrawerDescription,
     NgpDrawerPopup,
     NgpDrawerPortal,
-    NgpDrawerRoot,
+    NgpDrawer,
     NgpDrawerTitle,
     NgpDrawerTrigger,
     NgpDrawerViewport,
   ],
   template: `
-    <ng-container [snapPoints]="snapPoints" defaultSnapPoint="31rem" ngpDrawerRoot>
+    <ng-container [snapPoints]="snapPoints" defaultSnapPoint="31rem" ngpDrawer>
       <button ngpButton ngpDrawerTrigger>Open snap drawer</button>
       <ng-template ngpDrawerPortal>
         <div class="backdrop" ngpDrawerBackdrop></div>

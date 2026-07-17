@@ -36,12 +36,12 @@ import {
 import { injectDrawerProviderState } from '../internal/provider-state';
 
 @Directive({
-  selector: 'ng-container[ngpDrawerRoot]',
+  selector: 'ng-container[ngpDrawer]',
   standalone: true,
-  exportAs: 'ngpDrawerRoot',
+  exportAs: 'ngpDrawer',
   providers: [provideDrawerState({ inherit: false })],
 })
-export class NgpDrawerRoot {
+export class NgpDrawer {
   readonly openInput = input(false, { alias: 'open' });
   readonly open = linkedSignal(() => this.openInput());
   readonly openChange = output<boolean>();

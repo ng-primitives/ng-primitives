@@ -3,7 +3,7 @@ import { Component, viewChildren } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { NgpDrawerPopup } from './popup/drawer-popup';
 import { NgpDrawerPortal } from './portal/drawer-portal';
-import { NgpDrawerRoot } from './root/drawer-root';
+import { NgpDrawer } from './drawer/drawer';
 import { NgpDrawerSwipeArea } from './swipe-area/drawer-swipe-area';
 import { NgpDrawerViewport } from './viewport/drawer-viewport';
 
@@ -12,12 +12,12 @@ import { NgpDrawerViewport } from './viewport/drawer-viewport';
     OverlayModule,
     NgpDrawerPopup,
     NgpDrawerPortal,
-    NgpDrawerRoot,
+    NgpDrawer,
     NgpDrawerSwipeArea,
     NgpDrawerViewport,
   ],
   template: `
-    <ng-container [modal]="false" ngpDrawerRoot swipeDirection="down">
+    <ng-container [modal]="false" ngpDrawer swipeDirection="down">
       <ng-template ngpDrawerPortal>
         <div class="geometry-viewport" data-test-geometry-viewport ngpDrawerViewport>
           <section class="geometry-popup" data-test-geometry-popup ngpDrawerPopup></section>
@@ -25,7 +25,7 @@ import { NgpDrawerViewport } from './viewport/drawer-viewport';
       </ng-template>
     </ng-container>
 
-    <ng-container [modal]="false" ngpDrawerRoot swipeDirection="down">
+    <ng-container [modal]="false" ngpDrawer swipeDirection="down">
       <div data-test-geometry-swipe-area ngpDrawerSwipeArea></div>
       <ng-template ngpDrawerPortal>
         <div ngpDrawerViewport>
@@ -43,7 +43,7 @@ import { NgpDrawerViewport } from './viewport/drawer-viewport';
   `,
 })
 class GeometryHost {
-  readonly roots = viewChildren(NgpDrawerRoot);
+  readonly roots = viewChildren(NgpDrawer);
 }
 
 describe('Drawer gesture geometry reads', () => {

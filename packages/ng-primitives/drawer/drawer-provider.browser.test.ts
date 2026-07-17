@@ -6,7 +6,7 @@ import { NgpDrawerIndent } from './indent/drawer-indent';
 import { NgpDrawerPopup } from './popup/drawer-popup';
 import { NgpDrawerPortal } from './portal/drawer-portal';
 import { NgpDrawerProvider } from './provider/drawer-provider';
-import { NgpDrawerRoot } from './root/drawer-root';
+import { NgpDrawer } from './drawer/drawer';
 import { NgpDrawerViewport } from './viewport/drawer-viewport';
 
 @Component({
@@ -17,7 +17,7 @@ import { NgpDrawerViewport } from './viewport/drawer-viewport';
     NgpDrawerPopup,
     NgpDrawerPortal,
     NgpDrawerProvider,
-    NgpDrawerRoot,
+    NgpDrawer,
     NgpDrawerViewport,
   ],
   template: `
@@ -33,7 +33,7 @@ import { NgpDrawerViewport } from './viewport/drawer-viewport';
         style="--ngp-drawer-height: 8px; --ngp-drawer-swipe-progress: 0.1"
       ></main>
 
-      <ng-container [modal]="false" ngpDrawerRoot>
+      <ng-container [modal]="false" ngpDrawer>
         <ng-template ngpDrawerPortal>
           <div data-test-provider-viewport-1 ngpDrawerViewport>
             <section data-test-provider-popup-1 ngpDrawerPopup style="height: 200px"></section>
@@ -41,7 +41,7 @@ import { NgpDrawerViewport } from './viewport/drawer-viewport';
         </ng-template>
       </ng-container>
 
-      <ng-container [modal]="false" ngpDrawerRoot>
+      <ng-container [modal]="false" ngpDrawer>
         <ng-template ngpDrawerPortal>
           <div data-test-provider-viewport-2 ngpDrawerViewport>
             <section data-test-provider-popup-2 ngpDrawerPopup style="height: 300px"></section>
@@ -55,7 +55,7 @@ import { NgpDrawerViewport } from './viewport/drawer-viewport';
 })
 class ProviderHost {
   readonly provider = viewChild.required(NgpDrawerProvider);
-  readonly roots = viewChildren(NgpDrawerRoot);
+  readonly roots = viewChildren(NgpDrawer);
 }
 
 describe('Drawer Provider and Indent parts', () => {

@@ -4,7 +4,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { NgpDrawerBackdrop } from './backdrop/drawer-backdrop';
 import { NgpDrawerPopup } from './popup/drawer-popup';
 import { NgpDrawerPortal } from './portal/drawer-portal';
-import { NgpDrawerRoot } from './root/drawer-root';
+import { NgpDrawer } from './drawer/drawer';
 import { NgpDrawerViewport } from './viewport/drawer-viewport';
 
 @Component({
@@ -13,11 +13,11 @@ import { NgpDrawerViewport } from './viewport/drawer-viewport';
     NgpDrawerBackdrop,
     NgpDrawerPopup,
     NgpDrawerPortal,
-    NgpDrawerRoot,
+    NgpDrawer,
     NgpDrawerViewport,
   ],
   template: `
-    <ng-container ngpDrawerRoot>
+    <ng-container ngpDrawer>
       <ng-template ngpDrawerPortal>
         <div class="animated-backdrop" data-test-animated-backdrop ngpDrawerBackdrop></div>
         <div class="animated-viewport" data-test-animated-viewport ngpDrawerViewport>
@@ -60,13 +60,13 @@ import { NgpDrawerViewport } from './viewport/drawer-viewport';
   `,
 })
 class RootBrowserHost {
-  readonly root = viewChild.required(NgpDrawerRoot);
+  readonly root = viewChild.required(NgpDrawer);
 }
 
 @Component({
-  imports: [OverlayModule, NgpDrawerPopup, NgpDrawerPortal, NgpDrawerRoot, NgpDrawerViewport],
+  imports: [OverlayModule, NgpDrawerPopup, NgpDrawerPortal, NgpDrawer, NgpDrawerViewport],
   template: `
-    <ng-container ngpDrawerRoot>
+    <ng-container ngpDrawer>
       <ng-template ngpDrawerPortal>
         <div ngpDrawerViewport>
           <section class="owned-animation-popup" data-test-owned-animation-popup ngpDrawerPopup>
@@ -111,7 +111,7 @@ class RootBrowserHost {
   `,
 })
 class OwnedAnimationHost {
-  readonly root = viewChild.required(NgpDrawerRoot);
+  readonly root = viewChild.required(NgpDrawer);
 }
 
 describe('Drawer transition lifecycle', () => {

@@ -8,7 +8,7 @@ import { NgpDrawerFocusTarget, NgpDrawerModal } from './drawer.types';
 import { createDrawerHandle } from './handle/drawer-handle';
 import { NgpDrawerPopup } from './popup/drawer-popup';
 import { NgpDrawerPortal } from './portal/drawer-portal';
-import { NgpDrawerRoot } from './root/drawer-root';
+import { NgpDrawer } from './drawer/drawer';
 import { NgpDrawerSwipeArea } from './swipe-area/drawer-swipe-area';
 import { NgpDrawerTitle } from './title/drawer-title';
 import { NgpDrawerTrigger } from './trigger/drawer-trigger';
@@ -21,7 +21,7 @@ const DRAWER_IMPORTS = [
   NgpDrawerDescription,
   NgpDrawerPopup,
   NgpDrawerPortal,
-  NgpDrawerRoot,
+  NgpDrawer,
   NgpDrawerSwipeArea,
   NgpDrawerTitle,
   NgpDrawerTrigger,
@@ -38,7 +38,7 @@ const DRAWER_IMPORTS = [
         Open detached
       </button>
     }
-    <ng-container [handle]="handle" [modal]="modal()" ngpDrawerRoot>
+    <ng-container [handle]="handle" [modal]="modal()" ngpDrawer>
       @if (showInTreeTrigger()) {
         <button data-test-trigger ngpDrawerTrigger>Open</button>
       }
@@ -75,18 +75,18 @@ class AccessibilityHost {
   readonly showMarked = signal(false);
   readonly showDetachedTrigger = signal(true);
   readonly showInTreeTrigger = signal(true);
-  readonly root = viewChild.required(NgpDrawerRoot);
+  readonly root = viewChild.required(NgpDrawer);
 }
 
 @Component({
   imports: DRAWER_IMPORTS,
   template: `
-    <ng-container ngpDrawerRoot>
+    <ng-container ngpDrawer>
       <ng-template ngpDrawerPortal>
         <div ngpDrawerViewport>
           <section data-test-outer-popup ngpDrawerPopup>
             <button cdkFocusInitial data-test-outer-initial type="button">Outer initial</button>
-            <ng-container ngpDrawerRoot>
+            <ng-container ngpDrawer>
               <button data-test-inner-trigger ngpDrawerTrigger>Open inner</button>
               <ng-template ngpDrawerPortal>
                 <div ngpDrawerViewport>
@@ -105,7 +105,7 @@ class AccessibilityHost {
   `,
 })
 class NestedAccessibilityHost {
-  readonly roots = viewChildren(NgpDrawerRoot);
+  readonly roots = viewChildren(NgpDrawer);
 }
 
 describe('Drawer accessibility', () => {

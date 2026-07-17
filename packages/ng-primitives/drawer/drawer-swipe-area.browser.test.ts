@@ -4,7 +4,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { NgpDrawerOpenChangeEvent, NgpDrawerSwipeDirection } from './drawer.types';
 import { NgpDrawerPopup } from './popup/drawer-popup';
 import { NgpDrawerPortal } from './portal/drawer-portal';
-import { NgpDrawerRoot } from './root/drawer-root';
+import { NgpDrawer } from './drawer/drawer';
 import { NgpDrawerSwipeArea } from './swipe-area/drawer-swipe-area';
 import { NgpDrawerViewport } from './viewport/drawer-viewport';
 
@@ -13,7 +13,7 @@ import { NgpDrawerViewport } from './viewport/drawer-viewport';
     OverlayModule,
     NgpDrawerPopup,
     NgpDrawerPortal,
-    NgpDrawerRoot,
+    NgpDrawer,
     NgpDrawerSwipeArea,
     NgpDrawerViewport,
   ],
@@ -21,7 +21,7 @@ import { NgpDrawerViewport } from './viewport/drawer-viewport';
     <ng-container
       [modal]="false"
       (beforeOpenChange)="record($event)"
-      ngpDrawerRoot
+      ngpDrawer
       swipeDirection="down"
     >
       <div
@@ -65,7 +65,7 @@ class SwipeAreaHost {
   readonly disabled = signal(false);
   readonly direction = signal<NgpDrawerSwipeDirection | undefined>(undefined);
   readonly outsideClicks = signal(0);
-  readonly root = viewChild.required(NgpDrawerRoot);
+  readonly root = viewChild.required(NgpDrawer);
   readonly openChanges: NgpDrawerOpenChangeEvent[] = [];
   cancelRollback = false;
 

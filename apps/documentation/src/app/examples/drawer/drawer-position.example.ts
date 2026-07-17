@@ -7,7 +7,7 @@ import {
   NgpDrawerDescription,
   NgpDrawerPopup,
   NgpDrawerPortal,
-  NgpDrawerRoot,
+  NgpDrawer,
   NgpDrawerTitle,
   NgpDrawerTrigger,
   NgpDrawerViewport,
@@ -23,13 +23,13 @@ import {
     NgpDrawerDescription,
     NgpDrawerPopup,
     NgpDrawerPortal,
-    NgpDrawerRoot,
+    NgpDrawer,
     NgpDrawerTitle,
     NgpDrawerTrigger,
     NgpDrawerViewport,
   ],
   template: `
-    <ng-container ngpDrawerRoot>
+    <ng-container ngpDrawer>
       <button ngpButton ngpDrawerTrigger>Open bottom drawer</button>
       <ng-template ngpDrawerPortal>
         <div class="backdrop" ngpDrawerBackdrop></div>

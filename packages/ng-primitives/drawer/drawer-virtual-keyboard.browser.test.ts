@@ -7,7 +7,7 @@ import {
 } from './internal/virtual-keyboard/keyboard-target';
 import { NgpDrawerPopup } from './popup/drawer-popup';
 import { NgpDrawerPortal } from './portal/drawer-portal';
-import { NgpDrawerRoot } from './root/drawer-root';
+import { NgpDrawer } from './drawer/drawer';
 import { NgpDrawerViewport } from './viewport/drawer-viewport';
 import { NgpDrawerVirtualKeyboard } from './virtual-keyboard/drawer-virtual-keyboard';
 
@@ -16,13 +16,13 @@ import { NgpDrawerVirtualKeyboard } from './virtual-keyboard/drawer-virtual-keyb
     OverlayModule,
     NgpDrawerPopup,
     NgpDrawerPortal,
-    NgpDrawerRoot,
+    NgpDrawer,
     NgpDrawerViewport,
     NgpDrawerVirtualKeyboard,
   ],
   template: `
     <ng-container ngpDrawerVirtualKeyboard>
-      <ng-container [modal]="false" ngpDrawerRoot>
+      <ng-container [modal]="false" ngpDrawer>
         <ng-template ngpDrawerPortal>
           <div
             data-test-keyboard-viewport
@@ -61,7 +61,7 @@ import { NgpDrawerVirtualKeyboard } from './virtual-keyboard/drawer-virtual-keyb
               </div>
 
               @if (nested()) {
-                <ng-container [modal]="false" ngpDrawerRoot>
+                <ng-container [modal]="false" ngpDrawer>
                   <ng-template ngpDrawerPortal>
                     <div data-test-child-keyboard-viewport ngpDrawerViewport>
                       <section data-test-child-keyboard-popup ngpDrawerPopup>
@@ -85,7 +85,7 @@ class KeyboardHost {
   readonly clicks = signal(0);
   readonly childClicks = signal(0);
   readonly nested = signal(false);
-  readonly roots = viewChildren(NgpDrawerRoot);
+  readonly roots = viewChildren(NgpDrawer);
 }
 
 describe('Drawer VirtualKeyboard', () => {

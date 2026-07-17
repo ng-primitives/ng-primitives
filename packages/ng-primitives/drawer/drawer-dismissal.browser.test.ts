@@ -5,7 +5,7 @@ import { NgpDrawerBackdrop } from './backdrop/drawer-backdrop';
 import { NgpDrawerChangeReason, NgpDrawerOpenChangeEvent } from './drawer.types';
 import { NgpDrawerPopup } from './popup/drawer-popup';
 import { NgpDrawerPortal } from './portal/drawer-portal';
-import { NgpDrawerRoot } from './root/drawer-root';
+import { NgpDrawer } from './drawer/drawer';
 import { NgpDrawerTrigger } from './trigger/drawer-trigger';
 import { NgpDrawerViewport } from './viewport/drawer-viewport';
 
@@ -14,7 +14,7 @@ const DRAWER_IMPORTS = [
   NgpDrawerBackdrop,
   NgpDrawerPopup,
   NgpDrawerPortal,
-  NgpDrawerRoot,
+  NgpDrawer,
   NgpDrawerTrigger,
   NgpDrawerViewport,
 ] as const;
@@ -27,7 +27,7 @@ const DRAWER_IMPORTS = [
       [disablePointerDismissal]="disablePointerDismissal()"
       [modal]="false"
       (beforeOpenChange)="record($event)"
-      ngpDrawerRoot
+      ngpDrawer
     >
       <button data-test-trigger ngpDrawerTrigger>Open</button>
       <ng-template [container]="custom() ? customContainer : null" ngpDrawerPortal>
@@ -48,7 +48,7 @@ const DRAWER_IMPORTS = [
 class DismissalHost {
   readonly custom = signal(false);
   readonly disablePointerDismissal = signal(false);
-  readonly root = viewChild.required(NgpDrawerRoot);
+  readonly root = viewChild.required(NgpDrawer);
   readonly reasons: NgpDrawerChangeReason[] = [];
 
   record(event: NgpDrawerOpenChangeEvent): void {
@@ -59,12 +59,12 @@ class DismissalHost {
 @Component({
   imports: DRAWER_IMPORTS,
   template: `
-    <ng-container [modal]="false" ngpDrawerRoot>
+    <ng-container [modal]="false" ngpDrawer>
       <ng-template ngpDrawerPortal>
         <div ngpDrawerViewport><section data-test-popup-a ngpDrawerPopup>A</section></div>
       </ng-template>
     </ng-container>
-    <ng-container [modal]="false" ngpDrawerRoot>
+    <ng-container [modal]="false" ngpDrawer>
       <ng-template ngpDrawerPortal>
         <div ngpDrawerViewport><section data-test-popup-b ngpDrawerPopup>B</section></div>
       </ng-template>
@@ -73,7 +73,7 @@ class DismissalHost {
   `,
 })
 class StackHost {
-  readonly roots = viewChildren(NgpDrawerRoot);
+  readonly roots = viewChildren(NgpDrawer);
 }
 
 describe('Drawer dismissal', () => {

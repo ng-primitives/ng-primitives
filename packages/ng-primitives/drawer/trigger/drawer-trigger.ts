@@ -67,7 +67,7 @@ export class NgpDrawerTrigger {
     const state = this.stateRef();
     if (!state) {
       throw new Error(
-        'ngpDrawerTrigger must be inside ng-container[ngpDrawerRoot] or receive [ngpDrawerHandle].',
+        'ngpDrawerTrigger must be inside ng-container[ngpDrawer] or receive [ngpDrawerHandle].',
       );
     }
     state.activeTrigger.set(this.elementRef.nativeElement);

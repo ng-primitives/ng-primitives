@@ -204,7 +204,7 @@ export function createDrawerState(props: DrawerStateProps): DrawerState {
     },
     claimPart(part: DrawerUniquePart): () => void {
       if (uniqueParts.has(part) && isDevMode()) {
-        throw new Error(`ngpDrawerRoot: only one ${part} may be registered per root.`);
+        throw new Error(`ngpDrawer: only one ${part} may be registered per root.`);
       }
       uniqueParts.add(part);
       return () => uniqueParts.delete(part);
@@ -244,12 +244,12 @@ export function createDrawerState(props: DrawerStateProps): DrawerState {
 }
 
 export const [NgpDrawerStateToken, ngpDrawer, injectDrawerState, provideDrawerState] =
-  createPrimitive('NgpDrawerRoot', createDrawerState);
+  createPrimitive('NgpDrawer', createDrawerState);
 
 export function requireDrawerState(state: Signal<DrawerState | null>, part: string): DrawerState {
   const value = state();
   if (!value) {
-    throw new Error(`${part} must be used inside ng-container[ngpDrawerRoot].`);
+    throw new Error(`${part} must be used inside ng-container[ngpDrawer].`);
   }
   return value;
 }

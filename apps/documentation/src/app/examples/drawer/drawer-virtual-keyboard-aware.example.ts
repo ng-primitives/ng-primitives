@@ -6,7 +6,7 @@ import {
   NgpDrawerContent,
   NgpDrawerPopup,
   NgpDrawerPortal,
-  NgpDrawerRoot,
+  NgpDrawer,
   NgpDrawerTitle,
   NgpDrawerTrigger,
   NgpDrawerViewport,
@@ -22,14 +22,14 @@ import {
     NgpDrawerContent,
     NgpDrawerPopup,
     NgpDrawerPortal,
-    NgpDrawerRoot,
+    NgpDrawer,
     NgpDrawerTitle,
     NgpDrawerTrigger,
     NgpDrawerViewport,
     NgpDrawerVirtualKeyboard,
   ],
   template: `
-    <ng-container ngpDrawerRoot>
+    <ng-container ngpDrawer>
       <button ngpButton ngpDrawerTrigger>Open delivery form</button>
       <ng-container ngpDrawerVirtualKeyboard>
         <ng-template ngpDrawerPortal>

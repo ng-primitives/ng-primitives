@@ -6,7 +6,7 @@ import { NgpDrawerDescription } from './description/drawer-description';
 import { createDrawerHandle } from './handle/drawer-handle';
 import { NgpDrawerPopup } from './popup/drawer-popup';
 import { NgpDrawerPortal } from './portal/drawer-portal';
-import { NgpDrawerRoot } from './root/drawer-root';
+import { NgpDrawer } from './drawer/drawer';
 import { NgpDrawerTitle } from './title/drawer-title';
 import { NgpDrawerViewport } from './viewport/drawer-viewport';
 
@@ -17,7 +17,7 @@ import { NgpDrawerViewport } from './viewport/drawer-viewport';
     NgpDrawerDescription,
     NgpDrawerPopup,
     NgpDrawerPortal,
-    NgpDrawerRoot,
+    NgpDrawer,
     NgpDrawerTitle,
     NgpDrawerViewport,
   ],
@@ -28,7 +28,7 @@ import { NgpDrawerViewport } from './viewport/drawer-viewport';
     <div #customContainerB data-test-custom-container="second">
       <span data-consumer-child>Preserve me too</span>
     </div>
-    <ng-container [handle]="handle" ngpDrawerRoot>
+    <ng-container [handle]="handle" ngpDrawer>
       <ng-template
         [container]="custom() === 1 ? customContainer : custom() === 2 ? customContainerB : null"
         [keepMounted]="keepMounted()"
@@ -64,7 +64,7 @@ class PortalHost {
   readonly custom = signal<0 | 1 | 2>(0);
   readonly keepMounted = signal(false);
   readonly rapidCycleMotion = signal(false);
-  readonly root = viewChild.required(NgpDrawerRoot);
+  readonly root = viewChild.required(NgpDrawer);
 }
 
 describe('NgpDrawerPortal', () => {

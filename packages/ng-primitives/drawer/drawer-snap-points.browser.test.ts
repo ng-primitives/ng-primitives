@@ -8,11 +8,11 @@ import {
 } from './drawer.types';
 import { NgpDrawerPopup } from './popup/drawer-popup';
 import { NgpDrawerPortal } from './portal/drawer-portal';
-import { NgpDrawerRoot } from './root/drawer-root';
+import { NgpDrawer } from './drawer/drawer';
 import { NgpDrawerViewport } from './viewport/drawer-viewport';
 
 @Component({
-  imports: [OverlayModule, NgpDrawerPopup, NgpDrawerPortal, NgpDrawerRoot, NgpDrawerViewport],
+  imports: [OverlayModule, NgpDrawerPopup, NgpDrawerPortal, NgpDrawer, NgpDrawerViewport],
   template: `
     <ng-container
       [defaultSnapPoint]="defaultPoint()"
@@ -23,7 +23,7 @@ import { NgpDrawerViewport } from './viewport/drawer-viewport';
       [modal]="false"
       (beforeSnapPointChange)="beforeSnap($event)"
       (snapPointChange)="active.set($event)"
-      ngpDrawerRoot
+      ngpDrawer
     >
       <ng-template ngpDrawerPortal>
         <div class="viewport" data-test-snap-viewport ngpDrawerViewport>
@@ -52,7 +52,7 @@ class SnapHost {
   readonly sequential = signal(false);
   readonly direction = signal<NgpDrawerSwipeDirection>('down');
   readonly cancelNextSnap = signal(false);
-  readonly root = viewChild.required(NgpDrawerRoot);
+  readonly root = viewChild.required(NgpDrawer);
 
   beforeSnap(event: NgpDrawerSnapPointChangeEvent): void {
     if (this.cancelNextSnap()) {
@@ -63,14 +63,14 @@ class SnapHost {
 }
 
 @Component({
-  imports: [OverlayModule, NgpDrawerPopup, NgpDrawerPortal, NgpDrawerRoot, NgpDrawerViewport],
+  imports: [OverlayModule, NgpDrawerPopup, NgpDrawerPortal, NgpDrawer, NgpDrawerViewport],
   template: `
     <ng-container
       [defaultSnapPoint]="defaultPoint()"
       [open]="true"
       [snapPoints]="points"
       [modal]="false"
-      ngpDrawerRoot
+      ngpDrawer
     >
       <ng-template ngpDrawerPortal>
         <div class="viewport" data-test-uncontrolled-viewport ngpDrawerViewport>
@@ -89,7 +89,7 @@ class SnapHost {
 class UncontrolledSnapHost {
   readonly points: readonly NgpDrawerSnapPoint[] = ['100px', '200px', '300px'];
   readonly defaultPoint = signal<NgpDrawerSnapPoint>('300px');
-  readonly root = viewChild.required(NgpDrawerRoot);
+  readonly root = viewChild.required(NgpDrawer);
 }
 
 let touchHitTarget: Element | null = null;

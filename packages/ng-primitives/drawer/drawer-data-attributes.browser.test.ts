@@ -9,7 +9,7 @@ import {
 } from './drawer.types';
 import { NgpDrawerPopup } from './popup/drawer-popup';
 import { NgpDrawerPortal } from './portal/drawer-portal';
-import { NgpDrawerRoot } from './root/drawer-root';
+import { NgpDrawer } from './drawer/drawer';
 import { NgpDrawerSwipeArea } from './swipe-area/drawer-swipe-area';
 import { NgpDrawerTrigger } from './trigger/drawer-trigger';
 import { NgpDrawerViewport } from './viewport/drawer-viewport';
@@ -19,7 +19,7 @@ const DRAWER_IMPORTS = [
   NgpDrawerBackdrop,
   NgpDrawerPopup,
   NgpDrawerPortal,
-  NgpDrawerRoot,
+  NgpDrawer,
   NgpDrawerSwipeArea,
   NgpDrawerTrigger,
   NgpDrawerViewport,
@@ -36,7 +36,7 @@ const DRAWER_IMPORTS = [
       (beforeOpenChange)="beforeOpenChange($event)"
       (beforeSnapPointChange)="beforeSnapPointChange($event)"
       (snapPointChange)="activeSnapPoint.set($event)"
-      ngpDrawerRoot
+      ngpDrawer
     >
       <button [disabled]="triggerDisabled()" data-test-trigger ngpDrawerTrigger>Open</button>
       <div [disabled]="swipeAreaDisabled()" data-test-swipe-area ngpDrawerSwipeArea></div>
@@ -44,7 +44,7 @@ const DRAWER_IMPORTS = [
         <div class="hook-part" data-test-parent-backdrop ngpDrawerBackdrop></div>
         <div class="hook-part" data-test-parent-viewport ngpDrawerViewport>
           <section class="hook-part" data-test-parent-popup ngpDrawerPopup>
-            <ng-container [modal]="false" ngpDrawerRoot>
+            <ng-container [modal]="false" ngpDrawer>
               <ng-template [keepMounted]="true" ngpDrawerPortal>
                 <div class="hook-part" data-test-child-backdrop ngpDrawerBackdrop></div>
                 <div class="hook-part" data-test-child-viewport ngpDrawerViewport>
@@ -77,7 +77,7 @@ class DataAttributesHost {
   readonly snapPoints = signal<readonly NgpDrawerSnapPoint[] | undefined>([0.5, 1]);
   readonly swipeAreaDisabled = signal(false);
   readonly triggerDisabled = signal(false);
-  readonly roots = viewChildren(NgpDrawerRoot);
+  readonly roots = viewChildren(NgpDrawer);
   cancelNextClose = false;
   cancelNextSnap = false;
 

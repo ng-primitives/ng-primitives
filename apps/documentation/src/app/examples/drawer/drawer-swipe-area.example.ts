@@ -7,7 +7,7 @@ import {
   NgpDrawerDescription,
   NgpDrawerPopup,
   NgpDrawerPortal,
-  NgpDrawerRoot,
+  NgpDrawer,
   NgpDrawerSwipeArea,
   NgpDrawerTitle,
   NgpDrawerViewport,
@@ -23,14 +23,14 @@ import {
     NgpDrawerDescription,
     NgpDrawerPopup,
     NgpDrawerPortal,
-    NgpDrawerRoot,
+    NgpDrawer,
     NgpDrawerSwipeArea,
     NgpDrawerTitle,
     NgpDrawerViewport,
   ],
   template: `
     <div class="stage" #portalContainer>
-      <ng-container [modal]="false" ngpDrawerRoot swipeDirection="right">
+      <ng-container [modal]="false" ngpDrawer swipeDirection="right">
         <div class="swipe-area" ngpDrawerSwipeArea>
           <span>Swipe here</span>
         </div>

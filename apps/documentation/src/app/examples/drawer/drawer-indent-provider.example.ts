@@ -10,7 +10,7 @@ import {
   NgpDrawerPopup,
   NgpDrawerPortal,
   NgpDrawerProvider,
-  NgpDrawerRoot,
+  NgpDrawer,
   NgpDrawerTitle,
   NgpDrawerTrigger,
   NgpDrawerViewport,
@@ -29,7 +29,7 @@ import {
     NgpDrawerPopup,
     NgpDrawerPortal,
     NgpDrawerProvider,
-    NgpDrawerRoot,
+    NgpDrawer,
     NgpDrawerTitle,
     NgpDrawerTrigger,
     NgpDrawerViewport,
@@ -39,7 +39,7 @@ import {
       <div class="stage" #portalContainer>
         <div class="indent-background" ngpDrawerIndentBackground></div>
         <div class="page" ngpDrawerIndent>
-          <ng-container [modal]="false" ngpDrawerRoot>
+          <ng-container [modal]="false" ngpDrawer>
             <button ngpButton ngpDrawerTrigger>Open contained drawer</button>
             <ng-template [container]="portalContainer" ngpDrawerPortal>
               <div class="backdrop" ngpDrawerBackdrop></div>

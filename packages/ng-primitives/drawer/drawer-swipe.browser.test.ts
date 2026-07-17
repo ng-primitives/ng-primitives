@@ -6,7 +6,7 @@ import { NgpDrawerContent } from './content/drawer-content';
 import { NgpDrawerOpenChangeEvent, NgpDrawerSwipeDirection } from './drawer.types';
 import { NgpDrawerPopup } from './popup/drawer-popup';
 import { NgpDrawerPortal } from './portal/drawer-portal';
-import { NgpDrawerRoot } from './root/drawer-root';
+import { NgpDrawer } from './drawer/drawer';
 import { NgpDrawerSwipeIgnore } from './swipe-ignore/drawer-swipe-ignore';
 import { NgpDrawerViewport } from './viewport/drawer-viewport';
 
@@ -17,7 +17,7 @@ import { NgpDrawerViewport } from './viewport/drawer-viewport';
     NgpDrawerContent,
     NgpDrawerPopup,
     NgpDrawerPortal,
-    NgpDrawerRoot,
+    NgpDrawer,
     NgpDrawerSwipeIgnore,
     NgpDrawerViewport,
   ],
@@ -26,7 +26,7 @@ import { NgpDrawerViewport } from './viewport/drawer-viewport';
       [swipeDirection]="direction()"
       [modal]="false"
       (beforeOpenChange)="beforeOpenChange($event)"
-      ngpDrawerRoot
+      ngpDrawer
     >
       <ng-template ngpDrawerPortal>
         <div data-test-backdrop ngpDrawerBackdrop style="transition: opacity 1s"></div>
@@ -68,7 +68,7 @@ class SwipeHost {
   readonly direction = signal<NgpDrawerSwipeDirection>('down');
   readonly enabled = signal(true);
   readonly cancelNextClose = signal(false);
-  readonly root = viewChild.required(NgpDrawerRoot);
+  readonly root = viewChild.required(NgpDrawer);
   readonly viewport = viewChild.required(NgpDrawerViewport);
 
   beforeOpenChange(event: NgpDrawerOpenChangeEvent): void {

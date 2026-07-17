@@ -8,7 +8,7 @@ import {
   NgpDrawerOpenChangeEvent,
   NgpDrawerPopup,
   NgpDrawerPortal,
-  NgpDrawerRoot,
+  NgpDrawer,
   NgpDrawerTitle,
   NgpDrawerTrigger,
   NgpDrawerViewport,
@@ -24,7 +24,7 @@ import {
     NgpDrawerContent,
     NgpDrawerPopup,
     NgpDrawerPortal,
-    NgpDrawerRoot,
+    NgpDrawer,
     NgpDrawerTitle,
     NgpDrawerTrigger,
     NgpDrawerViewport,
@@ -36,7 +36,7 @@ import {
       [open]="drawerOpen()"
       (beforeOpenChange)="onBeforeOpenChange($event)"
       (openChange)="drawerOpen.set($event)"
-      ngpDrawerRoot
+      ngpDrawer
       swipeDirection="right"
     >
       <button ngpButton ngpDrawerTrigger>Write a post</button>

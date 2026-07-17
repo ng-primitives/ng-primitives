@@ -2,7 +2,7 @@ import { Component, input, signal, viewChildren } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { NgpDrawerPopup } from './popup/drawer-popup';
-import { NgpDrawerRoot } from './root/drawer-root';
+import { NgpDrawer } from './drawer/drawer';
 import { NgpDrawerSwipeArea } from './swipe-area/drawer-swipe-area';
 import { NgpDrawerViewport } from './viewport/drawer-viewport';
 
@@ -16,15 +16,15 @@ const TOUCH_CONTINUATION_EVENT_TYPES = ['touchmove', 'touchend', 'touchcancel'] 
 const TOUCH_END_EVENT_TYPES = ['touchend', 'touchcancel'] as const;
 
 @Component({
-  imports: [NgpDrawerPopup, NgpDrawerRoot, NgpDrawerSwipeArea, NgpDrawerViewport],
+  imports: [NgpDrawerPopup, NgpDrawer, NgpDrawerSwipeArea, NgpDrawerViewport],
   template: `
     @for (_ of instances(); track $index) {
-      <ng-container ngpDrawerRoot>
+      <ng-container ngpDrawer>
         <div [disabled]="areaDisabled()" data-test-swipe-area ngpDrawerSwipeArea></div>
         <div [swipeEnabled]="viewportEnabled()" data-test-viewport ngpDrawerViewport>
           <section ngpDrawerPopup>
             @if (nested()) {
-              <ng-container ngpDrawerRoot>
+              <ng-container ngpDrawer>
                 <div data-test-child-viewport ngpDrawerViewport>
                   <section ngpDrawerPopup></section>
                 </div>
@@ -38,7 +38,7 @@ const TOUCH_END_EVENT_TYPES = ['touchend', 'touchcancel'] as const;
 })
 class ListenerHost {
   readonly instances = input.required<readonly number[]>();
-  readonly roots = viewChildren(NgpDrawerRoot);
+  readonly roots = viewChildren(NgpDrawer);
   readonly areaDisabled = signal(false);
   readonly viewportEnabled = signal(true);
   readonly nested = signal(false);

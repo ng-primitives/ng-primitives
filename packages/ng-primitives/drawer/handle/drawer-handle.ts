@@ -62,13 +62,13 @@ export function createDrawerHandle<Payload = unknown>(): NgpDrawerHandle<Payload
   return new DrawerHandleImpl<Payload>();
 }
 
-/** @internal Used only by NgpDrawerRoot. */
+/** @internal Used only by NgpDrawer. */
 export function setDrawerHandleController<Payload>(
   handle: NgpDrawerHandle<Payload>,
   controller: NgpDrawerHandleController<Payload>,
 ): () => void {
   if (!(handle instanceof DrawerHandleImpl)) {
-    throw new Error('ngpDrawerRoot: handle must be created with createDrawerHandle().');
+    throw new Error('ngpDrawer: handle must be created with createDrawerHandle().');
   }
   return handle.attach(controller);
 }

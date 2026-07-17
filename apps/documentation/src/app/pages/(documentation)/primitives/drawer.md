@@ -15,7 +15,7 @@ Import the Drawer primitives from `ng-primitives/drawer`.
 
 ```ts
 import {
-  NgpDrawerRoot,
+  NgpDrawer,
   NgpDrawerTrigger,
   NgpDrawerPortal,
   NgpDrawerBackdrop,
@@ -33,7 +33,7 @@ import {
 The root owns the drawer state. Place a trigger inside it, then render the overlay parts through an `ng-template` with `ngpDrawerPortal`.
 
 ```html
-<ng-container ngpDrawerRoot>
+<ng-container ngpDrawer>
   <button ngpDrawerTrigger>Open drawer</button>
 
   <ng-template ngpDrawerPortal>
@@ -68,7 +68,7 @@ Set `snapPoints` to a list of pixel, rem, or proportional positions. `defaultSna
 
 ### Nested drawers
 
-Place another `ngpDrawerRoot` inside a drawer to create an independently focus-managed stack. Parent popups receive nested state attributes and variables for stack animations.
+Place another `ngpDrawer` inside a drawer to create an independently focus-managed stack. Parent popups receive nested state attributes and variables for stack animations.
 
 <docs-example name="drawer-nested"></docs-example>
 
@@ -137,18 +137,18 @@ openDrawer(): void {
   Open account
 </button>
 
-<ng-container [handle]="drawer" ngpDrawerRoot>
+<ng-container [handle]="drawer" ngpDrawer>
   <!-- portal and drawer parts -->
 </ng-container>
 ```
 
 ## API Reference
 
-### NgpDrawerRoot
+### NgpDrawer
 
-<api-docs name="NgpDrawerRoot"></api-docs>
+<api-docs name="NgpDrawer"></api-docs>
 
-<api-reference-props name="NgpDrawerRoot"></api-reference-props>
+<api-reference-props name="NgpDrawer"></api-reference-props>
 
 ### NgpDrawerTrigger
 

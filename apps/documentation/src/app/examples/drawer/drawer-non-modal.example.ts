@@ -6,7 +6,7 @@ import {
   NgpDrawerDescription,
   NgpDrawerPopup,
   NgpDrawerPortal,
-  NgpDrawerRoot,
+  NgpDrawer,
   NgpDrawerTitle,
   NgpDrawerTrigger,
   NgpDrawerViewport,
@@ -21,13 +21,13 @@ import {
     NgpDrawerDescription,
     NgpDrawerPopup,
     NgpDrawerPortal,
-    NgpDrawerRoot,
+    NgpDrawer,
     NgpDrawerTitle,
     NgpDrawerTrigger,
     NgpDrawerViewport,
   ],
   template: `
-    <ng-container [modal]="false" disablePointerDismissal ngpDrawerRoot swipeDirection="right">
+    <ng-container [modal]="false" disablePointerDismissal ngpDrawer swipeDirection="right">
       <button ngpButton ngpDrawerTrigger>Open non-modal drawer</button>
       <ng-template ngpDrawerPortal>
         <div class="viewport" ngpDrawerViewport>

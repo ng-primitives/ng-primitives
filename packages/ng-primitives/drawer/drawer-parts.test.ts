@@ -8,7 +8,7 @@ import { NgpDrawerDescription } from './description/drawer-description';
 import { createDrawerHandle, NgpDrawerHandle } from './handle/drawer-handle';
 import { DrawerState } from './internal/drawer-state';
 import { NgpDrawerPopup } from './popup/drawer-popup';
-import { NgpDrawerRoot } from './root/drawer-root';
+import { NgpDrawer } from './drawer/drawer';
 import { NgpDrawerSwipeArea } from './swipe-area/drawer-swipe-area';
 import { NgpDrawerSwipeIgnore } from './swipe-ignore/drawer-swipe-ignore';
 import { NgpDrawerTitle } from './title/drawer-title';
@@ -20,7 +20,7 @@ import { NgpDrawerViewport } from './viewport/drawer-viewport';
     NgpDrawerClose,
     NgpDrawerContent,
     NgpDrawerDescription,
-    NgpDrawerRoot,
+    NgpDrawer,
     NgpDrawerSwipeIgnore,
     NgpDrawerTitle,
     NgpDrawerTrigger,
@@ -29,7 +29,7 @@ import { NgpDrawerViewport } from './viewport/drawer-viewport';
     <button [ngpDrawerHandle]="handle" [ngpDrawerPayload]="{ detached: true }" ngpDrawerTrigger>
       Detached
     </button>
-    <ng-container [handle]="handle" ngpDrawerRoot>
+    <ng-container [handle]="handle" ngpDrawer>
       <button [ngpDrawerPayload]="{ id: 2 }" ngpDrawerTrigger>Open</button>
       <div ngpDrawerTrigger role="button" tabindex="0">Open non-native</div>
       <h2 [id]="titleId()" ngpDrawerTitle>Title</h2>
@@ -42,7 +42,7 @@ import { NgpDrawerViewport } from './viewport/drawer-viewport';
 class PartsHost {
   readonly handle: NgpDrawerHandle<unknown> = createDrawerHandle();
   readonly titleId = signal('custom-title');
-  readonly root = viewChild.required(NgpDrawerRoot);
+  readonly root = viewChild.required(NgpDrawer);
 }
 
 describe('Drawer semantic parts', () => {
@@ -118,13 +118,13 @@ describe('Drawer semantic parts', () => {
     NgpDrawerBackdrop,
     NgpDrawerClose,
     NgpDrawerPopup,
-    NgpDrawerRoot,
+    NgpDrawer,
     NgpDrawerSwipeArea,
     NgpDrawerTrigger,
     NgpDrawerViewport,
   ],
   template: `
-    <ng-container [modal]="false" ngpDrawerRoot>
+    <ng-container [modal]="false" ngpDrawer>
       <button data-test-binding-trigger ngpDrawerTrigger>Open</button>
       <button data-test-binding-close ngpDrawerClose>Close</button>
       <div data-test-binding-backdrop ngpDrawerBackdrop></div>
@@ -135,7 +135,7 @@ describe('Drawer semantic parts', () => {
   `,
 })
 class BindingHost {
-  readonly root = viewChild.required(NgpDrawerRoot);
+  readonly root = viewChild.required(NgpDrawer);
 }
 
 describe('Drawer host attribute writes', () => {

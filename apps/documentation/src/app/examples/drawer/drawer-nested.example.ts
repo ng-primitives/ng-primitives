@@ -7,7 +7,7 @@ import {
   NgpDrawerDescription,
   NgpDrawerPopup,
   NgpDrawerPortal,
-  NgpDrawerRoot,
+  NgpDrawer,
   NgpDrawerTitle,
   NgpDrawerTrigger,
   NgpDrawerViewport,
@@ -23,13 +23,13 @@ import {
     NgpDrawerDescription,
     NgpDrawerPopup,
     NgpDrawerPortal,
-    NgpDrawerRoot,
+    NgpDrawer,
     NgpDrawerTitle,
     NgpDrawerTrigger,
     NgpDrawerViewport,
   ],
   template: `
-    <ng-container ngpDrawerRoot>
+    <ng-container ngpDrawer>
       <button ngpButton ngpDrawerTrigger>Open drawer stack</button>
       <ng-template ngpDrawerPortal>
         <div class="backdrop" ngpDrawerBackdrop></div>
@@ -42,7 +42,7 @@ import {
                 Each nested drawer keeps independent focus and dismissal behavior.
               </p>
               <div class="actions">
-                <ng-container ngpDrawerRoot>
+                <ng-container ngpDrawer>
                   <button ngpButton ngpDrawerTrigger>Security settings</button>
                   <ng-template ngpDrawerPortal>
                     <div class="viewport" ngpDrawerViewport>
@@ -59,7 +59,7 @@ import {
                             <li>Three signed-in devices</li>
                           </ul>
                           <div class="actions">
-                            <ng-container ngpDrawerRoot>
+                            <ng-container ngpDrawer>
                               <button ngpButton ngpDrawerTrigger>Advanced options</button>
                               <ng-template ngpDrawerPortal>
                                 <div class="viewport" ngpDrawerViewport>
