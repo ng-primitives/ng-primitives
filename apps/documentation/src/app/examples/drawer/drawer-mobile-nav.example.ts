@@ -213,17 +213,6 @@ interface NavigationItem {
       outline: 2px solid var(--ngp-focus-ring);
       outline-offset: 2px;
     }
-
-    @media (min-width: 42rem) {
-      .viewport {
-        padding: 4rem;
-      }
-
-      .menu {
-        border-block-end: 1px solid var(--ngp-border);
-        border-radius: 0.75rem;
-      }
-    }
   `,
 })
 export default class DrawerMobileNavExample {
