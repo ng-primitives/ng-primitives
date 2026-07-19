@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { FormControl, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
-import { render } from '@testing-library/angular';
+import { fireEvent, render } from '@testing-library/angular';
 import { NgpDescription, NgpFormControl, NgpFormField, NgpLabel } from 'ng-primitives/form-field';
 import { describe, expect, it } from 'vitest';
 
@@ -384,7 +384,7 @@ describe('NgpFormControl', () => {
       expect(getByTestId('control')).not.toHaveAttribute('aria-invalid');
     });
 
-    it('should expose aria-invalid="true" when the control is invalid', async () => {
+    it('should not expose aria-invalid while the control is invalid but untouched', async () => {
       const formControl = new FormControl('', [Validators.required]);
       const { getByTestId } = await render(
         `<input ngpFormControl data-testid="control" [formControl]="formControl" />`,
@@ -393,10 +393,10 @@ describe('NgpFormControl', () => {
           componentProperties: { formControl },
         },
       );
-      expect(getByTestId('control')).toHaveAttribute('aria-invalid', 'true');
+      expect(getByTestId('control')).not.toHaveAttribute('aria-invalid');
     });
 
-    it('should toggle aria-invalid as validity changes', async () => {
+    it('should expose aria-invalid="true" once an invalid control is touched', async () => {
       const formControl = new FormControl('', [Validators.required]);
       const { getByTestId, fixture } = await render(
         `<input ngpFormControl data-testid="control" [formControl]="formControl" />`,
@@ -406,14 +406,70 @@ describe('NgpFormControl', () => {
         },
       );
       const control = getByTestId('control');
+      expect(control).not.toHaveAttribute('aria-invalid');
+
+      formControl.markAsTouched();
+      fixture.detectChanges();
+      await fixture.whenStable();
+
+      expect(control).toHaveAttribute('aria-invalid', 'true');
+    });
+
+    it('should expose aria-invalid="true" after an invalid control is blurred', async () => {
+      const formControl = new FormControl('', [Validators.required]);
+      const { getByTestId, fixture } = await render(
+        `<input ngpFormControl data-testid="control" [formControl]="formControl" />`,
+        {
+          imports: [NgpFormControl, ReactiveFormsModule],
+          componentProperties: { formControl },
+        },
+      );
+      const control = getByTestId('control');
+      expect(control).not.toHaveAttribute('aria-invalid');
+
+      fireEvent.blur(control);
+      fixture.detectChanges();
+      await fixture.whenStable();
+
+      expect(control).toHaveAttribute('aria-invalid', 'true');
+    });
+
+    it('should keep data-invalid ungated while aria-invalid waits for interaction', async () => {
+      const formControl = new FormControl('', [Validators.required]);
+      const { getByTestId } = await render(
+        `<input ngpFormControl data-testid="control" [formControl]="formControl" />`,
+        {
+          imports: [NgpFormControl, ReactiveFormsModule],
+          componentProperties: { formControl },
+        },
+      );
+      const control = getByTestId('control');
+      expect(control).toHaveAttribute('data-invalid');
+      expect(control).not.toHaveAttribute('aria-invalid');
+    });
+
+    it('should toggle aria-invalid as validity changes once touched', async () => {
+      const formControl = new FormControl('', [Validators.required]);
+      const { getByTestId, fixture } = await render(
+        `<input ngpFormControl data-testid="control" [formControl]="formControl" />`,
+        {
+          imports: [NgpFormControl, ReactiveFormsModule],
+          componentProperties: { formControl },
+        },
+      );
+      const control = getByTestId('control');
+
+      formControl.markAsTouched();
+      fixture.detectChanges();
+      await fixture.whenStable();
       expect(control).toHaveAttribute('aria-invalid', 'true');
 
-      fixture.componentInstance.formControl.setValue('now valid');
+      formControl.setValue('now valid');
       fixture.detectChanges();
       await fixture.whenStable();
       expect(control).not.toHaveAttribute('aria-invalid');
 
-      fixture.componentInstance.formControl.setValue('');
+      formControl.setValue('');
       fixture.detectChanges();
       await fixture.whenStable();
       expect(control).toHaveAttribute('aria-invalid', 'true');

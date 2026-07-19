@@ -89,8 +89,14 @@ describe('FormField (reusable component) — standalone', () => {
     const input = container.querySelector('input');
 
     expect(formField).toHaveAttribute('data-invalid');
-    expect(input).toHaveAttribute('aria-invalid', 'true');
+    expect(input).not.toHaveAttribute('aria-invalid');
     expect(input).toHaveAttribute('aria-describedby', 'required');
+
+    fixture.componentInstance.control.markAsTouched();
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    expect(input).toHaveAttribute('aria-invalid', 'true');
 
     fixture.componentInstance.control.setValue('ada');
     await fixture.whenStable();

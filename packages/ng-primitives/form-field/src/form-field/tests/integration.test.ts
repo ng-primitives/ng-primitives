@@ -51,7 +51,7 @@ describe('Form Field Integration Tests', () => {
     expect(input).toHaveAttribute('id', 'name-input');
     expect(input).toHaveAttribute('aria-labelledby', 'name-label');
     expect(input).toHaveAttribute('aria-describedby', 'name-help name-required');
-    expect(input).toHaveAttribute('aria-invalid', 'true');
+    expect(input).not.toHaveAttribute('aria-invalid');
     expect(label).toHaveAttribute('for', 'name-input');
 
     expect(formField).toHaveAttribute('data-invalid');
@@ -96,7 +96,7 @@ describe('Form Field Integration Tests', () => {
 
     expect(formField).toHaveAttribute('data-invalid');
     expect(input).toHaveAttribute('data-invalid');
-    expect(input).toHaveAttribute('aria-invalid', 'true');
+    expect(input).not.toHaveAttribute('aria-invalid');
     expect(label).toHaveAttribute('data-invalid');
     expect(description).toHaveAttribute('data-invalid');
 
@@ -111,6 +111,7 @@ describe('Form Field Integration Tests', () => {
     expect(input).toHaveAttribute('data-invalid');
     expect(input).toHaveAttribute('data-touched');
     expect(input).toHaveAttribute('data-dirty');
+    expect(input).toHaveAttribute('aria-invalid', 'true');
 
     input.value = 'test@example.com';
     fireEvent.input(input);
