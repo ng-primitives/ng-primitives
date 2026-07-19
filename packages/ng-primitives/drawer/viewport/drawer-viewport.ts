@@ -896,6 +896,7 @@ export class NgpDrawerViewport {
       );
       if (target) {
         this.state.requestSnapPoint(target.value, 'swipe', { nativeEvent: release.nativeEvent });
+        this.syncSnapVisuals(points);
       } else {
         this.state.swipeDismiss.set(this.state.swipeDirection());
         retainForExit = this.state.requestOpen(false, 'swipe', {
@@ -1162,6 +1163,9 @@ export class NgpDrawerViewport {
     elements: readonly HTMLElement[],
     renderState: ViewportSnapRenderState,
   ): void {
+    if (this.retainingExitVisuals && !renderState.open) {
+      return;
+    }
     const active = this.activeResolvedSnapPoint(
       points,
       renderState.snapPoint,
