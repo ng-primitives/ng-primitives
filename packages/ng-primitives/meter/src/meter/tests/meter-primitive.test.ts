@@ -101,6 +101,24 @@ describe('NgpMeter', () => {
       expect(labelId).toMatch(/^ngp-meter-label-/);
       expect(container.getByTestId('meter')).toHaveAttribute('aria-labelledby', labelId);
     });
+
+    it('should clear aria-labelledby when the label is removed', async () => {
+      const container = await render(
+        `<div ngpMeter data-testid="meter">
+          @if (showLabel) {
+            <label ngpMeterLabel id="my-label">CPU Usage</label>
+          }
+        </div>`,
+        { imports, componentProperties: { showLabel: true } },
+      );
+      const meter = container.getByTestId('meter');
+      expect(meter).toHaveAttribute('aria-labelledby', 'my-label');
+
+      // Removing the label must not leave aria-labelledby pointing at a missing id.
+      await container.rerender({ componentProperties: { showLabel: false } });
+      container.detectChanges();
+      expect(meter).not.toHaveAttribute('aria-labelledby');
+    });
   });
 
   describe('aria-valuenow clamping', () => {
