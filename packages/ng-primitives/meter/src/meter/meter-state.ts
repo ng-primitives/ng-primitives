@@ -1,6 +1,6 @@
-import { computed, Signal, signal, WritableSignal } from '@angular/core';
+import { computed, signal, Signal } from '@angular/core';
 import { injectElementRef } from 'ng-primitives/internal';
-import { attrBinding, controlled, createPrimitive } from 'ng-primitives/state';
+import { attrBinding, createPrimitive } from 'ng-primitives/state';
 import { NgpMeterValueTextFn } from './meter';
 
 export interface NgpMeterProps {
@@ -36,53 +36,42 @@ export interface NgpMeterState {
   /**
    * Define the meter value.
    */
-  readonly value: WritableSignal<number>;
+  readonly value: Signal<number>;
 
   /**
    * Define the meter min value.
    */
-  readonly min: WritableSignal<number>;
+  readonly min: Signal<number>;
 
   /**
    * Define the meter max value.
    */
-  readonly max: WritableSignal<number>;
+  readonly max: Signal<number>;
 
   /**
-   * Define a function that returns the meter value label.
-   */
-  readonly valueLabel: WritableSignal<NgpMeterValueTextFn>;
-
-  /**
-   * The raw value exposed via `aria-valuenow`, clamped to the [min, max] range.
+   * Register the id of the label associated with the meter.
    * @internal
    */
-  readonly valueNow: Signal<number>;
+  setLabel(id: string): void;
 
   /**
-   * The id of the label associated with the meter.
+   * Remove the id of the label associated with the meter.
    * @internal
    */
-  readonly labelId: WritableSignal<string | undefined>;
+  removeLabel(id: string): void;
 }
 
 export const [NgpMeterStateToken, ngpMeter, injectMeterState, provideMeterState] = createPrimitive(
   'NgpMeter',
   ({
-    value: _value = signal(0),
-    min: _min = signal(0),
-    max: _max = signal(100),
-    valueLabel: _valueLabel = signal(
+    value = signal(0),
+    min = signal(0),
+    max = signal(100),
+    valueLabel = signal(
       (value, max, min) => `${max === min ? 0 : Math.round(((value - min) / (max - min)) * 100)}%`,
     ),
   }: NgpMeterProps): NgpMeterState => {
     const element = injectElementRef();
-
-    // Controlled properties
-    const value = controlled(_value);
-    const min = controlled(_min);
-    const max = controlled(_max);
-    const valueLabel = controlled(_valueLabel);
 
     const labelId = signal<string | undefined>(undefined);
 
@@ -100,13 +89,24 @@ export const [NgpMeterStateToken, ngpMeter, injectMeterState, provideMeterState]
     attrBinding(element, 'aria-valuetext', () => valueLabel()(value(), max(), min()));
     attrBinding(element, 'aria-labelledby', () => labelId() ?? null);
 
+    function setLabel(id: string): void {
+      labelId.set(id);
+    }
+
+    function removeLabel(id: string): void {
+      // Only clear if this label is still the active one, so a newer label that has
+      // taken over isn't clobbered when an old label is torn down.
+      if (labelId() === id) {
+        labelId.set(undefined);
+      }
+    }
+
     return {
       value,
       min,
       max,
-      valueLabel,
-      valueNow,
-      labelId,
+      setLabel,
+      removeLabel,
     } satisfies NgpMeterState;
   },
 );

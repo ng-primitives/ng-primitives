@@ -1,7 +1,7 @@
 import { signal, Signal } from '@angular/core';
 import { injectElementRef } from 'ng-primitives/internal';
-import { attrBinding, createPrimitive, dataBinding } from 'ng-primitives/state';
-import { uniqueId } from 'ng-primitives/utils';
+import { attrBinding, createPrimitive, dataBinding, onDestroy } from 'ng-primitives/state';
+import { onChange, uniqueId } from 'ng-primitives/utils';
 import { injectProgressState } from '../progress/progress-state';
 
 export interface NgpProgressLabelState {}
@@ -26,7 +26,17 @@ export const [NgpProgressLabelStateToken, ngpProgressLabel] = createPrimitive(
     dataBinding(element, 'data-indeterminate', () => state().indeterminate());
     dataBinding(element, 'data-complete', () => state().complete());
 
-    state().labelId.set(id());
+    // Keep the progress `aria-labelledby` in sync with the label id. On teardown the
+    // label removes itself so `aria-labelledby` never points at an element that has
+    // been removed from the DOM.
+    onChange(id, (currentId, previousId) => {
+      if (previousId) {
+        state().removeLabel(previousId);
+      }
+      state().setLabel(currentId);
+    });
+
+    onDestroy(() => state().removeLabel(id()));
 
     return {} satisfies NgpProgressLabelState;
   },

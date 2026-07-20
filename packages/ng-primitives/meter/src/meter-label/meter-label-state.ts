@@ -1,7 +1,7 @@
-import { effect, signal, Signal } from '@angular/core';
+import { signal, Signal } from '@angular/core';
 import { injectElementRef } from 'ng-primitives/internal';
-import { attrBinding, createPrimitive } from 'ng-primitives/state';
-import { uniqueId } from 'ng-primitives/utils';
+import { attrBinding, createPrimitive, onDestroy } from 'ng-primitives/state';
+import { onChange, uniqueId } from 'ng-primitives/utils';
 import { injectMeterState } from '../meter/meter-state';
 
 export interface NgpMeterLabelState {}
@@ -22,20 +22,17 @@ export const [NgpMeterLabelStateToken, ngpMeterLabel] = createPrimitive(
 
     attrBinding(element, 'id', id);
 
-    // Keep the meter's `aria-labelledby` in sync with the label id. The factory runs
-    // during construction, before Angular has assigned the `id` input, so track it
-    // reactively rather than capturing the default value once. On teardown, clear the
-    // id (unless another label has since taken over) so `aria-labelledby` never points
-    // at a label that has been removed from the DOM.
-    effect(onCleanup => {
-      const currentId = id();
-      state().labelId.set(currentId);
-      onCleanup(() => {
-        if (state().labelId() === currentId) {
-          state().labelId.set(undefined);
-        }
-      });
+    // Keep the meter's `aria-labelledby` in sync with the label id. On teardown the
+    // label removes itself so `aria-labelledby` never points at an element that has
+    // been removed from the DOM.
+    onChange(id, (currentId, previousId) => {
+      if (previousId) {
+        state().removeLabel(previousId);
+      }
+      state().setLabel(currentId);
     });
+
+    onDestroy(() => state().removeLabel(id()));
 
     return {} satisfies NgpMeterLabelState;
   },
