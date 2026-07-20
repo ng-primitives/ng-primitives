@@ -1,10 +1,12 @@
 import { Directive } from '@angular/core';
+import { ngpMeterValue } from './meter-value-state';
 
 @Directive({
   selector: '[ngpMeterValue]',
   exportAs: 'ngpMeterValue',
-  host: {
-    'aria-hidden': 'true',
-  },
 })
-export class NgpMeterValue {}
+export class NgpMeterValue {
+  constructor() {
+    ngpMeterValue({});
+  }
+}
