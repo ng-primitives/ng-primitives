@@ -1,4 +1,5 @@
 import { afterRenderEffect } from '@angular/core';
+import { ngpVisuallyHidden } from 'ng-primitives/a11y';
 import { injectElementRef } from 'ng-primitives/internal';
 import { attrBinding, createPrimitive, listener } from 'ng-primitives/state';
 import { injectInputOtpState } from '../input-otp/input-otp-state';
@@ -22,6 +23,7 @@ export const [NgpInputOtpInputStateToken, ngpInputOtpInput] = createPrimitive(
   (): NgpInputOtpInputState => {
     const elementRef = injectElementRef<HTMLInputElement>();
     const otpState = injectInputOtpState();
+    ngpVisuallyHidden({});
 
     // Attribute bindings
     attrBinding(elementRef, 'autocomplete', 'one-time-code');
