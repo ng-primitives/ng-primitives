@@ -40,6 +40,7 @@ import { ChangeFn, provideValueAccessor, TouchedFn } from 'ng-primitives/utils';
   `,
   host: {
     '[attr.aria-label]': 'null',
+    '(focusout)': 'onTouch?.()',
   },
 })
 export class Listbox implements ControlValueAccessor {
