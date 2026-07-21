@@ -58,4 +58,41 @@ describe('NgpListboxTrigger', () => {
     expect(document.querySelector('[ngpListbox]')).not.toBeInTheDocument();
     expect(trigger).toHaveAttribute('aria-expanded', 'false');
   });
+
+  it('closes the popover when an option is selected in single mode', async () => {
+    const { getByTestId } = await render(template, { imports });
+    const trigger = getByTestId('trigger');
+
+    fireEvent.keyDown(trigger, { key: 'ArrowDown' });
+    await waitFor(() => expect(document.querySelector('[ngpListbox]')).toBeInTheDocument());
+
+    // selecting an option closes the popover in single-selection mode
+    fireEvent.click(document.querySelector('[ngpListboxOption]')!);
+
+    await waitFor(() => expect(document.querySelector('[ngpListbox]')).not.toBeInTheDocument());
+    expect(trigger).toHaveAttribute('aria-expanded', 'false');
+  });
+
+  it('keeps the popover open when an option is selected in multiple mode', async () => {
+    const multipleTemplate = `
+      <button [ngpPopoverTrigger]="dropdown" ngpListboxTrigger data-testid="trigger">Open</button>
+      <ng-template #dropdown>
+        <div ngpPopover ngpListbox ngpListboxMode="multiple" aria-label="Fruit">
+          <div ngpListboxOption ngpListboxOptionValue="a">A</div>
+          <div ngpListboxOption ngpListboxOptionValue="b">B</div>
+        </div>
+      </ng-template>
+    `;
+    const { getByTestId } = await render(multipleTemplate, { imports });
+    const trigger = getByTestId('trigger');
+
+    fireEvent.keyDown(trigger, { key: 'ArrowDown' });
+    await waitFor(() => expect(document.querySelector('[ngpListbox]')).toBeInTheDocument());
+
+    fireEvent.click(document.querySelector('[ngpListboxOption]')!);
+
+    // in multiple-selection mode the popover stays open so more options can be picked
+    expect(document.querySelector('[ngpListbox]')).toBeInTheDocument();
+    expect(trigger).toHaveAttribute('aria-expanded', 'true');
+  });
 });
