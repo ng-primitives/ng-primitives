@@ -280,10 +280,13 @@ export function activeDescendantManager({
     // when every buffered character is the same, treat it as a single-character
     // search that starts after the current item, so repeating a character cycles
     // through the items whose label starts with it
+    const hasActive = activeIndex() >= 0;
     const isRepeatedChar = [...typeaheadBuffer].every(char => char === typeaheadBuffer[0]);
     const search = isRepeatedChar ? typeaheadBuffer[0] : typeaheadBuffer;
-    const startOffset = isRepeatedChar ? 1 : 0;
-    const base = activeIndex() < 0 ? 0 : activeIndex();
+    // only skip past the current item when there is one to cycle from; with no
+    // active item the search must start at index 0 so the first match is found
+    const startOffset = isRepeatedChar && hasActive ? 1 : 0;
+    const base = hasActive ? activeIndex() : 0;
 
     for (let i = 0; i < total; i++) {
       const index = (base + startOffset + i) % total;

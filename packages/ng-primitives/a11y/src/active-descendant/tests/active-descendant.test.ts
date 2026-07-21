@@ -154,6 +154,13 @@ describe('activeDescendantManager', () => {
       expect(manager.index()).toBe(0); // wraps back to Apple
     });
 
+    it('matches the first item when nothing is active', () => {
+      const manager = createManager(['Apple', 'Apricot', 'Banana']);
+      manager.reset(); // no active item
+      manager.typeahead('a');
+      expect(manager.index()).toBe(0); // must land on Apple, not skip to Apricot
+    });
+
     it('skips disabled items', () => {
       const manager = createManager(['Apple', 'Banana', 'Blueberry'], { disabledIndices: [1] });
       manager.typeahead('b');
