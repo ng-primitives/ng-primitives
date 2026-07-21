@@ -9,6 +9,7 @@ import {
   listener,
   onDestroy,
 } from 'ng-primitives/state';
+import { uniqueId } from 'ng-primitives/utils';
 import { injectListboxState } from '../listbox/listbox-state';
 
 export interface NgpListboxOptionState<T> {
@@ -29,19 +30,15 @@ export interface NgpListboxOptionState<T> {
    * @internal
    * Whether the option is disabled - this is used by the `Highlightable` interface.
    */
-  disabled: boolean;
-  /**
-   * Whether the option is disabled.
-   */
-  _disabled: Signal<boolean>;
+  readonly disabled: boolean;
   /**
    * @internal
-   * Sets the active state of the option.
+   * Sets the active state of the option - used by the `Highlightable` interface.
    */
   setActiveStyles: () => void;
   /**
    * @internal
-   * Sets the inactive state of the option.
+   * Sets the inactive state of the option - used by the `Highlightable` interface.
    */
   setInactiveStyles: () => void;
   /**
@@ -54,12 +51,6 @@ export interface NgpListboxOptionState<T> {
    * Selects the option.
    */
   select: (origin: FocusOrigin) => void;
-  /**
-   * @internal
-   * Activate the current options.
-   */
-  activate: () => void;
-  destroy: () => void;
 }
 
 export interface NgpListboxOptionProps<T> {
@@ -85,7 +76,7 @@ export const [
 ] = createPrimitive(
   'NgpListboxOption',
   <T>({
-    id = signal<string>(''),
+    id = signal(uniqueId('ngp-listbox-option')),
     value,
     optionDisabled = signal<boolean>(false),
   }: NgpListboxOptionProps<T>) => {
@@ -158,13 +149,10 @@ export const [
       get disabled(): boolean {
         return _disabled();
       },
-      _disabled,
       setActiveStyles,
       setInactiveStyles,
       getLabel,
       select,
-      activate,
-      destroy,
     } satisfies NgpListboxOptionState<T>;
 
     function destroy(): void {

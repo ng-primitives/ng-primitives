@@ -22,7 +22,7 @@ import {
   SetterOptions,
   StateInjectionOptions,
 } from 'ng-primitives/state';
-import { safeTakeUntilDestroyed } from 'ng-primitives/utils';
+import { safeTakeUntilDestroyed, uniqueId } from 'ng-primitives/utils';
 import { Observable } from 'rxjs';
 import { NgpListboxOptionState } from '../listbox-option/listbox-option-state';
 
@@ -108,7 +108,7 @@ export const [NgpListboxStateToken, ngpListbox, _injectListboxState, provideList
   createPrimitive(
     'NgpListbox',
     <T>({
-      id = signal<string>(''),
+      id = signal(uniqueId('ngp-listbox')),
       mode = signal<NgpSelectionMode>('single'),
       value: _value = signal<T[]>([]),
       disabled: _disabled = signal<boolean>(false),

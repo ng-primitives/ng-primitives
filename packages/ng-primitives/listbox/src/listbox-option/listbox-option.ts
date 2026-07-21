@@ -1,6 +1,5 @@
-import { FocusOrigin } from '@angular/cdk/a11y';
 import { BooleanInput } from '@angular/cdk/coercion';
-import { booleanAttribute, Directive, input, OnDestroy } from '@angular/core';
+import { booleanAttribute, Directive, input } from '@angular/core';
 import { uniqueId } from 'ng-primitives/utils';
 import { ngpListboxOption } from './listbox-option-state';
 
@@ -8,7 +7,7 @@ import { ngpListboxOption } from './listbox-option-state';
   selector: '[ngpListboxOption]',
   exportAs: 'ngpListboxOption',
 })
-export class NgpListboxOption<T> implements OnDestroy {
+export class NgpListboxOption<T> {
   /**
    * The id of the listbox.
    */
@@ -36,60 +35,7 @@ export class NgpListboxOption<T> implements OnDestroy {
   });
 
   /**
-   * @internal
    * Whether the option is selected.
    */
   readonly selected = this.state.selected;
-
-  /**
-   * @internal
-   * Whether the option is disabled - this is used by the `Highlightable` interface.
-   */
-  get disabled(): boolean {
-    return this.state._disabled();
-  }
-
-  ngOnDestroy(): void {
-    return this.state.destroy();
-  }
-
-  /**
-   * @internal
-   * Sets the active state of the option.
-   */
-  setActiveStyles(): void {
-    return this.state.setActiveStyles();
-  }
-
-  /**
-   * @internal
-   * Sets the inactive state of the option.
-   */
-  setInactiveStyles(): void {
-    return this.state.setInactiveStyles();
-  }
-
-  /**
-   * @internal
-   * Gets the label of the option, used by the `Highlightable` interface.
-   */
-  getLabel(): string {
-    return this.state.getLabel();
-  }
-
-  /**
-   * @internal
-   * Selects the option.
-   */
-  select(origin: FocusOrigin): void {
-    return this.state.select(origin);
-  }
-
-  /**
-   * @internal
-   * Activate the current options.
-   */
-  activate(): void {
-    return this.state.activate();
-  }
 }

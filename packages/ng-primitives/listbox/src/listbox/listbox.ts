@@ -1,9 +1,7 @@
-import { FocusOrigin } from '@angular/cdk/a11y';
 import { BooleanInput } from '@angular/cdk/coercion';
 import { booleanAttribute, Directive, input, output } from '@angular/core';
 import { NgpSelectionMode } from 'ng-primitives/common';
 import { uniqueId } from 'ng-primitives/utils';
-import { NgpListboxOptionState } from '../listbox-option/listbox-option-state';
 import { ngpListbox, provideListboxState } from './listbox-state';
 
 @Directive({
@@ -65,44 +63,4 @@ export class NgpListbox<T> {
     compareWith: this.compareWith,
     onValueChange: (value: T[]) => this.valueChange.emit(value),
   });
-
-  /**
-   * @internal
-   * Selects an option in the listbox.
-   */
-  selectOption(value: T, origin: FocusOrigin): void {
-    return this.state.selectOption(value, origin);
-  }
-
-  /**
-   * @internal
-   * Determine if an option is selected using the compareWith function.
-   */
-  isSelected(value: T): boolean {
-    return this.state.isSelected(value);
-  }
-
-  /**
-   * @internal
-   * Activate an option in the listbox.
-   */
-  activateOption(value: T) {
-    return this.state.activateOption(value);
-  }
-
-  /**
-   * Registers an option with the listbox.
-   * @internal
-   */
-  addOption(option: NgpListboxOptionState<T>): void {
-    return this.state.addOption(option);
-  }
-
-  /**
-   * Deregisters an option with the listbox.
-   * @internal
-   */
-  removeOption(option: NgpListboxOptionState<T>): void {
-    return this.state.removeOption(option);
-  }
 }
