@@ -2,7 +2,13 @@ import { FocusOrigin } from '@angular/cdk/a11y';
 import { computed, effect, signal, Signal } from '@angular/core';
 import { ngpInteractions } from 'ng-primitives/interactions';
 import { injectElementRef, onDomRemoval, scrollIntoViewIfNeeded } from 'ng-primitives/internal';
-import { attrBinding, createPrimitive, dataBinding, listener, onDestroy } from 'ng-primitives/state';
+import {
+  attrBinding,
+  createPrimitive,
+  dataBinding,
+  listener,
+  onDestroy,
+} from 'ng-primitives/state';
 import { uniqueId } from 'ng-primitives/utils';
 import { injectListboxState } from '../listbox/listbox-state';
 
