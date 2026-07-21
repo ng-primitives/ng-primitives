@@ -277,9 +277,12 @@ export function activeDescendantManager({
       return;
     }
 
-    // when a single character is repeated, start after the current item so repeated
-    // presses cycle through the items whose label starts with that character
-    const startOffset = typeaheadBuffer.length === 1 ? 1 : 0;
+    // when every buffered character is the same, treat it as a single-character
+    // search that starts after the current item, so repeating a character cycles
+    // through the items whose label starts with it
+    const isRepeatedChar = [...typeaheadBuffer].every(char => char === typeaheadBuffer[0]);
+    const search = isRepeatedChar ? typeaheadBuffer[0] : typeaheadBuffer;
+    const startOffset = isRepeatedChar ? 1 : 0;
     const base = activeIndex() < 0 ? 0 : activeIndex();
 
     for (let i = 0; i < total; i++) {
@@ -291,7 +294,7 @@ export function activeDescendantManager({
 
       const label = (getItemLabel(index) ?? '').toLowerCase().trim();
 
-      if (label.startsWith(typeaheadBuffer)) {
+      if (label.startsWith(search)) {
         activateByIndex(index, { origin: 'keyboard', ...options });
         return;
       }
