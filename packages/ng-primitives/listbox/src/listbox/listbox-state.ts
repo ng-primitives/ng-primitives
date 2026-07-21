@@ -20,6 +20,7 @@ import {
   deprecatedSetter,
   emitter,
   listener,
+  SetterOptions,
   StateInjectionOptions,
 } from 'ng-primitives/state';
 import { safeTakeUntilDestroyed } from 'ng-primitives/utils';
@@ -85,6 +86,10 @@ export interface NgpListboxState<T> {
    */
   removeOption: (option: NgpListboxOptionState<T>) => void;
   onAfterContentInit: () => void;
+  /**
+   * Sets the listbox selection.
+   */
+  setValue: (value: T[], options?: SetterOptions) => void;
   setDisabled: (value: boolean) => void;
 }
 
@@ -215,25 +220,23 @@ export const [NgpListboxStateToken, ngpListbox, _injectListboxState, provideList
         }
       }
 
-      function selectOption(val: T, origin: FocusOrigin): void {
-        if (mode() === 'single') {
-          const newValue = [val];
-          value.set(newValue);
+      function setValue(newValue: T[], options?: SetterOptions): void {
+        value.set(newValue);
+
+        if (options?.emit !== false) {
           valueChange.emit(newValue);
           onValueChange?.(newValue);
-        } else {
+        }
+      }
+
+      function selectOption(val: T, origin: FocusOrigin): void {
+        if (mode() === 'single') {
+          setValue([val]);
+        } else if (isSelected(val)) {
           // if the value is already selected, remove it, otherwise add it
-          if (isSelected(val)) {
-            const newValue = value().filter(v => !compareWith()(v, val));
-            value.set(newValue);
-            valueChange.emit(newValue);
-            onValueChange?.(newValue);
-          } else {
-            const newValue = [...value(), val];
-            value.set(newValue);
-            valueChange.emit(newValue);
-            onValueChange?.(newValue);
-          }
+          setValue(value().filter(v => !compareWith()(v, val)));
+        } else {
+          setValue([...value(), val]);
         }
 
         // Set the active descendant to the selected option.
@@ -277,7 +280,7 @@ export const [NgpListboxStateToken, ngpListbox, _injectListboxState, provideList
         elementRef,
         id,
         mode,
-        value,
+        value: deprecatedSetter(value, 'setValue', setValue),
         disabled: deprecatedSetter(disabled, 'setDisabled', setDisabled),
         compareWith,
         isFocused,
@@ -288,6 +291,7 @@ export const [NgpListboxStateToken, ngpListbox, _injectListboxState, provideList
         addOption,
         removeOption,
         onAfterContentInit,
+        setValue,
         setDisabled,
       } satisfies NgpListboxState<T>;
     },

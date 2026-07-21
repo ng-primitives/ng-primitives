@@ -1,5 +1,5 @@
 import { BooleanInput } from '@angular/cdk/coercion';
-import { booleanAttribute, Component, input, model } from '@angular/core';
+import { booleanAttribute, Component, input } from '@angular/core';
 import { ControlValueAccessor } from '@angular/forms';
 import { NgpSelectionMode } from 'ng-primitives/common';
 import {
@@ -21,7 +21,6 @@ import { ChangeFn, provideValueAccessor, TouchedFn } from 'ng-primitives/utils';
   imports: [NgpListbox],
   template: `
     <div
-      [(ngpListboxValue)]="value"
       [ngpListboxMode]="mode()"
       [ngpListboxDisabled]="disabled()"
       [ngpListboxCompareWith]="compareWith()"
@@ -42,8 +41,6 @@ export class Listbox implements ControlValueAccessor {
 
   readonly mode = input<NgpSelectionMode>('single');
 
-  readonly value = model<string[]>([]);
-
   readonly disabled = input<boolean, BooleanInput>(false, {
     transform: booleanAttribute,
   });
@@ -58,8 +55,8 @@ export class Listbox implements ControlValueAccessor {
   protected onTouch?: TouchedFn;
 
   writeValue(value: string[]): void {
-    // drive the value through the bound model so the controlled input reflects it
-    this.value.set(value);
+    // writing a value from the model must not re-emit through onChange
+    this.state().setValue(value, { emit: false });
   }
 
   registerOnChange(fn: ChangeFn<string[]>): void {
@@ -75,10 +72,7 @@ export class Listbox implements ControlValueAccessor {
   }
 
   onListboxValueChange(value: string[]): void {
-    this.value.set(value);
-    if (this.onChange) {
-      this.onChange(value);
-    }
+    this.onChange?.(value);
   }
 }
 
