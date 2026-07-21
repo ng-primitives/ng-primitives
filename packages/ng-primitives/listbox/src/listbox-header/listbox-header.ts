@@ -6,10 +6,6 @@ import { ngpListboxHeader } from './listbox-header-state';
 @Directive({
   selector: '[ngpListboxHeader]',
   exportAs: 'ngpListboxHeader',
-  host: {
-    role: 'presentation',
-    '[attr.id]': 'id()',
-  },
   // temporary until we remove NgpHeader completely - this prevents breaking changes
   providers: [{ provide: NgpHeaderToken, useExisting: NgpListboxHeader }],
 })

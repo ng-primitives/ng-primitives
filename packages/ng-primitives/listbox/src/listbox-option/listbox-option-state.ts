@@ -21,14 +21,6 @@ export interface NgpListboxOptionState<T> {
    */
   readonly value: Signal<T>;
   /**
-   * Whether the option is disabled.
-   */
-  readonly optionDisabled?: Signal<boolean>;
-  /**
-   * Whether the option is active.
-   */
-  readonly active?: Signal<boolean>;
-  /**
    * @internal
    * Whether the option is selected.
    */
@@ -162,8 +154,6 @@ export const [
     const state = {
       id,
       value,
-      optionDisabled,
-      active,
       selected,
       get disabled(): boolean {
         return _disabled();

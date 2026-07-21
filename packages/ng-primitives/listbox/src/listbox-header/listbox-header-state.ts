@@ -1,13 +1,8 @@
-import { ElementRef, signal, Signal } from '@angular/core';
+import { signal, Signal } from '@angular/core';
 import { injectElementRef } from 'ng-primitives/internal';
 import { attrBinding, createPrimitive } from 'ng-primitives/state';
 
-export interface NgpListboxHeaderState {
-  /** Access the component's reference. */
-  readonly elementRef: ElementRef;
-  /** The id of the listbox header. */
-  readonly id?: Signal<string>;
-}
+export type NgpListboxHeaderState = Record<string, never>;
 
 export interface NgpListboxHeaderProps {
   /** The id of the listbox header. */
@@ -26,8 +21,5 @@ export const [
   attrBinding(elementRef, 'role', 'presentation');
   attrBinding(elementRef, 'id', () => id());
 
-  return {
-    elementRef,
-    id,
-  } satisfies NgpListboxHeaderState;
+  return {} satisfies NgpListboxHeaderState;
 });

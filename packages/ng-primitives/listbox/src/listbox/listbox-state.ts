@@ -2,7 +2,6 @@ import { ActiveDescendantKeyManager, FocusOrigin } from '@angular/cdk/a11y';
 import {
   computed,
   DestroyRef,
-  ElementRef,
   inject,
   Injector,
   Signal,
@@ -28,16 +27,6 @@ import { Observable } from 'rxjs';
 import { NgpListboxOptionState } from '../listbox-option/listbox-option-state';
 
 export interface NgpListboxState<T> {
-  /** Access the component's reference. */
-  readonly elementRef: ElementRef;
-  /**
-   * The id of the listbox.
-   */
-  readonly id?: Signal<string>;
-  /**
-   * The listbox selection mode.
-   */
-  readonly mode: Signal<NgpSelectionMode>;
   /**
    * The listbox selection.
    */
@@ -46,11 +35,6 @@ export interface NgpListboxState<T> {
    * The listbox disabled state.
    */
   readonly disabled: WritableSignal<boolean>;
-  /**
-   * The comparator function to use when comparing values.
-   * If not provided, strict equality (===) is used.
-   */
-  readonly compareWith: Signal<(a: T, b: T) => boolean>;
   /**
    * @internal
    * Whether the listbox is focused.
@@ -271,12 +255,8 @@ export const [NgpListboxStateToken, ngpListbox, _injectListboxState, provideList
       }
 
       return {
-        elementRef,
-        id,
-        mode,
         value: deprecatedSetter(value, 'setValue', setValue),
         disabled: deprecatedSetter(disabled, 'setDisabled', setDisabled),
-        compareWith,
         isFocused,
         valueChange: valueChange.asObservable(),
         selectOption,

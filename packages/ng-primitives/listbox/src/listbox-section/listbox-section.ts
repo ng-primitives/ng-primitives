@@ -5,10 +5,6 @@ import { ngpListboxSection } from './listbox-section-state';
 @Directive({
   selector: '[ngpListboxSection]',
   exportAs: 'ngpListboxSection',
-  host: {
-    role: 'group',
-    '[attr.aria-labelledby]': 'header()?.id()',
-  },
 })
 export class NgpListboxSection {
   // TODO: Replace deprecated API

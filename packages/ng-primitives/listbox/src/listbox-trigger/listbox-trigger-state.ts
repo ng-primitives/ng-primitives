@@ -1,11 +1,8 @@
-import { ElementRef } from '@angular/core';
 import { injectElementRef } from 'ng-primitives/internal';
 import { injectPopoverTriggerState } from 'ng-primitives/popover';
 import { createPrimitive, listener } from 'ng-primitives/state';
 
 export interface NgpListboxTriggerState {
-  /** Access the component's reference. */
-  readonly elementRef: ElementRef;
   /**
    * When the up or down arrow key is pressed, open the popover.
    */
@@ -34,7 +31,6 @@ export const [
   }
 
   return {
-    elementRef,
     onPopover: handleOnKeydown,
   } satisfies NgpListboxTriggerState;
 });

@@ -1,12 +1,9 @@
-import { ElementRef, signal, Signal } from '@angular/core';
+import { signal, Signal } from '@angular/core';
 import { NgpHeader } from 'ng-primitives/common';
 import { injectElementRef } from 'ng-primitives/internal';
 import { attrBinding, createPrimitive } from 'ng-primitives/state';
 
-export interface NgpListboxSectionState {
-  /** Access the component's reference. */
-  readonly elementRef: ElementRef;
-}
+export type NgpListboxSectionState = Record<string, never>;
 
 export interface NgpListboxSectionProps {
   /**
@@ -32,8 +29,6 @@ export const [
     attrBinding(elementRef, 'role', 'group');
     attrBinding(elementRef, 'aria-labelledby', () => header()?.id());
 
-    return {
-      elementRef,
-    } satisfies NgpListboxSectionState;
+    return {} satisfies NgpListboxSectionState;
   },
 );
