@@ -123,12 +123,12 @@ export const [NgpListboxStateToken, ngpListbox, _injectListboxState, provideList
       const options = signal<NgpListboxOptionState<T>[]>([]);
       const activeDescendant = signal<string | undefined>(undefined);
       const isFocused = signal<boolean>(false);
-      const tabIndex = computed(() => (disabled() ? -1 : 0));
 
       const value = controlled(_value);
       const valueChange = emitter<T[]>();
 
       const disabled = controlled(_disabled);
+      const tabIndex = computed(() => (disabled() ? -1 : 0));
 
       function setDisabled(value: boolean): void {
         disabled.set(value);
@@ -139,11 +139,11 @@ export const [NgpListboxStateToken, ngpListbox, _injectListboxState, provideList
 
       // Host binding
       attrBinding(elementRef, 'role', 'listbox');
-      attrBinding(elementRef, 'id', () => id());
-      attrBinding(elementRef, 'tabindex', () => tabIndex());
-      attrBinding(elementRef, 'aria-disabled', () => disabled());
+      attrBinding(elementRef, 'id', id);
+      attrBinding(elementRef, 'tabindex', tabIndex);
+      attrBinding(elementRef, 'aria-disabled', disabled);
       attrBinding(elementRef, 'aria-multiselectable', () => mode() === 'multiple');
-      attrBinding(elementRef, 'aria-activedescendant', () => activeDescendant());
+      attrBinding(elementRef, 'aria-activedescendant', activeDescendant);
 
       // Listener
       listener(elementRef, 'focusin', () => isFocused.set(true));
@@ -230,8 +230,8 @@ export const [NgpListboxStateToken, ngpListbox, _injectListboxState, provideList
         }
       }
 
-      function activateOption(value: T) {
-        const option = options().find(o => compareWith()(o.value(), value));
+      function activateOption(val: T) {
+        const option = options().find(o => compareWith()(o.value(), val));
 
         if (option) {
           keyManager.setActiveItem(option);

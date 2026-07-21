@@ -2,35 +2,26 @@ import { injectElementRef } from 'ng-primitives/internal';
 import { injectPopoverTriggerState } from 'ng-primitives/popover';
 import { createPrimitive, listener } from 'ng-primitives/state';
 
-export interface NgpListboxTriggerState {
-  /**
-   * When the up or down arrow key is pressed, open the popover.
-   */
-  onPopover: (event: KeyboardEvent) => void;
-}
+export type NgpListboxTriggerState = Record<string, never>;
 
-export interface NgpListboxTriggerProps {}
+export type NgpListboxTriggerProps = Record<string, never>;
 
 export const [
   NgpListboxTriggerStateToken,
   ngpListboxTrigger,
   injectListboxTriggerState,
   provideListboxTriggerState,
-] = createPrimitive('NgpListboxTrigger', ({}: NgpListboxTriggerProps) => {
+] = createPrimitive('NgpListboxTrigger', () => {
   const elementRef = injectElementRef();
   const popoverTriggerState = injectPopoverTriggerState();
 
-  // Listener
-  listener(elementRef, 'keydown', handleOnKeydown);
-
-  function handleOnKeydown(event: KeyboardEvent): void {
+  // When the up or down arrow key is pressed, open the popover.
+  listener(elementRef, 'keydown', event => {
     if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
       popoverTriggerState().show();
       event.preventDefault();
     }
-  }
+  });
 
-  return {
-    onPopover: handleOnKeydown,
-  } satisfies NgpListboxTriggerState;
+  return {} satisfies NgpListboxTriggerState;
 });

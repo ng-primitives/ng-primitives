@@ -24,7 +24,7 @@ export const [
 
     // Host binding
     attrBinding(elementRef, 'role', 'presentation');
-    attrBinding(elementRef, 'id', () => id());
+    attrBinding(elementRef, 'id', id);
 
     // Register this header as the label for its containing section, if there is one.
     onChange(id, (current, previous) => {

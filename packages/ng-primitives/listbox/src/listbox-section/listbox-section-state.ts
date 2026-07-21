@@ -30,7 +30,7 @@ export const [
 
   // Host binding
   attrBinding(elementRef, 'role', 'group');
-  attrBinding(elementRef, 'aria-labelledby', () => labelledBy() ?? null);
+  attrBinding(elementRef, 'aria-labelledby', labelledBy);
 
   function setLabelledBy(id: string): void {
     labelledBy.set(id);

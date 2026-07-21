@@ -99,8 +99,8 @@ export const [
 
     // Host binding
     attrBinding(elementRef, 'role', 'option');
-    attrBinding(elementRef, 'id', () => id());
-    attrBinding(elementRef, 'aria-disabled', () => _disabled());
+    attrBinding(elementRef, 'id', id);
+    attrBinding(elementRef, 'aria-disabled', _disabled);
     dataBinding(elementRef, 'data-disabled', () => (_disabled() ? '' : null));
     dataBinding(elementRef, 'data-active', () =>
       listboxState()?.isFocused() && active() ? '' : null,
@@ -155,16 +155,13 @@ export const [
       select,
     } satisfies NgpListboxOptionState<T>;
 
-    function destroy(): void {
-      listboxState()?.removeOption(state);
-    }
-
-    onDestroy(() => {
-      destroy();
-    });
-
+    // the listbox may not be available when the option is initialized, so add the
+    // option once the listbox is available
     effect(() => listboxState()?.addOption(state));
 
+    onDestroy(() => listboxState()?.removeOption(state));
+
+    // if the element is removed from the DOM, deregister it and reset its active state
     onDomRemoval(elementRef.nativeElement, () => {
       listboxState()?.removeOption(state);
       setInactiveStyles();

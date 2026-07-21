@@ -6,12 +6,5 @@ import { ngpListboxTrigger } from './listbox-trigger-state';
   exportAs: 'ngpListboxTrigger',
 })
 export class NgpListboxTrigger {
-  protected readonly state = ngpListboxTrigger({});
-
-  /**
-   * When the up or down arrow key is pressed, open the popover.
-   */
-  openPopover(event: KeyboardEvent) {
-    return this.state.onPopover(event);
-  }
+  protected readonly state = ngpListboxTrigger();
 }
