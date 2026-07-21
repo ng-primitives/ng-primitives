@@ -1,6 +1,6 @@
 import { FocusOrigin } from '@angular/cdk/a11y';
 import { BooleanInput } from '@angular/cdk/coercion';
-import { AfterContentInit, booleanAttribute, Directive, input, output } from '@angular/core';
+import { booleanAttribute, Directive, input, output } from '@angular/core';
 import { NgpSelectionMode } from 'ng-primitives/common';
 import { uniqueId } from 'ng-primitives/utils';
 import { NgpListboxOptionState } from '../listbox-option/listbox-option-state';
@@ -11,7 +11,7 @@ import { ngpListbox, provideListboxState } from './listbox-state';
   exportAs: 'ngpListbox',
   providers: [provideListboxState()],
 })
-export class NgpListbox<T> implements AfterContentInit {
+export class NgpListbox<T> {
   /**
    * The id of the listbox.
    */
@@ -65,10 +65,6 @@ export class NgpListbox<T> implements AfterContentInit {
     compareWith: this.compareWith,
     onValueChange: (value: T[]) => this.valueChange.emit(value),
   });
-
-  ngAfterContentInit(): void {
-    return this.state.onAfterContentInit();
-  }
 
   /**
    * @internal

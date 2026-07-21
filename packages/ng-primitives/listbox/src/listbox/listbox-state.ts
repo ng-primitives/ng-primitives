@@ -85,7 +85,6 @@ export interface NgpListboxState<T> {
    * @internal
    */
   removeOption: (option: NgpListboxOptionState<T>) => void;
-  onAfterContentInit: () => void;
   /**
    * Sets the listbox selection.
    */
@@ -167,24 +166,19 @@ export const [NgpListboxStateToken, ngpListbox, _injectListboxState, provideList
       listener(elementRef, 'focusout', () => isFocused.set(false));
       listener(elementRef, 'keydown', onKeydown);
 
-      const keyManager = new ActiveDescendantKeyManager(options, injector);
+      const keyManager = new ActiveDescendantKeyManager(options, injector)
+        .withHomeAndEnd()
+        .withTypeAhead()
+        .withVerticalOrientation();
 
-      function onAfterContentInit(): void {
-        keyManager.withHomeAndEnd().withTypeAhead().withVerticalOrientation();
+      keyManager.change
+        .pipe(safeTakeUntilDestroyed(destroyRef))
+        .subscribe(() => activeDescendant.set(keyManager.activeItem?.id?.()));
 
-        keyManager.change
-          .pipe(safeTakeUntilDestroyed(destroyRef))
-          .subscribe(() => activeDescendant.set(keyManager.activeItem?.id?.()));
-
-        // On initialization, set the first selected option as the active descendant if there is one.
-        updateActiveItem();
-
-        // if the options change, update the active item, for example the item that was previously active may have been removed
-        // any time the value changes we should make sure that the active item is updated
-        explicitEffect([options, value], () => updateActiveItem(), {
-          injector: injector,
-        });
-      }
+      // Keep the active item in sync as options register/change and as the value
+      // changes (e.g. the previously active item was removed). This runs on setup
+      // too, so it sets the initial active item once the options are projected.
+      explicitEffect([options, value], () => updateActiveItem(), { injector });
 
       function updateActiveItem(): void {
         const activeItem = keyManager.activeItem;
@@ -290,7 +284,6 @@ export const [NgpListboxStateToken, ngpListbox, _injectListboxState, provideList
         activateOption,
         addOption,
         removeOption,
-        onAfterContentInit,
         setValue,
         setDisabled,
       } satisfies NgpListboxState<T>;
