@@ -15,7 +15,7 @@ export class NgpListboxHeader {
    */
   readonly id = input(uniqueId('ngp-listbox-header'));
 
-  protected readonly state = ngpListboxHeader({
-    id: this.id,
-  });
+  constructor() {
+    ngpListboxHeader({ id: this.id });
+  }
 }

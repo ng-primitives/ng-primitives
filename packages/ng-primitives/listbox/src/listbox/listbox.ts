@@ -52,15 +52,14 @@ export class NgpListbox<T> {
     alias: 'ngpListboxCompareWith',
   });
 
-  /**
-   * The listbox state
-   */
-  protected readonly state = ngpListbox({
-    id: this.id,
-    mode: this.mode,
-    value: this.value,
-    disabled: this.disabled,
-    compareWith: this.compareWith,
-    onValueChange: (value: T[]) => this.valueChange.emit(value),
-  });
+  constructor() {
+    ngpListbox({
+      id: this.id,
+      mode: this.mode,
+      value: this.value,
+      disabled: this.disabled,
+      compareWith: this.compareWith,
+      onValueChange: (value: T[]) => this.valueChange.emit(value),
+    });
+  }
 }

@@ -7,5 +7,7 @@ import { ngpListboxSection, provideListboxSectionState } from './listbox-section
   providers: [provideListboxSectionState()],
 })
 export class NgpListboxSection {
-  protected readonly state = ngpListboxSection();
+  constructor() {
+    ngpListboxSection();
+  }
 }

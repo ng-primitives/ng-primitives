@@ -6,5 +6,7 @@ import { ngpListboxTrigger } from './listbox-trigger-state';
   exportAs: 'ngpListboxTrigger',
 })
 export class NgpListboxTrigger {
-  protected readonly state = ngpListboxTrigger();
+  constructor() {
+    ngpListboxTrigger();
+  }
 }
