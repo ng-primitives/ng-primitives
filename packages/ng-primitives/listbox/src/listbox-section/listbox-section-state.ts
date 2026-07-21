@@ -4,7 +4,7 @@ import { injectElementRef } from 'ng-primitives/internal';
 import { attrBinding, createPrimitive } from 'ng-primitives/state';
 
 export interface NgpListboxSectionState {
-  /** Access the comonent's reference. */
+  /** Access the component's reference. */
   readonly elementRef: ElementRef;
 }
 

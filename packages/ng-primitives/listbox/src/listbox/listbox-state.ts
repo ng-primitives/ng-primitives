@@ -16,7 +16,6 @@ import { injectPopoverTriggerState } from 'ng-primitives/popover';
 import {
   attrBinding,
   controlled,
-  controlledState,
   createPrimitive,
   deprecatedSetter,
   emitter,
@@ -141,9 +140,11 @@ export const [NgpListboxStateToken, ngpListbox, _injectListboxState, provideList
       const value = controlled(_value);
       const valueChange = emitter<T[]>();
 
-      const [disabled, setDisabled] = controlledState<boolean>({
-        value: _disabled,
-      });
+      const disabled = controlled(_disabled);
+
+      function setDisabled(value: boolean): void {
+        disabled.set(value);
+      }
 
       // Setup interactions
       ngpFocusVisible({ disabled: disabled });

@@ -1,5 +1,5 @@
 import { BooleanInput } from '@angular/cdk/coercion';
-import { booleanAttribute, Component, input, model } from '@angular/core';
+import { booleanAttribute, Component, input, model, signal } from '@angular/core';
 import { ControlValueAccessor } from '@angular/forms';
 import { provideIcons } from '@ng-icons/core';
 import { heroChevronDownSolid } from '@ng-icons/heroicons/solid';
@@ -19,7 +19,7 @@ import { ChangeFn, provideValueAccessor, TouchedFn } from 'ng-primitives/utils';
     <div
       [(ngpListboxValue)]="value"
       [ngpListboxMode]="mode()"
-      [ngpListboxDisabled]="disabled()"
+      [ngpListboxDisabled]="disabled() || formDisabled()"
       [ngpListboxCompareWith]="compareWith()"
       [attr.aria-label]="ariaLabel()"
       (ngpListboxValueChange)="onListboxValueChange($event)"
@@ -93,8 +93,14 @@ export class Listbox implements ControlValueAccessor {
    */
   protected onTouch?: TouchedFn;
 
+  /**
+   * Form-driven disabled state, combined with the `disabled` input.
+   */
+  protected readonly formDisabled = signal(false);
+
   writeValue(value: string[]): void {
-    this.state()?.value.set(value);
+    // drive the value through the bound model so the controlled input reflects it
+    this.value.set(value);
   }
 
   registerOnChange(fn: ChangeFn<string[]>): void {
@@ -106,7 +112,7 @@ export class Listbox implements ControlValueAccessor {
   }
 
   setDisabledState(isDisabled: boolean): void {
-    this.state()?.disabled.set(isDisabled);
+    this.formDisabled.set(isDisabled);
   }
 
   onListboxValueChange(value: string[]): void {
