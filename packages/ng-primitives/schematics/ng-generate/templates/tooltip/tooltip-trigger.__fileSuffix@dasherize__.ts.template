@@ -1,6 +1,6 @@
 import { Directive, input } from '@angular/core';
 import { injectTooltipTriggerState, NgpTooltipTrigger } from 'ng-primitives/tooltip';
-import { Tooltip } from './tooltip';
+import { Tooltip<%= componentSuffix %> } from './tooltip<% if (fileSuffix) { %>.<%= dasherize(fileSuffix) %><% } %>';
 
 @Directive({
   selector: '[appTooltipTrigger]',
@@ -32,6 +32,6 @@ export class TooltipTrigger {
   });
 
   constructor() {
-    this.tooltipTrigger().tooltip.set(Tooltip);
+    this.tooltipTrigger().tooltip.set(Tooltip<%= componentSuffix %>);
   }
 }
