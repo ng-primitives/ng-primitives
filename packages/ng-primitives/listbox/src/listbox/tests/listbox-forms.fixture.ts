@@ -37,7 +37,7 @@ import { ChangeFn, provideValueAccessor, TouchedFn } from 'ng-primitives/utils';
   },
 })
 export class Listbox implements ControlValueAccessor {
-  protected readonly state = injectListboxState<NgpListbox<string>>();
+  protected readonly state = injectListboxState<string>();
 
   readonly mode = input<NgpSelectionMode>('single');
 
