@@ -111,7 +111,8 @@ function processChangeDetection(
   const importRegex = /import\s*\{([^}]*)\}\s*from\s*['"]@angular\/core['"];/;
   if (importRegex.test(contentStr) && !contentStr.includes('ChangeDetectionStrategy')) {
     contentStr = contentStr.replace(importRegex, (_, imports) => {
-      const trimmed = imports.trim();
+      // a wrapped import list keeps a trailing comma, which would double up
+      const trimmed = imports.trim().replace(/,$/, '');
       return `import { ${trimmed}, ChangeDetectionStrategy } from '@angular/core';`;
     });
   }

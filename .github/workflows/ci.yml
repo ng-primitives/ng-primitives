@@ -36,6 +36,18 @@ jobs:
       - uses: nrwl/nx-set-shas@v4
 
       - run: pnpm exec nx format:check
+
+      # Runs unconditionally rather than through `nx affected`: a change to
+      # apps/components or to packages/tools never marks ng-primitives as affected, so
+      # these checks would otherwise never fire on the PRs that change what the templates
+      # are generated from.
+      - name: Schematic templates are in sync and compile
+        run: |
+          pnpm exec nx run ng-primitives:build:templates
+          git diff --exit-code -- packages/ng-primitives/schematics/ng-generate/templates \
+            || { echo "::error::Schematic templates are stale. Run: nx run ng-primitives:build:templates"; exit 1; }
+          pnpm exec nx run ng-primitives:test-node
+
       - run: pnpm exec nx affected -t lint,build,test
         env:
           NODE_OPTIONS: '--max-old-space-size=8192' # Increase memory to 8GB
