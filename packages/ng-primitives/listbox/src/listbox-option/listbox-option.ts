@@ -23,7 +23,7 @@ export class NgpListboxOption<T> {
   /**
    * Whether the option is disabled.
    */
-  readonly optionDisabled = input<boolean, BooleanInput>(false, {
+  readonly disabled = input<boolean, BooleanInput>(false, {
     alias: 'ngpListboxOptionDisabled',
     transform: booleanAttribute,
   });
@@ -31,7 +31,7 @@ export class NgpListboxOption<T> {
   protected readonly state = ngpListboxOption<T>({
     id: this.id,
     value: this.value,
-    optionDisabled: this.optionDisabled,
+    disabled: this.disabled,
   });
 
   /**

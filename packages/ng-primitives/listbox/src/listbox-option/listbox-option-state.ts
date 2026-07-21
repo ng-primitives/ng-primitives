@@ -65,7 +65,7 @@ export interface NgpListboxOptionProps<T> {
   /**
    * Whether the option is disabled.
    */
-  readonly optionDisabled?: Signal<boolean>;
+  readonly disabled?: Signal<boolean>;
 }
 
 export const [
@@ -78,7 +78,7 @@ export const [
   <T>({
     id = signal(uniqueId('ngp-listbox-option')),
     value,
-    optionDisabled = signal<boolean>(false),
+    disabled: _disabled = signal<boolean>(false),
   }: NgpListboxOptionProps<T>) => {
     const elementRef = injectElementRef();
     const listboxState = injectListboxState<T>();
@@ -86,7 +86,8 @@ export const [
     const active = signal<boolean>(false);
     const selected = computed(() => listboxState()?.isSelected(value()));
 
-    const _disabled = computed(() => optionDisabled() || (listboxState()?.disabled() ?? false));
+    // the option is disabled if it is explicitly disabled or the whole listbox is disabled
+    const disabled = computed(() => _disabled() || (listboxState()?.disabled() ?? false));
 
     // Setup interactions
     ngpInteractions({
@@ -94,14 +95,14 @@ export const [
       press: true,
       focusVisible: true,
       focus: true,
-      disabled: _disabled,
+      disabled,
     });
 
     // Host binding
     attrBinding(elementRef, 'role', 'option');
     attrBinding(elementRef, 'id', id);
-    attrBinding(elementRef, 'aria-disabled', _disabled);
-    dataBinding(elementRef, 'data-disabled', () => (_disabled() ? '' : null));
+    attrBinding(elementRef, 'aria-disabled', disabled);
+    dataBinding(elementRef, 'data-disabled', () => (disabled() ? '' : null));
     dataBinding(elementRef, 'data-active', () =>
       listboxState()?.isFocused() && active() ? '' : null,
     );
@@ -127,7 +128,7 @@ export const [
     }
 
     function select(origin: FocusOrigin): void {
-      if (_disabled()) {
+      if (disabled()) {
         return;
       }
 
@@ -135,7 +136,7 @@ export const [
     }
 
     function activate(): void {
-      if (_disabled()) {
+      if (disabled()) {
         return;
       }
 
@@ -147,7 +148,7 @@ export const [
       value,
       selected,
       get disabled(): boolean {
-        return _disabled();
+        return disabled();
       },
       setActiveStyles,
       setInactiveStyles,
