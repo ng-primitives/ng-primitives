@@ -1,5 +1,5 @@
 import { BooleanInput } from '@angular/cdk/coercion';
-import { booleanAttribute, Component, input, model, signal } from '@angular/core';
+import { booleanAttribute, Component, input, model } from '@angular/core';
 import { ControlValueAccessor } from '@angular/forms';
 import { provideIcons } from '@ng-icons/core';
 import { heroChevronDownSolid } from '@ng-icons/heroicons/solid';
@@ -19,7 +19,7 @@ import { ChangeFn, provideValueAccessor, TouchedFn } from 'ng-primitives/utils';
     <div
       [(ngpListboxValue)]="value"
       [ngpListboxMode]="mode()"
-      [ngpListboxDisabled]="disabled() || formDisabled()"
+      [ngpListboxDisabled]="disabled()"
       [ngpListboxCompareWith]="compareWith()"
       [attr.aria-label]="ariaLabel()"
       (ngpListboxValueChange)="onListboxValueChange($event)"
@@ -41,14 +41,13 @@ import { ChangeFn, provideValueAccessor, TouchedFn } from 'ng-primitives/utils';
   `,
   host: {
     '[attr.aria-label]': 'null',
-    '(focusout)': 'onTouch?.()',
   },
 })
 export class Listbox implements ControlValueAccessor {
   /**
    * Access the listbox state
    */
-  protected readonly state = injectListboxState<NgpListbox<string>>();
+  protected readonly state = injectListboxState<string>();
 
   /**
    * The listbox mode.
@@ -94,12 +93,8 @@ export class Listbox implements ControlValueAccessor {
    */
   protected onTouch?: TouchedFn;
 
-  /** Form-driven disabled state, combined with the `disabled` input. */
-  protected readonly formDisabled = signal(false);
-
   writeValue(value: string[]): void {
-    // drive the value through the bound model so the controlled input reflects it
-    this.value.set(value);
+    this.state()?.value.set(value);
   }
 
   registerOnChange(fn: ChangeFn<string[]>): void {
@@ -111,7 +106,7 @@ export class Listbox implements ControlValueAccessor {
   }
 
   setDisabledState(isDisabled: boolean): void {
-    this.formDisabled.set(isDisabled);
+    this.state()?.disabled.set(isDisabled);
   }
 
   onListboxValueChange(value: string[]): void {
