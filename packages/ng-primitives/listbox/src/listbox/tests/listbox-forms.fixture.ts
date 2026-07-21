@@ -1,5 +1,5 @@
 import { BooleanInput } from '@angular/cdk/coercion';
-import { booleanAttribute, Component, input, model, signal } from '@angular/core';
+import { booleanAttribute, Component, input, model } from '@angular/core';
 import { ControlValueAccessor } from '@angular/forms';
 import { NgpSelectionMode } from 'ng-primitives/common';
 import {
@@ -23,7 +23,7 @@ import { ChangeFn, provideValueAccessor, TouchedFn } from 'ng-primitives/utils';
     <div
       [(ngpListboxValue)]="value"
       [ngpListboxMode]="mode()"
-      [ngpListboxDisabled]="disabled() || formDisabled()"
+      [ngpListboxDisabled]="disabled()"
       [ngpListboxCompareWith]="compareWith()"
       [attr.aria-label]="ariaLabel()"
       (ngpListboxValueChange)="onListboxValueChange($event)"
@@ -56,7 +56,6 @@ export class Listbox implements ControlValueAccessor {
 
   protected onChange?: ChangeFn<string[]>;
   protected onTouch?: TouchedFn;
-  protected readonly formDisabled = signal(false);
 
   writeValue(value: string[]): void {
     // drive the value through the bound model so the controlled input reflects it
@@ -72,7 +71,7 @@ export class Listbox implements ControlValueAccessor {
   }
 
   setDisabledState(isDisabled: boolean): void {
-    this.formDisabled.set(isDisabled);
+    this.state().setDisabled(isDisabled);
   }
 
   onListboxValueChange(value: string[]): void {
