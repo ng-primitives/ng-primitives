@@ -15,7 +15,7 @@ export interface NgpListboxSectionState {
   removeLabelledBy: (id: string) => void;
 }
 
-export type NgpListboxSectionProps = Record<string, never>;
+export interface NgpListboxSectionProps {}
 
 export const [
   NgpListboxSectionStateToken,

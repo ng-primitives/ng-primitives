@@ -2,9 +2,9 @@ import { injectElementRef } from 'ng-primitives/internal';
 import { injectPopoverTriggerState } from 'ng-primitives/popover';
 import { createPrimitive, listener } from 'ng-primitives/state';
 
-export type NgpListboxTriggerState = Record<string, never>;
+export interface NgpListboxTriggerState {}
 
-export type NgpListboxTriggerProps = Record<string, never>;
+export interface NgpListboxTriggerProps {}
 
 export const [
   NgpListboxTriggerStateToken,

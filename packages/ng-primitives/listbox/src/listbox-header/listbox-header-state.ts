@@ -4,7 +4,7 @@ import { attrBinding, createPrimitive, onDestroy } from 'ng-primitives/state';
 import { onChange, uniqueId } from 'ng-primitives/utils';
 import { injectListboxSectionState } from '../listbox-section/listbox-section-state';
 
-export type NgpListboxHeaderState = Record<string, never>;
+export interface NgpListboxHeaderState {}
 
 export interface NgpListboxHeaderProps {
   /** The id of the listbox header. */
