@@ -25,6 +25,12 @@ export interface NgpActiveDescendantManagerProps {
   isItemDisabled: (index: number) => boolean;
 
   /**
+   * Get the label of the item at a given index. When provided, enables typeahead
+   * (letter-key) navigation through the `typeahead` method.
+   */
+  getItemLabel?: (index: number) => string;
+
+  /**
    * Scroll the active descendant item into view.
    */
   scrollIntoView: (index: number) => void;
@@ -81,6 +87,11 @@ export interface NgpActiveDescendantManagerState {
    * Reset the active descendant group, clearing the active index.
    */
   reset: (options?: ActivationOptions) => void;
+  /**
+   * Activate the next enabled item whose label matches the typed characters.
+   * No-op unless `getItemLabel` was provided.
+   */
+  typeahead: (key: string, options?: ActivationOptions) => void;
 }
 
 export function activeDescendantManager({
@@ -89,6 +100,7 @@ export function activeDescendantManager({
   count,
   getItemId,
   isItemDisabled,
+  getItemLabel,
   scrollIntoView,
 }: NgpActiveDescendantManagerProps) {
   const disposables = injectDisposables();
@@ -98,6 +110,10 @@ export function activeDescendantManager({
   let isIgnoringPointer = false;
 
   let clearPointerIgnoreTimer: (() => void) | undefined;
+
+  // buffer of characters typed for typeahead navigation, cleared after a short idle
+  let typeaheadBuffer = '';
+  let clearTypeaheadTimer: (() => void) | undefined;
 
   // compute the id of the active descendant
   const id = computed(() => {
@@ -241,6 +257,47 @@ export function activeDescendantManager({
     activateByIndex(-1, { scroll, origin });
   };
 
+  function typeahead(key: string, options: ActivationOptions = {}): void {
+    // typeahead is only enabled when a label accessor is provided
+    if (!getItemLabel) {
+      return;
+    }
+
+    typeaheadBuffer += key.toLowerCase();
+
+    // clear the buffer shortly after the last keystroke so a new search can begin
+    clearTypeaheadTimer?.();
+    clearTypeaheadTimer = disposables.setTimeout(() => {
+      typeaheadBuffer = '';
+      clearTypeaheadTimer = undefined;
+    }, 500);
+
+    const total = count();
+    if (total === 0) {
+      return;
+    }
+
+    // when a single character is repeated, start after the current item so repeated
+    // presses cycle through the items whose label starts with that character
+    const startOffset = typeaheadBuffer.length === 1 ? 1 : 0;
+    const base = activeIndex() < 0 ? 0 : activeIndex();
+
+    for (let i = 0; i < total; i++) {
+      const index = (base + startOffset + i) % total;
+
+      if (isItemDisabled(index)) {
+        continue;
+      }
+
+      const label = (getItemLabel(index) ?? '').toLowerCase().trim();
+
+      if (label.startsWith(typeaheadBuffer)) {
+        activateByIndex(index, { origin: 'keyboard', ...options });
+        return;
+      }
+    }
+  }
+
   return {
     id,
     index: activeIndex,
@@ -252,6 +309,7 @@ export function activeDescendantManager({
     previous,
     reset,
     validate,
+    typeahead,
   } satisfies NgpActiveDescendantManagerState;
 }
 

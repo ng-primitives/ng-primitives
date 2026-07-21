@@ -237,6 +237,27 @@ describe('NgpListbox', () => {
       const prevented = !fireEvent.keyDown(listbox, arrowDown);
       expect(prevented).toBe(true);
     });
+
+    it('should move the active option using typeahead', async () => {
+      const container = await render(
+        `<div ngpListbox data-testid="listbox">
+          <div ngpListboxOption ngpListboxOptionValue="a" data-testid="opt-a">Apple</div>
+          <div ngpListboxOption ngpListboxOptionValue="b" data-testid="opt-b">Banana</div>
+          <div ngpListboxOption ngpListboxOptionValue="c" data-testid="opt-c">Cherry</div>
+        </div>`,
+        { imports },
+      );
+      const listbox = container.getByTestId('listbox');
+      fireEvent.focusIn(listbox);
+      await waitFor(() => expect(container.getByTestId('opt-a')).toHaveAttribute('data-active'));
+
+      // typing the first letter of an option jumps to it (case-insensitive)
+      fireEvent.keyDown(listbox, { key: 'C' });
+      await waitFor(() => expect(container.getByTestId('opt-c')).toHaveAttribute('data-active'));
+      expect(listbox.getAttribute('aria-activedescendant')).toBe(
+        container.getByTestId('opt-c').getAttribute('id'),
+      );
+    });
   });
 
   describe('single selection', () => {

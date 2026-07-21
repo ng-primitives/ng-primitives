@@ -1,13 +1,6 @@
-import { ActiveDescendantKeyManager, FocusOrigin } from '@angular/cdk/a11y';
-import {
-  computed,
-  DestroyRef,
-  inject,
-  Injector,
-  Signal,
-  signal,
-  WritableSignal,
-} from '@angular/core';
+import { FocusOrigin } from '@angular/cdk/a11y';
+import { computed, inject, Injector, Signal, signal, WritableSignal } from '@angular/core';
+import { activeDescendantManager } from 'ng-primitives/a11y';
 import { NgpSelectionMode } from 'ng-primitives/common';
 import { ngpFocusVisible } from 'ng-primitives/interactions';
 import { explicitEffect, injectElementRef } from 'ng-primitives/internal';
@@ -22,7 +15,7 @@ import {
   SetterOptions,
   StateInjectionOptions,
 } from 'ng-primitives/state';
-import { safeTakeUntilDestroyed, uniqueId } from 'ng-primitives/utils';
+import { uniqueId } from 'ng-primitives/utils';
 import { Observable } from 'rxjs';
 import { NgpListboxOptionState } from '../listbox-option/listbox-option-state';
 
@@ -40,6 +33,11 @@ export interface NgpListboxState<T> {
    * Whether the listbox is focused.
    */
   readonly isFocused: Signal<boolean>;
+  /**
+   * @internal
+   * Manages the active descendant so options can reflect their active state.
+   */
+  readonly activeDescendantManager: ReturnType<typeof activeDescendantManager>;
   /**
    * Emits when the listbox selection changes.
    */
@@ -117,11 +115,9 @@ export const [NgpListboxStateToken, ngpListbox, _injectListboxState, provideList
     }: NgpListboxProps<T>) => {
       const elementRef = injectElementRef();
       const injector = inject(Injector);
-      const destroyRef = inject(DestroyRef);
       const popoverTriggerState = injectPopoverTriggerState({ optional: true });
 
       const options = signal<NgpListboxOptionState<T>[]>([]);
-      const activeDescendant = signal<string | undefined>(undefined);
       const isFocused = signal<boolean>(false);
 
       const value = controlled(_value);
@@ -134,6 +130,15 @@ export const [NgpListboxStateToken, ngpListbox, _injectListboxState, provideList
         disabled.set(value);
       }
 
+      const activeDescendant = activeDescendantManager({
+        disabled,
+        count: computed(() => options().length),
+        getItemId: index => options()[index]?.id(),
+        isItemDisabled: index => options()[index]?.disabled() ?? false,
+        getItemLabel: index => options()[index]?.getLabel() ?? '',
+        scrollIntoView: index => options()[index]?.scrollIntoView(),
+      });
+
       // Setup interactions
       ngpFocusVisible({ disabled: disabled });
 
@@ -143,21 +148,16 @@ export const [NgpListboxStateToken, ngpListbox, _injectListboxState, provideList
       attrBinding(elementRef, 'tabindex', tabIndex);
       attrBinding(elementRef, 'aria-disabled', disabled);
       attrBinding(elementRef, 'aria-multiselectable', () => mode() === 'multiple');
-      attrBinding(elementRef, 'aria-activedescendant', activeDescendant);
+      attrBinding(elementRef, 'aria-activedescendant', activeDescendant.id);
 
       // Listener
       listener(elementRef, 'focusin', () => isFocused.set(true));
       listener(elementRef, 'focusout', () => isFocused.set(false));
       listener(elementRef, 'keydown', onKeydown);
 
-      const keyManager = new ActiveDescendantKeyManager(options, injector)
-        .withHomeAndEnd()
-        .withTypeAhead()
-        .withVerticalOrientation();
-
-      keyManager.change
-        .pipe(safeTakeUntilDestroyed(destroyRef))
-        .subscribe(() => activeDescendant.set(keyManager.activeItem?.id?.()));
+      // Start with nothing active so the initial sync picks the selected option (or
+      // the first option) rather than defaulting to the first index.
+      activeDescendant.reset();
 
       // Keep the active item in sync as options register/change and as the value
       // changes (e.g. the previously active item was removed). This runs on setup
@@ -165,36 +165,59 @@ export const [NgpListboxStateToken, ngpListbox, _injectListboxState, provideList
       explicitEffect([options, value], () => updateActiveItem(), { injector });
 
       function updateActiveItem(): void {
-        const activeItem = keyManager.activeItem;
-        if (activeItem && options().includes(activeItem)) {
+        const items = options();
+        const index = activeDescendant.index();
+
+        // keep the current active option if it is still present and enabled
+        if (index >= 0 && index < items.length && !items[index].disabled()) {
           return;
         }
 
-        const selectedOption = options().find(o => o.selected());
+        // otherwise activate the selected option, falling back to the first enabled option
+        const selectedIndex = items.findIndex(o => o.selected());
 
-        if (selectedOption) {
-          keyManager.setActiveItem(selectedOption);
+        if (selectedIndex >= 0 && !items[selectedIndex].disabled()) {
+          activeDescendant.activateByIndex(selectedIndex, { scroll: false });
         } else {
-          keyManager.setFirstItemActive();
+          activeDescendant.first({ scroll: false });
         }
       }
 
       function onKeydown(event: KeyboardEvent): void {
-        keyManager.onKeydown(event);
-
-        // if the keydown was enter or space, select the active descendant if there is one
-        if (event.key === 'Enter' || event.key === ' ') {
-          keyManager.activeItem?.select('keyboard');
-        }
-
-        // if this is an arrow key or selection key, prevent the default action to prevent the page from scrolling
-        if (
-          event.key === 'ArrowDown' ||
-          event.key === 'ArrowUp' ||
-          event.key === 'Enter' ||
-          event.key === ' '
-        ) {
-          event.preventDefault();
+        switch (event.key) {
+          case 'ArrowDown':
+            activeDescendant.next({ origin: 'keyboard' });
+            event.preventDefault();
+            break;
+          case 'ArrowUp':
+            activeDescendant.previous({ origin: 'keyboard' });
+            event.preventDefault();
+            break;
+          case 'Home':
+            activeDescendant.first({ origin: 'keyboard' });
+            event.preventDefault();
+            break;
+          case 'End':
+            activeDescendant.last({ origin: 'keyboard' });
+            event.preventDefault();
+            break;
+          case 'Enter':
+          case ' ': {
+            // select the active option if there is one
+            const activeId = activeDescendant.id();
+            if (activeId) {
+              options()
+                .find(o => o.id() === activeId)
+                ?.select('keyboard');
+            }
+            event.preventDefault();
+            break;
+          }
+          default:
+            // a single printable character starts/continues a typeahead search
+            if (event.key.length === 1 && !event.ctrlKey && !event.metaKey && !event.altKey) {
+              activeDescendant.typeahead(event.key);
+            }
         }
       }
 
@@ -218,10 +241,10 @@ export const [NgpListboxStateToken, ngpListbox, _injectListboxState, provideList
         }
 
         // Set the active descendant to the selected option.
-        const option = options().find(o => compareWith()(o.value(), val));
+        const index = options().findIndex(o => compareWith()(o.value(), val));
 
-        if (option) {
-          keyManager.setActiveItem(option);
+        if (index >= 0) {
+          activeDescendant.activateByIndex(index);
         }
 
         // If the listbox is within a popover, close the popover on selection if it is not in a multiple selection mode.
@@ -231,10 +254,10 @@ export const [NgpListboxStateToken, ngpListbox, _injectListboxState, provideList
       }
 
       function activateOption(val: T) {
-        const option = options().find(o => compareWith()(o.value(), val));
+        const index = options().findIndex(o => compareWith()(o.value(), val));
 
-        if (option) {
-          keyManager.setActiveItem(option);
+        if (index >= 0) {
+          activeDescendant.activateByIndex(index, { origin: 'pointer' });
         }
       }
 
@@ -258,6 +281,7 @@ export const [NgpListboxStateToken, ngpListbox, _injectListboxState, provideList
         value: deprecatedSetter(value, 'setValue', setValue),
         disabled: deprecatedSetter(disabled, 'setDisabled', setDisabled),
         isFocused,
+        activeDescendantManager: activeDescendant,
         valueChange: valueChange.asObservable(),
         selectOption,
         isSelected,

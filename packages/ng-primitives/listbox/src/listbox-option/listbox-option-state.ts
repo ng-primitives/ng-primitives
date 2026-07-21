@@ -2,21 +2,15 @@ import { FocusOrigin } from '@angular/cdk/a11y';
 import { computed, effect, signal, Signal } from '@angular/core';
 import { ngpInteractions } from 'ng-primitives/interactions';
 import { injectElementRef, onDomRemoval, scrollIntoViewIfNeeded } from 'ng-primitives/internal';
-import {
-  attrBinding,
-  createPrimitive,
-  dataBinding,
-  listener,
-  onDestroy,
-} from 'ng-primitives/state';
+import { attrBinding, createPrimitive, dataBinding, listener, onDestroy } from 'ng-primitives/state';
 import { uniqueId } from 'ng-primitives/utils';
 import { injectListboxState } from '../listbox/listbox-state';
 
 export interface NgpListboxOptionState<T> {
   /**
-   * The id of the listbox.
+   * The id of the option.
    */
-  readonly id?: Signal<string>;
+  readonly id: Signal<string>;
   /**
    * The value of the option.
    */
@@ -28,24 +22,19 @@ export interface NgpListboxOptionState<T> {
   readonly selected: Signal<boolean | undefined>;
   /**
    * @internal
-   * Whether the option is disabled - this is used by the `Highlightable` interface.
+   * Whether the option is disabled (its own disabled state or the listbox's).
    */
-  readonly disabled: boolean;
+  readonly disabled: Signal<boolean>;
   /**
    * @internal
-   * Sets the active state of the option - used by the `Highlightable` interface.
-   */
-  setActiveStyles: () => void;
-  /**
-   * @internal
-   * Sets the inactive state of the option - used by the `Highlightable` interface.
-   */
-  setInactiveStyles: () => void;
-  /**
-   * @internal
-   * Gets the label of the option, used by the `Highlightable` interface.
+   * Gets the label of the option, used for typeahead.
    */
   getLabel: () => string;
+  /**
+   * @internal
+   * Scrolls the option into view when it becomes the active descendant.
+   */
+  scrollIntoView: () => void;
   /**
    * @internal
    * Selects the option.
@@ -55,7 +44,7 @@ export interface NgpListboxOptionState<T> {
 
 export interface NgpListboxOptionProps<T> {
   /**
-   * The id of the listbox.
+   * The id of the option.
    */
   readonly id?: Signal<string>;
   /**
@@ -83,11 +72,13 @@ export const [
     const elementRef = injectElementRef();
     const listboxState = injectListboxState<T>();
 
-    const active = signal<boolean>(false);
     const selected = computed(() => listboxState()?.isSelected(value()));
 
     // the option is disabled if it is explicitly disabled or the whole listbox is disabled
     const disabled = computed(() => _disabled() || (listboxState()?.disabled() ?? false));
+
+    // the option is the active descendant when the listbox's manager points at its id
+    const active = computed(() => listboxState()?.activeDescendantManager.id() === id());
 
     // Setup interactions
     ngpInteractions({
@@ -114,17 +105,12 @@ export const [
     listener(elementRef, 'keydown.enter', () => select('keyboard'));
     listener(elementRef, 'keydown.space', () => select('keyboard'));
 
-    function setActiveStyles(): void {
-      active.set(true);
-      scrollIntoViewIfNeeded(elementRef.nativeElement);
-    }
-
-    function setInactiveStyles(): void {
-      active.set(false);
-    }
-
     function getLabel(): string {
       return elementRef.nativeElement.textContent ?? '';
+    }
+
+    function scrollIntoView(): void {
+      scrollIntoViewIfNeeded(elementRef.nativeElement);
     }
 
     function select(origin: FocusOrigin): void {
@@ -147,12 +133,9 @@ export const [
       id,
       value,
       selected,
-      get disabled(): boolean {
-        return disabled();
-      },
-      setActiveStyles,
-      setInactiveStyles,
+      disabled,
       getLabel,
+      scrollIntoView,
       select,
     } satisfies NgpListboxOptionState<T>;
 
@@ -162,11 +145,8 @@ export const [
 
     onDestroy(() => listboxState()?.removeOption(state));
 
-    // if the element is removed from the DOM, deregister it and reset its active state
-    onDomRemoval(elementRef.nativeElement, () => {
-      listboxState()?.removeOption(state);
-      setInactiveStyles();
-    });
+    // if the element is removed from the DOM, deregister it
+    onDomRemoval(elementRef.nativeElement, () => listboxState()?.removeOption(state));
 
     return state;
   },
