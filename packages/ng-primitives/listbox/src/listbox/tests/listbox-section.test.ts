@@ -1,4 +1,5 @@
-import { render, screen } from '@testing-library/angular';
+import { Component, signal } from '@angular/core';
+import { render, screen, waitFor } from '@testing-library/angular';
 import { NgpListboxHeader, NgpListboxSection } from 'ng-primitives/listbox';
 import { describe, expect, it } from 'vitest';
 
@@ -47,5 +48,32 @@ describe('NgpListboxSection', () => {
     );
 
     expect(screen.getByTestId('header')).toHaveAttribute('role', 'presentation');
+  });
+
+  it('should remove aria-labelledby when the header is removed', async () => {
+    @Component({
+      template: `
+        <div ngpListboxSection data-testid="section">
+          @if (showHeader()) {
+            <div ngpListboxHeader data-testid="header">Fruits</div>
+          }
+        </div>
+      `,
+      imports: [NgpListboxSection, NgpListboxHeader],
+    })
+    class TestHost {
+      readonly showHeader = signal(true);
+    }
+
+    const { fixture } = await render(TestHost);
+    const section = screen.getByTestId('section');
+
+    await waitFor(() => expect(section).toHaveAttribute('aria-labelledby'));
+
+    fixture.componentInstance.showHeader.set(false);
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    expect(section).not.toHaveAttribute('aria-labelledby');
   });
 });
