@@ -43,6 +43,11 @@ export interface NgpExitAnimationRef {
   cancel: () => void;
 }
 
+/** Whether an animation repeats forever, and so will never resolve `finished`. */
+function isInfinite(animation: Animation): boolean {
+  return animation.effect?.getComputedTiming().iterations === Infinity;
+}
+
 export function setupExitAnimation({
   element,
   immediate,
@@ -78,7 +83,11 @@ export function setupExitAnimation({
         exitResolve = resolve;
         setState('exit');
 
-        const animations = element.getAnimations();
+        // Only wait for animations that will actually finish. Infinite
+        // animations (e.g. a spinner or pulse on the element) never resolve
+        // their `finished` promise, so waiting on them would leave the element
+        // - and any overlay it belongs to - stuck on screen forever.
+        const animations = element.getAnimations().filter(animation => !isInfinite(animation));
 
         // Wait for the exit animations to finish
         if (animations.length > 0) {
