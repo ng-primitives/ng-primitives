@@ -140,6 +140,17 @@ import { ChangeFn, provideValueAccessor, TouchedFn } from 'ng-primitives/utils';
         color: var(--ngp-text-inverse);
       }
     }
+
+    /* Reduce motion for users who prefer reduced motion. */
+    @media (prefers-reduced-motion: reduce) {
+      [ngpPaginationFirst],
+      [ngpPaginationPrevious],
+      [ngpPaginationButton],
+      [ngpPaginationNext],
+      [ngpPaginationLast] {
+        transition-duration: 0s;
+      }
+    }
   `,
   host: {
     '(focusout)': 'onTouched?.()',

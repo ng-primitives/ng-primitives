@@ -102,6 +102,14 @@ import {
       background: transparent;
       color: var(--ngp-text-secondary);
     }
+
+    /* Reduce motion for users who prefer reduced motion. */
+    @media (prefers-reduced-motion: reduce) {
+      [ngpNumberFieldIncrement],
+      [ngpNumberFieldDecrement] {
+        transition-duration: 0s;
+      }
+    }
   `,
 })
 export class NumberField {}
