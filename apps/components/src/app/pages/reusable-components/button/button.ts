@@ -183,6 +183,13 @@ export type ButtonVariant = 'primary' | 'secondary' | 'destructive' | 'outline' 
       opacity: 0.5;
       cursor: not-allowed;
     }
+
+    /* Reduce motion for users who prefer reduced motion. */
+    @media (prefers-reduced-motion: reduce) {
+      :host {
+        transition-duration: 0s;
+      }
+    }
   `,
 })
 export class Button {

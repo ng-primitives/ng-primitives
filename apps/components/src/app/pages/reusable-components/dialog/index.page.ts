@@ -53,6 +53,13 @@ import { Dialog } from './dialog';
     button[data-press] {
       background-color: var(--ngp-background-active);
     }
+
+    /* Reduce motion for users who prefer reduced motion. */
+    @media (prefers-reduced-motion: reduce) {
+      button {
+        transition-duration: 0s;
+      }
+    }
   `,
 })
 export default class App {}

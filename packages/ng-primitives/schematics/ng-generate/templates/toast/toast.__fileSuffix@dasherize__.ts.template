@@ -225,6 +225,20 @@ import { injectToastContext, NgpToast, NgpToastManager } from 'ng-primitives/toa
         transform: translateY(0);
       }
     }
+
+    /* Reduce motion for users who prefer reduced motion. */
+    @media (prefers-reduced-motion: reduce) {
+      :host[data-position-y='bottom'].toast-enter,
+      :host[data-position-y='top'].toast-enter {
+        animation-duration: 0s;
+      }
+
+      :host,
+      :host[data-position-y='bottom'].toast-leave,
+      :host[data-position-y='top'].toast-leave {
+        transition-duration: 0s;
+      }
+    }
   `,
 })
 export class Toast<%= componentSuffix %> {

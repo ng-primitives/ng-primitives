@@ -63,6 +63,14 @@ import { ChangeFn, provideValueAccessor, TouchedFn } from 'ng-primitives/utils';
     [ngpSwitchThumb][data-checked] {
       transform: translateX(17px);
     }
+
+    /* Reduce motion for users who prefer reduced motion. */
+    @media (prefers-reduced-motion: reduce) {
+      :host,
+      [ngpSwitchThumb] {
+        transition-duration: 0s;
+      }
+    }
   `,
   providers: [provideValueAccessor(Switch<%= componentSuffix %>)],
   host: {

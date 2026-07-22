@@ -73,6 +73,13 @@ import { ChangeFn, provideValueAccessor, TouchedFn } from 'ng-primitives/utils';
       overflow: hidden;
       color: var(--ngp-primary);
     }
+
+    /* Reduce motion for users who prefer reduced motion. */
+    @media (prefers-reduced-motion: reduce) {
+      .star {
+        transition-duration: 0s;
+      }
+    }
   `,
   host: {
     '(focusout)': 'onTouched?.()',
