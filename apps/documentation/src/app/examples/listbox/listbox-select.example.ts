@@ -96,9 +96,15 @@ import { NgpPopover, NgpPopoverTrigger } from 'ng-primitives/popover';
       border-radius: 0.75rem;
       outline: none;
       position: absolute;
-      animation: popover-show 0.1s ease-out;
       width: var(--ngp-popover-trigger-width);
       box-shadow: var(--ngp-shadow-lg);
+    }
+
+    /* Only animate once the overlay has been positioned (data-enter is applied on
+       the frame after the popover is placed) so it doesn't flash at the top-left
+       before floating-ui positions it. */
+    [ngpListbox][data-enter] {
+      animation: popover-show 0.1s ease-out;
     }
 
     [ngpListboxOption] {
