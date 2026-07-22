@@ -40,7 +40,7 @@ import { ChangeFn, provideValueAccessor, TouchedFn } from 'ng-primitives/utils';
     NgIcon,
   ],
   providers: [
-    provideValueAccessor(NgpPagination),
+    provideValueAccessor(Pagination<%= componentSuffix %>),
     provideIcons({
       heroChevronDoubleLeft,
       heroChevronDoubleRight,
