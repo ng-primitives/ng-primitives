@@ -1,7 +1,7 @@
 import { NgTemplateOutlet } from '@angular/common';
 import { Component, contentChildren, model } from '@angular/core';
 import { NgpTabButton, NgpTabList, NgpTabPanel, NgpTabset } from 'ng-primitives/tabs';
-import { Tab } from './tab';
+import { Tab<%= componentSuffix %> } from './tab<% if (fileSuffix) { %>.<%= dasherize(fileSuffix) %><% } %>';
 
 @Component({
   selector: '<%= prefix %>-tabs',
@@ -78,5 +78,5 @@ export class Tabs<%= componentSuffix %> {
   /**
    * The tabs in the group.
    */
-  readonly tabs = contentChildren(Tab);
+  readonly tabs = contentChildren(Tab<%= componentSuffix %>);
 }

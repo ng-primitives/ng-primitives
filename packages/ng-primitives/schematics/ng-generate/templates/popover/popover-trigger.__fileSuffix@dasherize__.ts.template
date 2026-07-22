@@ -1,7 +1,7 @@
 import { Directive, input } from '@angular/core';
 import { injectPopoverTriggerState } from 'ng-primitives/popover';
 import { NgpPopoverTrigger } from 'ng-primitives/popover';
-import { Popover } from './popover';
+import { Popover<%= componentSuffix %> } from './popover<% if (fileSuffix) { %>.<%= dasherize(fileSuffix) %><% } %>';
 
 @Directive({
   selector: '[appPopoverTrigger]',
@@ -34,6 +34,6 @@ export class PopoverTrigger {
   });
 
   constructor() {
-    this.popoverTrigger().popover.set(Popover);
+    this.popoverTrigger().popover.set(Popover<%= componentSuffix %>);
   }
 }

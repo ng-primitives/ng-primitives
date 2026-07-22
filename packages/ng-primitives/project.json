@@ -65,6 +65,7 @@
     },
     "build:schematics:test": {
       "executor": "@nx/js:tsc",
+      "dependsOn": ["build:templates"],
       "outputs": ["{options.outputPath}"],
       "options": {
         "clean": true,

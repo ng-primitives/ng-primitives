@@ -88,7 +88,8 @@ export class Switch<%= componentSuffix %> implements ControlValueAccessor {
 
   /** Write a new value to the switch. */
   writeValue(value: boolean): void {
-    this.switch().setChecked(value);
+    // writing a value from the model must not re-emit through onChange
+    this.switch().setChecked(value, { emit: false });
   }
 
   /** Register a callback function to be called when the value changes. */
