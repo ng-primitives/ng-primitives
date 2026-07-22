@@ -36,8 +36,7 @@ export class NgpToastManager {
   /** Show a toast notification */
   show(toast: TemplateRef<void> | Type<unknown>, options: NgpToastOptions = {}): NgpToastRef {
     // services can't access the view container directly, so this is a workaround.
-    // Fall back to the caller-provided injector's view container when no root
-    // component is available (e.g. certain embedded or test environments).
+    // Fall back to the caller's injector when no root component is available.
     const rootComponent = this.applicationRef.components[0];
     const viewContainerRef =
       rootComponent?.injector.get(ViewContainerRef) ??
@@ -53,11 +52,8 @@ export class NgpToastManager {
       toast,
       viewContainerRef,
       Injector.create({
-        // Allow callers to scope the toast content to their own injector so that
-        // DI-dependent pipes/directives (e.g. a translate pipe backed by a
-        // component-scoped provider) resolve from the caller's subtree rather than
-        // the root injector. Defaults to the manager's root injector.
-        // See https://github.com/ng-primitives/ng-primitives/issues/823.
+        // Scope toast content to the caller's injector when provided, so its DI
+        // resolves from their subtree rather than the root injector. See #823.
         parent: options.injector ?? this.injector,
         providers: [
           provideToastContext(options.context),
@@ -219,10 +215,8 @@ export interface NgpToastOptions<T = unknown> {
   persistent?: boolean;
 
   /**
-   * The injector to use when rendering the toast content. Provide the calling
-   * component's injector when the toast template depends on providers defined in a
-   * component subtree (e.g. a component-scoped translation service) rather than at
-   * the application root. Defaults to the root injector.
+   * The injector used to render the toast content. Provide the calling component's
+   * injector when the toast depends on component-scoped providers. Defaults to root.
    */
   injector?: Injector;
 }

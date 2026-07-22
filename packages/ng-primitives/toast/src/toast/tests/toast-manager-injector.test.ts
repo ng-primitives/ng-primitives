@@ -17,14 +17,11 @@ import { afterEach, describe, expect, it } from 'vitest';
 import { NgpToast } from '../toast';
 import { NgpToastManager } from '../toast-manager';
 
-/**
- * A token that is only provided in a child environment injector (never at the
- * application root), mirroring the micro-frontend / `provideChildTranslateService()`
- * scenario from https://github.com/ng-primitives/ng-primitives/issues/823.
- */
+// Provided only in a child environment injector (never at root), mirroring a
+// component-scoped provider in a micro-frontend subtree. See #823.
 const MESSAGE = new InjectionToken<string>('MESSAGE');
 
-/** Reads the token from DI and renders it, so we can assert which injector resolved it. */
+/** Renders the resolved token so we can assert which injector served it. */
 @Directive({ selector: '[readMessage]' })
 class ReadMessage {
   constructor() {
@@ -66,17 +63,14 @@ describe('NgpToastManager injector option', () => {
     const appRef = TestBed.inject(ApplicationRef);
     manager = TestBed.inject(NgpToastManager);
 
-    // Create a child environment injector that provides MESSAGE. The root injector
-    // deliberately does NOT provide it, so if the toast resolves from the root
-    // injector the content directive will throw NullInjectorError.
+    // MESSAGE lives only here — resolving from root would throw NullInjectorError.
     const parentEnvironmentInjector = TestBed.inject(EnvironmentInjector);
     const childEnvironmentInjector = createEnvironmentInjector(
       [{ provide: MESSAGE, useValue: 'child-injector-message' }],
       parentEnvironmentInjector,
     );
 
-    // Mount the host component within the child environment injector, emulating a
-    // remote/lazy component subtree that owns its own providers.
+    // Mount the host within the child environment injector (the remote's subtree).
     const hostElement = document.createElement('div');
     document.body.appendChild(hostElement);
 

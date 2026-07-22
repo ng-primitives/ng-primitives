@@ -55,11 +55,8 @@ export const [
     const elementRef = injectElementRef();
     const dialogManager = inject(NgpDialogManager);
     const destroyRef = inject(DestroyRef);
-    // Capture the trigger's own injector so the dialog content resolves DI from the
-    // component subtree that declared the template, rather than the root injector.
-    // Without this a DI-dependent pipe/directive inside the dialog template (e.g. a
-    // translate pipe backed by a component-scoped provider) resolves from the root
-    // injector. See https://github.com/ng-primitives/ng-primitives/issues/823.
+    // Pass the trigger's injector so dialog content resolves DI from the component
+    // subtree, not the root injector. See #823.
     const injector = inject(Injector);
 
     const closed = emitter<T>();
