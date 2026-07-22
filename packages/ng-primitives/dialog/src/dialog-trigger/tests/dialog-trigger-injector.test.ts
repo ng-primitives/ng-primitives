@@ -81,14 +81,21 @@ describe('NgpDialogTrigger injector context', () => {
     componentRef.changeDetectorRef.detectChanges();
 
     const trigger = hostElement.querySelector('[data-testid="trigger"]') as HTMLElement;
-    trigger.click();
-    await Promise.resolve();
+    try {
+      trigger.click();
+      await Promise.resolve();
 
-    const message = document.querySelector('[data-testid="message"]');
-    expect(message?.textContent).toBe('child-injector-message');
-
-    componentRef.destroy();
-    hostElement.remove();
-    childEnvironmentInjector.destroy();
+      const message = document.querySelector('[data-testid="message"]');
+      expect(message?.textContent).toBe('child-injector-message');
+    } finally {
+      // Close the dialog before tearing down the injector that renders it, and
+      // run cleanup even when the assertion fails.
+      dialogManager?.closeAll();
+      await Promise.resolve();
+      await Promise.resolve();
+      componentRef.destroy();
+      hostElement.remove();
+      childEnvironmentInjector.destroy();
+    }
   });
 });

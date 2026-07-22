@@ -51,8 +51,7 @@ describe('NgpToastManager injector option', () => {
   let manager: NgpToastManager | undefined;
 
   afterEach(async () => {
-    manager?.toasts().forEach(t => manager?.dismiss(t.instance));
-    await Promise.resolve();
+    await Promise.all((manager?.toasts() ?? []).map(t => manager!.dismiss(t.instance)));
     manager = undefined;
     document
       .querySelectorAll('[data-ngp-toast-container]')
@@ -82,14 +81,20 @@ describe('NgpToastManager injector option', () => {
     componentRef.changeDetectorRef.detectChanges();
 
     const host = componentRef.instance;
-    manager.show(host.toast(), { injector: host.injector, persistent: true });
-    await Promise.resolve();
+    const toastRef = manager.show(host.toast(), { injector: host.injector, persistent: true });
 
-    const message = document.querySelector('[data-testid="message"]');
-    expect(message?.textContent).toBe('child-injector-message');
+    try {
+      await Promise.resolve();
 
-    componentRef.destroy();
-    hostElement.remove();
-    childEnvironmentInjector.destroy();
+      const message = document.querySelector('[data-testid="message"]');
+      expect(message?.textContent).toBe('child-injector-message');
+    } finally {
+      // Dispose the toast before tearing down the injector that renders it, and
+      // run cleanup even when the assertion fails.
+      await toastRef.dismiss();
+      componentRef.destroy();
+      hostElement.remove();
+      childEnvironmentInjector.destroy();
+    }
   });
 });
