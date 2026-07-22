@@ -1,4 +1,5 @@
 ---
+title: Introduction | Angular Primitives
 name: Introduction
 order: 1
 icon: phosphorBookOpenDuotone

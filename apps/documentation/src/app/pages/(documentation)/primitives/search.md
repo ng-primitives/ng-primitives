@@ -1,4 +1,5 @@
 ---
+title: Search | Angular Primitives
 name: 'Search'
 sourceUrl: 'https://github.com/ng-primitives/ng-primitives/tree/next/packages/ng-primitives/search'
 ---

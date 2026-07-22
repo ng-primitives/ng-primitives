@@ -1,4 +1,5 @@
 ---
+title: Accordion | Angular Primitives
 name: 'Accordion'
 sourceUrl: 'https://github.com/ng-primitives/ng-primitives/tree/next/packages/ng-primitives/accordion'
 ---

@@ -1,4 +1,5 @@
 ---
+title: Date Picker | Angular Primitives
 name: 'Date Picker'
 sourceUrl: 'https://github.com/ng-primitives/ng-primitives/tree/next/packages/ng-primitives/date-picker'
 ---

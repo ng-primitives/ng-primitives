@@ -1,4 +1,5 @@
 ---
+title: Checkbox | Angular Primitives
 name: 'Checkbox'
 sourceUrl: 'https://github.com/ng-primitives/ng-primitives/tree/next/packages/ng-primitives/checkbox'
 ---

@@ -1,4 +1,5 @@
 ---
+title: Get Started | Angular Primitives
 name: Get Started
 order: 2
 icon: phosphorRocketLaunchDuotone

@@ -1,4 +1,5 @@
 ---
+title: Date Adapter | Angular Primitives
 name: 'Date Adapter'
 sourceUrl: 'https://github.com/ng-primitives/ng-primitives/tree/next/packages/ng-primitives/date-adapter'
 ---

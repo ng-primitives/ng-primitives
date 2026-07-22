@@ -1,4 +1,5 @@
 ---
+title: Password | Angular Primitives
 name: 'Password'
 sourceUrl: 'https://github.com/ng-primitives/ng-primitives/tree/next/packages/ng-primitives/password'
 ---
