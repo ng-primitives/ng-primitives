@@ -1,7 +1,6 @@
 import { BooleanInput } from '@angular/cdk/coercion';
-import { booleanAttribute, Directive, HostListener, input } from '@angular/core';
-import { injectThreadState } from '../thread/thread-state';
-import { provideThreadSuggestionState, threadSuggestionState } from './thread-suggestion-state';
+import { booleanAttribute, Directive, input } from '@angular/core';
+import { ngpThreadSuggestion, provideThreadSuggestionState } from './thread-suggestion-state';
 
 @Directive({
   selector: 'button[ngpThreadSuggestion]',
@@ -9,8 +8,6 @@ import { provideThreadSuggestionState, threadSuggestionState } from './thread-su
   providers: [provideThreadSuggestionState()],
 })
 export class NgpThreadSuggestion {
-  private readonly thread = injectThreadState();
-
   /** The suggested text to display in the input field. */
   readonly suggestion = input<string>('', { alias: 'ngpThreadSuggestion' });
 
@@ -21,12 +18,13 @@ export class NgpThreadSuggestion {
   });
 
   /** The state of the thread suggestion. */
-  protected readonly state = threadSuggestionState<NgpThreadSuggestion>(this);
+  protected readonly state = ngpThreadSuggestion({
+    suggestion: this.suggestion,
+    setPromptOnClick: this.setPromptOnClick,
+  });
 
-  @HostListener('click')
+  /** Populate the prompt with this suggestion. */
   submitSuggestion(): void {
-    if (this.state.setPromptOnClick() && this.state.suggestion().length > 0) {
-      this.thread().setPrompt(this.state.suggestion());
-    }
+    this.state.submitSuggestion();
   }
 }

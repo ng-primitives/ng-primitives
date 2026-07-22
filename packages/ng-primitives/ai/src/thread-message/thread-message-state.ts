@@ -1,29 +1,40 @@
-import {
-  createState,
-  createStateInjector,
-  createStateProvider,
-  createStateToken,
-} from 'ng-primitives/state';
-import type { NgpThreadMessage } from './thread-message';
+import { fromMutationObserver, injectElementRef } from 'ng-primitives/internal';
+import { createPrimitive, onDestroy } from 'ng-primitives/state';
+import { safeTakeUntilDestroyed } from 'ng-primitives/utils';
+import { injectThreadState } from '../thread/thread-state';
 
-/**
- * The state token  for the ThreadMessage primitive.
- */
-export const NgpThreadMessageStateToken = createStateToken<NgpThreadMessage>('ThreadMessage');
+export interface NgpThreadMessageState {}
 
-/**
- * Provides the ThreadMessage state.
- */
-export const provideThreadMessageState = createStateProvider(NgpThreadMessageStateToken);
-
-/**
- * Injects the ThreadMessage state.
- */
-export const injectThreadMessageState = createStateInjector<NgpThreadMessage>(
+export const [
   NgpThreadMessageStateToken,
-);
+  ngpThreadMessage,
+  injectThreadMessageState,
+  provideThreadMessageState,
+] = createPrimitive('NgpThreadMessage', (): NgpThreadMessageState => {
+  const element = injectElementRef<HTMLElement>();
+  const thread = injectThreadState();
 
-/**
- * The ThreadMessage state registration function.
- */
-export const threadMessageState = createState(NgpThreadMessageStateToken);
+  // Identity token for this message. The thread orders messages by registration order,
+  // so a stable per-message reference is all it needs.
+  const state: NgpThreadMessageState = {};
+
+  // Watch for content changes (like streaming text) and maintain scroll position
+  fromMutationObserver(element.nativeElement, {
+    childList: true, // Watch for new/removed child nodes
+    subtree: true, // Watch changes in all descendants
+    characterData: true, // Watch for text content changes in text nodes
+    attributes: false, // We don't care about attribute changes for content streaming
+  })
+    .pipe(safeTakeUntilDestroyed())
+    .subscribe(() => {
+      // if this is the last message, scroll to bottom
+      if (thread().isLastMessage(state)) {
+        thread().scrollToBottom('smooth');
+      }
+    });
+
+  thread().registerMessage(state);
+  onDestroy(() => thread().unregisterMessage(state));
+
+  return state;
+});
