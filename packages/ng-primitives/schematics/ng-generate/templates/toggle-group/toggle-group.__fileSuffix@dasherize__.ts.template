@@ -13,7 +13,6 @@ import { ChangeFn, provideValueAccessor, TouchedFn } from 'ng-primitives/utils';
         'ngpToggleGroupOrientation:orientation',
         'ngpToggleGroupType:type',
         'ngpToggleGroupValue:value',
-        'ngpToggleGroupCompareWith:compareWith',
         'ngpToggleGroupDisabled:disabled',
       ],
       outputs: ['ngpToggleGroupValueChange:valueChange'],
