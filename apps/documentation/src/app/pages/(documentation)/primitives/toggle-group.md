@@ -1,4 +1,5 @@
 ---
+title: Toggle Group | Angular Primitives
 name: 'Toggle Group'
 sourceUrl: 'https://github.com/ng-primitives/ng-primitives/tree/next/packages/ng-primitives/toggle-group'
 ---

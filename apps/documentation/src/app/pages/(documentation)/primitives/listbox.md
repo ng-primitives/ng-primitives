@@ -1,4 +1,5 @@
 ---
+title: Listbox | Angular Primitives
 name: 'Listbox'
 sourceUrl: 'https://github.com/ng-primitives/ng-primitives/tree/next/packages/ng-primitives/listbox'
 ---

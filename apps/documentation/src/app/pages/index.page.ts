@@ -1,3 +1,4 @@
+import { RouteMeta } from '@analogjs/router';
 import { Clipboard } from '@angular/cdk/clipboard';
 import { isPlatformBrowser } from '@angular/common';
 import { Component, HostListener, inject, OnInit, PLATFORM_ID, signal } from '@angular/core';
@@ -15,6 +16,10 @@ import {
   heroUsers,
 } from '@ng-icons/heroicons/outline';
 import { ThemeToggle } from '../components/theme-toggle/theme-toggle';
+
+export const routeMeta: RouteMeta = {
+  title: 'Angular Primitives',
+};
 
 @Component({
   selector: 'docs-navbar',

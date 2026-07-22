@@ -1,4 +1,5 @@
 ---
+title: Navigation Menu | Angular Primitives
 name: 'Navigation Menu'
 sourceUrl: 'https://github.com/ng-primitives/ng-primitives/tree/next/packages/ng-primitives/navigation-menu'
 ---

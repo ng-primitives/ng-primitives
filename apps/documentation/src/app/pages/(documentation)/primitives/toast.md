@@ -1,4 +1,5 @@
 ---
+title: Toast | Angular Primitives
 name: 'Toast'
 sourceUrl: 'https://github.com/ng-primitives/ng-primitives/tree/next/packages/ng-primitives/toast'
 ---

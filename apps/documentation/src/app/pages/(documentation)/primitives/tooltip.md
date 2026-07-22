@@ -1,4 +1,5 @@
 ---
+title: Tooltip | Angular Primitives
 name: 'Tooltip'
 sourceUrl: 'https://github.com/ng-primitives/ng-primitives/tree/next/packages/ng-primitives/tooltip'
 ---

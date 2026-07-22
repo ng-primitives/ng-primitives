@@ -1,4 +1,5 @@
 ---
+title: Button | Angular Primitives
 name: 'Button'
 sourceUrl: 'https://github.com/ng-primitives/ng-primitives/tree/next/packages/ng-primitives/button'
 ---

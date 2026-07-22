@@ -1,4 +1,5 @@
 ---
+title: Number Field | Angular Primitives
 name: 'Number Field'
 sourceUrl: 'https://github.com/ng-primitives/ng-primitives/tree/next/packages/ng-primitives/number-field'
 ---

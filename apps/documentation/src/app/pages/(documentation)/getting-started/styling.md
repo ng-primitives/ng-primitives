@@ -1,4 +1,5 @@
 ---
+title: Styling | Angular Primitives
 name: Styling
 order: 3
 icon: phosphorPaletteDuotone

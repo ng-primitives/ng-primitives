@@ -1,4 +1,5 @@
 ---
+title: Meter | Angular Primitives
 name: 'Meter'
 sourceUrl: 'https://github.com/ng-primitives/ng-primitives/tree/next/packages/ng-primitives/meter'
 ---

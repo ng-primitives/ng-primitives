@@ -1,4 +1,5 @@
 ---
+title: MCP | Angular Primitives
 name: MCP
 order: 6
 icon: phosphorPlugDuotone
