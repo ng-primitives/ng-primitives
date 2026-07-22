@@ -6,6 +6,7 @@ import { describe, it, expect } from 'vitest';
 describe('NgpThreadMessage', () => {
   it('should observe content changes and trigger scroll behavior', async () => {
     @Component({
+      imports: [NgpThread, NgpThreadMessage],
       template: `
         <div ngpThread data-testid="thread">
           <div ngpThreadMessage>
@@ -18,9 +19,7 @@ describe('NgpThreadMessage', () => {
       content = 'Initial content';
     }
 
-    const { fixture } = await render(TestComponent, {
-      imports: [NgpThread, NgpThreadMessage],
-    });
+    const { fixture } = await render(TestComponent);
 
     const component = fixture.componentInstance;
 
@@ -37,6 +36,7 @@ describe('NgpThreadMessage', () => {
 
   it('should detect text node changes (streaming simulation)', async () => {
     @Component({
+      imports: [NgpThread, NgpThreadMessage],
       template: `
         <div ngpThread>
           <div ngpThreadMessage>
@@ -49,9 +49,7 @@ describe('NgpThreadMessage', () => {
       content = 'Hello';
     }
 
-    const { fixture } = await render(TestComponent, {
-      imports: [NgpThread, NgpThreadMessage],
-    });
+    const { fixture } = await render(TestComponent);
 
     const component = fixture.componentInstance;
 
@@ -74,6 +72,7 @@ describe('NgpThreadMessage', () => {
 
   it('should detect child element additions', async () => {
     @Component({
+      imports: [NgpThread, NgpThreadMessage],
       template: `
         <div ngpThread>
           <div ngpThreadMessage>
@@ -89,9 +88,7 @@ describe('NgpThreadMessage', () => {
       showExtra = false;
     }
 
-    const { fixture } = await render(TestComponent, {
-      imports: [NgpThread, NgpThreadMessage],
-    });
+    const { fixture } = await render(TestComponent);
 
     const component = fixture.componentInstance;
 
@@ -108,6 +105,7 @@ describe('NgpThreadMessage', () => {
 
   it('should detect nested content changes', async () => {
     @Component({
+      imports: [NgpThread, NgpThreadMessage],
       template: `
         <div ngpThread>
           <div ngpThreadMessage>
@@ -124,9 +122,7 @@ describe('NgpThreadMessage', () => {
       nestedContent = 'Initial';
     }
 
-    const { fixture } = await render(TestComponent, {
-      imports: [NgpThread, NgpThreadMessage],
-    });
+    const { fixture } = await render(TestComponent);
 
     const component = fixture.componentInstance;
 
@@ -143,6 +139,7 @@ describe('NgpThreadMessage', () => {
 
   it('should handle component lifecycle correctly', async () => {
     @Component({
+      imports: [NgpThread, NgpThreadMessage],
       template: `
         <div ngpThread>
           @if (showMessage) {
@@ -155,9 +152,7 @@ describe('NgpThreadMessage', () => {
       showMessage = true;
     }
 
-    const { fixture } = await render(TestComponent, {
-      imports: [NgpThread, NgpThreadMessage],
-    });
+    const { fixture } = await render(TestComponent);
 
     const component = fixture.componentInstance;
 
@@ -177,6 +172,7 @@ describe('NgpThreadMessage', () => {
 
   it('should handle multiple simultaneous content changes', async () => {
     @Component({
+      imports: [NgpThread, NgpThreadMessage],
       template: `
         <div ngpThread>
           <div ngpThreadMessage>
@@ -193,9 +189,7 @@ describe('NgpThreadMessage', () => {
       content3 = 'C';
     }
 
-    const { fixture } = await render(TestComponent, {
-      imports: [NgpThread, NgpThreadMessage],
-    });
+    const { fixture } = await render(TestComponent);
 
     const component = fixture.componentInstance;
 
@@ -216,6 +210,7 @@ describe('NgpThreadMessage', () => {
 
   it('should not trigger on attribute-only changes', async () => {
     @Component({
+      imports: [NgpThread, NgpThreadMessage],
       template: `
         <div ngpThread>
           <div ngpThreadMessage>
@@ -228,9 +223,7 @@ describe('NgpThreadMessage', () => {
       cssClass = 'initial-class';
     }
 
-    const { fixture } = await render(TestComponent, {
-      imports: [NgpThread, NgpThreadMessage],
-    });
+    const { fixture } = await render(TestComponent);
 
     const component = fixture.componentInstance;
 
