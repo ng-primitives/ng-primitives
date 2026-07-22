@@ -2,17 +2,37 @@ import { describe, expect, it } from 'vitest';
 import { setupExitAnimation } from '../exit-animation';
 
 describe('setupExitAnimation', () => {
-  /** A fake animation whose `finished` promise is controllable. */
-  function finiteAnimation(): { animation: Animation; finish: () => void } {
+  /**
+   * A fake animation whose `finished` promise is controllable. `endTime` feeds
+   * the defensive fallback timeout; it defaults to a large value so tests that
+   * exercise `finished` are never resolved early by the fallback.
+   */
+  function finiteAnimation(endTime = 100_000): {
+    animation: Animation;
+    finish: () => void;
+    fail: (reason: unknown) => void;
+  } {
     let finish!: () => void;
-    const finished = new Promise<void>(resolve => (finish = resolve));
-    return { animation: { finished } as unknown as Animation, finish };
+    let fail!: (reason: unknown) => void;
+    const finished = new Promise<void>((resolve, reject) => {
+      finish = resolve;
+      fail = reject;
+    });
+    // Prevent an unhandled rejection warning; the code under test observes it.
+    finished.catch(() => undefined);
+    const animation = {
+      finished,
+      cancel: () => undefined,
+      effect: { getComputedTiming: () => ({ iterations: 1, endTime }) },
+    } as unknown as Animation;
+    return { animation, finish, fail };
   }
 
   /** A fake animation that repeats forever, so `finished` never resolves. */
   function infiniteAnimation(): Animation {
     return {
       finished: new Promise<void>(() => undefined),
+      cancel: () => undefined,
       effect: { getComputedTiming: () => ({ iterations: Infinity }) },
     } as unknown as Animation;
   }
@@ -75,5 +95,73 @@ describe('setupExitAnimation', () => {
     finish();
     await exit;
     expect(settled).toBe(true);
+  });
+
+  it('resolves (never rejects) when an animation fails, so teardown still happens', async () => {
+    const element = document.createElement('div');
+    const { animation, fail } = finiteAnimation();
+    element.getAnimations = () => [animation];
+
+    const ref = setupExitAnimation({ element, immediate: true });
+    const exit = ref.exit();
+
+    // A non-AbortError rejection must not propagate - it would otherwise trap the
+    // overlay in the DOM forever when `detach()` awaits this promise.
+    fail(new Error('boom'));
+
+    await expect(exit).resolves.toBeUndefined();
+  });
+
+  it('resolves on AbortError (element removed mid-animation)', async () => {
+    const element = document.createElement('div');
+    const { animation, fail } = finiteAnimation();
+    element.getAnimations = () => [animation];
+
+    const ref = setupExitAnimation({ element, immediate: true });
+    const exit = ref.exit();
+
+    fail(Object.assign(new Error('aborted'), { name: 'AbortError' }));
+
+    await expect(exit).resolves.toBeUndefined();
+  });
+
+  it('falls back to a timeout when `finished` never settles', async () => {
+    const element = document.createElement('div');
+    // A finite (non-infinite) animation whose `finished` never resolves - e.g. a
+    // paused animation. The short endTime keeps the fallback fast for the test.
+    const { animation } = finiteAnimation(10);
+    element.getAnimations = () => [animation];
+
+    const ref = setupExitAnimation({ element, immediate: true });
+
+    // Should resolve via the fallback timeout (endTime + buffer) rather than hang.
+    await expect(ref.exit()).resolves.toBeUndefined();
+  });
+
+  it('resolves immediately when the environment cannot run animations (SSR)', async () => {
+    const element = document.createElement('div');
+    // Simulate a non-DOM environment where getAnimations is unavailable.
+    (element as unknown as { getAnimations?: unknown }).getAnimations = undefined;
+
+    const ref = setupExitAnimation({ element, immediate: true });
+
+    await expect(ref.exit()).resolves.toBeUndefined();
+    expect(element).toHaveAttribute('data-exit');
+  });
+
+  it('cancel() returns to the enter state and resolves a pending exit', async () => {
+    const element = document.createElement('div');
+    const { animation } = finiteAnimation();
+    element.getAnimations = () => [animation];
+
+    const ref = setupExitAnimation({ element, immediate: true });
+    const exit = ref.exit();
+    expect(element).toHaveAttribute('data-exit');
+
+    ref.cancel();
+
+    await expect(exit).resolves.toBeUndefined();
+    expect(element).toHaveAttribute('data-enter');
+    expect(element).not.toHaveAttribute('data-exit');
   });
 });
