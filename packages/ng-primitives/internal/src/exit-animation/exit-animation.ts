@@ -127,8 +127,16 @@ export function setupExitAnimation({
         setState('exit');
 
         const settle = () => {
-          clearExitTimeout();
-          exitResolve = null;
+          // Only the currently active cycle may clear the shared timeout/resolver.
+          // `cancel()` rejects the running animations' `finished` promises
+          // asynchronously (AbortError), so a superseded cycle's `settle()` can
+          // fire after a new exit() has started on the same ref (exit → cancel →
+          // exit, via the portal's cancelDetach). A stale settle() must not clear
+          // the new cycle's fallback timer or null its resolver.
+          if (exitResolve === resolve) {
+            clearExitTimeout();
+            exitResolve = null;
+          }
           resolve();
         };
 

@@ -149,6 +149,52 @@ describe('setupExitAnimation', () => {
     expect(element).toHaveAttribute('data-exit');
   });
 
+  /** An animation whose `finished` rejects with AbortError when cancelled, like real WAAPI. */
+  function abortableAnimation(): Animation {
+    let reject!: (reason: unknown) => void;
+    const finished = new Promise<void>((_, r) => (reject = r));
+    finished.catch(() => undefined);
+    return {
+      finished,
+      cancel: () => reject(Object.assign(new Error('aborted'), { name: 'AbortError' })),
+      effect: { getComputedTiming: () => ({ iterations: 1, endTime: 100_000 }) },
+    } as unknown as Animation;
+  }
+
+  /** A finite animation whose `finished` never settles - only the fallback timer can resolve it. */
+  function neverSettlingAnimation(endTime: number): Animation {
+    return {
+      finished: new Promise<void>(() => undefined),
+      cancel: () => undefined,
+      effect: { getComputedTiming: () => ({ iterations: 1, endTime }) },
+    } as unknown as Animation;
+  }
+
+  it('a superseded cycle does not clobber the new cycle (exit → cancel → exit)', async () => {
+    const element = document.createElement('div');
+    const first = abortableAnimation();
+    element.getAnimations = () => [first];
+
+    const ref = setupExitAnimation({ element, immediate: true });
+
+    // Cycle 1: exit then cancel. cancel() rejects `first.finished` asynchronously,
+    // so cycle 1's Promise.allSettled(...).then(settle) is still pending.
+    const exit1 = ref.exit();
+    ref.cancel();
+
+    // Cycle 2 starts synchronously (portal cancelDetach → detach → exit again on the
+    // same ref) BEFORE microtasks flush, so cycle 1's late settle() runs while cycle 2
+    // owns the shared state. Cycle 2's animation never settles, so it can only resolve
+    // via the fallback timer - which a stale settle() would wrongly clear.
+    const stuck = neverSettlingAnimation(10);
+    element.getAnimations = () => [stuck];
+    const exit2 = ref.exit();
+
+    // exit2 must still resolve (via its fallback timer), proving the timer survived.
+    await expect(exit2).resolves.toBeUndefined();
+    await exit1;
+  });
+
   it('cancel() returns to the enter state and resolves a pending exit', async () => {
     const element = document.createElement('div');
     const { animation } = finiteAnimation();
