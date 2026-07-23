@@ -8,6 +8,7 @@ import {
   dataBinding,
   deprecatedSetter,
   emitter,
+  SetterOptions,
   StateInjectionOptions,
 } from 'ng-primitives/state';
 import { Observable } from 'rxjs';
@@ -112,7 +113,6 @@ export const [
 
     const startDateChange = emitter<T | undefined>();
     const endDateChange = emitter<T | undefined>();
-    const focusedDateChange = emitter<T>();
 
     // The registered date buttons, kept private; parts register through
     // registerButton/unregisterButton rather than mutating this signal.
@@ -161,7 +161,6 @@ export const [
       }
 
       focusedDate.set(date);
-      focusedDateChange.emit(date);
       onFocusedDateChange?.(date);
 
       if (origin === 'keyboard') {
@@ -184,7 +183,8 @@ export const [
      * - If both start and end dates are already selected:
      *   - Resets the selection, setting the selected date as the new start date and clearing the end date.
      */
-    function select(date: T, preserveTime = false): void {
+    function select(date: T, preserveTime = false, options: SetterOptions = {}): void {
+      const emit = options.emit ?? true;
       const start = startDate();
       const end = endDate();
 
@@ -201,11 +201,25 @@ export const [
         });
       };
 
+      // The value is always written; emission is suppressed when `emit` is false
+      // (e.g. a form `writeValue`).
+      const emitStart = (value: T | undefined): void => {
+        if (emit) {
+          startDateChange.emit(value);
+          onStartDateChange?.(value);
+        }
+      };
+      const emitEnd = (value: T | undefined): void => {
+        if (emit) {
+          endDateChange.emit(value);
+          onEndDateChange?.(value);
+        }
+      };
+
       if (!start && !end) {
         const selectedDate = maybePreserveTime(date, undefined);
         startDate.set(selectedDate);
-        startDateChange.emit(selectedDate);
-        onStartDateChange?.(selectedDate);
+        emitStart(selectedDate);
         return;
       }
 
@@ -213,21 +227,17 @@ export const [
         if (dateAdapter.isAfter(date, start)) {
           const selectedDate = maybePreserveTime(date, undefined);
           endDate.set(selectedDate);
-          endDateChange.emit(selectedDate);
-          onEndDateChange?.(selectedDate);
+          emitEnd(selectedDate);
         } else if (dateAdapter.isBefore(date, start)) {
           const selectedStartDate = maybePreserveTime(date, start);
           startDate.set(selectedStartDate);
           endDate.set(start);
-          startDateChange.emit(selectedStartDate);
-          onStartDateChange?.(selectedStartDate);
-          endDateChange.emit(start);
-          onEndDateChange?.(start);
+          emitStart(selectedStartDate);
+          emitEnd(start);
         } else if (dateAdapter.isSameDay(date, start)) {
           const selectedDate = maybePreserveTime(date, undefined);
           endDate.set(selectedDate);
-          endDateChange.emit(selectedDate);
-          onEndDateChange?.(selectedDate);
+          emitEnd(selectedDate);
         }
         return;
       }
@@ -235,11 +245,9 @@ export const [
       // If both start and end are selected, reset selection
       const selectedDate = maybePreserveTime(date, start);
       startDate.set(selectedDate);
-      startDateChange.emit(selectedDate);
-      onStartDateChange?.(selectedDate);
+      emitStart(selectedDate);
       endDate.set(undefined);
-      endDateChange.emit(undefined);
-      onEndDateChange?.(undefined);
+      emitEnd(undefined);
     }
 
     function isSelected(date: T): boolean {

@@ -1,5 +1,8 @@
 import { computed, Directive } from '@angular/core';
-import { ngpDatePickerDateButton } from './date-picker-date-button-state';
+import {
+  ngpDatePickerDateButton,
+  provideDatePickerDateButtonState,
+} from './date-picker-date-button-state';
 import { NgpDatePickerDateButtonToken } from './date-picker-date-button-token';
 
 /**
@@ -8,7 +11,10 @@ import { NgpDatePickerDateButtonToken } from './date-picker-date-button-token';
 @Directive({
   selector: '[ngpDatePickerDateButton]',
   exportAs: 'ngpDatePickerDateButton',
-  providers: [{ provide: NgpDatePickerDateButtonToken, useExisting: NgpDatePickerDateButton }],
+  providers: [
+    provideDatePickerDateButtonState(),
+    { provide: NgpDatePickerDateButtonToken, useExisting: NgpDatePickerDateButton },
+  ],
 })
 export class NgpDatePickerDateButton<T> {
   /**

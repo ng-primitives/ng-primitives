@@ -175,7 +175,6 @@ export const [
     const dateValue = controlled(_date);
 
     const dateChange = emitter<T | undefined>();
-    const focusedDateChange = emitter<T>();
 
     // The registered date buttons, kept private; parts register through
     // registerButton/unregisterButton rather than mutating this signal.
@@ -224,7 +223,6 @@ export const [
       }
 
       focusedDate.set(date);
-      focusedDateChange.emit(date);
       onFocusedDateChange?.(date);
 
       if (origin === 'keyboard') {
