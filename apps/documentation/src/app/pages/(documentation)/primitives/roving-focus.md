@@ -1,4 +1,5 @@
 ---
+title: Roving Focus | Angular Primitives
 name: 'Roving Focus'
 sourceUrl: 'https://github.com/ng-primitives/ng-primitives/tree/next/packages/ng-primitives/roving-focus'
 ---

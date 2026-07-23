@@ -1,4 +1,5 @@
 ---
+title: Combobox | Angular Primitives
 name: 'Combobox'
 sourceUrl: 'https://github.com/ng-primitives/ng-primitives/tree/next/packages/ng-primitives/combobox'
 ---

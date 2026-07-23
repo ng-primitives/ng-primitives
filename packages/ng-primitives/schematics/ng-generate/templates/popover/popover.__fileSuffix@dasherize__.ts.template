@@ -52,6 +52,14 @@ import { injectPopoverContext, NgpPopover } from 'ng-primitives/popover';
         transform: scale(0.5);
       }
     }
+
+    /* Reduce motion for users who prefer reduced motion. */
+    @media (prefers-reduced-motion: reduce) {
+      :host[data-enter],
+      :host[data-exit] {
+        animation-duration: 0s;
+      }
+    }
   `,
 })
 export class Popover<%= componentSuffix %> {

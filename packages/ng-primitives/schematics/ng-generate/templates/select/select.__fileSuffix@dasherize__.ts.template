@@ -173,6 +173,15 @@ import { ChangeFn, provideValueAccessor, TouchedFn } from 'ng-primitives/utils';
         transform: translateY(-10px) scale(0.9);
       }
     }
+
+    /* Reduce motion for users who prefer reduced motion. */
+    @media (prefers-reduced-motion: reduce) {
+      [ngpSelectDropdown],
+      [ngpSelectDropdown][data-enter],
+      [ngpSelectDropdown][data-exit] {
+        animation-duration: 0s;
+      }
+    }
   `,
   host: {
     '[attr.aria-label]': 'ariaLabel() || null',

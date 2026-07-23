@@ -544,4 +544,35 @@ describe('NgpInputOtp', () => {
       expect(container).not.toHaveAttribute('data-press');
     });
   });
+
+  describe('slot registration lifecycle', () => {
+    it('updates maxlength and re-indexes when a slot is removed', async () => {
+      const { rerender, fixture } = await render(
+        `
+        <div ngpInputOtp data-testid="input-otp">
+          <input ngpInputOtpInput data-testid="hidden-input" />
+          <div ngpInputOtpSlot data-testid="slot-0"></div>
+          <div ngpInputOtpSlot data-testid="slot-1"></div>
+          @if (showLast) {
+            <div ngpInputOtpSlot data-testid="slot-2"></div>
+          }
+        </div>
+        `,
+        { imports, componentProperties: { showLast: true } },
+      );
+
+      expect(getInput()).toHaveAttribute('maxlength', '3');
+      expect(screen.getByTestId('slot-2')).toHaveAttribute('data-slot-index', '2');
+
+      // Removing a slot must deregister it (onDestroy → unregisterSlot), so maxlength
+      // shrinks and the remaining slots keep contiguous indices.
+      await rerender({ componentProperties: { showLast: false } });
+      await fixture.whenStable();
+
+      expect(screen.queryByTestId('slot-2')).not.toBeInTheDocument();
+      expect(getInput()).toHaveAttribute('maxlength', '2');
+      expect(screen.getByTestId('slot-0')).toHaveAttribute('data-slot-index', '0');
+      expect(screen.getByTestId('slot-1')).toHaveAttribute('data-slot-index', '1');
+    });
+  });
 });

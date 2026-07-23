@@ -1,4 +1,5 @@
 ---
+title: Toolbar | Angular Primitives
 name: 'Toolbar'
 sourceUrl: 'https://github.com/ng-primitives/ng-primitives/tree/next/packages/ng-primitives/toolbar'
 ---

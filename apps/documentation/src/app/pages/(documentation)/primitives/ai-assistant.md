@@ -1,4 +1,5 @@
 ---
+title: AI Assistant | Angular Primitives
 name: AI Assistant
 sourceUrl: 'https://github.com/ng-primitives/ng-primitives/tree/next/packages/ng-primitives/ai-assistant'
 ---

@@ -65,6 +65,13 @@ import {
       inset-inline-start: 0px;
       border-radius: 4px;
     }
+
+    /* Reduce motion for users who prefer reduced motion. */
+    @media (prefers-reduced-motion: reduce) {
+      [ngpMeterIndicator] {
+        transition-duration: 0s;
+      }
+    }
   `,
 })
 export class Meter<%= componentSuffix %> {

@@ -15,15 +15,28 @@ export async function templatesGenerator(tree: Tree) {
       continue;
     }
 
-    // read the files in the primitive folder
-    const files = tree.children(`${templatesPath}/${primitive}`);
+    // read the files in the primitive folder, skipping index.page.ts files as they are
+    // for example purposes only
+    const files = tree
+      .children(`${templatesPath}/${primitive}`)
+      .filter(file => file.endsWith('.ts') && !file.endsWith('index.page.ts'));
+
+    // Collect the component classes declared across the whole primitive first. A part
+    // that imports one of them from a sibling file has to refer to it by its suffixed
+    // name, and it cannot know that by looking at its own source alone.
+    const componentClasses = new Set<string>();
 
     for (const file of files) {
-      // skip any index.page.ts files as they are for example purposes only
-      if (file.endsWith('index.page.ts')) {
-        continue;
-      }
+      const content = tree.read(`${templatesPath}/${primitive}/${file}`, 'utf-8');
 
+      if (content) {
+        for (const className of findComponentClasses(content)) {
+          componentClasses.add(className);
+        }
+      }
+    }
+
+    for (const file of files) {
       const filePath = `${templatesPath}/${primitive}/${file}`;
 
       if (!tree.exists(filePath)) {
@@ -31,10 +44,14 @@ export async function templatesGenerator(tree: Tree) {
       }
 
       // read the file contents
-      let content = tree.read(filePath, 'utf-8');
+      const source = tree.read(filePath, 'utf-8');
+
+      if (source === null) {
+        throw new Error(`File could not be read: ${filePath}`);
+      }
 
       // process the template
-      content = processTemplate(content);
+      const content = processTemplate(source, componentClasses);
 
       // write the new file to packages/ng-primitives/schematics/ng-generate/templates
       tree.write(
@@ -54,123 +71,61 @@ export default templatesGenerator;
  * This does the following:
  * - Replace the prefix in the component selector with the <%= prefix %> placeholder
  * - Append any component class names with the <%= componentSuffix %> placeholder
- * - Replace .ts with .<%= componentSuffix %>.ts. in the import paths
+ * - Append the <%= fileSuffix %> placeholder to relative import paths, so a part still
+ *   resolves its siblings once they are generated under the consumer's own suffixes
+ * - Prefix the styles with a note about the theme variables they rely on
  */
-function processTemplate(content: string): string {
+function processTemplate(content: string, componentClasses: ReadonlySet<string>): string {
+  // Every rewrite is collected against a single parse and applied afterwards, right to
+  // left. Splicing as we go would invalidate the positions of every node we had not
+  // visited yet, and re-parsing a partially rewritten file silently matches fewer nodes.
+  const edits: Edit[] = [];
+
   // find the component selector
   const selectors = query<ts.StringLiteral>(
     content,
     'ClassDeclaration > Decorator > CallExpression ObjectLiteralExpression PropertyAssignment:has(Identifier[name="selector"]) > StringLiteral',
   );
 
-  if (!selectors) {
+  if (selectors.length === 0) {
     throw new Error('Component selector not found');
   }
 
+  // replace the prefix with the <%= prefix %> placeholder
   for (const selector of selectors) {
-    // replace the prefix with the <%= prefix %> placeholder
-    const selectorValue = selector.getText();
-
-    // determine the new selector value
-    const newSelectorValue = selectorValue.replace('app-', '<%= prefix %>-');
-
-    // replace the string exactly based on the position, not text matching
-    const start = selector.getStart();
-    const end = selector.getEnd();
-
-    content = content.substring(0, start) + newSelectorValue + content.substring(end);
+    edits.push({
+      start: selector.getStart(),
+      end: selector.getEnd(),
+      text: selector.getText().replace('app-', '<%= prefix %>-'),
+    });
   }
 
-  // replace import paths with the <%= componentSuffix %> placeholder
-  const imports = query(content, 'ImportDeclaration > StringLiteral');
-
-  for (const importPath of imports) {
-    // if the import path is not relative, skip it
-    if (!importPath.getText().startsWith('.')) {
+  // point relative imports at the sibling file's generated name
+  for (const specifier of query<ts.StringLiteral>(content, 'ImportDeclaration > StringLiteral')) {
+    // `.text` rather than `.getText()` - the latter keeps the surrounding quotes, so a
+    // relative path would never look relative
+    if (!specifier.text.startsWith('.')) {
       continue;
     }
 
-    const importValue = importPath.getText();
-    // append the <%= fileSuffix %> placeholder to the end
-    const newImportValue = importValue + '.<%= fileSuffix %>';
-
-    const start = importPath.getStart();
-    const end = importPath.getEnd();
-
-    content = content.substring(0, start) + newImportValue + content.substring(end);
+    edits.push({
+      start: specifier.getStart(),
+      end: specifier.getEnd(),
+      // the sibling file is named with the `__fileSuffix@dasherize__` placeholder, so the
+      // path has to be dasherized to match, and an absent suffix must not leave a dot
+      text: `'${specifier.text}<% if (fileSuffix) { %>.<%= dasherize(fileSuffix) %><% } %>'`,
+    });
   }
 
-  // find all class identifiers in imports from relative paths
-  const importDeclarations = query<ts.ImportDeclaration>(content, 'ImportDeclaration');
-
-  for (const importDeclaration of importDeclarations) {
-    // if this is a type import, skip it
-    if (importDeclaration.importClause?.isTypeOnly) {
-      continue;
-    }
-
-    // get the import path
-    const importPath = query(importDeclaration, 'StringLiteral')[0].getText();
-
-    // if the import path is not relative, skip it
-    if (!importPath.startsWith('.')) {
-      continue;
-    }
-
-    // get the named imports
-    const namedImports = query(importDeclaration, 'NamedImports');
-
-    if (namedImports.length === 0) {
-      continue;
-    }
-
-    // get the class identifiers - they are identifiers that are upper camel case and not type imports
-    const classIdentifiers = query<ts.Identifier>(importDeclaration, 'Identifier').filter(
-      identifier => {
-        const text = identifier.getText();
-        const isUpperCamelCase = /^[A-Z]/.test(text);
-
-        // Ensure it's not from a type-only import
-        const isTypeImport =
-          ts.isImportDeclaration(identifier.parent) && identifier.parent.importClause?.isTypeOnly;
-
-        return isUpperCamelCase && !isTypeImport;
-      },
-    );
-
-    for (const classIdentifier of classIdentifiers) {
-      // get the class name
-      const className = classIdentifier.getText();
-
-      // determine the new class name
-      const newClassName = `${className}<%= suffix %>`;
-      const start = classIdentifier.getStart();
-      const end = classIdentifier.getEnd();
-
-      content = content.substring(0, start) + newClassName + content.substring(end);
-    }
-  }
-
-  // find any Angular component class names in the file and append the <%= componentSuffix %> placeholder
-  const componentClassNames = query(
-    content,
-    'ClassDeclaration:has(Decorator > CallExpression > Identifier[name="Component"]) > Identifier',
-  );
-
-  for (const className of componentClassNames) {
-    // find all the matching identifiers in the file
-    const identifiers = query<ts.Identifier>(content, `Identifier[name="${className.getText()}"]`);
-
-    // Sort identifiers in reverse order (by start position)
-    identifiers.sort((a, b) => b.getStart() - a.getStart());
-
-    for (const identifier of identifiers) {
-      // determine the new class name
-      const newClassName = `${className.getText()}<%= componentSuffix %>`;
-      const start = identifier.getStart();
-      const end = identifier.getEnd();
-
-      content = content.substring(0, start) + newClassName + content.substring(end);
+  // append the suffix to every component class in this primitive, at its declaration and
+  // at every usage - including the files that import it from a sibling
+  for (const className of componentClasses) {
+    for (const identifier of query<ts.Identifier>(content, `Identifier[name="${className}"]`)) {
+      edits.push({
+        start: identifier.getStart(),
+        end: identifier.getEnd(),
+        text: `${className}<%= componentSuffix %>`,
+      });
     }
   }
 
@@ -184,21 +139,40 @@ function processTemplate(content: string): string {
 
   // the styles may be a no substitution template string or a string literal
   for (const style of styles) {
-    let styleValue = style.initializer.getText();
+    // strip the surrounding quotes or backticks from the raw text
+    const styleValue = style.initializer.getText().replace(/^['"`]|['"`]$/g, '');
 
-    // remove any surrounding quotes or backticks
-    styleValue = styleValue.replace(/^['"`]|['"`]$/g, '');
-
-    // determine the new style value
-    const newStyleValue = `\n/* These styles rely on CSS variables that can be imported from ng-primitives/example-theme/index.css in your global styles */\n${styleValue}`;
-
-    // replace the string exactly based on the position, not text matching
-    // but we must add 1 to the start to account for the opening quote
-    const start = style.initializer.getStart() + 1;
-    const end = style.initializer.getEnd() - 1;
-
-    content = content.substring(0, start) + newStyleValue + content.substring(end);
+    edits.push({
+      // offset by one to sit inside the opening quote
+      start: style.initializer.getStart() + 1,
+      end: style.initializer.getEnd() - 1,
+      text: `\n/* These styles rely on CSS variables that can be imported from ng-primitives/example-theme/index.css in your global styles */\n${styleValue}`,
+    });
   }
 
-  return content;
+  return applyEdits(content, edits);
+}
+
+/** The names of the classes in a file that Angular treats as components. */
+function findComponentClasses(content: string): string[] {
+  return query<ts.Identifier>(
+    content,
+    'ClassDeclaration:has(Decorator > CallExpression > Identifier[name="Component"]) > Identifier',
+  ).map(identifier => identifier.text);
+}
+
+interface Edit {
+  readonly start: number;
+  readonly end: number;
+  readonly text: string;
+}
+
+/** Apply edits from the end of the file backwards, so earlier offsets stay valid. */
+function applyEdits(content: string, edits: readonly Edit[]): string {
+  return [...edits]
+    .sort((a, b) => b.start - a.start)
+    .reduce(
+      (result, edit) => result.slice(0, edit.start) + edit.text + result.slice(edit.end),
+      content,
+    );
 }

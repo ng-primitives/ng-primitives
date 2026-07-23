@@ -1,30 +1,49 @@
-import {
-  createState,
-  createStateInjector,
-  createStateProvider,
-  createStateToken,
-} from 'ng-primitives/state';
-import type { NgpThreadSuggestion } from './thread-suggestion';
+import { signal, Signal } from '@angular/core';
+import { injectElementRef } from 'ng-primitives/internal';
+import { createPrimitive, listener } from 'ng-primitives/state';
+import { injectThreadState } from '../thread/thread-state';
 
-/**
- * The state token  for the ThreadSuggestion primitive.
- */
-export const NgpThreadSuggestionStateToken =
-  createStateToken<NgpThreadSuggestion>('ThreadSuggestion');
+export interface NgpThreadSuggestionState {
+  /**
+   * Populate the prompt with this suggestion.
+   */
+  submitSuggestion(): void;
+}
 
-/**
- * Provides the ThreadSuggestion state.
- */
-export const provideThreadSuggestionState = createStateProvider(NgpThreadSuggestionStateToken);
+export interface NgpThreadSuggestionProps {
+  /**
+   * The suggested text to display in the input field.
+   */
+  readonly suggestion?: Signal<string>;
+  /**
+   * Whether the suggestion should populate the prompt when clicked.
+   */
+  readonly setPromptOnClick?: Signal<boolean>;
+}
 
-/**
- * Injects the ThreadSuggestion state.
- */
-export const injectThreadSuggestionState = createStateInjector<NgpThreadSuggestion>(
+export const [
   NgpThreadSuggestionStateToken,
-);
+  ngpThreadSuggestion,
+  injectThreadSuggestionState,
+  provideThreadSuggestionState,
+] = createPrimitive(
+  'NgpThreadSuggestion',
+  ({
+    suggestion = signal(''),
+    setPromptOnClick = signal(true),
+  }: NgpThreadSuggestionProps): NgpThreadSuggestionState => {
+    const element = injectElementRef<HTMLElement>();
+    const thread = injectThreadState();
 
-/**
- * The ThreadSuggestion state registration function.
- */
-export const threadSuggestionState = createState(NgpThreadSuggestionStateToken);
+    function submitSuggestion(): void {
+      if (setPromptOnClick() && suggestion().length > 0) {
+        thread().setPrompt(suggestion());
+      }
+    }
+
+    // Listener
+    listener(element, 'click', submitSuggestion);
+
+    return { submitSuggestion } satisfies NgpThreadSuggestionState;
+  },
+);

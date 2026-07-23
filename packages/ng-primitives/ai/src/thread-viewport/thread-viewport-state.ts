@@ -1,29 +1,80 @@
-import {
-  createState,
-  createStateInjector,
-  createStateProvider,
-  createStateToken,
-} from 'ng-primitives/state';
-import type { NgpThreadViewport } from './thread-viewport';
+import { signal, Signal } from '@angular/core';
+import { fromResizeEvent, injectElementRef } from 'ng-primitives/internal';
+import { createPrimitive, listener, onDestroy } from 'ng-primitives/state';
+import { safeTakeUntilDestroyed } from 'ng-primitives/utils';
+import { injectThreadState } from '../thread/thread-state';
 
-/**
- * The state token  for the ThreadViewport primitive.
- */
-export const NgpThreadViewportStateToken = createStateToken<NgpThreadViewport>('ThreadViewport');
+export interface NgpThreadViewportState {
+  /**
+   * @internal
+   * Scroll the viewport to the bottom.
+   */
+  scrollToBottom(behavior: ScrollBehavior): void;
+}
 
-/**
- * Provides the ThreadViewport state.
- */
-export const provideThreadViewportState = createStateProvider(NgpThreadViewportStateToken);
+export interface NgpThreadViewportProps {
+  /**
+   * Whether the thread should automatically scroll to the bottom when new content is added.
+   */
+  readonly autoScroll?: Signal<boolean>;
+}
 
-/**
- * Injects the ThreadViewport state.
- */
-export const injectThreadViewportState = createStateInjector<NgpThreadViewport>(
+export const [
   NgpThreadViewportStateToken,
-);
+  ngpThreadViewport,
+  injectThreadViewportState,
+  provideThreadViewportState,
+] = createPrimitive(
+  'NgpThreadViewport',
+  ({ autoScroll = signal(true) }: NgpThreadViewportProps): NgpThreadViewportState => {
+    const element = injectElementRef<HTMLElement>();
+    const thread = injectThreadState();
 
-/**
- * The ThreadViewport state registration function.
- */
-export const threadViewportState = createState(NgpThreadViewportStateToken);
+    /** Store the last known scroll position */
+    let lastScrollTop = 0;
+
+    /** Determine if we are at the bottom of the scrollable container (within the threshold) */
+    let isAtBottom = false;
+
+    function scrollToBottom(behavior: ScrollBehavior): void {
+      if (!autoScroll()) {
+        return;
+      }
+
+      element.nativeElement.scrollTo({
+        top: element.nativeElement.scrollHeight,
+        behavior,
+      });
+    }
+
+    function onScroll(): void {
+      const { scrollHeight, scrollTop, clientHeight } = element.nativeElement;
+      const atBottom = scrollHeight - scrollTop <= clientHeight;
+
+      if (atBottom || lastScrollTop >= scrollTop) {
+        isAtBottom = atBottom;
+      }
+
+      lastScrollTop = scrollTop;
+    }
+
+    // Listener
+    listener(element, 'scroll', onScroll);
+
+    fromResizeEvent(element.nativeElement)
+      .pipe(safeTakeUntilDestroyed())
+      .subscribe(() => {
+        if (isAtBottom) {
+          scrollToBottom('instant');
+        }
+        onScroll();
+      });
+
+    const state = { scrollToBottom } satisfies NgpThreadViewportState;
+
+    thread().setViewport(state);
+    onDestroy(() => thread().removeViewport(state));
+
+    return state;
+  },
+);

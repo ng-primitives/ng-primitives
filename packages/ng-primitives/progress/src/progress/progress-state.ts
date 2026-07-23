@@ -101,6 +101,11 @@ export interface NgpProgressState {
   setLabel(id: string): void;
 
   /**
+   * Remove the label of the progress bar.
+   */
+  removeLabel(id: string): void;
+
+  /**
    * Set the value of the progress bar.
    * @param value The progress value
    */
@@ -195,6 +200,14 @@ export const [NgpProgressStateToken, ngpProgress, injectProgressState, providePr
         labelId.set(id);
       }
 
+      function removeLabel(id: string): void {
+        // Only clear if this label is still the active one, so a newer label that has
+        // taken over isn't clobbered when an old label is torn down.
+        if (labelId() === id) {
+          labelId.set(undefined);
+        }
+      }
+
       // Attribute bindings
       attrBinding(element, 'role', 'progressbar');
       attrBinding(element, 'id', id);
@@ -231,6 +244,7 @@ export const [NgpProgressStateToken, ngpProgress, injectProgressState, providePr
         progressing,
         complete,
         setLabel,
+        removeLabel,
         setValue,
         setMin,
         setMax,

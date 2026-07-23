@@ -106,6 +106,16 @@ import {
         opacity: 0;
       }
     }
+
+    /* Reduce motion for users who prefer reduced motion. */
+    @media (prefers-reduced-motion: reduce) {
+      :host,
+      :host[data-exit],
+      [ngpDialog],
+      [ngpDialog][data-exit] {
+        animation-duration: 0s;
+      }
+    }
   `,
 })
 export class Dialog {

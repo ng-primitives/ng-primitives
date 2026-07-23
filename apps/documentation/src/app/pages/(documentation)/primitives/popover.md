@@ -1,4 +1,5 @@
 ---
+title: Popover | Angular Primitives
 name: 'Popover'
 sourceUrl: 'https://github.com/ng-primitives/ng-primitives/tree/next/packages/ng-primitives/popover'
 ---

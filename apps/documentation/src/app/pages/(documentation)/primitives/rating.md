@@ -1,4 +1,5 @@
 ---
+title: Rating | Angular Primitives
 name: 'Rating'
 sourceUrl: 'https://github.com/ng-primitives/ng-primitives/tree/next/packages/ng-primitives/rating'
 ---

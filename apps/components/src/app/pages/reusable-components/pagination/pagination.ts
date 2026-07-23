@@ -40,7 +40,7 @@ import { ChangeFn, provideValueAccessor, TouchedFn } from 'ng-primitives/utils';
     NgIcon,
   ],
   providers: [
-    provideValueAccessor(NgpPagination),
+    provideValueAccessor(Pagination),
     provideIcons({
       heroChevronDoubleLeft,
       heroChevronDoubleRight,
@@ -138,6 +138,17 @@ import { ChangeFn, provideValueAccessor, TouchedFn } from 'ng-primitives/utils';
       &[data-selected] {
         background-color: var(--ngp-background-inverse);
         color: var(--ngp-text-inverse);
+      }
+    }
+
+    /* Reduce motion for users who prefer reduced motion. */
+    @media (prefers-reduced-motion: reduce) {
+      [ngpPaginationFirst],
+      [ngpPaginationPrevious],
+      [ngpPaginationButton],
+      [ngpPaginationNext],
+      [ngpPaginationLast] {
+        transition-duration: 0s;
       }
     }
   `,

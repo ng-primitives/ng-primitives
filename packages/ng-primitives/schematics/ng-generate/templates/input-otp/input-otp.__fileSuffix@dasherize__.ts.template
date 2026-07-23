@@ -114,6 +114,17 @@ import { ChangeFn, TouchedFn } from 'ng-primitives/utils';
       border-color: var(--ngp-border-disabled);
       cursor: not-allowed;
     }
+
+    /* Reduce motion for users who prefer reduced motion. */
+    @media (prefers-reduced-motion: reduce) {
+      .slot[data-caret]::after {
+        animation: none;
+      }
+
+      .slot {
+        transition-duration: 0s;
+      }
+    }
   `,
 })
 export class InputOtp<%= componentSuffix %> implements ControlValueAccessor {

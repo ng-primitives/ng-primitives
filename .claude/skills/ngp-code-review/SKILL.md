@@ -65,6 +65,12 @@ Flag as HIGH:
 
 - **New use of the legacy state pattern.** Any added file — or any changed line in the diff — that calls `createStateToken`, `createStateProvider`, `createStateInjector`, or `createState` (from `ng-primitives/state`). These are the pre-`createPrimitive` primitives (`search`-era) and are deprecated for new code. Grep the diff: `git diff next...HEAD | grep -nE '^\+.*\bcreateState(Token|Provider|Injector)?\b'`. A hit on an added (`+`) line is a finding — the part must be rewritten with `createPrimitive`. Editing an existing legacy primitive in place does **not** require migrating it (don't force-migrate untouched primitives), but a **new** primitive or part using the quadruple is a HIGH finding.
 - **A part directive that inlines host bindings / listeners** in the directive constructor instead of a `-state.ts` factory, or that omits `provideXState()` from its `providers`.
+- **A child part writing a parent's returned signal directly** — `state().x.set(...)` from a sub-part. The parent must expose a `setX`/`removeX` (or `register`/`unregister`) function and keep the backing signal private; the child calls it, registering with `onChange` and deregistering with `onDestroy`. A part that registers but never deregisters (no `onDestroy`/`removeX`) is a HIGH finding when it drives an ARIA relationship (`aria-labelledby`/`aria-describedby`) — the stale id points at removed DOM. See `dialog`, `roving-focus`, `select`.
+
+Flag as MEDIUM (convention, not lint-enforced):
+
+- **`controlled` on a value nothing mutates.** `controlled(input)` / `controlledState(...)` is only for values the factory itself `.set()`s. Grep the factory (and any composed factory) for `.set(` on the wrapped signal; if nothing writes it, the input should pass straight through as a read-only `Signal` and the `controlled` wrapper dropped.
+- **Internal-only values exposed on the state.** A computed/signal used _solely_ for the factory's own bindings (not read by any other part or the directive) should be a local `const`, not returned on the `NgpXState` interface. Verify no other part reads it (grep `injectXState`) before flagging.
 
 Specific rule violations (early state, missing generic, emitting state, reading raw input) are owned by §4.
 

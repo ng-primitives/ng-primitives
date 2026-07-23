@@ -1,4 +1,5 @@
 ---
+title: Avatar | Angular Primitives
 name: 'Avatar'
 sourceUrl: 'https://github.com/ng-primitives/ng-primitives/tree/next/packages/ng-primitives/avatar'
 ---

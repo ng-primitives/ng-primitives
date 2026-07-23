@@ -1,4 +1,5 @@
 ---
+title: Slider | Angular Primitives
 name: 'Slider'
 sourceUrl: 'https://github.com/ng-primitives/ng-primitives/tree/next/packages/ng-primitives/slider'
 ---
