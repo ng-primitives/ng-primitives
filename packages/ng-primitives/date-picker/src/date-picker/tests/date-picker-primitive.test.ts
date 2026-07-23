@@ -289,6 +289,25 @@ describe('NgpDatePicker', () => {
       expect(tabbable()?.textContent?.trim()).toBe('14');
     });
 
+    it('should ignore navigation keys with a modifier held and not preventDefault', async () => {
+      const { tabbable, fixture } = await setup();
+      // Capture the focused button by identity: comparing day text alone could
+      // false-pass since outside-month cells can repeat a day number.
+      const before = tabbable();
+      // Alt+ArrowLeft is the browser back shortcut and must pass through: focus
+      // stays put and the event is not consumed.
+      const event = new KeyboardEvent('keydown', {
+        key: 'ArrowLeft',
+        altKey: true,
+        bubbles: true,
+        cancelable: true,
+      });
+      tabbable()!.dispatchEvent(event);
+      await fixture.whenStable();
+      expect(tabbable()).toBe(before);
+      expect(event.defaultPrevented).toBe(false);
+    });
+
     it('should move focus one week forward with ArrowDown', async () => {
       const { tabbable, fixture } = await setup();
       tabbable()!.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowDown', bubbles: true }));
