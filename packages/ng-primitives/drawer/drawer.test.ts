@@ -18,6 +18,8 @@ import { NgpDrawerProvider } from './provider/drawer-provider';
         <ng-container ngpDrawer />
       </ng-container>
     </ng-container>
+    <dialog open>Unrelated native dialog</dialog>
+    <div role="dialog">Unrelated ARIA dialog</div>
   `,
 })
 class RootHost {
