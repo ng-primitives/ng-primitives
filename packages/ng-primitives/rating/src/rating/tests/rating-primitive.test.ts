@@ -157,7 +157,7 @@ describe('NgpRating', () => {
   describe('pointer', () => {
     it('sets the value when a star is clicked', async () => {
       const { stars, valueChange, rating } = await renderRating(
-        `[ngpRatingValue]="0" [ngpRatingCount]="5"`,
+        `[ngpRatingDefaultValue]="0" [ngpRatingCount]="5"`,
       );
       fireEvent.click(stars()[2]);
       expect(valueChange).toHaveBeenCalledWith(3);
@@ -231,7 +231,7 @@ describe('NgpRating', () => {
   describe('keyboard', () => {
     it('increments on ArrowRight/ArrowUp and decrements on ArrowLeft/ArrowDown', async () => {
       const { rating, valueChange } = await renderRating(
-        `[ngpRatingValue]="2" [ngpRatingCount]="5"`,
+        `[ngpRatingDefaultValue]="2" [ngpRatingCount]="5"`,
       );
       fireEvent.keyDown(rating, { key: 'ArrowRight' });
       expect(valueChange).toHaveBeenLastCalledWith(3);
@@ -271,7 +271,7 @@ describe('NgpRating', () => {
 
     it('inverts arrow direction in RTL', async () => {
       const { rating, valueChange } = await renderRating(
-        `dir="rtl" [ngpRatingValue]="2" [ngpRatingCount]="5"`,
+        `dir="rtl" [ngpRatingDefaultValue]="2" [ngpRatingCount]="5"`,
       );
       fireEvent.keyDown(rating, { key: 'ArrowLeft' });
       expect(valueChange).toHaveBeenLastCalledWith(3);
@@ -309,7 +309,7 @@ describe('NgpRating', () => {
 
     it('moves to 1 (not 0) on Home when not clearable', async () => {
       const { rating, valueChange } = await renderRating(
-        `[ngpRatingValue]="3" [ngpRatingCount]="5" [ngpRatingClearable]="false"`,
+        `[ngpRatingDefaultValue]="3" [ngpRatingCount]="5" [ngpRatingClearable]="false"`,
       );
       fireEvent.keyDown(rating, { key: 'Home' });
       expect(valueChange).toHaveBeenLastCalledWith(1);
@@ -318,7 +318,7 @@ describe('NgpRating', () => {
 
     it('clears on re-select and Home when clearable is enabled', async () => {
       const { stars, rating, valueChange } = await renderRating(
-        `[ngpRatingValue]="3" [ngpRatingCount]="5" [ngpRatingClearable]="true"`,
+        `[ngpRatingDefaultValue]="3" [ngpRatingCount]="5" [ngpRatingClearable]="true"`,
       );
       fireEvent.click(stars()[2]);
       expect(valueChange).toHaveBeenLastCalledWith(0);
@@ -352,6 +352,53 @@ describe('NgpRating', () => {
       fireEvent.click(stars()[4]);
       fireEvent.keyDown(rating, { key: 'ArrowRight' });
       expect(valueChange).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('controlled mode', () => {
+    it('should emit valueChange but not update the DOM when the parent does not update the binding', async () => {
+      const { rating, valueChange } = await renderRating('[ngpRatingValue]="value"', { value: 2 });
+      expect(rating).toHaveAttribute('aria-valuenow', '2');
+
+      // Keyboard interaction notifies via valueChange, but because the parent
+      // never writes the value back, the controlled value must stay put.
+      fireEvent.keyDown(rating, { key: 'ArrowUp' });
+
+      expect(valueChange).toHaveBeenCalledWith(3);
+      expect(rating).toHaveAttribute('aria-valuenow', '2');
+    });
+
+    it('should update the DOM when a controlled value changes via two-way binding', async () => {
+      const { rating } = await renderRating('[(ngpRatingValue)]="value"', { value: 2 });
+
+      fireEvent.keyDown(rating, { key: 'ArrowUp' });
+      expect(rating).toHaveAttribute('aria-valuenow', '3');
+    });
+  });
+
+  describe('defaultValue (uncontrolled)', () => {
+    it('should start from the default value', async () => {
+      const { rating } = await renderRating('[ngpRatingDefaultValue]="2"');
+      expect(rating).toHaveAttribute('aria-valuenow', '2');
+    });
+
+    it('should let keyboard interaction override the default value (uncontrolled)', async () => {
+      const { rating } = await renderRating('[ngpRatingDefaultValue]="2"');
+      fireEvent.keyDown(rating, { key: 'ArrowUp' });
+      expect(rating).toHaveAttribute('aria-valuenow', '3');
+    });
+
+    it('should prefer a controlled value over the default value when both are provided', async () => {
+      const { rating } = await renderRating('[ngpRatingValue]="1" [ngpRatingDefaultValue]="4"');
+      expect(rating).toHaveAttribute('aria-valuenow', '1');
+    });
+
+    it('should fall back to the declared default when defaultValue is explicitly undefined', async () => {
+      const { rating } = await renderRating('[ngpRatingDefaultValue]="value"', {
+        value: undefined,
+      });
+      // a bound-undefined default must resolve to the declared default (0), not NaN
+      expect(rating).toHaveAttribute('aria-valuenow', '0');
     });
   });
 });

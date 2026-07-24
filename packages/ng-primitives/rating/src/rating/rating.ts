@@ -1,7 +1,7 @@
 import { BooleanInput, NumberInput } from '@angular/cdk/coercion';
 import { Directive, booleanAttribute, input, numberAttribute, output } from '@angular/core';
 import { SetterOptions } from 'ng-primitives/state';
-import { uniqueId } from 'ng-primitives/utils';
+import { coerceNumberOrUndefined, uniqueId } from 'ng-primitives/utils';
 import { injectRatingConfig } from '../config/rating-config';
 import { ngpRating, provideRatingState } from './rating-state';
 
@@ -24,11 +24,20 @@ export class NgpRating {
   readonly id = input<string>(uniqueId('ngp-rating'));
 
   /**
-   * The value of the rating.
+   * The value of the rating. When defined the rating is controlled.
    */
-  readonly value = input<number, NumberInput>(0, {
+  readonly value = input<number | undefined, NumberInput>(undefined, {
     alias: 'ngpRatingValue',
-    transform: numberAttribute,
+    transform: coerceNumberOrUndefined,
+  });
+
+  /**
+   * The default value of the rating for uncontrolled usage.
+   * @default 0
+   */
+  readonly defaultValue = input<number, NumberInput>(0, {
+    alias: 'ngpRatingDefaultValue',
+    transform: (value: NumberInput) => numberAttribute(value, 0),
   });
 
   /**
@@ -91,6 +100,7 @@ export class NgpRating {
   protected readonly state = ngpRating({
     id: this.id,
     value: this.value,
+    defaultValue: this.defaultValue,
     count: this.count,
     allowHalf: this.allowHalf,
     disabled: this.disabled,

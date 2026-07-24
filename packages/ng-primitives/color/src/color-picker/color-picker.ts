@@ -17,9 +17,14 @@ export class NgpColorPicker {
   /** The id of the picker. */
   readonly id = input<string>(uniqueId('ngp-color-picker'));
 
-  /** The color value. */
-  readonly value = input<Color>(Color.parse('#ff0000'), {
+  /** The color value. When defined the picker is controlled. */
+  readonly value = input<Color | undefined>(undefined, {
     alias: 'ngpColorPickerValue',
+  });
+
+  /** The default color value for uncontrolled usage. */
+  readonly defaultValue = input<Color>(Color.parse('#ff0000'), {
+    alias: 'ngpColorPickerDefaultValue',
   });
 
   /** Emits when the value changes. */
@@ -30,6 +35,7 @@ export class NgpColorPicker {
   protected readonly state = ngpColorPicker({
     id: this.id,
     value: this.value,
+    defaultValue: this.defaultValue,
     onValueChange: value => this.valueChange.emit(value),
   });
 

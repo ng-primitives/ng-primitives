@@ -60,8 +60,10 @@ describe('NumberField (reusable component) — standalone', () => {
   });
 
   it('increments the value when the increment button is clicked', async () => {
-    const { fixture } = await render(`<app-number-field value="5"></app-number-field>`, {
+    // `value` is the controlled input, so a two-way binding round-trips the change.
+    const { fixture } = await render(`<app-number-field [(value)]="value"></app-number-field>`, {
       imports: [NumberFieldFixture],
+      componentProperties: { value: 5 },
     });
 
     fireEvent.pointerDown(screen.getByTestId('increment'));
@@ -71,8 +73,9 @@ describe('NumberField (reusable component) — standalone', () => {
   });
 
   it('decrements the value when the decrement button is clicked', async () => {
-    const { fixture } = await render(`<app-number-field value="5"></app-number-field>`, {
+    const { fixture } = await render(`<app-number-field [(value)]="value"></app-number-field>`, {
       imports: [NumberFieldFixture],
+      componentProperties: { value: 5 },
     });
 
     fireEvent.pointerDown(screen.getByTestId('decrement'));
@@ -83,8 +86,8 @@ describe('NumberField (reusable component) — standalone', () => {
 
   it('increments the value with the ArrowUp key', async () => {
     const { fixture } = await render(
-      `<app-number-field value="5" min="0" max="10"></app-number-field>`,
-      { imports: [NumberFieldFixture] },
+      `<app-number-field [(value)]="value" min="0" max="10"></app-number-field>`,
+      { imports: [NumberFieldFixture], componentProperties: { value: 5 } },
     );
 
     const input = screen.getByRole('spinbutton');

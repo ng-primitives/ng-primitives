@@ -19,8 +19,13 @@ export class NgpColorWheel {
   readonly id = input<string>(uniqueId('ngp-color-wheel'));
 
   /** The color value. */
-  readonly value = input<Color>(Color.parse('hsl(0, 100%, 50%)'), {
+  readonly value = input<Color | undefined>(undefined, {
     alias: 'ngpColorWheelValue',
+  });
+
+  /** The default color value for uncontrolled usage. */
+  readonly defaultValue = input<Color>(Color.parse('hsl(0, 100%, 50%)'), {
+    alias: 'ngpColorWheelDefaultValue',
   });
 
   /** Emits when the value changes. */
@@ -42,6 +47,7 @@ export class NgpColorWheel {
   protected readonly state = ngpColorWheel({
     id: this.id,
     value: this.value,
+    defaultValue: this.defaultValue,
     colorSpace: this.colorSpace,
     disabled: this.disabled,
     onValueChange: value => this.valueChange.emit(value),

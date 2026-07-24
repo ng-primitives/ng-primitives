@@ -34,9 +34,10 @@ describe('RangeSlider (reusable component) — standalone', () => {
   });
 
   it('updates the low thumb value with the keyboard', async () => {
+    // low/high are controlled inputs, so two-way bindings round-trip the change.
     const { fixture } = await render(
-      `<app-range-slider [low]="20" [high]="80" [min]="0" [max]="100" [step]="1"></app-range-slider>`,
-      { imports: [RangeSlider] },
+      `<app-range-slider [(low)]="low" [(high)]="high" [min]="0" [max]="100" [step]="1"></app-range-slider>`,
+      { imports: [RangeSlider], componentProperties: { low: 20, high: 80 } },
     );
     await fixture.whenStable();
 
@@ -50,8 +51,8 @@ describe('RangeSlider (reusable component) — standalone', () => {
 
   it('clamps the low thumb so it cannot cross the high thumb', async () => {
     const { fixture } = await render(
-      `<app-range-slider [low]="20" [high]="80" [min]="0" [max]="100" [step]="1"></app-range-slider>`,
-      { imports: [RangeSlider] },
+      `<app-range-slider [(low)]="low" [(high)]="high" [min]="0" [max]="100" [step]="1"></app-range-slider>`,
+      { imports: [RangeSlider], componentProperties: { low: 20, high: 80 } },
     );
     await fixture.whenStable();
 

@@ -50,6 +50,11 @@ export interface NgpPaginationState {
    */
   setPage: (page: number, options?: SetterOptions) => void;
   /**
+   * Set the default page for uncontrolled usage.
+   * @param page The default page to set.
+   */
+  setDefaultPage: (page: number) => void;
+  /**
    * Go to the specified page.
    * @param page The page to go to.
    */
@@ -87,7 +92,7 @@ export const [
   'NgpPagination',
   ({
     page: _page = signal<number | undefined>(undefined),
-    defaultPage: _defaultPage = signal<number>(1),
+    defaultPage: _defaultPage,
     pageCount: _pageCount = signal<number>(0),
     disabled: _disabled = signal<boolean>(false),
     onPageChange,
@@ -97,10 +102,11 @@ export const [
     // controlled so a form control can set the disabled state via setDisabled,
     // while still following the `disabled` input when it is bound
     const disabled = controlled(_disabled);
+    const defaultPage = controlled(_defaultPage, 1);
 
     const [page, setPage, pageChange] = controlledState({
       value: _page,
-      defaultValue: _defaultPage,
+      defaultValue: defaultPage,
       onChange: onPageChange,
     });
 
@@ -139,6 +145,7 @@ export const [
       firstPage,
       lastPage,
       setPage,
+      setDefaultPage: defaultPage.set,
       goToPage,
     } satisfies NgpPaginationState;
   },

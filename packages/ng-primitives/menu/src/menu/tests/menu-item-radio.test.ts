@@ -77,6 +77,56 @@ class TestMenuRadioComponent {
 })
 class TestMenuRadioDisabledComponent {}
 
+@Component({
+  template: `
+    <button [ngpMenuTrigger]="menu" data-testid="trigger">Open Menu</button>
+
+    <ng-template #menu>
+      <div ngpMenu data-testid="menu">
+        <div
+          [ngpMenuItemRadioGroupValue]="theme"
+          (ngpMenuItemRadioGroupValueChange)="lastChange = $event"
+          ngpMenuItemRadioGroup
+        >
+          <button ngpMenuItemRadio ngpMenuItemRadioValue="light" data-testid="radio-light">
+            Light
+          </button>
+          <button ngpMenuItemRadio ngpMenuItemRadioValue="dark" data-testid="radio-dark">
+            Dark
+          </button>
+        </div>
+      </div>
+    </ng-template>
+  `,
+  imports: [NgpMenuTrigger, NgpMenu, NgpMenuItemRadioGroup, NgpMenuItemRadio],
+})
+class TestMenuRadioControlledComponent {
+  // controlled but never updated in response to the change event
+  readonly theme = 'light';
+  lastChange: string | undefined;
+}
+
+@Component({
+  template: `
+    <button [ngpMenuTrigger]="menu" data-testid="trigger">Open Menu</button>
+
+    <ng-template #menu>
+      <div ngpMenu data-testid="menu">
+        <div ngpMenuItemRadioGroupDefaultValue="light" ngpMenuItemRadioGroup>
+          <button ngpMenuItemRadio ngpMenuItemRadioValue="light" data-testid="radio-light">
+            Light
+          </button>
+          <button ngpMenuItemRadio ngpMenuItemRadioValue="dark" data-testid="radio-dark">
+            Dark
+          </button>
+        </div>
+      </div>
+    </ng-template>
+  `,
+  imports: [NgpMenuTrigger, NgpMenu, NgpMenuItemRadioGroup, NgpMenuItemRadio],
+})
+class TestMenuRadioDefaultComponent {}
+
 async function openMenu(fixture: any) {
   const trigger = fixture.debugElement.nativeElement.querySelector('[data-testid="trigger"]');
   fireEvent.click(trigger);
@@ -215,5 +265,36 @@ describe('NgpMenuItemRadioGroup', () => {
 
     // Theme should not have changed
     expect(fixture.componentInstance.theme).toBe(originalTheme);
+  });
+
+  it('should emit valueChange on select but not update the DOM when controlled without round-trip', async () => {
+    const { fixture } = await render(TestMenuRadioControlledComponent);
+    await openMenu(fixture);
+
+    const light = document.querySelector('[data-testid="radio-light"]')!;
+    const dark = document.querySelector('[data-testid="radio-dark"]')!;
+    expect(light).toHaveAttribute('aria-checked', 'true');
+
+    fireEvent.click(dark);
+    TestBed.flushEffects();
+
+    // notified, but the controlled value is never written back so it stays put
+    expect(fixture.componentInstance.lastChange).toBe('dark');
+    expect(light).toHaveAttribute('aria-checked', 'true');
+    expect(dark).toHaveAttribute('aria-checked', 'false');
+  });
+
+  it('should start from ngpMenuItemRadioGroupDefaultValue and select uncontrolled', async () => {
+    const { fixture } = await render(TestMenuRadioDefaultComponent);
+    await openMenu(fixture);
+
+    const light = document.querySelector('[data-testid="radio-light"]')!;
+    const dark = document.querySelector('[data-testid="radio-dark"]')!;
+    expect(light).toHaveAttribute('aria-checked', 'true');
+
+    fireEvent.click(dark);
+    TestBed.flushEffects();
+    expect(dark).toHaveAttribute('aria-checked', 'true');
+    expect(light).toHaveAttribute('aria-checked', 'false');
   });
 });

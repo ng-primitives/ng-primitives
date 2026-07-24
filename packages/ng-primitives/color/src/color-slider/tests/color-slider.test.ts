@@ -10,7 +10,7 @@ function template(extra = ''): string {
     <div
       ngpColorSlider
       data-testid="slider"
-      [ngpColorSliderValue]="value"
+      [ngpColorSliderDefaultValue]="value"
       [ngpColorSliderChannel]="channel"
       ${extra}
       (ngpColorSliderValueChange)="onChange($event)">
@@ -118,5 +118,41 @@ describe('NgpColorSlider', () => {
     expect(thumb).toHaveAttribute('data-disabled', '');
     fireEvent.keyDown(thumb, { key: 'ArrowUp' });
     expect(onChange).not.toHaveBeenCalled();
+  });
+
+  describe('value binding (standalone)', () => {
+    it('one-way controlled: emits but does not move the thumb without a round-trip', async () => {
+      const onChange = vi.fn<(c: Color) => void>();
+      const { getByTestId } = await render(
+        `<div ngpColorSlider [ngpColorSliderValue]="value" ngpColorSliderChannel="hue"
+              (ngpColorSliderValueChange)="onChange($event)" data-testid="slider">
+           <div ngpColorSliderTrack></div>
+           <div ngpColorSliderThumb data-testid="thumb"></div>
+         </div>`,
+        { imports, componentProperties: { value: Color.parse('#ff0000'), onChange } },
+      );
+      const thumb = getByTestId('thumb');
+      expect(thumb).toHaveAttribute('aria-valuenow', '0');
+
+      fireEvent.keyDown(thumb, { key: 'ArrowUp' });
+
+      expect(onChange).toHaveBeenCalledTimes(1);
+      expect(thumb).toHaveAttribute('aria-valuenow', '0');
+    });
+
+    it('two-way: round-trips and moves the thumb', async () => {
+      const { getByTestId } = await render(
+        `<div ngpColorSlider [(ngpColorSliderValue)]="value" ngpColorSliderChannel="hue" data-testid="slider">
+           <div ngpColorSliderTrack></div>
+           <div ngpColorSliderThumb data-testid="thumb"></div>
+         </div>`,
+        { imports, componentProperties: { value: Color.parse('#ff0000') } },
+      );
+      const thumb = getByTestId('thumb');
+      expect(thumb).toHaveAttribute('aria-valuenow', '0');
+
+      fireEvent.keyDown(thumb, { key: 'ArrowUp' });
+      expect(thumb).toHaveAttribute('aria-valuenow', '1');
+    });
   });
 });

@@ -23,10 +23,17 @@ export class NgpListbox<T> {
   });
 
   /**
-   * The listbox selection.
+   * The listbox selection. When defined the listbox is controlled.
    */
-  readonly value = input<T[]>([], {
+  readonly value = input<T[] | undefined>(undefined, {
     alias: 'ngpListboxValue',
+  });
+
+  /**
+   * The default listbox selection for uncontrolled usage.
+   */
+  readonly defaultValue = input<T[]>([], {
+    alias: 'ngpListboxDefaultValue',
   });
 
   /**
@@ -57,6 +64,7 @@ export class NgpListbox<T> {
       id: this.id,
       mode: this.mode,
       value: this.value,
+      defaultValue: this.defaultValue,
       disabled: this.disabled,
       compareWith: this.compareWith,
       onValueChange: (value: T[]) => this.valueChange.emit(value),

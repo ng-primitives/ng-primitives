@@ -8,9 +8,9 @@ import { injectPopoverTriggerState } from 'ng-primitives/popover';
 import {
   attrBinding,
   controlled,
+  controlledState,
   createPrimitive,
   deprecatedSetter,
-  emitter,
   listener,
   SetterOptions,
   StateInjectionOptions,
@@ -71,6 +71,10 @@ export interface NgpListboxState<T> {
    * Sets the listbox selection.
    */
   setValue: (value: T[], options?: SetterOptions) => void;
+  /**
+   * Sets the default listbox selection used in uncontrolled mode.
+   */
+  setDefaultValue: (value: T[]) => void;
   setDisabled: (value: boolean) => void;
 }
 
@@ -84,9 +88,13 @@ export interface NgpListboxProps<T> {
    */
   readonly mode?: Signal<NgpSelectionMode>;
   /**
-   * The listbox selection.
+   * The listbox selection. When defined the listbox is controlled.
    */
-  readonly value?: Signal<T[]>;
+  readonly value?: Signal<T[] | undefined>;
+  /**
+   * The default listbox selection for uncontrolled usage.
+   */
+  readonly defaultValue?: Signal<T[]>;
   /**
    * The listbox disabled state.
    */
@@ -108,7 +116,8 @@ export const [NgpListboxStateToken, ngpListbox, _injectListboxState, provideList
     <T>({
       id = signal(uniqueId('ngp-listbox')),
       mode = signal<NgpSelectionMode>('single'),
-      value: _value = signal<T[]>([]),
+      value: _value = signal<T[] | undefined>(undefined),
+      defaultValue: _defaultValue,
       disabled: _disabled = signal<boolean>(false),
       compareWith = signal<(a: T, b: T) => boolean>((a, b) => a === b),
       onValueChange,
@@ -120,8 +129,12 @@ export const [NgpListboxStateToken, ngpListbox, _injectListboxState, provideList
       const options = signal<NgpListboxOptionState<T>[]>([]);
       const isFocused = signal<boolean>(false);
 
-      const value = controlled(_value);
-      const valueChange = emitter<T[]>();
+      const defaultValue = controlled(_defaultValue, []);
+      const [value, setValueInternal, valueChange] = controlledState<T[]>({
+        value: _value,
+        defaultValue,
+        onChange: onValueChange,
+      });
 
       const disabled = controlled(_disabled);
       const tabIndex = computed(() => (disabled() ? -1 : 0));
@@ -222,12 +235,11 @@ export const [NgpListboxStateToken, ngpListbox, _injectListboxState, provideList
       }
 
       function setValue(newValue: T[], options?: SetterOptions): void {
-        value.set(newValue);
+        setValueInternal(newValue, options);
+      }
 
-        if (options?.emit !== false) {
-          valueChange.emit(newValue);
-          onValueChange?.(newValue);
-        }
+      function setDefaultValue(newValue: T[]): void {
+        defaultValue.set(newValue);
       }
 
       function selectOption(val: T, origin: FocusOrigin): void {
@@ -282,13 +294,14 @@ export const [NgpListboxStateToken, ngpListbox, _injectListboxState, provideList
         disabled: deprecatedSetter(disabled, 'setDisabled', setDisabled),
         isFocused,
         activeDescendantManager: activeDescendant,
-        valueChange: valueChange.asObservable(),
+        valueChange,
         selectOption,
         isSelected,
         activateOption,
         addOption,
         removeOption,
         setValue,
+        setDefaultValue,
         setDisabled,
       } satisfies NgpListboxState<T>;
     },

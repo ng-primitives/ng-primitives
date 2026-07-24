@@ -691,4 +691,112 @@ describe('NgpListbox', () => {
       expect(container.getByTestId('opt-a')).not.toHaveAttribute('data-selected');
     });
   });
+
+  describe('controlled mode', () => {
+    it('should reflect a controlled value binding', async () => {
+      const container = await render(
+        `<div ngpListbox [ngpListboxValue]="['b']" data-testid="listbox">
+          <div ngpListboxOption ngpListboxOptionValue="a" data-testid="opt-a">A</div>
+          <div ngpListboxOption ngpListboxOptionValue="b" data-testid="opt-b">B</div>
+        </div>`,
+        { imports },
+      );
+
+      expect(container.getByTestId('opt-b')).toHaveAttribute('data-selected');
+      expect(container.getByTestId('opt-a')).not.toHaveAttribute('data-selected');
+    });
+
+    it('should update the DOM when a controlled value changes via two-way binding on click', async () => {
+      const container = await render(
+        `<div ngpListbox [(ngpListboxValue)]="value" data-testid="listbox">
+          <div ngpListboxOption ngpListboxOptionValue="a" data-testid="opt-a">A</div>
+          <div ngpListboxOption ngpListboxOptionValue="b" data-testid="opt-b">B</div>
+        </div>`,
+        { imports, componentProperties: { value: [] as string[] } },
+      );
+
+      fireEvent.click(container.getByTestId('opt-a'));
+      expect(container.getByTestId('opt-a')).toHaveAttribute('data-selected');
+
+      fireEvent.click(container.getByTestId('opt-b'));
+      expect(container.getByTestId('opt-b')).toHaveAttribute('data-selected');
+      expect(container.getByTestId('opt-a')).not.toHaveAttribute('data-selected');
+    });
+
+    it('should emit valueChange on click but not update the DOM when the parent does not update the binding', async () => {
+      const valueChange = vi.fn();
+      const container = await render(
+        `<div
+          ngpListbox
+          [ngpListboxValue]="value"
+          (ngpListboxValueChange)="valueChange($event)"
+          data-testid="listbox"
+        >
+          <div ngpListboxOption ngpListboxOptionValue="a" data-testid="opt-a">A</div>
+          <div ngpListboxOption ngpListboxOptionValue="b" data-testid="opt-b">B</div>
+        </div>`,
+        { imports, componentProperties: { value: ['a'] as string[], valueChange } },
+      );
+
+      // "a" is the controlled selection.
+      expect(container.getByTestId('opt-a')).toHaveAttribute('data-selected');
+
+      // Clicking another option notifies the consumer through valueChange, but
+      // because the parent never writes the new value back, the controlled
+      // selection must stay put — the internal value must not drift.
+      fireEvent.click(container.getByTestId('opt-b'));
+
+      expect(valueChange).toHaveBeenCalledWith(['b']);
+      expect(container.getByTestId('opt-a')).toHaveAttribute('data-selected');
+      expect(container.getByTestId('opt-b')).not.toHaveAttribute('data-selected');
+    });
+  });
+
+  describe('defaultValue (uncontrolled)', () => {
+    it('should select the default value on init', async () => {
+      const container = await render(
+        `<div ngpListbox [ngpListboxDefaultValue]="['b']" data-testid="listbox">
+          <div ngpListboxOption ngpListboxOptionValue="a" data-testid="opt-a">A</div>
+          <div ngpListboxOption ngpListboxOptionValue="b" data-testid="opt-b">B</div>
+        </div>`,
+        { imports },
+      );
+
+      expect(container.getByTestId('opt-b')).toHaveAttribute('data-selected');
+      expect(container.getByTestId('opt-a')).not.toHaveAttribute('data-selected');
+    });
+
+    it('should let a click override the default value (uncontrolled)', async () => {
+      const container = await render(
+        `<div ngpListbox [ngpListboxDefaultValue]="['b']" data-testid="listbox">
+          <div ngpListboxOption ngpListboxOptionValue="a" data-testid="opt-a">A</div>
+          <div ngpListboxOption ngpListboxOptionValue="b" data-testid="opt-b">B</div>
+        </div>`,
+        { imports },
+      );
+
+      fireEvent.click(container.getByTestId('opt-a'));
+
+      expect(container.getByTestId('opt-a')).toHaveAttribute('data-selected');
+      expect(container.getByTestId('opt-b')).not.toHaveAttribute('data-selected');
+    });
+
+    it('should prefer a controlled value over the default value when both are provided', async () => {
+      const container = await render(
+        `<div
+          ngpListbox
+          [ngpListboxValue]="['a']"
+          [ngpListboxDefaultValue]="['b']"
+          data-testid="listbox"
+        >
+          <div ngpListboxOption ngpListboxOptionValue="a" data-testid="opt-a">A</div>
+          <div ngpListboxOption ngpListboxOptionValue="b" data-testid="opt-b">B</div>
+        </div>`,
+        { imports },
+      );
+
+      expect(container.getByTestId('opt-a')).toHaveAttribute('data-selected');
+      expect(container.getByTestId('opt-b')).not.toHaveAttribute('data-selected');
+    });
+  });
 });

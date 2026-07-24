@@ -3,9 +3,9 @@ import { injectElementRef } from 'ng-primitives/internal';
 import {
   attrBinding,
   controlled,
+  controlledState,
   createPrimitive,
   dataBinding,
-  emitter,
   listener,
 } from 'ng-primitives/state';
 import { Observable } from 'rxjs';
@@ -26,13 +26,23 @@ export interface NgpMenuItemCheckboxState {
    * Toggle the checkbox value.
    */
   toggle(): void;
+
+  /**
+   * Set the default checked state used in uncontrolled mode.
+   */
+  setDefaultChecked(value: boolean): void;
 }
 
 export interface NgpMenuItemCheckboxProps {
   /**
-   * Whether the checkbox is checked.
+   * Whether the checkbox is checked. When defined the checkbox is controlled.
    */
-  readonly checked?: Signal<boolean>;
+  readonly checked?: Signal<boolean | undefined>;
+
+  /**
+   * The default checked state for uncontrolled usage.
+   */
+  readonly defaultChecked?: Signal<boolean>;
 
   /**
    * Whether the checkbox is disabled.
@@ -53,13 +63,18 @@ export const [
 ] = createPrimitive(
   'NgpMenuItemCheckbox',
   ({
-    checked: _checked = signal(false),
+    checked: _checked = signal<boolean | undefined>(undefined),
+    defaultChecked: _defaultChecked,
     disabled = signal(false),
     onCheckedChange,
   }: NgpMenuItemCheckboxProps): NgpMenuItemCheckboxState => {
     const element = injectElementRef();
-    const checked = controlled(_checked);
-    const checkedChange = emitter<boolean>();
+    const defaultChecked = controlled(_defaultChecked, false);
+    const [checked, setChecked, checkedChange] = controlledState({
+      value: _checked,
+      defaultValue: defaultChecked,
+      onChange: onCheckedChange,
+    });
 
     // Use base menu item behavior but don't close on select
     ngpMenuItem({ disabled, closeOnSelect: signal(false), role: 'menuitemcheckbox' });
@@ -76,16 +91,14 @@ export const [
         return;
       }
 
-      const nextChecked = !checked();
-      checked.set(nextChecked);
-      onCheckedChange?.(nextChecked);
-      checkedChange.emit(nextChecked);
+      setChecked(!checked());
     }
 
     return {
       checked,
-      checkedChange: checkedChange.asObservable(),
+      checkedChange,
       toggle,
+      setDefaultChecked: defaultChecked.set,
     } satisfies NgpMenuItemCheckboxState;
   },
 );
