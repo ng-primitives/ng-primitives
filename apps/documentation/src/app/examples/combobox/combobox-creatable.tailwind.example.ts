@@ -11,7 +11,7 @@ import {
 } from 'ng-primitives/combobox';
 
 @Component({
-  selector: 'app-combobox-creatable',
+  selector: 'app-combobox-creatable-tailwind',
   imports: [
     NgpCombobox,
     NgpComboboxDropdown,
@@ -24,25 +24,39 @@ import {
   providers: [provideIcons({ heroChevronDown, heroPlus })],
   template: `
     <div
+      class="relative box-border flex h-[2.125rem] w-[300px] items-center justify-between rounded-lg border border-gray-200 bg-white transition-colors focus-within:outline-2 focus-within:outline-offset-2 focus-within:outline-blue-500 dark:border-gray-700 dark:bg-transparent dark:focus-within:outline-blue-400"
       [(ngpComboboxValue)]="value"
       (ngpComboboxValueChange)="onValueChange($event)"
       (ngpComboboxOpenChange)="resetOnClose($event)"
       ngpCombobox
     >
       <input
+        class="font-inherit h-full flex-1 border-none bg-transparent px-4 text-[14px] text-gray-900 outline-hidden focus:ring-0 dark:bg-transparent dark:text-gray-100"
         [value]="inputValue()"
         (input)="onFilterChange($event)"
         placeholder="Select or create an option"
         ngpComboboxInput
       />
 
-      <button ngpComboboxButton aria-label="Toggle dropdown">
+      <button
+        class="box-border inline-flex h-full w-9 cursor-pointer items-center justify-center border-none bg-transparent text-gray-900 focus:outline-hidden dark:text-gray-100 dark:hover:text-gray-200"
+        ngpComboboxButton
+        aria-label="Toggle dropdown"
+      >
         <ng-icon name="heroChevronDown" />
       </button>
 
-      <div *ngpComboboxPortal ngpComboboxDropdown>
+      <div
+        class="absolute left-0 z-1001 mt-1 box-border max-h-[240px] w-[300px] overflow-y-auto rounded-[12px] border border-gray-200 bg-white p-1 shadow-lg outline-hidden dark:border-zinc-800 dark:bg-zinc-950"
+        *ngpComboboxPortal
+        ngpComboboxDropdown
+      >
         @for (option of filteredOptions(); track option) {
-          <div [ngpComboboxOptionValue]="option" ngpComboboxOption>
+          <div
+            class="box-border flex h-[2.125rem] w-full cursor-pointer items-center gap-2 rounded-lg px-3 text-sm tracking-[-0.006em] text-gray-900 transition-colors hover:bg-gray-100 data-active:bg-gray-100 data-press:bg-gray-100 data-selected:font-[510] data-selected:text-[#f01e2b] dark:text-gray-100 dark:hover:bg-white/10 dark:data-active:bg-white/10 dark:data-press:bg-white/20 dark:data-selected:text-[#ff4651]"
+            [ngpComboboxOptionValue]="option"
+            ngpComboboxOption
+          >
             {{ option }}
           </div>
         }
@@ -55,166 +69,27 @@ import {
           selection path and emits the typed value via ngpComboboxValueChange.
         -->
         @if (canCreate()) {
-          <div class="create-option" [ngpComboboxOptionValue]="query()" ngpComboboxOption>
-            <ng-icon name="heroPlus" />
-            <span>Create "{{ query() }}"</span>
+          <div
+            class="box-border flex h-[2.125rem] w-full cursor-pointer items-center gap-2 rounded-lg px-3 text-sm tracking-[-0.006em] text-gray-500 transition-colors hover:bg-gray-100 data-active:bg-gray-100 data-press:bg-gray-100 dark:text-gray-400 dark:hover:bg-white/10 dark:data-active:bg-white/10 dark:data-press:bg-white/20"
+            [ngpComboboxOptionValue]="query()"
+            ngpComboboxOption
+          >
+            <ng-icon name="heroPlus" class="text-base text-gray-400 dark:text-gray-500" />
+            <span class="overflow-hidden text-ellipsis whitespace-nowrap">
+              Create "{{ query() }}"
+            </span>
           </div>
         }
 
         @if (filteredOptions().length === 0 && !canCreate()) {
-          <div class="empty-message">No options found</div>
+          <div
+            class="flex items-center justify-center p-2 text-center text-sm font-[510] text-gray-400 dark:text-gray-600"
+          >
+            No options found
+          </div>
         }
       </div>
     </div>
-  `,
-  styles: `
-    [ngpCombobox] {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      height: 2.125rem;
-      width: 300px;
-      border-radius: 0.5rem;
-      border: none;
-      background-color: var(--ngp-background);
-      box-shadow: var(--ngp-input-shadow);
-      box-sizing: border-box;
-    }
-
-    [ngpCombobox][data-focus] {
-      outline: 2px solid var(--ngp-focus-ring);
-      outline-offset: 2px;
-    }
-
-    [ngpComboboxInput] {
-      flex: 1;
-      padding: 0 16px;
-      border: none;
-      background-color: transparent;
-      color: var(--ngp-text-primary);
-      font-family: inherit;
-      font-size: 14px;
-      padding: 0 16px;
-      outline: none;
-      height: 100%;
-    }
-
-    [ngpComboboxButton] {
-      display: inline-flex;
-      justify-content: center;
-      align-items: center;
-      height: 100%;
-      width: 36px;
-      background-color: transparent;
-      border: none;
-      color: var(--ngp-text-primary);
-      cursor: pointer;
-      box-sizing: border-box;
-    }
-
-    [ngpComboboxDropdown] {
-      background-color: var(--ngp-background);
-      border: 1px solid var(--ngp-border);
-      padding: 0.25rem;
-      border-radius: 0.75rem;
-      outline: none;
-      position: absolute;
-      animation: popover-show 0.1s ease-out;
-      width: var(--ngp-combobox-width);
-      box-shadow: var(--ngp-shadow-lg);
-      box-sizing: border-box;
-      margin-top: 4px;
-      max-height: 240px;
-      overflow-y: auto;
-      z-index: 1001;
-    }
-
-    [ngpComboboxDropdown][data-enter] {
-      animation: combobox-show 0.1s ease-out;
-    }
-
-    [ngpComboboxDropdown][data-exit] {
-      animation: combobox-hide 0.1s ease-out;
-    }
-
-    [ngpComboboxOption] {
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-      padding: 0.375rem 0.75rem;
-      cursor: pointer;
-      border-radius: 0.5rem;
-      width: 100%;
-      height: 2.125rem;
-      font-size: 14px;
-      color: var(--ngp-text-primary);
-      box-sizing: border-box;
-    }
-
-    [ngpComboboxOption][data-hover] {
-      background-color: var(--ngp-background-hover);
-    }
-
-    [ngpComboboxOption][data-press] {
-      background-color: var(--ngp-background-active);
-    }
-
-    [ngpComboboxOption][data-active] {
-      background-color: var(--ngp-background-active);
-    }
-
-    [ngpComboboxOption][data-selected] {
-      color: var(--ngp-primary);
-      font-weight: 510;
-    }
-
-    .create-option {
-      color: var(--ngp-text-secondary);
-    }
-
-    .create-option ng-icon {
-      color: var(--ngp-text-tertiary);
-      font-size: 1rem;
-    }
-
-    .create-option span {
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-    }
-
-    .empty-message {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      padding: 0.5rem;
-      color: var(--ngp-text-secondary);
-      font-size: 14px;
-      font-weight: 510;
-      text-align: center;
-    }
-
-    @keyframes combobox-show {
-      0% {
-        opacity: 0;
-        transform: translateY(-10px) scale(0.9);
-      }
-      100% {
-        opacity: 1;
-        transform: translateY(0) scale(1);
-      }
-    }
-
-    @keyframes combobox-hide {
-      0% {
-        opacity: 1;
-        transform: translateY(0) scale(1);
-      }
-      100% {
-        opacity: 0;
-        transform: translateY(-10px) scale(0.9);
-      }
-    }
   `,
 })
 export default class ComboboxCreatableExample {
