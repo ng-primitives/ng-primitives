@@ -62,11 +62,12 @@ import {
         }
 
         <!--
-          The "create" option is a regular option whose value is the current query.
-          When the query matches no existing option it is the only item in the list,
-          so it becomes the active descendant and is committed on Enter — no bespoke
-          keyboard handling required. Selecting it routes through the standard
-          selection path and emits the typed value via ngpComboboxValueChange.
+          The "create" option is a regular option whose value is the current query,
+          rendered after the filtered matches. When nothing matches the filter it is
+          the only item, so it is the active descendant and Enter commits it. When
+          there are matches they take precedence on Enter, and the create option is
+          reached with the arrow keys. Either way, selecting it routes through the
+          standard selection path and emits the typed value via ngpComboboxValueChange.
         -->
         @if (canCreate()) {
           <div
