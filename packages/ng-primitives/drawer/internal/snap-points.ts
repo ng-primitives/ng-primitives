@@ -3,6 +3,12 @@ import { NgpDrawerSnapPoint } from '../drawer.types';
 
 export interface ResolvedDrawerSnapPoint {
   readonly value: NgpDrawerSnapPoint;
+  /**
+   * Every declared value that resolves to this height, in declaration order. Deduplication keeps a
+   * single point per height, so the declared values it absorbed must stay resolvable - otherwise an
+   * active or default snap point declared as an equivalent value no longer matches any point.
+   */
+  readonly values: readonly NgpDrawerSnapPoint[];
   readonly height: number;
   readonly offset: number;
   readonly declaredIndex: number;
@@ -29,7 +35,14 @@ export function resolveDrawerSnapPoints(
     }
     const height = Math.min(maximum, Math.max(0, rawHeight));
     const duplicateIndex = resolved.findIndex(point => Math.abs(point.height - height) <= 1);
-    const point = { value, height, offset: popupHeight - height, declaredIndex };
+    const duplicate = duplicateIndex >= 0 ? resolved[duplicateIndex] : null;
+    const point = {
+      value,
+      values: duplicate ? [...duplicate.values, value] : [value],
+      height,
+      offset: popupHeight - height,
+      declaredIndex,
+    };
     if (duplicateIndex >= 0) {
       resolved.splice(duplicateIndex, 1, point);
     } else {

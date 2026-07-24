@@ -1129,7 +1129,7 @@ export class NgpDrawerViewport {
       return null;
     }
     return (
-      points.find(point => point.value === configured) ??
+      points.find(point => point.values.includes(configured)) ??
       closestDrawerSnapPoint(points, popupHeight)
     );
   }
