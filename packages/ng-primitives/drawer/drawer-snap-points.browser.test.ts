@@ -281,7 +281,7 @@ describe('Drawer snap point integration', () => {
     expect(fixture.componentInstance.active()).toBe('100px');
   });
 
-  it('derives up-direction snap progress from physical vertical movement', async () => {
+  it('derives up-direction snap progress from direction-normalised movement', async () => {
     fixture.componentInstance.points.set(['100px', '300px']);
     fixture.componentInstance.defaultPoint.set('300px');
     fixture.componentInstance.active.set('300px');
@@ -290,10 +290,27 @@ describe('Drawer snap point integration', () => {
     const { viewport, popup } = await openDrawer();
 
     dispatchPointer(viewport, 'pointerdown', 0, 1, 23, 0);
-    dispatchPointer(viewport, 'pointermove', 50, 1, 23, 100);
+    // An up drawer collapses as the pointer moves up, so upward movement - not raw positive Y -
+    // advances the snap progress.
+    dispatchPointer(viewport, 'pointermove', -50, 1, 23, 100);
 
-    expect(popup.style.getPropertyValue('--ngp-drawer-swipe-movement-y')).toBe('50px');
+    expect(popup.style.getPropertyValue('--ngp-drawer-swipe-movement-y')).toBe('-50px');
     expect(Number(popup.style.getPropertyValue('--ngp-drawer-swipe-progress'))).toBeCloseTo(0.25);
+    viewport.dispatchEvent(new MouseEvent('contextmenu', { bubbles: true }));
+  });
+
+  it('does not advance up-direction snap progress while expanding', async () => {
+    fixture.componentInstance.points.set(['100px', '300px']);
+    fixture.componentInstance.defaultPoint.set('300px');
+    fixture.componentInstance.active.set('300px');
+    fixture.componentInstance.direction.set('up');
+    fixture.detectChanges();
+    const { viewport, popup } = await openDrawer();
+
+    dispatchPointer(viewport, 'pointerdown', 0, 1, 24, 0);
+    dispatchPointer(viewport, 'pointermove', 50, 1, 24, 100);
+
+    expect(Number(popup.style.getPropertyValue('--ngp-drawer-swipe-progress'))).toBe(0);
     viewport.dispatchEvent(new MouseEvent('contextmenu', { bubbles: true }));
   });
 

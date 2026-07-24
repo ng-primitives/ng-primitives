@@ -959,8 +959,7 @@ export class NgpDrawerViewport {
     return {
       ...update,
       movement: { ...update.movement, [axis]: adjustedMovement },
-      progress:
-        this.resolveSnapProgress(points, active.offset + update.rawMovement.y) ?? update.progress,
+      progress: this.resolveSnapProgress(points, active.offset + signedMovement) ?? update.progress,
     };
   }
 
