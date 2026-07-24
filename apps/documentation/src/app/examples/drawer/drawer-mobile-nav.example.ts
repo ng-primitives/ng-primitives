@@ -53,7 +53,9 @@ interface NavigationItem {
                 <ul>
                   @for (item of items; track item.label) {
                     <li>
-                      <a [href]="item.href" (click)="$event.preventDefault()">{{ item.label }}</a>
+                      <a [href]="item.href" (click)="$event.preventDefault()" ngpDrawerClose>
+                        {{ item.label }}
+                      </a>
                     </li>
                   }
                 </ul>
