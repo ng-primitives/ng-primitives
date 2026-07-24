@@ -94,9 +94,7 @@ The following directives are available to import from the `ng-primitives/listbox
 
 <api-reference-attributes>
   <api-attribute name="data-hover" description="Applied to the listbox option when hovered." />
-  <api-attribute name="data-focus" description="Applied to the listbox option when focused." />
-  <api-attribute name="data-focus-visible" description="Applied to the listbox option when focused via the keyboard." />
-  <api-attribute name="data-active" description="Applied to the listbox option when it is the active descendant." />
+  <api-attribute name="data-active" description="Applied to the listbox option while the listbox is focused and the option is the active descendant (the option the listbox is currently pointing at via keyboard navigation, hover, or selection)." />
   <api-attribute name="data-disabled" description="Applied to the listbox option when it is disabled." />
   <api-attribute name="data-selected" description="Applied to the listbox option when it is selected." />
 </api-reference-attributes>

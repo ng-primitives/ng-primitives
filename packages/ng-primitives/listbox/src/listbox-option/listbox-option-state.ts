@@ -86,12 +86,13 @@ export const [
     // the option is the active descendant when the listbox's manager points at its id
     const active = computed(() => listboxState()?.activeDescendantManager.id() === id());
 
-    // Setup interactions
+    // Setup interactions. Options never receive DOM focus - the listbox uses the
+    // active-descendant pattern, so keyboard focus stays on the container and the
+    // active option is reflected via `data-active`. Requesting focus/focusVisible
+    // here would only add attributes that can never appear.
     ngpInteractions({
       hover: true,
       press: true,
-      focusVisible: true,
-      focus: true,
       disabled,
     });
 
