@@ -28,8 +28,10 @@ export class NgpDrawerClose {
   }
 
   close(event: Event): void {
-    if (!this.disabled()) {
-      this.state.requestOpen(false, 'close-press', { nativeEvent: event });
+    if (this.disabled()) {
+      event.preventDefault();
+      return;
     }
+    this.state.requestOpen(false, 'close-press', { nativeEvent: event });
   }
 }
