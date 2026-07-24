@@ -88,9 +88,13 @@ export class DrawerStackService {
   private readonly handleCloseWatcherClose = (event: Event): void => {
     const state = this.top();
     if (!state || this.hasBlockingOverlayAbove(state, 'escapeKey')) {
+      this.syncCloseWatcher();
       return;
     }
     state.requestOpen(false, 'escape-key', { nativeEvent: event });
+    // A watcher is spent once it has fired, so re-arm it whenever the drawer stayed open - a
+    // cancelled `beforeOpenChange` must not disable native Escape and Android back for good.
+    this.syncCloseWatcher();
   };
 
   constructor() {
