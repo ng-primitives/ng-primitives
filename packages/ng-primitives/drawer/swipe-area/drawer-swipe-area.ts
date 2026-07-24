@@ -73,6 +73,7 @@ export class NgpDrawerSwipeArea {
   private activePointerId: number | null = null;
   private ownedCapturePointerId: number | null = null;
   private ownsProvisionalOpen = false;
+  private provisionalOpenRequested = false;
   private gestureNativeEvent: Event | undefined;
   private animationFrame = 0;
   private pendingVisual: DrawerSwipeUpdate | null = null;
@@ -97,6 +98,7 @@ export class NgpDrawerSwipeArea {
     onStart: () => {
       this.state.swiping.set(true);
       this.ownsProvisionalOpen = false;
+      this.provisionalOpenRequested = false;
       this.gestureSize = null;
     },
     onMove: update => this.onMove(update),
@@ -393,12 +395,14 @@ export class NgpDrawerSwipeArea {
   }
 
   private onMove(update: DrawerSwipeUpdate): void {
-    if (!this.ownsProvisionalOpen && update.displacement >= 1) {
-      const wasClosed = !this.state.open();
-      const accepted =
-        wasClosed &&
-        this.state.requestOpen(true, 'swipe-area', { nativeEvent: this.gestureNativeEvent });
-      this.ownsProvisionalOpen = accepted && this.state.open();
+    // The provisional open is requested at most once per gesture: a cancelled `beforeOpenChange`
+    // must not be re-emitted on every move, and ownership follows the accepted request rather than
+    // `open()`, which a controlled input only reflects after the change has propagated.
+    if (!this.provisionalOpenRequested && update.displacement >= 1 && !this.state.open()) {
+      this.provisionalOpenRequested = true;
+      this.ownsProvisionalOpen = this.state.requestOpen(true, 'swipe-area', {
+        nativeEvent: this.gestureNativeEvent,
+      });
     }
     this.queueVisuals(update);
   }
@@ -484,6 +488,7 @@ export class NgpDrawerSwipeArea {
     this.state.visualStore.reset();
     this.restoreVisuals();
     this.ownsProvisionalOpen = false;
+    this.provisionalOpenRequested = false;
     this.gestureNativeEvent = undefined;
     this.gestureSize = null;
     this.gestureResizeObserver?.disconnect();
