@@ -219,7 +219,7 @@ import {
   `,
 })
 export default class ComboboxCreatableExample {
-  /** The options for the combobox — a writable signal so created values persist. */
+  /** The options for the combobox - a writable signal so created values persist. */
   readonly options = signal<string[]>([
     'Marty McFly',
     'Doc Brown',
@@ -245,7 +245,7 @@ export default class ComboboxCreatableExample {
   /** The filter value. */
   readonly filter = signal<string>('');
 
-  /** The normalised query — trimmed once so filtering, creating, and de-duping all agree. */
+  /** The normalised query - trimmed once so filtering, creating, and de-duping all agree. */
   protected readonly query = computed(() => this.filter().trim());
 
   /** Get the filtered options. */
@@ -255,7 +255,7 @@ export default class ComboboxCreatableExample {
   });
 
   /**
-   * Whether the current query can be created as a new option — it must be non-empty
+   * Whether the current query can be created as a new option - it must be non-empty
    * and not already exist (case-insensitive), so we never offer to create a duplicate.
    */
   protected readonly canCreate = computed(() => {

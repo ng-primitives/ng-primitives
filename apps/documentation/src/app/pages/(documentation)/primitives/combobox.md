@@ -124,15 +124,9 @@ Options without a value do not perform any selection by default. You can use thi
 
 ### Creatable Options
 
-To let users pick a value that isn't in the list, render a "create" option whose value is the current query. Because it is an ordinary `ngpComboboxOption`, it participates in keyboard navigation and is committed on `Enter` or click through the standard selection path — no bespoke key handling is required. It is rendered after the filtered matches: when nothing matches the filter, the create option is the only item, so it becomes the active descendant and `Enter` commits it immediately; when there are matches, they take precedence on `Enter` and the create option is reached with the arrow keys.
+To let users pick a value that isn't in the list, render a "create" option whose value is the current query. Because it is an ordinary `ngpComboboxOption`, it participates in keyboard navigation and is committed on `Enter` or click through the standard selection path - no bespoke key handling is required. It is rendered after the filtered matches: when nothing matches the filter, the create option is the only item, so it becomes the active descendant and `Enter` commits it immediately; when there are matches, they take precedence on `Enter` and the create option is reached with the arrow keys.
 
 <docs-example name="combobox-creatable"></docs-example>
-
-The pattern has three parts:
-
-- **Detect a creatable query** — the combobox does not own the input text, so you already have the query. Offer the create option only when the query is non-empty and does not exactly match an existing option (to avoid duplicates).
-- **Render it as an option** — bind the query to `ngpComboboxOptionValue`. Selecting it emits the typed value via `ngpComboboxValueChange`, exactly like any other option.
-- **Persist the new value** — add the committed value to your own options list in the value-change handler so it renders as a real, selectable option afterwards.
 
 ## Schematics
 
