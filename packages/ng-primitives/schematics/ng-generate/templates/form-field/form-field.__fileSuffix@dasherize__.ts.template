@@ -18,4 +18,4 @@ import { NgpFormField } from 'ng-primitives/form-field';
     }
   `,
 })
-export class FormField<%= componentSuffix %> {}
+export class Field<%= componentSuffix %> {}

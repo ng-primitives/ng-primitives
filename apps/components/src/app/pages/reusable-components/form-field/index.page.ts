@@ -1,9 +1,9 @@
 import { Component } from '@angular/core';
-import { FormField } from './form-field';
+import { Field } from './form-field';
 
 @Component({
   selector: 'app-form-field-example',
-  imports: [FormField],
+  imports: [Field],
   template: `
     <app-form-field>
       <!-- Add label and form control here -->

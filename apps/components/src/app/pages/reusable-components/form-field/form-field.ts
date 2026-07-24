@@ -16,4 +16,4 @@ import { NgpFormField } from 'ng-primitives/form-field';
     }
   `,
 })
-export class FormField {}
+export class Field {}
