@@ -1,0 +1,300 @@
+import { Component, computed, signal } from '@angular/core';
+import { NgIcon, provideIcons } from '@ng-icons/core';
+import { heroChevronDown, heroPlus } from '@ng-icons/heroicons/outline';
+import {
+  NgpCombobox,
+  NgpComboboxButton,
+  NgpComboboxDropdown,
+  NgpComboboxInput,
+  NgpComboboxOption,
+  NgpComboboxPortal,
+} from 'ng-primitives/combobox';
+
+@Component({
+  selector: 'app-combobox-creatable',
+  imports: [
+    NgpCombobox,
+    NgpComboboxDropdown,
+    NgpComboboxOption,
+    NgpComboboxInput,
+    NgpComboboxPortal,
+    NgpComboboxButton,
+    NgIcon,
+  ],
+  providers: [provideIcons({ heroChevronDown, heroPlus })],
+  template: `
+    <div
+      [(ngpComboboxValue)]="value"
+      (ngpComboboxValueChange)="onValueChange($event)"
+      (ngpComboboxOpenChange)="resetOnClose($event)"
+      ngpCombobox
+    >
+      <input
+        [value]="inputValue()"
+        (input)="onFilterChange($event)"
+        placeholder="Select or create an option"
+        ngpComboboxInput
+      />
+
+      <button ngpComboboxButton aria-label="Toggle dropdown">
+        <ng-icon name="heroChevronDown" />
+      </button>
+
+      <div *ngpComboboxPortal ngpComboboxDropdown>
+        @for (option of filteredOptions(); track option) {
+          <div [ngpComboboxOptionValue]="option" ngpComboboxOption>
+            {{ option }}
+          </div>
+        }
+
+        <!--
+          The "create" option is a regular option whose value is the current query.
+          When the query matches no existing option it is the only item in the list,
+          so it becomes the active descendant and is committed on Enter — no bespoke
+          keyboard handling required. Selecting it routes through the standard
+          selection path and emits the typed value via ngpComboboxValueChange.
+        -->
+        @if (canCreate()) {
+          <div class="create-option" [ngpComboboxOptionValue]="filter()" ngpComboboxOption>
+            <ng-icon name="heroPlus" />
+            <span>Create "{{ filter() }}"</span>
+          </div>
+        }
+
+        @if (filteredOptions().length === 0 && !canCreate()) {
+          <div class="empty-message">No options found</div>
+        }
+      </div>
+    </div>
+  `,
+  styles: `
+    [ngpCombobox] {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      height: 2.125rem;
+      width: 300px;
+      border-radius: 0.5rem;
+      border: none;
+      background-color: var(--ngp-background);
+      box-shadow: var(--ngp-input-shadow);
+      box-sizing: border-box;
+    }
+
+    [ngpCombobox][data-focus] {
+      outline: 2px solid var(--ngp-focus-ring);
+      outline-offset: 2px;
+    }
+
+    [ngpComboboxInput] {
+      flex: 1;
+      padding: 0 16px;
+      border: none;
+      background-color: transparent;
+      color: var(--ngp-text-primary);
+      font-family: inherit;
+      font-size: 14px;
+      padding: 0 16px;
+      outline: none;
+      height: 100%;
+    }
+
+    [ngpComboboxButton] {
+      display: inline-flex;
+      justify-content: center;
+      align-items: center;
+      height: 100%;
+      width: 36px;
+      background-color: transparent;
+      border: none;
+      color: var(--ngp-text-primary);
+      cursor: pointer;
+      box-sizing: border-box;
+    }
+
+    [ngpComboboxDropdown] {
+      background-color: var(--ngp-background);
+      border: 1px solid var(--ngp-border);
+      padding: 0.25rem;
+      border-radius: 0.75rem;
+      outline: none;
+      position: absolute;
+      animation: popover-show 0.1s ease-out;
+      width: var(--ngp-combobox-width);
+      box-shadow: var(--ngp-shadow-lg);
+      box-sizing: border-box;
+      margin-top: 4px;
+      max-height: 240px;
+      overflow-y: auto;
+      z-index: 1001;
+    }
+
+    [ngpComboboxDropdown][data-enter] {
+      animation: combobox-show 0.1s ease-out;
+    }
+
+    [ngpComboboxDropdown][data-exit] {
+      animation: combobox-hide 0.1s ease-out;
+    }
+
+    [ngpComboboxOption] {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.375rem 0.75rem;
+      cursor: pointer;
+      border-radius: 0.5rem;
+      width: 100%;
+      height: 2.125rem;
+      font-size: 14px;
+      color: var(--ngp-text-primary);
+      box-sizing: border-box;
+    }
+
+    [ngpComboboxOption][data-hover] {
+      background-color: var(--ngp-background-hover);
+    }
+
+    [ngpComboboxOption][data-press] {
+      background-color: var(--ngp-background-active);
+    }
+
+    [ngpComboboxOption][data-active] {
+      background-color: var(--ngp-background-active);
+    }
+
+    [ngpComboboxOption][data-selected] {
+      color: var(--ngp-primary);
+      font-weight: 510;
+    }
+
+    .create-option {
+      color: var(--ngp-text-secondary);
+    }
+
+    .create-option ng-icon {
+      color: var(--ngp-text-tertiary);
+      font-size: 1rem;
+    }
+
+    .create-option span {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .empty-message {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 0.5rem;
+      color: var(--ngp-text-secondary);
+      font-size: 14px;
+      font-weight: 510;
+      text-align: center;
+    }
+
+    @keyframes combobox-show {
+      0% {
+        opacity: 0;
+        transform: translateY(-10px) scale(0.9);
+      }
+      100% {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+    }
+
+    @keyframes combobox-hide {
+      0% {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+      100% {
+        opacity: 0;
+        transform: translateY(-10px) scale(0.9);
+      }
+    }
+  `,
+})
+export default class ComboboxCreatableExample {
+  /** The options for the combobox — a writable signal so created values persist. */
+  readonly options = signal<string[]>([
+    'Marty McFly',
+    'Doc Brown',
+    'Biff Tannen',
+    'George McFly',
+    'Jennifer Parker',
+    'Emmett Brown',
+    'Einstein',
+    'Clara Clayton',
+    'Needles',
+    'Goldie Wilson',
+    'Marvin Berry',
+    'Lorraine Baines',
+    'Strickland',
+  ]);
+
+  /** The selected value. */
+  readonly value = signal<string | undefined>(undefined);
+
+  /** The input value. */
+  readonly inputValue = signal<string>('');
+
+  /** The filter value. */
+  readonly filter = signal<string>('');
+
+  /** Get the filtered options. */
+  protected readonly filteredOptions = computed(() => {
+    const filter = this.filter().toLowerCase();
+    return this.options().filter(option => option.toLowerCase().includes(filter));
+  });
+
+  /**
+   * Whether the current query can be created as a new option — it must be non-empty
+   * and not already exist (case-insensitive), so we never offer to create a duplicate.
+   */
+  protected readonly canCreate = computed(() => {
+    const filter = this.filter().trim();
+
+    if (filter === '') {
+      return false;
+    }
+
+    return !this.options().some(option => option.toLowerCase() === filter.toLowerCase());
+  });
+
+  protected onFilterChange(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    this.inputValue.set(input.value);
+    this.filter.set(input.value);
+  }
+
+  protected onValueChange(value: string | undefined): void {
+    // If the committed value is a new one, add it to the list so it renders as a
+    // real, selectable option going forward.
+    if (value && !this.options().some(option => option.toLowerCase() === value.toLowerCase())) {
+      this.options.update(options => [...options, value]);
+    }
+
+    this.inputValue.set(value ?? '');
+    this.filter.set('');
+  }
+
+  protected resetOnClose(open: boolean): void {
+    // if the dropdown is closed, reset the filter value
+    if (open) {
+      return;
+    }
+
+    // if the input value is empty, set the value to undefined
+    if (this.inputValue() === '') {
+      this.value.set(undefined);
+    } else {
+      // otherwise set the input value to the selected value
+      this.inputValue.set(this.value() ?? '');
+    }
+
+    this.filter.set('');
+  }
+}
