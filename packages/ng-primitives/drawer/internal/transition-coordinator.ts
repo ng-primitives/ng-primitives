@@ -9,12 +9,27 @@ function toMilliseconds(value: string): number {
   return 0;
 }
 
+/**
+ * The longest `duration + delay` of a single effect list. CSS repeats the shorter list until it
+ * matches the longer one, so the delay of effect `index` is `delays[index % delays.length]` - the
+ * transition and animation lists must therefore be expanded independently of each other.
+ */
+function maximumEffectDuration(durationList: string, delayList: string): number {
+  const durations = durationList.split(',').map(toMilliseconds);
+  const delays = delayList.split(',').map(toMilliseconds);
+  return Math.max(
+    0,
+    ...durations.map(
+      (duration, index) => duration + (delays.length ? delays[index % delays.length] : 0),
+    ),
+  );
+}
+
 function maximumCssDuration(style: CSSStyleDeclaration): number {
-  const durations = `${style.transitionDuration},${style.animationDuration}`
-    .split(',')
-    .map(toMilliseconds);
-  const delays = `${style.transitionDelay},${style.animationDelay}`.split(',').map(toMilliseconds);
-  return Math.max(0, ...durations.map((duration, index) => duration + (delays[index] ?? 0)));
+  return Math.max(
+    maximumEffectDuration(style.transitionDuration, style.transitionDelay),
+    maximumEffectDuration(style.animationDuration, style.animationDelay),
+  );
 }
 
 export function nextDrawerFrame(document: Document): Promise<void> {
@@ -61,37 +76,10 @@ export async function waitForDrawerTransition(
     return;
   }
 
+  // Without `getAnimations` there is no way to tell which effect an end event belongs to, and the
+  // first `transitionend` only reports the first property to finish - so wait out the longest
+  // declared transition or animation instead.
   await new Promise<void>(resolve => {
-    let remaining = elements.length;
-    const controller = new AbortController();
-    const finish = () => {
-      remaining -= 1;
-      if (remaining <= 0) {
-        controller.abort();
-        resolve();
-      }
-    };
-    for (const element of elements) {
-      element.addEventListener('transitionend', finish, {
-        once: true,
-        signal: controller.signal,
-      });
-      element.addEventListener('transitioncancel', finish, {
-        once: true,
-        signal: controller.signal,
-      });
-      element.addEventListener('animationend', finish, {
-        once: true,
-        signal: controller.signal,
-      });
-      element.addEventListener('animationcancel', finish, {
-        once: true,
-        signal: controller.signal,
-      });
-    }
-    view.setTimeout(() => {
-      controller.abort();
-      resolve();
-    }, duration + 34);
+    view.setTimeout(resolve, duration + 34);
   });
 }
