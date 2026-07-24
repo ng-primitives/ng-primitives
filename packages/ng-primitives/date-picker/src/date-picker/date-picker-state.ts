@@ -4,10 +4,10 @@ import { injectDateAdapter } from 'ng-primitives/date-time';
 import { injectElementRef } from 'ng-primitives/internal';
 import {
   controlled,
+  controlledState,
   createPrimitive,
   dataBinding,
   deprecatedSetter,
-  emitter,
   SetterOptions,
   StateInjectionOptions,
 } from 'ng-primitives/state';
@@ -104,9 +104,21 @@ export interface NgpDateControllerState<T> {
 
 export interface NgpDatePickerState<T> extends NgpDateControllerState<T> {
   /**
+   * The selected date.
+   */
+  readonly date: Signal<T | undefined>;
+  /**
    * Emits when the selected date changes.
    */
   readonly dateChange: Observable<T | undefined>;
+  /**
+   * Set the default (uncontrolled) selected date.
+   */
+  setDefaultDate(value: T | undefined): void;
+  /**
+   * Set the default (uncontrolled) focused date.
+   */
+  setDefaultFocusedDate(value: T): void;
 }
 
 export interface NgpDatePickerProps<T> {
@@ -135,9 +147,17 @@ export interface NgpDatePickerProps<T> {
    */
   readonly date?: Signal<T | undefined>;
   /**
+   * The default (uncontrolled) selected date.
+   */
+  readonly defaultDate?: Signal<T | undefined>;
+  /**
    * The focused date.
    */
-  readonly focusedDate?: Signal<T>;
+  readonly focusedDate?: Signal<T | undefined>;
+  /**
+   * The default (uncontrolled) focused date.
+   */
+  readonly defaultFocusedDate?: Signal<T>;
   /**
    * Called when the selected date changes.
    */
@@ -162,7 +182,9 @@ export const [
     firstDayOfWeek = signal<NgpDatePickerFirstDayOfWeekNumber>(7),
     disabled: _disabled = signal<boolean>(false),
     date: _date = signal<T | undefined>(undefined),
-    focusedDate: _focusedDate,
+    defaultDate: _defaultDate,
+    focusedDate: _focusedDate = signal<T | undefined>(undefined),
+    defaultFocusedDate: _defaultFocusedDate,
     onDateChange,
     onFocusedDateChange,
   }: NgpDatePickerProps<T>) => {
@@ -171,10 +193,24 @@ export const [
     const injector = inject(Injector);
 
     const disabled = controlled(_disabled);
-    const focusedDate = controlled(_focusedDate, dateAdapter.now());
-    const dateValue = controlled(_date);
 
-    const dateChange = emitter<T | undefined>();
+    // Two-way value inputs use `controlledState` so controlled/uncontrolled mode
+    // latches: a value bound one-way is pinned to its binding and only mutates
+    // internally in uncontrolled mode. The uncontrolled initial value comes from
+    // the sibling `default*` input.
+    const defaultDate = controlled(_defaultDate, undefined);
+    const [dateValue, setDate, dateChange] = controlledState<T | undefined>({
+      value: _date,
+      defaultValue: defaultDate,
+      onChange: onDateChange,
+    });
+
+    const defaultFocusedDate = controlled(_defaultFocusedDate, dateAdapter.now());
+    const [focusedDate, setFocused] = controlledState<T>({
+      value: _focusedDate,
+      defaultValue: defaultFocusedDate,
+      onChange: onFocusedDateChange,
+    });
 
     // The registered date buttons, kept private; parts register through
     // registerButton/unregisterButton rather than mutating this signal.
@@ -189,6 +225,14 @@ export const [
 
     function setDisabled(value: boolean): void {
       disabled.set(value);
+    }
+
+    function setDefaultDate(value: T | undefined): void {
+      defaultDate.set(value);
+    }
+
+    function setDefaultFocusedDate(value: T): void {
+      defaultFocusedDate.set(value);
     }
 
     function setFocusedDate(date: T, origin: FocusOrigin, direction: 'forward' | 'backward'): void {
@@ -222,8 +266,7 @@ export const [
         date = nextDate;
       }
 
-      focusedDate.set(date);
-      onFocusedDateChange?.(date);
+      setFocused(date);
 
       if (origin === 'keyboard') {
         afterNextRender({ write: () => buttons().forEach(button => button.focus()) }, { injector });
@@ -231,7 +274,6 @@ export const [
     }
 
     function select(date: T, preserveTime = false, options: SetterOptions = {}): void {
-      const emit = options.emit ?? true;
       let selectedDate = date;
 
       if (preserveTime && date != null) {
@@ -245,12 +287,7 @@ export const [
         }
       }
 
-      dateValue.set(selectedDate);
-
-      if (emit) {
-        dateChange.emit(selectedDate);
-        onDateChange?.(selectedDate);
-      }
+      setDate(selectedDate, options);
     }
 
     function isSelected(value: T): boolean {
@@ -303,12 +340,15 @@ export const [
       max,
       dateDisabled,
       firstDayOfWeek,
-      focusedDate: focusedDate.asReadonly(),
+      date: dateValue,
+      focusedDate,
       labelledBy: labelId.asReadonly(),
-      dateChange: dateChange.asObservable(),
+      dateChange,
       setFocusedDate,
       select,
       setDisabled,
+      setDefaultDate,
+      setDefaultFocusedDate,
       isSelected,
       isStartOfRange,
       isEndOfRange,

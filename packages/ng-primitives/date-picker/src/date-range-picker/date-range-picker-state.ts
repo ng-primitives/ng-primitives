@@ -4,10 +4,10 @@ import { injectDateAdapter } from 'ng-primitives/date-time';
 import { injectElementRef } from 'ng-primitives/internal';
 import {
   controlled,
+  controlledState,
   createPrimitive,
   dataBinding,
   deprecatedSetter,
-  emitter,
   SetterOptions,
   StateInjectionOptions,
 } from 'ng-primitives/state';
@@ -33,6 +33,18 @@ export interface NgpDateRangePickerState<T> extends NgpDateControllerState<T> {
    * Emits when the end date changes.
    */
   readonly endDateChange: Observable<T | undefined>;
+  /**
+   * Set the default (uncontrolled) start date.
+   */
+  setDefaultStartDate(value: T | undefined): void;
+  /**
+   * Set the default (uncontrolled) end date.
+   */
+  setDefaultEndDate(value: T | undefined): void;
+  /**
+   * Set the default (uncontrolled) focused date.
+   */
+  setDefaultFocusedDate(value: T): void;
 }
 
 export interface NgpDateRangePickerProps<T> {
@@ -61,13 +73,25 @@ export interface NgpDateRangePickerProps<T> {
    */
   readonly startDate?: Signal<T | undefined>;
   /**
+   * The default (uncontrolled) start date.
+   */
+  readonly defaultStartDate?: Signal<T | undefined>;
+  /**
    * The selected end date.
    */
   readonly endDate?: Signal<T | undefined>;
   /**
+   * The default (uncontrolled) end date.
+   */
+  readonly defaultEndDate?: Signal<T | undefined>;
+  /**
    * The focused date.
    */
-  readonly focusedDate?: Signal<T>;
+  readonly focusedDate?: Signal<T | undefined>;
+  /**
+   * The default (uncontrolled) focused date.
+   */
+  readonly defaultFocusedDate?: Signal<T>;
   /**
    * Called when the start date changes.
    */
@@ -96,8 +120,11 @@ export const [
     firstDayOfWeek = signal<NgpDatePickerFirstDayOfWeekNumber>(7),
     disabled: _disabled = signal<boolean>(false),
     startDate: _startDate = signal<T | undefined>(undefined),
+    defaultStartDate: _defaultStartDate,
     endDate: _endDate = signal<T | undefined>(undefined),
-    focusedDate: _focusedDate,
+    defaultEndDate: _defaultEndDate,
+    focusedDate: _focusedDate = signal<T | undefined>(undefined),
+    defaultFocusedDate: _defaultFocusedDate,
     onStartDateChange,
     onEndDateChange,
     onFocusedDateChange,
@@ -107,12 +134,30 @@ export const [
     const injector = inject(Injector);
 
     const disabled = controlled(_disabled);
-    const focusedDate = controlled(_focusedDate, dateAdapter.now());
-    const startDate = controlled(_startDate);
-    const endDate = controlled(_endDate);
 
-    const startDateChange = emitter<T | undefined>();
-    const endDateChange = emitter<T | undefined>();
+    // Two-way value inputs use `controlledState` so controlled/uncontrolled mode
+    // latches (see the single date picker for the rationale). Uncontrolled
+    // initial values come from the sibling `default*` inputs.
+    const defaultStartDate = controlled(_defaultStartDate, undefined);
+    const [startDate, setStart, startDateChange] = controlledState<T | undefined>({
+      value: _startDate,
+      defaultValue: defaultStartDate,
+      onChange: onStartDateChange,
+    });
+
+    const defaultEndDate = controlled(_defaultEndDate, undefined);
+    const [endDate, setEnd, endDateChange] = controlledState<T | undefined>({
+      value: _endDate,
+      defaultValue: defaultEndDate,
+      onChange: onEndDateChange,
+    });
+
+    const defaultFocusedDate = controlled(_defaultFocusedDate, dateAdapter.now());
+    const [focusedDate, setFocused] = controlledState<T>({
+      value: _focusedDate,
+      defaultValue: defaultFocusedDate,
+      onChange: onFocusedDateChange,
+    });
 
     // The registered date buttons, kept private; parts register through
     // registerButton/unregisterButton rather than mutating this signal.
@@ -127,6 +172,18 @@ export const [
 
     function setDisabled(value: boolean): void {
       disabled.set(value);
+    }
+
+    function setDefaultStartDate(value: T | undefined): void {
+      defaultStartDate.set(value);
+    }
+
+    function setDefaultEndDate(value: T | undefined): void {
+      defaultEndDate.set(value);
+    }
+
+    function setDefaultFocusedDate(value: T): void {
+      defaultFocusedDate.set(value);
     }
 
     function setFocusedDate(date: T, origin: FocusOrigin, direction: 'forward' | 'backward'): void {
@@ -160,8 +217,7 @@ export const [
         date = nextDate;
       }
 
-      focusedDate.set(date);
-      onFocusedDateChange?.(date);
+      setFocused(date);
 
       if (origin === 'keyboard') {
         afterNextRender({ write: () => buttons().forEach(button => button.focus()) }, { injector });
@@ -184,7 +240,6 @@ export const [
      *   - Resets the selection, setting the selected date as the new start date and clearing the end date.
      */
     function select(date: T, preserveTime = false, options: SetterOptions = {}): void {
-      const emit = options.emit ?? true;
       const start = startDate();
       const end = endDate();
 
@@ -201,53 +256,28 @@ export const [
         });
       };
 
-      // The value is always written; emission is suppressed when `emit` is false
-      // (e.g. a form `writeValue`).
-      const emitStart = (value: T | undefined): void => {
-        if (emit) {
-          startDateChange.emit(value);
-          onStartDateChange?.(value);
-        }
-      };
-      const emitEnd = (value: T | undefined): void => {
-        if (emit) {
-          endDateChange.emit(value);
-          onEndDateChange?.(value);
-        }
-      };
-
+      // `setStart`/`setEnd` are the controlledState setters: they latch, emit the
+      // change (output + observable), and honor `{ emit: false }`.
       if (!start && !end) {
-        const selectedDate = maybePreserveTime(date, undefined);
-        startDate.set(selectedDate);
-        emitStart(selectedDate);
+        setStart(maybePreserveTime(date, undefined), options);
         return;
       }
 
       if (start && !end) {
         if (dateAdapter.isAfter(date, start)) {
-          const selectedDate = maybePreserveTime(date, undefined);
-          endDate.set(selectedDate);
-          emitEnd(selectedDate);
+          setEnd(maybePreserveTime(date, undefined), options);
         } else if (dateAdapter.isBefore(date, start)) {
-          const selectedStartDate = maybePreserveTime(date, start);
-          startDate.set(selectedStartDate);
-          endDate.set(start);
-          emitStart(selectedStartDate);
-          emitEnd(start);
+          setStart(maybePreserveTime(date, start), options);
+          setEnd(start, options);
         } else if (dateAdapter.isSameDay(date, start)) {
-          const selectedDate = maybePreserveTime(date, undefined);
-          endDate.set(selectedDate);
-          emitEnd(selectedDate);
+          setEnd(maybePreserveTime(date, undefined), options);
         }
         return;
       }
 
       // If both start and end are selected, reset selection
-      const selectedDate = maybePreserveTime(date, start);
-      startDate.set(selectedDate);
-      emitStart(selectedDate);
-      endDate.set(undefined);
-      emitEnd(undefined);
+      setStart(maybePreserveTime(date, start), options);
+      setEnd(undefined, options);
     }
 
     function isSelected(date: T): boolean {
@@ -313,15 +343,18 @@ export const [
       max,
       dateDisabled,
       firstDayOfWeek,
-      focusedDate: focusedDate.asReadonly(),
+      focusedDate,
       labelledBy: labelId.asReadonly(),
-      startDate: startDate.asReadonly(),
-      endDate: endDate.asReadonly(),
-      startDateChange: startDateChange.asObservable(),
-      endDateChange: endDateChange.asObservable(),
+      startDate,
+      endDate,
+      startDateChange,
+      endDateChange,
       setFocusedDate,
       select,
       setDisabled,
+      setDefaultStartDate,
+      setDefaultEndDate,
+      setDefaultFocusedDate,
       isSelected,
       isStartOfRange,
       isEndOfRange,

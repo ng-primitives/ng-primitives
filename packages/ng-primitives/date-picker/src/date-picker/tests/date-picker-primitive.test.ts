@@ -107,6 +107,44 @@ async function setup(options: SetupOptions = {}) {
   return { ...view, container, grid, tabbable, dateChange, focusedDateChange, dayButton };
 }
 
+/**
+ * Render a picker with arbitrary `ngpDatePicker*` bindings, focused on August 2025
+ * (via `defaultFocusedDate`) so day numbers are unambiguous. Used by the
+ * controlled/uncontrolled value tests.
+ */
+async function renderCustomPicker(bindings: string, props: Record<string, unknown> = {}) {
+  const view = await render(
+    `
+      <div ngpDatePicker [ngpDatePickerDefaultFocusedDate]="focused" ${bindings}>
+        <table ngpDatePickerGrid>
+          <tbody>
+            <tr *ngpDatePickerRowRender>
+              <td *ngpDatePickerCellRender="let day" ngpDatePickerCell>
+                <button ngpDatePickerDateButton>{{ day.getDate() }}</button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    `,
+    {
+      imports: IMPORTS,
+      componentProperties: { focused: new Date(2025, 7, 15), ...props },
+    },
+  );
+
+  await view.fixture.whenStable();
+
+  const grid = view.container.querySelector('[ngpDatePickerGrid]') as HTMLElement;
+  const dayButton = (day: number) =>
+    Array.from(grid.querySelectorAll('[ngpDatePickerDateButton]')).find(
+      button =>
+        button.textContent?.trim() === String(day) && !button.hasAttribute('data-outside-month'),
+    ) as HTMLButtonElement | undefined;
+
+  return { ...view, grid, dayButton };
+}
+
 describe('NgpDatePicker', () => {
   describe('roles & grid attributes', () => {
     it('should expose role="grid" on the grid', async () => {
@@ -435,6 +473,73 @@ describe('NgpDatePicker', () => {
 
       picker.select(new Date(2025, 7, 5), false, { emit: false });
       expect(dateChange).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('controlled date', () => {
+    it('should reflect a controlled date binding', async () => {
+      const { dayButton } = await renderCustomPicker('[ngpDatePickerDate]="date"', {
+        date: new Date(2025, 7, 15),
+      });
+      expect(dayButton(15)).toHaveAttribute('data-selected', '');
+      expect(dayButton(20)).not.toHaveAttribute('data-selected');
+    });
+
+    it('should emit dateChange on click but keep the controlled selection when the parent does not write it back', async () => {
+      const dateChange = vi.fn();
+      const { dayButton, fixture } = await renderCustomPicker(
+        '[ngpDatePickerDate]="date" (ngpDatePickerDateChange)="dateChange($event)"',
+        { date: new Date(2025, 7, 15), dateChange },
+      );
+
+      dayButton(20)!.click();
+      await fixture.whenStable();
+
+      // the change is emitted so the parent can act on it...
+      expect(dateChange).toHaveBeenCalled();
+      expect((dateChange.mock.calls.at(-1)?.[0] as Date).getDate()).toBe(20);
+      // ...but since the parent never writes it back, the controlled value stays put.
+      expect(dayButton(15)).toHaveAttribute('data-selected', '');
+      expect(dayButton(20)).not.toHaveAttribute('data-selected');
+    });
+  });
+
+  describe('defaultDate (uncontrolled)', () => {
+    it('should select the default date on init', async () => {
+      const { dayButton } = await renderCustomPicker('[ngpDatePickerDefaultDate]="defaultDate"', {
+        defaultDate: new Date(2025, 7, 15),
+      });
+      expect(dayButton(15)).toHaveAttribute('data-selected', '');
+    });
+
+    it('should let a click override the default date', async () => {
+      const { dayButton, fixture } = await renderCustomPicker(
+        '[ngpDatePickerDefaultDate]="defaultDate"',
+        { defaultDate: new Date(2025, 7, 15) },
+      );
+
+      dayButton(20)!.click();
+      await fixture.whenStable();
+
+      expect(dayButton(20)).toHaveAttribute('data-selected', '');
+      expect(dayButton(15)).not.toHaveAttribute('data-selected');
+    });
+
+    it('should prefer a controlled date over the default date', async () => {
+      const { dayButton } = await renderCustomPicker(
+        '[ngpDatePickerDate]="date" [ngpDatePickerDefaultDate]="defaultDate"',
+        { date: new Date(2025, 7, 20), defaultDate: new Date(2025, 7, 15) },
+      );
+      expect(dayButton(20)).toHaveAttribute('data-selected', '');
+      expect(dayButton(15)).not.toHaveAttribute('data-selected');
+    });
+  });
+
+  describe('defaultFocusedDate (uncontrolled)', () => {
+    it('should apply the roving tabindex to the default focused date on init', async () => {
+      const { grid } = await renderCustomPicker('', { focused: new Date(2025, 7, 10) });
+      const tabbable = grid.querySelector('[ngpDatePickerDateButton][tabindex="0"]');
+      expect(tabbable?.textContent?.trim()).toBe('10');
     });
   });
 });

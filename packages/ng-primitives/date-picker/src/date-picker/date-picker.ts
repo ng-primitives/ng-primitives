@@ -74,6 +74,13 @@ export class NgpDatePicker<T> {
   });
 
   /**
+   * The default (uncontrolled) selected value.
+   */
+  readonly defaultDate = input<T | undefined>(undefined, {
+    alias: 'ngpDatePickerDefaultDate',
+  });
+
+  /**
    * Emit when the date changes.
    */
   readonly dateChange = output<T | undefined>({
@@ -83,8 +90,15 @@ export class NgpDatePicker<T> {
   /**
    * The focused value.
    */
-  readonly focusedDate = input<T>(this.dateAdapter.now(), {
+  readonly focusedDate = input<T | undefined>(undefined, {
     alias: 'ngpDatePickerFocusedDate',
+  });
+
+  /**
+   * The default (uncontrolled) focused value.
+   */
+  readonly defaultFocusedDate = input<T>(this.dateAdapter.now(), {
+    alias: 'ngpDatePickerDefaultFocusedDate',
   });
 
   /**
@@ -104,7 +118,9 @@ export class NgpDatePicker<T> {
     dateDisabled: this.dateDisabled,
     firstDayOfWeek: this.firstDayOfWeek,
     date: this.date,
+    defaultDate: this.defaultDate,
     focusedDate: this.focusedDate,
+    defaultFocusedDate: this.defaultFocusedDate,
     onDateChange: value => this.dateChange.emit(value),
     onFocusedDateChange: value => this.focusedDateChange.emit(value),
   });

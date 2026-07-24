@@ -70,6 +70,13 @@ export class NgpDateRangePicker<T> {
   });
 
   /**
+   * The default (uncontrolled) start date.
+   */
+  readonly defaultStartDate = input<T | undefined>(undefined, {
+    alias: 'ngpDateRangePickerDefaultStartDate',
+  });
+
+  /**
    * Emit when the date changes.
    */
   readonly startDateChange = output<T | undefined>({
@@ -84,6 +91,13 @@ export class NgpDateRangePicker<T> {
   });
 
   /**
+   * The default (uncontrolled) end date.
+   */
+  readonly defaultEndDate = input<T | undefined>(undefined, {
+    alias: 'ngpDateRangePickerDefaultEndDate',
+  });
+
+  /**
    * Emit when the end date changes.
    */
   readonly endDateChange = output<T | undefined>({
@@ -93,8 +107,15 @@ export class NgpDateRangePicker<T> {
   /**
    * The focused value.
    */
-  readonly focusedDate = input<T>(this.dateAdapter.now(), {
+  readonly focusedDate = input<T | undefined>(undefined, {
     alias: 'ngpDateRangePickerFocusedDate',
+  });
+
+  /**
+   * The default (uncontrolled) focused value.
+   */
+  readonly defaultFocusedDate = input<T>(this.dateAdapter.now(), {
+    alias: 'ngpDateRangePickerDefaultFocusedDate',
   });
 
   /**
@@ -114,8 +135,11 @@ export class NgpDateRangePicker<T> {
     dateDisabled: this.dateDisabled,
     firstDayOfWeek: this.firstDayOfWeek,
     startDate: this.startDate,
+    defaultStartDate: this.defaultStartDate,
     endDate: this.endDate,
+    defaultEndDate: this.defaultEndDate,
     focusedDate: this.focusedDate,
+    defaultFocusedDate: this.defaultFocusedDate,
     onStartDateChange: value => this.startDateChange.emit(value),
     onEndDateChange: value => this.endDateChange.emit(value),
     onFocusedDateChange: value => this.focusedDateChange.emit(value),
