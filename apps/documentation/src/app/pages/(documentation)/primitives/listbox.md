@@ -119,10 +119,12 @@ Adheres to the [WAI-ARIA Listbox Design Pattern](https://www.w3.org/TR/wai-aria-
 
 ### Keyboard Interactions
 
-- <kbd>Arrow Down</kbd> - Move focus to the next option.
-- <kbd>Arrow Up</kbd> - Move focus to the previous option.
-- <kbd>Home</kbd> - Move focus to the first option.
-- <kbd>End</kbd> - Move focus to the last option.
-- <kbd>Space</kbd> - Select the focused option.
-- <kbd>Enter</kbd> - Select the focused option.
+DOM focus stays on the listbox container; keyboard navigation moves the active descendant (`aria-activedescendant`) between options rather than focusing them individually.
+
+- <kbd>Arrow Down</kbd> - Move the active descendant to the next option.
+- <kbd>Arrow Up</kbd> - Move the active descendant to the previous option.
+- <kbd>Home</kbd> - Move the active descendant to the first option.
+- <kbd>End</kbd> - Move the active descendant to the last option.
+- <kbd>Space</kbd> - Select the active option.
+- <kbd>Enter</kbd> - Select the active option.
 - <kbd>Escape</kbd> - Close the listbox.
