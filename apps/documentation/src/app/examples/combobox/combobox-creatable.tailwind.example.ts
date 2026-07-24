@@ -74,7 +74,7 @@ import {
             [ngpComboboxOptionValue]="query()"
             ngpComboboxOption
           >
-            <ng-icon name="heroPlus" class="text-base text-gray-400 dark:text-gray-500" />
+            <ng-icon class="text-base text-gray-400 dark:text-gray-500" name="heroPlus" />
             <span class="overflow-hidden text-ellipsis whitespace-nowrap">
               Create "{{ query() }}"
             </span>
