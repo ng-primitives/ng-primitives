@@ -113,7 +113,7 @@ describe('NgpDrawerPortal', () => {
     await vi.waitFor(() =>
       expect(fixture.nativeElement.querySelector('[data-ngp-drawer-custom-host]')).not.toBeNull(),
     );
-    const container = fixture.nativeElement.querySelector<HTMLElement>(
+    const container = (fixture.nativeElement as HTMLElement).querySelector<HTMLElement>(
       '[data-test-custom-container="first"]',
     )!;
     expect(container.querySelector('[data-consumer-child]')?.textContent).toContain('Preserve me');
@@ -220,10 +220,10 @@ describe('NgpDrawerPortal', () => {
     fixture.componentInstance.keepMounted.set(true);
     fixture.componentInstance.root().show();
     fixture.detectChanges();
-    const first = fixture.nativeElement.querySelector<HTMLElement>(
+    const first = (fixture.nativeElement as HTMLElement).querySelector<HTMLElement>(
       '[data-test-custom-container="first"]',
     )!;
-    const second = fixture.nativeElement.querySelector<HTMLElement>(
+    const second = (fixture.nativeElement as HTMLElement).querySelector<HTMLElement>(
       '[data-test-custom-container="second"]',
     )!;
     await vi.waitFor(() =>

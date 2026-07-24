@@ -502,7 +502,7 @@ function touchClickRetargeted(target: HTMLElement, pointerId: number): void {
 
 function dispatchPointer(
   target: EventTarget,
-  type: 'pointerdown' | 'pointermove',
+  type: 'pointerdown' | 'pointermove' | 'pointerup',
   y: number,
   buttons: number,
   pointerId: number,

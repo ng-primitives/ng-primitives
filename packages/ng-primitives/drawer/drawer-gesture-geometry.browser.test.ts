@@ -7,13 +7,7 @@ import { NgpDrawerSwipeArea } from './swipe-area/drawer-swipe-area';
 import { NgpDrawerViewport } from './viewport/drawer-viewport';
 
 @Component({
-  imports: [
-    NgpDrawerPopup,
-    NgpDrawerPortal,
-    NgpDrawer,
-    NgpDrawerSwipeArea,
-    NgpDrawerViewport,
-  ],
+  imports: [NgpDrawerPopup, NgpDrawerPortal, NgpDrawer, NgpDrawerSwipeArea, NgpDrawerViewport],
   template: `
     <ng-container [modal]="false" ngpDrawer swipeDirection="down">
       <ng-template ngpDrawerPortal>

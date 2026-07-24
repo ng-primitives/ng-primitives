@@ -27,7 +27,7 @@ const DRAWER_IMPORTS = [
 ] as const;
 
 @Component({
-  imports: DRAWER_IMPORTS,
+  imports: [...DRAWER_IMPORTS],
   template: `
     <button id="prior-target" type="button">Prior</button>
     <button id="final-target" type="button">Final</button>
@@ -77,7 +77,7 @@ class AccessibilityHost {
 }
 
 @Component({
-  imports: DRAWER_IMPORTS,
+  imports: [...DRAWER_IMPORTS],
   template: `
     <ng-container ngpDrawer>
       <ng-template ngpDrawerPortal>
@@ -139,8 +139,12 @@ describe('Drawer accessibility', () => {
 
     expect(popup.getAttribute('aria-modal')).toBe(mode === true ? 'true' : null);
     const backdrop = document.querySelector<HTMLElement>('[data-test-backdrop]')!;
-    const trigger = fixture!.nativeElement.querySelector<HTMLElement>('[data-test-trigger]')!;
-    const swipeArea = fixture!.nativeElement.querySelector<HTMLElement>('[data-test-swipe-area]')!;
+    const trigger = (fixture!.nativeElement as HTMLElement).querySelector<HTMLElement>(
+      '[data-test-trigger]',
+    )!;
+    const swipeArea = (fixture!.nativeElement as HTMLElement).querySelector<HTMLElement>(
+      '[data-test-swipe-area]',
+    )!;
     expect(document.querySelectorAll('.cdk-focus-trap-anchor')).toHaveLength(trapped ? 2 : 0);
     expect(outside.inert).toBe(isolated);
     expect(outside.getAttribute('aria-hidden')).toBe(isolated ? 'true' : null);
@@ -164,7 +168,9 @@ describe('Drawer accessibility', () => {
     await createAccessibilityFixture();
     fixture!.componentInstance.role.set('alertdialog');
     fixture!.componentInstance.showMarked.set(true);
-    const trigger = fixture!.nativeElement.querySelector<HTMLElement>('[data-test-trigger]')!;
+    const trigger = (fixture!.nativeElement as HTMLElement).querySelector<HTMLElement>(
+      '[data-test-trigger]',
+    )!;
     expect(trigger.getAttribute('aria-expanded')).toBe('false');
     expect((trigger as HTMLButtonElement).type).toBe('button');
 
@@ -188,8 +194,10 @@ describe('Drawer accessibility', () => {
 
   it('restores focus to the current triggerId instead of a stale active trigger', async () => {
     await createAccessibilityFixture();
-    const inTreeTrigger = fixture!.nativeElement.querySelector<HTMLElement>('[data-test-trigger]')!;
-    const detachedTrigger = fixture!.nativeElement.querySelector<HTMLElement>(
+    const inTreeTrigger = (fixture!.nativeElement as HTMLElement).querySelector<HTMLElement>(
+      '[data-test-trigger]',
+    )!;
+    const detachedTrigger = (fixture!.nativeElement as HTMLElement).querySelector<HTMLElement>(
       '[data-test-detached-trigger]',
     )!;
 
@@ -215,11 +223,15 @@ describe('Drawer accessibility', () => {
 
   it('falls back from a disconnected triggerId to the connected active trigger', async () => {
     await createAccessibilityFixture();
-    const inTreeTrigger = fixture!.nativeElement.querySelector<HTMLElement>('[data-test-trigger]')!;
-    const detachedTrigger = fixture!.nativeElement.querySelector<HTMLElement>(
+    const inTreeTrigger = (fixture!.nativeElement as HTMLElement).querySelector<HTMLElement>(
+      '[data-test-trigger]',
+    )!;
+    const detachedTrigger = (fixture!.nativeElement as HTMLElement).querySelector<HTMLElement>(
       '[data-test-detached-trigger]',
     )!;
-    const prior = fixture!.nativeElement.querySelector<HTMLElement>('#prior-target')!;
+    const prior = (fixture!.nativeElement as HTMLElement).querySelector<HTMLElement>(
+      '#prior-target',
+    )!;
 
     inTreeTrigger.click();
     fixture!.detectChanges();
@@ -243,8 +255,12 @@ describe('Drawer accessibility', () => {
 
   it('falls back from disconnected triggers to connected prior focus', async () => {
     await createAccessibilityFixture();
-    const inTreeTrigger = fixture!.nativeElement.querySelector<HTMLElement>('[data-test-trigger]')!;
-    const prior = fixture!.nativeElement.querySelector<HTMLElement>('#prior-target')!;
+    const inTreeTrigger = (fixture!.nativeElement as HTMLElement).querySelector<HTMLElement>(
+      '[data-test-trigger]',
+    )!;
+    const prior = (fixture!.nativeElement as HTMLElement).querySelector<HTMLElement>(
+      '#prior-target',
+    )!;
 
     inTreeTrigger.click();
     fixture!.detectChanges();
@@ -268,11 +284,15 @@ describe('Drawer accessibility', () => {
 
   it('keeps explicit final focus ahead of trigger candidates', async () => {
     await createAccessibilityFixture();
-    const inTreeTrigger = fixture!.nativeElement.querySelector<HTMLElement>('[data-test-trigger]')!;
-    const detachedTrigger = fixture!.nativeElement.querySelector<HTMLElement>(
+    const inTreeTrigger = (fixture!.nativeElement as HTMLElement).querySelector<HTMLElement>(
+      '[data-test-trigger]',
+    )!;
+    const detachedTrigger = (fixture!.nativeElement as HTMLElement).querySelector<HTMLElement>(
       '[data-test-detached-trigger]',
     )!;
-    const finalTarget = fixture!.nativeElement.querySelector<HTMLElement>('#final-target')!;
+    const finalTarget = (fixture!.nativeElement as HTMLElement).querySelector<HTMLElement>(
+      '#final-target',
+    )!;
 
     inTreeTrigger.click();
     fixture!.detectChanges();
@@ -310,7 +330,9 @@ describe('Drawer accessibility', () => {
 
   it('resolves focus callbacks and element targets', async () => {
     await createAccessibilityFixture();
-    const finalTarget = fixture!.nativeElement.querySelector<HTMLElement>('#final-target')!;
+    const finalTarget = (fixture!.nativeElement as HTMLElement).querySelector<HTMLElement>(
+      '#final-target',
+    )!;
     fixture!.componentInstance.initialFocus.set(() =>
       document.querySelector<HTMLElement>('#initial-target'),
     );
@@ -328,7 +350,9 @@ describe('Drawer accessibility', () => {
 
   it('honors disabled initial focus and restores connected prior focus', async () => {
     await createAccessibilityFixture();
-    const prior = fixture!.nativeElement.querySelector<HTMLElement>('#prior-target')!;
+    const prior = (fixture!.nativeElement as HTMLElement).querySelector<HTMLElement>(
+      '#prior-target',
+    )!;
     fixture!.componentInstance.modal.set('trap-focus');
     fixture!.componentInstance.initialFocus.set(false);
     prior.focus();
@@ -348,7 +372,9 @@ describe('Drawer accessibility', () => {
   it('does not move focus when final focus is disabled', async () => {
     await createAccessibilityFixture();
     fixture!.componentInstance.finalFocus.set(false);
-    const trigger = fixture!.nativeElement.querySelector<HTMLElement>('[data-test-trigger]')!;
+    const trigger = (fixture!.nativeElement as HTMLElement).querySelector<HTMLElement>(
+      '[data-test-trigger]',
+    )!;
     trigger.click();
     fixture!.detectChanges();
     const popup = await waitForElement('[data-test-popup]');
@@ -530,7 +556,8 @@ function isEffectivelyInert(element: HTMLElement): boolean {
       return true;
     }
     const root = current.getRootNode();
-    current = current.parentElement ?? (root instanceof ShadowRoot ? root.host : null);
+    current =
+      current.parentElement ?? (root instanceof ShadowRoot ? (root.host as HTMLElement) : null);
   }
   return false;
 }

@@ -363,7 +363,7 @@ describe('Drawer VirtualKeyboard', () => {
     }
   }
 
-  function setVisualViewport(value: VisualViewport | undefined): void {
+  function setVisualViewport(value: FakeVisualViewport | undefined): void {
     Object.defineProperty(window, 'visualViewport', {
       configurable: true,
       value,

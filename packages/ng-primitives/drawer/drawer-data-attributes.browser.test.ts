@@ -24,7 +24,7 @@ const DRAWER_IMPORTS = [
 ] as const;
 
 @Component({
-  imports: DRAWER_IMPORTS,
+  imports: [...DRAWER_IMPORTS],
   template: `
     <ng-container
       [defaultSnapPoint]="defaultSnapPoint()"

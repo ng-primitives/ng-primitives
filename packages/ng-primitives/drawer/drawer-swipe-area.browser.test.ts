@@ -8,13 +8,7 @@ import { NgpDrawerSwipeArea } from './swipe-area/drawer-swipe-area';
 import { NgpDrawerViewport } from './viewport/drawer-viewport';
 
 @Component({
-  imports: [
-    NgpDrawerPopup,
-    NgpDrawerPortal,
-    NgpDrawer,
-    NgpDrawerSwipeArea,
-    NgpDrawerViewport,
-  ],
+  imports: [NgpDrawerPopup, NgpDrawerPortal, NgpDrawer, NgpDrawerSwipeArea, NgpDrawerViewport],
   template: `
     <ng-container
       [modal]="false"
@@ -214,7 +208,7 @@ describe('Drawer SwipeArea', () => {
 
   it('preserves cross-axis native panning and consumer touch-action styles', () => {
     const area = getArea();
-    const consumerArea = fixture.nativeElement.querySelector<HTMLElement>(
+    const consumerArea = (fixture.nativeElement as HTMLElement).querySelector<HTMLElement>(
       '[data-test-consumer-swipe-area]',
     )!;
 
@@ -230,7 +224,7 @@ describe('Drawer SwipeArea', () => {
 
   it('restores only the touch-action value owned by the directive on destroy', () => {
     const area = getArea();
-    const consumerArea = fixture.nativeElement.querySelector<HTMLElement>(
+    const consumerArea = (fixture.nativeElement as HTMLElement).querySelector<HTMLElement>(
       '[data-test-consumer-swipe-area]',
     )!;
 
@@ -491,11 +485,15 @@ describe('Drawer SwipeArea', () => {
   });
 
   function getArea(): HTMLElement {
-    return fixture.nativeElement.querySelector<HTMLElement>('[data-test-swipe-area]')!;
+    return (fixture.nativeElement as HTMLElement).querySelector<HTMLElement>(
+      '[data-test-swipe-area]',
+    )!;
   }
 
   function getOutside(): HTMLElement {
-    return fixture.nativeElement.querySelector<HTMLElement>('[data-test-area-outside]')!;
+    return (fixture.nativeElement as HTMLElement).querySelector<HTMLElement>(
+      '[data-test-area-outside]',
+    )!;
   }
 
   function getPopup(): HTMLElement {
@@ -592,10 +590,10 @@ function dispatchTouch(
   const event = new TouchEvent(type, {
     bubbles: true,
     cancelable: true,
-    changedTouches,
+    changedTouches: [...changedTouches],
     composed: true,
-    targetTouches: touches,
-    touches,
+    targetTouches: [...touches],
+    touches: [...touches],
   });
   Object.defineProperty(event, 'timeStamp', { configurable: true, value: time });
   target.dispatchEvent(event);

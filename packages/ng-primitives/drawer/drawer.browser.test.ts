@@ -7,13 +7,7 @@ import { NgpDrawerPortal } from './portal/drawer-portal';
 import { NgpDrawerViewport } from './viewport/drawer-viewport';
 
 @Component({
-  imports: [
-    NgpDrawerBackdrop,
-    NgpDrawerPopup,
-    NgpDrawerPortal,
-    NgpDrawer,
-    NgpDrawerViewport,
-  ],
+  imports: [NgpDrawerBackdrop, NgpDrawerPopup, NgpDrawerPortal, NgpDrawer, NgpDrawerViewport],
   template: `
     <ng-container ngpDrawer>
       <ng-template ngpDrawerPortal>

@@ -832,10 +832,10 @@ function dispatchTouch(
   const event = new TouchEvent(type, {
     bubbles: true,
     cancelable: true,
-    changedTouches,
+    changedTouches: [...changedTouches],
     composed: true,
-    targetTouches: touches,
-    touches,
+    targetTouches: [...touches],
+    touches: [...touches],
   });
   Object.defineProperty(event, 'timeStamp', { configurable: true, value: time });
   const previousHitTarget = touchHitTarget;
