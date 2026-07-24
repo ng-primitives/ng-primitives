@@ -1,4 +1,3 @@
-import { OverlayContainer, OverlayModule } from '@angular/cdk/overlay';
 import { Component, signal, viewChild } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { NgpDrawerBackdrop } from './backdrop/drawer-backdrop';
@@ -12,7 +11,6 @@ import { NgpDrawerViewport } from './viewport/drawer-viewport';
 
 @Component({
   imports: [
-    OverlayModule,
     NgpDrawerBackdrop,
     NgpDrawerContent,
     NgpDrawerPopup,
@@ -83,20 +81,17 @@ let touchHitTarget: Element | null | undefined;
 
 describe('Drawer Viewport swipe integration', () => {
   let fixture: ComponentFixture<SwipeHost>;
-  let overlayContainer: OverlayContainer;
 
   beforeEach(async () => {
     touchHitTarget = undefined;
     vi.spyOn(document, 'elementFromPoint').mockImplementation(() => touchHitTarget ?? null);
     await TestBed.configureTestingModule({ imports: [SwipeHost] }).compileComponents();
-    overlayContainer = TestBed.inject(OverlayContainer);
     fixture = TestBed.createComponent(SwipeHost);
     fixture.detectChanges();
   });
 
   afterEach(() => {
     fixture.destroy();
-    overlayContainer.ngOnDestroy();
     vi.restoreAllMocks();
   });
 

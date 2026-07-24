@@ -1,4 +1,3 @@
-import { OverlayContainer, OverlayModule } from '@angular/cdk/overlay';
 import { Component, signal, viewChild, viewChildren } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { NgpDrawerBackdrop } from './backdrop/drawer-backdrop';
@@ -15,7 +14,6 @@ import { NgpDrawerTrigger } from './trigger/drawer-trigger';
 import { NgpDrawerViewport } from './viewport/drawer-viewport';
 
 const DRAWER_IMPORTS = [
-  OverlayModule,
   NgpDrawerBackdrop,
   NgpDrawerClose,
   NgpDrawerDescription,
@@ -111,13 +109,11 @@ class NestedAccessibilityHost {
 describe('Drawer accessibility', () => {
   let fixture: ComponentFixture<AccessibilityHost> | undefined;
   let nestedFixture: ComponentFixture<NestedAccessibilityHost> | undefined;
-  let overlayContainer: OverlayContainer | undefined;
   const ownedElements: HTMLElement[] = [];
 
   afterEach(() => {
     fixture?.destroy();
     nestedFixture?.destroy();
-    overlayContainer?.ngOnDestroy();
     for (const element of ownedElements) {
       element.remove();
     }
@@ -153,9 +149,7 @@ describe('Drawer accessibility', () => {
     expect(isEffectivelyInert(swipeArea)).toBe(isolated);
     expect(isEffectivelyInert(popup)).toBe(false);
     expect(isEffectivelyInert(backdrop)).toBe(false);
-    expect(document.documentElement.classList.contains('cdk-global-scrollblock')).toBe(
-      scrollLocked,
-    );
+    expect(document.documentElement.hasAttribute('data-scrollblock')).toBe(scrollLocked);
 
     fixture!.componentInstance.root().hide();
     fixture!.detectChanges();
@@ -420,13 +414,13 @@ describe('Drawer accessibility', () => {
     fixture!.detectChanges();
     await vi.waitFor(() => expect(outside.inert).toBe(true));
     expect(document.querySelectorAll('.cdk-focus-trap-anchor')).toHaveLength(2);
-    expect(document.documentElement.classList.contains('cdk-global-scrollblock')).toBe(true);
+    expect(document.documentElement.hasAttribute('data-scrollblock')).toBe(true);
 
     fixture!.componentInstance.modal.set('trap-focus');
     fixture!.detectChanges();
     await vi.waitFor(() => expect(outside.inert).toBe(false));
     expect(document.querySelectorAll('.cdk-focus-trap-anchor')).toHaveLength(2);
-    expect(document.documentElement.classList.contains('cdk-global-scrollblock')).toBe(false);
+    expect(document.documentElement.hasAttribute('data-scrollblock')).toBe(false);
 
     fixture!.componentInstance.modal.set(false);
     fixture!.detectChanges();
@@ -439,7 +433,6 @@ describe('Drawer accessibility', () => {
     await TestBed.configureTestingModule({
       imports: [NestedAccessibilityHost],
     }).compileComponents();
-    overlayContainer = TestBed.inject(OverlayContainer);
     nestedFixture = TestBed.createComponent(NestedAccessibilityHost);
     nestedFixture.detectChanges();
     const outside = appendOutsideElement();
@@ -494,12 +487,11 @@ describe('Drawer accessibility', () => {
     expect(outside.style.pointerEvents).toBe('auto');
     expect(document.querySelectorAll('.cdk-focus-trap-anchor')).toHaveLength(0);
     expect(document.querySelector('[data-ngp-drawer-overlay-host]')).toBeNull();
-    expect(document.documentElement.classList.contains('cdk-global-scrollblock')).toBe(false);
+    expect(document.documentElement.hasAttribute('data-scrollblock')).toBe(false);
   });
 
   async function createAccessibilityFixture(): Promise<void> {
     await TestBed.configureTestingModule({ imports: [AccessibilityHost] }).compileComponents();
-    overlayContainer = TestBed.inject(OverlayContainer);
     fixture = TestBed.createComponent(AccessibilityHost);
     fixture.detectChanges();
   }

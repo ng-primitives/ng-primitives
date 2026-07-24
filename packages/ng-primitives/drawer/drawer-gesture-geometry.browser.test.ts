@@ -1,4 +1,3 @@
-import { OverlayContainer, OverlayModule } from '@angular/cdk/overlay';
 import { Component, viewChildren } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { NgpDrawer } from './drawer/drawer';
@@ -9,7 +8,6 @@ import { NgpDrawerViewport } from './viewport/drawer-viewport';
 
 @Component({
   imports: [
-    OverlayModule,
     NgpDrawerPopup,
     NgpDrawerPortal,
     NgpDrawer,
@@ -48,18 +46,15 @@ class GeometryHost {
 
 describe('Drawer gesture geometry reads', () => {
   let fixture: ComponentFixture<GeometryHost>;
-  let overlayContainer: OverlayContainer;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({ imports: [GeometryHost] }).compileComponents();
-    overlayContainer = TestBed.inject(OverlayContainer);
     fixture = TestBed.createComponent(GeometryHost);
     fixture.detectChanges();
   });
 
   afterEach(() => {
     fixture.destroy();
-    overlayContainer.ngOnDestroy();
   });
 
   it('keeps viewport geometry reads constant across move counts and fresh gestures', async () => {

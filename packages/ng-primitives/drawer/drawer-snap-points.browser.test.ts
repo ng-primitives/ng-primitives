@@ -1,4 +1,3 @@
-import { OverlayContainer, OverlayModule } from '@angular/cdk/overlay';
 import { Component, signal, viewChild } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import {
@@ -12,7 +11,7 @@ import { NgpDrawerPortal } from './portal/drawer-portal';
 import { NgpDrawerViewport } from './viewport/drawer-viewport';
 
 @Component({
-  imports: [OverlayModule, NgpDrawerPopup, NgpDrawerPortal, NgpDrawer, NgpDrawerViewport],
+  imports: [NgpDrawerPopup, NgpDrawerPortal, NgpDrawer, NgpDrawerViewport],
   template: `
     <ng-container
       [defaultSnapPoint]="defaultPoint()"
@@ -63,7 +62,7 @@ class SnapHost {
 }
 
 @Component({
-  imports: [OverlayModule, NgpDrawerPopup, NgpDrawerPortal, NgpDrawer, NgpDrawerViewport],
+  imports: [NgpDrawerPopup, NgpDrawerPortal, NgpDrawer, NgpDrawerViewport],
   template: `
     <ng-container
       [defaultSnapPoint]="defaultPoint()"
@@ -96,7 +95,6 @@ let touchHitTarget: Element | null = null;
 
 describe('Drawer snap point integration', () => {
   let fixture: ComponentFixture<SnapHost>;
-  let overlayContainer: OverlayContainer;
   let initialRootFontSize: string;
 
   beforeEach(async () => {
@@ -104,7 +102,6 @@ describe('Drawer snap point integration', () => {
     await TestBed.configureTestingModule({
       imports: [SnapHost, UncontrolledSnapHost],
     }).compileComponents();
-    overlayContainer = TestBed.inject(OverlayContainer);
     initialRootFontSize = document.documentElement.style.fontSize;
     fixture = TestBed.createComponent(SnapHost);
     fixture.detectChanges();
@@ -113,7 +110,6 @@ describe('Drawer snap point integration', () => {
   afterEach(() => {
     document.documentElement.style.fontSize = initialRootFontSize;
     fixture.destroy();
-    overlayContainer.ngOnDestroy();
     vi.restoreAllMocks();
   });
 

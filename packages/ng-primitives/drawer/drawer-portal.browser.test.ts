@@ -1,6 +1,7 @@
-import { OverlayContainer, OverlayModule } from '@angular/cdk/overlay';
 import { Component, signal, viewChild } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { Event as RouterEvent, NavigationStart, Router } from '@angular/router';
+import { Subject } from 'rxjs';
 import { NgpDrawerBackdrop } from './backdrop/drawer-backdrop';
 import { NgpDrawerDescription } from './description/drawer-description';
 import { NgpDrawer } from './drawer/drawer';
@@ -12,7 +13,6 @@ import { NgpDrawerViewport } from './viewport/drawer-viewport';
 
 @Component({
   imports: [
-    OverlayModule,
     NgpDrawerBackdrop,
     NgpDrawerDescription,
     NgpDrawerPopup,
@@ -69,18 +69,20 @@ class PortalHost {
 
 describe('NgpDrawerPortal', () => {
   let fixture: ComponentFixture<PortalHost>;
-  let overlayContainer: OverlayContainer;
+  let routerEvents: Subject<RouterEvent>;
 
   beforeEach(async () => {
-    await TestBed.configureTestingModule({ imports: [PortalHost] }).compileComponents();
-    overlayContainer = TestBed.inject(OverlayContainer);
+    routerEvents = new Subject<RouterEvent>();
+    await TestBed.configureTestingModule({
+      imports: [PortalHost],
+      providers: [{ provide: Router, useValue: { events: routerEvents } }],
+    }).compileComponents();
     fixture = TestBed.createComponent(PortalHost);
     fixture.detectChanges();
   });
 
   afterEach(() => {
     fixture.destroy();
-    overlayContainer.ngOnDestroy();
     document
       .querySelectorAll('[data-ngp-drawer-custom-host], [data-ngp-drawer-overlay-host]')
       .forEach(element => element.remove());
@@ -96,8 +98,11 @@ describe('NgpDrawerPortal', () => {
     });
 
     const pane = document.querySelector<HTMLElement>('[data-ngp-drawer-overlay-host]');
+    expect(pane?.parentElement).toBe(document.body);
+    expect(pane?.style.position).toBe('fixed');
     expect(pane?.style.width).toBe('100%');
     expect(pane?.style.height).toBe('100%');
+    expect(pane?.contains(document.querySelector('[data-test-popup]'))).toBe(true);
   });
 
   it('uses a library-owned custom host without mutating consumer children', async () => {
@@ -148,14 +153,14 @@ describe('NgpDrawerPortal', () => {
       expect(document.querySelector('[data-ngp-drawer-overlay-host]')).not.toBeNull(),
     );
     fixture.detectChanges();
-    await vi.waitFor(() => expect(document.documentElement).toHaveClass('cdk-global-scrollblock'));
+    await vi.waitFor(() => expect(document.documentElement).toHaveAttribute('data-scrollblock'));
 
     fixture.componentInstance.root().unmount();
     fixture.detectChanges();
 
     await vi.waitFor(() => {
       expect(document.querySelector('[data-ngp-drawer-overlay-host]')).toBeNull();
-      expect(document.documentElement).not.toHaveClass('cdk-global-scrollblock');
+      expect(document.documentElement).not.toHaveAttribute('data-scrollblock');
       expect(fixture.componentInstance.root().open()).toBe(false);
       expect(fixture.componentInstance.root().mounted()).toBe(false);
       expect(completed).not.toContain(false);
@@ -187,7 +192,7 @@ describe('NgpDrawerPortal', () => {
     });
   });
 
-  it('reconciles root state when navigation disposes the overlay', async () => {
+  it('closes and releases its stack effects when the router navigates', async () => {
     const completed: boolean[] = [];
     fixture.componentInstance.root().openChangeComplete.subscribe(value => completed.push(value));
     fixture.componentInstance.root().show();
@@ -196,17 +201,17 @@ describe('NgpDrawerPortal', () => {
       expect(document.querySelector('[data-ngp-drawer-overlay-host]')).not.toBeNull(),
     );
     fixture.detectChanges();
-    await vi.waitFor(() => expect(document.documentElement).toHaveClass('cdk-global-scrollblock'));
+    await vi.waitFor(() => expect(document.documentElement).toHaveAttribute('data-scrollblock'));
 
-    window.dispatchEvent(new PopStateEvent('popstate'));
+    routerEvents.next(new NavigationStart(1, '/next'));
     fixture.detectChanges();
 
     await vi.waitFor(() => {
       expect(document.querySelector('[data-ngp-drawer-overlay-host]')).toBeNull();
-      expect(document.documentElement).not.toHaveClass('cdk-global-scrollblock');
+      expect(document.documentElement).not.toHaveAttribute('data-scrollblock');
       expect(fixture.componentInstance.root().open()).toBe(false);
       expect(fixture.componentInstance.root().mounted()).toBe(false);
-      expect(completed).not.toContain(false);
+      expect(completed).toContain(false);
     });
   });
 

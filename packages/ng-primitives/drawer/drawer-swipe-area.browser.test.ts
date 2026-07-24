@@ -1,4 +1,3 @@
-import { OverlayContainer, OverlayModule } from '@angular/cdk/overlay';
 import { Component, signal, viewChild } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { NgpDrawerOpenChangeEvent, NgpDrawerSwipeDirection } from './drawer.types';
@@ -10,7 +9,6 @@ import { NgpDrawerViewport } from './viewport/drawer-viewport';
 
 @Component({
   imports: [
-    OverlayModule,
     NgpDrawerPopup,
     NgpDrawerPortal,
     NgpDrawer,
@@ -79,18 +77,15 @@ class SwipeAreaHost {
 
 describe('Drawer SwipeArea', () => {
   let fixture: ComponentFixture<SwipeAreaHost>;
-  let overlayContainer: OverlayContainer;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({ imports: [SwipeAreaHost] }).compileComponents();
-    overlayContainer = TestBed.inject(OverlayContainer);
     fixture = TestBed.createComponent(SwipeAreaHost);
     fixture.detectChanges();
   });
 
   afterEach(() => {
     fixture.destroy();
-    overlayContainer.ngOnDestroy();
   });
 
   it('opens in the direction opposite the root dismissal direction', () => {

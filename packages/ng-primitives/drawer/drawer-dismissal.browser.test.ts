@@ -1,6 +1,6 @@
-import { OverlayContainer, OverlayModule } from '@angular/cdk/overlay';
 import { Component, signal, viewChild, viewChildren } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { NgpDismissPolicy, NgpOverlayRegistry } from 'ng-primitives/portal';
 import { NgpDrawerBackdrop } from './backdrop/drawer-backdrop';
 import { NgpDrawerChangeReason, NgpDrawerOpenChangeEvent } from './drawer.types';
 import { NgpDrawer } from './drawer/drawer';
@@ -10,7 +10,6 @@ import { NgpDrawerTrigger } from './trigger/drawer-trigger';
 import { NgpDrawerViewport } from './viewport/drawer-viewport';
 
 const DRAWER_IMPORTS = [
-  OverlayModule,
   NgpDrawerBackdrop,
   NgpDrawerPopup,
   NgpDrawerPortal,
@@ -79,12 +78,10 @@ class StackHost {
 describe('Drawer dismissal', () => {
   let fixture: ComponentFixture<DismissalHost> | undefined;
   let stackFixture: ComponentFixture<StackHost> | undefined;
-  let overlayContainer: OverlayContainer | undefined;
 
   afterEach(() => {
     fixture?.destroy();
     stackFixture?.destroy();
-    overlayContainer?.ngOnDestroy();
     document
       .querySelectorAll('[data-ngp-drawer-custom-host], [data-ngp-drawer-overlay-host]')
       .forEach(element => element.remove());
@@ -240,7 +237,6 @@ describe('Drawer dismissal', () => {
 
   it('lets only the topmost drawer handle outside press and Escape', async () => {
     await TestBed.configureTestingModule({ imports: [StackHost] }).compileComponents();
-    overlayContainer = TestBed.inject(OverlayContainer);
     stackFixture = TestBed.createComponent(StackHost);
     stackFixture.detectChanges();
     const [first, second] = stackFixture.componentInstance.roots();
@@ -259,6 +255,58 @@ describe('Drawer dismissal', () => {
     document.dispatchEvent(new KeyboardEvent('keydown', { bubbles: true, key: 'Escape' }));
     stackFixture.detectChanges();
     expect(first.open()).toBe(false);
+  });
+
+  it('registers in the overlay registry and defers to dismissable overlays above it', async () => {
+    await createDismissalFixture();
+    const popup = await openDrawer();
+    const registry = TestBed.inject(NgpOverlayRegistry);
+    expect(registry.getTopmost()?.getElements()).toContain(popup);
+
+    const outside = fixture!.nativeElement.querySelector<HTMLElement>('[data-test-outside]')!;
+    const dropdown = document.createElement('div');
+    document.body.append(dropdown);
+    const registerDropdown = (dismissPolicy: NgpDismissPolicy) =>
+      registry.register({
+        id: 'test-dropdown',
+        parentId: registry.getTopmost()?.id ?? null,
+        overlay: { hide: () => undefined, hideImmediate: () => undefined },
+        getElements: () => [dropdown],
+        triggerElement: popup,
+        dismissPolicy,
+      });
+
+    try {
+      // A menu or popover opened from inside the drawer owns Escape and outside presses first.
+      registerDropdown({ outsidePress: true, escapeKey: true });
+      document.dispatchEvent(new KeyboardEvent('keydown', { bubbles: true, key: 'Escape' }));
+      dispatchPointer(outside, 'pointerdown', 1);
+      dispatchPointer(outside, 'pointerup', 1);
+      fixture!.detectChanges();
+      expect(fixture!.componentInstance.root().open()).toBe(true);
+
+      // An overlay that never dismisses itself - a tooltip - must not block the drawer.
+      registry.deregister('test-dropdown');
+      registerDropdown({ outsidePress: false, escapeKey: false });
+      document.dispatchEvent(new KeyboardEvent('keydown', { bubbles: true, key: 'Escape' }));
+      fixture!.detectChanges();
+      expect(fixture!.componentInstance.root().open()).toBe(false);
+      expect(fixture!.componentInstance.reasons.at(-1)).toBe('escape-key');
+    } finally {
+      registry.deregister('test-dropdown');
+      dropdown.remove();
+    }
+  });
+
+  it('deregisters from the overlay registry when it closes', async () => {
+    await createDismissalFixture();
+    const registry = TestBed.inject(NgpOverlayRegistry);
+    await openDrawer();
+    expect(registry.getEntries()).toHaveLength(1);
+
+    fixture!.componentInstance.root().hide();
+    fixture!.detectChanges();
+    await vi.waitFor(() => expect(registry.getEntries()).toHaveLength(0));
   });
 
   it('uses and destroys CloseWatcher when the platform provides it', async () => {
@@ -300,7 +348,6 @@ describe('Drawer dismissal', () => {
 
   async function createDismissalFixture(): Promise<void> {
     await TestBed.configureTestingModule({ imports: [DismissalHost] }).compileComponents();
-    overlayContainer = TestBed.inject(OverlayContainer);
     fixture = TestBed.createComponent(DismissalHost);
     fixture.detectChanges();
   }

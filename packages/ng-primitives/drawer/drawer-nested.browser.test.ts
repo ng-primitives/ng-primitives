@@ -1,4 +1,3 @@
-import { OverlayContainer, OverlayModule } from '@angular/cdk/overlay';
 import { Component, signal, viewChildren } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { NgpDrawerBackdrop } from './backdrop/drawer-backdrop';
@@ -12,7 +11,6 @@ import { NgpDrawerViewport } from './viewport/drawer-viewport';
 
 @Component({
   imports: [
-    OverlayModule,
     NgpDrawerBackdrop,
     NgpDrawerClose,
     NgpDrawerPopup,
@@ -94,18 +92,15 @@ class NestedHost {
 
 describe('nested Drawer roots', () => {
   let fixture: ComponentFixture<NestedHost>;
-  let overlayContainer: OverlayContainer;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({ imports: [NestedHost] }).compileComponents();
-    overlayContainer = TestBed.inject(OverlayContainer);
     fixture = TestBed.createComponent(NestedHost);
     fixture.detectChanges();
   });
 
   afterEach(() => {
     fixture.destroy();
-    overlayContainer.ngOnDestroy();
   });
 
   it('propagates two and three-level presence, count, and frontmost height', async () => {

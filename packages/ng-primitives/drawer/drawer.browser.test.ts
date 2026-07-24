@@ -1,4 +1,3 @@
-import { OverlayModule } from '@angular/cdk/overlay';
 import { Component, viewChild } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { NgpDrawerBackdrop } from './backdrop/drawer-backdrop';
@@ -9,7 +8,6 @@ import { NgpDrawerViewport } from './viewport/drawer-viewport';
 
 @Component({
   imports: [
-    OverlayModule,
     NgpDrawerBackdrop,
     NgpDrawerPopup,
     NgpDrawerPortal,
@@ -64,7 +62,7 @@ class RootBrowserHost {
 }
 
 @Component({
-  imports: [OverlayModule, NgpDrawerPopup, NgpDrawerPortal, NgpDrawer, NgpDrawerViewport],
+  imports: [NgpDrawerPopup, NgpDrawerPortal, NgpDrawer, NgpDrawerViewport],
   template: `
     <ng-container ngpDrawer>
       <ng-template ngpDrawerPortal>

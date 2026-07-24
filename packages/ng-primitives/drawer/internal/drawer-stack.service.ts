@@ -1,6 +1,13 @@
-import { Overlay, ScrollStrategy } from '@angular/cdk/overlay';
+import { ViewportRuler } from '@angular/cdk/scrolling';
 import { DOCUMENT } from '@angular/common';
 import { DestroyRef, inject, Injectable } from '@angular/core';
+import {
+  BlockScrollStrategy,
+  NgpDismissPolicy,
+  NgpOverlayRegistry,
+  ScrollStrategy,
+} from 'ng-primitives/portal';
+import { createDrawerId } from './dom';
 import { DrawerState } from './drawer-state';
 
 interface CloseWatcherLike {
@@ -28,8 +35,11 @@ interface PointerDownRecord {
 @Injectable({ providedIn: 'root' })
 export class DrawerStackService {
   private readonly document = inject(DOCUMENT);
-  private readonly overlay = inject(Overlay, { optional: true });
+  private readonly viewportRuler = inject(ViewportRuler);
+  private readonly registry = inject(NgpOverlayRegistry);
   private readonly states: DrawerState[] = [];
+  /** The overlay registry id of every active drawer, so it stacks with dialogs, menus and popovers. */
+  private readonly registryIds = new Map<DrawerState, string>();
   private readonly capture = true;
   private scrollStrategy: ScrollStrategy | null = null;
   private closeWatcher: CloseWatcherLike | null = null;
@@ -59,7 +69,12 @@ export class DrawerStackService {
     const pendingState = this.pendingTouchDismissal;
     this.pendingTouchDismissal = null;
     const state = this.top();
-    if (!pendingState || state !== pendingState || state.disablePointerDismissal()) {
+    if (
+      !pendingState ||
+      state !== pendingState ||
+      state.disablePointerDismissal() ||
+      this.hasBlockingOverlayAbove(state, 'outsidePress')
+    ) {
       return;
     }
 
@@ -71,7 +86,11 @@ export class DrawerStackService {
     }
   };
   private readonly handleCloseWatcherClose = (event: Event): void => {
-    this.top()?.requestOpen(false, 'escape-key', { nativeEvent: event });
+    const state = this.top();
+    if (!state || this.hasBlockingOverlayAbove(state, 'escapeKey')) {
+      return;
+    }
+    state.requestOpen(false, 'escape-key', { nativeEvent: event });
   };
 
   constructor() {
@@ -80,6 +99,9 @@ export class DrawerStackService {
       this.destroyCloseWatcher();
       this.scrollStrategy?.disable();
       this.scrollStrategy = null;
+      for (const state of this.states) {
+        this.deregisterOverlay(state);
+      }
       this.states.length = 0;
       this.pointerDown = null;
       this.pendingTouchDismissal = null;
@@ -90,6 +112,7 @@ export class DrawerStackService {
   activate(state: DrawerState): void {
     if (!this.states.includes(state)) {
       this.states.push(state);
+      this.registerOverlay(state);
     }
     this.syncScrollLock();
     this.syncCloseWatcher();
@@ -101,6 +124,7 @@ export class DrawerStackService {
     if (index >= 0) {
       this.states.splice(index, 1);
     }
+    this.deregisterOverlay(state);
     if (this.pointerDown?.state === state) {
       this.pointerDown = null;
     }
@@ -123,6 +147,56 @@ export class DrawerStackService {
 
   private top(): DrawerState | undefined {
     return this.states.at(-1);
+  }
+
+  /**
+   * Register the drawer in the shared overlay registry. The drawer keeps its own dismissal
+   * handling, so the dismiss policy is disabled - the registration exists so that overlays
+   * opened from within the drawer (menus, popovers, dialogs) stack above it correctly.
+   */
+  private registerOverlay(state: DrawerState): void {
+    const id = createDrawerId('overlay');
+    const trigger = state.activeTrigger();
+    this.registryIds.set(state, id);
+    this.registry.register({
+      id,
+      parentId: trigger ? this.registry.findContainingOverlay(trigger) : null,
+      overlay: {
+        hide: () => state.requestOpen(false, 'programmatic'),
+        hideImmediate: () => state.requestOpen(false, 'programmatic'),
+      },
+      getElements: () =>
+        [state.popup(), state.viewport(), state.backdrop()].filter(
+          (element): element is HTMLElement => element !== null,
+        ),
+      triggerElement: trigger ?? this.document.body,
+      dismissPolicy: { outsidePress: false, escapeKey: false },
+    });
+  }
+
+  private deregisterOverlay(state: DrawerState): void {
+    const id = this.registryIds.get(state);
+    if (id) {
+      this.registryIds.delete(state);
+      this.registry.deregister(id);
+    }
+  }
+
+  /**
+   * Whether an overlay stacked above the drawer - a menu, popover or dialog opened from inside
+   * it - handles this kind of dismissal itself, in which case the drawer must let it go first.
+   * Overlays that opt out of a dismissal (tooltips, for example) never block the drawer.
+   */
+  private hasBlockingOverlayAbove(state: DrawerState, dismissal: keyof NgpDismissPolicy): boolean {
+    const id = this.registryIds.get(state);
+    if (!id) {
+      return false;
+    }
+    const entries = this.registry.getEntries();
+    const index = entries.findIndex(entry => entry.id === id);
+    return (
+      index >= 0 && entries.slice(index + 1).some(entry => entry.dismissPolicy[dismissal] !== false)
+    );
   }
 
   private onPointerDown(event: PointerEvent): void {
@@ -171,7 +245,8 @@ export class DrawerStackService {
       down.pointerId !== event.pointerId ||
       down.location === 'inside' ||
       down.location !== this.pointerLocation(state, event) ||
-      state.disablePointerDismissal()
+      state.disablePointerDismissal() ||
+      this.hasBlockingOverlayAbove(state, 'outsidePress')
     ) {
       return;
     }
@@ -190,7 +265,11 @@ export class DrawerStackService {
     if (event.key !== 'Escape' || event.defaultPrevented) {
       return;
     }
-    this.top()?.requestOpen(false, 'escape-key', { nativeEvent: event });
+    const state = this.top();
+    if (!state || this.hasBlockingOverlayAbove(state, 'escapeKey')) {
+      return;
+    }
+    state.requestOpen(false, 'escape-key', { nativeEvent: event });
   }
 
   private onFocusIn(event: FocusEvent): void {
@@ -214,8 +293,8 @@ export class DrawerStackService {
 
   private syncScrollLock(): void {
     const shouldLock = this.states.some(state => state.modal() === true);
-    if (shouldLock && !this.scrollStrategy && this.overlay) {
-      this.scrollStrategy = this.overlay.scrollStrategies.block();
+    if (shouldLock && !this.scrollStrategy) {
+      this.scrollStrategy = new BlockScrollStrategy(this.viewportRuler, this.document);
       this.scrollStrategy.enable();
     } else if (!shouldLock && this.scrollStrategy) {
       this.scrollStrategy.disable();

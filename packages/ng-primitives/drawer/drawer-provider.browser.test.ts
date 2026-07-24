@@ -1,4 +1,3 @@
-import { OverlayContainer, OverlayModule } from '@angular/cdk/overlay';
 import { Component, viewChild, viewChildren } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { NgpDrawer } from './drawer/drawer';
@@ -11,7 +10,6 @@ import { NgpDrawerViewport } from './viewport/drawer-viewport';
 
 @Component({
   imports: [
-    OverlayModule,
     NgpDrawerIndentBackground,
     NgpDrawerIndent,
     NgpDrawerPopup,
@@ -60,18 +58,15 @@ class ProviderHost {
 
 describe('Drawer Provider and Indent parts', () => {
   let fixture: ComponentFixture<ProviderHost>;
-  let overlayContainer: OverlayContainer;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({ imports: [ProviderHost] }).compileComponents();
-    overlayContainer = TestBed.inject(OverlayContainer);
     fixture = TestBed.createComponent(ProviderHost);
     fixture.detectChanges();
   });
 
   afterEach(() => {
     fixture.destroy();
-    overlayContainer.ngOnDestroy();
   });
 
   it('reports any-open/count and excludes a regular dialog', () => {

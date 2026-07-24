@@ -1,4 +1,3 @@
-import { OverlayContainer, OverlayModule } from '@angular/cdk/overlay';
 import { Component, signal, viewChildren } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { NgpDrawerBackdrop } from './backdrop/drawer-backdrop';
@@ -15,7 +14,6 @@ import { NgpDrawerTrigger } from './trigger/drawer-trigger';
 import { NgpDrawerViewport } from './viewport/drawer-viewport';
 
 const DRAWER_IMPORTS = [
-  OverlayModule,
   NgpDrawerBackdrop,
   NgpDrawerPopup,
   NgpDrawerPortal,
@@ -98,18 +96,15 @@ class DataAttributesHost {
 
 describe('Drawer data attribute ledger', () => {
   let fixture: ComponentFixture<DataAttributesHost>;
-  let overlayContainer: OverlayContainer;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({ imports: [DataAttributesHost] }).compileComponents();
-    overlayContainer = TestBed.inject(OverlayContainer);
     fixture = TestBed.createComponent(DataAttributesHost);
     fixture.detectChanges();
   });
 
   afterEach(() => {
     fixture.destroy();
-    overlayContainer.ngOnDestroy();
   });
 
   it('publishes the closed, opening, open, closing, and disabled ledger by part', async () => {

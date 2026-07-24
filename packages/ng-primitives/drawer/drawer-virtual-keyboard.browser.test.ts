@@ -1,4 +1,3 @@
-import { OverlayContainer, OverlayModule } from '@angular/cdk/overlay';
 import { Component, signal, viewChildren } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { NgpDrawer } from './drawer/drawer';
@@ -13,7 +12,6 @@ import { NgpDrawerVirtualKeyboard } from './virtual-keyboard/drawer-virtual-keyb
 
 @Component({
   imports: [
-    OverlayModule,
     NgpDrawerPopup,
     NgpDrawerPortal,
     NgpDrawer,
@@ -91,14 +89,12 @@ class KeyboardHost {
 describe('Drawer VirtualKeyboard', () => {
   let fixture: ComponentFixture<KeyboardHost>;
   let fixtureDestroyed: boolean;
-  let overlayContainer: OverlayContainer;
   let visualViewport: FakeVisualViewport;
   let visualViewportDescriptor: PropertyDescriptor | undefined;
   let innerHeightDescriptor: PropertyDescriptor | undefined;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({ imports: [KeyboardHost] }).compileComponents();
-    overlayContainer = TestBed.inject(OverlayContainer);
     visualViewportDescriptor = Object.getOwnPropertyDescriptor(window, 'visualViewport');
     innerHeightDescriptor = Object.getOwnPropertyDescriptor(window, 'innerHeight');
     visualViewport = new FakeVisualViewport();
@@ -112,8 +108,7 @@ describe('Drawer VirtualKeyboard', () => {
   afterEach(() => {
     destroyFixture();
     expect(visualViewport.listenerCount()).toBe(0);
-    expect(overlayContainer.getContainerElement().childElementCount).toBe(0);
-    overlayContainer.ngOnDestroy();
+    expect(document.querySelectorAll('[data-ngp-drawer-overlay-host]')).toHaveLength(0);
     restoreDescriptor(window, 'visualViewport', visualViewportDescriptor);
     restoreDescriptor(window, 'innerHeight', innerHeightDescriptor);
     vi.restoreAllMocks();

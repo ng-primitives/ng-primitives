@@ -1,8 +1,6 @@
-import { Overlay } from '@angular/cdk/overlay';
 import { DOCUMENT } from '@angular/common';
 import {
   afterRenderEffect,
-  ApplicationRef,
   booleanAttribute,
   computed,
   DestroyRef,
@@ -15,6 +13,8 @@ import {
   untracked,
   ViewContainerRef,
 } from '@angular/core';
+import { NavigationStart, Router } from '@angular/router';
+import { safeTakeUntilDestroyed } from 'ng-primitives/utils';
 import { injectDrawerState, requireDrawerState } from '../internal/drawer-state';
 import { DrawerPortalAdapter } from '../internal/portal-adapter';
 import { nextDrawerFrame, waitForDrawerTransition } from '../internal/transition-coordinator';
@@ -36,10 +36,9 @@ export class NgpDrawerPortal {
   readonly container = input<HTMLElement | ElementRef<HTMLElement> | null>(null);
 
   private readonly document = inject(DOCUMENT);
-  private readonly overlay = inject(Overlay);
+  private readonly router = inject(Router, { optional: true });
   private readonly templateRef = inject<TemplateRef<unknown>>(TemplateRef);
   private readonly viewContainerRef = inject(ViewContainerRef);
-  private readonly applicationRef = inject(ApplicationRef);
   private readonly injector = inject(Injector);
   private adapter: DrawerPortalAdapter | null = null;
   private currentContainer: HTMLElement | null = null;
@@ -66,6 +65,13 @@ export class NgpDrawerPortal {
         const renderState = this.portalRenderState();
         untracked(() => this.syncPortal(renderState));
       },
+    });
+
+    // Close the drawer when the user navigates away, matching the dialog behaviour.
+    this.router?.events.pipe(safeTakeUntilDestroyed()).subscribe(event => {
+      if (event instanceof NavigationStart && this.state.open()) {
+        this.state.requestOpen(false, 'programmatic');
+      }
     });
 
     inject(DestroyRef).onDestroy(() => {
@@ -185,29 +191,14 @@ export class NgpDrawerPortal {
 
   private createAdapter(): DrawerPortalAdapter {
     const adapter = new DrawerPortalAdapter(
-      this.overlay,
       this.templateRef,
       this.viewContainerRef,
-      this.applicationRef,
       this.injector,
       this.document,
       this.currentContainer,
-      () => this.handleExternalDetach(adapter),
     );
     this.adapter = adapter;
     return adapter;
-  }
-
-  private handleExternalDetach(adapter: DrawerPortalAdapter): void {
-    if (this.destroyed || this.adapter !== adapter) {
-      return;
-    }
-    this.state.nextTransitionGeneration();
-    this.adapter = null;
-    this.state.portalAttached.set(false);
-    this.state.portalVisible.set(false);
-    this.phase = 'detached';
-    this.state.requestUnmount();
   }
 
   private resolveContainer(): HTMLElement | null {
