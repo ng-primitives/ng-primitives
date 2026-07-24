@@ -2,6 +2,7 @@ import { BooleanInput } from '@angular/cdk/coercion';
 import { booleanAttribute, Directive, input, output } from '@angular/core';
 import { NgpOrientation } from 'ng-primitives/common';
 import { SetterOptions } from 'ng-primitives/state';
+import { coerceBooleanOrUndefined } from 'ng-primitives/utils';
 import { ngpCollapsible, provideCollapsibleState } from './collapsible-state';
 
 /**
@@ -20,7 +21,7 @@ export class NgpCollapsible {
    */
   readonly open = input<boolean | undefined, BooleanInput>(undefined, {
     alias: 'ngpCollapsibleOpen',
-    transform: booleanAttribute,
+    transform: coerceBooleanOrUndefined,
   });
 
   /**

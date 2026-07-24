@@ -1,7 +1,7 @@
 import { BooleanInput } from '@angular/cdk/coercion';
 import { booleanAttribute, Directive, input, output } from '@angular/core';
 import { SetterOptions } from 'ng-primitives/state';
-import { uniqueId } from 'ng-primitives/utils';
+import { coerceBooleanOrUndefined, uniqueId } from 'ng-primitives/utils';
 import { ngpSwitch, provideSwitchState } from './switch-state';
 
 /**
@@ -19,11 +19,19 @@ export class NgpSwitch {
   readonly id = input<string>(uniqueId('ngp-switch'));
 
   /**
-   * Determine if the switch is checked.
+   * Determine if the switch is checked. When defined the switch is controlled.
+   */
+  readonly checked = input<boolean | undefined, BooleanInput>(undefined, {
+    alias: 'ngpSwitchChecked',
+    transform: coerceBooleanOrUndefined,
+  });
+
+  /**
+   * The default checked state for uncontrolled usage.
    * @default false
    */
-  readonly checked = input<boolean, BooleanInput>(false, {
-    alias: 'ngpSwitchChecked',
+  readonly defaultChecked = input<boolean, BooleanInput>(false, {
+    alias: 'ngpSwitchDefaultChecked',
     transform: booleanAttribute,
   });
 
@@ -59,6 +67,7 @@ export class NgpSwitch {
   readonly state = ngpSwitch({
     id: this.id,
     checked: this.checked,
+    defaultChecked: this.defaultChecked,
     disabled: this.disabled,
     required: this.required,
     onCheckedChange: value => this.checkedChange.emit(value),

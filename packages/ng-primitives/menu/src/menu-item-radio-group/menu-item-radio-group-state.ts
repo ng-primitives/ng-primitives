@@ -1,6 +1,12 @@
 import { Signal, signal } from '@angular/core';
 import { injectElementRef } from 'ng-primitives/internal';
-import { attrBinding, controlled, createPrimitive, emitter } from 'ng-primitives/state';
+import {
+  attrBinding,
+  controlled,
+  controlledState,
+  createPrimitive,
+  emitter,
+} from 'ng-primitives/state';
 import { Observable } from 'rxjs';
 
 export interface NgpMenuItemRadioGroupState {
@@ -18,13 +24,23 @@ export interface NgpMenuItemRadioGroupState {
    * Select a radio item by value.
    */
   select(value: string): void;
+
+  /**
+   * Set the default value used in uncontrolled mode.
+   */
+  setDefaultValue(value: string | null): void;
 }
 
 export interface NgpMenuItemRadioGroupProps {
   /**
-   * The current value of the radio group.
+   * The current value of the radio group. When defined the group is controlled.
    */
-  readonly value?: Signal<string | null>;
+  readonly value?: Signal<string | null | undefined>;
+
+  /**
+   * The default value for uncontrolled usage.
+   */
+  readonly defaultValue?: Signal<string | null>;
 
   /**
    * Callback fired when the value changes.
@@ -40,11 +56,19 @@ export const [
 ] = createPrimitive(
   'NgpMenuItemRadioGroup',
   ({
-    value: _value = signal(null),
+    value: _value = signal<string | null | undefined>(undefined),
+    defaultValue: _defaultValue,
     onValueChange,
   }: NgpMenuItemRadioGroupProps): NgpMenuItemRadioGroupState => {
     const element = injectElementRef();
-    const value = controlled(_value);
+    // `controlledState` provides controlled/uncontrolled latching; the group
+    // only ever selects string values, so we keep a string-typed emitter and
+    // drive it manually (calling the setter with emit:false).
+    const defaultValue = controlled<string | null>(_defaultValue, null);
+    const [value, setValue] = controlledState<string | null>({
+      value: _value,
+      defaultValue,
+    });
     const valueChange = emitter<string>();
 
     // Host bindings
@@ -55,7 +79,7 @@ export const [
         return;
       }
 
-      value.set(newValue);
+      setValue(newValue, { emit: false });
       onValueChange?.(newValue);
       valueChange.emit(newValue);
     }
@@ -64,6 +88,7 @@ export const [
       value,
       valueChange: valueChange.asObservable(),
       select,
+      setDefaultValue: defaultValue.set,
     } satisfies NgpMenuItemRadioGroupState;
   },
 );

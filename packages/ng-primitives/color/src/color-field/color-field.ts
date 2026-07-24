@@ -21,8 +21,13 @@ export class NgpColorField {
   readonly id = input<string>(uniqueId('ngp-color-field'));
 
   /** The color value. */
-  readonly value = input<Color>(Color.parse('#ff0000'), {
+  readonly value = input<Color | undefined>(undefined, {
     alias: 'ngpColorFieldValue',
+  });
+
+  /** The default color value for uncontrolled usage. */
+  readonly defaultValue = input<Color>(Color.parse('#ff0000'), {
+    alias: 'ngpColorFieldDefaultValue',
   });
 
   /** Emits when the value changes. */
@@ -49,6 +54,7 @@ export class NgpColorField {
   protected readonly state = ngpColorField({
     id: this.id,
     value: this.value,
+    defaultValue: this.defaultValue,
     channel: this.channel,
     colorSpace: this.colorSpace,
     disabled: this.disabled,

@@ -212,6 +212,22 @@ describe('NgpCheckbox', () => {
       expect(checkbox).toHaveAttribute('data-checked', '');
     });
 
+    it('should stay uncontrolled when the checked binding is explicitly undefined', async () => {
+      await render(
+        `<div ngpCheckbox [ngpCheckboxChecked]="checked" ngpCheckboxDefaultChecked></div>`,
+        {
+          imports: [NgpCheckbox],
+          componentProperties: { checked: undefined },
+        },
+      );
+      const checkbox = screen.getByRole('checkbox');
+      // an explicit `undefined` must not coerce to `false` — it stays uncontrolled at the default
+      expect(checkbox).toHaveAttribute('aria-checked', 'true');
+
+      fireEvent.click(checkbox);
+      expect(checkbox).toHaveAttribute('aria-checked', 'false');
+    });
+
     it('should toggle freely from a defaultChecked start', async () => {
       const spy = vi.fn();
       await render(

@@ -106,10 +106,68 @@ describe('NgpNumberField', () => {
     });
 
     it('should update aria-valuenow after incrementing', async () => {
-      const { fixture } = await renderNumberField('[ngpNumberFieldValue]="5"');
+      const { fixture } = await renderNumberField('[ngpNumberFieldDefaultValue]="5"');
       fireEvent.pointerDown(screen.getByTestId('increment'));
       await fixture.whenStable();
       expect(screen.getByTestId('input')).toHaveAttribute('aria-valuenow', '6');
+    });
+  });
+
+  describe('controlled mode (no round-trip)', () => {
+    it('should emit valueChange on increment but not update the DOM when the parent does not update the binding', async () => {
+      const valueChange = vi.fn();
+      const { fixture } = await renderNumberField('[ngpNumberFieldValue]="5"', valueChange);
+      fireEvent.pointerDown(screen.getByTestId('increment'));
+      await fixture.whenStable();
+
+      // notifies via valueChange, but the controlled value must stay put because
+      // the parent never writes the new value back.
+      expect(valueChange).toHaveBeenCalledWith(6);
+      expect(screen.getByTestId('input')).toHaveAttribute('aria-valuenow', '5');
+      expect((screen.getByTestId('input') as HTMLInputElement).value).toBe('5');
+    });
+  });
+
+  describe('two-way binding', () => {
+    it('should round-trip a two-way binding and update the value on increment', async () => {
+      const { fixture } = await render(
+        `<div ngpNumberField [(ngpNumberFieldValue)]="value" data-testid="number-field">
+          <button ngpNumberFieldDecrement data-testid="decrement">-</button>
+          <input ngpNumberFieldInput data-testid="input" />
+          <button ngpNumberFieldIncrement data-testid="increment">+</button>
+        </div>`,
+        { imports, componentProperties: { value: 5 } },
+      );
+      expect(screen.getByTestId('input')).toHaveAttribute('aria-valuenow', '5');
+
+      fireEvent.pointerDown(screen.getByTestId('increment'));
+      await fixture.whenStable();
+
+      expect(screen.getByTestId('input')).toHaveAttribute('aria-valuenow', '6');
+      expect(fixture.componentInstance.value).toBe(6);
+    });
+  });
+
+  describe('defaultValue (uncontrolled)', () => {
+    it('should display the default value on init', async () => {
+      const { fixture } = await renderNumberField('[ngpNumberFieldDefaultValue]="5"');
+      await fixture.whenStable();
+      expect((screen.getByTestId('input') as HTMLInputElement).value).toBe('5');
+    });
+
+    it('should let interaction override the default value (uncontrolled)', async () => {
+      const { fixture } = await renderNumberField('[ngpNumberFieldDefaultValue]="5"');
+      fireEvent.pointerDown(screen.getByTestId('increment'));
+      await fixture.whenStable();
+      expect(screen.getByTestId('input')).toHaveAttribute('aria-valuenow', '6');
+    });
+
+    it('should prefer a controlled value over the default value', async () => {
+      const { fixture } = await renderNumberField(
+        '[ngpNumberFieldValue]="3" [ngpNumberFieldDefaultValue]="8"',
+      );
+      await fixture.whenStable();
+      expect(screen.getByTestId('input')).toHaveAttribute('aria-valuenow', '3');
     });
   });
 
@@ -129,7 +187,10 @@ describe('NgpNumberField', () => {
 
     it('should handle floating point precision with step=0.1', async () => {
       const valueChange = vi.fn();
-      await renderNumberField('[ngpNumberFieldValue]="0" [ngpNumberFieldStep]="0.1"', valueChange);
+      await renderNumberField(
+        '[ngpNumberFieldDefaultValue]="0" [ngpNumberFieldStep]="0.1"',
+        valueChange,
+      );
 
       const input = screen.getByTestId('input');
       fireEvent.keyDown(input, { key: 'ArrowUp' });
@@ -258,7 +319,7 @@ describe('NgpNumberField', () => {
 
     it('should use the typed value when the increment button is clicked while focused', async () => {
       const valueChange = vi.fn();
-      await renderNumberField('[ngpNumberFieldValue]="10"', valueChange);
+      await renderNumberField('[ngpNumberFieldDefaultValue]="10"', valueChange);
 
       const input = screen.getByTestId('input') as HTMLInputElement;
       fireEvent.focus(input);
@@ -273,7 +334,7 @@ describe('NgpNumberField', () => {
 
     it('should use the typed value when the decrement button is clicked while focused', async () => {
       const valueChange = vi.fn();
-      await renderNumberField('[ngpNumberFieldValue]="10"', valueChange);
+      await renderNumberField('[ngpNumberFieldDefaultValue]="10"', valueChange);
 
       const input = screen.getByTestId('input') as HTMLInputElement;
       fireEvent.focus(input);
@@ -286,7 +347,7 @@ describe('NgpNumberField', () => {
     });
 
     it('should update the display after a button increment while focused', async () => {
-      const { fixture } = await renderNumberField('[ngpNumberFieldValue]="10"');
+      const { fixture } = await renderNumberField('[ngpNumberFieldDefaultValue]="10"');
 
       const input = screen.getByTestId('input') as HTMLInputElement;
       fireEvent.focus(input);
@@ -300,7 +361,7 @@ describe('NgpNumberField', () => {
 
     it('should allow multiple consecutive button clicks while focused', async () => {
       const valueChange = vi.fn();
-      const { fixture } = await renderNumberField('[ngpNumberFieldValue]="10"', valueChange);
+      const { fixture } = await renderNumberField('[ngpNumberFieldDefaultValue]="10"', valueChange);
 
       const input = screen.getByTestId('input') as HTMLInputElement;
       fireEvent.focus(input);
@@ -336,7 +397,7 @@ describe('NgpNumberField', () => {
     it('should use the large step with Shift+ArrowUp', async () => {
       const valueChange = vi.fn();
       await renderNumberField(
-        '[ngpNumberFieldValue]="5" [ngpNumberFieldLargeStep]="10"',
+        '[ngpNumberFieldDefaultValue]="5" [ngpNumberFieldLargeStep]="10"',
         valueChange,
       );
       fireEvent.keyDown(screen.getByTestId('input'), { key: 'ArrowUp', shiftKey: true });
@@ -346,7 +407,7 @@ describe('NgpNumberField', () => {
     it('should use the large step with Shift+ArrowDown', async () => {
       const valueChange = vi.fn();
       await renderNumberField(
-        '[ngpNumberFieldValue]="50" [ngpNumberFieldLargeStep]="10"',
+        '[ngpNumberFieldDefaultValue]="50" [ngpNumberFieldLargeStep]="10"',
         valueChange,
       );
       fireEvent.keyDown(screen.getByTestId('input'), { key: 'ArrowDown', shiftKey: true });
@@ -375,7 +436,7 @@ describe('NgpNumberField', () => {
 
     it('should increment from the typed value rather than the stale signal value', async () => {
       const valueChange = vi.fn();
-      await renderNumberField('[ngpNumberFieldValue]="10"', valueChange);
+      await renderNumberField('[ngpNumberFieldDefaultValue]="10"', valueChange);
 
       const input = screen.getByTestId('input') as HTMLInputElement;
       fireEvent.focus(input);
@@ -389,7 +450,7 @@ describe('NgpNumberField', () => {
 
     it('should decrement from the typed value rather than the stale signal value', async () => {
       const valueChange = vi.fn();
-      await renderNumberField('[ngpNumberFieldValue]="10"', valueChange);
+      await renderNumberField('[ngpNumberFieldDefaultValue]="10"', valueChange);
 
       const input = screen.getByTestId('input') as HTMLInputElement;
       fireEvent.focus(input);
@@ -405,7 +466,7 @@ describe('NgpNumberField', () => {
     it('should increment by the large step on PageUp', async () => {
       const valueChange = vi.fn();
       await renderNumberField(
-        '[ngpNumberFieldValue]="5" [ngpNumberFieldLargeStep]="10"',
+        '[ngpNumberFieldDefaultValue]="5" [ngpNumberFieldLargeStep]="10"',
         valueChange,
       );
       const input = screen.getByTestId('input') as HTMLInputElement;
@@ -417,7 +478,7 @@ describe('NgpNumberField', () => {
     it('should decrement by the large step on PageDown', async () => {
       const valueChange = vi.fn();
       await renderNumberField(
-        '[ngpNumberFieldValue]="50" [ngpNumberFieldLargeStep]="10"',
+        '[ngpNumberFieldDefaultValue]="50" [ngpNumberFieldLargeStep]="10"',
         valueChange,
       );
       const input = screen.getByTestId('input') as HTMLInputElement;
@@ -755,7 +816,10 @@ describe('NgpNumberField', () => {
 
     it('should stop auto-repeat when hitting the max boundary', async () => {
       const valueChange = vi.fn();
-      await renderNumberField('[ngpNumberFieldValue]="8" [ngpNumberFieldMax]="10"', valueChange);
+      await renderNumberField(
+        '[ngpNumberFieldDefaultValue]="8" [ngpNumberFieldMax]="10"',
+        valueChange,
+      );
 
       fireEvent.pointerDown(screen.getByTestId('increment'));
       expect(valueChange).toHaveBeenCalledWith(9);

@@ -56,6 +56,51 @@ class TestMenuCheckboxComponent {
 })
 class TestMenuCheckboxDisabledComponent {}
 
+@Component({
+  template: `
+    <button [ngpMenuTrigger]="menu" data-testid="trigger">Open Menu</button>
+
+    <ng-template #menu>
+      <div ngpMenu data-testid="menu">
+        <button
+          [ngpMenuItemCheckboxChecked]="checked"
+          (ngpMenuItemCheckboxCheckedChange)="lastChange = $event"
+          ngpMenuItemCheckbox
+          data-testid="checkbox-item"
+        >
+          Show Toolbar
+        </button>
+      </div>
+    </ng-template>
+  `,
+  imports: [NgpMenuTrigger, NgpMenu, NgpMenuItemCheckbox],
+})
+class TestMenuCheckboxControlledComponent {
+  // controlled but never updated in response to the change event
+  readonly checked = false;
+  lastChange: boolean | undefined;
+}
+
+@Component({
+  template: `
+    <button [ngpMenuTrigger]="menu" data-testid="trigger">Open Menu</button>
+
+    <ng-template #menu>
+      <div ngpMenu data-testid="menu">
+        <button
+          [ngpMenuItemCheckboxDefaultChecked]="true"
+          ngpMenuItemCheckbox
+          data-testid="checkbox-item"
+        >
+          Show Toolbar
+        </button>
+      </div>
+    </ng-template>
+  `,
+  imports: [NgpMenuTrigger, NgpMenu, NgpMenuItemCheckbox],
+})
+class TestMenuCheckboxDefaultComponent {}
+
 async function openMenu(fixture: any) {
   const trigger = fixture.debugElement.nativeElement.querySelector('[data-testid="trigger"]');
   fireEvent.click(trigger);
@@ -362,5 +407,33 @@ describe('NgpMenuItemCheckbox in submenu', () => {
 
     // Root menu should still be open
     expect(rootTrigger).toHaveAttribute('data-open');
+  });
+
+  it('should emit checkedChange on click but not update the DOM when controlled without round-trip', async () => {
+    const { fixture } = await render(TestMenuCheckboxControlledComponent);
+    await openMenu(fixture);
+
+    const checkbox = document.querySelector('[data-testid="checkbox-item"]')!;
+    expect(checkbox).toHaveAttribute('aria-checked', 'false');
+
+    fireEvent.click(checkbox);
+    TestBed.flushEffects();
+
+    // notified, but the controlled value is never written back so it stays put
+    expect(fixture.componentInstance.lastChange).toBe(true);
+    expect(checkbox).toHaveAttribute('aria-checked', 'false');
+    expect(checkbox).not.toHaveAttribute('data-checked');
+  });
+
+  it('should start checked from ngpMenuItemCheckboxDefaultChecked and toggle uncontrolled', async () => {
+    const { fixture } = await render(TestMenuCheckboxDefaultComponent);
+    await openMenu(fixture);
+
+    const checkbox = document.querySelector('[data-testid="checkbox-item"]')!;
+    expect(checkbox).toHaveAttribute('aria-checked', 'true');
+
+    fireEvent.click(checkbox);
+    TestBed.flushEffects();
+    expect(checkbox).toHaveAttribute('aria-checked', 'false');
   });
 });

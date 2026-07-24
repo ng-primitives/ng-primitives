@@ -14,6 +14,7 @@ import { injectElementRef } from 'ng-primitives/internal';
 import {
   attrBinding,
   controlled,
+  controlledState,
   createPrimitive,
   dataBinding,
   emitter,
@@ -56,6 +57,9 @@ export interface NgpColorWheelState {
   focusThumb(origin: FocusOrigin): void;
   /** Set the disabled state. */
   setDisabled(disabled: boolean): void;
+
+  /** Set the default value used in uncontrolled mode. */
+  setDefaultValue(value: Color): void;
 }
 
 /**
@@ -63,7 +67,9 @@ export interface NgpColorWheelState {
  */
 export interface NgpColorWheelProps {
   readonly id?: Signal<string>;
-  readonly value?: Signal<Color>;
+  readonly value?: Signal<Color | undefined>;
+  /** The default color value for uncontrolled usage. */
+  readonly defaultValue?: Signal<Color>;
   readonly colorSpace?: Signal<ColorSpace>;
   readonly disabled?: Signal<boolean>;
   readonly onValueChange?: (value: Color) => void;
@@ -84,7 +90,8 @@ export const [
   'NgpColorWheel',
   ({
     id = signal(uniqueId('ngp-color-wheel')),
-    value: _value = signal(Color.parse('hsl(0, 100%, 50%)')),
+    value: _value = signal<Color | undefined>(undefined),
+    defaultValue: _defaultValue,
     colorSpace = signal<ColorSpace>('hsl'),
     disabled: _disabled = signal(false),
     onValueChange,
@@ -94,7 +101,8 @@ export const [
     const injector = inject(Injector);
     const document = inject(DOCUMENT);
     const picker = injectColorPickerState({ optional: true });
-    const local = controlled(_value);
+    const defaultValue = controlled(_defaultValue, Color.parse('hsl(0, 100%, 50%)'));
+    const [local, setLocal] = controlledState<Color>({ value: _value, defaultValue });
     const value = computed(() => picker()?.value() ?? local());
     const disabled = controlled(_disabled);
     const valueChange = emitter<Color>();
@@ -165,7 +173,7 @@ export const [
       if (parent) {
         parent.setValue(newValue, options);
       } else {
-        local.set(newValue);
+        setLocal(newValue, { emit: false });
       }
       if (options?.emit !== false) {
         onValueChange?.(newValue);
@@ -203,6 +211,7 @@ export const [
       thumb,
       valueChange: valueChange.asObservable(),
       setValue,
+      setDefaultValue: defaultValue.set,
       setHue,
       setThumb,
       focusThumb,

@@ -1099,4 +1099,87 @@ describe('NgpRangeSlider', () => {
       expect(focusViaSpy).not.toHaveBeenCalled();
     });
   });
+
+  describe('controlled mode (no round-trip)', () => {
+    const imports = [NgpRangeSlider, NgpRangeSliderThumb, NgpRangeSliderTrack, NgpRangeSliderRange];
+
+    it('should emit lowChange but not move the thumb when the parent does not update the binding', async () => {
+      const onLowChange = vi.fn();
+      const { fixture } = await render(
+        `<div
+          [ngpRangeSliderLow]="20"
+          [ngpRangeSliderHigh]="80"
+          [ngpRangeSliderMin]="0"
+          [ngpRangeSliderMax]="100"
+          (ngpRangeSliderLowChange)="onLowChange($event)"
+          ngpRangeSlider
+        >
+          <div ngpRangeSliderTrack>
+            <div ngpRangeSliderThumb data-testid="low-thumb"></div>
+            <div ngpRangeSliderThumb data-testid="high-thumb"></div>
+          </div>
+        </div>`,
+        { imports, componentProperties: { onLowChange } },
+      );
+      const lowThumb = screen.getByTestId('low-thumb');
+
+      lowThumb.focus();
+      await userEvent.keyboard('{arrowright}');
+      await fixture.whenStable();
+
+      expect(onLowChange).toHaveBeenCalledWith(21);
+      expect(lowThumb).toHaveAttribute('aria-valuenow', '20');
+    });
+  });
+
+  describe('defaultValue (uncontrolled)', () => {
+    const imports = [NgpRangeSlider, NgpRangeSliderThumb, NgpRangeSliderTrack, NgpRangeSliderRange];
+
+    it('should start from the default low/high and let interaction move a thumb', async () => {
+      const { fixture } = await render(
+        `<div
+          [ngpRangeSliderDefaultLow]="20"
+          [ngpRangeSliderDefaultHigh]="80"
+          [ngpRangeSliderMin]="0"
+          [ngpRangeSliderMax]="100"
+          ngpRangeSlider
+        >
+          <div ngpRangeSliderTrack>
+            <div ngpRangeSliderThumb data-testid="low-thumb"></div>
+            <div ngpRangeSliderThumb data-testid="high-thumb"></div>
+          </div>
+        </div>`,
+        { imports },
+      );
+      const lowThumb = screen.getByTestId('low-thumb');
+      expect(lowThumb).toHaveAttribute('aria-valuenow', '20');
+
+      lowThumb.focus();
+      await userEvent.keyboard('{arrowright}');
+      await fixture.whenStable();
+
+      expect(lowThumb).toHaveAttribute('aria-valuenow', '21');
+    });
+
+    it('should fall back to the declared defaults when the default bindings are explicitly undefined', async () => {
+      await render(
+        `<div
+          [ngpRangeSliderDefaultLow]="low"
+          [ngpRangeSliderDefaultHigh]="high"
+          [ngpRangeSliderMin]="0"
+          [ngpRangeSliderMax]="100"
+          ngpRangeSlider
+        >
+          <div ngpRangeSliderTrack>
+            <div ngpRangeSliderThumb data-testid="low-thumb"></div>
+            <div ngpRangeSliderThumb data-testid="high-thumb"></div>
+          </div>
+        </div>`,
+        { imports, componentProperties: { low: undefined, high: undefined } },
+      );
+      // bound-undefined defaults must resolve to the declared defaults (0 / 100), not NaN
+      expect(screen.getByTestId('low-thumb')).toHaveAttribute('aria-valuenow', '0');
+      expect(screen.getByTestId('high-thumb')).toHaveAttribute('aria-valuenow', '100');
+    });
+  });
 });

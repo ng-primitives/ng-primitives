@@ -58,7 +58,7 @@ describe('NgpSlider', () => {
   it('should adjust value with keyboard on thumb', async () => {
     const valueChange = vi.fn();
     const { getByTestId } = await render(
-      createTemplate(`[ngpSliderValue]="value" [ngpSliderMin]="0" [ngpSliderMax]="10"`),
+      createTemplate(`[ngpSliderDefaultValue]="value" [ngpSliderMin]="0" [ngpSliderMax]="10"`),
       {
         imports: [NgpSlider, NgpSliderTrack, NgpSliderRange, NgpSliderThumb],
         componentProperties: { value: 5, valueChange },
@@ -299,7 +299,7 @@ describe('NgpSlider', () => {
     const valueChange = vi.fn();
     const { getByTestId } = await render(
       createTemplate(
-        `[ngpSliderValue]="value" [ngpSliderMin]="0" [ngpSliderMax]="10" [ngpSliderStep]="2"`,
+        `[ngpSliderDefaultValue]="value" [ngpSliderMin]="0" [ngpSliderMax]="10" [ngpSliderStep]="2"`,
       ),
       {
         imports: [NgpSlider, NgpSliderTrack, NgpSliderRange, NgpSliderThumb],
@@ -417,7 +417,7 @@ describe('NgpSlider', () => {
     const valueChange = vi.fn();
     const { getByTestId, fixture } = await render(
       createTemplate(
-        `[ngpSliderValue]="value" [ngpSliderMin]="0" [ngpSliderMax]="100" [ngpSliderStep]="1"`,
+        `[ngpSliderDefaultValue]="value" [ngpSliderMin]="0" [ngpSliderMax]="100" [ngpSliderStep]="1"`,
       ),
       {
         imports: [NgpSlider, NgpSliderTrack, NgpSliderRange, NgpSliderThumb],
@@ -577,5 +577,107 @@ describe('NgpSlider', () => {
     track.dispatchEvent(pointerEvent);
 
     expect(valueChange).toHaveBeenCalledWith(70);
+  });
+
+  describe('controlled mode (no round-trip)', () => {
+    it('should emit valueChange but not update the DOM when the parent does not update the binding', async () => {
+      const valueChange = vi.fn();
+      const { getByTestId } = await render(
+        createTemplate(`[ngpSliderValue]="value" [ngpSliderMin]="0" [ngpSliderMax]="10"`),
+        {
+          imports: [NgpSlider, NgpSliderTrack, NgpSliderRange, NgpSliderThumb],
+          componentProperties: { value: 5, valueChange },
+        },
+      );
+      const thumb = getByTestId('thumb');
+
+      fireEvent.keyDown(thumb, { key: 'ArrowRight' });
+
+      expect(valueChange).toHaveBeenCalledWith(6);
+      expect(thumb).toHaveAttribute('aria-valuenow', '5');
+    });
+  });
+
+  describe('two-way binding', () => {
+    it('should round-trip a two-way binding and move the thumb on interaction', async () => {
+      const { getByTestId } = await render(
+        `<div ngpSlider [(ngpSliderValue)]="value" [ngpSliderMin]="0" [ngpSliderMax]="10" data-testid="slider">
+          <div ngpSliderTrack></div>
+          <div ngpSliderThumb data-testid="thumb"></div>
+        </div>`,
+        {
+          imports: [NgpSlider, NgpSliderTrack, NgpSliderRange, NgpSliderThumb],
+          componentProperties: { value: 5 },
+        },
+      );
+      const thumb = getByTestId('thumb');
+      expect(thumb).toHaveAttribute('aria-valuenow', '5');
+
+      fireEvent.keyDown(thumb, { key: 'ArrowRight' });
+      expect(thumb).toHaveAttribute('aria-valuenow', '6');
+
+      fireEvent.keyDown(thumb, { key: 'ArrowLeft' });
+      expect(thumb).toHaveAttribute('aria-valuenow', '5');
+    });
+  });
+
+  describe('defaultValue (uncontrolled)', () => {
+    it('should start from the default value and let interaction override it', async () => {
+      const { getByTestId } = await render(
+        createTemplate(`[ngpSliderDefaultValue]="5" [ngpSliderMin]="0" [ngpSliderMax]="10"`),
+        {
+          imports: [NgpSlider, NgpSliderTrack, NgpSliderRange, NgpSliderThumb],
+          componentProperties: { valueChange: vi.fn() },
+        },
+      );
+      const thumb = getByTestId('thumb');
+      expect(thumb).toHaveAttribute('aria-valuenow', '5');
+
+      fireEvent.keyDown(thumb, { key: 'ArrowRight' });
+      expect(thumb).toHaveAttribute('aria-valuenow', '6');
+    });
+
+    it('should prefer a controlled value over the default value', async () => {
+      const { getByTestId } = await render(
+        createTemplate(
+          `[ngpSliderValue]="3" [ngpSliderDefaultValue]="8" [ngpSliderMin]="0" [ngpSliderMax]="10"`,
+        ),
+        {
+          imports: [NgpSlider, NgpSliderTrack, NgpSliderRange, NgpSliderThumb],
+          componentProperties: { valueChange: vi.fn() },
+        },
+      );
+      expect(getByTestId('thumb')).toHaveAttribute('aria-valuenow', '3');
+    });
+
+    it('should stay uncontrolled when the value binding is explicitly undefined', async () => {
+      const { getByTestId } = await render(
+        createTemplate(
+          `[ngpSliderValue]="value" [ngpSliderDefaultValue]="5" [ngpSliderMin]="0" [ngpSliderMax]="10"`,
+        ),
+        {
+          imports: [NgpSlider, NgpSliderTrack, NgpSliderRange, NgpSliderThumb],
+          componentProperties: { value: undefined, valueChange: vi.fn() },
+        },
+      );
+      const thumb = getByTestId('thumb');
+      // an explicit `undefined` must not coerce to NaN — it stays uncontrolled at the default
+      expect(thumb).toHaveAttribute('aria-valuenow', '5');
+
+      fireEvent.keyDown(thumb, { key: 'ArrowRight' });
+      expect(thumb).toHaveAttribute('aria-valuenow', '6');
+    });
+
+    it('should fall back to the declared default when defaultValue is explicitly undefined', async () => {
+      const { getByTestId } = await render(
+        createTemplate(`[ngpSliderDefaultValue]="value" [ngpSliderMin]="0" [ngpSliderMax]="10"`),
+        {
+          imports: [NgpSlider, NgpSliderTrack, NgpSliderRange, NgpSliderThumb],
+          componentProperties: { value: undefined, valueChange: vi.fn() },
+        },
+      );
+      // a bound-undefined default must resolve to the declared default (0), not NaN
+      expect(getByTestId('thumb')).toHaveAttribute('aria-valuenow', '0');
+    });
   });
 });

@@ -20,9 +20,14 @@ export class NgpColorSwatchPicker {
   /** The id of the swatch picker. */
   readonly id = input<string>(uniqueId('ngp-color-swatch-picker'));
 
-  /** The selected color. */
+  /** The selected color. When defined the swatch picker is controlled. */
   readonly value = input<Color | undefined>(undefined, {
     alias: 'ngpColorSwatchPickerValue',
+  });
+
+  /** The default selected color for uncontrolled usage (undefined = no selection). */
+  readonly defaultValue = input<Color | undefined>(undefined, {
+    alias: 'ngpColorSwatchPickerDefaultValue',
   });
 
   /** Emits when the selected color changes. */
@@ -44,6 +49,7 @@ export class NgpColorSwatchPicker {
   protected readonly state = ngpColorSwatchPicker({
     id: this.id,
     value: this.value,
+    defaultValue: this.defaultValue,
     orientation: this.orientation,
     disabled: this.disabled,
     onValueChange: value => this.valueChange.emit(value),

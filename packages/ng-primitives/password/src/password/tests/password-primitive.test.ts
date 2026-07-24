@@ -56,6 +56,25 @@ describe('NgpPassword', () => {
 
       expect(getByTestId('input')).toHaveAttribute('type', 'text');
     });
+
+    it('should stay uncontrolled when ngpPasswordVisible is explicitly undefined', async () => {
+      const { getByTestId, fixture } = await render(
+        `
+        <div ngpPassword [ngpPasswordVisible]="visible" ngpPasswordDefaultVisible>
+          <input data-testid="input" ngpPasswordInput />
+          <button data-testid="toggle" ngpPasswordToggle></button>
+        </div>
+        `,
+        { imports, componentProperties: { visible: undefined } },
+      );
+
+      // an explicit `undefined` must not coerce to `false` — it stays uncontrolled at the default
+      expect(getByTestId('input')).toHaveAttribute('type', 'text');
+
+      fireEvent.click(getByTestId('toggle'));
+      await fixture.whenStable();
+      expect(getByTestId('input')).toHaveAttribute('type', 'password');
+    });
   });
 
   describe('data-visible attribute', () => {

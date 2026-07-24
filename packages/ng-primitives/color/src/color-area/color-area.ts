@@ -19,8 +19,13 @@ export class NgpColorArea {
   readonly id = input<string>(uniqueId('ngp-color-area'));
 
   /** The color value. */
-  readonly value = input<Color>(Color.parse('hsb(0, 100%, 100%)'), {
+  readonly value = input<Color | undefined>(undefined, {
     alias: 'ngpColorAreaValue',
+  });
+
+  /** The default color value for uncontrolled usage. */
+  readonly defaultValue = input<Color>(Color.parse('hsb(0, 100%, 100%)'), {
+    alias: 'ngpColorAreaDefaultValue',
   });
 
   /** Emits when the value changes. */
@@ -52,6 +57,7 @@ export class NgpColorArea {
   protected readonly state = ngpColorArea({
     id: this.id,
     value: this.value,
+    defaultValue: this.defaultValue,
     xChannel: this.xChannel,
     yChannel: this.yChannel,
     colorSpace: this.colorSpace,

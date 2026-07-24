@@ -14,6 +14,7 @@ import { injectElementRef } from 'ng-primitives/internal';
 import {
   attrBinding,
   controlled,
+  controlledState,
   createPrimitive,
   dataBinding,
   emitter,
@@ -73,6 +74,9 @@ export interface NgpColorAreaState {
   focusThumb(origin: FocusOrigin): void;
   /** Set the disabled state. */
   setDisabled(disabled: boolean): void;
+
+  /** Set the default value used in uncontrolled mode. */
+  setDefaultValue(value: Color): void;
 }
 
 /**
@@ -80,7 +84,9 @@ export interface NgpColorAreaState {
  */
 export interface NgpColorAreaProps {
   readonly id?: Signal<string>;
-  readonly value?: Signal<Color>;
+  readonly value?: Signal<Color | undefined>;
+  /** The default color value for uncontrolled usage. */
+  readonly defaultValue?: Signal<Color>;
   readonly xChannel?: Signal<ColorChannel>;
   readonly yChannel?: Signal<ColorChannel>;
   readonly colorSpace?: Signal<ColorSpace | undefined>;
@@ -125,7 +131,8 @@ export const [NgpColorAreaStateToken, ngpColorArea, injectColorAreaState, provid
     'NgpColorArea',
     ({
       id = signal(uniqueId('ngp-color-area')),
-      value: _value = signal(Color.parse('hsb(0, 100%, 100%)')),
+      value: _value = signal<Color | undefined>(undefined),
+      defaultValue: _defaultValue,
       xChannel = signal<ColorChannel>('saturation'),
       yChannel = signal<ColorChannel>('brightness'),
       colorSpace: _colorSpace = signal<ColorSpace | undefined>(undefined),
@@ -138,7 +145,8 @@ export const [NgpColorAreaStateToken, ngpColorArea, injectColorAreaState, provid
       const document = inject(DOCUMENT);
       // Bind to a parent color picker when present, otherwise own the value locally.
       const picker = injectColorPickerState({ optional: true });
-      const local = controlled(_value);
+      const defaultValue = controlled(_defaultValue, Color.parse('hsb(0, 100%, 100%)'));
+      const [local, setLocal] = controlledState<Color>({ value: _value, defaultValue });
       const value = computed(() => picker()?.value() ?? local());
       const disabled = controlled(_disabled);
       const valueChange = emitter<Color>();
@@ -221,7 +229,7 @@ export const [NgpColorAreaStateToken, ngpColorArea, injectColorAreaState, provid
         if (parent) {
           parent.setValue(newValue, options);
         } else {
-          local.set(newValue);
+          setLocal(newValue, { emit: false });
         }
         if (options?.emit !== false) {
           onValueChange?.(newValue);
@@ -274,6 +282,7 @@ export const [NgpColorAreaStateToken, ngpColorArea, injectColorAreaState, provid
         thumb,
         valueChange: valueChange.asObservable(),
         setValue,
+        setDefaultValue: defaultValue.set,
         setChannels,
         adjustChannel,
         setThumb,
