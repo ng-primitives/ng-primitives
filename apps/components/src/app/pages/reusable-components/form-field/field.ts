@@ -2,14 +2,12 @@ import { Component } from '@angular/core';
 import { NgpFormField } from 'ng-primitives/form-field';
 
 @Component({
-  selector: '<%= prefix %>-form-field',
+  selector: 'app-field',
   hostDirectives: [NgpFormField],
   template: `
     <ng-content />
   `,
   styles: `
-/* These styles rely on CSS variables that can be imported from ng-primitives/example-theme/index.css in your global styles */
-
     :host {
       display: flex;
       flex-direction: column;
@@ -18,4 +16,4 @@ import { NgpFormField } from 'ng-primitives/form-field';
     }
   `,
 })
-export class Field<%= componentSuffix %> {}
+export class Field {}
