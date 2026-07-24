@@ -149,6 +149,20 @@ export class DrawerStackService {
     this.syncDocumentListeners();
   }
 
+  /**
+   * The most recently activated of `candidates`, or `undefined` when none of them is on the stack.
+   * The stack is ordered by activation, so this is the drawer painted in front of the others.
+   * @internal
+   */
+  frontmost(candidates: readonly DrawerState[]): DrawerState | undefined {
+    for (let index = this.states.length - 1; index >= 0; index--) {
+      if (candidates.includes(this.states[index])) {
+        return this.states[index];
+      }
+    }
+    return undefined;
+  }
+
   private top(): DrawerState | undefined {
     return this.states.at(-1);
   }

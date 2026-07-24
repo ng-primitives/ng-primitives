@@ -1,5 +1,6 @@
-import { computed, signal } from '@angular/core';
+import { computed, inject, signal } from '@angular/core';
 import { createPrimitive } from 'ng-primitives/state';
+import { DrawerStackService } from './drawer-stack.service';
 import { DrawerState } from './drawer-state';
 import { DrawerVisualState } from './visual-state-store';
 
@@ -10,6 +11,7 @@ export interface DrawerProviderVisualSnapshot {
 }
 
 export function createDrawerProviderState() {
+  const stack = inject(DrawerStackService);
   const roots = new Set<DrawerState>();
   const subscriptions = new Map<DrawerState, () => void>();
   const snapshots = new Map<DrawerState, Readonly<DrawerVisualState>>();
@@ -26,7 +28,10 @@ export function createDrawerProviderState() {
 
   const getVisualSnapshot = (): DrawerProviderVisualSnapshot => {
     const open = openRoots();
-    const frontmost = open.at(-1);
+    // `roots` is ordered by registration, which is not the painting order: the frontmost drawer is
+    // the one activated last, so the stack decides and registration order is only the fallback for
+    // a drawer that is open but not yet attached.
+    const frontmost = stack.frontmost(open) ?? open.at(-1);
     return {
       frontmostHeight: frontmost?.frontmostHeight() ?? 0,
       nestedDrawers: open.length,
