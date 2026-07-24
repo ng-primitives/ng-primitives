@@ -1,43 +1,25 @@
-import { FocusOrigin } from '@angular/cdk/a11y';
 import { BooleanInput } from '@angular/cdk/coercion';
-import {
-  afterNextRender,
-  booleanAttribute,
-  contentChild,
-  Directive,
-  inject,
-  Injector,
-  input,
-  output,
-  signal,
-} from '@angular/core';
+import { booleanAttribute, Directive, input, output } from '@angular/core';
 import { injectDateAdapter } from 'ng-primitives/date-time';
 import { injectDatePickerConfig } from '../config/date-picker-config';
-import { NgpDatePickerDateButton } from '../date-picker-date-button/date-picker-date-button';
-import { NgpDatePickerLabelToken } from '../date-picker-label/date-picker-label-token';
 import { transformToFirstDayOfWeekNumber } from '../date-picker/date-picker-first-day-of-week';
-import { dateRangePickerState, provideDateRangePickerState } from './date-range-picker-state';
+import { ngpDateRangePicker, provideDateRangePickerState } from './date-range-picker-state';
 
 @Directive({
   selector: '[ngpDateRangePicker]',
   exportAs: 'ngpDateRangePicker',
   providers: [provideDateRangePickerState()],
-  host: {
-    '[attr.data-disabled]': 'state.disabled() ? "" : null',
-  },
 })
 export class NgpDateRangePicker<T> {
+  /**
+   * Access the date adapter.
+   */
   private readonly dateAdapter = injectDateAdapter<T>();
 
   /**
    * Access the date range picker config.
    */
   private readonly config = injectDatePickerConfig();
-
-  /**
-   * Access the injector.
-   */
-  private readonly injector = inject(Injector);
 
   /**
    * The minimum date that can be selected.
@@ -88,6 +70,13 @@ export class NgpDateRangePicker<T> {
   });
 
   /**
+   * The default (uncontrolled) start date.
+   */
+  readonly defaultStartDate = input<T | undefined>(undefined, {
+    alias: 'ngpDateRangePickerDefaultStartDate',
+  });
+
+  /**
    * Emit when the date changes.
    */
   readonly startDateChange = output<T | undefined>({
@@ -102,6 +91,13 @@ export class NgpDateRangePicker<T> {
   });
 
   /**
+   * The default (uncontrolled) end date.
+   */
+  readonly defaultEndDate = input<T | undefined>(undefined, {
+    alias: 'ngpDateRangePickerDefaultEndDate',
+  });
+
+  /**
    * Emit when the end date changes.
    */
   readonly endDateChange = output<T | undefined>({
@@ -111,8 +107,15 @@ export class NgpDateRangePicker<T> {
   /**
    * The focused value.
    */
-  readonly focusedDate = input<T>(this.dateAdapter.now(), {
+  readonly focusedDate = input<T | undefined>(undefined, {
     alias: 'ngpDateRangePickerFocusedDate',
+  });
+
+  /**
+   * The default (uncontrolled) focused value.
+   */
+  readonly defaultFocusedDate = input<T>(this.dateAdapter.now(), {
+    alias: 'ngpDateRangePickerDefaultFocusedDate',
   });
 
   /**
@@ -123,221 +126,32 @@ export class NgpDateRangePicker<T> {
   });
 
   /**
-   * Detect the label element.
-   * @internal
-   */
-  readonly label = contentChild(NgpDatePickerLabelToken, { descendants: true });
-
-  /**
-   * Access all the date picker buttons
-   */
-  private readonly buttons = signal<NgpDatePickerDateButton<T>[]>([]);
-
-  /**
    * The date range picker state.
    */
-  protected readonly state = dateRangePickerState<NgpDateRangePicker<T>>(this);
+  protected readonly state = ngpDateRangePicker<T>({
+    min: this.min,
+    max: this.max,
+    disabled: this.disabled,
+    dateDisabled: this.dateDisabled,
+    firstDayOfWeek: this.firstDayOfWeek,
+    startDate: this.startDate,
+    defaultStartDate: this.defaultStartDate,
+    endDate: this.endDate,
+    defaultEndDate: this.defaultEndDate,
+    focusedDate: this.focusedDate,
+    defaultFocusedDate: this.defaultFocusedDate,
+    onStartDateChange: value => this.startDateChange.emit(value),
+    onEndDateChange: value => this.endDateChange.emit(value),
+    onFocusedDateChange: value => this.focusedDateChange.emit(value),
+  });
 
   /**
-   * Set the focused date.
-   * @param date The date to focus.
-   * @internal
-   */
-  setFocusedDate(date: T, origin: FocusOrigin = 'mouse', direction: 'forward' | 'backward'): void {
-    if (this.state.disabled()) {
-      return;
-    }
-
-    const min = this.state.min();
-    const max = this.state.max();
-
-    if (min && this.dateAdapter.isBefore(date, min)) {
-      date = min;
-    }
-
-    if (max && this.dateAdapter.isAfter(date, max)) {
-      date = max;
-    }
-
-    // if the date is disabled, find the next available date in the specified direction.
-    if (this.state.dateDisabled()(date)) {
-      let nextDate = this.dateAdapter.add(date, { days: direction === 'forward' ? 1 : -1 });
-
-      while (
-        this.state.dateDisabled()(nextDate) ||
-        (min && this.dateAdapter.isBefore(nextDate, min)) ||
-        (max && this.dateAdapter.isAfter(nextDate, max))
-      ) {
-        nextDate = this.dateAdapter.add(nextDate, { days: direction === 'forward' ? 1 : -1 });
-      }
-
-      date = nextDate;
-    }
-
-    this.state.focusedDate.set(date);
-    this.focusedDateChange.emit(date);
-
-    if (origin === 'keyboard') {
-      afterNextRender(
-        {
-          write: () => this.buttons().forEach(button => button.focus()),
-        },
-        {
-          injector: this.injector,
-        },
-      );
-    }
-  }
-
-  /**
-   * Register a date button.
-   * @param button The date button to register.
-   * @internal
-   */
-  registerButton(button: NgpDatePickerDateButton<T>): void {
-    this.buttons.update(buttons => [...buttons, button]);
-  }
-
-  /**
-   * Unregister a date button.
-   * @param button The date button to unregister.
-   * @internal
-   */
-  unregisterButton(button: NgpDatePickerDateButton<T>): void {
-    this.buttons.update(buttons => buttons.filter(b => b !== button));
-  }
-
-  /**
-   * Select a date.
+   * Select a date within the range.
    * @param date The date to select.
    * @param preserveTime Whether to preserve time components from existing selected dates.
    * @internal
-   */
-  /**
-   * Handles the selection of a date within the date range picker.
-   *
-   * Selection logic:
-   * - If neither a start date nor an end date is selected:
-   *   - Sets the selected date as the start date.
-   * - If a start date is selected but no end date:
-   *   - If the selected date is after the start date, sets it as the end date.
-   *   - If the selected date is before the start date, sets the selected date as the start date
-   *     and the previous start date as the end date.
-   *   - If the selected date is the same as the start date, sets the selected date as the end date
-   *     to select a single date.
-   * - If both start and end dates are already selected:
-   *   - Resets the selection, setting the selected date as the new start date and clearing the end date.
-   *
-   * @param date The date to select.
-   * @param preserveTime Whether to preserve time components from existing selected dates.
    */
   select(date: T, preserveTime = false): void {
-    const start = this.state.startDate();
-    const end = this.state.endDate();
-
-    // Helper function to preserve time components when preserveTime is enabled
-    const maybePreserveTime = (newDate: T, existingDate: T | undefined): T => {
-      if (!preserveTime || !existingDate) {
-        return newDate;
-      }
-
-      return this.dateAdapter.set(existingDate, {
-        year: this.dateAdapter.getYear(newDate),
-        month: this.dateAdapter.getMonth(newDate),
-        day: this.dateAdapter.getDate(newDate),
-      });
-    };
-
-    if (!start && !end) {
-      const selectedDate = maybePreserveTime(date, undefined);
-      this.state.startDate.set(selectedDate);
-      this.startDateChange.emit(selectedDate);
-      return;
-    }
-
-    if (start && !end) {
-      if (this.dateAdapter.isAfter(date, start)) {
-        const selectedDate = maybePreserveTime(date, undefined);
-        this.state.endDate.set(selectedDate);
-        this.endDateChange.emit(selectedDate);
-      } else if (this.dateAdapter.isBefore(date, start)) {
-        const selectedStartDate = maybePreserveTime(date, start);
-        this.state.startDate.set(selectedStartDate);
-        this.state.endDate.set(start);
-        this.startDateChange.emit(selectedStartDate);
-        this.endDateChange.emit(start);
-      } else if (this.dateAdapter.isSameDay(date, start)) {
-        const selectedDate = maybePreserveTime(date, undefined);
-        this.state.endDate.set(selectedDate);
-        this.endDateChange.emit(selectedDate);
-      }
-      return;
-    }
-
-    // If both start and end are selected, reset selection
-    const selectedDate = maybePreserveTime(date, start);
-    this.state.startDate.set(selectedDate);
-    this.startDateChange.emit(selectedDate);
-    this.state.endDate.set(undefined);
-    this.endDateChange.emit(undefined);
-  }
-
-  /**
-   * Determine if a date is selected. A date is selected if it is either the start date or the end date.
-   * @param date The date to check.
-   * @returns True if the date is selected, false otherwise.
-   * @internal
-   */
-  isSelected(date: T): boolean {
-    const start = this.state.startDate();
-    const end = this.state.endDate();
-
-    if (!start && !end) {
-      return false;
-    }
-
-    const isStartSelected = start ? this.dateAdapter.isSameDay(date, start) : false;
-    const isEndSelected = end ? this.dateAdapter.isSameDay(date, end) : false;
-
-    return isStartSelected || isEndSelected;
-  }
-
-  /**
-   * Determine if a date is the start of a range.
-   * @param date The date to check.
-   * @returns Always false.
-   * @internal
-   */
-  isStartOfRange(date: T): boolean {
-    const start = this.state.startDate();
-    return start ? this.dateAdapter.isSameDay(date, start) : false;
-  }
-
-  /**
-   * Determine if a date is the end of a range.
-   * @param date The date to check.
-   * @returns Always false.
-   * @internal
-   */
-  isEndOfRange(date: T): boolean {
-    const end = this.state.endDate();
-    return end ? this.dateAdapter.isSameDay(date, end) : false;
-  }
-
-  /**
-   * Determine if a date is between the start and end dates.
-   * @param date The date to check.
-   * @returns True if the date is between the start and end dates, false otherwise.
-   * @internal
-   */
-  isBetweenRange(date: T): boolean {
-    const start = this.state.startDate();
-    const end = this.state.endDate();
-
-    if (!start || !end) {
-      return false;
-    }
-
-    return this.dateAdapter.isAfter(date, start) && this.dateAdapter.isBefore(date, end);
+    this.state.select(date, preserveTime);
   }
 }

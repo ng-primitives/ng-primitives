@@ -1,5 +1,6 @@
 import { contentChild, Directive } from '@angular/core';
 import { NgpDatePickerDateButtonToken } from '../date-picker-date-button/date-picker-date-button-token';
+import { ngpDatePickerCell, provideDatePickerCellState } from './date-picker-cell-state';
 
 /**
  * A cell in the date picker grid.
@@ -7,13 +8,7 @@ import { NgpDatePickerDateButtonToken } from '../date-picker-date-button/date-pi
 @Directive({
   selector: '[ngpDatePickerCell]',
   exportAs: 'ngpDatePickerCell',
-  host: {
-    role: 'gridcell',
-    '[attr.data-selected]': 'datePickerButton()?.selected() ? "" : null',
-    '[attr.aria-selected]': 'datePickerButton()?.selected()',
-    '[attr.aria-disabled]': 'datePickerButton()?.disabled()',
-    '[attr.data-disabled]': 'datePickerButton()?.disabled() ? "" : null',
-  },
+  providers: [provideDatePickerCellState()],
 })
 export class NgpDatePickerCell {
   /**
@@ -24,4 +19,9 @@ export class NgpDatePickerCell {
   protected readonly datePickerButton = contentChild(NgpDatePickerDateButtonToken, {
     descendants: true,
   });
+
+  /**
+   * The date picker cell state.
+   */
+  protected readonly state = ngpDatePickerCell({ button: this.datePickerButton });
 }

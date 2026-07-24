@@ -239,6 +239,6 @@ export class DatePicker implements ControlValueAccessor {
   }
 
   setDisabledState(isDisabled: boolean): void {
-    this.state().disabled.set(isDisabled);
+    this.state().setDisabled(isDisabled);
   }
 }
