@@ -45,7 +45,9 @@ import {
             <div class="action-group danger-group">
               <button (click)="open.set(false)" type="button">Block user</button>
             </div>
-            <button class="visually-hidden" ngpDrawerClose>Close action sheet</button>
+            <div class="action-group">
+              <button class="cancel" ngpDrawerClose type="button">Cancel</button>
+            </div>
           </section>
         </div>
       </ng-template>
@@ -154,6 +156,10 @@ import {
 
     .action-group button + button {
       border-block-start: 1px solid var(--ngp-border);
+    }
+
+    .cancel {
+      font-weight: 590;
     }
 
     .visually-hidden {
