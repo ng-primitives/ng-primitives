@@ -17,6 +17,16 @@ function dimensions(element: HTMLElement, values: Partial<Record<string, number>
   }
 }
 
+/** An attached RTL scroller - `direction` only computes to `rtl` while the element is in the DOM. */
+function rtlScroller(scrollLeft: number): HTMLElement {
+  const element = document.createElement('div');
+  element.style.direction = 'rtl';
+  element.style.overflowX = 'auto';
+  document.body.append(element);
+  dimensions(element, { scrollLeft, clientWidth: 100, scrollWidth: 200 });
+  return element;
+}
+
 describe('scrollable swipe arbitration', () => {
   it.each([
     ['down', 20, true],
@@ -79,6 +89,51 @@ describe('scrollable swipe arbitration', () => {
         scrollWidth: 200,
       });
       expect(canConsumeTouchDelta(element, direction, delta)).toBe(expected);
+    },
+  );
+
+  it.each([
+    // An RTL scroller counts from 0 at its physical right edge to -100 at its left edge.
+    ['right', 0, false],
+    ['right', -100, true],
+    ['left', 0, true],
+    ['left', -20, false],
+  ] as const)(
+    'detects the %s dismiss edge of an RTL scroller at %d',
+    (direction, scrollLeft, expected) => {
+      const element = rtlScroller(scrollLeft);
+      expect(isAtDismissEdge(element, direction)).toBe(expected);
+      element.remove();
+    },
+  );
+
+  it.each([
+    ['right', -50, 20, true],
+    ['right', -100, 20, false],
+    ['right', -50, -20, true],
+    ['right', 0, -20, false],
+    ['left', -50, -20, true],
+    ['left', 0, -20, false],
+  ] as const)(
+    'answers whether an RTL %s scroller at %d can consume touch delta %d',
+    (direction, scrollLeft, delta, expected) => {
+      const element = rtlScroller(scrollLeft);
+      expect(canConsumeTouchDelta(element, direction, delta)).toBe(expected);
+      element.remove();
+    },
+  );
+
+  it.each([
+    ['right', -100, 20, true],
+    ['right', -99, 20, false],
+    ['left', 0, -20, true],
+    ['left', -20, -20, false],
+  ] as const)(
+    'transfers %s from the physical edge of an RTL scroller at %d',
+    (direction, scrollLeft, delta, expected) => {
+      const element = rtlScroller(scrollLeft);
+      expect(shouldTransferToDrawer(element, direction, delta)).toBe(expected);
+      element.remove();
     },
   );
 

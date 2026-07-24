@@ -83,6 +83,32 @@ export function findTouchScrollContext(
   };
 }
 
+/**
+ * The distance already scrolled from the physical left edge, and the maximum scrollable distance.
+ * In an RTL scroller `scrollLeft` runs from `-maximum` at the left edge to `0` at the right one, so
+ * the raw value cannot be used as a distance without normalising it first.
+ */
+function horizontalScrollOffset(element: HTMLElement): { offset: number; maximum: number } {
+  const maximum = Math.max(0, element.scrollWidth - element.clientWidth);
+  const rtl =
+    element.ownerDocument.defaultView?.getComputedStyle(element).direction === 'rtl' ||
+    element.scrollLeft < 0;
+  return { offset: rtl ? element.scrollLeft + maximum : element.scrollLeft, maximum };
+}
+
+function scrollOffset(
+  element: HTMLElement,
+  axis: DrawerSwipeAxis,
+): { offset: number; maximum: number } {
+  if (axis === 'x') {
+    return horizontalScrollOffset(element);
+  }
+  return {
+    offset: element.scrollTop,
+    maximum: Math.max(0, element.scrollHeight - element.clientHeight),
+  };
+}
+
 export function canConsumeTouchDelta(
   element: HTMLElement,
   direction: NgpDrawerSwipeDirection,
@@ -91,11 +117,7 @@ export function canConsumeTouchDelta(
   if (delta === 0) {
     return false;
   }
-  const axis = getSwipeAxis(direction);
-  const offset = axis === 'x' ? element.scrollLeft : element.scrollTop;
-  const clientSize = axis === 'x' ? element.clientWidth : element.clientHeight;
-  const scrollSize = axis === 'x' ? element.scrollWidth : element.scrollHeight;
-  const maximum = Math.max(0, scrollSize - clientSize);
+  const { offset, maximum } = scrollOffset(element, getSwipeAxis(direction));
   return delta > 0 ? offset >= delta : maximum - offset >= -delta;
 }
 
@@ -123,10 +145,15 @@ export function isAtDismissEdge(element: HTMLElement, direction: NgpDrawerSwipeD
       return element.scrollTop <= 0;
     case 'up':
       return element.scrollTop + element.clientHeight >= element.scrollHeight - 1;
-    case 'right':
-      return element.scrollLeft <= 0;
-    case 'left':
-      return element.scrollLeft + element.clientWidth >= element.scrollWidth - 1;
+    case 'right': {
+      // The drawer moves right, so it takes over at the physical left edge of the scroller.
+      const { offset } = horizontalScrollOffset(element);
+      return offset <= 0;
+    }
+    case 'left': {
+      const { offset, maximum } = horizontalScrollOffset(element);
+      return maximum - offset <= 1;
+    }
   }
 }
 
