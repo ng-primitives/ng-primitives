@@ -234,10 +234,14 @@ export class NgpDrawer {
     nativeEvent: Event | null = null,
     trigger: HTMLElement | null = null,
     payload?: unknown,
+    triggerId?: string,
   ): boolean {
     if (this.open() === nextOpen) {
       if (nextOpen && payload !== undefined) {
         this.payloadState.set(payload);
+      }
+      if (nextOpen) {
+        this.setTriggerId(triggerId);
       }
       return true;
     }
@@ -250,6 +254,9 @@ export class NgpDrawer {
 
     if (nextOpen) {
       this.payloadState.set(payload);
+      // Only an accepted open may publish the trigger id, and it must be readable by the time
+      // `openChange` fires.
+      this.setTriggerId(triggerId);
       if (trigger) {
         this.state.activeTrigger.set(trigger);
       }
@@ -269,6 +276,14 @@ export class NgpDrawer {
     this.open.set(nextOpen);
     this.openChange.emit(nextOpen);
     return true;
+  }
+
+  private setTriggerId(triggerId: string | undefined): void {
+    if (triggerId === undefined || this.triggerId() === triggerId) {
+      return;
+    }
+    this.triggerId.set(triggerId);
+    this.triggerIdChange.emit(triggerId);
   }
 
   private requestSnapPoint(
@@ -294,13 +309,8 @@ export class NgpDrawer {
     return {
       opened: () => this.open(),
       payload: () => this.payload(),
-      open: (payload, triggerId) => {
-        if (triggerId !== undefined) {
-          this.triggerId.set(triggerId);
-          this.triggerIdChange.emit(triggerId);
-        }
-        this.requestOpen(true, 'imperative', null, null, payload);
-      },
+      open: (payload, triggerId) =>
+        void this.requestOpen(true, 'imperative', null, null, payload, triggerId),
       close: () => this.requestOpen(false, 'imperative'),
       toggle: () => this.requestOpen(!this.open(), 'imperative'),
       unmount: () => this.unmount(),

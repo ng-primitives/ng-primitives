@@ -97,6 +97,18 @@ describe('NgpDrawer', () => {
     expect(handle.opened()).toBe(false);
   });
 
+  it('leaves the trigger id untouched when a handle open is canceled', () => {
+    const emitted: (string | null)[] = [];
+    roots[0].triggerIdChange.subscribe(triggerId => emitted.push(triggerId));
+    roots[0].beforeOpenChange.subscribe(event => event.cancel());
+
+    fixture.componentInstance.handle.open({ id: 3 }, 'detached-trigger');
+
+    expect(roots[0].open()).toBe(false);
+    expect(roots[0].triggerId()).toBeNull();
+    expect(emitted).toEqual([]);
+  });
+
   it('resets snap point on a successful close and allows canceling the reset', () => {
     roots[0].open.set(true);
     roots[0].snapPoint.set(1);
