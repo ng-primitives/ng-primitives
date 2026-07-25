@@ -8,7 +8,7 @@ import { NgpPreviewCard, NgpPreviewCardTrigger } from 'ng-primitives/preview-car
     <p class="text-sm tracking-[-0.006em] text-zinc-600 dark:text-zinc-400">
       Built with
       <a
-        class="rounded font-[510] text-zinc-950 underline underline-offset-2 outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500 dark:text-white dark:focus-visible:outline-blue-400"
+        class="inline-flex rounded font-[510] text-zinc-950 underline underline-offset-2 outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500 dark:text-white dark:focus-visible:outline-blue-400"
         [ngpPreviewCardTrigger]="card"
         href="https://angularprimitives.com"
       >

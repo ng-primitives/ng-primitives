@@ -33,6 +33,9 @@ import {
     }
 
     .sentence a {
+      /* inline-flex trims the whitespace either side of the text, which would
+         otherwise be underlined along with it. */
+      display: inline-flex;
       /* Never signal a link with colour alone. */
       text-decoration: underline;
       text-underline-offset: 2px;

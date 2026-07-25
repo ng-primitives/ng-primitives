@@ -30,6 +30,9 @@ import { PreviewCardTrigger } from './preview-card-trigger';
     }
 
     a {
+      /* inline-flex trims the whitespace either side of the text, which would
+         otherwise be underlined along with it. */
+      display: inline-flex;
       /* Never rely on colour alone to mark a link. */
       text-decoration: underline;
       text-underline-offset: 2px;
