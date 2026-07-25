@@ -287,9 +287,10 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
   private openTimeout?: () => void;
 
   /**
-   * Resolvers for callers that awaited `show()` while an open was already scheduled.
-   * Without these, a second `show()` returned a promise that never settled, so anything
-   * chained onto it - e.g. moving focus into a menu once it has opened - never ran.
+   * Resolvers for every caller awaiting a scheduled open - the one that started it and
+   * any that joined while it was pending. Without these, a `show()` returned a promise
+   * that never settled, so anything chained onto it - e.g. moving focus into a menu once
+   * it has opened - never ran.
    */
   private pendingShowResolvers: (() => void)[] = [];
 
@@ -438,11 +439,19 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
       // Set instant transition flag based on whether delay was skipped due to cooldown
       this.instantTransition.set(isInstantDueToCooldown);
 
+      // Queue this caller alongside any that join while the open is scheduled, so a
+      // cancelled open settles the caller that started it as well as the joiners.
+      this.pendingShowResolvers.push(resolve);
+
       this.openTimeout = this.disposables.setTimeout(() => {
         this.openTimeout = undefined;
-        this.createOverlay(options?.skipCooldown);
-        resolve();
-        this.settlePendingShows();
+
+        try {
+          this.createOverlay(options?.skipCooldown);
+        } finally {
+          // Settle even if creating the overlay threw, so callers are never left hanging.
+          this.settlePendingShows();
+        }
       }, delay);
     });
   }
