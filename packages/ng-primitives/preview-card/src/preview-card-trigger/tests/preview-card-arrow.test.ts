@@ -18,11 +18,11 @@ describe('NgpPreviewCardArrow', () => {
       `
         <div style="padding: 200px">
           <a
-            href="/ashley"
+            href="https://angularprimitives.com"
             [ngpPreviewCardTrigger]="card"
             ngpPreviewCardTriggerShowDelay="0"
             ngpPreviewCardTriggerHideDelay="0"
-            >@ashley</a
+            >Angular Primitives</a
           >
 
           <ng-template #card>

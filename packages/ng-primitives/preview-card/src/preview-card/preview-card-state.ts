@@ -41,7 +41,7 @@ export const [
       return;
     }
 
-    triggerState().onCardHoverStart();
+    triggerState().setPointerOverCard(true);
   });
 
   listener(elementRef, 'pointerleave', (event: PointerEvent) => {
@@ -49,7 +49,7 @@ export const [
       return;
     }
 
-    triggerState().onCardHoverEnd();
+    triggerState().setPointerOverCard(false);
   });
 
   // The card is portalled outside the trigger, so focus leaving it never reaches the

@@ -29,7 +29,7 @@ import {
 Assemble the preview card directives in your template. The trigger should be an element that is independently useful without the card — typically a link to the content the card previews.
 
 ```html
-<a href="/users/ashley" [ngpPreviewCardTrigger]="card">@ashley</a>
+<a href="https://angularprimitives.com" [ngpPreviewCardTrigger]="card">Angular Primitives</a>
 
 <ng-template #card>
   <div ngpPreviewCard>Preview content</div>
@@ -61,12 +61,12 @@ The open delay is deliberately long so that cards do not appear while the pointe
 
 ```html
 <a
-  href="/users/ashley"
+  href="https://angularprimitives.com"
   [ngpPreviewCardTrigger]="card"
   ngpPreviewCardTriggerShowDelay="300"
   ngpPreviewCardTriggerHideDelay="150"
 >
-  @ashley
+  Angular Primitives
 </a>
 ```
 
@@ -76,15 +76,21 @@ You can customize the offset using either a simple number or an object for more 
 
 ```html
 <!-- Simple number offset -->
-<a href="/users/ashley" [ngpPreviewCardTrigger]="card" ngpPreviewCardTriggerOffset="12">@ashley</a>
+<a
+  href="https://angularprimitives.com"
+  [ngpPreviewCardTrigger]="card"
+  ngpPreviewCardTriggerOffset="12"
+>
+  Angular Primitives
+</a>
 
 <!-- Object offset for precise control -->
 <a
-  href="/users/ashley"
+  href="https://angularprimitives.com"
   [ngpPreviewCardTrigger]="card"
   [ngpPreviewCardTriggerOffset]="{mainAxis: 8, crossAxis: 4, alignmentAxis: 2}"
 >
-  @ashley
+  Angular Primitives
 </a>
 ```
 
@@ -93,8 +99,12 @@ You can customize the offset using either a simple number or an object for more 
 Use `ngpPreviewCardTriggerContext` to pass data to the card, and `injectPreviewCardContext` to read it.
 
 ```html
-<a href="/users/ashley" [ngpPreviewCardTrigger]="card" [ngpPreviewCardTriggerContext]="user">
-  @ashley
+<a
+  href="https://angularprimitives.com"
+  [ngpPreviewCardTrigger]="card"
+  [ngpPreviewCardTriggerContext]="project"
+>
+  Angular Primitives
 </a>
 ```
 
@@ -243,14 +253,3 @@ Because of that, the following rules matter:
 - <kbd>Tab</kbd>: Moves focus to the trigger, which opens the card. Tabbing again moves into the card if it contains focusable content, or past it if not.
 - <kbd>Esc</kbd>: Closes the card.
 - <kbd>Enter</kbd>: Activates the trigger.
-
-The card root itself is given `tabindex="-1"` so it is not a tab stop, while any focusable content inside it stays reachable. Focus moving into the card does not close it; focus leaving both the trigger and the card does.
-
-### Touch
-
-Touch pointers are ignored, and focus only opens the card when the focus originates from the keyboard, so tapping a link on a touch device navigates without a card appearing over the page.
-
-### Known limitations
-
-- Dragging a text selection out of the card closes it. Selecting text within the card works normally.
-- A single card serves a single trigger. Sharing one card across many triggers is not currently supported.

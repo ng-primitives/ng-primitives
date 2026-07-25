@@ -15,12 +15,12 @@ function template(label: string, attrs = ''): string {
   return wrap(
     `
     <a
-      href="/ashley"
+      href="https://angularprimitives.com"
       [ngpPreviewCardTrigger]="card"
       ngpPreviewCardTriggerShowDelay="0"
       ngpPreviewCardTriggerHideDelay="0"
       ${attrs}
-      >@ashley</a
+      >Angular Primitives</a
     >
 
     <ng-template #card>
@@ -143,11 +143,11 @@ describe('NgpPreviewCardTrigger (primitive)', () => {
     function hoverableTemplate(label: string): string {
       return wrap(`
         <a
-          href="/ashley"
+          href="https://angularprimitives.com"
           [ngpPreviewCardTrigger]="card"
           ngpPreviewCardTriggerShowDelay="0"
           ngpPreviewCardTriggerHideDelay="80"
-          >@ashley</a
+          >Angular Primitives</a
         >
 
         <ng-template #card>
@@ -163,7 +163,7 @@ describe('NgpPreviewCardTrigger (primitive)', () => {
         imports: [NgpPreviewCardTrigger, NgpPreviewCard],
       });
 
-      const trigger = getByRole('link', { name: '@ashley' });
+      const trigger = getByRole('link', { name: 'Angular Primitives' });
       fireEvent.pointerEnter(trigger, { pointerType: 'mouse' });
 
       await waitFor(() => {
@@ -187,7 +187,7 @@ describe('NgpPreviewCardTrigger (primitive)', () => {
         imports: [NgpPreviewCardTrigger, NgpPreviewCard],
       });
 
-      const trigger = getByRole('link', { name: '@ashley' });
+      const trigger = getByRole('link', { name: 'Angular Primitives' });
       fireEvent.pointerEnter(trigger, { pointerType: 'mouse' });
 
       await waitFor(() => {
@@ -221,11 +221,11 @@ describe('NgpPreviewCardTrigger (primitive)', () => {
     function noDelayTemplate(label: string): string {
       return wrap(`
         <a
-          href="/ashley"
+          href="https://angularprimitives.com"
           [ngpPreviewCardTrigger]="card"
           ngpPreviewCardTriggerShowDelay="0"
           ngpPreviewCardTriggerHideDelay="0"
-          >@ashley</a
+          >Angular Primitives</a
         >
 
         <ng-template #card>
@@ -239,7 +239,7 @@ describe('NgpPreviewCardTrigger (primitive)', () => {
         imports: [NgpPreviewCardTrigger, NgpPreviewCard],
       });
 
-      const trigger = getByRole('link', { name: '@ashley' });
+      const trigger = getByRole('link', { name: 'Angular Primitives' });
       fireEvent.pointerEnter(trigger, { pointerType: 'mouse' });
 
       await waitFor(() => {
@@ -287,11 +287,11 @@ describe('NgpPreviewCardTrigger (primitive)', () => {
         <button type="button" data-testid="before">before</button>
 
         <a
-          href="/ashley"
+          href="https://angularprimitives.com"
           [ngpPreviewCardTrigger]="card"
           ngpPreviewCardTriggerShowDelay="0"
           ngpPreviewCardTriggerHideDelay="0"
-          >@ashley</a
+          >Angular Primitives</a
         >
 
         <button type="button" data-testid="after">after</button>
@@ -323,7 +323,7 @@ describe('NgpPreviewCardTrigger (primitive)', () => {
         imports: [NgpPreviewCardTrigger, NgpPreviewCard],
       });
 
-      const trigger = getByRole('link', { name: '@ashley' });
+      const trigger = getByRole('link', { name: 'Angular Primitives' });
       const rect = trigger.getBoundingClientRect();
 
       // FocusMonitor derives the origin from the preceding interaction. The event needs
@@ -552,24 +552,24 @@ describe('NgpPreviewCardTrigger (primitive)', () => {
       const view = await render(
         wrap(`
           <a
-            href="/ashley"
+            href="https://angularprimitives.com"
             [ngpPreviewCardTrigger]="card"
             ngpPreviewCardTriggerShowDelay="0"
             ngpPreviewCardTriggerHideDelay="0"
-            >@ashley</a
+            >Angular Primitives</a
           >
 
           <ng-template #card>
             <div ngpPreviewCard>
               <span>${label}</span>
-              <a href="/ashley/repos">Repositories</a>
+              <a href="https://angularprimitives.com/primitives">Repositories</a>
             </div>
           </ng-template>
         `),
         { imports: [NgpPreviewCardTrigger, NgpPreviewCard] },
       );
 
-      const trigger = view.getByRole('link', { name: '@ashley' });
+      const trigger = view.getByRole('link', { name: 'Angular Primitives' });
       fireEvent.pointerEnter(trigger, { pointerType: 'mouse' });
 
       let element: HTMLElement | undefined;

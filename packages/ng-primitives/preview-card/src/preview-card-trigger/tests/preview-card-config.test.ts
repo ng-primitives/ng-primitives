@@ -25,7 +25,7 @@ function card(label: string): HTMLElement | null {
 function template(label: string, attrs = ''): string {
   return `
     <div style="padding: 200px">
-      <a href="/ashley" [ngpPreviewCardTrigger]="card" ${attrs}>@ashley</a>
+      <a href="https://angularprimitives.com" [ngpPreviewCardTrigger]="card" ${attrs}>Angular Primitives</a>
 
       <ng-template #card>
         <div ngpPreviewCard>${label}</div>

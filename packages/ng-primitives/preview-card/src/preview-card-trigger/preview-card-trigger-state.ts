@@ -51,15 +51,11 @@ export interface NgpPreviewCardTriggerState<T> {
   /** Hide the preview card. */
   hide: () => void;
   /**
-   * Called by the preview card when the pointer enters it.
+   * Called by the preview card as the pointer enters and leaves it, so the trigger can
+   * keep the card open while the pointer is inside it.
    * @internal
    */
-  onCardHoverStart: () => void;
-  /**
-   * Called by the preview card when the pointer leaves it.
-   * @internal
-   */
-  onCardHoverEnd: () => void;
+  setPointerOverCard: (isOver: boolean) => void;
   /**
    * Called by the preview card when focus leaves it.
    * @internal
@@ -303,21 +299,18 @@ export const [
     }
 
     /**
-     * Called by the preview card when the pointer enters it.
+     * Called by the preview card as the pointer enters and leaves it.
      * @internal
      */
-    function onCardHoverStart(): void {
-      cardHovered.set(true);
-      hoverBridge.clear();
-      overlay()?.cancelPendingClose();
-    }
+    function setPointerOverCard(isOver: boolean): void {
+      cardHovered.set(isOver);
 
-    /**
-     * Called by the preview card when the pointer leaves it.
-     * @internal
-     */
-    function onCardHoverEnd(): void {
-      cardHovered.set(false);
+      if (isOver) {
+        // The pointer made it across, so the corridor has done its job.
+        hoverBridge.clear();
+        overlay()?.cancelPendingClose();
+        return;
+      }
 
       if (!triggerHovered()) {
         hide();
@@ -408,8 +401,7 @@ export const [
       setContainer,
       show,
       hide,
-      onCardHoverStart,
-      onCardHoverEnd,
+      setPointerOverCard,
       onCardFocusOut: onFocusOut,
     } satisfies NgpPreviewCardTriggerState<T>;
   },
