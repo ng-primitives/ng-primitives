@@ -51,4 +51,13 @@ jobs:
       - run: pnpm exec nx affected -t lint,build,test
         env:
           NODE_OPTIONS: '--max-old-space-size=8192' # Increase memory to 8GB
-      - run: pnpx pkg-pr-new publish ./dist/packages/*
+      # `nx affected` only builds the packages a PR touches, so a docs- or
+      # components-only PR produces no `dist/packages/*` and `pkg-pr-new publish`
+      # would fail with "No packages". Skip the preview publish when nothing was built.
+      - name: Publish preview packages
+        run: |
+          if compgen -G "./dist/packages/*" > /dev/null; then
+            pnpx pkg-pr-new publish ./dist/packages/*
+          else
+            echo "No library packages were affected; skipping preview package publish."
+          fi
