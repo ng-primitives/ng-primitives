@@ -16,7 +16,7 @@ import { NgpRating, NgpRatingItem } from 'ng-primitives/rating';
       aria-label="Rate this product"
     >
       <span
-        class="relative inline-flex text-[1.75rem] leading-none text-zinc-200 transition-transform data-[highlighted]:scale-110 dark:text-zinc-700"
+        class="relative inline-flex text-[1.75rem] leading-none text-zinc-300 transition-transform data-[highlighted]:scale-110 dark:text-zinc-700"
         *ngpRatingItem="let star"
       >
         <ng-icon name="heroStarSolid" />

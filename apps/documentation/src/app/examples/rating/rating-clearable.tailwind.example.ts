@@ -18,7 +18,7 @@ import { NgpRating, NgpRatingItem } from 'ng-primitives/rating';
         aria-label="Rate this product"
       >
         <span
-          class="relative inline-flex text-[1.75rem] leading-none text-zinc-200 dark:text-zinc-700"
+          class="relative inline-flex text-[1.75rem] leading-none text-zinc-300 dark:text-zinc-700"
           *ngpRatingItem="let star"
         >
           <ng-icon name="heroStarSolid" />
@@ -30,7 +30,7 @@ import { NgpRating, NgpRatingItem } from 'ng-primitives/rating';
           </span>
         </span>
       </div>
-      <span class="text-xs tracking-[-0.011em] text-zinc-500 dark:text-zinc-400">
+      <span class="text-[0.75rem] tracking-[-0.011em] text-zinc-500 dark:text-zinc-400">
         Click the selected rating again to clear it.
       </span>
     </div>

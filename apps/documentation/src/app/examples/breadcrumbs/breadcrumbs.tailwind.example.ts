@@ -46,7 +46,10 @@ import { NgpMenu, NgpMenuItem, NgpMenuTrigger } from 'ng-primitives/menu';
             Home
           </a>
         </li>
-        <li class="inline-flex items-center p-0 text-zinc-300 dark:text-zinc-700" ngpBreadcrumbSeparator>
+        <li
+          class="inline-flex items-center p-0 text-zinc-300 dark:text-zinc-700"
+          ngpBreadcrumbSeparator
+        >
           <ng-icon
             class="text-current!"
             style="--ng-icon__size: 0.85rem"
@@ -98,7 +101,10 @@ import { NgpMenu, NgpMenuItem, NgpMenuTrigger } from 'ng-primitives/menu';
             </div>
           </ng-template>
         </li>
-        <li class="inline-flex items-center p-0 text-zinc-300 dark:text-zinc-700" ngpBreadcrumbSeparator>
+        <li
+          class="inline-flex items-center p-0 text-zinc-300 dark:text-zinc-700"
+          ngpBreadcrumbSeparator
+        >
           <ng-icon
             class="text-current!"
             style="--ng-icon__size: 0.85rem"
@@ -114,7 +120,10 @@ import { NgpMenu, NgpMenuItem, NgpMenuTrigger } from 'ng-primitives/menu';
             Components
           </a>
         </li>
-        <li class="inline-flex items-center p-0 text-zinc-300 dark:text-zinc-700" ngpBreadcrumbSeparator>
+        <li
+          class="inline-flex items-center p-0 text-zinc-300 dark:text-zinc-700"
+          ngpBreadcrumbSeparator
+        >
           <ng-icon
             class="text-current!"
             style="--ng-icon__size: 0.85rem"

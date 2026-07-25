@@ -22,14 +22,16 @@ import { NgpPopover, NgpPopoverTrigger } from 'ng-primitives/popover';
   ],
   providers: [provideIcons({ heroCheckSolid, heroChevronDownSolid })],
   template: `
-    <div class="flex w-[300px] flex-col gap-1.5" ngpFormField>
-      <label class="text-sm font-medium text-zinc-900 dark:text-zinc-100" ngpLabel>Character</label>
-      <p class="mb-1 text-xs text-zinc-600 dark:text-zinc-400" ngpDescription>
+    <div class="flex w-[90%] flex-col gap-1.5" ngpFormField>
+      <label class="m-0 text-sm/5 font-[500] text-zinc-900 dark:text-zinc-100" ngpLabel>
+        Character
+      </label>
+      <p class="m-0 mb-1 text-xs/4! text-zinc-600 dark:text-zinc-300" ngpDescription>
         Select a character from the list below.
       </p>
 
       <button
-        class="flex h-[2.125rem] w-full items-center justify-between rounded-lg border border-gray-200 bg-white px-4 text-left text-sm tracking-[-0.006em] text-zinc-600 transition-colors outline-none focus:ring-0 data-focus-visible:ring-2 data-focus-visible:ring-blue-500/40 data-focus-visible:ring-offset-2 dark:border-zinc-800 dark:bg-zinc-950 dark:text-zinc-300 dark:data-focus-visible:ring-blue-400/45 dark:data-focus-visible:ring-offset-zinc-950"
+        class="flex h-[2.125rem] w-[300px] items-center justify-between rounded-lg border-none bg-white px-4 text-left text-[0.875rem] tracking-[-0.006em] text-zinc-900 shadow-[0_1px_2px_rgba(0,0,0,0.05),0_0_0_1px_rgba(0,0,0,0.1)] outline-none data-focus-visible:outline-2 data-focus-visible:outline-offset-2 data-focus-visible:outline-blue-500 dark:bg-zinc-950 dark:text-zinc-100 dark:shadow-[0_1px_2px_rgba(255,255,255,0.007),0_0_0_1px_rgba(255,255,255,0.1)] dark:data-focus-visible:outline-blue-400"
         [ngpPopoverTrigger]="dropdown"
         ngpButton
         ngpListboxTrigger
@@ -40,7 +42,7 @@ import { NgpPopover, NgpPopoverTrigger } from 'ng-primitives/popover';
 
       <ng-template #dropdown>
         <div
-          class="absolute z-1001 mt-1 w-[300px] rounded-xl border border-gray-200 bg-white p-1 outline-hidden dark:border-zinc-800 dark:bg-zinc-950"
+          class="absolute z-1001 mt-1 w-(--ngp-popover-trigger-width) rounded-xl border border-black/10 bg-white p-1 shadow-lg outline-none dark:border-zinc-800 dark:bg-zinc-950"
           [(ngpListboxValue)]="selection"
           ngpPopover
           ngpListbox
@@ -48,13 +50,13 @@ import { NgpPopover, NgpPopoverTrigger } from 'ng-primitives/popover';
         >
           @for (option of options; track option.id) {
             <div
-              class="flex h-[2.125rem] w-full cursor-pointer items-center gap-2 rounded-lg px-3 text-sm tracking-[-0.006em] text-zinc-600 transition-colors hover:bg-zinc-50 data-active:bg-zinc-100 data-press:bg-zinc-100 data-selected:font-[510] data-selected:text-zinc-900 dark:text-zinc-300 dark:hover:bg-white/5 dark:data-active:bg-white/10 dark:data-press:bg-white/10 dark:data-selected:text-zinc-100"
+              class="flex h-[2.125rem] w-full cursor-pointer items-center gap-2 rounded-lg px-3 text-sm tracking-[-0.006em] text-zinc-600 transition-colors data-active:bg-zinc-100 data-hover:bg-zinc-50 data-press:bg-zinc-100 data-selected:font-[510] dark:text-zinc-100 dark:data-active:bg-zinc-800 dark:data-hover:bg-zinc-900 dark:data-press:bg-zinc-800"
               #listboxOption="ngpListboxOption"
               [ngpListboxOptionValue]="option"
               ngpListboxOption
             >
               <ng-icon
-                class="text-[#f01e2b]! opacity-0 transition-opacity dark:text-[#ff4651]!"
+                class="invisible text-[#f01e2b]! group-data-selected:visible dark:text-[#ff4651]!"
                 [class.opacity-100]="listboxOption.selected()"
                 name="heroCheckSolid"
                 size="16px"
