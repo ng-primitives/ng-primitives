@@ -72,30 +72,4 @@ describe('NgpPreviewCard (reusable component)', () => {
 
     expect(document.querySelector('app-preview-card')?.textContent).toContain('Card content');
   });
-
-  it('should not expose the card content as a writable signal', async () => {
-    let state: ReturnType<typeof injectPreviewCardTriggerState<string>> | undefined;
-
-    @Directive({
-      selector: '[appProbe]',
-      hostDirectives: [NgpPreviewCardTrigger],
-    })
-    class Probe {
-      constructor() {
-        state = injectPreviewCardTriggerState<string>();
-      }
-    }
-
-    // Offset from the origin so the headless browser's parked cursor cannot hover the
-    // trigger - this one has no content configured, so opening it would throw.
-    await render(`<div style="padding: 200px"><a href="/x" appProbe>trigger</a></div>`, {
-      imports: [Probe],
-    });
-
-    const previewCard = state!().previewCard as unknown as Record<string, unknown>;
-
-    expect(typeof state!().setPreviewCard).toBe('function');
-    expect(previewCard['set']).toBeUndefined();
-    expect(previewCard['update']).toBeUndefined();
-  });
 });

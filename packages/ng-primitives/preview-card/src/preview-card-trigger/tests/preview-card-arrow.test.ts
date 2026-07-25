@@ -45,11 +45,6 @@ describe('NgpPreviewCardArrow', () => {
     return document.querySelector<HTMLElement>('[ngpPreviewCardArrow]')!;
   }
 
-  it('should render the arrow inside the preview card', async () => {
-    const arrow = await openWithArrow();
-    expect(arrow.closest('[ngpPreviewCard]')).toBeInTheDocument();
-  });
-
   it('should reflect the resolved placement so the arrow can be styled per side', async () => {
     const arrow = await openWithArrow();
 

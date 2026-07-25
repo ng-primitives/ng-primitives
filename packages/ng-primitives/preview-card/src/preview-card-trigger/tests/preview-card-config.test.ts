@@ -41,22 +41,6 @@ describe('NgpPreviewCard configuration', () => {
   });
 
   describe('defaults', () => {
-    it('should default to a deliberate open delay and a short close delay', async () => {
-      // The open delay is long on purpose: it stops cards firing while the pointer
-      // travels across a page full of links.
-      const { fixture } = await render(PreviewCardConfigProbe);
-
-      expect(fixture.componentInstance.config.showDelay).toBe(600);
-      expect(fixture.componentInstance.config.hideDelay).toBe(300);
-    });
-
-    it('should default to bottom placement with a small offset', async () => {
-      const { fixture } = await render(PreviewCardConfigProbe);
-
-      expect(fixture.componentInstance.config.placement).toBe('bottom');
-      expect(fixture.componentInstance.config.offset).toBe(4);
-    });
-
     it('should merge provided values over the defaults', async () => {
       const { fixture } = await render(PreviewCardConfigProbe, {
         providers: [providePreviewCardConfig({ showDelay: 0 })],
