@@ -127,10 +127,13 @@ function resolveHeight(
   rootFontSize: number,
 ): number | null {
   if (typeof value === 'number') {
-    if (!Number.isFinite(value) || value < 0) {
+    if (!Number.isFinite(value)) {
       return null;
     }
-    return value <= 1 ? value * viewportHeight : value;
+    // A fraction is clamped into [0, 1] rather than rejected, matching Base UI's
+    // `clamp(snapPoint, 0, 1) * viewportHeight` (useDrawerSnapPoints.ts:44-46). `Math.min(1, …)`
+    // would be inert inside this branch, so only the lower bound is applied.
+    return value <= 1 ? Math.max(0, value) * viewportHeight : value;
   }
 
   const match = LENGTH_PATTERN.exec(value.trim());
@@ -138,8 +141,10 @@ function resolveHeight(
     return null;
   }
   const amount = Number(match[1]);
-  if (!Number.isFinite(amount) || amount < 0) {
+  if (!Number.isFinite(amount)) {
     return null;
   }
+  // A negative length is returned as-is. Both callers clamp with `Math.max(0, …)`, which is how
+  // Base UI turns `'-5px'` into height 0 (useDrawerSnapPoints.ts:53-56 plus its caller's clamp).
   return match[2] === 'rem' ? amount * rootFontSize : amount;
 }

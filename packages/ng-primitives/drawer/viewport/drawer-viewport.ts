@@ -1220,16 +1220,24 @@ export class NgpDrawerViewport {
     // declared point, the way Base UI does (useDrawerSnapPoints.ts:163-186). The previous fallback
     // asked for the point closest to the popup height, which is always the tallest one — so an
     // off-list value silently opened the drawer nearly full height.
-    const resolvedHeight =
-      popupHeight > 0
-        ? resolveDrawerSnapPointHeight(
-            configured,
-            this.snapGeometry.viewportHeight,
-            popupHeight,
-            this.snapGeometry.rootFontSize,
-          )
-        : null;
-    return closestDrawerSnapPoint(points, resolvedHeight ?? popupHeight);
+    // Geometry not measured yet: keep the pre-013 fallback rather than reporting "no snap point"
+    // on a frame where we simply have not measured. `snapGeometry` starts at viewportHeight 0.
+    // Base UI cannot reach this state — it recomputes from live values instead of caching.
+    if (popupHeight <= 0 || this.snapGeometry.viewportHeight <= 0) {
+      return closestDrawerSnapPoint(points, popupHeight);
+    }
+    const resolvedHeight = resolveDrawerSnapPointHeight(
+      configured,
+      this.snapGeometry.viewportHeight,
+      popupHeight,
+      this.snapGeometry.rootFontSize,
+    );
+    // The value itself cannot resolve — non-finite, or a unit we do not accept. Base UI reports no
+    // active snap point rather than guessing (useDrawerSnapPoints.ts:176-179).
+    if (resolvedHeight === null) {
+      return null;
+    }
+    return closestDrawerSnapPoint(points, resolvedHeight);
   }
 
   private syncSnapVisuals(points = this.gestureSnapPoints ?? this.resolvedSnapPoints()): void {

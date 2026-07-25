@@ -15,7 +15,14 @@ describe('Drawer snap points', () => {
   it('discards invalid values and clamps to popup and viewport', () => {
     const values = [-1, Number.NaN, '2em', '12pxx', 'Infinitypx', 900] as const;
     const points = resolveDrawerSnapPoints(values as never, 700, 500, 16);
-    expect(points.map(point => point.height)).toEqual([500]);
+    expect(points.map(point => point.height)).toEqual([0, 500]);
+  });
+
+  it('keeps a negative declared value as a zero-height point, the way Base UI clamps it', () => {
+    const points = resolveDrawerSnapPoints([-1, '-5px', '300px'], 800, 600, 16);
+    // -1 and '-5px' both clamp to height 0 and dedup into one point (within 1px of each other).
+    expect(points.map(point => point.height)).toEqual([0, 300]);
+    expect(points.map(point => point.offset)).toEqual([600, 300]);
   });
 
   it('deduplicates within one pixel and keeps the last declaration', () => {
@@ -71,9 +78,15 @@ describe('Drawer snap points', () => {
 
   it('declines values and geometry the list resolver would also discard', () => {
     expect(resolveDrawerSnapPointHeight('2em' as never, 800, 600, 16)).toBeNull();
-    expect(resolveDrawerSnapPointHeight(-1, 800, 600, 16)).toBeNull();
+    expect(resolveDrawerSnapPointHeight(-1, 800, 600, 16)).toBe(0);
     expect(resolveDrawerSnapPointHeight(0.5, 0, 600, 16)).toBeNull();
     expect(resolveDrawerSnapPointHeight(0.5, 800, 0, 16)).toBeNull();
+  });
+
+  it('clamps a negative single value to zero and declines a non-finite one', () => {
+    expect(resolveDrawerSnapPointHeight(-1, 800, 600, 16)).toBe(0);
+    expect(resolveDrawerSnapPointHeight('-5px', 800, 600, 16)).toBe(0);
+    expect(resolveDrawerSnapPointHeight(Number.NaN, 800, 600, 16)).toBeNull();
   });
 
   it('agrees with the list resolver for a declared value', () => {

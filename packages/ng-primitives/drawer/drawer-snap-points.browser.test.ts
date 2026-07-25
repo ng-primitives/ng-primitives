@@ -131,6 +131,33 @@ describe('Drawer snap point integration', () => {
     expect(popup.style.getPropertyValue('--ngp-drawer-snap-point-offset')).toBe('300px');
   });
 
+  it('resolves a negative snap point to the shortest declared point', async () => {
+    // Base UI clamps a negative to height 0, so the nearest declared point is '100px' (offset 300).
+    // ng used to reject the value outright and fall back to the tallest point.
+    fixture.componentInstance.active.set(-1);
+    fixture.detectChanges();
+    const { viewport, popup } = await openDrawer();
+
+    expect(viewport.style.getPropertyValue('--ngp-drawer-height')).toBe('100px');
+    expect(popup.style.getPropertyValue('--ngp-drawer-snap-point-offset')).toBe('300px');
+  });
+
+  it('publishes no snap point when the active value is not finite', async () => {
+    const { viewport, popup } = await openDrawer();
+    // Sanity check with the valid default point, so the empty assertions below are meaningful
+    // rather than passing because the snap system never ran at all.
+    expect(viewport.style.getPropertyValue('--ngp-drawer-height')).toBe('300px');
+    expect(popup.style.getPropertyValue('--ngp-drawer-snap-point-offset')).toBe('100px');
+
+    fixture.componentInstance.active.set(Number.NaN);
+    fixture.detectChanges();
+
+    await vi.waitFor(() => {
+      expect(viewport.style.getPropertyValue('--ngp-drawer-height')).toBe('');
+    });
+    expect(popup.style.getPropertyValue('--ngp-drawer-snap-point-offset')).toBe('');
+  });
+
   it('updates snap visuals when the uncontrolled default point changes while open', async () => {
     const uncontrolledFixture = TestBed.createComponent(UncontrolledSnapHost);
     uncontrolledFixture.detectChanges();
