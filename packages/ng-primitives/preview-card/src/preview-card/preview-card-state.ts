@@ -54,6 +54,12 @@ export const [
     triggerState().onCardHoverEnd();
   });
 
+  // The card is portalled outside the trigger, so focus leaving it never reaches the
+  // trigger's own focusout listener and has to be forwarded.
+  listener(elementRef, 'focusout', (event: FocusEvent) =>
+    triggerState().onCardFocusOut(event.relatedTarget),
+  );
+
   // Seed the id with the overlay's generated unique id so the card always has a
   // valid id when none is provided. `controlled` returns a linkedSignal, so this is
   // only a transient default: if a consumer binds `id`, that source change wins.

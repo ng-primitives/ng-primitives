@@ -1,4 +1,5 @@
 import { fireEvent, render, waitFor } from '@testing-library/angular';
+import userEvent from '@testing-library/user-event';
 import { NgpPreviewCard, NgpPreviewCardTrigger } from 'ng-primitives/preview-card';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
@@ -42,8 +43,8 @@ function wrap(content: string): string {
 
 function card(label: string): HTMLElement | null {
   return (
-    [...document.querySelectorAll<HTMLElement>('[ngpPreviewCard]')].find(
-      el => el.textContent?.trim() === label,
+    [...document.querySelectorAll<HTMLElement>('[ngpPreviewCard]')].find(el =>
+      el.textContent?.includes(label),
     ) ?? null
   );
 }
@@ -268,6 +269,135 @@ describe('NgpPreviewCardTrigger (primitive)', () => {
 
       await waitFor(() => {
         expect(card('corridor-idle')).toBeNull();
+      });
+    });
+  });
+
+  describe('focus', () => {
+    /**
+     * Focus is how a sighted keyboard user reaches a preview card - without it they
+     * get nothing at all. Only *keyboard* focus opens it though: a tap on a touch
+     * device focuses the link too, and opening there would cover the page the user
+     * is navigating to.
+     */
+    function focusTemplate(label: string): string {
+      return wrap(`
+        <button type="button" data-testid="before">before</button>
+
+        <a
+          href="/ashley"
+          [ngpPreviewCardTrigger]="card"
+          ngpPreviewCardTriggerShowDelay="0"
+          ngpPreviewCardTriggerHideDelay="0"
+          >@ashley</a
+        >
+
+        <button type="button" data-testid="after">after</button>
+
+        <ng-template #card>
+          <div ngpPreviewCard>
+            <span>${label}</span>
+            <button type="button" data-testid="inside">inside</button>
+          </div>
+        </ng-template>
+      `);
+    }
+
+    it('should open when the trigger receives keyboard focus', async () => {
+      const { getByTestId } = await render(focusTemplate('focus-keyboard'), {
+        imports: [NgpPreviewCardTrigger, NgpPreviewCard],
+      });
+
+      getByTestId('before').focus();
+      await userEvent.keyboard('{Tab}');
+
+      await waitFor(() => {
+        expect(card('focus-keyboard')).toBeInTheDocument();
+      });
+    });
+
+    it('should not open when the trigger is focused by a pointer', async () => {
+      const { getByRole } = await render(focusTemplate('focus-mouse'), {
+        imports: [NgpPreviewCardTrigger, NgpPreviewCard],
+      });
+
+      const trigger = getByRole('link', { name: '@ashley' });
+      const rect = trigger.getBoundingClientRect();
+
+      // FocusMonitor derives the origin from the preceding interaction. The event needs
+      // real button/coordinate values: CDK's InputModalityDetector discards a mousedown
+      // with `buttons: 0` at the origin as a screen-reader artefact, which would leave
+      // the modality as whatever came before.
+      fireEvent.mouseDown(trigger, {
+        buttons: 1,
+        detail: 1,
+        clientX: rect.left + 1,
+        clientY: rect.top + 1,
+      });
+      trigger.focus();
+      await settle();
+
+      expect(card('focus-mouse')).toBeNull();
+    });
+
+    it('should close when focus leaves the trigger entirely', async () => {
+      const { getByTestId } = await render(focusTemplate('focus-blur'), {
+        imports: [NgpPreviewCardTrigger, NgpPreviewCard],
+      });
+
+      getByTestId('before').focus();
+      await userEvent.keyboard('{Tab}');
+
+      await waitFor(() => {
+        expect(card('focus-blur')).toBeInTheDocument();
+      });
+
+      getByTestId('before').focus();
+
+      await waitFor(() => {
+        expect(card('focus-blur')).toBeNull();
+      });
+    });
+
+    it('should stay open when focus moves from the trigger into the card', async () => {
+      const { getByTestId } = await render(focusTemplate('focus-into-card'), {
+        imports: [NgpPreviewCardTrigger, NgpPreviewCard],
+      });
+
+      getByTestId('before').focus();
+      await userEvent.keyboard('{Tab}');
+
+      await waitFor(() => {
+        expect(card('focus-into-card')).toBeInTheDocument();
+      });
+
+      const inside = card('focus-into-card')!.querySelector<HTMLElement>('[data-testid="inside"]')!;
+      inside.focus();
+      await settle();
+
+      expect(card('focus-into-card')).toBeInTheDocument();
+      expect(document.activeElement).toBe(inside);
+    });
+
+    it('should close when focus leaves the card', async () => {
+      const { getByTestId } = await render(focusTemplate('focus-out-of-card'), {
+        imports: [NgpPreviewCardTrigger, NgpPreviewCard],
+      });
+
+      getByTestId('before').focus();
+      await userEvent.keyboard('{Tab}');
+
+      await waitFor(() => {
+        expect(card('focus-out-of-card')).toBeInTheDocument();
+      });
+
+      card('focus-out-of-card')!.querySelector<HTMLElement>('[data-testid="inside"]')!.focus();
+      await settle();
+
+      getByTestId('after').focus();
+
+      await waitFor(() => {
+        expect(card('focus-out-of-card')).toBeNull();
       });
     });
   });

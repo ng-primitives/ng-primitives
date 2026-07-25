@@ -1,3 +1,4 @@
+import { FocusMonitor } from '@angular/cdk/a11y';
 import {
   computed,
   ElementRef,
@@ -26,6 +27,7 @@ import {
   listener,
   StateInjectionOptions,
 } from 'ng-primitives/state';
+import { safeTakeUntilDestroyed } from 'ng-primitives/utils';
 
 export interface NgpPreviewCardTriggerState<T> {
   /** Access the preview card template ref. */
@@ -118,6 +120,11 @@ export interface NgpPreviewCardTriggerState<T> {
    * @internal
    */
   onCardHoverEnd: () => void;
+  /**
+   * Called by the preview card when focus leaves it.
+   * @internal
+   */
+  onCardFocusOut: (next: EventTarget | null) => void;
   /**
    * Set the container in which the preview card should be attached. Takes effect the
    * next time the card is shown; it does not move a card that is already visible.
@@ -226,6 +233,7 @@ export const [
     const trigger = inject(ElementRef<HTMLElement>);
     const viewContainerRef = inject(ViewContainerRef);
     const injector = inject(Injector);
+    const focusMonitor = inject(FocusMonitor);
 
     const previewCard = controlled(_previewCard);
     const container = controlled(_container, 'body');
@@ -261,6 +269,21 @@ export const [
     // Event listeners
     listener(elementRef, 'pointerenter', onPointerEnter);
     listener(elementRef, 'pointerleave', onPointerLeave);
+    listener(elementRef, 'focusout', onFocusOut);
+
+    // Focus is how a sighted keyboard user reaches a preview card - without it they
+    // get nothing at all. Only keyboard focus opens it, though: a tap on a touch
+    // device focuses the link too, and a pointer press that focuses the trigger
+    // would re-open a card the user has just dismissed. Deriving this from
+    // FocusMonitor's origin covers both without preventing default on touchstart.
+    focusMonitor
+      .monitor(trigger.nativeElement)
+      .pipe(safeTakeUntilDestroyed())
+      .subscribe(origin => {
+        if (origin === 'keyboard') {
+          show();
+        }
+      });
 
     /**
      * Touch has no hover state, so a tap would otherwise reveal a card over the
@@ -309,6 +332,47 @@ export const [
       }
 
       overlay()?.cancelPendingClose();
+    }
+
+    /**
+     * Close when focus leaves the trigger, unless it is moving into the card - the
+     * card root is out of the tab sequence but anything focusable inside it is
+     * reachable, so tabbing into the card must not tear it out from under the user.
+     */
+    function onFocusOut(event: FocusEvent): void {
+      onFocusMovedTo(event.relatedTarget);
+    }
+
+    /**
+     * Called by the preview card when focus leaves it. The card is portalled into a
+     * container outside the trigger, so its focus events never reach the trigger's
+     * own listener and have to be forwarded.
+     * @internal
+     */
+    function onCardFocusOut(next: EventTarget | null): void {
+      onFocusMovedTo(next);
+    }
+
+    /** Close unless focus landed somewhere that still counts as "inside". */
+    function onFocusMovedTo(next: EventTarget | null): void {
+      if (next instanceof Node && isInsidePreviewCard(next)) {
+        return;
+      }
+
+      hide();
+    }
+
+    /** Whether a node is the trigger, the card, or inside either of them. */
+    function isInsidePreviewCard(node: Node): boolean {
+      if (trigger.nativeElement.contains(node)) {
+        return true;
+      }
+
+      return (
+        overlay()
+          ?.getElements()
+          .some(element => element.contains(node)) ?? false
+      );
     }
 
     /**
@@ -415,6 +479,7 @@ export const [
       hide,
       onCardHoverStart,
       onCardHoverEnd,
+      onCardFocusOut,
       setContainer,
       destroy,
     } satisfies NgpPreviewCardTriggerState<T>;
