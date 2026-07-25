@@ -158,6 +158,12 @@ export interface NgpTooltipTriggerState<T> {
    */
   readonly hoverBridgePolygon: Signal<HoverBridgePoint[] | null>;
   /**
+   * Set the content rendered inside the tooltip. Prefer this over setting `tooltip`
+   * directly; the writable signal is retained for backwards compatibility.
+   * @param content - The string, template or component to render
+   */
+  setTooltip: (content: NgpOverlayContent<T> | string | null) => void;
+  /**
    * Show the tooltip programmatically (skips cooldown so multiple tooltips can coexist).
    */
   show: () => void;
@@ -410,6 +416,10 @@ export const [
       container.set(newContainer);
     }
 
+    function setTooltip(content: NgpOverlayContent<T> | string | null): void {
+      tooltip.set(content);
+    }
+
     /**
      * Hide the tooltip from an interaction (respects disabled state).
      * @internal
@@ -571,6 +581,7 @@ export const [
       hasOverflow,
       contentHovered,
       hoverBridgePolygon: hoverBridge.polygon,
+      setTooltip,
       show,
       hide,
       setTooltipId,

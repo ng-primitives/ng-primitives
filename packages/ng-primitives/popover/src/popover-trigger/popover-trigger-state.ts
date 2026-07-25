@@ -135,6 +135,12 @@ export interface NgpPopoverTriggerState<T> {
    */
   setContainer: (container: HTMLElement | string | null) => void;
   /**
+   * Set the content rendered inside the popover. Prefer this over setting `popover`
+   * directly; the writable signal is retained for backwards compatibility.
+   * @param content - The template or component to render
+   */
+  setPopover: (content: NgpOverlayContent<T> | undefined) => void;
+  /**
    * Show the popover.
    * @returns A promise that resolves when the popover has been shown
    */
@@ -373,6 +379,10 @@ export const [
       container.set(newContainer);
     }
 
+    function setPopover(content: NgpOverlayContent<T> | undefined): void {
+      popover.set(content);
+    }
+
     return {
       elementRef,
       popover,
@@ -395,6 +405,7 @@ export const [
       open,
       destroy,
       setContainer,
+      setPopover,
       show,
       hide,
     } satisfies NgpPopoverTriggerState<T>;
