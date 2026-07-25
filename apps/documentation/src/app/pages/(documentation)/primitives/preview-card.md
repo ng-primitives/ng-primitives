@@ -26,7 +26,7 @@ import {
 
 ## Usage
 
-Assemble the preview card directives in your template. The trigger should be an element that is independently useful without the card — typically a link to the content the card previews.
+Assemble the preview card directives in your template. The trigger should be an element that is independently useful without the card - typically a link to the content the card previews.
 
 ```html
 <a href="https://angularprimitives.com" [ngpPreviewCardTrigger]="card">Angular Primitives</a>
@@ -35,8 +35,6 @@ Assemble the preview card directives in your template. The trigger should be an 
   <div ngpPreviewCard>Preview content</div>
 </ng-template>
 ```
-
-You can listen to the `ngpPreviewCardTriggerOpenChange` event to perform actions when the card opens or closes. The event emits a boolean indicating whether the card is open.
 
 ## Preview Card vs Tooltip vs Popover
 
@@ -238,7 +236,7 @@ bootstrapApplication(AppComponent, {
 
 ## Accessibility
 
-A preview card is a visual enhancement for sighted pointer and keyboard users. There is no WAI-ARIA pattern for this behaviour, and every headless library that implements it — [Radix](https://www.radix-ui.com/primitives/docs/components/hover-card), [Base UI](https://base-ui.com/react/components/preview-card), Ark UI and Kobalte — documents it as a deliberate limitation. We do the same.
+A preview card is a visual enhancement for sighted pointer and keyboard users. There is no WAI-ARIA pattern for this behaviour, and every headless library that implements it - [Radix](https://www.radix-ui.com/primitives/docs/components/hover-card), [Base UI](https://base-ui.com/react/components/preview-card), Ark UI and Kobalte - documents it as a deliberate limitation. We do the same.
 
 **The card is not exposed to assistive technology.** The content carries no `role` and is not linked to the trigger, and the trigger receives no `aria-expanded`, `aria-haspopup`, `aria-controls` or `aria-describedby`. This is intentional: announcing a rich, interactive card as a link's _description_ is worse than saying nothing, and `aria-expanded` would advertise a disclosure that cannot be operated by keyboard.
 
