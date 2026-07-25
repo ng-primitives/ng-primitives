@@ -176,6 +176,10 @@ export const [
     let destroyed = false;
     onDestroy(() => (destroyed = true));
 
+    // Two show() calls inside the show delay both settle when that single open
+    // completes, so track what has been announced rather than what was open per call.
+    let announcedOpen = false;
+
     const triggerHovered = signal<boolean>(false);
     const cardHovered = signal<boolean>(false);
 
@@ -324,18 +328,30 @@ export const [
 
       // Create the overlay if it doesn't exist yet
       if (!overlay()) {
-        createOverlayInstance();
+        if (!previewCard()) {
+          if (ngDevMode) {
+            console.error(
+              '[ngpPreviewCardTrigger]: Preview card must be a TemplateRef or a ComponentType.',
+            );
+          }
+
+          // Hover and keyboard focus reach show() on their own, so throwing here would
+          // fire on interaction - and from the focus subscription it would tear that
+          // subscription down, leaving the trigger permanently inert.
+          return;
+        }
+
+        createOverlayInstance(previewCard()!);
       }
 
-      // Only announce an open that actually happened, and only once - show() is
-      // reached from both the pointer and the focus path, and the overlay may still
-      // be waiting out its show delay or be cancelled before it appears.
-      const wasOpen = open();
-
+      // Only announce an open that actually happened, and only once. show() is reached
+      // from both the pointer and the focus path, so two calls can be waiting on the
+      // same scheduled open - and it may be cancelled before it ever appears.
       overlay()
         ?.show()
         .then(() => {
-          if (!wasOpen && open()) {
+          if (open() && !announcedOpen) {
+            announcedOpen = true;
             onOpenChange?.(true);
           }
         });
@@ -354,13 +370,7 @@ export const [
       previewCard.set(content);
     }
 
-    function createOverlayInstance(): void {
-      const content = previewCard();
-
-      if (!content) {
-        throw new Error('Preview card must be either a TemplateRef or a ComponentType');
-      }
-
+    function createOverlayInstance(content: NgpOverlayContent<T>): void {
       const config: NgpOverlayConfig<T> = {
         content,
         triggerElement: elementRef.nativeElement,
@@ -384,6 +394,8 @@ export const [
         overlayType: 'preview-card',
         cooldown: cooldown(),
         onClose: () => {
+          announcedOpen = false;
+
           if (!destroyed) {
             onOpenChange?.(false);
           }

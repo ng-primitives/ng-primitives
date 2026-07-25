@@ -408,8 +408,11 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
         return;
       }
 
+      // An open is already scheduled: join it rather than starting a second one, so
+      // this caller settles when that open completes (or when it is cancelled).
       if (this.openTimeout) {
-        return; // MUTATED back to the old behaviour
+        this.pendingShowResolvers.push(resolve);
+        return;
       }
 
       // Use the provided delay or fall back to config

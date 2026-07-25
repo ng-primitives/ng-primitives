@@ -276,6 +276,10 @@ export const [
     const overlay = signal<NgpOverlay<T> | null>(null);
     const open = computed(() => overlay()?.isOpen() ?? false);
 
+    // Two show() calls inside the show delay both settle when that single open
+    // completes, so track what has been announced rather than what was open per call.
+    let announcedOpen = false;
+
     // Host binding
     attrBinding(elementRef, 'aria-expanded', () => (open() ? 'true' : 'false'));
     // the popover is a focus-trapped, dialog-like overlay, so advertise the popup type
@@ -323,7 +327,10 @@ export const [
         trackPosition: trackPosition(),
         overlayType: 'popover',
         cooldown: cooldown(),
-        onClose: () => onOpenChange?.(false),
+        onClose: () => {
+          announcedOpen = false;
+          onOpenChange?.(false);
+        },
       };
 
       overlay.set(createOverlay(config));
@@ -357,14 +364,13 @@ export const [
         createOverlayInstance();
       }
 
-      const wasOpen = open();
-
       // Show the overlay
       await overlay()?.show();
 
       // Only announce an actual transition - show() also resolves when the popover was
-      // already open, and re-emitting then would report a change that did not happen.
-      if (!wasOpen && open()) {
+      // already open, or when a concurrent call opened it first.
+      if (open() && !announcedOpen) {
+        announcedOpen = true;
         onOpenChange?.(true);
       }
     }

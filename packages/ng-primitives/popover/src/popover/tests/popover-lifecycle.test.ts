@@ -43,6 +43,48 @@ describe('NgpPopoverTrigger lifecycle', () => {
     expect(document.querySelector('[ngpPopover]')).toBeInTheDocument();
   });
 
+  it('should settle show() calls that arrive while an open is still scheduled', async () => {
+    const openChange = vi.fn();
+
+    const { fixture } = await render(
+      `
+        <div style="padding: 200px">
+          <button
+            [ngpPopoverTrigger]="popover"
+            ngpPopoverTriggerShowDelay="100"
+            (ngpPopoverTriggerOpenChange)="onOpenChange($event)"
+          >
+            Trigger
+          </button>
+
+          <ng-template #popover>
+            <div ngpPopover>Popover content</div>
+          </ng-template>
+        </div>
+      `,
+      {
+        imports: [NgpPopoverTrigger, NgpPopover],
+        componentProperties: { onOpenChange: openChange },
+      },
+    );
+
+    const trigger = fixture.debugElement
+      .query(By.directive(NgpPopoverTrigger))
+      .injector.get(NgpPopoverTrigger);
+
+    // Both calls land inside the show delay, so the second joins an open that is
+    // already scheduled rather than starting its own. It has to settle too.
+    const outcome = await Promise.race([
+      Promise.all([trigger.show(), trigger.show()]).then(() => 'settled'),
+      new Promise(resolve => setTimeout(() => resolve('hung'), 1000)),
+    ]);
+
+    expect(outcome).toBe('settled');
+    expect(document.querySelector('[ngpPopover]')).toBeInTheDocument();
+    // A single open happened, so it should be announced once.
+    expect(openChange.mock.calls).toEqual([[true]]);
+  });
+
   it('should only emit openChange once for repeated show() calls', async () => {
     const openChange = vi.fn();
 
