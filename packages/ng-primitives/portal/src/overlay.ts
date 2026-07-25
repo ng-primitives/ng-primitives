@@ -286,6 +286,13 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
   /** Timeout handle for showing the overlay */
   private openTimeout?: () => void;
 
+  /**
+   * Resolvers for callers that awaited `show()` while an open was already scheduled.
+   * Without these, a second `show()` returned a promise that never settled, so anything
+   * chained onto it - e.g. moving focus into a menu once it has opened - never ran.
+   */
+  private pendingShowResolvers: (() => void)[] = [];
+
   /** Timeout handle for hiding the overlay */
   private closeTimeout?: () => void;
 
@@ -395,9 +402,14 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
         return;
       }
 
-      // Don't proceed if already opening or open
-      if (this.openTimeout || this.isOpen()) {
+      // Already shown - settle immediately.
+      if (this.isOpen()) {
+        resolve();
         return;
+      }
+
+      if (this.openTimeout) {
+        return; // MUTATED back to the old behaviour
       }
 
       // Use the provided delay or fall back to config
@@ -427,8 +439,23 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
         this.openTimeout = undefined;
         this.createOverlay(options?.skipCooldown);
         resolve();
+        this.settlePendingShows();
       }, delay);
     });
+  }
+
+  /**
+   * Settle everyone who awaited a show that was already scheduled. Called both when the
+   * open completes and when it is cancelled - the promise means "the show attempt has
+   * finished", so callers should check `isOpen()` rather than assume success.
+   */
+  private settlePendingShows(): void {
+    const resolvers = this.pendingShowResolvers;
+    this.pendingShowResolvers = [];
+
+    for (const resolve of resolvers) {
+      resolve();
+    }
   }
 
   /**
@@ -490,6 +517,7 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
     if (this.openTimeout) {
       this.openTimeout();
       this.openTimeout = undefined;
+      this.settlePendingShows();
     }
 
     // Don't proceed if already closing or closed unless immediate is true
@@ -591,6 +619,7 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
     if (this.openTimeout) {
       this.openTimeout();
       this.openTimeout = undefined;
+      this.settlePendingShows();
     }
     if (this.closeTimeout) {
       this.closeTimeout();

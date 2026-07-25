@@ -357,10 +357,14 @@ export const [
         createOverlayInstance();
       }
 
+      const wasOpen = open();
+
       // Show the overlay
       await overlay()?.show();
 
-      if (open()) {
+      // Only announce an actual transition - show() also resolves when the popover was
+      // already open, and re-emitting then would report a change that did not happen.
+      if (!wasOpen && open()) {
         onOpenChange?.(true);
       }
     }
