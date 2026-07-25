@@ -24,7 +24,7 @@ import {
   providers: [provideIcons({ heroChevronDown, heroPlus })],
   template: `
     <div
-      class="relative box-border flex h-[2.125rem] w-[300px] items-center justify-between rounded-lg bg-white shadow-xs ring-1 ring-black/10 transition-colors focus-within:outline-2 focus-within:outline-offset-2 focus-within:outline-blue-500 dark:bg-zinc-900 dark:ring-white/10 dark:focus-within:outline-blue-400"
+      class="relative box-border flex h-[2.125rem] w-[300px] items-center justify-between rounded-lg bg-white shadow-xs ring-1 ring-black/10 transition-colors focus-within:outline-2 focus-within:outline-offset-2 focus-within:outline-blue-500 dark:bg-zinc-950 dark:ring-white/10 dark:focus-within:outline-blue-400"
       [(ngpComboboxValue)]="value"
       (ngpComboboxValueChange)="onValueChange($event)"
       (ngpComboboxOpenChange)="resetOnClose($event)"
