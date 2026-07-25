@@ -33,6 +33,7 @@ export function bindDrawerNestedVisuals(
   const element = elementRef.nativeElement;
   const snapshotState = signal<NestedVisualSnapshot | null>(null);
   let unsubscribe: (() => void) | undefined;
+  let unsubscribeRelease: (() => void) | undefined;
   let retainedHeight: string | null = null;
   const visualState = computed<NestedVisualState>(() => ({
     count: state.nestedCount(),
@@ -44,6 +45,24 @@ export function bindDrawerNestedVisuals(
     ...visualState(),
     snapshot: snapshotState(),
   }));
+  const applyHeight = (): void => {
+    if (state.snapHeightOwned()) {
+      // The viewport writes this property from the active snap point and runs earlier in the same
+      // render phase, so anything written here — including a restore — would clobber it. Ownership
+      // of the value, and of restoring it, transfers to the viewport's `snapSnapshots` bookkeeping
+      // while a snap point is active; `onSnapHeightReleased` hands it back.
+      retainedHeight = null;
+      return;
+    }
+    const value = untracked(visualState);
+    if (value.present && value.popupHeight > 0) {
+      retainedHeight ??= element.style.getPropertyValue('--ngp-drawer-height');
+      element.style.setProperty('--ngp-drawer-height', `${value.popupHeight}px`);
+    } else if (retainedHeight !== null) {
+      restoreProperty(element, '--ngp-drawer-height', retainedHeight);
+      retainedHeight = null;
+    }
+  };
 
   afterRenderEffect({
     earlyRead: () => {
@@ -62,13 +81,7 @@ export function bindDrawerNestedVisuals(
         return;
       }
       untracked(() => {
-        if (value.present && value.popupHeight > 0) {
-          retainedHeight ??= element.style.getPropertyValue('--ngp-drawer-height');
-          element.style.setProperty('--ngp-drawer-height', `${value.popupHeight}px`);
-        } else if (retainedHeight !== null) {
-          restoreProperty(element, '--ngp-drawer-height', retainedHeight);
-          retainedHeight = null;
-        }
+        applyHeight();
         applyRenderState(element, value);
         const syncProgress = (): void => {
           // The swipe area and the viewport write this property directly, frame by frame, while a
@@ -89,11 +102,13 @@ export function bindDrawerNestedVisuals(
         };
         syncProgress();
         unsubscribe ??= state.nestedVisualStore.subscribe(syncProgress);
+        unsubscribeRelease ??= state.onSnapHeightReleased(applyHeight);
       });
     },
   });
   destroyRef.onDestroy(() => {
     unsubscribe?.();
+    unsubscribeRelease?.();
     if (retainedHeight !== null) {
       restoreProperty(element, '--ngp-drawer-height', retainedHeight);
     }

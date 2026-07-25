@@ -562,6 +562,7 @@ export class NgpDrawerViewport {
       this.exitEndingSeen = false;
       this.gestureSnapPoints = null;
       this.restoreSnapVisuals();
+      this.state.setSnapHeightOwned(false);
       this.detachStartListener();
       this.detachContinuationListeners();
       this.touchSession.reset();
@@ -1280,14 +1281,18 @@ export class NgpDrawerViewport {
       renderState.popupHeight,
     );
     const vertical = renderState.swipeDirection === 'up' || renderState.swipeDirection === 'down';
+    const ownsHeight = active !== null && vertical;
     for (const element of elements) {
-      if (active && vertical) {
+      if (active && ownsHeight) {
         element.style.setProperty('--ngp-drawer-snap-point-offset', `${active.offset}px`);
         element.style.setProperty('--ngp-drawer-height', `${active.height}px`);
       } else {
         this.restoreSnapElement(element);
       }
     }
+    // Published after the loop: releasing ownership notifies nested visuals synchronously, and it
+    // must re-apply its freeze on top of `restoreSnapElement`, not before it.
+    this.state.setSnapHeightOwned(ownsHeight);
     if (
       !this.engine.active &&
       renderState.open &&

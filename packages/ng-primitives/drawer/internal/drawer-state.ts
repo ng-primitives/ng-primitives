@@ -73,6 +73,21 @@ export interface DrawerState extends DrawerStateProps {
   registerElement(element: HTMLElement): () => void;
   setPartElement(part: 'popup' | 'viewport' | 'backdrop', element: HTMLElement): () => void;
   claimPart(part: DrawerUniquePart): () => void;
+  /**
+   * Whether the viewport is currently driving `--ngp-drawer-height` from an active snap point.
+   * `bindDrawerNestedVisuals` runs later in the same render phase and must not overwrite it.
+   * @internal
+   */
+  snapHeightOwned(): boolean;
+  /** @internal */
+  setSnapHeightOwned(owned: boolean): void;
+  /**
+   * Registers a listener fired when the viewport stops driving `--ngp-drawer-height`. The
+   * viewport's restore writes back a snapshot taken before it took ownership, which can be stale
+   * if nested state changed in between, so the other writers must re-apply on release.
+   * @internal
+   */
+  onSnapHeightReleased(listener: () => void): () => void;
   registerTitle(id: string): () => void;
   registerDescription(id: string): () => void;
   containsEvent(event: Event): boolean;
@@ -81,6 +96,8 @@ export interface DrawerState extends DrawerStateProps {
 
 export function createDrawerState(props: DrawerStateProps): DrawerState {
   const elements = new Set<HTMLElement>();
+  let snapHeightOwned = false;
+  const snapHeightReleaseListeners = new Set<() => void>();
   const uniqueParts = new Set<DrawerUniquePart>();
   const titleIds = signal<readonly string[]>([]);
   const descriptionIds = signal<readonly string[]>([]);
@@ -208,6 +225,24 @@ export function createDrawerState(props: DrawerStateProps): DrawerState {
       }
       uniqueParts.add(part);
       return () => uniqueParts.delete(part);
+    },
+    snapHeightOwned(): boolean {
+      return snapHeightOwned;
+    },
+    setSnapHeightOwned(owned: boolean): void {
+      const wasOwned = snapHeightOwned;
+      snapHeightOwned = owned;
+      // Only the owned → unowned edge matters. Firing on every call would re-run the freeze on
+      // every render pass, and firing on acquisition would fight the viewport's own write.
+      if (wasOwned && !owned) {
+        for (const listener of snapHeightReleaseListeners) {
+          listener();
+        }
+      }
+    },
+    onSnapHeightReleased(listener: () => void): () => void {
+      snapHeightReleaseListeners.add(listener);
+      return () => snapHeightReleaseListeners.delete(listener);
     },
     registerTitle(id: string): () => void {
       titleIds.update(ids => [...ids, id]);

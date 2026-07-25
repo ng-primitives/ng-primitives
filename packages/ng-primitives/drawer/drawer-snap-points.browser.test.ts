@@ -91,6 +91,45 @@ class UncontrolledSnapHost {
   readonly root = viewChild.required(NgpDrawer);
 }
 
+@Component({
+  imports: [NgpDrawerPopup, NgpDrawerPortal, NgpDrawer, NgpDrawerViewport],
+  template: `
+    <ng-container
+      [defaultSnapPoint]="'300px'"
+      [open]="true"
+      [snapPoint]="snapPoint()"
+      [snapPoints]="points"
+      [modal]="false"
+      ngpDrawer
+    >
+      <ng-template ngpDrawerPortal>
+        <div class="viewport" data-test-nested-snap-viewport ngpDrawerViewport>
+          <section class="popup" data-test-nested-snap-popup ngpDrawerPopup>
+            <ng-container [open]="childOpen()" [modal]="false" ngpDrawer>
+              <ng-template ngpDrawerPortal>
+                <div class="viewport" ngpDrawerViewport>
+                  <section class="popup" data-test-nested-snap-child ngpDrawerPopup></section>
+                </div>
+              </ng-template>
+            </ng-container>
+          </section>
+        </div>
+      </ng-template>
+    </ng-container>
+  `,
+  styles: `
+    .viewport,
+    .popup {
+      height: 400px;
+    }
+  `,
+})
+class NestedSnapHost {
+  readonly points: readonly NgpDrawerSnapPoint[] = ['100px', '200px', '300px'];
+  readonly childOpen = signal(false);
+  readonly snapPoint = signal<NgpDrawerSnapPoint | null | undefined>(undefined);
+}
+
 let touchHitTarget: Element | null = null;
 
 describe('Drawer snap point integration', () => {
@@ -494,6 +533,54 @@ describe('Drawer snap point integration', () => {
     fixture.detectChanges();
     return { viewport, popup };
   }
+});
+
+describe('Drawer snap point height ownership', () => {
+  let fixture: ComponentFixture<NestedSnapHost>;
+
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({ imports: [NestedSnapHost] }).compileComponents();
+    fixture = TestBed.createComponent(NestedSnapHost);
+    fixture.detectChanges();
+  });
+
+  afterEach(() => fixture.destroy());
+
+  it('keeps the active snap height on every part while a child drawer is open', async () => {
+    const popup = await vi.waitFor(() => {
+      const element = document.querySelector<HTMLElement>('[data-test-nested-snap-popup]');
+      expect(element).not.toBeNull();
+      return element!;
+    });
+    expect(popup.style.getPropertyValue('--ngp-drawer-height')).toBe('300px');
+
+    fixture.componentInstance.childOpen.set(true);
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    // `bindDrawerNestedVisuals` runs after the viewport's snap effect in the same write phase and
+    // used to overwrite this with the popup's full 400px height.
+    expect(popup.style.getPropertyValue('--ngp-drawer-height')).toBe('300px');
+  });
+
+  it('hands the height back to nested visuals when the snap point is cleared', async () => {
+    const popup = await vi.waitFor(() => {
+      const element = document.querySelector<HTMLElement>('[data-test-nested-snap-popup]');
+      expect(element).not.toBeNull();
+      return element!;
+    });
+    fixture.componentInstance.childOpen.set(true);
+    fixture.detectChanges();
+    await fixture.whenStable();
+    expect(popup.style.getPropertyValue('--ngp-drawer-height')).toBe('300px');
+
+    fixture.componentInstance.snapPoint.set(null);
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    // With no active snap point the viewport releases the variable and the nested freeze applies.
+    expect(popup.style.getPropertyValue('--ngp-drawer-height')).toBe('400px');
+  });
 });
 
 function swipe(
