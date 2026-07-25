@@ -43,7 +43,8 @@ import {
         >
           <ng-icon name="heroChevronLeftMini" />
         </button>
-        <h2 class="text-sm font-medium text-gray-900 dark:text-gray-100" ngpDatePickerLabel>
+        <!-- the ! modifier keeps the docs site's prose heading styles from bleeding in -->
+        <h2 class="text-sm! font-medium! text-gray-900 dark:text-gray-100" ngpDatePickerLabel>
           {{ label() }}
         </h2>
         <button
