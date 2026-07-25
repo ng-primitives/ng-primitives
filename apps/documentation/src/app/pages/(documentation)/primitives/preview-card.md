@@ -24,7 +24,7 @@ import {
 
 ## Usage
 
-Assemble the preview card directives in your template. The trigger should be an element that is independently useful without the card - typically a link to the content the card previews.
+Assemble the directives in your template. The trigger should be a link, or another control that still works without the card.
 
 ```html
 <a href="https://angularprimitives.com" [ngpPreviewCardTrigger]="card">Angular Primitives</a>
@@ -36,9 +36,9 @@ Assemble the preview card directives in your template. The trigger should be an 
 
 ## Preview Card vs Tooltip vs Popover
 
-Pick by interaction pattern rather than appearance. A tooltip labels a control with a short piece of text. A popover holds content the user actively works with, so it opens on click and traps focus inside itself. A preview card sits between them: it opens on hover or keyboard focus like a tooltip, but holds rich content like a popover, and focus stays on the trigger throughout.
+A tooltip labels a control with a short piece of text. A popover holds content the user works with: it opens on click and traps focus. A preview card opens on hover or keyboard focus like a tooltip, holds rich content like a popover, and leaves focus on the trigger.
 
-Unlike both of those, a preview card is not exposed to assistive technology and cannot be opened on touch, so reach for a popover whenever the content actually matters.
+A preview card is not exposed to assistive technology and cannot be opened on touch, so use a popover if the content matters.
 
 ## Reusable Component
 
@@ -66,7 +66,7 @@ ng g ng-primitives:primitive preview-card
 
 ### Custom delays
 
-The open delay is deliberately long so that cards do not appear while the pointer travels across a page full of links. Shorten it when the trigger is isolated, or lengthen it in dense text.
+The open delay is long by default so that cards do not appear while the pointer crosses a page of links.
 
 <docs-example name="preview-card-delays"></docs-example>
 
@@ -113,9 +113,7 @@ The following directives are available to import from the `ng-primitives/preview
 
 ### NgpPreviewCardArrow
 
-The `NgpPreviewCardArrow` directive adds an arrow to the preview card. It should be placed inside the card content. It receives `inset-inline-start` or `inset-block-start` styles to position the arrow based on the card's placement, so it should be positioned absolutely within the card.
-
-The arrow can be styled conditionally based on the card's final placement using the `data-placement` attribute:
+Place `ngpPreviewCardArrow` inside the card. It receives `inset-inline-start` or `inset-block-start` to position it against the trigger, so it must be positioned absolutely. Style it per side with `data-placement`:
 
 ```css
 [ngpPreviewCardArrow][data-placement='top'] {
@@ -143,7 +141,7 @@ For the preview card to be positioned correctly relative to the trigger, it must
 
 ## Animations
 
-The `ngpPreviewCard` primitive adds a `--ngp-preview-card-transform-origin` CSS custom property that can be used to animate the card from the trigger element, and applies the `data-enter` and `data-exit` attributes while the card is being added to or removed from the DOM.
+`data-enter` and `data-exit` are applied while the card is entering and leaving the DOM. Animate from the trigger with `--ngp-preview-card-transform-origin`.
 
 ```css
 [ngpPreviewCard][data-enter] {
@@ -184,15 +182,15 @@ bootstrapApplication(AppComponent, {
 
 ## Accessibility
 
-A preview card is a visual enhancement for sighted pointer and keyboard users. There is no WAI-ARIA pattern for this behaviour, and every headless library that implements it - [Radix](https://www.radix-ui.com/primitives/docs/components/hover-card), [Base UI](https://base-ui.com/react/components/preview-card), Ark UI and Kobalte - documents it as a deliberate limitation. We do the same.
+There is no WAI-ARIA pattern for this behaviour. A preview card is a visual enhancement for sighted pointer and keyboard users only.
 
-**The card is not exposed to assistive technology.** The content carries no `role` and is not linked to the trigger, and the trigger receives no `aria-expanded`, `aria-haspopup`, `aria-controls` or `aria-describedby`. This is intentional: announcing a rich, interactive card as a link's _description_ is worse than saying nothing, and `aria-expanded` would advertise a disclosure that cannot be operated by keyboard.
+The card is deliberately not exposed to assistive technology: the content carries no `role`, and the trigger receives no `aria-expanded`, `aria-haspopup`, `aria-controls` or `aria-describedby`. Announcing a rich, interactive card as a link's _description_ is worse than saying nothing, and `aria-expanded` would advertise a disclosure that cannot be operated by keyboard.
 
-Because of that, the following rules matter:
+That constrains how it can be used:
 
-- **The trigger must work without the card.** Use a real link (or another independently useful control). The card previews where the trigger goes; it is never the only route to that content.
-- **Never put unique content or actions in the card.** Anything inside it must be reachable another way, because screen reader and touch users will not see it.
-- **Style the trigger as a link** with something other than colour alone, such as an underline, to satisfy [WCAG 1.4.1 Use of Color](https://www.w3.org/WAI/WCAG22/Understanding/use-of-color.html).
+- **The trigger must work without the card.** Use a link, or another independently useful control.
+- **Never put unique content or actions in the card.** Screen reader and touch users will not see them.
+- **Mark the trigger with more than colour**, such as an underline, to satisfy [WCAG 1.4.1 Use of Color](https://www.w3.org/WAI/WCAG22/Understanding/use-of-color.html).
 
 ### Keyboard Interactions
 
