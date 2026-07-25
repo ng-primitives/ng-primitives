@@ -287,11 +287,22 @@ describe('Drawer snap point integration', () => {
     expect(fixture.componentInstance.active()).toBe('300px');
   });
 
-  it('uses projected velocity to move across points', async () => {
+  it('closes from a fast downward flick instead of snapping to a lower point', async () => {
     const { viewport } = await openDrawer();
+    // 20px in 199ms is far short of any snap threshold, but 0.6px/ms is a decisive flick.
+    swipe(viewport, 0, 20, 40, 0, 34);
+    fixture.detectChanges();
+
+    expect(fixture.componentInstance.root().open()).toBe(false);
+  });
+
+  it('closes rather than projecting a downward flick across points', async () => {
+    const { viewport } = await openDrawer();
+    // 25px in 41ms ≈ 0.61px/ms. ng used to project this onto '100px' and stay open.
     swipe(viewport, 0, 25, 2, 0, 42);
     fixture.detectChanges();
-    expect(fixture.componentInstance.active()).toBe('100px');
+
+    expect(fixture.componentInstance.root().open()).toBe(false);
   });
 
   it('preserves upward distance selection after the first native touch sample is rebased', async () => {
@@ -345,17 +356,21 @@ describe('Drawer snap point integration', () => {
     );
   });
 
-  it('preserves downward velocity projection after the first native touch sample is rebased', async () => {
+  it('preserves the rebased displacement after the first native touch sample', async () => {
     const { viewport } = await openDrawer();
 
     dispatchTouch(viewport, 'touchstart', [touch(viewport, 21, 0)], [], 0);
     dispatchTouch(viewport, 'touchmove', [touch(viewport, 21, 30)], [], 100);
-    dispatchTouch(viewport, 'touchmove', [touch(viewport, 21, 55)], [], 140);
-    dispatchTouch(viewport, 'touchend', [], [touch(viewport, 21, 55)], 141);
+    dispatchTouch(viewport, 'touchmove', [touch(viewport, 21, 160)], [], 1100);
+    dispatchTouch(viewport, 'touchend', [], [touch(viewport, 21, 160)], 1101);
     fixture.detectChanges();
 
+    // 130px over 1000ms is 0.13px/ms, well below the flick threshold, so the distance decides.
+    // The gesture is rebased onto the first move, so the travel is 160 - 30 = 130px from the
+    // '300px' point (offset 100), landing at offset 230 — nearest '200px' (offset 200).
+    // Without the rebase the travel would be 160px, landing at offset 260 — nearest '100px'.
     expect(fixture.componentInstance.root().open()).toBe(true);
-    expect(fixture.componentInstance.active()).toBe('100px');
+    expect(fixture.componentInstance.active()).toBe('200px');
   });
 
   it('derives up-direction snap progress from direction-normalised movement', async () => {

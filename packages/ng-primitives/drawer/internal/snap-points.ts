@@ -65,6 +65,12 @@ export function closestDrawerSnapPoint(
   }, null);
 }
 
+/**
+ * Release speed, in pixels per millisecond toward dismissal, at which a flick closes the drawer
+ * outright rather than resolving to a snap point. Mirrors Base UI's `FAST_SWIPE_VELOCITY`.
+ */
+export const FAST_SWIPE_VELOCITY = 0.5;
+
 export function projectDrawerSnapPoint(
   points: readonly ResolvedDrawerSnapPoint[],
   active: ResolvedDrawerSnapPoint,
@@ -83,6 +89,13 @@ export function projectDrawerSnapPoint(
   const closeIsNearest = Math.abs(projectedHeight) < Math.abs(rawTarget.height - projectedHeight);
   const rawDestinationIndex = closeIsNearest ? -1 : points.indexOf(rawTarget);
   if (!sequential) {
+    // A decisive flick toward dismissal closes the drawer outright, without asking which snap
+    // point the projection lands nearest. Base UI does this before the closest-point lookup
+    // (DrawerViewport.tsx:563-565); without it, a drawer with snap points ignores a flick that
+    // the engine already reported as `dismissed`, while a drawer without them closes.
+    if (dismissVelocity >= FAST_SWIPE_VELOCITY && directionalDisplacement > 0) {
+      return null;
+    }
     return rawDestinationIndex < 0 ? null : (points[rawDestinationIndex] ?? rawTarget);
   }
 

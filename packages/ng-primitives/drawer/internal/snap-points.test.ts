@@ -35,9 +35,8 @@ describe('Drawer snap points', () => {
     expect(closestDrawerSnapPoint(points, 200)?.value).toBe(100);
   });
 
-  it('projects velocity and constrains sequential movement to an adjacent point', () => {
+  it('constrains sequential movement to an adjacent point', () => {
     const points = resolveDrawerSnapPoints([100, 300, 500], 800, 700, 16);
-    expect(projectDrawerSnapPoint(points, points[2], 20, 1, false)?.value).toBe(100);
     expect(projectDrawerSnapPoint(points, points[2], 20, 1, true)?.value).toBe(300);
   });
 
@@ -94,5 +93,28 @@ describe('Drawer snap points', () => {
     expect(resolveDrawerSnapPointHeight(0.25, 800, 600, 16)).toBe(
       points.find(point => point.values.includes(0.25))?.height,
     );
+  });
+
+  it('closes on a fast flick toward dismissal instead of snapping', () => {
+    const points = resolveDrawerSnapPoints([100, 200, 300], 400, 400, 16);
+    // Only 5px of travel, but 0.6px/ms toward dismissal.
+    expect(projectDrawerSnapPoint(points, points[2], 5, 0.6, false)).toBeNull();
+  });
+
+  it('ignores the flick shortcut for an expanding release', () => {
+    const points = resolveDrawerSnapPoints([100, 200, 300], 400, 400, 16);
+    // Negative displacement is away from dismissal, so the shortcut must not fire however fast.
+    expect(projectDrawerSnapPoint(points, points[0], -5, -0.6, false)?.value).toBe(300);
+  });
+
+  it('ignores the flick shortcut below the velocity threshold', () => {
+    const points = resolveDrawerSnapPoints([100, 200, 300], 400, 400, 16);
+    expect(projectDrawerSnapPoint(points, points[2], 5, 0.4, false)?.value).toBe(300);
+  });
+
+  it('leaves the sequential path without a flick shortcut', () => {
+    const points = resolveDrawerSnapPoints([100, 200, 300], 400, 400, 16);
+    // Base UI applies the shortcut only to non-sequential releases.
+    expect(projectDrawerSnapPoint(points, points[2], 5, 0.6, true)).not.toBeNull();
   });
 });
