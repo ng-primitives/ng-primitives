@@ -4,7 +4,7 @@ import { heroCheckSolid } from '@ng-icons/heroicons/solid';
 import { NgpListboxOption } from 'ng-primitives/listbox';
 
 @Component({
-  selector: '<%= prefix %>-listbox-option',
+  selector: '<% if (prefix) { %><%= prefix %>-<% } %>listbox-option',
   hostDirectives: [
     {
       directive: NgpListboxOption,

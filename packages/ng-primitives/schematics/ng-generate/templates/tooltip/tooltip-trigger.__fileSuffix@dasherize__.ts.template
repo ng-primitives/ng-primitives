@@ -3,21 +3,21 @@ import { injectTooltipTriggerState, NgpTooltipTrigger } from 'ng-primitives/tool
 import { Tooltip<%= componentSuffix %> } from './tooltip<% if (fileSuffix) { %>.<%= dasherize(fileSuffix) %><% } %>';
 
 @Directive({
-  selector: '[appTooltipTrigger]',
+  selector: '[<%= camelize(prefix + "TooltipTrigger") %>]',
   hostDirectives: [
     {
       directive: NgpTooltipTrigger,
       inputs: [
-        'ngpTooltipTriggerPlacement:appTooltipTriggerPlacement',
-        'ngpTooltipTriggerDisabled:appTooltipTriggerDisabled',
-        'ngpTooltipTriggerOffset:appTooltipTriggerOffset',
-        'ngpTooltipTriggerShowDelay:appTooltipTriggerShowDelay',
-        'ngpTooltipTriggerHideDelay:appTooltipTriggerHideDelay',
-        'ngpTooltipTriggerFlip:appTooltipTriggerFlip',
-        'ngpTooltipTriggerContainer:appTooltipTriggerContainer',
-        'ngpTooltipTriggerShowOnOverflow:appTooltipTriggerShowOnOverflow',
-        'ngpTooltipTriggerHoverableContent:appTooltipTriggerHoverableContent',
-        'ngpTooltipTriggerContext:appTooltipTrigger',
+        'ngpTooltipTriggerPlacement:<%= camelize(prefix + "TooltipTriggerPlacement") %>',
+        'ngpTooltipTriggerDisabled:<%= camelize(prefix + "TooltipTriggerDisabled") %>',
+        'ngpTooltipTriggerOffset:<%= camelize(prefix + "TooltipTriggerOffset") %>',
+        'ngpTooltipTriggerShowDelay:<%= camelize(prefix + "TooltipTriggerShowDelay") %>',
+        'ngpTooltipTriggerHideDelay:<%= camelize(prefix + "TooltipTriggerHideDelay") %>',
+        'ngpTooltipTriggerFlip:<%= camelize(prefix + "TooltipTriggerFlip") %>',
+        'ngpTooltipTriggerContainer:<%= camelize(prefix + "TooltipTriggerContainer") %>',
+        'ngpTooltipTriggerShowOnOverflow:<%= camelize(prefix + "TooltipTriggerShowOnOverflow") %>',
+        'ngpTooltipTriggerHoverableContent:<%= camelize(prefix + "TooltipTriggerHoverableContent") %>',
+        'ngpTooltipTriggerContext:<%= camelize(prefix + "TooltipTrigger") %>',
       ],
     },
   ],
@@ -28,7 +28,7 @@ export class TooltipTrigger {
 
   /** Define the content of the tooltip */
   readonly content = input.required<string>({
-    alias: 'appTooltipTrigger',
+    alias: '<%= camelize(prefix + "TooltipTrigger") %>',
   });
 
   constructor() {

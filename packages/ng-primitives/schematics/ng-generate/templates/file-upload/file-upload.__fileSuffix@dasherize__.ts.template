@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 import { NgpFileUpload } from 'ng-primitives/file-upload';
 
 @Component({
-  selector: '<%= prefix %>-file-upload',
+  selector: '<% if (prefix) { %><%= prefix %>-<% } %>file-upload',
   hostDirectives: [
     {
       directive: NgpFileUpload,

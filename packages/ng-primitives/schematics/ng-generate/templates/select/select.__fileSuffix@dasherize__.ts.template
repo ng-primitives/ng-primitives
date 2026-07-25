@@ -13,7 +13,7 @@ import {
 import { ChangeFn, provideValueAccessor, TouchedFn } from 'ng-primitives/utils';
 
 @Component({
-  selector: '<%= prefix %>-select',
+  selector: '<% if (prefix) { %><%= prefix %>-<% } %>select',
   hostDirectives: [
     {
       directive: NgpSelect,

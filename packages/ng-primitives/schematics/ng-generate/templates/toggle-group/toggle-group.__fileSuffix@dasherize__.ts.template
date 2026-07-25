@@ -5,7 +5,7 @@ import { injectToggleGroupState, NgpToggleGroup } from 'ng-primitives/toggle-gro
 import { ChangeFn, provideValueAccessor, TouchedFn } from 'ng-primitives/utils';
 
 @Component({
-  selector: '<%= prefix %>-toggle-group',
+  selector: '<% if (prefix) { %><%= prefix %>-<% } %>toggle-group',
   hostDirectives: [
     {
       directive: NgpToggleGroup,

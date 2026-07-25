@@ -3,7 +3,7 @@ import { NgpButton } from 'ng-primitives/button';
 import { injectToastContext, NgpToast, NgpToastManager } from 'ng-primitives/toast';
 
 @Component({
-  selector: '<%= prefix %>-toast',
+  selector: '<% if (prefix) { %><%= prefix %>-<% } %>toast',
   imports: [NgpButton],
   hostDirectives: [NgpToast],
   host: {

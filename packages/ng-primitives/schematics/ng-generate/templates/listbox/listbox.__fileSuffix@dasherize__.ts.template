@@ -8,7 +8,7 @@ import { injectListboxState, NgpListbox, provideListboxState } from 'ng-primitiv
 import { ChangeFn, provideValueAccessor, TouchedFn } from 'ng-primitives/utils';
 
 @Component({
-  selector: '<%= prefix %>-listbox',
+  selector: '<% if (prefix) { %><%= prefix %>-<% } %>listbox',
   providers: [
     provideIcons({ heroChevronDownSolid }),
     provideListboxState(),

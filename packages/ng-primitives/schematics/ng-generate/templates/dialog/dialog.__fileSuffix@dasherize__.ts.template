@@ -8,7 +8,7 @@ import {
 } from 'ng-primitives/dialog';
 
 @Component({
-  selector: '<%= prefix %>-dialog',
+  selector: '<% if (prefix) { %><%= prefix %>-<% } %>dialog',
   hostDirectives: [NgpDialogOverlay],
   imports: [NgpDialog, NgpDialogTitle, NgpDialogDescription],
   providers: [

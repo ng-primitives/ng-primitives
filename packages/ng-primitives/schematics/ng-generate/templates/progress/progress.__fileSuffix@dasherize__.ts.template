@@ -9,7 +9,7 @@ import {
 } from 'ng-primitives/progress';
 
 @Component({
-  selector: '<%= prefix %>-progress',
+  selector: '<% if (prefix) { %><%= prefix %>-<% } %>progress',
   hostDirectives: [
     {
       directive: NgpProgress,

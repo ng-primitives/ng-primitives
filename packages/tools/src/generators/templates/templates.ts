@@ -53,6 +53,8 @@ export async function templatesGenerator(tree: Tree) {
       // process the template
       const content = processTemplate(source, componentClasses);
 
+      assertPrefixReplaced(content, filePath);
+
       // write the new file to packages/ng-primitives/schematics/ng-generate/templates
       tree.write(
         `packages/ng-primitives/schematics/ng-generate/templates/${primitive}/${file.replace('.ts', '.__fileSuffix@dasherize__.ts')}.template`,
@@ -69,7 +71,8 @@ export default templatesGenerator;
 /**
  * Convert the template into Angular schematics format
  * This does the following:
- * - Replace the prefix in the component selector with the <%= prefix %> placeholder
+ * - Replace the prefix in the component selector, in the input/output aliases, and in the
+ *   host directive input/output mappings with the <%= prefix %> placeholder
  * - Append any component class names with the <%= componentSuffix %> placeholder
  * - Append the <%= fileSuffix %> placeholder to relative import paths, so a part still
  *   resolves its siblings once they are generated under the consumer's own suffixes
@@ -96,8 +99,32 @@ function processTemplate(content: string, componentClasses: ReadonlySet<string>)
     edits.push({
       start: selector.getStart(),
       end: selector.getEnd(),
-      text: selector.getText().replace('app-', '<%= prefix %>-'),
+      text: replacePrefix(selector.getText()),
     });
+  }
+
+  // The prefix is not confined to the selector: a trigger directive also carries it in its
+  // input aliases (`alias: 'appPopoverTrigger'`) and in the input/output mappings of its host
+  // directives (`'ngpPopoverTriggerDisabled:appPopoverTriggerDisabled'`). `model` takes the
+  // same `alias` option as `input`/`output`, so it is covered even though nothing uses it yet.
+  const aliases = query<ts.StringLiteral>(
+    content,
+    'CallExpression:has(Identifier[name=/^(input|output|model)$/]) ObjectLiteralExpression PropertyAssignment:has(Identifier[name="alias"]) > StringLiteral',
+  );
+
+  const hostDirectiveMappings = query<ts.StringLiteral>(
+    content,
+    'PropertyAssignment:has(Identifier[name="hostDirectives"]) PropertyAssignment:has(Identifier[name=/^(inputs|outputs)$/]) ArrayLiteralExpression > StringLiteral',
+  );
+
+  for (const literal of [...aliases, ...hostDirectiveMappings]) {
+    const text = literal.getText();
+    const replaced = replacePrefix(text);
+
+    // most parts alias nothing that carries the prefix - do not queue a no-op edit
+    if (replaced !== text) {
+      edits.push({ start: literal.getStart(), end: literal.getEnd(), text: replaced });
+    }
   }
 
   // point relative imports at the sibling file's generated name
@@ -151,6 +178,56 @@ function processTemplate(content: string, componentClasses: ReadonlySet<string>)
   }
 
   return applyEdits(content, edits);
+}
+
+/**
+ * Swap the `app` prefix the source components are written with for the `<%= prefix %>`
+ * placeholder, in both the forms it takes:
+ *
+ * - dashed - `app-popover`, `[app-separator]`, `button[app-button]`
+ * - camelCase - `[appPopoverTrigger]`, `alias: 'appPopoverTrigger'`
+ *
+ * The schema explicitly permits an empty prefix, and both forms have to survive it. The
+ * dashed form drops the separator with it, so `app-popover` gives `popover` rather than a
+ * leading dash - `-popover` is not a name the schema's own `html-selector` format would
+ * accept. The camelCase form runs the prefix and the rest of the name back through
+ * `camelize`, which lowercases the leading character for the same reason (`popoverTrigger`,
+ * not `PopoverTrigger`) and as a bonus reads a multi word prefix correctly (`my-app` gives
+ * `myAppPopoverTrigger`).
+ *
+ * Both patterns are anchored on a word boundary, and the camelCase one requires an
+ * uppercase letter to follow, so ordinary words like `appearance` are left alone. Both
+ * replace globally: no selector here is a comma separated list today, but a
+ * `String.prototype.replace` with a string pattern would silently rewrite only the first
+ * entry of one.
+ */
+function replacePrefix(text: string): string {
+  return text
+    .replace(/\bapp-/g, '<% if (prefix) { %><%= prefix %>-<% } %>')
+    .replace(/\bapp([A-Z]\w*)/g, '<%= camelize(prefix + "$1") %>');
+}
+
+/**
+ * Fail the build if any `app` prefix survived the rewrite.
+ *
+ * `replacePrefix` is only applied to the nodes the queries above reach - the selector, the
+ * `alias` of an `input`/`output`/`model`, and the input/output mappings of a host directive.
+ * Anything else that spells the prefix out (an `exportAs`, a decorator style `@Input('appX')`,
+ * an `<app-thing>` in an inline template, an `app-thing` selector in a `styles` block) would
+ * otherwise be baked into the template verbatim and quietly ignore `--prefix`, and the
+ * generated templates are build output that nothing else reviews. Better to stop here and
+ * teach `processTemplate` about the new shape.
+ */
+function assertPrefixReplaced(content: string, filePath: string): void {
+  const leftovers = content.match(/\bapp-[\w-]*|\bapp[A-Z]\w*/g);
+
+  if (leftovers) {
+    throw new Error(
+      `${filePath}: the "app" prefix survived in ${[...new Set(leftovers)].join(', ')}. ` +
+        'processTemplate only rewrites the selector, input/output/model aliases and host ' +
+        'directive input/output mappings - teach it about this location as well.',
+    );
+  }
 }
 
 /** The names of the classes in a file that Angular treats as components. */

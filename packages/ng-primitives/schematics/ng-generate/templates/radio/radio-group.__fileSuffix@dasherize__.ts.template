@@ -9,7 +9,7 @@ import {
 } from 'ng-primitives/utils';
 
 @Component({
-  selector: '<%= prefix %>-radio-group',
+  selector: '<% if (prefix) { %><%= prefix %>-<% } %>radio-group',
   hostDirectives: [
     {
       directive: NgpRadioGroup,
