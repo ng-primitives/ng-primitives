@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 import { injectPopoverContext, NgpPopover } from 'ng-primitives/popover';
 
 @Component({
-  selector: '<%= prefix %>-popover',
+  selector: '<% if (prefix) { %><%= prefix %>-<% } %>popover',
   hostDirectives: [NgpPopover],
   template: `
     {{ content() }}

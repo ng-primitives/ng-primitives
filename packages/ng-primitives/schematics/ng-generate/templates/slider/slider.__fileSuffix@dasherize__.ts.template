@@ -11,7 +11,7 @@ import {
 import { ChangeFn, provideValueAccessor, TouchedFn } from 'ng-primitives/utils';
 
 @Component({
-  selector: '<%= prefix %>-slider',
+  selector: '<% if (prefix) { %><%= prefix %>-<% } %>slider',
   hostDirectives: [
     {
       directive: NgpSlider,

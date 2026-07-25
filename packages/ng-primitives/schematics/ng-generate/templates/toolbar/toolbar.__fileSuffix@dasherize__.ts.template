@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 import { injectToolbarState, NgpToolbar } from 'ng-primitives/toolbar';
 
 @Component({
-  selector: '<%= prefix %>-toolbar',
+  selector: '<% if (prefix) { %><%= prefix %>-<% } %>toolbar',
   hostDirectives: [{ directive: NgpToolbar, inputs: ['ngpToolbarOrientation:orientation'] }],
   template: `
     <ng-content />

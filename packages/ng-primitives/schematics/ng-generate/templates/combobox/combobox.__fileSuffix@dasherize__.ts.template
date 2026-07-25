@@ -14,7 +14,7 @@ import {
 import { ChangeFn, provideValueAccessor, TouchedFn } from 'ng-primitives/utils';
 
 @Component({
-  selector: '<%= prefix %>-combobox',
+  selector: '<% if (prefix) { %><%= prefix %>-<% } %>combobox',
   imports: [
     NgpCombobox,
     NgpComboboxDropdown,

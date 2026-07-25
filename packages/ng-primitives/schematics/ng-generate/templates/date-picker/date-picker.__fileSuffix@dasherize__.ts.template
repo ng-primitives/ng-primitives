@@ -17,7 +17,7 @@ import {
 import { ChangeFn, provideValueAccessor, TouchedFn } from 'ng-primitives/utils';
 
 @Component({
-  selector: '<%= prefix %>-date-picker',
+  selector: '<% if (prefix) { %><%= prefix %>-<% } %>date-picker',
   hostDirectives: [
     {
       directive: NgpDatePicker,

@@ -9,7 +9,7 @@ import {
 import { NgpButton } from 'ng-primitives/button';
 
 @Component({
-  selector: '<%= prefix %>-accordion-item',
+  selector: '<% if (prefix) { %><%= prefix %>-<% } %>accordion-item',
   hostDirectives: [
     {
       directive: NgpAccordionItem,

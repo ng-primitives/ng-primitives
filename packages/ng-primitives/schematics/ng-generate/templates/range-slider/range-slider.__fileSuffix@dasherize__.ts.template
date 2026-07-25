@@ -13,7 +13,7 @@ import { ChangeFn, provideValueAccessor, TouchedFn } from 'ng-primitives/utils';
 import { merge } from 'rxjs';
 
 @Component({
-  selector: '<%= prefix %>-range-slider',
+  selector: '<% if (prefix) { %><%= prefix %>-<% } %>range-slider',
   hostDirectives: [
     {
       directive: NgpRangeSlider,

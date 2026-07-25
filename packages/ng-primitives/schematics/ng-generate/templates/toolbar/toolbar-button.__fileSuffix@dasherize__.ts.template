@@ -3,7 +3,7 @@ import { NgpButton } from 'ng-primitives/button';
 import { NgpRovingFocusItem } from 'ng-primitives/roving-focus';
 
 @Component({
-  selector: 'button[<%= prefix %>-toolbar-button]',
+  selector: 'button[<% if (prefix) { %><%= prefix %>-<% } %>toolbar-button]',
   hostDirectives: [
     { directive: NgpButton, inputs: ['disabled'] },
     {

@@ -2,7 +2,7 @@ import { Component, input } from '@angular/core';
 import { NgpAvatar, NgpAvatarFallback, NgpAvatarImage } from 'ng-primitives/avatar';
 
 @Component({
-  selector: '<%= prefix %>-avatar',
+  selector: '<% if (prefix) { %><%= prefix %>-<% } %>avatar',
   hostDirectives: [NgpAvatar],
   imports: [NgpAvatarImage, NgpAvatarFallback],
   template: `

@@ -79,6 +79,108 @@ describe('Component Schematic', () => {
     expect(content).toContain("selector: 'button[foo-button]'");
   });
 
+  it('should drop the separator with the prefix when it is empty', async () => {
+    const options: AngularPrimitivesComponentSchema = {
+      primitive: 'button',
+      path: 'projects/bar/src/app/button',
+      prefix: '',
+    };
+
+    const tree = await schematicRunner.runSchematic('primitive', options, appTree);
+    const content = tree.readContent('/projects/bar/src/app/button/button.component.ts');
+    expect(content).toContain("selector: 'button[button]'");
+  });
+
+  describe('camelCase selectors and aliases', () => {
+    // The trigger directives use an attribute selector in camelCase, and carry the prefix
+    // in their input aliases too - none of which look like the dashed `app-` form.
+    const triggerPath = '/projects/bar/src/app/popover/popover-trigger.component.ts';
+
+    it('should fall back to the app prefix when none is given', async () => {
+      // the default is the path almost every consumer takes, and a broken placeholder here
+      // still type-checks - only an assertion catches it
+      const options: AngularPrimitivesComponentSchema = {
+        primitive: 'popover',
+        path: 'projects/bar/src/app/popover',
+      };
+
+      const tree = await schematicRunner.runSchematic('primitive', options, appTree);
+      const content = tree.readContent(triggerPath);
+
+      expect(content).toContain("selector: '[appPopoverTrigger]'");
+      expect(content).toContain("'ngpPopoverTriggerDisabled:appPopoverTriggerDisabled'");
+      expect(content).toContain("alias: 'appPopoverTrigger'");
+    });
+
+    it('should apply the prefix to a camelCase selector and its aliases', async () => {
+      const options: AngularPrimitivesComponentSchema = {
+        primitive: 'popover',
+        path: 'projects/bar/src/app/popover',
+        prefix: 'foo',
+      };
+
+      const tree = await schematicRunner.runSchematic('primitive', options, appTree);
+      const content = tree.readContent(triggerPath);
+
+      expect(content).toContain("selector: '[fooPopoverTrigger]'");
+      expect(content).toContain("'ngpPopoverTriggerDisabled:fooPopoverTriggerDisabled'");
+      expect(content).toContain("alias: 'fooPopoverTrigger'");
+    });
+
+    it('should camelize a multi word prefix', async () => {
+      const options: AngularPrimitivesComponentSchema = {
+        primitive: 'popover',
+        path: 'projects/bar/src/app/popover',
+        prefix: 'my-app',
+      };
+
+      const tree = await schematicRunner.runSchematic('primitive', options, appTree);
+      const content = tree.readContent(triggerPath);
+
+      expect(content).toContain("selector: '[myAppPopoverTrigger]'");
+      expect(content).toContain("'ngpPopoverTriggerDisabled:myAppPopoverTriggerDisabled'");
+      expect(content).toContain("alias: 'myAppPopoverTrigger'");
+    });
+
+    it('should drop the prefix entirely when it is empty, keeping the name camelCase', async () => {
+      const options: AngularPrimitivesComponentSchema = {
+        primitive: 'popover',
+        path: 'projects/bar/src/app/popover',
+        prefix: '',
+      };
+
+      const tree = await schematicRunner.runSchematic('primitive', options, appTree);
+      const content = tree.readContent(triggerPath);
+
+      // a leading capital (`[PopoverTrigger]`) would be a legal but bizarre selector
+      expect(content).toContain("selector: '[popoverTrigger]'");
+      expect(content).toContain("'ngpPopoverTriggerDisabled:popoverTriggerDisabled'");
+      expect(content).toContain("alias: 'popoverTrigger'");
+
+      // the sibling part is generated in the same run, and its dashed selector has to come
+      // out just as clean - a leading `-popover` is not a name Angular would accept
+      const sibling = tree.readContent('/projects/bar/src/app/popover/popover.component.ts');
+      expect(sibling).toContain("selector: 'popover'");
+    });
+
+    it('should apply the prefix to the tooltip trigger too', async () => {
+      const options: AngularPrimitivesComponentSchema = {
+        primitive: 'tooltip',
+        path: 'projects/bar/src/app/tooltip',
+        prefix: 'foo',
+      };
+
+      const tree = await schematicRunner.runSchematic('primitive', options, appTree);
+      const content = tree.readContent(
+        '/projects/bar/src/app/tooltip/tooltip-trigger.component.ts',
+      );
+
+      expect(content).toContain("selector: '[fooTooltipTrigger]'");
+      expect(content).toContain("'ngpTooltipTriggerDisabled:fooTooltipTriggerDisabled'");
+      expect(content).toContain("alias: 'fooTooltipTrigger'");
+    });
+  });
+
   it('should create a primitive with the correct component suffix', async () => {
     const options: AngularPrimitivesComponentSchema = {
       primitive: 'button',

@@ -4,7 +4,7 @@ import { NgpTabButton, NgpTabList, NgpTabPanel, NgpTabset } from 'ng-primitives/
 import { Tab<%= componentSuffix %> } from './tab<% if (fileSuffix) { %>.<%= dasherize(fileSuffix) %><% } %>';
 
 @Component({
-  selector: '<%= prefix %>-tabs',
+  selector: '<% if (prefix) { %><%= prefix %>-<% } %>tabs',
   imports: [NgpTabset, NgpTabButton, NgpTabList, NgpTabPanel, NgTemplateOutlet],
   template: `
     <div [(ngpTabsetValue)]="value" ngpTabset>

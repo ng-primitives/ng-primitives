@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 import { NgpSeparator } from 'ng-primitives/separator';
 
 @Component({
-  selector: '[<%= prefix %>-separator]',
+  selector: '[<% if (prefix) { %><%= prefix %>-<% } %>separator]',
   hostDirectives: [{ directive: NgpSeparator, inputs: ['ngpSeparatorOrientation:orientation'] }],
   template: ``,
   styles: `

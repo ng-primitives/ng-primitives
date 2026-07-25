@@ -5,7 +5,7 @@ import { injectSwitchState, NgpSwitch, NgpSwitchThumb } from 'ng-primitives/swit
 import { ChangeFn, provideValueAccessor, TouchedFn } from 'ng-primitives/utils';
 
 @Component({
-  selector: '<%= prefix %>-switch',
+  selector: '<% if (prefix) { %><%= prefix %>-<% } %>switch',
   hostDirectives: [
     {
       directive: NgpSwitch,

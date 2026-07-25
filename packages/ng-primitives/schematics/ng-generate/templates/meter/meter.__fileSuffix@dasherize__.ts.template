@@ -9,7 +9,7 @@ import {
 } from 'ng-primitives/meter';
 
 @Component({
-  selector: '<%= prefix %>-meter',
+  selector: '<% if (prefix) { %><%= prefix %>-<% } %>meter',
   hostDirectives: [
     { directive: NgpMeter, inputs: ['ngpMeterValue:value', 'ngpMeterMin:min', 'ngpMeterMax:max'] },
   ],

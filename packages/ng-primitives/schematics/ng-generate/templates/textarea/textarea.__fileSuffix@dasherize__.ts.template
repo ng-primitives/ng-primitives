@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 import { NgpTextarea } from 'ng-primitives/textarea';
 
 @Component({
-  selector: 'textarea[<%= prefix %>-textarea]',
+  selector: 'textarea[<% if (prefix) { %><%= prefix %>-<% } %>textarea]',
   hostDirectives: [{ directive: NgpTextarea, inputs: ['disabled'] }],
   template: `
     <ng-content />
