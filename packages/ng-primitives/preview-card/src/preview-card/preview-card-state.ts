@@ -6,8 +6,10 @@ import {
   controlled,
   createPrimitive,
   dataBinding,
+  listener,
   styleBinding,
 } from 'ng-primitives/state';
+import { injectPreviewCardTriggerState } from '../preview-card-trigger/preview-card-trigger-state';
 
 export interface NgpPreviewCardState {
   /** Access the element's reference. */
@@ -29,8 +31,28 @@ export const [
 ] = createPrimitive('NgpPreviewCard', ({ id: _id = signal<string>('') }: NgpPreviewCardProps) => {
   const elementRef = injectElementRef<HTMLElement>();
   const overlay = injectOverlay();
+  const triggerState = injectPreviewCardTriggerState();
 
   const id = controlled(_id);
+
+  // Report hover back to the trigger so the card stays open while the pointer is
+  // inside it, and closes once the pointer leaves both the card and the trigger.
+  // Touch is ignored here for the same reason it is on the trigger.
+  listener(elementRef, 'pointerenter', (event: PointerEvent) => {
+    if (event.pointerType === 'touch') {
+      return;
+    }
+
+    triggerState().onCardHoverStart();
+  });
+
+  listener(elementRef, 'pointerleave', (event: PointerEvent) => {
+    if (event.pointerType === 'touch') {
+      return;
+    }
+
+    triggerState().onCardHoverEnd();
+  });
 
   // Seed the id with the overlay's generated unique id so the card always has a
   // valid id when none is provided. `controlled` returns a linkedSignal, so this is

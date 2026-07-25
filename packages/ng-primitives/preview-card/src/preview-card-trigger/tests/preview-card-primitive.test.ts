@@ -131,6 +131,147 @@ describe('NgpPreviewCardTrigger (primitive)', () => {
     });
   });
 
+  describe('traversal from trigger to card', () => {
+    /**
+     * Hoverable content is inherent to a preview card - the whole point is to move
+     * into it and read or click through. The pointer must survive the gap between
+     * the trigger and the card, which is what the shared hover bridge is for.
+     */
+    function hoverableTemplate(label: string): string {
+      return wrap(`
+        <a
+          href="/ashley"
+          [ngpPreviewCardTrigger]="card"
+          ngpPreviewCardTriggerShowDelay="0"
+          ngpPreviewCardTriggerHideDelay="80"
+          >@ashley</a
+        >
+
+        <ng-template #card>
+          <div ngpPreviewCard>${label}</div>
+        </ng-template>
+      `);
+    }
+
+    it('should keep the card open when the pointer moves from the trigger into it', async () => {
+      vi.useFakeTimers({ shouldAdvanceTime: true });
+
+      const { getByRole } = await render(hoverableTemplate('traverse-in'), {
+        imports: [NgpPreviewCardTrigger, NgpPreviewCard],
+      });
+
+      const trigger = getByRole('link', { name: '@ashley' });
+      fireEvent.pointerEnter(trigger, { pointerType: 'mouse' });
+
+      await waitFor(() => {
+        expect(card('traverse-in')).toBeInTheDocument();
+      });
+
+      fireEvent.pointerLeave(trigger, { pointerType: 'mouse' });
+      fireEvent.pointerEnter(card('traverse-in')!, { pointerType: 'mouse' });
+      vi.advanceTimersByTime(200);
+      // The overlay tears down asynchronously, so flush before asserting that it
+      // did *not* tear down - otherwise the element is still present either way.
+      await settle();
+
+      expect(card('traverse-in')).toBeInTheDocument();
+    });
+
+    it('should close the card when the pointer leaves it', async () => {
+      vi.useFakeTimers({ shouldAdvanceTime: true });
+
+      const { getByRole } = await render(hoverableTemplate('traverse-out'), {
+        imports: [NgpPreviewCardTrigger, NgpPreviewCard],
+      });
+
+      const trigger = getByRole('link', { name: '@ashley' });
+      fireEvent.pointerEnter(trigger, { pointerType: 'mouse' });
+
+      await waitFor(() => {
+        expect(card('traverse-out')).toBeInTheDocument();
+      });
+
+      const element = card('traverse-out')!;
+      fireEvent.pointerLeave(trigger, { pointerType: 'mouse' });
+      fireEvent.pointerEnter(element, { pointerType: 'mouse' });
+      vi.advanceTimersByTime(200);
+      await settle();
+
+      expect(card('traverse-out')).toBeInTheDocument();
+
+      fireEvent.pointerLeave(element, { pointerType: 'mouse' });
+      vi.advanceTimersByTime(200);
+
+      await waitFor(() => {
+        expect(card('traverse-out')).toBeNull();
+      });
+    });
+  });
+
+  describe('the hover corridor', () => {
+    /**
+     * With no hide delay at all, leaving the trigger would close the card instantly
+     * were it not for the corridor. These two tests pin the corridor itself: it holds
+     * the card open across the gap, and it gives up once the pointer stops making
+     * progress toward the card.
+     */
+    function noDelayTemplate(label: string): string {
+      return wrap(`
+        <a
+          href="/ashley"
+          [ngpPreviewCardTrigger]="card"
+          ngpPreviewCardTriggerShowDelay="0"
+          ngpPreviewCardTriggerHideDelay="0"
+          >@ashley</a
+        >
+
+        <ng-template #card>
+          <div ngpPreviewCard>${label}</div>
+        </ng-template>
+      `);
+    }
+
+    async function openAndLeaveTowardCard(label: string) {
+      const { getByRole } = await render(noDelayTemplate(label), {
+        imports: [NgpPreviewCardTrigger, NgpPreviewCard],
+      });
+
+      const trigger = getByRole('link', { name: '@ashley' });
+      fireEvent.pointerEnter(trigger, { pointerType: 'mouse' });
+
+      await waitFor(() => {
+        expect(card(label)).toBeInTheDocument();
+      });
+
+      // Leave from the bottom edge, i.e. heading toward the card below.
+      const rect = trigger.getBoundingClientRect();
+      fireEvent.pointerLeave(trigger, {
+        pointerType: 'mouse',
+        clientX: rect.left + rect.width / 2,
+        clientY: rect.bottom,
+      });
+    }
+
+    it('should hold the card open while the pointer crosses the gap', async () => {
+      await openAndLeaveTowardCard('corridor-hold');
+
+      // Flush the overlay's asynchronous teardown, but stay under the corridor's
+      // idle timeout. With no hide delay, a card that closed on pointer leave would
+      // be gone by now; one held by the corridor is still here.
+      await settle();
+
+      expect(card('corridor-hold')).toBeInTheDocument();
+    });
+
+    it('should close once the pointer stops progressing toward the card', async () => {
+      await openAndLeaveTowardCard('corridor-idle');
+
+      await waitFor(() => {
+        expect(card('corridor-idle')).toBeNull();
+      });
+    });
+  });
+
   describe('teardown', () => {
     it('should remove the preview card when the trigger is destroyed', async () => {
       const { getByRole, fixture } = await render(template('teardown'), {

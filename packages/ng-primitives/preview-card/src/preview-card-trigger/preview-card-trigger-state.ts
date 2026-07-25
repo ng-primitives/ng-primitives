@@ -8,7 +8,7 @@ import {
   ViewContainerRef,
   WritableSignal,
 } from '@angular/core';
-import { injectElementRef } from 'ng-primitives/internal';
+import { createHoverBridge, injectElementRef } from 'ng-primitives/internal';
 import {
   createOverlay,
   NgpFlip,
@@ -108,6 +108,16 @@ export interface NgpPreviewCardTriggerState<T> {
   show: () => void;
   /** Hide the preview card. */
   hide: () => void;
+  /**
+   * Called by the preview card when the pointer enters it.
+   * @internal
+   */
+  onCardHoverStart: () => void;
+  /**
+   * Called by the preview card when the pointer leaves it.
+   * @internal
+   */
+  onCardHoverEnd: () => void;
   /**
    * Set the container in which the preview card should be attached. Takes effect the
    * next time the card is shown; it does not move a card that is already visible.
@@ -223,6 +233,19 @@ export const [
     const overlay = signal<NgpOverlay<T> | null>(null);
     const open = computed(() => overlay()?.isOpen() ?? false);
 
+    const triggerHovered = signal<boolean>(false);
+    const cardHovered = signal<boolean>(false);
+
+    // Hoverable content is inherent to a preview card - the point of the pattern is
+    // to move into the card and read or click through it. The shared safe-polygon
+    // bridge keeps the card open while the pointer crosses the gap between the
+    // trigger and the card, and closes it promptly once the pointer leaves that
+    // corridor rather than lingering for the full hide delay.
+    const hoverBridge = createHoverBridge({
+      isPointerInAnchor: () => triggerHovered() || cardHovered(),
+      close: () => hide(),
+    });
+
     // Host bindings.
     //
     // A preview card is deliberately invisible to assistive technology: the content
@@ -252,6 +275,8 @@ export const [
         return;
       }
 
+      triggerHovered.set(true);
+      hoverBridge.clear();
       show();
     }
 
@@ -260,7 +285,52 @@ export const [
         return;
       }
 
-      hide();
+      triggerHovered.set(false);
+
+      const cardElement = overlay()?.getElements()[0];
+
+      if (!cardElement) {
+        hide();
+        return;
+      }
+
+      // Build a corridor from where the pointer left the trigger toward the card. If
+      // one can't be built (e.g. the card is not positioned yet) fall back to
+      // closing, so the card can never be stranded open.
+      const started = hoverBridge.track({
+        triggerRect: trigger.nativeElement.getBoundingClientRect(),
+        targetRect: cardElement.getBoundingClientRect(),
+        exitPoint: { x: event.clientX, y: event.clientY },
+      });
+
+      if (!started) {
+        hide();
+        return;
+      }
+
+      overlay()?.cancelPendingClose();
+    }
+
+    /**
+     * Called by the preview card when the pointer enters it.
+     * @internal
+     */
+    function onCardHoverStart(): void {
+      cardHovered.set(true);
+      hoverBridge.clear();
+      overlay()?.cancelPendingClose();
+    }
+
+    /**
+     * Called by the preview card when the pointer leaves it.
+     * @internal
+     */
+    function onCardHoverEnd(): void {
+      cardHovered.set(false);
+
+      if (!triggerHovered()) {
+        hide();
+      }
     }
 
     function show(): void {
@@ -277,6 +347,7 @@ export const [
     }
 
     function hide(): void {
+      hoverBridge.clear();
       overlay()?.hide();
     }
 
@@ -285,6 +356,7 @@ export const [
     }
 
     function destroy(): void {
+      hoverBridge.clear();
       overlay()?.destroy();
     }
 
@@ -341,6 +413,8 @@ export const [
       open,
       show,
       hide,
+      onCardHoverStart,
+      onCardHoverEnd,
       setContainer,
       destroy,
     } satisfies NgpPreviewCardTriggerState<T>;
