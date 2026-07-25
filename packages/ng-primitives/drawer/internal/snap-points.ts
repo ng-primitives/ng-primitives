@@ -78,33 +78,112 @@ export function projectDrawerSnapPoint(
   dismissVelocity: number,
   sequential: boolean,
 ): ResolvedDrawerSnapPoint | null {
+  if (points.length === 0) {
+    return null;
+  }
+  return sequential
+    ? projectSequentialSnapPoint(points, active, directionalDisplacement, dismissVelocity)
+    : projectFreeformSnapPoint(points, active, directionalDisplacement, dismissVelocity);
+}
+
+function projectFreeformSnapPoint(
+  points: readonly ResolvedDrawerSnapPoint[],
+  active: ResolvedDrawerSnapPoint,
+  directionalDisplacement: number,
+  dismissVelocity: number,
+): ResolvedDrawerSnapPoint | null {
+  // A decisive flick toward dismissal closes the drawer outright, without asking which snap point
+  // the projection lands nearest (Base UI DrawerViewport.tsx:563-565).
+  if (dismissVelocity >= FAST_SWIPE_VELOCITY && directionalDisplacement > 0) {
+    return null;
+  }
   const projectedVelocity =
-    Math.abs(dismissVelocity) >= 0.5 ? Math.max(-4, Math.min(4, dismissVelocity)) * 300 : 0;
+    Math.abs(dismissVelocity) >= FAST_SWIPE_VELOCITY
+      ? clampValue(dismissVelocity, -4, 4) * 300
+      : 0;
   const projectedHeight = active.height - directionalDisplacement - projectedVelocity;
   const rawTarget = closestDrawerSnapPoint(points, projectedHeight);
   if (!rawTarget) {
     return null;
   }
-
   const closeIsNearest = Math.abs(projectedHeight) < Math.abs(rawTarget.height - projectedHeight);
-  const rawDestinationIndex = closeIsNearest ? -1 : points.indexOf(rawTarget);
-  if (!sequential) {
-    // A decisive flick toward dismissal closes the drawer outright, without asking which snap
-    // point the projection lands nearest. Base UI does this before the closest-point lookup
-    // (DrawerViewport.tsx:563-565); without it, a drawer with snap points ignores a flick that
-    // the engine already reported as `dismissed`, while a drawer without them closes.
-    if (dismissVelocity >= FAST_SWIPE_VELOCITY && directionalDisplacement > 0) {
+  return closeIsNearest ? null : rawTarget;
+}
+
+/**
+ * Ported from Base UI's `snapToSequentialPoints` branch (DrawerViewport.tsx:514-561). Works in
+ * offset space, where `0` is fully open and `popupHeight` is fully closed, because that is the
+ * space Base UI's three rules are expressed in.
+ */
+function projectSequentialSnapPoint(
+  points: readonly ResolvedDrawerSnapPoint[],
+  active: ResolvedDrawerSnapPoint,
+  directionalDisplacement: number,
+  dismissVelocity: number,
+): ResolvedDrawerSnapPoint | null {
+  // `offset = popupHeight - height` for every resolved point, so the popup height is recoverable
+  // from the active point alone.
+  const popupHeight = active.offset + active.height;
+  const ordered = [...points].sort((first, second) => first.offset - second.offset);
+  const currentOffset = active.offset;
+  // Unlike the freeform path, the velocity projection is deliberately excluded here: a sequential
+  // step is decided by where the finger actually went, and velocity only decides whether to force
+  // the adjacent point below.
+  const targetOffset = clampValue(currentOffset + directionalDisplacement, 0, popupHeight);
+  const currentIndex = closestOffsetIndex(ordered, currentOffset);
+  let targetIndex = closestOffsetIndex(ordered, targetOffset);
+  let effectiveTargetOffset = targetOffset;
+
+  const dragDirection = Math.sign(directionalDisplacement);
+  const velocityDirection = Math.sign(dismissVelocity);
+  const shouldAdvance =
+    dragDirection !== 0 &&
+    velocityDirection !== 0 &&
+    velocityDirection === dragDirection &&
+    Math.abs(dismissVelocity) >= FAST_SWIPE_VELOCITY;
+
+  if (shouldAdvance) {
+    const adjacentIndex = clampValue(currentIndex + dragDirection, 0, ordered.length - 1);
+    if (adjacentIndex !== currentIndex) {
+      const adjacent = ordered[adjacentIndex];
+      const forceAdjacent =
+        dragDirection > 0 ? targetOffset < adjacent.offset : targetOffset > adjacent.offset;
+      if (forceAdjacent) {
+        targetIndex = adjacentIndex;
+        effectiveTargetOffset = adjacent.offset;
+      }
+    } else if (dragDirection > 0) {
+      // Already at the most-dismissed point and still flicking that way.
       return null;
     }
-    return rawDestinationIndex < 0 ? null : (points[rawDestinationIndex] ?? rawTarget);
   }
 
-  const activeIndex = points.indexOf(active);
-  const destinationIndex = Math.max(
-    activeIndex - 1,
-    Math.min(activeIndex + 1, rawDestinationIndex),
-  );
-  return destinationIndex < 0 ? null : (points[destinationIndex] ?? active);
+  const target = ordered[targetIndex];
+  if (!target) {
+    return null;
+  }
+  const closeDistance = Math.abs(effectiveTargetOffset - popupHeight);
+  const snapDistance = Math.abs(effectiveTargetOffset - target.offset);
+  return closeDistance < snapDistance ? null : target;
+}
+
+function closestOffsetIndex(points: readonly ResolvedDrawerSnapPoint[], offset: number): number {
+  let closestIndex = -1;
+  let closestDistance = Infinity;
+  for (let index = 0; index < points.length; index += 1) {
+    const distance = Math.abs(points[index].offset - offset);
+    // Strict `<` keeps the first of equally-distant points, matching Base UI's
+    // `closestSnapPointIndex` (useDrawerSnapPoints.ts:69-82).
+    if (distance < closestDistance) {
+      closestDistance = distance;
+      closestIndex = index;
+    }
+  }
+  return closestIndex;
+}
+
+function clampValue(value: number, minimum: number, maximum: number): number {
+  return Math.min(maximum, Math.max(minimum, value));
 }
 
 export function dampSnapOvershoot(signedMovement: number, activeOffset: number): number {

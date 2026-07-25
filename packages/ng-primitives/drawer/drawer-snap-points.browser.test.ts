@@ -414,17 +414,27 @@ describe('Drawer snap point integration', () => {
     expect(fixture.componentInstance.active()).toBe('200px');
   });
 
-  it('allows sequential close only from the lowest point', async () => {
+  it('closes a sequential release that lands past the lowest point', async () => {
     fixture.componentInstance.sequential.set(true);
     fixture.componentInstance.active.set('200px');
     fixture.detectChanges();
     const { viewport } = await openDrawer();
+    // From offset 200, 250px of travel lands at the closed edge (400), nearer than the lowest
+    // point's offset of 300. ng used to step down to '100px' and stay open.
     swipe(viewport, 0, 250, 4, 0, 400);
     fixture.detectChanges();
-    expect(fixture.componentInstance.root().open()).toBe(true);
-    expect(fixture.componentInstance.active()).toBe('100px');
-    swipe(viewport, 0, 250, 5, 500, 900);
+
+    expect(fixture.componentInstance.root().open()).toBe(false);
+  });
+
+  it('closes a sequential flick that is already at the most dismissed point', async () => {
+    fixture.componentInstance.sequential.set(true);
+    fixture.componentInstance.active.set('100px');
     fixture.detectChanges();
+    const { viewport } = await openDrawer();
+    swipe(viewport, 0, 250, 5, 0, 400);
+    fixture.detectChanges();
+
     expect(fixture.componentInstance.root().open()).toBe(false);
   });
 

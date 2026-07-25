@@ -50,9 +50,11 @@ describe('Drawer snap points', () => {
     expect(projectDrawerSnapPoint(points, points[2], 25, 25 / 42, true)?.value).toBe(200);
   });
 
-  it('allows only the lowest sequential point to move directly to close', () => {
+  it('closes a sequential release from any point once the target passes the last one', () => {
     const points = resolveDrawerSnapPoints([100, 200, 300], 800, 700, 16);
-    expect(projectDrawerSnapPoint(points, points[1], 300, 0, true)?.value).toBe(100);
+    // offsets 600/500/400, popupHeight 700. From offset 500 a 300px drag lands at the closed edge,
+    // which is nearer than the lowest point's 600 — Base UI closes rather than stepping down.
+    expect(projectDrawerSnapPoint(points, points[1], 300, 0, true)).toBeNull();
     expect(projectDrawerSnapPoint(points, points[0], 300, 0, true)).toBeNull();
   });
 
@@ -116,5 +118,41 @@ describe('Drawer snap points', () => {
     const points = resolveDrawerSnapPoints([100, 200, 300], 400, 400, 16);
     // Base UI applies the shortcut only to non-sequential releases.
     expect(projectDrawerSnapPoint(points, points[2], 5, 0.6, true)).not.toBeNull();
+  });
+
+  it('closes a sequential release that lands nearer the closed edge', () => {
+    // 400px popup, offsets 300/200/100 for 100px/200px/300px. From '200px' (offset 200) a 250px
+    // drag lands at offset 400 — the fully-closed edge — which is nearer than the 300 offset of
+    // the lowest point.
+    const points = resolveDrawerSnapPoints([100, 200, 300], 400, 400, 16);
+    expect(projectDrawerSnapPoint(points, points[1], 250, 0.625, true)).toBeNull();
+  });
+
+  it('forces the adjacent point when a flick agrees with the drag direction', () => {
+    const points = resolveDrawerSnapPoints([100, 200, 300], 400, 400, 16);
+    // From '300px' (offset 100) a 25px drag lands at 125, short of '200px' (offset 200); a
+    // 0.6px/ms flick in the same direction promotes it to the adjacent point anyway.
+    expect(projectDrawerSnapPoint(points, points[2], 25, 0.6, true)?.value).toBe(200);
+    // The same drag without the flick stays where the finger left it.
+    expect(projectDrawerSnapPoint(points, points[2], 25, 0.1, true)?.value).toBe(300);
+  });
+
+  it('forces the adjacent point when expanding', () => {
+    const points = resolveDrawerSnapPoints([100, 200, 300], 400, 400, 16);
+    // From '100px' (offset 300) a 25px expanding drag lands at 275, short of '200px' (offset 200);
+    // a matching upward flick promotes it.
+    expect(projectDrawerSnapPoint(points, points[0], -25, -0.6, true)?.value).toBe(200);
+  });
+
+  it('ignores a flick that disagrees with the drag direction', () => {
+    const points = resolveDrawerSnapPoints([100, 200, 300], 400, 400, 16);
+    expect(projectDrawerSnapPoint(points, points[2], 25, -0.6, true)?.value).toBe(300);
+  });
+
+  it('excludes the velocity projection from the sequential drag target', () => {
+    const points = resolveDrawerSnapPoints([100, 200, 300], 400, 400, 16);
+    // A 4px/ms flick would project 1200px in the freeform path. Sequentially it may only advance
+    // one step, so the result is the adjacent point, never the lowest.
+    expect(projectDrawerSnapPoint(points, points[2], 5, 4, true)?.value).toBe(200);
   });
 });
