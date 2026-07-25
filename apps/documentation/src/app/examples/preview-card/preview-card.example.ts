@@ -1,10 +1,9 @@
-import { Component, ViewEncapsulation } from '@angular/core';
+import { Component } from '@angular/core';
 import { NgpPreviewCard, NgpPreviewCardTrigger } from 'ng-primitives/preview-card';
 
 @Component({
   selector: 'app-preview-card',
   imports: [NgpPreviewCardTrigger, NgpPreviewCard],
-  encapsulation: ViewEncapsulation.None,
   template: `
     <p class="prose">
       Built with
