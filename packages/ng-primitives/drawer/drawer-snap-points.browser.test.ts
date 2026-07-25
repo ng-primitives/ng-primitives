@@ -120,6 +120,17 @@ describe('Drawer snap point integration', () => {
     expect(popup.style.getPropertyValue('--ngp-drawer-snap-point-offset')).toBe('100px');
   });
 
+  it('resolves an off-list snap point to the nearest declared point', async () => {
+    // 0.25 of a 400px viewport is 100px, so the nearest declared point is '100px' (offset 300).
+    // The old fallback picked the point closest to the popup height, i.e. always the tallest.
+    fixture.componentInstance.active.set(0.25);
+    fixture.detectChanges();
+    const { viewport, popup } = await openDrawer();
+
+    expect(viewport.style.getPropertyValue('--ngp-drawer-height')).toBe('100px');
+    expect(popup.style.getPropertyValue('--ngp-drawer-snap-point-offset')).toBe('300px');
+  });
+
   it('updates snap visuals when the uncontrolled default point changes while open', async () => {
     const uncontrolledFixture = TestBed.createComponent(UncontrolledSnapHost);
     uncontrolledFixture.detectChanges();

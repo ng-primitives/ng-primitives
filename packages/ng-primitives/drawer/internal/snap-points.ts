@@ -99,6 +99,28 @@ export function dampSnapOvershoot(signedMovement: number, activeOffset: number):
   return nextOffset < 0 ? -Math.sqrt(-nextOffset) - activeOffset : signedMovement;
 }
 
+/**
+ * The clamped height a single declared value resolves to, or `null` when the value is not a valid
+ * snap point or the geometry is not measurable yet. Shares `resolveHeight` with
+ * `resolveDrawerSnapPoints`, so a value that appears in `snapPoints` resolves identically whether
+ * it is looked up in the resolved list or resolved on its own.
+ */
+export function resolveDrawerSnapPointHeight(
+  value: NgpDrawerSnapPoint,
+  viewportHeight: number,
+  popupHeight: number,
+  rootFontSize: number,
+): number | null {
+  if (viewportHeight <= 0 || popupHeight <= 0 || rootFontSize <= 0) {
+    return null;
+  }
+  const rawHeight = resolveHeight(value, viewportHeight, rootFontSize);
+  if (rawHeight === null) {
+    return null;
+  }
+  return Math.min(Math.min(viewportHeight, popupHeight), Math.max(0, rawHeight));
+}
+
 function resolveHeight(
   value: NgpDrawerSnapPoint,
   viewportHeight: number,

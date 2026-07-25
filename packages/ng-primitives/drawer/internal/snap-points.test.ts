@@ -2,6 +2,7 @@ import {
   closestDrawerSnapPoint,
   dampSnapOvershoot,
   projectDrawerSnapPoint,
+  resolveDrawerSnapPointHeight,
   resolveDrawerSnapPoints,
 } from './snap-points';
 
@@ -58,5 +59,27 @@ describe('Drawer snap points', () => {
     expect(dampSnapOvershoot(-25, 0)).toBe(-5);
     expect(dampSnapOvershoot(-10, 20)).toBe(-10);
     expect(dampSnapOvershoot(-30, 20)).toBeCloseTo(-Math.sqrt(10) - 20);
+  });
+
+  it('resolves a single value with the same clamp the list resolver applies', () => {
+    expect(resolveDrawerSnapPointHeight(0.25, 800, 600, 16)).toBe(200);
+    expect(resolveDrawerSnapPointHeight('180px', 800, 600, 16)).toBe(180);
+    expect(resolveDrawerSnapPointHeight('20rem', 800, 600, 16)).toBe(320);
+    // Clamped to min(viewportHeight, popupHeight).
+    expect(resolveDrawerSnapPointHeight(900, 800, 600, 16)).toBe(600);
+  });
+
+  it('declines values and geometry the list resolver would also discard', () => {
+    expect(resolveDrawerSnapPointHeight('2em' as never, 800, 600, 16)).toBeNull();
+    expect(resolveDrawerSnapPointHeight(-1, 800, 600, 16)).toBeNull();
+    expect(resolveDrawerSnapPointHeight(0.5, 0, 600, 16)).toBeNull();
+    expect(resolveDrawerSnapPointHeight(0.5, 800, 0, 16)).toBeNull();
+  });
+
+  it('agrees with the list resolver for a declared value', () => {
+    const points = resolveDrawerSnapPoints([0.25, '180px'], 800, 600, 16);
+    expect(resolveDrawerSnapPointHeight(0.25, 800, 600, 16)).toBe(
+      points.find(point => point.values.includes(0.25))?.height,
+    );
   });
 });

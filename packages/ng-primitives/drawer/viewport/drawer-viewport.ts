@@ -20,6 +20,7 @@ import {
   dampSnapOvershoot,
   projectDrawerSnapPoint,
   ResolvedDrawerSnapPoint,
+  resolveDrawerSnapPointHeight,
   resolveDrawerSnapPoints,
 } from '../internal/snap-points';
 import { getSwipeAxis, getSwipeDisplacement, getSwipeSign } from '../internal/swipe/direction';
@@ -156,6 +157,16 @@ export class NgpDrawerViewport {
   private touchOwnership: TouchOwnership | null = null;
   private visualSnapshots: InlineVisualSnapshot[] = [];
   private gestureSnapPoints: ResolvedDrawerSnapPoint[] | null = null;
+  /**
+   * The last geometry used to resolve snap points, so an off-list active value can be resolved
+   * without measuring again. `activeResolvedSnapPoint` runs on every engine move, and
+   * `drawer-gesture-geometry.browser.test.ts` pins the number of `getBoundingClientRect` calls per
+   * gesture to one per element.
+   */
+  private snapGeometry: { viewportHeight: number; rootFontSize: number } = {
+    viewportHeight: 0,
+    rootFontSize: 16,
+  };
   private retainingExitVisuals = false;
   private exitEndingSeen = false;
   private readonly snapSnapshots = new Map<HTMLElement, InlineSnapSnapshot>();
@@ -1105,11 +1116,13 @@ export class NgpDrawerViewport {
     const rootFontSize = Number.parseFloat(
       view?.getComputedStyle(this.document.documentElement).fontSize ?? '16',
     );
+    const resolvedRootFontSize = Number.isFinite(rootFontSize) ? rootFontSize : 16;
+    this.snapGeometry = { viewportHeight, rootFontSize: resolvedRootFontSize };
     const points = resolveDrawerSnapPoints(
       renderState.snapPoints,
       viewportHeight,
       renderState.popupHeight || popupRect?.height || 0,
-      Number.isFinite(rootFontSize) ? rootFontSize : 16,
+      resolvedRootFontSize,
     );
     const elements = [viewport, renderState.popup, renderState.backdrop]
       .filter((element): element is HTMLElement => element !== null)
@@ -1174,11 +1187,13 @@ export class NgpDrawerViewport {
     const rootFontSize = Number.parseFloat(
       view?.getComputedStyle(this.document.documentElement).fontSize ?? '16',
     );
+    const resolvedRootFontSize = Number.isFinite(rootFontSize) ? rootFontSize : 16;
+    this.snapGeometry = { viewportHeight, rootFontSize: resolvedRootFontSize };
     return resolveDrawerSnapPoints(
       this.state.snapPoints(),
       viewportHeight,
       this.state.popupHeight() || this.state.popup()?.getBoundingClientRect().height || 0,
-      Number.isFinite(rootFontSize) ? rootFontSize : 16,
+      resolvedRootFontSize,
     );
   }
 
@@ -1197,10 +1212,24 @@ export class NgpDrawerViewport {
     if (configured === null || configured === undefined) {
       return null;
     }
-    return (
-      points.find(point => point.values.includes(configured)) ??
-      closestDrawerSnapPoint(points, popupHeight)
-    );
+    const exact = points.find(point => point.values.includes(configured));
+    if (exact) {
+      return exact;
+    }
+    // The value is not one of the declared points. Resolve it to a height and take the nearest
+    // declared point, the way Base UI does (useDrawerSnapPoints.ts:163-186). The previous fallback
+    // asked for the point closest to the popup height, which is always the tallest one — so an
+    // off-list value silently opened the drawer nearly full height.
+    const resolvedHeight =
+      popupHeight > 0
+        ? resolveDrawerSnapPointHeight(
+            configured,
+            this.snapGeometry.viewportHeight,
+            popupHeight,
+            this.snapGeometry.rootFontSize,
+          )
+        : null;
+    return closestDrawerSnapPoint(points, resolvedHeight ?? popupHeight);
   }
 
   private syncSnapVisuals(points = this.gestureSnapPoints ?? this.resolvedSnapPoints()): void {
