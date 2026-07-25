@@ -98,9 +98,7 @@ function projectFreeformSnapPoint(
     return null;
   }
   const projectedVelocity =
-    Math.abs(dismissVelocity) >= FAST_SWIPE_VELOCITY
-      ? clampValue(dismissVelocity, -4, 4) * 300
-      : 0;
+    Math.abs(dismissVelocity) >= FAST_SWIPE_VELOCITY ? clampValue(dismissVelocity, -4, 4) * 300 : 0;
   const projectedHeight = active.height - directionalDisplacement - projectedVelocity;
   const rawTarget = closestDrawerSnapPoint(points, projectedHeight);
   if (!rawTarget) {
