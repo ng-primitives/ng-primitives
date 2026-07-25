@@ -30,53 +30,53 @@ import {
   providers: [provideIcons({ heroChevronRightMini, heroChevronLeftMini })],
   template: `
     <div
-      class="inline-block rounded-xl border border-gray-200 bg-white p-4 shadow-md dark:border-zinc-800 dark:bg-zinc-950"
+      class="inline-block rounded-xl border border-black/10 bg-white p-4 shadow-xs dark:border-zinc-800 dark:bg-zinc-950"
       [(ngpDatePickerDate)]="date"
       [(ngpDatePickerFocusedDate)]="focused"
       ngpDatePicker
     >
       <div class="mb-4 flex h-9 items-center justify-between">
         <button
-          class="flex h-8 w-8 items-center justify-center rounded-lg border border-gray-200 bg-white text-gray-700 outline-hidden hover:bg-gray-50 data-focus-visible:outline-2 data-focus-visible:outline-blue-500 dark:border-zinc-800 dark:bg-zinc-950 dark:text-gray-200 dark:hover:bg-gray-900 dark:data-focus-visible:outline-blue-400"
+          class="box-content flex size-8 cursor-pointer items-center justify-center rounded-lg border border-black/10 text-[20px] leading-normal data-disabled:cursor-not-allowed data-disabled:text-zinc-400 data-focus-visible:outline-2 data-focus-visible:outline-blue-500 data-hover:bg-zinc-50 data-press:bg-zinc-100 dark:border-zinc-800 dark:data-disabled:text-zinc-500 dark:data-focus-visible:outline-blue-400 dark:data-hover:bg-zinc-900 dark:data-press:bg-zinc-800"
           ngpDatePickerPreviousMonth
           aria-label="previous month"
         >
           <ng-icon name="heroChevronLeftMini" />
         </button>
         <!-- the ! modifier keeps the docs site's prose heading styles from bleeding in -->
-        <h2 class="text-sm! font-medium! text-gray-900 dark:text-gray-100" ngpDatePickerLabel>
+        <h2 class="text-[14px]! font-[500]! text-zinc-900 dark:text-zinc-100" ngpDatePickerLabel>
           {{ label() }}
         </h2>
         <button
-          class="flex h-8 w-8 items-center justify-center rounded-lg border border-gray-200 bg-white text-gray-700 outline-hidden hover:bg-gray-50 data-focus-visible:outline-2 data-focus-visible:outline-blue-500 dark:border-zinc-800 dark:bg-zinc-950 dark:text-gray-200 dark:hover:bg-gray-900 dark:data-focus-visible:outline-blue-400"
+          class="box-content flex size-8 cursor-pointer items-center justify-center rounded-lg border border-black/10 text-[20px] leading-normal data-disabled:cursor-not-allowed data-disabled:text-zinc-400 data-focus-visible:outline-2 data-focus-visible:outline-blue-500 data-hover:bg-zinc-50 data-press:bg-zinc-100 dark:border-zinc-800 dark:data-disabled:text-zinc-500 dark:data-focus-visible:outline-blue-400 dark:data-hover:bg-zinc-900 dark:data-press:bg-zinc-800"
           ngpDatePickerNextMonth
           aria-label="next month"
         >
           <ng-icon name="heroChevronRightMini" />
         </button>
       </div>
-      <table class="w-full border-collapse select-none" ngpDatePickerGrid>
+      <table ngpDatePickerGrid>
         <thead>
           <tr>
-            <th class="h-10 w-10 text-center text-xs font-medium text-gray-500 dark:text-gray-300">
+            <th class="size-10 text-center text-[14px] font-[500] text-zinc-600 dark:text-zinc-300">
               S
             </th>
-            <th class="h-10 w-10 text-center text-xs font-medium text-gray-500 dark:text-gray-300">
+            <th class="size-10 text-center text-[14px] font-[500] text-zinc-600 dark:text-zinc-300">
               M
             </th>
-            <th class="h-10 w-10 text-center text-xs font-medium text-gray-500 dark:text-gray-300">
+            <th class="size-10 text-center text-[14px] font-[500] text-zinc-600 dark:text-zinc-300">
               T
             </th>
-            <th class="h-10 w-10 text-center text-xs font-medium text-gray-500 dark:text-gray-300">
+            <th class="size-10 text-center text-[14px] font-[500] text-zinc-600 dark:text-zinc-300">
               W
             </th>
-            <th class="h-10 w-10 text-center text-xs font-medium text-gray-500 dark:text-gray-300">
+            <th class="size-10 text-center text-[14px] font-[500] text-zinc-600 dark:text-zinc-300">
               T
             </th>
-            <th class="h-10 w-10 text-center text-xs font-medium text-gray-500 dark:text-gray-300">
+            <th class="size-10 text-center text-[14px] font-[500] text-zinc-600 dark:text-zinc-300">
               F
             </th>
-            <th class="h-10 w-10 text-center text-xs font-medium text-gray-500 dark:text-gray-300">
+            <th class="size-10 text-center text-[14px] font-[500] text-zinc-600 dark:text-zinc-300">
               S
             </th>
           </tr>
@@ -84,8 +84,13 @@ import {
         <tbody>
           <tr *ngpDatePickerRowRender>
             <td *ngpDatePickerCellRender="let date" ngpDatePickerCell>
+              <!--
+                The colour states are written as mutually exclusive variants so they never
+                depend on the order Tailwind happens to emit them in: today only shows red
+                when the day is neither selected nor outside the month, and so on.
+              -->
               <button
-                class="data-[selected][data-outside-month]:bg-gray-100 data-[selected][data-outside-month]:text-gray-300 data-[selected][data-today]:text-white dark:data-[selected][data-today]:text-white flex h-10 w-10 items-center justify-center rounded-lg text-sm font-medium text-zinc-600 outline-hidden transition-colors data-disabled:cursor-not-allowed data-disabled:text-gray-300 data-focus-visible:outline-2 data-focus-visible:outline-offset-2 data-focus-visible:outline-blue-500 data-hover:bg-gray-100 data-outside-month:text-gray-300 data-press:bg-gray-200 data-selected:bg-[#f01e2b] data-selected:text-white data-today:text-[#f01e2b] dark:text-gray-300 dark:data-focus-visible:outline-blue-400 dark:data-hover:bg-zinc-800 dark:data-outside-month:text-gray-600 dark:data-press:bg-zinc-700 dark:data-selected:bg-[#ff4651] dark:data-selected:text-white dark:data-today:text-[#ff4651]"
+                class="flex size-10 cursor-pointer items-center justify-center rounded-lg outline-none data-disabled:cursor-not-allowed data-disabled:text-zinc-400 data-focus-visible:outline-2 data-focus-visible:outline-offset-2 data-focus-visible:outline-blue-500 data-hover:bg-zinc-50 not-data-selected:data-outside-month:text-zinc-400 data-press:bg-zinc-100 data-selected:not-data-outside-month:bg-[#f01e2b] data-selected:not-data-outside-month:text-white data-selected:data-outside-month:bg-zinc-100 data-selected:data-outside-month:text-zinc-400 not-data-selected:not-data-outside-month:data-today:text-[#f01e2b] dark:data-disabled:text-zinc-500 dark:data-focus-visible:outline-blue-400 dark:data-hover:bg-zinc-900 dark:not-data-selected:data-outside-month:text-zinc-500 dark:data-press:bg-zinc-800 dark:data-selected:not-data-outside-month:bg-[#ff4651] dark:data-selected:data-outside-month:bg-zinc-900 dark:data-selected:data-outside-month:text-zinc-500 dark:not-data-selected:not-data-outside-month:data-today:text-[#ff4651]"
                 ngpDatePickerDateButton
               >
                 {{ date.getDate() }}

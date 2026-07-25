@@ -38,18 +38,18 @@ import {
     >
       <div class="mb-4 flex h-9 items-center justify-between">
         <button
-          class="flex h-8 w-8 cursor-pointer items-center justify-center rounded-lg border border-black/10 text-xl data-disabled:cursor-not-allowed data-disabled:text-gray-400 data-focus-visible:outline-2 data-focus-visible:outline-blue-500 data-hover:bg-gray-50 data-press:bg-gray-100 dark:border-zinc-800 dark:data-disabled:text-gray-500 dark:data-focus-visible:outline-blue-400 dark:data-hover:bg-zinc-900 dark:data-press:bg-zinc-800"
+          class="box-content flex size-8 cursor-pointer items-center justify-center rounded-lg border border-black/10 text-[20px] leading-normal data-disabled:cursor-not-allowed data-disabled:text-zinc-400 data-focus-visible:outline-2 data-focus-visible:outline-blue-500 data-hover:bg-zinc-50 data-press:bg-zinc-100 dark:border-zinc-800 dark:data-disabled:text-zinc-500 dark:data-focus-visible:outline-blue-400 dark:data-hover:bg-zinc-900 dark:data-press:bg-zinc-800"
           ngpDatePickerPreviousMonth
           aria-label="previous month"
         >
           <ng-icon name="heroChevronLeftMini" />
         </button>
         <!-- the ! modifier keeps the docs site's prose heading styles from bleeding in -->
-        <h2 class="text-sm! font-[500]! text-gray-900 dark:text-gray-100" ngpDatePickerLabel>
+        <h2 class="text-[14px]! font-[500]! text-zinc-900 dark:text-zinc-100" ngpDatePickerLabel>
           {{ label() }}
         </h2>
         <button
-          class="flex h-8 w-8 cursor-pointer items-center justify-center rounded-lg border border-black/10 text-xl data-disabled:cursor-not-allowed data-disabled:text-gray-400 data-focus-visible:outline-2 data-focus-visible:outline-blue-500 data-hover:bg-gray-50 data-press:bg-gray-100 dark:border-zinc-800 dark:data-disabled:text-gray-500 dark:data-focus-visible:outline-blue-400 dark:data-hover:bg-zinc-900 dark:data-press:bg-zinc-800"
+          class="box-content flex size-8 cursor-pointer items-center justify-center rounded-lg border border-black/10 text-[20px] leading-normal data-disabled:cursor-not-allowed data-disabled:text-zinc-400 data-focus-visible:outline-2 data-focus-visible:outline-blue-500 data-hover:bg-zinc-50 data-press:bg-zinc-100 dark:border-zinc-800 dark:data-disabled:text-zinc-500 dark:data-focus-visible:outline-blue-400 dark:data-hover:bg-zinc-900 dark:data-press:bg-zinc-800"
           ngpDatePickerNextMonth
           aria-label="next month"
         >
@@ -60,49 +60,49 @@ import {
         <thead>
           <tr>
             <th
-              class="h-10 w-10 text-center text-sm font-[500] text-gray-600 dark:text-gray-300"
+              class="size-10 text-center text-[14px] font-[500] text-zinc-600 dark:text-zinc-300"
               scope="col"
               abbr="Sunday"
             >
               S
             </th>
             <th
-              class="h-10 w-10 text-center text-sm font-[500] text-gray-600 dark:text-gray-300"
+              class="size-10 text-center text-[14px] font-[500] text-zinc-600 dark:text-zinc-300"
               scope="col"
               abbr="Monday"
             >
               M
             </th>
             <th
-              class="h-10 w-10 text-center text-sm font-[500] text-gray-600 dark:text-gray-300"
+              class="size-10 text-center text-[14px] font-[500] text-zinc-600 dark:text-zinc-300"
               scope="col"
               abbr="Tuesday"
             >
               T
             </th>
             <th
-              class="h-10 w-10 text-center text-sm font-[500] text-gray-600 dark:text-gray-300"
+              class="size-10 text-center text-[14px] font-[500] text-zinc-600 dark:text-zinc-300"
               scope="col"
               abbr="Wednesday"
             >
               W
             </th>
             <th
-              class="h-10 w-10 text-center text-sm font-[500] text-gray-600 dark:text-gray-300"
+              class="size-10 text-center text-[14px] font-[500] text-zinc-600 dark:text-zinc-300"
               scope="col"
               abbr="Thursday"
             >
               T
             </th>
             <th
-              class="h-10 w-10 text-center text-sm font-[500] text-gray-600 dark:text-gray-300"
+              class="size-10 text-center text-[14px] font-[500] text-zinc-600 dark:text-zinc-300"
               scope="col"
               abbr="Friday"
             >
               F
             </th>
             <th
-              class="h-10 w-10 text-center text-sm font-[500] text-gray-600 dark:text-gray-300"
+              class="size-10 text-center text-[14px] font-[500] text-zinc-600 dark:text-zinc-300"
               scope="col"
               abbr="Saturday"
             >
@@ -113,8 +113,14 @@ import {
         <tbody>
           <tr *ngpDatePickerRowRender>
             <td class="p-0" *ngpDatePickerCellRender="let date" ngpDatePickerCell>
+              <!--
+                The colour and radius states are written as mutually exclusive variants so they
+                never depend on the order Tailwind happens to emit them in: today only shows red
+                when the day is neither selected nor outside the month, and only the range ends
+                keep a rounded outer edge.
+              -->
               <button
-                class="flex h-10 w-10 cursor-pointer items-center justify-center rounded-lg outline-none data-disabled:cursor-not-allowed data-disabled:text-gray-400 data-focus-visible:outline-2 data-focus-visible:outline-offset-2 data-focus-visible:outline-blue-500 data-hover:bg-gray-50 data-outside-month:text-gray-400 data-press:bg-gray-100 data-range-between:rounded-none data-range-between:bg-[#f01e2b]/5 data-selected:bg-[#f01e2b] data-selected:text-white data-today:text-[#f01e2b] dark:data-disabled:text-gray-500 dark:data-focus-visible:outline-blue-400 dark:data-hover:bg-zinc-900 dark:data-outside-month:text-gray-500 dark:data-press:bg-zinc-800 dark:data-range-between:bg-[#ff4651]/5 dark:data-selected:bg-[#ff4651] dark:data-today:text-[#ff4651] [&[data-selected]:not([data-range-end])]:rounded-l-lg [&[data-selected]:not([data-range-end])]:rounded-r-none [&[data-selected][data-outside-month]]:bg-gray-100 [&[data-selected][data-outside-month]]:text-gray-400 dark:[&[data-selected][data-outside-month]]:bg-zinc-900 dark:[&[data-selected][data-outside-month]]:text-gray-500 [&[data-selected][data-range-end]]:rounded-l-none [&[data-selected][data-range-end]]:rounded-r-lg [&[data-selected][data-range-start][data-range-end]]:rounded-lg"
+                class="flex size-10 cursor-pointer items-center justify-center rounded-lg outline-none data-disabled:cursor-not-allowed data-disabled:text-zinc-400 data-focus-visible:outline-2 data-focus-visible:outline-offset-2 data-focus-visible:outline-blue-500 data-hover:bg-zinc-50 not-data-selected:data-outside-month:text-zinc-400 data-press:bg-zinc-100 data-range-between:rounded-none data-range-between:bg-[#f01e2b]/5 data-selected:not-data-outside-month:bg-[#f01e2b] data-selected:not-data-outside-month:text-white data-selected:not-data-range-end:rounded-l-lg data-selected:not-data-range-end:rounded-r-none data-selected:data-outside-month:bg-zinc-100 data-selected:data-outside-month:text-zinc-400 data-selected:data-range-end:rounded-l-none data-selected:data-range-end:rounded-r-lg data-selected:data-range-start:data-range-end:rounded-lg not-data-selected:not-data-outside-month:data-today:text-[#f01e2b] dark:data-disabled:text-zinc-500 dark:data-focus-visible:outline-blue-400 dark:data-hover:bg-zinc-900 dark:not-data-selected:data-outside-month:text-zinc-500 dark:data-press:bg-zinc-800 dark:data-range-between:bg-[#ff4651]/5 dark:data-selected:not-data-outside-month:bg-[#ff4651] dark:data-selected:data-outside-month:bg-zinc-900 dark:data-selected:data-outside-month:text-zinc-500 dark:not-data-selected:not-data-outside-month:data-today:text-[#ff4651]"
                 ngpDatePickerDateButton
               >
                 {{ date.getDate() }}
