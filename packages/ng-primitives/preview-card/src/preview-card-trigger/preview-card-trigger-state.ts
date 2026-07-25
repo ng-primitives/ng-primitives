@@ -174,7 +174,12 @@ export const [
     // registered while the state is created, whereas the overlay registers its own when
     // it is first shown, so this one always runs first.
     let destroyed = false;
-    onDestroy(() => (destroyed = true));
+    onDestroy(() => {
+      destroyed = true;
+      // Unsubscribing does not remove the element from FocusMonitor's registry, so the
+      // element info and its root-node listeners have to be released explicitly.
+      focusMonitor.stopMonitoring(elementRef.nativeElement);
+    });
 
     // Two show() calls inside the show delay both settle when that single open
     // completes, so track what has been announced rather than what was open per call.
