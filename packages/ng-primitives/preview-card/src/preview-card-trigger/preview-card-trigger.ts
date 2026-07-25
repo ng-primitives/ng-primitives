@@ -1,12 +1,5 @@
 import { BooleanInput, NumberInput } from '@angular/cdk/coercion';
-import {
-  booleanAttribute,
-  Directive,
-  input,
-  numberAttribute,
-  OnDestroy,
-  output,
-} from '@angular/core';
+import { booleanAttribute, Directive, input, numberAttribute, output } from '@angular/core';
 import {
   coerceFlip,
   coerceOffset,
@@ -38,7 +31,7 @@ import {
   exportAs: 'ngpPreviewCardTrigger',
   providers: [providePreviewCardTriggerState({ inherit: false })],
 })
-export class NgpPreviewCardTrigger<T = null> implements OnDestroy {
+export class NgpPreviewCardTrigger<T = null> {
   /**
    * Access the global preview card configuration.
    */
@@ -181,10 +174,6 @@ export class NgpPreviewCardTrigger<T = null> implements OnDestroy {
     cooldown: this.cooldown,
     onOpenChange: (value: boolean) => this.openChange.emit(value),
   });
-
-  ngOnDestroy(): void {
-    this.state.destroy();
-  }
 
   /**
    * Show the preview card.

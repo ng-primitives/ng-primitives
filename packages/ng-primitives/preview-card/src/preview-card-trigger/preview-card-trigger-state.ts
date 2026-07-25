@@ -1,14 +1,5 @@
 import { FocusMonitor } from '@angular/cdk/a11y';
-import {
-  computed,
-  ElementRef,
-  inject,
-  Injector,
-  signal,
-  Signal,
-  ViewContainerRef,
-  WritableSignal,
-} from '@angular/core';
+import { computed, inject, Injector, signal, Signal, ViewContainerRef } from '@angular/core';
 import { createHoverBridge, injectElementRef } from 'ng-primitives/internal';
 import {
   createOverlay,
@@ -23,91 +14,24 @@ import {
   controlled,
   createPrimitive,
   dataBinding,
-  deprecatedSetter,
   listener,
+  onDestroy,
   StateInjectionOptions,
 } from 'ng-primitives/state';
 import { safeTakeUntilDestroyed } from 'ng-primitives/utils';
 
 export interface NgpPreviewCardTriggerState<T> {
   /**
-   * The content rendered inside the preview card. Use `setPreviewCard` to change it -
-   * this signal is readonly so that the content always has a single mutation path.
+   * The content rendered inside the preview card. Readonly so that the content has a
+   * single mutation path - use `setPreviewCard`.
    */
   readonly previewCard: Signal<NgpOverlayContent<T> | undefined>;
   /**
-   * Whether the preview card is disabled. This allows the preview card to be enabled or disabled dynamically.
-   * @default false
-   */
-  readonly disabled: Signal<boolean>;
-  /**
-   * Define the placement of the preview card relative to the trigger.
-   * @default 'bottom'
-   */
-  readonly placement: Signal<NgpPreviewCardPlacement>;
-  /**
-   * Define the offset of the preview card relative to the trigger.
-   * Can be a number (applies to mainAxis) or an object with mainAxis, crossAxis, and alignmentAxis.
-   * @default 4
-   */
-  readonly offset: Signal<NgpOffset>;
-  /**
-   * Define the delay before the preview card is displayed.
-   * @default 600
-   */
-  readonly showDelay: Signal<number>;
-  /**
-   * Define the delay before the preview card is hidden.
-   * @default 300
-   */
-  readonly hideDelay: Signal<number>;
-  /**
-   * Define whether the preview card should flip when there is not enough space.
-   * Can be a boolean to enable/disable, or an object with padding and fallbackPlacements options.
-   * @default true
-   */
-  readonly flip: Signal<NgpFlip>;
-  /**
-   * Configure shift behavior to keep the preview card in view.
-   * Can be a boolean to enable/disable, or an object with padding and limiter options.
-   * @default undefined (enabled by default in overlay)
-   */
-  readonly shift: Signal<NgpShift>;
-  /**
-   * Define the container in which the preview card should be attached.
+   * The container the preview card is attached to. Readonly - use `setContainer`.
    * @default document.body
    */
-  readonly container: WritableSignal<HTMLElement | string | null>;
-  /**
-   * Define an anchor element for positioning the preview card.
-   * If provided, the preview card will be positioned relative to this element instead of the trigger.
-   */
-  readonly anchor: Signal<HTMLElement | null>;
-  /**
-   * Provide context to the preview card. This can be used to pass data to the preview card content.
-   */
-  readonly context: Signal<T | undefined>;
-  /**
-   * Defines how the preview card behaves when the window is scrolled.
-   * @default 'reposition'
-   */
-  readonly scrollBehavior: Signal<'reposition' | 'close'>;
-  /**
-   * Define the cooldown duration in milliseconds.
-   * When moving from one preview card to another within this duration,
-   * the showDelay is skipped for the new card.
-   * @default 300
-   */
-  readonly cooldown: Signal<number>;
-  /**
-   * The overlay that manages the preview card.
-   * @internal
-   */
-  readonly overlay: Signal<NgpOverlay<T> | null>;
-  /**
-   * The open state of the preview card.
-   * @internal
-   */
+  readonly container: Signal<HTMLElement | string | null>;
+  /** Whether the preview card is currently open. */
   readonly open: Signal<boolean>;
   /**
    * Set the content rendered inside the preview card. This is how a reusable component
@@ -116,6 +40,12 @@ export interface NgpPreviewCardTriggerState<T> {
    * @param content - The template or component to render
    */
   setPreviewCard: (content: NgpOverlayContent<T> | undefined) => void;
+  /**
+   * Set the container the preview card is attached to. Takes effect the next time the
+   * card is shown; it does not move a card that is already visible.
+   * @param container - The new container
+   */
+  setContainer: (container: HTMLElement | string | null) => void;
   /** Show the preview card. */
   show: () => void;
   /** Hide the preview card. */
@@ -135,14 +65,6 @@ export interface NgpPreviewCardTriggerState<T> {
    * @internal
    */
   onCardFocusOut: (next: EventTarget | null) => void;
-  /**
-   * Set the container in which the preview card should be attached. Takes effect the
-   * next time the card is shown; it does not move a card that is already visible.
-   * @param container - The new container
-   */
-  setContainer: (container: HTMLElement | string | null) => void;
-  /** @internal onDestroy callback */
-  destroy: () => void;
 }
 
 export interface NgpPreviewCardTriggerProps<T> {
@@ -240,7 +162,6 @@ export const [
     onOpenChange,
   }: NgpPreviewCardTriggerProps<T>): NgpPreviewCardTriggerState<T> => {
     const elementRef = injectElementRef<HTMLElement>();
-    const trigger = inject(ElementRef<HTMLElement>);
     const viewContainerRef = inject(ViewContainerRef);
     const injector = inject(Injector);
     const focusMonitor = inject(FocusMonitor);
@@ -250,6 +171,14 @@ export const [
 
     const overlay = signal<NgpOverlay<T> | null>(null);
     const open = computed(() => overlay()?.isOpen() ?? false);
+
+    // The overlay tears itself down on the trigger's DestroyRef, and that teardown runs
+    // its close callback. Emitting `openChange` at that point is meaningless - nobody
+    // listens to a destroyed directive - and Angular warns (NG0953). This hook is
+    // registered while the state is created, whereas the overlay registers its own when
+    // it is first shown, so this one always runs first.
+    let destroyed = false;
+    onDestroy(() => (destroyed = true));
 
     const triggerHovered = signal<boolean>(false);
     const cardHovered = signal<boolean>(false);
@@ -279,7 +208,7 @@ export const [
     // Event listeners
     listener(elementRef, 'pointerenter', onPointerEnter);
     listener(elementRef, 'pointerleave', onPointerLeave);
-    listener(elementRef, 'focusout', onFocusOut);
+    listener(elementRef, 'focusout', event => onFocusOut(event.relatedTarget));
 
     // Focus is how a sighted keyboard user reaches a preview card - without it they
     // get nothing at all. Only keyboard focus opens it, though: a tap on a touch
@@ -287,7 +216,7 @@ export const [
     // would re-open a card the user has just dismissed. Deriving this from
     // FocusMonitor's origin covers both without preventing default on touchstart.
     focusMonitor
-      .monitor(trigger.nativeElement)
+      .monitor(elementRef.nativeElement)
       .pipe(safeTakeUntilDestroyed())
       .subscribe(origin => {
         if (origin === 'keyboard') {
@@ -331,7 +260,7 @@ export const [
       // one can't be built (e.g. the card is not positioned yet) fall back to
       // closing, so the card can never be stranded open.
       const started = hoverBridge.track({
-        triggerRect: trigger.nativeElement.getBoundingClientRect(),
+        triggerRect: elementRef.nativeElement.getBoundingClientRect(),
         targetRect: cardElement.getBoundingClientRect(),
         exitPoint: { x: event.clientX, y: event.clientY },
       });
@@ -345,26 +274,14 @@ export const [
     }
 
     /**
-     * Close when focus leaves the trigger, unless it is moving into the card - the
-     * card root is out of the tab sequence but anything focusable inside it is
+     * Close when focus lands outside both the trigger and the card.
+     *
+     * The card root is out of the tab sequence but anything focusable inside it stays
      * reachable, so tabbing into the card must not tear it out from under the user.
+     * Serves the trigger's own focusout and, forwarded by the card, focus leaving the
+     * card - which is portalled outside the trigger so its events never reach here.
      */
-    function onFocusOut(event: FocusEvent): void {
-      onFocusMovedTo(event.relatedTarget);
-    }
-
-    /**
-     * Called by the preview card when focus leaves it. The card is portalled into a
-     * container outside the trigger, so its focus events never reach the trigger's
-     * own listener and have to be forwarded.
-     * @internal
-     */
-    function onCardFocusOut(next: EventTarget | null): void {
-      onFocusMovedTo(next);
-    }
-
-    /** Close unless focus landed somewhere that still counts as "inside". */
-    function onFocusMovedTo(next: EventTarget | null): void {
+    function onFocusOut(next: EventTarget | null): void {
       if (next instanceof Node && isInsidePreviewCard(next)) {
         return;
       }
@@ -374,7 +291,7 @@ export const [
 
     /** Whether a node is the trigger, the card, or inside either of them. */
     function isInsidePreviewCard(node: Node): boolean {
-      if (trigger.nativeElement.contains(node)) {
+      if (elementRef.nativeElement.contains(node)) {
         return true;
       }
 
@@ -444,11 +361,6 @@ export const [
       previewCard.set(content);
     }
 
-    function destroy(): void {
-      hoverBridge.clear();
-      overlay()?.destroy();
-    }
-
     function createOverlayInstance(): void {
       const content = previewCard();
 
@@ -458,7 +370,7 @@ export const [
 
       const config: NgpOverlayConfig<T> = {
         content,
-        triggerElement: trigger.nativeElement,
+        triggerElement: elementRef.nativeElement,
         anchorElement: anchor(),
         injector,
         context,
@@ -478,7 +390,11 @@ export const [
         viewContainerRef,
         overlayType: 'preview-card',
         cooldown: cooldown(),
-        onClose: () => onOpenChange?.(false),
+        onClose: () => {
+          if (!destroyed) {
+            onOpenChange?.(false);
+          }
+        },
       };
 
       overlay.set(createOverlay(config));
@@ -486,28 +402,15 @@ export const [
 
     return {
       previewCard: previewCard.asReadonly(),
-      disabled,
-      placement,
-      offset,
-      showDelay,
-      hideDelay,
-      flip,
-      shift,
-      container: deprecatedSetter(container, 'setContainer', setContainer),
-      anchor,
-      context,
-      scrollBehavior,
-      cooldown,
-      overlay,
+      container: container.asReadonly(),
       open,
+      setPreviewCard,
+      setContainer,
       show,
       hide,
       onCardHoverStart,
       onCardHoverEnd,
-      onCardFocusOut,
-      setContainer,
-      setPreviewCard,
-      destroy,
+      onCardFocusOut: onFocusOut,
     } satisfies NgpPreviewCardTriggerState<T>;
   },
 );

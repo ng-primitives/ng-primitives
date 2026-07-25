@@ -1,4 +1,4 @@
-import { ElementRef, Signal, signal } from '@angular/core';
+import { Signal, signal } from '@angular/core';
 import { explicitEffect, injectElementRef } from 'ng-primitives/internal';
 import { injectOverlay } from 'ng-primitives/portal';
 import {
@@ -12,8 +12,6 @@ import {
 import { injectPreviewCardTriggerState } from '../preview-card-trigger/preview-card-trigger-state';
 
 export interface NgpPreviewCardState {
-  /** Access the element's reference. */
-  readonly elementRef: ElementRef;
   /** The unique id of the preview card. */
   readonly id: Signal<string>;
 }
@@ -89,7 +87,6 @@ export const [
   explicitEffect([id], ([id]) => overlay.id.set(id));
 
   return {
-    elementRef,
     id,
   } satisfies NgpPreviewCardState;
 });

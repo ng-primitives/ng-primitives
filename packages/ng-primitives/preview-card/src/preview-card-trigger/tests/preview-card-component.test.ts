@@ -86,7 +86,11 @@ describe('NgpPreviewCard (reusable component)', () => {
       }
     }
 
-    await render(`<a href="/x" appProbe>trigger</a>`, { imports: [Probe] });
+    // Offset from the origin so the headless browser's parked cursor cannot hover the
+    // trigger - this one has no content configured, so opening it would throw.
+    await render(`<div style="padding: 200px"><a href="/x" appProbe>trigger</a></div>`, {
+      imports: [Probe],
+    });
 
     const previewCard = state!().previewCard as unknown as Record<string, unknown>;
 
