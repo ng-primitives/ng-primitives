@@ -1,3 +1,4 @@
+export { injectOverlayContext as injectPreviewCardContext } from 'ng-primitives/portal';
 export { NgpPreviewCardTrigger } from './preview-card-trigger/preview-card-trigger';
 export {
   NgpPreviewCardTriggerStateToken,
