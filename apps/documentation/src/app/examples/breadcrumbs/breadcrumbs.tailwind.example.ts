@@ -28,22 +28,25 @@ import { NgpMenu, NgpMenuItem, NgpMenuTrigger } from 'ng-primitives/menu';
     NgIcon,
   ],
   providers: [provideIcons({ lucideChevronRight, lucideMoreHorizontal })],
+  host: {
+    class: 'contents',
+  },
   template: `
     <nav aria-label="Breadcrumb" ngpBreadcrumbs>
       <ol
-        class="flex flex-wrap items-center gap-1.5 text-sm tracking-[-0.006em] text-zinc-500 dark:text-zinc-400"
+        class="m-0 flex list-none flex-wrap items-center gap-1.5 p-0 text-[0.875rem] tracking-[-0.006em] text-zinc-600 dark:text-zinc-300"
         ngpBreadcrumbList
       >
         <li class="inline-flex items-center gap-1.5" ngpBreadcrumbItem>
           <a
-            class="inline-flex items-center rounded-sm transition-colors duration-150 outline-none hover:text-zinc-900 data-focus-visible:outline-2 data-focus-visible:outline-offset-[3px] data-focus-visible:outline-blue-500 dark:hover:text-zinc-50 dark:data-focus-visible:outline-blue-400"
+            class="inline-flex items-center text-inherit no-underline transition-colors duration-150 outline-none data-focus-visible:rounded-sm data-focus-visible:outline-2 data-focus-visible:outline-offset-[3px] data-focus-visible:outline-blue-500 data-hover:text-zinc-900 dark:data-focus-visible:outline-blue-400 dark:data-hover:text-zinc-100"
             href="#"
             ngpBreadcrumbLink
           >
             Home
           </a>
         </li>
-        <li class="text-zinc-300 dark:text-zinc-700" ngpBreadcrumbSeparator>
+        <li class="inline-flex items-center p-0 text-zinc-300 dark:text-zinc-700" ngpBreadcrumbSeparator>
           <ng-icon
             class="text-current!"
             style="--ng-icon__size: 0.85rem"
@@ -52,12 +55,15 @@ import { NgpMenu, NgpMenuItem, NgpMenuTrigger } from 'ng-primitives/menu';
         </li>
         <li class="inline-flex items-center gap-1.5" ngpBreadcrumbItem>
           <button
-            class="inline-flex size-7 items-center justify-center rounded-lg text-zinc-400 transition-colors duration-150 outline-none hover:bg-zinc-100 hover:text-zinc-900 data-focus-visible:outline-2 data-focus-visible:outline-offset-2 data-focus-visible:outline-blue-500 dark:text-zinc-500 dark:hover:bg-zinc-800 dark:hover:text-zinc-50 dark:data-focus-visible:outline-blue-400"
+            class="inline-flex cursor-pointer items-center justify-center border-none bg-none p-0"
             [ngpMenuTrigger]="menu"
             type="button"
             aria-label="Toggle breadcrumb menu"
           >
-            <span class="flex h-full w-full items-center justify-center" ngpBreadcrumbEllipsis>
+            <span
+              class="inline-flex size-7 cursor-pointer items-center justify-center rounded-lg border-none bg-none p-0 text-zinc-500 transition-colors duration-150 outline-none data-focus-visible:outline-2 data-focus-visible:outline-offset-2 data-focus-visible:outline-blue-500 data-hover:bg-zinc-50 data-hover:text-zinc-900 dark:text-zinc-400 dark:data-focus-visible:outline-blue-400 dark:data-hover:bg-zinc-900 dark:data-hover:text-zinc-100"
+              ngpBreadcrumbEllipsis
+            >
               <ng-icon
                 class="text-current!"
                 style="--ng-icon__size: 1rem"
@@ -92,7 +98,7 @@ import { NgpMenu, NgpMenuItem, NgpMenuTrigger } from 'ng-primitives/menu';
             </div>
           </ng-template>
         </li>
-        <li class="text-zinc-300 dark:text-zinc-700" ngpBreadcrumbSeparator>
+        <li class="inline-flex items-center p-0 text-zinc-300 dark:text-zinc-700" ngpBreadcrumbSeparator>
           <ng-icon
             class="text-current!"
             style="--ng-icon__size: 0.85rem"
@@ -101,14 +107,14 @@ import { NgpMenu, NgpMenuItem, NgpMenuTrigger } from 'ng-primitives/menu';
         </li>
         <li class="inline-flex items-center gap-1.5" ngpBreadcrumbItem>
           <a
-            class="inline-flex items-center rounded-sm transition-colors duration-150 outline-none hover:text-zinc-900 data-focus-visible:outline-2 data-focus-visible:outline-offset-[3px] data-focus-visible:outline-blue-500 dark:hover:text-zinc-50 dark:data-focus-visible:outline-blue-400"
+            class="inline-flex items-center text-inherit no-underline transition-colors duration-150 outline-none data-focus-visible:rounded-sm data-focus-visible:outline-2 data-focus-visible:outline-offset-[3px] data-focus-visible:outline-blue-500 data-hover:text-zinc-900 dark:data-focus-visible:outline-blue-400 dark:data-hover:text-zinc-100"
             href="#"
             ngpBreadcrumbLink
           >
             Components
           </a>
         </li>
-        <li class="text-zinc-300 dark:text-zinc-700" ngpBreadcrumbSeparator>
+        <li class="inline-flex items-center p-0 text-zinc-300 dark:text-zinc-700" ngpBreadcrumbSeparator>
           <ng-icon
             class="text-current!"
             style="--ng-icon__size: 0.85rem"

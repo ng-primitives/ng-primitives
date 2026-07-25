@@ -8,9 +8,9 @@ import { NgpSwitch, NgpSwitchThumb } from 'ng-primitives/switch';
   imports: [NgpSwitch, NgpSwitchThumb, NgpFormField, NgpLabel],
   template: `
     <div class="flex items-center gap-4" ngpFormField>
-      <label class="font-medium text-neutral-900 dark:text-neutral-50" ngpLabel>Mobile Data</label>
+      <label class="font-medium text-zinc-900 dark:text-zinc-50" ngpLabel>Mobile Data</label>
       <button
-        class="relative h-6 w-10 rounded-full bg-neutral-300 p-0 ring-1 ring-black/10 outline-hidden transition duration-150 ease-in-out ring-inset data-checked:bg-[#f01e2b] data-checked:ring-[#f01e2b] data-focus-visible:ring-2 data-focus-visible:ring-blue-500 dark:bg-neutral-800 dark:data-checked:bg-[#ff4651] dark:data-checked:ring-[#ff4651] dark:data-focus-visible:ring-blue-400"
+        class="relative h-6 w-10 rounded-full bg-zinc-300 p-0 ring-1 ring-black/10 outline-hidden transition duration-150 ease-in-out ring-inset data-checked:bg-[#f01e2b] data-checked:ring-[#f01e2b] data-focus-visible:ring-2 data-focus-visible:ring-blue-500 dark:bg-zinc-800 dark:data-checked:bg-[#ff4651] dark:data-checked:ring-[#ff4651] dark:data-focus-visible:ring-blue-400"
         ngpSwitch
       >
         <span

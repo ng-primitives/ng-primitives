@@ -16,18 +16,16 @@ import {
       [ngpMeterValue]="value()"
       ngpMeter
     >
-      <span class="text-sm leading-6 font-semibold text-black dark:text-white" ngpMeterLabel>
-        Label
-      </span>
+      <span class="text-[14px] font-[590] text-black dark:text-white" ngpMeterLabel>Label</span>
       <span
-        class="col-start-2 text-end text-sm leading-6 font-medium text-slate-500 dark:text-white"
+        class="col-start-2 text-end text-[14px] font-[510] text-zinc-600 dark:text-zinc-300"
         ngpMeterValue
       >
         {{ value() }}%
       </span>
 
       <div
-        class="col-span-2 h-2 overflow-hidden rounded-sm bg-white ring-1 ring-slate-200 ring-inset dark:bg-zinc-950 dark:ring-zinc-700"
+        class="col-span-2 h-2 overflow-hidden rounded-sm bg-white shadow-[inset_0_0_0_1px_rgba(0,0,0,0.1)] dark:bg-zinc-950 dark:shadow-[inset_0_0_0_1px_rgba(255,255,255,0.1)]"
         ngpMeterTrack
       >
         <div

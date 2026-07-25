@@ -5,36 +5,39 @@ import { NgpTabButton, NgpTabList, NgpTabPanel, NgpTabset } from 'ng-primitives/
   selector: 'app-tabs-tailwind',
   standalone: true,
   imports: [NgpTabset, NgpTabList, NgpTabButton, NgpTabPanel],
+  host: {
+    class: 'contents',
+  },
   template: `
     <div
       class="w-full max-w-[512px] rounded-xl bg-white px-4 py-1 shadow-[0_1px_3px_0_rgb(0_0_0/0.1),0_1px_2px_-1px_rgb(0_0_0/0.1),0_0_0_1px_rgb(0_0_0/0.05)] dark:bg-zinc-950 dark:shadow-[0_1px_3px_0_rgb(255_255_255/0.1),0_1px_2px_-1px_rgb(255_255_255/0.1),0_0_0_1px_rgb(255_255_255/0.05)]"
       [(ngpTabsetValue)]="selectedTab"
       ngpTabset
     >
-      <div class="flex gap-6 border-b border-neutral-200/60 dark:border-neutral-700/60" ngpTabList>
+      <div class="flex gap-6 border-b border-black/10 dark:border-zinc-800" ngpTabList>
         <button
-          class="border-b-2 border-transparent bg-transparent py-2 text-neutral-600 outline-hidden transition-colors duration-150 ease-in-out data-active:border-[#f01e2b] data-active:text-neutral-900 data-disabled:cursor-not-allowed data-disabled:text-neutral-400 data-focus-visible:ring-2 data-focus-visible:ring-blue-500 dark:text-neutral-300 dark:data-active:border-[#ff4651] dark:data-active:text-neutral-100 dark:data-disabled:text-neutral-600 dark:data-focus-visible:ring-blue-400"
+          class="-mb-px cursor-pointer border-b-2 border-b-transparent bg-transparent py-2 text-[0.875rem] font-[510] tracking-[-0.006em] text-zinc-600 transition-colors duration-150 outline-none data-active:border-b-[#f01e2b] data-active:text-zinc-900 data-disabled:cursor-not-allowed data-disabled:text-zinc-400 data-focus-visible:rounded-sm data-focus-visible:outline-2 data-focus-visible:outline-offset-2 data-focus-visible:outline-blue-500 data-hover:text-zinc-900 dark:text-zinc-300 dark:data-active:border-b-[#ff4651] dark:data-active:text-zinc-100 dark:data-disabled:text-zinc-500 dark:data-focus-visible:outline-blue-400 dark:data-hover:text-zinc-100"
           ngpTabButton
           ngpTabButtonValue="overview"
         >
           Overview
         </button>
         <button
-          class="border-b-2 border-transparent bg-transparent py-2 text-neutral-600 outline-hidden transition-colors duration-150 ease-in-out data-active:border-[#f01e2b] data-active:text-neutral-900 data-disabled:cursor-not-allowed data-disabled:text-neutral-400 data-focus-visible:ring-2 data-focus-visible:ring-blue-500 dark:text-neutral-300 dark:data-active:border-[#ff4651] dark:data-active:text-neutral-100 dark:data-disabled:text-neutral-600 dark:data-focus-visible:ring-blue-400"
+          class="-mb-px cursor-pointer border-b-2 border-b-transparent bg-transparent py-2 text-[0.875rem] font-[510] tracking-[-0.006em] text-zinc-600 transition-colors duration-150 outline-none data-active:border-b-[#f01e2b] data-active:text-zinc-900 data-disabled:cursor-not-allowed data-disabled:text-zinc-400 data-focus-visible:rounded-sm data-focus-visible:outline-2 data-focus-visible:outline-offset-2 data-focus-visible:outline-blue-500 data-hover:text-zinc-900 dark:text-zinc-300 dark:data-active:border-b-[#ff4651] dark:data-active:text-zinc-100 dark:data-disabled:text-zinc-500 dark:data-focus-visible:outline-blue-400 dark:data-hover:text-zinc-100"
           ngpTabButton
           ngpTabButtonValue="features"
         >
           Features
         </button>
         <button
-          class="border-b-2 border-transparent bg-transparent py-2 text-neutral-600 outline-hidden transition-colors duration-150 ease-in-out data-active:border-[#f01e2b] data-active:text-neutral-900 data-disabled:cursor-not-allowed data-disabled:text-neutral-400 data-focus-visible:ring-2 data-focus-visible:ring-blue-500 dark:text-neutral-300 dark:data-active:border-[#ff4651] dark:data-active:text-neutral-100 dark:data-disabled:text-neutral-600 dark:data-focus-visible:ring-blue-400"
+          class="-mb-px cursor-pointer border-b-2 border-b-transparent bg-transparent py-2 text-[0.875rem] font-[510] tracking-[-0.006em] text-zinc-600 transition-colors duration-150 outline-none data-active:border-b-[#f01e2b] data-active:text-zinc-900 data-disabled:cursor-not-allowed data-disabled:text-zinc-400 data-focus-visible:rounded-sm data-focus-visible:outline-2 data-focus-visible:outline-offset-2 data-focus-visible:outline-blue-500 data-hover:text-zinc-900 dark:text-zinc-300 dark:data-active:border-b-[#ff4651] dark:data-active:text-zinc-100 dark:data-disabled:text-zinc-500 dark:data-focus-visible:outline-blue-400 dark:data-hover:text-zinc-100"
           ngpTabButton
           ngpTabButtonValue="pricing"
         >
           Pricing
         </button>
         <button
-          class="border-b-2 border-transparent bg-transparent py-2 text-neutral-600 outline-hidden transition-colors duration-150 ease-in-out data-active:border-[#f01e2b] data-active:text-neutral-900 data-disabled:cursor-not-allowed data-disabled:text-neutral-400 data-focus-visible:ring-2 data-focus-visible:ring-blue-500 dark:text-neutral-300 dark:data-active:border-[#ff4651] dark:data-active:text-neutral-100 dark:data-disabled:text-neutral-600 dark:data-focus-visible:ring-blue-400"
+          class="-mb-px cursor-pointer border-b-2 border-b-transparent bg-transparent py-2 text-[0.875rem] font-[510] tracking-[-0.006em] text-zinc-600 transition-colors duration-150 outline-none data-active:border-b-[#f01e2b] data-active:text-zinc-900 data-disabled:cursor-not-allowed data-disabled:text-zinc-400 data-focus-visible:rounded-sm data-focus-visible:outline-2 data-focus-visible:outline-offset-2 data-focus-visible:outline-blue-500 data-hover:text-zinc-900 dark:text-zinc-300 dark:data-active:border-b-[#ff4651] dark:data-active:text-zinc-100 dark:data-disabled:text-zinc-500 dark:data-focus-visible:outline-blue-400 dark:data-hover:text-zinc-100"
           ngpTabButton
           ngpTabButtonValue="disabled"
           ngpTabButtonDisabled
@@ -44,7 +47,7 @@ import { NgpTabButton, NgpTabList, NgpTabPanel, NgpTabset } from 'ng-primitives/
       </div>
 
       <div
-        class="hidden py-2 text-neutral-700 data-active:block dark:text-neutral-300"
+        class="hidden py-2 text-zinc-700 data-active:block dark:text-zinc-300"
         ngpTabPanel
         ngpTabPanelValue="overview"
       >
@@ -57,7 +60,7 @@ import { NgpTabButton, NgpTabList, NgpTabPanel, NgpTabset } from 'ng-primitives/
       </div>
 
       <div
-        class="hidden py-2 text-neutral-700 data-active:block dark:text-neutral-300"
+        class="hidden py-2 text-zinc-700 data-active:block dark:text-zinc-300"
         ngpTabPanel
         ngpTabPanelValue="features"
       >
@@ -70,7 +73,7 @@ import { NgpTabButton, NgpTabList, NgpTabPanel, NgpTabset } from 'ng-primitives/
       </div>
 
       <div
-        class="hidden py-2 text-neutral-700 data-active:block dark:text-neutral-300"
+        class="hidden py-2 text-zinc-700 data-active:block dark:text-zinc-300"
         ngpTabPanel
         ngpTabPanelValue="pricing"
       >
@@ -82,7 +85,7 @@ import { NgpTabButton, NgpTabList, NgpTabPanel, NgpTabset } from 'ng-primitives/
         </p>
       </div>
       <div
-        class="hidden py-2 text-neutral-700 data-active:block dark:text-neutral-300"
+        class="hidden py-2 text-zinc-700 data-active:block dark:text-zinc-300"
         ngpTabPanel
         ngpTabPanelValue="disabled"
       >

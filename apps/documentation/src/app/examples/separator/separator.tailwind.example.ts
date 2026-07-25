@@ -4,18 +4,18 @@ import { NgpSeparator } from 'ng-primitives/separator';
 @Component({
   selector: 'app-separator-tailwind',
   imports: [NgpSeparator],
+  host: {
+    class:
+      'flex max-w-[300px] flex-col gap-4 rounded-lg border border-black/10 bg-white p-4 shadow-xs dark:border-zinc-800 dark:bg-zinc-950',
+  },
   template: `
-    <div
-      class="flex max-w-[300px] flex-col gap-4 rounded-lg border border-neutral-200 bg-white p-4 dark:border-neutral-800 dark:bg-zinc-950"
-    >
-      <p class="m-0 text-black dark:text-white">
-        The separator primitive can be used to separate content in a layout.
-      </p>
-      <div class="h-px w-full bg-neutral-200 dark:bg-neutral-800" ngpSeparator></div>
-      <p class="m-0 text-black dark:text-white">
-        It supports both horizontal and vertical orientations.
-      </p>
-    </div>
+    <p class="m-0 text-zinc-900 dark:text-zinc-100">
+      The separator primitive can be used to separate content in a layout.
+    </p>
+    <div class="h-px bg-black/10 dark:bg-zinc-800" ngpSeparator></div>
+    <p class="m-0 text-zinc-900 dark:text-zinc-100">
+      It supports both horizontal and vertical orientations.
+    </p>
   `,
 })
 export default class SeparatorTailwindExample {}
