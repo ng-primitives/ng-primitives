@@ -407,7 +407,18 @@ export const [
         createOverlayInstance();
       }
 
-      overlay()?.show();
+      // Only announce an open that actually happened, and only once - show() is
+      // reached from both the pointer and the focus path, and the overlay may still
+      // be waiting out its show delay or be cancelled before it appears.
+      const wasOpen = open();
+
+      overlay()
+        ?.show()
+        .then(() => {
+          if (!wasOpen && open()) {
+            onOpenChange?.(true);
+          }
+        });
     }
 
     function hide(): void {

@@ -1,14 +1,18 @@
+import { NgpOverlayArrowProps, NgpOverlayArrowState, ngpOverlayArrow } from 'ng-primitives/portal';
 import { createPrimitive } from 'ng-primitives/state';
 
-export interface NgpPreviewCardArrowState {}
-
-export interface NgpPreviewCardArrowProps {}
+// Re-export types with preview-card-specific aliases
+export { NgpOverlayArrowProps as NgpPreviewCardArrowProps };
+export { NgpOverlayArrowState as NgpPreviewCardArrowState };
 
 export const [
   NgpPreviewCardArrowStateToken,
   ngpPreviewCardArrow,
   injectPreviewCardArrowState,
   providePreviewCardArrowState,
-] = createPrimitive('NgpPreviewCardArrow', ({}: NgpPreviewCardArrowProps) => {
-  return {} satisfies NgpPreviewCardArrowState;
-});
+] = createPrimitive(
+  'NgpPreviewCardArrow',
+  ({ padding }: NgpOverlayArrowProps): NgpOverlayArrowState => {
+    return ngpOverlayArrow({ padding });
+  },
+);

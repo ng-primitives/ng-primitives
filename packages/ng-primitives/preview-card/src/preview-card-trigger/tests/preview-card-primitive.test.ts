@@ -1,3 +1,5 @@
+import { ComponentFixture } from '@angular/core/testing';
+import { By } from '@angular/platform-browser';
 import { fireEvent, render, waitFor } from '@testing-library/angular';
 import userEvent from '@testing-library/user-event';
 import { NgpPreviewCard, NgpPreviewCardTrigger } from 'ng-primitives/preview-card';
@@ -398,6 +400,123 @@ describe('NgpPreviewCardTrigger (primitive)', () => {
 
       await waitFor(() => {
         expect(card('focus-out-of-card')).toBeNull();
+      });
+    });
+  });
+
+  describe('dismissal', () => {
+    it('should close when Escape is pressed', async () => {
+      const { getByRole } = await render(template('dismiss-escape'), {
+        imports: [NgpPreviewCardTrigger, NgpPreviewCard],
+      });
+
+      fireEvent.pointerEnter(getByRole('link'), { pointerType: 'mouse' });
+
+      await waitFor(() => {
+        expect(card('dismiss-escape')).toBeInTheDocument();
+      });
+
+      fireEvent.keyDown(document, { key: 'Escape' });
+
+      await waitFor(() => {
+        expect(card('dismiss-escape')).toBeNull();
+      });
+    });
+
+    it('should close when clicking outside the card', async () => {
+      const { getByRole } = await render(template('dismiss-outside'), {
+        imports: [NgpPreviewCardTrigger, NgpPreviewCard],
+      });
+
+      fireEvent.pointerEnter(getByRole('link'), { pointerType: 'mouse' });
+
+      await waitFor(() => {
+        expect(card('dismiss-outside')).toBeInTheDocument();
+      });
+
+      // The overlay registry dismisses on mouseup, not click - the click listener
+      // only feeds CDK-compatible outside-pointer notifications.
+      fireEvent.pointerDown(document.body);
+      fireEvent.mouseUp(document.body);
+
+      await waitFor(() => {
+        expect(card('dismiss-outside')).toBeNull();
+      });
+    });
+  });
+
+  describe('disabled', () => {
+    it('should not open on pointer enter while disabled', async () => {
+      const { getByRole } = await render(
+        template('disabled-pointer', 'ngpPreviewCardTriggerDisabled="true"'),
+        { imports: [NgpPreviewCardTrigger, NgpPreviewCard] },
+      );
+
+      fireEvent.pointerEnter(getByRole('link'), { pointerType: 'mouse' });
+      await settle();
+
+      expect(card('disabled-pointer')).toBeNull();
+    });
+
+    it('should mark the trigger as disabled for styling', async () => {
+      const { getByRole } = await render(
+        template('disabled-attribute', 'ngpPreviewCardTriggerDisabled="true"'),
+        { imports: [NgpPreviewCardTrigger, NgpPreviewCard] },
+      );
+
+      expect(getByRole('link').getAttribute('data-disabled')).toBe('');
+    });
+  });
+
+  describe('imperative api and open change', () => {
+    function triggerInstance(fixture: ComponentFixture<unknown>): NgpPreviewCardTrigger<unknown> {
+      return fixture.debugElement
+        .query(By.directive(NgpPreviewCardTrigger))
+        .injector.get(NgpPreviewCardTrigger);
+    }
+
+    it('should open and close via show() and hide()', async () => {
+      const { fixture } = await render(template('imperative'), {
+        imports: [NgpPreviewCardTrigger, NgpPreviewCard],
+      });
+
+      triggerInstance(fixture).show();
+
+      await waitFor(() => {
+        expect(card('imperative')).toBeInTheDocument();
+      });
+
+      triggerInstance(fixture).hide();
+
+      await waitFor(() => {
+        expect(card('imperative')).toBeNull();
+      });
+    });
+
+    it('should emit the open state as it changes', async () => {
+      const openChange = vi.fn();
+
+      const { getByRole } = await render(
+        template('open-change', '(ngpPreviewCardTriggerOpenChange)="onOpenChange($event)"'),
+        {
+          imports: [NgpPreviewCardTrigger, NgpPreviewCard],
+          componentProperties: { onOpenChange: openChange },
+        },
+      );
+
+      const trigger = getByRole('link');
+      fireEvent.pointerEnter(trigger, { pointerType: 'mouse' });
+
+      await waitFor(() => {
+        expect(card('open-change')).toBeInTheDocument();
+      });
+
+      expect(openChange).toHaveBeenCalledWith(true);
+
+      fireEvent.pointerLeave(trigger, { pointerType: 'mouse' });
+
+      await waitFor(() => {
+        expect(openChange).toHaveBeenCalledWith(false);
       });
     });
   });
