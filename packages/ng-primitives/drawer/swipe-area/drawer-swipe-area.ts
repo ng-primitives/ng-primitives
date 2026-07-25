@@ -26,6 +26,7 @@ import {
   DrawerSwipeInput,
   DrawerSwipeRelease,
   DrawerSwipeUpdate,
+  MIN_DRAG_THRESHOLD,
 } from '../internal/swipe/drawer-swipe-engine';
 import { DrawerTouchSession } from '../internal/swipe/drawer-touch-session';
 import { shouldIgnoreSwipeTarget } from '../internal/swipe/scrollable';
@@ -95,6 +96,10 @@ export class NgpDrawerSwipeArea {
     direction: () => this.resolvedDirection(),
     size: () => this.drawerSize(),
     trackDrag: false,
+    // The swipe area is a dedicated edge strip: there is nothing to scroll under it, so the drawer
+    // may start following the finger immediately. The cross-axis bias in the engine still hands a
+    // genuine sideways drag back to the platform.
+    axisSlop: MIN_DRAG_THRESHOLD,
     onStart: () => {
       this.state.swiping.set(true);
       this.ownsProvisionalOpen = false;

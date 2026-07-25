@@ -25,6 +25,74 @@ describe('DrawerSwipeEngine', () => {
     expect(canceled).toHaveBeenCalledOnce();
   });
 
+  it('survives cross-axis jitter that does not beat the drawer axis by the bias', () => {
+    const canceled = vi.fn();
+    const moved = vi.fn();
+    const engine = new DrawerSwipeEngine({
+      direction: () => 'down',
+      size: () => 100,
+      onCancel: canceled,
+      onMove: moved,
+    });
+
+    engine.start({ x: 0, y: 0, time: 0, buttons: 1 });
+    // A real finger starts sideways: two pixels across, one along. The old rule killed this.
+    expect(engine.move({ x: 2, y: 1, time: 10, buttons: 1 })).toBeNull();
+    expect(engine.move({ x: 3, y: 30, time: 20, buttons: 1 })?.displacement).toBe(30);
+    expect(canceled).not.toHaveBeenCalled();
+    expect(moved).toHaveBeenCalledOnce();
+  });
+
+  it('withholds updates until the drawer axis passes the slop', () => {
+    const moved = vi.fn();
+    const engine = new DrawerSwipeEngine({
+      direction: () => 'down',
+      size: () => 100,
+      onMove: moved,
+    });
+
+    engine.start({ x: 0, y: 0, time: 0, buttons: 1 });
+    expect(engine.move({ x: 0, y: 4, time: 10, buttons: 1 })).toBeNull();
+    expect(moved).not.toHaveBeenCalled();
+    expect(engine.move({ x: 0, y: 8, time: 20, buttons: 1 })?.displacement).toBe(8);
+    expect(moved).toHaveBeenCalledOnce();
+  });
+
+  it('attributes at one pixel when the consumer lowers the slop', () => {
+    const engine = new DrawerSwipeEngine({
+      direction: () => 'down',
+      size: () => 100,
+      axisSlop: 1,
+    });
+
+    engine.start({ x: 0, y: 0, time: 0, buttons: 1 });
+    expect(engine.move({ x: 0, y: 1, time: 10, buttons: 1 })?.displacement).toBe(1);
+  });
+
+  it('keeps the axis attributed across a rebase', () => {
+    const engine = new DrawerSwipeEngine({ direction: () => 'down', size: () => 200 });
+
+    engine.start({ x: 0, y: 0, time: 0, buttons: 1 });
+    engine.move({ x: 0, y: 30, time: 50, buttons: 1 });
+    expect(engine.rebase({ x: 0, y: 30, time: 60, buttons: 1 })).toBe(true);
+    // A two pixel move right after the handoff must still be reported, not swallowed by the slop.
+    expect(engine.move({ x: 0, y: 32, time: 70, buttons: 1 })?.displacement).toBe(2);
+  });
+
+  it('still surrenders a decisive cross-axis drag', () => {
+    const canceled = vi.fn();
+    const engine = new DrawerSwipeEngine({
+      direction: () => 'down',
+      size: () => 100,
+      onCancel: canceled,
+    });
+
+    engine.start({ x: 0, y: 0, time: 0, buttons: 1 });
+    expect(engine.move({ x: 20, y: 3, time: 10, buttons: 1 })).toBeNull();
+    expect(canceled).toHaveBeenCalledOnce();
+    expect(engine.active).toBe(false);
+  });
+
   it('locks to opposite primary-axis movement when bidirectional tracking is enabled', () => {
     const canceled = vi.fn();
     const engine = new DrawerSwipeEngine({
@@ -137,7 +205,7 @@ describe('DrawerSwipeEngine', () => {
     expect(release?.velocity.recent.y).toBeCloseTo(0.2);
   });
 
-  it('rebases axis lock and maximum displacement while preserving the cached size', () => {
+  it('rebases maximum displacement while preserving the cached size', () => {
     const size = vi.fn(() => 200);
     const engine = new DrawerSwipeEngine({ direction: () => 'down', size });
 

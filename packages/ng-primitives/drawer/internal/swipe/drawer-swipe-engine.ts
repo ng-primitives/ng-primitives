@@ -11,6 +11,16 @@ import { DrawerSwipeVelocity, DrawerVelocityTracker } from './velocity';
 export const DEFAULT_SWIPE_THRESHOLD = 40;
 export const REVERSE_CANCEL_THRESHOLD = 10;
 export const MIN_DRAG_THRESHOLD = 1;
+/**
+ * Distance an axis must travel before the gesture is attributed to it. Mirrors Base UI's
+ * `AXIS_LOCK_SLOP`.
+ */
+export const AXIS_LOCK_SLOP = 6;
+/**
+ * Extra distance the cross axis must beat the drawer axis by before the gesture is handed to the
+ * platform. Mirrors Base UI's `AXIS_LOCK_BIAS`.
+ */
+export const AXIS_LOCK_BIAS = 2;
 
 export interface DrawerSwipeInput extends DrawerSwipeVector {
   time: number;
@@ -37,6 +47,12 @@ export interface DrawerSwipeEngineOptions {
   allowOppositeDirection?: () => boolean;
   size: () => number;
   threshold?: number;
+  /**
+   * Distance the drawer axis must travel before the gesture is attributed to it. Defaults to
+   * `AXIS_LOCK_SLOP`. The swipe area passes a smaller value because it opens from a dedicated edge
+   * strip where a cross-axis scroll is far less likely than inside the popup.
+   */
+  axisSlop?: number;
   trackDrag?: boolean;
   onStart?: (input: DrawerSwipeInput) => void;
   onMove?: (update: DrawerSwipeUpdate) => void;
@@ -81,13 +97,16 @@ export class DrawerSwipeEngine {
     return this.gestureSize;
   }
 
-  rebase(input: DrawerSwipeInput): boolean {
+  rebase(input: DrawerSwipeInput, options: { axisLocked?: boolean } = {}): boolean {
     if (!this.active || this.released) {
       return false;
     }
     this.startPoint = input;
     this.maximumDisplacement = 0;
-    this.axisLocked = false;
+    // The only caller rebases after it has already attributed the gesture to the drawer axis, so
+    // the lock is preserved by default; re-earning the slop would swallow the first move after the
+    // handoff.
+    this.axisLocked = options.axisLocked ?? true;
     this.velocity.reset();
     this.velocity.add(input);
     return true;
@@ -105,12 +124,29 @@ export class DrawerSwipeEngine {
       ? Math.abs(directionalDisplacement)
       : displacement;
     const cross = Math.abs(getCrossAxisDisplacement(this.options.direction(), raw));
-    if (!this.axisLocked && Math.max(primary, cross) >= MIN_DRAG_THRESHOLD) {
-      if (cross > primary) {
+    if (!this.axisLocked) {
+      const axisSlop = this.readAxisSlop();
+      // Hand the gesture to the platform only once the cross axis has clearly won: it must pass the
+      // slop AND beat the drawer axis by the bias. A bare `cross > primary` comparison at one pixel
+      // killed gestures that a real finger starts with a pixel of sideways jitter, with no way to
+      // recover for the rest of the sequence. Base UI never cancels a single-direction gesture at
+      // all; it just withholds progress until the intended axis dominates (useSwipeDismiss.ts).
+      if (cross >= AXIS_LOCK_SLOP && cross > primary + AXIS_LOCK_BIAS) {
         this.cancel(input.nativeEvent);
         return null;
       }
-      this.axisLocked = true;
+      if (primary >= axisSlop) {
+        this.axisLocked = true;
+      } else {
+        // Neither axis is attributed yet. Keep the sample so a single fast move that later crosses
+        // the slop still carries its velocity, but emit nothing: callers must not `preventDefault()`
+        // or open anything on an unattributed gesture.
+        this.velocity.add(input);
+        if (input.buttons === 0) {
+          this.release(input);
+        }
+        return null;
+      }
     }
     this.maximumDisplacement = Math.max(this.maximumDisplacement, displacement);
     this.velocity.add(input);
@@ -187,5 +223,9 @@ export class DrawerSwipeEngine {
 
   private readSize(): number {
     return Math.max(1, this.options.size());
+  }
+
+  private readAxisSlop(): number {
+    return Math.max(MIN_DRAG_THRESHOLD, this.options.axisSlop ?? AXIS_LOCK_SLOP);
   }
 }
