@@ -14,7 +14,7 @@ import {
   imports: [NgpButton],
   template: `
     <button
-      class="h-[2.125rem] rounded-lg border-none bg-white px-3.5 text-sm font-[510] tracking-[-0.006em] text-zinc-900 shadow-xs ring-1 ring-black/5 transition-colors duration-300 ease-in-out data-focus-visible:outline-2 data-focus-visible:outline-offset-2 data-focus-visible:outline-blue-500 data-hover:bg-zinc-50 data-press:bg-zinc-100 dark:bg-zinc-950 dark:text-zinc-100 dark:ring-white/10 dark:data-hover:bg-zinc-900 dark:data-press:bg-zinc-800"
+      class="h-[2.125rem] rounded-lg border-none bg-white px-3.5 text-[0.875rem] font-[510] tracking-[-0.006em] text-zinc-900 shadow-[inset_0_0_0_1px_rgba(0,0,0,0.1),0_1px_2px_0_rgba(0,0,0,0.04)] transition-colors duration-300 ease-in-out data-focus-visible:outline-2 data-focus-visible:outline-offset-2 data-focus-visible:outline-blue-500 data-hover:bg-zinc-50 data-press:bg-zinc-100 dark:bg-zinc-950 dark:text-zinc-100 dark:shadow-[inset_0_0_0_1px_#27272a,0_1px_2px_0_rgba(0,0,0,0.04)] dark:data-hover:bg-zinc-900 dark:data-press:bg-zinc-800"
       (click)="openDialog()"
       ngpButton
     >
@@ -56,7 +56,7 @@ export default class DialogDataExample {
 
         <div class="mt-8 flex justify-end gap-2">
           <button
-            class="h-[2.125rem] rounded-lg border-none bg-white px-3.5 text-sm font-[510] tracking-[-0.006em] text-zinc-900 shadow-xs ring-1 ring-black/5 transition-colors duration-300 ease-in-out data-focus-visible:outline-2 data-focus-visible:outline-offset-2 data-focus-visible:outline-blue-500 data-hover:bg-zinc-50 data-press:bg-zinc-100 dark:bg-zinc-950 dark:text-zinc-100 dark:ring-white/10 dark:data-hover:bg-zinc-900 dark:data-press:bg-zinc-800"
+            class="h-[2.125rem] rounded-lg border-none bg-white px-3.5 text-[0.875rem] font-[510] tracking-[-0.006em] text-zinc-900 shadow-[inset_0_0_0_1px_rgba(0,0,0,0.1),0_1px_2px_0_rgba(0,0,0,0.04)] transition-colors duration-300 ease-in-out data-focus-visible:outline-2 data-focus-visible:outline-offset-2 data-focus-visible:outline-blue-500 data-hover:bg-zinc-50 data-press:bg-zinc-100 dark:bg-zinc-950 dark:text-zinc-100 dark:shadow-[inset_0_0_0_1px_#27272a,0_1px_2px_0_rgba(0,0,0,0.04)] dark:data-hover:bg-zinc-900 dark:data-press:bg-zinc-800"
             (click)="close()"
             ngpButton
           >

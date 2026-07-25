@@ -20,9 +20,12 @@ import { NgpSearch, NgpSearchClear } from 'ng-primitives/search';
     NgpFormField,
   ],
   providers: [provideIcons({ heroMagnifyingGlass })],
+  host: {
+    class: 'contents',
+  },
   template: `
     <div class="flex w-[300px] flex-col gap-1.5" ngpFormField>
-      <label class="text-sm font-[510] text-zinc-900 dark:text-zinc-100" ngpLabel>
+      <label class="m-0 text-sm/5 font-[510] text-zinc-900 dark:text-zinc-100" ngpLabel>
         Find a customer
       </label>
       <div class="relative" ngpSearch>
@@ -31,14 +34,14 @@ import { NgpSearch, NgpSearchClear } from 'ng-primitives/search';
           name="heroMagnifyingGlass"
         />
         <input
-          class="h-[2.125rem] w-full min-w-0 rounded-lg border-none bg-white py-0 pr-4 pl-10 text-sm tracking-[-0.006em] text-zinc-900 shadow-[0_1px_2px_rgba(0,0,0,0.05),0_0_0_1px_rgba(0,0,0,0.1)] outline-hidden placeholder:text-zinc-400 focus:outline-2 focus:outline-offset-2 focus:outline-blue-500 dark:bg-zinc-950 dark:text-zinc-100 dark:shadow-[0_1px_2px_rgba(255,255,255,0.007),0_0_0_1px_rgba(255,255,255,0.1)] dark:focus:outline-blue-400"
+          class="h-[2.125rem] w-full min-w-0 rounded-lg border-none bg-white py-0 pr-4 pl-10 text-[0.875rem] tracking-[-0.006em] text-zinc-900 shadow-[0_1px_2px_rgba(0,0,0,0.05),0_0_0_1px_rgba(0,0,0,0.1)] outline-hidden placeholder:text-zinc-400 focus:outline-2 focus:outline-offset-2 focus:outline-blue-500 dark:bg-zinc-950 dark:text-zinc-100 dark:shadow-[0_1px_2px_rgba(255,255,255,0.007),0_0_0_1px_rgba(255,255,255,0.1)] dark:focus:outline-blue-400"
           [(ngModel)]="query"
           ngpInput
           type="search"
           placeholder="Search for a customer"
         />
         <button
-          class="absolute top-0 right-0 block h-[2.125rem] cursor-pointer rounded-r-[0.625rem] border-none bg-transparent px-4 text-sm text-[#f01e2b] outline-hidden data-empty:hidden dark:text-[#ff4651]"
+          class="absolute top-0 right-0 block h-[2.125rem] cursor-pointer rounded-r-[0.625rem] border-none bg-transparent px-4 text-sm/5 text-[#f01e2b] outline-hidden data-empty:hidden dark:text-[#ff4651]"
           ngpSearchClear
           ngpButton
           aria-label="Clear search"
