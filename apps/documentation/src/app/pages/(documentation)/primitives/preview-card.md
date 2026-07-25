@@ -10,8 +10,6 @@ Preview the content behind a link on hover or keyboard focus. Also known as a ho
 
 <docs-example name="preview-card"></docs-example>
 
-> **This is a visual enhancement for sighted pointer and keyboard users only.** The card is deliberately not exposed to assistive technology, and it cannot be reached on touch. Never put content or actions in a preview card that do not exist anywhere else. See [Accessibility](#accessibility).
-
 ## Import
 
 Import the Preview Card primitives from `ng-primitives/preview-card`.
@@ -38,73 +36,9 @@ Assemble the preview card directives in your template. The trigger should be an 
 
 ## Preview Card vs Tooltip vs Popover
 
-These three primitives look similar and are frequently confused. Pick by interaction pattern, not by appearance:
+Pick by interaction pattern rather than appearance. A tooltip labels a control with a short piece of text. A popover holds content the user actively works with, so it opens on click and traps focus inside itself. A preview card sits between them: it opens on hover or keyboard focus like a tooltip, but holds rich content like a popover, and focus stays on the trigger throughout.
 
-|                     | Preview Card                | Tooltip                              | Popover                                |
-| ------------------- | --------------------------- | ------------------------------------ | -------------------------------------- |
-| Opens on            | Hover, keyboard focus       | Hover, keyboard focus                | Click                                  |
-| Content             | Rich, non-essential preview | A short label                        | Content the user actively works with   |
-| Interactive content | Tolerated, never essential  | No                                   | Yes                                    |
-| Focus               | Stays on the trigger        | Stays on the trigger                 | Moves into the popover, and is trapped |
-| Screen readers      | Not exposed                 | `role="tooltip"`, `aria-describedby` | `role="dialog"`, `aria-expanded`       |
-| Touch               | Not available               | Not available                        | Available                              |
-
-If the content matters, use a popover. If it is a short text label, use a tooltip. A preview card is for a glanceable preview of something the user can already reach by following the link.
-
-## Examples
-
-### Custom delays
-
-The open delay is deliberately long so that cards do not appear while the pointer travels across a page full of links. Shorten it when the trigger is isolated, or lengthen it in dense text.
-
-```html
-<a
-  href="https://angularprimitives.com"
-  [ngpPreviewCardTrigger]="card"
-  ngpPreviewCardTriggerShowDelay="300"
-  ngpPreviewCardTriggerHideDelay="150"
->
-  Angular Primitives
-</a>
-```
-
-### Custom offset
-
-You can customize the offset using either a simple number or an object for more precise control:
-
-```html
-<!-- Simple number offset -->
-<a
-  href="https://angularprimitives.com"
-  [ngpPreviewCardTrigger]="card"
-  ngpPreviewCardTriggerOffset="12"
->
-  Angular Primitives
-</a>
-
-<!-- Object offset for precise control -->
-<a
-  href="https://angularprimitives.com"
-  [ngpPreviewCardTrigger]="card"
-  [ngpPreviewCardTriggerOffset]="{mainAxis: 8, crossAxis: 4, alignmentAxis: 2}"
->
-  Angular Primitives
-</a>
-```
-
-### Passing data to the card
-
-Use `ngpPreviewCardTriggerContext` to pass data to the card, and `injectPreviewCardContext` to read it.
-
-```html
-<a
-  href="https://angularprimitives.com"
-  [ngpPreviewCardTrigger]="card"
-  [ngpPreviewCardTriggerContext]="project"
->
-  Angular Primitives
-</a>
-```
+Unlike both of those, a preview card is not exposed to assistive technology and cannot be opened on touch, so reach for a popover whenever the content actually matters.
 
 ## Reusable Component
 
@@ -127,6 +61,20 @@ ng g ng-primitives:primitive preview-card
 - `component-suffix`: The suffix to apply to the generated component class name.
 - `file-suffix`: The suffix to apply to the generated component file name. Defaults to `component`.
 - `example-styles`: Whether to include example styles in the generated component file. Defaults to `true`.
+
+## Examples
+
+### Custom delays
+
+The open delay is deliberately long so that cards do not appear while the pointer travels across a page full of links. Shorten it when the trigger is isolated, or lengthen it in dense text.
+
+<docs-example name="preview-card-delays"></docs-example>
+
+### Arrow
+
+Add `ngpPreviewCardArrow` inside the card to point back at the trigger.
+
+<docs-example name="preview-card-arrow"></docs-example>
 
 ## API Reference
 
