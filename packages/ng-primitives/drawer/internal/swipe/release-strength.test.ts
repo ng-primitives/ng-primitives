@@ -51,8 +51,9 @@ describe('resolveDrawerReleaseStrength', () => {
   it('declines a release with no useful speed, a zero size, or nothing left to travel', () => {
     const base = { size: 400, translation: 40, releaseVelocity: 6, fallbackVelocity: 6 };
 
-    expect(resolveDrawerReleaseStrength({ ...base, releaseVelocity: 0.1, fallbackVelocity: 0.1 }))
-      .toBeNull();
+    expect(
+      resolveDrawerReleaseStrength({ ...base, releaseVelocity: 0.1, fallbackVelocity: 0.1 }),
+    ).toBeNull();
     expect(resolveDrawerReleaseStrength({ ...base, size: 0 })).toBeNull();
     expect(resolveDrawerReleaseStrength({ ...base, translation: 400 })).toBeNull();
   });

@@ -51,8 +51,7 @@ export function resolveDrawerReleaseStrength(input: DrawerReleaseStrengthInput):
     MAX_RELEASE_DURATION_MS,
   );
   const normalizedDuration =
-    (durationMs - MIN_RELEASE_DURATION_MS) /
-    (MAX_RELEASE_DURATION_MS - MIN_RELEASE_DURATION_MS);
+    (durationMs - MIN_RELEASE_DURATION_MS) / (MAX_RELEASE_DURATION_MS - MIN_RELEASE_DURATION_MS);
   const scalar =
     MIN_RELEASE_SCALAR + normalizedDuration * (MAX_RELEASE_SCALAR - MIN_RELEASE_SCALAR);
   // Three decimals is more than a transition duration can resolve and keeps the inline style
