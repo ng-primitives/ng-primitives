@@ -103,6 +103,10 @@ import {
       opacity: 0;
     }
 
+    .backdrop[data-ending-style] {
+      transition-duration: calc(var(--ngp-drawer-swipe-strength) * 400ms);
+    }
+
     .viewport {
       position: fixed;
       inset: 0;
@@ -130,6 +134,10 @@ import {
     .drawer[data-starting-style],
     .drawer[data-ending-style] {
       transform: translateX(calc(100% + 2px));
+    }
+
+    .drawer[data-ending-style] {
+      transition-duration: calc(var(--ngp-drawer-swipe-strength) * 400ms);
     }
 
     .drawer[data-swiping],
@@ -171,7 +179,9 @@ import {
 
     @media (prefers-reduced-motion: reduce) {
       .drawer,
-      .backdrop {
+      .backdrop,
+      .drawer[data-ending-style],
+      .backdrop[data-ending-style] {
         transition-duration: 0ms;
       }
     }

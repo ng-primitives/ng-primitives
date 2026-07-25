@@ -33,6 +33,12 @@ export interface DrawerSwipeUpdate {
   movement: DrawerSwipeVector;
   displacement: number;
   progress: number;
+  /**
+   * The popup's length along the dismissal axis for this gesture, as measured once at `start()`
+   * and refreshed only by `refreshSize()`. Published so a consumer can do release-time maths
+   * without measuring the element a second time.
+   */
+  size: number;
   strength: number;
 }
 
@@ -214,7 +220,10 @@ export class DrawerSwipeEngine {
       movement,
       displacement,
       progress: Math.min(1, displacement / size),
-      strength: Math.min(1, displacement / DEFAULT_SWIPE_THRESHOLD),
+      size,
+      // Neutral while dragging. The real value is a release-time duration scalar the viewport
+      // writes once, when a swipe actually dismisses the drawer.
+      strength: 1,
     };
   }
 

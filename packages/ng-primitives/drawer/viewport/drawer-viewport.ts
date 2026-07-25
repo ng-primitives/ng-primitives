@@ -32,6 +32,7 @@ import {
   DrawerSwipeUpdate,
 } from '../internal/swipe/drawer-swipe-engine';
 import { DrawerTouchSession } from '../internal/swipe/drawer-touch-session';
+import { resolveDrawerReleaseStrength } from '../internal/swipe/release-strength';
 import {
   canTransferTouchToDrawer,
   findConsumingScrollable,
@@ -949,8 +950,39 @@ export class NgpDrawerViewport {
     }
     if (!retainForExit) {
       this.state.swipeDismiss.set(null);
+    } else {
+      // Must run before `finishVisuals`, which hands the elements back to CSS: the exit
+      // transition reads this scalar on the very next frame.
+      this.applyReleaseStrength(release);
     }
     this.finishVisuals(retainForExit);
+  }
+
+  private applyReleaseStrength(release: DrawerSwipeRelease): void {
+    const direction = this.state.swipeDirection();
+    const points = this.gestureSnapPoints ?? this.resolvedSnapPoints();
+    // A drawer resting on a snap point has already travelled that offset toward dismissal, so the
+    // distance still to cover is shorter than the popup's full length.
+    const snapOffset =
+      this.isVertical() && points.length > 0
+        ? (this.activeResolvedSnapPoint(points)?.offset ?? 0)
+        : 0;
+    const strength = resolveDrawerReleaseStrength({
+      // `release.size` is the popup length the engine measured once at gesture start. Re-reading
+      // the live popup size here would be a second `getBoundingClientRect()` and would break the
+      // one-read-per-gesture invariant that `drawer-gesture-geometry.browser.test.ts` guards.
+      size: release.size,
+      translation: snapOffset + getSwipeDisplacement(direction, release.rawMovement),
+      releaseVelocity: getSwipeDisplacement(direction, release.velocity.recent),
+      fallbackVelocity: getSwipeDisplacement(direction, release.velocity.total),
+    });
+    if (strength === null) {
+      return;
+    }
+    this.state.visualStore.set({ strength });
+    for (const element of this.visualElements()) {
+      element.style.setProperty('--ngp-drawer-swipe-strength', `${strength}`);
+    }
   }
 
   private finishVisuals(retainForExit = false): void {

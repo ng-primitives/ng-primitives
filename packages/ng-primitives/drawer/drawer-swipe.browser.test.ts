@@ -249,7 +249,8 @@ describe('Drawer Viewport swipe integration', () => {
       time: 20,
     });
     await animationFrame();
-    expect(popup.style.getPropertyValue('--ngp-drawer-swipe-strength')).toBe('0.75');
+    // Neutral while the drag is in progress.
+    expect(popup.style.getPropertyValue('--ngp-drawer-swipe-strength')).toBe('1');
 
     dispatchPointer(viewport, 'pointerup', {
       y: 30,
@@ -266,10 +267,17 @@ describe('Drawer Viewport swipe integration', () => {
     );
     expect(popup.style.getPropertyValue('--ngp-drawer-swipe-movement-y')).toBe('30px');
     expect(popup.style.getPropertyValue('--ngp-drawer-swipe-progress')).toBe('0.15');
-    expect(popup.style.getPropertyValue('--ngp-drawer-swipe-strength')).toBe('0.75');
+    const releaseStrength = Number.parseFloat(
+      popup.style.getPropertyValue('--ngp-drawer-swipe-strength'),
+    );
+    expect(releaseStrength).toBeGreaterThan(0.1);
+    expect(releaseStrength).toBeLessThan(1);
     await animationFrame();
     expect(popup).toHaveAttribute('data-ending-style');
-    expect(getComputedStyle(popup).transitionDuration).toBe('0.3s');
+    // The popup's transition is `calc(var(--ngp-drawer-swipe-strength) * 400ms)`, so a flick must
+    // resolve to well under the full 0.4s.
+    expect(Number.parseFloat(getComputedStyle(popup).transitionDuration)).toBeLessThan(0.4);
+    expect(Number.parseFloat(getComputedStyle(popup).transitionDuration)).toBeGreaterThan(0);
     const animations = popup.getAnimations();
     expect(animations.some(animation => animation.playState === 'running')).toBe(true);
     const setProperty = popup.style.setProperty.bind(popup.style);
