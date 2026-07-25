@@ -307,7 +307,9 @@ describe('Drawer SwipeArea', () => {
     const popup = getPopup();
     dispatch(area, 'pointermove', { buttons: 1, pointerId: 8, time: 200, y: 120 });
     dispatch(area, 'pointermove', { buttons: 1, pointerId: 8, time: 300, y: 100 });
-    expect(popup.style.getPropertyValue('--ngp-drawer-swipe-movement-y')).toBe('2px');
+    // The move that opened the drawer is applied as soon as the popup renders, rather than being
+    // dropped: 200px popup, 20px of travel, so the popup sits 180px short of fully open.
+    expect(popup.style.getPropertyValue('--ngp-drawer-swipe-movement-y')).toBe('180px');
     await animationFrame();
     expect(popup.style.getPropertyValue('--ngp-drawer-swipe-movement-y')).toBe('120px');
     const contextMenu = new MouseEvent('contextmenu', { bubbles: true });
@@ -323,6 +325,21 @@ describe('Drawer SwipeArea', () => {
     expect(closeEvent.nextOpen).toBe(false);
     expect(closeEvent.reason).toBe('swipe-area');
     expect(closeEvent.nativeEvent).toBe(contextMenu);
+  });
+
+  it('never paints the popup at its resting position during a swipe-open', async () => {
+    const area = getArea();
+    dispatch(area, 'pointerdown', { buttons: 1, pointerId: 9, time: 0, y: 180 });
+    dispatch(area, 'pointermove', { buttons: 1, pointerId: 9, time: 100, y: 150 });
+    fixture.detectChanges();
+    await vi.waitFor(() => expect(document.querySelector('[data-test-area-popup]')).not.toBeNull());
+    const popup = getPopup();
+
+    // A 30px pull on a 200px popup leaves 170px of travel. A value of `0px` would mean the popup
+    // was painted fully open for a frame; `2px` would mean the update was dropped entirely.
+    const movement = popup.style.getPropertyValue('--ngp-drawer-swipe-movement-y');
+    expect(movement).toBe('170px');
+    expect(popup.style.transition).toBe('none');
   });
 
   it('retains the gesture after the pointer leaves the area', () => {

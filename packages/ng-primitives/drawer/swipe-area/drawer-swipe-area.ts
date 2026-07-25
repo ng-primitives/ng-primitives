@@ -279,6 +279,13 @@ export class NgpDrawerSwipeArea {
       write: () => this.syncTouchAction(this.resolvedDirection()),
     });
 
+    afterRenderEffect({
+      write: () => {
+        const popup = this.state.popup();
+        untracked(() => this.flushPendingVisuals(popup));
+      },
+    });
+
     inject(DestroyRef).onDestroy(() => {
       this.cancelActiveGesture();
       this.engine.destroy();
@@ -428,16 +435,31 @@ export class NgpDrawerSwipeArea {
     });
   }
 
+  private flushPendingVisuals(popup: HTMLElement | null): void {
+    if (!popup || !this.pendingVisual || !this.engine.active) {
+      return;
+    }
+    // Base UI re-asserts the swipe movement on every commit the swipe area takes part in
+    // (DrawerSwipeArea.tsx:380-387) because the commit that opens the drawer resets the movement
+    // custom properties. Writing here, in the render write phase, lands the value before paint.
+    this.writeVisuals();
+  }
+
   private writeVisuals(): void {
     const pendingVisual = this.pendingVisual;
     if (!pendingVisual) {
       return;
     }
-    this.pendingVisual = null;
     const popup = this.state.popup();
     if (!popup) {
+      // Keep the update pending. The provisional open was requested during this same move, so the
+      // portal has not rendered yet; clearing it here painted the popup at its resting open
+      // position for a frame before it snapped to the finger. `flushPendingVisuals` writes it as
+      // soon as the popup element exists, and `cancelAnimationFrame` discards it if the gesture
+      // ends first.
       return;
     }
+    this.pendingVisual = null;
     const size = this.ensureGestureSize(popup);
     const update = this.resolveOpeningVisual(pendingVisual, size);
     this.state.visualStore.set({

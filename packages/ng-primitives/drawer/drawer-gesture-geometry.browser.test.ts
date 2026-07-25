@@ -84,8 +84,16 @@ describe('Drawer gesture geometry reads', () => {
     const oneMove = await runSwipeAreaGesture(1, 3);
     const twentyMoves = await runSwipeAreaGesture(20, 4);
 
-    expect(oneMove).toBe(1);
-    expect(twentyMoves).toBe(oneMove);
+    // The popup is measured while it mounts, by three independent readers: the swipe area's
+    // `ensureGestureSize`, `NgpDrawerPopup.measurePopupHeight`, and the viewport's
+    // `measureSnapGeometry`. That total is deliberately not pinned - it is 3 for the first gesture
+    // and 2 for the second, because the second reuses a cached `popupHeight`. What this test is
+    // named for, and what actually guards the caching, is the invariant below: once the gesture is
+    // under way, no further move measures the popup, however many moves arrive.
+    expect(oneMove.duringMount).toBeGreaterThan(0);
+    expect(twentyMoves.duringMount).toBeGreaterThan(0);
+    expect(oneMove.afterMount).toBe(0);
+    expect(twentyMoves.afterMount).toBe(0);
   });
 
   it('refreshes viewport geometry once on resize during a gesture', async () => {
@@ -156,34 +164,56 @@ describe('Drawer gesture geometry reads', () => {
     dispatchPointer(target, 'pointerup', 10, 0, pointerId, startTime + moves * 10 + 100);
   }
 
-  async function runSwipeAreaGesture(moves: number, pointerId: number): Promise<number> {
+  async function runSwipeAreaGesture(
+    moves: number,
+    pointerId: number,
+  ): Promise<{ duringMount: number; afterMount: number }> {
     const area = await query('[data-test-geometry-swipe-area]');
     const startTime = pointerId * 1000;
-    dispatchPointer(area, 'pointerdown', 200, 1, pointerId, startTime);
-    dispatchPointer(area, 'pointermove', 198, 1, pointerId, startTime + 10);
-    fixture.detectChanges();
-    const popup = await query('[data-test-geometry-area-popup]');
-    await fixture.whenStable();
-    const popupRect = vi.spyOn(popup, 'getBoundingClientRect').mockReturnValue(rect(200));
-    await animationFrame();
+    // The swipe area measures the popup in the render write phase that mounts it, so an instance
+    // spy installed after `detectChanges()` would never see the read. Patch the prototype before
+    // the gesture starts and count only the calls made against the provisional popup.
+    const original = Element.prototype.getBoundingClientRect;
+    let reads = 0;
+    Element.prototype.getBoundingClientRect = function (this: Element): DOMRect {
+      if (this.matches('[data-test-geometry-area-popup]')) {
+        reads += 1;
+        return rect(200);
+      }
+      return original.call(this);
+    };
+    try {
+      dispatchPointer(area, 'pointerdown', 200, 1, pointerId, startTime);
+      dispatchPointer(area, 'pointermove', 198, 1, pointerId, startTime + 10);
+      fixture.detectChanges();
+      await query('[data-test-geometry-area-popup]');
+      await fixture.whenStable();
+      await animationFrame();
+      // Everything up to here is the mount: several directives measure the popup once each. The
+      // count that matters is what follows, once the gesture is already under way.
+      const duringMount = reads;
+      reads = 0;
 
-    for (let index = 2; index <= moves; index += 1) {
-      dispatchPointer(
-        area,
-        'pointermove',
-        200 - (index / moves) * 10,
-        1,
-        pointerId,
-        startTime + index * 10,
+      for (let index = 2; index <= moves; index += 1) {
+        dispatchPointer(
+          area,
+          'pointermove',
+          200 - (index / moves) * 10,
+          1,
+          pointerId,
+          startTime + index * 10,
+        );
+      }
+      dispatchPointer(area, 'pointerup', 190, 0, pointerId, startTime + moves * 10 + 100);
+      fixture.detectChanges();
+      const afterMount = reads;
+      await vi.waitFor(() =>
+        expect(document.querySelector('[data-test-geometry-area-popup]')).toBeNull(),
       );
+      return { afterMount, duringMount };
+    } finally {
+      Element.prototype.getBoundingClientRect = original;
     }
-    dispatchPointer(area, 'pointerup', 190, 0, pointerId, startTime + moves * 10 + 100);
-    fixture.detectChanges();
-    const reads = popupRect.mock.calls.length;
-    await vi.waitFor(() =>
-      expect(document.querySelector('[data-test-geometry-area-popup]')).toBeNull(),
-    );
-    return reads;
   }
 });
 

@@ -71,6 +71,14 @@ export function bindDrawerNestedVisuals(
         }
         applyRenderState(element, value);
         const syncProgress = (): void => {
+          // The swipe area and the viewport write this property directly, frame by frame, while a
+          // gesture is in flight. This effect runs after theirs on the commit that mounts the
+          // popup, so without this guard it would clobber the gesture's value with the pre-gesture
+          // snapshot. `NgpDrawer` guards its own `visualStore.set` the same way
+          // (drawer/drawer.ts:123-125). `resetGesture` restores the property when the swipe ends.
+          if (untracked(state.swiping)) {
+            return;
+          }
           const progress = state.nestedVisualStore.getSnapshot().progress;
           setOrRestore(
             element,
