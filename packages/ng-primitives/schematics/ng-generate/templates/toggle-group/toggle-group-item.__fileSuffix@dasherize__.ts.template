@@ -3,7 +3,7 @@ import { NgpButton } from 'ng-primitives/button';
 import { NgpToggleGroupItem } from 'ng-primitives/toggle-group';
 
 @Component({
-  selector: 'button[<%= prefix %>-toggle-group-item]',
+  selector: 'button[<% if (prefix) { %><%= prefix %>-<% } %>toggle-group-item]',
   hostDirectives: [
     {
       directive: NgpToggleGroupItem,

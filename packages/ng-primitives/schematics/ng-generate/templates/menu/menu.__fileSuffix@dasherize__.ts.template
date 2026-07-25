@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 import { NgpMenu } from 'ng-primitives/menu';
 
 @Component({
-  selector: '<%= prefix %>-menu',
+  selector: '<% if (prefix) { %><%= prefix %>-<% } %>menu',
   hostDirectives: [NgpMenu],
   template: `
     <ng-content />

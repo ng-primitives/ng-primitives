@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 import { NgpAccordion } from 'ng-primitives/accordion';
 
 @Component({
-  selector: '<%= prefix %>-accordion',
+  selector: '<% if (prefix) { %><%= prefix %>-<% } %>accordion',
   hostDirectives: [
     {
       directive: NgpAccordion,

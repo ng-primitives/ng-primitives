@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 import { NgpRadioItem } from 'ng-primitives/radio';
 
 @Component({
-  selector: '<%= prefix %>-radio-item',
+  selector: '<% if (prefix) { %><%= prefix %>-<% } %>radio-item',
   hostDirectives: [
     {
       directive: NgpRadioItem,

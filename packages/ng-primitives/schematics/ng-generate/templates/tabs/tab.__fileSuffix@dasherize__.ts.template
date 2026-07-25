@@ -1,7 +1,7 @@
 import { Component, input, TemplateRef, viewChild } from '@angular/core';
 
 @Component({
-  selector: '<%= prefix %>-tab',
+  selector: '<% if (prefix) { %><%= prefix %>-<% } %>tab',
   template: `
     <ng-template #content>
       <ng-content />

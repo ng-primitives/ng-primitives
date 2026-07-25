@@ -6,7 +6,7 @@ import { injectToggleState, NgpToggle } from 'ng-primitives/toggle';
 import { ChangeFn, provideValueAccessor, TouchedFn } from 'ng-primitives/utils';
 
 @Component({
-  selector: 'button[<%= prefix %>-toggle]',
+  selector: 'button[<% if (prefix) { %><%= prefix %>-<% } %>toggle]',
   hostDirectives: [
     {
       directive: NgpToggle,

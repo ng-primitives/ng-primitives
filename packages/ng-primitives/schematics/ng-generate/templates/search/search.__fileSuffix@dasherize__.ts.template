@@ -8,7 +8,7 @@ import { NgpSearch, NgpSearchClear } from 'ng-primitives/search';
 import { ChangeFn, provideValueAccessor, TouchedFn } from 'ng-primitives/utils';
 
 @Component({
-  selector: '<%= prefix %>-search',
+  selector: '<% if (prefix) { %><%= prefix %>-<% } %>search',
   hostDirectives: [NgpSearch],
   imports: [NgIcon, NgpSearchClear, NgpInput, NgpButton],
   providers: [provideValueAccessor(Search<%= componentSuffix %>), provideIcons({ heroMagnifyingGlass })],

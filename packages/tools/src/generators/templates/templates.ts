@@ -187,10 +187,13 @@ function processTemplate(content: string, componentClasses: ReadonlySet<string>)
  * - dashed - `app-popover`, `[app-separator]`, `button[app-button]`
  * - camelCase - `[appPopoverTrigger]`, `alias: 'appPopoverTrigger'`
  *
- * The camelCase form runs the prefix and the rest of the name back through `camelize` so
- * that a multi word prefix reads correctly (`my-app` gives `myAppPopoverTrigger`) and an
- * empty prefix - which the schema explicitly permits - drops out cleanly as
- * `popoverTrigger` rather than leaving the leading capital of `PopoverTrigger`.
+ * The schema explicitly permits an empty prefix, and both forms have to survive it. The
+ * dashed form drops the separator with it, so `app-popover` gives `popover` rather than a
+ * leading dash - `-popover` is not a name the schema's own `html-selector` format would
+ * accept. The camelCase form runs the prefix and the rest of the name back through
+ * `camelize`, which lowercases the leading character for the same reason (`popoverTrigger`,
+ * not `PopoverTrigger`) and as a bonus reads a multi word prefix correctly (`my-app` gives
+ * `myAppPopoverTrigger`).
  *
  * Both patterns are anchored on a word boundary, and the camelCase one requires an
  * uppercase letter to follow, so ordinary words like `appearance` are left alone. Both
@@ -200,7 +203,7 @@ function processTemplate(content: string, componentClasses: ReadonlySet<string>)
  */
 function replacePrefix(text: string): string {
   return text
-    .replace(/\bapp-/g, '<%= prefix %>-')
+    .replace(/\bapp-/g, '<% if (prefix) { %><%= prefix %>-<% } %>')
     .replace(/\bapp([A-Z]\w*)/g, '<%= camelize(prefix + "$1") %>');
 }
 

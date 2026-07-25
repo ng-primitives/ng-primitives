@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 import { injectTooltipContext, NgpTooltip } from 'ng-primitives/tooltip';
 
 @Component({
-  selector: '<%= prefix %>-tooltip',
+  selector: '<% if (prefix) { %><%= prefix %>-<% } %>tooltip',
   hostDirectives: [NgpTooltip],
   template: `
     {{ content() }}
