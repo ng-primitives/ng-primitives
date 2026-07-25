@@ -239,11 +239,27 @@ export const [
     listener(elementRef, 'pointerenter', onPointerEnter);
     listener(elementRef, 'pointerleave', onPointerLeave);
 
-    function onPointerEnter(): void {
+    /**
+     * Touch has no hover state, so a tap would otherwise reveal a card over the
+     * page the user is navigating to. Ignore touch pointers entirely.
+     */
+    function isTouch(event: PointerEvent): boolean {
+      return event.pointerType === 'touch';
+    }
+
+    function onPointerEnter(event: PointerEvent): void {
+      if (isTouch(event)) {
+        return;
+      }
+
       show();
     }
 
-    function onPointerLeave(): void {
+    function onPointerLeave(event: PointerEvent): void {
+      if (isTouch(event)) {
+        return;
+      }
+
       hide();
     }
 
