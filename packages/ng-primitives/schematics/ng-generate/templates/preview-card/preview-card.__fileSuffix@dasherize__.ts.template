@@ -11,7 +11,7 @@ export interface PreviewCardContent {
 }
 
 @Component({
-  selector: '<%= prefix %>-preview-card',
+  selector: '<% if (prefix) { %><%= prefix %>-<% } %>preview-card',
   hostDirectives: [NgpPreviewCard],
   template: `
     <p class="title">{{ content().title }}</p>

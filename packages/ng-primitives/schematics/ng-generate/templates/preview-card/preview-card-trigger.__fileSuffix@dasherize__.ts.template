@@ -3,20 +3,20 @@ import { injectPreviewCardTriggerState, NgpPreviewCardTrigger } from 'ng-primiti
 import { PreviewCard<%= componentSuffix %>, PreviewCardContent } from './preview-card<% if (fileSuffix) { %>.<%= dasherize(fileSuffix) %><% } %>';
 
 @Directive({
-  selector: '[appPreviewCardTrigger]',
+  selector: '[<%= camelize(prefix + "PreviewCardTrigger") %>]',
   hostDirectives: [
     {
       directive: NgpPreviewCardTrigger,
       inputs: [
-        'ngpPreviewCardTriggerDisabled:appPreviewCardTriggerDisabled',
-        'ngpPreviewCardTriggerPlacement:appPreviewCardTriggerPlacement',
-        'ngpPreviewCardTriggerOffset:appPreviewCardTriggerOffset',
-        'ngpPreviewCardTriggerShowDelay:appPreviewCardTriggerShowDelay',
-        'ngpPreviewCardTriggerHideDelay:appPreviewCardTriggerHideDelay',
-        'ngpPreviewCardTriggerFlip:appPreviewCardTriggerFlip',
-        'ngpPreviewCardTriggerContainer:appPreviewCardTriggerContainer',
-        'ngpPreviewCardTriggerScrollBehavior:appPreviewCardTriggerScrollBehavior',
-        'ngpPreviewCardTriggerContext:appPreviewCardTrigger',
+        'ngpPreviewCardTriggerDisabled:<%= camelize(prefix + "PreviewCardTriggerDisabled") %>',
+        'ngpPreviewCardTriggerPlacement:<%= camelize(prefix + "PreviewCardTriggerPlacement") %>',
+        'ngpPreviewCardTriggerOffset:<%= camelize(prefix + "PreviewCardTriggerOffset") %>',
+        'ngpPreviewCardTriggerShowDelay:<%= camelize(prefix + "PreviewCardTriggerShowDelay") %>',
+        'ngpPreviewCardTriggerHideDelay:<%= camelize(prefix + "PreviewCardTriggerHideDelay") %>',
+        'ngpPreviewCardTriggerFlip:<%= camelize(prefix + "PreviewCardTriggerFlip") %>',
+        'ngpPreviewCardTriggerContainer:<%= camelize(prefix + "PreviewCardTriggerContainer") %>',
+        'ngpPreviewCardTriggerScrollBehavior:<%= camelize(prefix + "PreviewCardTriggerScrollBehavior") %>',
+        'ngpPreviewCardTriggerContext:<%= camelize(prefix + "PreviewCardTrigger") %>',
       ],
     },
   ],
@@ -27,7 +27,7 @@ export class PreviewCardTrigger {
 
   /** Define the content of the preview card */
   readonly content = input.required<PreviewCardContent>({
-    alias: 'appPreviewCardTrigger',
+    alias: '<%= camelize(prefix + "PreviewCardTrigger") %>',
   });
 
   constructor() {
