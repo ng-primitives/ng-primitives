@@ -1,5 +1,6 @@
 import { Component, signal, viewChild } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { NgpDrawerBackdrop } from './backdrop/drawer-backdrop';
 import { NgpDrawerOpenChangeEvent, NgpDrawerSwipeDirection } from './drawer.types';
 import { NgpDrawer } from './drawer/drawer';
 import { NgpDrawerPopup } from './popup/drawer-popup';
@@ -8,7 +9,14 @@ import { NgpDrawerSwipeArea } from './swipe-area/drawer-swipe-area';
 import { NgpDrawerViewport } from './viewport/drawer-viewport';
 
 @Component({
-  imports: [NgpDrawerPopup, NgpDrawerPortal, NgpDrawer, NgpDrawerSwipeArea, NgpDrawerViewport],
+  imports: [
+    NgpDrawerBackdrop,
+    NgpDrawerPopup,
+    NgpDrawerPortal,
+    NgpDrawer,
+    NgpDrawerSwipeArea,
+    NgpDrawerViewport,
+  ],
   template: `
     <ng-container
       [modal]="false"
@@ -29,6 +37,11 @@ import { NgpDrawerViewport } from './viewport/drawer-viewport';
         style="touch-action: manipulation"
       ></div>
       <ng-template ngpDrawerPortal>
+        <div
+          data-test-area-backdrop
+          ngpDrawerBackdrop
+          style="transition: opacity 3s; --ngp-drawer-swipe-progress: 0.2"
+        ></div>
         <div ngpDrawerViewport>
           <section
             data-test-area-popup
@@ -290,7 +303,9 @@ describe('Drawer SwipeArea', () => {
       const popup = getPopup();
       expect(popup.style.getPropertyValue('--ngp-drawer-swipe-movement-x')).toBe(movementX);
       expect(popup.style.getPropertyValue('--ngp-drawer-swipe-movement-y')).toBe(movementY);
-      expect(popup.style.getPropertyValue('--ngp-drawer-swipe-progress')).toBe('1');
+      // Fully pulled out: dismissal progress is 0, so a backdrop styled `calc(1 - progress)` is
+      // at full opacity.
+      expect(popup.style.getPropertyValue('--ngp-drawer-swipe-progress')).toBe('0');
       dispatch(area, 'pointercancel', { ...end, buttons: 0, pointerId: 7, time: 101 });
       fixture.detectChanges();
       expect(fixture.componentInstance.root().open()).toBe(false);
@@ -499,6 +514,31 @@ describe('Drawer SwipeArea', () => {
         event => !event.nextOpen && event.reason === 'swipe-area',
       ),
     ).toBe(false);
+  });
+
+  it('fades the backdrop in step with the swipe-open gesture', async () => {
+    const area = getArea();
+    dispatch(area, 'pointerdown', { buttons: 1, pointerId: 12, time: 0, y: 200 });
+    dispatch(area, 'pointermove', { buttons: 1, pointerId: 12, time: 100, y: 150 });
+    fixture.detectChanges();
+    await vi.waitFor(() => expect(document.querySelector('[data-test-area-popup]')).not.toBeNull());
+    await animationFrame();
+
+    const backdrop = document.querySelector<HTMLElement>('[data-test-area-backdrop]')!;
+    // 50px of a 200px popup: a quarter open, so three quarters still "dismissed". A backdrop
+    // styled `calc(1 - progress)` is therefore at 25% opacity and fading in as the finger moves.
+    expect(backdrop.style.getPropertyValue('--ngp-drawer-swipe-progress')).toBe('0.75');
+    expect(backdrop.style.transition).toBe('none');
+    expect(backdrop).toHaveAttribute('data-swiping');
+
+    dispatch(area, 'pointercancel', { buttons: 0, pointerId: 12, time: 101, y: 150 });
+    fixture.detectChanges();
+
+    // Rolled back: the consumer's own inline value and transition are handed back.
+    expect(backdrop.style.getPropertyValue('--ngp-drawer-swipe-progress')).toBe('0.2');
+    expect(backdrop.style.transition).toBe('opacity 3s');
+    // Movement and strength stay the popup's business — the backdrop keeps its seeded defaults.
+    expect(backdrop.style.getPropertyValue('--ngp-drawer-swipe-movement-y')).toBe('0px');
   });
 
   function getArea(): HTMLElement {

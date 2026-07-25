@@ -32,7 +32,6 @@ import { DrawerTouchSession } from '../internal/swipe/drawer-touch-session';
 import { shouldIgnoreSwipeTarget } from '../internal/swipe/scrollable';
 
 interface SwipeAreaVisualSnapshot {
-  readonly element: HTMLElement;
   readonly transition: string;
   readonly movementX: string;
   readonly movementY: string;
@@ -78,7 +77,7 @@ export class NgpDrawerSwipeArea {
   private gestureNativeEvent: Event | undefined;
   private animationFrame = 0;
   private pendingVisual: DrawerSwipeUpdate | null = null;
-  private visualSnapshot: SwipeAreaVisualSnapshot | null = null;
+  private readonly visualSnapshots = new Map<HTMLElement, SwipeAreaVisualSnapshot>();
   private gestureSize: number | null = null;
   private gestureResizeObserver: ResizeObserver | null = null;
   private startListenerAttached = false;
@@ -462,24 +461,31 @@ export class NgpDrawerSwipeArea {
     this.pendingVisual = null;
     const size = this.ensureGestureSize(popup);
     const update = this.resolveOpeningVisual(pendingVisual, size);
+    // `--ngp-drawer-swipe-progress` is dismissal progress everywhere else in the drawer — 0 is
+    // fully open, 1 is gone — which is why every example fades its backdrop with
+    // `calc(1 - progress)`. A swipe that *opens* the drawer therefore has to count down. Base UI
+    // publishes the same inverted value (DrawerSwipeArea.tsx:225-245).
+    const progress = 1 - update.progress;
     this.state.visualStore.set({
       movementX: update.movement.x,
       movementY: update.movement.y,
-      progress: update.progress,
+      progress,
       strength: update.strength,
     });
-    this.visualSnapshot ??= {
-      element: popup,
-      transition: popup.style.transition,
-      movementX: popup.style.getPropertyValue('--ngp-drawer-swipe-movement-x'),
-      movementY: popup.style.getPropertyValue('--ngp-drawer-swipe-movement-y'),
-      progress: popup.style.getPropertyValue('--ngp-drawer-swipe-progress'),
-      strength: popup.style.getPropertyValue('--ngp-drawer-swipe-strength'),
-    };
-    popup.style.transition = 'none';
+
+    // The backdrop and the viewport track the gesture too. Writing only to the popup left the
+    // backdrop running its own entrance fade while the popup followed the finger.
+    const progressElements = [popup, this.state.viewport(), this.state.backdrop()].filter(
+      (element): element is HTMLElement => element !== null,
+    );
+    for (const element of progressElements) {
+      this.snapshotVisuals(element);
+      element.style.transition = 'none';
+      element.style.setProperty('--ngp-drawer-swipe-progress', `${progress}`);
+    }
+
     popup.style.setProperty('--ngp-drawer-swipe-movement-x', `${update.movement.x}px`);
     popup.style.setProperty('--ngp-drawer-swipe-movement-y', `${update.movement.y}px`);
-    popup.style.setProperty('--ngp-drawer-swipe-progress', `${update.progress}`);
     popup.style.setProperty('--ngp-drawer-swipe-strength', `${update.strength}`);
   }
 
@@ -522,17 +528,28 @@ export class NgpDrawerSwipeArea {
     this.gestureResizeObserver = null;
   }
 
-  private restoreVisuals(): void {
-    const snapshot = this.visualSnapshot;
-    if (!snapshot) {
+  private snapshotVisuals(element: HTMLElement): void {
+    if (this.visualSnapshots.has(element)) {
       return;
     }
-    snapshot.element.style.transition = snapshot.transition;
-    this.restoreProperty(snapshot.element, '--ngp-drawer-swipe-movement-x', snapshot.movementX);
-    this.restoreProperty(snapshot.element, '--ngp-drawer-swipe-movement-y', snapshot.movementY);
-    this.restoreProperty(snapshot.element, '--ngp-drawer-swipe-progress', snapshot.progress);
-    this.restoreProperty(snapshot.element, '--ngp-drawer-swipe-strength', snapshot.strength);
-    this.visualSnapshot = null;
+    this.visualSnapshots.set(element, {
+      transition: element.style.transition,
+      movementX: element.style.getPropertyValue('--ngp-drawer-swipe-movement-x'),
+      movementY: element.style.getPropertyValue('--ngp-drawer-swipe-movement-y'),
+      progress: element.style.getPropertyValue('--ngp-drawer-swipe-progress'),
+      strength: element.style.getPropertyValue('--ngp-drawer-swipe-strength'),
+    });
+  }
+
+  private restoreVisuals(): void {
+    for (const [element, snapshot] of this.visualSnapshots) {
+      element.style.transition = snapshot.transition;
+      this.restoreProperty(element, '--ngp-drawer-swipe-movement-x', snapshot.movementX);
+      this.restoreProperty(element, '--ngp-drawer-swipe-movement-y', snapshot.movementY);
+      this.restoreProperty(element, '--ngp-drawer-swipe-progress', snapshot.progress);
+      this.restoreProperty(element, '--ngp-drawer-swipe-strength', snapshot.strength);
+    }
+    this.visualSnapshots.clear();
   }
 
   private restoreProperty(element: HTMLElement, name: string, value: string): void {
