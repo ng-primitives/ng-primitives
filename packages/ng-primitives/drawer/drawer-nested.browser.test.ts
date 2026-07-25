@@ -257,7 +257,7 @@ describe('nested Drawer roots', () => {
     const childViewport = getElement('[data-test-child-viewport]');
     const childPopup = getElement('[data-test-child-popup]');
     dispatchPointer(childViewport, 'pointerdown', 0, 1, 1, 0);
-    dispatchPointer(childViewport, 'pointermove', 60, 1, 1, 200);
+    dispatchPointer(childViewport, 'pointermove', 60, 1, 1, 60);
     expect(childPopup.style.getPropertyValue('--ngp-drawer-swipe-movement-y')).toBe('60px');
     expect(childPopup.style.transform).toContain('translate3d(0px, 60px, 0px)');
     expect(Number(parent.style.getPropertyValue('--ngp-drawer-swipe-progress'))).toBeCloseTo(0.2);
@@ -266,7 +266,7 @@ describe('nested Drawer roots', () => {
     expect(parentBackdrop.hasAttribute('data-nested-drawer-swiping')).toBe(false);
     expect(getElement('[data-test-child-backdrop]').hasAttribute('data-swiping')).toBe(true);
     expect(childViewport.hasAttribute('data-swiping')).toBe(false);
-    dispatchPointer(childViewport, 'pointerup', 60, 0, 1, 201);
+    dispatchPointer(childViewport, 'pointerup', 60, 0, 1, 61);
     fixture.detectChanges();
     expect(childPopup.style.getPropertyValue('--ngp-drawer-swipe-movement-y')).toBe('60px');
     expect(parent.hasAttribute('data-nested-drawer-swiping')).toBe(false);

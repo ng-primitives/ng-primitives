@@ -243,4 +243,49 @@ describe('DrawerSwipeEngine', () => {
 
     expect(size).toHaveBeenCalledTimes(3);
   });
+
+  it('reads the threshold once per gesture and dismisses against it', () => {
+    const threshold = vi.fn(() => 100);
+    const engine = new DrawerSwipeEngine({
+      direction: () => 'down',
+      size: () => 200,
+      threshold,
+    });
+
+    engine.start({ x: 0, y: 0, time: 0, buttons: 1 });
+    engine.move({ x: 0, y: 60, time: 1000, buttons: 1 });
+    // 60 px is past the old fixed 40 px default but short of half a 200 px popup, and the elapsed
+    // time keeps the velocity below the flick shortcut.
+    expect(engine.release({ x: 0, y: 60, time: 1001, buttons: 0 })?.dismissed).toBe(false);
+    expect(threshold).toHaveBeenCalledOnce();
+  });
+
+  it('dismisses once the gesture passes the resolved threshold', () => {
+    const engine = new DrawerSwipeEngine({
+      direction: () => 'down',
+      size: () => 200,
+      threshold: () => 100,
+    });
+
+    engine.start({ x: 0, y: 0, time: 0, buttons: 1 });
+    engine.move({ x: 0, y: 120, time: 2000, buttons: 1 });
+    expect(engine.release({ x: 0, y: 120, time: 2001, buttons: 0 })?.dismissed).toBe(true);
+  });
+
+  it('re-resolves the threshold when the gesture size is refreshed', () => {
+    let currentThreshold = 100;
+    const threshold = vi.fn(() => currentThreshold);
+    const engine = new DrawerSwipeEngine({
+      direction: () => 'down',
+      size: () => 200,
+      threshold,
+    });
+
+    engine.start({ x: 0, y: 0, time: 0, buttons: 1 });
+    currentThreshold = 20;
+    engine.refreshSize(200);
+    engine.move({ x: 0, y: 30, time: 3000, buttons: 1 });
+    expect(engine.release({ x: 0, y: 30, time: 3001, buttons: 0 })?.dismissed).toBe(true);
+    expect(threshold).toHaveBeenCalledTimes(2);
+  });
 });

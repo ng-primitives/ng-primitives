@@ -113,6 +113,7 @@ type TouchOwnership =
   | (TouchOwnershipBase & { readonly ownership: 'drawer' });
 
 const MIN_SNAP_SWIPE_DISPLACEMENT = 10;
+const MIN_SWIPE_THRESHOLD = 10;
 
 @Directive({ selector: '[ngpDrawerViewport]', standalone: true })
 export class NgpDrawerViewport {
@@ -137,6 +138,12 @@ export class NgpDrawerViewport {
     direction: () => this.state.swipeDirection(),
     allowOppositeDirection: () => this.hasVerticalSnapGesture(),
     size: () => this.primarySize(),
+    // A drawer must travel half its own length before distance alone dismisses it; a fixed pixel
+    // threshold made a tall sheet close after a nudge. A fast flick still dismisses through the
+    // engine's velocity shortcut. Mirrors Base UI's `getBaseSwipeThreshold`. Derives from the size
+    // the engine already measured for this gesture — re-measuring the popup here would double its
+    // `getBoundingClientRect()` reads per gesture.
+    threshold: size => Math.max(size * 0.5, MIN_SWIPE_THRESHOLD),
     onStart: () => this.beginGesture(),
     onMove: update => this.writeVisuals(update),
     onRelease: release => this.handleRelease(release),

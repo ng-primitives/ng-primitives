@@ -46,7 +46,12 @@ export interface DrawerSwipeEngineOptions {
   direction: () => NgpDrawerSwipeDirection;
   allowOppositeDirection?: () => boolean;
   size: () => number;
-  threshold?: number;
+  /**
+   * Distance the gesture must travel before it dismisses on distance alone. Derived from the size
+   * the engine already measured for this gesture, so the popup is measured exactly once at press
+   * time. Defaults to `DEFAULT_SWIPE_THRESHOLD`.
+   */
+  threshold?: (size: number) => number;
   /**
    * Distance the drawer axis must travel before the gesture is attributed to it. Defaults to
    * `AXIS_LOCK_SLOP`. The swipe area passes a smaller value because it opens from a dedicated edge
@@ -66,6 +71,7 @@ export class DrawerSwipeEngine {
   private axisLocked = false;
   private released = false;
   private gestureSize: number | null = null;
+  private gestureThreshold: number | null = null;
   private readonly velocity = new DrawerVelocityTracker();
 
   constructor(private readonly options: DrawerSwipeEngineOptions) {}
@@ -83,6 +89,7 @@ export class DrawerSwipeEngine {
     this.axisLocked = false;
     this.released = false;
     this.gestureSize = this.readSize();
+    this.gestureThreshold = this.readThreshold(this.gestureSize);
     this.velocity.reset();
     this.velocity.add(input);
     this.options.onStart?.(input);
@@ -94,6 +101,9 @@ export class DrawerSwipeEngine {
       return null;
     }
     this.gestureSize = size === undefined ? this.readSize() : Math.max(1, size);
+    // The popup was re-measured, so the distance threshold derived from it is stale too. Reuse the
+    // freshly-stored size rather than measuring again.
+    this.gestureThreshold = this.readThreshold(this.gestureSize);
     return this.gestureSize;
   }
 
@@ -173,10 +183,9 @@ export class DrawerSwipeEngine {
       getSwipeDisplacement(direction, velocity.total),
     );
     const reversed = this.maximumDisplacement - update.displacement >= REVERSE_CANCEL_THRESHOLD;
+    const threshold = this.gestureThreshold ?? this.readThreshold(this.gestureSize ?? this.readSize());
     const dismissed =
-      !reversed &&
-      (update.displacement >= (this.options.threshold ?? DEFAULT_SWIPE_THRESHOLD) ||
-        projectedVelocity >= 0.5);
+      !reversed && (update.displacement >= threshold || projectedVelocity >= 0.5);
     const result = { ...update, velocity, dismissed, nativeEvent: input.nativeEvent };
     this.options.onRelease?.(result);
     this.reset();
@@ -205,10 +214,7 @@ export class DrawerSwipeEngine {
       movement,
       displacement,
       progress: Math.min(1, displacement / size),
-      strength: Math.min(
-        1,
-        displacement / Math.max(1, this.options.threshold ?? DEFAULT_SWIPE_THRESHOLD),
-      ),
+      strength: Math.min(1, displacement / DEFAULT_SWIPE_THRESHOLD),
     };
   }
 
@@ -218,6 +224,7 @@ export class DrawerSwipeEngine {
     this.axisLocked = false;
     this.released = false;
     this.gestureSize = null;
+    this.gestureThreshold = null;
     this.velocity.reset();
   }
 
@@ -227,5 +234,9 @@ export class DrawerSwipeEngine {
 
   private readAxisSlop(): number {
     return Math.max(MIN_DRAG_THRESHOLD, this.options.axisSlop ?? AXIS_LOCK_SLOP);
+  }
+
+  private readThreshold(size: number): number {
+    return Math.max(1, this.options.threshold?.(size) ?? DEFAULT_SWIPE_THRESHOLD);
   }
 }
