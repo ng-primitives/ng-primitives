@@ -72,7 +72,7 @@ interface Message {
                 <div class="grid w-full max-w-lg grid-cols-1 gap-3 md:grid-cols-2">
                   @for (suggestion of suggestions; track suggestion) {
                     <button
-                      class="rounded-[0.625rem] border border-zinc-200 p-2.5 text-left text-sm font-[510] tracking-[-0.006em] text-zinc-600 transition data-focus-visible:-translate-y-px data-focus-visible:ring-2 data-focus-visible:ring-blue-500/40 data-focus-visible:ring-offset-2 data-focus-visible:outline-none data-hover:-translate-y-px data-hover:border-zinc-300 data-hover:bg-zinc-50 data-hover:text-zinc-900 data-hover:shadow-sm dark:border-zinc-800 dark:text-zinc-400 dark:data-focus-visible:ring-blue-400/45 dark:data-focus-visible:ring-offset-zinc-950 dark:data-hover:border-zinc-600 dark:data-hover:bg-zinc-800 dark:data-hover:text-zinc-100"
+                      class="rounded-[0.625rem] border border-gray-200 p-2.5 text-left text-sm font-[510] tracking-[-0.006em] text-zinc-600 transition data-focus-visible:-translate-y-px data-focus-visible:ring-2 data-focus-visible:ring-blue-500/40 data-focus-visible:ring-offset-2 data-focus-visible:outline-none data-hover:-translate-y-px data-hover:border-zinc-300 data-hover:bg-zinc-50 data-hover:text-zinc-900 data-hover:shadow-sm dark:border-zinc-800 dark:text-zinc-400 dark:data-focus-visible:ring-blue-400/45 dark:data-focus-visible:ring-offset-zinc-950 dark:data-hover:border-zinc-600 dark:data-hover:bg-zinc-800 dark:data-hover:text-zinc-100"
                       (click)="sendMessage(suggestion)"
                       ngpThreadSuggestion
                       ngpButton
@@ -150,13 +150,13 @@ interface Message {
                 <div class="group relative">
                   @if (attachment.type === 'image') {
                     <img
-                      class="h-16 w-16 cursor-pointer rounded-lg border border-zinc-200 object-cover transition-opacity hover:opacity-80 dark:border-zinc-700"
+                      class="h-16 w-16 cursor-pointer rounded-lg border border-gray-200 object-cover transition-opacity hover:opacity-80 dark:border-zinc-700"
                       [src]="attachment.preview"
                       [alt]="attachment.file.name"
                     />
                   } @else {
                     <div
-                      class="flex h-16 w-16 items-center justify-center rounded-lg border border-zinc-200 bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-800"
+                      class="flex h-16 w-16 items-center justify-center rounded-lg border border-gray-200 bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-800"
                     >
                       <span class="text-xs text-zinc-600 dark:text-zinc-400">
                         {{ attachment.file.name.split('.').pop()?.toUpperCase() }}
@@ -177,7 +177,7 @@ interface Message {
         }
 
         <div
-          class="mx-auto flex w-full max-w-(--breakpoint-md) items-end rounded-3xl bg-zinc-50 shadow-xs ring-1 ring-black/10 transition-shadow focus-within:ring-2 focus-within:ring-blue-500 dark:bg-zinc-900 dark:ring-white/10 dark:focus-within:ring-blue-400"
+          class="mx-auto flex w-full max-w-(--breakpoint-md) items-end rounded-3xl bg-zinc-50 shadow-[0_1px_2px_rgba(0,0,0,0.05),0_0_0_1px_rgba(0,0,0,0.1)] transition-shadow focus-within:ring-2 focus-within:ring-blue-500 dark:bg-zinc-900 dark:shadow-[0_1px_2px_rgba(255,255,255,0.007),0_0_0_1px_rgba(255,255,255,0.1)] dark:focus-within:ring-blue-400"
           (ngpPromptComposerSubmit)="sendMessage($event)"
           ngpPromptComposer
         >
@@ -191,7 +191,7 @@ interface Message {
             ngpFileUploadFileTypes="image/*"
             aria-label="Add Attachment"
           >
-            <ng-icon class="font-base text-black dark:text-white" name="lucidePlus" />
+            <ng-icon class="text-[14px] text-black! dark:text-white!" name="lucidePlus" />
           </button>
 
           <textarea
@@ -204,13 +204,16 @@ interface Message {
           ></textarea>
 
           <button
-            class="data-[prompt]:not([data-dictating]):hidden not([data-dictation-supported]):hidden m-2 flex size-8 items-center justify-center rounded-full transition-colors hover:bg-black/5 data-dictating:bg-black/5 data-dictating:hover:bg-black/10 dark:hover:bg-white/5 dark:data-dictating:bg-white/5 dark:data-dictating:hover:bg-white/10"
+            class="m-2 hidden size-8 items-center justify-center rounded-full transition-colors hover:bg-black/5 data-dictating:bg-black/5 data-dictating:hover:bg-black/10 data-dictation-supported:not-data-prompt:flex data-prompt:not-data-dictating:hidden dark:hover:bg-white/5 dark:data-dictating:bg-white/5 dark:data-dictating:hover:bg-white/10"
             #dictation="ngpPromptComposerDictation"
             type="button"
             ngpPromptComposerDictation
             aria-label="Dictation"
           >
-            <ng-icon class="font-base" [name]="dictation.isDictating() ? 'lucideX' : 'lucideMic'" />
+            <ng-icon
+              class="text-[14px]"
+              [name]="dictation.isDictating() ? 'lucideX' : 'lucideMic'"
+            />
           </button>
 
           <button
@@ -219,7 +222,7 @@ interface Message {
             ngpPromptComposerSubmit
             aria-label="Send Message"
           >
-            <ng-icon class="font-base text-white" name="lucideArrowUp" />
+            <ng-icon class="text-[14px] text-white!" name="lucideArrowUp" />
           </button>
         </div>
 

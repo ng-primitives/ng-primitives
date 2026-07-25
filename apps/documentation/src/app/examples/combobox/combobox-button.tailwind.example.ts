@@ -27,11 +27,11 @@ import {
       ngpCombobox
     >
       <button
-        class="box-border flex h-[2.125rem] w-full cursor-pointer items-center justify-between rounded-lg border border-gray-200 bg-white px-4 text-[14px] text-gray-900 transition-all duration-200 hover:bg-gray-50 aria-expanded:bg-gray-100 dark:border-gray-700 dark:bg-transparent dark:text-gray-100 dark:hover:bg-zinc-900 dark:aria-expanded:bg-zinc-800"
+        class="box-border flex h-[2.125rem] w-full cursor-pointer items-center justify-between rounded-lg border-none bg-white px-4 text-[14px] text-zinc-900 shadow-[0_1px_2px_rgba(0,0,0,0.05),0_0_0_1px_rgba(0,0,0,0.1)] transition-all duration-200 hover:bg-zinc-50 aria-expanded:bg-zinc-100 dark:bg-zinc-950 dark:text-zinc-100 dark:shadow-[0_1px_2px_rgba(255,255,255,0.007),0_0_0_1px_rgba(255,255,255,0.1)] dark:hover:bg-zinc-900 dark:aria-expanded:bg-zinc-800"
         ngpComboboxButton
       >
         {{ value() || 'Select a character' }}
-        <ng-icon class="h-4 w-4 transition-transform duration-200" name="heroChevronDown" />
+        <ng-icon class="h-4! w-4! transition-transform duration-200" name="heroChevronDown" />
       </button>
 
       <div
@@ -41,7 +41,7 @@ import {
       >
         @for (option of options; track option) {
           <div
-            class="box-border flex h-[2.125rem] w-full cursor-pointer items-center gap-2 rounded-lg px-3 text-sm tracking-[-0.006em] text-gray-900 transition-colors hover:bg-gray-100 data-active:bg-gray-100 data-press:bg-gray-100 data-selected:font-[510] data-selected:text-[#f01e2b] dark:text-gray-100 dark:hover:bg-white/10 dark:data-active:bg-white/10 dark:data-press:bg-white/20 dark:data-selected:text-[#ff4651]"
+            class="box-border flex h-[2.125rem] w-full cursor-pointer items-center gap-2 rounded-lg px-3 text-sm tracking-[-0.006em] text-zinc-900 transition-colors hover:bg-zinc-100 data-active:bg-zinc-100 data-press:bg-zinc-100 data-selected:font-[510] data-selected:text-[#f01e2b] dark:text-zinc-100 dark:hover:bg-white/10 dark:data-active:bg-white/10 dark:data-press:bg-white/20 dark:data-selected:text-[#ff4651]"
             [ngpComboboxOptionValue]="option"
             ngpComboboxOption
           >

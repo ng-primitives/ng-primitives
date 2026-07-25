@@ -9,7 +9,7 @@ import { NgpTooltip, NgpTooltipArrow, NgpTooltipTrigger } from 'ng-primitives/to
   viewProviders: [provideIcons({ heroInformationCircle })],
   template: `
     <span
-      class="inline-flex items-center gap-2 rounded-full bg-white px-3 py-1 text-gray-900 shadow-[0_1px_3px_0_rgb(0_0_0/0.1),0_1px_2px_-1px_rgb(0_0_0/0.1),0_0_0_1px_rgb(0_0_0/0.05)] data-open:bg-gray-50 dark:bg-zinc-950 dark:text-gray-100 dark:shadow-[0_1px_3px_0_rgb(255_255_255/0.1),0_1px_2px_-1px_rgb(255_255_255/0.1),0_0_0_1px_rgb(255_255_255/0.05)] dark:data-open:bg-zinc-900"
+      class="inline-flex items-center gap-2 rounded-full bg-white px-3 py-1 text-zinc-900 shadow-[0_1px_3px_0_rgb(0_0_0/0.1),0_1px_2px_-1px_rgb(0_0_0/0.1),0_0_0_1px_rgb(0_0_0/0.05)] data-open:bg-zinc-50 dark:bg-zinc-950 dark:text-zinc-100 dark:shadow-[0_1px_3px_0_rgb(255_255_255/0.1),0_1px_2px_-1px_rgb(255_255_255/0.1),0_0_0_1px_rgb(255_255_255/0.05)] dark:data-open:bg-zinc-900"
       [ngpTooltipTrigger]="tooltip"
       [ngpTooltipTriggerAnchor]="infoIcon"
       ngpTooltipTriggerPlacement="bottom-end"

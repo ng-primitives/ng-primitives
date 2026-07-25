@@ -45,7 +45,7 @@ import { NgpMenu, NgpMenuItem, NgpMenuTrigger } from 'ng-primitives/menu';
         </li>
         <li class="text-zinc-300 dark:text-zinc-700" ngpBreadcrumbSeparator>
           <ng-icon
-            class="text-current"
+            class="text-current!"
             style="--ng-icon__size: 0.85rem"
             name="lucideChevronRight"
           />
@@ -59,7 +59,7 @@ import { NgpMenu, NgpMenuItem, NgpMenuTrigger } from 'ng-primitives/menu';
           >
             <span class="flex h-full w-full items-center justify-center" ngpBreadcrumbEllipsis>
               <ng-icon
-                class="text-current"
+                class="text-current!"
                 style="--ng-icon__size: 1rem"
                 name="lucideMoreHorizontal"
               />
@@ -68,7 +68,7 @@ import { NgpMenu, NgpMenuItem, NgpMenuTrigger } from 'ng-primitives/menu';
 
           <ng-template #menu>
             <div
-              class="fixed z-50 flex min-w-[140px] flex-col rounded-lg border border-zinc-200 bg-white p-1 text-left text-sm shadow-lg ring-1 ring-black/5 outline-none dark:border-zinc-800 dark:bg-zinc-950"
+              class="fixed z-50 flex min-w-[140px] flex-col rounded-lg border border-gray-200 bg-white p-1 text-left text-sm shadow-lg ring-1 ring-black/5 outline-none dark:border-zinc-800 dark:bg-zinc-950"
               ngpMenu
             >
               <button
@@ -94,7 +94,7 @@ import { NgpMenu, NgpMenuItem, NgpMenuTrigger } from 'ng-primitives/menu';
         </li>
         <li class="text-zinc-300 dark:text-zinc-700" ngpBreadcrumbSeparator>
           <ng-icon
-            class="text-current"
+            class="text-current!"
             style="--ng-icon__size: 0.85rem"
             name="lucideChevronRight"
           />
@@ -110,7 +110,7 @@ import { NgpMenu, NgpMenuItem, NgpMenuTrigger } from 'ng-primitives/menu';
         </li>
         <li class="text-zinc-300 dark:text-zinc-700" ngpBreadcrumbSeparator>
           <ng-icon
-            class="text-current"
+            class="text-current!"
             style="--ng-icon__size: 0.85rem"
             name="lucideChevronRight"
           />

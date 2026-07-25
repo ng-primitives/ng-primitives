@@ -63,7 +63,7 @@ import {
           [style.background]="color.toHex()"
         ></div>
         <input
-          class="h-[34px] min-w-0 flex-1 rounded-lg border border-gray-200 bg-white px-2.5 text-sm font-[510] tracking-[-0.006em] text-gray-950 lowercase outline-none data-[focus]:border-blue-500 data-[focus]:ring-1 data-[focus]:ring-blue-500 dark:border-zinc-800 dark:bg-zinc-950 dark:text-white dark:data-[focus]:border-blue-400 dark:data-[focus]:ring-blue-400"
+          class="h-[34px] min-w-0 flex-1 rounded-lg border border-gray-200 bg-white px-2.5 text-sm font-[510] tracking-[-0.006em] text-zinc-950 lowercase outline-none data-[focus]:border-blue-500 data-[focus]:ring-1 data-[focus]:ring-blue-500 dark:border-zinc-800 dark:bg-zinc-950 dark:text-white dark:data-[focus]:border-blue-400 dark:data-[focus]:ring-blue-400"
           ngpColorField
           aria-label="Hex"
         />

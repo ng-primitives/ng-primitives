@@ -6,7 +6,7 @@ import { NgpToast, NgpToastManager } from 'ng-primitives/toast';
   imports: [NgpToast],
   template: `
     <button
-      class="h-[2.125rem] rounded-lg border-none bg-white px-3.5 font-[510] text-gray-900 shadow-[0_1px_3px_0_rgb(0_0_0/0.1),0_1px_2px_-1px_rgb(0_0_0/0.1),0_0_0_1px_rgb(0_0_0/0.05)] transition-colors duration-300 outline-none data-focus-visible:outline-2 data-focus-visible:outline-offset-2 data-focus-visible:outline-blue-500 data-hover:bg-gray-50 data-press:bg-gray-100 dark:bg-zinc-950 dark:text-gray-100 dark:shadow-[0_1px_3px_0_rgb(255_255_255/0.1),0_1px_2px_-1px_rgb(255_255_255/0.1),0_0_0_1px_rgb(255_255_255/0.05)] dark:data-focus-visible:outline-blue-400 dark:data-hover:bg-zinc-900 dark:data-press:bg-zinc-800"
+      class="h-[2.125rem] rounded-lg border-none bg-white px-3.5 font-[510] text-zinc-900 shadow-[0_1px_3px_0_rgb(0_0_0/0.1),0_1px_2px_-1px_rgb(0_0_0/0.1),0_0_0_1px_rgb(0_0_0/0.05)] transition-colors duration-300 outline-none data-focus-visible:outline-2 data-focus-visible:outline-offset-2 data-focus-visible:outline-blue-500 data-hover:bg-zinc-50 data-press:bg-zinc-100 dark:bg-zinc-950 dark:text-zinc-100 dark:shadow-[0_1px_3px_0_rgb(255_255_255/0.1),0_1px_2px_-1px_rgb(255_255_255/0.1),0_0_0_1px_rgb(255_255_255/0.05)] dark:data-focus-visible:outline-blue-400 dark:data-hover:bg-zinc-900 dark:data-press:bg-zinc-800"
       (click)="show(toast)"
       ngpButton
     >
@@ -21,12 +21,12 @@ import { NgpToast, NgpToastManager } from 'ng-primitives/toast';
         animate.leave="toast-leave"
       >
         <p
-          class="toast-title col-start-1 col-end-2 row-start-1 m-0 text-xs/4! font-[590] text-gray-900 select-none dark:text-gray-100"
+          class="toast-title col-start-1 col-end-2 row-start-1 m-0 text-xs/4! font-[590] text-zinc-900 select-none dark:text-zinc-100"
         >
           This is a toast message
         </p>
         <p
-          class="toast-description col-start-1 col-end-2 row-start-2 m-0 text-xs/4! text-gray-600 select-none dark:text-gray-300"
+          class="toast-description col-start-1 col-end-2 row-start-2 m-0 text-xs/4! text-zinc-600 select-none dark:text-zinc-300"
         >
           It will disappear in 3 seconds
         </p>

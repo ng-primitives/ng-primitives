@@ -22,7 +22,7 @@ import {
   ],
   template: `
     <button
-      class="h-[2.125rem] rounded-[0.625rem] border-none bg-white px-3.5 font-[510] tracking-[-0.006em] text-gray-900 shadow-sm ring-1 ring-black/5 outline-hidden transition-colors duration-300 hover:bg-gray-100 focus-visible:outline-2 focus-visible:outline-blue-500 active:bg-gray-200 dark:bg-transparent dark:text-gray-100 dark:ring-white/10 dark:hover:bg-white/10 dark:focus-visible:outline-blue-400 dark:active:bg-white/20"
+      class="h-[2.125rem] rounded-[0.625rem] border-none bg-white px-3.5 font-[510] tracking-[-0.006em] text-zinc-900 shadow-[0_1px_3px_0_rgb(0_0_0/0.1),0_1px_2px_-1px_rgb(0_0_0/0.1),0_0_0_1px_rgb(0_0_0/0.05)] outline-hidden transition-colors duration-300 hover:bg-zinc-100 focus-visible:outline-2 focus-visible:outline-blue-500 active:bg-zinc-200 dark:bg-zinc-950 dark:text-zinc-100 dark:shadow-[0_1px_3px_0_rgb(255_255_255/0.1),0_1px_2px_-1px_rgb(255_255_255/0.1),0_0_0_1px_rgb(255_255_255/0.05)] dark:hover:bg-white/10 dark:focus-visible:outline-blue-400 dark:active:bg-white/20"
       [ngpMenuTrigger]="menu"
       ngpButton
     >
@@ -31,39 +31,39 @@ import {
 
     <ng-template #menu>
       <div
-        class="animate-in fade-in-0 zoom-in-95 fixed flex w-max origin-(--ngp-menu-transform-origin) flex-col rounded-[0.625rem] border border-gray-200 bg-white p-1 shadow-lg outline-none dark:border-zinc-800 dark:bg-zinc-950"
+        class="fixed flex w-max origin-(--ngp-menu-transform-origin) flex-col rounded-[0.625rem] border border-gray-200 bg-white p-1 shadow-lg outline-none dark:border-zinc-800 dark:bg-zinc-950"
         ngpMenu
       >
         <div [(ngpMenuItemRadioGroupValue)]="theme" ngpMenuItemRadioGroup>
           <button
-            class="flex min-w-[160px] cursor-pointer items-center gap-2 rounded-md border-none bg-transparent px-3 py-1.5 text-left text-sm font-[510] tracking-[-0.006em] text-gray-900 outline-hidden transition-colors hover:bg-gray-100 focus-visible:bg-gray-100 active:bg-gray-200 dark:text-gray-100 dark:hover:bg-white/10 dark:focus-visible:bg-white/10 dark:active:bg-white/20"
+            class="flex min-w-[160px] cursor-pointer items-center gap-2 rounded-md border-none bg-transparent px-3 py-1.5 text-left text-sm font-[510] tracking-[-0.006em] text-zinc-900 outline-hidden transition-colors hover:bg-zinc-100 focus-visible:bg-zinc-100 active:bg-zinc-200 dark:text-zinc-100 dark:hover:bg-white/10 dark:focus-visible:bg-white/10 dark:active:bg-white/20"
             ngpMenuItemRadio
             ngpMenuItemRadioValue="light"
           >
             <span
-              class="box-border flex h-3.5 w-3.5 items-center justify-center rounded-full border-[1.5px] border-gray-300 transition-colors after:block after:h-1.5 after:w-1.5 after:scale-0 after:rounded-full after:bg-[#f01e2b] after:transition-transform data-[checked]:border-[#f01e2b] data-[checked]:after:scale-100 dark:border-gray-600 dark:after:bg-[#ff4651] dark:data-[checked]:border-[#ff4651]"
+              class="box-border flex h-3.5 w-3.5 items-center justify-center rounded-full border-[1.5px] border-zinc-300 transition-colors after:block after:h-1.5 after:w-1.5 after:scale-0 after:rounded-full after:bg-[#f01e2b] after:transition-transform data-[checked]:border-[#f01e2b] data-[checked]:after:scale-100 dark:border-zinc-600 dark:after:bg-[#ff4651] dark:data-[checked]:border-[#ff4651]"
               ngpMenuItemIndicator
             ></span>
             Light
           </button>
           <button
-            class="flex min-w-[160px] cursor-pointer items-center gap-2 rounded-md border-none bg-transparent px-3 py-1.5 text-left text-sm font-[510] tracking-[-0.006em] text-gray-900 outline-hidden transition-colors hover:bg-gray-100 focus-visible:bg-gray-100 active:bg-gray-200 dark:text-gray-100 dark:hover:bg-white/10 dark:focus-visible:bg-white/10 dark:active:bg-white/20"
+            class="flex min-w-[160px] cursor-pointer items-center gap-2 rounded-md border-none bg-transparent px-3 py-1.5 text-left text-sm font-[510] tracking-[-0.006em] text-zinc-900 outline-hidden transition-colors hover:bg-zinc-100 focus-visible:bg-zinc-100 active:bg-zinc-200 dark:text-zinc-100 dark:hover:bg-white/10 dark:focus-visible:bg-white/10 dark:active:bg-white/20"
             ngpMenuItemRadio
             ngpMenuItemRadioValue="dark"
           >
             <span
-              class="box-border flex h-3.5 w-3.5 items-center justify-center rounded-full border-[1.5px] border-gray-300 transition-colors after:block after:h-1.5 after:w-1.5 after:scale-0 after:rounded-full after:bg-[#f01e2b] after:transition-transform data-[checked]:border-[#f01e2b] data-[checked]:after:scale-100 dark:border-gray-600 dark:after:bg-[#ff4651] dark:data-[checked]:border-[#ff4651]"
+              class="box-border flex h-3.5 w-3.5 items-center justify-center rounded-full border-[1.5px] border-zinc-300 transition-colors after:block after:h-1.5 after:w-1.5 after:scale-0 after:rounded-full after:bg-[#f01e2b] after:transition-transform data-[checked]:border-[#f01e2b] data-[checked]:after:scale-100 dark:border-zinc-600 dark:after:bg-[#ff4651] dark:data-[checked]:border-[#ff4651]"
               ngpMenuItemIndicator
             ></span>
             Dark
           </button>
           <button
-            class="flex min-w-[160px] cursor-pointer items-center gap-2 rounded-md border-none bg-transparent px-3 py-1.5 text-left text-sm font-[510] tracking-[-0.006em] text-gray-900 outline-hidden transition-colors hover:bg-gray-100 focus-visible:bg-gray-100 active:bg-gray-200 dark:text-gray-100 dark:hover:bg-white/10 dark:focus-visible:bg-white/10 dark:active:bg-white/20"
+            class="flex min-w-[160px] cursor-pointer items-center gap-2 rounded-md border-none bg-transparent px-3 py-1.5 text-left text-sm font-[510] tracking-[-0.006em] text-zinc-900 outline-hidden transition-colors hover:bg-zinc-100 focus-visible:bg-zinc-100 active:bg-zinc-200 dark:text-zinc-100 dark:hover:bg-white/10 dark:focus-visible:bg-white/10 dark:active:bg-white/20"
             ngpMenuItemRadio
             ngpMenuItemRadioValue="system"
           >
             <span
-              class="box-border flex h-3.5 w-3.5 items-center justify-center rounded-full border-[1.5px] border-gray-300 transition-colors after:block after:h-1.5 after:w-1.5 after:scale-0 after:rounded-full after:bg-[#f01e2b] after:transition-transform data-[checked]:border-[#f01e2b] data-[checked]:after:scale-100 dark:border-gray-600 dark:after:bg-[#ff4651] dark:data-[checked]:border-[#ff4651]"
+              class="box-border flex h-3.5 w-3.5 items-center justify-center rounded-full border-[1.5px] border-zinc-300 transition-colors after:block after:h-1.5 after:w-1.5 after:scale-0 after:rounded-full after:bg-[#f01e2b] after:transition-transform data-[checked]:border-[#f01e2b] data-[checked]:after:scale-100 dark:border-zinc-600 dark:after:bg-[#ff4651] dark:data-[checked]:border-[#ff4651]"
               ngpMenuItemIndicator
             ></span>
             System
@@ -71,6 +71,37 @@ import {
         </div>
       </div>
     </ng-template>
+  `,
+  styles: `
+    [ngpMenu][data-enter] {
+      animation: menu-show 0.1s ease-out;
+    }
+
+    [ngpMenu][data-exit] {
+      animation: menu-hide 0.1s ease-out;
+    }
+
+    @keyframes menu-show {
+      from {
+        opacity: 0;
+        transform: scale(0.9);
+      }
+      to {
+        opacity: 1;
+        transform: scale(1);
+      }
+    }
+
+    @keyframes menu-hide {
+      from {
+        opacity: 1;
+        transform: scale(1);
+      }
+      to {
+        opacity: 0;
+        transform: scale(0.9);
+      }
+    }
   `,
 })
 export default class MenuRadioTailwindExample {

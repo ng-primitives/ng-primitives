@@ -25,7 +25,7 @@ import {
   providers: [provideIcons({ heroChevronDown })],
   template: `
     <div
-      class="relative box-border flex h-[2.125rem] w-[300px] items-center justify-between rounded-lg border border-gray-200 bg-white transition-colors data-focus:outline-2 data-focus:outline-offset-2 data-focus:outline-blue-500 dark:border-gray-700 dark:bg-transparent dark:data-focus:outline-blue-400"
+      class="relative box-border flex h-[2.125rem] w-[300px] items-center justify-between rounded-lg border-none bg-white shadow-[0_1px_2px_rgba(0,0,0,0.05),0_0_0_1px_rgba(0,0,0,0.1)] data-focus:outline-2 data-focus:outline-offset-2 data-focus:outline-blue-500 dark:bg-zinc-950 dark:shadow-[0_1px_2px_rgba(255,255,255,0.007),0_0_0_1px_rgba(255,255,255,0.1)] dark:data-focus:outline-blue-400"
       [(ngpComboboxValue)]="value"
       [ngpComboboxScrollToOption]="scrollToOption"
       [ngpComboboxOptions]="filteredOptions()"
@@ -34,7 +34,7 @@ import {
       ngpCombobox
     >
       <input
-        class="font-inherit h-full flex-1 border-none bg-transparent px-4 text-[14px] text-gray-900 outline-hidden focus:ring-0 dark:bg-transparent dark:text-gray-100"
+        class="h-full flex-1 border-none bg-transparent px-4 text-[14px] text-zinc-900 outline-none dark:text-zinc-100"
         [value]="inputValue()"
         (input)="onFilterChange($event)"
         placeholder="Select from 10,000 options"
@@ -42,7 +42,7 @@ import {
       />
 
       <button
-        class="box-border inline-flex h-full w-9 cursor-pointer items-center justify-center border-none bg-transparent text-gray-900 focus:outline-hidden dark:text-gray-100 dark:hover:text-gray-200"
+        class="box-border inline-flex h-full w-9 cursor-pointer items-center justify-center border-none bg-transparent text-zinc-900 outline-none dark:text-zinc-100"
         ngpComboboxButton
         aria-label="Toggle dropdown"
       >
@@ -59,7 +59,7 @@ import {
             <div [style.height.px]="virtualizer.getTotalSize()" [style.position]="'relative'">
               @for (virtualRow of virtualizer.getVirtualItems(); track virtualRow.index) {
                 <div
-                  class="box-border flex h-[2.125rem] w-full cursor-pointer items-center gap-2 rounded-lg px-3 text-sm tracking-[-0.006em] text-gray-900 transition-colors hover:bg-gray-100 data-active:bg-gray-100 data-press:bg-gray-100 data-selected:font-[510] data-selected:text-[#f01e2b] dark:text-gray-100 dark:hover:bg-white/10 dark:data-active:bg-white/10 dark:data-press:bg-white/20 dark:data-selected:text-[#ff4651]"
+                  class="box-border flex h-[2.125rem] w-full cursor-pointer items-center gap-2 rounded-lg px-3 text-sm tracking-[-0.006em] text-zinc-900 transition-colors hover:bg-zinc-100 data-active:bg-zinc-100 data-press:bg-zinc-100 data-selected:font-[510] data-selected:text-[#f01e2b] dark:text-zinc-100 dark:hover:bg-white/10 dark:data-active:bg-white/10 dark:data-press:bg-white/20 dark:data-selected:text-[#ff4651]"
                   [ngpComboboxOptionValue]="filteredOptions()[virtualRow.index]"
                   [style.position]="'absolute'"
                   [style.top.px]="virtualRow.start"
@@ -76,14 +76,14 @@ import {
           </div>
         } @else {
           <div
-            class="flex items-center justify-center p-4 text-center text-sm font-[510] text-gray-600 dark:text-gray-300"
+            class="flex items-center justify-center p-4 text-center text-sm font-[510] text-zinc-600 dark:text-zinc-300"
           >
             No options found
           </div>
         }
 
         <div
-          class="rounded-b-xl border-t border-black/10 bg-gray-300 px-3 py-2 text-xs text-gray-600 dark:border-zinc-800 dark:bg-gray-700 dark:text-gray-300"
+          class="rounded-b-xl border-t border-black/10 bg-zinc-300 px-3 py-2 text-xs text-zinc-600 dark:border-zinc-800 dark:bg-zinc-700 dark:text-zinc-300"
         >
           Showing {{ filteredOptions().length }} of {{ options.length }} results
         </div>

@@ -26,7 +26,7 @@ import {
   template: `
     <!-- Combobox multiple with chips -->
     <div
-      class="relative box-border flex min-h-[2.125rem] w-[300px] items-center justify-between rounded-lg border border-gray-200 bg-white transition-colors data-focus:outline-2 data-focus:outline-offset-2 data-focus:outline-blue-500 dark:border-gray-700 dark:bg-transparent dark:data-focus:outline-blue-400"
+      class="relative box-border flex min-h-[2.125rem] w-[300px] items-center justify-between rounded-lg border-none bg-white shadow-[0_1px_2px_rgba(0,0,0,0.05),0_0_0_1px_rgba(0,0,0,0.1)] data-focus:outline-2 data-focus:outline-offset-2 data-focus:outline-blue-500 dark:bg-zinc-950 dark:shadow-[0_1px_2px_rgba(255,255,255,0.007),0_0_0_1px_rgba(255,255,255,0.1)] dark:data-focus:outline-blue-400"
       [(ngpComboboxValue)]="value"
       (ngpComboboxValueChange)="filter.set('')"
       (ngpComboboxOpenChange)="resetOnClose($event)"
@@ -38,7 +38,7 @@ import {
           <div class="flex flex-wrap gap-0.5 pl-2">
             @for (selectedOption of value(); track selectedOption; let i = $index) {
               <div
-                class="chip inline-flex max-w-[200px] items-center rounded-2xl border border-gray-300 bg-gray-100 py-0.5 pr-1.5 pl-2 text-xs/5 font-[510] text-gray-900 transition-all duration-150 hover:bg-gray-300 dark:border-gray-700 dark:bg-zinc-800 dark:text-gray-100 dark:hover:bg-gray-700"
+                class="chip inline-flex max-w-[200px] items-center rounded-2xl border border-zinc-300 bg-zinc-100 py-0.5 pr-1.5 pl-2 text-xs/5 font-[510] text-zinc-900 transition-all duration-150 hover:bg-zinc-300 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100 dark:hover:bg-zinc-700"
                 #chipElement
                 [class.chip-focused]="focusedChipIndex() === i"
               >
@@ -46,7 +46,7 @@ import {
                   {{ selectedOption }}
                 </span>
                 <button
-                  class="chip-remove flex h-4 w-4 cursor-pointer items-center justify-center rounded-full border-none bg-transparent p-0 text-sm/none text-gray-600 opacity-60 transition-all duration-150 hover:bg-[#f01e2b] hover:text-white hover:opacity-100 focus:outline-2 focus:outline-offset-1 focus:outline-blue-500 dark:text-gray-300 dark:hover:bg-[#ff4651] dark:focus:outline-blue-400"
+                  class="chip-remove flex h-4 w-4 cursor-pointer items-center justify-center rounded-full border-none bg-transparent p-0 text-sm/none text-zinc-600 opacity-60 transition-all duration-150 hover:bg-[#f01e2b] hover:text-white hover:opacity-100 focus:outline-2 focus:outline-offset-1 focus:outline-blue-500 dark:text-zinc-300 dark:hover:bg-[#ff4651] dark:focus:outline-blue-400"
                   [attr.aria-label]="'Remove ' + selectedOption"
                   (click)="removeOption(selectedOption)"
                   type="button"
@@ -58,7 +58,7 @@ import {
           </div>
         }
         <input
-          class="font-inherit h-full [width:inherit] border-none bg-transparent px-4 text-[14px] text-gray-900 outline-hidden placeholder:text-gray-600 dark:text-gray-100 dark:placeholder:text-gray-300"
+          class="h-full [width:inherit] border-none bg-transparent px-4 text-[14px] text-zinc-900 outline-hidden placeholder:text-zinc-600 dark:text-zinc-100 dark:placeholder:text-zinc-300"
           #inputElement
           [class.py-2]="value().length > 0"
           [value]="filter()"
@@ -69,7 +69,7 @@ import {
         />
       </div>
       <button
-        class="box-border inline-flex h-full w-9 cursor-pointer items-center justify-center border-none bg-transparent text-gray-900 focus:outline-hidden dark:text-gray-100 dark:hover:text-gray-200"
+        class="box-border inline-flex h-full w-9 cursor-pointer items-center justify-center border-none bg-transparent text-zinc-900 outline-none dark:text-zinc-100"
         ngpComboboxButton
         aria-label="Toggle dropdown"
       >
@@ -83,18 +83,18 @@ import {
       >
         @for (option of filteredOptions(); track option) {
           <div
-            class="box-border flex h-[2.125rem] w-full cursor-pointer items-center gap-2 rounded-lg px-3 text-sm tracking-[-0.006em] text-gray-900 transition-colors hover:bg-gray-100 data-active:bg-gray-100 data-press:bg-gray-100 dark:text-gray-100 dark:hover:bg-white/10 dark:data-active:bg-white/10 dark:data-press:bg-white/20"
+            class="box-border flex h-[2.125rem] w-full cursor-pointer items-center gap-2 rounded-lg px-3 text-[14px] text-zinc-900 data-active:bg-zinc-100 data-hover:bg-zinc-50 data-press:bg-zinc-100 dark:text-zinc-100 dark:data-active:bg-zinc-800 dark:data-hover:bg-zinc-900 dark:data-press:bg-zinc-800"
             [ngpComboboxOptionValue]="option"
             ngpComboboxOption
           >
             {{ option }}
             @if (isSelected(option)) {
-              <ng-icon class="ml-auto text-[#f01e2b] dark:text-[#ff4651]" name="heroCheckSolid" />
+              <ng-icon class="ml-auto text-[#f01e2b]! dark:text-[#ff4651]!" name="heroCheckSolid" />
             }
           </div>
         } @empty {
           <div
-            class="flex items-center justify-center p-2 text-center text-sm font-[510] text-gray-600 dark:text-gray-300"
+            class="flex items-center justify-center p-2 text-center text-[14px] font-[510] text-zinc-600 dark:text-zinc-300"
           >
             No options found
           </div>

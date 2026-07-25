@@ -30,7 +30,7 @@ import {
       ></div>
     </div>
 
-    <span class="text-[0.875rem] tracking-[-0.006em] text-gray-600 tabular-nums dark:text-gray-300">
+    <span class="text-[0.875rem] tracking-[-0.006em] text-zinc-600 tabular-nums dark:text-zinc-300">
       {{ color.toRgba() }}
     </span>
   `,

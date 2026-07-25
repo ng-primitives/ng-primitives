@@ -13,7 +13,7 @@ import { NgpFocus } from 'ng-primitives/interactions';
       (ngpFocus)="isFocused.set($event)"
       placeholder="Try focusing me!"
     />
-    <p class="mt-1 text-xs text-gray-600 dark:text-gray-300">
+    <p class="mt-1 text-xs text-zinc-600 dark:text-zinc-300">
       Input is {{ isFocused() ? 'focused' : 'blurred' }}.
     </p>
   `,

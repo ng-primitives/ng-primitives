@@ -38,7 +38,7 @@ import {
     >
       <div class="mb-4 flex h-9 items-center justify-between">
         <button
-          class="box-content flex size-8 cursor-pointer items-center justify-center rounded-lg border border-black/10 text-[20px] leading-normal data-disabled:cursor-not-allowed data-disabled:text-zinc-400 data-focus-visible:outline-2 data-focus-visible:outline-blue-500 data-hover:bg-zinc-50 data-press:bg-zinc-100 dark:border-zinc-800 dark:data-disabled:text-zinc-500 dark:data-focus-visible:outline-blue-400 dark:data-hover:bg-zinc-900 dark:data-press:bg-zinc-800"
+          class="box-content flex size-8 cursor-pointer items-center justify-center rounded-lg border border-black/10 text-[20px] [line-height:normal] data-disabled:cursor-not-allowed data-disabled:text-zinc-400 data-focus-visible:outline-2 data-focus-visible:outline-blue-500 data-hover:bg-zinc-50 data-press:bg-zinc-100 dark:border-zinc-800 dark:data-disabled:text-zinc-500 dark:data-focus-visible:outline-blue-400 dark:data-hover:bg-zinc-900 dark:data-press:bg-zinc-800"
           ngpDatePickerPreviousMonth
           aria-label="previous month"
         >
@@ -49,7 +49,7 @@ import {
           {{ label() }}
         </h2>
         <button
-          class="box-content flex size-8 cursor-pointer items-center justify-center rounded-lg border border-black/10 text-[20px] leading-normal data-disabled:cursor-not-allowed data-disabled:text-zinc-400 data-focus-visible:outline-2 data-focus-visible:outline-blue-500 data-hover:bg-zinc-50 data-press:bg-zinc-100 dark:border-zinc-800 dark:data-disabled:text-zinc-500 dark:data-focus-visible:outline-blue-400 dark:data-hover:bg-zinc-900 dark:data-press:bg-zinc-800"
+          class="box-content flex size-8 cursor-pointer items-center justify-center rounded-lg border border-black/10 text-[20px] [line-height:normal] data-disabled:cursor-not-allowed data-disabled:text-zinc-400 data-focus-visible:outline-2 data-focus-visible:outline-blue-500 data-hover:bg-zinc-50 data-press:bg-zinc-100 dark:border-zinc-800 dark:data-disabled:text-zinc-500 dark:data-focus-visible:outline-blue-400 dark:data-hover:bg-zinc-900 dark:data-press:bg-zinc-800"
           ngpDatePickerNextMonth
           aria-label="next month"
         >

@@ -15,7 +15,7 @@ import { NgpPopover, NgpPopoverTrigger } from 'ng-primitives/popover';
   imports: [NgpPopoverTrigger, NgpPopover, NgpButton],
   template: `
     <button
-      class="h-[2.125rem] rounded-lg bg-white px-3.5 font-[510] text-gray-900 shadow-sm ring-1 ring-black/5 transition-colors duration-300 ease-in-out data-focus-visible:outline-2 data-focus-visible:outline-offset-2 data-focus-visible:outline-blue-500 data-hover:bg-gray-50 data-press:bg-gray-100 dark:bg-transparent dark:text-gray-100 dark:shadow-sm dark:ring-white/10 dark:data-hover:bg-black dark:data-press:bg-black"
+      class="h-[2.125rem] rounded-lg bg-white px-3.5 font-[500] text-zinc-900 shadow-[0_1px_3px_0_rgb(0_0_0/0.1),0_1px_2px_-1px_rgb(0_0_0/0.1),0_0_0_1px_rgb(0_0_0/0.05)] transition-colors duration-300 ease-in-out data-focus-visible:outline-2 data-focus-visible:outline-offset-2 data-focus-visible:outline-blue-500 data-hover:bg-zinc-50 data-press:bg-zinc-100 dark:bg-zinc-950 dark:text-zinc-100 dark:shadow-[0_1px_3px_0_rgb(255_255_255/0.1),0_1px_2px_-1px_rgb(255_255_255/0.1),0_0_0_1px_rgb(255_255_255/0.05)] dark:data-hover:bg-black dark:data-press:bg-black"
       [ngpPopoverTrigger]="popover"
       [ngpPopoverTriggerCloseOnOutsideClick]="canDismiss"
       [ngpPopoverTriggerCloseOnEscape]="canDismiss"
@@ -30,16 +30,16 @@ import { NgpPopover, NgpPopoverTrigger } from 'ng-primitives/popover';
         class="animate-in absolute flex w-[260px] flex-col gap-2 rounded-xl border border-gray-200 bg-white p-3 shadow-lg outline-hidden dark:border-zinc-800 dark:bg-zinc-950"
         ngpPopover
       >
-        <h3 class="m-0 text-[13px] font-medium text-gray-900 dark:text-gray-100">Quick Note</h3>
+        <h3 class="m-0 text-[13px] font-medium text-zinc-900 dark:text-zinc-100">Quick Note</h3>
         <textarea
-          class="resize-none rounded-md border border-gray-300 bg-white p-2 font-[inherit] text-[13px] text-gray-900 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 dark:border-zinc-700 dark:bg-zinc-950 dark:text-gray-100"
+          class="resize-none rounded-md border border-zinc-300 bg-white p-2 font-[inherit] text-[13px] text-zinc-900 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 dark:border-zinc-700 dark:bg-zinc-950 dark:text-zinc-100"
           (input)="dirty.set(true)"
           rows="3"
           placeholder="Type something..."
         ></textarea>
         <div class="flex justify-end">
           <button
-            class="h-7 rounded-lg bg-white px-3 text-xs font-medium text-[#f01e2b] shadow-sm ring-1 ring-black/5 transition-colors data-hover:bg-gray-50 dark:bg-transparent dark:text-[#ff4651] dark:ring-white/10 dark:data-hover:bg-black"
+            class="h-7 rounded-lg bg-white px-3 text-xs font-medium text-[#f01e2b] shadow-[0_1px_3px_0_rgb(0_0_0/0.1),0_1px_2px_-1px_rgb(0_0_0/0.1),0_0_0_1px_rgb(0_0_0/0.05)] transition-colors data-hover:bg-zinc-50 dark:bg-zinc-950 dark:text-[#ff4651] dark:shadow-[0_1px_3px_0_rgb(255_255_255/0.1),0_1px_2px_-1px_rgb(255_255_255/0.1),0_0_0_1px_rgb(255_255_255/0.05)] dark:data-hover:bg-black"
             (click)="dirty.set(false)"
             ngpButton
             type="button"
@@ -118,14 +118,14 @@ export default class PopoverDismissGuardExample {
         </p>
         <div class="mt-6 flex justify-end gap-2">
           <button
-            class="h-[2.125rem] rounded-lg border-none bg-white px-3.5 font-[510] text-zinc-900 shadow-sm ring-1 ring-black/5 transition-colors duration-300 ease-in-out data-focus-visible:outline-2 data-focus-visible:outline-offset-2 data-focus-visible:outline-blue-500 data-hover:bg-zinc-50 data-press:bg-zinc-100 dark:bg-zinc-950 dark:text-zinc-100 dark:ring-white/10 dark:data-hover:bg-zinc-900 dark:data-press:bg-zinc-800"
+            class="h-[2.125rem] rounded-lg border-none bg-white px-3.5 font-[500] text-zinc-900 shadow-[0_1px_3px_0_rgb(0_0_0/0.1),0_1px_2px_-1px_rgb(0_0_0/0.1),0_0_0_1px_rgb(0_0_0/0.05)] transition-colors duration-300 ease-in-out data-focus-visible:outline-2 data-focus-visible:outline-offset-2 data-focus-visible:outline-blue-500 data-hover:bg-zinc-50 data-press:bg-zinc-100 dark:bg-zinc-950 dark:text-zinc-100 dark:shadow-[0_1px_3px_0_rgb(255_255_255/0.1),0_1px_2px_-1px_rgb(255_255_255/0.1),0_0_0_1px_rgb(255_255_255/0.05)] dark:data-hover:bg-zinc-900 dark:data-press:bg-zinc-800"
             (click)="dialogRef.close(false)"
             ngpButton
           >
             Keep Editing
           </button>
           <button
-            class="h-[2.125rem] rounded-lg border-none bg-white px-3.5 font-[510] text-[#f01e2b] shadow-sm ring-1 ring-black/5 transition-colors duration-300 ease-in-out data-focus-visible:outline-2 data-focus-visible:outline-offset-2 data-focus-visible:outline-blue-500 data-hover:bg-zinc-50 data-press:bg-zinc-100 dark:bg-zinc-950 dark:text-[#ff4651] dark:ring-white/10 dark:data-hover:bg-zinc-900 dark:data-press:bg-zinc-800"
+            class="h-[2.125rem] rounded-lg border-none bg-white px-3.5 font-[510] text-[#f01e2b] shadow-[0_1px_3px_0_rgb(0_0_0/0.1),0_1px_2px_-1px_rgb(0_0_0/0.1),0_0_0_1px_rgb(0_0_0/0.05)] transition-colors duration-300 ease-in-out data-focus-visible:outline-2 data-focus-visible:outline-offset-2 data-focus-visible:outline-blue-500 data-hover:bg-zinc-50 data-press:bg-zinc-100 dark:bg-zinc-950 dark:text-[#ff4651] dark:shadow-[0_1px_3px_0_rgb(255_255_255/0.1),0_1px_2px_-1px_rgb(255_255_255/0.1),0_0_0_1px_rgb(255_255_255/0.05)] dark:data-hover:bg-zinc-900 dark:data-press:bg-zinc-800"
             (click)="dialogRef.close(true)"
             ngpButton
           >

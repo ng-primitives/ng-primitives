@@ -14,13 +14,13 @@ import { Color, NgpColorField, NgpColorPicker } from 'ng-primitives/color';
 
       <div class="flex flex-col gap-1">
         <label
-          class="text-[0.75rem] font-[510] tracking-[-0.011em] text-gray-500 dark:text-gray-400"
+          class="text-[0.75rem] font-[510] tracking-[-0.011em] text-zinc-500 dark:text-zinc-400"
           for="r"
         >
           R
         </label>
         <input
-          class="h-[34px] w-14 rounded-lg border border-black/10 bg-white px-2 text-sm font-[510] tracking-[-0.006em] text-gray-900 tabular-nums outline-none data-focus:border-blue-500 data-focus:ring-1 data-focus:ring-blue-500 dark:border-zinc-800 dark:bg-zinc-950 dark:text-gray-100 dark:data-focus:border-blue-400 dark:data-focus:ring-blue-400"
+          class="h-[34px] w-14 rounded-lg border border-black/10 bg-white px-2 text-sm font-[510] tracking-[-0.006em] text-zinc-900 tabular-nums outline-none data-focus:border-blue-500 data-focus:ring-1 data-focus:ring-blue-500 dark:border-zinc-800 dark:bg-zinc-950 dark:text-zinc-100 dark:data-focus:border-blue-400 dark:data-focus:ring-blue-400"
           id="r"
           ngpColorField
           ngpColorFieldChannel="red"
@@ -28,13 +28,13 @@ import { Color, NgpColorField, NgpColorPicker } from 'ng-primitives/color';
       </div>
       <div class="flex flex-col gap-1">
         <label
-          class="text-[0.75rem] font-[510] tracking-[-0.011em] text-gray-500 dark:text-gray-400"
+          class="text-[0.75rem] font-[510] tracking-[-0.011em] text-zinc-500 dark:text-zinc-400"
           for="g"
         >
           G
         </label>
         <input
-          class="h-[34px] w-14 rounded-lg border border-black/10 bg-white px-2 text-sm font-[510] tracking-[-0.006em] text-gray-900 tabular-nums outline-none data-focus:border-blue-500 data-focus:ring-1 data-focus:ring-blue-500 dark:border-zinc-800 dark:bg-zinc-950 dark:text-gray-100 dark:data-focus:border-blue-400 dark:data-focus:ring-blue-400"
+          class="h-[34px] w-14 rounded-lg border border-black/10 bg-white px-2 text-sm font-[510] tracking-[-0.006em] text-zinc-900 tabular-nums outline-none data-focus:border-blue-500 data-focus:ring-1 data-focus:ring-blue-500 dark:border-zinc-800 dark:bg-zinc-950 dark:text-zinc-100 dark:data-focus:border-blue-400 dark:data-focus:ring-blue-400"
           id="g"
           ngpColorField
           ngpColorFieldChannel="green"
@@ -42,13 +42,13 @@ import { Color, NgpColorField, NgpColorPicker } from 'ng-primitives/color';
       </div>
       <div class="flex flex-col gap-1">
         <label
-          class="text-[0.75rem] font-[510] tracking-[-0.011em] text-gray-500 dark:text-gray-400"
+          class="text-[0.75rem] font-[510] tracking-[-0.011em] text-zinc-500 dark:text-zinc-400"
           for="b"
         >
           B
         </label>
         <input
-          class="h-[34px] w-14 rounded-lg border border-black/10 bg-white px-2 text-sm font-[510] tracking-[-0.006em] text-gray-900 tabular-nums outline-none data-focus:border-blue-500 data-focus:ring-1 data-focus:ring-blue-500 dark:border-zinc-800 dark:bg-zinc-950 dark:text-gray-100 dark:data-focus:border-blue-400 dark:data-focus:ring-blue-400"
+          class="h-[34px] w-14 rounded-lg border border-black/10 bg-white px-2 text-sm font-[510] tracking-[-0.006em] text-zinc-900 tabular-nums outline-none data-focus:border-blue-500 data-focus:ring-1 data-focus:ring-blue-500 dark:border-zinc-800 dark:bg-zinc-950 dark:text-zinc-100 dark:data-focus:border-blue-400 dark:data-focus:ring-blue-400"
           id="b"
           ngpColorField
           ngpColorFieldChannel="blue"

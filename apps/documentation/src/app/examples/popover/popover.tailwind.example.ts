@@ -7,7 +7,7 @@ import { NgpPopover, NgpPopoverArrow, NgpPopoverTrigger } from 'ng-primitives/po
   imports: [NgpPopoverTrigger, NgpPopover, NgpPopoverArrow, NgpButton],
   template: `
     <button
-      class="h-[2.125rem] rounded-lg bg-white px-3.5 font-[510] text-gray-900 shadow-sm ring-1 ring-black/5 transition-colors duration-300 ease-in-out data-focus-visible:outline-2 data-focus-visible:outline-offset-2 data-focus-visible:outline-blue-500 data-hover:bg-gray-50 data-press:bg-gray-100 dark:bg-transparent dark:text-gray-100 dark:shadow-sm dark:ring-white/10 dark:data-hover:bg-black dark:data-press:bg-black"
+      class="h-[2.125rem] rounded-lg bg-white px-3.5 font-[500] text-zinc-900 shadow-[0_1px_3px_0_rgb(0_0_0/0.1),0_1px_2px_-1px_rgb(0_0_0/0.1),0_0_0_1px_rgb(0_0_0/0.05)] transition-colors duration-300 ease-in-out data-focus-visible:outline-2 data-focus-visible:outline-offset-2 data-focus-visible:outline-blue-500 data-hover:bg-zinc-50 data-press:bg-zinc-100 dark:bg-zinc-950 dark:text-zinc-100 dark:shadow-[0_1px_3px_0_rgb(255_255_255/0.1),0_1px_2px_-1px_rgb(255_255_255/0.1),0_0_0_1px_rgb(255_255_255/0.05)] dark:data-hover:bg-black dark:data-press:bg-black"
       [ngpPopoverTrigger]="popover"
       ngpButton
       type="button"
@@ -20,8 +20,8 @@ import { NgpPopover, NgpPopoverArrow, NgpPopoverTrigger } from 'ng-primitives/po
         class="animate-in fade-in scale-in absolute flex max-w-[280px] flex-col gap-1 rounded-xl border border-gray-200 bg-white p-3 shadow-lg outline-hidden dark:border-zinc-800 dark:bg-zinc-950"
         ngpPopover
       >
-        <h3 class="m-0 text-[13px] font-medium text-gray-900 dark:text-gray-100">Need Help?</h3>
-        <p class="m-0 text-[13px] text-gray-600 dark:text-gray-400">
+        <h3 class="m-0 text-[13px] font-medium text-zinc-900 dark:text-zinc-100">Need Help?</h3>
+        <p class="m-0 text-[13px] text-zinc-600 dark:text-zinc-400">
           Get quick tips and guidance on how to use this feature effectively. Check out our
           documentation for more details!
         </p>
@@ -37,10 +37,10 @@ import { NgpPopover, NgpPopoverArrow, NgpPopoverTrigger } from 'ng-primitives/po
           ngpPopoverArrow
         >
           <span
-            class="block h-0 w-0 border-x-[6px] border-b-[6px] border-x-transparent border-b-gray-950 dark:border-b-white"
+            class="block h-0 w-0 border-x-[6px] border-b-[6px] border-x-transparent border-b-zinc-950 dark:border-b-white"
           ></span>
           <span
-            class="-mt-[6px] block h-0 w-0 border-x-[6px] border-b-[6px] border-x-transparent border-b-white dark:border-b-gray-950"
+            class="-mt-[6px] block h-0 w-0 border-x-[6px] border-b-[6px] border-x-transparent border-b-white dark:border-b-zinc-950"
           ></span>
         </div>
       </div>

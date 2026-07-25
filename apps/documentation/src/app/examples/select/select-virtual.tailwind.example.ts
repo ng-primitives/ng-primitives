@@ -15,21 +15,32 @@ import {
   providers: [provideIcons({ heroChevronDown })],
   template: `
     <div
-      class="flex h-[2.125rem] w-[300px] cursor-pointer items-center justify-between rounded-lg border border-gray-200 bg-white text-sm tracking-[-0.006em] text-gray-900 outline-hidden data-focus:ring-2 data-focus:ring-blue-500 dark:border-gray-800 dark:bg-transparent dark:text-gray-50 dark:data-focus:ring-blue-400"
+      class="flex h-[2.125rem] w-[300px] cursor-pointer items-center justify-between rounded-lg border-none bg-white shadow-[0_1px_2px_rgba(0,0,0,0.05),0_0_0_1px_rgba(0,0,0,0.1)] outline-none data-focus:outline-2 data-focus:outline-offset-2 data-focus:outline-blue-500 dark:bg-zinc-950 dark:shadow-[0_1px_2px_rgba(255,255,255,0.007),0_0_0_1px_rgba(255,255,255,0.1)] dark:data-focus:outline-blue-400"
       [(ngpSelectValue)]="value"
       [ngpSelectScrollToOption]="scrollToOption"
       [ngpSelectOptions]="options"
       ngpSelect
     >
       @if (value(); as selectedValue) {
-        <span class="px-4">{{ selectedValue }}</span>
+        <span
+          class="flex h-full flex-1 items-center bg-transparent px-4 text-[14px] text-zinc-900 dark:text-zinc-100"
+        >
+          {{ selectedValue }}
+        </span>
       } @else {
-        <span class="px-4 text-gray-500 dark:text-gray-400">Select from 10,000 options</span>
+        <span
+          class="flex h-full flex-1 items-center bg-transparent px-4 text-[14px] text-zinc-500 dark:text-zinc-400"
+        >
+          Select from 10,000 options
+        </span>
       }
-      <ng-icon class="mx-2 h-full text-gray-500" name="heroChevronDown" />
+      <ng-icon
+        class="mx-2 inline-flex! h-full! items-center justify-center text-[14px]"
+        name="heroChevronDown"
+      />
 
       <div
-        class="absolute z-1001 mt-1 flex max-h-[300px] w-[300px] flex-col overflow-hidden rounded-xl border border-gray-200 bg-white p-0 shadow-lg outline-hidden dark:border-gray-800 dark:bg-zinc-950"
+        class="absolute z-1001 mt-1 flex max-h-[300px] w-(--ngp-select-width) flex-col overflow-hidden rounded-xl border border-black/10 bg-white p-0 shadow-lg outline-none dark:border-zinc-800 dark:bg-zinc-950"
         *ngpSelectPortal
         ngpSelectDropdown
       >
@@ -37,7 +48,7 @@ import {
           <div [style.height.px]="virtualizer.getTotalSize()" [style.position]="'relative'">
             @for (virtualRow of virtualizer.getVirtualItems(); track virtualRow.index) {
               <div
-                class="flex h-[2.125rem] w-full cursor-pointer items-center gap-2 rounded-lg px-3 text-sm tracking-[-0.006em] text-gray-800 data-active:bg-gray-100 data-hover:bg-gray-50 data-press:bg-gray-100 data-selected:font-[510] data-selected:text-[#f01e2b] dark:text-gray-300 dark:data-active:bg-white/10 dark:data-hover:bg-white/5 dark:data-press:bg-white/10 dark:data-selected:text-[#ff4651]"
+                class="flex h-[2.125rem] w-full cursor-pointer items-center gap-2 rounded-lg px-3 text-[14px] text-zinc-900 data-active:bg-zinc-100 data-hover:bg-zinc-50 data-press:bg-zinc-100 data-selected:font-[510] data-selected:text-[#f01e2b] dark:text-zinc-100 dark:data-active:bg-zinc-800 dark:data-hover:bg-zinc-900 dark:data-press:bg-zinc-800 dark:data-selected:text-[#ff4651]"
                 [ngpSelectOptionValue]="options[virtualRow.index]"
                 [style.position]="'absolute'"
                 [style.top.px]="virtualRow.start"

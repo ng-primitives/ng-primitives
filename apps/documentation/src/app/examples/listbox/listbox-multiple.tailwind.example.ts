@@ -9,7 +9,7 @@ import { NgpListbox, NgpListboxOption } from 'ng-primitives/listbox';
   providers: [provideIcons({ heroCheckSolid })],
   template: `
     <div
-      class="rounded-xl border border-gray-200 bg-white p-1 outline-hidden dark:border-gray-800 dark:bg-transparent"
+      class="rounded-xl border border-gray-200 bg-white p-1 outline-hidden dark:border-zinc-800 dark:bg-zinc-950"
       [(ngpListboxValue)]="selection"
       ngpListbox
       ngpListboxMode="multiple"
@@ -17,13 +17,13 @@ import { NgpListbox, NgpListboxOption } from 'ng-primitives/listbox';
     >
       @for (option of options; track option.id) {
         <div
-          class="flex h-[2.125rem] w-[200px] cursor-pointer items-center gap-2 rounded-lg px-3 text-sm tracking-[-0.006em] text-gray-600 transition-colors hover:bg-gray-50 data-active:bg-gray-100 data-press:bg-gray-100 data-selected:font-[510] data-selected:text-gray-900 dark:text-gray-300 dark:hover:bg-white/5 dark:data-active:bg-white/10 dark:data-press:bg-white/10 dark:data-selected:text-gray-100"
+          class="flex h-[2.125rem] w-[200px] cursor-pointer items-center gap-2 rounded-lg px-3 text-sm tracking-[-0.006em] text-zinc-600 transition-colors hover:bg-zinc-50 data-active:bg-zinc-100 data-press:bg-zinc-100 data-selected:font-[510] data-selected:text-zinc-900 dark:text-zinc-300 dark:hover:bg-white/5 dark:data-active:bg-white/10 dark:data-press:bg-white/10 dark:data-selected:text-zinc-100"
           #listboxOption="ngpListboxOption"
           [ngpListboxOptionValue]="option"
           ngpListboxOption
         >
           <ng-icon
-            class="text-[#f01e2b] opacity-0 transition-opacity dark:text-[#ff4651]"
+            class="text-[#f01e2b]! opacity-0 transition-opacity dark:text-[#ff4651]!"
             [class.opacity-100]="listboxOption.selected()"
             name="heroCheckSolid"
             size="16px"

@@ -27,7 +27,7 @@ import {
       </span>
 
       <div
-        class="col-span-2 h-2 overflow-hidden rounded-sm bg-white ring-1 ring-slate-200 ring-inset dark:bg-transparent dark:ring-zinc-700"
+        class="col-span-2 h-2 overflow-hidden rounded-sm bg-white ring-1 ring-slate-200 ring-inset dark:bg-zinc-950 dark:ring-zinc-700"
         ngpMeterTrack
       >
         <div

@@ -23,11 +23,11 @@ import { injectDisposables } from 'ng-primitives/utils';
       [ngpProgressValue]="value()"
       ngpProgress
     >
-      <span class="text-[14px] font-semibold text-gray-900 dark:text-gray-100" ngpProgressLabel>
+      <span class="text-[14px] font-semibold text-zinc-900 dark:text-zinc-100" ngpProgressLabel>
         Loading
       </span>
       <span
-        class="col-start-2 text-right text-[14px] font-medium text-gray-600 dark:text-gray-400"
+        class="col-start-2 text-right text-[14px] font-medium text-zinc-600 dark:text-zinc-400"
         ngpProgressValue
       >
         {{ value() }}%

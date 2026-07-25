@@ -58,7 +58,7 @@ import {
       >
         <li class="relative z-1" ngpNavigationMenuItem>
           <button
-            class="flex h-10 w-10 cursor-pointer items-center justify-center rounded-lg border-none bg-none p-0 text-gray-600 transition-colors duration-150 hover:bg-gray-100 hover:text-gray-900 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500 data-open:bg-gray-100 data-open:text-gray-900 dark:text-gray-300 dark:hover:bg-zinc-800 dark:hover:text-gray-100 dark:focus-visible:outline-blue-400 dark:data-open:bg-zinc-800 dark:data-open:text-gray-100"
+            class="flex h-10 w-10 cursor-pointer items-center justify-center rounded-lg border-none bg-none p-0 text-zinc-600 transition-colors duration-150 hover:bg-zinc-100 hover:text-zinc-900 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500 data-open:bg-zinc-100 data-open:text-zinc-900 dark:text-zinc-300 dark:hover:bg-zinc-800 dark:hover:text-zinc-100 dark:focus-visible:outline-blue-400 dark:data-open:bg-zinc-800 dark:data-open:text-zinc-100"
             [ngpNavigationMenuTrigger]="searchMenu"
             [ngpNavigationMenuTriggerOffset]="16"
             ngpNavigationMenuTriggerPlacement="right-start"
@@ -72,14 +72,14 @@ import {
               ngpNavigationMenuContent
             >
               <div
-                class="px-2 pt-2 pb-1.5 text-[0.6875rem]/[1] font-[590] tracking-[0.05em] text-gray-500 uppercase dark:text-gray-400"
+                class="px-2 pt-2 pb-1.5 text-[0.6875rem]/[1] font-[590] tracking-[0.05em] text-zinc-500 uppercase dark:text-zinc-400"
               >
                 Search
               </div>
               <ul class="m-0 min-w-[140px] list-none p-0">
                 <li>
                   <a
-                    class="flex h-8 items-center rounded-md px-2 text-[0.8125rem] whitespace-nowrap text-gray-900 no-underline transition-colors duration-150 hover:bg-gray-50 focus:bg-gray-50 focus:outline-none focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-blue-500 dark:text-gray-100 dark:hover:bg-zinc-900 dark:focus:bg-zinc-900 dark:focus-visible:outline-blue-400"
+                    class="flex h-8 items-center rounded-md px-2 text-[0.8125rem] whitespace-nowrap text-zinc-900 no-underline transition-colors duration-150 hover:bg-zinc-50 focus:bg-zinc-50 focus:outline-none focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-blue-500 dark:text-zinc-100 dark:hover:bg-zinc-900 dark:focus:bg-zinc-900 dark:focus-visible:outline-blue-400"
                     ngpNavigationMenuContentItem
                     href="#"
                   >
@@ -88,7 +88,7 @@ import {
                 </li>
                 <li>
                   <a
-                    class="flex h-8 items-center rounded-md px-2 text-[0.8125rem] whitespace-nowrap text-gray-900 no-underline transition-colors duration-150 hover:bg-gray-50 focus:bg-gray-50 focus:outline-none focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-blue-500 dark:text-gray-100 dark:hover:bg-zinc-900 dark:focus:bg-zinc-900 dark:focus-visible:outline-blue-400"
+                    class="flex h-8 items-center rounded-md px-2 text-[0.8125rem] whitespace-nowrap text-zinc-900 no-underline transition-colors duration-150 hover:bg-zinc-50 focus:bg-zinc-50 focus:outline-none focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-blue-500 dark:text-zinc-100 dark:hover:bg-zinc-900 dark:focus:bg-zinc-900 dark:focus-visible:outline-blue-400"
                     ngpNavigationMenuContentItem
                     href="#"
                   >
@@ -97,7 +97,7 @@ import {
                 </li>
                 <li>
                   <a
-                    class="flex h-8 items-center rounded-md px-2 text-[0.8125rem] whitespace-nowrap text-gray-900 no-underline transition-colors duration-150 hover:bg-gray-50 focus:bg-gray-50 focus:outline-none focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-blue-500 dark:text-gray-100 dark:hover:bg-zinc-900 dark:focus:bg-zinc-900 dark:focus-visible:outline-blue-400"
+                    class="flex h-8 items-center rounded-md px-2 text-[0.8125rem] whitespace-nowrap text-zinc-900 no-underline transition-colors duration-150 hover:bg-zinc-50 focus:bg-zinc-50 focus:outline-none focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-blue-500 dark:text-zinc-100 dark:hover:bg-zinc-900 dark:focus:bg-zinc-900 dark:focus-visible:outline-blue-400"
                     ngpNavigationMenuContentItem
                     href="#"
                   >
@@ -111,7 +111,7 @@ import {
 
         <li class="relative z-1" ngpNavigationMenuItem>
           <button
-            class="flex h-10 w-10 cursor-pointer items-center justify-center rounded-lg border-none bg-none p-0 text-gray-600 transition-colors duration-150 hover:bg-gray-100 hover:text-gray-900 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500 data-open:bg-gray-100 data-open:text-gray-900 dark:text-gray-300 dark:hover:bg-zinc-800 dark:hover:text-gray-100 dark:focus-visible:outline-blue-400 dark:data-open:bg-zinc-800 dark:data-open:text-gray-100"
+            class="flex h-10 w-10 cursor-pointer items-center justify-center rounded-lg border-none bg-none p-0 text-zinc-600 transition-colors duration-150 hover:bg-zinc-100 hover:text-zinc-900 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500 data-open:bg-zinc-100 data-open:text-zinc-900 dark:text-zinc-300 dark:hover:bg-zinc-800 dark:hover:text-zinc-100 dark:focus-visible:outline-blue-400 dark:data-open:bg-zinc-800 dark:data-open:text-zinc-100"
             [ngpNavigationMenuTrigger]="dashboardMenu"
             [ngpNavigationMenuTriggerOffset]="16"
             ngpNavigationMenuTriggerPlacement="right-start"
@@ -125,14 +125,14 @@ import {
               ngpNavigationMenuContent
             >
               <div
-                class="px-2 pt-2 pb-1.5 text-[0.6875rem]/[1] font-[590] tracking-[0.05em] text-gray-500 uppercase dark:text-gray-400"
+                class="px-2 pt-2 pb-1.5 text-[0.6875rem]/[1] font-[590] tracking-[0.05em] text-zinc-500 uppercase dark:text-zinc-400"
               >
                 Dashboard
               </div>
               <ul class="m-0 min-w-[140px] list-none p-0">
                 <li>
                   <a
-                    class="flex h-8 items-center rounded-md px-2 text-[0.8125rem] whitespace-nowrap text-gray-900 no-underline transition-colors duration-150 hover:bg-gray-50 focus:bg-gray-50 focus:outline-none focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-blue-500 dark:text-gray-100 dark:hover:bg-zinc-900 dark:focus:bg-zinc-900 dark:focus-visible:outline-blue-400"
+                    class="flex h-8 items-center rounded-md px-2 text-[0.8125rem] whitespace-nowrap text-zinc-900 no-underline transition-colors duration-150 hover:bg-zinc-50 focus:bg-zinc-50 focus:outline-none focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-blue-500 dark:text-zinc-100 dark:hover:bg-zinc-900 dark:focus:bg-zinc-900 dark:focus-visible:outline-blue-400"
                     ngpNavigationMenuContentItem
                     href="#"
                   >
@@ -141,7 +141,7 @@ import {
                 </li>
                 <li>
                   <a
-                    class="flex h-8 items-center rounded-md px-2 text-[0.8125rem] whitespace-nowrap text-gray-900 no-underline transition-colors duration-150 hover:bg-gray-50 focus:bg-gray-50 focus:outline-none focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-blue-500 dark:text-gray-100 dark:hover:bg-zinc-900 dark:focus:bg-zinc-900 dark:focus-visible:outline-blue-400"
+                    class="flex h-8 items-center rounded-md px-2 text-[0.8125rem] whitespace-nowrap text-zinc-900 no-underline transition-colors duration-150 hover:bg-zinc-50 focus:bg-zinc-50 focus:outline-none focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-blue-500 dark:text-zinc-100 dark:hover:bg-zinc-900 dark:focus:bg-zinc-900 dark:focus-visible:outline-blue-400"
                     ngpNavigationMenuContentItem
                     href="#"
                   >
@@ -150,7 +150,7 @@ import {
                 </li>
                 <li>
                   <a
-                    class="flex h-8 items-center rounded-md px-2 text-[0.8125rem] whitespace-nowrap text-gray-900 no-underline transition-colors duration-150 hover:bg-gray-50 focus:bg-gray-50 focus:outline-none focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-blue-500 dark:text-gray-100 dark:hover:bg-zinc-900 dark:focus:bg-zinc-900 dark:focus-visible:outline-blue-400"
+                    class="flex h-8 items-center rounded-md px-2 text-[0.8125rem] whitespace-nowrap text-zinc-900 no-underline transition-colors duration-150 hover:bg-zinc-50 focus:bg-zinc-50 focus:outline-none focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-blue-500 dark:text-zinc-100 dark:hover:bg-zinc-900 dark:focus:bg-zinc-900 dark:focus-visible:outline-blue-400"
                     ngpNavigationMenuContentItem
                     href="#"
                   >
@@ -164,7 +164,7 @@ import {
 
         <li class="relative z-1" ngpNavigationMenuItem>
           <button
-            class="flex h-10 w-10 cursor-pointer items-center justify-center rounded-lg border-none bg-none p-0 text-gray-600 transition-colors duration-150 hover:bg-gray-100 hover:text-gray-900 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500 data-open:bg-gray-100 data-open:text-gray-900 dark:text-gray-300 dark:hover:bg-zinc-800 dark:hover:text-gray-100 dark:focus-visible:outline-blue-400 dark:data-open:bg-zinc-800 dark:data-open:text-gray-100"
+            class="flex h-10 w-10 cursor-pointer items-center justify-center rounded-lg border-none bg-none p-0 text-zinc-600 transition-colors duration-150 hover:bg-zinc-100 hover:text-zinc-900 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500 data-open:bg-zinc-100 data-open:text-zinc-900 dark:text-zinc-300 dark:hover:bg-zinc-800 dark:hover:text-zinc-100 dark:focus-visible:outline-blue-400 dark:data-open:bg-zinc-800 dark:data-open:text-zinc-100"
             [ngpNavigationMenuTrigger]="analyticsMenu"
             [ngpNavigationMenuTriggerOffset]="16"
             ngpNavigationMenuTriggerPlacement="right-start"
@@ -178,14 +178,14 @@ import {
               ngpNavigationMenuContent
             >
               <div
-                class="px-2 pt-2 pb-1.5 text-[0.6875rem]/[1] font-[590] tracking-[0.05em] text-gray-500 uppercase dark:text-gray-400"
+                class="px-2 pt-2 pb-1.5 text-[0.6875rem]/[1] font-[590] tracking-[0.05em] text-zinc-500 uppercase dark:text-zinc-400"
               >
                 Analytics
               </div>
               <ul class="m-0 min-w-[140px] list-none p-0">
                 <li>
                   <a
-                    class="flex h-8 items-center rounded-md px-2 text-[0.8125rem] whitespace-nowrap text-gray-900 no-underline transition-colors duration-150 hover:bg-gray-50 focus:bg-gray-50 focus:outline-none focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-blue-500 dark:text-gray-100 dark:hover:bg-zinc-900 dark:focus:bg-zinc-900 dark:focus-visible:outline-blue-400"
+                    class="flex h-8 items-center rounded-md px-2 text-[0.8125rem] whitespace-nowrap text-zinc-900 no-underline transition-colors duration-150 hover:bg-zinc-50 focus:bg-zinc-50 focus:outline-none focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-blue-500 dark:text-zinc-100 dark:hover:bg-zinc-900 dark:focus:bg-zinc-900 dark:focus-visible:outline-blue-400"
                     ngpNavigationMenuContentItem
                     href="#"
                   >
@@ -194,7 +194,7 @@ import {
                 </li>
                 <li>
                   <a
-                    class="flex h-8 items-center rounded-md px-2 text-[0.8125rem] whitespace-nowrap text-gray-900 no-underline transition-colors duration-150 hover:bg-gray-50 focus:bg-gray-50 focus:outline-none focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-blue-500 dark:text-gray-100 dark:hover:bg-zinc-900 dark:focus:bg-zinc-900 dark:focus-visible:outline-blue-400"
+                    class="flex h-8 items-center rounded-md px-2 text-[0.8125rem] whitespace-nowrap text-zinc-900 no-underline transition-colors duration-150 hover:bg-zinc-50 focus:bg-zinc-50 focus:outline-none focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-blue-500 dark:text-zinc-100 dark:hover:bg-zinc-900 dark:focus:bg-zinc-900 dark:focus-visible:outline-blue-400"
                     ngpNavigationMenuContentItem
                     href="#"
                   >
@@ -203,7 +203,7 @@ import {
                 </li>
                 <li>
                   <a
-                    class="flex h-8 items-center rounded-md px-2 text-[0.8125rem] whitespace-nowrap text-gray-900 no-underline transition-colors duration-150 hover:bg-gray-50 focus:bg-gray-50 focus:outline-none focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-blue-500 dark:text-gray-100 dark:hover:bg-zinc-900 dark:focus:bg-zinc-900 dark:focus-visible:outline-blue-400"
+                    class="flex h-8 items-center rounded-md px-2 text-[0.8125rem] whitespace-nowrap text-zinc-900 no-underline transition-colors duration-150 hover:bg-zinc-50 focus:bg-zinc-50 focus:outline-none focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-blue-500 dark:text-zinc-100 dark:hover:bg-zinc-900 dark:focus:bg-zinc-900 dark:focus-visible:outline-blue-400"
                     ngpNavigationMenuContentItem
                     href="#"
                   >
@@ -212,7 +212,7 @@ import {
                 </li>
                 <li>
                   <a
-                    class="flex h-8 items-center rounded-md px-2 text-[0.8125rem] whitespace-nowrap text-gray-900 no-underline transition-colors duration-150 hover:bg-gray-50 focus:bg-gray-50 focus:outline-none focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-blue-500 dark:text-gray-100 dark:hover:bg-zinc-900 dark:focus:bg-zinc-900 dark:focus-visible:outline-blue-400"
+                    class="flex h-8 items-center rounded-md px-2 text-[0.8125rem] whitespace-nowrap text-zinc-900 no-underline transition-colors duration-150 hover:bg-zinc-50 focus:bg-zinc-50 focus:outline-none focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-blue-500 dark:text-zinc-100 dark:hover:bg-zinc-900 dark:focus:bg-zinc-900 dark:focus-visible:outline-blue-400"
                     ngpNavigationMenuContentItem
                     href="#"
                   >
@@ -226,7 +226,7 @@ import {
 
         <li class="relative z-1" ngpNavigationMenuItem>
           <button
-            class="flex h-10 w-10 cursor-pointer items-center justify-center rounded-lg border-none bg-none p-0 text-gray-600 transition-colors duration-150 hover:bg-gray-100 hover:text-gray-900 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500 data-open:bg-gray-100 data-open:text-gray-900 dark:text-gray-300 dark:hover:bg-zinc-800 dark:hover:text-gray-100 dark:focus-visible:outline-blue-400 dark:data-open:bg-zinc-800 dark:data-open:text-gray-100"
+            class="flex h-10 w-10 cursor-pointer items-center justify-center rounded-lg border-none bg-none p-0 text-zinc-600 transition-colors duration-150 hover:bg-zinc-100 hover:text-zinc-900 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500 data-open:bg-zinc-100 data-open:text-zinc-900 dark:text-zinc-300 dark:hover:bg-zinc-800 dark:hover:text-zinc-100 dark:focus-visible:outline-blue-400 dark:data-open:bg-zinc-800 dark:data-open:text-zinc-100"
             [ngpNavigationMenuTrigger]="documentsMenu"
             [ngpNavigationMenuTriggerOffset]="16"
             ngpNavigationMenuTriggerPlacement="right-start"
@@ -240,14 +240,14 @@ import {
               ngpNavigationMenuContent
             >
               <div
-                class="px-2 pt-2 pb-1.5 text-[0.6875rem]/[1] font-[590] tracking-[0.05em] text-gray-500 uppercase dark:text-gray-400"
+                class="px-2 pt-2 pb-1.5 text-[0.6875rem]/[1] font-[590] tracking-[0.05em] text-zinc-500 uppercase dark:text-zinc-400"
               >
                 Documents
               </div>
               <ul class="m-0 min-w-[140px] list-none p-0">
                 <li>
                   <a
-                    class="flex h-8 items-center rounded-md px-2 text-[0.8125rem] whitespace-nowrap text-gray-900 no-underline transition-colors duration-150 hover:bg-gray-50 focus:bg-gray-50 focus:outline-none focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-blue-500 dark:text-gray-100 dark:hover:bg-zinc-900 dark:focus:bg-zinc-900 dark:focus-visible:outline-blue-400"
+                    class="flex h-8 items-center rounded-md px-2 text-[0.8125rem] whitespace-nowrap text-zinc-900 no-underline transition-colors duration-150 hover:bg-zinc-50 focus:bg-zinc-50 focus:outline-none focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-blue-500 dark:text-zinc-100 dark:hover:bg-zinc-900 dark:focus:bg-zinc-900 dark:focus-visible:outline-blue-400"
                     ngpNavigationMenuContentItem
                     href="#"
                   >
@@ -256,7 +256,7 @@ import {
                 </li>
                 <li>
                   <a
-                    class="flex h-8 items-center rounded-md px-2 text-[0.8125rem] whitespace-nowrap text-gray-900 no-underline transition-colors duration-150 hover:bg-gray-50 focus:bg-gray-50 focus:outline-none focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-blue-500 dark:text-gray-100 dark:hover:bg-zinc-900 dark:focus:bg-zinc-900 dark:focus-visible:outline-blue-400"
+                    class="flex h-8 items-center rounded-md px-2 text-[0.8125rem] whitespace-nowrap text-zinc-900 no-underline transition-colors duration-150 hover:bg-zinc-50 focus:bg-zinc-50 focus:outline-none focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-blue-500 dark:text-zinc-100 dark:hover:bg-zinc-900 dark:focus:bg-zinc-900 dark:focus-visible:outline-blue-400"
                     ngpNavigationMenuContentItem
                     href="#"
                   >
@@ -265,7 +265,7 @@ import {
                 </li>
                 <li>
                   <a
-                    class="flex h-8 items-center rounded-md px-2 text-[0.8125rem] whitespace-nowrap text-gray-900 no-underline transition-colors duration-150 hover:bg-gray-50 focus:bg-gray-50 focus:outline-none focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-blue-500 dark:text-gray-100 dark:hover:bg-zinc-900 dark:focus:bg-zinc-900 dark:focus-visible:outline-blue-400"
+                    class="flex h-8 items-center rounded-md px-2 text-[0.8125rem] whitespace-nowrap text-zinc-900 no-underline transition-colors duration-150 hover:bg-zinc-50 focus:bg-zinc-50 focus:outline-none focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-blue-500 dark:text-zinc-100 dark:hover:bg-zinc-900 dark:focus:bg-zinc-900 dark:focus-visible:outline-blue-400"
                     ngpNavigationMenuContentItem
                     href="#"
                   >
@@ -279,7 +279,7 @@ import {
 
         <li class="relative z-1" ngpNavigationMenuItem>
           <button
-            class="flex h-10 w-10 cursor-pointer items-center justify-center rounded-lg border-none bg-none p-0 text-gray-600 transition-colors duration-150 hover:bg-gray-100 hover:text-gray-900 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500 data-open:bg-gray-100 data-open:text-gray-900 dark:text-gray-300 dark:hover:bg-zinc-800 dark:hover:text-gray-100 dark:focus-visible:outline-blue-400 dark:data-open:bg-zinc-800 dark:data-open:text-gray-100"
+            class="flex h-10 w-10 cursor-pointer items-center justify-center rounded-lg border-none bg-none p-0 text-zinc-600 transition-colors duration-150 hover:bg-zinc-100 hover:text-zinc-900 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500 data-open:bg-zinc-100 data-open:text-zinc-900 dark:text-zinc-300 dark:hover:bg-zinc-800 dark:hover:text-zinc-100 dark:focus-visible:outline-blue-400 dark:data-open:bg-zinc-800 dark:data-open:text-zinc-100"
             [ngpNavigationMenuTrigger]="projectsMenu"
             [ngpNavigationMenuTriggerOffset]="16"
             ngpNavigationMenuTriggerPlacement="right-start"
@@ -293,14 +293,14 @@ import {
               ngpNavigationMenuContent
             >
               <div
-                class="px-2 pt-2 pb-1.5 text-[0.6875rem]/[1] font-[590] tracking-[0.05em] text-gray-500 uppercase dark:text-gray-400"
+                class="px-2 pt-2 pb-1.5 text-[0.6875rem]/[1] font-[590] tracking-[0.05em] text-zinc-500 uppercase dark:text-zinc-400"
               >
                 Projects
               </div>
               <ul class="m-0 min-w-[140px] list-none p-0">
                 <li>
                   <a
-                    class="flex h-8 items-center rounded-md px-2 text-[0.8125rem] whitespace-nowrap text-gray-900 no-underline transition-colors duration-150 hover:bg-gray-50 focus:bg-gray-50 focus:outline-none focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-blue-500 dark:text-gray-100 dark:hover:bg-zinc-900 dark:focus:bg-zinc-900 dark:focus-visible:outline-blue-400"
+                    class="flex h-8 items-center rounded-md px-2 text-[0.8125rem] whitespace-nowrap text-zinc-900 no-underline transition-colors duration-150 hover:bg-zinc-50 focus:bg-zinc-50 focus:outline-none focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-blue-500 dark:text-zinc-100 dark:hover:bg-zinc-900 dark:focus:bg-zinc-900 dark:focus-visible:outline-blue-400"
                     ngpNavigationMenuContentItem
                     href="#"
                   >
@@ -309,7 +309,7 @@ import {
                 </li>
                 <li>
                   <a
-                    class="flex h-8 items-center rounded-md px-2 text-[0.8125rem] whitespace-nowrap text-gray-900 no-underline transition-colors duration-150 hover:bg-gray-50 focus:bg-gray-50 focus:outline-none focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-blue-500 dark:text-gray-100 dark:hover:bg-zinc-900 dark:focus:bg-zinc-900 dark:focus-visible:outline-blue-400"
+                    class="flex h-8 items-center rounded-md px-2 text-[0.8125rem] whitespace-nowrap text-zinc-900 no-underline transition-colors duration-150 hover:bg-zinc-50 focus:bg-zinc-50 focus:outline-none focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-blue-500 dark:text-zinc-100 dark:hover:bg-zinc-900 dark:focus:bg-zinc-900 dark:focus-visible:outline-blue-400"
                     ngpNavigationMenuContentItem
                     href="#"
                   >
@@ -323,7 +323,7 @@ import {
 
         <li class="relative z-1" ngpNavigationMenuItem>
           <button
-            class="flex h-10 w-10 cursor-pointer items-center justify-center rounded-lg border-none bg-none p-0 text-gray-600 transition-colors duration-150 hover:bg-gray-100 hover:text-gray-900 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500 data-open:bg-gray-100 data-open:text-gray-900 dark:text-gray-300 dark:hover:bg-zinc-800 dark:hover:text-gray-100 dark:focus-visible:outline-blue-400 dark:data-open:bg-zinc-800 dark:data-open:text-gray-100"
+            class="flex h-10 w-10 cursor-pointer items-center justify-center rounded-lg border-none bg-none p-0 text-zinc-600 transition-colors duration-150 hover:bg-zinc-100 hover:text-zinc-900 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500 data-open:bg-zinc-100 data-open:text-zinc-900 dark:text-zinc-300 dark:hover:bg-zinc-800 dark:hover:text-zinc-100 dark:focus-visible:outline-blue-400 dark:data-open:bg-zinc-800 dark:data-open:text-zinc-100"
             [ngpNavigationMenuTrigger]="usersMenu"
             [ngpNavigationMenuTriggerOffset]="16"
             ngpNavigationMenuTriggerPlacement="right-start"
@@ -337,14 +337,14 @@ import {
               ngpNavigationMenuContent
             >
               <div
-                class="px-2 pt-2 pb-1.5 text-[0.6875rem]/[1] font-[590] tracking-[0.05em] text-gray-500 uppercase dark:text-gray-400"
+                class="px-2 pt-2 pb-1.5 text-[0.6875rem]/[1] font-[590] tracking-[0.05em] text-zinc-500 uppercase dark:text-zinc-400"
               >
                 Users
               </div>
               <ul class="m-0 min-w-[140px] list-none p-0">
                 <li>
                   <a
-                    class="flex h-8 items-center rounded-md px-2 text-[0.8125rem] whitespace-nowrap text-gray-900 no-underline transition-colors duration-150 hover:bg-gray-50 focus:bg-gray-50 focus:outline-none focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-blue-500 dark:text-gray-100 dark:hover:bg-zinc-900 dark:focus:bg-zinc-900 dark:focus-visible:outline-blue-400"
+                    class="flex h-8 items-center rounded-md px-2 text-[0.8125rem] whitespace-nowrap text-zinc-900 no-underline transition-colors duration-150 hover:bg-zinc-50 focus:bg-zinc-50 focus:outline-none focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-blue-500 dark:text-zinc-100 dark:hover:bg-zinc-900 dark:focus:bg-zinc-900 dark:focus-visible:outline-blue-400"
                     ngpNavigationMenuContentItem
                     href="#"
                   >
@@ -353,7 +353,7 @@ import {
                 </li>
                 <li>
                   <a
-                    class="flex h-8 items-center rounded-md px-2 text-[0.8125rem] whitespace-nowrap text-gray-900 no-underline transition-colors duration-150 hover:bg-gray-50 focus:bg-gray-50 focus:outline-none focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-blue-500 dark:text-gray-100 dark:hover:bg-zinc-900 dark:focus:bg-zinc-900 dark:focus-visible:outline-blue-400"
+                    class="flex h-8 items-center rounded-md px-2 text-[0.8125rem] whitespace-nowrap text-zinc-900 no-underline transition-colors duration-150 hover:bg-zinc-50 focus:bg-zinc-50 focus:outline-none focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-blue-500 dark:text-zinc-100 dark:hover:bg-zinc-900 dark:focus:bg-zinc-900 dark:focus-visible:outline-blue-400"
                     ngpNavigationMenuContentItem
                     href="#"
                   >
@@ -362,7 +362,7 @@ import {
                 </li>
                 <li>
                   <a
-                    class="flex h-8 items-center rounded-md px-2 text-[0.8125rem] whitespace-nowrap text-gray-900 no-underline transition-colors duration-150 hover:bg-gray-50 focus:bg-gray-50 focus:outline-none focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-blue-500 dark:text-gray-100 dark:hover:bg-zinc-900 dark:focus:bg-zinc-900 dark:focus-visible:outline-blue-400"
+                    class="flex h-8 items-center rounded-md px-2 text-[0.8125rem] whitespace-nowrap text-zinc-900 no-underline transition-colors duration-150 hover:bg-zinc-50 focus:bg-zinc-50 focus:outline-none focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-blue-500 dark:text-zinc-100 dark:hover:bg-zinc-900 dark:focus:bg-zinc-900 dark:focus-visible:outline-blue-400"
                     ngpNavigationMenuContentItem
                     href="#"
                   >
@@ -378,7 +378,7 @@ import {
 
         <li class="relative z-1" ngpNavigationMenuItem>
           <button
-            class="flex h-10 w-10 cursor-pointer items-center justify-center rounded-lg border-none bg-none p-0 text-gray-600 transition-colors duration-150 hover:bg-gray-100 hover:text-gray-900 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500 data-open:bg-gray-100 data-open:text-gray-900 dark:text-gray-300 dark:hover:bg-zinc-800 dark:hover:text-gray-100 dark:focus-visible:outline-blue-400 dark:data-open:bg-zinc-800 dark:data-open:text-gray-100"
+            class="flex h-10 w-10 cursor-pointer items-center justify-center rounded-lg border-none bg-none p-0 text-zinc-600 transition-colors duration-150 hover:bg-zinc-100 hover:text-zinc-900 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500 data-open:bg-zinc-100 data-open:text-zinc-900 dark:text-zinc-300 dark:hover:bg-zinc-800 dark:hover:text-zinc-100 dark:focus-visible:outline-blue-400 dark:data-open:bg-zinc-800 dark:data-open:text-zinc-100"
             [ngpNavigationMenuTrigger]="notificationsMenu"
             [ngpNavigationMenuTriggerOffset]="16"
             ngpNavigationMenuTriggerPlacement="right-start"
@@ -392,14 +392,14 @@ import {
               ngpNavigationMenuContent
             >
               <div
-                class="px-2 pt-2 pb-1.5 text-[0.6875rem]/[1] font-[590] tracking-[0.05em] text-gray-500 uppercase dark:text-gray-400"
+                class="px-2 pt-2 pb-1.5 text-[0.6875rem]/[1] font-[590] tracking-[0.05em] text-zinc-500 uppercase dark:text-zinc-400"
               >
                 Notifications
               </div>
               <ul class="m-0 min-w-[140px] list-none p-0">
                 <li>
                   <a
-                    class="flex h-8 items-center rounded-md px-2 text-[0.8125rem] whitespace-nowrap text-gray-900 no-underline transition-colors duration-150 hover:bg-gray-50 focus:bg-gray-50 focus:outline-none focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-blue-500 dark:text-gray-100 dark:hover:bg-zinc-900 dark:focus:bg-zinc-900 dark:focus-visible:outline-blue-400"
+                    class="flex h-8 items-center rounded-md px-2 text-[0.8125rem] whitespace-nowrap text-zinc-900 no-underline transition-colors duration-150 hover:bg-zinc-50 focus:bg-zinc-50 focus:outline-none focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-blue-500 dark:text-zinc-100 dark:hover:bg-zinc-900 dark:focus:bg-zinc-900 dark:focus-visible:outline-blue-400"
                     ngpNavigationMenuContentItem
                     href="#"
                   >
@@ -408,7 +408,7 @@ import {
                 </li>
                 <li>
                   <a
-                    class="flex h-8 items-center rounded-md px-2 text-[0.8125rem] whitespace-nowrap text-gray-900 no-underline transition-colors duration-150 hover:bg-gray-50 focus:bg-gray-50 focus:outline-none focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-blue-500 dark:text-gray-100 dark:hover:bg-zinc-900 dark:focus:bg-zinc-900 dark:focus-visible:outline-blue-400"
+                    class="flex h-8 items-center rounded-md px-2 text-[0.8125rem] whitespace-nowrap text-zinc-900 no-underline transition-colors duration-150 hover:bg-zinc-50 focus:bg-zinc-50 focus:outline-none focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-blue-500 dark:text-zinc-100 dark:hover:bg-zinc-900 dark:focus:bg-zinc-900 dark:focus-visible:outline-blue-400"
                     ngpNavigationMenuContentItem
                     href="#"
                   >
@@ -417,7 +417,7 @@ import {
                 </li>
                 <li>
                   <a
-                    class="flex h-8 items-center rounded-md px-2 text-[0.8125rem] whitespace-nowrap text-gray-900 no-underline transition-colors duration-150 hover:bg-gray-50 focus:bg-gray-50 focus:outline-none focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-blue-500 dark:text-gray-100 dark:hover:bg-zinc-900 dark:focus:bg-zinc-900 dark:focus-visible:outline-blue-400"
+                    class="flex h-8 items-center rounded-md px-2 text-[0.8125rem] whitespace-nowrap text-zinc-900 no-underline transition-colors duration-150 hover:bg-zinc-50 focus:bg-zinc-50 focus:outline-none focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-blue-500 dark:text-zinc-100 dark:hover:bg-zinc-900 dark:focus:bg-zinc-900 dark:focus-visible:outline-blue-400"
                     ngpNavigationMenuContentItem
                     href="#"
                   >
@@ -431,7 +431,7 @@ import {
 
         <li class="relative z-1" ngpNavigationMenuItem>
           <button
-            class="flex h-10 w-10 cursor-pointer items-center justify-center rounded-lg border-none bg-none p-0 text-gray-600 transition-colors duration-150 hover:bg-gray-100 hover:text-gray-900 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500 data-open:bg-gray-100 data-open:text-gray-900 dark:text-gray-300 dark:hover:bg-zinc-800 dark:hover:text-gray-100 dark:focus-visible:outline-blue-400 dark:data-open:bg-zinc-800 dark:data-open:text-gray-100"
+            class="flex h-10 w-10 cursor-pointer items-center justify-center rounded-lg border-none bg-none p-0 text-zinc-600 transition-colors duration-150 hover:bg-zinc-100 hover:text-zinc-900 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500 data-open:bg-zinc-100 data-open:text-zinc-900 dark:text-zinc-300 dark:hover:bg-zinc-800 dark:hover:text-zinc-100 dark:focus-visible:outline-blue-400 dark:data-open:bg-zinc-800 dark:data-open:text-zinc-100"
             [ngpNavigationMenuTrigger]="settingsMenu"
             [ngpNavigationMenuTriggerOffset]="16"
             ngpNavigationMenuTriggerPlacement="right-start"
@@ -445,14 +445,14 @@ import {
               ngpNavigationMenuContent
             >
               <div
-                class="px-2 pt-2 pb-1.5 text-[0.6875rem]/[1] font-[590] tracking-[0.05em] text-gray-500 uppercase dark:text-gray-400"
+                class="px-2 pt-2 pb-1.5 text-[0.6875rem]/[1] font-[590] tracking-[0.05em] text-zinc-500 uppercase dark:text-zinc-400"
               >
                 Settings
               </div>
               <ul class="m-0 min-w-[140px] list-none p-0">
                 <li>
                   <a
-                    class="flex h-8 items-center rounded-md px-2 text-[0.8125rem] whitespace-nowrap text-gray-900 no-underline transition-colors duration-150 hover:bg-gray-50 focus:bg-gray-50 focus:outline-none focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-blue-500 dark:text-gray-100 dark:hover:bg-zinc-900 dark:focus:bg-zinc-900 dark:focus-visible:outline-blue-400"
+                    class="flex h-8 items-center rounded-md px-2 text-[0.8125rem] whitespace-nowrap text-zinc-900 no-underline transition-colors duration-150 hover:bg-zinc-50 focus:bg-zinc-50 focus:outline-none focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-blue-500 dark:text-zinc-100 dark:hover:bg-zinc-900 dark:focus:bg-zinc-900 dark:focus-visible:outline-blue-400"
                     ngpNavigationMenuContentItem
                     href="#"
                   >
@@ -461,7 +461,7 @@ import {
                 </li>
                 <li>
                   <a
-                    class="flex h-8 items-center rounded-md px-2 text-[0.8125rem] whitespace-nowrap text-gray-900 no-underline transition-colors duration-150 hover:bg-gray-50 focus:bg-gray-50 focus:outline-none focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-blue-500 dark:text-gray-100 dark:hover:bg-zinc-900 dark:focus:bg-zinc-900 dark:focus-visible:outline-blue-400"
+                    class="flex h-8 items-center rounded-md px-2 text-[0.8125rem] whitespace-nowrap text-zinc-900 no-underline transition-colors duration-150 hover:bg-zinc-50 focus:bg-zinc-50 focus:outline-none focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-blue-500 dark:text-zinc-100 dark:hover:bg-zinc-900 dark:focus:bg-zinc-900 dark:focus-visible:outline-blue-400"
                     ngpNavigationMenuContentItem
                     href="#"
                   >
@@ -470,7 +470,7 @@ import {
                 </li>
                 <li>
                   <a
-                    class="flex h-8 items-center rounded-md px-2 text-[0.8125rem] whitespace-nowrap text-gray-900 no-underline transition-colors duration-150 hover:bg-gray-50 focus:bg-gray-50 focus:outline-none focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-blue-500 dark:text-gray-100 dark:hover:bg-zinc-900 dark:focus:bg-zinc-900 dark:focus-visible:outline-blue-400"
+                    class="flex h-8 items-center rounded-md px-2 text-[0.8125rem] whitespace-nowrap text-zinc-900 no-underline transition-colors duration-150 hover:bg-zinc-50 focus:bg-zinc-50 focus:outline-none focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-blue-500 dark:text-zinc-100 dark:hover:bg-zinc-900 dark:focus:bg-zinc-900 dark:focus-visible:outline-blue-400"
                     ngpNavigationMenuContentItem
                     href="#"
                   >

@@ -25,14 +25,14 @@ import {
   providers: [provideIcons({ heroChevronDown, heroCheckSolid, heroMinusSolid })],
   template: `
     <div
-      class="relative box-border flex h-[2.125rem] w-[300px] items-center justify-between rounded-lg border border-gray-200 bg-white transition-colors data-focus:outline-2 data-focus:outline-offset-2 data-focus:outline-blue-500 dark:border-gray-700 dark:bg-transparent dark:data-focus:outline-blue-400"
+      class="relative box-border flex h-[2.125rem] w-[300px] items-center justify-between rounded-lg border-none bg-white shadow-[0_1px_2px_rgba(0,0,0,0.05),0_0_0_1px_rgba(0,0,0,0.1)] data-focus:outline-2 data-focus:outline-offset-2 data-focus:outline-blue-500 dark:bg-zinc-950 dark:shadow-[0_1px_2px_rgba(255,255,255,0.007),0_0_0_1px_rgba(255,255,255,0.1)] dark:data-focus:outline-blue-400"
       [(ngpComboboxValue)]="value"
       (ngpComboboxOpenChange)="resetOnClose($event)"
       ngpComboboxMultiple
       ngpCombobox
     >
       <input
-        class="font-inherit h-full flex-1 border-none bg-transparent px-4 text-[14px] text-gray-900 outline-hidden focus:ring-0 dark:bg-transparent dark:text-gray-100"
+        class="h-full flex-1 border-none bg-transparent px-4 text-[14px] text-zinc-900 outline-none dark:text-zinc-100"
         [value]="displayValue()"
         (input)="onFilterChange($event)"
         placeholder="Select options..."
@@ -40,11 +40,11 @@ import {
       />
 
       <button
-        class="box-border inline-flex h-full w-9 cursor-pointer items-center justify-center border-none bg-transparent text-gray-900 focus:outline-hidden dark:text-gray-100 dark:hover:text-gray-200"
+        class="box-border inline-flex h-full w-9 cursor-pointer items-center justify-center border-none bg-transparent text-zinc-900 outline-none dark:text-zinc-100"
         ngpComboboxButton
         aria-label="Toggle dropdown"
       >
-        <ng-icon name="heroChevronDown" />
+        <ng-icon class="size-4! text-[#f01e2b]! dark:text-[#ff4651]!" name="heroChevronDown" />
       </button>
 
       <div
@@ -54,15 +54,15 @@ import {
       >
         <!-- Select All Option -->
         <div
-          class="box-border flex h-[2.125rem] w-full cursor-pointer items-center justify-between gap-2 rounded-lg px-3 text-sm font-[590] tracking-[-0.006em] text-gray-900 transition-colors hover:bg-gray-100 data-active:bg-gray-100 data-press:bg-gray-100 data-selected:bg-gray-100 dark:text-gray-100 dark:hover:bg-white/10 dark:data-active:bg-white/10 dark:data-press:bg-white/20 dark:data-selected:bg-white/10"
+          class="box-border flex h-[2.125rem] w-full cursor-pointer items-center justify-between gap-2 rounded-lg px-3 text-sm font-[590] tracking-[-0.006em] text-zinc-900 transition-colors hover:bg-zinc-100 data-active:bg-zinc-100 data-press:bg-zinc-100 data-selected:bg-zinc-100 dark:text-zinc-100 dark:hover:bg-white/10 dark:data-active:bg-white/10 dark:data-press:bg-white/20 dark:data-selected:bg-white/10"
           ngpComboboxOptionValue="all"
           ngpComboboxOption
         >
           <span>Select All</span>
           @if (selectAllState() === 'all') {
-            <ng-icon class="h-4 w-4 text-[#f01e2b] dark:text-[#ff4651]" name="heroCheckSolid" />
+            <ng-icon class="size-4! text-[#f01e2b]! dark:text-[#ff4651]!" name="heroCheckSolid" />
           } @else if (selectAllState() === 'some') {
-            <ng-icon class="h-4 w-4 text-[#f01e2b] dark:text-[#ff4651]" name="heroMinusSolid" />
+            <ng-icon class="size-4! text-[#f01e2b]! dark:text-[#ff4651]!" name="heroMinusSolid" />
           }
         </div>
 
@@ -71,18 +71,18 @@ import {
         <!-- Regular Options -->
         @for (option of filteredOptions(); track option) {
           <div
-            class="box-border flex h-[2.125rem] w-full cursor-pointer items-center justify-between gap-2 rounded-lg px-3 text-sm tracking-[-0.006em] text-gray-900 transition-colors hover:bg-gray-100 data-active:bg-gray-100 data-press:bg-gray-100 data-selected:bg-gray-100 dark:text-gray-100 dark:hover:bg-white/10 dark:data-active:bg-white/10 dark:data-press:bg-white/20 dark:data-selected:bg-white/10"
+            class="box-border flex h-[2.125rem] w-full cursor-pointer items-center justify-between gap-2 rounded-lg px-3 text-sm tracking-[-0.006em] text-zinc-900 transition-colors hover:bg-zinc-100 data-active:bg-zinc-100 data-press:bg-zinc-100 data-selected:bg-zinc-100 dark:text-zinc-100 dark:hover:bg-white/10 dark:data-active:bg-white/10 dark:data-press:bg-white/20 dark:data-selected:bg-white/10"
             [ngpComboboxOptionValue]="option"
             ngpComboboxOption
           >
             {{ option }}
             @if (isSelected(option)) {
-              <ng-icon class="h-4 w-4 text-[#f01e2b] dark:text-[#ff4651]" name="heroCheckSolid" />
+              <ng-icon class="size-4! text-[#f01e2b]! dark:text-[#ff4651]!" name="heroCheckSolid" />
             }
           </div>
         } @empty {
           <div
-            class="flex items-center justify-center p-2 text-center text-sm font-[510] text-gray-600 dark:text-gray-300"
+            class="flex items-center justify-center p-2 text-center text-[14px] font-[510] text-zinc-600 dark:text-zinc-300"
           >
             No options found
           </div>

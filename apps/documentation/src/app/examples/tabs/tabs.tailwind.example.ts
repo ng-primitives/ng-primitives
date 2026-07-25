@@ -7,7 +7,7 @@ import { NgpTabButton, NgpTabList, NgpTabPanel, NgpTabset } from 'ng-primitives/
   imports: [NgpTabset, NgpTabList, NgpTabButton, NgpTabPanel],
   template: `
     <div
-      class="w-full max-w-[512px] rounded-xl bg-white px-4 py-1 shadow-sm ring-1 ring-black/5 dark:bg-zinc-950 dark:ring-white/10"
+      class="w-full max-w-[512px] rounded-xl bg-white px-4 py-1 shadow-[0_1px_3px_0_rgb(0_0_0/0.1),0_1px_2px_-1px_rgb(0_0_0/0.1),0_0_0_1px_rgb(0_0_0/0.05)] dark:bg-zinc-950 dark:shadow-[0_1px_3px_0_rgb(255_255_255/0.1),0_1px_2px_-1px_rgb(255_255_255/0.1),0_0_0_1px_rgb(255_255_255/0.05)]"
       [(ngpTabsetValue)]="selectedTab"
       ngpTabset
     >

@@ -6,7 +6,7 @@ import { NgpSeparator } from 'ng-primitives/separator';
   imports: [NgpSeparator],
   template: `
     <div
-      class="flex max-w-[300px] flex-col gap-4 rounded-lg border border-neutral-200 bg-white p-4 dark:border-neutral-800 dark:bg-transparent"
+      class="flex max-w-[300px] flex-col gap-4 rounded-lg border border-neutral-200 bg-white p-4 dark:border-neutral-800 dark:bg-zinc-950"
     >
       <p class="m-0 text-black dark:text-white">
         The separator primitive can be used to separate content in a layout.

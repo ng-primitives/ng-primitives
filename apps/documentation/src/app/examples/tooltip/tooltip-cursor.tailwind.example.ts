@@ -6,7 +6,7 @@ import { NgpTooltip, NgpTooltipTrigger } from 'ng-primitives/tooltip';
   imports: [NgpTooltipTrigger, NgpTooltip],
   template: `
     <div
-      class="flex h-[200px] items-center justify-center rounded-lg border-2 border-dashed border-black/10 p-4 text-gray-600 select-none dark:border-zinc-800 dark:text-gray-300"
+      class="flex h-[200px] items-center justify-center rounded-lg border-2 border-dashed border-black/10 p-4 text-zinc-600 select-none dark:border-zinc-800 dark:text-zinc-300"
       #tooltipTrigger="ngpTooltipTrigger"
       [ngpTooltipTrigger]="cursorTooltip"
       [ngpTooltipTriggerPosition]="cursorPosition()"

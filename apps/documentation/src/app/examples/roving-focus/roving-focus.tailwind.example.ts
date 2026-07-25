@@ -27,67 +27,67 @@ import { NgpSeparator } from 'ng-primitives/separator';
   ],
   template: `
     <div
-      class="flex items-center gap-1 rounded-md bg-white p-1 shadow-sm ring-1 ring-black/5 outline-hidden dark:bg-transparent dark:shadow-sm dark:ring-white/10"
+      class="flex items-center gap-1 rounded-md bg-white p-1 shadow-[0_1px_3px_0_rgb(0_0_0/0.1),0_1px_2px_-1px_rgb(0_0_0/0.1),0_0_0_1px_rgb(0_0_0/0.05)] outline-hidden dark:bg-zinc-950 dark:shadow-[0_1px_3px_0_rgb(255_255_255/0.1),0_1px_2px_-1px_rgb(255_255_255/0.1),0_0_0_1px_rgb(255_255_255/0.05)]"
       ngpRovingFocusGroup
       ngpRovingFocusGroupOrientation="horizontal"
       ngpRovingFocusGroupWrap="true"
       ngpRovingFocusGroupHomeEnd="true"
     >
       <button
-        class="flex h-8 w-8 items-center justify-center rounded-xs border border-transparent bg-transparent outline-hidden transition-colors duration-150 data-focus-visible:outline-2 data-focus-visible:outline-blue-500 data-hover:border-gray-200 data-hover:bg-gray-100 data-press:bg-gray-200 dark:data-hover:border-zinc-700 dark:data-hover:bg-zinc-800 dark:data-press:bg-zinc-700"
+        class="flex h-8 w-8 items-center justify-center rounded-xs border border-transparent bg-transparent outline-hidden transition-colors duration-150 data-focus-visible:outline-2 data-focus-visible:outline-blue-500 data-hover:border-gray-200 data-hover:bg-zinc-100 data-press:bg-zinc-200 dark:data-hover:border-zinc-700 dark:data-hover:bg-zinc-800 dark:data-press:bg-zinc-700"
         type="button"
         ngpButton
         ngpRovingFocusItem
       >
-        <ng-icon class="text-lg text-gray-900 dark:text-gray-100" name="heroDocument" />
+        <ng-icon class="text-lg text-zinc-900! dark:text-zinc-100!" name="heroDocument" />
       </button>
       <button
-        class="flex h-8 w-8 items-center justify-center rounded-xs border border-transparent bg-transparent outline-hidden transition-colors duration-150 data-focus-visible:outline-2 data-focus-visible:outline-blue-500 data-hover:border-gray-200 data-hover:bg-gray-100 data-press:bg-gray-200 dark:data-hover:border-zinc-700 dark:data-hover:bg-zinc-800 dark:data-press:bg-zinc-700"
+        class="flex h-8 w-8 items-center justify-center rounded-xs border border-transparent bg-transparent outline-hidden transition-colors duration-150 data-focus-visible:outline-2 data-focus-visible:outline-blue-500 data-hover:border-gray-200 data-hover:bg-zinc-100 data-press:bg-zinc-200 dark:data-hover:border-zinc-700 dark:data-hover:bg-zinc-800 dark:data-press:bg-zinc-700"
         type="button"
         ngpButton
         ngpRovingFocusItem
       >
-        <ng-icon class="text-lg text-gray-900 dark:text-gray-100" name="heroFolder" />
+        <ng-icon class="text-lg text-zinc-900! dark:text-zinc-100!" name="heroFolder" />
       </button>
 
-      <div class="mx-1 h-6 w-px bg-gray-300 dark:bg-gray-800" ngpSeparator></div>
+      <div class="mx-1 h-6 w-px bg-zinc-300 dark:bg-zinc-800" ngpSeparator></div>
 
       <button
-        class="flex h-8 w-8 items-center justify-center rounded-xs border border-transparent bg-transparent outline-hidden transition-colors duration-150 data-focus-visible:outline-2 data-focus-visible:outline-blue-500 data-hover:border-gray-200 data-hover:bg-gray-100 data-press:bg-gray-200 dark:data-hover:border-zinc-700 dark:data-hover:bg-zinc-800 dark:data-press:bg-zinc-700"
+        class="flex h-8 w-8 items-center justify-center rounded-xs border border-transparent bg-transparent outline-hidden transition-colors duration-150 data-focus-visible:outline-2 data-focus-visible:outline-blue-500 data-hover:border-gray-200 data-hover:bg-zinc-100 data-press:bg-zinc-200 dark:data-hover:border-zinc-700 dark:data-hover:bg-zinc-800 dark:data-press:bg-zinc-700"
         type="button"
         ngpButton
         ngpRovingFocusItem
       >
-        <ng-icon class="text-lg text-gray-900 dark:text-gray-100" name="heroBars3BottomLeft" />
-      </button>
-
-      <button
-        class="flex h-8 w-8 items-center justify-center rounded-xs border border-transparent bg-transparent outline-hidden transition-colors duration-150 data-focus-visible:outline-2 data-focus-visible:outline-blue-500 data-hover:border-gray-200 data-hover:bg-gray-100 data-press:bg-gray-200 dark:data-hover:border-zinc-700 dark:data-hover:bg-zinc-800 dark:data-press:bg-zinc-700"
-        type="button"
-        ngpButton
-        ngpRovingFocusItem
-      >
-        <ng-icon class="text-lg text-gray-900 dark:text-gray-100" name="heroBars3" />
+        <ng-icon class="text-lg text-zinc-900! dark:text-zinc-100!" name="heroBars3BottomLeft" />
       </button>
 
       <button
-        class="flex h-8 w-8 items-center justify-center rounded-xs border border-transparent bg-transparent outline-hidden transition-colors duration-150 data-focus-visible:outline-2 data-focus-visible:outline-blue-500 data-hover:border-gray-200 data-hover:bg-gray-100 data-press:bg-gray-200 dark:data-hover:border-zinc-700 dark:data-hover:bg-zinc-800 dark:data-press:bg-zinc-700"
+        class="flex h-8 w-8 items-center justify-center rounded-xs border border-transparent bg-transparent outline-hidden transition-colors duration-150 data-focus-visible:outline-2 data-focus-visible:outline-blue-500 data-hover:border-gray-200 data-hover:bg-zinc-100 data-press:bg-zinc-200 dark:data-hover:border-zinc-700 dark:data-hover:bg-zinc-800 dark:data-press:bg-zinc-700"
         type="button"
         ngpButton
         ngpRovingFocusItem
       >
-        <ng-icon class="text-lg text-gray-900 dark:text-gray-100" name="heroBars3BottomRight" />
+        <ng-icon class="text-lg text-zinc-900! dark:text-zinc-100!" name="heroBars3" />
       </button>
 
-      <div class="mx-1 h-6 w-px bg-gray-300 dark:bg-gray-800" ngpSeparator></div>
-
       <button
-        class="flex h-8 w-8 items-center justify-center rounded-xs border border-transparent bg-transparent outline-hidden transition-colors duration-150 data-focus-visible:outline-2 data-focus-visible:outline-blue-500 data-hover:border-gray-200 data-hover:bg-gray-100 data-press:bg-gray-200 dark:data-hover:border-zinc-700 dark:data-hover:bg-zinc-800 dark:data-press:bg-zinc-700"
+        class="flex h-8 w-8 items-center justify-center rounded-xs border border-transparent bg-transparent outline-hidden transition-colors duration-150 data-focus-visible:outline-2 data-focus-visible:outline-blue-500 data-hover:border-gray-200 data-hover:bg-zinc-100 data-press:bg-zinc-200 dark:data-hover:border-zinc-700 dark:data-hover:bg-zinc-800 dark:data-press:bg-zinc-700"
         type="button"
         ngpButton
         ngpRovingFocusItem
       >
-        <ng-icon class="text-lg text-gray-900 dark:text-gray-100" name="heroCog6Tooth" />
+        <ng-icon class="text-lg text-zinc-900! dark:text-zinc-100!" name="heroBars3BottomRight" />
+      </button>
+
+      <div class="mx-1 h-6 w-px bg-zinc-300 dark:bg-zinc-800" ngpSeparator></div>
+
+      <button
+        class="flex h-8 w-8 items-center justify-center rounded-xs border border-transparent bg-transparent outline-hidden transition-colors duration-150 data-focus-visible:outline-2 data-focus-visible:outline-blue-500 data-hover:border-gray-200 data-hover:bg-zinc-100 data-press:bg-zinc-200 dark:data-hover:border-zinc-700 dark:data-hover:bg-zinc-800 dark:data-press:bg-zinc-700"
+        type="button"
+        ngpButton
+        ngpRovingFocusItem
+      >
+        <ng-icon class="text-lg text-zinc-900! dark:text-zinc-100!" name="heroCog6Tooth" />
       </button>
     </div>
   `,

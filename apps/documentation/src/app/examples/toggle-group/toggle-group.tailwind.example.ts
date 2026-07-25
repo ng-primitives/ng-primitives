@@ -21,7 +21,7 @@ import { NgpToggleGroup, NgpToggleGroupItem } from 'ng-primitives/toggle-group';
       aria-label="Text alignment"
     >
       <button
-        class="flex h-8 w-8 items-center justify-center rounded-md border border-transparent bg-transparent text-lg text-gray-600 transition-colors duration-150 outline-none data-focus-visible:outline-2 data-focus-visible:outline-offset-1 data-focus-visible:outline-blue-500 data-hover:bg-gray-50 data-hover:text-gray-900 data-press:bg-gray-100 data-selected:border-transparent data-selected:bg-[#f01e2b] data-selected:text-white data-selected:data-hover:bg-[#d81825] data-selected:data-hover:text-white dark:text-gray-300 dark:data-focus-visible:outline-blue-400 dark:data-hover:bg-zinc-900 dark:data-hover:text-gray-100 dark:data-press:bg-zinc-800 dark:data-selected:bg-[#ff4651] dark:data-selected:data-hover:bg-[#ff5d67]"
+        class="flex h-8 w-8 items-center justify-center rounded-md border border-transparent bg-transparent text-lg text-zinc-600 transition-colors duration-150 outline-none data-focus-visible:outline-2 data-focus-visible:outline-offset-1 data-focus-visible:outline-blue-500 data-hover:bg-zinc-50 data-hover:text-zinc-900 data-press:bg-zinc-100 data-selected:border-transparent data-selected:bg-[#f01e2b] data-selected:text-white data-selected:data-hover:bg-[#d81825] data-selected:data-hover:text-white dark:text-zinc-300 dark:data-focus-visible:outline-blue-400 dark:data-hover:bg-zinc-900 dark:data-hover:text-zinc-100 dark:data-press:bg-zinc-800 dark:data-selected:bg-[#ff4651] dark:data-selected:data-hover:bg-[#ff5d67]"
         ngpButton
         ngpToggleGroupItem
         ngpToggleGroupItemValue="left"
@@ -31,7 +31,7 @@ import { NgpToggleGroup, NgpToggleGroupItem } from 'ng-primitives/toggle-group';
       </button>
 
       <button
-        class="flex h-8 w-8 items-center justify-center rounded-md border border-transparent bg-transparent text-lg text-gray-600 transition-colors duration-150 outline-none data-focus-visible:outline-2 data-focus-visible:outline-offset-1 data-focus-visible:outline-blue-500 data-hover:bg-gray-50 data-hover:text-gray-900 data-press:bg-gray-100 data-selected:border-transparent data-selected:bg-[#f01e2b] data-selected:text-white data-selected:data-hover:bg-[#d81825] data-selected:data-hover:text-white dark:text-gray-300 dark:data-focus-visible:outline-blue-400 dark:data-hover:bg-zinc-900 dark:data-hover:text-gray-100 dark:data-press:bg-zinc-800 dark:data-selected:bg-[#ff4651] dark:data-selected:data-hover:bg-[#ff5d67]"
+        class="flex h-8 w-8 items-center justify-center rounded-md border border-transparent bg-transparent text-lg text-zinc-600 transition-colors duration-150 outline-none data-focus-visible:outline-2 data-focus-visible:outline-offset-1 data-focus-visible:outline-blue-500 data-hover:bg-zinc-50 data-hover:text-zinc-900 data-press:bg-zinc-100 data-selected:border-transparent data-selected:bg-[#f01e2b] data-selected:text-white data-selected:data-hover:bg-[#d81825] data-selected:data-hover:text-white dark:text-zinc-300 dark:data-focus-visible:outline-blue-400 dark:data-hover:bg-zinc-900 dark:data-hover:text-zinc-100 dark:data-press:bg-zinc-800 dark:data-selected:bg-[#ff4651] dark:data-selected:data-hover:bg-[#ff5d67]"
         ngpButton
         ngpToggleGroupItem
         ngpToggleGroupItemValue="center"
@@ -41,7 +41,7 @@ import { NgpToggleGroup, NgpToggleGroupItem } from 'ng-primitives/toggle-group';
       </button>
 
       <button
-        class="flex h-8 w-8 items-center justify-center rounded-md border border-transparent bg-transparent text-lg text-gray-600 transition-colors duration-150 outline-none data-focus-visible:outline-2 data-focus-visible:outline-offset-1 data-focus-visible:outline-blue-500 data-hover:bg-gray-50 data-hover:text-gray-900 data-press:bg-gray-100 data-selected:border-transparent data-selected:bg-[#f01e2b] data-selected:text-white data-selected:data-hover:bg-[#d81825] data-selected:data-hover:text-white dark:text-gray-300 dark:data-focus-visible:outline-blue-400 dark:data-hover:bg-zinc-900 dark:data-hover:text-gray-100 dark:data-press:bg-zinc-800 dark:data-selected:bg-[#ff4651] dark:data-selected:data-hover:bg-[#ff5d67]"
+        class="flex h-8 w-8 items-center justify-center rounded-md border border-transparent bg-transparent text-lg text-zinc-600 transition-colors duration-150 outline-none data-focus-visible:outline-2 data-focus-visible:outline-offset-1 data-focus-visible:outline-blue-500 data-hover:bg-zinc-50 data-hover:text-zinc-900 data-press:bg-zinc-100 data-selected:border-transparent data-selected:bg-[#f01e2b] data-selected:text-white data-selected:data-hover:bg-[#d81825] data-selected:data-hover:text-white dark:text-zinc-300 dark:data-focus-visible:outline-blue-400 dark:data-hover:bg-zinc-900 dark:data-hover:text-zinc-100 dark:data-press:bg-zinc-800 dark:data-selected:bg-[#ff4651] dark:data-selected:data-hover:bg-[#ff5d67]"
         ngpButton
         ngpToggleGroupItem
         ngpToggleGroupItemValue="right"
