@@ -5,7 +5,7 @@ import { NgpPreviewCard, NgpPreviewCardTrigger } from 'ng-primitives/preview-car
   selector: 'app-preview-card',
   imports: [NgpPreviewCardTrigger, NgpPreviewCard],
   template: `
-    <p class="prose">
+    <p class="sentence">
       Built with
       <a [ngpPreviewCardTrigger]="card" href="https://angularprimitives.com">Angular Primitives</a>
       and Angular.
@@ -22,13 +22,13 @@ import { NgpPreviewCard, NgpPreviewCardTrigger } from 'ng-primitives/preview-car
     </ng-template>
   `,
   styles: `
-    .prose {
+    .sentence {
       font-size: 0.875rem;
       letter-spacing: -0.006em;
       color: var(--ngp-text-secondary);
     }
 
-    .prose a {
+    .sentence a {
       /* Never signal a link with colour alone. */
       text-decoration: underline;
       text-underline-offset: 2px;
@@ -38,7 +38,7 @@ import { NgpPreviewCard, NgpPreviewCardTrigger } from 'ng-primitives/preview-car
       outline: none;
     }
 
-    .prose a:focus-visible {
+    .sentence a:focus-visible {
       outline: 2px solid var(--ngp-focus-ring);
       outline-offset: 2px;
     }
