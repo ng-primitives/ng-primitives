@@ -1,34 +1,48 @@
 import { Component } from '@angular/core';
+import { NgpAvatar, NgpAvatarFallback, NgpAvatarImage } from 'ng-primitives/avatar';
 import { NgpPreviewCard, NgpPreviewCardTrigger } from 'ng-primitives/preview-card';
 
 @Component({
   selector: 'app-preview-card',
-  imports: [NgpPreviewCardTrigger, NgpPreviewCard],
+  imports: [NgpPreviewCardTrigger, NgpPreviewCard, NgpAvatar, NgpAvatarImage, NgpAvatarFallback],
   template: `
-    <p class="sentence">
-      Built with
-      <a [ngpPreviewCardTrigger]="card" href="https://angularprimitives.com">Angular Primitives</a>
-      and Angular.
+    <p class="message">
+      <a [ngpPreviewCardTrigger]="profile" href="https://github.com/ng-primitives">
+        &#64;sofiachen
+      </a>
+      requested your review on Add the preview card primitive.
     </p>
 
-    <ng-template #card>
+    <ng-template #profile>
       <div ngpPreviewCard>
-        <p class="preview-card-title">Angular Primitives</p>
-        <p class="preview-card-description">
-          Headless, accessible UI primitives that leave the styling entirely to you.
+        <span ngpAvatar>
+          <img
+            ngpAvatarImage
+            src="https://cdn.jsdelivr.net/gh/alohe/memojis/png/memo_5.png"
+            alt="Sofia Chen"
+          />
+          <span ngpAvatarFallback>SC</span>
+        </span>
+
+        <div>
+          <p class="profile-name">Sofia Chen</p>
+          <p class="profile-handle">&#64;sofiachen</p>
+        </div>
+
+        <p class="profile-bio">
+          Design systems engineer. Building accessible components with Angular.
         </p>
-        <p class="preview-card-meta">angularprimitives.com</p>
       </div>
     </ng-template>
   `,
   styles: `
-    .sentence {
+    .message {
       font-size: 0.875rem;
       letter-spacing: -0.006em;
       color: var(--ngp-text-secondary);
     }
 
-    .sentence a {
+    .message a {
       /* inline-flex trims the whitespace either side of the text, which would
          otherwise be underlined along with it. */
       display: inline-flex;
@@ -41,7 +55,7 @@ import { NgpPreviewCard, NgpPreviewCardTrigger } from 'ng-primitives/preview-car
       outline: none;
     }
 
-    .sentence a:focus-visible {
+    .message a:focus-visible {
       outline: 2px solid var(--ngp-focus-ring);
       outline-offset: 2px;
     }
@@ -50,8 +64,8 @@ import { NgpPreviewCard, NgpPreviewCardTrigger } from 'ng-primitives/preview-car
       position: absolute;
       display: flex;
       flex-direction: column;
-      gap: 0.25rem;
-      width: 18rem;
+      gap: 0.5rem;
+      width: 17rem;
       max-width: var(--ngp-preview-card-available-width);
       border-radius: 0.75rem;
       background-color: var(--ngp-background);
@@ -64,7 +78,32 @@ import { NgpPreviewCard, NgpPreviewCardTrigger } from 'ng-primitives/preview-car
       transform-origin: var(--ngp-preview-card-transform-origin);
     }
 
-    .preview-card-title {
+    [ngpAvatar] {
+      display: inline-flex;
+      width: 2.5rem;
+      height: 2.5rem;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      background-color: var(--ngp-background-active);
+    }
+
+    [ngpAvatarImage] {
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      object-fit: cover;
+      object-position: center bottom;
+    }
+
+    [ngpAvatarFallback] {
+      font-size: 0.8125rem;
+      font-weight: 510;
+      letter-spacing: -0.011em;
+      color: var(--ngp-text-secondary);
+    }
+
+    .profile-name {
       margin: 0;
       font-size: 0.875rem;
       font-weight: 590;
@@ -72,18 +111,18 @@ import { NgpPreviewCard, NgpPreviewCardTrigger } from 'ng-primitives/preview-car
       color: var(--ngp-text-primary);
     }
 
-    .preview-card-description {
+    .profile-handle {
+      margin: 0;
+      font-size: 0.75rem;
+      letter-spacing: -0.011em;
+      color: var(--ngp-text-tertiary);
+    }
+
+    .profile-bio {
       margin: 0;
       font-size: 0.875rem;
       letter-spacing: -0.006em;
       color: var(--ngp-text-secondary);
-    }
-
-    .preview-card-meta {
-      margin: 0.25rem 0 0;
-      font-size: 0.75rem;
-      letter-spacing: -0.011em;
-      color: var(--ngp-text-tertiary);
     }
 
     [ngpPreviewCard][data-enter] {
