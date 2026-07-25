@@ -183,9 +183,9 @@ export class DrawerSwipeEngine {
       getSwipeDisplacement(direction, velocity.total),
     );
     const reversed = this.maximumDisplacement - update.displacement >= REVERSE_CANCEL_THRESHOLD;
-    const threshold = this.gestureThreshold ?? this.readThreshold(this.gestureSize ?? this.readSize());
-    const dismissed =
-      !reversed && (update.displacement >= threshold || projectedVelocity >= 0.5);
+    const threshold =
+      this.gestureThreshold ?? this.readThreshold(this.gestureSize ?? this.readSize());
+    const dismissed = !reversed && (update.displacement >= threshold || projectedVelocity >= 0.5);
     const result = { ...update, velocity, dismissed, nativeEvent: input.nativeEvent };
     this.options.onRelease?.(result);
     this.reset();
