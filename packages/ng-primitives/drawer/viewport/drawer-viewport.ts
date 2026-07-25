@@ -24,11 +24,12 @@ import {
 } from '../internal/snap-points';
 import { getSwipeAxis, getSwipeDisplacement, getSwipeSign } from '../internal/swipe/direction';
 import {
+  AXIS_LOCK_BIAS,
+  AXIS_LOCK_SLOP,
   DrawerSwipeEngine,
   DrawerSwipeInput,
   DrawerSwipeRelease,
   DrawerSwipeUpdate,
-  MIN_DRAG_THRESHOLD,
 } from '../internal/swipe/drawer-swipe-engine';
 import { DrawerTouchSession } from '../internal/swipe/drawer-touch-session';
 import {
@@ -338,19 +339,47 @@ export class NgpDrawerViewport {
       this.touchOwnership = { ...ownership, last: input };
       return;
     }
-    if (
-      Math.max(Math.abs(totalDrawer), Math.abs(totalCross)) >= MIN_DRAG_THRESHOLD &&
-      Math.abs(totalCross) > Math.abs(totalDrawer)
-    ) {
-      this.engine.cancel(event);
-      this.touchOwnership = {
-        ...ownership,
-        ownership: 'native-scroll',
-        axis: 'cross',
-        scrollTarget: ownership.crossAxisTarget,
-        last: input,
-      };
-      return;
+
+    // Attribution happens once per gesture. Re-arbitrating after the drawer has taken ownership
+    // would let a late sideways drift freeze the popup mid-drag: the totals below are measured from
+    // the touch origin and are never re-baselined, so they keep growing for the whole gesture.
+    if (ownership.ownership === 'pending') {
+      const absDrawer = Math.abs(totalDrawer);
+      const absCross = Math.abs(totalCross);
+
+      // A non-cancelable touchmove means the browser has already committed the gesture to a native
+      // scroll; claiming it now would drag the popup alongside the scrolling content.
+      if (!event.cancelable) {
+        this.touchOwnership = {
+          ...ownership,
+          ownership: 'native-scroll',
+          axis: 'cross',
+          scrollTarget: ownership.crossAxisTarget,
+          last: input,
+        };
+        return;
+      }
+
+      if (absCross >= AXIS_LOCK_SLOP && absCross > absDrawer + AXIS_LOCK_BIAS) {
+        this.engine.cancel(event);
+        this.touchOwnership = {
+          ...ownership,
+          ownership: 'native-scroll',
+          axis: 'cross',
+          scrollTarget: ownership.crossAxisTarget,
+          last: input,
+        };
+        return;
+      }
+
+      if (absDrawer < AXIS_LOCK_SLOP && absCross < AXIS_LOCK_SLOP) {
+        // Neither axis has travelled past the slop, so the gesture cannot be attributed yet. Leave
+        // the event completely alone: on iOS, `preventDefault()` on the first cancelable touchmove
+        // cancels native scrolling for the whole gesture, which would lock a cross-axis scroll that
+        // only passes the slop on a later move.
+        this.touchOwnership = { ...ownership, last: input };
+        return;
+      }
     }
 
     if (ownership.ownership === 'drawer') {
@@ -406,7 +435,9 @@ export class NgpDrawerViewport {
       return;
     }
 
-    if (!this.engine.start(ownership.start) || !this.engine.rebase(input)) {
+    // The arbitration above already attributed this gesture to the drawer axis; tell the engine so
+    // it does not make the next move re-earn the slop.
+    if (!this.engine.start(ownership.start) || !this.engine.rebase(input, { axisLocked: true })) {
       this.releaseTouch();
       return;
     }

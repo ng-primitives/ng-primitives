@@ -525,6 +525,31 @@ describe('Drawer Viewport swipe integration', () => {
     expect(query('[data-test-viewport]')).not.toHaveAttribute('data-swiping');
   });
 
+  it('keeps a mostly on-axis drag that starts with sideways jitter', async () => {
+    const viewport = await openDrawer();
+    dispatchTouch(viewport, 'touchstart', [touch(viewport, 90, 0, 0)], [], 0);
+    // Below the slop on both axes: the gesture is not attributed yet, so the event is left alone.
+    const jitter = dispatchTouch(viewport, 'touchmove', [touch(viewport, 90, 3, 1)], [], 50);
+    // Now the drawer axis wins outright.
+    const onAxis = dispatchTouch(viewport, 'touchmove', [touch(viewport, 90, 3, 40)], [], 100);
+    dispatchTouch(viewport, 'touchend', [], [touch(viewport, 90, 3, 40)], 101);
+
+    expect(jitter.defaultPrevented).toBe(false);
+    expect(onAxis.defaultPrevented).toBe(true);
+  });
+
+  it('does not re-arbitrate once the drawer owns the gesture', async () => {
+    const viewport = await openDrawer();
+    dispatchTouch(viewport, 'touchstart', [touch(viewport, 91, 0, 0)], [], 0);
+    const claim = dispatchTouch(viewport, 'touchmove', [touch(viewport, 91, 0, 20)], [], 100);
+    // A large sideways drift after the drawer already owns the gesture must not hand it back.
+    const drift = dispatchTouch(viewport, 'touchmove', [touch(viewport, 91, 60, 25)], [], 200);
+    dispatchTouch(viewport, 'touchend', [], [touch(viewport, 91, 60, 25)], 201);
+
+    expect(claim.defaultPrevented).toBe(true);
+    expect(drift.defaultPrevented).toBe(true);
+  });
+
   it('claims both Drawer-axis directions on ordinary Viewport content', async () => {
     const viewport = await openDrawer();
     const popup = query('[data-test-popup]');
