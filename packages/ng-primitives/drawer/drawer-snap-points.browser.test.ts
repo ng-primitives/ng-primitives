@@ -429,6 +429,23 @@ describe('Drawer snap point integration', () => {
     expect(popup.style.getPropertyValue('--ngp-drawer-swipe-progress')).toBe('0');
   });
 
+  it('preserves an explicit null snap point across a close and a reopen', async () => {
+    fixture.componentInstance.active.set(null);
+    fixture.detectChanges();
+    await openDrawer();
+    expect(fixture.componentInstance.active()).toBeNull();
+
+    fixture.componentInstance.root().hide();
+    fixture.detectChanges();
+
+    expect(fixture.componentInstance.root().open()).toBe(false);
+    // `null` is the consumer's explicit "no snap point", not an unset value waiting for a default.
+    expect(fixture.componentInstance.active()).toBeNull();
+
+    await openDrawer();
+    expect(fixture.componentInstance.active()).toBeNull();
+  });
+
   it('remeasures rem points after root-font geometry changes', async () => {
     fixture.componentInstance.points.set(['10rem']);
     fixture.componentInstance.defaultPoint.set('10rem');
@@ -451,6 +468,18 @@ describe('Drawer snap point integration', () => {
       Number.parseFloat(popup.style.getPropertyValue('--ngp-drawer-swipe-movement-y')),
     ).toBeCloseTo(-100 - Math.sqrt(50));
     dispatchPointer(viewport, 'pointercancel', -150, 0, 8, 201);
+  });
+
+  it('still resets an implicitly chosen point but never an unset one', async () => {
+    // An implicitly chosen point: opened with no explicit value, so the default applied.
+    await openDrawer();
+    expect(fixture.componentInstance.active()).toBe('300px');
+    fixture.componentInstance.active.set('100px');
+    fixture.detectChanges();
+
+    fixture.componentInstance.root().hide();
+    fixture.detectChanges();
+    expect(fixture.componentInstance.active()).toBe('300px');
   });
 
   async function openDrawer(): Promise<{ viewport: HTMLElement; popup: HTMLElement }> {

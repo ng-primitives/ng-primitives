@@ -268,7 +268,15 @@ export class NgpDrawer {
     } else {
       this.preventUnmountState.set(event.unmountPrevented);
       const resetPoint = this.defaultSnapPoint() ?? this.snapPoints()?.[0];
-      if (this.snapPoint() !== undefined && this.snapPoint() !== resetPoint) {
+      const currentSnapPoint = this.snapPoint();
+      // Only a point this directive chose implicitly may be reset on close. `undefined` means
+      // "never set", which the open branch above fills in; `null` is the consumer's explicit
+      // "no active snap point" and collapsing it into the default would silently discard it.
+      if (
+        currentSnapPoint !== undefined &&
+        currentSnapPoint !== null &&
+        currentSnapPoint !== resetPoint
+      ) {
         this.requestSnapPoint(resetPoint, reason, nativeEvent, trigger);
       }
     }
