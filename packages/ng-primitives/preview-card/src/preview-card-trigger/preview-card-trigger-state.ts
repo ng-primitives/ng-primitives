@@ -30,8 +30,11 @@ import {
 import { safeTakeUntilDestroyed } from 'ng-primitives/utils';
 
 export interface NgpPreviewCardTriggerState<T> {
-  /** Access the preview card template ref. */
-  readonly previewCard: WritableSignal<NgpOverlayContent<T> | undefined>;
+  /**
+   * The content rendered inside the preview card. Use `setPreviewCard` to change it -
+   * this signal is readonly so that the content always has a single mutation path.
+   */
+  readonly previewCard: Signal<NgpOverlayContent<T> | undefined>;
   /**
    * Whether the preview card is disabled. This allows the preview card to be enabled or disabled dynamically.
    * @default false
@@ -106,6 +109,13 @@ export interface NgpPreviewCardTriggerState<T> {
    * @internal
    */
   readonly open: Signal<boolean>;
+  /**
+   * Set the content rendered inside the preview card. This is how a reusable component
+   * wires its own card component into the trigger. Takes effect the next time the card
+   * is shown; it does not swap the content of a card that is already visible.
+   * @param content - The template or component to render
+   */
+  setPreviewCard: (content: NgpOverlayContent<T> | undefined) => void;
   /** Show the preview card. */
   show: () => void;
   /** Hide the preview card. */
@@ -430,6 +440,10 @@ export const [
       container.set(newContainer);
     }
 
+    function setPreviewCard(content: NgpOverlayContent<T> | undefined): void {
+      previewCard.set(content);
+    }
+
     function destroy(): void {
       hoverBridge.clear();
       overlay()?.destroy();
@@ -471,7 +485,7 @@ export const [
     }
 
     return {
-      previewCard,
+      previewCard: previewCard.asReadonly(),
       disabled,
       placement,
       offset,
@@ -492,6 +506,7 @@ export const [
       onCardHoverEnd,
       onCardFocusOut,
       setContainer,
+      setPreviewCard,
       destroy,
     } satisfies NgpPreviewCardTriggerState<T>;
   },

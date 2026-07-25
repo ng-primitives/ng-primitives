@@ -31,6 +31,6 @@ export class PreviewCardTrigger {
   });
 
   constructor() {
-    this.previewCardTrigger().previewCard.set(PreviewCard);
+    this.previewCardTrigger().setPreviewCard(PreviewCard);
   }
 }
