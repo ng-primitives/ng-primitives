@@ -50,7 +50,7 @@ interface Message {
   template: `
     <div class="h-[700px] w-full" ngpThread>
       <div
-        class="flex h-full flex-col items-stretch rounded-2xl bg-white px-4 ring-1 ring-black/10 dark:bg-zinc-950"
+        class="flex h-full flex-col items-stretch rounded-2xl bg-white px-4 shadow-[inset_0_0_0_1px_rgba(0,0,0,0.1)] dark:bg-zinc-950 dark:shadow-[inset_0_0_0_1px_rgba(255,255,255,0.1)]"
       >
         <div class="flex grow flex-col gap-4 overflow-hidden pt-4">
           <div class="flex grow flex-col gap-4 overflow-y-auto px-2 pb-4" ngpThreadViewport>
@@ -59,11 +59,11 @@ interface Message {
               <div class="flex grow flex-col items-center justify-center gap-8 text-center">
                 <div class="max-w-md">
                   <h1
-                    class="mb-2 text-2xl leading-tight font-[590] tracking-[-0.021em] text-black dark:text-white"
+                    class="mb-2! text-2xl/[1.25]! font-[590]! tracking-[-0.021em]! text-black dark:text-white"
                   >
                     {{ welcomeMessage }}
                   </h1>
-                  <p class="text-sm tracking-[-0.011em] text-zinc-600 dark:text-zinc-400">
+                  <p class="text-sm/[1.5]! tracking-[-0.011em] text-zinc-600 dark:text-zinc-300">
                     Choose a suggestion below or type your own message to get started.
                   </p>
                 </div>
@@ -72,7 +72,7 @@ interface Message {
                 <div class="grid w-full max-w-lg grid-cols-1 gap-3 md:grid-cols-2">
                   @for (suggestion of suggestions; track suggestion) {
                     <button
-                      class="rounded-[0.625rem] border border-gray-200 p-2.5 text-left text-sm font-[510] tracking-[-0.006em] text-zinc-600 transition data-focus-visible:-translate-y-px data-focus-visible:ring-2 data-focus-visible:ring-blue-500/40 data-focus-visible:ring-offset-2 data-focus-visible:outline-none data-hover:-translate-y-px data-hover:border-zinc-300 data-hover:bg-zinc-50 data-hover:text-zinc-900 data-hover:shadow-sm dark:border-zinc-800 dark:text-zinc-400 dark:data-focus-visible:ring-blue-400/45 dark:data-focus-visible:ring-offset-zinc-950 dark:data-hover:border-zinc-600 dark:data-hover:bg-zinc-800 dark:data-hover:text-zinc-100"
+                      class="rounded-[0.625rem] bg-white px-3.5 py-2.5 text-left text-[0.875rem] font-[510] tracking-[-0.006em] text-zinc-600 shadow-[inset_0_0_0_1px_rgba(0,0,0,0.1)] transition-all data-focus-visible:shadow-[inset_0_0_0_1px_rgba(0,0,0,0.1),0_0_0_2px_#fff,0_0_0_4px_rgb(59_130_246)] data-focus-visible:outline-none data-hover:-translate-y-px data-hover:bg-zinc-50 data-hover:text-zinc-900 data-hover:shadow-[inset_0_0_0_1px_rgba(0,0,0,0.1),0_1px_2px_0_rgba(0,0,0,0.05)] dark:bg-zinc-950 dark:text-zinc-300 dark:shadow-[inset_0_0_0_1px_rgba(255,255,255,0.1)] dark:data-focus-visible:shadow-[inset_0_0_0_1px_rgba(255,255,255,0.1),0_0_0_2px_#09090b,0_0_0_4px_rgb(59_130_246)] dark:data-hover:bg-zinc-900 dark:data-hover:text-zinc-100 dark:data-hover:shadow-[inset_0_0_0_1px_rgba(255,255,255,0.1),0_1px_2px_0_rgba(0,0,0,0.05)]"
                       (click)="sendMessage(suggestion)"
                       ngpThreadSuggestion
                       ngpButton
@@ -177,7 +177,7 @@ interface Message {
         }
 
         <div
-          class="mx-auto flex w-full max-w-(--breakpoint-md) items-end rounded-3xl bg-zinc-50 shadow-[0_1px_2px_rgba(0,0,0,0.05),0_0_0_1px_rgba(0,0,0,0.1)] transition-shadow focus-within:ring-2 focus-within:ring-blue-500 dark:bg-zinc-900 dark:shadow-[0_1px_2px_rgba(255,255,255,0.007),0_0_0_1px_rgba(255,255,255,0.1)] dark:focus-within:ring-blue-400"
+          class="mx-auto flex w-full max-w-(--breakpoint-md) items-end rounded-3xl bg-zinc-50 shadow-[inset_0_0_0_1px_rgba(0,0,0,0.1)] transition-shadow focus-within:shadow-[inset_0_0_0_1px_rgb(59_130_246),0_0_0_3px_rgb(59_130_246)] dark:bg-zinc-900 dark:shadow-[inset_0_0_0_1px_rgba(255,255,255,0.1)]"
           (ngpPromptComposerSubmit)="sendMessage($event)"
           ngpPromptComposer
         >
@@ -191,11 +191,11 @@ interface Message {
             ngpFileUploadFileTypes="image/*"
             aria-label="Add Attachment"
           >
-            <ng-icon class="text-[14px] text-black! dark:text-white!" name="lucidePlus" />
+            <ng-icon class="text-[14px] text-zinc-600! dark:text-zinc-300!" name="lucidePlus" />
           </button>
 
           <textarea
-            class="max-h-40 min-h-12 grow resize-none bg-transparent py-3.5 text-sm outline-hidden placeholder:text-black/50 dark:placeholder:text-white/50"
+            class="max-h-40 min-h-12 grow resize-none bg-transparent py-3.5 text-sm text-zinc-900 outline-none placeholder:text-zinc-400 dark:text-zinc-100"
             ngpPromptComposerInput
             style="field-sizing: content;"
             name="input"
@@ -211,7 +211,7 @@ interface Message {
             aria-label="Dictation"
           >
             <ng-icon
-              class="text-[14px]"
+              class="text-[14px] text-zinc-600! dark:text-zinc-300!"
               [name]="dictation.isDictating() ? 'lucideX' : 'lucideMic'"
             />
           </button>
@@ -226,7 +226,7 @@ interface Message {
           </button>
         </div>
 
-        <p class="my-1 p-2 text-center text-xs text-black/50 dark:text-white/50">
+        <p class="my-1 p-2 text-center text-[0.75rem]! text-zinc-400">
           ChatNGP can make mistakes. Check important info.
         </p>
       </div>
