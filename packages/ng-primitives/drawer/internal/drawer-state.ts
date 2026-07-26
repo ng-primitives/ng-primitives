@@ -19,13 +19,12 @@ export interface DrawerStateProps {
   readonly open: Signal<boolean>;
   readonly nested: Signal<boolean>;
   readonly expanded: Signal<boolean>;
-  readonly snapPoint: Signal<NgpDrawerSnapPoint | null | undefined>;
+  readonly snapPoint: Signal<NgpDrawerSnapPoint | null>;
   readonly triggerId: WritableSignal<string | null>;
   readonly modal: Signal<NgpDrawerModal>;
   readonly disablePointerDismissal: Signal<boolean>;
   readonly swipeDirection: Signal<NgpDrawerSwipeDirection>;
   readonly snapPoints: Signal<readonly NgpDrawerSnapPoint[] | undefined>;
-  readonly defaultSnapPoint: Signal<NgpDrawerSnapPoint | null | undefined>;
   readonly snapToSequentialPoints: Signal<boolean>;
   readonly payload: Signal<unknown>;
   readonly mounted: WritableSignal<boolean>;
@@ -37,7 +36,7 @@ export interface DrawerStateProps {
     payload?: unknown,
   ) => boolean;
   readonly requestSnapPoint: (
-    point: NgpDrawerSnapPoint | null | undefined,
+    point: NgpDrawerSnapPoint | null,
     reason: NgpDrawerChangeReason,
     context?: DrawerRequestContext,
   ) => boolean;

@@ -149,9 +149,8 @@ describe('Drawer data attribute ledger', () => {
 
   it('marks only Popup expanded for an effective numeric snap point of one', async () => {
     fixture.componentInstance.defaultSnapPoint.set(1);
-    fixture.componentInstance.cancelNextSnap = true;
     const parts = await openParent();
-    expect(fixture.componentInstance.roots()[0].snapPoint()).toBeUndefined();
+    expect(fixture.componentInstance.roots()[0].snapPoint()).toBe(1);
     expect(parts.popup).toHaveAttribute('data-expanded');
     expect(parts.viewport).not.toHaveAttribute('data-expanded');
     expect(parts.backdrop).not.toHaveAttribute('data-expanded');
@@ -163,7 +162,6 @@ describe('Drawer data attribute ledger', () => {
     fixture.detectChanges();
     expect(parts.popup).toHaveAttribute('data-expanded');
 
-    fixture.componentInstance.roots()[0].snapPoint.set(undefined);
     fixture.componentInstance.defaultSnapPoint.set(undefined);
     fixture.componentInstance.snapPoints.set([1, 0.5]);
     fixture.detectChanges();

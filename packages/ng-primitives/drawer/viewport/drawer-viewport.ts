@@ -70,9 +70,8 @@ interface InlineSnapSnapshot {
 interface ViewportSnapRenderState {
   readonly open: boolean;
   readonly endingStyle: boolean;
-  readonly snapPoint: NgpDrawerSnapPoint | null | undefined;
+  readonly snapPoint: NgpDrawerSnapPoint | null;
   readonly snapPoints: readonly NgpDrawerSnapPoint[] | undefined;
-  readonly defaultSnapPoint: NgpDrawerSnapPoint | null | undefined;
   readonly popupHeight: number;
   readonly swipeDirection: NgpDrawerSwipeDirection;
   readonly popup: HTMLElement | null;
@@ -189,7 +188,6 @@ export class NgpDrawerViewport {
     endingStyle: this.state.endingStyle(),
     snapPoint: this.state.snapPoint(),
     snapPoints: this.state.snapPoints(),
-    defaultSnapPoint: this.state.defaultSnapPoint(),
     popupHeight: this.state.popupHeight(),
     swipeDirection: this.state.swipeDirection(),
     popup: this.state.popup(),
@@ -963,7 +961,7 @@ export class NgpDrawerViewport {
         retainForExit = this.state.requestOpen(false, 'swipe', {
           nativeEvent: release.nativeEvent,
         });
-        if (!retainForExit && previousSnapPoint !== undefined) {
+        if (!retainForExit) {
           this.state.requestSnapPoint(previousSnapPoint, 'swipe', {
             nativeEvent: release.nativeEvent,
           });
@@ -1219,19 +1217,12 @@ export class NgpDrawerViewport {
   private activeResolvedSnapPoint(
     points: readonly ResolvedDrawerSnapPoint[],
     current = this.state.snapPoint(),
-    defaultSnapPoint = this.state.defaultSnapPoint(),
-    configuredPoints = this.state.snapPoints(),
     popupHeight = this.state.popupHeight(),
   ): ResolvedDrawerSnapPoint | null {
     if (current === null) {
       return null;
     }
-    const configured =
-      current === undefined ? (defaultSnapPoint ?? configuredPoints?.[0]) : current;
-    if (configured === null || configured === undefined) {
-      return null;
-    }
-    const exact = points.find(point => point.values.includes(configured));
+    const exact = points.find(point => point.values.includes(current));
     if (exact) {
       return exact;
     }
@@ -1246,7 +1237,7 @@ export class NgpDrawerViewport {
       return closestDrawerSnapPoint(points, popupHeight);
     }
     const resolvedHeight = resolveDrawerSnapPointHeight(
-      configured,
+      current,
       this.snapGeometry.viewportHeight,
       popupHeight,
       this.snapGeometry.rootFontSize,
@@ -1275,7 +1266,6 @@ export class NgpDrawerViewport {
       endingStyle: this.state.endingStyle(),
       snapPoint: this.state.snapPoint(),
       snapPoints: this.state.snapPoints(),
-      defaultSnapPoint: this.state.defaultSnapPoint(),
       popupHeight: this.state.popupHeight(),
       swipeDirection: this.state.swipeDirection(),
       popup: this.state.popup(),
@@ -1294,8 +1284,6 @@ export class NgpDrawerViewport {
     const active = this.activeResolvedSnapPoint(
       points,
       renderState.snapPoint,
-      renderState.defaultSnapPoint,
-      renderState.snapPoints,
       renderState.popupHeight,
     );
     const vertical = renderState.swipeDirection === 'up' || renderState.swipeDirection === 'down';

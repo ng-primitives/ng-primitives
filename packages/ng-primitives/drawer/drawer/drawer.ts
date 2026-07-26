@@ -49,8 +49,32 @@ export class NgpDrawer {
   readonly snapPointInput = input<NgpDrawerSnapPoint | null | undefined>(undefined, {
     alias: 'snapPoint',
   });
-  readonly snapPoint = linkedSignal(() => this.snapPointInput());
-  readonly snapPointChange = output<NgpDrawerSnapPoint | null | undefined>();
+
+  /**
+   * Base UI's `resolvedDefaultSnapPoint` (DrawerRoot.tsx:67-68): an explicit `defaultSnapPoint`
+   * wins even when it is `null`; otherwise the first declared point; otherwise `null`. This is the
+   * single derivation of the default — the seed, the close reset and the null resolution below all
+   * consume it.
+   */
+  private readonly resolvedDefaultSnapPoint = computed<NgpDrawerSnapPoint | null>(() => {
+    const defaultSnapPoint = this.defaultSnapPoint();
+    return defaultSnapPoint !== undefined ? defaultSnapPoint : (this.snapPoints()?.[0] ?? null);
+  });
+
+  /**
+   * Base UI seeds the uncontrolled snap point with the resolved default (DrawerRoot.tsx:71-76), so
+   * "never set" does not exist as a runtime state and the default is never applied imperatively on
+   * open. Angular's inputs land after construction, so the seed cannot be read once — the
+   * linkedSignal re-seeds whenever the resolved default's value changes, which Base UI's
+   * useControlled instead flags as an unsupported use of an uncontrolled component
+   * (useControlled.ts:57-70). A bound `[snapPoint]` always wins, so controlled mode is untouched by
+   * the seed.
+   */
+  readonly snapPoint = linkedSignal<NgpDrawerSnapPoint | null>(() => {
+    const bound = this.snapPointInput();
+    return bound !== undefined ? bound : this.resolvedDefaultSnapPoint();
+  });
+  readonly snapPointChange = output<NgpDrawerSnapPoint | null>();
 
   /**
    * Base UI keeps the raw active point in state but publishes a *resolved* one to every consumer
@@ -58,7 +82,7 @@ export class NgpDrawer {
    * holds `null`, and rendering that literally would reopen it at full height instead of its
    * default. A controlled `null` is the consumer's explicit choice and is passed through untouched.
    */
-  private readonly resolvedSnapPoint = computed(() => {
+  private readonly resolvedSnapPoint = computed<NgpDrawerSnapPoint | null>(() => {
     const current = this.snapPoint();
     // `snapPointInput() !== undefined` is Base UI's `isSnapPointControlled`.
     if (this.snapPointInput() !== undefined) {
@@ -68,7 +92,7 @@ export class NgpDrawer {
     if (!points || points.length === 0) {
       return current;
     }
-    return current === null ? (this.defaultSnapPoint() ?? points[0]) : current;
+    return current === null ? this.resolvedDefaultSnapPoint() : current;
   });
 
   readonly triggerIdInput = input<string | null>(null, { alias: 'triggerId' });
@@ -97,12 +121,7 @@ export class NgpDrawer {
     skipSelf: true,
   });
   private readonly nested = computed(() => this.parentStateRef() !== null);
-  private readonly expanded = computed(() => {
-    const snapPoint = this.snapPoint();
-    const effectiveSnapPoint =
-      snapPoint === undefined ? (this.defaultSnapPoint() ?? this.snapPoints()?.[0]) : snapPoint;
-    return effectiveSnapPoint === 1;
-  });
+  private readonly expanded = computed(() => this.resolvedSnapPoint() === 1);
   private readonly providerStateRef = injectDrawerProviderState({ optional: true });
   private readonly stack = inject(DrawerStackService);
   private readonly state: DrawerState;
@@ -127,7 +146,6 @@ export class NgpDrawer {
       disablePointerDismissal: this.disablePointerDismissal,
       swipeDirection: this.swipeDirection,
       snapPoints: this.snapPoints,
-      defaultSnapPoint: this.defaultSnapPoint,
       snapToSequentialPoints: this.snapToSequentialPoints,
       payload: this.payload,
       mounted: this.mountedState,
@@ -280,23 +298,21 @@ export class NgpDrawer {
         this.state.activeTrigger.set(trigger);
       }
       this.mountedState.set(true);
-      const point = this.defaultSnapPoint() ?? this.snapPoints()?.[0];
-      if (this.snapPoint() === undefined && point !== undefined) {
-        this.requestSnapPoint(point, reason, nativeEvent, trigger);
-      }
     } else {
       this.preventUnmountState.set(event.unmountPrevented);
-      const resetPoint = this.defaultSnapPoint() ?? this.snapPoints()?.[0];
-      const currentSnapPoint = this.snapPoint();
-      // Only a point this directive chose implicitly may be reset on close. `undefined` means
-      // "never set", which the open branch above fills in; `null` is the consumer's explicit
-      // "no active snap point" and collapsing it into the default would silently discard it.
-      if (
-        currentSnapPoint !== undefined &&
-        currentSnapPoint !== null &&
-        currentSnapPoint !== resetPoint
-      ) {
-        this.requestSnapPoint(resetPoint, reason, nativeEvent, trigger);
+      const points = this.snapPoints();
+      if (points && points.length > 0) {
+        const resetPoint = this.resolvedDefaultSnapPoint();
+        const currentSnapPoint = this.snapPoint();
+        // Base UI resets the active point to the resolved default on every close
+        // (DrawerRoot.tsx:160-169) — safely, because its useControlled setter is a no-op in
+        // controlled mode. ng's linkedSignal always writes and its emission round-trips, so two
+        // guards stay on top: an explicit `null` is the consumer's "no active snap point"
+        // (plan 009) and a swipe close's clear must survive the close (plan 012) — collapsing
+        // either into the default would silently discard it.
+        if (currentSnapPoint !== null && currentSnapPoint !== resetPoint) {
+          this.requestSnapPoint(resetPoint, reason, nativeEvent, trigger);
+        }
       }
     }
 
@@ -314,7 +330,7 @@ export class NgpDrawer {
   }
 
   private requestSnapPoint(
-    point: NgpDrawerSnapPoint | null | undefined,
+    point: NgpDrawerSnapPoint | null,
     reason: NgpDrawerChangeReason,
     nativeEvent: Event | null = null,
     trigger: HTMLElement | null = null,

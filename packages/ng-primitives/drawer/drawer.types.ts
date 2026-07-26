@@ -54,7 +54,7 @@ export class NgpDrawerSnapPointChangeEvent {
   canceled = false;
 
   constructor(
-    readonly nextSnapPoint: NgpDrawerSnapPoint | null | undefined,
+    readonly nextSnapPoint: NgpDrawerSnapPoint | null,
     readonly reason: NgpDrawerChangeReason,
     nativeEvent: Event | null = null,
     trigger: HTMLElement | null = null,
