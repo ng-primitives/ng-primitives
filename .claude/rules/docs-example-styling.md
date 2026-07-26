@@ -145,6 +145,59 @@ fine for the occasional optical adjustment.
   animations (typing dots, spinners) are fine. Keep entrance motion calm:
   ease-out, ~120-180ms, no scale overshoot past 1.
 
+## Tailwind traps
+
+These fail **silently** - the class is present, the build passes, and nothing
+renders. They caused real regressions in these examples, so check for them
+whenever you touch a `.tailwind.example.ts`.
+
+**Compound `data-` variants generate no CSS.** Tailwind cannot parse a second
+bracketed attribute inside one variant, so `data-[a=b][data-c]:hidden` emits
+nothing at all. Stack the variants instead, and prefer mutually exclusive
+`not-*` pairs so the result never depends on emit order:
+
+```text
+❌ silently emits nothing
+   class="data-[validator=fail][data-dirty]:block"
+✅ stacked variants
+   class="data-[validator=fail]:data-dirty:block"
+✅ mutually exclusive - no reliance on emit order
+   class="not-data-selected:data-today:text-[#f01e2b]
+          data-selected:bg-[#f01e2b] data-selected:text-white"
+```
+
+**`border-none` cancels a directional border.** It sets `--tw-border-style:
+none`, which `border-b-2` then consumes - the underline never draws, whatever
+the class order. Drop `border-none` rather than trying to out-order it.
+
+**`ng-icon` needs `!` on colour, size and display.** `@ng-icons` ships its rules
+in a `@layer ng-icon` plus unlayered `:host` declarations; unlayered CSS beats
+every layer, and utilities live in a layer. So `text-zinc-500` on an `<ng-icon>`
+is dead - write `text-zinc-500!`. The CSS examples are unaffected because their
+`ng-icon {}` rules are unlayered and carry Angular's encapsulation attribute.
+
+**The docs `prose-zinc` styling outranks utilities** on `h1`/`h2`/`h3`/`p`/`a`
+at specificity (0,1,1). A utility class (0,1,0) loses; use `!` (`text-[14px]!
+font-[500]!`). Angular-scoped component styles in a `styles` block already win.
+
+**Scale classes carry a line-height.** `text-sm` / `text-xs` / `text-lg` set
+both `font-size` and `line-height`, but the CSS sibling usually sets size only.
+Use an arbitrary size (`text-[0.875rem]`) unless you want both.
+
+**`--ngp-gray-*` is Tailwind zinc, not gray.** Match theme-token surfaces with
+`zinc-*`. Do **not** blanket-rename `gray-*` to `zinc-*`: `border-gray-200` is
+the docs site's own default border colour (`@layer base { * { border-color:
+var(--color-gray-200) } }`), not a theme token.
+
+**Shorthand after longhand resets it.** Prettier sorts `background` after
+`background-size`, wiping the size. Use `background-image` in `styles` blocks so
+ordering is irrelevant.
+
+Class-attribute order itself is never the bug - `prettier-plugin-tailwindcss`
+only reorders tokens, and the cascade is decided by the emitted stylesheet. But
+that re-sort will defeat a `sed`/find-and-replace that matched the pre-sort
+string, so verify edits landed rather than assuming.
+
 ## Process
 
 - Restart the Vite dev server after editing example/markdown files - it caches
