@@ -30,7 +30,7 @@ import { NgpRating, NgpRatingItem } from 'ng-primitives/rating';
           </span>
         </span>
       </div>
-      <span class="text-sm font-[510] tracking-[-0.006em] text-zinc-600 dark:text-zinc-400">
+      <span class="text-[0.875rem] font-[510] tracking-[-0.006em] text-zinc-600 dark:text-zinc-300">
         {{ value() }} out of 5
       </span>
     </div>
