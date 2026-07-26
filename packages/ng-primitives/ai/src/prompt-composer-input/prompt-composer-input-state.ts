@@ -32,7 +32,7 @@ export const [
    * This primitive automatically handles that behavior.
    */
   listener(element, 'keydown', (event: KeyboardEvent) => {
-    if (event.key !== 'Enter' || event.shiftKey) {
+    if (event.key !== 'Enter' || event.shiftKey || event.ctrlKey || event.altKey || event.metaKey) {
       return;
     }
 
