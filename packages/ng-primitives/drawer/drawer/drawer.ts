@@ -52,6 +52,25 @@ export class NgpDrawer {
   readonly snapPoint = linkedSignal(() => this.snapPointInput());
   readonly snapPointChange = output<NgpDrawerSnapPoint | null | undefined>();
 
+  /**
+   * Base UI keeps the raw active point in state but publishes a *resolved* one to every consumer
+   * (DrawerRoot.tsx:98-115, :179). An uncontrolled drawer that was dismissed from a snap point
+   * holds `null`, and rendering that literally would reopen it at full height instead of its
+   * default. A controlled `null` is the consumer's explicit choice and is passed through untouched.
+   */
+  private readonly resolvedSnapPoint = computed(() => {
+    const current = this.snapPoint();
+    // `snapPointInput() !== undefined` is Base UI's `isSnapPointControlled`.
+    if (this.snapPointInput() !== undefined) {
+      return current;
+    }
+    const points = this.snapPoints();
+    if (!points || points.length === 0) {
+      return current;
+    }
+    return current === null ? (this.defaultSnapPoint() ?? points[0]) : current;
+  });
+
   readonly triggerIdInput = input<string | null>(null, { alias: 'triggerId' });
   readonly triggerId = linkedSignal(() => this.triggerIdInput());
   readonly triggerIdChange = output<string | null>();
@@ -102,7 +121,7 @@ export class NgpDrawer {
       open: this.open,
       nested: this.nested,
       expanded: this.expanded,
-      snapPoint: this.snapPoint,
+      snapPoint: this.resolvedSnapPoint,
       triggerId: this.triggerId,
       modal: this.modal,
       disablePointerDismissal: this.disablePointerDismissal,

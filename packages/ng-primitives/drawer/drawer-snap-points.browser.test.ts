@@ -140,6 +140,45 @@ class NestedSnapHost {
   readonly snapPoint = signal<NgpDrawerSnapPoint | null | undefined>(undefined);
 }
 
+@Component({
+  imports: [NgpDrawerPopup, NgpDrawerPortal, NgpDrawer, NgpDrawerViewport],
+  template: `
+    <ng-container
+      [defaultSnapPoint]="defaultPoint()"
+      [snapPoints]="points()"
+      [swipeDirection]="direction()"
+      [modal]="false"
+      (snapPointChange)="lastEmitted.set($event)"
+      ngpDrawer
+    >
+      <ng-template ngpDrawerPortal>
+        <div class="viewport" data-test-snap-viewport ngpDrawerViewport>
+          <section class="popup" data-test-snap-popup ngpDrawerPopup></section>
+        </div>
+      </ng-template>
+    </ng-container>
+  `,
+  styles: `
+    .viewport {
+      height: 400px;
+    }
+    .popup {
+      box-sizing: border-box;
+      height: 400px;
+      transform: translateY(
+        calc(var(--ngp-drawer-snap-point-offset) + var(--ngp-drawer-swipe-movement-y))
+      );
+    }
+  `,
+})
+class UncontrolledSwipeSnapHost {
+  readonly points = signal<readonly NgpDrawerSnapPoint[]>(['100px', '200px', '300px']);
+  readonly defaultPoint = signal<NgpDrawerSnapPoint | null | undefined>('100px');
+  readonly direction = signal<NgpDrawerSwipeDirection>('down');
+  readonly lastEmitted = signal<NgpDrawerSnapPoint | null | undefined>(undefined);
+  readonly root = viewChild.required(NgpDrawer);
+}
+
 let touchHitTarget: Element | null = null;
 
 describe('Drawer snap point integration', () => {
@@ -553,6 +592,17 @@ describe('Drawer snap point integration', () => {
     expect(fixture.componentInstance.active()).toBeNull();
   });
 
+  it('leaves a controlled null snap point unresolved across a reopen', async () => {
+    fixture.componentInstance.active.set(null);
+    fixture.detectChanges();
+    const { popup } = await openDrawer();
+
+    // A controlled `null` is the consumer's explicit "no snap point" and must survive, unlike the
+    // uncontrolled case where it falls back to the default (Base UI DrawerRoot.tsx:99-101).
+    expect(fixture.componentInstance.active()).toBeNull();
+    expect(popup.style.getPropertyValue('--ngp-drawer-height')).toBe('');
+  });
+
   it('remeasures rem points after root-font geometry changes', async () => {
     fixture.componentInstance.points.set(['10rem']);
     fixture.componentInstance.defaultPoint.set('10rem');
@@ -649,6 +699,55 @@ describe('Drawer snap point height ownership', () => {
     // With no active snap point the viewport releases the variable and the nested freeze applies.
     expect(popup.style.getPropertyValue('--ngp-drawer-height')).toBe('400px');
   });
+});
+
+describe('Drawer snap point uncontrolled swipe', () => {
+  let fixture: ComponentFixture<UncontrolledSwipeSnapHost>;
+  let initialRootFontSize: string;
+
+  beforeEach(async () => {
+    vi.spyOn(document, 'elementFromPoint').mockImplementation(() => touchHitTarget);
+    await TestBed.configureTestingModule({
+      imports: [UncontrolledSwipeSnapHost],
+    }).compileComponents();
+    initialRootFontSize = document.documentElement.style.fontSize;
+    fixture = TestBed.createComponent(UncontrolledSwipeSnapHost);
+    fixture.detectChanges();
+  });
+
+  afterEach(() => {
+    document.documentElement.style.fontSize = initialRootFontSize;
+    fixture.destroy();
+    vi.restoreAllMocks();
+  });
+
+  it('reopens on the default point after a swipe close', async () => {
+    const { viewport, popup } = await openDrawer();
+    expect(popup.style.getPropertyValue('--ngp-drawer-height')).toBe('100px');
+
+    swipe(viewport, 0, 100, 61, 0, 200);
+    fixture.detectChanges();
+    expect(fixture.componentInstance.root().open()).toBe(false);
+
+    const reopened = await openDrawer();
+    // An uncontrolled drawer has no consumer holding the point, so a dismissed `null` must fall
+    // back to the default rather than leaving the drawer with no snap point at all
+    // (Base UI DrawerRoot.tsx:98-115).
+    expect(reopened.popup.style.getPropertyValue('--ngp-drawer-height')).toBe('100px');
+  });
+
+  async function openDrawer(): Promise<{ viewport: HTMLElement; popup: HTMLElement }> {
+    fixture.componentInstance.root().show();
+    fixture.detectChanges();
+    await vi.waitFor(() => expect(document.querySelector('[data-test-snap-popup]')).not.toBeNull());
+    const viewport = document.querySelector<HTMLElement>('[data-test-snap-viewport]')!;
+    const popup = document.querySelector<HTMLElement>('[data-test-snap-popup]')!;
+    vi.spyOn(viewport, 'getBoundingClientRect').mockReturnValue(rect(400));
+    vi.spyOn(popup, 'getBoundingClientRect').mockReturnValue(rect(400));
+    window.dispatchEvent(new Event('resize'));
+    fixture.detectChanges();
+    return { viewport, popup };
+  }
 });
 
 function swipe(
