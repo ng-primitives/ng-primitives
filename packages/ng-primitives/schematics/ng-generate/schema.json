@@ -79,10 +79,15 @@
       "default": "component",
       "description": "Generate component template files with the specified suffix."
     },
+    "styles": {
+      "type": "string",
+      "description": "How component styles should be generated. `css` includes the full example styles; `unstyled` omits them entirely so you can style the component yourself.",
+      "enum": ["css", "unstyled"]
+    },
     "exampleStyles": {
       "type": "boolean",
       "description": "Whether example styles should be generated.",
-      "default": true
+      "x-deprecated": "Use `styles` instead: `true` maps to `--styles css`, `false` to `--styles unstyled`."
     },
     "changeDetection": {
       "description": "The change detection strategy to use in the new component. Defaults to OnPush.",

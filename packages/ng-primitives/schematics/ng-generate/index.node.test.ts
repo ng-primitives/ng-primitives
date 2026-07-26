@@ -354,4 +354,57 @@ describe('Component Schematic', () => {
     expect(content).toContain('implements ControlValueAccessor');
     expect(content).toContain('provideValueAccessor(RatingComponent)');
   });
+
+  describe('styles option', () => {
+    // accordion-item is the busiest decorator (hostDirectives, providers, template) and its
+    // styles block — carrying @keyframes and @media — sits last, so removing it exercises the
+    // trailing-comma case.
+    const itemPath = '/projects/bar/src/app/accordion/accordion-item.component.ts';
+
+    it('keeps the full styles by default', async () => {
+      const tree = await schematicRunner.runSchematic(
+        'primitive',
+        { primitive: 'accordion', path: 'projects/bar/src/app/accordion' },
+        appTree,
+      );
+
+      const content = tree.readContent(itemPath);
+      expect(content).toContain('styles:');
+      expect(content).toContain('var(--ngp');
+    });
+
+    it('removes the styles block entirely when unstyled', async () => {
+      const tree = await schematicRunner.runSchematic(
+        'primitive',
+        { primitive: 'accordion', path: 'projects/bar/src/app/accordion', styles: 'unstyled' },
+        appTree,
+      );
+
+      const content = tree.readContent(itemPath);
+
+      // the whole styles property and its contents are gone
+      expect(content).not.toContain('styles:');
+      expect(content).not.toContain('var(--ngp');
+      expect(content).not.toContain('@keyframes');
+      // the rest of the component is untouched
+      expect(content).toContain('@Component({');
+      expect(content).toContain('template:');
+      expect(content).toContain('export class AccordionItemComponent');
+    });
+
+    it('treats the deprecated exampleStyles: false as unstyled', async () => {
+      const unstyled = await schematicRunner.runSchematic(
+        'primitive',
+        { primitive: 'accordion', path: 'projects/bar/src/app/accordion', styles: 'unstyled' },
+        appTree,
+      );
+      const deprecated = await schematicRunner.runSchematic(
+        'primitive',
+        { primitive: 'accordion', path: 'projects/bar/src/app/accordion', exampleStyles: false },
+        appTree,
+      );
+
+      expect(deprecated.readContent(itemPath)).toEqual(unstyled.readContent(itemPath));
+    });
+  });
 });
