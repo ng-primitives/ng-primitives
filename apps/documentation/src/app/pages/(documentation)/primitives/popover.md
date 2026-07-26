@@ -69,6 +69,35 @@ You can customize the shift behavior to control how the popover stays within the
 </button>
 ```
 
+### Overflow Boundary
+
+By default the popover is kept within the viewport and its clipping ancestors. Pass `boundary` or `rootBoundary` to `flip` or `shift` to measure overflow against something else:
+
+```html
+<!-- Keep the popover inside a container element -->
+<button [ngpPopoverTrigger]="popover" [ngpPopoverTriggerFlip]="{boundary: container}">
+  Popover constrained to a container
+</button>
+
+<!-- Measure against the whole document rather than the viewport -->
+<button [ngpPopoverTrigger]="popover" [ngpPopoverTriggerFlip]="{rootBoundary: 'document'}">
+  Popover that does not flip while off-screen
+</button>
+```
+
+`crossAxis` widens what each middleware checks, and means a different axis for each. For `flip` it is the alignment axis, checked by default - that is how `bottom-end` becomes `bottom-start` near an edge. For `shift` it is the side axis, off by default, so enabling it lets the panel move along the placement direction as well:
+
+```html
+<button [ngpPopoverTrigger]="popover" [ngpPopoverTriggerFlip]="{crossAxis: false}">
+  Keep the alignment
+</button>
+<button [ngpPopoverTrigger]="popover" [ngpPopoverTriggerShift]="{crossAxis: true}">
+  Shift on both axes
+</button>
+```
+
+The `--ngp-popover-available-width` and `--ngp-popover-available-height` custom properties are measured against the flip boundary, or the shift boundary when flip does not set one.
+
 ## Reusable Component
 
 Create a popover component that uses the `NgpPopover` directive.

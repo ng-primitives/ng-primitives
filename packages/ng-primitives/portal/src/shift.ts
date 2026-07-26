@@ -1,4 +1,5 @@
 import { coerceNumberProperty } from '@angular/cdk/coercion';
+import { type Boundary, type RootBoundary } from '@floating-ui/dom';
 import { isNil, isObject } from 'ng-primitives/utils';
 
 /**
@@ -24,6 +25,26 @@ export interface NgpShiftOptions {
     fn: (state: unknown) => { x: number; y: number };
     options?: unknown;
   };
+
+  /**
+   * The clipping area the floating element is kept within. Pass an element (or elements)
+   * to constrain the overlay to a container rather than its clipping ancestors.
+   * @default 'clippingAncestors'
+   */
+  boundary?: Boundary;
+
+  /**
+   * The root clipping area the floating element is kept within.
+   * @default 'viewport'
+   */
+  rootBoundary?: RootBoundary;
+
+  /**
+   * Whether overflow along the side axis - the one the placement points along - is also
+   * checked when shifting. `mainAxis` covers the alignment axis and is on by default.
+   * @default false
+   */
+  crossAxis?: boolean;
 }
 
 /**

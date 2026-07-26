@@ -119,6 +119,35 @@ You can customize the shift behavior to control how the menu stays within the vi
 </button>
 ```
 
+### Overflow Boundary
+
+By default the menu is kept within the viewport and its clipping ancestors. Pass `boundary` or `rootBoundary` to `flip` or `shift` to measure overflow against something else:
+
+```html
+<!-- Keep the menu inside a container element -->
+<button [ngpMenuTrigger]="menu" [ngpMenuTriggerFlip]="{boundary: container}">
+  Menu constrained to a container
+</button>
+
+<!-- Measure against the whole document rather than the viewport -->
+<button [ngpMenuTrigger]="menu" [ngpMenuTriggerFlip]="{rootBoundary: 'document'}">
+  Menu that does not flip while off-screen
+</button>
+```
+
+`crossAxis` widens what each middleware checks, and means a different axis for each. For `flip` it is the alignment axis, checked by default - that is how `bottom-end` becomes `bottom-start` near an edge. For `shift` it is the side axis, off by default, so enabling it lets the panel move along the placement direction as well:
+
+```html
+<button [ngpMenuTrigger]="menu" [ngpMenuTriggerFlip]="{crossAxis: false}">
+  Keep the alignment
+</button>
+<button [ngpMenuTrigger]="menu" [ngpMenuTriggerShift]="{crossAxis: true}">
+  Shift on both axes
+</button>
+```
+
+The `--ngp-menu-available-width` and `--ngp-menu-available-height` custom properties are measured against the flip boundary, or the shift boundary when flip does not set one.
+
 ### Keyboard Triggers
 
 Enable keyboard triggers to allow users to open menus using Enter or arrow keys:

@@ -106,6 +106,35 @@ You can customize the shift behavior to control how the tooltip stays within the
 </button>
 ```
 
+### Overflow Boundary
+
+By default the tooltip is kept within the viewport and its clipping ancestors. Pass `boundary` or `rootBoundary` to `flip` or `shift` to measure overflow against something else:
+
+```html
+<!-- Keep the tooltip inside a container element -->
+<button [ngpTooltipTrigger]="tooltip" [ngpTooltipTriggerFlip]="{boundary: container}">
+  Tooltip constrained to a container
+</button>
+
+<!-- Measure against the whole document rather than the viewport -->
+<button [ngpTooltipTrigger]="tooltip" [ngpTooltipTriggerFlip]="{rootBoundary: 'document'}">
+  Tooltip that does not flip while off-screen
+</button>
+```
+
+`crossAxis` widens what each middleware checks, and means a different axis for each. For `flip` it is the alignment axis, checked by default - that is how `bottom-end` becomes `bottom-start` near an edge. For `shift` it is the side axis, off by default, so enabling it lets the panel move along the placement direction as well:
+
+```html
+<button [ngpTooltipTrigger]="tooltip" [ngpTooltipTriggerFlip]="{crossAxis: false}">
+  Keep the alignment
+</button>
+<button [ngpTooltipTrigger]="tooltip" [ngpTooltipTriggerShift]="{crossAxis: true}">
+  Shift on both axes
+</button>
+```
+
+The `--ngp-tooltip-available-width` and `--ngp-tooltip-available-height` custom properties are measured against the flip boundary, or the shift boundary when flip does not set one.
+
 ## API Reference
 
 The following directives are available to import from the `ng-primitives/tooltip` package:
