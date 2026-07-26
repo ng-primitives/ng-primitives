@@ -62,7 +62,7 @@ import { NgpButton } from 'ng-primitives/button';
   },
   template: `
     <div
-      class="w-full max-w-sm divide-y divide-zinc-200 overflow-hidden rounded-xl border border-gray-200 bg-white ring-1 ring-black/5 dark:divide-zinc-800 dark:border-zinc-800 dark:bg-zinc-950 dark:ring-white/10"
+      class="w-full max-w-sm divide-y divide-black/10 overflow-hidden rounded-xl border border-black/10 bg-white shadow-xs dark:divide-zinc-800 dark:border-zinc-800 dark:bg-zinc-950"
       ngpAccordion
       ngpAccordionType="single"
       ngpAccordionCollapsible
@@ -76,13 +76,13 @@ import { NgpButton } from 'ng-primitives/button';
           >
             Would you like to learn more?
             <ng-icon
-              class="shrink-0 text-lg text-zinc-400! transition-transform duration-200 ease-in-out data-[open=true]:rotate-180 dark:text-zinc-500!"
+              class="shrink-0 text-lg text-zinc-500! transition-transform duration-200 ease-in-out data-[open=true]:rotate-180 dark:text-zinc-400!"
               [attr.data-open]="panel1.open()"
               name="heroChevronDownMini"
             />
           </button>
         </h3>
-        <div class="text-sm leading-relaxed text-zinc-500 dark:text-zinc-400" ngpAccordionContent>
+        <div class="text-sm/[1.5] text-zinc-600 dark:text-zinc-300" ngpAccordionContent>
           <div class="px-4 pt-0 pb-4">
             If you would like to learn more please reach out to us on GitHub.
           </div>
@@ -98,13 +98,13 @@ import { NgpButton } from 'ng-primitives/button';
           >
             Can I use this in my project?
             <ng-icon
-              class="shrink-0 text-lg text-zinc-400! transition-transform duration-200 ease-in-out data-[open=true]:rotate-180 dark:text-zinc-500!"
+              class="shrink-0 text-lg text-zinc-500! transition-transform duration-200 ease-in-out data-[open=true]:rotate-180 dark:text-zinc-400!"
               [attr.data-open]="panel2.open()"
               name="heroChevronDownMini"
             />
           </button>
         </h3>
-        <div class="text-sm leading-relaxed text-zinc-500 dark:text-zinc-400" ngpAccordionContent>
+        <div class="text-sm/[1.5] text-zinc-600 dark:text-zinc-300" ngpAccordionContent>
           <div class="px-4 pt-0 pb-4">
             Yes, this is open source and you can use it in your project.
           </div>
