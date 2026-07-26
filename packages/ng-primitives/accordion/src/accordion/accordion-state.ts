@@ -140,7 +140,7 @@ export const [NgpAccordionStateToken, ngpAccordion, _injectAccordionState, provi
         // if we are in single mode then toggle the itemValue
         if (type() === 'single') {
           const newValue = open ? null : itemValue;
-          value.set(newValue);
+          setValue(newValue);
           onValueChange?.(newValue);
           return;
         }
@@ -153,14 +153,14 @@ export const [NgpAccordionStateToken, ngpAccordion, _injectAccordionState, provi
         } else {
           values = [...values, itemValue];
         }
-        value.set(values);
+        setValue(values);
         onValueChange?.(values);
       }
 
       return {
-        value: deprecatedSetter(value, 'setValue'),
-        disabled: deprecatedSetter(disabled, 'setDisabled'),
-        orientation: deprecatedSetter(orientation, 'setOrientation'),
+        value: deprecatedSetter(value, 'setValue', setValue),
+        disabled: deprecatedSetter(disabled, 'setDisabled', setDisabled),
+        orientation: deprecatedSetter(orientation, 'setOrientation', setOrientation),
         setDisabled,
         setOrientation,
         setValue,

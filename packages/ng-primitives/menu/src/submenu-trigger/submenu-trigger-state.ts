@@ -456,11 +456,11 @@ export const [
     }
 
     return {
-      placement: deprecatedSetter(placement, 'setPlacement'),
-      offset: deprecatedSetter(offset, 'setOffset'),
-      disabled: deprecatedSetter(disabled, 'setDisabled'),
-      menu: deprecatedSetter(menu, 'setMenu'),
-      flip: deprecatedSetter(flip, 'setFlip'),
+      placement: deprecatedSetter(placement, 'setPlacement', setPlacement),
+      offset: deprecatedSetter(offset, 'setOffset', setOffset),
+      disabled: deprecatedSetter(disabled, 'setDisabled', setDisabled),
+      menu: deprecatedSetter(menu, 'setMenu', setMenu),
+      flip: deprecatedSetter(flip, 'setFlip', setFlip),
       open,
       openOrigin,
       show,

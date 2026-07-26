@@ -164,9 +164,13 @@ export const [NgpTabsetStateToken, ngpTabset, injectTabsetState, provideTabsetSt
 
       return {
         id,
-        orientation: deprecatedSetter(orientation, 'setOrientation'),
-        activateOnFocus: deprecatedSetter(activateOnFocus, 'setActivateOnFocus'),
-        value: deprecatedSetter(value, 'select'),
+        orientation: deprecatedSetter(orientation, 'setOrientation', setOrientation),
+        activateOnFocus: deprecatedSetter(
+          activateOnFocus,
+          'setActivateOnFocus',
+          setActivateOnFocus,
+        ),
+        value: deprecatedSetter(value, 'select', newValue => select(newValue!)),
         selectedTab,
         select,
         setOrientation,

@@ -234,10 +234,10 @@ export const [NgpProgressStateToken, ngpProgress, injectProgressState, providePr
       }
 
       return {
-        max: deprecatedSetter(max, 'setMax'),
-        min: deprecatedSetter(min, 'setMin'),
-        value: deprecatedSetter(value, 'setValue'),
-        labelId: deprecatedSetter(labelId, 'setLabel'),
+        max: deprecatedSetter(max, 'setMax', setMax),
+        min: deprecatedSetter(min, 'setMin', setMin),
+        value: deprecatedSetter(value, 'setValue', setValue),
+        labelId: deprecatedSetter(labelId, 'setLabel', id => setLabel(id!)),
         valueText,
         id,
         indeterminate,

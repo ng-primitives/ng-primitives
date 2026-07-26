@@ -188,8 +188,8 @@ export const [NgpCheckboxStateToken, ngpCheckbox, injectCheckboxState, provideCh
       return {
         id,
         checked: deprecatedSetter(checked, 'setChecked', setChecked),
-        indeterminate: deprecatedSetter(indeterminate, 'setIndeterminate'),
-        disabled: deprecatedSetter(disabled, 'setDisabled'),
+        indeterminate: deprecatedSetter(indeterminate, 'setIndeterminate', setIndeterminate),
+        disabled: deprecatedSetter(disabled, 'setDisabled', setDisabled),
         checkedChange,
         indeterminateChange: indeterminateChange.asObservable(),
         toggle,

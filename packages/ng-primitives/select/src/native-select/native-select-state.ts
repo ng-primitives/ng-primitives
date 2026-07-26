@@ -60,7 +60,7 @@ export const [
     }
 
     return {
-      disabled: deprecatedSetter(disabled, 'setDisabled'),
+      disabled: deprecatedSetter(disabled, 'setDisabled', setDisabled),
       setDisabled,
     } satisfies NgpNativeSelectState;
   },

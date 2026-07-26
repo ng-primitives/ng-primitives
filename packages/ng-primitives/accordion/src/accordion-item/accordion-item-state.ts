@@ -95,7 +95,7 @@ export const [
     return {
       value,
       open: collapsible.open,
-      disabled: deprecatedSetter(disabled, 'setDisabled'),
+      disabled: deprecatedSetter(disabled, 'setDisabled', setDisabled),
       triggerId: collapsible.triggerId,
       contentId: collapsible.contentId,
       setDisabled,
