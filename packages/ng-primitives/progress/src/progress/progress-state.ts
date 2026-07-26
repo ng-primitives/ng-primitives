@@ -196,15 +196,21 @@ export const [NgpProgressStateToken, ngpProgress, injectProgressState, providePr
 
       const labelId = signal<string | undefined>(undefined);
 
-      function setLabel(id: string) {
+      // `setLabel` only accepts a concrete id, but the label id signal permits undefined, so the
+      // deprecated setter routes through this instead of asserting the id is defined.
+      function setLabelId(id: string | undefined): void {
         labelId.set(id);
+      }
+
+      function setLabel(id: string) {
+        setLabelId(id);
       }
 
       function removeLabel(id: string): void {
         // Only clear if this label is still the active one, so a newer label that has
         // taken over isn't clobbered when an old label is torn down.
         if (labelId() === id) {
-          labelId.set(undefined);
+          setLabelId(undefined);
         }
       }
 
@@ -237,7 +243,7 @@ export const [NgpProgressStateToken, ngpProgress, injectProgressState, providePr
         max: deprecatedSetter(max, 'setMax', setMax),
         min: deprecatedSetter(min, 'setMin', setMin),
         value: deprecatedSetter(value, 'setValue', setValue),
-        labelId: deprecatedSetter(labelId, 'setLabel', id => setLabel(id!)),
+        labelId: deprecatedSetter(labelId, 'setLabel', setLabelId),
         valueText,
         id,
         indeterminate,
