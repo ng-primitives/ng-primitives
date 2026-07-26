@@ -98,6 +98,7 @@ import {
     }
 
     .viewport {
+      --bleed: 3rem;
       position: fixed;
       inset: 0;
       z-index: 1001;
@@ -107,7 +108,23 @@ import {
       touch-action: none;
     }
 
+    .viewport::after {
+      content: '';
+      position: fixed;
+      inset-inline: 0;
+      bottom: 0;
+      height: var(--bleed);
+      background: var(--ngp-background);
+      pointer-events: none;
+    }
+
+    .viewport[data-closed]::after {
+      opacity: 0;
+    }
+
     .sheet {
+      position: relative;
+      z-index: 1;
       display: flex;
       flex-direction: column;
       width: 100%;
@@ -116,7 +133,7 @@ import {
         0px,
         calc(var(--ngp-drawer-snap-point-offset) + var(--ngp-drawer-swipe-movement-y))
       );
-      overflow: hidden;
+      overflow: visible;
       touch-action: none;
       color: var(--ngp-text-primary);
       background: var(--ngp-background);
@@ -128,6 +145,16 @@ import {
       );
       transition: transform 450ms cubic-bezier(0.32, 0.72, 0, 1);
       will-change: transform;
+    }
+
+    .sheet::after {
+      content: '';
+      position: absolute;
+      inset-inline: 0;
+      top: 100%;
+      height: var(--bleed);
+      background-color: inherit;
+      pointer-events: none;
     }
 
     .sheet[data-starting-style],
