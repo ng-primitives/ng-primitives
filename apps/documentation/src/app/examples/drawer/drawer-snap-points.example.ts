@@ -169,10 +169,13 @@ import {
     }
 
     [ngpDrawerContent] {
+      flex: 1 1 auto;
+      min-height: 0;
       width: min(100%, 32rem);
       margin-inline: auto;
       padding: 1rem 1.5rem max(1.5rem, env(safe-area-inset-bottom));
       overflow-y: auto;
+      overscroll-behavior: contain;
       touch-action: auto;
       text-align: center;
     }
