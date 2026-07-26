@@ -485,37 +485,57 @@ export const [
     }
 
     /**
+     * What the overlay renders: the tooltip itself, or - when none is given - the
+     * trigger's own text content wrapped in the text content component. Strings are
+     * wrapped the same way. Null when there is nothing to show.
+     *
+     * The text content fallback reads the DOM, which is not reactive - it is resolved
+     * afresh whenever the tooltip or `useTextContent` changes, but a trigger that
+     * rewrites its own label keeps the text it was first shown with.
+     */
+    function resolveContent(): {
+      content: NgpOverlayContent<T | string> | null;
+      context: T | string | undefined;
+    } {
+      const value = tooltip();
+
+      if (value) {
+        return isString(value)
+          ? { content: NgpTooltipTextContentComponent, context: value }
+          : { content: value, context: tooltipTriggerState().context() };
+      }
+
+      const textContent = tooltipTriggerState().useTextContent()
+        ? trigger.nativeElement.textContent?.trim() || ''
+        : '';
+
+      return textContent
+        ? { content: NgpTooltipTextContentComponent, context: textContent }
+        : { content: null, context: undefined };
+    }
+
+    /**
      * Create the overlay that will contain the tooltip
      */
     function createOverlayInstance(): void {
-      // Determine the content and context based on useTextContent setting
-      const shouldUseTextContent = tooltipTriggerState().useTextContent();
-      let content = tooltip();
-      let context: Signal<T | string | undefined> = tooltipTriggerState().context;
+      const resolved = computed(resolveContent);
+      const content = computed(() => resolved().content);
+      const context = computed(() => resolved().context);
 
-      if (!content) {
-        if (!shouldUseTextContent) {
-          if (ngDevMode) {
+      if (!content()) {
+        if (ngDevMode) {
+          if (tooltipTriggerState().useTextContent()) {
+            console.warn(
+              '[ngpTooltipTrigger]: useTextContent is enabled but trigger element has no text content',
+            );
+          } else {
             console.error(
               '[ngpTooltipTrigger]: Tooltip must be a string, TemplateRef, or ComponentType. Alternatively, set useTextContent to true if none is provided.',
             );
           }
-
-          return;
         }
 
-        const textContent = trigger.nativeElement.textContent?.trim() || '';
-        if (ngDevMode && !textContent) {
-          console.warn(
-            '[ngpTooltipTrigger]: useTextContent is enabled but trigger element has no text content',
-          );
-          return;
-        }
-        content = NgpTooltipTextContentComponent;
-        context = signal(textContent);
-      } else if (isString(content)) {
-        context = signal(content);
-        content = NgpTooltipTextContentComponent;
+        return;
       }
 
       // Create config for the overlay

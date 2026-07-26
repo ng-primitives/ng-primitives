@@ -328,7 +328,7 @@ export const [
       // closeOnEscape is false because we handle Escape in menu-state.ts to ensure
       // proper focus restoration through closeAllMenus.
       const config: NgpOverlayConfig<T> = {
-        content: menuContent,
+        content: menu,
         triggerElement: element.nativeElement,
         injector,
         container: container(),
