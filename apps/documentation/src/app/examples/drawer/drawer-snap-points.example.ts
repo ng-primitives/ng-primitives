@@ -199,5 +199,5 @@ import {
 })
 export default class DrawerSnapPointsExample {
   readonly snapPoints: readonly NgpDrawerSnapPoint[] = ['31rem', 1];
-  readonly cards = Array.from({ length: 12 }, (_, index) => index);
+  readonly cards = Array.from({ length: 20 }, (_, index) => index);
 }
