@@ -128,6 +128,31 @@ describe('NgpPromptComposerInput', () => {
     expect(textarea).toHaveValue('First line\nSecond line');
   });
 
+  it('should not submit on Ctrl+Enter or Meta+Enter', async () => {
+    const submitSpy = vi.fn();
+
+    await render(
+      `<div ngpThread>
+        <div ngpPromptComposer (ngpPromptComposerSubmit)="onSubmit($event)">
+          <input ngpPromptComposerInput />
+        </div>
+      </div>`,
+      {
+        imports: [NgpThread, NgpPromptComposer, NgpPromptComposerInput],
+        componentProperties: { onSubmit: submitSpy },
+      },
+    );
+
+    const input = screen.getByRole('textbox') as HTMLInputElement;
+
+    await userEvent.type(input, 'Test message');
+    await userEvent.keyboard('{Control>}{Enter}{/Control}');
+    await userEvent.keyboard('{Meta>}{Enter}{/Meta}');
+
+    expect(submitSpy).not.toHaveBeenCalled();
+    expect(input.value).toBe('Test message');
+  });
+
   it('should not submit when input is empty', async () => {
     const submitSpy = vi.fn();
 
