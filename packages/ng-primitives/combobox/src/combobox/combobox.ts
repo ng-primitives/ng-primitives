@@ -16,13 +16,13 @@ import { activeDescendantManager } from 'ng-primitives/a11y';
 import { ngpInteractions } from 'ng-primitives/interactions';
 import { domSort, injectElementRef } from 'ng-primitives/internal';
 import {
+  coerceFlip,
+  coerceOffset,
   NgpFlip,
   NgpFlipInput,
   NgpOffset,
   NgpOffsetInput,
   NgpPlacement,
-  coerceFlip,
-  coerceOffset,
 } from 'ng-primitives/portal';
 import { controlStatus } from 'ng-primitives/utils';
 import type { NgpComboboxButton } from '../combobox-button/combobox-button';
@@ -114,7 +114,7 @@ export class NgpCombobox {
   });
 
   /** The position of the dropdown. */
-  readonly placement = input<NgpComboboxPlacement>(this.config.placement, {
+  readonly placement = input<NgpPlacement>(this.config.placement, {
     alias: 'ngpComboboxDropdownPlacement',
   });
 
@@ -813,7 +813,11 @@ export class NgpCombobox {
   }
 }
 
-/** Where the combobox dropdown is placed relative to its trigger. */
+/**
+ * Where the combobox dropdown is placed relative to its trigger.
+ * @deprecated Identical to `NgpPlacement` from `ng-primitives/portal` - use that instead.
+ * Will be removed in a future major.
+ */
 export type NgpComboboxPlacement = NgpPlacement;
 
 function isOption(value: any): value is NgpComboboxOption {

@@ -15,6 +15,7 @@ import {
   setupOverflowListener,
 } from 'ng-primitives/internal';
 import {
+  createOverlay,
   NgpFlip,
   NgpOffset,
   NgpOverlay,
@@ -23,7 +24,6 @@ import {
   NgpPlacement,
   NgpPosition,
   NgpShift,
-  createOverlay,
 } from 'ng-primitives/portal';
 import {
   attrBinding,
@@ -49,7 +49,7 @@ export interface NgpTooltipTriggerState<T> {
    * Define the placement of the tooltip relative to the trigger.
    * @default 'top'
    */
-  readonly placement: Signal<NgpTooltipPlacement>;
+  readonly placement: Signal<NgpPlacement>;
   /**
    * Define the offset of the tooltip relative to the trigger.
    * Can be a number (applies to mainAxis) or an object with mainAxis, crossAxis, and alignmentAxis.
@@ -202,7 +202,7 @@ export interface NgpTooltipTriggerProps<T> {
    * Define the placement of the tooltip relative to the trigger.
    * @default 'top'
    */
-  readonly placement?: Signal<NgpTooltipPlacement>;
+  readonly placement?: Signal<NgpPlacement>;
   /**
    * Define the offset of the tooltip relative to the trigger.
    * Can be a number (applies to mainAxis) or an object with mainAxis, crossAxis, and alignmentAxis.
@@ -297,7 +297,7 @@ export const [
   <T>({
     tooltip: _tooltip = signal<NgpOverlayContent<T> | string | null>(null),
     disabled = signal<boolean>(false),
-    placement = signal<NgpTooltipPlacement>('top'),
+    placement = signal<NgpPlacement>('top'),
     offset = signal<NgpOffset>(0),
     showDelay = signal<number>(500),
     hideDelay = signal<number>(0),
@@ -591,5 +591,9 @@ export function injectTooltipTriggerState<T>(
   return _injectTooltipTriggerState(options) as Signal<NgpTooltipTriggerState<T>>;
 }
 
-/** Where the tooltip is placed relative to its trigger. */
+/**
+ * Where the tooltip is placed relative to its trigger.
+ * @deprecated Identical to `NgpPlacement` from `ng-primitives/portal` - use that instead.
+ * Will be removed in a future major.
+ */
 export type NgpTooltipPlacement = NgpPlacement;

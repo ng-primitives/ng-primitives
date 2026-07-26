@@ -17,6 +17,7 @@ import {
   NgpOverlay,
   NgpOverlayConfig,
   NgpOverlayContent,
+  NgpPlacement,
 } from 'ng-primitives/portal';
 import {
   attrBinding,
@@ -27,7 +28,6 @@ import {
   listener,
 } from 'ng-primitives/state';
 import { injectDisposables, safeTakeUntilDestroyed } from 'ng-primitives/utils';
-import { NgpMenuPlacement } from '../menu-trigger/menu-trigger';
 import { injectMenuState } from '../menu/menu-state';
 
 export interface NgpSubmenuTriggerState {
@@ -39,7 +39,7 @@ export interface NgpSubmenuTriggerState {
   /**
    * The computed placement of the menu.
    */
-  readonly placement: WritableSignal<NgpMenuPlacement>;
+  readonly placement: WritableSignal<NgpPlacement>;
 
   /**
    * Whether the menu is open.
@@ -108,7 +108,7 @@ export interface NgpSubmenuTriggerState {
    * Set the placement of the menu.
    * @param placement - The menu placement
    */
-  setPlacement(placement: NgpMenuPlacement): void;
+  setPlacement(placement: NgpPlacement): void;
 
   /**
    * Set the offset of the menu.
@@ -156,7 +156,7 @@ export interface NgpSubmenuTriggerProps<T = unknown> {
   /**
    * The placement of the menu.
    */
-  readonly placement?: Signal<NgpMenuPlacement>;
+  readonly placement?: Signal<NgpPlacement>;
   /**
    * The offset of the menu.
    */
@@ -425,7 +425,7 @@ export const [
       menu.set(newMenu);
     }
 
-    function setPlacement(newPlacement: NgpMenuPlacement): void {
+    function setPlacement(newPlacement: NgpPlacement): void {
       placement.set(newPlacement);
     }
 
