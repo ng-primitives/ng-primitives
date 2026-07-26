@@ -88,6 +88,7 @@ contain.
 See `.claude/rules/` for detailed coding standards:
 
 - `angular-patterns.md` - Signal-based APIs, readonly signals, computed/effects
+- `comments.md` - Let the code explain itself; comment the why, concisely
 - `naming-conventions.md` - Selector prefixes, class names, file names
 - `state-management.md` - The `createPrimitive` state pattern: one `-state.ts` per part, host bindings inside the factory, thin directives, controlled state, state composition
 - `docs-example-styling.md` - Styling the documentation examples: brand red reserved for state, blue for focus, typography/radii scale, CSS + Tailwind parity
