@@ -73,7 +73,7 @@ export class BlockScrollStrategy implements ScrollStrategy {
     if (this.canBeEnabled()) {
       const root = this.document.documentElement!;
 
-      this.previousScrollPosition = this.viewportRuler.getViewportScrollPosition();
+      this.previousScrollPosition = this.getLayoutViewportScrollPosition();
 
       // Cache the previous inline styles in case the user had set them.
       this.previousHTMLStyles.left = root.style.left || '';
@@ -139,6 +139,26 @@ export class BlockScrollStrategy implements ScrollStrategy {
         bodyStyle.scrollBehavior = previousBodyScrollBehavior;
       }
     }
+  }
+
+  /**
+   * The scroll offset of the *layout* viewport, which is what a `position: fixed` `<html>`
+   * is offset against.
+   *
+   * Read from the document element's own rect rather than `ViewportRuler`, whose `||`
+   * fallthrough reaches `window.scrollX`/`scrollY` when an axis reports a zero document
+   * offset - and WebKit measures those against the *visual* viewport, so a pinch-zoomed,
+   * panned page reports the pan amount rather than 0. Compensating by that shifts the whole
+   * page the moment an overlay opens. `getBoundingClientRect()` is layout-viewport-relative
+   * in every browser, and unlike `visualViewport` it is a synchronous layout read rather
+   * than a value iOS Safari updates behind its URL bar and rubber-band overscroll.
+   * @see https://github.com/ng-primitives/ng-primitives/issues/758
+   */
+  private getLayoutViewportScrollPosition(): { top: number; left: number } {
+    const documentRect = this.document.documentElement!.getBoundingClientRect();
+
+    // `|| 0` normalises the `-0` an unscrolled axis would otherwise negate into.
+    return { top: -documentRect.top || 0, left: -documentRect.left || 0 };
   }
 
   private canBeEnabled(): boolean {

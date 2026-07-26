@@ -1,4 +1,5 @@
-import { CloseScrollStrategy } from 'ng-primitives/portal';
+import { ViewportRuler } from '@angular/cdk/scrolling';
+import { BlockScrollStrategy, CloseScrollStrategy } from 'ng-primitives/portal';
 import { describe, expect, it, vi } from 'vitest';
 
 describe('CloseScrollStrategy', () => {
@@ -100,5 +101,113 @@ describe('CloseScrollStrategy', () => {
 
     scrollableContainer.dispatchEvent(new Event('scroll'));
     expect(onClose).toHaveBeenCalledTimes(1);
+  });
+});
+
+describe('BlockScrollStrategy', () => {
+  let root: HTMLElement;
+  let body: HTMLElement;
+  let strategy: BlockScrollStrategy | undefined;
+  let scroll: ReturnType<typeof vi.spyOn>;
+
+  /**
+   * Build a strategy against stand-in `html`/`body` elements so a test can vary the
+   * scroll position without scrolling or restyling the real page.
+   *
+   * `documentRect` is the document element's viewport-relative rect - a page scrolled
+   * down 900px puts its top edge at -900.
+   */
+  function createStrategy(
+    rulerScrollPosition: { top: number; left: number },
+    documentRect: { top: number; left: number } = {
+      top: -rulerScrollPosition.top,
+      left: -rulerScrollPosition.left,
+    },
+  ): BlockScrollStrategy {
+    const viewportRuler = {
+      getViewportScrollPosition: () => rulerScrollPosition,
+      getViewportSize: () => ({ width: 400, height: 600 }),
+    } as unknown as ViewportRuler;
+
+    root.getBoundingClientRect = () => new DOMRect(documentRect.left, documentRect.top, 400, 4000);
+
+    const document = {
+      documentElement: root,
+      body,
+    } as unknown as Document;
+
+    return (strategy = new BlockScrollStrategy(viewportRuler, document));
+  }
+
+  beforeEach(() => {
+    root = window.document.createElement('div');
+    // The strategy only blocks scroll on a page that actually overflows.
+    Object.defineProperty(root, 'scrollHeight', { value: 4000 });
+    Object.defineProperty(root, 'scrollWidth', { value: 400 });
+
+    body = window.document.createElement('div');
+    scroll = vi.spyOn(window, 'scroll').mockImplementation(() => undefined);
+  });
+
+  afterEach(() => {
+    strategy?.disable();
+    strategy = undefined;
+    scroll.mockRestore();
+  });
+
+  it('should offset the page by the document scroll position', () => {
+    createStrategy({ top: 900, left: 0 }).enable();
+
+    expect(root.style.position).toBe('fixed');
+    expect(root.style.top).toBe('-900px');
+    expect(root.style.left).toBe('0px');
+  });
+
+  // A pinch-zoomed WebKit page reports the visual viewport pan through `window.scrollX`,
+  // which the ruler falls back to. Offsetting by that shifts the whole page - and every
+  // `position: fixed` overlay with it - by the pan amount. The document element's rect is
+  // layout-viewport-relative, so it stays on the layout scroll.
+  // https://github.com/ng-primitives/ng-primitives/issues/758
+  it('should ignore the visual viewport pan of a pinch-zoomed page', () => {
+    createStrategy(
+      // What the ruler reports on WebKit: the layout scroll plus the pan.
+      { top: 940, left: 150 },
+      // The layout scroll the document rect reports regardless of the pan.
+      { top: -900, left: 0 },
+    ).enable();
+
+    expect(root.style.top).toBe('-900px');
+    expect(root.style.left).toBe('0px');
+  });
+
+  it('should restore the layout scroll position on disable', () => {
+    const blockScrollStrategy = createStrategy({ top: 940, left: 150 }, { top: -900, left: 0 });
+
+    blockScrollStrategy.enable();
+    blockScrollStrategy.disable();
+
+    expect(scroll).toHaveBeenCalledWith(0, 900);
+  });
+
+  it('should offset by a horizontal scroll position', () => {
+    createStrategy({ top: 500, left: 20 }).enable();
+
+    expect(root.style.top).toBe('-500px');
+    expect(root.style.left).toBe('-20px');
+  });
+
+  it('should restore the previous inline styles on disable', () => {
+    root.style.position = 'relative';
+    root.style.overflowY = 'hidden';
+
+    const blockScrollStrategy = createStrategy({ top: 900, left: 0 });
+
+    blockScrollStrategy.enable();
+    blockScrollStrategy.disable();
+
+    expect(root.style.position).toBe('relative');
+    expect(root.style.overflowY).toBe('hidden');
+    expect(root.style.top).toBe('');
+    expect(root.hasAttribute('data-scrollblock')).toBe(false);
   });
 });
