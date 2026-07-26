@@ -150,7 +150,7 @@ export const [NgpSwitchStateToken, ngpSwitch, injectSwitchState, provideSwitchSt
       return {
         id,
         checked: deprecatedSetter(checked, 'setChecked', setChecked),
-        disabled: deprecatedSetter(disabledInput, 'setDisabled'),
+        disabled: deprecatedSetter(disabledInput, 'setDisabled', setDisabled),
         checkedChange,
         toggle,
         setChecked,
