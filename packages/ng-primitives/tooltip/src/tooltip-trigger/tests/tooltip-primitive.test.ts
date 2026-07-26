@@ -2143,53 +2143,62 @@ describe('NgpTooltipTrigger (primitive)', () => {
     });
 
     it('should not show a tooltip on hover once the reference is cleared', async () => {
+      // The trigger has no content and no text content to fall back on, so it reports
+      // that in dev mode - keep it off the console for the duration of the test.
       const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
-      const { fixture, getByRole } = await renderDynamic();
 
-      const trigger = getByRole('button');
-      fireEvent.mouseEnter(trigger);
+      try {
+        const { fixture, getByRole } = await renderDynamic();
 
-      await waitFor(() => {
-        expect(document.querySelector('[ngpTooltip]')).toBeInTheDocument();
-      });
+        const trigger = getByRole('button');
+        fireEvent.mouseEnter(trigger);
 
-      fireEvent.mouseLeave(trigger);
-      await waitFor(() => {
+        await waitFor(() => {
+          expect(document.querySelector('[ngpTooltip]')).toBeInTheDocument();
+        });
+
+        fireEvent.mouseLeave(trigger);
+        await waitFor(() => {
+          expect(document.querySelector('[ngpTooltip]')).not.toBeInTheDocument();
+        });
+
+        fixture.componentInstance.showTooltip = false;
+        fixture.detectChanges();
+
+        fireEvent.mouseEnter(trigger);
+        await new Promise(resolve => setTimeout(resolve, 100));
+
         expect(document.querySelector('[ngpTooltip]')).not.toBeInTheDocument();
-      });
-
-      fixture.componentInstance.showTooltip = false;
-      fixture.detectChanges();
-
-      fireEvent.mouseEnter(trigger);
-      await new Promise(resolve => setTimeout(resolve, 100));
-
-      expect(document.querySelector('[ngpTooltip]')).not.toBeInTheDocument();
-
-      consoleSpy.mockRestore();
+      } finally {
+        consoleSpy.mockRestore();
+      }
     });
 
     it('should show a tooltip once a reference is provided', async () => {
+      // Starts with no content, which is reported in dev mode - see above.
       const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
-      const { fixture, getByRole } = await renderDynamic({ showTooltip: false });
 
-      const trigger = getByRole('button');
-      fireEvent.mouseEnter(trigger);
-      await new Promise(resolve => setTimeout(resolve, 100));
-      expect(document.querySelector('[ngpTooltip]')).not.toBeInTheDocument();
+      try {
+        const { fixture, getByRole } = await renderDynamic({ showTooltip: false });
 
-      fireEvent.mouseLeave(trigger);
+        const trigger = getByRole('button');
+        fireEvent.mouseEnter(trigger);
+        await new Promise(resolve => setTimeout(resolve, 100));
+        expect(document.querySelector('[ngpTooltip]')).not.toBeInTheDocument();
 
-      fixture.componentInstance.showTooltip = true;
-      fixture.detectChanges();
+        fireEvent.mouseLeave(trigger);
 
-      fireEvent.mouseEnter(trigger);
+        fixture.componentInstance.showTooltip = true;
+        fixture.detectChanges();
 
-      await waitFor(() => {
-        expect(document.querySelector('[ngpTooltip]')?.textContent?.trim()).toBe('First tooltip');
-      });
+        fireEvent.mouseEnter(trigger);
 
-      consoleSpy.mockRestore();
+        await waitFor(() => {
+          expect(document.querySelector('[ngpTooltip]')?.textContent?.trim()).toBe('First tooltip');
+        });
+      } finally {
+        consoleSpy.mockRestore();
+      }
     });
 
     it('should render, and update, a string set through the injected state', async () => {
