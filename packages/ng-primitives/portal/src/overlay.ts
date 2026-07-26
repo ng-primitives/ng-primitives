@@ -863,12 +863,6 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
    * Internal method to setup positioning of the overlay
    */
   private setupPositioning(overlayElement: HTMLElement): void {
-    // Determine positioning strategy based on overlay element's CSS
-    const strategy =
-      getComputedStyle(overlayElement).position === 'fixed'
-        ? 'fixed'
-        : this.config.strategy || 'absolute';
-
     // Get the reference for auto-update - use trigger element for resize/scroll tracking
     // even when using programmatic position (the virtual element is created dynamically in computePosition)
     const referenceElement = this.config.anchorElement || this.config.triggerElement;
@@ -877,18 +871,30 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
     this.disposePositioning = autoUpdate(
       referenceElement,
       overlayElement,
-      () => this.computePosition(overlayElement, strategy),
+      () => this.computePosition(overlayElement),
       { animationFrame: this.config.trackPosition ?? false },
     );
   }
 
   /**
+   * Determine the positioning strategy from the overlay element's computed CSS.
+   *
+   * Resolved per pass so every caller agrees: `updatePosition()` used to reach
+   * `computePosition()` without one and take the `absolute` default, which offsets a
+   * `fixed` panel by the page scroll.
+   */
+  private resolveStrategy(overlayElement: HTMLElement): Strategy {
+    return getComputedStyle(overlayElement).position === 'fixed'
+      ? 'fixed'
+      : this.config.strategy || 'absolute';
+  }
+
+  /**
    * Compute the overlay position using floating-ui
    */
-  private async computePosition(
-    overlayElement: HTMLElement,
-    strategy: Strategy = 'absolute',
-  ): Promise<void> {
+  private async computePosition(overlayElement: HTMLElement): Promise<void> {
+    const strategy = this.resolveStrategy(overlayElement);
+
     // Create middleware array
     // Order matters: offset → flip → shift → size → arrow (per Floating UI docs)
     const middleware: Middleware[] = [offset(this.config.offset ?? 0)];
