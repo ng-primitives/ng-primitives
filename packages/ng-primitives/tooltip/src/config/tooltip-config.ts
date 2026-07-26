@@ -1,6 +1,5 @@
 import { InjectionToken, Provider, inject } from '@angular/core';
-import { type Placement } from '@floating-ui/dom';
-import { NgpFlip, NgpOffset, NgpShift } from 'ng-primitives/portal';
+import { NgpFlip, NgpOffset, NgpPlacement, NgpShift } from 'ng-primitives/portal';
 
 export interface NgpTooltipConfig {
   /**
@@ -14,7 +13,7 @@ export interface NgpTooltipConfig {
    * Define the placement of the tooltip relative to the trigger.
    * @default 'top'
    */
-  placement: Placement;
+  placement: NgpPlacement;
 
   /**
    * Define the delay before the tooltip is shown.

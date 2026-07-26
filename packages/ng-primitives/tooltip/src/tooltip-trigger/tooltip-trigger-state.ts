@@ -15,14 +15,15 @@ import {
   setupOverflowListener,
 } from 'ng-primitives/internal';
 import {
-  createOverlay,
   NgpFlip,
   NgpOffset,
   NgpOverlay,
   NgpOverlayConfig,
   NgpOverlayContent,
+  NgpPlacement,
   NgpPosition,
   NgpShift,
+  createOverlay,
 } from 'ng-primitives/portal';
 import {
   attrBinding,
@@ -590,16 +591,5 @@ export function injectTooltipTriggerState<T>(
   return _injectTooltipTriggerState(options) as Signal<NgpTooltipTriggerState<T>>;
 }
 
-export type NgpTooltipPlacement =
-  | 'top'
-  | 'right'
-  | 'bottom'
-  | 'left'
-  | 'top-start'
-  | 'top-end'
-  | 'right-start'
-  | 'right-end'
-  | 'bottom-start'
-  | 'bottom-end'
-  | 'left-start'
-  | 'left-end';
+/** Where the tooltip is placed relative to its trigger. */
+export type NgpTooltipPlacement = NgpPlacement;

@@ -16,9 +16,6 @@ import {
 } from '@angular/core';
 import { ControlContainer } from '@angular/forms';
 import {
-  Middleware,
-  Placement,
-  Strategy,
   VirtualElement,
   arrow,
   autoUpdate,
@@ -38,6 +35,7 @@ import { NgpDismissGuard, NgpOverlayRegistry } from './overlay-registry';
 import { provideOverlayContext } from './overlay-token';
 import { NgpPortal, createPortal } from './portal';
 import { NgpPosition } from './position';
+import { NgpMiddleware, NgpPlacement, NgpPositioningStrategy } from './positioning';
 import {
   BlockScrollStrategy,
   CloseScrollStrategy,
@@ -143,7 +141,7 @@ export interface NgpOverlayConfig<T = unknown> {
   container?: HTMLElement | string | null;
 
   /** Preferred placement of the overlay relative to the trigger. */
-  placement?: Signal<Placement>;
+  placement?: Signal<NgpPlacement>;
 
   /** Offset distance between the overlay and trigger. Can be a number or an object with axis-specific offsets */
   offset?: NgpOffset;
@@ -161,7 +159,7 @@ export interface NgpOverlayConfig<T = unknown> {
   hideDelay?: number;
 
   /** Whether the overlay should be positioned with fixed or absolute strategy */
-  strategy?: Strategy;
+  strategy?: NgpPositioningStrategy;
 
   /** The scroll strategy to use for the overlay */
   scrollBehaviour?: 'reposition' | 'block' | 'close';
@@ -182,7 +180,7 @@ export interface NgpOverlayConfig<T = unknown> {
    */
   onClose?: (origin: FocusOrigin) => void;
   /** Additional middleware for floating UI positioning */
-  additionalMiddleware?: Middleware[];
+  additionalMiddleware?: NgpMiddleware[];
 
   /** Additional providers */
   providers?: Provider[];
@@ -278,7 +276,7 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
   readonly availableHeight = signal<number | null>(null);
 
   /** Signal tracking the final placement of the overlay */
-  readonly finalPlacement = signal<Placement | undefined>(undefined);
+  readonly finalPlacement = signal<NgpPlacement | undefined>(undefined);
 
   /** Function to dispose the positioning auto-update */
   private disposePositioning?: () => void;
@@ -883,7 +881,7 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
    * `computePosition()` without one and take the `absolute` default, which offsets a
    * `fixed` panel by the page scroll.
    */
-  private resolveStrategy(overlayElement: HTMLElement): Strategy {
+  private resolveStrategy(overlayElement: HTMLElement): NgpPositioningStrategy {
     return getComputedStyle(overlayElement).position === 'fixed'
       ? 'fixed'
       : this.config.strategy || 'absolute';
@@ -897,7 +895,7 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
 
     // Create middleware array
     // Order matters: offset → flip → shift → size → arrow (per Floating UI docs)
-    const middleware: Middleware[] = [offset(this.config.offset ?? 0)];
+    const middleware: NgpMiddleware[] = [offset(this.config.offset ?? 0)];
 
     // Add flip middleware if requested
     // Flip must come before shift so that shift doesn't prevent flip from triggering

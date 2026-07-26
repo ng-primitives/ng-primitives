@@ -11,14 +11,15 @@ import {
 } from '@angular/core';
 import { injectElementRef } from 'ng-primitives/internal';
 import {
-  createOverlay,
   NgpDismissGuard,
   NgpFlip,
   NgpOffset,
   NgpOverlay,
   NgpOverlayConfig,
   NgpOverlayContent,
+  NgpPlacement,
   NgpShift,
+  createOverlay,
 } from 'ng-primitives/portal';
 import {
   attrBinding,
@@ -407,16 +408,5 @@ export function injectPopoverTriggerState<T>(
   return _injectPopoverTriggerState(options) as Signal<NgpPopoverTriggerState<T>>;
 }
 
-export type NgpPopoverPlacement =
-  | 'top'
-  | 'right'
-  | 'bottom'
-  | 'left'
-  | 'top-start'
-  | 'top-end'
-  | 'right-start'
-  | 'right-end'
-  | 'bottom-start'
-  | 'bottom-end'
-  | 'left-start'
-  | 'left-end';
+/** Where the popover is placed relative to its trigger. */
+export type NgpPopoverPlacement = NgpPlacement;

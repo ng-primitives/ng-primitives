@@ -2,16 +2,17 @@ import { FocusOrigin } from '@angular/cdk/a11y';
 import { BooleanInput, NumberInput } from '@angular/cdk/coercion';
 import { booleanAttribute, Directive, input, numberAttribute, Signal } from '@angular/core';
 import {
-  coerceFlip,
-  coerceOffset,
-  coerceShift,
   NgpFlip,
   NgpFlipInput,
   NgpOffset,
   NgpOffsetInput,
   NgpOverlayContent,
+  NgpPlacement,
   NgpShift,
   NgpShiftInput,
+  coerceFlip,
+  coerceOffset,
+  coerceShift,
 } from 'ng-primitives/portal';
 import { injectMenuConfig, NgpMenuTriggerType } from '../config/menu-config';
 import { ngpMenuTrigger, provideMenuTriggerState } from './menu-trigger-state';
@@ -188,16 +189,5 @@ export class NgpMenuTrigger<T = unknown> {
   }
 }
 
-export type NgpMenuPlacement =
-  | 'top'
-  | 'right'
-  | 'bottom'
-  | 'left'
-  | 'top-start'
-  | 'top-end'
-  | 'right-start'
-  | 'right-end'
-  | 'bottom-start'
-  | 'bottom-end'
-  | 'left-start'
-  | 'left-end';
+/** Where the menu is placed relative to its trigger. */
+export type NgpMenuPlacement = NgpPlacement;
