@@ -142,6 +142,13 @@ import {
       opacity: 0;
     }
 
+    .sheet[data-ending-style],
+    .backdrop[data-ending-style] {
+      /* Plan 004 publishes a velocity-matched release scalar; the fallback covers a close
+         with no gesture at all, where ng leaves the variable unset. */
+      transition-duration: calc(var(--ngp-drawer-swipe-strength, 1) * 400ms);
+    }
+
     [data-swiping] {
       transition-duration: 0ms;
       user-select: none;
