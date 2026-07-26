@@ -323,7 +323,22 @@ describe('overlay overflow boundary', () => {
       expect(availableHeight(menu)).toBeLessThan(window.innerHeight);
     });
 
-    it('should measure against a shift boundary when flip does not set one', async () => {
+    // Flip is enabled by default and resolves to an empty options object, which must not
+    // mask a boundary that only shift sets.
+    it('should measure against a shift boundary when flip is left at its default', async () => {
+      const { fixture } = await render(BoundaryComponent);
+      const box = query(fixture, '.box');
+      fixture.componentInstance.shift.set({ boundary: box });
+
+      const menu = await openMenu(fixture);
+
+      const trigger = query(fixture, '[data-testid="trigger"]');
+      const expected =
+        box.getBoundingClientRect().bottom - trigger.getBoundingClientRect().bottom - OFFSET;
+      expect(availableHeight(menu)).toBeCloseTo(expected, 0);
+    });
+
+    it('should measure against a shift boundary when flip is disabled', async () => {
       const { fixture } = await render(BoundaryComponent);
       const box = query(fixture, '.box');
       fixture.componentInstance.flip.set(false);
