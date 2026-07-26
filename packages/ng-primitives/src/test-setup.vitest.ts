@@ -8,6 +8,9 @@ import { installVitestDomPolyfills } from './test-dom-polyfills';
 
 setupTestBed({
   browserMode: true,
+  // `browserMode` alone sets `destroyAfterEach: false`, which keeps every test file's
+  // injector - and the CDK singletons it created - alive in the shared browser page.
+  teardown: { destroyAfterEach: true },
 });
 
 // In zoneless mode, plain TS property mutations don't mark views dirty, so
