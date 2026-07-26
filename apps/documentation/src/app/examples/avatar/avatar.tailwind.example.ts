@@ -5,9 +5,9 @@ import { NgpAvatar, NgpAvatarFallback, NgpAvatarImage } from 'ng-primitives/avat
   selector: 'app-avatar',
   imports: [NgpAvatar, NgpAvatarImage, NgpAvatarFallback],
   template: `
-    <div class="flex items-center">
+    <div class="inline-flex items-center">
       <span
-        class="relative inline-flex size-11 items-center justify-center rounded-full bg-[#dbeafe] ring-2 ring-white before:absolute before:inset-0 before:rounded-full before:ring-1 before:ring-black/10 before:ring-inset dark:ring-zinc-950 dark:before:ring-white/10"
+        class="relative inline-flex size-11 items-center justify-center rounded-full bg-[#dbeafe] shadow-[0_0_0_2px_#fff,inset_0_0_0_1px_rgba(0,0,0,0.1)] dark:shadow-[0_0_0_2px_#09090b,inset_0_0_0_1px_#27272a]"
         ngpAvatar
       >
         <img
@@ -25,7 +25,7 @@ import { NgpAvatar, NgpAvatarFallback, NgpAvatarImage } from 'ng-primitives/avat
       </span>
 
       <span
-        class="relative -ml-3 inline-flex size-11 items-center justify-center rounded-full bg-[#fef3c7] ring-2 ring-white before:absolute before:inset-0 before:rounded-full before:ring-1 before:ring-black/10 before:ring-inset dark:ring-zinc-950 dark:before:ring-white/10"
+        class="relative -ml-3 inline-flex size-11 items-center justify-center rounded-full bg-[#fef3c7] shadow-[0_0_0_2px_#fff,inset_0_0_0_1px_rgba(0,0,0,0.1)] dark:shadow-[0_0_0_2px_#09090b,inset_0_0_0_1px_#27272a]"
         ngpAvatar
       >
         <img
@@ -43,7 +43,7 @@ import { NgpAvatar, NgpAvatarFallback, NgpAvatarImage } from 'ng-primitives/avat
       </span>
 
       <span
-        class="relative -ml-3 inline-flex size-11 items-center justify-center rounded-full bg-[#ede9fe] ring-2 ring-white before:absolute before:inset-0 before:rounded-full before:ring-1 before:ring-black/10 before:ring-inset dark:ring-zinc-950 dark:before:ring-white/10"
+        class="relative -ml-3 inline-flex size-11 items-center justify-center rounded-full bg-[#ede9fe] shadow-[0_0_0_2px_#fff,inset_0_0_0_1px_rgba(0,0,0,0.1)] dark:shadow-[0_0_0_2px_#09090b,inset_0_0_0_1px_#27272a]"
         ngpAvatar
       >
         <img
@@ -61,7 +61,7 @@ import { NgpAvatar, NgpAvatarFallback, NgpAvatarImage } from 'ng-primitives/avat
       </span>
 
       <span
-        class="relative -ml-3 inline-flex size-11 items-center justify-center rounded-full bg-[#cffafe] ring-2 ring-white before:absolute before:inset-0 before:rounded-full before:ring-1 before:ring-black/10 before:ring-inset dark:ring-zinc-950 dark:before:ring-white/10"
+        class="relative -ml-3 inline-flex size-11 items-center justify-center rounded-full bg-[#cffafe] shadow-[0_0_0_2px_#fff,inset_0_0_0_1px_rgba(0,0,0,0.1)] dark:shadow-[0_0_0_2px_#09090b,inset_0_0_0_1px_#27272a]"
         ngpAvatar
       >
         <img

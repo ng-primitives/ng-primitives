@@ -54,7 +54,7 @@ import {
   },
   template: `
     <div
-      class="w-full max-w-sm overflow-hidden rounded-xl border border-gray-200 bg-white ring-1 ring-black/5 dark:border-zinc-800 dark:bg-zinc-950 dark:ring-white/10"
+      class="w-full max-w-sm overflow-hidden rounded-xl border border-black/10 bg-white shadow-xs dark:border-zinc-800 dark:bg-zinc-950"
       ngpCollapsible
     >
       <button
@@ -64,7 +64,7 @@ import {
       >
         What is a headless component library?
         <ng-icon
-          class="shrink-0 text-lg text-zinc-400! transition-transform duration-200 ease-in-out group-data-[open]:rotate-180 dark:text-zinc-500!"
+          class="shrink-0 text-lg text-zinc-500! transition-transform duration-200 ease-in-out group-data-[open]:rotate-180 dark:text-zinc-400!"
           name="heroChevronDownMini"
         />
       </button>
