@@ -131,6 +131,9 @@ import {
 
     .sheet[data-starting-style],
     .sheet[data-ending-style] {
+      /* The padding is inside the box, so leaving it set would keep the sheet at its
+         expanded height for the whole enter/exit animation. */
+      padding-bottom: 0;
       transform: translateY(calc(100% + 2px));
     }
 
