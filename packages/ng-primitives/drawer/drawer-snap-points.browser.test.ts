@@ -1,6 +1,7 @@
 import { Component, signal, viewChild } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import {
+  NgpDrawerOpenChangeEvent,
   NgpDrawerSnapPoint,
   NgpDrawerSnapPointChangeEvent,
   NgpDrawerSwipeDirection,
@@ -20,6 +21,7 @@ import { NgpDrawerViewport } from './viewport/drawer-viewport';
       [snapToSequentialPoints]="sequential()"
       [swipeDirection]="direction()"
       [modal]="false"
+      (beforeOpenChange)="beforeOpen($event)"
       (beforeSnapPointChange)="beforeSnap($event)"
       (snapPointChange)="active.set($event)"
       ngpDrawer
@@ -51,12 +53,20 @@ class SnapHost {
   readonly sequential = signal(false);
   readonly direction = signal<NgpDrawerSwipeDirection>('down');
   readonly cancelNextSnap = signal(false);
+  readonly cancelNextClose = signal(false);
   readonly root = viewChild.required(NgpDrawer);
 
   beforeSnap(event: NgpDrawerSnapPointChangeEvent): void {
     if (this.cancelNextSnap()) {
       event.cancel();
       this.cancelNextSnap.set(false);
+    }
+  }
+
+  beforeOpen(event: NgpDrawerOpenChangeEvent): void {
+    if (!event.nextOpen && this.cancelNextClose()) {
+      event.cancel();
+      this.cancelNextClose.set(false);
     }
   }
 }
@@ -450,14 +460,47 @@ describe('Drawer snap point integration', () => {
     expect(popup.style.getPropertyValue('--ngp-drawer-swipe-progress')).toBe('1');
   });
 
-  it('resets the default point after a successful swipe close', async () => {
+  it('leaves no active snap point after a successful swipe close', async () => {
     fixture.componentInstance.active.set('100px');
     fixture.detectChanges();
     const { viewport } = await openDrawer();
     swipe(viewport, 0, 100, 7, 0, 200);
     fixture.detectChanges();
     expect(fixture.componentInstance.root().open()).toBe(false);
-    expect(fixture.componentInstance.active()).toBe('300px');
+    // A dismissed drawer rests on no snap point. Reporting the default is a height it never had.
+    expect(fixture.componentInstance.active()).toBeNull();
+  });
+
+  it('keeps the snap offset in the release scalar when a swipe closes the drawer', async () => {
+    fixture.componentInstance.active.set('100px');
+    fixture.detectChanges();
+    const { viewport, popup } = await openDrawer();
+
+    // 20px in 25ms = 0.8px/ms — a decisive flick, so the drawer closes outright. The popup is
+    // 400px and rests at offset 300, so only 80px remain to travel: 80 / 0.8 = 100ms, which is
+    // inside the scalar's live range. Measuring from offset 0 instead would give 380px, a 475ms
+    // duration that clamps to 360ms and a scalar of exactly 1 — the regression this pins.
+    swipe(viewport, 0, 20, 43, 0, 26);
+    fixture.detectChanges();
+
+    expect(fixture.componentInstance.root().open()).toBe(false);
+    expect(popup.style.getPropertyValue('--ngp-drawer-swipe-strength')).toBe('0.164');
+  });
+
+  it('restores the previous snap point when the swipe close is vetoed', async () => {
+    fixture.componentInstance.active.set('100px');
+    fixture.detectChanges();
+    const { viewport, popup } = await openDrawer();
+    fixture.componentInstance.cancelNextClose.set(true);
+
+    swipe(viewport, 0, 100, 42, 0, 200);
+    fixture.detectChanges();
+
+    expect(fixture.componentInstance.root().open()).toBe(true);
+    expect(fixture.componentInstance.active()).toBe('100px');
+    // The clear and the restore are both synchronous, so the render effect never sees the drawer
+    // give up ownership of the height variable to nested visuals (plan 008).
+    expect(popup.style.getPropertyValue('--ngp-drawer-height')).toBe('100px');
   });
 
   it('keeps the released snap visuals while a swipe close exits', async () => {
@@ -471,7 +514,7 @@ describe('Drawer snap point integration', () => {
     fixture.detectChanges();
 
     expect(fixture.componentInstance.root().open()).toBe(false);
-    expect(fixture.componentInstance.active()).toBe('100px');
+    expect(fixture.componentInstance.active()).toBeNull();
     expect(popup.hasAttribute('data-ending-style')).toBe(true);
     expect(popup.style.getPropertyValue('--ngp-drawer-snap-point-offset')).toBe('0px');
     expect(popup.style.getPropertyValue('--ngp-drawer-swipe-movement-y')).toBe('375px');

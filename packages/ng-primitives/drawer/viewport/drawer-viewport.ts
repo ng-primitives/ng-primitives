@@ -915,6 +915,7 @@ export class NgpDrawerViewport {
 
   private handleRelease(release: DrawerSwipeRelease): void {
     let retainForExit = false;
+    let releaseSnapOffset: number | undefined;
     const points = this.gestureSnapPoints ?? this.resolvedSnapPoints();
     const active = this.activeResolvedSnapPoint(points);
     if (active && points.length > 0 && this.isVertical()) {
@@ -949,10 +950,24 @@ export class NgpDrawerViewport {
         this.state.requestSnapPoint(target.value, 'swipe', { nativeEvent: release.nativeEvent });
         this.syncSnapVisuals(points);
       } else {
+        // Base UI records the active point, clears it, and only then starts the exit, so a
+        // dismissed drawer never reports a snap point it is not resting on
+        // (DrawerViewport.tsx:507-512). If the consumer vetoes the close, the recorded point goes
+        // back (:599-609).
+        const previousSnapPoint = this.state.snapPoint();
+        // Captured before the clear: `applyReleaseStrength` needs the distance already travelled,
+        // and Base UI reads it from a render closure that its own clear does not update.
+        releaseSnapOffset = active.offset;
+        this.state.requestSnapPoint(null, 'swipe', { nativeEvent: release.nativeEvent });
         this.state.swipeDismiss.set(this.state.swipeDirection());
         retainForExit = this.state.requestOpen(false, 'swipe', {
           nativeEvent: release.nativeEvent,
         });
+        if (!retainForExit && previousSnapPoint !== undefined) {
+          this.state.requestSnapPoint(previousSnapPoint, 'swipe', {
+            nativeEvent: release.nativeEvent,
+          });
+        }
       }
     } else if (release.dismissed) {
       this.state.swipeDismiss.set(this.state.swipeDirection());
@@ -965,20 +980,23 @@ export class NgpDrawerViewport {
     } else {
       // Must run before `finishVisuals`, which hands the elements back to CSS: the exit
       // transition reads this scalar on the very next frame.
-      this.applyReleaseStrength(release);
+      this.applyReleaseStrength(release, releaseSnapOffset);
     }
     this.finishVisuals(retainForExit);
   }
 
-  private applyReleaseStrength(release: DrawerSwipeRelease): void {
+  private applyReleaseStrength(release: DrawerSwipeRelease, snapOffsetOverride?: number): void {
     const direction = this.state.swipeDirection();
     const points = this.gestureSnapPoints ?? this.resolvedSnapPoints();
     // A drawer resting on a snap point has already travelled that offset toward dismissal, so the
-    // distance still to cover is shorter than the popup's full length.
+    // distance still to cover is shorter than the popup's full length. A swipe close clears the
+    // active point before we get here, so the caller passes the offset it captured beforehand;
+    // Base UI reads the same pre-clear value out of its render closure (DrawerViewport.tsx:245-249).
     const snapOffset =
-      this.isVertical() && points.length > 0
+      snapOffsetOverride ??
+      (this.isVertical() && points.length > 0
         ? (this.activeResolvedSnapPoint(points)?.offset ?? 0)
-        : 0;
+        : 0);
     const strength = resolveDrawerReleaseStrength({
       // `release.size` is the popup length the engine measured once at gesture start. Re-reading
       // the live popup size here would be a second `getBoundingClientRect()` and would break the
