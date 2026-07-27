@@ -18,11 +18,15 @@ import { domSort, injectElementRef } from 'ng-primitives/internal';
 import {
   coerceFlip,
   coerceOffset,
+  coerceShift,
   NgpFlip,
   NgpFlipInput,
   NgpOffset,
   NgpOffsetInput,
   NgpPlacement,
+  NgpScrollBehavior,
+  NgpShift,
+  NgpShiftInput,
 } from 'ng-primitives/portal';
 import { controlStatus } from 'ng-primitives/utils';
 import type { NgpComboboxButton } from '../combobox-button/combobox-button';
@@ -137,6 +141,24 @@ export class NgpCombobox {
   readonly offset = input<NgpOffset, NgpOffsetInput>(this.config.offset, {
     alias: 'ngpComboboxDropdownOffset',
     transform: coerceOffset,
+  });
+
+  /**
+   * Configure shift behavior to keep the dropdown in view. Can be a boolean to enable/disable,
+   * or an object with padding and limiter options.
+   * @default undefined (enabled by default in overlay)
+   */
+  readonly shift = input<NgpShift, NgpShiftInput>(this.config.shift, {
+    alias: 'ngpComboboxDropdownShift',
+    transform: coerceShift,
+  });
+
+  /**
+   * Defines how the dropdown behaves when the window is scrolled.
+   * @default 'reposition'
+   */
+  readonly scrollBehavior = input<NgpScrollBehavior>(this.config.scrollBehavior, {
+    alias: 'ngpComboboxDropdownScrollBehavior',
   });
 
   /**

@@ -12,7 +12,13 @@ import { ngpFormControl } from 'ng-primitives/form-field';
 import { ngpInteractions } from 'ng-primitives/interactions';
 import { domSort, injectElementRef } from 'ng-primitives/internal';
 import { NgpPlacement } from 'ng-primitives/portal';
-import type { NgpFlip, NgpOffset, NgpOverlay } from 'ng-primitives/portal';
+import type {
+  NgpFlip,
+  NgpOffset,
+  NgpOverlay,
+  NgpScrollBehavior,
+  NgpShift,
+} from 'ng-primitives/portal';
 import {
   attrBinding,
   controlled,
@@ -65,6 +71,15 @@ export interface NgpSelectState<T> {
    * Can be a number (applies to mainAxis) or an object with mainAxis, crossAxis, and alignmentAxis.
    */
   readonly offset: Signal<NgpOffset>;
+
+  /**
+   * Configure shift behavior to keep the dropdown in view. Can be a boolean to
+   * enable/disable, or an object with padding and limiter options.
+   */
+  readonly shift: Signal<NgpShift>;
+
+  /** Defines how the dropdown behaves when the window is scrolled. */
+  readonly scrollBehavior: Signal<NgpScrollBehavior>;
 
   /**
    * A function that will scroll the active option into view. This can be overridden
@@ -288,6 +303,15 @@ export interface NgpSelectProps<T> {
   readonly offset?: Signal<NgpOffset>;
 
   /**
+   * Configure shift behavior to keep the dropdown in view. Can be a boolean to
+   * enable/disable, or an object with padding and limiter options.
+   */
+  readonly shift?: Signal<NgpShift>;
+
+  /** Defines how the dropdown behaves when the window is scrolled. */
+  readonly scrollBehavior?: Signal<NgpScrollBehavior>;
+
+  /**
    * A function that will scroll the active option into view. This can be overridden
    * for cases such as virtual scrolling where we cannot scroll the option directly because
    * it may not be rendered.
@@ -316,6 +340,8 @@ export const [NgpSelectStateToken, ngpSelect, _injectSelectState, provideSelectS
       container: _container,
       flip = signal<NgpFlip>(true),
       offset = signal<NgpOffset>(0),
+      shift = signal<NgpShift>(undefined),
+      scrollBehavior = signal<NgpScrollBehavior>('reposition'),
       scrollToOption = signal<((index: number) => void) | undefined>(undefined),
       allOptions = signal<T[] | undefined>(undefined),
       onValueChange,
@@ -825,6 +851,8 @@ export const [NgpSelectStateToken, ngpSelect, _injectSelectState, provideSelectS
         container: deprecatedSetter(container, 'setContainer', setContainer),
         flip,
         offset,
+        shift,
+        scrollBehavior,
         scrollToOption,
         allOptions,
         portal,

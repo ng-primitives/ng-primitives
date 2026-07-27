@@ -74,13 +74,14 @@ export const [
       triggerElement: selectState().elementRef.nativeElement,
       injector,
       placement: selectState().placement,
-      offset: selectState().offset(),
-      flip: selectState().flip(),
-      container: selectState().container(),
+      offset: selectState().offset,
+      flip: selectState().flip,
+      shift: selectState().shift,
+      container: selectState().container,
       closeOnOutsideClick: true,
       closeOnEscape: true,
       restoreFocus: false,
-      scrollBehaviour: 'reposition',
+      scrollBehavior: selectState().scrollBehavior,
       onClose: () => selectState().onOverlayClose(),
     };
 

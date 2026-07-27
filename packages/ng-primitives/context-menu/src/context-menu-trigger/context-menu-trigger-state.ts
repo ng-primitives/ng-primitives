@@ -19,6 +19,7 @@ import {
   NgpOverlayContent,
   NgpPlacement,
   NgpPosition,
+  NgpScrollBehavior,
   NgpShift,
 } from 'ng-primitives/portal';
 import {
@@ -101,12 +102,12 @@ export interface NgpContextMenuTriggerProps<T = unknown> {
   /**
    * Configure shift behavior.
    */
-  shift: NgpShift;
+  readonly shift?: Signal<NgpShift>;
 
   /**
    * How the menu behaves when the window is scrolled.
    */
-  readonly scrollBehavior?: Signal<'reposition' | 'block' | 'close'>;
+  readonly scrollBehavior?: Signal<NgpScrollBehavior>;
 
   /**
    * Context to provide to the menu.
@@ -137,7 +138,7 @@ export const [
     flip: _flip = signal(true),
     context: _context = signal<T>(undefined as T),
     container: _container,
-    scrollBehavior,
+    scrollBehavior = signal<NgpScrollBehavior>('close'),
     shift,
   }: NgpContextMenuTriggerProps<T>) => {
     const element = injectElementRef();
@@ -288,16 +289,16 @@ export const [
         viewContainerRef,
         injector,
         context,
-        container: container(),
-        offset: offset(),
-        flip: flip(),
+        container,
+        offset,
+        flip,
         shift,
         placement: signal<NgpPlacement>('right-start'),
         closeOnOutsideClick: true,
         closeOnEscape: true,
         treatTriggerClickAsOutside: true,
         restoreFocus: false,
-        scrollBehaviour: scrollBehavior?.() ?? 'close',
+        scrollBehavior,
         overlayType: 'menu',
         position: cursorPosition,
         trackPosition: true,

@@ -1,5 +1,11 @@
 import { InjectionToken, Provider, inject } from '@angular/core';
-import { NgpFlip, NgpOffset, NgpPlacement } from 'ng-primitives/portal';
+import {
+  NgpFlip,
+  NgpOffset,
+  NgpPlacement,
+  NgpScrollBehavior,
+  NgpShift,
+} from 'ng-primitives/portal';
 
 export interface NgpComboboxConfig {
   /**
@@ -28,6 +34,19 @@ export interface NgpComboboxConfig {
    * @default 0
    */
   offset: NgpOffset;
+
+  /**
+   * Configure shift behavior to keep the combobox dropdown in view.
+   * Can be a boolean to enable/disable, or an object with padding and limiter options.
+   * @default undefined (enabled by default in overlay)
+   */
+  shift: NgpShift;
+
+  /**
+   * Defines how the combobox dropdown behaves when the window is scrolled.
+   * @default 'reposition'
+   */
+  scrollBehavior: NgpScrollBehavior;
 }
 
 export const defaultComboboxConfig: NgpComboboxConfig = {
@@ -35,6 +54,8 @@ export const defaultComboboxConfig: NgpComboboxConfig = {
   container: 'body',
   flip: true,
   offset: 0,
+  shift: undefined,
+  scrollBehavior: 'reposition',
 };
 
 export const NgpComboboxConfigToken = new InjectionToken<NgpComboboxConfig>(
