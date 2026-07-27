@@ -892,3 +892,43 @@ describe('NgpContextMenuTrigger', () => {
     });
   });
 });
+
+describe('NgpContextMenuTrigger dynamic content', () => {
+  const template = `
+    <div [ngpContextMenuTrigger]="useFirst ? first : second" data-testid="trigger-area">
+      Right click me
+    </div>
+
+    <ng-template #first>
+      <div ngpContextMenu data-testid="context-menu">
+        <button ngpContextMenuItem>First item</button>
+      </div>
+    </ng-template>
+    <ng-template #second>
+      <div ngpContextMenu data-testid="context-menu">
+        <button ngpContextMenuItem>Second item</button>
+      </div>
+    </ng-template>
+  `;
+
+  it('should swap the open menu when the reference changes', async () => {
+    const { fixture, getByTestId } = await render(template, {
+      imports: [NgpContextMenuTrigger, NgpContextMenu, NgpContextMenuItem],
+      componentProperties: { useFirst: true },
+    });
+
+    fireEvent.contextMenu(getByTestId('trigger-area'));
+    await waitFor(() => {
+      expect(screen.getByTestId('context-menu').textContent?.trim()).toBe('First item');
+    });
+
+    fixture.componentInstance.useFirst = false;
+    fixture.detectChanges();
+
+    await waitFor(() => {
+      const menus = screen.getAllByTestId('context-menu');
+      expect(menus).toHaveLength(1);
+      expect(menus[0].textContent?.trim()).toBe('Second item');
+    });
+  });
+});

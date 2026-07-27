@@ -544,3 +544,54 @@ describe('NgpSubmenuTrigger viewport awareness', () => {
     });
   });
 });
+
+describe('NgpSubmenuTrigger dynamic content', () => {
+  const template = `
+    <button [ngpMenuTrigger]="menu" data-testid="root-trigger">Open Menu</button>
+
+    <ng-template #menu>
+      <div ngpMenu>
+        <button [ngpSubmenuTrigger]="useFirst ? first : second" ngpMenuItem data-testid="submenu-trigger">
+          Open Submenu
+        </button>
+      </div>
+    </ng-template>
+
+    <ng-template #first>
+      <div ngpMenu data-testid="submenu">
+        <button ngpMenuItem>First item</button>
+      </div>
+    </ng-template>
+    <ng-template #second>
+      <div ngpMenu data-testid="submenu">
+        <button ngpMenuItem>Second item</button>
+      </div>
+    </ng-template>
+  `;
+
+  it('should swap the open submenu when the reference changes', async () => {
+    const { fixture, getByTestId } = await render(template, {
+      imports: [NgpMenuTrigger, NgpMenu, NgpMenuItem, NgpSubmenuTrigger],
+      componentProperties: { useFirst: true },
+    });
+
+    fireEvent.click(getByTestId('root-trigger'));
+    await waitFor(() => expect(document.querySelector('[ngpMenu]')).toBeInTheDocument());
+
+    fireEvent.click(document.querySelector('[data-testid="submenu-trigger"]') as HTMLElement);
+    await waitFor(() => {
+      expect(document.querySelector('[data-testid="submenu"]')?.textContent?.trim()).toBe(
+        'First item',
+      );
+    });
+
+    fixture.componentInstance.useFirst = false;
+    fixture.detectChanges();
+
+    await waitFor(() => {
+      const submenus = document.querySelectorAll('[data-testid="submenu"]');
+      expect(submenus).toHaveLength(1);
+      expect(submenus[0].textContent?.trim()).toBe('Second item');
+    });
+  });
+});

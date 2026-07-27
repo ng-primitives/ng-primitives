@@ -21,6 +21,7 @@ import {
   NgpOverlay,
   NgpOverlayConfig,
   NgpOverlayContent,
+  NgpPlacement,
   NgpPosition,
   NgpShift,
 } from 'ng-primitives/portal';
@@ -48,7 +49,7 @@ export interface NgpTooltipTriggerState<T> {
    * Define the placement of the tooltip relative to the trigger.
    * @default 'top'
    */
-  readonly placement: Signal<NgpTooltipPlacement>;
+  readonly placement: Signal<NgpPlacement>;
   /**
    * Define the offset of the tooltip relative to the trigger.
    * Can be a number (applies to mainAxis) or an object with mainAxis, crossAxis, and alignmentAxis.
@@ -201,7 +202,7 @@ export interface NgpTooltipTriggerProps<T> {
    * Define the placement of the tooltip relative to the trigger.
    * @default 'top'
    */
-  readonly placement?: Signal<NgpTooltipPlacement>;
+  readonly placement?: Signal<NgpPlacement>;
   /**
    * Define the offset of the tooltip relative to the trigger.
    * Can be a number (applies to mainAxis) or an object with mainAxis, crossAxis, and alignmentAxis.
@@ -296,7 +297,7 @@ export const [
   <T>({
     tooltip: _tooltip = signal<NgpOverlayContent<T> | string | null>(null),
     disabled = signal<boolean>(false),
-    placement = signal<NgpTooltipPlacement>('top'),
+    placement = signal<NgpPlacement>('top'),
     offset = signal<NgpOffset>(0),
     showDelay = signal<number>(500),
     hideDelay = signal<number>(0),
@@ -485,37 +486,57 @@ export const [
     }
 
     /**
+     * What the overlay renders: the tooltip itself, or - when none is given - the
+     * trigger's own text content wrapped in the text content component. Strings are
+     * wrapped the same way. Null when there is nothing to show.
+     *
+     * The text content fallback reads the DOM, which is not reactive - it is resolved
+     * afresh whenever the tooltip or `useTextContent` changes, but a trigger that
+     * rewrites its own label keeps the text it was first shown with.
+     */
+    function resolveContent(): {
+      content: NgpOverlayContent<T | string> | null;
+      context: T | string | undefined;
+    } {
+      const value = tooltip();
+
+      if (value) {
+        return isString(value)
+          ? { content: NgpTooltipTextContentComponent, context: value }
+          : { content: value, context: tooltipTriggerState().context() };
+      }
+
+      const textContent = tooltipTriggerState().useTextContent()
+        ? trigger.nativeElement.textContent?.trim() || ''
+        : '';
+
+      return textContent
+        ? { content: NgpTooltipTextContentComponent, context: textContent }
+        : { content: null, context: undefined };
+    }
+
+    /**
      * Create the overlay that will contain the tooltip
      */
     function createOverlayInstance(): void {
-      // Determine the content and context based on useTextContent setting
-      const shouldUseTextContent = tooltipTriggerState().useTextContent();
-      let content = tooltip();
-      let context: Signal<T | string | undefined> = tooltipTriggerState().context;
+      const resolved = computed(resolveContent);
+      const content = computed(() => resolved().content);
+      const context = computed(() => resolved().context);
 
-      if (!content) {
-        if (!shouldUseTextContent) {
-          if (ngDevMode) {
+      if (!content()) {
+        if (ngDevMode) {
+          if (tooltipTriggerState().useTextContent()) {
+            console.warn(
+              '[ngpTooltipTrigger]: useTextContent is enabled but trigger element has no text content',
+            );
+          } else {
             console.error(
               '[ngpTooltipTrigger]: Tooltip must be a string, TemplateRef, or ComponentType. Alternatively, set useTextContent to true if none is provided.',
             );
           }
-
-          return;
         }
 
-        const textContent = trigger.nativeElement.textContent?.trim() || '';
-        if (ngDevMode && !textContent) {
-          console.warn(
-            '[ngpTooltipTrigger]: useTextContent is enabled but trigger element has no text content',
-          );
-          return;
-        }
-        content = NgpTooltipTextContentComponent;
-        context = signal(textContent);
-      } else if (isString(content)) {
-        context = signal(content);
-        content = NgpTooltipTextContentComponent;
+        return;
       }
 
       // Create config for the overlay
@@ -590,16 +611,9 @@ export function injectTooltipTriggerState<T>(
   return _injectTooltipTriggerState(options) as Signal<NgpTooltipTriggerState<T>>;
 }
 
-export type NgpTooltipPlacement =
-  | 'top'
-  | 'right'
-  | 'bottom'
-  | 'left'
-  | 'top-start'
-  | 'top-end'
-  | 'right-start'
-  | 'right-end'
-  | 'bottom-start'
-  | 'bottom-end'
-  | 'left-start'
-  | 'left-end';
+/**
+ * Where the tooltip is placed relative to its trigger.
+ * @deprecated Identical to `NgpPlacement` from `ng-primitives/portal` - use that instead.
+ * Will be removed in a future major.
+ */
+export type NgpTooltipPlacement = NgpPlacement;

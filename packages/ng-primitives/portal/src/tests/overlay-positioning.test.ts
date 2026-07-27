@@ -1,6 +1,6 @@
 import { Component, signal } from '@angular/core';
 import { fireEvent, render, waitFor } from '@testing-library/angular';
-import { NgpPopover, NgpPopoverPlacement, NgpPopoverTrigger } from 'ng-primitives/popover';
+import { NgpPopover, NgpPopoverTrigger } from 'ng-primitives/popover';
 import { afterEach, describe, expect, it } from 'vitest';
 
 const OFFSET = 8;
@@ -37,7 +37,7 @@ const OFFSET = 8;
   imports: [NgpPopoverTrigger, NgpPopover],
 })
 class FixedPopoverTestComponent {
-  readonly placement = signal<NgpPopoverPlacement>('bottom');
+  readonly placement = signal<NgpPlacement>('bottom');
   readonly offset = OFFSET;
 }
 

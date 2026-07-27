@@ -1,6 +1,5 @@
 import { BooleanInput } from '@angular/cdk/coercion';
 import { booleanAttribute, Directive, input, output } from '@angular/core';
-import type { Placement } from '@floating-ui/dom';
 import {
   coerceFlip,
   coerceOffset,
@@ -8,6 +7,7 @@ import {
   NgpFlipInput,
   NgpOffset,
   NgpOffsetInput,
+  NgpPlacement,
 } from 'ng-primitives/portal';
 import { uniqueId } from 'ng-primitives/utils';
 import { injectSelectConfig } from '../config/select-config';
@@ -72,7 +72,7 @@ export class NgpSelect {
   });
 
   /** The position of the dropdown. */
-  readonly placement = input<Placement>(this.config.placement, {
+  readonly placement = input<NgpPlacement>(this.config.placement, {
     alias: 'ngpSelectDropdownPlacement',
   });
 

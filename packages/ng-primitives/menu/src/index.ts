@@ -1,5 +1,5 @@
 export { injectOverlayContext as injectMenuContext } from 'ng-primitives/portal';
-export { NgpMenuConfig, provideMenuConfig } from './config/menu-config';
+export { NgpMenuConfig, provideMenuConfig, type NgpMenuTriggerType } from './config/menu-config';
 export { NgpMenuItem } from './menu-item/menu-item';
 export {
   ngpMenuItem,

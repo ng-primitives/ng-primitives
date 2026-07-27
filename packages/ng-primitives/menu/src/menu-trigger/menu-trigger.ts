@@ -10,6 +10,7 @@ import {
   NgpOffset,
   NgpOffsetInput,
   NgpOverlayContent,
+  NgpPlacement,
   NgpShift,
   NgpShiftInput,
 } from 'ng-primitives/portal';
@@ -50,7 +51,7 @@ export class NgpMenuTrigger<T = unknown> {
    * Define the placement of the menu relative to the trigger.
    * @default 'bottom-start'
    */
-  readonly placement = input<NgpMenuPlacement>(this.config.placement, {
+  readonly placement = input<NgpPlacement>(this.config.placement, {
     alias: 'ngpMenuTriggerPlacement',
   });
 
@@ -188,16 +189,9 @@ export class NgpMenuTrigger<T = unknown> {
   }
 }
 
-export type NgpMenuPlacement =
-  | 'top'
-  | 'right'
-  | 'bottom'
-  | 'left'
-  | 'top-start'
-  | 'top-end'
-  | 'right-start'
-  | 'right-end'
-  | 'bottom-start'
-  | 'bottom-end'
-  | 'left-start'
-  | 'left-end';
+/**
+ * Where the menu is placed relative to its trigger.
+ * @deprecated Identical to `NgpPlacement` from `ng-primitives/portal` - use that instead.
+ * Will be removed in a future major.
+ */
+export type NgpMenuPlacement = NgpPlacement;

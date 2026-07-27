@@ -9,17 +9,14 @@ import {
   NgpOffset,
   NgpOffsetInput,
   NgpOverlayContent,
+  NgpPlacement,
   NgpPosition,
   NgpShift,
   NgpShiftInput,
 } from 'ng-primitives/portal';
 import { isString } from 'ng-primitives/utils';
 import { injectTooltipConfig } from '../config/tooltip-config';
-import {
-  NgpTooltipPlacement,
-  ngpTooltipTrigger,
-  provideTooltipTriggerState,
-} from './tooltip-trigger-state';
+import { ngpTooltipTrigger, provideTooltipTriggerState } from './tooltip-trigger-state';
 
 type TooltipInput<T> = NgpOverlayContent<T> | string | null | undefined;
 
@@ -58,7 +55,7 @@ export class NgpTooltipTrigger<T = null> implements OnDestroy {
    * Define the placement of the tooltip relative to the trigger.
    * @default 'top'
    */
-  readonly placement = input<NgpTooltipPlacement>(this.config.placement, {
+  readonly placement = input<NgpPlacement>(this.config.placement, {
     alias: 'ngpTooltipTriggerPlacement',
   });
 
