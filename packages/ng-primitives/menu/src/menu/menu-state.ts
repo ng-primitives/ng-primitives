@@ -37,19 +37,15 @@ export const [NgpMenuStateToken, ngpMenu, injectMenuState, provideMenuState] = c
     const rovingFocusGroup = injectRovingFocusGroupState();
 
     // Always trap focus in menus per WAI-ARIA guidelines (Tab should not navigate within menus)
-    // Pass the open origin so focus trap uses the correct origin for :focus-visible styling.
-    // The menu owns initial focus (see below), so the trap only traps.
+    // Pass the open origin so focus trap uses the correct origin for :focus-visible styling
     const openOrigin = computed(() => menuTrigger()?.openOrigin() ?? 'program');
     ngpFocusTrap({
       focusOrigin: openOrigin,
       autoFocus: signal(false),
     });
 
-    // The focus trap can only find items that are already tabbable, and roving focus
-    // applies each item's tabindex in a later render phase than the trap's initial
-    // focus - so a menu item on a non-native element (e.g. a div) would be missed and
-    // focus would land on the container. Placing focus in the read phase runs after
-    // every item has its tabindex, so native and non-native items behave the same.
+    // Read phase, so it runs after roving focus has applied each item's tabindex - an item
+    // on a non-native element isn't focusable before that.
     afterNextRender({ read: () => focusInitialItem() }, { injector });
 
     // Register this element as the overlay outlet so floating-ui positions it correctly,
@@ -79,7 +75,7 @@ export const [NgpMenuStateToken, ngpMenu, injectMenuState, provideMenuState] = c
     function focusInitialItem(): void {
       const origin = openOrigin();
 
-      // Fall back to the container so focus is never left outside the trapped menu.
+      // Fall back to the container so focus is never left outside the trap.
       if (!rovingFocusGroup()?.activateFirst(origin)) {
         focusMonitor.focusVia(element.nativeElement, origin, { preventScroll: true });
       }

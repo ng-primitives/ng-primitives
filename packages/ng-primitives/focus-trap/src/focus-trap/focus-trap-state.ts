@@ -107,8 +107,7 @@ export interface NgpFocusTrapProps {
   readonly focusOrigin?: Signal<FocusOrigin>;
 
   /**
-   * Whether focus should be moved into the trap when it is set up. Turn this off
-   * when the consumer places initial focus itself - the trap still traps.
+   * Whether to move focus into the trap when it is set up. When off, focus is still trapped.
    */
   readonly autoFocus?: Signal<boolean>;
 }
@@ -166,8 +165,7 @@ export const [NgpFocusTrapStateToken, ngpFocusTrap, injectFocusTrapState, provid
         afterNextRender(
           {
             write: () => {
-              // Read the inputs here rather than during setup: this factory runs while
-              // the directive is constructed, before Angular has bound them.
+              // Read here, not during setup - the factory runs before Angular binds inputs.
               if (disabled?.() || !autoFocus()) {
                 return;
               }
