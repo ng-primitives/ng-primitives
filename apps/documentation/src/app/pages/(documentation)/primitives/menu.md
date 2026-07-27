@@ -131,11 +131,20 @@ By default, the menu is kept within the viewport and its clipping ancestors. Pas
   </button>
 </div>
 
+<!-- Keep the menu inside whatever scrolls the trigger -->
+<div style="overflow: auto">
+  <button [ngpMenuTrigger]="menu" [ngpMenuTriggerFlip]="{boundary: 'triggerClippingAncestors'}">
+    Menu constrained to the trigger's scroll container
+  </button>
+</div>
+
 <!-- Measure against the whole document rather than the viewport -->
 <button [ngpMenuTrigger]="menu" [ngpMenuTriggerFlip]="{rootBoundary: 'document'}">
   Menu that does not flip while off-screen
 </button>
 ```
+
+`'triggerClippingAncestors'` is worth calling out. Floating UI's default resolves clipping ancestors from the panel, and the panel is portalled to the body - so a menu whose trigger sits in a scroll container measures against the viewport and never learns the container is the real constraint. This resolves them from the trigger instead. It falls back to the default when nothing scrolls the trigger, so it is a no-op on an ordinary page.
 
 `crossAxis` widens what each middleware checks, and means a different axis for each. For `flip` it is the alignment axis, checked by default - that is how `bottom-end` becomes `bottom-start` near an edge. For `shift` it is the side axis, off by default, so enabling it lets the panel move along the placement direction as well:
 

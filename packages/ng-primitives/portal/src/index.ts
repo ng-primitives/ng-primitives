@@ -36,6 +36,7 @@ export {
   NgpPlacement,
   NgpPositioningStrategy,
   NgpRootBoundary,
+  NgpTriggerClippingAncestors,
 } from './positioning';
 export {
   BlockScrollStrategy,

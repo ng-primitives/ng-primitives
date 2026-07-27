@@ -16,11 +16,13 @@ import {
 } from '@angular/core';
 import { ControlContainer } from '@angular/forms';
 import {
+  type Boundary,
   VirtualElement,
   arrow,
   autoUpdate,
   computePosition,
   flip,
+  getOverflowAncestors,
   offset,
   shift,
   size,
@@ -127,6 +129,44 @@ function resolveOverflowOptions<T extends NgpFlipOptions | NgpShiftOptions>(
   }
 
   return config === true || config === undefined ? ({} as T) : config;
+}
+
+/**
+ * A middleware's options once `'triggerClippingAncestors'` has been resolved away, leaving a
+ * `boundary` Floating UI itself understands.
+ */
+type NgpResolvedOverflowOptions<T extends NgpFlipOptions | NgpShiftOptions> = Omit<
+  T,
+  'boundary'
+> & {
+  boundary?: Boundary;
+};
+
+/**
+ * Substitute the trigger's own clipping ancestors for the `'triggerClippingAncestors'`
+ * sentinel. Floating UI would resolve `'clippingAncestors'` from the floating element, which
+ * for a portalled panel is the body - so the container that actually scrolls the trigger is
+ * never consulted.
+ * @see https://github.com/ng-primitives/ng-primitives/issues/689
+ */
+function resolveTriggerBoundary<T extends NgpFlipOptions | NgpShiftOptions>(
+  options: T | undefined,
+  triggerElement: HTMLElement,
+): NgpResolvedOverflowOptions<T> | undefined {
+  if (options?.boundary !== 'triggerClippingAncestors') {
+    // Narrowing a generic's property does not narrow the generic, so the cast stands in for
+    // what the guard has already established: anything else is a Floating UI boundary.
+    return options as NgpResolvedOverflowOptions<T> | undefined;
+  }
+
+  const ancestors = getOverflowAncestors(triggerElement).filter(
+    (ancestor): ancestor is Element => ancestor instanceof Element,
+  );
+
+  // Nothing scrolls the trigger, so there is no container to constrain to. Falling back to
+  // the default keeps this a no-op on an ordinary page - an empty boundary would clip the
+  // panel to nothing. Copied rather than mutated: the options object belongs to the caller.
+  return { ...options, boundary: ancestors.length ? ancestors : 'clippingAncestors' };
 }
 
 /**
@@ -990,8 +1030,15 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
     const middleware: NgpMiddleware[] = [offset(this.config.offset ?? 0)];
 
     // Resolved before the middleware are added so `size` can reuse the overflow boundary.
-    const flipOptions = resolveOverflowOptions(this.config.flip);
-    const shiftOptions = resolveOverflowOptions(this.config.shift);
+    const triggerElement = this.config.anchorElement || this.config.triggerElement;
+    const flipOptions = resolveTriggerBoundary(
+      resolveOverflowOptions(this.config.flip),
+      triggerElement,
+    );
+    const shiftOptions = resolveTriggerBoundary(
+      resolveOverflowOptions(this.config.shift),
+      triggerElement,
+    );
 
     // Add flip middleware if requested
     // Flip must come before shift so that shift doesn't prevent flip from triggering

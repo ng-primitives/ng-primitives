@@ -173,6 +173,43 @@ class ShiftCrossAxisComponent {
   readonly shift = signal<NgpShift>(undefined);
 }
 
+/**
+ * The same geometry as `BoundaryComponent`, but the box genuinely scrolls, so it is one of
+ * the trigger's clipping ancestors. The panel is portalled to the body and so has none of
+ * its own - which is the case `'triggerClippingAncestors'` exists for.
+ */
+@Component({
+  template: `
+    <div
+      class="scroller"
+      style="position: fixed; top: 40px; left: 20px; width: 300px; height: 200px; overflow: auto"
+    >
+      <div style="height: 600px">
+        <button
+          [ngpMenuTrigger]="menu"
+          [ngpMenuTriggerFlip]="flip()"
+          ngpMenuTriggerPlacement="bottom-start"
+          ngpMenuTriggerScrollBehavior="reposition"
+          data-testid="trigger"
+          style="margin-top: 120px; width: 120px; height: 24px"
+        >
+          Open Menu
+        </button>
+      </div>
+    </div>
+
+    <ng-template #menu>
+      <div ngpMenu data-testid="menu" style="position: fixed; width: 160px; height: 96px">
+        <button ngpMenuItem>Item 1</button>
+      </div>
+    </ng-template>
+  `,
+  imports: [NgpMenuTrigger, NgpMenu, NgpMenuItem],
+})
+class ScrollContainerComponent {
+  readonly flip = signal<NgpFlip>(true);
+}
+
 async function openMenu(fixture: {
   autoDetectChanges: (autoDetect: boolean) => void;
   debugElement: { nativeElement: HTMLElement };
@@ -230,6 +267,34 @@ describe('overlay overflow boundary', () => {
       // has far more room, so this only flips if the boundary reached Floating UI.
       fixture.componentInstance.flip.set({ boundary: query(fixture, '.box') });
 
+      expect(await openMenu(fixture)).toHaveAttribute('data-placement', 'top-start');
+    });
+
+    // https://github.com/ng-primitives/ng-primitives/issues/689 - the panel is portalled to
+    // the body, so Floating UI's own `clippingAncestors` resolves from there and never sees
+    // the container scrolling the trigger.
+    it('should not flip against the container scrolling the trigger by default', async () => {
+      const { fixture } = await render(ScrollContainerComponent);
+
+      expect(await openMenu(fixture)).toHaveAttribute('data-placement', 'bottom-start');
+    });
+
+    it('should flip against the container scrolling the trigger when asked to', async () => {
+      const { fixture } = await render(ScrollContainerComponent);
+      fixture.componentInstance.flip.set({ boundary: 'triggerClippingAncestors' });
+
+      expect(await openMenu(fixture)).toHaveAttribute('data-placement', 'top-start');
+    });
+
+    it('should leave placement alone when nothing scrolls the trigger', async () => {
+      const { fixture } = await render(RootBoundaryComponent, {
+        componentProperties: {
+          flip: signal<NgpFlip>({ boundary: 'triggerClippingAncestors' }),
+        },
+      });
+
+      // Same as the default: with no scrollable ancestor the sentinel resolves back to
+      // Floating UI's own default rather than to an empty boundary.
       expect(await openMenu(fixture)).toHaveAttribute('data-placement', 'top-start');
     });
 
