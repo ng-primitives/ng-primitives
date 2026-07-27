@@ -1009,8 +1009,8 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
     // overlay overflows, so it has to read against the same boundary that keeps the overlay
     // in view: flip's when flip sets one, otherwise shift's. Enabled-by-default flip resolves
     // to `{}`, so the test is whether it names a boundary rather than whether it exists -
-    // `{}` would otherwise mask a boundary set on shift. Taken as a pair, so the two fields
-    // can't be composed from different middleware into a region neither measures against.
+    // `{}` would otherwise mask a boundary set on shift. Taken together, so the fields can't
+    // be composed from different middleware into a region neither measures against.
     // Padding is deliberately not shared: adopting it would shrink the reported dimensions
     // for anyone already setting it on flip or shift.
     const overflowOptions =

@@ -188,6 +188,7 @@ class ShiftCrossAxisComponent {
         <button
           [ngpMenuTrigger]="menu"
           [ngpMenuTriggerFlip]="flip()"
+          [ngpMenuTriggerOffset]="offset"
           ngpMenuTriggerPlacement="bottom-start"
           ngpMenuTriggerScrollBehavior="reposition"
           data-testid="trigger"
@@ -208,6 +209,8 @@ class ShiftCrossAxisComponent {
 })
 class ScrollContainerComponent {
   readonly flip = signal<NgpFlip>(true);
+  // Bound rather than left to the menu default, since the assertions below subtract it.
+  readonly offset = OFFSET;
 }
 
 async function openMenu(fixture: {
@@ -400,6 +403,25 @@ describe('overlay overflow boundary', () => {
       const expected =
         box.getBoundingClientRect().bottom - trigger.getBoundingClientRect().bottom - OFFSET;
       expect(availableHeight(menu)).toBeCloseTo(expected, 0);
+    });
+
+    // `altBoundary` moves the measurement onto the trigger's clipping ancestors, and `size`
+    // has to follow it there for the same reason it follows `boundary`.
+    it('should measure against the trigger clipping ancestors when altBoundary is set', async () => {
+      const { fixture } = await render(ScrollContainerComponent);
+      const scroller = query(fixture, '.scroller');
+      // No fallback placements, so the panel stays below and the reported height is the space
+      // between the trigger and the bottom of the scroll container.
+      fixture.componentInstance.flip.set({ altBoundary: true, fallbackPlacements: [] });
+
+      const menu = await openMenu(fixture);
+
+      const trigger = query(fixture, '[data-testid="trigger"]');
+      const expected =
+        scroller.getBoundingClientRect().bottom - trigger.getBoundingClientRect().bottom - OFFSET;
+      expect(menu).toHaveAttribute('data-placement', 'bottom-start');
+      expect(availableHeight(menu)).toBeCloseTo(expected, 0);
+      expect(availableHeight(menu)).toBeLessThan(window.innerHeight);
     });
 
     it('should measure against a shift boundary when flip is disabled', async () => {
