@@ -106,64 +106,6 @@ You can customize the shift behavior to control how the tooltip stays within the
 </button>
 ```
 
-## API Reference
-
-The following directives are available to import from the `ng-primitives/tooltip` package:
-
-### NgpTooltip
-
-<api-docs name="NgpTooltip"></api-docs>
-
-<api-reference-props name="NgpTooltip"></api-reference-props>
-
-<api-reference-attributes>
-  <api-attribute name="data-enter" description="Applied when the tooltip is being added to the DOM. This can be used to trigger animations." />
-  <api-attribute name="data-exit" description="Applied when the tooltip is being removed from the DOM. This can be used to trigger animations." />
-  <api-attribute name="data-placement" description="The final rendered placement of the tooltip." />
-</api-reference-attributes>
-
-<api-reference-css-vars>
-  <api-css-var name="--ngp-tooltip-transform-origin" description="The transform origin of the tooltip for animations." />
-  <api-css-var name="--ngp-tooltip-trigger-width" description="The width of the trigger element." />
-  <api-css-var name="--ngp-tooltip-available-width" description="The available width of the tooltip before it overflows the viewport." />
-  <api-css-var name="--ngp-tooltip-available-height" description="The available height of the tooltip before it overflows the viewport." />
-</api-reference-css-vars>
-
-### NgpTooltipTrigger
-
-<api-docs name="NgpTooltipTrigger"></api-docs>
-
-<api-reference-props name="NgpTooltipTrigger"></api-reference-props>
-
-<api-reference-attributes>
-  <api-attribute name="data-open" description="Applied when the tooltip is open." />
-  <api-attribute name="data-disabled" description="Applied when the tooltip is disabled." />
-</api-reference-attributes>
-
-### NgpTooltipArrow
-
-The `NgpTooltipArrow` directive is used to add an arrow to the tooltip. It should be placed inside the tooltip content. It will receive `inset-inline-start` or `inset-block-start` styles to position the arrow based on the tooltip's placement. As a result it should be positioned absolutely within the tooltip content.
-
-The arrow can be styled conditionally based on the tooltip's final placement using the `data-placement` attribute:
-
-```css
-[ngpTooltipArrow][data-placement='top'] {
-  /* Arrow styles when tooltip is positioned on top */
-}
-
-[ngpTooltipArrow][data-placement='bottom'] {
-  /* Arrow styles when tooltip is positioned on bottom */
-}
-```
-
-<api-docs name="NgpTooltipArrow"></api-docs>
-
-<api-reference-props name="NgpTooltipArrow"></api-reference-props>
-
-<api-reference-attributes>
-  <api-attribute name="data-placement" description="The final rendered placement of the tooltip." />
-</api-reference-attributes>
-
 ## Using Text Content as Tooltip
 
 The `useTextContent` input (enabled by default) allows the tooltip to automatically use the text content of the trigger element as the tooltip content. This is particularly useful for displaying full text when content is truncated with ellipsis.
@@ -234,6 +176,64 @@ Use `ngpTooltipTriggerHoverableContent` to control whether hovering tooltip cont
 ```
 
 If tooltip content needs to be interactive or focusable, use [`Popover`](/primitives/popover) instead.
+
+## API Reference
+
+The following directives are available to import from the `ng-primitives/tooltip` package:
+
+### NgpTooltip
+
+<api-docs name="NgpTooltip"></api-docs>
+
+<api-reference-props name="NgpTooltip"></api-reference-props>
+
+<api-reference-attributes>
+  <api-attribute name="data-enter" description="Applied when the tooltip is being added to the DOM. This can be used to trigger animations." />
+  <api-attribute name="data-exit" description="Applied when the tooltip is being removed from the DOM. This can be used to trigger animations." />
+  <api-attribute name="data-placement" description="The final rendered placement of the tooltip." />
+</api-reference-attributes>
+
+<api-reference-css-vars>
+  <api-css-var name="--ngp-tooltip-transform-origin" description="The transform origin of the tooltip for animations." />
+  <api-css-var name="--ngp-tooltip-trigger-width" description="The width of the trigger element." />
+  <api-css-var name="--ngp-tooltip-available-width" description="The available width of the tooltip before it overflows the viewport." />
+  <api-css-var name="--ngp-tooltip-available-height" description="The available height of the tooltip before it overflows the viewport." />
+</api-reference-css-vars>
+
+### NgpTooltipTrigger
+
+<api-docs name="NgpTooltipTrigger"></api-docs>
+
+<api-reference-props name="NgpTooltipTrigger"></api-reference-props>
+
+<api-reference-attributes>
+  <api-attribute name="data-open" description="Applied when the tooltip is open." />
+  <api-attribute name="data-disabled" description="Applied when the tooltip is disabled." />
+</api-reference-attributes>
+
+### NgpTooltipArrow
+
+The `NgpTooltipArrow` directive is used to add an arrow to the tooltip. It should be placed inside the tooltip content. It will receive `inset-inline-start` or `inset-block-start` styles to position the arrow based on the tooltip's placement. As a result it should be positioned absolutely within the tooltip content.
+
+The arrow can be styled conditionally based on the tooltip's final placement using the `data-placement` attribute:
+
+```css
+[ngpTooltipArrow][data-placement='top'] {
+  /* Arrow styles when tooltip is positioned on top */
+}
+
+[ngpTooltipArrow][data-placement='bottom'] {
+  /* Arrow styles when tooltip is positioned on bottom */
+}
+```
+
+<api-docs name="NgpTooltipArrow"></api-docs>
+
+<api-reference-props name="NgpTooltipArrow"></api-reference-props>
+
+<api-reference-attributes>
+  <api-attribute name="data-placement" description="The final rendered placement of the tooltip." />
+</api-reference-attributes>
 
 ## Styling
 
