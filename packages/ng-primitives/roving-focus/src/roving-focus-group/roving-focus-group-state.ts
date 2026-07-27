@@ -63,13 +63,15 @@ export interface NgpRovingFocusGroupState {
   /**
    * Activate the first item in the roving focus group.
    * @param origin The origin of the focus change
+   * @returns Whether an item was activated.
    */
-  activateFirst(origin?: FocusOrigin): void;
+  activateFirst(origin?: FocusOrigin): boolean;
   /**
    * Activate the last item in the roving focus group.
    * @param origin The origin of the focus change
+   * @returns Whether an item was activated.
    */
-  activateLast(origin?: FocusOrigin): void;
+  activateLast(origin?: FocusOrigin): boolean;
 }
 
 export interface NgpRovingFocusGroupProps {
@@ -164,7 +166,7 @@ export const [
      * Activate the first item in the roving focus group.
      * @param origin The origin of the focus change
      */
-    function activateFirstItem(origin: FocusOrigin): void {
+    function activateFirstItem(origin: FocusOrigin): boolean {
       // find the first item that is not disabled
       const item = getSortedItems().find(i => !i.disabled()) ?? null;
 
@@ -172,13 +174,15 @@ export const [
       if (item) {
         setActiveItem(item.id(), origin);
       }
+
+      return item !== null;
     }
 
     /**
      * Activate the last item in the roving focus group.
      * @param origin The origin of the focus change
      */
-    function activateLastItem(origin: FocusOrigin): void {
+    function activateLastItem(origin: FocusOrigin): boolean {
       // find the last item that is not disabled
       const item = [...getSortedItems()].reverse().find(i => !i.disabled()) ?? null;
 
@@ -186,6 +190,8 @@ export const [
       if (item) {
         setActiveItem(item.id(), origin);
       }
+
+      return item !== null;
     }
 
     /**

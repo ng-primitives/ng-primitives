@@ -529,7 +529,7 @@ describe('NgpContextMenuTrigger', () => {
       await render(ContextMenuDisabledItemsComponent);
       await openContextMenu();
 
-      // Focus should already be on first item from focus trap
+      // Focus should already be on the first item from the menu's initial focus
       const item1 = document.querySelector('[data-testid="item-1"]') as HTMLElement;
       expect(document.activeElement).toBe(item1);
 
