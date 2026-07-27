@@ -291,6 +291,9 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
   /** Function to dispose the positioning auto-update */
   private disposePositioning?: () => void;
 
+  /** Whether the panel is hidden waiting on its first computed position */
+  private hiddenUntilPositioned = false;
+
   /** Timeout handle for showing the overlay */
   private openTimeout?: () => void;
 
@@ -913,8 +916,50 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
       throw new Error('Overlay element is not available.');
     }
 
+    // Keep the panel out of sight until its first position lands
+    this.hideUntilPositioned(outletElement);
+
     // Set up positioning
     this.setupPositioning(outletElement);
+  }
+
+  /**
+   * Hide a freshly attached panel until its first position lands.
+   *
+   * The parts bind `left`/`top` with `styleBinding`, which runs in `afterRenderEffect` and
+   * so is not flushed by the portal's synchronous `detectChanges()`. Without this the panel
+   * spends its first painted frame at its *static* position - the end of the container's
+   * flow - which both shows it in the wrong place and, being in flow, grows the document's
+   * scrollable area by the panel's height. On iOS Safari that height change moves the
+   * dynamic viewport, so the whole page jumps and returns rather than just the panel.
+   */
+  private hideUntilPositioned(overlayElement: HTMLElement): void {
+    overlayElement.style.opacity = '0';
+    // An explicit origin, so the hidden panel is not laid out past the end of the container.
+    overlayElement.style.left = '0px';
+    overlayElement.style.top = '0px';
+    this.hiddenUntilPositioned = true;
+  }
+
+  /**
+   * Reveal the panel now that `position` describes it.
+   *
+   * The coordinates are written straight to the element rather than left to the parts'
+   * `styleBinding`s, which would not land until the next application tick - a frame after
+   * the panel became visible. `opacity` rather than `visibility` so the panel stays in the
+   * accessibility tree and hit-testable throughout; it resolves within the attaching task's
+   * microtasks, before the frame in which `setupExitAnimation` applies `data-enter`, so the
+   * first paint already carries the enter state.
+   */
+  private revealAtPosition(overlayElement: HTMLElement, x: number, y: number): void {
+    if (!this.hiddenUntilPositioned) {
+      return;
+    }
+
+    this.hiddenUntilPositioned = false;
+    overlayElement.style.left = `${x}px`;
+    overlayElement.style.top = `${y}px`;
+    overlayElement.style.removeProperty('opacity');
   }
 
   /**
@@ -1025,6 +1070,8 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
 
     // Update position signal
     this.position.set({ x: position.x, y: position.y });
+
+    this.revealAtPosition(overlayElement, position.x, position.y);
 
     // Update final placement signal
     this.finalPlacement.set(position.placement);
