@@ -34,6 +34,29 @@ Assemble the popover directives in your template.
 
 You can listen to the `ngpPopoverTriggerOpenChange` event to perform actions when the popover state changes. The event emits a boolean value indicating whether the popover is open or closed:
 
+## Reusable Component
+
+Create a popover component that uses the `NgpPopover` directive.
+
+<docs-snippet name="popover"></docs-snippet>
+
+## Schematics
+
+Generate a reusable popover component using the Angular CLI.
+
+```bash npm
+ng g ng-primitives:primitive popover
+```
+
+### Options
+
+- `path`: The path at which to create the component file.
+- `prefix`: The prefix to apply to the generated component selector.
+- `component-suffix`: The suffix to apply to the generated component class name.
+- `file-suffix`: The suffix to apply to the generated component file name. Defaults to `component`.
+- `styles`: How component styles should be generated. `css` (default) includes the full example styles; `unstyled` omits them entirely so you can style the component yourself.
+- `example-styles` (deprecated): still supported for compatibility - `true` maps to `styles: css`, `false` maps to `styles: unstyled`.
+
 ## Examples
 
 ### Custom Offset
@@ -99,31 +122,6 @@ By default, the popover is kept within the viewport and its clipping ancestors. 
 ```
 
 The `--ngp-popover-available-width` and `--ngp-popover-available-height` custom properties are measured against the flip boundary, or the shift boundary when flip does not set one.
-
-## Reusable Component
-
-Create a popover component that uses the `NgpPopover` directive.
-
-<docs-snippet name="popover"></docs-snippet>
-
-## Schematics
-
-Generate a reusable tooltip component using the Angular CLI.
-
-```bash npm
-ng g ng-primitives:primitive popover
-```
-
-### Options
-
-- `path`: The path at which to create the component file.
-- `prefix`: The prefix to apply to the generated component selector.
-- `component-suffix`: The suffix to apply to the generated component class name.
-- `file-suffix`: The suffix to apply to the generated component file name. Defaults to `component`.
-- `styles`: How component styles should be generated. `css` (default) includes the full example styles; `unstyled` omits them entirely so you can style the component yourself.
-- `example-styles` (deprecated): still supported for compatibility - `true` maps to `styles: css`, `false` maps to `styles: unstyled`.
-
-## Examples
 
 ### Popover with anchor
 
