@@ -108,13 +108,15 @@ You can customize the shift behavior to control how the tooltip stays within the
 
 ### Overflow Boundary
 
-By default the tooltip is kept within the viewport and its clipping ancestors. Pass `boundary` or `rootBoundary` to `flip` or `shift` to measure overflow against something else:
+By default, the tooltip is kept within the viewport and its clipping ancestors. Pass `boundary` or `rootBoundary` to `flip` or `shift` to measure overflow against something else:
 
 ```html
 <!-- Keep the tooltip inside a container element -->
-<button [ngpTooltipTrigger]="tooltip" [ngpTooltipTriggerFlip]="{boundary: container}">
-  Tooltip constrained to a container
-</button>
+<div #boundary>
+  <button [ngpTooltipTrigger]="tooltip" [ngpTooltipTriggerFlip]="{boundary: boundary}">
+    Tooltip constrained to a container
+  </button>
+</div>
 
 <!-- Measure against the whole document rather than the viewport -->
 <button [ngpTooltipTrigger]="tooltip" [ngpTooltipTriggerFlip]="{rootBoundary: 'document'}">
@@ -154,8 +156,8 @@ The following directives are available to import from the `ng-primitives/tooltip
 <api-reference-css-vars>
   <api-css-var name="--ngp-tooltip-transform-origin" description="The transform origin of the tooltip for animations." />
   <api-css-var name="--ngp-tooltip-trigger-width" description="The width of the trigger element." />
-  <api-css-var name="--ngp-tooltip-available-width" description="The available width of the tooltip before it overflows the viewport." />
-  <api-css-var name="--ngp-tooltip-available-height" description="The available height of the tooltip before it overflows the viewport." />
+  <api-css-var name="--ngp-tooltip-available-width" description="The available width of the tooltip before it overflows the flip boundary, or the shift boundary when flip does not set one. Defaults to the viewport." />
+  <api-css-var name="--ngp-tooltip-available-height" description="The available height of the tooltip before it overflows the flip boundary, or the shift boundary when flip does not set one. Defaults to the viewport." />
 </api-reference-css-vars>
 
 ### NgpTooltipTrigger

@@ -71,13 +71,15 @@ You can customize the shift behavior to control how the popover stays within the
 
 ### Overflow Boundary
 
-By default the popover is kept within the viewport and its clipping ancestors. Pass `boundary` or `rootBoundary` to `flip` or `shift` to measure overflow against something else:
+By default, the popover is kept within the viewport and its clipping ancestors. Pass `boundary` or `rootBoundary` to `flip` or `shift` to measure overflow against something else:
 
 ```html
 <!-- Keep the popover inside a container element -->
-<button [ngpPopoverTrigger]="popover" [ngpPopoverTriggerFlip]="{boundary: container}">
-  Popover constrained to a container
-</button>
+<div #boundary>
+  <button [ngpPopoverTrigger]="popover" [ngpPopoverTriggerFlip]="{boundary: boundary}">
+    Popover constrained to a container
+  </button>
+</div>
 
 <!-- Measure against the whole document rather than the viewport -->
 <button [ngpPopoverTrigger]="popover" [ngpPopoverTriggerFlip]="{rootBoundary: 'document'}">
@@ -154,8 +156,8 @@ The following directives are available to import from the `ng-primitives/popover
 <api-reference-css-vars>
   <api-css-var name="--ngp-popover-transform-origin" description="The transform origin of the popover for animations." />
   <api-css-var name="--ngp-popover-trigger-width" description="The width of the trigger element." />
-  <api-css-var name="--ngp-popover-available-width" description="The available width of the popover before it overflows the viewport." />
-  <api-css-var name="--ngp-popover-available-height" description="The available height of the popover before it overflows the viewport." />
+  <api-css-var name="--ngp-popover-available-width" description="The available width of the popover before it overflows the flip boundary, or the shift boundary when flip does not set one. Defaults to the viewport." />
+  <api-css-var name="--ngp-popover-available-height" description="The available height of the popover before it overflows the flip boundary, or the shift boundary when flip does not set one. Defaults to the viewport." />
 </api-reference-css-vars>
 
 ### NgpPopoverTrigger
