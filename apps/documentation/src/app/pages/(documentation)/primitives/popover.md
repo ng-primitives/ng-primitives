@@ -42,7 +42,7 @@ Create a popover component that uses the `NgpPopover` directive.
 
 ## Schematics
 
-Generate a reusable tooltip component using the Angular CLI.
+Generate a reusable popover component using the Angular CLI.
 
 ```bash npm
 ng g ng-primitives:primitive popover
