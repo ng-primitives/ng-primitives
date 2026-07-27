@@ -6,7 +6,7 @@ import { NgpOffset, NgpScrollBehavior } from '../../index';
 
 @Component({
   template: `
-    <div class="spacer"></div>
+    <div class="spacer-top"></div>
     <button
       [ngpPopoverTrigger]="content"
       [ngpPopoverTriggerOffset]="offset()"
@@ -16,15 +16,21 @@ import { NgpOffset, NgpScrollBehavior } from '../../index';
     >
       Open Popover
     </button>
-    <div class="spacer"></div>
+    <div class="spacer-bottom"></div>
 
     <ng-template #content>
       <div ngpPopover>Popover content</div>
     </ng-template>
   `,
   styles: `
-    .spacer {
-      height: 600px;
+    /* Keep the trigger near the top so it stays in view - an off-screen trigger makes
+       the panel flip and the offset assertions measure the wrong edge. */
+    .spacer-top {
+      height: 20vh;
+    }
+
+    .spacer-bottom {
+      height: 300vh;
     }
 
     [ngpPopover] {
@@ -44,6 +50,10 @@ class ReactiveOptionsComponent {
 /**
  * An overlay is built on the first open and reused after that, so options were previously
  * snapshotted at that moment and a consumer binding stopped reaching the overlay.
+ *
+ * `close` is used as the representative scroll behaviour rather than `block`: it is
+ * observable through this fixture's own overlay, where `block` is only observable through
+ * inline styles on `<html>` that any other suite sharing the page can disturb.
  */
 describe('overlay options', () => {
   afterEach(() => {
@@ -87,23 +97,24 @@ describe('overlay options', () => {
   it('should apply a scroll behaviour changed between opens', async () => {
     const { getByRole, fixture } = await render(ReactiveOptionsComponent);
     const trigger = getByRole('button');
-    const root = document.documentElement;
 
+    // 'reposition' (the initial value) follows the trigger rather than dismissing.
     await open(trigger);
-    expect(root.style.position).not.toBe('fixed');
+    window.dispatchEvent(new Event('scroll'));
+    await new Promise(resolve => setTimeout(resolve, 50));
+    expect(popover()).toBeInTheDocument();
 
     fireEvent.keyDown(document, { key: 'Escape' });
     await waitFor(() => expect(popover()).not.toBeInTheDocument());
 
-    fixture.componentInstance.scrollBehavior.set('block');
+    fixture.componentInstance.scrollBehavior.set('close');
     fixture.detectChanges();
 
+    // The strategy is built when the overlay opens, so the new value takes effect here.
     await open(trigger);
-    // BlockScrollStrategy pins the document while the overlay is open.
-    await waitFor(() => expect(root.style.position).toBe('fixed'));
+    window.dispatchEvent(new Event('scroll'));
 
-    fireEvent.keyDown(document, { key: 'Escape' });
-    await waitFor(() => expect(root.style.position).not.toBe('fixed'));
+    await waitFor(() => expect(popover()).not.toBeInTheDocument());
   });
 
   it('should honour a dismiss guard changed after the overlay was first opened', async () => {
