@@ -1,5 +1,6 @@
 import { coerceNumberProperty } from '@angular/cdk/coercion';
 import { isNil, isObject } from 'ng-primitives/utils';
+import { NgpBoundary, NgpRootBoundary } from './positioning';
 
 /**
  * Options for configuring shift behavior to keep the floating element in view.
@@ -24,6 +25,36 @@ export interface NgpShiftOptions {
     fn: (state: unknown) => { x: number; y: number };
     options?: unknown;
   };
+
+  /**
+   * The clipping area the floating element is kept within. Pass an element (or elements)
+   * to constrain the overlay to a container rather than its clipping ancestors.
+   * @default 'clippingAncestors'
+   */
+  boundary?: NgpBoundary;
+
+  /**
+   * The root clipping area the floating element is kept within.
+   * @default 'viewport'
+   */
+  rootBoundary?: NgpRootBoundary;
+
+  /**
+   * Whether to measure overflow against the trigger's clipping ancestors rather than the
+   * panel's. The panel is portalled to the body, so its own clipping ancestors are
+   * effectively the viewport - set this when the trigger sits in a scroll container.
+   *
+   * Applies only while `boundary` is left at its default; an explicit boundary always wins.
+   * @default false
+   */
+  altBoundary?: boolean;
+
+  /**
+   * Whether overflow along the side axis - the one the placement points along - is also
+   * checked when shifting. `mainAxis` covers the alignment axis and is on by default.
+   * @default false
+   */
+  crossAxis?: boolean;
 }
 
 /**

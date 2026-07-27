@@ -106,6 +106,46 @@ You can customize the shift behavior to control how the tooltip stays within the
 </button>
 ```
 
+### Overflow Boundary
+
+By default, the tooltip is kept within the viewport and its clipping ancestors. Pass `boundary` or `rootBoundary` to `flip` or `shift` to measure overflow against something else:
+
+```html
+<!-- Keep the tooltip inside a container element -->
+<div #boundary>
+  <button [ngpTooltipTrigger]="tooltip" [ngpTooltipTriggerFlip]="{boundary: boundary}">
+    Tooltip constrained to a container
+  </button>
+</div>
+
+<!-- Keep the tooltip inside whatever scrolls the trigger -->
+<div style="overflow: auto">
+  <button [ngpTooltipTrigger]="tooltip" [ngpTooltipTriggerFlip]="{altBoundary: true}">
+    Tooltip constrained to the trigger's scroll container
+  </button>
+</div>
+
+<!-- Measure against the whole document rather than the viewport -->
+<button [ngpTooltipTrigger]="tooltip" [ngpTooltipTriggerFlip]="{rootBoundary: 'document'}">
+  Tooltip that does not flip while off-screen
+</button>
+```
+
+`altBoundary` measures against the trigger's clipping ancestors rather than the tooltip's. The tooltip is portalled to the body, so its own clipping ancestors are effectively the viewport - set this when the trigger sits in a scroll container. It applies only while `boundary` is left at its default; an explicit boundary always wins.
+
+`crossAxis` widens the axis each option checks. For `flip` it is the alignment axis, on by default - that is how `bottom-end` becomes `bottom-start` near an edge. For `shift` it is the side axis, off by default; enabling it lets the panel move along the placement direction too:
+
+```html
+<button [ngpTooltipTrigger]="tooltip" [ngpTooltipTriggerFlip]="{crossAxis: false}">
+  Keep the alignment
+</button>
+<button [ngpTooltipTrigger]="tooltip" [ngpTooltipTriggerShift]="{crossAxis: true}">
+  Shift on both axes
+</button>
+```
+
+The `--ngp-tooltip-available-width` and `--ngp-tooltip-available-height` custom properties are measured against the flip boundary, or the shift boundary when flip does not set one.
+
 ## Using Text Content as Tooltip
 
 The `useTextContent` input (enabled by default) allows the tooltip to automatically use the text content of the trigger element as the tooltip content. This is particularly useful for displaying full text when content is truncated with ellipsis.
@@ -196,8 +236,8 @@ The following directives are available to import from the `ng-primitives/tooltip
 <api-reference-css-vars>
   <api-css-var name="--ngp-tooltip-transform-origin" description="The transform origin of the tooltip for animations." />
   <api-css-var name="--ngp-tooltip-trigger-width" description="The width of the trigger element." />
-  <api-css-var name="--ngp-tooltip-available-width" description="The available width of the tooltip before it overflows the viewport." />
-  <api-css-var name="--ngp-tooltip-available-height" description="The available height of the tooltip before it overflows the viewport." />
+  <api-css-var name="--ngp-tooltip-available-width" description="The available width of the tooltip before it overflows the flip boundary, or the shift boundary when flip does not set one. Defaults to the viewport." />
+  <api-css-var name="--ngp-tooltip-available-height" description="The available height of the tooltip before it overflows the flip boundary, or the shift boundary when flip does not set one. Defaults to the viewport." />
 </api-reference-css-vars>
 
 ### NgpTooltipTrigger

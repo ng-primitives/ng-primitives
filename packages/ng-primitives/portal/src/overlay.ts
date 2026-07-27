@@ -28,7 +28,7 @@ import {
 import { explicitEffect, fromResizeEvent } from 'ng-primitives/internal';
 import { injectDisposables, safeTakeUntilDestroyed, uniqueId } from 'ng-primitives/utils';
 import { Subject } from 'rxjs';
-import { NgpFlip } from './flip';
+import { NgpFlip, NgpFlipOptions } from './flip';
 import { NgpOffset } from './offset';
 import { CooldownOverlay, NgpOverlayCooldownManager } from './overlay-cooldown';
 import { NgpDismissGuard, NgpOverlayRegistry } from './overlay-registry';
@@ -42,7 +42,7 @@ import {
   NoopScrollStrategy,
   ScrollStrategy,
 } from './scroll-strategy';
-import { NgpShift } from './shift';
+import { NgpShift, NgpShiftOptions } from './shift';
 
 /**
  * Bit values of the internal inject flags used by Angular's DI system. These are
@@ -113,6 +113,20 @@ class EmbeddedViewInjector extends Injector {
     }
     return this.delegate.get(token, notFoundValue, flags);
   }
+}
+
+/**
+ * Normalise a `boolean | options | undefined` middleware config to its options object, or
+ * `undefined` when the middleware is disabled. Both middleware are enabled by default.
+ */
+function resolveOverflowOptions<T extends NgpFlipOptions | NgpShiftOptions>(
+  config: boolean | T | undefined,
+): T | undefined {
+  if (config === false) {
+    return undefined;
+  }
+
+  return config === true || config === undefined ? ({} as T) : config;
 }
 
 /**
@@ -975,25 +989,42 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
     // Order matters: offset → flip → shift → size → arrow (per Floating UI docs)
     const middleware: NgpMiddleware[] = [offset(this.config.offset ?? 0)];
 
+    // Resolved before the middleware are added so `size` can reuse the overflow boundary.
+    const flipOptions = resolveOverflowOptions(this.config.flip);
+    const shiftOptions = resolveOverflowOptions(this.config.shift);
+
     // Add flip middleware if requested
     // Flip must come before shift so that shift doesn't prevent flip from triggering
-    const flipConfig = this.config.flip;
-    if (flipConfig !== false) {
-      const flipOptions = flipConfig === undefined || flipConfig === true ? {} : flipConfig;
+    if (flipOptions) {
       middleware.push(flip(flipOptions));
     }
 
     // Add shift middleware (enabled by default for backward compatibility)
     // Shift keeps the overlay in view by shifting it along its axis when it would otherwise overflow the viewport
-    const shiftConfig = this.config.shift;
-    if (shiftConfig !== false) {
-      const shiftOptions = shiftConfig === undefined || shiftConfig === true ? {} : shiftConfig;
+    if (shiftOptions) {
       middleware.push(shift(shiftOptions));
     }
 
-    // Add size middleware to expose available dimensions
+    // Add size middleware to expose available dimensions. It measures the space before the
+    // overlay overflows, so it has to read against the same boundary that keeps the overlay
+    // in view: flip's when flip sets one, otherwise shift's. Enabled-by-default flip resolves
+    // to `{}`, so the test is whether it names a boundary rather than whether it exists -
+    // `{}` would otherwise mask a boundary set on shift. Taken together, so the fields can't
+    // be composed from different middleware into a region neither measures against.
+    // Padding is deliberately not shared: adopting it would shrink the reported dimensions
+    // for anyone already setting it on flip or shift.
+    const overflowOptions =
+      flipOptions?.boundary !== undefined ||
+      flipOptions?.rootBoundary !== undefined ||
+      flipOptions?.altBoundary !== undefined
+        ? flipOptions
+        : shiftOptions;
+
     middleware.push(
       size({
+        boundary: overflowOptions?.boundary,
+        rootBoundary: overflowOptions?.rootBoundary,
+        altBoundary: overflowOptions?.altBoundary,
         apply: ({ availableWidth, availableHeight }) => {
           this.availableWidth.set(availableWidth);
           this.availableHeight.set(availableHeight);

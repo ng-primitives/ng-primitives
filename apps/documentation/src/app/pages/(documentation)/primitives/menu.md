@@ -119,6 +119,46 @@ You can customize the shift behavior to control how the menu stays within the vi
 </button>
 ```
 
+### Overflow Boundary
+
+By default, the menu is kept within the viewport and its clipping ancestors. Pass `boundary` or `rootBoundary` to `flip` or `shift` to measure overflow against something else:
+
+```html
+<!-- Keep the menu inside a container element -->
+<div #boundary>
+  <button [ngpMenuTrigger]="menu" [ngpMenuTriggerFlip]="{boundary: boundary}">
+    Menu constrained to a container
+  </button>
+</div>
+
+<!-- Keep the menu inside whatever scrolls the trigger -->
+<div style="overflow: auto">
+  <button [ngpMenuTrigger]="menu" [ngpMenuTriggerFlip]="{altBoundary: true}">
+    Menu constrained to the trigger's scroll container
+  </button>
+</div>
+
+<!-- Measure against the whole document rather than the viewport -->
+<button [ngpMenuTrigger]="menu" [ngpMenuTriggerFlip]="{rootBoundary: 'document'}">
+  Menu that does not flip while off-screen
+</button>
+```
+
+`altBoundary` measures against the trigger's clipping ancestors rather than the menu's. The menu is portalled to the body, so its own clipping ancestors are effectively the viewport - set this when the trigger sits in a scroll container. It applies only while `boundary` is left at its default; an explicit boundary always wins.
+
+`crossAxis` widens the axis each option checks. For `flip` it is the alignment axis, on by default - that is how `bottom-end` becomes `bottom-start` near an edge. For `shift` it is the side axis, off by default; enabling it lets the panel move along the placement direction too:
+
+```html
+<button [ngpMenuTrigger]="menu" [ngpMenuTriggerFlip]="{crossAxis: false}">
+  Keep the alignment
+</button>
+<button [ngpMenuTrigger]="menu" [ngpMenuTriggerShift]="{crossAxis: true}">
+  Shift on both axes
+</button>
+```
+
+The `--ngp-menu-available-width` and `--ngp-menu-available-height` custom properties are measured against the flip boundary, or the shift boundary when flip does not set one.
+
 ### Keyboard Triggers
 
 Enable keyboard triggers to allow users to open menus using Enter or arrow keys:
@@ -195,8 +235,8 @@ The following directives are available to import from the `ng-primitives/menu` p
 <api-reference-css-vars>
   <api-css-var name="--ngp-menu-transform-origin" description="The transform origin of the menu for animations." />
   <api-css-var name="--ngp-menu-trigger-width" description="The width of the trigger element." />
-  <api-css-var name="--ngp-menu-available-width" description="The available width of the menu before it overflows the viewport." />
-  <api-css-var name="--ngp-menu-available-height" description="The available height of the menu before it overflows the viewport." />
+  <api-css-var name="--ngp-menu-available-width" description="The available width of the menu before it overflows the flip boundary, or the shift boundary when flip does not set one. Defaults to the viewport." />
+  <api-css-var name="--ngp-menu-available-height" description="The available height of the menu before it overflows the flip boundary, or the shift boundary when flip does not set one. Defaults to the viewport." />
 </api-reference-css-vars>
 
 ### NgpMenuItem

@@ -92,6 +92,46 @@ You can customize the shift behavior to control how the popover stays within the
 </button>
 ```
 
+### Overflow Boundary
+
+By default, the popover is kept within the viewport and its clipping ancestors. Pass `boundary` or `rootBoundary` to `flip` or `shift` to measure overflow against something else:
+
+```html
+<!-- Keep the popover inside a container element -->
+<div #boundary>
+  <button [ngpPopoverTrigger]="popover" [ngpPopoverTriggerFlip]="{boundary: boundary}">
+    Popover constrained to a container
+  </button>
+</div>
+
+<!-- Keep the popover inside whatever scrolls the trigger -->
+<div style="overflow: auto">
+  <button [ngpPopoverTrigger]="popover" [ngpPopoverTriggerFlip]="{altBoundary: true}">
+    Popover constrained to the trigger's scroll container
+  </button>
+</div>
+
+<!-- Measure against the whole document rather than the viewport -->
+<button [ngpPopoverTrigger]="popover" [ngpPopoverTriggerFlip]="{rootBoundary: 'document'}">
+  Popover that does not flip while off-screen
+</button>
+```
+
+`altBoundary` measures against the trigger's clipping ancestors rather than the popover's. The popover is portalled to the body, so its own clipping ancestors are effectively the viewport - set this when the trigger sits in a scroll container. It applies only while `boundary` is left at its default; an explicit boundary always wins.
+
+`crossAxis` widens the axis each option checks. For `flip` it is the alignment axis, on by default - that is how `bottom-end` becomes `bottom-start` near an edge. For `shift` it is the side axis, off by default; enabling it lets the panel move along the placement direction too:
+
+```html
+<button [ngpPopoverTrigger]="popover" [ngpPopoverTriggerFlip]="{crossAxis: false}">
+  Keep the alignment
+</button>
+<button [ngpPopoverTrigger]="popover" [ngpPopoverTriggerShift]="{crossAxis: true}">
+  Shift on both axes
+</button>
+```
+
+The `--ngp-popover-available-width` and `--ngp-popover-available-height` custom properties are measured against the flip boundary, or the shift boundary when flip does not set one.
+
 ### Popover with anchor
 
 The popover can be anchored to a different element than the trigger.
@@ -123,8 +163,8 @@ The following directives are available to import from the `ng-primitives/popover
 <api-reference-css-vars>
   <api-css-var name="--ngp-popover-transform-origin" description="The transform origin of the popover for animations." />
   <api-css-var name="--ngp-popover-trigger-width" description="The width of the trigger element." />
-  <api-css-var name="--ngp-popover-available-width" description="The available width of the popover before it overflows the viewport." />
-  <api-css-var name="--ngp-popover-available-height" description="The available height of the popover before it overflows the viewport." />
+  <api-css-var name="--ngp-popover-available-width" description="The available width of the popover before it overflows the flip boundary, or the shift boundary when flip does not set one. Defaults to the viewport." />
+  <api-css-var name="--ngp-popover-available-height" description="The available height of the popover before it overflows the flip boundary, or the shift boundary when flip does not set one. Defaults to the viewport." />
 </api-reference-css-vars>
 
 ### NgpPopoverTrigger
