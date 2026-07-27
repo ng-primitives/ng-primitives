@@ -43,7 +43,8 @@ export const [
   _injectSelectPortalState,
   provideSelectPortalState,
 ] = createPrimitive('NgpSelectPortal', ({}: NgpSelectPortalProps): NgpSelectPortalState => {
-  const templateRef = inject(TemplateRef);
+  // the portal renders its own template, which never changes
+  const templateRef = signal(inject(TemplateRef));
   const viewContainerRef = inject(ViewContainerRef);
   const injector = inject(Injector);
   const selectState = injectSelectState();

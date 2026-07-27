@@ -447,7 +447,7 @@ export const [
       }
 
       const config: NgpOverlayConfig<unknown> = {
-        content: contentValue,
+        content: content,
         triggerElement: element.nativeElement,
         injector,
         viewContainerRef,

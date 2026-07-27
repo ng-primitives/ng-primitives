@@ -1170,3 +1170,64 @@ describe('Navigation Menu Container', () => {
     });
   });
 });
+
+describe('NgpNavigationMenuTrigger dynamic content', () => {
+  const template = `
+    <nav ngpNavigationMenu>
+      <ul ngpNavigationMenuList>
+        <li ngpNavigationMenuItem ngpNavigationMenuItemValue="products">
+          <button
+            [ngpNavigationMenuTrigger]="useFirst ? first : second"
+            data-testid="trigger-products"
+          >
+            Products
+          </button>
+
+          <ng-template #first>
+            <div ngpNavigationMenuContent data-testid="content">
+              <a ngpNavigationMenuContentItem href="#">First item</a>
+            </div>
+          </ng-template>
+          <ng-template #second>
+            <div ngpNavigationMenuContent data-testid="content">
+              <a ngpNavigationMenuContentItem href="#">Second item</a>
+            </div>
+          </ng-template>
+        </li>
+      </ul>
+    </nav>
+  `;
+
+  const imports = [
+    NgpNavigationMenu,
+    NgpNavigationMenuList,
+    NgpNavigationMenuItem,
+    NgpNavigationMenuTrigger,
+    NgpNavigationMenuContent,
+    NgpNavigationMenuContentItem,
+  ];
+
+  it('should swap the open content when the reference changes', async () => {
+    const { fixture, getByTestId } = await render(template, {
+      imports,
+      componentProperties: { useFirst: true },
+    });
+
+    fireEvent.pointerEnter(getByTestId('trigger-products'), { pointerType: 'mouse' });
+
+    await waitFor(() => {
+      expect(document.querySelector('[data-testid="content"]')?.textContent?.trim()).toBe(
+        'First item',
+      );
+    });
+
+    fixture.componentInstance.useFirst = false;
+    fixture.detectChanges();
+
+    await waitFor(() => {
+      const contents = document.querySelectorAll('[data-testid="content"]');
+      expect(contents).toHaveLength(1);
+      expect(contents[0].textContent?.trim()).toBe('Second item');
+    });
+  });
+});

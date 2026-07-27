@@ -283,7 +283,7 @@ export const [
       }
 
       const config: NgpOverlayConfig<T> = {
-        content: menuContent,
+        content: menu,
         triggerElement: element.nativeElement,
         viewContainerRef,
         injector,

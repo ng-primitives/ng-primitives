@@ -297,7 +297,7 @@ export const [
 
       // Create config for the overlay
       const config: NgpOverlayConfig<T> = {
-        content: popoverInstance,
+        content: popover,
         triggerElement: elementRef.nativeElement,
         anchorElement: anchor(),
         injector: injector,

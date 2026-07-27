@@ -149,4 +149,70 @@ describe('NgpMenuTrigger', () => {
       });
     });
   });
+  describe('dynamic content', () => {
+    const template = `
+      <button [ngpMenuTrigger]="useFirst ? first : second">Open Menu</button>
+
+      <ng-template #first>
+        <div ngpMenu data-testid="ngp-menu">
+          <button ngpMenuItem>First item</button>
+        </div>
+      </ng-template>
+      <ng-template #second>
+        <div ngpMenu data-testid="ngp-menu">
+          <button ngpMenuItem>Second item</button>
+        </div>
+      </ng-template>
+    `;
+
+    it('should render the new template when the reference changes while closed', async () => {
+      const { fixture, getByText } = await render(template, {
+        imports: [NgpMenuTrigger, NgpMenu, NgpMenuItem],
+        componentProperties: { useFirst: true },
+      });
+
+      const trigger = getByText('Open Menu');
+      fireEvent.click(trigger);
+
+      await waitFor(() => {
+        expect(screen.getByTestId('ngp-menu').textContent?.trim()).toBe('First item');
+      });
+
+      fireEvent.click(trigger);
+      await waitFor(() => {
+        expect(screen.queryByTestId('ngp-menu')).not.toBeInTheDocument();
+      });
+
+      fixture.componentInstance.useFirst = false;
+      fixture.detectChanges();
+
+      fireEvent.click(trigger);
+
+      await waitFor(() => {
+        expect(screen.getByTestId('ngp-menu').textContent?.trim()).toBe('Second item');
+      });
+    });
+
+    it('should swap the open menu when the reference changes while open', async () => {
+      const { fixture, getByText } = await render(template, {
+        imports: [NgpMenuTrigger, NgpMenu, NgpMenuItem],
+        componentProperties: { useFirst: true },
+      });
+
+      fireEvent.click(getByText('Open Menu'));
+
+      await waitFor(() => {
+        expect(screen.getByTestId('ngp-menu').textContent?.trim()).toBe('First item');
+      });
+
+      fixture.componentInstance.useFirst = false;
+      fixture.detectChanges();
+
+      await waitFor(() => {
+        const menus = screen.getAllByTestId('ngp-menu');
+        expect(menus).toHaveLength(1);
+        expect(menus[0].textContent?.trim()).toBe('Second item');
+      });
+    });
+  });
 });
