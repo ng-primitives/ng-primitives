@@ -173,6 +173,27 @@ describe('NgpThreadViewport', () => {
       await waitFor(() => expect(viewport.scrollTop).toBe(600));
     });
 
+    it('should recompute the at-bottom state when the threshold changes', async () => {
+      const { fixture } = await render(StreamingThread);
+      const viewport = screen.getByTestId('viewport');
+
+      // 50px off the bottom, inside the initial 70px threshold
+      await scrollTo(viewport, 500);
+      await scrollTo(viewport, 450);
+
+      // narrow the threshold without scrolling again — the same position is now outside it
+      fixture.componentInstance.threshold = 0;
+      fixture.detectChanges();
+      await new Promise(resolve => setTimeout(resolve, 50));
+
+      stream(fixture);
+
+      // give the scroll a chance to happen before asserting that it did not
+      await new Promise(resolve => setTimeout(resolve, 150));
+
+      expect(viewport.scrollTop).toBe(450);
+    });
+
     it('should honour a custom threshold', async () => {
       const { fixture } = await render(StreamingThread, {
         componentProperties: { threshold: 0 },

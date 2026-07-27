@@ -30,7 +30,7 @@ export const [
       // follow the stream only while the user is still at the bottom, so it does not pull
       // them away from an earlier message they are reading
       if (thread().isLastMessage(state)) {
-        thread().autoScrollToBottom('smooth');
+        thread().scrollToBottomIfNeeded('smooth');
       }
     });
 

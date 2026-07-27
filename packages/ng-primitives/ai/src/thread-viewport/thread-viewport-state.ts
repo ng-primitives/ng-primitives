@@ -1,5 +1,5 @@
 import { signal, Signal } from '@angular/core';
-import { fromResizeEvent, injectElementRef } from 'ng-primitives/internal';
+import { explicitEffect, fromResizeEvent, injectElementRef } from 'ng-primitives/internal';
 import { createPrimitive, listener, onDestroy } from 'ng-primitives/state';
 import { safeTakeUntilDestroyed } from 'ng-primitives/utils';
 import { injectThreadState } from '../thread/thread-state';
@@ -15,7 +15,7 @@ export interface NgpThreadViewportState {
    * Scroll the viewport to the bottom, but only if it is already at the bottom, so content
    * arriving while the user is reading further up does not pull them away from it.
    */
-  autoScrollToBottom(behavior: ScrollBehavior): void;
+  scrollToBottomIfNeeded(behavior: ScrollBehavior): void;
 }
 
 export interface NgpThreadViewportProps {
@@ -60,7 +60,7 @@ export const [
       });
     }
 
-    function autoScrollToBottom(behavior: ScrollBehavior): void {
+    function scrollToBottomIfNeeded(behavior: ScrollBehavior): void {
       // the user has scrolled away from the bottom, so leave them where they are
       if (!isAtBottom) {
         return;
@@ -83,14 +83,17 @@ export const [
     // Listener
     listener(element, 'scroll', onScroll);
 
+    // no scroll event fires when the threshold itself changes, so recompute against the new value
+    explicitEffect([threshold], () => onScroll());
+
     fromResizeEvent(element.nativeElement)
       .pipe(safeTakeUntilDestroyed())
       .subscribe(() => {
-        autoScrollToBottom('instant');
+        scrollToBottomIfNeeded('instant');
         onScroll();
       });
 
-    const state = { scrollToBottom, autoScrollToBottom } satisfies NgpThreadViewportState;
+    const state = { scrollToBottom, scrollToBottomIfNeeded } satisfies NgpThreadViewportState;
 
     thread().setViewport(state);
     onDestroy(() => thread().removeViewport(state));
