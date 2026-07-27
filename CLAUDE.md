@@ -92,6 +92,7 @@ See `.claude/rules/` for detailed coding standards:
 - `naming-conventions.md` - Selector prefixes, class names, file names
 - `state-management.md` - The `createPrimitive` state pattern: one `-state.ts` per part, host bindings inside the factory, thin directives, controlled state, state composition
 - `docs-example-styling.md` - Styling the documentation examples: brand red reserved for state, blue for focus, typography/radii scale, CSS + Tailwind parity
+- `documentation-pages.md` - The canonical `##` section order for docs pages, where page-specific sections go, one heading per section
 
 For code review, use the `ngp-code-review` skill — it consolidates these rules with the custom workspace lint rules, test conventions, and PR checklist.
 

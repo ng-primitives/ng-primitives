@@ -70,6 +70,26 @@ ng g ng-primitives:primitive dialog
 - `styles`: How component styles should be generated. `css` (default) includes the full example styles; `unstyled` omits them entirely so you can style the component yourself.
 - `example-styles` (deprecated): still supported for compatibility - `true` maps to `styles: css`, `false` maps to `styles: unstyled`.
 
+## Examples
+
+### Dismiss Guard
+
+Use dismiss guards to prevent a dialog from closing when there are unsaved changes. The `closeOnEscape` and `closeOnOutsideClick` options accept a guard function that returns a boolean or a `Promise<boolean>`.
+
+<docs-example name="dialog-dismiss-guard"></docs-example>
+
+### Dialog with external data
+
+Data can be passed to the dialog using the `NgpDialogManager`.
+
+<docs-example name="dialog-data"></docs-example>
+
+### Drawer
+
+A drawer is a type of dialog that slides in from the side of the screen.
+
+<docs-example name="dialog-drawer"></docs-example>
+
 ## API Reference
 
 The following directives are available to import from the `ng-primitives/dialog` package:
@@ -181,26 +201,6 @@ Reference returned by `NgpDialogManager.open()`. Provides methods to interact wi
 <prop-details name="updatePosition" type="() => NgpDialogRef">
   Updates the position of the dialog. Currently a no-op as dialogs are CSS-centered.
 </prop-details>
-
-## Examples
-
-### Dismiss Guard
-
-Use dismiss guards to prevent a dialog from closing when there are unsaved changes. The `closeOnEscape` and `closeOnOutsideClick` options accept a guard function that returns a boolean or a `Promise<boolean>`.
-
-<docs-example name="dialog-dismiss-guard"></docs-example>
-
-### Dialog with external data
-
-Data can be passed to the dialog using the `NgpDialogManager`.
-
-<docs-example name="dialog-data"></docs-example>
-
-### Drawer
-
-A drawer is a type of dialog that slides in from the side of the screen.
-
-<docs-example name="dialog-drawer"></docs-example>
 
 ## Accessibility
 

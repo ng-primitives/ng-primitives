@@ -118,6 +118,12 @@ PR template requires docs updates for features and bug fixes. For new public beh
 - Look for a docs page under `apps/documentation/src/app/pages/primitives/<primitive>/`.
 - Generators: `nx g @ng-primitives/tools:example <name> --primitive <primitive>` and `nx g @ng-primitives/tools:documentation`.
 
+If the diff adds or moves a `##` section in a page under `apps/documentation/src/app/pages/(documentation)/`, check it against `.claude/rules/documentation-pages.md`. Flag by `file:line`:
+
+- **Section out of order.** The canonical order is `Import` → `Usage` → `Reusable Component` → `Schematics` → `Examples` → `API Reference` → `Styling` → `Animations` → `Global Configuration` → `Accessibility`. Sections may be omitted, never reordered, and `Accessibility` is always last.
+- **A second `## Examples`** (or any duplicated section) on one page - add an `###` subsection to the existing block instead.
+- **A page-specific `##` section wedged between `API Reference` and `Accessibility`**, splitting the reference tail. Example-style content belongs before `API Reference`.
+
 If the diff touches files under `apps/documentation/src/app/examples/`, check them against `.claude/rules/docs-example-styling.md`. Common violations to flag by `file:line`:
 
 - **Off-brand colour.** Brand red (`--ngp-primary` / `#f01e2b` / `#ff4651`) on a focus ring (`:focus`, `[data-focus]`, `[data-focus-visible]`, `:focus-within`) - focus must be blue (`--ngp-focus-ring` / `blue-500` / `blue-400`). Conversely, blue / `--ngp-background-inverse` / off-palette tokens (`--ngp-text-blue`, `--ngp-background-blue`, `--ngp-background-success`) used for a _state_ (checked, selected, active, fill, primary button) - those must be brand red.
