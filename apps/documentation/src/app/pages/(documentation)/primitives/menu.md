@@ -144,7 +144,7 @@ By default, the menu is kept within the viewport and its clipping ancestors. Pas
 </button>
 ```
 
-`altBoundary` measures against the trigger's clipping ancestors rather than the menu's. The menu is portalled to the body, so its own clipping ancestors are effectively the viewport - set this when the trigger sits in a scroll container.
+`altBoundary` measures against the trigger's clipping ancestors rather than the menu's. The menu is portalled to the body, so its own clipping ancestors are effectively the viewport - set this when the trigger sits in a scroll container. It applies only while `boundary` is left at its default; an explicit boundary always wins.
 
 `crossAxis` widens the axis each option checks. For `flip` it is the alignment axis, on by default - that is how `bottom-end` becomes `bottom-start` near an edge. For `shift` it is the side axis, off by default; enabling it lets the panel move along the placement direction too:
 

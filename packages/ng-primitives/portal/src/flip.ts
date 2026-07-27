@@ -38,6 +38,8 @@ export interface NgpFlipOptions {
    * Whether to measure overflow against the trigger's clipping ancestors rather than the
    * panel's. The panel is portalled to the body, so its own clipping ancestors are
    * effectively the viewport - set this when the trigger sits in a scroll container.
+   *
+   * Applies only while `boundary` is left at its default; an explicit boundary always wins.
    * @default false
    */
   altBoundary?: boolean;
