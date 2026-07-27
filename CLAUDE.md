@@ -98,7 +98,8 @@ For code review, use the `ngp-code-review` skill — it consolidates these rules
 ## Package Management
 
 - Uses pnpm with workspace configuration
-- Volta specifies Node 22.15.0
+- Node 24.18.0, pinned in `.nvmrc` (read by CI and Netlify) and `volta.node`
+- `engines.node` sets the supported floor and `engine-strict` makes it a hard gate
 - Build targets are configured in individual `project.json` files
 - Dependencies are managed at the root level
 
