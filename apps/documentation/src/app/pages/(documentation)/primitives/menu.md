@@ -144,9 +144,9 @@ By default, the menu is kept within the viewport and its clipping ancestors. Pas
 </button>
 ```
 
-`altBoundary` is worth calling out. Floating UI resolves clipping ancestors from the panel, and the panel is portalled to the body - so a menu whose trigger sits in a scroll container measures against the viewport and never learns the container is the real constraint. `altBoundary` measures against the trigger's clipping ancestors instead.
+`altBoundary` measures against the trigger's clipping ancestors rather than the menu's. The menu is portalled to the body, so its own clipping ancestors are effectively the viewport - set this when the trigger sits in a scroll container.
 
-`crossAxis` widens what each middleware checks, and means a different axis for each. For `flip` it is the alignment axis, checked by default - that is how `bottom-end` becomes `bottom-start` near an edge. For `shift` it is the side axis, off by default, so enabling it lets the panel move along the placement direction as well:
+`crossAxis` widens the axis each option checks. For `flip` it is the alignment axis, on by default - that is how `bottom-end` becomes `bottom-start` near an edge. For `shift` it is the side axis, off by default; enabling it lets the panel move along the placement direction too:
 
 ```html
 <button [ngpMenuTrigger]="menu" [ngpMenuTriggerFlip]="{crossAxis: false}">
