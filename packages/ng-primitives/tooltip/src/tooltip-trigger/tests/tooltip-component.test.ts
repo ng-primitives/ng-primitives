@@ -49,11 +49,11 @@ class TooltipTrigger {
   readonly content = input.required<string>({ alias: 'appTooltipTrigger' });
 
   constructor() {
-    this.tooltipTrigger().tooltip.set(TooltipContent);
+    this.tooltipTrigger().setTooltip(TooltipContent);
   }
 }
 
-describe('Tooltip (reusable component) — standalone', () => {
+describe('Tooltip (reusable component) - standalone', () => {
   afterEach(() => {
     // NgpTooltip is applied as a host directive on <app-tooltip>, so the tooltip
     // renders as an <app-tooltip role="tooltip"> element rather than an

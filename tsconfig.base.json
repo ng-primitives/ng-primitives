@@ -74,7 +74,8 @@
       "ng-primitives/context-menu": ["packages/ng-primitives/context-menu/src/index.ts"],
       "ng-primitives/password": ["./packages/ng-primitives/password/src/index.ts"],
       "ng-primitives/color": ["./packages/ng-primitives/color/src/index.ts"],
-      "ng-primitives/rating": ["./packages/ng-primitives/rating/src/index.ts"]
+      "ng-primitives/rating": ["./packages/ng-primitives/rating/src/index.ts"],
+      "ng-primitives/preview-card": ["packages/ng-primitives/preview-card/src/index.ts"]
     }
   },
   "exclude": ["node_modules", "tmp"]

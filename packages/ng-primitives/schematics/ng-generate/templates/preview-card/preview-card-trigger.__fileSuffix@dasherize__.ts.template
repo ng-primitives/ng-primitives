@@ -1,0 +1,36 @@
+import { Directive, input } from '@angular/core';
+import { injectPreviewCardTriggerState, NgpPreviewCardTrigger } from 'ng-primitives/preview-card';
+import { PreviewCard<%= componentSuffix %>, PreviewCardContent } from './preview-card<% if (fileSuffix) { %>.<%= dasherize(fileSuffix) %><% } %>';
+
+@Directive({
+  selector: '[<%= camelize(prefix + "PreviewCardTrigger") %>]',
+  hostDirectives: [
+    {
+      directive: NgpPreviewCardTrigger,
+      inputs: [
+        'ngpPreviewCardTriggerDisabled:<%= camelize(prefix + "PreviewCardTriggerDisabled") %>',
+        'ngpPreviewCardTriggerPlacement:<%= camelize(prefix + "PreviewCardTriggerPlacement") %>',
+        'ngpPreviewCardTriggerOffset:<%= camelize(prefix + "PreviewCardTriggerOffset") %>',
+        'ngpPreviewCardTriggerShowDelay:<%= camelize(prefix + "PreviewCardTriggerShowDelay") %>',
+        'ngpPreviewCardTriggerHideDelay:<%= camelize(prefix + "PreviewCardTriggerHideDelay") %>',
+        'ngpPreviewCardTriggerFlip:<%= camelize(prefix + "PreviewCardTriggerFlip") %>',
+        'ngpPreviewCardTriggerContainer:<%= camelize(prefix + "PreviewCardTriggerContainer") %>',
+        'ngpPreviewCardTriggerScrollBehavior:<%= camelize(prefix + "PreviewCardTriggerScrollBehavior") %>',
+        'ngpPreviewCardTriggerContext:<%= camelize(prefix + "PreviewCardTrigger") %>',
+      ],
+    },
+  ],
+})
+export class PreviewCardTrigger {
+  /** Access the preview card trigger */
+  private readonly previewCardTrigger = injectPreviewCardTriggerState<PreviewCardContent>();
+
+  /** Define the content of the preview card */
+  readonly content = input.required<PreviewCardContent>({
+    alias: '<%= camelize(prefix + "PreviewCardTrigger") %>',
+  });
+
+  constructor() {
+    this.previewCardTrigger().setPreviewCard(PreviewCard<%= componentSuffix %>);
+  }
+}

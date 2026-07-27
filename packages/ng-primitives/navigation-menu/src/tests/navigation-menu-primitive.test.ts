@@ -373,6 +373,25 @@ describe('Navigation Menu', () => {
       expect(trigger).toHaveAttribute('data-open');
     });
 
+    it('should move focus into the content when opened with ArrowDown', async () => {
+      // The sibling tests only assert that the trigger reports open; none of them check
+      // that focus actually lands inside the content, which is the point of opening via
+      // the keyboard.
+      const { fixture } = await render(TestNavigationMenuComponent);
+      const trigger = fixture.debugElement.nativeElement.querySelector(
+        '[data-testid="trigger-products"]',
+      );
+
+      trigger.focus();
+      fireEvent.keyDown(trigger, { key: 'ArrowDown' });
+
+      await waitFor(() => {
+        const firstItem = document.querySelector('[data-testid="content-item-1"]');
+        expect(firstItem).toBeInTheDocument();
+        expect(document.activeElement).toBe(firstItem);
+      });
+    });
+
     it('should open content with Enter and focus first item', async () => {
       const { fixture } = await render(TestNavigationMenuComponent);
       const trigger = fixture.debugElement.nativeElement.querySelector(

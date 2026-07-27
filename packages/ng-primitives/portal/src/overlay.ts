@@ -308,6 +308,14 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
   /** Timeout handle for showing the overlay */
   private openTimeout?: () => void;
 
+  /**
+   * Resolvers for every caller awaiting a scheduled open - the one that started it and
+   * any that joined while it was pending. Without these, a `show()` returned a promise
+   * that never settled, so anything chained onto it - e.g. moving focus into a menu once
+   * it has opened - never ran.
+   */
+  private pendingShowResolvers: (() => void)[] = [];
+
   /** Timeout handle for hiding the overlay */
   private closeTimeout?: () => void;
 
@@ -421,8 +429,16 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
         return;
       }
 
-      // Don't proceed if already opening or open
-      if (this.openTimeout || this.isOpen()) {
+      // Already shown - settle immediately.
+      if (this.isOpen()) {
+        resolve();
+        return;
+      }
+
+      // An open is already scheduled: join it rather than starting a second one, so
+      // this caller settles when that open completes (or when it is cancelled).
+      if (this.openTimeout) {
+        this.pendingShowResolvers.push(resolve);
         return;
       }
 
@@ -449,12 +465,35 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
       // Set instant transition flag based on whether delay was skipped due to cooldown
       this.instantTransition.set(isInstantDueToCooldown);
 
+      // Queue this caller alongside any that join while the open is scheduled, so a
+      // cancelled open settles the caller that started it as well as the joiners.
+      this.pendingShowResolvers.push(resolve);
+
       this.openTimeout = this.disposables.setTimeout(() => {
         this.openTimeout = undefined;
-        this.createOverlay(options?.skipCooldown);
-        resolve();
+
+        try {
+          this.createOverlay(options?.skipCooldown);
+        } finally {
+          // Settle even if creating the overlay threw, so callers are never left hanging.
+          this.settlePendingShows();
+        }
       }, delay);
     });
+  }
+
+  /**
+   * Settle everyone who awaited a show that was already scheduled. Called both when the
+   * open completes and when it is cancelled - the promise means "the show attempt has
+   * finished", so callers should check `isOpen()` rather than assume success.
+   */
+  private settlePendingShows(): void {
+    const resolvers = this.pendingShowResolvers;
+    this.pendingShowResolvers = [];
+
+    for (const resolve of resolvers) {
+      resolve();
+    }
   }
 
   /**
@@ -520,6 +559,7 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
     if (this.openTimeout) {
       this.openTimeout();
       this.openTimeout = undefined;
+      this.settlePendingShows();
     }
 
     // Don't proceed if already closing or closed unless immediate is true
@@ -666,6 +706,7 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
     if (this.openTimeout) {
       this.openTimeout();
       this.openTimeout = undefined;
+      this.settlePendingShows();
     }
     if (this.closeTimeout) {
       this.closeTimeout();
@@ -675,7 +716,7 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
     // Only fire close events if the overlay is still mounted. `portal()` is
     // nulled synchronously at the start of destroyOverlay, so on a second
     // hideImmediate() (e.g. when both a caller's destroy and the overlay's
-    // own destroyRef.onDestroy both fire) we skip re-emitting — `isOpen()`
+    // own destroyRef.onDestroy both fire) we skip re-emitting - `isOpen()`
     // alone is not enough because it's only flipped after destroyOverlay's
     // `await portal.detach()`, leaving a window where it lies.
     if (this.isOpen() && this.portal() !== null) {

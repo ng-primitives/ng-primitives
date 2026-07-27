@@ -136,6 +136,12 @@ export interface NgpPopoverTriggerState<T> {
    */
   setContainer: (container: HTMLElement | string | null) => void;
   /**
+   * Set the content rendered inside the popover. Prefer this over setting `popover`
+   * directly; the writable signal is retained for backwards compatibility.
+   * @param content - The template or component to render
+   */
+  setPopover: (content: NgpOverlayContent<T> | undefined) => void;
+  /**
    * Show the popover.
    * @returns A promise that resolves when the popover has been shown
    */
@@ -271,6 +277,10 @@ export const [
     const overlay = signal<NgpOverlay<T> | null>(null);
     const open = computed(() => overlay()?.isOpen() ?? false);
 
+    // Two show() calls inside the show delay both settle when that single open
+    // completes, so track what has been announced rather than what was open per call.
+    let announcedOpen = false;
+
     // Host binding
     attrBinding(elementRef, 'aria-expanded', () => (open() ? 'true' : 'false'));
     // the popover is a focus-trapped, dialog-like overlay, so advertise the popup type
@@ -318,7 +328,10 @@ export const [
         trackPosition: trackPosition(),
         overlayType: 'popover',
         cooldown: cooldown(),
-        onClose: () => onOpenChange?.(false),
+        onClose: () => {
+          announcedOpen = false;
+          onOpenChange?.(false);
+        },
       };
 
       overlay.set(createOverlay(config));
@@ -355,7 +368,10 @@ export const [
       // Show the overlay
       await overlay()?.show();
 
-      if (open()) {
+      // Only announce an actual transition - show() also resolves when the popover was
+      // already open, or when a concurrent call opened it first.
+      if (open() && !announcedOpen) {
+        announcedOpen = true;
         onOpenChange?.(true);
       }
     }
@@ -372,6 +388,10 @@ export const [
 
     function setContainer(newContainer: HTMLElement | string | null): void {
       container.set(newContainer);
+    }
+
+    function setPopover(content: NgpOverlayContent<T> | undefined): void {
+      popover.set(content);
     }
 
     return {
@@ -396,6 +416,7 @@ export const [
       open,
       destroy,
       setContainer,
+      setPopover,
       show,
       hide,
     } satisfies NgpPopoverTriggerState<T>;

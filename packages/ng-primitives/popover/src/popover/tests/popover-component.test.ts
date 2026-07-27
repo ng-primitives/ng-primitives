@@ -46,11 +46,11 @@ class PopoverTrigger {
   readonly content = input.required<string>({ alias: 'appPopoverTrigger' });
 
   constructor() {
-    this.popoverTrigger().popover.set(Popover);
+    this.popoverTrigger().setPopover(Popover);
   }
 }
 
-describe('Popover (reusable component) — standalone', () => {
+describe('Popover (reusable component) - standalone', () => {
   afterEach(() => {
     // Overlay content attaches to the document body, not the fixture.
     document.querySelectorAll('app-popover').forEach(el => el.remove());

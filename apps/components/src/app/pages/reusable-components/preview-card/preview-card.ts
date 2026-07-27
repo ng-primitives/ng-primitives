@@ -1,0 +1,107 @@
+import { Component } from '@angular/core';
+import { injectPreviewCardContext, NgpPreviewCard } from 'ng-primitives/preview-card';
+
+export interface PreviewCardContent {
+  /** The heading shown at the top of the card. */
+  title: string;
+  /** A short summary of what the link leads to. */
+  description: string;
+  /** Optional supporting metadata, e.g. "1.2k followers". */
+  meta?: string;
+}
+
+@Component({
+  selector: 'app-preview-card',
+  hostDirectives: [NgpPreviewCard],
+  template: `
+    <p class="title">{{ content().title }}</p>
+    <p class="description">{{ content().description }}</p>
+    @if (content().meta) {
+      <p class="meta">{{ content().meta }}</p>
+    }
+  `,
+  styles: `
+    /* These styles rely on CSS variables that can be imported from ng-primitives/example-theme/index.css in your global styles */
+
+    :host {
+      position: absolute;
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+      width: 18rem;
+      max-width: var(--ngp-preview-card-available-width);
+      border-radius: 0.75rem;
+      background-color: var(--ngp-background);
+      padding: 0.75rem;
+      /* On dark surfaces a shadow is nearly invisible, so elevation comes from a
+         hairline border plus a lighter background. */
+      box-shadow:
+        inset 0 0 0 1px var(--ngp-border),
+        0 8px 16px -4px rgb(0 0 0 / 0.1);
+      outline: none;
+      transform-origin: var(--ngp-preview-card-transform-origin);
+    }
+
+    .title {
+      margin: 0;
+      font-size: 0.875rem;
+      font-weight: 590;
+      letter-spacing: -0.014em;
+      color: var(--ngp-text-primary);
+    }
+
+    .description {
+      margin: 0;
+      font-size: 0.875rem;
+      letter-spacing: -0.006em;
+      color: var(--ngp-text-secondary);
+    }
+
+    .meta {
+      margin: 0.25rem 0 0;
+      font-size: 0.75rem;
+      letter-spacing: -0.011em;
+      color: var(--ngp-text-tertiary);
+    }
+
+    /* Calm entrance: opacity and a small translate, no scale overshoot. */
+    :host[data-enter] {
+      animation: preview-card-show 150ms ease-out;
+    }
+
+    :host[data-exit] {
+      animation: preview-card-hide 120ms ease-out;
+    }
+
+    @keyframes preview-card-show {
+      0% {
+        opacity: 0;
+        transform: translateY(-2px);
+      }
+      100% {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes preview-card-hide {
+      0% {
+        opacity: 1;
+      }
+      100% {
+        opacity: 0;
+      }
+    }
+
+    /* Reduce motion for users who prefer reduced motion. */
+    @media (prefers-reduced-motion: reduce) {
+      :host[data-enter],
+      :host[data-exit] {
+        animation-duration: 0s;
+      }
+    }
+  `,
+})
+export class PreviewCard {
+  readonly content = injectPreviewCardContext<PreviewCardContent>();
+}
