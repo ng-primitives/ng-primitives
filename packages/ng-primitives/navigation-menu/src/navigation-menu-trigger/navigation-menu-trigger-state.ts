@@ -9,7 +9,6 @@ import {
   ViewContainerRef,
   WritableSignal,
 } from '@angular/core';
-import { Placement } from '@floating-ui/dom';
 import { injectElementRef } from 'ng-primitives/internal';
 import {
   createOverlay,
@@ -18,6 +17,7 @@ import {
   NgpOverlay,
   NgpOverlayConfig,
   NgpOverlayContent,
+  NgpPlacement,
   NgpShift,
 } from 'ng-primitives/portal';
 import {
@@ -47,7 +47,7 @@ export interface NgpNavigationMenuTriggerState {
   /**
    * The placement of the content.
    */
-  readonly placement: Signal<Placement>;
+  readonly placement: Signal<NgpPlacement>;
 
   /**
    * The offset of the content.
@@ -153,7 +153,7 @@ export interface NgpNavigationMenuTriggerProps {
   /**
    * The placement of the content.
    */
-  readonly placement?: Signal<Placement>;
+  readonly placement?: Signal<NgpPlacement>;
 
   /**
    * The offset of the content.

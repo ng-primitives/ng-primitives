@@ -2,12 +2,8 @@ import { Component, Directive, OnInit, signal } from '@angular/core';
 import { FormControl, FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { By } from '@angular/platform-browser';
 import { fireEvent, render, waitFor } from '@testing-library/angular';
-import {
-  injectPopoverTriggerState,
-  NgpPopover,
-  type NgpPopoverPlacement,
-  NgpPopoverTrigger,
-} from 'ng-primitives/popover';
+import { injectPopoverTriggerState, NgpPopover, NgpPopoverTrigger } from 'ng-primitives/popover';
+import { NgpPlacement } from 'ng-primitives/portal';
 import { NgpTooltip, NgpTooltipTrigger, provideTooltipConfig } from 'ng-primitives/tooltip';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
@@ -528,7 +524,7 @@ describe('NgpPopover', () => {
         imports: [NgpPopoverTrigger, NgpPopover],
       })
       class PlacementTestComponent {
-        readonly placement = signal<NgpPopoverPlacement>('bottom');
+        readonly placement = signal<NgpPlacement>('bottom');
       }
 
       const { fixture, getByRole } = await render(PlacementTestComponent);

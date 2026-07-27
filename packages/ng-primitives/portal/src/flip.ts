@@ -1,6 +1,6 @@
 import { coerceNumberProperty } from '@angular/cdk/coercion';
-import { type Placement } from '@floating-ui/dom';
 import { isNil, isObject } from 'ng-primitives/utils';
+import { NgpPlacement } from './positioning';
 
 /**
  * Options for configuring flip behavior to keep the floating element in view.
@@ -19,7 +19,7 @@ export interface NgpFlipOptions {
    * Placements to try sequentially if the preferred placement does not fit.
    * @default [oppositePlacement] (computed)
    */
-  fallbackPlacements?: Placement[];
+  fallbackPlacements?: NgpPlacement[];
 }
 
 /**

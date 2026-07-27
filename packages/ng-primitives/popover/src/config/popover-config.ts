@@ -1,6 +1,5 @@
 import { InjectionToken, Provider, inject } from '@angular/core';
-import { type Placement } from '@floating-ui/dom';
-import { NgpDismissGuard, NgpFlip, NgpOffset, NgpShift } from 'ng-primitives/portal';
+import { NgpDismissGuard, NgpFlip, NgpOffset, NgpPlacement, NgpShift } from 'ng-primitives/portal';
 
 export interface NgpPopoverConfig {
   /**
@@ -14,7 +13,7 @@ export interface NgpPopoverConfig {
    * Define the placement of the popover relative to the trigger.
    * @default 'bottom'
    */
-  placement: Placement;
+  placement: NgpPlacement;
 
   /**
    * Define the delay before the popover is shown.

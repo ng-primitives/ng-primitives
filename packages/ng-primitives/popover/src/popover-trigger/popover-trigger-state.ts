@@ -18,6 +18,7 @@ import {
   NgpOverlay,
   NgpOverlayConfig,
   NgpOverlayContent,
+  NgpPlacement,
   NgpShift,
 } from 'ng-primitives/portal';
 import {
@@ -44,7 +45,7 @@ export interface NgpPopoverTriggerState<T> {
    * Define the placement of the popover relative to the trigger.
    * @default 'top'
    */
-  readonly placement: Signal<NgpPopoverPlacement>;
+  readonly placement: Signal<NgpPlacement>;
   /**
    * Define the offset of the popover relative to the trigger.
    * Can be a number (applies to mainAxis) or an object with mainAxis, crossAxis, and alignmentAxis.
@@ -159,7 +160,7 @@ export interface NgpPopoverTriggerProps<T> {
    * Define the placement of the popover relative to the trigger.
    * @default 'top'
    */
-  readonly placement?: Signal<NgpPopoverPlacement>;
+  readonly placement?: Signal<NgpPlacement>;
   /**
    * Define the offset of the popover relative to the trigger.
    * Can be a number (applies to mainAxis) or an object with mainAxis, crossAxis, and alignmentAxis.
@@ -244,7 +245,7 @@ export const [
   <T>({
     popover: _popover = signal<NgpOverlayContent<T> | undefined>(undefined),
     disabled = signal<boolean>(false),
-    placement = signal<NgpPopoverPlacement>('bottom'),
+    placement = signal<NgpPlacement>('bottom'),
     offset = signal<NgpOffset>(4),
     showDelay = signal<number>(0),
     hideDelay = signal<number>(0),
@@ -407,16 +408,9 @@ export function injectPopoverTriggerState<T>(
   return _injectPopoverTriggerState(options) as Signal<NgpPopoverTriggerState<T>>;
 }
 
-export type NgpPopoverPlacement =
-  | 'top'
-  | 'right'
-  | 'bottom'
-  | 'left'
-  | 'top-start'
-  | 'top-end'
-  | 'right-start'
-  | 'right-end'
-  | 'bottom-start'
-  | 'bottom-end'
-  | 'left-start'
-  | 'left-end';
+/**
+ * Where the popover is placed relative to its trigger.
+ * @deprecated Identical to `NgpPlacement` from `ng-primitives/portal` - use that instead.
+ * Will be removed in a future major.
+ */
+export type NgpPopoverPlacement = NgpPlacement;

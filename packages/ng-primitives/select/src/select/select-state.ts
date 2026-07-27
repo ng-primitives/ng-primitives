@@ -7,11 +7,11 @@ import {
   untracked,
   WritableSignal,
 } from '@angular/core';
-import type { Placement } from '@floating-ui/dom';
 import { activeDescendantManager } from 'ng-primitives/a11y';
 import { ngpFormControl } from 'ng-primitives/form-field';
 import { ngpInteractions } from 'ng-primitives/interactions';
 import { domSort, injectElementRef } from 'ng-primitives/internal';
+import { NgpPlacement } from 'ng-primitives/portal';
 import type { NgpFlip, NgpOffset, NgpOverlay } from 'ng-primitives/portal';
 import {
   attrBinding,
@@ -52,7 +52,7 @@ export interface NgpSelectState<T> {
   readonly compareWith: Signal<(a: T | undefined, b: T | undefined) => boolean>;
 
   /** The position of the dropdown. */
-  readonly placement: Signal<Placement>;
+  readonly placement: Signal<NgpPlacement>;
 
   /** The container for the dropdown. */
   readonly container: WritableSignal<HTMLElement | string | null>;
@@ -273,7 +273,7 @@ export interface NgpSelectProps<T> {
   readonly compareWith?: Signal<(a: T | undefined, b: T | undefined) => boolean>;
 
   /** The position of the dropdown. */
-  readonly placement?: Signal<Placement>;
+  readonly placement?: Signal<NgpPlacement>;
 
   /** The container for the dropdown. */
   readonly container?: Signal<HTMLElement | string | null>;
@@ -312,7 +312,7 @@ export const [NgpSelectStateToken, ngpSelect, _injectSelectState, provideSelectS
       multiple = signal(false),
       disabled: _disabled = signal(false),
       compareWith = signal<(a: T | undefined, b: T | undefined) => boolean>(Object.is),
-      placement = signal<Placement>('bottom'),
+      placement = signal<NgpPlacement>('bottom'),
       container: _container,
       flip = signal<NgpFlip>(true),
       offset = signal<NgpOffset>(0),
