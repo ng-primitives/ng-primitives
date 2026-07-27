@@ -11,13 +11,6 @@ import {
 } from 'ng-primitives/state';
 import { injectPromptComposerState } from '../prompt-composer/prompt-composer-state';
 
-declare global {
-  interface Window {
-    SpeechRecognition: any;
-    webkitSpeechRecognition: any;
-  }
-}
-
 export interface NgpPromptComposerDictationState {
   /**
    * Whether dictation is currently active.
@@ -93,7 +86,10 @@ export const [
     }
 
     function initializeSpeechRecognition(): void {
-      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+      // read through globalThis, not window: this runs during construction, which is the one
+      // phase the server executes, and referencing an undeclared `window` there is a ReferenceError
+      const SpeechRecognition =
+        (globalThis as any).SpeechRecognition || (globalThis as any).webkitSpeechRecognition;
 
       if (!SpeechRecognition) {
         return;
