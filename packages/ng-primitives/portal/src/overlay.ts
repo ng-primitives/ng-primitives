@@ -133,12 +133,13 @@ function resolveOverflowOptions<T extends NgpFlipOptions | NgpShiftOptions>(
 /**
  * Configuration options for creating an overlay
  *
- * Every option is a signal, read at the point of use rather than captured. The overlay is
- * built on the first open and reused after that, so a captured value would freeze there and
- * stop tracking the consumer binding behind it. The positioning options (`placement`,
- * `offset`, `flip`, `shift`, `strategy`) reposition an overlay that is already on screen;
- * the rest are read when the behaviour they govern next runs, which for `container`,
- * `scrollBehavior` and `trackPosition` means the next open.
+ * The options typed `Signal<T>` are read at the point of use rather than captured, so they keep
+ * tracking the binding behind them: the overlay is built on the first open and reused after
+ * that, and a captured value would freeze there. `anchorElement` is the exception - it is read
+ * once, when the overlay is created. The positioning options (`placement`, `offset`, `flip`,
+ * `shift`, `strategy`) reposition an overlay that is already on screen; the rest are read when
+ * the behaviour they govern next runs, which for `container`, `scrollBehavior` and
+ * `trackPosition` means the next open.
  * @internal
  */
 export interface NgpOverlayConfig<T = unknown> {
@@ -355,11 +356,7 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
   /** Store the arrow padding signal */
   private arrowPadding: Signal<number | undefined> | undefined = undefined;
 
-  /**
-   * The resolved options that feed `computePosition`. Assigned in the constructor rather
-   * than as a field initialiser, so it cannot read `config` before the parameter property
-   * has been assigned.
-   */
+  /** The resolved options that feed `computePosition`. */
   private readonly positioningOptions: Signal<{
     offset: NgpOffset;
     flip: NgpFlip;

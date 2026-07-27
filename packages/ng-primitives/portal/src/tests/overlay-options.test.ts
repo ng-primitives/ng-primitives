@@ -1,8 +1,8 @@
 import { Component, signal } from '@angular/core';
 import { fireEvent, render, waitFor } from '@testing-library/angular';
 import { NgpPopover, NgpPopoverTrigger } from 'ng-primitives/popover';
+import { NgpOffset, NgpScrollBehavior } from 'ng-primitives/portal';
 import { afterEach, describe, expect, it } from 'vitest';
-import { NgpOffset, NgpScrollBehavior } from '../../index';
 
 @Component({
   template: `

@@ -1,5 +1,4 @@
-import { Component, Directive, OnInit } from '@angular/core';
-import { Signal } from '@angular/core';
+import { Component, Directive, OnInit, Signal } from '@angular/core';
 import { fireEvent, render, waitFor } from '@testing-library/angular';
 import {
   NgpMenu,
