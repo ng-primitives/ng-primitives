@@ -456,9 +456,9 @@ export const [
         offset,
         flip,
         shift,
-        closeOnOutsideClick: true,
-        closeOnEscape: true,
-        restoreFocus: false, // We handle focus restoration ourselves
+        closeOnOutsideClick: signal(true),
+        closeOnEscape: signal(true),
+        restoreFocus: signal(false), // We handle focus restoration ourselves
         overlayType: 'navigation-menu',
         cooldown,
       };

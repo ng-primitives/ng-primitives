@@ -1,12 +1,6 @@
-import { Component, signal } from '@angular/core';
+import { Component, signal, Signal } from '@angular/core';
 import { fireEvent, render, waitFor } from '@testing-library/angular';
-import {
-  NgpOverlay,
-  NgpOverlayOption,
-  NgpScrollBehavior,
-  NgpShift,
-  resolveOverlayOption,
-} from 'ng-primitives/portal';
+import { NgpOverlay, NgpScrollBehavior, NgpShift } from 'ng-primitives/portal';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { NgpSelect, NgpSelectDropdown, NgpSelectOption, NgpSelectPortal } from '../../index';
 
@@ -64,7 +58,7 @@ class TestSelectComponent {
 
 type OverlayContext = {
   config: {
-    scrollBehavior?: NgpOverlayOption<NgpScrollBehavior>;
+    scrollBehavior?: Signal<NgpScrollBehavior>;
     triggerElement: HTMLElement;
   };
 };
@@ -112,7 +106,7 @@ describe('select dropdown overlay options', () => {
       );
       expect(context).toBeDefined();
 
-      return resolveOverlayOption(context!.config.scrollBehavior);
+      return context!.config.scrollBehavior?.();
     } finally {
       spy.mockRestore();
     }

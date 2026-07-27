@@ -294,14 +294,14 @@ export const [
         flip,
         shift,
         placement: signal<NgpPlacement>('right-start'),
-        closeOnOutsideClick: true,
-        closeOnEscape: true,
+        closeOnOutsideClick: signal(true),
+        closeOnEscape: signal(true),
         treatTriggerClickAsOutside: true,
-        restoreFocus: false,
+        restoreFocus: signal(false),
         scrollBehavior,
         overlayType: 'menu',
         position: cursorPosition,
-        trackPosition: true,
+        trackPosition: signal(true),
       };
 
       overlay.set(createOverlay(config));

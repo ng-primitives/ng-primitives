@@ -312,7 +312,7 @@ export const [
         hideDelay,
         closeOnOutsideClick,
         closeOnEscape,
-        restoreFocus: true,
+        restoreFocus: signal(true),
         scrollBehavior,
         viewContainerRef: viewContainerRef,
         trackPosition,

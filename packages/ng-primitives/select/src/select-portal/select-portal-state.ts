@@ -78,9 +78,9 @@ export const [
       flip: selectState().flip,
       shift: selectState().shift,
       container: selectState().container,
-      closeOnOutsideClick: true,
-      closeOnEscape: true,
-      restoreFocus: false,
+      closeOnOutsideClick: signal(true),
+      closeOnEscape: signal(true),
+      restoreFocus: signal(false),
       scrollBehavior: selectState().scrollBehavior,
       onClose: () => selectState().onOverlayClose(),
     };

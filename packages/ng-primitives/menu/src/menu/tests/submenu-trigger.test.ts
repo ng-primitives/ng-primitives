@@ -1,4 +1,5 @@
 import { Component, Directive, OnInit } from '@angular/core';
+import { Signal } from '@angular/core';
 import { fireEvent, render, waitFor } from '@testing-library/angular';
 import {
   NgpMenu,
@@ -7,7 +8,7 @@ import {
   NgpSubmenuTrigger,
   injectSubmenuTriggerState,
 } from 'ng-primitives/menu';
-import { NgpFlip, NgpOverlay, NgpOverlayOption, resolveOverlayOption } from 'ng-primitives/portal';
+import { NgpFlip, NgpOverlay } from 'ng-primitives/portal';
 import { describe, expect, it, vi } from 'vitest';
 
 @Component({
@@ -190,7 +191,7 @@ async function openMenuAndSubmenu(fixture: {
 
 type SubmenuOverlayContext = {
   config: {
-    flip?: NgpOverlayOption<NgpFlip>;
+    flip?: Signal<NgpFlip>;
     placement?: () => string;
     triggerElement: HTMLElement;
   };
@@ -251,7 +252,7 @@ describe('NgpSubmenuTrigger viewport awareness', () => {
 
         const submenuContext = findSubmenuOverlayContext(computePositionSpy.mock.contexts);
         expect(submenuContext).toBeDefined();
-        expect(resolveOverlayOption(submenuContext!.config.flip)).toBe(true);
+        expect(submenuContext!.config.flip?.()).toBe(true);
       } finally {
         computePositionSpy.mockRestore();
       }
@@ -269,7 +270,7 @@ describe('NgpSubmenuTrigger viewport awareness', () => {
 
         const submenuContext = findSubmenuOverlayContext(computePositionSpy.mock.contexts);
         expect(submenuContext).toBeDefined();
-        expect(resolveOverlayOption(submenuContext!.config.flip)).toBe(false);
+        expect(submenuContext!.config.flip?.()).toBe(false);
       } finally {
         computePositionSpy.mockRestore();
       }

@@ -335,9 +335,9 @@ export const [
         placement,
         offset,
         flip,
-        closeOnOutsideClick: true,
-        closeOnEscape: false,
-        restoreFocus: false,
+        closeOnOutsideClick: signal(true),
+        closeOnEscape: signal(false),
+        restoreFocus: signal(false),
         viewContainerRef,
       };
 

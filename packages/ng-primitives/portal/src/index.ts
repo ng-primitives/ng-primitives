@@ -10,7 +10,6 @@ export {
   NgpOverlayTemplateContext,
 } from './overlay';
 export { NgpOverlayCooldownManager } from './overlay-cooldown';
-export { NgpOverlayOption, resolveOverlayOption } from './overlay-option';
 export {
   dismissGuardAttribute,
   NgpDismissGuard,
