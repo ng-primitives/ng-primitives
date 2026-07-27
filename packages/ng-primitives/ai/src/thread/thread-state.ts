@@ -11,6 +11,12 @@ export interface NgpThreadState {
    */
   scrollToBottom(behavior: ScrollBehavior): void;
   /**
+   * @internal
+   * Scroll the thread viewport to the bottom, but only if it is already at the bottom.
+   * @param behavior The scroll behavior to use.
+   */
+  autoScrollToBottom(behavior: ScrollBehavior): void;
+  /**
    * Set the prompt text in the associated prompt composer.
    * @param value The prompt text.
    */
@@ -64,6 +70,10 @@ export const [NgpThreadStateToken, ngpThread, injectThreadState, provideThreadSt
       viewport()?.scrollToBottom(behavior);
     }
 
+    function autoScrollToBottom(behavior: ScrollBehavior): void {
+      viewport()?.autoScrollToBottom(behavior);
+    }
+
     function setPrompt(value: string): void {
       promptInput()?.setPrompt(value);
     }
@@ -105,6 +115,7 @@ export const [NgpThreadStateToken, ngpThread, injectThreadState, provideThreadSt
 
     return {
       scrollToBottom,
+      autoScrollToBottom,
       setPrompt,
       setViewport,
       removeViewport,
