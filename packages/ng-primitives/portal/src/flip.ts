@@ -35,6 +35,15 @@ export interface NgpFlipOptions {
   rootBoundary?: NgpRootBoundary;
 
   /**
+   * Whether to measure overflow against the *trigger's* clipping ancestors rather than the
+   * panel's. A panel portalled to the body has none worth speaking of, so a trigger inside a
+   * scroll container otherwise measures against the viewport and never learns the container
+   * is the real constraint.
+   * @default false
+   */
+  altBoundary?: boolean;
+
+  /**
    * Whether overflow along the alignment axis is checked when deciding to flip.
    * `'alignment'` checks it for alignment flipping only.
    * @default true

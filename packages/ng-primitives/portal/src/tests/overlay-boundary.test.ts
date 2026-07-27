@@ -176,7 +176,7 @@ class ShiftCrossAxisComponent {
 /**
  * The same geometry as `BoundaryComponent`, but the box genuinely scrolls, so it is one of
  * the trigger's clipping ancestors. The panel is portalled to the body and so has none of
- * its own - which is the case `'triggerClippingAncestors'` exists for.
+ * its own - which is the case `altBoundary` exists for.
  */
 @Component({
   template: `
@@ -281,7 +281,7 @@ describe('overlay overflow boundary', () => {
 
     it('should flip against the container scrolling the trigger when asked to', async () => {
       const { fixture } = await render(ScrollContainerComponent);
-      fixture.componentInstance.flip.set({ boundary: 'triggerClippingAncestors' });
+      fixture.componentInstance.flip.set({ altBoundary: true });
 
       expect(await openMenu(fixture)).toHaveAttribute('data-placement', 'top-start');
     });
@@ -289,12 +289,11 @@ describe('overlay overflow boundary', () => {
     it('should leave placement alone when nothing scrolls the trigger', async () => {
       const { fixture } = await render(RootBoundaryComponent, {
         componentProperties: {
-          flip: signal<NgpFlip>({ boundary: 'triggerClippingAncestors' }),
+          flip: signal<NgpFlip>({ altBoundary: true }),
         },
       });
 
-      // Same as the default: with no scrollable ancestor the sentinel resolves back to
-      // Floating UI's own default rather than to an empty boundary.
+      // Same as the default: the trigger's clipping ancestors are the viewport too.
       expect(await openMenu(fixture)).toHaveAttribute('data-placement', 'top-start');
     });
 

@@ -120,10 +120,7 @@ By default, the tooltip is kept within the viewport and its clipping ancestors. 
 
 <!-- Keep the tooltip inside whatever scrolls the trigger -->
 <div style="overflow: auto">
-  <button
-    [ngpTooltipTrigger]="tooltip"
-    [ngpTooltipTriggerFlip]="{boundary: 'triggerClippingAncestors'}"
-  >
+  <button [ngpTooltipTrigger]="tooltip" [ngpTooltipTriggerFlip]="{altBoundary: true}">
     Tooltip constrained to the trigger's scroll container
   </button>
 </div>
@@ -134,7 +131,7 @@ By default, the tooltip is kept within the viewport and its clipping ancestors. 
 </button>
 ```
 
-`'triggerClippingAncestors'` is worth calling out. Floating UI's default resolves clipping ancestors from the panel, and the panel is portalled to the body - so a tooltip whose trigger sits in a scroll container measures against the viewport and never learns the container is the real constraint. This resolves them from the trigger instead. It falls back to the default when nothing scrolls the trigger, so it is a no-op on an ordinary page.
+`altBoundary` is worth calling out. Floating UI resolves clipping ancestors from the panel, and the panel is portalled to the body - so a tooltip whose trigger sits in a scroll container measures against the viewport and never learns the container is the real constraint. `altBoundary` measures against the trigger's clipping ancestors instead.
 
 `crossAxis` widens what each middleware checks, and means a different axis for each. For `flip` it is the alignment axis, checked by default - that is how `bottom-end` becomes `bottom-start` near an edge. For `shift` it is the side axis, off by default, so enabling it lets the panel move along the placement direction as well:
 
