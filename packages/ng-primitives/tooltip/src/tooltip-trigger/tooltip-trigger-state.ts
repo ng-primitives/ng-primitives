@@ -164,9 +164,9 @@ export interface NgpTooltipTriggerState<T> {
    */
   show: () => void;
   /**
-   * Hide the tooltip.
+   * Hide the tooltip. Pass `true` to skip the hide delay.
    */
-  hide: () => void;
+  hide: (immediate?: boolean) => void;
   /**
    * Set the tooltip id.
    */
@@ -408,9 +408,9 @@ export const [
       performShow(true);
     }
 
-    function hide(): void {
+    function hide(immediate = false): void {
       hoverBridge.clear();
-      overlay()?.hide();
+      overlay()?.hide({ immediate });
     }
 
     /**

@@ -289,6 +289,36 @@ describe('NgpTooltipTrigger (primitive)', () => {
         expect(document.querySelector('[ngpTooltip]')).not.toBeInTheDocument();
       });
     });
+
+    it('should skip the hideDelay when hide(true) is called', async () => {
+      const { fixture } = await render(
+        `
+          <button
+            [ngpTooltipTrigger]="content"
+            ngpTooltipTriggerShowDelay="0"
+            ngpTooltipTriggerHideDelay="5000"
+          ></button>
+
+          <ng-template #content>
+            <div ngpTooltip>Tooltip content</div>
+          </ng-template>
+        `,
+        { imports: [NgpTooltipTrigger, NgpTooltip] },
+      );
+
+      const triggerDirective = fixture.debugElement.children[0].injector.get(NgpTooltipTrigger);
+      triggerDirective.show();
+
+      await waitFor(() => {
+        expect(document.querySelector('[ngpTooltip]')).toBeInTheDocument();
+      });
+
+      triggerDirective.hide(true);
+
+      await waitFor(() => {
+        expect(document.querySelector('[ngpTooltip]')).not.toBeInTheDocument();
+      });
+    });
   });
 
   describe('escape to close', () => {
