@@ -24,6 +24,7 @@ import {
   runInInjectionContext,
   signal,
   Signal,
+  untracked,
   WritableSignal,
 } from '@angular/core';
 import { Observable, Subject } from 'rxjs';
@@ -600,11 +601,17 @@ export function listener<K extends keyof HTMLElementEventMap>(
     const destroyRef = inject(DestroyRef);
     const nativeElement = coerceElement(element);
 
+    // A browser can dispatch an event synchronously while Angular renders, so the
+    // handler would inherit the active reactive consumer and any signal write would
+    // throw NG0600. Angular wraps its own template listeners the same way.
+    const wrappedHandler = ((eventObject: Event) =>
+      untracked(() => handler(eventObject))) as EventListener;
+
     const removeListener = () =>
-      nativeElement.removeEventListener(event, handler as EventListener, options?.config);
+      nativeElement.removeEventListener(event, wrappedHandler, options?.config);
     destroyRef.onDestroy(removeListener);
     ngZone.runOutsideAngular(() =>
-      nativeElement.addEventListener(event, handler as EventListener, options?.config),
+      nativeElement.addEventListener(event, wrappedHandler, options?.config),
     );
 
     return removeListener;
