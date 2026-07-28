@@ -1,3 +1,57 @@
+## 0.128.0 (2026-07-28)
+
+### 🚀 Features
+
+- **ai:** migrate ai state ([#846](https://github.com/ng-primitives/ng-primitives/pull/846))
+- **date-picker:** migrate date-picker state ([#849](https://github.com/ng-primitives/ng-primitives/pull/849), [#850](https://github.com/ng-primitives/ng-primitives/issues/850))
+- **input-otp:** migrate input-otp state ([#834](https://github.com/ng-primitives/ng-primitives/pull/834), [#833](https://github.com/ng-primitives/ng-primitives/issues/833))
+- **listbox:** migrate listbox state ([#835](https://github.com/ng-primitives/ng-primitives/pull/835))
+- **meter:** migrate meter state ([#830](https://github.com/ng-primitives/ng-primitives/pull/830), [#829](https://github.com/ng-primitives/ng-primitives/issues/829))
+- **portal:** expose overflow boundary options on flip and shift ([#866](https://github.com/ng-primitives/ng-primitives/pull/866), [#689](https://github.com/ng-primitives/ng-primitives/issues/689))
+- **schematics:** add a styles option to the primitive schematic ([#854](https://github.com/ng-primitives/ng-primitives/pull/854))
+- **search:** migrate search state ([#838](https://github.com/ng-primitives/ng-primitives/pull/838))
+
+### 🩹 Fixes
+
+- **ai:** only submit prompt on unmodified Enter ([#860](https://github.com/ng-primitives/ng-primitives/pull/860))
+- **ai:** apply the thread viewport threshold and gate auto-scroll on it ([#871](https://github.com/ng-primitives/ng-primitives/pull/871))
+- **ai:** read speech recognition from globalThis so dictation survives SSR ([#873](https://github.com/ng-primitives/ng-primitives/pull/873))
+- **date-picker:** bound disabled-date search to min/max in setFocusedDate ([#858](https://github.com/ng-primitives/ng-primitives/pull/858))
+- **dialog,toast:** preserve caller injector for portal-rendered content ([#845](https://github.com/ng-primitives/ng-primitives/pull/845), [#823](https://github.com/ng-primitives/ng-primitives/issues/823))
+- **form-field:** gate aria-invalid on interaction ([#827](https://github.com/ng-primitives/ng-primitives/pull/827), [#826](https://github.com/ng-primitives/ng-primitives/issues/826))
+- **internal:** harden exit-animation system and align with native animate.leave ([#847](https://github.com/ng-primitives/ng-primitives/pull/847))
+- **listbox:** correct option data-attribute behaviour and docs ([#852](https://github.com/ng-primitives/ng-primitives/pull/852), [#697](https://github.com/ng-primitives/ng-primitives/issues/697))
+- **ng-primitives:** route deprecated setters through their state setters ([#859](https://github.com/ng-primitives/ng-primitives/pull/859))
+- **portal:** keep the positioning strategy on overlay position updates ([#857](https://github.com/ng-primitives/ng-primitives/pull/857), [#758](https://github.com/ng-primitives/ng-primitives/issues/758))
+- ⚠️  **portal:** render overlay content that changes after the overlay is created ([#861](https://github.com/ng-primitives/ng-primitives/pull/861), [#711](https://github.com/ng-primitives/ng-primitives/issues/711))
+- **schematics:** generate templates that compile ([#841](https://github.com/ng-primitives/ng-primitives/pull/841))
+- **schematics:** honour --prefix in camelCase selectors and aliases ([#856](https://github.com/ng-primitives/ng-primitives/pull/856))
+
+### ⚠️  Breaking Changes
+
+- **portal:** render overlay content that changes after the overlay is created  ([#861](https://github.com/ng-primitives/ng-primitives/pull/861), [#711](https://github.com/ng-primitives/ng-primitives/issues/711))
+  `NgpOverlayConfig.content` is a `Signal<NgpOverlayContent<T> |
+  null | undefined>` rather than a plain value. The interface is marked
+  `@internal`, so this only affects callers building overlays through
+  `createOverlay()` directly; pass a signal instead of a value.
+  Closes #711
+  Co-Authored-By: Claude Opus 5 <noreply@anthropic.com>
+  Claude-Session: https://claude.ai/code/session_0173yN3hG6meJzsrgEMMjFbT
+  * test(tooltip): restore the console spy in a finally
+  A failing assertion left `console.error` stubbed for the rest of the run, which
+  would swallow diagnostics from every test after it. Matches the try/finally the
+  exit-animation tests in this file already use.
+  Co-Authored-By: Claude Opus 5 <noreply@anthropic.com>
+  Claude-Session: https://claude.ai/code/session_0173yN3hG6meJzsrgEMMjFbT
+
+### ❤️ Thank You
+
+- Ashley Hunter
+- Claude
+- Claude Opus 4.8
+- Claude Opus 5
+- Paul Barahona
+
 ## 0.127.0 (2026-07-11)
 
 ### 🚀 Features
