@@ -5,6 +5,7 @@ import {
   NgpPromptComposerDictation,
   NgpPromptComposerInput,
   NgpThread,
+  provideAiConfig,
 } from 'ng-primitives/ai';
 import { describe, beforeEach, afterEach, it, expect, vi } from 'vitest';
 import { MockSpeechRecognition } from './mock-speech-recognition';
@@ -442,6 +443,62 @@ describe('NgpPromptComposerDictation', () => {
       await settle(fixture);
 
       expect(screen.getByText('Current: "first second"')).toBeInTheDocument();
+    });
+  });
+
+  describe('language', () => {
+    it('should use the configured language', async () => {
+      await render(
+        `<div ngpThread>
+          <div ngpPromptComposer>
+            <button ngpPromptComposerDictation ngpPromptComposerDictationLang="es-ES">Dictate</button>
+          </div>
+        </div>`,
+        { imports: [NgpThread, NgpPromptComposer, NgpPromptComposerDictation] },
+      );
+
+      await userEvent.click(screen.getByRole('button', { name: 'Dictate' }));
+
+      expect(mockSpeechRecognition.lang).toBe('es-ES');
+    });
+
+    it('should fall back to the document language', async () => {
+      document.documentElement.lang = 'fr-FR';
+
+      try {
+        await render(
+          `<div ngpThread>
+            <div ngpPromptComposer>
+              <button ngpPromptComposerDictation>Dictate</button>
+            </div>
+          </div>`,
+          { imports: [NgpThread, NgpPromptComposer, NgpPromptComposerDictation] },
+        );
+
+        await userEvent.click(screen.getByRole('button', { name: 'Dictate' }));
+
+        expect(mockSpeechRecognition.lang).toBe('fr-FR');
+      } finally {
+        document.documentElement.lang = '';
+      }
+    });
+
+    it('should let a global config set the language', async () => {
+      await render(
+        `<div ngpThread>
+          <div ngpPromptComposer>
+            <button ngpPromptComposerDictation>Dictate</button>
+          </div>
+        </div>`,
+        {
+          imports: [NgpThread, NgpPromptComposer, NgpPromptComposerDictation],
+          providers: [provideAiConfig({ dictationLang: 'de-DE' })],
+        },
+      );
+
+      await userEvent.click(screen.getByRole('button', { name: 'Dictate' }));
+
+      expect(mockSpeechRecognition.lang).toBe('de-DE');
     });
   });
 });

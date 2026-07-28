@@ -11,6 +11,9 @@ import {
 } from 'ng-primitives/state';
 import { injectPromptComposerState } from '../prompt-composer/prompt-composer-state';
 
+/** Used only when neither the consumer nor the page states a language. */
+const DEFAULT_DICTATION_LANG = 'en-US';
+
 export interface NgpPromptComposerDictationState {
   /**
    * Whether dictation is currently active.
@@ -23,6 +26,10 @@ export interface NgpPromptComposerDictationProps {
    * Whether the dictation button should be disabled.
    */
   readonly disabled?: Signal<boolean>;
+  /**
+   * The BCP 47 language tag dictation transcribes in. Falls back to the page's own language.
+   */
+  readonly lang?: Signal<string | undefined>;
 }
 
 export const [
@@ -34,6 +41,7 @@ export const [
   'NgpPromptComposerDictation',
   ({
     disabled = signal(false),
+    lang = signal(undefined),
   }: NgpPromptComposerDictationProps): NgpPromptComposerDictationState => {
     const element = injectElementRef<HTMLElement>();
     const document = inject(DOCUMENT);
@@ -169,8 +177,22 @@ export const [
       lastWritten = null;
     }
 
+    /**
+     * The configured language, or the page's own: the document's `lang`, then the browser's.
+     * Resolved per session so a language bound after construction is picked up.
+     */
+    function resolveLang(): string {
+      return (
+        lang() ||
+        document.documentElement.lang ||
+        globalThis.navigator?.language ||
+        DEFAULT_DICTATION_LANG
+      );
+    }
+
     function startDictation(): void {
       if (recognition && !composer().isDictating()) {
+        recognition.lang = resolveLang();
         recognition.start();
       }
     }

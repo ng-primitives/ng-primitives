@@ -137,6 +137,22 @@ The `NgpPromptComposerDictation` directive enables voice input functionality for
   <api-attribute name="data-prompt" description="Added when there is text content in the prompt." />
 </api-reference-attributes>
 
+## Global Configuration
+
+You can configure the default options for all AI assistant primitives in your application by using the `provideAiConfig` function in a providers array.
+
+```ts
+import { provideAiConfig } from 'ng-primitives/ai';
+
+bootstrapApplication(AppComponent, {
+  providers: [provideAiConfig({ dictationLang: 'es-ES' })],
+});
+```
+
+### NgpAiConfig
+
+<api-reference-config name="NgpAiConfig"></api-reference-config>
+
 ## Accessibility
 
 ### Keyboard Interactions
