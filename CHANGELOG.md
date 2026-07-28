@@ -1,3 +1,13 @@
+## 0.128.3 (2026-07-28)
+
+### 🩹 Fixes
+
+- **state:** run element listeners outside the active reactive consumer ([#880](https://github.com/ng-primitives/ng-primitives/pull/880))
+
+### ❤️ Thank You
+
+- Ashley Hunter
+
 ## 0.128.2 (2026-07-28)
 
 ### 🚀 Features
