@@ -343,4 +343,105 @@ describe('NgpPromptComposerDictation', () => {
 
     consoleSpy.mockRestore();
   });
+
+  describe('user edits during a session', () => {
+    const template = `<div ngpThread>
+        <div ngpPromptComposer #composer="ngpPromptComposer">
+          <input ngpPromptComposerInput />
+          <button ngpPromptComposerDictation>Dictate</button>
+          Current: "{{ composer.prompt() }}"
+        </div>
+      </div>`;
+
+    const imports = [
+      NgpThread,
+      NgpPromptComposer,
+      NgpPromptComposerInput,
+      NgpPromptComposerDictation,
+    ];
+
+    /** Let the queued result event reach the primitive. */
+    async function settle(fixture: { detectChanges(): void }): Promise<void> {
+      await new Promise(resolve => setTimeout(resolve, 10));
+      fixture.detectChanges();
+    }
+
+    it('should not bring back text the user deleted mid-session', async () => {
+      const { fixture } = await render(template, { imports });
+
+      const input = screen.getByRole('textbox');
+      await userEvent.click(screen.getByRole('button', { name: 'Dictate' }));
+      fixture.detectChanges();
+
+      mockSpeechRecognition.mockResult('hello');
+      await settle(fixture);
+      expect(screen.getByText('Current: "hello"')).toBeInTheDocument();
+
+      // the user empties the field while dictation is still running
+      await userEvent.clear(input);
+      fixture.detectChanges();
+
+      mockSpeechRecognition.mockResult('world');
+      await settle(fixture);
+
+      expect(screen.getByText('Current: "world"')).toBeInTheDocument();
+    });
+
+    it('should keep a partial edit the user made mid-session', async () => {
+      const { fixture } = await render(template, { imports });
+
+      const input = screen.getByRole('textbox');
+      await userEvent.click(screen.getByRole('button', { name: 'Dictate' }));
+      fixture.detectChanges();
+
+      mockSpeechRecognition.mockResult('one');
+      await settle(fixture);
+
+      // the user keeps typing while dictation is running
+      await userEvent.type(input, ' edited');
+      fixture.detectChanges();
+
+      mockSpeechRecognition.mockResult('two');
+      await settle(fixture);
+
+      expect(screen.getByText('Current: "one edited two"')).toBeInTheDocument();
+    });
+
+    it('should accumulate phrases across a continuous session', async () => {
+      const { fixture } = await render(template, { imports });
+
+      await userEvent.click(screen.getByRole('button', { name: 'Dictate' }));
+      fixture.detectChanges();
+
+      mockSpeechRecognition.mockResult('one ');
+      await settle(fixture);
+
+      mockSpeechRecognition.mockResult('two');
+      await settle(fixture);
+
+      expect(screen.getByText('Current: "one two"')).toBeInTheDocument();
+    });
+
+    it('should start from the current prompt after dictation is stopped', async () => {
+      const { fixture } = await render(template, { imports });
+
+      const button = screen.getByRole('button', { name: 'Dictate' });
+
+      await userEvent.click(button);
+      fixture.detectChanges();
+      mockSpeechRecognition.mockResult('first');
+      await settle(fixture);
+
+      // stop, then dictate again — the earlier session must not be replayed
+      await userEvent.click(button);
+      fixture.detectChanges();
+      await userEvent.click(button);
+      fixture.detectChanges();
+
+      mockSpeechRecognition.mockResult('second');
+      await settle(fixture);
+
+      expect(screen.getByText('Current: "first second"')).toBeInTheDocument();
+    });
+  });
 });

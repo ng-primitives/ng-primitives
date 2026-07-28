@@ -46,6 +46,14 @@ export const [
     // Store the prompt before dictation started
     let basePrompt = '';
 
+    // The speech finalised so far this session, and how many results are already folded into it,
+    // so a result is never counted twice.
+    let finalTranscript = '';
+    let finalisedCount = 0;
+
+    // The last value dictation itself wrote. Anything else in the prompt is the user's own edit.
+    let lastWritten: string | null = null;
+
     ngpButton({
       disabled: computed(() => disabled() || composer().dictationSupported === false),
     });
@@ -98,23 +106,37 @@ export const [
       recognition = new SpeechRecognition();
       recognition.continuous = true; // Enable continuous listening
       recognition.interimResults = true; // Enable interim results for live updates
-      recognition.lang = 'en-US';
 
       recognition.onstart = () => {
         composer().setDictating(true);
         // Store the current prompt as the base
+        resetTranscript();
         basePrompt = composer().prompt();
       };
 
       recognition.onresult = (event: any) => {
-        let interimTranscript = '';
-        let finalTranscript = '';
+        // a stray result after the session ended must not rewrite the field
+        if (!composer().isDictating()) {
+          return;
+        }
 
-        // Process all results
-        for (let i = 0; i < event.results.length; i++) {
+        // The user has typed or deleted since we last wrote: take what they left as the new base
+        // and drop the speech accumulated so far, so their edit wins instead of being overwritten.
+        if (lastWritten !== null && composer().prompt() !== lastWritten) {
+          basePrompt = composer().prompt();
+          finalTranscript = '';
+        }
+
+        let interimTranscript = '';
+
+        // Fold in only the results not already accounted for. Re-reading the list from zero would
+        // re-apply every phrase of the session on top of a base that may have moved on.
+        for (let i = finalisedCount; i < event.results.length; i++) {
           const transcript = event.results[i][0].transcript;
+
           if (event.results[i].isFinal) {
             finalTranscript += transcript;
+            finalisedCount = i + 1;
           } else {
             interimTranscript += transcript;
           }
@@ -122,17 +144,29 @@ export const [
 
         // Combine base prompt with final transcript and interim transcript
         const separator = basePrompt ? ' ' : '';
-        const newPrompt = basePrompt + separator + finalTranscript + interimTranscript;
+        const newPrompt = (basePrompt + separator + finalTranscript + interimTranscript).trim();
 
-        composer().setPrompt(newPrompt.trim());
+        lastWritten = newPrompt;
+        composer().setPrompt(newPrompt);
       };
 
-      recognition.onend = () => composer().setDictating(false);
+      recognition.onend = () => {
+        composer().setDictating(false);
+        // the next session starts from whatever the prompt holds then, not from this one's base
+        resetTranscript();
+      };
 
       recognition.onerror = (event: any) => {
         console.error('Speech recognition error:', event.error);
         composer().setDictating(false);
       };
+    }
+
+    function resetTranscript(): void {
+      basePrompt = '';
+      finalTranscript = '';
+      finalisedCount = 0;
+      lastWritten = null;
     }
 
     function startDictation(): void {
