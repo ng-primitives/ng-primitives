@@ -1,3 +1,17 @@
+## 0.128.1 (2026-07-28)
+
+### 🚀 Features
+
+- **popover,tooltip:** expose a setter for every trigger input ([#875](https://github.com/ng-primitives/ng-primitives/pull/875))
+
+### 🩹 Fixes
+
+- **radio:** disable a radio item when its group is disabled ([#876](https://github.com/ng-primitives/ng-primitives/pull/876))
+
+### ❤️ Thank You
+
+- Ashley Hunter
+
 ## 0.128.0 (2026-07-28)
 
 ### 🚀 Features
