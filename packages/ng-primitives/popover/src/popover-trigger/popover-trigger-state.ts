@@ -169,7 +169,7 @@ export interface NgpPopoverTriggerState<T> {
    * Hide the popover.
    * @returns A promise that resolves when the popover has been hidden
    */
-  hide: (origin: FocusOrigin) => Promise<void>;
+  hide: (origin?: FocusOrigin) => Promise<void>;
 }
 
 export interface NgpPopoverTriggerProps<T> {
@@ -412,7 +412,7 @@ export const [
       }
     }
 
-    async function hide(origin: FocusOrigin): Promise<void> {
+    async function hide(origin: FocusOrigin = 'program'): Promise<void> {
       // If the trigger is disabled or the popover is not open, do nothing
       if (disabled() || !open()) {
         return;

@@ -10,4 +10,11 @@ export class NgpInputOtpInput {
    * The state of the input-otp input.
    */
   protected readonly state = ngpInputOtpInput();
+
+  /**
+   * Focus the input.
+   */
+  focus(): void {
+    this.state.focus();
+  }
 }

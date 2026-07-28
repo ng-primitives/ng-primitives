@@ -224,9 +224,10 @@ export class NgpTooltipTrigger<T = null> {
 
   /**
    * Hide the tooltip.
+   * @param immediate Skip the hide delay and exit animation.
    */
-  hide(): void {
-    return this.state.hide();
+  hide(immediate = false): void {
+    return this.state.hide(immediate);
   }
 
   /**

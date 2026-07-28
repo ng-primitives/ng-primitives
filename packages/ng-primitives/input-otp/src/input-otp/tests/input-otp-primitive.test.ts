@@ -1,3 +1,4 @@
+import { By } from '@angular/platform-browser';
 import { fireEvent, render, screen } from '@testing-library/angular';
 import { userEvent } from '@testing-library/user-event';
 import { describe, expect, it, vi } from 'vitest';
@@ -408,6 +409,17 @@ describe('NgpInputOtp', () => {
   });
 
   describe('directive API', () => {
+    it('focuses the hidden input via the input directive focus()', async () => {
+      const { fixture } = await renderOtp(3);
+      const inputDirective = fixture.debugElement
+        .query(By.directive(NgpInputOtpInput))
+        .injector.get(NgpInputOtpInput);
+
+      inputDirective.focus();
+
+      expect(document.activeElement).toBe(getInput());
+    });
+
     it('emits valueChange as the value changes', async () => {
       const valueChange = vi.fn();
       await render(
