@@ -7,11 +7,11 @@ export interface NgpAiConfig {
    * falling back to the browser's language.
    * @default undefined
    */
-  dictationLang: string | undefined;
+  dictationLanguage: string | undefined;
 }
 
 export const defaultAiConfig: NgpAiConfig = {
-  dictationLang: undefined,
+  dictationLanguage: undefined,
 };
 
 export const NgpAiConfigToken = new InjectionToken<NgpAiConfig>('NgpAiConfigToken');

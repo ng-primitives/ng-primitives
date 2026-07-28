@@ -24,14 +24,14 @@ export class NgpPromptComposerDictation {
    * The BCP 47 language tag dictation transcribes in, e.g. `en-US` or `es-ES`.
    * Defaults to the page's own language: the document's `lang` attribute, then the browser's.
    */
-  readonly lang = input<string | undefined>(this.config.dictationLang, {
-    alias: 'ngpPromptComposerDictationLang',
+  readonly language = input<string | undefined>(this.config.dictationLanguage, {
+    alias: 'ngpPromptComposerDictationLanguage',
   });
 
   /** The state of the prompt composer dictation. */
   protected readonly state = ngpPromptComposerDictation({
     disabled: this.disabled,
-    lang: this.lang,
+    language: this.language,
   });
 
   /** Whether dictation is currently active */

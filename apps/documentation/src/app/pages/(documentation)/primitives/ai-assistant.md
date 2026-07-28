@@ -145,7 +145,7 @@ You can configure the default options for all AI assistant primitives in your ap
 import { provideAiConfig } from 'ng-primitives/ai';
 
 bootstrapApplication(AppComponent, {
-  providers: [provideAiConfig({ dictationLang: 'es-ES' })],
+  providers: [provideAiConfig({ dictationLanguage: 'es-ES' })],
 });
 ```
 

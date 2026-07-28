@@ -12,7 +12,7 @@ import {
 import { injectPromptComposerState } from '../prompt-composer/prompt-composer-state';
 
 /** Used only when neither the consumer nor the page states a language. */
-const DEFAULT_DICTATION_LANG = 'en-US';
+const DEFAULT_DICTATION_LANGUAGE = 'en-US';
 
 export interface NgpPromptComposerDictationState {
   /**
@@ -29,7 +29,7 @@ export interface NgpPromptComposerDictationProps {
   /**
    * The BCP 47 language tag dictation transcribes in. Falls back to the page's own language.
    */
-  readonly lang?: Signal<string | undefined>;
+  readonly language?: Signal<string | undefined>;
 }
 
 export const [
@@ -41,7 +41,7 @@ export const [
   'NgpPromptComposerDictation',
   ({
     disabled = signal(false),
-    lang = signal(undefined),
+    language = signal(undefined),
   }: NgpPromptComposerDictationProps): NgpPromptComposerDictationState => {
     const element = injectElementRef<HTMLElement>();
     const document = inject(DOCUMENT);
@@ -59,8 +59,10 @@ export const [
     let finalTranscript = '';
     let finalisedCount = 0;
 
-    // The last value dictation itself wrote. Anything else in the prompt is the user's own edit.
+    // The last value dictation itself wrote, and how many results it was built from. Anything
+    // else in the prompt is the user's own edit.
     let lastWritten: string | null = null;
+    let writtenCount = 0;
 
     ngpButton({
       disabled: computed(() => disabled() || composer().dictationSupported === false),
@@ -130,9 +132,12 @@ export const [
 
         // The user has typed or deleted since we last wrote: take what they left as the new base
         // and drop the speech accumulated so far, so their edit wins instead of being overwritten.
+        // Everything they had already seen counts as settled — including the phrase still in
+        // flight, which would otherwise be re-applied when it finalises and undo their deletion.
         if (lastWritten !== null && composer().prompt() !== lastWritten) {
           basePrompt = composer().prompt();
           finalTranscript = '';
+          finalisedCount = writtenCount;
         }
 
         let interimTranscript = '';
@@ -155,6 +160,7 @@ export const [
         const newPrompt = (basePrompt + separator + finalTranscript + interimTranscript).trim();
 
         lastWritten = newPrompt;
+        writtenCount = event.results.length;
         composer().setPrompt(newPrompt);
       };
 
@@ -175,24 +181,25 @@ export const [
       finalTranscript = '';
       finalisedCount = 0;
       lastWritten = null;
+      writtenCount = 0;
     }
 
     /**
      * The configured language, or the page's own: the document's `lang`, then the browser's.
      * Resolved per session so a language bound after construction is picked up.
      */
-    function resolveLang(): string {
+    function resolveLanguage(): string {
       return (
-        lang() ||
+        language() ||
         document.documentElement.lang ||
         globalThis.navigator?.language ||
-        DEFAULT_DICTATION_LANG
+        DEFAULT_DICTATION_LANGUAGE
       );
     }
 
     function startDictation(): void {
       if (recognition && !composer().isDictating()) {
-        recognition.lang = resolveLang();
+        recognition.lang = resolveLanguage();
         recognition.start();
       }
     }

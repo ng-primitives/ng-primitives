@@ -388,6 +388,51 @@ describe('NgpPromptComposerDictation', () => {
       expect(screen.getByText('Current: "world"')).toBeInTheDocument();
     });
 
+    it('should not restore interim text the user deleted before it was finalised', async () => {
+      const { fixture } = await render(template, { imports });
+
+      const input = screen.getByRole('textbox');
+      await userEvent.click(screen.getByRole('button', { name: 'Dictate' }));
+      fixture.detectChanges();
+
+      // the phrase is still in flight when the user removes it
+      mockSpeechRecognition.mockResult('hello', false);
+      await settle(fixture);
+      expect(screen.getByText('Current: "hello"')).toBeInTheDocument();
+
+      await userEvent.clear(input);
+      fixture.detectChanges();
+
+      // the same phrase now finalises — it must not come back
+      mockSpeechRecognition.mockResult('hello', true);
+      await settle(fixture);
+
+      expect(screen.getByText('Current: ""')).toBeInTheDocument();
+    });
+
+    it('should still transcribe a new phrase after deleted interim text', async () => {
+      const { fixture } = await render(template, { imports });
+
+      const input = screen.getByRole('textbox');
+      await userEvent.click(screen.getByRole('button', { name: 'Dictate' }));
+      fixture.detectChanges();
+
+      mockSpeechRecognition.mockResult('hello', false);
+      await settle(fixture);
+
+      await userEvent.clear(input);
+      fixture.detectChanges();
+
+      mockSpeechRecognition.mockResult('hello', true);
+      await settle(fixture);
+
+      // a phrase spoken after the deletion is new, so it is transcribed as normal
+      mockSpeechRecognition.mockResult('world');
+      await settle(fixture);
+
+      expect(screen.getByText('Current: "world"')).toBeInTheDocument();
+    });
+
     it('should keep a partial edit the user made mid-session', async () => {
       const { fixture } = await render(template, { imports });
 
@@ -451,7 +496,7 @@ describe('NgpPromptComposerDictation', () => {
       await render(
         `<div ngpThread>
           <div ngpPromptComposer>
-            <button ngpPromptComposerDictation ngpPromptComposerDictationLang="es-ES">Dictate</button>
+            <button ngpPromptComposerDictation ngpPromptComposerDictationLanguage="es-ES">Dictate</button>
           </div>
         </div>`,
         { imports: [NgpThread, NgpPromptComposer, NgpPromptComposerDictation] },
@@ -492,7 +537,7 @@ describe('NgpPromptComposerDictation', () => {
         </div>`,
         {
           imports: [NgpThread, NgpPromptComposer, NgpPromptComposerDictation],
-          providers: [provideAiConfig({ dictationLang: 'de-DE' })],
+          providers: [provideAiConfig({ dictationLanguage: 'de-DE' })],
         },
       );
 
