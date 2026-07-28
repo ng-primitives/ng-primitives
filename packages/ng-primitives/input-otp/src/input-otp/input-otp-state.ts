@@ -1,6 +1,7 @@
 import { computed, signal, Signal } from '@angular/core';
 import { ngpInteractions } from 'ng-primitives/interactions';
-import { controlled, createPrimitive } from 'ng-primitives/state';
+import { controlled, createPrimitive, emitter } from 'ng-primitives/state';
+import { Observable } from 'rxjs';
 import type { NgpInputOtpInputState } from '../input-otp-input/input-otp-input-state';
 import type { NgpInputOtpSlotState } from '../input-otp-slot/input-otp-slot-state';
 import type { NgpInputOtpInputMode } from './input-otp';
@@ -106,6 +107,9 @@ export interface NgpInputOtpState {
    */
   readonly selectionEnd: Signal<number>;
 
+  readonly valueChange: Observable<string>;
+  readonly completeChange: Observable<string>;
+
   /**
    * Register the hidden input with the input-otp.
    * @internal
@@ -170,6 +174,9 @@ export const [NgpInputOtpStateToken, ngpInputOtp, injectInputOtpState, provideIn
     }: NgpInputOtpProps): NgpInputOtpState => {
       // The value is mutated internally as the user types, so it is controlled.
       const value = controlled(_value);
+      const valueChange = emitter<string>();
+
+      const completeChange = emitter<string>();
 
       // The registered hidden input and slots stay private to the factory — no other
       // part reads them directly, only the derived `maxLength` and the methods below.
@@ -213,10 +220,12 @@ export const [NgpInputOtpStateToken, ngpInputOtp, injectInputOtpState, provideIn
 
         value.set(newValue);
         onValueChange?.(newValue);
+        valueChange.emit(newValue);
 
         // Emit complete once the OTP has been fully entered.
         if (newValue.length === maxLength()) {
           onComplete?.(newValue);
+          completeChange.emit(newValue);
         }
       }
 
@@ -250,6 +259,8 @@ export const [NgpInputOtpStateToken, ngpInputOtp, injectInputOtpState, provideIn
         isFocused,
         selectionStart,
         selectionEnd,
+        valueChange: valueChange.asObservable(),
+        completeChange: completeChange.asObservable(),
         registerInput,
         registerSlot,
         unregisterSlot,
