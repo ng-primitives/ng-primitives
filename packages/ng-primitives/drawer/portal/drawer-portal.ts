@@ -110,6 +110,9 @@ export class NgpDrawerPortal {
     const generation = this.state.nextTransitionGeneration();
     this.phase = 'entering';
     const adapter = this.adapter ?? this.createAdapter();
+    // A root can keep its previous popup height after an exit. Ancestors must wait through this
+    // entry's initial frame before using that cached height for their stack transition.
+    this.state.popupGeometryReady.set(false);
     this.state.endingStyle.set(false);
     this.state.startingStyle.set(true);
     this.state.portalVisible.set(true);
@@ -122,6 +125,10 @@ export class NgpDrawerPortal {
       return;
     }
     this.state.startingStyle.set(false);
+    // Keep ancestors at their resting geometry through the entry's first frame. This gives a
+    // reopened nested drawer the same interpolation start as a first open, even when the child
+    // retains a popup-height cache for gesture geometry.
+    this.state.popupGeometryReady.set(this.state.popup() !== null);
     await waitForDrawerTransition(this.transitionElements(), this.document);
     if (this.isCurrent(generation, adapter) && this.state.open()) {
       this.phase = 'open';
@@ -173,6 +180,7 @@ export class NgpDrawerPortal {
     adapter?.destroy();
     this.state.portalAttached.set(false);
     this.state.portalVisible.set(false);
+    this.state.popupGeometryReady.set(false);
     this.phase = 'detached';
     this.state.startingStyle.set(false);
     this.state.endingStyle.set(false);

@@ -250,6 +250,30 @@ describe('nested Drawer roots', () => {
     await vi.waitFor(() => expect(parent.style.getPropertyValue('--ngp-drawer-height')).toBe(''));
   });
 
+  it('starts a reopened child stack from the parent geometry before reusing its cached height', async () => {
+    await openThrough(1);
+    const parent = getElement('[data-test-parent-popup]');
+    const child = fixture.componentInstance.roots()[1];
+
+    child.hide();
+    fixture.detectChanges();
+    await vi.waitFor(() => expect(document.querySelector('[data-test-child-popup]')).toBeNull());
+
+    child.show();
+    fixture.detectChanges();
+
+    // The child still retains 300px for gesture geometry, but its parent must start the new stack
+    // at its own 200px height until the child portal has completed its initial frame.
+    expect(parent.style.getPropertyValue('--ngp-drawer-frontmost-height')).toBe('200px');
+
+    await vi.waitFor(() =>
+      expect(document.querySelector('[data-test-child-popup]')).not.toBeNull(),
+    );
+    await vi.waitFor(() =>
+      expect(parent.style.getPropertyValue('--ngp-drawer-frontmost-height')).toBe('300px'),
+    );
+  });
+
   it('propagates nested swipe hooks and progress without signal-frame rendering', async () => {
     await openThrough(1);
     const parent = getElement('[data-test-parent-popup]');

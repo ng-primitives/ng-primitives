@@ -937,9 +937,7 @@ function rect(height: number): DOMRect {
 
 async function expectRunningTransformAnimation(element: HTMLElement): Promise<void> {
   await vi.waitFor(() => {
-    const animation = element
-      .getAnimations()
-      .find(candidate => candidate.playState === 'running');
+    const animation = element.getAnimations().find(candidate => candidate.playState === 'running');
     expect(animation).toBeDefined();
   });
 }

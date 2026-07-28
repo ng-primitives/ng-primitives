@@ -55,6 +55,8 @@ export interface DrawerState extends DrawerStateProps {
   readonly portalAttached: WritableSignal<boolean>;
   readonly portalVisible: WritableSignal<boolean>;
   readonly popupHeight: WritableSignal<number>;
+  /** True after the current portal entry has completed its initial frame. */
+  readonly popupGeometryReady: WritableSignal<boolean>;
   readonly swiping: WritableSignal<boolean>;
   readonly swipeDismiss: WritableSignal<NgpDrawerSwipeDirection | null>;
   readonly startingStyle: WritableSignal<boolean>;
@@ -107,6 +109,7 @@ export function createDrawerState(props: DrawerStateProps): DrawerState {
   const portalAttached = signal(false);
   const portalVisible = signal(false);
   const popupHeight = signal(0);
+  const popupGeometryReady = signal(false);
   const swiping = signal(false);
   const swipeDismiss = signal<NgpDrawerSwipeDirection | null>(null);
   const startingStyle = signal(false);
@@ -145,6 +148,7 @@ export function createDrawerState(props: DrawerStateProps): DrawerState {
     portalAttached,
     portalVisible,
     popupHeight,
+    popupGeometryReady,
     swiping,
     swipeDismiss,
     startingStyle,
@@ -185,7 +189,12 @@ export function createDrawerState(props: DrawerStateProps): DrawerState {
       // (below) is what keeps `--ngp-drawer-height` pinned to a fixed pixel value for
       // the CSS transition to animate from — this signal must not also lag behind
       // it, or the shrink-back only becomes visible once the descendant unmounts.
-      const child = [...nestedChildren].filter(value => value.open()).at(-1);
+      // A reused child keeps its last measured popup height for swipe geometry. It must not hand
+      // that cached value to its ancestor before this entry's initial frame completes; otherwise
+      // a reopened parent skips the same stable starting geometry it had on the first open.
+      const child = [...nestedChildren]
+        .filter(value => value.open() && value.popupGeometryReady())
+        .at(-1);
       return child?.frontmostHeight() ?? popupHeight();
     }),
     registerNested(child: DrawerState): () => void {
