@@ -879,6 +879,55 @@ describe('NgpRadioGroup', () => {
       expect(getByRole('radio', { name: 'Two' })).toHaveAttribute('aria-disabled', 'true');
     });
 
+    it('should mark every item disabled when the group is disabled', async () => {
+      const { getByRole } = await render(
+        `<div ngpRadioGroup ngpRadioGroupDisabled>
+          <div ngpRadioItem ngpRadioItemValue="1">One</div>
+          <div ngpRadioItem ngpRadioItemValue="2">Two</div>
+        </div>`,
+        { imports: [NgpRadioGroup, NgpRadioItem] },
+      );
+
+      for (const name of ['One', 'Two']) {
+        expect(getByRole('radio', { name })).toHaveAttribute('data-disabled', '');
+        expect(getByRole('radio', { name })).toHaveAttribute('aria-disabled', 'true');
+      }
+    });
+
+    it('should follow the group disabled state as it changes', async () => {
+      const { getByRole, fixture, detectChanges } = await render(
+        `<div ngpRadioGroup [ngpRadioGroupDisabled]="disabled">
+          <div ngpRadioItem ngpRadioItemValue="1">One</div>
+        </div>`,
+        {
+          imports: [NgpRadioGroup, NgpRadioItem],
+          componentProperties: { disabled: false },
+        },
+      );
+
+      const radio = getByRole('radio', { name: 'One' });
+      expect(radio).not.toHaveAttribute('data-disabled');
+
+      fixture.componentInstance.disabled = true;
+      detectChanges();
+
+      expect(radio).toHaveAttribute('data-disabled', '');
+      expect(radio).toHaveAttribute('aria-disabled', 'true');
+    });
+
+    it('should keep an item disabled when only the item is disabled', async () => {
+      const { getByRole } = await render(
+        `<div ngpRadioGroup>
+          <div ngpRadioItem ngpRadioItemValue="1">One</div>
+          <div ngpRadioItem ngpRadioItemValue="2" ngpRadioItemDisabled>Two</div>
+        </div>`,
+        { imports: [NgpRadioGroup, NgpRadioItem] },
+      );
+
+      expect(getByRole('radio', { name: 'One' })).not.toHaveAttribute('data-disabled');
+      expect(getByRole('radio', { name: 'Two' })).toHaveAttribute('data-disabled', '');
+    });
+
     it('should throw when a radio item has no value', async () => {
       await expect(
         render(
@@ -914,6 +963,20 @@ describe('NgpRadioGroup', () => {
       expect(getByTestId('indicator-1')).toHaveAttribute('data-checked', '');
       expect(getByTestId('indicator-2')).not.toHaveAttribute('data-checked');
       expect(getByTestId('indicator-2')).toHaveAttribute('data-disabled', '');
+    });
+
+    it('should mirror the group disabled state', async () => {
+      const { getByTestId } = await render(
+        `<div ngpRadioGroup ngpRadioGroupDisabled>
+          <div ngpRadioItem ngpRadioItemValue="1">
+            <span ngpRadioIndicator data-testid="indicator-1"></span>
+            One
+          </div>
+        </div>`,
+        { imports: [NgpRadioGroup, NgpRadioItem, NgpRadioIndicator] },
+      );
+
+      expect(getByTestId('indicator-1')).toHaveAttribute('data-disabled', '');
     });
 
     it('should honour a custom compareWith when computing checked', async () => {

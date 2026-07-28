@@ -49,7 +49,7 @@ class TooltipTrigger {
   readonly content = input.required<string>({ alias: 'appTooltipTrigger' });
 
   constructor() {
-    this.tooltipTrigger().tooltip.set(TooltipContent);
+    this.tooltipTrigger().setTooltip(TooltipContent);
   }
 }
 
